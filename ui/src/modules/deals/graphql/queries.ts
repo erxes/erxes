@@ -14,6 +14,7 @@ const commonParams = `
   $closeDateType: String,
   $sortField: String,
   $sortDirection: Int,
+  $userIds: [String],
   ${conformityQueryFields}
 `;
 
@@ -30,6 +31,7 @@ const commonParamDefs = `
   closeDateType: $closeDateType,
   sortField: $sortField,
   sortDirection: $sortDirection,
+  userIds: $userIds,
   ${conformityQueryFieldDefs}
 `;
 

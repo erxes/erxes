@@ -126,7 +126,8 @@ const getFilterParams = queryParams => {
     assignedUserIds: queryParams.assignedUserIds,
     closeDateType: queryParams.closeDateType,
     productIds: queryParams.productIds,
-    labelIds: queryParams.labelIds
+    labelIds: queryParams.labelIds,
+    userIds: queryParams.userIds
   };
 };
 

@@ -1,5 +1,6 @@
 import gql from "graphql-tag";
 import client from "../../apollo-client";
+import { getLocalStorageItem } from "../../common";
 import { IBrowserInfo, IEmailParams } from "../../types";
 import { requestBrowserInfo } from "../../utils";
 import { connection } from "../connection";
@@ -101,7 +102,8 @@ export const saveLead = (params: {
         integrationId,
         formId,
         browserInfo,
-        submissions
+        submissions,
+        cachedCustomerId: getLocalStorageItem("customerId")
       }
     })
 
