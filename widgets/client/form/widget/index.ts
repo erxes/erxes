@@ -7,7 +7,11 @@ declare const window: any;
 // css
 import "./index.css";
 
-import { generateIntegrationUrl, getBrowserInfo } from "../../utils";
+import {
+  generateIntegrationUrl,
+  getBrowserInfo,
+  setErxesProperty
+} from "../../utils";
 
 // add meta to head
 const meta = document.createElement("meta");
@@ -64,17 +68,31 @@ const createIframe = (setting: Setting) => {
 
     const handlerSelector = `[data-erxes-modal="${setting.form_id}"]`;
 
-    if (iframe.contentWindow) {
-      iframe.contentWindow.postMessage(
+    const contentWindow = iframe.contentWindow;
+
+    if (!contentWindow) {
+      return;
+    }
+
+    setErxesProperty("callFormSubmit", (id: string) => {
+      contentWindow.postMessage(
         {
           fromPublisher: true,
-          hasPopupHandlers:
-            document.querySelectorAll(handlerSelector).length > 0,
-          setting
+          action: "callSubmit",
+          formId: id
         },
         "*"
       );
-    }
+    });
+
+    contentWindow.postMessage(
+      {
+        fromPublisher: true,
+        hasPopupHandlers: document.querySelectorAll(handlerSelector).length > 0,
+        setting
+      },
+      "*"
+    );
   };
 
   return { container, iframe };

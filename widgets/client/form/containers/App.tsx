@@ -1,5 +1,6 @@
 import * as React from "react";
 import { App as DumbApp } from "../components";
+import { connection } from "../connection";
 import { AppConsumer, AppProvider } from "./AppContext";
 import { postMessage, saveBrowserInfo } from "./utils";
 
@@ -20,19 +21,21 @@ class App extends React.Component<Props> {
     saveBrowserInfo();
 
     window.addEventListener("message", event => {
-      if (event.data.fromPublisher) {
+      const { fromPublisher, message, action, formId } = event.data;
+
+      if (fromPublisher) {
         // receive sendingBrowserInfo command from publisher
-        if (event.data.message === "sendingBrowserInfo") {
+        if (message === "sendingBrowserInfo") {
           this.props.init();
         }
 
         // receive show popup command from publisher
-        if (event.data.action === "showPopup") {
+        if (action === "showPopup") {
           this.props.showPopup();
         }
 
         // receive call submit command
-        if (event.data.action === "callSubmit") {
+        if (action === "callSubmit" && formId === connection.setting.form_id) {
           this.props.setCallSubmit(true);
         }
       }
