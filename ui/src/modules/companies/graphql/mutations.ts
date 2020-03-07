@@ -15,8 +15,9 @@ const commonFields = `
   $businessType: String,
   $description: String,
   $doNotDisturb: String,
-  $links: JSON
-  $customFieldsData: JSON
+  $links: JSON,
+  $customFieldsData: JSON,
+  $code: String
 `;
 
 const commonVariables = `
@@ -36,8 +37,9 @@ const commonVariables = `
   businessType: $businessType,
   description: $description,
   doNotDisturb: $doNotDisturb,
-  links: $links
-  customFieldsData: $customFieldsData
+  links: $links,
+  customFieldsData: $customFieldsData,
+  code: $code
 `;
 
 const companiesAdd = `
@@ -68,6 +70,7 @@ const companiesEdit = `
       businessType
       description
       doNotDisturb
+      code
       links {
         linkedIn
         twitter

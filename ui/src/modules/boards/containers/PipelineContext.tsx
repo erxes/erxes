@@ -234,7 +234,8 @@ export class PipelineProvider extends React.Component<Props, State> {
                 companyIds: queryParams.companyIds,
                 assignedUserIds: queryParams.assignedUserIds,
                 extraParams: options.getExtraParams(queryParams),
-                closeDateType: queryParams.closeDateType
+                closeDateType: queryParams.closeDateType,
+                userIds: queryParams.userIds
               }
             }
           ]

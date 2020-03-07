@@ -25,6 +25,7 @@ const companyFields = `
   businessType
   description
   doNotDisturb
+  code
   links {
     linkedIn
     twitter
