@@ -118,11 +118,7 @@ const messengerAppsCount = `
 
 const engagesConfigDetail = `
   query engagesConfigDetail {
-    engagesConfigDetail {
-      accessKeyId
-      secretAccessKey
-      region
-    }
+    engagesConfigDetail
   }
 `;
 
