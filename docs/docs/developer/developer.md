@@ -4,7 +4,7 @@ title: Developing erxes
 sidebar_label: Developer
 ---
 
-This document describes how to set up your development environment to develop and test erxes. It also explains the basic mechanics of using `git`, `node`, and `yarn`.
+This document describes how to set up your development environment to develop and test Erxes. It also explains the basic mechanics of using `git`, `node`, and `yarn`.
 
 * [Prerequisite Software](#prerequisite-software)
 * [Getting the Sources](#getting-the-sources)
@@ -27,7 +27,7 @@ Before you can develop and test erxes, you must install and configure the follow
 
 2. Configure your ssh key [here](https://github.com/settings/keys).
 
-3. Run erxes backend.
+3. Run Erxes backend.
 
 ```sh
 # Clone your GitHub repository:
@@ -49,7 +49,7 @@ yarn loadInitialData
 yarn dev
 ```
 
-4. Run erxes frontend.
+4. Run Erxes frontend.
 
 ```sh
 # Clone your GitHub repository:

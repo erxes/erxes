@@ -3,7 +3,7 @@ id: system-config
 title: System config
 ---
 
-In this tutorials enable you to set up administration system configurations. Which allows you work on sysadmin without require coding skills. 
+In this tutorials enable you to set up administration system configurations, which allows you work on sysadmin without require coding skills. 
 
 ---
 
@@ -84,7 +84,7 @@ AWS_FORCE_PATH_STYLE=''
 
 ### AWS SES 
 
-Amazon Simple Email Service enables you to send and receive email using a reliable and scalable email platform. Set up your custom amazon simple email service account. 
+Amazon Simple Email Service enables you to send and receive email using a reliable and scalable email platform. Set up your custom Amazon simple email service account. 
 
 **Configuration:** 
 - Go to Erxes Settings => System config => General System Config => AWS SES.  
@@ -157,17 +157,17 @@ GOOGLE_CLIENT_SECRET="your google project's secret key"
 
 Requirements:
 
-- To create google project.
-- Enable gmail api.
-- Configure google cloud pub/sub.
+- To create Google project.
+- Enable Gmail API.
+- Configure Google cloud pub/sub.
 
-Creating google project:
+Creating Google project:
 
 - Go to https://console.cloud.google.com/cloud-resource-manager and create new project.
 
-Enable gmail api:
+Enable Gmail API:
 
-- Go to the APIs & Services/library & enable gmail api.
+- Go to the APIs & Services/library & enable Gmail API.
 - Go to the APIs & Services/credentials & create new `OAuth client ID` credentials. If you see warning about `product name` follow the instruction, make it disappear. Afterwards select `Web application` & add `http://localhost:3000/service/oauth/gmail_callback` in `Authorized redirect URIs` & create.
 - Copy `Client ID` & `Client secret` paste in your erxes-api/.env file. It looks like following example:
 
