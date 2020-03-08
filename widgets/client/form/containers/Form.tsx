@@ -39,6 +39,7 @@ interface IProps {
   setHeight: () => void;
   sendEmail: (params: IEmailParams) => void;
   callSubmit: boolean;
+  extraContent?: string;
   isSubmitting?: boolean;
 }
 
@@ -65,6 +66,7 @@ const WithContext = () => (
       setHeight,
       getIntegration,
       callSubmit,
+      extraContent,
       isSubmitting,
       getForm
     }) => {
@@ -81,6 +83,7 @@ const WithContext = () => (
           setHeight={setHeight}
           form={form}
           integration={integration}
+          extraContent={extraContent}
           callSubmit={callSubmit}
         />
       );
