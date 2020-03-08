@@ -95,21 +95,30 @@ export const saveLead = (params: {
     };
   });
 
+  const variables = {
+    integrationId,
+    formId,
+    browserInfo,
+    submissions,
+    cachedCustomerId: getLocalStorageItem("customerId")
+  };
+
   client
     .mutate({
       mutation: gql(saveFormMutation),
-      variables: {
-        integrationId,
-        formId,
-        browserInfo,
-        submissions,
-        cachedCustomerId: getLocalStorageItem("customerId")
-      }
+      variables
     })
 
     .then(({ data }) => {
       if (data) {
         saveCallback(data.widgetsSaveLead);
+
+        if (data.widgetsSaveLead && data.widgetsSaveLead.status === "ok") {
+          postMessage({
+            message: "formSuccess",
+            variables
+          });
+        }
       }
     })
 

@@ -1,5 +1,6 @@
 import * as React from "react";
 import { App as DumbApp } from "../components";
+import { connection } from "../connection";
 import { AppConsumer, AppProvider } from "./AppContext";
 import { postMessage, saveBrowserInfo } from "./utils";
 
@@ -13,6 +14,7 @@ type Props = {
   showPopup: () => void;
   setHeight: () => void;
   setCallSubmit: (state: boolean) => void;
+  setExtraContent: (content: string) => void;
 };
 
 class App extends React.Component<Props> {
@@ -20,20 +22,28 @@ class App extends React.Component<Props> {
     saveBrowserInfo();
 
     window.addEventListener("message", event => {
-      if (event.data.fromPublisher) {
+      const { fromPublisher, message, action, formId, html } = event.data;
+
+      if (fromPublisher) {
         // receive sendingBrowserInfo command from publisher
-        if (event.data.message === "sendingBrowserInfo") {
+        if (message === "sendingBrowserInfo") {
           this.props.init();
         }
 
-        // receive show popup command from publisher
-        if (event.data.action === "showPopup") {
-          this.props.showPopup();
-        }
+        if (formId === connection.setting.form_id) {
+          // receive show popup command from publisher
+          if (action === "showPopup") {
+            this.props.showPopup();
+          }
 
-        // receive call submit command
-        if (event.data.action === "callSubmit") {
-          this.props.setCallSubmit(true);
+          // receive call submit command
+          if (action === "callSubmit") {
+            this.props.setCallSubmit(true);
+          }
+
+          if (action === "extraFormContent") {
+            this.props.setExtraContent(html);
+          }
         }
       }
     });
@@ -124,7 +134,8 @@ const WithContext = () => (
           isCalloutVisible,
           setHeight,
           getIntegrationConfigs,
-          setCallSubmit
+          setCallSubmit,
+          setExtraContent
         } = value;
 
         return (
@@ -135,6 +146,7 @@ const WithContext = () => (
             isCalloutVisible={isCalloutVisible}
             init={init}
             setCallSubmit={setCallSubmit}
+            setExtraContent={setExtraContent}
             setHeight={setHeight}
             closePopup={closePopup}
             showPopup={showPopup}
