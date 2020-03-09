@@ -61,7 +61,7 @@ export default class SimpleMessage extends React.Component<Props, {}> {
         <UserInfo>
           <strong>
             <Icon icon="phone-slash" color="#EA475D" size={12} />{' '}
-            {__('You`ve recieved a video call request')}
+            {__('You have recieved a video call request')}
           </strong>
         </UserInfo>
       </CallBox>
