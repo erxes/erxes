@@ -182,7 +182,7 @@ class CustomerForm extends React.Component<Props, State> {
     const { emails = [] } = customer;
 
     return this.getVisitorInfo(customer, 'email') || emails.length > 0;
-  }
+  };
 
   renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton } = this.props;

@@ -10,7 +10,8 @@ module.exports = {
     formWidget: './client/form/widget/index.ts',
     knowledgebase: './client/knowledgebase/index.tsx',
     knowledgebaseWidget: './client/knowledgebase/widget/index.ts',
-    eventsWidget: './client/events/widget.ts',
+    events: './client/events/index.ts',
+    eventsWidget: './client/events/widget/index.ts',
   },
 
   output: {

@@ -178,7 +178,7 @@ class ProductForm extends React.Component<Props, State> {
           return Alert.error('Please choose a product');
         }
 
-        if (data.unitPrice !== 0 && !data.unitPrice) {
+        if (!data.unitPrice && data.unitPrice !== 0) {
           return Alert.error(
             'Please enter an unit price. It should be a number'
           );

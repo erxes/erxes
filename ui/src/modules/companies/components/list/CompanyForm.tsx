@@ -238,6 +238,12 @@ class CompanyForm extends React.Component<Props, State> {
               </FormGroup>
             </FormColumn>
             <FormColumn>
+              {this.renderFormGroup('Code', {
+                ...formProps,
+                name: 'code',
+                defaultValue: company.code || ''
+              })}
+
               <FormGroup>
                 <ControlLabel>Parent Company</ControlLabel>
                 <SelectCompanies

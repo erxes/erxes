@@ -10,14 +10,13 @@ import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
 import { Recipient, Recipients } from 'modules/engage/styles';
-import { IEngageConfig } from 'modules/engage/types';
 import { ContentBox } from 'modules/settings/styles';
 import React from 'react';
+import { IConfigsMap } from '../types';
 import { Verify } from './styles';
 
-
 type Props = {
-  engagesConfigDetail: IEngageConfig;
+  configsMap: IConfigsMap;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   verifyEmail: (email: string) => void;
   removeVerifiedEmail: (email: string) => void;
@@ -33,23 +32,29 @@ type State = {
   testFrom?: string;
   testTo?: string;
   testContent?: string;
+  configSet?: string;
+  emailVerificationType?: string;
+  trueMailApiKey?: string;
 };
 
 class EngageSettingsContent extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { engagesConfigDetail } = props;
+    const { configsMap } = props;
 
     this.state = {
-      secretAccessKey: engagesConfigDetail.secretAccessKey || '',
-      accessKeyId: engagesConfigDetail.accessKeyId || '',
-      region: engagesConfigDetail.region || '',
+      secretAccessKey: configsMap.secretAccessKey || '',
+      accessKeyId: configsMap.accessKeyId || '',
+      region: configsMap.region || '',
+      configSet: configsMap.configSet || '',
+      emailVerificationType: configsMap.emailVerificationType || '',
+      trueMailApiKey: configsMap.trueMailApiKey || ''
     };
   }
 
   generateDoc = values => {
-    return values;
+    return { configsMap: values };
   };
 
   onChangeCommon = (
@@ -88,7 +93,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
 
     return (
       <>
-        <h4>{__("Verified emails")}:</h4>
+        <h4>{__('Verified emails')}:</h4>
 
         <Recipients>
           {verifiedEmails.map((email, index) => (
@@ -105,7 +110,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
   };
 
   renderContent = (formProps: IFormProps) => {
-    const { engagesConfigDetail, renderButton } = this.props;
+    const { configsMap, renderButton } = this.props;
 
     const { values, isSubmitted } = formProps;
 
@@ -113,48 +118,88 @@ class EngageSettingsContent extends React.Component<Props, State> {
       <>
         <Info>
           <p>
-            {__("Amazon Simple Email Service enables you to send and receive email using a reliable and scalable email platform. Set up your custom amazon simple email service account")} 
+            {__(
+              'Amazon Simple Email Service enables you to send and receive email using a reliable and scalable email platform. Set up your custom amazon simple email service account'
+            )}
           </p>
-          <a target="_blank" href="https://docs.erxes.io/administrator/integrations#aws-ses-integration" rel="noopener noreferrer">
-            {__("More: Understanding Amazon SES")}
+          <a
+            target="_blank"
+            href="https://docs.erxes.io/administrator/integrations#aws-ses-integration"
+            rel="noopener noreferrer"
+          >
+            {__('More: Understanding Amazon SES')}
           </a>
         </Info>
         <FormGroup>
-          <ControlLabel>AWS-SES Access key ID</ControlLabel>
+          <ControlLabel>AWS SES Access key ID</ControlLabel>
           <FormControl
             {...formProps}
             max={140}
             name="accessKeyId"
-            defaultValue={engagesConfigDetail.accessKeyId}
+            defaultValue={configsMap.accessKeyId}
           />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>AWS-SES Secret access key</ControlLabel>
+          <ControlLabel>AWS SES Secret access key</ControlLabel>
           <FormControl
             {...formProps}
             max={140}
             name="secretAccessKey"
-            defaultValue={engagesConfigDetail.secretAccessKey}
+            defaultValue={configsMap.secretAccessKey}
           />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>AWS-SES Region</ControlLabel>
+          <ControlLabel>AWS SES Region</ControlLabel>
           <FormControl
             {...formProps}
             max={140}
             name="region"
-            defaultValue={engagesConfigDetail.region}
+            defaultValue={configsMap.region}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>AWS SES Config set</ControlLabel>
+          <FormControl
+            {...formProps}
+            max={140}
+            name="configSet"
+            defaultValue={configsMap.configSet}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Email verification type</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="emailVerificationType"
+            defaultValue={configsMap.emailVerificationType}
+            componentClass="select"
+            options={[
+              { value: '', label: '' },
+              { value: 'truemail', label: 'TrueMail' }
+            ]}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Truemail api key</ControlLabel>
+          <FormControl
+            {...formProps}
+            max={140}
+            name="trueMailApiKey"
+            defaultValue={configsMap.trueMailApiKey}
           />
         </FormGroup>
 
         <ModalFooter>
           {renderButton({
-            name: 'engagesConfigDetail',
+            name: 'configsMap',
             values: this.generateDoc(values),
             isSubmitted,
-            object: this.props.engagesConfigDetail
+            object: this.props.configsMap
           })}
         </ModalFooter>
       </>
@@ -162,14 +207,13 @@ class EngageSettingsContent extends React.Component<Props, State> {
   };
 
   render() {
-
     return (
       <ContentBox>
-        <CollapseContent title="AWS SES" >
+        <CollapseContent title="General settings">
           <Form renderContent={this.renderContent} />
         </CollapseContent>
 
-        <CollapseContent title="Verify Email" >
+        <CollapseContent title="Verify Email">
           {this.renderVerifiedEmails()}
 
           <Verify>

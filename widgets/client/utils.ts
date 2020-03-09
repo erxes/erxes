@@ -7,6 +7,8 @@ export const getEnv = (): ENV => {
   return (window as any).erxesEnv;
 };
 
+declare const window: any;
+
 /*
  * Generate <host>/<integration kind> from <host>/<integration kind>Widget.bundle.js
  */
@@ -93,7 +95,7 @@ export const requestBrowserInfo = ({
 }: RequestBrowserInfoParams) => {
   postMessage(source, "requestingBrowserInfo", postData);
 
-  window.addEventListener("message", event => {
+  window.addEventListener("message", (event: any) => {
     const data = event.data || {};
     const { fromPublisher, message, browserInfo } = data;
 
@@ -301,3 +303,11 @@ export const striptags = (htmlString: string) => {
 
 export const fixErrorMessage = (msg: string) =>
   msg.replace("GraphQL error: ", "");
+
+export const setErxesProperty = (name: string, value: any) => {
+  const erxes = window.Erxes || {};
+
+  erxes[name] = value;
+
+  window.Erxes = erxes;
+};
