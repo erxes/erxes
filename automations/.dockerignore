@@ -1,0 +1,4 @@
+*.md
+*.yml
+.env*
+Dockerfile*
