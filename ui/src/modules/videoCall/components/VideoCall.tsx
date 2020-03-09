@@ -2,7 +2,7 @@ import DailyIframe from '@daily-co/daily-js';
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { SimpleButton } from 'modules/common/styles/main';
-import { Alert, __ } from 'modules/common/utils';
+import { __, Alert } from 'modules/common/utils';
 import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
