@@ -97,9 +97,9 @@ app.use((error, _req, res, _next) => {
 
 const { PORT } = process.env;
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   debugInit(`Integrations server is running on port ${PORT}`);
 
   // Initialize startup
-  init();
+  await init();
 });
