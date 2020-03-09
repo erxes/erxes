@@ -28,8 +28,8 @@ export default class EngagesAPI extends RESTDataSource {
     return this.get(`/configs/detail`);
   }
 
-  public async engagesConfigSave(params) {
-    return this.post(`/configs/save`, params);
+  public async engagesUpdateConfigs(configsMap) {
+    return this.post(`/configs/save`, configsMap);
   }
 
   public async engagesSendTestEmail(params) {

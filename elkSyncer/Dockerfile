@@ -1,6 +1,6 @@
 FROM python:3.7.6-slim
 
-WORKDIR /app/
+WORKDIR /elkSyncer/
 
 RUN pip install mongo-connector==3.1.1 \
     && pip install elasticsearch==7.5.1 \
