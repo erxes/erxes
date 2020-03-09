@@ -21,10 +21,7 @@
     "lint": "tslint 'src/**/*.ts'",
     "format": "prettier --write 'src/**/*.ts'",
     "precommit": "lint-staged",
-    "migrate": "NODE_ENV=command migrate --migrations-dir='./dist/migrations' --store='./db-migrate-store.js' up",
-    "customCommand": "ts-node ./src/commands/customCommand.ts",
-    "resetMigrations": "ts-node ./src/commands/resetMigrations.ts",
-    "release": "release-it"
+    "initDataPrius": "ts-node ./src/commands/initDataPrius.ts"
   },
   "lint-staged": {
     "gitDir": "../",
@@ -34,29 +31,7 @@
     ]
   },
   "dependencies": {
-    "@google-cloud/pubsub": "^1.1.5",
     "amqplib": "^0.5.5",
-    "body-parser": "^1.17.1",
-    "botbuilder": "^4.4.0",
-    "botbuilder-adapter-facebook-erxes": "^1.0.5",
-    "botkit": "^4.0.2",
-    "crypto": "^1.0.1",
-    "debug": "^4.1.1",
-    "dotenv": "^4.0.0",
-    "express": "^4.16.4",
-    "fbgraph": "^1.4.4",
-    "formidable": "^1.2.1",
-    "googleapis": "^40.0.0",
-    "meteor-random": "^0.0.3",
-    "requestify": "^0.2.5",
-    "migrate": "^1.6.2",
-    "mongoose": "5.7.5",
-    "nylas": "^4.7.0",
-    "querystring": "^0.2.0",
-    "request": "^2.88.0",
-    "request-promise": "^4.2.4",
-    "sanitize-html": "^1.20.1",
-    "sinon": "^7.5.0",
     "uuid": "^3.3.3"
   },
   "peerOptionalDependencies": {
