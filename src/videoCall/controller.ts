@@ -26,6 +26,22 @@ const sendDailyRequest = async (url: string, method: string, body = {}) => {
 };
 
 const init = async app => {
+  app.get('/videoCall/usageStatus', async (_req, res) => {
+    const videoCallType = await getConfig('VIDEO_CALL_TYPE');
+
+    switch (videoCallType) {
+      case 'daily': {
+        const { DAILY_API_KEY, DAILY_END_POINT } = await getConfigs();
+
+        return res.send(Boolean(DAILY_API_KEY && DAILY_END_POINT));
+      }
+
+      default: {
+        return res.send(false);
+      }
+    }
+  });
+
   // delete all rooms
   app.delete('/daily/rooms', async (_req, res, next) => {
     try {
