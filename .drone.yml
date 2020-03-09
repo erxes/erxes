@@ -95,6 +95,7 @@ pipeline:
         - master
         - develop
         - staging
+        - automations
       event:
         - push
 
