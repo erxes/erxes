@@ -2,7 +2,10 @@
 <html lang="en" class="uk-background-muted">
   <head>
     <!-- UIkit CSS for test -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.42/css/uikit.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.42/css/uikit.min.css"
+    />
     <style>
       [data-erxes-kbase],
       [data-erxes-embed] {
@@ -20,37 +23,36 @@
       }
     </style>
   </head>
-  
+
   <body class="uk-margin">
     <div class="uk-flex uk-child-width-expand@s">
       <div class="uk-card uk-card-default uk-card-body uk-margin-medium-left">
-          <h2>Knowledge Base</h2>
-          <div data-erxes-kbase></div>
+        <h2>Knowledge Base</h2>
+        <div data-erxes-kbase></div>
       </div>
-      
-      <div class="uk-card uk-card-default uk-card-body uk-margin-medium-left uk-margin-medium-right">
-          <h2>Form embed</h2>
-          <div data-erxes-embed="GtEe2hyYWkSDQXouC"></div>
+
+      <div
+        class="uk-card uk-card-default uk-card-body uk-margin-medium-left uk-margin-medium-right"
+      >
+        <h2>Form embed</h2>
+        <div data-erxes-embed="GtEe2hyYWkSDQXouC"></div>
       </div>
     </div>
-
 
     <script>
       window.erxesSettings = {
         messenger: {
-          brand_id: "gumQ2P",
-        },
+          brand_id: 'utjHAd'
+        }
       };
-      
-    (function() {
-      var script = document.createElement('script');
-      script.src = "http://localhost:3200/build/messengerWidget.bundle.js";
-      script.async = true;
-      var entry = document.getElementsByTagName('script')[0];
-      entry.parentNode.insertBefore(script, entry);
-    })();
-  
+
+      (function() {
+        var script = document.createElement('script');
+        script.src = 'http://localhost:3200/build/messengerWidget.bundle.js';
+        script.async = true;
+        var entry = document.getElementsByTagName('script')[0];
+        entry.parentNode.insertBefore(script, entry);
+      })();
     </script>
-  
   </body>
 </html>

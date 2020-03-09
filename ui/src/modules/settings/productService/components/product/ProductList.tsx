@@ -8,7 +8,7 @@ import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
 import { Count, Title } from 'modules/common/styles/main';
 import { IRouterProps } from 'modules/common/types';
-import { __, Alert, confirm } from 'modules/common/utils';
+import { __, Alert, confirm, router } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
 import TaggerPopover from 'modules/tags/components/TaggerPopover';
@@ -31,10 +31,25 @@ interface IProps extends IRouterProps {
   toggleBulk: () => void;
   toggleAll: (targets: IProduct[], containerId: string) => void;
   loading: boolean;
+  searchValue: string;
   currentCategory: IProductCategory;
 }
 
-class List extends React.Component<IProps> {
+type State = {
+  searchValue?: string;
+};
+
+class List extends React.Component<IProps, State> {
+  private timer?: NodeJS.Timer;
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      searchValue: this.props.searchValue
+    };
+  }
+
   renderRow = () => {
     const { products, history, toggleBulk, bulk } = this.props;
 
@@ -64,8 +79,35 @@ class List extends React.Component<IProps> {
     this.props.remove({ productIds }, this.props.emptyBulk);
   };
 
-  renderCount = (productCount) => {
-    return <Count>{productCount} product{productCount > 1 && 's'}</Count>
+  renderCount = productCount => {
+    return (
+      <Count>
+        {productCount} product{productCount > 1 && 's'}
+      </Count>
+    );
+  };
+
+  search = e => {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+
+    const { history } = this.props;
+    const searchValue = e.target.value;
+
+    this.setState({ searchValue });
+
+    this.timer = setTimeout(() => {
+      router.removeParams(history, 'page');
+      router.setParams(history, { searchValue });
+    }, 500);
+  };
+
+  moveCursorAtTheEnd(e) {
+    const tmpValue = e.target.value;
+
+    e.target.value = '';
+    e.target.value = tmpValue;
   }
 
   render() {
@@ -95,6 +137,14 @@ class List extends React.Component<IProps> {
 
     let actionBarRight = (
       <BarItems>
+        <FormControl
+          type="text"
+          placeholder={__('Type to search')}
+          onChange={this.search}
+          value={this.state.searchValue}
+          autoFocus={true}
+          onFocus={this.moveCursorAtTheEnd}
+        />
         <Link to="/settings/importHistories?type=product">
           <Button btnStyle="simple" uppercase={false} icon="arrow-from-right">
             {__('Go to import')}
@@ -135,7 +185,7 @@ class List extends React.Component<IProps> {
       </>
     );
 
-    if(currentCategory.productCount === 0) {
+    if (currentCategory.productCount === 0) {
       content = (
         <EmptyState
           image="/images/actions/8.svg"
@@ -182,7 +232,9 @@ class List extends React.Component<IProps> {
       );
     }
 
-    const actionBarLeft = <Title>{currentCategory.name || 'All products'}</Title>;
+    const actionBarLeft = (
+      <Title>{currentCategory.name || 'All products'}</Title>
+    );
 
     return (
       <Wrapper
@@ -200,10 +252,7 @@ class List extends React.Component<IProps> {
           />
         }
         actionBar={
-          <Wrapper.ActionBar
-            left={actionBarLeft}
-            right={actionBarRight}
-          />
+          <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
         }
         leftSidebar={
           <CategoryList queryParams={queryParams} history={history} />

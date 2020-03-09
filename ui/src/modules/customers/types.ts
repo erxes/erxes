@@ -2,15 +2,7 @@ import { ICompany } from 'modules/companies/types';
 import { ITag } from 'modules/tags/types';
 import { IActivityLog } from '../activityLogs/types';
 import { IUser } from '../auth/types';
-import { ISegmentDoc } from '../segments/types';
 import { IIntegration } from '../settings/integrations/types';
-
-export interface IMessengerData {
-  lastSeenAt?: number;
-  sessionCount?: number;
-  isActive?: boolean;
-  customData?: any;
-}
 
 export interface IVisitorContact {
   email?: string;
@@ -30,6 +22,7 @@ export interface ICustomerDoc {
   firstName: string;
   lastName: string;
   phones?: string[];
+  sex: number;
   primaryPhone?: string;
   primaryEmail?: string;
   emails?: string[];
@@ -52,17 +45,21 @@ export interface ICustomerDoc {
   description?: string;
   doNotDisturb?: string;
   links?: ICustomerLinks;
-  messengerData?: IMessengerData;
   customFieldsData?: { [key: string]: any };
   visitorContactInfo?: IVisitorContact;
   code?: string;
+  birthDate?: string;
+
+  isOnline?: boolean;
+  lastSeenAt?: number;
+  sessionCount?: number;
 }
 
 export interface ICustomer extends ICustomerDoc {
   _id: string;
   owner?: IUser;
   integration?: IIntegration;
-  getMessengerCustomData?: any;
+  getTrackedData?: any;
   getTags: ITag[];
   companies: ICompany[];
 }
@@ -134,7 +131,6 @@ type CountResponse = {
 
 type CustomerCounts = {
   byBrand: CountResponse;
-  byFakeSegment: number;
   byForm: CountResponse;
   byIntegrationType: CountResponse;
   byLeadStatus: CountResponse;
@@ -152,7 +148,7 @@ export type CustomersQueryResponse = {
 export type CountQueryResponse = {
   customerCounts: CustomerCounts;
   loading: boolean;
-  refetch: (variables?: { byFakeSegment?: ISegmentDoc }) => void;
+  refetch: () => void;
 };
 
 export type CustomerDetailQueryResponse = {

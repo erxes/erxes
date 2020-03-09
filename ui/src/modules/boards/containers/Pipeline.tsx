@@ -174,7 +174,8 @@ export default withProps<Props>(
           assignedUserIds: queryParams.assignedUserIds,
           labelIds: queryParams.labelIds,
           extraParams: getExtraParams(queryParams),
-          closeDateType: queryParams.closeDateType
+          closeDateType: queryParams.closeDateType,
+          userIds: queryParams.userIds
         }
       })
     })

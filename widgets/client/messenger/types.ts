@@ -10,7 +10,6 @@ export interface IEngageData {
   content: string;
   kind: string;
   sentAs: string;
-  fromUser: IUser;
   messageId: string;
   brandId: string;
 }
@@ -25,11 +24,19 @@ export interface IMessengerAppData {
   hangoutLink: string;
 }
 
+export interface IVideoCallData {
+  url: string;
+  name?: string;
+  status?: string;
+}
+
 export interface IMessage {
   _id: string;
   conversationId: string;
   user?: IUser;
   content: string;
+  contentType?: string;
+  dailyStatus?: string;
   createdAt: Date;
   internal?: boolean;
   engageData: IEngageData;

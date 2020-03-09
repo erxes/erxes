@@ -24,6 +24,7 @@ type Props = {
   hasTopBar: boolean;
   isSubmitting?: boolean;
   color?: string;
+  extraContent?: string;
 };
 
 type State = {
@@ -141,7 +142,7 @@ class Form extends React.Component<Props, State> {
   }
 
   renderForm() {
-    const { form, integration, color, isSubmitting } = this.props;
+    const { form, integration, color, isSubmitting, extraContent } = this.props;
 
     return (
       <div className="erxes-form">
@@ -149,6 +150,9 @@ class Form extends React.Component<Props, State> {
         <div className="erxes-form-content">
           <div className="erxes-description">{form.description}</div>
 
+          {extraContent ? (
+            <div dangerouslySetInnerHTML={{ __html: extraContent }} />
+          ) : null}
           {this.renderFields()}
 
           <button
@@ -168,7 +172,7 @@ class Form extends React.Component<Props, State> {
   }
 
   renderSuccessForm(thankContent?: string) {
-    const { integration, form, onCreateNew, color } = this.props;
+    const { integration, form } = this.props;
 
     return (
       <div className="erxes-form">
@@ -200,8 +204,7 @@ class Form extends React.Component<Props, State> {
         adminEmails,
         adminEmailTitle,
         adminEmailContent,
-        thankContent,
-        themeColor = ""
+        thankContent
       } = integration.leadData;
 
       // redirect to some url

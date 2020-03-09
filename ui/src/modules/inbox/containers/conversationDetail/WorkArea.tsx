@@ -25,6 +25,7 @@ let initialLimit = 10;
 type Props = {
   currentConversation: IConversation;
   currentId?: string;
+  refetchDetail: () => void;
 };
 
 type FinalProps = {
@@ -280,6 +281,7 @@ class WorkArea extends React.Component<FinalProps, State> {
       loadMoreMessages: this.loadMoreMessages,
       addMessage: this.addMessage,
       loading: messagesQuery.loading || loadingMessages,
+      refetchMessages: messagesQuery.refetch,
       typingInfo
     };
 

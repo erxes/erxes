@@ -1,4 +1,4 @@
-import { connection } from "./connection";
+import { connection } from './connection';
 
 const messageFields = `
   _id
@@ -14,16 +14,15 @@ const messageFields = `
   createdAt
   internal
   fromBot
+  contentType
+  videoCallData {
+    url
+    status
+  }
   engageData {
     content
     kind
     sentAs
-    fromUser {
-      details {
-        fullName
-        avatar
-      }
-    }
     messageId
     brandId
   }
@@ -233,6 +232,12 @@ const faqSearchArticlesQuery = `
   }
 `;
 
+const integrationsFetchApi = `
+  query integrationsFetchApi($path: String!, $params: JSON!) {
+    integrationsFetchApi(path: $path, params: $params)
+  }
+`;
+
 export default {
   messageFields,
   conversationDetailQuery,
@@ -249,5 +254,6 @@ export default {
   messengerSupportersQuery,
   getFaqCategoryQuery,
   getFaqTopicQuery,
-  faqSearchArticlesQuery
+  faqSearchArticlesQuery,
+  integrationsFetchApi
 };

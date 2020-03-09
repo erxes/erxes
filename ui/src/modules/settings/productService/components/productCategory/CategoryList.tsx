@@ -14,6 +14,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import TagFilter from '../../containers/TagFilter';
 import { IProductCategory } from '../../types';
+import ProductTypeFilter from '../product/filters/ProdcutTypeFilter';
 import Form from './CategoryForm';
 
 const { Section } = Wrapper.Sidebar;
@@ -106,7 +107,9 @@ class List extends React.Component<IProps> {
       const name = category.isRoot ? (
         `${category.name} (${category.productCount})`
       ) : (
-        <span>{category.name} ({category.productCount})</span>
+        <span>
+          {category.name} ({category.productCount})
+        </span>
       );
 
       result.push(
@@ -131,14 +134,19 @@ class List extends React.Component<IProps> {
 
   renderCategoryHeader() {
     const trigger = (
-      <Button btnStyle="success" uppercase={false} icon="plus-circle" block={true}>
+      <Button
+        btnStyle="success"
+        uppercase={false}
+        icon="plus-circle"
+        block={true}
+      >
         Add category
       </Button>
     );
-    
+
     return (
       <>
-        <TopHeader>{this.renderFormTrigger(trigger)}</TopHeader> 
+        <TopHeader>{this.renderFormTrigger(trigger)}</TopHeader>
         <Section.Title>
           {__('Categories')}
           <Section.QuickButtons>
@@ -173,10 +181,8 @@ class List extends React.Component<IProps> {
   }
 
   render() {
-
     return (
       <Sidebar wide={true}>
-        
         <Section
           maxHeight={488}
           collapsible={this.props.productCategoriesCount > 9}
@@ -184,7 +190,7 @@ class List extends React.Component<IProps> {
           {this.renderCategoryHeader()}
           {this.renderCategoryList()}
         </Section>
-
+        <ProductTypeFilter />
         <TagFilter />
       </Sidebar>
     );

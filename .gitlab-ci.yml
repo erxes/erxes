@@ -2,12 +2,11 @@ variables:
   DOCKER_DRIVER: overlay2
 
 default:
-  image: docker:19.03
+  image: docker:19.03.5
   services:
-    - docker:19.03-dind
+    - docker:19.03.5-dind
 
 stages:
-  - build_docs
   - install_dependencies
   - test_and_build
   - build_docker_images

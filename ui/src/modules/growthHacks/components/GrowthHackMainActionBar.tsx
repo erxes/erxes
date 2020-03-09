@@ -10,6 +10,7 @@ import React from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import Select from 'react-select-plus';
 import { HACKSTAGES } from '../constants';
+import options from '../options';
 
 interface IProps extends IRouterProps {
   onSearch: (search: string) => void;
@@ -35,7 +36,8 @@ const FILTER_PARAMS = [
   'assignedUserIds',
   'closeDateType',
   'hackStage',
-  'priority'
+  'priority',
+  'userIds'
 ];
 
 const GrowthHackMainActionBar = (props: IProps) => {
@@ -189,6 +191,7 @@ const GrowthHackMainActionBar = (props: IProps) => {
 
   const extendedProps = {
     ...props,
+    options,
     boardText: 'Campaign',
     pipelineText: 'Project',
     isFiltered,

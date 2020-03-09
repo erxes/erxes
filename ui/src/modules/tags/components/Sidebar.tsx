@@ -10,7 +10,7 @@ function TagsSidebar() {
   return (
     <Sidebar>
       <Sidebar.Section>
-        <Title>{__('Tags')}</Title>
+        <Title>{__('Tags type')}</Title>
         <SidebarList>
           <li>
             <NavLink activeClassName="active" to="/tags/engageMessage">

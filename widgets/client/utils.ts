@@ -3,6 +3,34 @@ import * as moment from "moment";
 import "moment/locale/mn";
 import { ENV, IBrowserInfo, IRule } from "./types";
 
+export const getEnv = (): ENV => {
+  return (window as any).erxesEnv;
+};
+
+declare const window: any;
+
+/*
+ * Generate <host>/<integration kind> from <host>/<integration kind>Widget.bundle.js
+ */
+export const generateIntegrationUrl = (integrationKind: string): string => {
+  const script =
+    document.currentScript ||
+    (() => {
+      const scripts = document.getElementsByTagName("script");
+
+      return scripts[scripts.length - 1];
+    })();
+
+  if (script && script instanceof HTMLScriptElement) {
+    return script.src.replace(
+      `/build/${integrationKind}Widget.bundle.js`,
+      `/${integrationKind}`
+    );
+  }
+
+  return "";
+};
+
 export const getBrowserInfo = async () => {
   if (window.location.hostname === "localhost") {
     return {
@@ -67,7 +95,7 @@ export const requestBrowserInfo = ({
 }: RequestBrowserInfoParams) => {
   postMessage(source, "requestingBrowserInfo", postData);
 
-  window.addEventListener("message", event => {
+  window.addEventListener("message", (event: any) => {
     const data = event.data || {};
     const { fromPublisher, message, browserInfo } = data;
 
@@ -134,32 +162,6 @@ export const makeClickableLink = (selector: string) => {
   nodes.forEach(node => {
     node.setAttribute("target", "__blank");
   });
-};
-
-export const getEnv = (): ENV => {
-  return (window as any).erxesEnv;
-};
-
-/*
- * Generate <host>/<integration kind> from <host>/<integration kind>Widget.bundle.js
- */
-export const generateIntegrationUrl = (integrationKind: string): string => {
-  const script =
-    document.currentScript ||
-    (() => {
-      const scripts = document.getElementsByTagName("script");
-
-      return scripts[scripts.length - 1];
-    })();
-
-  if (script && script instanceof HTMLScriptElement) {
-    return script.src.replace(
-      `/build/${integrationKind}Widget.bundle.js`,
-      `/${integrationKind}`
-    );
-  }
-
-  return "";
 };
 
 // check if valid url
@@ -301,3 +303,11 @@ export const striptags = (htmlString: string) => {
 
 export const fixErrorMessage = (msg: string) =>
   msg.replace("GraphQL error: ", "");
+
+export const setErxesProperty = (name: string, value: any) => {
+  const erxes = window.Erxes || {};
+
+  erxes[name] = value;
+
+  window.Erxes = erxes;
+};

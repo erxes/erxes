@@ -8,6 +8,7 @@ widgets:install_dependencies:
   rules:
     - changes:
         - widgets/package.json
+        - widgets/yarn.lock
         # Only creating cache when this file changes.
         # If cache is deleted somehow run pipelines manually to create cache again.
         # Otherwise new cache won't build until widgets/package.json file changed.
@@ -15,6 +16,7 @@ widgets:install_dependencies:
     key:
       files:
         - widgets/package.json
+        - widgets/yarn.lock
       prefix: widgets
     paths:
       - widgets/node_modules/
@@ -26,7 +28,7 @@ widgets:test_and_build:
   before_script:
     - cd widgets
     - apt-get update && apt-get install -y git
-    - yarn install # verifying dependencies
+    - yarn install # install dependencies again if cache is missing
     - git checkout ${CI_COMMIT_REF_NAME}
   script:
     - yarn lint

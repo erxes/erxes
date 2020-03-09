@@ -173,27 +173,26 @@ const LoadingContent = styled.div`
   }
 `;
 
-const StageTitle = styled.h4`
+export const StageTitle = styled.h4`
+  position: relative;
   display: flex;
   justify-content: space-between;
 `;
 
-const ActionList = styled(PopoverList)`
+export const ActionList = styled(PopoverList)`
   min-width: 160px;
-
   li a {
     color: ${colors.textPrimary};
     text-transform: capitalize;
   }
 `;
 
-const ActionButton = styled.div`
+export const ActionButton = styled.div`
   padding: 4px 5px;
   margin-top: -4px;
   margin-right: -5px;
   border-radius: 2px;
   font-size: 15px;
-
   &:hover {
     background: rgba(0, 0, 0, 0.1);
     cursor: pointer;
@@ -213,8 +212,5 @@ export {
   IndicatorItem,
   StageFooter,
   LoadingContent,
-  StageRoot,
-  StageTitle,
-  ActionList,
-  ActionButton
+  StageRoot
 };

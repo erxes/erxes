@@ -93,6 +93,7 @@ class CompanyForm extends React.Component<Props, State> {
       lifecycleState: finalValues.lifecycleState,
       businessType: finalValues.businessType,
       description: finalValues.description,
+      code: finalValues.code,
       links: {
         linkedIn: finalValues.linkedIn,
         twitter: finalValues.twitter,
@@ -169,7 +170,7 @@ class CompanyForm extends React.Component<Props, State> {
           <AvatarUpload
             avatar={company.avatar}
             onAvatarUpload={this.onAvatarUpload}
-            defaultAvatar="/images/company.png"
+            defaultAvatar="/images/integrations/company.png"
           />
           <FormWrapper>
             <FormColumn>
@@ -237,6 +238,12 @@ class CompanyForm extends React.Component<Props, State> {
               </FormGroup>
             </FormColumn>
             <FormColumn>
+              {this.renderFormGroup('Code', {
+                ...formProps,
+                name: 'code',
+                defaultValue: company.code || ''
+              })}
+
               <FormGroup>
                 <ControlLabel>Parent Company</ControlLabel>
                 <SelectCompanies

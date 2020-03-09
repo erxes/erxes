@@ -111,7 +111,7 @@ export default class FacebookComment extends React.Component<
               </Reply>
             ) : null}
 
-            <Date timestamp={comment.timestamp} />
+            <Date type="comment" timestamp={comment.timestamp} />
           </User>
         </ChildPost>
         {this.state.hasReplies && (

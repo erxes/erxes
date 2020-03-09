@@ -1,7 +1,7 @@
 import { colors } from 'modules/common/styles';
+import { ActionButtons } from 'modules/settings/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { ActionButtons } from '../../styles';
 
 const Categories = styled.ul`
   margin: 0;

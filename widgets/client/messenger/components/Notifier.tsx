@@ -51,7 +51,7 @@ class Notifier extends React.PureComponent<Props, State> {
     }
 
     if (engageData) {
-      return <EngageMessage engageData={engageData} />;
+      return <EngageMessage user={user} engageData={engageData} />;
     }
 
     return (

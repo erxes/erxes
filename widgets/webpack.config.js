@@ -1,4 +1,5 @@
-var path = require('path');
+const path = require('path');
+const Dotenv = require('dotenv-webpack');
 
 module.exports = {
   entry: {
@@ -9,12 +10,18 @@ module.exports = {
     formWidget: './client/form/widget/index.ts',
     knowledgebase: './client/knowledgebase/index.tsx',
     knowledgebaseWidget: './client/knowledgebase/widget/index.ts',
+    events: './client/events/index.ts',
+    eventsWidget: './client/events/widget/index.ts',
   },
 
   output: {
     path: path.join(__dirname, 'static'),
     filename: '[name].bundle.js',
   },
+
+  plugins: [
+    new Dotenv()
+  ],
 
   module: {
     rules: [

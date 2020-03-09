@@ -43,7 +43,7 @@ class Channels extends React.Component<Props, {}> {
           size="small"
         />
       );
-    };
+    }
 
     const trigger = (
       <Button uppercase={false} btnStyle="simple" icon="web-grid-alt">
@@ -68,7 +68,7 @@ class Channels extends React.Component<Props, {}> {
         content={content}
       />
     );
-   
+
     const leftActionBar = <Title>{currentChannel.name}</Title>;
 
     return (

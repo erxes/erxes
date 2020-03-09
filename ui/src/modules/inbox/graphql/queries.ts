@@ -131,7 +131,6 @@ const converstationFacebookComments = `
       customer {
         _id
         visitorContactInfo
-        messengerData
         avatar
         firstName
         lastName
@@ -162,8 +161,8 @@ const userList = `
 `;
 
 const channelList = `
-  query channels($page: Int, $perPage: Int, $memberIds: [String]) {
-    channels(page: $page, perPage: $perPage, memberIds: $memberIds) {
+  query channels($memberIds: [String]) {
+    channels(memberIds: $memberIds) {
       _id
       name
     }
@@ -248,7 +247,7 @@ const convertToInfo = `
 const generateCustomerDetailQuery = params => {
   const {
     showDeviceProperties = false,
-    showMessengerData = false,
+    showTrackedData = false,
     showCustomFields = false,
     showCompanies = false,
     showTags = false
@@ -262,11 +261,10 @@ const generateCustomerDetailQuery = params => {
     ${customerQueries.basicFields}
   `;
 
-  if (showMessengerData) {
+  if (showTrackedData) {
     fields = `
       ${fields}
-      messengerData
-      getMessengerCustomData
+      getTrackedData
     `;
   }
 

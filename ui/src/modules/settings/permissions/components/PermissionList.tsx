@@ -1,10 +1,10 @@
-
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import { FormControl } from 'modules/common/components/form';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
+import { Title } from 'modules/common/styles/main';
 import { __, router } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
@@ -28,6 +28,7 @@ type Props = {
   queryParams: any;
   isLoading: boolean;
   totalCount: number;
+  currentGroupName?: string;
 } & commonProps;
 
 type commonProps = {
@@ -51,7 +52,14 @@ class PermissionList extends React.Component<Props> {
   };
 
   renderObjects() {
-    const { groups, modules, permissions, actions, refetchQueries, remove } = this.props;
+    const {
+      groups,
+      modules,
+      permissions,
+      actions,
+      refetchQueries,
+      remove
+    } = this.props;
 
     return permissions.map(object => {
       return (
@@ -68,7 +76,63 @@ class PermissionList extends React.Component<Props> {
     });
   }
 
-  renderContent() {
+  renderFilter() {
+    const { queryParams, modules, actions } = this.props;
+
+    const usersOnChange = users => {
+      this.setFilter('userId', users);
+    };
+
+    const allowedOnChange = e => {
+      this.setFilter('allowed', {
+        value: e.target.checked ? 'allowed' : 'notAllowed'
+      });
+    };
+
+    return (
+      <FilterWrapper>
+        <strong>{__('Filters')}:</strong>
+        <FilterItem>
+          <Select
+            placeholder={__('Choose module')}
+            value={queryParams.module}
+            options={generateModuleParams(modules)}
+            onChange={this.setFilter.bind(this, 'module')}
+          />
+        </FilterItem>
+
+        <FilterItem>
+          <Select
+            placeholder={__('Choose action')}
+            value={queryParams.action}
+            options={filterActions(actions, queryParams.module)}
+            onChange={this.setFilter.bind(this, 'action')}
+          />
+        </FilterItem>
+        <FilterItem>
+          <SelectTeamMembers
+            label="Choose users"
+            name="userId"
+            value={queryParams.userId}
+            onSelect={usersOnChange}
+            multi={false}
+          />
+        </FilterItem>
+
+        <div>
+          <strong>{__('Granted')}:</strong>
+          <FormControl
+            componentClass="checkbox"
+            defaultChecked={queryParams.allowed !== 'notAllowed'}
+            id="allowed"
+            onChange={allowedOnChange}
+          />
+        </div>
+      </FilterWrapper>
+    );
+  }
+
+  renderData() {
     return (
       <Table whiteSpace="nowrap" hover={true} bordered={true}>
         <thead>
@@ -101,23 +165,15 @@ class PermissionList extends React.Component<Props> {
   };
 
   renderActionBar() {
-    const { queryParams, modules, actions } = this.props;
-
     const trigger = (
-      <Button btnStyle="success" size="small" icon="add">
+      <Button btnStyle="primary" icon="plus-circle" uppercase={false}>
         New permission
       </Button>
     );
 
-    const usersOnChange = users => {
-      this.setFilter('userId', users);
-    };
-
-    const allowedOnChange = e => {
-      this.setFilter('allowed', {
-        value: e.target.checked ? 'allowed' : 'notAllowed'
-      });
-    };
+    const title = (
+      <Title>{this.props.currentGroupName || __('All permissions')}</Title>
+    );
 
     const actionBarRight = (
       <NotWrappable>
@@ -130,54 +186,34 @@ class PermissionList extends React.Component<Props> {
       </NotWrappable>
     );
 
-    const actionBarLeft = (
-      <FilterWrapper>
-        <FilterItem>
-          <Select
-            placeholder={__('Choose module')}
-            value={queryParams.module}
-            options={generateModuleParams(modules)}
-            onChange={this.setFilter.bind(this, 'module')}
-          />
-        </FilterItem>
-
-        <FilterItem>
-          <Select
-            placeholder={__('Choose action')}
-            value={queryParams.action}
-            options={filterActions(actions, queryParams.module)}
-            onChange={this.setFilter.bind(this, 'action')}
-          />
-        </FilterItem>
-        <FilterItem>
-          <SelectTeamMembers
-            label="Choose users"
-            name="userId"
-            value={queryParams.userId}
-            onSelect={usersOnChange}
-            multi={false}
-          />
-        </FilterItem>
-
-        <FilterItem>
-          <div style={{ marginTop: '5px' }}>
-            <label>Granted: </label>
-            <FormControl
-              componentClass="checkbox"
-              defaultChecked={queryParams.allowed !== 'notAllowed'}
-              id="allowed"
-              onChange={allowedOnChange}
-            />
-          </div>
-        </FilterItem>
-      </FilterWrapper>
+    return (
+      <Wrapper.ActionBar
+        left={title}
+        right={actionBarRight}
+        background="colorWhite"
+      />
     );
+  }
 
-    return <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />;
+  renderContent() {
+    const { isLoading, totalCount } = this.props;
+
+    return (
+      <>
+        {this.renderFilter()}
+        <DataWithLoader
+          data={this.renderData()}
+          loading={isLoading}
+          count={totalCount}
+          emptyText="There is no permissions in this group"
+          emptyImage="/images/actions/11.svg"
+        />
+      </>
+    );
   }
 
   render() {
-    const { isLoading, totalCount, queryParams } = this.props;
+    const { totalCount, queryParams } = this.props;
 
     const breadcrumb = [
       { title: 'Settings', link: '/settings' },
@@ -192,15 +228,7 @@ class PermissionList extends React.Component<Props> {
         actionBar={this.renderActionBar()}
         leftSidebar={<GroupList queryParams={queryParams} />}
         footer={<Pagination count={totalCount} />}
-        content={
-          <DataWithLoader
-            data={this.renderContent()}
-            loading={isLoading}
-            count={totalCount}
-            emptyText="There is no permissions in this group"
-            emptyImage="/images/actions/11.svg"
-          />
-        }
+        content={this.renderContent()}
       />
     );
   }

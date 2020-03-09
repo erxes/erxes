@@ -58,7 +58,8 @@ export const FEATURE_DETAILS = {
     icon: 'piggy-bank',
     description:
       'Control your sales pipeline from one responsive field by precisely analyzing your progress and determining your next best move for success.',
-    videoUrl: 'url',
+    videoUrl: 'https://www.youtube.com/watch?v=jEkxpLdOMvU&feature=emb_title',
+    videoThumb: 'https://img.youtube.com/vi/jEkxpLdOMvU/mqdefault.jpg',
     settingsDetails: {
       dealBoardsCreate: {
         name: 'Create a sales board',
@@ -130,7 +131,8 @@ export const FEATURE_DETAILS = {
     icon: 'clipboard',
     description:
       "Organize your own tasks or your team's sprints effectively with erxes Task. It involves planning, testing, tracking, and reporting.",
-    videoUrl: 'url',
+    videoUrl: 'https://www.youtube.com/watch?v=WgMSf_aETdI&feature=emb_title',
+    videoThumb: 'https://img.youtube.com/vi/WgMSf_aETdI/mqdefault.jpg',
     settingsDetails: {
       taskBoardsCreate: {
         name: 'Create a task board',
@@ -194,7 +196,8 @@ export const FEATURE_DETAILS = {
     color: colors.colorCoreBlue,
     description:
       'Access our all-in-one CRM & product, and service system in one go so that it’s easier to coordinate and manage your interactions with your customers.',
-    videoUrl: 'url',
+    videoUrl: 'https://www.youtube.com/watch?v=Axazk8K30Qk&feature=emb_title',
+    videoThumb: 'https://img.youtube.com/vi/Axazk8K30Qk/mqdefault.jpg',
     settingsDetails: {
       customerCreate: {
         name: 'Create a contact',

@@ -7,6 +7,7 @@ import { graphql } from 'react-apollo';
 import PermissionList from '../components/PermissionList';
 import { mutations, queries } from '../graphql';
 import {
+  IUserGroup,
   PermissionActionsQueryResponse,
   PermissionModulesQueryResponse,
   PermissionRemoveMutationResponse,
@@ -53,6 +54,11 @@ const List = (props: FinalProps) => {
     usersGroupsQuery.loading ||
     totalCountQuery.loading;
 
+  const groups = usersGroupsQuery.usersGroups || [];
+  const currentGroup =
+    groups.find(group => queryParams.groupId === group._id) ||
+    ({} as IUserGroup);
+
   const updatedProps = {
     ...props,
     queryParams,
@@ -62,8 +68,9 @@ const List = (props: FinalProps) => {
     modules: modulesQuery.permissionModules || [],
     actions: actionsQuery.permissionActions || [],
     permissions: permissionsQuery.permissions || [],
-    groups: usersGroupsQuery.usersGroups || [],
+    groups,
     isLoading,
+    currentGroupName: currentGroup.name,
     refetchQueries: commonOptions(queryParams)
   };
 
