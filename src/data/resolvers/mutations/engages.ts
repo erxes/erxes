@@ -136,8 +136,8 @@ const engageMutations = {
     return EngageMessages.engageMessageSetLive(_id);
   },
 
-  engagesConfigSave(_root, args, { dataSources }: IContext) {
-    return dataSources.EngagesAPI.engagesConfigSave(args);
+  engagesUpdateConfigs(_root, configsMap, { dataSources }: IContext) {
+    return dataSources.EngagesAPI.engagesUpdateConfigs(configsMap);
   },
 
   /**

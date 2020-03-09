@@ -448,3 +448,13 @@ export const NOTIFICATION_CONTENT_TYPES = {
   CONVERSATION: 'conversation',
   ALL: ['task', 'deal', 'company', 'customer', 'ticket', 'channel', 'conversation'],
 };
+
+export const EMAIL_VALIDATION_STATUSES = {
+  VALID: 'valid',
+  INVALID: 'invalid',
+  ACCEPT_ALL_UNVERIFIABLE: 'accept_all_unverifiable',
+  UNKNOWN: 'unknown',
+  DISPOSABLE: 'disposable',
+  CATCHALL: 'catchall',
+  ALL: ['valid', 'invalid', 'accept_all_unverifiable', 'unknown', 'disposable', 'catchall'],
+};

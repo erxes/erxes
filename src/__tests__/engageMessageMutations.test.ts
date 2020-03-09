@@ -31,7 +31,7 @@ import * as messageBroker from '../messageBroker';
 
 import { EngagesAPI } from '../data/dataSources';
 import utils, { handleUnsubscription } from '../data/utils';
-import { KIND_CHOICES, STATUSES } from '../db/models/definitions/constants';
+import { EMAIL_VALIDATION_STATUSES, KIND_CHOICES, STATUSES } from '../db/models/definitions/constants';
 import './setup.ts';
 
 describe('engage message mutation tests', () => {
@@ -85,7 +85,7 @@ describe('engage message mutation tests', () => {
     _brand = await brandFactory({});
 
     _customer = await customerFactory({
-      hasValidEmail: true,
+      emailValidationStatus: EMAIL_VALIDATION_STATUSES.VALID,
       status: STATUSES.ACTIVE,
       profileScore: 1,
       primaryEmail: faker.internet.email(),
@@ -692,19 +692,20 @@ describe('engage message mutation tests', () => {
     process.env.ENGAGES_API_DOMAIN = 'http://fake.erxes.io';
 
     const mutation = `
-      mutation engagesConfigSave($accessKeyId: String, $secretAccessKey: String, $region: String) {
-        engagesConfigSave(accessKeyId: $accessKeyId, secretAccessKey: $secretAccessKey, region: $region) {
-          accessKeyId
-          secretAccessKey
-          region
-        }
+      mutation engagesUpdateConfigs($configsMap: JSON!) {
+        engagesUpdateConfigs(configsMap: $configsMap)
       }
     `;
 
     const dataSources = { EngagesAPI: new EngagesAPI() };
 
     try {
-      await graphqlRequest(mutation, 'engagesConfigSave', {}, { dataSources });
+      await graphqlRequest(
+        mutation,
+        'engagesUpdateConfigs',
+        { configsMap: { accessKeyId: 'accessKeyId' } },
+        { dataSources },
+      );
     } catch (e) {
       expect(e[0].message).toBe('Engages api is not running');
     }

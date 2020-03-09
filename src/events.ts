@@ -22,9 +22,11 @@ export const saveEvent = async (args: ISaveEventArgs) => {
   }
 
   let customerId = args.customerId;
+  let newlyCreatedId;
 
   if (!customerId) {
     customerId = await Customers.createVisitor();
+    newlyCreatedId = customerId;
   }
 
   const searchQuery = {
@@ -37,38 +39,48 @@ export const saveEvent = async (args: ISaveEventArgs) => {
     searchQuery.bool.must.push(additionalQuery);
   }
 
-  let response = await fetchElk('search', 'events', {
-    size: 1,
-    query: searchQuery,
-  });
-
-  if (response.hits.total.value === 0) {
-    response = await client.index({
-      index: 'events',
-      body: {
-        type,
-        name,
-        customerId,
-        createdAt: new Date(),
-        count: 1,
-        attributes: attributes || {},
-      },
+  try {
+    let response = await fetchElk('search', 'events', {
+      size: 1,
+      query: searchQuery,
     });
-  } else {
-    response = await client.updateByQuery({
-      index: 'events',
-      refresh: true,
-      body: {
-        script: {
-          lang: 'painless',
-          source: 'ctx._source["count"] += 1',
+
+    if (response.hits.total.value === 0) {
+      response = await client.index({
+        index: 'events',
+        body: {
+          type,
+          name,
+          customerId,
+          createdAt: new Date(),
+          count: 1,
+          attributes: attributes || {},
         },
-        query: searchQuery,
-      },
-    });
-  }
+      });
+    } else {
+      response = await client.updateByQuery({
+        index: 'events',
+        refresh: true,
+        body: {
+          script: {
+            lang: 'painless',
+            source: 'ctx._source["count"] += 1',
+          },
+          query: searchQuery,
+        },
+      });
+    }
 
-  debugBase(`Response ${JSON.stringify(response)}`);
+    debugBase(`Response ${JSON.stringify(response)}`);
+  } catch (e) {
+    debugBase(`Save event error ${e.message}`);
+
+    if (newlyCreatedId) {
+      await Customers.remove({ _id: newlyCreatedId });
+    }
+
+    customerId = undefined;
+  }
 
   return { customerId };
 };

@@ -12,17 +12,21 @@ export const getMappings = async (index: string) => {
   return client.indices.getMapping({ index });
 };
 
+export const getIndexPrefix = () => {
+  const uriObject = mongoUri.parse(MONGO_URL);
+  const dbName = uriObject.database;
+
+  return `${dbName}__`;
+};
+
 export const fetchElk = async (action, index: string, body: any) => {
   if (NODE_ENV === 'test') {
     return action === 'search' ? { hits: { total: { value: 0 }, hits: [] } } : 0;
   }
 
-  const uriObject = mongoUri.parse(MONGO_URL);
-  const dbName = uriObject.database;
-
   try {
     const response = await client[action]({
-      index: `${dbName}__${index}`,
+      index: `${getIndexPrefix()}${index}`,
       body,
     });
 

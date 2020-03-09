@@ -92,15 +92,10 @@ export default {
 
   async widgetsConversationDetail(_root, args: { _id: string; integrationId: string }) {
     const { _id, integrationId } = args;
-    const conversation = await Conversations.findOne({ _id });
-
-    if (!conversation) {
-      return null;
-    }
-
+    const conversation = await Conversations.findOne({ _id, integrationId });
     const integration = await Integrations.findOne({ _id: integrationId });
 
-    if (!integration) {
+    if (!conversation || !integration) {
       return null;
     }
 

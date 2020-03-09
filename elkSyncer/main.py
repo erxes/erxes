@@ -21,6 +21,9 @@ customer_mapping = {
     'integrationId': {
         'type': 'keyword',
     },
+    'relatedIntegrationIds': {
+        'type': 'keyword',
+    },
     'scopeBrandIds': {
         'type': 'keyword',
     },

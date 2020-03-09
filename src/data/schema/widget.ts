@@ -94,6 +94,7 @@ export const mutations = `
     formId: String!
     submissions: [FieldValueInput]
     browserInfo: JSON!
+    cachedCustomerId: String
   ): SaveFormResponse
 
   widgetsSendEmail(
