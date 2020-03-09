@@ -5,7 +5,7 @@ title: Signing in
 
 <!--Content-->
 
-To sign in, navigate to the erxes sign-in page. <br>
+To sign in, navigate to the Erxes sign-in page. <br>
 If you don't have account? Create a new one from <a href="https://erxes.io/en/create" target="_blank">https://erxes.io/</a>.
 
 

@@ -914,7 +914,6 @@
   "Email add account description": "When you connect an email to your conversations inbox, you're connecting it as a shared account. Messages sent to shared accounts can be viewed by everyone who has access to your team inbox.",
   "No connected email": "No connected email",
   "Your email will be sent with Erxes email template": "Your email will be sent with Erxes email template",
-<<<<<<< HEAD
   "Amazon Simple Email Service enables you to send and receive email using a reliable and scalable email platform. Set up your custom amazon simple email service account": "Amazon Simple Email Service enables you to send and receive email using a reliable and scalable email platform. Set up your custom amazon simple email service account",
   "More: Understanding Amazon SES": "More: Understanding Amazon SES",
   "More: Understanding File Upload": "More: Understanding File Upload",
@@ -938,10 +937,8 @@
   "System Config": "System Config",
   "Back to Settings": "Back to Settings",
   "Integrations config": "Integrations config",
-  "Engage config": "Engage config"
-=======
+  "Engage config": "Engage config",
   "Join a call": "Join a call",
   "Invite to video call": "Invite to video call",
   "Video call invitation sent": "Video call invitation sent"
->>>>>>> b9fefdf41e2a47bcba0bf160a9d0f10756a433e3
 }

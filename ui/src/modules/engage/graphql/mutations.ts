@@ -24,13 +24,9 @@ const setLiveManual = `
   }
 `;
 
-const configSave = `
-  mutation engagesConfigSave($secretAccessKey: String!, $accessKeyId: String!, $region: String!) {
-    engagesConfigSave(secretAccessKey: $secretAccessKey, accessKeyId: $accessKeyId, region: $region) {
-      accessKeyId
-      secretAccessKey
-      region
-    }
+const engagesUpdateConfigs = `
+  mutation engagesUpdateConfigs($configsMap: JSON!) {
+    engagesUpdateConfigs(configsMap: $configsMap)
   }
 `;
 
@@ -143,7 +139,7 @@ export default {
   messageRemove,
   messagesAdd,
   messagesEdit,
-  configSave,
+  engagesUpdateConfigs,
   segmentsAdd,
   removeVerifiedEmail,
   verifyEmail,

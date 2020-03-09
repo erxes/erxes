@@ -3,7 +3,7 @@ id: system-config
 title: System config
 ---
 
-In this tutorials enable you to set up administration system configurations. Which allows you work on sysadmin without require coding skills. 
+In this tutorials enable you to set up administration system configurations, which allows you work on sysadmin without require coding skills. 
 
 ---
 
@@ -84,7 +84,7 @@ AWS_FORCE_PATH_STYLE=''
 
 ### AWS SES 
 
-Amazon Simple Email Service enables you to send and receive email using a reliable and scalable email platform. Set up your custom amazon simple email service account. 
+Amazon Simple Email Service enables you to send and receive email using a reliable and scalable email platform. Set up your custom Amazon simple email service account. 
 
 **Configuration:** 
 - Go to Erxes Settings => System config => General System Config => AWS SES.  
@@ -144,10 +144,65 @@ Amazon places all new accounts in the Amazon SES sandbox. While your account is 
 You can also determine whether your account is in the sandbox by sending email to an address that you haven't verified. If your account is in the sandbox, you receive an error message stating that the destination address isn't verified.
 </aside> 
 
-
-
 5. **If you move out of the Sandbox,** follow the instructions described [here](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/request-production-access.html) to move out of the Amazon SES Sandbox.
 
+
+
+### Google
+
+**Configuration:** 
+- Go to Erxes Settings => System config => General System Config => Google.  
+
+```
+GOOGLE_PROJECT_ID="your google project's id"
+GOOGLE_APPLICATION_CREDENTIALS="your downloaded google's credentials which is json file"
+GOOGLE_CLIENT_ID="your google project's client id"
+GOOGLE_CLIENT_SECRET="your google project's secret key"
+```
+
+Requirements:
+
+- To create Google project.
+- Enable Gmail API.
+- Configure Google cloud pub/sub.
+
+Creating Google project:
+
+- Go to https://console.cloud.google.com/cloud-resource-manager and create new project.
+
+Enable Gmail API:
+
+- Go to the APIs & Services/library & enable Gmail API.
+- Go to the APIs & Services/credentials & create new `OAuth client ID` credentials. If you see warning about `product name` follow the instruction, make it disappear. Afterwards select `Web application` & add `http://localhost:3000/service/oauth/gmail_callback` in `Authorized redirect URIs` & create.
+- Copy `Client ID` & `Client secret` paste in your erxes-api/.env file. It looks like following example:
+
+
+Configure google cloud pub/sub:
+
+- Go to https://console.cloud.google.com/cloudpubsub/enableApi & select your project.
+- Enable api & create topic.
+- On the topic we must create subscription which is shown on the right of the topic as 3 dots. Select `New subscrition` & create.
+- Now grant publish rights on your topic. To do this, select `permissions` from the menu shown as a 3 dots & add member `serviceAccount:gmail-api-push@system.gserviceaccount.com` role as a pub/sub publisher.
+- Then copy the topic & subscrition put it in erxes-api/.env file. It should looks like following example:
+
+```shell
+#.env
+GOOGLE_TOPIC = "projects/myproject/topics/erxes-topic"
+GOOGLE_SUPSCRIPTION_NAME = "projects/myproject/subscriptions/erxes-subscription"
+```
+
+- Go to https://console.cloud.google.com/apis/credentials/serviceaccountkey
+- Select your project & create new service account with role as project owner.
+- Download json file, put file path in erxes/.env file. It should looks like following example:
+
+```shell
+#.env
+GOOGLE_APPLICATION_CREDENTIALS = "/Users/user/Downloads/9bb5b70c121c.json"
+```
+
+Add integration:
+
+- Go to erxes settings - App store - add gmail. (Make sure you create new brand beforehand)
 
 
 ### Common mail config
@@ -187,9 +242,15 @@ Erxes app enables you to integrate with developer API and that means we can rece
 
 Erxes app can be integrated with facebook developer API and that means we can receive our Facebook pages' inbox messages directly to our erxes app's inbox. With the help of Facebook developer API we have many more possibilities, like receiving notifications about page comment, page post feed etc. There is an active development process going on this subject.
 
+#### Requirements:
+
+- Working sub domain with SSL pointing to your erxes-api server.
+- [Create a Facebook App](https://developers.facebook.com/docs/apps/)
+- [Create a Facebook Page](https://www.facebook.com/pages/creation/)
+
+
 **Configuration:** 
 - Go to Erxes Settings => System config => Integrations config => Facebook. 
-
 
 ```
 FACEBOOK_APP_ID="your faceboook application's app id"
@@ -198,11 +259,6 @@ FACEBOOK_VERIFY_TOKEN="insert facebook application verify token"
 
 ```
 
-#### Requirements:
-
-- Working sub domain with SSL pointing to your erxes-api server.
-- [Create a Facebook App](https://developers.facebook.com/docs/apps/)
-- [Create a Facebook Page](https://www.facebook.com/pages/creation/)
 
 #### Creating facebook app.
 
@@ -287,7 +343,8 @@ Notes:
 
 
 ```
-TWITTER_CONSUMER_KEY="your app consumer Key"
+TWITTER_CONSUMER_KEY="your app consumer key"
+TWITTER_CONSUMER_SECRET="your app consumer secret key"
 TWITTER_ACCESS_TOKEN="your app consumer Secret"
 TWITTER_ACCESS_TOKEN_SECRET=''
 TWITTER_WEBHOOK_ENV=''
@@ -295,6 +352,7 @@ TWITTER_WEBHOOK_ENV=''
 
 - `TWITTER_CONSUMER_KEY`, your twitter developer account's Consumer Key (API Key) here
 - `TWITTER_CONSUMER_SECRET` your twitter developer account's Consumer Secret (API Secret) here
+- `TWITTER_ACCESS_TOKEN` your twitter developer account's secret token ID (API Secret) here
 - `TWITTER_ACCESS_TOKEN_SECRET` you should only change the domain of this env variables. This is twitter's callback url
 - `TWITTER_WEBHOOK_ENV`='https://erxes.domain.com/service/oauth/twitter_callback'
 
@@ -306,8 +364,7 @@ TWITTER_WEBHOOK_ENV=''
 - Callback URL: https://erxes.domain.com/service/oauth/twitter_callback
 
 3. Go to Permissions tab and select Read, Write and Access direct messages. Don't forget to Update settings button.
-4. Go to Keys and Access Tokens tab and copy:
-   Consumer Key (API Key), Consumer Secret (API Secret) values to `erxes-api/.env` file.
+
 
 
 #### Erxes twitter integration settings.
@@ -317,6 +374,26 @@ TWITTER_WEBHOOK_ENV=''
 3. Select your brand and click save.
 4. Go to Setting=> Channel=> Add new channel=> Connect Twitter integration. 
 
+### Daily
+Erxes app can be integrated with the Daily.co API for video calls. It allows us to easy to create and configure on-demand video call URLs. Learn how to integrate Daily integration.
+
+#### Requirements:
+
+- [Create a Daily account](https://www.daily.co)
+- Create new custom domain (subdomain) on the account. For instance: example.daily.co 
+
+
+**Configuration:** 
+- Go to Erxes Settings => System config => Integrations config => Daily. 
+
+```
+DAILY_API_KEY="your daily application's api key"
+DAILY_END_POINT="your daily application's end point"
+```
+- `DAILY_API_KEY='######'` Get API key from Daily account Developers tab.  
+- `DAILY_END_POINT ='example.daily.co'` is your subdomain name. 
+
+Integrated video chat is used on the Erxes messenger widget. It is assumed that the one conversation can be activated one video call. 
 
 ### Nylas 
 Learn how to integrate Nylas Accounts With Erxes.

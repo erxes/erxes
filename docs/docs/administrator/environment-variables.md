@@ -12,7 +12,7 @@ TEST_MONGO_URL=mongodb://localhost/test
 
 - MONGO_URL is your application's database URL
 
-- TEST_MONGO_URL is when you run
+- TEST_MONGO_URL is when you run testing
 
 ```
 yarn test

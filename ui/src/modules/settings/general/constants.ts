@@ -17,12 +17,12 @@ export const LANGUAGES = [
 
 export const SERVICE_TYPES = [
   { label: 'Amazon Web Service', value: 'AWS' },
-  { label: 'Google Cloud Service', value: 'GCS' },
+  { label: 'Google Cloud Service', value: 'GCS' }
 ];
 
 export const FILE_SYSTEM_TYPES = [
   { label: 'Public', value: 'true' },
-  { label: 'Private', value: 'false' },
+  { label: 'Private', value: 'false' }
 ];
 
 export const MEASUREMENTS = [
@@ -92,7 +92,7 @@ export const KEY_LABELS = {
   FACEBOOK_APP_SECRET: 'Facebook App Secret',
   FACEBOOK_VERIFY_TOKEN: 'Facebook Verify Token',
   TWITTER_CONSUMER_KEY: 'Twitter Consumer Key',
-  TWITTER_CONSUMER_SECRET: 'Twitter Consumer Secret',
+  TWITTER_CONSUMER_SECRET: 'Twitter Consumer secret',
   TWITTER_ACCESS_TOKEN: 'Twitter Access Token',
   TWITTER_ACCESS_TOKEN_SECRET: 'Twitter Access Token Secret',
   TWITTER_WEBHOOK_ENV: 'Twitter Webhook Env',
@@ -102,11 +102,14 @@ export const KEY_LABELS = {
   MICROSOFT_CLIENT_ID: 'Microsoft Client Id',
   MICROSOFT_CLIENT_SECRET: 'Microsoft Client Secret',
   ENCRYPTION_KEY: 'Encryption Key',
+  ALGORITHM: 'Algorithm',
   USE_NATIVE_GMAIL: 'Use Default Gmail Service',
   GOOGLE_PROJECT_ID: 'Google Project Id',
   GOOGLE_GMAIL_TOPIC: 'Google Gmail Topic',
   GOOGLE_APPLICATION_CREDENTIALS: 'Google Application Credentials',
   GOOGLE_GMAIL_SUBSCRIPTION_NAME: 'Google Gmail Subscription Name',
   GOOGLE_CLIENT_ID: 'Google Clien Id',
-  GOOGLE_CLIENT_SECRET: 'Google Client Secret'
+  GOOGLE_CLIENT_SECRET: 'Google Client Secret',
+  DAILY_API_KEY: 'Daily api key',
+  DAILY_END_POINT: 'Daily end point'
 };

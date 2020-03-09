@@ -92,7 +92,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('General System Config') }
+      { title: __('General system config') }
     ];
 
     const actionButtons = (
@@ -108,7 +108,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
     const content = (
       <ContentBox>
-        <CollapseContent title={__("General Settings")}>
+        <CollapseContent title={__("General settings")}>
           <FormGroup>
             <ControlLabel>Language</ControlLabel>
             <Select
@@ -144,7 +144,7 @@ class GeneralSettings extends React.Component<Props, State> {
         <CollapseContent title={__("File upload")}>
           <Info>
             <a target="_blank" href="https://docs.erxes.io/administrator/file-upload" rel="noopener noreferrer">
-              {__("More: Understanding File upload")}
+              {__("More: Understanding file upload")}
             </a>
           </Info>
           {this.renderItem('UPLOAD_FILE_TYPES', 'Comma-separated list of media types. Leave it blank for accepting all media types')}
@@ -198,6 +198,13 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderItem('AWS_SES_CONFIG_SET')}
         </CollapseContent>
 
+        <CollapseContent title="Google">
+            {this.renderItem('GOOGLE_PROJECT_ID')}
+            {this.renderItem('GOOGLE_APPLICATION_CREDENTIALS')}
+            {this.renderItem('GOOGLE_CLIENT_ID')}
+            {this.renderItem('GOOGLE_CLIENT_SECRET')}
+        </CollapseContent>
+
         <CollapseContent title={__("Common mail config")}>  
           <Info>
             <a target="_blank" href="https://docs.erxes.io/administrator/environment-variables#email-settings" rel="noopener noreferrer">
@@ -225,12 +232,12 @@ class GeneralSettings extends React.Component<Props, State> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header title={__('General System Config')} breadcrumb={breadcrumb} />
+          <Wrapper.Header title={__('General system config')} breadcrumb={breadcrumb} />
         }
         mainHead={<Header />}
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{__('General System Config')}</Title>}
+            left={<Title>{__('General system config')}</Title>}
             right={actionButtons}
           />
         }

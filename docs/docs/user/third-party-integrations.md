@@ -4,9 +4,11 @@ title: How to setup third party integrations ?
 sidebar_label: Third party integrations
 ---
 
-## Setup facebook integration
+## Setup Facebook integration
 
-Integration is a way of communicating with customers who are emerging into the organizations' website, Facebook, Twitter through erxes.io platform. Integration can be created on every brands' social media page. Thence, we would be able to track the percentage of customers who are emerging into the organizations' Facebook page and website form.
+Integration is a way of communicating with customers who are emerging into the organizations' website, Facebook, Twitter through Erxes.io platform.
+
+Integration can be created on every brands social media page. Thence, we would be able to track the percentage of customers who are emerging into the organizations Facebook page and website form.
 
 + Please follow the steps for setup: General Settings->App Store > Add Facebook
 <div>
@@ -34,7 +36,7 @@ Integration is a way of communicating with customers who are emerging into the o
 
 ---
 
-## Link facebook account
+## Link Facebook account
 
 <div>
   <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-6.png" style="width:400px;height:350px;" />
