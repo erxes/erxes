@@ -354,16 +354,17 @@ NYLAS_WEBHOOK_CALLBACK_URL=http://localhost:3400/nylas/webhook
 
 
 
-### Microsoft
-Learn how to integrate Microsoft Accounts With Erxes. 
+### Outlook
+Learn how to integrate Outlook Accounts With Erxes. 
 Integrating the Outlook is easy peasy lemon squeezy, all we need is email and password no additional steps.
 
 **Configuration:** 
-- Go to Erxes Settings => System config => Integrations config => Microsoft. 
+- Go to Erxes Settings => System config => Integrations config => Outlook. 
 
 ```
-MICROSOFT_CLIENT_ID=''
-MICROSOFT_CLIENT_SECRET=''
+# 32 bit characters
+# ex: aes-256-cbc
+ALGORITHM = '';
 ENCRYPTION_KEY=''
 ```
 
