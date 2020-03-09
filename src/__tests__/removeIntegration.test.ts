@@ -19,6 +19,7 @@ import './setup.ts';
 describe('Facebook remove integration test', async () => {
   let integrationId1: string;
   let erxesApiId1: string;
+  let erxesApiId2: string;
   let accountId: string;
 
   beforeEach(async () => {
@@ -30,7 +31,7 @@ describe('Facebook remove integration test', async () => {
       erxesApiId: 'jaskjda',
     });
 
-    await integrationFactory({
+    const integration2 = await integrationFactory({
       kind: 'facebook',
       accountId: account._id,
       erxesApiId: 'asljkdas',
@@ -38,6 +39,7 @@ describe('Facebook remove integration test', async () => {
 
     accountId = account._id;
     erxesApiId1 = integration1.erxesApiId;
+    erxesApiId2 = integration2.erxesApiId;
     integrationId1 = integration1._id;
   });
 
@@ -69,7 +71,7 @@ describe('Facebook remove integration test', async () => {
     const erxesApiIds = await removeAccount(accountId);
 
     // Remove integration
-    expect(erxesApiIds).toEqual({ erxesApiIds: ['jaskjda', 'asljkdas'] });
+    expect(erxesApiIds).toEqual({ erxesApiIds: [erxesApiId1, erxesApiId2] });
 
     expect(await Integrations.find({ kind: 'facebook' })).toEqual([]);
 

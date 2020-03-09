@@ -6,10 +6,12 @@ export interface IAccountCredentials {
 }
 
 export interface ICredentials {
-  access_token: string;
-  refresh_token?: string;
-  expiry_date: string;
+  refresh_token?: string | null;
+  expiry_date?: number | null;
+  access_token?: string | null;
   scope: string;
+  token_type?: string | null;
+  id_token?: string | null;
 }
 
 export interface IAttachmentParams {

@@ -16,27 +16,24 @@ const getOauthClient = async () => {
   const GMAIL_REDIRECT_URL = `${getEnv({ name: 'DOMAIN' })}/gmaillogin`;
 
   if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
-    return debugGmail(`
+    throw new Error(`
       Error Google: Missing env values
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
     `);
   }
 
-  let response;
-
   try {
-    response = new google.auth.OAuth2(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GMAIL_REDIRECT_URL);
+    return new google.auth.OAuth2(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GMAIL_REDIRECT_URL);
   } catch (e) {
     debugGmail(`
       Error Google: Could not create OAuth2 Client with
       ${GOOGLE_CLIENT_ID}
       ${GOOGLE_CLIENT_SECRET}
     `);
-    return;
-  }
 
-  return response;
+    throw e;
+  }
 };
 
 /**
@@ -46,10 +43,16 @@ export const getAuth = async (credentials: ICredentials, accountId?: string) => 
   // Google OAuthClient ================
   const oauth2Client = await getOauthClient();
 
-  oauth2Client.on('tokens', async tokens => {
-    await refreshAccessToken(accountId, credentials);
+  credentials = await new Promise((resolve, reject) => {
+    oauth2Client.on('tokens', async (tokens: ICredentials) => {
+      try {
+        await refreshAccessToken(accountId, credentials);
+      } catch (e) {
+        reject(e);
+      }
 
-    credentials = tokens;
+      resolve(tokens);
+    });
   });
 
   oauth2Client.setCredentials(credentials);
@@ -64,37 +67,27 @@ export const getAuthorizeUrl = async (): Promise<string> => {
   // Google OAuthClient ================
   const oauth2Client = await getOauthClient();
 
-  const options = { access_type: 'offline', scope: SCOPES_GMAIL };
-
-  let authUrl;
-
-  debugGmail(`
-    Google OAuthClient generate auth url with following data
-    ${options}
-  `);
+  debugGmail(`Google OAuthClient generate auth url`);
 
   try {
-    authUrl = oauth2Client.generateAuthUrl(options);
+    return oauth2Client.generateAuthUrl({ access_type: 'offline', scope: SCOPES_GMAIL });
   } catch (e) {
     debugGmail(`Google OAuthClient failed to generate auth url`);
+    throw e;
   }
-
-  return authUrl;
 };
 
 /**
  * Get access token from gmail callback
  */
-export const getAccessToken = async (code: string) => {
-  let accessToken;
-
+export const getAccessToken = async (code: string): Promise<ICredentials> => {
   debugGmail(`Google OAuthClient request to get token with ${code}`);
 
   // Google OAuthClient ================
   const oauth2Client = await getOauthClient();
 
   try {
-    accessToken = await new Promise((resolve, reject) =>
+    return new Promise((resolve, reject) =>
       oauth2Client.getToken(code, (err: any, token: ICredentials) => {
         if (err) {
           return reject(err.response.data.error);
@@ -105,9 +98,8 @@ export const getAccessToken = async (code: string) => {
     );
   } catch (e) {
     debugGmail(`Error Google: Google OAuthClient failed to get access token with ${code}`);
+    throw e;
   }
-
-  return accessToken;
 };
 
 /**
@@ -128,7 +120,7 @@ export const refreshAccessToken = async (_id: string, tokens: ICredentials): Pro
   }
 
   if (tokens.expiry_date) {
-    account.expireDate = tokens.expiry_date;
+    account.expireDate = tokens.expiry_date.toString();
   }
 
   await account.save();
