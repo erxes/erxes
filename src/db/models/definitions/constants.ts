@@ -362,8 +362,9 @@ export const BOARD_TYPES = {
 
 export const MESSAGE_TYPES = {
   VIDEO_CALL: 'videoCall',
+  VIDEO_CALL_REQUEST: 'videoCallRequest',
   TEXT: 'text',
-  ALL: ['videoCall', 'text'],
+  ALL: ['videoCall', 'videoCallRequest', 'text'],
 };
 
 // module constants
