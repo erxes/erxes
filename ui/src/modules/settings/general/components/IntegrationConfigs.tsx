@@ -173,6 +173,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
               {__("More: Understanding Chat-API Integration Variables")}
             </a>
           </Info>
+          {this.renderItem("CHAT_API_UID")}
           {this.renderItem(
             "CHAT_API_WEBHOOK_CALLBACK_URL",
             "https://yourdomain/whatsappww/webhook"

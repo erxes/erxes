@@ -111,6 +111,7 @@ export const KEY_LABELS = {
   GOOGLE_CLIENT_ID: "Google Clien Id",
   GOOGLE_CLIENT_SECRET: "Google Client Secret",
   CHAT_API_WEBHOOK_CALLBACK_URL: "Chat-API Webhook Callback Url",
+  CHAT_API_UID: "Chat-API UID",
   DAILY_API_KEY: "Daily api key",
   DAILY_END_POINT: "Daily end point"
 };
