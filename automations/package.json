@@ -21,7 +21,9 @@
     "lint": "tslint 'src/**/*.ts'",
     "format": "prettier --write 'src/**/*.ts'",
     "precommit": "lint-staged",
-    "initDataPrius": "ts-node ./src/commands/initDataPrius.ts"
+    "initDataPrius": "ts-node ./src/commands/initDataPrius.ts",
+    "publishAllAutomations": "ts-node ./src/commands/publishAllAutomations.ts",
+    "deleteAllAutomations": "ts-node ./src/commands/deleteAllAutomations.ts"
   },
   "lint-staged": {
     "gitDir": "../",
