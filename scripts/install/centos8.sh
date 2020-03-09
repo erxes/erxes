@@ -233,7 +233,7 @@ cat <<EOF >/home/$username/ecosystem.json
         "NODE_ENV": "production",
         "ROOT_URL": "http://$erxes_domain/widgets",
         "API_URL": "http://$erxes_domain/api",
-        "API_SUBSCRIPTIONS_URL": "ws://$erxes_domain/apisubscriptions"
+        "API_SUBSCRIPTIONS_URL": "ws://$erxes_domain/api/subscriptions"
       }
     },
     {

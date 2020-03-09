@@ -7,7 +7,11 @@ declare const window: any;
 // css
 import "./index.css";
 
-import { generateIntegrationUrl, getBrowserInfo } from "../../utils";
+import {
+  generateIntegrationUrl,
+  getBrowserInfo,
+  setErxesProperty
+} from "../../utils";
 
 // add meta to head
 const meta = document.createElement("meta");
@@ -64,21 +68,65 @@ const createIframe = (setting: Setting) => {
 
     const handlerSelector = `[data-erxes-modal="${setting.form_id}"]`;
 
-    if (iframe.contentWindow) {
-      iframe.contentWindow.postMessage(
-        {
-          fromPublisher: true,
-          hasPopupHandlers:
-            document.querySelectorAll(handlerSelector).length > 0,
-          setting
-        },
-        "*"
-      );
+    const contentWindow = iframe.contentWindow;
+
+    if (!contentWindow) {
+      return;
     }
+
+    contentWindow.postMessage(
+      {
+        fromPublisher: true,
+        hasPopupHandlers: document.querySelectorAll(handlerSelector).length > 0,
+        setting
+      },
+      "*"
+    );
   };
 
   return { container, iframe };
 };
+
+const postMessageToOne = (formId: string, data: any) => {
+  const settingAsString = Object.keys(iframesMapping).find(sas => {
+    const setting = JSON.parse(sas);
+
+    return formId === setting.form_id;
+  });
+
+  if (!settingAsString) {
+    return;
+  }
+
+  const { iframe } = iframesMapping[settingAsString];
+
+  const contentWindow = iframe.contentWindow;
+
+  if (!contentWindow) {
+    return;
+  }
+
+  contentWindow.postMessage(
+    {
+      fromPublisher: true,
+      formId,
+      ...data
+    },
+    "*"
+  );
+};
+
+setErxesProperty("showPopup", (id: string) => {
+  postMessageToOne(id, { action: "showPopup" });
+});
+
+setErxesProperty("callFormSubmit", (id: string) => {
+  postMessageToOne(id, { action: "callSubmit" });
+});
+
+setErxesProperty("sendExtraFormContent", (id: string, html: string) => {
+  postMessageToOne(id, { action: "extraFormContent", html });
+});
 
 const formSettings = window.erxesSettings.forms || [];
 

@@ -1,3 +1,5 @@
+import { commonFields } from "./queries";
+
 const commonFormParamsDef = `
   $name: String!,
   $brandId: String!,
@@ -32,6 +34,7 @@ const integrationsEditLeadIntegration = `
   mutation integrationsEditLeadIntegration($_id: String!, ${commonFormParamsDef}) {
     integrationsEditLeadIntegration(_id: $_id, ${commonFormParams}) {
       _id
+      ${commonFields}
     }
   }
 `;

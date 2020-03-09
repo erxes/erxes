@@ -10,19 +10,19 @@ There are some integrations that we have developed.
 
 * [Facebook integration guide](../administrator/integrations#facebook-integration)
 
-Erxes app can be integrated with facebook developer API and that means we can receive our Facebook pages' inbox messages directly to our erxes app's inbox.
+Erxes app can be integrated with Facebook developer API and that means we can receive our Facebook pages' inbox messages directly to our Erxes app's inbox.
 
 * [Twitter integration guide](../administrator/integrations#twitter-integration)
 
-Erxes app can be integrated with twitter developer API and that means we can receive our twitter accounts DMs, Tweets directly into our erxes app's inbox.
+Erxes app can be integrated with Twitter developer API and that means we can receive our Twitter accounts DMs, Tweets directly into our Erxes app's inbox.
 
 * [Gmail integration guide](../administrator/integrations#gmail-integration)
 
-Erxes app can be integrated with Gmail API and that means we can receive our gmail inbox messages directly to our erxes app's inbox.
+Erxes app can be integrated with Gmail API and that means we can receive our gmail inbox messages directly to our Erxes app's inbox.
 
 * [AWS S3 integration](../administrator/integrations#aws-s3-integration)
 
-Erxes app can be integrated with AWS S3 service and that means we can upload files and photos to our erxes app.
+Erxes app can be integrated with AWS S3 service and that means we can upload files and photos to our Erxes app.
 
 * [AWS SES integration](../administrator/integrations#aws-ses-integration)
 
