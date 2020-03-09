@@ -31,6 +31,12 @@
     ]
   },
   "dependencies": {
+    "request-promise": "^4.2.4",
+    "dotenv": "^4.0.0",
+    "mongoose": "5.7.5",
+    "debug": "^4.1.1",
+    "body-parser": "^1.17.1",
+    "express": "^4.16.4",
     "amqplib": "^0.5.5",
     "uuid": "^3.3.3"
   },
