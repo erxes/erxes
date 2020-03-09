@@ -1,5 +1,6 @@
 import gql from "graphql-tag";
 import client from "../../apollo-client";
+import { getLocalStorageItem } from "../../common";
 import { IBrowserInfo, IEmailParams } from "../../types";
 import { requestBrowserInfo } from "../../utils";
 import { connection } from "../connection";
@@ -94,20 +95,30 @@ export const saveLead = (params: {
     };
   });
 
+  const variables = {
+    integrationId,
+    formId,
+    browserInfo,
+    submissions,
+    cachedCustomerId: getLocalStorageItem("customerId")
+  };
+
   client
     .mutate({
       mutation: gql(saveFormMutation),
-      variables: {
-        integrationId,
-        formId,
-        browserInfo,
-        submissions
-      }
+      variables
     })
 
     .then(({ data }) => {
       if (data) {
         saveCallback(data.widgetsSaveLead);
+
+        if (data.widgetsSaveLead && data.widgetsSaveLead.status === "ok") {
+          postMessage({
+            message: "formSuccess",
+            variables
+          });
+        }
       }
     })
 

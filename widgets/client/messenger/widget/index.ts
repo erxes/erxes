@@ -5,7 +5,11 @@
 // css
 import "./index.css";
 
-import { generateIntegrationUrl, getBrowserInfo } from "../../utils";
+import {
+  generateIntegrationUrl,
+  getBrowserInfo,
+  setErxesProperty
+} from "../../utils";
 
 declare const window: any;
 
@@ -95,7 +99,7 @@ iframe.onload = async () => {
 
   const setting = window.erxesSettings.messenger;
 
-  window.showErxesMessenger = () => {
+  setErxesProperty("showMessenger", () => {
     contentWindow.postMessage(
       {
         fromPublisher: true,
@@ -103,7 +107,7 @@ iframe.onload = async () => {
       },
       "*"
     );
-  };
+  });
 
   contentWindow.postMessage(
     {
@@ -146,7 +150,6 @@ window.addEventListener("message", async (event: MessageEvent) => {
     if (message === "notifier") {
       clearTimer();
       delaydToggleClass("erxes-notifier-shown", isVisible);
-      // delaydAddClass(` erxes-notifier-${isVisible ? "shown" : "hidden"}`);
     }
 
     if (message === "notifierFull") {

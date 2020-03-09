@@ -328,6 +328,7 @@ export interface IFilterParams extends ISavedConformity {
   assignedUserIds?: string;
   closeDateType?: string;
   labelIds?: string;
+  userIds?: string;
 }
 
 export interface IEditFormContent {
