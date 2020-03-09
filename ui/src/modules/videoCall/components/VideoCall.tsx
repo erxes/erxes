@@ -2,7 +2,7 @@ import DailyIframe from '@daily-co/daily-js';
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { SimpleButton } from 'modules/common/styles/main';
-import { Alert } from 'modules/common/utils';
+import { Alert, __ } from 'modules/common/utils';
 import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -88,7 +88,7 @@ class VideoCall extends React.Component<
   renderControls() {
     return (
       <Control onClick={this.onDelete} disabled={this.state.loading}>
-        {this.state.loading ? 'Please wait...' : 'Delete room'}
+        {this.state.loading ? __('Please wait...') : __('End call')}
       </Control>
     );
   }

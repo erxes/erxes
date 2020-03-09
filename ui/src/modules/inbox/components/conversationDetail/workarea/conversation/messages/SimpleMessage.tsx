@@ -55,6 +55,19 @@ export default class SimpleMessage extends React.Component<Props, {}> {
     ));
   }
 
+  renderVideoCallRequest() {
+    return (
+      <CallBox>
+        <UserInfo>
+          <strong>
+            <Icon icon="phone-slash" color="#EA475D" size={12} />{' '}
+            {__('You`ve recieved a video call request')}
+          </strong>
+        </UserInfo>
+      </CallBox>
+    );
+  }
+
   renderVideoCall() {
     const { message } = this.props;
 
@@ -99,6 +112,10 @@ export default class SimpleMessage extends React.Component<Props, {}> {
 
     if (message.contentType === 'videoCall') {
       return this.renderVideoCall();
+    }
+
+    if (message.contentType === 'videoCallRequest') {
+      return this.renderVideoCallRequest();
     }
 
     if (!message.content) {
