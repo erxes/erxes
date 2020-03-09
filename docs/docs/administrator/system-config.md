@@ -404,7 +404,7 @@ Learn how to integrate Nylas Accounts With Erxes.
 ```
 NYLAS_CLIENT_ID='nylas account client id'
 NYLAS_CLIENT_SECRET='nylas account client secret'
-NYLAS_WEBHOOK_CALLBACK_URL=http://localhost:3400/nylas/webhook
+NYLAS_WEBHOOK_CALLBACK_URL='https://ID.ngrok.io/nylas/webhook'
 ```
 
 
@@ -421,13 +421,9 @@ NYLAS_WEBHOOK_CALLBACK_URL=http://localhost:3400/nylas/webhook
   cd /path/to/erxes-integrations
   ngrok http 3400
   ```
-  - Copy the IP address with https and replace `erxes-integrations/.env` as follows:
-  ```Shell
-  NYLAS_WEBHOOK_CALLBACK_URL=http://localhost:3400/nylas/webhook
-  NYLAS_WEBHOOK_CALLBACK_URL=https://NGROK_IP/nylas/webhook
-  ```
-  When you start erxes-integration repo webhook will automatically created according to `.env`
-  #### Now we are ready to config our provider
+ 
+  When you start erxes-integration repo webhook will automatically created according to your configuration.
+  #### Now we are ready to config our Nylas provider
 
 
 
@@ -463,78 +459,58 @@ ENCRYPTION_KEY=''
 
 ### Gmail 
 
-Learn how to integrate Gmail Accounts With Erxes. 
-Erxes app can be integrated with Gmail API and that means we can receive our gmail inbox messages directly to our erxes app's inbox. With the help of gmail API we have many more possibilities, like realtime email synchronization, send & reply email etc. There is an active development process going on this subject.
+Erxes app can be integrated with Gmail API by Nylas and that means we can receive our gmail inbox messages directly to our erxes app's inbox. With the help of gmail API we have many more possibilities, like realtime email synchronization, send & reply email etc. 
 
-**If your app uses Google APIs to access Google users’ data, you might have to complete a verification process before you make your app publicly available for the first time**
+**Requirements:**
+
+- Create Google project and OAuth Client ID.
+- Enable Gmail API.
+
 
 **Configuration:** 
-- Go to Erxes Settings => System config => Integrations config => Gmail. 
+- Go to Erxes Settings => System config => General system config => Google. 
 
-
-#### Gmail variable configurations
 
 ```
 GOOGLE_PROJECT_ID="your google project's id"
-GOOGLE_GMAIL_TOPIC="your google created gmail topic"
-GOOGLE_APPLICATION_CREDENTIALS="your downloaded google's credentials which is json file"
-GOOGLE_GMAIL_SUBSCRIPTION_NAME="your google cloud project's subscription name"
+GOOGLE_APPLICATION_CREDENTIALS="./google_cred.json"
 GOOGLE_CLIENT_ID="your google project's client id"
 GOOGLE_CLIENT_SECRET="your google project's secret key"
 ```
 
-Requirements:
 
-- To create google project.
-- Enable gmail api.
-- Configure google cloud pub/sub.
+#### Creating Google project
+According to [Nylas guide](https://docs.nylas.com/docs/creating-a-google-project-for-dev), follow the configurations to set variables.
+1. Create the Google project and config gmail.
+2. Enable APIs.
+3. Configure OAuth Consent Screen.
+4. Create an OAuth Credential.  In order to have Google OAuth token, add authorized redirect URIs to your google credentials. 
+- Select Google project
+- Go to credentials from left side menu
+- Select OAuth 2.0 client ID
+- Add **Authorized JavaScript origins**
 
-Creating google project:
+ `Add URI = https://nylas.com `
+ 
+- Add **Authorized redirect URI**
 
-- Go to https://console.cloud.google.com/cloud-resource-manager and create new project.
+ `Add URI = http://localhost:3400/nylas/oauth2/callback`
 
-Enable gmail api:
+ `Add URI = https://api.nylas.com/oauth/callback`
 
-- Go to the APIs & Services/library & enable gmail api.
-- Go to the APIs & Services/credentials & create new `OAuth client ID` credentials. If you see warning about `product name` follow the instruction, make it disappear. Afterwards select `Web application` & add `http://localhost:3000/service/oauth/gmail_callback` in `Authorized redirect URIs` & create.
-- Copy `Client ID` & `Client secret` paste in your erxes-api/.env file. It looks like following example:
-
-
+After you create the Google service account download json and replace with google_cred.json. 
 
 
 
+**Erxes Gmail integration settings:**
 
-
-
-Configure google cloud pub/sub:
-
-- Go to https://console.cloud.google.com/cloudpubsub/enableApi & select your project.
-- Enable api & create topic.
-- On the topic we must create subscription which is shown on the right of the topic as 3 dots. Select `New subscrition` & create.
-- Now grant publish rights on your topic. To do this, select `permissions` from the menu shown as a 3 dots & add member `serviceAccount:gmail-api-push@system.gserviceaccount.com` role as a pub/sub publisher.
-- Then copy the topic & subscrition put it in erxes-api/.env file. It should looks like following example:
-
-```shell
-#.env
-GOOGLE_TOPIC = "projects/myproject/topics/erxes-topic"
-GOOGLE_SUPSCRIPTION_NAME = "projects/myproject/subscriptions/erxes-subscription"
-```
-
-- Go to https://console.cloud.google.com/apis/credentials/serviceaccountkey
-- Select your project & create new service account with role as project owner.
-- Download json file, put file path in erxes/.env file. It should looks like following example:
-
-```shell
-#.env
-GOOGLE_APPLICATION_CREDENTIALS = "/Users/user/Downloads/9bb5b70c121c.json"
-```
-
-Add integration:
-
-- Go to erxes settings - App store - add gmail. (Make sure you create new brand beforehand)
+1. Go to Erxes settings => App store
+2. Click on Add Gmail by Nylas. Connect your account.
+3. Select your brand and click save.
+4. Go to Setting=> Channel=> Add new channel=> Connect gmail integration.
 
 ### Yahoo
-2. In order to integrate the Yahoo you will need to generate app password for the Erxes, please follow below steps.
+In order to integrate the Yahoo you will need to generate app password for the Erxes, please follow below steps.
   - Go to Settings/App Store and click on Add button of the Yahoo section
     <div>
       <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-1.png" />
