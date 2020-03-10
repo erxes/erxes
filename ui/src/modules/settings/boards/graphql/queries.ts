@@ -37,13 +37,14 @@ const pipelines = `
 `;
 
 const stages = `
-  query stages($pipelineId: String!) {
-    stages(pipelineId: $pipelineId) {
+  query stages($pipelineId: String!, $isAll: Boolean) {
+    stages(pipelineId: $pipelineId, isAll: $isAll) {
       _id
       name
       probability
       pipelineId
       formId
+      status
     }
   }
 `;

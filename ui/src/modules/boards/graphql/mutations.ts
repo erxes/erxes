@@ -81,6 +81,13 @@ export const commonFields = `
   reminderMinute
   isComplete
   status
+  createdUser {
+    _id
+    details {
+      fullName
+      avatar
+    }
+  }
 `;
 
 const stagesUpdateOrder = `

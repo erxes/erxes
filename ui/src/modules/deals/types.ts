@@ -33,6 +33,7 @@ export interface IProductData {
   discount: number;
   amount: number;
   tickUsed: boolean;
+  assignUserId?: string;
 }
 
 export interface IPaymentsData {
