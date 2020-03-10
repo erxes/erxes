@@ -65,6 +65,7 @@ export interface IFormProps {
   values: any;
   registerChild: (child: React.ReactNode) => void;
   runValidations?: (callback: any) => void;
+  resetSubmit?: () => void;
   isSubmitted: boolean;
 }
 
@@ -79,6 +80,7 @@ export type IButtonMutateProps = {
   values: any;
   isSubmitted: boolean;
   callback?: () => void;
+  resetSubmit?: () => void;
   size?: string;
   object?: any;
   text?: string;

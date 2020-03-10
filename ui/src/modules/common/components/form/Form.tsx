@@ -33,6 +33,10 @@ class Form extends React.Component<Props, State> {
     this.children.push(child);
   };
 
+  resetSubmit = () => {
+    this.setState({ isSubmitted: false });
+  };
+
   runValidations = () => {
     const errors = {};
     const values = {};
@@ -129,7 +133,8 @@ class Form extends React.Component<Props, State> {
           values: this.state.values,
           registerChild: this.registerChild,
           runValidations: this.runValidations,
-          isSubmitted: this.state.isSubmitted
+          isSubmitted: this.state.isSubmitted,
+          resetSubmit: this.resetSubmit,
         })}
       </form>
     );
