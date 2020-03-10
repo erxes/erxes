@@ -43,7 +43,8 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
       name,
       values,
       isSubmitted,
-      object
+      object,
+      resetSubmit
     }: IButtonMutateProps) => {
       const afterSave = data => {
         closeModal();
@@ -79,6 +80,7 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
           disabled={isSubmitted}
           type="submit"
           icon="user-check"
+          resetSubmit={resetSubmit}
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
           } a ${name}`}

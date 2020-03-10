@@ -56,7 +56,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
     this.onChangeConfig(code, e.target.value);
   };
 
-  renderItem = (key: string, description?: string) => {
+  renderItem(key: string, description?: string) {
     const { configsMap } = this.state;
 
     return (
@@ -69,7 +69,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
         />
       </FormGroup>
     );
-  };
+  }
 
   onTypeChange = (code: string, e) => {
     this.setState({ useNativeGmail: e.target.checked }, () => {
@@ -82,9 +82,9 @@ class IntegrationConfigs extends React.Component<Props, State> {
 
     return (
       <ContentBox>
-        <CollapseContent title='Facebook'>
+        <CollapseContent title="Facebook">
           <Info>
-            <a target='_blank' href='Variables' rel='noopener noreferrer'>
+            <a target="_blank" href="Variables" rel="noopener noreferrer">
               {__('More: Understanding Facebook Integration Variables')}
             </a>
           </Info>
@@ -93,12 +93,12 @@ class IntegrationConfigs extends React.Component<Props, State> {
           {this.renderItem('FACEBOOK_VERIFY_TOKEN')}
         </CollapseContent>
 
-        <CollapseContent title='Twitter'>
+        <CollapseContent title="Twitter">
           <Info>
             <a
-              target='_blank'
-              href='https://docs.erxes.io/administrator/environment-variables#twitter-settings'
-              rel='noopener noreferrer'
+              target="_blank"
+              href="https://docs.erxes.io/administrator/environment-variables#twitter-settings"
+              rel="noopener noreferrer"
             >
               {__('More: Understanding Twitter Integration Variables')}
             </a>
@@ -110,12 +110,12 @@ class IntegrationConfigs extends React.Component<Props, State> {
           {this.renderItem('TWITTER_WEBHOOK_ENV')}
         </CollapseContent>
 
-        <CollapseContent title='Nylas'>
+        <CollapseContent title="Nylas">
           <Info>
             <a
-              target='_blank'
-              href='https://docs.erxes.io/administrator/integrations#nylas-integration'
-              rel='noopener noreferrer'
+              target="_blank"
+              href="https://docs.erxes.io/administrator/integrations#nylas-integration"
+              rel="noopener noreferrer"
             >
               {__('More: Understanding Nylas Integration')}
             </a>
@@ -136,17 +136,30 @@ class IntegrationConfigs extends React.Component<Props, State> {
           {this.renderItem('ALGORITHM', 'aes-256-cbc')}
         </CollapseContent>
 
-        <CollapseContent title='Daily'>
+        <CollapseContent title="Video call">
+          <FormGroup>
+            <ControlLabel>Video call type</ControlLabel>
+            <FormControl
+              name="VIDEO_CALL_TYPE"
+              defaultValue={configsMap.VIDEO_CALL_TYPE}
+              componentClass="select"
+              options={[
+                { value: '', label: '' },
+                { value: 'daily', label: 'Daily' }
+              ]}
+              onChange={this.onChangeInput.bind(this, 'VIDEO_CALL_TYPE')}
+            />
+          </FormGroup>
           {this.renderItem('DAILY_API_KEY')}
           {this.renderItem('DAILY_END_POINT')}
         </CollapseContent>
 
-        <CollapseContent title='Gmail'>
+        <CollapseContent title="Gmail">
           <Info>
             <a
-              target='_blank'
-              href='https://docs.erxes.io/administrator/integrations#gmail-integration'
-              rel='noopener noreferrer'
+              target="_blank"
+              href="https://docs.erxes.io/administrator/integrations#gmail-integration"
+              rel="noopener noreferrer"
             >
               {__('More: Understanding Gmail Integration Variables')}
             </a>
@@ -173,9 +186,9 @@ class IntegrationConfigs extends React.Component<Props, State> {
   render() {
     const actionButtons = (
       <Button
-        btnStyle='primary'
+        btnStyle="primary"
         onClick={this.save}
-        icon='check-circle'
+        icon="check-circle"
         uppercase={false}
       >
         Save
