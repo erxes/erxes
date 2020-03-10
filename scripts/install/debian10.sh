@@ -203,7 +203,7 @@ cat <<EOF >/home/$username/ecosystem.json
         "NODE_ENV": "production",
         "ROOT_URL": "http://$erxes_domain/widgets",
         "API_URL": "http://$erxes_domain/api",
-        "API_SUBSCRIPTIONS_URL": "ws://$erxes_domain/apisubscriptions"
+        "API_SUBSCRIPTIONS_URL": "ws://$erxes_domain/api/subscriptions"
       }
     },
     {
@@ -262,7 +262,6 @@ window.env = {
   REACT_APP_API_URL: "http://$erxes_domain/api",
   REACT_APP_API_SUBSCRIPTION_URL: "ws://$erxes_domain/api/subscriptions",
   REACT_APP_CDN_HOST: "http://$erxes_domain/widgets"
-  //REACT_APP_CDN_HOST_API: "http://$erxes_domain/erxes-widgets/"
 };
 EOF
 chown $username:$username $erxes_dir/build/js/env.js
