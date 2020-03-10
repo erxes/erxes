@@ -279,6 +279,8 @@ connect()
       toArrow: [workerToErxes._id],
       config: {},
     });
+
+    await Shapes.updateMany({ config: { $exists: false } }, { $set: { config: {} } });
   })
 
   .then(() => {
