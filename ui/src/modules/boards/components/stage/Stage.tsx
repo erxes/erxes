@@ -186,33 +186,10 @@ export default class Stage extends React.Component<Props> {
             <StageRoot isDragging={snapshot.isDragging}>
               <Header {...provided.dragHandleProps}>
                 <StageTitle>
-                  <div>
+                  <h4>
                     {stage.name}
                     <span>{stage.itemsTotalCount}</span>
-                  </div>
-                  {/* <OverlayTrigger
-                    ref={overlayTrigger => {
-                      this.overlayTrigger = overlayTrigger;
-                    }}
-                    trigger="click"
-                    placement="bottom"
-                    rootClose={true}
-                    container={this}
-                    overlay={
-                      <Overlay
-                        options={options}
-                        queryParams={queryParams}
-                        stage={stage}
-                        refetchStages={refetchStages}
-                        archiveItems={archiveItems}
-                        onClosePopover={this.onClosePopover}
-                        archiveList={archiveList}
-                      />
-                    }>
-                    <ActionButton>
-                      <Icon icon="ellipsis-h" />
-                    </ActionButton>
-                  </OverlayTrigger> */}
+                  </h4>
                   <Control
                     options={options}
                     queryParams={queryParams}

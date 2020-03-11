@@ -1,7 +1,7 @@
+import { ButtonContainer } from 'modules/boards/styles/label';
 import Button from 'modules/common/components/Button';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
-import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import Select from 'react-select-plus';
@@ -10,7 +10,8 @@ import { IBoard, IPipeline } from '../../types';
 import { selectOptions } from '../../utils';
 
 const SelectPipeline = styled.div`
-  min-width: 250px;
+  min-width: 220px;
+  font-weight: initial;
   margin: 15px;
 `;
 
@@ -111,11 +112,17 @@ class PipelineSelect extends React.Component<Props, State> {
           )}
         </FormGroup>
 
-        <ModalFooter>
-          <Button btnStyle="success" icon="checked-1" onClick={onSubmit}>
+        <ButtonContainer>
+          <Button
+            block={true}
+            btnStyle="success"
+            icon="check-1"
+            onClick={onSubmit}
+            size="small"
+          >
             {__('Confirm')}
           </Button>
-        </ModalFooter>
+        </ButtonContainer>
       </SelectPipeline>
     );
   }

@@ -1,3 +1,4 @@
+import { ChooseLabelWrapper } from 'modules/boards/styles/label';
 import { ActionButton } from 'modules/boards/styles/stage';
 import { IOptions, IStage, IStageRefetchParams } from 'modules/boards/types';
 import Icon from 'modules/common/components/Icon';
@@ -32,30 +33,31 @@ export default class Control extends Component<Props> {
     } = this.props;
 
     return (
-      <OverlayTrigger
-        ref={oT => {
-          overlayTrigger = oT;
-        }}
-        trigger="click"
-        placement="left-start"
-        rootClose={true}
-        container={this}
-        overlay={
-          <Overlay
-            options={options}
-            queryParams={queryParams}
-            stage={stage}
-            refetchStages={refetchStages}
-            archiveItems={archiveItems}
-            onClosePopover={onClosePopover}
-            archiveList={archiveList}
-          />
-        }
-      >
-        <ActionButton>
-          <Icon icon="ellipsis-h" />
-        </ActionButton>
-      </OverlayTrigger>
+      <ChooseLabelWrapper>
+        <OverlayTrigger
+          ref={oT => {
+            overlayTrigger = oT;
+          }}
+          trigger="click"
+          rootClose={true}
+          container={this}
+          overlay={
+            <Overlay
+              options={options}
+              queryParams={queryParams}
+              stage={stage}
+              refetchStages={refetchStages}
+              archiveItems={archiveItems}
+              onClosePopover={onClosePopover}
+              archiveList={archiveList}
+            />
+          }
+        >
+          <ActionButton>
+            <Icon icon="ellipsis-h" />
+          </ActionButton>
+        </OverlayTrigger>
+      </ChooseLabelWrapper>
     );
   }
 }

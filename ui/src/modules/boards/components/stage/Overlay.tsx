@@ -3,7 +3,7 @@ import { Title } from 'modules/boards/styles/label';
 import { ActionList } from 'modules/boards/styles/stage';
 import { IOptions, IStage, IStageRefetchParams } from 'modules/boards/types';
 import Icon from 'modules/common/components/Icon';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Popover } from 'react-bootstrap';
 
 type Props = {
@@ -33,6 +33,15 @@ export default function Overlay(props: Props) {
   const onChangeForm = () => {
     setShowForm(!showForm);
   };
+
+  useEffect(() => {
+    const elm = document.getElementById('stage-popover');
+
+    if (elm) {
+      elm.className = 'popover bottom';
+      elm.style.marginTop = '30px';
+    }
+  });
 
   function renderCopyMoveTrigger() {
     const { options, stage, refetchStages, queryParams } = props;
@@ -95,7 +104,7 @@ export default function Overlay(props: Props) {
   const typeTitle = type === 'Copy' ? 'Copy List' : 'Move List';
 
   return (
-    <Popover id="filter-label">
+    <Popover id="stage-popover">
       <Title>
         {showForm && <Icon icon="arrow-left" onClick={onChangeForm} />}
         {showForm ? typeTitle : 'Action List'}

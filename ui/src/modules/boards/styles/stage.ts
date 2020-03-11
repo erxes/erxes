@@ -22,7 +22,7 @@ const StageRoot = styledTS<{ isDragging: boolean }>(styled.div)`
   border-radius: 3px;
   transition: box-shadow 0.3s ease;
   background: ${stageGray};
-  overflow: hidden;
+  max-height: 100%;
 
   ${props => css`
     box-shadow: ${props.isDragging
@@ -91,7 +91,7 @@ const Header = styled.div`
 `;
 
 const HeaderAmount = styled.div`
-  min-height: 28px;
+  min-height: 21px;
 `;
 
 const Amount = styled.ul`
@@ -173,7 +173,7 @@ const LoadingContent = styled.div`
   }
 `;
 
-export const StageTitle = styled.h4`
+export const StageTitle = styled.div`
   position: relative;
   display: flex;
   justify-content: space-between;
@@ -181,6 +181,8 @@ export const StageTitle = styled.h4`
 
 export const ActionList = styled(PopoverList)`
   min-width: 250px;
+  font-weight: initial;
+
   li a {
     color: ${colors.textPrimary};
     text-transform: capitalize;
