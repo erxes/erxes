@@ -12,6 +12,7 @@ type Props = {
   productsData: IProductData[];
   products: IProduct[];
   paymentsData?: IPaymentsData;
+  currentProduct?: string;
   closeModal: () => void;
 };
 

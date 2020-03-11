@@ -255,9 +255,9 @@ const HelperButtons = styledTS<{ isSidebarOpen?: boolean }>(styled.div)`
   position: absolute;
   right: ${dimensions.coreSpacing}px;
   top: ${props =>
-    props.isSidebarOpen ? `${dimensions.unitSpacing}px` : '15px'};
-  color: ${colors.colorCoreLightGray};
-  padding-right: ${props => (props.isSidebarOpen ? '25px' : '0')};
+    props.isSidebarOpen ? `${dimensions.unitSpacing - 1}px` : '15px'};
+  color: ${colors.colorCoreGray};
+  padding-right: ${props => (props.isSidebarOpen ? '20px' : '0')};
 
   a, button {
     color: ${colors.colorCoreLightGray};
@@ -508,6 +508,10 @@ const SectionBodyItem = styled.div`
   padding: 10px 20px;
   word-break: break-word;
 
+  &:first-child {
+    border-top: none;
+  }
+
   span {
     display: inline-block;
     width: 100%;
@@ -517,7 +521,6 @@ const SectionBodyItem = styled.div`
   i {
     color: ${colors.colorCoreGray};
     position: absolute;
-    font-size: 13px;
     right: ${dimensions.coreSpacing}px;
 
     &:hover {

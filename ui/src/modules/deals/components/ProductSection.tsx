@@ -31,18 +31,23 @@ function ProductSection({
   saveProductsData,
   savePaymentsData
 }: Props) {
-  const content = props => (
-    <ProductForm
-      {...props}
-      onChangeProductsData={onChangeProductsData}
-      onChangePaymentsData={onChangePaymentsData}
-      productsData={productsData}
-      products={products}
-      paymentsData={paymentsData}
-      saveProductsData={saveProductsData}
-      savePaymentsData={savePaymentsData}
-    />
-  );
+  const contentWithId = (productId?: string) => {
+    const content = props => (
+      <ProductForm
+        {...props}
+        currentProduct={productId}
+        onChangeProductsData={onChangeProductsData}
+        onChangePaymentsData={onChangePaymentsData}
+        productsData={productsData}
+        products={products}
+        paymentsData={paymentsData}
+        saveProductsData={saveProductsData}
+        savePaymentsData={savePaymentsData}
+      />
+    );
+
+    return content;
+  }
 
   const tipItems = (product: IProduct) => {
     const result: React.ReactNode[] = [];
@@ -60,24 +65,25 @@ function ProductSection({
     return result;
   };
 
-  const renderProductFormModal = children => {
+  const renderProductFormModal = (trigger: React.ReactNode, productId?: string) => {
     return (
       <ModalTrigger
         title="Manage Product & Service"
         size="lg"
         dialogClassName="modal-1000w"
-        trigger={children}
-        content={content}
+        trigger={trigger}
+        content={contentWithId(productId)}
       />
     );
   }
 
-  const renderProductName = (productName: string) => {
+  const renderProductName = (productName: string, productId: string) => {
     return renderProductFormModal(
-      <ProductName>
+      <ProductName href={`#${productId}`}>
         {productName}
-        <Icon icon="edit" />
-      </ProductName>
+        <Icon icon="pen-1" />
+      </ProductName>,
+      productId
     );
   };
 
@@ -85,12 +91,12 @@ function ProductSection({
     if (product.customFieldsData) {
       return (
         <Tip text={tipItems(product)} placement="bottom">
-          {renderProductName(product.name)}
+          {renderProductName(product.name, product._id)}
         </Tip>
       );
     }
 
-    return renderProductName(product.name)
+    return renderProductName(product.name, product._id)
   };
 
   return (
@@ -98,7 +104,7 @@ function ProductSection({
       title={__('Product & Service')}
       extraButtons={renderProductFormModal(
         <button>
-          <Icon icon="settings" />
+          <Icon icon="edit-3" />
         </button>
       )}
       name="showProductAndService"
