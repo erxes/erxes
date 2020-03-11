@@ -10,11 +10,12 @@ export const init = async () => {
   const TWITTER_CONSUMER_KEY = await getConfig('TWITTER_CONSUMER_KEY');
 
   if (USE_NATIVE_GMAIL === 'true') {
-    try {
-      await trackGmail();
-    } catch (e) {
-      debugGmail(e.message);
-    }
+    trackGmail()
+      .then(() => debugGmail('Successfully called trackGmail'))
+      .catch(e => {
+        debugGmail(e.message);
+        throw e;
+      });
   }
 
   if (TWITTER_CONSUMER_KEY) {
