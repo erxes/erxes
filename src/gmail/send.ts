@@ -1,5 +1,5 @@
 import { debugGmail } from '../debuggers';
-import { getAuth, gmailClient } from './auth';
+import { getOauthClient, gmailClient } from './auth';
 import { ICredentials, IMailParams } from './types';
 import { getCredentialsByEmailAccountId } from './util';
 
@@ -77,9 +77,6 @@ const chunkSubstr = (str: string, size: number) => {
   return chunks;
 };
 
-/**
- * Create mime message and compose gmail
- */
 export const sendGmail = async (accountId: string, email: string, mailParams: IMailParams) => {
   const message = createMimeMessage(mailParams);
   const credentials = await getCredentialsByEmailAccountId({ email });
@@ -89,13 +86,9 @@ export const sendGmail = async (accountId: string, email: string, mailParams: IM
   return composeEmail(doc);
 };
 
-/**
- * Request to gmail API to send email
- */
 export const composeEmail = async ({
   credentials,
   message,
-  accountId,
   threadId,
 }: {
   credentials: ICredentials;
@@ -104,7 +97,9 @@ export const composeEmail = async ({
   threadId?: string;
 }) => {
   try {
-    const auth = await getAuth(credentials, accountId);
+    const auth = await getOauthClient();
+
+    auth.setCredentials(credentials);
 
     const params = {
       auth,
