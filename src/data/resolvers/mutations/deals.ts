@@ -225,6 +225,9 @@ const dealMutations = {
 
     const doc = await prepareBoardItemDoc(_id, 'deal', user._id);
 
+    doc.productsData = deal.productsData;
+    doc.paymentsData = deal.paymentsData;
+
     const clone = await Deals.createDeal(doc);
 
     const companies = await getCompanies('deal', _id);
