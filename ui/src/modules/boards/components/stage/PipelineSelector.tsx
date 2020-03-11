@@ -10,7 +10,7 @@ import { IBoard, IPipeline } from '../../types';
 import { selectOptions } from '../../utils';
 
 const SelectPipeline = styled.div`
-  width: 250px;
+  min-width: 250px;
   margin: 15px;
 `;
 
@@ -100,6 +100,7 @@ class PipelineSelect extends React.Component<Props, State> {
             selectOptions(boards)
           )}
         </FormGroup>
+
         <FormGroup>
           <ControlLabel>{__('Pipeline')}</ControlLabel>
           {this.renderSelect(

@@ -14,7 +14,6 @@ type Props = {
   stage: IStage;
   refetchStages: (params: IStageRefetchParams) => Promise<any>;
   onClosePopover: () => void;
-  onClose?: () => void;
 };
 
 export default function Overlay(props: Props) {
@@ -30,10 +29,6 @@ export default function Overlay(props: Props) {
     setShowForm(true);
     setType('Move');
   }
-
-  const onClose = () => {
-    setShowForm(false);
-  };
 
   const onChangeForm = () => {
     setShowForm(!showForm);
@@ -97,14 +92,14 @@ export default function Overlay(props: Props) {
     );
   }
 
-  const title = 'Move' ? 'Move List' : 'Copy List';
+  const typeTitle = type === 'Copy' ? 'Copy List' : 'Move List';
 
   return (
     <Popover id="filter-label">
       <Title>
         {showForm && <Icon icon="arrow-left" onClick={onChangeForm} />}
-        {showForm ? title : 'Action List'}
-        <Icon icon="times" onClick={onClose} />
+        {showForm ? typeTitle : 'Action List'}
+        <Icon icon="times" onClick={props.onClosePopover} />
       </Title>
       {renderPopover()}
     </Popover>

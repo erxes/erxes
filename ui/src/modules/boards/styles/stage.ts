@@ -180,7 +180,7 @@ export const StageTitle = styled.h4`
 `;
 
 export const ActionList = styled(PopoverList)`
-  min-width: 160px;
+  min-width: 250px;
   li a {
     color: ${colors.textPrimary};
     text-transform: capitalize;
