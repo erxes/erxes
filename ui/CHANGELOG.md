@@ -1,3 +1,10 @@
+## [0.12.1](https://github.com/erxes/erxes/compare/0.12.0...0.12.1) (2020-03-09)
+
+
+### Bug Fixes
+
+* **integrations:** invalid check in conversations gmail kind ([0e8cacd](https://github.com/erxes/erxes/commit/0e8cacd))
+
 # [0.12.0](https://github.com/erxes/erxes/compare/0.11.2...0.12.0) (2020-01-08)
 
 
