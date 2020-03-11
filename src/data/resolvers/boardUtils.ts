@@ -358,6 +358,8 @@ export const prepareBoardItemDoc = async (_id: string, type: string, userId: str
     stageId: item.stageId,
     description: item.description,
     priority: item.priority,
+    labelIds: item.labelIds,
+
     attachments: (item.attachments || []).map(a => ({
       url: a.url,
       name: a.name,
