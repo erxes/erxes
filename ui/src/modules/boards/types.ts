@@ -13,6 +13,7 @@ export interface IOptions {
     itemsQuery: string;
     detailQuery: string;
     archivedItemsQuery: string;
+    archivedItemsCountQuery: string;
   };
   mutationsName: {
     addMutation: string;
@@ -28,6 +29,7 @@ export interface IOptions {
     itemsQuery: string;
     detailQuery: string;
     archivedItemsQuery: string;
+    archivedItemsCountQuery: string;
   };
   mutations: {
     addMutation: string;
@@ -116,6 +118,7 @@ export interface IStage {
   compareNextStage: IStageComparisonInfo;
   formId: string;
   pipelineId: string;
+  status: string;
 }
 
 export interface IPipelineLabel {
@@ -327,6 +330,7 @@ export interface IFilterParams extends ISavedConformity {
   assignedUserIds?: string;
   closeDateType?: string;
   labelIds?: string;
+  userIds?: string;
 }
 
 export interface IEditFormContent {

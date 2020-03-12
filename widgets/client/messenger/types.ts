@@ -4,7 +4,7 @@ import {
   IIntegrationUiOptions,
   IParticipator,
   IUser
-} from '../types';
+} from "../types";
 
 export interface IEngageData {
   content: string;

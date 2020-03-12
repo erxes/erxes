@@ -4,8 +4,10 @@ import ButtonMutate from 'modules/common/components/ButtonMutate';
 import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { Alert, confirm, withProps } from 'modules/common/utils';
-import { queries as engageQueries } from 'modules/engage/graphql';
-import { mutations as engageMutations } from 'modules/engage/graphql';
+import {
+  mutations as engageMutations,
+  queries as engageQueries
+} from 'modules/engage/graphql';
 import {
   EngageConfigQueryResponse,
   EngageVerifiedEmailsQueryResponse
@@ -13,27 +15,21 @@ import {
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
-import Settings from '../../components/engages/Settings';
-import { queries } from '../../graphql';
+import { queries } from '../../integrations/graphql';
+import EngageSettingsContent from '../components/EngageSettingsContent';
 
 type Props = {
-  closeModal: () => void;
-};
-
-type FinalProps = {
   engagesConfigDetailQuery: EngageConfigQueryResponse;
   engagesVerifiedEmailsQuery: EngageVerifiedEmailsQueryResponse;
   engagesVerifyEmailMutation;
   engagesRemoveVerifiedEmailMutation;
   engagesSendTestEmailMutation;
-} & IRouterProps &
-  Props;
+} & IRouterProps;
 
-class SettingsContainer extends React.Component<FinalProps> {
+class SettingsContainer extends React.Component<Props> {
   render() {
     const {
       engagesConfigDetailQuery,
-      closeModal,
       engagesVerifiedEmailsQuery,
       engagesVerifyEmailMutation,
       engagesRemoveVerifiedEmailMutation,
@@ -44,14 +40,14 @@ class SettingsContainer extends React.Component<FinalProps> {
       return <Spinner />;
     }
 
-    const renderButton = ({
-      values,
-      isSubmitted,
-      callback
-    }: IButtonMutateProps) => {
+    const renderButton = ({ values, isSubmitted }: IButtonMutateProps) => {
+      const callback = () => {
+        engagesConfigDetailQuery.refetch();
+      };
+
       return (
         <ButtonMutate
-          mutation={engageMutations.configSave}
+          mutation={engageMutations.engagesUpdateConfigs}
           variables={values}
           callback={callback}
           refetchQueries={'engagesConfigDetail'}
@@ -117,14 +113,21 @@ class SettingsContainer extends React.Component<FinalProps> {
         });
     };
 
+    const configs = engagesConfigDetailQuery.engagesConfigDetail || [];
+
+    const configsMap = {};
+
+    for (const config of configs) {
+      configsMap[config.code] = config.value;
+    }
+
     return (
-      <Settings
+      <EngageSettingsContent
         renderButton={renderButton}
         verifyEmail={verifyEmail}
         sendTestEmail={sendTestEmail}
         removeVerifiedEmail={removeVerifiedEmail}
-        closeModal={closeModal}
-        engagesConfigDetail={engagesConfigDetailQuery.engagesConfigDetail || {}}
+        configsMap={configsMap}
         verifiedEmails={engagesVerifiedEmailsQuery.engageVerifiedEmails || []}
       />
     );
@@ -154,5 +157,5 @@ export default withProps<{}>(
     graphql(gql(engageMutations.sendTestEmail), {
       name: 'engagesSendTestEmailMutation'
     })
-  )(withRouter<FinalProps>(SettingsContainer))
+  )(withRouter<Props>(SettingsContainer))
 );

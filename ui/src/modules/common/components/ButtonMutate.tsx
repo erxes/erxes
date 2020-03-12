@@ -25,6 +25,7 @@ type Props = {
   mutation: string;
   variables: any;
   btnSize?: string;
+  uppercase?: boolean;
   successMessage?: string;
   btnStyle?: string;
   icon?: string;
@@ -37,6 +38,7 @@ type Props = {
   disableLoading?: boolean;
   block?: boolean;
   beforeSubmit?: () => void;
+  resetSubmit?: () => void;
 };
 
 class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
@@ -67,7 +69,8 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
       successMessage = '',
       refetchQueries,
       beforeSubmit,
-      disableLoading
+      disableLoading,
+      resetSubmit
     } = this.props;
 
     if (beforeSubmit) {
@@ -106,6 +109,11 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
         } else {
           Alert.error(error.message);
         }
+
+        if (resetSubmit) {
+          resetSubmit();
+        }
+
         if (!disableLoading) {
           this.setState({ isLoading: false });
         }
@@ -120,12 +128,15 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
       type,
       btnStyle = 'success',
       disabled,
-      block
+      block,
+      uppercase
     } = this.props;
+
     const { isLoading } = this.state;
 
     return (
       <Button
+        uppercase={uppercase}
         disabled={disabled || isLoading}
         btnStyle={btnStyle}
         size={btnSize}

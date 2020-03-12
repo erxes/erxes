@@ -16,6 +16,7 @@ title: Getting  Started
 
 - <a href="../installation/ubuntu">Installing on Ubuntu 16.04 LTS</a>
 - <a href="../installation/debian10">Debian 10</a>
+- <a href="../installation/centos8">CentOS 8</a>
 - <a href="../installation/docker">Docker</a>
 - <a href="../installation/heroku">Heroku</a>
 - <a href="../installation/kubernetes">Kubernetes</a>
@@ -52,7 +53,7 @@ title: Getting  Started
 - <a href="../developer/graphql-api">GraphQL API</a>
 - <a href="../developer/coding-standards">Coding standards</a>
 - <a href="../developer/contributing">Contributing</a>
-- <a href="../developer/push-notification">Push Notification</a>
+- <a href="../developer/push-notifications">Push Notification</a>
 - <a href="../developer/android-sdk">Android SDK</a>
 - <a href="../developer/ios-sdk">iOS SDK</a>
 - <a href="../developer/extend">Extend</a>

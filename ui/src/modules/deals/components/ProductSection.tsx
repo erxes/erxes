@@ -31,18 +31,23 @@ function ProductSection({
   saveProductsData,
   savePaymentsData
 }: Props) {
-  const content = props => (
-    <ProductForm
-      {...props}
-      onChangeProductsData={onChangeProductsData}
-      onChangePaymentsData={onChangePaymentsData}
-      productsData={productsData}
-      products={products}
-      paymentsData={paymentsData}
-      saveProductsData={saveProductsData}
-      savePaymentsData={savePaymentsData}
-    />
-  );
+  const contentWithId = (productId?: string) => {
+    const content = props => (
+      <ProductForm
+        {...props}
+        currentProduct={productId}
+        onChangeProductsData={onChangeProductsData}
+        onChangePaymentsData={onChangePaymentsData}
+        productsData={productsData}
+        products={products}
+        paymentsData={paymentsData}
+        saveProductsData={saveProductsData}
+        savePaymentsData={savePaymentsData}
+      />
+    );
+
+    return content;
+  }
 
   const tipItems = (product: IProduct) => {
     const result: React.ReactNode[] = [];
@@ -60,35 +65,48 @@ function ProductSection({
     return result;
   };
 
+  const renderProductFormModal = (trigger: React.ReactNode, productId?: string) => {
+    return (
+      <ModalTrigger
+        title="Manage Product & Service"
+        size="lg"
+        dialogClassName="modal-1000w"
+        trigger={trigger}
+        content={contentWithId(productId)}
+      />
+    );
+  }
+
+  const renderProductName = (productName: string, productId: string) => {
+    return renderProductFormModal(
+      <ProductName href={`#${productId}`}>
+        {productName}
+        <Icon icon="pen-1" />
+      </ProductName>,
+      productId
+    );
+  };
+
   const renderProduct = (product: IProduct) => {
     if (product.customFieldsData) {
       return (
         <Tip text={tipItems(product)} placement="bottom">
-          <ProductName>{product.name}</ProductName>
+          {renderProductName(product.name, product._id)}
         </Tip>
       );
     }
 
-    return <ProductName>{product.name}</ProductName>;
+    return renderProductName(product.name, product._id)
   };
-  const extraButtons = (
-    <ModalTrigger
-      title="New Product & Service"
-      size="lg"
-      dialogClassName="modal-1000w"
-      trigger={
-        <button>
-          <Icon icon="add" />
-        </button>
-      }
-      content={content}
-    />
-  );
 
   return (
     <Box
       title={__('Product & Service')}
-      extraButtons={extraButtons}
+      extraButtons={renderProductFormModal(
+        <button>
+          <Icon icon="edit-3" />
+        </button>
+      )}
       name="showProductAndService"
     >
       <SectionBody>

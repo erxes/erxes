@@ -232,6 +232,12 @@ const faqSearchArticlesQuery = `
   }
 `;
 
+const integrationsFetchApi = `
+  query integrationsFetchApi($path: String!, $params: JSON!) {
+    integrationsFetchApi(path: $path, params: $params)
+  }
+`;
+
 export default {
   messageFields,
   conversationDetailQuery,
@@ -248,5 +254,6 @@ export default {
   messengerSupportersQuery,
   getFaqCategoryQuery,
   getFaqTopicQuery,
-  faqSearchArticlesQuery
+  faqSearchArticlesQuery,
+  integrationsFetchApi
 };

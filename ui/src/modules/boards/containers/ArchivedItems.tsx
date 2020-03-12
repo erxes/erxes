@@ -1,7 +1,12 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { IRouterProps } from 'modules/common/types';
-import { Alert, confirm, renderWithProps, router as routerUtils } from 'modules/common/utils';
+import {
+  Alert,
+  confirm,
+  renderWithProps,
+  router as routerUtils
+} from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
@@ -19,6 +24,8 @@ type IProps = {
 type IFinalProps = {
   archivedStagesQuery: any;
   archivedItemsQuery: any;
+  archivedStagesCountQuery: any;
+  archivedItemsCountQuery: any;
 
   setActiveItemMutation: SaveMutation;
   setActiveStageMutation: any;
@@ -72,7 +79,7 @@ class ArchivedItemsContainer extends React.Component<IFinalProps> {
     if (this.props.type === 'item') {
       const { removeMutation, archivedItemsQuery, options } = this.props;
 
-      confirm().then(() => 
+      confirm().then(() =>
         removeMutation({
           variables: { _id: item._id }
         })
@@ -88,7 +95,7 @@ class ArchivedItemsContainer extends React.Component<IFinalProps> {
     } else {
       const { removeStageMutation, archivedStagesQuery } = this.props;
 
-      confirm().then(() => 
+      confirm().then(() =>
         removeStageMutation({
           variables: { _id: item._id }
         })
@@ -104,23 +111,104 @@ class ArchivedItemsContainer extends React.Component<IFinalProps> {
     }
   };
 
-  render() {
-    const { archivedItemsQuery, archivedStagesQuery, options, type } = this.props;
+  loadMore = () => {
+    const {
+      search,
+      pipelineId,
+      archivedStagesCountQuery,
+      options,
+      archivedItemsCountQuery,
+      archivedItemsQuery,
+      archivedStagesQuery
+    } = this.props;
 
+    let query;
+    let loading;
+    let hasMore;
+    let itemName;
     let items;
 
     if (archivedItemsQuery) {
+      query = archivedItemsQuery;
+      loading = archivedItemsQuery.loading || archivedItemsCountQuery.loading;
+      itemName = options.queriesName.archivedItemsQuery;
       items = archivedItemsQuery[options.queriesName.archivedItemsQuery] || [];
+
+      hasMore =
+        archivedItemsCountQuery[options.queriesName.archivedItemsCountQuery] >
+        items.length;
+    } else {
+      query = archivedStagesQuery;
+      loading = archivedStagesQuery.loading || archivedStagesCountQuery.loading;
+      itemName = 'archivedStages';
+      items = archivedStagesQuery.archivedStages || [];
+      hasMore = archivedStagesCountQuery.archivedStagesCount > items.length;
+    }
+
+    if (!loading && hasMore) {
+      query.fetchMore({
+        variables: {
+          pipelineId,
+          search,
+          perPage: 20,
+          page: items.length
+        },
+        updateQuery: (prev, { fetchMoreResult }) => {
+          if (!fetchMoreResult) {
+            return prev;
+          }
+
+          const prevItems = prev[itemName] || [];
+          const prevItemIds = prevItems.map(m => m._id);
+
+          const fetchedItems = [] as any;
+
+          for (const item of fetchMoreResult[itemName]) {
+            if (!prevItemIds.includes(item._id)) {
+              fetchedItems.push(item);
+            }
+          }
+
+          return {
+            ...prev,
+            [itemName]: [...fetchedItems, ...prevItems]
+          };
+        }
+      });
+    }
+  };
+
+  render() {
+    const {
+      archivedItemsQuery,
+      archivedStagesQuery,
+      archivedItemsCountQuery,
+      archivedStagesCountQuery,
+      options,
+      type
+    } = this.props;
+
+    let items;
+    let hasMore;
+
+    if (archivedItemsQuery) {
+      items = archivedItemsQuery[options.queriesName.archivedItemsQuery] || [];
+      hasMore =
+        archivedItemsCountQuery[options.queriesName.archivedItemsCountQuery] >
+        items.length;
     } else {
       items = archivedStagesQuery.archivedStages || [];
+      hasMore = archivedStagesCountQuery.archivedStagesCount > items.length;
     }
-    
+
     const props = {
       items,
       sendToBoard: this.sendToBoard,
       remove: this.remove,
       type,
-      options
+      options,
+      hasMore,
+      loadMore: this.loadMore
     };
 
     return <ArchivedItems {...props} />;
@@ -143,6 +231,22 @@ export default (props: IProps) => {
       }),
       graphql<IProps>(gql(options.queries.archivedItemsQuery), {
         name: 'archivedItemsQuery',
+        skip: ({ type }) => type === 'list',
+        options: ({ pipelineId, search }) => ({
+          variables: { pipelineId, search, perPage: 20 },
+          fetchPolicy: 'network-only'
+        })
+      }),
+      graphql<IProps>(gql(queries.archivedStagesCount), {
+        name: 'archivedStagesCountQuery',
+        skip: ({ type }) => type === 'item',
+        options: ({ pipelineId, search }) => ({
+          variables: { pipelineId, search },
+          fetchPolicy: 'network-only'
+        })
+      }),
+      graphql<IProps>(gql(options.queries.archivedItemsCountQuery), {
+        name: 'archivedItemsCountQuery',
         skip: ({ type }) => type === 'list',
         options: ({ pipelineId, search }) => ({
           variables: { pipelineId, search },

@@ -1,9 +1,9 @@
-import * as React from "react";
-import { IParticipator, IUser } from "../../types";
-import { __ } from "../../utils";
-import { MessageSender, MessagesList, TopBar } from "../containers";
-import { IMessage } from "../types";
-import ConversatioHeadContent from "./ConversatioHeadContent";
+import * as React from 'react';
+import { IParticipator, IUser } from '../../types';
+import { __ } from '../../utils';
+import { MessageSender, MessagesList, TopBar } from '../containers';
+import { IMessage } from '../types';
+import ConversatioHeadContent from './ConversatioHeadContent';
 
 type Props = {
   messages: IMessage[];
@@ -74,8 +74,8 @@ class ConversationDetail extends React.Component<Props, State> {
     } = this.props;
 
     const placeholder = !messages.length
-      ? __("Send a message")
-      : __("Write a reply");
+      ? __('Send a message')
+      : __('Write a reply');
 
     return (
       <div className="erxes-conversation-detail" onWheel={this.onWheel}>
@@ -98,10 +98,10 @@ class ConversationDetail extends React.Component<Props, State> {
             goToConversationList();
 
             // leave video call if you are in
-            const videIframe = document.getElementById("erxes-video-iframe");
+            const videoIframe = document.getElementById('erxes-video-iframe');
 
-            if (videIframe) {
-              videIframe.remove();
+            if (videoIframe) {
+              videoIframe.remove();
             }
           }}
         />
@@ -116,7 +116,7 @@ class ConversationDetail extends React.Component<Props, State> {
             />
 
             <MessageSender
-              placeholder={placeholder ? placeholder.toString() : ""}
+              placeholder={placeholder ? placeholder.toString() : ''}
               isParentFocused={this.state.isFocused}
               onTextInputBlur={this.onTextInputBlur}
               collapseHead={this.inputFocus}

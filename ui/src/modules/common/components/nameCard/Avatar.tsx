@@ -109,7 +109,6 @@ class Avatar extends React.Component<Props> {
       return {
         isUser: customer.isUser,
         hasAvatar,
-        messenger: customer.messengerData && true
       };
     }
 

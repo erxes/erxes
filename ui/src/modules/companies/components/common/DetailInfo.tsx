@@ -31,6 +31,7 @@ class DetailInfo extends React.Component<Props> {
 
     return (
       <SidebarList className="no-link">
+        {this.renderRow('Code', company.code)}
         {this.renderRow('Size', company.size)}
         {this.renderRow('Industry', company.industry)}
         {this.renderRow(

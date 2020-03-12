@@ -16,7 +16,7 @@ Turn regular visitors into qualified leads by capturing them with a customizable
 
 Turn regular visitors into qualified leads by capturing them with a customizable landing page, forms, pop-up or embed placements. Filter your leads by tags
 
-- Please follow the steps for setup: **Leads**
+- Please follow the next steps for setup: **Leads**
   <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-1.png"/>
 
 1. **Filter** your leads by **tags**
@@ -44,7 +44,7 @@ Turn regular visitors into qualified leads by capturing them with a customizable
 
 <!--Content-->
 
-- Please follow the steps for setup: **Leads->Create Leads->Type->Callout**
+- Please follow the next steps for setup: **Leads->Create Leads->Type->Callout**
   <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-4.png"/>
 
 <aside class="notice">
@@ -92,7 +92,7 @@ Turn regular visitors into qualified leads by capturing them with a customizable
 
 <!--Content-->
 
-- Please follow the steps for setup: **Leads->Create Leads->Type->Callout->Form->Options**
+- Please follow the next steps for setup: **Leads->Create Leads->Type->Callout->Form->Options**
 
 <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-7.png"/>
 
@@ -106,7 +106,7 @@ Turn regular visitors into qualified leads by capturing them with a customizable
 
 <!--Content-->
 
-- Please follow the steps for setup: **Leads->Create Leads->Type->Callout->Form->Options->Thank**
+- Please follow the next steps for setup: **Leads->Create Leads->Type->Callout->Form->Options->Thank**
 
 <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-8.png"/>
 
@@ -121,7 +121,7 @@ Turn regular visitors into qualified leads by capturing them with a customizable
 
 ## Lead Full Preview
 
-- Please follow the steps for setup: **Leads->Create Leads->Type->Callout->Form->Options->Thank Content-> Full Preview**
+- Please follow the next steps for setup: **Leads->Create Leads->Type->Callout->Form->Options->Thank Content-> Full Preview**
 
 <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-9.png"/>
 <div>

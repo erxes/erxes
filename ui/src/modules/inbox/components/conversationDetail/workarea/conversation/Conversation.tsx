@@ -63,7 +63,7 @@ class Conversation extends React.Component<Props, {}> {
     const messages = (conversationMessages || []).slice();
     const firstMessage = messages[0];
 
-    if (kind.includes('nylas' || kind === 'gmail')) {
+    if (kind.includes('nylas') || kind === 'gmail') {
       return (
         <MailConversation
           conversation={conversation}

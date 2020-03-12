@@ -1,8 +1,6 @@
+import dayjs from 'dayjs';
 import { __ } from 'modules/common/utils';
-import {
-  LEAD_STATUS_TYPES,
-  LIFECYCLE_STATE_TYPES
-} from 'modules/customers/constants';
+import { GENDER_TYPES, LEAD_STATUS_TYPES } from 'modules/customers/constants';
 import { ICustomer } from 'modules/customers/types';
 import {
   FieldStyle,
@@ -48,6 +46,7 @@ class DetailInfo extends React.PureComponent<Props> {
       <SidebarList className="no-link">
         {this.renderRow('Code', customer.code)}
         {this.renderRow('Primary email', customer.primaryEmail)}
+        {this.renderRow('Primary email status', customer.emailValidationStatus)}
         {this.renderRow('Primary phone', customer.primaryPhone)}
         {this.renderPosition(customer)}
         {this.renderRow(
@@ -61,11 +60,11 @@ class DetailInfo extends React.PureComponent<Props> {
           'Pop Ups Status',
           LEAD_STATUS_TYPES[customer.leadStatus || '']
         )}
+        {this.renderRow('Gender', GENDER_TYPES[customer.sex])}
         {this.renderRow(
-          'Lifecycle State',
-          LIFECYCLE_STATE_TYPES[customer.lifecycleState || '']
+          'Birthday',
+          customer.birthDate && dayjs(customer.birthDate).format('MMM,DD YYYY')
         )}
-        {this.renderRow('Has Authority', customer.hasAuthority)}
         {this.renderRow('Do not disturb', customer.doNotDisturb)}
         <SidebarFlexRow>
           {__(`Description`)}:<span>{customer.description || '-'}</span>

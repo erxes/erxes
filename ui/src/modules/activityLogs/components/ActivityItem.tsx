@@ -9,9 +9,11 @@ import InternalNote from '../containers/items/InternalNote';
 import { ActivityIcon, ActivityRow } from '../styles';
 import { IActivityLog } from '../types';
 import { formatText, getIconAndColor } from '../utils';
+import AssigneeLog from './items/boardItems/AssigneeLog';
 import MovementLog from './items/boardItems/MovementLog';
 import ConvertLog from './items/ConvertLog';
-import CreatedLog from './items/CreatedLog';
+import CreatedLog from './items/create/CreatedLog';
+import DeletedLog from './items/delete/DeletedLog';
 import MergedLog from './items/MergedLog';
 import SegmentLog from './items/SegmentLog';
 
@@ -30,7 +32,7 @@ class ActivityItem extends React.Component<Props> {
 
     return (
       <ActivityRow key={Math.random()}>
-        <Tip text={formatText(type)} placement="top">
+        <Tip text={formatText(type)} placement='top'>
           <ActivityIcon color={iconAndColor.color}>
             <Icon icon={iconAndColor.icon} />
           </ActivityIcon>
@@ -64,12 +66,12 @@ class ActivityItem extends React.Component<Props> {
       case 'engage-email':
         return this.renderDetail(
           'email',
-          <Email emailType="engage" emailId={_id} activity={activity} />
+          <Email emailType='engage' emailId={_id} activity={activity} />
         );
       case 'email':
         return this.renderDetail(
           'email',
-          <Email emailType="email" emailId={_id} activity={activity} />
+          <Email emailType='email' emailId={_id} activity={activity} />
         );
       case 'comment':
         return this.renderDetail(
@@ -86,6 +88,11 @@ class ActivityItem extends React.Component<Props> {
           activity.contentType,
           <CreatedLog activity={activity} />
         );
+      case 'delete':
+        return this.renderDetail(
+          activity.contentType,
+          <DeletedLog activity={activity} />
+        );
       case 'merge':
         return this.renderDetail(
           activity.contentType,
@@ -100,6 +107,11 @@ class ActivityItem extends React.Component<Props> {
         return this.renderDetail(
           activity.action,
           <SegmentLog activity={activity} />
+        );
+      case 'assignee':
+        return this.renderDetail(
+          'assignee',
+          <AssigneeLog activity={activity} />
         );
       default:
         return <div />;

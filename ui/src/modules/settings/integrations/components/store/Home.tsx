@@ -41,7 +41,7 @@ class Home extends React.Component<Props, State> {
       this.setState({
         integrations: INTEGRATIONS.filter(integration => (
           integration.name.toLowerCase().indexOf(searchValue) !== -1 &&
-          integration.category.indexOf(queryParams.type) !== -1
+          integration.category.indexOf(queryParams.type || 'All integrations') !== -1
         ))
       })
     }

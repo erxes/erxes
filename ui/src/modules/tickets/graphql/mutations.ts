@@ -76,6 +76,7 @@ const ticketsArchive = `
 const ticketsCopy = `
   mutation ticketsCopy($_id: String!) {
     ticketsCopy(_id: $_id) {
+      ${commonFields}
       ${ticketFields}
     }
   }

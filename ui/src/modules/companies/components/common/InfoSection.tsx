@@ -52,7 +52,7 @@ class InfoSection extends React.Component<Props> {
 
     return (
       <InfoWrapper>
-        <AvatarWrapper>
+        <AvatarWrapper hideIndicator={true}>
           <NameCard.Avatar company={company} size={50} />
         </AvatarWrapper>
 

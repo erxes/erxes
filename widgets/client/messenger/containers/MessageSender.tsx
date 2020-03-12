@@ -1,6 +1,6 @@
-import * as React from "react";
-import { MessageSender } from "../components";
-import { AppConsumer } from "./AppContext";
+import * as React from 'react';
+import { MessageSender } from '../components';
+import { AppConsumer, MESSAGE_TYPES } from './AppContext';
 
 type Props = {
   placeholder?: string;
@@ -9,7 +9,7 @@ type Props = {
   collapseHead: () => void;
 };
 
-const container = (props: Props) => {
+const Container = (props: Props) => {
   return (
     <AppConsumer>
       {({
@@ -18,7 +18,8 @@ const container = (props: Props) => {
         sendMessage,
         sendTypingInfo,
         sendFile,
-        readMessages
+        readMessages,
+        getUiOptions
       }) => {
         return (
           <MessageSender
@@ -26,15 +27,16 @@ const container = (props: Props) => {
             isAttachingFile={isAttachingFile}
             conversationId={activeConversation}
             sendTypingInfo={sendTypingInfo}
-            sendMessage={message => {
-              if (!message.trim()) {
+            sendMessage={(contentType, message) => {
+              if (contentType === MESSAGE_TYPES.TEXT && !message.trim()) {
                 return;
               }
 
-              sendMessage(message);
+              sendMessage(contentType, message);
             }}
             readMessages={readMessages}
             sendFile={sendFile}
+            videoCallUsageStatus={getUiOptions().videoCallUsageStatus}
           />
         );
       }}
@@ -42,4 +44,4 @@ const container = (props: Props) => {
   );
 };
 
-export default container;
+export default Container;

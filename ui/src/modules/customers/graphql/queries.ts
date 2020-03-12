@@ -28,6 +28,11 @@ const basicFields = `
   description
   doNotDisturb
   code
+  emailValidationStatus
+
+  isOnline
+  lastSeenAt
+  sessionCount
 
   links {
     linkedIn
@@ -54,7 +59,7 @@ const customerFields = `
   location
 
   customFieldsData
-  messengerData
+  getTrackedData
 
   tagIds
   getTags {
@@ -131,8 +136,8 @@ const customersExport = `
 `;
 
 const customerCounts = `
-  query customerCounts(${listParamsDef}, $byFakeSegment: JSON, $only: String) {
-    customerCounts(${listParamsValue}, byFakeSegment: $byFakeSegment, only: $only)
+  query customerCounts(${listParamsDef}, $only: String) {
+    customerCounts(${listParamsValue}, only: $only)
   }
 `;
 
@@ -145,7 +150,6 @@ const customerDetail = `
         name
         isActive
       }
-      getMessengerCustomData
       companies {
         _id
         primaryName
