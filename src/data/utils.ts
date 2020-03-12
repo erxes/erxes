@@ -838,7 +838,7 @@ export const handleUnsubscription = async (query: { cid: string; uid: string }) 
 export const validateEmail = (email: string) => {
   const data = { email };
 
-  sendMessage('erxes-api:engages-notification', { action: 'verifyEmail', data });
+  sendMessage('erxes-api:engages-notification', { action: 'emailVerify', data });
 };
 
 export const getConfigs = async () => {

@@ -17,7 +17,7 @@ connect().then(async () => {
     const emails = customers.map(customer => customer.primaryEmail);
 
     const args = {
-      action: 'verifyEmail',
+      action: 'emailVerify',
       data: { emails },
     };
 
