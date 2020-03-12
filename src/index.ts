@@ -18,8 +18,6 @@ import initDaily from './videoCall/controller';
 
 initRedis();
 
-initConsumer();
-
 const app = express();
 
 const rawBodySaver = (req, _res, buf, encoding) => {
@@ -126,7 +124,9 @@ app.use((error, _req, res, _next) => {
 const { PORT } = process.env;
 
 app.listen(PORT, () => {
-  connect().then(() => {
+  connect().then(async () => {
+    await initConsumer();
+
     // Initialize startup
     init();
   });

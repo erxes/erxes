@@ -1,3 +1,10 @@
+## [0.12.4](https://github.com/erxes/erxes-integrations/compare/0.12.3...0.12.4) (2020-03-09)
+
+
+### Bug Fixes
+
+* **common:** improved error handlers ([24c894f](https://github.com/erxes/erxes-integrations/commit/24c894f9aa3a14085652316f9305c62727f995e3))
+
 ## [0.12.3](https://github.com/erxes/erxes-integrations/compare/0.12.2...0.12.3) (2020-03-06)
 
 
