@@ -14,7 +14,6 @@
       "installation/redhat8",
       "installation/docker",
       "installation/heroku",
-      "installation/kubernetes",
       "installation/upgrade"
     ],
     "User's Guide": [
