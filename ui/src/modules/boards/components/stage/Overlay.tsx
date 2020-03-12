@@ -3,7 +3,7 @@ import { Title } from 'modules/boards/styles/label';
 import { ActionList } from 'modules/boards/styles/stage';
 import { IOptions, IStage, IStageRefetchParams } from 'modules/boards/types';
 import Icon from 'modules/common/components/Icon';
-import React, { useEffect, useState } from 'react';
+import * as React from 'react';
 import { Popover } from 'react-bootstrap';
 
 type Props = {
@@ -16,35 +16,44 @@ type Props = {
   onClosePopover: () => void;
 };
 
-export default function Overlay(props: Props) {
-  const [showForm, setShowForm] = useState(false);
-  const [type, setType] = useState('');
+type State = {
+  showForm: boolean;
+  type?: string;
+};
 
-  const copyList = () => {
-    setShowForm(true);
-    setType('Copy');
+export default class Overlay extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      showForm: false
+    };
+  }
+
+  copyList = () => {
+    this.setState({ type: 'Copy', showForm: true });
   };
 
-  const moveList = () => {
-    setShowForm(true);
-    setType('Move');
+  moveList = () => {
+    this.setState({ type: 'Move', showForm: true });
   };
 
-  const onChangeForm = () => {
-    setShowForm(!showForm);
+  onChangeForm = () => {
+    this.setState({ showForm: !this.state.showForm });
   };
 
-  useEffect(() => {
+  componentDidMount() {
     const elm = document.getElementById('stage-popover');
 
     if (elm) {
       elm.className = 'popover bottom';
       elm.style.marginTop = '26px';
     }
-  });
+  }
 
-  function renderCopyMoveTrigger() {
-    const { options, stage, refetchStages, queryParams } = props;
+  renderCopyMoveTrigger() {
+    const { options, stage, refetchStages, queryParams } = this.props;
+    const { type } = this.state;
 
     let action: string = '';
 
@@ -68,49 +77,57 @@ export default function Overlay(props: Props) {
     return <PipelineSelector {...pipelineProps} />;
   }
 
-  function renderPopover() {
+  archiveList = () => {
+    const { archiveList, onClosePopover } = this.props;
+    archiveList();
+    onClosePopover();
+  };
+
+  archiveItems = () => {
+    const { archiveItems, onClosePopover } = this.props;
+    archiveItems();
+    onClosePopover();
+  };
+
+  renderPopover() {
+    const { showForm } = this.state;
+
     if (showForm) {
-      return renderCopyMoveTrigger();
+      return this.renderCopyMoveTrigger();
     }
-
-    const archiveList = () => {
-      props.archiveList();
-      props.onClosePopover();
-    };
-
-    const archiveItems = () => {
-      props.archiveItems();
-      props.onClosePopover();
-    };
 
     return (
       <ActionList>
-        <li onClick={copyList} key="copy-list">
+        <li onClick={this.copyList} key="copy-list">
           Copy List
         </li>
-        <li onClick={moveList} key="move-list">
+        <li onClick={this.moveList} key="move-list">
           Move List
         </li>
-        <li onClick={archiveItems} key="archive-items">
+        <li onClick={this.archiveItems} key="archive-items">
           Archive All Cards in This List
         </li>
-        <li onClick={archiveList} key="archive-list">
+        <li onClick={this.archiveList} key="archive-list">
           Archive This List
         </li>
       </ActionList>
     );
   }
 
-  const typeTitle = type === 'Copy' ? 'Copy List' : 'Move List';
+  render() {
+    const { showForm, type } = this.state;
 
-  return (
-    <Popover id="stage-popover">
-      <Title>
-        {showForm && <Icon icon="arrow-left" onClick={onChangeForm} />}
-        {showForm ? typeTitle : 'Action List'}
-        <Icon icon="times" onClick={props.onClosePopover} />
-      </Title>
-      {renderPopover()}
-    </Popover>
-  );
+    const typeTitle = type === 'Copy' ? 'Copy List' : 'Move List';
+
+    return (
+      <Popover id="stage-popover">
+        <Title>
+          {showForm && <Icon icon="arrow-left" onClick={this.onChangeForm} />}
+          {showForm ? typeTitle : 'Action List'}
+          <Icon icon="times" onClick={this.props.onClosePopover} />
+        </Title>
+        {this.renderPopover()}
+      </Popover>
+    );
+  }
 }

@@ -16,13 +16,13 @@ type Props = {
 };
 
 export default class Control extends Component<Props> {
+  private overlayTrigger;
+
+  onClosePopover = () => {
+    this.overlayTrigger.hide();
+  };
+
   render() {
-    let overlayTrigger;
-
-    function onClosePopover() {
-      overlayTrigger.hide();
-    }
-
     const {
       stage,
       archiveItems,
@@ -35,10 +35,11 @@ export default class Control extends Component<Props> {
     return (
       <ChooseLabelWrapper>
         <OverlayTrigger
-          ref={oT => {
-            overlayTrigger = oT;
+          ref={overlayTrigger => {
+            this.overlayTrigger = overlayTrigger;
           }}
           trigger="click"
+          placement="bottom"
           rootClose={true}
           container={this}
           overlay={
@@ -48,7 +49,7 @@ export default class Control extends Component<Props> {
               stage={stage}
               refetchStages={refetchStages}
               archiveItems={archiveItems}
-              onClosePopover={onClosePopover}
+              onClosePopover={this.onClosePopover}
               archiveList={archiveList}
             />
           }
