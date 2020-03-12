@@ -1,4 +1,3 @@
-import { ButtonContainer } from 'modules/boards/styles/label';
 import Button from 'modules/common/components/Button';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
@@ -112,17 +111,15 @@ class PipelineSelect extends React.Component<Props, State> {
           )}
         </FormGroup>
 
-        <ButtonContainer>
-          <Button
-            block={true}
-            btnStyle="success"
-            icon="check-1"
-            onClick={onSubmit}
-            size="small"
-          >
-            {__('Confirm')}
-          </Button>
-        </ButtonContainer>
+        <Button
+          block={true}
+          btnStyle="success"
+          icon="check-1"
+          onClick={onSubmit}
+          size="small"
+        >
+          {action === 'Copy' ? 'Copy' : 'Move'}
+        </Button>
       </SelectPipeline>
     );
   }

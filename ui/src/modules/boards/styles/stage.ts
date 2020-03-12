@@ -190,7 +190,7 @@ export const ActionList = styled(PopoverList)`
 `;
 
 export const ActionButton = styled.div`
-  padding: 4px 5px;
+  padding: 2px 5px;
   margin-top: -4px;
   margin-right: -5px;
   border-radius: 2px;

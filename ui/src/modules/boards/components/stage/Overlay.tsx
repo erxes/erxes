@@ -20,15 +20,15 @@ export default function Overlay(props: Props) {
   const [showForm, setShowForm] = useState(false);
   const [type, setType] = useState('');
 
-  function copyList() {
+  const copyList = () => {
     setShowForm(true);
     setType('Copy');
-  }
+  };
 
-  function moveList() {
+  const moveList = () => {
     setShowForm(true);
     setType('Move');
-  }
+  };
 
   const onChangeForm = () => {
     setShowForm(!showForm);
@@ -39,7 +39,7 @@ export default function Overlay(props: Props) {
 
     if (elm) {
       elm.className = 'popover bottom';
-      elm.style.marginTop = '30px';
+      elm.style.marginTop = '26px';
     }
   });
 
