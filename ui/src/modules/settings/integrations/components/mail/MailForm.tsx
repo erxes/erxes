@@ -643,7 +643,7 @@ class MailForm extends React.Component<Props, State> {
         : this.handleFileInput
     };
 
-    const onSubmitResolve = () => this.onSubmit(true);
+    const onSubmitResolve = e => this.onSubmit(e, true);
 
     return (
       <EditorFooter>
