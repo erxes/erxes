@@ -76,7 +76,7 @@ sslverify=1
 sslcacert=/etc/pki/tls/certs/ca-bundle.crt
 metadata_expire=300
 EOF
-yum install erlang -y
+yum -qqy install erlang -y
 
 rpm --import https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc
 cat <<EOF > /etc/yum.repos.d/rabbitmq-3.8.repo
