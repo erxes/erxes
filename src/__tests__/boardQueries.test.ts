@@ -559,4 +559,31 @@ describe('boardQueries', () => {
 
     expect(response.length).toBe(1);
   });
+
+  test('Archived stages count ', async () => {
+    const pipeline = await pipelineFactory();
+
+    const params = {
+      pipelineId: pipeline._id,
+      status: BOARD_STATUSES.ARCHIVED,
+    };
+
+    const stage1 = await stageFactory(params);
+    await stageFactory(params);
+    await stageFactory(params);
+
+    const qry = `
+      query archivedStagesCount($pipelineId: String!, $search: String) {
+        archivedStagesCount(pipelineId: $pipelineId, search: $search)
+      }
+    `;
+
+    let response = await graphqlRequest(qry, 'archivedStagesCount', { pipelineId: pipeline._id });
+
+    expect(response).toBe(3);
+
+    response = await graphqlRequest(qry, 'archivedStagesCount', { pipelineId: pipeline._id, search: stage1.name });
+
+    expect(response).toBe(1);
+  });
 });

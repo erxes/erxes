@@ -95,6 +95,7 @@ export const queries = `
   convertToInfo(conversationId: String!): ConvertTo
   pipelineStateCount(boardId: String, type: String): JSON
   archivedStages(pipelineId: String!, search: String, page: Int, perPage: Int): [Stage]
+  archivedStagesCount(pipelineId: String!, search: String): Int
 `;
 
 const commonParams = `

@@ -4,6 +4,7 @@ import { IContext } from '../../types';
 import { IListParams } from './boards';
 import {
   archivedItems,
+  archivedItemsCount,
   checkItemPermByUser,
   generateDealCommonFilters,
   generateSort,
@@ -33,6 +34,10 @@ const dealQueries = {
    */
   archivedDeals(_root, args: IArchiveArgs) {
     return archivedItems(args, Deals);
+  },
+
+  archivedDealsCount(_root, args: IArchiveArgs) {
+    return archivedItemsCount(args, Deals);
   },
 
   /**
