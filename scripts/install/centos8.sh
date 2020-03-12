@@ -160,7 +160,8 @@ su $username -c "cd $erxes_logger_dir && yarn install && yarn build"
 su $username -c "cd $erxes_integrations_dir && yarn install && yarn build"
 
 # install pm2 globally
-yarn global add  pm2
+# yarn global add pm2 # somehow it didn't work in RHEL8
+npm i -g pm2
 
 JWT_TOKEN_SECRET=$(openssl rand -hex 16)
 
