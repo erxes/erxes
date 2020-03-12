@@ -127,15 +127,13 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
   EngageMessages.setCustomerIds(engageMessage._id, customers);
 
   if (engageMessage.method === METHODS.EMAIL) {
-    const customerInfos = customers.map(customer => {
-      if (customer.emailValidationStatus === EMAIL_VALIDATION_STATUSES.VALID) {
-        return {
-          _id: customer._id,
-          name: Customers.getCustomerName(customer),
-          email: customer.primaryEmail,
-        };
-      }
-    });
+    const customerInfos = customers
+      .filter(customer => customer.emailValidationStatus === EMAIL_VALIDATION_STATUSES.VALID)
+      .map(customer => ({
+        _id: customer._id,
+        name: Customers.getCustomerName(customer),
+        email: customer.primaryEmail,
+      }));
 
     const data = {
       customers: customerInfos,
