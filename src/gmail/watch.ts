@@ -2,7 +2,7 @@ import { PubSub } from '@google-cloud/pubsub';
 import * as fs from 'fs';
 import { debugGmail } from '../debuggers';
 import { Accounts } from '../models';
-import { getAuth, gmailClient } from './auth';
+import { getOauthClient, gmailClient, refreshAccessToken } from './auth';
 import { syncPartially } from './receiveEmails';
 import { ICredentials, IPubsubMessage } from './types';
 import { getCredentialsByEmailAccountId, getGoogleConfigs } from './util';
@@ -34,10 +34,17 @@ export const trackGmail = async () => {
     return debugGmail('Error Google: Google credentials file not found');
   }
 
-  const pubsubClient: PubSub = new PubSub({
-    projectId: GOOGLE_PROJECT_ID,
-    keyFilename: GOOGLE_APPLICATION_CREDENTIALS,
-  });
+  let pubsubClient: PubSub;
+
+  try {
+    pubsubClient = new PubSub({
+      projectId: GOOGLE_PROJECT_ID,
+      keyFilename: GOOGLE_APPLICATION_CREDENTIALS,
+    });
+  } catch (e) {
+    debugGmail('Error occured while trying to create pubsub instance');
+    throw e;
+  }
 
   debugGmail(`Pubsub: Check existing gmail topic in google cloud`);
 
@@ -121,6 +128,18 @@ export const trackGmail = async () => {
 
   subscription.on('message', onMessage);
   subscription.on('error', onError);
+
+  const accounts = await Accounts.find({ kind: 'gmail' });
+
+  const auth = await getOauthClient();
+
+  // Refresh access tokens
+  for (const account of accounts) {
+    auth.on('tokens', async (tokens: ICredentials) => {
+      await refreshAccessToken(account._id, tokens);
+      auth.setCredentials(tokens);
+    });
+  }
 };
 
 /**
@@ -139,10 +158,8 @@ const onMessage = async (message: IPubsubMessage) => {
 
   debugGmail(`New email received to: ${emailAddress}`);
 
-  const credentials = await getCredentialsByEmailAccountId({ email: emailAddress });
-
   // Get mailbox updates with latest received historyId
-  await syncPartially(emailAddress, credentials, historyId);
+  await syncPartially(emailAddress, historyId);
 
   message.ack();
 };
@@ -152,7 +169,7 @@ const onMessage = async (message: IPubsubMessage) => {
  * and grant gmail publish permission
  * Set up or update a push notification watch on the given user mailbox.
  */
-export const watchPushNotification = async (accountId: string, credentials: ICredentials) => {
+export const watchPushNotification = async (email: string) => {
   const { GOOGLE_PROJECT_ID, GOOGLE_GMAIL_TOPIC } = await getGoogleConfigs();
 
   if (!GOOGLE_PROJECT_ID || !GOOGLE_GMAIL_TOPIC) {
@@ -165,7 +182,11 @@ export const watchPushNotification = async (accountId: string, credentials: ICre
   debugGmail(`Google OAuthClient request to watch push notification for the given user mailbox`);
 
   try {
-    const auth = await getAuth(credentials, accountId);
+    const auth = await getOauthClient();
+
+    const credentials = await getCredentialsByEmailAccountId({ email });
+
+    auth.setCredentials(credentials);
 
     return gmailClient.watch({
       auth,
@@ -185,15 +206,20 @@ export const watchPushNotification = async (accountId: string, credentials: ICre
 /**
  * Stop receiving push notifications for the given user mailbox
  */
-export const stopPushNotification = async (email: string, credentials: ICredentials) => {
-  const { _id } = await Accounts.findOne({ uid: email });
-
+export const stopPushNotification = async (email: string) => {
   debugGmail(`Google OAuthClient request to stop push notification for the given user mailbox`);
 
   try {
-    const auth = getAuth(credentials, _id);
+    const auth = await getOauthClient();
 
-    await gmailClient.stop({ auth, userId: email });
+    const credentials = await getCredentialsByEmailAccountId({ email });
+
+    auth.setCredentials(credentials);
+
+    await gmailClient.stop({
+      auth,
+      userId: email,
+    });
   } catch (e) {
     debugGmail(`Google OAuthClient failed to stop push notification for the given user mailbox ${e}`);
     throw e;

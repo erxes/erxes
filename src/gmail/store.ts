@@ -41,7 +41,7 @@ const createOrGetCustomer = async (email: string, integrationIds: IIntegrationId
       await customer.save();
     } catch (e) {
       await Customers.deleteOne({ _id: customer._id });
-      throw new Error(e);
+      throw e;
     }
   }
 
