@@ -271,7 +271,7 @@ class MailForm extends React.Component<Props, State> {
       const brand =
         integrations.length > 0 ? integrations[0].brand : ({} as IBrand);
 
-      return this.findEmailSignature(brand._id);
+      return this.findEmailSignature(brand && brand._id);
     }
 
     return this.findEmailSignature(brandId);

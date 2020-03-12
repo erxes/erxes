@@ -1,5 +1,8 @@
 import { commonFields } from 'modules/boards/graphql/mutations';
-import { conformityQueryFieldDefs, conformityQueryFields } from 'modules/conformity/graphql/queries';
+import {
+  conformityQueryFieldDefs,
+  conformityQueryFields
+} from 'modules/conformity/graphql/queries';
 
 const commonParams = `
   $companyIds: [String],
@@ -101,6 +104,18 @@ const archivedDeals = `
   }
 `;
 
+const archivedDealsCount = `
+  query archivedDealsCount(
+    $pipelineId: String!,
+    $search: String
+  ) {
+    archivedDealsCount(
+      pipelineId: $pipelineId,
+      search: $search
+    )
+  }
+`;
+
 const dealDetail = `
   query dealDetail($_id: String!) {
     dealDetail(_id: $_id) {
@@ -124,5 +139,6 @@ export default {
   dealDetail,
   productDetail,
   dealsTotalAmounts,
-  archivedDeals
+  archivedDeals,
+  archivedDealsCount
 };

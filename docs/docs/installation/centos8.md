@@ -9,7 +9,7 @@ To have erxes up and running quickly, you can follow the following steps.
 
 1. Provision a new server running CentOS 8.
 
-2. Login to your new server as `root` account and run the following command.
+2. Log in to your new server as `root` account and run the following command.
 
    `bash -c "$(curl https://raw.githubusercontent.com/erxes/erxes/develop/scripts/install/centos8.sh)"`
 
@@ -19,6 +19,46 @@ To have erxes up and running quickly, you can follow the following steps.
 
    `passwd erxes`
 
-4. Login to your domain DNS and create A record based on your new server IP.
+4. Log in to your domain DNS and create A record based on your new server IP.
 
 Now you have erxes up and running!
+
+## SSL integration
+
+The following is the demonstration of how to secure your nginx by installing letsencrypt.
+
+**Note**: it is up to you if you wish to use different SSL provider.
+
+1. Log in to your server as `root` via `ssh` and run the following commands.
+
+   ```sh
+      curl -O https://dl.eff.org/certbot-auto
+      mv certbot-auto /usr/local/bin/certbot-auto
+      chmod 0755 /usr/local/bin/certbot-auto
+      /usr/local/bin/certbot-auto --nginx
+   ```
+
+   `/usr/local/bin/certbot-auto --nginx` command will install multiple Python packages that are required by certbot and prompt you to answer some questions. Please follow the interactive prompt.
+
+2. Log in to your server as `erxes` via `ssh` or switch to `erxes` from `root` user.  
+   Edit `erxes/build/js/env.js` file where env vars for frontend app are stored.
+   The content of the file should be as follows:
+
+   ```javascript
+   window.env = {
+     PORT: 3000,
+     NODE_ENV: "production",
+     REACT_APP_API_URL: "https://your_domain/api",
+     REACT_APP_API_SUBSCRIPTION_URL: "wss://your_domain/api/subscriptions",
+     REACT_APP_CDN_HOST: "https://your_domain/widgets"
+   };
+   ```
+
+3. Update all env vars with HTTPS url in the `ecosystem.json` file.
+4. Finally, you need to restart pm2 erxes processes by running the following command:
+
+   ```sh
+   pm2 restart ecosystem.json
+   ```
+
+   If you need more information about pm2, please go to official documentation [here](https://pm2.keymetrics.io/docs/usage/application-declaration/).
