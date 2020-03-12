@@ -4,6 +4,7 @@ import { IContext } from '../../types';
 import { IListParams } from './boards';
 import {
   archivedItems,
+  archivedItemsCount,
   checkItemPermByUser,
   generateSort,
   generateTaskCommonFilters,
@@ -29,6 +30,10 @@ const taskQueries = {
    */
   archivedTasks(_root, args: IArchiveArgs) {
     return archivedItems(args, Tasks);
+  },
+
+  archivedTasksCount(_root, args: IArchiveArgs) {
+    return archivedItemsCount(args, Tasks);
   },
 
   /**

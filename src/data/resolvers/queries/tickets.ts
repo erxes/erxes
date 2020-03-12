@@ -4,6 +4,7 @@ import { IContext } from '../../types';
 import { IListParams } from './boards';
 import {
   archivedItems,
+  archivedItemsCount,
   checkItemPermByUser,
   generateSort,
   generateTicketCommonFilters,
@@ -29,6 +30,10 @@ const ticketQueries = {
    */
   archivedTickets(_root, args: IArchiveArgs) {
     return archivedItems(args, Tickets);
+  },
+
+  archivedTicketsCount(_root, args: IArchiveArgs) {
+    return archivedItemsCount(args, Tickets);
   },
 
   /**

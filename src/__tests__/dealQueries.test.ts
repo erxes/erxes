@@ -626,4 +626,48 @@ describe('dealQueries', () => {
 
     expect(response.length).toBe(0);
   });
+
+  test('Get archived deals count', async () => {
+    const pipeline = await pipelineFactory();
+    const stage = await stageFactory({ pipelineId: pipeline._id });
+    const args = {
+      stageId: stage._id,
+      status: BOARD_STATUSES.ARCHIVED,
+    };
+
+    await dealFactory({ ...args, name: 'james' });
+    await dealFactory({ ...args, name: 'jone' });
+    await dealFactory({ ...args, name: 'gerrad' });
+
+    const qry = `
+      query archivedDealsCount(
+        $pipelineId: String!,
+        $search: String
+      ) {
+        archivedDealsCount(
+          pipelineId: $pipelineId
+          search: $search
+        )
+      }
+    `;
+
+    let response = await graphqlRequest(qry, 'archivedDealsCount', {
+      pipelineId: pipeline._id,
+    });
+
+    expect(response).toBe(3);
+
+    response = await graphqlRequest(qry, 'archivedDealsCount', {
+      pipelineId: pipeline._id,
+      search: 'james',
+    });
+
+    expect(response).toBe(1);
+
+    response = await graphqlRequest(qry, 'archivedDealsCount', {
+      pipelineId: 'fakeId',
+    });
+
+    expect(response).toBe(0);
+  });
 });
