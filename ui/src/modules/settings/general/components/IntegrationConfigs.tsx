@@ -1,20 +1,20 @@
-import Button from "modules/common/components/Button";
-import CollapseContent from "modules/common/components/CollapseContent";
-import { FormControl } from "modules/common/components/form";
-import FormGroup from "modules/common/components/form/Group";
-import ControlLabel from "modules/common/components/form/Label";
-import Info from "modules/common/components/Info";
-import Toggle from "modules/common/components/Toggle";
-import { Title } from "modules/common/styles/main";
-import { __ } from "modules/common/utils";
-import Wrapper from "modules/layout/components/Wrapper";
-import React from "react";
-import { ContentBox } from "../../styles";
-import { KEY_LABELS } from "../constants";
-import { IConfigsMap } from "../types";
-import Header from "./Header";
-import Sidebar from "./Sidebar";
-import { ContentDisabler } from "./styles";
+import Button from 'modules/common/components/Button';
+import CollapseContent from 'modules/common/components/CollapseContent';
+import { FormControl } from 'modules/common/components/form';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import Info from 'modules/common/components/Info';
+import Toggle from 'modules/common/components/Toggle';
+import { Title } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
+import Wrapper from 'modules/layout/components/Wrapper';
+import React from 'react';
+import { ContentBox } from '../../styles';
+import { KEY_LABELS } from '../constants';
+import { IConfigsMap } from '../types';
+import Header from './Header';
+import Sidebar from './Sidebar';
+import { ContentDisabler } from './styles';
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
@@ -32,7 +32,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
 
     this.state = {
       configsMap: props.configsMap,
-      useNativeGmail: props.configsMap.USE_NATIVE_GMAIL === "true" || false
+      useNativeGmail: props.configsMap.USE_NATIVE_GMAIL === 'true' || false
     };
   }
 
@@ -85,12 +85,12 @@ class IntegrationConfigs extends React.Component<Props, State> {
         <CollapseContent title="Facebook">
           <Info>
             <a target="_blank" href="Variables" rel="noopener noreferrer">
-              {__("More: Understanding Facebook Integration Variables")}
+              {__('More: Understanding Facebook Integration Variables')}
             </a>
           </Info>
-          {this.renderItem("FACEBOOK_APP_ID")}
-          {this.renderItem("FACEBOOK_APP_SECRET")}
-          {this.renderItem("FACEBOOK_VERIFY_TOKEN")}
+          {this.renderItem('FACEBOOK_APP_ID')}
+          {this.renderItem('FACEBOOK_APP_SECRET')}
+          {this.renderItem('FACEBOOK_VERIFY_TOKEN')}
         </CollapseContent>
 
         <CollapseContent title="Twitter">
@@ -100,14 +100,14 @@ class IntegrationConfigs extends React.Component<Props, State> {
               href="https://docs.erxes.io/administrator/environment-variables#twitter-settings"
               rel="noopener noreferrer"
             >
-              {__("More: Understanding Twitter Integration Variables")}
+              {__('More: Understanding Twitter Integration Variables')}
             </a>
           </Info>
-          {this.renderItem("TWITTER_CONSUMER_KEY")}
-          {this.renderItem("TWITTER_CONSUMER_SECRET")}
-          {this.renderItem("TWITTER_ACCESS_TOKEN")}
-          {this.renderItem("TWITTER_ACCESS_TOKEN_SECRET")}
-          {this.renderItem("TWITTER_WEBHOOK_ENV")}
+          {this.renderItem('TWITTER_CONSUMER_KEY')}
+          {this.renderItem('TWITTER_CONSUMER_SECRET')}
+          {this.renderItem('TWITTER_ACCESS_TOKEN')}
+          {this.renderItem('TWITTER_ACCESS_TOKEN_SECRET')}
+          {this.renderItem('TWITTER_WEBHOOK_ENV')}
         </CollapseContent>
 
         <CollapseContent title="Nylas">
@@ -117,28 +117,28 @@ class IntegrationConfigs extends React.Component<Props, State> {
               href="https://docs.erxes.io/administrator/integrations#nylas-integration"
               rel="noopener noreferrer"
             >
-              {__("More: Understanding Nylas Integration")}
+              {__('More: Understanding Nylas Integration')}
             </a>
           </Info>
 
-          {this.renderItem("NYLAS_CLIENT_ID")}
-          {this.renderItem("NYLAS_CLIENT_SECRET")}
+          {this.renderItem('NYLAS_CLIENT_ID')}
+          {this.renderItem('NYLAS_CLIENT_SECRET')}
           {this.renderItem(
-            "NYLAS_WEBHOOK_CALLBACK_URL",
-            "https://yourdomain/nylas/webhook"
+            'NYLAS_WEBHOOK_CALLBACK_URL',
+            'https://yourdomain/nylas/webhook'
           )}
-          {this.renderItem("MICROSOFT_CLIENT_ID")}
-          {this.renderItem("MICROSOFT_CLIENT_SECRET")}
+          {this.renderItem('MICROSOFT_CLIENT_ID')}
+          {this.renderItem('MICROSOFT_CLIENT_SECRET')}
           {this.renderItem(
-            "ENCRYPTION_KEY",
-            "Must be 256 bits (32 characters)"
+            'ENCRYPTION_KEY',
+            'Must be 256 bits (32 characters)'
           )}
-          {this.renderItem("ALGORITHM", "aes-256-cbc")}
+          {this.renderItem('ALGORITHM', 'aes-256-cbc')}
         </CollapseContent>
 
         <CollapseContent title="Daily">
-          {this.renderItem("DAILY_API_KEY")}
-          {this.renderItem("DAILY_END_POINT")}
+          {this.renderItem('DAILY_API_KEY')}
+          {this.renderItem('DAILY_END_POINT')}
         </CollapseContent>
 
         <CollapseContent title="Gmail">
@@ -148,35 +148,39 @@ class IntegrationConfigs extends React.Component<Props, State> {
               href="https://docs.erxes.io/administrator/integrations#gmail-integration"
               rel="noopener noreferrer"
             >
-              {__("More: Understanding Gmail Integration Variables")}
+              {__('More: Understanding Gmail Integration Variables')}
             </a>
           </Info>
           <FormGroup horizontal={true}>
             <Toggle
               value={configsMap.USE_NATIVE_GMAIL}
               checked={useNativeGmail}
-              onChange={this.onTypeChange.bind(this, "USE_NATIVE_GMAIL")}
+              onChange={this.onTypeChange.bind(this, 'USE_NATIVE_GMAIL')}
               icons={false}
             />
             <ControlLabel>{KEY_LABELS.USE_NATIVE_GMAIL}</ControlLabel>
           </FormGroup>
           <br />
           <ContentDisabler disable={!useNativeGmail}>
-            {this.renderItem("GOOGLE_GMAIL_TOPIC")}
-            {this.renderItem("GOOGLE_GMAIL_SUBSCRIPTION_NAME")}
+            {this.renderItem('GOOGLE_GMAIL_TOPIC')}
+            {this.renderItem('GOOGLE_GMAIL_SUBSCRIPTION_NAME')}
           </ContentDisabler>
         </CollapseContent>
 
         <CollapseContent title="Chat-API">
           <Info>
-            <a target="_blank" href="" rel="noopener noreferrer">
-              {__("More: Understanding Chat-API Integration Variables")}
+            <a
+              target="_blank"
+              href="https://docs.erxes.io/administrator/integrations#whatsapp-integration"
+              rel="noopener noreferrer"
+            >
+              {__('More: Understanding Chat-API Integration Variables')}
             </a>
           </Info>
-          {this.renderItem("CHAT_API_UID")}
+          {this.renderItem('CHAT_API_UID')}
           {this.renderItem(
-            "CHAT_API_WEBHOOK_CALLBACK_URL",
-            "https://yourdomain/whatsappww/webhook"
+            'CHAT_API_WEBHOOK_CALLBACK_URL',
+            'https://yourdomain/whatsappww/webhook'
           )}
         </CollapseContent>
       </ContentBox>
@@ -196,22 +200,22 @@ class IntegrationConfigs extends React.Component<Props, State> {
     );
 
     const breadcrumb = [
-      { title: __("Settings"), link: "/settings" },
-      { title: __("Integrations config") }
+      { title: __('Settings'), link: '/settings' },
+      { title: __('Integrations config') }
     ];
 
     return (
       <Wrapper
         header={
           <Wrapper.Header
-            title={__("Integrations config")}
+            title={__('Integrations config')}
             breadcrumb={breadcrumb}
           />
         }
         mainHead={<Header />}
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{__("Integrations config")}</Title>}
+            left={<Title>{__('Integrations config')}</Title>}
             right={actionButtons}
           />
         }
