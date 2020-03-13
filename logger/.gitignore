@@ -1,0 +1,14 @@
+node_modules
+dist
+static
+.DS_Store
+npm-debug.log*
+.env
+coverage
+dump.rdb
+*.un~
+*.swp
+*.swo
+.migrate
+
+oplog.timestamp
