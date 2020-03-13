@@ -26,13 +26,13 @@ type FinalProps = {
 
 class CompanyChooser extends React.Component<
   WrapperProps & FinalProps,
-  { newCompanyId?: string }
+  { newCompany?: ICompany }
 > {
   constructor(props) {
     super(props);
 
     this.state = {
-      newCompanyId: undefined
+      newCompany: undefined
     };
   }
 
@@ -60,8 +60,8 @@ class CompanyChooser extends React.Component<
       return company.primaryName || company.website || 'Unknown';
     };
 
-    const getAssociatedCompany = (newCompanyId: string) => {
-      this.setState({ newCompanyId });
+    const getAssociatedCompany = (newCompany: ICompany) => {
+      this.setState({ newCompany });
     };
 
     const updatedProps = {
@@ -86,7 +86,7 @@ class CompanyChooser extends React.Component<
       ),
       renderName,
       add: addCompany,
-      newItemId: this.state.newCompanyId,
+      newItem: this.state.newCompany,
       datas: companiesQuery.companies || [],
       refetchQuery: queries.companies
     };
