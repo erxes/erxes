@@ -131,16 +131,15 @@ class ProductForm extends React.Component<Props, State> {
   renderTotal(totalKind, kindTxt) {
     const { productsData, onChangeProductsData } = this.props;
     return Object.keys(totalKind).map(currency => (
-      <>
-        <ProductTotal
-          totalKind={totalKind}
-          kindTxt={kindTxt}
-          currency={currency}
-          productsData={productsData}
-          updateTotal={this.updateTotal}
-          onChangeProductsData={onChangeProductsData}
-        />
-      </>
+      <ProductTotal
+        key={kindTxt.concat(currency)}
+        totalKind={totalKind}
+        kindTxt={kindTxt}
+        currency={currency}
+        productsData={productsData}
+        updateTotal={this.updateTotal}
+        onChangeProductsData={onChangeProductsData}
+      />
     ));
   }
 
