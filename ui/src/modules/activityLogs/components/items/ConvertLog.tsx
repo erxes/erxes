@@ -6,6 +6,7 @@ import {
 } from 'modules/activityLogs/styles';
 import { IActivityLog } from 'modules/activityLogs/types';
 import Tip from 'modules/common/components/Tip';
+import { renderUserFullName } from 'modules/common/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -26,13 +27,11 @@ class ConvertLog extends React.Component<Props> {
     let userName = 'Unknown';
 
     if (createdByDetail && createdByDetail.type === 'user') {
-      if (createdByDetail.content.details) {
-        userName = createdByDetail.content.details.fullName || 'Unknown';
-      }
+      userName = renderUserFullName(createdByDetail.content);
     }
 
     const conversation = (
-      <Link to={`/inbox/index?_id=${content}`} target="_blank">
+      <Link to={`/inbox/index?_id=${content}`} target='_blank'>
         conversation
       </Link>
     );
@@ -44,7 +43,7 @@ class ConvertLog extends React.Component<Props> {
         }/${contentType}/board?_id=${activity._id}&itemId=${
           contentTypeDetail._id
         }`}
-        target="_blank"
+        target='_blank'
       >
         {contentTypeDetail.name}
       </Link>
