@@ -1,11 +1,16 @@
 import { FormControl } from 'modules/common/components/form';
-import { ContentColumn, ContentRow, Measure } from 'modules/deals/styles';
+import {
+  Amount,
+  ContentColumn,
+  ContentRow,
+  Measure
+} from 'modules/deals/styles';
 import { IProductData } from 'modules/deals/types';
 import React from 'react';
 
 type Props = {
   kindTxt: string;
-  totalKind: object;
+  totalKind: { value: number; percent?: number };
   currency: string;
   productsData: IProductData[];
   updateTotal: () => void;
@@ -25,7 +30,7 @@ class ProductTotal extends React.Component<Props, State> {
     this.props.updateTotal();
   };
 
-  sameCode = (amount, pData) => {
+  taxAmountLogic = (amount, pData) => {
     if (amount > 0) {
       pData.tax = ((amount - pData.discount) * pData.taxPercent) / 100;
       pData.amount = amount - (pData.discount || 0) + (pData.tax || 0);
@@ -61,7 +66,7 @@ class ProductTotal extends React.Component<Props, State> {
           break;
         }
       }
-      this.sameCode(amount, pData);
+      this.taxAmountLogic(amount, pData);
     }
 
     onChangeProductsData(productsData);
@@ -69,17 +74,14 @@ class ProductTotal extends React.Component<Props, State> {
   };
 
   onChange = e => {
+    // only total discount has editable
     const value = Number((e.target as HTMLInputElement).value);
     const {
       productsData,
-      kindTxt,
       onChangeProductsData,
       updateTotal,
       currency
     } = this.props;
-    if (kindTxt !== 'discount') {
-      return;
-    }
 
     const currencyProData = productsData.filter(
       item => item.currency === currency
@@ -94,60 +96,80 @@ class ProductTotal extends React.Component<Props, State> {
       const amount = pData.unitPrice * pData.quantity;
       pData.discount = (amount / sumAmount) * value;
       pData.discountPercent = tmpPercent;
-      this.sameCode(amount, pData);
+      this.taxAmountLogic(amount, pData);
     }
 
     onChangeProductsData(productsData);
     updateTotal();
   };
 
-  renderTotalPercent(value, kindTxt) {
-    if (kindTxt === 'totalPercent') {
+  renderTotalPercent() {
+    const { totalKind, kindTxt } = this.props;
+
+    if (kindTxt === 'total') {
       return;
     }
 
     return (
-      <ContentColumn>
-        <ContentRow>
-          <FormControl
-            value={value.percent}
-            type="number"
-            min={0}
-            max={100}
-            placeholder="0"
-            name={kindTxt}
-            onChange={this.onChangePercent}
-          />
-          <Measure>%</Measure>
-        </ContentRow>
-      </ContentColumn>
+      <ContentRow>
+        <FormControl
+          value={parseFloat((totalKind.percent || 0).toFixed(3))}
+          type="number"
+          min={0}
+          max={100}
+          placeholder="0"
+          name={kindTxt}
+          onChange={this.onChangePercent}
+        />
+        <Measure>%</Measure>
+      </ContentRow>
+    );
+  }
+
+  renderTotalDiscount() {
+    const { currency, kindTxt, totalKind } = this.props;
+
+    if (kindTxt !== 'discount') {
+      return;
+    }
+
+    return (
+      <ContentRow>
+        <FormControl
+          value={parseFloat(totalKind.value.toFixed(3))}
+          type="number"
+          placeholder="0"
+          name={kindTxt}
+          onChange={this.onChange}
+        />
+        <Measure>{currency}</Measure>
+      </ContentRow>
+    );
+  }
+
+  renderTotal() {
+    const { currency, kindTxt, totalKind } = this.props;
+
+    if (kindTxt === 'discount') {
+      return;
+    }
+
+    return (
+      <Amount>
+        {totalKind.value.toLocaleString()} <b>{currency}</b>
+      </Amount>
     );
   }
 
   render() {
-    const { currency, kindTxt, totalKind } = this.props;
     return (
-      <div key={currency}>
-        <ContentRow>
-          {this.renderTotalPercent(
-            totalKind[currency],
-            kindTxt.concat('Percent')
-          )}
-          <ContentColumn flex="2">
-            <ContentRow>
-              <FormControl
-                value={totalKind[currency].value}
-                type="number"
-                placeholder="0"
-                name={kindTxt}
-                disabled={kindTxt === 'discount' ? false : true}
-                onChange={this.onChange}
-              />
-              <Measure>{currency}</Measure>
-            </ContentRow>
-          </ContentColumn>
-        </ContentRow>
-      </div>
+      <ContentRow>
+        <ContentColumn>{this.renderTotalPercent()}</ContentColumn>
+        <ContentColumn flex="2">
+          {this.renderTotalDiscount()}
+          {this.renderTotal()}
+        </ContentColumn>
+      </ContentRow>
     );
   }
 }

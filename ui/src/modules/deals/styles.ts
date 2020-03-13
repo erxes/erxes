@@ -60,7 +60,7 @@ const FooterInfo = styled.div`
   table {
     text-align: right;
     float: right;
-    width: 60%;
+    width: 50%;
     font-size: 14px;
   }
 

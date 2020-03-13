@@ -133,7 +133,7 @@ class ProductForm extends React.Component<Props, State> {
     return Object.keys(totalKind).map(currency => (
       <ProductTotal
         key={kindTxt.concat(currency)}
-        totalKind={totalKind}
+        totalKind={totalKind[currency]}
         kindTxt={kindTxt}
         currency={currency}
         productsData={productsData}
