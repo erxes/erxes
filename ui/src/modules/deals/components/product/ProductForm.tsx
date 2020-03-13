@@ -95,12 +95,10 @@ class ProductForm extends React.Component<Props, State> {
 
     onChangeProductsData(removedProductsData);
 
-    this.updateTotal();
+    this.updateTotal(removedProductsData);
   };
 
-  updateTotal = () => {
-    const { productsData } = this.props;
-
+  updateTotal = (productsData = this.props.productsData) => {
     const total = {};
     const tax = {};
     const discount = {};
