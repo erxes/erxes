@@ -73,19 +73,10 @@ class ProductItem extends React.Component<Props, State> {
     const amount = productData.unitPrice * productData.quantity;
 
     if (amount > 0) {
-      switch (type) {
-        case 'discount': {
-          productData.discountPercent = (productData.discount * 100) / amount;
-          break;
-        }
-        case 'discountPercent': {
-          productData.discount = (amount * productData.discountPercent) / 100;
-          break;
-        }
-        default: {
-          productData.discountPercent = (productData.discount * 100) / amount;
-          productData.discount = (amount * productData.discountPercent) / 100;
-        }
+      if (type === 'discount') {
+        productData.discountPercent = (productData.discount * 100) / amount;
+      } else {
+        productData.discount = (amount * productData.discountPercent) / 100;
       }
 
       productData.tax =
@@ -94,9 +85,7 @@ class ProductItem extends React.Component<Props, State> {
         amount - (productData.discount || 0) + (productData.tax || 0);
     } else {
       productData.tax = 0;
-      productData.taxPercent = 0;
       productData.discount = 0;
-      productData.discountPercent = 0;
       productData.amount = 0;
     }
 
