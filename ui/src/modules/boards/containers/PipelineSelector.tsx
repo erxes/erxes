@@ -4,6 +4,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { Alert, withProps } from '../../common/utils';
 import PipelineSelector from '../components/stage/PipelineSelector';
+import { STAGE_ACTIONS } from '../constants';
 import { mutations, queries } from '../graphql';
 import {
   BoardsQueryResponse,
@@ -29,8 +30,8 @@ type FinalProps = {
 } & Props;
 
 class PipelineSelectContainer extends React.Component<FinalProps> {
-  copyStage = (stageId: string, pipelineId: string) => {
-    const { refetchStages, stagesCopy } = this.props;
+  copyOrMoveStage = (stageId: string, pipelineId: string) => {
+    const { action, refetchStages, stagesCopy, stagesMove } = this.props;
 
     const variables = {
       _id: stageId,
@@ -38,36 +39,29 @@ class PipelineSelectContainer extends React.Component<FinalProps> {
       includeCards: true
     };
 
-    stagesCopy({ variables })
+    let mutation;
+    let message: string = '';
+
+    if (action === STAGE_ACTIONS.COPY) {
+      mutation = stagesCopy;
+      message = 'copied';
+    }
+
+    if (action === STAGE_ACTIONS.MOVE) {
+      mutation = stagesMove;
+      message = 'moved';
+    }
+
+    mutation({ variables })
       .then(() => {
-        Alert.success('Stage successfully copied');
+        Alert.success(`Stage successfully ${message}`);
 
         refetchStages({ pipelineId });
       })
       .catch(e => {
         Alert.error(e.message);
       });
-  };
-
-  moveStage = (stageId: string, pipelineId: string) => {
-    const { stagesMove, refetchStages } = this.props;
-
-    const variables = {
-      _id: stageId,
-      pipelineId,
-      includeCards: true
-    };
-
-    stagesMove({ variables })
-      .then(() => {
-        Alert.success('Stage successfully moved');
-
-        refetchStages({ pipelineId });
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
-  };
+  }
 
   render() {
     const { boardsQuery, pipelinesQuery } = this.props;
@@ -79,8 +73,7 @@ class PipelineSelectContainer extends React.Component<FinalProps> {
       ...this.props,
       boards,
       pipelines,
-      moveStage: this.moveStage,
-      copyStage: this.copyStage
+      copyOrMoveStage: this.copyOrMoveStage,
     };
 
     return <PipelineSelector {...extendedProps} />;

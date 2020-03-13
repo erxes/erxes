@@ -19,8 +19,7 @@ type Props = {
   action: string;
   boards: IBoard[];
   pipelines: IPipeline[];
-  moveStage: (stageId: string, pipelineId: string) => void;
-  copyStage: (stageId: string, pipelineId: string) => void;
+  copyOrMoveStage: (stageId: string, pipelineId: string) => void;
 };
 
 type State = {
@@ -69,8 +68,7 @@ class PipelineSelect extends React.Component<Props, State> {
       boards,
       pipelines,
       action,
-      copyStage,
-      moveStage,
+      copyOrMoveStage,
       stageId
     } = this.props;
     const { boardId, pipelineId } = this.state;
@@ -79,15 +77,7 @@ class PipelineSelect extends React.Component<Props, State> {
       ? pipelines.filter(p => p.boardId === boardId)
       : pipelines;
 
-    let onSubmit;
-
-    if (action === 'Copy') {
-      onSubmit = () => copyStage(stageId, pipelineId);
-    }
-
-    if (action === 'Move') {
-      onSubmit = () => moveStage(stageId, pipelineId);
-    }
+    const onSubmit = () => copyOrMoveStage(stageId, pipelineId);
 
     return (
       <SelectPipeline>
@@ -118,7 +108,7 @@ class PipelineSelect extends React.Component<Props, State> {
           onClick={onSubmit}
           size="small"
         >
-          {action === 'Copy' ? 'Copy' : 'Move'}
+          {action}
         </Button>
       </SelectPipeline>
     );

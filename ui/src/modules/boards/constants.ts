@@ -26,3 +26,8 @@ export const REMINDER_MINUTES = [
   { _id: '1440', name: '1 Day Before' },
   { _id: '2880', name: '2 Day Before' }
 ];
+
+export const STAGE_ACTIONS = {
+  COPY: 'copy',
+  MOVE: 'move'
+};

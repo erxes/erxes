@@ -3,8 +3,17 @@ import { Title } from 'modules/boards/styles/label';
 import { ActionList } from 'modules/boards/styles/stage';
 import { IOptions, IStage, IStageRefetchParams } from 'modules/boards/types';
 import Icon from 'modules/common/components/Icon';
+import { dimensions } from 'modules/common/styles';
+import { Divider } from 'modules/settings/main/styles';
 import * as React from 'react';
 import { Popover } from 'react-bootstrap';
+import styled from 'styled-components';
+import { STAGE_ACTIONS } from '../../constants';
+
+const MenuDivider = styled(Divider)`
+  margin: ${dimensions.unitSpacing}px 0 ${dimensions.unitSpacing}px;
+  padding: 0;
+`;
 
 type Props = {
   archiveItems: () => void;
@@ -18,7 +27,7 @@ type Props = {
 
 type State = {
   showForm: boolean;
-  type?: string;
+  action: string;
 };
 
 export default class Overlay extends React.Component<Props, State> {
@@ -26,16 +35,17 @@ export default class Overlay extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      showForm: false
+      showForm: false,
+      action: ''
     };
   }
 
   copyList = () => {
-    this.setState({ type: 'Copy', showForm: true });
+    this.setState({ action: STAGE_ACTIONS.COPY, showForm: true });
   };
 
   moveList = () => {
-    this.setState({ type: 'Move', showForm: true });
+    this.setState({ action: STAGE_ACTIONS.MOVE, showForm: true });
   };
 
   onChangeForm = () => {
@@ -53,21 +63,10 @@ export default class Overlay extends React.Component<Props, State> {
 
   renderCopyMoveTrigger() {
     const { options, stage, refetchStages, queryParams } = this.props;
-    const { type } = this.state;
-
-    let action: string = '';
-
-    if (type === 'Copy') {
-      action = 'Copy';
-    }
-
-    if (type === 'Move') {
-      action = 'Move';
-    }
 
     const pipelineProps = {
       type: options.type,
-      action,
+      action: this.state.action,
       stageId: stage._id,
       refetchStages,
       pipelineId: queryParams.pipelineId,
@@ -104,6 +103,7 @@ export default class Overlay extends React.Component<Props, State> {
         <li onClick={this.moveList} key="move-list">
           Move List
         </li>
+        <MenuDivider />
         <li onClick={this.archiveItems} key="archive-items">
           Archive All Cards in This List
         </li>
@@ -115,15 +115,15 @@ export default class Overlay extends React.Component<Props, State> {
   }
 
   render() {
-    const { showForm, type } = this.state;
+    const { showForm, action } = this.state;
 
-    const typeTitle = type === 'Copy' ? 'Copy List' : 'Move List';
+    const actionTitle = action === STAGE_ACTIONS.COPY ? 'Copy List' : 'Move List';
 
     return (
       <Popover id="stage-popover">
         <Title>
           {showForm && <Icon icon="arrow-left" onClick={this.onChangeForm} />}
-          {showForm ? typeTitle : 'Action List'}
+          {showForm ? actionTitle : 'Action List'}
           <Icon icon="times" onClick={this.props.onClosePopover} />
         </Title>
         {this.renderPopover()}
