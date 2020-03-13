@@ -9,10 +9,17 @@ connect().then(async () => {
   const channel = await connection.createChannel();
 
   const verify = async () => {
-    const customers = await Customers.find(
-      { primaryEmail: { $exists: true, $ne: null }, emailValidationStatus: { $exists: false } },
-      { primaryEmail: 1 },
-    );
+    const argv = process.argv;
+
+    let limit = Number.MAX_SAFE_INTEGER;
+
+    if (argv.length > 2) {
+      limit = parseInt(argv[2], 10);
+    }
+
+    const query = { primaryEmail: { $exists: true, $ne: null }, emailValidationStatus: { $exists: false } };
+
+    const customers = await Customers.find(query, { primaryEmail: 1 }).limit(limit);
 
     const emails = customers.map(customer => customer.primaryEmail);
 
