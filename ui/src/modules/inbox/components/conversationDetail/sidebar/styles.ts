@@ -7,32 +7,17 @@ import {
   Timeline
 } from 'modules/activityLogs/styles';
 import { colors, dimensions, typography } from 'modules/common/styles';
-import { ActivityContent } from 'modules/common/styles/main';
+import { ActivityContent, DateContainer } from 'modules/common/styles/main';
 import { SidebarBox, SidebarTitle } from 'modules/layout/styles';
 import styled from 'styled-components';
 
 const iconWrapperWidth = '60px';
 
-const FlexRow = styled.div`
+const FlexRow = styled(DateContainer)`
   display: flex;
   flex-direction: row;
   align-items: center;
   padding: 5px ${dimensions.unitSpacing}px;
-
-  .form-control {
-    box-shadow: none;
-    border-radius: 0;
-    border: none;
-    background: none;
-    border-bottom: 1px solid ${colors.colorShadowGray};
-    padding: 5px 0;
-    font-size: ${typography.fontSizeBody}px;
-
-    &:focus {
-      box-shadow: none;
-      border-color: ${colors.colorSecondary};
-    }
-  }
 `;
 
 const FlexItem = styled.div`

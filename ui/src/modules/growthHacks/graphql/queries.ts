@@ -4,6 +4,7 @@ const commonParams = `
   $closeDateType: String,
   $search: String,
   $labelIds: [String],
+  $userIds: [String],
 `;
 
 const commonParamDefs = `
@@ -12,6 +13,7 @@ const commonParamDefs = `
   closeDateType: $closeDateType,
   search: $search,
   labelIds: $labelIds,
+  userIds: $userIds,
 `;
 
 export const growthHackFields = `
@@ -42,6 +44,7 @@ export const growthHackFields = `
     name
     colorCode
   }
+  status
   labelIds
 `;
 
@@ -108,6 +111,7 @@ const growthHackDetailFields = `
       fullName
     }
   }
+  status
   isVoted
   modifiedAt
   modifiedBy
@@ -184,10 +188,36 @@ const pipelineDetail = `
   }
 `;
 
+const pipelineStateCount = `
+  query pipelineStateCount($boardId: String, $type: String) {
+    pipelineStateCount(boardId: $boardId, type: $type) 
+  }
+`;
+
+const archivedGrowthHacks = `
+  query archivedGrowthHacks(
+    $pipelineId: String!,
+    $search: String,
+    $page: Int,
+    $perPage: Int,
+  ) {
+    archivedGrowthHacks(
+      pipelineId: $pipelineId,
+      search: $search,
+      page: $page,
+      perPage: $perPage,
+    ) {
+      ${growthHackFields}
+    }
+  }
+`;
+
 export default {
   growthHacks,
   growthHacksPriorityMatrix,
   growthHackDetail,
   growthHacksTotalCount,
-  pipelineDetail
+  pipelineDetail,
+  pipelineStateCount,
+  archivedGrowthHacks
 };

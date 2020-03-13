@@ -10,7 +10,8 @@ const options = {
   title: 'Task',
   queriesName: {
     itemsQuery: 'tasks',
-    detailQuery: 'taskDetail'
+    detailQuery: 'taskDetail',
+    archivedItemsQuery: 'archivedTasks'
   },
   mutationsName: {
     addMutation: 'tasksAdd',
@@ -18,11 +19,14 @@ const options = {
     removeMutation: 'tasksRemove',
     changeMutation: 'tasksChange',
     updateOrderMutation: 'tasksUpdateOrder',
-    watchMutation: 'tasksWatch'
+    watchMutation: 'tasksWatch',
+    archiveMutation: 'tasksArchive',
+    copyMutation: 'tasksCopy'
   },
   queries: {
     itemsQuery: queries.tasks,
-    detailQuery: queries.taskDetail
+    detailQuery: queries.taskDetail,
+    archivedItemsQuery: queries.archivedTasks
   },
   mutations: {
     addMutation: mutations.tasksAdd,
@@ -30,7 +34,9 @@ const options = {
     removeMutation: mutations.tasksRemove,
     changeMutation: mutations.tasksChange,
     updateOrderMutation: mutations.tasksUpdateOrder,
-    watchMutation: mutations.tasksWatch
+    watchMutation: mutations.tasksWatch,
+    archiveMutation: mutations.tasksArchive,
+    copyMutation: mutations.tasksCopy
   },
   texts: {
     addText: 'Add a task',

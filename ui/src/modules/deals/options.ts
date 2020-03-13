@@ -10,7 +10,8 @@ const options = {
   title: 'Deal',
   queriesName: {
     itemsQuery: 'deals',
-    detailQuery: 'dealDetail'
+    detailQuery: 'dealDetail',
+    archivedItemsQuery: 'archivedDeals'
   },
   mutationsName: {
     addMutation: 'dealsAdd',
@@ -18,11 +19,14 @@ const options = {
     removeMutation: 'dealsRemove',
     changeMutation: 'dealsChange',
     updateOrderMutation: 'dealsUpdateOrder',
-    watchMutation: 'dealsWatch'
+    watchMutation: 'dealsWatch',
+    archiveMutation: 'dealsArchive',
+    copyMutation: 'dealsCopy'
   },
   queries: {
     itemsQuery: queries.deals,
-    detailQuery: queries.dealDetail
+    detailQuery: queries.dealDetail,
+    archivedItemsQuery: queries.archivedDeals
   },
   mutations: {
     addMutation: mutations.dealsAdd,
@@ -30,7 +34,9 @@ const options = {
     removeMutation: mutations.dealsRemove,
     changeMutation: mutations.dealsChange,
     updateOrderMutation: mutations.dealsUpdateOrder,
-    watchMutation: mutations.dealsWatch
+    watchMutation: mutations.dealsWatch,
+    archiveMutation: mutations.dealsArchive,
+    copyMutation: mutations.dealsCopy
   },
   texts: {
     addText: 'Add a deal',

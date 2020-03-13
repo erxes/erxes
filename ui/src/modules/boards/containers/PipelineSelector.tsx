@@ -19,8 +19,6 @@ type Props = {
   stageId: string;
   action: string;
   refetchStages: (params: IStageRefetchParams) => void;
-  closeModal: () => void;
-  currentPipelineId: string;
 };
 
 type FinalProps = {
@@ -32,12 +30,7 @@ type FinalProps = {
 
 class PipelineSelectContainer extends React.Component<FinalProps> {
   copyStage = (stageId: string, pipelineId: string) => {
-    const {
-      closeModal,
-      currentPipelineId,
-      refetchStages,
-      stagesCopy
-    } = this.props;
+    const { refetchStages, stagesCopy } = this.props;
 
     const variables = {
       _id: stageId,
@@ -49,10 +42,7 @@ class PipelineSelectContainer extends React.Component<FinalProps> {
       .then(() => {
         Alert.success('Stage successfully copied');
 
-        closeModal();
-
         refetchStages({ pipelineId });
-        refetchStages({ pipelineId: currentPipelineId });
       })
       .catch(e => {
         Alert.error(e.message);
@@ -60,12 +50,7 @@ class PipelineSelectContainer extends React.Component<FinalProps> {
   };
 
   moveStage = (stageId: string, pipelineId: string) => {
-    const {
-      closeModal,
-      stagesMove,
-      refetchStages,
-      currentPipelineId
-    } = this.props;
+    const { stagesMove, refetchStages } = this.props;
 
     const variables = {
       _id: stageId,
@@ -77,10 +62,7 @@ class PipelineSelectContainer extends React.Component<FinalProps> {
       .then(() => {
         Alert.success('Stage successfully moved');
 
-        closeModal();
-
         refetchStages({ pipelineId });
-        refetchStages({ pipelineId: currentPipelineId });
       })
       .catch(e => {
         Alert.error(e.message);

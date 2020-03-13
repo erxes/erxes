@@ -1,6 +1,4 @@
 import {
-  ActionButton,
-  ActionList,
   AddNew,
   Body,
   Container,
@@ -19,19 +17,11 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import PipelineSelector from '../../containers/PipelineSelector';
 import { AddForm } from '../../containers/portable';
-import {
-  IFilterParams,
-  IItem,
-  IOptions,
-  IStage,
-  IStageRefetchParams
-} from '../../types';
+import { IItem, IOptions, IStage, IStageRefetchParams } from '../../types';
 import { renderAmount } from '../../utils';
 import ItemList from '../stage/ItemList';
+import Control from './Control';
 
 type Props = {
   loadingItems: boolean;
@@ -40,11 +30,15 @@ type Props = {
   length: number;
   items: IItem[];
   onAddItem: (stageId: string, item: IItem) => void;
+  onRemoveItem: (itemId: string, stageId: string) => void;
   loadMore: () => void;
   options: IOptions;
-  queryParams: IFilterParams;
+  queryParams: any;
   refetchStages: (params: IStageRefetchParams) => Promise<any>;
+  archiveItems: () => void;
+  archiveList: () => void;
 };
+
 export default class Stage extends React.Component<Props> {
   private bodyRef;
   private overlayTrigger;
@@ -54,10 +48,6 @@ export default class Stage extends React.Component<Props> {
 
     this.bodyRef = React.createRef();
   }
-
-  onClosePopover = () => {
-    this.overlayTrigger.hide();
-  };
 
   componentDidMount() {
     // Load items until scroll created
@@ -83,6 +73,10 @@ export default class Stage extends React.Component<Props> {
       }
     }, 1000);
   }
+
+  onClosePopover = () => {
+    this.overlayTrigger.hide();
+  };
 
   onScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const target = e.currentTarget;
@@ -119,41 +113,6 @@ export default class Stage extends React.Component<Props> {
     return <ModalTrigger title={addText} trigger={trigger} content={content} />;
   }
 
-  renderCopyMoveTrigger(type: string) {
-    const { options, stage, refetchStages, queryParams } = this.props;
-
-    let action: string = 'Copy';
-
-    if (type === 'Move') {
-      action = 'Move';
-    }
-
-    const trigger = (
-      <li>
-        {type}
-      </li>
-    );
-
-    const formProps = {
-      type: options.type,
-      action,
-      stageId: stage._id,
-      refetchStages,
-      currentPipelineId: queryParams.pipelineId
-    };
-
-    const content = props => <PipelineSelector {...props} {...formProps} />;
-
-    return (
-      <ModalTrigger
-        title={`${action} "${stage.name}"`}
-        trigger={trigger}
-        content={content}
-        onShow={this.onClosePopover}
-      />
-    );
-  }
-
   renderIndicator() {
     const index = this.props.index || 0;
     const length = this.props.length || 0;
@@ -184,7 +143,7 @@ export default class Stage extends React.Component<Props> {
   }
 
   renderItemList() {
-    const { stage, items, loadingItems, options } = this.props;
+    const { stage, items, loadingItems, options, onRemoveItem } = this.props;
 
     if (loadingItems) {
       return (
@@ -200,23 +159,21 @@ export default class Stage extends React.Component<Props> {
         stageId={stage._id}
         items={items}
         options={options}
+        onRemoveItem={onRemoveItem}
       />
     );
   }
 
-  renderPopover = () => {
-    return (
-      <Popover id="score-popover">
-        <ActionList>
-          {this.renderCopyMoveTrigger('Copy')}
-          {this.renderCopyMoveTrigger('Move')}
-        </ActionList>
-      </Popover>
-    );
-  };
-
   render() {
-    const { index, stage } = this.props;
+    const {
+      index,
+      stage,
+      archiveItems,
+      options,
+      archiveList,
+      queryParams,
+      refetchStages
+    } = this.props;
 
     if (!stage) {
       return <EmptyState icon="clipboard" text="No stage" size="small" />;
@@ -229,23 +186,18 @@ export default class Stage extends React.Component<Props> {
             <StageRoot isDragging={snapshot.isDragging}>
               <Header {...provided.dragHandleProps}>
                 <StageTitle>
-                  <div>
+                  <h4>
                     {stage.name}
                     <span>{stage.itemsTotalCount}</span>
-                  </div>
-                  <OverlayTrigger
-                    ref={overlayTrigger => {
-                      this.overlayTrigger = overlayTrigger;
-                    }}
-                    trigger="click"
-                    placement="bottom-start"
-                    rootClose={true}
-                    overlay={this.renderPopover()}
-                  >
-                    <ActionButton>
-                      <Icon icon="ellipsis-h" />
-                    </ActionButton>
-                  </OverlayTrigger>
+                  </h4>
+                  <Control
+                    options={options}
+                    queryParams={queryParams}
+                    stage={stage}
+                    refetchStages={refetchStages}
+                    archiveItems={archiveItems}
+                    archiveList={archiveList}
+                  />
                 </StageTitle>
                 <HeaderAmount>{renderAmount(stage.amount)}</HeaderAmount>
                 <Indicator>{this.renderIndicator()}</Indicator>

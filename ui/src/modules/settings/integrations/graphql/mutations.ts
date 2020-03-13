@@ -219,6 +219,12 @@ const addImapAccount = `
   }
 `;
 
+const integrationsUpdateConfigs = `
+  mutation integrationsUpdateConfigs($configsMap: JSON!) {
+    integrationsUpdateConfigs(configsMap: $configsMap)
+  }
+`;
+
 const integrationsArchive = `
   mutation integrationsArchive($_id: String!) {
     integrationsArchive(_id: $_id) {
@@ -229,6 +235,7 @@ const integrationsArchive = `
 
 export default {
   integrationsArchive,
+  integrationsUpdateConfigs,
   integrationsCreateMessenger,
   integrationsCreateExternalIntegration,
   integrationsEditCommonFields,

@@ -11,6 +11,7 @@ const commonVariables = `
   $impact: Int,
   $confidence: Int,
   $ease: Int,
+  $status: String,
   $attachments: [AttachmentInput]
 `;
 
@@ -25,6 +26,7 @@ const commonParams = `
   reach: $reach,
   impact: $impact,
   confidence: $confidence,
+  status: $status,
   ease: $ease
 `;
 
@@ -85,6 +87,20 @@ const growthHacksVote = `
   }
 `;
 
+const growthHacksArchive = `
+  mutation growthHacksArchive($stageId: String!) {
+    growthHacksArchive(stageId: $stageId)
+  }
+`;
+
+const growthHacksCopy = `
+  mutation growthHacksCopy($_id: String!) {
+    growthHacksCopy(_id: $_id) {
+      ${growthHackFields}
+    }
+  }
+`;
+
 export default {
   growthHacksAdd,
   growthHacksEdit,
@@ -92,5 +108,7 @@ export default {
   growthHacksChange,
   growthHacksUpdateOrder,
   growthHacksWatch,
-  growthHacksVote
+  growthHacksVote,
+  growthHacksArchive,
+  growthHacksCopy
 };

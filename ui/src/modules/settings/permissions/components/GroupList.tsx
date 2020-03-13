@@ -4,17 +4,22 @@ import Icon from 'modules/common/components/Icon';
 import LoadMore from 'modules/common/components/LoadMore';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
+import { TopHeader } from 'modules/common/styles/main';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
-import { FieldStyle, HelperButtons, SidebarList } from 'modules/layout/styles';
+import Wrapper from 'modules/layout/components/Wrapper';
+import { FieldStyle, SidebarList } from 'modules/layout/styles';
 import MemberAvatars from 'modules/settings/channels/components/MemberAvatars';
-import { ActionButtons, SidebarListItem } from 'modules/settings/styles';
+import { ActionButtons } from 'modules/settings/styles';
 import React from 'react';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
+import { SidebarItem } from '../styles';
 import { IUserGroup, IUserGroupDocument } from '../types';
 import GroupForm from './GroupForm';
+
+const { Section } = Wrapper.Sidebar;
 
 interface IProps extends IRouterProps {
   queryParams: any;
@@ -24,6 +29,7 @@ interface IProps extends IRouterProps {
   objects: IUserGroupDocument[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (id: string) => void;
+  copyItem: (id: string, key: string, list?: string[]) => void;
 }
 
 class GroupList extends React.Component<IProps> {
@@ -57,7 +63,7 @@ class GroupList extends React.Component<IProps> {
   renderEditAction(object: IUserGroupDocument) {
     const trigger = (
       <Button btnStyle="link">
-        <Tip text={__('Edit')}>
+        <Tip text={__('Edit')} placement="bottom">
           <Icon icon="edit" />
         </Tip>
       </Button>
@@ -71,8 +77,23 @@ class GroupList extends React.Component<IProps> {
 
     return (
       <Button btnStyle="link" onClick={remove.bind(null, object._id)}>
-        <Tip text={__('Remove')}>
+        <Tip text={__('Remove')} placement="bottom">
           <Icon icon="cancel-1" />
+        </Tip>
+      </Button>
+    );
+  }
+
+  renderCopyAction(object: IUserGroupDocument) {
+    const onCopy = () =>
+      this.props.copyItem(object._id, 'memberIds', object.memberIds || []);
+
+    const tipText = 'Copies user group along with the permissions & users';
+
+    return (
+      <Button btnStyle="link" onClick={onCopy}>
+        <Tip text={tipText} placement="bottom">
+          <Icon icon="copy" />
         </Tip>
       </Button>
     );
@@ -80,7 +101,7 @@ class GroupList extends React.Component<IProps> {
 
   renderObjects(objects: IUserGroupDocument[]) {
     return objects.map(object => (
-      <SidebarListItem key={object._id} isActive={this.isActive(object._id)}>
+      <SidebarItem key={object._id} isActive={this.isActive(object._id)}>
         <Link to={`?groupId=${object._id}`}>
           <FieldStyle>
             {object.name}
@@ -91,10 +112,11 @@ class GroupList extends React.Component<IProps> {
           </FieldStyle>
         </Link>
         <ActionButtons>
+          {this.renderCopyAction(object)}
           {this.renderEditAction(object)}
           {this.renderRemoveAction(object)}
         </ActionButtons>
-      </SidebarListItem>
+      </SidebarItem>
     ));
   }
 
@@ -105,31 +127,33 @@ class GroupList extends React.Component<IProps> {
   }
 
   renderSidebarHeader() {
-    const { Header } = Sidebar;
-
     const trigger = (
-      <a href="#add">
-        <Tip text={__('Create group')}>
-          <Icon icon="add" />
-        </Tip>
-      </a>
+      <Button
+        btnStyle="success"
+        uppercase={false}
+        icon="plus-circle"
+        block={true}
+      >
+        Create user group
+      </Button>
     );
 
     return (
-      <Header uppercase={true}>
-        {__('User groups')}
-
-        <HelperButtons>
-          {this.renderFormTrigger(trigger)}
-          {router.getParam(this.props.history, 'groupId') && (
-            <a href="#cancel" tabIndex={0} onClick={this.clearGroupFilter}>
-              <Tip text={__('Clear filter')}>
-                <Icon icon="cancel-1" />
-              </Tip>
-            </a>
-          )}
-        </HelperButtons>
-      </Header>
+      <>
+        <TopHeader>{this.renderFormTrigger(trigger)}</TopHeader>
+        <Section.Title>
+          {__('User groups')}
+          <Section.QuickButtons>
+            {router.getParam(this.props.history, 'groupId') && (
+              <a href="#cancel" tabIndex={0} onClick={this.clearGroupFilter}>
+                <Tip text={__('Clear filter')}>
+                  <Icon icon="cancel-1" />
+                </Tip>
+              </a>
+            )}
+          </Section.QuickButtons>
+        </Section.Title>
+      </>
     );
   }
 

@@ -1,6 +1,6 @@
-const configsDetail = `
-  query configsDetail($code: String!) {
-    configsDetail(code: $code) {
+const configs = `
+  query configs {
+    configs {
       _id
       code
       value
@@ -17,6 +17,6 @@ const configsGetEnv = `
 `;
 
 export default {
-  configsDetail,
+  configs,
   configsGetEnv
 };

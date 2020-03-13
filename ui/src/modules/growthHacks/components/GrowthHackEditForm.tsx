@@ -17,11 +17,13 @@ type Props = {
   item: IGrowthHack;
   users: IUser[];
   addItem: (doc: IGrowthHackParams, callback: () => void) => void;
+  copyItem: (itemId: string, callback: () => void) => void;
   saveFormSubmission: (doc: IFormSubmission) => void;
   saveItem: (doc: IGrowthHackParams, callback?: (item) => void) => void;
   onUpdate: (item, prevStageId?: string) => void;
   removeItem: (itemId: string, callback: () => void) => void;
   beforePopupClose: () => void;
+  sendToBoard?: (item: any) => void;
 };
 
 export default class GrowthHackEditForm extends React.Component<Props> {
@@ -90,7 +92,14 @@ export default class GrowthHackEditForm extends React.Component<Props> {
     saveItem,
     onChangeStage
   }: IEditFormContent) => {
-    const { item, options, saveFormSubmission, onUpdate, addItem } = this.props;
+    const {
+      item,
+      options,
+      saveFormSubmission,
+      onUpdate,
+      addItem,
+      sendToBoard
+    } = this.props;
 
     const dateOnChange = date => saveItem({ closeDate: date });
 
@@ -113,8 +122,10 @@ export default class GrowthHackEditForm extends React.Component<Props> {
               item={item}
               options={options}
               copy={copy}
-              remove={remove}
+              removeItem={remove}
               onUpdate={onUpdate}
+              sendToBoard={sendToBoard}
+              saveItem={saveItem}
             />
             <Left
               type={options.type}

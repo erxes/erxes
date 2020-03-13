@@ -3,10 +3,6 @@ import { darken, lighten } from 'modules/common/styles/color';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const Group = styled.div`
-  margin-bottom: 10px;
-`;
-
 const GroupHead = styledTS<{
   disabled?: boolean;
   vertical?: boolean;
@@ -67,4 +63,4 @@ const NotifyItem = styled.li`
   }
 `;
 
-export { GroupHead, Count, Title, Group, NotifyList, NotifyItem };
+export { GroupHead, Count, Title, NotifyList, NotifyItem };

@@ -1,17 +1,20 @@
-import * as React from "react";
-import { iconAttach } from "../../icons/Icons";
+import * as React from 'react';
+import { iconAttach, iconFilm } from '../../icons/Icons';
+import { __ } from '../../utils';
+import { MESSAGE_TYPES } from '../containers/AppContext';
 
 type Props = {
   placeholder?: string;
   conversationId: string | null;
   isAttachingFile: boolean;
   isParentFocused: boolean;
-  sendMessage: (message: string) => void;
+  sendMessage: (contentType: string, message: string) => void;
   sendTypingInfo: (conversationId: string, text: string) => void;
   sendFile: (file: File) => void;
   readMessages: (conversationId: string) => void;
   onTextInputBlur: () => void;
   collapseHead: () => void;
+  videoCallUsageStatus: boolean;
 };
 
 type State = {
@@ -27,7 +30,7 @@ class MessageSender extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { message: "" };
+    this.state = { message: '' };
 
     this.onSubmit = this.onSubmit.bind(this);
     this.handleMessageChange = this.handleMessageChange.bind(this);
@@ -80,8 +83,8 @@ class MessageSender extends React.Component<Props, State> {
 
   sendMessage() {
     this.clearTimeout();
-    this.props.sendMessage(this.state.message);
-    this.setState({ message: "" });
+    this.props.sendMessage(MESSAGE_TYPES.TEXT, this.state.message);
+    this.setState({ message: '' });
     this.setHeight(60);
   }
 
@@ -121,7 +124,7 @@ class MessageSender extends React.Component<Props, State> {
     const { onTextInputBlur, sendTypingInfo, conversationId } = this.props;
 
     if (conversationId) {
-      sendTypingInfo(conversationId, "");
+      sendTypingInfo(conversationId, '');
     }
 
     onTextInputBlur();
@@ -132,7 +135,7 @@ class MessageSender extends React.Component<Props, State> {
   }
 
   handleKeyPress(e: React.KeyboardEvent) {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       this.sendMessage();
     }
@@ -146,6 +149,39 @@ class MessageSender extends React.Component<Props, State> {
     if (files && files.length > 0) {
       this.props.sendFile(files[0]);
     }
+  }
+
+  sendVideoCallRequest = () => {
+    this.props.sendMessage(MESSAGE_TYPES.VIDEO_CALL_REQUEST, '');
+  };
+
+  renderFileUploader() {
+    if (this.props.isAttachingFile) {
+      return <div className="loader" />;
+    }
+
+    return (
+      <label title="File upload" htmlFor="file-upload" className="ctrl-item">
+        {iconAttach}
+        <input id="file-upload" type="file" onChange={this.handleFileInput} />
+      </label>
+    );
+  }
+
+  renderVideoCallRequest() {
+    if (!this.props.videoCallUsageStatus) {
+      return null;
+    }
+
+    return (
+      <label
+        title="Video call request"
+        className="ctrl-item"
+        onClick={this.sendVideoCallRequest}
+      >
+        {iconFilm}
+      </label>
+    );
   }
 
   render() {
@@ -166,18 +202,10 @@ class MessageSender extends React.Component<Props, State> {
           onClick={this.handleClick}
           onKeyDown={this.handleKeyPress}
         />
-        {this.props.isAttachingFile ? (
-          <div className="loader" />
-        ) : (
-          <label htmlFor="file-upload" className="btn-attach">
-            {iconAttach}
-            <input
-              id="file-upload"
-              type="file"
-              onChange={this.handleFileInput}
-            />
-          </label>
-        )}
+        <div className="ctrl">
+          {this.renderVideoCallRequest()}
+          {this.renderFileUploader()}
+        </div>
       </form>
     );
   }

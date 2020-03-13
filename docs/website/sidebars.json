@@ -9,6 +9,8 @@
     ],
     "Installation Guide": [
       "installation/ubuntu",
+      "installation/debian10",
+      "installation/centos8",
       "installation/docker",
       "installation/heroku",
       "installation/kubernetes",
@@ -47,8 +49,7 @@
       "developer/graphql-api",
       "developer/push-notifications",
       "developer/android-sdk",
-      "developer/ios-sdk",
-      "developer/amazon-ses"
+      "developer/ios-sdk"
     ]
   }
 }

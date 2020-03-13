@@ -1,12 +1,18 @@
 import Button from 'modules/common/components/Button';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
-import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import Select from 'react-select-plus';
+import styled from 'styled-components';
 import { IBoard, IPipeline } from '../../types';
 import { selectOptions } from '../../utils';
+
+const SelectPipeline = styled.div`
+  min-width: 220px;
+  font-weight: initial;
+  margin: 15px;
+`;
 
 type Props = {
   stageId: string;
@@ -84,7 +90,7 @@ class PipelineSelect extends React.Component<Props, State> {
     }
 
     return (
-      <>
+      <SelectPipeline>
         <FormGroup>
           <ControlLabel>{__('Board')}</ControlLabel>
           {this.renderSelect(
@@ -104,15 +110,17 @@ class PipelineSelect extends React.Component<Props, State> {
             selectOptions(filteredPipelines)
           )}
         </FormGroup>
-        <ModalFooter>
-          <Button btnStyle="simple" icon="cancel-1">
-            {__('Cancel')}
-          </Button>
-          <Button btnStyle="success" icon="checked-1" onClick={onSubmit}>
-            {__('Confirm')}
-          </Button>
-        </ModalFooter>
-      </>
+
+        <Button
+          block={true}
+          btnStyle="success"
+          icon="check-1"
+          onClick={onSubmit}
+          size="small"
+        >
+          {action === 'Copy' ? 'Copy' : 'Move'}
+        </Button>
+      </SelectPipeline>
     );
   }
 

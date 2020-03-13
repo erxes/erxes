@@ -27,9 +27,23 @@ const logs = `
         oldData
         newData
         description
+        addedData
+        unchangedData
+        changedData
+        removedData
+        extraDesc
       }
     }
   }
 `;
 
-export default { logs };
+const getDbSchemaLabels = `
+  query getDbSchemaLabels($type: String) {
+    getDbSchemaLabels(type: $type) {
+      name
+      label
+    }
+  }
+`;
+
+export default { getDbSchemaLabels, logs };

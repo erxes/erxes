@@ -119,7 +119,9 @@ const Row = styled.div`
   margin-right: ${dimensions.coreSpacing}px;
 `;
 
-const AvatarWrapper = styledTS<{ isUser?: boolean }>(styled.div)`
+const AvatarWrapper = styledTS<{ isOnline?: boolean; hideIndicator?: boolean }>(
+  styled.div
+)`
   margin-right: ${dimensions.unitSpacing}px;
   position: relative;
 
@@ -127,20 +129,20 @@ const AvatarWrapper = styledTS<{ isUser?: boolean }>(styled.div)`
     float: none;
   }
 
-  > i {
+  &:before {
+    content: '';
     position: absolute;
     right: -3px;
-    top: 30px;
+    top: 32px;
     background: ${props =>
-      props.isUser ? colors.colorCoreGreen : colors.colorCoreRed};
-    width: 18px;
-    height: 18px;
-    text-align: center;
+      props.isOnline ? colors.colorCoreGreen : colors.colorCoreLightGray};
+    width: 14px;
+    height: 14px;
     border-radius: ${dimensions.unitSpacing}px;
-    color: ${colors.colorWhite};
-    line-height: 16px;
     font-size: ${dimensions.unitSpacing}px;
     border: 1px solid ${colors.colorWhite};
+    z-index: 2;
+    display: ${props => props.hideIndicator && 'none'};
   }
 
   > div {
@@ -355,7 +357,16 @@ const MergedContacts = styled.div`
   }
 `;
 
+const ShowMore = styled.span`
+  color: #6569df;
+  cursor: pointer;
+  &:hover {
+    color: black;
+  }
+`;
+
 export {
+  ShowMore,
   Timeline,
   ActivityTitle,
   ActivityRow,

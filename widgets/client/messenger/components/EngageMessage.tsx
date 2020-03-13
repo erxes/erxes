@@ -9,17 +9,19 @@ const Component = React.Component;
 
 type Props = {
   engageData: IEngageData;
+  user?: IUser;
 };
 
 class EngageMessage extends Component<Props> {
-  renderUserFullName(fromUser?: IUser) {
-    if (fromUser && fromUser.details) {
-      return fromUser.details.fullName;
+  renderUserFullName(user?: IUser) {
+    if (user && user.details) {
+      return user.details.fullName;
     }
   }
 
   renderNotificationContent() {
-    const { content, sentAs, fromUser } = this.props.engageData;
+    const { content, sentAs } = this.props.engageData;
+    const { user } = this.props;
 
     if (sentAs === "badge") {
       return null;
@@ -33,8 +35,8 @@ class EngageMessage extends Component<Props> {
       <>
         <div className="flex-notification">
           <div className="user-info">
-            <User user={fromUser} />
-            {this.renderUserFullName(fromUser)}
+            <User user={user} />
+            {this.renderUserFullName(user)}
           </div>
           <div className={classes}>
             {sentAs === "fullMessage" ? (

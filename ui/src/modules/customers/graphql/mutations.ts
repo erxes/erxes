@@ -2,6 +2,8 @@ const commonFields = `
   $avatar: String,
   $firstName: String,
   $lastName: String,
+  $sex: Int,
+  $birthDate:Date,
   $primaryEmail: String,
   $primaryPhone: String,
   $phones: [String],
@@ -23,6 +25,8 @@ const commonVariables = `
   avatar: $avatar,
   firstName: $firstName,
   lastName: $lastName,
+  sex: $sex,
+  birthDate: $birthDate,
   primaryEmail: $primaryEmail,
   primaryPhone: $primaryPhone,
   phones: $phones,
@@ -58,6 +62,8 @@ const customersEdit = `
       primaryEmail
       primaryPhone
       code
+      sex
+      birthDate
       phones
       emails
       ownerId

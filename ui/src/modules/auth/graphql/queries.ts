@@ -28,6 +28,7 @@ const currentUser = `
       emailSignatures
       getNotificationByEmail
       permissionActions
+      configs
     }
   }
 `;

@@ -21,9 +21,11 @@ type Props = {
   item: ITicket;
   addItem: (doc: ITicketParams, callback: () => void, msg?: string) => void;
   saveItem: (doc: ITicketParams, callback?: (item) => void) => void;
+  copyItem: (itemId: string, callback: (item) => void) => void;
   onUpdate: (item, prevStageId?: string) => void;
   removeItem: (itemId: string, callback: () => void) => void;
   beforePopupClose: () => void;
+  sendToBoard?: (item: any) => void;
 };
 
 type State = {
@@ -104,7 +106,7 @@ export default class TicketEditForm extends React.Component<Props, State> {
     saveItem,
     onChangeStage
   }: IEditFormContent) => {
-    const { item, options, onUpdate, addItem } = this.props;
+    const { item, options, onUpdate, addItem, sendToBoard } = this.props;
 
     const renderSidebar = () => this.renderSidebarFields(saveItem);
 
@@ -127,6 +129,7 @@ export default class TicketEditForm extends React.Component<Props, State> {
             onUpdate={onUpdate}
             item={item}
             addItem={addItem}
+            sendToBoard={sendToBoard}
           />
 
           <Sidebar

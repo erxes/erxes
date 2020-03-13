@@ -1,11 +1,10 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '../../../common/utils';
 import { queries as integrationQuery } from '../../../settings/integrations/graphql';
 import {
-  IIntegration,
   IntegrationsCountQueryResponse,
   IntegrationsQueryResponse
 } from '../../../settings/integrations/types';
@@ -19,43 +18,34 @@ type Props = {
   totalCountQuery?: IntegrationsCountQueryResponse;
 };
 
-type State = {
-  integrations: IIntegration[];
-};
+function LeadFilterContainer(props: Props) {
+  const { integrationsQuery, totalCountQuery, customersCountQuery } = props;
+  const defaultIntegrations = integrationsQuery
+    ? integrationsQuery.integrations
+    : [];
+  const [integrations, setIntegrations] = useState(defaultIntegrations);
 
-class LeadFilterContainer extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+  const prevProp = useRef(integrationsQuery);
 
-    this.state = {
-      integrations: []
-    };
-  }
+  useEffect(
+    () => {
+      const prevIntegrationsQuery = prevProp.current;
 
-  componentDidUpdate(prevProps, prevState) {
-    const { integrationsQuery } = this.props;
+      if (
+        integrationsQuery &&
+        prevIntegrationsQuery &&
+        integrationsQuery.integrations !== prevIntegrationsQuery.integrations
+      ) {
+        setIntegrations([...integrations, ...integrationsQuery.integrations]);
+      }
 
-    if (
-      integrationsQuery &&
-      prevProps.integrationsQuery &&
-      integrationsQuery.integrations !==
-        prevProps.integrationsQuery.integrations
-    ) {
-      this.setState({
-        integrations: [
-          ...prevState.integrations,
-          ...integrationsQuery.integrations
-        ]
-      });
-    }
-  }
+      prevProp.current = integrationsQuery;
+    },
+    [integrationsQuery, integrations]
+  );
 
-  loadMore = () => {
-    const { integrationsQuery } = this.props;
-
+  const loadMore = () => {
     if (integrationsQuery) {
-      const { integrations } = this.state;
-
       integrationsQuery.refetch({
         perPage: 10,
         page: Math.floor(integrations.length / 10) + 1
@@ -63,31 +53,23 @@ class LeadFilterContainer extends React.Component<Props, State> {
     }
   };
 
-  render() {
-    const {
-      integrationsQuery,
-      totalCountQuery,
-      customersCountQuery
-    } = this.props;
+  const counts = (customersCountQuery
+    ? customersCountQuery.customerCounts
+    : null) || { byForm: {} };
 
-    const counts = (customersCountQuery
-      ? customersCountQuery.customerCounts
-      : null) || { byForm: {} };
+  const updatedProps = {
+    ...props,
+    counts: counts.byForm || {},
+    integrations,
+    loading: integrationsQuery ? integrationsQuery.loading : false,
+    loadMore,
+    all:
+      totalCountQuery && totalCountQuery.integrationsTotalCount
+        ? totalCountQuery.integrationsTotalCount.byKind.lead
+        : 0
+  };
 
-    const updatedProps = {
-      ...this.props,
-      counts: counts.byForm || {},
-      integrations: this.state.integrations,
-      loading: integrationsQuery ? integrationsQuery.loading : false,
-      loadMore: this.loadMore,
-      all:
-        totalCountQuery && totalCountQuery.integrationsTotalCount
-          ? totalCountQuery.integrationsTotalCount.byKind.lead
-          : 0
-    };
-
-    return <LeadFilter {...updatedProps} />;
-  }
+  return <LeadFilter {...updatedProps} />;
 }
 
 export default withProps<{ loadingMainQuery: boolean }>(

@@ -1,7 +1,6 @@
-import React from 'react';
-
 import SelectWithSearch from 'modules/common/components/SelectWithSearch';
 import { IOption, IQueryParams } from 'modules/common/types';
+import React from 'react';
 import { queries } from '../../graphql/index';
 import { IPipelineLabel } from '../../types';
 
@@ -40,7 +39,7 @@ export default ({
 
   return (
     <SelectWithSearch
-      label="Choose labels"
+      label="Filter by labels"
       queryName="pipelineLabels"
       name={name}
       filterParams={filterParams}

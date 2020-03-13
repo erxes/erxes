@@ -7,25 +7,25 @@ import { borderRadius } from './common';
 
 const buttonColor = '#0a1e3c';
 
-const FlexContent = styled.div`
+export const FlexContent = styled.div`
   display: flex;
 `;
 
-const PriceContainer = styled.div`
+export const PriceContainer = styled.div`
   ul {
     float: left;
   }
 `;
 
-const Left = styled.div`
+export const Left = styled.div`
   float: left;
 `;
 
-const Right = styled.div`
+export const Right = styled.div`
   float: right;
 `;
 
-const Footer = styled.div`
+export const Footer = styled.div`
   padding-top: 8px;
   margin-top: 8px;
   border-top: 1px dotted ${colors.borderPrimary};
@@ -40,11 +40,11 @@ const Footer = styled.div`
   }
 `;
 
-const HeaderRow = styled(FlexContent)`
+export const HeaderRow = styled(FlexContent)`
   margin-bottom: 30px;
 `;
 
-const HeaderContent = styled.div`
+export const HeaderContent = styled.div`
   flex: 1;
 
   textarea {
@@ -58,7 +58,7 @@ const HeaderContent = styled.div`
   }
 `;
 
-const TitleRow = styled.div`
+export const TitleRow = styled.div`
   display: flex;
   align-items: center;
   font-size: 16px;
@@ -88,7 +88,7 @@ const TitleRow = styled.div`
   }
 `;
 
-const MetaInfo = styled.div`
+export const MetaInfo = styled.div`
   display: flex;
   align-items: center;
   margin-top: 5px;
@@ -98,7 +98,7 @@ const MetaInfo = styled.div`
   }
 `;
 
-const HeaderContentSmall = styled.div`
+export const HeaderContentSmall = styled.div`
   text-align: right;
   margin-left: 20px;
   min-width: 160px;
@@ -131,21 +131,21 @@ const HeaderContentSmall = styled.div`
   }
 `;
 
-const FormFooter = styled.div`
+export const FormFooter = styled.div`
   text-align: right;
   margin-top: 20px;
 `;
 
-const SpaceContent = styled(FlexContent)`
+export const SpaceContent = styled(FlexContent)`
   position: relative;
   justify-content: space-between;
 `;
 
-const FooterContent = styled.div`
+export const FooterContent = styled.div`
   flex: 1;
 `;
 
-const LeftContainer = styled.div`
+export const LeftContainer = styled.div`
   margin-right: ${dimensions.coreSpacing}px;
   flex: 1;
 
@@ -154,7 +154,7 @@ const LeftContainer = styled.div`
   }
 `;
 
-const WatchIndicator = styled.span`
+export const WatchIndicator = styled.span`
   position: absolute;
   background: ${colors.colorCoreGreen};
   right: 5px;
@@ -172,12 +172,12 @@ const WatchIndicator = styled.span`
   }
 `;
 
-const RightContent = styled.div`
+export const RightContent = styled.div`
   width: 280px;
   flex-shrink: 0;
 `;
 
-const RightButton = styled(Button)`
+export const RightButton = styled(Button)`
   width: 100%;
   margin-bottom: 5px;
   margin-left: 0 !important;
@@ -204,13 +204,13 @@ const RightButton = styled(Button)`
   }
 `;
 
-const MoveContainer = styled(FlexContent)`
+export const MoveContainer = styled(FlexContent)`
   margin-bottom: 20px;
   align-items: center;
   position: relative;
 `;
 
-const ActionContainer = styled(MoveContainer)`
+export const ActionContainer = styled(MoveContainer)`
   flex-wrap: wrap;
 
   > div {
@@ -218,12 +218,12 @@ const ActionContainer = styled(MoveContainer)`
   }
 `;
 
-const MoveFormContainer = styled.div`
+export const MoveFormContainer = styled.div`
   margin-right: 20px;
   position: relative;
 `;
 
-const PipelineName = styled.div`
+export const PipelineName = styled.div`
   font-weight: bold;
   font-size: 15px;
 
@@ -232,12 +232,12 @@ const PipelineName = styled.div`
   }
 `;
 
-const PipelinePopoverContent = styled.div`
+export const PipelinePopoverContent = styled.div`
   padding: 30px 10px 10px 30px;
   width: 300px;
 `;
 
-const Stages = styled.ul`
+export const Stages = styled.ul`
   flex: 1;
   list-style: none;
   display: flex;
@@ -248,7 +248,7 @@ const Stages = styled.ul`
   overflow: hidden;
 `;
 
-const StageItem = styledTS<{ isPass: boolean }>(styled.li)`
+export const StageItem = styledTS<{ isPass: boolean }>(styled.li)`
   flex: 1;
   text-align: right;
   position: relative;
@@ -288,7 +288,7 @@ const StageItem = styledTS<{ isPass: boolean }>(styled.li)`
   }
 `;
 
-const SelectValue = styled.div`
+export const SelectValue = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -301,13 +301,13 @@ const SelectValue = styled.div`
   }
 `;
 
-const SelectOption = styled.div`
+export const SelectOption = styled.div`
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 `;
 
-const Avatar = styled.img`
+export const Avatar = styled.img`
   width: 20px;
   height: 20px;
   border-radius: 10px;
@@ -316,7 +316,7 @@ const Avatar = styled.img`
   margin-right: 5px;
 `;
 
-const Status = styled.div`
+export const Status = styled.div`
   margin-bottom: 4px;
   overflow: hidden;
 
@@ -329,33 +329,28 @@ const Status = styled.div`
   }
 `;
 
-export {
-  SpaceContent,
-  FooterContent,
-  HeaderRow,
-  TitleRow,
-  MetaInfo,
-  HeaderContent,
-  HeaderContentSmall,
-  RightButton,
-  MoveFormContainer,
-  PipelineName,
-  FormFooter,
-  FlexContent,
-  LeftContainer,
-  RightContent,
-  MoveContainer,
-  Stages,
-  StageItem,
-  SelectOption,
-  SelectValue,
-  Avatar,
-  Status,
-  PriceContainer,
-  Right,
-  Left,
-  Footer,
-  WatchIndicator,
-  ActionContainer,
-  PipelinePopoverContent
-};
+export const ArchiveStatus = styled.div`
+  background-color: #fdfae5;
+  background-image: linear-gradient(
+    to bottom right,
+    rgba(0, 0, 0, 0.05) 25%,
+    transparent 0,
+    transparent 50%,
+    rgba(0, 0, 0, 0.05) 0,
+    rgba(0, 0, 0, 0.05) 75%,
+    transparent 0,
+    transparent
+  );
+  background-size: 14px 14px;
+  min-height: 30px;
+  padding: 12px 12px 12px 40px;
+
+  span {
+    font-size: 16px;
+    padding-left: 10px;
+  }
+
+  i {
+    font-size: 16px;
+  }
+`;

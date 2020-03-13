@@ -1,4 +1,5 @@
 import DueDateChanger from 'modules/boards/components/DueDateChanger';
+import { ArchiveBtn } from 'modules/boards/components/editForm/ArchiveBtn';
 import PriorityIndicator from 'modules/boards/components/editForm/PriorityIndicator';
 import SelectItem from 'modules/boards/components/SelectItem';
 import { PRIORITIES } from 'modules/boards/constants';
@@ -24,8 +25,10 @@ type Props = {
   dateOnChange: (date) => void;
   options: IOptions;
   copy: () => void;
-  remove: (id: string) => void;
   onUpdate: (item, prevStageId?: string) => void;
+  sendToBoard?: (item: any) => void;
+  saveItem: (doc: { [key: string]: any }, callback?: (item) => void) => void;
+  removeItem: (itemId: string) => void;
 };
 
 class Actions extends React.Component<Props> {
@@ -35,7 +38,9 @@ class Actions extends React.Component<Props> {
       onChangeField,
       options,
       copy,
-      remove,
+      removeItem,
+      saveItem,
+      sendToBoard,
       dateOnChange,
       onUpdate
     } = this.props;
@@ -62,8 +67,6 @@ class Actions extends React.Component<Props> {
 
       return onChangeField('hackStages', values);
     };
-
-    const onRemove = () => remove(item._id);
 
     const priorityTrigger = (
       <ColorButton>
@@ -107,10 +110,12 @@ class Actions extends React.Component<Props> {
           <Icon icon="copy-1" />
           {__('Copy')}
         </ColorButton>
-        <ColorButton onClick={onRemove}>
-          <Icon icon="times-circle" />
-          {__('Delete')}
-        </ColorButton>
+        <ArchiveBtn
+          item={item}
+          removeItem={removeItem}
+          saveItem={saveItem}
+          sendToBoard={sendToBoard}
+        />
       </ActionContainer>
     );
   }

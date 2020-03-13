@@ -19,3 +19,8 @@ export const PRODUCT_INFO = {
     { field: 'sku', label: 'Sku' }
   ]
 };
+
+export const PRODUCT_TYPE_CHOISES = {
+  product: 'Product',
+  service: 'Service'
+};

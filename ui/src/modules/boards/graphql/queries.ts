@@ -89,6 +89,9 @@ const pipelines = `
       name
       boardId
       state
+      startDate
+      endDate
+      itemsTotalCount
     }
   }
 `;
@@ -150,6 +153,25 @@ const stages = `
   }
 `;
 
+const archivedStages = `
+  query archivedStages(
+    $pipelineId: String!,
+    $search: String,
+    $page: Int,
+    $perPage: Int,
+  ) {
+    archivedStages(
+      pipelineId: $pipelineId,
+      search: $search,
+      page: $page,
+      perPage: $perPage,
+    ) {
+      _id
+      name
+    }
+  }
+`;
+
 const stageDetail = `
   query stageDetail(
     $_id: String!,
@@ -179,6 +201,7 @@ const boardCounts = `
 `;
 
 export default {
+  archivedStages,
   boards,
   boardGetLast,
   boardDetail,

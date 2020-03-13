@@ -99,8 +99,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     });
   };
 
-  handleSubmit = (type: string): Promise<any> | void => {  
-
+  handleSubmit = (type: string): Promise<any> | void => {
     const doc = {
       segmentIds: this.state.segmentIds,
       tagIds: this.state.tagIds,
@@ -132,7 +131,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     }
 
     const response = this.props.validateDoc(type, doc);
-    
+
     if (response.status === 'ok' && response.doc) {
       return this.props.save(response.doc);
     }
@@ -150,8 +149,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     );
 
     const saveButton = () => {
-      if (kind === 'auto') 
-      {
+      if (kind === 'auto') {
         return (
           <>
             <Button
@@ -175,19 +173,19 @@ class AutoAndManualForm extends React.Component<Props, State> {
           </>
         );
       }
-        return (
-          <Button
-            disabled={isActionLoading}
-            btnStyle="success"
-            size="small"
-            icon={isActionLoading ? undefined : 'checked-1'}
-            onClick={this.handleSubmit.bind(this, 'save')}
-          >
-            {isActionLoading && <SmallLoader />}
-            Save
+      return (
+        <Button
+          disabled={isActionLoading}
+          btnStyle="success"
+          size="small"
+          icon={isActionLoading ? undefined : 'checked-1'}
+          onClick={this.handleSubmit.bind(this, 'live')}
+        >
+          {isActionLoading && <SmallLoader />}
+          Save
         </Button>
-        );
-      };
+      );
+    };
 
     return (
       <Button.Group>

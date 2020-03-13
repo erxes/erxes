@@ -1,6 +1,6 @@
 .erxes-message-sender {
   border-top: 1px solid lighten($grey-light, 1%);
-  box-shadow: 0 0 15px 0 rgba($black, .1);
+  box-shadow: 0 0 15px 0 rgba($black, 0.1);
   font-size: 12px;
   min-height: 60px;
   overflow: auto;
@@ -8,9 +8,12 @@
   max-height: 50%;
 
   textarea {
-    @include prefix((
+    @include prefix(
+      (
         box-sizing: border-box !important
-    ), webkit moz ms o);
+      ),
+      webkit moz ms o
+    );
     border: 0;
     color: $text-color;
     font-size: $font-size;
@@ -20,36 +23,45 @@
     max-width: 100%;
     outline: none;
     padding: 20px 25px;
-    padding-right: 50px;
+    padding-right: 80px;
     position: absolute;
     resize: none;
     top: 0;
     width: 100%;
 
     &:focus {
-      @include prefix((
-        box-shadow: none !important
-      ), webkit moz ms o);
+      @include prefix(
+        (
+          box-shadow: none !important
+        ),
+        webkit moz ms o
+      );
     }
   }
 
-  .btn-attach {
+  .ctrl {
     position: absolute;
     right: 15px;
     top: 13px;
-    width: 35px;
-    height: 35px;
-    margin: 0;
-    cursor: pointer;
-    opacity: .7;
-    text-align: center;
 
-    &:hover {
-      opacity: 1;
-    }
+    .ctrl-item {
+      float: left;
+      width: 35px;
+      height: 35px;
+      line-height: 35px;
+      margin: 0;
+      cursor: pointer;
+      opacity: 0.7;
+      text-align: center;
+      font-size: 14px;
 
-    input[type="file"] {
-      display: none;
+      &:hover {
+        opacity: 1;
+      }
+
+      input[type='file'] {
+        display: none;
+      }
     }
   }
 

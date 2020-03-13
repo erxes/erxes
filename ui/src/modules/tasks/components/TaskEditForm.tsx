@@ -18,9 +18,11 @@ type Props = {
   item: IItem;
   addItem: (doc: IItemParams, callback: () => void, msg?: string) => void;
   saveItem: (doc: IItemParams, callback?: (item) => void) => void;
+  copyItem: (itemId: string, callback: () => void) => void;
   removeItem: (itemId: string, callback: () => void) => void;
   onUpdate: (item: IItem, prevStageId?: string) => void;
   beforePopupClose: () => void;
+  sendToBoard?: (item: any) => void;
 };
 
 export default class TaskEditForm extends React.Component<Props> {
@@ -40,7 +42,7 @@ export default class TaskEditForm extends React.Component<Props> {
     saveItem,
     onChangeStage
   }: IEditFormContent) => {
-    const { item, options, onUpdate, addItem } = this.props;
+    const { item, options, onUpdate, addItem, sendToBoard } = this.props;
 
     return (
       <>
@@ -59,6 +61,7 @@ export default class TaskEditForm extends React.Component<Props> {
             copyItem={copy}
             removeItem={remove}
             onUpdate={onUpdate}
+            sendToBoard={sendToBoard}
             item={item}
             addItem={addItem}
           />

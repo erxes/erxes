@@ -1,4 +1,8 @@
-import { LEAD_STATUS_TYPES, LIFECYCLE_STATE_TYPES } from './constants';
+import {
+  GENDER_TYPES,
+  LEAD_STATUS_TYPES,
+  LIFECYCLE_STATE_TYPES
+} from './constants';
 
 export const hasAnyActivity = log => {
   let hasAny = false;
@@ -19,6 +23,19 @@ export const leadStatusChoices = __ => {
     options.push({
       value: key,
       label: __(LEAD_STATUS_TYPES[key])
+    });
+  }
+
+  return options;
+};
+
+export const genderChoices = __ => {
+  const options: Array<{ value: string; label: string }> = [];
+
+  for (const key of Object.keys(GENDER_TYPES)) {
+    options.push({
+      value: key,
+      label: __(GENDER_TYPES[key])
     });
   }
 

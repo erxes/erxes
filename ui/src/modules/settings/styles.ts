@@ -1,14 +1,32 @@
 import { colors, dimensions, typography } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
-import { ActionButtons } from 'modules/knowledgeBase/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 const unitSpace = `${dimensions.unitSpacing}px`;
 
+const ActionButtons = styled.div`
+  display: flex;
+  overflow: hidden;
+  align-items: center;
+  transition: all 0.3s ease;
+  width: 0;
+
+  * {
+    padding: 0;
+    margin-left: ${dimensions.unitSpacing}px;
+
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+`;
+
 const ContentBox = styled.div`
   padding: ${dimensions.coreSpacing}px;
+  max-width: 640px;
+  margin: 0 auto;
 `;
 
 const ModuleBox = styled.div`
@@ -264,6 +282,10 @@ const Description = styled.div`
 const ExpandWrapper = styled.div`
   flex: 1;
   margin-right: 20px;
+
+  &:last-of-type {
+    margin-right: 0;
+  }
 `;
 
 export {

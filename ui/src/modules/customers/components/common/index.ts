@@ -4,14 +4,14 @@ import CustomerSection from './CustomerSection';
 import DetailInfo from './DetailInfo';
 import DevicePropertiesSection from './DevicePropertiesSection';
 import InfoSection from './InfoSection';
-import MessengerSection from './MessengerSection';
 import TaggerSection from './TaggerSection';
+import TrackedDataSection from './TrackedDataSection';
 
 export {
   BasicInfoSection,
   CustomerSection,
   DevicePropertiesSection,
-  MessengerSection,
+  TrackedDataSection,
   TaggerSection,
   InfoSection,
   DetailInfo,

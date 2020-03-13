@@ -22,7 +22,7 @@ const StageRoot = styledTS<{ isDragging: boolean }>(styled.div)`
   border-radius: 3px;
   transition: box-shadow 0.3s ease;
   background: ${stageGray};
-  overflow: hidden;
+  max-height: 100%;
 
   ${props => css`
     box-shadow: ${props.isDragging
@@ -91,7 +91,7 @@ const Header = styled.div`
 `;
 
 const HeaderAmount = styled.div`
-  min-height: 28px;
+  min-height: 21px;
 `;
 
 const Amount = styled.ul`
@@ -173,13 +173,15 @@ const LoadingContent = styled.div`
   }
 `;
 
-const StageTitle = styled.h4`
+export const StageTitle = styled.div`
+  position: relative;
   display: flex;
   justify-content: space-between;
 `;
 
-const ActionList = styled(PopoverList)`
-  min-width: 160px;
+export const ActionList = styled(PopoverList)`
+  min-width: 250px;
+  font-weight: initial;
 
   li a {
     color: ${colors.textPrimary};
@@ -187,13 +189,12 @@ const ActionList = styled(PopoverList)`
   }
 `;
 
-const ActionButton = styled.div`
-  padding: 4px 5px;
+export const ActionButton = styled.div`
+  padding: 2px 5px;
   margin-top: -4px;
   margin-right: -5px;
   border-radius: 2px;
   font-size: 15px;
-
   &:hover {
     background: rgba(0, 0, 0, 0.1);
     cursor: pointer;
@@ -213,8 +214,5 @@ export {
   IndicatorItem,
   StageFooter,
   LoadingContent,
-  StageRoot,
-  StageTitle,
-  ActionList,
-  ActionButton
+  StageRoot
 };
