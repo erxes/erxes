@@ -49,6 +49,7 @@ export interface ICustomerDoc {
   visitorContactInfo?: IVisitorContact;
   code?: string;
   birthDate?: string;
+  emailValidationStatus?: string;
 
   isOnline?: boolean;
   lastSeenAt?: number;
