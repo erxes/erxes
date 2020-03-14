@@ -1,3 +1,4 @@
+import { debugBase } from '../debuggers';
 import { Shapes } from '../models';
 import { IShapeDocument } from '../models/definitions/Automations';
 import { ACTION_KIND, CONDITION_KIND, QUEUE_STATUS } from '../models/definitions/constants';
@@ -85,6 +86,7 @@ const conditionRun = async (shape: IShapeDocument, data: any, parentId: string, 
 };
 
 const sequencing = async (shape: IShapeDocument, data: any, parentId: string, result: object) => {
+  debugBase(`sequencing ::: shape.type: ${shape.type}, shape.kind: ${shape.kind}, result: ${result}`);
   await Queues.createQueue({ shapeId: shape._id, postData: data, result, status: QUEUE_STATUS.WORKING, parentId });
 
   if (shape.type === 'action') {

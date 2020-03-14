@@ -1,3 +1,4 @@
+import { debugBase } from '../debuggers';
 import { Automations, Shapes } from '../models';
 import { AUTOMATION_STATUS, AUTOMATION_TYPE, TRIGGER_KIND } from '../models/definitions/constants';
 import { asyncAutomationRunner, bgAutomationRunner } from './runnerHelper';
@@ -43,6 +44,8 @@ export const checkTrigger = async (postData: any): Promise<any> => {
     config: { ...configFilter },
     async: false,
   });
+
+  debugBase(`async, sync triggers ${asyncTriggers} ${syncTriggers}`);
 
   // sync triggers command start
   if (syncTriggers.length > 0) {
