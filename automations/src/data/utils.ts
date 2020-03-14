@@ -51,7 +51,13 @@ export const checkTrigger = async (postData: any): Promise<any> => {
   if (syncTriggers.length > 0) {
     for (const trigger of syncTriggers) {
       result.bgTriggers.push(trigger.kind);
-      bgAutomationRunner(trigger, postData);
+      bgAutomationRunner(trigger, postData)
+        .then(() => {
+          debugBase(`Success background automation runner ${trigger._id} ${trigger.kind}`);
+        })
+        .catch(() => {
+          debugBase(`Unsuccess background automation runner ${trigger._id} ${trigger.kind}`);
+        });
     }
   }
 
