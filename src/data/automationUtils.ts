@@ -1,4 +1,5 @@
 import { IUserDocument } from '../db/models/definitions/users';
+import { debugBase } from '../debuggers';
 import { sendRPCMessage } from '../messageBroker';
 import { graphqlPubsub } from '../pubsub';
 import { IFinalLogParams } from './logUtils';
@@ -17,10 +18,14 @@ const checkAutomation = async (kind: string, body: any, user: IUserDocument) => 
     return;
   }
 
+  debugBase(`check automation to data ${data}`);
+
   const apiAutomationResponse = await sendRPCMessage({
     action: 'get-response-check-automation',
     data,
   });
+
+  debugBase(`check automation per response ${apiAutomationResponse}`);
 
   if (apiAutomationResponse.response.length === 0) {
     return;
