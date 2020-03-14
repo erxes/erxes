@@ -45,7 +45,7 @@ const checkAutomation = async (kind: string, body: any, user: IUserDocument) => 
 let automationKind = '';
 let automationBody = {};
 
-const changeDeal = (params: IFinalLogParams) => {
+const changeDeal = async (params: IFinalLogParams) => {
   const updateDeal = params.updatedDocument || params.newData || params.object;
   const oldDeal = params.object;
   const destinationStageId = updateDeal.stageId || '';
@@ -60,7 +60,7 @@ const changeDeal = (params: IFinalLogParams) => {
   }
 };
 
-const changeListCompany = (params: IFinalLogParams) => {
+const changeListCompany = async (params: IFinalLogParams) => {
   automationKind = 'changeListCompany';
   automationBody = {
     action: params.action,
@@ -69,7 +69,7 @@ const changeListCompany = (params: IFinalLogParams) => {
   };
 };
 
-const changeListCustomer = (params: IFinalLogParams) => {
+const changeListCustomer = async (params: IFinalLogParams) => {
   automationKind = 'changeListCustomer';
   automationBody = {
     action: params.action,
@@ -78,7 +78,7 @@ const changeListCustomer = (params: IFinalLogParams) => {
   };
 };
 
-const changeListProduct = (params: IFinalLogParams) => {
+const changeListProduct = async (params: IFinalLogParams) => {
   automationKind = 'changeListProduct';
   automationBody = {
     action: params.type === 'product-category' ? params.action.concat('Category') : params.action,
@@ -90,28 +90,29 @@ const changeListProduct = (params: IFinalLogParams) => {
 export const automationHelper = async ({ params, user }: { params: IFinalLogParams; user: IUserDocument }) => {
   switch (params.type) {
     case 'deal':
-      changeDeal(params);
+      await changeDeal(params);
       break;
 
     case 'company':
-      changeListCompany(params);
+      await changeListCompany(params);
       break;
 
     case 'customer':
-      changeListCustomer(params);
+      await changeListCustomer(params);
       break;
 
     case 'product':
-      changeListProduct(params);
+      await changeListProduct(params);
       break;
 
     case 'product-category':
-      changeListProduct(params);
+      await changeListProduct(params);
+
     default:
       break;
   }
 
   if (automationKind && automationBody) {
-    checkAutomation(automationKind, automationBody, user);
+    await checkAutomation(automationKind, automationBody, user);
   }
 };

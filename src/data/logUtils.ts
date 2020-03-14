@@ -1278,7 +1278,7 @@ export const putDeleteLog = async (params: ILogDataParams, user: IUserDocument) 
 const putLog = async (params: IFinalLogParams, user: IUserDocument) => {
   try {
     // mutation wrapper automation
-    automationHelper({ params, user });
+    await automationHelper({ params, user });
 
     return sendMessage('putLog', {
       ...params,
