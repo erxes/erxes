@@ -12,7 +12,7 @@ let conn;
 let channel;
 
 export const sendRPCMessage = async (message, channelTxt = 'rpc_queue:erxes-automations'): Promise<any> => {
-  debugBase(`SendRPCMessage to queue ${JSON.stringify(message)}, ${channelTxt}`);
+  debugBase(`SendRPCMessage to ${JSON.stringify(message)}, ${channelTxt}`);
 
   const response = await new Promise((resolve, reject) => {
     const correlationId = uuid();
