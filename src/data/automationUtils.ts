@@ -18,27 +18,35 @@ const checkAutomation = async (kind: string, body: any, user: IUserDocument) => 
     return;
   }
 
-  debugBase(`check automation to data ${data}`);
+  debugBase(`CheckAutomation send to automations ... ${JSON.stringify(data)}`);
 
   const apiAutomationResponse = await sendRPCMessage({
     action: 'get-response-check-automation',
     data,
   });
 
-  debugBase(`check automation per response ${apiAutomationResponse}`);
+  debugBase(`CheckAutomation response ... ${JSON.stringify(apiAutomationResponse)}`);
 
   if (apiAutomationResponse.response.length === 0) {
     return;
   }
 
   try {
+    const responseId = Math.random();
     graphqlPubsub.publish('automationResponded', {
       automationResponded: {
         userId: user._id,
-        responseId: Math.random(),
+        responseId,
         content: apiAutomationResponse.response,
       },
     });
+    debugBase(
+      `pubsub published data ${JSON.stringify({
+        userId: user._id,
+        responseId,
+        content: apiAutomationResponse.response,
+      })}`,
+    );
   } catch (e) {
     // Any other error is serious
     if (e.message !== 'Configuration does not exist') {
