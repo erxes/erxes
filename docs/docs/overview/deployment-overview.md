@@ -11,9 +11,12 @@ Erxes can be installed in many different ways so you can pick whatever works bes
 
 ### Choose an installation method
 
-- [Ubuntu installation](installation/ubuntu.md)
+- [Ubuntu](installation/ubuntu.md)
+- [Debian 10](installation/debian10.md)
+- [CentOS 8](installation/centos8.md)
+- [RHEL 8](installation/redhat8.md)
+- [Heroku](installation/heroku.md)
 - [Docker](installation/docker.md)
-- [Kubernetes](installation/kubernetes.md)
 
 ## Prerequisites
 

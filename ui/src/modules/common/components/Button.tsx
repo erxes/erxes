@@ -68,7 +68,7 @@ const ButtonStyled = styledTS<{
     text-transform: ${props.uppercase ? 'uppercase' : 'none' };
     color: ${types[props.btnStyle].color
       ? types[props.btnStyle].color
-      : colors.colorWhite};
+      : colors.colorWhite} !important;
     border: none;
     display: ${props.block && 'block'};
     width: ${props.block && '100%'};

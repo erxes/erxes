@@ -11,7 +11,8 @@ const options = {
   queriesName: {
     itemsQuery: 'tickets',
     detailQuery: 'ticketDetail',
-    archivedItemsQuery: 'archivedTickets'
+    archivedItemsQuery: 'archivedTickets',
+    archivedItemsCountQuery: 'archivedTicketsCount'
   },
   mutationsName: {
     addMutation: 'ticketsAdd',
@@ -26,7 +27,8 @@ const options = {
   queries: {
     itemsQuery: queries.tickets,
     detailQuery: queries.ticketDetail,
-    archivedItemsQuery: queries.archivedTickets
+    archivedItemsQuery: queries.archivedTickets,
+    archivedItemsCountQuery: queries.archivedTicketsCount
   },
   mutations: {
     addMutation: mutations.ticketsAdd,

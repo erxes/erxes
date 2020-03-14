@@ -33,13 +33,21 @@ img {
   color: gray;
 }
 
-@media only screen and (min-device-width: 360px) and (max-device-width: 736px) {
+.row {
+  display: flex;
 }
+
+.col-md-6 {
+  width: 50%;
+}
+
+@media only screen and (min-device-width: 360px) and (max-device-width: 736px) {}
 
 @media only screen and (min-width: 1024px) {
   img.fl {
     float: left;
   }
+
   .hw {
     width: 49%;
   }
@@ -50,6 +58,7 @@ img {
     align-items: center;
     justify-content: center;
   }
+
   .postHeaderTitle {
     margin-top: 20px !important;
   }
@@ -87,11 +96,9 @@ img {
   }
 }
 
-@media only screen and (min-width: 1400px) {
-}
+@media only screen and (min-width: 1400px) {}
 
-@media only screen and (min-width: 1500px) {
-}
+@media only screen and (min-width: 1500px) {}
 
 img[src*="#heroku"] {
   margin-left: 0;
