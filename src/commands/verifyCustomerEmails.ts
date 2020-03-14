@@ -4,43 +4,56 @@ import { Customers } from '../db/models';
 
 const { RABBITMQ_HOST = 'amqp://localhost' } = process.env;
 
-connect().then(async () => {
+const main = async () => {
   const connection = await amqplib.connect(RABBITMQ_HOST);
   const channel = await connection.createChannel();
 
-  const verify = async () => {
-    const customers = await Customers.find(
-      { primaryEmail: { $exists: true, $ne: null }, emailValidationStatus: { $exists: false } },
-      { primaryEmail: 1 },
-    );
+  connect().then(async () => {
+    const verify = async () => {
+      const argv = process.argv;
 
-    const emails = customers.map(customer => customer.primaryEmail);
+      let limit = Number.MAX_SAFE_INTEGER;
 
-    const args = {
-      action: 'verifyEmail',
-      data: { emails },
+      if (argv.length > 2) {
+        limit = parseInt(argv[2], 10);
+      }
+
+      const query = { primaryEmail: { $exists: true, $ne: null }, emailValidationStatus: { $exists: false } };
+
+      const customers = await Customers.find(query, { primaryEmail: 1 }).limit(limit);
+
+      const emails = customers.map(customer => customer.primaryEmail);
+
+      const args = {
+        action: 'emailVerify',
+        data: { emails },
+      };
+
+      await channel.assertQueue('erxes-api:engages-notification');
+      await channel.sendToQueue('erxes-api:engages-notification', Buffer.from(JSON.stringify(args)));
     };
 
-    await channel.assertQueue('erxes-api:engages-notification');
-    await channel.sendToQueue('erxes-api:engages-notification', Buffer.from(JSON.stringify(args)));
-  };
+    verify();
 
-  verify();
+    // listen for engage notification ===========
+    await channel.assertQueue('engagesBulkEmailNotification');
 
-  // listen for engage notification ===========
-  await channel.assertQueue('engagesBulkEmailNotification');
+    channel.consume('engagesBulkEmailNotification', async msg => {
+      if (msg !== null) {
+        console.log('Bulk status: ', JSON.parse(msg.content.toString()));
 
-  channel.consume('engagesBulkEmailNotification', async msg => {
-    if (msg !== null) {
-      console.log('Bulk status: ', JSON.parse(msg.content.toString()));
+        channel.ack(msg);
 
-      channel.ack(msg);
+        setTimeout(() => {
+          connection.close();
 
-      channel.connection.close();
+          disconnect();
 
-      disconnect();
-
-      process.exit();
-    }
+          process.exit();
+        }, 500);
+      }
+    });
   });
-});
+};
+
+main();

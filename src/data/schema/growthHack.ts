@@ -54,6 +54,7 @@ export const queries = `
   ): JSON
 
   archivedGrowthHacks(pipelineId: String!, search: String, page: Int, perPage: Int): [GrowthHack]
+  archivedGrowthHacksCount(pipelineId: String!, search: String): Int
 `;
 
 const commonParams = `

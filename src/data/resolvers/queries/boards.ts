@@ -196,6 +196,16 @@ const boardQueries = {
     return paginate(Stages.find(filter).sort({ createdAt: -1 }), listArgs);
   },
 
+  archivedStagesCount(_root, { pipelineId, search }: { pipelineId: string; search?: string }) {
+    const filter: any = { pipelineId, status: BOARD_STATUSES.ARCHIVED };
+
+    if (search) {
+      Object.assign(filter, regexSearchText(search, 'name'));
+    }
+
+    return Stages.countDocuments(filter);
+  },
+
   /**
    *  ConvertTo info
    */

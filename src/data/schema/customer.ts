@@ -52,6 +52,7 @@ export const types = `
     description: String
     doNotDisturb: String
     code: String
+    emailValidationStatus: String
 
     isOnline: Boolean
     lastSeenAt: Date

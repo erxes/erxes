@@ -29,7 +29,7 @@ const permissionMutations = {
       );
     } // end for loop
 
-    resetPermissionsCache();
+    await resetPermissionsCache();
 
     return result;
   },
@@ -47,7 +47,7 @@ const permissionMutations = {
       await putDeleteLog({ type: MODULE_NAMES.PERMISSION, object: perm }, user);
     } // end for loop
 
-    resetPermissionsCache();
+    await resetPermissionsCache();
 
     return result;
   },
@@ -73,7 +73,7 @@ const usersGroupMutations = {
       user,
     );
 
-    resetPermissionsCache();
+    await resetPermissionsCache();
 
     return result;
   },
@@ -102,7 +102,7 @@ const usersGroupMutations = {
       user,
     );
 
-    resetPermissionsCache();
+    await resetPermissionsCache();
 
     return result;
   },
@@ -125,7 +125,7 @@ const usersGroupMutations = {
       user,
     );
 
-    resetPermissionsCache();
+    await resetPermissionsCache();
 
     return result;
   },

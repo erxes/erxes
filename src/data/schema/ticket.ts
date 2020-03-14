@@ -31,6 +31,7 @@ export const queries = `
     ${conformityQueryFields}
   ): [Ticket]
   archivedTickets(pipelineId: String!, search: String, page: Int, perPage: Int): [Ticket]
+  archivedTicketsCount(pipelineId: String!, search: String): Int
 `;
 
 const ticketMutationParams = `

@@ -111,7 +111,7 @@ const userMutations = {
     // add new user to channels
     await Channels.updateUserChannels(channelIds || [], _id);
 
-    resetPermissionsCache();
+    await resetPermissionsCache();
 
     return updatedUser;
   },

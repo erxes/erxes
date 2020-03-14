@@ -224,4 +224,48 @@ describe('taskQueries', () => {
 
     expect(response.length).toBe(0);
   });
+
+  test('Get archived task count ', async () => {
+    const pipeline = await pipelineFactory({ type: BOARD_TYPES.TASK });
+    const stage = await stageFactory({ pipelineId: pipeline._id });
+    const args = {
+      stageId: stage._id,
+      status: BOARD_STATUSES.ARCHIVED,
+    };
+
+    await taskFactory({ ...args, name: 'james' });
+    await taskFactory({ ...args, name: 'jone' });
+    await taskFactory({ ...args, name: 'gerrad' });
+
+    const qry = `
+      query archivedTasksCount(
+        $pipelineId: String!,
+        $search: String,
+      ) {
+        archivedTasksCount(
+          pipelineId: $pipelineId
+          search: $search
+        )
+      }
+    `;
+
+    let response = await graphqlRequest(qry, 'archivedTasksCount', {
+      pipelineId: pipeline._id,
+    });
+
+    expect(response).toBe(3);
+
+    response = await graphqlRequest(qry, 'archivedTasksCount', {
+      pipelineId: pipeline._id,
+      search: 'james',
+    });
+
+    expect(response).toBe(1);
+
+    response = await graphqlRequest(qry, 'archivedTasksCount', {
+      pipelineId: 'fakeId',
+    });
+
+    expect(response).toBe(0);
+  });
 });
