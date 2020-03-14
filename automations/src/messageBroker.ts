@@ -91,8 +91,8 @@ const initConsumer = async () => {
     channel = await conn.createChannel();
 
     // listen for rpc queue =========
-    await channel.assertQueue('rpc_queue:erxes-api');
-    channel.consume('rpc_queue:erxes-api', async msg => {
+    await channel.assertQueue('rpc_queue:erxes-api_erxes-automations');
+    channel.consume('rpc_queue:erxes-api_erxes-automations', async msg => {
       await consumerHelperCheckTrigger(msg);
     });
 

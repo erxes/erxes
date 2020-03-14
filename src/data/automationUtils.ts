@@ -20,10 +20,13 @@ const checkAutomation = async (kind: string, body: any, user: IUserDocument) => 
 
   debugBase(`CheckAutomation send to automations ... ${JSON.stringify(data)}`);
 
-  const apiAutomationResponse = await sendRPCMessage({
-    action: 'get-response-check-automation',
-    data,
-  });
+  const apiAutomationResponse = await sendRPCMessage(
+    {
+      action: 'get-response-check-automation',
+      data,
+    },
+    'rpc_queue:erxes-api_erxes-automations',
+  );
 
   debugBase(`CheckAutomation response ... ${JSON.stringify(apiAutomationResponse)}`);
 
