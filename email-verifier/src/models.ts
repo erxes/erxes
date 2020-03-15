@@ -9,7 +9,16 @@ export const EMAIL_VALIDATION_STATUSES = {
   CATCHALL: 'catchall',
   BAD_SYNTAX: 'badsyntax',
   UNVERIFIABLE: 'unverifiable',
-  ALL: ['valid', 'invalid', 'accept_all_unverifiable', 'unknown', 'disposable', 'catchall', 'badsyntax'],
+  ALL: [
+    'valid',
+    'invalid',
+    'accept_all_unverifiable',
+    'unknown',
+    'disposable',
+    'catchall',
+    'badsyntax',
+    'unverifiable',
+  ],
 };
 
 interface IEmail {
