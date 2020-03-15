@@ -17,6 +17,7 @@ title: Getting  Started
 
 ### User's Guide
 
+- <a href="../user/subscription-getting-started">Subscription getting started</a>
 - <a href="../user/initial-setup">Initial setup</a>
 - <a href="../user/general-settings">General settings</a>
 - <a href="../user/team-inbox">Team Inbox</a>
@@ -30,7 +31,6 @@ title: Getting  Started
 - <a href="../user/profile-settings">Profile settings</a>
 - <a href="../user/notification">Notifications</a>
 - <a href="../user/mobile-apps">Mobile Apps</a>
-- <a href="../user/subscription-getting-started">Subscription getting started</a>
   </div>
 <div class="col-md-6" markdown="1">
 
