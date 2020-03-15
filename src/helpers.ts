@@ -284,20 +284,18 @@ export const removeAccount = async (_id: string): Promise<{ erxesApiIds: string 
 
   const integrations = await Integrations.find({ accountId: account._id });
 
-  if (!integrations) {
-    return new Error(`Integration not found with this account: ${_id}`);
-  }
-
-  for (const integration of integrations) {
-    try {
-      const response = await removeIntegration(integration.erxesApiId);
-      erxesApiIds.push(response);
-
-      await Accounts.deleteOne({ _id });
-    } catch (e) {
-      throw e;
+  if (integrations.length) {
+    for (const integration of integrations) {
+      try {
+        const response = await removeIntegration(integration.erxesApiId);
+        erxesApiIds.push(response);
+      } catch (e) {
+        throw e;
+      }
     }
   }
+
+  await Accounts.deleteOne({ _id });
 
   return { erxesApiIds };
 };
