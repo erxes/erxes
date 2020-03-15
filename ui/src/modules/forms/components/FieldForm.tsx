@@ -66,6 +66,10 @@ class FieldForm extends React.Component<Props, State> {
   renderValidation() {
     const { field } = this.state;
 
+    if (field.type === 'file') {
+      return null;
+    }
+
     const validation = e =>
       this.onFieldChange(
         'validation',
@@ -166,6 +170,7 @@ class FieldForm extends React.Component<Props, State> {
           <ControlLabel htmlFor="text" required={true}>
             Field Label
           </ControlLabel>
+
           <FormControl
             type="text"
             value={field.text || ''}
