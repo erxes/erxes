@@ -280,12 +280,6 @@ class CompanyForm extends React.Component<Props, State> {
                 />
               </FormGroup>
 
-              {this.renderFormGroup('Code', {
-                ...formProps,
-                name: 'code',
-                defaultValue: company.code || ''
-              })}
-
               {this.renderFormGroup('Lifecycle State', {
                 ...formProps,
                 name: 'lifecycleState',
