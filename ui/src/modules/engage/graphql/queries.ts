@@ -50,6 +50,8 @@ const engageMessages = `
       tagIds
       brandIds 
       segmentIds 
+      totalCustomersCount
+      validCustomersCount
       stats
       getTags {
         _id
@@ -77,6 +79,10 @@ export const engageDetailFields = `
   isLive
   stopDate
   createdAt
+  totalCustomersCount
+  validCustomersCount
+  stats
+
   messenger
   fromUser {
     _id
