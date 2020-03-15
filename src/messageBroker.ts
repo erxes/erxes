@@ -19,6 +19,7 @@ let connection;
 let channel;
 
 export const sendRPCMessage = async (message, channelTxt = 'rpc_queue:erxes-api'): Promise<any> => {
+  debugBase(`SendRPCMessage to ${channelTxt}: ${JSON.stringify(message)}`);
   const response = await new Promise((resolve, reject) => {
     const correlationId = uuid();
 
@@ -142,7 +143,7 @@ const initConsumer = async () => {
   await channel.assertQueue('rpc_queue:erxes-automations');
   channel.consume('rpc_queue:erxes-automations', async msg => {
     if (msg !== null) {
-      debugBase(`Received rpc queue message ${msg.content.toString()}`);
+      debugBase(`Received rpc_queue:erxes-automations queue message ${msg.content.toString()}`);
 
       const response = await automationsRecRpcMsg(JSON.parse(msg.content.toString()));
 

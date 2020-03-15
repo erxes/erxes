@@ -45,8 +45,6 @@ export const checkTrigger = async (postData: any): Promise<any> => {
     async: false,
   });
 
-  debugBase(`async, sync triggers ${asyncTriggers} ${syncTriggers}`);
-
   // sync triggers command start
   if (syncTriggers.length > 0) {
     for (const trigger of syncTriggers) {
