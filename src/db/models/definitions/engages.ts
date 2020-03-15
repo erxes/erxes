@@ -47,6 +47,9 @@ export interface IEngageMessage {
   email?: IEmail;
   scheduleDate?: IScheduleDate;
   messenger?: IMessenger;
+
+  totalCustomersCount?: number;
+  validCustomersCount?: number;
 }
 
 export interface IEngageMessageDocument extends IEngageMessage, Document {
@@ -131,5 +134,8 @@ export const engageMessageSchema = schemaWrapper(
     email: field({ type: emailSchema, label: 'Email' }),
     scheduleDate: field({ type: scheduleDateSchema, label: 'Schedule date' }),
     messenger: field({ type: messengerSchema, label: 'Messenger' }),
+
+    totalCustomersCount: field({ type: Number, optional: true }),
+    validCustomersCount: field({ type: Number, optional: true }),
   }),
 );

@@ -15,6 +15,9 @@ export const types = `
     createdAt: Date
     type: String
     messengerReceivedCustomerIds: [String]
+    totalCustomersCount: Int
+    validCustomersCount: Int
+
     brand: Brand
 
     email: JSON

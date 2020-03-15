@@ -1,5 +1,6 @@
 import { Model, model } from 'mongoose';
 import { ConversationMessages, Conversations, Users } from '.';
+import { getNumberOfVisits } from '../../events';
 import { IBrowserInfo } from './Customers';
 import { IBrandDocument } from './definitions/brands';
 import { IEngageData, IMessageDocument } from './definitions/conversationMessages';
@@ -38,7 +39,7 @@ export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
   engageMessageSetLive(_id: string): Promise<IEngageMessageDocument>;
   engageMessageSetPause(_id: string): Promise<IEngageMessageDocument>;
   removeEngageMessage(_id: string): void;
-  setCustomerIds(_id: string, customers: ICustomerDocument[]): Promise<IEngageMessageDocument>;
+  setCustomersCount(_id: string, type: string, count: number): Promise<IEngageMessageDocument>;
   changeCustomer(newCustomerId: string, customerIds: string[]): Promise<IEngageMessageDocument>;
   removeCustomersEngages(customerIds: string[]): Promise<{ n: number; ok: number }>;
 
@@ -134,10 +135,10 @@ export const loadClass = () => {
     }
 
     /**
-     * Save matched customer ids
+     * Save matched customers count
      */
-    public static async setCustomerIds(_id: string, customers: ICustomerDocument[]) {
-      await EngageMessages.updateOne({ _id }, { $set: { customerIds: customers.map(customer => customer._id) } });
+    public static async setCustomersCount(_id: string, type: string, count: number) {
+      await EngageMessages.updateOne({ _id }, { $set: { [type]: count } });
 
       return EngageMessages.findOne({ _id });
     }
@@ -217,12 +218,12 @@ export const loadClass = () => {
         }
 
         // check for rules ===
-        const urlVisits = customer.urlVisits || {};
+        const numberOfVisits = await getNumberOfVisits(customer._id, browserInfo.url);
 
         const isPassedAllRules = await this.checkRules({
           rules: messenger.rules,
           browserInfo,
-          numberOfVisits: urlVisits[browserInfo.url] || 0,
+          numberOfVisits,
         });
 
         // if given visitor is matched with given condition then create
