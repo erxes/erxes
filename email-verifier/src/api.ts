@@ -5,9 +5,13 @@ import { debugBase, sendRequest } from './utils';
 
 const { TRUE_MAIL_API_KEY, EMAIL_VERIFICATION_TYPE = 'truemail' } = process.env;
 
-const sendSingleMessage = async (doc: { email: string; status: string }, create?: boolean) => {
+const sendSingleMessage = async (doc: { email: string; status: string }, isRest: boolean, create?: boolean) => {
   if (create) {
     await Emails.createEmail(doc);
+  }
+
+  if (isRest) {
+    return doc.status;
   }
 
   return sendMessage('emailVerifierNotification', { action: 'emailVerify', data: [doc] });
@@ -47,18 +51,18 @@ const bulkTrueMail = async (unverifiedEmails: string[]) => {
   }
 };
 
-export const single = async (email: string) => {
+export const single = async (email: string, isRest = false) => {
   const emailOnDb = await Emails.findOne({ email });
 
   if (emailOnDb) {
-    return sendSingleMessage({ email, status: emailOnDb.status });
+    return sendSingleMessage({ email, status: emailOnDb.status }, isRest);
   }
 
   const emailValidator = new EmailValidator();
   const { validDomain, validMailbox } = await emailValidator.verify(email);
 
   if (validDomain && validMailbox) {
-    return sendSingleMessage({ email, status: EMAIL_VALIDATION_STATUSES.VALID }, true);
+    return sendSingleMessage({ email, status: EMAIL_VALIDATION_STATUSES.VALID }, isRest, true);
   }
 
   let response: { status?: string; result?: string } = {};
@@ -67,16 +71,16 @@ export const single = async (email: string) => {
     try {
       response = await singleTrueMail(email);
     } catch (_e) {
-      return sendSingleMessage({ email, status: EMAIL_VALIDATION_STATUSES.UNKNOWN });
+      return sendSingleMessage({ email, status: EMAIL_VALIDATION_STATUSES.UNKNOWN }, isRest);
     }
   }
 
   if (response.status === 'success') {
-    return sendSingleMessage({ email, status: response.result }, true);
+    return sendSingleMessage({ email, status: response.result }, isRest, true);
   }
 
   // if status is not success
-  return sendSingleMessage({ email, status: EMAIL_VALIDATION_STATUSES.INVALID });
+  return sendSingleMessage({ email, status: EMAIL_VALIDATION_STATUSES.INVALID }, isRest);
 };
 
 export const bulk = async (emails: string[]) => {
