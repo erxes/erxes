@@ -470,7 +470,7 @@ describe('mutations', () => {
 
     spy.mockImplementation(() => Promise.resolve({ erxesApiIds: [integration1._id] }));
 
-    const response = await graphqlRequest(mutation, 'integrationsRemoveAccount', { _id: 'accountId' });
+    const firstResponse = await graphqlRequest(mutation, 'integrationsRemoveAccount', { _id: 'accountId' });
 
     try {
       await graphqlRequest(mutation, 'integrationsRemoveAccount', { _id: 'accountId' });
@@ -478,9 +478,19 @@ describe('mutations', () => {
       expect(e[0].message).toBeDefined();
     }
 
-    expect(response).toBe('success');
+    expect(firstResponse).toBe('success');
 
     spy.mockRestore();
+
+    const spy1 = jest.spyOn(messageBroker, 'sendRPCMessage');
+
+    spy1.mockImplementation(() => Promise.resolve({ erxesApiIds: [] }));
+
+    const secondResponse = await graphqlRequest(mutation, 'integrationsRemoveAccount', { _id: 'accountId' });
+
+    expect(secondResponse).toBe('success');
+
+    spy1.mockRestore();
   });
 
   test('Send mail', async () => {
