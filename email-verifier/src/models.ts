@@ -8,6 +8,7 @@ export const EMAIL_VALIDATION_STATUSES = {
   DISPOSABLE: 'disposable',
   CATCHALL: 'catchall',
   BAD_SYNTAX: 'badsyntax',
+  UNVERIFIABLE: 'unverifiable',
   ALL: ['valid', 'invalid', 'accept_all_unverifiable', 'unknown', 'disposable', 'catchall', 'badsyntax'],
 };
 
