@@ -16,8 +16,6 @@ import { init } from './startup';
 import initTwitter from './twitter/controller';
 import initDaily from './videoCall/controller';
 
-initRedis();
-
 const app = express();
 
 const rawBodySaver = (req, _res, buf, encoding) => {
@@ -125,6 +123,7 @@ const { PORT } = process.env;
 
 app.listen(PORT, () => {
   connect().then(async () => {
+    await initRedis();
     await initConsumer();
 
     // Initialize startup
