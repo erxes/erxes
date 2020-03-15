@@ -26,8 +26,6 @@ describe('engage messages model tests', () => {
   let _brand;
   let _tag;
   let _message;
-  let _customer;
-  let _customer2;
 
   beforeEach(async () => {
     _user = await userFactory({});
@@ -35,8 +33,6 @@ describe('engage messages model tests', () => {
     _brand = await brandFactory({});
     _tag = await tagsFactory({});
     _message = await engageMessageFactory({ kind: 'auto' });
-    _customer = await customerFactory({});
-    _customer2 = await customerFactory({});
   });
 
   afterEach(async () => {
