@@ -315,7 +315,7 @@ const widgetMutations = {
 
     return {
       integrationId: integration._id,
-      uiOptions: { ...integration.uiOptions, videoCallUsageStatus },
+      uiOptions: { ...integration.uiOptions.toJSON(), videoCallUsageStatus },
       languageCode: integration.languageCode,
       messengerData: await getMessengerData(integration),
       customerId: customer._id,
