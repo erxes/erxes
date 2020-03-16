@@ -8,6 +8,7 @@ import {
 } from 'modules/activityLogs/styles';
 import { IActivityLog } from 'modules/activityLogs/types';
 import Tip from 'modules/common/components/Tip';
+import { renderUserFullName } from 'modules/common/utils';
 import React from 'react';
 import CheckListItem from './ChecklistItem';
 
@@ -55,9 +56,7 @@ class ChecklistLog extends React.Component<Props, { toggleItems: boolean }> {
     let userName = 'Unknown';
 
     if (createdByDetail && createdByDetail.type === 'user') {
-      if (createdByDetail.content.details) {
-        userName = createdByDetail.content.details.fullName || 'Unknown';
-      }
+      userName = renderUserFullName(createdByDetail.content);
     }
 
     const checklistName = contentTypeDetail.title || content.name;

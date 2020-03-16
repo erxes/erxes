@@ -10,7 +10,7 @@ import {
 import { IOptions } from 'modules/boards/types';
 import FormControl from 'modules/common/components/form/Control';
 import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { IGrowthHack } from '../../types';
 
 type Props = {
@@ -22,9 +22,20 @@ type Props = {
   dueDate?: React.ReactNode;
 };
 
-class Top extends React.Component<Props> {
-  renderMove() {
-    const { item, options, onChangeStage } = this.props;
+function Top(props: Props) {
+  const { item } = props;
+
+  const [name, setName] = useState(item.name);
+
+  useEffect(
+    () => {
+      setName(item.name);
+    },
+    [item.name]
+  );
+
+  function renderMove() {
+    const { options, onChangeStage } = props;
 
     return (
       <Move
@@ -36,8 +47,8 @@ class Top extends React.Component<Props> {
     );
   }
 
-  renderHackStage() {
-    const hackStages = this.props.item.hackStages || [];
+  function renderHackStage() {
+    const hackStages = props.item.hackStages || [];
 
     if (hackStages.length === 0) {
       return null;
@@ -55,49 +66,50 @@ class Top extends React.Component<Props> {
     );
   }
 
-  render() {
-    const { saveItem, score, dueDate, item } = this.props;
-    const { assignedUsers = [], name, priority } = item;
+  const { saveItem, score, dueDate } = props;
+  const { assignedUsers = [], priority } = item;
 
-    const onNameBlur = e => {
-      const value = e.target.value;
+  const onNameBlur = e => {
+    if (item.name !== name) {
+      saveItem({ name });
+    }
+  };
 
-      if (name !== value) {
-        saveItem({ name: e.target.value });
-      }
-    };
+  const onChangeName = e => {
+    setName(e.target.value);
+  };
 
-    return (
-      <>
-        <HeaderRow>
-          <HeaderContent>
-            <TitleRow>
-              {priority && <PriorityIndicator value={priority} />}
-              <FormControl
-                componentClass="textarea"
-                defaultValue={name}
-                required={true}
-                onBlur={onNameBlur}
-              />
-            </TitleRow>
-            <MetaInfo>
-              {assignedUsers.length > 0 && (
-                <Participators participatedUsers={assignedUsers} limit={3} />
-              )}
-              {dueDate}
-              {this.renderHackStage()}
-            </MetaInfo>
-          </HeaderContent>
+  return (
+    <>
+      <HeaderRow>
+        <HeaderContent>
+          <TitleRow>
+            {priority && <PriorityIndicator value={priority} />}
+            <FormControl
+              componentClass="textarea"
+              value={name}
+              required={true}
+              onBlur={onNameBlur}
+              onChange={onChangeName}
+            />
+          </TitleRow>
+          <MetaInfo>
+            {assignedUsers.length > 0 && (
+              <Participators participatedUsers={assignedUsers} limit={3} />
+            )}
+            {dueDate}
+            {renderHackStage()}
+          </MetaInfo>
+        </HeaderContent>
 
-          {score && score()}
-        </HeaderRow>
+        {score && score()}
+      </HeaderRow>
 
-        <HeaderRow>
-          <HeaderContent>{this.renderMove()}</HeaderContent>
-        </HeaderRow>
-      </>
-    );
-  }
+      <HeaderRow>
+        <HeaderContent>{renderMove()}</HeaderContent>
+      </HeaderRow>
+    </>
+  );
 }
 
 export default Top;

@@ -78,7 +78,7 @@ class DealColumn extends React.Component<Props, {}> {
     const { deals, onUpdate, onRemove } = this.props;
 
     if (deals.length === 0) {
-      return <EmptyState icon='piggy-bank' text='No deal' />;
+      return <EmptyState icon="piggy-bank" text="No deal" />;
     }
 
     const contents = deals.map((deal: IDeal, index: number) => (
@@ -134,7 +134,7 @@ class DealColumn extends React.Component<Props, {}> {
     return (
       <Footer>
         <AddNew onClick={this.onLoadMore}>
-          <Icon icon='refresh' /> {__('Load more')}
+          <Icon icon="refresh" /> {__('Load more')}
         </AddNew>
       </Footer>
     );

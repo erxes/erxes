@@ -1,7 +1,7 @@
 import { HeaderContent, HeaderRow, TitleRow } from 'modules/boards/styles/item';
 import FormControl from 'modules/common/components/form/Control';
 import Icon from 'modules/common/components/Icon';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Move from '../../containers/editForm/Move';
 import { IItem, IOptions } from '../../types';
 import CloseDate from './CloseDate';
@@ -15,9 +15,20 @@ type Props = {
   amount?: () => React.ReactNode;
 };
 
-class Top extends React.Component<Props> {
-  renderMove() {
-    const { item, stageId, options, onChangeStage } = this.props;
+function Top(props: Props) {
+  const { item } = props;
+
+  const [name, setName] = useState(item.name);
+
+  useEffect(
+    () => {
+      setName(item.name);
+    },
+    [item.name]
+  );
+
+  function renderMove() {
+    const { stageId, options, onChangeStage } = props;
 
     return (
       <Move
@@ -29,52 +40,53 @@ class Top extends React.Component<Props> {
     );
   }
 
-  render() {
-    const { saveItem, amount, item } = this.props;
+  const { saveItem, amount } = props;
 
-    const onNameBlur = e => {
-      const name = e.target.value;
+  const onNameBlur = () => {
+    if (item.name !== name) {
+      saveItem({ name });
+    }
+  };
 
-      if (item.name !== name) {
-        saveItem({ name: e.target.value });
-      }
-    };
+  const onCloseDateFieldsChange = (key: string, value: any) => {
+    saveItem({ [key]: value });
+  };
 
-    const onCloseDateFieldsChange = (name: string, value: any) => {
-      saveItem({ [name]: value });
-    };
+  const onChangeName = e => {
+    setName(e.target.value);
+  };
 
-    return (
-      <React.Fragment>
-        <HeaderRow>
-          <HeaderContent>
-            <TitleRow>
-              <Icon icon="atm-card" />
-              <FormControl
-                componentClass="textarea"
-                defaultValue={item.name}
-                required={true}
-                onBlur={onNameBlur}
-              />
-            </TitleRow>
-          </HeaderContent>
+  return (
+    <React.Fragment>
+      <HeaderRow>
+        <HeaderContent>
+          <TitleRow>
+            <Icon icon="atm-card" />
+            <FormControl
+              componentClass="textarea"
+              value={name}
+              required={true}
+              onBlur={onNameBlur}
+              onChange={onChangeName}
+            />
+          </TitleRow>
+        </HeaderContent>
 
-          {amount && amount()}
-        </HeaderRow>
+        {amount && amount()}
+      </HeaderRow>
 
-        <HeaderRow>
-          <HeaderContent>{this.renderMove()}</HeaderContent>
+      <HeaderRow>
+        <HeaderContent>{renderMove()}</HeaderContent>
 
-          <CloseDate
-            onChangeField={onCloseDateFieldsChange}
-            closeDate={item.closeDate}
-            reminderMinute={item.reminderMinute}
-            isComplete={item.isComplete}
-          />
-        </HeaderRow>
-      </React.Fragment>
-    );
-  }
+        <CloseDate
+          onChangeField={onCloseDateFieldsChange}
+          closeDate={item.closeDate}
+          reminderMinute={item.reminderMinute}
+          isComplete={item.isComplete}
+        />
+      </HeaderRow>
+    </React.Fragment>
+  );
 }
 
 export default Top;
