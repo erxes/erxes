@@ -138,6 +138,28 @@ describe('Test tickets mutations', () => {
     expect(updatedTicket._id).toEqual(args._id);
   });
 
+  test('Change ticket if move to another stage', async () => {
+    const anotherStage = await stageFactory({ pipelineId: pipeline._id });
+
+    const args = {
+      _id: ticket._id,
+      destinationStageId: anotherStage._id,
+    };
+
+    const mutation = `
+      mutation ticketsChange($_id: String!, $destinationStageId: String) {
+        ticketsChange(_id: $_id, destinationStageId: $destinationStageId) {
+          _id,
+          stageId
+        }
+      }
+    `;
+
+    const updatedTicket = await graphqlRequest(mutation, 'ticketsChange', args);
+
+    expect(updatedTicket._id).toEqual(args._id);
+  });
+
   test('Ticket update orders', async () => {
     const ticketToStage = await ticketFactory({});
 
