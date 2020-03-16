@@ -44,6 +44,10 @@ class ItemChooserContainer extends React.Component<
     };
   }
 
+  resetAssociatedItem = () => {
+    return this.setState({ newItem: undefined });
+  };
+
   render() {
     const { data, itemsQuery, search } = this.props;
 
@@ -85,6 +89,7 @@ class ItemChooserContainer extends React.Component<
       ),
       hasBoardChooser: true,
       newItem: this.state.newItem,
+      resetAssociatedItem: this.resetAssociatedItem,
       clearState: () => search(''),
       refetchQuery: data.options.queries.itemsQuery
     };

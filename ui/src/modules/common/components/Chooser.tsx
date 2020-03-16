@@ -20,6 +20,7 @@ export type CommonProps = {
   limit?: number;
   add?: any;
   newItem?: any;
+  resetAssociatedItem: () => void;
   closeModal: () => void;
 };
 
@@ -64,13 +65,9 @@ class CommonChooser extends React.Component<Props, State> {
     this.setState({ loadmore: datas.length === perPage && datas.length > 0 });
 
     if (newItem) {
-      const newItems = this.state.datas.filter(
-        data => data._id === newItem._id
-      );
-
-      if (newItems && newItems.length < 1) {
-        this.setState({ datas: [...this.state.datas, newItem] });
-      }
+      this.setState({ datas: [...this.state.datas, newItem] }, () => {
+        this.props.resetAssociatedItem();
+      });
     }
   }
 
