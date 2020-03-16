@@ -56,12 +56,7 @@ function FieldChoices(props: Props) {
         text={__('Radio button')}
         icon="checked"
       />
-      <FieldChoice
-        {...props}
-        type="file"
-        text={__('File')}
-        icon="file"
-      />
+      <FieldChoice {...props} type="file" text={__('File')} icon="file" />
       <FieldChoice
         {...props}
         type="phone"

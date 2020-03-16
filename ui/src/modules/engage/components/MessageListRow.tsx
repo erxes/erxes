@@ -122,7 +122,11 @@ class Row extends React.Component<Props> {
     let status = <Label lblStyle="default">Sending</Label>;
 
     const { isChecked, message, remove } = this.props;
-    const { stats = { send: '' }, brand = { name: '' }, validCustomersCount } = message;
+    const {
+      stats = { send: '' },
+      brand = { name: '' },
+      validCustomersCount
+    } = message;
 
     const totalCount = stats.total || 0;
 

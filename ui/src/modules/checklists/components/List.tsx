@@ -6,7 +6,7 @@ import ProgressBar from 'modules/common/components/ProgressBar';
 import colors from 'modules/common/styles/colors';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __, isEmptyContent } from 'modules/common/utils';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Item from '../containers/Item';
 import {
   ChecklistTitle,
@@ -26,111 +26,100 @@ type Props = {
   remove: (checklistId: string) => void;
 };
 
-type State = {
-  isEditingTitle: boolean;
-  title: string;
-  beforeTitle: string;
-  isAddingItem: boolean;
-  itemContent: string;
-  isHidden: boolean;
-};
+function List(props: Props) {
+  const { item } = props;
 
-class List extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [isAddingItem, setIsAddingItem] = useState(
+    item.items.length === 0 ? true : false
+  );
+  const [isHidden, setIsHidden] = useState(false);
+  const [itemContent, setItemContent] = useState(
+    getUnsavedContent(props.item._id) || ''
+  );
+  const [title, setTitle] = useState(item.title);
+  const [beforeTitle, setBeforeTitle] = useState(item.title);
 
-    const title = props.item.title;
+  useEffect(
+    () => {
+      setTitle(item.title);
+      setBeforeTitle(item.title);
+    },
+    [item.title]
+  );
 
-    this.state = {
-      isEditingTitle: false,
-      isAddingItem: props.item.items.length === 0 ? true : false,
-      isHidden: false,
-      itemContent: this.getUnsavedContent(props.item._id) || '',
-      title,
-      beforeTitle: title
-    };
+  function onAddItemClick() {
+    setIsAddingItem(true);
   }
 
-  onAddItemClick = () => {
-    this.setState({ isAddingItem: true });
-  };
+  function onFocus(event) {
+    event.target.select();
+  }
 
-  onFocus = event => event.target.select();
+  function onCancel(toggle?: boolean) {
+    localStorage.setItem(item._id, itemContent);
 
-  onCancel = (toggle?: boolean) => {
-    const { itemContent } = this.state;
+    debounce(() => setIsAddingItem(toggle ? !isAddingItem : false), 100)();
+  }
 
-    localStorage.setItem(this.props.item._id, itemContent);
-
-    debounce(
-      () =>
-        this.setState({
-          isAddingItem: toggle ? !this.state.isAddingItem : false
-        }),
-      100
-    )();
-  };
-
-  onBlur = () => {
-    if (isEmptyContent(this.state.itemContent)) {
+  function onBlur() {
+    if (isEmptyContent(itemContent)) {
       return;
     }
 
-    this.onCancel(true);
-  };
+    onCancel(true);
+  }
 
-  removeClick = () => {
-    const { remove, item } = this.props;
+  function removeClick() {
+    const { remove } = props;
+
     remove(item._id);
-  };
+  }
 
-  getUnsavedContent = (id: string) => {
+  function getUnsavedContent(id: string) {
     return localStorage.getItem(id) || '';
-  };
+  }
 
-  onContentChange = e => {
-    this.setState({
-      itemContent: (e.currentTarget as HTMLTextAreaElement).value
-    });
-  };
+  function onContentChange(e) {
+    setItemContent((e.currentTarget as HTMLTextAreaElement).value);
+  }
 
-  onSubmitAddItem = e => {
+  function onSubmitAddItem(e) {
     e.preventDefault();
 
-    this.saveAddItem();
-  };
+    saveAddItem();
+  }
 
-  onKeyPressAddItem = e => {
+  function onKeyPressAddItem(e) {
     if (e.key === 'Enter') {
       e.preventDefault();
 
-      this.saveAddItem();
-      this.onBlur();
+      saveAddItem();
+      onBlur();
     }
-  };
+  }
 
-  saveAddItem = () => {
+  function saveAddItem() {
     // check if a string contains whitespace or empty
-    if (isEmptyContent(this.state.itemContent)) {
+    if (isEmptyContent(itemContent)) {
       return;
     }
 
-    const content = this.state.itemContent.match(/^.*((\r\n|\n|\r)|$)/gm);
+    const content = itemContent.match(/^.*((\r\n|\n|\r)|$)/gm);
 
-    (content || []).map(text => this.props.addItem(text));
+    (content || []).map(text => props.addItem(text));
 
-    this.setState({ itemContent: '', isAddingItem: false }, () =>
-      localStorage.removeItem(this.props.item._id)
-    );
-  };
+    setItemContent('');
+    setIsAddingItem(false);
 
-  renderIsCheckedBtn = () => {
-    const { isHidden } = this.state;
+    localStorage.removeItem(item._id);
+  }
 
-    const onClickHideShowBtn = () => this.setState({ isHidden: !isHidden });
+  function renderIsCheckedBtn() {
+    const onClickHideShowBtn = () => setIsHidden(!isHidden);
     const btnText = isHidden ? 'Show checked items' : 'Hide completed items';
 
-    if (this.props.item.percent) {
+    if (item.percent) {
       return (
         <Button btnStyle="simple" size="small" onClick={onClickHideShowBtn}>
           {__(btnText)}
@@ -139,12 +128,10 @@ class List extends React.Component<Props, State> {
     }
 
     return null;
-  };
+  }
 
-  renderTitle = () => {
-    const { isEditingTitle, title } = this.state;
-
-    const onClick = () => this.setState({ isEditingTitle: true });
+  function renderTitle() {
+    const onClick = () => setIsEditingTitle(true);
 
     if (isEditingTitle) {
       return null;
@@ -154,38 +141,40 @@ class List extends React.Component<Props, State> {
       <>
         <h5 onClick={onClick}>{title}</h5>
         <div>
-          {this.renderIsCheckedBtn()}
-          <Button btnStyle="simple" size="small" onClick={this.removeClick}>
+          {renderIsCheckedBtn()}
+          <Button btnStyle="simple" size="small" onClick={removeClick}>
             Delete
           </Button>
         </div>
       </>
     );
-  };
+  }
 
-  generateDoc = (values: { title: string }) => {
+  function generateDoc(values: { title: string }) {
     return {
-      _id: this.props.item._id,
-      title: values.title || this.state.title
+      _id: item._id,
+      title: values.title || title
     };
-  };
+  }
 
-  renderTitleInput = (formProps: IFormProps) => {
-    const { isEditingTitle, title, beforeTitle } = this.state;
+  function renderTitleInput(formProps: IFormProps) {
     const { isSubmitted, values } = formProps;
 
     if (!isEditingTitle) {
       return null;
     }
 
-    const cancelEditing = () =>
-      this.setState({ isEditingTitle: false, title: beforeTitle });
+    const cancelEditing = () => {
+      setIsEditingTitle(false);
+      setTitle(beforeTitle);
+    };
 
     const onChangeTitle = e =>
-      this.setState({ title: (e.currentTarget as HTMLTextAreaElement).value });
+      setTitle((e.currentTarget as HTMLTextAreaElement).value);
 
     const onSubmit = () => {
-      this.setState({ isEditingTitle: false, beforeTitle: title });
+      setIsEditingTitle(false);
+      setBeforeTitle(title);
     };
 
     return (
@@ -200,8 +189,8 @@ class List extends React.Component<Props, State> {
           required={true}
         />
 
-        {this.props.renderButton({
-          values: this.generateDoc(values),
+        {props.renderButton({
+          values: generateDoc(values),
           isSubmitted,
           callback: onSubmit
         })}
@@ -214,11 +203,9 @@ class List extends React.Component<Props, State> {
         />
       </FormControlWrapper>
     );
-  };
+  }
 
-  renderProgressBar = () => {
-    const { item } = this.props;
-
+  function renderProgressBar() {
     return (
       <Progress>
         <span>{item.percent.toFixed(0)}%</span>
@@ -229,59 +216,53 @@ class List extends React.Component<Props, State> {
         />
       </Progress>
     );
-  };
+  }
 
-  renderItems() {
-    const { item } = this.props;
-
-    if (this.state.isHidden) {
+  function renderItems() {
+    if (isHidden) {
       return item.items
         .filter(data => !data.isChecked)
         .map(data => (
           <Item
             key={data._id}
             item={data}
-            convertToCard={this.props.convertToCard}
+            convertToCard={props.convertToCard}
           />
         ));
     }
 
     return item.items.map(data => (
-      <Item
-        key={data._id}
-        item={data}
-        convertToCard={this.props.convertToCard}
-      />
+      <Item key={data._id} item={data} convertToCard={props.convertToCard} />
     ));
   }
 
-  renderAddInput() {
-    const { isAddingItem } = this.state;
-
+  function renderAddInput() {
     if (isAddingItem) {
+      const onClick = () => onCancel(false);
+
       return (
         <FormWrapper add={true}>
-          <FormControlWrapper onBlur={this.onBlur}>
+          <FormControlWrapper onBlur={onBlur}>
             <FormControl
               componentClass="textarea"
               placeholder="Add an item"
-              onChange={this.onContentChange}
-              onKeyPress={this.onKeyPressAddItem}
-              defaultValue={this.getUnsavedContent(this.props.item._id)}
+              onChange={onContentChange}
+              onKeyPress={onKeyPressAddItem}
+              defaultValue={getUnsavedContent(props.item._id)}
               autoFocus={true}
-              onFocus={this.onFocus}
+              onFocus={onFocus}
               required={true}
             />
             <Button
               btnStyle="success"
               size="small"
               icon="check-1"
-              onMouseDown={this.onSubmitAddItem}
+              onMouseDown={onSubmitAddItem}
             />
             <Button
               btnStyle="simple"
               size="small"
-              onClick={this.onCancel.bind(this, false)}
+              onClick={onClick}
               icon="times"
             />
           </FormControlWrapper>
@@ -290,33 +271,31 @@ class List extends React.Component<Props, State> {
     }
 
     return (
-      <Button size="small" btnStyle="simple" onClick={this.onAddItemClick}>
+      <Button size="small" btnStyle="simple" onClick={onAddItemClick}>
         {__('Add an item')}
       </Button>
     );
   }
 
-  render() {
-    return (
-      <>
-        <ChecklistTitleWrapper>
-          <Icon icon="checked" />
+  return (
+    <>
+      <ChecklistTitleWrapper>
+        <Icon icon="checked" />
 
-          <ChecklistTitle>
-            {this.renderTitle()}
-            <Form renderContent={this.renderTitleInput} />
-          </ChecklistTitle>
-        </ChecklistTitleWrapper>
+        <ChecklistTitle>
+          {renderTitle()}
+          <Form renderContent={renderTitleInput} />
+        </ChecklistTitle>
+      </ChecklistTitleWrapper>
 
-        {this.renderProgressBar()}
+      {renderProgressBar()}
 
-        <ChecklistWrapper>
-          {this.renderItems()}
-          {this.renderAddInput()}
-        </ChecklistWrapper>
-      </>
-    );
-  }
+      <ChecklistWrapper>
+        {renderItems()}
+        {renderAddInput()}
+      </ChecklistWrapper>
+    </>
+  );
 }
 
 export default List;

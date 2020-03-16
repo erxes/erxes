@@ -1,6 +1,6 @@
 import ActivityInputs from 'modules/activityLogs/components/ActivityInputs';
 import ActivityLogs from 'modules/activityLogs/containers/ActivityLogs';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { IItem, IItemParams, IOptions } from 'modules/boards/types';
 import Checklists from 'modules/checklists/containers/Checklists';
@@ -26,111 +26,118 @@ type Props = {
   sendToBoard?: (item: any) => void;
 };
 
-class Left extends React.Component<Props> {
-  render() {
-    const {
-      item,
-      saveItem,
-      options,
-      copyItem,
-      removeItem,
-      onUpdate,
-      addItem,
-      sendToBoard
-    } = this.props;
+const Left = (props: Props) => {
+  const {
+    item,
+    saveItem,
+    options,
+    copyItem,
+    removeItem,
+    onUpdate,
+    addItem,
+    sendToBoard
+  } = props;
 
-    const descriptionOnBlur = e => {
-      const description = e.target.value;
+  const [description, setDescription] = useState(item.description);
 
-      if (item.description !== description) {
-        saveItem({ description: e.target.value });
-      }
-    };
+  useEffect(
+    () => {
+      setDescription(item.description);
+    },
+    [item.description]
+  );
 
-    const onChangeAttachment = (files: IAttachment[]) =>
-      saveItem({ attachments: files });
+  const onBlurDescription = () => {
+    if (description !== item.description) {
+      saveItem({ description });
+    }
+  };
 
-    const attachments =
-      (item.attachments && extractAttachment(item.attachments)) || [];
+  const onChangeDescription = e => {
+    setDescription(e.target.value);
+  };
 
-    return (
-      <LeftContainer>
-        <Actions
-          item={item}
-          options={options}
-          copyItem={copyItem}
-          removeItem={removeItem}
-          saveItem={saveItem}
-          onUpdate={onUpdate}
-          sendToBoard={sendToBoard}
-        />
+  const onChangeAttachment = (files: IAttachment[]) =>
+    saveItem({ attachments: files });
 
-        {item.labels.length > 0 && (
-          <FormGroup>
-            <TitleRow>
-              <ControlLabel>
-                <Icon icon="tag-alt" />
-                {__('Labels')}
-              </ControlLabel>
-            </TitleRow>
+  const attachments =
+    (item.attachments && extractAttachment(item.attachments)) || [];
 
-            <Labels labels={item.labels} />
-          </FormGroup>
-        )}
+  return (
+    <LeftContainer>
+      <Actions
+        item={item}
+        options={options}
+        copyItem={copyItem}
+        removeItem={removeItem}
+        saveItem={saveItem}
+        onUpdate={onUpdate}
+        sendToBoard={sendToBoard}
+      />
 
+      {item.labels.length > 0 && (
         <FormGroup>
           <TitleRow>
             <ControlLabel>
-              <Icon icon="paperclip" />
-              {__('Attachments')}
+              <Icon icon="tag-alt" />
+              {__('Labels')}
             </ControlLabel>
           </TitleRow>
 
-          <Uploader
-            defaultFileList={attachments}
-            onChange={onChangeAttachment}
-          />
+          <Labels labels={item.labels} />
         </FormGroup>
+      )}
 
-        <FormGroup>
-          <TitleRow>
-            <ControlLabel>
-              <Icon icon="align-left-justify" />
-              {__('Description')}
-            </ControlLabel>
-          </TitleRow>
+      <FormGroup>
+        <TitleRow>
+          <ControlLabel>
+            <Icon icon="paperclip" />
+            {__('Attachments')}
+          </ControlLabel>
+        </TitleRow>
 
-          <FormControl
-            componentClass="textarea"
-            defaultValue={item.description}
-            onBlur={descriptionOnBlur}
-          />
-        </FormGroup>
+        <Uploader defaultFileList={attachments} onChange={onChangeAttachment} />
+      </FormGroup>
 
-        <Checklists
-          contentType={options.type}
-          contentTypeId={item._id}
-          stageId={item.stageId}
-          addItem={addItem}
+      <FormGroup>
+        <TitleRow>
+          <ControlLabel>
+            <Icon icon="align-left-justify" />
+            {__('Description')}
+          </ControlLabel>
+        </TitleRow>
+
+        <FormControl
+          componentClass="textarea"
+          value={description || ''}
+          onBlur={onBlurDescription}
+          onChange={onChangeDescription}
         />
+      </FormGroup>
 
-        <ActivityInputs
-          contentTypeId={item._id}
-          contentType={options.type}
-          showEmail={false}
-        />
+      <Checklists
+        contentType={options.type}
+        contentTypeId={item._id}
+        stageId={item.stageId}
+        addItem={addItem}
+      />
 
-        <ActivityLogs
-          target={item.name}
-          contentId={item._id}
-          contentType={options.type}
-          extraTabs={
-            options.type === 'task' ? [] : [{ name: 'task', label: 'Task' }]
-          }
-        />
-      </LeftContainer>
-    );
-  }
-}
+      <ActivityInputs
+        contentTypeId={item._id}
+        contentType={options.type}
+        showEmail={false}
+      />
+
+      <ActivityLogs
+        target={item.name}
+        contentId={item._id}
+        contentType={options.type}
+        extraTabs={
+          options.type === 'task' ? [] : [{ name: 'task', label: 'Task' }]
+        }
+      />
+    </LeftContainer>
+  );
+};
 
 export default Left;
