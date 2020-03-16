@@ -1,5 +1,4 @@
 import { IUserDocument } from '../db/models/definitions/users';
-import { debugBase } from '../debuggers';
 import { sendRPCMessage } from '../messageBroker';
 import { graphqlPubsub } from '../pubsub';
 import { IFinalLogParams } from './logUtils';
@@ -32,9 +31,6 @@ const checkAutomation = async (kind: string, body: any, user: IUserDocument) => 
 
   try {
     const responseId = Math.random().toString();
-    debugBase(
-      `graphqlPubsub publish: userId: ${user._id}, responseId: ${responseId}, sessionCode: ${user.sessionCode || ''}`,
-    );
 
     graphqlPubsub.publish('automationResponded', {
       automationResponded: {

@@ -16,11 +16,14 @@ const userMiddleware = async (req, _res, next) => {
       // verify user token and retrieve stored user information
       const { user } = jwt.verify(token, Users.getSecret());
 
-      debugBase(`full req keys ${Object.keys(req)} headers: ${req.headers}`);
+      const sessionCode = (req.headers && req.headers.session_code) || req.session_code;
+
+      debugBase(`.... ${sessionCode} ${Object.keys(req)} ...${Object.keys(req.headers)}, ...${req}, ...${req.headers}`);
+
       // save user in request
       req.user = user;
       req.user.loginToken = token;
-      req.user.sessionCode = req.headers.session_code;
+      req.user.sessionCode = sessionCode;
     } catch (e) {
       return next();
     }
