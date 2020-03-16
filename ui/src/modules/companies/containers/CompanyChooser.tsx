@@ -36,6 +36,10 @@ class CompanyChooser extends React.Component<
     };
   }
 
+  resetAssociatedItem = () => {
+    return this.setState({ newCompany: undefined });
+  };
+
   render() {
     const { data, companiesQuery, companiesAdd, search } = this.props;
 
@@ -87,6 +91,7 @@ class CompanyChooser extends React.Component<
       renderName,
       add: addCompany,
       newItem: this.state.newCompany,
+      resetAssociatedItem: this.resetAssociatedItem,
       datas: companiesQuery.companies || [],
       refetchQuery: queries.companies
     };
