@@ -20,20 +20,19 @@ title: Getting  Started
 - <a href="../user/subscription-getting-started">Subscription getting started</a>
 - <a href="../user/initial-setup">Initial setup</a>
 - <a href="../user/general-settings">General settings</a>
-- <a href="../user/signing-in">Signing in</a>
+- <a href="../user/team-inbox">Team Inbox</a>
+- <a href="../user/knowledge-base">Knowledge Base</a>
+- <a href="../user/popups">Popups</a>
+- <a href="../user/script-install">Script installation</a>
 - <a href="../user/contacts">Contacts</a>
-- <a href="../user/deal">Deal</a>
+- <a href="../user/sales-pipeline">Sales pipeline</a>
 - <a href="../user/engage">Engage</a>
 - <a href="../user/insights">Insights</a>
-- <a href="../user/knowledge-base">Knowledge base</a>
-- <a href="../user/leads">Leads</a>
-- <a href="../user/marketing">Marketing</a>
-- <a href="../user/mobile-apps">Mobile Apps</a>
+- <a href="../user/profile-settings">Profile settings</a>
 - <a href="../user/notification">Notifications</a>
-- <a href="../user/sales">Sales</a>
-- <a href="../user/support">Support</a>
+- <a href="../user/mobile-apps">Mobile Apps</a>
   </div>
-  <div class="col-md-6" markdown="1">
+<div class="col-md-6" markdown="1">
 
 ### Installation Guide
 
