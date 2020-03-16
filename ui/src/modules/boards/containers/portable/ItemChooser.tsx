@@ -34,13 +34,13 @@ type FinalProps = {
 
 class ItemChooserContainer extends React.Component<
   WrapperProps & FinalProps,
-  { newItemId?: string }
+  { newItem?: string }
 > {
   constructor(props) {
     super(props);
 
     this.state = {
-      newItemId: undefined
+      newItem: undefined
     };
   }
 
@@ -51,8 +51,8 @@ class ItemChooserContainer extends React.Component<
       return item.name || 'Unknown';
     };
 
-    const getAssociatedItem = (newItemId: string) => {
-      this.setState({ newItemId });
+    const getAssociatedItem = (newItem: string) => {
+      this.setState({ newItem });
     };
 
     const updatedProps = {
@@ -84,7 +84,7 @@ class ItemChooserContainer extends React.Component<
         />
       ),
       hasBoardChooser: true,
-      newItemId: this.state.newItemId,
+      newItem: this.state.newItem,
       clearState: () => search(''),
       refetchQuery: data.options.queries.itemsQuery
     };

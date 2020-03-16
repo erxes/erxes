@@ -4,8 +4,6 @@ import FormControl from 'modules/common/components/form/Control';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
-import { ICompany } from 'modules/companies/types';
-import { ICustomer } from 'modules/customers/types';
 import React from 'react';
 import { ActionTop, Column, Columns, Footer, Title } from '../styles/chooser';
 import { CenterContent, ModalFooter } from '../styles/main';
@@ -21,7 +19,7 @@ export type CommonProps = {
   clearState: () => void;
   limit?: number;
   add?: any;
-  newItem?: ICustomer | ICompany;
+  newItem?: any;
   closeModal: () => void;
 };
 
