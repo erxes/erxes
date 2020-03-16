@@ -65,7 +65,7 @@ export type ProductAddMutationResponse = {
 
 export interface IDeal extends IItem {
   products?: any;
-  payments?: IPaymentsData;
+  paymentsData?: IPaymentsData;
 }
 
 export interface IDealParams extends IItemParams {

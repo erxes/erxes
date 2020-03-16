@@ -7,7 +7,7 @@ import styledTS from 'styled-components-ts';
 
 const FormContainer = styled.div`
   margin-top: 20px;
-  
+
   .Select-multi-value-wrapper {
     display: flex;
     min-width: 100px;
@@ -46,7 +46,7 @@ const ContentRowTitle = styled(ContentRow)`
 `;
 
 const ContentColumn = styledTS<{ flex?: string }>(styled.div)`
-  flex: ${props => props.flex ? props.flex : '1'};
+  flex: ${props => (props.flex ? props.flex : '1')};
   margin-right: 10px;
 
   &:last-of-type {
@@ -124,7 +124,9 @@ const ProductName = styled.a`
   color: ${colors.textSecondary};
   display: block;
 
-  > i { visibility: hidden; }
+  > i {
+    visibility: hidden;
+  }
 
   &:hover i {
     visibility: visible;

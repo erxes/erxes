@@ -20,7 +20,10 @@ type TemplateListProps = {
 };
 
 // response templates
-export default class TemplateList extends React.Component<TemplateListProps, {}> {
+export default class TemplateList extends React.Component<
+  TemplateListProps,
+  {}
+> {
   normalizeIndex(selectedIndex: number, max: number) {
     let index = selectedIndex % max;
 

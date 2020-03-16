@@ -7,7 +7,12 @@ import { ModalFooter } from 'modules/common/styles/main';
 import { __, Alert } from 'modules/common/utils';
 import { IProduct } from 'modules/settings/productService/types';
 import React from 'react';
-import { Add, FooterInfo, FormContainer, ProductTableWrapper } from '../../styles';
+import {
+  Add,
+  FooterInfo,
+  FormContainer,
+  ProductTableWrapper
+} from '../../styles';
 import { IPaymentsData, IProductData } from '../../types';
 import PaymentForm from './PaymentForm';
 import ProductItem from './ProductItem';
@@ -74,7 +79,7 @@ class ProductForm extends React.Component<Props, State> {
         currency: currencies ? currencies[0] : '',
         tickUsed: true
       });
-  
+
       onChangeProductsData(productsData);
     });
   };
@@ -129,7 +134,7 @@ class ProductForm extends React.Component<Props, State> {
         <EmptyState size="full" text="No product or services" icon="box" />
       );
     }
-    
+
     return (
       <ProductTableWrapper>
         <Table>
@@ -160,7 +165,7 @@ class ProductForm extends React.Component<Props, State> {
             ))}
           </tbody>
         </Table>
-      </ProductTableWrapper>      
+      </ProductTableWrapper>
     );
   }
 
@@ -247,6 +252,7 @@ class ProductForm extends React.Component<Props, State> {
 
   renderTabContent() {
     const { total, tax, discount, currentTab } = this.state;
+
     if (currentTab === 'payments') {
       const { onChangePaymentsData } = this.props;
 
@@ -335,7 +341,12 @@ class ProductForm extends React.Component<Props, State> {
             Cancel
           </Button>
 
-          <Button btnStyle="success" onClick={this.onClick} icon="check-circle" uppercase={false}>
+          <Button
+            btnStyle="success"
+            onClick={this.onClick}
+            icon="check-circle"
+            uppercase={false}
+          >
             Save
           </Button>
         </ModalFooter>

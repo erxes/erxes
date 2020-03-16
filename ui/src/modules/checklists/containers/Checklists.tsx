@@ -2,9 +2,9 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { IItemParams } from 'modules/boards/types';
 import { withProps } from 'modules/common/utils';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { graphql } from 'react-apollo';
-import { queries } from '../graphql';
+import { queries, subscriptions } from '../graphql';
 import { ChecklistsQueryResponse, IChecklistsParam } from '../types';
 import List from './List';
 
@@ -19,12 +19,24 @@ type FinalProps = {
   checklistsQuery: ChecklistsQueryResponse;
 } & IProps;
 
-const ChecklistsContainer = (props: FinalProps) => {
-  const { checklistsQuery, stageId, addItem } = props;
+function ChecklistsContainer(props: FinalProps) {
+  const {
+    checklistsQuery,
+    stageId,
+    addItem,
+    contentType,
+    contentTypeId
+  } = props;
 
-  if (checklistsQuery.loading) {
-    return null;
-  }
+  useEffect(() => {
+    return checklistsQuery.subscribeToMore({
+      document: gql(subscriptions.checklistsChanged),
+      variables: { contentType, contentTypeId },
+      updateQuery: () => {
+        checklistsQuery.refetch();
+      }
+    });
+  });
 
   const checklists = checklistsQuery.checklists || [];
 
@@ -36,7 +48,7 @@ const ChecklistsContainer = (props: FinalProps) => {
       addItem={addItem}
     />
   ));
-};
+}
 
 export default withProps<IProps>(
   compose(
