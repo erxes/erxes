@@ -66,7 +66,6 @@ export interface ICustomer {
   trackedData?: any;
   location?: ILocation;
   visitorContactInfo?: IVisitorContact;
-  urlVisits?: any;
   deviceTokens?: string[];
   code?: string;
   isOnline?: boolean;
@@ -219,7 +218,6 @@ export const customerSchema = schemaWrapper(
       optional: true,
       label: 'Visitor contact info',
     }),
-    urlVisits: Object,
 
     deviceTokens: field({ type: [String], default: [], label: 'Device tokens' }),
     searchText: field({ type: String, optional: true, index: true }),

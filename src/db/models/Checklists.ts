@@ -28,7 +28,7 @@ export interface IChecklistItemModel extends Model<IChecklistItemDocument> {
   getChecklistItem(_id: string): Promise<IChecklistItemDocument>;
   createChecklistItem({ checklistId, ...fields }: IChecklistItem, user: IUserDocument): Promise<IChecklistItemDocument>;
 
-  updateChecklistItem(_id: string, doc: IChecklistItem): Promise<IChecklistDocument>;
+  updateChecklistItem(_id: string, doc: IChecklistItem): Promise<IChecklistItemDocument>;
   removeChecklistItem(_id: string): void;
 }
 

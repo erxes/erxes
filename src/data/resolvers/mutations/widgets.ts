@@ -18,7 +18,8 @@ import { IBrowserInfo, IVisitorContactInfoParams } from '../../../db/models/Cust
 import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
 import { IIntegrationDocument, IMessengerDataMessagesItem } from '../../../db/models/definitions/integrations';
 import { IKnowledgebaseCredentials, ILeadCredentials } from '../../../db/models/definitions/messengerApps';
-import { debugExternalApi } from '../../../debuggers';
+import { debugBase, debugExternalApi } from '../../../debuggers';
+import { trackViewPageEvent } from '../../../events';
 import { graphqlPubsub } from '../../../pubsub';
 import { get, set } from '../../../redisClient';
 import { IContext } from '../../types';
@@ -315,7 +316,7 @@ const widgetMutations = {
 
     return {
       integrationId: integration._id,
-      uiOptions: { ...integration.uiOptions, videoCallUsageStatus },
+      uiOptions: { ...(integration.uiOptions ? integration.uiOptions.toJSON() : {}), videoCallUsageStatus },
       languageCode: integration.languageCode,
       messengerData: await getMessengerData(integration),
       customerId: customer._id,
@@ -465,6 +466,13 @@ const widgetMutations = {
   async widgetsSaveBrowserInfo(_root, { customerId, browserInfo }: { customerId: string; browserInfo: IBrowserInfo }) {
     // update location
     await Customers.updateLocation(customerId, browserInfo);
+
+    try {
+      await trackViewPageEvent({ customerId, attributes: { url: browserInfo.url } });
+    } catch (e) {
+      /* istanbul ignore next */
+      debugBase(`Error occurred during widgets save browser info ${e.message}`);
+    }
 
     // update messenger session data
     const customer = await Customers.updateSession(customerId);

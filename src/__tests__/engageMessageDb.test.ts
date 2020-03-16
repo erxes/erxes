@@ -1,3 +1,4 @@
+import * as sinon from 'sinon';
 import {
   brandFactory,
   conversationMessageFactory,
@@ -16,6 +17,7 @@ import { IBrandDocument } from '../db/models/definitions/brands';
 import { ICustomerDocument } from '../db/models/definitions/customers';
 import { IIntegrationDocument } from '../db/models/definitions/integrations';
 import { IUserDocument } from '../db/models/definitions/users';
+import * as events from '../events';
 import './setup.ts';
 
 describe('engage messages model tests', () => {
@@ -24,8 +26,6 @@ describe('engage messages model tests', () => {
   let _brand;
   let _tag;
   let _message;
-  let _customer;
-  let _customer2;
 
   beforeEach(async () => {
     _user = await userFactory({});
@@ -33,8 +33,6 @@ describe('engage messages model tests', () => {
     _brand = await brandFactory({});
     _tag = await tagsFactory({});
     _message = await engageMessageFactory({ kind: 'auto' });
-    _customer = await customerFactory({});
-    _customer2 = await customerFactory({});
   });
 
   afterEach(async () => {
@@ -167,15 +165,9 @@ describe('engage messages model tests', () => {
   });
 
   test('save matched customer ids', async () => {
-    const message = await EngageMessages.setCustomerIds(_message._id, [_customer, _customer2]);
+    const message = await EngageMessages.setCustomersCount(_message._id, 'totalCustomersCount', 2);
 
-    if (!message || !message.customerIds) {
-      throw new Error('Engage message not found');
-    }
-
-    expect(message.customerIds).toContain(_customer._id);
-    expect(message.customerIds).toContain(_customer2._id);
-    expect(message.customerIds.length).toEqual(2);
+    expect(message.totalCustomersCount).toBe(2);
   });
 
   test('changeCustomer', async () => {
@@ -354,11 +346,14 @@ describe('createVisitorMessages', () => {
   let _brand: IBrandDocument;
   let _customer: ICustomerDocument;
   let _integration: IIntegrationDocument;
+  let mock;
 
   beforeEach(async () => {
     // Creating test data
-    _customer = await customerFactory({
-      urlVisits: { '/page': 11 },
+    _customer = await customerFactory({});
+
+    mock = sinon.stub(events, 'getNumberOfVisits').callsFake(() => {
+      return Promise.resolve(11);
     });
 
     _brand = await brandFactory({});
@@ -411,6 +406,8 @@ describe('createVisitorMessages', () => {
     await EngageMessages.deleteMany({});
     await Messages.deleteMany({});
     await Brands.deleteMany({});
+
+    mock.restore();
   });
 
   test('must create conversation & message object', async () => {

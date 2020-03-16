@@ -83,8 +83,10 @@ describe('engage message mutation tests', () => {
     _user = await userFactory({});
     _tag = await tagsFactory({});
     _brand = await brandFactory({});
+    _integration = await integrationFactory({ brandId: _brand._id });
 
     _customer = await customerFactory({
+      integrationId: _integration._id,
       emailValidationStatus: EMAIL_VALIDATION_STATUSES.VALID,
       status: STATUSES.ACTIVE,
       profileScore: 1,
@@ -104,8 +106,6 @@ describe('engage message mutation tests', () => {
       brandIds: [_brand._id],
       tagIds: [_tag._id],
     });
-
-    _integration = await integrationFactory({ brandId: 'brandId' });
 
     _doc = {
       title: 'Message test',
@@ -432,6 +432,12 @@ describe('engage message mutation tests', () => {
 
     if (!user) {
       throw new Error('User not found');
+    }
+
+    try {
+      await graphqlRequest(engageMessageAddMutation, 'engageMessageAdd', { ..._doc, brandIds: ['_id'] });
+    } catch (e) {
+      expect(e[0].message).toBe('No customers found who have valid emails');
     }
 
     const engageMessage = await graphqlRequest(engageMessageAddMutation, 'engageMessageAdd', _doc);

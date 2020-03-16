@@ -138,6 +138,28 @@ describe('Test growthHacks mutations', () => {
     expect(updatedGrowthHack._id).toEqual(args._id);
   });
 
+  test('Change growthHack if move to another stage', async () => {
+    const anotherStage = await stageFactory({ pipelineId: pipeline._id });
+
+    const args = {
+      _id: growthHack._id,
+      destinationStageId: anotherStage._id,
+    };
+
+    const mutation = `
+      mutation growthHacksChange($_id: String!, $destinationStageId: String!) {
+        growthHacksChange(_id: $_id, destinationStageId: $destinationStageId) {
+          _id,
+          stageId
+        }
+      }
+    `;
+
+    const updatedGH = await graphqlRequest(mutation, 'growthHacksChange', args);
+
+    expect(updatedGH._id).toEqual(args._id);
+  });
+
   test('GrowthHack update orders', async () => {
     const growthHackToStage = await growthHackFactory({});
 
