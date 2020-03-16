@@ -1,6 +1,5 @@
 import * as jwt from 'jsonwebtoken';
 import { Users } from '../db/models';
-import { debugBase } from '../debuggers';
 
 /*
  * Finds user object by passed tokens
@@ -19,8 +18,6 @@ const userMiddleware = async (req, _res, next) => {
 
       const sessionCode = (req.headers && req.headers.session_code) || req.session_code || '';
 
-      dlog(req, '');
-
       // save user in request
       req.user = user;
       req.user.loginToken = token;
@@ -31,23 +28,6 @@ const userMiddleware = async (req, _res, next) => {
   }
 
   next();
-};
-
-const dlog = (obj, tab) => {
-  tab = tab.concat('..../');
-  if (tab === '..../..../..../..../') {
-    return;
-  }
-  for (const key of Object.keys(obj)) {
-    try {
-      debugBase(`${tab} ${key}: ${obj[key]}`);
-      if (typeof obj[key] === typeof []) {
-        dlog(obj[key], tab);
-      }
-    } catch (e) {
-      debugBase(`${tab} ${key}::`);
-    }
-  }
 };
 
 export default userMiddleware;
