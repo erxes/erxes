@@ -17,9 +17,9 @@ const userMiddleware = async (req, _res, next) => {
       const { user } = jwt.verify(token, Users.getSecret());
 
       debugBase(
-        `graphqlPubsub publish: userId: ${user._id}, sessionCode: ${req.headers.session_code}, ${Object.keys(
-          req.headers,
-        )}`,
+        `graphqlPubsub publish: userId: ${user._id}, sessionCode: ${req.headers.session_code}, req: ${Object.keys(
+          req,
+        )} headers: ${req.headers}`,
       );
       // save user in request
       req.user = user;
