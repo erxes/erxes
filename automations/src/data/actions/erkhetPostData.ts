@@ -94,6 +94,7 @@ const erkhetPostData = async (shape: IShapeDocument, data: any) => {
       hasCitytax: shape.config.hasCitytax || false,
       billType,
       customerCode,
+      description: data.deal.name,
       details,
       ...payments,
     },
