@@ -271,7 +271,7 @@ export const subscriptions = `
     importHistoryChanged(_id: String!): ImportHistory
     notificationInserted(userId: String): Notification
     onboardingChanged(userId: String!): OnboardingNotification
-    automationResponded(userId: String): AutomationResponse
+    automationResponded(userId: String, sessionCode: String): AutomationResponse
   }
 `;
 

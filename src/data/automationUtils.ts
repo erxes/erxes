@@ -34,6 +34,7 @@ const checkAutomation = async (kind: string, body: any, user: IUserDocument) => 
       automationResponded: {
         userId: user._id,
         responseId: Math.random(),
+        sessionCode: user.sessionCode || '',
         content: apiAutomationResponse.response,
       },
     });
