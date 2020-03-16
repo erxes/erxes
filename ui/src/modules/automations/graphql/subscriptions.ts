@@ -1,8 +1,10 @@
 const automationSubscription = `
-	subscription automationResponded($userId: String!) {
-		automationResponded(userId: $userId) {
+	subscription automationResponded($userId: String, $sessionCode: String) {
+		automationResponded(userId: $userId, sessionCode: $sessionCode) {
 			content
 			responseId
+			userId
+			sessionCode
 		}
 	}
 `;

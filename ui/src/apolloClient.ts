@@ -1,6 +1,7 @@
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { ApolloClient } from 'apollo-client';
 import { split } from 'apollo-link';
+import { setContext } from 'apollo-link-context';
 import { onError } from 'apollo-link-error';
 import { createHttpLink } from 'apollo-link-http';
 import { WebSocketLink } from 'apollo-link-ws';
@@ -45,8 +46,20 @@ const errorLink = onError(({ networkError, graphQLErrors }) => {
   }
 });
 
+const authLink = setContext((_, { headers }) => {
+  // get the authentication token from local storage if it exists
+  // const token = localStorage.getItem('token');
+  // return the headers to the context so httpLink can read them
+  return {
+    headers: {
+      ...headers,
+      session_code: sessionStorage.getItem('session_code')
+    }
+  };
+});
+
 // Combining httpLink and warelinks altogether
-const httpLinkWithMiddleware = errorLink.concat(httpLink);
+const httpLinkWithMiddleware = authLink.concat(errorLink).concat(httpLink);
 
 // Subscription config
 export const wsLink: any = new WebSocketLink({
