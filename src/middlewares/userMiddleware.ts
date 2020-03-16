@@ -1,5 +1,6 @@
 import * as jwt from 'jsonwebtoken';
 import { Users } from '../db/models';
+import { debugBase } from '../debuggers';
 
 /*
  * Finds user object by passed tokens
@@ -15,6 +16,7 @@ const userMiddleware = async (req, _res, next) => {
       // verify user token and retrieve stored user information
       const { user } = jwt.verify(token, Users.getSecret());
 
+      debugBase(`graphqlPubsub publish: userId: ${user._id}, sessionCode: ${req.headers.session_code}`);
       // save user in request
       req.user = user;
       req.user.loginToken = token;
