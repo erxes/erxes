@@ -78,8 +78,15 @@ const archivedTasks = `
   }
 `;
 
+const archivedTasksCount = `
+  query archivedTasksCount($pipelineId: String!, $search: String) {
+    archivedTasksCount(pipelineId: $pipelineId, search: $search)
+  }
+`;
+
 export default {
   tasks,
   taskDetail,
-  archivedTasks
+  archivedTasks,
+  archivedTasksCount
 };

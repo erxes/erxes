@@ -87,8 +87,21 @@ const archivedTickets = `
   }
 `;
 
+const archivedTicketsCount = `
+  query archivedTicketsCount(
+    $pipelineId: String!,
+    $search: String
+  ) {
+    archivedTicketsCount(
+      pipelineId: $pipelineId,
+      search: $search,
+    )
+  }
+`;
+
 export default {
   tickets,
   ticketDetail,
-  archivedTickets
+  archivedTickets,
+  archivedTicketsCount
 };

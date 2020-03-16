@@ -108,6 +108,16 @@ const ItemContainer = styled.div`
   }
 `;
 
+const LoadMore = styled.span`
+  text-decoration: underline;
+  margin-bottom: 20px;
+  color: ${colors.colorCoreGray};
+  &:hover {
+    cursor: pointer;
+    color: ${colors.textSecondary};
+  }
+`;
+
 const BoardItem = styled.div`
   box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 2px 0px;
   padding: 8px 10px;
@@ -124,6 +134,7 @@ export {
   MenuFooter,
   TopBar,
   ItemContainer,
+  LoadMore,
   BoardItem,
   ArchiveWrapper
 };

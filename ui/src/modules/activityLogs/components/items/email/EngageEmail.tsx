@@ -62,17 +62,20 @@ class EngageEmail extends React.Component<Props, { expand: boolean }> {
 
   render() {
     const { createdAt } = this.props.activity;
+
     const {
       email = {} as IEngageEmail,
+      validCustomersCount,
       title,
       fromUser,
       stats = { send: 0, total: 0 }
     } = this.props.email;
+
     const { subject } = email;
 
     let status = <Label lblStyle="default">Sending</Label>;
 
-    if (stats.total === stats.send) {
+    if (validCustomersCount === stats.total) {
       status = <Label lblStyle="success">Sent</Label>;
     }
 

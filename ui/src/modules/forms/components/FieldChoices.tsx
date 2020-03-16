@@ -58,6 +58,12 @@ function FieldChoices(props: Props) {
       />
       <FieldChoice
         {...props}
+        type="file"
+        text={__('File')}
+        icon="file"
+      />
+      <FieldChoice
+        {...props}
         type="phone"
         text={__('Phone')}
         icon="phonecall-3"

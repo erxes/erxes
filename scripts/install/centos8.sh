@@ -76,7 +76,7 @@ sslverify=1
 sslcacert=/etc/pki/tls/certs/ca-bundle.crt
 metadata_expire=300
 EOF
-yum install erlang -y
+yum -qqy install erlang -y
 
 rpm --import https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc
 cat <<EOF > /etc/yum.repos.d/rabbitmq-3.8.repo
@@ -160,7 +160,8 @@ su $username -c "cd $erxes_logger_dir && yarn install && yarn build"
 su $username -c "cd $erxes_integrations_dir && yarn install && yarn build"
 
 # install pm2 globally
-yarn global add  pm2
+# yarn global add pm2 # somehow it didn't work in RHEL8
+npm i -g pm2
 
 JWT_TOKEN_SECRET=$(openssl rand -hex 16)
 
@@ -292,7 +293,6 @@ window.env = {
   REACT_APP_API_URL: "http://$erxes_domain/api",
   REACT_APP_API_SUBSCRIPTION_URL: "ws://$erxes_domain/api/subscriptions",
   REACT_APP_CDN_HOST: "http://$erxes_domain/widgets"
-  //REACT_APP_CDN_HOST_API: "http://$erxes_domain/erxes-widgets/"
 };
 EOF
 chown $username:$username $erxes_dir/build/js/env.js

@@ -13,6 +13,7 @@ export interface IOptions {
     itemsQuery: string;
     detailQuery: string;
     archivedItemsQuery: string;
+    archivedItemsCountQuery: string;
   };
   mutationsName: {
     addMutation: string;
@@ -28,6 +29,7 @@ export interface IOptions {
     itemsQuery: string;
     detailQuery: string;
     archivedItemsQuery: string;
+    archivedItemsCountQuery: string;
   };
   mutations: {
     addMutation: string;

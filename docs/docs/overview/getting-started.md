@@ -5,22 +5,15 @@ title: Getting  Started
 
 <!--Content-->
 
+<div class="row">
+  <div class="col-md-6" markdown="1">
+
 ### Overview
 
 - <a href="overview">Overview</a>
 - <a href="architecture-overview">Architecture Overview</a>
 - <a href="deployment-overview">Deployment Overview</a>
 - <a href="integrations-overview">Integrations Overview</a>
-
-### Installation Guide
-
-- <a href="../installation/ubuntu">Installing on Ubuntu 16.04 LTS</a>
-- <a href="../installation/debian10">Debian 10</a>
-- <a href="../installation/centos8">CentOS 8</a>
-- <a href="../installation/docker">Docker</a>
-- <a href="../installation/heroku">Heroku</a>
-- <a href="../installation/kubernetes">Kubernetes</a>
-- <a href="../installation/upgrade">Upgrade</a>
 
 ### User's Guide
 
@@ -39,6 +32,18 @@ title: Getting  Started
 - <a href="../user/notification">Notifications</a>
 - <a href="../user/sales">Sales</a>
 - <a href="../user/support">Support</a>
+  </div>
+  <div class="col-md-6" markdown="1">
+
+### Installation Guide
+
+- <a href="../installation/ubuntu">Ubuntu 16.04 LTS</a>
+- <a href="../installation/debian10">Debian 10</a>
+- <a href="../installation/centos8">CentOS 8</a>
+- <a href="../installation/redhat8">RHEL 8</a>
+- <a href="../installation/docker">Docker</a>
+- <a href="../installation/heroku">Heroku</a>
+- <a href="../installation/upgrade">Upgrade</a>
 
 ### Administrator's guide
 
@@ -53,7 +58,9 @@ title: Getting  Started
 - <a href="../developer/graphql-api">GraphQL API</a>
 - <a href="../developer/coding-standards">Coding standards</a>
 - <a href="../developer/contributing">Contributing</a>
-- <a href="../developer/push-notifications">Push Notification</a>
+- <a href="../developer/push-notification">Push Notification</a>
 - <a href="../developer/android-sdk">Android SDK</a>
 - <a href="../developer/ios-sdk">iOS SDK</a>
 - <a href="../developer/extend">Extend</a>
+    </div>
+  </div>

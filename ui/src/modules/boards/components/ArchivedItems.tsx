@@ -3,7 +3,7 @@ import { __ } from 'modules/common/utils';
 import { IDeal } from 'modules/deals/types';
 import { ITicket } from 'modules/tickets/types';
 import React, { useState } from 'react';
-import { BoardItem, ItemContainer } from '../styles/rightMenu';
+import { BoardItem, ItemContainer, LoadMore } from '../styles/rightMenu';
 import { IItem, IOptions } from '../types';
 
 type ItemProps = {
@@ -71,8 +71,10 @@ type Props = {
   items: IItem[];
   sendToBoard: (item: any) => void;
   remove: (item: any) => void;
+  loadMore: () => void;
   type: string;
   options: IOptions;
+  hasMore: boolean;
 };
 
 type State = {
@@ -93,18 +95,19 @@ class ArchivedItems extends React.Component<Props, State> {
   };
 
   render() {
-    const { type } = this.props;
+    const { type, hasMore } = this.props;
 
     if (!this.props.items || this.props.items.length === 0) {
       return (
         <EmptyState
           text={`There aren’t any archived ${type}.`}
-          icon="archive-alt"
+          icon='archive-alt'
         />
       );
     }
 
-    const { options, remove, sendToBoard, items } = this.props;
+    const { options, remove, sendToBoard, items, loadMore } = this.props;
+
     return (
       <>
         {items.map(item => (
@@ -117,6 +120,9 @@ class ArchivedItems extends React.Component<Props, State> {
             type={type}
           />
         ))}
+        {hasMore ? (
+          <LoadMore onClick={loadMore}>{__('Load More')}</LoadMore>
+        ) : null}
       </>
     );
   }
