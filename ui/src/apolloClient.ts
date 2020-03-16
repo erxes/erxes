@@ -18,7 +18,7 @@ export const getEnv = () => {
   return {
     REACT_APP_API_URL: getItem('REACT_APP_API_URL'),
     REACT_APP_API_SUBSCRIPTION_URL: getItem('REACT_APP_API_SUBSCRIPTION_URL'),
-    REACT_APP_CDN_HOST: getItem('REACT_APP_CDN_HOST'),
+    REACT_APP_CDN_HOST: getItem('REACT_APP_CDN_HOST')
   };
 };
 
@@ -46,9 +46,6 @@ const errorLink = onError(({ networkError, graphQLErrors }) => {
 });
 
 const authLink = setContext((_, { headers }) => {
-  // get the authentication token from local storage if it exists
-  // const token = localStorage.getItem('token');
-  // return the headers to the context so httpLink can read them
   return {
     headers: {
       ...headers,
