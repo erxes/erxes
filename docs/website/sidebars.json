@@ -17,6 +17,7 @@
       "installation/upgrade"
     ],
     "User's Guide": [
+      "user/subscription-getting-started",
       "user/initial-setup",
       "user/general-settings",
       "user/team-inbox",
@@ -25,16 +26,11 @@
       "user/script-install",
       "user/contacts",
       "user/sales-pipeline",
-      "user/sales-pipeline-settings",
       "user/engage",
       "user/insights",
-      "user/email-templates",
-      "user/third-party-integrations",
-      "user/signing-in",
       "user/profile-settings",
       "user/notification",
-      "user/mobile-apps",
-      "user/subscription-getting-started"
+      "user/mobile-apps"
     ],
     "Administrator's guide": [
       "administrator/creating-first-user",
