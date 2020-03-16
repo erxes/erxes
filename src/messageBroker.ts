@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 import * as uuid from 'uuid';
 import { receiveRpcMessage as automationsRecRpcMsg } from './data/modules/automations/receiveMessage';
 import {
+  receiveEmailVerifierNotification,
   receiveEngagesNotification,
   receiveIntegrationsNotification,
   receiveRpcMessage,
@@ -61,6 +62,8 @@ export const sendMessage = async (queueName: string, data?: any) => {
     return;
   }
 
+  debugBase(`Sending message to ${queueName}`);
+
   await channel.assertQueue(queueName);
   await channel.sendToQueue(queueName, Buffer.from(JSON.stringify(data || {})));
 };
@@ -110,11 +113,26 @@ const initConsumer = async () => {
     }
   });
 
+  // listen for email verifier notification ===========
+  await channel.assertQueue('emailVerifierNotification');
+
+  channel.consume('emailVerifierNotification', async msg => {
+    if (msg !== null) {
+      debugBase(`Received email verifier notification ${msg.content.toString()}`);
+
+      await receiveEmailVerifierNotification(JSON.parse(msg.content.toString()));
+
+      channel.ack(msg);
+    }
+  });
+
   // listen for engage notification ===========
   await channel.assertQueue('engagesNotification');
 
   channel.consume('engagesNotification', async msg => {
     if (msg !== null) {
+      debugBase(`Received engages notification ${msg.content.toString()}`);
+
       await receiveEngagesNotification(JSON.parse(msg.content.toString()));
 
       channel.ack(msg);

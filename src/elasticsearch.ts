@@ -1,6 +1,10 @@
+import * as dotenv from 'dotenv';
 import * as elasticsearch from 'elasticsearch';
 import * as mongoUri from 'mongo-uri';
 import { debugBase } from './debuggers';
+
+// load environment variables
+dotenv.config();
 
 const { NODE_ENV, MONGO_URL, ELASTICSEARCH_URL = 'http://localhost:9200' } = process.env;
 

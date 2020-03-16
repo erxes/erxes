@@ -810,7 +810,7 @@ export const regexSearchText = (searchValue: string, searchKey = 'searchText') =
 /**
  * Check user ids whether its added or removed from array of ids
  */
-export const checkUserIds = (oldUserIds: string[] = [], newUserIds: string[]) => {
+export const checkUserIds = (oldUserIds: string[] = [], newUserIds: string[] = []) => {
   const removedUserIds = oldUserIds.filter(e => !newUserIds.includes(e));
 
   const addedUserIds = newUserIds.filter(e => !oldUserIds.includes(e));
@@ -838,7 +838,23 @@ export const handleUnsubscription = async (query: { cid: string; uid: string }) 
 export const validateEmail = (email: string) => {
   const data = { email };
 
-  sendMessage('erxes-api:engages-notification', { action: 'emailVerify', data });
+  const EMAIL_VERIFIER_ENDPOINT = getEnv({ name: 'EMAIL_VERIFIER_ENDPOINT', defaultValue: '' });
+
+  if (!EMAIL_VERIFIER_ENDPOINT) {
+    return sendMessage('erxes-api:email-verifier-notification', { action: 'emailVerify', data });
+  }
+
+  sendRequest({
+    url: `${EMAIL_VERIFIER_ENDPOINT}/verify-single`,
+    method: 'POST',
+    body: { email },
+  })
+    .then(async ({ status }) => {
+      await Customers.updateOne({ primaryEmail: email }, { $set: { emailValidationStatus: status } });
+    })
+    .catch(e => {
+      debugExternalApi(`Error occurred during email verify ${e.message}`);
+    });
 };
 
 export const getConfigs = async () => {

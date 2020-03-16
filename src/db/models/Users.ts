@@ -41,7 +41,7 @@ export interface IUserModel extends Model<IUserDocument> {
   configEmailSignatures(_id: string, signatures: IEmailSignature[]): Promise<IUserDocument>;
   configGetNotificationByEmail(_id: string, isAllowed: boolean): Promise<IUserDocument>;
   setUserActiveOrInactive(_id: string): Promise<IUserDocument>;
-  generatePassword(password: string): string;
+  generatePassword(password: string): Promise<string>;
   invite({ email, password, groupId }: { email: string; password: string; groupId: string }): string;
   resendInvitation({ email }: { email: string }): string;
   confirmInvitation({

@@ -162,8 +162,8 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   // filter by search value
   public searchFilter(value: string): void {
     this.positiveList.push({
-      regexp: {
-        searchText: `.*+${value}.*`,
+      match_phrase: {
+        searchText: value,
       },
     });
   }

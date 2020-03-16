@@ -189,6 +189,28 @@ describe('Test tasks mutations', () => {
     expect(updatedTask._id).toEqual(args._id);
   });
 
+  test('Change task if move to another stage', async () => {
+    const anotherStage = await stageFactory({ pipelineId: pipeline._id });
+
+    const args = {
+      _id: task._id,
+      destinationStageId: anotherStage._id,
+    };
+
+    const mutation = `
+      mutation tasksChange($_id: String!, $destinationStageId: String) {
+        tasksChange(_id: $_id, destinationStageId: $destinationStageId) {
+          _id,
+          stageId
+        }
+      }
+    `;
+
+    const updatedTask = await graphqlRequest(mutation, 'tasksChange', args);
+
+    expect(updatedTask._id).toEqual(args._id);
+  });
+
   test('Task update orders', async () => {
     const taskToStage = await taskFactory({});
 

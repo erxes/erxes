@@ -36,9 +36,6 @@ customer_mapping = {
     'leadStatus': {
         'type': 'keyword',
     },
-    'lifecycleState': {
-        'type': 'keyword',
-    },
     'tagIds': {
         'type': 'keyword',
     },
@@ -49,6 +46,9 @@ customer_mapping = {
         'type': 'keyword',
     },
     'status': {
+        'type': 'keyword',
+    },
+    'emailValidationStatus': {
         'type': 'keyword',
     },
 }
@@ -71,12 +71,6 @@ company_mapping = {
         'type': 'keyword',
     },
     'ownerId': {
-        'type': 'keyword',
-    },
-    'leadStatus': {
-        'type': 'keyword',
-    },
-    'lifecycleState': {
         'type': 'keyword',
     },
     'tagIds': {

@@ -1,8 +1,9 @@
-import { ActivityLogs, GrowthHacks } from '../../../db/models';
+import { ActivityLogs, GrowthHacks, Stages } from '../../../db/models';
 import { IOrderInput } from '../../../db/models/definitions/boards';
 import { BOARD_STATUSES, NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { IGrowthHack } from '../../../db/models/definitions/growthHacks';
 import { IUserDocument } from '../../../db/models/definitions/users';
+import { graphqlPubsub } from '../../../pubsub';
 import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
@@ -116,6 +117,12 @@ const growthHackMutations = {
       user,
     );
 
+    graphqlPubsub.publish('growthHacksChanged', {
+      growthHacksChanged: {
+        _id: updatedGrowthHack._id,
+      },
+    });
+
     return updatedGrowthHack;
   },
 
@@ -145,6 +152,17 @@ const growthHackMutations = {
       action,
       contentType: MODULE_NAMES.GROWTH_HACK,
     });
+
+    // if move between stages
+    if (destinationStageId !== growthHack.stageId) {
+      const stage = await Stages.getStage(growthHack.stageId);
+
+      graphqlPubsub.publish('pipelinesChanged', {
+        pipelinesChanged: {
+          _id: stage.pipelineId,
+        },
+      });
+    }
 
     return growthHack;
   },

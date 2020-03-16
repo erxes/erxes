@@ -16,14 +16,6 @@ export const fetchBySegments = async (segment: ISegment, action: 'search' | 'cou
   const propertyNegative: any[] = [];
 
   if (contentType === 'customer') {
-    propertyPositive.push({
-      range: {
-        profileScore: {
-          gt: 0,
-        },
-      },
-    });
-
     propertyNegative.push({
       term: {
         status: 'Deleted',
