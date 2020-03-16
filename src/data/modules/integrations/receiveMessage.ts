@@ -133,10 +133,31 @@ export const receiveIntegrationsNotification = async msg => {
   }
 };
 
-const MSG_QUEUE_ACTIONS = {
-  EMAIL_VERIFY: 'emailVerify',
-  SET_DONOT_DISTURB: 'setDoNotDisturb',
-  ALL: ['emailVerify', 'setDoNotDisturb'],
+/*
+ * Email verifier notification
+ */
+export const receiveEmailVerifierNotification = async msg => {
+  const { action, data } = msg;
+
+  if (action === 'emailVerify') {
+    const bulkOps: Array<{
+      updateOne: {
+        filter: { primaryEmail: string };
+        update: { emailValidationStatus: string };
+      };
+    }> = [];
+
+    for (const { email, status } of data) {
+      bulkOps.push({
+        updateOne: {
+          filter: { primaryEmail: email },
+          update: { emailValidationStatus: status },
+        },
+      });
+    }
+
+    await Customers.bulkWrite(bulkOps);
+  }
 };
 
 /*
@@ -145,32 +166,7 @@ const MSG_QUEUE_ACTIONS = {
 export const receiveEngagesNotification = async msg => {
   const { action, data } = msg;
 
-  switch (action) {
-    case MSG_QUEUE_ACTIONS.EMAIL_VERIFY: {
-      const bulkOps: Array<{
-        updateOne: {
-          filter: { primaryEmail: string };
-          update: { emailValidationStatus: string };
-        };
-      }> = [];
-
-      for (const { email, status } of data) {
-        bulkOps.push({
-          updateOne: {
-            filter: { primaryEmail: email },
-            update: { emailValidationStatus: status },
-          },
-        });
-      }
-
-      await Customers.bulkWrite(bulkOps);
-
-      break;
-    }
-    case MSG_QUEUE_ACTIONS.SET_DONOT_DISTURB: {
-      await Customers.updateOne({ _id: data.customerId }, { $set: { doNotDisturb: 'Yes' } });
-
-      break;
-    }
+  if (action === 'setDoNotDisturb') {
+    await Customers.updateOne({ _id: data.customerId }, { $set: { doNotDisturb: 'Yes' } });
   }
 };

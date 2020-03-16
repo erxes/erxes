@@ -29,16 +29,16 @@ const main = async () => {
         data: { emails },
       };
 
-      await channel.assertQueue('erxes-api:engages-notification');
-      await channel.sendToQueue('erxes-api:engages-notification', Buffer.from(JSON.stringify(args)));
+      await channel.assertQueue('erxes-api:email-verifier-notification');
+      await channel.sendToQueue('erxes-api:email-verifier-notification', Buffer.from(JSON.stringify(args)));
     };
 
-    verify();
+    await verify();
 
     // listen for engage notification ===========
-    await channel.assertQueue('engagesBulkEmailNotification');
+    await channel.assertQueue('emailVerifierBulkNotification');
 
-    channel.consume('engagesBulkEmailNotification', async msg => {
+    channel.consume('emailVerifierBulkNotification', async msg => {
       if (msg !== null) {
         console.log('Bulk status: ', JSON.parse(msg.content.toString()));
 
@@ -56,4 +56,10 @@ const main = async () => {
   });
 };
 
-main();
+main()
+  .then(() => {
+    console.log('success ...');
+  })
+  .catch(e => {
+    console.log(e.message);
+  });

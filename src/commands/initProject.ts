@@ -13,9 +13,9 @@ connect()
     });
 
     // create admin user
-    const user = await Users.createUser({
+    const user = await Users.create({
       username: 'admin',
-      password: newPwd,
+      password: await Users.generatePassword(newPwd),
       email: 'admin@erxes.io',
       isOwner: true,
       details: {
