@@ -54,7 +54,7 @@ class ProductForm extends React.Component<Props, State> {
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.updateTotal();
 
     // initial product item
@@ -197,8 +197,8 @@ class ProductForm extends React.Component<Props, State> {
     const {
       saveProductsData,
       productsData,
-      closeModal,
-      savePaymentsData
+      closeModal
+      // savePaymentsData
     } = this.props;
 
     const { total, changePayData } = this.state;
@@ -246,7 +246,7 @@ class ProductForm extends React.Component<Props, State> {
     }
 
     saveProductsData();
-    savePaymentsData();
+    // savePaymentsData();
     closeModal();
   };
 
