@@ -157,7 +157,3 @@ export const generateButtonClass = (closeDate: Date, isComplete?: boolean) => {
 
   return colorName;
 };
-
-export const generateUniqueId = (itemId?: string) => {
-  return `${itemId}-${Math.random().toString()}`;
-};

@@ -61,7 +61,7 @@ class EditFormContainer extends React.Component<FinalProps> {
     this.copyItem = this.copyItem.bind(this);
   }
 
-  componentDidUpdate() {
+  componentDidMount() {
     const { detailQuery, itemId, options } = this.props;
 
     this.unsubcribe = detailQuery.subscribeToMore({

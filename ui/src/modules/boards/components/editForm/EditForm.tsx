@@ -12,7 +12,7 @@ type Props = {
   addItem: (doc: IItemParams, callback: () => void, msg?: string) => void;
   removeItem: (itemId: string, callback: () => void) => void;
   copyItem: (itemId: string, callback: () => void, msg?: string) => void;
-  beforePopupClose: () => void;
+  beforePopupClose: (afterPopupClose?: () => void) => void;
   amount?: () => React.ReactNode;
   formContent: ({ state, copy, remove }: IEditFormContent) => React.ReactNode;
   onUpdate: (item: IItem, prevStageId?) => void;
@@ -68,22 +68,24 @@ class EditForm extends React.Component<Props, State> {
     copyItem(item._id, this.closeModal, options.texts.copySuccessText);
   };
 
-  closeModal = () => {
+  closeModal = (afterPopupClose?: () => void) => {
     const { beforePopupClose } = this.props;
 
     if (beforePopupClose) {
-      beforePopupClose();
+      beforePopupClose(afterPopupClose);
+    } else if (afterPopupClose) {
+      afterPopupClose();
     }
   };
 
   onHideModal = () => {
-    const { updatedItem, prevStageId } = this.state;
+    this.closeModal(() => {
+      const { updatedItem, prevStageId } = this.state;
 
-    if (updatedItem && this.props.onUpdate) {
-      this.props.onUpdate(updatedItem, prevStageId);
-    }
-
-    this.closeModal();
+      if (updatedItem && this.props.onUpdate) {
+        this.props.onUpdate(updatedItem, prevStageId);
+      }
+    });
   };
 
   renderArchiveStatus() {

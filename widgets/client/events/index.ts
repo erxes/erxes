@@ -1,4 +1,5 @@
 import { getLocalStorageItem, setLocalStorageItem } from "../common";
+import { getEnv } from "../utils";
 
 const Events: any = {
   init(args: any) {
@@ -26,7 +27,7 @@ const Events: any = {
   },
 
   sendRequest(path: string, data: any) {
-    const { API_URL } = process.env;
+    const { API_URL } = getEnv();
 
     fetch(`${API_URL}/${path}`, {
       method: "post",
