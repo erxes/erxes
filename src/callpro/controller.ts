@@ -8,7 +8,7 @@ const init = async app => {
     debugRequest(debugCallPro, req);
 
     const { integrationId, data } = req.body;
-    const { phoneNumber, tenant } = JSON.parse(data);
+    const { phoneNumber, recordUrl } = JSON.parse(data);
 
     // Check existing Integration
     const integration = await Integrations.findOne({ kind: 'callpro', phoneNumber }).lean();
@@ -22,7 +22,7 @@ const init = async app => {
         kind: 'callpro',
         erxesApiId: integrationId,
         phoneNumber,
-        tenant,
+        recordUrl,
       });
     } catch (e) {
       debugCallPro(`Failed to create integration: ${e}`);
@@ -40,13 +40,13 @@ const init = async app => {
     const integration = await Integrations.findOne({ erxesApiId: integrationId });
     const conversation = await Conversations.findOne({ erxesApiId });
 
-    const { tenant } = integration;
+    const { recordUrl } = integration;
     const { callId } = conversation;
 
     let audioSrc = '';
 
-    if (tenant) {
-      audioSrc = `https://my6.callpro.mn/pbx/proxyapi.php?key=LtsaK5Ma3Cz27ZLU&reqtype=INFO&info=recording&id=${callId}&tenant=${tenant}`;
+    if (recordUrl) {
+      audioSrc = `${recordUrl}&id=${callId}`;
     }
 
     return res.json({ audioSrc });
