@@ -239,3 +239,216 @@ You can specify the user's actions through this permission feature
 
 1. Fill the permission group name
 2. Description of the group
+
+# How to setup third party integrations ?
+
+## Setup facebook integration
+
+Integration is a way of communicating with customers who are emerging into the organizations' website, Facebook, Twitter through erxes.io platform. Integration can be created on every brands' social media page. Thence, we would be able to track the percentage of customers who are emerging into the organizations' Facebook page and website form.
+
++ Please follow the steps for setup: General Settings->App Store > Add Facebook
+<div>
+  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-2.png" style="width:370px;height:250px;" />
+  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-3.png" style="width:390px;height:250px;" />
+</div>
+
+1. Click Add to connect Facebook
+2. Click Add Account
+
+<div>
+  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-4.png" style="width:350px;height:200px;" />
+  <br/>
+  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-5.png" style="width:350px;height:320px;" />
+</div>
+
+3. Link your Facebook Account
+4. Select all the Pages  you   manage
+5. Click Next
+
+
+<aside class="notice">
+  *Link your Social Account to create Integration
+</aside>
+
+---
+
+## Link facebook account
+
+<div>
+  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-6.png" style="width:400px;height:350px;" />
+</div>
+
+6.    Insert name for the Facebook Integration
+7.    Choose the Brand for the Integration
+8.    Select your Linked Account
+9.    Select the Social Pages to link
+10.  Click Save to link the account
+
+<aside class="notice">
+  *Please insert your Account Name as “FB of …”
+</aside>
+
+
+# Email templates
+
+---
+
+##  How to setup Marketing Team Settings
+
+Marketing Team  settings include following features:
+
+
+<div>
+<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/marketing-1.PNG"/>
+</div>
+
+1. __Email Template__ 
+2. __Email Appearance__ 
+
+
+### Setup Email Template
+
+
+Team members will be able to choose from email templates and send out one message to multiple recipients. You can use the email templates to send out a Mass email for leads/customers or you can send to other team members.
+
++ Please follow the steps for setup: __General Settings__ -> __Email Template__ -> __New Email Template__
+
+<div>
+<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/marketing-2.PNG"/>
+</div>
+
+1. Click __New Email Template__ 
+2. __Edit & Delete__ Created Email Template
+
+
+###  Add Email Template 
+
++ Please follow the steps for setup: __General Settings__ -> __Email Template__ -> __New Email Template__
+
+<div>
+<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/marketing-3.PNG"/>
+</div>.
+
+1. Insert __name__ for New Email Template
+2. Insert __HTML__ of the email template
+3. __Click Save__
+
+
+*Created New Email Template will be used in further Engage feature to send mass email to customers*
+
+ ###  Appearance of Created Email Template 
+
++ Please follow the steps for setup: __General Settings__ -> __Email Template__
+ 
+<div>
+<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/marketing-4.PNG"/>
+
+</div>
+
+
+*Created New Email Template will be used in further Engage feature to send mass email to customers*
+
+---
+
+## Email Appearance 
+
+<div>
+<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/marketing-6.PNG"/>
+<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/marketing-7.PNG"/>
+</div>
+
+1. Choose your __email template type__
+2. __Insert__ email template HTML
+3. __Click Save__
+
+
+*The email template must be in HTML format*
+
+# Sales Team settings
+
+Sales Team settings include following features:
+
+<div>
+  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/sale_board_settings.jpg" />
+</div>
+
+1. **Board & Pipelines**
+2. **Product & Service**
+
+---
+
+## Setup Board & Pipeline
+
+Manage your boards and pipelines so that it's easy to manage incoming leads or requests that is adaptable to your team's needs. Add in or delete boards and pipelines to keep business development on track and in check.
+
+- Please follow the steps for setup: **General Settings -> Board & Pipeline> Add Board -> Add Pipeline**
+
+<div>
+  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/sale_board.jpg" />
+</div>
+
+1. Click **Add** button to create **Board**
+2. Click **Add** button to create **Pipeline**
+
+<aside class="notice">
+The Board & Pipeline will be further used in Deal feature
+</aside>
+
+---
+
+### Add Board
+
+- Please follow the steps for setup: **General Settings -> Board & Pipeline> Add Board**
+
+<div>
+  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/step_new_addboard.jpg" />
+</div>
+
+1. Click **Add** to create Board
+2. **Insert name** for the **Board**
+3. Click **Save**
+
+<aside class="notice">
+  The Board & Pipeline will be further used in Deal feature
+</aside>
+
+---
+
+### Add Pipeline
+
+- Please follow the steps for setup: **General Settings -> Board & Pipeline> Add Board**
+
+<div>
+  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/boards_and_pipelines_steps.jpg"/>
+</div>
+
+1. Click **Add Pipeline**
+2. Insert **Name** for Pipeline
+3. Click **Add Stage** for the Pipeline
+4. Insert **Name** for the Stage
+5. Choose **Percentage** for Stage
+6. Click to **Delete** the Stage
+7. Click **Save**
+
+---
+
+## Setup Product & Service
+
+All information and know-how related to your business's products and services are found here. Create and add in unlimited products and services so that you and your team members can edit and share.
+
+- Please follow the steps for setup: **General Settings -> Product & Service -> Add Product & Service**
+
+<div>
+  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/product_and_service_steps.jpg" />
+</div>
+
+1. Click **Add Product & Service**
+2. Insert **Name** for the Product/Service
+3. Select **Product/Service type**
+4. Insert **Description** for the Product/Service
+5. Insert **Stock Keeping Unit** /SKU/
+6. Click **Save**
+
+<aside class="notice">
+  Created Product & Service will be used in Deal section /Add Product & Service/
+</aside>

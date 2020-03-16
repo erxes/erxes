@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import EmptyState from '../EmptyState';
 import Icon from '../Icon';
+import Spinner from '../Spinner';
 import Filter from './Filter';
 import {
   AvatarImg,
@@ -18,6 +19,7 @@ type Props = {
   links?: any[];
   showCheckmark?: boolean;
   selectable?: boolean;
+  loading?: boolean;
   className?: string;
 
   // hooks
@@ -80,8 +82,12 @@ class FilterableList extends React.Component<Props, State> {
   };
 
   renderItems() {
-    const { showCheckmark = true } = this.props;
+    const { showCheckmark = true, loading } = this.props;
     const { items, key } = this.state;
+
+    if (loading) {
+      return <Spinner objective={true} />
+    }
 
     if (items.length === 0) {
       return (

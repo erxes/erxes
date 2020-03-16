@@ -69,7 +69,7 @@ class AddFormContainer extends React.Component<FinalProps> {
         callback(data[options.mutationsName.addMutation]);
 
         if (getAssociatedItem) {
-          getAssociatedItem(data[options.mutationsName.addMutation]._id);
+          getAssociatedItem(data[options.mutationsName.addMutation]);
         }
 
         if (refetch) {

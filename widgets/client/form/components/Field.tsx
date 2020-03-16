@@ -1,6 +1,7 @@
 import * as moment from "moment";
 import * as React from "react";
 import DatePicker from "react-datepicker";
+import uploadHandler from "../../uploadHandler";
 import { FieldValue, IField, IFieldError } from "../types";
 
 type Props = {
@@ -11,6 +12,7 @@ type Props = {
 
 type State = {
   dateValue: moment.Moment | null;
+  isAttachingFile?: boolean;
 };
 
 export default class Field extends React.Component<Props, State> {
@@ -100,6 +102,33 @@ export default class Field extends React.Component<Props, State> {
     this.onChange(e.currentTarget.value);
   };
 
+  handleFileInput = (e: React.FormEvent<HTMLInputElement>) => {
+    const files = e.currentTarget.files;
+    const self = this;
+
+    if (files && files.length > 0) {
+      uploadHandler({
+        file: files[0],
+
+        beforeUpload() {
+          self.setState({ isAttachingFile: true });
+        },
+
+        // upload to server
+        afterUpload({ response }: any) {
+          self.setState({ isAttachingFile: false });
+
+          self.onChange(response);
+        },
+
+        onError: message => {
+          alert(message);
+          self.setState({ isAttachingFile: false });
+        }
+      });
+    }
+  };
+
   onDateChange = (momentObj: moment.Moment) => {
     this.setState({ dateValue: momentObj });
     this.onChange(momentObj.toDate());
@@ -169,6 +198,12 @@ export default class Field extends React.Component<Props, State> {
           this.onRadioButtonsChange
         );
 
+      case "file":
+        return Field.renderInput({
+          onChange: this.handleFileInput,
+          type: "file"
+        });
+
       case "textarea":
         return Field.renderTextarea({ onChange: this.onTextAreaChange });
 
@@ -182,6 +217,7 @@ export default class Field extends React.Component<Props, State> {
 
   render() {
     const { field, error } = this.props;
+    const { isAttachingFile } = this.state;
 
     return (
       <div className="form-group">
@@ -189,11 +225,16 @@ export default class Field extends React.Component<Props, State> {
           {field.text}
           {field.isRequired ? <span className="required">*</span> : null}:
         </label>
+
         <span className="error">{error && error.text}</span>
+
         {field.description ? (
           <span className="description">{field.description}</span>
         ) : null}
+
         {this.renderControl()}
+
+        {isAttachingFile ? <div className="loader" /> : null}
       </div>
     );
   }

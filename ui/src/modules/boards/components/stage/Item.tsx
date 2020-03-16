@@ -51,7 +51,7 @@ class Item extends React.PureComponent<Props, { isFormVisible: boolean }> {
     }
   }
 
-  beforePopupClose = () => {
+  beforePopupClose = (afterPopupClose?: () => void) => {
     const { beforePopupClose } = this.props;
 
     this.setState({ isFormVisible: false }, () => {
@@ -63,6 +63,10 @@ class Item extends React.PureComponent<Props, { isFormVisible: boolean }> {
 
       if (beforePopupClose) {
         beforePopupClose();
+      }
+
+      if (afterPopupClose) {
+        afterPopupClose();
       }
     });
   };

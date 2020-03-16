@@ -34,6 +34,20 @@ export const renderFullName = data => {
   return 'Unknown';
 };
 
+export const renderUserFullName = data => {
+  const { details } = data;
+
+  if (details && details.fullName) {
+    return details.fullName;
+  }
+
+  if (data.email || data.username) {
+    return data.email || data.username;
+  }
+
+  return 'Unknown';
+};
+
 export const setTitle = (title: string, force: boolean) => {
   if (!document.title.includes(title) || force) {
     document.title = title;

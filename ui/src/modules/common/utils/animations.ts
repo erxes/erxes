@@ -94,7 +94,7 @@ const stripe = keyframes`
   }
 `;
 
-const highlight =  keyframes`
+const highlight = keyframes`
   0% { box-shadow: 0 0 -5px 0 #63D2D6; }
   40% { box-shadow: 0 0 10px 0 #63D2D6; }
   60% { box-shadow: 0 0 10px 0 #63D2D6; }
