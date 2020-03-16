@@ -9,8 +9,8 @@ import ProductSection from 'modules/deals/components/ProductSection';
 import { IProduct } from 'modules/settings/productService/types';
 import PortableTasks from 'modules/tasks/components/PortableTasks';
 import PortableTickets from 'modules/tickets/components/PortableTickets';
-import React from 'react';
-import { IDeal, IDealParams, IPaymentsData } from '../types';
+import React, { useEffect, useState } from 'react';
+import { IDeal, IDealParams } from '../types';
 
 type Props = {
   options: IOptions;
@@ -24,33 +24,29 @@ type Props = {
   sendToBoard?: (item: any) => void;
 };
 
-type State = {
-  amount: any;
-  products: IProduct[];
-  productsData: any;
-  paymentsData: IPaymentsData;
-  changePayData: IPaymentsData;
-};
+export default function DealEditForm(props: Props) {
+  const item = props.item;
 
-export default class DealEditForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+  const [amount, setAmount] = useState(item.amount || {});
+  const [productsData, setProductsData] = useState(
+    item.products ? item.products.map(p => ({ ...p })) : []
+  );
+  const [products, setProducts] = useState(
+    item.products ? item.products.map(p => p.product) : []
+  );
+  const [paymentsData, setPaymentsData] = useState(item.paymentsData || {});
 
-    const item = props.item;
+  useEffect(
+    () => {
+      setAmount(item.amount || {});
+      setProductsData(item.products ? item.products.map(p => ({ ...p })) : []);
+      setProducts(item.products ? item.products.map(p => p.product) : []);
+      setPaymentsData(item.paymentsData || {});
+    },
+    [item]
+  );
 
-    this.state = {
-      amount: item.amount || {},
-      productsData: item.products ? item.products.map(p => ({ ...p })) : [],
-      // collecting data for ItemCounter component
-      products: item.products ? item.products.map(p => p.product) : [],
-      paymentsData: item.paymentsData,
-      changePayData: {}
-    };
-  }
-
-  renderAmount = () => {
-    const { amount } = this.state;
-
+  function renderAmount() {
     if (Object.keys(amount).length === 0) {
       return null;
     }
@@ -65,17 +61,12 @@ export default class DealEditForm extends React.Component<Props, State> {
         ))}
       </HeaderContentSmall>
     );
-  };
+  }
 
-  onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
-    this.setState({ [name]: value } as Pick<State, keyof State>);
-  };
-
-  saveProductsData = () => {
-    const { productsData } = this.state;
-    const { saveItem } = this.props;
-    const products: IProduct[] = [];
-    const amount: any = {};
+  function saveProductsData() {
+    const { saveItem } = props;
+    const newProducts: IProduct[] = [];
+    const newAmount: any = {};
 
     const filteredProductsData: any = [];
 
@@ -84,15 +75,15 @@ export default class DealEditForm extends React.Component<Props, State> {
       if (data.product) {
         if (data.currency) {
           // calculating item amount
-          if (!amount[data.currency]) {
-            amount[data.currency] = data.amount || 0;
+          if (!newAmount[data.currency]) {
+            newAmount[data.currency] = data.amount || 0;
           } else {
-            amount[data.currency] += data.amount || 0;
+            newAmount[data.currency] += data.amount || 0;
           }
         }
 
         // collecting data for ItemCounter component
-        products.push(data.product);
+        newProducts.push(data.product);
 
         data.productId = data.product._id;
 
@@ -100,19 +91,18 @@ export default class DealEditForm extends React.Component<Props, State> {
       }
     });
 
-    this.setState(
-      { productsData: filteredProductsData, products, amount },
-      () => {
-        saveItem({ productsData: this.state.productsData }, updatedItem => {
-          this.props.onUpdate(updatedItem);
-        });
-      }
-    );
-  };
+    setAmount(newAmount);
+    setProducts(newProducts);
+    setProductsData(filteredProductsData);
 
-  savePaymentsData = () => {
-    const { paymentsData } = this.state;
-    const { saveItem } = this.props;
+    // need to be implemented a callback
+    saveItem({ productsData }, updatedItem => {
+      props.onUpdate(updatedItem);
+    });
+  }
+
+  function savePaymentsData() {
+    const { saveItem } = props;
 
     Object.keys(paymentsData || {}).forEach(key => {
       const perData = paymentsData[key];
@@ -122,57 +112,51 @@ export default class DealEditForm extends React.Component<Props, State> {
       }
     });
 
-    this.setState({ paymentsData }, () => {
-      saveItem({ paymentsData: this.state.paymentsData }, updatedItem => {
-        this.props.onUpdate(updatedItem);
-      });
+    setPaymentsData(paymentsData);
+
+    // need to be implemented a callback
+    saveItem({ paymentsData }, updatedItem => {
+      props.onUpdate(updatedItem);
     });
-  };
+  }
 
-  renderProductSection = () => {
-    const { products, productsData, paymentsData } = this.state;
-
-    const pDataChange = pData => this.onChangeField('productsData', pData);
-    const prsChange = prs => this.onChangeField('products', prs);
-    const payDataChange = payData =>
-      this.onChangeField('paymentsData', payData);
-
+  function renderProductSection() {
     return (
       <ProductSection
-        onChangeProductsData={pDataChange}
-        onChangeProducts={prsChange}
-        onChangePaymentsData={payDataChange}
+        onChangeProductsData={setProductsData}
+        onChangeProducts={setProducts}
+        onChangePaymentsData={setPaymentsData}
         productsData={productsData}
         paymentsData={paymentsData}
         products={products}
-        saveProductsData={this.saveProductsData}
-        savePaymentsData={this.savePaymentsData}
+        saveProductsData={saveProductsData}
+        savePaymentsData={savePaymentsData}
       />
     );
-  };
+  }
 
-  renderItems = () => {
+  function renderItems() {
     return (
       <>
-        <PortableTickets mainType="deal" mainTypeId={this.props.item._id} />
-        <PortableTasks mainType="deal" mainTypeId={this.props.item._id} />
+        <PortableTickets mainType="deal" mainTypeId={props.item._id} />
+        <PortableTasks mainType="deal" mainTypeId={props.item._id} />
       </>
     );
-  };
+  }
 
-  renderFormContent = ({
+  function renderFormContent({
     saveItem,
     onChangeStage,
     copy,
     remove
-  }: IEditFormContent) => {
-    const { item, options, onUpdate, addItem, sendToBoard } = this.props;
+  }: IEditFormContent) {
+    const { options, onUpdate, addItem, sendToBoard } = props;
 
     return (
       <>
         <Top
           options={options}
-          amount={this.renderAmount}
+          amount={renderAmount}
           stageId={item.stageId}
           item={item}
           saveItem={saveItem}
@@ -194,23 +178,21 @@ export default class DealEditForm extends React.Component<Props, State> {
           <Sidebar
             options={options}
             item={item}
-            sidebar={this.renderProductSection}
+            sidebar={renderProductSection}
             saveItem={saveItem}
-            renderItems={this.renderItems}
+            renderItems={renderItems}
           />
         </FlexContent>
       </>
     );
+  }
+
+  const extendedProps = {
+    ...props,
+    amount: renderAmount,
+    sidebar: renderProductSection,
+    formContent: renderFormContent
   };
 
-  render() {
-    const extendedProps = {
-      ...this.props,
-      amount: this.renderAmount,
-      sidebar: this.renderProductSection,
-      formContent: this.renderFormContent
-    };
-
-    return <EditForm {...extendedProps} />;
-  }
+  return <EditForm {...extendedProps} />;
 }

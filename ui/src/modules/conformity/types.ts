@@ -16,6 +16,7 @@ export type ConformityQueryResponse = {
   loading: boolean;
   refetch: () => void;
   fetchMore: any;
+  subscribeToMore: any;
 };
 
 export interface IConformityEdit {

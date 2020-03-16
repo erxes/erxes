@@ -4,7 +4,7 @@ import DropdownToggle from 'modules/common/components/DropdownToggle';
 import { FormControl } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
 import { isEmptyContent } from 'modules/common/utils';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import xss from 'xss';
 import {
@@ -25,119 +25,114 @@ type Props = {
   removeItem: (checklistItemId: string) => void;
 };
 
-type State = {
-  isEditing: boolean;
-  content: string;
-  isChecked: boolean;
-  disabled: boolean;
-  beforeContent: string;
-};
+function Item(props: Props) {
+  const item = props.item;
 
-class ListRow extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+  const [isEditing, setIsEditing] = useState(false);
+  const [content, setContent] = useState(item.content);
+  const [disabled, setDisabled] = useState(false);
+  const [isChecked, setIsChecked] = useState(item.isChecked || false);
+  const [beforeContent, setBeforeContent] = useState(item.content);
 
-    const item = props.item;
+  useEffect(
+    () => {
+      setIsChecked(item.isChecked || false);
+      setBeforeContent(item.content);
+      setContent(item.content);
+    },
+    [item]
+  );
 
-    this.state = {
-      isEditing: false,
-      content: item.content,
-      disabled: false,
-      isChecked: item.isChecked,
-      beforeContent: item.content
-    };
+  function onFocus(event) {
+    event.target.select();
   }
 
-  onFocus = event => event.target.select();
+  function onClick() {
+    setIsEditing(true);
+    setBeforeContent(content);
+  }
 
-  onClick = () => {
-    this.setState({ isEditing: true, beforeContent: this.props.item.content });
-  };
-
-  onKeyPress = e => {
+  function onKeyPress(e) {
     if (e.key === 'Enter') {
       e.preventDefault();
 
-      this.handleSave();
+      handleSave();
     }
-  };
+  }
 
-  onSubmit = e => {
+  function onSubmit(e) {
     e.preventDefault();
 
-    this.handleSave();
-  };
+    handleSave();
+  }
 
-  onBlur = () => {
-    if (isEmptyContent(this.state.content)) {
+  function onBlur() {
+    if (isEmptyContent(content)) {
       return;
     }
 
-    debounce(() => this.setState({ isEditing: false }), 100)();
-  };
+    debounce(() => setIsEditing(false), 100)();
+  }
 
-  onCheckChange = e => {
-    const { editItem } = this.props;
+  function onCheckChange(e) {
+    const { editItem } = props;
 
-    const isChecked = (e.currentTarget as HTMLInputElement).checked;
+    const checked = (e.currentTarget as HTMLInputElement).checked;
 
-    this.setState({ isChecked, isEditing: false }, () => {
-      const { content } = this.state;
+    setIsChecked(checked);
+    setIsEditing(false);
 
-      editItem({ content, isChecked });
-    });
-  };
+    editItem({ content, isChecked: checked });
+  }
 
-  handleSave = () => {
-    if (isEmptyContent(this.state.content)) {
+  function handleSave() {
+    if (isEmptyContent(content)) {
       return;
     }
 
-    const { content, isChecked } = this.state;
+    setDisabled(true);
 
-    this.setState({ disabled: true });
-
-    this.props.editItem({ content, isChecked }, () => {
-      this.setState({ disabled: false, isEditing: false });
+    props.editItem({ content, isChecked }, () => {
+      setDisabled(false);
+      setIsEditing(false);
     });
-  };
+  }
 
-  onRemove = () => {
-    const { removeItem, item } = this.props;
+  function onRemove() {
+    const { removeItem } = props;
 
     removeItem(item._id);
-  };
+  }
 
-  onConvert = () => {
-    this.props.convertToCard(this.state.content, this.onRemove);
-  };
+  function onConvert() {
+    props.convertToCard(content, onRemove);
+  }
 
-  renderContent() {
+  function renderContent() {
     const onChangeContent = e => {
-      this.setState({
-        content: (e.currentTarget as HTMLTextAreaElement).value
-      });
+      setContent((e.currentTarget as HTMLTextAreaElement).value);
     };
 
     const onCancel = () => {
-      this.setState({ isEditing: false, content: this.state.beforeContent });
+      setIsEditing(false);
+      setContent(beforeContent);
     };
 
-    if (this.state.isEditing) {
+    if (isEditing) {
       return (
-        <FormWrapper onSubmit={this.onSubmit} onBlur={this.onBlur}>
+        <FormWrapper onSubmit={onSubmit} onBlur={onBlur}>
           <FormControlWrapper>
             <FormControl
               componentClass="textarea"
               autoFocus={true}
-              onFocus={this.onFocus}
+              onFocus={onFocus}
               onChange={onChangeContent}
-              value={this.state.content}
-              onKeyPress={this.onKeyPress}
+              value={content}
+              onKeyPress={onKeyPress}
               required={true}
             />
             <Button
-              disabled={this.state.disabled}
+              disabled={disabled}
               btnStyle="success"
               type="submit"
               size="small"
@@ -155,10 +150,10 @@ class ListRow extends React.Component<Props, State> {
     }
 
     return (
-      <ChecklistText isChecked={this.state.isChecked}>
+      <ChecklistText isChecked={isChecked}>
         <label
-          onClick={this.onClick}
-          dangerouslySetInnerHTML={{ __html: xss(this.state.content) }}
+          onClick={onClick}
+          dangerouslySetInnerHTML={{ __html: xss(content) }}
         />
 
         <Dropdown>
@@ -167,12 +162,12 @@ class ListRow extends React.Component<Props, State> {
           </Dropdown.Toggle>
           <Dropdown.Menu>
             <li>
-              <a onClick={this.onConvert} href="#convert">
+              <a onClick={onConvert} href="#convert">
                 Convert to Card
               </a>
             </li>
             <li>
-              <a onClick={this.onRemove} href="#remove">
+              <a onClick={onRemove} href="#remove">
                 Delete
               </a>
             </li>
@@ -182,18 +177,16 @@ class ListRow extends React.Component<Props, State> {
     );
   }
 
-  render() {
-    return (
-      <ChecklistItem>
-        <FormControl
-          componentClass="checkbox"
-          checked={this.state.isChecked}
-          onChange={this.onCheckChange}
-        />
-        {this.renderContent()}
-      </ChecklistItem>
-    );
-  }
+  return (
+    <ChecklistItem>
+      <FormControl
+        componentClass="checkbox"
+        checked={isChecked}
+        onChange={onCheckChange}
+      />
+      {renderContent()}
+    </ChecklistItem>
+  );
 }
 
-export default ListRow;
+export default Item;

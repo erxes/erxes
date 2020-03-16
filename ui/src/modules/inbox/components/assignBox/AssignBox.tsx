@@ -30,7 +30,8 @@ type Props = {
 };
 
 type State = {
-  assigneesForList?: IAssignee[];
+  assigneesForList: IAssignee[],
+  loading: boolean
 };
 
 class AssignBox extends React.Component<Props, State> {
@@ -38,7 +39,8 @@ class AssignBox extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      assigneesForList: []
+      assigneesForList: [],
+      loading: true
     };
   }
 
@@ -59,11 +61,12 @@ class AssignBox extends React.Component<Props, State> {
             requireUsername: true
           }
         })
-        .then(({ data }: { data: { users?: IUser[] } }) => {
+        .then((response: { loading: boolean, data: { users?: IUser[] } }) => {
           const verifiedUsers =
-            (data.users || []).filter(user => user.username) || [];
+            (response.data.users || []).filter(user => user.username) || [];
 
           this.setState({
+            loading: response.loading,
             assigneesForList: this.generateAssignParams(
               verifiedUsers,
               this.props.targets
@@ -157,6 +160,7 @@ class AssignBox extends React.Component<Props, State> {
       className,
       links,
       selectable: true,
+      loading: this.state.loading,
       items: this.state.assigneesForList,
       onSearch: this.fetchUsers
     };

@@ -1,42 +1,42 @@
 ---
 id: popups
-title: Popups
+title: Pop ups
 sidebar_label: Popups
 ---
 
 <!--Content-->
 
-## Convert visitors into qualified leads
+## Convert visitors into qualified pop ups
 
-Turn regular visitors into qualified leads by capturing them with a customizable landing page, forms, pop-up or embed placements.
+Turn regular visitors into qualified pop ups by capturing them with a customizable landing page, forms, pop-up or embed placements.
 
 ---
 
 <!--Content-->
 
-Turn regular visitors into qualified leads by capturing them with a customizable landing page, forms, pop-up or embed placements. Filter your leads by tags
+Turn regular visitors into qualified pop ups by capturing them with a customizable landing page, forms, pop-up or embed placements. Filter your pop ups by tags
 
-- Please follow the next steps for setup: **Leads**
+- Please follow the next steps for setup: **Pop ups**
   <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-1.png"/>
 
-1. **Filter** your leads by **tags**
-2. List of **Created leads**
-3. Click **Create lead**
+1. **Filter** your pop ups by **tags**
+2. List of **Created pop ups**
+3. Click **Create pop up**
 
 ---
 
 <!--Content-->
 
-## Create Leads
+## Create Pop ups
 
-- Please follow the steps for setup: **Leads->Create Leads->Type**
+- Please follow the steps for setup: **Pop ups->Create Pop ups->Type**
   <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-3.png"/>
 
 <aside class="notice">
-* Created leads will be seen at widget section of the website
+* Created pop ups will be seen at widget section of the website
 </aside>
 
-1. Insert **Title** for the Leads
+1. Insert **Title** for the Pop ups
 2. Choose the **Type**
 3. Click **Next**
 
@@ -44,11 +44,11 @@ Turn regular visitors into qualified leads by capturing them with a customizable
 
 <!--Content-->
 
-- Please follow the next steps for setup: **Leads->Create Leads->Type->Callout**
+- Please follow the next steps for setup: **Pop ups->Create Pop ups->Type->Callout**
   <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-4.png"/>
 
 <aside class="notice">
-* Created leads will be seen at widget section of the website
+* Created pop ups will be seen at widget section of the website
 </aside>
 
 1. **CallOut section**
@@ -64,7 +64,7 @@ Turn regular visitors into qualified leads by capturing them with a customizable
 
 <!--Content-->
 
-- Please follow the steps for setup: **Leads->Create Leads->Type->Callout->Form**
+- Please follow the steps for setup: **Pop ups->Create Pop ups->Type->Callout->Form**
 
   <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-5.png"/>
 
@@ -83,7 +83,7 @@ Turn regular visitors into qualified leads by capturing them with a customizable
 <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-6.png"/>
 
 <aside class="notice">
-* Created leads will be seen at widget section of the website
+* Created pop ups will be seen at widget section of the website
 </aside>
 
 13. Click on the form section to change the order
@@ -92,7 +92,7 @@ Turn regular visitors into qualified leads by capturing them with a customizable
 
 <!--Content-->
 
-- Please follow the next steps for setup: **Leads->Create Leads->Type->Callout->Form->Options**
+- Please follow the next steps for setup: **Pop ups->Create Pop ups->Type->Callout->Form->Options**
 
 <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-7.png"/>
 
@@ -106,7 +106,7 @@ Turn regular visitors into qualified leads by capturing them with a customizable
 
 <!--Content-->
 
-- Please follow the next steps for setup: **Leads->Create Leads->Type->Callout->Form->Options->Thank**
+- Please follow the next steps for setup: **Pop ups->Create Pop ups->Type->Callout->Form->Options->Thank**
 
 <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-8.png"/>
 
@@ -119,9 +119,9 @@ Turn regular visitors into qualified leads by capturing them with a customizable
 
 <!--Content-->
 
-## Lead Full Preview
+## Pop up Full Preview
 
-- Please follow the next steps for setup: **Leads->Create Leads->Type->Callout->Form->Options->Thank Content-> Full Preview**
+- Please follow the next steps for setup: **Pop ups->Create Pop ups->Type->Callout->Form->Options->Thank Content-> Full Preview**
 
 <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-9.png"/>
 <div>
@@ -131,7 +131,7 @@ Turn regular visitors into qualified leads by capturing them with a customizable
 
 <aside class="notice">
 
-Full Preview of Created Lead in Desktop, Tablet and Mobile. 
+Full Preview of Created Pop up in Desktop, Tablet and Mobile. 
 You can use Pop-Ups script to install on your webpage or inside the messenger or both. There are different installation case of Pop-Up form. 
 
 Go to [instruction](https://docs.erxes.io/docs/user/script-install). 

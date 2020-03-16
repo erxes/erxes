@@ -48,7 +48,7 @@ class Form extends React.PureComponent<Prop, State> {
     super(props);
 
     this.state = {
-      content: props.content ? props.content : ''
+      content: props.content || ''
     };
   }
 
