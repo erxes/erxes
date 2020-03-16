@@ -48,6 +48,8 @@ const customersAdd = `
   mutation customersAdd(${commonFields}) {
     customersAdd(${commonVariables}) {
       _id
+      firstName
+      primaryEmail
     }
   }
 `;

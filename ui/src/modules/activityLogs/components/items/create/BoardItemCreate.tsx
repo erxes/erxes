@@ -7,6 +7,7 @@ import {
 import { IActivityLog } from 'modules/activityLogs/types';
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
+import { renderUserFullName } from 'modules/common/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -22,11 +23,7 @@ class BoardItemCreate extends React.Component<Props> {
     let userName = 'Unknown';
 
     if (createdByDetail && createdByDetail.type === 'user') {
-      const { content } = createdByDetail;
-
-      if (content.details) {
-        userName = createdByDetail.content.details.fullName || 'Unknown';
-      }
+      userName = renderUserFullName(createdByDetail.content);
     }
 
     const body = (
