@@ -25,8 +25,7 @@ const options = {
     copyMutation: 'dealsCopy'
   },
   subscriptionName: {
-    changeSubscription: 'dealsChanged',
-    moveSubscription: 'dealsMoved'
+    changeSubscription: 'dealsChanged'
   },
   queries: {
     itemsQuery: queries.deals,
@@ -45,8 +44,7 @@ const options = {
     copyMutation: mutations.dealsCopy
   },
   subscriptions: {
-    changeSubscription: subscriptions.dealsChanged,
-    moveSubscription: subscriptions.dealsMoved
+    changeSubscription: subscriptions.dealsChanged
   },
   texts: {
     addText: 'Add a deal',

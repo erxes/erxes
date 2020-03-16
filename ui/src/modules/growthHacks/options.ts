@@ -24,8 +24,7 @@ const options = {
     copyMutation: 'growthHacksCopy'
   },
   subscriptionName: {
-    changeSubscription: 'growthHacksChanged',
-    moveSubscription: 'growthHacksMoved'
+    changeSubscription: 'growthHacksChanged'
   },
   queries: {
     itemsQuery: queries.growthHacks,
@@ -44,8 +43,7 @@ const options = {
     copyMutation: mutations.growthHacksCopy
   },
   subscriptions: {
-    changeSubscription: subscriptions.growthHacksChanged,
-    moveSubscription: subscriptions.growthHacksMoved
+    changeSubscription: subscriptions.growthHacksChanged
   },
   texts: {
     addText: 'Add an experiment',
