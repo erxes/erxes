@@ -354,20 +354,6 @@ export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
       await removeExistingNylasWebhook();
       await createNylasWebhook();
     }
-
-    if (
-      prevTwitterConfig.oauth.consumer_key !== updatedTwitterConfig.oauth.consumer_key ||
-      prevTwitterConfig.oauth.consumer_secret !== updatedTwitterConfig.oauth.consumer_secret
-    ) {
-      await twitterApi.registerWebhook();
-    }
-    if (
-      prevTwitterConfig.oauth.token !== updatedTwitterConfig.oauth.token ||
-      prevTwitterConfig.oauth.token_secret !== prevTwitterConfig.oauth.token_secret ||
-      prevTwitterConfig.twitterWebhookEnvironment !== updatedTwitterConfig.twitterWebhookEnvironment
-    ) {
-      await twitterApi.registerWebhook();
-    }
   } catch (e) {
     debugNylas(e);
   }
