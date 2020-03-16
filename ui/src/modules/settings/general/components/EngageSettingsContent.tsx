@@ -170,30 +170,6 @@ class EngageSettingsContent extends React.Component<Props, State> {
           />
         </FormGroup>
 
-        <FormGroup>
-          <ControlLabel>Email verification type</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="emailVerificationType"
-            defaultValue={configsMap.emailVerificationType}
-            componentClass="select"
-            options={[
-              { value: '', label: '' },
-              { value: 'truemail', label: 'TrueMail' }
-            ]}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Truemail api key</ControlLabel>
-          <FormControl
-            {...formProps}
-            max={140}
-            name="trueMailApiKey"
-            defaultValue={configsMap.trueMailApiKey}
-          />
-        </FormGroup>
-
         <ModalFooter>
           {renderButton({
             name: 'configsMap',
