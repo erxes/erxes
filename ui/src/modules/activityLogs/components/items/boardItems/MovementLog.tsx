@@ -6,6 +6,7 @@ import {
 } from 'modules/activityLogs/styles';
 import { IActivityLog } from 'modules/activityLogs/types';
 import Tip from 'modules/common/components/Tip';
+import { renderUserFullName } from 'modules/common/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -24,7 +25,7 @@ class MovementLog extends React.Component<Props> {
       const { content } = createdByDetail;
 
       if (content.details) {
-        userName = createdByDetail.content.details.fullName || 'Unknown';
+        userName = renderUserFullName(createdByDetail.content);
       }
     }
 
@@ -36,7 +37,7 @@ class MovementLog extends React.Component<Props> {
           <strong>{userName}</strong> moved&nbsp;
           <Link
             to={`/${contentType}/board?_id=${activity._id}&itemId=${item._id}`}
-            target="blank"
+            target='blank'
           >
             {item.name}
           </Link>
