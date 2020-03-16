@@ -49,13 +49,13 @@ const authLink = setContext((_, { headers }) => {
   return {
     headers: {
       ...headers,
-      session_code: sessionStorage.getItem('session_code')
+      session_code: sessionStorage.getItem('session_code') || ''
     }
   };
 });
 
 // Combining httpLink and warelinks altogether
-const httpLinkWithMiddleware = authLink.concat(errorLink).concat(httpLink);
+const httpLinkWithMiddleware = errorLink.concat(authLink).concat(httpLink);
 
 // Subscription config
 export const wsLink: any = new WebSocketLink({
