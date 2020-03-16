@@ -99,12 +99,7 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
 }
 
 const getRefetchQueries = () => {
-  return [
-    'customersMain',
-    // customers for company detail associate customers
-    'customers',
-    'customerCounts'
-  ];
+  return ['customersMain', 'customers', 'customerCounts'];
 };
 
 export default withRouter<FinalProps>(CustomerFormContainer);
