@@ -30,7 +30,7 @@ type Props = {
 };
 
 type State = {
-  assigneesForList?: IAssignee[];
+  assigneesForList: IAssignee[];
 };
 
 class AssignBox extends React.Component<Props, State> {
@@ -157,6 +157,7 @@ class AssignBox extends React.Component<Props, State> {
       className,
       links,
       selectable: true,
+      loading: this.state.assigneesForList.length === 0 ? true : false,
       items: this.state.assigneesForList,
       onSearch: this.fetchUsers
     };
