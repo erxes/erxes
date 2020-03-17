@@ -335,7 +335,7 @@ describe('Gmail test', () => {
       .stub(watch, 'watchPushNotification')
       .callsFake(() => Promise.resolve({ data: { historyId: 'historyId', expiration: 'akljsdaklsjd' } }));
 
-    const { data } = await watch.watchPushNotification();
+    const { data } = await watch.watchPushNotification('user@gmail.com');
 
     expect(data.historyId).toEqual('historyId');
     expect(data.expiration).toEqual('akljsdaklsjd');

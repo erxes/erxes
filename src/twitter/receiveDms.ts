@@ -1,17 +1,11 @@
-import { sendRPCMessage } from '../messageBroker';
 import { Accounts, Integrations } from '../models';
-import { ConversationMessages, Conversations } from './models';
-import { getOrCreateCustomer, IUser } from './store';
+import { createConverstaionMessage, getOrCreateConversation, getOrCreateCustomer, IUser } from './store';
 
 export interface IUsers {
   [key: string]: IUser;
 }
 
 const extractUrlFromAttachment = attachment => {
-  if (!attachment) {
-    return null;
-  }
-
   const { media } = attachment;
   const { type } = media;
 
@@ -36,7 +30,7 @@ const receiveDms = async requestBody => {
   }
 
   for (const event of direct_message_events) {
-    const { type, message_create, id, created_timestamp } = event;
+    const { type, message_create } = event;
 
     const senderId = message_create.sender_id;
     const receiverId = message_create.target.recipient_id;
@@ -63,77 +57,19 @@ const receiveDms = async requestBody => {
 
       const customer = await getOrCreateCustomer(integration, senderId, users[senderId]);
 
-      // get conversation
-      let conversation = await Conversations.findOne({
+      const content = message_data.text;
+      const customerErxesApiId = customer.erxesApiId;
+
+      const conversation = await getOrCreateConversation(
         senderId,
         receiverId,
-      });
+        integration._id,
+        content,
+        customerErxesApiId,
+        integration.erxesApiId,
+      );
 
-      // create conversation
-      if (!conversation) {
-        // save on integrations db
-        try {
-          conversation = await Conversations.create({
-            senderId,
-            receiverId,
-            content: message_data.text,
-            integrationId: integration._id,
-          });
-        } catch (e) {
-          throw new Error(e.message.includes('duplicate') ? 'Concurrent request: conversation duplication' : e);
-        }
-
-        // save on api
-        try {
-          const apiConversationResponse = await sendRPCMessage({
-            action: 'create-or-update-conversation',
-            payload: JSON.stringify({
-              customerId: customer.erxesApiId,
-              integrationId: integration.erxesApiId,
-              content: message_data.text,
-            }),
-          });
-
-          conversation.erxesApiId = apiConversationResponse._id;
-
-          await conversation.save();
-        } catch (e) {
-          await Conversations.deleteOne({ _id: conversation._id });
-          throw new Error(e);
-        }
-      }
-
-      // get conversation message
-      const conversationMessage = await ConversationMessages.findOne({
-        messageId: id,
-      });
-
-      if (!conversationMessage) {
-        // save on integrations db
-        await ConversationMessages.create({
-          conversationId: conversation._id,
-          messageId: id,
-          timestamp: created_timestamp,
-          content: message_data.text,
-        });
-
-        // save message on api
-        try {
-          await sendRPCMessage({
-            action: 'create-conversation-message',
-            metaInfo: 'replaceContent',
-            payload: JSON.stringify({
-              content: message_data.text,
-              conversationId: conversation.erxesApiId,
-              customerId: customer.erxesApiId,
-              attachments,
-            }),
-          });
-        } catch (e) {
-          await ConversationMessages.deleteOne({ messageId: id });
-          throw new Error(e);
-        }
-      }
+      await createConverstaionMessage(event, content, attachments, customerErxesApiId, conversation);
     }
   }
 };

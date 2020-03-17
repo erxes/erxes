@@ -31,13 +31,13 @@ const getOAuthCredentials = async (req, res, next) => {
   }
 
   if (!checkCredentials()) {
-    return next('Nylas not configured, check your env');
+    return next(new Error('Nylas not configured, check your env'));
   }
 
-  const [clientId, clientSecret] = getClientConfig(kind);
+  const [clientId, clientSecret] = await getClientConfig(kind);
 
   if (!clientId || !clientSecret) {
-    return next(`Missing config check your env of ${kind}`);
+    return next(new Error(`Missing config check your env of ${kind}`));
   }
 
   debugRequest(debugNylas, req);
@@ -57,7 +57,7 @@ const getOAuthCredentials = async (req, res, next) => {
 
       return res.redirect(urls.authUrl + querystring.stringify(commonParams));
     } else {
-      return next('access denied');
+      return next(new Error('access denied'));
     }
   }
 
@@ -135,29 +135,19 @@ const authProvider = async (req, res, next) => {
   const { kind, email, password, ...otherParams } = req.body;
 
   if (!email || !password) {
-    return next('Missing email or password config');
+    return next(new Error('Missing email or password config'));
   }
 
   const doc = {
     name: email,
     email,
-    password: encryptPassword(password),
+    password: await encryptPassword(password),
     ...(kind === 'nylas-imap' ? otherParams : {}),
   };
 
   debugNylas(`Creating account with email: ${email}`);
 
-  switch (kind) {
-    case 'nylas-outlook':
-      doc.kind = 'outlook';
-      break;
-    case 'nylas-yahoo':
-      doc.kind = 'yahoo';
-      break;
-    case 'nylas-imap':
-      doc.kind = 'imap';
-      break;
-  }
+  doc.kind = kind.replace('nylas-', '');
 
   await Accounts.create(doc);
 

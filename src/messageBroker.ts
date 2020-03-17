@@ -4,7 +4,7 @@ import * as uuid from 'uuid';
 import { debugBase, debugGmail } from './debuggers';
 import { handleFacebookMessage } from './facebook/handleFacebookMessage';
 import { watchPushNotification } from './gmail/watch';
-import { removeAccount } from './helpers';
+import { removeAccount, removeCustomers } from './helpers';
 import { Integrations } from './models';
 
 dotenv.config();
@@ -48,8 +48,8 @@ const handleRunCronMessage = async () => {
     return debugGmail('Gmail Integration not found');
   }
 
-  for (const { _id } of integrations) {
-    const response = await watchPushNotification();
+  for (const { _id, email } of integrations) {
+    const response = await watchPushNotification(email);
     const { historyId, expiration } = response.data;
 
     if (!historyId || !expiration) {
@@ -102,7 +102,7 @@ export const sendMessage = async (data?: any) => {
   await channel.sendToQueue('integrationsNotification', Buffer.from(JSON.stringify(data || {})));
 };
 
-const initConsumer = async () => {
+export const initConsumer = async () => {
   // Consumer
   try {
     conn = await amqplib.connect(RABBITMQ_HOST);
@@ -122,6 +122,8 @@ const initConsumer = async () => {
             await handleFacebookMessage(content);
           case 'cronjob':
             await handleRunCronMessage();
+          case 'removeCustomers':
+            await removeCustomers(content);
         }
 
         channel.ack(msg);
@@ -166,5 +168,3 @@ const initConsumer = async () => {
     debugBase(e.message);
   }
 };
-
-initConsumer();

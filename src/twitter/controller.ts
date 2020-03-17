@@ -6,14 +6,6 @@ import { ConversationMessages, Conversations } from './models';
 import receiveDms from './receiveDms';
 
 const init = async app => {
-  const TWITTER_CONSUMER_KEY = getEnv({ name: 'TWITTER_CONSUMER_KEY' });
-
-  if (TWITTER_CONSUMER_KEY) {
-    twitterUtils.registerWebhook().catch(e => {
-      debugTwitter('Could not register webhook', e.message);
-    });
-  }
-
   app.get('/twitter/login', async (_req, res) => {
     const { twitterAuthUrl } = await twitterUtils.getTwitterAuthUrl();
 
@@ -42,11 +34,11 @@ const init = async app => {
     return res.redirect(url);
   });
 
-  app.get('/twitter/webhook', (req, res) => {
+  app.get('/twitter/webhook', async (req, res) => {
     const crc_token = req.query.crc_token;
 
     if (crc_token) {
-      const hash = twitterUtils.getChallengeResponse(crc_token, twitterUtils.twitterConfig.oauth.consumer_secret);
+      const hash = await twitterUtils.getChallengeResponse(crc_token);
 
       res.status(200);
       return res.json({

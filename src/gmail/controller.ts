@@ -44,7 +44,7 @@ const init = async app => {
     let expiration;
 
     try {
-      const response = await watchPushNotification();
+      const response = await watchPushNotification(email);
 
       historyId = response.data.historyId;
       expiration = response.data.expiration;

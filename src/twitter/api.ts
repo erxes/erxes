@@ -4,7 +4,7 @@ import * as queryString from 'querystring';
 import * as request from 'request-promise';
 import { debugTwitter } from '../debuggers';
 import { IAccount } from '../models/Accounts';
-import { getEnv } from '../utils';
+import { getConfig, getEnv } from '../utils';
 
 interface ITwitterConfig {
   oauth: {
@@ -19,20 +19,23 @@ interface ITwitterConfig {
 
 dotenv.config();
 
-export const twitterConfig: ITwitterConfig = {
-  oauth: {
-    consumer_key: getEnv({ name: 'TWITTER_CONSUMER_KEY' }),
-    consumer_secret: getEnv({ name: 'TWITTER_CONSUMER_SECRET' }),
-    token: getEnv({ name: 'TWITTER_ACCESS_TOKEN' }),
-    token_secret: getEnv({ name: 'TWITTER_ACCESS_TOKEN_SECRET' }),
-  },
-  twitterWebhookEnvironment: getEnv({ name: 'TWITTER_WEBHOOK_ENV' }),
+export const getTwitterConfig = async (): Promise<ITwitterConfig> => {
+  return {
+    oauth: {
+      consumer_key: await getConfig('TWITTER_CONSUMER_KEY'),
+      consumer_secret: await getConfig('TWITTER_CONSUMER_SECRET'),
+      token: await getConfig('TWITTER_ACCESS_TOKEN'),
+      token_secret: await getConfig('TWITTER_ACCESS_TOKEN_SECRET'),
+    },
+    twitterWebhookEnvironment: await getConfig('TWITTER_WEBHOOK_ENV'),
+  };
 };
 
-export const getTwitterAuthUrl = (): Promise<{
+export const getTwitterAuthUrl = async (): Promise<{
   responseParams: queryString.ParsedUrlQuery;
   twitterAuthUrl: string;
 }> => {
+  const twitterConfig = await getTwitterConfig();
   // construct request to retrieve authorization token
   const requestOptions = {
     url: 'https://api.twitter.com/oauth/request_token',
@@ -65,7 +68,9 @@ export const getTwitterAuthUrl = (): Promise<{
   });
 };
 
-export const getTwitterBearerToken = () => {
+export const getTwitterBearerToken = async () => {
+  const twitterConfig = await getTwitterConfig();
+
   // just return the bearer token if we already have one
   if (twitterConfig.twitterBearerToken) {
     return new Promise((resolve, _reject) => {
@@ -101,14 +106,18 @@ export const getTwitterBearerToken = () => {
   });
 };
 
-export const getChallengeResponse = (crcToken, consumerSecret) => {
+export const getChallengeResponse = async crcToken => {
+  const twitterConfig = await getTwitterConfig();
+
   return crypto
-    .createHmac('sha256', consumerSecret)
+    .createHmac('sha256', twitterConfig.oauth.consumer_secret)
     .update(crcToken)
     .digest('base64');
 };
 
 export const registerWebhook = async () => {
+  const twitterConfig = await getTwitterConfig();
+
   return new Promise(async (resolve, reject) => {
     const webhooks = await retreiveWebhooks().catch(e => {
       debugTwitter('Could not retreive webhooks', e.message);
@@ -164,7 +173,9 @@ interface IWebhook {
   update_webhook_url: string;
 }
 
-export const retreiveWebhooks = (): Promise<IWebhook[]> => {
+export const retreiveWebhooks = async (): Promise<IWebhook[]> => {
+  const twitterConfig = await getTwitterConfig();
+
   return new Promise((resolve, reject) => {
     const requestOptions = {
       url:
@@ -185,7 +196,9 @@ export const retreiveWebhooks = (): Promise<IWebhook[]> => {
   });
 };
 
-export const deleteWebhook = webhookId => {
+export const deleteWebhook = async webhookId => {
+  const twitterConfig = await getTwitterConfig();
+
   return new Promise((resolve, reject) => {
     // if no webhook id provided, assume there is none to delete
     if (!webhookId) {
@@ -216,7 +229,9 @@ export const deleteWebhook = webhookId => {
   });
 };
 
-export const unsubscribe = (userId: string) => {
+export const unsubscribe = async (userId: string) => {
+  const twitterConfig = await getTwitterConfig();
+
   return new Promise(async (resolve, reject) => {
     const bearer = await getTwitterBearerToken();
     const requestOptions = {
@@ -237,7 +252,9 @@ export const unsubscribe = (userId: string) => {
   });
 };
 
-export const subscribeToWebhook = (account: IAccount) => {
+export const subscribeToWebhook = async (account: IAccount) => {
+  const twitterConfig = await getTwitterConfig();
+
   return new Promise((resolve, reject) => {
     const subRequestOptions = {
       url:
@@ -262,7 +279,9 @@ export const subscribeToWebhook = (account: IAccount) => {
   });
 };
 
-export const removeFromWebhook = (account: IAccount) => {
+export const removeFromWebhook = async (account: IAccount) => {
+  const twitterConfig = await getTwitterConfig();
+
   return new Promise((resolve, reject) => {
     const requestOptions = {
       url:
@@ -299,7 +318,9 @@ interface IMessage {
   };
 }
 
-export const reply = (receiverId: string, content: string, attachment, account: IAccount): Promise<IMessage> => {
+export const reply = async (receiverId: string, content: string, attachment, account: IAccount): Promise<IMessage> => {
+  const twitterConfig = await getTwitterConfig();
+
   return new Promise((resolve, reject) => {
     const requestOptions = {
       url: 'https://api.twitter.com/1.1/direct_messages/events/new.json',
@@ -335,7 +356,9 @@ export const reply = (receiverId: string, content: string, attachment, account: 
   });
 };
 
-export const upload = base64 => {
+export const upload = async base64 => {
+  const twitterConfig = await getTwitterConfig();
+
   return new Promise((resolve, reject) => {
     const requestOptions = {
       url: 'https://upload.twitter.com/1.1/media/upload.json',
@@ -356,10 +379,12 @@ export const upload = base64 => {
   });
 };
 
-export const veriyfyLoginToken = (
+export const veriyfyLoginToken = async (
   oauthToken,
   oauthVerifier,
 ): Promise<{ oauth_token: string; oauth_token_secret: string; user_id: string; screen_name: string }> => {
+  const twitterConfig = await getTwitterConfig();
+
   return new Promise((resolve, reject) => {
     const requestOptions: any = {
       url: 'https://api.twitter.com/oauth/access_token',
@@ -387,10 +412,12 @@ export const veriyfyLoginToken = (
   });
 };
 
-export const verifyUser = (
+export const verifyUser = async (
   token,
   tokenSecret,
 ): Promise<{ id: string; username: string; name: string; screen_name: string; id_str: string }> => {
+  const twitterConfig = await getTwitterConfig();
+
   return new Promise((resolve, reject) => {
     const requestOptions: any = {
       url: 'https://api.twitter.com/1.1/account/verify_credentials.json',

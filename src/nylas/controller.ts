@@ -14,13 +14,12 @@ import {
 } from './auth';
 import { authProvider, getOAuthCredentials } from './loginMiddleware';
 import { NYLAS_MODELS } from './store';
-import { createWebhook } from './tracker';
-import { buildEmailAddress } from './utils';
+import { buildEmailAddress, getNylasConfig } from './utils';
 
 // load config
 dotenv.config();
 
-const init = async app => {
+export const initNylas = async app => {
   app.get('/nylas/oauth2/callback', getOAuthCredentials);
   app.post('/nylas/auth/callback', authProvider);
 
@@ -256,14 +255,14 @@ const init = async app => {
   });
 };
 
-const { NYLAS_CLIENT_ID, NYLAS_CLIENT_SECRET } = process.env;
-
 /**
  * Verify request by nylas signature
  * @param {Request} req
  * @returns {Boolean} verified request state
  */
-const verifyNylasSignature = req => {
+const verifyNylasSignature = async req => {
+  const { NYLAS_CLIENT_SECRET } = await getNylasConfig();
+
   if (!NYLAS_CLIENT_SECRET) {
     debugNylas('Nylas client secret not configured');
     return;
@@ -279,7 +278,9 @@ const verifyNylasSignature = req => {
  * Setup the Nylas API
  * @returns void
  */
-const setupNylas = () => {
+export const setupNylas = async () => {
+  const { NYLAS_CLIENT_SECRET, NYLAS_CLIENT_ID } = await getNylasConfig();
+
   if (!NYLAS_CLIENT_ID || !NYLAS_CLIENT_SECRET) {
     debugNylas(`
       Missing following config
@@ -295,9 +296,3 @@ const setupNylas = () => {
     clientSecret: NYLAS_CLIENT_SECRET,
   });
 };
-
-// setup
-setupNylas();
-createWebhook();
-
-export default init;

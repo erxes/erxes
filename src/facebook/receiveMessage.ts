@@ -47,7 +47,13 @@ const receiveMessage = async (activity: Activity) => {
         payload: JSON.stringify({
           customerId: customer.erxesApiId,
           integrationId: integration.erxesApiId,
-          content: text,
+          content: text || '',
+          attachments: (attachments || [])
+            .filter(att => att.type !== 'fallback')
+            .map(att => ({
+              type: att.type,
+              url: att.payload ? att.payload.url : '',
+            })),
         }),
       });
 
@@ -84,7 +90,7 @@ const receiveMessage = async (activity: Activity) => {
         action: 'create-conversation-message',
         metaInfo: 'replaceContent',
         payload: JSON.stringify({
-          content: text,
+          content: text || '',
           attachments: (attachments || [])
             .filter(att => att.type !== 'fallback')
             .map(att => ({

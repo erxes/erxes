@@ -97,7 +97,7 @@ export const composeEmail = async ({
   threadId?: string;
 }) => {
   try {
-    const auth = getOauthClient();
+    const auth = await getOauthClient();
 
     auth.setCredentials(credentials);
 

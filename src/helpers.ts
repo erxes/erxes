@@ -1,8 +1,4 @@
-import {
-  ConversationMessages as CallProConversationMessages,
-  Conversations as CallProConversations,
-  Customers as CallProCustomers,
-} from './callpro/models';
+import { Conversations as CallProConversations, Customers as CallProCustomers } from './callpro/models';
 import {
   ConversationMessages as ChatfuelConversationMessages,
   Conversations as ChatfuelConversations,
@@ -24,7 +20,9 @@ import {
 } from './gmail/models';
 import { stopPushNotification } from './gmail/watch';
 import { Accounts, Integrations } from './models';
-import { enableOrDisableAccount } from './nylas/auth';
+import Configs from './models/Configs';
+import { enableOrDisableAccount, removeExistingNylasWebhook } from './nylas/auth';
+import { setupNylas } from './nylas/controller';
 import {
   NylasGmailConversationMessages,
   NylasGmailConversations,
@@ -42,17 +40,16 @@ import {
   NylasYahooConversations,
   NylasYahooCustomers,
 } from './nylas/models';
-import { unsubscribe } from './twitter/api';
+import { createNylasWebhook } from './nylas/tracker';
+import { getTwitterConfig, unsubscribe } from './twitter/api';
+import * as twitterApi from './twitter/api';
 import {
   ConversationMessages as TwitterConversationMessages,
   Conversations as TwitterConversations,
   Customers as TwitterCustomers,
 } from './twitter/models';
-import { getEnv, sendRequest } from './utils';
+import { getEnv, resetConfigsCache, sendRequest } from './utils';
 
-/**
- * Remove integration integrationId
- */
 export const removeIntegration = async (integrationErxesApiId: string): Promise<string> => {
   const integration = await Integrations.findOne({ erxesApiId: integrationErxesApiId });
 
@@ -144,13 +141,12 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
   if (kind === 'callpro') {
     debugCallPro('Removing callpro entries');
 
-    const conversationIds = await CallProConversations.find(selector).distinct('_id');
+    await CallProConversations.find(selector).distinct('_id');
 
     integrationRemoveBy = { phoneNumber: integration.phoneNumber };
 
     await CallProCustomers.deleteMany(selector);
     await CallProConversations.deleteMany(selector);
-    await CallProConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
   }
 
   if (kind === 'twitter-dm') {
@@ -288,20 +284,95 @@ export const removeAccount = async (_id: string): Promise<{ erxesApiIds: string 
 
   const integrations = await Integrations.find({ accountId: account._id });
 
-  if (!integrations) {
-    return new Error(`Integration not found with this account: ${_id}`);
-  }
-
-  for (const integration of integrations) {
-    try {
-      const response = await removeIntegration(integration.erxesApiId);
-      erxesApiIds.push(response);
-
-      await Accounts.deleteOne({ _id });
-    } catch (e) {
-      throw e;
+  if (integrations.length) {
+    for (const integration of integrations) {
+      try {
+        const response = await removeIntegration(integration.erxesApiId);
+        erxesApiIds.push(response);
+      } catch (e) {
+        throw e;
+      }
     }
   }
 
+  await Accounts.deleteOne({ _id });
+
   return { erxesApiIds };
+};
+
+export const removeCustomers = async params => {
+  const { customerIds } = params;
+  const selector = { erxesApiId: { $in: customerIds } };
+
+  await FacebookCustomers.deleteMany(selector);
+  await NylasGmailCustomers.deleteMany(selector);
+  await NylasOutlookCustomers.deleteMany(selector);
+  await NylasOffice365Customers.deleteMany(selector);
+  await NylasYahooCustomers.deleteMany(selector);
+  await NylasImapCustomers.deleteMany(selector);
+  await ChatfuelCustomers.deleteMany(selector);
+  await CallProCustomers.deleteMany(selector);
+  await TwitterCustomers.deleteMany(selector);
+};
+
+export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
+  const getValueAsString = async name => {
+    const entry = await Configs.getConfig(name);
+
+    if (entry.value) {
+      return entry.value.toString();
+    }
+
+    return entry.value;
+  };
+
+  const prevNylasClientId = await getValueAsString('NYLAS_CLIENT_ID');
+  const prevNylasClientSecret = await getValueAsString('NYLAS_CLIENT_SECRET');
+  const prevNylasWebhook = await getValueAsString('NYLAS_WEBHOOK_CALLBACK_URL');
+
+  const prevTwitterConfig = await getTwitterConfig();
+
+  await Configs.updateConfigs(configsMap);
+
+  const updatedTwitterConfig = await getTwitterConfig();
+
+  resetConfigsCache();
+
+  const updatedNylasClientId = await getValueAsString('NYLAS_CLIENT_ID');
+  const updatedNylasClientSecret = await getValueAsString('NYLAS_CLIENT_SECRET');
+  const updatedNylasWebhook = await getValueAsString('NYLAS_WEBHOOK_CALLBACK_URL');
+
+  try {
+    if (prevNylasClientId !== updatedNylasClientId || prevNylasClientSecret !== updatedNylasClientSecret) {
+      await setupNylas();
+
+      await removeExistingNylasWebhook();
+      await createNylasWebhook();
+    }
+
+    if (prevNylasWebhook !== updatedNylasWebhook) {
+      await removeExistingNylasWebhook();
+      await createNylasWebhook();
+    }
+  } catch (e) {
+    debugNylas(e);
+  }
+
+  try {
+    if (
+      prevTwitterConfig.oauth.consumer_key !== updatedTwitterConfig.oauth.consumer_key ||
+      prevTwitterConfig.oauth.consumer_secret !== updatedTwitterConfig.oauth.consumer_secret
+    ) {
+      await twitterApi.registerWebhook();
+    }
+    if (
+      prevTwitterConfig.oauth.token !== updatedTwitterConfig.oauth.token ||
+      prevTwitterConfig.oauth.token_secret !== prevTwitterConfig.oauth.token_secret ||
+      prevTwitterConfig.twitterWebhookEnvironment !== updatedTwitterConfig.twitterWebhookEnvironment
+    ) {
+      await twitterApi.registerWebhook();
+    }
+  } catch (e) {
+    debugTwitter(e);
+  }
 };

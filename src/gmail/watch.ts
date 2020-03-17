@@ -2,28 +2,21 @@ import { PubSub } from '@google-cloud/pubsub';
 import * as fs from 'fs';
 import { debugGmail } from '../debuggers';
 import { Accounts } from '../models';
-import { getEnv } from '../utils';
 import { getOauthClient, gmailClient, refreshAccessToken } from './auth';
 import { syncPartially } from './receiveEmails';
 import { ICredentials, IPubsubMessage } from './types';
-import { getCredentialsByEmailAccountId } from './util';
-
-const USE_NATIVE_GMAIL = getEnv({ name: 'USE_NATIVE_GMAIL', defaultValue: 'false' });
-const GOOGLE_PROJECT_ID = getEnv({ name: 'GOOGLE_PROJECT_ID' });
-const GOOGLE_GMAIL_TOPIC = getEnv({ name: 'GOOGLE_GMAIL_TOPIC', defaultValue: 'gmail_topic' });
-const GOOGLE_APPLICATION_CREDENTIALS = getEnv({ name: 'GOOGLE_APPLICATION_CREDENTIALS', defaultValue: '' });
-const GOOGLE_GMAIL_SUBSCRIPTION_NAME = getEnv({
-  name: 'GOOGLE_GMAIL_SUBSCRIPTION_NAME',
-  defaultValue: 'gmail_topic_subscription',
-});
+import { getCredentialsByEmailAccountId, getGoogleConfigs } from './util';
 
 /**
  * Create topic and subscription for gmail
  */
 export const trackGmail = async () => {
-  if (USE_NATIVE_GMAIL === 'false') {
-    return debugGmail('USE_NATIVE_GMAIL env is false, if you want to use native gmail set true in .env');
-  }
+  const {
+    GOOGLE_PROJECT_ID,
+    GOOGLE_GMAIL_TOPIC,
+    GOOGLE_APPLICATION_CREDENTIALS,
+    GOOGLE_GMAIL_SUBSCRIPTION_NAME,
+  } = await getGoogleConfigs();
 
   if (!GOOGLE_PROJECT_ID || !GOOGLE_GMAIL_TOPIC || !GOOGLE_APPLICATION_CREDENTIALS || !GOOGLE_GMAIL_SUBSCRIPTION_NAME) {
     return new Error(`
@@ -138,7 +131,7 @@ export const trackGmail = async () => {
 
   const accounts = await Accounts.find({ kind: 'gmail' });
 
-  const auth = getOauthClient();
+  const auth = await getOauthClient();
 
   // Refresh access tokens
   for (const account of accounts) {
@@ -176,7 +169,9 @@ const onMessage = async (message: IPubsubMessage) => {
  * and grant gmail publish permission
  * Set up or update a push notification watch on the given user mailbox.
  */
-export const watchPushNotification = async () => {
+export const watchPushNotification = async (email: string) => {
+  const { GOOGLE_PROJECT_ID, GOOGLE_GMAIL_TOPIC } = await getGoogleConfigs();
+
   if (!GOOGLE_PROJECT_ID || !GOOGLE_GMAIL_TOPIC) {
     throw new Error(`
       GOOGLE_PROJECT_ID: ${GOOGLE_PROJECT_ID || 'Not defined'}
@@ -187,7 +182,14 @@ export const watchPushNotification = async () => {
   debugGmail(`Google OAuthClient request to watch push notification for the given user mailbox`);
 
   try {
+    const auth = await getOauthClient();
+
+    const credentials = await getCredentialsByEmailAccountId({ email });
+
+    auth.setCredentials(credentials);
+
     return gmailClient.watch({
+      auth,
       userId: 'me',
       requestBody: {
         labelIds: ['INBOX', 'CATEGORY_PERSONAL'],
@@ -208,7 +210,7 @@ export const stopPushNotification = async (email: string) => {
   debugGmail(`Google OAuthClient request to stop push notification for the given user mailbox`);
 
   try {
-    const auth = getOauthClient();
+    const auth = await getOauthClient();
 
     const credentials = await getCredentialsByEmailAccountId({ email });
 

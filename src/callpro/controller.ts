@@ -1,14 +1,14 @@
 import { debugCallPro, debugRequest } from '../debuggers';
 import { sendRPCMessage } from '../messageBroker';
 import { Integrations } from '../models';
-import { ConversationMessages, Conversations, Customers } from './models';
+import { Conversations, Customers } from './models';
 
 const init = async app => {
   app.post('/callpro/create-integration', async (req, res, next) => {
     debugRequest(debugCallPro, req);
 
     const { integrationId, data } = req.body;
-    const { phoneNumber } = JSON.parse(data);
+    const { phoneNumber, recordUrl } = JSON.parse(data);
 
     // Check existing Integration
     const integration = await Integrations.findOne({ kind: 'callpro', phoneNumber }).lean();
@@ -22,6 +22,7 @@ const init = async app => {
         kind: 'callpro',
         erxesApiId: integrationId,
         phoneNumber,
+        recordUrl,
       });
     } catch (e) {
       debugCallPro(`Failed to create integration: ${e}`);
@@ -31,10 +32,30 @@ const init = async app => {
     return res.json({ status: 'ok' });
   });
 
+  app.get('/callpro/get-audio', async (req, res) => {
+    debugRequest(debugCallPro, req);
+
+    const { erxesApiId, integrationId } = req.query;
+
+    const integration = await Integrations.findOne({ erxesApiId: integrationId });
+    const conversation = await Conversations.findOne({ erxesApiId });
+
+    const { recordUrl } = integration;
+    const { callId } = conversation;
+
+    let audioSrc = '';
+
+    if (recordUrl) {
+      audioSrc = `${recordUrl}&id=${callId}`;
+    }
+
+    return res.json({ audioSrc });
+  });
+
   app.post('/callpro-receive', async (req, res, next) => {
     debugRequest(debugCallPro, req);
 
-    const { numberTo, numberFrom, disp, recordUrl, callID, owner } = req.body;
+    const { numberTo, numberFrom, disp, callID, owner } = req.body;
     const integration = await Integrations.findOne({ phoneNumber: numberTo }).lean();
 
     if (!integration) {
@@ -129,42 +150,8 @@ const init = async app => {
       throw new Error(e);
     }
 
-    // get conversation message
-    const conversationMessage = await ConversationMessages.findOne({
-      callId: callID,
-      conversationId: conversation._id,
-    });
-
-    if (!conversationMessage) {
-      // save on integrations db
-      await ConversationMessages.create({
-        content: audioElement(recordUrl || ''),
-        conversationId: conversation._id,
-        callId: callID,
-      });
-
-      // save message on api
-      try {
-        await sendRPCMessage({
-          action: 'create-conversation-message',
-          payload: JSON.stringify({
-            content: audioElement(recordUrl || ''),
-            conversationId: conversation.erxesApiId,
-            customerId: customer.erxesApiId,
-          }),
-        });
-      } catch (e) {
-        await ConversationMessages.deleteOne({ callId: callID });
-        throw new Error(e);
-      }
-    }
-
     res.send('success');
   });
-};
-
-const audioElement = (src: string) => {
-  return `<audio controls name="media" src="${src}"/>`;
 };
 
 export default init;

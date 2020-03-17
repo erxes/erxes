@@ -17,6 +17,7 @@ pipeline:
       - npm -v
       - yarn -v
       - yarn install
+      - yarn tsc
       - yarn lint
       - yarn test
 

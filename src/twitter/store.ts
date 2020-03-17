@@ -1,6 +1,6 @@
 import { sendRPCMessage } from '../messageBroker';
 import { IIntegration } from '../models/Integrations';
-import { Customers } from './models';
+import { ConversationMessages, Conversations, Customers, IConversationDocument } from './models';
 
 export interface IUser {
   id: string;
@@ -55,4 +55,97 @@ export const getOrCreateCustomer = async (integration: IIntegration, userId: str
   }
 
   return customer;
+};
+
+export const getOrCreateConversation = async (
+  senderId: string,
+  receiverId: string,
+  integrationId: string,
+  content: string,
+  customerErxesApiId: string,
+  integrationErxesApiId: string,
+) => {
+  let conversation = await Conversations.findOne({
+    senderId,
+    receiverId,
+  });
+
+  if (conversation) {
+    return conversation;
+  }
+
+  // create conversation
+
+  // save on integrations db
+  try {
+    conversation = await Conversations.create({
+      senderId,
+      receiverId,
+      content,
+      integrationId,
+    });
+  } catch (e) {
+    throw new Error(e.message.includes('duplicate') ? 'Concurrent request: conversation duplication' : e);
+  }
+
+  // save on api
+  try {
+    const apiConversationResponse = await sendRPCMessage({
+      action: 'create-or-update-conversation',
+      payload: JSON.stringify({
+        customerId: customerErxesApiId,
+        integrationId: integrationErxesApiId,
+        content,
+      }),
+    });
+
+    conversation.erxesApiId = apiConversationResponse._id;
+
+    await conversation.save();
+  } catch (e) {
+    await Conversations.deleteOne({ _id: conversation._id });
+    throw new Error(e);
+  }
+
+  return conversation;
+};
+
+export const createConverstaionMessage = async (
+  event: any,
+  content: string,
+  attachments: any[],
+  customerErxesApiId: string,
+  conversation: IConversationDocument,
+) => {
+  const { id, created_timestamp } = event;
+  const conversationMessage = await ConversationMessages.findOne({
+    messageId: id,
+  });
+
+  if (!conversationMessage) {
+    // save on integrations db
+    await ConversationMessages.create({
+      conversationId: conversation._id,
+      messageId: id,
+      timestamp: created_timestamp,
+      content,
+    });
+
+    // save message on api
+    try {
+      await sendRPCMessage({
+        action: 'create-conversation-message',
+        metaInfo: 'replaceContent',
+        payload: JSON.stringify({
+          content,
+          conversationId: conversation.erxesApiId,
+          customerId: customerErxesApiId,
+          attachments,
+        }),
+      });
+    } catch (e) {
+      await ConversationMessages.deleteOne({ messageId: id });
+      throw new Error(e);
+    }
+  }
 };

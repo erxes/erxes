@@ -16,7 +16,7 @@ const syncByHistoryId = async (accountId: string, startHistoryId: string) => {
   try {
     const credentials = await getCredentialsByEmailAccountId({ accountId });
 
-    const auth = getOauthClient();
+    const auth = await getOauthClient();
 
     auth.setCredentials(credentials);
 
@@ -241,7 +241,7 @@ export const getAttachment = async (credentials: ICredentials, messageId: string
   debugGmail('Request to get an attachment');
 
   try {
-    const auth = getOauthClient();
+    const auth = await getOauthClient();
 
     auth.setCredentials(credentials);
 

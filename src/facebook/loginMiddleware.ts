@@ -1,15 +1,16 @@
 import * as graph from 'fbgraph';
 import { debugFacebook, debugRequest, debugResponse } from '../debuggers';
 import Accounts from '../models/Accounts';
-import { getEnv } from '../utils';
+import { getConfig, getEnv } from '../utils';
 import { graphRequest } from './utils';
 
-const loginMiddleware = (req, res) => {
-  const {
-    FACEBOOK_APP_ID,
-    FACEBOOK_APP_SECRET,
-    FACEBOOK_PERMISSIONS = 'manage_pages, pages_show_list, publish_pages, pages_messaging,pages_messaging_subscriptions',
-  } = process.env;
+const loginMiddleware = async (req, res) => {
+  const FACEBOOK_APP_ID = await getConfig('FACEBOOK_APP_ID');
+  const FACEBOOK_APP_SECRET = await getConfig('FACEBOOK_APP_SECRET');
+  const FACEBOOK_PERMISSIONS = await getConfig(
+    'FACEBOOK_PERMISSIONS',
+    'manage_pages, pages_show_list, publish_pages, pages_messaging,pages_messaging_subscriptions',
+  );
 
   const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
   const DOMAIN = getEnv({ name: 'DOMAIN' });

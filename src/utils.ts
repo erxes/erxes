@@ -2,7 +2,10 @@ import * as dotenv from 'dotenv';
 import * as request from 'request-promise';
 import * as sanitizeHtml from 'sanitize-html';
 import { debugBase, debugExternalRequests } from './debuggers';
+import { sendRPCMessage } from './messageBroker';
+import Configs from './models/Configs';
 import { IProviderSettings } from './nylas/types';
+import { get, set } from './redisClient';
 
 dotenv.config();
 
@@ -145,4 +148,50 @@ export const downloadAttachment = urlOrName => {
       reject(e);
     }
   });
+};
+
+export const getConfigs = async () => {
+  const configsCache = await get('configs_erxes_integrations');
+
+  if (configsCache && configsCache !== '{}') {
+    return JSON.parse(configsCache);
+  }
+
+  const configsMap = {};
+  const configs = await Configs.find({});
+
+  for (const config of configs) {
+    configsMap[config.code] = config.value;
+  }
+
+  set('configs_erxes_integrations', JSON.stringify(configsMap));
+
+  return configsMap;
+};
+
+export const getConfig = async (code, defaultValue?) => {
+  const configs = await getConfigs();
+
+  if (!configs[code]) {
+    return defaultValue;
+  }
+
+  return configs[code];
+};
+
+export const getCommonGoogleConfigs = async () => {
+  const response = await sendRPCMessage({ action: 'get-configs' });
+
+  const configs = response.configs;
+
+  return {
+    GOOGLE_PROJECT_ID: configs.GOOGLE_PROJECT_ID,
+    GOOGLE_APPLICATION_CREDENTIALS: configs.GOOGLE_APPLICATION_CREDENTIALS,
+    GOOGLE_CLIENT_ID: configs.GOOGLE_CLIENT_ID,
+    GOOGLE_CLIENT_SECRET: configs.GOOGLE_CLIENT_SECRET,
+  };
+};
+
+export const resetConfigsCache = () => {
+  set('configs_erxes_integrations', '');
 };

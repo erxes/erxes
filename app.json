@@ -1,0 +1,42 @@
+{
+  "name": "erxes-integrations",
+  "description": "erxes integrations",
+  "keywords": ["node", "express", "graphql", "apollo"],
+  "website": "https://erxes.io",
+  "repository": "https://github.com/erxes/erxes-logger",
+  "logo": "https://raw.githubusercontent.com/erxes/erxes/master/public/images/logo-dark.png",
+  "success_url": "/",
+  "env": {
+    "PORT": {
+      "description": "A port number",
+      "value": "3400"
+    },
+    "MONGO_URL": {
+      "description": "MONGO URL",
+      "value": "MONGO_URL"
+    },
+    "DOMAIN": {
+      "description": "Integration app domain",
+      "value": "https://erxes-integration.herokuapp.com"
+    },
+    "MAIN_APP_DOMAIN": {
+      "description": "erxes app domain",
+      "value": "https://erxes.herokuapp.com"
+    },
+    "MAIN_API_DOMAIN": {
+      "description": "erxes-api domain",
+      "value": "https://erxes-api.herokuapp.com"
+    }
+  },
+  "addons": [
+    {
+      "plan": "mongolab:sandbox",
+      "as": "MONGO"
+    }
+  ],
+  "buildpacks": [
+    {
+      "url": "https://github.com/heroku/heroku-buildpack-nodejs"
+    }
+  ]
+}
