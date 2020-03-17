@@ -275,7 +275,7 @@ export default (props: WrapperProps) => {
             onAdd={onAddItem || props.onAdd}
             onRemove={onRemoveItem || props.onRemove}
             onUpdate={onUpdateItem || props.onUpdate}
-            options={options || props.options}
+            options={props.options || options}
           />
         );
       }}
