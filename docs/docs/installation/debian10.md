@@ -3,6 +3,8 @@ id: debian10
 title: Debian 10
 ---
 
+This steps explain how to install Erxes on Debian 10.
+
 ## Installing erxes on Debian 10
 
 To have erxes up and running quickly, you can follow the following steps.

@@ -4,7 +4,7 @@ title: Contacts
 ---
 
 <!--Content-->
-Coordinate and manage your companies and customers in one go from company database. It enables you to filter companies and customers by websites, size, plan industry, session count  in an more realistic way
+Coordinate and manage your companies and customers in one go from company database. It enables you to filter companies and customers by websites, size, plan industry, session count  in an more realistic way.
 
 ---
 
@@ -147,7 +147,7 @@ You can view full contact details by clicking on the company from company’s fe
 ---
 
 ## Setup segment
-Segment is a customer data management and analytics solution that helps you make sense of customer and company data coming from multiple various sources.
+Segment is a customer data management and analytics solution that helps you make sense of customer and company data coming from multiple sources.
 
 + Please follow the steps for setup: Certain Features ->Segment > Add Segment
 
@@ -165,7 +165,7 @@ Segment is a customer data management and analytics solution that helps you make
 ---
 
 ## Create segment
-Segment is a customer data management and analytics solution that helps you make sense of customer and company data coming from multiple various sources.
+Segment is a customer data management and analytics solution that helps you make sense of customer and company data coming from multiple sources.
 
 + Please follow the steps for setup: Certain Features ->Segment > Add Segment
 
