@@ -4,6 +4,9 @@ title: Architecture Overview
 sidebar_label: Architecture Overview
 ---
 
+This document describe the Architecture Overview of Erxes
+
+
 <!--Content-->
 Erxes at its core is a repository that collects all customer requests from various channels including web chats, Facebook, Twitter, Gmail and provides the ability to respond to those requests from one unified location. In order to accomplish these goals, we have 4 main projects.
 

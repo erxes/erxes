@@ -3,7 +3,7 @@ id: ubuntu
 title: Ubuntu 16.04/18.04 LTS
 ---
 
-Manual installation on Ubuntu 16.04/18.04 LTS.
+This document explains how to manually install Ubuntu 16.04 / 18.04 LTS.
 
 ## Prerequisites
 

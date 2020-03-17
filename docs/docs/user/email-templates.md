@@ -5,6 +5,9 @@ title: Email templates
 
 ---
 
+This steps describe the email setup
+
+
 ##  How to setup Marketing Team Settings
 
 Marketing Team  settings include following features:

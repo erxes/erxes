@@ -3,6 +3,8 @@ id: environment-variables
 title: Environment variables
 ---
 
+On this page you can see how to configure the work environment. It is very important to follow the steps as indicated
+
 ## MongoDB
 
 ```

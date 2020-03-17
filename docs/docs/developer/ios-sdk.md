@@ -4,6 +4,8 @@ title: iOS SDK
 sidebar_label: iOS SDK
 ---
 
+These steps indicate how to install the iOS SDK, for that you must follow the instructions explained below
+
 <!--Content-->
 
 ## Requirement

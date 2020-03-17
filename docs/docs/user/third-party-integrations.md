@@ -4,6 +4,8 @@ title: How to setup third party integrations ?
 sidebar_label: Third party integrations
 ---
 
+This document describe the steps to integrate Facebook
+
 ## Setup Facebook integration
 
 Integration is a way of communicating with customers who are emerging into the organizations' website, Facebook, Twitter through Erxes.io platform.

@@ -3,6 +3,8 @@ id: sales-pipeline-settings
 title: Sales Team Settings
 ---
 
+This is the description of the components of Sales Team
+
 <!-- Content -->
 
 Sales Team settings include following features:

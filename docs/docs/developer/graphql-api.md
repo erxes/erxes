@@ -4,6 +4,9 @@ title: GraphQL API Schema
 sidebar_label: GraphQL API
 ---
 
+This document explains how to work with GraphQL API Schema
+
+
 ## GraphQL API Schema
 
 To see the GraphQL schema of the Erxes GraphQL API, you should use some GraphQL graphical tool. 

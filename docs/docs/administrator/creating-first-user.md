@@ -3,6 +3,8 @@ id: creating-first-user
 title: Creating first user
 ---
 
+Through these steps you can create a user to start using the system
+
 ## Create admin user
 
 Below command will create first admin user with following credentials
