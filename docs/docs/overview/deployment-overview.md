@@ -3,6 +3,8 @@ id: deployment-overview
 title: Deployment Overview
 ---
 
+This document details the steps to perform the Erxes installation.
+
 ## Installing erxes
 
 Modern server architectures and configurations are managed in many different ways. Some people still put new software somewhere in `opt` manually for each server while others have already jumped on the configuration management train and fully automated reproducible setups.

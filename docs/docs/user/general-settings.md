@@ -5,6 +5,8 @@ title: General Settings
 
 <!--Content-->
 
+This document details how the system configuration is, what features it includes, how to configure an account, etc.
+
 ## General Settings
 
 - General settings include following features:

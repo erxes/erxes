@@ -7,9 +7,7 @@ sidebar_label: Knowledge Base
 <!--Content-->
 
 
-Real-time & two-way help center
-
-Educate both your customers and staff by creating a help center related to your brands, products and services to reach higher level of satisfactions
+Real-time & two-way help center. Educate both your customers and staff by creating a help center related to your brands, products and services to reach higher level of satisfactions. 
 
 
 
