@@ -93,7 +93,7 @@ class PaymentForm extends React.Component<Props, State> {
       this.paymentStateChange(
         'amount',
         type.name,
-        parseFloat((e.target as HTMLInputElement).value)
+        parseFloat((e.target as HTMLInputElement).value || '0')
       );
     };
 
@@ -140,6 +140,7 @@ class PaymentForm extends React.Component<Props, State> {
             }
             type="number"
             placeholder={__('Type amount')}
+            min={0}
             name={type.name}
             onChange={onChange}
             onClick={onClick}

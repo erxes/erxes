@@ -32,11 +32,11 @@ type Props = {
 };
 
 type State = {
-  total: { currency?: string; amount?: number };
-  tax: { currency?: string; tax?: number; percent?: number };
-  discount: { currency?: string; discount?: number; percent?: number };
+  total: { [currency: string]: number };
+  tax: { [currency: string]: { value?: number; percent?: number } };
+  discount: { [currency: string]: { value?: number; percent?: number } };
   currentTab: string;
-  changePayData: { currency?: string; amount?: number };
+  changePayData: { [currency: string]: number };
   tempId: string;
 };
 
@@ -75,9 +75,11 @@ class ProductForm extends React.Component<Props, State> {
         quantity: 1,
         unitPrice: 0,
         tax: 0,
-        taxPercent: tax[currency] ? tax[currency].percent : 0,
+        taxPercent: tax[currency] ? tax[currency].percent || 0 : 0,
         discount: 0,
-        discountPercent: discount[currency] ? discount[currency].percent : 0,
+        discountPercent: discount[currency]
+          ? discount[currency].percent || 0
+          : 0,
         amount: 0,
         currency,
         tickUsed: true
@@ -107,17 +109,17 @@ class ProductForm extends React.Component<Props, State> {
         if (!total[p.currency]) {
           discount[p.currency] = { percent: 0, value: 0 };
           tax[p.currency] = { percent: 0, value: 0 };
-          total[p.currency] = { value: 0 };
+          total[p.currency] = 0;
         }
 
         discount[p.currency].value += p.discount || 0;
         tax[p.currency].value += p.tax || 0;
-        total[p.currency].value += p.amount || 0;
+        total[p.currency] += p.amount || 0;
       }
     });
 
     for (const currency of Object.keys(discount)) {
-      let clearTotal = total[currency].value - tax[currency].value;
+      let clearTotal = total[currency] - tax[currency].value;
       tax[currency].percent = (tax[currency].value * 100) / clearTotal;
 
       clearTotal = clearTotal + discount[currency].value;
