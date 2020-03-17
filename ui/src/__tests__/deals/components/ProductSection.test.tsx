@@ -78,8 +78,7 @@ describe('ProductSection component', () => {
     onChangeProductsData: (productsData: IProductData[]) => null,
     onChangePaymentsData: (paymentsData: IPaymentsData) => null,
     onChangeProducts: (prs: IProduct[]) => null,
-    saveProductsData: () => null,
-    savePaymentsData: () => null
+    saveProductsData: () => null
   };
 
   test('renders shallow successfully', () => {

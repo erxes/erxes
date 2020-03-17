@@ -20,7 +20,6 @@ import ProductItem from './ProductItem';
 type Props = {
   onChangeProductsData: (productsData: IProductData[]) => void;
   saveProductsData: () => void;
-  savePaymentsData: () => void;
   onChangePaymentsData: (paymentsData: IPaymentsData) => void;
   productsData: IProductData[];
   products: IProduct[];
@@ -194,12 +193,7 @@ class ProductForm extends React.Component<Props, State> {
   };
 
   onClick = () => {
-    const {
-      saveProductsData,
-      productsData,
-      closeModal
-      // savePaymentsData
-    } = this.props;
+    const { saveProductsData, productsData, closeModal } = this.props;
 
     const { total, changePayData } = this.state;
 
@@ -246,7 +240,6 @@ class ProductForm extends React.Component<Props, State> {
     }
 
     saveProductsData();
-    // savePaymentsData();
     closeModal();
   };
 
