@@ -125,7 +125,7 @@ const IntegrationItem = styled.div`
 
   > a, h6 {
     font-weight: 500;
-    font-size: 13px;
+    font-size: 15px;
     color: ${colors.linkPrimary};
     position: absolute;
     right: 30px;
