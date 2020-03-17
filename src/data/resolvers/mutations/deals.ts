@@ -120,7 +120,7 @@ const dealMutations = {
       contentType: MODULE_NAMES.DEAL,
     };
 
-    if (checkedAssignUserIds) {
+    if (Object.keys(checkedAssignUserIds).length > 0) {
       const { addedUserIds, removedUserIds } = checkedAssignUserIds;
 
       const activityContent = { addedUserIds, removedUserIds };
@@ -148,11 +148,44 @@ const dealMutations = {
       user,
     );
 
-    graphqlPubsub.publish('dealsChanged', {
-      dealsChanged: {
-        _id: updatedDeal._id,
+    if (oldDeal.stageId === updatedDeal.stageId) {
+      graphqlPubsub.publish('dealsChanged', {
+        dealsChanged: {
+          _id: updatedDeal._id,
+        },
+      });
+
+      return updatedDeal;
+    }
+
+    // if stage edited
+    const { content, action } = await itemsChange(user._id, oldDeal, MODULE_NAMES.DEAL, updatedDeal.stageId);
+
+    await sendNotifications({
+      item: updatedDeal,
+      user,
+      type: NOTIFICATION_TYPES.DEAL_CHANGE,
+      content,
+      action,
+      contentType: MODULE_NAMES.DEAL,
+    });
+
+    const updatedStage = await Stages.getStage(updatedDeal.stageId);
+    const oldStage = await Stages.getStage(oldDeal.stageId)
+
+    graphqlPubsub.publish('pipelinesChanged', {
+      pipelinesChanged: {
+        _id: updatedStage.pipelineId,
       },
     });
+
+    if ( updatedStage.pipelineId !== oldStage.pipelineId) {
+      graphqlPubsub.publish('pipelinesChanged', {
+        pipelinesChanged: {
+          _id: oldStage.pipelineId,
+        },
+      });
+    }
 
     return updatedDeal;
   },
