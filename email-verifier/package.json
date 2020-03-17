@@ -1,7 +1,5 @@
 {
   "name": "erxes-email-verifier",
-  "version": "0.12.0",
-  "license": "MIT",
   "private": true,
   "scripts": {
     "start": "node dist",

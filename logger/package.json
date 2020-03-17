@@ -1,6 +1,5 @@
 {
   "name": "erxes-logger",
-  "version": "0.12.0",
   "description": "Logger module for erxes",
   "homepage": "https://erxes.io",
   "repository": {
