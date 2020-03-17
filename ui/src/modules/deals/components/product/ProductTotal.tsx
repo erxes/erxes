@@ -147,10 +147,10 @@ class ProductTotal extends React.Component<Props, State> {
     );
   }
 
-  renderTotal() {
+  renderTax() {
     const { currency, kindTxt, totalKind } = this.props;
 
-    if (kindTxt === 'discount') {
+    if (kindTxt !== 'tax') {
       return;
     }
 
@@ -161,12 +161,27 @@ class ProductTotal extends React.Component<Props, State> {
     );
   }
 
+  renderTotal() {
+    const { currency, kindTxt, totalKind } = this.props;
+
+    if (kindTxt !== 'total') {
+      return;
+    }
+
+    return (
+      <Amount>
+        {totalKind.toLocaleString()} <b>{currency}</b>
+      </Amount>
+    );
+  }
+
   render() {
     return (
       <ContentRow>
         <ContentColumn>{this.renderTotalPercent()}</ContentColumn>
         <ContentColumn flex="2">
           {this.renderTotalDiscount()}
+          {this.renderTax()}
           {this.renderTotal()}
         </ContentColumn>
       </ContentRow>
