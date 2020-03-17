@@ -59,7 +59,9 @@ function List(props: Props) {
   function onCancel(toggle?: boolean) {
     localStorage.setItem(item._id, itemContent);
 
-    debounce(() => setIsAddingItem(toggle ? !isAddingItem : false), 100)();
+    debounce(() => {
+      setIsAddingItem(Boolean(toggle));
+    }, 100)();
   }
 
   function onBlur() {

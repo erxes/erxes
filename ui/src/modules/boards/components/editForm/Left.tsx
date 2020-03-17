@@ -15,6 +15,51 @@ import { LeftContainer, TitleRow } from '../../styles/item';
 import Labels from '../label/Labels';
 import Actions from './Actions';
 
+type DescProps = {
+  item: IItem;
+  saveItem: (doc: { [key: string]: any }) => void;
+};
+
+const Description = (props: DescProps) => {
+  const { item, saveItem } = props;
+  const [description, setDescription] = useState(item.description);
+
+  useEffect(
+    () => {
+      setDescription(item.description);
+    },
+    [item.description]
+  );
+
+  const onBlurDescription = () => {
+    if (description !== item.description) {
+      saveItem({ description });
+    }
+  };
+
+  const onChangeDescription = e => {
+    setDescription(e.target.value);
+  };
+
+  return (
+    <FormGroup>
+      <TitleRow>
+        <ControlLabel>
+          <Icon icon="align-left-justify" />
+          {__('Description')}
+        </ControlLabel>
+      </TitleRow>
+
+      <FormControl
+        componentClass="textarea"
+        value={description || ''}
+        onBlur={onBlurDescription}
+        onChange={onChangeDescription}
+      />
+    </FormGroup>
+  );
+};
+
 type Props = {
   item: IItem;
   options: IOptions;
@@ -37,25 +82,6 @@ const Left = (props: Props) => {
     addItem,
     sendToBoard
   } = props;
-
-  const [description, setDescription] = useState(item.description);
-
-  useEffect(
-    () => {
-      setDescription(item.description);
-    },
-    [item.description]
-  );
-
-  const onBlurDescription = () => {
-    if (description !== item.description) {
-      saveItem({ description });
-    }
-  };
-
-  const onChangeDescription = e => {
-    setDescription(e.target.value);
-  };
 
   const onChangeAttachment = (files: IAttachment[]) =>
     saveItem({ attachments: files });
@@ -99,21 +125,7 @@ const Left = (props: Props) => {
         <Uploader defaultFileList={attachments} onChange={onChangeAttachment} />
       </FormGroup>
 
-      <FormGroup>
-        <TitleRow>
-          <ControlLabel>
-            <Icon icon="align-left-justify" />
-            {__('Description')}
-          </ControlLabel>
-        </TitleRow>
-
-        <FormControl
-          componentClass="textarea"
-          value={description || ''}
-          onBlur={onBlurDescription}
-          onChange={onChangeDescription}
-        />
-      </FormGroup>
+      <Description item={item} saveItem={saveItem} />
 
       <Checklists
         contentType={options.type}

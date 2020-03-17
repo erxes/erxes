@@ -177,8 +177,6 @@ export class PipelineProvider extends React.Component<Props, State> {
 
     invalidateCache();
 
-    // Save data to sessionStorage
-
     // save orders to database
     return this.saveItemOrders(itemMap, [
       source.droppableId,
