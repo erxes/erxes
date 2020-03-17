@@ -332,7 +332,7 @@ class ProductItem extends React.Component<Props, State> {
                 <ItemText>{__('Unit price')}:</ItemText>
                 <ContentColumn flex="3">
                   <FormControl
-                    value={productData.unitPrice || 0}
+                    value={productData.unitPrice || ''}
                     type="number"
                     placeholder="0"
                     name="unitPrice"
