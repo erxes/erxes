@@ -1,3 +1,18 @@
+# [0.13.0](https://github.com/erxes/erxes-integrations/compare/0.12.4...0.13.0) (2020-03-17)
+
+
+### Bug Fixes
+
+* await in initConsumer ([a925ca4](https://github.com/erxes/erxes-integrations/commit/a925ca468e01e7a14f7ca6de35f9316133350805))
+* await redis init ([d1b30e6](https://github.com/erxes/erxes-integrations/commit/d1b30e6642a8e5e2c9a00bfe749c5047341a1483))
+* merge with master and conflict ([93622fd](https://github.com/erxes/erxes-integrations/commit/93622fdbe33058211d1c7a172484926df934ab3b))
+* remove account only when there is no integrations ([f13c2a9](https://github.com/erxes/erxes-integrations/commit/f13c2a95196cb4eebd632502a39456ee44b45c38))
+
+
+### Features
+
+* **videoCall:** add video call integration using daily.co ([7e61cf8](https://github.com/erxes/erxes-integrations/commit/7e61cf89e4a5637fa5cbbacb7c17dd446180b1a2)), closes [erxes/erxes#1638](https://github.com/erxes/erxes/issues/1638)
+
 ## [0.12.4](https://github.com/erxes/erxes-integrations/compare/0.12.3...0.12.4) (2020-03-09)
 
 
