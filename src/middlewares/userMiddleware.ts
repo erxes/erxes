@@ -16,7 +16,7 @@ const userMiddleware = async (req, _res, next) => {
       // verify user token and retrieve stored user information
       const { user } = jwt.verify(token, Users.getSecret());
 
-      const sessionCode = (req.headers && req.headers.session_code) || req.session_code || '';
+      const sessionCode = req.headers.sessioncode || '';
 
       // save user in request
       req.user = user;
