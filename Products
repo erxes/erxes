@@ -1,0 +1,5 @@
+<a href="install">Install</a> exists but <a href="Products">Products</a> does not.
+That's the problem.
+So, instead of a <div class="collapsible-header" tabindex="0">Products</div> we just need a link. So, for that, create a new page, which will redirect us to the Resoures tab.
+Also, there's no need for the /html/body/div[1]/ul[2]/li[1]/ul/li/div[2] in the Products tab.
+So, kindly look into it, thanks!
