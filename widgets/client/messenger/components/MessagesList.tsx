@@ -1,13 +1,13 @@
 import * as classNames from "classnames";
 import * as React from "react";
 import * as RTG from "react-transition-group";
+import { setLocalStorageItem } from "../../common";
 import {
   IIntegrationMessengerData,
   IIntegrationMessengerDataMessagesItem,
   IIntegrationUiOptions
 } from "../../types";
 import { makeClickableLink, scrollTo } from "../../utils";
-import { setLocalStorageItem } from "../connection";
 import { IMessage } from "../types";
 import { Message } from "./";
 import AccquireInformation from "./AccquireInformation";

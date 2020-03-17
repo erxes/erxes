@@ -589,7 +589,89 @@ bio:”<Bio>”,
 
 <img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/12.+Result+5.png />
 
+### Change your messenger styles 
+You can change look of a messenger style, position with following code. 
+#### Button submit
+Ability to call submit from outside, which means  that listen for callSubmit action from outside (parent website) to force submit action. 
 
+```
+document.getElementById('button').onclick = () => {
+    const iframe = document.querySelector('#container iframe');
+  
+    iframe.contentWindow.postMessage(
+      {
+        fromPublisher: true,
+        action: "callSubmit"
+      },
+      "*"
+    );
+  }
+```
+#### Messenger position
+
+
+Problem:
+
+As part of the support system inside the web, it is always difficult to fix the position of launcher icon to the bottom, especially on mobile, since it overlaps with other elements, especially bottom navbar.
+Say the launcher icon is loaded on home page on a single page app where games are listed, it is disturbing to show the launcher icon on the gameplay page as well. Since it is attached to the scope of the body, it will remain on other pages as well, since its a single page app.
+
+Solution:
+
+It would be great if a messenger can be launched programmatically like erxes.launch() on some user interaction, "like clicking on request for help button".
+Rather than attaching to document, there should be an option to attach the erxes launcher to a specific element, as it causes the problem in single-page apps since it is not ideal to display the launcher icon in every page.
+
+Now you can follow the below steps to accomplish your needs
+
+1. Uncheck show launcher check to hide default handler
+
+
+2. There is a showErxesMessenger function available on the window object. You can use this function to show messenger programmatically.
+
+`window.showErxesMessenger()`
+
+3. You can manipulate the position of the messenger body like following. 
+
+`#erxes-messenger-container {
+   top: 0px;
+   left: 55%;
+}`
+
+#### CSS style
+Ability to change form css from parent. In some cases, the developer wants to hide form title, button or modify some auto-generated CSS.  
+
+```
+ 
+    <script>
+      window.erxesSettings = {
+        messenger: {
+          brand_id: "5fkS4v",
+          css: `
+            .erxes-form {
+            color: red;
+            }
+
+            .erxes-form .erxes-topbar {
+            display: none;
+            }
+            
+            .erxes-button.btn-block {
+            display: none;
+            }
+        `
+        },
+      };
+      
+    (function() {
+      var script = document.createElement('script');
+      script.src = "https://w.office.erxes.io/build/messengerWidget.bundle.js";
+      script.async = true;
+      var entry = document.getElementsByTagName('script')[0];
+      entry.parentNode.insertBefore(script, entry);
+    })();
+  
+    </script>
+
+```
 
 ## Advanced combination installation
 In the advanced combination installation is described combination of the following features.

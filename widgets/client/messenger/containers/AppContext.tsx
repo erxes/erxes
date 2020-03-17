@@ -1,6 +1,7 @@
 import gql from "graphql-tag";
 import * as React from "react";
 import client from "../../apollo-client";
+import { getLocalStorageItem, setLocalStorageItem } from "../../common";
 import {
   IBrand,
   IBrowserInfo,
@@ -9,11 +10,7 @@ import {
 } from "../../types";
 import uploadHandler from "../../uploadHandler";
 import { postMessage, requestBrowserInfo } from "../../utils";
-import {
-  connection,
-  getLocalStorageItem,
-  setLocalStorageItem
-} from "../connection";
+import { connection } from "../connection";
 import graphqlTypes from "../graphql";
 import { IAttachment, IFaqArticle, IFaqCategory, IMessage } from "../types";
 
@@ -213,7 +210,7 @@ export class AppProvider extends React.Component<{}, IState> {
 
   changeConversation = (_id: string) => {
     // save last conversationId
-    setLocalStorageItem("lastConversationId", _id);
+    this.setLastConversationId(_id);
 
     // reset last unread message
     const { lastUnreadMessage } = this.state;
@@ -263,8 +260,22 @@ export class AppProvider extends React.Component<{}, IState> {
     this.changeRoute("conversationList");
   };
 
+  getLastConversationId = () => {
+    const brandConfig = getLocalStorageItem(connection.setting.brand_id) || {};
+    return brandConfig.lastConversationId;
+  };
+
+  setLastConversationId = (id: string) => {
+    const brandId = connection.setting.brand_id;
+    const brandConfig = getLocalStorageItem(brandId) || {};
+
+    brandConfig.lastConversationId = id;
+
+    setLocalStorageItem(brandId, brandConfig);
+  };
+
   prepareOpenLastConversation = () => {
-    const _id = getLocalStorageItem("lastConversationId");
+    const _id = this.getLastConversationId();
 
     return {
       activeConversation: _id || "",
@@ -339,9 +350,11 @@ export class AppProvider extends React.Component<{}, IState> {
     // reset local storage items
     setLocalStorageItem("getNotifiedType", "");
     setLocalStorageItem("getNotifiedValue", "");
-    setLocalStorageItem("lastConversationId", "");
     setLocalStorageItem("customerId", "");
     setLocalStorageItem("hasNotified", "");
+
+    this.setLastConversationId("");
+
     this.toggle(true);
     window.location.reload();
   };
@@ -415,6 +428,7 @@ export class AppProvider extends React.Component<{}, IState> {
           internal: false,
           fromBot: false,
           messengerAppData: null,
+          videoCallData: null,
           engageData: null
         }
       };
