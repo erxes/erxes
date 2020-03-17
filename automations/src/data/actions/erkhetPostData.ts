@@ -61,29 +61,50 @@ const erkhetPostData = async (shape: IShapeDocument, data: any) => {
 
   const details = [];
   for (const productData of data.deal.productsData) {
+    // not tickUsed product not sent
+    if (!productData.tickUsed) {
+      continue;
+    }
+
+    // if wrong productId then not sent
+    if (!productCodeById[productData.productId]) {
+      continue;
+    }
+
     details.push({
       count: productData.quantity,
       amount: productData.amount,
       discount: productData.discount,
-      inventoryCode: productCodeById[productData.productId] || '',
+      inventoryCode: productCodeById[productData.productId],
     });
   }
 
+  // debit payments coll
   const payments = {};
   const configure = {
     prepay: 'preAmount',
     cash: 'cashAmount',
     bank: 'mobileAmount',
-    pos: 'cartAmount',
+    pos: 'cardAmount',
     wallet: 'debtAmount',
     barter: 'debtBarterAmount',
     after: 'debtAmount',
     other: 'debtAmount',
   };
 
+  let sumSaleAmount = details.reduce((predet, detail) => {
+    return { amount: predet.amount + detail.amount };
+  }).amount;
+
   for (const paymentKind of Object.keys(data.deal.paymentsData || [])) {
     const payment = data.deal.paymentsData[paymentKind];
-    payments[configure[paymentKind]] = payment.amount;
+    payments[configure[paymentKind]] = (payments[configure[paymentKind]] || 0) + payment.amount;
+    sumSaleAmount = sumSaleAmount - payment.amount;
+  }
+
+  // if payments is less sum sale amount then create debt
+  if (sumSaleAmount > 0.005) {
+    payments[shape.config.defaultPay] = (payments[shape.config.defaultPay] || 0) + sumSaleAmount;
   }
 
   const orderInfos = [

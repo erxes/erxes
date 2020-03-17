@@ -94,6 +94,9 @@ const changeListProduct = async (params: IFinalLogParams) => {
 };
 
 export const automationHelper = async ({ params, user }: { params: IFinalLogParams; user: IUserDocument }) => {
+  automationKind = '';
+  automationBody = {};
+
   switch (params.type) {
     case 'deal':
       await changeDeal(params);
@@ -118,7 +121,7 @@ export const automationHelper = async ({ params, user }: { params: IFinalLogPara
       break;
   }
 
-  if (automationKind && automationBody) {
+  if (automationKind && Object.keys(automationBody).length > 0) {
     await checkAutomation(automationKind, automationBody, user);
   }
 };
