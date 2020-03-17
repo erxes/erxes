@@ -4,7 +4,12 @@ import DueDateLabel from 'modules/boards/components/DueDateLabel';
 import Labels from 'modules/boards/components/label/Labels';
 import EditForm from 'modules/boards/containers/editForm/EditForm';
 import { ItemContainer, ItemDate } from 'modules/boards/styles/common';
-import { Footer, PriceContainer, Right, Status } from 'modules/boards/styles/item';
+import {
+  Footer,
+  PriceContainer,
+  Right,
+  Status
+} from 'modules/boards/styles/item';
 import { Content } from 'modules/boards/styles/stage';
 import { IOptions } from 'modules/boards/types';
 import { renderAmount, renderPriority } from 'modules/boards/utils';
@@ -14,7 +19,6 @@ import { __ } from 'modules/common/utils';
 import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
 import React from 'react';
 import { IDeal } from '../types';
-
 
 type Props = {
   stageId?: string;

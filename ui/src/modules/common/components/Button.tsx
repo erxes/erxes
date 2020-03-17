@@ -64,8 +64,10 @@ const ButtonStyled = styledTS<{
   ${props => css`
     padding: ${sizes[props.hugeness].padding};
     background: ${types[props.btnStyle].background};
-    font-size: ${props.uppercase ? sizes[props.hugeness].fontSize : `calc(${sizes[props.hugeness].fontSize} + 1px)`};
-    text-transform: ${props.uppercase ? 'uppercase' : 'none' };
+    font-size: ${props.uppercase
+      ? sizes[props.hugeness].fontSize
+      : `calc(${sizes[props.hugeness].fontSize} + 1px)`};
+    text-transform: ${props.uppercase ? 'uppercase' : 'none'};
     color: ${types[props.btnStyle].color
       ? types[props.btnStyle].color
       : colors.colorWhite} !important;
@@ -140,9 +142,11 @@ const ButtonGroup = styledTS<{ hasGap: boolean }>(styled.div)`
     margin-left: ${props => props.hasGap && '10px'};
   }
 
-  ${props => !props.hasGap &&
+  ${props =>
+    !props.hasGap &&
     css`
-      button, a {
+      button,
+      a {
         margin: 0;
       }
 
@@ -150,7 +154,7 @@ const ButtonGroup = styledTS<{ hasGap: boolean }>(styled.div)`
       > a:not(:last-child) {
         border-top-right-radius: 0;
         border-bottom-right-radius: 0;
-        border-right: 1px solid rgba(0,0,0,0.13);
+        border-right: 1px solid rgba(0, 0, 0, 0.13);
       }
 
       > button:not(:first-child),
@@ -176,7 +180,7 @@ type ButtonProps = {
   icon?: string;
   style?: any;
   id?: string;
-  uppercase?: boolean
+  uppercase?: boolean;
 };
 
 export default class Button extends React.Component<ButtonProps> {
@@ -216,6 +220,12 @@ export default class Button extends React.Component<ButtonProps> {
   }
 }
 
-function Group({ children, hasGap = true }: { children: React.ReactNode, hasGap?: boolean }) {
+function Group({
+  children,
+  hasGap = true
+}: {
+  children: React.ReactNode;
+  hasGap?: boolean;
+}) {
   return <ButtonGroup hasGap={hasGap}>{children}</ButtonGroup>;
 }

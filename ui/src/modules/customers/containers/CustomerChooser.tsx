@@ -35,6 +35,10 @@ class CustomerChooser extends React.Component<
     };
   }
 
+  resetAssociatedItem = () => {
+    return this.setState({ newCustomer: undefined });
+  };
+
   render() {
     const { data, customersQuery, customersAdd, search } = this.props;
 
@@ -81,6 +85,7 @@ class CustomerChooser extends React.Component<
       ),
       add: addCustomer,
       newItem: this.state.newCustomer,
+      resetAssociatedItem: this.resetAssociatedItem,
       datas: customersQuery.customers || [],
       refetchQuery: queries.customers
     };
