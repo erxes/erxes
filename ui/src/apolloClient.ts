@@ -49,7 +49,7 @@ const authLink = setContext((_, { headers }) => {
   return {
     headers: {
       ...headers,
-      session_code: sessionStorage.getItem('session_code') || ''
+      sessioncode: sessionStorage.getItem('sessioncode') || ''
     }
   };
 });

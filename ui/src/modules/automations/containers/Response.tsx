@@ -11,14 +11,14 @@ type Props = {
 };
 
 function AutomationResponse({ currentUser }: Props) {
-  if (!sessionStorage.getItem('session_code')) {
-    sessionStorage.setItem('session_code', Math.random().toString());
+  if (!sessionStorage.getItem('sessioncode')) {
+    sessionStorage.setItem('sessioncode', Math.random().toString());
   }
 
   const { data: response, loading } = useSubscription(SUBSCRIPTION, {
     variables: {
       userId: currentUser._id,
-      sessionCode: sessionStorage.getItem('session_code') || ''
+      sessionCode: sessionStorage.getItem('sessioncode') || ''
     },
     shouldResubscribe: false
   });
