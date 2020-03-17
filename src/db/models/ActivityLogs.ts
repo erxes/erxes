@@ -9,6 +9,7 @@ import { ISegmentDocument } from './definitions/segments';
 export interface IActivityLogModel extends Model<IActivityLogDocument> {
   addActivityLog(doc: IActivityLogInput): Promise<IActivityLogDocument>;
   removeActivityLog(contentId: string): void;
+
   createSegmentLog(segment: ISegmentDocument, customer: ICustomerDocument, type: string);
   createLogFromWidget(type: string, payload): Promise<IActivityLogDocument>;
   createCocLog({ coc, contentType }: { coc: any; contentType: string }): Promise<IActivityLogDocument>;
@@ -25,6 +26,26 @@ export interface IActivityLogModel extends Model<IActivityLogDocument> {
     userId: string,
     content: object,
   ): Promise<IActivityLogDocument>;
+  createAssigneLog({
+    contentId,
+    userId,
+    contentType,
+    content,
+  }: {
+    contentId: string;
+    userId: string;
+    contentType: string;
+    content: object;
+  }): Promise<IActivityLogDocument>;
+  createChecklistLog({
+    item,
+    contentType,
+    action,
+  }: {
+    item: any;
+    contentType: string;
+    action: string;
+  }): Promise<IActivityLogDocument>;
 }
 
 export const loadClass = () => {
@@ -35,6 +56,26 @@ export const loadClass = () => {
 
     public static async removeActivityLog(contentId: IActivityLogInput) {
       await ActivityLogs.deleteMany({ contentId });
+    }
+
+    public static async createAssigneLog({
+      contentId,
+      userId,
+      contentType,
+      content,
+    }: {
+      contentId: string;
+      userId: string;
+      contentType: string;
+      content: object;
+    }) {
+      return ActivityLogs.addActivityLog({
+        contentType,
+        contentId,
+        action: 'assignee',
+        content,
+        createdBy: userId || '',
+      });
     }
 
     public static createBoardItemLog({ item, contentType }: { item: IItemCommonFieldsDocument; contentType: string }) {
@@ -123,6 +164,34 @@ export const loadClass = () => {
       };
 
       return ActivityLogs.create(doc);
+    }
+
+    public static async createChecklistLog({
+      item,
+      contentType,
+      action,
+    }: {
+      item: any;
+      contentType: string;
+      action: string;
+    }) {
+      if (action === 'delete') {
+        await ActivityLogs.updateMany(
+          { 'content._id': item._id },
+          { $set: { 'content.name': item.title || item.content } },
+        );
+      }
+
+      return ActivityLogs.addActivityLog({
+        contentType,
+        contentId: item.contentTypeId || item.checklistId,
+        action,
+        content: {
+          _id: item._id,
+          name: item.title || item.content,
+        },
+        createdBy: item.createdUserId || '',
+      });
     }
   }
 

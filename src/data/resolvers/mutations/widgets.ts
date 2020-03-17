@@ -18,8 +18,11 @@ import { IBrowserInfo, IVisitorContactInfoParams } from '../../../db/models/Cust
 import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
 import { IIntegrationDocument, IMessengerDataMessagesItem } from '../../../db/models/definitions/integrations';
 import { IKnowledgebaseCredentials, ILeadCredentials } from '../../../db/models/definitions/messengerApps';
+import { debugBase, debugExternalApi } from '../../../debuggers';
+import { trackViewPageEvent } from '../../../events';
 import { graphqlPubsub } from '../../../pubsub';
 import { get, set } from '../../../redisClient';
+import { IContext } from '../../types';
 import { registerOnboardHistory, sendMobileNotification } from '../../utils';
 import { conversationNotifReceivers } from './conversations';
 
@@ -120,9 +123,10 @@ const widgetMutations = {
       formId: string;
       submissions: ISubmission[];
       browserInfo: any;
+      cachedCustomerId?: string;
     },
   ) {
-    const { integrationId, formId, submissions, browserInfo } = args;
+    const { integrationId, formId, submissions, browserInfo, cachedCustomerId } = args;
 
     const form = await Forms.findOne({ _id: formId });
 
@@ -162,7 +166,7 @@ const widgetMutations = {
     });
 
     // get or create customer
-    let customer = await Customers.getWidgetCustomer({ email, phone });
+    let customer = await Customers.getWidgetCustomer({ integrationId, email, phone, cachedCustomerId });
 
     if (!customer) {
       customer = await Customers.createCustomer({
@@ -242,6 +246,7 @@ const widgetMutations = {
       cachedCustomerId?: string;
       deviceToken?: string;
     },
+    { dataSources }: IContext,
   ) {
     const { brandCode, email, phone, code, isUser, companyData, data, cachedCustomerId, deviceToken } = args;
 
@@ -262,40 +267,25 @@ const widgetMutations = {
     }
 
     let customer = await Customers.getWidgetCustomer({
+      integrationId: integration._id,
       cachedCustomerId,
       email,
       phone,
       code,
     });
 
-    if (customer) {
-      // update prev customer
-      customer = await Customers.updateMessengerCustomer({
-        _id: customer._id,
-        doc: {
-          email,
-          phone,
-          code,
-          isUser,
-          deviceToken,
-        },
-        customData,
-      });
+    const doc = {
+      integrationId: integration._id,
+      email,
+      phone,
+      code,
+      isUser,
+      deviceToken,
+    };
 
-      // create new customer
-    } else {
-      customer = await Customers.createMessengerCustomer(
-        {
-          integrationId: integration._id,
-          email,
-          phone,
-          code,
-          isUser,
-          deviceToken,
-        },
-        customData,
-      );
-    }
+    customer = customer
+      ? await Customers.updateMessengerCustomer({ _id: customer._id, doc, customData })
+      : await Customers.createMessengerCustomer({ doc, customData });
 
     // get or create company
     if (companyData) {
@@ -316,9 +306,17 @@ const widgetMutations = {
       });
     }
 
+    let videoCallUsageStatus = false;
+
+    try {
+      videoCallUsageStatus = await dataSources.IntegrationsAPI.fetchApi('/videoCall/usageStatus');
+    } catch (e) {
+      debugExternalApi(e.message);
+    }
+
     return {
       integrationId: integration._id,
-      uiOptions: integration.uiOptions,
+      uiOptions: { ...(integration.uiOptions ? integration.uiOptions.toJSON() : {}), videoCallUsageStatus },
       languageCode: integration.languageCode,
       messengerData: await getMessengerData(integration),
       customerId: customer._id,
@@ -337,9 +335,10 @@ const widgetMutations = {
       conversationId?: string;
       message: string;
       attachments?: any[];
+      contentType: string;
     },
   ) {
-    const { integrationId, customerId, conversationId, message, attachments } = args;
+    const { integrationId, customerId, conversationId, message, attachments, contentType } = args;
 
     const conversationContent = strip(message || '').substring(0, 100);
 
@@ -374,6 +373,7 @@ const widgetMutations = {
       customerId,
       content: message,
       attachments,
+      contentType,
     });
 
     await Conversations.updateOne(
@@ -467,8 +467,15 @@ const widgetMutations = {
     // update location
     await Customers.updateLocation(customerId, browserInfo);
 
+    try {
+      await trackViewPageEvent({ customerId, attributes: { url: browserInfo.url } });
+    } catch (e) {
+      /* istanbul ignore next */
+      debugBase(`Error occurred during widgets save browser info ${e.message}`);
+    }
+
     // update messenger session data
-    const customer = await Customers.updateMessengerSession(customerId, browserInfo.url || '');
+    const customer = await Customers.updateSession(customerId);
 
     // Preventing from displaying non messenger integrations like form's messages
     // as last unread message

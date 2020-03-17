@@ -20,14 +20,13 @@ export interface IGrowthHackDocument extends IGrowthHack, Document {
 export const growthHackSchema = schemaWrapper(
   new Schema({
     ...commonItemFieldsSchema,
+    voteCount: field({ type: Number, default: 0, optional: true, label: 'Vote count' }),
+    votedUserIds: field({ type: [String], label: 'Voted users' }),
 
-    voteCount: field({ type: Number, default: 0, optional: true }),
-    votedUserIds: field({ type: [String] }),
-
-    hackStages: field({ type: [String], optional: true }),
-    reach: field({ type: Number, default: 0, optional: true }),
-    impact: field({ type: Number, default: 0, optional: true }),
-    confidence: field({ type: Number, default: 0, optional: true }),
-    ease: field({ type: Number, default: 0, optional: true }),
+    hackStages: field({ type: [String], optional: true, label: 'Stages' }),
+    reach: field({ type: Number, default: 0, optional: true, label: 'React' }),
+    impact: field({ type: Number, default: 0, optional: true, label: 'Impact' }),
+    confidence: field({ type: Number, default: 0, optional: true, label: 'Confidence' }),
+    ease: field({ type: Number, default: 0, optional: true, label: 'Ease' }),
   }),
 );

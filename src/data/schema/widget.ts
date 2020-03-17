@@ -78,7 +78,8 @@ export const mutations = `
     customerId: String!
     conversationId: String
     message: String,
-    attachments: [AttachmentInput]
+    attachments: [AttachmentInput],
+    contentType: String
   ): ConversationMessage
 
   widgetsReadConversationMessages(conversationId: String): JSON
@@ -94,6 +95,7 @@ export const mutations = `
     formId: String!
     submissions: [FieldValueInput]
     browserInfo: JSON!
+    cachedCustomerId: String
   ): SaveFormResponse
 
   widgetsSendEmail(

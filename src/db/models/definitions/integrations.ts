@@ -155,11 +155,11 @@ const messengerDataSchema = new Schema(
 // schema for lead's callout component
 export const calloutSchema = new Schema(
   {
-    title: field({ type: String, optional: true }),
-    body: field({ type: String, optional: true }),
-    buttonText: field({ type: String, optional: true }),
-    featuredImage: field({ type: String, optional: true }),
-    skip: field({ type: Boolean, optional: true }),
+    title: field({ type: String, optional: true, label: 'Title' }),
+    body: field({ type: String, optional: true, label: 'Body' }),
+    buttonText: field({ type: String, optional: true, label: 'Button text' }),
+    featuredImage: field({ type: String, optional: true, label: 'Featured image' }),
+    skip: field({ type: Boolean, optional: true, label: 'Skip' }),
   },
   { _id: false },
 );
@@ -175,68 +175,83 @@ export const submissionSchema = new Schema(
 );
 
 // subdocument schema for LeadData
-const leadDataSchema = new Schema(
+export const leadDataSchema = new Schema(
   {
     loadType: field({
       type: String,
       enum: LEAD_LOAD_TYPES.ALL,
+      label: 'Load type',
     }),
     successAction: field({
       type: String,
       enum: LEAD_SUCCESS_ACTIONS.ALL,
       optional: true,
+      label: 'Success action',
     }),
     fromEmail: field({
       type: String,
       optional: true,
+      label: 'From email',
     }),
     userEmailTitle: field({
       type: String,
       optional: true,
+      label: 'User email title',
     }),
     userEmailContent: field({
       type: String,
       optional: true,
+      label: 'User email content',
     }),
     adminEmails: field({
       type: [String],
       optional: true,
+      label: 'Admin emails',
     }),
     adminEmailTitle: field({
       type: String,
       optional: true,
+      label: 'Admin email title',
     }),
     adminEmailContent: field({
       type: String,
       optional: true,
+      label: 'Admin email content',
     }),
     thankContent: field({
       type: String,
       optional: true,
+      label: 'Thank content',
     }),
     redirectUrl: field({
       type: String,
       optional: true,
+      label: 'Redirect URL',
     }),
     themeColor: field({
       type: String,
       optional: true,
+      label: 'Theme color code',
     }),
     callout: field({
       type: calloutSchema,
       optional: true,
+      label: 'Callout',
     }),
     viewCount: field({
       type: Number,
       optional: true,
+      label: 'View count',
     }),
     contactsGathered: field({
       type: Number,
       optional: true,
+      label: 'Contacts gathered',
     }),
     rules: field({
       type: [ruleSchema],
       optional: true,
+      label: 'Rules',
     }),
   },
   { _id: false },
@@ -255,26 +270,28 @@ const uiOptionsSchema = new Schema(
 // schema for integration document
 export const integrationSchema = new Schema({
   _id: field({ pkey: true }),
-  createdUserId: field({ type: String }),
+  createdUserId: field({ type: String, label: 'Created by' }),
 
   kind: field({
     type: String,
     enum: KIND_CHOICES.ALL,
+    label: 'Kind',
   }),
 
-  name: field({ type: String }),
-  brandId: field({ type: String }),
+  name: field({ type: String, label: 'Name' }),
+  brandId: field({ type: String, label: 'Brand' }),
 
   languageCode: field({
     type: String,
     optional: true,
+    label: 'Language code',
   }),
-  tagIds: field({ type: [String] }),
-  formId: field({ type: String }),
-  leadData: field({ type: leadDataSchema }),
+  tagIds: field({ type: [String], label: 'Tags' }),
+  formId: field({ type: String, label: 'Form' }),
+  leadData: field({ type: leadDataSchema, label: 'Lead data' }),
+  isActive: field({ type: Boolean, optional: true, default: true, label: 'Is active' }),
   // TODO: remove
   formData: field({ type: leadDataSchema }),
   messengerData: field({ type: messengerDataSchema }),
   uiOptions: field({ type: uiOptionsSchema }),
-  isActive: field({ type: Boolean, optional: true, default: true }),
 });

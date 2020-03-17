@@ -23,7 +23,7 @@ export interface IBrandDocument extends IBrand, Document {
 }
 
 // Mongoose schemas ===========
-const brandEmailConfigSchema = new Schema({
+export const brandEmailConfigSchema = new Schema({
   type: field({
     type: String,
     enum: ['simple', 'custom'],

@@ -7,14 +7,18 @@ import {
   Segments,
   Users,
 } from '../../../db/models';
-import { CONVERSATION_STATUSES, KIND_CHOICES, METHODS } from '../../../db/models/definitions/constants';
+import {
+  CONVERSATION_STATUSES,
+  EMAIL_VALIDATION_STATUSES,
+  KIND_CHOICES,
+  METHODS,
+} from '../../../db/models/definitions/constants';
 import { ICustomerDocument } from '../../../db/models/definitions/customers';
 import { IEngageMessageDocument } from '../../../db/models/definitions/engages';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { sendMessage } from '../../../messageBroker';
 import { MESSAGE_KINDS } from '../../constants';
-import { Builder as CustomerQueryBuilder } from '../../modules/coc/customers';
-import QueryBuilder from '../../modules/segments/queryBuilder';
+import { fetchBySegments } from '../../modules/segments/queryBuilder';
 
 /**
  * Dynamic content tags
@@ -53,7 +57,7 @@ const replaceKeys = ({
 /**
  * Find customers
  */
-const findCustomers = async ({
+export const findCustomers = async ({
   customerIds,
   segmentIds = [],
   tagIds = [],
@@ -71,46 +75,37 @@ const findCustomers = async ({
     customerQuery = { _id: { $in: customerIds } };
   }
 
-  const doNotDisturbQuery = [{ doNotDisturb: 'No' }, { doNotDisturb: { $exists: false } }];
-  const customerQb = new CustomerQueryBuilder({});
-  await customerQb.buildAllQueries();
-  const customerFilter = customerQb.mainQuery();
-
   if (tagIds.length > 0) {
-    customerQuery = { $and: [customerFilter, { $or: doNotDisturbQuery, tagIds: { $in: tagIds } }] };
+    customerQuery = { tagIds: { $in: tagIds } };
   }
 
   if (brandIds.length > 0) {
-    const brandQueries: any[] = [];
-
-    customerQuery = { $and: [customerFilter] };
+    let integrationIds: string[] = [];
 
     for (const brandId of brandIds) {
-      const brandQuery = await customerQb.brandFilter(brandId);
+      const integrations = await Integrations.findIntegrations({ brandId });
 
-      brandQueries.push(brandQuery);
+      integrationIds = [...integrationIds, ...integrations.map(i => i._id)];
     }
 
-    customerQuery = { $and: [customerFilter, { $or: brandQueries }] };
+    customerQuery = { integrationId: { $in: integrationIds } };
   }
 
   if (segmentIds.length > 0) {
-    const segmentQueries: any = [];
-
     const segments = await Segments.find({ _id: { $in: segmentIds } });
 
+    let customerIdsBySegments: string[] = [];
+
     for (const segment of segments) {
-      const filter = await QueryBuilder.segments(segment);
+      const cIds = await fetchBySegments(segment);
 
-      filter.$or = doNotDisturbQuery;
-
-      segmentQueries.push(filter);
+      customerIdsBySegments = [...customerIdsBySegments, ...cIds];
     }
 
-    customerQuery = { $and: [customerFilter, { $or: segmentQueries }] };
+    customerQuery = { _id: { $in: customerIdsBySegments } };
   }
 
-  return Customers.find(customerQuery);
+  return Customers.find({ $or: [{ doNotDisturb: 'No' }, { doNotDisturb: { $exists: false } }], ...customerQuery });
 };
 
 export const send = async (engageMessage: IEngageMessageDocument) => {
@@ -128,19 +123,19 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
 
   const customers = await findCustomers({ customerIds, segmentIds, tagIds, brandIds });
 
-  // save matched customer ids
-  EngageMessages.setCustomerIds(engageMessage._id, customers);
+  // save matched customers count
+  await EngageMessages.setCustomersCount(engageMessage._id, 'totalCustomersCount', customers.length);
 
   if (engageMessage.method === METHODS.EMAIL) {
-    const customerInfos = customers.map(customer => {
-      return {
+    const customerInfos = customers
+      .filter(customer => customer.emailValidationStatus === EMAIL_VALIDATION_STATUSES.VALID)
+      .map(customer => ({
         _id: customer._id,
         name: Customers.getCustomerName(customer),
         email: customer.primaryEmail,
-      };
-    });
+      }));
 
-    await sendMessage('erxes-api:send-engage', {
+    const data = {
       customers: customerInfos,
       email: engageMessage.email,
       user: {
@@ -149,7 +144,16 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
         position: user.details && user.details.position,
       },
       engageMessageId: engageMessage._id,
-    });
+    };
+
+    if (customerInfos.length === 0) {
+      await EngageMessages.deleteOne({ _id: engageMessage._id });
+      throw new Error('No customers found who have valid emails');
+    }
+
+    await EngageMessages.setCustomersCount(engageMessage._id, 'validCustomersCount', customerInfos.length);
+
+    await sendMessage('erxes-api:engages-notification', { action: 'sendEngage', data });
   }
 
   if (engageMessage.method === METHODS.MESSENGER && engageMessage.kind !== MESSAGE_KINDS.VISITOR_AUTO) {

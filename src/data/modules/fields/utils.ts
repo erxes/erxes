@@ -32,12 +32,6 @@ export const checkFieldNames = async (type: string, fields: string[]) => {
       property.type = 'basic';
     }
 
-    // Collecting messengerData.customData fields
-    if (fieldName.startsWith('messengerData.customData')) {
-      property.name = fieldName;
-      property.type = 'customData';
-    }
-
     // Collecting custom fields
     if (fieldObj) {
       property.type = 'customProperty';

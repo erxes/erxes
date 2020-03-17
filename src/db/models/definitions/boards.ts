@@ -1,5 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import { BOARD_TYPES, HACK_SCORING_TYPES, PIPELINE_VISIBLITIES, PROBABILITY } from './constants';
+import { BOARD_STATUSES, BOARD_TYPES, HACK_SCORING_TYPES, PIPELINE_VISIBLITIES, PROBABILITY } from './constants';
 import { field, schemaWrapper } from './utils';
 
 interface ICommonFields {
@@ -31,6 +31,7 @@ export interface IItemCommonFields {
   searchText?: string;
   priority?: string;
   sourceConversationId?: string;
+  status?: string;
 }
 
 export interface IItemCommonFieldsDocument extends IItemCommonFields, Document {
@@ -71,6 +72,7 @@ export interface IStage extends ICommonFields {
   probability?: string;
   pipelineId: string;
   formId?: string;
+  status?: string;
 }
 
 export interface IStageDocument extends IStage, Document {
@@ -85,7 +87,7 @@ export interface IOrderInput {
   order: number;
 }
 
-const attachmentSchema = new Schema(
+export const attachmentSchema = new Schema(
   {
     name: field({ type: String, label: 'Name' }),
     url: field({ type: String, label: 'Url' }),
@@ -101,7 +103,7 @@ const commonFieldsSchema = {
   createdAt: field({
     type: Date,
     default: new Date(),
-    label: 'Created by',
+    label: 'Created at',
   }),
   order: field({ type: Number, label: 'Order' }),
   type: field({
@@ -135,8 +137,13 @@ export const commonItemFieldsSchema = {
   }),
   modifiedBy: field({ type: String, label: 'Modified by' }),
   searchText: field({ type: String, optional: true, index: true }),
-  priority: field({ type: String, optional: true }),
+  priority: field({ type: String, optional: true, label: 'Priority' }),
   sourceConversationId: field({ type: String, optional: true }),
+  status: field({
+    type: String,
+    enum: BOARD_STATUSES.ALL,
+    default: BOARD_STATUSES.ACTIVE,
+  }),
 };
 
 export const boardSchema = schemaWrapper(
@@ -170,8 +177,8 @@ export const pipelineSchema = new Schema({
     label: 'Hacking scoring type',
   }),
   templateId: field({ type: String, optional: true, label: 'Template' }),
-  isCheckUser: field({ type: Boolean, optional: true }),
-  excludeCheckUserIds: field({ type: [String], optional: true }),
+  isCheckUser: field({ type: Boolean, optional: true, label: 'Show only the users created or assigned cards' }),
+  excludeCheckUserIds: field({ type: [String], optional: true, label: 'Users elligible to see all cards' }),
   ...commonFieldsSchema,
 });
 
@@ -185,5 +192,10 @@ export const stageSchema = new Schema({
   }), // Win probability
   pipelineId: field({ type: String, label: 'Pipeline' }),
   formId: field({ type: String, label: 'Form' }),
+  status: field({
+    type: String,
+    enum: BOARD_STATUSES.ALL,
+    default: BOARD_STATUSES.ACTIVE,
+  }),
   ...commonFieldsSchema,
 });

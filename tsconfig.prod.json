@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
     "sourceMap": false,
+    "inlineSourceMap": false,
+    "inlineSources": false
   },
   "extends": "./tsconfig.json",
   "include": ["./src/**/*.ts"],

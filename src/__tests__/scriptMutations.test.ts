@@ -8,12 +8,13 @@ describe('scriptMutations', () => {
   let doc;
   let lead;
   let messenger;
+  let brand;
 
   beforeEach(async () => {
     // Creating test data
-    const brand = await brandFactory();
     const form = await formFactory();
 
+    brand = await brandFactory();
     lead = await integrationFactory({ formId: form._id, kind: 'lead', brandId: brand._id });
     messenger = await integrationFactory({ kind: 'messenger', brandId: brand._id });
 
@@ -82,10 +83,11 @@ describe('scriptMutations', () => {
     `;
 
     const newScript = await Scripts.create(doc);
+    const integration = (messenger = await integrationFactory({ kind: 'messenger', brandId: brand._id }));
 
     const updateDoc = {
       name: 'name_updated',
-      messengerId: messenger._id,
+      messengerId: integration._id,
       leadIds: [lead._id],
       kbTopicId: 'kbTopicId_updated',
     };

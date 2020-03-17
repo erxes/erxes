@@ -1,7 +1,7 @@
 import * as faker from 'faker';
 import { graphqlRequest } from '../db/connection';
-import { dealFactory, pipelineFactory, pipelineLabelFactory } from '../db/factories';
-import { Deals, PipelineLabels, Pipelines } from '../db/models';
+import { dealFactory, pipelineFactory, pipelineLabelFactory, userFactory } from '../db/factories';
+import { Deals, PipelineLabels, Pipelines, Users } from '../db/models';
 
 import './setup.ts';
 
@@ -12,6 +12,7 @@ import './setup.ts';
 describe('PipelineLabels mutations', () => {
   let pipeline;
   let pipelineLabel;
+  let user;
 
   const commonParamDefs = `
     $name: String!
@@ -38,15 +39,16 @@ describe('PipelineLabels mutations', () => {
   };
 
   beforeEach(async () => {
+    user = await userFactory();
     pipeline = await pipelineFactory();
-
-    pipelineLabel = await pipelineLabelFactory({ pipelineId: pipeline._id });
+    pipelineLabel = await pipelineLabelFactory({ pipelineId: pipeline._id, createdBy: user._id });
   });
 
   afterEach(async () => {
     // Clearing test data
     await PipelineLabels.deleteMany({});
     await Pipelines.deleteMany({});
+    await Users.deleteMany({});
   });
 
   test('Add pipelineLabel', async () => {
@@ -57,6 +59,8 @@ describe('PipelineLabels mutations', () => {
         }
       }
     `;
+
+    args.pipelineId = pipeline._id;
 
     const created = await graphqlRequest(mutation, 'pipelineLabelsAdd', args);
 

@@ -27,6 +27,7 @@ export const types = `
 
     messages: [ConversationMessage]
     facebookPost: FacebookPost
+    callProAudio: String
     tags: [Tag]
     customer: Customer
     integration: Integration
@@ -34,6 +35,7 @@ export const types = `
     assignedUser: User
     participatedUsers: [User]
     participatorCount: Int
+    videoCallData: VideoCallData
   }
 
   type EngageData {
@@ -71,6 +73,8 @@ export const types = `
     user: User
     customer: Customer
     mailData: MailData
+    videoCallData: VideoCallData
+    contentType: String
   }
 
   type FacebookPost {
@@ -147,6 +151,12 @@ export const types = `
     unreadCount: Int
   }
 
+  type VideoCallData {
+    url: String
+    name: String
+    status: String
+  }
+
   input ConversationMessageParams {
     content: String,
     mentionedUserIds: [String],
@@ -214,10 +224,13 @@ export const mutations = `
     mentionedUserIds: [String],
     internal: Boolean,
     attachments: [AttachmentInput],
+    contentType: String
   ): ConversationMessage
   conversationsReplyFacebookComment(conversationId: String, commentId: String, content: String): FacebookComment
   conversationsAssign(conversationIds: [String]!, assignedUserId: String): [Conversation]
   conversationsUnassign(_ids: [String]!): [Conversation]
   conversationsChangeStatus(_ids: [String]!, status: String!): [Conversation]
   conversationMarkAsRead(_id: String): Conversation
+  conversationDeleteVideoChatRoom(name: String!): Boolean
+  conversationCreateVideoChatRoom(_id: String!): VideoCallData
 `;

@@ -1,5 +1,7 @@
 import {
   Brands,
+  ChecklistItems,
+  Checklists,
   Companies,
   Customers,
   Deals,
@@ -12,6 +14,7 @@ import {
 } from '../../db/models';
 import { IActivityLog } from '../../db/models/definitions/activityLogs';
 import { ACTIVITY_ACTIONS } from '../../db/models/definitions/constants';
+import { IUserDocument } from '../../db/models/definitions/users';
 
 export default {
   async createdByDetail(activityLog: IActivityLog) {
@@ -32,7 +35,7 @@ export default {
   },
 
   async contentTypeDetail(activityLog: IActivityLog) {
-    const { contentType, contentId } = activityLog;
+    const { contentType, contentId, content } = activityLog;
 
     let item = {};
 
@@ -48,6 +51,12 @@ export default {
         break;
       case 'ticket':
         item = await Tickets.getTicket(contentId);
+        break;
+      case 'checklist':
+        item = (await Checklists.findOne({ _id: content._id })) || {};
+        break;
+      case 'checklistitem':
+        item = (await ChecklistItems.findOne({ _id: content._id })) || {};
         break;
     }
 
@@ -106,6 +115,18 @@ export default {
       }
 
       return result;
+    }
+
+    if (action === ACTIVITY_ACTIONS.ASSIGNEE) {
+      let addedUsers: IUserDocument[] = [];
+      let removedUsers: IUserDocument[] = [];
+
+      if (content) {
+        addedUsers = await Users.find({ _id: { $in: content.addedUserIds } });
+        removedUsers = await Users.find({ _id: { $in: content.removedUserIds } });
+      }
+
+      return { addedUsers, removedUsers };
     }
   },
 };

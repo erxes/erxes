@@ -48,7 +48,12 @@ const productQueries = {
 
     // search =========
     if (searchValue) {
-      filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+      const fields = [
+        { name: { $in: [new RegExp(`.*${searchValue}.*`, 'i')] } },
+        { code: { $in: [new RegExp(`.*${searchValue}.*`, 'i')] } },
+      ];
+
+      filter.$or = fields;
     }
 
     return paginate(Products.find(filter), pagintationArgs);
@@ -91,6 +96,10 @@ const productQueries = {
 
   productDetail(_root, { _id }: { _id: string }) {
     return Products.findOne({ _id });
+  },
+
+  productCategoryDetail(_root, { _id }: { _id: string }) {
+    return ProductCategories.findOne({ _id });
   },
 
   async productCountByTags() {

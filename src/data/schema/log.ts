@@ -10,11 +10,21 @@ export const types = `
     objectId: String
     unicode: String
     description: String
+    addedData: String
+    changedData: String
+    unchangedData: String
+    removedData: String
+    extraDesc: String
   }
 
   type LogList {
     logs: [Log]
     totalCount: Int
+  }
+
+  type SchemaField {
+    name: String
+    label: String
   }
 `;
 
@@ -27,4 +37,6 @@ export const queries = `
     page: Int,
     perPage: Int
   ): LogList
+
+  getDbSchemaLabels(type: String): [SchemaField]
 `;

@@ -8,6 +8,7 @@ pipeline:
   test:
     image: erxes/runner:latest
     environment:
+      - MONGO_URL=mongodb://mongo/erxes
       - TEST_MONGO_URL=mongodb://mongo/test
       - JWT_TOKEN_SECRET=token
     commands:
@@ -16,6 +17,7 @@ pipeline:
       - yarn --version
       - yarn install
       - yarn lint
+      - yarn tsc
       - mkdir src/private/xlsTemplateOutputs
       - yarn test
 

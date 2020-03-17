@@ -1,8 +1,9 @@
 import { Scripts } from '../../../db/models';
 import { IScript } from '../../../db/models/definitions/scripts';
+import { MODULE_NAMES } from '../../constants';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { moduleCheckPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
 
 interface IScriptsEdit extends IScript {
   _id: string;
@@ -10,17 +11,17 @@ interface IScriptsEdit extends IScript {
 
 const scriptMutations = {
   /**
-   * Create new script
+   * Creates a new script
    */
   async scriptsAdd(_root, doc: IScript, { user, docModifier }: IContext) {
-    const script = await Scripts.createScript(docModifier(doc));
+    const modifiedDoc = docModifier(doc);
+    const script = await Scripts.createScript(modifiedDoc);
 
     await putCreateLog(
       {
-        type: 'script',
-        newData: JSON.stringify(doc),
+        type: MODULE_NAMES.SCRIPT,
+        newData: modifiedDoc,
         object: script,
-        description: `${script.name} has been created`,
       },
       user,
     );
@@ -29,7 +30,7 @@ const scriptMutations = {
   },
 
   /**
-   * Update script
+   * Updates a script
    */
   async scriptsEdit(_root, { _id, ...fields }: IScriptsEdit, { user }: IContext) {
     const script = await Scripts.getScript(_id);
@@ -37,10 +38,10 @@ const scriptMutations = {
 
     await putUpdateLog(
       {
-        type: 'script',
+        type: MODULE_NAMES.SCRIPT,
         object: script,
-        newData: JSON.stringify(fields),
-        description: `${script.name} has been edited`,
+        newData: fields,
+        updatedDocument: updated,
       },
       user,
     );
@@ -49,20 +50,13 @@ const scriptMutations = {
   },
 
   /**
-   * Delete script
+   * Deletes a script
    */
   async scriptsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
     const script = await Scripts.getScript(_id);
     const removed = await Scripts.removeScript(_id);
 
-    await putDeleteLog(
-      {
-        type: 'script',
-        object: script,
-        description: `${script.name} has been removed`,
-      },
-      user,
-    );
+    await putDeleteLog({ type: MODULE_NAMES.SCRIPT, object: script }, user);
 
     return removed;
   },

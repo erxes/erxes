@@ -1,5 +1,5 @@
 import { graphqlRequest } from '../db/connection';
-import { responseTemplateFactory, userFactory } from '../db/factories';
+import { brandFactory, responseTemplateFactory, userFactory } from '../db/factories';
 import { ResponseTemplates, Users } from '../db/models';
 
 import './setup.ts';
@@ -65,9 +65,11 @@ describe('Response template mutations', () => {
   });
 
   test('Edit response template', async () => {
+    const brand = await brandFactory();
+
     const args = {
       _id: _responseTemplate._id,
-      brandId: _responseTemplate.brandId,
+      brandId: brand._id,
       name: _responseTemplate.name,
       content: _responseTemplate.content,
       files: _responseTemplate.files,

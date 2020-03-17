@@ -23,7 +23,7 @@ export const loadClass = () => {
     }
 
     /**
-     * Update email template
+     * Updates an email template
      */
     public static async updateEmailTemplate(_id: string, fields: IEmailTemplate) {
       await EmailTemplates.updateOne({ _id }, { $set: fields });

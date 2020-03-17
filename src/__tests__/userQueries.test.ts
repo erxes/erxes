@@ -11,16 +11,39 @@ describe('userQueries', () => {
     await Conversations.deleteMany({});
   });
 
-  test('Users', async () => {
+  test('Test users()', async () => {
     // Creating test data
-    const user1 = await userFactory({ email: 'example@email.com' });
+    const brand = await brandFactory();
+    const user1 = await userFactory({ email: 'example@email.com', brandIds: [brand._id] });
     const user2 = await userFactory();
     const user3 = await userFactory({ isActive: false });
     await userFactory({ registrationToken: 'token' });
 
+    const paramDefs = `
+      $page: Int,
+      $perPage: Int,
+      $searchValue: String,
+      $requireUsername: Boolean,
+      $isActive: Boolean,
+      $ids: [String],
+      $status: String,
+      $brandIds: [String]
+    `;
+
+    const paramValues = `
+      page: $page,
+      perPage: $perPage,
+      searchValue: $searchValue,
+      requireUsername: $requireUsername,
+      isActive: $isActive,
+      ids: $ids,
+      status: $status,
+      brandIds: $brandIds
+    `;
+
     const qry = `
-      query users($page: Int $perPage: Int $searchValue: String $requireUsername: Boolean $isActive: Boolean $ids: [String] $status: String) {
-        users(page: $page perPage: $perPage searchValue: $searchValue requireUsername: $requireUsername isActive: $isActive ids: $ids status: $status) {
+      query users(${paramDefs}) {
+        users(${paramValues}) {
           _id
         }
       }
@@ -52,6 +75,10 @@ describe('userQueries', () => {
 
     // 6 in graphRequest + above 2
     expect(response.length).toBe(8);
+
+    response = await graphqlRequest(qry, 'users', { brandIds: [brand._id] });
+
+    expect(response.length).toBe(1);
   });
 
   test('All users', async () => {
@@ -88,6 +115,7 @@ describe('userQueries', () => {
           status
           brands { _id }
           permissionActions
+          configs
         }
       }
     `;

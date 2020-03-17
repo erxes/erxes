@@ -2,8 +2,7 @@ import * as moment from 'moment';
 import {
   Brands,
   Channels,
-  Companies,
-  Customers,
+  ConversationMessages,
   Deals,
   Fields,
   Permissions,
@@ -14,17 +13,9 @@ import {
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { MODULE_NAMES } from '../../constants';
 import { can } from '../../permissions/utils';
-import { createXlsFile, generateXlsx, paginate } from '../../utils';
-import {
-  filter as companiesFilter,
-  IListArgs as ICompanyListArgs,
-  sortBuilder as companiesSortBuilder,
-} from '../coc/companies';
-import {
-  Builder as BuildQuery,
-  IListArgs as ICustomerListArgs,
-  sortBuilder as customersSortBuilder,
-} from '../coc/customers';
+import { createXlsFile, generateXlsx } from '../../utils';
+import { Builder as CompanyBuildQuery, IListArgs as ICompanyListArgs } from '../coc/companies';
+import { Builder as CustomerBuildQuery, IListArgs as ICustomerListArgs } from '../coc/customers';
 import { fillCellValue, fillHeaders, IColumnLabel } from './spreadsheet';
 
 // Prepares data depending on module type
@@ -41,10 +32,12 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
 
       const companyParams: ICompanyListArgs = query;
 
-      const selector = await companiesFilter(companyParams);
-      const sorter = companiesSortBuilder(companyParams);
+      const companyQb = new CompanyBuildQuery(companyParams, {});
+      await companyQb.buildAllQueries();
 
-      data = await paginate(Companies.find(selector), companyParams).sort(sorter);
+      const companyResponse = await companyQb.runQueries();
+
+      data = companyResponse.list;
 
       break;
     case MODULE_NAMES.CUSTOMER:
@@ -54,13 +47,22 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
 
       const customerParams: ICustomerListArgs = query;
 
-      const qb = new BuildQuery(customerParams);
-
+      const qb = new CustomerBuildQuery(customerParams, {});
       await qb.buildAllQueries();
 
-      const sort = customersSortBuilder(customerParams);
+      const customerResponse = await qb.runQueries();
 
-      data = await Customers.find(qb.mainQuery()).sort(sort);
+      data = customerResponse.list;
+
+      if (customerParams.form && customerParams.popupData) {
+        const formQuery = {
+          formWidgetData: { $exists: true },
+        };
+
+        const conversationMessages = await ConversationMessages.find(formQuery, { formWidgetData: 1 });
+
+        data = conversationMessages.map(message => message.formWidgetData);
+      }
 
       break;
     case MODULE_NAMES.DEAL:
@@ -126,11 +128,52 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
   return data;
 };
 
+const addCell = (col: IColumnLabel, value: string, sheet: any, columnNames: string[], rowIndex: number): void => {
+  // Checking if existing column
+  if (columnNames.includes(col.name)) {
+    // If column already exists adding cell
+    sheet.cell(rowIndex, columnNames.indexOf(col.name) + 1).value(value);
+  } else {
+    // Creating column
+    sheet.cell(1, columnNames.length + 1).value(col.label || col.name);
+    // Creating cell
+    sheet.cell(rowIndex, columnNames.length + 1).value(value);
+
+    columnNames.push(col.name);
+  }
+};
+
+const fillLeadHeaders = async (formId: string) => {
+  const headers: IColumnLabel[] = [];
+
+  const fields = await Fields.find({ contentType: 'form', contentTypeId: formId }).sort({ order: 1 });
+
+  for (const field of fields) {
+    headers.push({ name: field.text, label: field.text });
+  }
+
+  return headers;
+};
+
+const buildLeadFile = async (datas: any, formId: string, sheet: any, columnNames: string[], rowIndex: number) => {
+  const headers: IColumnLabel[] = await fillLeadHeaders(formId);
+
+  for (const data of datas) {
+    rowIndex++;
+    // Iterating through basic info columns
+    for (const column of headers) {
+      const item = await data.find(obj => obj.text === column.name);
+      const cellValue = item ? item.value : '';
+
+      addCell(column, cellValue, sheet, columnNames, rowIndex);
+    }
+  }
+};
+
 export const buildFile = async (query: any, user: IUserDocument): Promise<{ name: string; response: string }> => {
-  const { type } = query;
+  let type = query.type;
 
   const data = await prepareData(query, user);
-  const headers: IColumnLabel[] = fillHeaders(type);
 
   // Reads default template
   const { workbook, sheet } = await createXlsFile();
@@ -138,46 +181,44 @@ export const buildFile = async (query: any, user: IUserDocument): Promise<{ name
   const columnNames: string[] = [];
   let rowIndex: number = 1;
 
-  const addCell = (col: IColumnLabel, value: string): void => {
-    // Checking if existing column
-    if (columnNames.includes(col.name)) {
-      // If column already exists adding cell
-      sheet.cell(rowIndex, columnNames.indexOf(col.name) + 1).value(value);
-    } else {
-      // Creating column
-      sheet.cell(1, columnNames.length + 1).value(col.label || col.name);
-      // Creating cell
-      sheet.cell(rowIndex, columnNames.length + 1).value(value);
+  if (type === MODULE_NAMES.CUSTOMER && query.form && query.popupData) {
+    await buildLeadFile(data, query.form, sheet, columnNames, rowIndex);
 
-      columnNames.push(col.name);
-    }
-  };
+    type = 'Pop-Ups';
+  } else {
+    const headers: IColumnLabel[] = fillHeaders(type);
 
-  for (const item of data) {
-    rowIndex++;
+    for (const item of data) {
+      rowIndex++;
+      // Iterating through basic info columns
+      for (const column of headers) {
+        const cellValue = await fillCellValue(column.name, item);
 
-    // Iterating through basic info columns
-    for (const column of headers) {
-      const cellValue = await fillCellValue(column.name, item);
+        addCell(column, cellValue, sheet, columnNames, rowIndex);
+      }
 
-      addCell(column, cellValue);
-    }
+      if (type === MODULE_NAMES.CUSTOMER || type === MODULE_NAMES.COMPANY) {
+        // Iterating through coc custom properties
+        if (item.customFieldsData) {
+          const keys = Object.getOwnPropertyNames(item.customFieldsData) || [];
 
-    if (type === MODULE_NAMES.CUSTOMER || type === MODULE_NAMES.COMPANY) {
-      // Iterating through coc custom properties
-      if (item.customFieldsData) {
-        const keys = Object.getOwnPropertyNames(item.customFieldsData) || [];
+          for (const fieldId of keys) {
+            const propertyObj = await Fields.findOne({ _id: fieldId });
 
-        for (const fieldId of keys) {
-          const propertyObj = await Fields.findOne({ _id: fieldId });
-
-          if (propertyObj && propertyObj.text) {
-            addCell({ name: propertyObj.text, label: propertyObj.text }, item.customFieldsData[fieldId]);
+            if (propertyObj && propertyObj.text) {
+              addCell(
+                { name: propertyObj.text, label: propertyObj.text },
+                item.customFieldsData[fieldId],
+                sheet,
+                columnNames,
+                rowIndex,
+              );
+            }
           }
         }
-      }
-    } // customer or company checking
-  } // end items for loop
+      } // customer or company checking
+    } // end items for loop
+  }
 
   return {
     name: `${type} - ${moment().format('YYYY-MM-DD HH:mm')}`,

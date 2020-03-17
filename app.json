@@ -1,0 +1,92 @@
+{
+  "name": "Erxes API on Heroku",
+  "description": "GraphQL API for erxes main project",
+  "keywords": [
+    "Marketing",
+    "sales",
+    "customer engagement",
+    "customer support",
+    "CRM",
+    "node",
+    "express",
+    "graphql",
+    "apollo"
+  ],
+  "website": "https://erxes.io",
+  "repository": "https://github.com/erxes/erxes-api",
+  "logo": "https://raw.githubusercontent.com/erxes/erxes/master/public/images/logo-dark.png",
+  "success_url": "/",
+  "env": {
+    "PORT": {
+      "description": "A port number that erxes api will be running on",
+      "value": "3300"
+    },
+    "DOMAIN": {
+      "description": "Erxes API URL",
+      "value": "https://erxes-api.herokuapp.com"
+    },
+    "MAIN_APP_DOMAIN": {
+      "description": "Erxes URL",
+      "value": "https://erxes.herokuapp.com"
+    },
+    "WIDGETS_DOMAIN": {
+      "description": "Erxes Widget URL",
+      "value": "https://erxes-widget.herokuapp.com"
+    },
+    "INTEGRATIONS_API_DOMAIN": {
+      "description": "Erxes Integrations API URL",
+      "value": "https://erxes-integration.herokuapp.com"
+    },
+    "MONGO_URL": {
+      "description": "MONGO_URL",
+      "value": "MONGO_URL"
+    },
+    "RABBITMQ_HOST": {
+      "description": "RABBITMQ_HOST",
+      "value": "amqp://localhost"
+    },
+    "REDIS_HOST": {
+      "description": "REDIS_HOST",
+      "value": "REDIS_HOST"
+    },
+    "REDIS_PORT": {
+      "description": "REDIS_PORT",
+      "value": "28229"
+    },
+    "REDIS_PASSWORD": {
+      "description": "REDIS_PASSWORD",
+      "value": "REDIS_PASSWORD"
+    },
+    "PORT_CRONS": {
+      "description": "cron port",
+      "value": "3600"
+    },
+    "PORT_WORKERS": {
+      "description": "worker port",
+      "value": "3700"
+    },
+    "JWT_TOKEN_SECRET": {
+      "description": "JWT TOKEN SECRET",
+      "value": "replact it with your token"
+    }
+  },
+  "addons": [
+    {
+      "plan": "mongolab:sandbox",
+      "as": "MONGO"
+    },
+    {
+      "plan": "heroku-redis:hobby-dev",
+      "as": "REDIS"
+    },
+    {
+      "plan": "cloudamqp:lemur",
+      "as": "RABBITMQ"
+    }
+  ],
+  "buildpacks": [
+    {
+      "url": "https://github.com/heroku/heroku-buildpack-nodejs"
+    }
+  ]
+}

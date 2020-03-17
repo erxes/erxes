@@ -6,8 +6,8 @@ const configQueries = {
   /**
    * Config object
    */
-  configsDetail(_root, { code }: { code: string }) {
-    return Configs.findOne({ code });
+  configs(_root) {
+    return Configs.find({});
   },
 
   async configsVersions(_root) {

@@ -454,7 +454,7 @@ export const generateResponseData = async (
   const userIds = _.uniq(_.pluck(responseData, 'userId')) as string[];
 
   for (const userId of userIds) {
-    const { responseTime, count, summaries } = responseUserData[userId];
+    const { responseTime, count, summaries } = responseUserData[userId || ''];
 
     // Average response time for users.
     const avgResTime = Math.floor(responseTime / count);
@@ -462,7 +462,7 @@ export const generateResponseData = async (
     // preparing each team member's chart data
     teamMembers.push({
       data: await generateUserChartData({
-        userId,
+        userId: userId || '',
         userMessages: responseData.filter(message => userId === message.userId),
       }),
       time: avgResTime,

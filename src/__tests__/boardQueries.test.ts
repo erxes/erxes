@@ -13,7 +13,7 @@ import {
 import { Boards, Pipelines, Stages } from '../db/models';
 
 import moment = require('moment');
-import { BOARD_TYPES, PIPELINE_VISIBLITIES, PROBABILITY } from '../db/models/definitions/constants';
+import { BOARD_STATUSES, BOARD_TYPES, PIPELINE_VISIBLITIES, PROBABILITY } from '../db/models/definitions/constants';
 import './setup.ts';
 
 describe('boardQueries', () => {
@@ -64,6 +64,19 @@ describe('boardQueries', () => {
       }
     }
   `;
+
+  const stateCountQry = `
+    query pipelineStateCount($boardId: String, $type: String) {
+      pipelineStateCount(boardId: $boardId, type: $type)
+    }
+  `;
+
+  const dateBuilder = day =>
+    new Date(
+      moment()
+        .add(day, 'days')
+        .format('YYYY-MM-DD'),
+    );
 
   afterEach(async () => {
     // Clearing test data
@@ -311,21 +324,21 @@ describe('boardQueries', () => {
   test('Stages', async () => {
     const pipeline = await pipelineFactory();
 
-    const args = { pipelineId: pipeline._id, probability: PROBABILITY.LOST };
+    const args = { pipelineId: pipeline._id, probability: PROBABILITY.LOST, status: BOARD_STATUSES.ACTIVE };
 
     await stageFactory(args);
     await stageFactory(args);
     await stageFactory(args);
 
     const qry = `
-      query stages($pipelineId: String!, $isNotLost: Boolean) {
-        stages(pipelineId: $pipelineId, isNotLost: $isNotLost) {
+      query stages($pipelineId: String!, $isNotLost: Boolean, $isAll: Boolean) {
+        stages(pipelineId: $pipelineId, isNotLost: $isNotLost, isAll: $isAll) {
           ${commonStageTypes}
         }
       }
     `;
 
-    const filter = { pipelineId: pipeline._id, isNotLost: false };
+    const filter = { pipelineId: pipeline._id, isNotLost: false, isAll: false };
 
     let response = await graphqlRequest(qry, 'stages', filter);
 
@@ -340,6 +353,15 @@ describe('boardQueries', () => {
     response = await graphqlRequest(qry, 'stages', filter);
 
     expect(response.length).toBe(2);
+
+    args.status = BOARD_STATUSES.ARCHIVED;
+
+    await stageFactory(args);
+
+    filter.isAll = true;
+    response = await graphqlRequest(qry, 'stages', filter);
+
+    expect(response.length).toBe(3);
   });
 
   test('Stage detail', async () => {
@@ -424,6 +446,47 @@ describe('boardQueries', () => {
     expect(response._id).toBe(stage._id);
   });
 
+  test('Pipeline state count', async () => {
+    //  Not started pipelines
+    await pipelineFactory({ startDate: dateBuilder(1), endDate: dateBuilder(2) });
+    await pipelineFactory({ startDate: dateBuilder(2), endDate: dateBuilder(3) });
+
+    //  In progress pipelines
+    await pipelineFactory({ startDate: dateBuilder(-1), endDate: dateBuilder(1) });
+    await pipelineFactory({ startDate: dateBuilder(-2), endDate: dateBuilder(2) });
+
+    //  Not started pipelines
+    await pipelineFactory({ startDate: dateBuilder(-2), endDate: dateBuilder(-1) });
+
+    const response = await graphqlRequest(stateCountQry, 'pipelineStateCount', { type: BOARD_TYPES.DEAL });
+
+    expect(response.All).toBe(5);
+    expect(response['Not started']).toBe(2);
+    expect(response['In progress']).toBe(2);
+    expect(response.Completed).toBe(1);
+  });
+
+  test('Pipeline state count with boardId', async () => {
+    const board = await pipelineFactory({});
+
+    //  Not started pipelines
+    await pipelineFactory({ startDate: dateBuilder(3), endDate: dateBuilder(5), boardId: board._id });
+
+    //  In progress pipelines
+    await pipelineFactory({ startDate: dateBuilder(-3), endDate: dateBuilder(3), boardId: board._id });
+
+    //  Not started pipelines
+    await pipelineFactory({ startDate: dateBuilder(-4), endDate: dateBuilder(-3), boardId: board._id });
+    await pipelineFactory({ startDate: dateBuilder(-5), endDate: dateBuilder(-2) });
+
+    const response = await graphqlRequest(stateCountQry, 'pipelineStateCount', { boardId: board._id });
+
+    expect(response.All).toBe(3);
+    expect(response['Not started']).toBe(1);
+    expect(response['In progress']).toBe(1);
+    expect(response.Completed).toBe(1);
+  });
+
   test('Convert to info', async () => {
     const conversation = await conversationFactory();
 
@@ -466,5 +529,61 @@ describe('boardQueries', () => {
     expect(response.dealUrl).toBe('');
     expect(response.ticketUrl).toBe('');
     expect(response.taskUrl).toBe('');
+  });
+
+  test('Archived stages', async () => {
+    const pipeline = await pipelineFactory();
+
+    const params = {
+      pipelineId: pipeline._id,
+      status: BOARD_STATUSES.ARCHIVED,
+    };
+
+    const stage1 = await stageFactory(params);
+    await stageFactory(params);
+    await stageFactory(params);
+
+    const qry = `
+      query archivedStages($pipelineId: String!, $search: String, $page: Int, $perPage: Int) {
+        archivedStages(pipelineId: $pipelineId, search: $search, page: $page, perPage: $perPage) {
+          _id
+        }
+      }
+    `;
+
+    let response = await graphqlRequest(qry, 'archivedStages', { pipelineId: pipeline._id });
+
+    expect(response.length).toBe(3);
+
+    response = await graphqlRequest(qry, 'archivedStages', { pipelineId: pipeline._id, search: stage1.name });
+
+    expect(response.length).toBe(1);
+  });
+
+  test('Archived stages count ', async () => {
+    const pipeline = await pipelineFactory();
+
+    const params = {
+      pipelineId: pipeline._id,
+      status: BOARD_STATUSES.ARCHIVED,
+    };
+
+    const stage1 = await stageFactory(params);
+    await stageFactory(params);
+    await stageFactory(params);
+
+    const qry = `
+      query archivedStagesCount($pipelineId: String!, $search: String) {
+        archivedStagesCount(pipelineId: $pipelineId, search: $search)
+      }
+    `;
+
+    let response = await graphqlRequest(qry, 'archivedStagesCount', { pipelineId: pipeline._id });
+
+    expect(response).toBe(3);
+
+    response = await graphqlRequest(qry, 'archivedStagesCount', { pipelineId: pipeline._id, search: stage1.name });
+
+    expect(response).toBe(1);
   });
 });

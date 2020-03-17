@@ -33,18 +33,19 @@ export const checklistSchema = new Schema({
   contentType: field({
     type: String,
     enum: ACTIVITY_CONTENT_TYPES.ALL,
+    label: 'Content type',
   }),
-  contentTypeId: field({ type: String }),
-  title: field({ type: String }),
-  createdUserId: field({ type: String }),
-  createdDate: field({ type: Date }),
+  contentTypeId: field({ type: String, label: 'Content type item' }),
+  title: field({ type: String, label: 'Title' }),
+  createdUserId: field({ type: String, label: 'Created by' }),
+  createdDate: field({ type: Date, label: 'Created at' }),
 });
 
 export const checklistItemSchema = new Schema({
   _id: field({ pkey: true }),
-  checklistId: field({ type: String }),
-  content: field({ type: String }),
-  isChecked: field({ type: Boolean }),
-  createdUserId: field({ type: String }),
-  createdDate: field({ type: Date }),
+  checklistId: field({ type: String, label: 'Check list' }),
+  content: field({ type: String, label: 'Content' }),
+  isChecked: field({ type: Boolean, label: 'Is checked' }),
+  createdUserId: field({ type: String, label: 'Created by' }),
+  createdDate: field({ type: Date, label: 'Created at' }),
 });

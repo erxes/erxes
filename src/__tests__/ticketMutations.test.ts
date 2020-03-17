@@ -1,15 +1,29 @@
 import { graphqlRequest } from '../db/connection';
 import {
   boardFactory,
+  checklistFactory,
+  checklistItemFactory,
+  companyFactory,
+  conformityFactory,
+  customerFactory,
   pipelineFactory,
   pipelineLabelFactory,
   stageFactory,
   ticketFactory,
   userFactory,
 } from '../db/factories';
-import { Boards, PipelineLabels, Pipelines, Stages, Tickets } from '../db/models';
+import {
+  Boards,
+  ChecklistItems,
+  Checklists,
+  Conformities,
+  PipelineLabels,
+  Pipelines,
+  Stages,
+  Tickets,
+} from '../db/models';
 import { IBoardDocument, IPipelineDocument, IStageDocument } from '../db/models/definitions/boards';
-import { BOARD_TYPES } from '../db/models/definitions/constants';
+import { BOARD_STATUSES, BOARD_TYPES } from '../db/models/definitions/constants';
 import { IPipelineLabelDocument } from '../db/models/definitions/pipelineLabels';
 import { ITicketDocument } from '../db/models/definitions/tickets';
 
@@ -124,11 +138,36 @@ describe('Test tickets mutations', () => {
     expect(updatedTicket._id).toEqual(args._id);
   });
 
+  test('Change ticket if move to another stage', async () => {
+    const anotherStage = await stageFactory({ pipelineId: pipeline._id });
+
+    const args = {
+      _id: ticket._id,
+      destinationStageId: anotherStage._id,
+    };
+
+    const mutation = `
+      mutation ticketsChange($_id: String!, $destinationStageId: String) {
+        ticketsChange(_id: $_id, destinationStageId: $destinationStageId) {
+          _id,
+          stageId
+        }
+      }
+    `;
+
+    const updatedTicket = await graphqlRequest(mutation, 'ticketsChange', args);
+
+    expect(updatedTicket._id).toEqual(args._id);
+  });
+
   test('Ticket update orders', async () => {
     const ticketToStage = await ticketFactory({});
 
     const args = {
-      orders: [{ _id: ticket._id, order: 9 }, { _id: ticketToStage._id, order: 3 }],
+      orders: [
+        { _id: ticket._id, order: 9 },
+        { _id: ticketToStage._id, order: 3 },
+      ],
       stageId: stage._id,
     };
 
@@ -185,5 +224,86 @@ describe('Test tickets mutations', () => {
     );
 
     expect(watchRemoveTicket.isWatched).toBe(false);
+  });
+
+  test('Test ticketsCopy()', async () => {
+    const mutation = `
+      mutation ticketsCopy($_id: String!) {
+        ticketsCopy(_id: $_id) {
+          _id
+          userId
+          name
+          stageId
+        }
+      }
+    `;
+
+    const checklist = await checklistFactory({
+      contentType: 'ticket',
+      contentTypeId: ticket._id,
+      title: 'ticket-checklist',
+    });
+
+    await checklistItemFactory({
+      checklistId: checklist._id,
+      content: 'Improve ticket mutation test coverage',
+      isChecked: true,
+    });
+
+    const company = await companyFactory();
+    const customer = await customerFactory();
+
+    await conformityFactory({
+      mainType: 'ticket',
+      mainTypeId: ticket._id,
+      relType: 'company',
+      relTypeId: company._id,
+    });
+
+    await conformityFactory({
+      mainType: 'ticket',
+      mainTypeId: ticket._id,
+      relType: 'customer',
+      relTypeId: customer._id,
+    });
+
+    const result = await graphqlRequest(mutation, 'ticketsCopy', { _id: ticket._id }, context);
+
+    const clonedTicketCompanies = await Conformities.find({ mainTypeId: result._id, relTypeId: company._id });
+    const clonedTicketCustomers = await Conformities.find({ mainTypeId: result._id, relTypeId: company._id });
+    const clonedTicketChecklist = await Checklists.findOne({ contentTypeId: result._id });
+
+    if (clonedTicketChecklist) {
+      const clonedTicketChecklistItems = await ChecklistItems.find({ checklistId: clonedTicketChecklist._id });
+
+      expect(clonedTicketChecklist.contentTypeId).toBe(result._id);
+      expect(clonedTicketChecklistItems.length).toBe(1);
+    }
+
+    expect(result.name).toBe(`${ticket.name}-copied`);
+    expect(result.stageId).toBe(ticket.stageId);
+
+    expect(clonedTicketCompanies.length).toBe(1);
+    expect(clonedTicketCustomers.length).toBe(1);
+  });
+
+  test('Ticket archive', async () => {
+    const mutation = `
+      mutation ticketsArchive($stageId: String!) {
+        ticketsArchive(stageId: $stageId)
+      }
+    `;
+
+    const ticketStage = await stageFactory({ type: BOARD_TYPES.TICKET });
+
+    await ticketFactory({ stageId: ticketStage._id });
+    await ticketFactory({ stageId: ticketStage._id });
+    await ticketFactory({ stageId: ticketStage._id });
+
+    await graphqlRequest(mutation, 'ticketsArchive', { stageId: ticketStage._id });
+
+    const tasks = await Tickets.find({ stageId: ticketStage._id, status: BOARD_STATUSES.ARCHIVED });
+
+    expect(tasks.length).toBe(3);
   });
 });

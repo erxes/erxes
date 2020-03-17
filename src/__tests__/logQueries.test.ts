@@ -1,3 +1,4 @@
+import { MODULE_NAMES } from '../data/constants';
 import { graphqlRequest } from '../db/connection';
 import './setup.ts';
 
@@ -34,5 +35,20 @@ describe('log queries', () => {
 
     expect(response.logs).toHaveLength(0);
     expect(response.totalCount).toBe(0);
+  });
+
+  test('getDbSchemaLabels', async () => {
+    const query = `
+      query getDbSchemaLabels($type: String) {
+        getDbSchemaLabels(type: $type) {
+          name
+          label
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(query, 'getDbSchemaLabels', { type: MODULE_NAMES.BRAND });
+
+    expect(response).toBeDefined();
   });
 });

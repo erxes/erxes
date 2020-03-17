@@ -1,8 +1,9 @@
 import { ProductCategories, Products } from '../../../db/models';
-import { IProduct, IProductCategory } from '../../../db/models/definitions/deals';
+import { IProduct, IProductCategory, IProductDocument } from '../../../db/models/definitions/deals';
+import { MODULE_NAMES } from '../../constants';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { moduleCheckPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
 
 interface IProductsEdit extends IProduct {
   _id: string;
@@ -22,10 +23,13 @@ const productMutations = {
 
     await putCreateLog(
       {
-        type: 'product',
-        newData: JSON.stringify(doc),
+        type: MODULE_NAMES.PRODUCT,
+        newData: {
+          ...doc,
+          categoryId: product.categoryId,
+          customFieldsData: product.customFieldsData,
+        },
         object: product,
-        description: `${product.name} has been created`,
       },
       user,
     );
@@ -44,10 +48,10 @@ const productMutations = {
 
     await putUpdateLog(
       {
-        type: 'product',
+        type: MODULE_NAMES.PRODUCT,
         object: product,
-        newData: JSON.stringify(doc),
-        description: `${product.name} has been edited`,
+        newData: { ...doc, customFieldsData: updated.customFieldsData },
+        updatedDocument: updated,
       },
       user,
     );
@@ -60,19 +64,12 @@ const productMutations = {
    * @param {string} param1._id Product id
    */
   async productsRemove(_root, { productIds }: { productIds: string[] }, { user }: IContext) {
-    const products = await Products.find({ _id: { $in: productIds } }, { name: 1 }).lean();
+    const products: IProductDocument[] = await Products.find({ _id: { $in: productIds } }).lean();
 
     await Products.removeProducts(productIds);
 
     for (const product of products) {
-      await putDeleteLog(
-        {
-          type: 'product',
-          object: product,
-          description: `${product.name} has been removed`,
-        },
-        user,
-      );
+      await putDeleteLog({ type: MODULE_NAMES.PRODUCT, object: product }, user);
     }
 
     return productIds;
@@ -82,16 +79,14 @@ const productMutations = {
    * Creates a new product category
    * @param {Object} doc Product category document
    */
-
   async productCategoriesAdd(_root, doc: IProductCategory, { user, docModifier }: IContext) {
     const productCategory = await ProductCategories.createProductCategory(docModifier(doc));
 
     await putCreateLog(
       {
-        type: 'product-category',
-        newData: JSON.stringify(doc),
+        type: MODULE_NAMES.PRODUCT_CATEGORY,
+        newData: { ...doc, order: productCategory.order },
         object: productCategory,
-        description: `${productCategory.name} has been created`,
       },
       user,
     );
@@ -106,15 +101,14 @@ const productMutations = {
    */
   async productCategoriesEdit(_root, { _id, ...doc }: IProductCategoriesEdit, { user }: IContext) {
     const productCategory = await ProductCategories.getProductCatogery({ _id });
-
     const updated = await ProductCategories.updateProductCategory(_id, doc);
 
     await putUpdateLog(
       {
-        type: 'product-category',
+        type: MODULE_NAMES.PRODUCT_CATEGORY,
         object: productCategory,
-        newData: JSON.stringify(doc),
-        description: `${productCategory.name} has been edited`,
+        newData: doc,
+        updatedDocument: updated,
       },
       user,
     );
@@ -130,14 +124,7 @@ const productMutations = {
     const productCategory = await ProductCategories.getProductCatogery({ _id });
     const removed = await ProductCategories.removeProductCategory(_id);
 
-    await putDeleteLog(
-      {
-        type: 'product-category',
-        object: productCategory,
-        description: `${productCategory.name} has been removed`,
-      },
-      user,
-    );
+    await putDeleteLog({ type: MODULE_NAMES.PRODUCT_CATEGORY, object: productCategory }, user);
 
     return removed;
   },

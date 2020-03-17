@@ -65,6 +65,7 @@ export const types = `
     brands: [Brand]
     isOwner: Boolean
     permissionActions: JSON
+    configs: JSON
   }
 
   type UserConversationListResponse {
@@ -87,7 +88,8 @@ const commonSelector = `
   searchValue: String,
   isActive: Boolean,
   requireUsername: Boolean,
-  ids: [String]
+  ids: [String],
+  brandIds: [String]
 `;
 
 export const queries = `

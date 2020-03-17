@@ -12,5 +12,7 @@ dump.rdb
 *.swo
 .migrate
 
+oplog.timestamp
+
 # Google config file
 google_cred.json

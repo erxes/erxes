@@ -25,6 +25,8 @@ export const types = `
     integrationId: String
     firstName: String
     lastName: String
+    birthDate: Date
+    sex: Int
 
     email: String
     primaryEmail: String
@@ -40,7 +42,7 @@ export const types = `
     location: JSON
     visitorContactInfo: JSON
     customFieldsData: JSON
-    messengerData: JSON
+    trackedData: JSON
     ownerId: String
     position: String
     department: String
@@ -50,13 +52,17 @@ export const types = `
     description: String
     doNotDisturb: String
     code: String
+    emailValidationStatus: String
+
+    isOnline: Boolean
+    lastSeenAt: Date
+    sessionCount: Int
 
     integration: Integration
     links: CustomerLinks
     companies: [Company]
     conversations: [Conversation]
-    getIntegrationData: JSON
-    getMessengerCustomData: JSON
+    getTrackedData: JSON
     getTags: [Tag]
     owner: User
   }
@@ -84,15 +90,16 @@ const queryParams = `
   leadStatus: String
   sortField: String
   sortDirection: Int
+  sex:Int
+  birthDate: Date
   ${conformityQueryFields}
 `;
 
 export const queries = `
   customersMain(${queryParams}): CustomersListResponse
   customers(${queryParams}): [Customer]
-  customerCounts(${queryParams}, byFakeSegment: JSON, only: String): JSON
+  customerCounts(${queryParams}, only: String): JSON
   customerDetail(_id: String!): Customer
-  customerListForSegmentPreview(segment: JSON, limit: Int): [Customer]
 `;
 
 const fields = `
@@ -114,6 +121,8 @@ const fields = `
   links: JSON
   customFieldsData: JSON
   code: String
+  sex: Int
+  birthDate: Date
 `;
 
 export const mutations = `

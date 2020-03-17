@@ -1,6 +1,7 @@
 import { ConversationMessages, Conversations, Customers, Integrations, Users } from '../../../db/models';
 import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
 import { graphqlPubsub } from '../../../pubsub';
+import { getConfigs } from '../../utils';
 
 const sendError = message => ({
   status: 'error',
@@ -112,6 +113,11 @@ export const receiveRpcMessage = async msg => {
 
     return sendSuccess({ _id: message._id });
   }
+
+  if (action === 'get-configs') {
+    const configs = await getConfigs();
+    return sendSuccess({ configs });
+  }
 };
 
 /*
@@ -124,5 +130,43 @@ export const receiveIntegrationsNotification = async msg => {
     graphqlPubsub.publish('conversationExternalIntegrationMessageInserted');
 
     return sendSuccess({ status: 'ok' });
+  }
+};
+
+/*
+ * Email verifier notification
+ */
+export const receiveEmailVerifierNotification = async msg => {
+  const { action, data } = msg;
+
+  if (action === 'emailVerify') {
+    const bulkOps: Array<{
+      updateOne: {
+        filter: { primaryEmail: string };
+        update: { emailValidationStatus: string };
+      };
+    }> = [];
+
+    for (const { email, status } of data) {
+      bulkOps.push({
+        updateOne: {
+          filter: { primaryEmail: email },
+          update: { emailValidationStatus: status },
+        },
+      });
+    }
+
+    await Customers.bulkWrite(bulkOps);
+  }
+};
+
+/*
+ * Engages notification
+ */
+export const receiveEngagesNotification = async msg => {
+  const { action, data } = msg;
+
+  if (action === 'setDoNotDisturb') {
+    await Customers.updateOne({ _id: data.customerId }, { $set: { doNotDisturb: 'Yes' } });
   }
 };

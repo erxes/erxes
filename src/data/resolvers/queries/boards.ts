@@ -1,8 +1,9 @@
 import { Boards, Deals, Pipelines, Stages, Tasks, Tickets } from '../../../db/models';
-import { IConformityQueryParams } from '../../modules/conformities/types';
+import { BOARD_STATUSES } from '../../../db/models/definitions/constants';
 import { moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { paginate } from '../../utils';
+import { paginate, regexSearchText } from '../../utils';
+import { IConformityQueryParams } from './types';
 
 export interface IDate {
   month: number;
@@ -15,12 +16,13 @@ export interface IListParams extends IConformityQueryParams {
   skip?: number;
   date?: IDate;
   search?: string;
-  customerIds?: [string];
-  companyIds?: [string];
-  assignedUserIds?: [string];
+  customerIds?: string[];
+  companyIds?: string[];
+  assignedUserIds?: string[];
   sortField?: string;
   sortDirection?: number;
-  labelIds?: [string];
+  labelIds?: string[];
+  userIds?: string[];
 }
 
 const boardQueries = {
@@ -97,6 +99,53 @@ const boardQueries = {
     return Pipelines.find(query).sort({ order: 1, createdAt: -1 });
   },
 
+  async pipelineStateCount(_root, { boardId, type }: { boardId: string; type: string }) {
+    const query: any = {};
+
+    if (boardId) {
+      query.boardId = boardId;
+    }
+
+    if (type) {
+      query.type = type;
+    }
+
+    const counts: any = {};
+    const now = new Date();
+
+    const notStartedQuery = {
+      ...query,
+      startDate: { $gt: now },
+    };
+
+    const notStartedCount = await Pipelines.find(notStartedQuery).countDocuments();
+
+    counts['Not started'] = notStartedCount;
+
+    const inProgressQuery = {
+      ...query,
+      startDate: { $lt: now },
+      endDate: { $gt: now },
+    };
+
+    const inProgressCount = await Pipelines.find(inProgressQuery).countDocuments();
+
+    counts['In progress'] = inProgressCount;
+
+    const completedQuery = {
+      ...query,
+      endDate: { $lt: now },
+    };
+
+    const completedCounted = await Pipelines.find(completedQuery).countDocuments();
+
+    counts.Completed = completedCounted;
+
+    counts.All = notStartedCount + inProgressCount + completedCounted;
+
+    return counts;
+  },
+
   /**
    *  Pipeline detail
    */
@@ -107,13 +156,17 @@ const boardQueries = {
   /**
    *  Stages list
    */
-  stages(_root, { pipelineId, isNotLost }: { pipelineId: string; isNotLost: boolean }) {
+  stages(_root, { pipelineId, isNotLost, isAll }: { pipelineId: string; isNotLost: boolean; isAll: boolean }) {
     const filter: any = {};
 
     filter.pipelineId = pipelineId;
 
     if (isNotLost) {
       filter.probability = { $ne: 'Lost' };
+    }
+
+    if (!isAll) {
+      filter.$or = [{ status: null }, { status: BOARD_STATUSES.ACTIVE }];
     }
 
     return Stages.find(filter).sort({ order: 1, createdAt: -1 });
@@ -124,6 +177,33 @@ const boardQueries = {
    */
   stageDetail(_root, { _id }: { _id: string }) {
     return Stages.findOne({ _id });
+  },
+
+  /**
+   *  Archived stages
+   */
+
+  archivedStages(
+    _root,
+    { pipelineId, search, ...listArgs }: { pipelineId: string; search?: string; page?: number; perPage?: number },
+  ) {
+    const filter: any = { pipelineId, status: BOARD_STATUSES.ARCHIVED };
+
+    if (search) {
+      Object.assign(filter, regexSearchText(search, 'name'));
+    }
+
+    return paginate(Stages.find(filter).sort({ createdAt: -1 }), listArgs);
+  },
+
+  archivedStagesCount(_root, { pipelineId, search }: { pipelineId: string; search?: string }) {
+    const filter: any = { pipelineId, status: BOARD_STATUSES.ARCHIVED };
+
+    if (search) {
+      Object.assign(filter, regexSearchText(search, 'name'));
+    }
+
+    return Stages.countDocuments(filter);
   },
 
   /**

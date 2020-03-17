@@ -1,23 +1,23 @@
 import { KnowledgeBaseArticles, KnowledgeBaseCategories, KnowledgeBaseTopics } from '../../../db/models';
 import { ITopic } from '../../../db/models/definitions/knowledgebase';
 import { IArticleCreate, ICategoryCreate } from '../../../db/models/KnowledgeBase';
+import { MODULE_NAMES } from '../../constants';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { moduleCheckPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
 
 const knowledgeBaseMutations = {
   /**
-   * Create topic document
+   * Creates a topic document
    */
   async knowledgeBaseTopicsAdd(_root, { doc }: { doc: ITopic }, { user, docModifier }: IContext) {
     const topic = await KnowledgeBaseTopics.createDoc(docModifier(doc), user._id);
 
     await putCreateLog(
       {
-        type: 'knowledgeBaseTopic',
-        newData: JSON.stringify(doc),
+        type: MODULE_NAMES.KB_TOPIC,
+        newData: { ...doc, createdBy: user._id, createdDate: topic.createdDate },
         object: topic,
-        description: `${topic.title} has been created`,
       },
       user,
     );
@@ -26,7 +26,7 @@ const knowledgeBaseMutations = {
   },
 
   /**
-   * Update topic document
+   * Updates a topic document
    */
   async knowledgeBaseTopicsEdit(_root, { _id, doc }: { _id: string; doc: ITopic }, { user }: IContext) {
     const topic = await KnowledgeBaseTopics.getTopic(_id);
@@ -34,10 +34,10 @@ const knowledgeBaseMutations = {
 
     await putUpdateLog(
       {
-        type: 'knowledgeBaseTopic',
+        type: MODULE_NAMES.KB_TOPIC,
         object: topic,
-        newData: JSON.stringify(doc),
-        description: `${topic.title} has been edited`,
+        newData: { ...doc, modifiedBy: user._id, modifiedDate: updated.modifiedDate },
+        updatedDocument: updated,
       },
       user,
     );
@@ -52,14 +52,7 @@ const knowledgeBaseMutations = {
     const topic = await KnowledgeBaseTopics.getTopic(_id);
     const removed = await KnowledgeBaseTopics.removeDoc(_id);
 
-    await putDeleteLog(
-      {
-        type: 'knowledgeBaseTopic',
-        object: topic,
-        description: `${topic.title} has been removed`,
-      },
-      user,
-    );
+    await putDeleteLog({ type: MODULE_NAMES.KB_TOPIC, object: topic }, user);
 
     return removed;
   },
@@ -72,9 +65,8 @@ const knowledgeBaseMutations = {
 
     await putCreateLog(
       {
-        type: 'knowledgeBaseCategory',
-        newData: JSON.stringify(doc),
-        description: `${kbCategory.title} has been created`,
+        type: MODULE_NAMES.KB_CATEGORY,
+        newData: { ...doc, createdBy: user._id, createdDate: kbCategory.createdDate },
         object: kbCategory,
       },
       user,
@@ -92,10 +84,10 @@ const knowledgeBaseMutations = {
 
     await putUpdateLog(
       {
-        type: 'knowledgeBaseCategory',
+        type: MODULE_NAMES.KB_CATEGORY,
         object: kbCategory,
-        newData: JSON.stringify(doc),
-        description: `${kbCategory.title} has been edited`,
+        newData: { ...doc, modifiedBy: user._id, modifiedDate: updated.modifiedDate },
+        updatedDocument: updated,
       },
       user,
     );
@@ -108,16 +100,10 @@ const knowledgeBaseMutations = {
    */
   async knowledgeBaseCategoriesRemove(_root, { _id }: { _id: string }, { user }: IContext) {
     const kbCategory = await KnowledgeBaseCategories.getCategory(_id);
+
     const removed = await KnowledgeBaseCategories.removeDoc(_id);
 
-    await putDeleteLog(
-      {
-        type: 'knowledgeBaseCategory',
-        object: kbCategory,
-        description: `${kbCategory.title} has been removed`,
-      },
-      user,
-    );
+    await putDeleteLog({ type: MODULE_NAMES.KB_CATEGORY, object: kbCategory }, user);
 
     return removed;
   },
@@ -130,9 +116,8 @@ const knowledgeBaseMutations = {
 
     await putCreateLog(
       {
-        type: 'knowledgeBaseArticle',
-        newData: JSON.stringify(doc),
-        description: `${kbArticle.title} has been created`,
+        type: MODULE_NAMES.KB_ARTICLE,
+        newData: { ...doc, createdBy: user._id, createdDate: kbArticle.createdDate },
         object: kbArticle,
       },
       user,
@@ -150,10 +135,10 @@ const knowledgeBaseMutations = {
 
     await putUpdateLog(
       {
-        type: 'knowledgeBaseArticle',
+        type: MODULE_NAMES.KB_ARTICLE,
         object: kbArticle,
-        newData: JSON.stringify(doc),
-        description: `${kbArticle.title} has been edited`,
+        newData: { ...doc, modifiedBy: user._id, modifiedDate: updated.modifiedDate },
+        updatedDocument: updated,
       },
       user,
     );
@@ -168,14 +153,7 @@ const knowledgeBaseMutations = {
     const kbArticle = await KnowledgeBaseArticles.getArticle(_id);
     const removed = await KnowledgeBaseArticles.removeDoc(_id);
 
-    await putDeleteLog(
-      {
-        type: 'knowledgeBaseArticle',
-        object: kbArticle,
-        description: `${kbArticle.title} has been removed`,
-      },
-      user,
-    );
+    await putDeleteLog({ type: MODULE_NAMES.KB_ARTICLE, object: kbArticle }, user);
 
     return removed;
   },

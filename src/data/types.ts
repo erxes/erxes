@@ -3,11 +3,13 @@ import { IUserDocument } from '../db/models/definitions/users';
 
 export interface IContext {
   res: express.Response;
+  requestInfo: any;
   user: IUserDocument;
   docModifier: <T>(doc: T) => any;
   brandIdSelector: {};
   userBrandIdsSelector: {};
   commonQuerySelector: {};
+  commonQuerySelectorElk: {};
   dataSources: {
     EngagesAPI: any;
     IntegrationsAPI: any;

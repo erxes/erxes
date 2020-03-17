@@ -23,7 +23,8 @@ import {
   uploadFile,
 } from './data/utils';
 import { connect } from './db/connection';
-import { debugExternalApi, debugInit } from './debuggers';
+import { debugBase, debugExternalApi, debugInit } from './debuggers';
+import { identifyCustomer, trackCustomEvent, trackViewPageEvent, updateCustomerProperty } from './events';
 import './messageBroker';
 import userMiddleware from './middlewares/userMiddleware';
 import widgetsMiddleware from './middlewares/widgetsMiddleware';
@@ -37,7 +38,7 @@ dotenv.config();
 const { NODE_ENV, JWT_TOKEN_SECRET } = process.env;
 
 if (!JWT_TOKEN_SECRET) {
-  throw new Error('Please configure JWT_TOKEN_SECRET environment variable');
+  throw new Error('Please configure JWT_TOKEN_SECRET environment variable.');
 }
 
 const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN', defaultValue: '' });
@@ -84,11 +85,49 @@ app.use(cors(corsOptions));
 
 app.get('/script-manager', widgetsMiddleware);
 
+// events
+app.post('/events-receive', async (req, res) => {
+  const { name, customerId, attributes } = req.body;
+
+  try {
+    const response =
+      name === 'pageView'
+        ? await trackViewPageEvent({ customerId, attributes })
+        : trackCustomEvent({ name, customerId, attributes });
+    return res.json(response);
+  } catch (e) {
+    debugBase(e.message);
+    return res.json({});
+  }
+});
+
+app.post('/events-identify-customer', async (req, res) => {
+  const { args } = req.body;
+
+  try {
+    const response = await identifyCustomer(args);
+    return res.json(response);
+  } catch (e) {
+    debugBase(e.message);
+    return res.json({});
+  }
+});
+
+app.post('/events-update-customer-property', async (req, res) => {
+  try {
+    const response = await updateCustomerProperty(req.body);
+    return res.json(response);
+  } catch (e) {
+    debugBase(e.message);
+    return res.json({});
+  }
+});
+
 app.use(userMiddleware);
 
 app.use('/static', express.static(path.join(__dirname, 'private')));
 
-app.get('/download-template', (req: any, res) => {
+app.get('/download-template', async (req: any, res) => {
   const DOMAIN = getEnv({ name: 'DOMAIN' });
   const name = req.query.name;
 
@@ -248,21 +287,27 @@ app.post('/import-file', async (req: any, res, next) => {
 
   debugExternalApi(`Pipeing request to ${WORKERS_API_DOMAIN}`);
 
-  return req.pipe(
-    request
-      .post(`${WORKERS_API_DOMAIN}/import-file`)
-      .on('response', response => {
-        if (response.statusCode !== 200) {
-          return next(response.statusMessage);
-        }
+  try {
+    const result = await req.pipe(
+      request
+        .post(`${WORKERS_API_DOMAIN}/import-file`)
+        .on('response', response => {
+          if (response.statusCode !== 200) {
+            return next(response.statusMessage);
+          }
 
-        return response.pipe(res);
-      })
-      .on('error', e => {
-        debugExternalApi(`Error from pipe ${e.message}`);
-        next(e);
-      }),
-  );
+          return response.pipe(res);
+        })
+        .on('error', e => {
+          debugExternalApi(`Error from pipe ${e.message}`);
+          next(e);
+        }),
+    );
+
+    return result;
+  } catch (e) {
+    return res.json({ status: 'error', message: e.message });
+  }
 });
 
 // engage unsubscribe

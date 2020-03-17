@@ -5,7 +5,7 @@ import resolvers from './data/resolvers';
 import typeDefs from './data/schema';
 import { Conversations, Customers } from './db/models';
 import { graphqlPubsub } from './pubsub';
-import { get, getArray, set, setArray } from './redisClient';
+import { addToArray, get, inArray, removeFromArray, set } from './redisClient';
 
 // load environment variables
 dotenv.config();
@@ -48,6 +48,10 @@ const apolloServer = new ApolloServer({
       };
     }
 
+    const requestInfo = {
+      secure: req.secure,
+    };
+
     const user = req.user;
 
     if (USE_BRAND_RESTRICTIONS !== 'true') {
@@ -58,6 +62,7 @@ const apolloServer = new ApolloServer({
         commonQuerySelector: {},
         user,
         res,
+        requestInfo,
       };
     }
 
@@ -65,6 +70,7 @@ const apolloServer = new ApolloServer({
     let brandIds = [];
     let brandIdSelector = {};
     let commonQuerySelector = {};
+    let commonQuerySelectorElk;
     let userBrandIdsSelector = {};
 
     if (user) {
@@ -77,6 +83,7 @@ const apolloServer = new ApolloServer({
       if (!user.isOwner) {
         brandIdSelector = { _id: { $in: scopeBrandIds } };
         commonQuerySelector = { scopeBrandIds: { $in: scopeBrandIds } };
+        commonQuerySelectorElk = { terms: { scopeBrandIds } };
         userBrandIdsSelector = { brandIds: { $in: scopeBrandIds } };
       }
     }
@@ -85,9 +92,11 @@ const apolloServer = new ApolloServer({
       brandIdSelector,
       docModifier: doc => ({ ...doc, scopeBrandIds }),
       commonQuerySelector,
+      commonQuerySelectorElk,
       userBrandIdsSelector,
       user,
       res,
+      requestInfo,
     };
   },
   subscriptions: {
@@ -99,25 +108,23 @@ const apolloServer = new ApolloServer({
         const parsedMessage = JSON.parse(message.toString()).id || {};
 
         if (parsedMessage.type === 'messengerConnected') {
-          // get status from redis
-          const connectedClients = await getArray('connectedClients');
-          const clients = await getArray('clients');
-
           webSocket.messengerData = parsedMessage.value;
 
           const customerId = webSocket.messengerData.customerId;
 
-          if (!connectedClients.includes(customerId)) {
-            connectedClients.push(customerId);
-            await setArray('connectedClients', connectedClients);
+          // get status from redis
+          const inConnectedClients = await inArray('connectedClients', customerId);
+          const inClients = await inArray('clients', customerId);
+
+          if (!inConnectedClients) {
+            await addToArray('connectedClients', customerId);
           }
 
           // Waited for 1 minute to reconnect in disconnect hook and disconnect hook
           // removed this customer from connected clients list. So it means this customer
           // is back online
-          if (!clients.includes(customerId)) {
-            clients.push(customerId);
-            await setArray('clients', clients);
+          if (!inClients) {
+            await addToArray('clients', customerId);
 
             // mark as online
             await Customers.markCustomerAsActive(customerId);
@@ -138,9 +145,6 @@ const apolloServer = new ApolloServer({
       const messengerData = webSocket.messengerData;
 
       if (messengerData) {
-        // get status from redis
-        let connectedClients = await getArray('connectedClients');
-
         const customerId = messengerData.customerId;
         const integrationId = messengerData.integrationId;
 
@@ -148,21 +152,18 @@ const apolloServer = new ApolloServer({
         // If client refreshes his browser, It will trigger disconnect, connect hooks.
         // So to determine this issue. We are marking as disconnected here and waiting
         // for 1 minute to reconnect.
-        connectedClients.splice(connectedClients.indexOf(customerId), 1);
-        await setArray('connectedClients', connectedClients);
+        await removeFromArray('connectedClients', customerId);
 
         setTimeout(async () => {
           // get status from redis
-          connectedClients = await getArray('connectedClients');
-          const clients = await getArray('clients');
+          const inNewConnectedClients = await inArray('connectedClients', customerId);
           const customerLastStatus = await get(`customer_last_status_${customerId}`);
 
-          if (connectedClients.includes(customerId)) {
+          if (inNewConnectedClients) {
             return;
           }
 
-          clients.splice(clients.indexOf(customerId), 1);
-          await setArray('clients', clients);
+          await removeFromArray('clients', customerId);
 
           // mark as offline
           await Customers.markCustomerAsNotActive(customerId);

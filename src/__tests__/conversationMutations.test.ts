@@ -163,6 +163,8 @@ describe('Conversation message mutations', () => {
   });
 
   test('Add conversation message using third party integration', async () => {
+    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
+
     const mock = sinon.stub(messageBroker, 'sendMessage').callsFake(() => {
       return Promise.resolve('success');
     });
@@ -362,5 +364,50 @@ describe('Conversation message mutations', () => {
     );
 
     expect(conversation.readUserIds).toContain(user._id);
+  });
+
+  test('Delete video chat room', async () => {
+    expect.assertions(1);
+
+    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
+
+    const mutation = `
+      mutation conversationDeleteVideoChatRoom($name: String!) {
+        conversationDeleteVideoChatRoom(name: $name)
+      }
+    `;
+
+    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
+
+    try {
+      await graphqlRequest(mutation, 'conversationDeleteVideoChatRoom', { name: 'fakeId' }, { dataSources });
+    } catch (e) {
+      expect(e[0].message).toBe('Integrations api is not running');
+    }
+  });
+
+  test('Create video chat room', async () => {
+    expect.assertions(1);
+
+    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
+
+    const mutation = `
+      mutation conversationCreateVideoChatRoom($_id: String!) {
+        conversationCreateVideoChatRoom(_id: $_id) {
+          url
+          name
+          status
+        }
+      }
+    `;
+
+    const conversation = await conversationFactory();
+    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
+
+    try {
+      await graphqlRequest(mutation, 'conversationCreateVideoChatRoom', { _id: conversation._id }, { dataSources });
+    } catch (e) {
+      expect(e[0].message).toBe('Integrations api is not running');
+    }
   });
 });

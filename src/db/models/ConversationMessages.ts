@@ -1,6 +1,7 @@
 import { Model, model } from 'mongoose';
 import * as strip from 'strip';
 import { Conversations } from '.';
+import { MESSAGE_TYPES } from './definitions/constants';
 import { IMessage, IMessageDocument, messageSchema } from './definitions/conversationMessages';
 
 export interface IMessageModel extends Model<IMessageDocument> {
@@ -42,11 +43,16 @@ export const loadClass = () => {
         conversationId: message.conversationId,
       }).countDocuments();
 
-      await Conversations.updateConversation(message.conversationId, {
-        messageCount,
-        // updating updatedAt
+      // update conversation ====
+      const convDocModifier: { messageCount?: number; updatedAt: Date } = {
         updatedAt: new Date(),
-      });
+      };
+
+      if (!doc.fromBot) {
+        convDocModifier.messageCount = messageCount;
+      }
+
+      await Conversations.updateConversation(message.conversationId, convDocModifier);
 
       if (message.userId) {
         // add created user to participators
@@ -78,8 +84,11 @@ export const loadClass = () => {
       doc.content = content;
       doc.attachments = attachments;
 
+      // <img> tags wrapped inside empty <p> tag should be allowed
+      const contentValid = content.indexOf('<img') !== -1 ? true : strip(content);
+
       // if there is no attachments and no content then throw content required error
-      if (attachments.length === 0 && !strip(content)) {
+      if (doc.contentType !== MESSAGE_TYPES.VIDEO_CALL && attachments.length === 0 && !contentValid) {
         throw new Error('Content is required');
       }
 

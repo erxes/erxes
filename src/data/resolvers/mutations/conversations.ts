@@ -5,6 +5,7 @@ import Messages from '../../../db/models/ConversationMessages';
 import {
   CONVERSATION_STATUSES,
   KIND_CHOICES,
+  MESSAGE_TYPES,
   NOTIFICATION_CONTENT_TYPES,
   NOTIFICATION_TYPES,
 } from '../../../db/models/definitions/constants';
@@ -54,6 +55,7 @@ const sendConversationToIntegrations = (
         integrationId,
         conversationId,
         content: strip(doc.content),
+        attachments: doc.attachments || [],
       }),
     });
   }
@@ -397,6 +399,41 @@ const conversationMutations = {
    */
   async conversationMarkAsRead(_root, { _id }: { _id: string }, { user }: IContext) {
     return Conversations.markAsReadConversation(_id, user._id);
+  },
+
+  async conversationDeleteVideoChatRoom(_root, { name }, { dataSources }: IContext) {
+    try {
+      return await dataSources.IntegrationsAPI.deleteDailyVideoChatRoom(name);
+    } catch (e) {
+      debugExternalApi(e.message);
+
+      throw new Error(e.message);
+    }
+  },
+
+  async conversationCreateVideoChatRoom(_root, { _id }, { dataSources, user }: IContext) {
+    let message;
+
+    try {
+      const doc = {
+        conversationId: _id,
+        internal: false,
+        contentType: MESSAGE_TYPES.VIDEO_CALL,
+      };
+
+      message = await ConversationMessages.addMessage(doc, user._id);
+
+      return await dataSources.IntegrationsAPI.createDailyVideoChatRoom({
+        erxesApiConversationId: _id,
+        erxesApiMessageId: message._id,
+      });
+    } catch (e) {
+      debugExternalApi(e.message);
+
+      await ConversationMessages.deleteOne({ _id: message._id });
+
+      throw new Error(e.message);
+    }
   },
 };
 

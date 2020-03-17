@@ -1,5 +1,6 @@
 import { Document, Schema } from 'mongoose';
 
+import { ILink, linkSchema } from './common';
 import {
   COMPANY_BUSINESS_TYPES,
   COMPANY_INDUSTRY_TYPES,
@@ -9,15 +10,6 @@ import {
 } from './constants';
 
 import { field, schemaWrapper } from './utils';
-
-export interface ILink {
-  linkedIn?: string;
-  twitter?: string;
-  facebook?: string;
-  github?: string;
-  youtube?: string;
-  website?: string;
-}
 
 interface ILinkDocument extends ILink, Document {}
 
@@ -51,6 +43,7 @@ export interface ICompany {
   tagIds?: string[];
   customFieldsData?: any;
   website?: string;
+  code?: string;
 }
 
 export interface ICompanyDocument extends ICompany, Document {
@@ -61,18 +54,6 @@ export interface ICompanyDocument extends ICompany, Document {
   modifiedAt: Date;
   searchText: string;
 }
-
-const linkSchema = new Schema(
-  {
-    linkedIn: field({ type: String, optional: true, label: 'LinkedIn' }),
-    twitter: field({ type: String, optional: true, label: 'Twitter' }),
-    facebook: field({ type: String, optional: true, label: 'Facebook' }),
-    github: field({ type: String, optional: true, label: 'Github' }),
-    youtube: field({ type: String, optional: true, label: 'Youtube' }),
-    website: field({ type: String, optional: true, label: 'Website' }),
-  },
-  { _id: false },
-);
 
 export const companySchema = schemaWrapper(
   new Schema({
@@ -190,5 +171,6 @@ export const companySchema = schemaWrapper(
       label: 'Custom fields',
     }),
     searchText: field({ type: String, optional: true, index: true }),
+    code: field({ type: String, label: 'Code', optional: true }),
   }),
 );

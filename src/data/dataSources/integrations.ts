@@ -47,11 +47,23 @@ export default class IntegrationsAPI extends RESTDataSource {
     return this.post(`/${kind}/send`, params);
   }
 
+  public async deleteDailyVideoChatRoom(name) {
+    return this.delete(`/daily/rooms/${name}`);
+  }
+
+  public async createDailyVideoChatRoom(params) {
+    return this.post('/daily/room', params);
+  }
+
   public async fetchApi(path, params) {
     return this.get(path, params);
   }
 
   public async replyTwitterDm(params) {
     return this.post('/twitter/reply', params);
+  }
+
+  public async updateConfigs(configsMap) {
+    return this.post('/update-configs', { configsMap });
   }
 }

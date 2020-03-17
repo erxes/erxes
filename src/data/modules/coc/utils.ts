@@ -1,26 +1,334 @@
-import { Conformities } from '../../../db/models';
+import * as _ from 'underscore';
+import { Brands, Conformities, Segments, Tags } from '../../../db/models';
+import { KIND_CHOICES } from '../../../db/models/definitions/constants';
+import { fetchElk } from '../../../elasticsearch';
+import { COC_LEAD_STATUS_TYPES, COC_LIFECYCLE_STATE_TYPES } from '../../constants';
+import { fetchBySegments } from '../segments/queryBuilder';
 
-export const conformityFilterUtils = async (baseQuery, params, relType) => {
-  if (params.conformityMainType && params.conformityMainTypeId) {
-    if (params.conformityIsRelated) {
+export interface ICountBy {
+  [index: string]: number;
+}
+
+export const countBySegment = async (contentType: string, qb): Promise<ICountBy> => {
+  const counts: ICountBy = {};
+
+  // Count customers by segments
+  const segments = await Segments.find({ contentType });
+
+  // Count customers by segment
+  for (const s of segments) {
+    await qb.buildAllQueries();
+    await qb.segmentFilter(s._id);
+
+    counts[s._id] = await qb.runQueries('count');
+  }
+
+  return counts;
+};
+
+export const countByBrand = async (qb): Promise<ICountBy> => {
+  const counts: ICountBy = {};
+
+  // Count customers by brand
+  const brands = await Brands.find({});
+
+  for (const brand of brands) {
+    await qb.buildAllQueries();
+    await qb.brandFilter(brand._id);
+
+    counts[brand._id] = await qb.runQueries('count');
+  }
+
+  return counts;
+};
+
+export const countByTag = async (type: string, qb): Promise<ICountBy> => {
+  const counts: ICountBy = {};
+
+  // Count customers by tag
+  const tags = await Tags.find({ type }).select('_id');
+
+  for (const tag of tags) {
+    await qb.buildAllQueries();
+    await qb.tagFilter(tag._id);
+
+    counts[tag._id] = await qb.runQueries('count');
+  }
+
+  return counts;
+};
+
+export const countByLeadStatus = async (qb): Promise<ICountBy> => {
+  const counts: ICountBy = {};
+
+  for (const type of COC_LEAD_STATUS_TYPES) {
+    await qb.buildAllQueries();
+    qb.leadStatusFilter(type);
+
+    counts[type] = await qb.runQueries('count');
+  }
+
+  return counts;
+};
+
+export const countByLifecycleStatus = async (qb): Promise<ICountBy> => {
+  const counts: ICountBy = {};
+
+  for (const type of COC_LIFECYCLE_STATE_TYPES) {
+    await qb.buildAllQueries();
+    qb.lifecycleStateFilter(type);
+
+    counts[type] = await qb.runQueries('count');
+  }
+
+  return counts;
+};
+
+export const countByIntegrationType = async (qb): Promise<ICountBy> => {
+  const counts: ICountBy = {};
+
+  for (const type of KIND_CHOICES.ALL) {
+    await qb.buildAllQueries();
+    await qb.integrationTypeFilter(type);
+
+    counts[type] = await qb.runQueries('count');
+  }
+
+  return counts;
+};
+
+interface ICommonListArgs {
+  page?: number;
+  perPage?: number;
+  segment?: string;
+  tag?: string;
+  ids?: string[];
+  searchValue?: string;
+  brand?: string;
+  lifecycleState?: string;
+  leadStatus?: string;
+  conformityMainType?: string;
+  conformityMainTypeId?: string;
+  conformityIsRelated?: boolean;
+  conformityIsSaved?: boolean;
+}
+
+export class CommonBuilder<IListArgs extends ICommonListArgs> {
+  public params: IListArgs;
+  public context;
+  public positiveList: any[];
+  public negativeList: any[];
+
+  private contentType: 'customers' | 'companies';
+
+  constructor(contentType: 'customers' | 'companies', params: IListArgs, context) {
+    this.contentType = contentType;
+    this.context = context;
+    this.params = params;
+
+    this.positiveList = [];
+    this.negativeList = [];
+
+    this.resetPositiveList();
+  }
+
+  public resetPositiveList() {
+    this.positiveList = [];
+
+    if (this.context.commonQuerySelectorElk) {
+      this.positiveList.push(this.context.commonQuerySelectorElk);
+    }
+  }
+
+  // filter by segment
+  public async segmentFilter(segmentId: string) {
+    const segment = await Segments.getSegment(segmentId);
+
+    const { positiveList, negativeList } = await fetchBySegments(segment, 'count');
+
+    this.positiveList = [...this.positiveList, ...positiveList];
+    this.negativeList = [...this.negativeList, ...negativeList];
+  }
+
+  // filter by tagId
+  public tagFilter(tagId: string) {
+    this.positiveList.push({
+      terms: {
+        tagIds: [tagId],
+      },
+    });
+  }
+
+  // filter by search value
+  public searchFilter(value: string): void {
+    this.positiveList.push({
+      match_phrase: {
+        searchText: value,
+      },
+    });
+  }
+
+  // filter by id
+  public idsFilter(ids: string[]): void {
+    this.positiveList.push({
+      terms: {
+        _id: ids,
+      },
+    });
+  }
+
+  // filter by leadStatus
+  public leadStatusFilter(leadStatus: string): void {
+    this.positiveList.push({
+      term: {
+        leadStatus,
+      },
+    });
+  }
+
+  // filter by lifecycleState
+  public lifecycleStateFilter(lifecycleState: string): void {
+    this.positiveList.push({
+      term: {
+        lifecycleState,
+      },
+    });
+  }
+
+  public async conformityFilter() {
+    const { conformityMainType, conformityMainTypeId, conformityIsRelated, conformityIsSaved } = this.params;
+
+    if (!conformityMainType && !conformityMainTypeId) {
+      return;
+    }
+
+    const relType = this.contentType === 'customers' ? 'customer' : 'company';
+
+    if (conformityIsRelated) {
       const relTypeIds = await Conformities.relatedConformity({
-        mainType: params.conformityMainType || '',
-        mainTypeId: params.conformityMainTypeId || '',
+        mainType: conformityMainType || '',
+        mainTypeId: conformityMainTypeId || '',
         relType,
       });
 
-      baseQuery = { _id: { $in: relTypeIds || [] } };
+      this.positiveList.push({
+        terms: {
+          _id: relTypeIds || [],
+        },
+      });
     }
 
-    if (params.conformityIsSaved) {
+    if (conformityIsSaved) {
       const relTypeIds = await Conformities.savedConformity({
-        mainType: params.conformityMainType || '',
-        mainTypeId: params.conformityMainTypeId || '',
+        mainType: conformityMainType || '',
+        mainTypeId: conformityMainTypeId || '',
         relTypes: [relType],
       });
 
-      baseQuery = { _id: { $in: relTypeIds || [] } };
+      this.positiveList.push({
+        terms: {
+          _id: relTypeIds || [],
+        },
+      });
     }
   }
-  return baseQuery;
-};
+
+  /*
+   * prepare all queries. do not do any action
+   */
+  public async buildAllQueries(): Promise<void> {
+    this.resetPositiveList();
+    this.negativeList = [];
+
+    // filter by segment
+    if (this.params.segment) {
+      await this.segmentFilter(this.params.segment);
+    }
+
+    // filter by tag
+    if (this.params.tag) {
+      this.tagFilter(this.params.tag);
+    }
+
+    // filter by leadStatus
+    if (this.params.leadStatus) {
+      this.leadStatusFilter(this.params.leadStatus);
+    }
+
+    // filter by lifecycleState
+    if (this.params.lifecycleState) {
+      this.lifecycleStateFilter(this.params.lifecycleState);
+    }
+
+    // If there are ids and form params, returning ids filter only filter by ids
+    if (this.params.ids) {
+      this.idsFilter(this.params.ids);
+    }
+
+    // filter by search value
+    if (this.params.searchValue) {
+      this.searchFilter(this.params.searchValue);
+    }
+
+    await this.conformityFilter();
+  }
+
+  public async findAllMongo(_limit: number): Promise<any> {
+    return Promise.resolve({
+      list: [],
+      totalCount: 0,
+    });
+  }
+
+  /*
+   * Run queries
+   */
+  public async runQueries(action = 'search'): Promise<any> {
+    const { page = 0, perPage = 0 } = this.params;
+    const paramKeys = Object.keys(this.params).join(',');
+
+    const _page = Number(page || 1);
+    const _limit = Number(perPage || 20);
+
+    if (page === 1 && perPage === 20 && (paramKeys === 'page,perPage' || paramKeys === 'page,perPage,type')) {
+      return this.findAllMongo(_limit);
+    }
+
+    const queryOptions: any = {
+      query: {
+        bool: {
+          must: this.positiveList,
+          must_not: this.negativeList,
+        },
+      },
+    };
+
+    if (action === 'search') {
+      queryOptions.from = (_page - 1) * _limit;
+      queryOptions.size = _limit;
+      queryOptions.sort = {
+        createdAt: {
+          order: 'desc',
+        },
+      };
+    }
+
+    const response = await fetchElk(action, this.contentType, queryOptions);
+
+    if (action === 'count') {
+      return response.count;
+    }
+
+    const list = response.hits.hits.map(hit => {
+      return {
+        _id: hit._id,
+        ...hit._source,
+      };
+    });
+
+    return {
+      list,
+      totalCount: response.hits.total.value,
+    };
+  }
+}

@@ -2,7 +2,7 @@ import { Document, Schema } from 'mongoose';
 import { field } from './utils';
 
 export interface IPermission {
-  module?: string;
+  module: string;
   action: string;
   userId?: string;
   groupId?: string;
@@ -11,12 +11,11 @@ export interface IPermission {
 }
 
 export interface IPermissionParams {
-  module?: string;
-  actions?: string[];
+  module: string;
+  actions: string[];
   userIds?: string[];
   groupIds?: string[];
-  requiredActions?: string[];
-  allowed?: boolean;
+  allowed: boolean;
 }
 
 export interface IPermissionDocument extends IPermission, Document {
@@ -27,7 +26,7 @@ export const permissionSchema = new Schema({
   _id: field({ pkey: true }),
   module: field({ type: String, label: 'Module' }),
   action: field({ type: String, label: 'Action' }),
-  userId: field({ type: String, label: 'Created by' }),
+  userId: field({ type: String, label: 'User' }),
   groupId: field({ type: String, label: 'User group' }),
   requiredActions: field({ type: [String], default: [], label: 'Required actions' }),
   allowed: field({ type: Boolean, default: false, label: 'Allowed' }),

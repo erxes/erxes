@@ -163,8 +163,9 @@ export const ACTIVITY_ACTIONS = {
   SEND: 'send',
   MOVED: 'moved',
   CONVERT: 'convert',
+  ASSIGNEE: 'assignee',
 
-  ALL: ['create', 'update', 'delete', 'merge', 'send', 'moved', 'convert'],
+  ALL: ['create', 'update', 'delete', 'merge', 'send', 'moved', 'convert', 'assignee'],
 };
 
 export const ACTIVITY_PERFORMER_TYPES = {
@@ -345,12 +346,25 @@ export const STATUSES = {
   ALL: ['Active', 'Deleted'],
 };
 
+export const BOARD_STATUSES = {
+  ACTIVE: 'active',
+  ARCHIVED: 'archived',
+  ALL: ['active', 'archived'],
+};
+
 export const BOARD_TYPES = {
   DEAL: 'deal',
   TICKET: 'ticket',
   TASK: 'task',
   GROWTH_HACK: 'growthHack',
   ALL: ['deal', 'ticket', 'task', 'growthHack'],
+};
+
+export const MESSAGE_TYPES = {
+  VIDEO_CALL: 'videoCall',
+  VIDEO_CALL_REQUEST: 'videoCallRequest',
+  TEXT: 'text',
+  ALL: ['videoCall', 'videoCallRequest', 'text'],
 };
 
 // module constants
@@ -434,4 +448,15 @@ export const NOTIFICATION_CONTENT_TYPES = {
   CHANNEL: 'channel',
   CONVERSATION: 'conversation',
   ALL: ['task', 'deal', 'company', 'customer', 'ticket', 'channel', 'conversation'],
+};
+
+export const EMAIL_VALIDATION_STATUSES = {
+  VALID: 'valid',
+  INVALID: 'invalid',
+  ACCEPT_ALL_UNVERIFIABLE: 'accept_all_unverifiable',
+  UNKNOWN: 'unknown',
+  DISPOSABLE: 'disposable',
+  CATCHALL: 'catchall',
+  BAD_SYNTAX: 'badsyntax',
+  ALL: ['valid', 'invalid', 'accept_all_unverifiable', 'unknown', 'disposable', 'catchall', 'badsyntax'],
 };

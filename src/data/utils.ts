@@ -1,5 +1,4 @@
 import * as AWS from 'aws-sdk';
-import * as EmailValidator from 'email-deep-validator';
 import * as fileType from 'file-type';
 import * as admin from 'firebase-admin';
 import * as fs from 'fs';
@@ -8,11 +7,13 @@ import * as nodemailer from 'nodemailer';
 import * as requestify from 'requestify';
 import * as strip from 'strip';
 import * as xlsxPopulate from 'xlsx-populate';
-import { Customers, Notifications, Users } from '../db/models';
+import { Configs, Customers, Notifications, Users } from '../db/models';
 import { IUser, IUserDocument } from '../db/models/definitions/users';
 import { OnboardingHistories } from '../db/models/Robot';
 import { debugBase, debugEmail, debugExternalApi } from '../debuggers';
+import { sendMessage } from '../messageBroker';
 import { graphqlPubsub } from '../pubsub';
+import { get, set } from '../redisClient';
 
 /*
  * Check that given file is not harmful
@@ -49,7 +50,7 @@ export const checkFile = async (file, source?: string) => {
     'image/gif',
   ];
 
-  const UPLOAD_FILE_TYPES = getEnv({ name: source === 'widgets' ? 'WIDGETS_UPLOAD_FILE_TYPES' : 'UPLOAD_FILE_TYPES' });
+  const UPLOAD_FILE_TYPES = await getConfig(source === 'widgets' ? 'WIDGETS_UPLOAD_FILE_TYPES' : 'UPLOAD_FILE_TYPES');
 
   const { mime } = ft;
 
@@ -63,12 +64,12 @@ export const checkFile = async (file, source?: string) => {
 /**
  * Create AWS instance
  */
-const createAWS = () => {
-  const AWS_ACCESS_KEY_ID = getEnv({ name: 'AWS_ACCESS_KEY_ID' });
-  const AWS_SECRET_ACCESS_KEY = getEnv({ name: 'AWS_SECRET_ACCESS_KEY' });
-  const AWS_BUCKET = getEnv({ name: 'AWS_BUCKET' });
-  const AWS_COMPATIBLE_SERVICE_ENDPOINT = getEnv({ name: 'AWS_COMPATIBLE_SERVICE_ENDPOINT' });
-  const AWS_FORCE_PATH_STYLE = getEnv({ name: 'AWS_FORCE_PATH_STYLE' });
+const createAWS = async () => {
+  const AWS_ACCESS_KEY_ID = await getConfig('AWS_ACCESS_KEY_ID');
+  const AWS_SECRET_ACCESS_KEY = await getConfig('AWS_SECRET_ACCESS_KEY');
+  const AWS_BUCKET = await getConfig('AWS_BUCKET');
+  const AWS_COMPATIBLE_SERVICE_ENDPOINT = await getConfig('AWS_COMPATIBLE_SERVICE_ENDPOINT');
+  const AWS_FORCE_PATH_STYLE = await getConfig('AWS_FORCE_PATH_STYLE');
 
   if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY || !AWS_BUCKET) {
     throw new Error('AWS credentials are not configured');
@@ -94,10 +95,10 @@ const createAWS = () => {
 /**
  * Create Google Cloud Storage instance
  */
-const createGCS = () => {
-  const GOOGLE_APPLICATION_CREDENTIALS = getEnv({ name: 'GOOGLE_APPLICATION_CREDENTIALS' });
-  const GOOGLE_PROJECT_ID = getEnv({ name: 'GOOGLE_PROJECT_ID' });
-  const BUCKET = getEnv({ name: 'GOOGLE_CLOUD_STORAGE_BUCKET' });
+const createGCS = async () => {
+  const GOOGLE_APPLICATION_CREDENTIALS = await getConfig('GOOGLE_APPLICATION_CREDENTIALS');
+  const GOOGLE_PROJECT_ID = await getConfig('GOOGLE_PROJECT_ID');
+  const BUCKET = await getConfig('GOOGLE_CLOUD_STORAGE_BUCKET');
 
   if (!GOOGLE_PROJECT_ID || !GOOGLE_APPLICATION_CREDENTIALS || !BUCKET) {
     throw new Error('Google Cloud Storage credentials are not configured');
@@ -116,15 +117,15 @@ const createGCS = () => {
  * Save binary data to amazon s3
  */
 export const uploadFileAWS = async (file: { name: string; path: string; type: string }): Promise<string> => {
-  const AWS_BUCKET = getEnv({ name: 'AWS_BUCKET' });
-  const AWS_PREFIX = getEnv({ name: 'AWS_PREFIX', defaultValue: '' });
-  const IS_PUBLIC = getEnv({ name: 'FILE_SYSTEM_PUBLIC', defaultValue: 'true' });
+  const IS_PUBLIC = await getConfig('FILE_SYSTEM_PUBLIC', 'true');
+  const AWS_PREFIX = await getConfig('AWS_PREFIX');
+  const AWS_BUCKET = await getConfig('AWS_BUCKET');
 
   // initialize s3
-  const s3 = createAWS();
+  const s3 = await createAWS();
 
   // generate unique name
-  const fileName = `${AWS_PREFIX}${Math.random()}${file.name}`;
+  const fileName = `${AWS_PREFIX}${Math.random()}${file.name.replace(/ /g, '')}`;
 
   // read file
   const buffer = await fs.readFileSync(file.path);
@@ -155,13 +156,13 @@ export const uploadFileAWS = async (file: { name: string; path: string; type: st
 /*
  * Delete file from amazon s3
  */
-const deleteFileAWS = (fileName: string) => {
-  const AWS_BUCKET = getEnv({ name: 'AWS_BUCKET' });
+const deleteFileAWS = async (fileName: string) => {
+  const AWS_BUCKET = await getConfig('AWS_BUCKET');
 
   const params = { Bucket: AWS_BUCKET, Key: fileName };
 
   // initialize s3
-  const s3 = createAWS();
+  const s3 = await createAWS();
 
   return new Promise((resolve, reject) => {
     s3.deleteObject(params, err => {
@@ -178,11 +179,11 @@ const deleteFileAWS = (fileName: string) => {
  * Save file to google cloud storage
  */
 export const uploadFileGCS = async (file: { name: string; path: string; type: string }): Promise<string> => {
-  const BUCKET = getEnv({ name: 'GOOGLE_CLOUD_STORAGE_BUCKET' });
-  const IS_PUBLIC = getEnv({ name: 'FILE_SYSTEM_PUBLIC', defaultValue: 'true' });
+  const BUCKET = await getConfig('GOOGLE_CLOUD_STORAGE_BUCKET');
+  const IS_PUBLIC = await getConfig('FILE_SYSTEM_PUBLIC');
 
   // initialize GCS
-  const storage = createGCS();
+  const storage = await createGCS();
 
   // select bucket
   const bucket = storage.bucket(BUCKET);
@@ -217,10 +218,10 @@ export const uploadFileGCS = async (file: { name: string; path: string; type: st
 };
 
 const deleteFileGCS = async (fileName: string) => {
-  const BUCKET = getEnv({ name: 'GOOGLE_CLOUD_STORAGE_BUCKET' });
+  const BUCKET = await getConfig('GOOGLE_CLOUD_STORAGE_BUCKET');
 
   // initialize GCS
-  const storage = createGCS();
+  const storage = await createGCS();
 
   // select bucket
   const bucket = storage.bucket(BUCKET);
@@ -243,11 +244,11 @@ const deleteFileGCS = async (fileName: string) => {
  * Read file from GCS, AWS
  */
 export const readFileRequest = async (key: string): Promise<any> => {
-  const UPLOAD_SERVICE_TYPE = getEnv({ name: 'UPLOAD_SERVICE_TYPE', defaultValue: 'AWS' });
+  const UPLOAD_SERVICE_TYPE = await getConfig('UPLOAD_SERVICE_TYPE', 'AWS');
 
   if (UPLOAD_SERVICE_TYPE === 'GCS') {
-    const GCS_BUCKET = getEnv({ name: 'GOOGLE_CLOUD_STORAGE_BUCKET' });
-    const storage = createGCS();
+    const GCS_BUCKET = await getConfig('GOOGLE_CLOUD_STORAGE_BUCKET');
+    const storage = await createGCS();
 
     const bucket = storage.bucket(GCS_BUCKET);
 
@@ -259,8 +260,8 @@ export const readFileRequest = async (key: string): Promise<any> => {
     return contents;
   }
 
-  const AWS_BUCKET = getEnv({ name: 'AWS_BUCKET' });
-  const s3 = createAWS();
+  const AWS_BUCKET = await getConfig('AWS_BUCKET');
+  const s3 = await createAWS();
 
   return new Promise((resolve, reject) => {
     s3.getObject(
@@ -283,9 +284,9 @@ export const readFileRequest = async (key: string): Promise<any> => {
  * Save binary data to amazon s3
  */
 export const uploadFile = async (file, fromEditor = false): Promise<any> => {
-  const IS_PUBLIC = getEnv({ name: 'FILE_SYSTEM_PUBLIC', defaultValue: 'true' });
+  const IS_PUBLIC = await getConfig('FILE_SYSTEM_PUBLIC');
   const DOMAIN = getEnv({ name: 'DOMAIN' });
-  const UPLOAD_SERVICE_TYPE = getEnv({ name: 'UPLOAD_SERVICE_TYPE', defaultValue: 'AWS' });
+  const UPLOAD_SERVICE_TYPE = await getConfig('UPLOAD_SERVICE_TYPE', 'AWS');
 
   const nameOrLink = UPLOAD_SERVICE_TYPE === 'AWS' ? await uploadFileAWS(file) : await uploadFileGCS(file);
 
@@ -303,7 +304,7 @@ export const uploadFile = async (file, fromEditor = false): Promise<any> => {
 };
 
 export const deleteFile = async (fileName: string): Promise<any> => {
-  const UPLOAD_SERVICE_TYPE = getEnv({ name: 'UPLOAD_SERVICE_TYPE', defaultValue: 'AWS' });
+  const UPLOAD_SERVICE_TYPE = await getConfig('UPLOAD_SERVICE_TYPE', 'AWS');
 
   if (UPLOAD_SERVICE_TYPE === 'AWS') {
     return deleteFileAWS(fileName);
@@ -335,11 +336,11 @@ const applyTemplate = async (data: any, templateName: string) => {
 /**
  * Create default or ses transporter
  */
-export const createTransporter = ({ ses }) => {
+export const createTransporter = async ({ ses }) => {
   if (ses) {
-    const AWS_SES_ACCESS_KEY_ID = getEnv({ name: 'AWS_SES_ACCESS_KEY_ID' });
-    const AWS_SES_SECRET_ACCESS_KEY = getEnv({ name: 'AWS_SES_SECRET_ACCESS_KEY' });
-    const AWS_REGION = getEnv({ name: 'AWS_REGION' });
+    const AWS_SES_ACCESS_KEY_ID = await getConfig('AWS_SES_ACCESS_KEY_ID');
+    const AWS_SES_SECRET_ACCESS_KEY = await getConfig('AWS_SES_SECRET_ACCESS_KEY');
+    const AWS_REGION = await getConfig('AWS_REGION');
 
     AWS.config.update({
       region: AWS_REGION,
@@ -352,11 +353,11 @@ export const createTransporter = ({ ses }) => {
     });
   }
 
-  const MAIL_SERVICE = getEnv({ name: 'MAIL_SERVICE' });
-  const MAIL_PORT = getEnv({ name: 'MAIL_PORT' });
-  const MAIL_USER = getEnv({ name: 'MAIL_USER' });
-  const MAIL_PASS = getEnv({ name: 'MAIL_PASS' });
-  const MAIL_HOST = getEnv({ name: 'MAIL_HOST' });
+  const MAIL_SERVICE = await getConfig('MAIL_SERVICE');
+  const MAIL_PORT = await getConfig('MAIL_PORT');
+  const MAIL_USER = await getConfig('MAIL_USER');
+  const MAIL_PASS = await getConfig('MAIL_PASS');
+  const MAIL_HOST = await getConfig('MAIL_HOST');
 
   return nodemailer.createTransport({
     service: MAIL_SERVICE,
@@ -386,9 +387,9 @@ export const sendEmail = async ({
   modifier?: (data: any, email: string) => void;
 }) => {
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
-  const DEFAULT_EMAIL_SERVICE = getEnv({ name: 'DEFAULT_EMAIL_SERVICE', defaultValue: '' }) || 'SES';
-  const COMPANY_EMAIL_FROM = getEnv({ name: 'COMPANY_EMAIL_FROM' });
-  const AWS_SES_CONFIG_SET = getEnv({ name: 'AWS_SES_CONFIG_SET', defaultValue: '' });
+  const DEFAULT_EMAIL_SERVICE = await getConfig('DEFAULT_EMAIL_SERVICE', 'SES');
+  const COMPANY_EMAIL_FROM = await getConfig('COMPANY_EMAIL_FROM', '');
+  const AWS_SES_CONFIG_SET = await getConfig('AWS_SES_CONFIG_SET', '');
   const DOMAIN = getEnv({ name: 'DOMAIN' });
 
   // do not send email it is running in test mode
@@ -400,7 +401,7 @@ export const sendEmail = async ({
   let transporter;
 
   try {
-    transporter = createTransporter({ ses: DEFAULT_EMAIL_SERVICE === 'SES' });
+    transporter = await createTransporter({ ses: DEFAULT_EMAIL_SERVICE === 'SES' });
   } catch (e) {
     return debugEmail(e.message);
   }
@@ -562,22 +563,6 @@ interface IRequestParams {
   form?: { [key: string]: string };
 }
 
-export interface ILogQueryParams {
-  start?: string;
-  end?: string;
-  userId?: string;
-  action?: string;
-  page?: number;
-  perPage?: number;
-}
-
-interface ILogParams {
-  type: string;
-  newData?: string;
-  description?: string;
-  object: any;
-}
-
 /**
  * Sends post request to specific url
  */
@@ -646,19 +631,6 @@ export const fetchWorkersApi = ({ path, method, body, params }: IRequestParams) 
   );
 };
 
-/**
- * Prepares a create log request to log server
- * @param params Log document params
- * @param user User information from mutation context
- */
-export const putCreateLog = (params: ILogParams, user: IUserDocument) => {
-  const doc = { ...params, action: 'create', object: JSON.stringify(params.object) };
-
-  registerOnboardHistory({ type: `${doc.type}Create`, user });
-
-  return putLog(doc, user);
-};
-
 export const registerOnboardHistory = ({ type, user }: { type: string; user: IUserDocument }) =>
   OnboardingHistories.getOrCreate({ type, user })
     .then(({ status }) => {
@@ -670,118 +642,15 @@ export const registerOnboardHistory = ({ type, user }: { type: string; user: IUs
     })
     .catch(e => debugBase(e));
 
-/**
- * Prepares a create log request to log server
- * @param params Log document params
- * @param user User information from mutation context
- */
-export const putUpdateLog = (params: ILogParams, user: IUserDocument) => {
-  const doc = { ...params, action: 'update', object: JSON.stringify(params.object) };
-
-  return putLog(doc, user);
-};
-
-/**
- * Prepares a create log request to log server
- * @param params Log document params
- * @param user User information from mutation context
- */
-export const putDeleteLog = (params: ILogParams, user: IUserDocument) => {
-  const doc = { ...params, action: 'delete', object: JSON.stringify(params.object) };
-
-  return putLog(doc, user);
-};
-
-/**
- * Sends a request to logs api
- * @param {Object} body Request
- * @param {Object} user User information from mutation context
- */
-const putLog = (body: ILogParams, user: IUserDocument) => {
-  const LOGS_DOMAIN = getEnv({ name: 'LOGS_API_DOMAIN' });
-
-  if (!LOGS_DOMAIN) {
-    return;
-  }
-
-  const doc = {
-    ...body,
-    createdBy: user._id,
-    unicode: user.username || user.email || user._id,
-  };
-
-  return new Promise(resolve => {
-    sendRequest(
-      { url: `${LOGS_DOMAIN}/logs/create`, method: 'post', body: { params: JSON.stringify(doc) } },
-      'Failed to connect to logs api. Check whether LOGS_API_DOMAIN env is missing or logs api is not running',
-    )
-      .then(response => console.log(response))
-      .catch(error => console.log(error.message));
-
-    return resolve('received log');
-  });
-};
-
-/**
- * Sends a request to logs api
- * @param {Object} param0 Request
- */
-export const fetchLogs = (params: ILogQueryParams) => {
-  const LOGS_DOMAIN = getEnv({ name: 'LOGS_API_DOMAIN' });
-
-  if (!LOGS_DOMAIN) {
-    return {
-      logs: [],
-      totalCount: 0,
-    };
-  }
-
-  return sendRequest(
-    { url: `${LOGS_DOMAIN}/logs`, method: 'get', body: { params: JSON.stringify(params) } },
-    'Failed to connect to logs api. Check whether LOGS_API_DOMAIN env is missing or logs api is not running',
-  );
-};
-
-/**
- * Validates email using MX record resolver
- * @param email as String
- */
-export const validateEmail = async email => {
-  const NODE_ENV = getEnv({ name: 'NODE_ENV' });
-
-  if (NODE_ENV === 'test') {
-    return true;
-  }
-
-  const emailValidator = new EmailValidator();
-  const { validDomain, validMailbox } = await emailValidator.verify(email);
-
-  if (!validDomain) {
-    return false;
-  }
-
-  if (!validMailbox && validMailbox === null) {
-    return false;
-  }
-
-  return true;
-};
-
-export const authCookieOptions = () => {
+export const authCookieOptions = (secure: boolean) => {
   const oneDay = 1 * 24 * 3600 * 1000; // 1 day
 
   const cookieOptions = {
     httpOnly: true,
     expires: new Date(Date.now() + oneDay),
     maxAge: oneDay,
-    secure: false,
+    secure,
   };
-
-  const HTTPS = getEnv({ name: 'HTTPS', defaultValue: 'false' });
-
-  if (HTTPS === 'true') {
-    cookieOptions.secure = true;
-  }
 
   return cookieOptions;
 };
@@ -896,7 +765,6 @@ export const getNextMonth = (date: Date): { start: number; end: number } => {
 
 export default {
   sendEmail,
-  validateEmail,
   sendNotification,
   sendMobileNotification,
   readFile,
@@ -925,7 +793,7 @@ const stringToRegex = (value: string) => {
   return '.*' + result.join('').substring(2) + '.*';
 };
 
-export const regexSearchText = (searchValue: string) => {
+export const regexSearchText = (searchValue: string, searchKey = 'searchText') => {
   const result: any[] = [];
 
   searchValue = searchValue.replace(/\s\s+/g, ' ');
@@ -933,7 +801,7 @@ export const regexSearchText = (searchValue: string) => {
   const words = searchValue.split(' ');
 
   for (const word of words) {
-    result.push({ searchText: new RegExp(`${stringToRegex(word)}`, 'mui') });
+    result.push({ [searchKey]: new RegExp(`${stringToRegex(word)}`, 'mui') });
   }
 
   return { $and: result };
@@ -942,7 +810,7 @@ export const regexSearchText = (searchValue: string) => {
 /**
  * Check user ids whether its added or removed from array of ids
  */
-export const checkUserIds = (oldUserIds: string[] = [], newUserIds: string[]) => {
+export const checkUserIds = (oldUserIds: string[] = [], newUserIds: string[] = []) => {
   const removedUserIds = oldUserIds.filter(e => !newUserIds.includes(e));
 
   const addedUserIds = newUserIds.filter(e => !oldUserIds.includes(e));
@@ -965,4 +833,59 @@ export const handleUnsubscription = async (query: { cid: string; uid: string }) 
   }
 
   return true;
+};
+
+export const validateEmail = (email: string) => {
+  const data = { email };
+
+  const EMAIL_VERIFIER_ENDPOINT = getEnv({ name: 'EMAIL_VERIFIER_ENDPOINT', defaultValue: '' });
+
+  if (!EMAIL_VERIFIER_ENDPOINT) {
+    return sendMessage('erxes-api:email-verifier-notification', { action: 'emailVerify', data });
+  }
+
+  sendRequest({
+    url: `${EMAIL_VERIFIER_ENDPOINT}/verify-single`,
+    method: 'POST',
+    body: { email },
+  })
+    .then(async ({ status }) => {
+      await Customers.updateOne({ primaryEmail: email }, { $set: { emailValidationStatus: status } });
+    })
+    .catch(e => {
+      debugExternalApi(`Error occurred during email verify ${e.message}`);
+    });
+};
+
+export const getConfigs = async () => {
+  const configsCache = await get('configs_erxes_api');
+
+  if (configsCache && configsCache !== '{}') {
+    return JSON.parse(configsCache);
+  }
+
+  const configsMap = {};
+  const configs = await Configs.find({});
+
+  for (const config of configs) {
+    configsMap[config.code] = config.value;
+  }
+
+  set('configs_erxes_api', JSON.stringify(configsMap));
+
+  return configsMap;
+};
+
+export const getConfig = async (code, defaultValue?) => {
+  const configs = await getConfigs();
+
+  if (!configs[code]) {
+    return defaultValue;
+  }
+
+  return configs[code];
+};
+
+export const resetConfigsCache = () => {
+  set('configs_erxes_api', '');
 };

@@ -1,8 +1,9 @@
 import { graphqlRequest } from '../db/connection';
 import { boardFactory, pipelineFactory, stageFactory, userFactory } from '../db/factories';
-import { Boards, Deals, Pipelines, Stages } from '../db/models';
+import { Boards, Deals, Pipelines, Stages, Users } from '../db/models';
 import { IBoardDocument, IPipelineDocument, IStageDocument } from '../db/models/definitions/boards';
 
+import { BOARD_TYPES } from '../db/models/definitions/constants';
 import './setup.ts';
 
 describe('Test boards mutations', () => {
@@ -17,7 +18,9 @@ describe('Test boards mutations', () => {
     $stages: JSON,
     $type: String!
     $visibility: String!
-    $bgColor: String
+    $bgColor: String,
+    $excludeCheckUserIds: [String],
+    $memberIds: [String]
   `;
 
   const commonPipelineParams = `
@@ -26,7 +29,9 @@ describe('Test boards mutations', () => {
     stages: $stages
     type: $type
     visibility: $visibility
-    bgColor: $bgColor
+    bgColor: $bgColor,
+    excludeCheckUserIds: $excludeCheckUserIds,
+    memberIds: $memberIds
   `;
 
   beforeEach(async () => {
@@ -43,6 +48,7 @@ describe('Test boards mutations', () => {
     await Pipelines.deleteMany({});
     await Stages.deleteMany({});
     await Deals.deleteMany({});
+    await Users.deleteMany({});
   });
 
   test('Create board', async () => {
@@ -122,6 +128,9 @@ describe('Test boards mutations', () => {
   });
 
   test('Create pipeline', async () => {
+    const user1 = await userFactory();
+    const user2 = await userFactory();
+
     const args = {
       name: 'deal pipeline',
       type: 'deal',
@@ -129,6 +138,8 @@ describe('Test boards mutations', () => {
       stages: [stage.toJSON()],
       visibility: 'public',
       bgColor: 'aaa',
+      excludeCheckUserIds: [user1._id],
+      memberIds: [user2._id],
     };
 
     const mutation = `
@@ -140,6 +151,8 @@ describe('Test boards mutations', () => {
           boardId
           bgColor
           visibility
+          excludeCheckUserIds
+          memberIds
         }
       }
     `;
@@ -159,6 +172,8 @@ describe('Test boards mutations', () => {
     expect(createdPipeline.visibility).toEqual(args.visibility);
     expect(createdPipeline.boardId).toEqual(board._id);
     expect(createdPipeline.bgColor).toEqual(args.bgColor);
+    expect(createdPipeline.excludeCheckUserIds.length).toBe(1);
+    expect(createdPipeline.memberIds.length).toBe(1);
   });
 
   test('Update pipeline', async () => {
@@ -206,7 +221,10 @@ describe('Test boards mutations', () => {
     const pipelineToUpdate = await pipelineFactory({});
 
     const args = {
-      orders: [{ _id: pipeline._id, order: 9 }, { _id: pipelineToUpdate._id, order: 3 }],
+      orders: [
+        { _id: pipeline._id, order: 9 },
+        { _id: pipelineToUpdate._id, order: 3 },
+      ],
     };
 
     const mutation = `
@@ -268,16 +286,22 @@ describe('Test boards mutations', () => {
       }
     `;
 
-    await graphqlRequest(mutation, 'pipelinesRemove', { _id: pipeline._id }, context);
+    const user = await userFactory();
+    const pipe = await pipelineFactory({ watchedUserIds: [user._id] });
 
-    expect(await Pipelines.findOne({ _id: pipeline._id })).toBe(null);
+    await graphqlRequest(mutation, 'pipelinesRemove', { _id: pipe._id }, context);
+
+    expect(await Pipelines.findOne({ _id: pipe._id })).toBe(null);
   });
 
   test('Stage update orders', async () => {
     const stageToUpdate = await stageFactory({});
 
     const args = {
-      orders: [{ _id: stage._id, order: 9 }, { _id: stageToUpdate._id, order: 3 }],
+      orders: [
+        { _id: stage._id, order: 9 },
+        { _id: stageToUpdate._id, order: 3 },
+      ],
     };
 
     const mutation = `
@@ -293,5 +317,36 @@ describe('Test boards mutations', () => {
 
     expect(updatedStage.order).toBe(3);
     expect(updatedStageToOrder.order).toBe(9);
+  });
+
+  test('Edit stage', async () => {
+    const mutation = `
+      mutation stagesEdit($_id: String!, $type: String, $name: String) {
+        stagesEdit(_id: $_id, type: $type, name: $name) {
+          _id
+          name
+        }
+      }
+    `;
+
+    const updated = await graphqlRequest(mutation, 'stagesEdit', {
+      _id: stage._id,
+      type: BOARD_TYPES.DEAL,
+      name: 'updated',
+    });
+
+    expect(updated.name).toBe('updated');
+  });
+
+  test('Remove stage', async () => {
+    const mutation = `
+      mutation stagesRemove($_id: String!) {
+        stagesRemove(_id: $_id)
+      }
+    `;
+
+    await graphqlRequest(mutation, 'stagesRemove', { _id: stage._id });
+
+    expect(await Stages.findOne({ _id: stage._id })).toBe(null);
   });
 });

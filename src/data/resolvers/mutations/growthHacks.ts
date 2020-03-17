@@ -1,12 +1,21 @@
-import { ActivityLogs, GrowthHacks } from '../../../db/models';
+import { ActivityLogs, GrowthHacks, Stages } from '../../../db/models';
 import { IOrderInput } from '../../../db/models/definitions/boards';
-import { NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
+import { BOARD_STATUSES, NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { IGrowthHack } from '../../../db/models/definitions/growthHacks';
 import { IUserDocument } from '../../../db/models/definitions/users';
+import { graphqlPubsub } from '../../../pubsub';
+import { MODULE_NAMES } from '../../constants';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { checkUserIds, putCreateLog, putDeleteLog, putUpdateLog } from '../../utils';
-import { IBoardNotificationParams, itemsChange, sendNotifications } from '../boardUtils';
+import { checkUserIds } from '../../utils';
+import {
+  copyChecklists,
+  IBoardNotificationParams,
+  itemsChange,
+  prepareBoardItemDoc,
+  sendNotifications,
+} from '../boardUtils';
 
 interface IGrowthHacksEdit extends IGrowthHack {
   _id: string;
@@ -20,11 +29,13 @@ const growthHackMutations = {
     doc.initialStageId = doc.stageId;
     doc.watchedUserIds = [user._id];
 
-    const growthHack = await GrowthHacks.createGrowthHack({
+    const extendedDoc = {
       ...docModifier(doc),
       modifiedBy: user._id,
       userId: user._id,
-    });
+    };
+
+    const growthHack = await GrowthHacks.createGrowthHack(extendedDoc);
 
     await sendNotifications({
       item: growthHack,
@@ -32,15 +43,19 @@ const growthHackMutations = {
       type: NOTIFICATION_TYPES.GROWTHHACK_ADD,
       action: 'invited you to the growthHack',
       content: `'${growthHack.name}'.`,
-      contentType: 'growthHack',
+      contentType: MODULE_NAMES.GROWTH_HACK,
     });
 
     await putCreateLog(
       {
-        type: 'growthHack',
-        newData: JSON.stringify(doc),
+        type: MODULE_NAMES.GROWTH_HACK,
+        newData: {
+          ...extendedDoc,
+          createdAt: growthHack.createdAt,
+          modifiedAt: growthHack.modifiedAt,
+          order: growthHack.order,
+        },
         object: growthHack,
-        description: `${growthHack.name} has been created`,
       },
       user,
     );
@@ -54,11 +69,13 @@ const growthHackMutations = {
   async growthHacksEdit(_root, { _id, ...doc }: IGrowthHacksEdit, { user }) {
     const oldGrowthHack = await GrowthHacks.getGrowthHack(_id);
 
-    const updatedGrowthHack = await GrowthHacks.updateGrowthHack(_id, {
+    const extendedDoc = {
       ...doc,
       modifiedAt: new Date(),
       modifiedBy: user._id,
-    });
+    };
+
+    const updatedGrowthHack = await GrowthHacks.updateGrowthHack(_id, extendedDoc);
 
     const notificationDoc: IBoardNotificationParams = {
       item: updatedGrowthHack,
@@ -66,7 +83,7 @@ const growthHackMutations = {
       type: NOTIFICATION_TYPES.GROWTHHACK_EDIT,
       action: `has updated a growth hack`,
       content: `${updatedGrowthHack.name}`,
-      contentType: 'growthHack',
+      contentType: MODULE_NAMES.GROWTH_HACK,
     };
 
     if (doc.assignedUserIds && doc.assignedUserIds.length > 0 && oldGrowthHack.assignedUserIds) {
@@ -74,6 +91,15 @@ const growthHackMutations = {
         oldGrowthHack.assignedUserIds || [],
         doc.assignedUserIds || [],
       );
+
+      const activityContent = { addedUserIds, removedUserIds };
+
+      await ActivityLogs.createAssigneLog({
+        contentId: _id,
+        userId: user._id,
+        contentType: 'growthHack',
+        content: activityContent,
+      });
 
       notificationDoc.invitedUsers = addedUserIds;
       notificationDoc.removedUsers = removedUserIds;
@@ -83,13 +109,19 @@ const growthHackMutations = {
 
     await putUpdateLog(
       {
-        type: 'growthHack',
-        object: updatedGrowthHack,
-        newData: JSON.stringify(doc),
-        description: `${updatedGrowthHack.name} has been edited`,
+        type: MODULE_NAMES.GROWTH_HACK,
+        object: oldGrowthHack,
+        newData: extendedDoc,
+        updatedDocument: updatedGrowthHack,
       },
       user,
     );
+
+    graphqlPubsub.publish('growthHacksChanged', {
+      growthHacksChanged: {
+        _id: updatedGrowthHack._id,
+      },
+    });
 
     return updatedGrowthHack;
   },
@@ -110,7 +142,7 @@ const growthHackMutations = {
       stageId: destinationStageId,
     });
 
-    const { content, action } = await itemsChange(user._id, growthHack, 'growthHack', destinationStageId);
+    const { content, action } = await itemsChange(user._id, growthHack, MODULE_NAMES.GROWTH_HACK, destinationStageId);
 
     await sendNotifications({
       item: growthHack,
@@ -118,8 +150,19 @@ const growthHackMutations = {
       type: NOTIFICATION_TYPES.GROWTHHACK_CHANGE,
       content,
       action,
-      contentType: 'growthHack',
+      contentType: MODULE_NAMES.GROWTH_HACK,
     });
+
+    // if move between stages
+    if (destinationStageId !== growthHack.stageId) {
+      const stage = await Stages.getStage(growthHack.stageId);
+
+      graphqlPubsub.publish('pipelinesChanged', {
+        pipelinesChanged: {
+          _id: stage.pipelineId,
+        },
+      });
+    }
 
     return growthHack;
   },
@@ -143,21 +186,14 @@ const growthHackMutations = {
       type: NOTIFICATION_TYPES.GROWTHHACK_DELETE,
       action: `deleted growth hack:`,
       content: `'${growthHack.name}'`,
-      contentType: 'growthHack',
+      contentType: MODULE_NAMES.GROWTH_HACK,
     });
 
     await ActivityLogs.removeActivityLog(growthHack._id);
 
     const removed = growthHack.remove();
 
-    await putDeleteLog(
-      {
-        type: 'growthHack',
-        object: growthHack,
-        description: `${growthHack.name} has been removed`,
-      },
-      user,
-    );
+    await putDeleteLog({ type: MODULE_NAMES.GROWTH_HACK, object: growthHack }, user);
 
     await ActivityLogs.removeActivityLog(growthHack._id);
 
@@ -177,6 +213,37 @@ const growthHackMutations = {
   growthHacksVote(_root, { _id, isVote }: { _id: string; isVote: boolean }, { user }: { user: IUserDocument }) {
     return GrowthHacks.voteGrowthHack(_id, isVote, user._id);
   },
+
+  async growthHacksCopy(_root, { _id }: { _id: string }, { user }: IContext) {
+    const growthHack = await GrowthHacks.getGrowthHack(_id);
+
+    const doc = await prepareBoardItemDoc(_id, 'growthHack', user._id);
+
+    doc.votedUserIds = growthHack.votedUserIds;
+    doc.voteCount = growthHack.voteCount;
+    doc.hackStages = growthHack.hackStages;
+    doc.reach = growthHack.reach;
+    doc.impact = growthHack.impact;
+    doc.confidence = growthHack.confidence;
+    doc.ease = growthHack.ease;
+
+    const clone = await GrowthHacks.createGrowthHack(doc);
+
+    await copyChecklists({
+      contentType: 'growthHack',
+      contentTypeId: growthHack._id,
+      targetContentId: clone._id,
+      user,
+    });
+
+    return clone;
+  },
+
+  async growthHacksArchive(_root, { stageId }: { stageId: string }) {
+    await GrowthHacks.updateMany({ stageId }, { $set: { status: BOARD_STATUSES.ARCHIVED } });
+
+    return 'ok';
+  },
 };
 
 checkPermission(growthHackMutations, 'growthHacksAdd', 'growthHacksAdd');
@@ -184,5 +251,6 @@ checkPermission(growthHackMutations, 'growthHacksEdit', 'growthHacksEdit');
 checkPermission(growthHackMutations, 'growthHacksUpdateOrder', 'growthHacksUpdateOrder');
 checkPermission(growthHackMutations, 'growthHacksRemove', 'growthHacksRemove');
 checkPermission(growthHackMutations, 'growthHacksWatch', 'growthHacksWatch');
+checkPermission(growthHackMutations, 'growthHacksArchive', 'growthHacksArchive');
 
 export default growthHackMutations;
