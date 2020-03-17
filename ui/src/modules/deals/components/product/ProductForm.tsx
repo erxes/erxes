@@ -1,15 +1,21 @@
 import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
+import Table from 'modules/common/components/table';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __, Alert } from 'modules/common/utils';
 import { IProduct } from 'modules/settings/productService/types';
 import React from 'react';
-import { Add, FooterInfo, FormContainer } from '../../styles';
+import {
+  Add,
+  FooterInfo,
+  FormContainer,
+  ProductTableWrapper
+} from '../../styles';
 import { IPaymentsData, IProductData } from '../../types';
 import PaymentForm from './PaymentForm';
-import ProductItemForm from './ProductItemForm';
+import ProductItem from './ProductItem';
 
 type Props = {
   onChangeProductsData: (productsData: IProductData[]) => void;
@@ -22,6 +28,7 @@ type Props = {
   closeModal: () => void;
   uom: string[];
   currencies: string[];
+  currentProduct?: string;
 };
 
 type State = {
@@ -30,6 +37,7 @@ type State = {
   discount: { currency?: string; discount?: number };
   currentTab: string;
   changePayData: { currency?: string; amount?: number };
+  tempId: string;
 };
 
 class ProductForm extends React.Component<Props, State> {
@@ -41,11 +49,12 @@ class ProductForm extends React.Component<Props, State> {
       discount: {},
       tax: {},
       currentTab: 'products',
-      changePayData: {}
+      changePayData: {},
+      tempId: ''
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.updateTotal();
 
     // initial product item
@@ -57,20 +66,22 @@ class ProductForm extends React.Component<Props, State> {
   addProductItem = () => {
     const { productsData, onChangeProductsData, currencies } = this.props;
 
-    productsData.push({
-      _id: Math.random().toString(),
-      quantity: 1,
-      unitPrice: 0,
-      tax: 0,
-      taxPercent: 0,
-      discount: 0,
-      discountPercent: 0,
-      amount: 0,
-      currency: currencies ? currencies[0] : '',
-      tickUsed: true
-    });
+    this.setState({ tempId: Math.random().toString() }, () => {
+      productsData.push({
+        _id: this.state.tempId,
+        quantity: 1,
+        unitPrice: 0,
+        tax: 0,
+        taxPercent: 0,
+        discount: 0,
+        discountPercent: 0,
+        amount: 0,
+        currency: currencies ? currencies[0] : '',
+        tickUsed: true
+      });
 
-    onChangeProductsData(productsData);
+      onChangeProductsData(productsData);
+    });
   };
 
   removeProductItem = productId => {
@@ -116,7 +127,7 @@ class ProductForm extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { productsData, onChangeProductsData } = this.props;
+    const { productsData, onChangeProductsData, currentProduct } = this.props;
 
     if (productsData.length === 0) {
       return (
@@ -124,18 +135,38 @@ class ProductForm extends React.Component<Props, State> {
       );
     }
 
-    return productsData.map(productData => (
-      <ProductItemForm
-        key={productData._id}
-        productData={productData}
-        removeProductItem={this.removeProductItem}
-        productsData={productsData}
-        onChangeProductsData={onChangeProductsData}
-        updateTotal={this.updateTotal}
-        uom={this.props.uom}
-        currencies={this.props.currencies}
-      />
-    ));
+    return (
+      <ProductTableWrapper>
+        <Table>
+          <thead>
+            <tr>
+              <th>{__('Product / Service')}</th>
+              <th>{__('Quantity')}</th>
+              <th>{__('Unit price')}</th>
+              <th>{__('Discount')}</th>
+              <th>{__('Tax')}</th>
+              <th>{__('Amount')}</th>
+              <th />
+            </tr>
+          </thead>
+          <tbody id="products">
+            {productsData.map(productData => (
+              <ProductItem
+                key={productData._id}
+                productData={productData}
+                removeProductItem={this.removeProductItem}
+                productsData={productsData}
+                onChangeProductsData={onChangeProductsData}
+                updateTotal={this.updateTotal}
+                uom={this.props.uom}
+                currencies={this.props.currencies}
+                currentProduct={currentProduct}
+              />
+            ))}
+          </tbody>
+        </Table>
+      </ProductTableWrapper>
+    );
   }
 
   calcChangePay = () => {
@@ -166,8 +197,8 @@ class ProductForm extends React.Component<Props, State> {
     const {
       saveProductsData,
       productsData,
-      closeModal,
-      savePaymentsData
+      closeModal
+      // savePaymentsData
     } = this.props;
 
     const { total, changePayData } = this.state;
@@ -215,12 +246,13 @@ class ProductForm extends React.Component<Props, State> {
     }
 
     saveProductsData();
-    savePaymentsData();
+    // savePaymentsData();
     closeModal();
   };
 
   renderTabContent() {
     const { total, tax, discount, currentTab } = this.state;
+
     if (currentTab === 'payments') {
       const { onChangePaymentsData } = this.props;
 
@@ -245,6 +277,7 @@ class ProductForm extends React.Component<Props, State> {
             btnStyle="primary"
             onClick={this.addProductItem}
             icon="plus-circle"
+            href={`#${this.state.tempId}`}
           >
             Add Product / Service
           </Button>
@@ -284,8 +317,8 @@ class ProductForm extends React.Component<Props, State> {
             className={currentTab === 'products' ? 'active' : ''}
             onClick={this.onTabClick.bind(this, 'products')}
           >
-            <Icon icon="shoppingcart" />
-            {__('Choose products')}
+            <Icon icon="box" />
+            {__('Products')}
           </TabTitle>
           <TabTitle
             className={currentTab === 'payments' ? 'active' : ''}
@@ -302,12 +335,18 @@ class ProductForm extends React.Component<Props, State> {
           <Button
             btnStyle="simple"
             onClick={this.props.closeModal}
-            icon="cancel-1"
+            icon="times-circle"
+            uppercase={false}
           >
             Cancel
           </Button>
 
-          <Button btnStyle="success" onClick={this.onClick} icon="checked-1">
+          <Button
+            btnStyle="success"
+            onClick={this.onClick}
+            icon="check-circle"
+            uppercase={false}
+          >
             Save
           </Button>
         </ModalFooter>

@@ -3,7 +3,7 @@ id: docker
 title: Docker
 ---
 
-This steps explain how to install Erxes on Docker Hub, to do it, follow the instructions
+This steps explain how to install Erxes on Docker Hub, to do it, follow the instructions.
 
 [erxes on docker hub](https://hub.docker.com/u/erxes/)
 

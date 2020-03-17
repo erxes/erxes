@@ -52,13 +52,24 @@ interface IStore extends IState {
   endConversation: () => void;
   readConversation: (conversationId: string) => void;
   readMessages: (conversationId: string) => void;
-  sendMessage: (message: string, attachments?: IAttachment[]) => void;
+  sendMessage: (
+    contentType: string,
+    message: string,
+    attachments?: IAttachment[]
+  ) => void;
   sendTypingInfo: (conversationId: string, text: string) => void;
   sendFile: (file: File) => void;
   setHeadHeight: (headHeight: number) => void;
   setUnreadCount: (count: number) => void;
   isLoggedIn: () => boolean;
 }
+
+export const MESSAGE_TYPES = {
+  VIDEO_CALL: "videoCall",
+  VIDEO_CALL_REQUEST: "videoCallRequest",
+  TEXT: "text",
+  ALL: ["videoCall", "videoCallRequest", "text"]
+};
 
 const AppContext = React.createContext({} as IStore);
 
@@ -405,7 +416,11 @@ export class AppProvider extends React.Component<{}, IState> {
     });
   };
 
-  sendMessage = (message: string, attachments?: IAttachment[]) => {
+  sendMessage = (
+    contentType: string,
+    message: string,
+    attachments?: IAttachment[]
+  ) => {
     // current conversation
     const { activeConversation, sendingMessage } = this.state;
 
@@ -419,6 +434,7 @@ export class AppProvider extends React.Component<{}, IState> {
         widgetsInsertMessage: {
           __typename: "ConversationMessage",
           _id: Math.round(Math.random() * -1000000),
+          contentType: MESSAGE_TYPES.TEXT,
           conversationId: activeConversation,
           customerId: connection.data.customerId,
           user: null,
@@ -474,12 +490,14 @@ export class AppProvider extends React.Component<{}, IState> {
             mutation widgetsInsertMessage(
               ${connection.queryVariables}
               $message: String
+              $contentType: String
               $conversationId: String
               $attachments: [AttachmentInput]
             ) {
 
             widgetsInsertMessage(
               ${connection.queryParams}
+              contentType: $contentType
               message: $message
               conversationId: $conversationId
               attachments: $attachments
@@ -492,6 +510,7 @@ export class AppProvider extends React.Component<{}, IState> {
             integrationId: connection.data.integrationId,
             customerId: connection.data.customerId,
             conversationId: activeConversation,
+            contentType,
             message,
             attachments
           },
@@ -533,7 +552,9 @@ export class AppProvider extends React.Component<{}, IState> {
         const attachment = { url: response, ...fileInfo };
 
         // send message with attachment
-        self.sendMessage("This message has an attachment", [attachment]);
+        self.sendMessage(MESSAGE_TYPES.TEXT, "This message has an attachment", [
+          attachment
+        ]);
       },
 
       onError: message => {

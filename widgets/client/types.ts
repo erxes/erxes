@@ -133,6 +133,7 @@ export interface IIntegrationUiOptions {
   color: string;
   wallpaper: string;
   logo: string;
+  videoCallUsageStatus: boolean;
 }
 
 export interface IIntegration {

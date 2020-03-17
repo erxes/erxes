@@ -15,6 +15,16 @@ const UserHelper = styled.div`
   }
 `;
 
+const PageHeader = styled.div`
+  height: ${dimensions.headerSpacing}px;
+  position: fixed;
+  top: 0;
+  display: flex;
+  align-items: center;
+  z-index: 3;
+  padding-left: ${dimensions.coreSpacing * 1.5}px;
+`;
+
 const Layout = styledTS<{ isSqueezed?: boolean }>(styled.main)`
   height: ${props => (props.isSqueezed ? 'calc(100% - 36px)' : '100%')};
   display: flex;
@@ -22,6 +32,14 @@ const Layout = styledTS<{ isSqueezed?: boolean }>(styled.main)`
   max-width: 100%;
   position: relative;
   overflow: hidden;
+
+  ${props =>
+    props.isSqueezed &&
+    css`
+      ${PageHeader} {
+        top: 36px;
+      }
+    `};
 `;
 
 const MainWrapper = styled.div`
@@ -564,6 +582,7 @@ const CenterContent = styled.div`
 
 export {
   Layout,
+  PageHeader,
   MainWrapper,
   VerticalContent,
   HeightedWrapper,

@@ -4,7 +4,7 @@ title: GraphQL API Schema
 sidebar_label: GraphQL API
 ---
 
-This document explains how to work with GraphQL API Schema
+This document explains how to work with GraphQL API Schema.
 
 
 ## GraphQL API Schema

@@ -98,10 +98,10 @@ class ConversationDetail extends React.Component<Props, State> {
             goToConversationList();
 
             // leave video call if you are in
-            const videIframe = document.getElementById("erxes-video-iframe");
+            const videoIframe = document.getElementById("erxes-video-iframe");
 
-            if (videIframe) {
-              videIframe.remove();
+            if (videoIframe) {
+              videoIframe.remove();
             }
           }}
         />

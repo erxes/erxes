@@ -43,7 +43,8 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
       name,
       values,
       isSubmitted,
-      object
+      object,
+      resetSubmit
     }: IButtonMutateProps) => {
       const afterSave = data => {
         closeModal();
@@ -59,7 +60,7 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
         }`;
 
         if (getAssociatedCustomer) {
-          getAssociatedCustomer(data.customersAdd._id);
+          getAssociatedCustomer(data.customersAdd);
         }
 
         if (redirectType === 'new') {
@@ -77,8 +78,9 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
           isSubmitted={isSubmitted}
           disableLoading={redirectType ? true : false}
           disabled={isSubmitted}
-          type="submit"
-          icon="user-check"
+          type='submit'
+          icon='user-check'
+          resetSubmit={resetSubmit}
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
           } a ${name}`}
@@ -97,12 +99,7 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
 }
 
 const getRefetchQueries = () => {
-  return [
-    'customersMain',
-    // customers for company detail associate customers
-    'customers',
-    'customerCounts'
-  ];
+  return ['customersMain', 'customers', 'customerCounts'];
 };
 
 export default withRouter<FinalProps>(CustomerFormContainer);

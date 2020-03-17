@@ -4,7 +4,7 @@ title: Mobile Apps
 sidebar_label: Mobile Apps
 ---
 
-This document details how is the configuration of the system in mobile equipment according to the operating system
+This document details how is the configuration of the system in mobile equipment according to the operating system.
 
 <!--Content-->
 

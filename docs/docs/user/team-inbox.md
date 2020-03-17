@@ -4,7 +4,7 @@ title: Team Inbox
 sidebar_label: Team inbox
 ---
 
-This Document describe how to work with Team Inbox
+This Document describes how to work with Team Inbox.
 
 <!--Content-->
 

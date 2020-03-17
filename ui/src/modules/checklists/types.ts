@@ -21,6 +21,7 @@ export type ChecklistsQueryResponse = {
   checklists: IChecklist[];
   loading: boolean;
   refetch: () => void;
+  subscribeToMore: any;
 };
 
 export type AddMutationResponse = (

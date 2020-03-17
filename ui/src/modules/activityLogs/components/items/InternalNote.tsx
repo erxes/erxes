@@ -9,6 +9,7 @@ import {
 } from 'modules/activityLogs/styles';
 import { IUser } from 'modules/auth/types';
 import Tip from 'modules/common/components/Tip';
+import { renderUserFullName } from 'modules/common/utils';
 import Form from 'modules/internalNotes/components/Form';
 import { IInternalNote } from 'modules/internalNotes/types';
 import React from 'react';
@@ -43,7 +44,7 @@ class InternalNote extends React.Component<Props, { editing: boolean }> {
     let userName = 'Unknown';
 
     if (createdUser.details) {
-      userName = createdUser.details.fullName || 'Unknown';
+      userName = renderUserFullName(createdUser);
     }
 
     return (

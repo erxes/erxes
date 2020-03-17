@@ -3,7 +3,7 @@ id: heroku
 title: Heroku
 ---
 
-This document explains how to deploy Erxes on Heroku
+Learn how to deploy Erxes on Heroku.
 
 ## Deploying Erxes on Heroku
 

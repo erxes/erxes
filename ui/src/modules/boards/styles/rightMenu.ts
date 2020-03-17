@@ -1,4 +1,7 @@
-import { TabCaption, TabContainer } from 'modules/common/components/tabs/styles';
+import {
+  TabCaption,
+  TabContainer
+} from 'modules/common/components/tabs/styles';
 import { colors } from 'modules/common/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -30,7 +33,8 @@ const FilterButton = styledTS<{ selected?: boolean }>(styled.div)`
   transition: all 0.3s ease;
 
   &:hover {
-    background: ${props => props.selected ? colors.colorPrimaryDark : colors.bgGray};
+    background: ${props =>
+      props.selected ? colors.colorPrimaryDark : colors.bgGray};
     cursor: pointer;
   }
 `;
@@ -47,7 +51,8 @@ export const RightMenuContainer = styled.div`
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 12px 24px -6px rgba(9,30,66,.25), 0 0 0 1px rgba(9,30,66,.08);
+  box-shadow: 0 12px 24px -6px rgba(9, 30, 66, 0.25),
+    0 0 0 1px rgba(9, 30, 66, 0.08);
 
   ${TabContainer} {
     height: 40px;
@@ -82,7 +87,7 @@ const TopBar = styled.div`
   > span {
     flex: 1;
     margin-right: 10px;
-    
+
     input[type='text'] {
       width: 100%;
     }
@@ -91,7 +96,7 @@ const TopBar = styled.div`
 
 const ItemContainer = styled.div`
   margin-bottom: 20px;
-  
+
   > span {
     text-decoration: underline;
     color: ${colors.colorCoreGray};
@@ -100,6 +105,16 @@ const ItemContainer = styled.div`
       cursor: pointer;
       color: ${colors.textSecondary};
     }
+  }
+`;
+
+const LoadMore = styled.span`
+  text-decoration: underline;
+  margin-bottom: 20px;
+  color: ${colors.colorCoreGray};
+  &:hover {
+    cursor: pointer;
+    color: ${colors.textSecondary};
   }
 `;
 
@@ -113,5 +128,13 @@ const BoardItem = styled.div`
   font-weight: 500;
 `;
 
-export { FilterBox, FilterButton, MenuFooter, TopBar, ItemContainer, BoardItem, ArchiveWrapper };
-
+export {
+  FilterBox,
+  FilterButton,
+  MenuFooter,
+  TopBar,
+  ItemContainer,
+  LoadMore,
+  BoardItem,
+  ArchiveWrapper
+};

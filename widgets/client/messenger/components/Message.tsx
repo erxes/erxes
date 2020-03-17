@@ -6,7 +6,10 @@ import { defaultAvatar } from "../../icons/Icons";
 import { IUser } from "../../types";
 import { readFile } from "../../utils";
 import { Attachment, User } from "../components/common";
-import { IAttachment, IMessengerAppData } from "../types";
+import { MESSAGE_TYPES } from "../containers/AppContext";
+import { IAttachment, IMessengerAppData, IVideoCallData } from "../types";
+import VideoCallMessage from "./VideoCallMessage";
+import VideoCallRequest from "./VideoCallRequest";
 
 type Props = {
   content: string;
@@ -15,6 +18,8 @@ type Props = {
   attachments: IAttachment[];
   user?: IUser;
   color?: string;
+  contentType?: string;
+  videoCallData?: IVideoCallData;
 };
 
 class Message extends React.Component<Props> {
@@ -57,7 +62,15 @@ class Message extends React.Component<Props> {
   }
 
   renderContent() {
-    const { messengerAppData, attachments, color, user, content } = this.props;
+    const {
+      messengerAppData,
+      attachments,
+      color,
+      user,
+      content,
+      contentType,
+      videoCallData
+    } = this.props;
     const messageClasses = classNames("erxes-message", {
       attachment: attachments && attachments.length > 0,
       "from-customer": !user
@@ -66,6 +79,18 @@ class Message extends React.Component<Props> {
     const messageBackground = {
       backgroundColor: !user ? color : ""
     };
+
+    if (contentType === MESSAGE_TYPES.VIDEO_CALL) {
+      return (
+        <VideoCallMessage
+          videoCallData={videoCallData || { status: "end", url: "" }}
+        />
+      );
+    }
+
+    if (contentType === MESSAGE_TYPES.VIDEO_CALL_REQUEST) {
+      return <VideoCallRequest />;
+    }
 
     if (messengerAppData) {
       return this.renderMessengerAppMessage();

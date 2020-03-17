@@ -4,7 +4,7 @@ title: Upgrade
 sidebar_label: Upgrade
 ---
 
-Following the steps in this document you can upgrade the system version
+Following the steps in this document you can upgrade the system version.
 
 ## Upgrading from v0.9+ to the latest release vx.x.x
 
