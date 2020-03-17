@@ -11,12 +11,13 @@
       "installation/ubuntu",
       "installation/debian10",
       "installation/centos8",
+      "installation/redhat8",
       "installation/docker",
       "installation/heroku",
-      "installation/kubernetes",
       "installation/upgrade"
     ],
     "User's Guide": [
+      "user/subscription-getting-started",
       "user/initial-setup",
       "user/general-settings",
       "user/team-inbox",
@@ -25,22 +26,16 @@
       "user/script-install",
       "user/contacts",
       "user/sales-pipeline",
-      "user/sales-pipeline-settings",
       "user/engage",
       "user/insights",
-      "user/email-templates",
-      "user/third-party-integrations",
-      "user/signing-in",
       "user/profile-settings",
       "user/notification",
-      "user/mobile-apps",
-      "user/subscription-getting-started"
+      "user/mobile-apps"
     ],
     "Administrator's guide": [
       "administrator/creating-first-user",
       "administrator/environment-variables",
-      "administrator/file-upload",
-      "administrator/integrations",
+      "administrator/system-config",
       "administrator/migration"
     ],
     "Developer's guide": [

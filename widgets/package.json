@@ -5,9 +5,9 @@
   "homepage": "https://erxes.io",
   "repository": {
     "type": "git",
-    "url": "https://github.com/erxes/erxes-widgets"
+    "url": "https://github.com/erxes/erxes"
   },
-  "bugs": "https://github.com/erxes/erxes-widgets/issues",
+  "bugs": "https://github.com/erxes/erxes/issues",
   "keywords": [
     "node",
     "express",
@@ -30,8 +30,7 @@
     "lint": "tslint 'client/**/*.@(ts|tsx)'",
     "format": "prettier --write 'client/**/*.@(ts|tsx)'",
     "precommit": "lint-staged",
-    "start": "node dist",
-    "release": "release-it"
+    "start": "node dist"
   },
   "lint-staged": {
     "*.@(ts|tsx)": [
@@ -72,7 +71,6 @@
     "xss": "^1.0.3"
   },
   "devDependencies": {
-    "@release-it/conventional-changelog": "^1.1.0",
     "@types/classnames": "^2.2.6",
     "@types/cors": "^2.8.4",
     "@types/dotenv": "^4.0.3",
@@ -92,7 +90,6 @@
     "node-sass": "^4.5.3",
     "nodemon": "^1.11.0",
     "prettier": "^1.13.7",
-    "release-it": "^12.4.3",
     "sass-loader": "^6.0.6",
     "source-map-loader": "^0.2.3",
     "style-loader": "^0.16.1",

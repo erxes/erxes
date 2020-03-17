@@ -12,7 +12,7 @@ import PortableDeals from 'modules/deals/components/PortableDeals';
 import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import { Capitalize } from 'modules/settings/permissions/styles';
 import PortableTasks from 'modules/tasks/components/PortableTasks';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Select from 'react-select-plus';
 import { ITicket, ITicketParams } from '../types';
 
@@ -28,24 +28,19 @@ type Props = {
   sendToBoard?: (item: any) => void;
 };
 
-type State = {
-  source: string;
-};
+export default function TicketEditForm(props: Props) {
+  const item = props.item;
 
-export default class TicketEditForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+  const [source, setSource] = useState(item.source);
 
-    const item = props.item;
+  useEffect(
+    () => {
+      setSource(item.source);
+    },
+    [item.source]
+  );
 
-    this.state = {
-      source: item.source || ''
-    };
-  }
-
-  renderSidebarFields = saveItem => {
-    const { source } = this.state;
-
+  function renderSidebarFields(saveItem) {
     const sourceValues = KIND_CHOICES.ALL_LIST.map(key => ({
       label: __(key),
       value: key
@@ -56,24 +51,19 @@ export default class TicketEditForm extends React.Component<Props, State> {
       value: 'other'
     });
 
-    const onSelectChange = <T extends keyof State>(
-      option: ISelectedOption,
-      name: T
-    ) => {
-      const value = option ? option.value : '';
-
-      this.setState({ [name]: value } as Pick<State, keyof State>, () => {
-        if (saveItem) {
-          saveItem({ [name]: value });
-        }
-      });
-    };
-
     const sourceValueRenderer = (option: ISelectedOption): React.ReactNode => (
       <Capitalize>{option.label}</Capitalize>
     );
 
-    const onSourceChange = option => onSelectChange(option, 'source');
+    const onSourceChange = option => {
+      const value = option ? option.value : '';
+
+      setSource(value);
+
+      if (saveItem) {
+        saveItem({ source: value });
+      }
+    };
 
     return (
       <FormGroup>
@@ -88,27 +78,27 @@ export default class TicketEditForm extends React.Component<Props, State> {
         />
       </FormGroup>
     );
-  };
+  }
 
-  renderItems = () => {
+  function renderItems() {
     return (
       <>
-        <PortableDeals mainType="ticket" mainTypeId={this.props.item._id} />
-        <PortableTasks mainType="ticket" mainTypeId={this.props.item._id} />
+        <PortableDeals mainType="ticket" mainTypeId={props.item._id} />
+        <PortableTasks mainType="ticket" mainTypeId={props.item._id} />
       </>
     );
-  };
+  }
 
-  renderFormContent = ({
+  function renderFormContent({
     state,
     copy,
     remove,
     saveItem,
     onChangeStage
-  }: IEditFormContent) => {
-    const { item, options, onUpdate, addItem, sendToBoard } = this.props;
+  }: IEditFormContent) {
+    const { options, onUpdate, addItem, sendToBoard } = props;
 
-    const renderSidebar = () => this.renderSidebarFields(saveItem);
+    const renderSidebar = () => renderSidebarFields(saveItem);
 
     return (
       <>
@@ -137,20 +127,18 @@ export default class TicketEditForm extends React.Component<Props, State> {
             item={item}
             sidebar={renderSidebar}
             saveItem={saveItem}
-            renderItems={this.renderItems}
+            renderItems={renderItems}
           />
         </FlexContent>
       </>
     );
+  }
+
+  const extendedProps = {
+    ...props,
+    formContent: renderFormContent,
+    extraFields: { source }
   };
 
-  render() {
-    const extendedProps = {
-      ...this.props,
-      formContent: this.renderFormContent,
-      extraFields: this.state
-    };
-
-    return <EditForm {...extendedProps} />;
-  }
+  return <EditForm {...extendedProps} />;
 }

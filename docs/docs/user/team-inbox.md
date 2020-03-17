@@ -4,6 +4,8 @@ title: Team Inbox
 sidebar_label: Team inbox
 ---
 
+This Document describes how to work with Team Inbox.
+
 <!--Content-->
 
 Shared inbox for teams

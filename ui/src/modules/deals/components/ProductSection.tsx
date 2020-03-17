@@ -47,7 +47,7 @@ function ProductSection({
     );
 
     return content;
-  }
+  };
 
   const tipItems = (product: IProduct) => {
     const result: React.ReactNode[] = [];
@@ -65,7 +65,10 @@ function ProductSection({
     return result;
   };
 
-  const renderProductFormModal = (trigger: React.ReactNode, productId?: string) => {
+  const renderProductFormModal = (
+    trigger: React.ReactNode,
+    productId?: string
+  ) => {
     return (
       <ModalTrigger
         title="Manage Product & Service"
@@ -75,7 +78,7 @@ function ProductSection({
         content={contentWithId(productId)}
       />
     );
-  }
+  };
 
   const renderProductName = (productName: string, productId: string) => {
     return renderProductFormModal(
@@ -96,7 +99,7 @@ function ProductSection({
       );
     }
 
-    return renderProductName(product.name, product._id)
+    return renderProductName(product.name, product._id);
   };
 
   return (

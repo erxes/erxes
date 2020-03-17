@@ -6,6 +6,7 @@ import {
 } from 'modules/activityLogs/styles';
 import { IActivityLog } from 'modules/activityLogs/types';
 import Tip from 'modules/common/components/Tip';
+import { renderUserFullName } from 'modules/common/utils';
 import React from 'react';
 
 type Props = {
@@ -18,12 +19,7 @@ class CustomerCreate extends React.Component<Props> {
     const { createdByDetail } = activity;
 
     if (createdByDetail && createdByDetail.type === 'user') {
-      const { content } = createdByDetail;
-      let userName = 'Unknown';
-
-      if (content.details) {
-        userName = content.details.fullName || 'Unknown';
-      }
+      const userName = renderUserFullName(createdByDetail.content);
 
       return (
         <span>

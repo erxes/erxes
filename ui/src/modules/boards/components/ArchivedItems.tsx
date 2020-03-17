@@ -101,7 +101,7 @@ class ArchivedItems extends React.Component<Props, State> {
       return (
         <EmptyState
           text={`There aren’t any archived ${type}.`}
-          icon='archive-alt'
+          icon="archive-alt"
         />
       );
     }

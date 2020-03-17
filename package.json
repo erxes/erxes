@@ -1,0 +1,34 @@
+{
+  "name": "erxes",
+  "version": "0.12.0",
+  "description": "erxes is an AI meets open source messaging platform for sales and marketing teams.",
+  "homepage": "https://erxes.io",
+  "repository": "https://github.com/erxes/erxes",
+  "bugs": "https://github.com/erxes/erxes/issues",
+  "keywords": [
+    "node",
+    "graphql",
+    "apollo",
+    "react"
+  ],
+  "license": "MIT",
+  "private": true,
+  "collective": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/erxes",
+    "logo": "https://opencollective.com/opencollective/logo.txt"
+  },
+  "scripts": {
+    "format": "prettier --single-quote --write 'src/**/*.@(ts|tsx)'",
+    "precommit": "lint-staged",
+    "lint": "tslint '@(ui|widgets)/**/*.@(ts|tsx)'",
+    "postinstall": "opencollective postinstall",
+    "generateVersion": "node commands/generateVersion.js",
+    "release": "release-it"
+  },
+  "devDependencies": {
+    "@release-it/conventional-changelog": "^1.1.0",
+    "opencollective": "^1.0.3"
+  },
+  "dependencies": {}
+}

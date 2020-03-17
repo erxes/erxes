@@ -3,6 +3,8 @@ id: centos8
 title: CentOS 8
 ---
 
+This steps explain how to install Erxes on CentOS 98. 
+
 ## Installing erxes on CentOS 8
 
 To have erxes up and running quickly, you can follow the following steps.

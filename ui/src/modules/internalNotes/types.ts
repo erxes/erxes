@@ -44,4 +44,5 @@ export type InternalNoteDetailQueryResponse = {
   internalNoteDetail: IInternalNote;
   loading: boolean;
   refetch: () => void;
+  subscribeToMore: any;
 };
