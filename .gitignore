@@ -6,7 +6,7 @@ node_modules
 *.swp
 *.swo
 *.log
-/build
+build
 .env.local
 .env.development.local
 .env.development
