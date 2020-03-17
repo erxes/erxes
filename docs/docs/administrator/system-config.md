@@ -149,60 +149,150 @@ You can also determine whether your account is in the sandbox by sending email t
 
 
 ### Google
+Erxes app can be integrated with Google APIs to enable other services such as Gmail API, Cloud Pub/Sub API, .. etc.  With the help of gmail API we have many more possibilities, like realtime email synchronization, send & reply email etc. Cloud Pub/Sub API provides reliable, many-to-many, asynchronous messaging between applications. 
 
-**Configuration:** 
+Following steps explain the integration with Gmail API. Which allows us to receive our gmail inbox messages directly to our Erxes app's inbox.
+
+#### Configuration:
 - Go to Erxes Settings => System config => General System Config => Google.  
 
 ```
 GOOGLE_PROJECT_ID="your google project's id"
 GOOGLE_APPLICATION_CREDENTIALS="your downloaded google's credentials which is json file"
-GOOGLE_CLIENT_ID="your google project's client id"
-GOOGLE_CLIENT_SECRET="your google project's secret key"
+GOOGLE_CLIENT_ID="your google project's OAuth client id"
+GOOGLE_CLIENT_SECRET="your google project's OAuth secret key"
+```
+In order to enable Gmail integration, you also need to configure additionally `GOOGLE_GMAIL_TOPIC `and `GOOGLE_GMAIL_SUBSCRIPTION_NAME`. Also click on `USE_DEFAULT_GMAIL_SERVICE`. **For other Google API service, you do not need to configure following parameters.** 
+
+- Go to Erxes Settings => Integrations config => Gmail. 
+```
+USE_DEFAULT_GMAIL_SERVICE = 'true'
+GOOGLE_GMAIL_TOPIC = 'gmail_topic'
+GOOGLE_GMAIL_SUBSCRIPTION_NAME = 'gmail_topic_subscription'
 ```
 
-Requirements:
 
-- To create Google project.
-- Enable Gmail API.
-- Configure Google cloud pub/sub.
+#### Create a Google Cloud Project
+  - Go to the [ Google Cloud Project ](https://console.cloud.google.com/)
+  - Navigate to Select a project => NEW PROJECT 
+  
+  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google-project-1.png" width="70%" height="70%" />
 
-Creating Google project:
+  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google-gmail-1.png" width="70%" height="70%" />
 
-- Go to https://console.cloud.google.com/cloud-resource-manager and create new project.
+#### Enable Gmail API
+  - Now we need to enable Gmail API in order to add scopes
+  - Side menu => APIs & Services => Library => Search => Gmail API and enable
 
-Enable Gmail API:
+  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google-gmail-7.png" width="70%" height="70%" />
 
-- Go to the APIs & Services/library & enable Gmail API.
-- Go to the APIs & Services/credentials & create new `OAuth client ID` credentials. If you see warning about `product name` follow the instruction, make it disappear. Afterwards select `Web application` & add `http://localhost:3000/service/oauth/gmail_callback` in `Authorized redirect URIs` & create.
-- Copy `Client ID` & `Client secret` paste in your erxes-api/.env file. It looks like following example:
+  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google-gmail-8.png" width="70%" height="70%" />
+
+#### Create consent screen 
+  - Side menu => APIs Services => OAuth Consent screen => Create
+
+  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google-gmail-3.png" width="70%" height="70%" />
+  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google-gmail-4.png" width="70%" height="70%" />
+
+  Fill out the form below and click on add scope the button
+
+  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google-gmail-5.png" width="70%" height="70%" />
+
+  Since we already enabled the Gmail API, we are able to add the Gmail scopes. Search Gmail API and select the following scopes and add. Afterward, do not forget to click on save on bottom
+
+  ```Shell
+    https://mail.google.com/
+    https://www.googleapis.com/auth/gmail.modify
+    https://www.googleapis.com/auth/gmail.compose
+    https://www.googleapis.com/auth/gmail.send
+    https://www.googleapis.com/auth/gmail.readonly
+  ```
+
+  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google-gmail-9.png" width="70%" height="70%" />
+
+#### Create an OAuth client
+  - In order to enable Google Cloud Project, we need to have a OAuth client for authorization
+
+  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google-gmail-2.png" width="70%" height="70%" />
+
+  - In application, type select web application and fill out the rest of the form
+
+  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google-gmail-10.png" width="70%" height="70%" />
+
+  - Keep the client id and client secret we're going to use later on
+
+  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google-gmail-11.png" width="70%" height="70%" />
 
 
-Configure google cloud pub/sub:
 
-- Go to https://console.cloud.google.com/cloudpubsub/enableApi & select your project.
-- Enable api & create topic.
-- On the topic we must create subscription which is shown on the right of the topic as 3 dots. Select `New subscrition` & create.
-- Now grant publish rights on your topic. To do this, select `permissions` from the menu shown as a 3 dots & add member `serviceAccount:gmail-api-push@system.gserviceaccount.com` role as a pub/sub publisher.
-- Then copy the topic & subscrition put it in erxes-api/.env file. It should looks like following example:
+#### Add authorization callback
+  - Now we need to add authorization callback for our OAuth2 client
+  - Go to => Side menu => APIs and Services => Credentials and select an OAuth client you just created.
 
-```shell
-#.env
-GOOGLE_TOPIC = "projects/myproject/topics/erxes-topic"
-GOOGLE_SUPSCRIPTION_NAME = "projects/myproject/subscriptions/erxes-subscription"
-```
+  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google-gmail-12.png" width="70%" height="70%" />
 
-- Go to https://console.cloud.google.com/apis/credentials/serviceaccountkey
-- Select your project & create new service account with role as project owner.
-- Download json file, put file path in erxes/.env file. It should looks like following example:
+  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google-gmail-13.png" width="70%" height="70%" />
 
-```shell
-#.env
-GOOGLE_APPLICATION_CREDENTIALS = "/Users/user/Downloads/9bb5b70c121c.json"
-```
+  - erxes-integrations repo works on PORT 3400, so that for the test purpose you can add as follows
 
-Add integration:
+  ```shell
+    http://localhost:3400/gmaillogin
+  ```
 
-- Go to erxes settings - App store - add gmail. (Make sure you create new brand beforehand)
+  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google-gmail-14.png" width="70%" height="70%" />
+
+#### Enable PubSub API
+  -In order to send and receive an email you need to enable the Cloud PubSub API.
+
+  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google-gmail-15.png" width="70%" height="70%"/>
+
+  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google-gmail-16.png" width="70%" height="70%"/>
+
+#### Create a service account
+  - Go to => IAM & Admin => Service Accounts => CREATE SERVICE ACCOUNTS
+  - Enter service account name and Create
+
+  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google-gmail-17.png" width="70%" height="70%" />
+
+  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google-gmail-18.png" width="70%" height="70%" />
+  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google-gmail-19.png" width="70%" height="70%" />
+
+  - You will automatically download the JSON file and replace it as  `GOOGLE_APPLICATION_CREDENTIALS=./google_cred.json` 
+
+  
+  - Let's grant publish topic right to Gmail's service account.
+
+  - Go to => Side menu => IAM & Admin => IAM => Add
+
+  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google-gmail-22.png" width="70%" height="70%" />
+
+  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google-gmail-23.png" width="70%" height="70%" />
+
+  - In new members add the following value
+
+  ```shell
+    gmail-api-push@system.gserviceaccount.com
+  ```
+
+  - In role select PubSub/Publisher
+  
+  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google-gmail-21.png" width="70%" height="70%" />
+
+
+
+  Basic Gmail integration setting has done. Your parameter configuration is as follows
+
+  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google-gmail-20.png" width="70%" height="70%" />
+
+  Now you need to connect your account to Erxes.
+
+**Erxes Gmail integration settings:**
+
+1. Go to Erxes settings => App store
+2. Click on Add **Gmail**. Connect your account.
+3. Select your brand and click save.
+4. Go to Setting=> Channel=> Add new channel=> Connect gmail integration.
+
 
 
 ### Common mail config
@@ -374,7 +464,7 @@ TWITTER_WEBHOOK_ENV=''
 3. Select your brand and click save.
 4. Go to Setting=> Channel=> Add new channel=> Connect Twitter integration. 
 
-### Daily
+### Video calls
 Erxes app can be integrated with the Daily.co API for video calls. It allows us to easy to create and configure on-demand video call URLs. Learn how to integrate Daily integration.
 
 #### Requirements:
@@ -387,6 +477,7 @@ Erxes app can be integrated with the Daily.co API for video calls. It allows us 
 - Go to Erxes Settings => System config => Integrations config => Daily. 
 
 ```
+VIDEO_CALL_TYPE = 'select the video calls integration server'
 DAILY_API_KEY="your daily application's api key"
 DAILY_END_POINT="your daily application's end point"
 ```
@@ -460,32 +551,19 @@ ENCRYPTION_KEY=''
 
 ### Gmail 
 
-Erxes app can be integrated with Gmail API by Nylas and that means we can receive our gmail inbox messages directly to our erxes app's inbox. With the help of gmail API we have many more possibilities, like realtime email synchronization, send & reply email etc. 
+Erxes app can be integrated with Gmail API by Nylas and that means we can receive our gmail inbox messages directly to our erxes app's inbox. With the help of Gmail API we have many more possibilities, like realtime email synchronization, send & reply email etc. 
 
-**Requirements:**
+**Configuration**
 
-- Create Google project and OAuth Client ID.
-- Enable Gmail API.
+According to the following steps, click the link and set up configurations. 
 
+- [Create Google project.](/administrator/system-config#create-a-google-cloud-project) 
+- [Enable Gmail API.](/administrator/system-config#enable-gmail-api)
+- [Configure OAuth Consent Screen.](/administrator/system-config#create-consent-screen) 
+- [Create an OAuth client.](/administrator/system-config#create-an-oauth-client)
+- [Configure the Google parameters.](/administrator/system-config#configuration)
 
-**Configuration:** 
-- Go to Erxes Settings => System config => General system config => Google. 
-
-
-```
-GOOGLE_PROJECT_ID="your google project's id"
-GOOGLE_APPLICATION_CREDENTIALS="./google_cred.json"
-GOOGLE_CLIENT_ID="your google project's client id"
-GOOGLE_CLIENT_SECRET="your google project's secret key"
-```
-
-
-#### Creating Google project
-According to [Nylas guide](https://docs.nylas.com/docs/creating-a-google-project-for-dev), follow the configurations to set variables.
-1. Create the Google project and config gmail.
-2. Enable APIs.
-3. Configure OAuth Consent Screen.
-4. Create an OAuth Credential.  In order to have Google OAuth token, add authorized redirect URIs to your google credentials. 
+In order to have Google OAuth token, add authorized callback (redirect URIs) to your google credentials. 
 - Select Google project
 - Go to credentials from left side menu
 - Select OAuth 2.0 client ID
@@ -499,9 +577,9 @@ According to [Nylas guide](https://docs.nylas.com/docs/creating-a-google-project
 
  `Add URI = https://api.nylas.com/oauth/callback`
 
-After you create the Google service account download json and replace with google_cred.json. 
+After you create the [Google service account (refer to the link)](/administrator/system-config#create-a-service-account) download json and replace with google_cred.json. 
 
-
+Basic integration setting has done. Now you need to connect your account to Erxes. 
 
 **Erxes Gmail integration settings:**
 
