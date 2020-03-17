@@ -19,7 +19,6 @@ type Props = {
   onChangePaymentsData: (paymentsData: IPaymentsData) => void;
   onChangeProducts: (prs: IProduct[]) => void;
   saveProductsData: () => void;
-  savePaymentsData: () => void;
 };
 
 function ProductSection({
@@ -28,8 +27,7 @@ function ProductSection({
   paymentsData,
   onChangeProductsData,
   onChangePaymentsData,
-  saveProductsData,
-  savePaymentsData
+  saveProductsData
 }: Props) {
   const contentWithId = (productId?: string) => {
     const content = props => (
@@ -42,7 +40,6 @@ function ProductSection({
         products={products}
         paymentsData={paymentsData}
         saveProductsData={saveProductsData}
-        savePaymentsData={savePaymentsData}
       />
     );
 
