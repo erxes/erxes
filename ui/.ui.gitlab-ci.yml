@@ -1,0 +1,66 @@
+ui:install_dependencies:
+  stage: install_dependencies
+  image: node:10.16-alpine
+  before_script:
+    - cd ui
+  script:
+    - yarn install
+  rules:
+    - changes:
+        - ui/package.json
+        - ui/yarn.lock
+        # Only creating cache when this file changes.
+        # If cache is deleted somehow run pipelines manually to create cache again.
+        # Otherwise new cache won't build until ui/package.json file changed.
+  cache:
+    key:
+      files:
+        - ui/package.json
+        - ui/yarn.lock
+      prefix: ui
+    paths:
+      - ui/node_modules/
+    policy: pull-push
+
+ui:test_and_build:
+  stage: test_and_build
+  image: node:10.16-alpine
+  before_script:
+    - cd ui
+    - yarn install # install dependencies again if cache is missing
+    - apk add --no-cache --update git
+    - git checkout ${CI_COMMIT_REF_NAME}
+  script:
+    - yarn lint
+    - yarn tsc
+    - yarn build
+  rules:
+    - changes:
+        - ui/**/*
+  cache:
+    key:
+      files:
+        - ui/package.json
+      prefix: ui
+    paths:
+      - ui/node_modules/
+  artifacts:
+    expire_in: 1h
+    paths:
+      - ui/build/
+
+ui:build_docker_image:
+  stage: build_docker_images
+  before_script:
+    - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+  script:
+    - cd ui
+    - docker build -t erxes/$CI_PROJECT_NAME:${CI_COMMIT_REF_NAME} -f Dockerfile .
+    - docker push erxes/$CI_PROJECT_NAME:${CI_COMMIT_REF_NAME}
+  rules:
+    - changes:
+        - ui/**/*
+      if: '$CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "apm"'
+  needs:
+    - job: ui:test_and_build
+      artifacts: true

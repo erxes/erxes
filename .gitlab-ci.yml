@@ -1,0 +1,17 @@
+variables:
+  DOCKER_DRIVER: overlay2
+
+default:
+  image: docker:19.03.5
+  services:
+    - docker:19.03.5-dind
+
+stages:
+  - install_dependencies
+  - test_and_build
+  - build_docker_images
+
+include:
+- local: '/docs/.docs.gitlab-ci.yml'
+- local: '/ui/.ui.gitlab-ci.yml'
+- local: '/widgets/.widgets.gitlab-ci.yml'

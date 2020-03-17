@@ -1,0 +1,225 @@
+#erxes-container {
+  overflow: hidden;
+
+  .close {
+    outline: 0;
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    border-radius: $border-radius;
+    z-index: 9999999999;
+    right: 5px;
+    top: 15px;
+
+    @include prefix((
+      transition: all .3s ease-in-out
+    ), webkit moz ms o);
+
+    @include prefix((
+      transform: translate(0, -25%)
+    ), webkit moz ms o);
+
+    &:hover {
+      background-color: rgba($black, .2);
+      cursor: pointer;
+    }
+  }
+}
+
+// modal form
+.modal-form {
+  width: 100%;
+  min-height: 100%;
+  position: absolute;
+  background-color: rgba($black, .6);
+  @include prefix((
+    transition: opacity .15s linear
+  ), webkit moz ms o);
+
+  .erxes-form {
+    @include prefix((
+      transition: transform .3s ease
+    ), webkit moz ms o);
+
+    @include prefix((
+      transform: translate(0, -25%)
+    ), webkit moz ms o);
+
+    margin: 50px auto;
+    width: 500px;
+
+    @media screen and (max-width: $break-medium) {
+      margin: 0;
+      width: 100%;
+    }
+  }
+
+  &.open {
+    background-color: rgba($black, .6);
+    opacity: 1;
+
+    .erxes-form {
+      @include prefix((
+        transform: translate(0, 0)
+      ), webkit moz ms o);
+    }
+
+    .close {
+      @include prefix((
+        transform: translate(0, 0)
+      ), webkit moz ms o);
+    }
+  }
+
+  .close {
+    right: 50% !important;
+    top: 65px !important;
+    margin-right: -240px;
+  
+    @media screen and (max-width: $break-medium) {
+      margin-right: auto;
+      right: 10px;
+      top: 8px;
+    }
+  }
+}
+
+.erxes-form {
+  margin: 0;
+  font-size: $font-size;
+  line-height: 1.5;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-radius: $border-radius;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  .erxes-form-content {
+    background: $white;
+    overflow: auto;
+    padding: 20px;
+    margin: 0;
+    flex: 1;
+    list-style: none;
+    position: relative;
+
+    .erxes-description {
+      color: lighten($black, 36%);
+      margin-bottom: 5px;
+    }
+  }
+
+  .erxes-result {
+    text-align: center;
+    color: $text-color;
+
+    p {
+      margin: 0;
+    }
+
+    button {
+      border: none;
+      outline: 0;
+      display: block;
+      margin: 10px auto 0;
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
+  }
+}
+
+.container-popup {
+  @include prefix((
+    transition: opacity .15s linear
+  ), webkit moz ms o);
+
+  background-color: rgba($black, .6);
+  min-height: 100%;
+  position: absolute;
+  width: 100%;
+
+  .erxes-form {
+    @include prefix((
+      transition: transform .3s ease
+    ), webkit moz ms o);
+
+    @include prefix((
+      transform: translate(0, -25%)
+    ), webkit moz ms o);
+
+    margin: 50px auto;
+    width: 500px;
+
+    @media screen and (max-width: $break-medium) {
+      margin: 0;
+      width: 100%;
+    }
+  }
+}
+
+// dropdown
+.container-dropdown.call-out {
+  .erxes-form-content {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+
+    .erxes-callout-body {
+      margin-bottom: 0;
+      margin-right: 20px;
+      width: auto;
+    }
+
+    .erxes-button.btn-block {
+      width: auto;
+    }
+  }
+}
+
+// slide in
+.container-slide-in-left,
+.container-slide-in-right {
+  max-width: 380px;
+
+  .erxes-form {
+    background: $white;
+    user-select: none;
+  }
+}
+
+// shoutbox form
+.container-shoutbox {
+  display: block;
+  border-radius: $border-radius;
+  width: 100%;
+  margin-bottom: 96px;
+  max-width: 416px;
+
+  .erxes-form {
+    user-select: none;
+    box-shadow: 0 5px 13px -2px rgba($black, .25);
+    margin-left: 10px;
+    margin-right: 20px;
+    animation: fadeInUp;
+    -webkit-animation: fadeInUp;
+    -webkit-animation-duration: .3s;
+    animation-duration: .3s;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+  }
+}
+
+.erxes-launcher {
+  bottom: 20px;
+  right: 20px;
+  transition: none;
+
+  &:before {
+    content: none;
+  }
+}
