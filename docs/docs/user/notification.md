@@ -5,7 +5,7 @@ title: Notifications
 
 <!--Content-->
 
-Notifications in Erxes alert you to channels and conversations events
+Notifications in Erxes alert you to channels and conversations events.
 
 + Please follow the steps for : Click on the top right corner of the page 
 

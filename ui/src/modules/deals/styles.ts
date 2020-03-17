@@ -27,7 +27,7 @@ const ProductItemContainer = styled.div`
   padding: 8px;
 
   ${Input} {
-    direction: rtl;
+    text-align: right;
   }
 `;
 

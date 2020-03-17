@@ -57,7 +57,7 @@ class DraggableContainer extends React.Component<
     const { item } = this.props;
 
     this.setState({ isDragDisabled: true }, () => {
-      routerUtils.setParams(history, { itemId: item._id });
+      routerUtils.setParams(history, { itemId: item._id, key: '' });
     });
 
     if (!this.state.hasNotified) {
@@ -99,7 +99,7 @@ class DraggableContainer extends React.Component<
     return (
       <Draggable
         key={item._id}
-        draggableId={item._id}
+        draggableId={`${item._id}-${Math.random().toString()}`}
         index={index}
         isDragDisabled={isDragDisabled}
       >

@@ -19,13 +19,13 @@ type State = {
 };
 
 const getInstallCode = (id: string) => {
-  const { REACT_APP_CDN_HOST, REACT_APP_CDN_HOST_API } = getEnv();
+  const { REACT_APP_CDN_HOST, REACT_APP_API_URL } = getEnv();
 
   return `
     <script>
       (function() {
         var script = document.createElement('script');
-        script.src = "${REACT_APP_CDN_HOST}/build/manager.bundle.js?id=${id}&apiUrl=${REACT_APP_CDN_HOST_API}";
+        script.src = "${REACT_APP_CDN_HOST}/build/manager.bundle.js?id=${id}&apiUrl=${REACT_APP_API_URL}";
         script.async = true;
         var entry = document.getElementsByTagName('script')[0];
         entry.parentNode.insertBefore(script, entry);

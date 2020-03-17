@@ -6,7 +6,7 @@ import {
 } from 'modules/activityLogs/styles';
 import { IActivityLog } from 'modules/activityLogs/types';
 import Tip from 'modules/common/components/Tip';
-import { __, renderFullName } from 'modules/common/utils';
+import { __, renderFullName, renderUserFullName } from 'modules/common/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -19,9 +19,9 @@ class MergedLog extends React.Component<Props> {
     const { createdByDetail } = this.props.activity;
 
     if (createdByDetail) {
-      const { details } = createdByDetail.content;
+      const userName = renderUserFullName(createdByDetail.content);
 
-      return <strong>{details ? details.fullName : 'Unknown'}</strong>;
+      return <strong>{userName}</strong>;
     }
 
     return <strong>System</strong>;
@@ -41,7 +41,7 @@ class MergedLog extends React.Component<Props> {
               <Link
                 key={contact._id}
                 to={`/contacts/${type}/details/${contact._id}`}
-                target="_blank"
+                target='_blank'
               >
                 &nbsp;
                 {renderFullName(contact)}
