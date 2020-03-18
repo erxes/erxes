@@ -1,0 +1,74 @@
+{
+  "name": "erxes-automations",
+  "version": "0.11.2",
+  "description": "erxes automations",
+  "homepage": "https://erxes.io",
+  "repository": "https://github.com/erxes/erxes-api",
+  "bugs": "https://github.com/erxes/erxes-api/issues",
+  "keywords": [
+    "node",
+    "express",
+    "graphql",
+    "apollo"
+  ],
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "node dist",
+    "dev": "DEBUG=erxes-automations:* node_modules/.bin/ts-node-dev --respawn src",
+    "test": "NODE_ENV=test jest --forceExit",
+    "build": "tsc -p tsconfig.prod.json",
+    "lint": "tslint 'src/**/*.ts'",
+    "format": "prettier --write 'src/**/*.ts'",
+    "precommit": "lint-staged",
+    "initDataPrius": "ts-node ./src/commands/initDataPrius.ts",
+    "publishAllAutomations": "ts-node ./src/commands/publishAllAutomations.ts",
+    "deleteAllAutomations": "ts-node ./src/commands/deleteAllAutomations.ts"
+  },
+  "lint-staged": {
+    "gitDir": "../",
+    "*.ts": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "dependencies": {
+    "request-promise": "^4.2.4",
+    "dotenv": "^4.0.0",
+    "mongoose": "5.7.5",
+    "debug": "^4.1.1",
+    "body-parser": "^1.17.1",
+    "express": "^4.16.4",
+    "amqplib": "^0.5.5",
+    "uuid": "^3.3.3"
+  },
+  "peerOptionalDependencies": {
+    "kerberos": "^1.0.0"
+  },
+  "devDependencies": {
+    "@release-it/conventional-changelog": "^1.1.0",
+    "@types/body-parser": "^1.17.0",
+    "@types/cors": "^2.8.4",
+    "@types/dotenv": "^4.0.3",
+    "@types/express": "^4.16.0",
+    "@types/jest": "^23.3.0",
+    "@types/mongodb": "^3.1.2",
+    "@types/mongoose": "^5.2.1",
+    "@types/node": "^10.12.18",
+    "@types/q": "^1.5.0",
+    "faker": "^4.1.0",
+    "husky": "^0.13.4",
+    "jest": "22.0.4",
+    "lint-staged": "^3.6.0",
+    "prettier": "^1.19.1",
+    "release-it": "^12.4.3",
+    "ts-jest": "22.0.4",
+    "ts-node": "^7.0.0",
+    "ts-node-dev": "^1.0.0-pre.32",
+    "tslint": "^5.8.0",
+    "tslint-config-prettier": "^1.1.0",
+    "tslint-config-standard": "^7.0.0",
+    "typescript": "^3.7.2"
+  },
+  "snyk": true
+}

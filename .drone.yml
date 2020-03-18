@@ -32,6 +32,7 @@ pipeline:
         - master
         - develop
         - staging
+        - automations
       event:
         - push
 
@@ -95,6 +96,7 @@ pipeline:
         - master
         - develop
         - staging
+        - automations
       event:
         - push
 

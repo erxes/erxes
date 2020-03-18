@@ -200,7 +200,7 @@ const dealMutations = {
   ) {
     const deal = await Deals.getDeal(_id);
 
-    await Deals.updateDeal(_id, {
+    const updatedDeal = await Deals.updateDeal(_id, {
       modifiedAt: new Date(),
       modifiedBy: user._id,
       stageId: destinationStageId,
@@ -217,7 +217,23 @@ const dealMutations = {
       contentType: MODULE_NAMES.DEAL,
     });
 
-    // if move between stages
+    const extendedDoc = {
+      ...{ destinationStageId },
+      modifiedAt: new Date(),
+      modifiedBy: user._id,
+    };
+
+    await putUpdateLog(
+      {
+        type: MODULE_NAMES.DEAL,
+        object: deal,
+        newData: extendedDoc,
+        updatedDocument: updatedDeal,
+      },
+      user,
+    );
+
+    // // if move between stages
     // if (destinationStageId !== deal.stageId) {
     //   const stage = await Stages.getStage(deal.stageId);
 

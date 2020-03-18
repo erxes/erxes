@@ -40,6 +40,7 @@ import {
   UsersGroups,
 } from '../db/models/index';
 import { sendMessage } from '../messageBroker';
+import { automationHelper } from './automationUtils';
 import { MODULE_NAMES } from './constants';
 import { getEnv, registerOnboardHistory, sendRequest } from './utils';
 
@@ -72,7 +73,7 @@ export interface ILogDataParams {
   updatedDocument?: any;
 }
 
-interface IFinalLogParams extends ILogDataParams {
+export interface IFinalLogParams extends ILogDataParams {
   action: string;
 }
 
@@ -1276,6 +1277,9 @@ export const putDeleteLog = async (params: ILogDataParams, user: IUserDocument) 
 
 const putLog = async (params: IFinalLogParams, user: IUserDocument) => {
   try {
+    // mutation wrapper automation
+    await automationHelper({ params, user });
+
     return sendMessage('putLog', {
       ...params,
       createdBy: user._id,

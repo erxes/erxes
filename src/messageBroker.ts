@@ -1,6 +1,7 @@
 import * as amqplib from 'amqplib';
 import * as dotenv from 'dotenv';
 import * as uuid from 'uuid';
+import { receiveRpcMessage as automationsRecRpcMsg } from './data/modules/automations/receiveMessage';
 import {
   receiveEmailVerifierNotification,
   receiveEngagesNotification,
@@ -18,7 +19,8 @@ const { NODE_ENV, RABBITMQ_HOST = 'amqp://localhost' } = process.env;
 let connection;
 let channel;
 
-export const sendRPCMessage = async (message): Promise<any> => {
+export const sendRPCMessage = async (message, channelTxt = 'rpc_queue:erxes-api'): Promise<any> => {
+  debugBase(`SendRPCMessage to ${channelTxt}: ${JSON.stringify(message)}`);
   const response = await new Promise((resolve, reject) => {
     const correlationId = uuid();
 
@@ -45,7 +47,7 @@ export const sendRPCMessage = async (message): Promise<any> => {
         { noAck: true },
       );
 
-      channel.sendToQueue('rpc_queue:erxes-api', Buffer.from(JSON.stringify(message)), {
+      channel.sendToQueue(channelTxt, Buffer.from(JSON.stringify(message)), {
         correlationId,
         replyTo: q.queue,
       });
@@ -151,6 +153,21 @@ const initConsumer = async () => {
       RobotEntries.createEntry(data)
         .then(() => debugBase('success'))
         .catch(e => debugBase(e.message));
+
+      channel.ack(msg);
+    }
+  });
+
+  await channel.assertQueue('rpc_queue:erxes-automations');
+  channel.consume('rpc_queue:erxes-automations', async msg => {
+    if (msg !== null) {
+      debugBase(`Received rpc_queue:erxes-automations queue message ${msg.content.toString()}`);
+
+      const response = await automationsRecRpcMsg(JSON.parse(msg.content.toString()));
+
+      channel.sendToQueue(msg.properties.replyTo, Buffer.from(JSON.stringify(response)), {
+        correlationId: msg.properties.correlationId,
+      });
 
       channel.ack(msg);
     }
