@@ -31,8 +31,8 @@ title: Getting  Started
 - <a href="../user/profile-settings">Profile settings</a>
 - <a href="../user/notification">Notifications</a>
 - <a href="../user/mobile-apps">Mobile Apps</a>
-  </div>
-<div class="col-md-6" markdown="1">
+    </div>
+  <div class="col-md-6" markdown="1">
 
 ### Installation Guide
 
@@ -42,6 +42,7 @@ title: Getting  Started
 - <a href="../installation/redhat8">RHEL 8</a>
 - <a href="../installation/docker">Docker</a>
 - <a href="../installation/heroku">Heroku</a>
+- <a href="../installation/aws">AWS Marketplace</a>
 - <a href="../installation/upgrade">Upgrade</a>
 
 ### Administrator's guide
