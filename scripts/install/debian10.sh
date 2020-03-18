@@ -84,7 +84,7 @@ apt -qqy install -y yarn
 username=erxes
 
 # create a new user erxes if it doesn't exist
-id -u erxesd &>/dev/null || useradd -m -s /bin/bash -U -G sudo $username
+id -u erxes &>/dev/null || useradd -m -s /bin/bash -U -G sudo $username
 # echo erxes:new_password | chpasswd
 
 cd /home/$username
