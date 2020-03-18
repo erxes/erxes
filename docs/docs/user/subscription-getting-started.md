@@ -138,7 +138,7 @@ Create your Password</aside>
 3. Insert your **Username**
 4. Insert your **Short Name**
 5. Insert your **Position**
-6. Insert you **Email Address**
+6. Insert your **Email Address**
 7. Choose your **Location**
 8. Insert your short bio **Description**
 9. Link your **Social Accounts**
@@ -158,7 +158,7 @@ Create your Password</aside>
 <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/getting-started-1.png">
 </div>
 
-1. Choose you **Plan**
+1. Choose your **Plan**
 2. Choose your **Team size**
 3. **Total Payment & Expiry Date**
 4. Click **Pay Now**
