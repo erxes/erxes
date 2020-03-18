@@ -470,7 +470,7 @@ describe('mutations', () => {
 
     spy.mockImplementation(() => Promise.resolve({ erxesApiIds: [integration1._id] }));
 
-    const firstResponse = await graphqlRequest(mutation, 'integrationsRemoveAccount', { _id: 'accountId' });
+    const response = await graphqlRequest(mutation, 'integrationsRemoveAccount', { _id: 'accountId' });
 
     try {
       await graphqlRequest(mutation, 'integrationsRemoveAccount', { _id: 'accountId' });
@@ -478,7 +478,7 @@ describe('mutations', () => {
       expect(e[0].message).toBeDefined();
     }
 
-    expect(firstResponse).toBe('success');
+    expect(response).toBe('success');
 
     spy.mockRestore();
 

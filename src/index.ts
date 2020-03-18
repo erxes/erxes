@@ -97,7 +97,7 @@ app.post('/events-receive', async (req, res) => {
     return res.json(response);
   } catch (e) {
     debugBase(e.message);
-    return res.json({});
+    return res.json({ status: 'success' });
   }
 });
 
