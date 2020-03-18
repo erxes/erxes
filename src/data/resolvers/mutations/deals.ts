@@ -1,5 +1,5 @@
 import * as _ from 'underscore';
-import { ActivityLogs, Checklists, Conformities, Deals, Stages } from '../../../db/models';
+import { ActivityLogs, Checklists, Conformities, Deals } from '../../../db/models';
 import { getCompanies, getCustomers } from '../../../db/models/boardUtils';
 import { IOrderInput } from '../../../db/models/definitions/boards';
 import { BOARD_STATUSES, NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
@@ -170,22 +170,22 @@ const dealMutations = {
       contentType: MODULE_NAMES.DEAL,
     });
 
-    const updatedStage = await Stages.getStage(updatedDeal.stageId);
-    const oldStage = await Stages.getStage(oldDeal.stageId)
+    // const updatedStage = await Stages.getStage(updatedDeal.stageId);
+    // const oldStage = await Stages.getStage(oldDeal.stageId)
 
-    graphqlPubsub.publish('pipelinesChanged', {
-      pipelinesChanged: {
-        _id: updatedStage.pipelineId,
-      },
-    });
+    // graphqlPubsub.publish('pipelinesChanged', {
+    //   pipelinesChanged: {
+    //     _id: updatedStage.pipelineId,
+    //   },
+    // });
 
-    if ( updatedStage.pipelineId !== oldStage.pipelineId) {
-      graphqlPubsub.publish('pipelinesChanged', {
-        pipelinesChanged: {
-          _id: oldStage.pipelineId,
-        },
-      });
-    }
+    // if ( updatedStage.pipelineId !== oldStage.pipelineId) {
+    //   graphqlPubsub.publish('pipelinesChanged', {
+    //     pipelinesChanged: {
+    //       _id: oldStage.pipelineId,
+    //     },
+    //   });
+    // }
 
     return updatedDeal;
   },
@@ -218,15 +218,15 @@ const dealMutations = {
     });
 
     // if move between stages
-    if (destinationStageId !== deal.stageId) {
-      const stage = await Stages.getStage(deal.stageId);
+    // if (destinationStageId !== deal.stageId) {
+    //   const stage = await Stages.getStage(deal.stageId);
 
-      graphqlPubsub.publish('pipelinesChanged', {
-        pipelinesChanged: {
-          _id: stage.pipelineId,
-        },
-      });
-    }
+    //   graphqlPubsub.publish('pipelinesChanged', {
+    //     pipelinesChanged: {
+    //       _id: stage.pipelineId,
+    //     },
+    //   });
+    // }
 
     return deal;
   },
