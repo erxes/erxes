@@ -158,17 +158,17 @@ const dealMutations = {
       return updatedDeal;
     }
 
-    // // if stage edited
-    // const { content, action } = await itemsChange(user._id, oldDeal, MODULE_NAMES.DEAL, updatedDeal.stageId);
+    // if stage edited
+    const { content, action } = await itemsChange(user._id, oldDeal, MODULE_NAMES.DEAL, updatedDeal.stageId);
 
-    // await sendNotifications({
-    //   item: updatedDeal,
-    //   user,
-    //   type: NOTIFICATION_TYPES.DEAL_CHANGE,
-    //   content,
-    //   action,
-    //   contentType: MODULE_NAMES.DEAL,
-    // });
+    await sendNotifications({
+      item: updatedDeal,
+      user,
+      type: NOTIFICATION_TYPES.DEAL_CHANGE,
+      content,
+      action,
+      contentType: MODULE_NAMES.DEAL,
+    });
 
     // const updatedStage = await Stages.getStage(updatedDeal.stageId);
     // const oldStage = await Stages.getStage(oldDeal.stageId)
