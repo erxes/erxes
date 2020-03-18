@@ -4,7 +4,7 @@ import { getOrCreateComment, getOrCreateCustomer, getOrCreatePost } from './stor
 import { ICommentParams } from './types';
 import { restorePost } from './utils';
 
-const receiveComment = async (params: ICommentParams, pageId: string) => {
+const receiveComment = async (params: ICommentParams, pageId: string, res: any) => {
   const userId = params.from.id;
   const postId = params.post_id;
   const kind = 'facebook-post';
@@ -18,7 +18,13 @@ const receiveComment = async (params: ICommentParams, pageId: string) => {
   const post = await Posts.findOne({ postId });
 
   if (!post) {
-    const postResponse = await restorePost(postId, pageId, integration.facebookPageTokensMap);
+    let postResponse;
+
+    try {
+      postResponse = await restorePost(postId, pageId, integration.facebookPageTokensMap);
+    } catch (e) {
+      res.end('success');
+    }
 
     const restoredPostId = postResponse.from.id;
 

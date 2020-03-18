@@ -324,7 +324,7 @@ const init = async app => {
         for (const event of entry.changes) {
           if (event.value.item === 'comment') {
             try {
-              await receiveComment(event.value, entry.id);
+              await receiveComment(event.value, entry.id, res);
               res.end('success');
             } catch (e) {
               return next(new Error(e));
