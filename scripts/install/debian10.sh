@@ -147,7 +147,7 @@ cat <<EOF >/home/$username/ecosystem.json
   "apps": [
     {
       "name": "erxes-api",
-      "cwd": "erxes-api",
+      "cwd": "$erxes_api_dir",
       "script": "dist",
       "log_date_format": "YYYY-MM-DD HH:mm Z",
       "env": {
@@ -176,7 +176,7 @@ cat <<EOF >/home/$username/ecosystem.json
     },
     {
       "name": "erxes-api-cronjob",
-      "cwd": "erxes-api",
+      "cwd": "$erxes_api_dir",
       "script": "dist/cronJobs",
       "log_date_format": "YYYY-MM-DD HH:mm Z",
       "env": {
@@ -189,7 +189,7 @@ cat <<EOF >/home/$username/ecosystem.json
     },
     {
       "name": "erxes-api-worker",
-      "cwd": "erxes-api",
+      "cwd": "$erxes_api_dir",
       "script": "dist/workers",
       "log_date_format": "YYYY-MM-DD HH:mm Z",
       "env": {
@@ -201,7 +201,7 @@ cat <<EOF >/home/$username/ecosystem.json
     },
     {
       "name": "erxes-widgets",
-      "cwd": "erxes-widgets",
+      "cwd": "$erxes_widgets_dir",
       "script": "dist",
       "log_date_format": "YYYY-MM-DD HH:mm Z",
       "env": {
@@ -214,7 +214,7 @@ cat <<EOF >/home/$username/ecosystem.json
     },
     {
       "name": "erxes-engages",
-      "cwd": "erxes-engages",
+      "cwd": "$erxes_engages_dir",
       "script": "dist",
       "log_date_format": "YYYY-MM-DD HH:mm Z",
       "env": {
@@ -231,7 +231,7 @@ cat <<EOF >/home/$username/ecosystem.json
     },
     {
       "name": "erxes-logger",
-      "cwd": "erxes-logger",
+      "cwd": "$erxes_logger_dir",
       "script": "dist",
       "log_date_format": "YYYY-MM-DD HH:mm Z",
       "env": {
@@ -244,7 +244,7 @@ cat <<EOF >/home/$username/ecosystem.json
     },
     {
       "name": "erxes-integrations",
-      "cwd": "erxes-integrations",
+      "cwd": "$erxes_integrations_dir",
       "script": "dist",
       "log_date_format": "YYYY-MM-DD HH:mm Z",
       "env": {
