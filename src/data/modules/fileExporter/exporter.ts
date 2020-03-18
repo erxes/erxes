@@ -2,9 +2,10 @@ import * as moment from 'moment';
 import {
   Brands,
   Channels,
-  ConversationMessages,
+  // ConversationMessages,
   Deals,
   Fields,
+  FormSubmissions,
   Permissions,
   Tasks,
   Tickets,
@@ -47,21 +48,56 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
 
       const customerParams: ICustomerListArgs = query;
 
-      const qb = new CustomerBuildQuery(customerParams, {});
-      await qb.buildAllQueries();
-
-      const customerResponse = await qb.runQueries();
-
-      data = customerResponse.list;
-
       if (customerParams.form && customerParams.popupData) {
-        const formQuery = {
-          formWidgetData: { $exists: true },
-        };
+        const messages = await FormSubmissions.aggregate([
+          {
+            $match: { formId: customerParams.form, customerId: { $exists: true, $ne: null } },
+          },
+          {
+            $sort: { submittedAt: -1 },
+          },
+          {
+            $group: {
+              _id: null,
+              customerIds: {
+                $addToSet: '$customerId',
+              },
+            },
+          },
+          {
+            $lookup: {
+              from: 'conversation_messages',
+              let: { letCustomerIds: '$customerIds' },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: {
+                      $and: [{ $in: ['$customerId', '$$letCustomerIds'] }, { $ne: ['formWidgetData', null] }],
+                    },
+                  },
+                },
+              ],
+              as: 'messagesWithFormData',
+            },
+          },
+          {
+            $unwind: '$messagesWithFormData',
+          },
+          {
+            $project: {
+              formWidgetData: '$messagesWithFormData.formWidgetData',
+            },
+          },
+        ]);
 
-        const conversationMessages = await ConversationMessages.find(formQuery, { formWidgetData: 1 });
+        data = messages.filter(message => message.formWidgetData).map(message => message.formWidgetData);
+      } else {
+        const qb = new CustomerBuildQuery(customerParams, {});
+        await qb.buildAllQueries();
 
-        data = conversationMessages.map(message => message.formWidgetData);
+        const customerResponse = await qb.runQueries();
+
+        data = customerResponse.list;
       }
 
       break;
