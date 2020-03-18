@@ -91,27 +91,25 @@ const fieldQueries = {
       }
     }
 
-    let mappingProperties;
-
     // extend fields list using tracked fields data
     try {
       const index = `${getIndexPrefix()}${contentType === 'customer' ? 'customers' : 'companies'}`;
       const response = await getMappings(index);
-      mappingProperties = response[index].mappings.properties;
+      const mappingProperties = response[index].mappings.properties;
+
+      if (mappingProperties.trackedData) {
+        const trackedDataFields = Object.keys(mappingProperties.trackedData.properties || {});
+
+        for (const trackedDataField of trackedDataFields) {
+          fields.push({
+            _id: Math.random(),
+            name: `trackedData.${trackedDataField}`,
+            label: trackedDataField,
+          });
+        }
+      }
     } catch (e) {
       debugBase(`Error occurred in fieldsCombinedByContentType ${e.message}`);
-    }
-
-    if (mappingProperties.trackedData) {
-      const trackedDataFields = Object.keys(mappingProperties.trackedData.properties || {});
-
-      for (const trackedDataField of trackedDataFields) {
-        fields.push({
-          _id: Math.random(),
-          name: `trackedData.${trackedDataField}`,
-          label: trackedDataField,
-        });
-      }
     }
 
     return fields;
