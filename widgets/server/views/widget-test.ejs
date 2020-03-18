@@ -35,21 +35,25 @@
         class="uk-card uk-card-default uk-card-body uk-margin-medium-left uk-margin-medium-right"
       >
         <h2>Form embed</h2>
-        <div data-erxes-embed="GtEe2hyYWkSDQXouC"></div>
+        <div data-erxes-embed="oEuoBN" style="width:900px;height:300px"></div>
       </div>
     </div>
 
     <script>
       window.erxesSettings = {
-        messenger: {
-          brand_id: 'utjHAd'
-        }
+        forms: [
+          {
+            brand_id: 'dH3Dwr',
+            form_id: 'oEuoBN'
+          }
+        ]
       };
 
       (function() {
         var script = document.createElement('script');
-        script.src = 'http://localhost:3200/build/messengerWidget.bundle.js';
+        script.src = 'http://localhost:3200/build/formWidget.bundle.js';
         script.async = true;
+
         var entry = document.getElementsByTagName('script')[0];
         entry.parentNode.insertBefore(script, entry);
       })();
