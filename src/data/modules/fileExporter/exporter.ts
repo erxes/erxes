@@ -194,12 +194,24 @@ const fillLeadHeaders = async (formId: string) => {
 const buildLeadFile = async (datas: any, formId: string, sheet: any, columnNames: string[], rowIndex: number) => {
   const headers: IColumnLabel[] = await fillLeadHeaders(formId);
 
+  const displayValue = item => {
+    if (!item) {
+      return '';
+    }
+
+    if (item.validation === 'date') {
+      return moment(item.value).format('YYYY/MM/DD HH:mm');
+    }
+
+    return item.value;
+  };
+
   for (const data of datas) {
     rowIndex++;
     // Iterating through basic info columns
     for (const column of headers) {
       const item = await data.find(obj => obj.text === column.name);
-      const cellValue = item ? item.value : '';
+      const cellValue = displayValue(item);
 
       addCell(column, cellValue, sheet, columnNames, rowIndex);
     }
