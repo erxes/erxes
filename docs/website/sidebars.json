@@ -35,8 +35,7 @@
     "Administrator's guide": [
       "administrator/creating-first-user",
       "administrator/environment-variables",
-      "administrator/file-upload",
-      "administrator/integrations",
+      "administrator/system-config",
       "administrator/migration"
     ],
     "Developer's guide": [

@@ -3,7 +3,9 @@ id: heroku
 title: Heroku
 ---
 
-## Deploying erxes on Heroku
+Learn how to deploy Erxes on Heroku.
+
+## Deploying Erxes on Heroku
 
 Heroku is a container-based cloud Platform as a Service (PaaS).
 
