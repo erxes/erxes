@@ -20,12 +20,12 @@ connect()
     const auto2 = await Automations.create(automation2Data);
 
     const diffConfig = [
-      { destStageId: 'TXTWcArmdeufDR6JN', userEmail: 'gtsolmon992@gmail.com' }, // gandan1
+      { destStageId: 'TXTWcArmdeufDR6JN', userEmail: 'Undrakhganbold48@gmail.com' }, // gandan1
       { destStageId: 'oc549YKHuvLwgidFi', userEmail: 'Odgerelurgamal@gmail.com' }, // dragon
       { destStageId: 'W85fZkmhSqmMzDTbC', userEmail: 'b.odko097@gmail.com' }, // 32
       { destStageId: 'GnjZsFeY8LuJZE7vX', userEmail: 'munhtsetsegamgalan1@gmail.com' }, // amgalan
       { destStageId: 'XiJj4rCAa4y3PwGW7', userEmail: 'baasanjawotgonbayar74@gmail.com' }, // gandan2
-      { destStageId: 'xfswjv4hMwetM52DM', userEmail: 'solongootgonsajhan@gmail.com	' }, // zuragt
+      { destStageId: 'xfswjv4hMwetM52DM', userEmail: 'solongootgonsajhan@gmail.com' }, // zuragt
       { destStageId: 'o6ySYpemjXKg6eQyS', userEmail: 'zagdbazarj@gmail.com' }, // tsaiz
     ];
 

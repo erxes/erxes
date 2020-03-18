@@ -158,34 +158,34 @@ const dealMutations = {
       return updatedDeal;
     }
 
-    // if stage edited
-    const { content, action } = await itemsChange(user._id, oldDeal, MODULE_NAMES.DEAL, updatedDeal.stageId);
+    // // if stage edited
+    // const { content, action } = await itemsChange(user._id, oldDeal, MODULE_NAMES.DEAL, updatedDeal.stageId);
 
-    await sendNotifications({
-      item: updatedDeal,
-      user,
-      type: NOTIFICATION_TYPES.DEAL_CHANGE,
-      content,
-      action,
-      contentType: MODULE_NAMES.DEAL,
-    });
+    // await sendNotifications({
+    //   item: updatedDeal,
+    //   user,
+    //   type: NOTIFICATION_TYPES.DEAL_CHANGE,
+    //   content,
+    //   action,
+    //   contentType: MODULE_NAMES.DEAL,
+    // });
 
-    const updatedStage = await Stages.getStage(updatedDeal.stageId);
-    const oldStage = await Stages.getStage(oldDeal.stageId)
+    // const updatedStage = await Stages.getStage(updatedDeal.stageId);
+    // const oldStage = await Stages.getStage(oldDeal.stageId)
 
-    graphqlPubsub.publish('pipelinesChanged', {
-      pipelinesChanged: {
-        _id: updatedStage.pipelineId,
-      },
-    });
+    // graphqlPubsub.publish('pipelinesChanged', {
+    //   pipelinesChanged: {
+    //     _id: updatedStage.pipelineId,
+    //   },
+    // });
 
-    if ( updatedStage.pipelineId !== oldStage.pipelineId) {
-      graphqlPubsub.publish('pipelinesChanged', {
-        pipelinesChanged: {
-          _id: oldStage.pipelineId,
-        },
-      });
-    }
+    // if ( updatedStage.pipelineId !== oldStage.pipelineId) {
+    //   graphqlPubsub.publish('pipelinesChanged', {
+    //     pipelinesChanged: {
+    //       _id: oldStage.pipelineId,
+    //     },
+    //   });
+    // }
 
     return updatedDeal;
   },
@@ -233,16 +233,16 @@ const dealMutations = {
       user,
     );
 
-    // if move between stages
-    if (destinationStageId !== deal.stageId) {
-      const stage = await Stages.getStage(deal.stageId);
+    // // if move between stages
+    // if (destinationStageId !== deal.stageId) {
+    //   const stage = await Stages.getStage(deal.stageId);
 
-      graphqlPubsub.publish('pipelinesChanged', {
-        pipelinesChanged: {
-          _id: stage.pipelineId,
-        },
-      });
-    }
+    //   graphqlPubsub.publish('pipelinesChanged', {
+    //     pipelinesChanged: {
+    //       _id: stage.pipelineId,
+    //     },
+    //   });
+    // }
 
     return deal;
   },
