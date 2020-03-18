@@ -18,7 +18,13 @@ const receiveComment = async (params: ICommentParams, pageId: string) => {
   const post = await Posts.findOne({ postId });
 
   if (!post) {
-    const postResponse = await restorePost(postId, pageId, integration.facebookPageTokensMap);
+    let postResponse;
+
+    try {
+      postResponse = await restorePost(postId, pageId, integration.facebookPageTokensMap);
+    } catch (e) {
+      throw new Error(e);
+    }
 
     const restoredPostId = postResponse.from.id;
 
