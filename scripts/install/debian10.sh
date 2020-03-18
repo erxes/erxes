@@ -304,7 +304,7 @@ server {
         error_log /var/log/nginx/erxes.error.log;
 
         location / {
-                root /home/erxes/erxes/build;
+                root $erxes_dir/build;
                 index index.html;
                 error_log /var/log/nginx/erxes.error.log;
 
