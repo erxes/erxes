@@ -589,22 +589,14 @@ bio:”<Bio>”,
 
 <img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/12.+Result+5.png />
 
-### Change your messenger styles 
-You can change look of a messenger style, position with following code. 
+### Manipulate your messenger function 
+You able to manipulate your messenger function such change look of a messenger style, position and you can configure that click button to call action. 
 #### Button submit
-Ability to call submit from outside, which means  that listen for callSubmit action from outside (parent website) to force submit action. 
+Ability to call submit from outside, which means  that listen for callSubmit action from outside (parent website) to force submit action. For example, you can add any button to call action to open your messenger.
 
 ```
-document.getElementById('button').onclick = () => {
-    const iframe = document.querySelector('#container iframe');
-  
-    iframe.contentWindow.postMessage(
-      {
-        fromPublisher: true,
-        action: "callSubmit"
-      },
-      "*"
-    );
+ document.getElementById('button').onclick = () => {
+    window.Erxes.showMessenger()
   }
 ```
 #### Messenger position

@@ -17,11 +17,37 @@ To have erxes up and running quickly, you can follow the following steps.
 
    **Note**: you will be asked to provide a domain for nginx server to set up config for erxes
 
-3. This installation will create a new user `erxes`. Run the following command to change password.
+3. Log in to your domain DNS and create A record based on your new server IP.
 
-   `passwd erxes`
+## Create an admin user
 
-4. Log in to your domain DNS and create A record based on your new server IP.
+Switch to user `erxes` and run the following commands based on your needs.
+
+```sh
+su erxes
+cd ~/erxes-api
+export MONGO_URL=mongodb://localhost/erxes
+```
+
+The following will create an admin user admin@erxes.io with a random password (check your console to grab the password)
+
+```
+yarn initProject
+```
+
+## Load initial data
+
+The below command will create initial permission groups, permissions, growth hack templates, email templates and some sample data and reset the admin password (check your console to grab the password)
+
+```
+yarn loadInitialData
+```
+
+If do not want to load sample data then you can run following command just to load permissions.
+
+```
+yarn loadPermission
+```
 
 Now you have erxes up and running!
 
