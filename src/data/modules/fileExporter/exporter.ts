@@ -54,7 +54,7 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
             $match: { formId: customerParams.form, customerId: { $exists: true, $ne: null } },
           },
           {
-            $sort: { submittedAt: -1 },
+            $sort: { submittedAt: 1 },
           },
           {
             $group: {
@@ -86,6 +86,7 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
           {
             $project: {
               formWidgetData: '$messagesWithFormData.formWidgetData',
+              createdAt: '$messagesWithFormData.createdAt',
             },
           },
         ]);
@@ -93,11 +94,22 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
         const messages: any[] = [];
 
         messagesAggregate.forEach(message => {
-          if (message.formWidgetData) {
-            messages.push(message.formWidgetData);
+          if (message.formWidgetData && Array.isArray(message.formWidgetData)) {
+            const formData = message.formWidgetData;
+
+            formData.push({
+              _id: message._id,
+              type: 'input',
+              validation: 'date',
+              text: 'Created',
+              value: message.createdAt,
+            });
+
+            messages.push(formData);
           }
         });
 
+        console.log('messages: ', messages);
         data = messages;
       } else {
         const qb = new CustomerBuildQuery(customerParams, {});
@@ -195,6 +207,8 @@ const fillLeadHeaders = async (formId: string) => {
   for (const field of fields) {
     headers.push({ name: field.text, label: field.text });
   }
+
+  headers.push({ name: 'Created', label: 'Created' });
 
   return headers;
 };
