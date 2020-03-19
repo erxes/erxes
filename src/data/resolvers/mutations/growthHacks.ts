@@ -117,11 +117,49 @@ const growthHackMutations = {
       user,
     );
 
-    graphqlPubsub.publish('growthHacksChanged', {
-      growthHacksChanged: {
-        _id: updatedGrowthHack._id,
+    if (oldGrowthHack.stageId === updatedGrowthHack.stageId) {
+      graphqlPubsub.publish('growthHacksChanged', {
+        growthHacksChanged: {
+          _id: updatedGrowthHack._id,
+        },
+      });
+
+      return updatedGrowthHack;
+    }
+
+    // if growth hack moves between stages
+    const { content, action } = await itemsChange(
+      user._id,
+      oldGrowthHack,
+      MODULE_NAMES.GROWTH_HACK,
+      updatedGrowthHack.stageId,
+    );
+
+    await sendNotifications({
+      item: updatedGrowthHack,
+      user,
+      type: NOTIFICATION_TYPES.GROWTHHACK_CHANGE,
+      content,
+      action,
+      contentType: MODULE_NAMES.GROWTH_HACK,
+    });
+
+    const updatedStage = await Stages.getStage(updatedGrowthHack.stageId);
+    const oldStage = await Stages.getStage(oldGrowthHack.stageId);
+
+    graphqlPubsub.publish('pipelinesChanged', {
+      pipelinesChanged: {
+        _id: updatedStage.pipelineId,
       },
     });
+
+    if (updatedStage.pipelineId !== oldStage.pipelineId) {
+      graphqlPubsub.publish('pipelinesChanged', {
+        pipelinesChanged: {
+          _id: oldStage.pipelineId,
+        },
+      });
+    }
 
     return updatedGrowthHack;
   },

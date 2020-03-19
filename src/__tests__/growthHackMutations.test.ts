@@ -160,6 +160,33 @@ describe('Test growthHacks mutations', () => {
     expect(updatedGH._id).toEqual(args._id);
   });
 
+  test('Update growthHack move to pipeline stage', async () => {
+    const mutation = `
+      mutation growthHacksEdit($_id: String!, ${commonGrowthHackParamDefs}) {
+        growthHacksEdit(_id: $_id, ${commonGrowthHackParams}) {
+          _id
+          name
+          stageId
+          assignedUserIds
+        }
+      }
+    `;
+
+    const anotherPipeline = await pipelineFactory({ boardId: board._id });
+    const anotherStage = await stageFactory({ pipelineId: anotherPipeline._id });
+
+    const args = {
+      _id: growthHack._id,
+      stageId: anotherStage._id,
+      name: growthHack.name || '',
+    };
+
+    const updatedGrowthHack = await graphqlRequest(mutation, 'growthHacksEdit', args);
+
+    expect(updatedGrowthHack._id).toEqual(args._id);
+    expect(updatedGrowthHack.stageId).toEqual(args.stageId);
+  });
+
   test('GrowthHack update orders', async () => {
     const growthHackToStage = await growthHackFactory({});
 

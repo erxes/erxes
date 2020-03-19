@@ -119,11 +119,44 @@ const taskMutations = {
       user,
     );
 
-    graphqlPubsub.publish('tasksChanged', {
-      tasksChanged: {
-        _id: updatedTask._id,
+    if (oldTask.stageId === updatedTask.stageId) {
+      graphqlPubsub.publish('tasksChanged', {
+        tasksChanged: {
+          _id: updatedTask._id,
+        },
+      });
+
+      return updatedTask;
+    }
+
+    // if task moves between stages
+    const { content, action } = await itemsChange(user._id, oldTask, MODULE_NAMES.TASK, updatedTask.stageId);
+
+    await sendNotifications({
+      item: updatedTask,
+      user,
+      type: NOTIFICATION_TYPES.TASK_CHANGE,
+      content,
+      action,
+      contentType: MODULE_NAMES.TASK,
+    });
+
+    const updatedStage = await Stages.getStage(updatedTask.stageId);
+    const oldStage = await Stages.getStage(oldTask.stageId);
+
+    graphqlPubsub.publish('pipelinesChanged', {
+      pipelinesChanged: {
+        _id: updatedStage.pipelineId,
       },
     });
+
+    if (updatedStage.pipelineId !== oldStage.pipelineId) {
+      graphqlPubsub.publish('pipelinesChanged', {
+        pipelinesChanged: {
+          _id: oldStage.pipelineId,
+        },
+      });
+    }
 
     return updatedTask;
   },
