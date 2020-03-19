@@ -99,7 +99,7 @@ class ItemChooserContainer extends React.Component<
     if (itemsQuery.loading) {
       return <Spinner />;
     }
-    
+
     if (updatedProps.datas.length === 0) {
       return <EmptyState text="No matching items found" icon="list-2" />;
     }
