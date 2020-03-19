@@ -35,6 +35,14 @@ const segmentQueries = {
         terms: {
           field: 'name',
         },
+        aggs: {
+          hits: {
+            top_hits: {
+              _source: ['attributes'],
+              size: 1,
+            },
+          },
+        },
       },
     };
 
@@ -47,19 +55,18 @@ const segmentQueries = {
     const aggreEvents = await fetchElk('search', 'events', {
       aggs,
       query,
-      size: 0,
     });
 
-    const aggreHits = await fetchElk('search', 'events', {
-      aggs,
-      query,
-      size: aggreEvents.aggregations.names.buckets.length,
-    });
+    const buckets = aggreEvents.aggregations.names.buckets || [];
 
-    const events = aggreHits.hits.hits.map(hit => ({
-      name: hit._source.name,
-      attributeNames: Object.keys(hit._source.attributes),
-    }));
+    const events = buckets.map(bucket => {
+      const [hit] = bucket.hits.hits.hits;
+
+      return {
+        name: bucket.key,
+        attributeNames: Object.keys(hit._source.attributes),
+      };
+    });
 
     return events;
   },

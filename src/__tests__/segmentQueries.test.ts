@@ -96,18 +96,24 @@ describe('segmentQueries', () => {
       return Promise.resolve({
         aggregations: {
           names: {
-            buckets: { name: 'pageView' },
-          },
-        },
-        hits: {
-          hits: [
-            {
-              _source: {
-                name: 'pageView',
-                attributes: [],
+            buckets: [
+              {
+                key: 'pageView',
+                hits: {
+                  hits: {
+                    hits: [
+                      {
+                        _source: {
+                          name: 'pageView',
+                          attributes: [],
+                        },
+                      },
+                    ],
+                  },
+                },
               },
-            },
-          ],
+            ],
+          },
         },
       });
     });

@@ -212,16 +212,7 @@ const logQueries = {
    * Fetches logs from logs api server
    */
   logs(_root, params: ILogQueryParams) {
-    const { start, end, userId, action, page, perPage } = params;
-
-    return fetchLogs({
-      start,
-      end,
-      userId,
-      action,
-      page,
-      perPage,
-    });
+    return fetchLogs(params);
   },
   async getDbSchemaLabels(_root, params: { type: string }) {
     let fieldNames: INameLabel[] = [];
