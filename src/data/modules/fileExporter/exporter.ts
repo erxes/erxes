@@ -49,7 +49,7 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
       const customerParams: ICustomerListArgs = query;
 
       if (customerParams.form && customerParams.popupData) {
-        const messages = await FormSubmissions.aggregate([
+        const messagesAggregate = await FormSubmissions.aggregate([
           {
             $match: { formId: customerParams.form, customerId: { $exists: true, $ne: null } },
           },
@@ -90,7 +90,15 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
           },
         ]);
 
-        data = messages.filter(message => message.formWidgetData).map(message => message.formWidgetData);
+        const messages: any[] = [];
+
+        messagesAggregate.forEach(message => {
+          if (message.formWidgetData) {
+            messages.push(message.formWidgetData);
+          }
+        });
+
+        data = messages;
       } else {
         const qb = new CustomerBuildQuery(customerParams, {});
         await qb.buildAllQueries();
