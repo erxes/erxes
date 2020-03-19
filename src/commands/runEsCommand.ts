@@ -11,7 +11,7 @@ const main = async () => {
 
     try {
       const response = await client[action](JSON.parse(body || '{}'));
-      console.log(response);
+      console.log(JSON.stringify(response));
     } catch (e) {
       console.log(e);
     }
