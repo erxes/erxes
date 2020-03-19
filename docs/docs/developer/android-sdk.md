@@ -6,6 +6,7 @@ sidebar_label: Android SDK
 
 <!--Content-->
 
+These steps indicate how to install the Android SDK, for that you must follow the instructions explained below.
 
 ## Installation
 

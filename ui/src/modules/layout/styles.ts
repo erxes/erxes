@@ -33,12 +33,13 @@ const Layout = styledTS<{ isSqueezed?: boolean }>(styled.main)`
   position: relative;
   overflow: hidden;
 
-  ${props => props.isSqueezed &&
+  ${props =>
+    props.isSqueezed &&
     css`
       ${PageHeader} {
         top: 36px;
       }
-  `};
+    `};
 `;
 
 const MainWrapper = styled.div`

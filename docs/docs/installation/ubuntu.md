@@ -3,11 +3,11 @@ id: ubuntu
 title: Ubuntu 16.04/18.04 LTS
 ---
 
-Manual installation on Ubuntu 16.04/18.04 LTS.
+This document explains how to manually install Ubuntu 16.04 / 18.04 LTS.
 
 ## Prerequisites
 
-There are a couple of pre-reqs for running erxes. This page explain how to quickly install the requirenment needed on an Ubuntu 16.04/18.04 server.
+There are a couple of pre-reqs for running erxes. This page explains how to quickly install the requirement needed on an Ubuntu 16.04/18.04 server.
 This guide assumes that the server does not have any other services running on it.
 
 ### Install MongoDB v3.6.x

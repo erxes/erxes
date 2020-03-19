@@ -19,7 +19,6 @@ type Props = {
   onChangePaymentsData: (paymentsData: IPaymentsData) => void;
   onChangeProducts: (prs: IProduct[]) => void;
   saveProductsData: () => void;
-  savePaymentsData: () => void;
 };
 
 function ProductSection({
@@ -28,8 +27,7 @@ function ProductSection({
   paymentsData,
   onChangeProductsData,
   onChangePaymentsData,
-  saveProductsData,
-  savePaymentsData
+  saveProductsData
 }: Props) {
   const contentWithId = (productId?: string) => {
     const content = props => (
@@ -42,12 +40,11 @@ function ProductSection({
         products={products}
         paymentsData={paymentsData}
         saveProductsData={saveProductsData}
-        savePaymentsData={savePaymentsData}
       />
     );
 
     return content;
-  }
+  };
 
   const tipItems = (product: IProduct) => {
     const result: React.ReactNode[] = [];
@@ -65,7 +62,10 @@ function ProductSection({
     return result;
   };
 
-  const renderProductFormModal = (trigger: React.ReactNode, productId?: string) => {
+  const renderProductFormModal = (
+    trigger: React.ReactNode,
+    productId?: string
+  ) => {
     return (
       <ModalTrigger
         title="Manage Product & Service"
@@ -75,7 +75,7 @@ function ProductSection({
         content={contentWithId(productId)}
       />
     );
-  }
+  };
 
   const renderProductName = (productName: string, productId: string) => {
     return renderProductFormModal(
@@ -96,7 +96,7 @@ function ProductSection({
       );
     }
 
-    return renderProductName(product.name, product._id)
+    return renderProductName(product.name, product._id);
   };
 
   return (

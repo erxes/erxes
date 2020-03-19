@@ -4,6 +4,8 @@ title: iOS SDK
 sidebar_label: iOS SDK
 ---
 
+Learn how to install the iOS SDK.
+
 <!--Content-->
 
 ## Requirement
@@ -46,12 +48,12 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 
 #### NEXT
 
-### To start erxes SDK in your app:
+### To start Erxes SDK in your app:
 ```swift
 import ErxesSDK
 ```
 
-##### This function will start erxes SDK with authentication options:
+##### This function will start Erxes SDK with authentication options:
 ```swift
 @ibaction func buttonAction(sender:Uibutton){
 	Erxes.start()

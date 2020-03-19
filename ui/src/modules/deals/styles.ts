@@ -7,7 +7,7 @@ import styledTS from 'styled-components-ts';
 
 const FormContainer = styled.div`
   margin-top: 20px;
-  
+
   .Select-multi-value-wrapper {
     display: flex;
     min-width: 100px;
@@ -27,7 +27,7 @@ const ProductItemContainer = styled.div`
   padding: 8px;
 
   ${Input} {
-    direction: rtl;
+    text-align: right;
   }
 `;
 
@@ -46,7 +46,7 @@ const ContentRowTitle = styled(ContentRow)`
 `;
 
 const ContentColumn = styledTS<{ flex?: string }>(styled.div)`
-  flex: ${props => props.flex ? props.flex : '1'};
+  flex: ${props => (props.flex ? props.flex : '1')};
   margin-right: 10px;
 
   &:last-of-type {
@@ -60,8 +60,12 @@ const FooterInfo = styled.div`
   table {
     text-align: right;
     float: right;
-    width: 40%;
-    font-size: 16px;
+    width: 50%;
+    font-size: 14px;
+  }
+
+  ${Input} {
+    direction: rtl;
   }
 `;
 
@@ -124,7 +128,9 @@ const ProductName = styled.a`
   color: ${colors.textSecondary};
   display: block;
 
-  > i { visibility: hidden; }
+  > i {
+    visibility: hidden;
+  }
 
   &:hover i {
     visibility: visible;

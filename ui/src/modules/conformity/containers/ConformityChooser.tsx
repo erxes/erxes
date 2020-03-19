@@ -77,7 +77,9 @@ export default withProps<Props>(
                 isSaved: true
               }
             },
-            'activityLogs'
+            'activityLogs',
+            'customers',
+            'companies'
           ]
         };
       }

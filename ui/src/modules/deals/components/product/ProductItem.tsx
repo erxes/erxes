@@ -18,7 +18,7 @@ import {
   Measure,
   ProductButton,
   ProductItemContainer,
-  ProductSettings,
+  ProductSettings
 } from '../../styles';
 import { IProductData } from '../../types';
 import { selectConfigOptions } from '../../utils';
@@ -32,12 +32,12 @@ type Props = {
   removeProductItem?: (productId: string) => void;
   onChangeProductsData?: (productsData: IProductData[]) => void;
   updateTotal?: () => void;
-  currentProduct?: string; 
+  currentProduct?: string;
 };
 
 type State = {
-  categoryId: string, 
-  currentProduct: string
+  categoryId: string;
+  currentProduct: string;
 };
 
 class ProductItem extends React.Component<Props, State> {
@@ -64,7 +64,7 @@ class ProductItem extends React.Component<Props, State> {
 
     // select previous assignee when add new product
     const tempAssignee = localStorage.getItem('temporaryAssignee');
-    if(!productData.assignUserId && tempAssignee && !productData.product) {
+    if (!productData.assignUserId && tempAssignee && !productData.product) {
       this.onChangeField('assignUserId', tempAssignee, productData._id);
     }
   };
@@ -73,19 +73,10 @@ class ProductItem extends React.Component<Props, State> {
     const amount = productData.unitPrice * productData.quantity;
 
     if (amount > 0) {
-      switch (type) {
-        case 'discount': {
-          productData.discountPercent = (productData.discount * 100) / amount;
-          break;
-        }
-        case 'discountPercent': {
-          productData.discount = (amount * productData.discountPercent) / 100;
-          break;
-        }
-        default: {
-          productData.discountPercent = (productData.discount * 100) / amount;
-          productData.discount = (amount * productData.discountPercent) / 100;
-        }
+      if (type === 'discount') {
+        productData.discountPercent = (productData.discount * 100) / amount;
+      } else {
+        productData.discount = (amount * productData.discountPercent) / 100;
       }
 
       productData.tax =
@@ -94,9 +85,7 @@ class ProductItem extends React.Component<Props, State> {
         amount - (productData.discount || 0) + (productData.tax || 0);
     } else {
       productData.tax = 0;
-      productData.taxPercent = 0;
       productData.discount = 0;
-      productData.discountPercent = 0;
       productData.amount = 0;
     }
 
@@ -234,8 +223,10 @@ class ProductItem extends React.Component<Props, State> {
   };
 
   changeCurrentProduct = (productId: string) => {
-    this.setState({ currentProduct: this.state.currentProduct === productId ? '' : productId })
-  }
+    this.setState({
+      currentProduct: this.state.currentProduct === productId ? '' : productId
+    });
+  };
 
   renderForm = () => {
     const { productData, uom, currencies } = this.props;
@@ -245,7 +236,10 @@ class ProductItem extends React.Component<Props, State> {
       </div>
     );
 
-    if (!productData.product || this.state.currentProduct === productData.product._id) {
+    if (
+      !productData.product ||
+      this.state.currentProduct === productData.product._id
+    ) {
       return (
         <ProductItemContainer key={productData._id}>
           <ContentRow>
@@ -270,7 +264,7 @@ class ProductItem extends React.Component<Props, State> {
                     onChange={this.uomOnChange}
                     optionRenderer={selectOption}
                     options={selectConfigOptions(uom, MEASUREMENTS)}
-                  />  
+                  />
                 </ContentColumn>
               </ItemRow>
               <ItemRow>
@@ -307,7 +301,7 @@ class ProductItem extends React.Component<Props, State> {
               <ItemRow>
                 <ItemText>{__('Choose Product')}:</ItemText>
                 <ContentColumn flex="3">
-                  {this.renderProductModal(productData)}      
+                  {this.renderProductModal(productData)}
                 </ContentColumn>
               </ItemRow>
               <ItemRow>
@@ -327,7 +321,7 @@ class ProductItem extends React.Component<Props, State> {
                 <ItemText>{__('Unit price')}:</ItemText>
                 <ContentColumn flex="3">
                   <FormControl
-                    value={productData.unitPrice || 0}
+                    value={productData.unitPrice || ''}
                     type="number"
                     placeholder="0"
                     name="unitPrice"
@@ -345,7 +339,7 @@ class ProductItem extends React.Component<Props, State> {
                     <b>{productData.currency}</b>
                   </Amount>
                 </ContentColumn>
-              </ItemRow>   
+              </ItemRow>
               <ItemRow>
                 <ItemText>{__('Discount')}:</ItemText>
                 <ContentColumn flex="3">
@@ -379,7 +373,7 @@ class ProductItem extends React.Component<Props, State> {
                   </ContentRow>
                 </ContentColumn>
               </ItemRow>
-  
+
               <ItemRow>
                 <ItemText>{__('Tax')}:</ItemText>
                 <ContentColumn flex="3">
@@ -413,17 +407,17 @@ class ProductItem extends React.Component<Props, State> {
       );
     }
 
-   return null;
-  }
+    return null;
+  };
 
   render() {
     const { productData } = this.props;
 
     return (
-      <ProductRow 
-        key={productData._id} 
-        onRemove={this.onClick} 
-        activeProduct={this.state.currentProduct} 
+      <ProductRow
+        key={productData._id}
+        onRemove={this.onClick}
+        activeProduct={this.state.currentProduct}
         productData={productData}
         changeCurrentProduct={this.changeCurrentProduct}
       >

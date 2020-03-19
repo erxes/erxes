@@ -7,7 +7,6 @@ import { IPaymentsData, IProductData } from '../../types';
 type Props = {
   onChangeProductsData: (productsData: IProductData[]) => void;
   saveProductsData: () => void;
-  savePaymentsData: () => void;
   onChangePaymentsData: (paymentsData: IPaymentsData) => void;
   productsData: IProductData[];
   products: IProduct[];
@@ -21,7 +20,6 @@ export default class ProductFormContainer extends React.Component<Props> {
     return (
       <AppConsumer>
         {({ currentUser }) => {
-
           if (!currentUser) {
             return;
           }
@@ -34,9 +32,9 @@ export default class ProductFormContainer extends React.Component<Props> {
             currencies: configs.dealCurrency || []
           };
 
-          return <ProductForm {...extendedProps} />
+          return <ProductForm {...extendedProps} />;
         }}
       </AppConsumer>
-    )
+    );
   }
 }

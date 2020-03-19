@@ -7,15 +7,20 @@ import { ModalFooter } from 'modules/common/styles/main';
 import { __, Alert } from 'modules/common/utils';
 import { IProduct } from 'modules/settings/productService/types';
 import React from 'react';
-import { Add, FooterInfo, FormContainer, ProductTableWrapper } from '../../styles';
+import {
+  Add,
+  FooterInfo,
+  FormContainer,
+  ProductTableWrapper
+} from '../../styles';
 import { IPaymentsData, IProductData } from '../../types';
 import PaymentForm from './PaymentForm';
 import ProductItem from './ProductItem';
+import ProductTotal from './ProductTotal';
 
 type Props = {
   onChangeProductsData: (productsData: IProductData[]) => void;
   saveProductsData: () => void;
-  savePaymentsData: () => void;
   onChangePaymentsData: (paymentsData: IPaymentsData) => void;
   productsData: IProductData[];
   products: IProduct[];
@@ -27,11 +32,11 @@ type Props = {
 };
 
 type State = {
-  total: { currency?: string; amount?: number };
-  tax: { currency?: string; tax?: number };
-  discount: { currency?: string; discount?: number };
+  total: { [currency: string]: number };
+  tax: { [currency: string]: { value?: number; percent?: number } };
+  discount: { [currency: string]: { value?: number; percent?: number } };
   currentTab: string;
-  changePayData: { currency?: string; amount?: number };
+  changePayData: { [currency: string]: number };
   tempId: string;
 };
 
@@ -49,7 +54,7 @@ class ProductForm extends React.Component<Props, State> {
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.updateTotal();
 
     // initial product item
@@ -60,6 +65,9 @@ class ProductForm extends React.Component<Props, State> {
 
   addProductItem = () => {
     const { productsData, onChangeProductsData, currencies } = this.props;
+    const { tax, discount } = this.state;
+
+    const currency = currencies ? currencies[0] : '';
 
     this.setState({ tempId: Math.random().toString() }, () => {
       productsData.push({
@@ -67,14 +75,16 @@ class ProductForm extends React.Component<Props, State> {
         quantity: 1,
         unitPrice: 0,
         tax: 0,
-        taxPercent: 0,
+        taxPercent: tax[currency] ? tax[currency].percent || 0 : 0,
         discount: 0,
-        discountPercent: 0,
+        discountPercent: discount[currency]
+          ? discount[currency].percent || 0
+          : 0,
         amount: 0,
-        currency: currencies ? currencies[0] : '',
+        currency,
         tickUsed: true
       });
-  
+
       onChangeProductsData(productsData);
     });
   };
@@ -86,12 +96,10 @@ class ProductForm extends React.Component<Props, State> {
 
     onChangeProductsData(removedProductsData);
 
-    this.updateTotal();
+    this.updateTotal(removedProductsData);
   };
 
-  updateTotal = () => {
-    const { productsData } = this.props;
-
+  updateTotal = (productsData = this.props.productsData) => {
     const total = {};
     const tax = {};
     const discount = {};
@@ -99,25 +107,41 @@ class ProductForm extends React.Component<Props, State> {
     productsData.forEach(p => {
       if (p.currency && p.tickUsed) {
         if (!total[p.currency]) {
+          discount[p.currency] = { percent: 0, value: 0 };
+          tax[p.currency] = { percent: 0, value: 0 };
           total[p.currency] = 0;
-          tax[p.currency] = 0;
-          discount[p.currency] = 0;
         }
 
+        discount[p.currency].value += p.discount || 0;
+        tax[p.currency].value += p.tax || 0;
         total[p.currency] += p.amount || 0;
-        tax[p.currency] += p.tax || 0;
-        discount[p.currency] += p.discount || 0;
       }
     });
+
+    for (const currency of Object.keys(discount)) {
+      let clearTotal = total[currency] - tax[currency].value;
+      tax[currency].percent = (tax[currency].value * 100) / clearTotal;
+
+      clearTotal = clearTotal + discount[currency].value;
+      discount[currency].percent =
+        (discount[currency].value * 100) / clearTotal;
+    }
 
     this.setState({ total, tax, discount });
   };
 
-  renderTotal(value) {
-    return Object.keys(value).map(key => (
-      <div key={key}>
-        {value[key].toLocaleString()} <b>{key}</b>
-      </div>
+  renderTotal(totalKind, kindTxt) {
+    const { productsData, onChangeProductsData } = this.props;
+    return Object.keys(totalKind).map(currency => (
+      <ProductTotal
+        key={kindTxt.concat(currency)}
+        totalKind={totalKind[currency]}
+        kindTxt={kindTxt}
+        currency={currency}
+        productsData={productsData}
+        updateTotal={this.updateTotal}
+        onChangeProductsData={onChangeProductsData}
+      />
     ));
   }
 
@@ -129,7 +153,7 @@ class ProductForm extends React.Component<Props, State> {
         <EmptyState size="full" text="No product or services" icon="box" />
       );
     }
-    
+
     return (
       <ProductTableWrapper>
         <Table>
@@ -160,7 +184,7 @@ class ProductForm extends React.Component<Props, State> {
             ))}
           </tbody>
         </Table>
-      </ProductTableWrapper>      
+      </ProductTableWrapper>
     );
   }
 
@@ -189,12 +213,7 @@ class ProductForm extends React.Component<Props, State> {
   };
 
   onClick = () => {
-    const {
-      saveProductsData,
-      productsData,
-      closeModal,
-      savePaymentsData
-    } = this.props;
+    const { saveProductsData, productsData, closeModal } = this.props;
 
     const { total, changePayData } = this.state;
 
@@ -241,12 +260,12 @@ class ProductForm extends React.Component<Props, State> {
     }
 
     saveProductsData();
-    savePaymentsData();
     closeModal();
   };
 
   renderTabContent() {
     const { total, tax, discount, currentTab } = this.state;
+
     if (currentTab === 'payments') {
       const { onChangePaymentsData } = this.props;
 
@@ -280,16 +299,16 @@ class ProductForm extends React.Component<Props, State> {
           <table>
             <tbody>
               <tr>
-                <td>{__('Tax')}:</td>
-                <td>{this.renderTotal(tax)}</td>
+                <td>{__('Discount')}:</td>
+                <td>{this.renderTotal(discount, 'discount')}</td>
               </tr>
               <tr>
-                <td>{__('Discount')}:</td>
-                <td>{this.renderTotal(discount)}</td>
+                <td>{__('Tax')}:</td>
+                <td>{this.renderTotal(tax, 'tax')}</td>
               </tr>
               <tr>
                 <td>{__('Total')}:</td>
-                <td>{this.renderTotal(total)}</td>
+                <td>{this.renderTotal(total, 'total')}</td>
               </tr>
             </tbody>
           </table>
@@ -335,7 +354,12 @@ class ProductForm extends React.Component<Props, State> {
             Cancel
           </Button>
 
-          <Button btnStyle="success" onClick={this.onClick} icon="check-circle" uppercase={false}>
+          <Button
+            btnStyle="success"
+            onClick={this.onClick}
+            icon="check-circle"
+            uppercase={false}
+          >
             Save
           </Button>
         </ModalFooter>

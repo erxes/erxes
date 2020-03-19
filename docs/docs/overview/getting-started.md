@@ -31,8 +31,8 @@ title: Getting  Started
 - <a href="../user/profile-settings">Profile settings</a>
 - <a href="../user/notification">Notifications</a>
 - <a href="../user/mobile-apps">Mobile Apps</a>
-  </div>
-<div class="col-md-6" markdown="1">
+    </div>
+  <div class="col-md-6" markdown="1">
 
 ### Installation Guide
 
@@ -42,13 +42,13 @@ title: Getting  Started
 - <a href="../installation/redhat8">RHEL 8</a>
 - <a href="../installation/docker">Docker</a>
 - <a href="../installation/heroku">Heroku</a>
+- <a href="../installation/aws">AWS Marketplace</a>
 - <a href="../installation/upgrade">Upgrade</a>
 
 ### Administrator's guide
 
 - <a href="../administrator/creating-first-user">Creating first user</a>
 - <a href="../administrator/environment-variables">Environment Variables</a>
-- <a href="../administrator/file-upload">File Upload</a>
 - <a href="../administrator/integrations">Integrations</a>
 - <a href="../administrator/migration">Migration</a>
 
@@ -60,6 +60,6 @@ title: Getting  Started
 - <a href="../developer/push-notification">Push Notification</a>
 - <a href="../developer/android-sdk">Android SDK</a>
 - <a href="../developer/ios-sdk">iOS SDK</a>
-- <a href="../developer/extend">Extend</a>
+
     </div>
   </div>
