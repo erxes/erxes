@@ -98,7 +98,7 @@ rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
 cat <<EOF | sudo tee /etc/yum.repos.d/elasticsearch.repo
 [elasticsearch-7.x]
 name=Elasticsearch repository for 7.x packages
-baseurl=https://artifacts.elastic.co/packages/oss-7.x/yum
+baseurl=https://artifacts.elastic.co/packages/7.x/yum
 gpgcheck=1
 gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch
 enabled=1
@@ -107,6 +107,7 @@ type=rpm-md
 EOF
 yum -qqy update
 yum -qqy install elasticsearch -y
+systemctl daemon-reload
 systemctl enable elasticsearch.service
 systemctl start elasticsearch.service
 
