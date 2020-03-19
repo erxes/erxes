@@ -1,4 +1,4 @@
-import { client } from '../elasticsearch';
+import { client, getMappings } from '../elasticsearch';
 const argv = process.argv;
 
 /*
@@ -6,11 +6,16 @@ const argv = process.argv;
  */
 const main = async () => {
   if (argv.length === 4) {
-    const body = argv.pop();
+    const body = argv.pop() || '{}';
     const action = argv.pop();
 
     try {
-      const response = await client[action](JSON.parse(body || '{}'));
+      if (action === 'getMapping') {
+        const mappingResponse = await getMappings(JSON.parse(body).index);
+        return console.log(JSON.stringify(mappingResponse));
+      }
+
+      const response = await client[action](JSON.parse(body));
       console.log(JSON.stringify(response));
     } catch (e) {
       console.log(e);
