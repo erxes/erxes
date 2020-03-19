@@ -43,17 +43,15 @@ export const fetchBySegments = async (segment: ISegment, action: 'search' | 'cou
     });
 
     idsByEvents = eventsResponse.hits.hits.map(hit => hit._source[idField]);
+
+    propertyPositive.push({
+      terms: {
+        _id: idsByEvents,
+      },
+    });
   }
 
   if (action === 'count') {
-    if (idsByEvents.length > 0) {
-      propertyPositive.push({
-        terms: {
-          _id: idsByEvents,
-        },
-      });
-    }
-
     return {
       positiveList: propertyPositive,
       negativeList: propertyNegative,
