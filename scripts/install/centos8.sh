@@ -93,6 +93,9 @@ systemctl enable rabbitmq-server
 rabbitmq-plugins enable rabbitmq_management
 systemctl start rabbitmq-server
 
+# Java 
+yum -qqy install java-11-openjdk -y
+
 # Elasticsearch
 rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
 cat <<EOF | sudo tee /etc/yum.repos.d/elasticsearch.repo
