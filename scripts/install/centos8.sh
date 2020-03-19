@@ -393,7 +393,7 @@ EOF
 # add user nginx to erxes group
 gpasswd -a nginx $username
 
-chmod 750 /home/$username
+chmod 750 /home/$username /home/$username/erxes
 chmod -R 750 $erxes_dir
 
 # allow nginx to server build dir
