@@ -2,9 +2,10 @@ import * as moment from 'moment';
 import {
   Brands,
   Channels,
-  ConversationMessages,
+  // ConversationMessages,
   Deals,
   Fields,
+  FormSubmissions,
   Permissions,
   Tasks,
   Tickets,
@@ -47,21 +48,64 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
 
       const customerParams: ICustomerListArgs = query;
 
-      const qb = new CustomerBuildQuery(customerParams, {});
-      await qb.buildAllQueries();
-
-      const customerResponse = await qb.runQueries();
-
-      data = customerResponse.list;
-
       if (customerParams.form && customerParams.popupData) {
-        const formQuery = {
-          formWidgetData: { $exists: true },
-        };
+        const messagesAggregate = await FormSubmissions.aggregate([
+          {
+            $match: { formId: customerParams.form, customerId: { $exists: true, $ne: null } },
+          },
+          {
+            $sort: { submittedAt: -1 },
+          },
+          {
+            $group: {
+              _id: null,
+              customerIds: {
+                $addToSet: '$customerId',
+              },
+            },
+          },
+          {
+            $lookup: {
+              from: 'conversation_messages',
+              let: { letCustomerIds: '$customerIds' },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: {
+                      $and: [{ $in: ['$customerId', '$$letCustomerIds'] }, { $ne: ['formWidgetData', null] }],
+                    },
+                  },
+                },
+              ],
+              as: 'messagesWithFormData',
+            },
+          },
+          {
+            $unwind: '$messagesWithFormData',
+          },
+          {
+            $project: {
+              formWidgetData: '$messagesWithFormData.formWidgetData',
+            },
+          },
+        ]);
 
-        const conversationMessages = await ConversationMessages.find(formQuery, { formWidgetData: 1 });
+        const messages: any[] = [];
 
-        data = conversationMessages.map(message => message.formWidgetData);
+        messagesAggregate.forEach(message => {
+          if (message.formWidgetData) {
+            messages.push(message.formWidgetData);
+          }
+        });
+
+        data = messages;
+      } else {
+        const qb = new CustomerBuildQuery(customerParams, {});
+        await qb.buildAllQueries();
+
+        const customerResponse = await qb.runQueries();
+
+        data = customerResponse.list;
       }
 
       break;
@@ -158,12 +202,24 @@ const fillLeadHeaders = async (formId: string) => {
 const buildLeadFile = async (datas: any, formId: string, sheet: any, columnNames: string[], rowIndex: number) => {
   const headers: IColumnLabel[] = await fillLeadHeaders(formId);
 
+  const displayValue = item => {
+    if (!item) {
+      return '';
+    }
+
+    if (item.validation === 'date') {
+      return moment(item.value).format('YYYY/MM/DD HH:mm');
+    }
+
+    return item.value;
+  };
+
   for (const data of datas) {
     rowIndex++;
     // Iterating through basic info columns
     for (const column of headers) {
       const item = await data.find(obj => obj.text === column.name);
-      const cellValue = item ? item.value : '';
+      const cellValue = displayValue(item);
 
       addCell(column, cellValue, sheet, columnNames, rowIndex);
     }
