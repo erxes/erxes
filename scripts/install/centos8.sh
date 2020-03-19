@@ -27,7 +27,7 @@ done
 # Dependencies
 #
 yum -qqy update
-yum -qqy install -y wget gnupg apt-transport-https
+yum -qqy install -y wget gnupg
 
 # MongoDB
 cat <<EOF >/etc/yum.repos.d/mongodb-org-4.2.repo
