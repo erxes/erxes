@@ -109,7 +109,6 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
           }
         });
 
-        console.log('messages: ', messages);
         data = messages;
       } else {
         const qb = new CustomerBuildQuery(customerParams, {});
