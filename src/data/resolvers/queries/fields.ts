@@ -91,7 +91,7 @@ const fieldQueries = {
       }
     }
 
-    let mappingProperties;
+    let mappingProperties: any = {};
 
     // extend fields list using tracked fields data
     try {
