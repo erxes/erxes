@@ -61,21 +61,21 @@ Once you have installed your ssl certificate, you need to update env vars.
 2. Edit `erxes/build/js/env.js` file where env vars for frontend app are stored.
    The content of the file should be as follows:
 
-   ```javascript
-   window.env = {
-     PORT: 3000,
-     NODE_ENV: "production",
-     REACT_APP_API_URL: "https://your_domain/api",
-     REACT_APP_API_SUBSCRIPTION_URL: "wss://your_domain/api/subscriptions",
-     REACT_APP_CDN_HOST: "https://your_domain/widgets"
-   };
-   ```
+```javascript
+window.env = {
+  PORT: 3000,
+  NODE_ENV: "production",
+  REACT_APP_API_URL: "https://your_domain/api",
+  REACT_APP_API_SUBSCRIPTION_URL: "wss://your_domain/api/subscriptions",
+  REACT_APP_CDN_HOST: "https://your_domain/widgets"
+};
+```
 
 3. Update all env vars with HTTPS url in the `ecosystem.json` file.
 4. Finally, you need to restart pm2 erxes processes by running the following command:
 
-   ```sh
-   pm2 restart ecosystem.json
-   ```
+```sh
+pm2 restart ecosystem.json
+```
 
-   If you need more information about pm2, please go to official documentation [here](https://pm2.keymetrics.io/docs/usage/application-declaration/).
+If you need more information about pm2, please go to official documentation [here](https://pm2.keymetrics.io/docs/usage/application-declaration/).
