@@ -1,5 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import EmptyState from 'modules/common/components/EmptyState';
+import Spinner from 'modules/common/components/Spinner';
 import { withProps } from 'modules/common/utils';
 import ConformityChooser from 'modules/conformity/containers/ConformityChooser';
 import React from 'react';
@@ -93,6 +95,14 @@ class ItemChooserContainer extends React.Component<
       clearState: () => search(''),
       refetchQuery: data.options.queries.itemsQuery
     };
+
+    if (itemsQuery.loading) {
+      return <Spinner />;
+    }
+
+    if (updatedProps.datas.length === 0) {
+      return <EmptyState text="No matching items found" icon="list-2" />;
+    }
 
     return <ConformityChooser {...updatedProps} />;
   }
