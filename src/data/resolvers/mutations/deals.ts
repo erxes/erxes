@@ -158,7 +158,7 @@ const dealMutations = {
       return updatedDeal;
     }
 
-    // if stage edited
+    // if deal moves between stages
     const { content, action } = await itemsChange(user._id, oldDeal, MODULE_NAMES.DEAL, updatedDeal.stageId);
 
     await sendNotifications({
@@ -171,7 +171,7 @@ const dealMutations = {
     });
 
     const updatedStage = await Stages.getStage(updatedDeal.stageId);
-    const oldStage = await Stages.getStage(oldDeal.stageId)
+    const oldStage = await Stages.getStage(oldDeal.stageId);
 
     graphqlPubsub.publish('pipelinesChanged', {
       pipelinesChanged: {
@@ -179,7 +179,7 @@ const dealMutations = {
       },
     });
 
-    if ( updatedStage.pipelineId !== oldStage.pipelineId) {
+    if (updatedStage.pipelineId !== oldStage.pipelineId) {
       graphqlPubsub.publish('pipelinesChanged', {
         pipelinesChanged: {
           _id: oldStage.pipelineId,
