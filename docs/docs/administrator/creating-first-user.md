@@ -3,7 +3,7 @@ id: creating-first-user
 title: Creating first user
 ---
 
-Through these steps you can create a user to start using the system.
+The following steps are required prior using the system.
 
 ## Create admin user
 
