@@ -32,7 +32,7 @@
     "createGooglePubsubTopics": "ts-node ./src/commands/createGooglePubsubTopics.ts",
     "customCommand": "ts-node ./src/commands/customCommand.ts",
     "resetMigrations": "ts-node ./src/commands/resetMigrations.ts",
-    "verifyCustomerEmails": "ts-node ./src/commands/verifyCustomerEmails.ts",
+    "verifyCustomerEmails": "DEBUG=erxes-api:* ts-node ./src/commands/verifyCustomerEmails.ts",
     "repairPermissionData": "ts-node ./src/commands/repairPermissionData.ts",
     "runEsCommand": "ts-node ./src/commands/runEsCommand.ts",
     "migrate": "NODE_ENV=command migrate --migrations-dir='./dist/migrations' --store='./db-migrate-store.js' up",
