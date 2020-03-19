@@ -58,6 +58,9 @@ systemctl enable rabbitmq-server
 rabbitmq-plugins enable rabbitmq_management
 systemctl start rabbitmq-server
 
+# Java 
+apt-get -qqy install default-jre -y
+
 # Elasticsearch
 wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add -
 echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | tee -a /etc/apt/sources.list.d/elastic-7.x.list
