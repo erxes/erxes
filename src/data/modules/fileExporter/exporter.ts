@@ -54,9 +54,6 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
             $match: { formId: customerParams.form, customerId: { $exists: true, $ne: null } },
           },
           {
-            $sort: { submittedAt: 1 },
-          },
-          {
             $group: {
               _id: null,
               customerIds: {
@@ -88,6 +85,9 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
               formWidgetData: '$messagesWithFormData.formWidgetData',
               createdAt: '$messagesWithFormData.createdAt',
             },
+          },
+          {
+            $sort: { createdAt: -1 },
           },
         ]);
 
