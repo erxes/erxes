@@ -57,7 +57,7 @@ const segmentQueries = {
       query,
     });
 
-    const buckets = aggreEvents.aggregations.names.buckets;
+    const buckets = aggreEvents.aggregations.names.buckets || [];
 
     const events = buckets.map(bucket => {
       const [hit] = bucket.hits.hits.hits;
