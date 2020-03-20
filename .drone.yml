@@ -18,6 +18,7 @@ pipeline:
       - yarn install
       - yarn lint
       - yarn tsc
+      - yarn test
       - mkdir src/private/xlsTemplateOutputs
 
   build:
