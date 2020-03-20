@@ -166,7 +166,8 @@ window.addEventListener("message", async (event: MessageEvent) => {
           iframe.contentWindow.postMessage(
             {
               fromPublisher: true,
-              action: "showPopup"
+              action: "showPopup",
+              formId: setting.form_id
             },
             "*"
           );
