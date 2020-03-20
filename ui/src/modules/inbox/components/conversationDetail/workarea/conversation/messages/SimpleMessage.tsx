@@ -122,10 +122,23 @@ export default class SimpleMessage extends React.Component<Props, {}> {
       return this.renderAttachment(hasAttachment);
     }
 
+    const urlRegex = /(\b((https?|ftp|file):\/\/)?(www\.)[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+    let content = message.content;
+
+    if (urlRegex) {
+      content = message.content.replace(urlRegex, (url) => {
+        if (url.includes('http://') || url.includes('https://')) {
+          return '<a href="' + url + '" target="_blank">' + url + '</a>';
+        }
+
+        return '<a href="' + 'https://' + url + '" target="_blank">' + url + '</a>';
+      })
+    }
+
     return (
       <>
         <MessageContent staff={isStaff} internal={message.internal}>
-          <span dangerouslySetInnerHTML={{ __html: xss(message.content) }} />
+          <span dangerouslySetInnerHTML={{ __html: xss(content) }} />
           {this.renderAttachment(hasAttachment)}
         </MessageContent>
       </>
