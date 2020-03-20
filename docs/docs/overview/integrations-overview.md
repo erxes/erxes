@@ -16,9 +16,13 @@ Erxes app can be integrated with Facebook developer API and that means we can re
 
 Erxes app can be integrated with Twitter developer API and that means we can receive our Twitter accounts DMs, Tweets directly into our Erxes app's inbox.
 
-* [Gmail integration guide](../administrator/system-config#google)
+* [Gmail integration guide](../administrator/system-config#gmail)
 
 Erxes app can be integrated with Gmail API and that means we can receive our gmail inbox messages directly to our Erxes app's inbox.
+
+* [Google Cloud Storage](../administrator/system-config#google-cloud-storage)
+
+Cloud Storage provides worldwide, highly durable object storage that scales to exabytes of data. You can access data instantly from any storage class, integrate storage into your applications with a single unified API, and easily optimize price and performance.
 
 * [AWS S3 integration](../administrator/system-config#aws-s3)
 
@@ -28,6 +32,6 @@ Erxes app can be integrated with AWS S3 service and that means we can upload fil
 
 Erxes app can be integrated with AWS SES service and that means we can send emails to customers we want. Moreover, we can monitor about how many emails have sent successfully, how many emails are opened by customers and so on.
 
-* [Nylas integration](../administrator/system-config#nylas)
+* [Nylas integration](../administrator/system-config#nylas-integrations)
 
 Erxes app can be integrated with Nylas service and that means we can send emails to customers we want. Moreover, we can monitor about how many emails have sent successfully, how many emails are opened by customers and so on.
