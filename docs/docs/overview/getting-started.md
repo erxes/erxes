@@ -49,7 +49,7 @@ title: Getting  Started
 
 - <a href="../administrator/creating-first-user">Creating first user</a>
 - <a href="../administrator/environment-variables">Environment Variables</a>
-- <a href="../administrator/integrations">Integrations</a>
+- <a href="../administrator/system-config">System configs</a>
 - <a href="../administrator/migration">Migration</a>
 
 ### Developer's guide
@@ -57,7 +57,7 @@ title: Getting  Started
 - <a href="../developer/graphql-api">GraphQL API</a>
 - <a href="../developer/coding-standards">Coding standards</a>
 - <a href="../developer/contributing">Contributing</a>
-- <a href="../developer/push-notification">Push Notification</a>
+- <a href="../developer/push-notifications">Push Notification</a>
 - <a href="../developer/android-sdk">Android SDK</a>
 - <a href="../developer/ios-sdk">iOS SDK</a>
 
