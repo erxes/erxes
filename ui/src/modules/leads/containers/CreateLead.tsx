@@ -57,7 +57,7 @@ class CreateLeadContainer extends React.Component<Props, State> {
           .then(() => {
             Alert.success('You successfully added a lead');
 
-            history.push({ pathname: '/leads', search: "?refetchList=true" });
+            history.push({ pathname: '/leads', search: "?popUpRefetchList=true" });
           })
 
           .catch(error => {

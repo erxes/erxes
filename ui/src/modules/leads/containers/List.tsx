@@ -36,7 +36,7 @@ class ListContainer extends React.Component<FinalProps> {
   componentDidMount() {
     const { history } = this.props;
 
-    const shouldRefetchList = routerUtils.getParam(history, 'refetchList');
+    const shouldRefetchList = routerUtils.getParam(history, 'popUpRefetchList');
 
     if (shouldRefetchList) {
       this.refetch();
