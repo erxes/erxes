@@ -39,7 +39,6 @@ class CreateLeadContainer extends React.Component<Props, State> {
 
   render() {
     const { addIntegrationMutation, history } = this.props;
-
     const afterFormDbSave = id => {
       this.setState({ isReadyToSaveForm: false });
 
@@ -57,9 +56,8 @@ class CreateLeadContainer extends React.Component<Props, State> {
         })
           .then(() => {
             Alert.success('You successfully added a lead');
-            history.push('/leads');
 
-            this.setState({ isLoading: false });
+            history.push({ pathname: '/leads', search: "?refetchList=true" });
           })
 
           .catch(error => {
