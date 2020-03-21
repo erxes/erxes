@@ -92,10 +92,7 @@ export default withProps<{}>(
       AddIntegrationMutationResponse,
       AddIntegrationMutationVariables
     >(gql(mutations.integrationsCreateLeadIntegration), {
-      name: 'addIntegrationMutation',
-      options: {
-        refetchQueries: ['leadIntegrations', 'leadIntegrationCounts']
-      }
+      name: 'addIntegrationMutation'
     })
   )(withRouter<Props>(CreateLeadContainer))
 );
