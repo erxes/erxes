@@ -61,9 +61,8 @@ function withSaveAndEdit<IComponentProps>(Component) {
         })
           .then(() => {
             Alert.success(msg);
-            history.push('/engage');
 
-            this.setState({ isLoading: false });
+            history.push({ pathname: '/engage', search: '?engageRefetchList=true' });
           })
           .catch(error => {
             Alert.error(error.message);
@@ -169,11 +168,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
         {
           name: 'addMutation',
           options: {
-            refetchQueries: [
-              ...crudMutationsOptions().refetchQueries,
-              'engageMessageDetail',
-              'activityLogs'
-            ]
+            refetchQueries: engageRefetchQueries({})
           }
         }
       ),
@@ -182,15 +177,19 @@ function withSaveAndEdit<IComponentProps>(Component) {
         {
           name: 'editMutation',
           options: {
-            refetchQueries: [
-              ...crudMutationsOptions().refetchQueries,
-              'engageMessageDetail'
-            ]
+            refetchQueries: engageRefetchQueries({ isEdit: true })
           }
         }
       )
     )(withRouter<FinalProps>(Container))
   );
 }
+
+
+export const engageRefetchQueries = ({ isEdit }: { isEdit?: boolean }): string[] => [
+  ...crudMutationsOptions().refetchQueries,
+  ...isEdit ? ['activityLogs'] : [],
+  'engageMessageDetail',
+]
 
 export default withSaveAndEdit;
