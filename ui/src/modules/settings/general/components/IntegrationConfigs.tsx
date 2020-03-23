@@ -182,7 +182,11 @@ class IntegrationConfigs extends React.Component<Props, State> {
 
         <CollapseContent title="Chat-API">
           <Info>
-            <a target="_blank" href="" rel="noopener noreferrer">
+            <a
+              target="_blank"
+              href="https://docs.erxes.io/administrator/integrations#whatsapp-integration"
+              rel="noopener noreferrer"
+            >
               {__('More: Understanding Chat-API Integration Variables')}
             </a>
           </Info>
