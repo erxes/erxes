@@ -21,15 +21,21 @@ type FinalProps = {
 } & WithDataProps;
 
 class Container extends React.Component<FinalProps, {}> {
-  componentWillMount() {
+  private unsubscribe;
+
+  componentDidMount() {
     const { activityLogQuery } = this.props;
 
-    activityLogQuery.subscribeToMore({
+    this.unsubscribe = activityLogQuery.subscribeToMore({
       document: gql(subscriptions.activityLogsChanged),
       updateQuery: () => {
         this.props.activityLogQuery.refetch();
       }
     });
+  }
+
+  componentWillUnmount() {
+    this.unsubscribe();
   }
 
   render() {

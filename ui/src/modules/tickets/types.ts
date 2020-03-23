@@ -7,7 +7,7 @@ export type ActivityLogQueryResponse = {
 };
 
 export interface ITicket extends IItem {
-  channel?: string;
+  source?: string;
 }
 
 export interface ITicketParams extends IItemParams {

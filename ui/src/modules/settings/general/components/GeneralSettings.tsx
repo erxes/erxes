@@ -171,6 +171,18 @@ class GeneralSettings extends React.Component<Props, State> {
           </FormGroup>
         </CollapseContent>
 
+        <CollapseContent title="Google Cloud Storage">
+          <Info>
+            <a target="_blank" href="https://console.cloud.google.com/storage/browser" rel="noopener noreferrer">
+              {__("More: Create or find your Google Cloud Storage bucket")}
+            </a>
+          </Info>
+          <FormGroup> 
+            <ControlLabel>Google Bucket Name</ControlLabel>
+            {this.renderItem('GOOGLE_CLOUD_STORAGE_BUCKET')}
+          </FormGroup>
+        </CollapseContent>
+
         <CollapseContent title="AWS S3">
           <Info>
             <a target="_blank" href="https://docs.erxes.io/administrator/environment-variables#aws-s3" rel="noopener noreferrer">

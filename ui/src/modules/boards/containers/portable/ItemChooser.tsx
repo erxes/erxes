@@ -1,5 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import EmptyState from 'modules/common/components/EmptyState';
+import Spinner from 'modules/common/components/Spinner';
 import { withProps } from 'modules/common/utils';
 import ConformityChooser from 'modules/conformity/containers/ConformityChooser';
 import React from 'react';
@@ -34,15 +36,19 @@ type FinalProps = {
 
 class ItemChooserContainer extends React.Component<
   WrapperProps & FinalProps,
-  { newItemId?: string }
+  { newItem?: string }
 > {
   constructor(props) {
     super(props);
 
     this.state = {
-      newItemId: undefined
+      newItem: undefined
     };
   }
+
+  resetAssociatedItem = () => {
+    return this.setState({ newItem: undefined });
+  };
 
   render() {
     const { data, itemsQuery, search } = this.props;
@@ -51,8 +57,8 @@ class ItemChooserContainer extends React.Component<
       return item.name || 'Unknown';
     };
 
-    const getAssociatedItem = (newItemId: string) => {
-      this.setState({ newItemId });
+    const getAssociatedItem = (newItem: string) => {
+      this.setState({ newItem });
     };
 
     const updatedProps = {
@@ -84,10 +90,19 @@ class ItemChooserContainer extends React.Component<
         />
       ),
       hasBoardChooser: true,
-      newItemId: this.state.newItemId,
+      newItem: this.state.newItem,
+      resetAssociatedItem: this.resetAssociatedItem,
       clearState: () => search(''),
       refetchQuery: data.options.queries.itemsQuery
     };
+
+    if (itemsQuery.loading) {
+      return <Spinner />;
+    }
+
+    if (updatedProps.datas.length === 0) {
+      return <EmptyState text="No matching items found" icon="list-2" />;
+    }
 
     return <ConformityChooser {...updatedProps} />;
   }

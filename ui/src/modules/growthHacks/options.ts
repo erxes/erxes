@@ -1,6 +1,6 @@
 import GrowthHackEditForm from 'modules/growthHacks/containers/GrowthHackEditForm';
 import GrowthHackItem from './components/GrowthHackItem';
-import { mutations, queries } from './graphql';
+import { mutations, queries, subscriptions } from './graphql';
 
 const options = {
   EditForm: GrowthHackEditForm,
@@ -10,7 +10,8 @@ const options = {
   queriesName: {
     itemsQuery: 'growthHacks',
     detailQuery: 'growthHackDetail',
-    archivedItemsQuery: 'archivedGrowthHacks'
+    archivedItemsQuery: 'archivedGrowthHacks',
+    archivedItemsCountQuery: 'archivedGrowthHacksCount'
   },
   mutationsName: {
     addMutation: 'growthHacksAdd',
@@ -22,10 +23,14 @@ const options = {
     archiveMutation: 'growthHacksArchive',
     copyMutation: 'growthHacksCopy'
   },
+  subscriptionName: {
+    changeSubscription: 'growthHacksChanged'
+  },
   queries: {
     itemsQuery: queries.growthHacks,
     detailQuery: queries.growthHackDetail,
-    archivedItemsQuery: queries.archivedGrowthHacks
+    archivedItemsQuery: queries.archivedGrowthHacks,
+    archivedItemsCountQuery: queries.archivedGrowthHacksCount
   },
   mutations: {
     addMutation: mutations.growthHacksAdd,
@@ -36,6 +41,9 @@ const options = {
     watchMutation: mutations.growthHacksWatch,
     archiveMutation: mutations.growthHacksArchive,
     copyMutation: mutations.growthHacksCopy
+  },
+  subscriptions: {
+    changeSubscription: subscriptions.growthHacksChanged
   },
   texts: {
     addText: 'Add an experiment',

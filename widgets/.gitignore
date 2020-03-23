@@ -1,9 +1,0 @@
-node_modules
-dist
-static
-.DS_Store
-npm-debug.log*
-.env
-*.un~
-*.swp
-*.log

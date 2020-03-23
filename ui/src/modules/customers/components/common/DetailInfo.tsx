@@ -46,6 +46,7 @@ class DetailInfo extends React.PureComponent<Props> {
       <SidebarList className="no-link">
         {this.renderRow('Code', customer.code)}
         {this.renderRow('Primary email', customer.primaryEmail)}
+        {this.renderRow('Primary email status', customer.emailValidationStatus)}
         {this.renderRow('Primary phone', customer.primaryPhone)}
         {this.renderPosition(customer)}
         {this.renderRow(
@@ -60,8 +61,10 @@ class DetailInfo extends React.PureComponent<Props> {
           LEAD_STATUS_TYPES[customer.leadStatus || '']
         )}
         {this.renderRow('Gender', GENDER_TYPES[customer.sex])}
-        {this.renderRow('Birthday', customer.birthDate &&
-          dayjs(customer.birthDate).format('MMM,DD YYYY'))}
+        {this.renderRow(
+          'Birthday',
+          customer.birthDate && dayjs(customer.birthDate).format('MMM,DD YYYY')
+        )}
         {this.renderRow('Do not disturb', customer.doNotDisturb)}
         <SidebarFlexRow>
           {__(`Description`)}:<span>{customer.description || '-'}</span>
