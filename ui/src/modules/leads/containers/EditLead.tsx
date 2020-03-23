@@ -76,9 +76,7 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
           .then(() => {
             Alert.success('You successfully updated a lead');
 
-            history.push('/leads');
-
-            this.setState({ isReadyToSaveForm: false, isLoading: false });
+            history.push({ pathname: '/leads', search: "?popUpRefetchList=true" });
           })
 
           .catch(error => {
