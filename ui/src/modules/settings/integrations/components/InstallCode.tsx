@@ -224,31 +224,26 @@ class InstallCode extends React.PureComponent<Props, State> {
       return (
         <div>
           <b>
-            To install erxes on your website with Google Tag Manager, just
-            follow these steps.
+            {__('gtm_b')}
           </b>
           <ol>
             <li>
-              Navigate to the <b>Tags section</b> of your Google Tag Manager
-              account
+              {__('gtm_li_1')}
             </li>
             <li>
-              Create a <b>new tag</b> and name it (for example: "erxes-chat")
+              {__('gtm_li_2')}
             </li>
             <li>
-              Click the Tag Configuration section and choose <b>Custom HTML</b>{' '}
-              tag type
+              {__('gtm_li_3')}
             </li>
-            <li>Paste the code below </li>
-            <li>Next, click the Triggering section and choose “All Pages”</li>
-            <li>Click ‘Save’ button in the top-right corner of the page</li>
+            <li>{__('gtm_li_4')}</li>
+            <li>{__('gtm_li_5')}</li>
+            <li>{__('gtm_li_6')}</li>
             <li>
-              Next click ‘Submit’ button in the top-right corner of the page to
-              save the changes you made
+              {__('gtm_li_7')}
             </li>
             <li>
-              Now, erxes chat will be installed using your Google Tag Manager
-              account. Just make sure you copy the gtm code to your web.
+              {__('gtm_li_8')}
             </li>
           </ol>
         </div>
@@ -481,7 +476,7 @@ class InstallCode extends React.PureComponent<Props, State> {
     switch (currentTab) {
       case 'basic':
         description =
-          'For websites and web apps with full-page refreshes. Paste the code below before the body tag on every page you want erxes chat to appear';
+          __('For websites and web apps with full-page refreshes. Paste the code below before the body tag on every page you want erxes chat to appear');
         script = basicCode;
         action = copied;
         break;
@@ -493,7 +488,7 @@ class InstallCode extends React.PureComponent<Props, State> {
         break;
       case 'googletag':
         description =
-          'To connect Google Tag Manager to erxes, you must have an active Google Tag Manager account with a published container';
+          __('To connect Google Tag Manager to erxes, you must have an active Google Tag Manager account with a published container');
         extraContent = true;
         script = basicCode;
         action = contentCopied;
