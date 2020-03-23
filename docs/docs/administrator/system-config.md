@@ -641,7 +641,7 @@ In order to integrate the Yahoo you will need to generate app password for the E
 ### AWS SES
 
 Amazon SES service enables on Erxes Engage system. Another custom mail service is not allowed on Engage system.  
-AWS SES configuration is similar with Integration AWS SES. [Go to settings here](https://docs.erxes.io/docs/administrator/system-config#aws-ses)
+AWS SES configuration is similar with Integration AWS SES. [Go to settings here](https://docs.erxes.io/administrator/system-config#aws-ses)
 
 ### Verify email
 
