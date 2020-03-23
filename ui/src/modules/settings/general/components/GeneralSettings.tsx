@@ -11,7 +11,7 @@ import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import Select from 'react-select-plus';
 import { ContentBox } from '../../styles';
-import { FILE_SYSTEM_TYPES, KEY_LABELS, LANGUAGES, MEASUREMENTS, SERVICE_TYPES } from '../constants';
+import { FILE_MIME_TYPES, FILE_SYSTEM_TYPES, KEY_LABELS, LANGUAGES, MEASUREMENTS, SERVICE_TYPES } from '../constants';
 import { IConfigsMap } from '../types';
 import Header from './Header';
 import Sidebar from './Sidebar';
@@ -50,14 +50,20 @@ class GeneralSettings extends React.Component<Props, State> {
 
   onChangeConfig = (code: string, value) => {
     const { configsMap } = this.state;
-    
+
     configsMap[code] = value;
 
     this.setState({ configsMap });
   };
 
   onChangeMultiCombo = (code: string, values) => {
-    this.onChangeConfig(code, values.map(el => el.value));
+    let value = values;
+
+    if (Array.isArray(values)) {
+      value = values.map(el => el.value);
+    }
+
+    this.onChangeConfig(code, value);
   };
 
   onChangeSingleCombo = (code: string, obj) => {
@@ -88,7 +94,7 @@ class GeneralSettings extends React.Component<Props, State> {
   }
 
   render() {
-    const { configsMap } = this.state;
+    const { configsMap, language } = this.state;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
@@ -106,6 +112,9 @@ class GeneralSettings extends React.Component<Props, State> {
       </Button>
     );
 
+    const mimeTypeOptions = FILE_MIME_TYPES.map(item => ({ value: item.value, label: `${item.label} (${item.extension})` }));
+    const mimeTypeDesc = 'Comma-separated list of media types. Leave it blank for accepting all media types';
+
     const content = (
       <ContentBox>
         <CollapseContent title={__("General settings")}>
@@ -113,7 +122,7 @@ class GeneralSettings extends React.Component<Props, State> {
             <ControlLabel>Language</ControlLabel>
             <Select
               options={LANGUAGES}
-              value={this.state.language}
+              value={language}
               onChange={this.onLanguageChange}
               searchable={false}
               clearable={false}
@@ -143,12 +152,34 @@ class GeneralSettings extends React.Component<Props, State> {
 
         <CollapseContent title={__("File upload")}>
           <Info>
-            <a target="_blank" href="https://docs.erxes.io/administrator/file-upload" rel="noopener noreferrer">
+            <a target="_blank" href="https://docs.erxes.io/administrator/system-config#file-upload" rel="noopener noreferrer">
               {__("More: Understanding file upload")}
             </a>
           </Info>
-          {this.renderItem('UPLOAD_FILE_TYPES', 'Comma-separated list of media types. Leave it blank for accepting all media types')}
-          {this.renderItem('WIDGETS_UPLOAD_FILE_TYPES', 'Comma-separated list of media types. Leave it blank for accepting all media types')}
+          <FormGroup>
+            <ControlLabel>{KEY_LABELS.UPLOAD_FILE_TYPES}</ControlLabel>
+            {mimeTypeDesc && <p>{__(mimeTypeDesc)}</p>}
+            <Select
+              value={configsMap.UPLOAD_FILE_TYPES}
+              options={mimeTypeOptions}
+              onChange={this.onChangeMultiCombo.bind(this, 'UPLOAD_FILE_TYPES')}
+              multi={true}
+              delimiter=","
+              simpleValue={true}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{KEY_LABELS.WIDGETS_UPLOAD_FILE_TYPES}</ControlLabel>
+            {mimeTypeDesc && <p>{__(mimeTypeDesc)}</p>}
+            <Select
+              value={configsMap.WIDGETS_UPLOAD_FILE_TYPES}
+              options={mimeTypeOptions}
+              onChange={this.onChangeMultiCombo.bind(this, 'WIDGETS_UPLOAD_FILE_TYPES')}
+              multi={true}
+              delimiter=","
+              simpleValue={true}
+            />
+          </FormGroup>
           <FormGroup>
             <ControlLabel>{KEY_LABELS.UPLOAD_SERVICE_TYPE}</ControlLabel>
             <Select
@@ -177,7 +208,7 @@ class GeneralSettings extends React.Component<Props, State> {
               {__("More: Create or find your Google Cloud Storage bucket")}
             </a>
           </Info>
-          <FormGroup> 
+          <FormGroup>
             <ControlLabel>Google Bucket Name</ControlLabel>
             {this.renderItem('GOOGLE_CLOUD_STORAGE_BUCKET')}
           </FormGroup>
@@ -211,19 +242,19 @@ class GeneralSettings extends React.Component<Props, State> {
         </CollapseContent>
 
         <CollapseContent title="Google">
-            {this.renderItem('GOOGLE_PROJECT_ID')}
-            {this.renderItem('GOOGLE_APPLICATION_CREDENTIALS')}
-            {this.renderItem('GOOGLE_CLIENT_ID')}
-            {this.renderItem('GOOGLE_CLIENT_SECRET')}
+          {this.renderItem('GOOGLE_PROJECT_ID')}
+          {this.renderItem('GOOGLE_APPLICATION_CREDENTIALS')}
+          {this.renderItem('GOOGLE_CLIENT_ID')}
+          {this.renderItem('GOOGLE_CLIENT_SECRET')}
         </CollapseContent>
 
-        <CollapseContent title={__("Common mail config")}>  
+        <CollapseContent title={__("Common mail config")}>
           <Info>
             <a target="_blank" href="https://docs.erxes.io/administrator/environment-variables#email-settings" rel="noopener noreferrer">
               {__("More: Understanding Email Settings")}
             </a>
           </Info>
-        
+
           {this.renderItem('COMPANY_EMAIL_FROM')}
           {this.renderItem('DEFAULT_EMAIL_SERVICE', 'Write your default email service name. Default email service is SES')}
         </CollapseContent>
@@ -237,7 +268,7 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderItem('MAIL_USER')}
           {this.renderItem('MAIL_PASS')}
           {this.renderItem('MAIL_HOST')}
-        </CollapseContent>        
+        </CollapseContent>
       </ContentBox>
     );
 
