@@ -23,7 +23,7 @@ const users = [{
 const siteConfig = {
   title: 'erxes', // Title for your website.
   tagline: 'Documentation',
-  url: 'https://erxes.io', // Your website URL
+  url: 'https://docs.erxes.io/', // Your website URL
   baseUrl: '/', // Base URL for your project */
   editUrl: 'https://github.com/erxes/erxes/edit/develop/docs/docs/',
   cname: 'docs.erxes.io',
