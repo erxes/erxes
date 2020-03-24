@@ -25,6 +25,18 @@ type FinalProps = {
   boardDetailQuery?: BoardDetailQueryResponse;
 } & Props;
 
+const FILTER_PARAMS = [
+  'search',
+  'userIds',
+  'priority',
+  'assignedUserIds',
+  'labelIds',
+  'productIds',
+  'companyIds',
+  'customerIds',
+  'closeDateType',
+];
+
 const generateQueryParams = ({ location }) => {
   return queryString.parse(location.search);
 };
@@ -61,8 +73,10 @@ class Main extends React.Component<FinalProps> {
   isFiltered = (): boolean => {
     const params = generateQueryParams(this.props.history);
 
-    if (Object.keys(params).length > 2) {
-      return true;
+    for (const param in params) {
+      if (FILTER_PARAMS.includes(param)) {
+        return true;
+      }
     }
 
     return false;

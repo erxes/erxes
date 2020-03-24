@@ -15,6 +15,10 @@ const EmailStatistics = asyncComponent(() =>
   import(/* webpackChunkName: "EmailStatistics - Engage" */ './containers/EmailStatistics')
 );
 
+const engageList = history => {
+  return <MessageList history={history} />;
+};
+
 const createForm = ({ location }) => {
   const queryParams = queryString.parse(location.search);
   return <MessageForm kind={queryParams.kind} />;
@@ -35,7 +39,7 @@ const routes = () => {
         key="/engage/home"
         exact={true}
         path="/engage"
-        component={MessageList}
+        component={engageList}
       />
 
       <Route

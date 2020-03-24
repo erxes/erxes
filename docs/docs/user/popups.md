@@ -134,6 +134,6 @@ Turn regular visitors into qualified pop ups by capturing them with a customizab
 Full Preview of Created Pop up in Desktop, Tablet and Mobile. 
 You can use Pop-Ups script to install on your webpage or inside the messenger or both. There are different installation case of Pop-Up form. 
 
-Go to [instruction](https://docs.erxes.io/docs/user/script-install). 
+Go to [instruction](https://docs.erxes.io/user/script-install). 
 
 </aside>
