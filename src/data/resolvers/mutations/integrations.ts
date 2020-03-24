@@ -188,6 +188,7 @@ const integrationMutations = {
         'nylas-yahoo',
         'chatfuel',
         'twitter-dm',
+        'whatsapp',
       ].includes(integration.kind)
     ) {
       await dataSources.IntegrationsAPI.removeIntegration({ integrationId: _id });
