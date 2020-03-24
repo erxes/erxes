@@ -11,7 +11,7 @@ type Props = {
 export default class FormMessage extends React.Component<Props, {}> {
   displayValue(data) {
     if (data.validation === 'date') {
-      return dayjs(data.value).format('YYYY/MM/DD');
+      return dayjs(data.value).format('YYYY/MM/DD HH:mm');
     }
 
     return data.value;

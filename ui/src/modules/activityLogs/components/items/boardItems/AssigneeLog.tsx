@@ -6,6 +6,7 @@ import {
 } from 'modules/activityLogs/styles';
 import { IActivityLog } from 'modules/activityLogs/types';
 import Tip from 'modules/common/components/Tip';
+import { renderUserFullName } from 'modules/common/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -24,7 +25,7 @@ class AssigneeLog extends React.Component<Props> {
       const { content } = createdByDetail;
 
       if (content.details) {
-        userName = createdByDetail.content.details.fullName || 'Unknown';
+        userName = renderUserFullName(createdByDetail.content);
       }
     }
 
@@ -34,7 +35,7 @@ class AssigneeLog extends React.Component<Props> {
       return (
         <Link
           to={`/settings/team/details/${user._id}`}
-          target='_blank'
+          target="_blank"
           key={Math.random()}
         >
           &nbsp;{user.details.fullName || user.email}&nbsp;
@@ -46,7 +47,7 @@ class AssigneeLog extends React.Component<Props> {
       return (
         <Link
           to={`/settings/team/details/${user._id}`}
-          target='_blank'
+          target="_blank"
           key={Math.random()}
         >
           &nbsp;{user.details.fullName || user.email}&nbsp;

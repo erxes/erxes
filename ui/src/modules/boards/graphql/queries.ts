@@ -172,6 +172,18 @@ const archivedStages = `
   }
 `;
 
+const archivedStagesCount = `
+  query archivedStagesCount(
+    $pipelineId: String!,
+    $search: String
+  ) {
+    archivedStagesCount(
+      pipelineId: $pipelineId,
+      search: $search
+    )
+  }
+`;
+
 const stageDetail = `
   query stageDetail(
     $_id: String!,
@@ -202,6 +214,7 @@ const boardCounts = `
 
 export default {
   archivedStages,
+  archivedStagesCount,
   boards,
   boardGetLast,
   boardDetail,

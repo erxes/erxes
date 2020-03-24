@@ -1,7 +1,8 @@
-import * as moment from "moment";
-import * as React from "react";
-import DatePicker from "react-datepicker";
-import { FieldValue, IField, IFieldError } from "../types";
+import * as moment from 'moment';
+import * as React from 'react';
+import DatePicker from 'react-datepicker';
+import uploadHandler from '../../uploadHandler';
+import { FieldValue, IField, IFieldError } from '../types';
 
 type Props = {
   field: IField;
@@ -11,6 +12,7 @@ type Props = {
 
 type State = {
   dateValue: moment.Moment | null;
+  isAttachingFile?: boolean;
 };
 
 export default class Field extends React.Component<Props, State> {
@@ -47,8 +49,8 @@ export default class Field extends React.Component<Props, State> {
           <div key={index}>
             <label>
               {Field.renderInput({
-                type: "checkbox",
-                "data-option": option,
+                type: 'checkbox',
+                'data-option': option,
                 name,
                 onChange
               })}
@@ -70,8 +72,8 @@ export default class Field extends React.Component<Props, State> {
         {options.map((option, index) => (
           <div key={index}>
             {Field.renderInput({
-              type: "radio",
-              "data-option": option,
+              type: 'radio',
+              'data-option': option,
               name,
               onChange
             })}
@@ -100,13 +102,40 @@ export default class Field extends React.Component<Props, State> {
     this.onChange(e.currentTarget.value);
   };
 
+  handleFileInput = (e: React.FormEvent<HTMLInputElement>) => {
+    const files = e.currentTarget.files;
+    const self = this;
+
+    if (files && files.length > 0) {
+      uploadHandler({
+        file: files[0],
+
+        beforeUpload() {
+          self.setState({ isAttachingFile: true });
+        },
+
+        // upload to server
+        afterUpload({ response }: any) {
+          self.setState({ isAttachingFile: false });
+
+          self.onChange(response);
+        },
+
+        onError: message => {
+          alert(message);
+          self.setState({ isAttachingFile: false });
+        }
+      });
+    }
+  };
+
   onDateChange = (momentObj: moment.Moment) => {
     this.setState({ dateValue: momentObj });
     this.onChange(momentObj.toDate());
   };
 
   onRadioButtonsChange = (e: React.FormEvent<HTMLInputElement>) => {
-    this.onChange(e.currentTarget.getAttribute("data-option") || "");
+    this.onChange(e.currentTarget.getAttribute('data-option') || '');
   };
 
   onCheckboxesChange = () => {
@@ -124,7 +153,7 @@ export default class Field extends React.Component<Props, State> {
       }
     }
 
-    this.onChange(values.join(","));
+    this.onChange(values.join(','));
   };
 
   onTextAreaChange = (e: React.FormEvent<HTMLTextAreaElement>) => {
@@ -141,35 +170,43 @@ export default class Field extends React.Component<Props, State> {
         selected={this.state.dateValue}
         onChange={this.onDateChange}
         className="form-control"
-        dateFormat="YYYY/MM/DD"
+        showTimeSelect={true}
+        timeFormat="HH:mm"
+        dateFormat="YYYY/MM/DD HH:mm"
       />
     );
   }
 
   renderControl() {
     const { field } = this.props;
-    const { options = [], validation = "text" } = field;
+    const { options = [], validation = 'text' } = field;
     const name = field._id;
 
-    if (validation === "date") {
+    if (validation === 'date') {
       return this.renderDatepicker();
     }
 
     switch (field.type) {
-      case "select":
+      case 'select':
         return Field.renderSelect(options, { onChange: this.onSelectChange });
 
-      case "check":
+      case 'check':
         return Field.renderCheckboxes(name, options, this.onCheckboxesChange);
 
-      case "radio":
+      case 'radio':
         return Field.renderRadioButtons(
           name,
           options,
           this.onRadioButtonsChange
         );
 
-      case "textarea":
+      case 'file':
+        return Field.renderInput({
+          onChange: this.handleFileInput,
+          type: 'file'
+        });
+
+      case 'textarea':
         return Field.renderTextarea({ onChange: this.onTextAreaChange });
 
       default:
@@ -182,6 +219,7 @@ export default class Field extends React.Component<Props, State> {
 
   render() {
     const { field, error } = this.props;
+    const { isAttachingFile } = this.state;
 
     return (
       <div className="form-group">
@@ -189,11 +227,16 @@ export default class Field extends React.Component<Props, State> {
           {field.text}
           {field.isRequired ? <span className="required">*</span> : null}:
         </label>
+
         <span className="error">{error && error.text}</span>
+
         {field.description ? (
           <span className="description">{field.description}</span>
         ) : null}
+
         {this.renderControl()}
+
+        {isAttachingFile ? <div className="loader" /> : null}
       </div>
     );
   }

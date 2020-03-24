@@ -44,7 +44,7 @@ class WithStages extends React.Component<WithStatesQueryProps, {}> {
   queryParamsChanged = (queryParams, nextProps: Props) => {
     const nextQueryParams = nextProps.queryParams;
 
-    if (nextQueryParams.itemId || queryParams.itemId) {
+    if (nextQueryParams.itemId || (!queryParams.key && queryParams.itemId)) {
       return false;
     }
 
@@ -174,7 +174,8 @@ export default withProps<Props>(
           assignedUserIds: queryParams.assignedUserIds,
           labelIds: queryParams.labelIds,
           extraParams: getExtraParams(queryParams),
-          closeDateType: queryParams.closeDateType
+          closeDateType: queryParams.closeDateType,
+          userIds: queryParams.userIds
         }
       })
     })

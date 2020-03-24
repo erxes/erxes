@@ -589,7 +589,81 @@ bio:”<Bio>”,
 
 <img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/12.+Result+5.png />
 
+### Manipulate your messenger function 
+You able to manipulate your messenger function such change look of a messenger style, position and you can configure that click button to call action. 
+#### Button submit
+Ability to call submit from outside, which means  that listen for callSubmit action from outside (parent website) to force submit action. For example, you can add any button to call action to open your messenger.
 
+```
+ document.getElementById('button').onclick = () => {
+    window.Erxes.showMessenger()
+  }
+```
+#### Messenger position
+
+
+Problem:
+
+As part of the support system inside the web, it is always difficult to fix the position of launcher icon to the bottom, especially on mobile, since it overlaps with other elements, especially bottom navbar.
+Say the launcher icon is loaded on home page on a single page app where games are listed, it is disturbing to show the launcher icon on the gameplay page as well. Since it is attached to the scope of the body, it will remain on other pages as well, since its a single page app.
+
+Solution:
+
+It would be great if a messenger can be launched programmatically like erxes.launch() on some user interaction, "like clicking on request for help button".
+Rather than attaching to document, there should be an option to attach the erxes launcher to a specific element, as it causes the problem in single-page apps since it is not ideal to display the launcher icon in every page.
+
+Now you can follow the below steps to accomplish your needs
+
+1. Uncheck show launcher check to hide default handler
+
+
+2. There is a showErxesMessenger function available on the window object. You can use this function to show messenger programmatically.
+
+`window.showErxesMessenger()`
+
+3. You can manipulate the position of the messenger body like following. 
+
+`#erxes-messenger-container {
+   top: 0px;
+   left: 55%;
+}`
+
+#### CSS style
+Ability to change form css from parent. In some cases, the developer wants to hide form title, button or modify some auto-generated CSS.  
+
+```
+ 
+    <script>
+      window.erxesSettings = {
+        messenger: {
+          brand_id: "5fkS4v",
+          css: `
+            .erxes-form {
+            color: red;
+            }
+
+            .erxes-form .erxes-topbar {
+            display: none;
+            }
+            
+            .erxes-button.btn-block {
+            display: none;
+            }
+        `
+        },
+      };
+      
+    (function() {
+      var script = document.createElement('script');
+      script.src = "https://w.office.erxes.io/build/messengerWidget.bundle.js";
+      script.async = true;
+      var entry = document.getElementsByTagName('script')[0];
+      entry.parentNode.insertBefore(script, entry);
+    })();
+  
+    </script>
+
+```
 
 ## Advanced combination installation
 In the advanced combination installation is described combination of the following features.
@@ -746,7 +820,7 @@ This is the script install instruction of Pop-Ups form with Messenger which cont
 
 1. In this combination, first you need to follow the instruction of (M+P+K). Click to the link and check reference. 
 
-  [**(M + P + K)**](https://docs.erxes.io/docs/user/script-install#web-messenger--pop-ups--knowledgebase-mpk)
+  [**(M + P + K)**](https://docs.erxes.io/user/script-install#web-messenger--pop-ups--knowledgebase-mpk)
 
 2. Go to Pop-Ups menu from left sidebar (see the below figure).
 3. Click on the install code button from the right side (see the below figure). 
@@ -788,7 +862,7 @@ This is the script install instruction of Knowledgebase form with Messenger whic
 
 1. In this combination, first you need to follow the instruction of  (M+P+K). Click to the link and check reference. 
 
-  [**(M + P + K)**](https://docs.erxes.io/docs/user/script-install#web-messenger--pop-ups--knowledgebase-mpk)
+  [**(M + P + K)**](https://docs.erxes.io/user/script-install#web-messenger--pop-ups--knowledgebase-mpk)
 
 2. Go to Knowledge Base menu from left sidebar (see the below figure). 
  
@@ -826,7 +900,7 @@ This is the script install instruction of Pop-Ups, Knowledgebase form with Messe
 
 1. In this combination, first you need to follow the instruction of  (M+P+K). Click to the link and check reference. 
 
-  [**(M + P + K)**](https://docs.erxes.io/docs/user/script-install#web-messenger--pop-ups--knowledgebase-mpk)
+  [**(M + P + K)**](https://docs.erxes.io/user/script-install#web-messenger--pop-ups--knowledgebase-mpk)
 
 2. Go to Pop-Ups menu from left sidebar (see the below figure).
 3. Click on the install code button from the right side (see the below figure). 
@@ -1172,7 +1246,7 @@ This is the install instruction of messenger based popup and knowledgebase combi
 
 1. In this combination, first you need to follow the instruction of (M+P+K). Click to the link and check reference. 
 
-  [**(M + P + K)**](https://docs.erxes.io/docs/user/script-install#web-messenger--pop-ups--knowledgebase-mpk-1)
+  [**(M + P + K)**](https://docs.erxes.io/user/script-install#web-messenger--pop-ups--knowledgebase-mpk-1)
 
 2. Go to Pop-Ups menu from left sidebar (see the below figure).
 3. Click on the install code button from the right side (see the below figure). 
@@ -1243,7 +1317,7 @@ This is the install instruction of messenger based popup and knowledgebase combi
 
 1. In this combination, first you need to follow the instruction of  (M+P+K). Click to the link and check reference. 
 
-  [**(M + P + K)**](https://docs.erxes.io/docs/user/script-install#web-messenger--pop-ups--knowledgebase-mpk-1)
+  [**(M + P + K)**](https://docs.erxes.io/user/script-install#web-messenger--pop-ups--knowledgebase-mpk-1)
 
 2. Go to Knowledge Base menu from left sidebar (see the below figure). 
  
@@ -1297,7 +1371,7 @@ This is the install instruction of messenger based popup and knowledgebase combi
 
 1. In this combination, first you need to follow the instruction of  (M+P+K). Click to the link and check reference. 
 
-  [**(M + P + K)**](https://docs.erxes.io/docs/user/script-install#web-messenger--pop-ups--knowledgebase-mpk-1)
+  [**(M + P + K)**](https://docs.erxes.io/user/script-install#web-messenger--pop-ups--knowledgebase-mpk-1)
 
 2. Go to Pop-Ups menu from left sidebar (see the below figure).
 3. Click on the install code button from the right side (see the below figure). 
@@ -1415,14 +1489,14 @@ This is the script install instruction of Messenger contains Pop-Ups form or Mes
 
 1. Go to Advanced combination installation => Web messenger + Pop-Ups (or Knowledgebase).
 
-[**Advanced combination installation**](https://docs.erxes.io/docs/user/script-install#web-messenger--pop-ups-or-knowledgebase)
+[**Advanced combination installation**](https://docs.erxes.io/user/script-install#web-messenger--pop-ups-or-knowledgebase)
 
 2. Then follow steps number from 1 to 6 of the instruction for Web messenger + Pop-Ups (or Knowledgebase).
 
 #### Step 2: Copy script and paste the code
 3. After that, follow the instruction of Erxes script manager => Web messenger. The messenger, you have to select which you created messenger. 
 
-[**Erxes script installation**](https://docs.erxes.io/docs/user/script-install#web-messenger-2)
+[**Erxes script installation**](https://docs.erxes.io/user/script-install#web-messenger-2)
 
 #### Step 3: Result
 
@@ -1444,7 +1518,7 @@ This is the install instruction of messenger based popup and knowledgebase combi
 
 1. Go to Advanced combination installation => Web messenger + Pop-Ups + Knowledgebase.
 
-[**Advanced combination installation**](https://docs.erxes.io/docs/user/script-install#web-messenger--pop-ups--knowledgebase-mpk)
+[**Advanced combination installation**](https://docs.erxes.io/user/script-install#web-messenger--pop-ups--knowledgebase-mpk)
 
 2. Then follow steps number from 1 to 9 of the instruction for Web messenger + Pop-Ups + Knowledgebase.
 
@@ -1452,7 +1526,7 @@ This is the install instruction of messenger based popup and knowledgebase combi
 
 3. After that, follow the instruction of Erxes script manager => Web messenger. The messenger, you have to select which you created messenger. 
 
-[**Erxes script installation**](https://docs.erxes.io/docs/user/script-install#web-messenger-2)
+[**Erxes script installation**](https://docs.erxes.io/user/script-install#web-messenger-2)
 
 #### Step 3: Result
 
@@ -1466,7 +1540,7 @@ This is the install instruction of messenger based popup and knowledgebase combi
 
 1. In this combination, first you need to follow the Erxes script instruction of (M+P+K). Click to the link and check reference. 
 
-  [**Erxes Script (M + P + K)**](https://docs.erxes.io/docs/user/script-install#web-messenger--pop-ups--knowledgebase-mpk-2)
+  [**Erxes Script (M + P + K)**](https://docs.erxes.io/user/script-install#web-messenger--pop-ups--knowledgebase-mpk-2)
 
 2. Go to Settings menu => Script manager (see the below figure).
 
@@ -1522,7 +1596,7 @@ This is the install instruction of messenger based popup and knowledgebase combi
 
 1. In this combination, first you need to follow the Erxes script instruction of (M+P+K). Click to the link and check reference. 
 
-  [**Erxes Script (M + P + K)**](https://docs.erxes.io/docs/user/script-install#web-messenger--pop-ups--knowledgebase-mpk-2)
+  [**Erxes Script (M + P + K)**](https://docs.erxes.io/user/script-install#web-messenger--pop-ups--knowledgebase-mpk-2)
 
 2. Go to Settings menu => Script manager (see the below figure).
 

@@ -11,7 +11,11 @@ import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router';
 import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from '../constants';
 import { queries } from '../graphql';
-import { BoardDetailQueryResponse, BoardsGetLastQueryResponse, BoardsQueryResponse } from '../types';
+import {
+  BoardDetailQueryResponse,
+  BoardsGetLastQueryResponse,
+  BoardsQueryResponse
+} from '../types';
 
 type Props = {
   type: string;
@@ -24,6 +28,18 @@ type FinalProps = {
   boardGetLastQuery?: BoardsGetLastQueryResponse;
   boardDetailQuery?: BoardDetailQueryResponse;
 } & Props;
+
+const FILTER_PARAMS = [
+  'search',
+  'userIds',
+  'priority',
+  'assignedUserIds',
+  'labelIds',
+  'productIds',
+  'companyIds',
+  'customerIds',
+  'closeDateType'
+];
 
 const generateQueryParams = ({ location }) => {
   return queryString.parse(location.search);
@@ -44,25 +60,27 @@ class Main extends React.Component<FinalProps> {
     if (!search) {
       return routerUtils.removeParams(this.props.history, 'search');
     }
-    
+
     routerUtils.setParams(this.props.history, { search });
   };
 
   onSelect = (values: string[] | string, name: string) => {
     const params = generateQueryParams(this.props.history);
 
-    if(params.closeDateType === values) {
+    if (params.closeDateType === values) {
       return routerUtils.removeParams(this.props.history, name);
-    } 
-    
+    }
+
     return routerUtils.setParams(this.props.history, { [name]: values });
   };
 
   isFiltered = (): boolean => {
     const params = generateQueryParams(this.props.history);
 
-    if (Object.keys(params).length > 2) {
-      return true;
+    for (const param in params) {
+      if (FILTER_PARAMS.includes(param)) {
+        return true;
+      }
     }
 
     return false;

@@ -1,19 +1,5 @@
 {
   "name": "erxes",
-  "version": "0.12.0",
-  "description": "erxes is an AI meets open source messaging platform for sales and marketing teams.",
-  "homepage": "https://erxes.io",
-  "repository": "https://github.com/erxes/erxes",
-  "bugs": "https://github.com/erxes/erxes/issues",
-  "keywords": [
-    "node",
-    "graphql",
-    "apollo",
-    "mongodb",
-    "react",
-    "create-react-app"
-  ],
-  "license": "MIT",
   "private": true,
   "dependencies": {
     "@daily-co/daily-js": "^0.9.97",
@@ -86,11 +72,6 @@
       ]
     }
   },
-  "collective": {
-    "type": "opencollective",
-    "url": "https://opencollective.com/erxes",
-    "logo": "https://opencollective.com/opencollective/logo.txt"
-  },
   "scripts": {
     "format": "prettier --single-quote --write 'src/**/*.@(ts|tsx)'",
     "precommit": "lint-staged",
@@ -100,15 +81,12 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "lint": "tslint 'src/**/*.@(ts|tsx)'",
-    "postinstall": "opencollective postinstall",
     "generateVersion": "node commands/generateVersion.js",
-    "release": "release-it",
     "componentTest": "jest --runInBand --forceExit --detectOpenHandles --coverage",
     "snyk-protect": "snyk protect",
     "prepare": "yarn run snyk-protect"
   },
   "devDependencies": {
-    "@release-it/conventional-changelog": "^1.1.0",
     "@types/draft-js": "^0.10.24",
     "@types/enzyme": "^3.1.12",
     "@types/enzyme-adapter-react-16": "^1.0.2",
@@ -125,7 +103,6 @@
     "git-repo-info": "^2.1.0",
     "husky": "^0.14.3",
     "lint-staged": "^4.3.0",
-    "opencollective": "^1.0.3",
     "prettier": "^1.8.2",
     "react-scripts": "^3.0.1",
     "react-test-renderer": "^16.3.2",

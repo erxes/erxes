@@ -25,7 +25,7 @@ class CallPro extends React.Component<Props, { loading: boolean }> {
   generateDoc = (values: {
     name: string;
     phoneNumber: string;
-    tenant: string;
+    recordUrl: string;
     brandId: string;
   }) => {
     return {
@@ -33,7 +33,7 @@ class CallPro extends React.Component<Props, { loading: boolean }> {
       brandId: values.brandId,
       kind: 'callpro',
       data: {
-        tenant: values.tenant,
+        recordUrl: values.recordUrl,
         phoneNumber: values.phoneNumber
       }
     };
@@ -48,22 +48,22 @@ class CallPro extends React.Component<Props, { loading: boolean }> {
         {this.state.loading && <Spinner />}
         <FormGroup>
           <ControlLabel required={true}>Name</ControlLabel>
-          <FormControl {...formProps} name='name' required={true} />
+          <FormControl {...formProps} name="name" required={true} />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel required={true}>Phone number</ControlLabel>
           <FormControl
             {...formProps}
-            type='number'
-            name='phoneNumber'
+            type="number"
+            name="phoneNumber"
             required={true}
           />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Tenant</ControlLabel>
-          <FormControl {...formProps} type='text' name='tenant' />
+          <ControlLabel>Record url</ControlLabel>
+          <FormControl {...formProps} type="text" name="recordUrl" />
         </FormGroup>
 
         <SelectBrand isRequired={true} formProps={formProps} />

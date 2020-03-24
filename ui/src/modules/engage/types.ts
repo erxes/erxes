@@ -84,6 +84,8 @@ export interface IEngageMessage extends IEngageMessageDoc {
   fromUser: IUser;
   tagIds: string[];
   getTags: ITag[];
+  totalCustomersCount?: number;
+  validCustomersCount?: number;
 
   stats?: IEngageStats;
   logs?: Array<{ message: string }>;
@@ -219,26 +221,8 @@ export type IEmailFormProps = {
   scheduleDate: IEngageScheduleDate;
 };
 
-export interface IEngageConfig {
-  accessKeyId: string;
-  secretAccessKey: string;
-  region: string;
-}
-
 export type EngageConfigQueryResponse = {
-  engagesConfigDetail: IEngageConfig;
+  engagesConfigDetail: Array<{ code: string; value: string }>;
   loading: boolean;
   refetch: () => void;
-};
-
-export type EngagesConfigSaveMutationResponse = {
-  engagesConfigSave: (
-    params: {
-      variables: {
-        accessKeyId: string;
-        secretAccessKey: string;
-        region: string;
-      };
-    }
-  ) => Promise<any>;
 };

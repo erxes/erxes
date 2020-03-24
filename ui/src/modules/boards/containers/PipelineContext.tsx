@@ -9,6 +9,7 @@ import {
   IFilterParams,
   IItem,
   IItemMap,
+  INonFilterParams,
   IOptions,
   IPipeline
 } from '../types';
@@ -19,7 +20,7 @@ type Props = {
   pipeline: IPipeline;
   initialItemMap?: IItemMap;
   options: IOptions;
-  queryParams: IFilterParams;
+  queryParams: IFilterParams & INonFilterParams;
   queryParamsChanged: (queryParams: IFilterParams, args: any) => boolean;
 };
 
@@ -163,8 +164,12 @@ export class PipelineProvider extends React.Component<Props, State> {
       destination
     });
 
+    // to avoid to refetch current tab
+    sessionStorage.setItem('currentTab', 'true');
+
     // update item to database
-    this.itemChange(result.draggableId, destination.droppableId);
+    const itemId = result.draggableId.split('-')[0];
+    this.itemChange(itemId, destination.droppableId);
 
     this.setState({
       itemMap
@@ -234,7 +239,8 @@ export class PipelineProvider extends React.Component<Props, State> {
                 companyIds: queryParams.companyIds,
                 assignedUserIds: queryParams.assignedUserIds,
                 extraParams: options.getExtraParams(queryParams),
-                closeDateType: queryParams.closeDateType
+                closeDateType: queryParams.closeDateType,
+                userIds: queryParams.userIds
               }
             }
           ]

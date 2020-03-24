@@ -7,21 +7,16 @@ import {
   getDefaultKeyBinding,
   Modifier
 } from 'draft-js';
-import highlighter from 'fuzzysearch-highlight';
+
 import {
   createStateFromHTML,
   ErxesEditor,
   toHTML
 } from 'modules/common/components/editor/Editor';
 import React from 'react';
-import strip from 'strip';
-import xss from 'xss';
 
-import {
-  ResponseSuggestionItem,
-  ResponseSuggestions
-} from 'modules/inbox/styles';
-import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
+import { IResponseTemplate } from 'modules/settings/responseTemplates/types';
+import TemplateList from './TemplateList';
 
 type EditorProps = {
   currentConversation: string;
@@ -43,15 +38,6 @@ type State = {
   collectedMentions: any;
   suggestions: any;
   templatesState: any;
-};
-
-type TemplateListProps = {
-  suggestionsState: {
-    selectedIndex: number;
-    searchText: string;
-    templates: IResponseTemplate[];
-  };
-  onSelect: (index: number) => void;
 };
 
 const MentionEntry = props => {
@@ -92,69 +78,6 @@ const extractEntries = mention => {
   );
 };
 
-// response templates
-class TemplateList extends React.Component<TemplateListProps, {}> {
-  normalizeIndex(selectedIndex: number, max: number) {
-    let index = selectedIndex % max;
-
-    if (index < 0) {
-      index += max;
-    }
-
-    return index;
-  }
-
-  render() {
-    const { suggestionsState, onSelect } = this.props;
-
-    const { selectedIndex, searchText, templates } = suggestionsState;
-
-    if (!templates) {
-      return null;
-    }
-
-    const normalizedIndex = this.normalizeIndex(
-      selectedIndex,
-      templates.length
-    );
-
-    return (
-      <ResponseSuggestions>
-        {templates.map((template, index) => {
-          const style: any = {};
-
-          if (normalizedIndex === index) {
-            style.backgroundColor = '#5629B6';
-            style.color = '#ffffff';
-          }
-
-          const onClick = () => onSelect(index);
-
-          return (
-            <ResponseSuggestionItem
-              key={template._id}
-              onClick={onClick}
-              style={style}
-            >
-              <span
-                style={{ fontWeight: 'bold' }}
-                dangerouslySetInnerHTML={{
-                  __html: xss(highlighter(searchText, template.name))
-                }}
-              />{' '}
-              <span
-                dangerouslySetInnerHTML={{
-                  __html: xss(highlighter(searchText, strip(template.content)))
-                }}
-              />
-            </ResponseSuggestionItem>
-          );
-        }, this)}
-      </ResponseSuggestions>
-    );
-  }
-}
-
 export default class Editor extends React.Component<EditorProps, State> {
   private mentionPlugin;
 
@@ -177,8 +100,18 @@ export default class Editor extends React.Component<EditorProps, State> {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.responseTemplate !== this.props.responseTemplate) {  
-      this.changeEditorContent(nextProps.responseTemplate);
+    if (nextProps.responseTemplate !== this.props.responseTemplate) {
+      const editorState = createStateFromHTML(
+        this.state.editorState,
+        nextProps.responseTemplate
+      );
+
+      // calling onChange, because draftjs's onChange is not trigerring after
+      // this setState
+      this.props.onChange(this.getContent(editorState));
+
+      // set editor state from response template
+      this.setState({ editorState });
     }
 
     // check switch conversation and fill default content
@@ -242,10 +175,7 @@ export default class Editor extends React.Component<EditorProps, State> {
   };
 
   changeEditorContent = (content: string) => {
-    let editorState = createStateFromHTML(
-      EditorState.createEmpty(),
-      content
-    );
+    let editorState = createStateFromHTML(this.state.editorState, content);
 
     const selection = EditorState.moveSelectionToEnd(
       editorState
@@ -260,13 +190,13 @@ export default class Editor extends React.Component<EditorProps, State> {
       selection,
       ' '
     );
-    
+
     const es = EditorState.push(editorState, contentState, 'insert-characters');
 
     editorState = EditorState.moveFocusToEnd(es);
 
     return this.setState({ editorState, templatesState: null });
-  }
+  };
 
   onSelectTemplate = (index?: number) => {
     const { templatesState } = this.state;

@@ -1,12 +1,9 @@
 import gql from "graphql-tag";
 import client, { wsLink } from "../apollo-client";
+import { getLocalStorageItem, setLocalStorageItem } from "../common";
 import { setLocale } from "../utils";
 import widgetConnect from "../widgetConnect";
-import {
-  connection,
-  getLocalStorageItem,
-  setLocalStorageItem
-} from "./connection";
+import { connection } from "./connection";
 import { App } from "./containers";
 import graphqTypes from "./graphql";
 import "./sass/style.scss";

@@ -39,9 +39,10 @@
   "No articles found": "Бичвэр олдсонгүй",
   "Search": "Хайх",
   "End conversation": "Харилцан яриа дуусгах",
-  "You are invited to a video chat": "Таныг видео дуудлагад урьсан байна",
+  "You are invited to a video chat": "Таныг видео дуудлаганд урьсан байна",
   "Join a call": "Дуудлага руу орох",
   "or click": "эсвэл",
   "this link": "энэ дээр дарж",
-  "to open a new tab": "шинэ цонхонд нээнэ үү"
+  "to open a new tab": "шинэ цонхонд нээнэ үү",
+  "Video call request sent": "Видео дуудлагийн хүсэлт илгээгдсэн"
 }

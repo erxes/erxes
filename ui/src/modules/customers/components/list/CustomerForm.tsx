@@ -182,11 +182,11 @@ class CustomerForm extends React.Component<Props, State> {
     const { emails = [] } = customer;
 
     return this.getVisitorInfo(customer, 'email') || emails.length > 0;
-  }
+  };
 
   renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton } = this.props;
-    const { values, isSubmitted } = formProps;
+    const { values, isSubmitted, resetSubmit } = formProps;
 
     const customer = this.props.customer || ({} as ICustomer);
     const { links = {}, primaryEmail, primaryPhone } = customer;
@@ -245,13 +245,12 @@ class CustomerForm extends React.Component<Props, State> {
                 </DateContainer>
               </FormGroup>
 
-              
               {this.renderFormGroup('Position', {
                 ...formProps,
                 name: 'position',
                 defaultValue: customer.position || ''
               })}
-  
+
               {this.renderFormGroup('Pop Ups Status', {
                 ...formProps,
                 name: 'leadStatus',
@@ -424,7 +423,8 @@ class CustomerForm extends React.Component<Props, State> {
             name: 'customer',
             values: this.generateDoc(values),
             isSubmitted,
-            object: this.props.customer
+            object: this.props.customer,
+            resetSubmit
           })}
 
           {!this.props.customer && (

@@ -31,7 +31,7 @@ const CompanyFromContainer = (props: FinalProps) => {
       closeModal();
 
       if (getAssociatedCompany) {
-        getAssociatedCompany(data.companiesAdd._id);
+        getAssociatedCompany(data.companiesAdd);
       }
     };
 

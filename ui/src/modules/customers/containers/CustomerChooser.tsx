@@ -25,15 +25,19 @@ type FinalProps = {
   AddMutationResponse;
 class CustomerChooser extends React.Component<
   WrapperProps & FinalProps,
-  { newCustomerId?: string }
+  { newCustomer?: ICustomer }
 > {
   constructor(props) {
     super(props);
 
     this.state = {
-      newCustomerId: undefined
+      newCustomer: undefined
     };
   }
+
+  resetAssociatedItem = () => {
+    return this.setState({ newCustomer: undefined });
+  };
 
   render() {
     const { data, customersQuery, customersAdd, search } = this.props;
@@ -55,8 +59,8 @@ class CustomerChooser extends React.Component<
         });
     };
 
-    const getAssociatedCustomer = (newCustomerId: string) => {
-      this.setState({ newCustomerId });
+    const getAssociatedCustomer = (newCustomer: ICustomer) => {
+      this.setState({ newCustomer });
     };
 
     const updatedProps = {
@@ -80,7 +84,8 @@ class CustomerChooser extends React.Component<
         />
       ),
       add: addCustomer,
-      newItemId: this.state.newCustomerId,
+      newItem: this.state.newCustomer,
+      resetAssociatedItem: this.resetAssociatedItem,
       datas: customersQuery.customers || [],
       refetchQuery: queries.customers
     };
@@ -116,7 +121,12 @@ const WithQuery = withProps<Props>(
     graphql<Props, AddMutationResponse, ICustomerDoc>(
       gql(mutations.customersAdd),
       {
-        name: 'customersAdd'
+        name: 'customersAdd',
+        options: () => {
+          return {
+            refetchQueries: ['customersMain', 'customers', 'customerCounts']
+          };
+        }
       }
     )
   )(CustomerChooser)

@@ -4,6 +4,8 @@ import FormControl from 'modules/common/components/form/Control';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
+import { ICompany } from 'modules/companies/types';
+import { ICustomer } from 'modules/customers/types';
 import React from 'react';
 import { ActionTop, Column, Columns, Footer, Title } from '../styles/chooser';
 import { CenterContent, ModalFooter } from '../styles/main';
@@ -19,7 +21,8 @@ export type CommonProps = {
   clearState: () => void;
   limit?: number;
   add?: any;
-  newItemId?: string;
+  newItem?: string | ICompany | ICustomer;
+  resetAssociatedItem?: () => void;
   closeModal: () => void;
 };
 
@@ -59,14 +62,18 @@ class CommonChooser extends React.Component<Props, State> {
   }
 
   componentWillReceiveProps(newProps) {
-    const { datas, perPage, newItemId } = newProps;
+    const { datas, perPage, newItem } = newProps;
 
     this.setState({ loadmore: datas.length === perPage && datas.length > 0 });
 
-    if (newItemId) {
-      const items = datas.filter(item => item._id === newItemId);
+    const { resetAssociatedItem } = this.props;
 
-      items.map(data => this.setState({ datas: [...this.state.datas, data] }));
+    if (newItem) {
+      this.setState({ datas: [...this.state.datas, newItem] }, () => {
+        if (resetAssociatedItem) {
+          resetAssociatedItem();
+        }
+      });
     }
   }
 

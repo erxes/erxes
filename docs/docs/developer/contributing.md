@@ -3,9 +3,9 @@ id: contributing
 title: Contributing
 ---
 
-## Contributing to erxes
+## Contributing to Erxes
 
-We would love for you to contribute to erxes and help make it even better than it is today! As a contributor, here are the guidelines we would like you to follow:
+We would love for you to contribute to Erxes and help make it even better than it is today! As a contributor, here are the guidelines we would like you to follow:
 
 * [Issues and Bugs](#found-a-bug)
 * [Feature Requests](#missing-a-feature)

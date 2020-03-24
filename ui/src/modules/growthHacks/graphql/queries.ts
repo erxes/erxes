@@ -4,6 +4,7 @@ const commonParams = `
   $closeDateType: String,
   $search: String,
   $labelIds: [String],
+  $userIds: [String],
 `;
 
 const commonParamDefs = `
@@ -12,6 +13,7 @@ const commonParamDefs = `
   closeDateType: $closeDateType,
   search: $search,
   labelIds: $labelIds,
+  userIds: $userIds,
 `;
 
 export const growthHackFields = `
@@ -210,6 +212,20 @@ const archivedGrowthHacks = `
   }
 `;
 
+const archivedGrowthHacksCount = `
+  query archivedGrowthHacksCount(
+    $pipelineId: String!,
+    $search: String
+  ) {
+    archivedGrowthHacksCount(
+      pipelineId: $pipelineId,
+      search: $search
+    ) {
+      ${growthHackFields}
+    }
+  }
+`;
+
 export default {
   growthHacks,
   growthHacksPriorityMatrix,
@@ -217,5 +233,6 @@ export default {
   growthHacksTotalCount,
   pipelineDetail,
   pipelineStateCount,
-  archivedGrowthHacks
+  archivedGrowthHacks,
+  archivedGrowthHacksCount
 };

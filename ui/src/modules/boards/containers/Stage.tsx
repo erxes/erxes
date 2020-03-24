@@ -117,7 +117,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
           Alert.error(e.message);
         });
     });
-  }
+  };
 
   archiveList = () => {
     const { stage, refetchStages, options } = this.props;
@@ -195,6 +195,7 @@ const getFilterParams = (
     assignedUserIds: queryParams.assignedUserIds,
     closeDateType: queryParams.closeDateType,
     labelIds: queryParams.labelIds,
+    userIds: queryParams.userIds,
     ...getExtraParams(queryParams)
   };
 };

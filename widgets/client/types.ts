@@ -1,4 +1,4 @@
-import { ICallout } from "./form/types";
+import { ICallout } from './form/types';
 
 export type ENV = {
   API_URL: string;
@@ -133,6 +133,7 @@ export interface IIntegrationUiOptions {
   color: string;
   wallpaper: string;
   logo: string;
+  videoCallUsageStatus: boolean;
 }
 
 export interface IIntegration {

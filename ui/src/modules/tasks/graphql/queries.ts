@@ -1,5 +1,8 @@
 import { commonFields } from 'modules/boards/graphql/mutations';
-import { conformityQueryFieldDefs, conformityQueryFields } from 'modules/conformity/graphql/queries';
+import {
+  conformityQueryFieldDefs,
+  conformityQueryFields
+} from 'modules/conformity/graphql/queries';
 
 const commonParams = `
   $companyIds: [String],
@@ -10,6 +13,7 @@ const commonParams = `
   $labelIds: [String],
   $sortField: String,
   $sortDirection: Int,
+  $userIds: [String],
   ${conformityQueryFields}
 `;
 
@@ -22,6 +26,7 @@ const commonParamDefs = `
   labelIds: $labelIds,
   sortField: $sortField,
   sortDirection: $sortDirection,
+  userIds: $userIds,
   ${conformityQueryFieldDefs}
 `;
 
@@ -73,8 +78,15 @@ const archivedTasks = `
   }
 `;
 
+const archivedTasksCount = `
+  query archivedTasksCount($pipelineId: String!, $search: String) {
+    archivedTasksCount(pipelineId: $pipelineId, search: $search)
+  }
+`;
+
 export default {
   tasks,
   taskDetail,
-  archivedTasks
+  archivedTasks,
+  archivedTasksCount
 };

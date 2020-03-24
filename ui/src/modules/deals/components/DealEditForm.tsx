@@ -3,7 +3,7 @@ import Left from 'modules/boards/components/editForm/Left';
 import Sidebar from 'modules/boards/components/editForm/Sidebar';
 import Top from 'modules/boards/components/editForm/Top';
 import { FlexContent, HeaderContentSmall } from 'modules/boards/styles/item';
-import { IEditFormContent, IOptions } from 'modules/boards/types';
+import { IEditFormContent, IItem, IOptions } from 'modules/boards/types';
 import ControlLabel from 'modules/common/components/form/Label';
 import ProductSection from 'modules/deals/components/ProductSection';
 import { IProduct } from 'modules/settings/productService/types';
@@ -20,7 +20,7 @@ type Props = {
   copyItem: (itemId: string, callback: () => void) => void;
   onUpdate: (item, prevStageId?: string) => void;
   removeItem: (itemId: string, callback: () => void) => void;
-  beforePopupClose: () => void;
+  beforePopupClose: (afterPopupClose?: () => void) => void;
   sendToBoard?: (item: any) => void;
 };
 
@@ -30,6 +30,7 @@ type State = {
   productsData: any;
   paymentsData: IPaymentsData;
   changePayData: IPaymentsData;
+  updatedItem?: IItem;
 };
 
 export default class DealEditForm extends React.Component<Props, State> {
@@ -72,11 +73,10 @@ export default class DealEditForm extends React.Component<Props, State> {
   };
 
   saveProductsData = () => {
-    const { productsData } = this.state;
+    const { productsData, paymentsData } = this.state;
     const { saveItem } = this.props;
     const products: IProduct[] = [];
     const amount: any = {};
-
     const filteredProductsData: any = [];
 
     productsData.forEach(data => {
@@ -90,29 +90,12 @@ export default class DealEditForm extends React.Component<Props, State> {
             amount[data.currency] += data.amount || 0;
           }
         }
-
         // collecting data for ItemCounter component
         products.push(data.product);
-
         data.productId = data.product._id;
-
         filteredProductsData.push(data);
       }
     });
-
-    this.setState(
-      { productsData: filteredProductsData, products, amount },
-      () => {
-        saveItem({ productsData: this.state.productsData }, updatedItem => {
-          this.props.onUpdate(updatedItem);
-        });
-      }
-    );
-  };
-
-  savePaymentsData = () => {
-    const { paymentsData } = this.state;
-    const { saveItem } = this.props;
 
     Object.keys(paymentsData || {}).forEach(key => {
       const perData = paymentsData[key];
@@ -122,11 +105,31 @@ export default class DealEditForm extends React.Component<Props, State> {
       }
     });
 
-    this.setState({ paymentsData }, () => {
-      saveItem({ paymentsData: this.state.paymentsData }, updatedItem => {
-        this.props.onUpdate(updatedItem);
+    this.setState(
+      { productsData: filteredProductsData, products, amount, paymentsData },
+      () => {
+        saveItem({ productsData, paymentsData }, updatedItem => {
+          this.setState({ updatedItem });
+        });
+      }
+    );
+  };
+
+  beforePopupClose = (afterPopupClose?: () => void) => {
+    const { updatedItem } = this.state;
+    const { onUpdate, beforePopupClose } = this.props;
+
+    if (beforePopupClose) {
+      beforePopupClose(() => {
+        if (updatedItem && onUpdate) {
+          onUpdate(updatedItem);
+        }
+
+        if (afterPopupClose) {
+          afterPopupClose();
+        }
       });
-    });
+    }
   };
 
   renderProductSection = () => {
@@ -146,7 +149,6 @@ export default class DealEditForm extends React.Component<Props, State> {
         paymentsData={paymentsData}
         products={products}
         saveProductsData={this.saveProductsData}
-        savePaymentsData={this.savePaymentsData}
       />
     );
   };
@@ -208,7 +210,8 @@ export default class DealEditForm extends React.Component<Props, State> {
       ...this.props,
       amount: this.renderAmount,
       sidebar: this.renderProductSection,
-      formContent: this.renderFormContent
+      formContent: this.renderFormContent,
+      beforePopupClose: this.beforePopupClose
     };
 
     return <EditForm {...extendedProps} />;
