@@ -161,6 +161,9 @@ describe('Test permissions mutations', () => {
   });
 
   test('Update group', async () => {
+    await userFactory({ groupIds: [_group._id] });
+    await userFactory({ groupIds: [_group._id] });
+
     const user1 = await userFactory({});
     const user2 = await userFactory({});
 
@@ -200,6 +203,9 @@ describe('Test permissions mutations', () => {
         usersGroupsRemove(_id: $_id)
       }
     `;
+
+    await userFactory({ groupIds: [_group._id] });
+    await userFactory({ groupIds: [_group._id] });
 
     await graphqlRequest(mutation, 'usersGroupsRemove', { _id: _group._id }, context);
 
