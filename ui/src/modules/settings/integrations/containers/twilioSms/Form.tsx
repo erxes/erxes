@@ -1,9 +1,9 @@
-import ButtonMutate from "modules/common/components/ButtonMutate";
-import { IButtonMutateProps, IRouterProps } from "modules/common/types";
-import Whatsapp from "modules/settings/integrations/components/whatsapp/Whatsapp";
-import { mutations } from "modules/settings/integrations/graphql";
-import React from "react";
-import { withRouter } from "react-router";
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
+import { mutations } from 'modules/settings/integrations/graphql';
+import React from 'react';
+import { withRouter } from 'react-router';
+import TwilioSms from '../../components/twilioSms/TwilioSms';
 
 type Props = {
   type?: string;
@@ -12,7 +12,7 @@ type Props = {
 
 type FinalProps = {} & IRouterProps & Props;
 
-class WhatsappContainer extends React.Component<FinalProps> {
+class TwilioContainer extends React.Component<FinalProps> {
   renderButton = ({
     name,
     values,
@@ -39,8 +39,8 @@ class WhatsappContainer extends React.Component<FinalProps> {
       renderButton: this.renderButton
     };
 
-    return <Whatsapp {...updatedProps} />;
+    return <TwilioSms {...updatedProps} />;
   }
 }
 
-export default withRouter<FinalProps>(WhatsappContainer);
+export default withRouter<FinalProps>(TwilioContainer);

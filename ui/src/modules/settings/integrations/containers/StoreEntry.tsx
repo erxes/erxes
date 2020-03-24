@@ -1,12 +1,12 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import Spinner from "modules/common/components/Spinner";
-import Entry from "modules/settings/integrations/components/store/Entry";
-import { queries } from "modules/settings/integrations/graphql";
-import React from "react";
-import { graphql } from "react-apollo";
-import { withProps } from "../../../common/utils";
-import { MessengerAppsCountQueryResponse } from "../types";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import Spinner from 'modules/common/components/Spinner';
+import Entry from 'modules/settings/integrations/components/store/Entry';
+import { queries } from 'modules/settings/integrations/graphql';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withProps } from '../../../common/utils';
+import { MessengerAppsCountQueryResponse } from '../types';
 
 type Props = {
   integration: any;
@@ -25,10 +25,10 @@ type Props = {
     office365: number;
     outlook: number;
     yahoo: number;
-    whatsapp: number;
     telegram: number;
     viber: number;
     line: number;
+    twilio: number;
   };
 };
 
@@ -56,11 +56,11 @@ const StoreEntry = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.messengerAppsCount), {
-      name: "messengerAppsCountQuery",
+      name: 'messengerAppsCountQuery',
       options: ({ kind }) => {
         return {
           variables: { kind },
-          fetchPolicy: "network-only"
+          fetchPolicy: 'network-only'
         };
       }
     })

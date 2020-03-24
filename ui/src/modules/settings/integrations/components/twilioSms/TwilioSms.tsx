@@ -13,7 +13,7 @@ type Props = {
   closeModal: () => void;
 };
 
-class Whatsapp extends React.Component<Props, { loading: boolean }> {
+class TwilioSms extends React.Component<Props, { loading: boolean }> {
   constructor(props: Props) {
     super(props);
 
@@ -24,17 +24,20 @@ class Whatsapp extends React.Component<Props, { loading: boolean }> {
 
   generateDoc = (values: {
     name: string;
-    instanceId: string;
-    token: string;
+    accountSid: string;
+    authToken: string;
+    phoneNumberSid: string;
     brandId: string;
   }) => {
     return {
       name: values.name,
       brandId: values.brandId,
-      kind: 'whatsapp',
+      kind: 'smooch-twilio',
       data: {
-        instanceId: values.instanceId,
-        token: values.token
+        displayName: values.name,
+        accountSid: values.accountSid,
+        authToken: values.authToken,
+        phoneNumberSid: values.phoneNumberSid
       }
     };
   };
@@ -48,22 +51,37 @@ class Whatsapp extends React.Component<Props, { loading: boolean }> {
         {this.state.loading && <Spinner />}
         <FormGroup>
           <ControlLabel required={true}>Name</ControlLabel>
-          <FormControl {...formProps} name='name' required={true} />
+          <FormControl {...formProps} name="name" required={true} />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel required={true}>Chat-API Instance id</ControlLabel>
+          <ControlLabel>Twilio Account SID</ControlLabel>
           <FormControl
             {...formProps}
-            type='text'
-            name='instanceId'
+            type="text"
+            name="accountSid"
             required={true}
           />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Chat-API token</ControlLabel>
-          <FormControl {...formProps} type='text' name='token' required={true} />
+          <ControlLabel>Auth Token</ControlLabel>
+          <FormControl
+            {...formProps}
+            type="text"
+            name="authToken"
+            required={true}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Phone Number SID</ControlLabel>
+          <FormControl
+            {...formProps}
+            type="text"
+            name="phoneNumberSid"
+            required={true}
+          />
         </FormGroup>
 
         <SelectBrand isRequired={true} formProps={formProps} />
@@ -85,4 +103,4 @@ class Whatsapp extends React.Component<Props, { loading: boolean }> {
   }
 }
 
-export default Whatsapp;
+export default TwilioSms;

@@ -13,10 +13,11 @@ import KnowledgeBase from '../../containers/knowledgebase/Form';
 import Lead from '../../containers/lead/Form';
 import LineForm from '../../containers/line/Form';
 import TelegramForm from '../../containers/telegram/Form';
+import TwilioForm from '../../containers/twilioSms/Form';
 import Twitter from '../../containers/twitter/Twitter';
 import ViberForm from '../../containers/viber/Form';
 import Website from '../../containers/website/Form';
-import WhatsappForm from '../../containers/whatsapp/Form';
+
 import { Box, IntegrationItem, Ribbon, Type } from './styles';
 
 type TotalCount = {
@@ -33,6 +34,7 @@ type TotalCount = {
   line: number;
   telegram: number;
   viber: number;
+  twilio: number;
 };
 
 type Props = {
@@ -240,16 +242,6 @@ function renderCreate(createUrl, createModal) {
     );
   }
 
-  if (createModal === KIND_CHOICES.WHATSAPP) {
-    const trigger = <h6>+ {__('Add')}</h6>;
-
-    const content = props => <WhatsappForm {...props} />;
-
-    return (
-      <ModalTrigger title="Add WhatsApp" trigger={trigger} content={content} />
-    );
-  }
-
   if (createModal === KIND_CHOICES.SMOOCH_LINE) {
     const trigger = <h6>+ {__('Add')}</h6>;
 
@@ -277,6 +269,20 @@ function renderCreate(createUrl, createModal) {
 
     return (
       <ModalTrigger title="Add Viber" trigger={trigger} content={content} />
+    );
+  }
+
+  if (createModal === KIND_CHOICES.SMOOCH_TWILIO) {
+    const trigger = <h6>+ {__('Add')}</h6>;
+
+    const content = props => <TwilioForm {...props} />;
+
+    return (
+      <ModalTrigger
+        title="Add Twilio SMS"
+        trigger={trigger}
+        content={content}
+      />
     );
   }
 
