@@ -122,11 +122,44 @@ const ticketMutations = {
       user,
     );
 
-    graphqlPubsub.publish('ticketsChanged', {
-      ticketsChanged: {
-        _id: updatedTicket._id,
+    if (oldTicket.stageId === updatedTicket.stageId) {
+      graphqlPubsub.publish('ticketsChanged', {
+        ticketsChanged: {
+          _id: updatedTicket._id,
+        },
+      });
+
+      return updatedTicket;
+    }
+
+    // if ticket moves between stages
+    const { content, action } = await itemsChange(user._id, oldTicket, MODULE_NAMES.TICKET, updatedTicket.stageId);
+
+    await sendNotifications({
+      item: updatedTicket,
+      user,
+      type: NOTIFICATION_TYPES.TICKET_CHANGE,
+      content,
+      action,
+      contentType: MODULE_NAMES.TICKET,
+    });
+
+    const updatedStage = await Stages.getStage(updatedTicket.stageId);
+    const oldStage = await Stages.getStage(oldTicket.stageId);
+
+    graphqlPubsub.publish('pipelinesChanged', {
+      pipelinesChanged: {
+        _id: updatedStage.pipelineId,
       },
     });
+
+    if (updatedStage.pipelineId !== oldStage.pipelineId) {
+      graphqlPubsub.publish('pipelinesChanged', {
+        pipelinesChanged: {
+          _id: oldStage.pipelineId,
+        },
+      });
+    }
 
     return updatedTicket;
   },

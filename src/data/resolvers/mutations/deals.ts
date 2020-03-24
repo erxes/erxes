@@ -158,7 +158,7 @@ const dealMutations = {
       return updatedDeal;
     }
 
-    // if stage edited
+    // if deal moves between stages
     const { content, action } = await itemsChange(user._id, oldDeal, MODULE_NAMES.DEAL, updatedDeal.stageId);
 
     await sendNotifications({

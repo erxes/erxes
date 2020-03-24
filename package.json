@@ -32,8 +32,9 @@
     "createGooglePubsubTopics": "ts-node ./src/commands/createGooglePubsubTopics.ts",
     "customCommand": "ts-node ./src/commands/customCommand.ts",
     "resetMigrations": "ts-node ./src/commands/resetMigrations.ts",
-    "verifyCustomerEmails": "ts-node ./src/commands/verifyCustomerEmails.ts",
+    "verifyCustomerEmails": "DEBUG=erxes-api:* ts-node ./src/commands/verifyCustomerEmails.ts",
     "repairPermissionData": "ts-node ./src/commands/repairPermissionData.ts",
+    "runEsCommand": "ts-node ./src/commands/runEsCommand.ts",
     "migrate": "NODE_ENV=command migrate --migrations-dir='./dist/migrations' --store='./db-migrate-store.js' up",
     "release": "release-it"
   },
@@ -91,6 +92,7 @@
     "twit": "^2.2.9",
     "underscore": "^1.8.3",
     "uuid": "^3.3.3",
+    "uuid-by-string": "^3.0.2",
     "validator": "^9.0.0",
     "xlsx-populate": "^1.20.1",
     "xss": "^1.0.6"

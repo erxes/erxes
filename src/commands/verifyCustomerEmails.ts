@@ -1,4 +1,5 @@
 import * as amqplib from 'amqplib';
+import { validateEmail } from '../data/utils';
 import { connect, disconnect } from '../db/connection';
 import { Customers } from '../db/models';
 
@@ -11,18 +12,20 @@ const main = async () => {
   connect().then(async () => {
     const verify = async () => {
       const argv = process.argv;
-
-      let limit = Number.MAX_SAFE_INTEGER;
-
-      if (argv.length > 2) {
-        limit = parseInt(argv[2], 10);
-      }
+      const useRest = argv.length > 2;
 
       const query = { primaryEmail: { $exists: true, $ne: null }, emailValidationStatus: { $exists: false } };
-
-      const customers = await Customers.find(query, { primaryEmail: 1 }).limit(limit);
-
+      const customers = await Customers.find(query, { primaryEmail: 1 });
       const emails = customers.map(customer => customer.primaryEmail);
+
+      if (useRest) {
+        for (const email of emails) {
+          console.log('Validating .....', email);
+          await validateEmail(email || '', true);
+        }
+
+        process.exit();
+      }
 
       const args = {
         action: 'emailVerify',

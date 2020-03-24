@@ -18,8 +18,8 @@ pipeline:
       - yarn install
       - yarn lint
       - yarn tsc
-      - mkdir src/private/xlsTemplateOutputs
       - yarn test
+      - mkdir src/private/xlsTemplateOutputs
 
   build:
     image: erxes/runner:latest

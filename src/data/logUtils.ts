@@ -84,6 +84,7 @@ export interface ILogQueryParams {
   action?: string;
   page?: number;
   perPage?: number;
+  type?: string;
 }
 
 interface IDescriptions {
