@@ -10,7 +10,11 @@ const command = async () => {
   const argv = process.argv;
   const limit = argv.pop();
 
-  const selector = { relatedIntegrationIds: { $exists: false }, integrationId: { $exists: true, $ne: null } };
+  const selector = {
+    relatedIntegrationIds: { $exists: false },
+    integrationId: { $exists: true, $ne: null },
+    profileScore: { $gt: 0 },
+  };
 
   const customers = await Customers.find(selector).limit(limit ? parseInt(limit, 10) : 10000);
 
