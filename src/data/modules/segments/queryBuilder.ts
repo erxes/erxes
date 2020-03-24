@@ -1,5 +1,7 @@
 import * as _ from 'underscore';
 import { Segments } from '../../../db/models';
+import { companySchema } from '../../../db/models/definitions/companies';
+import { customerSchema } from '../../../db/models/definitions/customers';
 import { ICondition, ISegment } from '../../../db/models/definitions/segments';
 import { fetchElk } from '../../../elasticsearch';
 
@@ -11,6 +13,13 @@ export const fetchBySegments = async (segment: ISegment, action: 'search' | 'cou
   const { contentType } = segment;
   const index = contentType === 'customer' ? 'customers' : 'companies';
   const idField = contentType === 'customer' ? 'customerId' : 'companyId';
+  const schema = contentType === 'customer' ? customerSchema : companySchema;
+  const typesMap: { [key: string]: any } = {};
+
+  schema.eachPath(name => {
+    const path = schema.paths[name];
+    typesMap[name] = path.instance;
+  });
 
   const propertyPositive: any[] = [];
   const propertyNegative: any[] = [];
@@ -26,7 +35,7 @@ export const fetchBySegments = async (segment: ISegment, action: 'search' | 'cou
   const eventPositive = [];
   const eventNegative = [];
 
-  await generateQueryBySegment({ segment, propertyPositive, propertyNegative, eventNegative, eventPositive });
+  await generateQueryBySegment({ segment, typesMap, propertyPositive, propertyNegative, eventNegative, eventPositive });
 
   let idsByEvents = [];
 
@@ -86,8 +95,9 @@ const generateQueryBySegment = async (args: {
   eventPositive;
   eventNegative;
   segment: ISegment;
+  typesMap: { [key: string]: any };
 }) => {
-  const { segment, propertyNegative, propertyPositive, eventNegative, eventPositive } = args;
+  const { segment, typesMap, propertyNegative, propertyPositive, eventNegative, eventPositive } = args;
 
   // Fetching parent segment
   const embeddedParentSegment = await Segments.findOne({ _id: segment.subOf });
@@ -111,8 +121,11 @@ const generateQueryBySegment = async (args: {
   }
 
   for (const condition of propertyConditions) {
+    const field = condition.propertyName || '';
+
     elkConvertConditionToQuery({
-      field: condition.propertyName || '',
+      field,
+      type: typesMap[field],
       operator: condition.propertyOperator || '',
       value: condition.propertyValue || '',
       positive: propertyPositive,
@@ -173,27 +186,42 @@ const generateQueryBySegment = async (args: {
   }
 };
 
-function elkConvertConditionToQuery(args: { field: string; operator: string; value: string; positive; negative }) {
-  const { field, operator, value, positive, negative } = args;
+function elkConvertConditionToQuery(args: {
+  field: string;
+  type?: any;
+  operator: string;
+  value: string;
+  positive;
+  negative;
+}) {
+  const { field, type, operator, value, positive, negative } = args;
 
   const fixedValue = value.toLocaleLowerCase();
 
   // equal
   if (operator === 'e') {
-    positive.push({
-      term: {
-        [`${field}.keyword`]: value,
-      },
-    });
+    if (type === 'String') {
+      positive.push({
+        term: { [`${field}.keyword`]: value },
+      });
+    } else {
+      positive.push({
+        term: { [field]: value },
+      });
+    }
   }
 
   // does not equal
   if (operator === 'dne') {
-    negative.push({
-      term: {
-        [`${field}.keyword`]: value,
-      },
-    });
+    if (type === 'String') {
+      negative.push({
+        term: { [`${field}.keyword`]: value },
+      });
+    } else {
+      negative.push({
+        term: { [field]: value },
+      });
+    }
   }
 
   // contains

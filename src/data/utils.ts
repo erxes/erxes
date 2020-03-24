@@ -850,9 +850,8 @@ export const validateEmail = async (email: string, wait?: boolean) => {
     body: { email },
   };
 
-  const updateCustomer = status => {
+  const updateCustomer = status =>
     Customers.updateOne({ primaryEmail: email }, { $set: { emailValidationStatus: status } });
-  };
 
   const successCallback = response => updateCustomer(response.status);
 
