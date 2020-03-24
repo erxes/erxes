@@ -850,20 +850,35 @@ export const validateEmail = async (email: string, wait?: boolean) => {
     body: { email },
   };
 
-  const callback = response =>
-    Customers.updateOne({ primaryEmail: email }, { $set: { emailValidationStatus: response.status } });
+  const updateCustomer = status => {
+    Customers.updateOne({ primaryEmail: email }, { $set: { emailValidationStatus: status } });
+  };
+
+  const successCallback = response => updateCustomer(response.status);
+
+  const errorCallback = e => {
+    if (e.message === 'timeout exceeded') {
+      return updateCustomer('unverifiable');
+    }
+
+    debugExternalApi(`Error occurred during email verify ${e.message}`);
+  };
 
   if (wait) {
-    const response = await sendRequest(requestOptions);
-    return callback(response);
+    try {
+      const response = await sendRequest(requestOptions);
+      return successCallback(response);
+    } catch (e) {
+      await errorCallback(e);
+    }
   }
 
   sendRequest(requestOptions)
     .then(async response => {
-      await callback(response);
+      await successCallback(response);
     })
-    .catch(e => {
-      debugExternalApi(`Error occurred during email verify ${e.message}`);
+    .catch(async e => {
+      await errorCallback(e);
     });
 };
 
