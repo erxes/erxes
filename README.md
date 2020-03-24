@@ -70,3 +70,4 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 
 ## License
 <a href="https://github.com/erxes/erxes/blob/master/LICENSE.md">GNU General Public License v3.0</a>
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
