@@ -62,7 +62,7 @@ class Whatsapp extends React.Component<Props, { loading: boolean }> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Chat-API token</ControlLabel>
+          <ControlLabel required={true}>Chat-API token</ControlLabel>
           <FormControl
             {...formProps}
             type="text"
