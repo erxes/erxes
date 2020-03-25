@@ -235,7 +235,7 @@ function renderCreate(createUrl, createModal) {
     );
   }
 
-  if (createModal === 'whatsapp') {
+  if (createModal === KIND_CHOICES.WHATSAPP) {
     const trigger = <h6>+ {__('Add')}</h6>;
 
     const content = props => <WhatsappForm {...props} />;
