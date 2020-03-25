@@ -144,6 +144,7 @@ export type ByKindTotalCount = {
   office365: number;
   outlook: number;
   yahoo: number;
+  whatsapp: number;
 };
 
 type IntegrationsCount = {
