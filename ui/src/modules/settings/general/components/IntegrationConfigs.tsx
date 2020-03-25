@@ -179,6 +179,20 @@ class IntegrationConfigs extends React.Component<Props, State> {
             {this.renderItem('GOOGLE_GMAIL_SUBSCRIPTION_NAME')}
           </ContentDisabler>
         </CollapseContent>
+
+        <CollapseContent title="WhatsApp Chat-API">
+          <Info>
+            <a
+              target="_blank"
+              href="https://docs.erxes.io/administrator/environment-variables#whatsapp-settings"
+              rel="noopener noreferrer"
+            >
+              {__('More: Understanding WhatsApp Integration Variables')}
+            </a>
+          </Info>
+          {this.renderItem('CHAT_API_UID')}
+          {this.renderItem('CHAT_API_WEBHOOK_CALLBACK_URL')}
+        </CollapseContent>
       </ContentBox>
     );
   };

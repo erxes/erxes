@@ -13,6 +13,7 @@ import KnowledgeBase from '../../containers/knowledgebase/Form';
 import Lead from '../../containers/lead/Form';
 import Twitter from '../../containers/twitter/Twitter';
 import Website from '../../containers/website/Form';
+import WhatsappForm from '../../containers/whatsapp/Form';
 import { Box, IntegrationItem, Ribbon, Type } from './styles';
 
 type TotalCount = {
@@ -26,6 +27,7 @@ type TotalCount = {
   office365: number;
   outlook: number;
   yahoo: number;
+  whatsapp: number;
 };
 
 type Props = {
@@ -34,10 +36,14 @@ type Props = {
   toggleBox: (kind: string) => void;
   messengerAppsCount?: number;
   queryParams: any;
-  totalCount: TotalCount
+  totalCount: TotalCount;
 };
 
-function getCount(kind: string, totalCount: TotalCount, messengerAppsCount?: number) {
+function getCount(
+  kind: string,
+  totalCount: TotalCount,
+  messengerAppsCount?: number
+) {
   const countByKind = totalCount[kind];
 
   if (typeof messengerAppsCount === 'number') {
@@ -62,7 +68,6 @@ function renderType(type: string) {
     </Type>
   );
 }
-
 
 function renderCreate(createUrl, createModal) {
   if (!createUrl && !createModal) {
@@ -142,11 +147,7 @@ function renderCreate(createUrl, createModal) {
     const content = props => <CallPro {...props} />;
 
     return (
-      <ModalTrigger
-        title="Add call pro"
-        trigger={trigger}
-        content={content}
-      />
+      <ModalTrigger title="Add call pro" trigger={trigger} content={content} />
     );
   }
 
@@ -156,11 +157,7 @@ function renderCreate(createUrl, createModal) {
     const content = props => <Chatfuel {...props} />;
 
     return (
-      <ModalTrigger
-        title="Add chatfuel"
-        trigger={trigger}
-        content={content}
-      />
+      <ModalTrigger title="Add chatfuel" trigger={trigger} content={content} />
     );
   }
 
@@ -238,10 +235,26 @@ function renderCreate(createUrl, createModal) {
     );
   }
 
-  return <Link to={createUrl}>+ {__('Add')}</Link>;
-  };
+  if (createModal === KIND_CHOICES.WHATSAPP) {
+    const trigger = <h6>+ {__('Add')}</h6>;
 
-function Entry({ integration, getClassName, toggleBox, messengerAppsCount, totalCount }: Props) {
+    const content = props => <WhatsappForm {...props} />;
+
+    return (
+      <ModalTrigger title="Add WhatsApp" trigger={trigger} content={content} />
+    );
+  }
+
+  return <Link to={createUrl}>+ {__('Add')}</Link>;
+}
+
+function Entry({
+  integration,
+  getClassName,
+  toggleBox,
+  messengerAppsCount,
+  totalCount
+}: Props) {
   const { kind } = integration;
 
   const boxOnClick = () => toggleBox(kind);
@@ -249,10 +262,7 @@ function Entry({ integration, getClassName, toggleBox, messengerAppsCount, total
   const { createUrl, createModal } = integration;
 
   return (
-    <IntegrationItem
-      key={integration.name}
-      className={getClassName(kind)}
-    >
+    <IntegrationItem key={integration.name} className={getClassName(kind)}>
       <Box onClick={boxOnClick} isInMessenger={integration.inMessenger}>
         <img alt="logo" src={integration.logo} />
         <h5>
