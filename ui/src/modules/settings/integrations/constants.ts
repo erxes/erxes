@@ -319,15 +319,6 @@ export const INTEGRATIONS = [
     category: 'All integrations, For support teams, Marketing automation'
   },
   {
-    name: 'Viber',
-    description: `Soon you'll be able to connect Viber straight to your Team Inbox`,
-    inMessenger: false,
-    isAvailable: false,
-    logo: '/images/integrations/viber.png',
-    category:
-      'All integrations, For support teams, Marketing automation, Messaging, Conversation'
-  },
-  {
     name: 'WhatsApp',
     description: 'Get a hold of your Whatsapp messages through your Team Inbox',
     inMessenger: false,
@@ -336,6 +327,15 @@ export const INTEGRATIONS = [
     logo: '/images/integrations/whatsapp.png',
     createModal: 'whatsapp',
     category: 'All integrations, For support teams, Messaging, Conversation'
+  },
+  {
+    name: 'Viber',
+    description: `Soon you'll be able to connect Viber straight to your Team Inbox`,
+    inMessenger: false,
+    isAvailable: false,
+    logo: '/images/integrations/viber.png',
+    category:
+      'All integrations, For support teams, Marketing automation, Messaging, Conversation'
   },
   {
     name: 'Wechat',
