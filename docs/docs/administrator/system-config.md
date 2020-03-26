@@ -636,6 +636,36 @@ In order to integrate the Yahoo you will need to generate app password for the E
 
 
 
+## WhatsApp Integration
+
+1. Create the Chat-API account go to [website](https://app.chat-api.com/registration)
+2. Copy **API key** from [here](https://app.chat-api.com/user/settings)
+
+   **Configuration:**
+
+- Go to Erxes Settings => System config => Integrations config => Chat-API.
+
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/integration/chat-api-whatsapp-1.png">
+
+**For then test purpose you can use [ngrok](http://ngrok.io/) for your webhook**
+
+```Shell
+cd /path/to/erxes-integrations
+ngrok http 3400
+```
+
+When you start erxes-integration repo webhook will automatically created according to your configuration
+
+### Erxes WhatsApp integration settings.
+
+1. Go to your erxes.domain.com - settings - integrations page
+2. Copy your instanceId and token from [here](https://app.chat-api.com/dashboard)
+   <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/chat-api-whatsapp-2.png">
+3. Click on **Add Integrations** and select WhatsApp.
+4. Paste instanceId and token into corresponding fields
+5. Select your brand and click save.
+
+
 ## Engage configuration
 
 ### AWS SES

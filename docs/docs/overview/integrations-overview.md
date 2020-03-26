@@ -35,3 +35,9 @@ Erxes app can be integrated with AWS SES service and that means we can send emai
 * [Nylas integration](../administrator/system-config#nylas-integrations)
 
 Erxes app can be integrated with Nylas service and that means we can send emails to customers we want. Moreover, we can monitor about how many emails have sent successfully, how many emails are opened by customers and so on.
+
+
+* [WhatsApp integration guide](../administrator/system-config#whatsapp-integration)
+
+Erxes app can be integrated with chat-api and that means we can receive our Whatsapp accounts messages directly into our erxes app's inbox.
+
