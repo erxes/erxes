@@ -84,7 +84,7 @@ const moduleOptions = [
   { value: 'integration', label: 'Integrations' },
   { value: 'segment', label: 'Segments' },
   { value: 'engage', label: 'Engages' },
-  { value: 'script', label: 'Scripts' },
+  { value: 'script', label: 'Scripts' }
 ];
 
 const breadcrumb = [

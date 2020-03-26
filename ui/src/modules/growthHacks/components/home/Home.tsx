@@ -11,7 +11,13 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import { Link } from 'react-router-dom';
 import PipelineList from '../../containers/home/PipelineList';
-import { BoxContainer, CountItem, FilterButton, FilterWrapper, HelperButtons } from './styles';
+import {
+  BoxContainer,
+  CountItem,
+  FilterButton,
+  FilterWrapper,
+  HelperButtons
+} from './styles';
 
 type Props = {
   queryParams: any;
@@ -52,9 +58,7 @@ class Home extends React.Component<Props> {
           </Link>
         </Popover.Title>
         <Popover.Content>
-          <SidebarList>
-            {this.renderBoards()}
-          </SidebarList>
+          <SidebarList>{this.renderBoards()}</SidebarList>
         </Popover.Content>
       </Popover>
     );
@@ -68,9 +72,7 @@ class Home extends React.Component<Props> {
       <FilterWrapper>
         <Tabs grayBorder={true}>
           <Link to={`/growthHack/home?id=${id}`}>
-            <TabTitle className={!state ? 'active' : ''}>
-              All
-            </TabTitle>
+            <TabTitle className={!state ? 'active' : ''}>All</TabTitle>
           </Link>
           <Link to={`/growthHack/home?id=${id}&state=In progress`}>
             <TabTitle className={state === 'In progress' ? 'active' : ''}>
@@ -100,9 +102,9 @@ class Home extends React.Component<Props> {
             </FilterButton>
           </OverlayTrigger>
         </HelperButtons>
-      </FilterWrapper> 
+      </FilterWrapper>
     );
-  }
+  };
 
   renderCountItem = (state: string) => {
     let iconContent = 'e8df';
@@ -126,25 +128,21 @@ class Home extends React.Component<Props> {
         <h5>{state}</h5>
         <strong>{this.props.counts[state]}</strong>
       </CountItem>
-    )
-  }
+    );
+  };
 
   renderCounts = () => {
-    return GROWTHHACK_STATES.map(state => (
-      this.renderCountItem(state)
-    ));
-  }
+    return GROWTHHACK_STATES.map(state => this.renderCountItem(state));
+  };
 
   renderContent = () => {
     return (
       <>
-        <BoxContainer>
-          {this.renderCounts()}
-        </BoxContainer>
+        <BoxContainer>{this.renderCounts()}</BoxContainer>
         {this.renderFilter()}
         <PipelineList queryParams={this.props.queryParams} />
       </>
-    )
+    );
   };
 
   render() {

@@ -40,14 +40,22 @@ function commonListComposer<ComponentProps>(options) {
         variables: { _id }
       }: { variables: IRemoveMutationVariables }
     ) => Promise<any>;
-    copyMutation: ({
-      variables: { _id, memberIds }
-    }: { variables: ICopyMutationVariables }) => Promise<any>;
+    copyMutation: (
+      {
+        variables: { _id, memberIds }
+      }: { variables: ICopyMutationVariables }
+    ) => Promise<any>;
     copy: boolean;
   };
 
   const ListContainer = (props: Props) => {
-    const { copyMutation, listQuery, totalCountQuery, removeMutation, history } = props;
+    const {
+      copyMutation,
+      listQuery,
+      totalCountQuery,
+      removeMutation,
+      history
+    } = props;
 
     const totalCount = totalCountQuery[`${label}TotalCount`] || 0;
 
@@ -74,16 +82,18 @@ function commonListComposer<ComponentProps>(options) {
 
     const copyItem = (id: string, key: string, list: string[]) => {
       if (copyMutation) {
-        copyMutation({ variables: { _id: id, [key]: list } }).then(() => {
-          listQuery.refetch();
-          totalCountQuery.refetch();
-  
-          Alert.success(`You successfully copied a ${text}`);
-        }).catch(error => {
-          Alert.error(error.message);
-        });
+        copyMutation({ variables: { _id: id, [key]: list } })
+          .then(() => {
+            listQuery.refetch();
+            totalCountQuery.refetch();
+
+            Alert.success(`You successfully copied a ${text}`);
+          })
+          .catch(error => {
+            Alert.error(error.message);
+          });
       }
-    }
+    };
 
     const renderButton = ({
       name,
@@ -159,7 +169,7 @@ function commonListComposer<ComponentProps>(options) {
     compose(
       ...composeAttr,
       gqlListQuery,
-      gqlTotalCountQuery,
+      gqlTotalCountQuery
     )(ListContainer)
   );
 }

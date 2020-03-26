@@ -11,7 +11,14 @@ import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import Select from 'react-select-plus';
 import { ContentBox } from '../../styles';
-import { FILE_MIME_TYPES, FILE_SYSTEM_TYPES, KEY_LABELS, LANGUAGES, MEASUREMENTS, SERVICE_TYPES } from '../constants';
+import {
+  FILE_MIME_TYPES,
+  FILE_SYSTEM_TYPES,
+  KEY_LABELS,
+  LANGUAGES,
+  MEASUREMENTS,
+  SERVICE_TYPES
+} from '../constants';
 import { IConfigsMap } from '../types';
 import Header from './Header';
 import Sidebar from './Sidebar';
@@ -112,8 +119,12 @@ class GeneralSettings extends React.Component<Props, State> {
       </Button>
     );
 
-    const mimeTypeOptions = FILE_MIME_TYPES.map(item => ({ value: item.value, label: `${item.label} (${item.extension})` }));
-    const mimeTypeDesc = 'Comma-separated list of media types. Leave it blank for accepting all media types';
+    const mimeTypeOptions = FILE_MIME_TYPES.map(item => ({
+      value: item.value,
+      label: `${item.label} (${item.extension})`
+    }));
+    const mimeTypeDesc =
+      'Comma-separated list of media types. Leave it blank for accepting all media types';
 
     const content = (
       <ContentBox>
@@ -152,8 +163,12 @@ class GeneralSettings extends React.Component<Props, State> {
 
         <CollapseContent title={__('File upload')}>
           <Info>
-            <a target="_blank" href="https://docs.erxes.io/administrator/system-config#file-upload" rel="noopener noreferrer">
-              {__("More: Understanding file upload")}
+            <a
+              target="_blank"
+              href="https://docs.erxes.io/administrator/system-config#file-upload"
+              rel="noopener noreferrer"
+            >
+              {__('More: Understanding file upload')}
             </a>
           </Info>
           <FormGroup>
@@ -174,7 +189,10 @@ class GeneralSettings extends React.Component<Props, State> {
             <Select
               value={configsMap.WIDGETS_UPLOAD_FILE_TYPES}
               options={mimeTypeOptions}
-              onChange={this.onChangeMultiCombo.bind(this, 'WIDGETS_UPLOAD_FILE_TYPES')}
+              onChange={this.onChangeMultiCombo.bind(
+                this,
+                'WIDGETS_UPLOAD_FILE_TYPES'
+              )}
               multi={true}
               delimiter=","
               simpleValue={true}
@@ -210,8 +228,12 @@ class GeneralSettings extends React.Component<Props, State> {
 
         <CollapseContent title="Google Cloud Storage">
           <Info>
-            <a target="_blank" href="https://console.cloud.google.com/storage/browser" rel="noopener noreferrer">
-              {__("More: Create or find your Google Cloud Storage bucket")}
+            <a
+              target="_blank"
+              href="https://console.cloud.google.com/storage/browser"
+              rel="noopener noreferrer"
+            >
+              {__('More: Create or find your Google Cloud Storage bucket')}
             </a>
           </Info>
           <FormGroup>
@@ -265,7 +287,7 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderItem('GOOGLE_CLIENT_SECRET')}
         </CollapseContent>
 
-        <CollapseContent title={__("Common mail config")}>
+        <CollapseContent title={__('Common mail config')}>
           <Info>
             <a
               target="_blank"

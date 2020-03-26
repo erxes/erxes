@@ -38,7 +38,7 @@ const FILTER_PARAMS = [
   'productIds',
   'companyIds',
   'customerIds',
-  'closeDateType',
+  'closeDateType'
 ];
 
 const generateQueryParams = ({ location }) => {

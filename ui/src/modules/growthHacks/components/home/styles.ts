@@ -4,13 +4,13 @@ import { BoxItem } from 'modules/settings/growthHacks/styles';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-
 const BoxContainer = styled.div`
   display: flex;
   padding: 20px 0 20px 20px;
   flex-wrap: wrap;
 
-  > a, > div {
+  > a,
+  > div {
     flex-basis: 20%;
     display: flex;
     flex-shrink: 0;
@@ -30,7 +30,6 @@ const BoxContainer = styled.div`
     @media (min-width: 1400px) {
       flex-basis: 20%;
     }
-    
   }
 `;
 
@@ -68,11 +67,12 @@ const ProjectItem = styledTS<{ new?: boolean }>(styled(BoxItem))`
     opacity: 0.06;
   }
 
-  ${props => props.new &&
+  ${props =>
+    props.new &&
     css`
       display: flex;
       justify-content: flex-end;
-      border-style: dashed; 
+      border-style: dashed;
       border-width: 2px;
 
       &:before {
@@ -153,4 +153,12 @@ const FilterButton = styled(SimpleButton)`
   margin-left: 5px;
 `;
 
-export { BoxContainer, ProjectItem, PipelineMeta, CountItem, FilterWrapper, FilterButton, HelperButtons };
+export {
+  BoxContainer,
+  ProjectItem,
+  PipelineMeta,
+  CountItem,
+  FilterWrapper,
+  FilterButton,
+  HelperButtons
+};

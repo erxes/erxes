@@ -30,7 +30,7 @@ const EditorContainer = (props: FinalProps) => {
   for (const user of users) {
     if (user.details && user.details.fullName) {
       const avatar = user.details.avatar || '/images/avatar-colored.svg';
-      
+
       mentionUsers.push({
         id: user._id,
         avatar: isValidURL(avatar) ? avatar : '/images/avatar-colored.svg',

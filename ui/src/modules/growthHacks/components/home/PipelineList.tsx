@@ -12,11 +12,11 @@ type Props = {
 };
 
 function PipelineList(props: Props) {
-  const [ showPopup, setVisibility ] = useState(false);
-  
+  const [showPopup, setVisibility] = useState(false);
+
   const toggleVisibility = () => {
-    setVisibility(!showPopup)
-  }
+    setVisibility(!showPopup);
+  };
 
   const renderAddForm = () => {
     const { renderAddButton } = props;
@@ -38,8 +38,13 @@ function PipelineList(props: Props) {
     <BoxContainer>
       <div>
         <ProjectItem new={true} onClick={toggleVisibility}>
-          <h5>+<br />Create <br />New <br />Project</h5>
-        </ProjectItem>  
+          <h5>
+            +<br />
+            Create <br />
+            New <br />
+            Project
+          </h5>
+        </ProjectItem>
       </div>
       {renderAddForm()}
       {pipelines.map(pipeline => (
