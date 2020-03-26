@@ -29,6 +29,7 @@ type Props = {
     viber: number;
     line: number;
     twilio: number;
+    whatsapp: number;
   };
 };
 

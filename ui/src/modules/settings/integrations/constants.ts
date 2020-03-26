@@ -81,6 +81,7 @@ export const KIND_CHOICES = {
   SMOOCH_VIBER: 'smooch-viber',
   SMOOCH_LINE: 'smooch-line',
   SMOOCH_TWILIO: 'smooch-twilio',
+  WHATSAPP: 'whatsapp',
   ALL_LIST: [
     'messenger',
     'facebook-post',
@@ -97,7 +98,8 @@ export const KIND_CHOICES = {
     'smooch-telegram',
     'smooch-viber',
     'smooch-line',
-    'smooch-twilio'
+    'smooch-twilio',
+    'whatsapp'
   ]
 };
 
@@ -112,7 +114,8 @@ export const KIND_CHOICES_WITH_TEXT = [
   { text: 'Telegram', value: 'smooch-telegram' },
   { text: 'Viber', value: 'smooch-viber' },
   { text: 'Line', value: 'smooch-line' },
-  { text: 'Twilio SMS', value: 'smooch-twilio' }
+  { text: 'Twilio SMS', value: 'smooch-twilio' },
+  { text: 'WhatsApp', value: 'whatsapp' }
 ];
 
 export const FORM_LOAD_TYPES = {
@@ -328,7 +331,17 @@ export const INTEGRATIONS = [
     category: 'All integrations, For support teams, Marketing automation'
   },
   {
-    name: 'Telegram by Smooch',
+    name: 'WhatsApp',
+    description: 'Get a hold of your Whatsapp messages through your Team Inbox',
+    inMessenger: false,
+    isAvailable: true,
+    kind: 'whatsapp',
+    logo: '/images/integrations/whatsapp.png',
+    createModal: 'whatsapp',
+    category: 'All integrations, For support teams, Messaging, Conversation'
+  },
+  {
+    name: 'Telegram by Sunshine Conversations',
     description:
       'Cloud-based mobile and desktop messaging app with a focus on speed and security',
     inMessenger: false,
@@ -339,7 +352,7 @@ export const INTEGRATIONS = [
     category: 'All integrations, For support teams, Messaging, Conversation'
   },
   {
-    name: 'Viber by Smooch',
+    name: 'Viber by Sunshine Conversations ',
     description: `Soon you'll be able to connect Viber straight to your Team Inbox`,
     inMessenger: false,
     isAvailable: true,
@@ -350,7 +363,7 @@ export const INTEGRATIONS = [
       'All integrations, For support teams, Marketing automation, Messaging, Conversation'
   },
   {
-    name: 'Line by Smooch',
+    name: 'Line by Sunshine Conversations',
     description: 'See and reply to Line messages in your Team Inbox',
     inMessenger: false,
     isAvailable: true,
@@ -361,7 +374,7 @@ export const INTEGRATIONS = [
       'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Phone and video, Conversation'
   },
   {
-    name: 'Twilio SMS',
+    name: 'Twilio SMS by Sunshine Conversations',
     description:
       'Connect Twilio API for SMS then send and receive text messages anywhere in the world',
     inMessenger: false,

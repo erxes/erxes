@@ -152,6 +152,7 @@ export type ByKindTotalCount = {
   viber: number;
   line: number;
   twilio: number;
+  whatsapp: number;
 };
 
 type IntegrationsCount = {
