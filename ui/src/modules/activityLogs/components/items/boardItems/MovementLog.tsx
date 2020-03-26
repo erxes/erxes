@@ -37,7 +37,7 @@ class MovementLog extends React.Component<Props> {
           <strong>{userName}</strong> moved&nbsp;
           <Link
             to={`/${contentType}/board?_id=${activity._id}&itemId=${item._id}`}
-            target='blank'
+            target="blank"
           >
             {item.name}
           </Link>

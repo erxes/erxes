@@ -37,14 +37,14 @@ class PipelineListContainer extends React.Component<FinalProps> {
       object
     }: IButtonMutateProps) => {
       const afterSave = () => {
-        if(callback) {
+        if (callback) {
           callback();
         }
 
-        if(pipelinesQuery) {
+        if (pipelinesQuery) {
           pipelinesQuery.refetch(queryParams.id);
         }
-      }
+      };
 
       return (
         <ButtonMutate
@@ -61,7 +61,9 @@ class PipelineListContainer extends React.Component<FinalProps> {
       );
     };
 
-    return <PipelineList renderAddButton={renderAddButton} pipelines={pipelines} />;
+    return (
+      <PipelineList renderAddButton={renderAddButton} pipelines={pipelines} />
+    );
   }
 }
 

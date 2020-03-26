@@ -194,7 +194,8 @@ const CallButton = styled.div`
     margin-bottom: 15px;
   }
 
-  button, a {
+  button,
+  a {
     width: 100%;
     border-radius: 5px;
     background: ${colors.colorCoreBlue};

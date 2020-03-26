@@ -126,4 +126,3 @@ const RichEditorControlsRoot = styledTS<{ isTopPopup: boolean }>(styled.div)`
 `;
 
 export { RichEditorRoot, RichEditorControlsRoot };
-

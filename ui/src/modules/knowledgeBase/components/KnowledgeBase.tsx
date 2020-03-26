@@ -74,7 +74,7 @@ class KnowledgeBase extends React.Component<Props> {
 
     const leftActionBar = (
       <Title>
-        {currentCategory.title} 
+        {currentCategory.title}
         <span>
           ({articlesCount} {articlesCount > 1 ? __('articles') : __('artcile')})
         </span>
@@ -96,7 +96,9 @@ class KnowledgeBase extends React.Component<Props> {
             queryParams={queryParams}
           />
         }
-        actionBar={<Wrapper.ActionBar left={leftActionBar} right={actionBarLeft} />}
+        actionBar={
+          <Wrapper.ActionBar left={leftActionBar} right={actionBarLeft} />
+        }
         footer={currentCategory._id && <Pagination count={articlesCount} />}
         transparent={true}
         content={

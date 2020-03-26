@@ -30,7 +30,8 @@ type Props = {
 type FinalProps = {
   notificationsQuery: NotificationsQueryResponse;
   notificationCountQuery: NotificationsCountQueryResponse;
-} & Props & MarkAsReadMutationResponse;
+} & Props &
+  MarkAsReadMutationResponse;
 
 const NotifContext = React.createContext({} as IStore);
 

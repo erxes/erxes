@@ -119,7 +119,9 @@ const Row = styled.div`
   margin-right: ${dimensions.coreSpacing}px;
 `;
 
-const AvatarWrapper = styledTS<{ isOnline?: boolean, hideIndicator?: boolean }>(styled.div)`
+const AvatarWrapper = styledTS<{ isOnline?: boolean; hideIndicator?: boolean }>(
+  styled.div
+)`
   margin-right: ${dimensions.unitSpacing}px;
   position: relative;
 
@@ -133,7 +135,7 @@ const AvatarWrapper = styledTS<{ isOnline?: boolean, hideIndicator?: boolean }>(
     right: -3px;
     top: 32px;
     background: ${props =>
-    props.isOnline ? colors.colorCoreGreen : colors.colorCoreLightGray};
+      props.isOnline ? colors.colorCoreGreen : colors.colorCoreLightGray};
     width: 14px;
     height: 14px;
     border-radius: ${dimensions.unitSpacing}px;
@@ -263,14 +265,14 @@ const IconWrapper = styledTS<{ isComplete?: boolean }>(styled.div)`
 
   > i {
     background: ${props =>
-    props.isComplete ? colors.colorCoreGreen : colors.bgLight};
+      props.isComplete ? colors.colorCoreGreen : colors.bgLight};
     color: ${props =>
-    props.isComplete ? colors.colorWhite : colors.colorShadowGray};
+      props.isComplete ? colors.colorWhite : colors.colorShadowGray};
     border-radius: 25px;
     display: inline-block;
     line-height: 25px;
     border: 2px solid ${props =>
-    props.isComplete ? colors.colorCoreGreen : colors.colorShadowGray};
+      props.isComplete ? colors.colorCoreGreen : colors.colorShadowGray};
     transition: all ease 0.3s;
   }
 `;

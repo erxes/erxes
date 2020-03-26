@@ -5,8 +5,8 @@ import styledTS from 'styled-components-ts';
 const Verify = styled.div`
   display: flex;
   align-items: center;
-	margin: ${dimensions.coreSpacing}px 0;
-	
+  margin: ${dimensions.coreSpacing}px 0;
+
   > * {
     margin-left: ${dimensions.unitSpacing}px;
   }
@@ -22,11 +22,11 @@ const Verify = styled.div`
 `;
 
 const ContentDisabler = styledTS<{ disable: boolean }>(styled.div)`
-  ${props => props.disable &&
+  ${props =>
+    props.disable &&
     css`
       opacity: 0.5;
       cursor: not-allowed;
-      
 
       input {
         pointer-events: none;

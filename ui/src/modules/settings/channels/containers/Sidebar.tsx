@@ -23,7 +23,8 @@ type Props = {
 type FinalProps = {
   channelsQuery: ChannelsQueryResponse;
   channelsCountQuery: ChannelsCountQueryResponse;
-} & Props & IRouterProps &
+} & Props &
+  IRouterProps &
   RemoveChannelMutationResponse;
 
 const SidebarContainer = (props: FinalProps) => {

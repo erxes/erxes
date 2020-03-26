@@ -132,7 +132,7 @@ class CommonChooser extends React.Component<Props, State> {
       );
     }
 
-    return <EmptyState text='No items added' icon='list-2' />;
+    return <EmptyState text="No items added" icon="list-2" />;
   }
 
   render() {
@@ -170,10 +170,10 @@ class CommonChooser extends React.Component<Props, State> {
               {this.state.loadmore && (
                 <CenterContent>
                   <Button
-                    size='small'
-                    btnStyle='primary'
+                    size="small"
+                    btnStyle="primary"
                     onClick={this.loadMore}
-                    icon='angle-double-down'
+                    icon="angle-double-down"
                   >
                     Load More
                   </Button>
@@ -195,17 +195,17 @@ class CommonChooser extends React.Component<Props, State> {
             <ModalTrigger
               title={`New ${title}`}
               trigger={addTrigger}
-              size='lg'
+              size="lg"
               content={renderForm}
             />
             <div>
-              <Button btnStyle='simple' onClick={closeModal} icon='cancel-1'>
+              <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
                 Cancel
               </Button>
               <Button
-                btnStyle='success'
+                btnStyle="success"
                 onClick={this.onSelect}
-                icon='checked-1'
+                icon="checked-1"
               >
                 Select
               </Button>

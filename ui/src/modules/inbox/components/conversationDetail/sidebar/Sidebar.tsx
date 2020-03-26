@@ -112,7 +112,10 @@ class Index extends React.Component<IndexProps, IndexState> {
 
   renderTrackedData = ({ customer, kind, toggleSection }: IRenderData) => {
     return (
-      <TrackedDataSection customer={customer} collapseCallback={toggleSection} />
+      <TrackedDataSection
+        customer={customer}
+        collapseCallback={toggleSection}
+      />
     );
   };
 

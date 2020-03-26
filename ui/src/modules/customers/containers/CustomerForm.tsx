@@ -78,8 +78,8 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
           isSubmitted={isSubmitted}
           disableLoading={redirectType ? true : false}
           disabled={isSubmitted}
-          type='submit'
-          icon='user-check'
+          type="submit"
+          icon="user-check"
           resetSubmit={resetSubmit}
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
