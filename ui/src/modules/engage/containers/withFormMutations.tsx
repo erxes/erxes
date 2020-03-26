@@ -62,10 +62,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
           .then(() => {
             Alert.success(msg);
 
-            history.push({
-              pathname: '/engage',
-              search: '?engageRefetchList=true'
-            });
+            history.push({ pathname: '/engage', search: '?engageRefetchList=true' });
           })
           .catch(error => {
             Alert.error(error.message);
@@ -188,14 +185,11 @@ function withSaveAndEdit<IComponentProps>(Component) {
   );
 }
 
-export const engageRefetchQueries = ({
-  isEdit
-}: {
-  isEdit?: boolean;
-}): string[] => [
+
+export const engageRefetchQueries = ({ isEdit }: { isEdit?: boolean }): string[] => [
   ...crudMutationsOptions().refetchQueries,
-  ...(isEdit ? ['activityLogs'] : []),
-  'engageMessageDetail'
-];
+  ...isEdit ? ['activityLogs'] : [],
+  'engageMessageDetail',
+]
 
 export default withSaveAndEdit;
