@@ -34,6 +34,7 @@ describe('Conversation message mutations', () => {
   let messengerConversation: IConversationDocument;
   let chatfuelConversation: IConversationDocument;
   let twitterConversation: IConversationDocument;
+  let whatsAppConversation: IConversationDocument;
 
   let user: IUserDocument;
   let customer: ICustomerDocument;
@@ -95,6 +96,9 @@ describe('Conversation message mutations', () => {
 
     const twitterIntegration = await integrationFactory({ kind: KIND_CHOICES.TWITTER_DM });
     twitterConversation = await conversationFactory({ integrationId: twitterIntegration._id });
+
+    const whatsAppIntegration = await integrationFactory({ kind: KIND_CHOICES.WHATSAPP });
+    whatsAppConversation = await conversationFactory({ integrationId: whatsAppIntegration._id });
 
     const messengerIntegration = await integrationFactory({ kind: 'messenger' });
     messengerConversation = await conversationFactory({
@@ -200,6 +204,14 @@ describe('Conversation message mutations', () => {
     }
 
     args.conversationId = twitterConversation._id;
+
+    try {
+      await graphqlRequest(addMutation, 'conversationMessageAdd', args, { dataSources });
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
+
+    args.conversationId = whatsAppConversation._id;
 
     try {
       await graphqlRequest(addMutation, 'conversationMessageAdd', args, { dataSources });

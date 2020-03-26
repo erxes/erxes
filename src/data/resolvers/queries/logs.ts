@@ -37,6 +37,7 @@ import { conditionSchema, segmentSchema } from '../../../db/models/definitions/s
 import { tagSchema } from '../../../db/models/definitions/tags';
 import { taskSchema } from '../../../db/models/definitions/tasks';
 import { ticketSchema } from '../../../db/models/definitions/tickets';
+import { userSchema } from '../../../db/models/definitions/users';
 import { MODULE_NAMES } from '../../constants';
 import { fetchLogs, ILogQueryParams } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
@@ -187,6 +188,10 @@ const LOG_MAPPINGS: ISchemaMap[] = [
   {
     name: MODULE_NAMES.SCRIPT,
     schemas: [scriptSchema],
+  },
+  {
+    name: MODULE_NAMES.USER,
+    schemas: [userSchema],
   },
 ];
 
