@@ -114,7 +114,7 @@ app.use((error, _req, res, _next) => {
   res.status(500).send(filterXSS(error.message));
 });
 
-const { PORT_WORKERS } = process.env;
+const { PORT_WORKERS = 3700 } = process.env;
 
 app.listen(PORT_WORKERS, () => {
   init();

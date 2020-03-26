@@ -67,7 +67,7 @@ app.use((error, _req, res, _next) => {
   res.status(500).send(error.message);
 });
 
-const { PORT_CRONS } = process.env;
+const { PORT_CRONS = 3600 } = process.env;
 
 app.listen(PORT_CRONS, () => {
   debugCrons(`Cron Server is now running on ${PORT_CRONS}`);
