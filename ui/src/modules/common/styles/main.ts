@@ -231,7 +231,7 @@ const TabContent = styled.div`
 
 const ButtonRelated = styled.div`
   text-align: center;
-  
+
   button {
     background: rgba(0, 0, 0, 0.04);
     margin: 10px auto;

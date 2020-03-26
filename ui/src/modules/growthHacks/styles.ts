@@ -330,5 +330,5 @@ export {
   FilterList,
   FilterListItem,
   ContentTitle,
-  BottomAction,
+  BottomAction
 };

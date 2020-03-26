@@ -1,4 +1,4 @@
-import { commonFields } from "./queries";
+import { commonFields } from './queries';
 
 const commonFormParamsDef = `
   $name: String!,

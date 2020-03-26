@@ -6,7 +6,7 @@ import styled from 'styled-components';
 
 const Wrapper = styled.div`
   line-height: 10px;
-   
+
   .react-toggle--checked .react-toggle-track {
     background-color: ${colors.colorCoreGreen};
   }

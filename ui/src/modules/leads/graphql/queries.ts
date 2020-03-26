@@ -35,7 +35,7 @@ export const commonFields = `
       }
     }
   }
-`
+`;
 
 const integrations = `
   query leadIntegrations($perPage: Int, $page: Int, $kind: String, $tag: String) {

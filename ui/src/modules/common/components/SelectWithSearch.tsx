@@ -30,7 +30,7 @@ const ClearButton = styled.div`
   margin-top: -14px;
 
   &:hover {
-    color: #EA475D;
+    color: #ea475d;
     cursor: pointer;
   }
 `;
@@ -94,19 +94,23 @@ class SelectWithSearch extends React.Component<
     }
 
     const { values = [] } = this.props;
-    if(values.length > 0) {
-      return <ClearButton onClick={this.onClear}><Icon icon="times" /></ClearButton>;
+    if (values.length > 0) {
+      return (
+        <ClearButton onClick={this.onClear}>
+          <Icon icon="times" />
+        </ClearButton>
+      );
     }
 
     return null;
-  }
+  };
 
-  onClear = (e) => {
+  onClear = e => {
     confirm().then(() => {
       this.props.onSelect([], this.props.name);
       this.setState({ selectedOptions: [] });
-    }); 
-  }
+    });
+  };
 
   render() {
     const {

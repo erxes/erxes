@@ -146,7 +146,6 @@ class CustomersMerge extends React.Component<Props, State> {
     }
   }
 
-
   renderVisitorContactInfo(data: IVisitorContact) {
     return (
       <Info>

@@ -2,7 +2,7 @@
 name: Enhancement request
 about: Suggest an enhancement to the erxes project
 title: ''
-labels: 'type: enhancement'
+labels: ''
 assignees: ''
 
 ---

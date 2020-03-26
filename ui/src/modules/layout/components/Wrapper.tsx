@@ -1,6 +1,11 @@
 import { FullContent, MiddleContent } from 'modules/common/styles/main';
 import React from 'react';
-import { Contents, HeightedWrapper, MainHead, VerticalContent } from '../styles';
+import {
+  Contents,
+  HeightedWrapper,
+  MainHead,
+  VerticalContent
+} from '../styles';
 import ActionBar from './ActionBar';
 import Header from './Header';
 import PageContent from './PageContent';
@@ -60,9 +65,7 @@ class Wrapper extends React.Component<Props> {
     return (
       <VerticalContent>
         {header}
-        <MainHead>
-          {mainHead}
-        </MainHead>
+        <MainHead>{mainHead}</MainHead>
         <HeightedWrapper>
           <Contents>
             {leftSidebar}

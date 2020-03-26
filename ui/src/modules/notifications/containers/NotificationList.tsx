@@ -20,18 +20,23 @@ type Props = {
 type FinalProps = {
   notificationsQuery: NotificationsQueryResponse;
   notificationCountQuery: NotificationsCountQueryResponse;
-} & Props & MarkAsReadMutationResponse;
+} & Props &
+  MarkAsReadMutationResponse;
 
 class NotificationListContainer extends React.Component<FinalProps> {
   render() {
-    const { notificationsQuery, notificationCountQuery, notificationsMarkAsReadMutation } = this.props;
+    const {
+      notificationsQuery,
+      notificationCountQuery,
+      notificationsMarkAsReadMutation
+    } = this.props;
 
     const markAsRead = (notificationIds?: string[]) => {
       notificationsMarkAsReadMutation({
         variables: { _ids: notificationIds }
       })
         .then(() => {
-          if(notificationsQuery.refetch) {
+          if (notificationsQuery.refetch) {
             notificationsQuery.refetch();
             notificationCountQuery.refetch();
           }

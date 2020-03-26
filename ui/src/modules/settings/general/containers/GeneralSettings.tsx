@@ -12,7 +12,7 @@ import { ConfigsQueryResponse, IConfigsMap } from '../types';
 type FinalProps = {
   configsQuery: ConfigsQueryResponse;
   updateConfigs: (configsMap: IConfigsMap) => Promise<void>;
-}
+};
 
 class SettingsContainer extends React.Component<FinalProps> {
   render() {
@@ -63,17 +63,11 @@ class SettingsContainer extends React.Component<FinalProps> {
 
 export default withProps<{}>(
   compose(
-    graphql<{}, ConfigsQueryResponse>(
-      gql(queries.configs),
-      {
-        name: 'configsQuery',
-      }
-    ),
-    graphql<{}>(
-      gql(mutations.updateConfigs),
-      {
-        name: 'updateConfigs'
-      }
-    )
+    graphql<{}, ConfigsQueryResponse>(gql(queries.configs), {
+      name: 'configsQuery'
+    }),
+    graphql<{}>(gql(mutations.updateConfigs), {
+      name: 'updateConfigs'
+    })
   )(SettingsContainer)
 );

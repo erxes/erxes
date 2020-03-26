@@ -6,10 +6,7 @@ import Spinner from 'modules/common/components/Spinner';
 import { ButtonRelated } from 'modules/common/styles/main';
 import { __, renderFullName } from 'modules/common/utils';
 import GetConformity from 'modules/conformity/containers/GetConformity';
-import {
-  SectionBody,
-  SectionBodyItem
-} from 'modules/layout/styles';
+import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import CustomerChooser from '../../containers/CustomerChooser';
