@@ -27,7 +27,7 @@ type State = {
   pipelineId: string;
 };
 
-class PipelineSelect extends React.Component<Props, State> {
+class PipelineSelector extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -119,4 +119,4 @@ class PipelineSelect extends React.Component<Props, State> {
   }
 }
 
-export default PipelineSelect;
+export default PipelineSelector;

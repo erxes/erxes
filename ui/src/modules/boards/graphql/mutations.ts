@@ -150,6 +150,7 @@ const stagesMove = `
   mutation stagesMove(${copyMoveParamDefs}) {
     stagesMove(${copyMoveParams}) { _id }
 }`;
+
 const stagesEdit = `
   mutation stagesEdit($_id: String!, $type: String, $name: String, $status: String) {
     stagesEdit(_id: $_id, type: $type, name: $name, status: $status) {
