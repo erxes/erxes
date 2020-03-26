@@ -6,6 +6,7 @@ import NameCard from 'modules/common/components/nameCard/NameCard';
 import TextDivider from 'modules/common/components/TextDivider';
 import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
+import { urlify } from 'modules/inbox/utils';
 import React from 'react';
 import xss from 'xss';
 import { IMessage } from '../../../../../types';
@@ -125,7 +126,9 @@ export default class SimpleMessage extends React.Component<Props, {}> {
     return (
       <>
         <MessageContent staff={isStaff} internal={message.internal}>
-          <span dangerouslySetInnerHTML={{ __html: xss(message.content) }} />
+          <span
+            dangerouslySetInnerHTML={{ __html: xss(urlify(message.content)) }}
+          />
           {this.renderAttachment(hasAttachment)}
         </MessageContent>
       </>

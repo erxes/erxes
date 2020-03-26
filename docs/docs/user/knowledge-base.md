@@ -7,9 +7,7 @@ sidebar_label: Knowledge Base
 <!--Content-->
 
 
-Real-time & two-way help center
-
-Educate both your customers and staff by creating a help center related to your brands, products and services to reach higher level of satisfactions
+Real-time & two-way help center. Educate both your customers and staff by creating a help center related to your brands, products and services to reach higher level of satisfactions. 
 
 
 
@@ -90,7 +88,7 @@ Knowledge Base is a part of your widget section where you address common concern
 <aside class="notice">
 You may add article in each category.
 
-You can use Knowledgebase script to install on your webpage or inside the messenger or both. There are different installation case of Knowledgebase form. Go to [instruction](https://docs.erxes.io/docs/user/script-install). 
+You can use Knowledgebase script to install on your webpage or inside the messenger or both. There are different installation case of Knowledgebase form. Go to [instruction](https://docs.erxes.io/user/script-install). 
 
 </aside>
 

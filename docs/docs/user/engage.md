@@ -3,7 +3,7 @@ id: engage
 title: Engage
 ---
 
-Start converting your prospects into potential customers through email, SMS, messenger or more interactions to drive them to a successful close.
+Start converting your prospects into potential customers through Email, SMS, Messenger or more interactions to drive them to a successful close.
 
 - Please follow the steps for setup: **Engage**
 

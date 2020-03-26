@@ -7,7 +7,6 @@ import { IPaymentsData, IProductData } from '../../types';
 type Props = {
   onChangeProductsData: (productsData: IProductData[]) => void;
   saveProductsData: () => void;
-  savePaymentsData: () => void;
   onChangePaymentsData: (paymentsData: IPaymentsData) => void;
   productsData: IProductData[];
   products: IProduct[];

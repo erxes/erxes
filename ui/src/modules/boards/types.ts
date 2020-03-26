@@ -25,6 +25,9 @@ export interface IOptions {
     copyMutation: string;
     archiveMutation: string;
   };
+  subscriptionName: {
+    changeSubscription: string;
+  };
   queries: {
     itemsQuery: string;
     detailQuery: string;
@@ -40,6 +43,9 @@ export interface IOptions {
     watchMutation: string;
     archiveMutation: string;
     copyMutation: string;
+  };
+  subscriptions: {
+    changeSubscription: string;
   };
   texts: {
     addText: string;
@@ -236,6 +242,7 @@ export type BoardDetailQueryResponse = {
 export type PipelineDetailQueryResponse = {
   pipelineDetail: IPipeline;
   loading: boolean;
+  subscribeToMore: any;
 };
 
 export type WatchVariables = {
@@ -271,6 +278,8 @@ export type RelatedItemsQueryResponse = {
 export type DetailQueryResponse = {
   loading: boolean;
   error?: Error;
+  subscribeToMore: any;
+  refetch: () => void;
 };
 
 // query response
@@ -332,6 +341,12 @@ export interface IFilterParams extends ISavedConformity {
   labelIds?: string;
   pipelineId?: string;
   userIds?: string;
+}
+
+export interface INonFilterParams {
+  key?: string;
+  pipelineId: string;
+  id: string;
 }
 
 export interface IEditFormContent {

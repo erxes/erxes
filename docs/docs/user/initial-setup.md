@@ -3,7 +3,7 @@ id: initial-setup
 title: Initial Setup
 ---
 
-Brands, Channels and Integrations are the key components of erxes platform
+Brands, Channels and Integrations are the key components of erxes platform.
 
 ---
 
