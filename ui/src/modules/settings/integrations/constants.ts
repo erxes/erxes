@@ -77,6 +77,7 @@ export const KIND_CHOICES = {
   CALLPRO: 'callpro',
   TWITTER_DM: 'twitter-dm',
   CHATFUEL: 'chatfuel',
+  WHATSAPP: 'whatsapp',
   ALL_LIST: [
     'messenger',
     'facebook-post',
@@ -89,7 +90,8 @@ export const KIND_CHOICES = {
     'nylas-gmail',
     'nylas-imap',
     'nylas-office365',
-    'nylas-outlook'
+    'nylas-outlook',
+    'whatsapp'
   ]
 };
 
@@ -100,7 +102,8 @@ export const KIND_CHOICES_WITH_TEXT = [
   { text: 'Pop Ups', value: 'lead' },
   { text: 'Callpro', value: 'callpro' },
   { text: 'Chatfuel', value: 'chatfuel' },
-  { text: 'Gmail', value: 'nylas-gmail' }
+  { text: 'Gmail', value: 'nylas-gmail' },
+  { text: 'WhatsApp', value: 'whatsapp' }
 ];
 
 export const FORM_LOAD_TYPES = {
@@ -316,6 +319,16 @@ export const INTEGRATIONS = [
     category: 'All integrations, For support teams, Marketing automation'
   },
   {
+    name: 'WhatsApp',
+    description: 'Get a hold of your Whatsapp messages through your Team Inbox',
+    inMessenger: false,
+    isAvailable: true,
+    kind: 'whatsapp',
+    logo: '/images/integrations/whatsapp.png',
+    createModal: 'whatsapp',
+    category: 'All integrations, For support teams, Messaging, Conversation'
+  },
+  {
     name: 'Viber',
     description: `Soon you'll be able to connect Viber straight to your Team Inbox`,
     inMessenger: false,
@@ -323,14 +336,6 @@ export const INTEGRATIONS = [
     logo: '/images/integrations/viber.png',
     category:
       'All integrations, For support teams, Marketing automation, Messaging, Conversation'
-  },
-  {
-    name: 'WhatsApp',
-    description: 'Get a hold of your Whatsapp messages through your Team Inbox',
-    inMessenger: false,
-    isAvailable: false,
-    logo: '/images/integrations/whatsapp.png',
-    category: 'All integrations, For support teams, Messaging, Conversation'
   },
   {
     name: 'Wechat',

@@ -85,8 +85,13 @@ class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
       data: { name: data.name, datas: data.products },
       search: this.search,
       title: 'Product',
-      renderName: (product: IProduct) =>
-        product.code.concat(' - ', product.name),
+      renderName: (product: IProduct) => {
+        if (product.code) {
+          return product.code.concat(' - ', product.name);
+        }
+
+        return product.name;
+      },
       renderForm: ({ closeModal }: { closeModal: () => void }) => (
         <ProductForm closeModal={closeModal} />
       ),

@@ -220,9 +220,7 @@ const archivedGrowthHacksCount = `
     archivedGrowthHacksCount(
       pipelineId: $pipelineId,
       search: $search
-    ) {
-      ${growthHackFields}
-    }
+    )
   }
 `;
 
