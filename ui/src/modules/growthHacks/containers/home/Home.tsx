@@ -21,11 +21,15 @@ type FinalProps = {
 
 class HomeContainer extends React.Component<FinalProps> {
   render() {
-    const { boardCountsQuery, queryParams, pipelineStateCountQuery } = this.props;
+    const {
+      boardCountsQuery,
+      queryParams,
+      pipelineStateCountQuery
+    } = this.props;
 
     if (pipelineStateCountQuery.loading) {
       return <Spinner />;
-    };
+    }
 
     const props = {
       queryParams,
@@ -49,7 +53,10 @@ export default withProps<Props>(
     graphql<Props>(gql(ghQueries.pipelineStateCount), {
       name: 'pipelineStateCountQuery',
       options: ({ queryParams }) => ({
-        variables: { boardId: queryParams && queryParams.id, type: 'growthHack' },
+        variables: {
+          boardId: queryParams && queryParams.id,
+          type: 'growthHack'
+        }
       })
     })
   )(HomeContainer)

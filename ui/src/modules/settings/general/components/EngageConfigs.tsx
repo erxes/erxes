@@ -19,9 +19,7 @@ function EngageConfigs() {
       }
       mainHead={<Header />}
       actionBar={
-        <Wrapper.ActionBar
-          left={<Title>{__('Engage config')}</Title>}
-        />  
+        <Wrapper.ActionBar left={<Title>{__('Engage config')}</Title>} />
       }
       leftSidebar={<Sidebar />}
       content={<EngageSettingsContent />}

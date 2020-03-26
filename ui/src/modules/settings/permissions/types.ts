@@ -106,5 +106,7 @@ export type UsersGroupsRemoveMutation = {
 };
 
 export type UsersGroupsCopyMutation = {
-  usersGroupsCopy: (params: { variables: { _id: string, memberIds?: string[] } }) => Promise<IUserGroup>;
-}
+  usersGroupsCopy: (
+    params: { variables: { _id: string; memberIds?: string[] } }
+  ) => Promise<IUserGroup>;
+};

@@ -1,7 +1,14 @@
 import Datetime from '@nateradebaugh/react-datetime';
 import dayjs from 'dayjs';
 import { REMINDER_MINUTES } from 'modules/boards/constants';
-import { Button, CalenderWrapper, CheckBoxWrapper, CloseDateContent, CloseDateWrapper, DateGrid } from 'modules/boards/styles/popup';
+import {
+  Button,
+  CalenderWrapper,
+  CheckBoxWrapper,
+  CloseDateContent,
+  CloseDateWrapper,
+  DateGrid
+} from 'modules/boards/styles/popup';
 import FormControl from 'modules/common/components/form/Control';
 import ControlLabel from 'modules/common/components/form/Label';
 import React from 'react';

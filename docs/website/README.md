@@ -10,13 +10,13 @@ This website was created with [Docusaurus](https://docusaurus.io/).
 
 # Get Started in 5 Minutes
 
-1. Make sure all the dependencies for the website are installed:
+1. Install the dependancies needed for the website:
 
 ```sh
 # Install dependencies
 $ yarn
 ```
-2. Run your dev server:
+2. Start the dev server:
 
 ```sh
 # Start the site

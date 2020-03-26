@@ -23,7 +23,9 @@ class Row extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { queryParams: { kind } } = props;
+    const {
+      queryParams: { kind }
+    } = props;
 
     this.state = {
       isContentVisible: Boolean(kind) || false,
@@ -115,7 +117,11 @@ class Row extends React.Component<Props, State> {
 
     return (
       <>
-        <IntegrationList kind={kind} queryParams={queryParams} integrationsCount={totalCount[kind || '']} />
+        <IntegrationList
+          kind={kind}
+          queryParams={queryParams}
+          integrationsCount={totalCount[kind || '']}
+        />
         {this.renderPagination(totalCount[kind || ''])}
       </>
     );

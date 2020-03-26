@@ -37,9 +37,13 @@ class Sidebar extends React.Component<Props, {}> {
   };
 
   renderSidebarHeader() {
-
     const addBrand = (
-      <Button btnStyle="success" block={true} uppercase={false} icon="plus-circle">
+      <Button
+        btnStyle="success"
+        block={true}
+        uppercase={false}
+        icon="plus-circle"
+      >
         Add New Brand
       </Button>
     );

@@ -5,7 +5,12 @@ import { FlexRightItem } from 'modules/layout/styles';
 import React from 'react';
 import Select from 'react-select-plus';
 import { IConditionFilter, IEvent, IField } from '../../types';
-import { ConditionItem, FilterProperty, FilterRow, SubProperties } from '../styles';
+import {
+  ConditionItem,
+  FilterProperty,
+  FilterRow,
+  SubProperties
+} from '../styles';
 import Filter from './Filter';
 
 type OnChangeParams = {
@@ -32,7 +37,7 @@ type State = {
   currentEventName?: string;
   occurence?: string;
   occurenceValue?: number;
-}
+};
 
 class Condition extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -40,10 +45,13 @@ class Condition extends React.Component<Props, State> {
 
     this.state = {
       currentEventName: props.name,
-      attributeFilters: props.attributeFilters.map(filter => ({ key: Math.random().toString(), ...filter })),
+      attributeFilters: props.attributeFilters.map(filter => ({
+        key: Math.random().toString(),
+        ...filter
+      })),
       occurence: props.occurence,
       occurenceValue: props.occurenceValue
-    }
+    };
   }
 
   removeCondition = () => {
@@ -52,43 +60,59 @@ class Condition extends React.Component<Props, State> {
 
   onChangeFilter = () => {
     const { onChange, conditionKey } = this.props;
-    const { currentEventName, attributeFilters, occurenceValue, occurence } = this.state;
+    const {
+      currentEventName,
+      attributeFilters,
+      occurenceValue,
+      occurence
+    } = this.state;
 
     return onChange({
       key: conditionKey,
       name: currentEventName || '',
       occurence: occurence || 'exactly',
       occurenceValue: occurenceValue || 0,
-      attributeFilters,
+      attributeFilters
     });
-  }
+  };
 
   onChangeAttributeFilter = (filter: IConditionFilter) => {
-    this.setState({
-      attributeFilters: this.state.attributeFilters.map(f =>
-        f.key === filter.key ? filter : f
-      )
-    }, this.onChangeFilter);
+    this.setState(
+      {
+        attributeFilters: this.state.attributeFilters.map(f =>
+          f.key === filter.key ? filter : f
+        )
+      },
+      this.onChangeFilter
+    );
   };
 
   onRemoveAttributeFilter = (key: string) => {
-    const attributeFilters = this.state.attributeFilters.filter(f => f.key !== key);
+    const attributeFilters = this.state.attributeFilters.filter(
+      f => f.key !== key
+    );
 
     this.setState({ attributeFilters }, this.onChangeFilter);
   };
 
   onChangeEvents = (option: IField) => {
-    this.setState({ currentEventName: option ? option.value : '' }, this.onChangeFilter);
-  }
+    this.setState(
+      { currentEventName: option ? option.value : '' },
+      this.onChangeFilter
+    );
+  };
 
-  onChangeOccurence = (e) => {
+  onChangeOccurence = e => {
     this.setState({ occurence: e.target.value }, this.onChangeFilter);
-  }
+  };
 
-  onChangeOccurenceValue = (e) => {
+  onChangeOccurenceValue = e => {
     const value = e.target.value;
-    this.setState({ occurenceValue: value ? parseFloat(value) : 0 }, this.onChangeFilter);
-  }
+    this.setState(
+      { occurenceValue: value ? parseFloat(value) : 0 },
+      this.onChangeFilter
+    );
+  };
 
   addAttributeFilter = () => {
     const attributeFilter = {
@@ -103,19 +127,22 @@ class Condition extends React.Component<Props, State> {
     attributeFilters.push(attributeFilter);
 
     this.setState({ attributeFilters });
-  }
+  };
 
   renderAttributeFilters = () => {
     const { attributeFilters, currentEventName } = this.state;
     const { events } = this.props;
     const currentEvent = events.find(e => e.name === currentEventName);
-    
+
     if (!currentEvent) {
       return;
     }
-    
-    const nameFields = currentEvent.attributeNames.map(name => ({ value: name, label: name }));
-    
+
+    const nameFields = currentEvent.attributeNames.map(name => ({
+      value: name,
+      label: name
+    }));
+
     return attributeFilters.map((filter, index) => {
       return (
         <Filter
@@ -127,12 +154,15 @@ class Condition extends React.Component<Props, State> {
         />
       );
     });
-  }
+  };
 
   renderNames() {
     const { events } = this.props;
     const { currentEventName } = this.state;
-    const eventsData = events.map(event => ({ value: event.name, label: event.name }));
+    const eventsData = events.map(event => ({
+      value: event.name,
+      label: event.name
+    }));
 
     return (
       <Select
@@ -141,7 +171,7 @@ class Condition extends React.Component<Props, State> {
         value={currentEventName}
         onChange={this.onChangeEvents}
         options={eventsData}
-        placeholder={__("Select event")}
+        placeholder={__('Select event')}
       />
     );
   }
@@ -155,15 +185,22 @@ class Condition extends React.Component<Props, State> {
 
     return (
       <>
-        <FormControl componentClass="select" onChange={this.onChangeOccurence} value={occurence}>
+        <FormControl
+          componentClass="select"
+          onChange={this.onChangeOccurence}
+          value={occurence}
+        >
           <option value="exactly">exactly</option>
           <option value="atleast">atleast</option>
           <option value="atmost">atmost</option>
         </FormControl>
 
-        <FormControl value={occurenceValue} onChange={this.onChangeOccurenceValue} />
+        <FormControl
+          value={occurenceValue}
+          onChange={this.onChangeOccurenceValue}
+        />
       </>
-    )
+    );
   }
 
   render() {
@@ -171,25 +208,22 @@ class Condition extends React.Component<Props, State> {
       <>
         <ConditionItem>
           <FilterRow>
-            <FilterProperty>
-              {this.renderNames()}
-            </FilterProperty>
+            <FilterProperty>{this.renderNames()}</FilterProperty>
 
             {this.renderOccurence()}
 
             <FilterProperty>
-              {
-                this.state.currentEventName && 
-                <Button 
+              {this.state.currentEventName && (
+                <Button
                   btnStyle="simple"
-                  icon="plus-circle" 
-                  uppercase={false} 
+                  icon="plus-circle"
+                  uppercase={false}
                   onClick={this.addAttributeFilter}
                 >
                   Add event attribute
                 </Button>
-              }
-            </FilterProperty>            
+              )}
+            </FilterProperty>
           </FilterRow>
 
           <FlexRightItem>
@@ -203,9 +237,7 @@ class Condition extends React.Component<Props, State> {
           </FlexRightItem>
         </ConditionItem>
 
-        <SubProperties>
-          {this.renderAttributeFilters()}
-        </SubProperties>
+        <SubProperties>{this.renderAttributeFilters()}</SubProperties>
       </>
     );
   }

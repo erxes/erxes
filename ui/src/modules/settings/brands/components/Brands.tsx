@@ -43,7 +43,7 @@ class Brands extends React.Component<Props, {}> {
           size="small"
         />
       );
-    };
+    }
 
     const trigger = (
       <Button btnStyle="simple" uppercase={false} icon="web-grid-alt">
@@ -59,7 +59,7 @@ class Brands extends React.Component<Props, {}> {
           size="small"
         />
       );
-    };
+    }
 
     const content = props => (
       <ManageIntegrations
@@ -96,10 +96,7 @@ class Brands extends React.Component<Props, {}> {
           />
         }
         actionBar={
-          <Wrapper.ActionBar
-            left={leftActionBar}
-            right={rightActionBar}
-          />
+          <Wrapper.ActionBar left={leftActionBar} right={rightActionBar} />
         }
         leftSidebar={
           <Sidebar

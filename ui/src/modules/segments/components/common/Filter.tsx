@@ -1,12 +1,12 @@
-import Button from "modules/common/components/Button";
-import { FormControl } from "modules/common/components/form";
-import { __ } from "modules/common/utils";
-import { operators } from "modules/customers/constants";
-import { FlexRightItem } from "modules/layout/styles";
-import React from "react";
+import Button from 'modules/common/components/Button';
+import { FormControl } from 'modules/common/components/form';
+import { __ } from 'modules/common/utils';
+import { operators } from 'modules/customers/constants';
+import { FlexRightItem } from 'modules/layout/styles';
+import React from 'react';
 import Select from 'react-select-plus';
-import { IConditionFilter, IField } from "../../types";
-import { ConditionItem, FilterProperty, FilterRow } from "../styles";
+import { IConditionFilter, IField } from '../../types';
+import { ConditionItem, FilterProperty, FilterRow } from '../styles';
 
 type Props = {
   fields: IField[];
@@ -33,7 +33,7 @@ class Filter extends React.Component<Props, State> {
       key: filter.key || '',
       currentName: filter.name,
       currentOperator: filter.operator,
-      currentValue: filter.value,
+      currentValue: filter.value
     };
   }
 
@@ -45,32 +45,43 @@ class Filter extends React.Component<Props, State> {
       key: filter.key,
       name: currentName,
       operator: currentOperator,
-      value: currentValue,
+      value: currentValue
     });
-  }
+  };
 
   onChangeValue = (e: React.FormEvent<HTMLElement>) => {
-    this.setState({ currentValue: (e.currentTarget as HTMLInputElement).value }, this.onChange);
-  }
+    this.setState(
+      { currentValue: (e.currentTarget as HTMLInputElement).value },
+      this.onChange
+    );
+  };
 
   onChangeNames = (e: React.FormEvent<HTMLElement>) => {
-    this.setState({ currentName: (e.currentTarget as HTMLInputElement).value }, this.onChange);
-  }
+    this.setState(
+      { currentName: (e.currentTarget as HTMLInputElement).value },
+      this.onChange
+    );
+  };
 
   onChangeOperators = (e: React.FormEvent<HTMLElement>) => {
-    this.setState({ currentOperator: (e.currentTarget as HTMLInputElement).value }, this.onChange);
-  }
+    this.setState(
+      { currentOperator: (e.currentTarget as HTMLInputElement).value },
+      this.onChange
+    );
+  };
 
   onChangeField = ({ value }: { value: string }) => {
     this.setState({ currentName: value }, this.onChange);
-  }
+  };
 
   groupByType = () => {
     const { fields = [] } = this.props;
-    
+
     return fields.reduce((acc, field) => {
       const value = field.value;
-      const key = value.includes('.') ? value.substr(0, value.indexOf('.')) : 'general';
+      const key = value.includes('.')
+        ? value.substr(0, value.indexOf('.'))
+        : 'general';
 
       if (!acc[key]) {
         acc[key] = [];
@@ -92,7 +103,7 @@ class Filter extends React.Component<Props, State> {
     });
 
     return array;
-  }
+  };
 
   renderNames() {
     const { fields, groupData } = this.props;
@@ -105,7 +116,7 @@ class Filter extends React.Component<Props, State> {
         clearable={false}
         value={currentName}
         onChange={this.onChangeField}
-        placeholder={__("Select property")}
+        placeholder={__('Select property')}
       />
     );
   }
@@ -114,8 +125,12 @@ class Filter extends React.Component<Props, State> {
     const { currentOperator } = this.state;
 
     return (
-      <FormControl componentClass="select" onChange={this.onChangeOperators} value={currentOperator}>
-        <option value="">{__("Select operator")}...</option>
+      <FormControl
+        componentClass="select"
+        onChange={this.onChangeOperators}
+        value={currentOperator}
+      >
+        <option value="">{__('Select operator')}...</option>
         {operators.map(c => (
           <option value={c.value} key={c.value}>
             {c.name}
@@ -140,8 +155,16 @@ class Filter extends React.Component<Props, State> {
       return;
     }
 
-    return <Button className="round" btnStyle="danger" uppercase={false} icon="times" onClick={this.onRemove} />;
-  }
+    return (
+      <Button
+        className="round"
+        btnStyle="danger"
+        uppercase={false}
+        icon="times"
+        onClick={this.onRemove}
+      />
+    );
+  };
 
   renderValueInput = () => {
     const { currentValue, currentOperator } = this.state;
@@ -150,26 +173,18 @@ class Filter extends React.Component<Props, State> {
       return null;
     }
 
-    return (
-      <FormControl value={currentValue} onChange={this.onChangeValue} />
-    );
-  }
+    return <FormControl value={currentValue} onChange={this.onChangeValue} />;
+  };
 
   render() {
     return (
       <ConditionItem>
         <FilterRow>
-          <FilterProperty>
-            {this.renderNames()}
-          </FilterProperty>
-          <FilterProperty>
-            {this.renderOperators()}
-          </FilterProperty>
+          <FilterProperty>{this.renderNames()}</FilterProperty>
+          <FilterProperty>{this.renderOperators()}</FilterProperty>
           {this.renderValueInput()}
         </FilterRow>
-        <FlexRightItem>
-          {this.renderRemoveButton()}
-        </FlexRightItem>
+        <FlexRightItem>{this.renderRemoveButton()}</FlexRightItem>
       </ConditionItem>
     );
   }

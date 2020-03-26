@@ -20,7 +20,7 @@ export default class DateComponent extends React.Component<Props, {}> {
       type === 'post' ? new Date(timestamp).getTime() * 1000 : timestamp;
 
     return (
-      <Tip placement='bottom' text={dayjs(new Date(createdTime)).format('lll')}>
+      <Tip placement="bottom" text={dayjs(new Date(createdTime)).format('lll')}>
         <DateTime>{dayjs(new Date(createdTime)).fromNow()}</DateTime>
       </Tip>
     );

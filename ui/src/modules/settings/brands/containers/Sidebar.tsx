@@ -23,7 +23,8 @@ type Props = {
 type FinalProps = {
   brandsQuery: BrandsQueryResponse;
   brandsCountQuery: BrandsCountQueryResponse;
-} & Props & IRouterProps &
+} & Props &
+  IRouterProps &
   BrandRemoveMutationResponse;
 
 const SidebarContainer = (props: ChildProps<FinalProps>) => {
