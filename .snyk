@@ -4,69 +4,157 @@ version: v1.13.5
 ignore:
   SNYK-JS-HTTPSPROXYAGENT-469131:
     - '@google-cloud/pubsub > google-auth-library > gtoken > gaxios > https-proxy-agent':
-        reason: No fix available
-        expires: '2020-02-07T11:16:15.188Z'
+        reason: None given
+        expires: '2020-04-25T09:23:47.365Z'
     - '@google-cloud/pubsub > google-auth-library > gcp-metadata > gaxios > https-proxy-agent':
-        reason: No fix available
-        expires: '2020-02-07T11:16:15.188Z'
+        reason: None given
+        expires: '2020-04-25T09:23:47.365Z'
     - '@google-cloud/pubsub > google-gax > google-auth-library > gtoken > gaxios > https-proxy-agent':
         reason: No fix available
         expires: '2020-02-07T11:16:15.188Z'
+      '@google-cloud/pubsub > google-gax > google-auth-library > gcp-metadata > gaxios > https-proxy-agent':
+        reason: None given
+        expires: '2020-04-25T09:23:47.365Z'
     - '@google-cloud/pubsub > google-gax > google-auth-library > gcp-metadata > gaxios > https-proxy-agent':
         reason: No fix available
         expires: '2020-02-07T11:16:15.188Z'
+      '@google-cloud/pubsub > google-gax > google-auth-library > gtoken > gaxios > https-proxy-agent':
+        reason: None given
+        expires: '2020-04-25T09:23:47.365Z'
+    - googleapis > googleapis-common > google-auth-library > gcp-metadata > gaxios > https-proxy-agent:
+        reason: None given
+        expires: '2020-04-25T09:23:47.365Z'
+    - googleapis > googleapis-common > google-auth-library > gtoken > gaxios > https-proxy-agent:
+        reason: None given
+        expires: '2020-04-25T09:23:47.365Z'
+    - googleapis > googleapis-common > google-auth-library > gaxios > https-proxy-agent:
+        reason: None given
+        expires: '2020-04-25T09:23:47.366Z'
+    - googleapis > google-auth-library > gcp-metadata > gaxios > https-proxy-agent:
+        reason: None given
+        expires: '2020-04-25T09:23:47.366Z'
+    - googleapis > google-auth-library > gaxios > https-proxy-agent:
+        reason: None given
+        expires: '2020-04-25T09:23:47.366Z'
+    - googleapis > googleapis-common > gaxios > https-proxy-agent:
+        reason: None given
+        expires: '2020-04-25T09:23:47.366Z'
+    - googleapis > google-auth-library > gtoken > gaxios > https-proxy-agent:
+        reason: None given
+        expires: '2020-04-25T09:23:47.366Z'
   SNYK-JS-HANDLEBARS-480388:
     - botkit > hbs > handlebars:
         reason: No fix available
         expires: '2020-02-07T11:16:15.188Z'
+      botbuilder-adapter-facebook-erxes > botkit > hbs > handlebars:
+        reason: None given
+        expires: '2020-04-25T09:23:47.365Z'
     - botbuilder-adapter-facebook-erxes > botkit > hbs > handlebars:
         reason: No fix available
         expires: '2020-02-07T11:16:15.189Z'
+      botkit > hbs > handlebars:
+        reason: No fix available
+        expires: '2020-04-25T09:23:47.365Z'
   SNYK-JS-HANDLEBARS-534478:
     - botkit > hbs > handlebars:
         reason: No fix available
         expires: '2020-02-07T11:16:15.189Z'
+      botbuilder-adapter-facebook-erxes > botkit > hbs > handlebars:
+        reason: None given
+        expires: '2020-04-25T09:23:47.365Z'
     - botbuilder-adapter-facebook-erxes > botkit > hbs > handlebars:
         reason: No fix available
         expires: '2020-02-07T11:16:15.189Z'
+      botkit > hbs > handlebars:
+        reason: No fix available
+        expires: '2020-04-25T09:23:47.365Z'
   SNYK-JS-HANDLEBARS-534988:
     - botkit > hbs > handlebars:
         reason: No fix available
         expires: '2020-02-07T11:16:15.189Z'
+      botbuilder-adapter-facebook-erxes > botkit > hbs > handlebars:
+        reason: None given
+        expires: '2020-04-25T09:23:47.365Z'
     - botbuilder-adapter-facebook-erxes > botkit > hbs > handlebars:
         reason: No fix available
         expires: '2020-02-07T11:16:15.189Z'
+      botkit > hbs > handlebars:
+        reason: No fix available
+        expires: '2020-04-25T09:23:47.365Z'
+  SNYK-JS-MINIMIST-559764:
+    - botbuilder > botframework-connector > nock > mkdirp > minimist:
+        reason: None given
+        expires: '2020-04-25T09:23:47.365Z'
+    - botbuilder-adapter-facebook-erxes > botbuilder > botframework-connector > nock > mkdirp > minimist:
+        reason: None given
+        expires: '2020-04-25T09:23:47.365Z'
+    - botbuilder-adapter-facebook-erxes > botkit > botbuilder > botframework-connector > nock > mkdirp > minimist:
+        reason: None given
+        expires: '2020-04-25T09:23:47.365Z'
+    - botbuilder-adapter-facebook-erxes > botkit > botframework-connector > nock > mkdirp > minimist:
+        reason: None given
+        expires: '2020-04-25T09:23:47.365Z'
+    - botkit > botbuilder > botframework-connector > nock > mkdirp > minimist:
+        reason: No fix available
+        expires: '2020-04-25T09:23:47.365Z'
+    - botkit > botframework-connector > nock > mkdirp > minimist:
+        reason: No fix available
+        expires: '2020-04-25T09:23:47.365Z'
+    - migrate > mkdirp > minimist:
+        reason: None given
+        expires: '2020-04-25T09:23:47.366Z'
+    - snyk > update-notifier > latest-version > package-json > registry-auth-token > rc > minimist:
+        reason: None given
+        expires: '2020-04-25T09:23:47.367Z'
+    - snyk > update-notifier > latest-version > package-json > registry-url > rc > minimist:
+        reason: None given
+        expires: '2020-04-25T09:23:47.367Z'
+    - node-pre-gyp > mkdirp > minimist:
+        reason: None given
+        expires: '2020-04-25T09:23:47.367Z'
+    - node-pre-gyp > tar > mkdirp > minimist:
+        reason: None given
+        expires: '2020-04-25T09:23:47.367Z'
+    - botkit > hbs > handlebars > optimist > minimist:
+        reason: None given
+        expires: '2020-04-25T09:23:47.367Z'
+    - botbuilder-adapter-facebook-erxes > botkit > hbs > handlebars > optimist > minimist:
+        reason: None given
+        expires: '2020-04-25T09:23:47.367Z'
+    - node-pre-gyp > rc > minimist:
+        reason: None given
+        expires: '2020-04-25T09:23:47.367Z'
+  SNYK-JS-BSON-561052:
+    - mongoose > bson:
+        reason: None given
+        expires: '2020-04-25T09:23:47.366Z'
+    - mongoose > mongodb > bson:
+        reason: None given
+        expires: '2020-04-25T09:23:47.366Z'
+  SNYK-JS-DOTPROP-543489:
+    - snyk > update-notifier > configstore > dot-prop:
+        reason: None given
+        expires: '2020-04-25T09:23:47.366Z'
+    - snyk > configstore > dot-prop:
+        reason: None given
+        expires: '2020-04-25T09:23:47.366Z'
 # patches apply the minimum changes required to fix a vulnerability
 patch:
   SNYK-JS-HTTPSPROXYAGENT-469131:
     - '@google-cloud/pubsub > google-auth-library > gtoken > gaxios > https-proxy-agent':
         patched: '2019-10-29T23:53:43.681Z'
-      googleapis > google-auth-library > gtoken > gaxios > https-proxy-agent:
-        patched: '2020-01-08T11:10:52.482Z'
     - '@google-cloud/pubsub > google-auth-library > gcp-metadata > gaxios > https-proxy-agent':
         patched: '2019-10-29T23:53:43.681Z'
-      googleapis > google-auth-library > gcp-metadata > gaxios > https-proxy-agent:
-        patched: '2020-01-08T11:10:52.482Z'
     - '@google-cloud/pubsub > google-gax > google-auth-library > gtoken > gaxios > https-proxy-agent':
         patched: '2019-10-29T23:53:43.681Z'
-      googleapis > google-auth-library > gaxios > https-proxy-agent:
-        patched: '2020-01-08T11:10:52.482Z'
     - '@google-cloud/pubsub > google-gax > google-auth-library > gcp-metadata > gaxios > https-proxy-agent':
         patched: '2019-10-29T23:53:43.681Z'
-      googleapis > googleapis-common > google-auth-library > gtoken > gaxios > https-proxy-agent:
-        patched: '2020-01-08T11:10:52.482Z'
     - googleapis > google-auth-library > gtoken > gaxios > https-proxy-agent:
         patched: '2019-10-29T23:53:43.681Z'
-      googleapis > googleapis-common > google-auth-library > gcp-metadata > gaxios > https-proxy-agent:
-        patched: '2020-01-08T11:10:52.482Z'
     - googleapis > google-auth-library > gcp-metadata > gaxios > https-proxy-agent:
         patched: '2019-10-29T23:53:43.681Z'
-      googleapis > googleapis-common > gaxios > https-proxy-agent:
-        patched: '2020-01-08T11:10:52.482Z'
     - googleapis > google-auth-library > gaxios > https-proxy-agent:
         patched: '2019-10-29T23:53:43.681Z'
-      googleapis > googleapis-common > google-auth-library > gaxios > https-proxy-agent:
-        patched: '2020-01-08T11:10:52.482Z'
     - googleapis > googleapis-common > google-auth-library > gtoken > gaxios > https-proxy-agent:
         patched: '2019-10-29T23:53:43.681Z'
     - googleapis > googleapis-common > google-auth-library > gcp-metadata > gaxios > https-proxy-agent:
@@ -75,6 +163,20 @@ patch:
         patched: '2019-10-29T23:53:43.681Z'
     - googleapis > googleapis-common > google-auth-library > gaxios > https-proxy-agent:
         patched: '2019-10-29T23:53:43.681Z'
+    - googleapis > google-auth-library > gtoken > gaxios > https-proxy-agent:
+        patched: '2020-01-08T11:10:52.482Z'
+    - googleapis > google-auth-library > gcp-metadata > gaxios > https-proxy-agent:
+        patched: '2020-01-08T11:10:52.482Z'
+    - googleapis > google-auth-library > gaxios > https-proxy-agent:
+        patched: '2020-01-08T11:10:52.482Z'
+    - googleapis > googleapis-common > google-auth-library > gtoken > gaxios > https-proxy-agent:
+        patched: '2020-01-08T11:10:52.482Z'
+    - googleapis > googleapis-common > google-auth-library > gcp-metadata > gaxios > https-proxy-agent:
+        patched: '2020-01-08T11:10:52.482Z'
+    - googleapis > googleapis-common > gaxios > https-proxy-agent:
+        patched: '2020-01-08T11:10:52.482Z'
+    - googleapis > googleapis-common > google-auth-library > gaxios > https-proxy-agent:
+        patched: '2020-01-08T11:10:52.482Z'
   SNYK-JS-TREEKILL-536781:
     - snyk > snyk-sbt-plugin > tree-kill:
         patched: '2020-01-08T11:10:52.482Z'
