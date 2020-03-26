@@ -315,7 +315,7 @@ const init = async app => {
 
           .catch(e => {
             debugFacebook(`Error occurred while processing activity: ${e.message}`);
-            next();
+            res.end('success');
           });
       }
 
@@ -327,7 +327,8 @@ const init = async app => {
               await receiveComment(event.value, entry.id);
               res.end('success');
             } catch (e) {
-              return next(new Error(e));
+              debugFacebook(`Error processing comment: ${e.message}`);
+              res.end('success');
             }
           }
 
@@ -336,7 +337,8 @@ const init = async app => {
               await receivePost(event.value, entry.id);
               res.end('success');
             } catch (e) {
-              return next(new Error(e));
+              debugFacebook(`Error processing comment: ${e.message}`);
+              res.end('success');
             }
           } else {
             res.end('success');

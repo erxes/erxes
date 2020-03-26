@@ -15,6 +15,7 @@ import { initRedis } from './redisClient';
 import { init } from './startup';
 import initTwitter from './twitter/controller';
 import initDaily from './videoCall/controller';
+import initWhatsapp from './whatsapp/controller';
 
 const app = express();
 
@@ -110,6 +111,8 @@ initTwitter(app);
 // init chatfuel
 initChatfuel(app);
 
+// init whatsapp
+initWhatsapp(app);
 // init chatfuel
 initDaily(app);
 
