@@ -414,7 +414,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Instagram',
-    description: 'Connect to your twitter posts here in your Team Inbox',
+    description: 'Connect to your instagram posts here in your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/instagram.png',

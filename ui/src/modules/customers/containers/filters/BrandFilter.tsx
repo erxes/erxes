@@ -33,25 +33,26 @@ class BrandFilterContainer extends React.Component<Props> {
   }
 }
 
-export default withProps<{ loadingMainQuery: boolean }>(
+type WrapperProps = {
+  type: string;
+  loadingMainQuery: boolean;
+};
+
+export default withProps<WrapperProps>(
   compose(
-    graphql<{ loadingMainQuery: boolean }, BrandsQueryResponse, {}>(
-      gql(queries.brands),
+    graphql<WrapperProps, BrandsQueryResponse, {}>(gql(queries.brands), {
+      name: 'brandsQuery',
+      skip: ({ loadingMainQuery }) => loadingMainQuery
+    }),
+    graphql<WrapperProps, CountQueryResponse, { only: string }>(
+      gql(customerQueries.customerCounts),
       {
-        name: 'brandsQuery',
-        skip: ({ loadingMainQuery }) => loadingMainQuery
+        name: 'customersCountQuery',
+        skip: ({ loadingMainQuery }) => loadingMainQuery,
+        options: ({ type }) => ({
+          variables: { type, only: 'byBrand' }
+        })
       }
-    ),
-    graphql<
-      { loadingMainQuery: boolean },
-      CountQueryResponse,
-      { only: string }
-    >(gql(customerQueries.customerCounts), {
-      name: 'customersCountQuery',
-      skip: ({ loadingMainQuery }) => loadingMainQuery,
-      options: {
-        variables: { only: 'byBrand' }
-      }
-    })
+    )
   )(BrandFilterContainer)
 );

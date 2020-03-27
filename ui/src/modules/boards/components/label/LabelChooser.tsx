@@ -77,7 +77,7 @@ class ChooseLabel extends React.Component<
           container={this}
         >
           <ColorButton>
-            <Icon icon="tag-alt" />
+            <Icon icon="label-alt" />
             {__('Labels')}
           </ColorButton>
         </OverlayTrigger>

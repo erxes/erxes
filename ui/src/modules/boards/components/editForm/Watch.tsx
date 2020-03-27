@@ -24,14 +24,14 @@ class Watch extends React.Component<IProps> {
     if (isSmall) {
       return (
         <ColorButton onClick={onClick}>
-          <Icon icon={isWatched ? 'eye-2' : 'eye-slash'} />
+          <Icon icon={isWatched ? 'eye' : 'eye-slash'} />
           {__('Watch')}
         </ColorButton>
       );
     }
 
     return (
-      <RightButton icon="eye-2" onClick={onClick}>
+      <RightButton icon="eye" onClick={onClick}>
         {__('Watch')}
         {isWatched && (
           <WatchIndicator>

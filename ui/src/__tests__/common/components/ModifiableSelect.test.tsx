@@ -6,6 +6,7 @@ import ModifiableSelect from '../../../modules/common/components/ModifiableSelec
 describe('Testing ModifiableSelect component', () => {
   let select;
   const defaultProps = {
+    name: 'name',
     options: ['11111111', '22222222'],
     value: '80',
     placeholder: 'phone',

@@ -93,8 +93,6 @@ function Filter({ queryParams = {}, history }: IProps) {
       {renderFilterWithData('brand', 'brand')}
       {renderFilterWithDate()}
       {renderFilterWithData('form', 'form', '_id title')}
-      {renderFilterParam('leadStatus', false)}
-      {renderFilterParam('lifecycleState', false)}
     </Filters>
   );
 }

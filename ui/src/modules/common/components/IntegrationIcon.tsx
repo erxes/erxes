@@ -29,7 +29,7 @@ const RoundedBackground = styledTS<{ type: string; size?: number }>(
     (props.type.includes('viber') && colors.socialViber) ||
     (props.type.includes('line') && colors.socialLine) ||
     (props.type.includes('twilio') && colors.socialTwilio) ||
-    colors.colorCoreBlue};
+    colors.colorCoreRed};
 
   i {
     color: ${colors.colorWhite};
@@ -62,25 +62,17 @@ class IntegrationIcon extends React.PureComponent<Props> {
         icon = 'comment';
         break;
       case 'nylas-gmail':
-        icon = 'mail-alt';
+      case 'gmail':
+        icon = 'gmail';
         break;
       case 'nylas-imap':
-        icon = 'mail-alt';
-        break;
       case 'nylas-office365':
-        icon = 'mail-alt';
-        break;
       case 'nylas-outlook':
-        icon = 'mail-alt';
-        break;
       case 'nylas-yahoo':
         icon = 'mail-alt';
         break;
-      case 'gmail':
-        icon = 'mail-alt';
-        break;
       case 'callpro':
-        icon = 'phone-call';
+        icon = 'phone-volume';
         break;
       case 'chatfuel':
         icon = 'comment-dots';
@@ -99,7 +91,7 @@ class IntegrationIcon extends React.PureComponent<Props> {
         break;
 
       case 'whatsapp':
-        icon = 'whatsapp';
+        icon = 'whatsapp-fill';
         break;
       default:
         icon = 'doc-text-inv-1';

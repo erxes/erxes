@@ -11,6 +11,7 @@ import CustomerForm from '../components/list/CustomerForm';
 import { mutations } from '../graphql';
 
 type Props = {
+  type?: string;
   customer: ICustomer;
   closeModal: () => void;
   getAssociatedCustomer?: (customerId: string) => void;
@@ -36,7 +37,7 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
   };
 
   render() {
-    const { closeModal, history, getAssociatedCustomer } = this.props;
+    const { closeModal, type, history, getAssociatedCustomer } = this.props;
     const { redirectType } = this.state;
 
     const renderButton = ({
@@ -69,6 +70,8 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
         }
       };
 
+      values.state = type || 'customer';
+
       return (
         <ButtonMutate
           mutation={object ? mutations.customersEdit : mutations.customersAdd}
@@ -79,8 +82,9 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
           disableLoading={redirectType ? true : false}
           disabled={isSubmitted}
           type="submit"
-          icon="user-check"
+          icon="check-circle"
           resetSubmit={resetSubmit}
+          uppercase={false}
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
           } a ${name}`}

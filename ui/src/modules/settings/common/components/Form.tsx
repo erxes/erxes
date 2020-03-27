@@ -32,8 +32,8 @@ class Form extends React.Component<Props & ICommonFormProps> {
           <Button
             btnStyle="simple"
             type="button"
+            uppercase={false}
             onClick={closeModal}
-            icon="cancel-1"
           >
             Cancel
           </Button>
