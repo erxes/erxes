@@ -180,7 +180,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
           </ContentDisabler>
         </CollapseContent>
 
-        <CollapseContent title="Smooch">
+        <CollapseContent title="Sunshine Conversations API">
           <Info>
             <a target="_blank" href="Variables" rel="noopener noreferrer">
               {__('More: Understanding Smooch Integration Variables')}
