@@ -66,6 +66,10 @@ export const KIND_CHOICES = {
   CALLPRO: 'callpro',
   TWITTER_DM: 'twitter-dm',
   CHATFUEL: 'chatfuel',
+  SMOOCH_VIBER: 'smooch-viber',
+  SMOOCH_LINE: 'smooch-line',
+  SMOOCH_TELEGRAM: 'smooch-telegram',
+  SMOOCH_TWILIO: 'smooch-twilio',
   WHATSAPP: 'whatsapp',
   ALL: [
     'messenger',
@@ -81,6 +85,10 @@ export const KIND_CHOICES = {
     'nylas-outlook',
     'nylas-yahoo',
     'twitter-dm',
+    'smooch-viber',
+    'smooch-line',
+    'smooch-telegram',
+    'smooch-twilio',
     'whatsapp',
   ],
 };
@@ -99,6 +107,10 @@ export const INTEGRATION_NAMES_MAP = {
   'nylas-outlook': 'Outook',
   'nylas-yahoo': 'Yahoo',
   'twitter-dm': 'Twitter dm',
+  'smooch-viber': 'Viber',
+  'smooch-line': 'Line',
+  'smooch-telegram': 'Telegram',
+  'smooch-twilio': 'Twilio SMS',
   whatsapp: 'WhatsApp',
 };
 

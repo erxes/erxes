@@ -266,6 +266,10 @@ const conversationMutations = {
       requestName = 'replyTwitterDm';
     }
 
+    if (kind.includes('smooch')) {
+      requestName = 'replySmooch';
+    }
+
     // send reply to whatsapp
     if (kind === KIND_CHOICES.WHATSAPP) {
       requestName = 'replyWhatsApp';
