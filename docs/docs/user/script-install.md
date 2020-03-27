@@ -590,80 +590,102 @@ bio:”<Bio>”,
 <img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/12.+Result+5.png />
 
 ### Manipulate your messenger function 
-You able to manipulate your messenger function such change look of a messenger style, position and you can configure that click button to call action. 
+
+A messenger can be launched programmatically on some user interaction, "like clicking on request for help button". Rather than attaching to document, there should be an option to attach the erxes launcher to a specific element, as it causes the problem in single-page apps since it is not ideal to display the launcher icon in every page.You are now able to manipulate your messenger functions such as change the appearance of a messenger style, a position as well as you can set up the button on your website to call the messenger on specified page. 
+
 #### Button submit
-Ability to call submit from outside, which means  that listen for callSubmit action from outside (parent website) to force submit action. For example, you can add any button to call action to open your messenger.
+Ability to call submit from outside (parent website), which means listen for callSubmit action from outside to force submit action. For example, you can add any button to call action to open your messenger. There is a window.Erxes.showMessenger() function available on the window object. You can use this function to show messenger programmatically. Insert the following script inside your messenger script code. 
 
 ```
  document.getElementById('button').onclick = () => {
     window.Erxes.showMessenger()
   }
 ```
+
+First you need uncheck show launcher check to hide default handler. When you check show launcher, the widget section will invisible but you can still callSubmit action to get messenger.
+
+<img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/manipulate1.png />
+
+Insert the following script inside your messenger script code. 
+
+<img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/manipulate2.png />
+
+Once you click submit button on your website, messenger will open. 
+
+
+<img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/manipulate.png />
+
+
+
 #### Messenger position
 
+As part of the support system inside the web, it is always difficult to fix the position of launcher icon to the bottom, or right left position, especially on mobile, since it overlaps with other elements, especially bottom navbar.
 
-Problem:
+You can manipulate the position of the messenger body like following. The messenger is show left side of your website. 
+```
+<script>
+  window.erxesSettings = {
+    messenger: {
+      brand_id: "AtaT4Z",
+      css: `
+          .erxes-messenger {
+          left: 8px;
+          transform-origin: 0% 100%;
+          }
 
-As part of the support system inside the web, it is always difficult to fix the position of launcher icon to the bottom, especially on mobile, since it overlaps with other elements, especially bottom navbar.
-Say the launcher icon is loaded on home page on a single page app where games are listed, it is disturbing to show the launcher icon on the gameplay page as well. Since it is attached to the scope of the body, it will remain on other pages as well, since its a single page app.
+          .erxes-launcher {
+          left: 8px;
+          right: auto;
+          }
+          `
+          },
+  };
+  
+(function() {
+  var script = document.createElement('script');
+  script.src = "https://w.office.erxes.io/build/messengerWidget.bundle.js";
+  script.async = true;
+  var entry = document.getElementsByTagName('script')[0];
+  entry.parentNode.insertBefore(script, entry);
+})();
 
-Solution:
-
-It would be great if a messenger can be launched programmatically like erxes.launch() on some user interaction, "like clicking on request for help button".
-Rather than attaching to document, there should be an option to attach the erxes launcher to a specific element, as it causes the problem in single-page apps since it is not ideal to display the launcher icon in every page.
-
-Now you can follow the below steps to accomplish your needs
-
-1. Uncheck show launcher check to hide default handler
+</script>
+```
 
 
-2. There is a showErxesMessenger function available on the window object. You can use this function to show messenger programmatically.
 
-`window.showErxesMessenger()`
-
-3. You can manipulate the position of the messenger body like following. 
-
-`#erxes-messenger-container {
-   top: 0px;
-   left: 55%;
-}`
 
 #### CSS style
-Ability to change form css from parent. In some cases, the developer wants to hide form title, button or modify some auto-generated CSS.  
+Ability to change form css from parent. In some cases, the developer wants to hide form title, button or modify some auto-generated CSS. Refer the following example of css file. 
+
+``` 
+.erxes-embed-iframe {
+margin-top: 100px !important;
+margin-bottom: 100px !important;
+height: 500px !important;
+}
+
+#erxes-messenger-container {
+left: 0;
+}
+
+#erxes-messenger-iframe {
+left: 24px;
+}
+
+#erxes-messenger-container:after {
+left: -300px;
+transform: scaleX(-1);
+}
+
+#erxes-messenger-container.erxes-messenger-shown:after {
+left: -20px;
+}
 
 ```
- 
-    <script>
-      window.erxesSettings = {
-        messenger: {
-          brand_id: "5fkS4v",
-          css: `
-            .erxes-form {
-            color: red;
-            }
+The messenger position is now left side. 
+<img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/manipulate3.png />
 
-            .erxes-form .erxes-topbar {
-            display: none;
-            }
-            
-            .erxes-button.btn-block {
-            display: none;
-            }
-        `
-        },
-      };
-      
-    (function() {
-      var script = document.createElement('script');
-      script.src = "https://w.office.erxes.io/build/messengerWidget.bundle.js";
-      script.async = true;
-      var entry = document.getElementsByTagName('script')[0];
-      entry.parentNode.insertBefore(script, entry);
-    })();
-  
-    </script>
-
-```
 
 ## Advanced combination installation
 In the advanced combination installation is described combination of the following features.
