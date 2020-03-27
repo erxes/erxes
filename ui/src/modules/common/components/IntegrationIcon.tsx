@@ -25,7 +25,7 @@ const RoundedBackground = styledTS<{ type: string; size?: number }>(
     (props.type === 'gmail' && colors.socialGmail) ||
     (props.type === 'whatsapp' && colors.socialWhatsApp) ||
     (props.type.includes('nylas') && colors.socialGmail) ||
-    colors.colorCoreBlue};
+    colors.colorCoreRed};
 
   i {
     color: ${colors.colorWhite};

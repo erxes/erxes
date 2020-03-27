@@ -1,11 +1,44 @@
 import React from 'react';
 import Select from 'react-select-plus';
+import styled from 'styled-components';
 import { IFormProps } from '../types';
 import { __, Alert } from '../utils';
 import Button from './Button';
 import FormControl from './form/Control';
-import FormGroup from './form/Group';
 import Icon from './Icon';
+
+const Wrapper = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const OptionWrapper = styled(Wrapper)`
+  padding: 8px 16px;
+  font-weight: 500;
+  border-bottom: 1px solid #eee;
+
+  &:last-child {
+    border: none;
+  }
+
+  &:hover {
+    background: #fafafa;
+    cursor: default;
+  }
+
+  i {
+    color: #ea475d;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+`;
+
+const FillContent = styled.div`
+  flex: 1;
+  margin-right: 5px;
+`;
 
 type OptionProps = {
   option: any;
@@ -16,24 +49,19 @@ class Option extends React.PureComponent<OptionProps> {
   render() {
     const { option, onSelect } = this.props;
     const { onRemove } = option;
-    const style = {
-      display: 'inline-block',
-      width: '100%',
-      padding: '8px 20px'
-    };
 
     const onClick = e => onSelect(option, e);
     const onRemoveClick = () => onRemove(option.value);
 
     return (
-      <div style={style} onClick={onClick}>
-        <span style={{ float: 'left' }}>{option.label}</span>
+      <OptionWrapper onClick={onClick}>
+        <FillContent>{option.label}</FillContent>
         <Icon
           style={{ float: 'right' }}
           onClick={onRemoveClick}
-          icon="cancel-1"
+          icon="times-circle"
         />
-      </div>
+      </OptionWrapper>
     );
   }
 }
@@ -42,8 +70,7 @@ type Props = {
   options: any[];
   onChange: (params: { options: any[]; selectedOption: any }) => void;
   value?: string;
-  placeholder?: string;
-  buttonText?: string;
+  name: string;
   checkFormat?: (value) => boolean;
   adding?: boolean;
   formProps?: IFormProps;
@@ -175,7 +202,7 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
   };
 
   renderInput = () => {
-    const { buttonText, placeholder, type, required } = this.props;
+    const { name, type, required } = this.props;
 
     if (this.state.adding) {
       const onPress = e => {
@@ -186,54 +213,48 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
       };
 
       return (
-        <React.Fragment>
-          <FormGroup>
+        <Wrapper>
+          <FillContent>
             <FormControl
               type={type}
               autoFocus={true}
               onKeyPress={onPress}
-              placeholder={placeholder}
+              placeholder={`${__('Add')} ${__(name)}`}
               onChange={this.handleInputChange}
               required={required}
             />
-          </FormGroup>
-          <Button
-            icon="cancel-1"
-            btnStyle="simple"
-            size="small"
-            onClick={this.handleCancelAdding}
-          >
-            Cancel
-          </Button>
-          <Button
-            btnStyle="success"
-            size="small"
-            icon="checked-1"
-            onClick={this.handleSave}
-          >
-            Save
-          </Button>
-        </React.Fragment>
+          </FillContent>
+
+          <div>
+            <Button
+              icon="times"
+              btnStyle="simple"
+              size="small"
+              uppercase={false}
+              onClick={this.handleCancelAdding}
+            />
+            <Button
+              btnStyle="success"
+              size="small"
+              icon="check-circle"
+              uppercase={false}
+              onClick={this.handleSave}
+            >
+              Save
+            </Button>
+          </div>
+        </Wrapper>
       );
     }
 
-    return (
-      <Button onClick={this.handleAdding} size="small" icon="add">
-        {__(buttonText || '')}
-      </Button>
-    );
-  };
-
-  render() {
-    const { placeholder } = this.props;
     const { selectedOption } = this.state;
     const onChange = obj => this.setItem(obj);
 
     return (
-      <React.Fragment>
-        <FormGroup>
+      <Wrapper>
+        <FillContent>
           <Select
-            placeholder={__(placeholder || '')}
+            placeholder={`${__('Choose a Primary')} ${__(name)}`}
             searchable={false}
             value={selectedOption}
             valueComponent={this.renderValue}
@@ -241,11 +262,23 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
             options={this.generateOptions()}
             optionComponent={Option}
           />
-        </FormGroup>
+        </FillContent>
 
-        {this.renderInput()}
-      </React.Fragment>
+        <Button
+          onClick={this.handleAdding}
+          size="small"
+          btnStyle="primary"
+          uppercase={false}
+          icon="plus-circle"
+        >
+          {`${__('Add')} ${__(name)}`}
+        </Button>
+      </Wrapper>
     );
+  };
+
+  render() {
+    return this.renderInput();
   }
 }
 
