@@ -117,7 +117,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
           Alert.error(e.message);
         });
     });
-  }
+  };
 
   archiveList = () => {
     const { stage, refetchStages, options } = this.props;

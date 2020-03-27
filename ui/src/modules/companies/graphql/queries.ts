@@ -20,8 +20,6 @@ const companyFields = `
   ownerId
   phones
   primaryPhone
-  leadStatus
-  lifecycleState
   businessType
   description
   doNotDisturb
@@ -61,8 +59,6 @@ const listParamsDef = `
   $tag: String
   $ids: [String]
   $searchValue: String
-  $leadStatus: String
-  $lifecycleState: String
   $brand: String
   $sortField: String
   $sortDirection: Int
@@ -76,8 +72,6 @@ const listParamsValue = `
   tag: $tag
   ids: $ids
   searchValue: $searchValue
-  leadStatus: $leadStatus
-  lifecycleState: $lifecycleState
   brand: $brand
   sortField: $sortField
   sortDirection: $sortDirection

@@ -41,9 +41,19 @@ function List({ tags, type, remove, loading, renderButton }: Props) {
     />
   );
 
-  const title = <Title capitalize={true}>{type} {__('tags')}</Title>;
-  const actionBar = <Wrapper.ActionBar background="colorWhite" left={title} right={actionBarRight} />;
-  
+  const title = (
+    <Title capitalize={true}>
+      {type} {__('tags')}
+    </Title>
+  );
+  const actionBar = (
+    <Wrapper.ActionBar
+      background="colorWhite"
+      left={title}
+      right={actionBarRight}
+    />
+  );
+
   const content = (
     <Table>
       <thead>

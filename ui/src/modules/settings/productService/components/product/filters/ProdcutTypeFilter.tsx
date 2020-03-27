@@ -21,8 +21,8 @@ class ProductTypeFilter extends React.Component<IProps> {
     };
 
     const extraButtons = router.getParam(history, 'type') && (
-      <a href='#cancel' tabIndex={0} onClick={onClear}>
-        <Icon icon='cancel-1' />
+      <a href="#cancel" tabIndex={0} onClick={onClear}>
+        <Icon icon="cancel-1" />
       </a>
     );
 
@@ -36,7 +36,7 @@ class ProductTypeFilter extends React.Component<IProps> {
       <Box
         extraButtons={extraButtons}
         title={__('Filter by type')}
-        name='showFilterByType'
+        name="showFilterByType"
       >
         <SidebarList>
           {productTypeChoises(__).map(
@@ -44,7 +44,7 @@ class ProductTypeFilter extends React.Component<IProps> {
               return (
                 <li key={Math.random()}>
                   <a
-                    href='#filter'
+                    href="#filter"
                     tabIndex={0}
                     className={
                       router.getParam(history, [paramKey]) === value

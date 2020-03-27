@@ -31,12 +31,16 @@ class UserDetails extends React.Component<Props> {
 
     const breadcrumb = [{ title: 'Users', link: '/settings/team' }, { title }];
 
-    if(!user._id) {
+    if (!user._id) {
       return (
-        <EmptyState image="/images/actions/11.svg" text="User not found" size="small"/>
+        <EmptyState
+          image="/images/actions/11.svg"
+          text="User not found"
+          size="small"
+        />
       );
     }
-    
+
     const content = (
       <>
         <ActivityInputs

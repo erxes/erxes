@@ -184,7 +184,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
           <Info>
             <a
               target="_blank"
-              href="https://docs.erxes.io/administrator/environment-variables#whatsapp-settings"
+              href="https://docs.erxes.io/administrator/system-config#whatsapp-integration"
               rel="noopener noreferrer"
             >
               {__('More: Understanding WhatsApp Integration Variables')}

@@ -58,15 +58,13 @@ class Form extends React.Component<Props, State> {
       description: '',
       subOf: '',
       color: generateRandomColorCode(),
-      conditions: [],
+      conditions: []
     };
 
-    segment.conditions = segment.conditions.map(
-      (cond: ISegmentCondition) => ({
-        key: Math.random().toString(),
-        ...cond
-      })
-    );
+    segment.conditions = segment.conditions.map((cond: ISegmentCondition) => ({
+      key: Math.random().toString(),
+      ...cond
+    }));
 
     this.state = segment;
   }
@@ -77,7 +75,13 @@ class Form extends React.Component<Props, State> {
     });
   };
 
-  changeEventCondition = (args: { key: string, name: string, attributeFilters: IConditionFilter[], occurence: string, occurenceValue: number }) => {
+  changeEventCondition = (args: {
+    key: string;
+    name: string;
+    attributeFilters: IConditionFilter[];
+    occurence: string;
+    occurenceValue: number;
+  }) => {
     const condition = {
       type: 'event',
       key: args.key,
@@ -89,7 +93,7 @@ class Form extends React.Component<Props, State> {
 
         return rest;
       })
-    }
+    };
 
     this.setState({
       conditions: this.state.conditions.map(c =>
@@ -98,14 +102,19 @@ class Form extends React.Component<Props, State> {
     });
   };
 
-  changePropertyCondition = (args: { key: string, name: string, operator: string, value: string }) => {
+  changePropertyCondition = (args: {
+    key: string;
+    name: string;
+    operator: string;
+    value: string;
+  }) => {
     const condition = {
       type: 'property',
       key: args.key,
       propertyName: args.name,
       propertyOperator: args.operator,
-      propertyValue: args.value,
-    }
+      propertyValue: args.value
+    };
 
     this.setState({
       conditions: this.state.conditions.map(c =>
@@ -161,10 +170,7 @@ class Form extends React.Component<Props, State> {
     }
 
     return (
-      <Link
-        to={`/segments/edit/${contentType}/${subOf}`}
-        target="_blank"
-      >
+      <Link to={`/segments/edit/${contentType}/${subOf}`} target="_blank">
         <Icon icon="arrows-up-right" />
         {__('See parent segment conditions')}
       </Link>
@@ -186,7 +192,7 @@ class Form extends React.Component<Props, State> {
           onChange={this.changePropertyCondition}
           onRemove={this.removeCondition}
         />
-      )
+      );
     }
 
     return (
@@ -201,24 +207,26 @@ class Form extends React.Component<Props, State> {
         onChange={this.changeEventCondition}
         onRemove={this.removeCondition}
       />
-    )
+    );
   }
 
   renderConditions() {
     const { conditions } = this.state;
 
-    if(conditions.length === 0) {
+    if (conditions.length === 0) {
       return (
         <EmptyState
           text="There aren’t any filters at the moment."
           image="/images/actions/14.svg"
         />
-      )
+      );
     }
 
     return (
       <>
-        <SegmentTitle>{__('Filters')} {this.renderParent()}</SegmentTitle>
+        <SegmentTitle>
+          {__('Filters')} {this.renderParent()}
+        </SegmentTitle>
         {conditions.map(condition => this.renderCondition(condition))}
       </>
     );
@@ -254,9 +262,9 @@ class Form extends React.Component<Props, State> {
       <FilterBox>
         {this.renderConditions()}
         <AddConditionButton addCondition={this.addCondition} />
-      </FilterBox>     
+      </FilterBox>
     );
-  }
+  };
 
   renderForm = (formProps: IFormProps) => {
     const {
@@ -265,7 +273,7 @@ class Form extends React.Component<Props, State> {
       contentType,
       renderButton,
       afterSave,
-      previewCount,
+      previewCount
     } = this.props;
 
     const { values, isSubmitted } = formProps;
@@ -280,15 +288,13 @@ class Form extends React.Component<Props, State> {
         (e.currentTarget as HTMLInputElement).value
       );
 
-    const colorOnChange = (e) =>
-      this.handleChange('color', e.hex);
-
+    const colorOnChange = e => this.handleChange('color', e.hex);
 
     const onPreviewCount = () => {
       if (previewCount) {
         previewCount(conditions);
       }
-    }
+    };
 
     const popoverTop = (
       <Popover id="color-picker">
@@ -359,13 +365,15 @@ class Form extends React.Component<Props, State> {
               </Link>
             )}
 
-            {
-              previewCount && (
-                <Button uppercase={false} icon="crosshairs" onClick={onPreviewCount}>
-                  Show count
-                </Button>
-              )
-            }
+            {previewCount && (
+              <Button
+                uppercase={false}
+                icon="crosshairs"
+                onClick={onPreviewCount}
+              >
+                Show count
+              </Button>
+            )}
 
             {renderButton({
               name: 'segment',
@@ -374,7 +382,7 @@ class Form extends React.Component<Props, State> {
               isSubmitted,
               object: segment
             })}
-            </Button.Group>
+          </Button.Group>
         </ModalFooter>
       </>
     );

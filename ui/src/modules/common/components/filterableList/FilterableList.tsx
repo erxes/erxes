@@ -86,7 +86,7 @@ class FilterableList extends React.Component<Props, State> {
     const { items, key } = this.state;
 
     if (loading) {
-      return <Spinner objective={true} />
+      return <Spinner objective={true} />;
     }
 
     if (items.length === 0) {

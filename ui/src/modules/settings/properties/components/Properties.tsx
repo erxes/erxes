@@ -121,10 +121,14 @@ class Properties extends React.Component<Props> {
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('Properties'), link: '/settings/properties' },
-      { title: __(`${currentType} properties`)  }
+      { title: __(`${currentType} properties`) }
     ];
 
-    const title = <Title capitalize={true}>{currentType} {__('properties')}</Title>;
+    const title = (
+      <Title capitalize={true}>
+        {currentType} {__('properties')}
+      </Title>
+    );
 
     const headerDescription = (
       <HeaderDescription
@@ -147,7 +151,9 @@ class Properties extends React.Component<Props> {
           <Wrapper.Header title={__(currentType)} breadcrumb={breadcrumb} />
         }
         mainHead={headerDescription}
-        leftSidebar={<Sidebar title="Property types" currentType={currentType} />}
+        leftSidebar={
+          <Sidebar title="Property types" currentType={currentType} />
+        }
         content={this.renderProperties()}
       />
     );

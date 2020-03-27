@@ -7,29 +7,22 @@ type Props = {
 };
 
 const EmbeddedImage = (props: Props) => {
-  const {
-    height,
-    src,
-    width,
-  } = props.contentState.getEntity(props.entityKey).getData();
+  const { height, src, width } = props.contentState
+    .getEntity(props.entityKey)
+    .getData();
 
-  return (
-    <img src={src} height={height} width={width} alt={src} />
-  );
+  return <img src={src} height={height} width={width} alt={src} />;
 };
 
 const findImageEntities = (contentBlock, callback, contentState) => {
-  contentBlock.findEntityRanges(
-    (character) => {
-      const entityKey = character.getEntity();
-      return (
-        entityKey !== null &&
-        contentState.getEntity(entityKey).getType() === 'IMAGE'
-      );
-    },
-    callback
-  );
-}
+  contentBlock.findEntityRanges(character => {
+    const entityKey = character.getEntity();
+    return (
+      entityKey !== null &&
+      contentState.getEntity(entityKey).getType() === 'IMAGE'
+    );
+  }, callback);
+};
 
 const getDraftDecorator = () => {
   return new CompositeDecorator([
@@ -40,8 +33,4 @@ const getDraftDecorator = () => {
   ]);
 };
 
-export {
-  EmbeddedImage,
-  findImageEntities,
-  getDraftDecorator
-};
+export { EmbeddedImage, findImageEntities, getDraftDecorator };

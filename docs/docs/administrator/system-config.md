@@ -641,30 +641,51 @@ In order to integrate the Yahoo you will need to generate app password for the E
 1. Create the Chat-API account go to [website](https://app.chat-api.com/registration)
 2. Copy **API key** from [here](https://app.chat-api.com/user/settings)
 
++ Click on your profile, then select settings.
+
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/integration/chat-api-whatsapp-3.png">
+
++ Copy API key value
+
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/integration/chat-api-whatsapp-4.png">
+
+
    **Configuration:**
 
-- Go to Erxes Settings => System config => Integrations config => Chat-API.
+- Go to Erxes Settings => System config => Integrations config => WhatsApp Chat-API.
 
 <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/integration/chat-api-whatsapp-1.png">
 
-**For then test purpose you can use [ngrok](http://ngrok.io/) for your webhook**
++ Paste API key to corresponding field.
 
-```Shell
-cd /path/to/erxes-integrations
-ngrok http 3400
-```
++ Put your webhook url into CHAT-API WEBHOOK CALLBACK URL field. 
++ For example 'https://erxes-integrations/whatsapp/webhook'
 
 When you start erxes-integration repo webhook will automatically created according to your configuration
 
 ### Erxes WhatsApp integration settings.
 
 1. Go to your erxes.domain.com - settings - integrations page
-2. Copy your instanceId and token from [here](https://app.chat-api.com/dashboard)
-   <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/chat-api-whatsapp-2.png">
-3. Click on **Add Integrations** and select WhatsApp.
-4. Paste instanceId and token into corresponding fields
-5. Select your brand and click save.
 
+2. Copy your instanceId and token from [here](https://app.chat-api.com/dashboard)
+
+   <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/chat-api-whatsapp-2.png">
+
+3. To connect to api, you need to scan the QR code from the device on which WhatsApp is registered.
+
++ If your account is registered less than a month ago, you need to pass a secure authorization to reduce the likelihood of blocking or authorization failure.
+
+   <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/chat-api-whatsapp-1.gif">
+
+4. Click on **Add Integrations** and select WhatsApp.
+
+  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/chat-api-whatsapp-5.png">
+
+5. Paste instanceId and token into corresponding fields
+
+6. Select your brand and click save.
+
+7. Go to Setting=> Channel=> Add new channel=> Connect facebook integration.
 
 ## Engage configuration
 

@@ -132,8 +132,10 @@ class Row extends React.Component<Props> {
         <td>{percentage.substring(0, 4)} %</td>
         <td>
           <Tip text={__('View')}>
-            <Link to={`/contacts/customers/all?form=${integration.formId}`}>
-              <Icon icon="eye-2" />
+            <Link
+              to={`/contacts/customers/customer?form=${integration.formId}`}
+            >
+              <Icon icon="eye" />
             </Link>
           </Tip>{' '}
           {lead.contactsGathered || 0}
