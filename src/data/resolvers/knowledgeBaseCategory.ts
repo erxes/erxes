@@ -1,16 +1,17 @@
 import { KnowledgeBaseArticles, KnowledgeBaseTopics, Users } from '../../db/models';
+import { PUBLISH_STATUSES } from '../../db/models/definitions/constants';
 import { ICategoryDocument } from '../../db/models/definitions/knowledgebase';
 
 export default {
   articles(category: ICategoryDocument) {
-    return KnowledgeBaseArticles.find({ _id: { $in: category.articleIds } });
+    return KnowledgeBaseArticles.find({ _id: { $in: category.articleIds }, status: PUBLISH_STATUSES.PUBLISH });
   },
 
   async authors(category: ICategoryDocument) {
     const articles = await KnowledgeBaseArticles.find(
       {
         _id: { $in: category.articleIds },
-        status: 'publish',
+        status: PUBLISH_STATUSES.PUBLISH,
       },
       { createdBy: 1 },
     );
@@ -31,7 +32,7 @@ export default {
   numOfArticles(category: ICategoryDocument) {
     return KnowledgeBaseArticles.find({
       _id: { $in: category.articleIds },
-      status: 'publish',
+      status: PUBLISH_STATUSES.PUBLISH,
     }).countDocuments();
   },
 };
