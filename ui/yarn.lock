@@ -5086,10 +5086,10 @@ error-ex@^1.2.0, error-ex@^1.3.1:
   dependencies:
     is-arrayish "^0.2.1"
 
-erxes-icon@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/erxes-icon/-/erxes-icon-1.1.0.tgz#bed98d6fe086f04cedec54d447549819d7257e40"
-  integrity sha512-O1T91M6F3icF/q2IadAmAYOo3jJln5iM8/wjk+tPGvMI8hh+2jdZ1zKws4liuFrhP5EkllOLJ7hBn/90KBaEiQ==
+erxes-icon@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/erxes-icon/-/erxes-icon-1.2.1.tgz#1df585ff385146dfffd0261398de474eed39c2c6"
+  integrity sha512-qk1yavXsBCub9/XBaiTgg9OCouRfZnDxWIqtfi/tVr51zFYgZuGm5GkswglIhF5FCayJ+XtOFqf/Z/9UUc676g==
 
 es-abstract@^1.10.0, es-abstract@^1.13.0:
   version "1.14.1"

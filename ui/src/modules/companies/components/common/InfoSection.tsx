@@ -35,11 +35,11 @@ class InfoSection extends React.Component<Props> {
     return (
       <Links>
         {this.renderLink(links.facebook, 'facebook')}
+        {this.renderLink(links.linkedIn, 'linkedin')}
         {this.renderLink(links.twitter, 'twitter')}
-        {this.renderLink(links.linkedIn, 'linkedin-logo')}
         {this.renderLink(links.youtube, 'youtube-play')}
         {this.renderLink(links.github, 'github-circled')}
-        {this.renderLink(links.website, 'link-alt')}
+        {this.renderLink(links.website, 'external-link-alt')}
       </Links>
     );
   }
