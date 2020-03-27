@@ -81,7 +81,7 @@ class IntegrationIcon extends React.PureComponent<Props> {
         icon = 'line';
         break;
       case 'smooch-telegram':
-        icon = 'telegram-logo';
+        icon = 'telegram-alt';
         break;
       case 'smooch-viber':
         icon = 'viber';
