@@ -180,6 +180,21 @@ class IntegrationConfigs extends React.Component<Props, State> {
           </ContentDisabler>
         </CollapseContent>
 
+        <CollapseContent title="Sunshine Conversations API">
+          <Info>
+            <a target="_blank" href="Variables" rel="noopener noreferrer">
+              {__('More: Understanding Smooch Integration Variables')}
+            </a>
+          </Info>
+          {this.renderItem('SMOOCH_APP_ID')}
+          {this.renderItem('SMOOCH_APP_KEY_ID')}
+          {this.renderItem('SMOOCH_APP_KEY_SECRET')}
+          {this.renderItem(
+            'SMOOCH_WEBHOOK_CALLBACK_URL',
+            'https://yourdomain/smooch/webhook'
+          )}
+        </CollapseContent>
+
         <CollapseContent title="WhatsApp Chat-API">
           <Info>
             <a
