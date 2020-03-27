@@ -386,14 +386,6 @@ export const INTEGRATIONS = [
       'All integrations, For support teams, For sales teams, For marketing teams, Messaging, Marketing automation, Conversation'
   },
   {
-    name: 'Whatsapp',
-    description: 'Get a hold of your Whatsapp messages through your Team Inbox',
-    inMessenger: false,
-    isAvailable: false,
-    logo: '/images/integrations/whatsapp.png',
-    category: 'All integrations, For support teams, Messaging, Conversation'
-  },
-  {
     name: 'Wechat',
     description:
       'Connect with Wechat and start messaging right from your Team Inbox',
