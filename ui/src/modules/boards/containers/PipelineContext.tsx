@@ -21,7 +21,11 @@ type Props = {
   initialItemMap?: IItemMap;
   options: IOptions;
   queryParams: IFilterParams & INonFilterParams;
-  queryParamsChanged: (queryParams: IFilterParams, args: any) => boolean;
+  queryParamsChanged: (
+    queryParams: IFilterParams,
+    nextQueryParams: IFilterParams
+  ) => boolean;
+  afterFinish: () => void;
 };
 
 type StageLoadMap = {
@@ -33,6 +37,7 @@ type State = {
   stageLoadMap: StageLoadMap;
   stageIds: string[];
   isShowLabel: boolean;
+  realTimeStageIds: string[];
 };
 
 interface IStore {
@@ -48,6 +53,7 @@ interface IStore {
   onUpdateItem: (item: IItem, prevStageId?: string) => void;
   isShowLabel: boolean;
   toggleLabels: () => void;
+  onChangeRealTimeStageIds: (stageId: string) => void;
 }
 
 const PipelineContext = React.createContext({} as IStore);
@@ -69,11 +75,14 @@ export class PipelineProvider extends React.Component<Props, State> {
 
     const { initialItemMap } = props;
 
+    const stageIds = Object.keys(initialItemMap || {});
+
     this.state = {
       itemMap: initialItemMap || {},
       stageLoadMap: {},
-      stageIds: Object.keys(initialItemMap || {}),
-      isShowLabel: false
+      stageIds,
+      isShowLabel: false,
+      realTimeStageIds: []
     };
 
     PipelineProvider.tasks = [];
@@ -83,7 +92,7 @@ export class PipelineProvider extends React.Component<Props, State> {
   componentWillReceiveProps(nextProps: Props) {
     const { queryParams, queryParamsChanged, initialItemMap } = this.props;
 
-    if (queryParamsChanged(queryParams, nextProps)) {
+    if (queryParamsChanged(queryParams, nextProps.queryParams)) {
       const { stageIds } = this.state;
 
       PipelineProvider.tasks = [];
@@ -127,6 +136,24 @@ export class PipelineProvider extends React.Component<Props, State> {
     }
   }
 
+  componentDidUpdate() {
+    const { realTimeStageIds } = this.state;
+
+    if (realTimeStageIds.length >= 2) {
+      this.setState({ realTimeStageIds: [] });
+
+      this.props.afterFinish();
+    }
+  }
+
+  onChangeRealTimeStageIds = (stageId: string) => {
+    this.setState(prevState => {
+      return {
+        realTimeStageIds: [...prevState.realTimeStageIds, stageId]
+      };
+    });
+  };
+
   onDragEnd = result => {
     // dropped nowhere
     if (!result.destination) {
@@ -158,14 +185,14 @@ export class PipelineProvider extends React.Component<Props, State> {
       return this.saveStageOrders(stageIds);
     }
 
+    // to avoid to refetch current tab
+    sessionStorage.setItem('currentTab', 'true');
+
     const { itemMap } = reorderItemMap({
       itemMap: this.state.itemMap,
       source,
       destination
     });
-
-    // to avoid to refetch current tab
-    sessionStorage.setItem('currentTab', 'true');
 
     // update item to database
     const itemId = result.draggableId.split('-')[0];
@@ -404,7 +431,8 @@ export class PipelineProvider extends React.Component<Props, State> {
           stageLoadMap,
           stageIds,
           isShowLabel,
-          toggleLabels: this.toggleLabels
+          toggleLabels: this.toggleLabels,
+          onChangeRealTimeStageIds: this.onChangeRealTimeStageIds
         }}
       >
         {this.props.children}

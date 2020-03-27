@@ -99,7 +99,7 @@ class DraggableContainer extends React.Component<
     return (
       <Draggable
         key={item._id}
-        draggableId={`${item._id}-${Math.random().toString()}`}
+        draggableId={item._id}
         index={index}
         isDragDisabled={isDragDisabled}
       >

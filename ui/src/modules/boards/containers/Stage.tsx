@@ -1,7 +1,6 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { PipelineConsumer } from 'modules/boards/containers/PipelineContext';
 import { queries } from 'modules/boards/graphql';
 import { Alert, confirm, withProps } from 'modules/common/utils';
 import React from 'react';
@@ -17,7 +16,7 @@ import {
   SaveItemMutation
 } from '../types';
 
-type WrapperProps = {
+type StageProps = {
   stage: IStage;
   index: number;
   loadingState: 'readyToLoad' | 'loaded';
@@ -26,14 +25,12 @@ type WrapperProps = {
   queryParams: IFilterParams;
   options: IOptions;
   refetchStages: ({ pipelineId }: { pipelineId?: string }) => Promise<any>;
-};
-
-type StageProps = {
   onLoad: (stageId: string, items: IItem[]) => void;
   scheduleStage: (stageId: string) => void;
   onAddItem: (stageId: string, item: IItem) => void;
   onRemoveItem: (itemId: string, stageId: string) => void;
-} & WrapperProps;
+  onChangeRealTimeStageIds: (stageId: string) => void;
+};
 
 type FinalStageProps = {
   addMutation: SaveItemMutation;
@@ -47,7 +44,8 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
     if (itemsQuery && !itemsQuery.loading && loadingState !== 'loaded') {
       // Send loaded items to PipelineContext so that context is able to set it
       // to global itemsMap
-      onLoad(stage._id, itemsQuery[options.queriesName.itemsQuery] || []);
+      const items = itemsQuery[options.queriesName.itemsQuery] || [];
+      onLoad(stage._id, items);
     }
   }
 
@@ -157,10 +155,18 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
       itemsQuery,
       options,
       onAddItem,
-      onRemoveItem
+      onRemoveItem,
+      loadingState,
+      onChangeRealTimeStageIds
     } = this.props;
 
-    const loadingItems = (itemsQuery ? itemsQuery.loading : null) || false;
+    const loadingItems = () => {
+      if ((itemsQuery && !itemsQuery.loading) || loadingState !== 'loaded') {
+        return true;
+      }
+
+      return false;
+    };
 
     return (
       <Stage
@@ -175,6 +181,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
         loadMore={this.loadMore}
         onAddItem={onAddItem}
         onRemoveItem={onRemoveItem}
+        onChangeRealTimeStageIds={onChangeRealTimeStageIds}
       />
     );
   }
@@ -237,20 +244,4 @@ class WithData extends React.Component<StageProps> {
   }
 }
 
-export default (props: WrapperProps) => {
-  return (
-    <PipelineConsumer>
-      {({ onAddItem, onLoadStage, scheduleStage, onRemoveItem }) => {
-        return (
-          <WithData
-            {...props}
-            scheduleStage={scheduleStage}
-            onLoad={onLoadStage}
-            onAddItem={onAddItem}
-            onRemoveItem={onRemoveItem}
-          />
-        );
-      }}
-    </PipelineConsumer>
-  );
-};
+export default withProps<StageProps>(WithData);
