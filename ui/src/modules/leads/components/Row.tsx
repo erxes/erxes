@@ -133,7 +133,7 @@ class Row extends React.Component<Props> {
         <td>
           <Tip text={__('View')}>
             <Link to={`/contacts/customers/all?form=${integration.formId}`}>
-              <Icon icon="eye-2" />
+              <Icon icon="eye" />
             </Link>
           </Tip>{' '}
           {lead.contactsGathered || 0}

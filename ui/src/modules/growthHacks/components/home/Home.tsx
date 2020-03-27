@@ -107,11 +107,11 @@ class Home extends React.Component<Props> {
   };
 
   renderCountItem = (state: string) => {
-    let iconContent = 'e8df';
+    let iconContent = 'eabd';
 
     switch (state) {
       case 'In progress':
-        iconContent = 'e8e9';
+        iconContent = 'ecc5';
         break;
 
       case 'Not started':

@@ -111,7 +111,7 @@ class DealItem extends React.PureComponent<Props> {
         <DueDateLabel closeDate={closeDate} isComplete={isComplete} />
 
         <Footer>
-          {item.isWatched ? <Icon icon="eye-2" /> : __('Last updated')}
+          {item.isWatched ? <Icon icon="eye" /> : __('Last updated')}
           <Right>{this.renderDate(item.modifiedAt)}</Right>
         </Footer>
       </>

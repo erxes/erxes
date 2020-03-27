@@ -98,7 +98,7 @@ class NotificationList extends React.Component<Props, State> {
           btnStyle="success"
           size="small"
           onClick={this.markAllRead.bind(this, false)}
-          icon="eye-2"
+          icon="eye"
         >
           Mark All Read
         </Button>
