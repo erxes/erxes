@@ -133,7 +133,7 @@ const setupSmoochWebhook = async () => {
     SMOOCH_APP_ID,
   } = await getSmoochConfig();
 
-  if (!SMOOCH_APP_KEY_ID || !SMOOCH_SMOOCH_APP_KEY_SECRET || SMOOCH_WEBHOOK_CALLBACK_URL || SMOOCH_APP_ID) {
+  if (!SMOOCH_APP_KEY_ID || !SMOOCH_SMOOCH_APP_KEY_SECRET || !SMOOCH_WEBHOOK_CALLBACK_URL || !SMOOCH_APP_ID) {
     debugSmooch('Smooch is not configured');
     return;
   }
@@ -143,7 +143,6 @@ const setupSmoochWebhook = async () => {
     secret: SMOOCH_SMOOCH_APP_KEY_SECRET,
     scope: 'app',
   });
-
   try {
     const { webhooks } = await smooch.webhooks.list();
 
