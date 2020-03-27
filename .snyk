@@ -6,53 +6,83 @@ ignore:
     - '@google-cloud/pubsub > google-auth-library > gtoken > gaxios > https-proxy-agent':
         reason: None given
         expires: '2020-04-25T09:23:47.365Z'
+      '@google-cloud/pubsub > google-auth-library > gcp-metadata > gaxios > https-proxy-agent':
+        reason: None given
+        expires: '2020-04-26T10:56:36.448Z'
     - '@google-cloud/pubsub > google-auth-library > gcp-metadata > gaxios > https-proxy-agent':
         reason: None given
         expires: '2020-04-25T09:23:47.365Z'
-    - '@google-cloud/pubsub > google-gax > google-auth-library > gtoken > gaxios > https-proxy-agent':
-        reason: No fix available
-        expires: '2020-02-07T11:16:15.188Z'
       '@google-cloud/pubsub > google-gax > google-auth-library > gcp-metadata > gaxios > https-proxy-agent':
         reason: None given
-        expires: '2020-04-25T09:23:47.365Z'
+        expires: '2020-04-26T10:56:36.448Z'
+    - '@google-cloud/pubsub > google-gax > google-auth-library > gtoken > gaxios > https-proxy-agent':
+        reason: None given
+        expires: '2020-04-26T10:56:36.448Z'
     - '@google-cloud/pubsub > google-gax > google-auth-library > gcp-metadata > gaxios > https-proxy-agent':
         reason: No fix available
         expires: '2020-02-07T11:16:15.188Z'
-      '@google-cloud/pubsub > google-gax > google-auth-library > gtoken > gaxios > https-proxy-agent':
+      '@google-cloud/pubsub > google-auth-library > gtoken > gaxios > https-proxy-agent':
         reason: None given
-        expires: '2020-04-25T09:23:47.365Z'
+        expires: '2020-04-26T10:56:36.448Z'
     - googleapis > googleapis-common > google-auth-library > gcp-metadata > gaxios > https-proxy-agent:
         reason: None given
         expires: '2020-04-25T09:23:47.365Z'
+      googleapis > googleapis-common > gaxios > https-proxy-agent:
+        reason: None given
+        expires: '2020-04-26T10:56:36.449Z'
     - googleapis > googleapis-common > google-auth-library > gtoken > gaxios > https-proxy-agent:
         reason: None given
         expires: '2020-04-25T09:23:47.365Z'
+      googleapis > google-auth-library > gaxios > https-proxy-agent:
+        reason: None given
+        expires: '2020-04-26T10:56:36.449Z'
     - googleapis > googleapis-common > google-auth-library > gaxios > https-proxy-agent:
         reason: None given
-        expires: '2020-04-25T09:23:47.366Z'
+        expires: '2020-04-26T10:56:36.449Z'
     - googleapis > google-auth-library > gcp-metadata > gaxios > https-proxy-agent:
         reason: None given
-        expires: '2020-04-25T09:23:47.366Z'
+        expires: '2020-04-26T10:56:36.449Z'
     - googleapis > google-auth-library > gaxios > https-proxy-agent:
         reason: None given
         expires: '2020-04-25T09:23:47.366Z'
+      googleapis > google-auth-library > gtoken > gaxios > https-proxy-agent:
+        reason: None given
+        expires: '2020-04-26T10:56:36.449Z'
     - googleapis > googleapis-common > gaxios > https-proxy-agent:
         reason: None given
         expires: '2020-04-25T09:23:47.366Z'
+      googleapis > googleapis-common > google-auth-library > gtoken > gaxios > https-proxy-agent:
+        reason: None given
+        expires: '2020-04-26T10:56:36.449Z'
     - googleapis > google-auth-library > gtoken > gaxios > https-proxy-agent:
         reason: None given
         expires: '2020-04-25T09:23:47.366Z'
+      googleapis > googleapis-common > google-auth-library > gcp-metadata > gaxios > https-proxy-agent:
+        reason: None given
+        expires: '2020-04-26T10:56:36.449Z'
+    - '@google-cloud/pubsub > google-gax > google-auth-library > gcp-metadata > gaxios > https-proxy-agent':
+        reason: None given
+        expires: '2020-04-25T09:23:47.365Z'
+    - '@google-cloud/pubsub > google-gax > google-auth-library > gtoken > gaxios > https-proxy-agent':
+        reason: None given
+        expires: '2020-04-25T09:23:47.365Z'
   SNYK-JS-HANDLEBARS-480388:
     - botkit > hbs > handlebars:
         reason: No fix available
         expires: '2020-02-07T11:16:15.188Z'
       botbuilder-adapter-facebook-erxes > botkit > hbs > handlebars:
         reason: None given
-        expires: '2020-04-25T09:23:47.365Z'
+        expires: '2020-04-26T10:56:36.448Z'
     - botbuilder-adapter-facebook-erxes > botkit > hbs > handlebars:
         reason: No fix available
         expires: '2020-02-07T11:16:15.189Z'
       botkit > hbs > handlebars:
+        reason: None given
+        expires: '2020-04-26T10:56:36.449Z'
+    - botbuilder-adapter-facebook-erxes > botkit > hbs > handlebars:
+        reason: None given
+        expires: '2020-04-25T09:23:47.365Z'
+    - botkit > hbs > handlebars:
         reason: No fix available
         expires: '2020-04-25T09:23:47.365Z'
   SNYK-JS-HANDLEBARS-534478:
@@ -61,11 +91,17 @@ ignore:
         expires: '2020-02-07T11:16:15.189Z'
       botbuilder-adapter-facebook-erxes > botkit > hbs > handlebars:
         reason: None given
-        expires: '2020-04-25T09:23:47.365Z'
+        expires: '2020-04-26T10:56:36.448Z'
     - botbuilder-adapter-facebook-erxes > botkit > hbs > handlebars:
         reason: No fix available
         expires: '2020-02-07T11:16:15.189Z'
       botkit > hbs > handlebars:
+        reason: None given
+        expires: '2020-04-26T10:56:36.449Z'
+    - botbuilder-adapter-facebook-erxes > botkit > hbs > handlebars:
+        reason: None given
+        expires: '2020-04-25T09:23:47.365Z'
+    - botkit > hbs > handlebars:
         reason: No fix available
         expires: '2020-04-25T09:23:47.365Z'
   SNYK-JS-HANDLEBARS-534988:
@@ -74,47 +110,80 @@ ignore:
         expires: '2020-02-07T11:16:15.189Z'
       botbuilder-adapter-facebook-erxes > botkit > hbs > handlebars:
         reason: None given
-        expires: '2020-04-25T09:23:47.365Z'
+        expires: '2020-04-26T10:56:36.448Z'
     - botbuilder-adapter-facebook-erxes > botkit > hbs > handlebars:
         reason: No fix available
         expires: '2020-02-07T11:16:15.189Z'
       botkit > hbs > handlebars:
+        reason: None given
+        expires: '2020-04-26T10:56:36.449Z'
+    - botbuilder-adapter-facebook-erxes > botkit > hbs > handlebars:
+        reason: None given
+        expires: '2020-04-25T09:23:47.365Z'
+    - botkit > hbs > handlebars:
         reason: No fix available
         expires: '2020-04-25T09:23:47.365Z'
   SNYK-JS-MINIMIST-559764:
     - botbuilder > botframework-connector > nock > mkdirp > minimist:
         reason: None given
-        expires: '2020-04-25T09:23:47.365Z'
+        expires: '2020-04-26T10:56:36.448Z'
     - botbuilder-adapter-facebook-erxes > botbuilder > botframework-connector > nock > mkdirp > minimist:
         reason: None given
         expires: '2020-04-25T09:23:47.365Z'
+      botbuilder-adapter-facebook-erxes > botkit > botframework-connector > nock > mkdirp > minimist:
+        reason: None given
+        expires: '2020-04-26T10:56:36.448Z'
     - botbuilder-adapter-facebook-erxes > botkit > botbuilder > botframework-connector > nock > mkdirp > minimist:
         reason: None given
         expires: '2020-04-25T09:23:47.365Z'
+      botbuilder-adapter-facebook-erxes > botbuilder > botframework-connector > nock > mkdirp > minimist:
+        reason: None given
+        expires: '2020-04-26T10:56:36.449Z'
     - botbuilder-adapter-facebook-erxes > botkit > botframework-connector > nock > mkdirp > minimist:
         reason: None given
         expires: '2020-04-25T09:23:47.365Z'
+      botbuilder-adapter-facebook-erxes > botkit > botbuilder > botframework-connector > nock > mkdirp > minimist:
+        reason: None given
+        expires: '2020-04-26T10:56:36.449Z'
     - botkit > botbuilder > botframework-connector > nock > mkdirp > minimist:
         reason: No fix available
         expires: '2020-04-25T09:23:47.365Z'
+      botkit > botframework-connector > nock > mkdirp > minimist:
+        reason: None given
+        expires: '2020-04-26T10:56:36.449Z'
     - botkit > botframework-connector > nock > mkdirp > minimist:
         reason: No fix available
         expires: '2020-04-25T09:23:47.365Z'
+      botkit > botbuilder > botframework-connector > nock > mkdirp > minimist:
+        reason: None given
+        expires: '2020-04-26T10:56:36.449Z'
     - migrate > mkdirp > minimist:
         reason: None given
-        expires: '2020-04-25T09:23:47.366Z'
+        expires: '2020-04-26T10:56:36.449Z'
     - snyk > update-notifier > latest-version > package-json > registry-auth-token > rc > minimist:
         reason: None given
         expires: '2020-04-25T09:23:47.367Z'
+      botkit > hbs > handlebars > optimist > minimist:
+        reason: None given
+        expires: '2020-04-26T10:56:36.449Z'
     - snyk > update-notifier > latest-version > package-json > registry-url > rc > minimist:
         reason: None given
         expires: '2020-04-25T09:23:47.367Z'
+      botbuilder-adapter-facebook-erxes > botkit > hbs > handlebars > optimist > minimist:
+        reason: None given
+        expires: '2020-04-26T10:56:36.449Z'
     - node-pre-gyp > mkdirp > minimist:
         reason: None given
         expires: '2020-04-25T09:23:47.367Z'
+      snyk > @snyk/update-notifier > latest-version > package-json > registry-auth-token > rc > minimist:
+        reason: None given
+        expires: '2020-04-26T10:56:36.449Z'
     - node-pre-gyp > tar > mkdirp > minimist:
         reason: None given
         expires: '2020-04-25T09:23:47.367Z'
+      snyk > @snyk/update-notifier > latest-version > package-json > registry-url > rc > minimist:
+        reason: None given
+        expires: '2020-04-26T10:56:36.449Z'
     - botkit > hbs > handlebars > optimist > minimist:
         reason: None given
         expires: '2020-04-25T09:23:47.367Z'
@@ -128,9 +197,15 @@ ignore:
     - mongoose > bson:
         reason: None given
         expires: '2020-04-25T09:23:47.366Z'
+      mongoose > mongodb > bson:
+        reason: None given
+        expires: '2020-04-26T10:56:36.449Z'
     - mongoose > mongodb > bson:
         reason: None given
         expires: '2020-04-25T09:23:47.366Z'
+      mongoose > bson:
+        reason: None given
+        expires: '2020-04-26T10:56:36.449Z'
   SNYK-JS-DOTPROP-543489:
     - snyk > update-notifier > configstore > dot-prop:
         reason: None given
@@ -180,3 +255,6 @@ patch:
   SNYK-JS-TREEKILL-536781:
     - snyk > snyk-sbt-plugin > tree-kill:
         patched: '2020-01-08T11:10:52.482Z'
+  'npm:ms:20170412':
+    - smooch-core > jsonwebtoken > ms:
+        patched: '2020-03-27T10:54:52.644Z'

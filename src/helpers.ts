@@ -1,10 +1,21 @@
+import * as smoochApi from './smooch/api';
+import * as twitterApi from './twitter/api';
+
 import { Conversations as CallProConversations, Customers as CallProCustomers } from './callpro/models';
 import {
   ConversationMessages as ChatfuelConversationMessages,
   Conversations as ChatfuelConversations,
   Customers as ChatfuelCustomers,
 } from './chatfuel/models';
-import { debugCallPro, debugFacebook, debugGmail, debugNylas, debugTwitter, debugWhatsapp } from './debuggers';
+import {
+  debugCallPro,
+  debugFacebook,
+  debugGmail,
+  debugNylas,
+  debugSmooch,
+  debugTwitter,
+  debugWhatsapp,
+} from './debuggers';
 import {
   Comments as FacebookComments,
   ConversationMessages as FacebookConversationMessages,
@@ -18,11 +29,8 @@ import {
   Conversations as GmailConversations,
   Customers as GmailCustomers,
 } from './gmail/models';
-import { stopPushNotification } from './gmail/watch';
 import { Accounts, Integrations } from './models';
-import Configs from './models/Configs';
 import { enableOrDisableAccount, removeExistingNylasWebhook } from './nylas/auth';
-import { setupNylas } from './nylas/controller';
 import {
   NylasGmailConversationMessages,
   NylasGmailConversations,
@@ -40,22 +48,39 @@ import {
   NylasYahooConversations,
   NylasYahooCustomers,
 } from './nylas/models';
-import { createNylasWebhook } from './nylas/tracker';
+import {
+  SmoochLineConversationMessages,
+  SmoochLineConversations,
+  SmoochLineCustomers,
+  SmoochTelegramConversationMessages,
+  SmoochTelegramConversations,
+  SmoochTelegramCustomers,
+  SmoochTwilioConversationMessages,
+  SmoochTwilioConversations,
+  SmoochTwilioCustomers,
+  SmoochViberConversationMessages,
+  SmoochViberConversations,
+  SmoochViberCustomers,
+} from './smooch/models';
 import { getTwitterConfig, unsubscribe } from './twitter/api';
-import * as twitterApi from './twitter/api';
 import {
   ConversationMessages as TwitterConversationMessages,
   Conversations as TwitterConversations,
   Customers as TwitterCustomers,
 } from './twitter/models';
 import { getEnv, resetConfigsCache, sendRequest } from './utils';
+import { logout, setupChatApi as setupWhatsapp } from './whatsapp/api';
 import {
   ConversationMessages as WhatsappConversationMessages,
   Conversations as WhatsappConversations,
   Customers as WhatsappCustomers,
 } from './whatsapp/models';
 
-import { logout, setupChatApi as setupWhatsapp } from './whatsapp/api';
+import { stopPushNotification } from './gmail/watch';
+import Configs from './models/Configs';
+import { setupNylas } from './nylas/controller';
+import { createNylasWebhook } from './nylas/tracker';
+import { setupSmooch } from './smooch/controller';
 
 export const removeIntegration = async (integrationErxesApiId: string): Promise<string> => {
   const integration = await Integrations.findOne({ erxesApiId: integrationErxesApiId });
@@ -70,7 +95,6 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
   const { _id, kind, accountId, erxesApiId } = integration;
 
   const account = await Accounts.findOne({ _id: accountId });
-
   const selector = { integrationId: _id };
 
   if (kind.includes('facebook')) {
@@ -292,6 +316,65 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
     await ChatfuelConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
   }
 
+  if (kind === 'telegram') {
+    debugSmooch('Removing Telegram entries');
+    const conversationIds = await SmoochTelegramConversations.find(selector).distinct('_id');
+    try {
+      await smoochApi.removeIntegration(integration.smoochIntegrationId);
+    } catch (e) {
+      throw e;
+    }
+
+    await SmoochTelegramCustomers.deleteMany(selector);
+    await SmoochTelegramConversations.deleteMany(selector);
+    await SmoochTelegramConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+  }
+
+  if (kind === 'viber') {
+    debugSmooch('Removing Viber entries');
+    const conversationIds = await SmoochViberConversations.find(selector).distinct('_id');
+
+    try {
+      await smoochApi.removeIntegration(integration.smoochIntegrationId);
+    } catch (e) {
+      throw e;
+    }
+
+    await SmoochViberCustomers.deleteMany(selector);
+    await SmoochViberConversations.deleteMany(selector);
+    await SmoochViberConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+  }
+
+  if (kind === 'line') {
+    debugSmooch('Removing Line entries');
+    const conversationIds = await SmoochLineConversations.find(selector).distinct('_id');
+
+    try {
+      await smoochApi.removeIntegration(integration.smoochIntegrationId);
+    } catch (e) {
+      throw e;
+    }
+
+    await SmoochLineCustomers.deleteMany(selector);
+    await SmoochLineConversations.deleteMany(selector);
+    await SmoochLineConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+  }
+
+  if (kind === 'twilio') {
+    debugSmooch('Removing Twilio entries');
+    const conversationIds = await SmoochTwilioConversations.find(selector).distinct('_id');
+
+    try {
+      await smoochApi.removeIntegration(integration.smoochIntegrationId);
+    } catch (e) {
+      throw e;
+    }
+
+    await SmoochTwilioCustomers.deleteMany(selector);
+    await SmoochTwilioConversations.deleteMany(selector);
+    await SmoochTwilioConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+  }
+
   await Integrations.deleteOne({ _id });
 
   return erxesApiId;
@@ -337,6 +420,10 @@ export const removeCustomers = async params => {
   await ChatfuelCustomers.deleteMany(selector);
   await CallProCustomers.deleteMany(selector);
   await TwitterCustomers.deleteMany(selector);
+  await SmoochTelegramCustomers.deleteMany(selector);
+  await SmoochViberCustomers.deleteMany(selector);
+  await SmoochLineCustomers.deleteMany(selector);
+  await SmoochTwilioCustomers.deleteMany(selector);
   await WhatsappCustomers.deleteMany(selector);
 };
 
@@ -355,6 +442,11 @@ export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
   const prevNylasClientSecret = await getValueAsString('NYLAS_CLIENT_SECRET');
   const prevNylasWebhook = await getValueAsString('NYLAS_WEBHOOK_CALLBACK_URL');
 
+  const prevSmoochAppKeyId = await getValueAsString('SMOOCH_APP_KEY_ID');
+  const prevSmoochAppKeySecret = await getValueAsString('SMOOCH_APP_KEY_SECRET');
+  const prevSmoochAppId = await getValueAsString('SMOOCH_APP_ID');
+  const prevSmoochWebhook = await getValueAsString('SMOOCH_WEBHOOK_CALLBACK_URL');
+
   const prevChatApiWebhook = await getValueAsString('CHAT_API_WEBHOOK_CALLBACK_URL');
   const prevChatApiUID = await getValueAsString('CHAT_API_UID');
   const prevTwitterConfig = await getTwitterConfig();
@@ -369,6 +461,10 @@ export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
   const updatedNylasClientSecret = await getValueAsString('NYLAS_CLIENT_SECRET');
   const updatedNylasWebhook = await getValueAsString('NYLAS_WEBHOOK_CALLBACK_URL');
 
+  const updatedSmoochAppKeyId = await getValueAsString('SMOOCH_APP_KEY_ID');
+  const updatedSmoochAppKeySecret = await getValueAsString('SMOOCH_APP_KEY_SECRET');
+  const updatedSmoochAppId = await getValueAsString('SMOOCH_APP_ID');
+  const updatedSmoochWebhook = await getValueAsString('SMOOCH_WEBHOOK_CALLBACK_URL');
   const updatedChatApiWebhook = await getValueAsString('CHAT_API_WEBHOOK_CALLBACK_URL');
   const updatedChatApiUID = await getValueAsString('CHAT_API_UID');
 
@@ -404,6 +500,23 @@ export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
     }
   } catch (e) {
     debugTwitter(e);
+  }
+
+  try {
+    if (
+      prevSmoochAppKeyId !== updatedSmoochAppKeyId ||
+      prevSmoochAppKeySecret !== updatedSmoochAppKeySecret ||
+      prevSmoochAppId !== updatedSmoochAppId
+    ) {
+      await setupSmooch();
+      await smoochApi.setupSmoochWebhook();
+    }
+
+    if (prevSmoochWebhook !== updatedSmoochWebhook) {
+      await smoochApi.setupSmoochWebhook();
+    }
+  } catch (e) {
+    debugSmooch(e);
   }
 
   if (prevChatApiWebhook !== updatedChatApiWebhook || prevChatApiUID !== updatedChatApiUID) {

@@ -14,6 +14,7 @@ export const debugNylas = debug('erxes-integrations:nylas');
 export const debugWhatsapp = debug('erxes-integrations:whatsapp');
 export const debugExternalRequests = debug('erxes-integrations:external-requests');
 export const debugDaily = debug('erxes-integrations:daily');
+export const debugSmooch = debug('erxes-integrations:smooch');
 
 export const debugRequest = (debugInstance, req) =>
   debugInstance(`

@@ -118,6 +118,10 @@ export const createInstance = async () => {
 export const setupChatApi = async () => {
   const uid = await getConfig('CHAT_API_UID');
 
+  if (!uid) {
+    throw new Error('Chat-API api key is not set');
+  }
+
   try {
     const { result } = await request({
       uri: `${CHAT_API_INSTANCEAPI_URL}/listInstances?uid=${uid}`,

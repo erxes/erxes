@@ -61,7 +61,8 @@
     "request-promise": "^4.2.4",
     "sanitize-html": "^1.20.1",
     "sinon": "^7.5.0",
-    "snyk": "^1.277.1",
+    "smooch-core": "^8.8.0",
+    "snyk": "^1.305.0",
     "uuid": "^3.3.3"
   },
   "peerOptionalDependencies": {

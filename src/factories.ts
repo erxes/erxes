@@ -1,8 +1,9 @@
 import { Comments, ConversationMessages, Conversations, Customers, Posts } from './facebook/models';
+import { NylasGmailConversationMessages, NylasGmailConversations, NylasGmailCustomers } from './nylas/models';
+
 import { Accounts } from './models';
 import Configs from './models/Configs';
 import Integrations from './models/Integrations';
-import { NylasGmailConversationMessages, NylasGmailConversations, NylasGmailCustomers } from './nylas/models';
 
 export const configFactory = (params: { code?: string; value?: string }) => {
   const config = new Configs({
@@ -56,6 +57,7 @@ export const integrationFactory = (params: {
   email?: string;
   facebookPageIds?: string[];
   facebookPageTokensMap?: object;
+  viberBotToken?: string;
 }) => {
   const integration = new Integrations({
     kind: params.kind || 'facebook',
@@ -64,6 +66,7 @@ export const integrationFactory = (params: {
     erxesApiId: params.erxesApiId || '_id',
     facebookPageIds: params.facebookPageIds || [],
     facebookPageTokensMap: params.facebookPageTokensMap || {},
+    viberBotToken: params.viberBotToken || 'aaksjfhakjsfhkalhf',
   });
 
   return integration.save();
