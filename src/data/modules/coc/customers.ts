@@ -31,7 +31,6 @@ export interface IListArgs extends IConformityQueryParams {
   form?: string;
   startDate?: string;
   endDate?: string;
-  lifecycleState?: string;
   leadStatus?: string;
   type?: string;
   integrationType?: string;
@@ -44,6 +43,28 @@ export interface IListArgs extends IConformityQueryParams {
 export class Builder extends CommonBuilder<IListArgs> {
   constructor(params: IListArgs, context) {
     super('customers', params, context);
+
+    this.addStateFilter();
+  }
+
+  public addStateFilter() {
+    if (this.params.type) {
+      this.positiveList.push({
+        term: {
+          state: this.params.type,
+        },
+      });
+    }
+  }
+
+  public resetPositiveList() {
+    this.positiveList = [];
+
+    this.addStateFilter();
+
+    if (this.context.commonQuerySelectorElk) {
+      this.positiveList.push(this.context.commonQuerySelectorElk);
+    }
   }
 
   // filter by brand
@@ -118,6 +139,7 @@ export class Builder extends CommonBuilder<IListArgs> {
     const selector = {
       ...this.context.commonQuerySelector,
       status: { $ne: STATUSES.DELETED },
+      state: this.params.type || 'customer',
       profileScore: { $gt: 0 },
       $or: [
         {

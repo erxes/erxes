@@ -1,12 +1,7 @@
 import { Document, Schema } from 'mongoose';
 
 import { ILink, linkSchema } from './common';
-import {
-  CUSTOMER_LEAD_STATUS_TYPES,
-  CUSTOMER_LIFECYCLE_STATE_TYPES,
-  EMAIL_VALIDATION_STATUSES,
-  STATUSES,
-} from './constants';
+import { CUSTOMER_LEAD_STATUS_TYPES, EMAIL_VALIDATION_STATUSES, STATUSES } from './constants';
 
 import { field, schemaWrapper } from './utils';
 
@@ -33,6 +28,8 @@ export interface IVisitorContactDocument extends IVisitorContact, Document {}
 interface ILinkDocument extends ILink, Document {}
 
 export interface ICustomer {
+  state?: 'visitor' | 'lead' | 'customer';
+
   scopeBrandIds?: string[];
   firstName?: string;
   lastName?: string;
@@ -48,18 +45,18 @@ export interface ICustomer {
   position?: string;
   department?: string;
   leadStatus?: string;
-  lifecycleState?: string;
   hasAuthority?: string;
   description?: string;
   doNotDisturb?: string;
   emailValidationStatus?: string;
   links?: ILink;
-  isUser?: boolean;
   relatedIntegrationIds?: string[];
   integrationId?: string;
   tagIds?: string[];
+
   // TODO migrate after remove 1row
   companyIds?: string[];
+
   mergedIds?: string[];
   status?: string;
   customFieldsData?: any;
@@ -139,6 +136,8 @@ export const customerSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
 
+    state: field({ type: String }),
+
     createdAt: field({ type: Date, label: 'Created at' }),
     modifiedAt: field({ type: Date, label: 'Modified at' }),
     avatar: field({ type: String, optional: true, label: 'Avatar' }),
@@ -181,13 +180,6 @@ export const customerSchema = schemaWrapper(
       index: true,
     }),
 
-    lifecycleState: field({
-      type: String,
-      enum: CUSTOMER_LIFECYCLE_STATE_TYPES,
-      optional: true,
-      label: 'Lifecycle State',
-    }),
-
     hasAuthority: field({ type: String, optional: true, label: 'Has authority' }),
     description: field({ type: String, optional: true, label: 'Description' }),
     doNotDisturb: field({
@@ -196,8 +188,6 @@ export const customerSchema = schemaWrapper(
       label: 'Do not disturb',
     }),
     links: field({ type: linkSchema, default: {}, label: 'Links' }),
-
-    isUser: field({ type: Boolean, label: 'Is user', optional: true }),
 
     relatedIntegrationIds: field({ type: [String], optional: true }),
     integrationId: field({ type: String, optional: true, label: 'Integration' }),

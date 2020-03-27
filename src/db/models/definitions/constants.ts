@@ -206,17 +206,7 @@ export const FIELDS_GROUPS_CONTENT_TYPES = {
   ALL: ['customer', 'company', 'product'],
 };
 
-export const CUSTOMER_LEAD_STATUS_TYPES = [
-  '',
-  'new',
-  'open',
-  'inProgress',
-  'openDeal',
-  'unqualified',
-  'attemptedToContact',
-  'connected',
-  'badTiming',
-];
+export const CUSTOMER_LEAD_STATUS_TYPES = ['', 'new', 'contacte', 'working', 'openDeal', 'unqualified'];
 
 export const CUSTOMER_LIFECYCLE_STATE_TYPES = [
   '',

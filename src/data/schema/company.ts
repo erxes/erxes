@@ -23,8 +23,6 @@ export const types = `
     phones: [String]
     primaryPhone: String
 
-    leadStatus: String
-    lifecycleState: String
     businessType: String
     description: String
     doNotDisturb: String
@@ -63,8 +61,6 @@ const queryParams = `
   tag: String
   ids: [String]
   searchValue: String
-  lifecycleState: String
-  leadStatus: String
   sortField: String
   sortDirection: Int
   brand: String
@@ -97,8 +93,6 @@ const commonFields = `
   parentCompanyId: String,
   email: String,
   ownerId: String,
-  leadStatus: String,
-  lifecycleState: String,
   businessType: String,
   description: String,
   doNotDisturb: String,

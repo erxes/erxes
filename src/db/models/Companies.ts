@@ -94,7 +94,7 @@ export const loadClass = () => {
         doc.industry || '',
         doc.plan || '',
         doc.description || '',
-        doc.code || ''
+        doc.code || '',
       ]);
     }
 

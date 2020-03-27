@@ -222,7 +222,7 @@ describe('Test deals mutations', () => {
     const args = {
       _id: deal._id,
       stageId: anotherStage._id,
-      name: deal.name || ''
+      name: deal.name || '',
     };
 
     const updatedDeal = await graphqlRequest(mutation, 'dealsEdit', args);
