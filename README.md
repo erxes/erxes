@@ -1,6 +1,7 @@
 <p align=center>
-
+  <a href="<a href="https://www.qries.com/">
   <img src="https://user-images.githubusercontent.com/27065646/77821582-ba184680-70eb-11ea-94cd-d2929364c768.png"/>
+  </a>
   <br>
   erxes is an open source growth marketing platform. Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot with the mission and community-driven ecosystem.
   <br>
