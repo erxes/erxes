@@ -30,18 +30,22 @@ class IntegrationFilterContainer extends React.Component<Props> {
   }
 }
 
-export default withProps<{ loadingMainQuery: boolean }>(
+type WrapperProps = {
+  type: string;
+  loadingMainQuery: boolean;
+};
+
+export default withProps<WrapperProps>(
   compose(
-    graphql<
-      { loadingMainQuery: boolean },
-      CountQueryResponse,
-      { only: string }
-    >(gql(customerQueries.customerCounts), {
-      name: 'customersCountQuery',
-      skip: ({ loadingMainQuery }) => loadingMainQuery,
-      options: {
-        variables: { only: 'byIntegrationType' }
+    graphql<WrapperProps, CountQueryResponse, { only: string }>(
+      gql(customerQueries.customerCounts),
+      {
+        name: 'customersCountQuery',
+        skip: ({ loadingMainQuery }) => loadingMainQuery,
+        options: ({ type }) => ({
+          variables: { type, only: 'byIntegrationType' }
+        })
       }
-    })
+    )
   )(IntegrationFilterContainer)
 );

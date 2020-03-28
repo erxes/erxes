@@ -2,8 +2,6 @@ import { colors } from 'modules/common/styles';
 import React from 'react';
 import styled from 'styled-components';
 import { Alert, readFile, uploadHandler } from '../utils';
-import FormGroup from './form/Group';
-import ControlLabel from './form/Label';
 import Icon from './Icon';
 import Spinner from './Spinner';
 
@@ -11,7 +9,7 @@ const Avatar = styled.div`
   width: 100px;
   height: 100px;
   position: relative;
-  margin-top: 10px;
+  margin-bottom: 20px;
   display: flex;
   align-items: center;
   overflow: hidden;
@@ -135,21 +133,18 @@ class AvatarUpload extends React.Component<Props, State> {
     const { avatarPreviewStyle, avatarPreviewUrl } = this.state;
 
     return (
-      <FormGroup>
-        <ControlLabel>Photo</ControlLabel>
-        <Avatar>
-          <img
-            alt="avatar"
-            style={avatarPreviewStyle}
-            src={readFile(avatarPreviewUrl)}
-          />
-          <label>
-            <Icon icon="export" size={30} />
-            <input type="file" onChange={this.handleImageChange} />
-          </label>
-          {this.renderUploadLoader()}
-        </Avatar>
-      </FormGroup>
+      <Avatar>
+        <img
+          alt="avatar"
+          style={avatarPreviewStyle}
+          src={readFile(avatarPreviewUrl)}
+        />
+        <label>
+          <Icon icon="export" size={30} />
+          <input type="file" onChange={this.handleImageChange} />
+        </label>
+        {this.renderUploadLoader()}
+      </Avatar>
     );
   }
 }

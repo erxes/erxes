@@ -1,5 +1,6 @@
 import { colors, dimensions, typography } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
+import { Actions } from 'modules/customers/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -74,20 +75,14 @@ const BoxRoot = styledTS<{ selected?: boolean }>(styled.div)`
 `;
 
 const InfoWrapper = styled.div`
-  padding: 20px;
+  padding: 20px 20px 30px 20px;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
 
-  i {
-    transition: all 0.3s ease;
-    color: ${colors.colorCoreLightGray};
-
-    &:hover {
-      cursor: pointer;
-      color: ${colors.colorCoreGray};
-    }
+  ${Actions} {
+    padding: 0;
   }
 `;
 
@@ -127,15 +122,6 @@ const FormColumn = styled.div`
   &:last-of-type {
     padding: 0;
   }
-`;
-
-const ColumnTitle = styled.h4`
-  text-transform: uppercase;
-  font-weight: ${typography.fontWeightMedium};
-  border-bottom: 1px dotted ${colors.colorShadowGray};
-  padding: ${dimensions.unitSpacing}px 0;
-  font-size: 14px;
-  margin: ${dimensions.unitSpacing}px 0 ${dimensions.coreSpacing}px 0;
 `;
 
 const ModalFooter = styled.div`
@@ -205,7 +191,10 @@ const ScrollWrapper = styledTS<{ calcHeight?: string }>(styled.div)`
       ? `calc(100vh - ${props.calcHeight}px)`
       : 'calc(100vh - 280px)'};
   overflow: auto;
-  padding-right: 10px;
+  padding: 5px 10px 0 20px;
+  margin-left: -20px;
+  margin-right: -10px;
+  margin-top: -5px;
 `;
 
 const DateContainer = styled.div`
@@ -294,7 +283,6 @@ export {
   Links,
   FormWrapper,
   FormColumn,
-  ColumnTitle,
   CenterContent,
   ActivityContent,
   DropIcon,

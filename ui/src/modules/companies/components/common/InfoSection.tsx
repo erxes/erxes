@@ -3,13 +3,14 @@ import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import { InfoWrapper, Links } from 'modules/common/styles/main';
-import { Name } from 'modules/customers/styles';
+import { Name, NameContainer } from 'modules/customers/styles';
 import React from 'react';
 import CompanyForm from '../../containers/CompanyForm';
 import { ICompany } from '../../types';
 
 type Props = {
   company: ICompany;
+  children?: React.ReactNode;
 };
 
 class InfoSection extends React.Component<Props> {
@@ -45,28 +46,31 @@ class InfoSection extends React.Component<Props> {
   }
 
   render() {
-    const { company } = this.props;
+    const { company, children } = this.props;
     const { links = {} } = company;
 
     const content = props => <CompanyForm {...props} company={company} />;
 
     return (
       <InfoWrapper>
-        <AvatarWrapper hideIndicator={true}>
-          <NameCard.Avatar company={company} size={50} />
+        <AvatarWrapper size={60} hideIndicator={true}>
+          <NameCard.Avatar company={company} size={60} />
         </AvatarWrapper>
 
-        <Name>
-          {company.primaryName}
-          {this.renderLinks(links)}
-        </Name>
+        <NameContainer>
+          <Name fontSize={16}>
+            {company.primaryName}
 
-        <ModalTrigger
-          title="Edit basic info"
-          trigger={<Icon icon="edit" />}
-          size="lg"
-          content={content}
-        />
+            <ModalTrigger
+              title="Edit basic info"
+              trigger={<Icon icon="pen-1" />}
+              size="lg"
+              content={content}
+            />
+          </Name>
+          {this.renderLinks(links)}
+        </NameContainer>
+        {children}
       </InfoWrapper>
     );
   }

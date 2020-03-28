@@ -201,7 +201,7 @@ export const FEATURE_DETAILS = {
     settingsDetails: {
       customerCreate: {
         name: 'Create a contact',
-        url: '/contacts/customers/all#showCustomerModal=true'
+        url: '/contacts/customers/customer#showCustomerModal=true'
       },
       companyCreate: {
         name: 'Create a company',

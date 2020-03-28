@@ -31,3 +31,9 @@ export const STAGE_ACTIONS = {
   COPY: 'copy',
   MOVE: 'move'
 };
+
+export const PIPELINE_UPDATE_STATUSES = {
+  START: 'start',
+  END: 'end',
+  NEW_REQUEST: 'newRequest'
+};
