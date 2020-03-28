@@ -11,7 +11,7 @@
 </p>
 
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ed8c207f4351446b8ace7a323630889f)](https://www.codacy.com/app/erxes/erxes)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ed8c207f4351446b8ace7a323630889f)](https://www.codacy.com/app/erxes/erxes)
 [![Codeclimate Badge](https://api.codeclimate.com/v1/badges/693e2ffc40bc2601630d/maintainability)](https://codeclimate.com/github/erxes/erxes/maintainability)
 [![Bettercode](https://bettercodehub.com/edge/badge/erxes/erxes?branch=master)](https://bettercodehub.com/results/erxes/erxes)
 [![codebeat badge](https://codebeat.co/badges/33270439-27de-42e9-b48a-da76192b3b22)](https://codebeat.co/projects/github-com-erxes-erxes-master)
