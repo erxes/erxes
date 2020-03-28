@@ -38,7 +38,7 @@ class VideoChatMessage extends React.PureComponent<Props> {
               <span role="img" aria-label="Phone">
                 📞
               </span>{' '}
-              {__('Video chat ended')}
+              {__('Video call ended')}
             </strong>
           </div>
         </div>
@@ -48,7 +48,7 @@ class VideoChatMessage extends React.PureComponent<Props> {
     return (
       <div className="app-message-box spaced">
         <div className="user-info">
-          <h4>{__('You are invited to a video chat')}</h4>
+          <h4>{__('You are invited to a video call')}</h4>
           <h2>
             <span role="img" aria-label="Wave">
               👏

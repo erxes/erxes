@@ -31,26 +31,32 @@ class DetailInfo extends React.PureComponent<Props> {
   }
 
   renderEmail(status?: string, email?: string) {
+    const renderStatus = () => {
+      if (status) {
+        return (
+          <Tip text={`Status: ${status}`} placement="top">
+            <Status verified={status === 'valid'}>
+              <Icon
+                icon={status === 'valid' ? 'shield-check' : 'shield-slash'}
+              />
+            </Status>
+          </Tip>
+        );
+      }
+      return null;
+    };
+
     return (
       <li>
         <FieldStyle>{__('Primary email')}:</FieldStyle>
         <SidebarCounter>
-          {email && (
+          {email ? (
             <a href={`mailto:${email}`}>
               {email}
-
-              {status && (
-                <Tip text={`Status: ${status}`} placement="top">
-                  <Status verified={status === 'valid'}>
-                    <Icon
-                      icon={
-                        status === 'valid' ? 'shield-check' : 'shield-slash'
-                      }
-                    />
-                  </Status>
-                </Tip>
-              )}
+              {renderStatus()}
             </a>
+          ) : (
+            '-'
           )}
         </SidebarCounter>
       </li>
