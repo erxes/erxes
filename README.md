@@ -1,8 +1,15 @@
-# erxes
+<p align=center>
 
-erxes is an open source growth marketing platform. Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot with the mission and community-driven ecosystem.
+  <img src="https://user-images.githubusercontent.com/27065646/77821582-ba184680-70eb-11ea-94cd-d2929364c768.png"/>
+  <br>
+  erxes is an open source growth marketing platform. Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot with the mission and community-driven ecosystem.
+  <br>
+  <a href="https://demo.erxes.io/">Live demo</a>
+  &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+  <a href="https://community.erxes.io/register/Gw4WRJnk9fSbyAXTq">Join us on RocketChat</a>
 
-<a href="https://demo.erxes.io/">Live demo</a> <b>| </b> <a href="https://community.erxes.io/register/Gw4WRJnk9fSbyAXTq">Join us on RocketChat</a>
+</p>
+
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/ed8c207f4351446b8ace7a323630889f)](https://www.codacy.com/app/erxes/erxes)
 [![Codeclimate Badge](https://api.codeclimate.com/v1/badges/693e2ffc40bc2601630d/maintainability)](https://codeclimate.com/github/erxes/erxes/maintainability)
@@ -12,6 +19,9 @@ erxes is an open source growth marketing platform. Marketing, sales, and custome
 [![Known Vulnerabilities](https://snyk.io/test/github/erxes/erxes/badge.svg)](https://snyk.io/test/github/erxes/erxes)
 [![Backer](https://opencollective.com/erxes/backers/badge.svg?label=Backer&color=brightgreen)](https://opencollective.com/erxes/)
 [![Sponsor](https://opencollective.com/erxes/sponsors/badge.svg?label=Sponsor&color=brightgreen)](https://opencollective.com/erxes/)
+
+
+
 
 <a href="https://erxes.io" target="_blank"><img src="https://s3.amazonaws.com/erxes/github/git-erxes.gif" alt="Open Source Growth Marketing Platform "></a>
 
