@@ -399,7 +399,7 @@ describe('Conversation message mutations', () => {
   });
 
   test('Create video chat room', async () => {
-    expect.assertions(1);
+    expect.assertions(2);
 
     process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
 
@@ -421,5 +421,20 @@ describe('Conversation message mutations', () => {
     } catch (e) {
       expect(e[0].message).toBe('Integrations api is not running');
     }
+
+    const mock = sinon.stub(dataSources.IntegrationsAPI, 'createDailyVideoChatRoom').callsFake(() => {
+      return Promise.resolve({ status: 'ongoing' });
+    });
+
+    const response = await graphqlRequest(
+      mutation,
+      'conversationCreateVideoChatRoom',
+      { _id: conversation._id },
+      { dataSources },
+    );
+
+    expect(response.status).toBe('ongoing');
+
+    mock.restore();
   });
 });

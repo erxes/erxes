@@ -428,10 +428,17 @@ const conversationMutations = {
 
       message = await ConversationMessages.addMessage(doc, user._id);
 
-      return await dataSources.IntegrationsAPI.createDailyVideoChatRoom({
+      const videoCallData = await dataSources.IntegrationsAPI.createDailyVideoChatRoom({
         erxesApiConversationId: _id,
         erxesApiMessageId: message._id,
       });
+
+      message.videoCallData = videoCallData;
+
+      // publish new message to conversation detail
+      publishMessage(message);
+
+      return videoCallData;
     } catch (e) {
       debugExternalApi(e.message);
 
