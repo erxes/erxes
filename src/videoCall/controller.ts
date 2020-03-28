@@ -2,6 +2,12 @@ import { debugDaily, debugRequest } from '../debuggers';
 import { getConfig, sendRequest } from '../utils';
 import { CallRecords, ICallRecord } from './models';
 
+const VIDEO_CALL_STATUS = {
+  ONGOING: 'ongoing',
+  END: 'end',
+  ALL: ['ongoing', 'end'],
+};
+
 const getConfigs = async () => {
   const DAILY_API_KEY = await getConfig('DAILY_API_KEY');
   const DAILY_END_POINT = await getConfig('DAILY_END_POINT');
@@ -49,7 +55,7 @@ const init = async app => {
       const rooms = response.data || [];
 
       for (const room of rooms) {
-        await CallRecords.updateOne({ roomName: room.name }, { $set: { status: 'end' } });
+        await CallRecords.updateOne({ roomName: room.name }, { $set: { status: VIDEO_CALL_STATUS.END } });
 
         await sendDailyRequest(`/api/v1/rooms/${room.name}`, 'DELETE');
       }
@@ -64,12 +70,12 @@ const init = async app => {
     const { roomName } = req.params;
 
     try {
-      const callRecord = await CallRecords.findOne({ roomName, status: 'ongoing' });
+      const callRecord = await CallRecords.findOne({ roomName, status: VIDEO_CALL_STATUS.ONGOING });
 
       if (callRecord) {
         const response = await sendDailyRequest(`/api/v1/rooms/${callRecord.roomName}`, 'DELETE');
 
-        await CallRecords.updateOne({ _id: callRecord._id }, { $set: { status: 'end' } });
+        await CallRecords.updateOne({ _id: callRecord._id }, { $set: { status: VIDEO_CALL_STATUS.END } });
 
         return res.json(response.deleted);
       }
@@ -98,7 +104,7 @@ const init = async app => {
         return res.json(response);
       }
 
-      return res.json({ url: '', status: 'end' });
+      return res.json({ url: '', status: VIDEO_CALL_STATUS.END });
     } catch (e) {
       return next(e);
     }
@@ -111,7 +117,7 @@ const init = async app => {
     const { DAILY_END_POINT } = await getConfigs();
 
     try {
-      const callRecord = await CallRecords.findOne({ erxesApiConversationId, status: 'ongoing' });
+      const callRecord = await CallRecords.findOne({ erxesApiConversationId, status: VIDEO_CALL_STATUS.ONGOING });
 
       if (callRecord) {
         const ownerTokenResponse = await sendDailyRequest(`/api/v1/meeting-tokens/`, 'POST', {
@@ -166,6 +172,7 @@ const init = async app => {
       return res.json({
         url: `${DAILY_END_POINT}/${callRecord.roomName}?t=${ownerTokenResponse.token}`,
         name: callRecord.roomName,
+        status: VIDEO_CALL_STATUS.ONGOING,
       });
     } catch (e) {
       return next(e);
