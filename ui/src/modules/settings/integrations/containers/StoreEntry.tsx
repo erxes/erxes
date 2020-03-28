@@ -25,6 +25,10 @@ type Props = {
     office365: number;
     outlook: number;
     yahoo: number;
+    telegram: number;
+    viber: number;
+    line: number;
+    twilio: number;
     whatsapp: number;
   };
 };
