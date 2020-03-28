@@ -1,5 +1,5 @@
 <p align=center>
-  <a href="<a href="https://www.qries.com/">
+  <a href="https://erxes.io">
   <img src="https://user-images.githubusercontent.com/27065646/77821582-ba184680-70eb-11ea-94cd-d2929364c768.png"/>
   </a>
   <br>
