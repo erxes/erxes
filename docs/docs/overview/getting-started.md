@@ -25,6 +25,7 @@ title: Getting  Started
 - <a href="../user/popups">Popups</a>
 - <a href="../user/script-install">Script installation</a>
 - <a href="../user/contacts">Contacts</a>
+- <a href="../user/segments">Segments</a>
 - <a href="../user/sales-pipeline">Sales pipeline</a>
 - <a href="../user/engage">Engage</a>
 - <a href="../user/insights">Insights</a>
