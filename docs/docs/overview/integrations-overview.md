@@ -39,5 +39,9 @@ Erxes app can be integrated with Nylas service and that means we can send emails
 
 * [WhatsApp integration guide](../administrator/system-config#whatsapp-integration)
 
-Erxes app can be integrated with chat-api and that means we can receive our Whatsapp accounts messages directly into our erxes app's inbox.
+Erxes app can be integrated with chat-api and that means we can receive Whatsapp accounts messages directly into our erxes app's inbox.
+
+* [Sunshine Conversation API integration guide](../administrator/system-config#sunshine-conversations-api-integration)
+
+Erxes app can be integrated with Sunshine Conversation API and that means we can receive Viber, Telegram, Line, Twilio accounts messages directly into our erxes app's inbox.
 

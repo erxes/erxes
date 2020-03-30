@@ -687,6 +687,42 @@ When you start erxes-integration repo webhook will automatically created accordi
 
 7. Go to Setting=> Channel=> Add new channel=> Connect facebook integration.
 
+
+## Sunshine Conversations API Integration
+
+1. Register [here](https://smooch.io/signup/) to create your Sunshine Conversations API account.
+
+2. After you create a account. Sign in to [smooch.io](https://app.smooch.io/login).
+
+3. Create new Sunshine Conversations app
+
+4. Go to your created app. Then select Settings tab.
+
+5. In order to create api key click on "Generate API key".
+
+6. Copy your App id, API Key ID and secret from your app then paste it to your Sunshine Conversations API
+ configs on erxes.
+
+7. Put your webhook url into SMOOCH WEBHOOK CALLBACK URL field. 
++ For example 'https://erxes-integrations/smooch/webhook'
+
+### Viber
+
+1. Create a Public Account 
++ You can create an account for testing and development purpose by registering on the [Viber admin panel](https://partners.viber.com/). Note that accounts created this way can’t be discovered by the public and Viber limits the messaging volume on them.
+To create an account for production usage, contact Viber directly using [this form](https://support.viber.com/customer/portal/emails/new).
+ 
+2. Once you have your Public Account token, copy and paste it into Viber token field on the Add Viber page from erxes AppStore. Then click on “Save”.
+
+
+### Telegram
+
+1. Sign in to telegram [here](https://web.telegram.org/#/login).
+
+2. In order to create telegram bot go to [BotFather](https://telegram.me/botfather).
+
+3. Follow the instructions from BotFather to create a bot. Then copy your bot token and paste it into Telegram Bot Token field on the add Telegram page from erxes AppStore. Then click on “Save”
+
 ## Engage configuration
 
 ### AWS SES
