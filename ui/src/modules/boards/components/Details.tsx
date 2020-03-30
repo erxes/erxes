@@ -10,10 +10,10 @@ import { ItemIndicator } from '../styles/stage';
 type Props = {
   items: ICompany[] | ICustomer[] | IProduct[];
   color: string;
-  isCardDragging: boolean;
+  isCardDragging?: boolean;
 };
 
-const Item = styledTS<{ isCardDragging: boolean }>(styled.div)`
+const Item = styledTS<{ isCardDragging?: boolean }>(styled.div)`
   display: ${props => (props.isCardDragging ? 'none' : 'initial')};
 `;
 

@@ -104,7 +104,7 @@ const Label = styledTS<{ color: string; timeout?: number }>(styled.div)`
     }`}
 `;
 
-const LabelList = styledTS<{ isCardDragging: boolean }>(styled.div)`
+const LabelList = styledTS<{ isCardDragging?: boolean }>(styled.div)`
   display: ${props => (props.isCardDragging ? 'none' : 'inline-block')};
 
   &:hover {

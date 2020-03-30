@@ -7,7 +7,7 @@ import { IPipelineLabel } from '../../types';
 type IProps = {
   labels: IPipelineLabel[];
   indicator?: boolean;
-  isCardDragging: boolean;
+  isCardDragging?: boolean;
 };
 
 class Labels extends React.PureComponent<IProps, { isHover: boolean }> {

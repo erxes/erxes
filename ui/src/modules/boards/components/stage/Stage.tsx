@@ -100,12 +100,20 @@ export default class Stage extends React.Component<Props, {}> {
   }
 
   shouldComponentUpdate(nextProps: Props) {
-    const { stage, index, length, items, loadingItems } = this.props;
+    const {
+      stage,
+      index,
+      length,
+      items,
+      loadingItems,
+      isCardDragging
+    } = this.props;
 
     if (
       index !== nextProps.index ||
       loadingItems() !== nextProps.loadingItems() ||
       length !== nextProps.length ||
+      isCardDragging !== nextProps.isCardDragging ||
       JSON.stringify(stage) !== JSON.stringify(nextProps.stage) ||
       items.length !== nextProps.items.length
     ) {

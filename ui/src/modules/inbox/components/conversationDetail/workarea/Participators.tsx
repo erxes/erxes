@@ -8,7 +8,7 @@ import styledTS from 'styled-components-ts';
 
 const spacing = 30;
 
-const ParticipatorWrapper = styledTS<{ isCardDragging: boolean }>(styled.div)`
+const ParticipatorWrapper = styledTS<{ isCardDragging?: boolean }>(styled.div)`
   display: ${props => (props.isCardDragging ? 'none' : 'initial')};
   margin-left: 10px;
 
@@ -36,7 +36,7 @@ const More = styled(ParticipatorImg.withComponent('span'))`
 `;
 
 type Props = {
-  isCardDragging: boolean;
+  isCardDragging?: boolean;
   participatedUsers: IUser[];
   limit?: number;
 };
