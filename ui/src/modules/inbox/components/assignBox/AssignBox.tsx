@@ -30,8 +30,8 @@ type Props = {
 };
 
 type State = {
-  assigneesForList: IAssignee[],
-  loading: boolean
+  assigneesForList: IAssignee[];
+  loading: boolean;
 };
 
 class AssignBox extends React.Component<Props, State> {
@@ -61,7 +61,7 @@ class AssignBox extends React.Component<Props, State> {
             requireUsername: true
           }
         })
-        .then((response: { loading: boolean, data: { users?: IUser[] } }) => {
+        .then((response: { loading: boolean; data: { users?: IUser[] } }) => {
           const verifiedUsers =
             (response.data.users || []).filter(user => user.username) || [];
 

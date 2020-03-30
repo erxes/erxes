@@ -6,4 +6,14 @@ ignore:
     - node-pre-gyp > tar > chownr:
         reason: Devepment only
         expires: '2018-12-13T03:06:41.161Z'
+  SNYK-JS-MINIMIST-559764:
+    - node-pre-gyp > mkdirp > minimist:
+        reason: None given
+        expires: '2020-04-25T09:34:53.734Z'
+    - node-pre-gyp > tar > mkdirp > minimist:
+        reason: None given
+        expires: '2020-04-25T09:34:53.734Z'
+    - node-pre-gyp > rc > minimist:
+        reason: None given
+        expires: '2020-04-25T09:34:53.734Z'
 patch: {}

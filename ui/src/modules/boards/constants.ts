@@ -26,3 +26,9 @@ export const REMINDER_MINUTES = [
   { _id: '1440', name: '1 Day Before' },
   { _id: '2880', name: '2 Day Before' }
 ];
+
+export const PIPELINE_UPDATE_STATUSES = {
+  START: 'start',
+  END: 'end',
+  NEW_REQUEST: 'newRequest'
+};

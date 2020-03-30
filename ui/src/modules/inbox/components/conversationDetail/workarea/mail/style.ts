@@ -1,8 +1,8 @@
 import { colors, dimensions } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
+import { MailBox } from 'modules/customers/styles';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { MailBox } from '../../sidebar/styles';
 
 const Content = styled.div`
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;

@@ -91,7 +91,7 @@ function CustomerRow({
         </td>
       ))}
       <td onClick={onTrClick}>
-        <Tags tags={tags} limit={2} />
+        <Tags tags={tags || []} limit={2} />
       </td>
     </tr>
   );

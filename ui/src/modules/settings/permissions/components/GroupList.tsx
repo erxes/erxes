@@ -85,13 +85,16 @@ class GroupList extends React.Component<IProps> {
   }
 
   renderCopyAction(object: IUserGroupDocument) {
-    const onCopy = () => this.props.copyItem(object._id, 'memberIds', object.memberIds || []);
+    const onCopy = () =>
+      this.props.copyItem(object._id, 'memberIds', object.memberIds || []);
 
     const tipText = 'Copies user group along with the permissions & users';
-    
+
     return (
       <Button btnStyle="link" onClick={onCopy}>
-        <Tip text={tipText} placement="bottom"><Icon icon="copy" /></Tip>
+        <Tip text={tipText} placement="bottom">
+          <Icon icon="copy" />
+        </Tip>
       </Button>
     );
   }
@@ -125,14 +128,19 @@ class GroupList extends React.Component<IProps> {
 
   renderSidebarHeader() {
     const trigger = (
-      <Button btnStyle="success" uppercase={false} icon="plus-circle" block={true}>
+      <Button
+        btnStyle="success"
+        uppercase={false}
+        icon="plus-circle"
+        block={true}
+      >
         Create user group
       </Button>
     );
 
     return (
       <>
-        <TopHeader>{this.renderFormTrigger(trigger)}</TopHeader> 
+        <TopHeader>{this.renderFormTrigger(trigger)}</TopHeader>
         <Section.Title>
           {__('User groups')}
           <Section.QuickButtons>

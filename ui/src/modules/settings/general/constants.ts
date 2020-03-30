@@ -112,7 +112,15 @@ export const KEY_LABELS = {
   GOOGLE_CLIENT_SECRET: 'Google Client Secret',
 
   DAILY_API_KEY: 'Daily api key',
-  DAILY_END_POINT: 'Daily end point'
+  DAILY_END_POINT: 'Daily end point',
+
+  SMOOCH_APP_KEY_ID: 'Smooch App Key Id',
+  SMOOCH_APP_KEY_SECRET: 'Smooch App Key Secret',
+  SMOOCH_APP_ID: 'Smooch App Id',
+  SMOOCH_WEBHOOK_CALLBACK_URL: 'Smooch Webhook Callback Url',
+
+  CHAT_API_UID: 'Chat-API API key',
+  CHAT_API_WEBHOOK_CALLBACK_URL: 'Chat-API Webhook Callback Url'
 };
 
 export const FILE_MIME_TYPES = [
@@ -200,7 +208,8 @@ export const FILE_MIME_TYPES = [
     extension: '.ppt'
   },
   {
-    value: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    value:
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
     label: 'Microsoft PowerPoint (OpenXML)',
     extension: '.pptx'
   },

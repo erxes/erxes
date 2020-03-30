@@ -8,14 +8,14 @@ type Props = {
   addCondition: (condition: ISegmentCondition) => void;
 };
 
-function AddConditionButton (props: Props) {
+function AddConditionButton(props: Props) {
   const addPropertyCondition = () => {
     props.addCondition({
       key: Math.random().toString(),
       type: 'property',
       propertyName: '',
       propertyValue: '',
-      propertyOperator: '',
+      propertyOperator: ''
     });
   };
 
@@ -23,29 +23,29 @@ function AddConditionButton (props: Props) {
     props.addCondition({
       key: Math.random().toString(),
       type: 'event',
-      eventAttributeFilters: [],
+      eventAttributeFilters: []
     });
   };
 
   return (
     <CenterContent>
       <Button.Group hasGap={false}>
-        <Button 
-          btnStyle="primary" 
-          icon="subject" 
-          uppercase={false} 
+        <Button
+          btnStyle="primary"
+          icon="subject"
+          uppercase={false}
           onClick={addPropertyCondition}
         >
-          {__("Add Properties")}
+          {__('Add Properties')}
         </Button>
-        
-        <Button 
-          btnStyle="primary" 
-          icon="computer-mouse" 
-          uppercase={false} 
+
+        <Button
+          btnStyle="primary"
+          icon="computer-mouse"
+          uppercase={false}
           onClick={addEventCondition}
         >
-          {__("Add Events")}
+          {__('Add Events')}
         </Button>
       </Button.Group>
     </CenterContent>

@@ -180,7 +180,6 @@ const generateParams = ({ queryParams, type }) => {
     startDate: queryParams.startDate,
     endDate: queryParams.endDate,
     leadStatus: queryParams.leadStatus,
-    lifecycleState: queryParams.lifecycleState,
     sortField: queryParams.sortField,
     type,
     sortDirection: queryParams.sortDirection

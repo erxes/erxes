@@ -12,7 +12,6 @@ const commonFields = `
   $position: String,
   $department: String,
   $leadStatus: String,
-  $lifecycleState: String,
   $hasAuthority: String,
   $description: String,
   $doNotDisturb: String,
@@ -35,7 +34,6 @@ const commonVariables = `
   position: $position,
   department: $department,
   leadStatus: $leadStatus,
-  lifecycleState: $lifecycleState,
   hasAuthority: $hasAuthority,
   description: $description,
   doNotDisturb: $doNotDisturb,
@@ -45,8 +43,8 @@ const commonVariables = `
 `;
 
 const customersAdd = `
-  mutation customersAdd(${commonFields}) {
-    customersAdd(${commonVariables}) {
+  mutation customersAdd($state: String, ${commonFields}) {
+    customersAdd(state: $state, ${commonVariables}) {
       _id
       firstName
       primaryEmail
@@ -72,7 +70,6 @@ const customersEdit = `
       position
       department
       leadStatus
-      lifecycleState
       hasAuthority
       description
       doNotDisturb
@@ -102,9 +99,18 @@ const customersMerge = `
   }
 `;
 
+const customersChangeState = `
+  mutation customersChangeState($_id: String!, $value: String!) {
+    customersChangeState(_id: $_id, value: $value) {
+      _id
+    }
+  }
+`;
+
 export default {
   customersAdd,
   customersEdit,
   customersRemove,
+  customersChangeState,
   customersMerge
 };

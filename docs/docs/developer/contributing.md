@@ -11,7 +11,8 @@ We would love for you to contribute to Erxes and help make it even better than i
 * [Feature Requests](#missing-a-feature)
 * [Submission Guidelines](#submission-guidelines)
 * [Coding Standards](#coding-standards)
-* [Commit Message Guidelines]()
+* [Commit Message Guidelines](#commit-message-guidelines)
+* [Swag for Contributions]()
 
 
 ### Found a Bug?
@@ -383,3 +384,9 @@ perf(inbox): remove graphiteWidth option
 revert: feat(inbox): add 'graphiteWidth' option
  This reverts commit 667ecc1654a317a13331b17617d973392f415f02.
 ```
+## Swag for Contributions
+
+To show our appreciation, we are sending everyone who contributes to erxes a special package, which includes a t-shirt and stickers. [Click here](https://erxes.io/hubspot-alternative-erxes-swag) to claim your swag. (Worldwide free shipping included!)
+
+<p align="center">
+  <img src="https://erxes.io/static/images/t-shirt.jpeg" width="500" title="erxes Swag"></p>

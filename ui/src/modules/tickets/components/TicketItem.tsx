@@ -32,9 +32,7 @@ class TicketItem extends React.PureComponent<Props> {
       return null;
     }
 
-    return (
-      <ItemDate>{dayjs(date).format('lll')}</ItemDate>
-    );
+    return <ItemDate>{dayjs(date).format('lll')}</ItemDate>;
   }
 
   renderForm = () => {

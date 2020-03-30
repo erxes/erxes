@@ -35,9 +35,9 @@ const SegmentsForm = (props: Props) => {
               <Icon icon="users-alt" />{' '}
               {counterLoading ? (
                 <Spinner objective={true} />
-              ) : 
+              ) : (
                 <span>{count}</span>
-              }
+              )}
             </ResultCount>
             {__('User(s) will recieve this message')}
           </SegmentResult>
@@ -53,12 +53,12 @@ const SegmentsForm = (props: Props) => {
     segment,
     events,
     headSegments,
-    previewCount,
+    previewCount
   } = props;
 
   const title = props.segment ? __('Edit segment') : __('New segment');
 
-  const pageTitle = <Title>{title}</Title>
+  const pageTitle = <Title>{title}</Title>;
   const breadcrumb = [
     { title: __('Segments'), link: `/segments/${contentType}` },
     { title }
