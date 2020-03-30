@@ -28,18 +28,22 @@ class LeadStatusFilterContainer extends React.Component<Props> {
   }
 }
 
-export default withProps<{ loadingMainQuery: boolean }>(
+type WrapperProps = {
+  type: string;
+  loadingMainQuery: boolean;
+};
+
+export default withProps<WrapperProps>(
   compose(
-    graphql<
-      { loadingMainQuery: boolean },
-      CountQueryResponse,
-      { only: string }
-    >(gql(queries.customerCounts), {
-      name: 'customersCountQuery',
-      skip: ({ loadingMainQuery }) => loadingMainQuery,
-      options: {
-        variables: { only: 'byLeadStatus' }
+    graphql<WrapperProps, CountQueryResponse, { only: string }>(
+      gql(queries.customerCounts),
+      {
+        name: 'customersCountQuery',
+        skip: ({ loadingMainQuery }) => loadingMainQuery,
+        options: ({ type }) => ({
+          variables: { type, only: 'byLeadStatus' }
+        })
       }
-    })
+    )
   )(LeadStatusFilterContainer)
 );

@@ -84,7 +84,7 @@ const moduleOptions = [
   { value: 'integration', label: 'Integrations' },
   { value: 'segment', label: 'Segments' },
   { value: 'engage', label: 'Engages' },
-  { value: 'script', label: 'Scripts' },
+  { value: 'script', label: 'Scripts' }
 ];
 
 const breadcrumb = [
@@ -219,7 +219,7 @@ class LogList extends React.Component<Props, State> {
     };
 
     const actionBarLeft = (
-      <FilterWrapper style={{padding: '10px 0px'}}>
+      <FilterWrapper style={{ padding: '10px 0px' }}>
         <strong>{__('Filters')}:</strong>
         {this.renderDateFilter('start')}
         {this.renderDateFilter('end')}

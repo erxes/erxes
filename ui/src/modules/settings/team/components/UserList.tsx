@@ -51,7 +51,9 @@ class UserList extends React.Component<FinalProps, States> {
   constructor(props: FinalProps) {
     super(props);
 
-    const { queryParams: { searchValue } } = props;
+    const {
+      queryParams: { searchValue }
+    } = props;
 
     this.state = {
       searchValue: searchValue || ''

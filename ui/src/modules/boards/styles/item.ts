@@ -260,6 +260,14 @@ export const StageItem = styledTS<{ isPass: boolean }>(styled.li)`
     &:before {
       display: none;
     }
+
+    i {
+      margin-left: 0;
+    }
+  }
+
+  &:last-child i {
+    margin-right: 0;
   }
 
   &:before {
@@ -269,8 +277,8 @@ export const StageItem = styledTS<{ isPass: boolean }>(styled.li)`
       props.isPass ? colors.colorSecondary : colors.colorShadowGray};
     width: 100%;
     top: 50%;
-    margin-top: -2px;
-    left: -0;
+    margin-top: 0;
+    left: 0;
     position: absolute;
   }
 
@@ -284,6 +292,7 @@ export const StageItem = styledTS<{ isPass: boolean }>(styled.li)`
 
   i {
     font-size: 30px;
+    margin: 0 -3px;
     color: ${props =>
       props.isPass ? colors.colorSecondary : colors.colorShadowGray};
   }

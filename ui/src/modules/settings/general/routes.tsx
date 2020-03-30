@@ -18,10 +18,13 @@ const routes = () => {
   return (
     <React.Fragment>
       <Route path="/settings/general/" component={GeneralSettings} />
-      <Route path="/settings/integration-configs/" component={IntegrationConfigs} />
+      <Route
+        path="/settings/integration-configs/"
+        component={IntegrationConfigs}
+      />
       <Route path="/settings/engage-configs/" component={EngageConfigs} />
     </React.Fragment>
-  )
+  );
 };
 
 export default routes;

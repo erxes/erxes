@@ -76,7 +76,7 @@ class TemplateList extends React.Component<Props> {
         {this.renderDuplicateAction(object)}
         <Tip text="Remove">
           <div onClick={this.removeTemplate.bind(this, object)}>
-            <Icon icon="trash-4" />
+            <Icon icon="trash" />
           </div>
         </Tip>
       </Actions>

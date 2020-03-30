@@ -11,7 +11,11 @@ import Chatfuel from '../../containers/chatfuel/Form';
 import Facebook from '../../containers/facebook/Form';
 import KnowledgeBase from '../../containers/knowledgebase/Form';
 import Lead from '../../containers/lead/Form';
+import LineForm from '../../containers/line/Form';
+import TelegramForm from '../../containers/telegram/Form';
+import TwilioForm from '../../containers/twilioSms/Form';
 import Twitter from '../../containers/twitter/Twitter';
+import ViberForm from '../../containers/viber/Form';
 import Website from '../../containers/website/Form';
 import WhatsappForm from '../../containers/whatsapp/Form';
 import { Box, IntegrationItem, Ribbon, Type } from './styles';
@@ -27,6 +31,10 @@ type TotalCount = {
   office365: number;
   outlook: number;
   yahoo: number;
+  line: number;
+  telegram: number;
+  viber: number;
+  twilio: number;
   whatsapp: number;
 };
 
@@ -232,6 +240,50 @@ function renderCreate(createUrl, createModal) {
 
     return (
       <ModalTrigger title="Add twitter" trigger={trigger} content={content} />
+    );
+  }
+
+  if (createModal === KIND_CHOICES.SMOOCH_LINE) {
+    const trigger = <h6>+ {__('Add')}</h6>;
+
+    const content = props => <LineForm {...props} />;
+
+    return (
+      <ModalTrigger title="Add Line" trigger={trigger} content={content} />
+    );
+  }
+
+  if (createModal === KIND_CHOICES.SMOOCH_TELEGRAM) {
+    const trigger = <h6>+ {__('Add')}</h6>;
+
+    const content = props => <TelegramForm {...props} />;
+
+    return (
+      <ModalTrigger title="Add Telegram" trigger={trigger} content={content} />
+    );
+  }
+
+  if (createModal === KIND_CHOICES.SMOOCH_VIBER) {
+    const trigger = <h6>+ {__('Add')}</h6>;
+
+    const content = props => <ViberForm {...props} />;
+
+    return (
+      <ModalTrigger title="Add Viber" trigger={trigger} content={content} />
+    );
+  }
+
+  if (createModal === KIND_CHOICES.SMOOCH_TWILIO) {
+    const trigger = <h6>+ {__('Add')}</h6>;
+
+    const content = props => <TwilioForm {...props} />;
+
+    return (
+      <ModalTrigger
+        title="Add Twilio SMS"
+        trigger={trigger}
+        content={content}
+      />
     );
   }
 

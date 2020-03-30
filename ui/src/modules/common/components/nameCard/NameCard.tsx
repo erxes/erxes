@@ -64,7 +64,7 @@ class NameCard extends React.Component<Props> {
 
   renderSecondLine() {
     const { user, singleLine, secondLine } = this.props;
-    
+
     if (singleLine || !user) {
       return null;
     }

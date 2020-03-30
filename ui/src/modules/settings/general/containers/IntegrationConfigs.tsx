@@ -11,7 +11,7 @@ import { IConfigsMap } from '../types';
 type FinalProps = {
   fetchApiQuery;
   updateConfigs: (configsMap: IConfigsMap) => Promise<void>;
-}
+};
 
 class ConfigContainer extends React.Component<FinalProps> {
   render() {
@@ -45,34 +45,24 @@ class ConfigContainer extends React.Component<FinalProps> {
     }
 
     return (
-      <IntegrationsConfig
-        {...this.props}
-        configsMap={configsMap}
-        save={save}
-      />
+      <IntegrationsConfig {...this.props} configsMap={configsMap} save={save} />
     );
   }
 }
 
 export default withProps<{}>(
   compose(
-    graphql<{}>(
-      gql(queries.fetchApi),
-      {
-        name: 'fetchApiQuery',
-        options: () => ({
-          variables: {
-            path: '/configs',
-            params: {}
-          }
-        })
-      }
-    ),
-    graphql<{}>(
-      gql(mutations.integrationsUpdateConfigs),
-      {
-        name: 'updateConfigs'
-      }
-    )
+    graphql<{}>(gql(queries.fetchApi), {
+      name: 'fetchApiQuery',
+      options: () => ({
+        variables: {
+          path: '/configs',
+          params: {}
+        }
+      })
+    }),
+    graphql<{}>(gql(mutations.integrationsUpdateConfigs), {
+      name: 'updateConfigs'
+    })
   )(ConfigContainer)
 );

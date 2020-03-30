@@ -77,8 +77,7 @@ class VisitorForm extends React.Component<Props, State> {
     this.setState(({ [key]: value } as unknown) as Pick<State, keyof State>);
   };
 
-  handleSubmit = (type: string): Promise<any> | void => {  
-
+  handleSubmit = (type: string): Promise<any> | void => {
     const messenger = this.state.messenger || ({} as IEngageMessenger);
 
     const doc = {
@@ -98,7 +97,7 @@ class VisitorForm extends React.Component<Props, State> {
     const response = this.props.validateDoc(type, doc);
 
     if (response.status === 'ok' && response.doc) {
-     return this.props.save(response.doc);
+      return this.props.save(response.doc);
     }
   };
 
@@ -114,8 +113,7 @@ class VisitorForm extends React.Component<Props, State> {
     );
 
     const saveButton = () => {
-      if (kind === 'visitorAuto') 
-      {
+      if (kind === 'visitorAuto') {
         return (
           <>
             <Button
@@ -140,7 +138,7 @@ class VisitorForm extends React.Component<Props, State> {
         );
       }
       return;
-      };
+    };
 
     return (
       <Button.Group>
@@ -164,7 +162,7 @@ class VisitorForm extends React.Component<Props, State> {
 
     const onChange = e =>
       this.changeState('title', (e.target as HTMLInputElement).value);
-      
+
     return (
       <StepWrapper>
         <Wrapper.Header title={renderTitle()} breadcrumb={breadcrumbs} />

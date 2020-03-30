@@ -56,7 +56,8 @@ const PreviewWrapper = styled.div`
   overflow: hidden;
 
   i {
-    font-size: 26px;
+    font-size: 36px;
+    color: ${colors.colorSecondary};
   }
 `;
 
@@ -178,33 +179,35 @@ class Attachment extends React.Component<Props> {
     let filePreview;
 
     switch (fileExtension) {
-      case 'png':
-      case 'jpeg':
-      case 'doc':
       case 'docx':
-      case 'txt':
-      case 'pdf':
-      case 'xls':
-      case 'xlsx':
-      case 'ppt':
+        filePreview = this.renderOtherFile(attachment, 'doc');
+        break;
       case 'pptx':
-        filePreview = this.renderOtherFile(attachment, 'file');
+        filePreview = this.renderOtherFile(attachment, 'ppt');
+        break;
+      case 'xlsx':
+        filePreview = this.renderOtherFile(attachment, 'xls');
         break;
       case 'mp4':
         filePreview = this.renderVideoFile(attachment);
         break;
-      case 'avi':
-        filePreview = this.renderOtherFile(attachment, 'videocamera');
-        break;
-      case 'mp3':
-      case 'wav':
-        filePreview = this.renderOtherFile(attachment, 'music');
-        break;
       case 'zip':
-        filePreview = this.renderOtherFile(attachment, 'cube');
+      case 'csv':
+      case 'doc':
+      case 'ppt':
+      case 'psd':
+      case 'avi':
+      case 'txt':
+      case 'rar':
+      case 'mp3':
+      case 'pdf':
+      case 'png':
+      case 'xls':
+      case 'jpeg':
+        filePreview = this.renderOtherFile(attachment, fileExtension);
         break;
       default:
-        filePreview = this.renderOtherFile(attachment, 'clipboard-1');
+        filePreview = this.renderOtherFile(attachment, 'file-2');
     }
     return filePreview;
   };

@@ -66,7 +66,7 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
     this.toolbarPlugin = createToolbarPlugin();
     this.emojiPlugin = createEmojiPlugin({
       useNativeArt: true,
-      selectButtonContent: <Icon icon="smile-1" />,
+      selectButtonContent: <Icon icon="smile" />,
       positionSuggestions: settings => {
         return {
           left: settings.decoratorRect.x + 'px',

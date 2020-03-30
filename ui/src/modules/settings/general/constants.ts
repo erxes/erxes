@@ -114,6 +114,11 @@ export const KEY_LABELS = {
   DAILY_API_KEY: 'Daily api key',
   DAILY_END_POINT: 'Daily end point',
 
+  SMOOCH_APP_KEY_ID: 'Smooch App Key Id',
+  SMOOCH_APP_KEY_SECRET: 'Smooch App Key Secret',
+  SMOOCH_APP_ID: 'Smooch App Id',
+  SMOOCH_WEBHOOK_CALLBACK_URL: 'Smooch Webhook Callback Url',
+
   CHAT_API_UID: 'Chat-API API key',
   CHAT_API_WEBHOOK_CALLBACK_URL: 'Chat-API Webhook Callback Url'
 };

@@ -38,7 +38,7 @@ export default `
     lastName
     primaryEmail
     primaryPhone
-    isUser
+    state
     companies {
       _id
       primaryName

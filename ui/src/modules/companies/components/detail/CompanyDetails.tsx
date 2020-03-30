@@ -2,9 +2,12 @@ import ActivityInputs from 'modules/activityLogs/components/ActivityInputs';
 import ActivityLogs from 'modules/activityLogs/containers/ActivityLogs';
 import { IUser } from 'modules/auth/types';
 import { __ } from 'modules/common/utils';
+import BasicInfo from 'modules/companies/containers/detail/BasicInfo';
 import { ICompany } from 'modules/companies/types';
+import { UserHeader } from 'modules/customers/styles';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
+import InfoSection from '../common/InfoSection';
 import LeftSidebar from './LeftSidebar';
 import RightSidebar from './RightSidebar';
 
@@ -46,6 +49,13 @@ class CompanyDetails extends React.Component<Props> {
     return (
       <Wrapper
         header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
+        mainHead={
+          <UserHeader>
+            <InfoSection company={company}>
+              <BasicInfo company={company} />
+            </InfoSection>
+          </UserHeader>
+        }
         leftSidebar={
           <LeftSidebar
             {...this.props}

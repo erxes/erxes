@@ -9,7 +9,13 @@ import React from 'react';
 import Select from 'react-select-plus';
 import RTG from 'react-transition-group';
 import { PRIORITIES } from '../constants';
-import { FilterBox, FilterButton, MenuFooter, RightMenuContainer, TabContent } from '../styles/rightMenu';
+import {
+  FilterBox,
+  FilterButton,
+  MenuFooter,
+  RightMenuContainer,
+  TabContent
+} from '../styles/rightMenu';
 import { IOptions } from '../types';
 import Archive from './Archive';
 import SelectLabel from './label/SelectLabel';
@@ -61,10 +67,14 @@ export default class RightMenu extends React.Component<Props, State> {
   }
 
   handleClickOutside = event => {
-    if (this.wrapperRef && !this.wrapperRef.contains(event.target) && this.state.currentTab === 'Filter') {
+    if (
+      this.wrapperRef &&
+      !this.wrapperRef.contains(event.target) &&
+      this.state.currentTab === 'Filter'
+    ) {
       this.setState({ showMenu: false });
     }
-  } 
+  };
 
   toggleMenu = () => {
     this.setState({ showMenu: !this.state.showMenu });
@@ -167,7 +177,7 @@ export default class RightMenu extends React.Component<Props, State> {
         />
 
         {extraFilter}
-        {this.renderDates()}       
+        {this.renderDates()}
       </FilterBox>
     );
   }
@@ -175,17 +185,17 @@ export default class RightMenu extends React.Component<Props, State> {
   renderTabContent() {
     if (this.state.currentTab === 'Filter') {
       const { isFiltered, clearFilter } = this.props;
-      
+
       return (
         <>
           <TabContent>{this.renderFilter()}</TabContent>
           {isFiltered && (
             <MenuFooter>
-              <Button 
-                block={true} 
-                btnStyle="warning" 
-                uppercase={false} 
-                onClick={clearFilter} 
+              <Button
+                block={true}
+                btnStyle="warning"
+                uppercase={false}
+                onClick={clearFilter}
                 icon="times-circle"
               >
                 {__('Clear Filter')}
@@ -198,7 +208,7 @@ export default class RightMenu extends React.Component<Props, State> {
 
     const { queryParams, options } = this.props;
 
-    return  (
+    return (
       <TabContent>
         <Archive queryParams={queryParams} options={options} />
       </TabContent>
@@ -233,7 +243,7 @@ export default class RightMenu extends React.Component<Props, State> {
         >
           {showMenu ? __('Hide Menu') : __('Show Menu')}
         </Button>
-        
+
         <RTG.CSSTransition
           in={this.state.showMenu}
           timeout={300}

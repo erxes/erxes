@@ -4,12 +4,15 @@ import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { TabTitle } from 'modules/common/components/tabs';
 import { __, renderFullName } from 'modules/common/utils';
+import ActionSection from 'modules/customers/containers/common/ActionSection';
+import LeadState from 'modules/customers/containers/LeadState';
+import { MailBox, UserHeader } from 'modules/customers/styles';
 import Widget from 'modules/engage/containers/Widget';
-import { MailBox } from 'modules/inbox/components/conversationDetail/sidebar/styles';
 import Wrapper from 'modules/layout/components/Wrapper';
 import MailForm from 'modules/settings/integrations/containers/mail/MailForm';
 import React from 'react';
 import { ICustomer } from '../../types';
+import InfoSection from '../common/InfoSection';
 import LeftSidebar from './LeftSidebar';
 import RightSidebar from './RightSidebar';
 
@@ -79,7 +82,7 @@ class CustomerDetails extends React.Component<Props> {
 
     const breadcrumb = [
       { title: __('Contacts'), link: '/contacts' },
-      { title: __('Customers'), link: '/contacts/customers/all' },
+      { title: __('Customers'), link: '/contacts/customers/customer' },
       { title: renderFullName(customer) }
     ];
 
@@ -112,6 +115,14 @@ class CustomerDetails extends React.Component<Props> {
             title={renderFullName(customer)}
             breadcrumb={breadcrumb}
           />
+        }
+        mainHead={
+          <UserHeader>
+            <InfoSection nameSize={16} avatarSize={60} customer={customer}>
+              <ActionSection customer={customer} />
+            </InfoSection>
+            <LeadState customer={customer} />
+          </UserHeader>
         }
         leftSidebar={
           <LeftSidebar

@@ -18,7 +18,7 @@ class Status extends React.PureComponent<{
 
         <Group>
           <span>
-            <Icon icon="information" /> {__('Info')}
+            <Icon icon="info-circle" /> {__('Info')}
           </span>
           <div>
             <b>{__('Package version')}</b> - {ver.packageVersion}

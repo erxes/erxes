@@ -6,10 +6,7 @@ import Tip from 'modules/common/components/Tip';
 import { ButtonRelated } from 'modules/common/styles/main';
 import { __, urlParser } from 'modules/common/utils';
 import GetConformity from 'modules/conformity/containers/GetConformity';
-import {
-  SectionBody,
-  SectionBodyItem
-} from 'modules/layout/styles';
+import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import CompanyChooser from '../../containers/CompanyChooser';
