@@ -64,6 +64,11 @@ interface IContentTypeParams {
   contentTypeId: string;
 }
 
+/**
+ * @param object - Previous state of the object
+ * @param newData - Requested update data
+ * @param updatedDocument - State after any updates to the object
+ */
 export interface ILogDataParams {
   type: string;
   description?: string;
@@ -239,7 +244,7 @@ const gatherNames = async (params: ILogParams): Promise<LogDesc[]> => {
 
   for (const id of uniqueIds) {
     const item = await collection.findOne({ _id: id });
-    let name: string = '';
+    let name: string = `item with id "${id}" has been deleted`;
 
     if (item) {
       for (const n of nameFields) {
@@ -247,9 +252,9 @@ const gatherNames = async (params: ILogParams): Promise<LogDesc[]> => {
           name = item[n];
         }
       }
-
-      options.push({ [foreignKey]: id, name });
     }
+
+    options.push({ [foreignKey]: id, name });
   }
 
   return options;
@@ -828,6 +833,25 @@ const gatherPipelineTemplateFieldNames = async (
   return options;
 };
 
+const gatherUserFieldNames = async (doc: IUserDocument, prevList?: LogDesc[]): Promise<LogDesc[]> => {
+  let options: LogDesc[] = [];
+
+  if (prevList) {
+    options = prevList;
+  }
+
+  // show only user group names of users for now
+  options = await gatherNames({
+    collection: UsersGroups,
+    idFields: doc.groupIds || [],
+    foreignKey: 'groupIds',
+    nameFields: ['name'],
+    prevList: options,
+  });
+
+  return options;
+};
+
 const gatherDescriptions = async (params: IDescriptionParams): Promise<IDescriptions> => {
   const { action, type, obj, updatedDocument } = params;
 
@@ -1198,6 +1222,16 @@ const gatherDescriptions = async (params: IDescriptionParams): Promise<IDescript
 
       if (updatedDocument) {
         extraDesc = await gatherBoardItemFieldNames(updatedDocument, extraDesc);
+      }
+
+      break;
+    case MODULE_NAMES.USER:
+      description = `"${obj.username || obj.email}" has been ${action}`;
+
+      extraDesc = await gatherUserFieldNames(obj);
+
+      if (updatedDocument) {
+        extraDesc = await gatherUserFieldNames(updatedDocument, extraDesc);
       }
 
       break;

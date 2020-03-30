@@ -20,7 +20,7 @@ import {
 } from '../db/models';
 import { ACTIVITY_CONTENT_TYPES, STATUSES } from '../db/models/definitions/constants';
 
-import { ICustomerDocument } from '../db/models/definitions/customers';
+import { ICustomer, ICustomerDocument } from '../db/models/definitions/customers';
 import './setup.ts';
 
 describe('Customers model tests', () => {
@@ -121,7 +121,7 @@ describe('Customers model tests', () => {
     }
 
     // Create without any error
-    const doc = {
+    const doc: ICustomer = {
       primaryEmail: 'dombo@yahoo.com',
       emails: ['dombo@yahoo.com'],
       firstName: 'firstName',
@@ -129,6 +129,7 @@ describe('Customers model tests', () => {
       primaryPhone: '12312132',
       phones: ['12312132'],
       code: 'code1234',
+      state: 'lead',
     };
 
     let customerObj = await Customers.createCustomer(doc);
@@ -138,9 +139,9 @@ describe('Customers model tests', () => {
     expect(customerObj.firstName).toBe(doc.firstName);
     expect(customerObj.lastName).toBe(doc.lastName);
     expect(customerObj.primaryEmail).toBe(doc.primaryEmail);
-    expect(customerObj.emails).toEqual(expect.arrayContaining(doc.emails));
+    expect(customerObj.emails).toEqual(expect.arrayContaining(doc.emails || []));
     expect(customerObj.primaryPhone).toBe(doc.primaryPhone);
-    expect(customerObj.phones).toEqual(expect.arrayContaining(doc.phones));
+    expect(customerObj.phones).toEqual(expect.arrayContaining(doc.phones || []));
     expect(customerObj.searchText).toEqual('dombo@yahoo.com 12312132 firstName lastName code1234');
 
     customerObj = await Customers.createCustomer(
@@ -536,7 +537,6 @@ describe('Customers model tests', () => {
     expect(customer.primaryPhone).toBe(phone);
     expect(customer.phones).toContain(phone);
 
-    expect(customer.isUser).toBe(_customer.isUser);
     expect(customer.createdAt >= now).toBe(true);
 
     expect(customer.lastSeenAt).toBeDefined();
@@ -577,8 +577,6 @@ describe('Customers model tests', () => {
 
     expect(customer.primaryPhone).toBe(phone);
     expect(customer.phones).toContain(phone);
-
-    expect(customer.isUser).toBe(true);
   });
 
   test('getWidgetCustomer()', async () => {

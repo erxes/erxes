@@ -51,6 +51,13 @@ const customerMutations = {
   },
 
   /**
+   * Change state
+   */
+  async customersChangeState(_root, args: { _id: string; value: string }) {
+    return Customers.changeState(args._id, args.value);
+  },
+
+  /**
    * Merge customers
    */
   async customersMerge(
@@ -95,5 +102,6 @@ checkPermission(customerMutations, 'customersAdd', 'customersAdd');
 checkPermission(customerMutations, 'customersEdit', 'customersEdit');
 checkPermission(customerMutations, 'customersMerge', 'customersMerge');
 checkPermission(customerMutations, 'customersRemove', 'customersRemove');
+checkPermission(customerMutations, 'customersChangeState', 'customersRemove');
 
 export default customerMutations;

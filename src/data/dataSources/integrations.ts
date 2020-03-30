@@ -63,6 +63,14 @@ export default class IntegrationsAPI extends RESTDataSource {
     return this.post('/twitter/reply', params);
   }
 
+  public async replySmooch(params) {
+    return this.post('/smooch/reply', params);
+  }
+
+  public async replyWhatsApp(params) {
+    return this.post('/whatsapp/reply', params);
+  }
+
   public async updateConfigs(configsMap) {
     return this.post('/update-configs', { configsMap });
   }

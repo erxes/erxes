@@ -24,7 +24,6 @@ describe('customerQueries', () => {
     $form: String,
     $startDate: String,
     $endDate: String,
-    $lifecycleState: String,
     $leadStatus: String
   `;
 
@@ -38,7 +37,6 @@ describe('customerQueries', () => {
     form: $form
     startDate: $startDate
     endDate: $endDate
-    lifecycleState: $lifecycleState
     leadStatus: $leadStatus
   `;
 
@@ -155,12 +153,6 @@ describe('customerQueries', () => {
     });
   });
 
-  test('Customer count by lifecycleState', async () => {
-    await graphqlRequest(qryCount, 'customerCounts', {
-      only: 'byLifecycleState',
-    });
-  });
-
   test('Customer count by IntegrationType', async () => {
     await integrationFactory({ kind: '' });
 
@@ -231,7 +223,6 @@ describe('customerQueries', () => {
           emails
           primaryPhone
           phones
-          isUser
           tagIds
           remoteAddress
           internalNotes
@@ -243,7 +234,6 @@ describe('customerQueries', () => {
           position
           department
           leadStatus
-          lifecycleState
           hasAuthority
           description
           doNotDisturb

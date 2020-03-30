@@ -1,5 +1,8 @@
+import './setup.ts';
+
 import * as faker from 'faker';
-import { graphqlRequest } from '../db/connection';
+import * as messageBroker from '../messageBroker';
+
 import {
   brandFactory,
   customerFactory,
@@ -9,10 +12,9 @@ import {
   userFactory,
 } from '../db/factories';
 import { Brands, Customers, EmailDeliveries, Integrations, Users } from '../db/models';
-import * as messageBroker from '../messageBroker';
 
 import { IntegrationsAPI } from '../data/dataSources';
-import './setup.ts';
+import { graphqlRequest } from '../db/connection';
 
 describe('mutations', () => {
   let _integration;
@@ -340,6 +342,15 @@ describe('mutations', () => {
     }
 
     args.kind = 'twitter-dm';
+    args.data = { data: 'data' };
+
+    try {
+      await graphqlRequest(mutation, 'integrationsCreateExternalIntegration', args, { dataSources });
+    } catch (e) {
+      expect(e[0].message).toBe('Error: Integrations api is not running');
+    }
+
+    args.kind = 'smooch-viber';
     args.data = { data: 'data' };
 
     try {

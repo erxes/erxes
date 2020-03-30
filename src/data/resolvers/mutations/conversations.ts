@@ -266,6 +266,15 @@ const conversationMutations = {
       requestName = 'replyTwitterDm';
     }
 
+    if (kind.includes('smooch')) {
+      requestName = 'replySmooch';
+    }
+
+    // send reply to whatsapp
+    if (kind === KIND_CHOICES.WHATSAPP) {
+      requestName = 'replyWhatsApp';
+    }
+
     await sendConversationToIntegrations(type, integrationId, conversationId, requestName, doc, dataSources, action);
 
     const dbMessage = await ConversationMessages.getMessage(message._id);
@@ -423,10 +432,17 @@ const conversationMutations = {
 
       message = await ConversationMessages.addMessage(doc, user._id);
 
-      return await dataSources.IntegrationsAPI.createDailyVideoChatRoom({
+      const videoCallData = await dataSources.IntegrationsAPI.createDailyVideoChatRoom({
         erxesApiConversationId: _id,
         erxesApiMessageId: message._id,
       });
+
+      message.videoCallData = videoCallData;
+
+      // publish new message to conversation detail
+      publishMessage(message);
+
+      return videoCallData;
     } catch (e) {
       debugExternalApi(e.message);
 

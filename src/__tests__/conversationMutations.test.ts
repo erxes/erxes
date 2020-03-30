@@ -1,7 +1,9 @@
+import './setup.ts';
+
 import * as faker from 'faker';
 import * as sinon from 'sinon';
-import utils from '../data/utils';
-import { graphqlRequest } from '../db/connection';
+import * as messageBroker from '../messageBroker';
+
 import {
   conversationFactory,
   conversationMessageFactory,
@@ -10,15 +12,14 @@ import {
   userFactory,
 } from '../db/factories';
 import { Conversations, Customers, Integrations, Users } from '../db/models';
+import { CONVERSATION_STATUSES, KIND_CHOICES } from '../db/models/definitions/constants';
 
 import { IntegrationsAPI } from '../data/dataSources';
-import { CONVERSATION_STATUSES, KIND_CHOICES } from '../db/models/definitions/constants';
+import utils from '../data/utils';
+import { graphqlRequest } from '../db/connection';
 import { IConversationDocument } from '../db/models/definitions/conversations';
 import { ICustomerDocument } from '../db/models/definitions/customers';
 import { IUserDocument } from '../db/models/definitions/users';
-import * as messageBroker from '../messageBroker';
-
-import './setup.ts';
 
 const toJSON = value => {
   // sometimes object key order is different even though it has same value.
@@ -34,6 +35,11 @@ describe('Conversation message mutations', () => {
   let messengerConversation: IConversationDocument;
   let chatfuelConversation: IConversationDocument;
   let twitterConversation: IConversationDocument;
+  let whatsAppConversation: IConversationDocument;
+  let viberConversation: IConversationDocument;
+  let telegramConversation: IConversationDocument;
+  let lineConversation: IConversationDocument;
+  let twilioConversation: IConversationDocument;
 
   let user: IUserDocument;
   let customer: ICustomerDocument;
@@ -95,6 +101,21 @@ describe('Conversation message mutations', () => {
 
     const twitterIntegration = await integrationFactory({ kind: KIND_CHOICES.TWITTER_DM });
     twitterConversation = await conversationFactory({ integrationId: twitterIntegration._id });
+
+    const whatsAppIntegration = await integrationFactory({ kind: KIND_CHOICES.WHATSAPP });
+    whatsAppConversation = await conversationFactory({ integrationId: whatsAppIntegration._id });
+
+    const viberIntegration = await integrationFactory({ kind: KIND_CHOICES.SMOOCH_VIBER });
+    viberConversation = await conversationFactory({ integrationId: viberIntegration._id });
+
+    const telegramIntegration = await integrationFactory({ kind: KIND_CHOICES.SMOOCH_TELEGRAM });
+    telegramConversation = await conversationFactory({ integrationId: telegramIntegration._id });
+
+    const lineIntegration = await integrationFactory({ kind: KIND_CHOICES.SMOOCH_LINE });
+    lineConversation = await conversationFactory({ integrationId: lineIntegration._id });
+
+    const twilioIntegration = await integrationFactory({ kind: KIND_CHOICES.SMOOCH_TWILIO });
+    twilioConversation = await conversationFactory({ integrationId: twilioIntegration._id });
 
     const messengerIntegration = await integrationFactory({ kind: 'messenger' });
     messengerConversation = await conversationFactory({
@@ -200,6 +221,46 @@ describe('Conversation message mutations', () => {
     }
 
     args.conversationId = twitterConversation._id;
+
+    try {
+      await graphqlRequest(addMutation, 'conversationMessageAdd', args, { dataSources });
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
+
+    args.conversationId = whatsAppConversation._id;
+
+    try {
+      await graphqlRequest(addMutation, 'conversationMessageAdd', args, { dataSources });
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
+
+    args.conversationId = viberConversation._id;
+
+    try {
+      await graphqlRequest(addMutation, 'conversationMessageAdd', args, { dataSources });
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
+
+    args.conversationId = telegramConversation._id;
+
+    try {
+      await graphqlRequest(addMutation, 'conversationMessageAdd', args, { dataSources });
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
+
+    args.conversationId = lineConversation._id;
+
+    try {
+      await graphqlRequest(addMutation, 'conversationMessageAdd', args, { dataSources });
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
+
+    args.conversationId = twilioConversation._id;
 
     try {
       await graphqlRequest(addMutation, 'conversationMessageAdd', args, { dataSources });
@@ -387,7 +448,7 @@ describe('Conversation message mutations', () => {
   });
 
   test('Create video chat room', async () => {
-    expect.assertions(1);
+    expect.assertions(2);
 
     process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
 
@@ -409,5 +470,20 @@ describe('Conversation message mutations', () => {
     } catch (e) {
       expect(e[0].message).toBe('Integrations api is not running');
     }
+
+    const mock = sinon.stub(dataSources.IntegrationsAPI, 'createDailyVideoChatRoom').callsFake(() => {
+      return Promise.resolve({ status: 'ongoing' });
+    });
+
+    const response = await graphqlRequest(
+      mutation,
+      'conversationCreateVideoChatRoom',
+      { _id: conversation._id },
+      { dataSources },
+    );
+
+    expect(response.status).toBe('ongoing');
+
+    mock.restore();
   });
 });

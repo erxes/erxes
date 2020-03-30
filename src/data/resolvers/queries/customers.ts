@@ -1,14 +1,7 @@
 import { Customers, Forms } from '../../../db/models';
 import { KIND_CHOICES, TAG_TYPES } from '../../../db/models/definitions/constants';
 import { Builder as BuildQuery, IListArgs } from '../../modules/coc/customers';
-import {
-  countByBrand,
-  countByLeadStatus,
-  countByLifecycleStatus,
-  countBySegment,
-  countByTag,
-  ICountBy,
-} from '../../modules/coc/utils';
+import { countByBrand, countByLeadStatus, countBySegment, countByTag, ICountBy } from '../../modules/coc/utils';
 import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
@@ -85,7 +78,6 @@ const customerQueries = {
       byTag: {},
       byForm: {},
       byLeadStatus: {},
-      byLifecycleState: {},
     };
 
     const qb = new BuildQuery(params, { commonQuerySelector, commonQuerySelectorElk });
@@ -109,10 +101,6 @@ const customerQueries = {
 
       case 'byLeadStatus':
         counts.byLeadStatus = await countByLeadStatus(qb);
-        break;
-
-      case 'byLifecycleState':
-        counts.byLifecycleState = await countByLifecycleStatus(qb);
         break;
 
       case 'byIntegrationType':
