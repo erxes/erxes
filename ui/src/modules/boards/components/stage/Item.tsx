@@ -12,6 +12,7 @@ type Props = {
   beforePopupClose?: () => void;
   onClick?: () => void;
   options: IOptions;
+  isCardDragging: boolean;
 };
 
 class Item extends React.PureComponent<Props, { isFormVisible: boolean }> {
@@ -72,13 +73,14 @@ class Item extends React.PureComponent<Props, { isFormVisible: boolean }> {
   };
 
   render() {
-    const { options } = this.props;
+    const { options, isCardDragging } = this.props;
 
     const ItemComponent = options.Item;
 
     return (
       <ItemComponent
         {...this.props}
+        isCardDragging={isCardDragging}
         beforePopupClose={this.beforePopupClose}
         isFormVisible={this.state.isFormVisible}
       />

@@ -26,7 +26,6 @@ const FilterButton = styledTS<{ selected?: boolean }>(styled.div)`
   width: 100%;
   margin-bottom: 10px;
   position: relative;
-  border-radius: 30px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -51,7 +50,6 @@ export const RightMenuContainer = styled.div`
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 12px 24px -6px rgba(9, 30, 66, 0.25),
     0 0 0 1px rgba(9, 30, 66, 0.08);
 
   ${TabContainer} {
@@ -119,11 +117,9 @@ const LoadMore = styled.span`
 `;
 
 const BoardItem = styled.div`
-  box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 2px 0px;
   padding: 8px 10px;
   outline: 0px;
   margin-bottom: 5px;
-  border-radius: 4px;
   background: ${colors.colorWhite};
   font-weight: 500;
 `;

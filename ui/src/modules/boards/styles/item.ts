@@ -3,7 +3,6 @@ import { colors, dimensions } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { borderRadius } from './common';
 
 const buttonColor = '#0a1e3c';
 
@@ -162,7 +161,6 @@ export const WatchIndicator = styled.span`
   bottom: 5px;
   display: flex;
   align-items: center;
-  border-radius: ${borderRadius};
   padding: 3px;
 
   > i {
@@ -185,7 +183,6 @@ export const RightButton = styled(Button)`
   background: ${rgba(buttonColor, 0.04)};
   color: ${colors.textPrimary};
   text-align: left;
-  border-radius: ${borderRadius};
   text-transform: none;
   font-size: 13px;
   box-shadow: none;
@@ -208,6 +205,7 @@ export const MoveContainer = styled(FlexContent)`
   margin-bottom: 20px;
   align-items: center;
   position: relative;
+  will-change: contents;
 `;
 
 export const ActionContainer = styled(MoveContainer)`
@@ -219,6 +217,7 @@ export const ActionContainer = styled(MoveContainer)`
 `;
 
 export const MoveFormContainer = styled.div`
+  will-change: transform;
   margin-right: 20px;
   position: relative;
 `;
@@ -242,6 +241,7 @@ export const Stages = styled.ul`
   list-style: none;
   display: flex;
   flex-direction: row;
+  will-change: contents;
   justify-content: space-between;
   margin: 0;
   padding: 0;
@@ -251,6 +251,7 @@ export const Stages = styled.ul`
 export const StageItem = styledTS<{ isPass: boolean }>(styled.li)`
   flex: 1;
   text-align: right;
+  will-change: position;
   position: relative;
 
   &:first-child {
@@ -310,7 +311,6 @@ export const SelectOption = styled.div`
 export const Avatar = styled.img`
   width: 20px;
   height: 20px;
-  border-radius: 10px;
   background: ${colors.bgActive};
   float: left;
   margin-right: 5px;
@@ -321,7 +321,6 @@ export const Status = styled.div`
   overflow: hidden;
 
   > span {
-    border-radius: ${borderRadius};
     padding: 1px 4px;
     font-size: 10px;
     color: ${colors.colorWhite};

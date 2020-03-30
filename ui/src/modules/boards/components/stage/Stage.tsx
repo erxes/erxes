@@ -31,6 +31,7 @@ type Props = {
   stage: IStage;
   length: number;
   items: IItem[];
+  isCardDragging: boolean;
   onAddItem: (stageId: string, item: IItem) => void;
   onRemoveItem: (itemId: string, stageId: string) => void;
   loadMore: () => void;
@@ -142,7 +143,14 @@ export default class Stage extends React.Component<Props, {}> {
   };
 
   renderItemList() {
-    const { stage, items, loadingItems, options, onRemoveItem } = this.props;
+    const {
+      stage,
+      items,
+      loadingItems,
+      options,
+      onRemoveItem,
+      isCardDragging
+    } = this.props;
 
     if (loadingItems) {
       return (
@@ -158,6 +166,7 @@ export default class Stage extends React.Component<Props, {}> {
         stageId={stage._id}
         items={items}
         options={options}
+        isCardDragging={isCardDragging}
         onRemoveItem={onRemoveItem}
       />
     );
@@ -220,7 +229,7 @@ export default class Stage extends React.Component<Props, {}> {
           <Container innerRef={provided.innerRef} {...provided.draggableProps}>
             <StageRoot isDragging={snapshot.isDragging}>
               <Header {...provided.dragHandleProps}>
-                <StageTitle>
+                <StageTitle isDragging={snapshot.isDragging}>
                   <div>
                     {stage.name}
                     <span>{stage.itemsTotalCount}</span>
@@ -228,7 +237,9 @@ export default class Stage extends React.Component<Props, {}> {
                   {this.renderCtrl()}
                 </StageTitle>
                 <HeaderAmount>{renderAmount(stage.amount)}</HeaderAmount>
-                <Indicator>{this.renderIndicator()}</Indicator>
+                <Indicator isCardDragging={snapshot.isDragging}>
+                  {this.renderIndicator()}
+                </Indicator>
               </Header>
               <Body innerRef={this.bodyRef} onScroll={this.onScroll}>
                 {this.renderItemList()}

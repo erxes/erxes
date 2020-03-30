@@ -2,7 +2,7 @@ import { PopoverList } from 'modules/common/components/filterableList/styles';
 import { colors } from 'modules/common/styles';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { borderRadius, stageWidth } from './common';
+import { stageWidth } from './common';
 
 const hoverColor = 'rgba(10,45,65,.13)';
 const stageGray = '#e5e8ec';
@@ -13,22 +13,15 @@ const Container = styled.div`
   flex-direction: column;
   margin: 0 5px;
   width: ${stageWidth}px;
+  will-change: scroll-position;
   transition: background-color 0.3s ease;
 `;
 
 const StageRoot = styledTS<{ isDragging: boolean }>(styled.div)`
   display: flex;
   flex-direction: column;
-  border-radius: 3px;
-  transition: box-shadow 0.3s ease;
   background: ${stageGray};
   overflow: hidden;
-
-  ${props => css`
-    box-shadow: ${props.isDragging
-      ? 'rgba(0, 0, 0, 0.2) 0px 5px 20px 0px'
-      : 'rgba(0, 0, 0, 0.15) 0px 1px 5px 0px'};
-  `};
 `;
 
 const Content = styledTS<{ type?: string }>(styled.div)`
@@ -46,8 +39,8 @@ const Content = styledTS<{ type?: string }>(styled.div)`
   }
 `;
 
-const Indicator = styled.div`
-  display: flex;
+const Indicator = styledTS<{ isCardDragging: boolean }>(styled.div)`
+  display: ${props => (props.isCardDragging ? 'none' : 'flex')};
 
   > div {
     margin-right: 4px;
@@ -62,20 +55,16 @@ const ItemIndicator = styledTS<{ color: string }>(styled.span)`
   display: inline-block;
   width: 8px;
   height: 8px;
-  border-radius: 4px;
   margin: 6px 6px 0 0;
   background-color: ${props => props.color};
   word-break:break-word;
 `;
 
-const StageFooter = styled.div`
-  border-radius: 0 0 3px 3px;
-`;
+const StageFooter = styled.div``;
 
 const Header = styled.div`
   padding: 12px 16px;
   position: relative;
-  border-radius: 3px 3px 0 0;
 
   h4 {
     margin: 0;
@@ -141,7 +130,6 @@ const AddNew = styled.a`
   padding: 8px 16px;
   position: relative;
   user-select: none;
-  border-radius: 0 0 3px 3px;
   font-weight: 500;
 
   &:hover {
@@ -158,24 +146,21 @@ const IndicatorItem = styledTS<{ isPass: boolean }>(styled.div)`
   flex: 1;
   background: ${props => (props.isPass ? colors.colorCoreBlue : hoverColor)};
   height: 4px;
-  border-radius: ${borderRadius};
 `;
 
 const LoadingContent = styled.div`
   background: #fff;
   margin: 0 4px 8px 4px;
   padding: 2px 0;
-  border-radius: ${borderRadius};
-  box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 2px 0px;
 
   img {
     width: 100%;
   }
 `;
 
-export const StageTitle = styled.h4`
+export const StageTitle = styledTS<{ isDragging: boolean }>(styled.h4)`
   position: relative;
-  display: flex;
+  display: ${props => (props.isDragging ? 'none' : 'flex')};
   justify-content: space-between;
 `;
 
@@ -191,7 +176,6 @@ export const ActionButton = styled.div`
   padding: 4px 5px;
   margin-top: -4px;
   margin-right: -5px;
-  border-radius: 2px;
   font-size: 15px;
   &:hover {
     background: rgba(0, 0, 0, 0.1);

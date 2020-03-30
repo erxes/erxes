@@ -33,6 +33,7 @@ type State = {
   stageLoadMap: StageLoadMap;
   stageIds: string[];
   isShowLabel: boolean;
+  isCardDragging: boolean;
 };
 
 interface IStore {
@@ -42,12 +43,14 @@ interface IStore {
   stageIds: string[];
   onLoadStage: (stageId: string, items: IItem[]) => void;
   scheduleStage: (stageId: string) => void;
+  onDragStart: any;
   onDragEnd: (result: IDragResult) => void;
   onAddItem: (stageId: string, item: IItem) => void;
   onRemoveItem: (itemId: string, stageId: string) => void;
   onUpdateItem: (item: IItem, prevStageId?: string) => void;
   isShowLabel: boolean;
   toggleLabels: () => void;
+  isCardDragging: boolean;
 }
 
 const PipelineContext = React.createContext({} as IStore);
@@ -70,6 +73,7 @@ export class PipelineProvider extends React.Component<Props, State> {
     const { initialItemMap } = props;
 
     this.state = {
+      isCardDragging: false,
       itemMap: initialItemMap || {},
       stageLoadMap: {},
       stageIds: Object.keys(initialItemMap || {}),
@@ -126,6 +130,14 @@ export class PipelineProvider extends React.Component<Props, State> {
       });
     }
   }
+
+  toggleCardDraggingValue = (value: boolean) => {
+    this.setState({ isCardDragging: value });
+  };
+
+  onDragStart = () => {
+    this.toggleCardDraggingValue(true);
+  };
 
   onDragEnd = result => {
     // dropped nowhere
@@ -244,6 +256,9 @@ export class PipelineProvider extends React.Component<Props, State> {
               }
             }
           ]
+        })
+        .then(() => {
+          this.toggleCardDraggingValue(false);
         })
         .catch((e: Error) => {
           Alert.error(e.message);
@@ -388,12 +403,19 @@ export class PipelineProvider extends React.Component<Props, State> {
   };
 
   render() {
-    const { itemMap, stageLoadMap, stageIds, isShowLabel } = this.state;
+    const {
+      itemMap,
+      stageLoadMap,
+      stageIds,
+      isShowLabel,
+      isCardDragging
+    } = this.state;
 
     return (
       <PipelineContext.Provider
         value={{
           options: this.props.options,
+          onDragStart: this.onDragStart,
           onDragEnd: this.onDragEnd,
           onLoadStage: this.onLoadStage,
           scheduleStage: this.scheduleStage,
@@ -404,7 +426,8 @@ export class PipelineProvider extends React.Component<Props, State> {
           stageLoadMap,
           stageIds,
           isShowLabel,
-          toggleLabels: this.toggleLabels
+          toggleLabels: this.toggleLabels,
+          isCardDragging
         }}
       >
         {this.props.children}

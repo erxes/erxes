@@ -31,6 +31,7 @@ type Props = {
   onAdd?: (stageId: string, item: IDeal) => void;
   onRemove?: (dealId: string, stageId: string) => void;
   onUpdate?: (item: IDeal) => void;
+  isCardDragging: boolean;
 };
 
 class DealItem extends React.PureComponent<Props> {
@@ -85,7 +86,7 @@ class DealItem extends React.PureComponent<Props> {
   }
 
   renderContent() {
-    const { item } = this.props;
+    const { item, isCardDragging } = this.props;
     const products = (item.products || []).map(p => p.product);
     const { customers, companies, closeDate, isComplete } = item;
 
@@ -96,15 +97,31 @@ class DealItem extends React.PureComponent<Props> {
           {item.name}
         </h5>
 
-        <Details color="#63D2D6" items={products} />
-        <Details color="#F7CE53" items={customers || []} />
-        <Details color="#EA475D" items={companies || []} />
+        <Details
+          color="#63D2D6"
+          items={products}
+          isCardDragging={isCardDragging}
+        />
+        <Details
+          color="#F7CE53"
+          items={customers || []}
+          isCardDragging={isCardDragging}
+        />
+        <Details
+          color="#EA475D"
+          items={companies || []}
+          isCardDragging={isCardDragging}
+        />
 
         <PriceContainer>
           {renderAmount(item.amount)}
 
           <Right>
-            <Participators participatedUsers={item.assignedUsers} limit={3} />
+            <Participators
+              participatedUsers={item.assignedUsers}
+              limit={3}
+              isCardDragging={isCardDragging}
+            />
           </Right>
         </PriceContainer>
 
@@ -119,7 +136,7 @@ class DealItem extends React.PureComponent<Props> {
   }
 
   render() {
-    const { item, portable, onClick } = this.props;
+    const { item, portable, onClick, isCardDragging } = this.props;
 
     if (portable) {
       return (
@@ -135,7 +152,11 @@ class DealItem extends React.PureComponent<Props> {
 
     return (
       <>
-        <Labels labels={item.labels} indicator={true} />
+        <Labels
+          isCardDragging={isCardDragging}
+          labels={item.labels}
+          indicator={true}
+        />
         <Content onClick={onClick}>{this.renderContent()}</Content>
         {this.renderForm()}
       </>

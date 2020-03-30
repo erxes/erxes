@@ -4,10 +4,12 @@ import { colors } from 'modules/common/styles';
 import { __, getUserAvatar } from 'modules/common/utils';
 import React from 'react';
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const spacing = 30;
 
-const ParticipatorWrapper = styled.div`
+const ParticipatorWrapper = styledTS<{ isCardDragging: boolean }>(styled.div)`
+  display: ${props => (props.isCardDragging ? 'none' : 'initial')};
   margin-left: 10px;
 
   &:hover {
@@ -34,6 +36,7 @@ const More = styled(ParticipatorImg.withComponent('span'))`
 `;
 
 type Props = {
+  isCardDragging: boolean;
   participatedUsers: IUser[];
   limit?: number;
 };
@@ -46,7 +49,7 @@ class Participators extends React.Component<Props, { toggle: boolean }> {
   };
 
   render() {
-    const { participatedUsers = [], limit } = this.props;
+    const { isCardDragging, participatedUsers = [], limit } = this.props;
     const { toggle } = this.state;
     const length = participatedUsers.length;
 
@@ -63,7 +66,10 @@ class Participators extends React.Component<Props, { toggle: boolean }> {
     );
 
     return (
-      <ParticipatorWrapper onClick={this.toggleParticipator}>
+      <ParticipatorWrapper
+        onClick={this.toggleParticipator}
+        isCardDragging={isCardDragging}
+      >
         {participatedUsers
           .slice(0, limit && toggle ? limit : length)
           .map(user => Trigger(user))}

@@ -9,13 +9,11 @@ export const PageHeader = styled.div`
   justify-content: space-between;
   padding: 10px ${dimensions.coreSpacing}px 6px;
   background: ${colors.colorWhite};
-  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
   min-height: 50px;
 `;
 
 export const ButtonGroup = styled.div`
   display: inline-block;
-  border-radius: 18px;
   background: rgba(0, 0, 0, 0.04);
   border: 1px solid ${colors.bgActive};
 
@@ -25,12 +23,10 @@ export const ButtonGroup = styled.div`
     display: inline-block;
     color: ${colors.colorCoreGray};
     font-weight: 500;
-    border-radius: 17px;
 
     &.active {
       color: ${colors.colorCoreDarkGray};
       background: ${colors.colorWhite};
-      box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.08);
 
       i {
         color: ${colors.colorSecondary};
@@ -60,7 +56,6 @@ export const HeaderButton = styledTS<{
   padding: 0 10px;
   line-height: 30px;
   height: 32px;
-  border-radius: 4px;
   transition: background 0.3s ease;
   background: ${props => props.hasBackground && 'rgba(0, 0, 0, 0.04)'};
   font-weight: 500;
@@ -103,7 +98,6 @@ export const HeaderLink = styled(HeaderButton)`
   margin-left: 10px;
   font-size: 12px;
   background: rgba(0, 0, 0, 0.04);
-  border-radius: 17px;
   line-height: 21px;
 
   a {

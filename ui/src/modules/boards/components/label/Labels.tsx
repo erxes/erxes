@@ -7,6 +7,7 @@ import { IPipelineLabel } from '../../types';
 type IProps = {
   labels: IPipelineLabel[];
   indicator?: boolean;
+  isCardDragging: boolean;
 };
 
 class Labels extends React.PureComponent<IProps, { isHover: boolean }> {
@@ -76,7 +77,7 @@ class Labels extends React.PureComponent<IProps, { isHover: boolean }> {
   }
 
   render() {
-    const { labels } = this.props;
+    const { labels, isCardDragging } = this.props;
 
     if (!labels || labels.length === 0) {
       return null;
@@ -87,6 +88,7 @@ class Labels extends React.PureComponent<IProps, { isHover: boolean }> {
         {({ isShowLabel, toggleLabels }) => {
           return (
             <LabelList
+              isCardDragging={isCardDragging}
               onMouseEnter={this.hover.bind(null, true)}
               onMouseLeave={this.hover.bind(null, false)}
             >

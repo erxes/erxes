@@ -26,6 +26,7 @@ type Props = {
   // may not be provided - and might be null
   ignoreContainerClipping?: boolean;
   options: IOptions;
+  isCardDragging: boolean;
   onRemoveItem: (itemId: string, stageId: string) => void;
 };
 
@@ -34,6 +35,7 @@ type DraggableContainerProps = {
   item: IItem;
   index: number;
   options: IOptions;
+  isCardDragging: boolean;
   onRemoveItem: (itemId: string, stageId: string) => void;
 };
 
@@ -93,7 +95,7 @@ class DraggableContainer extends React.Component<
   }
 
   render() {
-    const { stageId, item, index, options } = this.props;
+    const { stageId, item, index, options, isCardDragging } = this.props;
     const { isDragDisabled } = this.state;
 
     return (
@@ -117,6 +119,7 @@ class DraggableContainer extends React.Component<
               item={item}
               onClick={this.onClick}
               beforePopupClose={this.beforePopupClose}
+              isCardDragging={isCardDragging}
               options={options}
             />
           </ItemContainer>
@@ -130,15 +133,23 @@ class InnerItemList extends React.PureComponent<{
   stageId: string;
   items: IItem[];
   options: IOptions;
+  isCardDragging: boolean;
   onRemoveItem: (itemId: string, stageId: string) => void;
 }> {
   render() {
-    const { stageId, items, options, onRemoveItem } = this.props;
+    const {
+      stageId,
+      items,
+      options,
+      onRemoveItem,
+      isCardDragging
+    } = this.props;
 
     return items.map((item, index: number) => (
       <DraggableContainer
         key={item._id}
         stageId={stageId}
+        isCardDragging={isCardDragging}
         item={item}
         index={index}
         options={options}
@@ -153,12 +164,20 @@ type InnerListProps = {
   stageId: string;
   items: IItem[];
   options: IOptions;
+  isCardDragging: boolean;
   onRemoveItem: (itemId: string, stageId: string) => void;
 };
 
 class InnerList extends React.PureComponent<InnerListProps> {
   render() {
-    const { stageId, items, dropProvided, options, onRemoveItem } = this.props;
+    const {
+      stageId,
+      items,
+      dropProvided,
+      options,
+      onRemoveItem,
+      isCardDragging
+    } = this.props;
 
     if (items.length === 0) {
       return (
@@ -171,6 +190,7 @@ class InnerList extends React.PureComponent<InnerListProps> {
     return (
       <DropZone innerRef={dropProvided.innerRef}>
         <InnerItemList
+          isCardDragging={isCardDragging}
           onRemoveItem={onRemoveItem}
           stageId={stageId}
           items={items}
@@ -195,7 +215,8 @@ export default class ItemList extends React.Component<Props> {
       stageId,
       items,
       options,
-      onRemoveItem
+      onRemoveItem,
+      isCardDragging
     } = this.props;
 
     return (
@@ -210,6 +231,7 @@ export default class ItemList extends React.Component<Props> {
             {...dropProvided.droppableProps}
           >
             <InnerList
+              isCardDragging={isCardDragging}
               onRemoveItem={onRemoveItem}
               stageId={stageId}
               items={items}

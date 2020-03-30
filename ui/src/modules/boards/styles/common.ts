@@ -30,6 +30,7 @@ export const ScrolledContent = styled.div`
   padding: 4px 0 8px;
   margin: 6px 10px 4px 5px;
   flex: 1;
+  will-change: contents;
   overflow: auto;
 `;
 
@@ -44,6 +45,7 @@ export const RootBack = styled.div`
 // IItem list
 export const DropZone = styled.div`
   min-height: 160px;
+  will-change: height;
 `;
 
 export const EmptyContainer = styled.div`
@@ -54,6 +56,7 @@ export const Wrapper = styledTS<{ isDraggingOver: boolean }>(styled.div)`
   background-color: ${({ isDraggingOver }) =>
     isDraggingOver && 'rgba(10, 45, 65, .1)'};
   display: flex;
+  will-change: contents;
   flex-direction: column;
   padding: 0 4px;
   transition: background-color 0.1s ease, opacity 0.1s ease;
@@ -62,7 +65,6 @@ export const Wrapper = styledTS<{ isDraggingOver: boolean }>(styled.div)`
 
 export const ColorButton = styledTS<{ color?: string }>(styled.div)`
   height: 25px;
-  border-radius: 2px;
   font-weight: 500;
   line-height: 25px;
   font-size: 12px;
@@ -98,7 +100,6 @@ export const ItemDate = styled.span`
 export const NotifiedContainer = styled.div`
   position: absolute;
   right: 8px;
-  border-radius: 12px;
   width: 22px;
   height: 22px;
   background-color: ${rgba(colors.colorCoreRed, 0.2)};
@@ -113,16 +114,10 @@ export const ItemContainer = styledTS<{
   position: relative;
   margin-bottom: 8px;
   background-color: rgb(255, 255, 255);
-  box-shadow: ${props =>
-    props.isDragging
-      ? 'rgba(0, 0, 0, 0.4) 0px 5px 15px 0px'
-      : 'rgba(0, 0, 0, 0.2) 0px 1px 2px 0px'};
   padding: 8px;
   outline: 0px;
   font-size: 12px;
-  border-radius: ${borderRadius};
-  transition: box-shadow 0.3s ease-in-out 0s;
   -webkit-box-pack: justify;
   justify-content: space-between;
-  will-change: transform;
+  will-change: scroll-position;
 `;

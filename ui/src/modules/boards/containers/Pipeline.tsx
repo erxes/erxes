@@ -91,8 +91,15 @@ class WithStages extends React.Component<WithStatesQueryProps, {}> {
         queryParamsChanged={this.queryParamsChanged}
       >
         <PipelineConsumer>
-          {({ stageLoadMap, itemMap, onDragEnd, stageIds }) => (
-            <DragDropContext onDragEnd={onDragEnd}>
+          {({
+            stageLoadMap,
+            itemMap,
+            isCardDragging,
+            onDragStart,
+            onDragEnd,
+            stageIds
+          }) => (
+            <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
               <Droppable
                 droppableId="pipeline"
                 type="STAGE"
@@ -122,6 +129,7 @@ class WithStages extends React.Component<WithStatesQueryProps, {}> {
                           queryParams={queryParams}
                           loadingState={stageLoadMap[stageId]}
                           refetchStages={stagesQuery.refetch}
+                          isCardDragging={isCardDragging}
                         />
                       );
                     })}

@@ -25,6 +25,7 @@ type WrapperProps = {
   length: number;
   queryParams: IFilterParams;
   options: IOptions;
+  isCardDragging: boolean;
   refetchStages: ({ pipelineId }: { pipelineId?: string }) => Promise<any>;
 };
 
@@ -117,7 +118,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
           Alert.error(e.message);
         });
     });
-  }
+  };
 
   archiveList = () => {
     const { stage, refetchStages, options } = this.props;
@@ -157,7 +158,8 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
       itemsQuery,
       options,
       onAddItem,
-      onRemoveItem
+      onRemoveItem,
+      isCardDragging
     } = this.props;
 
     const loadingItems = (itemsQuery ? itemsQuery.loading : null) || false;
@@ -169,6 +171,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
         index={index}
         length={length}
         items={items}
+        isCardDragging={isCardDragging}
         archiveItems={this.archiveItems}
         archiveList={this.archiveList}
         loadingItems={loadingItems}

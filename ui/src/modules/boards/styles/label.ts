@@ -16,7 +16,6 @@ const Title = styled.h3`
   font-size: 11px;
   text-transform: uppercase;
   color: ${colors.colorCoreGray};
-  border-radius: 4px 4px 0 0;
   transition: all ease 0.3s;
   align-items: center;
 
@@ -40,7 +39,6 @@ const PipelineLabelList = styled.div`
     color: ${colors.colorWhite};
     font-weight: 500;
     margin-bottom: 5px;
-    border-radius: 4px;
     padding: 3px 30px 3px 10px !important;
     transition: all ease 0.3s;
 
@@ -72,7 +70,6 @@ const Label = styledTS<{ color: string; timeout?: number }>(styled.div)`
   margin: 0 5px 5px 0;
   color: ${colors.colorWhite};
   font-weight: 500;
-  border-radius: 4px;
   line-height: 1.2em;
   padding: 4px 10px;
 
@@ -107,8 +104,8 @@ const Label = styledTS<{ color: string; timeout?: number }>(styled.div)`
     }`}
 `;
 
-const LabelList = styled.div`
-  display: inline-block;
+const LabelList = styledTS<{ isCardDragging: boolean }>(styled.div)`
+  display: ${props => (props.isCardDragging ? 'none' : 'inline-block')};
 
   &:hover {
     cursor: pointer;
