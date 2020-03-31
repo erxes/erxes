@@ -41,7 +41,7 @@ import {
 } from '../db/models/index';
 import { sendMessage } from '../messageBroker';
 import { MODULE_NAMES } from './constants';
-import { getEnv, registerOnboardHistory, sendRequest } from './utils';
+import { getEnv, getSubServiceDomain, registerOnboardHistory, sendRequest } from './utils';
 
 export type LogDesc = {
   [key: string]: any;
@@ -1329,7 +1329,7 @@ const putLog = async (params: IFinalLogParams, user: IUserDocument) => {
  * @param {Object} param0 Request
  */
 export const fetchLogs = (params: ILogQueryParams) => {
-  const LOGS_DOMAIN = getEnv({ name: 'LOGS_API_DOMAIN' });
+  const LOGS_DOMAIN = getSubServiceDomain({ name: 'LOGS_API_DOMAIN' });
 
   if (!LOGS_DOMAIN) {
     return {

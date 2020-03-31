@@ -29,8 +29,6 @@ describe('log queries', () => {
       }
     `;
 
-    process.env.LOGS_API_DOMAIN = '';
-
     const response = await graphqlRequest(qry, 'logs', {});
 
     expect(response.logs).toHaveLength(0);
