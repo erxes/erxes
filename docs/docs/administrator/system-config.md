@@ -687,7 +687,66 @@ When you start erxes-integration repo webhook will automatically created accordi
 
 7. Go to Setting=> Channel=> Add new channel=> Connect facebook integration.
 
-## Engage configuration
+
+## Sunshine Conversations API Integration
+
+1. Create your Sunshine Conversations API account [here](https://smooch.io/signup/).
+
+2. After you create a account. Sign in to [smooch.io](https://app.smooch.io/login).
+
+3. Create new Sunshine Conversations app
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-1.png">
+
+4. Go to your created app. Then select Settings tab.
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-3.png">
+
+5. In order to create api key click on "Generate API key".
+
+6. Copy and paste your App id, API Key ID and secret to Erxes Settings => System config => Integrations config => Sunshine Conversations API
+
+ <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-4.png">
+
+ <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-5.png">
+
+7. Put your webhook url into SMOOCH WEBHOOK CALLBACK URL field. 
++ For example 'https://erxes-integrations/smooch/webhook'
+
+### Viber
+
+1. Create a Public Account 
++ You can create an account for testing and development purpose by registering on the [Viber admin panel](https://partners.viber.com/). Note that accounts created this way can’t be discovered by the public and Viber limits the messaging volume on them.
+To create an account for production usage, contact Viber directly using [this form](https://support.viber.com/customer/portal/emails/new).
+ 
+2. Once you have your Public Account token, copy and paste it into Viber token field on the Add Viber page from erxes App Store. Then click on “Save”.
+
+ <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-viber-2.png">
+
+ <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-viber-1.png">
+
+
+### Telegram
+
+1. Sign in to telegram [here](https://web.telegram.org/#/login).
+
+2. In order to create telegram bot go to [BotFather](https://telegram.me/botfather).
+
+ <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-telegram-3.png">
+
+3. Type /newbot and send it to BotFather. Then follow the instructions from BotFather to create a bot.
+
+ <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-telegram-4.png">
+
+4. Then copy your bot token and paste it into Telegram Bot Token field on the add Telegram page from erxes App Store. Then click on “Save”
+
+
+
+ <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-telegram-1.png">
+
+ <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-telegram-2.png">
+
+## Engage configurationsmo
 
 ### AWS SES
 

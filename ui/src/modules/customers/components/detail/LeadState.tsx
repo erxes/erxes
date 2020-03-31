@@ -1,3 +1,4 @@
+import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import { LEAD_CHOICES } from 'modules/customers/constants';
 import { LeadStateWrapper, StateItem } from 'modules/customers/styles';
@@ -7,6 +8,7 @@ import React from 'react';
 type IProps = {
   customer: ICustomer;
   saveState: (state: string) => void;
+  changeCustomerState: (value: string) => void;
 };
 
 class LeadState extends React.Component<IProps, { currentState: string }> {
@@ -30,6 +32,10 @@ class LeadState extends React.Component<IProps, { currentState: string }> {
     });
 
     return i;
+  };
+
+  convertToCustomer = () => {
+    this.props.changeCustomerState('customer');
   };
 
   render() {
@@ -64,6 +70,13 @@ class LeadState extends React.Component<IProps, { currentState: string }> {
             </StateItem>
           );
         })}
+        <Button
+          icon="check-circle"
+          btnStyle="danger"
+          onClick={this.convertToCustomer}
+        >
+          Mark as Complete
+        </Button>
       </LeadStateWrapper>
     );
   }
