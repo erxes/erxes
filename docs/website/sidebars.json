@@ -15,6 +15,7 @@
       "installation/docker",
       "installation/heroku",
       "installation/aws",
+      "installation/digitalocean",
       "installation/upgrade"
     ],
     "User's Guide": [
