@@ -62,8 +62,7 @@ class Telegram extends React.Component<Props, { loading: boolean }> {
           target="_blank"
           rel="noopener noreferrer"
         >
-          {' '}
-          {'Learn more about Telegram'}{' '}
+          {'Learn more about Telegram'}
         </a>
 
         <SelectBrand isRequired={true} formProps={formProps} />

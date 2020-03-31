@@ -90,8 +90,7 @@ class TwilioSms extends React.Component<Props, { loading: boolean }> {
           target="_blank"
           rel="noopener noreferrer"
         >
-          {' '}
-          {'Learn more about Twilio'}{' '}
+          {'Learn more about Twilio'}
         </a>
 
         <SelectBrand isRequired={true} formProps={formProps} />

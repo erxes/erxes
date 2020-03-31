@@ -78,8 +78,7 @@ class Line extends React.Component<Props, { loading: boolean }> {
           target="_blank"
           rel="noopener noreferrer"
         >
-          {' '}
-          {'Learn more about LINE'}{' '}
+          {'Learn more about LINE'}
         </a>
         <FormGroup>
           <ControlLabel>Webhook url</ControlLabel>
