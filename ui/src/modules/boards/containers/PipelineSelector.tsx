@@ -20,6 +20,7 @@ type Props = {
   stageId: string;
   action: string;
   refetchStages: (params: IStageRefetchParams) => void;
+  onClosePopover: () => void;
 };
 
 type FinalProps = {
@@ -30,8 +31,8 @@ type FinalProps = {
 } & Props;
 
 class PipelineSelectContainer extends React.Component<FinalProps> {
-  copyOrMoveStage = (stageId: string, pipelineId: string) => {
-    const { action, refetchStages, stagesCopy, stagesMove } = this.props;
+  copyOrMoveStage = (stageId: string, pipelineId: string, initialPipelineId: string) => {
+    const { action, onClosePopover, refetchStages, stagesCopy, stagesMove } = this.props;
 
     const variables = {
       _id: stageId,
@@ -57,10 +58,13 @@ class PipelineSelectContainer extends React.Component<FinalProps> {
         Alert.success(`Stage successfully ${message}`);
 
         refetchStages({ pipelineId });
+        refetchStages({ pipelineId: initialPipelineId });
       })
       .catch(e => {
         Alert.error(e.message);
       });
+
+    onClosePopover();
   }
 
   render() {

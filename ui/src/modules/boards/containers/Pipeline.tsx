@@ -56,10 +56,6 @@ class WithStages extends Component<WithStagesQueryProps> {
     return false;
   };
 
-  countStages(obj) {
-    return Object.keys(obj).length;
-  }
-
   afterFinish = () => {
     const pipelineUpdate = sessionStorage.getItem('pipelineUpdate');
 
@@ -83,7 +79,7 @@ class WithStages extends Component<WithStagesQueryProps> {
       stagesQuery
     } = this.props;
 
-    const stagesCount = this.countStages(stageMap);
+    const stagesCount = Object.keys(stageMap || {}).length;
 
     if (stagesCount === 0) {
       return (

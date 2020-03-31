@@ -62,7 +62,7 @@ export default class Overlay extends React.Component<Props, State> {
   }
 
   renderCopyMoveTrigger() {
-    const { options, stage, refetchStages, queryParams } = this.props;
+    const { options, stage, refetchStages, queryParams, onClosePopover } = this.props;
 
     const pipelineProps = {
       type: options.type,
@@ -70,7 +70,8 @@ export default class Overlay extends React.Component<Props, State> {
       stageId: stage._id,
       refetchStages,
       pipelineId: queryParams.pipelineId,
-      boardId: queryParams.boardId
+      boardId: queryParams.id,
+      onClosePopover
     };
 
     return <PipelineSelector {...pipelineProps} />;
