@@ -79,7 +79,6 @@ class CustomerDetails extends React.Component<Props> {
 
   render() {
     const { customer, taggerRefetchQueries } = this.props;
-    const isCustomer = customer.state === 'customer';
 
     const breadcrumb = [
       { title: __('Contacts'), link: '/contacts' },
@@ -132,7 +131,7 @@ class CustomerDetails extends React.Component<Props> {
             taggerRefetchQueries={taggerRefetchQueries}
           />
         }
-        rightSidebar={isCustomer && <RightSidebar customer={customer} />}
+        rightSidebar={<RightSidebar customer={customer} />}
         content={content}
         transparent={true}
       />
