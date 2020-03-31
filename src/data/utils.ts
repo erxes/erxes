@@ -570,8 +570,6 @@ export const sendRequest = async (
   { url, method, headers, form, body, params }: IRequestParams,
   errorMessage?: string,
 ) => {
-  const DOMAIN = getEnv({ name: 'DOMAIN' });
-
   debugExternalApi(`
     Sending request to
     url: ${url}
@@ -583,7 +581,7 @@ export const sendRequest = async (
   try {
     const response = await requestify.request(url, {
       method,
-      headers: { 'Content-Type': 'application/json', origin: DOMAIN, ...(headers || {}) },
+      headers: { 'Content-Type': 'application/json', ...(headers || {}) },
       form,
       body,
       params,
