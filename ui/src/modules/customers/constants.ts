@@ -24,8 +24,6 @@ export const CUSTOMER_BASIC_INFO = {
   primaryPhone: 'Primary Phone',
   position: 'Position',
   department: 'Department',
-  leadStatus: 'Pop Ups Status',
-  lifecycleState: 'Lifecycle state',
   hasAuthority: 'Has Authority',
   description: 'Description',
   doNotDisturb: 'Do not disturb',
@@ -38,8 +36,6 @@ export const CUSTOMER_BASIC_INFO = {
     { field: 'primaryPhone', label: 'Primary Phone' },
     { field: 'position', label: 'Position' },
     { field: 'department', label: 'Department' },
-    { field: 'leadStatus', label: 'Pop Ups Status' },
-    { field: 'lifecycleState', label: 'Lifecycle state' },
     { field: 'hasAuthority', label: 'Has Authority' },
     { field: 'description', label: 'Description' },
     { field: 'doNotDisturb', label: 'Do not disturb' }
@@ -73,17 +69,6 @@ export const GENDER_TYPES = {
   9: 'Not applicable'
 };
 
-export const LIFECYCLE_STATE_TYPES = {
-  subscriber: 'Subscriber',
-  lead: 'Pop Ups',
-  marketingQualifiedLead: 'Marketing Qualified Lead',
-  salesQualifiedLead: 'Sales Qualified Lead',
-  opportunity: 'Opportunity',
-  customer: 'Customer',
-  evangelist: 'Evangelist',
-  other: 'Other'
-};
-
 export const CUSTOMER_LINKS = {
   linkedIn: 'LinkedIn',
   twitter: 'Twitter',
@@ -101,3 +86,10 @@ export const CUSTOMER_LINKS = {
     { field: 'website', label: 'Website' }
   ]
 };
+
+export const LEAD_CHOICES = [
+  { label: 'New', value: 'new' },
+  { label: 'Contacted', value: 'contacted' },
+  { label: 'Working', value: 'working' },
+  { label: 'Unqualified', value: 'unqualified' }
+];

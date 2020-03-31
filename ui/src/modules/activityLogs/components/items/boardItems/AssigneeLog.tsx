@@ -35,7 +35,7 @@ class AssigneeLog extends React.Component<Props> {
       return (
         <Link
           to={`/settings/team/details/${user._id}`}
-          target='_blank'
+          target="_blank"
           key={Math.random()}
         >
           &nbsp;{user.details.fullName || user.email}&nbsp;
@@ -47,7 +47,7 @@ class AssigneeLog extends React.Component<Props> {
       return (
         <Link
           to={`/settings/team/details/${user._id}`}
-          target='_blank'
+          target="_blank"
           key={Math.random()}
         >
           &nbsp;{user.details.fullName || user.email}&nbsp;

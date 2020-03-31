@@ -8,7 +8,13 @@ import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { Link } from 'react-router-dom';
 import PipelineWatch from '../containers/PipelineWatch';
-import { HeaderButton, HeaderItems, HeaderLabel, HeaderLink, PageHeader } from '../styles/header';
+import {
+  HeaderButton,
+  HeaderItems,
+  HeaderLabel,
+  HeaderLink,
+  PageHeader
+} from '../styles/header';
 import { IBoard, IOptions, IPipeline } from '../types';
 import RightMenu from './RightMenu';
 
@@ -204,7 +210,7 @@ class MainActionBar extends React.Component<Props> {
                 currentBoard ? currentBoard._id : ''
               }`}
             >
-              <Icon icon="bright" />
+              <Icon icon="cog" />
             </Link>
           </Tip>
         </HeaderLink>

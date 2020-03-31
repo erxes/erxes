@@ -1,3 +1,4 @@
+import { PIPELINE_UPDATE_STATUSES } from 'modules/boards/constants';
 import {
   ActionButton,
   ActionList,
@@ -26,7 +27,7 @@ import { renderAmount } from '../../utils';
 import ItemList from '../stage/ItemList';
 
 type Props = {
-  loadingItems: boolean;
+  loadingItems: () => boolean;
   index: number;
   stage: IStage;
   length: number;
@@ -37,6 +38,7 @@ type Props = {
   options: IOptions;
   archiveItems: () => void;
   archiveList: () => void;
+  onChangeRealTimeStageIds: (stageId: string) => void;
 };
 export default class Stage extends React.Component<Props, {}> {
   private bodyRef;
@@ -51,6 +53,10 @@ export default class Stage extends React.Component<Props, {}> {
   componentDidMount() {
     // Load items until scroll created
     const handle = setInterval(() => {
+      if (this.props.loadingItems()) {
+        return;
+      }
+
       const { current } = this.bodyRef;
 
       if (!current) {
@@ -60,17 +66,52 @@ export default class Stage extends React.Component<Props, {}> {
       const isScrolled = current.scrollHeight > current.clientHeight;
 
       if (isScrolled) {
-        clearInterval(handle);
+        return clearInterval(handle);
       }
 
-      const { items, stage, loadMore } = this.props;
+      const { items, stage } = this.props;
 
       if (items.length < stage.itemsTotalCount) {
-        loadMore();
+        return this.props.loadMore();
       } else {
-        clearInterval(handle);
+        return clearInterval(handle);
       }
     }, 1000);
+  }
+
+  componentDidUpdate(prevProps) {
+    const { current } = this.bodyRef;
+
+    if (!current) {
+      return;
+    }
+
+    const { stage, onChangeRealTimeStageIds } = this.props;
+    const pipelineUpdate = sessionStorage.getItem('pipelineUpdate');
+
+    if (
+      (pipelineUpdate === PIPELINE_UPDATE_STATUSES.START ||
+        pipelineUpdate === PIPELINE_UPDATE_STATUSES.NEW_REQUEST) &&
+      stage.itemsTotalCount !== prevProps.stage.itemsTotalCount
+    ) {
+      onChangeRealTimeStageIds(stage._id);
+    }
+  }
+
+  shouldComponentUpdate(nextProps: Props) {
+    const { stage, index, length, items, loadingItems } = this.props;
+
+    if (
+      index !== nextProps.index ||
+      loadingItems() !== nextProps.loadingItems() ||
+      length !== nextProps.length ||
+      JSON.stringify(stage) !== JSON.stringify(nextProps.stage) ||
+      items.length !== nextProps.items.length
+    ) {
+      return true;
+    }
+
+    return false;
   }
 
   onScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -121,22 +162,6 @@ export default class Stage extends React.Component<Props, {}> {
     return data;
   }
 
-  shouldComponentUpdate(nextProps: Props) {
-    const { stage, index, length, items, loadingItems } = this.props;
-
-    if (
-      index !== nextProps.index ||
-      loadingItems !== nextProps.loadingItems ||
-      length !== nextProps.length ||
-      JSON.stringify(stage) !== JSON.stringify(nextProps.stage) ||
-      JSON.stringify(items) !== JSON.stringify(nextProps.items)
-    ) {
-      return true;
-    }
-
-    return false;
-  }
-
   onClosePopover = () => {
     this.overlayTrigger.hide();
   };
@@ -144,7 +169,7 @@ export default class Stage extends React.Component<Props, {}> {
   renderItemList() {
     const { stage, items, loadingItems, options, onRemoveItem } = this.props;
 
-    if (loadingItems) {
+    if (loadingItems()) {
       return (
         <LoadingContent>
           <img alt="Loading" src="/images/loading-content.gif" />

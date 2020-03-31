@@ -89,7 +89,7 @@ class MailHeader extends React.Component<Props, State> {
       <>
         <Tip text={__('Reply')} placement="bottom">
           <ActionButton onClick={onToggleReply}>
-            <Icon icon="corner-up-left-alt" />
+            <Icon icon="reply" />
           </ActionButton>
         </Tip>
         <Dropdown alignRight={true}>

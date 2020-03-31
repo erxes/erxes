@@ -10,7 +10,10 @@ class Sidebar extends React.Component {
   renderListItem(url: string, text: string) {
     return (
       <li>
-        <Link to={url} className={window.location.href.includes(url) ? 'active' : ''}>
+        <Link
+          to={url}
+          className={window.location.href.includes(url) ? 'active' : ''}
+        >
           {__(text)}
         </Link>
       </li>
@@ -21,7 +24,12 @@ class Sidebar extends React.Component {
     return (
       <TopHeader>
         <Link to="/settings/">
-          <Button btnStyle="simple" icon="arrow-circle-left" block={true} uppercase={false}>
+          <Button
+            btnStyle="simple"
+            icon="arrow-circle-left"
+            block={true}
+            uppercase={false}
+          >
             Back to Settings
           </Button>
         </Link>
@@ -33,20 +41,13 @@ class Sidebar extends React.Component {
     return (
       <LeftSidebar full={true} header={this.renderSidebarHeader()}>
         <List>
-          {this.renderListItem(
-            '/settings/general',
-            'General system config'
-          )}
+          {this.renderListItem('/settings/general', 'General system config')}
           {this.renderListItem(
             '/settings/integration-configs',
             'Integrations config'
           )}
-          {this.renderListItem(
-            '/settings/engage-configs',
-            'Engage config'
-          )}
+          {this.renderListItem('/settings/engage-configs', 'Engage config')}
         </List>
-        
       </LeftSidebar>
     );
   }

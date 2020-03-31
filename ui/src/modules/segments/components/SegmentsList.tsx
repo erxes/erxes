@@ -88,7 +88,11 @@ class SegmentsList extends React.Component<Props> {
       { title: __('Segments') }
     ];
 
-    const title = <Title capitalize={true}>{contentType} {__('segments')}</Title>;
+    const title = (
+      <Title capitalize={true}>
+        {contentType} {__('segments')}
+      </Title>
+    );
 
     const actionBarRight = (
       <Link to={`/segments/new/${contentType}`}>

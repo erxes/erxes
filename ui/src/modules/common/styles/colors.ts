@@ -53,6 +53,11 @@ const socialFacebookMessenger = '#1472FB';
 const socialTwitter = '#1DA1F2';
 const socialGmail = '#D44638';
 const socialGoogleMeet = '#038476';
+const socialWhatsApp = '#25D366';
+const socialTelegram = '#0088cc';
+const socialViber = '#8f5db7';
+const socialLine = '#00c300';
+const socialTwilio = '#cf272d';
 
 export default {
   colorPrimary,
@@ -98,5 +103,10 @@ export default {
   socialFacebookMessenger,
   socialTwitter,
   socialGmail,
-  socialGoogleMeet
+  socialGoogleMeet,
+  socialTelegram,
+  socialViber,
+  socialLine,
+  socialTwilio,
+  socialWhatsApp
 };

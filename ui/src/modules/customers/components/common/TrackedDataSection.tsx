@@ -46,9 +46,7 @@ class TrackedDataSection extends React.Component<Props> {
         </li>
         <li>
           <FieldStyle>{__('Last online')}</FieldStyle>
-          <SidebarCounter>
-            {dayjs(lastSeenAt).format('lll')}
-          </SidebarCounter>
+          <SidebarCounter>{dayjs(lastSeenAt).format('lll')}</SidebarCounter>
         </li>
         <li>
           <FieldStyle>{__('Session count')}</FieldStyle>

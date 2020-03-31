@@ -35,46 +35,51 @@ function FieldChoices(props: Props) {
         {...props}
         type="input"
         text={__('Text input')}
-        icon="edit"
+        icon="edit-alt"
       />
       <FieldChoice
         {...props}
         type="textarea"
         text={__('Text area')}
-        icon="alignleft"
+        icon="paragraph"
+      />
+      <FieldChoice
+        {...props}
+        type="check"
+        text={__('Checkbox')}
+        icon="check-square"
+      />
+      <FieldChoice
+        {...props}
+        type="radio"
+        text={__('Radio button')}
+        icon="check-circle"
       />
       <FieldChoice
         {...props}
         type="select"
         text={__('Select')}
-        icon="clicker"
+        icon="sort-amount-down"
       />
-      <FieldChoice {...props} type="check" text={__('Checkbox')} icon="check" />
+      <FieldChoice {...props} type="file" text={__('File')} icon="paperclip" />
       <FieldChoice
         {...props}
-        type="radio"
-        text={__('Radio button')}
-        icon="checked"
+        type="email"
+        text={__('Email')}
+        icon="envelope-alt"
       />
-      <FieldChoice {...props} type="file" text={__('File')} icon="file" />
-      <FieldChoice
-        {...props}
-        type="phone"
-        text={__('Phone')}
-        icon="phonecall-3"
-      />
-      <FieldChoice {...props} type="email" text={__('Email')} icon="email-1" />
+      <FieldChoice {...props} type="phone" text={__('Phone')} icon="phone" />
       <FieldChoice
         {...props}
         type="firstName"
         text={__('First name')}
-        icon="user-3"
+        icon="user-6"
       />
       <FieldChoice
         {...props}
         type="lastName"
         text={__('Last name')}
-        icon="user-4"
+        icon="user-6"
       />
     </Options>
   );

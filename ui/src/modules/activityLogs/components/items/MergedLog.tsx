@@ -41,7 +41,7 @@ class MergedLog extends React.Component<Props> {
               <Link
                 key={contact._id}
                 to={`/contacts/${type}/details/${contact._id}`}
-                target='_blank'
+                target="_blank"
               >
                 &nbsp;
                 {renderFullName(contact)}
