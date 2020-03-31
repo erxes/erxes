@@ -21,10 +21,6 @@
       "description": "A port number that erxes api will be running on",
       "value": "3300"
     },
-    "DOMAIN": {
-      "description": "Erxes API URL",
-      "value": "https://erxes-api.herokuapp.com"
-    },
     "MAIN_APP_DOMAIN": {
       "description": "Erxes URL",
       "value": "https://erxes.herokuapp.com"

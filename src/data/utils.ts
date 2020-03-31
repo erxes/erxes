@@ -283,9 +283,8 @@ export const readFileRequest = async (key: string): Promise<any> => {
 /*
  * Save binary data to amazon s3
  */
-export const uploadFile = async (file, fromEditor = false): Promise<any> => {
+export const uploadFile = async (apiUrl: string, file, fromEditor = false): Promise<any> => {
   const IS_PUBLIC = await getConfig('FILE_SYSTEM_PUBLIC');
-  const DOMAIN = getEnv({ name: 'DOMAIN' });
   const UPLOAD_SERVICE_TYPE = await getConfig('UPLOAD_SERVICE_TYPE', 'AWS');
 
   const nameOrLink = UPLOAD_SERVICE_TYPE === 'AWS' ? await uploadFileAWS(file) : await uploadFileGCS(file);
@@ -294,7 +293,7 @@ export const uploadFile = async (file, fromEditor = false): Promise<any> => {
     const editorResult = { fileName: file.name, uploaded: 1, url: nameOrLink };
 
     if (IS_PUBLIC !== 'true') {
-      editorResult.url = `${DOMAIN}/read-file?key=${nameOrLink}`;
+      editorResult.url = `${apiUrl}/read-file?key=${nameOrLink}`;
     }
 
     return editorResult;
@@ -390,7 +389,7 @@ export const sendEmail = async ({
   const DEFAULT_EMAIL_SERVICE = await getConfig('DEFAULT_EMAIL_SERVICE', 'SES');
   const COMPANY_EMAIL_FROM = await getConfig('COMPANY_EMAIL_FROM', '');
   const AWS_SES_CONFIG_SET = await getConfig('AWS_SES_CONFIG_SET', '');
-  const DOMAIN = getEnv({ name: 'DOMAIN' });
+  const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
 
   // do not send email it is running in test mode
   if (NODE_ENV === 'test') {
@@ -409,7 +408,7 @@ export const sendEmail = async ({
   const { isCustom, data, name } = template;
 
   // for unsubscribe url
-  data.domain = DOMAIN;
+  data.domain = MAIN_APP_DOMAIN;
 
   for (const toEmail of toEmails) {
     if (modifier) {
@@ -910,4 +909,17 @@ export const getConfig = async (code, defaultValue?) => {
 
 export const resetConfigsCache = () => {
   set('configs_erxes_api', '');
+};
+
+export const frontendEnv = ({ name, req, requestInfo }: { name: string; req?: any; requestInfo?: any }): string => {
+  const cookies = req ? req.cookies : requestInfo.cookies;
+  const keys = Object.keys(cookies).filter(key => key.startsWith('REACT_APP'));
+
+  const envs: { [key: string]: string } = {};
+
+  for (const key of keys) {
+    envs[key.replace('REACT_APP_', '')] = cookies[key];
+  }
+
+  return envs[name];
 };

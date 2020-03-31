@@ -16,6 +16,7 @@ import insightExports from './data/modules/insights/insightExports';
 import {
   checkFile,
   deleteFile,
+  frontendEnv,
   getEnv,
   handleUnsubscription,
   readFileRequest,
@@ -128,12 +129,11 @@ app.use(userMiddleware);
 app.use('/static', express.static(path.join(__dirname, 'private')));
 
 app.get('/download-template', async (req: any, res) => {
-  const DOMAIN = getEnv({ name: 'DOMAIN' });
   const name = req.query.name;
 
   registerOnboardHistory({ type: `${name}Download`, user: req.user });
 
-  return res.redirect(`${DOMAIN}/static/importTemplates/${name}`);
+  return res.redirect(`${frontendEnv({ name: 'API_URL', req })}/static/importTemplates/${name}`);
 });
 
 // for health check
@@ -253,7 +253,7 @@ app.post('/upload-file', async (req: any, res, next) => {
 
     if (status === 'ok') {
       try {
-        const result = await uploadFile(file, response.upload ? true : false);
+        const result = await uploadFile(frontendEnv({ name: 'API_URL', req }), file, response.upload ? true : false);
 
         return res.send(result);
       } catch (e) {
@@ -310,7 +310,7 @@ app.post('/import-file', async (req: any, res, next) => {
   }
 });
 
-// engage unsubscribe
+// unsubscribe
 app.get('/unsubscribe', async (req: any, res) => {
   const unsubscribed = await handleUnsubscription(req.query);
 

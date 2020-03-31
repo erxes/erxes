@@ -50,6 +50,7 @@ const apolloServer = new ApolloServer({
 
     const requestInfo = {
       secure: req.secure,
+      cookies: req.cookies,
     };
 
     const user = req.user;

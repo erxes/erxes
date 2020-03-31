@@ -38,7 +38,6 @@ describe('configQueries', () => {
 
   test('config get env', async () => {
     process.env.MAIN_APP_DOMAIN = 'http://fake.erxes.io';
-    process.env.DOMAIN = 'http://fake.erxes.io';
     process.env.WIDGETS_DOMAIN = 'http://fake.erxes.io';
 
     process.env.NODE_ENV = 'dev';
