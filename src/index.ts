@@ -44,7 +44,7 @@ if (!JWT_TOKEN_SECRET) {
 }
 
 const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
-const WIDGETS_DOMAIN = getEnv({ name: 'WIDGETS_DOMAIN' });
+const WIDGETS_DOMAIN = getSubServiceDomain({ name: 'WIDGETS_DOMAIN' });
 const INTEGRATIONS_API_DOMAIN = getSubServiceDomain({ name: 'INTEGRATIONS_API_DOMAIN' });
 
 // firebase app initialization

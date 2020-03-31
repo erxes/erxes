@@ -14,7 +14,7 @@ const configQueries = {
   async configsVersions(_root, _args, { requestInfo }: IContext) {
     const erxesDomain = getEnv({ name: 'MAIN_APP_DOMAIN' });
     const domain = frontendEnv({ name: 'API_URL', requestInfo });
-    const widgetsDomain = getEnv({ name: 'WIDGETS_DOMAIN' });
+    const widgetsDomain = frontendEnv({ name: 'CDN_HOST', requestInfo });
 
     let erxesVersion;
     let apiVersion;
