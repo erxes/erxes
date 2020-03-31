@@ -131,12 +131,6 @@ class Index extends React.Component<IndexProps, IndexState> {
     );
   };
 
-  renderActions() {
-    const { customer } = this.props;
-
-    return <ActionSection customer={customer} />;
-  }
-
   renderTabSubContent() {
     const { currentSubTab } = this.state;
 
@@ -209,8 +203,7 @@ class Index extends React.Component<IndexProps, IndexState> {
           <BasicInfo>
             <InfoSection customer={customer} hideForm={true} />
           </BasicInfo>
-          {this.renderActions()}
-
+          <ActionSection customer={customer} />
           <Tabs full={true}>
             <TabTitle
               className={currentSubTab === 'details' ? 'active' : ''}

@@ -8,7 +8,7 @@
 
 .erxes-knowledge-container {
   color: $text-color;
-  margin: 0 auto;
+  margin: $kb-spacing;
   max-width: 900px;
   position: relative;
 }
@@ -36,6 +36,7 @@
   text-decoration: none;
   transition: box-shadow .3s ease;
   cursor: pointer;
+
   &:last-child {
     margin-bottom: 0;
   }
