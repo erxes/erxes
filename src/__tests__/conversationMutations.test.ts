@@ -184,8 +184,6 @@ describe('Conversation message mutations', () => {
   });
 
   test('Add conversation message using third party integration', async () => {
-    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
-
     const mock = sinon.stub(messageBroker, 'sendMessage').callsFake(() => {
       return Promise.resolve('success');
     });
@@ -430,8 +428,6 @@ describe('Conversation message mutations', () => {
   test('Delete video chat room', async () => {
     expect.assertions(1);
 
-    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
-
     const mutation = `
       mutation conversationDeleteVideoChatRoom($name: String!) {
         conversationDeleteVideoChatRoom(name: $name)
@@ -449,8 +445,6 @@ describe('Conversation message mutations', () => {
 
   test('Create video chat room', async () => {
     expect.assertions(2);
-
-    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
 
     const mutation = `
       mutation conversationCreateVideoChatRoom($_id: String!) {

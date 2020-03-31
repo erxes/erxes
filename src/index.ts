@@ -18,6 +18,7 @@ import {
   deleteFile,
   frontendEnv,
   getEnv,
+  getSubServiceDomain,
   handleUnsubscription,
   readFileRequest,
   registerOnboardHistory,
@@ -42,9 +43,9 @@ if (!JWT_TOKEN_SECRET) {
   throw new Error('Please configure JWT_TOKEN_SECRET environment variable.');
 }
 
-const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN', defaultValue: '' });
-const WIDGETS_DOMAIN = getEnv({ name: 'WIDGETS_DOMAIN', defaultValue: '' });
-const INTEGRATIONS_API_DOMAIN = getEnv({ name: 'INTEGRATIONS_API_DOMAIN', defaultValue: '' });
+const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
+const WIDGETS_DOMAIN = getEnv({ name: 'WIDGETS_DOMAIN' });
+const INTEGRATIONS_API_DOMAIN = getSubServiceDomain({ name: 'INTEGRATIONS_API_DOMAIN' });
 
 // firebase app initialization
 fs.exists(path.join(__dirname, '..', '/google_cred.json'), exists => {

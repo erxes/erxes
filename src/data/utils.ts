@@ -923,3 +923,24 @@ export const frontendEnv = ({ name, req, requestInfo }: { name: string; req?: an
 
   return envs[name];
 };
+
+export const getSubServiceDomain = ({ name }: { name: string }): string => {
+  const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
+
+  const defaultMappings = {
+    WIDGETS_DOMAIN: `${MAIN_APP_DOMAIN}/widgets`,
+    INTEGRATIONS_API_DOMAIN: `${MAIN_APP_DOMAIN}/integrations`,
+    CRONS_API_DOMAIN: `${MAIN_APP_DOMAIN}/crons`,
+    WORKERS_API_DOMAIN: `${MAIN_APP_DOMAIN}/workers`,
+    LOGS_API_DOMAIN: `${MAIN_APP_DOMAIN}/logs`,
+    ENGAGES_API_DOMAIN: `${MAIN_APP_DOMAIN}/engages`,
+  };
+
+  const domain = getEnv({ name });
+
+  if (domain) {
+    return domain;
+  }
+
+  return defaultMappings[name];
+};

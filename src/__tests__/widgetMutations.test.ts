@@ -59,9 +59,6 @@ describe('messenger connect', () => {
       deviceTokens: ['111'],
     });
 
-    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
-    process.env.ENGAGES_API_DOMAIN = 'http://fake.erxes.io';
-
     const dataSources = { IntegrationsAPI: new IntegrationsAPI(), EngagesAPI: new EngagesAPI() };
     const user = await userFactory({});
 

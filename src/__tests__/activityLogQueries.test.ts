@@ -140,8 +140,6 @@ describe('activityLogQueries', () => {
     await internalNoteFactory({ contentTypeId: customer._id });
     await engageMessageFactory({ customerIds: [customer._id], method: 'email' });
 
-    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
-
     const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
     const spy = jest.spyOn(dataSources.IntegrationsAPI, 'fetchApi');
 
