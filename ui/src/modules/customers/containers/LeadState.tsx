@@ -1,11 +1,14 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert } from 'modules/common/utils';
+import { confirm } from 'modules/common/utils';
 import LeadState from 'modules/customers/components/detail/LeadState';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { mutations } from '../graphql';
 import {
+  ChangeStateMutationResponse,
+  ChangeStateMutationVariables,
   CustomersQueryResponse,
   EditMutationResponse,
   ICustomer,
@@ -19,11 +22,29 @@ type Props = {
 type FinalProps = {
   customersQuery: CustomersQueryResponse;
 } & Props &
-  EditMutationResponse;
+  EditMutationResponse &
+  ChangeStateMutationResponse;
 
 class CustomerChooser extends React.Component<FinalProps> {
   render() {
-    const { customersEdit, customer } = this.props;
+    const { customersEdit, customer, customersChangeState } = this.props;
+
+    const changeState = (value: string) => {
+      confirm('Are your sure you want to convert lead to customer?').then(() =>
+        customersChangeState({
+          variables: {
+            _id: customer._id,
+            value
+          }
+        })
+          .then(() => {
+            Alert.success('You successfully changed the state');
+          })
+          .catch(e => {
+            Alert.error(e.message);
+          })
+      );
+    };
 
     const saveState = (state: string) => {
       customersEdit({
@@ -37,7 +58,13 @@ class CustomerChooser extends React.Component<FinalProps> {
         });
     };
 
-    return <LeadState customer={customer} saveState={saveState} />;
+    return (
+      <LeadState
+        customer={customer}
+        saveState={saveState}
+        changeCustomerState={changeState}
+      />
+    );
   }
 }
 
@@ -51,6 +78,15 @@ export default compose(
         return {
           refetchQueries: ['customersMain', 'customers']
         };
+      }
+    }
+  ),
+  graphql<Props, ChangeStateMutationResponse, ChangeStateMutationVariables>(
+    gql(mutations.customersChangeState),
+    {
+      name: 'customersChangeState',
+      options: {
+        refetchQueries: ['customersMain', 'customerCounts', 'customerDetail']
       }
     }
   )
