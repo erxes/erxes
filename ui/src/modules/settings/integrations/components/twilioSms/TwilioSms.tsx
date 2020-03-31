@@ -1,10 +1,11 @@
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+
 import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Spinner from 'modules/common/components/Spinner';
 import { ModalFooter } from 'modules/common/styles/main';
-import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import React from 'react';
 import SelectBrand from '../../containers/SelectBrand';
 
@@ -83,6 +84,15 @@ class TwilioSms extends React.Component<Props, { loading: boolean }> {
             required={true}
           />
         </FormGroup>
+
+        <a
+          href="https://docs.erxes.io/administrator/system-config#twilio-sms"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {' '}
+          {'Learn more about Twilio'}{' '}
+        </a>
 
         <SelectBrand isRequired={true} formProps={formProps} />
 
