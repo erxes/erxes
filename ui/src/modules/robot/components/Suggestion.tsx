@@ -49,10 +49,20 @@ class Suggestion extends React.PureComponent<Props> {
             Hello, <b>{currentUserName}</b>
           </h3>
           <p>{message}</p>
-          <Button btnStyle="success" size="small" onClick={onClick}>
+          <Button
+            btnStyle="success"
+            size="small"
+            onClick={onClick}
+            uppercase={false}
+          >
             {buttonText}
           </Button>
-          <Button btnStyle="link" size="small" onClick={forceComplete}>
+          <Button
+            btnStyle="link"
+            size="small"
+            onClick={forceComplete}
+            uppercase={false}
+          >
             Never see again
           </Button>
         </div>
