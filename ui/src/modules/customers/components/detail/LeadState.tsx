@@ -70,7 +70,11 @@ class LeadState extends React.Component<IProps, { currentState: string }> {
             </StateItem>
           );
         })}
-        <Button btnStyle="danger" onClick={this.convertToCustomer}>
+        <Button
+          icon="check-circle"
+          btnStyle="danger"
+          onClick={this.convertToCustomer}
+        >
           Mark as Complete
         </Button>
       </LeadStateWrapper>

@@ -38,7 +38,7 @@ class CustomerChooser extends React.Component<FinalProps> {
           }
         })
           .then(() => {
-            Alert.success('You successfully changed the state');
+            Alert.success('You successfully converted to customer');
           })
           .catch(e => {
             Alert.error(e.message);
