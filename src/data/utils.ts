@@ -608,10 +608,8 @@ export const sendRequest = async (
  * Send request to crons api
  */
 export const fetchCronsApi = ({ path, method, body, params }: IRequestParams) => {
-  const CRONS_API_DOMAIN = getEnv({ name: 'CRONS_API_DOMAIN' });
-
   return sendRequest(
-    { url: `${CRONS_API_DOMAIN}${path}`, method, body, params },
+    { url: `${getSubServiceDomain({ name: 'CRONS_API_DOMAIN' })}${path}`, method, body, params },
     'Failed to connect crons api. Check CRONS_API_DOMAIN env or crons api is not running',
   );
 };
