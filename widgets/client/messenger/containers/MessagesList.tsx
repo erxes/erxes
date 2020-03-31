@@ -1,7 +1,7 @@
-import * as React from "react";
-import { MessagesList } from "../components";
-import { IMessage } from "../types";
-import { AppConsumer } from "./AppContext";
+import * as React from 'react';
+import { MessagesList } from '../components';
+import { IMessage } from '../types';
+import { AppConsumer } from './AppContext';
 
 type Props = {
   messages: IMessage[];

@@ -1,10 +1,10 @@
-import classNames from "classnames";
-import * as moment from "moment";
-import * as React from "react";
-import { defaultAvatar } from "../../icons/Icons";
-import { __, makeClickableLink, readFile } from "../../utils";
-import { IKbArticle } from "../types";
-import { BackButton } from "./";
+import classNames from 'classnames';
+import * as moment from 'moment';
+import * as React from 'react';
+import { defaultAvatar } from '../../icons/Icons';
+import { __, makeClickableLink, readFile } from '../../utils';
+import { IKbArticle } from '../types';
+import { BackButton } from './';
 
 type Props = {
   article: IKbArticle | null;
@@ -19,12 +19,12 @@ export default class ArticleDetail extends React.PureComponent<
     super(props);
 
     this.state = {
-      activeReaction: ""
+      activeReaction: ''
     };
   }
 
   componentDidMount() {
-    makeClickableLink(".erxes-article-content a");
+    makeClickableLink('.erxes-article-content a');
   }
 
   onReactionClick = (articleId: string, reactionChoice: string) => {
@@ -45,7 +45,7 @@ export default class ArticleDetail extends React.PureComponent<
       return null;
     }
 
-    const reactionClassess = classNames("reactions", {
+    const reactionClassess = classNames('reactions', {
       clicked: this.state.activeReaction
     });
 
@@ -57,7 +57,7 @@ export default class ArticleDetail extends React.PureComponent<
               key={index}
               className={
                 reactionChoice === this.state.activeReaction
-                  ? "active"
+                  ? 'active'
                   : undefined
               }
               onClick={this.onReactionClick.bind(
@@ -91,7 +91,7 @@ export default class ArticleDetail extends React.PureComponent<
     } = article;
 
     const authorDetails = createdUser.details || {
-      fullName: "",
+      fullName: '',
       avatar: defaultAvatar
     };
 
@@ -99,7 +99,7 @@ export default class ArticleDetail extends React.PureComponent<
       <div>
         <BackButton
           onClickHandler={goToArticles}
-          text={__("Back to articles")}
+          text={__('Back to articles')}
         />
 
         <div className="erxes-kb-item detail">
@@ -113,13 +113,13 @@ export default class ArticleDetail extends React.PureComponent<
             </div>
             <div>
               <div>
-                {__("Written by")}: <span>{authorDetails.fullName}</span>
+                {__('Written by')}: <span>{authorDetails.fullName}</span>
               </div>
               <div>
-                {modifiedDate ? __("Modified ") : __("Created ")}
+                {modifiedDate ? __('Modified ') : __('Created ')}
                 <span>
                   {moment(modifiedDate ? modifiedDate : createdDate).format(
-                    "lll"
+                    'lll'
                   )}
                 </span>
               </div>

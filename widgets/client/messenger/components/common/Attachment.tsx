@@ -1,14 +1,14 @@
-import * as React from "react";
-import { iconAttach } from "../../../icons/Icons";
-import { readFile } from "../../../utils";
-import { IAttachment } from "../../types";
+import * as React from 'react';
+import { iconAttach } from '../../../icons/Icons';
+import { readFile } from '../../../utils';
+import { IAttachment } from '../../types';
 
 function Attachment({ attachment }: { attachment: IAttachment }) {
   function renderAtachment() {
-    const attachmentName = attachment.url || "";
-    const fileExtension = attachmentName.split(".").pop() || "";
+    const attachmentName = attachment.url || '';
+    const fileExtension = attachmentName.split('.').pop() || '';
 
-    if (["png", "jpeg", "jpg"].indexOf(fileExtension) > -1) {
+    if (['png', 'jpeg', 'jpg'].indexOf(fileExtension) > -1) {
       return <img role="presentation" src={readFile(attachment.url)} />;
     }
 

@@ -1,6 +1,6 @@
-import * as React from "react";
-import { Category } from "../../containers/faq";
-import { IFaqTopic } from "../../types";
+import * as React from 'react';
+import { Category } from '../../containers/faq';
+import { IFaqTopic } from '../../types';
 
 type Props = {
   faqTopics?: IFaqTopic;

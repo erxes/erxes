@@ -1,5 +1,5 @@
-import classNames from "classnames";
-import * as React from "react";
+import classNames from 'classnames';
+import * as React from 'react';
 
 type Props = {
   onClick: (isFormVisible: boolean) => void;
@@ -12,8 +12,8 @@ function Launcher({ isFormVisible, onClick, color }: Props) {
     onClick(isFormVisible);
   };
 
-  const launcherClasses = classNames("erxes-launcher", {
-    "close-launcher": isFormVisible
+  const launcherClasses = classNames('erxes-launcher', {
+    'close-launcher': isFormVisible
   });
 
   return (

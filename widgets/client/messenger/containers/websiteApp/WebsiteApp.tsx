@@ -1,6 +1,6 @@
-import * as React from "react";
-import { WebsiteApp } from "../../components";
-import { AppConsumer } from "../AppContext";
+import * as React from 'react';
+import { WebsiteApp } from '../../components';
+import { AppConsumer } from '../AppContext';
 
 type Props = {
   config: { [key: string]: string };

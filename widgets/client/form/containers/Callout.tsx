@@ -1,6 +1,6 @@
-import * as React from "react";
-import { Callout } from "../components";
-import { AppConsumer } from "./AppContext";
+import * as React from 'react';
+import { Callout } from '../components';
+import { AppConsumer } from './AppContext';
 
 const container = () => (
   <AppConsumer>
@@ -13,7 +13,7 @@ const container = () => (
           onSubmit={showForm}
           setHeight={setHeight}
           configs={callout || {}}
-          color={themeColor || ""}
+          color={themeColor || ''}
           hasTopBar={true}
         />
       );

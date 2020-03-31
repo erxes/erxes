@@ -1,8 +1,8 @@
-import * as React from "react";
-import { AppConsumer } from "../../messenger/containers/AppContext";
-import { readFile } from "../../utils";
-import { ICallout } from "../types";
-import { TopBar } from "./";
+import * as React from 'react';
+import { AppConsumer } from '../../messenger/containers/AppContext';
+import { readFile } from '../../utils';
+import { ICallout } from '../types';
+import { TopBar } from './';
 
 type Props = {
   onSubmit: (e: React.FormEvent<HTMLButtonElement>) => void;
@@ -43,12 +43,12 @@ class Callout extends React.Component<Props> {
     const { configs, onSubmit, color } = this.props;
     const defaultConfig = {
       skip: false,
-      title: "",
-      buttonText: "",
-      body: "",
-      featuredImage: ""
+      title: '',
+      buttonText: '',
+      body: '',
+      featuredImage: ''
     };
-    const { skip, title = "", buttonText, body, featuredImage = "" } =
+    const { skip, title = '', buttonText, body, featuredImage = '' } =
       configs || defaultConfig;
 
     if (skip) {

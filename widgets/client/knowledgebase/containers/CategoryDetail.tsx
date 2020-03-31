@@ -1,10 +1,10 @@
-import gql from "graphql-tag";
-import * as React from "react";
-import { ChildProps, graphql } from "react-apollo";
-import { CategoryDetail as DumbCategoryDetail } from "../components";
-import { IKbCategory } from "../types";
-import { AppConsumer } from "./AppContext";
-import queries from "./graphql";
+import gql from 'graphql-tag';
+import * as React from 'react';
+import { ChildProps, graphql } from 'react-apollo';
+import { CategoryDetail as DumbCategoryDetail } from '../components';
+import { IKbCategory } from '../types';
+import { AppConsumer } from './AppContext';
+import queries from './graphql';
 
 type Props = {
   goToCategories: () => void;
@@ -36,9 +36,9 @@ const WithData = graphql<Props, QueryResponse>(
   gql(queries.getKbCategoryQuery),
   {
     options: ({ category }) => ({
-      fetchPolicy: "network-only",
+      fetchPolicy: 'network-only',
       variables: {
-        _id: category ? category._id : ""
+        _id: category ? category._id : ''
       }
     })
   }

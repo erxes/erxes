@@ -3,13 +3,13 @@
  */
 
 // css
-import "./index.css";
+import './index.css';
 
 import {
   generateIntegrationUrl,
   getBrowserInfo,
   setErxesProperty
-} from "../../utils";
+} from '../../utils';
 
 declare const window: any;
 
@@ -31,23 +31,23 @@ if (isMobile) {
 
 function renewViewPort() {
   if (viewportMeta) {
-    document.getElementsByTagName("head")[0].removeChild(viewportMeta);
+    document.getElementsByTagName('head')[0].removeChild(viewportMeta);
   }
 
-  newViewportMeta = document.createElement("meta");
-  newViewportMeta.name = "viewport";
+  newViewportMeta = document.createElement('meta');
+  newViewportMeta.name = 'viewport';
   newViewportMeta.content =
-    "initial-scale=1, user-scalable=0, maximum-scale=1, width=device-width";
-  document.getElementsByTagName("head")[0].appendChild(newViewportMeta);
+    'initial-scale=1, user-scalable=0, maximum-scale=1, width=device-width';
+  document.getElementsByTagName('head')[0].appendChild(newViewportMeta);
 }
 
 function revertViewPort() {
   if (newViewportMeta) {
-    document.getElementsByTagName("head")[0].removeChild(newViewportMeta);
+    document.getElementsByTagName('head')[0].removeChild(newViewportMeta);
   }
 
   if (viewportMeta) {
-    document.getElementsByTagName("head")[0].appendChild(viewportMeta);
+    document.getElementsByTagName('head')[0].appendChild(viewportMeta);
   }
 }
 
@@ -69,27 +69,27 @@ function clearTimer() {
   }
 }
 
-const iframeId = "erxes-messenger-iframe";
-const container = "erxes-messenger-container";
+const iframeId = 'erxes-messenger-iframe';
+const container = 'erxes-messenger-container';
 
 // container
-const erxesContainer = document.createElement("div");
+const erxesContainer = document.createElement('div');
 erxesContainer.id = container;
-erxesContainer.className = "erxes-messenger-hidden";
+erxesContainer.className = 'erxes-messenger-hidden';
 
 // add iframe
-const iframe = document.createElement("iframe");
+const iframe = document.createElement('iframe');
 
 iframe.id = iframeId;
-iframe.src = generateIntegrationUrl("messenger");
-iframe.style.display = "none";
+iframe.src = generateIntegrationUrl('messenger');
+iframe.style.display = 'none';
 
 erxesContainer.appendChild(iframe);
 document.body.appendChild(erxesContainer);
 
 // after iframe load send connection info
 iframe.onload = async () => {
-  iframe.style.display = "block";
+  iframe.style.display = 'block';
 
   const contentWindow = iframe.contentWindow;
 
@@ -99,13 +99,13 @@ iframe.onload = async () => {
 
   const setting = window.erxesSettings.messenger;
 
-  setErxesProperty("showMessenger", () => {
+  setErxesProperty('showMessenger', () => {
     contentWindow.postMessage(
       {
         fromPublisher: true,
-        action: "showMessenger"
+        action: 'showMessenger'
       },
-      "*"
+      '*'
     );
   });
 
@@ -114,21 +114,21 @@ iframe.onload = async () => {
       fromPublisher: true,
       setting
     },
-    "*"
+    '*'
   );
 };
 
 // listen for widget toggle
-window.addEventListener("message", async (event: MessageEvent) => {
+window.addEventListener('message', async (event: MessageEvent) => {
   const data = event.data;
   const { isVisible, message, isSmallContainer } = data;
 
-  if (data.fromErxes && data.source === "fromMessenger") {
+  if (data.fromErxes && data.source === 'fromMessenger') {
     if (isMobile) {
-      document.body.classList.toggle("widget-mobile", isVisible);
+      document.body.classList.toggle('widget-mobile', isVisible);
     }
 
-    if (message === "messenger") {
+    if (message === 'messenger') {
       if (isMobile && isVisible) {
         renewViewPort();
       } else {
@@ -138,35 +138,35 @@ window.addEventListener("message", async (event: MessageEvent) => {
       clearTimer();
 
       if (isVisible) {
-        erxesContainer.className = "erxes-messenger-shown";
+        erxesContainer.className = 'erxes-messenger-shown';
       } else {
-        delaydSetClass("erxes-messenger-hidden");
+        delaydSetClass('erxes-messenger-hidden');
       }
 
-      erxesContainer.classList.toggle("small", isSmallContainer);
-      document.body.classList.toggle("messenger-widget-shown", isVisible);
+      erxesContainer.classList.toggle('small', isSmallContainer);
+      document.body.classList.toggle('messenger-widget-shown', isVisible);
     }
 
-    if (message === "notifier") {
+    if (message === 'notifier') {
       clearTimer();
-      delaydToggleClass("erxes-notifier-shown", isVisible);
+      delaydToggleClass('erxes-notifier-shown', isVisible);
     }
 
-    if (message === "notifierFull") {
+    if (message === 'notifierFull') {
       erxesContainer.className += ` erxes-notifier-${
-        isVisible ? "shown" : "hidden"
+        isVisible ? 'shown' : 'hidden'
       } fullMessage`;
     }
 
-    if (message === "requestingBrowserInfo" && iframe.contentWindow) {
+    if (message === 'requestingBrowserInfo' && iframe.contentWindow) {
       iframe.contentWindow.postMessage(
         {
           fromPublisher: true,
-          source: "fromMessenger",
-          message: "sendingBrowserInfo",
+          source: 'fromMessenger',
+          message: 'sendingBrowserInfo',
           browserInfo: await getBrowserInfo()
         },
-        "*"
+        '*'
       );
     }
   }

@@ -1,7 +1,7 @@
-import * as React from "react";
-import { __ } from "../../utils";
-import { ConversationList, LeadConnect, WebsiteApp } from "../containers";
-import { IntegrationItem } from "./";
+import * as React from 'react';
+import { __ } from '../../utils';
+import { ConversationList, LeadConnect, WebsiteApp } from '../containers';
+import { IntegrationItem } from './';
 
 type Props = {
   formCode: string;

@@ -1,8 +1,8 @@
-import * as moment from "moment";
-import * as React from "react";
-import { defaultAvatar } from "../../icons/Icons";
-import { __, readFile } from "../../utils";
-import { IKbArticle } from "../types";
+import * as moment from 'moment';
+import * as React from 'react';
+import { defaultAvatar } from '../../icons/Icons';
+import { __, readFile } from '../../utils';
+import { IKbArticle } from '../types';
 
 type Props = {
   article: IKbArticle;
@@ -23,7 +23,7 @@ export default class Article extends React.Component<Props> {
     const { createdUser } = article;
 
     const authorDetails = createdUser.details || {
-      fullName: "",
+      fullName: '',
       avatar: defaultAvatar
     };
 
@@ -40,16 +40,16 @@ export default class Article extends React.Component<Props> {
           </div>
           <div>
             <div>
-              {__("Written by")}: <span>{authorDetails.fullName}</span>
+              {__('Written by')}: <span>{authorDetails.fullName}</span>
             </div>
             <div>
-              {article.modifiedDate ? __("Modified ") : __("Created ")}
+              {article.modifiedDate ? __('Modified ') : __('Created ')}
               <span>
                 {moment(
                   article.modifiedDate
                     ? article.modifiedDate
                     : article.createdDate
-                ).format("lll")}
+                ).format('lll')}
               </span>
             </div>
           </div>

@@ -1,9 +1,9 @@
-import * as classNames from "classnames";
-import * as moment from "moment";
-import * as React from "react";
-import { defaultAvatar } from "../../icons/Icons";
-import { __, readFile, striptags } from "../../utils";
-import { IConversation } from "../types";
+import * as classNames from 'classnames';
+import * as moment from 'moment';
+import * as React from 'react';
+import { defaultAvatar } from '../../icons/Icons';
+import { __, readFile, striptags } from '../../utils';
+import { IConversation } from '../types';
 
 type Props = {
   conversation: IConversation;
@@ -25,7 +25,7 @@ function ConversationItem({
   }
 
   let avatar = defaultAvatar;
-  let fullName = (__("Support staff") || {}).toString();
+  let fullName = (__('Support staff') || {}).toString();
 
   if (participatedUser && participatedUser.details) {
     avatar = participatedUser.details.avatar || defaultAvatar;
@@ -34,7 +34,7 @@ function ConversationItem({
 
   return (
     <li
-      className={classNames("erxes-list-item", {
+      className={classNames('erxes-list-item', {
         unread: notificationCount > 0
       })}
       onClick={() => {
@@ -45,9 +45,9 @@ function ConversationItem({
       <div className="erxes-right-side">
         <div
           className="erxes-date erxes-tooltip"
-          data-tooltip={moment(createdAt).format("YYYY-MM-DD, HH:mm:ss")}
+          data-tooltip={moment(createdAt).format('YYYY-MM-DD, HH:mm:ss')}
         >
-          {moment(createdAt).format("LT")}
+          {moment(createdAt).format('LT')}
         </div>
         <div className="erxes-name">{fullName}</div>
         <div className="erxes-last-message">{striptags(content)}</div>

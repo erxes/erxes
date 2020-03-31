@@ -1,10 +1,10 @@
-import gql from "graphql-tag";
-import * as React from "react";
-import { ChildProps, graphql } from "react-apollo";
-import { CategoryDetail as DumbCategoryDetail } from "../../components/faq";
-import queries from "../../graphql";
-import { IFaqCategory } from "../../types";
-import { AppConsumer } from "../AppContext";
+import gql from 'graphql-tag';
+import * as React from 'react';
+import { ChildProps, graphql } from 'react-apollo';
+import { CategoryDetail as DumbCategoryDetail } from '../../components/faq';
+import queries from '../../graphql';
+import { IFaqCategory } from '../../types';
+import { AppConsumer } from '../AppContext';
 
 type Props = {
   goToCategories: () => void;
@@ -20,11 +20,11 @@ const CategoryDetail = (props: ChildProps<Props, QueryResponse>) => {
   const { data } = props;
 
   let category: IFaqCategory = {
-    _id: "",
-    title: "",
-    description: "",
+    _id: '',
+    title: '',
+    description: '',
     articles: [],
-    icon: "",
+    icon: '',
     numOfArticles: 0,
     createdDate: new Date()
   };
@@ -48,7 +48,7 @@ const WithData = graphql<Props, QueryResponse>(
   gql(queries.getFaqCategoryQuery),
   {
     options: ({ categoryId }) => ({
-      fetchPolicy: "network-only",
+      fetchPolicy: 'network-only',
       variables: {
         _id: categoryId
       }
@@ -61,7 +61,7 @@ const WithContext = () => {
     <AppConsumer>
       {({ changeRoute, activeFaqCategory, getMessengerData }) => {
         const goToCategories = () => {
-          changeRoute("conversationList");
+          changeRoute('conversationList');
         };
 
         const categoryId = activeFaqCategory && activeFaqCategory._id;
