@@ -284,7 +284,7 @@ app.post('/import-file', async (req: any, res, next) => {
     return res.end('foribidden');
   }
 
-  const WORKERS_API_DOMAIN = getEnv({ name: 'WORKERS_API_DOMAIN' });
+  const WORKERS_API_DOMAIN = getSubServiceDomain({ name: 'WORKERS_API_DOMAIN' });
 
   debugExternalApi(`Pipeing request to ${WORKERS_API_DOMAIN}`);
 

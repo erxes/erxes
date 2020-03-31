@@ -618,10 +618,8 @@ export const fetchCronsApi = ({ path, method, body, params }: IRequestParams) =>
  * Send request to workers api
  */
 export const fetchWorkersApi = ({ path, method, body, params }: IRequestParams) => {
-  const WORKERS_API_DOMAIN = getEnv({ name: 'WORKERS_API_DOMAIN' });
-
   return sendRequest(
-    { url: `${WORKERS_API_DOMAIN}${path}`, method, body, params },
+    { url: `${getSubServiceDomain({ name: 'WORKERS_API_DOMAIN' })}${path}`, method, body, params },
     'Failed to connect workers api. Check WORKERS_API_DOMAIN env or workers api is not running',
   );
 };
