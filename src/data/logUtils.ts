@@ -1331,13 +1331,6 @@ const putLog = async (params: IFinalLogParams, user: IUserDocument) => {
 export const fetchLogs = (params: ILogQueryParams) => {
   const LOGS_DOMAIN = getSubServiceDomain({ name: 'LOGS_API_DOMAIN' });
 
-  if (!LOGS_DOMAIN) {
-    return {
-      logs: [],
-      totalCount: 0,
-    };
-  }
-
   return sendRequest(
     { url: `${LOGS_DOMAIN}/logs`, method: 'get', body: { params: JSON.stringify(params) } },
     'Failed to connect to logs api. Check whether LOGS_API_DOMAIN env is missing or logs api is not running',

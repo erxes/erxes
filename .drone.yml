@@ -11,6 +11,7 @@ pipeline:
       - MONGO_URL=mongodb://mongo/erxes
       - TEST_MONGO_URL=mongodb://mongo/test
       - JWT_TOKEN_SECRET=token
+      - MAIN_APP_DOMAIN=http://localhost:3000
     commands:
       - node -v
       - npm -v
