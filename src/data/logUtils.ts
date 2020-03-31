@@ -41,7 +41,7 @@ import {
 } from '../db/models/index';
 import { sendMessage } from '../messageBroker';
 import { MODULE_NAMES } from './constants';
-import { getEnv, getSubServiceDomain, registerOnboardHistory, sendRequest } from './utils';
+import { getSubServiceDomain, registerOnboardHistory, sendRequest } from './utils';
 
 export type LogDesc = {
   [key: string]: any;

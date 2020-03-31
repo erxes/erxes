@@ -689,8 +689,6 @@ describe('engage message mutation tests', () => {
   });
 
   test('configSave', async () => {
-    process.env.ENGAGES_API_DOMAIN = 'http://fake.erxes.io';
-
     const mutation = `
       mutation engagesUpdateConfigs($configsMap: JSON!) {
         engagesUpdateConfigs(configsMap: $configsMap)
@@ -712,8 +710,6 @@ describe('engage message mutation tests', () => {
   });
 
   test('dataSources', async () => {
-    process.env.ENGAGES_API_DOMAIN = 'http://fake.erxes.io';
-
     const dataSources = { EngagesAPI: new EngagesAPI() };
 
     const check = async (mutation, name, args) => {

@@ -328,7 +328,7 @@ apolloServer.applyMiddleware({ app, path: '/graphql', cors: corsOptions });
 
 // handle engage trackers
 app.post(`/service/engage/tracker`, async (req, res, next) => {
-  const ENGAGES_API_DOMAIN = getEnv({ name: 'ENGAGES_API_DOMAIN' });
+  const ENGAGES_API_DOMAIN = getSubServiceDomain({ name: 'ENGAGES_API_DOMAIN' });
 
   const url = `${ENGAGES_API_DOMAIN}/service/engage/tracker`;
 
