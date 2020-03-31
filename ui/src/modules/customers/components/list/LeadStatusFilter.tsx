@@ -68,7 +68,7 @@ class LeadStatusFilter extends React.Component<IProps> {
     return (
       <Box
         extraButtons={extraButtons}
-        title={__('Filter by pop ups status')}
+        title={__('Filter by lead status')}
         collapsible={true}
         name="showFilterByStatus"
       >

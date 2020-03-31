@@ -119,7 +119,10 @@ class Pipelines extends React.Component<Props, State> {
 
     return (
       <>
-        <Count>{pipelines.length} {__(pipelineName)}{pipelines.length > 1 && 's'}</Count>
+        <Count>
+          {pipelines.length} {__(pipelineName)}
+          {pipelines.length > 1 && 's'}
+        </Count>
         <Table>
           <thead>
             <tr>
@@ -177,10 +180,7 @@ class Pipelines extends React.Component<Props, State> {
 
     return (
       <>
-        <Wrapper.ActionBar
-          left={leftActionBar}
-          right={this.renderButton()}
-        />
+        <Wrapper.ActionBar left={leftActionBar} right={this.renderButton()} />
 
         {this.renderContent()}
         {this.renderAddForm()}

@@ -134,7 +134,7 @@ class Form extends React.Component<Props, State> {
           registerChild: this.registerChild,
           runValidations: this.runValidations,
           isSubmitted: this.state.isSubmitted,
-          resetSubmit: this.resetSubmit,
+          resetSubmit: this.resetSubmit
         })}
       </form>
     );

@@ -114,7 +114,8 @@ const GoogleButton = styled.a`
   margin-left: 10px;
   transition: background 0.3s ease;
 
-  &:hover, &:focus {
+  &:hover,
+  &:focus {
     background-image: url('/images/googleButton/btn_focus.png');
   }
 

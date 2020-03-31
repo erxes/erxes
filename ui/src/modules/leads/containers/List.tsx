@@ -1,12 +1,14 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import Bulk from 'modules/common/components/Bulk';
+import { IRouterProps } from 'modules/common/types';
 import { Alert, confirm, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import { mutations as integrationMutations } from 'modules/settings/integrations/graphql/index';
 import { ArchiveIntegrationResponse } from 'modules/settings/integrations/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
+import routerUtils from '../../common/utils/router';
 import { TagsQueryResponse } from '../../tags/types';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
@@ -27,9 +29,27 @@ type FinalProps = {
   tagsQuery: TagsQueryResponse;
 } & RemoveMutationResponse &
   ArchiveIntegrationResponse &
+  IRouterProps &
   Props;
 
 class ListContainer extends React.Component<FinalProps> {
+  componentDidMount() {
+    const { history } = this.props;
+
+    const shouldRefetchList = routerUtils.getParam(history, 'popUpRefetchList');
+
+    if (shouldRefetchList) {
+      this.refetch();
+    }
+  }
+
+  refetch = () => {
+    const { integrationsQuery, integrationsTotalCountQuery } = this.props;
+
+    integrationsQuery.refetch();
+    integrationsTotalCountQuery.refetch();
+  }
+
   render() {
     const {
       integrationsQuery,
@@ -47,11 +67,6 @@ class ListContainer extends React.Component<FinalProps> {
 
     const integrations = integrationsQuery.integrations || [];
 
-    const refetch = () => {
-      integrationsQuery.refetch();
-      integrationsTotalCountQuery.refetch();
-    };
-
     const remove = (integrationId: string) => {
       const message = `
         If you remove a pop ups, then all related conversations, customers will also be removed.
@@ -64,7 +79,7 @@ class ListContainer extends React.Component<FinalProps> {
         })
           .then(() => {
             // refresh queries
-            refetch();
+            this.refetch();
 
             Alert.success('You successfully deleted a pop ups.');
           })
@@ -90,7 +105,7 @@ class ListContainer extends React.Component<FinalProps> {
               Alert.success('Pop ups has been archived.');
             }
 
-            refetch();
+            this.refetch();
           })
           .catch((e: Error) => {
             Alert.error(e.message);
@@ -113,7 +128,7 @@ class ListContainer extends React.Component<FinalProps> {
       return <List {...updatedProps} {...props} />;
     };
 
-    return <Bulk content={content} refetch={refetch} />;
+    return <Bulk content={content} refetch={this.refetch} />;
   }
 }
 

@@ -42,7 +42,7 @@ const CompanyFromContainer = (props: FinalProps) => {
         callback={afterSave}
         refetchQueries={getRefetchQueries()}
         isSubmitted={isSubmitted}
-        type='submit'
+        type="submit"
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
         } a ${name}`}

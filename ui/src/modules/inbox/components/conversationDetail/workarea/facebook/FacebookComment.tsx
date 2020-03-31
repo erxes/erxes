@@ -104,14 +104,14 @@ export default class FacebookComment extends React.Component<
             {!isReply ? (
               <Reply>
                 <ModalTrigger
-                  title='Reply'
+                  title="Reply"
                   trigger={<span> Reply •</span>}
                   content={content}
                 />
               </Reply>
             ) : null}
 
-            <Date type='comment' timestamp={comment.timestamp} />
+            <Date type="comment" timestamp={comment.timestamp} />
           </User>
         </ChildPost>
         {this.state.hasReplies && (
@@ -119,7 +119,7 @@ export default class FacebookComment extends React.Component<
             onClick={this.fetchReplies.bind(this, comment.commentId)}
             isReply={true}
           >
-            <Icon icon='reply' />
+            <Icon icon="reply" />
             <span>View more replies</span>
           </ShowMore>
         )}

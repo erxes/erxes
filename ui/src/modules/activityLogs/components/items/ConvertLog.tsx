@@ -31,7 +31,7 @@ class ConvertLog extends React.Component<Props> {
     }
 
     const conversation = (
-      <Link to={`/inbox/index?_id=${content}`} target='_blank'>
+      <Link to={`/inbox/index?_id=${content}`} target="_blank">
         conversation
       </Link>
     );
@@ -43,7 +43,7 @@ class ConvertLog extends React.Component<Props> {
         }/${contentType}/board?_id=${activity._id}&itemId=${
           contentTypeDetail._id
         }`}
-        target='_blank'
+        target="_blank"
       >
         {contentTypeDetail.name}
       </Link>

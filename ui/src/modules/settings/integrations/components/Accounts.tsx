@@ -46,17 +46,19 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
     const { onAdd, kind } = this.props;
 
     if (kind === 'gmail' || kind === 'nylas-gmail') {
-      return (
-        <GoogleButton href="#add" onClick={onAdd} />
-      );
+      return <GoogleButton href="#add" onClick={onAdd} />;
     }
 
     return (
-      <Button uppercase={false} btnStyle="primary" icon="plus-circle" onClick={onAdd}>
+      <Button
+        uppercase={false}
+        btnStyle="primary"
+        icon="plus-circle"
+        onClick={onAdd}
+      >
         Add Account
       </Button>
     );
-    
   }
 
   renderAccountAction() {
@@ -67,7 +69,7 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
       if (renderForm) {
         return renderForm();
       }
-      
+
       return this.renderButton();
     }
 

@@ -17,7 +17,7 @@ export const getEnv = () => {
   return {
     REACT_APP_API_URL: getItem('REACT_APP_API_URL'),
     REACT_APP_API_SUBSCRIPTION_URL: getItem('REACT_APP_API_SUBSCRIPTION_URL'),
-    REACT_APP_CDN_HOST: getItem('REACT_APP_CDN_HOST'),
+    REACT_APP_CDN_HOST: getItem('REACT_APP_CDN_HOST')
   };
 };
 

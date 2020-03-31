@@ -32,7 +32,7 @@ class ActivityItem extends React.Component<Props> {
 
     return (
       <ActivityRow key={Math.random()}>
-        <Tip text={formatText(type)} placement='top'>
+        <Tip text={formatText(type)} placement="top">
           <ActivityIcon color={iconAndColor.color}>
             <Icon icon={iconAndColor.icon} />
           </ActivityIcon>
@@ -66,12 +66,12 @@ class ActivityItem extends React.Component<Props> {
       case 'engage-email':
         return this.renderDetail(
           'email',
-          <Email emailType='engage' emailId={_id} activity={activity} />
+          <Email emailType="engage" emailId={_id} activity={activity} />
         );
       case 'email':
         return this.renderDetail(
           'email',
-          <Email emailType='email' emailId={_id} activity={activity} />
+          <Email emailType="email" emailId={_id} activity={activity} />
         );
       case 'comment':
         return this.renderDetail(

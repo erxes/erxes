@@ -35,7 +35,7 @@ class List extends React.Component<IProps> {
     const content = props => this.renderForm({ ...props, category });
 
     return (
-      <ModalTrigger title='Add category' trigger={trigger} content={content} />
+      <ModalTrigger title="Add category" trigger={trigger} content={content} />
     );
   }
 
@@ -66,9 +66,9 @@ class List extends React.Component<IProps> {
 
   renderEditAction(category: IProductCategory) {
     const trigger = (
-      <Button btnStyle='link'>
-        <Tip text={__('Edit')} placement='bottom'>
-          <Icon icon='edit' />
+      <Button btnStyle="link">
+        <Tip text={__('Edit')} placement="bottom">
+          <Icon icon="edit" />
         </Tip>
       </Button>
     );
@@ -80,9 +80,9 @@ class List extends React.Component<IProps> {
     const { remove } = this.props;
 
     return (
-      <Button btnStyle='link' onClick={remove.bind(null, category._id)}>
-        <Tip text={__('Remove')} placement='bottom'>
-          <Icon icon='cancel-1' />
+      <Button btnStyle="link" onClick={remove.bind(null, category._id)}>
+        <Tip text={__('Remove')} placement="bottom">
+          <Icon icon="cancel-1" />
         </Tip>
       </Button>
     );
@@ -135,9 +135,9 @@ class List extends React.Component<IProps> {
   renderCategoryHeader() {
     const trigger = (
       <Button
-        btnStyle='success'
+        btnStyle="success"
         uppercase={false}
-        icon='plus-circle'
+        icon="plus-circle"
         block={true}
       >
         Add category
@@ -151,9 +151,9 @@ class List extends React.Component<IProps> {
           {__('Categories')}
           <Section.QuickButtons>
             {router.getParam(this.props.history, 'categoryId') && (
-              <a href='#cancel' tabIndex={0} onClick={this.clearCategoryFilter}>
-                <Tip text={__('Clear filter')} placement='bottom'>
-                  <Icon icon='cancel-1' />
+              <a href="#cancel" tabIndex={0} onClick={this.clearCategoryFilter}>
+                <Tip text={__('Clear filter')} placement="bottom">
+                  <Icon icon="cancel-1" />
                 </Tip>
               </a>
             )}
@@ -172,9 +172,9 @@ class List extends React.Component<IProps> {
           data={this.renderContent()}
           loading={loading}
           count={productCategoriesCount}
-          emptyText='There is no product & service category'
-          emptyIcon='folder-2'
-          size='small'
+          emptyText="There is no product & service category"
+          emptyIcon="folder-2"
+          size="small"
         />
       </SidebarList>
     );

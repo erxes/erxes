@@ -1,8 +1,8 @@
-import * as moment from 'moment';
-import * as React from 'react';
-import DatePicker from 'react-datepicker';
-import uploadHandler from '../../uploadHandler';
-import { FieldValue, IField, IFieldError } from '../types';
+import * as moment from "moment";
+import * as React from "react";
+import DatePicker from "react-datepicker";
+import uploadHandler from "../../uploadHandler";
+import { FieldValue, IField, IFieldError } from "../types";
 
 type Props = {
   field: IField;
@@ -49,8 +49,8 @@ export default class Field extends React.Component<Props, State> {
           <div key={index}>
             <label>
               {Field.renderInput({
-                type: 'checkbox',
-                'data-option': option,
+                type: "checkbox",
+                "data-option": option,
                 name,
                 onChange
               })}
@@ -72,8 +72,8 @@ export default class Field extends React.Component<Props, State> {
         {options.map((option, index) => (
           <div key={index}>
             {Field.renderInput({
-              type: 'radio',
-              'data-option': option,
+              type: "radio",
+              "data-option": option,
               name,
               onChange
             })}
@@ -135,7 +135,7 @@ export default class Field extends React.Component<Props, State> {
   };
 
   onRadioButtonsChange = (e: React.FormEvent<HTMLInputElement>) => {
-    this.onChange(e.currentTarget.getAttribute('data-option') || '');
+    this.onChange(e.currentTarget.getAttribute("data-option") || "");
   };
 
   onCheckboxesChange = () => {
@@ -153,7 +153,7 @@ export default class Field extends React.Component<Props, State> {
       }
     }
 
-    this.onChange(values.join(','));
+    this.onChange(values.join(","));
   };
 
   onTextAreaChange = (e: React.FormEvent<HTMLTextAreaElement>) => {
@@ -179,34 +179,34 @@ export default class Field extends React.Component<Props, State> {
 
   renderControl() {
     const { field } = this.props;
-    const { options = [], validation = 'text' } = field;
+    const { options = [], validation = "text" } = field;
     const name = field._id;
 
-    if (validation === 'date') {
+    if (validation === "date") {
       return this.renderDatepicker();
     }
 
     switch (field.type) {
-      case 'select':
+      case "select":
         return Field.renderSelect(options, { onChange: this.onSelectChange });
 
-      case 'check':
+      case "check":
         return Field.renderCheckboxes(name, options, this.onCheckboxesChange);
 
-      case 'radio':
+      case "radio":
         return Field.renderRadioButtons(
           name,
           options,
           this.onRadioButtonsChange
         );
 
-      case 'file':
+      case "file":
         return Field.renderInput({
           onChange: this.handleFileInput,
-          type: 'file'
+          type: "file"
         });
 
-      case 'textarea':
+      case "textarea":
         return Field.renderTextarea({ onChange: this.onTextAreaChange });
 
       default:

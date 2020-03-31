@@ -74,7 +74,8 @@ export default commonListComposer<Props>({
   ),
 
   gqlCopyMutation: graphql<{}, UsersGroupsCopyMutation>(
-    gql(mutations.usersGroupsCopy), {
+    gql(mutations.usersGroupsCopy),
+    {
       name: 'copyMutation',
       options: commonOptions()
     }

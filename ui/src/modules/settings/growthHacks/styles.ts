@@ -4,7 +4,6 @@ import { BoxRoot, DateContainer } from 'modules/common/styles/main';
 import { WhiteBoxRoot } from 'modules/layout/styles';
 import styled from 'styled-components';
 
-
 const BoxItem = styled.div`
   flex-basis: 300px;
   padding: 25px 30px;

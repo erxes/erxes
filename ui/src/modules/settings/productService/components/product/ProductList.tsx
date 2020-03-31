@@ -128,7 +128,7 @@ class List extends React.Component<IProps, State> {
     ];
 
     const trigger = (
-      <Button btnStyle='primary' uppercase={false} icon='plus-circle'>
+      <Button btnStyle="primary" uppercase={false} icon="plus-circle">
         Add Product / Service
       </Button>
     );
@@ -138,22 +138,22 @@ class List extends React.Component<IProps, State> {
     let actionBarRight = (
       <BarItems>
         <FormControl
-          type='text'
+          type="text"
           placeholder={__('Type to search')}
           onChange={this.search}
           value={this.state.searchValue}
           autoFocus={true}
           onFocus={this.moveCursorAtTheEnd}
         />
-        <Link to='/settings/importHistories?type=product'>
-          <Button btnStyle='simple' uppercase={false} icon='arrow-from-right'>
+        <Link to="/settings/importHistories?type=product">
+          <Button btnStyle="simple" uppercase={false} icon="arrow-from-right">
             {__('Go to import')}
           </Button>
         </Link>
         <ModalTrigger
-          title='Add Product / Service'
+          title="Add Product / Service"
           trigger={trigger}
-          autoOpenKey='showProductModal'
+          autoOpenKey="showProductModal"
           content={modalContent}
         />
       </BarItems>
@@ -168,7 +168,7 @@ class List extends React.Component<IProps, State> {
               <th style={{ width: 60 }}>
                 <FormControl
                   checked={isAllSelected}
-                  componentClass='checkbox'
+                  componentClass="checkbox"
                   onChange={this.onChange}
                 />
               </th>
@@ -188,16 +188,16 @@ class List extends React.Component<IProps, State> {
     if (currentCategory.productCount === 0) {
       content = (
         <EmptyState
-          image='/images/actions/8.svg'
-          text='No Brands'
-          size='small'
+          image="/images/actions/8.svg"
+          text="No Brands"
+          size="small"
         />
       );
     }
 
     if (bulk.length > 0) {
       const tagButton = (
-        <Button btnStyle='simple' size='small' icon='tag-alt'>
+        <Button btnStyle="simple" size="small" icon="tag-alt">
           Tag
         </Button>
       );
@@ -214,16 +214,16 @@ class List extends React.Component<IProps, State> {
       actionBarRight = (
         <BarItems>
           <TaggerPopover
-            type='product'
+            type="product"
             successCallback={emptyBulk}
             targets={bulk}
             trigger={tagButton}
             refetchQueries={['productCountByTags']}
           />
           <Button
-            btnStyle='danger'
-            size='small'
-            icon='cancel-1'
+            btnStyle="danger"
+            size="small"
+            icon="cancel-1"
             onClick={onClick}
           >
             Remove
@@ -246,7 +246,7 @@ class List extends React.Component<IProps, State> {
         }
         mainHead={
           <HeaderDescription
-            icon='/images/actions/30.svg'
+            icon="/images/actions/30.svg"
             title={'Product & Service'}
             description={`All information and know-how related to your business's products and services are found here. Create and add in unlimited products and servicess so that you and your team members can edit and share.`}
           />
@@ -263,8 +263,8 @@ class List extends React.Component<IProps, State> {
             data={content}
             loading={loading}
             count={productsCount}
-            emptyText='There is no data'
-            emptyImage='/images/actions/5.svg'
+            emptyText="There is no data"
+            emptyImage="/images/actions/5.svg"
           />
         }
       />
