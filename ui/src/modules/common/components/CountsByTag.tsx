@@ -2,7 +2,7 @@ import FilterByParams from 'modules/common/components/FilterByParams';
 import Icon from 'modules/common/components/Icon';
 import { __, router } from 'modules/common/utils';
 import React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { IRouterProps } from '../../common/types';
 import { ITag } from '../../tags/types';

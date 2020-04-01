@@ -3,7 +3,7 @@ import Chip from 'modules/common/components/Chip';
 import { router } from 'modules/common/utils';
 import { cleanIntegrationKind } from 'modules/settings/integrations/containers/utils';
 import React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import styled from 'styled-components';
 import { IRouterProps } from '../../types';
 import createChipText from './createChipText';

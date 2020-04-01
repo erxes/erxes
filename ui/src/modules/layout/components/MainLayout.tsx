@@ -4,7 +4,7 @@ import { IRouterProps } from 'modules/common/types';
 import { NotifProvider } from 'modules/notifications/context';
 import ImportIndicator from 'modules/settings/importHistory/containers/ImportIndicator';
 import React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import Navigation from '../containers/Navigation';
 import { Layout, MainWrapper } from '../styles';
 import DetectBrowser from './DetectBrowser';

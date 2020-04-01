@@ -5,7 +5,7 @@ import { router as routerUtils, withProps } from 'modules/common/utils';
 import queryString from 'query-string';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { IntegrationsCountQueryResponse } from '../../integrations/types';
 import DumbChannels from '../components/Channels';
 import Empty from '../components/Empty';

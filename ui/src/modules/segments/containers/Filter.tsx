@@ -4,7 +4,7 @@ import { IRouterProps } from 'modules/common/types';
 import { router, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import Filter from '../components/SidebarFilter';
 import { queries } from '../graphql';
 import { Counts, SegmentsQueryResponse } from '../types';

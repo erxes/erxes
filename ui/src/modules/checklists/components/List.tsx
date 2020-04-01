@@ -110,7 +110,10 @@ function List(props: Props) {
     const content = itemContent.match(/^.*((\r\n|\n|\r)|$)/gm) || [];
 
     // for sorting alphanumerical strings
-    const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+    const collator = new Intl.Collator(undefined, {
+      numeric: true,
+      sensitivity: 'base'
+    });
 
     content.sort(collator.compare).map(text => props.addItem(text));
 

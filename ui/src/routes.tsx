@@ -3,8 +3,7 @@ import asyncComponent from 'modules/common/components/AsyncComponent';
 import { userConfirmation } from 'modules/settings/team/routes';
 import queryString from 'query-string';
 import React from 'react';
-import { Route, Router, Switch } from 'react-router-dom';
-import history from './browserHistory';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import AuthRoutes from './modules/auth/routes';
 import { IUser } from './modules/auth/types';
 import CompaniesRoutes from './modules/companies/routes';
@@ -78,7 +77,7 @@ const renderRoutes = currentUser => {
 };
 
 const Routes = ({ currentUser }: { currentUser: IUser }) => (
-  <Router history={history}>
+  <Router>
     <>
       <Route
         key="/unsubscribe"
