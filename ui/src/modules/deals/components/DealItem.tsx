@@ -31,7 +31,7 @@ type Props = {
   onAdd?: (stageId: string, item: IDeal) => void;
   onRemove?: (dealId: string, stageId: string) => void;
   onUpdate?: (item: IDeal) => void;
-  isCardDragging: boolean;
+  isCardDragging?: boolean;
 };
 
 class DealItem extends React.PureComponent<Props> {
