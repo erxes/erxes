@@ -210,7 +210,7 @@ cat <<EOF >/home/$username/ecosystem.json
         "WORKERS_API_DOMAIN": "http://127.0.0.1:3700",
         "LOGS_API_DOMAIN": "http://127.0.0.1:3800",
         "ENGAGES_API_DOMAIN": "http://127.0.0.1:3900",
-        "MONGO_URL": "mongodb://localhost/erxes",
+        "MONGO_URL": "mongodb://localhost/erxes?replicaSet=rs0",
         "REDIS_HOST": "localhost",
         "REDIS_PORT": 6379,
         "REDIS_PASSWORD": "",
@@ -229,7 +229,7 @@ cat <<EOF >/home/$username/ecosystem.json
       "env": {
         "PORT_CRONS": 3600,
         "NODE_ENV": "production",
-        "MONGO_URL": "mongodb://localhost/erxes",
+        "MONGO_URL": "mongodb://localhost/erxes?replicaSet=rs0",
         "RABBITMQ_HOST": "amqp://localhost",
         "DEBUG": "erxes-crons:*"
       }
@@ -242,7 +242,7 @@ cat <<EOF >/home/$username/ecosystem.json
       "env": {
         "PORT_WORKERS": 3700,
         "NODE_ENV": "production",
-        "MONGO_URL": "mongodb://localhost/erxes",
+        "MONGO_URL": "mongodb://localhost/erxes?replicaSet=rs0",
         "DEBUG": "erxes-workers:*"
       }
     },
@@ -256,7 +256,7 @@ cat <<EOF >/home/$username/ecosystem.json
         "NODE_ENV": "production",
         "ROOT_URL": "http://$erxes_domain/widgets",
         "API_URL": "http://$erxes_domain/api",
-        "API_SUBSCRIPTIONS_URL": "ws://$erxes_domain/api/subscriptions"
+        "API_SUBSCRIPTIONS_URL": "ws://$erxes_domain/api/subscriptions?replicaSet=rs0"
       }
     },
     {
@@ -268,7 +268,7 @@ cat <<EOF >/home/$username/ecosystem.json
         "PORT": 3900,
         "NODE_ENV": "production",
         "MAIN_API_DOMAIN": "http://$erxes_domain/api",
-        "MONGO_URL": "mongodb://localhost/erxes-engages",
+        "MONGO_URL": "mongodb://localhost/erxes-engages?replicaSet=rs0",
         "RABBITMQ_HOST": "amqp://localhost",
         "REDIS_HOST": "localhost",
         "REDIS_PORT": 6379,
@@ -284,7 +284,7 @@ cat <<EOF >/home/$username/ecosystem.json
       "env": {
         "PORT": 3800,
         "NODE_ENV": "production",
-        "MONGO_URL": "mongodb://localhost/erxes_logs",
+        "MONGO_URL": "mongodb://localhost/erxes_logs?replicaSet=rs0",
         "RABBITMQ_HOST": "amqp://localhost",
         "DEBUG_PREFIX": "erxes-logs"
       }
@@ -297,7 +297,7 @@ cat <<EOF >/home/$username/ecosystem.json
       "env": {
         "PORT": 3400,
         "NODE_ENV": "production",
-        "MONGO_URL": "mongodb://localhost/erxes_integrations",
+        "MONGO_URL": "mongodb://localhost/erxes_integrations?replicaSet=rs0",
         "DOMAIN": "http://$erxes_domain/integrations",
         "MAIN_APP_DOMAIN": "http://$erxes_domain",
         "MAIN_API_DOMAIN": "http://$erxes_domain/api",
