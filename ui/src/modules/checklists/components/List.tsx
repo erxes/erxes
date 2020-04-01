@@ -107,9 +107,12 @@ function List(props: Props) {
       return;
     }
 
-    const content = itemContent.match(/^.*((\r\n|\n|\r)|$)/gm);
+    const content = itemContent.match(/^.*((\r\n|\n|\r)|$)/gm) || [];
 
-    (content || []).map(text => props.addItem(text));
+    // for sorting alphanumerical strings
+    const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+
+    content.sort(collator.compare).map(text => props.addItem(text));
 
     setItemContent('');
     setIsAddingItem(false);
@@ -250,7 +253,6 @@ function List(props: Props) {
               placeholder="Add an item"
               onChange={onContentChange}
               onKeyPress={onKeyPressAddItem}
-              defaultValue={getUnsavedContent(props.item._id)}
               autoFocus={true}
               onFocus={onFocus}
               required={true}
