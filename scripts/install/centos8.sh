@@ -27,18 +27,18 @@ done
 # Dependencies
 #
 yum -qqy update
-yum -qqy install -y wget gnupg
+yum -qqy install -y wget gnupg python3 python3-pip
 
 # MongoDB
-cat <<EOF >/etc/yum.repos.d/mongodb-org-4.2.repo
-[mongodb-org-4.2]
+cat <<EOF >/etc/yum.repos.d/mongodb-org-3.6.repo
+[mongodb-org-3.6]
 name=MongoDB Repository
-baseurl=https://repo.mongodb.org/yum/redhat/\$releasever/mongodb-org/4.2/x86_64/
+baseurl=https://repo.mongodb.org/yum/redhat/8/mongodb-org/3.6/x86_64/
 gpgcheck=1
 enabled=1
-gpgkey=https://www.mongodb.org/static/pgp/server-4.2.asc
+gpgkey=https://www.mongodb.org/static/pgp/server-3.6.asc
 EOF
-yum -qqy install -y mongodb-org
+yum -qqy install mongodb-org
 systemctl enable mongod
 systemctl start mongod
 
@@ -144,6 +144,7 @@ erxes_widgets_dir=$erxes_root_dir/widgets
 erxes_api_dir=/home/$username/erxes-api
 erxes_engages_dir=$erxes_api_dir/engages-email-sender
 erxes_logger_dir=$erxes_api_dir/logger
+erxes_syncer_dir=$erxes_api_dir/elkSyncer
 #erxes_email_verifier_dir=$erxes_api_dir/email-verifier
 
 # erxes-integrations repo
@@ -209,7 +210,7 @@ cat <<EOF >/home/$username/ecosystem.json
         "WORKERS_API_DOMAIN": "http://127.0.0.1:3700",
         "LOGS_API_DOMAIN": "http://127.0.0.1:3800",
         "ENGAGES_API_DOMAIN": "http://127.0.0.1:3900",
-        "MONGO_URL": "mongodb://localhost/erxes",
+        "MONGO_URL": "mongodb://localhost/erxes?replicaSet=rs0",
         "REDIS_HOST": "localhost",
         "REDIS_PORT": 6379,
         "REDIS_PASSWORD": "",
@@ -228,7 +229,7 @@ cat <<EOF >/home/$username/ecosystem.json
       "env": {
         "PORT_CRONS": 3600,
         "NODE_ENV": "production",
-        "MONGO_URL": "mongodb://localhost/erxes",
+        "MONGO_URL": "mongodb://localhost/erxes?replicaSet=rs0",
         "RABBITMQ_HOST": "amqp://localhost",
         "DEBUG": "erxes-crons:*"
       }
@@ -241,7 +242,7 @@ cat <<EOF >/home/$username/ecosystem.json
       "env": {
         "PORT_WORKERS": 3700,
         "NODE_ENV": "production",
-        "MONGO_URL": "mongodb://localhost/erxes",
+        "MONGO_URL": "mongodb://localhost/erxes?replicaSet=rs0",
         "DEBUG": "erxes-workers:*"
       }
     },
@@ -255,7 +256,7 @@ cat <<EOF >/home/$username/ecosystem.json
         "NODE_ENV": "production",
         "ROOT_URL": "http://$erxes_domain/widgets",
         "API_URL": "http://$erxes_domain/api",
-        "API_SUBSCRIPTIONS_URL": "ws://$erxes_domain/api/subscriptions"
+        "API_SUBSCRIPTIONS_URL": "ws://$erxes_domain/api/subscriptions?replicaSet=rs0"
       }
     },
     {
@@ -267,7 +268,7 @@ cat <<EOF >/home/$username/ecosystem.json
         "PORT": 3900,
         "NODE_ENV": "production",
         "MAIN_API_DOMAIN": "http://$erxes_domain/api",
-        "MONGO_URL": "mongodb://localhost/erxes-engages",
+        "MONGO_URL": "mongodb://localhost/erxes-engages?replicaSet=rs0",
         "RABBITMQ_HOST": "amqp://localhost",
         "REDIS_HOST": "localhost",
         "REDIS_PORT": 6379,
@@ -283,7 +284,7 @@ cat <<EOF >/home/$username/ecosystem.json
       "env": {
         "PORT": 3800,
         "NODE_ENV": "production",
-        "MONGO_URL": "mongodb://localhost/erxes_logs",
+        "MONGO_URL": "mongodb://localhost/erxes_logs?replicaSet=rs0",
         "RABBITMQ_HOST": "amqp://localhost",
         "DEBUG_PREFIX": "erxes-logs"
       }
@@ -296,7 +297,7 @@ cat <<EOF >/home/$username/ecosystem.json
       "env": {
         "PORT": 3400,
         "NODE_ENV": "production",
-        "MONGO_URL": "mongodb://localhost/erxes_integrations",
+        "MONGO_URL": "mongodb://localhost/erxes_integrations?replicaSet=rs0",
         "DOMAIN": "http://$erxes_domain/integrations",
         "MAIN_APP_DOMAIN": "http://$erxes_domain",
         "MAIN_API_DOMAIN": "http://$erxes_domain/api",
@@ -312,6 +313,41 @@ EOF
 
 chown $username:$username /home/$username/ecosystem.json
 chmod 644 /home/$username/ecosystem.json
+
+
+# set up mongod ReplicaSet
+systemctl stop mongod
+mv /etc/mongod.conf /etc/mongod.conf.bak
+cat<<EOF >/etc/mongod.conf
+storage:
+  dbPath: /var/lib/mongo
+  journal:
+    enabled: true
+systemLog:
+  destination: file
+  logAppend: true
+  path: /var/log/mongodb/mongod.log
+net:
+  bindIp: localhost
+processManagement:
+  fork: true  # fork and run in background
+  pidFilePath: /var/run/mongodb/mongod.pid
+  timeZoneInfo: /usr/share/zoneinfo
+replication:
+  replSetName: "rs0"
+EOF
+systemctl start mongod
+curl https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh > /usr/local/bin/wait-for-it.sh
+chmod +x /usr/local/bin/wait-for-it.sh
+/usr/local/bin/wait-for-it.sh --timeout=0 localhost:27017
+while true; do
+    healt=$(mongo --eval "rs.initiate().ok" --quiet)
+    if [ $healt -eq 0 ]; then
+        break
+    fi
+done
+echo "Started MongoDB ReplicaSet successfully"
+
 
 # generate env.js
 cat <<EOF >$erxes_dir/build/js/env.js
@@ -332,6 +368,41 @@ systemctl enable pm2-$username
 
 # start erxes pm2 and save current processes
 su $username -c "cd /home/$username && pm2 start ecosystem.json && pm2 save"
+
+# pip3 packages for elkSyncer
+pip3 install mongo-connector==3.1.1 \
+    && pip3 install elasticsearch==7.5.1 \
+    && pip3 install elastic2-doc-manager==1.0.0 \
+    && pip3 install python-dotenv==0.11.0
+
+
+# elkSyncer env
+cat <<EOF >$erxes_syncer_dir/.env
+MONGO_URL=mongodb://localhost/erxes?replicaSet=rs0
+ELASTICSEARCH_URL=http://localhost:9200
+EOF
+
+cat <<EOF >/lib/systemd/system/erxes-api-elk-syncer.service
+[Unit]
+Description=erxes-api-elk-syncer
+Documentation=https://docs.erxes.io
+After=network.target
+
+[Service]
+WorkingDirectory=$erxes_syncer_dir
+ExecStart=/usr/bin/python3 $erxes_syncer_dir/main.py
+ExecStop=/bin/kill -INT $MAINPID
+ExecReload=/bin/kill -TERM $MAINPID
+Restart=on-failure
+Type=simple
+
+[Install]
+WantedBy=multi-user.target
+EOF
+chmod 644 /lib/systemd/system/erxes-api-elk-syncer.service
+systemctl daemon-reload
+systemctl enable erxes-api-elk-syncer.service
+systemctl start erxes-api-elk-syncer.service
 
 
 # Nginx erxes config
