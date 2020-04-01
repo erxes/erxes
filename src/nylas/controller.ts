@@ -49,7 +49,7 @@ export const initNylas = async app => {
     return res.status(200).send('success');
   });
 
-  app.post('/nylas/create-integration', async (req, res, _next) => {
+  app.post('/nylas/create-integration', async (req, res, next) => {
     debugRequest(debugNylas, req);
 
     const { accountId, integrationId } = req.body;
@@ -64,27 +64,30 @@ export const initNylas = async app => {
 
     const account = await Accounts.getAccount({ _id: accountId });
 
-    await Integrations.create({
-      kind,
-      accountId,
-      email: account.email,
-      erxesApiId: integrationId,
-    });
+    try {
+      await Integrations.create({
+        kind,
+        accountId,
+        email: account.email,
+        erxesApiId: integrationId,
+      });
 
-    // Connect provider to nylas ===========
-    switch (kind) {
-      case 'imap':
-        await connectImapToNylas(account);
-        break;
-      case 'outlook':
-        await connectYahooAndOutlookToNylas(kind, account);
-        break;
-      case 'yahoo':
-        await connectYahooAndOutlookToNylas(kind, account);
-        break;
-      default:
-        await connectProviderToNylas(kind, account);
-        break;
+      // Connect provider to nylas ===========
+      switch (kind) {
+        case 'imap':
+          await connectImapToNylas(account);
+          break;
+        case 'outlook':
+        case 'yahoo':
+          await connectYahooAndOutlookToNylas(kind, account);
+          break;
+        default:
+          await connectProviderToNylas(kind, account);
+          break;
+      }
+    } catch (e) {
+      await Integrations.deleteOne({ accountId, erxesApiId: integrationId });
+      return next(e);
     }
 
     const updatedAccount = await Accounts.getAccount({ _id: accountId });

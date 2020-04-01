@@ -249,14 +249,22 @@ const encryptPassword = async (password: string): Promise<string> => {
   const ENCRYPTION_KEY = await getConfig('ENCRYPTION_KEY', '');
   const ALGORITHM = await getConfig('ALGORITHM', '');
 
-  const iv = crypto.randomBytes(16);
-  const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY), iv);
+  if (!ALGORITHM || !ENCRYPTION_KEY) {
+    throw new Error('Missing IMAP config please check ALGORITHM and ENCRYPTION_KEY in System Configs');
+  }
 
-  let encrypted = cipher.update(password);
+  try {
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY), iv);
 
-  encrypted = Buffer.concat([encrypted, cipher.final()]);
+    let encrypted = cipher.update(password);
 
-  return iv.toString('hex') + ':' + encrypted.toString('hex');
+    encrypted = Buffer.concat([encrypted, cipher.final()]);
+
+    return iv.toString('hex') + ':' + encrypted.toString('hex');
+  } catch (e) {
+    throw e;
+  }
 };
 
 /**
@@ -268,18 +276,26 @@ const decryptPassword = async (password: string): Promise<string> => {
   const ENCRYPTION_KEY = await getConfig('ENCRYPTION_KEY', '');
   const ALGORITHM = await getConfig('ALGORITHM', '');
 
+  if (!ALGORITHM || !ENCRYPTION_KEY) {
+    throw new Error('Missing IMAP config please check ALGORITHM and ENCRYPTION_KEY in System Configs');
+  }
+
   const passwordParts = password.split(':');
   const ivKey = Buffer.from(passwordParts.shift(), 'hex');
 
   const encryptedPassword = Buffer.from(passwordParts.join(':'), 'hex');
 
-  const decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY), ivKey);
+  try {
+    const decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY), ivKey);
 
-  let decrypted = decipher.update(encryptedPassword);
+    let decrypted = decipher.update(encryptedPassword);
 
-  decrypted = Buffer.concat([decrypted, decipher.final()]);
+    decrypted = Buffer.concat([decrypted, decipher.final()]);
 
-  return decrypted.toString();
+    return decrypted.toString();
+  } catch (e) {
+    throw e;
+  }
 };
 
 export {
