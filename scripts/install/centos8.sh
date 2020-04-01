@@ -38,7 +38,7 @@ gpgcheck=1
 enabled=1
 gpgkey=https://www.mongodb.org/static/pgp/server-3.6.asc
 EOF
-yum -qqy install mongodb-org=3.6.8 mongodb-org-server=3.6.8 mongodb-org-shell=3.6.8 mongodb-org-mongos=3.6.8 mongodb-org-tools=3.6.8
+yum -qqy install mongodb-org
 systemctl enable mongod
 systemctl start mongod
 
