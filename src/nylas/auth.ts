@@ -20,14 +20,18 @@ const connectProviderToNylas = async (kind: string, account: IAccount & { _id: s
 
   const settings = await getProviderSettings(kind, tokenSecret);
 
-  const { access_token, account_id, billing_state } = await integrateProviderToNylas({
-    email,
-    kind,
-    settings,
-    ...(kind === 'gmail' ? { scopes: 'email.read_only,email.drafts,email.send,email.modify' } : {}),
-  });
+  try {
+    const { access_token, account_id, billing_state } = await integrateProviderToNylas({
+      email,
+      kind,
+      settings,
+      ...(kind === 'gmail' ? { scopes: 'email.read_only,email.drafts,email.send,email.modify' } : {}),
+    });
 
-  await updateAccount(account._id, account_id, access_token, billing_state);
+    await updateAccount(account._id, account_id, access_token, billing_state);
+  } catch (e) {
+    throw e;
+  }
 };
 
 /**
@@ -38,14 +42,18 @@ const connectProviderToNylas = async (kind: string, account: IAccount & { _id: s
 const connectYahooAndOutlookToNylas = async (kind: string, account: IAccount & { _id: string }) => {
   const { email, password } = account;
 
-  const { access_token, account_id, billing_state } = await integrateProviderToNylas({
-    email,
-    kind,
-    scopes: 'email',
-    settings: { username: email, password: await decryptPassword(password) },
-  });
+  try {
+    const { access_token, account_id, billing_state } = await integrateProviderToNylas({
+      email,
+      kind,
+      scopes: 'email',
+      settings: { username: email, password: await decryptPassword(password) },
+    });
 
-  await updateAccount(account._id, account_id, access_token, billing_state);
+    await updateAccount(account._id, account_id, access_token, billing_state);
+  } catch (e) {
+    throw e;
+  }
 };
 
 /**
@@ -62,26 +70,36 @@ const connectImapToNylas = async (account: IAccount & { _id: string }) => {
 
   const { email, password } = account;
 
-  const decryptedPassword = await decryptPassword(password);
+  let decryptedPassword;
 
-  const { access_token, account_id, billing_state } = await integrateProviderToNylas({
-    email,
-    kind: 'imap',
-    scopes: 'email',
-    settings: {
-      imap_username: email,
-      imap_password: decryptedPassword,
-      smtp_username: email,
-      smtp_password: decryptedPassword,
-      imap_host: imapHost,
-      imap_port: Number(imapPort),
-      smtp_host: smtpHost,
-      smtp_port: Number(smtpPort),
-      ssl_required: true,
-    },
-  });
+  try {
+    decryptedPassword = await decryptPassword(password);
+  } catch (e) {
+    throw new Error(e.message);
+  }
 
-  await updateAccount(account._id, account_id, access_token, billing_state);
+  try {
+    const { access_token, account_id, billing_state } = await integrateProviderToNylas({
+      email,
+      kind: 'imap',
+      scopes: 'email',
+      settings: {
+        imap_username: email,
+        imap_password: decryptedPassword,
+        smtp_username: email,
+        smtp_password: decryptedPassword,
+        imap_host: imapHost,
+        imap_port: Number(imapPort),
+        smtp_host: smtpHost,
+        smtp_port: Number(smtpPort),
+        ssl_required: true,
+      },
+    });
+
+    await updateAccount(account._id, account_id, access_token, billing_state);
+  } catch (e) {
+    throw e;
+  }
 };
 
 /**
@@ -114,8 +132,8 @@ const integrateProviderToNylas = async (args: IIntegrateProvider) => {
 
     code = codeResponse.code;
   } catch (e) {
-    debugNylas(`Failed to get code from nylas: ${e.message}`);
-    throw new Error(e);
+    debugNylas(`Failed to get token code nylas: ${e}`);
+    throw new Error('Error when connecting to the server. Please check your settings');
   }
 
   let response;
@@ -133,8 +151,8 @@ const integrateProviderToNylas = async (args: IIntegrateProvider) => {
 
     return response;
   } catch (e) {
-    debugNylas(`Failed to get token from nylas: ${e.message}`);
-    throw new Error(e);
+    debugNylas(`Failed to get token from nylas: ${e}`);
+    throw new Error('Error when connecting to the server. Please check your settings');
   }
 };
 
