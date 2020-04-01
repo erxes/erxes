@@ -5,7 +5,7 @@ import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils, withProps } from 'modules/common/utils';
 import React, { useEffect } from 'react';
 import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { PIPELINE_UPDATE_STATUSES } from '../constants';
 import { queries, subscriptions } from '../graphql';
 import { IOptions, PipelineDetailQueryResponse } from '../types';

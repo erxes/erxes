@@ -2,7 +2,7 @@ import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { mutations } from 'modules/settings/integrations/graphql';
 import React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import TwilioSms from '../../components/twilioSms/TwilioSms';
 
 type Props = {
