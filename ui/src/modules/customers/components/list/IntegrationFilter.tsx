@@ -39,13 +39,17 @@ function IntegrationFilter({ history, counts }: IProps) {
   );
 
   return (
-    <Box title={__('Filter by integrations')} name="showFilterByIntegrations">
+    <Box
+      title={__('Filter by integrations')}
+      name="showFilterByIntegrations"
+      collapsible={true}
+    >
       <DataWithLoader
         data={data}
         loading={false}
         count={KIND_CHOICES_WITH_TEXT.length}
         emptyText="No integrations"
-        emptyIcon="puzzle"
+        emptyIcon="puzzle-piece"
         size="small"
         objective={true}
       />
