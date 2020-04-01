@@ -54,7 +54,7 @@ interface IProps extends IRouterProps {
     }
   ) => Promise<void>;
   queryParams: any;
-  exportData: (bulk: Array<{ _id: string }>, popupData: boolean) => void;
+  exportData: (bulk: { _id: string }[], popupData: boolean) => void;
   responseId: string;
 }
 

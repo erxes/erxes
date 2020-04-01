@@ -6,8 +6,8 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 html, body
 {
 	background-color: transparent;
-	margin: 0px;
-	padding: 0px;
+	margin: 0;
+	padding: 0;
 }
 
 body
@@ -23,13 +23,13 @@ body, td, input, select, textarea
 
 .midtext
 {
-	padding:0px;
+	padding:0;
 	margin:10px;
 }
 
 .midtext p
 {
-	padding:0px;
+	padding:0;
 	margin:10px;
 }
 
@@ -61,7 +61,7 @@ body, td, input, select, textarea
 	border-right: #d5d59d 1px solid;
 	border-top: #d5d59d 1px solid;
 	border-left: #d5d59d 1px solid;
-	padding: 3px 5px 3px 5px;
+	padding: 3px 5px;
 	color: #737357;
 }
 

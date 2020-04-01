@@ -94,7 +94,7 @@ class EditFormContainer extends React.Component<FinalProps> {
           const existingIds: string[] = [];
           const createFieldsData: IField[] = [];
           const updateFieldsData: IField[] = [];
-          const removeFieldsData: Array<{ _id: string }> = [];
+          const removeFieldsData: { _id: string }[] = [];
 
           // collect fields ================
           for (const field of fields) {

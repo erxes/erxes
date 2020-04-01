@@ -20,7 +20,7 @@ type Props = {
 };
 
 type State = {
-  leads?: Array<{ value: string; label: string }>;
+  leads?: { value: string; label: string }[];
 };
 
 class Form extends React.Component<Props & ICommonFormProps, State> {

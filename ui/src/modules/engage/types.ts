@@ -88,7 +88,7 @@ export interface IEngageMessage extends IEngageMessageDoc {
   validCustomersCount?: number;
 
   stats?: IEngageStats;
-  logs?: Array<{ message: string }>;
+  logs?: { message: string }[];
 }
 
 // mutation types
@@ -222,7 +222,7 @@ export type IEmailFormProps = {
 };
 
 export type EngageConfigQueryResponse = {
-  engagesConfigDetail: Array<{ code: string; value: string }>;
+  engagesConfigDetail: { code: string; value: string }[];
   loading: boolean;
   refetch: () => void;
 };

@@ -13,7 +13,7 @@ type Props = {
   currentUser: IUser;
   target?: string;
   loadingLogs: boolean;
-  extraTabs: Array<{ name: string; label: string }>;
+  extraTabs: { name: string; label: string }[];
   onTabClick: (currentTab: string) => void;
 };
 

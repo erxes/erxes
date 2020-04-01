@@ -108,7 +108,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
         });
     };
 
-    const exportData = (bulk: Array<{ _id: string }>, popupData: boolean) => {
+    const exportData = (bulk: { _id: string }[], popupData: boolean) => {
       const { REACT_APP_API_URL } = getEnv();
       const { queryParams } = this.props;
 

@@ -26,7 +26,7 @@ type Params = {
   url?: string;
   kind?: string;
   responseType?: string;
-  extraFormData?: Array<{ key: string; value: string }>;
+  extraFormData?: { key: string; value: string }[];
 };
 
 export const deleteHandler = (params: {

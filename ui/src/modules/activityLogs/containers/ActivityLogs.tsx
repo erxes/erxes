@@ -13,7 +13,7 @@ type Props = {
   contentId: string;
   contentType: string;
   target?: string;
-  extraTabs: Array<{ name: string; label: string }>;
+  extraTabs: { name: string; label: string }[];
 };
 
 type FinalProps = {

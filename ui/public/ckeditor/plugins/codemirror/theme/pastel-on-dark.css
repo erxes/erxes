@@ -18,7 +18,7 @@
 
 .cm-s-pastel-on-dark .CodeMirror-gutters {
 	background: #34302f;
-	border-right: 0px;
+	border-right: 0;
 	padding: 0 3px;
 }
 .cm-s-pastel-on-dark .CodeMirror-guttermarker { color: white; }
@@ -48,5 +48,5 @@
 .cm-s-pastel-on-dark .CodeMirror-matchingbracket {
 	border: 1px solid rgba(255,255,255,0.25);
 	color: #8F938F !important;
-	margin: -1px -1px 0 -1px;
+	margin: -1px -1px 0;
 }

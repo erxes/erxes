@@ -65,7 +65,7 @@ export type HeadSegmentsQueryResponse = {
 };
 
 export type EventsQueryResponse = {
-  segmentsEvents: Array<{ name: string; attributeNames: string[] }>;
+  segmentsEvents: { name: string; attributeNames: string[] }[];
   loading: boolean;
 };
 

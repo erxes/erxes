@@ -33,7 +33,7 @@ export const generateCategoryOptions = (
 };
 
 export const productTypeChoises = __ => {
-  const options: Array<{ value: string; label: string }> = [];
+  const options: { value: string; label: string }[] = [];
 
   for (const key of Object.keys(PRODUCT_TYPE_CHOISES)) {
     options.push({

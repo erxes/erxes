@@ -17,7 +17,7 @@ export const hasAnyActivity = log => {
 };
 
 export const leadStatusChoices = __ => {
-  const options: Array<{ value: string; label: string }> = [];
+  const options: { value: string; label: string }[] = [];
 
   for (const key of Object.keys(LEAD_STATUS_TYPES)) {
     options.push({
@@ -30,7 +30,7 @@ export const leadStatusChoices = __ => {
 };
 
 export const genderChoices = __ => {
-  const options: Array<{ value: string; label: string }> = [];
+  const options: { value: string; label: string }[] = [];
 
   for (const key of Object.keys(GENDER_TYPES)) {
     options.push({
@@ -43,7 +43,7 @@ export const genderChoices = __ => {
 };
 
 export const lifecycleStateChoices = __ => {
-  const options: Array<{ value: string; label: string }> = [];
+  const options: { value: string; label: string }[] = [];
 
   for (const key of Object.keys(LIFECYCLE_STATE_TYPES)) {
     options.push({
