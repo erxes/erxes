@@ -320,7 +320,7 @@ systemctl stop mongod
 mv /etc/mongod.conf /etc/mongod.conf.bak
 cat<<EOF >/etc/mongod.conf
 storage:
-  dbPath: /var/lib/mongodb
+  dbPath: /var/lib/mongo
   journal:
     enabled: true
 systemLog:
@@ -328,8 +328,10 @@ systemLog:
   logAppend: true
   path: /var/log/mongodb/mongod.log
 net:
-  bindIp: localhost,$(hostname),$(hostname -I | sed 's/ /,/')
+  bindIp: localhost
 processManagement:
+  fork: true  # fork and run in background
+  pidFilePath: /var/run/mongodb/mongod.pid
   timeZoneInfo: /usr/share/zoneinfo
 replication:
   replSetName: "rs0"
