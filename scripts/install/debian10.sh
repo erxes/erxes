@@ -331,9 +331,6 @@ EOF
 chown $username:$username $erxes_dir/build/js/env.js
 chmod 664 $erxes_dir/build/js/env.js
 
-# erxes api load initial data
-# su $username -c "cd $erxes_api_dir && yarn loadInitialData && yarn loadPermission"
-
 # make pm2 starts on boot
 pm2 startup -u $username --hp /home/$username
 systemctl enable pm2-$username
