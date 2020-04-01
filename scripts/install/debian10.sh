@@ -34,7 +34,7 @@ echo "Installing MongoDB"
 wget -qO - https://www.mongodb.org/static/pgp/server-3.6.asc | apt-key add -
 echo "deb http://repo.mongodb.org/apt/debian stretch/mongodb-org/3.6 main" | tee /etc/apt/sources.list.d/mongodb-org-3.6.list
 apt-get -qqy update
-apt-get install -y mongodb-org=3.6.17 mongodb-org-server=3.6.8 mongodb-org-shell=3.6.17 mongodb-org-mongos=3.6.8 mongodb-org-tools=3.6.8
+apt-get install -y mongodb-org=3.6.8 mongodb-org-server=3.6.8 mongodb-org-shell=3.6.8 mongodb-org-mongos=3.6.8 mongodb-org-tools=3.6.8
 echo "Installed MongoDB successfully"
 systemctl enable mongod
 systemctl start mongod
