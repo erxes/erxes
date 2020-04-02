@@ -6,7 +6,7 @@ import { Alert, router, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import Histories from '../components/Histories';
 import { mutations, queries } from '../graphql';
 import { ImportHistoriesQueryResponse, RemoveMutationResponse } from '../types';

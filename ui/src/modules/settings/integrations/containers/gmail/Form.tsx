@@ -6,7 +6,7 @@ import { Alert } from 'modules/common/utils';
 import Gmail from 'modules/settings/integrations/components/gmail/Form';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { getRefetchQueries } from '../utils';
 
 type Props = {

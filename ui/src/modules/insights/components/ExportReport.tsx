@@ -1,5 +1,5 @@
 import { IUser } from 'modules/auth/types';
-import { ISelectedOption } from 'modules/common/types';
+import { IOption, ISelectedOption } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
 import { menuInbox } from 'modules/common/utils/menus';
 import Wrapper from 'modules/layout/components/Wrapper';
@@ -15,7 +15,6 @@ import {
   InsightWrapper
 } from '../styles';
 import { IQueryParams } from '../types';
-import { OptionsType } from '../utils';
 import InboxFilter from './filter/InboxFilter';
 import Sidebar from './Sidebar';
 
@@ -54,7 +53,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
 
   selectOptions() {
     const { users } = this.props;
-    const options: OptionsType[] = [];
+    const options: IOption[] = [];
 
     users.map(user =>
       options.push({

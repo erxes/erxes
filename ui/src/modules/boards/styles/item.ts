@@ -12,6 +12,8 @@ export const FlexContent = styled.div`
 `;
 
 export const PriceContainer = styled.div`
+  overflow: hidden;
+
   ul {
     float: left;
   }
@@ -208,6 +210,7 @@ export const MoveContainer = styled(FlexContent)`
   margin-bottom: 20px;
   align-items: center;
   position: relative;
+  will-change: contents;
 `;
 
 export const ActionContainer = styled(MoveContainer)`
@@ -221,6 +224,7 @@ export const ActionContainer = styled(MoveContainer)`
 export const MoveFormContainer = styled.div`
   margin-right: 20px;
   position: relative;
+  will-change: transform;
 `;
 
 export const PipelineName = styled.div`

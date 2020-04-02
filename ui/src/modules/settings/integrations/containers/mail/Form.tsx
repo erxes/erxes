@@ -3,7 +3,7 @@ import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import Form from 'modules/settings/integrations/components/mail/Form';
 import { mutations } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { IntegrationTypes } from '../../types';
 import { getRefetchQueries } from '../utils';
 

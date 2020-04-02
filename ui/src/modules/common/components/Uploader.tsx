@@ -1,5 +1,5 @@
 import { __, Alert, uploadHandler } from 'modules/common/utils';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { rgba } from '../styles/color';
 import colors from '../styles/colors';
@@ -54,61 +54,74 @@ type Props = {
   multiple?: boolean;
 };
 
-function Uploader(props: Props) {
-  const [attachments, setAttachments] = useState(props.defaultFileList);
-  const [loading, setLoading] = useState(false);
+type State = {
+  attachments: IAttachment[];
+  loading: boolean;
+};
 
-  useEffect(
-    () => {
-      setAttachments(props.defaultFileList);
-    },
-    [props.defaultFileList]
-  );
+class Uploader extends React.Component<Props, State> {
+  static defaultProps = {
+    multiple: true
+  };
 
-  function handleFileInput({ target }) {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      attachments: props.defaultFileList || [],
+      loading: false
+    };
+  }
+
+  handleFileInput = ({ target }) => {
     const files = target.files;
 
     uploadHandler({
       files,
 
       beforeUpload: () => {
-        setLoading(true);
+        this.setState({
+          loading: true
+        });
       },
 
       afterUpload: ({ status, response, fileInfo }) => {
         if (status !== 'ok') {
           Alert.error(response);
-
-          return setLoading(false);
+          return this.setState({ loading: false });
         }
 
         Alert.info('Success');
 
-        setLoading(false);
-
         // set attachments
         const attachment = { url: response, ...fileInfo };
-        const updated = [...attachments, attachment];
 
-        setAttachments(updated);
-        props.onChange(updated);
+        const attachments = [...this.state.attachments, attachment];
+
+        this.props.onChange(attachments);
+
+        this.setState({
+          loading: false,
+          attachments
+        });
       }
     });
 
     target.value = '';
-  }
+  };
 
-  function removeAttachmentByIndex(index: number) {
-    const updated = [...attachments];
+  removeAttachment = (index: number) => {
+    const attachments = [...this.state.attachments];
 
-    updated.splice(index, 1);
+    attachments.splice(index, 1);
 
-    setAttachments(updated);
-    props.onChange(updated);
-  }
+    this.setState({ attachments });
 
-  function renderItem(item: IAttachment, index: number) {
-    const removeAttachment = () => removeAttachmentByIndex(index);
+    this.props.onChange(attachments);
+  };
+
+  renderItem = (item: IAttachment, index: number) => {
+    const removeAttachment = () => this.removeAttachment(index);
     const remove = <Delete onClick={removeAttachment}>{__('Delete')}</Delete>;
 
     return (
@@ -116,10 +129,11 @@ function Uploader(props: Props) {
         <Attachment attachment={item} additionalItem={remove} />
       </Item>
     );
-  }
+  };
 
-  function renderBtn() {
-    const { multiple, limit } = props;
+  renderBtn() {
+    const { multiple, limit } = this.props;
+    const { attachments, loading } = this.state;
 
     if (limit && limit === attachments.length) {
       return null;
@@ -129,7 +143,11 @@ function Uploader(props: Props) {
       <UploadBtn>
         <label>
           {__('Upload an attachment')}
-          <input type="file" multiple={multiple} onChange={handleFileInput} />
+          <input
+            type="file"
+            multiple={multiple}
+            onChange={this.handleFileInput}
+          />
         </label>
         {loading && (
           <Spinner size={18} top="auto" bottom="0" left="auto" right="10px" />
@@ -138,17 +156,18 @@ function Uploader(props: Props) {
     );
   }
 
-  return (
-    <>
-      <List>{attachments.map((item, index) => renderItem(item, index))}</List>
-      {renderBtn()}
-    </>
-  );
+  render() {
+    return (
+      <>
+        <List>
+          {this.state.attachments.map((item, index) =>
+            this.renderItem(item, index)
+          )}
+        </List>
+        {this.renderBtn()}
+      </>
+    );
+  }
 }
-
-Uploader.defaultProps = {
-  multiple: true,
-  defaultFileList: []
-};
 
 export default Uploader;
