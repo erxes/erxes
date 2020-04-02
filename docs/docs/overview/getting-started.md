@@ -60,6 +60,7 @@ title: Getting  Started
 - <a href="../developer/push-notifications">Push Notification</a>
 - <a href="../developer/android-sdk">Android SDK</a>
 - <a href="../developer/ios-sdk">iOS SDK</a>
+- <a href="../developer/troubleshooting">Troubleshooting</a>
 
     </div>
   </div>
