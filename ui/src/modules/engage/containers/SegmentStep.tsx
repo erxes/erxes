@@ -67,7 +67,7 @@ const SegmentStepContainer = (props: FinalProps) => {
       )
     : [];
 
-  const count = segment => {
+  const count = () => {
     customerCountsQuery.refetch();
   };
 
