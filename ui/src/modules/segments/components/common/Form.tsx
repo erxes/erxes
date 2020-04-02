@@ -140,7 +140,7 @@ class Form extends React.Component<Props, State> {
     color: string;
   }) => {
     const { segment, contentType } = this.props;
-    const { conditions } = this.state;
+    const { color, conditions } = this.state;
     const finalValues = values;
 
     const updatedConditions: ISegmentCondition[] = [];
@@ -156,6 +156,7 @@ class Form extends React.Component<Props, State> {
 
     return {
       ...finalValues,
+      color,
       contentType,
       conditions: updatedConditions
     };
