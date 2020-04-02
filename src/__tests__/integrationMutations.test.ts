@@ -293,8 +293,6 @@ describe('mutations', () => {
   });
 
   test('Create external integration', async () => {
-    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
-
     const mutation = `
       mutation integrationsCreateExternalIntegration(
         $kind: String!
@@ -368,8 +366,6 @@ describe('mutations', () => {
   });
 
   test('Add mail account', async () => {
-    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
-
     const mutation = `
       mutation integrationAddMailAccount(
         $email: String!
@@ -400,8 +396,6 @@ describe('mutations', () => {
   });
 
   test('Add imap account', async () => {
-    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
-
     const mutation = `
       mutation integrationAddImapAccount(
         $email: String!
@@ -444,8 +438,6 @@ describe('mutations', () => {
   });
 
   test('Update config', async () => {
-    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
-
     const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
 
     const mutation = `
@@ -467,8 +459,6 @@ describe('mutations', () => {
   });
 
   test('Remove account', async () => {
-    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
-
     const mutation = `
       mutation integrationsRemoveAccount($_id: String!) {
         integrationsRemoveAccount(_id: $_id)
@@ -505,8 +495,6 @@ describe('mutations', () => {
   });
 
   test('Send mail', async () => {
-    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
-
     const mutation = `
       mutation integrationSendMail(
         $erxesApiId: String!

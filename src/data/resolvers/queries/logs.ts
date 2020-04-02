@@ -219,6 +219,7 @@ const logQueries = {
   logs(_root, params: ILogQueryParams) {
     return fetchLogs(params);
   },
+
   async getDbSchemaLabels(_root, params: { type: string }) {
     let fieldNames: INameLabel[] = [];
 

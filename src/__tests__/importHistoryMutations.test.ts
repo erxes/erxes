@@ -55,8 +55,6 @@ describe('Import history mutations', () => {
       }
     `;
 
-    process.env.WORKERS_API_DOMAIN = 'http://fake.erxes.io';
-
     const customer = await customerFactory({});
 
     const importHistory = await importHistoryFactory({ ids: [customer._id] });
@@ -101,8 +99,6 @@ describe('Import history mutations', () => {
         importHistoriesCancel(_id: $_id)
       }
     `;
-
-    process.env.WORKERS_API_DOMAIN = 'http://fake.erxes.io';
 
     const importHistory = await importHistoryFactory({});
 
