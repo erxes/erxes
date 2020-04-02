@@ -6,7 +6,7 @@ import {
 } from 'modules/common/types';
 import { ICustomer } from 'modules/customers/types';
 import React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import CustomerForm from '../components/list/CustomerForm';
 import { mutations } from '../graphql';
 

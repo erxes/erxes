@@ -7,7 +7,7 @@ import { router as routerUtils, withProps } from 'modules/common/utils';
 import React, { Component } from 'react';
 import { graphql } from 'react-apollo';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import styled from 'styled-components';
 import { PIPELINE_UPDATE_STATUSES } from '../constants';
 import { queries } from '../graphql';

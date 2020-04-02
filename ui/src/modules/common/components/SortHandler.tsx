@@ -2,7 +2,7 @@ import { colors } from 'modules/common/styles';
 import { IRouterProps } from 'modules/common/types';
 import { router } from 'modules/common/utils';
 import React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import styled from 'styled-components';
 
 const SortWrapper = styled.div`

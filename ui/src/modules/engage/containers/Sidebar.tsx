@@ -4,7 +4,7 @@ import { IRouterProps } from 'modules/common/types';
 import { queries as tagQueries } from 'modules/tags/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { withProps } from '../../common/utils';
 import { TagsQueryResponse } from '../../tags/types';
 import Sidebar from '../components/Sidebar';

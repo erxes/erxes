@@ -101,7 +101,7 @@ class ItemChooserContainer extends React.Component<
     }
 
     if (updatedProps.datas.length === 0) {
-      return <EmptyState text="No matching items found" icon="list-2" />;
+      return <EmptyState text="No matching items found" icon="list-ul" />;
     }
 
     return <ConformityChooser {...updatedProps} />;

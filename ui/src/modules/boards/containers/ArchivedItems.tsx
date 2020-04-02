@@ -9,7 +9,7 @@ import {
 } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import ArchivedItems from '../components/ArchivedItems';
 import { mutations, queries } from '../graphql';
 import { IItemParams, IOptions, RemoveMutation, SaveMutation } from '../types';

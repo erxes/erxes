@@ -1,7 +1,7 @@
 import { IUser } from 'modules/auth/types';
 import queryString from 'query-string';
 import React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   history: any;

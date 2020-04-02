@@ -115,9 +115,7 @@ function ProductSection({
             {renderProduct(product)}
           </SectionBodyItem>
         ))}
-        {products.length === 0 && (
-          <EmptyState icon="shopping-bag" text="No items" />
-        )}
+        {products.length === 0 && <EmptyState icon="list-ul" text="No items" />}
       </SectionBody>
     </Box>
   );
