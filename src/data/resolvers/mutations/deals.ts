@@ -4,6 +4,7 @@ import { getCompanies, getCustomers } from '../../../db/models/boardUtils';
 import { IOrderInput } from '../../../db/models/definitions/boards';
 import { BOARD_STATUSES, NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { IDeal } from '../../../db/models/definitions/deals';
+import { debugBase } from '../../../debuggers';
 import { graphqlPubsub } from '../../../pubsub';
 import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
@@ -199,6 +200,7 @@ const dealMutations = {
     { user }: IContext,
   ) {
     const deal = await Deals.getDeal(_id);
+    debugBase(`in deal mutation.........: ${deal.stageId}, ${destinationStageId}`);
 
     const extendedDoc = {
       modifiedAt: new Date(),
