@@ -55,7 +55,7 @@ class Line extends React.Component<Props, { loading: boolean }> {
           <FormControl {...formProps} name="name" required={true} />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>Line Channel ID</ControlLabel>
+          <ControlLabel required={true}>Line Channel ID</ControlLabel>
           <FormControl
             {...formProps}
             type="text"
@@ -64,7 +64,7 @@ class Line extends React.Component<Props, { loading: boolean }> {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>Line Channel Secret</ControlLabel>
+          <ControlLabel required={true}>Line Channel Secret</ControlLabel>
           <FormControl
             {...formProps}
             type="text"

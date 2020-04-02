@@ -48,7 +48,7 @@ class Telegram extends React.Component<Props, { loading: boolean }> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Telegram Bot Token</ControlLabel>
+          <ControlLabel required={true}>Telegram Bot Token</ControlLabel>
           <FormControl
             {...formProps}
             type="text"

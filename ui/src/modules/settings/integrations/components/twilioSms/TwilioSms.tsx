@@ -56,7 +56,7 @@ class TwilioSms extends React.Component<Props, { loading: boolean }> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Twilio Account SID</ControlLabel>
+          <ControlLabel required={true}>Twilio Account SID</ControlLabel>
           <FormControl
             {...formProps}
             type="text"
@@ -66,7 +66,7 @@ class TwilioSms extends React.Component<Props, { loading: boolean }> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Auth Token</ControlLabel>
+          <ControlLabel required={true}>Auth Token</ControlLabel>
           <FormControl
             {...formProps}
             type="text"
@@ -76,7 +76,7 @@ class TwilioSms extends React.Component<Props, { loading: boolean }> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Phone Number SID</ControlLabel>
+          <ControlLabel required={true}>Phone Number SID</ControlLabel>
           <FormControl
             {...formProps}
             type="text"
