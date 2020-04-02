@@ -1,9 +1,9 @@
 import dayjs from 'dayjs';
+import FilePreview from 'modules/common/components/FilePreview';
 import Table from 'modules/common/components/table';
-import { __ } from 'modules/common/utils';
 import React from 'react';
 import { IMessage } from '../../../../../types';
-import { FormTable } from '../styles';
+import { CellWrapper, FormTable } from '../styles';
 
 type Props = {
   message: IMessage;
@@ -17,14 +17,9 @@ export default class FormMessage extends React.Component<Props, {}> {
 
     if (data.type === 'file') {
       return (
-        <a
-          href={data.value}
-          target="_blank"
-          title={data.text}
-          rel="noopener noreferrer"
-        >
-          {__('Download attachment')}
-        </a>
+        <CellWrapper>
+          <FilePreview fileUrl={data.value} />
+        </CellWrapper>
       );
     }
 
