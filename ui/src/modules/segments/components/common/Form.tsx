@@ -130,7 +130,7 @@ class Form extends React.Component<Props, State> {
   };
 
   handleChange = <T extends keyof State>(name: T, value: State[T]) => {
-    this.setState({ [name]: value } as Pick<State, keyof State>);
+    this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
   };
 
   generateDoc = (values: {
