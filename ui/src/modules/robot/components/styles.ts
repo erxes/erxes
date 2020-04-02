@@ -58,7 +58,7 @@ const NavButton = styledTS<{ right?: boolean }>(styled.div)`
   float: ${props => props.right && 'right'};
   background: ${props => props.right && colors.bgActive};
   position: sticky;
-  top: 0;
+  top: -5px;
 
   &:hover {
     background: ${props =>
@@ -95,4 +95,15 @@ const SeeAll = styled.a`
   }
 `;
 
-export { Bot, ModulRow, Greeting, Title, NavButton, Content, SeeAll };
+const BackDrop = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1070;
+  background-color: #30435c;
+  opacity: 0.7;
+`;
+
+export { Bot, ModulRow, Greeting, Title, NavButton, Content, SeeAll, BackDrop };

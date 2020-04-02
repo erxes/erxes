@@ -73,21 +73,17 @@ class Onboarding extends React.Component<Props, State> {
       currentUserName: getCurrentUserName(currentUser)
     };
 
-    if (currentStep === 'initial') {
-      const onClick = () => {
-        changeStep('featureList');
-      };
+    const onClick = () => {
+      changeStep('featureList');
+    };
 
+    if (currentStep === 'initial') {
       return (
         <Suggestion {...commonProps} buttonText="Start" onClick={onClick} />
       );
     }
 
     if (currentStep === 'inComplete') {
-      const onClick = () => {
-        changeStep('featureList');
-      };
-
       return (
         <Suggestion {...commonProps} buttonText="Resume" onClick={onClick} />
       );
