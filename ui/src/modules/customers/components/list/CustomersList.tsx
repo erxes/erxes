@@ -34,7 +34,6 @@ interface IProps extends IRouterProps {
   customers: ICustomer[];
   totalCount: number;
   columnsConfig: IConfigColumn[];
-  integrations: string[];
   bulk: any[];
   isAllSelected: boolean;
   emptyBulk: () => void;
@@ -177,7 +176,7 @@ class CustomersList extends React.Component<IProps, State> {
     } = this.props;
 
     const addTrigger = (
-      <Button btnStyle="success" size="small" icon="add">
+      <Button btnStyle="success" size="small" icon="plus-circle">
         Add {type || 'customer'}
       </Button>
     );

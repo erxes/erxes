@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import Table from 'modules/common/components/table';
+import { __ } from 'modules/common/utils';
 import React from 'react';
 import { IMessage } from '../../../../../types';
 import { FormTable } from '../styles';
@@ -12,6 +13,19 @@ export default class FormMessage extends React.Component<Props, {}> {
   displayValue(data) {
     if (data.validation === 'date') {
       return dayjs(data.value).format('YYYY/MM/DD HH:mm');
+    }
+
+    if (data.type === 'file') {
+      return (
+        <a
+          href={data.value}
+          target="_blank"
+          title={data.text}
+          rel="noopener noreferrer"
+        >
+          {__('Download attachment')}
+        </a>
+      );
     }
 
     return data.value;

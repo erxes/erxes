@@ -61,7 +61,7 @@ class LeadStatusFilter extends React.Component<IProps> {
 
     const extraButtons = router.getParam(history, 'leadStatus') && (
       <a href="#cancel" tabIndex={0} onClick={onClear}>
-        <Icon icon="cancel-1" />
+        <Icon icon="times-circle" />
       </a>
     );
 
@@ -69,7 +69,6 @@ class LeadStatusFilter extends React.Component<IProps> {
       <Box
         extraButtons={extraButtons}
         title={__('Filter by lead status')}
-        collapsible={true}
         name="showFilterByStatus"
       >
         <DataWithLoader

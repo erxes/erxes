@@ -236,7 +236,7 @@ export default class Stage extends React.Component<Props, {}> {
     const { index, stage } = this.props;
 
     if (!stage) {
-      return <EmptyState icon="clipboard" text="No stage" size="small" />;
+      return <EmptyState icon="columns-1" text="No stage" size="small" />;
     }
 
     return (

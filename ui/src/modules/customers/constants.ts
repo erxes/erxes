@@ -56,8 +56,8 @@ export const CUSTOMER_DATAS = {
 
 export const LEAD_STATUS_TYPES = {
   new: 'New',
-  inProgress: 'In Progress',
-  attemptedToContact: 'Attempted to contact',
+  attemptedToContact: 'Contacted',
+  inProgress: 'Working',
   badTiming: 'Bad Timing',
   unqualified: 'Unqualified'
 };
@@ -89,7 +89,8 @@ export const CUSTOMER_LINKS = {
 
 export const LEAD_CHOICES = [
   { label: 'New', value: 'new' },
-  { label: 'Contacted', value: 'contacted' },
-  { label: 'Working', value: 'working' },
+  { label: 'Contacted', value: 'attemptedToContact' },
+  { label: 'Working', value: 'inProgress' },
+  { label: 'Bad timing', value: 'Bad timing' },
   { label: 'Unqualified', value: 'unqualified' }
 ];
