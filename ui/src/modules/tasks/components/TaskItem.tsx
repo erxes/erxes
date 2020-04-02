@@ -9,8 +9,8 @@ import { Content } from 'modules/boards/styles/stage';
 import { IItem, IOptions } from 'modules/boards/types';
 import { renderPriority } from 'modules/boards/utils';
 import { __ } from 'modules/common/utils';
-import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
 import React from 'react';
+import Assignees from 'modules/boards/components/Assignees';
 
 type Props = {
   stageId: string;
@@ -68,7 +68,7 @@ class TaskItem extends React.PureComponent<Props> {
 
         <PriceContainer>
           <Right>
-            <Participators participatedUsers={item.assignedUsers} limit={3} />
+            <Assignees users={item.assignedUsers} />
           </Right>
         </PriceContainer>
 
