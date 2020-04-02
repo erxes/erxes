@@ -1,9 +1,9 @@
-import ButtonMutate from "modules/common/components/ButtonMutate";
-import { IButtonMutateProps, IRouterProps } from "modules/common/types";
-import Telegram from "modules/settings/integrations/components/telegram/Telegram";
-import { mutations } from "modules/settings/integrations/graphql";
-import React from "react";
-import { withRouter } from "react-router";
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
+import Telegram from 'modules/settings/integrations/components/telegram/Telegram';
+import { mutations } from 'modules/settings/integrations/graphql';
+import React from 'react';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   type?: string;

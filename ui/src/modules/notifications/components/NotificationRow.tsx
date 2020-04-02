@@ -4,7 +4,7 @@ import { IUser } from 'modules/auth/types';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import { IRouterProps } from 'modules/common/types';
 import React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import xss from 'xss';
 import { INotification } from '../types';
 import NotificationIcon from './NotificationIcon';

@@ -7,7 +7,7 @@ import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import queryString from 'query-string';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import Bulk from '../../common/components/Bulk';
 import { IRouterProps } from '../../common/types';
 import { ListConfigQueryResponse } from '../../companies/types';

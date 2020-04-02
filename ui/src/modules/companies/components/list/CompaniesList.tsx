@@ -16,7 +16,7 @@ import ManageColumns from 'modules/settings/properties/containers/ManageColumns'
 import TaggerPopover from 'modules/tags/components/TaggerPopover';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { IRouterProps } from '../../../common/types';
 import { IConfigColumn } from '../../../settings/properties/types';

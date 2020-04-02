@@ -13,7 +13,7 @@ import { menuContacts } from 'modules/common/utils/menus';
 import { queries } from 'modules/customers/graphql';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { IRouterProps } from '../../../common/types';
 import { __, Alert, confirm, router } from '../../../common/utils';

@@ -4,7 +4,7 @@ import Icon from 'modules/common/components/Icon';
 import { router } from 'modules/common/utils';
 import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
 import React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import styled from 'styled-components';
 import { IRouterProps } from '../types';
 import Filter from './filterableList/Filter';

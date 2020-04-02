@@ -13,7 +13,7 @@ import { FieldStyle, SidebarList } from 'modules/layout/styles';
 import MemberAvatars from 'modules/settings/channels/components/MemberAvatars';
 import { ActionButtons } from 'modules/settings/styles';
 import React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { SidebarItem } from '../styles';
 import { IUserGroup, IUserGroupDocument } from '../types';

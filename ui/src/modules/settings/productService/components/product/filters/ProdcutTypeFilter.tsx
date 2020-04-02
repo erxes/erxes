@@ -1,5 +1,5 @@
 import React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 
 import Box from 'modules/common/components/Box';
 import Icon from 'modules/common/components/Icon';

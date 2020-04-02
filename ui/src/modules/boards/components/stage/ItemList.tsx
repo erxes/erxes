@@ -2,11 +2,12 @@ import client from 'apolloClient';
 import gql from 'graphql-tag';
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
+import { IRouterProps } from 'modules/common/types';
 import routerUtils from 'modules/common/utils/router';
 import { mutations as notificationMutations } from 'modules/notifications/graphql';
 import React from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
-import history from '../../../../browserHistory';
+import { withRouter } from 'react-router-dom';
 import {
   DropZone,
   EmptyContainer,
@@ -35,7 +36,7 @@ type DraggableContainerProps = {
   index: number;
   options: IOptions;
   onRemoveItem: (itemId: string, stageId: string) => void;
-};
+} & IRouterProps;
 
 class DraggableContainer extends React.Component<
   DraggableContainerProps,
@@ -45,7 +46,7 @@ class DraggableContainer extends React.Component<
     super(props);
 
     // if popup shows, draggable will disable
-    const itemIdQueryParam = routerUtils.getParam(history, 'itemId');
+    const itemIdQueryParam = routerUtils.getParam(props.history, 'itemId');
 
     this.state = {
       isDragDisabled: Boolean(itemIdQueryParam),
@@ -54,7 +55,7 @@ class DraggableContainer extends React.Component<
   }
 
   onClick = () => {
-    const { item } = this.props;
+    const { item, history } = this.props;
 
     this.setState({ isDragDisabled: true }, () => {
       routerUtils.setParams(history, { itemId: item._id, key: '' });
@@ -126,6 +127,10 @@ class DraggableContainer extends React.Component<
   }
 }
 
+const DraggableContainerWithRouter = withRouter<DraggableContainerProps>(
+  DraggableContainer
+);
+
 class InnerItemList extends React.PureComponent<{
   stageId: string;
   items: IItem[];
@@ -136,7 +141,7 @@ class InnerItemList extends React.PureComponent<{
     const { stageId, items, options, onRemoveItem } = this.props;
 
     return items.map((item, index: number) => (
-      <DraggableContainer
+      <DraggableContainerWithRouter
         key={item._id}
         stageId={stageId}
         item={item}

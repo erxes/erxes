@@ -6,7 +6,7 @@ import { __, Alert, router } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { INotification } from 'modules/notifications/types';
 import React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '../../common/types';
 import NotificationRow from './NotificationRow';
 import { NotifList } from './styles';
