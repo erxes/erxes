@@ -1,4 +1,5 @@
 import { IUserDocument } from '../db/models/definitions/users';
+import { debugBase } from '../debuggers';
 import { sendRPCMessage } from '../messageBroker';
 import { graphqlPubsub } from '../pubsub';
 import { IFinalLogParams } from './logUtils';
@@ -17,6 +18,7 @@ const checkAutomation = async (kind: string, body: any, user: IUserDocument) => 
     return;
   }
 
+  debugBase(`checkAutomation to sendRPCMessage`);
   const apiAutomationResponse = await sendRPCMessage(
     {
       action: 'get-response-check-automation',
@@ -121,7 +123,10 @@ export const automationHelper = async ({ params, user }: { params: IFinalLogPara
       break;
   }
 
+  debugBase(`automationHelper is running ${automationKind}, ${JSON.stringify(automationBody)}`);
+
   if (automationKind && Object.keys(automationBody).length > 0) {
+    debugBase(`condition has true`);
     await checkAutomation(automationKind, automationBody, user);
   }
 };
