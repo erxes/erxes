@@ -29,7 +29,7 @@ class Segments extends React.Component<Props> {
 
     return (
       <a href="#cancel" tabIndex={0} onClick={removeSegment}>
-        <Icon icon="cancel-1" />
+        <Icon icon="times-circle" />
       </a>
     );
   }
@@ -42,7 +42,7 @@ class Segments extends React.Component<Props> {
         <Dropdown alignRight={true} style={{ float: 'left' }}>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-manage">
             <a href="#settings">
-              <Icon icon="settings" />
+              <Icon icon="cog" />
             </a>
           </Dropdown.Toggle>
           <Dropdown.Menu>
@@ -114,7 +114,7 @@ class Segments extends React.Component<Props> {
       <Box
         title={__('Filter by segments')}
         extraButtons={extraButtons}
-        collapsible={segments.length > 5}
+        collapsible={segments.length > 7}
         isOpen={true}
         name="showFilterBySegments"
       >
