@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import Assignees from 'modules/boards/components/Assignees';
 import Details from 'modules/boards/components/Details';
 import DueDateLabel from 'modules/boards/components/DueDateLabel';
 import Labels from 'modules/boards/components/label/Labels';
@@ -10,7 +11,6 @@ import { IItem, IOptions } from 'modules/boards/types';
 import { renderPriority } from 'modules/boards/utils';
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import Assignees from 'modules/boards/components/Assignees';
 
 type Props = {
   stageId: string;
