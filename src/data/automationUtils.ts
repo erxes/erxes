@@ -58,6 +58,8 @@ const changeDeal = async (params: IFinalLogParams) => {
   const oldDeal = params.object;
   const destinationStageId = updateDeal.stageId || '';
 
+  debugBase(`in changeDeallllll old - new: ${oldDeal.stageId}, ${destinationStageId}`);
+
   if (destinationStageId && destinationStageId !== oldDeal.stageId) {
     automationKind = 'changeDeal';
     automationBody = {
@@ -101,6 +103,7 @@ export const automationHelper = async ({ params, user }: { params: IFinalLogPara
 
   switch (params.type) {
     case 'deal':
+      debugBase(`dealllllllllll, ${params.type}`);
       await changeDeal(params);
       break;
 
