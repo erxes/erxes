@@ -34,7 +34,6 @@ interface IProps extends IRouterProps {
   customers: ICustomer[];
   totalCount: number;
   columnsConfig: IConfigColumn[];
-  integrations: string[];
   bulk: any[];
   isAllSelected: boolean;
   emptyBulk: () => void;
