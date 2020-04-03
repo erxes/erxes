@@ -249,8 +249,6 @@ describe('integrationQueries', () => {
   });
 
   test('Fetch integration api', async () => {
-    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
-
     const qry = `
       query integrationsFetchApi($path: String!, $params: JSON!) {
         integrationsFetchApi(path: $path, params: $params)

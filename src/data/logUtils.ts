@@ -42,7 +42,7 @@ import {
 import { sendMessage } from '../messageBroker';
 import { automationHelper } from './automationUtils';
 import { MODULE_NAMES } from './constants';
-import { getEnv, registerOnboardHistory, sendRequest } from './utils';
+import { getSubServiceDomain, registerOnboardHistory, sendRequest } from './utils';
 
 export type LogDesc = {
   [key: string]: any;
@@ -1333,14 +1333,7 @@ const putLog = async (params: IFinalLogParams, user: IUserDocument) => {
  * @param {Object} param0 Request
  */
 export const fetchLogs = (params: ILogQueryParams) => {
-  const LOGS_DOMAIN = getEnv({ name: 'LOGS_API_DOMAIN' });
-
-  if (!LOGS_DOMAIN) {
-    return {
-      logs: [],
-      totalCount: 0,
-    };
-  }
+  const LOGS_DOMAIN = getSubServiceDomain({ name: 'LOGS_API_DOMAIN' });
 
   return sendRequest(
     { url: `${LOGS_DOMAIN}/logs`, method: 'get', body: { params: JSON.stringify(params) } },

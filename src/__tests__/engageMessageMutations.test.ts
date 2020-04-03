@@ -532,8 +532,6 @@ describe('engage message mutation tests', () => {
     expect(engageMessage.email.toJSON()).toEqual(_doc.email);
     expect(engageMessage.fromUser._id).toBe(args.fromUserId);
 
-    process.env.CRONS_API_DOMAIN = 'http://fake.erxes.io';
-
     try {
       await graphqlRequest(mutation, 'engageMessageEdit', { ..._doc, _id: _message._id });
     } catch (e) {
@@ -560,8 +558,6 @@ describe('engage message mutation tests', () => {
     expect(await EngageMessages.findOne({ _id: _message._id })).toBe(null);
 
     fetchSpy.mockRestore();
-
-    process.env.CRONS_API_DOMAIN = 'http://fake.erxes.io';
 
     _message = await engageMessageFactory({ kind: 'post' });
 
@@ -597,8 +593,6 @@ describe('engage message mutation tests', () => {
     response = await graphqlRequest(mutation, 'engageMessageSetLive', { _id: manualMessage._id });
 
     expect(response.isLive).toBe(true);
-
-    process.env.CRONS_API_DOMAIN = 'http://fake.erxes.io';
 
     try {
       await graphqlRequest(mutation, 'engageMessageSetLive', { _id: _message._id });
@@ -695,8 +689,6 @@ describe('engage message mutation tests', () => {
   });
 
   test('configSave', async () => {
-    process.env.ENGAGES_API_DOMAIN = 'http://fake.erxes.io';
-
     const mutation = `
       mutation engagesUpdateConfigs($configsMap: JSON!) {
         engagesUpdateConfigs(configsMap: $configsMap)
@@ -718,8 +710,6 @@ describe('engage message mutation tests', () => {
   });
 
   test('dataSources', async () => {
-    process.env.ENGAGES_API_DOMAIN = 'http://fake.erxes.io';
-
     const dataSources = { EngagesAPI: new EngagesAPI() };
 
     const check = async (mutation, name, args) => {

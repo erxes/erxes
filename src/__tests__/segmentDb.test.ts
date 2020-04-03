@@ -32,7 +32,6 @@ const checkValues = (segmentObj, doc) => {
   expect(segmentObj.description).toBe(doc.description);
   expect(segmentObj.subOf).toBe(doc.subOf);
   expect(segmentObj.color).toBe(doc.color);
-  expect(segmentObj.connector).toBe(doc.connector);
 
   expect(segmentObj.conditions.field).toEqual(doc.conditions.field);
   expect(segmentObj.conditions.operator).toEqual(doc.conditions.operator);

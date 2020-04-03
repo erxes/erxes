@@ -1,7 +1,8 @@
+import { frontendEnv } from '../data/utils';
 import { Scripts } from '../db/models';
 
 const widgetsMiddleware = async (req, res) => {
-  const { WIDGETS_DOMAIN } = process.env;
+  const domain = frontendEnv({ name: 'CDN_HOST', req });
 
   const script = await Scripts.findOne({ _id: req.query.id });
 
@@ -13,7 +14,7 @@ const widgetsMiddleware = async (req, res) => {
     return `
       (function() {
         var script = document.createElement('script');
-        script.src = "${WIDGETS_DOMAIN}/build/${type}Widget.bundle.js";
+        script.src = "${domain}/build/${type}Widget.bundle.js";
         script.async = true;
         
         var entry = document.getElementsByTagName('script')[0];

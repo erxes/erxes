@@ -1,9 +1,15 @@
+import * as sinon from 'sinon';
 import { MODULE_NAMES } from '../data/constants';
+import * as utils from '../data/logUtils';
 import { graphqlRequest } from '../db/connection';
 import './setup.ts';
 
 describe('log queries', () => {
   test('Logs', async () => {
+    const mock = sinon.stub(utils, 'fetchLogs').callsFake(() => {
+      return Promise.resolve({ logs: [], totalCount: 0 });
+    });
+
     const qry = `
       query logs(
         $start: String
@@ -29,12 +35,12 @@ describe('log queries', () => {
       }
     `;
 
-    process.env.LOGS_API_DOMAIN = '';
-
     const response = await graphqlRequest(qry, 'logs', {});
 
     expect(response.logs).toHaveLength(0);
     expect(response.totalCount).toBe(0);
+
+    mock.restore();
   });
 
   test('getDbSchemaLabels', async () => {

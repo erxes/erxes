@@ -263,8 +263,6 @@ describe('conversationQueries', () => {
       internal: false,
     });
 
-    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
-
     const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
 
     try {
@@ -332,8 +330,6 @@ describe('conversationQueries', () => {
     const gmailConversation = await conversationFactory({ integrationId: gmailIntegration._id });
 
     await conversationMessageFactory({ conversationId: gmailConversation._id, internal: false });
-
-    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
 
     const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
 
@@ -949,8 +945,6 @@ describe('conversationQueries', () => {
     expect(response._id).toBe(conversation._id);
     expect(response.facebookPost).toBe(null);
 
-    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
-
     const facebookIntegration = await integrationFactory({ kind: 'facebook-post' });
     const facebookConversation = await conversationFactory({ integrationId: facebookIntegration._id });
 
@@ -984,8 +978,6 @@ describe('conversationQueries', () => {
   });
 
   test('Conversation detail video call', async () => {
-    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
-
     const messengerConversation = await conversationFactory();
 
     const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
@@ -1030,8 +1022,6 @@ describe('conversationQueries', () => {
   });
 
   test('Conversation detail callpro audio', async () => {
-    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
-
     const callProIntegration = await integrationFactory({ kind: 'callpro' });
     const callProConverstaion = await conversationFactory({ integrationId: callProIntegration._id });
 
@@ -1108,8 +1098,6 @@ describe('conversationQueries', () => {
   });
 
   test('Facebook comments', async () => {
-    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
-
     const qry = `
       query converstationFacebookComments($postId: String!) {
         converstationFacebookComments(postId: $postId) {
