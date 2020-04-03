@@ -1,5 +1,4 @@
 import { IUserDocument } from '../db/models/definitions/users';
-import { debugBase } from '../debuggers';
 import { sendRPCMessage } from '../messageBroker';
 import { graphqlPubsub } from '../pubsub';
 import { IFinalLogParams } from './logUtils';
@@ -18,7 +17,6 @@ const checkAutomation = async (kind: string, body: any, user: IUserDocument) => 
     return;
   }
 
-  debugBase(`checkAutomation to sendRPCMessage`);
   const apiAutomationResponse = await sendRPCMessage(
     {
       action: 'get-response-check-automation',
@@ -57,8 +55,6 @@ const changeDeal = async (params: IFinalLogParams) => {
   const updateDeal = params.newData || params.updatedDocument || params.object;
   const oldDeal = params.object;
   const destinationStageId = updateDeal.stageId || '';
-
-  debugBase(`in changeDeallllll old - new: ${oldDeal.stageId}, ${destinationStageId}`);
 
   if (destinationStageId && destinationStageId !== oldDeal.stageId) {
     automationKind = 'changeDeal';
@@ -103,7 +99,6 @@ export const automationHelper = async ({ params, user }: { params: IFinalLogPara
 
   switch (params.type) {
     case 'deal':
-      debugBase(`dealllllllllll, ${params.type}`);
       await changeDeal(params);
       break;
 
@@ -126,10 +121,7 @@ export const automationHelper = async ({ params, user }: { params: IFinalLogPara
       break;
   }
 
-  debugBase(`automationHelper is running ${automationKind}, ${JSON.stringify(automationBody)}`);
-
   if (automationKind && Object.keys(automationBody).length > 0) {
-    debugBase(`condition has true`);
     await checkAutomation(automationKind, automationBody, user);
   }
 };
