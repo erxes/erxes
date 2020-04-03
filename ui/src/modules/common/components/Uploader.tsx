@@ -1,4 +1,4 @@
-import { __, Alert, uploadHandler } from 'modules/common/utils';
+import { __, Alert, confirm, uploadHandler } from 'modules/common/utils';
 import React from 'react';
 import styled from 'styled-components';
 import { rgba } from '../styles/color';
@@ -121,7 +121,10 @@ class Uploader extends React.Component<Props, State> {
   };
 
   renderItem = (item: IAttachment, index: number) => {
-    const removeAttachment = () => this.removeAttachment(index);
+    const removeAttachment = () => {
+      confirm().then(() => this.removeAttachment(index));
+    };
+
     const remove = <Delete onClick={removeAttachment}>{__('Delete')}</Delete>;
 
     return (
