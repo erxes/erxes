@@ -32,6 +32,10 @@ const ItemInfo = styled.div`
     margin: 0 0 5px;
     font-weight: bold;
   }
+
+  video {
+    width: 100%;
+  }
 `;
 
 const Download = styled.a`

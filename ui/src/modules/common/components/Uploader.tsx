@@ -140,15 +140,13 @@ class Uploader extends React.Component<Props, State> {
   };
 
   removeAttachment = (index: number) => {
-    confirm().then(() => {
-      const attachments = [...this.state.attachments];
+    const attachments = [...this.state.attachments];
 
-      attachments.splice(index, 1);
+    attachments.splice(index, 1);
 
-      this.setState({ attachments });
+    this.setState({ attachments });
 
-      this.props.onChange(attachments);
-    });
+    this.props.onChange(attachments);
   };
 
   renderItem = (item: IAttachment, index: number) => {
