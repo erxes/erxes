@@ -8,7 +8,7 @@ import { withProps } from 'modules/common/utils';
 import mutations from 'modules/settings/boards/graphql/mutations';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import PipelineList from '../../components/home/PipelineList';
 
 type Props = { queryParams: any } & IRouterProps;

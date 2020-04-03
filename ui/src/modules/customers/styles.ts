@@ -192,6 +192,7 @@ export const LeadStateWrapper = styled.div`
   display: flex;
   padding: 0 ${dimensions.coreSpacing}px;
   margin-bottom: ${dimensions.unitSpacing}px;
+  align-items: center;
 
   > button {
     margin-left: 10px;

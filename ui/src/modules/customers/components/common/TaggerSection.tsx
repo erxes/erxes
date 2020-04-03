@@ -42,7 +42,7 @@ class TaggerSection extends React.Component<Props, State> {
       <SidebarList className="no-link">
         {tags.map(({ _id, colorCode, name }) => (
           <li key={_id}>
-            <Icon icon="tag icon" style={{ color: colorCode }} />
+            <Icon icon="tag-alt" style={{ color: colorCode }} />
             {name}
           </li>
         ))}
@@ -56,7 +56,7 @@ class TaggerSection extends React.Component<Props, State> {
 
     const extraButtons = (
       <a href="#settings" tabIndex={0} onClick={this.toggleTagger}>
-        <Icon icon="settings" />
+        <Icon icon="cog" />
       </a>
     );
 

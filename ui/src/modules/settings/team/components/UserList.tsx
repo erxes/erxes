@@ -86,8 +86,8 @@ class UserList extends React.Component<FinalProps, States> {
 
     const editTrigger = (
       <Button btnStyle="link" disabled={user._id === currentUser._id}>
-        <Tip text={__('Edit')}>
-          <Icon icon="edit" />
+        <Tip text={__('Edit')} placement="top">
+          <Icon icon="pen-1" size={15} />
         </Tip>
       </Button>
     );
@@ -113,8 +113,8 @@ class UserList extends React.Component<FinalProps, States> {
   renderResetPassword = (user: IUser) => {
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text={__('Reset Member Password')}>
-          <Icon icon="settings" />
+        <Tip text={__('Reset Member Password')} placement="top">
+          <Icon icon="lock-alt" size={15} />
         </Tip>
       </Button>
     );
@@ -144,8 +144,8 @@ class UserList extends React.Component<FinalProps, States> {
 
     return (
       <Button btnStyle="link" onClick={onClick}>
-        <Tip text={__('Resend')}>
-          <Icon icon="reload" />
+        <Tip text={__('Resend')} placement="top">
+          <Icon icon="redo" size={15} />
         </Tip>
       </Button>
     );

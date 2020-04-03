@@ -8,7 +8,7 @@ import {
 import { AddFieldsMutationResponse } from 'modules/settings/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '../../common/types';
 import Lead from '../components/Lead';
 import { mutations } from '../graphql';
@@ -57,7 +57,10 @@ class CreateLeadContainer extends React.Component<Props, State> {
           .then(() => {
             Alert.success('You successfully added a lead');
 
-            history.push({ pathname: '/leads', search: "?popUpRefetchList=true" });
+            history.push({
+              pathname: '/leads',
+              search: '?popUpRefetchList=true'
+            });
           })
 
           .catch(error => {

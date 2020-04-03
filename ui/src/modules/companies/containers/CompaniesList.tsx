@@ -7,7 +7,7 @@ import { generatePaginationParams } from 'modules/common/utils/router';
 import queryString from 'query-string';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '../../common/types';
 import { DefaultColumnsConfigQueryResponse } from '../../settings/properties/types';
 import CompaniesList from '../components/list/CompaniesList';
