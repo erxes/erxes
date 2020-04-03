@@ -82,7 +82,6 @@ const deals = `
         _id
         name
         stageId
-        hasNotified
         paymentsData
         amount
         pipeline {
@@ -106,17 +105,10 @@ const deals = `
           name
           colorCode
         }
-        labelIds
         stage {
           probability
         }
         isWatched
-        attachments {
-          name
-          url
-          type
-          size
-        }
         modifiedAt
         modifiedBy
         reminderMinute
