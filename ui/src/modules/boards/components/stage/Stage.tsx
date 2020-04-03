@@ -106,7 +106,7 @@ export default class Stage extends React.Component<Props, {}> {
       loadingItems() !== nextProps.loadingItems() ||
       length !== nextProps.length ||
       JSON.stringify(stage) !== JSON.stringify(nextProps.stage) ||
-      items.length !== nextProps.items.length
+      JSON.stringify(items) !== JSON.stringify(nextProps.items)
     ) {
       return true;
     }
