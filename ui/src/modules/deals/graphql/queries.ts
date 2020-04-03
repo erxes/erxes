@@ -82,6 +82,7 @@ const deals = `
         _id
         name
         stageId
+        products
         amount
         pipeline {
           _id
