@@ -200,11 +200,13 @@ const dealMutations = {
   ) {
     const deal = await Deals.getDeal(_id);
 
-    const updatedDeal = await Deals.updateDeal(_id, {
+    const extendedDoc = {
       modifiedAt: new Date(),
       modifiedBy: user._id,
       stageId: destinationStageId,
-    });
+    };
+
+    const updatedDeal = await Deals.updateDeal(_id, extendedDoc);
 
     const { content, action } = await itemsChange(user._id, deal, MODULE_NAMES.DEAL, destinationStageId);
 
@@ -216,12 +218,6 @@ const dealMutations = {
       action,
       contentType: MODULE_NAMES.DEAL,
     });
-
-    const extendedDoc = {
-      ...{ destinationStageId },
-      modifiedAt: new Date(),
-      modifiedBy: user._id,
-    };
 
     await putUpdateLog(
       {

@@ -52,7 +52,7 @@ let automationKind = '';
 let automationBody = {};
 
 const changeDeal = async (params: IFinalLogParams) => {
-  const updateDeal = params.updatedDocument || params.newData || params.object;
+  const updateDeal = params.newData || params.updatedDocument || params.object;
   const oldDeal = params.object;
   const destinationStageId = updateDeal.stageId || '';
 
