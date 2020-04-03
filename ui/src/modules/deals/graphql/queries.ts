@@ -79,8 +79,56 @@ const deals = `
       skip: $skip,
       ${commonParamDefs}
     ) {
-      ${dealFields}
-      ${commonFields}
+        _id
+        name
+        stageId
+        hasNotified
+        paymentsData
+        amount
+        pipeline {
+          _id
+          name
+        }
+        boardId
+        closeDate
+        description
+        priority
+        assignedUsers {
+          _id
+          email
+          details {
+            fullName
+            avatar
+          }
+        }
+        labels {
+          _id
+          name
+          colorCode
+        }
+        labelIds
+        stage {
+          probability
+        }
+        isWatched
+        attachments {
+          name
+          url
+          type
+          size
+        }
+        modifiedAt
+        modifiedBy
+        reminderMinute
+        isComplete
+        status
+        createdUser {
+          _id
+          details {
+            fullName
+            avatar
+          }
+        }
     }
   }
 `;
