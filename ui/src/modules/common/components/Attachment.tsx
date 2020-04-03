@@ -30,15 +30,13 @@ const ItemInfo = styled.div`
 
   h5 {
     margin: 0 0 5px;
-    display: flex;
     font-weight: bold;
   }
 `;
 
 const Download = styled.a`
   color: ${colors.colorCoreGray};
-  padding: 0 5px;
-  margin-left: 5px;
+  margin-left: 10px;
 
   &:hover {
     color: ${colors.colorCoreBlack};
@@ -54,6 +52,7 @@ const PreviewWrapper = styled.div`
   align-items: center;
   border-radius: 4px;
   overflow: hidden;
+  align-self: center;
 
   i {
     font-size: 36px;
@@ -72,10 +71,9 @@ export const Meta = styled.div`
 `;
 
 const AttachmentName = styled.span`
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  max-width: 200px;
+  word-wrap: break-word;
+  word-break: break-word;
+  line-height: 20px;
 `;
 
 type Props = {
@@ -98,7 +96,7 @@ class Attachment extends React.Component<Props> {
             href={readFile(attachment.url)}
             target="_blank"
           >
-            <Icon icon="down-arrow" />
+            <Icon icon="external-link-alt" />
           </Download>
         </h5>
         <Meta>
