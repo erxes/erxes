@@ -22,6 +22,7 @@ We recommend to start with the [docker images](installation/docker.md) for the f
 - [Docker](installation/docker.md)
 - [Heroku](installation/heroku.md)
 - [AWS Marketplace](installation/aws.md)
+- [DigitalOcean Marketplace](installation/digitalocean.md)
 
 ## Prerequisites
 

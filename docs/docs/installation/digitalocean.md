@@ -1,16 +1,14 @@
 ---
-id: aws
-title: AWS Marketplace
+id: digitalocean
+title: DigitalOcean Marketplace
 ---
 
-Launch an EC2 instance selecting `erxes` in the AWS Marketplace.  
-Once you have created the EC2 instance using erxes AMI product in the AWS Marketplace, you will then have erxes up and running and it will be accessible by public hostname of the EC2 instance.
+Launch a Droplet selecting `erxes` in the DigitalOcean Marketplace.  
+Once you have created the Droplet, you will then have erxes up and running and it will be accessible by public IP address of the Droplet.
 
 ## Create an admin user
 
-Connect to your EC2 instance via ssh.
-
-`ssh -i your.pem ubuntu@your-instance-dns`
+Connect to your Droplet instance via ssh.
 
 Run the following commands.
 
@@ -40,14 +38,13 @@ If do not want to load sample data then you can run the following command just t
 yarn loadPermission
 ```
 
-Now you can access erxes using the EC2 public hostname.  
-Hooray!!!
+Now you can access erxes by your Droplet IP address.
 
 ## Use your own domain
 
 To be able to use your own domain with erxes, you will need to do a few steps.
 
-1. Update your domain DNS records - point your domain to your EC2 public IP address. The DNS changes may take up to 72 hours to propagate worldwide.
+1. Update your domain DNS records - point your domain to your Droplet public IP address. The DNS changes may take up to 72 hours to propagate worldwide.
 
 2. Log in to your server as `erxes` via `ssh`.
 

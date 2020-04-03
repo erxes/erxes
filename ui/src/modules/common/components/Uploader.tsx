@@ -152,7 +152,10 @@ class Uploader extends React.Component<Props, State> {
   };
 
   renderItem = (item: IAttachment, index: number) => {
-    const removeAttachment = () => this.removeAttachment(index);
+    const removeAttachment = () => {
+      confirm().then(() => this.removeAttachment(index));
+    };
+
     const remove = <Delete onClick={removeAttachment}>{__('Delete')}</Delete>;
 
     return (
