@@ -273,15 +273,15 @@ const HelperButtons = styledTS<{ isSidebarOpen?: boolean }>(styled.div)`
   position: absolute;
   right: ${dimensions.coreSpacing}px;
   top: ${props =>
-    props.isSidebarOpen ? `${dimensions.unitSpacing}px` : '15px'};
+    props.isSidebarOpen ? `${dimensions.unitSpacing - 2}px` : '15px'};
   color: ${colors.colorCoreLightGray};
-  padding-right: ${props => (props.isSidebarOpen ? '25px' : '0')};
+  padding-right: ${props => (props.isSidebarOpen ? '20px' : '0')};
 
   a, button {
     color: ${colors.colorCoreLightGray};
     text-transform: none;
     cursor: pointer;
-    margin-left: ${dimensions.unitSpacing}px;
+    margin-left: ${dimensions.unitSpacing - 2}px;
     font-size: ${typography.fontSizeHeading8}px;
     font-weight: ${typography.fontWeightLight};
     outline: 0;
@@ -290,7 +290,7 @@ const HelperButtons = styledTS<{ isSidebarOpen?: boolean }>(styled.div)`
     background: none;
 
     > i {
-      font-size: 14px;
+      font-size: 16px;
 
       &:hover {
         color: ${colors.colorCoreBlack};

@@ -1,7 +1,7 @@
 import Icon from 'modules/common/components/Icon';
 import { router } from 'modules/common/utils';
 import React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '../../types';
 import { difference, intersection, range, union } from '../../utils';
 import PerPageChooser from './PerPageChooser';

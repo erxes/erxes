@@ -2,7 +2,7 @@ import Button from 'modules/common/components/Button';
 import { IRouterProps } from 'modules/common/types';
 import { router } from 'modules/common/utils';
 import React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
   perPage?: number;

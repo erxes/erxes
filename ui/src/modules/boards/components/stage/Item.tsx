@@ -1,10 +1,11 @@
 import { IItem, IOptions } from 'modules/boards/types';
+import { IRouterProps } from 'modules/common/types';
 import routerUtils from 'modules/common/utils/router';
 import { IDeal } from 'modules/deals/types';
 import { ITicket } from 'modules/tickets/types';
 import queryString from 'query-string';
 import React from 'react';
-import history from '../../../../browserHistory';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   stageId?: string;
@@ -12,7 +13,7 @@ type Props = {
   beforePopupClose?: () => void;
   onClick?: () => void;
   options: IOptions;
-};
+} & IRouterProps;
 
 class Item extends React.PureComponent<Props, { isFormVisible: boolean }> {
   unlisten?: () => void;
@@ -20,7 +21,7 @@ class Item extends React.PureComponent<Props, { isFormVisible: boolean }> {
   constructor(props) {
     super(props);
 
-    const { item } = props;
+    const { item, history } = props;
 
     const itemIdQueryParam = routerUtils.getParam(history, 'itemId');
 
@@ -36,7 +37,7 @@ class Item extends React.PureComponent<Props, { isFormVisible: boolean }> {
   }
 
   componentDidMount() {
-    this.unlisten = history.listen(location => {
+    this.unlisten = this.props.history.listen(location => {
       const queryParams = queryString.parse(location.search);
 
       if (queryParams.itemId === this.props.item._id) {
@@ -52,7 +53,7 @@ class Item extends React.PureComponent<Props, { isFormVisible: boolean }> {
   }
 
   beforePopupClose = (afterPopupClose?: () => void) => {
-    const { beforePopupClose } = this.props;
+    const { beforePopupClose, history } = this.props;
 
     this.setState({ isFormVisible: false }, () => {
       const itemIdQueryParam = routerUtils.getParam(history, 'itemId');
@@ -86,4 +87,4 @@ class Item extends React.PureComponent<Props, { isFormVisible: boolean }> {
   }
 }
 
-export default Item;
+export default withRouter<Props>(Item);

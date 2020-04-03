@@ -26,7 +26,7 @@ Switch to user `erxes` and run the following commands based on your needs.
 ```sh
 su erxes
 cd ~/erxes-api
-export MONGO_URL=mongodb://localhost/erxes
+export MONGO_URL=mongodb://localhost/erxes?replicaSet=rs0
 ```
 
 The following will create an admin user admin@erxes.io with a random password (check your console to grab the password)

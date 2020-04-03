@@ -17,7 +17,7 @@ import {
 } from 'modules/settings/integrations/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { TopicsQueryResponse } from '../../../../knowledgeBase/types';
 import { BrandsQueryResponse } from '../../../brands/types';
 import { UsersQueryResponse } from '../../../team/types';

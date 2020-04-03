@@ -9,7 +9,7 @@ import { Alert, confirm, withProps } from 'modules/common/utils';
 import routerUtils from 'modules/common/utils/router';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import Boards from '../components/Boards';
 import { mutations, queries } from '../graphql';
 import { IOption, RemoveBoardMutationResponse } from '../types';
