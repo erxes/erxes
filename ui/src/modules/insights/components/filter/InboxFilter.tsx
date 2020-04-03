@@ -2,7 +2,6 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { ISelectedOption } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
 import { IBrand } from 'modules/settings/brands/types';
-import { KIND_CHOICES as INTEGRATIONS_TYPES } from 'modules/settings/integrations/constants';
 import React from 'react';
 import Select from 'react-select-plus';
 import { FlexItem } from '../../styles';
@@ -57,8 +56,6 @@ class InboxFilter extends React.Component<Props, States> {
   };
 
   renderIntegrations() {
-    const integrations = INTEGRATIONS_TYPES.ALL_LIST;
-
     const options = option => (
       <div className="simple-option">
         <span>{option.label}</span>
@@ -73,7 +70,7 @@ class InboxFilter extends React.Component<Props, States> {
           value={this.state.integrationIds || []}
           onChange={this.onTypeChange}
           optionRenderer={options}
-          options={integrationOptions([...integrations])}
+          options={integrationOptions()}
           multi={true}
         />
       </FlexItem>

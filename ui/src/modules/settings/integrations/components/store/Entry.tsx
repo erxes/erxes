@@ -6,7 +6,7 @@ import Gmail from 'modules/settings/integrations/containers/gmail/Form';
 import NylasForm from 'modules/settings/integrations/containers/mail/Form';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { KIND_CHOICES } from '../../constants';
+import { INTEGRATION_KINDS } from '../../constants';
 import Chatfuel from '../../containers/chatfuel/Form';
 import Facebook from '../../containers/facebook/Form';
 import KnowledgeBase from '../../containers/knowledgebase/Form';
@@ -82,11 +82,11 @@ function renderCreate(createUrl, createModal) {
     return null;
   }
 
-  if (createModal === KIND_CHOICES.FACEBOOK_MESSENGER) {
+  if (createModal === INTEGRATION_KINDS.FACEBOOK_MESSENGER) {
     const trigger = <h6>+ {__('Add')}</h6>;
 
     const content = props => (
-      <Facebook kind={KIND_CHOICES.FACEBOOK_MESSENGER} {...props} />
+      <Facebook kind={INTEGRATION_KINDS.FACEBOOK_MESSENGER} {...props} />
     );
 
     return (
@@ -99,11 +99,11 @@ function renderCreate(createUrl, createModal) {
     );
   }
 
-  if (createModal === KIND_CHOICES.FACEBOOK_POST) {
+  if (createModal === INTEGRATION_KINDS.FACEBOOK_POST) {
     const trigger = <h6>+ {__('Add')}</h6>;
 
     const content = props => (
-      <Facebook kind={KIND_CHOICES.FACEBOOK_POST} {...props} />
+      <Facebook kind={INTEGRATION_KINDS.FACEBOOK_POST} {...props} />
     );
 
     return (
@@ -169,7 +169,7 @@ function renderCreate(createUrl, createModal) {
     );
   }
 
-  if (createModal === KIND_CHOICES.NYLAS_OFFICE365) {
+  if (createModal === INTEGRATION_KINDS.NYLAS_OFFICE365) {
     const trigger = <h6>+ {__('Add')}</h6>;
 
     const content = props => <NylasForm kind={createModal} {...props} />;
@@ -183,7 +183,7 @@ function renderCreate(createUrl, createModal) {
     );
   }
 
-  if (createModal === KIND_CHOICES.NYLAS_IMAP) {
+  if (createModal === INTEGRATION_KINDS.NYLAS_IMAP) {
     const trigger = <h6>+ {__('Add')}</h6>;
 
     const content = props => <NylasForm kind={createModal} {...props} />;
@@ -193,7 +193,7 @@ function renderCreate(createUrl, createModal) {
     );
   }
 
-  if (createModal === KIND_CHOICES.NYLAS_GMAIL) {
+  if (createModal === INTEGRATION_KINDS.NYLAS_GMAIL) {
     const trigger = <h6>+ {__('Add')}</h6>;
 
     const content = props => <NylasForm kind={createModal} {...props} />;
@@ -203,7 +203,7 @@ function renderCreate(createUrl, createModal) {
     );
   }
 
-  if (createModal === KIND_CHOICES.NYLAS_OUTLOOK) {
+  if (createModal === INTEGRATION_KINDS.NYLAS_OUTLOOK) {
     const trigger = <h6>+ {__('Add')}</h6>;
 
     const content = props => <NylasForm kind={createModal} {...props} />;
@@ -213,7 +213,7 @@ function renderCreate(createUrl, createModal) {
     );
   }
 
-  if (createModal === KIND_CHOICES.NYLAS_YAHOO) {
+  if (createModal === INTEGRATION_KINDS.NYLAS_YAHOO) {
     const trigger = <h6>+ {__('Add')}</h6>;
 
     const content = props => <NylasForm kind={createModal} {...props} />;
@@ -223,7 +223,7 @@ function renderCreate(createUrl, createModal) {
     );
   }
 
-  if (createModal === KIND_CHOICES.GMAIL) {
+  if (createModal === INTEGRATION_KINDS.GMAIL) {
     const trigger = <h6>+ {__('Add')}</h6>;
 
     const content = props => <Gmail {...props} />;
@@ -243,7 +243,7 @@ function renderCreate(createUrl, createModal) {
     );
   }
 
-  if (createModal === KIND_CHOICES.SMOOCH_LINE) {
+  if (createModal === INTEGRATION_KINDS.SMOOCH_LINE) {
     const trigger = <h6>+ {__('Add')}</h6>;
 
     const content = props => <LineForm {...props} />;
@@ -253,7 +253,7 @@ function renderCreate(createUrl, createModal) {
     );
   }
 
-  if (createModal === KIND_CHOICES.SMOOCH_TELEGRAM) {
+  if (createModal === INTEGRATION_KINDS.SMOOCH_TELEGRAM) {
     const trigger = <h6>+ {__('Add')}</h6>;
 
     const content = props => <TelegramForm {...props} />;
@@ -263,7 +263,7 @@ function renderCreate(createUrl, createModal) {
     );
   }
 
-  if (createModal === KIND_CHOICES.SMOOCH_VIBER) {
+  if (createModal === INTEGRATION_KINDS.SMOOCH_VIBER) {
     const trigger = <h6>+ {__('Add')}</h6>;
 
     const content = props => <ViberForm {...props} />;
@@ -273,7 +273,7 @@ function renderCreate(createUrl, createModal) {
     );
   }
 
-  if (createModal === KIND_CHOICES.SMOOCH_TWILIO) {
+  if (createModal === INTEGRATION_KINDS.SMOOCH_TWILIO) {
     const trigger = <h6>+ {__('Add')}</h6>;
 
     const content = props => <TwilioForm {...props} />;
@@ -287,7 +287,7 @@ function renderCreate(createUrl, createModal) {
     );
   }
 
-  if (createModal === KIND_CHOICES.WHATSAPP) {
+  if (createModal === INTEGRATION_KINDS.WHATSAPP) {
     const trigger = <h6>+ {__('Add')}</h6>;
 
     const content = props => <WhatsappForm {...props} />;

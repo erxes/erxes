@@ -6,7 +6,7 @@ import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import Home from '../components/Home';
 import { queries } from '../graphql';
 import { IOption } from '../types';

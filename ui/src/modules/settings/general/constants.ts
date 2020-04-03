@@ -189,18 +189,18 @@ export const FILE_MIME_TYPES = [
   {
     value:
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    label: 'Microsoft Word (OpenXML)	',
+    label: 'Microsoft Word (OpenXML)',
     extension: '.docx'
   },
   {
     value: 'application/vnd.ms-excel',
     label: 'Microsoft Excel',
-    extension: 'xls'
+    extension: '.xls'
   },
   {
     value: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     label: 'Microsoft Excel OpenXML',
-    extension: 'xlsx'
+    extension: '.xlsx'
   },
   {
     value: 'application/vnd.ms-powerpoint',

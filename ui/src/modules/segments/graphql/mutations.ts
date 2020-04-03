@@ -1,44 +1,30 @@
-const segmentsAdd = `
-  mutation segmentsAdd(
-    $contentType: String!,
-    $name: String!,
-    $description: String,
-    $subOf: String,
-    $color: String,
-    $conditions: [SegmentCondition],
-  ) {
+const paramDefs = `
+  $name: String!,
+  $description: String,
+  $subOf: String,
+  $color: String,
+  $conditions: [SegmentCondition],
+`;
 
-    segmentsAdd(
-      contentType: $contentType,
-      name: $name,
-      description: $description,
-      subOf: $subOf,
-      color: $color,
-      conditions: $conditions,
-    ) {
+const params = `
+  name: $name,
+  description: $description,
+  subOf: $subOf,
+  color: $color,
+  conditions: $conditions,
+`;
+
+const segmentsAdd = `
+  mutation segmentsAdd($contentType: String!, ${paramDefs}) {
+    segmentsAdd(contentType: $contentType, ${params}) {
       _id
     }
   }
 `;
 
 const segmentsEdit = `
-  mutation segmentsEdit(
-    $_id: String!,
-    $name: String!,
-    $description: String,
-    $subOf: String,
-    $color: String,
-    $conditions: [SegmentCondition],
-  ) {
-
-    segmentsEdit(
-      _id: $_id,
-      name: $name,
-      description: $description,
-      subOf: $subOf,
-      color: $color,
-      conditions: $conditions,
-    ) {
+  mutation segmentsEdit($_id: String!, ${paramDefs}) {
+    segmentsEdit(_id: $_id, ${params}) {
       _id
     }
   }

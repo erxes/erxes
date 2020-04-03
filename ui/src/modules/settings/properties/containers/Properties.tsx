@@ -5,7 +5,7 @@ import { Alert, withProps } from 'modules/common/utils';
 import { router } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import Properties from '../components/Properties';
 import { FIELDS_GROUPS_CONTENT_TYPES } from '../constants';
 import { mutations, queries } from '../graphql';

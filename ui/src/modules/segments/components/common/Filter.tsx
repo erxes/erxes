@@ -79,7 +79,7 @@ class Filter extends React.Component<Props, State> {
 
     return fields.reduce((acc, field) => {
       const value = field.value;
-      const key = value.includes('.')
+      const key = value && value.includes('.')
         ? value.substr(0, value.indexOf('.'))
         : 'general';
 

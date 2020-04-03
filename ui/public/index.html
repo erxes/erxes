@@ -30,6 +30,33 @@
       You need to enable JavaScript to run this app.
     </noscript>
 
+    <script>
+      function setCookie(cname, cvalue) {
+        var d = new Date();
+        document.cookie = cname + "=" + cvalue + ";path=/";
+      }
+
+      // get env config from process.env or window.env
+      const getEnv = (name, defaultValue) => {
+        if (window.env && window.env[name]) {
+          return window.env[name];
+        }
+
+        return defaultValue;
+      };
+
+      window.envMaps = [
+        { name: 'REACT_APP_API_URL', processValue: '%REACT_APP_API_URL%' },
+        { name: 'REACT_APP_API_SUBSCRIPTION_URL', processValue: '%REACT_APP_API_SUBSCRIPTION_URL%' },
+        { name: 'REACT_APP_CDN_HOST', processValue: '%REACT_APP_CDN_HOST%' },
+      ];
+
+      for (var i=0;i<window.envMaps.length;i++) {
+        var envMap = window.envMaps[i];
+        setCookie(envMap.name, getEnv(envMap.name, envMap.processValue));
+      }
+    </script>
+
     <span name="env-api-url" style="display: none">%REACT_APP_API_URL%</span>
 
     <div id="root">

@@ -30,6 +30,7 @@ export const ScrolledContent = styled.div`
   padding: 4px 0 8px;
   margin: 6px 10px 4px 5px;
   flex: 1;
+  will-change: contents;
   overflow: auto;
 `;
 
@@ -44,6 +45,7 @@ export const RootBack = styled.div`
 // IItem list
 export const DropZone = styled.div`
   min-height: 160px;
+  will-change: height;
 `;
 
 export const EmptyContainer = styled.div`
@@ -92,7 +94,6 @@ export const FormContainer = styled.div`
 export const ItemDate = styled.span`
   font-size: 11px;
   color: rgb(136, 136, 136);
-  z-index: 10;
 `;
 
 export const NotifiedContainer = styled.div`
@@ -120,7 +121,6 @@ export const ItemContainer = styledTS<{
   padding: 8px;
   outline: 0px;
   font-size: 12px;
-  border-radius: ${borderRadius};
   transition: box-shadow 0.3s ease-in-out 0s;
   -webkit-box-pack: justify;
   justify-content: space-between;
