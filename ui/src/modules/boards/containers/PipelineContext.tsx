@@ -154,7 +154,7 @@ export class PipelineProvider extends React.Component<Props, State> {
     });
   };
 
-  onDragEnd = async result => {
+  onDragEnd = result => {
     // dropped nowhere
     if (!result.destination) {
       return;
@@ -196,12 +196,11 @@ export class PipelineProvider extends React.Component<Props, State> {
 
     // update item to database
     const itemId = result.draggableId.split('-')[0];
-    await this.itemChange(itemId, destination.droppableId);
+    this.itemChange(itemId, destination.droppableId);
 
     this.setState({
       itemMap
     });
-
     invalidateCache();
 
     // save orders to database
