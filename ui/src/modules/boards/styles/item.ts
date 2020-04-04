@@ -224,6 +224,7 @@ export const ActionContainer = styled(MoveContainer)`
 export const MoveFormContainer = styled.div`
   margin-right: 20px;
   position: relative;
+  z-index: 100;
   will-change: transform;
 `;
 
