@@ -7,6 +7,7 @@ import { Accounts, Integrations } from '../models';
 import { sendRequest } from '../utils';
 import { getAttachment, sendMessage, syncMessages, uploadFile } from './api';
 import {
+  connectExchangeToNylas,
   connectImapToNylas,
   connectProviderToNylas,
   connectYahooAndOutlookToNylas,
@@ -74,6 +75,9 @@ export const initNylas = async app => {
 
       // Connect provider to nylas ===========
       switch (kind) {
+        case 'exchange':
+          await connectExchangeToNylas(account);
+          break;
         case 'imap':
           await connectImapToNylas(account);
           break;

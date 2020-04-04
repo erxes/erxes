@@ -47,6 +47,7 @@ export interface IIntegrateProvider {
 }
 
 export interface IProviderSettings {
+  eas_server_host?: string;
   imap_username?: string;
   imap_password?: string;
   smtp_username?: string;
