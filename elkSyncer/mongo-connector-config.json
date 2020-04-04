@@ -1,7 +1,7 @@
 {
     "oplogFile": "oplog.timestamp",
     "noDump": false,
-    "batchSize": 50,
+    "batchSize": 5000,
     "verbosity": 3,
     "continueOnError": true,
     "logging": {
