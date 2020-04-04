@@ -7,6 +7,9 @@ RUN pip install mongo-connector==3.1.1 \
     && pip install elastic2-doc-manager==1.0.0 \
     && pip install python-dotenv==0.11.0
 
-COPY . .
+RUN mkdir /var/log/mongo-connector
+
+COPY mongo-connector-config.json .
+COPY main.py .
 
 CMD ["python", "main.py"]
