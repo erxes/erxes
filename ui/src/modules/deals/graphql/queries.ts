@@ -100,6 +100,14 @@ const deals = `
             avatar
           }
         }
+        customers {
+          _id
+          firstName
+          lastName
+          primaryEmail
+          primaryPhone
+          visitorContactInfo
+        }
         labels {
           _id
           name
