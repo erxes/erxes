@@ -18,7 +18,7 @@ export const fetchBySegments = async (segment: ISegment, action: 'search' | 'cou
 
   schema.eachPath(name => {
     const path = schema.paths[name];
-    typesMap[name] = path.instance;
+    typesMap[name] = path.options.esType;
   });
 
   const propertyPositive: any[] = [];
@@ -200,26 +200,26 @@ function elkConvertConditionToQuery(args: {
 
   // equal
   if (operator === 'e') {
-    if (type === 'String') {
+    if (['keyword', 'email'].includes(type)) {
       positive.push({
-        term: { [`${field}.keyword`]: value },
+        term: { [field]: value },
       });
     } else {
       positive.push({
-        term: { [field]: value },
+        term: { [`${field}.keyword`]: value },
       });
     }
   }
 
   // does not equal
   if (operator === 'dne') {
-    if (type === 'String') {
+    if (['keyword', 'email'].includes(type)) {
       negative.push({
-        term: { [`${field}.keyword`]: value },
+        term: { [field]: value },
       });
     } else {
       negative.push({
-        term: { [field]: value },
+        term: { [`${field}.keyword`]: value },
       });
     }
   }

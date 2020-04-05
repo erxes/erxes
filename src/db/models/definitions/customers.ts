@@ -136,7 +136,7 @@ export const customerSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
 
-    state: field({ type: String }),
+    state: field({ type: String, esType: 'keyword' }),
 
     createdAt: field({ type: Date, label: 'Created at' }),
     modifiedAt: field({ type: Date, label: 'Modified at' }),
@@ -147,13 +147,14 @@ export const customerSchema = schemaWrapper(
     birthDate: field({ type: Date, label: 'Date of birth', optional: true }),
     sex: field({ type: Number, label: 'Sex', optional: true, default: 0 }),
 
-    primaryEmail: field({ type: String, label: 'Primary Email', optional: true }),
+    primaryEmail: field({ type: String, label: 'Primary Email', optional: true, esType: 'email' }),
     emails: field({ type: [String], optional: true, label: 'Emails' }),
     emailValidationStatus: field({
       type: String,
       enum: EMAIL_VALIDATION_STATUSES.ALL,
       default: EMAIL_VALIDATION_STATUSES.UNKNOWN,
       label: 'Email validation status',
+      esType: 'keyword',
     }),
 
     primaryPhone: field({ type: String, label: 'Primary Phone', optional: true }),
@@ -161,7 +162,7 @@ export const customerSchema = schemaWrapper(
     profileScore: field({ type: Number, index: true, optional: true, label: 'Profile score' }),
 
     ownerId: field({ type: String, optional: true, label: 'Owner' }),
-    position: field({ type: String, optional: true, label: 'Position' }),
+    position: field({ type: String, optional: true, label: 'Position', esType: 'keyword' }),
     department: field({ type: String, optional: true, label: 'Department' }),
 
     leadStatus: field({
@@ -169,6 +170,7 @@ export const customerSchema = schemaWrapper(
       enum: CUSTOMER_LEAD_STATUS_TYPES,
       optional: true,
       label: 'Lead Status',
+      esType: 'keyword',
     }),
 
     status: field({
@@ -178,6 +180,7 @@ export const customerSchema = schemaWrapper(
       optional: true,
       label: 'Status',
       index: true,
+      esType: 'keyword',
     }),
 
     hasAuthority: field({ type: String, optional: true, label: 'Has authority' }),
