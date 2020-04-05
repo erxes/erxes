@@ -27,12 +27,11 @@ import {
 import { connect } from './db/connection';
 import { debugBase, debugExternalApi, debugInit } from './debuggers';
 import { identifyCustomer, trackCustomEvent, trackViewPageEvent, updateCustomerProperty } from './events';
-import './messageBroker';
+import { initConsumer } from './messageBroker';
 import userMiddleware from './middlewares/userMiddleware';
 import widgetsMiddleware from './middlewares/widgetsMiddleware';
 import { initRedis } from './redisClient';
-
-initRedis();
+import init from './startup';
 
 // load environment variables
 dotenv.config();
@@ -63,9 +62,6 @@ fs.exists(path.join(__dirname, '..', '/google_cred.json'), exists => {
     });
   }
 });
-
-// connect to mongo database
-connect();
 
 const app = express();
 
@@ -202,7 +198,7 @@ app.get('/read-mail-attachment', async (req: any, res) => {
   const integrationPath = kind.includes('nylas') ? 'nylas' : kind;
 
   res.redirect(
-    `${INTEGRATIONS_API_DOMAIN}/${integrationPath}/get-attachment?messageId=${messageId}&attachmentId=${attachmentId}&integrationId=${integrationId}&filename=${filename}&contentType=${contentType}`,
+    `${INTEGRATIONS_API_DOMAIN}/${integrationPath}/get-attachment?messageId=${messageId}&attachmentId=${attachmentId}&integrationId=${integrationId}&filename=${filename}&contentType=${contentType}&=userId${req.user._id}`,
   );
 });
 
@@ -226,6 +222,8 @@ app.post('/delete-file', async (req: any, res) => {
 app.post('/upload-file', async (req: any, res, next) => {
   if (req.query.kind === 'nylas') {
     debugExternalApi(`Pipeing request to ${INTEGRATIONS_API_DOMAIN}`);
+
+    req.headers.userId = req.user_id;
 
     return req.pipe(
       request
@@ -274,7 +272,7 @@ app.get('/connect-integration', async (req: any, res, _next) => {
 
   const { link, kind } = req.query;
 
-  return res.redirect(`${INTEGRATIONS_API_DOMAIN}/${link}?kind=${kind}`);
+  return res.redirect(`${INTEGRATIONS_API_DOMAIN}/${link}?kind=${kind}&userId=${req.user._id}`);
 });
 
 // file import
@@ -364,6 +362,23 @@ const PORT = getEnv({ name: 'PORT' });
 apolloServer.installSubscriptionHandlers(httpServer);
 
 httpServer.listen(PORT, () => {
+  // connect to mongo database
+  connect().then(async () => {
+    initConsumer().catch(e => {
+      debugBase(`Error ocurred during rabbitmq init ${e.message}`);
+    });
+
+    initRedis();
+
+    init()
+      .then(() => {
+        debugBase('Startup successfully started');
+      })
+      .catch(e => {
+        debugBase(`Error occured while starting init: ${e.message}`);
+      });
+  });
+
   debugInit(`GraphQL Server is now running on ${PORT}`);
 });
 

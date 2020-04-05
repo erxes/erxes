@@ -66,7 +66,7 @@ export const sendMessage = async (queueName: string, data?: any) => {
   await channel.sendToQueue(queueName, Buffer.from(JSON.stringify(data || {})));
 };
 
-const initConsumer = async () => {
+export const initConsumer = async () => {
   // Consumer
   connection = await amqplib.connect(RABBITMQ_HOST);
   channel = await connection.createChannel();
@@ -156,7 +156,3 @@ const initConsumer = async () => {
     }
   });
 };
-
-initConsumer().catch(e => {
-  debugBase(`Error ocurred during rabbitmq init ${e.message}`);
-});
