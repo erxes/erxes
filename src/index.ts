@@ -15,6 +15,7 @@ import { initRedis } from './redisClient';
 import initSmooch from './smooch/controller';
 import { init } from './startup';
 import initTwitter from './twitter/controller';
+import userMiddleware from './userMiddleware';
 import initDaily from './videoCall/controller';
 import initWhatsapp from './whatsapp/controller';
 
@@ -32,6 +33,8 @@ const rawBodySaver = (req, _res, buf, encoding) => {
 
 app.use(bodyParser.urlencoded({ limit: '10mb', verify: rawBodySaver, extended: true }));
 app.use(bodyParser.json({ limit: '10mb', verify: rawBodySaver }));
+
+app.use(userMiddleware);
 
 // Intentionally placing this route above raw bodyParser
 // File upload in nylas controller is not working with rawParser
