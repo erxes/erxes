@@ -32,6 +32,9 @@ import {
 import { Accounts, Integrations } from './models';
 import { enableOrDisableAccount, removeExistingNylasWebhook } from './nylas/auth';
 import {
+  NylasExchangeConversationMessages,
+  NylasExchangeConversations,
+  NylasExchangeCustomers,
   NylasGmailConversationMessages,
   NylasGmailConversations,
   NylasGmailCustomers,
@@ -288,6 +291,24 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
     }
   }
 
+  if (kind === 'exchange') {
+    debugNylas('Removing nylas-exchange entries');
+
+    const conversationIds = await NylasYahooConversations.find(selector).distinct('_id');
+
+    await NylasExchangeCustomers.deleteMany(selector);
+    await NylasExchangeConversations.deleteMany(selector);
+    await NylasExchangeConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+
+    try {
+      // Cancel nylas subscription
+      await enableOrDisableAccount(account.uid, false);
+    } catch (e) {
+      debugNylas('Failed to subscription nylas-exchange account');
+      throw e;
+    }
+  }
+
   if (kind === 'yahoo') {
     debugNylas('Removing nylas-yahoo entries');
 
@@ -417,6 +438,7 @@ export const removeCustomers = async params => {
   await NylasOffice365Customers.deleteMany(selector);
   await NylasYahooCustomers.deleteMany(selector);
   await NylasImapCustomers.deleteMany(selector);
+  await NylasExchangeCustomers.deleteMany(selector);
   await ChatfuelCustomers.deleteMany(selector);
   await CallProCustomers.deleteMany(selector);
   await TwitterCustomers.deleteMany(selector);

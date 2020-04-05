@@ -4,6 +4,8 @@ import { field } from './utils';
 export interface IAccount {
   kind: string;
   email: string;
+  username?: string;
+  host: string;
   password: string;
   imapHost: string;
   smtpHost: string;
@@ -32,6 +34,13 @@ export const accountSchema = new Schema({
     optional: true,
   },
   email: {
+    type: String,
+  },
+  username: {
+    type: String,
+    optional: true,
+  },
+  host: {
     type: String,
   },
   imapHost: {

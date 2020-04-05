@@ -4,6 +4,9 @@ import { Accounts } from '../models';
 import { cleanHtml } from '../utils';
 import { checkConcurrentError } from '../utils';
 import {
+  NylasExchangeConversationMessages,
+  NylasExchangeConversations,
+  NylasExchangeCustomers,
   NylasGmailConversationMessages,
   NylasGmailConversations,
   NylasGmailCustomers,
@@ -35,6 +38,11 @@ const NYLAS_MODELS = {
     customers: NylasGmailCustomers,
     conversations: NylasGmailConversations,
     conversationMessages: NylasGmailConversationMessages,
+  },
+  exchange: {
+    customers: NylasExchangeCustomers,
+    conversations: NylasExchangeConversations,
+    conversationMessages: NylasExchangeConversationMessages,
   },
   imap: {
     customers: NylasImapCustomers,

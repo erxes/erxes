@@ -143,7 +143,7 @@ const authProvider = async (req, res, next) => {
       name: email,
       email,
       password: await encryptPassword(password),
-      ...(kind === 'nylas-imap' ? otherParams : {}),
+      ...(['nylas-imap', 'nylas-exchange'].includes(kind) ? otherParams : {}),
     };
 
     debugNylas(`Creating account with email: ${email}`);
