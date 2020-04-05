@@ -166,6 +166,10 @@ const integrationMutations = {
     return dataSources.IntegrationsAPI.createAccount(data);
   },
 
+  integrationAddExchangeAccount(_root, data, { dataSources }) {
+    return dataSources.IntegrationsAPI.createAccount(data);
+  },
+
   /**
    * Create Yahoo, Outlook account
    */
@@ -189,6 +193,7 @@ const integrationMutations = {
         'nylas-imap',
         'nylas-office365',
         'nylas-outlook',
+        'nylas-exchange',
         'nylas-yahoo',
         'chatfuel',
         'twitter-dm',
