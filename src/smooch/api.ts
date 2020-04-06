@@ -191,4 +191,20 @@ const getTelegramFile = async (token: string, fileId: string) => {
   }
 };
 
-export { saveCustomer, saveConversation, saveMessage, setupSmoochWebhook, removeIntegration, getTelegramFile };
+const getLineWebhookUrl = async (erxesApiId: string) => {
+  const appid = await getConfig('SMOOCH_APP_ID');
+
+  const integration = await Integrations.findOne({ erxesApiId });
+
+  return `https://app.smooch.io:443/api/line/webhooks/${appid}/${integration.smoochIntegrationId}`;
+};
+
+export {
+  saveCustomer,
+  saveConversation,
+  saveMessage,
+  setupSmoochWebhook,
+  removeIntegration,
+  getTelegramFile,
+  getLineWebhookUrl,
+};
