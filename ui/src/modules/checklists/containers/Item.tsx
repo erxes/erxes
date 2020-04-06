@@ -57,18 +57,16 @@ class ItemContainer extends React.Component<FinalProps> {
   }
 }
 
-const options = (props: Props) => {
-  return {
-    refetchQueries: [
-      {
-        query: gql(queries.checklistDetail),
-        variables: {
-          _id: props.item.checklistId
-        }
+const options = (props: Props) => ({
+  refetchQueries: [
+    {
+      query: gql(queries.checklistDetail),
+      variables: {
+        _id: props.item.checklistId
       }
-    ]
-  };
-};
+    }
+  ]
+});
 
 export default withProps<Props>(
   compose(

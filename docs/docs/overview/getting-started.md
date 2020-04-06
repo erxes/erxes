@@ -43,6 +43,7 @@ title: Getting  Started
 - <a href="../installation/docker">Docker</a>
 - <a href="../installation/heroku">Heroku</a>
 - <a href="../installation/aws">AWS Marketplace</a>
+- <a href="../installation/digitalocean">DigitalOcean Marketplace</a>
 - <a href="../installation/upgrade">Upgrade</a>
 
 ### Administrator's guide
@@ -60,6 +61,7 @@ title: Getting  Started
 - <a href="../developer/push-notifications">Push Notification</a>
 - <a href="../developer/android-sdk">Android SDK</a>
 - <a href="../developer/ios-sdk">iOS SDK</a>
+- <a href="../developer/troubleshooting">Troubleshooting</a>
 
     </div>
   </div>

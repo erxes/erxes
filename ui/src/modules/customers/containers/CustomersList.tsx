@@ -3,11 +3,10 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
-import { KIND_CHOICES } from 'modules/settings/integrations/constants';
 import queryString from 'query-string';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import Bulk from '../../common/components/Bulk';
 import { IRouterProps } from '../../common/types';
 import { ListConfigQueryResponse } from '../../companies/types';
@@ -146,7 +145,6 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       customers: list,
       totalCount,
       exportData,
-      integrations: KIND_CHOICES.ALL_LIST,
       searchValue,
       loading: customersMainQuery.loading || this.state.loading,
       mergeCustomers,

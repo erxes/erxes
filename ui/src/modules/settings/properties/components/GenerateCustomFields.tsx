@@ -104,7 +104,7 @@ class GenerateGroup extends React.Component<Props, State> {
     const { data } = this.state;
 
     if (fieldGroup.fields.length === 0) {
-      return <EmptyState icon="folder" text="Empty" size="small" />;
+      return <EmptyState icon="folder-2" text="Empty" size="small" />;
     }
 
     return (
@@ -169,7 +169,7 @@ class GenerateGroups extends React.Component<GroupsProps> {
     if (fieldsGroups.length === 0) {
       return (
         <Section>
-          <EmptyState icon="folder" text="Empty" size="small" />
+          <EmptyState icon="folder-2" text="Empty" size="small" />
         </Section>
       );
     }

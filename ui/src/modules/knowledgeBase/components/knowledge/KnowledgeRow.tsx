@@ -102,7 +102,7 @@ class KnowledgeRow extends React.Component<Props, State> {
       <RowActions>
         <Dropdown alignRight={true} style={{ float: 'left' }}>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-knowledgebase">
-            <Icon icon="settings" />
+            <Icon icon="cog" size={15} />
           </Dropdown.Toggle>
           <Dropdown.Menu>
             <ModalTrigger

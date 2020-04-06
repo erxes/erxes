@@ -63,7 +63,7 @@ export const hours = [
   { value: '11:59 PM', label: '11:59 PM' }
 ];
 
-export const KIND_CHOICES = {
+export const INTEGRATION_KINDS = {
   MESSENGER: 'messenger',
   FACEBOOK_MESSENGER: 'facebook-messenger',
   FACEBOOK_POST: 'facebook-post',
@@ -71,6 +71,7 @@ export const KIND_CHOICES = {
   NYLAS_GMAIL: 'nylas-gmail',
   NYLAS_IMAP: 'nylas-imap',
   NYLAS_OUTLOOK: 'nylas-outlook',
+  NYLAS_EXCHANGE: 'nylas-exchange',
   NYLAS_OFFICE365: 'nylas-office365',
   NYLAS_YAHOO: 'nylas-yahoo',
   LEAD: 'lead',
@@ -82,41 +83,31 @@ export const KIND_CHOICES = {
   SMOOCH_LINE: 'smooch-line',
   SMOOCH_TWILIO: 'smooch-twilio',
   WHATSAPP: 'whatsapp',
-  ALL_LIST: [
-    'messenger',
-    'facebook-post',
-    'facebook-messenger',
-    'lead',
-    'callpro',
-    'twitter-dm',
-    'chatfuel',
-    'gmail',
-    'nylas-gmail',
-    'nylas-imap',
-    'nylas-office365',
-    'nylas-outlook',
-    'smooch-telegram',
-    'smooch-viber',
-    'smooch-line',
-    'smooch-twilio',
-    'whatsapp'
+  ALL: [
+    { text: 'Messenger', value: 'messenger' },
+    { text: 'Facebook post', value: 'facebook-post' },
+    {
+      text: 'Facebook messenger',
+      value: 'facebook-messenger'
+    },
+    { text: 'Gmail', value: 'gmail' },
+    { text: 'Nylas gmail', value: 'nylas-gmail' },
+    { text: 'IMAP', value: 'nylas-imap' },
+    { text: 'Office 365', value: 'nylas-office365' },
+    { text: 'Exchange', value: 'nylas-exchange' },
+    { text: 'Outlook', value: 'nylas-outlook' },
+    { text: 'Yahoo', value: 'nylas-yahoo' },
+    { text: 'Pop Ups', value: 'lead' },
+    { text: 'Callpro', value: 'callpro' },
+    { text: 'Twitter direct message', value: 'twitter-dm' },
+    { text: 'Chatfuel', value: 'chatfuel' },
+    { text: 'Telegram', value: 'smooch-telegram' },
+    { text: 'Viber', value: 'smooch-viber' },
+    { text: 'Line', value: 'smooch-line' },
+    { text: 'Twilio', value: 'smooch-twilio' },
+    { text: 'WhatsApp', value: 'whatsapp' }
   ]
 };
-
-export const KIND_CHOICES_WITH_TEXT = [
-  { text: 'Messenger', value: 'messenger' },
-  { text: 'Facebook post', value: 'facebook-post' },
-  { text: 'facebook messenger', value: 'facebook-messenger' },
-  { text: 'Pop Ups', value: 'lead' },
-  { text: 'Callpro', value: 'callpro' },
-  { text: 'Chatfuel', value: 'chatfuel' },
-  { text: 'Gmail', value: 'nylas-gmail' },
-  { text: 'Telegram', value: 'smooch-telegram' },
-  { text: 'Viber', value: 'smooch-viber' },
-  { text: 'Line', value: 'smooch-line' },
-  { text: 'Twilio SMS', value: 'smooch-twilio' },
-  { text: 'WhatsApp', value: 'whatsapp' }
-];
 
 export const FORM_LOAD_TYPES = {
   SHOUTBOX: 'shoutbox',
@@ -233,6 +224,19 @@ export const INTEGRATIONS = [
     logo: '/images/integrations/gmail.png',
     createModal: 'nylas-gmail',
     createUrl: '/settings/integrations/nylas-gmail',
+    category:
+      'All integrations, For support teams, Email marketing, Marketing automation, Conversation'
+  },
+  {
+    name: 'Microsoft Exchange by Nylas',
+    description:
+      'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
+    inMessenger: false,
+    isAvailable: true,
+    kind: 'nylas-exchange',
+    logo: '/images/integrations/exchange.png',
+    createModal: 'nylas-exchange',
+    createUrl: '/settings/integrations/nylas-exchange',
     category:
       'All integrations, For support teams, Email marketing, Marketing automation, Conversation'
   },

@@ -13,7 +13,7 @@ import { menuContacts } from 'modules/common/utils/menus';
 import { queries } from 'modules/customers/graphql';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { IRouterProps } from '../../../common/types';
 import { __, Alert, confirm, router } from '../../../common/utils';
@@ -34,7 +34,6 @@ interface IProps extends IRouterProps {
   customers: ICustomer[];
   totalCount: number;
   columnsConfig: IConfigColumn[];
-  integrations: string[];
   bulk: any[];
   isAllSelected: boolean;
   emptyBulk: () => void;
@@ -177,7 +176,7 @@ class CustomersList extends React.Component<IProps, State> {
     } = this.props;
 
     const addTrigger = (
-      <Button btnStyle="success" size="small" icon="add">
+      <Button btnStyle="success" size="small" icon="plus-circle">
         Add {type || 'customer'}
       </Button>
     );

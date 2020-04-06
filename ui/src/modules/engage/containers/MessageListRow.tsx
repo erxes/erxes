@@ -4,7 +4,7 @@ import { IRouterProps } from 'modules/common/types';
 import { Alert, confirm, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import MessageListRow from '../components/MessageListRow';
 import { mutations, queries } from '../graphql';
 import {
