@@ -223,16 +223,16 @@ class InstallCode extends React.PureComponent<Props, State> {
     if (currentTab === "googletag") {
       return (
         <div>
-          <b>{__("gtm_b")}</b>
+          <b>{__('gtm_b')}</b>
           <ol>
-            <li>{__("gtm_li_1")}</li>
-            <li>{__("gtm_li_2")}</li>
-            <li>{__("gtm_li_3")}</li>
-            <li>{__("gtm_li_4")}</li>
-            <li>{__("gtm_li_5")}</li>
-            <li>{__("gtm_li_6")}</li>
-            <li>{__("gtm_li_7")}</li>
-            <li>{__("gtm_li_8")}</li>
+            <li>{__('gtm_li_1')}</li>
+            <li>{__('gtm_li_2')}</li>
+            <li>{__('gtm_li_3')}</li>
+            <li>{__('gtm_li_4')}</li>
+            <li>{__('gtm_li_5')}</li>
+            <li>{__('gtm_li_6')}</li>
+            <li>{__('gtm_li_7')}</li>
+            <li>{__('gtm_li_8')}</li>
           </ol>
         </div>
       );
@@ -462,9 +462,9 @@ class InstallCode extends React.PureComponent<Props, State> {
     let script;
     let action;
     switch (currentTab) {
-      case "basic":
+      case 'basic':
         description = __(
-          "For websites and web apps with full-page refreshes. Paste the code below before the body tag on every page you want erxes chat to appear"
+          'For websites and web apps with full-page refreshes. Paste the code below before the body tag on every page you want erxes chat to appear'
         );
         script = basicCode;
         action = copied;
@@ -475,9 +475,9 @@ class InstallCode extends React.PureComponent<Props, State> {
         script = singlePageCode;
         action = singleCopied;
         break;
-      case "googletag":
+      case 'googletag':
         description = __(
-          "To connect Google Tag Manager to erxes, you must have an active Google Tag Manager account with a published container"
+          'To connect Google Tag Manager to erxes, you must have an active Google Tag Manager account with a published container'
         );
         extraContent = true;
         script = basicCode;
