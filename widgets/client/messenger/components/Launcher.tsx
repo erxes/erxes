@@ -1,9 +1,9 @@
-import * as classNames from "classnames";
-import * as React from "react";
-import { IIntegrationUiOptions } from "../../types";
-import { readFile } from "../../utils";
-import { Notifier } from "../containers";
-import { IMessage } from "../types";
+import * as classNames from 'classnames';
+import * as React from 'react';
+import { IIntegrationUiOptions } from '../../types';
+import { readFile } from '../../utils';
+import { Notifier } from '../containers';
+import { IMessage } from '../types';
 
 type Props = {
   onClick: (isMessengerVisible?: boolean) => void;
@@ -28,7 +28,7 @@ function Launcher(props: Props) {
     onClick(isMessengerVisible);
   };
 
-  const launcherClasses = classNames("erxes-launcher", {
+  const launcherClasses = classNames('erxes-launcher', {
     close: isMessengerVisible
   });
 
@@ -58,8 +58,8 @@ function Launcher(props: Props) {
         style={{
           backgroundColor: color,
           color,
-          backgroundImage: logo ? `url(${readFile(logo)})` : "",
-          backgroundSize: logo ? "" : "20px"
+          backgroundImage: logo ? `url(${readFile(logo)})` : '',
+          backgroundSize: logo ? '' : '20px'
         }}
       >
         <div />

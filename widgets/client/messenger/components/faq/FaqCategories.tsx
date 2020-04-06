@@ -1,6 +1,6 @@
-import * as React from "react";
-import { Categories } from "../../containers/faq";
-import { SearchBar } from "./";
+import * as React from 'react';
+import { Categories } from '../../containers/faq';
+import { SearchBar } from './';
 
 type Props = {
   topicId: string;
@@ -14,7 +14,7 @@ class FaqCategories extends React.Component<Props, IState> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { searchString: "" };
+    this.state = { searchString: '' };
     this.search = this.search.bind(this);
   }
 

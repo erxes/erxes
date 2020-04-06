@@ -1,8 +1,8 @@
-import * as React from "react";
-import { App as DumbApp } from "../components";
-import { connection } from "../connection";
-import { AppConsumer, AppProvider } from "./AppContext";
-import { postMessage, saveBrowserInfo } from "./utils";
+import * as React from 'react';
+import { App as DumbApp } from '../components';
+import { connection } from '../connection';
+import { AppConsumer, AppProvider } from './AppContext';
+import { postMessage, saveBrowserInfo } from './utils';
 
 type Props = {
   loadType: string;
@@ -21,27 +21,27 @@ class App extends React.Component<Props> {
   componentDidMount() {
     saveBrowserInfo();
 
-    window.addEventListener("message", event => {
+    window.addEventListener('message', event => {
       const { fromPublisher, message, action, formId, html } = event.data;
 
       if (fromPublisher) {
         // receive sendingBrowserInfo command from publisher
-        if (message === "sendingBrowserInfo") {
+        if (message === 'sendingBrowserInfo') {
           this.props.init();
         }
 
         if (formId === connection.setting.form_id) {
           // receive show popup command from publisher
-          if (action === "showPopup") {
+          if (action === 'showPopup') {
             this.props.showPopup();
           }
 
           // receive call submit command
-          if (action === "callSubmit") {
+          if (action === 'callSubmit') {
             this.props.setCallSubmit(true);
           }
 
-          if (action === "extraFormContent") {
+          if (action === 'extraFormContent') {
             this.props.setExtraContent(html);
           }
         }
@@ -62,56 +62,56 @@ class App extends React.Component<Props> {
     } = this.props;
 
     let parentClass;
-    let containerClass = "";
+    let containerClass = '';
 
     const extendedProps = { ...this.props, containerClass };
 
-    if (loadType === "popup") {
+    if (loadType === 'popup') {
       if (isPopupVisible) {
-        parentClass = "erxes-modal-iframe";
-        containerClass = "modal-form open";
+        parentClass = 'erxes-modal-iframe';
+        containerClass = 'modal-form open';
       } else {
-        parentClass = "erxes-modal-iframe hidden";
-        containerClass = "modal-form";
+        parentClass = 'erxes-modal-iframe hidden';
+        containerClass = 'modal-form';
       }
     }
 
-    if (loadType === "slideInLeft") {
-      parentClass = "erxes-slide-left-iframe";
-      containerClass = "container-slide-in-left";
+    if (loadType === 'slideInLeft') {
+      parentClass = 'erxes-slide-left-iframe';
+      containerClass = 'container-slide-in-left';
     }
 
-    if (loadType === "slideInRight") {
-      parentClass = "erxes-slide-right-iframe";
-      containerClass = "container-slide-in-right";
+    if (loadType === 'slideInRight') {
+      parentClass = 'erxes-slide-right-iframe';
+      containerClass = 'container-slide-in-right';
     }
 
-    if (loadType === "dropdown") {
-      parentClass = "erxes-dropdown-iframe";
-      containerClass = "container-dropdown";
+    if (loadType === 'dropdown') {
+      parentClass = 'erxes-dropdown-iframe';
+      containerClass = 'container-dropdown';
 
       if (isCalloutVisible) {
-        containerClass += " call-out";
+        containerClass += ' call-out';
       }
     }
 
-    if (loadType === "embedded") {
-      parentClass = "erxes-embedded-iframe";
-      containerClass = "container-embedded";
+    if (loadType === 'embedded') {
+      parentClass = 'erxes-embedded-iframe';
+      containerClass = 'container-embedded';
     }
 
-    if (loadType === "shoutbox") {
+    if (loadType === 'shoutbox') {
       if (isCalloutVisible || isFormVisible) {
-        parentClass = "erxes-shoutbox-iframe";
+        parentClass = 'erxes-shoutbox-iframe';
       } else {
-        parentClass = "erxes-shoutbox-iframe erxes-hidden";
+        parentClass = 'erxes-shoutbox-iframe erxes-hidden';
       }
 
-      containerClass = "container-shoutbox";
+      containerClass = 'container-shoutbox';
     }
 
     postMessage({
-      message: "changeContainerClass",
+      message: 'changeContainerClass',
       className: parentClass
     });
 

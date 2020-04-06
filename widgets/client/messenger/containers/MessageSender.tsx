@@ -1,6 +1,6 @@
-import * as React from "react";
-import { MessageSender } from "../components";
-import { AppConsumer, MESSAGE_TYPES } from "./AppContext";
+import * as React from 'react';
+import { MessageSender } from '../components';
+import { AppConsumer, MESSAGE_TYPES } from './AppContext';
 
 type Props = {
   placeholder?: string;

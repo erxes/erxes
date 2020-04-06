@@ -1,5 +1,5 @@
-import * as React from "react";
-import { __ } from "../../utils";
+import * as React from 'react';
+import { __ } from '../../utils';
 
 export default function VideoCallRequest() {
   return (
@@ -8,8 +8,8 @@ export default function VideoCallRequest() {
         <strong>
           <span role="img" aria-label="Phone">
             📞
-          </span>{" "}
-          {__("Video call request sent")}
+          </span>{' '}
+          {__('Video call request sent')}
         </strong>
       </div>
     </div>

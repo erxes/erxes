@@ -1,7 +1,7 @@
-import * as React from "react";
-import { iconLeft } from "../../../icons/Icons";
-import { __ } from "../../../utils";
-import { TopBar } from "../../containers";
+import * as React from 'react';
+import { iconLeft } from '../../../icons/Icons';
+import { __ } from '../../../utils';
+import { TopBar } from '../../containers';
 
 type Props = {
   config: { [key: string]: string };
@@ -12,7 +12,7 @@ export default class WebsiteAppDetail extends React.PureComponent<Props> {
   render() {
     const { changeRoute, config } = this.props;
 
-    const onClick = () => changeRoute("home");
+    const onClick = () => changeRoute('home');
 
     return (
       <>

@@ -1,8 +1,8 @@
-import * as classNames from "classnames";
-import * as React from "react";
-import { iconRight } from "../../icons/Icons";
-import { __ } from "../../utils";
-import { TopBar } from "../containers";
+import * as classNames from 'classnames';
+import * as React from 'react';
+import { iconRight } from '../../icons/Icons';
+import { __ } from '../../utils';
+import { TopBar } from '../containers';
 
 type Props = {
   save: (doc: State) => void;
@@ -23,8 +23,8 @@ class AccquireInformation extends React.PureComponent<Props, State> {
     super(props);
 
     this.state = {
-      type: "email",
-      value: "",
+      type: 'email',
+      value: '',
       isValidated: true,
       isLoading: props.loading
     };
@@ -51,7 +51,7 @@ class AccquireInformation extends React.PureComponent<Props, State> {
 
   isPhoneValid(phoneNumber: string) {
     const reg = /^\d{8,}$/;
-    return reg.test(phoneNumber.replace(/[\s()+\-\.]|ext/gi, ""));
+    return reg.test(phoneNumber.replace(/[\s()+\-\.]|ext/gi, ''));
   }
 
   isEmailValid(email: string) {
@@ -65,7 +65,7 @@ class AccquireInformation extends React.PureComponent<Props, State> {
     const { value, type } = this.state;
 
     if (
-      (type === "email" && this.isEmailValid(value)) ||
+      (type === 'email' && this.isEmailValid(value)) ||
       this.isPhoneValid(value)
     ) {
       return this.props.save(this.state);
@@ -81,8 +81,8 @@ class AccquireInformation extends React.PureComponent<Props, State> {
 
     const title = (
       <div className="erxes-topbar-title">
-        <div>{__("Contact")}</div>
-        <span>{__("Give us your contact information")}</span>
+        <div>{__('Contact')}</div>
+        <span>{__('Give us your contact information')}</span>
       </div>
     );
 
@@ -92,10 +92,10 @@ class AccquireInformation extends React.PureComponent<Props, State> {
   render() {
     const { color } = this.props;
     const { type, isValidated, isLoading } = this.state;
-    const formClasses = classNames("form", { invalid: !isValidated });
+    const formClasses = classNames('form', { invalid: !isValidated });
 
     const placeholder =
-      type === "email" ? __("email@domain.com") : __("phone number");
+      type === 'email' ? __('email@domain.com') : __('phone number');
 
     return (
       <>
@@ -103,27 +103,27 @@ class AccquireInformation extends React.PureComponent<Props, State> {
         <div className="accquire-information slide-in">
           <p className="type">
             <span
-              className={type === "email" ? "current" : ""}
-              onClick={() => this.onTypeChange("email")}
+              className={type === 'email' ? 'current' : ''}
+              onClick={() => this.onTypeChange('email')}
               style={{ borderColor: color }}
             >
-              {__("Email")}
+              {__('Email')}
             </span>
 
             <span
-              className={type === "phone" ? "current" : ""}
-              onClick={() => this.onTypeChange("phone")}
+              className={type === 'phone' ? 'current' : ''}
+              onClick={() => this.onTypeChange('phone')}
               style={{ borderColor: color }}
             >
-              {__("SMS")}
+              {__('SMS')}
             </span>
           </p>
 
           <form className={formClasses} onSubmit={this.save}>
             <input
               onChange={this.onValueChange}
-              placeholder={placeholder ? placeholder.toString() : ""}
-              type={type === "email" ? "text" : "tel"}
+              placeholder={placeholder ? placeholder.toString() : ''}
+              type={type === 'email' ? 'text' : 'tel'}
               autoFocus={true}
             />
 

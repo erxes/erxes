@@ -1,6 +1,6 @@
-import * as React from "react";
-import { iconClose } from "../../icons/Icons";
-import { Callout, Form, ShoutboxLauncher } from "../containers";
+import * as React from 'react';
+import { iconClose } from '../../icons/Icons';
+import { Callout, Form, ShoutboxLauncher } from '../containers';
 
 type Props = {
   isFormVisible: boolean;
@@ -14,7 +14,7 @@ class App extends React.Component<Props> {
   renderCloseButton() {
     const { loadType, closePopup } = this.props;
 
-    if (loadType === "shoutbox") {
+    if (loadType === 'shoutbox') {
       return null;
     }
 
@@ -48,7 +48,7 @@ class App extends React.Component<Props> {
   renderShoutboxLauncher() {
     const { loadType } = this.props;
 
-    if (loadType === "shoutbox") {
+    if (loadType === 'shoutbox') {
       return <ShoutboxLauncher />;
     }
 

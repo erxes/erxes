@@ -1,4 +1,4 @@
-import { getEnv } from "./utils";
+import { getEnv } from './utils';
 
 type FileInfo = {
   name: string;
@@ -50,13 +50,13 @@ const uploadHandler = (params: UploaderParams) => {
 
     const formData = new FormData();
 
-    formData.append("file", file);
+    formData.append('file', file);
 
     fetch(url, {
-      method: "post",
+      method: 'post',
       body: formData,
       headers: {
-        source: "widgets"
+        source: 'widgets'
       }
     })
       .then(response => {

@@ -1,12 +1,12 @@
-import * as React from "react";
-import { readFile } from "../../utils";
+import * as React from 'react';
+import { readFile } from '../../utils';
 import {
   ArticleDetail,
   Articles,
   Categories,
   CategoryDetail,
   SearchBar
-} from "../containers";
+} from '../containers';
 
 type Props = {
   activeRoute: string;
@@ -18,19 +18,19 @@ export default class KnowledgeBase extends React.Component<Props> {
   renderContent() {
     const { activeRoute } = this.props;
 
-    if (activeRoute === "CATEGORIES") {
+    if (activeRoute === 'CATEGORIES') {
       return <Categories />;
     }
 
-    if (activeRoute === "CATEGORY_DETAIL") {
+    if (activeRoute === 'CATEGORY_DETAIL') {
       return <CategoryDetail />;
     }
 
-    if (activeRoute === "ARTICLE_DETAIL") {
+    if (activeRoute === 'ARTICLE_DETAIL') {
       return <ArticleDetail />;
     }
 
-    if (activeRoute === "ARTICLES") {
+    if (activeRoute === 'ARTICLES') {
       return <Articles />;
     }
 

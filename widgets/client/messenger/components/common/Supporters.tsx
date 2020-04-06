@@ -1,8 +1,8 @@
-import * as classNames from "classnames";
-import * as React from "react";
-import { defaultAvatar } from "../../../icons/Icons";
-import { IUser, IUserDetails } from "../../../types";
-import { __, readFile } from "../../../utils";
+import * as classNames from 'classnames';
+import * as React from 'react';
+import { defaultAvatar } from '../../../icons/Icons';
+import { IUser, IUserDetails } from '../../../types';
+import { __, readFile } from '../../../utils';
 
 type Props = {
   users: IUser[];
@@ -45,7 +45,7 @@ class Supporters extends React.Component<Props> {
   }
 
   renderOnlineState(isOnline: boolean) {
-    const stateClasses = classNames("erxes-state", {
+    const stateClasses = classNames('erxes-state', {
       online: isOnline
     });
 
@@ -57,14 +57,14 @@ class Supporters extends React.Component<Props> {
       users,
       isOnline = false,
       isExpanded = false,
-      color = ""
+      color = ''
     } = this.props;
 
     const supporters = users.map(user =>
       this.renderSupporter(user, isOnline, color)
     );
 
-    const wrapperClass = classNames("erxes-supporters", {
+    const wrapperClass = classNames('erxes-supporters', {
       full: isExpanded
     });
 
@@ -92,8 +92,8 @@ class Supporters extends React.Component<Props> {
 
     return (
       <div className="erxes-topbar-title">
-        <div>{__("Conversation")}</div>
-        <span>{__("with Support staff")}</span>
+        <div>{__('Conversation')}</div>
+        <span>{__('with Support staff')}</span>
       </div>
     );
   }

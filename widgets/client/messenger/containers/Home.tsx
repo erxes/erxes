@@ -1,7 +1,7 @@
-import * as React from "react";
-import { IUser } from "../../types";
-import { Home as WidgetHome } from "../components";
-import { AppConsumer } from "./AppContext";
+import * as React from 'react';
+import { IUser } from '../../types';
+import { Home as WidgetHome } from '../components';
+import { AppConsumer } from './AppContext';
 
 type Props = {
   supporters: IUser[];

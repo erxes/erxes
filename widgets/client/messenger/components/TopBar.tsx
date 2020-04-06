@@ -1,7 +1,7 @@
-import * as classNames from "classnames";
-import * as React from "react";
-import { iconClose, iconExit, iconLeft, iconMore } from "../../icons/Icons";
-import { __ } from "../../utils";
+import * as classNames from 'classnames';
+import * as React from 'react';
+import { iconClose, iconExit, iconLeft, iconMore } from '../../icons/Icons';
+import { __ } from '../../utils';
 
 type Props = {
   middle: React.ReactNode;
@@ -54,7 +54,7 @@ class TopBar extends React.Component<Props, State> {
     const { endConversation } = this.props;
 
     if (
-      confirm((__("Do you want to end this conversation ?") || {}).toString())
+      confirm((__('Do you want to end this conversation ?') || {}).toString())
     ) {
       endConversation();
     }
@@ -65,8 +65,8 @@ class TopBar extends React.Component<Props, State> {
   };
 
   renderRightButton() {
-    const topBarClassNames = classNames("topbar-button", "right", "fade-in", {
-      "dropdown-open": this.state.isVisibleDropdown
+    const topBarClassNames = classNames('topbar-button', 'right', 'fade-in', {
+      'dropdown-open': this.state.isVisibleDropdown
     });
 
     if (!this.props.isChat) {
@@ -87,12 +87,12 @@ class TopBar extends React.Component<Props, State> {
         <ul>
           <li>
             <a href="#" onClick={this.endConversation}>
-              {__("End conversation")}
+              {__('End conversation')}
             </a>
           </li>
           <li>
             <a href="#" onClick={this.toggleLauncher}>
-              {__("Close")}
+              {__('Close')}
             </a>
           </li>
         </ul>
@@ -120,11 +120,11 @@ class TopBar extends React.Component<Props, State> {
   render() {
     const { color, isExpanded, isChat, middle, toggleHead } = this.props;
 
-    const topBarClassNames = classNames("erxes-topbar", {
+    const topBarClassNames = classNames('erxes-topbar', {
       expanded: isExpanded
     });
 
-    const middleClass = classNames("erxes-middle", "fade-in", {
+    const middleClass = classNames('erxes-middle', 'fade-in', {
       expandable: toggleHead ? true : false
     });
 

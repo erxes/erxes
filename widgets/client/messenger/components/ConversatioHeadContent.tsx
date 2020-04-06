@@ -1,8 +1,8 @@
-import * as React from "react";
-import * as RTG from "react-transition-group";
-import { IParticipator, IUser } from "../../types";
-import { BrandInfo } from "../containers/common";
-import { Profile, Supporters } from "./common";
+import * as React from 'react';
+import * as RTG from 'react-transition-group';
+import { IParticipator, IUser } from '../../types';
+import { BrandInfo } from '../containers/common';
+import { Profile, Supporters } from './common';
 
 type Props = {
   supporters: IUser[];
@@ -58,7 +58,7 @@ class ConversatioHeadContent extends React.Component<Props> {
     }
 
     return (
-      <div className={`erxes-head-${isExpanded ? "expanded" : "collapsed"}`}>
+      <div className={`erxes-head-${isExpanded ? 'expanded' : 'collapsed'}`}>
         {content}
       </div>
     );

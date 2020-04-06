@@ -1,5 +1,5 @@
-import * as React from "react";
-import { __ } from "../../../utils";
+import * as React from 'react';
+import { __ } from '../../../utils';
 
 type Props = {
   config: { [key: string]: string };
@@ -10,7 +10,7 @@ type Props = {
 function WebsiteApp(props: Props) {
   const { config, changeRoute, color } = props;
 
-  const onClick = () => changeRoute("websiteApp");
+  const onClick = () => changeRoute('websiteApp');
 
   return (
     <div className="websiteApp-home">
