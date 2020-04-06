@@ -718,7 +718,7 @@ When you start erxes-integration repo webhook will automatically created accordi
 1. Create a Public Account 
 + You can create an account for testing and development purpose by registering on the [Viber admin panel](https://partners.viber.com/).
 + Fill out all required fields and create your Bot account.
-<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-viber-3.png">
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-viber-3">
 + You can share the QR code with your customers and partners.
 
 
@@ -743,7 +743,7 @@ When you start erxes-integration repo webhook will automatically created accordi
 
  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-telegram-4.png">
 
- <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-telegram-5.png">
+ <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-telegram-5">
 
  + You can share the link with your customers and partners and they can connect with you.
 
@@ -798,7 +798,7 @@ When you start erxes-integration repo webhook will automatically created accordi
 
 9. Get your QR Code from Messaging API tab and share the QR Code with your customers and partners. This code will allow them to connect with you using LINE chat.
 
-<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-line-9.png">
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-line-9">
 
 10. Go to Setting=> Channel=> Add new channel=> Connect LINE integration.
 
