@@ -685,7 +685,7 @@ When you start erxes-integration repo webhook will automatically created accordi
 
 6. Select your brand and click save.
 
-7. Go to Setting=> Channel=> Add new channel=> Connect facebook integration.
+7. Go to Setting=> Channel=> Add new channel=> Connect WhatsApp integration.
 
 
 ## Sunshine Conversations API Integration
@@ -716,15 +716,20 @@ When you start erxes-integration repo webhook will automatically created accordi
 ### Viber
 
 1. Create a Public Account 
-+ You can create an account for testing and development purpose by registering on the [Viber admin panel](https://partners.viber.com/). Note that accounts created this way can’t be discovered by the public and Viber limits the messaging volume on them.
-To create an account for production usage, contact Viber directly using [this form](https://support.viber.com/customer/portal/emails/new).
- 
++ You can create an account for testing and development purpose by registering on the [Viber admin panel](https://partners.viber.com/).
++ Fill out all required fields and create your Bot account.
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-viber-3.png">
++ You can share the QR code with your customers and partners.
+
+
 2. Once you have your Public Account token, copy and paste it into Viber token field on the Add Viber page from erxes App Store. Then click on “Save”.
 
  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-viber-2.png">
 
  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-viber-1.png">
 
+ 
+3. Go to Setting=> Channel=> Add new channel=> Connect Viber integration.
 
 ### Telegram
 
@@ -738,14 +743,18 @@ To create an account for production usage, contact Viber directly using [this fo
 
  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-telegram-4.png">
 
-4. Then copy your bot token and paste it into Telegram Bot Token field on the add Telegram page from erxes App Store. Then click on “Save”
+ <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-telegram-5.png">
 
+ + You can share the link with your customers and partners and they can connect with you.
+
+4. Then copy your bot token and paste it into Telegram Bot Token field on the add Telegram page from erxes App Store. Then click on “Save”
 
 
  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-telegram-1.png">
 
  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-telegram-2.png">
 
+5. Go to Setting=> Channel=> Add new channel=> Connect Telegram integration.
 
 ### LINE 
 
@@ -787,6 +796,12 @@ To create an account for production usage, contact Viber directly using [this fo
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-line-8.png">
 
+9. Get your QR Code from Messaging API tab and share the QR Code with your customers and partners. This code will allow them to connect with you using LINE chat.
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-line-9.png">
+
+10. Go to Setting=> Channel=> Add new channel=> Connect LINE integration.
+
 ### Twilio SMS
 
 1. Sign in to a [Twilio Console](https://www.twilio.com/console)
@@ -812,6 +827,8 @@ To create an account for production usage, contact Viber directly using [this fo
 5. Copy and paste your PHONE NUMBER SID to PHONE NUMBER SID field on the add Twilio SMS page from erxes App Store. Then click on “Save”.
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-twilio-3.png">
+
+6. Go to Setting=> Channel=> Add new channel=> Connect Twilio integration.
 
 ## Engage configurations
 
