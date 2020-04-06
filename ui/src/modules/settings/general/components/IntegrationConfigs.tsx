@@ -182,7 +182,11 @@ class IntegrationConfigs extends React.Component<Props, State> {
 
         <CollapseContent title="Sunshine Conversations API">
           <Info>
-            <a target="_blank" href="Variables" rel="noopener noreferrer">
+            <a
+              target="_blank"
+              href="https://docs.erxes.io/administrator/system-config#sunshine-conversations-api-integration"
+              rel="noopener noreferrer"
+            >
               {__('More: Understanding Smooch Integration Variables')}
             </a>
           </Info>

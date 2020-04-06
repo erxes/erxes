@@ -1,9 +1,13 @@
-import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
+import { mutations, queries } from 'modules/settings/integrations/graphql';
+
+import client from 'apolloClient';
+import gql from 'graphql-tag';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import { Alert } from 'modules/common/utils';
 import Line from 'modules/settings/integrations/components/line/Line';
-import { mutations } from 'modules/settings/integrations/graphql';
 import React from 'react';
-import { withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router';
 
 type Props = {
   type?: string;
@@ -12,7 +16,17 @@ type Props = {
 
 type FinalProps = {} & IRouterProps & Props;
 
-class LineContainer extends React.Component<FinalProps> {
+type State = {
+  webhookUrl: string;
+};
+
+class LineContainer extends React.Component<FinalProps, State> {
+  constructor(props: FinalProps) {
+    super(props);
+
+    this.state = { webhookUrl: '' };
+  }
+
   renderButton = ({
     name,
     values,
@@ -31,11 +45,39 @@ class LineContainer extends React.Component<FinalProps> {
     );
   };
 
+  onSave = (integration?) => {
+    if (!integration) {
+      return this.setState({ webhookUrl: '' });
+    }
+
+    const id = integration.integrationsCreateExternalIntegration._id;
+
+    client
+      .query({
+        query: gql(queries.integrationGetLineWebhookUrl),
+        variables: {
+          id
+        }
+      })
+      .then(({ data, loading }: any) => {
+        if (!loading) {
+          this.setState({
+            webhookUrl: data.integrationGetLineWebhookUrl
+          });
+        }
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
+  };
+
   render() {
     const { closeModal } = this.props;
-
+    const { webhookUrl } = this.state;
     const updatedProps = {
       closeModal,
+      webhookUrl,
+      onSave: this.onSave,
       renderButton: this.renderButton
     };
 
