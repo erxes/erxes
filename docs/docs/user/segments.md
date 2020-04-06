@@ -12,17 +12,17 @@ Erxes let you filter and segment an important group of data for targeted purpose
 ## Setup segment
 The segment is a customer data management and analytics solution that helps you make sense of customer and company data coming from multiple sources. Erxes allows you to create two main categories of segments. One is the properties segment which belongs to basic information on companies, customers and leads. The another one is the custom event segment. It will able to create actions yourself that are triggered by something your customer performs on your site or app. 
 
-You can create a new segment by different ways from diffent paths. 
+You can create a new segment by different ways from different paths. 
 1. Go to Erxes Settings => Segments => select Customer/Company => New segment.
 
 <div>
-  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-17.png" style="width:400px;height:280px;"/>
+  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/segments/1.png">
 </div>
-
+<br>
 <aside class="notice">
-  In this customer field, it contains all customers in your database. The Leads and Customers in the contacts feature, they have passed the specified criteria. This means, if you create a segment on a certain feature, you also need to add more filter properties. 
+  In this customer field, it contains all customers in your database. The Leads and Customers in the contacts feature, they have passed the specified criteria. This means, if you create a segment on a certain feature, you also need to add more filter properties. More details will be shown create properties segments section.   
 </aside>
-
+<br>
 
 2. You can directly create from Certain Features. Certain feature => Segment => New segment.
 
@@ -40,27 +40,41 @@ You can create a new segment by different ways from diffent paths.
 ---
 
 ## Create Properties Segments
-The properties segment is a customer data management and analytics solution that helps you make sense of customer and company basic data coming from multiple sources. t
+The properties segment is a data management and analytics solution that helps you make sense of customer and company basic data coming from multiple sources. 
 
-+ Please follow the steps for setup: Certain Features ->Segment > Add Segment
++ Please follow the steps for setup: Certain Features => FILTER BY SEGMENTS => New Segment.
+- **Let's take an example, It is shown the number of new users created in March 2020.**
 
 <div>
-  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-18.png" style="border:1px solid #eee;" />
+  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/segments/2.png" 
+  style="border:1px solid #eee;" />
 </div>
 
-1. Add condition for the Segment
-2. Click Add Condition
-3. Insert your condition “30 online customers”
-4. Insert Name for the Segment
-5. Insert Description for the Segment
-6. Choose Sub Segment
-7. Choose Color for the Segment
-8. Click Save to create Segment
-9. The numbers of customers equals to created segment
+1. Insert Name for the Segment.
+2. Choose Sub Segment.
+3. Insert Description for the Segment.
+4. Choose Color for the Segment.
+5. Choose Segment type. (If you create Properties Segments, select the Add Properties. 
+6. Choose Segment type. (If you create Event Segments, select the Add Events. 
+7. Select the Filter property. 
+8. Select operator.
+9. Insert value. 
+10. Show count and Save the Segment.
+11. The numbers of results. 
 
 <aside class="notice">
-  *Created Segments will be used in Customer, Company and Engage features
+  *Created Segments will be used in Customer, Company and Engage features. You need to make sure that insert the correct format on related with DATE values. It has to "YYYY-MM-DD". 
 </aside>
+
+
+#### Sub-segments of segment.
+Sub-segment allows you to create a new filter on the parent segment. Once we have created the segment on the above example. If we need more filters on that segment, you can create a new segment. In the sub-segment section, you need to call the parent segment. The following example shows who had set their primary email from created users in March 2020.   
+
+<div>
+  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/segments/3.png">
+</div>
+
+
 
 ---
 
