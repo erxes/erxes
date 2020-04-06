@@ -63,7 +63,7 @@ The properties segment is a data management and analytics solution that helps yo
 11. The numbers of results. 
 
 <aside class="notice">
-  *Created Segments will be used in Customer, Company and Engage features. You need to make sure that insert the correct format on related with DATE values. It has to "YYYY-MM-DD". 
+  You need to make sure that insert the correct format on related with DATE values. It has to "YYYY-MM-DD". 
 </aside>
 
 
