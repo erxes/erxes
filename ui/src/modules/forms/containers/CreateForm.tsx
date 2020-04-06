@@ -8,7 +8,7 @@ import {
 } from 'modules/settings/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '../../common/types';
 import Form from '../components/Form';
 import { mutations } from '../graphql';

@@ -5,7 +5,8 @@ const logs = `
     $userId: String,
     $action: String,
     $page: Int,
-    $perPage: Int
+    $perPage: Int,
+    $type: String
   ) {
     logs(
       start: $start,
@@ -13,7 +14,8 @@ const logs = `
       userId: $userId,
       action: $action,
       page: $page,
-      perPage: $perPage
+      perPage: $perPage,
+      type: $type
     ) {
       totalCount
       logs {

@@ -1,5 +1,6 @@
 import Button from 'modules/common/components/Button';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
+import { ControlLabel } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __, Alert, confirm } from 'modules/common/utils';
@@ -9,11 +10,9 @@ import { ICompany } from 'modules/companies/types';
 import TargetMerge from 'modules/customers/components/common/TargetMerge';
 import CustomersMerge from 'modules/customers/components/detail/CustomersMerge';
 import CustomerForm from 'modules/customers/containers/CustomerForm';
+import { Actions, MailBox, States } from 'modules/customers/styles';
 import { ICustomer } from 'modules/customers/types';
-import {
-  Actions,
-  MailBox
-} from 'modules/inbox/components/conversationDetail/sidebar/styles';
+import { Box } from 'modules/settings/growthHacks/styles';
 import MailForm from 'modules/settings/integrations/containers/mail/MailForm';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -24,9 +23,18 @@ type Props = {
   remove: () => void;
   merge: (doc: { ids: string[]; data: ICustomer | ICompany }) => void;
   search: (value: string, callback: (objects: any[]) => void) => void;
+  changeState?: (value: string) => void;
   isSmall?: boolean;
 };
-class ActionSection extends React.Component<Props> {
+class ActionSection extends React.Component<Props, { customerState: string }> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      customerState: props.cocType === 'customer' ? props.coc.state : ''
+    };
+  }
+
   renderActions() {
     const { coc, cocType } = this.props;
     const { primaryPhone, primaryEmail } = coc;
@@ -51,7 +59,11 @@ class ActionSection extends React.Component<Props> {
           dialogClassName="middle"
           title="Email"
           trigger={
-            <Button disabled={primaryEmail ? false : true} size="small">
+            <Button
+              disabled={primaryEmail ? false : true}
+              size="small"
+              btnStyle="primary"
+            >
               {__('Email')}
             </Button>
           }
@@ -62,6 +74,7 @@ class ActionSection extends React.Component<Props> {
         <Button
           href={primaryPhone && `tel:${primaryPhone}`}
           size="small"
+          btnStyle="primary"
           disabled={primaryPhone ? false : true}
         >
           {__('Call')}
@@ -72,7 +85,7 @@ class ActionSection extends React.Component<Props> {
 
   renderButton() {
     return (
-      <Button size="small">
+      <Button size="small" btnStyle="primary">
         {__('Action')} <Icon icon="angle-down" />
       </Button>
     );
@@ -98,6 +111,66 @@ class ActionSection extends React.Component<Props> {
           content={cocType === 'company' ? companyForm : customerForm}
         />
       </li>
+    );
+  }
+
+  renderBox(index, type, desc) {
+    const { changeState } = this.props;
+
+    if (!changeState) {
+      return null;
+    }
+
+    const onClick = () => {
+      this.setState({ customerState: type });
+      changeState(type);
+    };
+
+    return (
+      <Box
+        key={index}
+        selected={this.state.customerState === type}
+        onClick={onClick}
+      >
+        <b>{type}</b>
+        <p>{__(desc)}</p>
+      </Box>
+    );
+  }
+
+  renderChangeStateForm() {
+    const options = [
+      {
+        value: 'lead',
+        desc: 'A person who preparing to buy some service or product.'
+      },
+      {
+        value: 'customer',
+        desc: 'A person who already bought some service or product.'
+      }
+    ];
+
+    const modalContent = () => {
+      return (
+        <>
+          <ControlLabel>Change State</ControlLabel>
+          <States>
+            {options.map((option, index) =>
+              this.renderBox(index, option.value, option.desc)
+            )}
+          </States>
+        </>
+      );
+    };
+
+    return (
+      <ModalTrigger
+        title={__('Change state')}
+        trigger={<a href="#changeState">{__('Change state')}</a>}
+        content={modalContent}
+        hideHeader={true}
+        centered={true}
+      />
     );
   }
 
@@ -159,6 +232,7 @@ class ActionSection extends React.Component<Props> {
                 {__('Delete')}
               </a>
             </li>
+            <li>{this.renderChangeStateForm()}</li>
           </Dropdown.Menu>
         </Dropdown>
       </Actions>

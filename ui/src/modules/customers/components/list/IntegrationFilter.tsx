@@ -3,9 +3,9 @@ import DataWithLoader from 'modules/common/components/DataWithLoader';
 import { IRouterProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
 import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
-import { KIND_CHOICES_WITH_TEXT } from 'modules/settings/integrations/constants';
+import { INTEGRATION_KINDS } from 'modules/settings/integrations/constants';
 import React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
   counts: { [key: string]: number };
@@ -18,8 +18,8 @@ function IntegrationFilter({ history, counts }: IProps) {
 
   const data = (
     <SidebarList capitalize={true}>
-      {KIND_CHOICES_WITH_TEXT.map((kind, index) => (
-        <li key={index}>
+      {INTEGRATION_KINDS.ALL.map(kind => (
+        <li key={kind.value}>
           <a
             href="#filter"
             tabIndex={0}
@@ -39,13 +39,17 @@ function IntegrationFilter({ history, counts }: IProps) {
   );
 
   return (
-    <Box title={__('Filter by integrations')} name="showFilterByIntegrations">
+    <Box
+      title={__('Filter by integrations')}
+      name="showFilterByIntegrations"
+      collapsible={true}
+    >
       <DataWithLoader
         data={data}
         loading={false}
-        count={KIND_CHOICES_WITH_TEXT.length}
+        count={INTEGRATION_KINDS.ALL.length}
         emptyText="No integrations"
-        emptyIcon="puzzle"
+        emptyIcon="puzzle-piece"
         size="small"
         objective={true}
       />

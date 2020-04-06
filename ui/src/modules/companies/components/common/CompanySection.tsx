@@ -55,7 +55,7 @@ function Component(
 
   const companyTrigger = (
     <button>
-      <Icon icon="add" />
+      <Icon icon="plus-circle" />
     </button>
   );
 
@@ -98,7 +98,7 @@ function Component(
           </Tip>
         </SectionBodyItem>
       ))}
-      {items.length === 0 && <EmptyState icon="briefcase" text="No company" />}
+      {items.length === 0 && <EmptyState icon="building" text="No company" />}
       {mainTypeId && mainType && relQuickButtons}
     </SectionBody>
   );

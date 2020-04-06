@@ -4,7 +4,7 @@ import { IRouterProps } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { AllUsersQueryResponse } from '../../settings/team/types';
 import { mutations, queries } from '../graphql';
 import {
@@ -61,9 +61,11 @@ function withSaveAndEdit<IComponentProps>(Component) {
         })
           .then(() => {
             Alert.success(msg);
-            history.push('/engage');
 
-            this.setState({ isLoading: false });
+            history.push({
+              pathname: '/engage',
+              search: '?engageRefetchList=true'
+            });
           })
           .catch(error => {
             Alert.error(error.message);
@@ -169,11 +171,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
         {
           name: 'addMutation',
           options: {
-            refetchQueries: [
-              ...crudMutationsOptions().refetchQueries,
-              'engageMessageDetail',
-              'activityLogs'
-            ]
+            refetchQueries: engageRefetchQueries({})
           }
         }
       ),
@@ -182,15 +180,22 @@ function withSaveAndEdit<IComponentProps>(Component) {
         {
           name: 'editMutation',
           options: {
-            refetchQueries: [
-              ...crudMutationsOptions().refetchQueries,
-              'engageMessageDetail'
-            ]
+            refetchQueries: engageRefetchQueries({ isEdit: true })
           }
         }
       )
     )(withRouter<FinalProps>(Container))
   );
 }
+
+export const engageRefetchQueries = ({
+  isEdit
+}: {
+  isEdit?: boolean;
+}): string[] => [
+  ...crudMutationsOptions().refetchQueries,
+  ...(isEdit ? ['activityLogs'] : []),
+  'engageMessageDetail'
+];
 
 export default withSaveAndEdit;

@@ -12,7 +12,7 @@ const CustomersList = asyncComponent(() =>
 );
 
 const contacts = () => {
-  return <Redirect to="/contacts/customers/all" />;
+  return <Redirect to="/contacts/customers/customer" />;
 };
 
 const detail = ({ match }) => {
@@ -24,9 +24,8 @@ const detail = ({ match }) => {
 const list = ({ match, location }) => {
   const queryParams = queryString.parse(location.search);
   const type = match.params.type;
-  const finalType = type !== 'visitors' ? '' : type;
 
-  return <CustomersList queryParams={queryParams} type={finalType} />;
+  return <CustomersList queryParams={queryParams} type={type} />;
 };
 
 const routes = () => {

@@ -23,6 +23,7 @@ export interface ICompanyDoc {
   industry?: string;
   website?: string;
   plan?: string;
+  state?: string;
   parentCompanyId?: string;
 
   ownerId?: string;
@@ -33,8 +34,6 @@ export interface ICompanyDoc {
   primaryPhone?: string;
   phones?: string[];
 
-  leadStatus?: string;
-  lifecycleState?: string;
   businessType?: string;
   description?: string;
   employees?: number;
@@ -104,8 +103,6 @@ export type ListQueryVariables = {
   brand?: string;
   ids?: string[];
   searchValue?: string;
-  leadStatus?: string;
-  lifecycleState?: string;
   sortField?: string;
   sortDirection?: number;
 };
@@ -152,7 +149,6 @@ type CompanyCounts = {
   byTag: Count;
   byBrand: Count;
   byLeadStatus: Count;
-  byLifecycleState: Count;
 };
 
 export type CountQueryResponse = {

@@ -5,8 +5,9 @@ import { IRouterProps } from 'modules/common/types';
 import queryString from 'query-string';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { withProps } from '../../common/utils';
+import routerUtils from '../../common/utils/router';
 import MessageList from '../components/MessageList';
 import { queries } from '../graphql';
 import {
@@ -25,7 +26,8 @@ type Props = {
 type FinalProps = {
   engageMessagesQuery: EngageMessagesQueryResponse;
   engageMessagesTotalCountQuery: EngageMessagesTotalCountQueryResponse;
-} & Props;
+} & Props &
+  IRouterProps;
 
 type State = {
   bulk: any[];
@@ -41,6 +43,26 @@ class MessageListContainer extends React.Component<FinalProps, State> {
       isAllSelected: false
     };
   }
+
+  componentDidMount() {
+    const { history } = this.props;
+
+    const shouldRefetchList = routerUtils.getParam(
+      history,
+      'engageRefetchList'
+    );
+
+    if (shouldRefetchList) {
+      this.refetch();
+    }
+  }
+
+  refetch = () => {
+    const { engageMessagesQuery, engageMessagesTotalCountQuery } = this.props;
+
+    engageMessagesQuery.refetch();
+    engageMessagesTotalCountQuery.refetch();
+  };
 
   render() {
     const {

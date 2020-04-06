@@ -23,7 +23,7 @@ const users = [{
 const siteConfig = {
   title: 'erxes', // Title for your website.
   tagline: 'Documentation',
-  url: 'https://docs.erxes.io', // Your website URL
+  url: 'https://erxes.io', // Your website URL
   baseUrl: '/', // Base URL for your project */
   editUrl: 'https://github.com/erxes/erxes/edit/develop/docs/docs/',
   cname: 'docs.erxes.io',
@@ -49,33 +49,13 @@ const siteConfig = {
 
   // For no header links in the top nav bar -> headerLinks: [],
   headerLinks: [{
-      href: 'https://erxes.io/growthHacking',
-      label: 'Products',
+      href: 'https://erxes.io/signin',
+      label: 'Sign in',
       external: true
     },
     {
-      href: 'https://erxes.io/install',
-      label: 'Install',
-      external: true
-    },
-    {
-      href: 'https://erxes.io/blog/customer-stories',
-      label: 'Case Stuies',
-      external: true
-    },
-    {
-      href: 'https://erxes.io/blog/',
-      label: 'Resources',
-      external: true
-    },
-    {
-      href: 'https://erxes.io/pricing',
-      label: 'Pricing',
-      external: true
-    },
-    {
-      href: 'https://github.com/erxes/erxes',
-      label: 'GitHub',
+      href: 'https://erxes.io/create',
+      label: 'Get started',
       external: true
     },
   ],

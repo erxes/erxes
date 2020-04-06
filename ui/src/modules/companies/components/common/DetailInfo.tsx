@@ -1,9 +1,5 @@
 import { __ } from 'modules/common/utils';
 import {
-  LEAD_STATUS_TYPES,
-  LIFECYCLE_STATE_TYPES
-} from 'modules/customers/constants';
-import {
   FieldStyle,
   SidebarCounter,
   SidebarFlexRow,
@@ -46,14 +42,6 @@ class DetailInfo extends React.Component<Props> {
             : '-'
         )}
         {this.renderRow('Phone', company.primaryPhone)}
-        {this.renderRow(
-          'Pop Ups Status',
-          LEAD_STATUS_TYPES[company.leadStatus || '']
-        )}
-        {this.renderRow(
-          'Lifecycle State',
-          LIFECYCLE_STATE_TYPES[company.lifecycleState || '']
-        )}
         {this.renderRow('Business Type', company.businessType)}
         {this.renderRow('Do not disturb', company.doNotDisturb)}
         <SidebarFlexRow>

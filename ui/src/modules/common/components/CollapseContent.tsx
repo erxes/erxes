@@ -5,8 +5,8 @@ import styledTS from 'styled-components-ts';
 import colors from '../styles/colors';
 import Icon from './Icon';
 
-const Title = styled.div`
-  padding: 20px;
+const Title = styledTS<{ compact?: boolean }>(styled.div)`
+  padding: ${props => (props.compact ? '10px 20px' : '20px')};
   transition: background 0.3s ease;
   display: flex;
   align-items: center;
@@ -28,6 +28,10 @@ const Container = styledTS<{ open: boolean }>(styled.div)`
   border-radius: 4px;
   background: ${props => (props.open ? colors.bgLight : colors.colorWhite)};
 
+  &:last-child {
+    margin-bottom: 5px;
+  }
+
   ${Title} i {
     font-size: 20px;
     transition: transform ease 0.3s;
@@ -47,6 +51,7 @@ type Props = {
   title: string;
   children: React.ReactNode;
   open?: boolean;
+  compact?: boolean;
 };
 
 function CollapseContent(props: Props) {
@@ -56,7 +61,7 @@ function CollapseContent(props: Props) {
 
   return (
     <Container open={open}>
-      <Title onClick={onClick}>
+      <Title onClick={onClick} compact={props.compact}>
         <h4>{props.title}</h4>
         <Icon icon="angle-down" />
       </Title>

@@ -3,6 +3,8 @@ id: debian10
 title: Debian 10
 ---
 
+This steps explain how to install Erxes on Debian 10.
+
 ## Installing erxes on Debian 10
 
 To have erxes up and running quickly, you can follow the following steps.
@@ -15,11 +17,37 @@ To have erxes up and running quickly, you can follow the following steps.
 
    **Note**: you will be asked to provide a domain for nginx server to set up config for erxes
 
-3. This installation will create a new user `erxes`. Run the following command to change password.
+3. Log in to your domain DNS and create A record based on your new server IP.
 
-   `passwd erxes`
+## Create an admin user
 
-4. Log in to your domain DNS and create A record based on your new server IP.
+Switch to user `erxes` and run the following commands based on your needs.
+
+```sh
+su erxes
+cd ~/erxes-api
+export MONGO_URL=mongodb://localhost/erxes?replicaSet=rs0
+```
+
+The following will create an admin user admin@erxes.io with a random password (check your console to grab the password)
+
+```
+yarn initProject
+```
+
+## Load initial data
+
+The below command will create initial permission groups, permissions, growth hack templates, email templates and some sample data and reset the admin password (check your console to grab the password)
+
+```
+yarn loadInitialData
+```
+
+If do not want to load sample data then you can run following command just to load permissions.
+
+```
+yarn loadPermission
+```
 
 Now you have erxes up and running!
 
@@ -33,21 +61,21 @@ Once you have installed your ssl certificate, you need to update env vars.
 2. Edit `erxes/build/js/env.js` file where env vars for frontend app are stored.
    The content of the file should be as follows:
 
-   ```javascript
-   window.env = {
-     PORT: 3000,
-     NODE_ENV: "production",
-     REACT_APP_API_URL: "https://your_domain/api",
-     REACT_APP_API_SUBSCRIPTION_URL: "wss://your_domain/api/subscriptions",
-     REACT_APP_CDN_HOST: "https://your_domain/widgets"
-   };
-   ```
+```javascript
+window.env = {
+  PORT: 3000,
+  NODE_ENV: "production",
+  REACT_APP_API_URL: "https://your_domain/api",
+  REACT_APP_API_SUBSCRIPTION_URL: "wss://your_domain/api/subscriptions",
+  REACT_APP_CDN_HOST: "https://your_domain/widgets"
+};
+```
 
 3. Update all env vars with HTTPS url in the `ecosystem.json` file.
 4. Finally, you need to restart pm2 erxes processes by running the following command:
 
-   ```sh
-   pm2 restart ecosystem.json
-   ```
+```sh
+pm2 restart ecosystem.json
+```
 
-   If you need more information about pm2, please go to official documentation [here](https://pm2.keymetrics.io/docs/usage/application-declaration/).
+If you need more information about pm2, please go to official documentation [here](https://pm2.keymetrics.io/docs/usage/application-declaration/).

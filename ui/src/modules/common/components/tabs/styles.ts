@@ -9,7 +9,7 @@ const TabContainer = styledTS<{ grayBorder?: boolean; full?: boolean }>(
     ${props => (props.grayBorder ? colors.borderDarker : colors.borderPrimary)};
   margin-bottom: -1px;
   position: relative;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   justify-content: ${props => props.full && 'space-evenly'};
   flex-shrink: 0;

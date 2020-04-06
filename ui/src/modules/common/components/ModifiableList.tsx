@@ -145,7 +145,7 @@ class ModifiableList extends React.Component<Props, State> {
     }
 
     return (
-      <Button onClick={this.handleAddOption} size="small" icon="add">
+      <Button onClick={this.handleAddOption} size="small" icon="plus-circle">
         {__(this.props.addButtonLabel || 'Add an option')}
       </Button>
     );

@@ -126,7 +126,7 @@ export default class GenerateField extends React.Component<Props, State> {
         defaultFileList={value || []}
         onChange={onChangeFile}
         multiple={false}
-        limit={1}
+        single={true}
       />
     );
   }

@@ -15,9 +15,12 @@ const List = asyncComponent(() =>
   import(/* webpackChunkName: "List - Form" */ './containers/List')
 );
 
-const forms = ({ location }) => {
+const forms = history => {
+  const { location } = history;
+
   const queryParams = queryString.parse(location.search);
-  return <List queryParams={queryParams} />;
+
+  return <List queryParams={queryParams} history={history} />;
 };
 
 const createLead = () => {

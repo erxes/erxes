@@ -4,9 +4,12 @@ title: GraphQL API Schema
 sidebar_label: GraphQL API
 ---
 
+This document explains how to work with GraphQL API Schema.
+
+
 ## GraphQL API Schema
 
-To see the GraphQL schema of the erxes GraphQL API, you should use some GraphQL graphical tool. 
+To see the GraphQL schema of the Erxes GraphQL API, you should use some GraphQL graphical tool. 
 These tools are able to show the schema, using the Instropection tool of GraphQL.
 You can use the instrospection queries to show the schema, but by a graphical tool is easier.
 Below we have some options of tools, and where you can see the schema in each of them.

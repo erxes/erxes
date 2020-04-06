@@ -27,18 +27,18 @@ done
 # Dependencies
 #
 yum -qqy update
-yum -qqy install -y wget gnupg
+yum -qqy install -y wget gnupg python3 python3-pip
 
 # MongoDB
-cat <<EOF >/etc/yum.repos.d/mongodb-org-4.2.repo
-[mongodb-org-4.2]
+cat <<EOF >/etc/yum.repos.d/mongodb-org-3.6.repo
+[mongodb-org-3.6]
 name=MongoDB Repository
-baseurl=https://repo.mongodb.org/yum/redhat/\$releasever/mongodb-org/4.2/x86_64/
+baseurl=https://repo.mongodb.org/yum/redhat/8/mongodb-org/3.6/x86_64/
 gpgcheck=1
 enabled=1
-gpgkey=https://www.mongodb.org/static/pgp/server-4.2.asc
+gpgkey=https://www.mongodb.org/static/pgp/server-3.6.asc
 EOF
-yum -qqy install -y mongodb-org
+yum -qqy install mongodb-org
 systemctl enable mongod
 systemctl start mongod
 
@@ -93,6 +93,27 @@ systemctl enable rabbitmq-server
 rabbitmq-plugins enable rabbitmq_management
 systemctl start rabbitmq-server
 
+# Java 
+yum -qqy install java-11-openjdk -y
+
+# Elasticsearch
+rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
+cat <<EOF | sudo tee /etc/yum.repos.d/elasticsearch.repo
+[elasticsearch-7.x]
+name=Elasticsearch repository for 7.x packages
+baseurl=https://artifacts.elastic.co/packages/7.x/yum
+gpgcheck=1
+gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch
+enabled=1
+autorefresh=1
+type=rpm-md
+EOF
+yum -qqy update
+yum -qqy install elasticsearch -y
+systemctl daemon-reload
+systemctl enable elasticsearch.service
+systemctl start elasticsearch.service
+
 # Nginx
 yum -qqy install -y nginx
 systemctl enable nginx
@@ -114,47 +135,49 @@ id -u erxes &>/dev/null || useradd -m -s /bin/bash -U -G wheel $username
 
 cd /home/$username
 
-erxes_dir=/home/$username/erxes
+# erxes repo
+erxes_root_dir=/home/$username/erxes
+erxes_dir=$erxes_root_dir/ui
+erxes_widgets_dir=$erxes_root_dir/widgets
+
+# erxes-api repo
 erxes_api_dir=/home/$username/erxes-api
-erxes_widgets_dir=/home/$username/erxes-widgets
-erxes_engages_dir=/home/$username/erxes-engages
-erxes_logger_dir=/home/$username/erxes-logger
+erxes_engages_dir=$erxes_api_dir/engages-email-sender
+erxes_logger_dir=$erxes_api_dir/logger
+erxes_syncer_dir=$erxes_api_dir/elkSyncer
+#erxes_email_verifier_dir=$erxes_api_dir/email-verifier
+
+# erxes-integrations repo
 erxes_integrations_dir=/home/$username/erxes-integrations
 
-su $username -c "mkdir -p $erxes_dir $erxes_api_dir $erxes_widgets_dir $erxes_engages_dir $erxes_logger_dir $erxes_integrations_dir"
+su $username -c "mkdir -p $erxes_dir $erxes_api_dir $erxes_integrations_dir"
 
 # download erxes
-su $username -c "curl -L https://github.com/erxes/erxes/archive/0.12.0.tar.gz | tar --strip-components=1 -xz -C $erxes_dir"
+su $username -c "curl -L https://github.com/erxes/erxes/archive/0.13.0.tar.gz | tar --strip-components=1 -xz -C $erxes_root_dir"
 
 # download erxes-api
-su $username -c "curl -L https://github.com/erxes/erxes-api/archive/0.12.3.tar.gz | tar --strip-components=1 -xz -C $erxes_api_dir"
-
-# download erxes-widgets
-su $username -c "curl -L https://github.com/erxes/erxes-widgets/archive/0.12.0.tar.gz | tar --strip-components=1 -xz -C $erxes_widgets_dir"
-
-# download engages email sender
-su $username -c "curl -L https://github.com/erxes/erxes-engages-email-sender/archive/0.12.0.tar.gz | tar --strip-components=1 -xz -C $erxes_engages_dir"
-
-# download logger
-su $username -c "curl -L https://github.com/erxes/erxes-logger/archive/0.12.0.tar.gz | tar --strip-components=1 -xz -C $erxes_logger_dir"
+su $username -c "curl -L https://github.com/erxes/erxes-api/archive/0.13.0.tar.gz | tar --strip-components=1 -xz -C $erxes_api_dir"
 
 # download integrations
-su $username -c "curl -L https://github.com/erxes/erxes-integrations/archive/0.12.0.tar.gz | tar --strip-components=1 -xz -C $erxes_integrations_dir"
+su $username -c "curl -L https://github.com/erxes/erxes-integrations/archive/0.13.0.tar.gz | tar --strip-components=1 -xz -C $erxes_integrations_dir"
 
 # install packages and build erxes
 su $username -c "cd $erxes_dir && yarn install && yarn build"
 
-# install erxes api packages
-su $username -c "cd $erxes_api_dir && yarn install && yarn build"
-
 # install erxes widgets packages
 su $username -c "cd $erxes_widgets_dir && yarn install && yarn build"
+
+# install erxes api packages
+su $username -c "cd $erxes_api_dir && yarn install && yarn build"
 
 # install erxes engages packages
 su $username -c "cd $erxes_engages_dir && yarn install && yarn build"
 
 # install erxes logger packages
 su $username -c "cd $erxes_logger_dir && yarn install && yarn build"
+
+# install erxes email verifier packages
+# su $username -c "cd $erxes_email_verifier_dir && yarn install && yarn build"
 
 # install erxes integrations packages
 su $username -c "cd $erxes_integrations_dir && yarn install && yarn build"
@@ -171,7 +194,7 @@ cat <<EOF >/home/$username/ecosystem.json
   "apps": [
     {
       "name": "erxes-api",
-      "cwd": "erxes-api",
+      "cwd": "$erxes_api_dir",
       "script": "dist",
       "log_date_format": "YYYY-MM-DD HH:mm Z",
       "env": {
@@ -187,46 +210,45 @@ cat <<EOF >/home/$username/ecosystem.json
         "WORKERS_API_DOMAIN": "http://127.0.0.1:3700",
         "LOGS_API_DOMAIN": "http://127.0.0.1:3800",
         "ENGAGES_API_DOMAIN": "http://127.0.0.1:3900",
-        "MONGO_URL": "mongodb://localhost/erxes",
+        "MONGO_URL": "mongodb://localhost/erxes?replicaSet=rs0",
         "REDIS_HOST": "localhost",
         "REDIS_PORT": 6379,
         "REDIS_PASSWORD": "",
         "RABBITMQ_HOST": "amqp://localhost",
         "PORT_CRONS": 3600,
         "PORT_WORKERS": 3700,
-        "JWT_TOKEN_SECRET": "$JWT_TOKEN_SECRET"
+        "JWT_TOKEN_SECRET": "$JWT_TOKEN_SECRET",
+        "ELASTICSEARCH_URL": "http://localhost:9200"
       }
     },
     {
       "name": "erxes-api-cronjob",
-      "cwd": "erxes-api",
+      "cwd": "$erxes_api_dir",
       "script": "dist/cronJobs",
       "log_date_format": "YYYY-MM-DD HH:mm Z",
       "env": {
         "PORT_CRONS": 3600,
         "NODE_ENV": "production",
-        "MONGO_URL": "mongodb://localhost/erxes",
+        "MONGO_URL": "mongodb://localhost/erxes?replicaSet=rs0",
+        "RABBITMQ_HOST": "amqp://localhost",
         "DEBUG": "erxes-crons:*"
       }
     },
     {
       "name": "erxes-api-worker",
-      "cwd": "erxes-api",
+      "cwd": "$erxes_api_dir",
       "script": "dist/workers",
       "log_date_format": "YYYY-MM-DD HH:mm Z",
       "env": {
         "PORT_WORKERS": 3700,
         "NODE_ENV": "production",
-        "MONGO_URL": "mongodb://localhost/erxes",
-        "REDIS_HOST": "localhost",
-        "REDIS_PORT": 6379,
-        "REDIS_PASSWORD": "",
+        "MONGO_URL": "mongodb://localhost/erxes?replicaSet=rs0",
         "DEBUG": "erxes-workers:*"
       }
     },
     {
       "name": "erxes-widgets",
-      "cwd": "erxes-widgets",
+      "cwd": "$erxes_widgets_dir",
       "script": "dist",
       "log_date_format": "YYYY-MM-DD HH:mm Z",
       "env": {
@@ -234,48 +256,55 @@ cat <<EOF >/home/$username/ecosystem.json
         "NODE_ENV": "production",
         "ROOT_URL": "http://$erxes_domain/widgets",
         "API_URL": "http://$erxes_domain/api",
-        "API_SUBSCRIPTIONS_URL": "ws://$erxes_domain/api/subscriptions"
+        "API_SUBSCRIPTIONS_URL": "ws://$erxes_domain/api/subscriptions?replicaSet=rs0"
       }
     },
     {
       "name": "erxes-engages",
-      "cwd": "erxes-engages",
+      "cwd": "$erxes_engages_dir",
       "script": "dist",
       "log_date_format": "YYYY-MM-DD HH:mm Z",
       "env": {
         "PORT": 3900,
         "NODE_ENV": "production",
         "MAIN_API_DOMAIN": "http://$erxes_domain/api",
-        "MONGO_URL": "mongodb://localhost/erxes-engages",
+        "MONGO_URL": "mongodb://localhost/erxes-engages?replicaSet=rs0",
         "RABBITMQ_HOST": "amqp://localhost",
+        "REDIS_HOST": "localhost",
+        "REDIS_PORT": 6379,
+        "REDIS_PASSWORD": "",
         "DEBUG": "erxes-engages:*"
       }
     },
     {
       "name": "erxes-logger",
-      "cwd": "erxes-logger",
+      "cwd": "$erxes_logger_dir",
       "script": "dist",
       "log_date_format": "YYYY-MM-DD HH:mm Z",
       "env": {
         "PORT": 3800,
         "NODE_ENV": "production",
-        "MONGO_URL": "mongodb://localhost/erxes_logs",
+        "MONGO_URL": "mongodb://localhost/erxes_logs?replicaSet=rs0",
+        "RABBITMQ_HOST": "amqp://localhost",
         "DEBUG_PREFIX": "erxes-logs"
       }
     },
     {
       "name": "erxes-integrations",
-      "cwd": "erxes-integrations",
+      "cwd": "$erxes_integrations_dir",
       "script": "dist",
       "log_date_format": "YYYY-MM-DD HH:mm Z",
       "env": {
         "PORT": 3400,
         "NODE_ENV": "production",
-        "MONGO_URL": "mongodb://localhost/erxes_integrations",
+        "MONGO_URL": "mongodb://localhost/erxes_integrations?replicaSet=rs0",
         "DOMAIN": "http://$erxes_domain/integrations",
         "MAIN_APP_DOMAIN": "http://$erxes_domain",
         "MAIN_API_DOMAIN": "http://$erxes_domain/api",
-        "RABBITMQ_HOST": "amqp://localhost"
+        "RABBITMQ_HOST": "amqp://localhost",
+        "REDIS_HOST": "localhost",
+        "REDIS_PORT": 6379,
+        "REDIS_PASSWORD": ""
       }
     }
   ]
@@ -284,6 +313,41 @@ EOF
 
 chown $username:$username /home/$username/ecosystem.json
 chmod 644 /home/$username/ecosystem.json
+
+
+# set up mongod ReplicaSet
+systemctl stop mongod
+mv /etc/mongod.conf /etc/mongod.conf.bak
+cat<<EOF >/etc/mongod.conf
+storage:
+  dbPath: /var/lib/mongo
+  journal:
+    enabled: true
+systemLog:
+  destination: file
+  logAppend: true
+  path: /var/log/mongodb/mongod.log
+net:
+  bindIp: localhost
+processManagement:
+  fork: true  # fork and run in background
+  pidFilePath: /var/run/mongodb/mongod.pid
+  timeZoneInfo: /usr/share/zoneinfo
+replication:
+  replSetName: "rs0"
+EOF
+systemctl start mongod
+curl https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh > /usr/local/bin/wait-for-it.sh
+chmod +x /usr/local/bin/wait-for-it.sh
+/usr/local/bin/wait-for-it.sh --timeout=0 localhost:27017
+while true; do
+    healt=$(mongo --eval "rs.initiate().ok" --quiet)
+    if [ $healt -eq 0 ]; then
+        break
+    fi
+done
+echo "Started MongoDB ReplicaSet successfully"
+
 
 # generate env.js
 cat <<EOF >$erxes_dir/build/js/env.js
@@ -298,15 +362,47 @@ EOF
 chown $username:$username $erxes_dir/build/js/env.js
 chmod 664 $erxes_dir/build/js/env.js
 
-# erxes api load initial data
-su $username -c "cd $erxes_api_dir && yarn loadInitialData && yarn loadPermission"
-
 # make pm2 starts on boot
 pm2 startup -u $username --hp /home/$username
 systemctl enable pm2-$username
 
 # start erxes pm2 and save current processes
 su $username -c "cd /home/$username && pm2 start ecosystem.json && pm2 save"
+
+# pip3 packages for elkSyncer
+pip3 install mongo-connector==3.1.1 \
+    && pip3 install elasticsearch==7.5.1 \
+    && pip3 install elastic2-doc-manager==1.0.0 \
+    && pip3 install python-dotenv==0.11.0
+
+
+# elkSyncer env
+cat <<EOF >$erxes_syncer_dir/.env
+MONGO_URL=mongodb://localhost/erxes?replicaSet=rs0
+ELASTICSEARCH_URL=http://localhost:9200
+EOF
+
+cat <<EOF >/lib/systemd/system/erxes-api-elk-syncer.service
+[Unit]
+Description=erxes-api-elk-syncer
+Documentation=https://docs.erxes.io
+After=network.target
+
+[Service]
+WorkingDirectory=$erxes_syncer_dir
+ExecStart=/usr/bin/python3 $erxes_syncer_dir/main.py
+ExecStop=/bin/kill -INT $MAINPID
+ExecReload=/bin/kill -TERM $MAINPID
+Restart=on-failure
+Type=simple
+
+[Install]
+WantedBy=multi-user.target
+EOF
+chmod 644 /lib/systemd/system/erxes-api-elk-syncer.service
+systemctl daemon-reload
+systemctl enable erxes-api-elk-syncer.service
+systemctl start erxes-api-elk-syncer.service
 
 
 # Nginx erxes config
@@ -322,7 +418,7 @@ server {
         error_log /var/log/nginx/erxes.error.log;
 
         location / {
-                root /home/erxes/erxes/build;
+                root $erxes_dir/build;
                 index index.html;
                 error_log /var/log/nginx/erxes.error.log;
 
@@ -368,7 +464,7 @@ EOF
 # add user nginx to erxes group
 gpasswd -a nginx $username
 
-chmod 750 /home/$username
+chmod 750 /home/$username /home/$username/erxes
 chmod -R 750 $erxes_dir
 
 # allow nginx to server build dir

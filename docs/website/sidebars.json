@@ -14,6 +14,8 @@
       "installation/redhat8",
       "installation/docker",
       "installation/heroku",
+      "installation/aws",
+      "installation/digitalocean",
       "installation/upgrade"
     ],
     "User's Guide": [
@@ -25,6 +27,7 @@
       "user/popups",
       "user/script-install",
       "user/contacts",
+      "user/segments",
       "user/sales-pipeline",
       "user/engage",
       "user/insights",
@@ -35,8 +38,7 @@
     "Administrator's guide": [
       "administrator/creating-first-user",
       "administrator/environment-variables",
-      "administrator/file-upload",
-      "administrator/integrations",
+      "administrator/system-config",
       "administrator/migration"
     ],
     "Developer's guide": [
@@ -45,7 +47,8 @@
       "developer/graphql-api",
       "developer/push-notifications",
       "developer/android-sdk",
-      "developer/ios-sdk"
+      "developer/ios-sdk",
+      "developer/troubleshooting"
     ]
   }
 }

@@ -13,7 +13,7 @@ import { menuContacts } from 'modules/common/utils/menus';
 import { queries } from 'modules/customers/graphql';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { IRouterProps } from '../../../common/types';
 import { __, Alert, confirm, router } from '../../../common/utils';
@@ -30,10 +30,10 @@ import CustomerRow from './CustomerRow';
 import Sidebar from './Sidebar';
 
 interface IProps extends IRouterProps {
+  type: string;
   customers: ICustomer[];
   totalCount: number;
   columnsConfig: IConfigColumn[];
-  integrations: string[];
   bulk: any[];
   isAllSelected: boolean;
   emptyBulk: () => void;
@@ -161,6 +161,7 @@ class CustomersList extends React.Component<IProps, State> {
 
   render() {
     const {
+      type,
       totalCount,
       bulk,
       emptyBulk,
@@ -175,8 +176,8 @@ class CustomersList extends React.Component<IProps, State> {
     } = this.props;
 
     const addTrigger = (
-      <Button btnStyle="success" size="small" icon="add">
-        Add customer
+      <Button btnStyle="success" size="small" icon="plus-circle">
+        Add {type || 'customer'}
       </Button>
     );
 
@@ -198,7 +199,14 @@ class CustomersList extends React.Component<IProps, State> {
     };
 
     const customerForm = props => {
-      return <CustomerForm {...props} size="lg" queryParams={queryParams} />;
+      return (
+        <CustomerForm
+          {...props}
+          type={type}
+          size="lg"
+          queryParams={queryParams}
+        />
+      );
     };
 
     const customersMerge = props => {
@@ -349,7 +357,7 @@ class CustomersList extends React.Component<IProps, State> {
         }
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
-        leftSidebar={<Sidebar loadingMainQuery={loading} />}
+        leftSidebar={<Sidebar loadingMainQuery={loading} type={type} />}
         content={
           <DataWithLoader
             data={this.renderContent()}

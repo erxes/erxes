@@ -73,7 +73,7 @@ export default class DealEditForm extends React.Component<Props, State> {
   };
 
   saveProductsData = () => {
-    const { productsData } = this.state;
+    const { productsData, paymentsData } = this.state;
     const { saveItem } = this.props;
     const products: IProduct[] = [];
     const amount: any = {};
@@ -97,20 +97,6 @@ export default class DealEditForm extends React.Component<Props, State> {
       }
     });
 
-    this.setState(
-      { productsData: filteredProductsData, products, amount },
-      () => {
-        saveItem({ productsData }, updatedItem => {
-          this.setState({ updatedItem });
-        });
-      }
-    );
-  };
-
-  savePaymentsData = () => {
-    const { paymentsData } = this.state;
-    const { saveItem } = this.props;
-
     Object.keys(paymentsData || {}).forEach(key => {
       const perData = paymentsData[key];
 
@@ -119,11 +105,14 @@ export default class DealEditForm extends React.Component<Props, State> {
       }
     });
 
-    this.setState({ paymentsData }, () => {
-      saveItem({ paymentsData }, updatedItem => {
-        this.setState({ updatedItem });
-      });
-    });
+    this.setState(
+      { productsData: filteredProductsData, products, amount, paymentsData },
+      () => {
+        saveItem({ productsData, paymentsData }, updatedItem => {
+          this.setState({ updatedItem });
+        });
+      }
+    );
   };
 
   beforePopupClose = (afterPopupClose?: () => void) => {
@@ -160,7 +149,6 @@ export default class DealEditForm extends React.Component<Props, State> {
         paymentsData={paymentsData}
         products={products}
         saveProductsData={this.saveProductsData}
-        savePaymentsData={this.savePaymentsData}
       />
     );
   };

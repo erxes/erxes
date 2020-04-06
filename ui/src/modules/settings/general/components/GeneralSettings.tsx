@@ -12,6 +12,7 @@ import React from 'react';
 import Select from 'react-select-plus';
 import { ContentBox } from '../../styles';
 import {
+  FILE_MIME_TYPES,
   FILE_SYSTEM_TYPES,
   KEY_LABELS,
   LANGUAGES,
@@ -63,7 +64,13 @@ class GeneralSettings extends React.Component<Props, State> {
   };
 
   onChangeMultiCombo = (code: string, values) => {
-    this.onChangeConfig(code, values.map(el => el.value));
+    let value = values;
+
+    if (Array.isArray(values)) {
+      value = values.map(el => el.value);
+    }
+
+    this.onChangeConfig(code, value);
   };
 
   onChangeSingleCombo = (code: string, obj) => {
@@ -94,7 +101,7 @@ class GeneralSettings extends React.Component<Props, State> {
   };
 
   render() {
-    const { configsMap } = this.state;
+    const { configsMap, language } = this.state;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
@@ -112,6 +119,13 @@ class GeneralSettings extends React.Component<Props, State> {
       </Button>
     );
 
+    const mimeTypeOptions = FILE_MIME_TYPES.map(item => ({
+      value: item.value,
+      label: `${item.label} (${item.extension})`
+    }));
+    const mimeTypeDesc =
+      'Comma-separated list of media types. Leave it blank for accepting all media types';
+
     const content = (
       <ContentBox>
         <CollapseContent title={__('General settings')}>
@@ -119,7 +133,7 @@ class GeneralSettings extends React.Component<Props, State> {
             <ControlLabel>Language</ControlLabel>
             <Select
               options={LANGUAGES}
-              value={this.state.language}
+              value={language}
               onChange={this.onLanguageChange}
               searchable={false}
               clearable={false}
@@ -151,20 +165,39 @@ class GeneralSettings extends React.Component<Props, State> {
           <Info>
             <a
               target="_blank"
-              href="https://docs.erxes.io/administrator/file-upload"
+              href="https://docs.erxes.io/administrator/system-config#file-upload"
               rel="noopener noreferrer"
             >
               {__('More: Understanding file upload')}
             </a>
           </Info>
-          {this.renderItem(
-            'UPLOAD_FILE_TYPES',
-            'Comma-separated list of media types. Leave it blank for accepting all media types'
-          )}
-          {this.renderItem(
-            'WIDGETS_UPLOAD_FILE_TYPES',
-            'Comma-separated list of media types. Leave it blank for accepting all media types'
-          )}
+          <FormGroup>
+            <ControlLabel>{KEY_LABELS.UPLOAD_FILE_TYPES}</ControlLabel>
+            {mimeTypeDesc && <p>{__(mimeTypeDesc)}</p>}
+            <Select
+              value={configsMap.UPLOAD_FILE_TYPES}
+              options={mimeTypeOptions}
+              onChange={this.onChangeMultiCombo.bind(this, 'UPLOAD_FILE_TYPES')}
+              multi={true}
+              delimiter=","
+              simpleValue={true}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{KEY_LABELS.WIDGETS_UPLOAD_FILE_TYPES}</ControlLabel>
+            {mimeTypeDesc && <p>{__(mimeTypeDesc)}</p>}
+            <Select
+              value={configsMap.WIDGETS_UPLOAD_FILE_TYPES}
+              options={mimeTypeOptions}
+              onChange={this.onChangeMultiCombo.bind(
+                this,
+                'WIDGETS_UPLOAD_FILE_TYPES'
+              )}
+              multi={true}
+              delimiter=","
+              simpleValue={true}
+            />
+          </FormGroup>
           <FormGroup>
             <ControlLabel>{KEY_LABELS.UPLOAD_SERVICE_TYPE}</ControlLabel>
             <Select
@@ -190,6 +223,22 @@ class GeneralSettings extends React.Component<Props, State> {
                 'FILE_SYSTEM_PUBLIC'
               )}
             />
+          </FormGroup>
+        </CollapseContent>
+
+        <CollapseContent title="Google Cloud Storage">
+          <Info>
+            <a
+              target="_blank"
+              href="https://console.cloud.google.com/storage/browser"
+              rel="noopener noreferrer"
+            >
+              {__('More: Create or find your Google Cloud Storage bucket')}
+            </a>
+          </Info>
+          <FormGroup>
+            <ControlLabel>Google Bucket Name</ControlLabel>
+            {this.renderItem('GOOGLE_CLOUD_STORAGE_BUCKET')}
           </FormGroup>
         </CollapseContent>
 
