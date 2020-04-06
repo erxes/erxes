@@ -1,5 +1,5 @@
 {
-    "oplogFile": "oplog.timestamp",
+    "oplogFile": "/var/log/mongo-connector/oplog.timestamp",
     "noDump": false,
     "batchSize": 5000,
     "verbosity": 3,

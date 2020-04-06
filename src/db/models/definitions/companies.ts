@@ -83,6 +83,7 @@ export const companySchema = schemaWrapper(
       enum: COMPANY_INDUSTRY_TYPES,
       label: 'Industry',
       optional: true,
+      esType: 'keyword',
     }),
 
     website: field({
@@ -103,7 +104,7 @@ export const companySchema = schemaWrapper(
       label: 'Parent Company',
     }),
 
-    primaryEmail: field({ type: String, optional: true, label: 'Primary email' }),
+    primaryEmail: field({ type: String, optional: true, label: 'Primary email', esType: 'email' }),
     emails: field({ type: [String], optional: true, label: 'Emails' }),
 
     primaryPhone: field({ type: String, optional: true, label: 'Primary phone' }),
@@ -117,6 +118,7 @@ export const companySchema = schemaWrapper(
       default: STATUSES.ACTIVE,
       optional: true,
       label: 'Status',
+      esType: 'keyword',
     }),
 
     businessType: field({
@@ -124,6 +126,7 @@ export const companySchema = schemaWrapper(
       enum: COMPANY_BUSINESS_TYPES,
       optional: true,
       label: 'Business Type',
+      esType: 'keyword',
     }),
 
     description: field({ type: String, optional: true, label: 'Description' }),
