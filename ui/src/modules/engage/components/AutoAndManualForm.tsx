@@ -67,7 +67,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
 
     let content = email.content || "";
 
-    if (messenger.content && messenger.content !== "") {
+    if (messenger.content) {
       content = messenger.content;
     }
 
