@@ -71,6 +71,7 @@ export const INTEGRATION_KINDS = {
   NYLAS_GMAIL: 'nylas-gmail',
   NYLAS_IMAP: 'nylas-imap',
   NYLAS_OUTLOOK: 'nylas-outlook',
+  NYLAS_EXCHANGE: 'nylas-exchange',
   NYLAS_OFFICE365: 'nylas-office365',
   NYLAS_YAHOO: 'nylas-yahoo',
   LEAD: 'lead',
@@ -93,6 +94,7 @@ export const INTEGRATION_KINDS = {
     { text: 'Nylas gmail', value: 'nylas-gmail' },
     { text: 'IMAP', value: 'nylas-imap' },
     { text: 'Office 365', value: 'nylas-office365' },
+    { text: 'Exchange', value: 'nylas-exchange' },
     { text: 'Outlook', value: 'nylas-outlook' },
     { text: 'Yahoo', value: 'nylas-yahoo' },
     { text: 'Pop Ups', value: 'lead' },
@@ -222,6 +224,19 @@ export const INTEGRATIONS = [
     logo: '/images/integrations/gmail.png',
     createModal: 'nylas-gmail',
     createUrl: '/settings/integrations/nylas-gmail',
+    category:
+      'All integrations, For support teams, Email marketing, Marketing automation, Conversation'
+  },
+  {
+    name: 'Microsoft Exchange by Nylas',
+    description:
+      'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
+    inMessenger: false,
+    isAvailable: true,
+    kind: 'nylas-exchange',
+    logo: '/images/integrations/exchange.png',
+    createModal: 'nylas-exchange',
+    createUrl: '/settings/integrations/nylas-exchange',
     category:
       'All integrations, For support teams, Email marketing, Marketing automation, Conversation'
   },

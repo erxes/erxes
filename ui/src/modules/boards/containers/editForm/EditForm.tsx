@@ -68,7 +68,9 @@ class EditFormContainer extends React.Component<FinalProps> {
       document: gql(options.subscriptions.changeSubscription),
       variables: { _id: itemId },
       updateQuery: () => {
-        this.props.detailQuery.refetch();
+        if (document.querySelectorAll('.modal').length < 2) {
+          this.props.detailQuery.refetch();
+        }
       }
     });
   }

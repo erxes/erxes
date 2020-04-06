@@ -20,7 +20,7 @@ const RoundedBackground = styledTS<{ type: string; size?: number }>(
     (props.type === 'lead' && darken(colors.colorCoreYellow, 32)) ||
     (props.type === 'messenger' && colors.colorCoreBlue) ||
     (props.type === 'twitter-dm' && colors.socialTwitter) ||
-    (props.type === 'facebook' && colors.socialFacebook) ||
+    (props.type === 'facebook-post' && colors.socialFacebook) ||
     (props.type === 'facebook-messenger' && colors.socialFacebookMessenger) ||
     (props.type === 'gmail' && colors.socialGmail) ||
     (props.type === 'whatsapp' && colors.socialWhatsApp) ||
@@ -55,6 +55,9 @@ class IntegrationIcon extends React.PureComponent<Props> {
       case 'facebook-messenger':
         icon = 'messenger';
         break;
+      case 'facebook-post':
+        icon = 'facebook';
+        break;
       case 'twitter-dm':
         icon = 'twitter';
         break;
@@ -66,6 +69,7 @@ class IntegrationIcon extends React.PureComponent<Props> {
         icon = 'gmail';
         break;
       case 'nylas-imap':
+      case 'nylas-exchange':
       case 'nylas-office365':
       case 'nylas-outlook':
       case 'nylas-yahoo':
