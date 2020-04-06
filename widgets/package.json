@@ -28,7 +28,7 @@
     "build-server": "tsc --project tsconfig.server.json && cp -r ./server/views/ ./dist/",
     "build-webpack": "webpack --mode production --config=webpack.prod.config.js",
     "lint": "tslint 'client/**/*.@(ts|tsx)'",
-    "format": "prettier --write 'client/**/*.@(ts|tsx)'",
+    "format": "prettier --single-quote --write 'client/**/*.@(ts|tsx)'",
     "precommit": "lint-staged",
     "start": "node dist"
   },
