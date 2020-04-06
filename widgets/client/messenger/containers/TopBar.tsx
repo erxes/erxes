@@ -1,7 +1,7 @@
-import * as React from 'react';
-import { TopBar } from '../components';
-import { connection } from '../connection';
-import { AppConsumer } from './AppContext';
+import * as React from "react";
+import { TopBar } from "../components";
+import { connection } from "../connection";
+import { AppConsumer } from "./AppContext";
 
 type Props = {
   middle: React.ReactNode;

@@ -1,8 +1,8 @@
-import * as React from 'react';
-import { defaultAvatar } from '../../icons/Icons';
-import { IUser } from '../../types';
-import { __, readFile } from '../../utils';
-import { IKbCategory } from '../types';
+import * as React from "react";
+import { defaultAvatar } from "../../icons/Icons";
+import { IUser } from "../../types";
+import { __, readFile } from "../../utils";
+import { IKbCategory } from "../types";
 
 type Props = {
   category: IKbCategory;
@@ -11,10 +11,10 @@ type Props = {
 function ItemMeta({ category }: Props) {
   const { authors } = category;
 
-  let text = '';
+  let text = "";
 
   function getAuthorDetails(author: IUser) {
-    return author.details || { avatar: defaultAvatar, fullName: '' };
+    return author.details || { avatar: defaultAvatar, fullName: "" };
   }
 
   function renderAvatars() {
@@ -52,11 +52,11 @@ function ItemMeta({ category }: Props) {
       <div className="avatars">{renderAvatars()}</div>
       <div>
         <div>
-          {__('There are ')} <span>{category.numOfArticles}</span>{' '}
-          {__('articles in this category')}
+          {__("There are ")} <span>{category.numOfArticles}</span>{" "}
+          {__("articles in this category")}
         </div>
         <div>
-          {__('Written by')} <span>{text}</span>
+          {__("Written by")} <span>{text}</span>
         </div>
       </div>
     </div>

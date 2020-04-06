@@ -1,7 +1,7 @@
-import * as React from 'react';
-import { __ } from '../../utils';
-import { Articles, BackButton, ItemMeta } from '../components';
-import { IKbCategory } from '../types';
+import * as React from "react";
+import { __ } from "../../utils";
+import { Articles, BackButton, ItemMeta } from "../components";
+import { IKbCategory } from "../types";
 
 type Props = {
   category: IKbCategory | null;
@@ -17,7 +17,7 @@ function CategoryDetail({ category, goToCategories }: Props) {
     <div>
       <BackButton
         onClickHandler={goToCategories}
-        text={__('Back to categories')}
+        text={__("Back to categories")}
       />
 
       <div className="category-container">

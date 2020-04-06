@@ -1,6 +1,6 @@
-import * as React from 'react';
-import WebsiteAppDetail from '../../components/websiteApp/WebsiteAppDetail';
-import { AppConsumer } from '../AppContext';
+import * as React from "react";
+import WebsiteAppDetail from "../../components/websiteApp/WebsiteAppDetail";
+import { AppConsumer } from "../AppContext";
 
 const WebsiteAppDetailContainer = () => {
   return (

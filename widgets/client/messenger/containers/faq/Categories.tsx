@@ -1,10 +1,10 @@
-import gql from 'graphql-tag';
-import * as React from 'react';
-import { ChildProps, graphql } from 'react-apollo';
-import { Categories as DumbCategories } from '../../components/faq';
-import queries from '../../graphql';
-import { IFaqTopic } from '../../types';
-import { Articles } from './';
+import gql from "graphql-tag";
+import * as React from "react";
+import { ChildProps, graphql } from "react-apollo";
+import { Categories as DumbCategories } from "../../components/faq";
+import queries from "../../graphql";
+import { IFaqTopic } from "../../types";
+import { Articles } from "./";
 
 const Categories = (props: ChildProps<{}, QueryResponse>) => {
   const { data } = props;
@@ -35,7 +35,7 @@ const CategoriesWithData = graphql<Props, QueryResponse>(
   gql(queries.getFaqTopicQuery),
   {
     options: ({ topicId }) => ({
-      fetchPolicy: 'network-only',
+      fetchPolicy: "network-only",
       variables: {
         _id: topicId
       }

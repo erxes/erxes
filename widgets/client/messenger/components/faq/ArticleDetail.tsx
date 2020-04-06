@@ -1,9 +1,9 @@
-import * as moment from 'moment';
-import * as React from 'react';
-import { iconLeft } from '../../../icons/Icons';
-import { __, makeClickableLink } from '../../../utils';
-import { TopBar } from '../../containers';
-import { IFaqArticle, IFaqCategory } from '../../types';
+import * as moment from "moment";
+import * as React from "react";
+import { iconLeft } from "../../../icons/Icons";
+import { __, makeClickableLink } from "../../../utils";
+import { TopBar } from "../../containers";
+import { IFaqArticle, IFaqCategory } from "../../types";
 
 type Props = {
   article: IFaqArticle | null;
@@ -12,7 +12,7 @@ type Props = {
 
 export default class ArticleDetail extends React.PureComponent<Props> {
   componentDidMount() {
-    makeClickableLink('.erxes-article-content a');
+    makeClickableLink(".erxes-article-content a");
   }
 
   renderHead = (title: string) => {
@@ -48,8 +48,8 @@ export default class ArticleDetail extends React.PureComponent<Props> {
             <div className="erxes-article-content">
               <h2>{title}</h2>
               <div className="date">
-                {__('Created ')}:{' '}
-                <span>{moment(createdDate).format('lll')}</span>
+                {__("Created ")}:{" "}
+                <span>{moment(createdDate).format("lll")}</span>
               </div>
               <p>{summary}</p>
               <p dangerouslySetInnerHTML={{ __html: content }} />

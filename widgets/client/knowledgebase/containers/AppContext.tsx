@@ -1,8 +1,8 @@
-import gql from 'graphql-tag';
-import * as React from 'react';
-import client from '../../apollo-client';
-import { IKbArticle, IKbCategory } from '../types';
-import graphql from './graphql';
+import gql from "graphql-tag";
+import * as React from "react";
+import client from "../../apollo-client";
+import { IKbArticle, IKbCategory } from "../types";
+import graphql from "./graphql";
 
 interface IState {
   activeRoute: string;
@@ -29,30 +29,30 @@ export class AppProvider extends React.Component<{}, IState> {
     super(props);
 
     this.state = {
-      activeRoute: 'CATEGORIES',
+      activeRoute: "CATEGORIES",
       activeCategory: null,
       activeArticle: null,
-      searchString: ''
+      searchString: ""
     };
   }
 
   goToCategory = (category: IKbCategory) => {
     this.setState({
-      activeRoute: 'CATEGORY_DETAIL',
+      activeRoute: "CATEGORY_DETAIL",
       activeCategory: category
     });
   };
 
   goToArticle = (article: IKbArticle) => {
     this.setState({
-      activeRoute: 'ARTICLE_DETAIL',
+      activeRoute: "ARTICLE_DETAIL",
       activeArticle: article
     });
   };
 
   goToCategories = () => {
     this.setState({
-      activeRoute: 'CATEGORIES',
+      activeRoute: "CATEGORIES",
       activeCategory: null
     });
   };
@@ -61,7 +61,7 @@ export class AppProvider extends React.Component<{}, IState> {
     const { activeCategory } = this.state;
 
     this.setState({
-      activeRoute: activeCategory ? 'CATEGORY_DETAIL' : 'CATEGORIES'
+      activeRoute: activeCategory ? "CATEGORY_DETAIL" : "CATEGORIES"
     });
   };
 
@@ -76,10 +76,10 @@ export class AppProvider extends React.Component<{}, IState> {
   };
 
   search = (value: string) => {
-    let activeRoute = 'CATEGORIES';
+    let activeRoute = "CATEGORIES";
 
     if (value) {
-      activeRoute = 'ARTICLES';
+      activeRoute = "ARTICLES";
     }
 
     this.setState({ searchString: value, activeRoute });

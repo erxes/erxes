@@ -1,4 +1,4 @@
-import * as React from 'react';
+import * as React from "react";
 
 type Props = {
   searchString: string;
@@ -16,7 +16,7 @@ export default class SearchBar extends React.Component<Props> {
   };
 
   render() {
-    const { searchString = ' ', color } = this.props;
+    const { searchString = " ", color } = this.props;
 
     return (
       <div className="erxes-searchbar" style={{ backgroundColor: color }}>

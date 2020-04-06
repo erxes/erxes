@@ -1,11 +1,11 @@
-import gql from 'graphql-tag';
-import * as React from 'react';
-import { ChildProps, graphql } from 'react-apollo';
-import { IEmailParams, IIntegration } from '../../types';
-import { Form as DumbForm } from '../components';
-import { formDetailQuery } from '../graphql';
-import { ICurrentStatus, IForm, IFormDoc } from '../types';
-import { AppConsumer } from './AppContext';
+import gql from "graphql-tag";
+import * as React from "react";
+import { ChildProps, graphql } from "react-apollo";
+import { IEmailParams, IIntegration } from "../../types";
+import { Form as DumbForm } from "../components";
+import { formDetailQuery } from "../graphql";
+import { ICurrentStatus, IForm, IFormDoc } from "../types";
+import { AppConsumer } from "./AppContext";
 
 const Form = (props: ChildProps<IProps, QueryResponse>) => {
   const data = props.data;
@@ -48,7 +48,7 @@ const FormWithData = graphql<IProps, QueryResponse>(
 
   {
     options: ({ form }) => ({
-      fetchPolicy: 'network-only',
+      fetchPolicy: "network-only",
       variables: {
         _id: form._id
       }

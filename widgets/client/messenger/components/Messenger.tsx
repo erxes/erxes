@@ -1,11 +1,11 @@
-import * as React from 'react';
-import { IUser } from '../../types';
-import { AccquireInformation, ConversationDetail, Home } from '../containers';
-import { ArticleDetail, CategoryDetail } from '../containers/faq';
-import WebsiteAppDetail from '../containers/websiteApp/WebsiteAppDetail';
+import * as React from "react";
+import { IUser } from "../../types";
+import { AccquireInformation, ConversationDetail, Home } from "../containers";
+import { ArticleDetail, CategoryDetail } from "../containers/faq";
+import WebsiteAppDetail from "../containers/websiteApp/WebsiteAppDetail";
 
 type Props = {
-  activeRoute: string | '';
+  activeRoute: string | "";
   supporters: IUser[];
   loading?: boolean;
 };
@@ -16,21 +16,21 @@ function Messenger({ activeRoute, supporters, loading }: Props) {
   };
 
   switch (activeRoute) {
-    case 'conversationDetail':
-    case 'conversationCreate':
+    case "conversationDetail":
+    case "conversationCreate":
       return WithSupporters(ConversationDetail);
 
     // get user's contact information
-    case 'accquireInformation':
+    case "accquireInformation":
       return <AccquireInformation />;
 
-    case 'faqCategory':
+    case "faqCategory":
       return <CategoryDetail />;
 
-    case 'faqArticle':
+    case "faqArticle":
       return <ArticleDetail />;
 
-    case 'websiteApp':
+    case "websiteApp":
       return <WebsiteAppDetail />;
 
     default:

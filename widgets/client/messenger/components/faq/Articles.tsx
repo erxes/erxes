@@ -1,8 +1,8 @@
-import * as React from 'react';
-import { iconSearch } from '../../../icons/Icons';
-import { __ } from '../../../utils';
-import { Article } from '../../containers/faq';
-import { IFaqArticle } from '../../types';
+import * as React from "react";
+import { iconSearch } from "../../../icons/Icons";
+import { __ } from "../../../utils";
+import { Article } from "../../containers/faq";
+import { IFaqArticle } from "../../types";
 
 type Props = {
   articles: IFaqArticle[];
@@ -21,7 +21,7 @@ export default class Articles extends React.PureComponent<Props> {
       return (
         <div className="empty-articles">
           {iconSearch}
-          {__('No articles found')}
+          {__("No articles found")}
         </div>
       );
     }

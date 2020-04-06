@@ -1,5 +1,5 @@
 // get local storage
-const getLocalStorage = () => JSON.parse(localStorage.getItem('erxes') || '{}');
+const getLocalStorage = () => JSON.parse(localStorage.getItem("erxes") || "{}");
 
 // get local storage item
 export const getLocalStorageItem = (key: string) => {
@@ -14,5 +14,5 @@ export const setLocalStorageItem = (key: string, value: string) => {
 
   erxesStorage[key] = value;
 
-  localStorage.setItem('erxes', JSON.stringify(erxesStorage));
+  localStorage.setItem("erxes", JSON.stringify(erxesStorage));
 };

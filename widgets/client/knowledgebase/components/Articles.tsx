@@ -1,6 +1,6 @@
-import * as React from 'react';
-import { Article } from '../containers';
-import { IKbArticle } from '../types';
+import * as React from "react";
+import { Article } from "../containers";
+import { IKbArticle } from "../types";
 
 type Props = {
   articles: IKbArticle[];

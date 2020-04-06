@@ -1,6 +1,6 @@
-import * as React from 'react';
-import * as RTG from 'react-transition-group';
-import { Launcher, Messenger } from '../containers';
+import * as React from "react";
+import * as RTG from "react-transition-group";
+import { Launcher, Messenger } from "../containers";
 
 type Props = {
   isMessengerVisible: boolean;

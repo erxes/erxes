@@ -1,15 +1,15 @@
-import gql from 'graphql-tag';
-import client from '../../apollo-client';
-import { getLocalStorageItem } from '../../common';
-import { IBrowserInfo, IEmailParams } from '../../types';
-import { requestBrowserInfo } from '../../utils';
-import { connection } from '../connection';
+import gql from "graphql-tag";
+import client from "../../apollo-client";
+import { getLocalStorageItem } from "../../common";
+import { IBrowserInfo, IEmailParams } from "../../types";
+import { requestBrowserInfo } from "../../utils";
+import { connection } from "../connection";
 import {
   increaseViewCountMutation,
   saveFormMutation,
   sendEmailMutation
-} from '../graphql';
-import { IFormDoc, ISaveFormResponse } from '../types';
+} from "../graphql";
+import { IFormDoc, ISaveFormResponse } from "../types";
 
 /*
  * Send message to iframe's parent
@@ -19,17 +19,17 @@ export const postMessage = (options: any) => {
   window.parent.postMessage(
     {
       fromErxes: true,
-      source: 'fromForms',
+      source: "fromForms",
       setting: connection.setting,
       ...options
     },
-    '*'
+    "*"
   );
 };
 
 export const saveBrowserInfo = () => {
   requestBrowserInfo({
-    source: 'fromForms',
+    source: "fromForms",
     postData: {
       setting: connection.setting
     },
@@ -100,7 +100,7 @@ export const saveLead = (params: {
     formId,
     browserInfo,
     submissions,
-    cachedCustomerId: getLocalStorageItem('customerId')
+    cachedCustomerId: getLocalStorageItem("customerId")
   };
 
   client
@@ -113,9 +113,9 @@ export const saveLead = (params: {
       if (data) {
         saveCallback(data.widgetsSaveLead);
 
-        if (data.widgetsSaveLead && data.widgetsSaveLead.status === 'ok') {
+        if (data.widgetsSaveLead && data.widgetsSaveLead.status === "ok") {
           postMessage({
-            message: 'formSuccess',
+            message: "formSuccess",
             variables
           });
         }
@@ -123,6 +123,6 @@ export const saveLead = (params: {
     })
 
     .catch(e => {
-      saveCallback({ status: 'error', errors: [{ text: e.message }] });
+      saveCallback({ status: "error", errors: [{ text: e.message }] });
     });
 };

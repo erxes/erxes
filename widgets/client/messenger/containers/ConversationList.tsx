@@ -1,11 +1,11 @@
-import gql from 'graphql-tag';
-import * as React from 'react';
-import { ChildProps, graphql } from 'react-apollo';
-import { ConversationList as DumbConversationList } from '../components';
-import { connection } from '../connection';
-import graphqTypes from '../graphql';
-import { IConversation } from '../types';
-import { AppConsumer } from './AppContext';
+import gql from "graphql-tag";
+import * as React from "react";
+import { ChildProps, graphql } from "react-apollo";
+import { ConversationList as DumbConversationList } from "../components";
+import { connection } from "../connection";
+import graphqTypes from "../graphql";
+import { IConversation } from "../types";
+import { AppConsumer } from "./AppContext";
 
 type QueryResponse = {
   widgetsConversations: IConversation[];
@@ -29,7 +29,7 @@ class ConversationList extends React.PureComponent<
       <AppConsumer>
         {({ goToConversation, changeRoute }) => {
           const createConversation = () => {
-            changeRoute('conversationCreate');
+            changeRoute("conversationCreate");
           };
 
           return (
@@ -51,7 +51,7 @@ const ListWithData = graphql<{}, QueryResponse>(
   gql(graphqTypes.allConversations),
   {
     options: () => ({
-      fetchPolicy: 'network-only',
+      fetchPolicy: "network-only",
       variables: connection.data
     })
   }

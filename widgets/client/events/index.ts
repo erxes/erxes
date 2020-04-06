@@ -1,22 +1,22 @@
-import { getLocalStorageItem, setLocalStorageItem } from '../common';
-import { getEnv } from '../utils';
+import { getLocalStorageItem, setLocalStorageItem } from "../common";
+import { getEnv } from "../utils";
 
 const Events: any = {
   init(args: any) {
     this.sendEvent({
-      name: 'pageView',
+      name: "pageView",
       attributes: { url: args.url }
     });
   },
 
   identifyCustomer(args: { email?: string; phone?: string; code?: string }) {
-    this.sendRequest('events-identify-customer', { args });
+    this.sendRequest("events-identify-customer", { args });
   },
 
   updateCustomerProperty({ name, value }: { name: string; value: any }) {
-    const customerId = getLocalStorageItem('customerId');
+    const customerId = getLocalStorageItem("customerId");
 
-    this.sendRequest('events-update-customer-property', {
+    this.sendRequest("events-update-customer-property", {
       customerId,
       name,
       value
@@ -27,17 +27,17 @@ const Events: any = {
     const { API_URL } = getEnv();
 
     fetch(`${API_URL}/${path}`, {
-      method: 'post',
+      method: "post",
       headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json'
+        Accept: "application/json",
+        "Content-Type": "application/json"
       },
       body: JSON.stringify(data)
     })
       .then(response => response.json())
       .then(response => {
         if (response.customerId) {
-          setLocalStorageItem('customerId', response.customerId);
+          setLocalStorageItem("customerId", response.customerId);
         }
       })
       .catch(errorResponse => {
@@ -46,16 +46,16 @@ const Events: any = {
   },
 
   sendEvent(data: any) {
-    const customerId = getLocalStorageItem('customerId');
+    const customerId = getLocalStorageItem("customerId");
 
-    this.sendRequest('events-receive', {
+    this.sendRequest("events-receive", {
       customerId,
       ...data
     });
   }
 };
 
-window.addEventListener('message', event => {
+window.addEventListener("message", event => {
   const { data } = event;
 
   if (!data.fromPublisher) {

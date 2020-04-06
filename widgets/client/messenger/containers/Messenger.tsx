@@ -1,11 +1,11 @@
-import gql from 'graphql-tag';
-import * as React from 'react';
-import { ChildProps, graphql } from 'react-apollo';
-import { IUser } from '../../types';
-import { Messenger as DumbMessenger } from '../components';
-import { connection } from '../connection';
-import graphqTypes from '../graphql';
-import { AppConsumer } from './AppContext';
+import gql from "graphql-tag";
+import * as React from "react";
+import { ChildProps, graphql } from "react-apollo";
+import { IUser } from "../../types";
+import { Messenger as DumbMessenger } from "../components";
+import { connection } from "../connection";
+import graphqTypes from "../graphql";
+import { AppConsumer } from "./AppContext";
 
 type QueryResponse = {
   widgetsMessengerSupporters: IUser[];
@@ -43,7 +43,7 @@ const MessengerWithData = graphql<{}, QueryResponse>(
       variables: {
         integrationId: connection.data.integrationId
       },
-      fetchPolicy: 'network-only'
+      fetchPolicy: "network-only"
     })
   }
 )(MessengerContainer);

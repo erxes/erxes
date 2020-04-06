@@ -1,9 +1,9 @@
-import gql from 'graphql-tag';
-import * as React from 'react';
-import { ChildProps, graphql } from 'react-apollo';
-import { Articles as DumbArticles } from '../../components/faq';
-import queries from '../../graphql';
-import { IFaqArticle } from '../../types';
+import gql from "graphql-tag";
+import * as React from "react";
+import { ChildProps, graphql } from "react-apollo";
+import { Articles as DumbArticles } from "../../components/faq";
+import queries from "../../graphql";
+import { IFaqArticle } from "../../types";
 
 type QueryResponse = {
   widgetsKnowledgeBaseArticles: IFaqArticle[];
@@ -34,7 +34,7 @@ const WithData = graphql<Props, QueryResponse>(
   gql(queries.faqSearchArticlesQuery),
   {
     options: ownProps => ({
-      fetchPolicy: 'network-only',
+      fetchPolicy: "network-only",
       variables: {
         topicId: ownProps.topicId,
         searchString: ownProps.searchString

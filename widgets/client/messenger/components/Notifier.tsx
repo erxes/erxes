@@ -1,11 +1,11 @@
-import * as classNames from 'classnames';
-import * as React from 'react';
-import * as RTG from 'react-transition-group';
-import { iconClose } from '../../icons/Icons';
-import { striptags } from '../../utils';
-import { EngageMessage } from '../components';
-import { User } from '../components/common';
-import { IEngageData, IMessage } from '../types';
+import * as classNames from "classnames";
+import * as React from "react";
+import * as RTG from "react-transition-group";
+import { iconClose } from "../../icons/Icons";
+import { striptags } from "../../utils";
+import { EngageMessage } from "../components";
+import { User } from "../components/common";
+import { IEngageData, IMessage } from "../types";
 
 type Props = {
   message: IMessage;
@@ -44,7 +44,7 @@ class Notifier extends React.PureComponent<Props, State> {
     const { message } = this.props;
     const { engageData, user, content } = message;
 
-    let fullName = '';
+    let fullName = "";
 
     if (user && user.details) {
       fullName = user.details.fullName;
@@ -68,8 +68,8 @@ class Notifier extends React.PureComponent<Props, State> {
   render() {
     const { message, readConversation } = this.props;
     const engageData = message.engageData || ({} as IEngageData);
-    const classes = classNames('erxes-notification', {
-      'full-message': engageData.sentAs === 'fullMessage'
+    const classes = classNames("erxes-notification", {
+      "full-message": engageData.sentAs === "fullMessage"
     });
 
     return (

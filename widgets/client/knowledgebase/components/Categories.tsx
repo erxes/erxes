@@ -1,6 +1,6 @@
-import * as React from 'react';
-import { Category } from '../containers';
-import { IKbTopic } from '../types';
+import * as React from "react";
+import { Category } from "../containers";
+import { IKbTopic } from "../types";
 
 type Props = {
   kbTopic?: IKbTopic;

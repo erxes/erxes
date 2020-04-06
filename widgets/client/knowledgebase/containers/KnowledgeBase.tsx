@@ -1,12 +1,12 @@
-import gql from 'graphql-tag';
-import * as React from 'react';
-import { ChildProps, graphql } from 'react-apollo';
-import { setLocale } from '../../utils';
-import { KnowledgeBase } from '../components';
-import { connection } from '../connection';
-import { IKbTopic } from '../types';
-import { AppConsumer, AppProvider } from './AppContext';
-import queries from './graphql';
+import gql from "graphql-tag";
+import * as React from "react";
+import { ChildProps, graphql } from "react-apollo";
+import { setLocale } from "../../utils";
+import { KnowledgeBase } from "../components";
+import { connection } from "../connection";
+import { IKbTopic } from "../types";
+import { AppConsumer, AppProvider } from "./AppContext";
+import queries from "./graphql";
 
 type QueryResponse = {
   knowledgeBaseTopicDetail: IKbTopic;
@@ -48,7 +48,7 @@ const Topic = (props: ChildProps<{}, QueryResponse>) => {
 
 const TopicWithData = graphql<{}, QueryResponse>(gql(queries.getKbTopicQuery), {
   options: () => ({
-    fetchPolicy: 'network-only',
+    fetchPolicy: "network-only",
     variables: {
       _id: connection.setting.topic_id
     }

@@ -1,18 +1,18 @@
-import * as classNames from 'classnames';
-import * as moment from 'moment';
-import * as React from 'react';
-import * as RTG from 'react-transition-group';
-import { facebook, twitter, youtube } from '../../icons/Icons';
+import * as classNames from "classnames";
+import * as moment from "moment";
+import * as React from "react";
+import * as RTG from "react-transition-group";
+import { facebook, twitter, youtube } from "../../icons/Icons";
 import {
   IIntegrationLink,
   IIntegrationMessengerData,
   IIntegrationMessengerDataMessagesItem,
   IUser
-} from '../../types';
-import { __ } from '../../utils';
-import { Integrations, TopBar } from '../containers';
-import { SocialLink, Supporters } from './common';
-import { FaqCategories } from './faq';
+} from "../../types";
+import { __ } from "../../utils";
+import { Integrations, TopBar } from "../containers";
+import { SocialLink, Supporters } from "./common";
+import { FaqCategories } from "./faq";
 
 type Props = {
   supporters: IUser[];
@@ -59,7 +59,7 @@ class Home extends React.Component<Props, State> {
       return null;
     }
 
-    const indicatorClasses = classNames('indicator', {
+    const indicatorClasses = classNames("indicator", {
       left: this.state.activeSupport
     });
 
@@ -69,8 +69,8 @@ class Home extends React.Component<Props, State> {
           style={{ backgroundColor: this.props.color }}
           className={indicatorClasses}
         />
-        <span>{__('Support')}</span>
-        <span>{__('Faq')}</span>
+        <span>{__("Support")}</span>
+        <span>{__("Faq")}</span>
       </div>
     );
   }
@@ -83,9 +83,9 @@ class Home extends React.Component<Props, State> {
 
     return (
       <div className="welcome-info">
-        <h3>{greetings.title || __('Welcome')}</h3>
+        <h3>{greetings.title || __("Welcome")}</h3>
         <div className="description">
-          {greetings.message || __('Welcome description')}
+          {greetings.message || __("Welcome description")}
         </div>
       </div>
     );
@@ -96,7 +96,7 @@ class Home extends React.Component<Props, State> {
 
     return (
       <div className="assist-bar">
-        <time>{moment(new Date()).format('lll')}</time>
+        <time>{moment(new Date()).format("lll")}</time>
         <div className="socials">
           <SocialLink url={links.facebook} icon={facebook} />
           <SocialLink url={links.twitter} icon={twitter} />
@@ -111,7 +111,7 @@ class Home extends React.Component<Props, State> {
 
     return (
       <div
-        className={classNames('erxes-welcome', {
+        className={classNames("erxes-welcome", {
           tabbed: messengerData.knowledgeBaseTopicId
         })}
         ref={node => {
@@ -137,7 +137,7 @@ class Home extends React.Component<Props, State> {
       >
         <TopBar middle={this.renderHead()} />
         <div
-          className={classNames('erxes-home-content', {
+          className={classNames("erxes-home-content", {
             tabbed: topicId
           })}
         >

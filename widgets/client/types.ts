@@ -1,4 +1,4 @@
-import { ICallout } from './form/types';
+import { ICallout } from "./form/types";
 
 export type ENV = {
   API_URL: string;

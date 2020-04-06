@@ -1,8 +1,8 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { Notifier as DumbNotifier } from '../components';
-import { IMessage } from '../types';
-import { AppConsumer } from './AppContext';
+import { Notifier as DumbNotifier } from "../components";
+import { IMessage } from "../types";
+import { AppConsumer } from "./AppContext";
 
 type Props = {
   message?: IMessage;
@@ -23,7 +23,7 @@ export default class Notifier extends React.Component<Props> {
             if (message._id) {
               const engageData = message.engageData;
 
-              if (engageData && engageData.sentAs === 'fullMessage') {
+              if (engageData && engageData.sentAs === "fullMessage") {
                 toggleNotifierFull();
               } else {
                 toggleNotifier();

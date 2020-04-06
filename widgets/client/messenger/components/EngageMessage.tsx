@@ -1,9 +1,9 @@
-import * as classNames from 'classnames';
-import * as React from 'react';
-import { IUser } from '../../types';
-import { striptags } from '../../utils';
-import { User } from '../components/common';
-import { IEngageData } from '../types';
+import * as classNames from "classnames";
+import * as React from "react";
+import { IUser } from "../../types";
+import { striptags } from "../../utils";
+import { User } from "../components/common";
+import { IEngageData } from "../types";
 
 const Component = React.Component;
 
@@ -23,12 +23,12 @@ class EngageMessage extends Component<Props> {
     const { content, sentAs } = this.props.engageData;
     const { user } = this.props;
 
-    if (sentAs === 'badge') {
+    if (sentAs === "badge") {
       return null;
     }
 
-    const classes = classNames('notification-body', {
-      'full-message': sentAs === 'fullMessage'
+    const classes = classNames("notification-body", {
+      "full-message": sentAs === "fullMessage"
     });
 
     return (
@@ -39,7 +39,7 @@ class EngageMessage extends Component<Props> {
             {this.renderUserFullName(user)}
           </div>
           <div className={classes}>
-            {sentAs === 'fullMessage' ? (
+            {sentAs === "fullMessage" ? (
               <span dangerouslySetInnerHTML={{ __html: content }} />
             ) : (
               striptags(content)

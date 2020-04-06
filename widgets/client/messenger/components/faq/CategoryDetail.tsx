@@ -1,9 +1,9 @@
-import * as React from 'react';
-import { iconLeft } from '../../../icons/Icons';
-import { TopBar } from '../../containers';
-import { Articles } from '../../containers/faq';
-import { IFaqCategory } from '../../types';
-import { SearchBar } from './';
+import * as React from "react";
+import { iconLeft } from "../../../icons/Icons";
+import { TopBar } from "../../containers";
+import { Articles } from "../../containers/faq";
+import { IFaqCategory } from "../../types";
+import { SearchBar } from "./";
 
 type Props = {
   category: IFaqCategory;
@@ -20,7 +20,7 @@ class CategoryDetail extends React.Component<Props, IState> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { searchString: '' };
+    this.state = { searchString: "" };
 
     this.search = this.search.bind(this);
   }

@@ -1,6 +1,6 @@
-import * as React from 'react';
-import { App as DumbApp } from '../components';
-import { AppConsumer, AppProvider } from './AppContext';
+import * as React from "react";
+import { App as DumbApp } from "../components";
+import { AppConsumer, AppProvider } from "./AppContext";
 
 type Props = {
   toggle: (isVisible?: boolean) => void;
@@ -11,10 +11,10 @@ type Props = {
 
 class App extends React.Component<Props> {
   componentDidMount() {
-    window.addEventListener('message', event => {
+    window.addEventListener("message", event => {
       if (event.data.fromPublisher) {
         // receive show messenger command from publisher
-        if (event.data.action === 'showMessenger') {
+        if (event.data.action === "showMessenger") {
           this.props.toggle(false);
         }
       }

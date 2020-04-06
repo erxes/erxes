@@ -1,3 +1,3 @@
-import BrandInfo from './BrandInfo';
+import BrandInfo from "./BrandInfo";
 
 export { BrandInfo };

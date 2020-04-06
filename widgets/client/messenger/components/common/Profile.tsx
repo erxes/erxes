@@ -1,5 +1,5 @@
-import * as classNames from 'classnames';
-import * as React from 'react';
+import * as classNames from "classnames";
+import * as React from "react";
 import {
   defaultAvatar,
   facebook,
@@ -8,10 +8,10 @@ import {
   linkedin,
   twitter,
   youtube
-} from '../../../icons/Icons';
-import { IParticipator, IUserDetails, IUserLinks } from '../../../types';
-import { readFile } from '../../../utils';
-import { SocialLink } from './';
+} from "../../../icons/Icons";
+import { IParticipator, IUserDetails, IUserLinks } from "../../../types";
+import { readFile } from "../../../utils";
+import { SocialLink } from "./";
 
 type Props = {
   user?: IParticipator;
@@ -48,7 +48,7 @@ function Profile(props: Props) {
     );
   };
 
-  const stateClass = classNames('erxes-state', {
+  const stateClass = classNames("erxes-state", {
     online: isOnline
   });
 

@@ -1,8 +1,8 @@
-import * as React from 'react';
-import { iconPlus } from '../../icons/Icons';
-import { __ } from '../../utils';
-import { ConversationItem } from '../containers';
-import { IConversation } from '../types';
+import * as React from "react";
+import { iconPlus } from "../../icons/Icons";
+import { __ } from "../../utils";
+import { ConversationItem } from "../containers";
+import { IConversation } from "../types";
 
 type Props = {
   conversations: IConversation[];
@@ -30,9 +30,9 @@ function ConversationList(props: Props) {
           <span>{iconPlus}</span>
         </div>
         <div className="erxes-right-side">
-          <div className="erxes-name">{__('Start new conversation')}</div>
+          <div className="erxes-name">{__("Start new conversation")}</div>
           <div className="erxes-last-message">
-            {__('Talk with support staff')}
+            {__("Talk with support staff")}
           </div>
         </div>
       </li>

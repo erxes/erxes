@@ -1,6 +1,6 @@
-import * as React from 'react';
-import { SearchBar } from '../components';
-import { AppConsumer } from './AppContext';
+import * as React from "react";
+import { SearchBar } from "../components";
+import { AppConsumer } from "./AppContext";
 
 type Props = {
   color: string;

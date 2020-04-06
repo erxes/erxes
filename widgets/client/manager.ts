@@ -1,7 +1,7 @@
 const script =
   document.currentScript ||
   (() => {
-    const scripts = document.getElementsByTagName('script');
+    const scripts = document.getElementsByTagName("script");
 
     return scripts[scripts.length - 1];
   })();
@@ -16,7 +16,7 @@ if (script && script instanceof HTMLScriptElement) {
     fetch(`${apiUrl}/script-manager?id=${id}`)
       .then(res => res.text())
       .then(text => {
-        const scrpt = document.createElement('script');
+        const scrpt = document.createElement("script");
 
         scrpt.innerHTML = text;
 

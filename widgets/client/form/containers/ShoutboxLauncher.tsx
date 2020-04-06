@@ -1,6 +1,6 @@
-import * as React from 'react';
-import { ShoutboxLauncher } from '../components';
-import { AppConsumer } from './AppContext';
+import * as React from "react";
+import { ShoutboxLauncher } from "../components";
+import { AppConsumer } from "./AppContext";
 
 const container = () => (
   <AppConsumer>
@@ -11,7 +11,7 @@ const container = () => (
         <ShoutboxLauncher
           isFormVisible={isFormVisible}
           onClick={toggleShoutbox}
-          color={leadData.themeColor || ''}
+          color={leadData.themeColor || ""}
         />
       );
     }}

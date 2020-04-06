@@ -1,16 +1,16 @@
-import * as classNames from 'classnames';
-import * as React from 'react';
-import * as RTG from 'react-transition-group';
-import { setLocalStorageItem } from '../../common';
+import * as classNames from "classnames";
+import * as React from "react";
+import * as RTG from "react-transition-group";
+import { setLocalStorageItem } from "../../common";
 import {
   IIntegrationMessengerData,
   IIntegrationMessengerDataMessagesItem,
   IIntegrationUiOptions
-} from '../../types';
-import { makeClickableLink, scrollTo } from '../../utils';
-import { IMessage } from '../types';
-import { Message } from './';
-import AccquireInformation from './AccquireInformation';
+} from "../../types";
+import { makeClickableLink, scrollTo } from "../../utils";
+import { IMessage } from "../types";
+import { Message } from "./";
+import AccquireInformation from "./AccquireInformation";
 
 type Props = {
   messages: IMessage[];
@@ -45,7 +45,7 @@ class MessagesList extends React.Component<Props, State> {
   componentDidMount() {
     if (this.node) {
       this.node.scrollTop = this.node.scrollHeight;
-      makeClickableLink('#erxes-messages a');
+      makeClickableLink("#erxes-messages a");
     }
   }
 
@@ -63,14 +63,14 @@ class MessagesList extends React.Component<Props, State> {
       if (this.node && this.shouldScrollBottom) {
         scrollTo(this.node, this.node.scrollHeight, 500);
       }
-      makeClickableLink('#erxes-messages a');
+      makeClickableLink("#erxes-messages a");
     }
   }
 
   onNotify = ({ type, value }: { type: string; value: string }) => {
     this.props.saveGetNotified({ type, value }, () => {
       this.setState({ hideNotifyInput: true }, () =>
-        setLocalStorageItem('hasNotified', 'true')
+        setLocalStorageItem("hasNotified", "true")
       );
     });
   };
@@ -100,7 +100,7 @@ class MessagesList extends React.Component<Props, State> {
 
       return (
         <li className="erxes-spacial-message">
-          <span> {messages.thank || 'Thank you. '}</span>
+          <span> {messages.thank || "Thank you. "}</span>
         </li>
       );
     }
@@ -131,7 +131,7 @@ class MessagesList extends React.Component<Props, State> {
   render() {
     const { uiOptions, messengerData, messages } = this.props;
     const { color, wallpaper } = uiOptions;
-    const backgroundClass = classNames('erxes-messages-background', {
+    const backgroundClass = classNames("erxes-messages-background", {
       [`bg-${wallpaper}`]: wallpaper
     });
 

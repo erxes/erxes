@@ -1,6 +1,6 @@
-import * as React from 'react';
-import { ItemMeta } from '../components';
-import { IKbCategory } from '../types';
+import * as React from "react";
+import { ItemMeta } from "../components";
+import { IKbCategory } from "../types";
 
 type Props = {
   category: IKbCategory;

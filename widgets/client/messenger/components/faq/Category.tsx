@@ -1,5 +1,5 @@
-import * as React from 'react';
-import { IFaqCategory } from '../../types';
+import * as React from "react";
+import { IFaqCategory } from "../../types";
 
 type Props = {
   category: IFaqCategory;
