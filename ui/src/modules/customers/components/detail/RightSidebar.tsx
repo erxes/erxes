@@ -23,7 +23,7 @@ export default class RightSidebar extends React.Component<Props> {
     const { integration, visitorContactInfo } = customer;
 
     if (!integration && !visitorContactInfo) {
-      return <EmptyState icon="clipboard" text="Empty" size="small" />;
+      return <EmptyState icon="folder-2" text="Empty" size="small" />;
     }
 
     let integrationNode: React.ReactNode = null;

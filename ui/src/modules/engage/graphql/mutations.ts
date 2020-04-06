@@ -114,7 +114,6 @@ const segmentsAdd = `
     $description: String,
     $subOf: String,
     $color: String,
-    $connector: String,
     $conditions: [SegmentCondition],
   ) {
 
@@ -124,7 +123,6 @@ const segmentsAdd = `
       description: $description,
       subOf: $subOf,
       color: $color,
-      connector: $connector,
       conditions: $conditions,
     ) {
       _id

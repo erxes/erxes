@@ -21,7 +21,9 @@ function Sidebar({
       <IntegrationFilter type={type} loadingMainQuery={loadingMainQuery} />
       <BrandFilter type={type} loadingMainQuery={loadingMainQuery} />
       <LeadFilter type={type} loadingMainQuery={loadingMainQuery} />
-      <LeadStatusFilter type={type} loadingMainQuery={loadingMainQuery} />
+      {type === 'lead' && (
+        <LeadStatusFilter type={type} loadingMainQuery={loadingMainQuery} />
+      )}
     </Wrapper.Sidebar>
   );
 }

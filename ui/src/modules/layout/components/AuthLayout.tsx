@@ -64,13 +64,13 @@ class AuthLayout extends React.Component<Props, {}> {
             <Col md={6}>
               <AuthDescription>
                 <img src="/images/logo.png" alt="erxes" />
-                <h1>Open Source Growth Marketing Platform</h1>
+                <h1>{__('Open Source Growth Marketing Platform')}</h1>
                 <p>
                   {__(
                     'Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot with the mission and community-driven ecosystem.'
                   )}
                 </p>
-                <a href="http://erxes.io/">« Go to home page</a>
+                <a href={__('Homepage link')}>« {__('Go to home page')}</a>
               </AuthDescription>
             </Col>
             <Col md={{ span: 5, offset: 1 }}>{content}</Col>

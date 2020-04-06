@@ -54,7 +54,7 @@ class Home extends React.Component<Props> {
         <Popover.Title as="h3">
           {__('Marketing campaigns')}
           <Link to="/settings/boards/growthHack">
-            <Icon icon="settings" />
+            <Icon icon="cog" size={14} />
           </Link>
         </Popover.Title>
         <Popover.Content>

@@ -42,7 +42,7 @@ class Items extends React.Component<Props, { openItemId?: string }> {
     const { onChangeItem, items, data } = this.props;
 
     if (items.length === 0) {
-      return <EmptyState icon="folder" text={`No ${data.options.type}`} />;
+      return <EmptyState icon="folder-2" text={`No ${data.options.type}`} />;
     }
 
     const Item = data.options.Item;
@@ -75,7 +75,7 @@ class Items extends React.Component<Props, { openItemId?: string }> {
 
     const trigger = (
       <button>
-        <Icon icon="add" />
+        <Icon icon="plus-circle" />
       </button>
     );
 

@@ -4,7 +4,7 @@ import { IOption } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import SelectCompanies from 'modules/companies/containers/SelectCompanies';
 import SelectCustomers from 'modules/customers/containers/common/SelectCustomers';
-import { KIND_CHOICES } from 'modules/settings/integrations/constants';
+import { INTEGRATION_KINDS } from 'modules/settings/integrations/constants';
 import React from 'react';
 import Select from 'react-select-plus';
 import options from '../options';
@@ -29,12 +29,13 @@ type Props = {
 const TicketMainActionBar = (props: Props) => {
   const { queryParams, onSelect } = props;
 
-  const sourceValues = KIND_CHOICES.ALL_LIST.map(key => ({
-    label: key,
-    value: key
+  const sourceValues = INTEGRATION_KINDS.ALL.map(kind => ({
+    label: kind.text,
+    value: kind.value
   }));
+
   sourceValues.push({
-    label: 'other',
+    label: 'Other',
     value: 'other'
   });
 

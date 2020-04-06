@@ -6,7 +6,7 @@ const ActionButton = styled.div`
 
   * {
     padding: 0;
-    margin-left: 10px;
+    margin-left: 8px;
 
     &:first-child {
       margin-left: 0;
