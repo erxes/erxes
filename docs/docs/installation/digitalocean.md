@@ -3,7 +3,7 @@ id: digitalocean
 title: DigitalOcean Marketplace
 ---
 
-Launch a Droplet selecting `erxes` in the DigitalOcean Marketplace.  
+Launch a Droplet using [erxes](https://marketplace.digitalocean.com/apps/erxes) in the DigitalOcean Marketplace.  
 Once you have created the Droplet, you will then have erxes up and running and it will be accessible by public IP address of the Droplet.
 
 ## Create an admin user
