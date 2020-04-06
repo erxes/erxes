@@ -82,8 +82,10 @@ class Channels extends React.Component<Props, {}> {
         mainHead={
           <HeaderDescription
             icon="/images/actions/31.svg"
-            title="Channels"
-            description="Channels are important to know how and where your team members are spread out. Manage your channels and stay at the top of your game."
+            title={__('Channels')}
+            description={__(
+              'Channels are important to know how and where your team members are spread out. Manage your channels and stay at the top of your game.'
+            )}
           />
         }
         leftSidebar={

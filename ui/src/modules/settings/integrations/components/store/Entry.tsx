@@ -36,6 +36,7 @@ type TotalCount = {
   viber: number;
   twilio: number;
   whatsapp: number;
+  exchange: number;
 };
 
 type Props = {
@@ -200,6 +201,16 @@ function renderCreate(createUrl, createModal) {
 
     return (
       <ModalTrigger title="Add gmail" trigger={trigger} content={content} />
+    );
+  }
+
+  if (createModal === INTEGRATION_KINDS.NYLAS_EXCHANGE) {
+    const trigger = <h6>+ {__('Add')}</h6>;
+
+    const content = props => <NylasForm kind={createModal} {...props} />;
+
+    return (
+      <ModalTrigger title="Add Exchange" trigger={trigger} content={content} />
     );
   }
 

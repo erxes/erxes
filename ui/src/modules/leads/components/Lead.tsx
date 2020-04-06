@@ -242,109 +242,111 @@ class Lead extends React.Component<Props, State> {
     const { integration } = this.props;
     const leadData = integration && integration.leadData;
     const brand = integration && integration.brand;
-    const breadcrumb = [{ title: __('Leads'), link: '/leads' }];
+    const breadcrumb = [{ title: __('Pop Ups'), link: '/leads' }];
     const constant = isSkip ? 'form' : 'callout';
 
     const onChange = e =>
       this.onChange('title', (e.currentTarget as HTMLInputElement).value);
 
     return (
-      <StepWrapper>
+      <>
         <Wrapper.Header title={__('Leads')} breadcrumb={breadcrumb} />
-        <TitleContainer>
-          <div>{__('Title')}</div>
-          <FormControl
-            required={true}
-            onChange={onChange}
-            defaultValue={title}
-            autoFocus={true}
-          />
-          {this.renderSaveButton()}
-        </TitleContainer>
-        <Steps active={activeStep || 1}>
-          <Step img="/images/icons/erxes-04.svg" title="Type">
-            <ChooseType
-              onChange={this.onChange}
-              type={type}
-              calloutTitle={calloutTitle}
-              calloutBtnText={calloutBtnText}
-              color={color}
-              theme={theme}
+        <StepWrapper>
+          <TitleContainer>
+            <div>{__('Title')}</div>
+            <FormControl
+              required={true}
+              onChange={onChange}
+              defaultValue={title}
+              autoFocus={true}
             />
-          </Step>
-          <Step img="/images/icons/erxes-03.svg" title="CallOut">
-            <CallOut
-              onChange={this.onChange}
-              type={type}
-              calloutTitle={calloutTitle}
-              calloutBtnText={calloutBtnText}
-              bodyValue={bodyValue}
-              color={color}
-              theme={theme}
-              image={logoPreviewUrl}
-              skip={isSkip}
-            />
-          </Step>
-          <Step img="/images/icons/erxes-12.svg" title={'Form'}>
-            <FormStep
-              type={type}
-              color={color}
-              theme={theme}
-              formId={integration && integration.formId}
-              formData={formData}
-              afterDbSave={this.props.afterFormDbSave}
-              onDocChange={this.onFormDocChange}
-              onInit={this.onFormInit}
-              isReadyToSaveForm={this.props.isReadyToSaveForm}
-            />
-          </Step>
-          <Step img="/images/icons/erxes-02.svg" title="Rule">
-            <ConditionsRule rules={rules || []} onChange={this.onChange} />
-          </Step>
-          <Step img="/images/icons/erxes-06.svg" title="Options">
-            <OptionStep
-              onChange={this.onChange}
-              type={type}
-              color={color}
-              brand={brand}
-              theme={theme}
-              language={language}
-              formData={formData}
-            />
-          </Step>
-          <Step img="/images/icons/erxes-13.svg" title="Thank content">
-            <SuccessStep
-              onChange={this.onChange}
-              thankContent={thankContent}
-              type={type}
-              color={color}
-              theme={theme}
-              successAction={successAction}
-              leadData={leadData}
-            />
-          </Step>
-          <Step
-            img="/images/icons/erxes-19.svg"
-            title="Full Preview"
-            noButton={true}
-          >
-            <FullPreviewStep
-              onChange={this.onChange}
-              calloutTitle={calloutTitle}
-              calloutBtnText={calloutBtnText}
-              bodyValue={bodyValue}
-              type={type}
-              color={color}
-              theme={theme}
-              image={logoPreviewUrl}
-              thankContent={thankContent}
-              skip={isSkip}
-              carousel={carousel || constant}
-              formData={formData}
-            />
-          </Step>
-        </Steps>
-      </StepWrapper>
+            {this.renderSaveButton()}
+          </TitleContainer>
+          <Steps active={activeStep || 1}>
+            <Step img="/images/icons/erxes-04.svg" title="Type">
+              <ChooseType
+                onChange={this.onChange}
+                type={type}
+                calloutTitle={calloutTitle}
+                calloutBtnText={calloutBtnText}
+                color={color}
+                theme={theme}
+              />
+            </Step>
+            <Step img="/images/icons/erxes-03.svg" title="CallOut">
+              <CallOut
+                onChange={this.onChange}
+                type={type}
+                calloutTitle={calloutTitle}
+                calloutBtnText={calloutBtnText}
+                bodyValue={bodyValue}
+                color={color}
+                theme={theme}
+                image={logoPreviewUrl}
+                skip={isSkip}
+              />
+            </Step>
+            <Step img="/images/icons/erxes-12.svg" title={'Form'}>
+              <FormStep
+                type={type}
+                color={color}
+                theme={theme}
+                formId={integration && integration.formId}
+                formData={formData}
+                afterDbSave={this.props.afterFormDbSave}
+                onDocChange={this.onFormDocChange}
+                onInit={this.onFormInit}
+                isReadyToSaveForm={this.props.isReadyToSaveForm}
+              />
+            </Step>
+            <Step img="/images/icons/erxes-02.svg" title="Rule">
+              <ConditionsRule rules={rules || []} onChange={this.onChange} />
+            </Step>
+            <Step img="/images/icons/erxes-06.svg" title="Options">
+              <OptionStep
+                onChange={this.onChange}
+                type={type}
+                color={color}
+                brand={brand}
+                theme={theme}
+                language={language}
+                formData={formData}
+              />
+            </Step>
+            <Step img="/images/icons/erxes-13.svg" title="Thank content">
+              <SuccessStep
+                onChange={this.onChange}
+                thankContent={thankContent}
+                type={type}
+                color={color}
+                theme={theme}
+                successAction={successAction}
+                leadData={leadData}
+              />
+            </Step>
+            <Step
+              img="/images/icons/erxes-19.svg"
+              title="Full Preview"
+              noButton={true}
+            >
+              <FullPreviewStep
+                onChange={this.onChange}
+                calloutTitle={calloutTitle}
+                calloutBtnText={calloutBtnText}
+                bodyValue={bodyValue}
+                type={type}
+                color={color}
+                theme={theme}
+                image={logoPreviewUrl}
+                thankContent={thankContent}
+                skip={isSkip}
+                carousel={carousel || constant}
+                formData={formData}
+              />
+            </Step>
+          </Steps>
+        </StepWrapper>
+      </>
     );
   }
 }

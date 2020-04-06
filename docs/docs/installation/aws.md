@@ -3,7 +3,7 @@ id: aws
 title: AWS Marketplace
 ---
 
-Launch an EC2 instance selecting `erxes` in the AWS Marketplace.  
+Launch an EC2 instance using [erxes](https://aws.amazon.com/marketplace/pp/B086MZ9FVS/) in the AWS Marketplace.  
 Once you have created the EC2 instance using erxes AMI product in the AWS Marketplace, you will then have erxes up and running and it will be accessible by public hostname of the EC2 instance.
 
 ## Create an admin user
