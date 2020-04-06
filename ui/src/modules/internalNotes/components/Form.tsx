@@ -1,9 +1,9 @@
-import Button from 'modules/common/components/Button';
-import { SmallLoader } from 'modules/common/components/ButtonMutate';
-import { getMentionedUserIds } from 'modules/common/components/EditorCK';
-import EditorCK from 'modules/common/containers/EditorCK';
-import React from 'react';
-import styled from 'styled-components';
+import Button from "modules/common/components/Button";
+import { SmallLoader } from "modules/common/components/ButtonMutate";
+import { getMentionedUserIds } from "modules/common/components/EditorCK";
+import EditorCK from "modules/common/containers/EditorCK";
+import React from "react";
+import styled from "styled-components";
 
 const EditorActions = styled.div`
   padding: 0px 15px 37px 15px;
@@ -48,12 +48,12 @@ class Form extends React.PureComponent<Prop, State> {
     super(props);
 
     this.state = {
-      content: props.content || ''
+      content: props.content || ""
     };
   }
 
   clearContent = () => {
-    this.setState({ content: '' });
+    this.setState({ content: "" });
   };
 
   onSend = () => {
@@ -100,7 +100,7 @@ class Form extends React.PureComponent<Prop, State> {
           onClick={this.onSend}
           btnStyle="success"
           size="small"
-          icon={isActionLoading ? undefined : 'message'}
+          icon={isActionLoading ? undefined : "message"}
         >
           {isActionLoading && <SmallLoader />}
           Save
@@ -126,17 +126,17 @@ class Form extends React.PureComponent<Prop, State> {
           height={150}
           toolbar={[
             {
-              name: 'basicstyles',
+              name: "basicstyles",
               items: [
-                'Bold',
-                'Italic',
-                'NumberedList',
-                'BulletedList',
-                'Link',
-                'Unlink',
-                '-',
-                'Image',
-                'EmojiPanel'
+                "Bold",
+                "Italic",
+                "NumberedList",
+                "BulletedList",
+                "Link",
+                "Unlink",
+                "-",
+                "Image",
+                "EmojiPanel"
               ]
             }
           ]}

@@ -1,17 +1,17 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { BrandsQueryResponse } from '../../settings/brands/types';
-import FirstResponse from '../components/FirstResponse';
-import ResponseCloseReport from '../components/ResponseCloseReport';
-import { queries } from '../graphql';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import React from "react";
+import { graphql } from "react-apollo";
+import { BrandsQueryResponse } from "../../settings/brands/types";
+import FirstResponse from "../components/FirstResponse";
+import ResponseCloseReport from "../components/ResponseCloseReport";
+import { queries } from "../graphql";
 import {
   FirstResponseQueryResponse,
   IParams,
   IQueryParams,
   ResponseCloseQueryResponse
-} from '../types';
+} from "../types";
 
 type Props = {
   queryParams: IQueryParams;
@@ -38,7 +38,7 @@ const FirstAndCloseResponseReportContainer = (props: FinalProps) => {
   let data;
   let loading;
 
-  if (type === 'close') {
+  if (type === "close") {
     data = responseCloseQuery.insightsResponseClose || {};
     loading = responseCloseQuery.loading;
   } else {
@@ -57,7 +57,7 @@ const FirstAndCloseResponseReportContainer = (props: FinalProps) => {
     summaries: data.summaries || []
   };
 
-  if (type === 'close') {
+  if (type === "close") {
     return <ResponseCloseReport {...extendedProps} />;
   }
 
@@ -76,16 +76,16 @@ const commonOptions = queryParams => ({
 
 export default compose(
   graphql(gql(queries.firstResponse), {
-    name: 'firstResponseQuery',
-    skip: ({ type }) => type !== 'first',
+    name: "firstResponseQuery",
+    skip: ({ type }) => type !== "first",
     options: ({ queryParams }: IParams) => commonOptions(queryParams)
   }),
   graphql(gql(queries.responseClose), {
-    name: 'responseCloseQuery',
-    skip: ({ type }) => type !== 'close',
+    name: "responseCloseQuery",
+    skip: ({ type }) => type !== "close",
     options: ({ queryParams }: IParams) => commonOptions(queryParams)
   }),
   graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
-    name: 'brandsQuery'
+    name: "brandsQuery"
   })
 )(FirstAndCloseResponseReportContainer);

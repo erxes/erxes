@@ -1,15 +1,15 @@
-import { IUser } from 'modules/auth/types';
-import Icon from 'modules/common/components/Icon';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import NameCard from 'modules/common/components/nameCard/NameCard';
-import { InfoWrapper, Links } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
-import Sidebar from 'modules/layout/components/Sidebar';
-import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { IChannel } from '../../../channels/types';
-import { List } from './styles';
+import { IUser } from "modules/auth/types";
+import Icon from "modules/common/components/Icon";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import NameCard from "modules/common/components/nameCard/NameCard";
+import { InfoWrapper, Links } from "modules/common/styles/main";
+import { __ } from "modules/common/utils";
+import Sidebar from "modules/layout/components/Sidebar";
+import { FieldStyle, SidebarCounter, SidebarList } from "modules/layout/styles";
+import React from "react";
+import { Link } from "react-router-dom";
+import { IChannel } from "../../../channels/types";
+import { List } from "./styles";
 
 type Props = {
   user: IUser;
@@ -35,12 +35,12 @@ class LeftSidebar extends React.Component<Props> {
   renderLinks(links) {
     return (
       <Links>
-        {this.renderLink(links.facebook, 'facebook-official')}
-        {this.renderLink(links.linkedIn, 'linkedin')}
-        {this.renderLink(links.twitter, 'twitter')}
-        {this.renderLink(links.youtube, 'youtube-play')}
-        {this.renderLink(links.github, 'github-circled')}
-        {this.renderLink(links.website, 'external-link-alt')}
+        {this.renderLink(links.facebook, "facebook-official")}
+        {this.renderLink(links.linkedIn, "linkedin")}
+        {this.renderLink(links.twitter, "twitter")}
+        {this.renderLink(links.youtube, "youtube-play")}
+        {this.renderLink(links.github, "github-circled")}
+        {this.renderLink(links.website, "external-link-alt")}
       </Links>
     );
   }
@@ -73,43 +73,43 @@ class LeftSidebar extends React.Component<Props> {
           </InfoWrapper>
           <SidebarList className="no-link">
             <li>
-              <FieldStyle>{__('Primary Email')}:</FieldStyle>
-              <SidebarCounter>{user.email || '-'}</SidebarCounter>
+              <FieldStyle>{__("Primary Email")}:</FieldStyle>
+              <SidebarCounter>{user.email || "-"}</SidebarCounter>
             </li>
             <li>
-              <FieldStyle>{__('User name')}:</FieldStyle>
-              <SidebarCounter>{user.username || '-'}</SidebarCounter>
+              <FieldStyle>{__("User name")}:</FieldStyle>
+              <SidebarCounter>{user.username || "-"}</SidebarCounter>
             </li>
             <li>
-              <FieldStyle>{__('Short name')}:</FieldStyle>
-              <SidebarCounter>{details.shortName || '-'}</SidebarCounter>
+              <FieldStyle>{__("Short name")}:</FieldStyle>
+              <SidebarCounter>{details.shortName || "-"}</SidebarCounter>
             </li>
             <li>
-              <FieldStyle>{__('Location')}:</FieldStyle>
-              <SidebarCounter>{details.location || '-'}</SidebarCounter>
+              <FieldStyle>{__("Location")}:</FieldStyle>
+              <SidebarCounter>{details.location || "-"}</SidebarCounter>
             </li>
             <li>
-              <FieldStyle>{__('Position')}:</FieldStyle>
-              <SidebarCounter>{details.position || '-'}</SidebarCounter>
+              <FieldStyle>{__("Position")}:</FieldStyle>
+              <SidebarCounter>{details.position || "-"}</SidebarCounter>
             </li>
             <li>
-              <FieldStyle>{__('Description')}:</FieldStyle>
+              <FieldStyle>{__("Description")}:</FieldStyle>
               <SidebarCounter nowrap={true}>
-                {details.description || '-'}
+                {details.description || "-"}
               </SidebarCounter>
             </li>
           </SidebarList>
         </Section>
 
         <Section>
-          <Title>{__('Channels')}</Title>
+          <Title>{__("Channels")}</Title>
           <List>
             {channels.map(channel => {
               return (
                 <li key={channel._id}>
                   <Link to={`/settings/channels?id=${channel._id}`}>
-                    <FieldStyle>{channel.name || ''}</FieldStyle>
-                    <SidebarCounter>{channel.description || ''}</SidebarCounter>
+                    <FieldStyle>{channel.name || ""}</FieldStyle>
+                    <SidebarCounter>{channel.description || ""}</SidebarCounter>
                   </Link>
                 </li>
               );

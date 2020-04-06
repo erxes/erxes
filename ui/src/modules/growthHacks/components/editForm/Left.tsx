@@ -1,20 +1,20 @@
-import ActivityInputs from 'modules/activityLogs/components/ActivityInputs';
-import ActivityLogs from 'modules/activityLogs/containers/ActivityLogs';
-import Labels from 'modules/boards/components/label/Labels';
-import { TitleRow } from 'modules/boards/styles/item';
-import { IOptions } from 'modules/boards/types';
-import Checklists from 'modules/checklists/containers/Checklists';
-import FormControl from 'modules/common/components/form/Control';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import Icon from 'modules/common/components/Icon';
-import Uploader from 'modules/common/components/Uploader';
-import { IAttachment } from 'modules/common/types';
-import { __, extractAttachment } from 'modules/common/utils';
-import { IGrowthHack, IGrowthHackParams } from 'modules/growthHacks/types';
-import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
-import React from 'react';
-import Votes from './Votes';
+import ActivityInputs from "modules/activityLogs/components/ActivityInputs";
+import ActivityLogs from "modules/activityLogs/containers/ActivityLogs";
+import Labels from "modules/boards/components/label/Labels";
+import { TitleRow } from "modules/boards/styles/item";
+import { IOptions } from "modules/boards/types";
+import Checklists from "modules/checklists/containers/Checklists";
+import FormControl from "modules/common/components/form/Control";
+import FormGroup from "modules/common/components/form/Group";
+import ControlLabel from "modules/common/components/form/Label";
+import Icon from "modules/common/components/Icon";
+import Uploader from "modules/common/components/Uploader";
+import { IAttachment } from "modules/common/types";
+import { __, extractAttachment } from "modules/common/utils";
+import { IGrowthHack, IGrowthHackParams } from "modules/growthHacks/types";
+import SelectTeamMembers from "modules/settings/team/containers/SelectTeamMembers";
+import React from "react";
+import Votes from "./Votes";
 
 type Props = {
   item: IGrowthHack;
@@ -73,7 +73,7 @@ class Left extends React.Component<Props> {
             <TitleRow>
               <ControlLabel>
                 <Icon icon="label-alt" />
-                {__('Labels')}
+                {__("Labels")}
               </ControlLabel>
             </TitleRow>
 

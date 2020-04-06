@@ -1,20 +1,20 @@
-import ActivityInputs from 'modules/activityLogs/components/ActivityInputs';
-import ActivityLogs from 'modules/activityLogs/containers/ActivityLogs';
-import Icon from 'modules/common/components/Icon';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import { TabTitle } from 'modules/common/components/tabs';
-import { __, renderFullName } from 'modules/common/utils';
-import ActionSection from 'modules/customers/containers/common/ActionSection';
-import LeadState from 'modules/customers/containers/LeadState';
-import { MailBox, UserHeader } from 'modules/customers/styles';
-import Widget from 'modules/engage/containers/Widget';
-import Wrapper from 'modules/layout/components/Wrapper';
-import MailForm from 'modules/settings/integrations/containers/mail/MailForm';
-import React from 'react';
-import { ICustomer } from '../../types';
-import InfoSection from '../common/InfoSection';
-import LeftSidebar from './LeftSidebar';
-import RightSidebar from './RightSidebar';
+import ActivityInputs from "modules/activityLogs/components/ActivityInputs";
+import ActivityLogs from "modules/activityLogs/containers/ActivityLogs";
+import Icon from "modules/common/components/Icon";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import { TabTitle } from "modules/common/components/tabs";
+import { __, renderFullName } from "modules/common/utils";
+import ActionSection from "modules/customers/containers/common/ActionSection";
+import LeadState from "modules/customers/containers/LeadState";
+import { MailBox, UserHeader } from "modules/customers/styles";
+import Widget from "modules/engage/containers/Widget";
+import Wrapper from "modules/layout/components/Wrapper";
+import MailForm from "modules/settings/integrations/containers/mail/MailForm";
+import React from "react";
+import { ICustomer } from "../../types";
+import InfoSection from "../common/InfoSection";
+import LeftSidebar from "./LeftSidebar";
+import RightSidebar from "./RightSidebar";
 
 type Props = {
   customer: ICustomer;
@@ -31,7 +31,7 @@ class CustomerDetails extends React.Component<Props> {
 
     const triggerEmail = (
       <TabTitle>
-        <Icon icon="envelope-add" /> {__('New email')}
+        <Icon icon="envelope-add" /> {__("New email")}
       </TabTitle>
     );
 
@@ -39,7 +39,7 @@ class CustomerDetails extends React.Component<Props> {
       <MailBox>
         <MailForm
           fromEmail={customer.primaryEmail}
-          refetchQueries={['activityLogsCustomer']}
+          refetchQueries={["activityLogsCustomer"]}
           closeModal={props.closeModal}
         />
       </MailBox>
@@ -61,7 +61,7 @@ class CustomerDetails extends React.Component<Props> {
   renderExtraTabs = () => {
     const triggerMessenger = (
       <TabTitle>
-        <Icon icon="comment-plus" /> {__('New message')}
+        <Icon icon="comment-plus" /> {__("New message")}
       </TabTitle>
     );
 
@@ -81,8 +81,8 @@ class CustomerDetails extends React.Component<Props> {
     const { customer, taggerRefetchQueries } = this.props;
 
     const breadcrumb = [
-      { title: __('Contacts'), link: '/contacts' },
-      { title: __('Customers'), link: '/contacts/customers/customer' },
+      { title: __("Contacts"), link: "/contacts" },
+      { title: __("Customers"), link: "/contacts/customers/customer" },
       { title: renderFullName(customer) }
     ];
 
@@ -100,9 +100,9 @@ class CustomerDetails extends React.Component<Props> {
           contentId={customer._id}
           contentType="customer"
           extraTabs={[
-            { name: 'conversation', label: 'Conversation' },
-            { name: 'email', label: 'Email' },
-            { name: 'task', label: 'Task' }
+            { name: "conversation", label: "Conversation" },
+            { name: "email", label: "Email" },
+            { name: "task", label: "Task" }
           ]}
         />
       </>

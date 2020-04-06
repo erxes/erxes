@@ -1,9 +1,9 @@
-import client from 'apolloClient';
-import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
-import React from 'react';
-import { requestIdleCallback } from 'request-idle-callback';
-import { mutations, queries } from '../graphql';
+import client from "apolloClient";
+import gql from "graphql-tag";
+import { Alert } from "modules/common/utils";
+import React from "react";
+import { requestIdleCallback } from "request-idle-callback";
+import { mutations, queries } from "../graphql";
 import {
   IDragResult,
   IFilterParams,
@@ -12,9 +12,9 @@ import {
   INonFilterParams,
   IOptions,
   IPipeline
-} from '../types';
-import { invalidateCache } from '../utils';
-import { collectOrders, reorder, reorderItemMap } from '../utils';
+} from "../types";
+import { invalidateCache } from "../utils";
+import { collectOrders, reorder, reorderItemMap } from "../utils";
 
 type Props = {
   pipeline: IPipeline;
@@ -29,7 +29,7 @@ type Props = {
 };
 
 type StageLoadMap = {
-  [key: string]: 'readyToLoad' | 'loaded';
+  [key: string]: "readyToLoad" | "loaded";
 };
 
 type State = {
@@ -126,7 +126,7 @@ export class PipelineProvider extends React.Component<Props, State> {
 
         stageIds = stageIds.filter(stageId => deletedStageId !== stageId);
 
-        delete itemMap[deletedStageId || ''];
+        delete itemMap[deletedStageId || ""];
       }
 
       this.setState({
@@ -172,7 +172,7 @@ export class PipelineProvider extends React.Component<Props, State> {
     }
 
     // reordering stage
-    if (result.type === 'STAGE') {
+    if (result.type === "STAGE") {
       const stageIds = reorder(
         this.state.stageIds,
         source.index,
@@ -186,7 +186,7 @@ export class PipelineProvider extends React.Component<Props, State> {
     }
 
     // to avoid to refetch current tab
-    sessionStorage.setItem('currentTab', 'true');
+    sessionStorage.setItem("currentTab", "true");
 
     const { itemMap } = reorderItemMap({
       itemMap: this.state.itemMap,
@@ -195,7 +195,7 @@ export class PipelineProvider extends React.Component<Props, State> {
     });
 
     // update item to database
-    const itemId = result.draggableId.split('-')[0];
+    const itemId = result.draggableId.split("-")[0];
     this.itemChange(itemId, destination.droppableId);
 
     this.setState({
@@ -294,7 +294,7 @@ export class PipelineProvider extends React.Component<Props, State> {
 
     this.setState({
       itemMap: { ...itemMap, [stageId]: items },
-      stageLoadMap: { ...stageLoadMap, [stageId]: 'loaded' }
+      stageLoadMap: { ...stageLoadMap, [stageId]: "loaded" }
     });
   };
 
@@ -309,9 +309,9 @@ export class PipelineProvider extends React.Component<Props, State> {
         const { stageLoadMap } = this.state;
         const states = Object.values(stageLoadMap);
 
-        if (!states.includes('readyToLoad')) {
+        if (!states.includes("readyToLoad")) {
           this.setState({
-            stageLoadMap: { ...stageLoadMap, [id]: 'readyToLoad' }
+            stageLoadMap: { ...stageLoadMap, [id]: "readyToLoad" }
           });
         }
       },

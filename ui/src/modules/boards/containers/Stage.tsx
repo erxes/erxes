@@ -1,12 +1,12 @@
-import client from 'apolloClient';
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { queries } from 'modules/boards/graphql';
-import { Alert, confirm, withProps } from 'modules/common/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import Stage from '../components/stage/Stage';
-import { mutations } from '../graphql';
+import client from "apolloClient";
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { queries } from "modules/boards/graphql";
+import { Alert, confirm, withProps } from "modules/common/utils";
+import React from "react";
+import { graphql } from "react-apollo";
+import Stage from "../components/stage/Stage";
+import { mutations } from "../graphql";
 import {
   IFilterParams,
   IItem,
@@ -14,12 +14,12 @@ import {
   IStage,
   ItemsQueryResponse,
   SaveItemMutation
-} from '../types';
+} from "../types";
 
 type StageProps = {
   stage: IStage;
   index: number;
-  loadingState: 'readyToLoad' | 'loaded';
+  loadingState: "readyToLoad" | "loaded";
   items: IItem[];
   length: number;
   queryParams: IFilterParams;
@@ -41,7 +41,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
   componentWillReceiveProps(nextProps: FinalStageProps) {
     const { stage, loadingState, onLoad, itemsQuery, options } = nextProps;
 
-    if (itemsQuery && !itemsQuery.loading && loadingState !== 'loaded') {
+    if (itemsQuery && !itemsQuery.loading && loadingState !== "loaded") {
       // Send loaded items to PipelineContext so that context is able to set it
       // to global itemsMap
       const items = itemsQuery[options.queriesName.itemsQuery] || [];
@@ -107,7 +107,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
           ]
         })
         .then(() => {
-          Alert.success('Archive Items has been archived.');
+          Alert.success("Archive Items has been archived.");
 
           onLoad(stageId, []);
         })
@@ -132,11 +132,11 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
           variables: {
             _id: stage._id,
             type: options.type,
-            status: 'archived'
+            status: "archived"
           }
         })
         .then(() => {
-          Alert.success('Archive List has been archived.');
+          Alert.success("Archive List has been archived.");
 
           refetchStages({ pipelineId: stage.pipelineId });
         })
@@ -161,7 +161,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
     } = this.props;
 
     const loadingItems = () => {
-      if ((itemsQuery && !itemsQuery.loading) || loadingState !== 'loaded') {
+      if ((itemsQuery && !itemsQuery.loading) || loadingState !== "loaded") {
         return true;
       }
 
@@ -211,8 +211,8 @@ const withQuery = ({ options }) => {
   return withProps<StageProps>(
     compose(
       graphql<StageProps>(gql(options.queries.itemsQuery), {
-        name: 'itemsQuery',
-        skip: ({ loadingState }) => loadingState !== 'readyToLoad',
+        name: "itemsQuery",
+        skip: ({ loadingState }) => loadingState !== "readyToLoad",
         options: ({ stage, queryParams, loadingState }) => ({
           variables: {
             stageId: stage._id,
@@ -220,8 +220,8 @@ const withQuery = ({ options }) => {
             ...getFilterParams(queryParams, options.getExtraParams)
           },
           fetchPolicy:
-            loadingState === 'readyToLoad' ? 'network-only' : 'cache-only',
-          notifyOnNetworkStatusChange: loadingState === 'readyToLoad'
+            loadingState === "readyToLoad" ? "network-only" : "cache-only",
+          notifyOnNetworkStatusChange: loadingState === "readyToLoad"
         })
       })
     )(StageContainer)

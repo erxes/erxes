@@ -1,6 +1,6 @@
-import classnames from 'classnames';
-import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
-import { __, uploadHandler } from 'modules/common/utils';
+import classnames from "classnames";
+import { FlexItem, LeftItem } from "modules/common/components/step/styles";
+import { __, uploadHandler } from "modules/common/utils";
 import {
   BackgroundSelector,
   ColorPick,
@@ -8,20 +8,20 @@ import {
   SubHeading,
   SubItem,
   WidgetBackgrounds
-} from 'modules/settings/styles';
-import React from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import ChromePicker from 'react-color/lib/Chrome';
+} from "modules/settings/styles";
+import React from "react";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Popover from "react-bootstrap/Popover";
+import ChromePicker from "react-color/lib/Chrome";
 
 type Props = {
   onChange: (
     name:
-      | 'logoPreviewStyle'
-      | 'logo'
-      | 'logoPreviewUrl'
-      | 'wallpaper'
-      | 'color',
+      | "logoPreviewStyle"
+      | "logo"
+      | "logoPreviewUrl"
+      | "wallpaper"
+      | "color",
     value: string
   ) => void;
   color: string;
@@ -62,16 +62,16 @@ class Appearance extends React.Component<Props, State> {
       files: imageFile,
 
       beforeUpload: () => {
-        this.onChange('logoPreviewStyle', { opacity: '0.7' });
+        this.onChange("logoPreviewStyle", { opacity: "0.7" });
       },
 
       afterUpload: ({ response }) => {
-        this.onChange('logo', response);
-        this.onChange('logoPreviewStyle', { opacity: '1' });
+        this.onChange("logo", response);
+        this.onChange("logoPreviewStyle", { opacity: "1" });
       },
 
       afterRead: ({ result }) => {
-        this.onChange('logoPreviewUrl', result);
+        this.onChange("logoPreviewUrl", result);
       }
     });
   };
@@ -80,13 +80,13 @@ class Appearance extends React.Component<Props, State> {
     const isSelected = this.state.wallpaper === value;
     const selectorClass = classnames({ selected: isSelected });
 
-    const onClick = () => this.onChange('wallpaper', value);
+    const onClick = () => this.onChange("wallpaper", value);
 
     return (
       <BackgroundSelector
         className={selectorClass}
         onClick={onClick}
-        style={{ borderColor: isSelected ? this.state.color : 'transparent' }}
+        style={{ borderColor: isSelected ? this.state.color : "transparent" }}
       >
         <div className={`background-${value}`} />
       </BackgroundSelector>
@@ -103,7 +103,7 @@ class Appearance extends React.Component<Props, State> {
   }
 
   render() {
-    const onChange = e => this.onChange('color', e.hex);
+    const onChange = e => this.onChange("color", e.hex);
 
     const popoverContent = (
       <Popover id="color-picker">
@@ -115,7 +115,7 @@ class Appearance extends React.Component<Props, State> {
       <FlexItem>
         <LeftItem>
           <SubItem>
-            <SubHeading>{__('Choose a custom color')}</SubHeading>
+            <SubHeading>{__("Choose a custom color")}</SubHeading>
             <OverlayTrigger
               trigger="click"
               rootClose={true}
@@ -129,18 +129,18 @@ class Appearance extends React.Component<Props, State> {
           </SubItem>
 
           <SubItem>
-            <SubHeading>{__('Choose a wallpaper')}</SubHeading>
+            <SubHeading>{__("Choose a wallpaper")}</SubHeading>
 
             <WidgetBackgrounds>
-              {this.renderWallpaperSelect('1')}
-              {this.renderWallpaperSelect('2')}
-              {this.renderWallpaperSelect('3')}
-              {this.renderWallpaperSelect('4')}
-              {this.renderWallpaperSelect('5')}
+              {this.renderWallpaperSelect("1")}
+              {this.renderWallpaperSelect("2")}
+              {this.renderWallpaperSelect("3")}
+              {this.renderWallpaperSelect("4")}
+              {this.renderWallpaperSelect("5")}
             </WidgetBackgrounds>
           </SubItem>
 
-          {this.renderUploadImage(__('Choose a logo'))}
+          {this.renderUploadImage(__("Choose a logo"))}
         </LeftItem>
       </FlexItem>
     );

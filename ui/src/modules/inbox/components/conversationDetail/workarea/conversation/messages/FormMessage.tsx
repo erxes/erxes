@@ -1,9 +1,9 @@
-import dayjs from 'dayjs';
-import FilePreview from 'modules/common/components/FilePreview';
-import Table from 'modules/common/components/table';
-import React from 'react';
-import { IMessage } from '../../../../../types';
-import { CellWrapper, FormTable } from '../styles';
+import dayjs from "dayjs";
+import FilePreview from "modules/common/components/FilePreview";
+import Table from "modules/common/components/table";
+import React from "react";
+import { IMessage } from "../../../../../types";
+import { CellWrapper, FormTable } from "../styles";
 
 type Props = {
   message: IMessage;
@@ -11,11 +11,11 @@ type Props = {
 
 export default class FormMessage extends React.Component<Props, {}> {
   displayValue(data) {
-    if (data.validation === 'date') {
-      return dayjs(data.value).format('YYYY/MM/DD HH:mm');
+    if (data.validation === "date") {
+      return dayjs(data.value).format("YYYY/MM/DD HH:mm");
     }
 
-    if (data.type === 'file') {
+    if (data.type === "file") {
       return (
         <CellWrapper>
           <FilePreview fileUrl={data.value} />
@@ -29,10 +29,10 @@ export default class FormMessage extends React.Component<Props, {}> {
   renderRow(data, index: string) {
     return (
       <tr key={index}>
-        <td style={{ width: '40%' }}>
+        <td style={{ width: "40%" }}>
           <b>{data.text}:</b>
         </td>
-        <td style={{ width: '60%' }}>{this.displayValue(data)}</td>
+        <td style={{ width: "60%" }}>{this.displayValue(data)}</td>
       </tr>
     );
   }

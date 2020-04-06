@@ -1,24 +1,24 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
 import {
   BoardDetailQueryResponse,
   PipelinesQueryResponse
-} from 'modules/boards/types';
-import ButtonMutate from 'modules/common/components/ButtonMutate';
-import Spinner from 'modules/common/components/Spinner';
-import { IButtonMutateProps } from 'modules/common/types';
-import { __, Alert, confirm, withProps } from 'modules/common/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import Pipelines from '../components/Pipelines';
-import { mutations, queries } from '../graphql';
+} from "modules/boards/types";
+import ButtonMutate from "modules/common/components/ButtonMutate";
+import Spinner from "modules/common/components/Spinner";
+import { IButtonMutateProps } from "modules/common/types";
+import { __, Alert, confirm, withProps } from "modules/common/utils";
+import React from "react";
+import { graphql } from "react-apollo";
+import Pipelines from "../components/Pipelines";
+import { mutations, queries } from "../graphql";
 import {
   IOption,
   RemovePipelineMutationResponse,
   RemovePipelineMutationVariables,
   UpdateOrderPipelineMutationResponse,
   UpdateOrderPipelineMutationVariables
-} from '../types';
+} from "../types";
 
 type Props = {
   boardId: string;
@@ -59,7 +59,7 @@ class PipelinesContainer extends React.Component<FinalProps> {
             pipelinesQuery.refetch({ boardId });
 
             const msg = `${__(`You successfully deleted a`)} ${__(
-              'pipeline'
+              "pipeline"
             )}.`;
 
             Alert.success(msg);
@@ -86,7 +86,7 @@ class PipelinesContainer extends React.Component<FinalProps> {
           isSubmitted={isSubmitted}
           type="submit"
           successMessage={`You successfully ${
-            object ? 'updated' : 'added'
+            object ? "updated" : "added"
           } a ${name}`}
         />
       );
@@ -117,7 +117,7 @@ class PipelinesContainer extends React.Component<FinalProps> {
 
 const getRefetchQueries = (boardId: string) => {
   return [
-    { query: gql(queries.pipelines), variables: { boardId: boardId || '' } }
+    { query: gql(queries.pipelines), variables: { boardId: boardId || "" } }
   ];
 };
 
@@ -126,18 +126,18 @@ export default withProps<Props>(
     graphql<Props, PipelinesQueryResponse, { boardId: string }>(
       gql(queries.pipelines),
       {
-        name: 'pipelinesQuery',
-        options: ({ boardId = '' }: { boardId: string }) => ({
+        name: "pipelinesQuery",
+        options: ({ boardId = "" }: { boardId: string }) => ({
           variables: { boardId },
-          fetchPolicy: 'network-only'
+          fetchPolicy: "network-only"
         })
       }
     ),
     graphql<Props, BoardDetailQueryResponse>(gql(queries.boardDetail), {
-      name: 'boardDetailQuery',
+      name: "boardDetailQuery",
       options: ({ boardId }: { boardId?: string }) => ({
         variables: { _id: boardId },
-        fetchPolicy: 'network-only'
+        fetchPolicy: "network-only"
       })
     }),
     graphql<
@@ -145,14 +145,14 @@ export default withProps<Props>(
       RemovePipelineMutationResponse,
       RemovePipelineMutationVariables
     >(gql(mutations.pipelineRemove), {
-      name: 'removePipelineMutation'
+      name: "removePipelineMutation"
     }),
     graphql<
       Props,
       UpdateOrderPipelineMutationResponse,
       UpdateOrderPipelineMutationVariables
     >(gql(mutations.pipelinesUpdateOrder), {
-      name: 'pipelinesUpdateOrderMutation'
+      name: "pipelinesUpdateOrderMutation"
     })
   )(PipelinesContainer)
 );

@@ -1,8 +1,8 @@
-import Left from 'modules/growthHacks/components/priorityMatrix/Left';
-import EditableGrowthHackList from 'modules/growthHacks/containers/EditableGrowthHackList';
-import { ContentContainer } from 'modules/growthHacks/styles';
-import React from 'react';
-import Chart from './Chart';
+import Left from "modules/growthHacks/components/priorityMatrix/Left";
+import EditableGrowthHackList from "modules/growthHacks/containers/EditableGrowthHackList";
+import { ContentContainer } from "modules/growthHacks/styles";
+import React from "react";
+import Chart from "./Chart";
 
 type Props = {
   queryParams: any;

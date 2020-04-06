@@ -1,11 +1,11 @@
-import { Preview } from 'modules/common/components/step/styles';
-import CreateForm from 'modules/forms/containers/CreateForm';
-import EditForm from 'modules/forms/containers/EditForm';
-import { IFormData } from 'modules/forms/types';
-import { IField } from 'modules/settings/properties/types';
-import React from 'react';
-import { FormPreview } from './preview';
-import { FlexItem } from './style';
+import { Preview } from "modules/common/components/step/styles";
+import CreateForm from "modules/forms/containers/CreateForm";
+import EditForm from "modules/forms/containers/EditForm";
+import { IFormData } from "modules/forms/types";
+import { IField } from "modules/settings/properties/types";
+import React from "react";
+import { FormPreview } from "./preview";
+import { FlexItem } from "./style";
 
 type Props = {
   type: string;
@@ -54,7 +54,7 @@ class FormStep extends React.Component<Props> {
       isReadyToSave: isReadyToSaveForm,
       onInit,
       showMessage: false,
-      type: 'lead'
+      type: "lead"
     };
 
     if (formId) {

@@ -1,22 +1,22 @@
-import Button from 'modules/common/components/Button';
-import EmptyState from 'modules/common/components/EmptyState';
-import Icon from 'modules/common/components/Icon';
-import Table from 'modules/common/components/table';
-import { Tabs, TabTitle } from 'modules/common/components/tabs';
-import { ModalFooter } from 'modules/common/styles/main';
-import { __, Alert } from 'modules/common/utils';
-import { IProduct } from 'modules/settings/productService/types';
-import React from 'react';
+import Button from "modules/common/components/Button";
+import EmptyState from "modules/common/components/EmptyState";
+import Icon from "modules/common/components/Icon";
+import Table from "modules/common/components/table";
+import { Tabs, TabTitle } from "modules/common/components/tabs";
+import { ModalFooter } from "modules/common/styles/main";
+import { __, Alert } from "modules/common/utils";
+import { IProduct } from "modules/settings/productService/types";
+import React from "react";
 import {
   Add,
   FooterInfo,
   FormContainer,
   ProductTableWrapper
-} from '../../styles';
-import { IPaymentsData, IProductData } from '../../types';
-import PaymentForm from './PaymentForm';
-import ProductItem from './ProductItem';
-import ProductTotal from './ProductTotal';
+} from "../../styles";
+import { IPaymentsData, IProductData } from "../../types";
+import PaymentForm from "./PaymentForm";
+import ProductItem from "./ProductItem";
+import ProductTotal from "./ProductTotal";
 
 type Props = {
   onChangeProductsData: (productsData: IProductData[]) => void;
@@ -48,9 +48,9 @@ class ProductForm extends React.Component<Props, State> {
       total: {},
       discount: {},
       tax: {},
-      currentTab: 'products',
+      currentTab: "products",
       changePayData: {},
-      tempId: ''
+      tempId: ""
     };
   }
 
@@ -67,7 +67,7 @@ class ProductForm extends React.Component<Props, State> {
     const { productsData, onChangeProductsData, currencies } = this.props;
     const { tax, discount } = this.state;
 
-    const currency = currencies ? currencies[0] : '';
+    const currency = currencies ? currencies[0] : "";
 
     this.setState({ tempId: Math.random().toString() }, () => {
       productsData.push({
@@ -159,12 +159,12 @@ class ProductForm extends React.Component<Props, State> {
         <Table>
           <thead>
             <tr>
-              <th>{__('Product / Service')}</th>
-              <th>{__('Quantity')}</th>
-              <th>{__('Unit price')}</th>
-              <th>{__('Discount')}</th>
-              <th>{__('Tax')}</th>
-              <th>{__('Amount')}</th>
+              <th>{__("Product / Service")}</th>
+              <th>{__("Quantity")}</th>
+              <th>{__("Unit price")}</th>
+              <th>{__("Discount")}</th>
+              <th>{__("Tax")}</th>
+              <th>{__("Amount")}</th>
               <th />
             </tr>
           </thead>
@@ -197,7 +197,7 @@ class ProductForm extends React.Component<Props, State> {
 
     Object.keys(payments || {}).forEach(key => {
       const perPaid = payments[key];
-      const currency = perPaid.currency || '';
+      const currency = perPaid.currency || "";
 
       if (Object.keys(changePayData).includes(currency)) {
         changePayData[currency] =
@@ -220,17 +220,17 @@ class ProductForm extends React.Component<Props, State> {
     if (productsData.length !== 0) {
       for (const data of productsData) {
         if (!data.product) {
-          return Alert.error('Please choose a product');
+          return Alert.error("Please choose a product");
         }
 
         if (!data.unitPrice && data.unitPrice !== 0) {
           return Alert.error(
-            'Please enter an unit price. It should be a number'
+            "Please enter an unit price. It should be a number"
           );
         }
 
         if (!data.currency) {
-          return Alert.error('Please choose a currency');
+          return Alert.error("Please choose a currency");
         }
       }
     }
@@ -239,7 +239,7 @@ class ProductForm extends React.Component<Props, State> {
       Object.keys(total).length > 0 &&
       Object.keys(changePayData).length > 0
     ) {
-      let alertMsg = '';
+      let alertMsg = "";
       for (const key of Object.keys(changePayData)) {
         // warning greater pay
         if (changePayData[key] > 0) {
@@ -255,7 +255,7 @@ class ProductForm extends React.Component<Props, State> {
       }
 
       if (alertMsg) {
-        Alert.warning('Change payment has problem: (' + alertMsg + ')');
+        Alert.warning("Change payment has problem: (" + alertMsg + ")");
       }
     }
 
@@ -266,7 +266,7 @@ class ProductForm extends React.Component<Props, State> {
   renderTabContent() {
     const { total, tax, discount, currentTab } = this.state;
 
-    if (currentTab === 'payments') {
+    if (currentTab === "payments") {
       const { onChangePaymentsData } = this.props;
 
       return (
@@ -299,16 +299,16 @@ class ProductForm extends React.Component<Props, State> {
           <table>
             <tbody>
               <tr>
-                <td>{__('Discount')}:</td>
-                <td>{this.renderTotal(discount, 'discount')}</td>
+                <td>{__("Discount")}:</td>
+                <td>{this.renderTotal(discount, "discount")}</td>
               </tr>
               <tr>
-                <td>{__('Tax')}:</td>
-                <td>{this.renderTotal(tax, 'tax')}</td>
+                <td>{__("Tax")}:</td>
+                <td>{this.renderTotal(tax, "tax")}</td>
               </tr>
               <tr>
-                <td>{__('Total')}:</td>
-                <td>{this.renderTotal(total, 'total')}</td>
+                <td>{__("Total")}:</td>
+                <td>{this.renderTotal(total, "total")}</td>
               </tr>
             </tbody>
           </table>
@@ -327,18 +327,18 @@ class ProductForm extends React.Component<Props, State> {
       <>
         <Tabs grayBorder={true} full={true}>
           <TabTitle
-            className={currentTab === 'products' ? 'active' : ''}
-            onClick={this.onTabClick.bind(this, 'products')}
+            className={currentTab === "products" ? "active" : ""}
+            onClick={this.onTabClick.bind(this, "products")}
           >
             <Icon icon="box" />
-            {__('Products')}
+            {__("Products")}
           </TabTitle>
           <TabTitle
-            className={currentTab === 'payments' ? 'active' : ''}
-            onClick={this.onTabClick.bind(this, 'payments')}
+            className={currentTab === "payments" ? "active" : ""}
+            onClick={this.onTabClick.bind(this, "payments")}
           >
             <Icon icon="atm-card" />
-            {__('Payments')}
+            {__("Payments")}
           </TabTitle>
         </Tabs>
 

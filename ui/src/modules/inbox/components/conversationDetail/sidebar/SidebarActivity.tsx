@@ -1,12 +1,12 @@
-import ActivityList from 'modules/activityLogs/components/ActivityList';
-import { IUser } from 'modules/auth/types';
-import DataWithLoader from 'modules/common/components/DataWithLoader';
-import { __ } from 'modules/common/utils';
-import { ICustomer } from 'modules/customers/types';
-import { hasAnyActivity } from 'modules/customers/utils';
-import NoteForm from 'modules/internalNotes/containers/Form';
-import React from 'react';
-import { ActivityLogContent, NoteFormContainer } from './styles';
+import ActivityList from "modules/activityLogs/components/ActivityList";
+import { IUser } from "modules/auth/types";
+import DataWithLoader from "modules/common/components/DataWithLoader";
+import { __ } from "modules/common/utils";
+import { ICustomer } from "modules/customers/types";
+import { hasAnyActivity } from "modules/customers/utils";
+import NoteForm from "modules/internalNotes/containers/Form";
+import React from "react";
+import { ActivityLogContent, NoteFormContainer } from "./styles";
 
 type Props = {
   customer: ICustomer;
@@ -30,7 +30,7 @@ class SidebarActivity extends React.Component<Props> {
     return (
       <>
         <NoteFormContainer>
-          <span>{__('Add a note') as string}:</span>
+          <span>{__("Add a note") as string}:</span>
           <NoteForm contentType="customer" contentTypeId={customer._id} />
         </NoteFormContainer>
 

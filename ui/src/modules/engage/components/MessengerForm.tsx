@@ -1,26 +1,26 @@
-import { IUser } from 'modules/auth/types';
-import EditorCK from 'modules/common/components/EditorCK';
-import FormControl from 'modules/common/components/form/Control';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
-import { __, Alert } from 'modules/common/utils';
+import { IUser } from "modules/auth/types";
+import EditorCK from "modules/common/components/EditorCK";
+import FormControl from "modules/common/components/form/Control";
+import FormGroup from "modules/common/components/form/Group";
+import ControlLabel from "modules/common/components/form/Label";
+import { FlexItem, FlexPad } from "modules/common/components/step/styles";
+import { __, Alert } from "modules/common/utils";
 import {
   EMAIL_CONTENT,
   MESSENGER_KINDS,
   SENT_AS_CHOICES
-} from 'modules/engage/constants';
-import { MAIL_TOOLBARS_CONFIG } from 'modules/settings/integrations/constants';
-import React from 'react';
-import { IBrand } from '../../settings/brands/types';
-import MessengerPreview from '../containers/MessengerPreview';
-import { IEngageMessenger, IEngageScheduleDate } from '../types';
-import Scheduler from './Scheduler';
+} from "modules/engage/constants";
+import { MAIL_TOOLBARS_CONFIG } from "modules/settings/integrations/constants";
+import React from "react";
+import { IBrand } from "../../settings/brands/types";
+import MessengerPreview from "../containers/MessengerPreview";
+import { IEngageMessenger, IEngageScheduleDate } from "../types";
+import Scheduler from "./Scheduler";
 
 type Props = {
   brands: IBrand[];
   onChange: (
-    name: 'messenger' | 'content' | 'scheduleDate' | 'fromUserId',
+    name: "messenger" | "content" | "scheduleDate" | "fromUserId",
     value: IEngageMessenger | IEngageScheduleDate | string
   ) => void;
   users: IUser[];
@@ -58,12 +58,12 @@ class MessengerForm extends React.Component<Props, State> {
 
     this.setState({ messenger });
 
-    this.props.onChange('messenger', messenger);
+    this.props.onChange("messenger", messenger);
   };
 
   changeFromUserId = fromUserId => {
     this.setState({ fromUserId });
-    this.props.onChange('fromUserId', fromUserId);
+    this.props.onChange("fromUserId", fromUserId);
   };
 
   renderKind(hasKind) {
@@ -72,7 +72,7 @@ class MessengerForm extends React.Component<Props, State> {
     }
 
     const onChange = e =>
-      this.changeContent('kind', (e.target as HTMLInputElement).value);
+      this.changeContent("kind", (e.target as HTMLInputElement).value);
 
     return (
       <FormGroup>
@@ -83,7 +83,7 @@ class MessengerForm extends React.Component<Props, State> {
           onChange={onChange}
           defaultValue={this.state.messenger.kind}
         >
-          <option />{' '}
+          <option />{" "}
           {MESSENGER_KINDS.SELECT_OPTIONS.map(k => (
             <option key={k.value} value={k.value}>
               {k.text}
@@ -97,7 +97,7 @@ class MessengerForm extends React.Component<Props, State> {
   renderScheduler() {
     const { messageKind, onChange } = this.props;
 
-    if (messageKind === 'manual') {
+    if (messageKind === "manual") {
       return null;
     }
 
@@ -107,7 +107,7 @@ class MessengerForm extends React.Component<Props, State> {
   }
 
   onEditorChange = e => {
-    this.props.onChange('content', e.editor.getData());
+    this.props.onChange("content", e.editor.getData());
   };
 
   render() {
@@ -115,24 +115,24 @@ class MessengerForm extends React.Component<Props, State> {
       this.changeFromUserId((e.target as HTMLInputElement).value);
     const onChangeContent = e => {
       Alert.warning(
-        'Please carefully select the brand, it will appear in the selected brand messenger.'
+        "Please carefully select the brand, it will appear in the selected brand messenger."
       );
-      this.changeContent('brandId', (e.target as HTMLInputElement).value);
+      this.changeContent("brandId", (e.target as HTMLInputElement).value);
     };
     const onChangeSentAs = e =>
-      this.changeContent('sentAs', (e.target as HTMLInputElement).value);
+      this.changeContent("sentAs", (e.target as HTMLInputElement).value);
 
     return (
       <FlexItem>
         <FlexPad overflow="auto" direction="column" count="3">
           <FormGroup>
-            <ControlLabel>{__('Message:')}</ControlLabel>
+            <ControlLabel>{__("Message:")}</ControlLabel>
 
             <EditorCK
               content={this.props.content}
               onChange={this.onEditorChange}
               toolbar={[
-                { name: 'insert', items: ['strinsert'] },
+                { name: "insert", items: ["strinsert"] },
                 ...MAIL_TOOLBARS_CONFIG
               ]}
               insertItems={EMAIL_CONTENT}
@@ -147,7 +147,7 @@ class MessengerForm extends React.Component<Props, State> {
               onChange={onChangeFrom}
               value={this.state.fromUserId}
             >
-              <option />{' '}
+              <option />{" "}
               {this.props.users.map(user => (
                 <option key={user._id} value={user._id}>
                   {user.details ? user.details.fullName : user.username}
@@ -163,7 +163,7 @@ class MessengerForm extends React.Component<Props, State> {
               onChange={onChangeContent}
               defaultValue={this.state.messenger.brandId}
             >
-              <option />{' '}
+              <option />{" "}
               {this.props.brands.map(b => (
                 <option key={b._id} value={b._id}>
                   {b.name}
@@ -175,13 +175,13 @@ class MessengerForm extends React.Component<Props, State> {
           {this.renderKind(this.props.hasKind)}
 
           <FormGroup>
-            <ControlLabel>{__('Sent as:')}</ControlLabel>
+            <ControlLabel>{__("Sent as:")}</ControlLabel>
             <FormControl
               componentClass="select"
               onChange={onChangeSentAs}
               defaultValue={this.state.messenger.sentAs}
             >
-              <option />{' '}
+              <option />{" "}
               {SENT_AS_CHOICES.SELECT_OPTIONS.map(s => (
                 <option key={s.value} value={s.value}>
                   {__(s.text)}

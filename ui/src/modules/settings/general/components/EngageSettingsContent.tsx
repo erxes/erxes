@@ -1,19 +1,19 @@
-import Button from 'modules/common/components/Button';
-import CollapseContent from 'modules/common/components/CollapseContent';
-import { FormControl } from 'modules/common/components/form';
-import Form from 'modules/common/components/form/Form';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import Icon from 'modules/common/components/Icon';
-import Info from 'modules/common/components/Info';
-import { ModalFooter } from 'modules/common/styles/main';
-import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import { __, Alert } from 'modules/common/utils';
-import { Recipient, Recipients } from 'modules/engage/styles';
-import { ContentBox } from 'modules/settings/styles';
-import React from 'react';
-import { IConfigsMap } from '../types';
-import { Verify } from './styles';
+import Button from "modules/common/components/Button";
+import CollapseContent from "modules/common/components/CollapseContent";
+import { FormControl } from "modules/common/components/form";
+import Form from "modules/common/components/form/Form";
+import FormGroup from "modules/common/components/form/Group";
+import ControlLabel from "modules/common/components/form/Label";
+import Icon from "modules/common/components/Icon";
+import Info from "modules/common/components/Info";
+import { ModalFooter } from "modules/common/styles/main";
+import { IButtonMutateProps, IFormProps } from "modules/common/types";
+import { __, Alert } from "modules/common/utils";
+import { Recipient, Recipients } from "modules/engage/styles";
+import { ContentBox } from "modules/settings/styles";
+import React from "react";
+import { IConfigsMap } from "../types";
+import { Verify } from "./styles";
 
 type Props = {
   configsMap: IConfigsMap;
@@ -44,12 +44,12 @@ class EngageSettingsContent extends React.Component<Props, State> {
     const { configsMap } = props;
 
     this.state = {
-      secretAccessKey: configsMap.secretAccessKey || '',
-      accessKeyId: configsMap.accessKeyId || '',
-      region: configsMap.region || '',
-      configSet: configsMap.configSet || '',
-      emailVerificationType: configsMap.emailVerificationType || '',
-      trueMailApiKey: configsMap.trueMailApiKey || ''
+      secretAccessKey: configsMap.secretAccessKey || "",
+      accessKeyId: configsMap.accessKeyId || "",
+      region: configsMap.region || "",
+      configSet: configsMap.configSet || "",
+      emailVerificationType: configsMap.emailVerificationType || "",
+      trueMailApiKey: configsMap.trueMailApiKey || ""
     };
   }
 
@@ -58,7 +58,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
   };
 
   onChangeCommon = (
-    name: 'emailToVerify' | 'testFrom' | 'testTo' | 'testContent',
+    name: "emailToVerify" | "testFrom" | "testTo" | "testContent",
     e
   ) => {
     this.setState({ [name]: e.currentTarget.value });
@@ -71,13 +71,13 @@ class EngageSettingsContent extends React.Component<Props, State> {
       return this.props.verifyEmail(emailToVerify);
     }
 
-    return Alert.error('Write your email to verify!');
+    return Alert.error("Write your email to verify!");
   };
 
   onSendTestEmail = () => {
     const { testFrom, testTo, testContent } = this.state;
 
-    this.props.sendTestEmail(testFrom || '', testTo || '', testContent || '');
+    this.props.sendTestEmail(testFrom || "", testTo || "", testContent || "");
   };
 
   onRemoveVerifiedEmail = (email: string) => {
@@ -93,7 +93,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
 
     return (
       <>
-        <h4>{__('Verified emails')}:</h4>
+        <h4>{__("Verified emails")}:</h4>
 
         <Recipients>
           {verifiedEmails.map((email, index) => (
@@ -119,7 +119,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
         <Info>
           <p>
             {__(
-              'Amazon Simple Email Service enables you to send and receive email using a reliable and scalable email platform. Set up your custom amazon simple email service account'
+              "Amazon Simple Email Service enables you to send and receive email using a reliable and scalable email platform. Set up your custom amazon simple email service account"
             )}
           </p>
           <a
@@ -127,7 +127,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
             href="https://docs.erxes.io/administrator/integrations#aws-ses-integration"
             rel="noopener noreferrer"
           >
-            {__('More: Understanding Amazon SES')}
+            {__("More: Understanding Amazon SES")}
           </a>
         </Info>
         <FormGroup>
@@ -172,7 +172,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
 
         <ModalFooter>
           {renderButton({
-            name: 'configsMap',
+            name: "configsMap",
             values: this.generateDoc(values),
             isSubmitted,
             object: this.props.configsMap
@@ -197,7 +197,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
             <ControlLabel required={true}>Email</ControlLabel>
             <FormControl
               type="email"
-              onChange={this.onChangeCommon.bind(this, 'emailToVerify')}
+              onChange={this.onChangeCommon.bind(this, "emailToVerify")}
             />
 
             <Button
@@ -215,7 +215,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
             <ControlLabel>From</ControlLabel>
             <FormControl
               placeholder="from@email.com"
-              onChange={this.onChangeCommon.bind(this, 'testFrom')}
+              onChange={this.onChangeCommon.bind(this, "testFrom")}
             />
           </FormGroup>
 
@@ -223,7 +223,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
             <ControlLabel>To</ControlLabel>
             <FormControl
               placeholder="to@email.com"
-              onChange={this.onChangeCommon.bind(this, 'testTo')}
+              onChange={this.onChangeCommon.bind(this, "testTo")}
             />
           </FormGroup>
 
@@ -232,7 +232,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
             <FormControl
               placeholder="Write your content..."
               componentClass="textarea"
-              onChange={this.onChangeCommon.bind(this, 'testContent')}
+              onChange={this.onChangeCommon.bind(this, "testContent")}
             />
           </FormGroup>
 

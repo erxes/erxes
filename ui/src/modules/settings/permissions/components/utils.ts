@@ -1,4 +1,4 @@
-import { IModule } from '../types';
+import { IModule } from "../types";
 
 export type generatedList = {
   value: string;
@@ -20,7 +20,7 @@ export const generateListParams = (items: any[]): generatedList[] => {
 };
 
 export const correctValue = (data: generatedList): string => {
-  return data ? data.value : '';
+  return data ? data.value : "";
 };
 
 export const filterActions = (actions: any, moduleName: string) => {

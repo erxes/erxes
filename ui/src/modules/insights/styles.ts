@@ -1,8 +1,8 @@
-import { colors, dimensions, typography } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
-import { BoxRoot, DateContainer } from 'modules/common/styles/main';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import { colors, dimensions, typography } from "modules/common/styles";
+import { rgba } from "modules/common/styles/color";
+import { BoxRoot, DateContainer } from "modules/common/styles/main";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 export interface IWrapperProps {
   height?: number;
@@ -81,7 +81,7 @@ const ChartWrapper = styledTS<IWrapperProps>(styled.div)`
   border-radius: 2px;
   background: ${colors.bgLight};
   width: 100%;
-  height: ${props => (props.height ? `${props.height}px` : 'auto')}
+  height: ${props => (props.height ? `${props.height}px` : "auto")}
   position: relative;
   overflow: hidden;
 `;
@@ -248,7 +248,7 @@ const PunchHours = styled.div`
 
   ${PunchCell} {
     &:before {
-      content: '';
+      content: "";
       height: 5px;
       width: 2px;
       background-color: ${colors.colorCoreGray};

@@ -1,13 +1,13 @@
-import client from 'apolloClient';
-import gql from 'graphql-tag';
-import debounce from 'lodash/debounce';
-import FilterableList from 'modules/common/components/filterableList/FilterableList';
-import { __, getUserAvatar } from 'modules/common/utils';
-import Alert from 'modules/common/utils/Alert';
-import React from 'react';
-import { IUser } from '../../../auth/types';
-import { queries } from '../../graphql';
-import { IConversation } from '../../types';
+import client from "apolloClient";
+import gql from "graphql-tag";
+import debounce from "lodash/debounce";
+import FilterableList from "modules/common/components/filterableList/FilterableList";
+import { __, getUserAvatar } from "modules/common/utils";
+import Alert from "modules/common/utils/Alert";
+import React from "react";
+import { IUser } from "../../../auth/types";
+import { queries } from "../../graphql";
+import { IConversation } from "../../types";
 
 interface IAssignee {
   _id: string;
@@ -49,7 +49,7 @@ class AssignBox extends React.Component<Props, State> {
   }
 
   fetchUsers = (e?) => {
-    const searchValue = e ? e.target.value : '';
+    const searchValue = e ? e.target.value : "";
 
     debounce(() => {
       client
@@ -94,11 +94,11 @@ class AssignBox extends React.Component<Props, State> {
         return memo + index;
       }, 0);
 
-      let state = 'none';
+      let state = "none";
       if (count === targets.length) {
-        state = 'all';
+        state = "all";
       } else if (count < targets.length && count > 0) {
-        state = 'some';
+        state = "some";
       }
 
       return {
@@ -150,8 +150,8 @@ class AssignBox extends React.Component<Props, State> {
 
     const links = [
       {
-        title: __('Remove assignee'),
-        href: '#',
+        title: __("Remove assignee"),
+        href: "#",
         onClick: this.removeAssignee
       }
     ];

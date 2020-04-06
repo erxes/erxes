@@ -1,13 +1,13 @@
-import client from 'apolloClient';
-import gql from 'graphql-tag';
-import ButtonMutate from 'modules/common/components/ButtonMutate';
-import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
-import { Alert } from 'modules/common/utils';
-import Gmail from 'modules/settings/integrations/components/gmail/Form';
-import { mutations, queries } from 'modules/settings/integrations/graphql';
-import * as React from 'react';
-import { withRouter } from 'react-router-dom';
-import { getRefetchQueries } from '../utils';
+import client from "apolloClient";
+import gql from "graphql-tag";
+import ButtonMutate from "modules/common/components/ButtonMutate";
+import { IButtonMutateProps, IRouterProps } from "modules/common/types";
+import { Alert } from "modules/common/utils";
+import Gmail from "modules/settings/integrations/components/gmail/Form";
+import { mutations, queries } from "modules/settings/integrations/graphql";
+import * as React from "react";
+import { withRouter } from "react-router-dom";
+import { getRefetchQueries } from "../utils";
 
 type Props = {
   type?: string;
@@ -25,19 +25,19 @@ class GmailContainer extends React.Component<FinalProps, State> {
   constructor(props: FinalProps) {
     super(props);
 
-    this.state = { email: '', accountId: '' };
+    this.state = { email: "", accountId: "" };
   }
 
   onAccountSelect = (accountId?: string) => {
     if (!accountId) {
-      return this.setState({ email: '', accountId: '' });
+      return this.setState({ email: "", accountId: "" });
     }
 
     client
       .query({
         query: gql(queries.fetchApi),
         variables: {
-          path: '/gmail/get-email',
+          path: "/gmail/get-email",
           params: { accountId }
         }
       })
@@ -55,7 +55,7 @@ class GmailContainer extends React.Component<FinalProps, State> {
   };
 
   onRemoveAccount = () => {
-    this.setState({ email: '' });
+    this.setState({ email: "" });
   };
 
   renderButton = ({
@@ -69,7 +69,7 @@ class GmailContainer extends React.Component<FinalProps, State> {
         mutation={mutations.integrationsCreateExternalIntegration}
         variables={values}
         callback={callback}
-        refetchQueries={getRefetchQueries('gmail')}
+        refetchQueries={getRefetchQueries("gmail")}
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully added a ${name}`}

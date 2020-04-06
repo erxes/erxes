@@ -1,6 +1,6 @@
-import EmptyState from 'modules/common/components/EmptyState';
-import Tip from 'modules/common/components/Tip';
-import React from 'react';
+import EmptyState from "modules/common/components/EmptyState";
+import Tip from "modules/common/components/Tip";
+import React from "react";
 import {
   ChartWrapper,
   FlexRow,
@@ -9,8 +9,8 @@ import {
   PunchCircle,
   PunchDates,
   PunchHours
-} from '../styles';
-import { IPunchCardData } from '../types';
+} from "../styles";
+import { IPunchCardData } from "../types";
 
 type Props = {
   data: IPunchCardData[];

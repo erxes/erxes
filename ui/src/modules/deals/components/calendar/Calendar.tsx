@@ -1,17 +1,17 @@
-import MainActionBar from 'modules/boards/containers/MainActionBar';
+import MainActionBar from "modules/boards/containers/MainActionBar";
 import {
   BoardContainer,
   BoardContent,
   ScrolledContent
-} from 'modules/boards/styles/common';
-import Calendar from 'modules/common/components/Calendar';
-import { IDateColumn } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
-import Header from 'modules/layout/components/Header';
-import React from 'react';
-import styled from 'styled-components';
-import DealColumn from '../../containers/calendar/DealColumn';
-import DealMainActionBar from '../DealMainActionBar';
+} from "modules/boards/styles/common";
+import Calendar from "modules/common/components/Calendar";
+import { IDateColumn } from "modules/common/types";
+import { __ } from "modules/common/utils";
+import Header from "modules/layout/components/Header";
+import React from "react";
+import styled from "styled-components";
+import DealColumn from "../../containers/calendar/DealColumn";
+import DealMainActionBar from "../DealMainActionBar";
 
 type Props = {
   queryParams: any;
@@ -23,7 +23,7 @@ const Container = styled.div`
 `;
 
 const toKey = ({ year, month }: IDateColumn) => {
-  return year + '-' + month;
+  return year + "-" + month;
 };
 
 class CalendarView extends React.Component<Props> {
@@ -70,11 +70,11 @@ class CalendarView extends React.Component<Props> {
     renderMonths: () => React.ReactNode[],
     renderMiddleContent: () => React.ReactNode
   ) => {
-    const breadcrumb = [{ title: __('Deal') }];
+    const breadcrumb = [{ title: __("Deal") }];
 
     return (
       <BoardContainer>
-        <Header title={__('Deal')} breadcrumb={breadcrumb} />
+        <Header title={__("Deal")} breadcrumb={breadcrumb} />
         <BoardContent transparent={true}>
           {this.renderActionBar(renderMiddleContent)}
           <ScrolledContent>

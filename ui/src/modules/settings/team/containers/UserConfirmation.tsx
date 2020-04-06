@@ -1,13 +1,13 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { Alert, withProps } from 'modules/common/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '../../../common/types';
-import UserConfirmation from '../components/UserConfirmation';
-import { mutations } from '../graphql';
-import { ConfirmMutationResponse, ConfirmMutationVariables } from '../types';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { Alert, withProps } from "modules/common/utils";
+import React from "react";
+import { graphql } from "react-apollo";
+import { withRouter } from "react-router-dom";
+import { IRouterProps } from "../../../common/types";
+import UserConfirmation from "../components/UserConfirmation";
+import { mutations } from "../graphql";
+import { ConfirmMutationResponse, ConfirmMutationVariables } from "../types";
 
 type Props = {
   queryParams: any;
@@ -40,8 +40,8 @@ class UserConfirmationContainer extends React.Component<FinalProps> {
         }
       })
         .then(() => {
-          Alert.success('You successfully verified');
-          history.push('/');
+          Alert.success("You successfully verified");
+          history.push("/");
         })
         .catch(e => {
           Alert.error(e.message);
@@ -61,9 +61,9 @@ export default withProps<Props>(
     graphql<Props, ConfirmMutationResponse, ConfirmMutationVariables>(
       gql(mutations.usersConfirmInvitation),
       {
-        name: 'usersConfirmInvitation',
+        name: "usersConfirmInvitation",
         options: {
-          refetchQueries: ['users']
+          refetchQueries: ["users"]
         }
       }
     )

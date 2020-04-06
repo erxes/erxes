@@ -1,19 +1,19 @@
-import { __ } from 'modules/common/utils';
-import { menuInbox } from 'modules/common/utils/menus';
-import Wrapper from 'modules/layout/components/Wrapper';
-import React from 'react';
-import { IBrand } from '../../settings/brands/types';
+import { __ } from "modules/common/utils";
+import { menuInbox } from "modules/common/utils/menus";
+import Wrapper from "modules/layout/components/Wrapper";
+import React from "react";
+import { IBrand } from "../../settings/brands/types";
 import {
   InsightContent,
   InsightRow,
   InsightTitle,
   InsightWrapper
-} from '../styles';
-import { IChartParams, IQueryParams, SummaryData } from '../types';
-import Chart from './Chart';
-import InboxFilter from './filter/InboxFilter';
-import Sidebar from './Sidebar';
-import Summary from './Summary';
+} from "../styles";
+import { IChartParams, IQueryParams, SummaryData } from "../types";
+import Chart from "./Chart";
+import InboxFilter from "./filter/InboxFilter";
+import Sidebar from "./Sidebar";
+import Summary from "./Summary";
 
 type Props = {
   brands: IBrand[];
@@ -72,11 +72,11 @@ class SummaryReport extends React.Component<Props, { width: number }> {
     return (
       <InsightContent>
         <InsightRow>
-          {this.renderTitle('Response Times summary')}
+          {this.renderTitle("Response Times summary")}
           <Summary loading={loading} data={summary} />
         </InsightRow>
 
-        {this.renderTrend('Response Trend', loading, trend)}
+        {this.renderTrend("Response Trend", loading, trend)}
       </InsightContent>
     );
   }
@@ -100,7 +100,7 @@ class SummaryReport extends React.Component<Props, { width: number }> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header title={__('Response Report')} submenu={menuInbox} />
+          <Wrapper.Header title={__("Response Report")} submenu={menuInbox} />
         }
         leftSidebar={<Sidebar queryParams={this.props.queryParams} />}
         content={this.renderContent()}

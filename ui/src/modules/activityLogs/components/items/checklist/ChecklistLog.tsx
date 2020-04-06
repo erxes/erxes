@@ -1,16 +1,16 @@
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
 import {
   ActivityDate,
   FlexBody,
   FlexCenterContent,
   Header,
   ShowMore
-} from 'modules/activityLogs/styles';
-import { IActivityLog } from 'modules/activityLogs/types';
-import Tip from 'modules/common/components/Tip';
-import { renderUserFullName } from 'modules/common/utils';
-import React from 'react';
-import CheckListItem from './ChecklistItem';
+} from "modules/activityLogs/styles";
+import { IActivityLog } from "modules/activityLogs/types";
+import Tip from "modules/common/components/Tip";
+import { renderUserFullName } from "modules/common/utils";
+import React from "react";
+import CheckListItem from "./ChecklistItem";
 
 type Props = {
   activity: IActivityLog;
@@ -53,9 +53,9 @@ class ChecklistLog extends React.Component<Props, { toggleItems: boolean }> {
       createdAt
     } = activity;
 
-    let userName = 'Unknown';
+    let userName = "Unknown";
 
-    if (createdByDetail && createdByDetail.type === 'user') {
+    if (createdByDetail && createdByDetail.type === "user") {
       userName = renderUserFullName(createdByDetail.content);
     }
 
@@ -65,7 +65,7 @@ class ChecklistLog extends React.Component<Props, { toggleItems: boolean }> {
       return (
         <>
           <Header>
-            <strong>{checklistName}</strong>`s details{' '}
+            <strong>{checklistName}</strong>`s details{" "}
             <ShowMore onClick={this.onCollapse}>hide</ShowMore>
           </Header>
 
@@ -78,16 +78,16 @@ class ChecklistLog extends React.Component<Props, { toggleItems: boolean }> {
       <>
         <FlexCenterContent>
           <FlexBody>
-            {' '}
+            {" "}
             <span>
               <strong>{userName}</strong> {action}d&nbsp;
               <strong>{checklistName}</strong> {contentType}&nbsp;
               <ShowMore onClick={this.onCollapse}>show details</ShowMore>
             </span>
           </FlexBody>
-          <Tip text={dayjs(createdAt).format('llll')}>
+          <Tip text={dayjs(createdAt).format("llll")}>
             <ActivityDate>
-              {dayjs(createdAt).format('MMM D, h:mm A')}
+              {dayjs(createdAt).format("MMM D, h:mm A")}
             </ActivityDate>
           </Tip>
         </FlexCenterContent>

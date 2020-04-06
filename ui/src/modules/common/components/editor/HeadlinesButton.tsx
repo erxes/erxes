@@ -2,9 +2,9 @@ import {
   HeadlineOneButton,
   HeadlineThreeButton,
   HeadlineTwoButton
-} from 'draft-js-buttons';
-import React from 'react';
-import styled from 'styled-components';
+} from "draft-js-buttons";
+import React from "react";
+import styled from "styled-components";
 
 const HeadButton = styled.button`
   display: inline-block;
@@ -20,12 +20,12 @@ type Props = {
 class HeadlinesPicker extends React.Component<Props> {
   componentDidMount() {
     setTimeout(() => {
-      window.addEventListener('click', this.onWindowClick);
+      window.addEventListener("click", this.onWindowClick);
     });
   }
 
   componentWillUnmount() {
-    window.removeEventListener('click', this.onWindowClick);
+    window.removeEventListener("click", this.onWindowClick);
   }
 
   onWindowClick = () => {

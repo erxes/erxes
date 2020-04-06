@@ -1,8 +1,8 @@
-import { colors } from 'modules/common/styles';
-import { stripe } from 'modules/common/utils/animations';
-import React from 'react';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import { colors } from "modules/common/styles";
+import { stripe } from "modules/common/utils/animations";
+import React from "react";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 const ContentContainer = styled.div`
   position: relative;
@@ -16,7 +16,7 @@ const Wrapper = styledTS<{ height?: string }>(styled.div)`
   padding: 8px 30px;
   background: ${colors.bgMain};
   width: 100%;
-  height: ${props => (props.height ? props.height : '36px')};
+  height: ${props => (props.height ? props.height : "36px")};
   box-shadow: inset 0 -2px 6px rgba(0, 0, 0, 0.05);
 
   a:hover {
@@ -67,7 +67,7 @@ function ProgressBar({
   percentage,
   children,
   close,
-  color = '#dddeff',
+  color = "#dddeff",
   height
 }: Props) {
   return (

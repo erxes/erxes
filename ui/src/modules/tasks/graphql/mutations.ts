@@ -2,7 +2,7 @@ import {
   commonFields,
   commonMutationParams,
   commonMutationVariables
-} from 'modules/boards/graphql/mutations';
+} from "modules/boards/graphql/mutations";
 
 const copyVariables = `$companyIds: [String], $customerIds: [String], $labelIds: [String]`;
 const copyParams = `companyIds: $companyIds, customerIds: $customerIds, labelIds: $labelIds`;

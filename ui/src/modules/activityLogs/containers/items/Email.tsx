@@ -1,15 +1,15 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import Email from 'modules/activityLogs/components/items/email/Email';
-import EngageEmail from 'modules/activityLogs/components/items/email/EngageEmail';
-import { EmailDeliveryDetailQueryResponse } from 'modules/activityLogs/types';
-import EmptyState from 'modules/common/components/EmptyState';
-import { withProps } from 'modules/common/utils';
-import { queries as engageQueries } from 'modules/engage/graphql';
-import { EngageMessageDetailQueryResponse } from 'modules/engage/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { queries } from '../../graphql';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import Email from "modules/activityLogs/components/items/email/Email";
+import EngageEmail from "modules/activityLogs/components/items/email/EngageEmail";
+import { EmailDeliveryDetailQueryResponse } from "modules/activityLogs/types";
+import EmptyState from "modules/common/components/EmptyState";
+import { withProps } from "modules/common/utils";
+import { queries as engageQueries } from "modules/engage/graphql";
+import { EngageMessageDetailQueryResponse } from "modules/engage/types";
+import React from "react";
+import { graphql } from "react-apollo";
+import { queries } from "../../graphql";
 
 type Props = {
   activity: any;
@@ -38,7 +38,7 @@ class EmailContainer extends React.Component<FinalProps> {
       return null;
     }
 
-    if (emailType === 'engage') {
+    if (emailType === "engage") {
       if (!engageMessageDetailQuery.engageMessageDetail) {
         return <EmptyState icon="email-4" text="Email not found" />;
       }
@@ -65,8 +65,8 @@ export default withProps<Props>(
     graphql<Props, EngageMessageDetailQueryResponse>(
       gql(engageQueries.engageMessageDetail),
       {
-        name: 'engageMessageDetailQuery',
-        skip: ({ emailType }) => emailType === 'email',
+        name: "engageMessageDetailQuery",
+        skip: ({ emailType }) => emailType === "email",
         options: ({ emailId }) => ({
           variables: {
             _id: emailId
@@ -77,8 +77,8 @@ export default withProps<Props>(
     graphql<Props, EngageMessageDetailQueryResponse>(
       gql(queries.emailDeliveryDetail),
       {
-        name: 'emailDeliveryDetailQuery',
-        skip: ({ emailType }) => emailType === 'engage',
+        name: "emailDeliveryDetailQuery",
+        skip: ({ emailType }) => emailType === "engage",
         options: ({ emailId }) => ({
           variables: {
             _id: emailId

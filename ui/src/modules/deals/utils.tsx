@@ -1,4 +1,4 @@
-import { IUser, IUserDetails } from '../auth/types';
+import { IUser, IUserDetails } from "../auth/types";
 
 type Options = {
   _id: string;

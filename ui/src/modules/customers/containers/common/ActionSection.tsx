@@ -1,9 +1,9 @@
-import client from 'apolloClient';
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { Alert, withProps } from 'modules/common/utils';
-import ActionSection from 'modules/customers/components/common/ActionSection';
-import { mutations, queries } from 'modules/customers/graphql';
+import client from "apolloClient";
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { Alert, withProps } from "modules/common/utils";
+import ActionSection from "modules/customers/components/common/ActionSection";
+import { mutations, queries } from "modules/customers/graphql";
 import {
   ChangeStateMutationResponse,
   ChangeStateMutationVariables,
@@ -12,11 +12,11 @@ import {
   MergeMutationVariables,
   RemoveMutationResponse,
   RemoveMutationVariables
-} from 'modules/customers/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '../../../common/types';
+} from "modules/customers/types";
+import React from "react";
+import { graphql } from "react-apollo";
+import { withRouter } from "react-router-dom";
+import { IRouterProps } from "../../../common/types";
 
 type Props = {
   customer: ICustomer;
@@ -46,8 +46,8 @@ const ActionSectionContainer = (props: FinalProps) => {
       variables: { customerIds: [_id] }
     })
       .then(() => {
-        Alert.success('You successfully deleted a customer');
-        history.push('/contacts/customers/customer');
+        Alert.success("You successfully deleted a customer");
+        history.push("/contacts/customers/customer");
       })
       .catch(e => {
         Alert.error(e.message);
@@ -62,7 +62,7 @@ const ActionSectionContainer = (props: FinalProps) => {
       }
     })
       .then(() => {
-        Alert.success('You successfully changed the state');
+        Alert.success("You successfully changed the state");
       })
       .catch(e => {
         Alert.error(e.message);
@@ -77,7 +77,7 @@ const ActionSectionContainer = (props: FinalProps) => {
       }
     })
       .then(response => {
-        Alert.success('You successfully merged a customer');
+        Alert.success("You successfully merged a customer");
         history.push(
           `/contacts/customers/details/${response.data.customersMerge._id}`
         );
@@ -97,7 +97,7 @@ const ActionSectionContainer = (props: FinalProps) => {
         variables: { searchValue, page: 1, perPage: 10 }
       })
       .then((response: any) => {
-        if (typeof callback === 'function') {
+        if (typeof callback === "function") {
           callback(response.data.customers);
         }
       })
@@ -109,7 +109,7 @@ const ActionSectionContainer = (props: FinalProps) => {
   const updatedProps = {
     isSmall,
     coc: customer,
-    cocType: 'customer',
+    cocType: "customer",
     remove,
     merge,
     changeState,
@@ -120,7 +120,7 @@ const ActionSectionContainer = (props: FinalProps) => {
 };
 
 const generateOptions = () => ({
-  refetchQueries: ['customersMain', 'customerCounts', 'customerDetail']
+  refetchQueries: ["customersMain", "customerCounts", "customerDetail"]
 });
 
 export default withProps<Props>(
@@ -129,21 +129,21 @@ export default withProps<Props>(
     graphql<Props, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.customersRemove),
       {
-        name: 'customersRemove',
+        name: "customersRemove",
         options: generateOptions()
       }
     ),
     graphql<Props, MergeMutationResponse, MergeMutationVariables>(
       gql(mutations.customersMerge),
       {
-        name: 'customersMerge',
+        name: "customersMerge",
         options: generateOptions()
       }
     ),
     graphql<Props, ChangeStateMutationResponse, ChangeStateMutationVariables>(
       gql(mutations.customersChangeState),
       {
-        name: 'customersChangeState',
+        name: "customersChangeState",
         options: generateOptions()
       }
     )

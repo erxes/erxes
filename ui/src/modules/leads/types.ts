@@ -1,9 +1,9 @@
-import { IConditionsRule } from 'modules/common/types';
-import { IUser } from '../auth/types';
-import { IForm } from '../forms/types';
-import { IBrand } from '../settings/brands/types';
-import { IIntegration } from '../settings/integrations/types';
-import { ITag } from '../tags/types';
+import { IConditionsRule } from "modules/common/types";
+import { IUser } from "../auth/types";
+import { IForm } from "../forms/types";
+import { IBrand } from "../settings/brands/types";
+import { IIntegration } from "../settings/integrations/types";
+import { ITag } from "../tags/types";
 
 export interface ICallout {
   title?: string;

@@ -1,8 +1,8 @@
-import React from 'react';
-import { RootBack, ScrolledContent } from '../styles/common';
-import { IOptions, IPipeline } from '../types';
-import Pipeline from './Pipeline';
-import withPipeline from './withPipeline';
+import React from "react";
+import { RootBack, ScrolledContent } from "../styles/common";
+import { IOptions, IPipeline } from "../types";
+import Pipeline from "./Pipeline";
+import withPipeline from "./withPipeline";
 
 type Props = {
   queryParams: any;

@@ -1,22 +1,22 @@
-import client from 'apolloClient';
-import gql from 'graphql-tag';
-import EmptyState from 'modules/common/components/EmptyState';
-import Icon from 'modules/common/components/Icon';
-import { IRouterProps } from 'modules/common/types';
-import routerUtils from 'modules/common/utils/router';
-import { mutations as notificationMutations } from 'modules/notifications/graphql';
-import React from 'react';
-import { Draggable, Droppable } from 'react-beautiful-dnd';
-import { withRouter } from 'react-router-dom';
+import client from "apolloClient";
+import gql from "graphql-tag";
+import EmptyState from "modules/common/components/EmptyState";
+import Icon from "modules/common/components/Icon";
+import { IRouterProps } from "modules/common/types";
+import routerUtils from "modules/common/utils/router";
+import { mutations as notificationMutations } from "modules/notifications/graphql";
+import React from "react";
+import { Draggable, Droppable } from "react-beautiful-dnd";
+import { withRouter } from "react-router-dom";
 import {
   DropZone,
   EmptyContainer,
   ItemContainer,
   NotifiedContainer,
   Wrapper
-} from '../../styles/common';
-import { IItem, IOptions } from '../../types';
-import Item from './Item';
+} from "../../styles/common";
+import { IItem, IOptions } from "../../types";
+import Item from "./Item";
 
 type Props = {
   listId: string;
@@ -46,7 +46,7 @@ class DraggableContainer extends React.Component<
     super(props);
 
     // if popup shows, draggable will disable
-    const itemIdQueryParam = routerUtils.getParam(props.history, 'itemId');
+    const itemIdQueryParam = routerUtils.getParam(props.history, "itemId");
 
     this.state = {
       isDragDisabled: Boolean(itemIdQueryParam),
@@ -58,7 +58,7 @@ class DraggableContainer extends React.Component<
     const { item, history } = this.props;
 
     this.setState({ isDragDisabled: true }, () => {
-      routerUtils.setParams(history, { itemId: item._id, key: '' });
+      routerUtils.setParams(history, { itemId: item._id, key: "" });
     });
 
     if (!this.state.hasNotified) {
@@ -74,7 +74,7 @@ class DraggableContainer extends React.Component<
   beforePopupClose = () => {
     const { item, onRemoveItem } = this.props;
 
-    if (item.status === 'archived') {
+    if (item.status === "archived") {
       onRemoveItem(item._id, item.stageId);
     }
 
@@ -189,7 +189,7 @@ class InnerList extends React.PureComponent<InnerListProps> {
 
 export default class ItemList extends React.Component<Props> {
   static defaultProps = {
-    listId: 'LIST'
+    listId: "LIST"
   };
 
   render() {

@@ -1,11 +1,11 @@
-import FormControl from 'modules/common/components/form/Control';
-import Form from 'modules/common/components/form/Form';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import { ModalFooter } from 'modules/common/styles/main';
-import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import React from 'react';
-import { IExchangeForm } from '../../types';
+import FormControl from "modules/common/components/form/Control";
+import Form from "modules/common/components/form/Form";
+import FormGroup from "modules/common/components/form/Group";
+import ControlLabel from "modules/common/components/form/Label";
+import { ModalFooter } from "modules/common/styles/main";
+import { IButtonMutateProps, IFormProps } from "modules/common/types";
+import React from "react";
+import { IExchangeForm } from "../../types";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -57,34 +57,34 @@ class ExchangeForm extends React.Component<Props> {
     return (
       <>
         {this.renderField({
-          label: 'Email',
-          type: 'email',
-          name: 'email',
+          label: "Email",
+          type: "email",
+          name: "email",
           formProps
         })}
         {this.renderField({
-          label: 'Password',
-          type: 'password',
-          name: 'password',
+          label: "Password",
+          type: "password",
+          name: "password",
           formProps
         })}
         {this.renderField({
-          label: 'Username',
-          type: 'text',
-          name: 'username',
+          label: "Username",
+          type: "text",
+          name: "username",
           required: false,
           formProps
         })}
         {this.renderField({
-          label: 'Exchange server host',
-          type: 'text',
-          name: 'host',
+          label: "Exchange server host",
+          type: "text",
+          name: "host",
           formProps
         })}
 
         <ModalFooter>
           {renderButton({
-            name: 'integration',
+            name: "integration",
             values: this.generateDoc(values),
             isSubmitted,
             callback: this.props.closeModal

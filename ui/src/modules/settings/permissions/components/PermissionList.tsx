@@ -1,27 +1,27 @@
-import Button from 'modules/common/components/Button';
-import DataWithLoader from 'modules/common/components/DataWithLoader';
-import { FormControl } from 'modules/common/components/form';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import Pagination from 'modules/common/components/pagination/Pagination';
-import Table from 'modules/common/components/table';
-import { Title } from 'modules/common/styles/main';
-import { __, router } from 'modules/common/utils';
-import Wrapper from 'modules/layout/components/Wrapper';
-import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
-import React from 'react';
-import Select from 'react-select-plus';
-import { isObject } from 'util';
-import GroupList from '../containers/GroupList';
-import { FilterItem, FilterWrapper, NotWrappable } from '../styles';
-import { IActions, IModule, IPermissionDocument, IUserGroup } from '../types';
-import PermissionForm from './PermissionForm';
-import PermissionRow from './PermissionRow';
+import Button from "modules/common/components/Button";
+import DataWithLoader from "modules/common/components/DataWithLoader";
+import { FormControl } from "modules/common/components/form";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import Pagination from "modules/common/components/pagination/Pagination";
+import Table from "modules/common/components/table";
+import { Title } from "modules/common/styles/main";
+import { __, router } from "modules/common/utils";
+import Wrapper from "modules/layout/components/Wrapper";
+import SelectTeamMembers from "modules/settings/team/containers/SelectTeamMembers";
+import React from "react";
+import Select from "react-select-plus";
+import { isObject } from "util";
+import GroupList from "../containers/GroupList";
+import { FilterItem, FilterWrapper, NotWrappable } from "../styles";
+import { IActions, IModule, IPermissionDocument, IUserGroup } from "../types";
+import PermissionForm from "./PermissionForm";
+import PermissionRow from "./PermissionRow";
 import {
   correctValue,
   filterActions,
   generatedList,
   generateModuleParams
-} from './utils';
+} from "./utils";
 
 type Props = {
   history: any;
@@ -80,33 +80,33 @@ class PermissionList extends React.Component<Props> {
     const { queryParams, modules, actions } = this.props;
 
     const usersOnChange = users => {
-      this.setFilter('userId', users);
+      this.setFilter("userId", users);
     };
 
     const allowedOnChange = e => {
-      this.setFilter('allowed', {
-        value: e.target.checked ? 'allowed' : 'notAllowed'
+      this.setFilter("allowed", {
+        value: e.target.checked ? "allowed" : "notAllowed"
       });
     };
 
     return (
       <FilterWrapper>
-        <strong>{__('Filters')}:</strong>
+        <strong>{__("Filters")}:</strong>
         <FilterItem>
           <Select
-            placeholder={__('Choose module')}
+            placeholder={__("Choose module")}
             value={queryParams.module}
             options={generateModuleParams(modules)}
-            onChange={this.setFilter.bind(this, 'module')}
+            onChange={this.setFilter.bind(this, "module")}
           />
         </FilterItem>
 
         <FilterItem>
           <Select
-            placeholder={__('Choose action')}
+            placeholder={__("Choose action")}
             value={queryParams.action}
             options={filterActions(actions, queryParams.module)}
-            onChange={this.setFilter.bind(this, 'action')}
+            onChange={this.setFilter.bind(this, "action")}
           />
         </FilterItem>
         <FilterItem>
@@ -120,10 +120,10 @@ class PermissionList extends React.Component<Props> {
         </FilterItem>
 
         <div>
-          <strong>{__('Granted')}:</strong>
+          <strong>{__("Granted")}:</strong>
           <FormControl
             componentClass="checkbox"
-            defaultChecked={queryParams.allowed !== 'notAllowed'}
+            defaultChecked={queryParams.allowed !== "notAllowed"}
             id="allowed"
             onChange={allowedOnChange}
           />
@@ -172,7 +172,7 @@ class PermissionList extends React.Component<Props> {
     );
 
     const title = (
-      <Title>{this.props.currentGroupName || __('All permissions')}</Title>
+      <Title>{this.props.currentGroupName || __("All permissions")}</Title>
     );
 
     const actionBarRight = (
@@ -216,14 +216,14 @@ class PermissionList extends React.Component<Props> {
     const { totalCount, queryParams } = this.props;
 
     const breadcrumb = [
-      { title: 'Settings', link: '/settings' },
-      { title: __('Permissions') }
+      { title: "Settings", link: "/settings" },
+      { title: __("Permissions") }
     ];
 
     return (
       <Wrapper
         header={
-          <Wrapper.Header title={__('Permissions')} breadcrumb={breadcrumb} />
+          <Wrapper.Header title={__("Permissions")} breadcrumb={breadcrumb} />
         }
         actionBar={this.renderActionBar()}
         leftSidebar={<GroupList queryParams={queryParams} />}

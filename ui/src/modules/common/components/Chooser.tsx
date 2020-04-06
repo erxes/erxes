@@ -1,14 +1,14 @@
-import Button from 'modules/common/components/Button';
-import EmptyState from 'modules/common/components/EmptyState';
-import FormControl from 'modules/common/components/form/Control';
-import Icon from 'modules/common/components/Icon';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import { __ } from 'modules/common/utils';
-import { ICompany } from 'modules/companies/types';
-import { ICustomer } from 'modules/customers/types';
-import React from 'react';
-import { ActionTop, Column, Columns, Footer, Title } from '../styles/chooser';
-import { CenterContent, ModalFooter } from '../styles/main';
+import Button from "modules/common/components/Button";
+import EmptyState from "modules/common/components/EmptyState";
+import FormControl from "modules/common/components/form/Control";
+import Icon from "modules/common/components/Icon";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import { __ } from "modules/common/utils";
+import { ICompany } from "modules/companies/types";
+import { ICustomer } from "modules/customers/types";
+import React from "react";
+import { ActionTop, Column, Columns, Footer, Title } from "../styles/chooser";
+import { CenterContent, ModalFooter } from "../styles/main";
 
 export type CommonProps = {
   data: any;
@@ -48,7 +48,7 @@ class CommonChooser extends React.Component<Props, State> {
     this.state = {
       datas,
       loadmore: true,
-      searchValue: ''
+      searchValue: ""
     };
   }
 
@@ -80,7 +80,7 @@ class CommonChooser extends React.Component<Props, State> {
   handleChange = (type, data) => {
     const { datas } = this.state;
 
-    if (type === 'plus-1') {
+    if (type === "plus-1") {
       if (this.props.limit && this.props.limit === datas.length) {
         return;
       }
@@ -111,7 +111,7 @@ class CommonChooser extends React.Component<Props, State> {
   };
 
   renderRow(data, icon) {
-    if (icon === 'plus-1' && this.state.datas.some(e => e._id === data._id)) {
+    if (icon === "plus-1" && this.state.datas.some(e => e._id === data._id)) {
       return null;
     }
 
@@ -128,7 +128,7 @@ class CommonChooser extends React.Component<Props, State> {
   renderSelected(selectedDatas) {
     if (selectedDatas.length) {
       return (
-        <ul>{selectedDatas.map(data => this.renderRow(data, 'times'))}</ul>
+        <ul>{selectedDatas.map(data => this.renderRow(data, "times"))}</ul>
       );
     }
 
@@ -159,14 +159,14 @@ class CommonChooser extends React.Component<Props, State> {
           <Column>
             <ActionTop>
               <FormControl
-                placeholder={__('Type to search')}
+                placeholder={__("Type to search")}
                 onChange={this.search}
               />
               {renderFilter && renderFilter()}
             </ActionTop>
 
             <ul>
-              {datas.map(dataItem => this.renderRow(dataItem, 'plus-1'))}
+              {datas.map(dataItem => this.renderRow(dataItem, "plus-1"))}
               {this.state.loadmore && (
                 <CenterContent>
                   <Button

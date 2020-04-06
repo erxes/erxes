@@ -1,14 +1,14 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import debounce from 'lodash/debounce';
-import { Avatar, SelectOption, SelectValue } from 'modules/boards/styles/item';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import Select from 'react-select-plus';
-import styled from 'styled-components';
-import { IOption } from '../types';
-import { __, confirm, withProps } from '../utils';
-import Icon from './Icon';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import debounce from "lodash/debounce";
+import { Avatar, SelectOption, SelectValue } from "modules/boards/styles/item";
+import React from "react";
+import { graphql } from "react-apollo";
+import Select from "react-select-plus";
+import styled from "styled-components";
+import { IOption } from "../types";
+import { __, confirm, withProps } from "../utils";
+import Icon from "./Icon";
 
 const SelectWrapper = styled.div`
   position: relative;
@@ -44,7 +44,7 @@ type Props = {
 
 const content = (option: IOption): React.ReactNode => (
   <>
-    <Avatar src={option.avatar || '/images/avatar-colored.svg'} />
+    <Avatar src={option.avatar || "/images/avatar-colored.svg"} />
     {option.label}
   </>
 );
@@ -138,7 +138,7 @@ class SelectWithSearch extends React.Component<
     };
 
     const selectSingle = (option: IOption) => {
-      onSelect(option ? option.value : '', name);
+      onSelect(option ? option.value : "", name);
 
       this.setState({ selectedOptions: option ? [option] : [] });
     };
@@ -151,7 +151,7 @@ class SelectWithSearch extends React.Component<
       }
     };
 
-    const onOpen = () => search('reload');
+    const onOpen = () => search("reload");
 
     const ids = datas.map(data => data._id);
     const uniqueSelectedOptions = (selectedOptions || []).filter(
@@ -178,7 +178,7 @@ class SelectWithSearch extends React.Component<
         <Select
           placeholder={__(label)}
           value={values}
-          loadingPlaceholder={__('Loading...')}
+          loadingPlaceholder={__("Loading...")}
           isLoading={customQuery.loading}
           onOpen={onOpen}
           onChange={onChange}
@@ -202,18 +202,18 @@ const withQuery = ({ customQuery }) =>
         {},
         { searchValue?: string; ids?: string[]; filterParams?: any }
       >(gql(customQuery), {
-        name: 'customQuery',
+        name: "customQuery",
         options: ({ searchValue, filterParams, values, abortController }) => {
           const context = { fetchOptions: { signal: abortController.signal } };
 
-          if (searchValue === 'reload') {
+          if (searchValue === "reload") {
             return {
               context,
               variables: {
-                ids: typeof values === 'string' ? [values] : values,
+                ids: typeof values === "string" ? [values] : values,
                 ...filterParams
               },
-              fetchPolicy: 'network-only',
+              fetchPolicy: "network-only",
               notifyOnNetworkStatusChange: true
             };
           }
@@ -225,7 +225,7 @@ const withQuery = ({ customQuery }) =>
           return {
             context,
             variables: {
-              ids: typeof values === 'string' ? [values] : values,
+              ids: typeof values === "string" ? [values] : values,
               ...filterParams
             }
           };
@@ -264,7 +264,7 @@ class Wrapper extends React.Component<
 
     this.withQuery = withQuery({ customQuery: this.props.customQuery });
 
-    this.state = { searchValue: '', abortController: new AbortController() };
+    this.state = { searchValue: "", abortController: new AbortController() };
   }
 
   search = (searchValue: string) => {

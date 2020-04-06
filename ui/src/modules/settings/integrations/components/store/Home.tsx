@@ -1,15 +1,15 @@
-import EmptyState from 'modules/common/components/EmptyState';
-import FormControl from 'modules/common/components/form/Control';
-import HeaderDescription from 'modules/common/components/HeaderDescription';
-import Icon from 'modules/common/components/Icon';
-import { __ } from 'modules/common/utils';
-import Wrapper from 'modules/layout/components/Wrapper';
-import { INTEGRATIONS } from 'modules/settings/integrations/constants';
-import React from 'react';
-import { ByKindTotalCount } from '../../types';
-import Row from './Row';
-import Sidebar from './Sidebar';
-import { Content, FullHeight, IntegrationWrapper, SearchInput } from './styles';
+import EmptyState from "modules/common/components/EmptyState";
+import FormControl from "modules/common/components/form/Control";
+import HeaderDescription from "modules/common/components/HeaderDescription";
+import Icon from "modules/common/components/Icon";
+import { __ } from "modules/common/utils";
+import Wrapper from "modules/layout/components/Wrapper";
+import { INTEGRATIONS } from "modules/settings/integrations/constants";
+import React from "react";
+import { ByKindTotalCount } from "../../types";
+import Row from "./Row";
+import Sidebar from "./Sidebar";
+import { Content, FullHeight, IntegrationWrapper, SearchInput } from "./styles";
 
 type Props = {
   totalCount: ByKindTotalCount;
@@ -25,9 +25,9 @@ class Home extends React.Component<Props, State> {
   constructor(props) {
     super(props);
     this.state = {
-      searchValue: '',
+      searchValue: "",
       integrations: INTEGRATIONS.filter(
-        integration => integration.category.indexOf('All integrations') !== -1
+        integration => integration.category.indexOf("All integrations") !== -1
       )
     };
   }
@@ -45,7 +45,7 @@ class Home extends React.Component<Props, State> {
           integration =>
             integration.name.toLowerCase().indexOf(searchValue) !== -1 &&
             integration.category.indexOf(
-              queryParams.type || 'All integrations'
+              queryParams.type || "All integrations"
             ) !== -1
         )
       });
@@ -95,7 +95,7 @@ class Home extends React.Component<Props, State> {
       <Content>
         <Sidebar currentType={queryParams.type} />
         <IntegrationWrapper>
-          <h3>{queryParams.type || 'All Integrations'}</h3>
+          <h3>{queryParams.type || "All Integrations"}</h3>
           {this.renderIntegrations()}
         </IntegrationWrapper>
       </Content>
@@ -108,7 +108,7 @@ class Home extends React.Component<Props, State> {
         <Icon icon="search-1" />
         <FormControl
           type="text"
-          placeholder={__('Type to search for an integration...')}
+          placeholder={__("Type to search for an integration...")}
           onChange={this.onSearch}
         />
       </SearchInput>
@@ -117,15 +117,15 @@ class Home extends React.Component<Props, State> {
 
   render() {
     const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('App store') },
-      { title: `${this.props.queryParams.type || 'All integrations'}` }
+      { title: __("Settings"), link: "/settings" },
+      { title: __("App store") },
+      { title: `${this.props.queryParams.type || "All integrations"}` }
     ];
 
     return (
       <Wrapper
         header={
-          <Wrapper.Header title={__('App store')} breadcrumb={breadcrumb} />
+          <Wrapper.Header title={__("App store")} breadcrumb={breadcrumb} />
         }
         actionBar={
           <Wrapper.ActionBar

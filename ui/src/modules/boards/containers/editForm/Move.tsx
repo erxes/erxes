@@ -1,12 +1,12 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { queries as boardQueries } from 'modules/boards/graphql';
-import { IOptions, IPipeline, StagesQueryResponse } from 'modules/boards/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withProps } from '../../../common/utils';
-import Move from '../../components/editForm/Move';
-import { IItem } from '../../types';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { queries as boardQueries } from "modules/boards/graphql";
+import { IOptions, IPipeline, StagesQueryResponse } from "modules/boards/types";
+import React from "react";
+import { graphql } from "react-apollo";
+import { withProps } from "../../../common/utils";
+import Move from "../../components/editForm/Move";
+import { IItem } from "../../types";
 
 type Props = {
   item: IItem;
@@ -40,7 +40,7 @@ export default withProps<Props>(
       StagesQueryResponse,
       { pipelineId: string }
     >(gql(boardQueries.stages), {
-      name: 'stagesQuery',
+      name: "stagesQuery",
       options: ({ item: { pipeline } }) => ({
         variables: {
           pipelineId: pipeline._id

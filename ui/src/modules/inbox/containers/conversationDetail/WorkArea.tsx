@@ -1,15 +1,15 @@
-import { AppConsumer } from 'appContext';
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import DumbWorkArea from 'modules/inbox/components/conversationDetail/workarea/WorkArea';
-import { NOTIFICATION_TYPE } from 'modules/inbox/constants';
-import { mutations, queries, subscriptions } from 'modules/inbox/graphql';
-import { isConversationMailKind } from 'modules/inbox/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import strip from 'strip';
-import { IUser } from '../../../auth/types';
-import { sendDesktopNotification, withProps } from '../../../common/utils';
+import { AppConsumer } from "appContext";
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import DumbWorkArea from "modules/inbox/components/conversationDetail/workarea/WorkArea";
+import { NOTIFICATION_TYPE } from "modules/inbox/constants";
+import { mutations, queries, subscriptions } from "modules/inbox/graphql";
+import { isConversationMailKind } from "modules/inbox/utils";
+import React from "react";
+import { graphql } from "react-apollo";
+import strip from "strip";
+import { IUser } from "../../../auth/types";
+import { sendDesktopNotification, withProps } from "../../../common/utils";
 import {
   AddMessageMutationResponse,
   AddMessageMutationVariables,
@@ -17,7 +17,7 @@ import {
   IMessage,
   MessagesQueryResponse,
   MessagesTotalCountQuery
-} from '../../types';
+} from "../../types";
 
 // messages limit
 let initialLimit = 10;
@@ -47,7 +47,7 @@ class WorkArea extends React.Component<FinalProps, State> {
   constructor(props) {
     super(props);
 
-    this.state = { loadingMessages: false, typingInfo: '' };
+    this.state = { loadingMessages: false, typingInfo: "" };
 
     this.prevMessageInsertedSubscription = null;
   }
@@ -84,14 +84,14 @@ class WorkArea extends React.Component<FinalProps, State> {
           }
 
           // Whenever mail thread receives a new message refetch for optimistic ui
-          if (kind === 'gmail' || kind.includes('nylas')) {
+          if (kind === "gmail" || kind.includes("nylas")) {
             return messagesQuery.refetch();
           }
 
           // current user's message is being showed after insert message
           // mutation. So to prevent from duplication we are ignoring current
           // user's messages from subscription
-          const isMessenger = kind === 'messenger';
+          const isMessenger = kind === "messenger";
 
           if (isMessenger && message.userId === currentUser._id) {
             return;
@@ -124,7 +124,7 @@ class WorkArea extends React.Component<FinalProps, State> {
           // send desktop notification
           sendDesktopNotification({
             title: NOTIFICATION_TYPE[kind],
-            content: strip(message.content) || ''
+            content: strip(message.content) || ""
           });
 
           return next;
@@ -211,7 +211,7 @@ class WorkArea extends React.Component<FinalProps, State> {
           callback();
 
           // clear saved messages from storage
-          localStorage.removeItem(currentId || '');
+          localStorage.removeItem(currentId || "");
         }
       })
       .catch(e => {
@@ -296,7 +296,7 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
       MessagesQueryResponse,
       { conversationId?: string; limit: number }
     >(gql(queries.conversationMessages), {
-      name: 'messagesQuery',
+      name: "messagesQuery",
       options: ({ currentId, currentConversation }) => {
         const windowHeight = window.innerHeight;
         const { integration } = currentConversation;
@@ -310,27 +310,27 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
           variables: {
             conversationId: currentId,
             limit:
-              integration.kind === 'messenger' || isMail ? initialLimit : 0,
+              integration.kind === "messenger" || isMail ? initialLimit : 0,
             skip: 0
           },
-          fetchPolicy: 'network-only'
+          fetchPolicy: "network-only"
         };
       }
     }),
     graphql<Props, MessagesTotalCountQuery, { conversationId?: string }>(
       gql(queries.conversationMessagesTotalCount),
       {
-        name: 'messagesTotalCountQuery',
+        name: "messagesTotalCountQuery",
         options: ({ currentId }) => ({
           variables: { conversationId: currentId },
-          fetchPolicy: 'network-only'
+          fetchPolicy: "network-only"
         })
       }
     ),
     graphql<Props, AddMessageMutationResponse, AddMessageMutationVariables>(
       gql(mutations.conversationMessageAdd),
       {
-        name: 'addMessageMutation'
+        name: "addMessageMutation"
       }
     )
   )(WorkArea)

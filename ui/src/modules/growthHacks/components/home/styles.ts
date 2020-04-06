@@ -1,8 +1,8 @@
-import { colors, dimensions } from 'modules/common/styles';
-import { SimpleButton } from 'modules/common/styles/main';
-import { BoxItem } from 'modules/settings/growthHacks/styles';
-import styled, { css } from 'styled-components';
-import styledTS from 'styled-components-ts';
+import { colors, dimensions } from "modules/common/styles";
+import { SimpleButton } from "modules/common/styles/main";
+import { BoxItem } from "modules/settings/growthHacks/styles";
+import styled, { css } from "styled-components";
+import styledTS from "styled-components-ts";
 
 const BoxContainer = styled.div`
   display: flex;
@@ -76,7 +76,7 @@ const ProjectItem = styledTS<{ new?: boolean }>(styled(BoxItem))`
       border-width: 2px;
 
       &:before {
-        content: '';
+        content: "";
       }
 
       &:hover {

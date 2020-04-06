@@ -1,23 +1,23 @@
-import Button from 'modules/common/components/Button';
-import { SmallLoader } from 'modules/common/components/ButtonMutate';
-import Icon from 'modules/common/components/Icon';
-import { Column, Columns, Title } from 'modules/common/styles/chooser';
-import { ModalFooter } from 'modules/common/styles/main';
-import { __, renderFullName } from 'modules/common/utils';
-import React from 'react';
-import { IUser } from '../../../auth/types';
+import Button from "modules/common/components/Button";
+import { SmallLoader } from "modules/common/components/ButtonMutate";
+import Icon from "modules/common/components/Icon";
+import { Column, Columns, Title } from "modules/common/styles/chooser";
+import { ModalFooter } from "modules/common/styles/main";
+import { __, renderFullName } from "modules/common/utils";
+import React from "react";
+import { IUser } from "../../../auth/types";
 import {
   CUSTOMER_BASIC_INFO,
   CUSTOMER_DATAS,
   CUSTOMER_LINKS
-} from '../../constants';
-import { Info, InfoAvatar, InfoDetail, InfoTitle } from '../../styles';
+} from "../../constants";
+import { Info, InfoAvatar, InfoDetail, InfoTitle } from "../../styles";
 import {
   ICustomer,
   ICustomerDoc,
   ICustomerLinks,
   IVisitorContact
-} from '../../types';
+} from "../../types";
 
 type Props = {
   objects: ICustomer[];
@@ -73,10 +73,10 @@ class CustomersMerge extends React.Component<Props, State> {
   ) => {
     const selectedValues = { ...this.state.selectedValues };
 
-    if (type === 'plus-1') {
+    if (type === "plus-1") {
       selectedValues[key] = value;
 
-      if (key === 'links') {
+      if (key === "links") {
         const links = Object.assign(
           { ...this.state.selectedValues.links },
           value
@@ -104,7 +104,7 @@ class CustomersMerge extends React.Component<Props, State> {
               return null;
             }
 
-            if (info.field === 'links') {
+            if (info.field === "links") {
               return this.renderLinks(customer[key], icon);
             }
 
@@ -134,11 +134,11 @@ class CustomersMerge extends React.Component<Props, State> {
 
   renderValue(field: string, value: any) {
     switch (field) {
-      case 'visitorContactInfo':
+      case "visitorContactInfo":
         return this.renderVisitorContactInfo(value);
-      case 'owner':
+      case "owner":
         return this.renderOwner(value);
-      case 'avatar':
+      case "avatar":
         return <InfoAvatar src={value} alt="avatar" />;
 
       default:
@@ -149,9 +149,9 @@ class CustomersMerge extends React.Component<Props, State> {
   renderVisitorContactInfo(data: IVisitorContact) {
     return (
       <Info>
-        <InfoTitle>{__('E-mail')}: </InfoTitle>
+        <InfoTitle>{__("E-mail")}: </InfoTitle>
         <InfoDetail>{data.email}</InfoDetail>
-        <InfoTitle>{__('Phone')}: </InfoTitle>
+        <InfoTitle>{__("Phone")}: </InfoTitle>
         <InfoDetail>{data.phone}</InfoDetail>
       </Info>
     );
@@ -199,14 +199,14 @@ class CustomersMerge extends React.Component<Props, State> {
       <form onSubmit={this.save}>
         <Columns>
           <Column className="multiple">
-            {this.renderCustomer(customer1, 'plus-1')}
+            {this.renderCustomer(customer1, "plus-1")}
           </Column>
 
           <Column className="multiple">
-            {this.renderCustomer(customer2, 'plus-1')}
+            {this.renderCustomer(customer2, "plus-1")}
           </Column>
 
-          <Column>{this.renderCustomer(selectedValues, 'times')}</Column>
+          <Column>{this.renderCustomer(selectedValues, "times")}</Column>
         </Columns>
 
         <ModalFooter>
@@ -216,7 +216,7 @@ class CustomersMerge extends React.Component<Props, State> {
           <Button
             type="submit"
             btnStyle="success"
-            icon={mergeCustomerLoading ? undefined : 'checked-1'}
+            icon={mergeCustomerLoading ? undefined : "checked-1"}
             disabled={mergeCustomerLoading}
           >
             {mergeCustomerLoading && <SmallLoader />}

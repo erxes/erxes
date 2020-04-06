@@ -1,10 +1,10 @@
-import { IConditionsRule } from 'modules/common/types';
-import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
-import { IUser } from '../auth/types';
-import { IAttachment } from '../common/types';
-import { ISegment, ISegmentCondition, ISegmentDoc } from '../segments/types';
-import { IBrand } from '../settings/brands/types';
-import { ITag } from '../tags/types';
+import { IConditionsRule } from "modules/common/types";
+import { IEmailTemplate } from "modules/settings/emailTemplates/types";
+import { IUser } from "../auth/types";
+import { IAttachment } from "../common/types";
+import { ISegment, ISegmentCondition, ISegmentDoc } from "../segments/types";
+import { IBrand } from "../settings/brands/types";
+import { ITag } from "../tags/types";
 
 export interface IEngageScheduleDate {
   type: string;
@@ -208,7 +208,7 @@ export type TargetCount = {
 
 export type IEmailFormProps = {
   onChange: (
-    name: 'email' | 'content' | 'fromUserId' | 'scheduleDate',
+    name: "email" | "content" | "fromUserId" | "scheduleDate",
     value: IEngageEmail | IEngageScheduleDate | string
   ) => void;
   message?: string;

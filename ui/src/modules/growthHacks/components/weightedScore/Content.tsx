@@ -1,16 +1,16 @@
-import { IPipeline } from 'modules/boards/types';
-import LoadMore from 'modules/common/components/LoadMore';
-import Table from 'modules/common/components/table';
-import { __ } from 'modules/common/utils';
+import { IPipeline } from "modules/boards/types";
+import LoadMore from "modules/common/components/LoadMore";
+import Table from "modules/common/components/table";
+import { __ } from "modules/common/utils";
 import {
   FixedContainer,
   ScrollContent,
   TableHead
-} from 'modules/growthHacks/styles';
-import { IGrowthHack, IGrowthHackParams } from 'modules/growthHacks/types';
-import React from 'react';
-import GrowthHackAddTrigger from '../GrowthHackAddTrigger';
-import Score from '../Score';
+} from "modules/growthHacks/styles";
+import { IGrowthHack, IGrowthHackParams } from "modules/growthHacks/types";
+import React from "react";
+import GrowthHackAddTrigger from "../GrowthHackAddTrigger";
+import Score from "../Score";
 
 type Props = {
   growthHacks: IGrowthHack[];
@@ -30,42 +30,42 @@ class Content extends React.Component<Props> {
   };
 
   renderHeader = () => {
-    const { hackScoringType = 'ice' } = this.props.pipeline || {};
+    const { hackScoringType = "ice" } = this.props.pipeline || {};
 
-    if (hackScoringType === 'rice') {
+    if (hackScoringType === "rice") {
       return (
         <>
-          <TableHead>{__('Reach')}</TableHead>
-          <TableHead>{__('Impact')}</TableHead>
-          <TableHead>{__('Confidence')}</TableHead>
-          <TableHead>{__('Effort')}</TableHead>
+          <TableHead>{__("Reach")}</TableHead>
+          <TableHead>{__("Impact")}</TableHead>
+          <TableHead>{__("Confidence")}</TableHead>
+          <TableHead>{__("Effort")}</TableHead>
         </>
       );
     }
 
-    if (hackScoringType === 'ice') {
+    if (hackScoringType === "ice") {
       return (
         <>
-          <TableHead>{__('Impact')}</TableHead>
-          <TableHead>{__('Confidence')}</TableHead>
-          <TableHead>{__('Ease')}</TableHead>
+          <TableHead>{__("Impact")}</TableHead>
+          <TableHead>{__("Confidence")}</TableHead>
+          <TableHead>{__("Ease")}</TableHead>
         </>
       );
     }
 
     return (
       <>
-        <TableHead>{__('Potential')}</TableHead>
-        <TableHead>{__('Importance')}</TableHead>
-        <TableHead>{__('Ease')}</TableHead>
+        <TableHead>{__("Potential")}</TableHead>
+        <TableHead>{__("Importance")}</TableHead>
+        <TableHead>{__("Ease")}</TableHead>
       </>
     );
   };
 
   renderInput(growthHack: IGrowthHack, type: string) {
-    const { hackScoringType = 'ice' } = this.props.pipeline || {};
+    const { hackScoringType = "ice" } = this.props.pipeline || {};
 
-    if (hackScoringType !== 'rice' && type === 'reach') {
+    if (hackScoringType !== "rice" && type === "reach") {
       return null;
     }
 
@@ -91,9 +91,9 @@ class Content extends React.Component<Props> {
           <Table hover={true}>
             <thead>
               <tr>
-                <th>{__('Experiment name')}</th>
+                <th>{__("Experiment name")}</th>
                 {this.renderHeader()}
-                <TableHead>{__('Score')}</TableHead>
+                <TableHead>{__("Score")}</TableHead>
               </tr>
             </thead>
             <tbody className="weighted-score-table-body">
@@ -101,14 +101,14 @@ class Content extends React.Component<Props> {
                 return (
                   <tr key={growthHack._id}>
                     <td>{growthHack.name}</td>
-                    {this.renderInput(growthHack, 'reach')}
-                    {this.renderInput(growthHack, 'impact')}
-                    {this.renderInput(growthHack, 'confidence')}
-                    {this.renderInput(growthHack, 'ease')}
+                    {this.renderInput(growthHack, "reach")}
+                    {this.renderInput(growthHack, "impact")}
+                    {this.renderInput(growthHack, "confidence")}
+                    {this.renderInput(growthHack, "ease")}
                     <td className="with-input">
                       <strong>
                         <Score.Amount
-                          type={pipeline ? pipeline.hackScoringType : 'ice'}
+                          type={pipeline ? pipeline.hackScoringType : "ice"}
                           r={growthHack.reach || 0}
                           i={growthHack.impact || 0}
                           c={growthHack.confidence || 0}

@@ -1,19 +1,19 @@
-import { FormControl } from 'modules/common/components/form';
-import ControlLabel from 'modules/common/components/form/Label';
-import CURRENCIES from 'modules/common/constants/currencies';
-import { __ } from 'modules/common/utils';
-import { selectConfigOptions } from 'modules/deals/utils';
-import React from 'react';
-import Select from 'react-select-plus';
-import { PAYMENT_TYPES } from '../../constants';
+import { FormControl } from "modules/common/components/form";
+import ControlLabel from "modules/common/components/form/Label";
+import CURRENCIES from "modules/common/constants/currencies";
+import { __ } from "modules/common/utils";
+import { selectConfigOptions } from "modules/deals/utils";
+import React from "react";
+import Select from "react-select-plus";
+import { PAYMENT_TYPES } from "../../constants";
 import {
   ContentColumn,
   ContentRow,
   ContentRowTitle,
   Divider,
   WrongLess
-} from '../../styles';
-import { IPaymentsData } from '../../types';
+} from "../../styles";
+import { IPaymentsData } from "../../types";
 
 type Props = {
   total: { currency?: string; amount?: number };
@@ -87,21 +87,21 @@ class PaymentForm extends React.Component<Props, State> {
         (!paymentsData[type.name] || !paymentsData[type.name].currency) &&
         currencies.length > 0
       ) {
-        this.paymentStateChange('currency', type.name, currencies[0]);
+        this.paymentStateChange("currency", type.name, currencies[0]);
       }
 
       this.paymentStateChange(
-        'amount',
+        "amount",
         type.name,
-        parseFloat((e.target as HTMLInputElement).value || '0')
+        parseFloat((e.target as HTMLInputElement).value || "0")
       );
     };
 
     const currencyOnChange = (currency: HTMLOptionElement) => {
       this.paymentStateChange(
-        'currency',
+        "currency",
         type.name,
-        currency ? currency.value : ''
+        currency ? currency.value : ""
       );
     };
 
@@ -136,10 +136,10 @@ class PaymentForm extends React.Component<Props, State> {
         <ContentColumn>
           <FormControl
             value={
-              paymentsData[type.name] ? paymentsData[type.name].amount : ''
+              paymentsData[type.name] ? paymentsData[type.name].amount : ""
             }
             type="number"
-            placeholder={__('Type amount')}
+            placeholder={__("Type amount")}
             min={0}
             name={type.name}
             onChange={onChange}
@@ -149,7 +149,7 @@ class PaymentForm extends React.Component<Props, State> {
         <ContentColumn>
           <Select
             name={type.name}
-            placeholder={__('Choose currency')}
+            placeholder={__("Choose currency")}
             value={
               paymentsData[type.name] ? paymentsData[type.name].currency : 0
             }

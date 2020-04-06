@@ -1,23 +1,23 @@
-import FormControl from 'modules/common/components/form/Control';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
-import Toggle from 'modules/common/components/Toggle';
-import { LANGUAGES } from 'modules/settings/general/constants';
-import React from 'react';
-import SelectBrand from '../../../containers/SelectBrand';
-import { Description } from '../../../styles';
+import FormControl from "modules/common/components/form/Control";
+import FormGroup from "modules/common/components/form/Group";
+import ControlLabel from "modules/common/components/form/Label";
+import { FlexItem, LeftItem } from "modules/common/components/step/styles";
+import Toggle from "modules/common/components/Toggle";
+import { LANGUAGES } from "modules/settings/general/constants";
+import React from "react";
+import SelectBrand from "../../../containers/SelectBrand";
+import { Description } from "../../../styles";
 
 type Props = {
   onChange: (
     name:
-      | 'brandId'
-      | 'languageCode'
-      | 'notifyCustomer'
-      | 'requireAuth'
-      | 'showChat'
-      | 'showLauncher'
-      | 'forceLogoutWhenResolve',
+      | "brandId"
+      | "languageCode"
+      | "notifyCustomer"
+      | "requireAuth"
+      | "showChat"
+      | "showLauncher"
+      | "forceLogoutWhenResolve",
     value: string
   ) => void;
   brandId?: string;
@@ -79,26 +79,26 @@ class Options extends React.Component<Props, State> {
   render() {
     const languageOnChange = e =>
       this.onInputChange(
-        'languageCode',
+        "languageCode",
         (e.currentTarget as HTMLInputElement).value
       );
 
-    const brandOnChange = e => this.onChangeFunction('brandId', e.target.value);
+    const brandOnChange = e => this.onChangeFunction("brandId", e.target.value);
 
     const notifyCustomerChange = e =>
-      this.onChangeFunction('notifyCustomer', e.target.checked);
+      this.onChangeFunction("notifyCustomer", e.target.checked);
 
     const requireAuthChange = e =>
-      this.onChangeFunction('requireAuth', e.target.checked);
+      this.onChangeFunction("requireAuth", e.target.checked);
 
     const showChatChange = e =>
-      this.onChangeFunction('showChat', e.target.checked);
+      this.onChangeFunction("showChat", e.target.checked);
 
     const showLauncherChange = e =>
-      this.onChangeFunction('showLauncher', e.target.checked);
+      this.onChangeFunction("showLauncher", e.target.checked);
 
     const forceLogoutWhenResolveChange = e =>
-      this.onChangeFunction('forceLogoutWhenResolve', e.target.checked);
+      this.onChangeFunction("forceLogoutWhenResolve", e.target.checked);
 
     return (
       <FlexItem>
@@ -127,40 +127,40 @@ class Options extends React.Component<Props, State> {
           />
 
           {this.renderToggle({
-            label: 'Require Authentication',
-            description: 'It will require email and phone in widget',
+            label: "Require Authentication",
+            description: "It will require email and phone in widget",
             checked: this.props.requireAuth,
             onChange: requireAuthChange
           })}
 
           {this.renderToggle({
-            label: 'Show chat',
+            label: "Show chat",
             description:
-              'Hide chat section and show only knowledgebase and form',
+              "Hide chat section and show only knowledgebase and form",
             checked: this.props.showChat,
             onChange: showChatChange
           })}
 
           {this.renderToggle({
-            label: 'Show launcher',
+            label: "Show launcher",
             description:
-              'The widget section will invisible but you can still get messenger data',
+              "The widget section will invisible but you can still get messenger data",
             checked: this.props.showLauncher,
             onChange: showLauncherChange
           })}
 
           {this.renderToggle({
-            label: 'Force logout when resolve',
+            label: "Force logout when resolve",
             description:
-              'If an operator resolve the conversation from inbox then client session will end automatically',
+              "If an operator resolve the conversation from inbox then client session will end automatically",
             checked: this.props.forceLogoutWhenResolve,
             onChange: forceLogoutWhenResolveChange
           })}
 
           {this.renderToggle({
-            label: 'Notify customer',
+            label: "Notify customer",
             description:
-              'If customer is offline and inserted email, it will send email when operator respond',
+              "If customer is offline and inserted email, it will send email when operator respond",
             checked: this.props.notifyCustomer,
             onChange: notifyCustomerChange
           })}

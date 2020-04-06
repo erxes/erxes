@@ -1,8 +1,8 @@
-import { SelectWrapper } from 'modules/common/components/form/styles';
-import { colors, dimensions } from 'modules/common/styles';
-import { Attachment } from 'modules/inbox/styles';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import { SelectWrapper } from "modules/common/components/form/styles";
+import { colors, dimensions } from "modules/common/styles";
+import { Attachment } from "modules/inbox/styles";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 const AttachmentContainer = styled(Attachment)`
   padding: 3px 8px;
@@ -81,7 +81,7 @@ const Resipients = styledTS<{ isActive?: boolean }>(styled.a)`
   padding-left: ${dimensions.unitSpacing}px;
   font-size: 12px;
   color: ${colors.colorCoreLightGray};
-  display: ${props => props.isActive && 'none'};
+  display: ${props => props.isActive && "none"};
   font-weight: 500;
 
   &:hover {
@@ -130,7 +130,7 @@ const ToolBar = styled.div`
     }
   }
 
-  input[type='file'] {
+  input[type="file"] {
     display: none;
   }
 `;

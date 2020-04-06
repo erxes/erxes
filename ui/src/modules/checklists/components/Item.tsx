@@ -1,19 +1,19 @@
-import debounce from 'lodash/debounce';
-import Button from 'modules/common/components/Button';
-import DropdownToggle from 'modules/common/components/DropdownToggle';
-import { FormControl } from 'modules/common/components/form';
-import Icon from 'modules/common/components/Icon';
-import { isEmptyContent } from 'modules/common/utils';
-import React, { useEffect, useState } from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import xss from 'xss';
+import debounce from "lodash/debounce";
+import Button from "modules/common/components/Button";
+import DropdownToggle from "modules/common/components/DropdownToggle";
+import { FormControl } from "modules/common/components/form";
+import Icon from "modules/common/components/Icon";
+import { isEmptyContent } from "modules/common/utils";
+import React, { useEffect, useState } from "react";
+import Dropdown from "react-bootstrap/Dropdown";
+import xss from "xss";
 import {
   ChecklistItem,
   ChecklistText,
   FormControlWrapper,
   FormWrapper
-} from '../styles';
-import { IChecklistItem } from '../types';
+} from "../styles";
+import { IChecklistItem } from "../types";
 
 type Props = {
   item: IChecklistItem;
@@ -53,7 +53,7 @@ function Item(props: Props) {
   }
 
   function onKeyPress(e) {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
 
       handleSave();

@@ -1,15 +1,15 @@
-import { colors, dimensions, typography } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
-import { Actions } from 'modules/customers/styles';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import { colors, dimensions, typography } from "modules/common/styles";
+import { rgba } from "modules/common/styles/color";
+import { Actions } from "modules/customers/styles";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 const FullContent = styledTS<{ center: boolean; align?: boolean }>(styled.div)`
   flex: 1;
   display: flex;
   min-height: 100%;
-  justify-content: ${props => props.center && 'center'};
-  align-items: ${props => (props.align ? 'flex-start' : 'center')};
+  justify-content: ${props => props.center && "center"};
+  align-items: ${props => (props.align ? "flex-start" : "center")};
 `;
 
 const MiddleContent = styledTS<{ transparent?: boolean }>(styled.div)`
@@ -136,7 +136,7 @@ const CenterContent = styled.div`
 
 const ActivityContent = styledTS<{ isEmpty: boolean }>(styled.div)`
   position: relative;
-  height: ${props => props.isEmpty && '360px'};
+  height: ${props => props.isEmpty && "360px"};
 `;
 
 const DropIcon = styledTS<{ isOpen: boolean }>(styled.span)`
@@ -189,7 +189,7 @@ const ScrollWrapper = styledTS<{ calcHeight?: string }>(styled.div)`
   height: ${props =>
     props.calcHeight
       ? `calc(100vh - ${props.calcHeight}px)`
-      : 'calc(100vh - 280px)'};
+      : "calc(100vh - 280px)"};
   overflow: auto;
   padding: 5px 10px 0 20px;
   margin-left: -20px;
@@ -258,7 +258,7 @@ const Title = styledTS<{ capitalize?: boolean }>(styled.div)`
   margin: 20px 0;
   display: flex;
   line-height: 30px;  
-  text-transform: ${props => props.capitalize && 'capitalize'};
+  text-transform: ${props => props.capitalize && "capitalize"};
 
   > span {
     font-size: 75%;

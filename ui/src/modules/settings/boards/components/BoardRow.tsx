@@ -1,14 +1,14 @@
-import { IBoard } from 'modules/boards/types';
-import Button from 'modules/common/components/Button';
-import Icon from 'modules/common/components/Icon';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import Tip from 'modules/common/components/Tip';
-import { IButtonMutateProps } from 'modules/common/types';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { ActionButtons } from '../../styles';
-import { BoardItem } from '../styles';
-import BoardForm from './BoardForm';
+import { IBoard } from "modules/boards/types";
+import Button from "modules/common/components/Button";
+import Icon from "modules/common/components/Icon";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import Tip from "modules/common/components/Tip";
+import { IButtonMutateProps } from "modules/common/types";
+import React from "react";
+import { Link } from "react-router-dom";
+import { ActionButtons } from "../../styles";
+import { BoardItem } from "../styles";
+import BoardForm from "./BoardForm";
 
 type Props = {
   type: string;

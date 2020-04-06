@@ -1,21 +1,21 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import Spinner from 'modules/common/components/Spinner';
-import { IButtonMutateProps } from 'modules/common/types';
-import { ICommonFormProps } from 'modules/settings/common/types';
-import { queries as generalQueries } from 'modules/settings/general/graphql';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import Spinner from "modules/common/components/Spinner";
+import { IButtonMutateProps } from "modules/common/types";
+import { ICommonFormProps } from "modules/settings/common/types";
+import { queries as generalQueries } from "modules/settings/general/graphql";
 import {
   IUserGroup,
   UsersGroupsQueryResponse
-} from 'modules/settings/permissions/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { IUser } from '../../../auth/types';
-import { withProps } from '../../../common/utils';
-import { queries as channelQueries } from '../../channels/graphql';
-import { ChannelsQueryResponse, IChannel } from '../../channels/types';
-import { queries as usersGroupsQueries } from '../../permissions/graphql';
-import UserForm from '../components/UserForm';
+} from "modules/settings/permissions/types";
+import React from "react";
+import { graphql } from "react-apollo";
+import { IUser } from "../../../auth/types";
+import { withProps } from "../../../common/utils";
+import { queries as channelQueries } from "../../channels/graphql";
+import { ChannelsQueryResponse, IChannel } from "../../channels/types";
+import { queries as usersGroupsQueries } from "../../permissions/graphql";
+import UserForm from "../components/UserForm";
 
 type Props = {
   channelsQuery: ChannelsQueryResponse;
@@ -51,7 +51,7 @@ const UserFormContainer = (props: Props & ICommonFormProps) => {
 
   const updatedProps = {
     ...props,
-    showBrands: config.USE_BRAND_RESTRICTIONS === 'true',
+    showBrands: config.USE_BRAND_RESTRICTIONS === "true",
     selectedChannels,
     selectedGroups,
     channels,
@@ -65,18 +65,18 @@ const UserFormContainer = (props: Props & ICommonFormProps) => {
 export default withProps<ICommonFormProps>(
   compose(
     graphql(gql(generalQueries.configsGetEnv), {
-      name: 'getEnvQuery',
+      name: "getEnvQuery",
       options: () => ({
-        fetchPolicy: 'network-only'
+        fetchPolicy: "network-only"
       })
     }),
     graphql<{}, ChannelsQueryResponse>(gql(channelQueries.channels), {
-      name: 'channelsQuery',
-      options: () => ({ fetchPolicy: 'network-only' })
+      name: "channelsQuery",
+      options: () => ({ fetchPolicy: "network-only" })
     }),
     graphql<{}, UsersGroupsQueryResponse>(gql(usersGroupsQueries.usersGroups), {
-      name: 'groupsQuery',
-      options: () => ({ fetchPolicy: 'network-only' })
+      name: "groupsQuery",
+      options: () => ({ fetchPolicy: "network-only" })
     })
   )(UserFormContainer)
 );

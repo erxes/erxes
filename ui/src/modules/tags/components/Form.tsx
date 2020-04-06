@@ -1,19 +1,19 @@
-import { COLORS } from 'modules/boards/constants';
-import Button from 'modules/common/components/Button';
-import FormControl from 'modules/common/components/form/Control';
-import Form from 'modules/common/components/form/Form';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import { colors } from 'modules/common/styles';
-import { ModalFooter } from 'modules/common/styles/main';
-import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import { getRandomNumber } from 'modules/common/utils';
-import { ITag } from 'modules/tags/types';
-import React from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import BlockPicker from 'react-color/lib/Block';
-import styled from 'styled-components';
+import { COLORS } from "modules/boards/constants";
+import Button from "modules/common/components/Button";
+import FormControl from "modules/common/components/form/Control";
+import Form from "modules/common/components/form/Form";
+import FormGroup from "modules/common/components/form/Group";
+import ControlLabel from "modules/common/components/form/Label";
+import { colors } from "modules/common/styles";
+import { ModalFooter } from "modules/common/styles/main";
+import { IButtonMutateProps, IFormProps } from "modules/common/types";
+import { getRandomNumber } from "modules/common/utils";
+import { ITag } from "modules/tags/types";
+import React from "react";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Popover from "react-bootstrap/Popover";
+import BlockPicker from "react-color/lib/Block";
+import styled from "styled-components";
 
 const ColorPick = styled.div`
   margin-top: 10px;
@@ -122,7 +122,7 @@ class FormComponent extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: 'tag',
+            name: "tag",
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal || afterSave,

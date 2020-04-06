@@ -1,18 +1,18 @@
-import { shallow } from 'enzyme';
-import React from 'react';
+import { shallow } from "enzyme";
+import React from "react";
 
-import ImageWithPreview from '../../../modules/common/components/ImageWithPreview';
+import ImageWithPreview from "../../../modules/common/components/ImageWithPreview";
 
-describe('ImageWithPreview component', () => {
+describe("ImageWithPreview component", () => {
   const defaultProps = {
-    src: 'bb',
-    alt: 'bb',
+    src: "bb",
+    alt: "bb",
     onLoad: () => null,
     full: false
   };
 
-  test('renders ImageWithPreview successfully', () => {
+  test("renders ImageWithPreview successfully", () => {
     const wrapper = shallow(<ImageWithPreview {...defaultProps} />);
-    expect(wrapper).not.toBe('');
+    expect(wrapper).not.toBe("");
   });
 });

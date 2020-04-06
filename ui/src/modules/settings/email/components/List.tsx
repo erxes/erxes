@@ -1,16 +1,16 @@
-import ActionButtons from 'modules/common/components/ActionButtons';
-import Button from 'modules/common/components/Button';
-import HeaderDescription from 'modules/common/components/HeaderDescription';
-import Icon from 'modules/common/components/Icon';
-import Label from 'modules/common/components/Label';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import Table from 'modules/common/components/table';
-import Tip from 'modules/common/components/Tip';
-import { __ } from 'modules/common/utils';
-import Wrapper from 'modules/layout/components/Wrapper';
-import React from 'react';
-import { IBrand } from '../../brands/types';
-import Config from '../containers/Config';
+import ActionButtons from "modules/common/components/ActionButtons";
+import Button from "modules/common/components/Button";
+import HeaderDescription from "modules/common/components/HeaderDescription";
+import Icon from "modules/common/components/Icon";
+import Label from "modules/common/components/Label";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import Table from "modules/common/components/table";
+import Tip from "modules/common/components/Tip";
+import { __ } from "modules/common/utils";
+import Wrapper from "modules/layout/components/Wrapper";
+import React from "react";
+import { IBrand } from "../../brands/types";
+import Config from "../containers/Config";
 
 type Props = {
   brands: IBrand[];
@@ -21,7 +21,7 @@ class List extends React.Component<Props, {}> {
   renderRow(brand) {
     const { refetch } = this.props;
     const { name, _id } = brand;
-    const emailConfig = brand.emailConfig || { type: 'simple' };
+    const emailConfig = brand.emailConfig || { type: "simple" };
 
     const editTrigger = (
       <Button btnStyle="link">
@@ -42,7 +42,7 @@ class List extends React.Component<Props, {}> {
         <td>{name}</td>
         <td>
           <Label
-            lblStyle={emailConfig.type === 'simple' ? 'default' : 'primary'}
+            lblStyle={emailConfig.type === "simple" ? "default" : "primary"}
           >
             {emailConfig.type}
           </Label>
@@ -66,17 +66,17 @@ class List extends React.Component<Props, {}> {
     const { brands } = this.props;
 
     const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Email appearance') }
+      { title: __("Settings"), link: "/settings" },
+      { title: __("Email appearance") }
     ];
 
     const content = (
       <Table>
         <thead>
           <tr>
-            <th>{__('Brand Name')}</th>
-            <th>{__('Current template')}</th>
-            <th>{__('Actions')}</th>
+            <th>{__("Brand Name")}</th>
+            <th>{__("Current template")}</th>
+            <th>{__("Actions")}</th>
           </tr>
         </thead>
         <tbody>{brands.map(brand => this.renderRow(brand))}</tbody>
@@ -87,7 +87,7 @@ class List extends React.Component<Props, {}> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Email appearance')}
+            title={__("Email appearance")}
             breadcrumb={breadcrumb}
           />
         }

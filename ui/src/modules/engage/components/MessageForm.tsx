@@ -1,9 +1,9 @@
-import { MESSAGE_KINDS } from 'modules/engage/constants';
-import { IBrand } from 'modules/settings/brands/types';
-import React from 'react';
-import AutoAndManualForm from '../containers/AutoAndManualForm';
-import VisitorForm from '../containers/VisitorForm';
-import { IEngageScheduleDate } from '../types';
+import { MESSAGE_KINDS } from "modules/engage/constants";
+import { IBrand } from "modules/settings/brands/types";
+import React from "react";
+import AutoAndManualForm from "../containers/AutoAndManualForm";
+import VisitorForm from "../containers/VisitorForm";
+import { IEngageScheduleDate } from "../types";
 
 type Props = {
   kind?: string;

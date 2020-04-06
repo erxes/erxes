@@ -1,7 +1,7 @@
-import TaggerPopover from 'modules/tags/components/TaggerPopover';
-import React from 'react';
-import { refetchSidebarConversationsOptions } from '../utils';
-import { InboxManagementActionConsumer } from './Inbox';
+import TaggerPopover from "modules/tags/components/TaggerPopover";
+import React from "react";
+import { refetchSidebarConversationsOptions } from "../utils";
+import { InboxManagementActionConsumer } from "./Inbox";
 
 const Tagger = props => {
   const { refetchQueries } = refetchSidebarConversationsOptions();

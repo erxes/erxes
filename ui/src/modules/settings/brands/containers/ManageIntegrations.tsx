@@ -1,16 +1,16 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import { Alert, withProps } from 'modules/common/utils';
-import ManageIntegrations from 'modules/settings/integrations/containers/common/ManageIntegrations';
-import { integrationsListParams } from 'modules/settings/integrations/containers/utils';
-import { queries as integQueries } from 'modules/settings/integrations/graphql';
-import { IIntegration } from 'modules/settings/integrations/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { mutations, queries } from '../graphql';
-import { BrandsManageIntegrationsMutationResponse, IBrandDoc } from '../types';
-import ChooseBrand from './ChooseBrand';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import { Alert, withProps } from "modules/common/utils";
+import ManageIntegrations from "modules/settings/integrations/containers/common/ManageIntegrations";
+import { integrationsListParams } from "modules/settings/integrations/containers/utils";
+import { queries as integQueries } from "modules/settings/integrations/graphql";
+import { IIntegration } from "modules/settings/integrations/types";
+import React from "react";
+import { graphql } from "react-apollo";
+import { mutations, queries } from "../graphql";
+import { BrandsManageIntegrationsMutationResponse, IBrandDoc } from "../types";
+import ChooseBrand from "./ChooseBrand";
 
 type Props = {
   currentBrand: IBrandDoc;
@@ -21,7 +21,7 @@ type FinalProps = BrandsManageIntegrationsMutationResponse & Props;
 
 class ManageIntegrationsContainer extends React.Component<FinalProps> {
   renderConfirm(integration: IIntegration, actionTrigger, icon, handleChange) {
-    if (icon === 'add') {
+    if (icon === "add") {
       return null;
     }
 
@@ -51,7 +51,7 @@ class ManageIntegrationsContainer extends React.Component<FinalProps> {
       }
     })
       .then(() => {
-        Alert.success('You successfully managed an integration');
+        Alert.success("You successfully managed an integration");
       })
       .catch(e => {
         Alert.error(e.message);
@@ -77,7 +77,7 @@ export default withProps<Props>(
     graphql<Props, BrandsManageIntegrationsMutationResponse, {}>(
       gql(mutations.brandManageIntegrations),
       {
-        name: 'saveMutation',
+        name: "saveMutation",
         options: ({
           queryParams,
           currentBrand

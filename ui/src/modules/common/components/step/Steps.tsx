@@ -1,5 +1,5 @@
-import React from 'react';
-import { StepContainer } from './styles';
+import React from "react";
+import { StepContainer } from "./styles";
 
 type Props = {
   children: any;

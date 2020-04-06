@@ -1,12 +1,12 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import ItemChooser from 'modules/boards/components/portable/ItemChooser';
-import Chooser, { CommonProps } from 'modules/common/components/Chooser';
-import { Alert, withProps } from 'modules/common/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { mutations } from '../graphql';
-import { EditConformityMutation, IConformityEdit } from '../types';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import ItemChooser from "modules/boards/components/portable/ItemChooser";
+import Chooser, { CommonProps } from "modules/common/components/Chooser";
+import { Alert, withProps } from "modules/common/utils";
+import React from "react";
+import { graphql } from "react-apollo";
+import { mutations } from "../graphql";
+import { EditConformityMutation, IConformityEdit } from "../types";
 
 type Props = {
   filterStageId?: (
@@ -64,7 +64,7 @@ export default withProps<Props>(
       EditConformityMutation,
       IConformityEdit & { isSaved?: boolean }
     >(gql(mutations.conformityEdit), {
-      name: 'editConformityMutation',
+      name: "editConformityMutation",
       options: ({ data, refetchQuery }) => {
         return {
           refetchQueries: [
@@ -77,9 +77,9 @@ export default withProps<Props>(
                 isSaved: true
               }
             },
-            'activityLogs',
-            'customers',
-            'companies'
+            "activityLogs",
+            "customers",
+            "companies"
           ]
         };
       }

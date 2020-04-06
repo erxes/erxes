@@ -1,6 +1,6 @@
-import { __ } from 'modules/common/utils';
-import { IMessagesItem } from 'modules/settings/integrations/types';
-import React from 'react';
+import { __ } from "modules/common/utils";
+import { IMessagesItem } from "modules/settings/integrations/types";
+import React from "react";
 import {
   ErxesAvatar,
   ErxesDate,
@@ -10,7 +10,7 @@ import {
   ErxesMessagesList,
   ErxesSpacialMessage,
   FromCustomer
-} from './styles';
+} from "./styles";
 
 type Props = {
   color: string;
@@ -41,20 +41,20 @@ class WidgetContent extends React.Component<Props> {
             <ErxesAvatar>
               <img src="/images/avatar-colored.svg" alt="avatar" />
             </ErxesAvatar>
-            <ErxesMessage>{__('Hi, any questions?')}</ErxesMessage>
-            <ErxesDate>{__('1 hour ago')}</ErxesDate>
+            <ErxesMessage>{__("Hi, any questions?")}</ErxesMessage>
+            <ErxesDate>{__("1 hour ago")}</ErxesDate>
           </li>
           <ErxesFromCustomer>
             <FromCustomer style={{ backgroundColor: color }}>
-              {__('We need your help!')}
+              {__("We need your help!")}
             </FromCustomer>
-            <ErxesDate>{__('6 minutes ago')}</ErxesDate>
+            <ErxesDate>{__("6 minutes ago")}</ErxesDate>
           </ErxesFromCustomer>
           {!isOnline && this.renderMessage(message && message.away)}
         </ErxesMessagesList>
 
         <ErxesMessageSender>
-          <span>{__('Send a message')} ...</span>
+          <span>{__("Send a message")} ...</span>
         </ErxesMessageSender>
       </>
     );

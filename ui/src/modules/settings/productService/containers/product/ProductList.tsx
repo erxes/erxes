@@ -1,18 +1,18 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import Bulk from 'modules/common/components/Bulk';
-import { Alert, withProps } from 'modules/common/utils';
-import { generatePaginationParams } from 'modules/common/utils/router';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import List from '../../components/product/ProductList';
-import { mutations, queries } from '../../graphql';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import Bulk from "modules/common/components/Bulk";
+import { Alert, withProps } from "modules/common/utils";
+import { generatePaginationParams } from "modules/common/utils/router";
+import React from "react";
+import { graphql } from "react-apollo";
+import List from "../../components/product/ProductList";
+import { mutations, queries } from "../../graphql";
 import {
   CategoryDetailQueryResponse,
   ProductRemoveMutationResponse,
   ProductsCountQueryResponse,
   ProductsQueryResponse
-} from '../../types';
+} from "../../types";
 
 type Props = {
   queryParams: any;
@@ -45,14 +45,14 @@ class ProductListContainer extends React.Component<FinalProps> {
       })
         .then(() => {
           emptyBulk();
-          Alert.success('You successfully deleted a product');
+          Alert.success("You successfully deleted a product");
         })
         .catch(e => {
           Alert.error(e.message);
         });
     };
 
-    const searchValue = this.props.queryParams.searchValue || '';
+    const searchValue = this.props.queryParams.searchValue || "";
 
     const updatedProps = {
       ...this.props,
@@ -79,11 +79,11 @@ class ProductListContainer extends React.Component<FinalProps> {
 
 const getRefetchQueries = () => {
   return [
-    'products',
-    'productCategorires',
-    'productCategoriesCount',
-    'productsTotalCount',
-    'productCountByTags'
+    "products",
+    "productCategorires",
+    "productCategoriesCount",
+    "productsTotalCount",
+    "productCountByTags"
   ];
 };
 
@@ -96,7 +96,7 @@ export default withProps<Props>(
     graphql<Props, ProductsQueryResponse, { page: number; perPage: number }>(
       gql(queries.products),
       {
-        name: 'productsQuery',
+        name: "productsQuery",
         options: ({ queryParams }) => ({
           variables: {
             categoryId: queryParams.categoryId,
@@ -109,19 +109,19 @@ export default withProps<Props>(
       }
     ),
     graphql<Props, ProductsCountQueryResponse>(gql(queries.productsCount), {
-      name: 'productsCountQuery'
+      name: "productsCountQuery"
     }),
     graphql<Props, ProductRemoveMutationResponse, { productIds: string[] }>(
       gql(mutations.productsRemove),
       {
-        name: 'productsRemove',
+        name: "productsRemove",
         options
       }
     ),
     graphql<Props, CategoryDetailQueryResponse>(
       gql(queries.productCategoryDetail),
       {
-        name: 'productCategoryDetailQuery',
+        name: "productCategoryDetailQuery",
         options: ({ queryParams }) => ({
           variables: {
             _id: queryParams.categoryId

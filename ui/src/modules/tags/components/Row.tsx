@@ -1,14 +1,14 @@
-import ActionButtons from 'modules/common/components/ActionButtons';
-import Button from 'modules/common/components/Button';
-import Icon from 'modules/common/components/Icon';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import Tags from 'modules/common/components/Tags';
-import Tip from 'modules/common/components/Tip';
-import { IButtonMutateProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
-import { ITag } from 'modules/tags/types';
-import React from 'react';
-import Form from './Form';
+import ActionButtons from "modules/common/components/ActionButtons";
+import Button from "modules/common/components/Button";
+import Icon from "modules/common/components/Icon";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import Tags from "modules/common/components/Tags";
+import Tip from "modules/common/components/Tip";
+import { IButtonMutateProps } from "modules/common/types";
+import { __ } from "modules/common/utils";
+import { ITag } from "modules/tags/types";
+import React from "react";
+import Form from "./Form";
 
 type Props = {
   tag: ITag;
@@ -25,7 +25,7 @@ function Row({ tag, type, count, renderButton, remove }: Props) {
 
   const editTrigger = (
     <Button btnStyle="link">
-      <Tip text={__('Edit')}>
+      <Tip text={__("Edit")}>
         <Icon icon="edit" />
       </Tip>
     </Button>
@@ -40,7 +40,7 @@ function Row({ tag, type, count, renderButton, remove }: Props) {
       <td>
         <Tags tags={[tag]} size="medium" />
       </td>
-      <td>{count || '0'}</td>
+      <td>{count || "0"}</td>
       <td>
         <ActionButtons>
           <ModalTrigger
@@ -49,7 +49,7 @@ function Row({ tag, type, count, renderButton, remove }: Props) {
             content={content}
           />
 
-          <Tip text={__('Delete')}>
+          <Tip text={__("Delete")}>
             <Button btnStyle="link" onClick={removeTag} icon="cancel-1" />
           </Tip>
         </ActionButtons>

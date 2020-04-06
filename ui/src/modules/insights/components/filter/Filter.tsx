@@ -1,11 +1,11 @@
-import Datetime from '@nateradebaugh/react-datetime';
-import dayjs from 'dayjs';
-import Button from 'modules/common/components/Button';
-import ControlLabel from 'modules/common/components/form/Label';
-import { __ } from 'modules/common/utils';
-import React from 'react';
-import { FlexItem, FlexRow, InsightFilter, InsightTitle } from '../../styles';
-import { IQueryParams } from '../../types';
+import Datetime from "@nateradebaugh/react-datetime";
+import dayjs from "dayjs";
+import Button from "modules/common/components/Button";
+import ControlLabel from "modules/common/components/form/Label";
+import { __ } from "modules/common/utils";
+import React from "react";
+import { FlexItem, FlexRow, InsightFilter, InsightTitle } from "../../styles";
+import { IQueryParams } from "../../types";
 
 type Props = {
   content: React.ReactNode;
@@ -26,7 +26,7 @@ class Filter extends React.Component<Props, States> {
     let { startDate, endDate } = props.queryParams;
 
     if (!startDate && !endDate) {
-      startDate = dayjs().add(-7, 'day');
+      startDate = dayjs().add(-7, "day");
       endDate = dayjs();
     }
 
@@ -37,7 +37,7 @@ class Filter extends React.Component<Props, States> {
   }
 
   onDateInputChange = (type: string, date) => {
-    if (type === 'endDate') {
+    if (type === "endDate") {
       this.setState({ endDate: date });
     } else {
       this.setState({ startDate: date });
@@ -52,14 +52,14 @@ class Filter extends React.Component<Props, States> {
     const { content } = this.props;
 
     const dateProps = {
-      inputProps: { placeholder: 'Click to select a date' },
-      timeFormat: 'HH:mm',
-      dateFormat: 'YYYY/MM/DD'
+      inputProps: { placeholder: "Click to select a date" },
+      timeFormat: "HH:mm",
+      dateFormat: "YYYY/MM/DD"
     };
 
     return (
       <InsightFilter>
-        <InsightTitle>{__('Filter')}</InsightTitle>
+        <InsightTitle>{__("Filter")}</InsightTitle>
         <FlexRow>
           {content}
           <FlexItem>
@@ -67,7 +67,7 @@ class Filter extends React.Component<Props, States> {
             <Datetime
               {...dateProps}
               value={this.state.startDate}
-              onChange={this.onDateInputChange.bind(this, 'startDate')}
+              onChange={this.onDateInputChange.bind(this, "startDate")}
             />
           </FlexItem>
           <FlexItem>
@@ -75,7 +75,7 @@ class Filter extends React.Component<Props, States> {
             <Datetime
               {...dateProps}
               value={this.state.endDate}
-              onChange={this.onDateInputChange.bind(this, 'endDate')}
+              onChange={this.onDateInputChange.bind(this, "endDate")}
             />
           </FlexItem>
           <Button btnStyle="success" icon="filter-1" onClick={this.onClick}>

@@ -1,7 +1,7 @@
-import React from 'react';
-import { ICategory } from '../../types';
-import CategoryRow from './CategoryRow';
-import { Categories } from './styles';
+import React from "react";
+import { ICategory } from "../../types";
+import CategoryRow from "./CategoryRow";
+import { Categories } from "./styles";
 
 type Props = {
   currentCategoryId: string;

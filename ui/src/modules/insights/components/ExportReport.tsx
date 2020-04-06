@@ -1,11 +1,11 @@
-import { IUser } from 'modules/auth/types';
-import { IOption, ISelectedOption } from 'modules/common/types';
-import { __, Alert } from 'modules/common/utils';
-import { menuInbox } from 'modules/common/utils/menus';
-import Wrapper from 'modules/layout/components/Wrapper';
-import React from 'react';
-import Select from 'react-select-plus';
-import { IBrand } from '../../settings/brands/types';
+import { IUser } from "modules/auth/types";
+import { IOption, ISelectedOption } from "modules/common/types";
+import { __, Alert } from "modules/common/utils";
+import { menuInbox } from "modules/common/utils/menus";
+import Wrapper from "modules/layout/components/Wrapper";
+import React from "react";
+import Select from "react-select-plus";
+import { IBrand } from "../../settings/brands/types";
 import {
   Box,
   FlexItem,
@@ -13,10 +13,10 @@ import {
   InsightContent,
   InsightTitle,
   InsightWrapper
-} from '../styles';
-import { IQueryParams } from '../types';
-import InboxFilter from './filter/InboxFilter';
-import Sidebar from './Sidebar';
+} from "../styles";
+import { IQueryParams } from "../types";
+import InboxFilter from "./filter/InboxFilter";
+import Sidebar from "./Sidebar";
 
 type Props = {
   brands: IBrand[];
@@ -30,7 +30,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
   constructor(props) {
     super(props);
 
-    this.state = { userId: '' };
+    this.state = { userId: "" };
   }
 
   renderBox(name: string, image: string, type: string) {
@@ -47,7 +47,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
   }
 
   onSelectChange = (value: ISelectedOption) => {
-    const userId = value ? value.value : '';
+    const userId = value ? value.value : "";
     this.setState({ userId });
   };
 
@@ -70,9 +70,9 @@ class ExportReport extends React.Component<Props, { userId: string }> {
     const { userId } = this.state;
 
     if (!userId) {
-      Alert.error('Choose user');
+      Alert.error("Choose user");
     } else {
-      exportReport({ type: 'firstResponseDuration', userId });
+      exportReport({ type: "firstResponseDuration", userId });
     }
   };
 
@@ -94,35 +94,35 @@ class ExportReport extends React.Component<Props, { userId: string }> {
           queryParams={queryParams}
         />
         <InsightContent>
-          <InsightTitle>{__('Export Report')}</InsightTitle>
+          <InsightTitle>{__("Export Report")}</InsightTitle>
 
           <FlexRow>
             {this.renderBox(
-              'Volume Report By Date',
-              '/images/icons/erxes-21.svg',
-              'volumeByDate'
+              "Volume Report By Date",
+              "/images/icons/erxes-21.svg",
+              "volumeByDate"
             )}
 
             {this.renderBox(
-              'Volume Report By Time',
-              '/images/icons/erxes-14.svg',
-              'volumeByTime'
+              "Volume Report By Time",
+              "/images/icons/erxes-14.svg",
+              "volumeByTime"
             )}
 
             {this.renderBox(
-              'Operator Activity Report',
-              '/images/icons/erxes-16.svg',
-              'activity'
+              "Operator Activity Report",
+              "/images/icons/erxes-16.svg",
+              "activity"
             )}
           </FlexRow>
 
           <InsightTitle>
             <FlexRow>
-              <FlexItem>{__('Export First Response Report')}</FlexItem>
+              <FlexItem>{__("Export First Response Report")}</FlexItem>
 
               <FlexItem>
                 <Select
-                  placeholder={__('Choose user')}
+                  placeholder={__("Choose user")}
                   value={userId}
                   onChange={onChange}
                   optionRenderer={options}
@@ -135,15 +135,15 @@ class ExportReport extends React.Component<Props, { userId: string }> {
 
           <FlexRow>
             {this.renderBox(
-              'Duration of First Response Report',
-              '/images/icons/erxes-06.svg',
-              'firstResponseDuration'
+              "Duration of First Response Report",
+              "/images/icons/erxes-06.svg",
+              "firstResponseDuration"
             )}
 
             {this.renderBox(
-              'First Response Report by Operators',
-              '/images/icons/erxes-15.svg',
-              'firstResponseOperators'
+              "First Response Report by Operators",
+              "/images/icons/erxes-15.svg",
+              "firstResponseOperators"
             )}
 
             <Box onClick={this.exportWithUser}>
@@ -152,19 +152,19 @@ class ExportReport extends React.Component<Props, { userId: string }> {
                   src="/images/icons/erxes-16.svg"
                   alt="First Response Report by Operator"
                 />
-                <span>{__('First Response Report by Operator')}</span>
+                <span>{__("First Response Report by Operator")}</span>
               </a>
             </Box>
           </FlexRow>
 
           <InsightTitle>
             <FlexRow>
-              <FlexItem>{__('Export Tag Report')}</FlexItem>
+              <FlexItem>{__("Export Tag Report")}</FlexItem>
             </FlexRow>
           </InsightTitle>
 
           <FlexRow>
-            {this.renderBox('Tag Report', '/images/icons/erxes-18.svg', 'tag')}
+            {this.renderBox("Tag Report", "/images/icons/erxes-18.svg", "tag")}
           </FlexRow>
         </InsightContent>
       </InsightWrapper>
@@ -175,7 +175,7 @@ class ExportReport extends React.Component<Props, { userId: string }> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header title={__('Export Report')} submenu={menuInbox} />
+          <Wrapper.Header title={__("Export Report")} submenu={menuInbox} />
         }
         leftSidebar={<Sidebar queryParams={this.props.queryParams} />}
         content={this.renderContent()}

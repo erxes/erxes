@@ -1,9 +1,9 @@
-import * as compose from 'lodash.flowright';
-import ButtonMutate from 'modules/common/components/ButtonMutate';
-import { IButtonMutateProps } from 'modules/common/types';
-import { confirm, withProps } from 'modules/common/utils';
-import { Alert } from 'modules/common/utils';
-import React from 'react';
+import * as compose from "lodash.flowright";
+import ButtonMutate from "modules/common/components/ButtonMutate";
+import { IButtonMutateProps } from "modules/common/types";
+import { confirm, withProps } from "modules/common/utils";
+import { Alert } from "modules/common/utils";
+import React from "react";
 
 interface IRemoveMutationVariables {
   _id: string;
@@ -112,16 +112,16 @@ function commonListComposer<ComponentProps>(options) {
       };
 
       let mutation = stringAddMutation;
-      let successAction = 'added';
+      let successAction = "added";
 
       if (object) {
         mutation = stringEditMutation;
-        successAction = 'updated';
+        successAction = "updated";
       }
 
       if (copy === true && stringCopyMutation && gqlCopyMutation) {
         mutation = stringCopyMutation;
-        successAction = 'copied';
+        successAction = "copied";
       }
 
       return (

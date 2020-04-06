@@ -1,14 +1,14 @@
-import highlighter from 'fuzzysearch-highlight';
-import strip from 'strip';
-import xss from 'xss';
+import highlighter from "fuzzysearch-highlight";
+import strip from "strip";
+import xss from "xss";
 
 import {
   ResponseSuggestionItem,
   ResponseSuggestions
-} from 'modules/inbox/styles';
-import React from 'react';
+} from "modules/inbox/styles";
+import React from "react";
 
-import { IResponseTemplate } from 'modules/settings/responseTemplates/types';
+import { IResponseTemplate } from "modules/settings/responseTemplates/types";
 
 type TemplateListProps = {
   suggestionsState: {
@@ -54,8 +54,8 @@ export default class TemplateList extends React.Component<
           const style: any = {};
 
           if (normalizedIndex === index) {
-            style.backgroundColor = '#5629B6';
-            style.color = '#ffffff';
+            style.backgroundColor = "#5629B6";
+            style.color = "#ffffff";
           }
 
           const onClick = () => onSelect(index);
@@ -67,11 +67,11 @@ export default class TemplateList extends React.Component<
               style={style}
             >
               <span
-                style={{ fontWeight: 'bold' }}
+                style={{ fontWeight: "bold" }}
                 dangerouslySetInnerHTML={{
                   __html: xss(highlighter(searchText, template.name))
                 }}
-              />{' '}
+              />{" "}
               <span
                 dangerouslySetInnerHTML={{
                   __html: xss(highlighter(searchText, strip(template.content)))

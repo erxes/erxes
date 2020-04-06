@@ -1,12 +1,12 @@
-import LoadMore from 'modules/common/components/LoadMore';
-import Table from 'modules/common/components/table';
-import { IRouterProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
-import { LeftContent, ScrollContent } from 'modules/growthHacks/styles';
-import { IGrowthHackParams } from 'modules/growthHacks/types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import GrowthHackAddTrigger from '../GrowthHackAddTrigger';
+import LoadMore from "modules/common/components/LoadMore";
+import Table from "modules/common/components/table";
+import { IRouterProps } from "modules/common/types";
+import { __ } from "modules/common/utils";
+import { LeftContent, ScrollContent } from "modules/growthHacks/styles";
+import { IGrowthHackParams } from "modules/growthHacks/types";
+import React from "react";
+import { withRouter } from "react-router-dom";
+import GrowthHackAddTrigger from "../GrowthHackAddTrigger";
 
 interface IProps extends IRouterProps {
   queryParams: any;
@@ -34,9 +34,9 @@ class Left extends React.Component<IProps> {
           <Table hover={true}>
             <thead>
               <tr>
-                <th>{__('Experiment name')}</th>
-                <th style={{ width: 40 }}>{__('Impact')}</th>
-                <th style={{ width: 40 }}>{__('Effort')}</th>
+                <th>{__("Experiment name")}</th>
+                <th style={{ width: 40 }}>{__("Impact")}</th>
+                <th style={{ width: 40 }}>{__("Effort")}</th>
               </tr>
             </thead>
             <tbody className="with-input">
@@ -53,7 +53,7 @@ class Left extends React.Component<IProps> {
                         onChange={this.onSave.bind(
                           this,
                           growthHack._id,
-                          'impact'
+                          "impact"
                         )}
                       />
                     </td>
@@ -66,7 +66,7 @@ class Left extends React.Component<IProps> {
                         onChange={this.onSave.bind(
                           this,
                           growthHack._id,
-                          'ease'
+                          "ease"
                         )}
                       />
                     </td>

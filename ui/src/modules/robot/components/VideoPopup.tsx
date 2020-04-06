@@ -1,12 +1,12 @@
-import Icon from 'modules/common/components/Icon';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import colors from 'modules/common/styles/colors';
-import * as React from 'react';
-import styled from 'styled-components';
+import Icon from "modules/common/components/Icon";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import colors from "modules/common/styles/colors";
+import * as React from "react";
+import styled from "styled-components";
 
 const Iframe = styled.iframe.attrs({
   allow:
-    'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture'
+    "accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
 })`
   border: none;
   background: ${colors.colorWhite};
@@ -51,7 +51,7 @@ const Thumbnail = styled.div`
     transition: opacity ease 0.3s;
 
     &:after {
-      content: '';
+      content: "";
       position: absolute;
       top: 50%;
       left: 50%;
@@ -88,7 +88,7 @@ class VideoPopup extends React.Component<Props> {
       <>
         <ModalTrigger
           hideHeader={true}
-          title={name || ''}
+          title={name || ""}
           trigger={trigger}
           content={content}
           onExit={onVideoClick}

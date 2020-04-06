@@ -1,16 +1,16 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import ButtonMutate from 'modules/common/components/ButtonMutate';
-import { IButtonMutateProps } from 'modules/common/types';
-import { withProps } from 'modules/common/utils';
-import { CountQueryResponse } from 'modules/customers/types';
-import { mutations } from 'modules/settings/brands/graphql';
-import { BrandsQueryResponse } from 'modules/settings/brands/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import BrandStep from '../components/step/BrandStep';
-import { queries } from '../graphql';
-import { sumCounts } from '../utils';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import ButtonMutate from "modules/common/components/ButtonMutate";
+import { IButtonMutateProps } from "modules/common/types";
+import { withProps } from "modules/common/utils";
+import { CountQueryResponse } from "modules/customers/types";
+import { mutations } from "modules/settings/brands/graphql";
+import { BrandsQueryResponse } from "modules/settings/brands/types";
+import React from "react";
+import { graphql } from "react-apollo";
+import BrandStep from "../components/step/BrandStep";
+import { queries } from "../graphql";
+import { sumCounts } from "../utils";
 
 type Props = {
   messageType: string;
@@ -60,7 +60,7 @@ const BrandStepContianer = (props: FinalProps) => {
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully ${
-          object ? 'updated' : 'added'
+          object ? "updated" : "added"
         } a ${name}`}
       />
     );
@@ -81,7 +81,7 @@ const getRefetchQueries = () => {
   return [
     {
       query: gql(queries.customerCounts),
-      variables: { only: 'byBrand' }
+      variables: { only: "byBrand" }
     },
     { query: gql(queries.brands) }
   ];
@@ -90,15 +90,15 @@ const getRefetchQueries = () => {
 export default withProps<Props>(
   compose(
     graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
-      name: 'brandsQuery'
+      name: "brandsQuery"
     }),
     graphql<Props, CountQueryResponse, { only: string }>(
       gql(queries.customerCounts),
       {
-        name: 'customerCountsQuery',
+        name: "customerCountsQuery",
         options: {
           variables: {
-            only: 'byBrand'
+            only: "byBrand"
           }
         }
       }

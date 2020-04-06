@@ -1,9 +1,9 @@
-import { colors } from 'modules/common/styles';
-import { IRouterProps } from 'modules/common/types';
-import { router } from 'modules/common/utils';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import styled from 'styled-components';
+import { colors } from "modules/common/styles";
+import { IRouterProps } from "modules/common/types";
+import { router } from "modules/common/utils";
+import React from "react";
+import { withRouter } from "react-router-dom";
+import styled from "styled-components";
 
 const SortWrapper = styled.div`
   display: flex;
@@ -51,7 +51,7 @@ class SortHandler extends React.Component<IProps, State> {
   constructor(props) {
     super(props);
     const { history } = props;
-    const sortValue = router.getParam(history, 'sortDirection');
+    const sortValue = router.getParam(history, "sortDirection");
 
     this.state = { sortValue };
   }
@@ -66,13 +66,13 @@ class SortHandler extends React.Component<IProps, State> {
     const { history } = this.props;
 
     if (
-      router.getParam(history, 'sortField') === name &&
-      router.getParam(history, 'sortDirection') === direction.toString()
+      router.getParam(history, "sortField") === name &&
+      router.getParam(history, "sortDirection") === direction.toString()
     ) {
-      return 'active';
+      return "active";
     }
 
-    return '';
+    return "";
   }
 
   onClickSort = () => {
@@ -91,9 +91,9 @@ class SortHandler extends React.Component<IProps, State> {
       return this.sortHandle(sortField, 1);
     }
 
-    this.setState({ sortValue: '' });
+    this.setState({ sortValue: "" });
 
-    return router.removeParams(history, 'sortDirection', 'sortField');
+    return router.removeParams(history, "sortDirection", "sortField");
   };
 
   render() {

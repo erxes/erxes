@@ -1,12 +1,12 @@
-import { IStage } from 'modules/boards/types';
-import Icon from 'modules/common/components/Icon';
-import SortableList from 'modules/common/components/SortableList';
-import { __ } from 'modules/common/utils';
-import { LinkButton } from 'modules/settings/team/styles';
-import React from 'react';
-import { StageList } from '../styles';
-import { IOption } from '../types';
-import StageItem from './StageItem';
+import { IStage } from "modules/boards/types";
+import Icon from "modules/common/components/Icon";
+import SortableList from "modules/common/components/SortableList";
+import { __ } from "modules/common/utils";
+import { LinkButton } from "modules/settings/team/styles";
+import React from "react";
+import { StageList } from "../styles";
+import { IOption } from "../types";
+import StageItem from "./StageItem";
 
 type Props = {
   onChangeStages: (stages: IStage[]) => void;
@@ -36,7 +36,7 @@ class Stages extends React.Component<Props, {}> {
 
     stages.push({
       _id: Math.random().toString(),
-      name: '',
+      name: "",
       type
     });
 
@@ -52,7 +52,7 @@ class Stages extends React.Component<Props, {}> {
   };
 
   onStageInputKeyPress = e => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       this.add();
       e.preventDefault();
     }
@@ -83,7 +83,7 @@ class Stages extends React.Component<Props, {}> {
         />
 
         <LinkButton onClick={this.add}>
-          <Icon icon="plus-1" /> {__('Add another stage')}
+          <Icon icon="plus-1" /> {__("Add another stage")}
         </LinkButton>
       </StageList>
     );

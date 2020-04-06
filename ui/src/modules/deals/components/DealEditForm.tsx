@@ -1,16 +1,16 @@
-import EditForm from 'modules/boards/components/editForm/EditForm';
-import Left from 'modules/boards/components/editForm/Left';
-import Sidebar from 'modules/boards/components/editForm/Sidebar';
-import Top from 'modules/boards/components/editForm/Top';
-import { FlexContent, HeaderContentSmall } from 'modules/boards/styles/item';
-import { IEditFormContent, IItem, IOptions } from 'modules/boards/types';
-import ControlLabel from 'modules/common/components/form/Label';
-import ProductSection from 'modules/deals/components/ProductSection';
-import { IProduct } from 'modules/settings/productService/types';
-import PortableTasks from 'modules/tasks/components/PortableTasks';
-import PortableTickets from 'modules/tickets/components/PortableTickets';
-import React from 'react';
-import { IDeal, IDealParams, IPaymentsData } from '../types';
+import EditForm from "modules/boards/components/editForm/EditForm";
+import Left from "modules/boards/components/editForm/Left";
+import Sidebar from "modules/boards/components/editForm/Sidebar";
+import Top from "modules/boards/components/editForm/Top";
+import { FlexContent, HeaderContentSmall } from "modules/boards/styles/item";
+import { IEditFormContent, IItem, IOptions } from "modules/boards/types";
+import ControlLabel from "modules/common/components/form/Label";
+import ProductSection from "modules/deals/components/ProductSection";
+import { IProduct } from "modules/settings/productService/types";
+import PortableTasks from "modules/tasks/components/PortableTasks";
+import PortableTickets from "modules/tickets/components/PortableTickets";
+import React from "react";
+import { IDeal, IDealParams, IPaymentsData } from "../types";
 
 type Props = {
   options: IOptions;
@@ -135,10 +135,10 @@ export default class DealEditForm extends React.Component<Props, State> {
   renderProductSection = () => {
     const { products, productsData, paymentsData } = this.state;
 
-    const pDataChange = pData => this.onChangeField('productsData', pData);
-    const prsChange = prs => this.onChangeField('products', prs);
+    const pDataChange = pData => this.onChangeField("productsData", pData);
+    const prsChange = prs => this.onChangeField("products", prs);
     const payDataChange = payData =>
-      this.onChangeField('paymentsData', payData);
+      this.onChangeField("paymentsData", payData);
 
     return (
       <ProductSection

@@ -1,18 +1,18 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { Alert, withProps } from 'modules/common/utils';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { Alert, withProps } from "modules/common/utils";
 import {
   EditIntegrationMutationResponse,
   EditIntegrationMutationVariables,
   LeadIntegrationDetailQueryResponse
-} from 'modules/settings/integrations/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '../../common/types';
-import Lead from '../components/Lead';
-import { mutations, queries } from '../graphql';
-import { ILeadData } from '../types';
+} from "modules/settings/integrations/types";
+import React from "react";
+import { graphql } from "react-apollo";
+import { withRouter } from "react-router-dom";
+import { IRouterProps } from "../../common/types";
+import Lead from "../components/Lead";
+import { mutations, queries } from "../graphql";
+import { ILeadData } from "../types";
 
 type Props = {
   contentTypeId: string;
@@ -74,11 +74,11 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
           }
         })
           .then(() => {
-            Alert.success('You successfully updated a lead');
+            Alert.success("You successfully updated a lead");
 
             history.push({
-              pathname: '/leads',
-              search: '?popUpRefetchList=true'
+              pathname: "/leads",
+              search: "?popUpRefetchList=true"
             });
           })
 
@@ -112,7 +112,7 @@ export default withProps<Props>(
     graphql<Props, LeadIntegrationDetailQueryResponse, { _id: string }>(
       gql(queries.integrationDetail),
       {
-        name: 'integrationDetailQuery',
+        name: "integrationDetailQuery",
         options: ({ contentTypeId }) => ({
           variables: {
             _id: contentTypeId
@@ -125,12 +125,12 @@ export default withProps<Props>(
       EditIntegrationMutationResponse,
       EditIntegrationMutationVariables
     >(gql(mutations.integrationsEditLeadIntegration), {
-      name: 'editIntegrationMutation',
+      name: "editIntegrationMutation",
       options: {
         refetchQueries: [
-          'leadIntegrations',
-          'leadIntegrationCounts',
-          'formDetail'
+          "leadIntegrations",
+          "leadIntegrationCounts",
+          "formDetail"
         ]
       }
     })

@@ -1,14 +1,14 @@
-import client from 'apolloClient';
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import ButtonMutate from 'modules/common/components/ButtonMutate';
-import { IButtonMutateProps } from 'modules/common/types';
-import { withProps } from 'modules/common/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { FieldsCombinedByTypeQueryResponse } from '../../settings/properties/types';
-import SegmentsForm from '../components/SegmentsForm';
-import { mutations, queries } from '../graphql';
+import client from "apolloClient";
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import ButtonMutate from "modules/common/components/ButtonMutate";
+import { IButtonMutateProps } from "modules/common/types";
+import { withProps } from "modules/common/utils";
+import React from "react";
+import { graphql } from "react-apollo";
+import { FieldsCombinedByTypeQueryResponse } from "../../settings/properties/types";
+import SegmentsForm from "../components/SegmentsForm";
+import { mutations, queries } from "../graphql";
 import {
   AddMutationResponse,
   EditMutationResponse,
@@ -16,7 +16,7 @@ import {
   HeadSegmentsQueryResponse,
   ISegmentCondition,
   SegmentDetailQueryResponse
-} from '../types';
+} from "../types";
 
 type Props = {
   contentType: string;
@@ -73,7 +73,7 @@ class SegmentsFormContainer extends React.Component<
         icon="check-circle"
         type="submit"
         successMessage={`You successfully ${
-          object ? 'updated' : 'added'
+          object ? "updated" : "added"
         } a ${name}`}
       />
     );
@@ -140,7 +140,7 @@ export default withProps<Props>(
     graphql<Props, SegmentDetailQueryResponse, { _id?: string }>(
       gql(queries.segmentDetail),
       {
-        name: 'segmentDetailQuery',
+        name: "segmentDetailQuery",
         options: ({ id }) => ({
           variables: { _id: id }
         })
@@ -149,17 +149,17 @@ export default withProps<Props>(
     graphql<Props, HeadSegmentsQueryResponse, { contentType: string }>(
       gql(queries.headSegments),
       {
-        name: 'headSegmentsQuery'
+        name: "headSegmentsQuery"
       }
     ),
     graphql<Props>(gql(queries.events), {
-      name: 'eventsQuery',
+      name: "eventsQuery",
       options: ({ contentType }) => ({
         variables: { contentType }
       })
     }),
     graphql<Props>(gql(queries.combinedFields), {
-      name: 'combinedFieldsQuery',
+      name: "combinedFieldsQuery",
       options: ({ contentType }) => ({
         variables: { contentType }
       })

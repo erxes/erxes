@@ -1,20 +1,20 @@
-import dayjs, { Dayjs } from 'dayjs';
-import { __ } from '.';
-import { IDateColumn } from '../types';
+import dayjs, { Dayjs } from "dayjs";
+import { __ } from ".";
+import { IDateColumn } from "../types";
 
 const MONTHS = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December'
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December"
 ];
 
 /**
@@ -38,18 +38,18 @@ export const monthColumns = (date: Dayjs, range: number): [IDateColumn] => {
 export const getCurrentDate = (): Dayjs => dayjs();
 
 export const nextMonth = (date: Dayjs): Dayjs => {
-  return date.add(1, 'month');
+  return date.add(1, "month");
 };
 
 export const previousMonth = (date: Dayjs): Dayjs => {
-  return date.subtract(1, 'month');
+  return date.subtract(1, "month");
 };
 
 export const getMonthTitle = (month: number): string => __(MONTHS[month]);
 
 export const getFullTitle = (date: IDateColumn): string => {
   const { month, year } = date;
-  return __(MONTHS[month]) + ' - ' + year;
+  return __(MONTHS[month]) + " - " + year;
 };
 
 export const getMonthYear = (date: Dayjs): { month: number; year: number } => {

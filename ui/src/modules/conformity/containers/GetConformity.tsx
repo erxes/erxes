@@ -1,9 +1,9 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { renderWithProps } from 'modules/common/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { ConformityQueryResponse, ISavedConformity } from '../types';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { renderWithProps } from "modules/common/utils";
+import React from "react";
+import { graphql } from "react-apollo";
+import { ConformityQueryResponse, ISavedConformity } from "../types";
 
 type IProps = {
   mainType?: string;
@@ -54,7 +54,7 @@ export default (props: IProps) =>
       graphql<IProps, ConformityQueryResponse, ISavedConformity>(
         gql(props.itemsQuery),
         {
-          name: 'itemsQuery',
+          name: "itemsQuery",
           skip: ({ mainType, mainTypeId, relType }) =>
             !mainType && !mainTypeId && !relType,
           options: ({ mainType, mainTypeId, relType }) => ({

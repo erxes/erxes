@@ -1,8 +1,8 @@
-import { IStage } from 'modules/boards/types';
-import { __ } from 'modules/common/utils';
-import Stage from 'modules/deals/containers/conversion/Stage';
-import * as React from 'react';
-import { HeadRow, TableView } from '../style';
+import { IStage } from "modules/boards/types";
+import { __ } from "modules/common/utils";
+import Stage from "modules/deals/containers/conversion/Stage";
+import * as React from "react";
+import { HeadRow, TableView } from "../style";
 
 type Props = {
   stages: IStage[];
@@ -17,10 +17,10 @@ class Table extends React.Component<Props, {}> {
     return (
       <TableView>
         <HeadRow>
-          <span>{__('Stage')}</span>
-          <span>{__('Stayed')}</span>
-          <span>{__('In progress')}</span>
-          <span>{__('Lost')}</span>
+          <span>{__("Stage")}</span>
+          <span>{__("Stayed")}</span>
+          <span>{__("In progress")}</span>
+          <span>{__("Lost")}</span>
         </HeadRow>
         {stages.map(stage => (
           <Stage

@@ -1,9 +1,9 @@
-import MainActionBar from 'modules/boards/components/MainActionBar';
-import { IBoard, IPipeline } from 'modules/boards/types';
-import SelectCompanies from 'modules/companies/containers/SelectCompanies';
-import SelectCustomers from 'modules/customers/containers/common/SelectCustomers';
-import React from 'react';
-import options from '../options';
+import MainActionBar from "modules/boards/components/MainActionBar";
+import { IBoard, IPipeline } from "modules/boards/types";
+import SelectCompanies from "modules/companies/containers/SelectCompanies";
+import SelectCustomers from "modules/customers/containers/common/SelectCustomers";
+import React from "react";
+import options from "../options";
 
 type Props = {
   onSearch: (search: string) => void;
@@ -46,7 +46,7 @@ const TaskMainActionBar = (props: Props) => {
     ...props,
     options,
     extraFilter,
-    link: '/task/board'
+    link: "/task/board"
   };
 
   return <MainActionBar {...extendedProps} />;

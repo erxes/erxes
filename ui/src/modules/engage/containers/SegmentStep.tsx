@@ -1,21 +1,21 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import ButtonMutate from 'modules/common/components/ButtonMutate';
-import { IButtonMutateProps } from 'modules/common/types';
-import { withProps } from 'modules/common/utils';
-import { CountQueryResponse } from 'modules/customers/types';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import ButtonMutate from "modules/common/components/ButtonMutate";
+import { IButtonMutateProps } from "modules/common/types";
+import { withProps } from "modules/common/utils";
+import { CountQueryResponse } from "modules/customers/types";
 import {
   AddMutationResponse,
   AddMutationVariables,
   HeadSegmentsQueryResponse,
   SegmentsQueryResponse
-} from 'modules/segments/types';
-import { FieldsCombinedByTypeQueryResponse } from 'modules/settings/properties/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import SegmentStep from '../components/step/SegmentStep';
-import { mutations, queries } from '../graphql';
-import { sumCounts } from '../utils';
+} from "modules/segments/types";
+import { FieldsCombinedByTypeQueryResponse } from "modules/settings/properties/types";
+import React from "react";
+import { graphql } from "react-apollo";
+import SegmentStep from "../components/step/SegmentStep";
+import { mutations, queries } from "../graphql";
+import { sumCounts } from "../utils";
 
 type Props = {
   segmentIds: string[];
@@ -62,7 +62,7 @@ const SegmentStepContainer = (props: FinalProps) => {
         ({ name, label }) => ({
           _id: name,
           title: label,
-          selectedBy: 'none'
+          selectedBy: "none"
         })
       )
     : [];
@@ -115,29 +115,29 @@ const SegmentStepContainer = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql<Props, SegmentsQueryResponse>(gql(queries.segments), {
-      name: 'segmentsQuery'
+      name: "segmentsQuery"
     }),
     graphql<Props, CountQueryResponse, { only: string }>(
       gql(queries.customerCounts),
       {
-        name: 'customerCountsQuery',
+        name: "customerCountsQuery",
         options: {
           variables: {
-            only: 'bySegment'
+            only: "bySegment"
           }
         }
       }
     ),
     graphql<Props, HeadSegmentsQueryResponse>(gql(queries.headSegments), {
-      name: 'headSegmentsQuery'
+      name: "headSegmentsQuery"
     }),
     graphql<Props, AddMutationResponse, AddMutationVariables>(
       gql(mutations.segmentsAdd),
-      { name: 'segmentsAdd' }
+      { name: "segmentsAdd" }
     ),
     graphql<Props, FieldsCombinedByTypeQueryResponse>(
       gql(queries.combinedFields),
-      { name: 'combinedFieldsQuery' }
+      { name: "combinedFieldsQuery" }
     )
   )(SegmentStepContainer)
 );

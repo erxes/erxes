@@ -1,13 +1,13 @@
-import EditorCK from 'modules/common/components/EditorCK';
-import FormControl from 'modules/common/components/form/Control';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import { IFormProps } from 'modules/common/types';
-import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
-import React from 'react';
-import CommonForm from '../../common/components/Form';
-import { ICommonFormProps } from '../../common/types';
-import { IResponseTemplate } from '../types';
+import EditorCK from "modules/common/components/EditorCK";
+import FormControl from "modules/common/components/form/Control";
+import FormGroup from "modules/common/components/form/Group";
+import ControlLabel from "modules/common/components/form/Label";
+import { IFormProps } from "modules/common/types";
+import SelectBrand from "modules/settings/integrations/containers/SelectBrand";
+import React from "react";
+import CommonForm from "../../common/components/Form";
+import { ICommonFormProps } from "../../common/types";
+import { IResponseTemplate } from "../types";
 
 type Props = {
   object?: IResponseTemplate;
@@ -24,7 +24,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     const object = props.object || {};
 
     this.state = {
-      content: object.content || ''
+      content: object.content || ""
     };
   }
 

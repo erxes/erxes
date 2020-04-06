@@ -1,20 +1,20 @@
-import dayjs from 'dayjs';
-import withCurrentUser from 'modules/auth/containers/withCurrentUser';
-import FormControl from 'modules/common/components/form/Control';
-import IntegrationIcon from 'modules/common/components/IntegrationIcon';
-import NameCard from 'modules/common/components/nameCard/NameCard';
-import Tags from 'modules/common/components/Tags';
-import Tip from 'modules/common/components/Tip';
-import { renderFullName } from 'modules/common/utils';
-import { CallLabel } from 'modules/inbox/styles';
-import { cleanIntegrationKind } from 'modules/settings/integrations/containers/utils';
-import React from 'react';
-import strip from 'strip';
-import { IUser } from '../../../auth/types';
-import { ICustomer } from '../../../customers/types';
-import { IBrand } from '../../../settings/brands/types';
-import { IIntegration } from '../../../settings/integrations/types';
-import { IConversation } from '../../types';
+import dayjs from "dayjs";
+import withCurrentUser from "modules/auth/containers/withCurrentUser";
+import FormControl from "modules/common/components/form/Control";
+import IntegrationIcon from "modules/common/components/IntegrationIcon";
+import NameCard from "modules/common/components/nameCard/NameCard";
+import Tags from "modules/common/components/Tags";
+import Tip from "modules/common/components/Tip";
+import { renderFullName } from "modules/common/utils";
+import { CallLabel } from "modules/inbox/styles";
+import { cleanIntegrationKind } from "modules/settings/integrations/containers/utils";
+import React from "react";
+import strip from "strip";
+import { IUser } from "../../../auth/types";
+import { ICustomer } from "../../../customers/types";
+import { IBrand } from "../../../settings/brands/types";
+import { IIntegration } from "../../../settings/integrations/types";
+import { IConversation } from "../../types";
 import {
   AssigneeImg,
   CheckBox,
@@ -29,7 +29,7 @@ import {
   RowContent,
   RowItem,
   SmallTextOneLine
-} from './styles';
+} from "./styles";
 
 type Props = {
   conversation: IConversation;
@@ -76,10 +76,10 @@ class ConversationItem extends React.Component<Props> {
     const kind = integration.kind;
 
     if (
-      kind === 'form' ||
-      kind.includes('nylas') ||
-      kind === 'gmail' ||
-      this.props.conversation.status === 'closed'
+      kind === "form" ||
+      kind.includes("nylas") ||
+      kind === "gmail" ||
+      this.props.conversation.status === "closed"
     ) {
       return false;
     }
@@ -89,9 +89,9 @@ class ConversationItem extends React.Component<Props> {
   };
 
   showMessageContent(kind: string, content: string) {
-    if (kind === 'callpro') {
+    if (kind === "callpro") {
       return (
-        <CallLabel type={(content || '').toLocaleLowerCase()}>
+        <CallLabel type={(content || "").toLocaleLowerCase()}>
           {content}
         </CallLabel>
       );
@@ -140,8 +140,8 @@ class ConversationItem extends React.Component<Props> {
                 </CustomerName>
 
                 <SmallTextOneLine>
-                  to {brand.name} via{' '}
-                  {integration.kind === 'callpro'
+                  to {brand.name} via{" "}
+                  {integration.kind === "callpro"
                     ? integration.name
                     : cleanIntegrationKind(integration && integration.kind)}
                 </SmallTextOneLine>
@@ -150,7 +150,7 @@ class ConversationItem extends React.Component<Props> {
 
             <MessageContent>
               <FlexWidth>
-                {this.showMessageContent(integration.kind, content || '')}
+                {this.showMessageContent(integration.kind, content || "")}
               </FlexWidth>
               <FlexRoot>
                 {messageCount > 1 && <Count>{messageCount}</Count>}
@@ -165,7 +165,7 @@ class ConversationItem extends React.Component<Props> {
                         assignedUser.details &&
                         (assignedUser.details.avatar
                           ? assignedUser.details.avatar
-                          : '/images/avatar-colored.svg')
+                          : "/images/avatar-colored.svg")
                       }
                     />
                   </Tip>

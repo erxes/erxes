@@ -1,26 +1,26 @@
-import EditorCK from 'modules/common/components/EditorCK';
-import ErrorMsg from 'modules/common/components/ErrorMsg';
-import FormControl from 'modules/common/components/form/Control';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import HelpPopover from 'modules/common/components/HelpPopover';
-import Icon from 'modules/common/components/Icon';
-import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
-import Tip from 'modules/common/components/Tip';
-import Uploader from 'modules/common/components/Uploader';
-import { ISelectedOption } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
-import { EMAIL_CONTENT } from 'modules/engage/constants';
+import EditorCK from "modules/common/components/EditorCK";
+import ErrorMsg from "modules/common/components/ErrorMsg";
+import FormControl from "modules/common/components/form/Control";
+import FormGroup from "modules/common/components/form/Group";
+import ControlLabel from "modules/common/components/form/Label";
+import HelpPopover from "modules/common/components/HelpPopover";
+import Icon from "modules/common/components/Icon";
+import { FlexItem, FlexPad } from "modules/common/components/step/styles";
+import Tip from "modules/common/components/Tip";
+import Uploader from "modules/common/components/Uploader";
+import { ISelectedOption } from "modules/common/types";
+import { __ } from "modules/common/utils";
+import { EMAIL_CONTENT } from "modules/engage/constants";
 import {
   EditorContainer,
   VerifyCancel,
   VerifyCheck,
   VerifyStatus
-} from 'modules/engage/styles';
-import React from 'react';
-import Select from 'react-select-plus';
-import { IEmailFormProps, IEngageEmail, IEngageScheduleDate } from '../types';
-import Scheduler from './Scheduler';
+} from "modules/engage/styles";
+import React from "react";
+import Select from "react-select-plus";
+import { IEmailFormProps, IEngageEmail, IEngageScheduleDate } from "../types";
+import Scheduler from "./Scheduler";
 
 type Props = IEmailFormProps & { verifiedEmails: string[]; error?: string };
 
@@ -50,12 +50,12 @@ class EmailForm extends React.Component<Props, State> {
 
     this.setState({ email });
 
-    this.props.onChange('email', email);
+    this.props.onChange("email", email);
   };
 
   changeUser = (fromUserId: string) => {
     this.setState({ fromUserId });
-    this.props.onChange('fromUserId', fromUserId);
+    this.props.onChange("fromUserId", fromUserId);
   };
 
   templateChange = value => {
@@ -64,7 +64,7 @@ class EmailForm extends React.Component<Props, State> {
     email.templateId = value;
 
     this.setState({ content: this.findTemplate(value), email }, () => {
-      this.props.onChange('email', this.state.email);
+      this.props.onChange("email", this.state.email);
     });
   };
 
@@ -75,11 +75,11 @@ class EmailForm extends React.Component<Props, State> {
       return template.content;
     }
 
-    return '';
+    return "";
   };
 
   renderScheduler() {
-    if (this.props.kind === 'manual') {
+    if (this.props.kind === "manual") {
       return null;
     }
 
@@ -92,7 +92,7 @@ class EmailForm extends React.Component<Props, State> {
   }
 
   onEditorChange = e => {
-    this.props.onChange('content', e.editor.getData());
+    this.props.onChange("content", e.editor.getData());
   };
 
   renderFrom() {
@@ -103,7 +103,7 @@ class EmailForm extends React.Component<Props, State> {
     }
 
     const onChangeUser = (value: ISelectedOption) => {
-      const userId = value ? value.value : '';
+      const userId = value ? value.value : "";
 
       this.changeUser(userId);
     };
@@ -144,7 +144,7 @@ class EmailForm extends React.Component<Props, State> {
 
     return (
       <Select
-        placeholder={__('Choose users')}
+        placeholder={__("Choose users")}
         value={this.state.fromUserId}
         onChange={onChangeUser}
         optionRenderer={optionRenderer}
@@ -157,11 +157,11 @@ class EmailForm extends React.Component<Props, State> {
     const { attachments } = this.state.email;
 
     const onChangeContent = e =>
-      this.changeContent('subject', (e.target as HTMLInputElement).value);
+      this.changeContent("subject", (e.target as HTMLInputElement).value);
     const onChangeTemplate = e =>
       this.templateChange((e.target as HTMLInputElement).value);
     const onChangeAttachment = attachmentsArr =>
-      this.changeContent('attachments', attachmentsArr);
+      this.changeContent("attachments", attachmentsArr);
 
     return (
       <FlexItem>
@@ -203,13 +203,13 @@ class EmailForm extends React.Component<Props, State> {
 
           <FormGroup>
             <ControlLabel>Email template:</ControlLabel>
-            <p>{__('Insert email template to content')}</p>
+            <p>{__("Insert email template to content")}</p>
             <FormControl
               componentClass="select"
               onChange={onChangeTemplate}
               value={this.state.email.templateId}
             >
-              <option />{' '}
+              <option />{" "}
               {this.props.templates.map(t => (
                 <option key={t._id} value={t._id}>
                   {t.name}

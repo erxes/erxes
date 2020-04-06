@@ -1,17 +1,17 @@
-import dayjs from 'dayjs';
-import ActionButtons from 'modules/common/components/ActionButtons';
-import Button from 'modules/common/components/Button';
-import FormControl from 'modules/common/components/form/Control';
-import Icon from 'modules/common/components/Icon';
-import Label from 'modules/common/components/Label';
-import NameCard from 'modules/common/components/nameCard/NameCard';
-import Tags from 'modules/common/components/Tags';
-import Tip from 'modules/common/components/Tip';
-import { __ } from 'modules/common/utils';
-import { MESSAGE_KINDS } from 'modules/engage/constants';
-import React from 'react';
-import { HelperText, RowTitle } from '../styles';
-import { IEngageMessage, IEngageMessenger } from '../types';
+import dayjs from "dayjs";
+import ActionButtons from "modules/common/components/ActionButtons";
+import Button from "modules/common/components/Button";
+import FormControl from "modules/common/components/form/Control";
+import Icon from "modules/common/components/Icon";
+import Label from "modules/common/components/Label";
+import NameCard from "modules/common/components/nameCard/NameCard";
+import Tags from "modules/common/components/Tags";
+import Tip from "modules/common/components/Tip";
+import { __ } from "modules/common/utils";
+import { MESSAGE_KINDS } from "modules/engage/constants";
+import React from "react";
+import { HelperText, RowTitle } from "../styles";
+import { IEngageMessage, IEngageMessenger } from "../types";
 
 type Props = {
   message: any;
@@ -40,15 +40,15 @@ class Row extends React.Component<Props> {
   renderLinks() {
     const msg = this.props.message;
 
-    const edit = this.renderLink('Edit', 'edit', this.props.edit);
-    const pause = this.renderLink('Pause', 'pause', this.props.setPause);
-    const live = this.renderLink('Set live', 'play', this.props.setLive);
-    const liveM = this.renderLink('Set live', 'play', this.props.setLiveManual);
-    const show = this.renderLink('Show statistics', 'eye', this.props.show);
+    const edit = this.renderLink("Edit", "edit", this.props.edit);
+    const pause = this.renderLink("Pause", "pause", this.props.setPause);
+    const live = this.renderLink("Set live", "play", this.props.setLive);
+    const liveM = this.renderLink("Set live", "play", this.props.setLiveManual);
+    const show = this.renderLink("Show statistics", "eye", this.props.show);
 
     const links: React.ReactNode[] = [];
 
-    if (msg.method === 'email') {
+    if (msg.method === "email") {
       links.push(show);
     }
 
@@ -72,12 +72,12 @@ class Row extends React.Component<Props> {
   }
 
   renderRemoveButton = (message, onClick) => {
-    if (!message.kind.toLowerCase().includes('auto')) {
+    if (!message.kind.toLowerCase().includes("auto")) {
       return null;
     }
 
     return (
-      <Tip text={__('Delete')}>
+      <Tip text={__("Delete")}>
         <Button btnStyle="link" onClick={onClick} icon="cancel-1" />
       </Tip>
     );
@@ -111,7 +111,7 @@ class Row extends React.Component<Props> {
   onClick = () => {
     const { message } = this.props;
 
-    if (message.method === 'email') {
+    if (message.method === "email") {
       return this.props.show();
     }
 
@@ -123,8 +123,8 @@ class Row extends React.Component<Props> {
 
     const { isChecked, message, remove } = this.props;
     const {
-      stats = { send: '' },
-      brand = { name: '' },
+      stats = { send: "" },
+      brand = { name: "" },
       validCustomersCount
     } = message;
 
@@ -159,22 +159,22 @@ class Row extends React.Component<Props> {
         <td>
           {message.email ? (
             <div>
-              <Icon icon="envelope" /> {__('Email')}
+              <Icon icon="envelope" /> {__("Email")}
             </div>
           ) : (
             <div>
-              <Icon icon="comment-1" /> {__('Messenger')}
+              <Icon icon="comment-1" /> {__("Messenger")}
             </div>
           )}
         </td>
 
         <td>
-          <b>{brand ? brand.name : '-'}</b>
+          <b>{brand ? brand.name : "-"}</b>
         </td>
 
         <td>
-          <Icon icon="calender" />{' '}
-          {dayjs(message.createdAt).format('DD MMM YYYY')}
+          <Icon icon="calender" />{" "}
+          {dayjs(message.createdAt).format("DD MMM YYYY")}
         </td>
 
         <td>

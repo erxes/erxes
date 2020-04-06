@@ -1,18 +1,18 @@
-import dayjs from 'dayjs';
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { IDateColumn } from 'modules/common/types';
-import { withProps } from 'modules/common/utils';
-import { getMonthTitle, getMonthYear } from 'modules/common/utils/calendar';
-import DealColumn from 'modules/deals/components/calendar/DealColumn';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { queries } from '../../graphql';
+import dayjs from "dayjs";
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { IDateColumn } from "modules/common/types";
+import { withProps } from "modules/common/utils";
+import { getMonthTitle, getMonthYear } from "modules/common/utils/calendar";
+import DealColumn from "modules/deals/components/calendar/DealColumn";
+import React from "react";
+import { graphql } from "react-apollo";
+import { queries } from "../../graphql";
 import {
   DealsQueryResponse,
   DealsTotalAmountsQueryResponse,
   IDeal
-} from '../../types';
+} from "../../types";
 
 type FinalProps = Props & {
   dealsQuery: DealsQueryResponse;
@@ -39,8 +39,8 @@ class DealColumnContainer extends React.Component<FinalProps> {
     const { fetchMore } = dealsQuery;
 
     // Update calendar after stage updated
-    if (localStorage.getItem('cacheInvalidated') === 'true') {
-      localStorage.setItem('cacheInvalidated', 'false');
+    if (localStorage.getItem("cacheInvalidated") === "true") {
+      localStorage.setItem("cacheInvalidated", "false");
 
       dealsQuery.refetch();
       dealsTotalAmountsQuery.refetch();
@@ -125,7 +125,7 @@ export default withProps<Props>(
     graphql<Props, DealsQueryResponse, { skip: number; date: IDateColumn }>(
       gql(queries.deals),
       {
-        name: 'dealsQuery',
+        name: "dealsQuery",
         options: ({ date, pipelineId, queryParams }: Props) => {
           return {
             notifyOnNetworkStatusChange: true,
@@ -142,7 +142,7 @@ export default withProps<Props>(
     graphql<Props, DealsTotalAmountsQueryResponse, { date: IDateColumn }>(
       gql(queries.dealsTotalAmounts),
       {
-        name: 'dealsTotalAmountsQuery',
+        name: "dealsTotalAmountsQuery",
         options: ({ date, pipelineId, queryParams }: Props) => ({
           variables: {
             date,

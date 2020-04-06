@@ -1,15 +1,15 @@
-import Box from 'modules/common/components/Box';
-import EmptyState from 'modules/common/components/EmptyState';
-import Icon from 'modules/common/components/Icon';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import Tip from 'modules/common/components/Tip';
-import { __ } from 'modules/common/utils';
-import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
-import { IProduct } from 'modules/settings/productService/types';
-import React from 'react';
-import ProductForm from '../containers/product/ProductForm';
-import { CustomField, ProductName } from '../styles';
-import { IPaymentsData, IProductData } from '../types';
+import Box from "modules/common/components/Box";
+import EmptyState from "modules/common/components/EmptyState";
+import Icon from "modules/common/components/Icon";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import Tip from "modules/common/components/Tip";
+import { __ } from "modules/common/utils";
+import { SectionBody, SectionBodyItem } from "modules/layout/styles";
+import { IProduct } from "modules/settings/productService/types";
+import React from "react";
+import ProductForm from "../containers/product/ProductForm";
+import { CustomField, ProductName } from "../styles";
+import { IPaymentsData, IProductData } from "../types";
 
 type Props = {
   productsData: IProductData[];
@@ -101,7 +101,7 @@ function ProductSection({
 
   return (
     <Box
-      title={__('Product & Service')}
+      title={__("Product & Service")}
       extraButtons={renderProductFormModal(
         <button>
           <Icon icon="edit-3" />

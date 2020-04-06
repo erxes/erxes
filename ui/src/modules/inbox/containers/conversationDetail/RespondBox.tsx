@@ -1,18 +1,18 @@
-import { AppConsumer } from 'appContext';
-import gql from 'graphql-tag';
-import { fromJS } from 'immutable';
-import * as compose from 'lodash.flowright';
-import debounce from 'lodash/debounce';
-import { IAttachmentPreview } from 'modules/common/types';
-import RespondBox from 'modules/inbox/components/conversationDetail/workarea/RespondBox';
-import { queries } from 'modules/inbox/graphql';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { IUser } from '../../../auth/types';
-import { withProps } from '../../../common/utils';
-import { ResponseTemplatesQueryResponse } from '../../../settings/responseTemplates/types';
-import { UsersQueryResponse } from '../../../settings/team/types';
-import { AddMessageMutationVariables, IConversation } from '../../types';
+import { AppConsumer } from "appContext";
+import gql from "graphql-tag";
+import { fromJS } from "immutable";
+import * as compose from "lodash.flowright";
+import debounce from "lodash/debounce";
+import { IAttachmentPreview } from "modules/common/types";
+import RespondBox from "modules/inbox/components/conversationDetail/workarea/RespondBox";
+import { queries } from "modules/inbox/graphql";
+import React from "react";
+import { graphql } from "react-apollo";
+import { IUser } from "../../../auth/types";
+import { withProps } from "../../../common/utils";
+import { ResponseTemplatesQueryResponse } from "../../../settings/responseTemplates/types";
+import { UsersQueryResponse } from "../../../settings/team/types";
+import { AddMessageMutationVariables, IConversation } from "../../types";
 
 type Props = {
   conversation: IConversation;
@@ -73,11 +73,11 @@ const RespondBoxContainer = (props: FinalProps) => {
 
     let optimisticResponse;
 
-    if (conversation.integration.kind === 'messenger') {
+    if (conversation.integration.kind === "messenger") {
       optimisticResponse = {
-        __typename: 'Mutation',
+        __typename: "Mutation",
         conversationMessageAdd: {
-          __typename: 'ConversationMessage',
+          __typename: "ConversationMessage",
           _id: Math.round(Math.random() * -1000000),
           content,
           contentType,
@@ -136,7 +136,7 @@ const withQuery = () =>
       graphql<Props & { searchValue: string }, UsersQueryResponse>(
         gql(queries.userList),
         {
-          name: 'usersQuery',
+          name: "usersQuery",
           options: ({ searchValue }) => ({
             variables: {
               searchValue
@@ -147,7 +147,7 @@ const withQuery = () =>
       graphql<Props, ResponseTemplatesQueryResponse>(
         gql(queries.responseTemplateList),
         {
-          name: 'responseTemplatesQuery',
+          name: "responseTemplatesQuery",
           options: () => {
             return {
               variables: {
@@ -172,7 +172,7 @@ class Wrapper extends React.Component<
 
     this.withQuery = withQuery();
 
-    this.state = { searchValue: '' };
+    this.state = { searchValue: "" };
   }
 
   search = (searchValue: string) => this.setState({ searchValue });

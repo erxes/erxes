@@ -1,16 +1,16 @@
-import SelectItem from 'modules/boards/components/SelectItem';
-import { PRIORITIES } from 'modules/boards/constants';
-import Watch from 'modules/boards/containers/editForm/Watch';
-import LabelChooser from 'modules/boards/containers/label/LabelChooser';
-import { ColorButton } from 'modules/boards/styles/common';
-import { ActionContainer } from 'modules/boards/styles/item';
-import { IItem, IOptions } from 'modules/boards/types';
-import ChecklistAdd from 'modules/checklists/components/AddButton';
-import Icon from 'modules/common/components/Icon';
-import { __ } from 'modules/common/utils';
-import React from 'react';
-import { ArchiveBtn } from './ArchiveBtn';
-import PriorityIndicator from './PriorityIndicator';
+import SelectItem from "modules/boards/components/SelectItem";
+import { PRIORITIES } from "modules/boards/constants";
+import Watch from "modules/boards/containers/editForm/Watch";
+import LabelChooser from "modules/boards/containers/label/LabelChooser";
+import { ColorButton } from "modules/boards/styles/common";
+import { ActionContainer } from "modules/boards/styles/item";
+import { IItem, IOptions } from "modules/boards/types";
+import ChecklistAdd from "modules/checklists/components/AddButton";
+import Icon from "modules/common/components/Icon";
+import { __ } from "modules/common/utils";
+import React from "react";
+import { ArchiveBtn } from "./ArchiveBtn";
+import PriorityIndicator from "./PriorityIndicator";
 
 type Props = {
   item: IItem;
@@ -52,7 +52,7 @@ class Actions extends React.Component<Props> {
         ) : (
           <Icon icon="sort-amount-up" />
         )}
-        {item.priority ? item.priority : __('Priority')}
+        {item.priority ? item.priority : __("Priority")}
       </ColorButton>
     );
 
@@ -73,7 +73,7 @@ class Actions extends React.Component<Props> {
 
         <ColorButton onClick={copyItem}>
           <Icon icon="copy-1" />
-          {__('Copy')}
+          {__("Copy")}
         </ColorButton>
 
         <ArchiveBtn

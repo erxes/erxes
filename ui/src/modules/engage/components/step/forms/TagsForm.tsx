@@ -1,7 +1,7 @@
-import { IButtonMutateProps } from 'modules/common/types';
-import { StepFormWrapper } from 'modules/engage/styles';
-import TagForm from 'modules/tags/components/Form';
-import React from 'react';
+import { IButtonMutateProps } from "modules/common/types";
+import { StepFormWrapper } from "modules/engage/styles";
+import TagForm from "modules/tags/components/Form";
+import React from "react";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;

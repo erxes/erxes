@@ -1,14 +1,14 @@
-import ButtonMutate from 'modules/common/components/ButtonMutate';
+import ButtonMutate from "modules/common/components/ButtonMutate";
 import {
   IButtonMutateProps,
   IQueryParams,
   IRouterProps
-} from 'modules/common/types';
-import { ICustomer } from 'modules/customers/types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import CustomerForm from '../components/list/CustomerForm';
-import { mutations } from '../graphql';
+} from "modules/common/types";
+import { ICustomer } from "modules/customers/types";
+import React from "react";
+import { withRouter } from "react-router-dom";
+import CustomerForm from "../components/list/CustomerForm";
+import { mutations } from "../graphql";
 
 type Props = {
   type?: string;
@@ -50,7 +50,7 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
       const afterSave = data => {
         closeModal();
 
-        if (redirectType === 'detail') {
+        if (redirectType === "detail") {
           return history.push(
             `/contacts/customers/details/${data.customersAdd._id}`
           );
@@ -64,13 +64,13 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
           getAssociatedCustomer(data.customersAdd);
         }
 
-        if (redirectType === 'new') {
+        if (redirectType === "new") {
           history.push(`/contacts`);
           history.replace(`${currentLocation}#showCustomerModal=true`);
         }
       };
 
-      values.state = type || 'customer';
+      values.state = type || "customer";
 
       return (
         <ButtonMutate
@@ -86,7 +86,7 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
           resetSubmit={resetSubmit}
           uppercase={false}
           successMessage={`You successfully ${
-            object ? 'updated' : 'added'
+            object ? "updated" : "added"
           } a ${name}`}
         />
       );
@@ -103,7 +103,7 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
 }
 
 const getRefetchQueries = () => {
-  return ['customersMain', 'customers', 'customerCounts'];
+  return ["customersMain", "customers", "customerCounts"];
 };
 
 export default withRouter<FinalProps>(CustomerFormContainer);

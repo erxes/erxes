@@ -1,16 +1,16 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { IAttachment } from 'modules/common/types';
-import { Alert, withProps } from 'modules/common/utils';
-import Modal from 'modules/inbox/components/conversationDetail/workarea/responseTemplate/Modal';
-import { mutations, queries } from 'modules/inbox/graphql';
-import { IBrand } from 'modules/settings/brands/types';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { IAttachment } from "modules/common/types";
+import { Alert, withProps } from "modules/common/utils";
+import Modal from "modules/inbox/components/conversationDetail/workarea/responseTemplate/Modal";
+import { mutations, queries } from "modules/inbox/graphql";
+import { IBrand } from "modules/settings/brands/types";
 import {
   SaveResponseTemplateMutationResponse,
   SaveResponseTemplateMutationVariables
-} from 'modules/settings/responseTemplates/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
+} from "modules/settings/responseTemplates/types";
+import React from "react";
+import { graphql } from "react-apollo";
 
 type Props = {
   brands: IBrand[];
@@ -31,7 +31,7 @@ const ModalContainer = (props: FinalProps) => {
   ) => {
     saveResponseTemplateMutation({ variables })
       .then(() => {
-        Alert.success('You successfully saved a response template');
+        Alert.success("You successfully saved a response template");
         callback();
       })
       .catch(e => {
@@ -54,7 +54,7 @@ export default withProps<Props>(
       SaveResponseTemplateMutationResponse,
       SaveResponseTemplateMutationVariables
     >(gql(mutations.saveResponseTemplate), {
-      name: 'saveResponseTemplateMutation',
+      name: "saveResponseTemplateMutation",
       options: {
         refetchQueries: [
           {

@@ -1,17 +1,17 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import ButtonMutate from 'modules/common/components/ButtonMutate';
-import { IButtonMutateProps } from 'modules/common/types';
-import { Alert, confirm, withProps } from 'modules/common/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import List from '../../components/productCategory/CategoryList';
-import { mutations, queries } from '../../graphql';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import ButtonMutate from "modules/common/components/ButtonMutate";
+import { IButtonMutateProps } from "modules/common/types";
+import { Alert, confirm, withProps } from "modules/common/utils";
+import React from "react";
+import { graphql } from "react-apollo";
+import List from "../../components/productCategory/CategoryList";
+import { mutations, queries } from "../../graphql";
 import {
   ProductCategoriesCountQueryResponse,
   ProductCategoriesQueryResponse,
   ProductCategoryRemoveMutationResponse
-} from '../../types';
+} from "../../types";
 
 type Props = { history: any; queryParams: any };
 
@@ -68,7 +68,7 @@ class ProductListContainer extends React.Component<FinalProps> {
           isSubmitted={isSubmitted}
           type="submit"
           successMessage={`You successfully ${
-            object ? 'updated' : 'added'
+            object ? "updated" : "added"
           } a ${name}`}
         />
       );
@@ -92,7 +92,7 @@ class ProductListContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = () => {
-  return ['productCategories', 'productCategoriesTotalCount'];
+  return ["productCategories", "productCategoriesTotalCount"];
 };
 
 const options = () => ({
@@ -104,19 +104,19 @@ export default withProps<Props>(
     graphql<Props, ProductCategoriesQueryResponse, { parentId: string }>(
       gql(queries.productCategories),
       {
-        name: 'productCategoriesQuery'
+        name: "productCategoriesQuery"
       }
     ),
     graphql<Props, ProductCategoriesCountQueryResponse>(
       gql(queries.productCategoriesCount),
       {
-        name: 'productCategoriesCountQuery'
+        name: "productCategoriesCountQuery"
       }
     ),
     graphql<Props, ProductCategoryRemoveMutationResponse, { _id: string }>(
       gql(mutations.productCategoryRemove),
       {
-        name: 'productCategoryRemove',
+        name: "productCategoryRemove",
         options
       }
     )

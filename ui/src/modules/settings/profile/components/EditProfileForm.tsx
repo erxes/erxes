@@ -1,13 +1,13 @@
-import UserCommonInfos from 'modules/auth/components/UserCommonInfos';
-import { IUser, IUserDoc } from 'modules/auth/types';
-import Button from 'modules/common/components/Button';
-import Form from 'modules/common/components/form/Form';
-import { ModalFooter } from 'modules/common/styles/main';
-import { IFormProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
-import React from 'react';
-import Modal from 'react-bootstrap/Modal';
-import PasswordConfirmation from './PasswordConfirmation';
+import UserCommonInfos from "modules/auth/components/UserCommonInfos";
+import { IUser, IUserDoc } from "modules/auth/types";
+import Button from "modules/common/components/Button";
+import Form from "modules/common/components/form/Form";
+import { ModalFooter } from "modules/common/styles/main";
+import { IFormProps } from "modules/common/types";
+import { __ } from "modules/common/utils";
+import React from "react";
+import Modal from "react-bootstrap/Modal";
+import PasswordConfirmation from "./PasswordConfirmation";
 
 type Props = {
   currentUser: IUser;
@@ -31,7 +31,7 @@ class EditProfile extends React.Component<Props, State> {
     const { details } = currentUser;
 
     this.state = {
-      avatar: details ? details.avatar || '' : '',
+      avatar: details ? details.avatar || "" : "",
       isShowPasswordPopup: false
     };
   }
@@ -92,7 +92,7 @@ class EditProfile extends React.Component<Props, State> {
         animation={false}
       >
         <Modal.Header closeButton={true}>
-          <Modal.Title>{__('Enter your password to Confirm')}</Modal.Title>
+          <Modal.Title>{__("Enter your password to Confirm")}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <PasswordConfirmation

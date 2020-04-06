@@ -1,15 +1,15 @@
-import { shallow } from 'enzyme';
-import React from 'react';
+import { shallow } from "enzyme";
+import React from "react";
 
-import ActionBar from '../../modules/layout/components/ActionBar';
+import ActionBar from "../../modules/layout/components/ActionBar";
 
-describe('ActionBar component', () => {
+describe("ActionBar component", () => {
   const defaultProps = {
-    background: 'black'
+    background: "black"
   };
 
-  test('renders ActionBar successfully', () => {
+  test("renders ActionBar successfully", () => {
     const wrapper = shallow(<ActionBar {...defaultProps} />);
-    expect(wrapper).not.toBe('');
+    expect(wrapper).not.toBe("");
   });
 });

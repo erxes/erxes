@@ -18,11 +18,11 @@ export interface ITagSaveParams {
 }
 
 export type ITagTypes =
-  | 'conversation'
-  | 'customer'
-  | 'engageMessage'
-  | 'company'
-  | 'integration';
+  | "conversation"
+  | "customer"
+  | "engageMessage"
+  | "company"
+  | "integration";
 
 // queries
 

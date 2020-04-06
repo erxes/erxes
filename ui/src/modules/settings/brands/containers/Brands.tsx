@@ -1,16 +1,16 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { router as routerUtils, withProps } from 'modules/common/utils';
-import { IntegrationsCountQueryResponse } from 'modules/settings/integrations/types';
-import queryString from 'query-string';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '../../../common/types';
-import DumbBrands from '../components/Brands';
-import Empty from '../components/Empty';
-import { queries } from '../graphql';
-import { BrandDetailQueryResponse, BrandsGetLastQueryResponse } from '../types';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { router as routerUtils, withProps } from "modules/common/utils";
+import { IntegrationsCountQueryResponse } from "modules/settings/integrations/types";
+import queryString from "query-string";
+import React from "react";
+import { graphql } from "react-apollo";
+import { withRouter } from "react-router-dom";
+import { IRouterProps } from "../../../common/types";
+import DumbBrands from "../components/Brands";
+import Empty from "../components/Empty";
+import { queries } from "../graphql";
+import { BrandDetailQueryResponse, BrandsGetLastQueryResponse } from "../types";
 
 type Props = {
   currentBrandId: string;
@@ -55,17 +55,17 @@ const BrandsContainer = withProps<Props>(
     graphql<Props, BrandDetailQueryResponse, { _id: string }>(
       gql(queries.brandDetail),
       {
-        name: 'brandDetailQuery',
+        name: "brandDetailQuery",
         options: ({ currentBrandId }: { currentBrandId: string }) => ({
           variables: { _id: currentBrandId },
-          fetchPolicy: 'network-only'
+          fetchPolicy: "network-only"
         })
       }
     ),
     graphql<Props, IntegrationsCountQueryResponse, { brandId: string }>(
       gql(queries.integrationsCount),
       {
-        name: 'integrationsCountQuery',
+        name: "integrationsCountQuery",
         options: ({ currentBrandId }: { currentBrandId: string }) => ({
           variables: { brandId: currentBrandId }
         })
@@ -130,11 +130,11 @@ const WithLastBrand = withProps<WithCurrentIdProps>(
     graphql<WithCurrentIdProps, BrandsGetLastQueryResponse, { _id: string }>(
       gql(queries.brandsGetLast),
       {
-        name: 'lastBrandQuery',
+        name: "lastBrandQuery",
         skip: ({ queryParams }: { queryParams: any }) => queryParams._id,
         options: ({ queryParams }: { queryParams: any }) => ({
           variables: { _id: queryParams._id },
-          fetchPolicy: 'network-only'
+          fetchPolicy: "network-only"
         })
       }
     )

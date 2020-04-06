@@ -1,19 +1,19 @@
-import dayjs from 'dayjs';
-import ActionButtons from 'modules/common/components/ActionButtons';
-import Button from 'modules/common/components/Button';
-import FormControl from 'modules/common/components/form/Control';
-import Icon from 'modules/common/components/Icon';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import Tags from 'modules/common/components/Tags';
-import Tip from 'modules/common/components/Tip';
-import WithPermission from 'modules/common/components/WithPermission';
-import { DateWrapper } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
-import { RowTitle } from 'modules/engage/styles';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { ILeadIntegration } from '../types';
-import Manage from './Manage';
+import dayjs from "dayjs";
+import ActionButtons from "modules/common/components/ActionButtons";
+import Button from "modules/common/components/Button";
+import FormControl from "modules/common/components/form/Control";
+import Icon from "modules/common/components/Icon";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import Tags from "modules/common/components/Tags";
+import Tip from "modules/common/components/Tip";
+import WithPermission from "modules/common/components/WithPermission";
+import { DateWrapper } from "modules/common/styles/main";
+import { __ } from "modules/common/utils";
+import { RowTitle } from "modules/engage/styles";
+import React from "react";
+import { Link } from "react-router-dom";
+import { ILeadIntegration } from "../types";
+import Manage from "./Manage";
 
 type Props = {
   integration: ILeadIntegration;
@@ -30,7 +30,7 @@ class Row extends React.Component<Props> {
     return (
       <Link to={`/leads/edit/${integration._id}/${formId}`}>
         <Button btnStyle="link">
-          <Tip text={__('Manage')}>
+          <Tip text={__("Manage")}>
             <Icon icon="edit" />
           </Tip>
         </Button>
@@ -41,7 +41,7 @@ class Row extends React.Component<Props> {
   renderEditAction(integration) {
     const trigger = (
       <Button btnStyle="link">
-        <Tip text={__('Install code')}>
+        <Tip text={__("Install code")}>
           <Icon icon="copy" />
         </Tip>
       </Button>
@@ -66,7 +66,7 @@ class Row extends React.Component<Props> {
 
     return (
       <WithPermission action="integrationsArchive">
-        <Tip text={__('Archive')}>
+        <Tip text={__("Archive")}>
           <Button btnStyle="link" onClick={onClick} icon="archive-alt" />
         </Tip>
       </WithPermission>
@@ -80,7 +80,7 @@ class Row extends React.Component<Props> {
 
     return (
       <WithPermission action="integrationsRemove">
-        <Tip text={__('Delete')}>
+        <Tip text={__("Delete")}>
           <Button btnStyle="link" onClick={onClick} icon="cancel-1" />
         </Tip>
       </WithPermission>
@@ -93,12 +93,12 @@ class Row extends React.Component<Props> {
     const lead = integration.leadData || {};
 
     const createdUser = form.createdUser || {
-      _id: '',
-      details: { fullName: '' }
+      _id: "",
+      details: { fullName: "" }
     };
     const tags = integration.tags;
 
-    let percentage: string | number = '0.00';
+    let percentage: string | number = "0.00";
 
     if (lead.contactsGathered && lead.viewCount) {
       percentage = (lead.contactsGathered / lead.viewCount) * 100;
@@ -127,21 +127,21 @@ class Row extends React.Component<Props> {
             </Link>
           </RowTitle>
         </td>
-        <td>{integration.brand ? integration.brand.name : ''}</td>
+        <td>{integration.brand ? integration.brand.name : ""}</td>
         <td>{lead.viewCount || 0}</td>
         <td>{percentage.substring(0, 4)} %</td>
         <td>
-          <Tip text={__('View')}>
+          <Tip text={__("View")}>
             <Link
               to={`/contacts/customers/customer?form=${integration.formId}`}
             >
               <Icon icon="eye" />
             </Link>
-          </Tip>{' '}
+          </Tip>{" "}
           {lead.contactsGathered || 0}
         </td>
         <td>
-          <DateWrapper>{dayjs(form.createdDate).format('ll')}</DateWrapper>
+          <DateWrapper>{dayjs(form.createdDate).format("ll")}</DateWrapper>
         </td>
         <td>
           <div key={createdUser._id}>

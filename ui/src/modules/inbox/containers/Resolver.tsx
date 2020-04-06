@@ -1,18 +1,18 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { Alert, withProps } from 'modules/common/utils';
-import { CONVERSATION_STATUSES } from 'modules/inbox/constants';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import Resolver from '../components/Resolver';
-import { mutations } from '../graphql';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { Alert, withProps } from "modules/common/utils";
+import { CONVERSATION_STATUSES } from "modules/inbox/constants";
+import React from "react";
+import { graphql } from "react-apollo";
+import Resolver from "../components/Resolver";
+import { mutations } from "../graphql";
 import {
   ChangeStatusMutationResponse,
   ChangeStatusMutationVariables,
   IConversation
-} from '../types';
-import { refetchSidebarConversationsOptions } from '../utils';
-import { InboxManagementActionConsumer } from './Inbox';
+} from "../types";
+import { refetchSidebarConversationsOptions } from "../utils";
+import { InboxManagementActionConsumer } from "./Inbox";
 
 type Props = {
   conversations: IConversation[];
@@ -33,7 +33,7 @@ const ResolverContainer = (props: FinalProps) => {
         }
 
         if (status === CONVERSATION_STATUSES.CLOSED) {
-          Alert.success('The conversation has been resolved!');
+          Alert.success("The conversation has been resolved!");
 
           // clear saved messages from storage
           conversationIds.forEach(c => {
@@ -41,7 +41,7 @@ const ResolverContainer = (props: FinalProps) => {
           });
         } else {
           Alert.info(
-            'The conversation has been reopened and restored to Inbox.'
+            "The conversation has been reopened and restored to Inbox."
           );
         }
 
@@ -75,7 +75,7 @@ export default withProps<Props>(
     graphql<Props, ChangeStatusMutationResponse, ChangeStatusMutationVariables>(
       gql(mutations.conversationsChangeStatus),
       {
-        name: 'changeStatusMutation',
+        name: "changeStatusMutation",
         options: () => refetchSidebarConversationsOptions()
       }
     )

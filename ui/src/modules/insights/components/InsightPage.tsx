@@ -1,12 +1,12 @@
-import { FullContent } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
-import { menuDeal, menuInbox } from 'modules/common/utils/menus';
-import Wrapper from 'modules/layout/components/Wrapper';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { DEAL_INSIGHTS, INBOX_INSIGHTS, INSIGHT_TYPES } from '../constants';
-import { Box, BoxContainer } from '../styles';
-import { IInsightType } from '../types';
+import { FullContent } from "modules/common/styles/main";
+import { __ } from "modules/common/utils";
+import { menuDeal, menuInbox } from "modules/common/utils/menus";
+import Wrapper from "modules/layout/components/Wrapper";
+import React from "react";
+import { Link } from "react-router-dom";
+import { DEAL_INSIGHTS, INBOX_INSIGHTS, INSIGHT_TYPES } from "../constants";
+import { Box, BoxContainer } from "../styles";
+import { IInsightType } from "../types";
 
 type Props = {
   type: string;
@@ -48,7 +48,7 @@ class InsightPage extends React.Component<Props> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header title={__('Insights')} submenu={submenu} />}
+        header={<Wrapper.Header title={__("Insights")} submenu={submenu} />}
         content={content}
         transparent={true}
       />

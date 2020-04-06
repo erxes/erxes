@@ -1,19 +1,19 @@
-import dayjs from 'dayjs';
-import IntegrationIcon from 'modules/common/components/IntegrationIcon';
-import { __ } from 'modules/common/utils';
-import Sidebar from 'modules/layout/components/Sidebar';
+import dayjs from "dayjs";
+import IntegrationIcon from "modules/common/components/IntegrationIcon";
+import { __ } from "modules/common/utils";
+import Sidebar from "modules/layout/components/Sidebar";
 import {
   FieldStyle,
   SectionBody,
   SidebarCounter,
   SidebarList
-} from 'modules/layout/styles';
-import { cleanIntegrationKind } from 'modules/settings/integrations/containers/utils';
-import React from 'react';
-import { ICustomer } from '../../../../customers/types';
-import { IBrand } from '../../../../settings/brands/types';
-import { IIntegration } from '../../../../settings/integrations/types';
-import { IConversation } from '../../../types';
+} from "modules/layout/styles";
+import { cleanIntegrationKind } from "modules/settings/integrations/containers/utils";
+import React from "react";
+import { ICustomer } from "../../../../customers/types";
+import { IBrand } from "../../../../settings/brands/types";
+import { IIntegration } from "../../../../settings/integrations/types";
+import { IConversation } from "../../../types";
 
 type Props = {
   conversation: IConversation;
@@ -33,7 +33,7 @@ class ConversationDetails extends React.Component<Props> {
 
     return (
       <li>
-        <FieldStyle>{__('Visitor contact info')}</FieldStyle>
+        <FieldStyle>{__("Visitor contact info")}</FieldStyle>
         <SidebarCounter>
           {visitorContactInfo.email || visitorContactInfo.phone}
         </SidebarCounter>
@@ -54,13 +54,13 @@ class ConversationDetails extends React.Component<Props> {
           <SidebarList className="no-link">
             {this.renderVisitorContactInfo(customer)}
             <li>
-              <FieldStyle>{__('Opened')}</FieldStyle>
+              <FieldStyle>{__("Opened")}</FieldStyle>
               <SidebarCounter>
-                {dayjs(conversation.createdAt).format('lll')}
+                {dayjs(conversation.createdAt).format("lll")}
               </SidebarCounter>
             </li>
             <li>
-              <FieldStyle>{__('Channels')}</FieldStyle>
+              <FieldStyle>{__("Channels")}</FieldStyle>
               <SidebarCounter>
                 {channels.map(c => (
                   <span key={c._id}>{c.name} </span>
@@ -68,18 +68,18 @@ class ConversationDetails extends React.Component<Props> {
               </SidebarCounter>
             </li>
             <li>
-              <FieldStyle>{__('Brand')}</FieldStyle>
+              <FieldStyle>{__("Brand")}</FieldStyle>
               <SidebarCounter>{brand && brand.name}</SidebarCounter>
             </li>
             <li>
-              <FieldStyle>{__('Integration')}</FieldStyle>
+              <FieldStyle>{__("Integration")}</FieldStyle>
               <SidebarCounter>
                 {cleanIntegrationKind(integration.kind)}
                 <IntegrationIcon integration={integration} />
               </SidebarCounter>
             </li>
             <li>
-              <FieldStyle>{__('Conversations')}</FieldStyle>
+              <FieldStyle>{__("Conversations")}</FieldStyle>
               <SidebarCounter>{conversation.messageCount}</SidebarCounter>
             </li>
           </SidebarList>

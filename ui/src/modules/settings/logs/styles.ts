@@ -1,6 +1,6 @@
-import colors from 'modules/common/styles/colors';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import colors from "modules/common/styles/colors";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 const LogBox = styledTS<{ color?: string }>(styled.div)`
   border: 1px dotted ${props =>

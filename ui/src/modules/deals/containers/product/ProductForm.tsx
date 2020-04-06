@@ -1,8 +1,8 @@
-import { AppConsumer } from 'appContext';
-import { IProduct } from 'modules/settings/productService/types';
-import React from 'react';
-import ProductForm from '../../components/product/ProductForm';
-import { IPaymentsData, IProductData } from '../../types';
+import { AppConsumer } from "appContext";
+import { IProduct } from "modules/settings/productService/types";
+import React from "react";
+import ProductForm from "../../components/product/ProductForm";
+import { IPaymentsData, IProductData } from "../../types";
 
 type Props = {
   onChangeProductsData: (productsData: IProductData[]) => void;

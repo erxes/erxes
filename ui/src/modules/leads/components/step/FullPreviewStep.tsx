@@ -1,13 +1,13 @@
-import Icon from 'modules/common/components/Icon';
-import { Tabs, TabTitle } from 'modules/common/components/tabs';
+import Icon from "modules/common/components/Icon";
+import { Tabs, TabTitle } from "modules/common/components/tabs";
 
-import { __ } from 'modules/common/utils';
-import FieldsPreview from 'modules/forms/components/FieldsPreview';
-import { IFormData } from 'modules/forms/types';
-import React from 'react';
-import CalloutPreview from './preview/CalloutPreview';
-import FormPreview from './preview/FormPreview';
-import SuccessPreview from './preview/SuccessPreview';
+import { __ } from "modules/common/utils";
+import FieldsPreview from "modules/forms/components/FieldsPreview";
+import { IFormData } from "modules/forms/types";
+import React from "react";
+import CalloutPreview from "./preview/CalloutPreview";
+import FormPreview from "./preview/FormPreview";
+import SuccessPreview from "./preview/SuccessPreview";
 import {
   CarouselInner,
   CarouselSteps,
@@ -16,7 +16,7 @@ import {
   FullPreview,
   MobilePreview,
   TabletPreview
-} from './style';
+} from "./style";
 
 type Props = {
   formData: IFormData;
@@ -27,7 +27,7 @@ type Props = {
   color: string;
   theme: string;
   image?: string;
-  onChange: (name: 'carousel', value: string) => void;
+  onChange: (name: "carousel", value: string) => void;
   carousel: string;
   thankContent?: string;
   skip?: boolean;
@@ -42,7 +42,7 @@ class FullPreviewStep extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      currentTab: 'desktop'
+      currentTab: "desktop"
     };
   }
 
@@ -64,17 +64,17 @@ class FullPreviewStep extends React.Component<Props, State> {
   };
 
   onChangePreview = (value: string) => {
-    return this.props.onChange('carousel', value);
+    return this.props.onChange("carousel", value);
   };
 
   renderPreview() {
     const { carousel, formData } = this.props;
 
-    if (carousel === 'callout') {
+    if (carousel === "callout") {
       return <CalloutPreview {...this.props} />;
     }
 
-    if (carousel === 'form') {
+    if (carousel === "form") {
       const { desc, fields } = formData;
 
       const previewRenderer = () => (
@@ -97,11 +97,11 @@ class FullPreviewStep extends React.Component<Props, State> {
   renderResolutionPreview() {
     const { currentTab } = this.state;
 
-    if (currentTab === 'desktop') {
+    if (currentTab === "desktop") {
       return <DesktopPreview>{this.renderPreview()}</DesktopPreview>;
     }
 
-    if (currentTab === 'tablet') {
+    if (currentTab === "tablet") {
       return <TabletPreview>{this.renderPreview()}</TabletPreview>;
     }
 
@@ -116,30 +116,30 @@ class FullPreviewStep extends React.Component<Props, State> {
         <FullPreview>
           <Tabs full={true}>
             <TabTitle
-              className={currentTab === 'desktop' ? 'active' : ''}
-              onClick={this.onChangeTab.bind(this, 'desktop')}
+              className={currentTab === "desktop" ? "active" : ""}
+              onClick={this.onChangeTab.bind(this, "desktop")}
             >
-              <Icon icon="monitor-1" /> {__('Desktop')}
+              <Icon icon="monitor-1" /> {__("Desktop")}
             </TabTitle>
             <TabTitle
-              className={currentTab === 'tablet' ? 'active' : ''}
-              onClick={this.onChangeTab.bind(this, 'tablet')}
+              className={currentTab === "tablet" ? "active" : ""}
+              onClick={this.onChangeTab.bind(this, "tablet")}
             >
-              <Icon icon="tablet" /> {__('Tablet')}
+              <Icon icon="tablet" /> {__("Tablet")}
             </TabTitle>
             <TabTitle
-              className={currentTab === 'mobile' ? 'active' : ''}
-              onClick={this.onChangeTab.bind(this, 'mobile')}
+              className={currentTab === "mobile" ? "active" : ""}
+              onClick={this.onChangeTab.bind(this, "mobile")}
             >
-              <Icon icon="mobile-android" /> {__('Mobile')}
+              <Icon icon="mobile-android" /> {__("Mobile")}
             </TabTitle>
           </Tabs>
           {this.renderResolutionPreview()}
 
           <CarouselSteps>
-            {!this.props.skip && this.carouseItems('CallOut', 'callout')}
-            {this.carouseItems('Form', 'form')}
-            {this.carouseItems('Success', 'success')}
+            {!this.props.skip && this.carouseItems("CallOut", "callout")}
+            {this.carouseItems("Form", "form")}
+            {this.carouseItems("Success", "success")}
           </CarouselSteps>
         </FullPreview>
       </FlexItem>

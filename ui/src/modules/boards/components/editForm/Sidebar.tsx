@@ -1,11 +1,11 @@
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import CompanySection from 'modules/companies/components/common/CompanySection';
-import CustomerSection from 'modules/customers/components/common/CustomerSection';
-import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
-import React from 'react';
-import { RightContent } from '../../styles/item';
-import { IItem, IOptions } from '../../types';
+import FormGroup from "modules/common/components/form/Group";
+import ControlLabel from "modules/common/components/form/Label";
+import CompanySection from "modules/companies/components/common/CompanySection";
+import CustomerSection from "modules/customers/components/common/CustomerSection";
+import SelectTeamMembers from "modules/settings/team/containers/SelectTeamMembers";
+import React from "react";
+import { RightContent } from "../../styles/item";
+import { IItem, IOptions } from "../../types";
 
 type Props = {
   item: IItem;

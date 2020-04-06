@@ -1,20 +1,20 @@
-import classNames from 'classnames';
-import dayjs from 'dayjs';
-import { IUser } from 'modules/auth/types';
-import NameCard from 'modules/common/components/nameCard/NameCard';
-import { IRouterProps } from 'modules/common/types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import xss from 'xss';
-import { INotification } from '../types';
-import NotificationIcon from './NotificationIcon';
+import classNames from "classnames";
+import dayjs from "dayjs";
+import { IUser } from "modules/auth/types";
+import NameCard from "modules/common/components/nameCard/NameCard";
+import { IRouterProps } from "modules/common/types";
+import React from "react";
+import { withRouter } from "react-router-dom";
+import xss from "xss";
+import { INotification } from "../types";
+import NotificationIcon from "./NotificationIcon";
 import {
   AvatarSection,
   Content,
   CreatedDate,
   CreatedUser,
   InfoSection
-} from './styles';
+} from "./styles";
 
 interface IProps extends IRouterProps {
   notification: INotification;
@@ -31,29 +31,29 @@ class NotificationRow extends React.Component<IProps> {
       markAsRead([notification._id]);
     }
 
-    const params = notification.link.split('?');
+    const params = notification.link.split("?");
 
     this.props.history.replace({
       pathname: params[0],
-      state: { from: 'notification' },
+      state: { from: "notification" },
       search: `?${params[1]}`
     });
   };
 
   getTitle = (title, user) => {
     if (!user) {
-      return title.replace('{userName}', '');
+      return title.replace("{userName}", "");
     }
 
     if (!user.details || user.details.fullName) {
-      return title.replace('{userName}', user.email);
+      return title.replace("{userName}", user.email);
     }
 
-    return title.replace('{userName}', user.details.fullName);
+    return title.replace("{userName}", user.details.fullName);
   };
 
   renderContent(content: string, type: string) {
-    if (!type.includes('conversation')) {
+    if (!type.includes("conversation")) {
       return <b> {content}</b>;
     }
 
@@ -68,11 +68,11 @@ class NotificationRow extends React.Component<IProps> {
     const { notification, isList } = this.props;
     const { createdUser } = notification;
 
-    let name = 'system';
+    let name = "system";
 
     if (createdUser) {
       name = createdUser.details
-        ? createdUser.details.fullName || ''
+        ? createdUser.details.fullName || ""
         : createdUser.username || createdUser.email;
     }
 
@@ -104,7 +104,7 @@ class NotificationRow extends React.Component<IProps> {
         <InfoSection>
           {this.renderCreatedUser()}
           <CreatedDate isList={isList}>
-            {dayjs(notification.date).format('DD MMM YYYY, HH:mm')}
+            {dayjs(notification.date).format("DD MMM YYYY, HH:mm")}
           </CreatedDate>
         </InfoSection>
       </li>

@@ -1,12 +1,12 @@
-import Pagination from 'modules/common/components/pagination/Pagination';
-import IntegrationList from 'modules/settings/integrations/containers/common/IntegrationList';
-import MessengerAppList from 'modules/settings/integrations/containers/MessengerAppList';
-import React from 'react';
-import Collapse from 'react-bootstrap/Collapse';
-import StoreEntry from '../../containers/StoreEntry';
-import { ByKindTotalCount } from '../../types';
-import Entry from './Entry';
-import { CollapsibleContent, IntegrationRow } from './styles';
+import Pagination from "modules/common/components/pagination/Pagination";
+import IntegrationList from "modules/settings/integrations/containers/common/IntegrationList";
+import MessengerAppList from "modules/settings/integrations/containers/MessengerAppList";
+import React from "react";
+import Collapse from "react-bootstrap/Collapse";
+import StoreEntry from "../../containers/StoreEntry";
+import { ByKindTotalCount } from "../../types";
+import Entry from "./Entry";
+import { CollapsibleContent, IntegrationRow } from "./styles";
 
 type Props = {
   integrations: any[];
@@ -37,18 +37,18 @@ class Row extends React.Component<Props, State> {
     const { kind, isContentVisible } = this.state;
 
     if (!isContentVisible) {
-      return '';
+      return "";
     }
 
     if (selectedKind === kind) {
-      return 'active';
+      return "active";
     }
 
-    return '';
+    return "";
   };
 
   toggleBox = selectedKind => {
-    if (!selectedKind || selectedKind === 'amazon-ses') {
+    if (!selectedKind || selectedKind === "amazon-ses") {
       return false;
     }
 
@@ -81,7 +81,7 @@ class Row extends React.Component<Props, State> {
   }
 
   isMessengerApp(kind: string | null) {
-    if (kind === 'lead' || kind === 'knowledgebase' || kind === 'website') {
+    if (kind === "lead" || kind === "knowledgebase" || kind === "website") {
       return true;
     }
 
@@ -120,9 +120,9 @@ class Row extends React.Component<Props, State> {
         <IntegrationList
           kind={kind}
           queryParams={queryParams}
-          integrationsCount={totalCount[kind || '']}
+          integrationsCount={totalCount[kind || ""]}
         />
-        {this.renderPagination(totalCount[kind || ''])}
+        {this.renderPagination(totalCount[kind || ""])}
       </>
     );
   }

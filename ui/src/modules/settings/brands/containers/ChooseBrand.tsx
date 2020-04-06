@@ -1,17 +1,17 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import Spinner from 'modules/common/components/Spinner';
-import { Alert, withProps } from 'modules/common/utils';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import Spinner from "modules/common/components/Spinner";
+import { Alert, withProps } from "modules/common/utils";
 import {
   AddIntegrationMutationResponse,
   EditIntegrationMutationResponse,
   IIntegration
-} from 'modules/settings/integrations/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import ChooseBrand from '../components/ChooseBrand';
-import { mutations, queries } from '../graphql';
-import { BrandsQueryResponse, IChooseBrand } from '../types';
+} from "modules/settings/integrations/types";
+import React from "react";
+import { graphql } from "react-apollo";
+import ChooseBrand from "../components/ChooseBrand";
+import { mutations, queries } from "../graphql";
+import { BrandsQueryResponse, IChooseBrand } from "../types";
 
 type Variables = {
   name: string;
@@ -65,7 +65,7 @@ const ChooseBrandContainer = (props: FinalProps) => {
           onSave();
         }
 
-        Alert.success('You successfully chose a new brand');
+        Alert.success("You successfully chose a new brand");
       })
       .catch(error => {
         Alert.error(error.message);
@@ -84,21 +84,21 @@ const ChooseBrandContainer = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql<Props, BrandsQueryResponse, {}>(gql(queries.brands), {
-      name: 'brandsQuery',
+      name: "brandsQuery",
       options: () => ({
-        fetchPolicy: 'network-only'
+        fetchPolicy: "network-only"
       })
     }),
     graphql<Props, AddIntegrationMutationResponse, IIntegration>(
       gql(mutations.integrationsCreateMessenger),
       {
-        name: 'addMutation'
+        name: "addMutation"
       }
     ),
     graphql<Props, EditIntegrationMutationResponse, IIntegration>(
       gql(mutations.integrationsEditMessenger),
       {
-        name: 'editMutation'
+        name: "editMutation"
       }
     )
   )(ChooseBrandContainer)

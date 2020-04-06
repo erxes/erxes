@@ -1,5 +1,5 @@
-import queryString from 'query-string';
-import { router } from '.';
+import queryString from "query-string";
+import { router } from ".";
 
 /**
  * @param {Object} query
@@ -61,12 +61,12 @@ const removeParams = (history: any, ...queryNames: string[]) => {
  * @param {Object} query
  */
 const refetchIfUpdated = (history: any, query: any) => {
-  if (history.location.search.includes('updated')) {
+  if (history.location.search.includes("updated")) {
     // refetch query if path has refetch param
     query.refetch();
 
     // clear refetch param
-    removeParams(history, 'updated');
+    removeParams(history, "updated");
   }
 };
 

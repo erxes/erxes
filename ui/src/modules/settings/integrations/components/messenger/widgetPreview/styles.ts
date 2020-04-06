@@ -1,12 +1,12 @@
-import { colors, dimensions, typography } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
-import { LogoContainer } from 'modules/settings/styles';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import { colors, dimensions, typography } from "modules/common/styles";
+import { rgba } from "modules/common/styles/color";
+import { LogoContainer } from "modules/settings/styles";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 const unitSpace = `${dimensions.unitSpacing}px`;
-const messageBg = '#eaebed';
+const messageBg = "#eaebed";
 
 const ErxesTopbar = styled.div`
   background-image: url(https://s3.amazonaws.com/erxes/pattern.png);
@@ -27,8 +27,8 @@ const TopBarIcon = styledTS<{ isLeft: boolean }>(styled.div)`
   color: ${colors.colorWhite};
   position: absolute;
   top: 15px;
-  left: ${props => props.isLeft && '15px'};
-  right: ${props => (props.isLeft ? '0px' : '15px')};
+  left: ${props => props.isLeft && "15px"};
+  right: ${props => (props.isLeft ? "0px" : "15px")};
 
   &:hover {
     background-color: ${rgba(colors.colorBlack, 0.2)};
@@ -129,16 +129,16 @@ const ErxesMessagesList = styled.ul`
   list-style: none;
 
   &.background-1 {
-    background-image: url('/images/patterns/bg-1.png');
+    background-image: url("/images/patterns/bg-1.png");
   }
   &.background-2 {
-    background-image: url('/images/patterns/bg-2.png');
+    background-image: url("/images/patterns/bg-2.png");
   }
   &.background-3 {
-    background-image: url('/images/patterns/bg-3.png');
+    background-image: url("/images/patterns/bg-3.png");
   }
   &.background-4 {
-    background-image: url('/images/patterns/bg-4.png');
+    background-image: url("/images/patterns/bg-4.png");
   }
 
   li {

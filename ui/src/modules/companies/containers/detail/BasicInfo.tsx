@@ -1,21 +1,21 @@
-import client from 'apolloClient';
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { Alert, withProps } from 'modules/common/utils';
-import { mutations, queries } from 'modules/companies/graphql';
-import ActionSection from 'modules/customers/components/common/ActionSection';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import { IUser } from '../../../auth/types';
-import { IRouterProps } from '../../../common/types';
+import client from "apolloClient";
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { Alert, withProps } from "modules/common/utils";
+import { mutations, queries } from "modules/companies/graphql";
+import ActionSection from "modules/customers/components/common/ActionSection";
+import React from "react";
+import { graphql } from "react-apollo";
+import { withRouter } from "react-router-dom";
+import { IUser } from "../../../auth/types";
+import { IRouterProps } from "../../../common/types";
 import {
   ICompany,
   MergeMutationResponse,
   MergeMutationVariables,
   RemoveMutationResponse,
   RemoveMutationVariables
-} from '../../types';
+} from "../../types";
 
 type Props = {
   company: ICompany;
@@ -34,8 +34,8 @@ const BasicInfoContainer = (props: FinalProps) => {
   const remove = () => {
     companiesRemove({ variables: { companyIds: [_id] } })
       .then(() => {
-        Alert.success('You successfully deleted a company');
-        history.push('/contacts/companies');
+        Alert.success("You successfully deleted a company");
+        history.push("/contacts/companies");
       })
       .catch(e => {
         Alert.error(e.message);
@@ -50,7 +50,7 @@ const BasicInfoContainer = (props: FinalProps) => {
       }
     })
       .then(response => {
-        Alert.success('You successfully merged companies');
+        Alert.success("You successfully merged companies");
         history.push(
           `/contacts/companies/details/${response.data.companiesMerge._id}`
         );
@@ -71,7 +71,7 @@ const BasicInfoContainer = (props: FinalProps) => {
       })
       .then(
         (response: any): void => {
-          if (typeof callback === 'function') {
+          if (typeof callback === "function") {
             callback(response.data.companies);
           }
         }
@@ -84,7 +84,7 @@ const BasicInfoContainer = (props: FinalProps) => {
   const updatedProps = {
     ...props,
     coc: company,
-    cocType: 'company',
+    cocType: "company",
     remove,
     merge,
     search: searchCompany
@@ -94,7 +94,7 @@ const BasicInfoContainer = (props: FinalProps) => {
 };
 
 const generateOptions = () => ({
-  refetchQueries: ['companieMain', 'companyCounts']
+  refetchQueries: ["companieMain", "companyCounts"]
 });
 
 export default withProps<Props>(
@@ -102,14 +102,14 @@ export default withProps<Props>(
     graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.companiesRemove),
       {
-        name: 'companiesRemove',
+        name: "companiesRemove",
         options: generateOptions
       }
     ),
     graphql<{}, MergeMutationResponse, MergeMutationVariables>(
       gql(mutations.companiesMerge),
       {
-        name: 'companiesMerge',
+        name: "companiesMerge",
         options: generateOptions
       }
     )

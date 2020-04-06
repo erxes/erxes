@@ -1,14 +1,14 @@
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
 import {
   ActivityDate,
   FlexBody,
   FlexCenterContent
-} from 'modules/activityLogs/styles';
-import { IActivityLog } from 'modules/activityLogs/types';
-import Tip from 'modules/common/components/Tip';
-import { renderUserFullName } from 'modules/common/utils';
-import React from 'react';
-import { Link } from 'react-router-dom';
+} from "modules/activityLogs/styles";
+import { IActivityLog } from "modules/activityLogs/types";
+import Tip from "modules/common/components/Tip";
+import { renderUserFullName } from "modules/common/utils";
+import React from "react";
+import { Link } from "react-router-dom";
 
 type Props = {
   activity: IActivityLog;
@@ -19,9 +19,9 @@ class AssigneeLog extends React.Component<Props> {
     const { activity } = this.props;
     const { contentDetail, createdByDetail } = activity;
 
-    let userName = 'Unknown';
+    let userName = "Unknown";
 
-    if (createdByDetail && createdByDetail.type === 'user') {
+    if (createdByDetail && createdByDetail.type === "user") {
       const { content } = createdByDetail;
 
       if (content.details) {
@@ -87,9 +87,9 @@ class AssigneeLog extends React.Component<Props> {
     return (
       <FlexCenterContent>
         <FlexBody>{this.renderContent()}</FlexBody>
-        <Tip text={dayjs(createdAt).format('llll')}>
+        <Tip text={dayjs(createdAt).format("llll")}>
           <ActivityDate>
-            {dayjs(createdAt).format('MMM D, h:mm A')}
+            {dayjs(createdAt).format("MMM D, h:mm A")}
           </ActivityDate>
         </Tip>
       </FlexCenterContent>

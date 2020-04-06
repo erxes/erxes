@@ -1,10 +1,10 @@
-import { colors, dimensions } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
-import { Contents } from 'modules/layout/styles';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import { colors, dimensions } from "modules/common/styles";
+import { rgba } from "modules/common/styles/color";
+import { Contents } from "modules/layout/styles";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
-const collapsibleBackground = '#f8f8f8';
+const collapsibleBackground = "#f8f8f8";
 
 const IntegrationWrapper = styled.div`
   padding-bottom: ${dimensions.coreSpacing * 1.5}px;
@@ -23,7 +23,7 @@ const IntegrationRow = styled.div`
 
 const Box = styledTS<{ isInMessenger: boolean }>(styled.div)`
   padding: 30px;
-  padding-bottom: ${props => props.isInMessenger && '20px'};
+  padding-bottom: ${props => props.isInMessenger && "20px"};
   border: 1px solid ${colors.borderPrimary};
   border-radius: 2px;
   flex: 1;
@@ -63,7 +63,7 @@ const Ribbon = styled.div`
     right: -27px;
 
     &:before {
-      content: '';
+      content: "";
       position: absolute;
       left: 0px;
       top: 100%;
@@ -74,7 +74,7 @@ const Ribbon = styled.div`
     }
 
     &:after {
-      content: '';
+      content: "";
       position: absolute;
       right: 0px;
       top: 100%;
@@ -141,7 +141,7 @@ const IntegrationItem = styled.div`
     }
 
     &::before {
-      content: '';
+      content: "";
       position: absolute;
       top: 100%;
       left: 50%;

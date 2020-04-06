@@ -1,5 +1,5 @@
-import React from 'react';
-import { Formgroup } from './styles';
+import React from "react";
+import { Formgroup } from "./styles";
 
 function FormGroup({
   children,

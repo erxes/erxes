@@ -1,12 +1,12 @@
-import client from 'apolloClient';
-import gql from 'graphql-tag';
-import { SmallLoader } from 'modules/common/components/ButtonMutate';
-import Icon from 'modules/common/components/Icon';
-import Tip from 'modules/common/components/Tip';
-import { __, Alert } from 'modules/common/utils';
-import { IVideoCallData } from 'modules/inbox/types';
-import React, { useState } from 'react';
-import { mutations } from '../graphql';
+import client from "apolloClient";
+import gql from "graphql-tag";
+import { SmallLoader } from "modules/common/components/ButtonMutate";
+import Icon from "modules/common/components/Icon";
+import Tip from "modules/common/components/Tip";
+import { __, Alert } from "modules/common/utils";
+import { IVideoCallData } from "modules/inbox/types";
+import React, { useState } from "react";
+import { mutations } from "../graphql";
 
 type Props = {
   activeVideo?: IVideoCallData;
@@ -27,7 +27,7 @@ function ManageRoom(props: Props) {
 
     window.open(
       `/videoCall?url=${url}&name=${name}`,
-      '_blank',
+      "_blank",
       `toolbar=no,titlebar=no,directories=no,menubar=no,location=no,scrollbars=yes,status=no,height=${height},width=${width},top=${y},left=${x}`
     );
   };
@@ -41,7 +41,7 @@ function ManageRoom(props: Props) {
     } = props;
 
     if (activeVideo && activeVideo.url) {
-      openWindow(activeVideo.url, activeVideo.name || '');
+      openWindow(activeVideo.url, activeVideo.name || "");
     } else {
       setLoading(true);
 
@@ -69,7 +69,7 @@ function ManageRoom(props: Props) {
   };
 
   return (
-    <Tip text={__('Invite to video call')}>
+    <Tip text={__("Invite to video call")}>
       <label onClick={createVideoRoom}>
         {loading ? <SmallLoader /> : <Icon icon="video" />}
       </label>

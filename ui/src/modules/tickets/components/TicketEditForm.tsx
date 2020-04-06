@@ -1,20 +1,20 @@
-import EditForm from 'modules/boards/components/editForm/EditForm';
-import Left from 'modules/boards/components/editForm/Left';
-import Sidebar from 'modules/boards/components/editForm/Sidebar';
-import Top from 'modules/boards/components/editForm/Top';
-import { FlexContent } from 'modules/boards/styles/item';
-import { IEditFormContent, IOptions } from 'modules/boards/types';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import { ISelectedOption } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
-import PortableDeals from 'modules/deals/components/PortableDeals';
-import { INTEGRATION_KINDS } from 'modules/settings/integrations/constants';
-import { Capitalize } from 'modules/settings/permissions/styles';
-import PortableTasks from 'modules/tasks/components/PortableTasks';
-import React, { useEffect, useState } from 'react';
-import Select from 'react-select-plus';
-import { ITicket, ITicketParams } from '../types';
+import EditForm from "modules/boards/components/editForm/EditForm";
+import Left from "modules/boards/components/editForm/Left";
+import Sidebar from "modules/boards/components/editForm/Sidebar";
+import Top from "modules/boards/components/editForm/Top";
+import { FlexContent } from "modules/boards/styles/item";
+import { IEditFormContent, IOptions } from "modules/boards/types";
+import FormGroup from "modules/common/components/form/Group";
+import ControlLabel from "modules/common/components/form/Label";
+import { ISelectedOption } from "modules/common/types";
+import { __ } from "modules/common/utils";
+import PortableDeals from "modules/deals/components/PortableDeals";
+import { INTEGRATION_KINDS } from "modules/settings/integrations/constants";
+import { Capitalize } from "modules/settings/permissions/styles";
+import PortableTasks from "modules/tasks/components/PortableTasks";
+import React, { useEffect, useState } from "react";
+import Select from "react-select-plus";
+import { ITicket, ITicketParams } from "../types";
 
 type Props = {
   options: IOptions;
@@ -47,8 +47,8 @@ export default function TicketEditForm(props: Props) {
     }));
 
     sourceValues.push({
-      label: __('Other'),
-      value: 'other'
+      label: __("Other"),
+      value: "other"
     });
 
     const sourceValueRenderer = (option: ISelectedOption): React.ReactNode => (
@@ -56,7 +56,7 @@ export default function TicketEditForm(props: Props) {
     );
 
     const onSourceChange = option => {
-      const value = option ? option.value : '';
+      const value = option ? option.value : "";
 
       setSource(value);
 
@@ -69,7 +69,7 @@ export default function TicketEditForm(props: Props) {
       <FormGroup>
         <ControlLabel>Source</ControlLabel>
         <Select
-          placeholder={__('Select a source')}
+          placeholder={__("Select a source")}
           value={source}
           options={sourceValues}
           onChange={onSourceChange}

@@ -1,10 +1,10 @@
-import { IPipeline } from 'modules/boards/types';
-import { IButtonMutateProps } from 'modules/common/types';
-import PipelineForm from 'modules/settings/boards/containers/PipelineForm';
-import { options } from 'modules/settings/growthHacks/options';
-import React, { useState } from 'react';
-import PipelineRow from './PipelineRow';
-import { BoxContainer, ProjectItem } from './styles';
+import { IPipeline } from "modules/boards/types";
+import { IButtonMutateProps } from "modules/common/types";
+import PipelineForm from "modules/settings/boards/containers/PipelineForm";
+import { options } from "modules/settings/growthHacks/options";
+import React, { useState } from "react";
+import PipelineRow from "./PipelineRow";
+import { BoxContainer, ProjectItem } from "./styles";
 
 type Props = {
   pipelines: IPipeline[];

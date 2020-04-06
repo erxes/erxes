@@ -1,4 +1,4 @@
-import { IEmailDelivery } from 'modules/engage/types';
+import { IEmailDelivery } from "modules/engage/types";
 
 export interface IActivityLogYearMonthDoc {
   year: React.ReactNode;

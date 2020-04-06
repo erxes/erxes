@@ -1,12 +1,12 @@
-import DailyIframe from '@daily-co/daily-js';
-import client from 'apolloClient';
-import gql from 'graphql-tag';
-import { SimpleButton } from 'modules/common/styles/main';
-import { __, Alert } from 'modules/common/utils';
-import React from 'react';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { mutations } from '../graphql';
+import DailyIframe from "@daily-co/daily-js";
+import client from "apolloClient";
+import gql from "graphql-tag";
+import { SimpleButton } from "modules/common/styles/main";
+import { __, Alert } from "modules/common/utils";
+import React from "react";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
+import { mutations } from "../graphql";
 
 const Control = styledTS<{ disabled?: boolean }>(styled(SimpleButton))`
   width: auto;
@@ -17,8 +17,8 @@ const Control = styledTS<{ disabled?: boolean }>(styled(SimpleButton))`
   font-size: 13px;
   background: #fafafa;
   top: 3px;
-  pointer-events: ${props => props.disabled && 'none'};
-  opacity: ${props => props.disabled && '0.9'};
+  pointer-events: ${props => props.disabled && "none"};
+  opacity: ${props => props.disabled && "0.9"};
 `;
 
 const Error = styled.div`
@@ -45,7 +45,7 @@ class VideoCall extends React.Component<
   constructor(props) {
     super(props);
 
-    this.state = { errorMessage: '', loading: false };
+    this.state = { errorMessage: "", loading: false };
   }
 
   componentDidMount() {
@@ -54,11 +54,11 @@ class VideoCall extends React.Component<
     const owner = { url };
 
     this.callFrame = DailyIframe.createFrame(
-      document.getElementById('call-frame-container'),
+      document.getElementById("call-frame-container"),
       {}
     );
 
-    this.callFrame.on('error', e => {
+    this.callFrame.on("error", e => {
       this.setState({ errorMessage: e.errorMsg });
     });
 
@@ -88,7 +88,7 @@ class VideoCall extends React.Component<
   renderControls() {
     return (
       <Control onClick={this.onDelete} disabled={this.state.loading}>
-        {this.state.loading ? __('Please wait...') : __('End call')}
+        {this.state.loading ? __("Please wait...") : __("End call")}
       </Control>
     );
   }
@@ -106,7 +106,7 @@ class VideoCall extends React.Component<
         {this.state.errorMessage && <Error>{this.state.errorMessage}</Error>}
         <div
           id="call-frame-container"
-          style={{ width: '100%', height: '100%' }}
+          style={{ width: "100%", height: "100%" }}
         />
       </>
     );

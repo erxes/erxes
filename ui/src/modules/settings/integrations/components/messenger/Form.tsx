@@ -1,27 +1,27 @@
-import { IUser } from 'modules/auth/types';
-import Button from 'modules/common/components/Button';
-import FormControl from 'modules/common/components/form/Control';
-import { Step, Steps } from 'modules/common/components/step';
+import { IUser } from "modules/auth/types";
+import Button from "modules/common/components/Button";
+import FormControl from "modules/common/components/form/Control";
+import { Step, Steps } from "modules/common/components/step";
 import {
   Preview,
   StepWrapper,
   TitleContainer
-} from 'modules/common/components/step/styles';
-import { __, Alert } from 'modules/common/utils';
-import Wrapper from 'modules/layout/components/Wrapper';
-import { IBrand } from 'modules/settings/brands/types';
-import { LANGUAGES } from 'modules/settings/general/constants';
-import { MessengerPreview, Row } from 'modules/settings/integrations/styles';
+} from "modules/common/components/step/styles";
+import { __, Alert } from "modules/common/utils";
+import Wrapper from "modules/layout/components/Wrapper";
+import { IBrand } from "modules/settings/brands/types";
+import { LANGUAGES } from "modules/settings/general/constants";
+import { MessengerPreview, Row } from "modules/settings/integrations/styles";
 import {
   IIntegration,
   IMessages,
   IMessengerData,
   IUiOptions
-} from 'modules/settings/integrations/types';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Appearance, Availability, Greeting, Intro, Options } from './steps';
-import CommonPreview from './widgetPreview/CommonPreview';
+} from "modules/settings/integrations/types";
+import React from "react";
+import { Link } from "react-router-dom";
+import { Appearance, Availability, Greeting, Intro, Options } from "./steps";
+import CommonPreview from "./widgetPreview/CommonPreview";
 
 type Props = {
   teamMembers: IUser[];
@@ -70,7 +70,7 @@ class CreateMessenger extends React.Component<Props, State> {
     super(props);
 
     const integration = props.integration || ({} as IIntegration);
-    const languageCode = integration.languageCode || 'en';
+    const languageCode = integration.languageCode || "en";
     const configData = integration.messengerData || {
       notifyCustomer: false,
       requireAuth: true,
@@ -84,30 +84,30 @@ class CreateMessenger extends React.Component<Props, State> {
 
     this.state = {
       title: integration.name,
-      brandId: integration.brandId || '',
+      brandId: integration.brandId || "",
       languageCode,
       activeStep: 1,
-      color: uiOptions.color || '#6569DF',
-      wallpaper: uiOptions.wallpaper || '1',
+      color: uiOptions.color || "#6569DF",
+      wallpaper: uiOptions.wallpaper || "1",
       notifyCustomer: configData.notifyCustomer || false,
       requireAuth: configData.requireAuth,
       showChat: configData.showChat,
       showLauncher: configData.showLauncher,
       forceLogoutWhenResolve: configData.forceLogoutWhenResolve,
       supporterIds: configData.supporterIds || [],
-      availabilityMethod: configData.availabilityMethod || 'manual',
+      availabilityMethod: configData.availabilityMethod || "manual",
       isOnline: configData.isOnline || false,
-      timezone: configData.timezone || '',
+      timezone: configData.timezone || "",
       onlineHours: (configData.onlineHours || []).map(h => ({
         _id: Math.random(),
         ...h
       })),
-      logo: uiOptions.logo || '',
+      logo: uiOptions.logo || "",
       logoPreviewStyle: {},
-      logoPreviewUrl: uiOptions.logo || '/images/erxes.png',
-      facebook: links.facebook || '',
-      twitter: links.twitter || '',
-      youtube: links.youtube || '',
+      logoPreviewUrl: uiOptions.logo || "/images/erxes.png",
+      facebook: links.facebook || "",
+      twitter: links.twitter || "",
+      youtube: links.youtube || "",
       messages: { ...this.generateMessages(messages) }
     };
   }
@@ -121,13 +121,13 @@ class CreateMessenger extends React.Component<Props, State> {
       messages[item.value] = {
         greetings: {
           title:
-            message && message.greetings ? message.greetings.title || '' : '',
+            message && message.greetings ? message.greetings.title || "" : "",
           message:
-            message && message.greetings ? message.greetings.message || '' : ''
+            message && message.greetings ? message.greetings.message || "" : ""
         },
-        welcome: message.welcome || '',
-        away: message.away || '',
-        thank: message.thank || ''
+        welcome: message.welcome || "",
+        away: message.away || "",
+        thank: message.thank || ""
       };
     });
 
@@ -156,15 +156,15 @@ class CreateMessenger extends React.Component<Props, State> {
     } = this.state;
 
     if (!languageCode) {
-      return Alert.error('Set language');
+      return Alert.error("Set language");
     }
 
     if (!title) {
-      return Alert.error('Write title');
+      return Alert.error("Write title");
     }
 
     if (!brandId) {
-      return Alert.error('Choose a brand');
+      return Alert.error("Choose a brand");
     }
 
     const links = { facebook, twitter, youtube };
@@ -200,7 +200,7 @@ class CreateMessenger extends React.Component<Props, State> {
   };
 
   onStepClick = name => {
-    if (name !== 'greeting') {
+    if (name !== "greeting") {
       return this.setState({ isStepActive: false });
     }
 
@@ -261,20 +261,20 @@ class CreateMessenger extends React.Component<Props, State> {
     const message = messages[languageCode];
 
     const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('App store'), link: '/settings/integrations' },
-      { title: __('Messenger') }
+      { title: __("Settings"), link: "/settings" },
+      { title: __("App store"), link: "/settings/integrations" },
+      { title: __("Messenger") }
     ];
 
     const onChange = e =>
-      this.onChange('title', (e.currentTarget as HTMLInputElement).value);
+      this.onChange("title", (e.currentTarget as HTMLInputElement).value);
 
     return (
       <StepWrapper>
-        <Wrapper.Header title={__('Messenger')} breadcrumb={breadcrumb} />
+        <Wrapper.Header title={__("Messenger")} breadcrumb={breadcrumb} />
 
         <TitleContainer>
-          <div>{__('Title')}</div>
+          <div>{__("Title")}</div>
           <FormControl
             required={true}
             onChange={onChange}
@@ -288,7 +288,7 @@ class CreateMessenger extends React.Component<Props, State> {
             <Step
               img="/images/icons/erxes-06.svg"
               title="Default Settings"
-              onClick={this.onStepClick.bind(null, 'default')}
+              onClick={this.onStepClick.bind(null, "default")}
             >
               <Options
                 onChange={this.onChange}
@@ -305,7 +305,7 @@ class CreateMessenger extends React.Component<Props, State> {
             <Step
               img="/images/icons/erxes-09.svg"
               title="Greeting"
-              onClick={this.onStepClick.bind(null, 'greeting')}
+              onClick={this.onStepClick.bind(null, "greeting")}
             >
               <Greeting
                 teamMembers={this.props.teamMembers}
@@ -322,7 +322,7 @@ class CreateMessenger extends React.Component<Props, State> {
             <Step
               img="/images/icons/erxes-16.svg"
               title="Intro"
-              onClick={this.onStepClick.bind(null, 'intro')}
+              onClick={this.onStepClick.bind(null, "intro")}
             >
               <Intro
                 onChange={this.onChange}
@@ -334,7 +334,7 @@ class CreateMessenger extends React.Component<Props, State> {
             <Step
               img="/images/icons/erxes-03.svg"
               title="Hours & Availability"
-              onClick={this.onStepClick.bind(null, 'hours')}
+              onClick={this.onStepClick.bind(null, "hours")}
             >
               <Availability
                 onChange={this.onChange}
@@ -348,7 +348,7 @@ class CreateMessenger extends React.Component<Props, State> {
             <Step
               img="/images/icons/erxes-04.svg"
               title="Appearance"
-              onClick={this.onStepClick.bind(null, 'appearance')}
+              onClick={this.onStepClick.bind(null, "appearance")}
               noButton={true}
             >
               <Appearance

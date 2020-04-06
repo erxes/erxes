@@ -1,15 +1,15 @@
-import { getDefaultBoardAndPipelines } from 'modules/boards/utils';
-import asyncComponent from 'modules/common/components/AsyncComponent';
-import queryString from 'query-string';
-import React from 'react';
-import { Redirect, Route } from 'react-router-dom';
+import { getDefaultBoardAndPipelines } from "modules/boards/utils";
+import asyncComponent from "modules/common/components/AsyncComponent";
+import queryString from "query-string";
+import React from "react";
+import { Redirect, Route } from "react-router-dom";
 
 const TicketBoard = asyncComponent(() =>
-  import(/* webpackChunkName: "TicketBoard" */ './components/TicketBoard')
+  import(/* webpackChunkName: "TicketBoard" */ "./components/TicketBoard")
 );
 
 const tickets = () => {
-  let link = '/inbox/ticket/board';
+  let link = "/inbox/ticket/board";
 
   const { defaultBoards, defaultPipelines } = getDefaultBoardAndPipelines();
 

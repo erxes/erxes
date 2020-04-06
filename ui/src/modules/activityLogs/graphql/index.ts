@@ -1,4 +1,4 @@
-import queries from './queries';
-import subscriptions from './subscriptions';
+import queries from "./queries";
+import subscriptions from "./subscriptions";
 
 export { queries, subscriptions };

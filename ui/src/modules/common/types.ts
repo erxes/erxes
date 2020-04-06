@@ -107,7 +107,7 @@ export type IEditorProps = {
   mentionUsers?: IMentionUser[];
   toolbar?: any[];
   autoFocus?: boolean;
-  toolbarLocation?: 'top' | 'bottom';
+  toolbarLocation?: "top" | "bottom";
   autoGrow?: boolean;
   autoGrowMinHeight?: number;
   autoGrowMaxHeight?: number;

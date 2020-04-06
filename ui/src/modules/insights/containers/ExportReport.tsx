@@ -1,15 +1,15 @@
-import { getEnv } from 'apolloClient';
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { queries as userQueries } from 'modules/settings/team/graphql';
-import { UsersQueryResponse } from 'modules/settings/team/types';
-import queryString from 'query-string';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { BrandsQueryResponse } from '../../settings/brands/types';
-import ExportReport from '../components/ExportReport';
-import { queries } from '../graphql';
-import { IQueryParams } from '../types';
+import { getEnv } from "apolloClient";
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { queries as userQueries } from "modules/settings/team/graphql";
+import { UsersQueryResponse } from "modules/settings/team/types";
+import queryString from "query-string";
+import React from "react";
+import { graphql } from "react-apollo";
+import { BrandsQueryResponse } from "../../settings/brands/types";
+import ExportReport from "../components/ExportReport";
+import { queries } from "../graphql";
+import { IQueryParams } from "../types";
 
 type Props = {
   history: any;
@@ -29,7 +29,7 @@ class ExportReportContainer extends React.Component<Props> {
 
       window.open(
         `${REACT_APP_API_URL}/insights-export?${stringified}`,
-        '_blank'
+        "_blank"
       );
     };
 
@@ -47,9 +47,9 @@ class ExportReportContainer extends React.Component<Props> {
 
 export default compose(
   graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
-    name: 'brandsQuery'
+    name: "brandsQuery"
   }),
   graphql<Props, UsersQueryResponse>(gql(userQueries.users), {
-    name: 'usersQuery'
+    name: "usersQuery"
   })
 )(ExportReportContainer);

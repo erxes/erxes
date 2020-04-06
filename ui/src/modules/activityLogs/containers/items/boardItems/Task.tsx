@@ -1,15 +1,15 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import Task from 'modules/activityLogs/components/items/boardItems/Task';
-import { Alert, confirm, withProps } from 'modules/common/utils';
-import { mutations, queries } from 'modules/tasks/graphql';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import Task from "modules/activityLogs/components/items/boardItems/Task";
+import { Alert, confirm, withProps } from "modules/common/utils";
+import { mutations, queries } from "modules/tasks/graphql";
 import {
   EditMutationResponse,
   RemoveMutationResponse,
   TaskDetailQueryResponse
-} from 'modules/tasks/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
+} from "modules/tasks/types";
+import React from "react";
+import { graphql } from "react-apollo";
 
 type Props = {
   taskId: string;
@@ -38,7 +38,7 @@ class FormContainer extends React.Component<FinalProps> {
     const save = (variables, callback) => {
       editMutation({ variables })
         .then(() => {
-          Alert.success('You successfully updated a task.');
+          Alert.success("You successfully updated a task.");
 
           if (callback) {
             callback();
@@ -53,7 +53,7 @@ class FormContainer extends React.Component<FinalProps> {
       confirm().then(() =>
         removeMutation({ variables: { _id: taskId } })
           .then(() => {
-            Alert.success('You successfully deleted a task.');
+            Alert.success("You successfully deleted a task.");
           })
           .catch(error => {
             Alert.error(error.message);
@@ -75,7 +75,7 @@ class FormContainer extends React.Component<FinalProps> {
 export default withProps<Props>(
   compose(
     graphql<Props, TaskDetailQueryResponse>(gql(queries.taskDetail), {
-      name: 'taskDetailsQuery',
+      name: "taskDetailsQuery",
       options: ({ taskId }) => ({
         variables: {
           _id: taskId
@@ -83,12 +83,12 @@ export default withProps<Props>(
       })
     }),
     graphql<Props, EditMutationResponse>(gql(mutations.tasksEdit), {
-      name: 'editMutation'
+      name: "editMutation"
     }),
     graphql<Props, RemoveMutationResponse>(gql(mutations.tasksRemove), {
-      name: 'removeMutation',
+      name: "removeMutation",
       options: () => ({
-        refetchQueries: ['activityLogs']
+        refetchQueries: ["activityLogs"]
       })
     })
   )(FormContainer)

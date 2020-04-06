@@ -1,4 +1,4 @@
-import { GENDER_TYPES, LEAD_STATUS_TYPES } from './constants';
+import { GENDER_TYPES, LEAD_STATUS_TYPES } from "./constants";
 
 export const hasAnyActivity = log => {
   let hasAny = false;

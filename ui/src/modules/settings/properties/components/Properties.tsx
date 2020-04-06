@@ -1,20 +1,20 @@
-import Button from 'modules/common/components/Button';
-import DropdownToggle from 'modules/common/components/DropdownToggle';
-import EmptyState from 'modules/common/components/EmptyState';
-import HeaderDescription from 'modules/common/components/HeaderDescription';
-import Icon from 'modules/common/components/Icon';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import { Title } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
-import Wrapper from 'modules/layout/components/Wrapper';
-import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import PropertyForm from '../containers/PropertyForm';
-import PropertyGroupForm from '../containers/PropertyGroupForm';
-import { PropertyList } from '../styles';
-import { IFieldGroup } from '../types';
-import PropertyRow from './PropertyRow';
-import Sidebar from './Sidebar';
+import Button from "modules/common/components/Button";
+import DropdownToggle from "modules/common/components/DropdownToggle";
+import EmptyState from "modules/common/components/EmptyState";
+import HeaderDescription from "modules/common/components/HeaderDescription";
+import Icon from "modules/common/components/Icon";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import { Title } from "modules/common/styles/main";
+import { __ } from "modules/common/utils";
+import Wrapper from "modules/layout/components/Wrapper";
+import React from "react";
+import Dropdown from "react-bootstrap/Dropdown";
+import PropertyForm from "../containers/PropertyForm";
+import PropertyGroupForm from "../containers/PropertyGroupForm";
+import { PropertyList } from "../styles";
+import { IFieldGroup } from "../types";
+import PropertyRow from "./PropertyRow";
+import Sidebar from "./Sidebar";
 
 type Props = {
   queryParams: any;
@@ -69,8 +69,8 @@ class Properties extends React.Component<Props> {
   renderActionBar = () => {
     const { queryParams, fieldsGroups, currentType } = this.props;
 
-    const addGroup = <Dropdown.Item>{__('Add group')}</Dropdown.Item>;
-    const addField = <Dropdown.Item>{__('Add Property')}</Dropdown.Item>;
+    const addGroup = <Dropdown.Item>{__("Add group")}</Dropdown.Item>;
+    const addField = <Dropdown.Item>{__("Add Property")}</Dropdown.Item>;
 
     const groupContent = props => (
       <PropertyGroupForm {...props} queryParams={queryParams} />
@@ -78,7 +78,7 @@ class Properties extends React.Component<Props> {
 
     const propertyContent = modalProps => {
       if (fieldsGroups.length === 0) {
-        return <div>{__('Please add property Group first')}!</div>;
+        return <div>{__("Please add property Group first")}!</div>;
       }
 
       return (
@@ -94,7 +94,7 @@ class Properties extends React.Component<Props> {
       <Dropdown alignRight={true}>
         <Dropdown.Toggle as={DropdownToggle} id="dropdown-properties">
           <Button btnStyle="primary" uppercase={false} icon="plus-circle">
-            {__('Add Group & Field ')}
+            {__("Add Group & Field ")}
             <Icon icon="angle-down" />
           </Button>
         </Dropdown.Toggle>
@@ -119,14 +119,14 @@ class Properties extends React.Component<Props> {
     const { currentType } = this.props;
 
     const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Properties'), link: '/settings/properties' },
+      { title: __("Settings"), link: "/settings" },
+      { title: __("Properties"), link: "/settings/properties" },
       { title: __(`${currentType} properties`) }
     ];
 
     const title = (
       <Title capitalize={true}>
-        {currentType} {__('properties')}
+        {currentType} {__("properties")}
       </Title>
     );
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Checkbox,
   FlexWrapper,
@@ -7,8 +7,8 @@ import {
   Radio,
   Select,
   SelectWrapper
-} from './styles';
-import Textarea from './Textarea';
+} from "./styles";
+import Textarea from "./Textarea";
 
 type Props = {
   children?: React.ReactNode;
@@ -46,7 +46,7 @@ const renderElement = (Element, attributes, type, child) => {
     <FormLabel key={attributes.key ? attributes.key : null}>
       <Element {...attributes} type={type} />
       <span>
-        {child && '\u00a0\u00a0'}
+        {child && "\u00a0\u00a0"}
         {child}
       </span>
     </FormLabel>
@@ -55,7 +55,7 @@ const renderElement = (Element, attributes, type, child) => {
 
 class FormControl extends React.Component<Props> {
   static defaultProps = {
-    componentClass: 'input',
+    componentClass: "input",
     required: false,
     defaultChecked: false,
     disabled: false
@@ -73,7 +73,7 @@ class FormControl extends React.Component<Props> {
     const props = this.props;
     const childNode = props.children;
     const elementType = props.componentClass;
-    const errorMessage = props.errors && props.errors[props.name || ''];
+    const errorMessage = props.errors && props.errors[props.name || ""];
 
     // cancel custom browser default form validation error
     const onChange = e => {
@@ -90,8 +90,8 @@ class FormControl extends React.Component<Props> {
       value: props.value,
       defaultValue: props.defaultValue,
       [props.defaultChecked
-        ? 'defaultChecked'
-        : 'checked']: props.defaultChecked
+        ? "defaultChecked"
+        : "checked"]: props.defaultChecked
         ? props.defaultChecked
         : props.checked,
       placeholder: props.placeholder,
@@ -109,7 +109,7 @@ class FormControl extends React.Component<Props> {
       maxHeight: props.maxHeight
     };
 
-    if (elementType === 'select') {
+    if (elementType === "select") {
       if (props.options) {
         return (
           <FlexWrapper>
@@ -117,8 +117,8 @@ class FormControl extends React.Component<Props> {
               <Select {...attributes}>
                 {props.options.map((option, index) => {
                   return (
-                    <option key={index} value={option.value || ''}>
-                      {option.label || ''}
+                    <option key={index} value={option.value || ""}>
+                      {option.label || ""}
                     </option>
                   );
                 })}
@@ -139,7 +139,7 @@ class FormControl extends React.Component<Props> {
       );
     }
 
-    if (elementType === 'radio') {
+    if (elementType === "radio") {
       if (props.options) {
         return props.options.map((option, index) => {
           return renderElement(
@@ -154,11 +154,11 @@ class FormControl extends React.Component<Props> {
       return renderElement(Radio, attributes, elementType, childNode);
     }
 
-    if (elementType === 'checkbox') {
+    if (elementType === "checkbox") {
       return renderElement(Checkbox, attributes, elementType, childNode);
     }
 
-    if (elementType === 'textarea') {
+    if (elementType === "textarea") {
       return (
         <FlexWrapper>
           <Textarea {...props} hasError={errorMessage} />

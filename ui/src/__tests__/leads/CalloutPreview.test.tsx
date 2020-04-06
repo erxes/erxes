@@ -1,14 +1,14 @@
-import { shallow } from 'enzyme';
-import CalloutPreview from 'modules/leads/components/step/preview/CalloutPreview';
-import React from 'react';
+import { shallow } from "enzyme";
+import CalloutPreview from "modules/leads/components/step/preview/CalloutPreview";
+import React from "react";
 
-describe('CalloutPreview component', () => {
+describe("CalloutPreview component", () => {
   const defaultProps = {
-    calloutTitle: 'string'
+    calloutTitle: "string"
   };
 
-  test('renders shallow successfully', () => {
+  test("renders shallow successfully", () => {
     const wrapper = shallow(<CalloutPreview {...defaultProps} />);
-    expect(wrapper).not.toBe('');
+    expect(wrapper).not.toBe("");
   });
 });

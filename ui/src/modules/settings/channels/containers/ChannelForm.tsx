@@ -1,7 +1,7 @@
-import { IButtonMutateProps } from 'modules/common/types';
-import React from 'react';
-import ChannelForm from '../components/ChannelForm';
-import { IChannel } from '../types';
+import { IButtonMutateProps } from "modules/common/types";
+import React from "react";
+import ChannelForm from "../components/ChannelForm";
+import { IChannel } from "../types";
 
 type Props = {
   channel?: IChannel;

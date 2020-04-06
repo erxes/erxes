@@ -1,24 +1,24 @@
-import { shallow } from 'enzyme';
-import React from 'react';
+import { shallow } from "enzyme";
+import React from "react";
 
-import Chooser from '../../../modules/common/components/Chooser';
+import Chooser from "../../../modules/common/components/Chooser";
 
-describe('Chooser component', () => {
+describe("Chooser component", () => {
   const defaultProps = {
-    data: 'today',
+    data: "today",
     onSelect: (datas: any[]) => null,
     search: (value: string, reload?: boolean) => null,
-    datas: ['datas'],
-    title: 'title',
+    datas: ["datas"],
+    title: "title",
     renderName: (data: any) => null,
-    renderForm: (props: { closeModal: () => void }) => 'any',
+    renderForm: (props: { closeModal: () => void }) => "any",
     perPage: 0,
     clearState: () => null,
     closeModal: () => null
   };
 
-  test('renders Chooser successfully', () => {
+  test("renders Chooser successfully", () => {
     const wrapper = shallow(<Chooser {...defaultProps} />).debug();
-    expect(wrapper).not.toBe('');
+    expect(wrapper).not.toBe("");
   });
 });

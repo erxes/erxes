@@ -1,14 +1,14 @@
-import Button from 'modules/common/components/Button';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import Pagination from 'modules/common/components/pagination/Pagination';
-import { Title } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
-import Wrapper from 'modules/layout/components/Wrapper';
-import React from 'react';
-import ArticleForm from '../containers/article/ArticleForm';
-import ArticleList from '../containers/article/ArticleList';
-import KnowledgeList from '../containers/knowledge/KnowledgeList';
-import { ICategory } from '../types';
+import Button from "modules/common/components/Button";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import Pagination from "modules/common/components/pagination/Pagination";
+import { Title } from "modules/common/styles/main";
+import { __ } from "modules/common/utils";
+import Wrapper from "modules/layout/components/Wrapper";
+import React from "react";
+import ArticleForm from "../containers/article/ArticleForm";
+import ArticleList from "../containers/article/ArticleList";
+import KnowledgeList from "../containers/knowledge/KnowledgeList";
+import { ICategory } from "../types";
 
 type Props = {
   queryParams: any;
@@ -19,17 +19,17 @@ type Props = {
 class KnowledgeBase extends React.Component<Props> {
   breadcrumb() {
     const currentCategory = this.props.currentCategory || {
-      title: '',
-      firstTopic: { title: '' }
+      title: "",
+      firstTopic: { title: "" }
     };
-    const currentKnowledgeBase = currentCategory.firstTopic || { title: '' };
-    const list = [{ title: __('Knowledge base'), link: '/knowledgeBase' }];
+    const currentKnowledgeBase = currentCategory.firstTopic || { title: "" };
+    const list = [{ title: __("Knowledge base"), link: "/knowledgeBase" }];
     const categoryLink = `/knowledgeBase?id=${currentCategory._id}`;
 
     if (currentKnowledgeBase.title) {
       list.push({
         title: currentKnowledgeBase.title,
-        link: currentCategory ? categoryLink : ''
+        link: currentCategory ? categoryLink : ""
       });
     }
 
@@ -76,7 +76,7 @@ class KnowledgeBase extends React.Component<Props> {
       <Title>
         {currentCategory.title}
         <span>
-          ({articlesCount} {articlesCount > 1 ? __('articles') : __('artcile')})
+          ({articlesCount} {articlesCount > 1 ? __("articles") : __("artcile")})
         </span>
       </Title>
     );
@@ -85,7 +85,7 @@ class KnowledgeBase extends React.Component<Props> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={`${currentCategory.title || ''}`}
+            title={`${currentCategory.title || ""}`}
             breadcrumb={this.breadcrumb()}
           />
         }

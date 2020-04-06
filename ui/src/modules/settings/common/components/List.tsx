@@ -1,16 +1,16 @@
-import Button from 'modules/common/components/Button';
-import DataWithLoader from 'modules/common/components/DataWithLoader';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import Pagination from 'modules/common/components/pagination/Pagination';
-import Wrapper from 'modules/layout/components/Wrapper';
-import React from 'react';
-import { IBreadCrumbItem } from '../../../common/types';
-import { ICommonListProps } from '../types';
+import Button from "modules/common/components/Button";
+import DataWithLoader from "modules/common/components/DataWithLoader";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import Pagination from "modules/common/components/pagination/Pagination";
+import Wrapper from "modules/layout/components/Wrapper";
+import React from "react";
+import { IBreadCrumbItem } from "../../../common/types";
+import { ICommonListProps } from "../types";
 
 type Props = {
   title: string;
   formTitle?: string;
-  size?: 'sm' | 'lg' | 'xl';
+  size?: "sm" | "lg" | "xl";
   renderForm: (doc: { save: () => void; closeModal: () => void }) => any;
   renderContent: (params: any) => any;
   leftActionBar: React.ReactNode;
@@ -55,7 +55,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       <>
         {additionalButton}
         <ModalTrigger
-          title={formTitle || ''}
+          title={formTitle || ""}
           size={size}
           enforceFocus={false}
           trigger={trigger}

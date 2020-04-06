@@ -4,7 +4,7 @@
  */
 export const isObjectEmpty = (obj = {}): boolean => {
   return (
-    typeof obj === 'object' &&
+    typeof obj === "object" &&
     obj &&
     Object.keys(obj).length === 0 &&
     obj.constructor === Object
@@ -24,8 +24,8 @@ export const flattenObject = (obj = {}): object => {
     const field = obj[name];
     let empty = false;
 
-    if (typeof field !== 'object') {
-      if (field === null || field === undefined || field === '') {
+    if (typeof field !== "object") {
+      if (field === null || field === undefined || field === "") {
         empty = true;
       }
     }
@@ -35,7 +35,7 @@ export const flattenObject = (obj = {}): object => {
     }
 
     // checked array above
-    if (typeof field === 'object' && !Array.isArray(field)) {
+    if (typeof field === "object" && !Array.isArray(field)) {
       if (isObjectEmpty(field)) {
         empty = true;
       }

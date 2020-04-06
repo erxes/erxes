@@ -1,19 +1,19 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import EmptyState from 'modules/common/components/EmptyState';
-import Spinner from 'modules/common/components/Spinner';
-import { withProps } from 'modules/common/utils';
-import ConformityChooser from 'modules/conformity/containers/ConformityChooser';
-import React from 'react';
-import { graphql } from 'react-apollo';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import EmptyState from "modules/common/components/EmptyState";
+import Spinner from "modules/common/components/Spinner";
+import { withProps } from "modules/common/utils";
+import ConformityChooser from "modules/conformity/containers/ConformityChooser";
+import React from "react";
+import { graphql } from "react-apollo";
 import {
   IFilterParams,
   IItem,
   IOptions,
   ItemsQueryResponse,
   SaveMutation
-} from '../../types';
-import AddForm from './AddForm';
+} from "../../types";
+import AddForm from "./AddForm";
 
 type IProps = {
   search: (value: string, loadMore?: boolean) => void;
@@ -54,7 +54,7 @@ class ItemChooserContainer extends React.Component<
     const { data, itemsQuery, search } = this.props;
 
     const renderName = item => {
-      return item.name || 'Unknown';
+      return item.name || "Unknown";
     };
 
     const getAssociatedItem = (newItem: string) => {
@@ -92,7 +92,7 @@ class ItemChooserContainer extends React.Component<
       hasBoardChooser: true,
       newItem: this.state.newItem,
       resetAssociatedItem: this.resetAssociatedItem,
-      clearState: () => search(''),
+      clearState: () => search(""),
       refetchQuery: data.options.queries.itemsQuery
     };
 
@@ -114,7 +114,7 @@ const WithQuery = ({ options }) => {
       graphql<IProps & WrapperProps, ItemsQueryResponse, IFilterParams>(
         gql(options.queries.itemsQuery),
         {
-          name: 'itemsQuery',
+          name: "itemsQuery",
           options: ({ searchValue, stageId, data }) => {
             return {
               variables: {
@@ -124,10 +124,10 @@ const WithQuery = ({ options }) => {
                 mainTypeId: data.mainTypeId,
                 isRelated: data.isRelated,
                 relType: data.options.type,
-                sortField: 'createdAt',
+                sortField: "createdAt",
                 sortDirection: -1
               },
-              fetchPolicy: data.isRelated ? 'network-only' : 'cache-first'
+              fetchPolicy: data.isRelated ? "network-only" : "cache-first"
             };
           }
         }
@@ -164,7 +164,7 @@ export default class Wrapper extends React.Component<
   constructor(props) {
     super(props);
 
-    this.state = { searchValue: '', stageId: '', boardId: '', pipelineId: '' };
+    this.state = { searchValue: "", stageId: "", boardId: "", pipelineId: "" };
     this.withQuery = WithQuery({ options: props.data.options });
   }
 

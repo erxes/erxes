@@ -1,11 +1,11 @@
-import Button from 'modules/common/components/Button';
-import { IMessage } from 'modules/inbox/types';
-import MailForm from 'modules/settings/integrations/containers/mail/MailForm';
-import { cleanHtml } from 'modules/settings/integrations/containers/utils';
-import React from 'react';
-import Attachments from './Attachments';
-import MailHeader from './MailHeader';
-import { BoxItem, Content, Reply } from './style';
+import Button from "modules/common/components/Button";
+import { IMessage } from "modules/inbox/types";
+import MailForm from "modules/settings/integrations/containers/mail/MailForm";
+import { cleanHtml } from "modules/settings/integrations/containers/utils";
+import React from "react";
+import Attachments from "./Attachments";
+import MailHeader from "./MailHeader";
+import { BoxItem, Content, Reply } from "./style";
 
 type Props = {
   message: IMessage;
@@ -51,7 +51,7 @@ class Mail extends React.PureComponent<Props, State> {
     if (
       this.state.isReply ||
       !this.props.isLast ||
-      typeof this.props.message._id !== 'string'
+      typeof this.props.message._id !== "string"
     ) {
       return null;
     }
@@ -111,7 +111,7 @@ class Mail extends React.PureComponent<Props, State> {
           conversationId={conversationId}
           toggleReply={this.toggleReply}
           integrationId={integrationId}
-          refetchQueries={['detailQuery']}
+          refetchQueries={["detailQuery"]}
           mailData={mailData}
           brandId={brandId}
         />
@@ -124,7 +124,7 @@ class Mail extends React.PureComponent<Props, State> {
       return null;
     }
 
-    const innerHTML = { __html: cleanHtml(mailData.body || '') };
+    const innerHTML = { __html: cleanHtml(mailData.body || "") };
     const { to, cc, bcc } = mailData;
     const addresses = to.concat(cc, bcc);
 

@@ -1,12 +1,12 @@
-import gql from 'graphql-tag';
-import Chip from 'modules/common/components/Chip';
-import { __, router } from 'modules/common/utils';
-import { cleanIntegrationKind } from 'modules/settings/integrations/containers/utils';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import styled from 'styled-components';
-import { IRouterProps } from '../../types';
-import createChipText from './createChipText';
+import gql from "graphql-tag";
+import Chip from "modules/common/components/Chip";
+import { __, router } from "modules/common/utils";
+import { cleanIntegrationKind } from "modules/settings/integrations/containers/utils";
+import React from "react";
+import { withRouter } from "react-router-dom";
+import styled from "styled-components";
+import { IRouterProps } from "../../types";
+import createChipText from "./createChipText";
 
 interface IProps extends IRouterProps {
   queryParams?: any;
@@ -35,7 +35,11 @@ function Filter({ queryParams = {}, history }: IProps) {
 
     return (
       <Chip capitalize={true} onClick={onClick}>
-        {bool ? paramKey : (useIntlChipText ? intlChipText : cleanIntegrationKind(queryParams[paramKey]))}
+        {bool
+          ? paramKey
+          : useIntlChipText
+          ? intlChipText
+          : cleanIntegrationKind(queryParams[paramKey])}
       </Chip>
     );
   };
@@ -43,7 +47,7 @@ function Filter({ queryParams = {}, history }: IProps) {
   const renderFilterWithData = (
     paramKey: string,
     type: string,
-    fields = '_id name'
+    fields = "_id name"
   ) => {
     if (queryParams[paramKey]) {
       const id = queryParams[paramKey];
@@ -70,7 +74,7 @@ function Filter({ queryParams = {}, history }: IProps) {
 
   const renderFilterWithDate = () => {
     if (queryParams.startDate && queryParams.endDate) {
-      const onClick = () => onClickClose(['startDate', 'endDate']);
+      const onClick = () => onClickClose(["startDate", "endDate"]);
 
       return (
         <Chip onClick={onClick}>
@@ -84,18 +88,18 @@ function Filter({ queryParams = {}, history }: IProps) {
 
   return (
     <Filters>
-      {renderFilterWithData('channelId', 'channel')}
-      {renderFilterParam('status', false)}
-      {renderFilterParam('participating', true)}
-      {renderFilterParam('unassigned', true)}
-      {renderFilterWithData('brandId', 'brand')}
-      {renderFilterParam('integrationType', false)}
-      {renderFilterWithData('tag', 'tag')}
-      {renderFilterWithData('segment', 'segment')}
-      {renderFilterParam('kind', false)}
-      {renderFilterWithData('brand', 'brand')}
+      {renderFilterWithData("channelId", "channel")}
+      {renderFilterParam("status", false)}
+      {renderFilterParam("participating", true)}
+      {renderFilterParam("unassigned", true)}
+      {renderFilterWithData("brandId", "brand")}
+      {renderFilterParam("integrationType", false)}
+      {renderFilterWithData("tag", "tag")}
+      {renderFilterWithData("segment", "segment")}
+      {renderFilterParam("kind", false)}
+      {renderFilterWithData("brand", "brand")}
       {renderFilterWithDate()}
-      {renderFilterWithData('form', 'form', '_id title')}
+      {renderFilterWithData("form", "form", "_id title")}
     </Filters>
   );
 }

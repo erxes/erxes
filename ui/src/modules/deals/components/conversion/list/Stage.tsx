@@ -1,6 +1,6 @@
-import { IStage } from 'modules/boards/types';
-import Icon from 'modules/common/components/Icon';
-import * as React from 'react';
+import { IStage } from "modules/boards/types";
+import Icon from "modules/common/components/Icon";
+import * as React from "react";
 import {
   Content,
   Lost,
@@ -9,7 +9,7 @@ import {
   StageWrap,
   Stayed,
   Values
-} from '../style';
+} from "../style";
 
 type Props = {
   stage: IStage;
@@ -44,7 +44,7 @@ class Stage extends React.Component<Props> {
           <Content>
             <Name>{stage.name}</Name>
             <Stayed>
-              {stage.itemsTotalCount} /{' '}
+              {stage.itemsTotalCount} /{" "}
               <span>{stage.initialDealsTotalCount}</span>
             </Stayed>
           </Content>

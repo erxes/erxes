@@ -1,10 +1,10 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { Alert, withProps } from 'modules/common/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import ChangePassword from '../components/ChangePassword';
-import { ChangePasswordMutationResponse } from '../types';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { Alert, withProps } from "modules/common/utils";
+import React from "react";
+import { graphql } from "react-apollo";
+import ChangePassword from "../components/ChangePassword";
+import { ChangePasswordMutationResponse } from "../types";
 
 type Props = {
   closeModal: () => void;
@@ -21,16 +21,16 @@ const ChangePasswordContainer = (
     }
 
     if (!currentPassword || currentPassword === 0) {
-      return Alert.error('Please enter a current password');
+      return Alert.error("Please enter a current password");
     }
 
     if (!newPassword || newPassword === 0) {
-      return Alert.error('Please enter a new password');
+      return Alert.error("Please enter a new password");
     }
 
     changePasswordMutation({ variables: { currentPassword, newPassword } })
       .then(() => {
-        Alert.success('Your password has been changed and updated');
+        Alert.success("Your password has been changed and updated");
         props.closeModal();
       })
       .catch(error => {
@@ -63,7 +63,7 @@ export default withProps<Props>(
         }
       `,
       {
-        name: 'changePasswordMutation'
+        name: "changePasswordMutation"
       }
     )
   )(ChangePasswordContainer)

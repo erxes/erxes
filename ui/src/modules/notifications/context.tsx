@@ -1,19 +1,19 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { IUser } from 'modules/auth/types';
-import { Alert, sendDesktopNotification } from 'modules/common/utils';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { IUser } from "modules/auth/types";
+import { Alert, sendDesktopNotification } from "modules/common/utils";
 import {
   INotification,
   MarkAsReadMutationResponse
-} from 'modules/notifications/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import strip from 'strip';
-import { mutations, queries, subscriptions } from './graphql';
+} from "modules/notifications/types";
+import React from "react";
+import { graphql } from "react-apollo";
+import strip from "strip";
+import { mutations, queries, subscriptions } from "./graphql";
 import {
   NotificationsCountQueryResponse,
   NotificationsQueryResponse
-} from './types';
+} from "./types";
 
 interface IStore {
   notifications: INotification[];
@@ -54,7 +54,7 @@ class Provider extends React.Component<FinalProps> {
         const { notificationInserted } = data;
         const { title, content } = notificationInserted;
 
-        sendDesktopNotification({ title, content: strip(content || '') });
+        sendDesktopNotification({ title, content: strip(content || "") });
 
         notificationsQuery.refetch();
         notificationCountQuery.refetch();
@@ -80,7 +80,7 @@ class Provider extends React.Component<FinalProps> {
         notificationsQuery.refetch();
         notificationCountQuery.refetch();
 
-        Alert.success('Notifications have been seen');
+        Alert.success("Notifications have been seen");
       })
       .catch(error => {
         Alert.error(error.message);
@@ -122,7 +122,7 @@ export const NotifProvider = compose(
     NotificationsQueryResponse,
     { limit: number; requireRead: boolean }
   >(gql(queries.notifications), {
-    name: 'notificationsQuery',
+    name: "notificationsQuery",
     options: () => ({
       variables: {
         limit: 10,
@@ -133,7 +133,7 @@ export const NotifProvider = compose(
   graphql<{}, NotificationsCountQueryResponse>(
     gql(queries.notificationCounts),
     {
-      name: 'notificationCountQuery',
+      name: "notificationCountQuery",
       options: () => ({
         variables: {
           requireRead: true
@@ -144,9 +144,9 @@ export const NotifProvider = compose(
   graphql<Props, MarkAsReadMutationResponse, { _ids?: string[] }>(
     gql(mutations.markAsRead),
     {
-      name: 'notificationsMarkAsReadMutation',
+      name: "notificationsMarkAsReadMutation",
       options: {
-        refetchQueries: () => ['notificationCounts']
+        refetchQueries: () => ["notificationCounts"]
       }
     }
   )

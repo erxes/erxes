@@ -1,15 +1,15 @@
-import Icon from 'modules/common/components/Icon';
-import Spinner from 'modules/common/components/Spinner';
-import { Title } from 'modules/common/styles/main';
-import { IButtonMutateProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
-import Sidebar from 'modules/layout/components/Sidebar';
-import Wrapper from 'modules/layout/components/Wrapper';
-import { FlexContent } from 'modules/layout/styles';
-import React from 'react';
-import { IEvent, ISegment, ISegmentCondition } from '../types';
-import Form from './common/Form';
-import { ResultCount, SegmentResult } from './styles';
+import Icon from "modules/common/components/Icon";
+import Spinner from "modules/common/components/Spinner";
+import { Title } from "modules/common/styles/main";
+import { IButtonMutateProps } from "modules/common/types";
+import { __ } from "modules/common/utils";
+import Sidebar from "modules/layout/components/Sidebar";
+import Wrapper from "modules/layout/components/Wrapper";
+import { FlexContent } from "modules/layout/styles";
+import React from "react";
+import { IEvent, ISegment, ISegmentCondition } from "../types";
+import Form from "./common/Form";
+import { ResultCount, SegmentResult } from "./styles";
 
 type Props = {
   contentType: string;
@@ -32,14 +32,14 @@ const SegmentsForm = (props: Props) => {
         <FlexContent>
           <SegmentResult>
             <ResultCount>
-              <Icon icon="users-alt" />{' '}
+              <Icon icon="users-alt" />{" "}
               {counterLoading ? (
                 <Spinner objective={true} />
               ) : (
                 <span>{count}</span>
               )}
             </ResultCount>
-            {__('User(s) will recieve this message')}
+            {__("User(s) will recieve this message")}
           </SegmentResult>
         </FlexContent>
       </Sidebar>
@@ -56,11 +56,11 @@ const SegmentsForm = (props: Props) => {
     previewCount
   } = props;
 
-  const title = props.segment ? __('Edit segment') : __('New segment');
+  const title = props.segment ? __("Edit segment") : __("New segment");
 
   const pageTitle = <Title>{title}</Title>;
   const breadcrumb = [
-    { title: __('Segments'), link: `/segments/${contentType}` },
+    { title: __("Segments"), link: `/segments/${contentType}` },
     { title }
   ];
 

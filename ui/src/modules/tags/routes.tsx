@@ -1,9 +1,9 @@
-import asyncComponent from 'modules/common/components/AsyncComponent';
-import React from 'react';
-import { Route } from 'react-router-dom';
+import asyncComponent from "modules/common/components/AsyncComponent";
+import React from "react";
+import { Route } from "react-router-dom";
 
 const List = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Tags" */ './containers/List')
+  import(/* webpackChunkName: "List - Tags" */ "./containers/List")
 );
 
 const tags = ({ match }) => {

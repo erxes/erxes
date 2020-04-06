@@ -1,12 +1,12 @@
-import Button from 'modules/common/components/Button';
-import FormControl from 'modules/common/components/form/Control';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import { IIntegration } from 'modules/settings/integrations/types';
-import React from 'react';
-import { ModalFooter } from '../../../common/styles/main';
-import { __ } from '../../../common/utils';
-import { IBrand, IChooseBrand } from '../types';
+import Button from "modules/common/components/Button";
+import FormControl from "modules/common/components/form/Control";
+import FormGroup from "modules/common/components/form/Group";
+import ControlLabel from "modules/common/components/form/Label";
+import { IIntegration } from "modules/settings/integrations/types";
+import React from "react";
+import { ModalFooter } from "../../../common/styles/main";
+import { __ } from "../../../common/utils";
+import { IBrand, IChooseBrand } from "../types";
 
 type Props = {
   brands: IBrand[];
@@ -34,9 +34,9 @@ class ChooseBrand extends React.Component<Props> {
     }
 
     this.props.save({
-      name: (document.getElementById('integration-name') as HTMLInputElement)
+      name: (document.getElementById("integration-name") as HTMLInputElement)
         .value,
-      brandId: (document.getElementById('selectBrand') as HTMLInputElement)
+      brandId: (document.getElementById("selectBrand") as HTMLInputElement)
         .value
     });
   };
@@ -60,7 +60,7 @@ class ChooseBrand extends React.Component<Props> {
           <ControlLabel>Brand</ControlLabel>
           <FormControl
             componentClass="select"
-            placeholder={__('Select Brand')}
+            placeholder={__("Select Brand")}
             defaultValue={integration.brandId}
             onChange={this.handleBrandChange}
             id="selectBrand"

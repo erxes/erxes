@@ -1,15 +1,15 @@
-import { AppConsumer } from 'appContext';
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { Alert, confirm, withProps } from 'modules/common/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import ImportIndicator from '../components/ImportIndicator';
-import { mutations, queries, subscriptions } from '../graphql';
+import { AppConsumer } from "appContext";
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { Alert, confirm, withProps } from "modules/common/utils";
+import React from "react";
+import { graphql } from "react-apollo";
+import ImportIndicator from "../components/ImportIndicator";
+import { mutations, queries, subscriptions } from "../graphql";
 import {
   CancelMutationResponse,
   ImportHistoryDetailQueryResponse
-} from '../types';
+} from "../types";
 
 const subscription = gql(subscriptions.importSubscription);
 
@@ -41,8 +41,8 @@ class ImportIndicatorContainer extends React.Component<
 
   clearStorage() {
     // clear local storage
-    localStorage.setItem('erxes_import_data', '');
-    localStorage.setItem('erxes_import_data_type', '');
+    localStorage.setItem("erxes_import_data", "");
+    localStorage.setItem("erxes_import_data_type", "");
   }
 
   componentWillMount() {
@@ -54,20 +54,20 @@ class ImportIndicatorContainer extends React.Component<
         const { importHistoryChanged } = data;
         const { percentage, status, errorMsgs } = importHistoryChanged;
 
-        if (status === 'Error') {
+        if (status === "Error") {
           this.clearStorage();
 
           return this.setState({ errors: errorMsgs });
         }
 
-        if (status === 'Removed') {
+        if (status === "Removed") {
           this.clearStorage();
 
           // for refetch list
           this.props.doneIndicatorAction();
         }
 
-        if (status === 'Done') {
+        if (status === "Done") {
           this.clearStorage();
 
           return importHistoryDetailQuery.refetch();
@@ -99,7 +99,7 @@ class ImportIndicatorContainer extends React.Component<
           variables: { _id: id }
         })
           .then(() => {
-            Alert.success('You canceled importing action.');
+            Alert.success("You canceled importing action.");
             closeLoadingBar();
           })
           .catch(e => {
@@ -127,9 +127,9 @@ const ImportIndicatorWithProps = withProps<{ id: string; close?: () => void }>(
     graphql<{ id: string }, ImportHistoryDetailQueryResponse, { _id: string }>(
       gql(queries.historyDetailForLoad),
       {
-        name: 'importHistoryDetailQuery',
+        name: "importHistoryDetailQuery",
         options: ({ id }) => ({
-          fetchPolicy: 'network-only',
+          fetchPolicy: "network-only",
           variables: {
             _id: id
           },
@@ -140,7 +140,7 @@ const ImportIndicatorWithProps = withProps<{ id: string; close?: () => void }>(
     graphql<Props, CancelMutationResponse, { _id: string }>(
       gql(mutations.importCancel),
       {
-        name: 'importCancel'
+        name: "importCancel"
       }
     )
   )(ImportIndicatorContainer)

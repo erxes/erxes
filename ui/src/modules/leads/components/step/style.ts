@@ -1,10 +1,10 @@
-import { colors, dimensions } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
-import { BoxRoot } from 'modules/common/styles/main';
-import { ContentHeader } from 'modules/layout/styles';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { Embedded, PreviewContainer, SlideLeftContent } from './preview/styles';
+import { colors, dimensions } from "modules/common/styles";
+import { rgba } from "modules/common/styles/color";
+import { BoxRoot } from "modules/common/styles/main";
+import { ContentHeader } from "modules/layout/styles";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
+import { Embedded, PreviewContainer, SlideLeftContent } from "./preview/styles";
 
 const Space = `${dimensions.unitSpacing + dimensions.coreSpacing}px`;
 
@@ -20,7 +20,7 @@ const Box = styledTS<{ selected?: boolean }>(styled(BoxRoot))`
   }
 
   span {
-    font-weight: ${props => props.selected && '500'};
+    font-weight: ${props => props.selected && "500"};
   }
 
   &:last-child {
@@ -31,7 +31,7 @@ const Box = styledTS<{ selected?: boolean }>(styled(BoxRoot))`
 const BoxRow = styledTS<{ type?: string }>(styled.div)`
   display: flex;
   flex-direction: row;
-  margin-right: ${props => props.type && '20px'};
+  margin-right: ${props => props.type && "20px"};
 `;
 
 const FlexItem = styled.div`
@@ -54,7 +54,7 @@ const BackgroundSelector = styledTS<{ selected?: boolean }>(styled.li)`
   padding: ${dimensions.unitSpacing / 2}px;
   margin-right: ${dimensions.unitSpacing / 2}px;
   border: 1px solid
-    ${props => (props.selected ? colors.colorShadowGray : 'transparent')};
+    ${props => (props.selected ? colors.colorShadowGray : "transparent")};
 
   > div {
     height: ${dimensions.headerSpacing - 20}px;
@@ -65,7 +65,7 @@ const BackgroundSelector = styledTS<{ selected?: boolean }>(styled.li)`
     line-height: ${dimensions.headerSpacing - 20}px;
 
     > i {
-      visibility: ${props => (props.selected ? 'visible' : 'hidden')};
+      visibility: ${props => (props.selected ? "visible" : "hidden")};
       font-size: ${dimensions.unitSpacing}px;
       color: ${colors.colorWhite};
 
@@ -191,7 +191,7 @@ const MarkdownWrapper = styled.div`
 `;
 
 const DesktopPreview = styled.div`
-  background: url('/images/previews/desktop.png') no-repeat;
+  background: url("/images/previews/desktop.png") no-repeat;
   border: 1px solid ${colors.borderPrimary};
   border-radius: ${dimensions.unitSpacing / 2}px;
   flex: 1;
@@ -200,7 +200,7 @@ const DesktopPreview = styled.div`
 `;
 
 const MobilePreview = styled.div`
-  background: url('/images/previews/mobile.png') no-repeat;
+  background: url("/images/previews/mobile.png") no-repeat;
   width: 376px;
   height: 650px;
   margin: 0 auto;
@@ -222,7 +222,7 @@ const MobilePreview = styled.div`
 `;
 
 const TabletPreview = styled.div`
-  background: url('/images/previews/tablet.png') no-repeat center center;
+  background: url("/images/previews/tablet.png") no-repeat center center;
   width: 768px;
   height: 1024px;
   margin: 0 auto;

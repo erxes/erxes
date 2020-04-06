@@ -1,7 +1,7 @@
-import Sidebar from 'modules/layout/components/Sidebar';
-import React from 'react';
-import { ICompany } from '../../types';
-import DetailInfo from './DetailInfo';
+import Sidebar from "modules/layout/components/Sidebar";
+import React from "react";
+import { ICompany } from "../../types";
+import DetailInfo from "./DetailInfo";
 
 type Props = {
   company: ICompany;

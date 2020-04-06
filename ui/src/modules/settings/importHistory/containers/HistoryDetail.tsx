@@ -1,11 +1,11 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { withProps } from 'modules/common/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import HistoryDetail from '../components/HistoryDetail';
-import { queries, subscriptions } from '../graphql';
-import { ImportHistoryDetailQueryResponse } from '../types';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { withProps } from "modules/common/utils";
+import React from "react";
+import { graphql } from "react-apollo";
+import HistoryDetail from "../components/HistoryDetail";
+import { queries, subscriptions } from "../graphql";
+import { ImportHistoryDetailQueryResponse } from "../types";
 
 const subscription = gql(subscriptions.importSubscription);
 
@@ -34,7 +34,7 @@ class HistoryDetailContainer extends React.Component<
         const { importHistoryChanged } = data;
         const { percentage, status } = importHistoryChanged;
 
-        if (status === 'Done') {
+        if (status === "Done") {
           return importHistoryDetailQuery.refetch();
         }
 
@@ -66,9 +66,9 @@ export default withProps<{ id: string }>(
     graphql<{ id: string }, ImportHistoryDetailQueryResponse, { _id: string }>(
       gql(queries.historyDetail),
       {
-        name: 'importHistoryDetailQuery',
+        name: "importHistoryDetailQuery",
         options: ({ id }) => ({
-          fetchPolicy: 'network-only',
+          fetchPolicy: "network-only",
           variables: {
             _id: id
           },

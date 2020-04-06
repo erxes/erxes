@@ -1,4 +1,4 @@
-import { growthHackFields } from './queries';
+import { growthHackFields } from "./queries";
 
 const commonVariables = `
   $stageId: String,

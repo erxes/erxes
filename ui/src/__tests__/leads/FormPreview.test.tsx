@@ -1,19 +1,19 @@
-import { shallow } from 'enzyme';
-import FormPreview from 'modules/leads/components/step/preview/FormPreview';
-import React from 'react';
+import { shallow } from "enzyme";
+import FormPreview from "modules/leads/components/step/preview/FormPreview";
+import React from "react";
 
-describe('FormPreview component', () => {
+describe("FormPreview component", () => {
   const defaultProps = {
-    formTitle: 'title',
-    color: 'red',
-    theme: 'default',
+    formTitle: "title",
+    color: "red",
+    theme: "default",
     onChange: (name: any, fields: string) => null,
-    type: 'string',
+    type: "string",
     previewRenderer: () => <div />
   };
 
-  test('renders shallow successfully', () => {
+  test("renders shallow successfully", () => {
     const wrapper = shallow(<FormPreview {...defaultProps} />);
-    expect(wrapper).not.toBe('');
+    expect(wrapper).not.toBe("");
   });
 });

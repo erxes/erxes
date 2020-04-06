@@ -1,6 +1,6 @@
-import EmptyState from 'modules/common/components/EmptyState';
-import Spinner from 'modules/common/components/Spinner';
-import React from 'react';
+import EmptyState from "modules/common/components/EmptyState";
+import Spinner from "modules/common/components/Spinner";
+import React from "react";
 
 type Props = {
   data: any;
@@ -15,10 +15,10 @@ type Props = {
 
 class DataWithLoader extends React.Component<Props> {
   static defaultProps = {
-    emptyText: 'There is no data',
-    emptyIcon: '',
-    emptyImage: '',
-    size: 'full',
+    emptyText: "There is no data",
+    emptyIcon: "",
+    emptyImage: "",
+    size: "full",
     objective: false
   };
 
@@ -39,7 +39,7 @@ class DataWithLoader extends React.Component<Props> {
     } else if (count === 0) {
       return (
         <EmptyState
-          text={emptyText || 'There is no data'}
+          text={emptyText || "There is no data"}
           size={size}
           icon={emptyIcon}
           image={emptyImage}

@@ -1,16 +1,16 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { Alert, renderWithProps } from 'modules/common/utils';
-import { mutations } from 'modules/conformity/graphql/';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { Alert, renderWithProps } from "modules/common/utils";
+import { mutations } from "modules/conformity/graphql/";
 import {
   EditConformityMutation,
   IConformityEdit
-} from 'modules/conformity/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import AddForm from '../../components/portable/AddForm';
-import { queries } from '../../graphql';
-import { IItem, IItemParams, IOptions, SaveMutation } from '../../types';
+} from "modules/conformity/types";
+import React from "react";
+import { graphql } from "react-apollo";
+import AddForm from "../../components/portable/AddForm";
+import { queries } from "../../graphql";
+import { IItem, IItemParams, IOptions, SaveMutation } from "../../types";
 
 type IProps = {
   options: IOptions;
@@ -98,7 +98,7 @@ export default (props: IProps) =>
       graphql<IProps, SaveMutation, IItem>(
         gql(props.options.mutations.addMutation),
         {
-          name: 'addMutation',
+          name: "addMutation",
           options: ({ stageId }: { stageId?: string }) => {
             if (!stageId) {
               return {};
@@ -118,7 +118,7 @@ export default (props: IProps) =>
       graphql<FinalProps, EditConformityMutation, IConformityEdit>(
         gql(mutations.conformityEdit),
         {
-          name: 'editConformity'
+          name: "editConformity"
         }
       )
     )(AddFormContainer)

@@ -1,6 +1,6 @@
-import { colors } from 'modules/common/styles';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import { colors } from "modules/common/styles";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 const SortItem = styledTS<{ isDragging: boolean; isModal: boolean }>(
   styled.div
@@ -15,9 +15,9 @@ const SortItem = styledTS<{ isDragging: boolean; isModal: boolean }>(
   justify-content: space-between;
   border-left: 2px solid transparent; 
   box-shadow: ${props =>
-    props.isDragging ? `0 2px 8px ${colors.shadowPrimary}` : 'none'};
+    props.isDragging ? `0 2px 8px ${colors.shadowPrimary}` : "none"};
   left: ${props =>
-    props.isDragging && props.isModal ? '40px!important' : 'auto'};
+    props.isDragging && props.isModal ? "40px!important" : "auto"};
   &:last-child {
     margin-bottom: 0;
   }

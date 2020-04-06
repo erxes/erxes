@@ -1,8 +1,8 @@
-import { colors, dimensions } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { SelectWrapper } from '../common/components/form/styles';
+import { colors, dimensions } from "modules/common/styles";
+import { rgba } from "modules/common/styles/color";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
+import { SelectWrapper } from "../common/components/form/styles";
 
 const FlexRow = styled.div`
   display: flex;

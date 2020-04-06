@@ -1,9 +1,9 @@
-import gql from 'graphql-tag';
-import juice from 'juice';
-import { generatePaginationParams } from 'modules/common/utils/router';
-import { IEmail } from 'modules/inbox/types';
-import sanitizeHtml from 'sanitize-html';
-import { queries } from '../graphql';
+import gql from "graphql-tag";
+import juice from "juice";
+import { generatePaginationParams } from "modules/common/utils/router";
+import { IEmail } from "modules/inbox/types";
+import sanitizeHtml from "sanitize-html";
+import { queries } from "../graphql";
 
 export const cleanHtml = (content: string) => {
   // all style inlined
@@ -13,13 +13,13 @@ export const cleanHtml = (content: string) => {
     allowedTags: false,
     allowedAttributes: false,
     transformTags: {
-      html: 'div',
-      body: 'div'
+      html: "div",
+      body: "div"
     },
 
     // remove some unusual tags
     exclusiveFilter: n => {
-      return n.tag === 'meta' || n.tag === 'head' || n.tag === 'style';
+      return n.tag === "meta" || n.tag === "head" || n.tag === "style";
     }
   });
 };
@@ -54,14 +54,14 @@ export const formatStr = (emailString?: string) => {
 };
 
 export const cleanIntegrationKind = (name: string) => {
-  if (name.includes('nylas')) {
-    name = name.replace('nylas-', '');
+  if (name.includes("nylas")) {
+    name = name.replace("nylas-", "");
   }
-  if (name.includes('smooch')) {
-    name = name.replace('smooch-', '');
+  if (name.includes("smooch")) {
+    name = name.replace("smooch-", "");
   }
-  if (name === 'lead') {
-    name = 'popups';
+  if (name === "lead") {
+    name = "popups";
   }
   return name;
 };
@@ -71,7 +71,7 @@ export const formatObj = (emailArray: IEmail[]) => {
     return;
   }
 
-  return emailArray ? emailArray.map(s => s.email).join(', ') : '';
+  return emailArray ? emailArray.map(s => s.email).join(", ") : "";
 };
 
 type Params = {
@@ -113,7 +113,7 @@ export const generateForwardMailContent = (params: Params) => {
       <b>Cc</b>: ${formatObj(cc)}
       <br/>
       `
-        : ''
+        : ""
     }
     ${
       bcc.length > 0
@@ -121,7 +121,7 @@ export const generateForwardMailContent = (params: Params) => {
       <b>Bcc</b>: ${formatObj(bcc)}
       <br/>
       `
-        : ''
+        : ""
     }
     <b>Subject</b>: ${subject}
     ${body}

@@ -1,17 +1,17 @@
-import Button from 'modules/common/components/Button';
-import FormControl from 'modules/common/components/form/Control';
-import Form from 'modules/common/components/form/Form';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import Info from 'modules/common/components/Info';
-import { ModalFooter } from 'modules/common/styles/main';
-import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
-import { ITopic } from 'modules/knowledgeBase/types';
-import React from 'react';
-import Select from 'react-select-plus';
-import { Options } from '../../styles';
-import { IIntegration, ISelectMessengerApps } from '../../types';
+import Button from "modules/common/components/Button";
+import FormControl from "modules/common/components/form/Control";
+import Form from "modules/common/components/form/Form";
+import FormGroup from "modules/common/components/form/Group";
+import ControlLabel from "modules/common/components/form/Label";
+import Info from "modules/common/components/Info";
+import { ModalFooter } from "modules/common/styles/main";
+import { IButtonMutateProps, IFormProps } from "modules/common/types";
+import { __ } from "modules/common/utils";
+import { ITopic } from "modules/knowledgeBase/types";
+import React from "react";
+import Select from "react-select-plus";
+import { Options } from "../../styles";
+import { IIntegration, ISelectMessengerApps } from "../../types";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -32,8 +32,8 @@ class KnowledgeBase extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      selectedMessengerId: '',
-      selectedTopicId: ''
+      selectedMessengerId: "",
+      selectedTopicId: ""
     };
   }
 
@@ -55,12 +55,12 @@ class KnowledgeBase extends React.Component<Props, State> {
 
   onChangeMessenger = obj => {
     this.setState({ selectedMessenger: obj });
-    this.setState({ selectedMessengerId: obj ? obj.value : '' });
+    this.setState({ selectedMessengerId: obj ? obj.value : "" });
   };
 
   onChangeTopics = obj => {
     this.setState({ selectedKb: obj });
-    this.setState({ selectedTopicId: obj ? obj.value : '' });
+    this.setState({ selectedTopicId: obj ? obj.value : "" });
   };
 
   renderOption = option => {
@@ -80,7 +80,7 @@ class KnowledgeBase extends React.Component<Props, State> {
       <>
         <Info>
           {__(
-            'You can choose from our many messenger integrations and add to your knowledge base. The knowledge base will appear in the tab of your messenger widget. To do this, please create and add to your knowledge base.'
+            "You can choose from our many messenger integrations and add to your knowledge base. The knowledge base will appear in the tab of your messenger widget. To do this, please create and add to your knowledge base."
           )}
         </Info>
         <FormGroup>
@@ -119,7 +119,7 @@ class KnowledgeBase extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: 'knowledge base',
+            name: "knowledge base",
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal

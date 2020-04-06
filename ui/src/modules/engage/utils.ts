@@ -1,5 +1,5 @@
-import { generatePaginationParams } from 'modules/common/utils/router';
-import { TargetCount } from 'modules/engage/types';
+import { generatePaginationParams } from "modules/common/utils/router";
+import { TargetCount } from "modules/engage/types";
 
 export const generateListQueryVariables = ({ queryParams }) => ({
   ...generatePaginationParams(queryParams),
@@ -12,10 +12,10 @@ export const generateListQueryVariables = ({ queryParams }) => ({
 export const crudMutationsOptions = () => {
   return {
     refetchQueries: [
-      'engageMessages',
-      'engageMessagesTotalCount',
-      'kindCounts',
-      'statusCounts'
+      "engageMessages",
+      "engageMessagesTotalCount",
+      "kindCounts",
+      "statusCounts"
     ]
   };
 };

@@ -1,6 +1,6 @@
-import * as React from 'react';
-import styled from 'styled-components';
-import NotifierItem from './NotiferItem';
+import * as React from "react";
+import styled from "styled-components";
+import NotifierItem from "./NotiferItem";
 
 const NotifierContainer = styled.div`
   position: fixed;
@@ -12,7 +12,7 @@ class Notifier extends React.Component<{}> {
   constructor(props) {
     super(props);
 
-    this.state = { show: false, activeRoute: 'feature' };
+    this.state = { show: false, activeRoute: "feature" };
   }
 
   renderNotifications() {
@@ -25,7 +25,7 @@ class Notifier extends React.Component<{}> {
           <div>
             <h3>Hello Ganzorig</h3>
             <p>
-              Hello I'm erxes. Make sure <a href="#test">save your profile</a>{' '}
+              Hello I'm erxes. Make sure <a href="#test">save your profile</a>{" "}
               information
             </p>
           </div>
@@ -37,7 +37,7 @@ class Notifier extends React.Component<{}> {
           <div>
             <h3>Hello Ganzorig</h3>
             <p>
-              Hello I'm erxes. Make sure <a href="#test">save your profile</a>{' '}
+              Hello I'm erxes. Make sure <a href="#test">save your profile</a>{" "}
               information
             </p>
           </div>

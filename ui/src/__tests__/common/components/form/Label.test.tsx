@@ -1,15 +1,15 @@
-import { shallow } from 'enzyme';
-import React from 'react';
+import { shallow } from "enzyme";
+import React from "react";
 
-import Label from '../../../../modules/common/components/form/Label';
+import Label from "../../../../modules/common/components/form/Label";
 
-describe('Label component', () => {
+describe("Label component", () => {
   const defaultProps = {
     children: false
   };
 
-  test('renders Label successfully', () => {
+  test("renders Label successfully", () => {
     const wrapper = shallow(<Label {...defaultProps} />);
-    expect(wrapper).not.toBe('');
+    expect(wrapper).not.toBe("");
   });
 });

@@ -1,4 +1,4 @@
-import { PIPELINE_UPDATE_STATUSES } from 'modules/boards/constants';
+import { PIPELINE_UPDATE_STATUSES } from "modules/boards/constants";
 import {
   ActionButton,
   ActionList,
@@ -13,18 +13,18 @@ import {
   StageFooter,
   StageRoot,
   StageTitle
-} from 'modules/boards/styles/stage';
-import EmptyState from 'modules/common/components/EmptyState';
-import Icon from 'modules/common/components/Icon';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import { __ } from 'modules/common/utils';
-import React from 'react';
-import { Draggable } from 'react-beautiful-dnd';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
-import { AddForm } from '../../containers/portable';
-import { IItem, IOptions, IStage } from '../../types';
-import { renderAmount } from '../../utils';
-import ItemList from '../stage/ItemList';
+} from "modules/boards/styles/stage";
+import EmptyState from "modules/common/components/EmptyState";
+import Icon from "modules/common/components/Icon";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import { __ } from "modules/common/utils";
+import React from "react";
+import { Draggable } from "react-beautiful-dnd";
+import { OverlayTrigger, Popover } from "react-bootstrap";
+import { AddForm } from "../../containers/portable";
+import { IItem, IOptions, IStage } from "../../types";
+import { renderAmount } from "../../utils";
+import ItemList from "../stage/ItemList";
 
 type Props = {
   loadingItems: () => boolean;
@@ -87,7 +87,7 @@ export default class Stage extends React.Component<Props, {}> {
     }
 
     const { stage, onChangeRealTimeStageIds } = this.props;
-    const pipelineUpdate = sessionStorage.getItem('pipelineUpdate');
+    const pipelineUpdate = sessionStorage.getItem("pipelineUpdate");
 
     if (
       (pipelineUpdate === PIPELINE_UPDATE_STATUSES.START ||

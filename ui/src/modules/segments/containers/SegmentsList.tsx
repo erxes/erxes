@@ -1,12 +1,12 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { Alert, withProps } from 'modules/common/utils';
-import { confirm } from 'modules/common/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import SegmentsList from '../components/SegmentsList';
-import { mutations, queries } from '../graphql';
-import { RemoveMutationResponse, SegmentsQueryResponse } from '../types';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { Alert, withProps } from "modules/common/utils";
+import { confirm } from "modules/common/utils";
+import React from "react";
+import { graphql } from "react-apollo";
+import SegmentsList from "../components/SegmentsList";
+import { mutations, queries } from "../graphql";
+import { RemoveMutationResponse, SegmentsQueryResponse } from "../types";
 
 type Props = {
   contentType: string;
@@ -28,7 +28,7 @@ const SegmentListContainer = (props: FinalProps) => {
         .then(() => {
           segmentsQuery.refetch();
 
-          Alert.success('You successfully deleted a segment');
+          Alert.success("You successfully deleted a segment");
         })
         .catch(error => {
           Alert.error(error.message);
@@ -50,9 +50,9 @@ export default withProps<Props>(
     graphql<Props, SegmentsQueryResponse, { contentType: string }>(
       gql(queries.segments),
       {
-        name: 'segmentsQuery',
+        name: "segmentsQuery",
         options: ({ contentType }) => ({
-          fetchPolicy: 'network-only',
+          fetchPolicy: "network-only",
           variables: { contentType }
         })
       }
@@ -61,7 +61,7 @@ export default withProps<Props>(
     graphql<Props, RemoveMutationResponse, { _id: string }>(
       gql(mutations.segmentsRemove),
       {
-        name: 'removeMutation'
+        name: "removeMutation"
       }
     )
   )(SegmentListContainer)

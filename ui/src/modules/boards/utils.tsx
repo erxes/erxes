@@ -1,11 +1,11 @@
 import {
   STORAGE_BOARD_KEY,
   STORAGE_PIPELINE_KEY
-} from 'modules/boards/constants';
-import { Amount } from 'modules/boards/styles/stage';
-import React from 'react';
-import PriorityIndicator from './components/editForm/PriorityIndicator';
-import { IDraggableLocation, IItemMap } from './types';
+} from "modules/boards/constants";
+import { Amount } from "modules/boards/styles/stage";
+import React from "react";
+import PriorityIndicator from "./components/editForm/PriorityIndicator";
+import { IDraggableLocation, IItemMap } from "./types";
 
 type Options = {
   _id: string;
@@ -92,8 +92,8 @@ export const reorderItemMap = ({
 };
 
 export const getDefaultBoardAndPipelines = () => {
-  const defaultBoards = localStorage.getItem(STORAGE_BOARD_KEY) || '{}';
-  const defaultPipelines = localStorage.getItem(STORAGE_PIPELINE_KEY) || '{}';
+  const defaultBoards = localStorage.getItem(STORAGE_BOARD_KEY) || "{}";
+  const defaultPipelines = localStorage.getItem(STORAGE_PIPELINE_KEY) || "{}";
 
   return {
     defaultBoards: JSON.parse(defaultBoards),
@@ -118,7 +118,7 @@ export const renderAmount = (amount = {}) => {
 };
 
 export const invalidateCache = () => {
-  localStorage.setItem('cacheInvalidated', 'true');
+  localStorage.setItem("cacheInvalidated", "true");
 };
 
 export const toArray = (item: string | string[] = []) => {
@@ -138,20 +138,20 @@ export const renderPriority = (priority?: string) => {
 };
 
 export const generateButtonClass = (closeDate: Date, isComplete?: boolean) => {
-  let colorName = '';
+  let colorName = "";
 
   if (isComplete) {
-    colorName = 'green';
+    colorName = "green";
   } else if (closeDate) {
     const now = new Date();
     const oneDay = 24 * 60 * 60 * 1000;
 
     if (new Date(closeDate).getTime() - now.getTime() < oneDay) {
-      colorName = 'yellow';
+      colorName = "yellow";
     }
 
     if (now > closeDate) {
-      colorName = 'red';
+      colorName = "red";
     }
   }
 

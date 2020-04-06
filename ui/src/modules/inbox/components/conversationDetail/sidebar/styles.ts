@@ -5,13 +5,13 @@ import {
   AvatarWrapper,
   EmailContent,
   Timeline
-} from 'modules/activityLogs/styles';
-import { colors, dimensions, typography } from 'modules/common/styles';
-import { ActivityContent, DateContainer } from 'modules/common/styles/main';
-import { SidebarBox, SidebarTitle } from 'modules/layout/styles';
-import styled from 'styled-components';
+} from "modules/activityLogs/styles";
+import { colors, dimensions, typography } from "modules/common/styles";
+import { ActivityContent, DateContainer } from "modules/common/styles/main";
+import { SidebarBox, SidebarTitle } from "modules/layout/styles";
+import styled from "styled-components";
 
-const iconWrapperWidth = '60px';
+const iconWrapperWidth = "60px";
 
 const FlexRow = styled(DateContainer)`
   display: flex;

@@ -1,12 +1,12 @@
-import { IUser } from 'modules/auth/types';
-import { getUserAvatar } from 'modules/common/utils';
-import React from 'react';
+import { IUser } from "modules/auth/types";
+import { getUserAvatar } from "modules/common/utils";
+import React from "react";
 import {
   ErxesStaffProfile,
   ErxesSupporters,
   StateSpan,
   Supporters as SupporterStyled
-} from './styles';
+} from "./styles";
 
 type Props = {
   isGreeting?: boolean;
@@ -20,7 +20,7 @@ class Supporters extends React.Component<Props> {
     const { isOnline, teamMembers, supporterIds } = this.props;
 
     const supporters = teamMembers.filter(user =>
-      (supporterIds || []).includes(user._id || '')
+      (supporterIds || []).includes(user._id || "")
     );
 
     return supporters.map(u => {

@@ -1,18 +1,18 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import withCurrentUser from 'modules/auth/containers/withCurrentUser';
-import { IUser } from 'modules/auth/types';
-import { Alert, withProps } from 'modules/common/utils';
-import { ICustomer } from 'modules/customers/types';
-import { AddMutationResponse, IEngageMessageDoc } from 'modules/engage/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { BrandsQueryResponse } from '../../settings/brands/types';
-import { EmailTemplatesQueryResponse } from '../../settings/emailTemplates/containers/List';
-import Widget from '../components/Widget';
-import { MESSAGE_KINDS, MESSENGER_KINDS, SENT_AS_CHOICES } from '../constants';
-import { mutations, queries } from '../graphql';
-import { crudMutationsOptions } from '../utils';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import withCurrentUser from "modules/auth/containers/withCurrentUser";
+import { IUser } from "modules/auth/types";
+import { Alert, withProps } from "modules/common/utils";
+import { ICustomer } from "modules/customers/types";
+import { AddMutationResponse, IEngageMessageDoc } from "modules/engage/types";
+import React from "react";
+import { graphql } from "react-apollo";
+import { BrandsQueryResponse } from "../../settings/brands/types";
+import { EmailTemplatesQueryResponse } from "../../settings/emailTemplates/containers/List";
+import Widget from "../components/Widget";
+import { MESSAGE_KINDS, MESSENGER_KINDS, SENT_AS_CHOICES } from "../constants";
+import { mutations, queries } from "../graphql";
+import { crudMutationsOptions } from "../utils";
 
 type Props = {
   customers: ICustomer[];
@@ -82,15 +82,15 @@ const WidgetContainer = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql<Props, EmailTemplatesQueryResponse>(gql(queries.emailTemplates), {
-      name: 'emailTemplatesQuery'
+      name: "emailTemplatesQuery"
     }),
     graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
-      name: 'brandsQuery'
+      name: "brandsQuery"
     }),
     graphql<Props, AddMutationResponse, IEngageMessageDoc>(
       gql(mutations.messagesAdd),
       {
-        name: 'messagesAddMutation',
+        name: "messagesAddMutation",
         options: crudMutationsOptions
       }
     )

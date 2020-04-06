@@ -1,22 +1,22 @@
 import createMentionPlugin, {
   defaultSuggestionsFilter
-} from 'bat-draft-js-mention-plugin';
+} from "bat-draft-js-mention-plugin";
 import {
   ContentState,
   EditorState,
   getDefaultKeyBinding,
   Modifier
-} from 'draft-js';
+} from "draft-js";
 
 import {
   createStateFromHTML,
   ErxesEditor,
   toHTML
-} from 'modules/common/components/editor/Editor';
-import React from 'react';
+} from "modules/common/components/editor/Editor";
+import React from "react";
 
-import { IResponseTemplate } from 'modules/settings/responseTemplates/types';
-import TemplateList from './TemplateList';
+import { IResponseTemplate } from "modules/settings/responseTemplates/types";
+import TemplateList from "./TemplateList";
 
 type EditorProps = {
   currentConversation: string;
@@ -48,20 +48,20 @@ const MentionEntry = props => {
       <div className="mentionSuggestionsEntryContainer">
         <div className="mentionSuggestionsEntryContainerLeft">
           <img
-            alt={mention.get('name')}
+            alt={mention.get("name")}
             role="presentation"
-            src={mention.get('avatar') || '/images/avatar-colored.svg'}
+            src={mention.get("avatar") || "/images/avatar-colored.svg"}
             className="mentionSuggestionsEntryAvatar"
           />
         </div>
 
         <div className="mentionSuggestionsEntryContainerRight">
           <div className="mentionSuggestionsEntryText">
-            {mention.get('name')}
+            {mention.get("name")}
           </div>
 
           <div className="mentionSuggestionsEntryTitle">
-            {mention.get('title')}
+            {mention.get("title")}
           </div>
         </div>
       </div>
@@ -95,7 +95,7 @@ export default class Editor extends React.Component<EditorProps, State> {
     };
 
     this.mentionPlugin = createMentionPlugin({
-      mentionPrefix: '@'
+      mentionPrefix: "@"
     });
   }
 
@@ -188,10 +188,10 @@ export default class Editor extends React.Component<EditorProps, State> {
     const contentState = Modifier.insertText(
       editorState.getCurrentContent(),
       selection,
-      ' '
+      " "
     );
 
-    const es = EditorState.push(editorState, contentState, 'insert-characters');
+    const es = EditorState.push(editorState, contentState, "insert-characters");
 
     editorState = EditorState.moveFocusToEnd(es);
 
@@ -279,7 +279,7 @@ export default class Editor extends React.Component<EditorProps, State> {
     // replace mention content
     this.state.collectedMentions.forEach(m => {
       const toFind = `@${m.name}`;
-      const re = new RegExp(toFind, 'g');
+      const re = new RegExp(toFind, "g");
 
       // collect only not removed mentions
       const findResult = content.match(re);
@@ -302,12 +302,12 @@ export default class Editor extends React.Component<EditorProps, State> {
 
   keyBindingFn = e => {
     // handle new line
-    if (e.key === 'Enter' && e.shiftKey) {
+    if (e.key === "Enter" && e.shiftKey) {
       return getDefaultKeyBinding(e);
     }
 
     // handle enter  in editor
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       // select response template
       if (this.state.templatesState) {
         this.onSelectTemplate();
@@ -323,8 +323,8 @@ export default class Editor extends React.Component<EditorProps, State> {
 
       const editorState = EditorState.push(
         state,
-        ContentState.createFromText(''),
-        'insert-characters'
+        ContentState.createFromText(""),
+        "insert-characters"
       );
 
       this.setState({ editorState: EditorState.moveFocusToEnd(editorState) });

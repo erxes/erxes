@@ -1,28 +1,28 @@
-import Spinner from 'modules/common/components/Spinner';
-import { __ } from 'modules/common/utils';
-import { menuDeal } from 'modules/common/utils/menus';
-import Wrapper from 'modules/layout/components/Wrapper';
-import React from 'react';
-import { INSIGHT_TYPES } from '../constants';
-import DealFilter from '../containers/DealFilter';
+import Spinner from "modules/common/components/Spinner";
+import { __ } from "modules/common/utils";
+import { menuDeal } from "modules/common/utils/menus";
+import Wrapper from "modules/layout/components/Wrapper";
+import React from "react";
+import { INSIGHT_TYPES } from "../constants";
+import DealFilter from "../containers/DealFilter";
 import {
   InsightContent,
   InsightRow,
   InsightTitle,
   InsightWrapper,
   LoaderWrapper
-} from '../styles';
+} from "../styles";
 import {
   IChartParams,
   IPunchCardData,
   IQueryParams,
   SummaryData
-} from '../types';
-import Chart from './Chart';
-import PunchCard from './PunchCard';
-import Sidebar from './Sidebar';
-import Summary from './Summary';
-import TeamMembers from './TeamMembers';
+} from "../types";
+import Chart from "./Chart";
+import PunchCard from "./PunchCard";
+import Sidebar from "./Sidebar";
+import Summary from "./Summary";
+import TeamMembers from "./TeamMembers";
 
 type loadingType = {
   main: boolean;
@@ -97,7 +97,7 @@ class DealVolumeReport extends React.Component<Props, { width: number }> {
 
     return (
       <InsightRow>
-        {this.renderTitle('Punch card')}
+        {this.renderTitle("Punch card")}
         {content}
       </InsightRow>
     );
@@ -133,11 +133,11 @@ class DealVolumeReport extends React.Component<Props, { width: number }> {
     return (
       <InsightContent innerRef={innerRef}>
         <InsightRow>
-          {this.renderTitle('Volume summary')}
+          {this.renderTitle("Volume summary")}
           <Summary loading={loading.main} data={summary} />
         </InsightRow>
 
-        {this.renderTrend('Volume Trend', loading, trend)}
+        {this.renderTrend("Volume Trend", loading, trend)}
 
         {this.renderPunchCard(loading, punch, width)}
 
@@ -160,7 +160,7 @@ class DealVolumeReport extends React.Component<Props, { width: number }> {
   render() {
     return (
       <Wrapper
-        header={<Wrapper.Header title={__('Insights')} submenu={menuDeal} />}
+        header={<Wrapper.Header title={__("Insights")} submenu={menuDeal} />}
         leftSidebar={
           <Sidebar
             queryParams={this.props.queryParams}

@@ -1,11 +1,11 @@
-import Button from 'modules/common/components/Button';
-import FormControl from 'modules/common/components/form/Control';
-import Icon from 'modules/common/components/Icon';
-import { colors } from 'modules/common/styles';
-import { Alert } from 'modules/common/utils';
-import { __ } from 'modules/common/utils';
-import React from 'react';
-import styled from 'styled-components';
+import Button from "modules/common/components/Button";
+import FormControl from "modules/common/components/form/Control";
+import Icon from "modules/common/components/Icon";
+import { colors } from "modules/common/styles";
+import { Alert } from "modules/common/utils";
+import { __ } from "modules/common/utils";
+import React from "react";
+import styled from "styled-components";
 
 const List = styled.ul`
   list-style: none;
@@ -76,17 +76,17 @@ class ModifiableList extends React.Component<Props, State> {
   handleSaveOption = () => {
     const { options } = this.state;
     const optionValue = (document.getElementById(
-      'optionValue'
+      "optionValue"
     ) as HTMLInputElement).value;
 
     if (!optionValue) {
-      return Alert.warning('Nothing inserted');
+      return Alert.warning("Nothing inserted");
     }
 
     this.setState({ options: [...options, optionValue] }, () => {
       if (this.props.onChangeOption) {
         this.props.onChangeOption(this.state.options, optionValue);
-        (document.getElementById('optionValue') as HTMLInputElement).value = '';
+        (document.getElementById("optionValue") as HTMLInputElement).value = "";
       }
     });
   };
@@ -107,7 +107,7 @@ class ModifiableList extends React.Component<Props, State> {
   };
 
   onKeyPress = e => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
       this.handleSaveOption();
     }
@@ -146,7 +146,7 @@ class ModifiableList extends React.Component<Props, State> {
 
     return (
       <Button onClick={this.handleAddOption} size="small" icon="plus-circle">
-        {__(this.props.addButtonLabel || 'Add an option')}
+        {__(this.props.addButtonLabel || "Add an option")}
       </Button>
     );
   };

@@ -1,17 +1,17 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import withCurrentUser from 'modules/auth/containers/withCurrentUser';
-import { IUser } from 'modules/auth/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withProps } from '../../common/utils';
-import FeatureDetail from '../components/FeatureDetail';
-import { mutations, queries, subscriptions } from '../graphql';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import withCurrentUser from "modules/auth/containers/withCurrentUser";
+import { IUser } from "modules/auth/types";
+import React from "react";
+import { graphql } from "react-apollo";
+import { withProps } from "../../common/utils";
+import FeatureDetail from "../components/FeatureDetail";
+import { mutations, queries, subscriptions } from "../graphql";
 import {
   CompleteShowStepMutationResponse,
   IFeature,
   StepsCompletenessQueryResponse
-} from '../types';
+} from "../types";
 
 type Props = {
   feature: IFeature;
@@ -59,7 +59,7 @@ class FeatureDetailContainer extends React.Component<FinalProps> {
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.stepsCompleteness), {
-      name: 'stepsCompletenessQuery',
+      name: "stepsCompletenessQuery",
       options: ({ feature }) => {
         return {
           variables: {
@@ -69,7 +69,7 @@ export default withProps<Props>(
       }
     }),
     graphql<{}>(gql(mutations.completeShowStep), {
-      name: 'completeShowStepMutation'
+      name: "completeShowStepMutation"
     })
   )(withCurrentUser(FeatureDetailContainer))
 );

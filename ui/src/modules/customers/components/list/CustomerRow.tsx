@@ -1,14 +1,14 @@
-import _ from 'lodash';
-import FormControl from 'modules/common/components/form/Control';
-import Icon from 'modules/common/components/Icon';
-import NameCard from 'modules/common/components/nameCard/NameCard';
-import Tags from 'modules/common/components/Tags';
-import { formatValue } from 'modules/common/utils';
-import { FlexItem } from 'modules/companies/styles';
-import { BooleanStatus, ClickableRow } from 'modules/customers/styles';
-import { ICustomer } from 'modules/customers/types';
-import { IConfigColumn } from 'modules/settings/properties/types';
-import React from 'react';
+import _ from "lodash";
+import FormControl from "modules/common/components/form/Control";
+import Icon from "modules/common/components/Icon";
+import NameCard from "modules/common/components/nameCard/NameCard";
+import Tags from "modules/common/components/Tags";
+import { formatValue } from "modules/common/utils";
+import { FlexItem } from "modules/companies/styles";
+import { BooleanStatus, ClickableRow } from "modules/customers/styles";
+import { ICustomer } from "modules/customers/types";
+import { IConfigColumn } from "modules/settings/properties/types";
+import React from "react";
 
 type Props = {
   customer: ICustomer;
@@ -21,7 +21,7 @@ type Props = {
 function displayValue(customer, name) {
   const value = _.get(customer, name);
 
-  if (name === 'firstName') {
+  if (name === "firstName") {
     return (
       <FlexItem>
         <NameCard.Avatar customer={customer} size={30} /> &emsp;
@@ -30,20 +30,20 @@ function displayValue(customer, name) {
     );
   }
 
-  if (name === 'visitorContactInfo') {
+  if (name === "visitorContactInfo") {
     const visitorContactInfo = customer.visitorContactInfo;
 
     if (visitorContactInfo) {
       return formatValue(visitorContactInfo.email || visitorContactInfo.phone);
     }
 
-    return '-';
+    return "-";
   }
 
-  if (typeof value === 'boolean') {
+  if (typeof value === "boolean") {
     return (
       <BooleanStatus isTrue={value}>
-        <Icon icon={value ? 'check-1' : 'times'} />
+        <Icon icon={value ? "check-1" : "times"} />
       </BooleanStatus>
     );
   }
@@ -76,7 +76,7 @@ function CustomerRow({
 
   return (
     <tr>
-      <td style={{ width: '50px' }} onClick={onClick}>
+      <td style={{ width: "50px" }} onClick={onClick}>
         <FormControl
           checked={isChecked}
           componentClass="checkbox"

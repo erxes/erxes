@@ -1,18 +1,18 @@
-import ActionButtons from 'modules/common/components/ActionButtons';
-import Button from 'modules/common/components/Button';
-import Icon from 'modules/common/components/Icon';
-import Label from 'modules/common/components/Label';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import Tip from 'modules/common/components/Tip';
-import WithPermission from 'modules/common/components/WithPermission';
-import { __ } from 'modules/common/utils';
-import InstallCode from 'modules/settings/integrations/components/InstallCode';
-import { INTEGRATION_KINDS } from 'modules/settings/integrations/constants';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { cleanIntegrationKind } from '../../containers/utils';
-import { IIntegration } from '../../types';
-import CommonFieldForm from './CommonFieldForm';
+import ActionButtons from "modules/common/components/ActionButtons";
+import Button from "modules/common/components/Button";
+import Icon from "modules/common/components/Icon";
+import Label from "modules/common/components/Label";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import Tip from "modules/common/components/Tip";
+import WithPermission from "modules/common/components/WithPermission";
+import { __ } from "modules/common/utils";
+import InstallCode from "modules/settings/integrations/components/InstallCode";
+import { INTEGRATION_KINDS } from "modules/settings/integrations/constants";
+import React from "react";
+import { Link } from "react-router-dom";
+import { cleanIntegrationKind } from "../../containers/utils";
+import { IIntegration } from "../../types";
+import CommonFieldForm from "./CommonFieldForm";
 
 type Props = {
   _id?: string;
@@ -38,7 +38,7 @@ class IntegrationListItem extends React.Component<Props> {
 
     return (
       <WithPermission action="integrationsArchive">
-        <Tip text={__('Archive')}>
+        <Tip text={__("Archive")}>
           <Button btnStyle="link" onClick={onClick} icon="archive-alt" />
         </Tip>
       </WithPermission>
@@ -102,7 +102,7 @@ class IntegrationListItem extends React.Component<Props> {
 
       return (
         <ActionButtons>
-          <Tip text={__('Edit messenger integration')}>
+          <Tip text={__("Edit messenger integration")}>
             <Link
               to={`/settings/integrations/editMessenger/${integration._id}`}
             >
@@ -135,7 +135,7 @@ class IntegrationListItem extends React.Component<Props> {
 
     return (
       <WithPermission action="integrationsRemove">
-        <Tip text={__('Delete')}>
+        <Tip text={__("Delete")}>
           <Button btnStyle="link" onClick={onClick} icon="cancel-1" />
         </Tip>
       </WithPermission>
@@ -154,7 +154,7 @@ class IntegrationListItem extends React.Component<Props> {
             {integrationKind}
           </Label>
         </td>
-        <td>{integration.brand ? integration.brand.name : ''}</td>
+        <td>{integration.brand ? integration.brand.name : ""}</td>
         <td>
           <ActionButtons>
             {this.renderMessengerActions(integration)}

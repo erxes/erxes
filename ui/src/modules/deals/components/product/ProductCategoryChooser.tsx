@@ -1,9 +1,9 @@
-import Icon from 'modules/common/components/Icon';
-import { __ } from 'modules/common/utils';
-import { CategoryContainer } from 'modules/deals/styles';
-import { IProductCategory } from 'modules/settings/productService/types';
-import React from 'react';
-import Select from 'react-select-plus';
+import Icon from "modules/common/components/Icon";
+import { __ } from "modules/common/utils";
+import { CategoryContainer } from "modules/deals/styles";
+import { IProductCategory } from "modules/settings/productService/types";
+import React from "react";
+import Select from "react-select-plus";
 
 type Props = {
   categories: IProductCategory[];
@@ -19,7 +19,7 @@ class ProductCategoryChooser extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      categoryId: ''
+      categoryId: ""
     };
   }
 
@@ -47,10 +47,10 @@ class ProductCategoryChooser extends React.Component<Props, State> {
       </>
     );
     const order = option.order.match(/[/]/gi);
-    let space = '';
+    let space = "";
 
     if (order) {
-      space = '\u00A0 '.repeat(order.length);
+      space = "\u00A0 ".repeat(order.length);
     }
 
     return (
@@ -71,7 +71,7 @@ class ProductCategoryChooser extends React.Component<Props, State> {
       <CategoryContainer>
         <Select
           isRequired={true}
-          placeholder={__('Choose a category')}
+          placeholder={__("Choose a category")}
           optionRenderer={this.renderOptions}
           options={this.selectOptions(categories)}
           value={this.state.categoryId}

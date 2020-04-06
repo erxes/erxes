@@ -1,16 +1,16 @@
-import { AppConsumer } from 'appContext';
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { Alert, withProps } from 'modules/common/utils';
-import ConversationDetail from 'modules/inbox/components/conversationDetail/ConversationDetail';
-import { mutations, queries, subscriptions } from 'modules/inbox/graphql';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { IUser } from '../../../auth/types';
+import { AppConsumer } from "appContext";
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { Alert, withProps } from "modules/common/utils";
+import ConversationDetail from "modules/inbox/components/conversationDetail/ConversationDetail";
+import { mutations, queries, subscriptions } from "modules/inbox/graphql";
+import React from "react";
+import { graphql } from "react-apollo";
+import { IUser } from "../../../auth/types";
 import {
   ConversationDetailQueryResponse,
   MarkAsReadMutationResponse
-} from '../../types';
+} from "../../types";
 
 type Props = {
   currentId: string;
@@ -75,7 +75,7 @@ class DetailContainer extends React.Component<FinalProps> {
     // listen for customer connection
     const conversation = detailQuery.conversationDetail;
 
-    if (conversation.integration.kind === 'messenger') {
+    if (conversation.integration.kind === "messenger") {
       const customerId = conversation.customer._id;
 
       this.prevSubscriptions.customerHandler = detailQuery.subscribeToMore({
@@ -134,17 +134,17 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
     graphql<Props, ConversationDetailQueryResponse, { _id: string }>(
       gql(queries.conversationDetail),
       {
-        name: 'detailQuery',
+        name: "detailQuery",
         options: ({ currentId }) => ({
           variables: { _id: currentId },
-          fetchPolicy: 'network-only'
+          fetchPolicy: "network-only"
         })
       }
     ),
     graphql<Props, MarkAsReadMutationResponse, { _id: string }>(
       gql(mutations.markAsRead),
       {
-        name: 'markAsReadMutation',
+        name: "markAsReadMutation",
         options: ({ currentId }) => {
           return {
             refetchQueries: [

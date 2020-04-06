@@ -1,17 +1,17 @@
-import Box from 'modules/common/components/Box';
-import EmptyState from 'modules/common/components/EmptyState';
-import Icon from 'modules/common/components/Icon';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import Spinner from 'modules/common/components/Spinner';
-import { ButtonRelated } from 'modules/common/styles/main';
-import { __, renderFullName } from 'modules/common/utils';
-import GetConformity from 'modules/conformity/containers/GetConformity';
-import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import CustomerChooser from '../../containers/CustomerChooser';
-import { queries } from '../../graphql';
-import { ICustomer } from '../../types';
+import Box from "modules/common/components/Box";
+import EmptyState from "modules/common/components/EmptyState";
+import Icon from "modules/common/components/Icon";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import Spinner from "modules/common/components/Spinner";
+import { ButtonRelated } from "modules/common/styles/main";
+import { __, renderFullName } from "modules/common/utils";
+import GetConformity from "modules/conformity/containers/GetConformity";
+import { SectionBody, SectionBodyItem } from "modules/layout/styles";
+import React from "react";
+import { Link } from "react-router-dom";
+import CustomerChooser from "../../containers/CustomerChooser";
+import { queries } from "../../graphql";
+import { ICustomer } from "../../types";
 
 type Props = {
   name: string;
@@ -24,8 +24,8 @@ type Props = {
 function Component({
   name,
   items = [],
-  mainType = '',
-  mainTypeId = '',
+  mainType = "",
+  mainTypeId = "",
   onSelect
 }: Props) {
   const mailTo = email => {
@@ -51,7 +51,7 @@ function Component({
 
   const relCustomerTrigger = (
     <ButtonRelated>
-      <button>{__('See related customers..')}</button>
+      <button>{__("See related customers..")}</button>
     </ButtonRelated>
   );
 
@@ -114,7 +114,7 @@ function Component({
 
   return (
     <Box
-      title={__('Customers')}
+      title={__("Customers")}
       extraButtons={extraButtons}
       isOpen={true}
       name="showCustomers"

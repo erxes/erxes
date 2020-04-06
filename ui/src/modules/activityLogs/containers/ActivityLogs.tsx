@@ -1,13 +1,13 @@
-import { AppConsumer } from 'appContext';
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { IUser } from 'modules/auth/types';
-import { withProps } from 'modules/common/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { ActivityLogQueryResponse } from '../../customers/types';
-import ActivityLogs from '../components/ActivityLogs';
-import { queries, subscriptions } from '../graphql';
+import { AppConsumer } from "appContext";
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { IUser } from "modules/auth/types";
+import { withProps } from "modules/common/utils";
+import React from "react";
+import { graphql } from "react-apollo";
+import { ActivityLogQueryResponse } from "../../customers/types";
+import ActivityLogs from "../components/ActivityLogs";
+import { queries, subscriptions } from "../graphql";
 
 type Props = {
   contentId: string;
@@ -74,13 +74,13 @@ const WithData = withProps<WithDataProps>(
     graphql<WithDataProps, ActivityLogQueryResponse>(
       gql(queries.activityLogs),
       {
-        name: 'activityLogQuery',
+        name: "activityLogQuery",
         options: ({ contentId, contentType, activityType }: WithDataProps) => {
           return {
             variables: {
               contentId,
               contentType,
-              activityType: activityType === 'activity' ? '' : activityType
+              activityType: activityType === "activity" ? "" : activityType
             }
           };
         }
@@ -97,7 +97,7 @@ export default class Wrapper extends React.Component<
     super(props);
 
     this.state = {
-      activityType: ''
+      activityType: ""
     };
   }
 

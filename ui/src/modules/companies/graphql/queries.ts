@@ -1,7 +1,7 @@
 import {
   conformityQueryFieldDefs,
   conformityQueryFields
-} from 'modules/conformity/graphql/queries';
+} from "modules/conformity/graphql/queries";
 
 const companyFields = `
   _id

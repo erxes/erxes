@@ -1,7 +1,7 @@
-import { colors, dimensions, typography } from 'modules/common/styles';
-import { WhiteBox } from 'modules/layout/styles';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import { colors, dimensions, typography } from "modules/common/styles";
+import { WhiteBox } from "modules/layout/styles";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 const iconWrapperWidth = 80;
 
@@ -11,7 +11,7 @@ const Timeline = styled.div`
 
   &:before {
     border-right: 1px solid ${colors.borderDarker};
-    content: '';
+    content: "";
     height: 100%;
     position: absolute;
     z-index: 1;
@@ -28,7 +28,7 @@ const ActivityTitle = styled.h4`
 `;
 
 const ActivityRow = styledTS<{ isConversation?: boolean }>(styled(WhiteBox))`
-  padding: ${props => (props.isConversation ? '0' : dimensions.coreSpacing)}px;
+  padding: ${props => (props.isConversation ? "0" : dimensions.coreSpacing)}px;
   background: ${props => props.isConversation && colors.bgLight};
   position: relative;
   overflow: visible;
@@ -70,7 +70,7 @@ const Title = styledTS<{ isComplete?: boolean; isEditing: boolean }>(
   }
 
   h4 {
-    text-decoration: ${props => props.isComplete && 'line-through'};
+    text-decoration: ${props => props.isComplete && "line-through"};
     transition: all ease 0.4s;
 
     > i {
@@ -90,7 +90,7 @@ const Title = styledTS<{ isComplete?: boolean; isEditing: boolean }>(
     cursor: text;
     
     .icon-edit {
-      visibility: ${props => !props.isEditing && 'visible'};
+      visibility: ${props => !props.isEditing && "visible"};
     }
   }
 `;
@@ -126,7 +126,7 @@ const AvatarWrapper = styledTS<{
 }>(styled.div)`
   margin-right: ${dimensions.unitSpacing * 1.5}px;
   position: relative;
-  max-height: ${props => (props.size ? `${props.size}px` : '50px')};
+  max-height: ${props => (props.size ? `${props.size}px` : "50px")};
 
   a {
     float: none;
@@ -145,7 +145,7 @@ const AvatarWrapper = styledTS<{
     font-size: ${dimensions.unitSpacing}px;
     border: 1px solid ${colors.colorWhite};
     z-index: 1;
-    display: ${props => props.hideIndicator && 'none'};
+    display: ${props => props.hideIndicator && "none"};
   }
 `;
 
@@ -197,7 +197,7 @@ const EmailContent = styledTS<{ longEmail: boolean; expand: boolean }>(
   styled.div
 )`
   margin-top: ${dimensions.unitSpacing}px;
-  max-height: ${props => (props.expand ? 'auto' : '80px')};
+  max-height: ${props => (props.expand ? "auto" : "80px")};
   overflow: hidden;
   transition: height .5s;
 
@@ -244,7 +244,7 @@ const Date = styledTS<{ showDetail?: boolean }>(styled.div)`
 
     &:before {
       transition: all .15s ease-in-out;
-      transform: ${props => props.showDetail && 'rotate(90deg)'};
+      transform: ${props => props.showDetail && "rotate(90deg)"};
     }
   }
 `;
@@ -346,11 +346,11 @@ const MergedContacts = styled.div`
     font-weight: 600;
 
     &:after {
-      content: ', ';
+      content: ", ";
     }
 
     &:last-child::after {
-      content: '';
+      content: "";
     }
   }
 `;

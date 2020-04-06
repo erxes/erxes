@@ -1,11 +1,11 @@
-import { IStage } from 'modules/boards/types';
-import Button from 'modules/common/components/Button';
-import FormControl from 'modules/common/components/form/Control';
-import Icon from 'modules/common/components/Icon';
-import Tip from 'modules/common/components/Tip';
-import { colors } from 'modules/common/styles';
-import { StageItemContainer } from 'modules/settings/boards/styles';
-import React from 'react';
+import { IStage } from "modules/boards/types";
+import Button from "modules/common/components/Button";
+import FormControl from "modules/common/components/form/Control";
+import Icon from "modules/common/components/Icon";
+import Tip from "modules/common/components/Tip";
+import { colors } from "modules/common/styles";
+import { StageItemContainer } from "modules/settings/boards/styles";
+import React from "react";
 
 type Props = {
   stage: IStage;
@@ -41,7 +41,7 @@ class StageItem extends React.Component<Props, {}> {
         <Button btnStyle="link" onClick={onBuildClick}>
           <Tip text="Build a form">
             <Icon
-              icon={stage.formId ? 'file-edit-alt' : 'file-plus-alt'}
+              icon={stage.formId ? "file-edit-alt" : "file-plus-alt"}
               color={
                 stage.formId ? colors.colorSecondary : colors.colorCoreGreen
               }

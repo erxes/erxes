@@ -1,15 +1,15 @@
-import { shallow } from 'enzyme';
-import React from 'react';
+import { shallow } from "enzyme";
+import React from "react";
 
-import Info from '../../../modules/common/components/Info';
+import Info from "../../../modules/common/components/Info";
 
-describe('Info component', () => {
+describe("Info component", () => {
   const defaultProps = {
-    children: 'child'
+    children: "child"
   };
 
-  test('renders Info successfully', () => {
+  test("renders Info successfully", () => {
     const wrapper = shallow(<Info {...defaultProps} />);
-    expect(wrapper).not.toBe('');
+    expect(wrapper).not.toBe("");
   });
 });

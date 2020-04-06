@@ -1,12 +1,12 @@
-import { getEnv } from 'apolloClient';
-import Button from 'modules/common/components/Button';
-import EmptyState from 'modules/common/components/EmptyState';
-import { ModalFooter } from 'modules/common/styles/main';
-import { MarkdownWrapper } from 'modules/settings/styles';
-import React from 'react';
-import CopyToClipboard from 'react-copy-to-clipboard';
-import ReactMarkdown from 'react-markdown';
-import { IScript } from '../types';
+import { getEnv } from "apolloClient";
+import Button from "modules/common/components/Button";
+import EmptyState from "modules/common/components/EmptyState";
+import { ModalFooter } from "modules/common/styles/main";
+import { MarkdownWrapper } from "modules/settings/styles";
+import React from "react";
+import CopyToClipboard from "react-copy-to-clipboard";
+import ReactMarkdown from "react-markdown";
+import { IScript } from "../types";
 
 type Props = {
   script: IScript;
@@ -40,7 +40,7 @@ class InstallCode extends React.Component<Props, State> {
 
     const { script } = props;
 
-    let code = '';
+    let code = "";
 
     // showed install code automatically in edit mode
     if (script) {
@@ -65,7 +65,7 @@ class InstallCode extends React.Component<Props, State> {
           {this.state.code ? (
             <CopyToClipboard text={this.state.code} onCopy={this.onCopy}>
               <Button size="small" btnStyle="primary" icon="copy">
-                {this.state.copied ? 'Copied' : 'Copy to clipboard'}
+                {this.state.copied ? "Copied" : "Copy to clipboard"}
               </Button>
             </CopyToClipboard>
           ) : (

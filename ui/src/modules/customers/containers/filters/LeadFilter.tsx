@@ -1,16 +1,16 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import React, { useEffect, useRef, useState } from 'react';
-import { graphql } from 'react-apollo';
-import { withProps } from '../../../common/utils';
-import { queries as integrationQuery } from '../../../settings/integrations/graphql';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import React, { useEffect, useRef, useState } from "react";
+import { graphql } from "react-apollo";
+import { withProps } from "../../../common/utils";
+import { queries as integrationQuery } from "../../../settings/integrations/graphql";
 import {
   IntegrationsCountQueryResponse,
   IntegrationsQueryResponse
-} from '../../../settings/integrations/types';
-import LeadFilter from '../../components/list/LeadFilter';
-import { queries } from '../../graphql';
-import { CountQueryResponse } from '../../types';
+} from "../../../settings/integrations/types";
+import LeadFilter from "../../components/list/LeadFilter";
+import { queries } from "../../graphql";
+import { CountQueryResponse } from "../../types";
 
 type Props = {
   integrationsQuery?: IntegrationsQueryResponse;
@@ -82,9 +82,9 @@ export default withProps<WrapperProps>(
     graphql<WrapperProps, IntegrationsQueryResponse, {}>(
       gql(integrationQuery.integrations),
       {
-        name: 'integrationsQuery',
+        name: "integrationsQuery",
         options: () => ({
-          variables: { kind: 'lead', perPage: 10, page: 1 }
+          variables: { kind: "lead", perPage: 10, page: 1 }
         }),
         skip: ({ loadingMainQuery }) => loadingMainQuery
       }
@@ -92,17 +92,17 @@ export default withProps<WrapperProps>(
     graphql<WrapperProps, IntegrationsCountQueryResponse, {}>(
       gql(integrationQuery.integrationTotalCount),
       {
-        name: 'totalCountQuery',
+        name: "totalCountQuery",
         skip: ({ loadingMainQuery }) => loadingMainQuery
       }
     ),
     graphql<WrapperProps, CountQueryResponse, { only: string }>(
       gql(queries.customerCounts),
       {
-        name: 'customersCountQuery',
+        name: "customersCountQuery",
         skip: ({ loadingMainQuery }) => loadingMainQuery,
         options: ({ type }) => ({
-          variables: { type, only: 'byForm' }
+          variables: { type, only: "byForm" }
         })
       }
     )

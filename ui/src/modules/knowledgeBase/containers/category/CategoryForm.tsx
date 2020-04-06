@@ -1,10 +1,10 @@
-import gql from 'graphql-tag';
-import ButtonMutate from 'modules/common/components/ButtonMutate';
-import { IButtonMutateProps } from 'modules/common/types';
-import React from 'react';
-import CategoryForm from '../../components/category/CategoryForm';
-import { mutations, queries } from '../../graphql';
-import { ICategory } from '../../types';
+import gql from "graphql-tag";
+import ButtonMutate from "modules/common/components/ButtonMutate";
+import { IButtonMutateProps } from "modules/common/types";
+import React from "react";
+import CategoryForm from "../../components/category/CategoryForm";
+import { mutations, queries } from "../../graphql";
+import { ICategory } from "../../types";
 
 type Props = {
   category: ICategory;
@@ -36,7 +36,7 @@ const KnowledgeBaseContainer = (props: Props) => {
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully ${
-          object ? 'updated' : 'added'
+          object ? "updated" : "added"
         } a ${name}`}
       />
     );

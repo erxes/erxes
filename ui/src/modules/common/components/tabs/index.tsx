@@ -1,5 +1,5 @@
-import React from 'react';
-import { TabCaption, TabContainer } from './styles';
+import React from "react";
+import { TabCaption, TabContainer } from "./styles";
 
 function Tabs(props: {
   children: React.ReactNode;

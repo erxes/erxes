@@ -1,17 +1,17 @@
-import Button from 'modules/common/components/Button';
-import HeaderDescription from 'modules/common/components/HeaderDescription';
-import Icon from 'modules/common/components/Icon';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import Table from 'modules/common/components/table';
-import Tip from 'modules/common/components/Tip';
-import { IButtonMutateProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
-import React from 'react';
-import List from '../../common/components/List';
-import RowActions from '../../common/components/RowActions';
-import { ICommonListProps } from '../../common/types';
-import Form from '../containers/Form';
-import InstallCode from './InstallCode';
+import Button from "modules/common/components/Button";
+import HeaderDescription from "modules/common/components/HeaderDescription";
+import Icon from "modules/common/components/Icon";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import Table from "modules/common/components/table";
+import Tip from "modules/common/components/Tip";
+import { IButtonMutateProps } from "modules/common/types";
+import { __ } from "modules/common/utils";
+import React from "react";
+import List from "../../common/components/List";
+import RowActions from "../../common/components/RowActions";
+import { ICommonListProps } from "../../common/types";
+import Form from "../containers/Form";
+import InstallCode from "./InstallCode";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -50,7 +50,7 @@ class ScriptList extends React.Component<Props> {
               <div>
                 <Tip text="Messenger" placement="top">
                   <Icon icon="comment-1" />
-                </Tip>{' '}
+                </Tip>{" "}
                 {object.messenger.name}
               </div>
             )}
@@ -58,7 +58,7 @@ class ScriptList extends React.Component<Props> {
               <div>
                 <Tip text="Knowledge Base" placement="top">
                   <Icon icon="book-open" />
-                </Tip>{' '}
+                </Tip>{" "}
                 {object.kbTopic.title}
               </div>
             )}
@@ -87,9 +87,9 @@ class ScriptList extends React.Component<Props> {
       <Table>
         <thead>
           <tr>
-            <th>{__('Name')}</th>
-            <th>{__('Integrations')}</th>
-            <th style={{ width: 100 }}>{__('Actions')}</th>
+            <th>{__("Name")}</th>
+            <th>{__("Integrations")}</th>
+            <th style={{ width: 100 }}>{__("Actions")}</th>
           </tr>
         </thead>
         <tbody>{this.renderRows(props)}</tbody>
@@ -102,10 +102,10 @@ class ScriptList extends React.Component<Props> {
       <List
         formTitle="New script"
         breadcrumb={[
-          { title: __('Settings'), link: '/settings' },
-          { title: __('Scripts') }
+          { title: __("Settings"), link: "/settings" },
+          { title: __("Scripts") }
         ]}
-        title={__('Scripts')}
+        title={__("Scripts")}
         leftActionBar={
           <HeaderDescription
             icon="/images/actions/23.svg"

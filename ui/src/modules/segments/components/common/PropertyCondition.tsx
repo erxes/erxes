@@ -1,6 +1,6 @@
-import React from 'react';
-import { IConditionFilter } from '../../types';
-import Filter from './Filter';
+import React from "react";
+import { IConditionFilter } from "../../types";
+import Filter from "./Filter";
 
 type Props = {
   fields: any[];

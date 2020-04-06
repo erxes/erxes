@@ -1,8 +1,8 @@
-import { IBreadCrumbItem } from 'modules/common/types';
-import React from 'react';
-import styled from 'styled-components';
-import { dimensions } from '../../styles';
-import BreadCrumbItem from './BreadCrumbItem';
+import { IBreadCrumbItem } from "modules/common/types";
+import React from "react";
+import styled from "styled-components";
+import { dimensions } from "../../styles";
+import BreadCrumbItem from "./BreadCrumbItem";
 
 const Items = styled.ul`
   display: inline-block;
@@ -21,7 +21,7 @@ class BreadCrumb extends React.Component<{
     return (
       <Items role="navigation" aria-label="breadcrumbs">
         {breadcrumbs.map(b => (
-          <BreadCrumbItem to={b.link || ''} active={!b.link} key={b.title}>
+          <BreadCrumbItem to={b.link || ""} active={!b.link} key={b.title}>
             {b.title}
           </BreadCrumbItem>
         ))}

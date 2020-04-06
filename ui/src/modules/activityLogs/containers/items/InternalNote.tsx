@@ -1,17 +1,17 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import InternalNote from 'modules/activityLogs/components/items/InternalNote';
-import { IUser } from 'modules/auth/types';
-import Spinner from 'modules/common/components/Spinner';
-import { Alert, confirm, withProps } from 'modules/common/utils';
-import { mutations, queries } from 'modules/internalNotes/graphql';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import InternalNote from "modules/activityLogs/components/items/InternalNote";
+import { IUser } from "modules/auth/types";
+import Spinner from "modules/common/components/Spinner";
+import { Alert, confirm, withProps } from "modules/common/utils";
+import { mutations, queries } from "modules/internalNotes/graphql";
 import {
   InternalNoteDetailQueryResponse,
   InternalNotesEditMutationResponse,
   InternalNotesRemoveMutationResponse
-} from 'modules/internalNotes/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
+} from "modules/internalNotes/types";
+import React from "react";
+import { graphql } from "react-apollo";
 
 type Props = {
   activity: any;
@@ -54,7 +54,7 @@ class InternalNoteContainer extends React.Component<
 
       editMutation({ variables: { _id: noteId, ...variables } })
         .then(() => {
-          Alert.success('You successfully updated a note.');
+          Alert.success("You successfully updated a note.");
 
           if (callback) {
             callback();
@@ -72,7 +72,7 @@ class InternalNoteContainer extends React.Component<
       confirm().then(() =>
         internalNotesRemove({ variables: { _id: noteId } })
           .then(() => {
-            Alert.success('You successfully deleted a note.');
+            Alert.success("You successfully deleted a note.");
           })
           .catch(error => {
             Alert.error(error.message);
@@ -97,7 +97,7 @@ export default withProps<Props>(
     graphql<Props, InternalNoteDetailQueryResponse>(
       gql(queries.internalNoteDetail),
       {
-        name: 'internalNoteDetailsQuery',
+        name: "internalNoteDetailsQuery",
         options: ({ noteId }) => ({
           variables: {
             _id: noteId
@@ -108,15 +108,15 @@ export default withProps<Props>(
     graphql<Props, InternalNotesEditMutationResponse>(
       gql(mutations.internalNotesEdit),
       {
-        name: 'editMutation'
+        name: "editMutation"
       }
     ),
     graphql<Props, InternalNotesRemoveMutationResponse>(
       gql(mutations.internalNotesRemove),
       {
-        name: 'internalNotesRemove',
+        name: "internalNotesRemove",
         options: () => ({
-          refetchQueries: ['activityLogs']
+          refetchQueries: ["activityLogs"]
         })
       }
     )

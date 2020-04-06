@@ -1,16 +1,16 @@
-import FormControl from 'modules/common/components/form/Control';
-import ControlLabel from 'modules/common/components/form/Label';
-import { LeftItem } from 'modules/common/components/step/styles';
-import { __ } from 'modules/common/utils';
-import { FlexContent } from 'modules/layout/styles';
-import { IField } from 'modules/settings/properties/types';
-import React from 'react';
-import FormGroup from '../../common/components/form/Group';
-import { Title } from '../styles';
-import { IForm, IFormData } from '../types';
-import FieldChoices from './FieldChoices';
-import FieldForm from './FieldForm';
-import FieldsPreview from './FieldsPreview';
+import FormControl from "modules/common/components/form/Control";
+import ControlLabel from "modules/common/components/form/Label";
+import { LeftItem } from "modules/common/components/step/styles";
+import { __ } from "modules/common/utils";
+import { FlexContent } from "modules/layout/styles";
+import { IField } from "modules/settings/properties/types";
+import React from "react";
+import FormGroup from "../../common/components/form/Group";
+import { Title } from "../styles";
+import { IForm, IFormData } from "../types";
+import FieldChoices from "./FieldChoices";
+import FieldForm from "./FieldForm";
+import FieldsPreview from "./FieldsPreview";
 
 type Props = {
   fields: IField[];
@@ -25,7 +25,7 @@ type Props = {
 
 type State = {
   fields: IField[];
-  currentMode: 'create' | 'update' | undefined;
+  currentMode: "create" | "update" | undefined;
   currentField?: IField;
   title: string;
   desc: string;
@@ -40,9 +40,9 @@ class Form extends React.Component<Props, State> {
 
     this.state = {
       fields: props.fields || [],
-      title: form.title || '',
-      desc: form.description || '',
-      btnText: form.buttonText || 'Send',
+      title: form.title || "",
+      desc: form.description || "",
+      btnText: form.buttonText || "Send",
       currentMode: undefined,
       currentField: undefined
     };
@@ -85,7 +85,7 @@ class Form extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>{__('Form title')}</ControlLabel>
+          <ControlLabel required={true}>{__("Form title")}</ControlLabel>
           <FormControl
             required={true}
             name="title"
@@ -95,7 +95,7 @@ class Form extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{__('Form description')}</ControlLabel>
+          <ControlLabel>{__("Form description")}</ControlLabel>
           <FormControl
             componentClass="textarea"
             name="desc"
@@ -105,7 +105,7 @@ class Form extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{__('Form button text')}</ControlLabel>
+          <ControlLabel>{__("Form button text")}</ControlLabel>
           <FormControl
             name="btnText"
             value={btnText}
@@ -118,17 +118,17 @@ class Form extends React.Component<Props, State> {
 
   onChoiceClick = (choice: string) => {
     this.setState({
-      currentMode: 'create',
+      currentMode: "create",
       currentField: {
         _id: Math.random().toString(),
-        contentType: 'form',
+        contentType: "form",
         type: choice
       }
     });
   };
 
   onFieldClick = (field: IField) => {
-    this.setState({ currentMode: 'update', currentField: field });
+    this.setState({ currentMode: "update", currentField: field });
   };
 
   onFieldSubmit = (field: IField) => {
@@ -137,7 +137,7 @@ class Form extends React.Component<Props, State> {
 
     let selector = { fields, currentField: undefined };
 
-    if (currentMode === 'create') {
+    if (currentMode === "create") {
       selector = {
         fields: [...fields, field],
         currentField: undefined
@@ -179,7 +179,7 @@ class Form extends React.Component<Props, State> {
     if (currentField) {
       return (
         <FieldForm
-          mode={currentMode || 'create'}
+          mode={currentMode || "create"}
           field={currentField}
           onSubmit={this.onFieldSubmit}
           onDelete={this.onFieldDelete}
@@ -204,7 +204,7 @@ class Form extends React.Component<Props, State> {
         <LeftItem>
           {this.renderOptionalFields()}
 
-          <Title>{__('New field')}</Title>
+          <Title>{__("New field")}</Title>
 
           <FieldChoices onChoiceClick={this.onChoiceClick} />
         </LeftItem>

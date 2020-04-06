@@ -1,21 +1,21 @@
-import asyncComponent from 'modules/common/components/AsyncComponent';
-import queryString from 'query-string';
-import React from 'react';
-import { Route } from 'react-router-dom';
+import asyncComponent from "modules/common/components/AsyncComponent";
+import queryString from "query-string";
+import React from "react";
+import { Route } from "react-router-dom";
 
 const CreateLead = asyncComponent(() =>
-  import(/* webpackChunkName: "CreateLead" */ './containers/CreateLead')
+  import(/* webpackChunkName: "CreateLead" */ "./containers/CreateLead")
 );
 
 const EditLead = asyncComponent(() =>
-  import(/* webpackChunkName: "EditLead" */ './containers/EditLead')
+  import(/* webpackChunkName: "EditLead" */ "./containers/EditLead")
 );
 
 const List = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Form" */ './containers/List')
+  import(/* webpackChunkName: "List - Form" */ "./containers/List")
 );
 
-const forms = (history) => {
+const forms = history => {
   const { location } = history;
 
   const queryParams = queryString.parse(location.search);

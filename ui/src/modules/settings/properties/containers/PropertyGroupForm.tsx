@@ -1,9 +1,9 @@
-import gql from 'graphql-tag';
-import ButtonMutate from 'modules/common/components/ButtonMutate';
-import { IButtonMutateProps } from 'modules/common/types';
-import React from 'react';
-import PropertyGroupForm from '../components/PropertyGroupForm';
-import { mutations, queries } from '../graphql';
+import gql from "graphql-tag";
+import ButtonMutate from "modules/common/components/ButtonMutate";
+import { IButtonMutateProps } from "modules/common/types";
+import React from "react";
+import PropertyGroupForm from "../components/PropertyGroupForm";
+import { mutations, queries } from "../graphql";
 
 type Props = {
   queryParams: any;
@@ -32,7 +32,7 @@ const PropertyGroupFormContainer = (props: Props) => {
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully ${
-          object ? 'updated' : 'added'
+          object ? "updated" : "added"
         } a ${name}`}
       />
     );

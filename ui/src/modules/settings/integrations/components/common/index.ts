@@ -1,4 +1,4 @@
-import IntegrationList from './IntegrationList';
-import ManageIntegrations from './ManageIntegrations';
+import IntegrationList from "./IntegrationList";
+import ManageIntegrations from "./ManageIntegrations";
 
 export { IntegrationList, ManageIntegrations };

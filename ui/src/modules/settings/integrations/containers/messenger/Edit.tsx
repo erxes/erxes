@@ -1,11 +1,11 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import Spinner from 'modules/common/components/Spinner';
-import { IRouterProps } from 'modules/common/types';
-import { Alert, withProps } from 'modules/common/utils';
-import { queries as kbQueries } from 'modules/knowledgeBase/graphql';
-import Form from 'modules/settings/integrations/components/messenger/Form';
-import { mutations, queries } from 'modules/settings/integrations/graphql';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import Spinner from "modules/common/components/Spinner";
+import { IRouterProps } from "modules/common/types";
+import { Alert, withProps } from "modules/common/utils";
+import { queries as kbQueries } from "modules/knowledgeBase/graphql";
+import Form from "modules/settings/integrations/components/messenger/Form";
+import { mutations, queries } from "modules/settings/integrations/graphql";
 import {
   EditMessengerMutationResponse,
   EditMessengerMutationVariables,
@@ -14,13 +14,13 @@ import {
   IUiOptions,
   SaveMessengerAppearanceMutationResponse,
   SaveMessengerConfigsMutationResponse
-} from 'modules/settings/integrations/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import { TopicsQueryResponse } from '../../../../knowledgeBase/types';
-import { BrandsQueryResponse } from '../../../brands/types';
-import { UsersQueryResponse } from '../../../team/types';
+} from "modules/settings/integrations/types";
+import React from "react";
+import { graphql } from "react-apollo";
+import { withRouter } from "react-router-dom";
+import { TopicsQueryResponse } from "../../../../knowledgeBase/types";
+import { BrandsQueryResponse } from "../../../brands/types";
+import { UsersQueryResponse } from "../../../team/types";
 
 type Props = {
   integrationId: string;
@@ -85,9 +85,9 @@ const EditMessenger = (props: FinalProps) => {
       })
 
       .then(() => {
-        Alert.success('You successfully updated a messenger');
+        Alert.success("You successfully updated a messenger");
 
-        history.push('/settings/integrations?refetch=true');
+        history.push("/settings/integrations?refetch=true");
       })
       .catch(error => {
         Alert.error(error.message);
@@ -111,8 +111,8 @@ const commonOptions = ({ integrationId }) => {
     refetchQueries: [
       {
         query: gql(queries.integrationDetail),
-        variables: { _id: integrationId || '' },
-        fetchPolicy: 'network-only'
+        variables: { _id: integrationId || "" },
+        fetchPolicy: "network-only"
       }
     ]
   };
@@ -121,26 +121,26 @@ const commonOptions = ({ integrationId }) => {
 export default withProps<Props>(
   compose(
     graphql<Props, UsersQueryResponse>(gql(queries.users), {
-      name: 'usersQuery'
+      name: "usersQuery"
     }),
     graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
-      name: 'brandsQuery',
+      name: "brandsQuery",
       options: () => ({
-        fetchPolicy: 'network-only'
+        fetchPolicy: "network-only"
       })
     }),
     graphql<Props, TopicsQueryResponse>(gql(kbQueries.knowledgeBaseTopics), {
-      name: 'knowledgeBaseTopicsQuery'
+      name: "knowledgeBaseTopicsQuery"
     }),
     graphql<Props, IntegrationDetailQueryResponse, { _id: string }>(
       gql(queries.integrationDetail),
       {
-        name: 'integrationDetailQuery',
+        name: "integrationDetailQuery",
         options: ({ integrationId }: { integrationId: string }) => ({
           variables: {
-            _id: integrationId || ''
+            _id: integrationId || ""
           },
-          fetchPolicy: 'network-only'
+          fetchPolicy: "network-only"
         })
       }
     ),
@@ -149,7 +149,7 @@ export default withProps<Props>(
       EditMessengerMutationResponse,
       EditMessengerMutationVariables
     >(gql(mutations.integrationsEditMessenger), {
-      name: 'editMessengerMutation',
+      name: "editMessengerMutation",
       options: commonOptions
     }),
     graphql<
@@ -157,7 +157,7 @@ export default withProps<Props>(
       SaveMessengerConfigsMutationResponse,
       { _id: string; messengerData: IMessengerData }
     >(gql(mutations.integrationsSaveMessengerConfigs), {
-      name: 'saveConfigsMutation',
+      name: "saveConfigsMutation",
       options: commonOptions
     }),
     graphql<
@@ -165,7 +165,7 @@ export default withProps<Props>(
       SaveMessengerAppearanceMutationResponse,
       { _id: string; uiOptions: IUiOptions }
     >(gql(mutations.integrationsSaveMessengerAppearance), {
-      name: 'saveAppearanceMutation',
+      name: "saveAppearanceMutation",
       options: commonOptions
     })
   )(withRouter<FinalProps>(EditMessenger))

@@ -1,21 +1,21 @@
-import Button from 'modules/common/components/Button';
-import DataWithLoader from 'modules/common/components/DataWithLoader';
-import Icon from 'modules/common/components/Icon';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import Tip from 'modules/common/components/Tip';
-import { TopHeader } from 'modules/common/styles/main';
-import { IButtonMutateProps } from 'modules/common/types';
-import { __, router } from 'modules/common/utils';
-import Sidebar from 'modules/layout/components/Sidebar';
-import Wrapper from 'modules/layout/components/Wrapper';
-import { SidebarList } from 'modules/layout/styles';
-import { ActionButtons, SidebarListItem } from 'modules/settings/styles';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import TagFilter from '../../containers/TagFilter';
-import { IProductCategory } from '../../types';
-import ProductTypeFilter from '../product/filters/ProdcutTypeFilter';
-import Form from './CategoryForm';
+import Button from "modules/common/components/Button";
+import DataWithLoader from "modules/common/components/DataWithLoader";
+import Icon from "modules/common/components/Icon";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import Tip from "modules/common/components/Tip";
+import { TopHeader } from "modules/common/styles/main";
+import { IButtonMutateProps } from "modules/common/types";
+import { __, router } from "modules/common/utils";
+import Sidebar from "modules/layout/components/Sidebar";
+import Wrapper from "modules/layout/components/Wrapper";
+import { SidebarList } from "modules/layout/styles";
+import { ActionButtons, SidebarListItem } from "modules/settings/styles";
+import React from "react";
+import { Link } from "react-router-dom";
+import TagFilter from "../../containers/TagFilter";
+import { IProductCategory } from "../../types";
+import ProductTypeFilter from "../product/filters/ProdcutTypeFilter";
+import Form from "./CategoryForm";
 
 const { Section } = Wrapper.Sidebar;
 
@@ -59,7 +59,7 @@ class List extends React.Component<IProps> {
 
   isActive = (id: string) => {
     const { queryParams } = this.props;
-    const currentGroup = queryParams.categoryId || '';
+    const currentGroup = queryParams.categoryId || "";
 
     return currentGroup === id;
   };
@@ -67,7 +67,7 @@ class List extends React.Component<IProps> {
   renderEditAction(category: IProductCategory) {
     const trigger = (
       <Button btnStyle="link">
-        <Tip text={__('Edit')} placement="bottom">
+        <Tip text={__("Edit")} placement="bottom">
           <Icon icon="edit" />
         </Tip>
       </Button>
@@ -81,7 +81,7 @@ class List extends React.Component<IProps> {
 
     return (
       <Button btnStyle="link" onClick={remove.bind(null, category._id)}>
-        <Tip text={__('Remove')} placement="bottom">
+        <Tip text={__("Remove")} placement="bottom">
           <Icon icon="cancel-1" />
         </Tip>
       </Button>
@@ -98,10 +98,10 @@ class List extends React.Component<IProps> {
 
       const m = order.match(/[/]/gi);
 
-      let space = '';
+      let space = "";
 
       if (m) {
-        space = '\u00a0\u00a0'.repeat(m.length);
+        space = "\u00a0\u00a0".repeat(m.length);
       }
 
       const name = category.isRoot ? (
@@ -148,11 +148,11 @@ class List extends React.Component<IProps> {
       <>
         <TopHeader>{this.renderFormTrigger(trigger)}</TopHeader>
         <Section.Title>
-          {__('Categories')}
+          {__("Categories")}
           <Section.QuickButtons>
-            {router.getParam(this.props.history, 'categoryId') && (
+            {router.getParam(this.props.history, "categoryId") && (
               <a href="#cancel" tabIndex={0} onClick={this.clearCategoryFilter}>
-                <Tip text={__('Clear filter')} placement="bottom">
+                <Tip text={__("Clear filter")} placement="bottom">
                   <Icon icon="cancel-1" />
                 </Tip>
               </a>

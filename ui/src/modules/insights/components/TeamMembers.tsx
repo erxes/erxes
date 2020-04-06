@@ -1,20 +1,20 @@
-import EmptyState from 'modules/common/components/EmptyState';
-import Spinner from 'modules/common/components/Spinner';
-import { readFile } from 'modules/common/utils';
-import React from 'react';
-import Col from 'react-bootstrap/Col';
-import Row from 'react-bootstrap/Row';
+import EmptyState from "modules/common/components/EmptyState";
+import Spinner from "modules/common/components/Spinner";
+import { readFile } from "modules/common/utils";
+import React from "react";
+import Col from "react-bootstrap/Col";
+import Row from "react-bootstrap/Row";
 import {
   ChartWrapper,
   FullName,
   InsightUserData,
   LoaderWrapper,
   UserProfile
-} from '../styles';
-import { IChartParams } from '../types';
-import { convertTime } from '../utils';
-import Chart from './Chart';
-import Summary from './Summary';
+} from "../styles";
+import { IChartParams } from "../types";
+import { convertTime } from "../utils";
+import Chart from "./Chart";
+import Summary from "./Summary";
 
 type Props = {
   datas: IChartParams[];
@@ -38,7 +38,7 @@ class TeamMembers extends React.Component<Props> {
               src={
                 data.avatar
                   ? readFile(data.avatar)
-                  : '/images/avatar-colored.svg'
+                  : "/images/avatar-colored.svg"
               }
               alt={data.fullName}
             />

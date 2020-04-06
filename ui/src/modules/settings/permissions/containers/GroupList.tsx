@@ -1,8 +1,8 @@
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
-import { commonListComposer } from '../../utils';
-import GroupList from '../components/GroupList';
-import { mutations, queries } from '../graphql';
+import gql from "graphql-tag";
+import { graphql } from "react-apollo";
+import { commonListComposer } from "../../utils";
+import GroupList from "../components/GroupList";
+import { mutations, queries } from "../graphql";
 import {
   UsersGroupsAddMutation,
   UsersGroupsCopyMutation,
@@ -10,7 +10,7 @@ import {
   UsersGroupsQueryResponse,
   UsersGroupsRemoveMutation,
   UsersGroupsTotalCountQueryResponse
-} from '../types';
+} from "../types";
 
 type Props = {
   queryParams: any;
@@ -21,8 +21,8 @@ const commonOptions = () => ({
 });
 
 export default commonListComposer<Props>({
-  label: 'usersGroups',
-  text: 'user group',
+  label: "usersGroups",
+  text: "user group",
   stringEditMutation: mutations.usersGroupsEdit,
   stringAddMutation: mutations.usersGroupsAdd,
   stringCopyMutation: mutations.usersGroupsCopy,
@@ -30,7 +30,7 @@ export default commonListComposer<Props>({
   gqlListQuery: graphql<Props, UsersGroupsQueryResponse>(
     gql(queries.usersGroups),
     {
-      name: 'listQuery',
+      name: "listQuery",
       options: ({ queryParams }) => {
         return {
           notifyOnNetworkStatusChange: true,
@@ -45,14 +45,14 @@ export default commonListComposer<Props>({
   gqlTotalCountQuery: graphql<{}, UsersGroupsTotalCountQueryResponse>(
     gql(queries.userTotalCount),
     {
-      name: 'totalCountQuery'
+      name: "totalCountQuery"
     }
   ),
 
   gqlAddMutation: graphql<{}, UsersGroupsAddMutation>(
     gql(mutations.usersGroupsAdd),
     {
-      name: 'addMutation',
+      name: "addMutation",
       options: commonOptions()
     }
   ),
@@ -60,7 +60,7 @@ export default commonListComposer<Props>({
   gqlEditMutation: graphql<{}, UsersGroupsEditMutation>(
     gql(mutations.usersGroupsEdit),
     {
-      name: 'editMutation',
+      name: "editMutation",
       options: commonOptions()
     }
   ),
@@ -68,7 +68,7 @@ export default commonListComposer<Props>({
   gqlRemoveMutation: graphql<{}, UsersGroupsRemoveMutation>(
     gql(mutations.usersGroupsRemove),
     {
-      name: 'removeMutation',
+      name: "removeMutation",
       options: commonOptions()
     }
   ),
@@ -76,7 +76,7 @@ export default commonListComposer<Props>({
   gqlCopyMutation: graphql<{}, UsersGroupsCopyMutation>(
     gql(mutations.usersGroupsCopy),
     {
-      name: 'copyMutation',
+      name: "copyMutation",
       options: commonOptions()
     }
   ),

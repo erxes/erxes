@@ -1,15 +1,15 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { BoardsGetLastQueryResponse } from 'modules/boards/types';
-import Spinner from 'modules/common/components/Spinner';
-import { IRouterProps } from 'modules/common/types';
-import { router as routerUtils, withProps } from 'modules/common/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import Home from '../components/Home';
-import { queries } from '../graphql';
-import { IOption } from '../types';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { BoardsGetLastQueryResponse } from "modules/boards/types";
+import Spinner from "modules/common/components/Spinner";
+import { IRouterProps } from "modules/common/types";
+import { router as routerUtils, withProps } from "modules/common/utils";
+import React from "react";
+import { graphql } from "react-apollo";
+import { withRouter } from "react-router-dom";
+import Home from "../components/Home";
+import { queries } from "../graphql";
+import { IOption } from "../types";
 
 type HomeContainerProps = {
   history?: any;
@@ -26,7 +26,7 @@ class HomeContainer extends React.Component<HomeContainerProps & Props> {
   componentWillReceiveProps(nextProps) {
     const { history, boardId } = nextProps;
 
-    if (!routerUtils.getParam(history, 'boardId') && boardId) {
+    if (!routerUtils.getParam(history, "boardId") && boardId) {
       routerUtils.setParams(history, { boardId });
     }
   }
@@ -65,7 +65,7 @@ const LastBoardContainer = withProps<MainProps>(
     graphql<MainProps, BoardsGetLastQueryResponse, {}>(
       gql(queries.boardGetLast),
       {
-        name: 'boardGetLastQuery',
+        name: "boardGetLastQuery",
         options: ({ type }) => ({
           variables: { type }
         })
@@ -77,7 +77,7 @@ const LastBoardContainer = withProps<MainProps>(
 // Main home component
 const MainContainer = (props: MainProps) => {
   const { history } = props;
-  const boardId = routerUtils.getParam(history, 'boardId');
+  const boardId = routerUtils.getParam(history, "boardId");
 
   if (boardId) {
     const extendedProps = { ...props, boardId };

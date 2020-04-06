@@ -1,12 +1,12 @@
-import { IUser } from 'modules/auth/types';
-import Button from 'modules/common/components/Button';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import { ICustomer } from 'modules/customers/types';
-import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
-import React from 'react';
-import { IBrand } from '../../settings/brands/types';
-import { IEngageMessageDoc } from '../types';
-import WidgetForm from './WidgetForm';
+import { IUser } from "modules/auth/types";
+import Button from "modules/common/components/Button";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import { ICustomer } from "modules/customers/types";
+import { IEmailTemplate } from "modules/settings/emailTemplates/types";
+import React from "react";
+import { IBrand } from "../../settings/brands/types";
+import { IEngageMessageDoc } from "../types";
+import WidgetForm from "./WidgetForm";
 
 type Props = {
   emailTemplates: IEmailTemplate[];

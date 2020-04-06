@@ -1,10 +1,10 @@
-import debounce from 'lodash/debounce';
-import EmptyState from 'modules/common/components/EmptyState';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import { __ } from 'modules/common/utils';
-import { ICustomer } from 'modules/customers/types';
-import React from 'react';
-import Select from 'react-select-plus';
+import debounce from "lodash/debounce";
+import EmptyState from "modules/common/components/EmptyState";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import { __ } from "modules/common/utils";
+import { ICustomer } from "modules/customers/types";
+import React from "react";
+import Select from "react-select-plus";
 
 type Props = {
   object: any;
@@ -69,7 +69,7 @@ class TargetMergeModal extends React.Component<Props, State> {
       <Select
         placeholder="Search"
         onInputChange={this.handleSearch}
-        onFocus={this.handleSearch.bind(this, '')}
+        onFocus={this.handleSearch.bind(this, "")}
         onChange={this.onSelect}
         options={generateOptions(objects)}
       />
@@ -89,8 +89,8 @@ class TargetMergeModal extends React.Component<Props, State> {
 
     return (
       <ModalTrigger
-        title={__('Merge')}
-        trigger={<a href="#merge">{__('Merge')}</a>}
+        title={__("Merge")}
+        trigger={<a href="#merge">{__("Merge")}</a>}
         size="lg"
         content={modalContent}
       />

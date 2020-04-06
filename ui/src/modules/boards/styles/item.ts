@@ -1,11 +1,11 @@
-import Button from 'modules/common/components/Button';
-import { colors, dimensions } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { borderRadius } from './common';
+import Button from "modules/common/components/Button";
+import { colors, dimensions } from "modules/common/styles";
+import { rgba } from "modules/common/styles/color";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
+import { borderRadius } from "./common";
 
-const buttonColor = '#0a1e3c';
+const buttonColor = "#0a1e3c";
 
 export const FlexContent = styled.div`
   display: flex;

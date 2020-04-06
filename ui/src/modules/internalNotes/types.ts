@@ -1,4 +1,4 @@
-import { IUser } from 'modules/auth/types';
+import { IUser } from "modules/auth/types";
 
 export type IInternalNote = {
   _id: string;

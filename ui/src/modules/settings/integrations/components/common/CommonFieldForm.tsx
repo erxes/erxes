@@ -1,14 +1,14 @@
-import { getEnv } from 'apolloClient';
-import Button from 'modules/common/components/Button';
-import FormControl from 'modules/common/components/form/Control';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import Info from 'modules/common/components/Info';
-import { ModalFooter } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
-import React from 'react';
-import SelectBrand from '../../containers/SelectBrand';
-import { RefreshPermission } from '../../styles';
+import { getEnv } from "apolloClient";
+import Button from "modules/common/components/Button";
+import FormControl from "modules/common/components/form/Control";
+import FormGroup from "modules/common/components/form/Group";
+import ControlLabel from "modules/common/components/form/Label";
+import Info from "modules/common/components/Info";
+import { ModalFooter } from "modules/common/styles/main";
+import { __ } from "modules/common/utils";
+import React from "react";
+import SelectBrand from "../../containers/SelectBrand";
+import { RefreshPermission } from "../../styles";
 
 const { REACT_APP_API_URL } = getEnv();
 
@@ -34,15 +34,15 @@ class CommonFieldForm extends React.PureComponent<Props, State> {
     super(props);
 
     this.state = {
-      name: props.name || '',
-      brandId: props.brandId || ''
+      name: props.name || "",
+      brandId: props.brandId || ""
     };
   }
 
   renderFacebookContent = () => {
     const onRefresh = () => {
-      const link = 'fblogin';
-      const kind = 'facebook';
+      const link = "fblogin";
+      const kind = "facebook";
 
       const url = `${REACT_APP_API_URL}/connect-integration?link=${link}&kind=${kind}`;
 
@@ -53,7 +53,7 @@ class CommonFieldForm extends React.PureComponent<Props, State> {
       <>
         <Info>
           {__(
-            'Page permissions can be dropped by Messenger platform if the admin of the page changes their account password or due to some other unexpected reason. In case of any trouble with message sending, or in using some other service, please refresh your permissions using the below button.'
+            "Page permissions can be dropped by Messenger platform if the admin of the page changes their account password or due to some other unexpected reason. In case of any trouble with message sending, or in using some other service, please refresh your permissions using the below button."
           )}
           <RefreshPermission onClick={onRefresh}>
             Refresh permissions
@@ -66,7 +66,7 @@ class CommonFieldForm extends React.PureComponent<Props, State> {
   renderSpecificContent = () => {
     const { integrationKind } = this.props;
 
-    if (integrationKind && integrationKind.includes('facebook')) {
+    if (integrationKind && integrationKind.includes("facebook")) {
       return this.renderFacebookContent();
     }
 
@@ -95,7 +95,7 @@ class CommonFieldForm extends React.PureComponent<Props, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>{__('Name')}</ControlLabel>
+          <ControlLabel required={true}>{__("Name")}</ControlLabel>
           <FormControl
             required={true}
             defaultValue={name}
@@ -117,7 +117,7 @@ class CommonFieldForm extends React.PureComponent<Props, State> {
             btnStyle="success"
             icon="checked-1"
           >
-            {__('Save')}
+            {__("Save")}
           </Button>
         </ModalFooter>
       </>

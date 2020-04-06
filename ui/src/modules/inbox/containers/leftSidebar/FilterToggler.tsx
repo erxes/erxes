@@ -1,13 +1,13 @@
-import DumbToggler from 'modules/inbox/components/leftSidebar/FilterToggler';
-import React from 'react';
-import { getConfig, setConfig } from '../../utils';
+import DumbToggler from "modules/inbox/components/leftSidebar/FilterToggler";
+import React from "react";
+import { getConfig, setConfig } from "../../utils";
 
 type Props = {
   groupText: string;
   toggleName: string;
 };
 
-const STORAGE_KEY = 'erxes_additional_sidebar_config';
+const STORAGE_KEY = "erxes_additional_sidebar_config";
 
 export default class FilterToggler extends React.PureComponent<Props, {}> {
   toggle = ({ isOpen }: { isOpen: boolean }) => {

@@ -1,9 +1,9 @@
-import asyncComponent from 'modules/common/components/AsyncComponent';
-import React from 'react';
-import { Route } from 'react-router-dom';
+import asyncComponent from "modules/common/components/AsyncComponent";
+import React from "react";
+import { Route } from "react-router-dom";
 
 const Home = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings - Board Home" */ './containers/Home')
+  import(/* webpackChunkName: "Settings - Board Home" */ "./containers/Home")
 );
 
 const DealHome = () => {

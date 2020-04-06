@@ -1,17 +1,17 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { Alert, renderFullName, withProps } from 'modules/common/utils';
-import ConformityChooser from 'modules/conformity/containers/ConformityChooser';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import CustomerForm from '../containers/CustomerForm';
-import { mutations, queries } from '../graphql';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { Alert, renderFullName, withProps } from "modules/common/utils";
+import ConformityChooser from "modules/conformity/containers/ConformityChooser";
+import React from "react";
+import { graphql } from "react-apollo";
+import CustomerForm from "../containers/CustomerForm";
+import { mutations, queries } from "../graphql";
 import {
   AddMutationResponse,
   CustomersQueryResponse,
   ICustomer,
   ICustomerDoc
-} from '../types';
+} from "../types";
 
 type Props = {
   search: (value: string, loadMore?: boolean) => void;
@@ -50,7 +50,7 @@ class CustomerChooser extends React.Component<
         .then(() => {
           customersQuery.refetch();
 
-          Alert.success('You successfully added a customer');
+          Alert.success("You successfully added a customer");
 
           callback();
         })
@@ -71,11 +71,11 @@ class CustomerChooser extends React.Component<
         datas: data.customers,
         mainTypeId: data.mainTypeId,
         mainType: data.mainType,
-        relType: 'customer'
+        relType: "customer"
       },
       search,
-      clearState: () => search(''),
-      title: 'Customer',
+      clearState: () => search(""),
+      title: "Customer",
       renderName: renderFullName,
       renderForm: formProps => (
         <CustomerForm
@@ -101,7 +101,7 @@ const WithQuery = withProps<Props>(
       CustomersQueryResponse,
       { searchValue: string; perPage: number }
     >(gql(queries.customers), {
-      name: 'customersQuery',
+      name: "customersQuery",
       options: ({ searchValue, perPage, data }) => {
         return {
           variables: {
@@ -110,10 +110,10 @@ const WithQuery = withProps<Props>(
             mainType: data.mainType,
             mainTypeId: data.mainTypeId,
             isRelated: data.isRelated,
-            sortField: 'createdAt',
+            sortField: "createdAt",
             sortDirection: -1
           },
-          fetchPolicy: data.isRelated ? 'network-only' : 'cache-first'
+          fetchPolicy: data.isRelated ? "network-only" : "cache-first"
         };
       }
     }),
@@ -121,10 +121,10 @@ const WithQuery = withProps<Props>(
     graphql<Props, AddMutationResponse, ICustomerDoc>(
       gql(mutations.customersAdd),
       {
-        name: 'customersAdd',
+        name: "customersAdd",
         options: () => {
           return {
-            refetchQueries: ['customersMain', 'customers', 'customerCounts']
+            refetchQueries: ["customersMain", "customers", "customerCounts"]
           };
         }
       }
@@ -155,7 +155,7 @@ export default class Wrapper extends React.Component<
   constructor(props) {
     super(props);
 
-    this.state = { perPage: 20, searchValue: '' };
+    this.state = { perPage: 20, searchValue: "" };
   }
 
   search = (value, loadmore) => {

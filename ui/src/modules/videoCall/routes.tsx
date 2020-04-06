@@ -1,10 +1,10 @@
-import asyncComponent from 'modules/common/components/AsyncComponent';
-import queryString from 'query-string';
-import React from 'react';
-import { Route } from 'react-router-dom';
+import asyncComponent from "modules/common/components/AsyncComponent";
+import queryString from "query-string";
+import React from "react";
+import { Route } from "react-router-dom";
 
 const VideoCall = asyncComponent(() =>
-  import(/* webpackChunkName: "VideoCall" */ './components/VideoCall')
+  import(/* webpackChunkName: "VideoCall" */ "./components/VideoCall")
 );
 
 const videoCall = ({ location }) => {

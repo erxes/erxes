@@ -1,6 +1,6 @@
-import { __ } from 'modules/common/utils';
-import React from 'react';
-import { Label } from './styles';
+import { __ } from "modules/common/utils";
+import React from "react";
+import { Label } from "./styles";
 
 type Props = {
   children: React.ReactNode | string;
@@ -14,7 +14,7 @@ function ControlLabel(props: Props) {
 
   let content = children;
 
-  if (!ignoreTrans && typeof children === 'string') {
+  if (!ignoreTrans && typeof children === "string") {
     content = __(children);
   }
 

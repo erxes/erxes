@@ -1,12 +1,12 @@
-import Attachment from 'modules/common/components/Attachment';
-import Icon from 'modules/common/components/Icon';
-import { __ } from 'modules/common/utils';
-import Wrapper from 'modules/layout/components/Wrapper';
+import Attachment from "modules/common/components/Attachment";
+import Icon from "modules/common/components/Icon";
+import { __ } from "modules/common/utils";
+import Wrapper from "modules/layout/components/Wrapper";
 import {
   FlexRow,
   Subject
-} from 'modules/settings/integrations/components/mail/styles';
-import React from 'react';
+} from "modules/settings/integrations/components/mail/styles";
+import React from "react";
 import {
   Box,
   BoxContent,
@@ -18,8 +18,8 @@ import {
   RightSection,
   Shell,
   Title
-} from '../styles';
-import { IEngageMessage, IEngageStats } from '../types';
+} from "../styles";
+import { IEngageMessage, IEngageStats } from "../types";
 
 type Props = {
   message: IEngageMessage;
@@ -69,7 +69,7 @@ class EmailStatistics extends React.Component<Props> {
       <Half>
         <Subject>
           <FlexRow>
-            <label>{__('From')}:</label>
+            <label>{__("From")}:</label>
             <strong>
               {message.fromUser.details
                 ? message.fromUser.details.fullName
@@ -79,19 +79,19 @@ class EmailStatistics extends React.Component<Props> {
         </Subject>
         <Subject>
           <FlexRow>
-            <label>{__('Subject')}:</label>
+            <label>{__("Subject")}:</label>
             {message.email && message.email.subject}
           </FlexRow>
         </Subject>
         <Subject noBorder={true}>
           <FlexRow>
-            <label>{__('Content')}:</label>
+            <label>{__("Content")}:</label>
           </FlexRow>
           <PreviewContent
             isFullmessage={false}
             showOverflow={true}
             dangerouslySetInnerHTML={{
-              __html: message.email ? message.email.content : ''
+              __html: message.email ? message.email.content : ""
             }}
           />
         </Subject>
@@ -115,15 +115,15 @@ class EmailStatistics extends React.Component<Props> {
         {this.renderLeft()}
         <Half>
           <RightSection>
-            {this.renderBox('cube-2', 'Total', totalCount)}
-            {this.renderBox('telegram-alt', 'Sent', stats.send)}
-            {this.renderBox('comment-check', 'Delivered', stats.delivery)}
-            {this.renderBox('envelope-open', 'Opened', stats.open)}
-            {this.renderBox('mouse-alt', 'Clicked', stats.click)}
-            {this.renderBox('frown', 'Complaint', stats.complaint)}
-            {this.renderBox('arrows-up-right', 'Bounce', stats.bounce)}
-            {this.renderBox('ban', 'Rendering failure', stats.renderingfailure)}
-            {this.renderBox('times-circle', 'Rejected', stats.reject)}
+            {this.renderBox("cube-2", "Total", totalCount)}
+            {this.renderBox("telegram-alt", "Sent", stats.send)}
+            {this.renderBox("comment-check", "Delivered", stats.delivery)}
+            {this.renderBox("envelope-open", "Opened", stats.open)}
+            {this.renderBox("mouse-alt", "Clicked", stats.click)}
+            {this.renderBox("frown", "Complaint", stats.complaint)}
+            {this.renderBox("arrows-up-right", "Bounce", stats.bounce)}
+            {this.renderBox("ban", "Rendering failure", stats.renderingfailure)}
+            {this.renderBox("times-circle", "Rejected", stats.reject)}
 
             <Shell>
               <div className="shell-wrap">
@@ -144,10 +144,10 @@ class EmailStatistics extends React.Component<Props> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Show statistics')}
+            title={__("Show statistics")}
             breadcrumb={[
-              { title: __('Engage'), link: '/engage' },
-              { title: __('Show statistics') }
+              { title: __("Engage"), link: "/engage" },
+              { title: __("Show statistics") }
             ]}
           />
         }

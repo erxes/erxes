@@ -1,10 +1,10 @@
-import EmptyState from 'modules/common/components/EmptyState';
-import { __ } from 'modules/common/utils';
-import { IDeal } from 'modules/deals/types';
-import { ITicket } from 'modules/tickets/types';
-import React, { useState } from 'react';
-import { BoardItem, ItemContainer, LoadMore } from '../styles/rightMenu';
-import { IItem, IOptions } from '../types';
+import EmptyState from "modules/common/components/EmptyState";
+import { __ } from "modules/common/utils";
+import { IDeal } from "modules/deals/types";
+import { ITicket } from "modules/tickets/types";
+import React, { useState } from "react";
+import { BoardItem, ItemContainer, LoadMore } from "../styles/rightMenu";
+import { IItem, IOptions } from "../types";
 
 type ItemProps = {
   item: IDeal | IItem | ITicket;
@@ -33,14 +33,14 @@ function ArchivedItem(props: ItemProps) {
   const renderActions = () => {
     return (
       <>
-        <span onClick={sendToBoard}>{__('Send to Board')}</span>
-        {' - '}
-        <span onClick={remove}>{__('Delete')}</span>
+        <span onClick={sendToBoard}>{__("Send to Board")}</span>
+        {" - "}
+        <span onClick={remove}>{__("Delete")}</span>
       </>
     );
   };
 
-  if (type === 'item') {
+  if (type === "item") {
     const Component = options.Item;
 
     return (
@@ -121,7 +121,7 @@ class ArchivedItems extends React.Component<Props, State> {
           />
         ))}
         {hasMore ? (
-          <LoadMore onClick={loadMore}>{__('Load More')}</LoadMore>
+          <LoadMore onClick={loadMore}>{__("Load More")}</LoadMore>
         ) : null}
       </>
     );

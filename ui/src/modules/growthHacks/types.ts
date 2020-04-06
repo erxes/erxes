@@ -1,7 +1,7 @@
-import { IUser } from 'modules/auth/types';
-import { IItem, IItemParams } from 'modules/boards/types';
-import { IField } from 'modules/settings/properties/types';
-import { IActivityLogForMonth } from '../activityLogs/types';
+import { IUser } from "modules/auth/types";
+import { IItem, IItemParams } from "modules/boards/types";
+import { IField } from "modules/settings/properties/types";
+import { IActivityLogForMonth } from "../activityLogs/types";
 
 export type ActivityLogQueryResponse = {
   activityLogs: IActivityLogForMonth[];
@@ -71,17 +71,17 @@ export type VoteVariables = {
 export type VoteMutation = ({ variables: VoteVariables }) => Promise<any>;
 
 export type GrowthHackFieldName =
-  | 'hackStages'
-  | 'formId'
-  | 'formSubmissions'
-  | 'voteCount'
-  | 'isVoted'
-  | 'votedUsers'
-  | 'scoringType'
-  | 'reach'
-  | 'impact'
-  | 'confidence'
-  | 'formFields'
-  | 'ease'
-  | 'priority'
-  | 'stageId';
+  | "hackStages"
+  | "formId"
+  | "formSubmissions"
+  | "voteCount"
+  | "isVoted"
+  | "votedUsers"
+  | "scoringType"
+  | "reach"
+  | "impact"
+  | "confidence"
+  | "formFields"
+  | "ease"
+  | "priority"
+  | "stageId";

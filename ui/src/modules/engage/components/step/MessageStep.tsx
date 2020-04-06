@@ -1,19 +1,19 @@
-import { IUser } from 'modules/auth/types';
-import EmailForm from 'modules/engage/containers/EmailForm';
-import { IBrand } from 'modules/settings/brands/types';
-import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
-import React from 'react';
+import { IUser } from "modules/auth/types";
+import EmailForm from "modules/engage/containers/EmailForm";
+import { IBrand } from "modules/settings/brands/types";
+import { IEmailTemplate } from "modules/settings/emailTemplates/types";
+import React from "react";
 import {
   IEngageEmail,
   IEngageMessenger,
   IEngageScheduleDate
-} from '../../types';
-import MessengerForm from '../MessengerForm';
+} from "../../types";
+import MessengerForm from "../MessengerForm";
 
 type Props = {
   brands: IBrand[];
   onChange: (
-    name: 'messenger' | 'email' | 'content' | 'scheduleDate' | 'fromUserId',
+    name: "messenger" | "email" | "content" | "scheduleDate" | "fromUserId",
     value: IEngageEmail | IEngageMessenger | IEngageScheduleDate | string
   ) => void;
   users: IUser[];
@@ -43,7 +43,7 @@ class MessageStep extends React.Component<Props> {
       scheduleDate
     } = this.props;
 
-    if (method === 'email') {
+    if (method === "email") {
       return (
         <EmailForm
           onChange={onChange}

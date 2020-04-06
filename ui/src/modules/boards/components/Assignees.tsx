@@ -1,7 +1,7 @@
-import { IUser } from 'modules/auth/types';
-import { getUserAvatar } from 'modules/common/utils';
-import React from 'react';
-import styled from 'styled-components';
+import { IUser } from "modules/auth/types";
+import { getUserAvatar } from "modules/common/utils";
+import React from "react";
+import styled from "styled-components";
 
 const Wrapper = styled.div`
   > img {
@@ -18,7 +18,7 @@ type Props = {
 
 function Assignees(props: Props) {
   const getFullName = (user: IUser) => {
-    return user.details ? user.details.fullName : 'Unknown';
+    return user.details ? user.details.fullName : "Unknown";
   };
 
   const { users = [], limit = 3 } = props;

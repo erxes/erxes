@@ -1,32 +1,32 @@
-import { IUser, IUserLinks } from 'modules/auth/types';
-import AvatarUpload from 'modules/common/components/AvatarUpload';
-import Button from 'modules/common/components/Button';
-import CollapseContent from 'modules/common/components/CollapseContent';
-import FormControl from 'modules/common/components/form/Control';
-import DateControl from 'modules/common/components/form/DateControl';
-import Form from 'modules/common/components/form/Form';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import ModifiableSelect from 'modules/common/components/ModifiableSelect';
+import { IUser, IUserLinks } from "modules/auth/types";
+import AvatarUpload from "modules/common/components/AvatarUpload";
+import Button from "modules/common/components/Button";
+import CollapseContent from "modules/common/components/CollapseContent";
+import FormControl from "modules/common/components/form/Control";
+import DateControl from "modules/common/components/form/DateControl";
+import Form from "modules/common/components/form/Form";
+import FormGroup from "modules/common/components/form/Group";
+import ControlLabel from "modules/common/components/form/Label";
+import ModifiableSelect from "modules/common/components/ModifiableSelect";
 import {
   DateContainer,
   FormColumn,
   FormWrapper,
   ModalFooter,
   ScrollWrapper
-} from 'modules/common/styles/main';
+} from "modules/common/styles/main";
 import {
   IButtonMutateProps,
   IFormProps,
   IQueryParams
-} from 'modules/common/types';
-import { Alert } from 'modules/common/utils';
-import { __ } from 'modules/common/utils';
-import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
-import React from 'react';
-import validator from 'validator';
-import { ICustomer, ICustomerDoc } from '../../types';
-import { genderChoices, isValidPhone } from '../../utils';
+} from "modules/common/types";
+import { Alert } from "modules/common/utils";
+import { __ } from "modules/common/utils";
+import SelectTeamMembers from "modules/settings/team/containers/SelectTeamMembers";
+import React from "react";
+import validator from "validator";
+import { ICustomer, ICustomerDoc } from "../../types";
+import { genderChoices, isValidPhone } from "../../utils";
 
 type Props = {
   customer?: ICustomer;
@@ -56,9 +56,9 @@ class CustomerForm extends React.Component<Props, State> {
     const customer = props.customer || ({} as ICustomer);
 
     this.state = {
-      ownerId: customer.ownerId || '',
-      doNotDisturb: customer.doNotDisturb || 'No',
-      hasAuthority: customer.hasAuthority || 'No',
+      ownerId: customer.ownerId || "",
+      doNotDisturb: customer.doNotDisturb || "No",
+      hasAuthority: customer.hasAuthority || "No",
       users: [],
       birthDate: customer.birthDate,
       avatar: customer.avatar
@@ -111,8 +111,8 @@ class CustomerForm extends React.Component<Props, State> {
       return emails;
     }
 
-    if (this.getVisitorInfo(customer, 'email')) {
-      return [this.getVisitorInfo(customer, 'email')];
+    if (this.getVisitorInfo(customer, "email")) {
+      return [this.getVisitorInfo(customer, "email")];
     }
 
     return [];
@@ -125,8 +125,8 @@ class CustomerForm extends React.Component<Props, State> {
       return phones;
     }
 
-    if (this.getVisitorInfo(customer, 'phone')) {
-      return [this.getVisitorInfo(customer, 'phone')];
+    if (this.getVisitorInfo(customer, "phone")) {
+      return [this.getVisitorInfo(customer, "phone")];
     }
 
     return [];
@@ -175,7 +175,7 @@ class CustomerForm extends React.Component<Props, State> {
 
     const { emails = [] } = customer;
 
-    return this.getVisitorInfo(customer, 'email') || emails.length > 0;
+    return this.getVisitorInfo(customer, "email") || emails.length > 0;
   };
 
   renderContent = (formProps: IFormProps) => {
@@ -189,7 +189,7 @@ class CustomerForm extends React.Component<Props, State> {
       <>
         <ScrollWrapper>
           <CollapseContent
-            title={__('General information')}
+            title={__("General information")}
             compact={true}
             open={true}
           >
@@ -201,10 +201,10 @@ class CustomerForm extends React.Component<Props, State> {
                 />
               </FormColumn>
               <FormColumn>
-                {this.renderFormGroup('Code', {
+                {this.renderFormGroup("Code", {
                   ...formProps,
-                  name: 'code',
-                  defaultValue: customer.code || ''
+                  name: "code",
+                  defaultValue: customer.code || ""
                 })}
 
                 <FormGroup>
@@ -221,12 +221,12 @@ class CustomerForm extends React.Component<Props, State> {
             </FormWrapper>
             <FormWrapper>
               <FormColumn>
-                {this.renderFormGroup('First Name', {
+                {this.renderFormGroup("First Name", {
                   ...formProps,
-                  defaultValue: customer.firstName || '',
+                  defaultValue: customer.firstName || "",
                   autoFocus: true,
                   required: true,
-                  name: 'firstName'
+                  name: "firstName"
                 })}
 
                 <FormGroup>
@@ -243,18 +243,18 @@ class CustomerForm extends React.Component<Props, State> {
                   />
                 </FormGroup>
 
-                {this.renderFormGroup('Gender', {
+                {this.renderFormGroup("Gender", {
                   ...formProps,
-                  name: 'sex',
-                  componentClass: 'select',
+                  name: "sex",
+                  componentClass: "select",
                   defaultValue: customer.sex || 0,
                   options: genderChoices(__)
                 })}
 
-                {this.renderFormGroup('Department', {
+                {this.renderFormGroup("Department", {
                   ...formProps,
-                  name: 'department',
-                  defaultValue: customer.department || ''
+                  name: "department",
+                  defaultValue: customer.department || ""
                 })}
 
                 <FormGroup>
@@ -264,15 +264,15 @@ class CustomerForm extends React.Component<Props, State> {
                     max={140}
                     name="description"
                     componentClass="textarea"
-                    defaultValue={customer.description || ''}
+                    defaultValue={customer.description || ""}
                   />
                 </FormGroup>
               </FormColumn>
               <FormColumn>
-                {this.renderFormGroup('Last Name', {
+                {this.renderFormGroup("Last Name", {
                   ...formProps,
-                  name: 'lastName',
-                  defaultValue: customer.lastName || ''
+                  name: "lastName",
+                  defaultValue: customer.lastName || ""
                 })}
 
                 <FormGroup>
@@ -293,57 +293,57 @@ class CustomerForm extends React.Component<Props, State> {
                       {...formProps}
                       required={false}
                       name="birthDate"
-                      placeholder={'Birthday'}
+                      placeholder={"Birthday"}
                       value={this.state.birthDate}
                       onChange={this.onDateChange}
                     />
                   </DateContainer>
                 </FormGroup>
 
-                {this.renderFormGroup('Position', {
+                {this.renderFormGroup("Position", {
                   ...formProps,
-                  name: 'position',
-                  defaultValue: customer.position || ''
+                  name: "position",
+                  defaultValue: customer.position || ""
                 })}
 
-                {this.renderFormGroup('Has Authority', {
+                {this.renderFormGroup("Has Authority", {
                   ...formProps,
-                  name: 'hasAuthority',
-                  componentClass: 'radio',
+                  name: "hasAuthority",
+                  componentClass: "radio",
                   options: [
                     {
-                      childNode: 'Yes',
-                      value: 'Yes',
-                      checked: this.state.hasAuthority === 'Yes',
+                      childNode: "Yes",
+                      value: "Yes",
+                      checked: this.state.hasAuthority === "Yes",
                       onChange: e =>
                         this.setState({ hasAuthority: e.target.value })
                     },
                     {
-                      childNode: 'No',
-                      value: 'No',
-                      checked: this.state.hasAuthority === 'No',
+                      childNode: "No",
+                      value: "No",
+                      checked: this.state.hasAuthority === "No",
                       onChange: e =>
                         this.setState({ hasAuthority: e.target.value })
                     }
                   ]
                 })}
 
-                {this.renderFormGroup('Do not disturb', {
+                {this.renderFormGroup("Do not disturb", {
                   ...formProps,
-                  name: 'doNotDisturb',
-                  componentClass: 'radio',
+                  name: "doNotDisturb",
+                  componentClass: "radio",
                   options: [
                     {
-                      childNode: 'Yes',
-                      value: 'Yes',
-                      checked: this.state.doNotDisturb === 'Yes',
+                      childNode: "Yes",
+                      value: "Yes",
+                      checked: this.state.doNotDisturb === "Yes",
                       onChange: e =>
                         this.setState({ doNotDisturb: e.target.value })
                     },
                     {
-                      childNode: 'No',
-                      value: 'No',
-                      checked: this.state.doNotDisturb === 'No',
+                      childNode: "No",
+                      value: "No",
+                      checked: this.state.doNotDisturb === "No",
                       onChange: e =>
                         this.setState({ doNotDisturb: e.target.value })
                     }
@@ -352,50 +352,50 @@ class CustomerForm extends React.Component<Props, State> {
               </FormColumn>
             </FormWrapper>
           </CollapseContent>
-          <CollapseContent title={__('Links')} compact={true}>
+          <CollapseContent title={__("Links")} compact={true}>
             <FormWrapper>
               <FormColumn>
-                {this.renderFormGroup('LinkedIn', {
+                {this.renderFormGroup("LinkedIn", {
                   ...formProps,
-                  name: 'linkedIn',
-                  defaultValue: links.linkedIn || '',
-                  type: 'url'
+                  name: "linkedIn",
+                  defaultValue: links.linkedIn || "",
+                  type: "url"
                 })}
 
-                {this.renderFormGroup('Twitter', {
+                {this.renderFormGroup("Twitter", {
                   ...formProps,
-                  name: 'twitter',
-                  defaultValue: links.twitter || '',
-                  type: 'url'
+                  name: "twitter",
+                  defaultValue: links.twitter || "",
+                  type: "url"
                 })}
 
-                {this.renderFormGroup('Facebook', {
+                {this.renderFormGroup("Facebook", {
                   ...formProps,
-                  name: 'facebook',
-                  defaultValue: links.facebook || '',
-                  type: 'url'
+                  name: "facebook",
+                  defaultValue: links.facebook || "",
+                  type: "url"
                 })}
               </FormColumn>
               <FormColumn>
-                {this.renderFormGroup('Github', {
+                {this.renderFormGroup("Github", {
                   ...formProps,
-                  name: 'github',
-                  defaultValue: links.github || '',
-                  type: 'url'
+                  name: "github",
+                  defaultValue: links.github || "",
+                  type: "url"
                 })}
 
-                {this.renderFormGroup('Youtube', {
+                {this.renderFormGroup("Youtube", {
                   ...formProps,
-                  name: 'youtube',
-                  defaultValue: links.youtube || '',
-                  type: 'url'
+                  name: "youtube",
+                  defaultValue: links.youtube || "",
+                  type: "url"
                 })}
 
-                {this.renderFormGroup('Website', {
+                {this.renderFormGroup("Website", {
                   ...formProps,
-                  name: 'website',
-                  defaultValue: links.website || '',
-                  type: 'url'
+                  name: "website",
+                  defaultValue: links.website || "",
+                  type: "url"
                 })}
               </FormColumn>
             </FormWrapper>
@@ -412,7 +412,7 @@ class CustomerForm extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: 'customer',
+            name: "customer",
             values: this.generateDoc(values),
             isSubmitted,
             object: this.props.customer,
@@ -426,7 +426,7 @@ class CustomerForm extends React.Component<Props, State> {
                 type="submit"
                 uppercase={false}
                 icon="user-square"
-                onClick={this.saveAndRedirect.bind(this, 'detail')}
+                onClick={this.saveAndRedirect.bind(this, "detail")}
                 disabled={isSubmitted}
               >
                 Save & View
@@ -434,7 +434,7 @@ class CustomerForm extends React.Component<Props, State> {
               <Button
                 type="submit"
                 uppercase={false}
-                onClick={this.saveAndRedirect.bind(this, 'new')}
+                onClick={this.saveAndRedirect.bind(this, "new")}
                 disabled={isSubmitted}
                 icon="user-plus"
               >

@@ -1,15 +1,15 @@
-import { shallow } from 'enzyme';
-import React from 'react';
+import { shallow } from "enzyme";
+import React from "react";
 
-import EmptyState from '../../../modules/common/components/EmptyState';
+import EmptyState from "../../../modules/common/components/EmptyState";
 
-describe('EmptyState component', () => {
+describe("EmptyState component", () => {
   const defaultProps = {
-    text: 'null'
+    text: "null"
   };
 
-  test('renders EmptyState successfully', () => {
+  test("renders EmptyState successfully", () => {
     const wrapper = shallow(<EmptyState {...defaultProps} />);
-    expect(wrapper).not.toBe('');
+    expect(wrapper).not.toBe("");
   });
 });

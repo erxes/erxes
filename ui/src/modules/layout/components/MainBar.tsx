@@ -1,8 +1,8 @@
-import { colors, dimensions } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
-import React from 'react';
-import styled from 'styled-components';
-import QuickNavigation from '../containers/QuickNavigation';
+import { colors, dimensions } from "modules/common/styles";
+import { rgba } from "modules/common/styles/color";
+import React from "react";
+import styled from "styled-components";
+import QuickNavigation from "../containers/QuickNavigation";
 
 const TopBar = styled.div`
   height: ${dimensions.headerSpacing}px;

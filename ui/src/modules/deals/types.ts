@@ -1,6 +1,6 @@
-import { IItem, IItemParams } from 'modules/boards/types';
-import { IActivityLogForMonth } from '../activityLogs/types';
-import { IProduct, IProductDoc } from '../settings/productService/types';
+import { IItem, IItemParams } from "modules/boards/types";
+import { IActivityLogForMonth } from "../activityLogs/types";
+import { IProduct, IProductDoc } from "../settings/productService/types";
 
 export interface IDealTotalAmount {
   _id: string;

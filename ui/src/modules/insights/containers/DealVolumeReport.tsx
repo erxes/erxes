@@ -1,16 +1,16 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import DealVolumeReport from '../components/DealVolumeReport';
-import { queries } from '../graphql';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import React from "react";
+import { graphql } from "react-apollo";
+import DealVolumeReport from "../components/DealVolumeReport";
+import { queries } from "../graphql";
 import {
   DealMainQueryResponse,
   DealPunchCardQueryResponse,
   DealTeamMemberResponse,
   IDealParams,
   IQueryParams
-} from '../types';
+} from "../types";
 
 type Props = {
   history: any;
@@ -72,15 +72,15 @@ const options = ({ queryParams, status }: IDealParams) => ({
 
 export default compose(
   graphql(gql(queries.dealInsightsByTeamMember), {
-    name: 'insightsByTeamMemberQuery',
+    name: "insightsByTeamMemberQuery",
     options
   }),
   graphql(gql(queries.dealInsightsPunchCard), {
-    name: 'punchCardQuery',
+    name: "punchCardQuery",
     options
   }),
   graphql(gql(queries.dealInsightsMain), {
-    name: 'mainQuery',
+    name: "mainQuery",
     options
   })
 )(DealVolumeReportContainer);

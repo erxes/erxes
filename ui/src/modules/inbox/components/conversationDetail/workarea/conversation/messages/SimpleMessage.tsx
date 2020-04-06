@@ -1,15 +1,15 @@
-import classNames from 'classnames';
-import dayjs from 'dayjs';
-import Attachment from 'modules/common/components/Attachment';
-import Icon from 'modules/common/components/Icon';
-import NameCard from 'modules/common/components/nameCard/NameCard';
-import TextDivider from 'modules/common/components/TextDivider';
-import Tip from 'modules/common/components/Tip';
-import { __ } from 'modules/common/utils';
-import { urlify } from 'modules/inbox/utils';
-import React from 'react';
-import xss from 'xss';
-import { IMessage } from '../../../../../types';
+import classNames from "classnames";
+import dayjs from "dayjs";
+import Attachment from "modules/common/components/Attachment";
+import Icon from "modules/common/components/Icon";
+import NameCard from "modules/common/components/nameCard/NameCard";
+import TextDivider from "modules/common/components/TextDivider";
+import Tip from "modules/common/components/Tip";
+import { __ } from "modules/common/utils";
+import { urlify } from "modules/inbox/utils";
+import React from "react";
+import xss from "xss";
+import { IMessage } from "../../../../../types";
 import {
   AppMessageBox,
   CallBox,
@@ -18,7 +18,7 @@ import {
   MessageContent,
   MessageItem,
   UserInfo
-} from '../styles';
+} from "../styles";
 
 type Props = {
   message: IMessage;
@@ -61,8 +61,8 @@ export default class SimpleMessage extends React.Component<Props, {}> {
       <CallBox>
         <UserInfo>
           <strong>
-            <Icon icon="exclamation-triangle" color="#EA475D" size={15} />{' '}
-            {__('You have recieved a video call request')}
+            <Icon icon="exclamation-triangle" color="#EA475D" size={15} />{" "}
+            {__("You have recieved a video call request")}
           </strong>
         </UserInfo>
       </CallBox>
@@ -72,15 +72,15 @@ export default class SimpleMessage extends React.Component<Props, {}> {
   renderVideoCall() {
     const { message } = this.props;
 
-    const videoCallData = message.videoCallData || { status: 'end', url: '' };
+    const videoCallData = message.videoCallData || { status: "end", url: "" };
 
-    if (videoCallData.status === 'end') {
+    if (videoCallData.status === "end") {
       return (
         <CallBox>
           <UserInfo>
             <strong>
-              <Icon icon="phone-slash" color="#EA475D" size={15} />{' '}
-              {__('Video call ended')}
+              <Icon icon="phone-slash" color="#EA475D" size={15} />{" "}
+              {__("Video call ended")}
             </strong>
           </UserInfo>
         </CallBox>
@@ -90,14 +90,14 @@ export default class SimpleMessage extends React.Component<Props, {}> {
     return (
       <AppMessageBox>
         <UserInfo>
-          <h5>{__('Video call invitation sent')}</h5>
+          <h5>{__("Video call invitation sent")}</h5>
           <h3>
             <Icon icon="user-plus" color="#3B85F4" />
           </h3>
         </UserInfo>
         <CallButton>
           <a target="_blank" rel="noopener noreferrer" href={videoCallData.url}>
-            {__('Join a call')}
+            {__("Join a call")}
           </a>
         </CallButton>
       </AppMessageBox>
@@ -111,11 +111,11 @@ export default class SimpleMessage extends React.Component<Props, {}> {
       return renderContent();
     }
 
-    if (message.contentType === 'videoCall') {
+    if (message.contentType === "videoCall") {
       return this.renderVideoCall();
     }
 
-    if (message.contentType === 'videoCallRequest') {
+    if (message.contentType === "videoCallRequest") {
       return this.renderVideoCallRequest();
     }
 
@@ -156,8 +156,8 @@ export default class SimpleMessage extends React.Component<Props, {}> {
 
         <MessageBody staff={isStaff}>
           {this.renderContent(hasAttachment)}
-          <Tip text={dayjs(messageDate).format('lll')}>
-            <footer>{dayjs(messageDate).format('LT')}</footer>
+          <Tip text={dayjs(messageDate).format("lll")}>
+            <footer>{dayjs(messageDate).format("LT")}</footer>
           </Tip>
         </MessageBody>
       </MessageItem>

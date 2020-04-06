@@ -1,14 +1,14 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { Alert, withProps } from 'modules/common/utils';
-import { queries } from 'modules/forms/graphql';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import ManageColumns from '../components/ManageColumns';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { Alert, withProps } from "modules/common/utils";
+import { queries } from "modules/forms/graphql";
+import React from "react";
+import { graphql } from "react-apollo";
+import ManageColumns from "../components/ManageColumns";
 import {
   DefaultColumnsConfigQueryResponse,
   FieldsCombinedByTypeQueryResponse
-} from '../types';
+} from "../types";
 
 type Props = {
   contentType: string;
@@ -41,7 +41,7 @@ const ManageColumnsContainer = (props: FinalProps) => {
   const save = config => {
     localStorage.setItem(storageKey, JSON.stringify(config));
 
-    Alert.success('Success');
+    Alert.success("Success");
 
     if (history && location) {
       history.push(location.pathname);
@@ -70,7 +70,7 @@ export default withProps<Props>(
     graphql<Props, FieldsCombinedByTypeQueryResponse, { contentType: string }>(
       gql(queries.fieldsCombinedByContentType),
       {
-        name: 'fieldsQuery',
+        name: "fieldsQuery",
         options: ({ contentType }) => {
           return {
             variables: {
@@ -83,7 +83,7 @@ export default withProps<Props>(
     graphql<Props, DefaultColumnsConfigQueryResponse, { contentType: string }>(
       gql(queries.fieldsDefaultColumnsConfig),
       {
-        name: 'fieldsDefaultColumnsConfigQuery',
+        name: "fieldsDefaultColumnsConfigQuery",
         options: ({ contentType }) => {
           return {
             variables: {

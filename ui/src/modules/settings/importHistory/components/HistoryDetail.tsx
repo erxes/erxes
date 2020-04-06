@@ -1,14 +1,14 @@
-import DataWithLoader from 'modules/common/components/DataWithLoader';
-import HeaderDescription from 'modules/common/components/HeaderDescription';
-import Table from 'modules/common/components/table';
-import TextInfo from 'modules/common/components/TextInfo';
-import React from 'react';
-import styled from 'styled-components';
-import { colors, dimensions } from '../../../common/styles';
-import { __ } from '../../../common/utils';
-import Wrapper from '../../../layout/components/Wrapper';
-import { IImportHistory } from '../types';
-import CircularProgressBar from './CircularProgressBar';
+import DataWithLoader from "modules/common/components/DataWithLoader";
+import HeaderDescription from "modules/common/components/HeaderDescription";
+import Table from "modules/common/components/table";
+import TextInfo from "modules/common/components/TextInfo";
+import React from "react";
+import styled from "styled-components";
+import { colors, dimensions } from "../../../common/styles";
+import { __ } from "../../../common/utils";
+import Wrapper from "../../../layout/components/Wrapper";
+import { IImportHistory } from "../types";
+import CircularProgressBar from "./CircularProgressBar";
 
 const TopContent = styled.div`
   padding: ${dimensions.coreSpacing}px;
@@ -56,7 +56,7 @@ class HistoryDetail extends React.Component<Props> {
     const { percentage, importHistory } = this.props;
     let percent = percentage;
 
-    if (importHistory.status === 'Done') {
+    if (importHistory.status === "Done") {
       percent = 100;
     }
 
@@ -74,23 +74,23 @@ class HistoryDetail extends React.Component<Props> {
           {this.renderProgressBar()}
           <div>
             <Row>
-              <div>{__('Status')}:</div>
+              <div>{__("Status")}:</div>
               <TextInfo hugeness="large">{status}</TextInfo>
             </Row>
             <Row>
-              <div>{__('Total')}:</div>
+              <div>{__("Total")}:</div>
               <TextInfo hugeness="large" textStyle="simple">
                 {total}
               </TextInfo>
             </Row>
             <Row>
-              <div>{__('Success')}:</div>
+              <div>{__("Success")}:</div>
               <TextInfo textStyle="success" hugeness="large">
                 {success}
               </TextInfo>
             </Row>
             <Row>
-              <div>{__('Failed')}:</div>
+              <div>{__("Failed")}:</div>
               <TextInfo textStyle="danger" hugeness="large">
                 {failed}
               </TextInfo>
@@ -100,7 +100,7 @@ class HistoryDetail extends React.Component<Props> {
         <Table striped={true} alignTop={true}>
           <thead>
             <tr>
-              <th>{__('Errors')}</th>
+              <th>{__("Errors")}</th>
               <th />
             </tr>
           </thead>
@@ -123,16 +123,16 @@ class HistoryDetail extends React.Component<Props> {
     const { importHistory } = this.props;
 
     const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Import & Export'), link: '/settings/importHistories' },
-      { title: __('Import History ') }
+      { title: __("Settings"), link: "/settings" },
+      { title: __("Import & Export"), link: "/settings/importHistories" },
+      { title: __("Import History ") }
     ];
 
     return (
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Import History ')}
+            title={__("Import History ")}
             breadcrumb={breadcrumb}
           />
         }

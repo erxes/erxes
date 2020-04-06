@@ -1,7 +1,7 @@
-import Button from 'modules/common/components/Button';
-import Icon from 'modules/common/components/Icon';
-import { __ } from 'modules/common/utils';
-import React from 'react';
+import Button from "modules/common/components/Button";
+import Icon from "modules/common/components/Icon";
+import { __ } from "modules/common/utils";
+import React from "react";
 import {
   FullStep,
   ShortStep,
@@ -11,7 +11,7 @@ import {
   StepHeaderTitle,
   StepImg,
   StepItem
-} from './styles';
+} from "./styles";
 
 type Props = {
   stepNumber?: number;
@@ -54,7 +54,7 @@ class Step extends React.Component<Props> {
 
     return (
       <Button btnStyle="primary" size="small" onClick={next.bind(null, 0)}>
-        {__('Next')} <Icon icon="arrow-right" />
+        {__("Next")} <Icon icon="arrow-right" />
       </Button>
     );
   }
@@ -93,7 +93,7 @@ class Step extends React.Component<Props> {
                 <img src={img} alt="step-icon" />
               </StepImg>
 
-              <StepHeaderTitle>{__(title || '')}</StepHeaderTitle>
+              <StepHeaderTitle>{__(title || "")}</StepHeaderTitle>
             </StepHeader>
             {noButton || this.renderButton()}
           </StepHeaderContainer>

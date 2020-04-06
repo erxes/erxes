@@ -1,23 +1,23 @@
-import Button from 'modules/common/components/Button';
-import DataWithLoader from 'modules/common/components/DataWithLoader';
-import EmptyState from 'modules/common/components/EmptyState';
-import { FormControl } from 'modules/common/components/form';
-import HeaderDescription from 'modules/common/components/HeaderDescription';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import Pagination from 'modules/common/components/pagination/Pagination';
-import Table from 'modules/common/components/table';
-import { Count, Title } from 'modules/common/styles/main';
-import { IRouterProps } from 'modules/common/types';
-import { __, Alert, confirm, router } from 'modules/common/utils';
-import Wrapper from 'modules/layout/components/Wrapper';
-import { BarItems } from 'modules/layout/styles';
-import TaggerPopover from 'modules/tags/components/TaggerPopover';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import Form from '../../containers/product/ProductForm';
-import CategoryList from '../../containers/productCategory/CategoryList';
-import { IProduct, IProductCategory } from '../../types';
-import Row from './ProductRow';
+import Button from "modules/common/components/Button";
+import DataWithLoader from "modules/common/components/DataWithLoader";
+import EmptyState from "modules/common/components/EmptyState";
+import { FormControl } from "modules/common/components/form";
+import HeaderDescription from "modules/common/components/HeaderDescription";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import Pagination from "modules/common/components/pagination/Pagination";
+import Table from "modules/common/components/table";
+import { Count, Title } from "modules/common/styles/main";
+import { IRouterProps } from "modules/common/types";
+import { __, Alert, confirm, router } from "modules/common/utils";
+import Wrapper from "modules/layout/components/Wrapper";
+import { BarItems } from "modules/layout/styles";
+import TaggerPopover from "modules/tags/components/TaggerPopover";
+import React from "react";
+import { Link } from "react-router-dom";
+import Form from "../../containers/product/ProductForm";
+import CategoryList from "../../containers/productCategory/CategoryList";
+import { IProduct, IProductCategory } from "../../types";
+import Row from "./ProductRow";
 
 interface IProps extends IRouterProps {
   history: any;
@@ -66,7 +66,7 @@ class List extends React.Component<IProps, State> {
 
   onChange = () => {
     const { toggleAll, products } = this.props;
-    toggleAll(products, 'products');
+    toggleAll(products, "products");
   };
 
   removeProducts = products => {
@@ -82,7 +82,7 @@ class List extends React.Component<IProps, State> {
   renderCount = productCount => {
     return (
       <Count>
-        {productCount} product{productCount > 1 && 's'}
+        {productCount} product{productCount > 1 && "s"}
       </Count>
     );
   };
@@ -98,7 +98,7 @@ class List extends React.Component<IProps, State> {
     this.setState({ searchValue });
 
     this.timer = setTimeout(() => {
-      router.removeParams(history, 'page');
+      router.removeParams(history, "page");
       router.setParams(history, { searchValue });
     }, 500);
   };
@@ -106,7 +106,7 @@ class List extends React.Component<IProps, State> {
   moveCursorAtTheEnd(e) {
     const tmpValue = e.target.value;
 
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   }
 
@@ -123,8 +123,8 @@ class List extends React.Component<IProps, State> {
     } = this.props;
 
     const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Product & Service') }
+      { title: __("Settings"), link: "/settings" },
+      { title: __("Product & Service") }
     ];
 
     const trigger = (
@@ -139,7 +139,7 @@ class List extends React.Component<IProps, State> {
       <BarItems>
         <FormControl
           type="text"
-          placeholder={__('Type to search')}
+          placeholder={__("Type to search")}
           onChange={this.search}
           value={this.state.searchValue}
           autoFocus={true}
@@ -147,7 +147,7 @@ class List extends React.Component<IProps, State> {
         />
         <Link to="/settings/importHistories?type=product">
           <Button btnStyle="simple" uppercase={false} icon="arrow-from-right">
-            {__('Go to import')}
+            {__("Go to import")}
           </Button>
         </Link>
         <ModalTrigger
@@ -172,12 +172,12 @@ class List extends React.Component<IProps, State> {
                   onChange={this.onChange}
                 />
               </th>
-              <th>{__('Name')}</th>
-              <th>{__('Type')}</th>
-              <th>{__('Category')}</th>
-              <th>{__('Unit Price')}</th>
-              <th>{__('SKU')}</th>
-              <th>{__('Tags')}</th>
+              <th>{__("Name")}</th>
+              <th>{__("Type")}</th>
+              <th>{__("Category")}</th>
+              <th>{__("Unit Price")}</th>
+              <th>{__("SKU")}</th>
+              <th>{__("Tags")}</th>
             </tr>
           </thead>
           <tbody>{this.renderRow()}</tbody>
@@ -218,7 +218,7 @@ class List extends React.Component<IProps, State> {
             successCallback={emptyBulk}
             targets={bulk}
             trigger={tagButton}
-            refetchQueries={['productCountByTags']}
+            refetchQueries={["productCountByTags"]}
           />
           <Button
             btnStyle="danger"
@@ -233,21 +233,21 @@ class List extends React.Component<IProps, State> {
     }
 
     const actionBarLeft = (
-      <Title>{currentCategory.name || 'All products'}</Title>
+      <Title>{currentCategory.name || "All products"}</Title>
     );
 
     return (
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Product & Service')}
+            title={__("Product & Service")}
             breadcrumb={breadcrumb}
           />
         }
         mainHead={
           <HeaderDescription
             icon="/images/actions/30.svg"
-            title={'Product & Service'}
+            title={"Product & Service"}
             description={`All information and know-how related to your business's products and services are found here. Create and add in unlimited products and servicess so that you and your team members can edit and share.`}
           />
         }

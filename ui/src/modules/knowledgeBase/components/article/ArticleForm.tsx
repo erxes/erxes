@@ -1,18 +1,18 @@
-import Button from 'modules/common/components/Button';
-import EditorCK from 'modules/common/components/EditorCK';
-import FormControl from 'modules/common/components/form/Control';
-import Form from 'modules/common/components/form/Form';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import { ModalFooter } from 'modules/common/styles/main';
-import { IButtonMutateProps, IFormProps, IOption } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
-import { articleReactions } from 'modules/knowledgeBase/icons.constant';
-import { FlexContent, FlexItem } from 'modules/layout/styles';
-import React from 'react';
-import Select from 'react-select-plus';
-import { IArticle } from '../../types';
-import { ReactionItem } from './styles';
+import Button from "modules/common/components/Button";
+import EditorCK from "modules/common/components/EditorCK";
+import FormControl from "modules/common/components/form/Control";
+import Form from "modules/common/components/form/Form";
+import FormGroup from "modules/common/components/form/Group";
+import ControlLabel from "modules/common/components/form/Label";
+import { ModalFooter } from "modules/common/styles/main";
+import { IButtonMutateProps, IFormProps, IOption } from "modules/common/types";
+import { __ } from "modules/common/utils";
+import { articleReactions } from "modules/knowledgeBase/icons.constant";
+import { FlexContent, FlexItem } from "modules/layout/styles";
+import React from "react";
+import Select from "react-select-plus";
+import { IArticle } from "../../types";
+import { ReactionItem } from "./styles";
 
 type Props = {
   article: IArticle;
@@ -30,7 +30,7 @@ class ArticleForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const article = props.article || { content: '' };
+    const article = props.article || { content: "" };
 
     this.state = {
       content: article.content,
@@ -94,7 +94,7 @@ class ArticleForm extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>{__('Title')}</ControlLabel>
+          <ControlLabel required={true}>{__("Title")}</ControlLabel>
           <FormControl
             {...formProps}
             name="title"
@@ -105,7 +105,7 @@ class ArticleForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{__('Summary')}</ControlLabel>
+          <ControlLabel>{__("Summary")}</ControlLabel>
           <FormControl
             {...formProps}
             name="summary"
@@ -116,7 +116,7 @@ class ArticleForm extends React.Component<Props, State> {
         <FlexContent>
           <FlexItem count={4}>
             <FormGroup>
-              <ControlLabel required={true}>{__('Reactions')}</ControlLabel>
+              <ControlLabel required={true}>{__("Reactions")}</ControlLabel>
               <Select
                 multi={true}
                 value={reactionChoices}
@@ -129,16 +129,16 @@ class ArticleForm extends React.Component<Props, State> {
           </FlexItem>
           <FlexItem count={2} hasSpace={true}>
             <FormGroup>
-              <ControlLabel required={true}>{__('Status')}</ControlLabel>
+              <ControlLabel required={true}>{__("Status")}</ControlLabel>
               <FormControl
                 {...formProps}
                 name="status"
                 componentClass="select"
-                placeholder={__('select')}
-                defaultValue={object.status || 'draft'}
+                placeholder={__("select")}
+                defaultValue={object.status || "draft"}
                 required={true}
               >
-                {[{ value: 'draft' }, { value: 'publish' }].map(op => (
+                {[{ value: "draft" }, { value: "publish" }].map(op => (
                   <option key={op.value} value={op.value}>
                     {op.value}
                   </option>
@@ -148,7 +148,7 @@ class ArticleForm extends React.Component<Props, State> {
           </FlexItem>
         </FlexContent>
         <FormGroup>
-          <ControlLabel required={true}>{__('Content')}</ControlLabel>
+          <ControlLabel required={true}>{__("Content")}</ControlLabel>
           <EditorCK content={content} onChange={this.onChange} height={300} />
         </FormGroup>
 
@@ -159,11 +159,11 @@ class ArticleForm extends React.Component<Props, State> {
             onClick={this.props.closeModal}
             icon="cancel-1"
           >
-            {__('Cancel')}
+            {__("Cancel")}
           </Button>
 
           {renderButton({
-            name: 'article',
+            name: "article",
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,

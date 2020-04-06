@@ -1,7 +1,7 @@
-import { IStage } from 'modules/boards/types';
-import * as React from 'react';
-import { Result } from '../style';
-import Stage from './Stage';
+import { IStage } from "modules/boards/types";
+import * as React from "react";
+import { Result } from "../style";
+import Stage from "./Stage";
 
 type Props = {
   stages: IStage[];

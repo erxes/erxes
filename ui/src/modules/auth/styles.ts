@@ -1,5 +1,5 @@
-import { colors, dimensions, typography } from 'modules/common/styles';
-import styled from 'styled-components';
+import { colors, dimensions, typography } from "modules/common/styles";
+import styled from "styled-components";
 
 const AuthBox = styled.div`
   background-color: ${colors.colorWhite};

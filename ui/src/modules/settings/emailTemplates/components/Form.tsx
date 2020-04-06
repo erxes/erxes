@@ -1,13 +1,13 @@
-import EditorCK from 'modules/common/components/EditorCK';
-import FormControl from 'modules/common/components/form/Control';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import { IFormProps } from 'modules/common/types';
-import { EMAIL_CONTENT } from 'modules/engage/constants';
-import React from 'react';
-import CommonForm from '../../common/components/Form';
-import { ICommonFormProps } from '../../common/types';
-import { IEmailTemplate } from '../types';
+import EditorCK from "modules/common/components/EditorCK";
+import FormControl from "modules/common/components/form/Control";
+import FormGroup from "modules/common/components/form/Group";
+import ControlLabel from "modules/common/components/form/Label";
+import { IFormProps } from "modules/common/types";
+import { EMAIL_CONTENT } from "modules/engage/constants";
+import React from "react";
+import CommonForm from "../../common/components/Form";
+import { ICommonFormProps } from "../../common/types";
+import { IEmailTemplate } from "../types";
 
 type Props = {
   object?: IEmailTemplate;
@@ -22,7 +22,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     super(props);
 
     this.state = {
-      content: (props.object && props.object.content) || ''
+      content: (props.object && props.object.content) || ""
     };
   }
 

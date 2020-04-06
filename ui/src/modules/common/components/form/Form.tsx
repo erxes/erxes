@@ -1,8 +1,8 @@
-import { IFormProps } from 'modules/common/types';
-import React from 'react';
-import validator from 'validator';
-import { __, generateRandomString } from '../../utils';
-import { Error } from './styles';
+import { IFormProps } from "modules/common/types";
+import React from "react";
+import validator from "validator";
+import { __, generateRandomString } from "../../utils";
+import { Error } from "./styles";
 
 type Props = {
   renderContent: (props: IFormProps) => React.ReactNode;
@@ -72,7 +72,7 @@ class Form extends React.Component<Props, State> {
       return element.value;
     }
 
-    return '';
+    return "";
   };
 
   onSubmit = e => {
@@ -85,39 +85,39 @@ class Form extends React.Component<Props, State> {
   validate = child => {
     const { props } = child;
     const element = this.getSelector(props.name);
-    const value = element ? element.value : '';
+    const value = element ? element.value : "";
 
     if (props.required && !value) {
-      return <Error>{__('Required field')}</Error>;
+      return <Error>{__("Required field")}</Error>;
     }
 
-    if (props.type === 'email' && !validator.isEmail(value)) {
+    if (props.type === "email" && !validator.isEmail(value)) {
       return (
         <Error>
-          {__('Invalid email format! Please enter a valid email address')}
+          {__("Invalid email format! Please enter a valid email address")}
         </Error>
       );
     }
 
     if (
       props.max &&
-      !validator.isLength('description', { min: 0, max: props.max })
+      !validator.isLength("description", { min: 0, max: props.max })
     ) {
       return (
         <Error>
-          {__('Maximum length is')} {props.max} {__('characters')}
+          {__("Maximum length is")} {props.max} {__("characters")}
         </Error>
       );
     }
 
-    if (value && props.type === 'url' && !validator.isURL(value)) {
-      return <Error>{__('Invalid link')}</Error>;
+    if (value && props.type === "url" && !validator.isURL(value)) {
+      return <Error>{__("Invalid link")}</Error>;
     }
 
-    if (value && props.type === 'number' && !validator.isInt(value)) {
+    if (value && props.type === "number" && !validator.isInt(value)) {
       return (
         <Error>
-          {__('Invalid number format! Please enter a valid number')}
+          {__("Invalid number format! Please enter a valid number")}
         </Error>
       );
     }

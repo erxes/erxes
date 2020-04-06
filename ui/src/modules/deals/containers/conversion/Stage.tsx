@@ -1,15 +1,15 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { IStage } from 'modules/boards/types';
-import EmptyState from 'modules/common/components/EmptyState';
-import Spinner from 'modules/common/components/Spinner';
-import { withProps } from 'modules/common/utils';
-import Stage from 'modules/deals/components/conversion/table/Stage';
-import { queries } from 'modules/deals/graphql';
-import { DealsQueryResponse, IDeal } from 'modules/deals/types';
-import { IQueryParams } from 'modules/insights/types';
-import * as React from 'react';
-import { graphql } from 'react-apollo';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { IStage } from "modules/boards/types";
+import EmptyState from "modules/common/components/EmptyState";
+import Spinner from "modules/common/components/Spinner";
+import { withProps } from "modules/common/utils";
+import Stage from "modules/deals/components/conversion/table/Stage";
+import { queries } from "modules/deals/graphql";
+import { DealsQueryResponse, IDeal } from "modules/deals/types";
+import { IQueryParams } from "modules/insights/types";
+import * as React from "react";
+import { graphql } from "react-apollo";
 
 type Props = {
   stage: IStage;
@@ -84,8 +84,8 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
     const { stage, dealsQuery } = this.props;
     const { loadingDeals } = this.state;
 
-    if (localStorage.getItem('cacheInvalidated') === 'true') {
-      localStorage.setItem('cacheInvalidated', 'false');
+    if (localStorage.getItem("cacheInvalidated") === "true") {
+      localStorage.setItem("cacheInvalidated", "false");
 
       dealsQuery.refetch();
     }
@@ -134,7 +134,7 @@ const getFilterParams = queryParams => {
 export default withProps<Props>(
   compose(
     graphql<Props, DealsQueryResponse>(gql(queries.deals), {
-      name: 'dealsQuery',
+      name: "dealsQuery",
       options: ({ pipelineId, stage, queryParams }) => ({
         variables: {
           initialStageId: stage._id,

@@ -1,11 +1,11 @@
 import {
   SectionContainer,
   SidebarCollapse
-} from 'modules/inbox/components/conversationDetail/sidebar/styles';
-import { getConfig, setConfig } from 'modules/inbox/utils';
-import Sidebar from 'modules/layout/components/Sidebar';
-import React from 'react';
-import Icon from './Icon';
+} from "modules/inbox/components/conversationDetail/sidebar/styles";
+import { getConfig, setConfig } from "modules/inbox/utils";
+import Sidebar from "modules/layout/components/Sidebar";
+import React from "react";
+import Icon from "./Icon";
 
 type BoxProps = {
   title: string;
@@ -53,7 +53,7 @@ export default class Box extends React.Component<BoxProps, BoxState> {
 
   renderDropBtn() {
     const { isOpen } = this.state;
-    const icon = isOpen ? 'angle-down' : 'angle-right';
+    const icon = isOpen ? "angle-down" : "angle-right";
     const { QuickButtons } = Sidebar.Section;
     const { extraButtons } = this.props;
 

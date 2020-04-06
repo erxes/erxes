@@ -1,18 +1,18 @@
-import dayjs from 'dayjs';
-import Button from 'modules/common/components/Button';
-import HeaderDescription from 'modules/common/components/HeaderDescription';
-import Icon from 'modules/common/components/Icon';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import Tip from 'modules/common/components/Tip';
-import { IButtonMutateProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
-import { BoxContainer } from 'modules/growthHacks/components/home/styles';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import List from '../../common/components/List';
-import { ICommonListProps } from '../../common/types';
-import { Actions, Bottom, BoxItem, Created } from '../styles';
-import TemplateForm from './TemplateForm';
+import dayjs from "dayjs";
+import Button from "modules/common/components/Button";
+import HeaderDescription from "modules/common/components/HeaderDescription";
+import Icon from "modules/common/components/Icon";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import Tip from "modules/common/components/Tip";
+import { IButtonMutateProps } from "modules/common/types";
+import { __ } from "modules/common/utils";
+import { BoxContainer } from "modules/growthHacks/components/home/styles";
+import React from "react";
+import { Link } from "react-router-dom";
+import List from "../../common/components/List";
+import { ICommonListProps } from "../../common/types";
+import { Actions, Bottom, BoxItem, Created } from "../styles";
+import TemplateForm from "./TemplateForm";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -91,7 +91,7 @@ class TemplateList extends React.Component<Props> {
           <p>{object.description}</p>
         </div>
         <Bottom>
-          <Created>{dayjs(object.createdAt).format('DD MMM YYYY')}</Created>
+          <Created>{dayjs(object.createdAt).format("DD MMM YYYY")}</Created>
           {this.renderActions(object)}
         </Bottom>
       </BoxItem>
@@ -117,10 +117,10 @@ class TemplateList extends React.Component<Props> {
       <List
         formTitle="New Growth Hacking Templates"
         breadcrumb={[
-          { title: __('Settings'), link: '/settings' },
-          { title: __('Growth Hacking Templates') }
+          { title: __("Settings"), link: "/settings" },
+          { title: __("Growth Hacking Templates") }
         ]}
-        title={__('Growth Hacking Templates')}
+        title={__("Growth Hacking Templates")}
         leftActionBar={
           <HeaderDescription
             icon="/images/actions/34.svg"

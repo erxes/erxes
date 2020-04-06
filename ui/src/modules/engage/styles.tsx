@@ -1,13 +1,13 @@
-import { colors, dimensions } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
-import { BoxRoot } from 'modules/common/styles/main';
-import { Box as TypeBox } from 'modules/settings/growthHacks/styles';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import { colors, dimensions } from "modules/common/styles";
+import { rgba } from "modules/common/styles/color";
+import { BoxRoot } from "modules/common/styles/main";
+import { Box as TypeBox } from "modules/settings/growthHacks/styles";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 import {
   Launcher,
   WidgetPreviewStyled
-} from '../settings/integrations/components/messenger/widgetPreview/styles';
+} from "../settings/integrations/components/messenger/widgetPreview/styles";
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 const size = 65;
@@ -61,7 +61,7 @@ const PreviewContent = styledTS<{
   ${props => {
     if (!props.isFullmessage) {
       return `
-        overflow: ${props.showOverflow ? 'auto' : 'hidden'};
+        overflow: ${props.showOverflow ? "auto" : "hidden"};
         -webkit-box-orient: vertical;
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -103,7 +103,7 @@ const WebPreview = styledTS<{ isEngage?: boolean }>(styled.div)`
     rgba(0, 0, 0, 0.08) 95%,
     rgba(0, 0, 0, 0.1) 100%
   );
-  width: ${props => props.isEngage && '100%'};
+  width: ${props => props.isEngage && "100%"};
 
   .engage-message {
     > div:first-of-type {
@@ -122,7 +122,7 @@ const ListCounter = styledTS<{ chosen: boolean }>(styled.li)`
   text-align: left;
   display: list-item;
   background-color: ${props =>
-    props.chosen ? colors.borderPrimary : 'transparent'};
+    props.chosen ? colors.borderPrimary : "transparent"};
 
   a {
     outline: none;
@@ -222,7 +222,7 @@ const BoxContent = styled.div`
 
 const BoxHeader = styled.div`
   position: relative;
-  background-image: url('/images/patterns/bg-2.png');
+  background-image: url("/images/patterns/bg-2.png");
   background-repeat: repeat;
   background-position: 0 0;
   height: 90px;
@@ -429,7 +429,7 @@ const Shell = styled.div`
     list-style: none;
     background: #141414;
     color: #45d40c;
-    font: 0.8em 'Andale Mono', Consolas, 'Courier New';
+    font: 0.8em "Andale Mono", Consolas, "Courier New";
     line-height: 1.6em;
 
     -webkit-border-bottom-right-radius: 3px;
@@ -441,7 +441,7 @@ const Shell = styled.div`
   }
 
   .shell-body li:before {
-    content: '$';
+    content: "$";
     position: absolute;
     left: 0;
     top: 0;

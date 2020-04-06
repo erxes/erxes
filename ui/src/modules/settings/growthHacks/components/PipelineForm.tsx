@@ -1,29 +1,29 @@
-import client from 'apolloClient';
-import gql from 'graphql-tag';
-import { COLORS } from 'modules/boards/constants';
-import { FlexContent } from 'modules/boards/styles/item';
-import { IBoard, IPipeline } from 'modules/boards/types';
-import Button from 'modules/common/components/Button';
-import FormControl from 'modules/common/components/form/Control';
-import DateControl from 'modules/common/components/form/DateControl';
-import Form from 'modules/common/components/form/Form';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import { colors } from 'modules/common/styles';
-import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
-import { SelectMemberStyled } from 'modules/settings/boards/styles';
-import { ColorPick, ColorPicker, ExpandWrapper } from 'modules/settings/styles';
-import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
-import React from 'react';
-import Modal from 'react-bootstrap/Modal';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import BlockPicker from 'react-color/lib/Block';
-import Select from 'react-select-plus';
-import { metricOptions } from '../constants';
-import { queries } from '../graphql';
-import { Box, DateItem } from '../styles';
+import client from "apolloClient";
+import gql from "graphql-tag";
+import { COLORS } from "modules/boards/constants";
+import { FlexContent } from "modules/boards/styles/item";
+import { IBoard, IPipeline } from "modules/boards/types";
+import Button from "modules/common/components/Button";
+import FormControl from "modules/common/components/form/Control";
+import DateControl from "modules/common/components/form/DateControl";
+import Form from "modules/common/components/form/Form";
+import FormGroup from "modules/common/components/form/Group";
+import ControlLabel from "modules/common/components/form/Label";
+import { colors } from "modules/common/styles";
+import { IButtonMutateProps, IFormProps } from "modules/common/types";
+import { __ } from "modules/common/utils";
+import { SelectMemberStyled } from "modules/settings/boards/styles";
+import { ColorPick, ColorPicker, ExpandWrapper } from "modules/settings/styles";
+import SelectTeamMembers from "modules/settings/team/containers/SelectTeamMembers";
+import React from "react";
+import Modal from "react-bootstrap/Modal";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Popover from "react-bootstrap/Popover";
+import BlockPicker from "react-color/lib/Block";
+import Select from "react-select-plus";
+import { metricOptions } from "../constants";
+import { queries } from "../graphql";
+import { Box, DateItem } from "../styles";
 
 type Props = {
   type: string;
@@ -55,17 +55,17 @@ class PipelineForm extends React.Component<Props, State> {
     const { pipeline } = this.props;
 
     this.state = {
-      visibility: pipeline ? pipeline.visibility || 'public' : 'public',
+      visibility: pipeline ? pipeline.visibility || "public" : "public",
       selectedMemberIds: pipeline ? pipeline.memberIds || [] : [],
       backgroundColor:
         (pipeline && pipeline.bgColor) || colors.colorPrimaryDark,
-      hackScoringType: (pipeline && pipeline.hackScoringType) || 'ice',
+      hackScoringType: (pipeline && pipeline.hackScoringType) || "ice",
       templates: [],
-      templateId: pipeline ? pipeline.templateId : '',
-      metric: pipeline ? pipeline.metric : '',
+      templateId: pipeline ? pipeline.templateId : "",
+      metric: pipeline ? pipeline.metric : "",
       startDate: pipeline ? pipeline.startDate : undefined,
       endDate: pipeline ? pipeline.endDate : undefined,
-      boardId: props.boardId || ''
+      boardId: props.boardId || ""
     };
   }
 
@@ -73,7 +73,7 @@ class PipelineForm extends React.Component<Props, State> {
     client
       .query({
         query: gql(queries.pipelineTemplates),
-        variables: { type: 'growthHack' }
+        variables: { type: "growthHack" }
       })
       .then(({ data }: { data: any }) => {
         if (data && data.pipelineTemplates) {
@@ -100,7 +100,7 @@ class PipelineForm extends React.Component<Props, State> {
   };
 
   onDateInputChange = (type: string, date) => {
-    if (type === 'endDate') {
+    if (type === "endDate") {
       this.setState({ endDate: date });
     } else {
       this.setState({ startDate: date });
@@ -154,7 +154,7 @@ class PipelineForm extends React.Component<Props, State> {
   renderSelectMembers() {
     const { visibility, selectedMemberIds } = this.state;
 
-    if (visibility === 'public') {
+    if (visibility === "public") {
       return;
     }
     const self = this;
@@ -187,14 +187,14 @@ class PipelineForm extends React.Component<Props, State> {
       label: template.name
     }));
 
-    const onChange = item => this.onChangeValue('templateId', item.value);
+    const onChange = item => this.onChangeValue("templateId", item.value);
 
     return (
       <FormGroup>
         <ControlLabel>Template</ControlLabel>
 
         <Select
-          placeholder={__('Choose template')}
+          placeholder={__("Choose template")}
           value={templateId}
           options={templateOptions}
           onChange={onChange}
@@ -212,13 +212,13 @@ class PipelineForm extends React.Component<Props, State> {
       label: board.name
     }));
 
-    const onChange = item => this.onChangeValue('boardId', item.value);
+    const onChange = item => this.onChangeValue("boardId", item.value);
 
     return (
       <FormGroup>
         <ControlLabel required={true}>Campaign</ControlLabel>
         <Select
-          placeholder={__('Choose a campaign')}
+          placeholder={__("Choose a campaign")}
           value={this.state.boardId}
           options={boardOptions}
           onChange={onChange}
@@ -229,7 +229,7 @@ class PipelineForm extends React.Component<Props, State> {
   }
 
   renderBox(type, desc, formula) {
-    const onClick = () => this.onChangeValue('hackScoringType', type);
+    const onClick = () => this.onChangeValue("hackScoringType", type);
 
     return (
       <Box selected={this.state.hackScoringType === type} onClick={onClick}>
@@ -247,7 +247,7 @@ class PipelineForm extends React.Component<Props, State> {
     const object = pipeline || ({} as IPipeline);
     const { startDate, endDate, metric, visibility } = this.state;
 
-    const onChangeMetric = item => this.onChangeValue('metric', item.value);
+    const onChangeMetric = item => this.onChangeValue("metric", item.value);
 
     const popoverBottom = (
       <Popover id="color-picker">
@@ -263,7 +263,7 @@ class PipelineForm extends React.Component<Props, State> {
     return (
       <>
         <Modal.Header closeButton={true}>
-          <Modal.Title>{pipeline ? 'Edit project' : 'Add project'}</Modal.Title>
+          <Modal.Title>{pipeline ? "Edit project" : "Add project"}</Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
@@ -285,19 +285,19 @@ class PipelineForm extends React.Component<Props, State> {
 
             <FlexContent>
               {this.renderBox(
-                'ice',
-                'Set the Impact, Confidence and Ease factors for your tasks. Final score is calculated by the formula:',
-                'Impact * Confidence * Ease'
+                "ice",
+                "Set the Impact, Confidence and Ease factors for your tasks. Final score is calculated by the formula:",
+                "Impact * Confidence * Ease"
               )}
               {this.renderBox(
-                'rice',
-                'Set the Reach, Impact, Confidence and Effort factors for your tasks. Final score is calculated by the formula:',
-                '(Reach * Impact * Confidence) / Effort'
+                "rice",
+                "Set the Reach, Impact, Confidence and Effort factors for your tasks. Final score is calculated by the formula:",
+                "(Reach * Impact * Confidence) / Effort"
               )}
               {this.renderBox(
-                'pie',
-                'Set the Potential, Importance and Ease factors for your tasks. Final score is calculated by the formula:',
-                '(Potential + Importance + Ease) / 3'
+                "pie",
+                "Set the Potential, Importance and Ease factors for your tasks. Final score is calculated by the formula:",
+                "(Potential + Importance + Ease) / 3"
               )}
             </FlexContent>
           </FormGroup>
@@ -310,9 +310,9 @@ class PipelineForm extends React.Component<Props, State> {
                   {...formProps}
                   required={true}
                   name="startDate"
-                  placeholder={'Start date'}
+                  placeholder={"Start date"}
                   value={startDate}
-                  onChange={this.onDateInputChange.bind(this, 'startDate')}
+                  onChange={this.onDateInputChange.bind(this, "startDate")}
                 />
               </DateItem>
               <DateItem>
@@ -321,9 +321,9 @@ class PipelineForm extends React.Component<Props, State> {
                   {...formProps}
                   required={true}
                   name="endDate"
-                  placeholder={'End date'}
+                  placeholder={"End date"}
                   value={endDate}
-                  onChange={this.onDateInputChange.bind(this, 'endDate')}
+                  onChange={this.onDateInputChange.bind(this, "endDate")}
                 />
               </DateItem>
             </FlexContent>
@@ -334,7 +334,7 @@ class PipelineForm extends React.Component<Props, State> {
               <FormGroup>
                 <ControlLabel>Metric</ControlLabel>
                 <Select
-                  placeholder={__('Choose a metric')}
+                  placeholder={__("Choose a metric")}
                   value={metric}
                   options={metricOptions}
                   onChange={onChangeMetric}
@@ -354,8 +354,8 @@ class PipelineForm extends React.Component<Props, State> {
                       value={visibility}
                       onChange={this.onChangeVisibility}
                     >
-                      <option value="public">{__('Public')}</option>
-                      <option value="private">{__('Private')}</option>
+                      <option value="public">{__("Public")}</option>
+                      <option value="private">{__("Private")}</option>
                     </FormControl>
                   </FormGroup>
                 </ExpandWrapper>
@@ -396,7 +396,7 @@ class PipelineForm extends React.Component<Props, State> {
             </Button>
 
             {renderButton({
-              name: 'pipeline',
+              name: "pipeline",
               values: this.generateDoc(values),
               isSubmitted,
               callback: closeModal,

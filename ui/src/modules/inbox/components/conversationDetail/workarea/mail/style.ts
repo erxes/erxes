@@ -1,8 +1,8 @@
-import { colors, dimensions } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
-import { MailBox } from 'modules/customers/styles';
-import styled, { css } from 'styled-components';
-import styledTS from 'styled-components-ts';
+import { colors, dimensions } from "modules/common/styles";
+import { rgba } from "modules/common/styles/color";
+import { MailBox } from "modules/customers/styles";
+import styled, { css } from "styled-components";
+import styledTS from "styled-components-ts";
 
 const Content = styled.div`
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
@@ -150,7 +150,7 @@ const BoxItem = styledTS<{ toggle?: boolean }>(styled(MailBox))`
   position: relative;
   box-shadow: ${rgba(colors.colorCoreBlack, 0.08)} 0px 1px 6px;
   margin-top: ${dimensions.unitSpacing}px;
-  opacity: ${props => props.toggle && '0.8'};
+  opacity: ${props => props.toggle && "0.8"};
   border-radius: ${dimensions.coreSpacing - 5}px;
   border: 1px solid ${colors.borderPrimary};
   

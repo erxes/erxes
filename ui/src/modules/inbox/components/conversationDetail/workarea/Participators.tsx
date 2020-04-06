@@ -1,9 +1,9 @@
-import { IUser } from 'modules/auth/types';
-import Tip from 'modules/common/components/Tip';
-import { colors } from 'modules/common/styles';
-import { __, getUserAvatar } from 'modules/common/utils';
-import React from 'react';
-import styled from 'styled-components';
+import { IUser } from "modules/auth/types";
+import Tip from "modules/common/components/Tip";
+import { colors } from "modules/common/styles";
+import { __, getUserAvatar } from "modules/common/utils";
+import React from "react";
+import styled from "styled-components";
 
 const spacing = 30;
 
@@ -24,7 +24,7 @@ const ParticipatorImg = styled.img`
   margin-left: -10px;
 `;
 
-const More = styled(ParticipatorImg.withComponent('span'))`
+const More = styled(ParticipatorImg.withComponent("span"))`
   color: ${colors.colorWhite};
   text-align: center;
   vertical-align: middle;
@@ -51,13 +51,13 @@ class Participators extends React.Component<Props, { toggle: boolean }> {
     const length = participatedUsers.length;
 
     const Trigger = user => (
-      <Tip key={user._id} placement="top" text={user.details.fullName || ''}>
+      <Tip key={user._id} placement="top" text={user.details.fullName || ""}>
         <ParticipatorImg key={user._id} src={getUserAvatar(user)} />
       </Tip>
     );
 
     const Tooltip = (
-      <Tip placement="top" text={__('View more')}>
+      <Tip placement="top" text={__("View more")}>
         <More>{`+${limit && length - limit}`}</More>
       </Tip>
     );

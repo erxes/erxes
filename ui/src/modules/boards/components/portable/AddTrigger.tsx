@@ -1,7 +1,7 @@
-import AddForm from 'modules/boards/containers/portable/AddForm';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import React from 'react';
-import { IOptions } from '../../types';
+import AddForm from "modules/boards/containers/portable/AddForm";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import React from "react";
+import { IOptions } from "../../types";
 
 type Props = {
   relType: string;

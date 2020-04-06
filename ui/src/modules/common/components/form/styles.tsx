@@ -1,12 +1,12 @@
-import styled, { css } from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { colors, dimensions, typography } from '../../styles';
+import styled, { css } from "styled-components";
+import styledTS from "styled-components-ts";
+import { colors, dimensions, typography } from "../../styles";
 
-const inputPadding = '0px';
-const inputHeight = '15px';
-const inputScale = '12px';
-const inputBorderWidth = '2px';
-const textInputHeight = '34px';
+const inputPadding = "0px";
+const inputHeight = "15px";
+const inputScale = "12px";
+const inputBorderWidth = "2px";
+const textInputHeight = "34px";
 
 const Label = styled.label`
   text-transform: uppercase;
@@ -70,7 +70,7 @@ const Input = styledTS<{ round?: boolean; hasError?: boolean }>(styled.input)`
       `;
     }
 
-    return '';
+    return "";
   }};
 
   &:hover {
@@ -115,7 +115,7 @@ const SelectWrapper = styledTS<{ hasError?: boolean }>(styled.div)`
   }
 `;
 
-const Select = styled(Input.withComponent('select'))`
+const Select = styled(Input.withComponent("select"))`
   border: none;
   height: ${textInputHeight};
   padding: 0;
@@ -125,7 +125,7 @@ const Select = styled(Input.withComponent('select'))`
 
 const TextArea = styledTS<{
   maxHeight?: number;
-}>(styled(Input.withComponent('textarea')))`
+}>(styled(Input.withComponent("textarea")))`
   transition: none;
   max-height: ${props => props.maxHeight && `${props.maxHeight}px`};
   min-height: 80px;
@@ -153,7 +153,7 @@ const inputStyle = styledTS<{ disabled?: boolean }>(styled.input)`
   position: absolute !important;
   width: 1px !important;
   white-space: nowrap !important;
-  cursor: ${props => props.disabled && 'not-allowed'}
+  cursor: ${props => props.disabled && "not-allowed"}
 
   &:focus {
     + span {
@@ -198,7 +198,7 @@ const inputStyle = styledTS<{ disabled?: boolean }>(styled.input)`
       display: inline-block;
       vertical-align: text-top;
       border-radius: 2px;
-      cursor: ${props => props.disabled && 'not-allowed'}
+      cursor: ${props => props.disabled && "not-allowed"}
     }
 
     &:after {
@@ -283,7 +283,7 @@ const Checkbox = styled(inputStyle)`
     }
 
     &:after {
-      content: '';
+      content: "";
       transform: rotate(-45deg) scale(1);
       transition: transform 200ms ease-out;
     }

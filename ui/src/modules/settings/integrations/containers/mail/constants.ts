@@ -8,7 +8,7 @@ const messageId = Math.round(Math.random() * -1000000);
 const createdAt = new Date();
 
 const defaultMessageFields = {
-  __typename: 'ConversationMessage',
+  __typename: "ConversationMessage",
   customerId: messageCustomerId,
   userId,
   createdAt,
@@ -23,21 +23,21 @@ const defaultMessageFields = {
 };
 
 const defaultCustomerFields = {
-  __typename: 'Customer',
+  __typename: "Customer",
   _id: customerId,
   avatar: null,
   companies: null,
   customFieldsData: null,
   getTags: null,
-  state: 'visitor',
+  state: "visitor",
   lastName: null,
   primaryPhone: null,
   tagIds: null
 };
 
 const defaultMailFields = {
-  __typename: 'MailData',
-  threadId: '',
+  __typename: "MailData",
+  threadId: "",
   messageId,
   reply: null,
   replyToMessageId: null,

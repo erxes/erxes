@@ -1,12 +1,12 @@
-import Button from 'modules/common/components/Button';
-import FormControl from 'modules/common/components/form/Control';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import { IFormProps } from 'modules/common/types';
-import { __, confirm } from 'modules/common/utils';
-import React from 'react';
-import { GoogleButton, Row } from '../styles';
-import { IAccount, IntegrationTypes } from '../types';
+import Button from "modules/common/components/Button";
+import FormControl from "modules/common/components/form/Control";
+import FormGroup from "modules/common/components/form/Group";
+import ControlLabel from "modules/common/components/form/Label";
+import { IFormProps } from "modules/common/types";
+import { __, confirm } from "modules/common/utils";
+import React from "react";
+import { GoogleButton, Row } from "../styles";
+import { IAccount, IntegrationTypes } from "../types";
 
 type Props = {
   onSelect: (accountId?: string) => void;
@@ -30,7 +30,7 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
 
     this.props.onSelect(accountId);
 
-    this.setState({ accountId: accountId || '' });
+    this.setState({ accountId: accountId || "" });
   };
 
   onRemove(accountId: string) {
@@ -38,14 +38,14 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
 
     confirm().then(() => {
       removeAccount(accountId);
-      this.setState({ accountId: '' });
+      this.setState({ accountId: "" });
     });
   }
 
   renderButton() {
     const { onAdd, kind } = this.props;
 
-    if (kind === 'gmail' || kind === 'nylas-gmail') {
+    if (kind === "gmail" || kind === "nylas-gmail") {
       return <GoogleButton href="#add" onClick={onAdd} />;
     }
 
@@ -95,11 +95,11 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
             {...formProps}
             name="accountId"
             componentClass="select"
-            placeholder={__('Select account')}
+            placeholder={__("Select account")}
             onChange={this.onChange}
             required={true}
           >
-            <option value="">{__('Select account ...')}</option>
+            <option value="">{__("Select account ...")}</option>
 
             {accounts.map((account, index) => (
               <option key={index} value={account._id}>

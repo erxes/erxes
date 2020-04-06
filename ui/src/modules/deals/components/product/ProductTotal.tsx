@@ -1,12 +1,12 @@
-import { FormControl } from 'modules/common/components/form';
+import { FormControl } from "modules/common/components/form";
 import {
   Amount,
   ContentColumn,
   ContentRow,
   Measure
-} from 'modules/deals/styles';
-import { IProductData } from 'modules/deals/types';
-import React from 'react';
+} from "modules/deals/styles";
+import { IProductData } from "modules/deals/types";
+import React from "react";
 
 type Props = {
   kindTxt: string;
@@ -56,12 +56,12 @@ class ProductTotal extends React.Component<Props, State> {
     )) {
       const amount = pData.unitPrice * pData.quantity;
       switch (kindTxt) {
-        case 'discount': {
+        case "discount": {
           pData.discountPercent = value;
           pData.discount = (amount * value) / 100;
           break;
         }
-        case 'tax': {
+        case "tax": {
           pData.taxPercent = value;
           break;
         }
@@ -106,7 +106,7 @@ class ProductTotal extends React.Component<Props, State> {
   renderTotalPercent() {
     const { totalKind, kindTxt } = this.props;
 
-    if (kindTxt === 'total') {
+    if (kindTxt === "total") {
       return;
     }
 
@@ -129,7 +129,7 @@ class ProductTotal extends React.Component<Props, State> {
   renderTotalDiscount() {
     const { currency, kindTxt, totalKind } = this.props;
 
-    if (kindTxt !== 'discount') {
+    if (kindTxt !== "discount") {
       return;
     }
 
@@ -150,7 +150,7 @@ class ProductTotal extends React.Component<Props, State> {
   renderTax() {
     const { currency, kindTxt, totalKind } = this.props;
 
-    if (kindTxt !== 'tax') {
+    if (kindTxt !== "tax") {
       return;
     }
 
@@ -164,7 +164,7 @@ class ProductTotal extends React.Component<Props, State> {
   renderTotal() {
     const { currency, kindTxt, totalKind } = this.props;
 
-    if (kindTxt !== 'total') {
+    if (kindTxt !== "total") {
       return;
     }
 

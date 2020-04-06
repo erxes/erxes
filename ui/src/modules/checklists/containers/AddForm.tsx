@@ -1,8 +1,8 @@
-import ButtonMutate from 'modules/common/components/ButtonMutate';
-import { IButtonMutateProps } from 'modules/common/types';
-import * as React from 'react';
-import AddForm from '../components/AddForm';
-import { mutations } from '../graphql';
+import ButtonMutate from "modules/common/components/ButtonMutate";
+import { IButtonMutateProps } from "modules/common/types";
+import * as React from "react";
+import AddForm from "../components/AddForm";
+import { mutations } from "../graphql";
 
 type Props = {
   itemId: string;
@@ -22,7 +22,7 @@ class AddFormContainer extends React.Component<Props> {
           mutation={mutations.checklistsAdd}
           variables={values}
           callback={callback}
-          refetchQueries={['checklists']}
+          refetchQueries={["checklists"]}
           isSubmitted={isSubmitted}
           btnSize="small"
           type="submit"

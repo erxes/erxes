@@ -1,6 +1,6 @@
-import { colors, dimensions } from 'modules/common/styles';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import { colors, dimensions } from "modules/common/styles";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 const ChartAxis = styled.div`
   width: 100%;
@@ -12,7 +12,7 @@ const ChartAxis = styled.div`
 
   &:before,
   &:after {
-    content: '';
+    content: "";
     position: absolute;
   }
 

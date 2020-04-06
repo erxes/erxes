@@ -1,8 +1,8 @@
-import SelectWithSearch from 'modules/common/components/SelectWithSearch';
-import { IOption, IQueryParams } from 'modules/common/types';
-import React from 'react';
-import { queries } from '../../graphql';
-import { IProduct } from '../../types';
+import SelectWithSearch from "modules/common/components/SelectWithSearch";
+import { IOption, IQueryParams } from "modules/common/types";
+import React from "react";
+import { queries } from "../../graphql";
+import { IProduct } from "../../types";
 
 // get config options for react-select-plus
 export function generateProductOptions(array: IProduct[] = []): IOption[] {
@@ -43,7 +43,7 @@ export default ({
       name={name}
       customQuery={queries.products}
       values={
-        typeof defaultValue === 'string'
+        typeof defaultValue === "string"
           ? multi
             ? [defaultValue]
             : defaultValue

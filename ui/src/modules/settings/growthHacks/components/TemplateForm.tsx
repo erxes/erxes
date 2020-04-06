@@ -1,14 +1,14 @@
-import { IStage } from 'modules/boards/types';
-import FormControl from 'modules/common/components/form/Control';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import { IFormProps } from 'modules/common/types';
-import React from 'react';
-import CommonForm from '../../common/components/Form';
-import { ICommonFormProps } from '../../common/types';
-import { Warning } from '../styles';
-import { IPipelineTemplate } from '../types';
-import Stages from './Stages';
+import { IStage } from "modules/boards/types";
+import FormControl from "modules/common/components/form/Control";
+import FormGroup from "modules/common/components/form/Group";
+import ControlLabel from "modules/common/components/form/Label";
+import { IFormProps } from "modules/common/types";
+import React from "react";
+import CommonForm from "../../common/components/Form";
+import { ICommonFormProps } from "../../common/types";
+import { Warning } from "../styles";
+import { IPipelineTemplate } from "../types";
+import Stages from "./Stages";
 
 type Props = {
   object?: IPipelineTemplate;
@@ -32,7 +32,7 @@ class TemplateForm extends React.Component<Props & ICommonFormProps, State> {
         name: stage.name,
         formId: stage.formId
       })),
-      content: (object && object.content) || ''
+      content: (object && object.content) || ""
     };
   }
 
@@ -57,7 +57,7 @@ class TemplateForm extends React.Component<Props & ICommonFormProps, State> {
       _id: finalValues._id,
       name: finalValues.name,
       description: finalValues.description,
-      type: 'growthHack',
+      type: "growthHack",
       stages: stages.filter(el => el.name && el.formId)
     };
   };

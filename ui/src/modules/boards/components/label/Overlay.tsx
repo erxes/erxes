@@ -1,17 +1,17 @@
-import Button from 'modules/common/components/Button';
-import FilterableList from 'modules/common/components/filterableList/FilterableList';
-import Icon from 'modules/common/components/Icon';
-import { __ } from 'modules/common/utils';
-import * as React from 'react';
-import Popover from 'react-bootstrap/Popover';
-import Form from '../../containers/label/Form';
+import Button from "modules/common/components/Button";
+import FilterableList from "modules/common/components/filterableList/FilterableList";
+import Icon from "modules/common/components/Icon";
+import { __ } from "modules/common/utils";
+import * as React from "react";
+import Popover from "react-bootstrap/Popover";
+import Form from "../../containers/label/Form";
 import {
   ButtonContainer,
   LabelWrapper,
   PipelineLabelList,
   Title
-} from '../../styles/label';
-import { IPipelineLabel } from '../../types';
+} from "../../styles/label";
+import { IPipelineLabel } from "../../types";
 
 type IOverlayProps = {
   selectedLabelIds: string[];
@@ -59,22 +59,22 @@ export default class Overlay extends React.Component<
     const { labels = [], selectedLabelIds } = this.props;
 
     return labels.map(({ _id, name, colorCode }) => {
-      const count = (selectedLabelIds || []).includes(_id || '') ? 1 : 0;
+      const count = (selectedLabelIds || []).includes(_id || "") ? 1 : 0;
 
       return {
         _id,
         title: name,
         style: { backgroundColor: colorCode },
-        selectedBy: count === 1 ? 'all' : 'none',
+        selectedBy: count === 1 ? "all" : "none",
         additionalIconOnClick: this.onEdit,
-        additionalIconClass: 'pen-1'
+        additionalIconClass: "pen-1"
       };
     });
   }
 
   onLabelClick = labels => {
     const selectedLabelIds: string[] = labels
-      .filter(t => t.selectedBy === 'all')
+      .filter(t => t.selectedBy === "all")
       .map(t => t._id);
 
     this.props.onSelectLabels(selectedLabelIds);
@@ -95,12 +95,12 @@ export default class Overlay extends React.Component<
   }
 
   componentDidMount() {
-    const elm = document.getElementById('filter-label');
+    const elm = document.getElementById("filter-label");
 
     if (elm) {
-      elm.className = 'popover bottom';
-      elm.style.marginTop = '35px';
-      elm.style.left = '-80px';
+      elm.className = "popover bottom";
+      elm.style.marginTop = "35px";
+      elm.style.left = "-80px";
     }
   }
 
@@ -149,13 +149,13 @@ export default class Overlay extends React.Component<
 
   render() {
     const { labelId, showForm } = this.state;
-    const title = labelId ? 'Edit label' : 'Create label';
+    const title = labelId ? "Edit label" : "Create label";
 
     return (
       <Popover id="filter-label">
         <Title>
           {showForm && <Icon icon="arrow-left" onClick={this.onChangeForm} />}
-          {showForm ? __(title) : __('Labels')}
+          {showForm ? __(title) : __("Labels")}
           <Icon icon="times" onClick={this.onClose} />
         </Title>
 

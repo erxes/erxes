@@ -1,13 +1,13 @@
-import dayjs from 'dayjs';
-import DropdownToggle from 'modules/common/components/DropdownToggle';
-import Icon from 'modules/common/components/Icon';
-import Avatar from 'modules/common/components/nameCard/Avatar';
-import Tip from 'modules/common/components/Tip';
-import { __ } from 'modules/common/utils';
-import { ICustomer } from 'modules/customers/types';
-import { IMail, IMessage } from 'modules/inbox/types';
-import * as React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
+import dayjs from "dayjs";
+import DropdownToggle from "modules/common/components/DropdownToggle";
+import Icon from "modules/common/components/Icon";
+import Avatar from "modules/common/components/nameCard/Avatar";
+import Tip from "modules/common/components/Tip";
+import { __ } from "modules/common/utils";
+import { ICustomer } from "modules/customers/types";
+import { IMail, IMessage } from "modules/inbox/types";
+import * as React from "react";
+import Dropdown from "react-bootstrap/Dropdown";
 import {
   ActionButton,
   AddressContainer,
@@ -19,7 +19,7 @@ import {
   Meta,
   RightSide,
   Title
-} from './style';
+} from "./style";
 
 type Props = {
   message: IMessage;
@@ -38,7 +38,7 @@ class MailHeader extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      dateFormat: 'MMM D, h:mm A',
+      dateFormat: "MMM D, h:mm A",
       isDetailExpanded: false
     };
   }
@@ -47,7 +47,7 @@ class MailHeader extends React.Component<Props, State> {
     e.stopPropagation();
 
     this.setState({
-      dateFormat: this.state.dateFormat === 'lll' ? 'MMM D, h:mm A' : 'lll'
+      dateFormat: this.state.dateFormat === "lll" ? "MMM D, h:mm A" : "lll"
     });
   };
 
@@ -87,7 +87,7 @@ class MailHeader extends React.Component<Props, State> {
 
     return (
       <>
-        <Tip text={__('Reply')} placement="bottom">
+        <Tip text={__("Reply")} placement="bottom">
           <ActionButton onClick={onToggleReply}>
             <Icon icon="reply" />
           </ActionButton>
@@ -142,7 +142,7 @@ class MailHeader extends React.Component<Props, State> {
     const emails = values.map((val, idx) => (
       <React.Fragment key={idx}>
         <span>{val.email}</span>
-        {length - 1 !== idx && `,${' '}`}
+        {length - 1 !== idx && `,${" "}`}
       </React.Fragment>
     ));
 
@@ -171,11 +171,11 @@ class MailHeader extends React.Component<Props, State> {
 
     return (
       <div>
-        <strong>{customer.firstName}</strong>{' '}
+        <strong>{customer.firstName}</strong>{" "}
         <From>
-          {'<'}
+          {"<"}
           {fromEmail}
-          {'>'}
+          {">"}
         </From>
       </div>
     );
@@ -188,7 +188,7 @@ class MailHeader extends React.Component<Props, State> {
 
     return (
       <AddressItem>
-        <Title>{__('Subject')}:</Title>
+        <Title>{__("Subject")}:</Title>
         <Addresses>{subject}</Addresses>
       </AddressItem>
     );
@@ -199,7 +199,7 @@ class MailHeader extends React.Component<Props, State> {
 
     if (isContentCollapsed) {
       // remove all tags and convert plain text
-      const plainContent = (message.content || '').trim();
+      const plainContent = (message.content || "").trim();
 
       return <div>{plainContent.substring(0, 100)}...</div>;
     }
@@ -207,11 +207,11 @@ class MailHeader extends React.Component<Props, State> {
     return (
       <>
         <AddressContainer isExpanded={this.state.isDetailExpanded}>
-          {this.renderAddress('To:', mailData.to)}
-          {this.renderAddress('Cc:', mailData.cc)}
-          {this.renderAddress('Bcc:', mailData.bcc)}
+          {this.renderAddress("To:", mailData.to)}
+          {this.renderAddress("Cc:", mailData.cc)}
+          {this.renderAddress("Bcc:", mailData.bcc)}
         </AddressContainer>
-        {this.renderSubject(mailData.subject || '')}
+        {this.renderSubject(mailData.subject || "")}
       </>
     );
   };
@@ -224,7 +224,7 @@ class MailHeader extends React.Component<Props, State> {
         onClick={this.toggleExpand}
         clickable={!this.props.isContentCollapsed}
       >
-        {this.renderCustomer(from.email || '')}
+        {this.renderCustomer(from.email || "")}
         {this.renderSecondaryContent(mailData)}
       </Details>
     );

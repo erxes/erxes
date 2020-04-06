@@ -1,21 +1,21 @@
-import Button from 'modules/common/components/Button';
-import DropdownToggle from 'modules/common/components/DropdownToggle';
-import Icon from 'modules/common/components/Icon';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import { InfoWrapper } from 'modules/common/styles/main';
-import { __, Alert, confirm } from 'modules/common/utils';
+import Button from "modules/common/components/Button";
+import DropdownToggle from "modules/common/components/DropdownToggle";
+import Icon from "modules/common/components/Icon";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import { InfoWrapper } from "modules/common/styles/main";
+import { __, Alert, confirm } from "modules/common/utils";
 
-import { Action, Name } from 'modules/customers/styles';
-import Sidebar from 'modules/layout/components/Sidebar';
+import { Action, Name } from "modules/customers/styles";
+import Sidebar from "modules/layout/components/Sidebar";
 import {
   SidebarCounter,
   SidebarFlexRow,
   SidebarList
-} from 'modules/layout/styles';
-import ProductForm from 'modules/settings/productService/containers/product/ProductForm';
-import { IProduct } from 'modules/settings/productService/types';
-import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
+} from "modules/layout/styles";
+import ProductForm from "modules/settings/productService/containers/product/ProductForm";
+import { IProduct } from "modules/settings/productService/types";
+import React from "react";
+import Dropdown from "react-bootstrap/Dropdown";
 
 type Props = {
   product: IProduct;
@@ -26,7 +26,7 @@ class BasicInfo extends React.Component<Props> {
   renderRow = (label, value) => {
     return (
       <li>
-        {__(`${label}`)}:<SidebarCounter>{value || '-'}</SidebarCounter>
+        {__(`${label}`)}:<SidebarCounter>{value || "-"}</SidebarCounter>
       </li>
     );
   };
@@ -46,14 +46,14 @@ class BasicInfo extends React.Component<Props> {
         <Dropdown>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
             <Button btnStyle="simple" size="medium">
-              {__('Action')}
+              {__("Action")}
               <Icon icon="angle-down" />
             </Button>
           </Dropdown.Toggle>
           <Dropdown.Menu>
             <li>
               <a href="#delete" onClick={onDelete}>
-                {__('Delete')}
+                {__("Delete")}
               </a>
             </li>
           </Dropdown.Menu>
@@ -82,16 +82,16 @@ class BasicInfo extends React.Component<Props> {
         {this.renderAction()}
 
         <SidebarList className="no-link">
-          {this.renderRow('Code', product.code)}
-          {this.renderRow('Type', product.type)}
+          {this.renderRow("Code", product.code)}
+          {this.renderRow("Type", product.type)}
           {this.renderRow(
-            'Category',
-            product.category ? product.category.name : ''
+            "Category",
+            product.category ? product.category.name : ""
           )}
-          {this.renderRow('Unit price', product.unitPrice)}
-          {this.renderRow('Sku', product.sku)}
+          {this.renderRow("Unit price", product.unitPrice)}
+          {this.renderRow("Sku", product.sku)}
           <SidebarFlexRow>
-            {__(`Description`)}:<span>{product.description || '-'}</span>
+            {__(`Description`)}:<span>{product.description || "-"}</span>
           </SidebarFlexRow>
         </SidebarList>
       </Sidebar.Section>

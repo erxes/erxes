@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import Collapse from 'react-bootstrap/Collapse';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
-import colors from '../styles/colors';
-import Icon from './Icon';
+import React, { useState } from "react";
+import Collapse from "react-bootstrap/Collapse";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
+import colors from "../styles/colors";
+import Icon from "./Icon";
 
 const Title = styledTS<{ compact?: boolean }>(styled.div)`
-  padding: ${props => (props.compact ? '10px 20px' : '20px')};
+  padding: ${props => (props.compact ? "10px 20px" : "20px")};
   transition: background 0.3s ease;
   display: flex;
   align-items: center;
@@ -35,7 +35,7 @@ const Container = styledTS<{ open: boolean }>(styled.div)`
   ${Title} i {
     font-size: 20px;
     transition: transform ease 0.3s;
-    transform: ${props => props.open && 'rotate(180deg)'};
+    transform: ${props => props.open && "rotate(180deg)"};
   }
 `;
 

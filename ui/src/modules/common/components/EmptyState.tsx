@@ -1,10 +1,10 @@
-import { __ } from 'modules/common/utils';
-import React from 'react';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { colors } from '../styles';
-import Button from './Button';
-import Icon from './Icon';
+import { __ } from "modules/common/utils";
+import React from "react";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
+import { colors } from "../styles";
+import Button from "./Button";
+import Icon from "./Icon";
 
 const EmptyStateStyled = styledTS<{ hugeness: string; light?: boolean }>(
   styled.div
@@ -33,7 +33,7 @@ const EmptyStateStyled = styledTS<{ hugeness: string; light?: boolean }>(
   }
 
   ${props => {
-    if (props.hugeness === 'small') {
+    if (props.hugeness === "small") {
       return `
         min-height: 100px;
         font-size: 12px;
@@ -51,8 +51,8 @@ const EmptyStateStyled = styledTS<{ hugeness: string; light?: boolean }>(
   }};
 
   i {
-    font-size: ${props => (props.hugeness === 'small' ? '28px' : '12vh')};
-    line-height: ${props => (props.hugeness === 'small' ? '40px' : '18vh')};
+    font-size: ${props => (props.hugeness === "small" ? "28px" : "12vh")};
+    line-height: ${props => (props.hugeness === "small" ? "40px" : "18vh")};
     color: ${colors.colorCoreLightGray};
   }
 
@@ -76,7 +76,7 @@ function EmptyState({
   text,
   icon,
   image,
-  size = 'small',
+  size = "small",
   linkUrl,
   linkText,
   light

@@ -1,6 +1,6 @@
-import Button from 'modules/common/components/Button';
-import * as React from 'react';
-import styled from 'styled-components';
+import Button from "modules/common/components/Button";
+import * as React from "react";
+import styled from "styled-components";
 
 const Wrapper = styled.div`
   width: 280px;
@@ -35,7 +35,7 @@ class Suggestion extends React.PureComponent<Props> {
 
     let message = "You haven't configured yet. Would you like to configure";
 
-    if (buttonText === 'Resume') {
+    if (buttonText === "Resume") {
       message = "You haven't fully configured. Would you like to configure";
     }
 

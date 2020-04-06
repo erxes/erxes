@@ -1,28 +1,28 @@
-import { IUser } from 'modules/auth/types';
-import asyncComponent from 'modules/common/components/AsyncComponent';
-import DropdownToggle from 'modules/common/components/DropdownToggle';
-import Icon from 'modules/common/components/Icon';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import NameCard from 'modules/common/components/nameCard/NameCard';
-import Tip from 'modules/common/components/Tip';
-import { colors } from 'modules/common/styles';
-import { __ } from 'modules/common/utils';
-import Widget from 'modules/notifications/containers/Widget';
-import NotificationSettings from 'modules/settings/profile/containers/NotificationSettings';
-import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import { Link } from 'react-router-dom';
-import styled, { css } from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { UserHelper } from '../styles';
-import BrandChooser from './BrandChooser';
+import { IUser } from "modules/auth/types";
+import asyncComponent from "modules/common/components/AsyncComponent";
+import DropdownToggle from "modules/common/components/DropdownToggle";
+import Icon from "modules/common/components/Icon";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import NameCard from "modules/common/components/nameCard/NameCard";
+import Tip from "modules/common/components/Tip";
+import { colors } from "modules/common/styles";
+import { __ } from "modules/common/utils";
+import Widget from "modules/notifications/containers/Widget";
+import NotificationSettings from "modules/settings/profile/containers/NotificationSettings";
+import React from "react";
+import Dropdown from "react-bootstrap/Dropdown";
+import { Link } from "react-router-dom";
+import styled, { css } from "styled-components";
+import styledTS from "styled-components-ts";
+import { UserHelper } from "../styles";
+import BrandChooser from "./BrandChooser";
 
 const Signature = asyncComponent(() =>
-  import(/* webpackChunkName:"Signature" */ 'modules/settings/email/containers/Signature')
+  import(/* webpackChunkName:"Signature" */ "modules/settings/email/containers/Signature")
 );
 
 const ChangePassword = asyncComponent(() =>
-  import(/* webpackChunkName:"ChangePassword" */ 'modules/settings/profile/containers/ChangePassword')
+  import(/* webpackChunkName:"ChangePassword" */ "modules/settings/profile/containers/ChangePassword")
 );
 
 const UserInfo = styled.div`
@@ -42,7 +42,7 @@ const NameCardWrapper = styled.div`
 
 const NavItem = styledTS<{ odd?: boolean }>(styled.div)`
   padding-left: 20px;
-  padding-right: ${props => props.odd && '20px'};
+  padding-right: ${props => props.odd && "20px"};
   display: table-cell;
   vertical-align: middle;
 
@@ -86,7 +86,7 @@ const QuickNavigation = ({
 
   const brandOptions = brands.map(brand => ({
     value: brand._id,
-    label: brand.name || ''
+    label: brand.name || ""
   }));
 
   let brandsCombo;
@@ -107,7 +107,7 @@ const QuickNavigation = ({
     <nav>
       {brandsCombo}
 
-      <Tip text={__('Task')} placement="bottom">
+      <Tip text={__("Task")} placement="bottom">
         <NavItem odd={true}>
           <Link to="/task">
             <Icon icon="clipboard" size={16} />
@@ -140,14 +140,14 @@ const QuickNavigation = ({
             <Dropdown.Divider />
 
             <li>
-              <Link to="/profile">{__('View Profile')}</Link>
+              <Link to="/profile">{__("View Profile")}</Link>
             </li>
 
             <ModalTrigger
               title="Change Password"
               trigger={
                 <li>
-                  <a href="#change-password">{__('Change Password')}</a>
+                  <a href="#change-password">{__("Change Password")}</a>
                 </li>
               }
               content={passContent}
@@ -157,7 +157,7 @@ const QuickNavigation = ({
               title="Email signatures"
               trigger={
                 <li>
-                  <a href="#email">{__('Email signatures')}</a>
+                  <a href="#email">{__("Email signatures")}</a>
                 </li>
               }
               content={signatureContent}
@@ -167,14 +167,14 @@ const QuickNavigation = ({
               title="Notification settings"
               trigger={
                 <li>
-                  <a href="#notif">{__('Notification settings')}</a>
+                  <a href="#notif">{__("Notification settings")}</a>
                 </li>
               }
               content={notificationContent}
             />
 
             <Dropdown.Divider />
-            <Dropdown.Item onClick={logout}>{__('Sign out')}</Dropdown.Item>
+            <Dropdown.Item onClick={logout}>{__("Sign out")}</Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
       </NavItem>

@@ -1,8 +1,8 @@
-import dayjs from 'dayjs';
-import { CloseDateLabel } from 'modules/boards/styles/popup';
-import Icon from 'modules/common/components/Icon';
-import * as React from 'react';
-import { generateButtonClass } from '../utils';
+import dayjs from "dayjs";
+import { CloseDateLabel } from "modules/boards/styles/popup";
+import Icon from "modules/common/components/Icon";
+import * as React from "react";
+import { generateButtonClass } from "../utils";
 
 type IProps = {
   closeDate: Date;
@@ -17,7 +17,7 @@ class DueDateLabel extends React.Component<IProps> {
       return null;
     }
 
-    const day = dayjs(closeDate).format('MMM DD');
+    const day = dayjs(closeDate).format("MMM DD");
 
     return (
       <CloseDateLabel colorName={generateButtonClass(closeDate, isComplete)}>

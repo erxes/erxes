@@ -1,13 +1,13 @@
-import MainActionBar from 'modules/boards/components/MainActionBar';
-import { IBoard, IPipeline } from 'modules/boards/types';
-import { IOption } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
-import SelectCompanies from 'modules/companies/containers/SelectCompanies';
-import SelectCustomers from 'modules/customers/containers/common/SelectCustomers';
-import { INTEGRATION_KINDS } from 'modules/settings/integrations/constants';
-import React from 'react';
-import Select from 'react-select-plus';
-import options from '../options';
+import MainActionBar from "modules/boards/components/MainActionBar";
+import { IBoard, IPipeline } from "modules/boards/types";
+import { IOption } from "modules/common/types";
+import { __ } from "modules/common/utils";
+import SelectCompanies from "modules/companies/containers/SelectCompanies";
+import SelectCustomers from "modules/customers/containers/common/SelectCustomers";
+import { INTEGRATION_KINDS } from "modules/settings/integrations/constants";
+import React from "react";
+import Select from "react-select-plus";
+import options from "../options";
 
 type Props = {
   onSearch: (search: string) => void;
@@ -35,13 +35,13 @@ const TicketMainActionBar = (props: Props) => {
   }));
 
   sourceValues.push({
-    label: 'Other',
-    value: 'other'
+    label: "Other",
+    value: "other"
   });
 
   const sources = queryParams ? queryParams.source : [];
   const onSourceSelect = (ops: IOption[]) =>
-    onSelect(ops.map(option => option.value), 'source');
+    onSelect(ops.map(option => option.value), "source");
 
   const extraFilter = (
     <>
@@ -52,7 +52,7 @@ const TicketMainActionBar = (props: Props) => {
         name="source"
         onChange={onSourceSelect}
         multi={true}
-        loadingPlaceholder={__('Loading...')}
+        loadingPlaceholder={__("Loading...")}
       />
 
       <SelectCompanies
@@ -75,7 +75,7 @@ const TicketMainActionBar = (props: Props) => {
     ...props,
     options,
     extraFilter,
-    link: '/inbox/ticket/board'
+    link: "/inbox/ticket/board"
   };
 
   return <MainActionBar {...extendedProps} />;

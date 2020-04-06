@@ -1,12 +1,12 @@
-import { PopoverList } from 'modules/common/components/filterableList/styles';
-import { colors } from 'modules/common/styles';
-import styled, { css } from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { borderRadius, stageWidth } from './common';
+import { PopoverList } from "modules/common/components/filterableList/styles";
+import { colors } from "modules/common/styles";
+import styled, { css } from "styled-components";
+import styledTS from "styled-components-ts";
+import { borderRadius, stageWidth } from "./common";
 
-const hoverColor = 'rgba(10,45,65,.13)';
-const stageGray = '#e5e8ec';
-const secondaryText = '#6a818c';
+const hoverColor = "rgba(10,45,65,.13)";
+const stageGray = "#e5e8ec";
+const secondaryText = "#6a818c";
 
 const Container = styled.div`
   display: flex;
@@ -26,8 +26,8 @@ const StageRoot = styledTS<{ isDragging: boolean }>(styled.div)`
 
   ${props => css`
     box-shadow: ${props.isDragging
-      ? 'rgba(0, 0, 0, 0.2) 0px 5px 20px 0px'
-      : 'rgba(0, 0, 0, 0.15) 0px 1px 5px 0px'};
+      ? "rgba(0, 0, 0, 0.2) 0px 5px 20px 0px"
+      : "rgba(0, 0, 0, 0.15) 0px 1px 5px 0px"};
   `};
 `;
 
@@ -35,7 +35,7 @@ const Content = styledTS<{ type?: string }>(styled.div)`
 
   h5 {
     ${props => css`
-      margin: ${props.type === 'growthHack' ? '0 20px 10px 0' : '0 0 8px 0'};
+      margin: ${props.type === "growthHack" ? "0 20px 10px 0" : "0 0 8px 0"};
     `};
     word-break: break-word;
     line-height: 18px;
@@ -110,12 +110,12 @@ const Amount = styled.ul`
     }
 
     &:after {
-      content: '/';
+      content: "/";
       margin-left: 5px;
     }
 
     &:last-child:after {
-      content: '';
+      content: "";
     }
   }
 `;

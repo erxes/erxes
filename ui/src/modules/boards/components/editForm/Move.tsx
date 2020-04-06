@@ -1,4 +1,4 @@
-import BoardSelect from 'modules/boards/containers/BoardSelect';
+import BoardSelect from "modules/boards/containers/BoardSelect";
 import {
   MoveContainer,
   MoveFormContainer,
@@ -6,14 +6,14 @@ import {
   PipelinePopoverContent,
   StageItem,
   Stages
-} from 'modules/boards/styles/item';
-import { IStage } from 'modules/boards/types';
-import Icon from 'modules/common/components/Icon';
-import Tip from 'modules/common/components/Tip';
-import React from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import { IItem, IOptions } from '../../types';
+} from "modules/boards/styles/item";
+import { IStage } from "modules/boards/types";
+import Icon from "modules/common/components/Icon";
+import Tip from "modules/common/components/Tip";
+import React from "react";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Popover from "react-bootstrap/Popover";
+import { IItem, IOptions } from "../../types";
 
 type Props = {
   item?: IItem;
@@ -83,7 +83,7 @@ class Move extends React.Component<Props, State> {
             <StageItem key={s._id} isPass={isPass}>
               <Tip text={s.name} placement="top">
                 <span onClick={onClick}>
-                  <Icon icon={isPass ? 'check-circle' : 'circle'} />
+                  <Icon icon={isPass ? "check-circle" : "circle"} />
                 </span>
               </Tip>
             </StageItem>

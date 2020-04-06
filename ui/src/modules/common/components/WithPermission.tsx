@@ -1,6 +1,6 @@
-import { AppConsumer } from 'appContext';
-import React from 'react';
-import { can } from '../utils';
+import { AppConsumer } from "appContext";
+import React from "react";
+import { can } from "../utils";
 
 type Props = {
   action: string;

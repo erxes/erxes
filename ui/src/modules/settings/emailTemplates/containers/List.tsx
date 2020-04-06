@@ -1,10 +1,10 @@
-import gql from 'graphql-tag';
-import { generatePaginationParams } from 'modules/common/utils/router';
-import { graphql } from 'react-apollo';
-import { commonListComposer } from '../../utils';
-import List from '../components/List';
-import { mutations, queries } from '../graphql';
-import { IEmailTemplate } from '../types';
+import gql from "graphql-tag";
+import { generatePaginationParams } from "modules/common/utils/router";
+import { graphql } from "react-apollo";
+import { commonListComposer } from "../../utils";
+import List from "../components/List";
+import { mutations, queries } from "../graphql";
+import { IEmailTemplate } from "../types";
 
 export type EmailTemplatesQueryResponse = {
   emailTemplates: IEmailTemplate[];
@@ -17,13 +17,13 @@ type Props = {
 };
 
 export default commonListComposer<Props>({
-  text: 'email template',
-  label: 'emailTemplates',
+  text: "email template",
+  label: "emailTemplates",
   stringEditMutation: mutations.emailTemplatesEdit,
   stringAddMutation: mutations.emailTemplatesAdd,
 
   gqlListQuery: graphql(gql(queries.emailTemplates), {
-    name: 'listQuery',
+    name: "listQuery",
     options: ({ queryParams }: { queryParams: any }) => {
       return {
         notifyOnNetworkStatusChange: true,
@@ -33,19 +33,19 @@ export default commonListComposer<Props>({
   }),
 
   gqlTotalCountQuery: graphql(gql(queries.totalCount), {
-    name: 'totalCountQuery'
+    name: "totalCountQuery"
   }),
 
   gqlAddMutation: graphql(gql(mutations.emailTemplatesAdd), {
-    name: 'addMutation'
+    name: "addMutation"
   }),
 
   gqlEditMutation: graphql(gql(mutations.emailTemplatesEdit), {
-    name: 'editMutation'
+    name: "editMutation"
   }),
 
   gqlRemoveMutation: graphql(gql(mutations.emailTemplatesRemove), {
-    name: 'removeMutation'
+    name: "removeMutation"
   }),
 
   ListComponent: List

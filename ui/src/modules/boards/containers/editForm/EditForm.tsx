@@ -1,13 +1,13 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import Spinner from 'modules/common/components/Spinner';
-import { Alert, confirm, withProps } from 'modules/common/utils';
-import { queries as userQueries } from 'modules/settings/team/graphql';
-import { AllUsersQueryResponse } from 'modules/settings/team/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import ErrorMsg from '../../../common/components/ErrorMsg';
-import { queries } from '../../graphql';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import Spinner from "modules/common/components/Spinner";
+import { Alert, confirm, withProps } from "modules/common/utils";
+import { queries as userQueries } from "modules/settings/team/graphql";
+import { AllUsersQueryResponse } from "modules/settings/team/types";
+import React from "react";
+import { graphql } from "react-apollo";
+import ErrorMsg from "../../../common/components/ErrorMsg";
+import { queries } from "../../graphql";
 import {
   CopyMutation,
   DetailQueryResponse,
@@ -16,9 +16,9 @@ import {
   IOptions,
   RemoveMutation,
   SaveMutation
-} from '../../types';
-import { invalidateCache } from '../../utils';
-import { PipelineConsumer } from '../PipelineContext';
+} from "../../types";
+import { invalidateCache } from "../../utils";
+import { PipelineConsumer } from "../PipelineContext";
 
 type WrapperProps = {
   itemId: string;
@@ -68,7 +68,7 @@ class EditFormContainer extends React.Component<FinalProps> {
       document: gql(options.subscriptions.changeSubscription),
       variables: { _id: itemId },
       updateQuery: () => {
-        if (document.querySelectorAll('.modal').length < 2) {
+        if (document.querySelectorAll(".modal").length < 2) {
           this.props.detailQuery.refetch();
         }
       }
@@ -203,13 +203,13 @@ const withQuery = (props: ContainerProps) => {
       graphql<ContainerProps, DetailQueryResponse, { _id: string }>(
         gql(options.queries.detailQuery),
         {
-          name: 'detailQuery',
+          name: "detailQuery",
           options: ({ itemId }: { itemId: string }) => {
             return {
               variables: {
                 _id: itemId
               },
-              fetchPolicy: 'network-only'
+              fetchPolicy: "network-only"
             };
           }
         }
@@ -217,33 +217,33 @@ const withQuery = (props: ContainerProps) => {
       graphql<ContainerProps, AllUsersQueryResponse>(
         gql(userQueries.allUsers),
         {
-          name: 'usersQuery'
+          name: "usersQuery"
         }
       ),
       graphql<ContainerProps, SaveMutation, IItemParams>(
         gql(options.mutations.addMutation),
         {
-          name: 'addMutation',
+          name: "addMutation",
           options: refetchOptions
         }
       ),
       graphql<ContainerProps, SaveMutation, IItemParams>(
         gql(options.mutations.copyMutation),
         {
-          name: 'copyMutation',
+          name: "copyMutation",
           options: refetchOptions
         }
       ),
       graphql<ContainerProps, SaveMutation, IItemParams>(
         gql(options.mutations.editMutation),
         {
-          name: 'editMutation'
+          name: "editMutation"
         }
       ),
       graphql<ContainerProps, RemoveMutation, { _id: string }>(
         gql(options.mutations.removeMutation),
         {
-          name: 'removeMutation',
+          name: "removeMutation",
           options: refetchOptions
         }
       )

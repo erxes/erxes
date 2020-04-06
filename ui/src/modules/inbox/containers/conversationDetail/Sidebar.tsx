@@ -1,17 +1,17 @@
-import client from 'apolloClient';
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import DumbSidebar from 'modules/inbox/components/conversationDetail/sidebar/Sidebar';
-import { queries } from 'modules/inbox/graphql';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withProps } from '../../../common/utils';
+import client from "apolloClient";
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import DumbSidebar from "modules/inbox/components/conversationDetail/sidebar/Sidebar";
+import { queries } from "modules/inbox/graphql";
+import React from "react";
+import { graphql } from "react-apollo";
+import { withProps } from "../../../common/utils";
 import {
   CustomerDetailQueryResponse,
   ICustomer
-} from '../../../customers/types';
-import { IConversation } from '../../types';
-import { getConfig } from '../../utils';
+} from "../../../customers/types";
+import { IConversation } from "../../types";
+import { getConfig } from "../../utils";
 
 type Props = {
   conversation: IConversation;
@@ -61,7 +61,7 @@ class Sidebar extends React.Component<FinalProps, State> {
     client
       .query({
         query: gql(queries.generateCustomerDetailQuery(sectionParams)),
-        fetchPolicy: 'network-only',
+        fetchPolicy: "network-only",
         variables: { _id: customerId }
       })
       .then(({ data }: { data: any }) => {
@@ -109,7 +109,7 @@ export default withProps<Props>(
     graphql<Props, CustomerDetailQueryResponse, { _id?: string }>(
       gql(queries.generateCustomerDetailQuery(getConfig(STORAGE_KEY))),
       {
-        name: 'customerDetailQuery',
+        name: "customerDetailQuery",
         options: ({ conversation }) => ({
           variables: {
             _id: conversation.customerId

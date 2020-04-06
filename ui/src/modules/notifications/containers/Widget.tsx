@@ -1,6 +1,6 @@
-import React from 'react';
-import Widget from '../components/Widget';
-import { NotifConsumer } from '../context';
+import React from "react";
+import Widget from "../components/Widget";
+import { NotifConsumer } from "../context";
 
 const WidgetContainer = () => (
   <NotifConsumer>

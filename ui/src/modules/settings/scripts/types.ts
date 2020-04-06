@@ -1,4 +1,4 @@
-import { IIntegration } from '../integrations/types';
+import { IIntegration } from "../integrations/types";
 
 export interface IScript {
   _id: string;

@@ -1,13 +1,13 @@
-import MainActionBar from 'modules/boards/containers/MainActionBar';
-import { BoardContainer, BoardContent } from 'modules/boards/styles/common';
-import { colors } from 'modules/common/styles';
-import { __ } from 'modules/common/utils';
-import { HACKSTAGES } from 'modules/growthHacks/constants';
-import FunnelGroup from 'modules/growthHacks/containers/FunnelGroup';
-import { FixedContainer, ScrollContent } from 'modules/growthHacks/styles';
-import Header from 'modules/layout/components/Header';
-import React from 'react';
-import GrowthHackMainActionBar from '../GrowthHackMainActionBar';
+import MainActionBar from "modules/boards/containers/MainActionBar";
+import { BoardContainer, BoardContent } from "modules/boards/styles/common";
+import { colors } from "modules/common/styles";
+import { __ } from "modules/common/utils";
+import { HACKSTAGES } from "modules/growthHacks/constants";
+import FunnelGroup from "modules/growthHacks/containers/FunnelGroup";
+import { FixedContainer, ScrollContent } from "modules/growthHacks/styles";
+import Header from "modules/layout/components/Header";
+import React from "react";
+import GrowthHackMainActionBar from "../GrowthHackMainActionBar";
 
 type Props = {
   queryParams: any;
@@ -64,13 +64,13 @@ class FunnelImpact extends React.Component<Props, States> {
 
   render() {
     const breadcrumb = [
-      { title: __('Growth hacking'), link: '/growthHack/board' },
-      { title: __('Funnel Impact') }
+      { title: __("Growth hacking"), link: "/growthHack/board" },
+      { title: __("Funnel Impact") }
     ];
 
     return (
       <BoardContainer>
-        <Header title={__('Growth hacking')} breadcrumb={breadcrumb} />
+        <Header title={__("Growth hacking")} breadcrumb={breadcrumb} />
         <BoardContent transparent={true} bgColor={colors.bgMain}>
           {this.renderActionBar()}
           {this.renderContent()}

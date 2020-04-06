@@ -1,15 +1,15 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { Alert, confirm, withProps } from 'modules/common/utils';
-import { generatePaginationParams } from 'modules/common/utils/router';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import ArticleList from '../../components/article/ArticleList';
-import { mutations, queries } from '../../graphql';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { Alert, confirm, withProps } from "modules/common/utils";
+import { generatePaginationParams } from "modules/common/utils/router";
+import React from "react";
+import { graphql } from "react-apollo";
+import ArticleList from "../../components/article/ArticleList";
+import { mutations, queries } from "../../graphql";
 import {
   ArticlesQueryResponse,
   RemoveArticlesMutationResponse
-} from '../../types';
+} from "../../types";
 
 type Props = {
   queryParams: any;
@@ -38,7 +38,7 @@ const ArticleContainer = (props: FinalProps) => {
         .then(() => {
           articlesQuery.refetch();
 
-          Alert.success('You successfully deleted an article');
+          Alert.success("You successfully deleted an article");
         })
         .catch(error => {
           Alert.error(error.message);
@@ -66,19 +66,19 @@ export default withProps<Props>(
       ArticlesQueryResponse,
       { categoryIds: string[]; page: number; perPage: number }
     >(gql(queries.knowledgeBaseArticles), {
-      name: 'articlesQuery',
+      name: "articlesQuery",
       options: ({ queryParams, currentCategoryId }) => ({
         variables: {
           ...generatePaginationParams(queryParams),
           categoryIds: [currentCategoryId]
         },
-        fetchPolicy: 'network-only'
+        fetchPolicy: "network-only"
       })
     }),
     graphql<Props, RemoveArticlesMutationResponse, { _id: string }>(
       gql(mutations.knowledgeBaseArticlesRemove),
       {
-        name: 'removeArticlesMutation',
+        name: "removeArticlesMutation",
         options: ({ currentCategoryId, topicIds }) => {
           return {
             refetchQueries: [

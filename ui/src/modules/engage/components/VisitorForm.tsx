@@ -1,26 +1,26 @@
-import { IUser } from 'modules/auth/types';
-import Button from 'modules/common/components/Button';
-import FormControl from 'modules/common/components/form/Control';
-import ConditionsRule from 'modules/common/components/rule/ConditionsRule';
-import { Step, Steps } from 'modules/common/components/step';
+import { IUser } from "modules/auth/types";
+import Button from "modules/common/components/Button";
+import FormControl from "modules/common/components/form/Control";
+import ConditionsRule from "modules/common/components/rule/ConditionsRule";
+import { Step, Steps } from "modules/common/components/step";
 import {
   StepWrapper,
   TitleContainer
-} from 'modules/common/components/step/styles';
-import { __ } from 'modules/common/utils';
-import { MESSAGE_KINDS, METHODS } from 'modules/engage/constants';
+} from "modules/common/components/step/styles";
+import { __ } from "modules/common/utils";
+import { MESSAGE_KINDS, METHODS } from "modules/engage/constants";
 import {
   IEngageMessage,
   IEngageMessageDoc,
   IEngageMessenger,
   IEngageScheduleDate
-} from 'modules/engage/types';
-import Wrapper from 'modules/layout/components/Wrapper';
-import { IBrand } from 'modules/settings/brands/types';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { IBreadCrumbItem, IConditionsRule } from '../../common/types';
-import MessengerForm from './MessengerForm';
+} from "modules/engage/types";
+import Wrapper from "modules/layout/components/Wrapper";
+import { IBrand } from "modules/settings/brands/types";
+import React from "react";
+import { Link } from "react-router-dom";
+import { IBreadCrumbItem, IConditionsRule } from "../../common/types";
+import MessengerForm from "./MessengerForm";
 
 type Props = {
   kind: string;
@@ -64,9 +64,9 @@ class VisitorForm extends React.Component<Props, State> {
       maxStep: 2,
       activeStep: 1,
       method: METHODS.MESSENGER,
-      title: message.title || '',
-      content: messenger.content || '',
-      fromUserId: message.fromUserId || '',
+      title: message.title || "",
+      content: messenger.content || "",
+      fromUserId: message.fromUserId || "",
       rules,
       messenger: message.messenger,
       scheduleDate: message.scheduleDate
@@ -96,7 +96,7 @@ class VisitorForm extends React.Component<Props, State> {
 
     const response = this.props.validateDoc(type, doc);
 
-    if (response.status === 'ok' && response.doc) {
+    if (response.status === "ok" && response.doc) {
       return this.props.save(response.doc);
     }
   };
@@ -113,15 +113,15 @@ class VisitorForm extends React.Component<Props, State> {
     );
 
     const saveButton = () => {
-      if (kind === 'visitorAuto') {
+      if (kind === "visitorAuto") {
         return (
           <>
             <Button
               disabled={isActionLoading}
               btnStyle="warning"
               size="small"
-              icon={isActionLoading ? undefined : 'file-alt'}
-              onClick={this.handleSubmit.bind(this, 'draft')}
+              icon={isActionLoading ? undefined : "file-alt"}
+              onClick={this.handleSubmit.bind(this, "draft")}
             >
               Save & Draft
             </Button>
@@ -129,8 +129,8 @@ class VisitorForm extends React.Component<Props, State> {
               disabled={isActionLoading}
               btnStyle="success"
               size="small"
-              icon={isActionLoading ? undefined : 'checked-1'}
-              onClick={this.handleSubmit.bind(this, 'live')}
+              icon={isActionLoading ? undefined : "checked-1"}
+              onClick={this.handleSubmit.bind(this, "live")}
             >
               Save & Live
             </Button>
@@ -161,14 +161,14 @@ class VisitorForm extends React.Component<Props, State> {
     const { renderTitle, breadcrumbs, kind, users, brands } = this.props;
 
     const onChange = e =>
-      this.changeState('title', (e.target as HTMLInputElement).value);
+      this.changeState("title", (e.target as HTMLInputElement).value);
 
     return (
       <StepWrapper>
         <Wrapper.Header title={renderTitle()} breadcrumb={breadcrumbs} />
 
         <TitleContainer>
-          <div>{__('Title')}</div>
+          <div>{__("Title")}</div>
           <FormControl
             required={true}
             onChange={onChange}

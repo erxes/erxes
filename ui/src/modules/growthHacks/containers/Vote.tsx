@@ -1,15 +1,15 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { Alert, withProps } from 'modules/common/utils';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { Alert, withProps } from "modules/common/utils";
 import {
   IGrowthHack,
   VoteMutation,
   VoteVariables
-} from 'modules/growthHacks/types';
-import * as React from 'react';
-import { graphql } from 'react-apollo';
-import { Vote } from '../components/editForm';
-import { mutations, queries } from '../graphql';
+} from "modules/growthHacks/types";
+import * as React from "react";
+import { graphql } from "react-apollo";
+import { Vote } from "../components/editForm";
+import { mutations, queries } from "../graphql";
 
 type Props = {
   item: IGrowthHack;
@@ -27,7 +27,7 @@ class VoteContainer extends React.Component<FinalProps> {
 
       voteMutation({ variables: { _id: item._id, isVote } })
         .then(({ data: { growthHacksVote } }) => {
-          Alert.success('You successfully changed an experiment');
+          Alert.success("You successfully changed an experiment");
 
           this.props.onUpdate(growthHacksVote);
         })
@@ -50,7 +50,7 @@ export default withProps<Props>(
     graphql<Props, VoteMutation, VoteVariables>(
       gql(mutations.growthHacksVote),
       {
-        name: 'voteMutation',
+        name: "voteMutation",
         options: ({ item }: { item: IGrowthHack }) => ({
           refetchQueries: [
             {

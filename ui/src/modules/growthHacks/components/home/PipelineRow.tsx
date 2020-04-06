@@ -1,10 +1,10 @@
-import dayjs from 'dayjs';
-import { IPipeline } from 'modules/boards/types';
-import Icon from 'modules/common/components/Icon';
-import Label from 'modules/common/components/Label';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { PipelineMeta, ProjectItem } from './styles';
+import dayjs from "dayjs";
+import { IPipeline } from "modules/boards/types";
+import Icon from "modules/common/components/Icon";
+import Label from "modules/common/components/Label";
+import React from "react";
+import { Link } from "react-router-dom";
+import { PipelineMeta, ProjectItem } from "./styles";
 
 type Props = {
   pipeline: IPipeline;
@@ -13,12 +13,12 @@ type Props = {
 class PipelineRow extends React.Component<Props, {}> {
   renderText(state: string) {
     switch (state) {
-      case 'Completed':
-        return 'primary';
-      case 'In progress':
-        return 'success';
+      case "Completed":
+        return "primary";
+      case "In progress":
+        return "success";
       default:
-        return 'simple';
+        return "simple";
     }
   }
 
@@ -40,8 +40,8 @@ class PipelineRow extends React.Component<Props, {}> {
     return (
       <div>
         <Icon icon="clock-eight" />
-        {dayjs(startDate).format('ll')} {' - '}
-        {dayjs(endDate).format('ll')}
+        {dayjs(startDate).format("ll")} {" - "}
+        {dayjs(endDate).format("ll")}
       </div>
     );
   }

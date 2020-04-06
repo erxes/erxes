@@ -1,14 +1,14 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import EmptyState from 'modules/common/components/EmptyState';
-import { IRouterProps } from 'modules/common/types';
-import { router as routerUtils, withProps } from 'modules/common/utils';
-import React, { useEffect } from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import { PIPELINE_UPDATE_STATUSES } from '../constants';
-import { queries, subscriptions } from '../graphql';
-import { IOptions, PipelineDetailQueryResponse } from '../types';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import EmptyState from "modules/common/components/EmptyState";
+import { IRouterProps } from "modules/common/types";
+import { router as routerUtils, withProps } from "modules/common/utils";
+import React, { useEffect } from "react";
+import { graphql } from "react-apollo";
+import { withRouter } from "react-router-dom";
+import { PIPELINE_UPDATE_STATUSES } from "../constants";
+import { queries, subscriptions } from "../graphql";
+import { IOptions, PipelineDetailQueryResponse } from "../types";
 
 type Props = {
   queryParams: any;
@@ -33,16 +33,16 @@ const withPipeline = Component => {
           document: gql(subscriptions.pipelinesChanged),
           variables: { _id: pipelineId },
           updateQuery: () => {
-            const currentTab = sessionStorage.getItem('currentTab');
+            const currentTab = sessionStorage.getItem("currentTab");
 
             // don't reload current tab
             if (!currentTab) {
               // don't reload when other popups are open
-              if (document.querySelectorAll('.modal').length >= 2) {
+              if (document.querySelectorAll(".modal").length >= 2) {
                 return;
               }
 
-              const pipelineUpdate = sessionStorage.getItem('pipelineUpdate');
+              const pipelineUpdate = sessionStorage.getItem("pipelineUpdate");
 
               routerUtils.setParams(history, { key: Math.random() });
 
@@ -51,18 +51,18 @@ const withPipeline = Component => {
                 pipelineUpdate === PIPELINE_UPDATE_STATUSES.END
               ) {
                 sessionStorage.setItem(
-                  'pipelineUpdate',
+                  "pipelineUpdate",
                   PIPELINE_UPDATE_STATUSES.START
                 );
               } else {
                 // if last subscription is not end
                 sessionStorage.setItem(
-                  'pipelineUpdate',
+                  "pipelineUpdate",
                   PIPELINE_UPDATE_STATUSES.NEW_REQUEST
                 );
               }
             } else {
-              sessionStorage.removeItem('currentTab');
+              sessionStorage.removeItem("currentTab");
             }
           }
         })
@@ -95,7 +95,7 @@ const withPipeline = Component => {
       graphql<Props, PipelineDetailQueryResponse, { _id?: string }>(
         gql(queries.pipelineDetail),
         {
-          name: 'pipelineDetailQuery',
+          name: "pipelineDetailQuery",
           skip: ({ queryParams }) => !queryParams.pipelineId,
           options: ({ queryParams }) => ({
             variables: { _id: queryParams && queryParams.pipelineId }

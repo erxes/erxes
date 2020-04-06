@@ -1,13 +1,13 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { IUser } from 'modules/auth/types';
-import { queries, subscriptions } from 'modules/inbox/graphql';
-import { UnreadConversationsTotalCountQueryResponse } from 'modules/inbox/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import strip from 'strip';
-import { sendDesktopNotification, withProps } from '../../common/utils';
-import Navigation from '../components/Navigation';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { IUser } from "modules/auth/types";
+import { queries, subscriptions } from "modules/inbox/graphql";
+import { UnreadConversationsTotalCountQueryResponse } from "modules/inbox/types";
+import React from "react";
+import { graphql } from "react-apollo";
+import strip from "strip";
+import { sendDesktopNotification, withProps } from "../../common/utils";
+import Navigation from "../components/Navigation";
 
 class NavigationContainer extends React.Component<{
   unreadConversationsCountQuery: UnreadConversationsTotalCountQueryResponse;
@@ -27,8 +27,8 @@ class NavigationContainer extends React.Component<{
         this.props.unreadConversationsCountQuery.refetch();
 
         sendDesktopNotification({
-          title: 'You have a new message',
-          content: strip(content || '')
+          title: "You have a new message",
+          content: strip(content || "")
         });
       }
     });
@@ -52,9 +52,9 @@ export default withProps<{ currentUser: IUser }>(
     graphql<{}, UnreadConversationsTotalCountQueryResponse>(
       gql(queries.unreadConversationsCount),
       {
-        name: 'unreadConversationsCountQuery',
+        name: "unreadConversationsCountQuery",
         options: () => ({
-          fetchPolicy: 'network-only',
+          fetchPolicy: "network-only",
           notifyOnNetworkStatusChange: true
         })
       }

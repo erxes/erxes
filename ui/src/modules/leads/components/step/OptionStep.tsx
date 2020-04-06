@@ -1,21 +1,21 @@
-import { COLORS } from 'modules/boards/constants';
-import FormControl from 'modules/common/components/form/Control';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import { LeftItem, Preview } from 'modules/common/components/step/styles';
-import { __ } from 'modules/common/utils';
-import FieldsPreview from 'modules/forms/components/FieldsPreview';
-import { IFormData } from 'modules/forms/types';
-import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
-import { IField } from 'modules/settings/properties/types';
-import { ColorPick, ColorPicker } from 'modules/settings/styles';
-import React from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import ChromePicker from 'react-color/lib/Chrome';
-import { IBrand } from '../../../settings/brands/types';
-import { FormPreview } from './preview';
-import { BackgroundSelector, ColorList, FlexItem } from './style';
+import { COLORS } from "modules/boards/constants";
+import FormControl from "modules/common/components/form/Control";
+import FormGroup from "modules/common/components/form/Group";
+import ControlLabel from "modules/common/components/form/Label";
+import { LeftItem, Preview } from "modules/common/components/step/styles";
+import { __ } from "modules/common/utils";
+import FieldsPreview from "modules/forms/components/FieldsPreview";
+import { IFormData } from "modules/forms/types";
+import SelectBrand from "modules/settings/integrations/containers/SelectBrand";
+import { IField } from "modules/settings/properties/types";
+import { ColorPick, ColorPicker } from "modules/settings/styles";
+import React from "react";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Popover from "react-bootstrap/Popover";
+import ChromePicker from "react-color/lib/Chrome";
+import { IBrand } from "../../../settings/brands/types";
+import { FormPreview } from "./preview";
+import { BackgroundSelector, ColorList, FlexItem } from "./style";
 
 type Props = {
   type: string;
@@ -24,7 +24,7 @@ type Props = {
   theme: string;
   language?: string;
   onChange: (
-    name: 'brand' | 'color' | 'theme' | 'language',
+    name: "brand" | "color" | "theme" | "language",
     value: string
   ) => void;
   fields?: IField[];
@@ -38,14 +38,14 @@ class OptionStep extends React.Component<Props, {}> {
   };
 
   onColorChange = e => {
-    this.setState({ color: e.hex, theme: '#000' }, () => {
-      this.props.onChange('color', e.hex);
-      this.props.onChange('theme', e.hex);
+    this.setState({ color: e.hex, theme: "#000" }, () => {
+      this.props.onChange("color", e.hex);
+      this.props.onChange("theme", e.hex);
     });
   };
 
   renderThemeColor(value: string) {
-    const onClick = () => this.onChangeFunction('theme', value);
+    const onClick = () => this.onChangeFunction("theme", value);
 
     return (
       <BackgroundSelector
@@ -70,13 +70,13 @@ class OptionStep extends React.Component<Props, {}> {
 
     const onChange = e =>
       this.onChangeFunction(
-        'brand',
+        "brand",
         (e.currentTarget as HTMLInputElement).value
       );
 
     const onChangeLanguage = e =>
       this.onChangeFunction(
-        'language',
+        "language",
         (e.currentTarget as HTMLInputElement).value
       );
 
@@ -91,7 +91,7 @@ class OptionStep extends React.Component<Props, {}> {
             <SelectBrand
               isRequired={true}
               onChange={onChange}
-              defaultValue={brand ? brand._id : ' '}
+              defaultValue={brand ? brand._id : " "}
             />
           </FormGroup>
           <FormGroup>
@@ -123,7 +123,7 @@ class OptionStep extends React.Component<Props, {}> {
               </OverlayTrigger>
             </div>
             <br />
-            <p>{__('Try some of these colors:')}</p>
+            <p>{__("Try some of these colors:")}</p>
             <ColorList>
               {COLORS.map(value => this.renderThemeColor(value))}
             </ColorList>

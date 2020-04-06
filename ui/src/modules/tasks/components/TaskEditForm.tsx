@@ -1,17 +1,17 @@
-import EditForm from 'modules/boards/components/editForm/EditForm';
-import Left from 'modules/boards/components/editForm/Left';
-import Sidebar from 'modules/boards/components/editForm/Sidebar';
-import Top from 'modules/boards/components/editForm/Top';
-import { FlexContent } from 'modules/boards/styles/item';
+import EditForm from "modules/boards/components/editForm/EditForm";
+import Left from "modules/boards/components/editForm/Left";
+import Sidebar from "modules/boards/components/editForm/Sidebar";
+import Top from "modules/boards/components/editForm/Top";
+import { FlexContent } from "modules/boards/styles/item";
 import {
   IEditFormContent,
   IItem,
   IItemParams,
   IOptions
-} from 'modules/boards/types';
-import PortableDeals from 'modules/deals/components/PortableDeals';
-import PortableTickets from 'modules/tickets/components/PortableTickets';
-import React from 'react';
+} from "modules/boards/types";
+import PortableDeals from "modules/deals/components/PortableDeals";
+import PortableTickets from "modules/tickets/components/PortableTickets";
+import React from "react";
 
 type Props = {
   options: IOptions;

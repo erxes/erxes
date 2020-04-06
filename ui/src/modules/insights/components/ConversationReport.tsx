@@ -1,20 +1,20 @@
-import { __ } from 'modules/common/utils';
-import { menuInbox } from 'modules/common/utils/menus';
-import Wrapper from 'modules/layout/components/Wrapper';
-import React from 'react';
-import { IBrand } from '../../settings/brands/types';
+import { __ } from "modules/common/utils";
+import { menuInbox } from "modules/common/utils/menus";
+import Wrapper from "modules/layout/components/Wrapper";
+import React from "react";
+import { IBrand } from "../../settings/brands/types";
 import {
   InsightContent,
   InsightRow,
   InsightTitle,
   InsightWrapper
-} from '../styles';
-import { IChartParams, IQueryParams, SummaryData } from '../types';
-import Chart from './Chart';
-import InboxFilter from './filter/InboxFilter';
-import Sidebar from './Sidebar';
-import Summary from './Summary';
-import TeamMembers from './TeamMembers';
+} from "../styles";
+import { IChartParams, IQueryParams, SummaryData } from "../types";
+import Chart from "./Chart";
+import InboxFilter from "./filter/InboxFilter";
+import Sidebar from "./Sidebar";
+import Summary from "./Summary";
+import TeamMembers from "./TeamMembers";
 
 type Props = {
   brands: IBrand[];
@@ -35,7 +35,7 @@ class ConversationReport extends React.Component<Props, { userId: string }> {
   constructor(props) {
     super(props);
 
-    this.state = { userId: '' };
+    this.state = { userId: "" };
   }
 
   renderContent() {
@@ -68,7 +68,7 @@ class ConversationReport extends React.Component<Props, { userId: string }> {
         />
         <InsightContent>
           <InsightRow>
-            <InsightTitle>{__('response frequency averages')}</InsightTitle>
+            <InsightTitle>{__("response frequency averages")}</InsightTitle>
             <Summary
               type="conversation-report"
               data={combinedData}
@@ -77,7 +77,7 @@ class ConversationReport extends React.Component<Props, { userId: string }> {
           </InsightRow>
 
           <InsightRow>
-            <InsightTitle>{__('Trend')}</InsightTitle>
+            <InsightTitle>{__("Trend")}</InsightTitle>
             <Chart
               type="conversation-report"
               loading={loading}
@@ -87,7 +87,7 @@ class ConversationReport extends React.Component<Props, { userId: string }> {
           </InsightRow>
 
           <InsightRow>
-            <InsightTitle>{__('Team Member')}</InsightTitle>
+            <InsightTitle>{__("Team Member")}</InsightTitle>
             <TeamMembers
               type="conversation-report"
               loading={loading}
@@ -104,7 +104,7 @@ class ConversationReport extends React.Component<Props, { userId: string }> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('First Response Report')}
+            title={__("First Response Report")}
             submenu={menuInbox}
           />
         }

@@ -1,8 +1,8 @@
-import Button from 'modules/common/components/Button';
-import { CenterContent } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
-import React from 'react';
-import { ISegmentCondition } from '../../types';
+import Button from "modules/common/components/Button";
+import { CenterContent } from "modules/common/styles/main";
+import { __ } from "modules/common/utils";
+import React from "react";
+import { ISegmentCondition } from "../../types";
 
 type Props = {
   addCondition: (condition: ISegmentCondition) => void;
@@ -12,17 +12,17 @@ function AddConditionButton(props: Props) {
   const addPropertyCondition = () => {
     props.addCondition({
       key: Math.random().toString(),
-      type: 'property',
-      propertyName: '',
-      propertyValue: '',
-      propertyOperator: ''
+      type: "property",
+      propertyName: "",
+      propertyValue: "",
+      propertyOperator: ""
     });
   };
 
   const addEventCondition = () => {
     props.addCondition({
       key: Math.random().toString(),
-      type: 'event',
+      type: "event",
       eventAttributeFilters: []
     });
   };
@@ -36,7 +36,7 @@ function AddConditionButton(props: Props) {
           uppercase={false}
           onClick={addPropertyCondition}
         >
-          {__('Add Properties')}
+          {__("Add Properties")}
         </Button>
 
         <Button
@@ -45,7 +45,7 @@ function AddConditionButton(props: Props) {
           uppercase={false}
           onClick={addEventCondition}
         >
-          {__('Add Events')}
+          {__("Add Events")}
         </Button>
       </Button.Group>
     </CenterContent>

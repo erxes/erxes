@@ -1,12 +1,12 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import Spinner from 'modules/common/components/Spinner';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withProps } from '../../../common/utils';
-import Status from '../components/Status';
-import { queries } from '../graphql';
-import { VersionsQueryResponse } from '../types';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import Spinner from "modules/common/components/Spinner";
+import React from "react";
+import { graphql } from "react-apollo";
+import { withProps } from "../../../common/utils";
+import Status from "../components/Status";
+import { queries } from "../graphql";
+import { VersionsQueryResponse } from "../types";
 
 type Props = {
   versionsQuery: VersionsQueryResponse;
@@ -30,7 +30,7 @@ const StatusContainer = (props: Props) => {
 export default withProps<{}>(
   compose(
     graphql<{}, VersionsQueryResponse>(gql(queries.configsVersions), {
-      name: 'versionsQuery'
+      name: "versionsQuery"
     })
   )(StatusContainer)
 );

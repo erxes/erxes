@@ -1,10 +1,10 @@
-import Button from 'modules/common/components/Button';
-import { TopHeader } from 'modules/common/styles/main';
-import { __ } from 'modules/common/utils';
-import LeftSidebar from 'modules/layout/components/Sidebar';
-import { SidebarList as List } from 'modules/layout/styles';
-import React from 'react';
-import { Link } from 'react-router-dom';
+import Button from "modules/common/components/Button";
+import { TopHeader } from "modules/common/styles/main";
+import { __ } from "modules/common/utils";
+import LeftSidebar from "modules/layout/components/Sidebar";
+import { SidebarList as List } from "modules/layout/styles";
+import React from "react";
+import { Link } from "react-router-dom";
 
 class Sidebar extends React.Component {
   renderListItem(url: string, text: string) {
@@ -12,7 +12,7 @@ class Sidebar extends React.Component {
       <li>
         <Link
           to={url}
-          className={window.location.href.includes(url) ? 'active' : ''}
+          className={window.location.href.includes(url) ? "active" : ""}
         >
           {__(text)}
         </Link>
@@ -41,12 +41,12 @@ class Sidebar extends React.Component {
     return (
       <LeftSidebar full={true} header={this.renderSidebarHeader()}>
         <List>
-          {this.renderListItem('/settings/general', 'General system config')}
+          {this.renderListItem("/settings/general", "General system config")}
           {this.renderListItem(
-            '/settings/integration-configs',
-            'Integrations config'
+            "/settings/integration-configs",
+            "Integrations config"
           )}
-          {this.renderListItem('/settings/engage-configs', 'Engage config')}
+          {this.renderListItem("/settings/engage-configs", "Engage config")}
         </List>
       </LeftSidebar>
     );

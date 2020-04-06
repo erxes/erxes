@@ -1,14 +1,14 @@
-import asyncComponent from 'modules/common/components/AsyncComponent';
-import queryString from 'query-string';
-import React from 'react';
-import { Route } from 'react-router-dom';
+import asyncComponent from "modules/common/components/AsyncComponent";
+import queryString from "query-string";
+import React from "react";
+import { Route } from "react-router-dom";
 
 const List = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings - List Email" */ './containers/List')
+  import(/* webpackChunkName: "Settings - List Email" */ "./containers/List")
 );
 
 const Signature = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings - Signature Email" */ './containers/Signature')
+  import(/* webpackChunkName: "Settings - Signature Email" */ "./containers/Signature")
 );
 
 const emailSignatures = ({ location }) => {

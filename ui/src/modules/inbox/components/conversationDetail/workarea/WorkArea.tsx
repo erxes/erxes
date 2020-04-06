@@ -1,44 +1,44 @@
-import asyncComponent from 'modules/common/components/AsyncComponent';
-import Button from 'modules/common/components/Button';
-import { AvatarImg } from 'modules/common/components/filterableList/styles';
-import Icon from 'modules/common/components/Icon';
-import Label from 'modules/common/components/Label';
-import Tags from 'modules/common/components/Tags';
-import { IAttachmentPreview } from 'modules/common/types';
-import { __, getUserAvatar } from 'modules/common/utils';
-import AssignBoxPopover from 'modules/inbox/components/assignBox/AssignBoxPopover';
-import RespondBox from 'modules/inbox/containers/conversationDetail/RespondBox';
-import Resolver from 'modules/inbox/containers/Resolver';
-import Tagger from 'modules/inbox/containers/Tagger';
-import { PopoverButton } from 'modules/inbox/styles';
-import Wrapper from 'modules/layout/components/Wrapper';
-import { ContenFooter, ContentBox } from 'modules/layout/styles';
-import { BarItems } from 'modules/layout/styles';
-import React from 'react';
+import asyncComponent from "modules/common/components/AsyncComponent";
+import Button from "modules/common/components/Button";
+import { AvatarImg } from "modules/common/components/filterableList/styles";
+import Icon from "modules/common/components/Icon";
+import Label from "modules/common/components/Label";
+import Tags from "modules/common/components/Tags";
+import { IAttachmentPreview } from "modules/common/types";
+import { __, getUserAvatar } from "modules/common/utils";
+import AssignBoxPopover from "modules/inbox/components/assignBox/AssignBoxPopover";
+import RespondBox from "modules/inbox/containers/conversationDetail/RespondBox";
+import Resolver from "modules/inbox/containers/Resolver";
+import Tagger from "modules/inbox/containers/Tagger";
+import { PopoverButton } from "modules/inbox/styles";
+import Wrapper from "modules/layout/components/Wrapper";
+import { ContenFooter, ContentBox } from "modules/layout/styles";
+import { BarItems } from "modules/layout/styles";
+import React from "react";
 import {
   AddMessageMutationVariables,
   IConversation,
   IMessage
-} from '../../../types';
-import Conversation from './conversation/Conversation';
+} from "../../../types";
+import Conversation from "./conversation/Conversation";
 import {
   ActionBarLeft,
   AssignText,
   AssignTrigger,
   ConversationWrapper,
   MailSubject
-} from './styles';
-import TypingIndicator from './TypingIndicator';
+} from "./styles";
+import TypingIndicator from "./TypingIndicator";
 
 const Participators = asyncComponent(
-  () => import(/* webpackChunkName:"Inbox-Participators" */ './Participators'),
-  { height: '30px', width: '30px', round: true }
+  () => import(/* webpackChunkName:"Inbox-Participators" */ "./Participators"),
+  { height: "30px", width: "30px", round: true }
 );
 
 const ConvertTo = asyncComponent(
   () =>
-    import(/* webpackChunkName:"Inbox-ConvertTo" */ '../../../containers/conversationDetail/workarea/ConvertTo'),
-  { height: '22px', width: '100px', marginRight: '10px' }
+    import(/* webpackChunkName:"Inbox-ConvertTo" */ "../../../containers/conversationDetail/workarea/ConvertTo"),
+  { height: "22px", width: "100px", marginRight: "10px" }
 );
 
 type Props = {
@@ -138,7 +138,7 @@ export default class WorkArea extends React.Component<Props, State> {
   };
 
   isMailConversation = (kind: string) =>
-    kind.includes('nylas') || kind === 'gmail' ? true : false;
+    kind.includes("nylas") || kind === "gmail" ? true : false;
 
   renderExtraHeading = (kind: string, conversationMessage: IMessage) => {
     if (!conversationMessage) {
@@ -148,7 +148,7 @@ export default class WorkArea extends React.Component<Props, State> {
     if (this.isMailConversation(kind)) {
       const { mailData } = conversationMessage;
 
-      return <MailSubject>{mailData && (mailData.subject || '')}</MailSubject>;
+      return <MailSubject>{mailData && (mailData.subject || "")}</MailSubject>;
     }
 
     return null;
@@ -170,7 +170,7 @@ export default class WorkArea extends React.Component<Props, State> {
     const participatedUsers = currentConversation.participatedUsers || [];
     const { kind } = currentConversation.integration;
 
-    const showInternal = this.isMailConversation(kind) || kind === 'lead';
+    const showInternal = this.isMailConversation(kind) || kind === "lead";
 
     const tagTrigger = (
       <PopoverButton>
@@ -189,7 +189,7 @@ export default class WorkArea extends React.Component<Props, State> {
           <AvatarImg src={getUserAvatar(assignedUser)} />
         ) : (
           <Button btnStyle="simple" size="small">
-            {__('Member')}
+            {__("Member")}
             <Icon icon="angle-down" />
           </Button>
         )}
@@ -208,7 +208,7 @@ export default class WorkArea extends React.Component<Props, State> {
 
     const actionBarLeft = (
       <ActionBarLeft>
-        <AssignText>{__('Assign to')}:</AssignText>
+        <AssignText>{__("Assign to")}:</AssignText>
         <AssignBoxPopover
           targets={[currentConversation]}
           trigger={assignTrigger}

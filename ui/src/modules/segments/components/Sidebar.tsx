@@ -1,8 +1,8 @@
-import { __ } from 'modules/common/utils';
-import Sidebar from 'modules/layout/components/Sidebar';
-import { SidebarList } from 'modules/layout/styles';
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { __ } from "modules/common/utils";
+import Sidebar from "modules/layout/components/Sidebar";
+import { SidebarList } from "modules/layout/styles";
+import React from "react";
+import { NavLink } from "react-router-dom";
 
 function TagsSidebar() {
   const { Title } = Sidebar.Section;
@@ -10,16 +10,16 @@ function TagsSidebar() {
   return (
     <Sidebar>
       <Sidebar.Section>
-        <Title>{__('Segments')}</Title>
+        <Title>{__("Segments")}</Title>
         <SidebarList>
           <li>
             <NavLink activeClassName="active" to="/segments/customer">
-              {__('Customer')}
+              {__("Customer")}
             </NavLink>
           </li>
           <li>
             <NavLink activeClassName="active" to="/segments/company">
-              {__('Company')}
+              {__("Company")}
             </NavLink>
           </li>
         </SidebarList>

@@ -1,12 +1,12 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withProps } from '../../common/utils';
-import { BrandsQueryResponse } from '../../settings/brands/types';
-import MessageForm from '../components/MessageForm';
-import { queries } from '../graphql';
-import { EngageMessageDetailQueryResponse } from '../types';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import React from "react";
+import { graphql } from "react-apollo";
+import { withProps } from "../../common/utils";
+import { BrandsQueryResponse } from "../../settings/brands/types";
+import MessageForm from "../components/MessageForm";
+import { queries } from "../graphql";
+import { EngageMessageDetailQueryResponse } from "../types";
 
 type Props = {
   kind?: string;
@@ -43,7 +43,7 @@ export default withProps<Props>(
     graphql<Props, EngageMessageDetailQueryResponse, { _id?: string }>(
       gql(queries.engageMessageDetail),
       {
-        name: 'engageMessageDetailQuery',
+        name: "engageMessageDetailQuery",
         options: ({ messageId }) => ({
           variables: {
             _id: messageId
@@ -52,7 +52,7 @@ export default withProps<Props>(
       }
     ),
     graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
-      name: 'brandsQuery'
+      name: "brandsQuery"
     })
   )(MessageFormContainer)
 );

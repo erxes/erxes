@@ -1,23 +1,23 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import Bulk from 'modules/common/components/Bulk';
-import { IRouterProps } from 'modules/common/types';
-import { Alert, confirm, withProps } from 'modules/common/utils';
-import { generatePaginationParams } from 'modules/common/utils/router';
-import { mutations as integrationMutations } from 'modules/settings/integrations/graphql/index';
-import { ArchiveIntegrationResponse } from 'modules/settings/integrations/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import routerUtils from '../../common/utils/router';
-import { TagsQueryResponse } from '../../tags/types';
-import List from '../components/List';
-import { mutations, queries } from '../graphql';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import Bulk from "modules/common/components/Bulk";
+import { IRouterProps } from "modules/common/types";
+import { Alert, confirm, withProps } from "modules/common/utils";
+import { generatePaginationParams } from "modules/common/utils/router";
+import { mutations as integrationMutations } from "modules/settings/integrations/graphql/index";
+import { ArchiveIntegrationResponse } from "modules/settings/integrations/types";
+import React from "react";
+import { graphql } from "react-apollo";
+import routerUtils from "../../common/utils/router";
+import { TagsQueryResponse } from "../../tags/types";
+import List from "../components/List";
+import { mutations, queries } from "../graphql";
 import {
   CountQueryResponse,
   LeadIntegrationsQueryResponse,
   RemoveMutationResponse,
   RemoveMutationVariables
-} from '../types';
+} from "../types";
 
 type Props = {
   queryParams: any;
@@ -36,7 +36,7 @@ class ListContainer extends React.Component<FinalProps> {
   componentDidMount() {
     const { history } = this.props;
 
-    const shouldRefetchList = routerUtils.getParam(history, 'popUpRefetchList');
+    const shouldRefetchList = routerUtils.getParam(history, "popUpRefetchList");
 
     if (shouldRefetchList) {
       this.refetch();
@@ -48,7 +48,7 @@ class ListContainer extends React.Component<FinalProps> {
 
     integrationsQuery.refetch();
     integrationsTotalCountQuery.refetch();
-  }
+  };
 
   render() {
     const {
@@ -81,7 +81,7 @@ class ListContainer extends React.Component<FinalProps> {
             // refresh queries
             this.refetch();
 
-            Alert.success('You successfully deleted a pop ups.');
+            Alert.success("You successfully deleted a pop ups.");
           })
           .catch(e => {
             Alert.error(e.message);
@@ -102,7 +102,7 @@ class ListContainer extends React.Component<FinalProps> {
             const integration = data.integrationsArchive;
 
             if (integration) {
-              Alert.success('Pop ups has been archived.');
+              Alert.success("Pop ups has been archived.");
             }
 
             this.refetch();
@@ -139,38 +139,38 @@ export default withProps<Props>(
       LeadIntegrationsQueryResponse,
       { page?: number; perPage?: number; tag?: string; kind?: string }
     >(gql(queries.integrations), {
-      name: 'integrationsQuery',
+      name: "integrationsQuery",
       options: ({ queryParams }) => {
         return {
           variables: {
             ...generatePaginationParams(queryParams),
             tag: queryParams.tag,
-            kind: 'lead'
+            kind: "lead"
           }
         };
       }
     }),
     graphql<Props, CountQueryResponse>(gql(queries.integrationsTotalCount), {
-      name: 'integrationsTotalCountQuery'
+      name: "integrationsTotalCountQuery"
     }),
     graphql<Props, TagsQueryResponse, { type: string }>(gql(queries.tags), {
-      name: 'tagsQuery',
+      name: "tagsQuery",
       options: () => ({
         variables: {
-          type: 'integration'
+          type: "integration"
         }
       })
     }),
     graphql<Props, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.integrationRemove),
       {
-        name: 'removeMutation'
+        name: "removeMutation"
       }
     ),
     graphql<Props, ArchiveIntegrationResponse>(
       gql(integrationMutations.integrationsArchive),
       {
-        name: 'archiveIntegration'
+        name: "archiveIntegration"
       }
     )
   )(ListContainer)

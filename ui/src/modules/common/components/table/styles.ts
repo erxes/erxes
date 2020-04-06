@@ -1,9 +1,9 @@
-import styled, { css } from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { colors, dimensions, typography } from '../../styles';
-import { FormLabel, Input } from '../form/styles';
+import styled, { css } from "styled-components";
+import styledTS from "styled-components-ts";
+import { colors, dimensions, typography } from "../../styles";
+import { FormLabel, Input } from "../form/styles";
 
-const tableHoverColor = '#f5f5f5';
+const tableHoverColor = "#f5f5f5";
 
 const StyledTable = styledTS<{
   whiteSpace?: string;
@@ -17,7 +17,7 @@ const StyledTable = styledTS<{
     max-width: 100%;
     border-spacing: 0;
     border-collapse: collapse;
-    white-space: ${props.whiteSpace || ''};
+    white-space: ${props.whiteSpace || ""};
 
     th,
     td {
@@ -25,7 +25,7 @@ const StyledTable = styledTS<{
       color: ${colors.textPrimary};
       padding: ${dimensions.unitSpacing}px;
       display: table-cell;
-      vertical-align: ${props.alignTop && 'top'};
+      vertical-align: ${props.alignTop && "top"};
 
       & ${FormLabel}, & ${Input} {
         margin: 0px;

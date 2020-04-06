@@ -1,10 +1,10 @@
-import dayjs from 'dayjs';
-import Button from 'modules/common/components/Button';
-import TextInfo from 'modules/common/components/TextInfo';
-import Tip from 'modules/common/components/Tip';
-import { DateWrapper } from 'modules/common/styles/main';
-import { __, confirm } from 'modules/common/utils';
-import React from 'react';
+import dayjs from "dayjs";
+import Button from "modules/common/components/Button";
+import TextInfo from "modules/common/components/TextInfo";
+import Tip from "modules/common/components/Tip";
+import { DateWrapper } from "modules/common/styles/main";
+import { __, confirm } from "modules/common/utils";
+import React from "react";
 
 type Props = {
   history?: any;
@@ -35,11 +35,11 @@ function HistoryRow({ history, removeHistory, onClick }: Props) {
       {withClick(<TextInfo textStyle="danger">{history.failed || 1}</TextInfo>)}
       {withClick(<TextInfo>{history.total || 1}</TextInfo>)}
       {withClick(
-        <DateWrapper>{dayjs(history.date).format('lll')}</DateWrapper>
+        <DateWrapper>{dayjs(history.date).format("lll")}</DateWrapper>
       )}
-      <td>{details.fullName || '-'}</td>
+      <td>{details.fullName || "-"}</td>
       <td>
-        <Tip text={__('Remove contacts')}>
+        <Tip text={__("Remove contacts")}>
           <Button
             size="small"
             btnStyle="warning"

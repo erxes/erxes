@@ -1,6 +1,6 @@
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { colors, dimensions } from '../../styles';
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
+import { colors, dimensions } from "../../styles";
 
 const PopoverHeader = styled.div`
   display: block !important;
@@ -59,7 +59,7 @@ const PopoverList = styledTS<{ selectable?: boolean }>(styled.ul)`
     -o-text-overflow: ellipsis;
     text-overflow: ellipsis;
     font-size: 13px;
-    padding-right: ${props => props.selectable && '30px'};
+    padding-right: ${props => props.selectable && "30px"};
 
     i {
       margin-right: ${dimensions.unitSpacing / 2}px;

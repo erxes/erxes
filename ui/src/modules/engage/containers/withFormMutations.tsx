@@ -1,19 +1,19 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { IRouterProps } from 'modules/common/types';
-import { Alert, withProps } from 'modules/common/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import { AllUsersQueryResponse } from '../../settings/team/types';
-import { mutations, queries } from '../graphql';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { IRouterProps } from "modules/common/types";
+import { Alert, withProps } from "modules/common/utils";
+import React from "react";
+import { graphql } from "react-apollo";
+import { withRouter } from "react-router-dom";
+import { AllUsersQueryResponse } from "../../settings/team/types";
+import { mutations, queries } from "../graphql";
 import {
   EngageMessageDetailQueryResponse,
   WithFormAddMutationResponse,
   WithFormEditMutationResponse,
   WithFormMutationVariables
-} from '../types';
-import { crudMutationsOptions } from '../utils';
+} from "../types";
+import { crudMutationsOptions } from "../utils";
 
 type Props = {
   messageId: string;
@@ -63,8 +63,8 @@ function withSaveAndEdit<IComponentProps>(Component) {
             Alert.success(msg);
 
             history.push({
-              pathname: '/engage',
-              search: '?engageRefetchList=true'
+              pathname: "/engage",
+              search: "?engageRefetchList=true"
             });
           })
           .catch(error => {
@@ -77,7 +77,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
       // save
       const save = doc => {
         doc.kind = message.kind ? message.kind : kind;
-        doc.scheduleDate = doc.kind !== 'manual' ? doc.scheduleDate : null;
+        doc.scheduleDate = doc.kind !== "manual" ? doc.scheduleDate : null;
 
         if (messageId) {
           return doMutation(
@@ -95,25 +95,25 @@ function withSaveAndEdit<IComponentProps>(Component) {
       };
 
       const messenger = message.messenger || {
-        brandId: '',
-        kind: '',
-        content: '',
-        sentAs: '',
+        brandId: "",
+        kind: "",
+        content: "",
+        sentAs: "",
         rules: []
       };
 
       const email = message.email || {
-        subject: '',
+        subject: "",
         attachments: [],
-        content: '',
-        templateId: ''
+        content: "",
+        templateId: ""
       };
 
       const scheduleDate = message.scheduleDate || {
-        type: '',
-        month: '',
-        day: '',
-        time: ''
+        type: "",
+        month: "",
+        day: "",
+        time: ""
       };
 
       const updatedProps = {
@@ -155,7 +155,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
       graphql<Props, EngageMessageDetailQueryResponse, { _id: string }>(
         gql(queries.engageMessageDetail),
         {
-          name: 'engageMessageDetailQuery',
+          name: "engageMessageDetailQuery",
           options: ({ messageId }: { messageId: string }) => ({
             variables: {
               _id: messageId
@@ -164,12 +164,12 @@ function withSaveAndEdit<IComponentProps>(Component) {
         }
       ),
       graphql<Props, AllUsersQueryResponse>(gql(queries.users), {
-        name: 'usersQuery'
+        name: "usersQuery"
       }),
       graphql<Props, WithFormAddMutationResponse, WithFormMutationVariables>(
         gql(mutations.messagesAdd),
         {
-          name: 'addMutation',
+          name: "addMutation",
           options: {
             refetchQueries: engageRefetchQueries({})
           }
@@ -178,7 +178,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
       graphql<Props, WithFormEditMutationResponse, WithFormMutationVariables>(
         gql(mutations.messagesEdit),
         {
-          name: 'editMutation',
+          name: "editMutation",
           options: {
             refetchQueries: engageRefetchQueries({ isEdit: true })
           }
@@ -194,8 +194,8 @@ export const engageRefetchQueries = ({
   isEdit?: boolean;
 }): string[] => [
   ...crudMutationsOptions().refetchQueries,
-  ...(isEdit ? ['activityLogs'] : []),
-  'engageMessageDetail'
+  ...(isEdit ? ["activityLogs"] : []),
+  "engageMessageDetail"
 ];
 
 export default withSaveAndEdit;

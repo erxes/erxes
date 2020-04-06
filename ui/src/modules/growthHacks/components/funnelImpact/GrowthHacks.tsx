@@ -1,11 +1,11 @@
-import PriorityIndicator from 'modules/boards/components/editForm/PriorityIndicator';
-import EmptyState from 'modules/common/components/EmptyState';
-import Table from 'modules/common/components/table';
-import { __ } from 'modules/common/utils';
-import { GrowthRow, TableContainer } from 'modules/growthHacks/styles';
-import { IGrowthHack } from 'modules/growthHacks/types';
-import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
-import React from 'react';
+import PriorityIndicator from "modules/boards/components/editForm/PriorityIndicator";
+import EmptyState from "modules/common/components/EmptyState";
+import Table from "modules/common/components/table";
+import { __ } from "modules/common/utils";
+import { GrowthRow, TableContainer } from "modules/growthHacks/styles";
+import { IGrowthHack } from "modules/growthHacks/types";
+import Participators from "modules/inbox/components/conversationDetail/workarea/Participators";
+import React from "react";
 
 type Props = {
   queryParams: any;
@@ -20,7 +20,7 @@ class GrowthHacks extends React.Component<Props> {
 
     return (
       <>
-        <PriorityIndicator value={priority} /> {priority}{' '}
+        <PriorityIndicator value={priority} /> {priority}{" "}
       </>
     );
   }
@@ -55,10 +55,10 @@ class GrowthHacks extends React.Component<Props> {
         <Table hover={true}>
           <thead>
             <tr>
-              <th>{__('Experiment name')}</th>
-              <th>{__('Stage')}</th>
-              <th>{__('Priority')}</th>
-              <th>{__('Assigned user')}</th>
+              <th>{__("Experiment name")}</th>
+              <th>{__("Stage")}</th>
+              <th>{__("Priority")}</th>
+              <th>{__("Assigned user")}</th>
             </tr>
           </thead>
           <tbody>

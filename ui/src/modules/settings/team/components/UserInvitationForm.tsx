@@ -1,19 +1,19 @@
-import Button from 'modules/common/components/Button';
-import FormControl from 'modules/common/components/form/Control';
-import Form from 'modules/common/components/form/Form';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import Icon from 'modules/common/components/Icon';
-import Info from 'modules/common/components/Info';
-import { ModalFooter } from 'modules/common/styles/main';
-import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import { __, Alert } from 'modules/common/utils';
-import { ICommonFormProps } from 'modules/settings/common/types';
-import { IUserGroup } from 'modules/settings/permissions/types';
-import React from 'react';
-import { Description } from '../../styles';
-import { InviteOption, LinkButton, RemoveRow } from '../styles';
-import { IInvitationEntry } from '../types';
+import Button from "modules/common/components/Button";
+import FormControl from "modules/common/components/form/Control";
+import Form from "modules/common/components/form/Form";
+import FormGroup from "modules/common/components/form/Group";
+import ControlLabel from "modules/common/components/form/Label";
+import Icon from "modules/common/components/Icon";
+import Info from "modules/common/components/Info";
+import { ModalFooter } from "modules/common/styles/main";
+import { IButtonMutateProps, IFormProps } from "modules/common/types";
+import { __, Alert } from "modules/common/utils";
+import { ICommonFormProps } from "modules/settings/common/types";
+import { IUserGroup } from "modules/settings/permissions/types";
+import React from "react";
+import { Description } from "../../styles";
+import { InviteOption, LinkButton, RemoveRow } from "../styles";
+import { IInvitationEntry } from "../types";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -33,9 +33,9 @@ class UserInvitationForm extends React.Component<Props, State> {
 
     this.state = {
       entries: [
-        { email: '', password: '', groupId: '' },
-        { email: '', password: '', groupId: '' },
-        { email: '', password: '', groupId: '' }
+        { email: "", password: "", groupId: "" },
+        { email: "", password: "", groupId: "" },
+        { email: "", password: "", groupId: "" }
       ],
       addMany: false,
       isSubmitted: false
@@ -58,7 +58,7 @@ class UserInvitationForm extends React.Component<Props, State> {
 
   onChange = (
     i: number,
-    type: 'email' | 'password' | 'groupId',
+    type: "email" | "password" | "groupId",
     e: React.FormEvent
   ) => {
     const { value } = e.target as HTMLInputElement;
@@ -72,7 +72,7 @@ class UserInvitationForm extends React.Component<Props, State> {
 
   onAddMoreInput = () => {
     this.setState({
-      entries: [...this.state.entries, { email: '', password: '', groupId: '' }]
+      entries: [...this.state.entries, { email: "", password: "", groupId: "" }]
     });
   };
 
@@ -84,17 +84,17 @@ class UserInvitationForm extends React.Component<Props, State> {
     const { entries } = this.state;
 
     const values = (document.getElementById(
-      'multipleEmailValue'
+      "multipleEmailValue"
     ) as HTMLInputElement).value;
 
     if (!values) {
-      return Alert.warning('No email address found!');
+      return Alert.warning("No email address found!");
     }
 
-    const emails = values.split(',');
+    const emails = values.split(",");
 
     emails.map(e =>
-      entries.splice(0, 0, { email: e, password: '', groupId: '' })
+      entries.splice(0, 0, { email: e, password: "", groupId: "" })
     );
 
     this.setState({ addMany: false });
@@ -130,7 +130,7 @@ class UserInvitationForm extends React.Component<Props, State> {
             Enter multiple email addresses
           </ControlLabel>
           <Description>
-            {__('Please separate each email address with comma.')}
+            {__("Please separate each email address with comma.")}
           </Description>
           <FormControl
             id="multipleEmailValue"
@@ -174,7 +174,7 @@ class UserInvitationForm extends React.Component<Props, State> {
 
     return (
       <>
-        <table style={{ width: '100%' }}>
+        <table style={{ width: "100%" }}>
           <thead>
             <tr>
               <th>
@@ -201,7 +201,7 @@ class UserInvitationForm extends React.Component<Props, State> {
                     placeholder="name@example.com"
                     value={input.email}
                     autoFocus={i === 0}
-                    onChange={this.onChange.bind(this, i, 'email')}
+                    onChange={this.onChange.bind(this, i, "email")}
                     required={true}
                   />
                 </td>
@@ -212,7 +212,7 @@ class UserInvitationForm extends React.Component<Props, State> {
                     name="password"
                     type="password"
                     value={input.password}
-                    onChange={this.onChange.bind(this, i, 'password')}
+                    onChange={this.onChange.bind(this, i, "password")}
                     required={true}
                   />
                 </td>
@@ -223,10 +223,10 @@ class UserInvitationForm extends React.Component<Props, State> {
                     name="groupId"
                     componentClass="select"
                     options={[
-                      { value: '', label: 'Choose group ...' },
+                      { value: "", label: "Choose group ..." },
                       ...this.generateGroupsChoices()
                     ]}
-                    onChange={this.onChange.bind(this, i, 'groupId')}
+                    onChange={this.onChange.bind(this, i, "groupId")}
                     required={true}
                   />
                 </td>
@@ -239,11 +239,11 @@ class UserInvitationForm extends React.Component<Props, State> {
 
         <InviteOption>
           <LinkButton onClick={this.onAddMoreInput}>
-            <Icon icon="add" /> {__('Add another')}
-          </LinkButton>{' '}
-          {__('or')}{' '}
+            <Icon icon="add" /> {__("Add another")}
+          </LinkButton>{" "}
+          {__("or")}{" "}
           <LinkButton onClick={this.onAddManyEmail}>
-            {__('add many at once')}{' '}
+            {__("add many at once")}{" "}
           </LinkButton>
         </InviteOption>
 
@@ -253,7 +253,7 @@ class UserInvitationForm extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: 'team member invitation',
+            name: "team member invitation",
             values: this.generateDoc(),
             isSubmitted,
             callback: closeModal

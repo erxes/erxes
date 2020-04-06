@@ -1,9 +1,9 @@
-import EmptyState from 'modules/common/components/EmptyState';
-import LoadMore from 'modules/common/components/LoadMore';
-import ConversationItem from 'modules/inbox/containers/leftSidebar/ConversationItem';
-import React from 'react';
-import { IConversation } from '../../types';
-import { ConversationItems } from './styles';
+import EmptyState from "modules/common/components/EmptyState";
+import LoadMore from "modules/common/components/LoadMore";
+import ConversationItem from "modules/inbox/containers/leftSidebar/ConversationItem";
+import React from "react";
+import { IConversation } from "../../types";
+import { ConversationItems } from "./styles";
 
 type Props = {
   conversations: IConversation[];

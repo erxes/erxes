@@ -1,11 +1,11 @@
-import FormControl from 'modules/common/components/form/Control';
-import Form from 'modules/common/components/form/Form';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import { ModalFooter } from 'modules/common/styles/main';
-import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import React from 'react';
-import { IImapForm } from '../../types';
+import FormControl from "modules/common/components/form/Control";
+import Form from "modules/common/components/form/Form";
+import FormGroup from "modules/common/components/form/Group";
+import ControlLabel from "modules/common/components/form/Label";
+import { ModalFooter } from "modules/common/styles/main";
+import { IButtonMutateProps, IFormProps } from "modules/common/types";
+import React from "react";
+import { IImapForm } from "../../types";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -59,45 +59,45 @@ class ImapForm extends React.Component<Props> {
     return (
       <>
         {this.renderField({
-          label: 'Email',
-          type: 'email',
-          name: 'email',
+          label: "Email",
+          type: "email",
+          name: "email",
           formProps
         })}
         {this.renderField({
-          label: 'Password',
-          type: 'password',
-          name: 'password',
+          label: "Password",
+          type: "password",
+          name: "password",
           formProps
         })}
         {this.renderField({
-          label: 'IMAP Host',
-          type: 'text',
-          name: 'imapHost',
+          label: "IMAP Host",
+          type: "text",
+          name: "imapHost",
           formProps
         })}
         {this.renderField({
-          label: 'IMAP PORT',
-          type: 'number',
-          name: 'imapPort',
+          label: "IMAP PORT",
+          type: "number",
+          name: "imapPort",
           formProps
         })}
         {this.renderField({
-          label: 'SMTP Host',
-          type: 'text',
-          name: 'smtpHost',
+          label: "SMTP Host",
+          type: "text",
+          name: "smtpHost",
           formProps
         })}
         {this.renderField({
-          label: 'SMTP PORT',
-          type: 'number',
-          name: 'smtpPort',
+          label: "SMTP PORT",
+          type: "number",
+          name: "smtpPort",
           formProps
         })}
 
         <ModalFooter>
           {renderButton({
-            name: 'integration',
+            name: "integration",
             values: this.generateDoc(values),
             isSubmitted,
             callback: this.props.closeModal

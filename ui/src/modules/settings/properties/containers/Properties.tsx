@@ -1,26 +1,26 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { IRouterProps } from 'modules/common/types';
-import { Alert, withProps } from 'modules/common/utils';
-import { router } from 'modules/common/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import Properties from '../components/Properties';
-import { FIELDS_GROUPS_CONTENT_TYPES } from '../constants';
-import { mutations, queries } from '../graphql';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { IRouterProps } from "modules/common/types";
+import { Alert, withProps } from "modules/common/utils";
+import { router } from "modules/common/utils";
+import React from "react";
+import { graphql } from "react-apollo";
+import { withRouter } from "react-router-dom";
+import Properties from "../components/Properties";
+import { FIELDS_GROUPS_CONTENT_TYPES } from "../constants";
+import { mutations, queries } from "../graphql";
 import {
   FieldsGroupsQueryResponse,
   FieldsGroupsRemoveMutationResponse,
   FieldsGroupsUpdateVisibleMutationResponse,
   FieldsRemoveMutationResponse,
   FieldsUpdateVisibleMutationResponse
-} from '../types';
+} from "../types";
 import {
   companyBasicInfos,
   customerBasicInfos,
   productBasicInfos
-} from '../utils';
+} from "../utils";
 
 type Props = {
   queryParams: any;
@@ -46,7 +46,7 @@ const PropertiesContainer = (props: FinalProps) => {
     queryParams
   } = props;
 
-  if (!router.getParam(history, 'type')) {
+  if (!router.getParam(history, "type")) {
     router.setParams(
       history,
       { type: FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER },
@@ -59,7 +59,7 @@ const PropertiesContainer = (props: FinalProps) => {
       variables: { _id }
     })
       .then(() => {
-        Alert.success('You successfully deleted a property group');
+        Alert.success("You successfully deleted a property group");
       })
       .catch(e => {
         Alert.error(e.message);
@@ -71,7 +71,7 @@ const PropertiesContainer = (props: FinalProps) => {
       variables: { _id }
     })
       .then(() => {
-        Alert.success('You successfully deleted a property field');
+        Alert.success("You successfully deleted a property field");
       })
       .catch(e => {
         Alert.error(e.message);
@@ -83,7 +83,7 @@ const PropertiesContainer = (props: FinalProps) => {
       variables: { _id, isVisible }
     })
       .then(() => {
-        Alert.success('You changed a property field visibility');
+        Alert.success("You changed a property field visibility");
       })
       .catch(e => {
         Alert.error(e.message);
@@ -95,14 +95,14 @@ const PropertiesContainer = (props: FinalProps) => {
       variables: { _id, isVisible }
     })
       .then(() => {
-        Alert.success('You changed a property group visibility');
+        Alert.success("You changed a property group visibility");
       })
       .catch(e => {
         Alert.error(e.message);
       });
   };
 
-  const currentType = router.getParam(history, 'type');
+  const currentType = router.getParam(history, "type");
   const fieldsGroups = [...(fieldsGroupsQuery.fieldsGroups || [])];
 
   // Initializing default properties for customer and company
@@ -145,24 +145,24 @@ const options = ({ queryParams }) => ({
 export default withProps<Props>(
   compose(
     graphql<Props, FieldsGroupsQueryResponse>(gql(queries.fieldsGroups), {
-      name: 'fieldsGroupsQuery',
+      name: "fieldsGroupsQuery",
       options: ({ queryParams }) => ({
         variables: {
-          contentType: queryParams.type || ''
+          contentType: queryParams.type || ""
         }
       })
     }),
     graphql<Props, FieldsGroupsRemoveMutationResponse, { _id: string }>(
       gql(mutations.fieldsGroupsRemove),
       {
-        name: 'fieldsGroupsRemove',
+        name: "fieldsGroupsRemove",
         options
       }
     ),
     graphql<Props, FieldsRemoveMutationResponse, { _id: string }>(
       gql(mutations.fieldsRemove),
       {
-        name: 'fieldsRemove',
+        name: "fieldsRemove",
         options
       }
     ),
@@ -171,7 +171,7 @@ export default withProps<Props>(
       FieldsUpdateVisibleMutationResponse,
       { _id: string; isVisible: boolean }
     >(gql(mutations.fieldsUpdateVisible), {
-      name: 'fieldsUpdateVisible',
+      name: "fieldsUpdateVisible",
       options
     }),
     graphql<
@@ -179,7 +179,7 @@ export default withProps<Props>(
       FieldsGroupsUpdateVisibleMutationResponse,
       { _id: string; isVisible: boolean }
     >(gql(mutations.fieldsGroupsUpdateVisible), {
-      name: 'fieldsGroupsUpdateVisible',
+      name: "fieldsGroupsUpdateVisible",
       options
     })
   )(withRouter<FinalProps>(PropertiesContainer))

@@ -1,19 +1,19 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { IItemParams } from 'modules/boards/types';
-import ButtonMutate from 'modules/common/components/ButtonMutate';
-import { IButtonMutateProps } from 'modules/common/types';
-import { Alert, confirm, withProps } from 'modules/common/utils';
-import React, { useEffect } from 'react';
-import { graphql } from 'react-apollo';
-import List from '../components/List';
-import { mutations, queries, subscriptions } from '../graphql';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { IItemParams } from "modules/boards/types";
+import ButtonMutate from "modules/common/components/ButtonMutate";
+import { IButtonMutateProps } from "modules/common/types";
+import { Alert, confirm, withProps } from "modules/common/utils";
+import React, { useEffect } from "react";
+import { graphql } from "react-apollo";
+import List from "../components/List";
+import { mutations, queries, subscriptions } from "../graphql";
 import {
   AddItemMutationResponse,
   EditMutationResponse,
   IChecklistItemDoc,
   RemoveMutationResponse
-} from '../types';
+} from "../types";
 
 type Props = {
   listId: string;
@@ -48,7 +48,7 @@ function ListContainer(props: FinalProps) {
     confirm().then(() => {
       removeMutation({ variables: { _id: checklistId } })
         .then(() => {
-          Alert.success('You successfully deleted a checklist');
+          Alert.success("You successfully deleted a checklist");
           localStorage.removeItem(checklistId);
         })
         .catch(e => {
@@ -73,7 +73,7 @@ function ListContainer(props: FinalProps) {
 
     const afterConvert = () => {
       callback();
-      Alert.success('You successfully converted a card');
+      Alert.success("You successfully converted a card");
     };
 
     props.addItem({ stageId, name }, afterConvert);
@@ -91,7 +91,7 @@ function ListContainer(props: FinalProps) {
         mutation={mutations.checklistsEdit}
         variables={values}
         callback={callBackResponse}
-        refetchQueries={['checklistDetail']}
+        refetchQueries={["checklistDetail"]}
         isSubmitted={isSubmitted}
         btnSize="small"
         type="submit"
@@ -129,7 +129,7 @@ const options = (props: Props) => ({
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.checklistDetail), {
-      name: 'checklistDetailQuery',
+      name: "checklistDetailQuery",
       options: ({ listId }) => ({
         variables: {
           _id: listId
@@ -139,16 +139,16 @@ export default withProps<Props>(
     graphql<Props, AddItemMutationResponse, IChecklistItemDoc>(
       gql(mutations.checklistItemsAdd),
       {
-        name: 'addItemMutation',
+        name: "addItemMutation",
         options
       }
     ),
     graphql<Props, RemoveMutationResponse, { _id: string }>(
       gql(mutations.checklistsRemove),
       {
-        name: 'removeMutation',
+        name: "removeMutation",
         options: () => ({
-          refetchQueries: ['checklists']
+          refetchQueries: ["checklists"]
         })
       }
     )

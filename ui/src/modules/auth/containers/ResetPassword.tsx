@@ -1,16 +1,16 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { Alert, withProps } from 'modules/common/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '../../common/types';
-import ResetPassword from '../components/ResetPassword';
-import { mutations } from '../graphql';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { Alert, withProps } from "modules/common/utils";
+import React from "react";
+import { graphql } from "react-apollo";
+import { withRouter } from "react-router-dom";
+import { IRouterProps } from "../../common/types";
+import ResetPassword from "../components/ResetPassword";
+import { mutations } from "../graphql";
 import {
   ResetPasswordMutationResponse,
   ResetPasswordMutationVariables
-} from '../types';
+} from "../types";
 
 type Props = {
   token: string;
@@ -29,7 +29,7 @@ const ResetPasswordContainer = (props: FinalProps) => {
       }
     })
       .then(() => {
-        history.push('/sign-in');
+        history.push("/sign-in");
       })
       .catch(error => {
         Alert.error(error.message);
@@ -51,7 +51,7 @@ export default withProps<Props>(
       ResetPasswordMutationResponse,
       ResetPasswordMutationVariables
     >(gql(mutations.resetPassword), {
-      name: 'resetPasswordMutation'
+      name: "resetPasswordMutation"
     })
   )(withRouter<FinalProps>(ResetPasswordContainer))
 );

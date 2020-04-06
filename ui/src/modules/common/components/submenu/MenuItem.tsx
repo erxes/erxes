@@ -1,8 +1,8 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
-import styled from 'styled-components';
-import { colors } from '../../styles';
-import { rgba } from '../../styles/color';
+import React from "react";
+import { NavLink } from "react-router-dom";
+import styled from "styled-components";
+import { colors } from "../../styles";
+import { rgba } from "../../styles/color";
 
 const Item = styled.li`
   display: inline-block;
@@ -18,7 +18,7 @@ const Item = styled.li`
     position: relative;
 
     &.active::after {
-      content: '';
+      content: "";
       background: ${colors.colorSecondary};
       width: 100%;
       height: 2px;

@@ -1,18 +1,18 @@
-import { shallow } from 'enzyme';
-import React from 'react';
+import { shallow } from "enzyme";
+import React from "react";
 
-import { IButtonMutateProps } from 'modules/common/types';
-import Row from '../../modules/tags/components/Row';
+import { IButtonMutateProps } from "modules/common/types";
+import Row from "../../modules/tags/components/Row";
 
-describe('Row component', () => {
+describe("Row component", () => {
   const defaultProps = {
     tag: {
-      _id: 'id',
-      name: 'name',
-      type: 'typ',
-      colorCode: 'red'
+      _id: "id",
+      name: "name",
+      type: "typ",
+      colorCode: "red"
     },
-    type: 'type',
+    type: "type",
     remove: (tag: {
       _id: string;
       type: string;
@@ -31,8 +31,8 @@ describe('Row component', () => {
     renderButton: (props: IButtonMutateProps) => <div />
   };
 
-  test('renders WithPermission successfully', () => {
+  test("renders WithPermission successfully", () => {
     const wrapper = shallow(<Row {...defaultProps} />);
-    expect(wrapper).not.toBe('');
+    expect(wrapper).not.toBe("");
   });
 });

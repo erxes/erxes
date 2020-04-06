@@ -1,14 +1,14 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { IUser } from 'modules/auth/types';
-import EmptyState from 'modules/common/components/EmptyState';
-import Spinner from 'modules/common/components/Spinner';
-import { withProps } from 'modules/common/utils';
-import { DetailQueryResponse } from 'modules/settings/productService/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import ProductDetails from '../../../components/product/detail/ProductDetails';
-import { queries } from '../../../graphql';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { IUser } from "modules/auth/types";
+import EmptyState from "modules/common/components/EmptyState";
+import Spinner from "modules/common/components/Spinner";
+import { withProps } from "modules/common/utils";
+import { DetailQueryResponse } from "modules/settings/productService/types";
+import React from "react";
+import { graphql } from "react-apollo";
+import ProductDetails from "../../../components/product/detail/ProductDetails";
+import { queries } from "../../../graphql";
 
 type Props = {
   id: string;
@@ -49,7 +49,7 @@ export default withProps<Props>(
     graphql<Props, DetailQueryResponse, { _id: string }>(
       gql(queries.productDetail),
       {
-        name: 'productDetailQuery',
+        name: "productDetailQuery",
         options: ({ id }) => ({
           variables: {
             _id: id

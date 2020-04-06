@@ -1,18 +1,18 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import Spinner from 'modules/common/components/Spinner';
-import { Alert, confirm, withProps } from 'modules/common/utils';
-import IntegrationList from 'modules/settings/integrations/components/common/IntegrationList';
-import { mutations, queries } from 'modules/settings/integrations/graphql';
-import React from 'react';
-import { graphql } from 'react-apollo';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import Spinner from "modules/common/components/Spinner";
+import { Alert, confirm, withProps } from "modules/common/utils";
+import IntegrationList from "modules/settings/integrations/components/common/IntegrationList";
+import { mutations, queries } from "modules/settings/integrations/graphql";
+import React from "react";
+import { graphql } from "react-apollo";
 import {
   ArchiveIntegrationResponse,
   CommonFieldsEditResponse,
   IntegrationsQueryResponse,
   RemoveMutationResponse
-} from '../../types';
-import { integrationsListParams } from '../utils';
+} from "../../types";
+import { integrationsListParams } from "../utils";
 
 type Props = {
   queryParams: any;
@@ -51,11 +51,11 @@ const IntegrationListContainer = (props: FinalProps) => {
     `;
 
     confirm(message).then(() => {
-      Alert.warning('Removing... Please wait!!!');
+      Alert.warning("Removing... Please wait!!!");
 
       removeMutation({ variables: { _id: integration._id } })
         .then(() => {
-          Alert.success('Your integration is no longer in this channel');
+          Alert.success("Your integration is no longer in this channel");
         })
 
         .catch(error => {
@@ -77,7 +77,7 @@ const IntegrationListContainer = (props: FinalProps) => {
           const integration = data.integrationsArchive;
 
           if (integration && integration._id) {
-            Alert.success('Integration has been archived.');
+            Alert.success("Integration has been archived.");
           }
         })
         .catch((error: Error) => {
@@ -91,7 +91,7 @@ const IntegrationListContainer = (props: FinalProps) => {
     { name, brandId }: { name: string; brandId: string }
   ) => {
     if (!name && !brandId) {
-      Alert.error('Name and brand must be chosen');
+      Alert.error("Name and brand must be chosen");
 
       return;
     }
@@ -101,7 +101,7 @@ const IntegrationListContainer = (props: FinalProps) => {
         const result = data.integrationsEditCommonFields;
 
         if (result && result._id) {
-          Alert.success('Integration has been edited.');
+          Alert.success("Integration has been edited.");
         }
       })
       .catch((error: Error) => {
@@ -148,7 +148,7 @@ const mutationOptions = ({
 export default withProps<Props>(
   compose(
     graphql<Props, IntegrationsQueryResponse>(gql(queries.integrations), {
-      name: 'integrationsQuery',
+      name: "integrationsQuery",
       options: ({ queryParams, kind, variables }) => {
         return {
           notifyOnNetworkStatusChange: true,
@@ -157,25 +157,25 @@ export default withProps<Props>(
             ...integrationsListParams(queryParams || {}),
             kind
           },
-          fetchPolicy: 'network-only'
+          fetchPolicy: "network-only"
         };
       }
     }),
     graphql<Props, RemoveMutationResponse>(gql(mutations.integrationsRemove), {
-      name: 'removeMutation',
+      name: "removeMutation",
       options: mutationOptions
     }),
     graphql<Props, ArchiveIntegrationResponse>(
       gql(mutations.integrationsArchive),
       {
-        name: 'archiveIntegration',
+        name: "archiveIntegration",
         options: mutationOptions
       }
     ),
     graphql<Props, CommonFieldsEditResponse>(
       gql(mutations.integrationsEditCommonFields),
       {
-        name: 'editCommonFields',
+        name: "editCommonFields",
         options: mutationOptions
       }
     )

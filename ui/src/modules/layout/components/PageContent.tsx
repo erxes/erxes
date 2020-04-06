@@ -1,5 +1,5 @@
-import React from 'react';
-import { ContenFooter, ContentBox, MainContent } from '../styles';
+import React from "react";
+import { ContenFooter, ContentBox, MainContent } from "../styles";
 
 type Props = {
   actionBar?: React.ReactNode;

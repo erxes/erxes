@@ -1,21 +1,21 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { IUser } from 'modules/auth/types';
-import ButtonMutate from 'modules/common/components/ButtonMutate';
-import Spinner from 'modules/common/components/Spinner';
-import { IButtonMutateProps } from 'modules/common/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withProps } from '../../../common/utils';
-import { queries as channelQueries } from '../../channels/graphql';
-import { ChannelsQueryResponse } from '../../channels/types';
-import UserDetailForm from '../components/detail/UserDetailForm';
-import { mutations, queries } from '../graphql';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { IUser } from "modules/auth/types";
+import ButtonMutate from "modules/common/components/ButtonMutate";
+import Spinner from "modules/common/components/Spinner";
+import { IButtonMutateProps } from "modules/common/types";
+import React from "react";
+import { graphql } from "react-apollo";
+import { withProps } from "../../../common/utils";
+import { queries as channelQueries } from "../../channels/graphql";
+import { ChannelsQueryResponse } from "../../channels/types";
+import UserDetailForm from "../components/detail/UserDetailForm";
+import { mutations, queries } from "../graphql";
 import {
   UserConverationsQueryResponse,
   UserDetailQueryResponse
-} from '../types';
-import UserForm from './UserForm';
+} from "../types";
+import UserForm from "./UserForm";
 
 type Props = {
   _id: string;
@@ -71,7 +71,7 @@ const UserDetailFormContainer = (props: Props & FinalProps) => {
         icon="check-circle"
         uppercase={false}
         successMessage={`You successfully ${
-          object ? 'updated' : 'added'
+          object ? "updated" : "added"
         } a ${name}`}
       />
     );
@@ -108,7 +108,7 @@ export default withProps<Props>(
     graphql<Props, UserDetailQueryResponse, { _id: string }>(
       gql(queries.userDetail),
       {
-        name: 'userDetailQuery',
+        name: "userDetailQuery",
         options: ({ _id }) => ({
           variables: { _id }
         })
@@ -119,7 +119,7 @@ export default withProps<Props>(
       UserConverationsQueryResponse,
       { _id: string; perPage: number }
     >(gql(queries.userConversations), {
-      name: 'userConversationsQuery',
+      name: "userConversationsQuery",
       options: ({ _id, queryParams }) => ({
         variables: {
           _id,
@@ -128,7 +128,7 @@ export default withProps<Props>(
       })
     }),
     graphql(gql(channelQueries.channels), {
-      name: 'channelsQuery',
+      name: "channelsQuery",
       options: commonOptions
     })
   )(UserDetailFormContainer)

@@ -1,6 +1,6 @@
-import React from 'react';
-import Select from 'react-select-plus';
-import styled from 'styled-components';
+import React from "react";
+import Select from "react-select-plus";
+import styled from "styled-components";
 
 const Container = styled.div`
   width: 140px;
@@ -23,7 +23,7 @@ class FormList extends React.Component<Props, {}> {
     const { forms, stage, onChangeForm } = this.props;
 
     const onChange = form => {
-      let value = '';
+      let value = "";
 
       if (form) {
         value = form.value;

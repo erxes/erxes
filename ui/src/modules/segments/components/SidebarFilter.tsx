@@ -1,13 +1,13 @@
-import Box from 'modules/common/components/Box';
-import DataWithLoader from 'modules/common/components/DataWithLoader';
-import DropdownToggle from 'modules/common/components/DropdownToggle';
-import Icon from 'modules/common/components/Icon';
-import { __ } from 'modules/common/utils';
-import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
-import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import { Link } from 'react-router-dom';
-import { ISegment } from '../types';
+import Box from "modules/common/components/Box";
+import DataWithLoader from "modules/common/components/DataWithLoader";
+import DropdownToggle from "modules/common/components/DropdownToggle";
+import Icon from "modules/common/components/Icon";
+import { __ } from "modules/common/utils";
+import { FieldStyle, SidebarCounter, SidebarList } from "modules/layout/styles";
+import React from "react";
+import Dropdown from "react-bootstrap/Dropdown";
+import { Link } from "react-router-dom";
+import { ISegment } from "../types";
 
 type Props = {
   currentSegment?: string;
@@ -39,7 +39,7 @@ class Segments extends React.Component<Props> {
 
     return (
       <>
-        <Dropdown alignRight={true} style={{ float: 'left' }}>
+        <Dropdown alignRight={true} style={{ float: "left" }}>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-manage">
             <a href="#settings">
               <Icon icon="cog" />
@@ -48,12 +48,12 @@ class Segments extends React.Component<Props> {
           <Dropdown.Menu>
             <li>
               <Link to={`/segments/new/${contentType}`}>
-                {__('New segment')}
+                {__("New segment")}
               </Link>
             </li>
             <li>
               <Link to={`/segments/${contentType}`}>
-                {__('Manage segments')}
+                {__("Manage segments")}
               </Link>
             </li>
           </Dropdown.Menu>
@@ -84,19 +84,19 @@ class Segments extends React.Component<Props> {
         {orderedSegments.map(segment => (
           <li
             key={segment._id}
-            className={segment.subOf ? 'child-segment' : ''}
+            className={segment.subOf ? "child-segment" : ""}
           >
             <a
               href="#active"
               tabIndex={0}
-              className={currentSegment === segment._id ? 'active' : ''}
+              className={currentSegment === segment._id ? "active" : ""}
               onClick={this.onSegmentClick.bind(this, segment._id)}
             >
-              {segment.subOf ? '\u00a0\u00a0' : null}
+              {segment.subOf ? "\u00a0\u00a0" : null}
               <Icon
                 icon="chart-pie"
-                style={{ color: segment.color, marginRight: '5px' }}
-              />{' '}
+                style={{ color: segment.color, marginRight: "5px" }}
+              />{" "}
               <FieldStyle>{segment.name}</FieldStyle>
               <SidebarCounter>{counts[segment._id]}</SidebarCounter>
             </a>
@@ -112,7 +112,7 @@ class Segments extends React.Component<Props> {
 
     return (
       <Box
-        title={__('Filter by segments')}
+        title={__("Filter by segments")}
         extraButtons={extraButtons}
         collapsible={segments.length > 7}
         isOpen={true}

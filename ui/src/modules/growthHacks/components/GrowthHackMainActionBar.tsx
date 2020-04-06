@@ -1,16 +1,16 @@
-import MainActionBar from 'modules/boards/components/MainActionBar';
-import { ButtonGroup } from 'modules/boards/styles/header';
-import { IBoard, IPipeline } from 'modules/boards/types';
-import Icon from 'modules/common/components/Icon';
-import Tip from 'modules/common/components/Tip';
-import { IOption, IRouterProps } from 'modules/common/types';
-import { __, router } from 'modules/common/utils';
-import queryString from 'query-string';
-import React from 'react';
-import { Link, withRouter } from 'react-router-dom';
-import Select from 'react-select-plus';
-import { HACKSTAGES } from '../constants';
-import options from '../options';
+import MainActionBar from "modules/boards/components/MainActionBar";
+import { ButtonGroup } from "modules/boards/styles/header";
+import { IBoard, IPipeline } from "modules/boards/types";
+import Icon from "modules/common/components/Icon";
+import Tip from "modules/common/components/Tip";
+import { IOption, IRouterProps } from "modules/common/types";
+import { __, router } from "modules/common/utils";
+import queryString from "query-string";
+import React from "react";
+import { Link, withRouter } from "react-router-dom";
+import Select from "react-select-plus";
+import { HACKSTAGES } from "../constants";
+import options from "../options";
 
 interface IProps extends IRouterProps {
   onSearch: (search: string) => void;
@@ -30,14 +30,14 @@ interface IProps extends IRouterProps {
 }
 
 const FILTER_PARAMS = [
-  'sortField',
-  'sortDirection',
-  'search',
-  'assignedUserIds',
-  'closeDateType',
-  'hackStage',
-  'priority',
-  'userIds'
+  "sortField",
+  "sortDirection",
+  "search",
+  "assignedUserIds",
+  "closeDateType",
+  "hackStage",
+  "priority",
+  "userIds"
 ];
 
 const GrowthHackMainActionBar = (props: IProps) => {
@@ -45,23 +45,23 @@ const GrowthHackMainActionBar = (props: IProps) => {
 
   // get selected type from URL
   const getCurrentType = () => {
-    if (currentUrl.includes('board')) {
-      return 'board';
-    } else if (currentUrl.includes('weightedScore')) {
-      return 'weightedScore';
-    } else if (currentUrl.includes('priorityMatrix')) {
-      return 'priorityMatrix';
+    if (currentUrl.includes("board")) {
+      return "board";
+    } else if (currentUrl.includes("weightedScore")) {
+      return "weightedScore";
+    } else if (currentUrl.includes("priorityMatrix")) {
+      return "priorityMatrix";
     }
 
-    return 'funnelImpact';
+    return "funnelImpact";
   };
 
   const getActiveClass = (currentTab: string) => {
     if (window.location.href.includes(currentTab)) {
-      return 'active';
+      return "active";
     }
 
-    return '';
+    return "";
   };
 
   const isFiltered = (): boolean => {
@@ -92,31 +92,31 @@ const GrowthHackMainActionBar = (props: IProps) => {
 
     return (
       <ButtonGroup>
-        <Tip text={__('Board')} placement="bottom">
-          <Link to={onFilterClick('board')} className={getActiveClass('board')}>
+        <Tip text={__("Board")} placement="bottom">
+          <Link to={onFilterClick("board")} className={getActiveClass("board")}>
             <Icon icon="window-section" />
           </Link>
         </Tip>
-        <Tip text={__('Weighted scoring')} placement="bottom">
+        <Tip text={__("Weighted scoring")} placement="bottom">
           <Link
-            to={onFilterClick('weightedScore')}
-            className={getActiveClass('weightedScore')}
+            to={onFilterClick("weightedScore")}
+            className={getActiveClass("weightedScore")}
           >
             <Icon icon="web-section-alt" />
           </Link>
         </Tip>
-        <Tip text={__('Priority matrix')} placement="bottom">
+        <Tip text={__("Priority matrix")} placement="bottom">
           <Link
-            to={onFilterClick('priorityMatrix')}
-            className={getActiveClass('priorityMatrix')}
+            to={onFilterClick("priorityMatrix")}
+            className={getActiveClass("priorityMatrix")}
           >
             <Icon icon="th" />
           </Link>
         </Tip>
-        <Tip text={__('Funnel Impact')} placement="bottom">
+        <Tip text={__("Funnel Impact")} placement="bottom">
           <Link
-            to={onFilterClick('funnelImpact')}
-            className={getActiveClass('funnelImpact')}
+            to={onFilterClick("funnelImpact")}
+            className={getActiveClass("funnelImpact")}
           >
             <Icon icon="window-maximize" />
           </Link>
@@ -126,11 +126,11 @@ const GrowthHackMainActionBar = (props: IProps) => {
   };
 
   const onChangeSort = value => {
-    let field: string = '';
-    let direction: string = '';
+    let field: string = "";
+    let direction: string = "";
 
     if (value) {
-      const values = value.value.split(',');
+      const values = value.value.split(",");
 
       field = values[0];
       direction = values[1];
@@ -140,25 +140,25 @@ const GrowthHackMainActionBar = (props: IProps) => {
         sortDirection: direction
       });
     } else {
-      router.removeParams(props.history, 'sortField', 'sortDirection');
+      router.removeParams(props.history, "sortField", "sortDirection");
     }
   };
 
   const onChangeHackStage = (ops: IOption[]) => {
-    props.onSelect(ops.map(option => option.value), 'hackStage');
+    props.onSelect(ops.map(option => option.value), "hackStage");
   };
 
   const { hackScoringType } = props.currentPipeline || {
-    hackScoringType: 'ice'
+    hackScoringType: "ice"
   };
 
-  const effort = hackScoringType === 'rice' ? 'effort' : 'ease';
+  const effort = hackScoringType === "rice" ? "effort" : "ease";
 
   const sortOptions = [
-    { value: 'impact,1', label: 'Low impact' },
-    { value: 'impact,-1', label: 'High impact' },
-    { value: 'ease,1', label: `Low ${effort}` },
-    { value: 'ease,-1', label: `High ${effort}` }
+    { value: "impact,1", label: "Low impact" },
+    { value: "impact,-1", label: "High impact" },
+    { value: "ease,1", label: `Low ${effort}` },
+    { value: "ease,-1", label: `High ${effort}` }
   ];
 
   const { sortField, sortDirection } = props.queryParams;
@@ -172,7 +172,7 @@ const GrowthHackMainActionBar = (props: IProps) => {
         name="hackStage"
         onChange={onChangeHackStage}
         multi={true}
-        loadingPlaceholder={__('Loading...')}
+        loadingPlaceholder={__("Loading...")}
       />
     </>
   );
@@ -192,10 +192,10 @@ const GrowthHackMainActionBar = (props: IProps) => {
   const extendedProps = {
     ...props,
     options,
-    boardText: 'Campaign',
-    pipelineText: 'Project',
+    boardText: "Campaign",
+    pipelineText: "Project",
     isFiltered,
-    extraFilter: currentUrl.includes('board') ? growthHackFilter : extraFilter,
+    extraFilter: currentUrl.includes("board") ? growthHackFilter : extraFilter,
     link: `/growthHack/${getCurrentType()}`,
     rightContent: viewChooser
   };

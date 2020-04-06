@@ -1,8 +1,8 @@
-import { FormControl } from 'modules/common/components/form';
-import Tags from 'modules/common/components/Tags';
-import TextInfo from 'modules/common/components/TextInfo';
-import React from 'react';
-import { IProduct } from '../../types';
+import { FormControl } from "modules/common/components/form";
+import Tags from "modules/common/components/Tags";
+import TextInfo from "modules/common/components/TextInfo";
+import React from "react";
+import { IProduct } from "../../types";
 
 type Props = {
   product: IProduct;
@@ -44,7 +44,7 @@ class Row extends React.Component<Props> {
         <td>
           <TextInfo>{product.type}</TextInfo>
         </td>
-        <td>{product.category ? product.category.name : ''}</td>
+        <td>{product.category ? product.category.name : ""}</td>
         <td>{product.unitPrice}</td>
         <td>{product.sku}</td>
         <td>

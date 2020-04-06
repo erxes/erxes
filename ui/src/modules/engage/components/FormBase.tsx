@@ -1,7 +1,7 @@
-import { IBreadCrumbItem } from 'modules/common/types';
-import { __, Alert } from 'modules/common/utils';
-import React from 'react';
-import { IEngageMessageDoc } from '../types';
+import { IBreadCrumbItem } from "modules/common/types";
+import { __, Alert } from "modules/common/utils";
+import React from "react";
+import { IEngageMessageDoc } from "../types";
 
 type Props = {
   kind: string;
@@ -21,31 +21,31 @@ class FormBase extends React.Component<Props> {
   sendError(message: string): { status: string } {
     Alert.error(message);
 
-    return { status: 'error' };
+    return { status: "error" };
   }
 
   validateDoc = (docType, doc): { status: string; doc?: IEngageMessageDoc } => {
     if (!doc.title) {
-      return this.sendError(__('Write a title'));
+      return this.sendError(__("Write a title"));
     }
 
     if (!doc.fromUserId) {
-      return this.sendError(__('Choose a sender'));
+      return this.sendError(__("Choose a sender"));
     }
 
     if (doc.messenger) {
       const { brandId, sentAs, content } = doc.messenger;
 
       if (!brandId) {
-        return this.sendError(__('Choose a brand'));
+        return this.sendError(__("Choose a brand"));
       }
 
       if (!sentAs) {
-        return this.sendError(__('Choose a sent as'));
+        return this.sendError(__("Choose a sent as"));
       }
 
       if (!content) {
-        return this.sendError(__('Write a content'));
+        return this.sendError(__("Write a content"));
       }
     }
 
@@ -53,69 +53,69 @@ class FormBase extends React.Component<Props> {
       const { subject, content } = doc.email;
 
       if (!subject) {
-        return this.sendError(__('Write an email subject'));
+        return this.sendError(__("Write an email subject"));
       }
 
       if (!content) {
-        return this.sendError(__('Write a content'));
+        return this.sendError(__("Write a content"));
       }
     }
 
     if (
-      this.props.kind !== 'manual' &&
+      this.props.kind !== "manual" &&
       (!doc.scheduleDate || !doc.scheduleDate.type)
     ) {
-      return this.sendError(__('Choose a schedule'));
+      return this.sendError(__("Choose a schedule"));
     }
 
     if (doc.scheduleDate) {
       const { time, type, day, month } = doc.scheduleDate;
 
       if (!type && time) {
-        return this.sendError(__('Choose a schedule day'));
+        return this.sendError(__("Choose a schedule day"));
       }
 
       if (type && (!time || time.length === 0)) {
-        return this.sendError(__('Choose a schedule time'));
+        return this.sendError(__("Choose a schedule time"));
       }
 
-      if ((type === 'year' || type === 'month') && !day) {
-        return this.sendError(__('Choose a schedule day'));
+      if ((type === "year" || type === "month") && !day) {
+        return this.sendError(__("Choose a schedule day"));
       }
 
-      if (type === 'year' && !month) {
-        return this.sendError(__('Choose a schedule day'));
+      if (type === "year" && !month) {
+        return this.sendError(__("Choose a schedule day"));
       }
     }
 
-    if (docType === 'live') {
+    if (docType === "live") {
       return {
-        status: 'ok',
+        status: "ok",
         doc: { isLive: true, isDraft: false, ...doc }
       };
     }
 
-    if (docType === 'draft ') {
+    if (docType === "draft ") {
       return {
-        status: 'ok',
+        status: "ok",
         doc: { isLive: false, isDraft: true, ...doc }
       };
     }
 
-    return { status: 'ok', doc };
+    return { status: "ok", doc };
   };
 
   renderTitle() {
     const { kind } = this.props;
 
-    let title = __('Auto message');
+    let title = __("Auto message");
 
-    if (kind === 'manual') {
-      title = __('Manual message');
+    if (kind === "manual") {
+      title = __("Manual message");
     }
 
-    if (kind === 'visitorAuto') {
-      title = __('Visitor auto message');
+    if (kind === "visitorAuto") {
+      title = __("Visitor auto message");
     }
 
     return title;
@@ -123,7 +123,7 @@ class FormBase extends React.Component<Props> {
 
   render() {
     const breadcrumbs = [
-      { title: __('Engage'), link: '/engage' },
+      { title: __("Engage"), link: "/engage" },
       { title: this.renderTitle() }
     ];
 

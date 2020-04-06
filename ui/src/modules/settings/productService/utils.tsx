@@ -1,6 +1,6 @@
-import React from 'react';
-import { PRODUCT_TYPE_CHOISES } from './constants';
-import { IProductCategory } from './types';
+import React from "react";
+import { PRODUCT_TYPE_CHOISES } from "./constants";
+import { IProductCategory } from "./types";
 
 export const generateCategoryOptions = (
   categories: IProductCategory[],
@@ -13,10 +13,10 @@ export const generateCategoryOptions = (
 
     const foundedString = order.match(/[/]/gi);
 
-    let space = '';
+    let space = "";
 
     if (foundedString) {
-      space = '\u00A0 '.repeat(foundedString.length);
+      space = "\u00A0 ".repeat(foundedString.length);
     }
 
     if (currentCategoryId !== category._id) {

@@ -1,10 +1,10 @@
-import Icon from 'modules/common/components/Icon';
-import { IButtonMutateProps } from 'modules/common/types';
-import { TargetCount } from 'modules/engage/types';
-import { ISegment } from 'modules/segments/types';
-import React from 'react';
-import Common from './Common';
-import SegmentsForm from './forms/SegmentsForm';
+import Icon from "modules/common/components/Icon";
+import { IButtonMutateProps } from "modules/common/types";
+import { TargetCount } from "modules/engage/types";
+import { ISegment } from "modules/segments/types";
+import React from "react";
+import Common from "./Common";
+import SegmentsForm from "./forms/SegmentsForm";
 
 type Props = {
   messageType: string;
@@ -60,7 +60,7 @@ const SegmentStep = (props: Props) => {
   orderedSegments.forEach(segment => {
     icons.push(
       <>
-        {segment.subOf ? '\u00a0\u00a0\u00a0\u00a0\u00a0' : null}
+        {segment.subOf ? "\u00a0\u00a0\u00a0\u00a0\u00a0" : null}
         <Icon icon="chart-pie icon" style={{ color: segment.color }} />
       </>
     );

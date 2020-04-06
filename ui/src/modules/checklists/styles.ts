@@ -1,6 +1,6 @@
-import { colors, dimensions } from 'modules/common/styles';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import { colors, dimensions } from "modules/common/styles";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 const ChecklistTitleWrapper = styled.div`
   display: flex;
@@ -64,8 +64,8 @@ const ChecklistText = styledTS<{ isChecked?: boolean }>(styled.div)`
   flex: 1;
   justify-content: space-between;
   margin-left: ${dimensions.unitSpacing}px;
-  text-decoration: ${props => props.isChecked && 'line-through'};
-  color: ${props => props.isChecked && '#666'};
+  text-decoration: ${props => props.isChecked && "line-through"};
+  color: ${props => props.isChecked && "#666"};
 
   i {
     cursor: pointer;
@@ -118,8 +118,8 @@ const FormControlWrapper = styled.div`
 
 const FormWrapper = styledTS<{ add?: boolean }>(styled.form)`
   width: 100%;
-  padding-left: ${props => (props.add ? '28px' : '10px')};
-  margin-top: ${props => !props.add && '-5px'};
+  padding-left: ${props => (props.add ? "28px" : "10px")};
+  margin-top: ${props => !props.add && "-5px"};
 `;
 
 const PopoverContent = styled.div`

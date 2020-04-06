@@ -1,17 +1,17 @@
-import UserCommonInfos from 'modules/auth/components/UserCommonInfos';
-import { IUser, IUserDetails, IUserLinks } from 'modules/auth/types';
-import CollapseContent from 'modules/common/components/CollapseContent';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
-import SelectBrands from 'modules/settings/brands/containers/SelectBrands';
-import { IUserGroup } from 'modules/settings/permissions/types';
-import React from 'react';
-import Select from 'react-select-plus';
-import { IChannel } from '../../channels/types';
-import CommonForm from '../../common/components/Form';
-import { ICommonFormProps } from '../../common/types';
+import UserCommonInfos from "modules/auth/components/UserCommonInfos";
+import { IUser, IUserDetails, IUserLinks } from "modules/auth/types";
+import CollapseContent from "modules/common/components/CollapseContent";
+import FormGroup from "modules/common/components/form/Group";
+import ControlLabel from "modules/common/components/form/Label";
+import { IButtonMutateProps, IFormProps } from "modules/common/types";
+import { __ } from "modules/common/utils";
+import SelectBrands from "modules/settings/brands/containers/SelectBrands";
+import { IUserGroup } from "modules/settings/permissions/types";
+import React from "react";
+import Select from "react-select-plus";
+import { IChannel } from "../../channels/types";
+import CommonForm from "../../common/components/Form";
+import { ICommonFormProps } from "../../common/types";
 
 type Props = {
   channels: IChannel[];
@@ -34,7 +34,7 @@ class UserForm extends React.Component<Props, State> {
     super(props);
 
     const user = props.object || { details: {} };
-    const defaultAvatar = '/images/avatar-colored.svg';
+    const defaultAvatar = "/images/avatar-colored.svg";
 
     this.state = {
       avatar: user.details.avatar || defaultAvatar,
@@ -73,7 +73,7 @@ class UserForm extends React.Component<Props, State> {
         <br />
 
         <Select
-          placeholder={__('Choose groups')}
+          placeholder={__("Choose groups")}
           value={self.state.selectedGroups}
           options={self.generateParams(groups)}
           onChange={onChange}
@@ -125,7 +125,7 @@ class UserForm extends React.Component<Props, State> {
         <br />
 
         <Select
-          placeholder={__('Choose channels')}
+          placeholder={__("Choose channels")}
           value={self.state.selectedChannels}
           options={self.generateParams(channels)}
           onChange={onChange}
@@ -183,7 +183,7 @@ class UserForm extends React.Component<Props, State> {
           formProps={formProps}
         />
 
-        <CollapseContent title={__('Other')} compact={true}>
+        <CollapseContent title={__("Other")} compact={true}>
           {this.renderChannels()}
           {this.renderGroups()}
           {this.renderBrands()}

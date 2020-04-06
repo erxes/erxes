@@ -1,17 +1,17 @@
-import { IBoard, IPipeline } from 'modules/boards/types';
-import { collectOrders } from 'modules/boards/utils';
-import Button from 'modules/common/components/Button';
-import EmptyState from 'modules/common/components/EmptyState';
-import Table from 'modules/common/components/table';
-import { Count, Title } from 'modules/common/styles/main';
-import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
-import Wrapper from 'modules/layout/components/Wrapper';
-import React from 'react';
-import { Link, withRouter } from 'react-router-dom';
-import PipelineForm from '../containers/PipelineForm';
-import { IOption } from '../types';
-import PipelineRow from './PipelineRow';
+import { IBoard, IPipeline } from "modules/boards/types";
+import { collectOrders } from "modules/boards/utils";
+import Button from "modules/common/components/Button";
+import EmptyState from "modules/common/components/EmptyState";
+import Table from "modules/common/components/table";
+import { Count, Title } from "modules/common/styles/main";
+import { IButtonMutateProps, IRouterProps } from "modules/common/types";
+import { __ } from "modules/common/utils";
+import Wrapper from "modules/layout/components/Wrapper";
+import React from "react";
+import { Link, withRouter } from "react-router-dom";
+import PipelineForm from "../containers/PipelineForm";
+import { IOption } from "../types";
+import PipelineRow from "./PipelineRow";
 
 type Props = {
   type: string;
@@ -37,7 +37,7 @@ class Pipelines extends React.Component<Props, State> {
 
     const { history } = props;
 
-    const showModal = history.location.hash.includes('showPipelineModal');
+    const showModal = history.location.hash.includes("showPipelineModal");
 
     this.state = {
       showModal,
@@ -106,7 +106,7 @@ class Pipelines extends React.Component<Props, State> {
 
   renderContent() {
     const { pipelines, options } = this.props;
-    const pipelineName = options ? options.pipelineName : 'pipeline';
+    const pipelineName = options ? options.pipelineName : "pipeline";
 
     if (pipelines.length === 0) {
       return (
@@ -121,13 +121,13 @@ class Pipelines extends React.Component<Props, State> {
       <>
         <Count>
           {pipelines.length} {__(pipelineName)}
-          {pipelines.length > 1 && 's'}
+          {pipelines.length > 1 && "s"}
         </Count>
         <Table>
           <thead>
             <tr>
               <th>{__(pipelineName)}</th>
-              <th>{__('Actions')}</th>
+              <th>{__("Actions")}</th>
             </tr>
           </thead>
           <tbody>{this.renderRows()}</tbody>
@@ -154,7 +154,7 @@ class Pipelines extends React.Component<Props, State> {
 
   renderButton() {
     const { options, boardId } = this.props;
-    const pipelineName = options ? options.pipelineName : 'pipeline';
+    const pipelineName = options ? options.pipelineName : "pipeline";
 
     if (!boardId) {
       return null;

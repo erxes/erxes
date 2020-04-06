@@ -1,10 +1,10 @@
-import { __ } from 'modules/common/utils';
-import AssignBox from 'modules/inbox/containers/AssignBox';
-import React from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import { InboxManagementActionConsumer } from '../../containers/Inbox';
-import { IConversation } from '../../types';
+import { __ } from "modules/common/utils";
+import AssignBox from "modules/inbox/containers/AssignBox";
+import React from "react";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Popover from "react-bootstrap/Popover";
+import { InboxManagementActionConsumer } from "../../containers/Inbox";
+import { IConversation } from "../../types";
 
 type Props = {
   targets: IConversation[];
@@ -35,7 +35,7 @@ class AssignBoxPopover extends React.Component<Props> {
     const { targets, trigger, container } = this.props;
     const popover = (
       <Popover id="assign-popover">
-        <Popover.Title as="h3">{__('Choose person')}</Popover.Title>
+        <Popover.Title as="h3">{__("Choose person")}</Popover.Title>
         <Popover.Content>
           <AssignBox
             targets={targets}

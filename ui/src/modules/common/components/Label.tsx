@@ -1,10 +1,10 @@
-import color from 'color';
-import { __ } from 'modules/common/utils';
-import { shake } from 'modules/common/utils/animations';
-import React from 'react';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { colors } from '../styles';
+import color from "color";
+import { __ } from "modules/common/utils";
+import { shake } from "modules/common/utils/animations";
+import React from "react";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
+import { colors } from "../styles";
 
 const types = {
   default: {
@@ -43,7 +43,7 @@ const LabelStyled = styledTS<{
   color: ${props =>
     props.hasLightBackground ? colors.colorBlack : colors.colorWhite};
   border: none;
-  animation: ${props => (props.shake ? `${shake} 3.5s ease infinite` : 'none')};
+  animation: ${props => (props.shake ? `${shake} 3.5s ease infinite` : "none")};
 
   &:hover {
     cursor: default;
@@ -105,7 +105,7 @@ type Props = {
 };
 
 const defaultProps = {
-  lblStyle: 'default',
+  lblStyle: "default",
   shake: false
 };
 
@@ -124,7 +124,7 @@ class Label extends React.Component<Props> {
 
     if (ignoreTrans) {
       content = children;
-    } else if (typeof children === 'string') {
+    } else if (typeof children === "string") {
       content = __(children);
     }
 

@@ -1,14 +1,14 @@
-import Button from 'modules/common/components/Button';
-import FormControl from 'modules/common/components/form/Control';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import { ModalFooter } from 'modules/common/styles/main';
-import { IAttachment } from 'modules/common/types';
-import { __, Alert } from 'modules/common/utils';
-import { IBrand } from 'modules/settings/brands/types';
-import { SaveResponseTemplateMutationVariables } from 'modules/settings/responseTemplates/types';
-import React from 'react';
+import Button from "modules/common/components/Button";
+import FormControl from "modules/common/components/form/Control";
+import FormGroup from "modules/common/components/form/Group";
+import ControlLabel from "modules/common/components/form/Label";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import { ModalFooter } from "modules/common/styles/main";
+import { IAttachment } from "modules/common/types";
+import { __, Alert } from "modules/common/utils";
+import { IBrand } from "modules/settings/brands/types";
+import { SaveResponseTemplateMutationVariables } from "modules/settings/responseTemplates/types";
+import React from "react";
 
 type Props = {
   saveResponseTemplate: (
@@ -30,9 +30,9 @@ class Modal extends React.Component<Props, {}> {
       content,
       files,
       brandId: (document.getElementById(
-        'template-brand-id'
+        "template-brand-id"
       ) as HTMLInputElement).value,
-      name: (document.getElementById('template-name') as HTMLInputElement).value
+      name: (document.getElementById("template-name") as HTMLInputElement).value
     };
 
     this.props.saveResponseTemplate(doc, error => {
@@ -40,7 +40,7 @@ class Modal extends React.Component<Props, {}> {
         return Alert.error(error.message);
       }
 
-      const element = document.querySelector('button.close') as HTMLElement;
+      const element = document.querySelector("button.close") as HTMLElement;
 
       return element.click();
     });
@@ -57,7 +57,7 @@ class Modal extends React.Component<Props, {}> {
           <FormControl
             id="template-brand-id"
             componentClass="select"
-            placeholder={__('Select Brand') as string}
+            placeholder={__("Select Brand") as string}
             defaultValue={brandId}
           >
             {brands.map(brand => (

@@ -1,17 +1,17 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import ButtonMutate from 'modules/common/components/ButtonMutate';
-import Spinner from 'modules/common/components/Spinner';
-import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
-import { withProps } from 'modules/common/utils';
-import { queries } from 'modules/settings/integrations/graphql';
-import React from 'react';
-import { graphql, withApollo } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import Lead from '../../components/lead/Lead';
-import { mutations } from '../../graphql';
-import { IntegrationsQueryResponse } from '../../types';
-import { integrationsListParams } from '../utils';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import ButtonMutate from "modules/common/components/ButtonMutate";
+import Spinner from "modules/common/components/Spinner";
+import { IButtonMutateProps, IRouterProps } from "modules/common/types";
+import { withProps } from "modules/common/utils";
+import { queries } from "modules/settings/integrations/graphql";
+import React from "react";
+import { graphql, withApollo } from "react-apollo";
+import { withRouter } from "react-router-dom";
+import Lead from "../../components/lead/Lead";
+import { mutations } from "../../graphql";
+import { IntegrationsQueryResponse } from "../../types";
+import { integrationsListParams } from "../utils";
 
 type Props = {
   queryParams: any;
@@ -69,11 +69,11 @@ const getRefetchQueries = () => {
   return [
     {
       query: gql(queries.messengerApps),
-      variables: { kind: 'lead' }
+      variables: { kind: "lead" }
     },
     {
       query: gql(queries.messengerAppsCount),
-      variables: { kind: 'lead' }
+      variables: { kind: "lead" }
     }
   ];
 };
@@ -81,28 +81,28 @@ const getRefetchQueries = () => {
 export default withProps<Props>(
   compose(
     graphql<Props, IntegrationsQueryResponse>(gql(queries.integrations), {
-      name: 'integrationsQuery',
+      name: "integrationsQuery",
       options: ({ queryParams }) => {
         return {
           notifyOnNetworkStatusChange: true,
           variables: {
             ...integrationsListParams(queryParams || {}),
-            kind: 'messenger'
+            kind: "messenger"
           },
-          fetchPolicy: 'network-only'
+          fetchPolicy: "network-only"
         };
       }
     }),
     graphql<Props, IntegrationsQueryResponse>(gql(queries.integrations), {
-      name: 'leadIntegrationsQuery',
+      name: "leadIntegrationsQuery",
       options: ({ queryParams }) => {
         return {
           notifyOnNetworkStatusChange: true,
           variables: {
             ...integrationsListParams(queryParams || {}),
-            kind: 'lead'
+            kind: "lead"
           },
-          fetchPolicy: 'network-only'
+          fetchPolicy: "network-only"
         };
       }
     }),

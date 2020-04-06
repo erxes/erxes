@@ -1,13 +1,13 @@
-import { colors } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
-import { readFile } from 'modules/common/utils';
-import { ICustomer } from 'modules/customers/types';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { IUser } from '../../../auth/types';
-import { ICompany } from '../../../companies/types';
+import { colors } from "modules/common/styles";
+import { rgba } from "modules/common/styles/color";
+import { readFile } from "modules/common/utils";
+import { ICustomer } from "modules/customers/types";
+import React from "react";
+import { Link } from "react-router-dom";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
+import { IUser } from "../../../auth/types";
+import { ICompany } from "../../../companies/types";
 
 const AvatarStyled = styledTS<{ state?: string }>(styled.span)`
   display: block;
@@ -20,9 +20,9 @@ const AvatarStyled = styledTS<{ state?: string }>(styled.span)`
   color: ${colors.colorWhite};
 
   background: ${props =>
-    (props.state === 'lead' && rgba(colors.colorCoreYellow, 0.8)) ||
-    (props.state === 'visitor' && rgba(colors.colorLightGray, 0.6)) ||
-    (props.state === 'customer' && rgba(colors.colorCoreTeal, 0.8)) ||
+    (props.state === "lead" && rgba(colors.colorCoreYellow, 0.8)) ||
+    (props.state === "visitor" && rgba(colors.colorLightGray, 0.6)) ||
+    (props.state === "customer" && rgba(colors.colorCoreTeal, 0.8)) ||
     rgba(colors.colorSecondary, 0.8)};
 
   > span {
@@ -45,7 +45,7 @@ const AvatarStyled = styledTS<{ state?: string }>(styled.span)`
 
 const AvatarImage = styledTS<{ image?: string }>(styled.div)`
   background: url(${props =>
-    props.image ? props.image : '/images/avatar.svg'})
+    props.image ? props.image : "/images/avatar.svg"})
     center no-repeat;
   background-size: cover;
 `;
@@ -114,10 +114,10 @@ class Avatar extends React.Component<Props> {
 
     const initials = fullName ? (
       fullName
-        .split(' ')
+        .split(" ")
         .slice(0, letterCount)
         .map(s => s.charAt(0))
-        .join('.')
+        .join(".")
         .toUpperCase()
     ) : (
       <AvatarImage style={this.generateStyle(size)} />

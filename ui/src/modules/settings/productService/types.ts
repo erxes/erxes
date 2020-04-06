@@ -1,4 +1,4 @@
-import { ITag } from 'modules/tags/types';
+import { ITag } from "modules/tags/types";
 
 export interface IProductDoc {
   _id?: string;

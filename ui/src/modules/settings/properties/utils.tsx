@@ -1,8 +1,8 @@
-import { COMPANY_INFO } from 'modules/companies/constants';
-import { CUSTOMER_BASIC_INFO } from 'modules/customers/constants';
-import { PRODUCT_INFO } from '../productService/constants';
-import { FIELDS_GROUPS_CONTENT_TYPES } from './constants';
-import { IField } from './types';
+import { COMPANY_INFO } from "modules/companies/constants";
+import { CUSTOMER_BASIC_INFO } from "modules/customers/constants";
+import { PRODUCT_INFO } from "../productService/constants";
+import { FIELDS_GROUPS_CONTENT_TYPES } from "./constants";
+import { IField } from "./types";
 
 const generateFields = (infos: any[], type: string) => {
   const fields: IField[] = [];
@@ -11,10 +11,10 @@ const generateFields = (infos: any[], type: string) => {
     fields.push({
       _id: `customerBasicInfos${index}`,
       contentType: type,
-      type: 'input',
+      type: "input",
       text: info.label,
       isVisible: true,
-      validation: '',
+      validation: "",
       order: `${index - 1}`,
       options: [],
       groupId: `basicInfosGroup${type}`,
@@ -29,21 +29,21 @@ const generateFields = (infos: any[], type: string) => {
 const generateGroup = (infos: any[], type: string) => {
   return {
     _id: `basicInfosGroup${type}`,
-    name: 'Basic information',
+    name: "Basic information",
     description: `Basic information of a ${type}`,
     contentType: type,
     order: -1,
     isVisible: true,
     lastUpdatedUser: {
-      _id: '123',
-      role: 'SYSTEM',
-      username: 'system',
-      email: 'system@erxes.io',
+      _id: "123",
+      role: "SYSTEM",
+      username: "system",
+      email: "system@erxes.io",
       details: {
-        fullName: 'SYSTEM'
+        fullName: "SYSTEM"
       }
     },
-    lastUpdatedUserId: '123',
+    lastUpdatedUserId: "123",
     isDefinedByErxes: true,
     fields: generateFields(infos, type)
   };

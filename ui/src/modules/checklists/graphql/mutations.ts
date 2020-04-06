@@ -1,4 +1,4 @@
-import { checklistFields } from './queries';
+import { checklistFields } from "./queries";
 
 export const commonVariables = `
   $contentType: String,

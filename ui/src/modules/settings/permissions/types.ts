@@ -1,4 +1,4 @@
-import { IUser } from 'modules/auth/types';
+import { IUser } from "modules/auth/types";
 
 export interface IPermission {
   module: string;

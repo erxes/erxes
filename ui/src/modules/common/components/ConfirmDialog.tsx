@@ -1,10 +1,10 @@
-import { __ } from 'modules/common/utils';
-import React from 'react';
-import Modal from 'react-bootstrap/Modal';
-import styled from 'styled-components';
-import { colors, dimensions } from '../styles';
-import Button from './Button';
-import Icon from './Icon';
+import { __ } from "modules/common/utils";
+import React from "react";
+import Modal from "react-bootstrap/Modal";
+import styled from "styled-components";
+import { colors, dimensions } from "../styles";
+import Button from "./Button";
+import Icon from "./Icon";
 
 const ModalBody = styled.div`
   text-align: center;
@@ -62,27 +62,25 @@ class ConfirmDialog extends React.Component<Props, State> {
   };
 
   handleKeydown = e => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       this.proceed();
     }
   };
 
   componentDidMount() {
-    document.addEventListener('keydown', this.handleKeydown);
+    document.addEventListener("keydown", this.handleKeydown);
   }
 
   componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleKeydown);
+    document.removeEventListener("keydown", this.handleKeydown);
   }
 
   render() {
-    const {
-      confirmation = 'Are you sure?'
-    } = this.props;
+    const { confirmation = "Are you sure?" } = this.props;
 
     const {
-      okLabel = 'Yes, I am',
-      cancelLabel = 'No, Cancel',
+      okLabel = "Yes, I am",
+      cancelLabel = "No, Cancel",
       enableEscape = true
     } = this.props.options || {};
 
@@ -90,7 +88,7 @@ class ConfirmDialog extends React.Component<Props, State> {
       <Modal
         show={this.state.show}
         onHide={this.dismiss}
-        backdrop={enableEscape ? true : 'static'}
+        backdrop={enableEscape ? true : "static"}
         keyboard={enableEscape}
         size="sm"
         centered={true}

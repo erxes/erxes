@@ -1,16 +1,16 @@
-import { IUser } from 'modules/auth/types';
-import asyncComponent from 'modules/common/components/AsyncComponent';
-import { IRouterProps } from 'modules/common/types';
-import { NotifProvider } from 'modules/notifications/context';
-import ImportIndicator from 'modules/settings/importHistory/containers/ImportIndicator';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import Navigation from '../containers/Navigation';
-import { Layout, MainWrapper } from '../styles';
-import DetectBrowser from './DetectBrowser';
+import { IUser } from "modules/auth/types";
+import asyncComponent from "modules/common/components/AsyncComponent";
+import { IRouterProps } from "modules/common/types";
+import { NotifProvider } from "modules/notifications/context";
+import ImportIndicator from "modules/settings/importHistory/containers/ImportIndicator";
+import React from "react";
+import { withRouter } from "react-router-dom";
+import Navigation from "../containers/Navigation";
+import { Layout, MainWrapper } from "../styles";
+import DetectBrowser from "./DetectBrowser";
 
 const MainBar = asyncComponent(() =>
-  import(/* webpackChunkName: "MainBar" */ 'modules/layout/components/MainBar')
+  import(/* webpackChunkName: "MainBar" */ "modules/layout/components/MainBar")
 );
 
 interface IProps extends IRouterProps {
@@ -24,13 +24,13 @@ class MainLayout extends React.Component<IProps> {
   componentDidMount() {
     const { history, currentUser } = this.props;
 
-    if (history.location.pathname !== '/reset-password' && !currentUser) {
-      history.push('/sign-in');
+    if (history.location.pathname !== "/reset-password" && !currentUser) {
+      history.push("/sign-in");
     }
   }
 
   getLastImport = () => {
-    return localStorage.getItem('erxes_import_data') || '';
+    return localStorage.getItem("erxes_import_data") || "";
   };
 
   renderBackgroundProccess = () => {
@@ -48,7 +48,7 @@ class MainLayout extends React.Component<IProps> {
   render() {
     const { currentUser, children, isShownIndicator, history } = this.props;
 
-    if (history.location.pathname === '/videoCall') {
+    if (history.location.pathname === "/videoCall") {
       return children;
     }
 

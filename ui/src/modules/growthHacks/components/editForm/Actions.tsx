@@ -1,25 +1,25 @@
-import DueDateChanger from 'modules/boards/components/DueDateChanger';
-import { ArchiveBtn } from 'modules/boards/components/editForm/ArchiveBtn';
-import PriorityIndicator from 'modules/boards/components/editForm/PriorityIndicator';
-import SelectItem from 'modules/boards/components/SelectItem';
-import { PRIORITIES } from 'modules/boards/constants';
-import { Watch } from 'modules/boards/containers/editForm/';
-import LabelChooser from 'modules/boards/containers/label/LabelChooser';
-import { ColorButton } from 'modules/boards/styles/common';
-import { ActionContainer } from 'modules/boards/styles/item';
-import { IOptions } from 'modules/boards/types';
-import ChecklistAdd from 'modules/checklists/components/AddButton';
-import Icon from 'modules/common/components/Icon';
-import { __ } from 'modules/common/utils';
-import { IGrowthHack } from 'modules/growthHacks/types';
-import React from 'react';
-import { HACKSTAGES } from '../../constants';
-import Vote from '../../containers/Vote';
+import DueDateChanger from "modules/boards/components/DueDateChanger";
+import { ArchiveBtn } from "modules/boards/components/editForm/ArchiveBtn";
+import PriorityIndicator from "modules/boards/components/editForm/PriorityIndicator";
+import SelectItem from "modules/boards/components/SelectItem";
+import { PRIORITIES } from "modules/boards/constants";
+import { Watch } from "modules/boards/containers/editForm/";
+import LabelChooser from "modules/boards/containers/label/LabelChooser";
+import { ColorButton } from "modules/boards/styles/common";
+import { ActionContainer } from "modules/boards/styles/item";
+import { IOptions } from "modules/boards/types";
+import ChecklistAdd from "modules/checklists/components/AddButton";
+import Icon from "modules/common/components/Icon";
+import { __ } from "modules/common/utils";
+import { IGrowthHack } from "modules/growthHacks/types";
+import React from "react";
+import { HACKSTAGES } from "../../constants";
+import Vote from "../../containers/Vote";
 
 type Props = {
   item: IGrowthHack;
   onChangeField: (
-    name: 'labels' | 'priority' | 'hackStages',
+    name: "labels" | "priority" | "hackStages",
     value: any
   ) => void;
   dateOnChange: (date) => void;
@@ -48,10 +48,10 @@ class Actions extends React.Component<Props> {
     const hackStages = item.hackStages || [];
 
     const priorityOnChange = (value: string) => {
-      onChangeField('priority', value);
+      onChangeField("priority", value);
     };
     const onLabelChange = labels => {
-      onChangeField('labels', labels);
+      onChangeField("labels", labels);
     };
 
     const hackStageOnChange = (value: string) => {
@@ -60,12 +60,12 @@ class Actions extends React.Component<Props> {
           return i !== value;
         });
 
-        return onChangeField('hackStages', remainedValues);
+        return onChangeField("hackStages", remainedValues);
       }
 
       const values = hackStages.concat(value);
 
-      return onChangeField('hackStages', values);
+      return onChangeField("hackStages", values);
     };
 
     const priorityTrigger = (
@@ -75,14 +75,14 @@ class Actions extends React.Component<Props> {
         ) : (
           <Icon icon="sort-amount-up" />
         )}
-        {__('Priority')}
+        {__("Priority")}
       </ColorButton>
     );
 
     const hackStageTrigger = (
       <ColorButton>
         <Icon icon="diary" />
-        {__('Growth funnel')}
+        {__("Growth funnel")}
       </ColorButton>
     );
 
@@ -108,7 +108,7 @@ class Actions extends React.Component<Props> {
         <Watch item={item} options={options} isSmall={true} />
         <ColorButton onClick={copy}>
           <Icon icon="copy-1" />
-          {__('Copy')}
+          {__("Copy")}
         </ColorButton>
         <ArchiveBtn
           item={item}

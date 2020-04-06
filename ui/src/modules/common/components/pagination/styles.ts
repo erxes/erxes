@@ -1,5 +1,5 @@
-import styled from 'styled-components';
-import { colors, dimensions } from '../../styles';
+import styled from "styled-components";
+import { colors, dimensions } from "../../styles";
 
 const buttonSize = 28;
 

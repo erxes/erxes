@@ -1,15 +1,15 @@
-import { shallow } from 'enzyme';
-import React from 'react';
+import { shallow } from "enzyme";
+import React from "react";
 
-import HeadlinesButton from '../../../../modules/common/components/editor/HeadlinesButton';
+import HeadlinesButton from "../../../../modules/common/components/editor/HeadlinesButton";
 
-describe('HeadlinesButton component', () => {
+describe("HeadlinesButton component", () => {
   const defaultProps = {
     onOverrideContent: e => null
   };
 
-  test('renders HeadlinesButton successfully', () => {
+  test("renders HeadlinesButton successfully", () => {
     const wrapper = shallow(<HeadlinesButton {...defaultProps} />);
-    expect(wrapper).not.toBe('');
+    expect(wrapper).not.toBe("");
   });
 });

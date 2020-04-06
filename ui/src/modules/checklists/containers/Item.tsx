@@ -1,16 +1,16 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { withProps } from 'modules/common/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import Item from '../components/Item';
-import { mutations, queries } from '../graphql';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import { withProps } from "modules/common/utils";
+import React from "react";
+import { graphql } from "react-apollo";
+import Item from "../components/Item";
+import { mutations, queries } from "../graphql";
 import {
   EditItemMutationResponse,
   EditItemMutationVariables,
   IChecklistItem,
   RemoveItemMutationResponse
-} from '../types';
+} from "../types";
 
 type Props = {
   item: IChecklistItem;
@@ -73,14 +73,14 @@ export default withProps<Props>(
     graphql<Props, EditItemMutationResponse, EditItemMutationVariables>(
       gql(mutations.checklistItemsEdit),
       {
-        name: 'editItemMutation',
+        name: "editItemMutation",
         options
       }
     ),
     graphql<Props, RemoveItemMutationResponse, { _id: string }>(
       gql(mutations.checklistItemsRemove),
       {
-        name: 'removeItemMutation',
+        name: "removeItemMutation",
         options
       }
     )

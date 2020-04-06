@@ -1,6 +1,6 @@
-import { colors, dimensions, typography } from 'modules/common/styles';
-import { FlexItem } from 'modules/layout/styles';
-import styled from 'styled-components';
+import { colors, dimensions, typography } from "modules/common/styles";
+import { FlexItem } from "modules/layout/styles";
+import styled from "styled-components";
 
 const SegmentTitle = styled.h3`
   font-size: 12px;

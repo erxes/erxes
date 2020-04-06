@@ -1,14 +1,14 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import EmptyState from 'modules/common/components/EmptyState';
-import Spinner from 'modules/common/components/Spinner';
-import { withProps } from 'modules/common/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { IUser } from '../../../auth/types';
-import CompanyDetails from '../../components/detail/CompanyDetails';
-import { queries } from '../../graphql';
-import { DetailQueryResponse } from '../../types';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
+import EmptyState from "modules/common/components/EmptyState";
+import Spinner from "modules/common/components/Spinner";
+import { withProps } from "modules/common/utils";
+import React from "react";
+import { graphql } from "react-apollo";
+import { IUser } from "../../../auth/types";
+import CompanyDetails from "../../components/detail/CompanyDetails";
+import { queries } from "../../graphql";
+import { DetailQueryResponse } from "../../types";
 
 type Props = {
   id: string;
@@ -57,7 +57,7 @@ export default withProps<Props>(
     graphql<Props, DetailQueryResponse, { _id: string }>(
       gql(queries.companyDetail),
       {
-        name: 'companyDetailQuery',
+        name: "companyDetailQuery",
         options: ({ id }) => ({
           variables: {
             _id: id

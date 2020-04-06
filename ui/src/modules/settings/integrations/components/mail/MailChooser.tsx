@@ -1,14 +1,14 @@
-import DropdownToggle from 'modules/common/components/DropdownToggle';
-import Icon from 'modules/common/components/Icon';
-import { dimensions } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
-import colors from 'modules/common/styles/colors';
-import { __ } from 'modules/common/utils';
-import * as React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { IIntegration } from '../../types';
+import DropdownToggle from "modules/common/components/DropdownToggle";
+import Icon from "modules/common/components/Icon";
+import { dimensions } from "modules/common/styles";
+import { rgba } from "modules/common/styles/color";
+import colors from "modules/common/styles/colors";
+import { __ } from "modules/common/utils";
+import * as React from "react";
+import Dropdown from "react-bootstrap/Dropdown";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
+import { IIntegration } from "../../types";
 
 const Wrapper = styled.div`
   .dropdown-menu {
@@ -25,7 +25,7 @@ const Trigger = styledTS<{ disabled?: boolean }>(styled.div)`
 
   &:hover {
     background: ${props => !props.disabled && colors.bgMain};
-    cursor: ${props => (props.disabled ? 'not-allowed' : 'pointer')};
+    cursor: ${props => (props.disabled ? "not-allowed" : "pointer")};
   }
 `;
 
@@ -41,7 +41,7 @@ const ActionItem = styledTS<{ selected?: boolean }>(styled.div)`
   padding: ${dimensions.unitSpacing / 2}px ${dimensions.coreSpacing}px;
   display: flex;
   justify-content: space-between;
-  font-weight: ${props => props.selected && '600'};
+  font-weight: ${props => props.selected && "600"};
   max-width: 300px;
   
   span {
@@ -88,7 +88,7 @@ class MailChooser extends React.Component<Props> {
 
     return (
       <Trigger disabled={isEmpty}>
-        {isEmpty ? __('No connected email') : integration && integration.name}
+        {isEmpty ? __("No connected email") : integration && integration.name}
       </Trigger>
     );
   };

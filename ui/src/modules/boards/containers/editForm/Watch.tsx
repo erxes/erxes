@@ -1,15 +1,15 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
+import gql from "graphql-tag";
+import * as compose from "lodash.flowright";
 import {
   IItem,
   IOptions,
   WatchMutation,
   WatchVariables
-} from 'modules/boards/types';
-import { Alert, renderWithProps } from 'modules/common/utils';
-import * as React from 'react';
-import { graphql } from 'react-apollo';
-import { Watch } from '../../components/editForm';
+} from "modules/boards/types";
+import { Alert, renderWithProps } from "modules/common/utils";
+import * as React from "react";
+import { graphql } from "react-apollo";
+import { Watch } from "../../components/editForm";
 
 type IProps = {
   item: IItem;
@@ -53,7 +53,7 @@ export default (props: IProps) => {
       graphql<IProps, WatchMutation, WatchVariables>(
         gql(options.mutations.watchMutation),
         {
-          name: 'watchMutation',
+          name: "watchMutation",
           options: ({ item }: { item: IItem }) => ({
             refetchQueries: [
               {

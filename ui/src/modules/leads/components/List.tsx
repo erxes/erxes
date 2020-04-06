@@ -1,18 +1,18 @@
-import Button from 'modules/common/components/Button';
-import CountsByTag from 'modules/common/components/CountsByTag';
-import DataWithLoader from 'modules/common/components/DataWithLoader';
-import FormControl from 'modules/common/components/form/Control';
-import Pagination from 'modules/common/components/pagination/Pagination';
-import Table from 'modules/common/components/table';
-import { __ } from 'modules/common/utils';
-import Wrapper from 'modules/layout/components/Wrapper';
-import { BarItems } from 'modules/layout/styles';
-import TaggerPopover from 'modules/tags/components/TaggerPopover';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { ITag } from '../../tags/types';
-import { ILeadIntegration } from '../types';
-import Row from './Row';
+import Button from "modules/common/components/Button";
+import CountsByTag from "modules/common/components/CountsByTag";
+import DataWithLoader from "modules/common/components/DataWithLoader";
+import FormControl from "modules/common/components/form/Control";
+import Pagination from "modules/common/components/pagination/Pagination";
+import Table from "modules/common/components/table";
+import { __ } from "modules/common/utils";
+import Wrapper from "modules/layout/components/Wrapper";
+import { BarItems } from "modules/layout/styles";
+import TaggerPopover from "modules/tags/components/TaggerPopover";
+import React from "react";
+import { Link } from "react-router-dom";
+import { ITag } from "../../tags/types";
+import { ILeadIntegration } from "../types";
+import Row from "./Row";
 
 type Props = {
   integrations: ILeadIntegration[];
@@ -32,7 +32,7 @@ type Props = {
 class List extends React.Component<Props, {}> {
   onChange = () => {
     const { toggleAll, integrations } = this.props;
-    toggleAll(integrations, 'integrations');
+    toggleAll(integrations, "integrations");
   };
 
   renderRow() {
@@ -86,7 +86,7 @@ class List extends React.Component<Props, {}> {
     const actionBarRight = (
       <Link to="/leads/create">
         <Button btnStyle="success" size="small" icon="plus-circle">
-          {__('Create Pop Ups')}
+          {__("Create Pop Ups")}
         </Button>
       </Link>
     );
@@ -99,7 +99,7 @@ class List extends React.Component<Props, {}> {
       <Wrapper.Sidebar>
         <CountsByTag
           tags={tags}
-          manageUrl={'tags/integration'}
+          manageUrl={"tags/integration"}
           counts={tagsCount}
           loading={false}
         />
@@ -117,15 +117,15 @@ class List extends React.Component<Props, {}> {
                 onChange={this.onChange}
               />
             </th>
-            <th>{__('Name')}</th>
-            <th>{__('Brand')}</th>
-            <th>{__('Views')}</th>
-            <th>{__('Conversion rate')}</th>
-            <th>{__('Contacts gathered')}</th>
-            <th>{__('Created at')}</th>
-            <th>{__('Created by')}</th>
-            <th>{__('Tags')}</th>
-            <th>{__('Actions')}</th>
+            <th>{__("Name")}</th>
+            <th>{__("Brand")}</th>
+            <th>{__("Views")}</th>
+            <th>{__("Conversion rate")}</th>
+            <th>{__("Contacts gathered")}</th>
+            <th>{__("Created at")}</th>
+            <th>{__("Created by")}</th>
+            <th>{__("Tags")}</th>
+            <th>{__("Actions")}</th>
           </tr>
         </thead>
         <tbody id="integrations">{this.renderRow()}</tbody>
@@ -136,8 +136,8 @@ class List extends React.Component<Props, {}> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Pop Ups')}
-            breadcrumb={[{ title: __('Pop Ups') }]}
+            title={__("Pop Ups")}
+            breadcrumb={[{ title: __("Pop Ups") }]}
           />
         }
         leftSidebar={sidebar}
