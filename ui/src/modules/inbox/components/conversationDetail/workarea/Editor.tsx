@@ -236,7 +236,7 @@ export default class Editor extends React.Component<EditorProps, State> {
 
   onEscape = () => {
     this.setState({ hideTemplates: true });
-  }
+  };
 
   // Render response templates suggestions
   renderTemplates() {
