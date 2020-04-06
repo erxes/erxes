@@ -7,7 +7,6 @@
     "member-access": false,
     "interface-over-type-literal": false,
     "variable-name": false,
-    "jsx-no-lambda": false,
-    "quotemark": [true, "single", "jsx-double", "avoid-escape"]
+    "jsx-no-lambda": false
   }
 }
