@@ -37,6 +37,11 @@ const withPipeline = Component => {
 
             // don't reload current tab
             if (!currentTab) {
+              // don't reload when other popups are open
+              if (document.querySelectorAll('.modal').length >= 2) {
+                return;
+              }
+
               const pipelineUpdate = sessionStorage.getItem('pipelineUpdate');
 
               routerUtils.setParams(history, { key: Math.random() });

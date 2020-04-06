@@ -66,6 +66,7 @@ class IntegrationIcon extends React.PureComponent<Props> {
         icon = 'gmail';
         break;
       case 'nylas-imap':
+      case 'nylas-exchange':
       case 'nylas-office365':
       case 'nylas-outlook':
       case 'nylas-yahoo':

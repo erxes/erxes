@@ -19,6 +19,7 @@ type Props = {
     form: number;
     facebook: number;
     gmail: number;
+    exchange: number;
     callpro: number;
     chatfuel: number;
     imap: number;

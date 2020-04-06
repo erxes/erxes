@@ -33,10 +33,10 @@ class AddForm extends React.Component<Props, State> {
 
     this.state = {
       disabled: false,
-      boardId: this.props.boardId || '',
-      pipelineId: this.props.pipelineId || '',
-      stageId: this.props.stageId || '',
-      name: ''
+      boardId: props.boardId || '',
+      pipelineId: props.pipelineId || '',
+      stageId: props.stageId || '',
+      name: localStorage.getItem(`${props.options.type}Name`) || ''
     };
   }
 
@@ -69,6 +69,8 @@ class AddForm extends React.Component<Props, State> {
     saveItem(doc, (item: IItem) => {
       // after save, enable save button
       this.setState({ disabled: false });
+
+      localStorage.removeItem(`${this.props.options.type}Name`);
 
       closeModal();
 
@@ -106,8 +108,13 @@ class AddForm extends React.Component<Props, State> {
     );
   }
 
-  onChangeName = e =>
-    this.onChangeField('name', (e.target as HTMLInputElement).value);
+  onChangeName = e => {
+    const name = (e.target as HTMLInputElement).value;
+
+    this.onChangeField('name', name);
+
+    localStorage.setItem(`${this.props.options.type}Name`, name);
+  };
 
   render() {
     return (
@@ -117,7 +124,11 @@ class AddForm extends React.Component<Props, State> {
         <HeaderRow>
           <HeaderContent>
             <ControlLabel required={true}>Name</ControlLabel>
-            <FormControl autoFocus={true} onChange={this.onChangeName} />
+            <FormControl
+              value={this.state.name}
+              autoFocus={true}
+              onChange={this.onChangeName}
+            />
           </HeaderContent>
         </HeaderRow>
 
