@@ -1,16 +1,16 @@
-import { AppConsumer } from "appContext";
-import gql from "graphql-tag";
-import { can, router as routerUtils } from "modules/common/utils";
-import React from "react";
-import { graphql } from "react-apollo";
-import Empty from "../components/Empty";
-import Inbox from "../components/Inbox";
-import { queries } from "../graphql";
+import { AppConsumer } from 'appContext';
+import gql from 'graphql-tag';
+import { can, router as routerUtils } from 'modules/common/utils';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import Empty from '../components/Empty';
+import Inbox from '../components/Inbox';
+import { queries } from '../graphql';
 import {
   ConvesationsQueryVariables,
   LastConversationQueryResponse
-} from "../types";
-import { generateParams } from "../utils";
+} from '../types';
+import { generateParams } from '../utils';
 
 interface IRouteProps {
   queryParams: any;
@@ -47,7 +47,7 @@ class WithRefetchHandling extends React.Component<
 
     this.state = {
       notifyConsumersOfManagementAction: notifHandler,
-      refetchRequired: ""
+      refetchRequired: ''
     };
   }
 
@@ -81,7 +81,7 @@ class WithCurrentId extends React.Component<IProps> {
             return null;
           }
 
-          if (!_id || !can("showConversations", currentUser)) {
+          if (!_id || !can('showConversations', currentUser)) {
             return (
               <Empty queryParams={queryParams} currentUser={currentUser} />
             );
@@ -113,7 +113,7 @@ export default graphql<
   },
   options: (props: IRouteProps) => ({
     variables: generateParams(props.queryParams),
-    fetchPolicy: "network-only"
+    fetchPolicy: 'network-only'
   }),
   props: ({ data, ownProps }: { data?: any; ownProps: IRouteProps }) => {
     return {

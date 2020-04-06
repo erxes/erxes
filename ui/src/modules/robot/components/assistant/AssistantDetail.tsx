@@ -1,7 +1,7 @@
-import Icon from "modules/common/components/Icon";
-import * as React from "react";
-import { NavButton, Title } from "../styles";
-import { NotifyItem, NotifyList } from "./styles";
+import Icon from 'modules/common/components/Icon';
+import * as React from 'react';
+import { NavButton, Title } from '../styles';
+import { NotifyItem, NotifyList } from './styles';
 
 type Props = {
   icon?: string;

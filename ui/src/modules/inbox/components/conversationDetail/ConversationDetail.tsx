@@ -1,12 +1,12 @@
-import EmptyState from "modules/common/components/EmptyState";
-import Spinner from "modules/common/components/Spinner";
-import Sidebar from "modules/inbox/containers/conversationDetail/Sidebar";
-import WorkArea from "modules/inbox/containers/conversationDetail/WorkArea";
-import EmptySidebar from "modules/layout/components/Sidebar";
-import { MainContent } from "modules/layout/styles";
-import { ContentBox } from "modules/layout/styles";
-import React from "react";
-import { IConversation } from "../../types";
+import EmptyState from 'modules/common/components/EmptyState';
+import Spinner from 'modules/common/components/Spinner';
+import Sidebar from 'modules/inbox/containers/conversationDetail/Sidebar';
+import WorkArea from 'modules/inbox/containers/conversationDetail/WorkArea';
+import EmptySidebar from 'modules/layout/components/Sidebar';
+import { MainContent } from 'modules/layout/styles';
+import { ContentBox } from 'modules/layout/styles';
+import React from 'react';
+import { IConversation } from '../../types';
 
 type Props = {
   currentConversation: IConversation;

@@ -1,16 +1,16 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { withProps } from "modules/common/utils";
-import React from "react";
-import { graphql } from "react-apollo";
-import FunnelGroup from "../components/funnelImpact/FunnelGroup";
-import { queries } from "../graphql";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { withProps } from 'modules/common/utils';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import FunnelGroup from '../components/funnelImpact/FunnelGroup';
+import { queries } from '../graphql';
 import {
   GrowthHacksCountQueryResponse,
   GrowthHacksQueryResponse,
   IGrowthHack
-} from "../types";
-import { getFilterParams } from "../utils";
+} from '../types';
+import { getFilterParams } from '../utils';
 
 type Props = {
   queryParams: any;
@@ -45,7 +45,7 @@ class FunnelGroupContainer extends React.Component<FinalProps> {
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.growthHacks), {
-      name: "growthHacksQuery",
+      name: 'growthHacksQuery',
       skip: ({ isOpen }) => !isOpen,
       options: ({ queryParams = {}, hackStage }) => ({
         variables: {
@@ -57,7 +57,7 @@ export default withProps<Props>(
       })
     }),
     graphql<Props>(gql(queries.growthHacksTotalCount), {
-      name: "growthHacksTotalCountQuery",
+      name: 'growthHacksTotalCountQuery',
       options: ({ queryParams = {}, hackStage }) => ({
         variables: {
           ...getFilterParams(queryParams),

@@ -1,10 +1,10 @@
-import { FormFooter } from "modules/boards/styles/item";
-import Button from "modules/common/components/Button";
-import FormControl from "modules/common/components/form/Control";
-import Form from "modules/common/components/form/Form";
-import ControlLabel from "modules/common/components/form/Label";
-import { IButtonMutateProps, IFormProps } from "modules/common/types";
-import * as React from "react";
+import { FormFooter } from 'modules/boards/styles/item';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import Form from 'modules/common/components/form/Form';
+import ControlLabel from 'modules/common/components/form/Label';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import * as React from 'react';
 
 type IProps = {
   itemId: string;
@@ -22,7 +22,7 @@ class AddForm extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      title: "Checklist"
+      title: 'Checklist'
     };
   }
 

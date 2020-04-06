@@ -1,9 +1,9 @@
-import Icon from "modules/common/components/Icon";
-import Tip from "modules/common/components/Tip";
-import { __ } from "modules/common/utils";
-import { NameWrapper, RemoveRow, TypeBox } from "modules/deals/styles";
-import { IProductData } from "modules/deals/types";
-import React from "react";
+import Icon from 'modules/common/components/Icon';
+import Tip from 'modules/common/components/Tip';
+import { __ } from 'modules/common/utils';
+import { NameWrapper, RemoveRow, TypeBox } from 'modules/deals/styles';
+import { IProductData } from 'modules/deals/types';
+import React from 'react';
 
 type Props = {
   productData: IProductData;
@@ -16,7 +16,7 @@ type Props = {
 function ProductRow(props: Props) {
   const renderAmmount = (value: number) => {
     if (!value || value === 0) {
-      return "-";
+      return '-';
     }
 
     return (
@@ -29,7 +29,7 @@ function ProductRow(props: Props) {
   const renderType = (type: string) => {
     if (!type) {
       return (
-        <Tip text={__("Unknown")} placement="left">
+        <Tip text={__('Unknown')} placement="left">
           <TypeBox color="#AAAEB3">
             <Icon icon="folder-2" />
           </TypeBox>
@@ -37,9 +37,9 @@ function ProductRow(props: Props) {
       );
     }
 
-    if (type === "product") {
+    if (type === 'product') {
       return (
-        <Tip text={__("Product")} placement="left">
+        <Tip text={__('Product')} placement="left">
           <TypeBox color="#3B85F4">
             <Icon icon="box" />
           </TypeBox>
@@ -48,7 +48,7 @@ function ProductRow(props: Props) {
     }
 
     return (
-      <Tip text={__("Service")} placement="left">
+      <Tip text={__('Service')} placement="left">
         <TypeBox color="#EA475D">
           <Icon icon="invoice" />
         </TypeBox>
@@ -74,13 +74,13 @@ function ProductRow(props: Props) {
     <>
       <tr
         id={id}
-        className={props.activeProduct === id ? "active" : ""}
+        className={props.activeProduct === id ? 'active' : ''}
         onClick={changeCurrent}
       >
         <td>
           <NameWrapper>
-            {renderType(product ? product.type : "")}
-            {product ? product.name : __("Not selected")}
+            {renderType(product ? product.type : '')}
+            {product ? product.name : __('Not selected')}
           </NameWrapper>
         </td>
         <td>

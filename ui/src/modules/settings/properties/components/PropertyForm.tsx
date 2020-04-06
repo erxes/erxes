@@ -1,16 +1,16 @@
-import Button from "modules/common/components/Button";
-import FormControl from "modules/common/components/form/Control";
-import Form from "modules/common/components/form/Form";
-import FormGroup from "modules/common/components/form/Group";
-import ControlLabel from "modules/common/components/form/Label";
-import ModalTrigger from "modules/common/components/ModalTrigger";
-import ModifiableList from "modules/common/components/ModifiableList";
-import { ModalFooter } from "modules/common/styles/main";
-import { IButtonMutateProps, IFormProps } from "modules/common/types";
-import { Row } from "modules/settings/integrations/styles";
-import React from "react";
-import PropertyGroupForm from "../containers/PropertyGroupForm";
-import { IField, IFieldGroup } from "../types";
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import Form from 'modules/common/components/form/Form';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import ModifiableList from 'modules/common/components/ModifiableList';
+import { ModalFooter } from 'modules/common/styles/main';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { Row } from 'modules/settings/integrations/styles';
+import React from 'react';
+import PropertyGroupForm from '../containers/PropertyGroupForm';
+import { IField, IFieldGroup } from '../types';
 
 type Props = {
   queryParams: any;
@@ -34,7 +34,7 @@ class PropertyForm extends React.Component<Props, State> {
 
     let doc = {
       options: [],
-      type: "",
+      type: '',
       hasOptions: false
     };
 
@@ -46,7 +46,7 @@ class PropertyForm extends React.Component<Props, State> {
         type
       };
 
-      if (type === "select" || type === "radio" || type === "check") {
+      if (type === 'select' || type === 'radio' || type === 'check') {
         doc = {
           type,
           hasOptions: true,
@@ -97,7 +97,7 @@ class PropertyForm extends React.Component<Props, State> {
 
     let doc = { hasOptions: false, options: [] };
 
-    if (value === "select" || value === "check" || value === "radio") {
+    if (value === 'select' || value === 'check' || value === 'radio') {
       doc = { hasOptions: true, options: [] };
     }
 
@@ -145,7 +145,7 @@ class PropertyForm extends React.Component<Props, State> {
           <FormControl
             {...formProps}
             name="text"
-            defaultValue={object.text || ""}
+            defaultValue={object.text || ''}
             required={true}
             autoFocus={true}
           />
@@ -157,7 +157,7 @@ class PropertyForm extends React.Component<Props, State> {
             {...formProps}
             name="description"
             componentClass="textarea"
-            defaultValue={object.description || ""}
+            defaultValue={object.description || ''}
           />
         </FormGroup>
 
@@ -168,7 +168,7 @@ class PropertyForm extends React.Component<Props, State> {
               {...formProps}
               name="groupId"
               componentClass="select"
-              defaultValue={object.groupId || ""}
+              defaultValue={object.groupId || ''}
               required={true}
             >
               {groups.map(group => {
@@ -212,7 +212,7 @@ class PropertyForm extends React.Component<Props, State> {
             {...formProps}
             componentClass="select"
             name="validation"
-            defaultValue={object.validation || ""}
+            defaultValue={object.validation || ''}
           >
             <option />
             <option value="email">Email</option>
@@ -227,7 +227,7 @@ class PropertyForm extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: "property",
+            name: 'property',
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,

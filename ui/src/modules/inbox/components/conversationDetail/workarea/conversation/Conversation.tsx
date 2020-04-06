@@ -1,12 +1,12 @@
-import { IAttachmentPreview } from "modules/common/types";
-import { FacebookPost } from "modules/inbox/containers/conversationDetail";
-import React from "react";
-import styled from "styled-components";
-import { IConversation, IMessage } from "../../../../types";
-import CallPro from "../callpro/Callpro";
-import MailConversation from "../mail/MailConversation";
-import AttachmentPreview from "./AttachmentPreview";
-import Message from "./messages/Message";
+import { IAttachmentPreview } from 'modules/common/types';
+import { FacebookPost } from 'modules/inbox/containers/conversationDetail';
+import React from 'react';
+import styled from 'styled-components';
+import { IConversation, IMessage } from '../../../../types';
+import CallPro from '../callpro/Callpro';
+import MailConversation from '../mail/MailConversation';
+import AttachmentPreview from './AttachmentPreview';
+import Message from './messages/Message';
 
 type Props = {
   conversation: IConversation;
@@ -63,7 +63,7 @@ class Conversation extends React.Component<Props, {}> {
     const messages = (conversationMessages || []).slice();
     const firstMessage = messages[0];
 
-    if (kind.includes("nylas") || kind === "gmail") {
+    if (kind.includes('nylas') || kind === 'gmail') {
       return (
         <MailConversation
           conversation={conversation}
@@ -72,13 +72,13 @@ class Conversation extends React.Component<Props, {}> {
       );
     }
 
-    if (kind === "facebook-post") {
+    if (kind === 'facebook-post') {
       return (
         <FacebookPost scrollBottom={scrollBottom} conversation={conversation} />
       );
     }
 
-    if (kind === "callpro") {
+    if (kind === 'callpro') {
       return (
         <>
           <CallPro conversation={conversation} />

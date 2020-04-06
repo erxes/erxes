@@ -1,18 +1,18 @@
-import Button from "modules/common/components/Button";
-import DataWithLoader from "modules/common/components/DataWithLoader";
-import FormControl from "modules/common/components/form/Control";
-import ModalTrigger from "modules/common/components/ModalTrigger";
-import Pagination from "modules/common/components/pagination/Pagination";
-import Table from "modules/common/components/table";
-import { __ } from "modules/common/utils";
-import Wrapper from "modules/layout/components/Wrapper";
-import TaggerPopover from "modules/tags/components/TaggerPopover";
-import React from "react";
-import { Link } from "react-router-dom";
-import MessageListRow from "../containers/MessageListRow";
-import Sidebar from "../containers/Sidebar";
-import { ChooseBox, FlexContainer } from "../styles";
-import { IEngageMessage } from "../types";
+import Button from 'modules/common/components/Button';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import FormControl from 'modules/common/components/form/Control';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Pagination from 'modules/common/components/pagination/Pagination';
+import Table from 'modules/common/components/table';
+import { __ } from 'modules/common/utils';
+import Wrapper from 'modules/layout/components/Wrapper';
+import TaggerPopover from 'modules/tags/components/TaggerPopover';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import MessageListRow from '../containers/MessageListRow';
+import Sidebar from '../containers/Sidebar';
+import { ChooseBox, FlexContainer } from '../styles';
+import { IEngageMessage } from '../types';
 
 type Props = {
   messages: IEngageMessage[];
@@ -30,7 +30,7 @@ class List extends React.Component<Props> {
   onChange = () => {
     const { toggleAll, messages } = this.props;
 
-    toggleAll(messages, "engageMessages");
+    toggleAll(messages, 'engageMessages');
   };
 
   renderTagger() {
@@ -38,7 +38,7 @@ class List extends React.Component<Props> {
 
     const tagButton = (
       <Button btnStyle="simple" size="small" icon="tag-alt">
-        {__("Tag")}
+        {__('Tag')}
       </Button>
     );
 
@@ -70,26 +70,26 @@ class List extends React.Component<Props> {
   renderRightActionBar = () => {
     const trigger = (
       <Button btnStyle="success" size="small" icon="plus-circle">
-        {__("New message")}
+        {__('New message')}
       </Button>
     );
 
     const content = props => (
       <FlexContainer direction="column">
         {this.renderBox(
-          "Auto message",
-          "Auto message description",
-          "/engage/messages/create?kind=auto"
+          'Auto message',
+          'Auto message description',
+          '/engage/messages/create?kind=auto'
         )}
         {this.renderBox(
-          "Manual message",
-          "Manual message description",
-          "/engage/messages/create?kind=manual"
+          'Manual message',
+          'Manual message description',
+          '/engage/messages/create?kind=manual'
         )}
         {this.renderBox(
-          "Visitor auto message",
-          "Visitor auto message description",
-          "/engage/messages/create?kind=visitorAuto"
+          'Visitor auto message',
+          'Visitor auto message description',
+          '/engage/messages/create?kind=visitorAuto'
         )}
       </FlexContainer>
     );
@@ -135,15 +135,15 @@ class List extends React.Component<Props> {
                 onChange={this.onChange}
               />
             </th>
-            <th>{__("Title")}</th>
-            <th>{__("From")}</th>
-            <th>{__("Status")}</th>
-            <th>{__("Total")}</th>
-            <th>{__("Type")}</th>
-            <th>{__("Brand")}</th>
-            <th>{__("Created date")}</th>
-            <th>{__("Tags")}</th>
-            <th>{__("Actions")}</th>
+            <th>{__('Title')}</th>
+            <th>{__('From')}</th>
+            <th>{__('Status')}</th>
+            <th>{__('Total')}</th>
+            <th>{__('Type')}</th>
+            <th>{__('Brand')}</th>
+            <th>{__('Created date')}</th>
+            <th>{__('Tags')}</th>
+            <th>{__('Actions')}</th>
           </tr>
         </thead>
         <tbody id="engageMessages">
@@ -164,8 +164,8 @@ class List extends React.Component<Props> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__("Engage")}
-            breadcrumb={[{ title: __("Engage") }]}
+            title={__('Engage')}
+            breadcrumb={[{ title: __('Engage') }]}
             queryParams={queryParams}
           />
         }

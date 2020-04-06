@@ -1,17 +1,17 @@
-import { shallow } from "enzyme";
-import React from "react";
-import SortableList from "../../../modules/common/components/SortableList";
+import { shallow } from 'enzyme';
+import React from 'react';
+import SortableList from '../../../modules/common/components/SortableList';
 
-describe("SortableList component", () => {
+describe('SortableList component', () => {
   const defaultProps = {
     fields: [],
     child: (field: any) => null,
     onChangeFields: (reorderedFields: any) => null,
-    content: ""
+    content: ''
   };
 
-  test("renders successfully", () => {
+  test('renders successfully', () => {
     const wrapper = shallow(<SortableList {...defaultProps} />);
-    expect(wrapper).not.toBe("");
+    expect(wrapper).not.toBe('');
   });
 });

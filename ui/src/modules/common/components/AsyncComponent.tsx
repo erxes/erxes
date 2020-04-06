@@ -1,7 +1,7 @@
-import AnimatedLoader from "modules/common/components/AnimatedLoader";
-import Spinner from "modules/common/components/Spinner";
-import React from "react";
-import { IAnimatedLoader } from "../types";
+import AnimatedLoader from 'modules/common/components/AnimatedLoader';
+import Spinner from 'modules/common/components/Spinner';
+import React from 'react';
+import { IAnimatedLoader } from '../types';
 
 export default function asyncComponent(
   importComponent: any,

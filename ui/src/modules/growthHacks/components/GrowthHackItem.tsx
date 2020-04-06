@@ -1,23 +1,23 @@
-import dayjs from "dayjs";
-import Labels from "modules/boards/components/label/Labels";
-import EditForm from "modules/boards/containers/editForm/EditForm";
-import { ItemContainer, ItemDate } from "modules/boards/styles/common";
+import dayjs from 'dayjs';
+import Labels from 'modules/boards/components/label/Labels';
+import EditForm from 'modules/boards/containers/editForm/EditForm';
+import { ItemContainer, ItemDate } from 'modules/boards/styles/common';
 import {
   Footer,
   Left,
   PriceContainer,
   Right
-} from "modules/boards/styles/item";
-import { Content } from "modules/boards/styles/stage";
-import { IOptions } from "modules/boards/types";
-import { renderPriority } from "modules/boards/utils";
-import Icon from "modules/common/components/Icon";
-import { __ } from "modules/common/utils";
-import Participators from "modules/inbox/components/conversationDetail/workarea/Participators";
-import React from "react";
-import { ScoreAmount, Vote } from "../styles";
-import { IGrowthHack } from "../types";
-import Score from "./Score";
+} from 'modules/boards/styles/item';
+import { Content } from 'modules/boards/styles/stage';
+import { IOptions } from 'modules/boards/types';
+import { renderPriority } from 'modules/boards/utils';
+import Icon from 'modules/common/components/Icon';
+import { __ } from 'modules/common/utils';
+import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
+import React from 'react';
+import { ScoreAmount, Vote } from '../styles';
+import { IGrowthHack } from '../types';
+import Score from './Score';
 
 type Props = {
   stageId: string;
@@ -35,7 +35,7 @@ export default class GrowthHackItem extends React.PureComponent<Props> {
       return null;
     }
 
-    return <ItemDate>{dayjs(date).format("MMM D, h:mm a")}</ItemDate>;
+    return <ItemDate>{dayjs(date).format('MMM D, h:mm a')}</ItemDate>;
   }
 
   renderForm = () => {
@@ -95,7 +95,7 @@ export default class GrowthHackItem extends React.PureComponent<Props> {
         </PriceContainer>
 
         <Footer>
-          {__("Last updated")}:<Right>{this.renderDate(item.modifiedAt)}</Right>
+          {__('Last updated')}:<Right>{this.renderDate(item.modifiedAt)}</Right>
         </Footer>
       </>
     );

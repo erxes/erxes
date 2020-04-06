@@ -1,14 +1,14 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import CountsByTag from "modules/common/components/CountsByTag";
-import { TAG_TYPES } from "modules/tags/constants";
-import { queries as tagQueries } from "modules/tags/graphql";
-import React from "react";
-import { graphql } from "react-apollo";
-import { withProps } from "../../../common/utils";
-import { ITag, TagsQueryResponse } from "../../../tags/types";
-import { queries as customerQueries } from "../../graphql";
-import { CountQueryResponse } from "../../types";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import CountsByTag from 'modules/common/components/CountsByTag';
+import { TAG_TYPES } from 'modules/tags/constants';
+import { queries as tagQueries } from 'modules/tags/graphql';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withProps } from '../../../common/utils';
+import { ITag, TagsQueryResponse } from '../../../tags/types';
+import { queries as customerQueries } from '../../graphql';
+import { CountQueryResponse } from '../../types';
 
 const TagFilterContainer = (props: {
   customersCountQuery?: CountQueryResponse;
@@ -48,17 +48,17 @@ export default withProps<WrapperProps>(
     graphql<WrapperProps, CountQueryResponse, { only: string }>(
       gql(customerQueries.customerCounts),
       {
-        name: "customersCountQuery",
+        name: 'customersCountQuery',
         skip: ({ loadingMainQuery }) => loadingMainQuery,
         options: ({ type }) => ({
-          variables: { type, only: "byTag" }
+          variables: { type, only: 'byTag' }
         })
       }
     ),
     graphql<{ loadingMainQuery: boolean }, TagsQueryResponse, { type: string }>(
       gql(tagQueries.tags),
       {
-        name: "tagsQuery",
+        name: 'tagsQuery',
         skip: ({ loadingMainQuery }) => loadingMainQuery,
         options: () => ({
           variables: {

@@ -1,4 +1,4 @@
-import dayjs from "dayjs";
+import dayjs from 'dayjs';
 import {
   ActivityDate,
   ActivityIcon,
@@ -10,22 +10,22 @@ import {
   FlexBody,
   FlexCenterContent,
   Header
-} from "modules/activityLogs/styles";
-import { formatText, getIconAndColor } from "modules/activityLogs/utils";
-import Icon from "modules/common/components/Icon";
-import Tip from "modules/common/components/Tip";
-import { renderFullName } from "modules/common/utils";
-import Message from "modules/inbox/components/conversationDetail/workarea/conversation/messages/Message";
+} from 'modules/activityLogs/styles';
+import { formatText, getIconAndColor } from 'modules/activityLogs/utils';
+import Icon from 'modules/common/components/Icon';
+import Tip from 'modules/common/components/Tip';
+import { renderFullName } from 'modules/common/utils';
+import Message from 'modules/inbox/components/conversationDetail/workarea/conversation/messages/Message';
 import {
   Comment,
   PostContainer
-} from "modules/inbox/components/conversationDetail/workarea/facebook/styles";
-import UserName from "modules/inbox/components/conversationDetail/workarea/facebook/UserName";
-import MailConversation from "modules/inbox/components/conversationDetail/workarea/mail/MailConversation";
-import { IConversation, IFacebookComment, IMessage } from "modules/inbox/types";
-import React from "react";
-import { Link } from "react-router-dom";
-import xss from "xss";
+} from 'modules/inbox/components/conversationDetail/workarea/facebook/styles';
+import UserName from 'modules/inbox/components/conversationDetail/workarea/facebook/UserName';
+import MailConversation from 'modules/inbox/components/conversationDetail/workarea/mail/MailConversation';
+import { IConversation, IFacebookComment, IMessage } from 'modules/inbox/types';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import xss from 'xss';
 
 type Props = {
   activity: any;
@@ -59,7 +59,7 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
         <Comment>
           <UserName
             username={`${comment.customer.firstName} ${comment.customer
-              .lastName || ""}`}
+              .lastName || ''}`}
           />
           <p
             dangerouslySetInnerHTML={{
@@ -80,7 +80,7 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
 
     const { kind } = conversation.integration;
 
-    if (kind === "facebook-post") {
+    if (kind === 'facebook-post') {
       return (
         <>
           <PostContainer>{conversation.content}</PostContainer>
@@ -89,7 +89,7 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
       );
     }
 
-    if (kind.includes("nylas")) {
+    if (kind.includes('nylas')) {
       return (
         <MailConversation
           conversation={conversation}
@@ -134,50 +134,50 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
     const { _id, integration } = conversation;
     let { customer } = conversation;
 
-    let kind = integration ? integration.kind : "conversation";
+    let kind = integration ? integration.kind : 'conversation';
 
     const condition =
-      activity.contentType === "comment" ? activity.contentType : kind;
+      activity.contentType === 'comment' ? activity.contentType : kind;
 
-    let action = "sent a";
-    let item = "message";
+    let action = 'sent a';
+    let item = 'message';
 
     switch (condition) {
-      case "chatfuel":
-        kind = "chatfuel";
+      case 'chatfuel':
+        kind = 'chatfuel';
         break;
-      case "callpro":
-        action = "made a";
-        kind = "phone call";
-        item = "by CallPro";
+      case 'callpro':
+        action = 'made a';
+        kind = 'phone call';
+        item = 'by CallPro';
         break;
-      case "comment":
-        action = "";
-        kind = "commented";
+      case 'comment':
+        action = '';
+        kind = 'commented';
         item = `on ${renderFullName(customer)}'s facebook post`;
         break;
-      case "facebook-post":
-        action = "wrote a Facebook";
-        kind = "Post";
-        item = "";
+      case 'facebook-post':
+        action = 'wrote a Facebook';
+        kind = 'Post';
+        item = '';
         break;
-      case "facebook-messenger":
-        kind = "message";
-        item = "by Facebook Messenger";
+      case 'facebook-messenger':
+        kind = 'message';
+        item = 'by Facebook Messenger';
         break;
-      case "lead":
-        action = "filled in";
-        kind = "Pop ups";
-        item = "";
+      case 'lead':
+        action = 'filled in';
+        kind = 'Pop ups';
+        item = '';
         break;
-      case "nylas-gmail":
-        action = "send";
-        kind = "email";
-        item = "by gmail";
+      case 'nylas-gmail':
+        action = 'send';
+        kind = 'email';
+        item = 'by gmail';
         break;
     }
 
-    if (condition === "comment") {
+    if (condition === 'comment') {
       customer = comments.length > 0 ? comments[0].customer : customer;
     }
 
@@ -201,7 +201,7 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
       return (
         <>
           <Header>
-            {integration.kind.includes("messenger") ? (
+            {integration.kind.includes('messenger') ? (
               <span>
                 Conversation with <b>{renderFullName(customer)}</b>
               </span>
@@ -219,9 +219,9 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
         <FlexCenterContent>
           {this.renderAction()}
 
-          <Tip text={dayjs(createdAt).format("llll")}>
+          <Tip text={dayjs(createdAt).format('llll')}>
             <ActivityDate>
-              {dayjs(createdAt).format("MMM D, h:mm A")}
+              {dayjs(createdAt).format('MMM D, h:mm A')}
             </ActivityDate>
           </Tip>
         </FlexCenterContent>
@@ -241,10 +241,10 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
     const { conversation, activity } = this.props;
     const { integration } = conversation;
 
-    const kind = integration ? integration.kind : "conversation";
+    const kind = integration ? integration.kind : 'conversation';
 
     const condition =
-      activity.contentType === "comment" ? activity.contentType : kind;
+      activity.contentType === 'comment' ? activity.contentType : kind;
 
     const iconAndColor = getIconAndColor(condition);
 

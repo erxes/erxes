@@ -1,14 +1,14 @@
-import ActionButtons from "modules/common/components/ActionButtons";
-import Button from "modules/common/components/Button";
-import Icon from "modules/common/components/Icon";
-import TextInfo from "modules/common/components/TextInfo";
-import Tip from "modules/common/components/Tip";
-import { __ } from "modules/common/utils";
-import React from "react";
-import { Capitalize } from "../styles";
-import { IActions, IModule, IPermissionDocument, IUserGroup } from "../types";
-import PermissionForm from "./PermissionForm";
-import { filterActions } from "./utils";
+import ActionButtons from 'modules/common/components/ActionButtons';
+import Button from 'modules/common/components/Button';
+import Icon from 'modules/common/components/Icon';
+import TextInfo from 'modules/common/components/TextInfo';
+import Tip from 'modules/common/components/Tip';
+import { __ } from 'modules/common/utils';
+import React from 'react';
+import { Capitalize } from '../styles';
+import { IActions, IModule, IPermissionDocument, IUserGroup } from '../types';
+import PermissionForm from './PermissionForm';
+import { filterActions } from './utils';
 
 type Props = {
   actions: IActions[];
@@ -48,13 +48,13 @@ class PermissionRow extends React.Component<Props> {
           <Capitalize>{permission.module}</Capitalize>
         </td>
         <td>{permissionAction.map(action => action.label)}</td>
-        <td>{permission.user ? permission.user.email : ""}</td>
-        <td>{permission.group ? permission.group.name : ""}</td>
+        <td>{permission.user ? permission.user.email : ''}</td>
+        <td>{permission.group ? permission.group.name : ''}</td>
         <td>
           {permission.allowed ? (
-            <TextInfo textStyle="success">{__("Allowed")}</TextInfo>
+            <TextInfo textStyle="success">{__('Allowed')}</TextInfo>
           ) : (
-            <TextInfo textStyle="danger">{__("Not Allowed")}</TextInfo>
+            <TextInfo textStyle="danger">{__('Not Allowed')}</TextInfo>
           )}
         </td>
         <td>

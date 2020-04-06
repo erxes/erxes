@@ -1,15 +1,15 @@
-import ActivityInputs from "modules/activityLogs/components/ActivityInputs";
-import ActivityLogs from "modules/activityLogs/containers/ActivityLogs";
-import { IUser } from "modules/auth/types";
-import { __ } from "modules/common/utils";
-import BasicInfo from "modules/companies/containers/detail/BasicInfo";
-import { ICompany } from "modules/companies/types";
-import { UserHeader } from "modules/customers/styles";
-import Wrapper from "modules/layout/components/Wrapper";
-import React from "react";
-import InfoSection from "../common/InfoSection";
-import LeftSidebar from "./LeftSidebar";
-import RightSidebar from "./RightSidebar";
+import ActivityInputs from 'modules/activityLogs/components/ActivityInputs';
+import ActivityLogs from 'modules/activityLogs/containers/ActivityLogs';
+import { IUser } from 'modules/auth/types';
+import { __ } from 'modules/common/utils';
+import BasicInfo from 'modules/companies/containers/detail/BasicInfo';
+import { ICompany } from 'modules/companies/types';
+import { UserHeader } from 'modules/customers/styles';
+import Wrapper from 'modules/layout/components/Wrapper';
+import React from 'react';
+import InfoSection from '../common/InfoSection';
+import LeftSidebar from './LeftSidebar';
+import RightSidebar from './RightSidebar';
 
 type Props = {
   company: ICompany;
@@ -21,11 +21,11 @@ class CompanyDetails extends React.Component<Props> {
   render() {
     const { company, taggerRefetchQueries } = this.props;
 
-    const title = company.primaryName || "Unknown";
+    const title = company.primaryName || 'Unknown';
 
     const breadcrumb = [
-      { title: __("Contacts"), link: "/contacts" },
-      { title: __("Companies"), link: "/contacts/companies" },
+      { title: __('Contacts'), link: '/contacts' },
+      { title: __('Companies'), link: '/contacts/companies' },
       { title }
     ];
 
@@ -38,7 +38,7 @@ class CompanyDetails extends React.Component<Props> {
           showEmail={false}
         />
         <ActivityLogs
-          target={company.primaryName || ""}
+          target={company.primaryName || ''}
           contentId={company._id}
           contentType="company"
           extraTabs={[]}

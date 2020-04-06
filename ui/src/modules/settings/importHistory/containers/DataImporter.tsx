@@ -1,8 +1,8 @@
-import { AppConsumer } from "appContext";
-import { Alert } from "modules/common/utils";
-import React from "react";
-import DataImporter from "../components/DataImporter";
-import { handleXlsUpload } from "../utils";
+import { AppConsumer } from 'appContext';
+import { Alert } from 'modules/common/utils';
+import React from 'react';
+import DataImporter from '../components/DataImporter';
+import { handleXlsUpload } from '../utils';
 
 type Props = {
   showLoadingBar: () => void;
@@ -39,12 +39,12 @@ class DataImporterContainer extends React.Component<Props, State> {
         afterUploadCallback: response => {
           this.setState({ uploadingXls: false });
 
-          if (response.status === "error") {
+          if (response.status === 'error') {
             return Alert.error(response.message);
           }
 
           if (response.id) {
-            localStorage.setItem("erxes_import_data", response.id);
+            localStorage.setItem('erxes_import_data', response.id);
             showLoadingBar();
           }
         }

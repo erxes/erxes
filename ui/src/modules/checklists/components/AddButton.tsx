@@ -1,11 +1,11 @@
-import { ColorButton } from "modules/boards/styles/common";
-import Icon from "modules/common/components/Icon";
-import { __ } from "modules/common/utils";
-import * as React from "react";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Popover from "react-bootstrap/Popover";
-import AddForm from "../containers/AddForm";
-import { PopoverContent } from "../styles";
+import { ColorButton } from 'modules/boards/styles/common';
+import Icon from 'modules/common/components/Icon';
+import { __ } from 'modules/common/utils';
+import * as React from 'react';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
+import AddForm from '../containers/AddForm';
+import { PopoverContent } from '../styles';
 
 type Props = {
   itemId: string;
@@ -45,7 +45,7 @@ class ChecklistAdd extends React.Component<Props> {
       >
         <ColorButton>
           <Icon icon="check-square" />
-          {__("Checklist")}
+          {__('Checklist')}
         </ColorButton>
       </OverlayTrigger>
     );

@@ -1,16 +1,16 @@
-import dayjs from "dayjs";
-import React from "react";
-import styled from "styled-components";
-import { IDateColumn } from "../types";
-import { __ } from "../utils";
+import dayjs from 'dayjs';
+import React from 'react';
+import styled from 'styled-components';
+import { IDateColumn } from '../types';
+import { __ } from '../utils';
 import {
   getCurrentDate,
   getFullTitle,
   monthColumns,
   nextMonth,
   previousMonth
-} from "../utils/calendar";
-import Button from "./Button";
+} from '../utils/calendar';
+import Button from './Button';
 
 const Header = styled.div`
   display: inline-block;
@@ -87,12 +87,12 @@ class Calendar extends React.Component<Props, State> {
     return (
       <Header>
         <HeaderWrapper>
-          {renderButton({ icon: "leftarrow", onClick: this.onPreviousClick })}
-          {renderButton({ icon: "rightarrow", onClick: this.onNextClick })}
+          {renderButton({ icon: 'leftarrow', onClick: this.onPreviousClick })}
+          {renderButton({ icon: 'rightarrow', onClick: this.onNextClick })}
           {renderButton({
             onClick: this.setCurrentDate,
-            text: "Today",
-            btnStyle: "primary"
+            text: 'Today',
+            btnStyle: 'primary'
           })}
         </HeaderWrapper>
       </Header>

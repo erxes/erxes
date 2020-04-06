@@ -1,11 +1,11 @@
-import { colors, dimensions } from "modules/common/styles";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
+import { colors, dimensions } from 'modules/common/styles';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const Box = styledTS<{ noTopPadding?: boolean }>(styled.div)`
   padding: ${dimensions.coreSpacing}px;
   padding-bottom: 0;
-  padding-top: ${props => props.noTopPadding && "0"};
+  padding-top: ${props => props.noTopPadding && '0'};
   background: ${colors.colorWhite};
   margin-bottom: ${dimensions.unitSpacing}px;
 

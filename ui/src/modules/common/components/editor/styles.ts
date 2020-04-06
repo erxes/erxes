@@ -1,13 +1,13 @@
-import { colors } from "modules/common/styles";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
+import { colors } from 'modules/common/styles';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const RichEditorRoot = styledTS<{ bordered: boolean }>(styled.div)`
   font-size: 14px;
   position: relative;
   padding-top: 36px;
   border: ${props => props.bordered && `1px solid ${colors.borderDarker}`};
-  margin-top: ${props => props.bordered && "10px"};
+  margin-top: ${props => props.bordered && '10px'};
 
   img {
     max-width: 100%;
@@ -37,7 +37,7 @@ const RichEditorRoot = styledTS<{ bordered: boolean }>(styled.div)`
 
     .public-DraftEditor-content {
       font-size: 13px;
-      min-height: ${props => (props.bordered ? "180px" : "100px")};
+      min-height: ${props => (props.bordered ? '180px' : '100px')};
       padding: 15px 20px;
       overflow-y: auto;
       max-height: 60vh;
@@ -108,7 +108,7 @@ const RichEditorControlsRoot = styledTS<{ isTopPopup: boolean }>(styled.div)`
 
   .draftJsEmojiPlugin__emojiSelectPopover__1J1s0 {
     margin: 0;
-    bottom: ${props => props.isTopPopup && "100%"};
+    bottom: ${props => props.isTopPopup && '100%'};
     border-color: ${colors.borderPrimary};
     box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.1);
 

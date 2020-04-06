@@ -1,7 +1,7 @@
-import { colors } from "modules/common/styles";
-import { wave } from "modules/common/utils/animations";
-import React from "react";
-import styled from "styled-components";
+import { colors } from 'modules/common/styles';
+import { wave } from 'modules/common/utils/animations';
+import React from 'react';
+import styled from 'styled-components';
 
 const Wrapper = styled.div`
   background: ${colors.bgLight};

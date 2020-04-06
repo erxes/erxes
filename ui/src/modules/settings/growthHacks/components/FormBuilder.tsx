@@ -1,15 +1,15 @@
-import { IStage } from "modules/boards/types";
-import Button from "modules/common/components/Button";
-import Icon from "modules/common/components/Icon";
-import { CloseModal, ModalFooter } from "modules/common/styles/main";
-import { __ } from "modules/common/utils";
-import CreateForm from "modules/forms/containers/CreateForm";
-import EditForm from "modules/forms/containers/EditForm";
-import { ShowPreview } from "modules/forms/styles";
-import { IField } from "modules/settings/properties/types";
-import React from "react";
-import Modal from "react-bootstrap/Modal";
-import { ContentWrapper, PreviewWrapper } from "../styles";
+import { IStage } from 'modules/boards/types';
+import Button from 'modules/common/components/Button';
+import Icon from 'modules/common/components/Icon';
+import { CloseModal, ModalFooter } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
+import CreateForm from 'modules/forms/containers/CreateForm';
+import EditForm from 'modules/forms/containers/EditForm';
+import { ShowPreview } from 'modules/forms/styles';
+import { IField } from 'modules/settings/properties/types';
+import React from 'react';
+import Modal from 'react-bootstrap/Modal';
+import { ContentWrapper, PreviewWrapper } from '../styles';
 
 type Props = {
   onChange: (stageId: string, name: string, value: string) => void;
@@ -37,7 +37,7 @@ class FormBuilder extends React.Component<
     return (
       <>
         <ShowPreview>
-          <Icon icon="eye" /> {__("Form preview")}
+          <Icon icon="eye" /> {__('Form preview')}
         </ShowPreview>
         <ModalFooter>
           <Button
@@ -78,7 +78,7 @@ class FormBuilder extends React.Component<
   afterFormDbSave = (formId: string) => {
     const { stage, onChange, onHide } = this.props;
 
-    onChange(stage._id, "formId", formId);
+    onChange(stage._id, 'formId', formId);
     onHide();
 
     this.setState({ isReadyToSaveForm: false });
@@ -96,7 +96,7 @@ class FormBuilder extends React.Component<
       afterDbSave: this.afterFormDbSave,
       isReadyToSave: this.state.isReadyToSaveForm,
       hideOptionalFields: true,
-      type: "growthHack"
+      type: 'growthHack'
     };
 
     if (stage.formId) {

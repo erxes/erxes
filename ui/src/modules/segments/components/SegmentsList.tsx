@@ -1,15 +1,15 @@
-import ActionButtons from "modules/common/components/ActionButtons";
-import Button from "modules/common/components/Button";
-import Label from "modules/common/components/Label";
-import Table from "modules/common/components/table";
-import Tip from "modules/common/components/Tip";
-import { Title } from "modules/common/styles/main";
-import { __ } from "modules/common/utils";
-import Wrapper from "modules/layout/components/Wrapper";
-import React from "react";
-import { Link } from "react-router-dom";
-import { ISegment } from "../types";
-import Sidebar from "./Sidebar";
+import ActionButtons from 'modules/common/components/ActionButtons';
+import Button from 'modules/common/components/Button';
+import Label from 'modules/common/components/Label';
+import Table from 'modules/common/components/table';
+import Tip from 'modules/common/components/Tip';
+import { Title } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
+import Wrapper from 'modules/layout/components/Wrapper';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { ISegment } from '../types';
+import Sidebar from './Sidebar';
 
 type Props = {
   contentType?: string;
@@ -27,12 +27,12 @@ class SegmentsList extends React.Component<Props> {
 
     return (
       <ActionButtons>
-        <Tip text={__("Edit")}>
+        <Tip text={__('Edit')}>
           <Link to={`/segments/edit/${contentType}/${segment._id}`}>
             <Button btnStyle="link" icon="edit" />
           </Link>
         </Tip>
-        <Tip text={__("Delete")}>
+        <Tip text={__('Delete')}>
           <Button btnStyle="link" onClick={onClick} icon="cancel-1" />
         </Tip>
       </ActionButtons>
@@ -54,9 +54,9 @@ class SegmentsList extends React.Component<Props> {
       <Table>
         <thead>
           <tr>
-            <th>{__("Name")}</th>
-            <th>{__("Description")}</th>
-            <th>{__("Color")}</th>
+            <th>{__('Name')}</th>
+            <th>{__('Description')}</th>
+            <th>{__('Color')}</th>
             <th />
           </tr>
         </thead>
@@ -64,7 +64,7 @@ class SegmentsList extends React.Component<Props> {
           {parentSegments.map(segment => (
             <tr key={segment._id}>
               <td>
-                {segment.subOf ? "\u00a0\u00a0" : null} {segment.name}
+                {segment.subOf ? '\u00a0\u00a0' : null} {segment.name}
               </td>
               <td>{segment.description}</td>
               <td>
@@ -84,13 +84,13 @@ class SegmentsList extends React.Component<Props> {
     const { contentType } = this.props;
 
     const breadcrumb = [
-      { title: __("Settings"), link: "/settings" },
-      { title: __("Segments") }
+      { title: __('Settings'), link: '/settings' },
+      { title: __('Segments') }
     ];
 
     const title = (
       <Title capitalize={true}>
-        {contentType} {__("segments")}
+        {contentType} {__('segments')}
       </Title>
     );
 
@@ -107,7 +107,7 @@ class SegmentsList extends React.Component<Props> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header title={__("Segments")} breadcrumb={breadcrumb} />
+          <Wrapper.Header title={__('Segments')} breadcrumb={breadcrumb} />
         }
         actionBar={actionBar}
         content={this.renderContent()}

@@ -1,23 +1,23 @@
-import Button from "modules/common/components/Button";
-import DataWithLoader from "modules/common/components/DataWithLoader";
-import Icon from "modules/common/components/Icon";
-import LoadMore from "modules/common/components/LoadMore";
-import ModalTrigger from "modules/common/components/ModalTrigger";
-import Tip from "modules/common/components/Tip";
-import { TopHeader } from "modules/common/styles/main";
-import { IButtonMutateProps, IRouterProps } from "modules/common/types";
-import { __, router } from "modules/common/utils";
-import Sidebar from "modules/layout/components/Sidebar";
-import Wrapper from "modules/layout/components/Wrapper";
-import { FieldStyle, SidebarList } from "modules/layout/styles";
-import MemberAvatars from "modules/settings/channels/components/MemberAvatars";
-import { ActionButtons } from "modules/settings/styles";
-import React from "react";
-import { withRouter } from "react-router-dom";
-import { Link } from "react-router-dom";
-import { SidebarItem } from "../styles";
-import { IUserGroup, IUserGroupDocument } from "../types";
-import GroupForm from "./GroupForm";
+import Button from 'modules/common/components/Button';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import Icon from 'modules/common/components/Icon';
+import LoadMore from 'modules/common/components/LoadMore';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Tip from 'modules/common/components/Tip';
+import { TopHeader } from 'modules/common/styles/main';
+import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
+import { __, router } from 'modules/common/utils';
+import Sidebar from 'modules/layout/components/Sidebar';
+import Wrapper from 'modules/layout/components/Wrapper';
+import { FieldStyle, SidebarList } from 'modules/layout/styles';
+import MemberAvatars from 'modules/settings/channels/components/MemberAvatars';
+import { ActionButtons } from 'modules/settings/styles';
+import React from 'react';
+import { withRouter } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { SidebarItem } from '../styles';
+import { IUserGroup, IUserGroupDocument } from '../types';
+import GroupForm from './GroupForm';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -51,7 +51,7 @@ class GroupList extends React.Component<IProps> {
 
   isActive = (id: string) => {
     const { queryParams } = this.props;
-    const currentGroup = queryParams.groupId || "";
+    const currentGroup = queryParams.groupId || '';
 
     return currentGroup === id;
   };
@@ -63,7 +63,7 @@ class GroupList extends React.Component<IProps> {
   renderEditAction(object: IUserGroupDocument) {
     const trigger = (
       <Button btnStyle="link">
-        <Tip text={__("Edit")} placement="bottom">
+        <Tip text={__('Edit')} placement="bottom">
           <Icon icon="edit" />
         </Tip>
       </Button>
@@ -77,7 +77,7 @@ class GroupList extends React.Component<IProps> {
 
     return (
       <Button btnStyle="link" onClick={remove.bind(null, object._id)}>
-        <Tip text={__("Remove")} placement="bottom">
+        <Tip text={__('Remove')} placement="bottom">
           <Icon icon="cancel-1" />
         </Tip>
       </Button>
@@ -86,9 +86,9 @@ class GroupList extends React.Component<IProps> {
 
   renderCopyAction(object: IUserGroupDocument) {
     const onCopy = () =>
-      this.props.copyItem(object._id, "memberIds", object.memberIds || []);
+      this.props.copyItem(object._id, 'memberIds', object.memberIds || []);
 
-    const tipText = "Copies user group along with the permissions & users";
+    const tipText = 'Copies user group along with the permissions & users';
 
     return (
       <Button btnStyle="link" onClick={onCopy}>
@@ -142,11 +142,11 @@ class GroupList extends React.Component<IProps> {
       <>
         <TopHeader>{this.renderFormTrigger(trigger)}</TopHeader>
         <Section.Title>
-          {__("User groups")}
+          {__('User groups')}
           <Section.QuickButtons>
-            {router.getParam(this.props.history, "groupId") && (
+            {router.getParam(this.props.history, 'groupId') && (
               <a href="#cancel" tabIndex={0} onClick={this.clearGroupFilter}>
-                <Tip text={__("Clear filter")}>
+                <Tip text={__('Clear filter')}>
                   <Icon icon="cancel-1" />
                 </Tip>
               </a>

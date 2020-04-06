@@ -1,31 +1,31 @@
-import { AppConsumer } from "appContext";
-import { IUser } from "modules/auth/types";
-import ActionButtons from "modules/common/components/ActionButtons";
-import Button from "modules/common/components/Button";
-import { FormControl } from "modules/common/components/form";
-import ControlLabel from "modules/common/components/form/Label";
-import HeaderDescription from "modules/common/components/HeaderDescription";
-import Icon from "modules/common/components/Icon";
-import ModalTrigger from "modules/common/components/ModalTrigger";
-import NameCard from "modules/common/components/nameCard/NameCard";
-import Table from "modules/common/components/table";
-import TextInfo from "modules/common/components/TextInfo";
-import Tip from "modules/common/components/Tip";
-import Toggle from "modules/common/components/Toggle";
-import { IButtonMutateProps } from "modules/common/types";
-import { router } from "modules/common/utils";
-import { __ } from "modules/common/utils";
-import { FlexItem, FlexRow } from "modules/insights/styles";
-import SelectBrands from "modules/settings/brands/containers/SelectBrands";
-import { IUserGroup } from "modules/settings/permissions/types";
-import React from "react";
-import Select from "react-select-plus";
-import List from "../../common/components/List";
-import { ICommonFormProps, ICommonListProps } from "../../common/types";
-import UserForm from "../containers/UserForm";
-import UserResetPasswordForm from "../containers/UserResetPasswordForm";
-import { FilterContainer, UserAvatar } from "../styles";
-import UserInvitationForm from "./UserInvitationForm";
+import { AppConsumer } from 'appContext';
+import { IUser } from 'modules/auth/types';
+import ActionButtons from 'modules/common/components/ActionButtons';
+import Button from 'modules/common/components/Button';
+import { FormControl } from 'modules/common/components/form';
+import ControlLabel from 'modules/common/components/form/Label';
+import HeaderDescription from 'modules/common/components/HeaderDescription';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import NameCard from 'modules/common/components/nameCard/NameCard';
+import Table from 'modules/common/components/table';
+import TextInfo from 'modules/common/components/TextInfo';
+import Tip from 'modules/common/components/Tip';
+import Toggle from 'modules/common/components/Toggle';
+import { IButtonMutateProps } from 'modules/common/types';
+import { router } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
+import { FlexItem, FlexRow } from 'modules/insights/styles';
+import SelectBrands from 'modules/settings/brands/containers/SelectBrands';
+import { IUserGroup } from 'modules/settings/permissions/types';
+import React from 'react';
+import Select from 'react-select-plus';
+import List from '../../common/components/List';
+import { ICommonFormProps, ICommonListProps } from '../../common/types';
+import UserForm from '../containers/UserForm';
+import UserResetPasswordForm from '../containers/UserResetPasswordForm';
+import { FilterContainer, UserAvatar } from '../styles';
+import UserInvitationForm from './UserInvitationForm';
 
 type IProps = {
   changeStatus: (id: string) => void;
@@ -56,7 +56,7 @@ class UserList extends React.Component<FinalProps, States> {
     } = props;
 
     this.state = {
-      searchValue: searchValue || ""
+      searchValue: searchValue || ''
     };
   }
 
@@ -86,7 +86,7 @@ class UserList extends React.Component<FinalProps, States> {
 
     const editTrigger = (
       <Button btnStyle="link" disabled={user._id === currentUser._id}>
-        <Tip text={__("Edit")} placement="top">
+        <Tip text={__('Edit')} placement="top">
           <Icon icon="pen-1" size={15} />
         </Tip>
       </Button>
@@ -113,7 +113,7 @@ class UserList extends React.Component<FinalProps, States> {
   renderResetPassword = (user: IUser) => {
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text={__("Reset Member Password")} placement="top">
+        <Tip text={__('Reset Member Password')} placement="top">
           <Icon icon="lock-alt" size={15} />
         </Tip>
       </Button>
@@ -138,13 +138,13 @@ class UserList extends React.Component<FinalProps, States> {
       this.props.resendInvitation(user.email);
     };
 
-    if (user.status !== "Not verified") {
+    if (user.status !== 'Not verified') {
       return null;
     }
 
     return (
       <Button btnStyle="link" onClick={onClick}>
-        <Tip text={__("Resend")} placement="top">
+        <Tip text={__('Resend')} placement="top">
           <Icon icon="redo" size={15} />
         </Tip>
       </Button>
@@ -163,9 +163,9 @@ class UserList extends React.Component<FinalProps, States> {
           </UserAvatar>
           <td>
             <TextInfo
-              textStyle={object.status === "Verified" ? "success" : "warning"}
+              textStyle={object.status === 'Verified' ? 'success' : 'warning'}
             >
-              {object.status || "Verified"}
+              {object.status || 'Verified'}
             </TextInfo>
           </td>
           <td>{object.email}</td>
@@ -207,7 +207,7 @@ class UserList extends React.Component<FinalProps, States> {
 
   moveCursorAtTheEnd(e) {
     const tmpValue = e.target.value;
-    e.target.value = "";
+    e.target.value = '';
     e.target.value = tmpValue;
   }
 
@@ -220,7 +220,7 @@ class UserList extends React.Component<FinalProps, States> {
 
     const env = configsEnvQuery.configsGetEnv || {};
 
-    if (env.USE_BRAND_RESTRICTIONS !== "true") {
+    if (env.USE_BRAND_RESTRICTIONS !== 'true') {
       return null;
     }
 
@@ -230,9 +230,9 @@ class UserList extends React.Component<FinalProps, States> {
 
     return (
       <FlexItem>
-        <ControlLabel>{__("Brand")}</ControlLabel>
+        <ControlLabel>{__('Brand')}</ControlLabel>
         <SelectBrands
-          label={__("Choose brands")}
+          label={__('Choose brands')}
           onSelect={onSelect}
           value={queryParams.brandIds}
           name="selectedBrands"
@@ -247,7 +247,7 @@ class UserList extends React.Component<FinalProps, States> {
         <FlexRow>
           {this.renderBrandChooser()}
           <FlexItem>
-            <ControlLabel>{__("Search")}</ControlLabel>
+            <ControlLabel>{__('Search')}</ControlLabel>
             <FormControl
               placeholder="Search"
               name="searchValue"
@@ -259,20 +259,20 @@ class UserList extends React.Component<FinalProps, States> {
           </FlexItem>
 
           <FlexItem>
-            <ControlLabel>{__("Status")}</ControlLabel>
+            <ControlLabel>{__('Status')}</ControlLabel>
             <Select
-              placeholder={__("Choose status")}
+              placeholder={__('Choose status')}
               value={this.props.queryParams.isActive || true}
               onChange={this.onStatusChange}
               clearable={false}
               options={[
                 {
                   value: true,
-                  label: "Active"
+                  label: 'Active'
                 },
                 {
                   value: false,
-                  label: "Deactivated"
+                  label: 'Deactivated'
                 }
               ]}
             />
@@ -287,11 +287,11 @@ class UserList extends React.Component<FinalProps, States> {
       <Table>
         <thead>
           <tr>
-            <th>{__("Full name")}</th>
-            <th>{__("Invitation status")}</th>
-            <th>{__("Email")}</th>
-            <th>{__("Status")}</th>
-            <th>{__("Actions")}</th>
+            <th>{__('Full name')}</th>
+            <th>{__('Invitation status')}</th>
+            <th>{__('Email')}</th>
+            <th>{__('Status')}</th>
+            <th>{__('Actions')}</th>
           </tr>
         </thead>
         <tbody>{this.renderRows(props)}</tbody>
@@ -301,8 +301,8 @@ class UserList extends React.Component<FinalProps, States> {
 
   breadcrumb() {
     return [
-      { title: __("Settings"), link: "/settings" },
-      { title: __("Team members") }
+      { title: __('Settings'), link: '/settings' },
+      { title: __('Team members') }
     ];
   }
 
@@ -312,10 +312,10 @@ class UserList extends React.Component<FinalProps, States> {
         formTitle="Invite team members"
         size="lg"
         breadcrumb={[
-          { title: __("Settings"), link: "/settings" },
-          { title: __("Team members") }
+          { title: __('Settings'), link: '/settings' },
+          { title: __('Team members') }
         ]}
-        title={__("Team members")}
+        title={__('Team members')}
         leftActionBar={
           <HeaderDescription
             icon="/images/actions/21.svg"

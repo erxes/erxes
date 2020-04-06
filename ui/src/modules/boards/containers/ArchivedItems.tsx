@@ -1,18 +1,18 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { IRouterProps } from "modules/common/types";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { IRouterProps } from 'modules/common/types';
 import {
   Alert,
   confirm,
   renderWithProps,
   router as routerUtils
-} from "modules/common/utils";
-import React from "react";
-import { graphql } from "react-apollo";
-import { withRouter } from "react-router-dom";
-import ArchivedItems from "../components/ArchivedItems";
-import { mutations, queries } from "../graphql";
-import { IItemParams, IOptions, RemoveMutation, SaveMutation } from "../types";
+} from 'modules/common/utils';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
+import ArchivedItems from '../components/ArchivedItems';
+import { mutations, queries } from '../graphql';
+import { IItemParams, IOptions, RemoveMutation, SaveMutation } from '../types';
 
 type IProps = {
   options: IOptions;
@@ -37,14 +37,14 @@ type IFinalProps = {
 
 class ArchivedItemsContainer extends React.Component<IFinalProps> {
   sendToBoard = (item: any) => {
-    if (this.props.type === "item") {
+    if (this.props.type === 'item') {
       const { setActiveItemMutation, archivedItemsQuery, history } = this.props;
 
       setActiveItemMutation({
-        variables: { _id: item._id, stageId: item.stageId, status: "active" }
+        variables: { _id: item._id, stageId: item.stageId, status: 'active' }
       })
         .then(async () => {
-          Alert.success("You successfully sent to a board");
+          Alert.success('You successfully sent to a board');
 
           await archivedItemsQuery.refetch();
           routerUtils.setParams(history, { key: Math.random() });
@@ -60,10 +60,10 @@ class ArchivedItemsContainer extends React.Component<IFinalProps> {
       } = this.props;
 
       setActiveStageMutation({
-        variables: { _id: item._id, type: options.type, status: "active" }
+        variables: { _id: item._id, type: options.type, status: 'active' }
       })
         .then(async () => {
-          Alert.success("You successfully sent to a board");
+          Alert.success('You successfully sent to a board');
 
           await archivedStagesQuery.refetch();
 
@@ -76,7 +76,7 @@ class ArchivedItemsContainer extends React.Component<IFinalProps> {
   };
 
   remove = (item: any) => {
-    if (this.props.type === "item") {
+    if (this.props.type === 'item') {
       const { removeMutation, archivedItemsQuery, options } = this.props;
 
       confirm().then(() =>
@@ -100,7 +100,7 @@ class ArchivedItemsContainer extends React.Component<IFinalProps> {
           variables: { _id: item._id }
         })
           .then(() => {
-            Alert.success("You successfully deleted a stage");
+            Alert.success('You successfully deleted a stage');
 
             archivedStagesQuery.refetch();
           })
@@ -140,7 +140,7 @@ class ArchivedItemsContainer extends React.Component<IFinalProps> {
     } else {
       query = archivedStagesQuery;
       loading = archivedStagesQuery.loading || archivedStagesCountQuery.loading;
-      itemName = "archivedStages";
+      itemName = 'archivedStages';
       items = archivedStagesQuery.archivedStages || [];
       hasMore = archivedStagesCountQuery.archivedStagesCount > items.length;
     }
@@ -222,59 +222,59 @@ export default (props: IProps) => {
     props,
     compose(
       graphql<IProps>(gql(queries.archivedStages), {
-        name: "archivedStagesQuery",
-        skip: ({ type }) => type === "item",
+        name: 'archivedStagesQuery',
+        skip: ({ type }) => type === 'item',
         options: ({ pipelineId, search }) => ({
           variables: { pipelineId, search },
-          fetchPolicy: "network-only"
+          fetchPolicy: 'network-only'
         })
       }),
       graphql<IProps>(gql(options.queries.archivedItemsQuery), {
-        name: "archivedItemsQuery",
-        skip: ({ type }) => type === "list",
+        name: 'archivedItemsQuery',
+        skip: ({ type }) => type === 'list',
         options: ({ pipelineId, search }) => ({
           variables: { pipelineId, search, perPage: 20 },
-          fetchPolicy: "network-only"
+          fetchPolicy: 'network-only'
         })
       }),
       graphql<IProps>(gql(queries.archivedStagesCount), {
-        name: "archivedStagesCountQuery",
-        skip: ({ type }) => type === "item",
+        name: 'archivedStagesCountQuery',
+        skip: ({ type }) => type === 'item',
         options: ({ pipelineId, search }) => ({
           variables: { pipelineId, search },
-          fetchPolicy: "network-only"
+          fetchPolicy: 'network-only'
         })
       }),
       graphql<IProps>(gql(options.queries.archivedItemsCountQuery), {
-        name: "archivedItemsCountQuery",
-        skip: ({ type }) => type === "list",
+        name: 'archivedItemsCountQuery',
+        skip: ({ type }) => type === 'list',
         options: ({ pipelineId, search }) => ({
           variables: { pipelineId, search },
-          fetchPolicy: "network-only"
+          fetchPolicy: 'network-only'
         })
       }),
       graphql<IProps, SaveMutation, IItemParams>(
         gql(options.mutations.editMutation),
         {
-          name: "setActiveItemMutation",
-          skip: ({ type }) => type === "list",
+          name: 'setActiveItemMutation',
+          skip: ({ type }) => type === 'list',
           options: () => ({
-            refetchQueries: ["archivedItemsQuery"]
+            refetchQueries: ['archivedItemsQuery']
           })
         }
       ),
       graphql<IProps, SaveMutation, IItemParams>(gql(mutations.stagesEdit), {
-        name: "setActiveStageMutation",
-        skip: ({ type }) => type === "item"
+        name: 'setActiveStageMutation',
+        skip: ({ type }) => type === 'item'
       }),
       graphql<IProps, RemoveMutation, { _id: string }>(
         gql(options.mutations.removeMutation),
         {
-          name: "removeMutation"
+          name: 'removeMutation'
         }
       ),
       graphql<IProps>(gql(mutations.stagesRemove), {
-        name: "removeStageMutation"
+        name: 'removeStageMutation'
       })
     )(withRouter(ArchivedItemsContainer))
   );

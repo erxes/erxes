@@ -1,10 +1,10 @@
-import dayjs from "dayjs";
-import { IUser } from "modules/auth/types";
-import Icon from "modules/common/components/Icon";
-import { __ } from "modules/common/utils";
-import { IBrand } from "modules/settings/brands/types";
-import { IMessagesItem } from "modules/settings/integrations/types";
-import React from "react";
+import dayjs from 'dayjs';
+import { IUser } from 'modules/auth/types';
+import Icon from 'modules/common/components/Icon';
+import { __ } from 'modules/common/utils';
+import { IBrand } from 'modules/settings/brands/types';
+import { IMessagesItem } from 'modules/settings/integrations/types';
+import React from 'react';
 import {
   ErxesGreeting,
   ErxesMiddleTitle,
@@ -13,8 +13,8 @@ import {
   Links,
   Socials,
   TopBarIcon
-} from "./styles";
-import SupporterComponent from "./Supporters";
+} from './styles';
+import SupporterComponent from './Supporters';
 
 type Props = {
   color: string;
@@ -80,13 +80,13 @@ class TopBar extends React.Component<Props> {
 
     return (
       <>
-        {this.renderIcons("leftarrow-3", true)}
+        {this.renderIcons('leftarrow-3', true)}
         <ErxesMiddleTitle>
           {currentBrand && <h3>{currentBrand.name}</h3>}
           {currentBrand && <span>{currentBrand.description}</span>}
           {this.renderSupporters()}
         </ErxesMiddleTitle>
-        {this.renderIcons("cancel", false, 11)}
+        {this.renderIcons('cancel', false, 11)}
       </>
     );
   }
@@ -96,7 +96,7 @@ class TopBar extends React.Component<Props> {
       return <h3>{message.greetings.title}</h3>;
     }
 
-    return <h3>{__("Welcome")}</h3>;
+    return <h3>{__('Welcome')}</h3>;
   }
 
   renderGreetingMessage(message) {
@@ -106,7 +106,7 @@ class TopBar extends React.Component<Props> {
 
     return (
       <p>
-        {__("Hi, any questions?")} <br /> {__("We`re ready to help you.")}
+        {__('Hi, any questions?')} <br /> {__('We`re ready to help you.')}
       </p>
     );
   }
@@ -129,18 +129,18 @@ class TopBar extends React.Component<Props> {
       <>
         <ErxesGreeting>
           <Links>
-            <span>{dayjs(new Date()).format("lll")}</span>
+            <span>{dayjs(new Date()).format('lll')}</span>
             <Socials>
-              {this.renderLink(facebook, "facebook-official")}
-              {this.renderLink(twitter, "twitter")}
-              {this.renderLink(youtube, "youtube-play")}
+              {this.renderLink(facebook, 'facebook-official')}
+              {this.renderLink(twitter, 'twitter')}
+              {this.renderLink(youtube, 'youtube-play')}
             </Socials>
           </Links>
 
           {this.renderGreetings()}
           {this.renderSupporters()}
         </ErxesGreeting>
-        {this.renderIcons("cancel", false, 11)}
+        {this.renderIcons('cancel', false, 11)}
       </>
     );
   }

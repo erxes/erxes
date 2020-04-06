@@ -1,7 +1,7 @@
-import { IForm } from "modules/forms/types";
-import { ILeadData, ILeadIntegration } from "modules/leads/types";
-import { IBrand } from "../brands/types";
-import { IChannel } from "../channels/types";
+import { IForm } from 'modules/forms/types';
+import { ILeadData, ILeadIntegration } from 'modules/leads/types';
+import { IBrand } from '../brands/types';
+import { IChannel } from '../channels/types';
 
 export interface IMessengerApp {
   _id: string;
@@ -117,19 +117,19 @@ export type QueryVariables = {
 };
 
 export type IntegrationTypes =
-  | "facebook"
-  | "gmail"
-  | "nylas-gmail"
-  | "nylas-exchange"
-  | "nylas-imap"
-  | "nylas-office365"
-  | "nylas-outlook"
-  | "nylas-yahoo"
-  | "twitter"
-  | "smooch-telegram"
-  | "smooch-viber"
-  | "smooch-line"
-  | "smooch-twilio";
+  | 'facebook'
+  | 'gmail'
+  | 'nylas-gmail'
+  | 'nylas-exchange'
+  | 'nylas-imap'
+  | 'nylas-office365'
+  | 'nylas-outlook'
+  | 'nylas-yahoo'
+  | 'twitter'
+  | 'smooch-telegram'
+  | 'smooch-viber'
+  | 'smooch-line'
+  | 'smooch-twilio';
 
 export type IntegrationsQueryResponse = {
   integrations: IIntegration[];

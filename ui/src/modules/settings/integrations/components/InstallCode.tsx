@@ -1,17 +1,17 @@
-import { getEnv } from "apolloClient";
-import Button from "modules/common/components/Button";
-import EmptyState from "modules/common/components/EmptyState";
-import { ControlLabel } from "modules/common/components/form";
-import Info from "modules/common/components/Info";
-import { Tabs, TabTitle } from "modules/common/components/tabs";
-import { ModalFooter } from "modules/common/styles/main";
-import { __ } from "modules/common/utils";
-import { IIntegration } from "modules/settings/integrations/types";
-import { MarkdownWrapper } from "modules/settings/styles";
-import React from "react";
-import CopyToClipboard from "react-copy-to-clipboard";
-import ReactMarkdown from "react-markdown";
-import { Script } from "../styles";
+import { getEnv } from 'apolloClient';
+import Button from 'modules/common/components/Button';
+import EmptyState from 'modules/common/components/EmptyState';
+import { ControlLabel } from 'modules/common/components/form';
+import Info from 'modules/common/components/Info';
+import { Tabs, TabTitle } from 'modules/common/components/tabs';
+import { ModalFooter } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
+import { IIntegration } from 'modules/settings/integrations/types';
+import { MarkdownWrapper } from 'modules/settings/styles';
+import React from 'react';
+import CopyToClipboard from 'react-copy-to-clipboard';
+import ReactMarkdown from 'react-markdown';
+import { Script } from '../styles';
 
 type Props = {
   integration: IIntegration;
@@ -54,7 +54,7 @@ const getInstallCode = brandCode => {
           brand_id: "${brandCode}",
         },
       };
-      ${installCodeIncludeScript("messenger")}
+      ${installCodeIncludeScript('messenger')}
     </script>
   `;
 };
@@ -169,12 +169,12 @@ class InstallCode extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    let basicCode = "";
-    let singlePageCode = "";
-    let erxesSdkOpenSource = "";
-    let erxesSdkSaas = "";
-    let objectiveSdkOpenSource = "";
-    let objectiveSdkSaas = "";
+    let basicCode = '';
+    let singlePageCode = '';
+    let erxesSdkOpenSource = '';
+    let erxesSdkSaas = '';
+    let objectiveSdkOpenSource = '';
+    let objectiveSdkSaas = '';
     const integration = props.integration || {};
 
     // showed install code automatically in edit mode
@@ -196,7 +196,7 @@ class InstallCode extends React.PureComponent<Props, State> {
       singlePageCode,
       objectiveSdkOpenSource,
       objectiveSdkSaas,
-      currentTab: "basic",
+      currentTab: 'basic',
       copied: false,
       singleCopied: false,
       contentCopied: false
@@ -204,11 +204,11 @@ class InstallCode extends React.PureComponent<Props, State> {
   }
 
   onCopy = (currentTab: string) => {
-    if (currentTab === "basic") {
+    if (currentTab === 'basic') {
       return this.setState({ copied: true });
     }
 
-    if (currentTab === "single") {
+    if (currentTab === 'single') {
       return this.setState({ singleCopied: true });
     }
 
@@ -220,7 +220,7 @@ class InstallCode extends React.PureComponent<Props, State> {
   };
 
   renderDescription(currentTab: string) {
-    if (currentTab === "googletag") {
+    if (currentTab === 'googletag') {
       return (
         <div>
           <b>{__('gtm_b')}</b>
@@ -238,7 +238,7 @@ class InstallCode extends React.PureComponent<Props, State> {
       );
     }
 
-    if (currentTab === "ios") {
+    if (currentTab === 'ios') {
       return (
         <>
           <h4>
@@ -256,8 +256,8 @@ class InstallCode extends React.PureComponent<Props, State> {
               Add a "Privacy - Photo Library Usage Description" entry to your
               Info.plist. This is
               <a href="https://developer.apple.com/library/content/qa/qa1937/_index.html">
-                {" "}
-                required by Apple{" "}
+                {' '}
+                required by Apple{' '}
               </a>
               and gives your users permission to upload images.
             </li>
@@ -309,14 +309,14 @@ class InstallCode extends React.PureComponent<Props, State> {
               Add a "Privacy - Photo Library Usage Description" entry to your
               Info.plist. This is
               <a href="https://developer.apple.com/library/content/qa/qa1937/_index.html">
-                {" "}
-                required by Apple{" "}
+                {' '}
+                required by Apple{' '}
               </a>
               and gives your users permission to upload images.
             </li>
             <li>
               {`#import <ErxesSDK/ErxesSDK-Swift.h> into`} AppDelegate.swift
-              then paste the following code into{" "}
+              then paste the following code into{' '}
               <b>didFinishLaunchingWithOptions method:</b>
               <br />
               <br />
@@ -353,7 +353,7 @@ class InstallCode extends React.PureComponent<Props, State> {
       );
     }
 
-    if (currentTab === "android") {
+    if (currentTab === 'android') {
       return (
         <ol>
           <li>
@@ -416,10 +416,10 @@ class InstallCode extends React.PureComponent<Props, State> {
           >
             <Button
               size="small"
-              btnStyle={action ? "primary" : "success"}
+              btnStyle={action ? 'primary' : 'success'}
               icon="copy"
             >
-              {action ? "Copied" : "Copy to clipboard"}
+              {action ? 'Copied' : 'Copy to clipboard'}
             </Button>
           </CopyToClipboard>
         ) : (
@@ -469,9 +469,9 @@ class InstallCode extends React.PureComponent<Props, State> {
         script = basicCode;
         action = copied;
         break;
-      case "single":
+      case 'single':
         description =
-          "For web apps built with asynchronous JavaScript. Paste the code below in main layout you want erxes chat to appear";
+          'For web apps built with asynchronous JavaScript. Paste the code below in main layout you want erxes chat to appear';
         script = singlePageCode;
         action = singleCopied;
         break;
@@ -483,7 +483,7 @@ class InstallCode extends React.PureComponent<Props, State> {
         script = basicCode;
         action = contentCopied;
         break;
-      case "ios":
+      case 'ios':
         extraContent = true;
         break;
       default:
@@ -506,34 +506,34 @@ class InstallCode extends React.PureComponent<Props, State> {
       <>
         <Tabs full={true}>
           <TabTitle
-            className={currentTab === "basic" ? "active" : ""}
-            onClick={this.onTabClick.bind(this, "basic")}
+            className={currentTab === 'basic' ? 'active' : ''}
+            onClick={this.onTabClick.bind(this, 'basic')}
           >
-            {__("Basic JavaScript")}
+            {__('Basic JavaScript')}
           </TabTitle>
           <TabTitle
-            className={currentTab === "single" ? "active" : ""}
-            onClick={this.onTabClick.bind(this, "single")}
+            className={currentTab === 'single' ? 'active' : ''}
+            onClick={this.onTabClick.bind(this, 'single')}
           >
-            {__("Single page apps")}
+            {__('Single page apps')}
           </TabTitle>
           <TabTitle
-            className={currentTab === "googletag" ? "active" : ""}
-            onClick={this.onTabClick.bind(this, "googletag")}
+            className={currentTab === 'googletag' ? 'active' : ''}
+            onClick={this.onTabClick.bind(this, 'googletag')}
           >
-            {__("Google tag manager")}
+            {__('Google tag manager')}
           </TabTitle>
           <TabTitle
-            className={currentTab === "ios" ? "active" : ""}
-            onClick={this.onTabClick.bind(this, "ios")}
+            className={currentTab === 'ios' ? 'active' : ''}
+            onClick={this.onTabClick.bind(this, 'ios')}
           >
-            {__("IOS")}
+            {__('IOS')}
           </TabTitle>
           <TabTitle
-            className={currentTab === "android" ? "active" : ""}
-            onClick={this.onTabClick.bind(this, "android")}
+            className={currentTab === 'android' ? 'active' : ''}
+            onClick={this.onTabClick.bind(this, 'android')}
           >
-            {__("Android")}
+            {__('Android')}
           </TabTitle>
         </Tabs>
 

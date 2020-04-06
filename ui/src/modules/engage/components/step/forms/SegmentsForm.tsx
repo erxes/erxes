@@ -1,7 +1,7 @@
-import { IButtonMutateProps } from "modules/common/types";
-import Form from "modules/segments/components/common/Form";
-import { ISegment } from "modules/segments/types";
-import React from "react";
+import { IButtonMutateProps } from 'modules/common/types';
+import Form from 'modules/segments/components/common/Form';
+import { ISegment } from 'modules/segments/types';
+import React from 'react';
 
 type Props = {
   fields: any[];

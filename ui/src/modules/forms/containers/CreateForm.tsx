@@ -1,22 +1,22 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { Alert, withProps } from "modules/common/utils";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { Alert, withProps } from 'modules/common/utils';
 import {
   AddFieldsMutationResponse,
   AddFieldsMutationVariables,
   IField
-} from "modules/settings/properties/types";
-import React from "react";
-import { graphql } from "react-apollo";
-import { withRouter } from "react-router-dom";
-import { IRouterProps } from "../../common/types";
-import Form from "../components/Form";
-import { mutations } from "../graphql";
+} from 'modules/settings/properties/types';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
+import { IRouterProps } from '../../common/types';
+import Form from '../components/Form';
+import { mutations } from '../graphql';
 import {
   AddFormMutationResponse,
   AddFormMutationVariables,
   IFormData
-} from "../types";
+} from '../types';
 
 type Props = {
   renderPreviewWrapper: (previewRenderer, fields: IField[]) => void;
@@ -83,7 +83,7 @@ class CreateFormContainer extends React.Component<FinalProps, {}> {
 
         .then(() => {
           if (showMessage) {
-            Alert.success("You successfully added a form");
+            Alert.success('You successfully added a form');
           }
         })
 
@@ -107,16 +107,16 @@ export default withProps<Props>(
     graphql<Props, AddFormMutationResponse, AddFormMutationVariables>(
       gql(mutations.addForm),
       {
-        name: "addFormMutation",
+        name: 'addFormMutation',
         options: {
-          refetchQueries: ["fields"]
+          refetchQueries: ['fields']
         }
       }
     ),
     graphql<Props, AddFieldsMutationResponse, AddFieldsMutationVariables>(
       gql(mutations.fieldsAdd),
       {
-        name: "addFieldsMutation"
+        name: 'addFieldsMutation'
       }
     )
   )(withRouter<FinalProps>(CreateFormContainer))

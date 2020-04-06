@@ -1,9 +1,9 @@
-import { Input } from "modules/common/components/form/styles";
-import { colors, dimensions } from "modules/common/styles";
-import { darken } from "modules/common/styles/color";
-import { highlight } from "modules/common/utils/animations";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
+import { Input } from 'modules/common/components/form/styles';
+import { colors, dimensions } from 'modules/common/styles';
+import { darken } from 'modules/common/styles/color';
+import { highlight } from 'modules/common/utils/animations';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const FormContainer = styled.div`
   margin-top: 20px;
@@ -46,7 +46,7 @@ const ContentRowTitle = styled(ContentRow)`
 `;
 
 const ContentColumn = styledTS<{ flex?: string }>(styled.div)`
-  flex: ${props => (props.flex ? props.flex : "1")};
+  flex: ${props => (props.flex ? props.flex : '1')};
   margin-right: 10px;
 
   &:last-of-type {
@@ -88,7 +88,7 @@ const Measure = styled(Amount)`
 `;
 
 const ItemText = styledTS<{ align?: string }>(styled(Amount))`
-  text-align: ${props => props.align || "left"};
+  text-align: ${props => props.align || 'left'};
   flex: 2;
   font-weight: 500;
 `;

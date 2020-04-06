@@ -1,11 +1,11 @@
-import ButtonMutate from "modules/common/components/ButtonMutate";
-import { IButtonMutateProps, IRouterProps } from "modules/common/types";
-import Form from "modules/settings/integrations/components/mail/Form";
-import { mutations } from "modules/settings/integrations/graphql";
-import * as React from "react";
-import { withRouter } from "react-router-dom";
-import { IntegrationTypes } from "../../types";
-import { getRefetchQueries } from "../utils";
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
+import Form from 'modules/settings/integrations/components/mail/Form';
+import { mutations } from 'modules/settings/integrations/graphql';
+import * as React from 'react';
+import { withRouter } from 'react-router-dom';
+import { IntegrationTypes } from '../../types';
+import { getRefetchQueries } from '../utils';
 
 type Props = {
   type?: string;
@@ -23,19 +23,19 @@ class FormContainer extends React.Component<FinalProps, State> {
   constructor(props: FinalProps) {
     super(props);
 
-    this.state = { accountId: "" };
+    this.state = { accountId: '' };
   }
 
   onAccountSelect = (accountId?: string) => {
     if (!accountId) {
-      return this.setState({ accountId: "" });
+      return this.setState({ accountId: '' });
     }
 
     this.setState({ accountId });
   };
 
   onRemoveAccount = () => {
-    this.setState({ accountId: "" });
+    this.setState({ accountId: '' });
   };
 
   renderButton = ({

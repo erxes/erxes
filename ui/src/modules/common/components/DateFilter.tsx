@@ -1,19 +1,19 @@
-import dayjs from "dayjs";
-import gql from "graphql-tag";
-import Button from "modules/common/components/Button";
-import Icon from "modules/common/components/Icon";
-import { __, Alert, router } from "modules/common/utils";
-import { PopoverButton } from "modules/inbox/styles";
-import React from "react";
-import { withApollo } from "react-apollo";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Popover from "react-bootstrap/Popover";
-import styled from "styled-components";
-import { dimensions } from "../styles";
-import asyncComponent from "./AsyncComponent";
+import dayjs from 'dayjs';
+import gql from 'graphql-tag';
+import Button from 'modules/common/components/Button';
+import Icon from 'modules/common/components/Icon';
+import { __, Alert, router } from 'modules/common/utils';
+import { PopoverButton } from 'modules/inbox/styles';
+import React from 'react';
+import { withApollo } from 'react-apollo';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
+import styled from 'styled-components';
+import { dimensions } from '../styles';
+import asyncComponent from './AsyncComponent';
 
 const Datetime = asyncComponent(() =>
-  import(/* webpackChunkName: "Datetime" */ "@nateradebaugh/react-datetime")
+  import(/* webpackChunkName: "Datetime" */ '@nateradebaugh/react-datetime')
 );
 
 const FlexRow = styled.div`
@@ -53,7 +53,7 @@ type State = {
   totalCount: number;
 };
 
-const format = "YYYY-MM-DD HH:mm";
+const format = 'YYYY-MM-DD HH:mm';
 
 class DateFilter extends React.Component<Props & ApolloClientProps, State> {
   constructor(props) {
@@ -89,7 +89,7 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
   }
 
   onDateChange = <T extends keyof State>(type: T, date: State[T]) => {
-    if (typeof date !== "string") {
+    if (typeof date !== 'string') {
       this.setState({ [type]: date } as Pick<State, keyof State>);
     }
   };
@@ -140,7 +140,7 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
       return (
         <FlexItem>
           <span>
-            {__("Total")}: <b>{totalCount}</b>
+            {__('Total')}: <b>{totalCount}</b>
           </span>
         </FlexItem>
       );
@@ -151,27 +151,27 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
 
   renderPopover = () => {
     const props = {
-      inputProps: { placeholder: __("Select a date") },
-      timeFormat: "HH:mm",
-      dateFormat: "YYYY/MM/DD",
+      inputProps: { placeholder: __('Select a date') },
+      timeFormat: 'HH:mm',
+      dateFormat: 'YYYY/MM/DD',
       closeOnSelect: false
     };
 
     const onChangeStart = date => {
-      if (typeof date !== "string") {
-        this.onDateChange("startDate", date);
+      if (typeof date !== 'string') {
+        this.onDateChange('startDate', date);
       }
     };
 
     const onChangeEnd = date => {
-      if (typeof date !== "string") {
-        this.onDateChange("endDate", date);
+      if (typeof date !== 'string') {
+        this.onDateChange('endDate', date);
       }
     };
 
     return (
       <Popover id="date-popover">
-        <Popover.Title as="h3">{__("Filter by date")}</Popover.Title>
+        <Popover.Title as="h3">{__('Filter by date')}</Popover.Title>
         <FlexRow>
           <div>
             <DateName>Start Date</DateName>
@@ -219,7 +219,7 @@ class DateFilter extends React.Component<Props & ApolloClientProps, State> {
         rootClose={true}
       >
         <PopoverButton>
-          {__("Date")}
+          {__('Date')}
           <Icon icon="angle-down" />
         </PopoverButton>
       </OverlayTrigger>

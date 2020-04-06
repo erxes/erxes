@@ -1,10 +1,10 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import ConfirmDialog from "../../components/ConfirmDialog";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import ConfirmDialog from '../../components/ConfirmDialog';
 
 const createConfirmation = (unmountDelay = 1000) => {
   return props => {
-    const wrapper = document.body.appendChild(document.createElement("div"));
+    const wrapper = document.body.appendChild(document.createElement('div'));
 
     function dismiss() {
       if (props.options.beforeDismiss) {

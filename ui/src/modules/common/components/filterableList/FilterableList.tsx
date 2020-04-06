@@ -1,9 +1,9 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import EmptyState from "../EmptyState";
-import Icon from "../Icon";
-import Spinner from "../Spinner";
-import Filter from "./Filter";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import EmptyState from '../EmptyState';
+import Icon from '../Icon';
+import Spinner from '../Spinner';
+import Filter from './Filter';
 import {
   AvatarImg,
   FlexRow,
@@ -12,7 +12,7 @@ import {
   PopoverFooter,
   PopoverHeader,
   PopoverList
-} from "./styles";
+} from './styles';
 
 type Props = {
   items?: any[];
@@ -38,7 +38,7 @@ class FilterableList extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      key: "",
+      key: '',
       items: props.items
     };
   }
@@ -69,7 +69,7 @@ class FilterableList extends React.Component<Props, State> {
     const item = items.find(i => i._id === id);
 
     items[items.indexOf(item)].selectedBy =
-      item.selectedBy === "all" ? "none" : "all";
+      item.selectedBy === 'all' ? 'none' : 'all';
 
     this.setState({ items });
 
@@ -109,7 +109,7 @@ class FilterableList extends React.Component<Props, State> {
       return (
         <FlexRow key={item._id}>
           <li
-            className={showCheckmark ? item.selectedBy : ""}
+            className={showCheckmark ? item.selectedBy : ''}
             style={item.style}
             onClick={onClick}
           >
@@ -118,9 +118,9 @@ class FilterableList extends React.Component<Props, State> {
                 className={`icon ${item.iconClass}`}
                 style={{ color: item.iconColor }}
               />
-            ) : null}{" "}
+            ) : null}{' '}
             {item.avatar ? <AvatarImg src={item.avatar} /> : null}
-            <span>{item.title || "[undefined]"}</span>
+            <span>{item.title || '[undefined]'}</span>
           </li>
           {item.additionalIconClass && (
             <IconWrapper

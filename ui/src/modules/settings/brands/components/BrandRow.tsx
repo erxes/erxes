@@ -1,13 +1,13 @@
-import Button from "modules/common/components/Button";
-import Icon from "modules/common/components/Icon";
-import ModalTrigger from "modules/common/components/ModalTrigger";
-import Tip from "modules/common/components/Tip";
-import BrandForm from "modules/settings/brands/components/BrandForm";
-import React from "react";
-import { Link } from "react-router-dom";
-import { __ } from "../../../common/utils";
-import { ActionButtons, SidebarListItem } from "../../styles";
-import { IBrand } from "../types";
+import Button from 'modules/common/components/Button';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Tip from 'modules/common/components/Tip';
+import BrandForm from 'modules/settings/brands/components/BrandForm';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { __ } from '../../../common/utils';
+import { ActionButtons, SidebarListItem } from '../../styles';
+import { IBrand } from '../types';
 
 type Props = {
   brand: IBrand;
@@ -27,7 +27,7 @@ class BrandRow extends React.Component<Props> {
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text={__("Edit")} placement="bottom">
+        <Tip text={__('Edit')} placement="bottom">
           <Icon icon="edit" />
         </Tip>
       </Button>
@@ -50,7 +50,7 @@ class BrandRow extends React.Component<Props> {
         <Link to={`?_id=${brand._id}`}>{brand.name}</Link>
         <ActionButtons>
           {this.renderEditAction()}
-          <Tip text={__("Delete")} placement="bottom">
+          <Tip text={__('Delete')} placement="bottom">
             <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
           </Tip>
         </ActionButtons>

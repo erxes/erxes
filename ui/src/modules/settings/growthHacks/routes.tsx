@@ -1,11 +1,11 @@
-import asyncComponent from "modules/common/components/AsyncComponent";
-import queryString from "query-string";
-import React from "react";
-import { Route } from "react-router-dom";
-import { options } from "./options";
+import asyncComponent from 'modules/common/components/AsyncComponent';
+import queryString from 'query-string';
+import React from 'react';
+import { Route } from 'react-router-dom';
+import { options } from './options';
 
 const Home = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings - Board Home" */ "modules/settings/boards/containers/Home")
+  import(/* webpackChunkName: "Settings - Board Home" */ 'modules/settings/boards/containers/Home')
 );
 
 const GrowthHackHome = () => {
@@ -13,7 +13,7 @@ const GrowthHackHome = () => {
 };
 
 const TemplateList = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings - List PipelineTemplate" */ "./containers/TemplateList")
+  import(/* webpackChunkName: "Settings - List PipelineTemplate" */ './containers/TemplateList')
 );
 
 const pipelineTemplates = ({ location }) => {

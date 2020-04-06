@@ -1,19 +1,19 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import ButtonMutate from "modules/common/components/ButtonMutate";
-import Spinner from "modules/common/components/Spinner";
-import { IButtonMutateProps, IRouterProps } from "modules/common/types";
-import { withProps } from "modules/common/utils";
-import { queries as kbQueries } from "modules/knowledgeBase/graphql";
-import { TopicsQueryResponse } from "modules/knowledgeBase/types";
-import { queries } from "modules/settings/integrations/graphql";
-import React from "react";
-import { graphql, withApollo } from "react-apollo";
-import { withRouter } from "react-router-dom";
-import KnowledgeBase from "../../components/knowledgebase/knowledgeBase";
-import { mutations } from "../../graphql";
-import { IntegrationsQueryResponse } from "../../types";
-import { integrationsListParams } from "../utils";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import Spinner from 'modules/common/components/Spinner';
+import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
+import { withProps } from 'modules/common/utils';
+import { queries as kbQueries } from 'modules/knowledgeBase/graphql';
+import { TopicsQueryResponse } from 'modules/knowledgeBase/types';
+import { queries } from 'modules/settings/integrations/graphql';
+import React from 'react';
+import { graphql, withApollo } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
+import KnowledgeBase from '../../components/knowledgebase/knowledgeBase';
+import { mutations } from '../../graphql';
+import { IntegrationsQueryResponse } from '../../types';
+import { integrationsListParams } from '../utils';
 
 type Props = {
   queryParams: any;
@@ -71,11 +71,11 @@ const getRefetchQueries = () => {
   return [
     {
       query: gql(queries.messengerApps),
-      variables: { kind: "knowledgebase" }
+      variables: { kind: 'knowledgebase' }
     },
     {
       query: gql(queries.messengerAppsCount),
-      variables: { kind: "knowledgebase" }
+      variables: { kind: 'knowledgebase' }
     }
   ];
 };
@@ -83,20 +83,20 @@ const getRefetchQueries = () => {
 export default withProps<Props>(
   compose(
     graphql<Props, IntegrationsQueryResponse>(gql(queries.integrations), {
-      name: "integrationsQuery",
+      name: 'integrationsQuery',
       options: ({ queryParams }) => {
         return {
           notifyOnNetworkStatusChange: true,
           variables: {
             ...integrationsListParams(queryParams || {}),
-            kind: "messenger"
+            kind: 'messenger'
           },
-          fetchPolicy: "network-only"
+          fetchPolicy: 'network-only'
         };
       }
     }),
     graphql<Props, TopicsQueryResponse>(gql(kbQueries.knowledgeBaseTopics), {
-      name: "knowledgeBaseTopicsQuery"
+      name: 'knowledgeBaseTopicsQuery'
     }),
     withApollo
   )(withRouter<FinalProps>(KnowledgeBaseContainer))

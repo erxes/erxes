@@ -1,17 +1,17 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { Alert, withProps } from "modules/common/utils";
-import ConformityChooser from "modules/conformity/containers/ConformityChooser";
-import React from "react";
-import { graphql } from "react-apollo";
-import { mutations, queries } from "../graphql";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { Alert, withProps } from 'modules/common/utils';
+import ConformityChooser from 'modules/conformity/containers/ConformityChooser';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { mutations, queries } from '../graphql';
 import {
   AddMutationResponse,
   CompaniesQueryResponse,
   ICompany,
   ICompanyDoc
-} from "../types";
-import CompanyForm from "./CompanyForm";
+} from '../types';
+import CompanyForm from './CompanyForm';
 
 type Props = {
   search: (value: string, loadMore?: boolean) => void;
@@ -51,7 +51,7 @@ class CompanyChooser extends React.Component<
         .then(() => {
           companiesQuery.refetch();
 
-          Alert.success("You successfully added a company");
+          Alert.success('You successfully added a company');
 
           callback();
         })
@@ -61,7 +61,7 @@ class CompanyChooser extends React.Component<
     };
 
     const renderName = company => {
-      return company.primaryName || company.website || "Unknown";
+      return company.primaryName || company.website || 'Unknown';
     };
 
     const getAssociatedCompany = (newCompany: ICompany) => {
@@ -76,11 +76,11 @@ class CompanyChooser extends React.Component<
         datas: data.companies,
         mainTypeId: data.mainTypeId,
         mainType: data.mainType,
-        relType: "company"
+        relType: 'company'
       },
       search,
-      clearState: () => search(""),
-      title: "Company",
+      clearState: () => search(''),
+      title: 'Company',
       renderForm: formProps => (
         <CompanyForm
           {...formProps}
@@ -107,7 +107,7 @@ const WithQuery = withProps<Props>(
       CompaniesQueryResponse,
       { searchValue: string; perPage: number }
     >(gql(queries.companies), {
-      name: "companiesQuery",
+      name: 'companiesQuery',
       options: ({ searchValue, perPage, data }) => {
         return {
           variables: {
@@ -116,16 +116,16 @@ const WithQuery = withProps<Props>(
             mainType: data.mainType,
             mainTypeId: data.mainTypeId,
             isRelated: data.isRelated,
-            sortField: "createdAt",
+            sortField: 'createdAt',
             sortDirection: -1
           },
-          fetchPolicy: data.isRelated ? "network-only" : "cache-first"
+          fetchPolicy: data.isRelated ? 'network-only' : 'cache-first'
         };
       }
     }),
     // mutations
     graphql<{}, AddMutationResponse, ICompanyDoc>(gql(mutations.companiesAdd), {
-      name: "companiesAdd"
+      name: 'companiesAdd'
     })
   )(CompanyChooser)
 );
@@ -153,7 +153,7 @@ export default class Wrapper extends React.Component<
   constructor(props) {
     super(props);
 
-    this.state = { perPage: 20, searchValue: "" };
+    this.state = { perPage: 20, searchValue: '' };
   }
 
   search = (value, loadmore) => {

@@ -1,8 +1,8 @@
-import FormControl from "modules/common/components/form/Control";
-import { roundToTwo } from "modules/common/utils";
-import React from "react";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Popover from "react-bootstrap/Popover";
+import FormControl from 'modules/common/components/form/Control';
+import { roundToTwo } from 'modules/common/utils';
+import React from 'react';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 import {
   AmountItem,
   Amounts,
@@ -10,7 +10,7 @@ import {
   Factor,
   ScoreWrapper,
   Text
-} from "../styles";
+} from '../styles';
 
 type Props = {
   impact: number;
@@ -35,7 +35,7 @@ function Amount({
   e: number;
 }) {
   const calculateScore = () => {
-    if (type === "rice") {
+    if (type === 'rice') {
       if (e === 0) {
         return 0;
       }
@@ -43,7 +43,7 @@ function Amount({
       return roundToTwo((r * i * c) / e);
     }
 
-    if (type === "ice") {
+    if (type === 'ice') {
       return i * c * e;
     }
 
@@ -76,32 +76,32 @@ class Score extends React.Component<Props> {
   renderInputs = () => {
     const { reach, impact, confidence, ease, scoringType } = this.props;
 
-    if (scoringType === "rice") {
+    if (scoringType === 'rice') {
       return (
         <Factor>
-          {this.renderInput("Reach", "reach", reach)}
-          {this.renderInput("Impact", "impact", impact)}
-          {this.renderInput("Confidence", "confidence", confidence)}
-          {this.renderInput("Effort", "ease", ease)}
+          {this.renderInput('Reach', 'reach', reach)}
+          {this.renderInput('Impact', 'impact', impact)}
+          {this.renderInput('Confidence', 'confidence', confidence)}
+          {this.renderInput('Effort', 'ease', ease)}
         </Factor>
       );
     }
 
-    if (scoringType === "ice") {
+    if (scoringType === 'ice') {
       return (
         <Factor>
-          {this.renderInput("Impact", "impact", impact)}
-          {this.renderInput("Confidence", "confidence", confidence)}
-          {this.renderInput("Ease", "ease", ease)}
+          {this.renderInput('Impact', 'impact', impact)}
+          {this.renderInput('Confidence', 'confidence', confidence)}
+          {this.renderInput('Ease', 'ease', ease)}
         </Factor>
       );
     }
 
     return (
       <Factor>
-        {this.renderInput("Potential", "impact", impact)}
-        {this.renderInput("Importance", "confidence", confidence)}
-        {this.renderInput("Ease", "ease", ease)}
+        {this.renderInput('Potential', 'impact', impact)}
+        {this.renderInput('Importance', 'confidence', confidence)}
+        {this.renderInput('Ease', 'ease', ease)}
         <AmountItem>
           <Text>3</Text>
         </AmountItem>

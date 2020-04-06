@@ -1,15 +1,15 @@
-import Button from "modules/common/components/Button";
-import FormControl from "modules/common/components/form/Control";
-import FormGroup from "modules/common/components/form/Group";
-import ControlLabel from "modules/common/components/form/Label";
-import Icon from "modules/common/components/Icon";
-import { LeftItem, Preview } from "modules/common/components/step/styles";
-import { __ } from "modules/common/utils";
-import { uploadHandler } from "modules/common/utils";
-import ActionBar from "modules/layout/components/ActionBar";
-import React from "react";
-import { CalloutPreview } from "./preview";
-import { FlexColumn, FlexItem, ImagePreview, ImageUpload } from "./style";
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import Icon from 'modules/common/components/Icon';
+import { LeftItem, Preview } from 'modules/common/components/step/styles';
+import { __ } from 'modules/common/utils';
+import { uploadHandler } from 'modules/common/utils';
+import ActionBar from 'modules/layout/components/ActionBar';
+import React from 'react';
+import { CalloutPreview } from './preview';
+import { FlexColumn, FlexItem, ImagePreview, ImageUpload } from './style';
 
 const defaultValue = {
   isSkip: false
@@ -19,14 +19,14 @@ type Props = {
   type: string;
   onChange: (
     name:
-      | "calloutBtnText"
-      | "bodyValue"
-      | "calloutTitle"
-      | "isSkip"
-      | "logoPreviewUrl"
-      | "logo"
-      | "logoPreviewStyle"
-      | "defaultValue",
+      | 'calloutBtnText'
+      | 'bodyValue'
+      | 'calloutTitle'
+      | 'isSkip'
+      | 'logoPreviewUrl'
+      | 'logo'
+      | 'logoPreviewStyle'
+      | 'defaultValue',
     value: string | boolean | object | any
   ) => void;
   calloutTitle?: string;
@@ -54,7 +54,7 @@ class CallOut extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      logo: "",
+      logo: '',
       logoPreviewStyle: {},
       defaultValue
     };
@@ -76,8 +76,8 @@ class CallOut extends React.Component<Props, State> {
   };
 
   removeImage = (value: string) => {
-    this.setState({ logoPreviewUrl: "" });
-    this.props.onChange("logoPreviewUrl", value);
+    this.setState({ logoPreviewUrl: '' });
+    this.props.onChange('logoPreviewUrl', value);
   };
 
   handleImage = (e: React.FormEvent<HTMLInputElement>) => {
@@ -87,19 +87,19 @@ class CallOut extends React.Component<Props, State> {
       files: imageFile,
 
       beforeUpload: () => {
-        this.setState({ logoPreviewStyle: { opacity: "0.9" } });
+        this.setState({ logoPreviewStyle: { opacity: '0.9' } });
       },
 
       afterUpload: ({ response }) => {
         this.setState({
           logo: response,
-          logoPreviewStyle: { opacity: "1" }
+          logoPreviewStyle: { opacity: '1' }
         });
       },
 
       afterRead: ({ result }) => {
         this.setState({ logoPreviewUrl: result });
-        this.props.onChange("logoPreviewUrl", result);
+        this.props.onChange('logoPreviewUrl', result);
       }
     });
   };
@@ -111,7 +111,7 @@ class CallOut extends React.Component<Props, State> {
       return (
         <>
           <Icon icon="plus" />
-          {__("Upload")}
+          {__('Upload')}
         </>
       );
     }
@@ -155,7 +155,7 @@ class CallOut extends React.Component<Props, State> {
   footerActions = () => {
     const onChange = e =>
       this.onChangeState(
-        "isSkip",
+        'isSkip',
         (e.currentTarget as HTMLInputElement).checked
       );
 
@@ -168,7 +168,7 @@ class CallOut extends React.Component<Props, State> {
             componentClass="checkbox"
             onChange={onChange}
           >
-            {__("Skip callOut")}
+            {__('Skip callOut')}
           </FormControl>
         }
       />
@@ -180,19 +180,19 @@ class CallOut extends React.Component<Props, State> {
 
     const onChangeTitle = (e: React.FormEvent<HTMLElement>) =>
       this.onChangeFunction(
-        "calloutTitle",
+        'calloutTitle',
         (e.currentTarget as HTMLInputElement).value
       );
 
     const onChangeBody = e =>
       this.onChangeFunction(
-        "bodyValue",
+        'bodyValue',
         (e.currentTarget as HTMLInputElement).value
       );
 
     const onChangeBtnText = e =>
       this.onChangeFunction(
-        "calloutBtnText",
+        'calloutBtnText',
         (e.currentTarget as HTMLInputElement).value
       );
 
@@ -234,7 +234,7 @@ class CallOut extends React.Component<Props, State> {
 
             <FormGroup>
               <ControlLabel>Featured image</ControlLabel>
-              <p>{__("You can upload only image file")}</p>
+              <p>{__('You can upload only image file')}</p>
               {this.renderUploadImage()}
             </FormGroup>
           </LeftItem>

@@ -1,5 +1,5 @@
-import { getEnv } from "apolloClient";
-import { Alert } from "modules/common/utils";
+import { getEnv } from 'apolloClient';
+import { Alert } from 'modules/common/utils';
 
 type FileInfo = {
   name: string;
@@ -8,7 +8,7 @@ type FileInfo = {
 };
 
 type AfterUploadParams = {
-  status: "ok" | "error";
+  status: 'ok' | 'error';
   response: any;
   fileInfo: FileInfo;
 };
@@ -43,12 +43,12 @@ export const deleteHandler = (params: {
   } = params;
 
   fetch(`${url}`, {
-    method: "post",
+    method: 'post',
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
     },
     body: `fileName=${fileName}`,
-    credentials: "include"
+    credentials: 'include'
   }).then(response => {
     response
       .text()
@@ -59,7 +59,7 @@ export const deleteHandler = (params: {
           });
         }
 
-        return afterUpload({ status: "ok" });
+        return afterUpload({ status: 'ok' });
       })
       .catch(error => {
         Alert.error(error.message);
@@ -76,8 +76,8 @@ const uploadHandler = (params: Params) => {
     afterUpload,
     afterRead,
     url = `${REACT_APP_API_URL}/upload-file`,
-    kind = "main",
-    responseType = "text",
+    kind = 'main',
+    responseType = 'text',
     extraFormData = []
   } = params;
 
@@ -117,23 +117,23 @@ const uploadHandler = (params: Params) => {
       }
 
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append('file', file);
 
       for (const data of extraFormData) {
         formData.append(data.key, data.value);
       }
 
       fetch(`${url}?kind=${kind}`, {
-        method: "post",
+        method: 'post',
         body: formData,
-        credentials: "include"
+        credentials: 'include'
       })
         .then(response => {
           response[responseType]()
             .then(text => {
               if (!response.ok) {
                 return afterUpload({
-                  status: "error",
+                  status: 'error',
                   response: text,
                   fileInfo
                 });
@@ -141,7 +141,7 @@ const uploadHandler = (params: Params) => {
 
               // after upload
               if (afterUpload) {
-                afterUpload({ status: "ok", response: text, fileInfo });
+                afterUpload({ status: 'ok', response: text, fileInfo });
               }
             })
             .catch(error => {

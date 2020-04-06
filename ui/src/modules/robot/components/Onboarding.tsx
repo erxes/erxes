@@ -1,14 +1,14 @@
-import { IUser } from "modules/auth/types";
-import Icon from "modules/common/components/Icon";
-import { __ } from "modules/common/utils";
-import React from "react";
-import RTG from "react-transition-group";
-import FeatureDetail from "../containers/FeatureDetail";
-import { IFeature } from "../types";
-import { getCurrentUserName } from "../utils";
-import ModulItem from "./ModulItem";
-import { Content, Greeting, NavButton, SeeAll } from "./styles";
-import Suggestion from "./Suggestion";
+import { IUser } from 'modules/auth/types';
+import Icon from 'modules/common/components/Icon';
+import { __ } from 'modules/common/utils';
+import React from 'react';
+import RTG from 'react-transition-group';
+import FeatureDetail from '../containers/FeatureDetail';
+import { IFeature } from '../types';
+import { getCurrentUserName } from '../utils';
+import ModulItem from './ModulItem';
+import { Content, Greeting, NavButton, SeeAll } from './styles';
+import Suggestion from './Suggestion';
 
 type Props = {
   availableFeatures: IFeature[];
@@ -40,7 +40,7 @@ class Onboarding extends React.Component<Props, State> {
 
     const onClick = () => {
       this.setState({ selectedFeature: feature }, () => {
-        changeStep("featureDetail");
+        changeStep('featureDetail');
       });
     };
 
@@ -73,9 +73,9 @@ class Onboarding extends React.Component<Props, State> {
       currentUserName: getCurrentUserName(currentUser)
     };
 
-    if (currentStep === "initial") {
+    if (currentStep === 'initial') {
       const onClick = () => {
-        changeStep("featureList");
+        changeStep('featureList');
       };
 
       return (
@@ -83,9 +83,9 @@ class Onboarding extends React.Component<Props, State> {
       );
     }
 
-    if (currentStep === "inComplete") {
+    if (currentStep === 'inComplete') {
       const onClick = () => {
-        changeStep("featureList");
+        changeStep('featureList');
       };
 
       return (
@@ -93,10 +93,10 @@ class Onboarding extends React.Component<Props, State> {
       );
     }
 
-    if (currentStep === "featureDetail") {
+    if (currentStep === 'featureDetail') {
       const onBack = () => {
         this.setState({ selectedFeature: undefined }, () => {
-          changeStep("featureList");
+          changeStep('featureList');
         });
       };
 
@@ -110,11 +110,11 @@ class Onboarding extends React.Component<Props, State> {
       );
     }
 
-    if (currentStep === "featureList") {
+    if (currentStep === 'featureList') {
       return (
         <>
           <Greeting>
-            Hello!{" "}
+            Hello!{' '}
             <b>
               {getCurrentUserName(currentUser)}
               <span role="img" aria-label="Wave">
@@ -129,8 +129,8 @@ class Onboarding extends React.Component<Props, State> {
 
           <SeeAll onClick={this.toggleFeatures}>
             {this.isCollapsed()
-              ? __("Explore more features")
-              : __("Hide some features")}
+              ? __('Explore more features')
+              : __('Hide some features')}
             <Icon icon="angle-double-right" />
           </SeeAll>
         </>
@@ -141,7 +141,7 @@ class Onboarding extends React.Component<Props, State> {
   }
 
   onHide = () => {
-    this.props.changeRoute("");
+    this.props.changeRoute('');
   };
 
   isCollapsed = () => {

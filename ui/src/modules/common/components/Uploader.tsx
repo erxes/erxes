@@ -1,11 +1,11 @@
-import { __, Alert, confirm, uploadHandler } from "modules/common/utils";
-import React from "react";
-import styled from "styled-components";
-import { rgba } from "../styles/color";
-import colors from "../styles/colors";
-import { IAttachment } from "../types";
-import Attachment from "./Attachment";
-import Spinner from "./Spinner";
+import { __, Alert, confirm, uploadHandler } from 'modules/common/utils';
+import React from 'react';
+import styled from 'styled-components';
+import { rgba } from '../styles/color';
+import colors from '../styles/colors';
+import { IAttachment } from '../types';
+import Attachment from './Attachment';
+import Spinner from './Spinner';
 
 const List = styled.div`
   margin: 10px 0;
@@ -26,7 +26,7 @@ const Delete = styled.span`
   }
 `;
 
-const ToggleButton = styled(Delete.withComponent("div"))`
+const ToggleButton = styled(Delete.withComponent('div'))`
   padding: 7px 15px;
   border-radius: 4px;
   margin-bottom: 15px;
@@ -67,7 +67,7 @@ const UploadBtn = styled.div`
     }
   }
 
-  input[type="file"] {
+  input[type='file'] {
     display: none;
   }
 `;
@@ -115,12 +115,12 @@ class Uploader extends React.Component<Props, State> {
       },
 
       afterUpload: ({ status, response, fileInfo }) => {
-        if (status !== "ok") {
+        if (status !== 'ok') {
           Alert.error(response);
           return this.setState({ loading: false });
         }
 
-        Alert.info("Success");
+        Alert.info('Success');
 
         // set attachments
         const attachment = { url: response, ...fileInfo };
@@ -136,7 +136,7 @@ class Uploader extends React.Component<Props, State> {
       }
     });
 
-    target.value = "";
+    target.value = '';
   };
 
   removeAttachment = (index: number) => {
@@ -154,7 +154,7 @@ class Uploader extends React.Component<Props, State> {
       confirm().then(() => this.removeAttachment(index));
     };
 
-    const remove = <Delete onClick={removeAttachment}>{__("Delete")}</Delete>;
+    const remove = <Delete onClick={removeAttachment}>{__('Delete')}</Delete>;
 
     return (
       <Item key={item.url}>
@@ -173,7 +173,7 @@ class Uploader extends React.Component<Props, State> {
     return (
       <UploadBtn>
         <label>
-          {__("Upload an attachment")}
+          {__('Upload an attachment')}
           <input
             type="file"
             multiple={multiple}
@@ -191,8 +191,8 @@ class Uploader extends React.Component<Props, State> {
   renderToggleButton = (hiddenCount: number) => {
     if (hiddenCount > 0) {
       const buttonText = this.state.hideOthers
-        ? `${__("View all attachments")} (${hiddenCount} ${__("hidden")})`
-        : `${__("Show fewer attachments")}`;
+        ? `${__('View all attachments')} (${hiddenCount} ${__('hidden')})`
+        : `${__('Show fewer attachments')}`;
 
       return (
         <ToggleButton onClick={this.toggleAttachments}>
@@ -215,7 +215,7 @@ class Uploader extends React.Component<Props, State> {
         {loading && (
           <LoadingContainer>
             <Spinner objective={true} size={18} />
-            {__("Uploading")}...
+            {__('Uploading')}...
           </LoadingContainer>
         )}
         <List>

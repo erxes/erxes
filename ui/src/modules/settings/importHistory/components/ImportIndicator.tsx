@@ -1,14 +1,14 @@
-import Icon from "modules/common/components/Icon";
-import ProgressBar from "modules/common/components/ProgressBar";
-import { __ } from "modules/common/utils";
-import React from "react";
-import { Link } from "react-router-dom";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
-import { IImportHistory } from "../types";
+import Icon from 'modules/common/components/Icon';
+import ProgressBar from 'modules/common/components/ProgressBar';
+import { __ } from 'modules/common/utils';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
+import { IImportHistory } from '../types';
 
 const Capitalize = styledTS<{ isCapital?: boolean }>(styled.span)`
-  text-transform: ${props => (props.isCapital ? "capitalize" : "none")};
+  text-transform: ${props => (props.isCapital ? 'capitalize' : 'none')};
 `;
 
 type Props = {
@@ -26,7 +26,7 @@ class ImportIndicator extends React.Component<Props> {
     const { importHistory, isRemovingImport } = this.props;
     const { status } = importHistory;
 
-    if ((!isRemovingImport && status === "Done") || status === "Removed") {
+    if ((!isRemovingImport && status === 'Done') || status === 'Removed') {
       return true;
     }
 
@@ -57,7 +57,7 @@ class ImportIndicator extends React.Component<Props> {
     if (errorMsgs.length) {
       return (
         <span>
-          {__("There are")} <b>{errorMsgs.length}</b> {__("errors acquired")}.
+          {__('There are')} <b>{errorMsgs.length}</b> {__('errors acquired')}.
         </span>
       );
     }
@@ -73,7 +73,7 @@ class ImportIndicator extends React.Component<Props> {
     if (isRemovingImport) {
       return (
         <div>
-          {this.renderType(contentType, true)} {__("data successfully removed")}
+          {this.renderType(contentType, true)} {__('data successfully removed')}
           .
         </div>
       );
@@ -81,10 +81,10 @@ class ImportIndicator extends React.Component<Props> {
 
     return (
       <div>
-        {this.renderType(contentType, true)} {__("data successfully imported")}.{" "}
-        {this.showErrors(errorMsgs || [])}{" "}
+        {this.renderType(contentType, true)} {__('data successfully imported')}.{' '}
+        {this.showErrors(errorMsgs || [])}{' '}
         {id && (
-          <Link to={`/settings/importHistory/${id}`}>{__("Show result")}.</Link>
+          <Link to={`/settings/importHistory/${id}`}>{__('Show result')}.</Link>
         )}
       </div>
     );
@@ -95,24 +95,24 @@ class ImportIndicator extends React.Component<Props> {
     const { contentType } = importHistory;
 
     if (errors) {
-      return errors.join(",");
+      return errors.join(',');
     }
 
     if (isRemovingImport) {
       return (
         <>
-          {__("Removing")} {this.renderType(contentType)} {__("data")}.
+          {__('Removing')} {this.renderType(contentType)} {__('data')}.
         </>
       );
     }
 
     return (
       <>
-        <b>[{this.props.percentage}%]</b> {__("Importing")}{" "}
-        {this.renderType(contentType)} {__("data")}. {__("You can")}{" "}
+        <b>[{this.props.percentage}%]</b> {__('Importing')}{' '}
+        {this.renderType(contentType)} {__('data')}. {__('You can')}{' '}
         <a href="#cancel" onClick={this.cancelCurrentImport}>
-          {__("cancel")}
-        </a>{" "}
+          {__('cancel')}
+        </a>{' '}
         anytime.
       </>
     );

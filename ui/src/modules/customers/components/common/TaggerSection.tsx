@@ -1,11 +1,11 @@
-import Box from "modules/common/components/Box";
-import EmptyState from "modules/common/components/EmptyState";
-import Icon from "modules/common/components/Icon";
-import { __ } from "modules/common/utils";
-import { SidebarList } from "modules/layout/styles";
-import Tagger from "modules/tags/containers/Tagger";
-import React from "react";
-import Collapse from "react-bootstrap/Collapse";
+import Box from 'modules/common/components/Box';
+import EmptyState from 'modules/common/components/EmptyState';
+import Icon from 'modules/common/components/Icon';
+import { __ } from 'modules/common/utils';
+import { SidebarList } from 'modules/layout/styles';
+import Tagger from 'modules/tags/containers/Tagger';
+import React from 'react';
+import Collapse from 'react-bootstrap/Collapse';
 
 type Props = {
   data: any;
@@ -62,7 +62,7 @@ class TaggerSection extends React.Component<Props, State> {
 
     return (
       <Box
-        title={__("Tags")}
+        title={__('Tags')}
         name="showTags"
         extraButtons={extraButtons}
         callback={collapseCallback}

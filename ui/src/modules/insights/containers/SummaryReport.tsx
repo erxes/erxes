@@ -1,11 +1,11 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import React from "react";
-import { graphql } from "react-apollo";
-import { BrandsQueryResponse } from "../../settings/brands/types";
-import SummaryReport from "../components/SummaryReport";
-import { queries } from "../graphql";
-import { IParams, IQueryParams, SummaryQueryResponse } from "../types";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { BrandsQueryResponse } from '../../settings/brands/types';
+import SummaryReport from '../components/SummaryReport';
+import { queries } from '../graphql';
+import { IParams, IQueryParams, SummaryQueryResponse } from '../types';
 
 type Props = {
   history: any;
@@ -33,9 +33,9 @@ const SummaryReportContainer = (props: Props) => {
 
 export default compose(
   graphql(gql(queries.responseSummary), {
-    name: "summaryQuery",
+    name: 'summaryQuery',
     options: ({ queryParams, type }: IParams) => ({
-      fetchPolicy: "network-only",
+      fetchPolicy: 'network-only',
       notifyOnNetworkStatusChange: true,
       variables: {
         brandIds: queryParams.brandIds,
@@ -46,6 +46,6 @@ export default compose(
     })
   }),
   graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
-    name: "brandsQuery"
+    name: 'brandsQuery'
   })
 )(SummaryReportContainer);

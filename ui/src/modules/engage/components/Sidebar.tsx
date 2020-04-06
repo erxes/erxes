@@ -1,11 +1,11 @@
-import CountsByTag from "modules/common/components/CountsByTag";
-import { __, router } from "modules/common/utils";
-import Wrapper from "modules/layout/components/Wrapper";
-import { FieldStyle, SidebarCounter, SidebarList } from "modules/layout/styles";
-import { ITag } from "modules/tags/types";
-import React from "react";
-import { Link } from "react-router-dom";
-import { MESSAGE_KIND_FILTERS, statusFilters } from "../constants";
+import CountsByTag from 'modules/common/components/CountsByTag';
+import { __, router } from 'modules/common/utils';
+import Wrapper from 'modules/layout/components/Wrapper';
+import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
+import { ITag } from 'modules/tags/types';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { MESSAGE_KIND_FILTERS, statusFilters } from '../constants';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -23,12 +23,12 @@ class Sidebar extends React.Component<Props> {
 
     return (
       <Section>
-        <Section.Title>{__("Kind")}</Section.Title>
+        <Section.Title>{__('Kind')}</Section.Title>
 
         <SidebarList>
           <li>
             <Link to="/engage">
-              <FieldStyle>{__("All")}</FieldStyle>
+              <FieldStyle>{__('All')}</FieldStyle>
               <SidebarCounter>{kindCounts.all}</SidebarCounter>
             </Link>
           </li>
@@ -38,7 +38,7 @@ class Sidebar extends React.Component<Props> {
               <Link
                 tabIndex={0}
                 className={
-                  router.getParam(history, "kind") === kind.name ? "active" : ""
+                  router.getParam(history, 'kind') === kind.name ? 'active' : ''
                 }
                 to={`/engage?kind=${kind.name}`}
               >
@@ -57,7 +57,7 @@ class Sidebar extends React.Component<Props> {
 
     return (
       <Section>
-        <Section.Title>{__("Status")}</Section.Title>
+        <Section.Title>{__('Status')}</Section.Title>
 
         <SidebarList>
           {statusFilters.map((status, index) => (
@@ -65,9 +65,9 @@ class Sidebar extends React.Component<Props> {
               <Link
                 tabIndex={0}
                 className={
-                  router.getParam(history, "status") === status.key
-                    ? "active"
-                    : ""
+                  router.getParam(history, 'status') === status.key
+                    ? 'active'
+                    : ''
                 }
                 to={`/engage?status=${status.key}`}
               >

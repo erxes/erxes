@@ -1,16 +1,16 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { Alert, withProps } from "modules/common/utils";
-import BasicInfo from "modules/settings/productService/components/product/detail/BasicInfo";
-import React from "react";
-import { graphql } from "react-apollo";
-import { withRouter } from "react-router-dom";
-import { IUser } from "../../../../../auth/types";
-import { IRouterProps } from "../../../../../common/types";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { Alert, withProps } from 'modules/common/utils';
+import BasicInfo from 'modules/settings/productService/components/product/detail/BasicInfo';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
+import { IUser } from '../../../../../auth/types';
+import { IRouterProps } from '../../../../../common/types';
 
-import { IProduct } from "modules/settings/productService/types";
-import { mutations } from "../../../graphql";
-import { ProductRemoveMutationResponse } from "../../../types";
+import { IProduct } from 'modules/settings/productService/types';
+import { mutations } from '../../../graphql';
+import { ProductRemoveMutationResponse } from '../../../types';
 
 type Props = {
   product: IProduct;
@@ -28,8 +28,8 @@ const BasicInfoContainer = (props: FinalProps) => {
   const remove = () => {
     productsRemove({ variables: { productIds: [_id] } })
       .then(() => {
-        Alert.success("You successfully deleted a product");
-        history.push("/settings/product-service");
+        Alert.success('You successfully deleted a product');
+        history.push('/settings/product-service');
       })
       .catch(e => {
         Alert.error(e.message);
@@ -45,7 +45,7 @@ const BasicInfoContainer = (props: FinalProps) => {
 };
 
 const generateOptions = () => ({
-  refetchQueries: ["products", "productCategories", "productsTotalCount"]
+  refetchQueries: ['products', 'productCategories', 'productsTotalCount']
 });
 
 export default withProps<Props>(
@@ -53,7 +53,7 @@ export default withProps<Props>(
     graphql<{}, ProductRemoveMutationResponse, { productIds: string[] }>(
       gql(mutations.productsRemove),
       {
-        name: "productsRemove",
+        name: 'productsRemove',
         options: generateOptions
       }
     )

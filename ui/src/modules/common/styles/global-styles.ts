@@ -1,6 +1,6 @@
-import { injectGlobal } from "styled-components";
-import { robotAnimation } from "../utils/animations";
-import { colors, typography } from "./";
+import { injectGlobal } from 'styled-components';
+import { robotAnimation } from '../utils/animations';
+import { colors, typography } from './';
 
 const style = `
 html {

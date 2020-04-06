@@ -1,4 +1,4 @@
-import dayjs from "dayjs";
+import dayjs from 'dayjs';
 import {
   ActivityDate,
   ContentShadow,
@@ -6,13 +6,13 @@ import {
   ExpandButton,
   FlexBody,
   FlexCenterContent
-} from "modules/activityLogs/styles";
-import { ControlLabel } from "modules/common/components/form";
-import Icon from "modules/common/components/Icon";
-import Tip from "modules/common/components/Tip";
-import { IEmailDelivery } from "modules/engage/types";
-import React from "react";
-import xss from "xss";
+} from 'modules/activityLogs/styles';
+import { ControlLabel } from 'modules/common/components/form';
+import Icon from 'modules/common/components/Icon';
+import Tip from 'modules/common/components/Tip';
+import { IEmailDelivery } from 'modules/engage/types';
+import React from 'react';
+import xss from 'xss';
 
 type Props = {
   email: IEmailDelivery;
@@ -49,8 +49,8 @@ class Email extends React.Component<Props, { expand: boolean }> {
           <>
             {!expand && <ContentShadow />}
             <ExpandButton onClick={this.onExpand}>
-              {expand ? "Collapse" : "Expand"}&nbsp;
-              <Icon icon={expand ? "angle-up" : "angle-down"} />
+              {expand ? 'Collapse' : 'Expand'}&nbsp;
+              <Icon icon={expand ? 'angle-up' : 'angle-down'} />
             </ExpandButton>
           </>
         )}
@@ -64,7 +64,7 @@ class Email extends React.Component<Props, { expand: boolean }> {
 
     const fromUserName = fromUser.details
       ? fromUser.details.fullName
-      : "Unknown";
+      : 'Unknown';
 
     return (
       <>
@@ -79,9 +79,9 @@ class Email extends React.Component<Props, { expand: boolean }> {
             </div>
           </FlexBody>
 
-          <Tip text={dayjs(createdAt).format("llll")}>
+          <Tip text={dayjs(createdAt).format('llll')}>
             <ActivityDate>
-              {dayjs(createdAt).format("MMM D, h:mm A")}
+              {dayjs(createdAt).format('MMM D, h:mm A')}
             </ActivityDate>
           </Tip>
         </FlexCenterContent>

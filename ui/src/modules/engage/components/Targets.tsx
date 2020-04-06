@@ -1,8 +1,8 @@
-import EmptyState from "modules/common/components/EmptyState";
-import { SidebarCounter, SidebarList } from "modules/layout/styles";
-import React from "react";
-import { ListCounter, ListWrapper } from "../styles";
-import { TargetCount } from "../types";
+import EmptyState from 'modules/common/components/EmptyState';
+import { SidebarCounter, SidebarList } from 'modules/layout/styles';
+import React from 'react';
+import { ListCounter, ListWrapper } from '../styles';
+import { TargetCount } from '../types';
 
 type Props<Target> = {
   messageType: string;
@@ -64,7 +64,7 @@ class Targets<
     }
 
     return targets.map((target, index) => {
-      const { _id = "" } = target;
+      const { _id = '' } = target;
 
       return (
         <ListCounter key={_id} chosen={selectedIds.includes(_id)}>

@@ -1,13 +1,13 @@
-import asyncComponent from "modules/common/components/AsyncComponent";
-import React from "react";
-import { Route } from "react-router-dom";
+import asyncComponent from 'modules/common/components/AsyncComponent';
+import React from 'react';
+import { Route } from 'react-router-dom';
 
 const SegmentsList = asyncComponent(() =>
-  import(/* webpackChunkName: "SegmentsList" */ "./containers/SegmentsList")
+  import(/* webpackChunkName: "SegmentsList" */ './containers/SegmentsList')
 );
 
 const SegmentsForm = asyncComponent(() =>
-  import(/* webpackChunkName: "SegmentsForm" */ "./containers/SegmentsForm")
+  import(/* webpackChunkName: "SegmentsForm" */ './containers/SegmentsForm')
 );
 
 const segments = ({ match }) => {

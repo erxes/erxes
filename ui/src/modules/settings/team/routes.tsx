@@ -1,18 +1,18 @@
-import asyncComponent from "modules/common/components/AsyncComponent";
-import queryString from "query-string";
-import React from "react";
-import { Route } from "react-router-dom";
+import asyncComponent from 'modules/common/components/AsyncComponent';
+import queryString from 'query-string';
+import React from 'react';
+import { Route } from 'react-router-dom';
 
 const UserConfirmation = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings - UserConfirmation" */ "./containers/UserConfirmation")
+  import(/* webpackChunkName: "Settings - UserConfirmation" */ './containers/UserConfirmation')
 );
 
 const UserDetail = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings - UserDetail" */ "./containers/UserDetailForm")
+  import(/* webpackChunkName: "Settings - UserDetail" */ './containers/UserDetailForm')
 );
 
 const UserList = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings - UserList" */ "./containers/UserList")
+  import(/* webpackChunkName: "Settings - UserList" */ './containers/UserList')
 );
 
 const team = ({ history, location }) => {

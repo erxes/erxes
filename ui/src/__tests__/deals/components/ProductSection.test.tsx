@@ -1,15 +1,15 @@
-import { shallow } from "enzyme";
-import ProductSection from "modules/deals/components/ProductSection";
-import { IPaymentsData, IProductData } from "modules/deals/types";
-import { IProduct } from "modules/settings/productService/types";
-import React from "react";
+import { shallow } from 'enzyme';
+import ProductSection from 'modules/deals/components/ProductSection';
+import { IPaymentsData, IProductData } from 'modules/deals/types';
+import { IProduct } from 'modules/settings/productService/types';
+import React from 'react';
 
-describe("ProductSection component", () => {
+describe('ProductSection component', () => {
   const category = {
-    _id: "id",
-    order: "order",
-    code: "code",
-    name: "categoryName",
+    _id: 'id',
+    order: 'order',
+    code: 'code',
+    name: 'categoryName',
     productCount: 1,
     isRoot: true,
     createdAt: new Date()
@@ -17,26 +17,26 @@ describe("ProductSection component", () => {
 
   const testProducts: IProduct[] = [
     {
-      _id: "pro123",
-      name: "qwe",
-      type: "s1",
-      description: "blabla",
-      sku: "sku1",
-      categoryId: "categoryId",
+      _id: 'pro123',
+      name: 'qwe',
+      type: 's1',
+      description: 'blabla',
+      sku: 'sku1',
+      categoryId: 'categoryId',
       category,
-      code: "123",
+      code: '123',
       unitPrice: 123,
       createdAt: new Date()
     },
     {
-      _id: "pro23",
-      name: "qe",
-      type: "s2",
-      description: "blablabla",
-      sku: "sku2",
-      categoryId: "categoryId",
+      _id: 'pro23',
+      name: 'qe',
+      type: 's2',
+      description: 'blablabla',
+      sku: 'sku2',
+      categoryId: 'categoryId',
       category,
-      code: "321",
+      code: '321',
       unitPrice: 123,
       createdAt: new Date()
     }
@@ -44,7 +44,7 @@ describe("ProductSection component", () => {
 
   const testProductDatas: IProductData[] = [
     {
-      _id: "pd12",
+      _id: 'pd12',
       quantity: 2,
       unitPrice: 1000,
       taxPercent: 5,
@@ -55,7 +55,7 @@ describe("ProductSection component", () => {
       tickUsed: true
     },
     {
-      _id: "pd11",
+      _id: 'pd11',
       quantity: 3,
       unitPrice: 2000,
       taxPercent: 6,
@@ -68,7 +68,7 @@ describe("ProductSection component", () => {
   ];
 
   const testPaymentsData: IPaymentsData = {
-    cash: { amount: 1000, currency: "MNT" }
+    cash: { amount: 1000, currency: 'MNT' }
   };
 
   const defaultProps = {
@@ -81,8 +81,8 @@ describe("ProductSection component", () => {
     saveProductsData: () => null
   };
 
-  test("renders shallow successfully", () => {
+  test('renders shallow successfully', () => {
     const wrapper = shallow(<ProductSection {...defaultProps} />);
-    expect(wrapper).not.toBe("");
+    expect(wrapper).not.toBe('');
   });
 });

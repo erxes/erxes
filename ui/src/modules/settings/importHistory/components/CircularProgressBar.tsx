@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 type Props = {
   sqSize?: number;
@@ -74,8 +74,8 @@ function CircularProgressBar({ sqSize, strokeWidth, percentage }: Props) {
         r={radius}
         strokeWidth={`${strokeWidth}px`}
         style={{
-          fill: "none",
-          stroke: "#eee"
+          fill: 'none',
+          stroke: '#eee'
         }}
       />
       <circle
@@ -89,10 +89,10 @@ function CircularProgressBar({ sqSize, strokeWidth, percentage }: Props) {
         style={{
           strokeDasharray: dashArray,
           strokeDashoffset: dashOffset,
-          stroke: `${percentage === 100 ? "#3CCC38" : "#6569DF"}`,
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          fill: "none"
+          stroke: `${percentage === 100 ? '#3CCC38' : '#6569DF'}`,
+          strokeLinecap: 'round',
+          strokeLinejoin: 'round',
+          fill: 'none'
         }}
       />
       {renderPercentage()}

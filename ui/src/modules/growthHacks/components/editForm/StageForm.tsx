@@ -1,10 +1,10 @@
-import Button from "modules/common/components/Button";
-import colors from "modules/common/styles/colors";
-import { IFormSubmission } from "modules/forms/types";
-import { IGrowthHack } from "modules/growthHacks/types";
-import GenerateField from "modules/settings/properties/components/GenerateField";
-import React from "react";
-import styled from "styled-components";
+import Button from 'modules/common/components/Button';
+import colors from 'modules/common/styles/colors';
+import { IFormSubmission } from 'modules/forms/types';
+import { IGrowthHack } from 'modules/growthHacks/types';
+import GenerateField from 'modules/settings/properties/components/GenerateField';
+import React from 'react';
+import styled from 'styled-components';
 
 const RightContainer = styled.div`
   background: #fff;
@@ -29,7 +29,7 @@ const CurrentStage = styled.div`
 
 type Props = {
   item: IGrowthHack;
-  onChangeExtraField: (name: "formSubmissions", value: any) => void;
+  onChangeExtraField: (name: 'formSubmissions', value: any) => void;
   save: (doc: IFormSubmission) => void;
 };
 
@@ -46,7 +46,7 @@ class StageForm extends React.Component<Props> {
 
     const onChangeFormField = (field: { _id: string; value: string }) => {
       formSubmissions[field._id] = field.value;
-      onChangeExtraField("formSubmissions", formSubmissions);
+      onChangeExtraField('formSubmissions', formSubmissions);
     };
 
     return formFields.map(field => (
@@ -68,7 +68,7 @@ class StageForm extends React.Component<Props> {
     const save = () => {
       this.props.save({
         contentTypeId: item._id,
-        formId: item.formId || "",
+        formId: item.formId || '',
         formSubmissions
       });
     };
@@ -80,7 +80,7 @@ class StageForm extends React.Component<Props> {
         </CurrentStage>
         {this.renderFormFields()}
         <Button
-          style={{ float: "right" }}
+          style={{ float: 'right' }}
           onClick={save}
           type="submit"
           btnStyle="success"

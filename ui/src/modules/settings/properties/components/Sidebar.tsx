@@ -1,9 +1,9 @@
-import { __ } from "modules/common/utils";
-import LeftSidebar from "modules/layout/components/Sidebar";
-import { SidebarList as List } from "modules/layout/styles";
-import React from "react";
-import { Link } from "react-router-dom";
-import { FIELDS_GROUPS_CONTENT_TYPES } from "../constants";
+import { __ } from 'modules/common/utils';
+import LeftSidebar from 'modules/layout/components/Sidebar';
+import { SidebarList as List } from 'modules/layout/styles';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { FIELDS_GROUPS_CONTENT_TYPES } from '../constants';
 
 type Props = {
   currentType: string;
@@ -22,10 +22,10 @@ class Sidebar extends React.Component<Props> {
     const { currentType } = this.props;
 
     if (type === currentType) {
-      return "active";
+      return 'active';
     }
 
-    return "";
+    return '';
   }
 
   renderListItem(type: string, text: string) {
@@ -45,15 +45,15 @@ class Sidebar extends React.Component<Props> {
           <List>
             {this.renderListItem(
               FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER,
-              "Customers"
+              'Customers'
             )}
             {this.renderListItem(
               FIELDS_GROUPS_CONTENT_TYPES.COMPANY,
-              "Companies"
+              'Companies'
             )}
             {this.renderListItem(
               FIELDS_GROUPS_CONTENT_TYPES.PRODUCT,
-              "Product & Service"
+              'Product & Service'
             )}
           </List>
         </LeftSidebar.Section>

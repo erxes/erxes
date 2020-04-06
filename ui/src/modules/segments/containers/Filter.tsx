@@ -1,13 +1,13 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { IRouterProps } from "modules/common/types";
-import { router, withProps } from "modules/common/utils";
-import React from "react";
-import { graphql } from "react-apollo";
-import { withRouter } from "react-router-dom";
-import Filter from "../components/SidebarFilter";
-import { queries } from "../graphql";
-import { Counts, SegmentsQueryResponse } from "../types";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { IRouterProps } from 'modules/common/types';
+import { router, withProps } from 'modules/common/utils';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
+import Filter from '../components/SidebarFilter';
+import { queries } from '../graphql';
+import { Counts, SegmentsQueryResponse } from '../types';
 
 type Props = {
   contentType: string;
@@ -22,14 +22,14 @@ type FinalProps = {
 const FilterContainer = (props: FinalProps) => {
   const { segmentsQuery, history } = props;
 
-  const currentSegment = router.getParam(history, "segment");
+  const currentSegment = router.getParam(history, 'segment');
 
   const setSegment = segment => {
     router.setParams(history, { segment });
   };
 
   const removeSegment = () => {
-    router.removeParams(history, "segment");
+    router.removeParams(history, 'segment');
   };
 
   const extendedProps = {
@@ -47,7 +47,7 @@ const FilterContainer = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql(gql(queries.segments), {
-      name: "segmentsQuery",
+      name: 'segmentsQuery',
       options: ({ contentType }: { contentType: string }) => ({
         variables: { contentType }
       })

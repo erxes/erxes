@@ -1,5 +1,5 @@
-import { colors, dimensions } from "modules/common/styles";
-import styled from "styled-components";
+import { colors, dimensions } from 'modules/common/styles';
+import styled from 'styled-components';
 
 const FlexRow = styled.div`
   display: flex;
@@ -14,7 +14,7 @@ const FlexRow = styled.div`
       margin: 0;
     }
 
-    input[type="checkbox"] {
+    input[type='checkbox'] {
       display: inline-block;
       height: auto;
       width: auto;
@@ -108,7 +108,7 @@ const GoogleButton = styled.a`
   height: 36px;
   width: 150px;
   padding: 3px;
-  background: url("/images/googleButton/btn_normal.png") left center no-repeat;
+  background: url('/images/googleButton/btn_normal.png') left center no-repeat;
   background-size: contain;
   background-position: 100%;
   margin-left: 10px;
@@ -116,11 +116,11 @@ const GoogleButton = styled.a`
 
   &:hover,
   &:focus {
-    background-image: url("/images/googleButton/btn_focus.png");
+    background-image: url('/images/googleButton/btn_focus.png');
   }
 
   &:active {
-    background-image: url("/images/googleButton/btn_active.png");
+    background-image: url('/images/googleButton/btn_active.png');
   }
 `;
 

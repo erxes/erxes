@@ -1,11 +1,11 @@
-import DropdownToggle from "modules/common/components/DropdownToggle";
-import Icon from "modules/common/components/Icon";
-import { dimensions } from "modules/common/styles";
-import colors from "modules/common/styles/colors";
-import { IOption } from "modules/common/types";
-import * as React from "react";
-import Dropdown from "react-bootstrap/Dropdown";
-import styled from "styled-components";
+import DropdownToggle from 'modules/common/components/DropdownToggle';
+import Icon from 'modules/common/components/Icon';
+import { dimensions } from 'modules/common/styles';
+import colors from 'modules/common/styles/colors';
+import { IOption } from 'modules/common/types';
+import * as React from 'react';
+import Dropdown from 'react-bootstrap/Dropdown';
+import styled from 'styled-components';
 
 const Wrapper = styled.div`
   padding-right: ${dimensions.coreSpacing}px;

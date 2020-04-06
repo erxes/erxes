@@ -1,4 +1,4 @@
-import { IFilterParams } from "modules/boards/types";
+import { IFilterParams } from 'modules/boards/types';
 
 interface IGrowthHackFilterParams extends IFilterParams {
   pipelineId?: string;

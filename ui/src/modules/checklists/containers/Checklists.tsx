@@ -1,12 +1,12 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { IItemParams } from "modules/boards/types";
-import { withProps } from "modules/common/utils";
-import React, { useEffect } from "react";
-import { graphql } from "react-apollo";
-import { queries, subscriptions } from "../graphql";
-import { ChecklistsQueryResponse, IChecklistsParam } from "../types";
-import List from "./List";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { IItemParams } from 'modules/boards/types';
+import { withProps } from 'modules/common/utils';
+import React, { useEffect } from 'react';
+import { graphql } from 'react-apollo';
+import { queries, subscriptions } from '../graphql';
+import { ChecklistsQueryResponse, IChecklistsParam } from '../types';
+import List from './List';
 
 type IProps = {
   contentType: string;
@@ -55,13 +55,13 @@ export default withProps<IProps>(
     graphql<IProps, ChecklistsQueryResponse, IChecklistsParam>(
       gql(queries.checklists),
       {
-        name: "checklistsQuery",
+        name: 'checklistsQuery',
         options: ({ contentType, contentTypeId }) => ({
           variables: {
             contentType,
             contentTypeId
           },
-          refetchQueries: ["checklists"]
+          refetchQueries: ['checklists']
         })
       }
     )

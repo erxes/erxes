@@ -1,12 +1,12 @@
-import Button from "modules/common/components/Button";
-import FormControl from "modules/common/components/form/Control";
-import ControlLabel from "modules/common/components/form/Label";
-import { Alert } from "modules/common/utils";
-import React from "react";
-import BoardSelect from "../../containers/BoardSelect";
-import { FormFooter, HeaderContent, HeaderRow } from "../../styles/item";
-import { IItem, IItemParams, IOptions } from "../../types";
-import { invalidateCache } from "../../utils";
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import ControlLabel from 'modules/common/components/form/Label';
+import { Alert } from 'modules/common/utils';
+import React from 'react';
+import BoardSelect from '../../containers/BoardSelect';
+import { FormFooter, HeaderContent, HeaderRow } from '../../styles/item';
+import { IItem, IItemParams, IOptions } from '../../types';
+import { invalidateCache } from '../../utils';
 
 type Props = {
   options: IOptions;
@@ -33,10 +33,10 @@ class AddForm extends React.Component<Props, State> {
 
     this.state = {
       disabled: false,
-      boardId: props.boardId || "",
-      pipelineId: props.pipelineId || "",
-      stageId: props.stageId || "",
-      name: localStorage.getItem(`${props.options.type}Name`) || ""
+      boardId: props.boardId || '',
+      pipelineId: props.pipelineId || '',
+      stageId: props.stageId || '',
+      name: localStorage.getItem(`${props.options.type}Name`) || ''
     };
   }
 
@@ -51,11 +51,11 @@ class AddForm extends React.Component<Props, State> {
     const { saveItem, closeModal, callback } = this.props;
 
     if (!stageId) {
-      return Alert.error("No stage");
+      return Alert.error('No stage');
     }
 
     if (!name) {
-      return Alert.error("Enter name");
+      return Alert.error('Enter name');
     }
 
     const doc = {
@@ -91,9 +91,9 @@ class AddForm extends React.Component<Props, State> {
 
     const { stageId, pipelineId, boardId } = this.state;
 
-    const stgIdOnChange = stgId => this.onChangeField("stageId", stgId);
-    const plIdOnChange = plId => this.onChangeField("pipelineId", plId);
-    const brIdOnChange = brId => this.onChangeField("boardId", brId);
+    const stgIdOnChange = stgId => this.onChangeField('stageId', stgId);
+    const plIdOnChange = plId => this.onChangeField('pipelineId', plId);
+    const brIdOnChange = brId => this.onChangeField('boardId', brId);
 
     return (
       <BoardSelect
@@ -111,7 +111,7 @@ class AddForm extends React.Component<Props, State> {
   onChangeName = e => {
     const name = (e.target as HTMLInputElement).value;
 
-    this.onChangeField("name", name);
+    this.onChangeField('name', name);
 
     localStorage.setItem(`${this.props.options.type}Name`, name);
   };

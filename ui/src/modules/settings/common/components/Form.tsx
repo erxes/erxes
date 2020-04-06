@@ -1,9 +1,9 @@
-import Button from "modules/common/components/Button";
-import CommonForm from "modules/common/components/form/Form";
-import { ModalFooter } from "modules/common/styles/main";
-import { IButtonMutateProps, IFormProps } from "modules/common/types";
-import React from "react";
-import { ICommonFormProps } from "../types";
+import Button from 'modules/common/components/Button';
+import CommonForm from 'modules/common/components/form/Form';
+import { ModalFooter } from 'modules/common/styles/main';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import React from 'react';
+import { ICommonFormProps } from '../types';
 
 type Props = {
   renderButton?: (props: IButtonMutateProps) => JSX.Element;
@@ -40,7 +40,7 @@ class Form extends React.Component<Props & ICommonFormProps> {
 
           {renderButton &&
             renderButton({
-              name: name || "",
+              name: name || '',
               values: this.props.generateDoc(values),
               isSubmitted,
               callback: closeModal,

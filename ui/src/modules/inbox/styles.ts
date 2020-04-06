@@ -1,15 +1,15 @@
 import {
   RichEditorControlsRoot,
   RichEditorRoot
-} from "modules/common/components/editor/styles";
+} from 'modules/common/components/editor/styles';
 import {
   PopoverFooter as RootFooter,
   PopoverList as RootList
-} from "modules/common/components/filterableList/styles";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
-import { colors, dimensions } from "../common/styles";
-import { darken, rgba } from "../common/styles/color";
+} from 'modules/common/components/filterableList/styles';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
+import { colors, dimensions } from '../common/styles';
+import { darken, rgba } from '../common/styles/color';
 
 const PopoverButton = styled.div`
   display: inline-block;
@@ -77,7 +77,7 @@ const RespondBoxStyled = styledTS<{
   transition: background 0.3s ease;
   background: ${props =>
     props.isInternal ? colors.bgInternal : colors.colorWhite};
-  filter: ${props => props.isInactive && "blur(2px)"};
+  filter: ${props => props.isInactive && 'blur(2px)'};
 `;
 
 const MailRespondBox = styled(RespondBoxStyled)`
@@ -129,7 +129,7 @@ const EditorActions = styled.div`
     margin: 0;
   }
 
-  input[type="file"] {
+  input[type='file'] {
     display: none;
   }
 `;
@@ -158,7 +158,7 @@ const InlineHeaderSpan = styled.span`
 const PopoverHeader = styled.div`
   background-color: ${colors.bgLight};
 
-  input[type="text"] {
+  input[type='text'] {
     padding: 4px 8px 4px 20px;
   }
 `;
@@ -173,7 +173,7 @@ const PopoverList = styledTS<{ center?: boolean }>(styled(RootList))`
   padding: 0;
 
   li {
-    text-align: ${props => props.center && "center"};
+    text-align: ${props => props.center && 'center'};
 
     a {
       color: ${colors.colorCoreDarkGray};
@@ -365,7 +365,7 @@ const SmallEditor = styled.div`
 `;
 
 const CallLabel = styledTS<{ type: string }>(styled.span)`
-  color: ${props => (props.type === "answered" ? "green" : "red")};
+  color: ${props => (props.type === 'answered' ? 'green' : 'red')};
 `;
 
 export {

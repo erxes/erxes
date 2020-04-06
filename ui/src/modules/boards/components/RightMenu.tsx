@@ -1,24 +1,24 @@
-import Button from "modules/common/components/Button";
-import { FormControl } from "modules/common/components/form";
-import Icon from "modules/common/components/Icon";
-import { Tabs, TabTitle } from "modules/common/components/tabs";
-import { IOption } from "modules/common/types";
-import { __ } from "modules/common/utils";
-import SelectTeamMembers from "modules/settings/team/containers/SelectTeamMembers";
-import React from "react";
-import Select from "react-select-plus";
-import RTG from "react-transition-group";
-import { PRIORITIES } from "../constants";
+import Button from 'modules/common/components/Button';
+import { FormControl } from 'modules/common/components/form';
+import Icon from 'modules/common/components/Icon';
+import { Tabs, TabTitle } from 'modules/common/components/tabs';
+import { IOption } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
+import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
+import React from 'react';
+import Select from 'react-select-plus';
+import RTG from 'react-transition-group';
+import { PRIORITIES } from '../constants';
 import {
   FilterBox,
   FilterButton,
   MenuFooter,
   RightMenuContainer,
   TabContent
-} from "../styles/rightMenu";
-import { IOptions } from "../types";
-import Archive from "./Archive";
-import SelectLabel from "./label/SelectLabel";
+} from '../styles/rightMenu';
+import { IOptions } from '../types';
+import Archive from './Archive';
+import SelectLabel from './label/SelectLabel';
 
 type Props = {
   onSearch: (search: string) => void;
@@ -46,7 +46,7 @@ export default class RightMenu extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      currentTab: "Filter",
+      currentTab: 'Filter',
       showMenu: false
     };
 
@@ -59,18 +59,18 @@ export default class RightMenu extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    document.addEventListener("click", this.handleClickOutside, true);
+    document.addEventListener('click', this.handleClickOutside, true);
   }
 
   componentWillUnmount() {
-    document.removeEventListener("click", this.handleClickOutside, true);
+    document.removeEventListener('click', this.handleClickOutside, true);
   }
 
   handleClickOutside = event => {
     if (
       this.wrapperRef &&
       !this.wrapperRef.contains(event.target) &&
-      this.state.currentTab === "Filter"
+      this.state.currentTab === 'Filter'
     ) {
       this.setState({ showMenu: false });
     }
@@ -81,9 +81,9 @@ export default class RightMenu extends React.Component<Props, State> {
   };
 
   onSearch = (e: React.KeyboardEvent<Element>) => {
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       const target = e.currentTarget as HTMLInputElement;
-      this.props.onSearch(target.value || "");
+      this.props.onSearch(target.value || '');
     }
   };
 
@@ -94,7 +94,7 @@ export default class RightMenu extends React.Component<Props, State> {
   renderDates() {
     const { queryParams, link } = this.props;
 
-    if (link.includes("calendar")) {
+    if (link.includes('calendar')) {
       return null;
     }
 
@@ -106,7 +106,7 @@ export default class RightMenu extends React.Component<Props, State> {
       return (
         <FilterButton
           selected={selected}
-          onClick={onSelect.bind(this, name, "closeDateType")}
+          onClick={onSelect.bind(this, name, 'closeDateType')}
         >
           {__(label)}
           {selected && <Icon icon="check-1" size={14} />}
@@ -116,11 +116,11 @@ export default class RightMenu extends React.Component<Props, State> {
 
     return (
       <>
-        {renderLink("Due to the next day", "nextDay")}
-        {renderLink("Due in the next week", "nextWeek")}
-        {renderLink("Due in the next month", "nextMonth")}
-        {renderLink("Has no close date", "noCloseDate")}
-        {renderLink("Overdue", "overdue")}
+        {renderLink('Due to the next day', 'nextDay')}
+        {renderLink('Due in the next week', 'nextWeek')}
+        {renderLink('Due in the next month', 'nextMonth')}
+        {renderLink('Has no close date', 'noCloseDate')}
+        {renderLink('Overdue', 'overdue')}
       </>
     );
   }
@@ -132,13 +132,13 @@ export default class RightMenu extends React.Component<Props, State> {
     const priorities = queryParams ? queryParams.priority : [];
 
     const onPrioritySelect = (ops: IOption[]) =>
-      onSelect(ops.map(option => option.value), "priority");
+      onSelect(ops.map(option => option.value), 'priority');
 
     return (
       <FilterBox>
         <FormControl
           defaultValue={queryParams.search}
-          placeholder={__("Search ...")}
+          placeholder={__('Search ...')}
           onKeyPress={this.onSearch}
           autoFocus={true}
         />
@@ -155,7 +155,7 @@ export default class RightMenu extends React.Component<Props, State> {
           name="priority"
           onChange={onPrioritySelect}
           multi={true}
-          loadingPlaceholder={__("Loading...")}
+          loadingPlaceholder={__('Loading...')}
         />
         <SelectTeamMembers
           label="Filter by team members"
@@ -163,8 +163,8 @@ export default class RightMenu extends React.Component<Props, State> {
           queryParams={queryParams}
           onSelect={onSelect}
           customOption={{
-            value: "",
-            label: "Assigned to no one"
+            value: '',
+            label: 'Assigned to no one'
           }}
         />
         <SelectLabel
@@ -173,7 +173,7 @@ export default class RightMenu extends React.Component<Props, State> {
           onSelect={onSelect}
           filterParams={{ pipelineId: queryParams.pipelineId }}
           multi={true}
-          customOption={{ value: "", label: "No label chosen" }}
+          customOption={{ value: '', label: 'No label chosen' }}
         />
 
         {extraFilter}
@@ -183,7 +183,7 @@ export default class RightMenu extends React.Component<Props, State> {
   }
 
   renderTabContent() {
-    if (this.state.currentTab === "Filter") {
+    if (this.state.currentTab === 'Filter') {
       const { isFiltered, clearFilter } = this.props;
 
       return (
@@ -198,7 +198,7 @@ export default class RightMenu extends React.Component<Props, State> {
                 onClick={clearFilter}
                 icon="times-circle"
               >
-                {__("Clear Filter")}
+                {__('Clear Filter')}
               </Button>
             </MenuFooter>
           )}
@@ -217,7 +217,7 @@ export default class RightMenu extends React.Component<Props, State> {
 
   render() {
     const tabOnClick = (name: string) => {
-      this.onChange("currentTab", name);
+      this.onChange('currentTab', name);
     };
 
     const { currentTab, showMenu } = this.state;
@@ -232,7 +232,7 @@ export default class RightMenu extends React.Component<Props, State> {
             uppercase={false}
             onClick={this.props.clearFilter}
           >
-            {__("Clear Filter")}
+            {__('Clear Filter')}
           </Button>
         )}
         <Button
@@ -241,7 +241,7 @@ export default class RightMenu extends React.Component<Props, State> {
           icon="bars"
           onClick={this.toggleMenu}
         >
-          {showMenu ? __("Hide Menu") : __("Show Menu")}
+          {showMenu ? __('Hide Menu') : __('Show Menu')}
         </Button>
 
         <RTG.CSSTransition
@@ -253,16 +253,16 @@ export default class RightMenu extends React.Component<Props, State> {
           <RightMenuContainer>
             <Tabs full={true}>
               <TabTitle
-                className={currentTab === "Filter" ? "active" : ""}
-                onClick={tabOnClick.bind(this, "Filter")}
+                className={currentTab === 'Filter' ? 'active' : ''}
+                onClick={tabOnClick.bind(this, 'Filter')}
               >
-                {__("Filter")}
+                {__('Filter')}
               </TabTitle>
               <TabTitle
-                className={currentTab === "Archived items" ? "active" : ""}
-                onClick={tabOnClick.bind(this, "Archived items")}
+                className={currentTab === 'Archived items' ? 'active' : ''}
+                onClick={tabOnClick.bind(this, 'Archived items')}
               >
-                {__("Archived items")}
+                {__('Archived items')}
               </TabTitle>
             </Tabs>
             {this.renderTabContent()}

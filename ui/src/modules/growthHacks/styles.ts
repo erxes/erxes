@@ -1,8 +1,8 @@
-import { ColorButton } from "modules/boards/styles/common";
-import { colors, dimensions } from "modules/common/styles";
-import { FixedContent } from "modules/deals/components/conversion/style";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
+import { ColorButton } from 'modules/boards/styles/common';
+import { colors, dimensions } from 'modules/common/styles';
+import { FixedContent } from 'modules/deals/components/conversion/style';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const ScoreWrapper = styled.div``;
 
@@ -27,8 +27,8 @@ const CalculatedAmount = styled.div`
   position: relative;
 
   &:after {
-    content: "\\e945";
-    font-family: "erxes";
+    content: '\\e945';
+    font-family: 'erxes';
     position: absolute;
     left: -20px;
     color: ${colors.colorSecondary};
@@ -101,7 +101,7 @@ const AmountItem = styledTS<IAmountItem>(styled.div)`
 
   &:after {
     ${props =>
-      props.type === "pie" ? "content: '\\ec2d'" : "content: '\\ecdb'"};
+      props.type === 'pie' ? "content: '\\ec2d'" : "content: '\\ecdb'"};
     font-family: 'erxes';
     position: absolute;
     left: -17px;

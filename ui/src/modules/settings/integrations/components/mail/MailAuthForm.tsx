@@ -1,11 +1,11 @@
-import FormControl from "modules/common/components/form/Control";
-import Form from "modules/common/components/form/Form";
-import FormGroup from "modules/common/components/form/Group";
-import ControlLabel from "modules/common/components/form/Label";
-import { ModalFooter } from "modules/common/styles/main";
-import { IButtonMutateProps, IFormProps } from "modules/common/types";
-import { __ } from "modules/common/utils";
-import React from "react";
+import FormControl from 'modules/common/components/form/Control';
+import Form from 'modules/common/components/form/Form';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import { ModalFooter } from 'modules/common/styles/main';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
+import React from 'react';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -44,13 +44,13 @@ class MailAuthForm extends React.Component<Props> {
   renderDescription() {
     const { kind } = this.props;
 
-    if (kind !== "nylas-yahoo") {
+    if (kind !== 'nylas-yahoo') {
       return null;
     }
 
     return (
       <p>
-        {__("In order to connect Yahoo, you  should generate the app password")}{" "}
+        {__('In order to connect Yahoo, you  should generate the app password')}{' '}
         <a href="https://login.yahoo.com/account/security">
           Click here to generate password for erxes
         </a>
@@ -65,24 +65,24 @@ class MailAuthForm extends React.Component<Props> {
     return (
       <>
         {this.renderField({
-          label: "Email",
-          type: "email",
-          name: "email",
+          label: 'Email',
+          type: 'email',
+          name: 'email',
           formProps
         })}
 
         {this.renderDescription()}
 
         {this.renderField({
-          label: "Password",
-          type: "password",
-          name: "password",
+          label: 'Password',
+          type: 'password',
+          name: 'password',
           formProps
         })}
 
         <ModalFooter>
           {renderButton({
-            name: "integration",
+            name: 'integration',
             values: this.generateDoc(values),
             isSubmitted,
             callback: this.props.closeModal

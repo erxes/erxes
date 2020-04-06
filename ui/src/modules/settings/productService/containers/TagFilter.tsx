@@ -1,13 +1,13 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import CountsByTag from "modules/common/components/CountsByTag";
-import { TAG_TYPES } from "modules/tags/constants";
-import { queries as tagQueries } from "modules/tags/graphql";
-import React from "react";
-import { graphql } from "react-apollo";
-import { TagsQueryResponse } from "../../../tags/types";
-import { queries } from "../graphql";
-import { CountByTagsQueryResponse } from "../types";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import CountsByTag from 'modules/common/components/CountsByTag';
+import { TAG_TYPES } from 'modules/tags/constants';
+import { queries as tagQueries } from 'modules/tags/graphql';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { TagsQueryResponse } from '../../../tags/types';
+import { queries } from '../graphql';
+import { CountByTagsQueryResponse } from '../types';
 
 const TagFilterContainer = (props: {
   countByTagsQuery: CountByTagsQueryResponse;
@@ -29,10 +29,10 @@ const TagFilterContainer = (props: {
 
 export default compose(
   graphql<{}, CountByTagsQueryResponse, {}>(gql(queries.productCountByTags), {
-    name: "countByTagsQuery"
+    name: 'countByTagsQuery'
   }),
   graphql<{}, TagsQueryResponse, { type: string }>(gql(tagQueries.tags), {
-    name: "tagsQuery",
+    name: 'tagsQuery',
     options: () => ({
       variables: {
         type: TAG_TYPES.PRODUCT

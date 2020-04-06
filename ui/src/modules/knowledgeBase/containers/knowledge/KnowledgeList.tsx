@@ -1,17 +1,17 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import ButtonMutate from "modules/common/components/ButtonMutate";
-import { IButtonMutateProps } from "modules/common/types";
-import { Alert, confirm, withProps } from "modules/common/utils";
-import React from "react";
-import { graphql } from "react-apollo";
-import KnowledgeList from "../../components/knowledge/KnowledgeList";
-import { mutations, queries } from "../../graphql";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import { IButtonMutateProps } from 'modules/common/types';
+import { Alert, confirm, withProps } from 'modules/common/utils';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import KnowledgeList from '../../components/knowledge/KnowledgeList';
+import { mutations, queries } from '../../graphql';
 import {
   RemoveTopicsMutation,
   TopicsQueryResponse,
   TopicsTotalCountQueryResponse
-} from "../../types";
+} from '../../types';
 
 type Props = {
   queryParams: any;
@@ -45,7 +45,7 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
           topicsQuery.refetch();
           topicsCountQuery.refetch();
 
-          Alert.success("You successfully deleted a knowledge base");
+          Alert.success('You successfully deleted a knowledge base');
         })
         .catch(error => {
           Alert.error(error.message);
@@ -81,7 +81,7 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully ${
-          object ? "updated" : "added"
+          object ? 'updated' : 'added'
         } a ${name}`}
       />
     );
@@ -106,21 +106,21 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql<Props, TopicsQueryResponse>(gql(queries.knowledgeBaseTopics), {
-      name: "topicsQuery",
+      name: 'topicsQuery',
       options: () => ({
-        fetchPolicy: "network-only"
+        fetchPolicy: 'network-only'
       })
     }),
     graphql<Props, TopicsTotalCountQueryResponse>(
       gql(queries.knowledgeBaseTopicsTotalCount),
       {
-        name: "topicsCountQuery"
+        name: 'topicsCountQuery'
       }
     ),
     graphql<Props, RemoveTopicsMutation, { _id: string }>(
       gql(mutations.knowledgeBaseTopicsRemove),
       {
-        name: "removeTopicsMutation",
+        name: 'removeTopicsMutation',
         options: ({ currentCategoryId }) => {
           return {
             refetchQueries: !currentCategoryId

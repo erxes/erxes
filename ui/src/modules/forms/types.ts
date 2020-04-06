@@ -1,5 +1,5 @@
-import { IUser } from "../auth/types";
-import { IField } from "../settings/properties/types";
+import { IUser } from '../auth/types';
+import { IField } from '../settings/properties/types';
 
 export interface IForm {
   _id: string;

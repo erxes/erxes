@@ -1,10 +1,10 @@
-import HeaderDescription from "modules/common/components/HeaderDescription";
-import Icon from "modules/common/components/Icon";
-import { __ } from "modules/common/utils";
-import Wrapper from "modules/layout/components/Wrapper";
-import React from "react";
-import { Box, Group, Title } from "../styles";
-import { ProjectVersions, Version } from "../types";
+import HeaderDescription from 'modules/common/components/HeaderDescription';
+import Icon from 'modules/common/components/Icon';
+import { __ } from 'modules/common/utils';
+import Wrapper from 'modules/layout/components/Wrapper';
+import React from 'react';
+import { Box, Group, Title } from '../styles';
+import { ProjectVersions, Version } from '../types';
 
 class Status extends React.PureComponent<{
   versions: ProjectVersions;
@@ -18,22 +18,22 @@ class Status extends React.PureComponent<{
 
         <Group>
           <span>
-            <Icon icon="info-circle" /> {__("Info")}
+            <Icon icon="info-circle" /> {__('Info')}
           </span>
           <div>
-            <b>{__("Package version")}</b> - {ver.packageVersion}
+            <b>{__('Package version')}</b> - {ver.packageVersion}
           </div>
           <div>
-            <b>{__("Branch name")}</b> - {ver.branch}
+            <b>{__('Branch name')}</b> - {ver.branch}
           </div>
           <div>
-            <b>{__("Sha")}</b> - {ver.sha}
+            <b>{__('Sha')}</b> - {ver.sha}
           </div>
           <div>
             <b>
-              {__("Abbreviated")} {__("Sha")}
-            </b>{" "}
-            - {ver.abbreviatedSha}{" "}
+              {__('Abbreviated')} {__('Sha')}
+            </b>{' '}
+            - {ver.abbreviatedSha}{' '}
           </div>
         </Group>
       </Box>
@@ -42,8 +42,8 @@ class Status extends React.PureComponent<{
 
   render() {
     const breadcrumb = [
-      { title: __("Settings"), link: "/settings" },
-      { title: __("System status") }
+      { title: __('Settings'), link: '/settings' },
+      { title: __('System status') }
     ];
 
     const { versions } = this.props;
@@ -52,18 +52,18 @@ class Status extends React.PureComponent<{
 
     const content = (
       <div>
-        {this.renderData("Erxes Status", erxesVersion)}
+        {this.renderData('Erxes Status', erxesVersion)}
 
-        {this.renderData("Erxes API Status", apiVersion)}
+        {this.renderData('Erxes API Status', apiVersion)}
 
-        {this.renderData("Erxes Widget Status", widgetVersion)}
+        {this.renderData('Erxes Widget Status', widgetVersion)}
       </div>
     );
 
     return (
       <Wrapper
         header={
-          <Wrapper.Header title={__("System status")} breadcrumb={breadcrumb} />
+          <Wrapper.Header title={__('System status')} breadcrumb={breadcrumb} />
         }
         actionBar={
           <Wrapper.ActionBar

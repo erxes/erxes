@@ -1,13 +1,13 @@
-import { colors } from "modules/common/styles";
-import { rgba } from "modules/common/styles/color";
-import { Contents, MainContent } from "modules/layout/styles";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
+import { colors } from 'modules/common/styles';
+import { rgba } from 'modules/common/styles/color';
+import { Contents, MainContent } from 'modules/layout/styles';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 export const coreHeight = 50;
 export const stageWidth = 280;
-export const borderRadius = "2px";
-export const stageHeight = "calc(100vh - 200px)";
+export const borderRadius = '2px';
+export const stageHeight = 'calc(100vh - 200px)';
 
 export const BoardContainer = styled(Contents)`
   margin: 0;
@@ -54,7 +54,7 @@ export const EmptyContainer = styled.div`
 
 export const Wrapper = styledTS<{ isDraggingOver: boolean }>(styled.div)`
   background-color: ${({ isDraggingOver }) =>
-    isDraggingOver && "rgba(10, 45, 65, .1)"};
+    isDraggingOver && 'rgba(10, 45, 65, .1)'};
   display: flex;
   flex-direction: column;
   padding: 0 4px;
@@ -116,8 +116,8 @@ export const ItemContainer = styledTS<{
   background-color: rgb(255, 255, 255);
   box-shadow: ${props =>
     props.isDragging
-      ? "rgba(0, 0, 0, 0.4) 0px 5px 15px 0px"
-      : "rgba(0, 0, 0, 0.2) 0px 1px 2px 0px"};
+      ? 'rgba(0, 0, 0, 0.4) 0px 5px 15px 0px'
+      : 'rgba(0, 0, 0, 0.2) 0px 1px 2px 0px'};
   padding: 8px;
   outline: 0px;
   font-size: 12px;

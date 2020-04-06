@@ -1,11 +1,11 @@
-import client from "apolloClient";
-import gql from "graphql-tag";
-import { colors } from "modules/common/styles";
-import { __, Alert } from "modules/common/utils";
-import { rotate } from "modules/common/utils/animations";
-import React from "react";
-import styled from "styled-components";
-import Button from "../components/Button";
+import client from 'apolloClient';
+import gql from 'graphql-tag';
+import { colors } from 'modules/common/styles';
+import { __, Alert } from 'modules/common/utils';
+import { rotate } from 'modules/common/utils/animations';
+import React from 'react';
+import styled from 'styled-components';
+import Button from '../components/Button';
 
 export const SmallLoader = styled.i`
   width: 13px;
@@ -43,8 +43,8 @@ type Props = {
 
 class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
   static defaultProps = {
-    btnSize: "medium",
-    icon: "check-circle"
+    btnSize: 'medium',
+    icon: 'check-circle'
   };
 
   constructor(props: Props) {
@@ -66,7 +66,7 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
       mutation,
       callback,
       variables,
-      successMessage = "",
+      successMessage = '',
       refetchQueries,
       beforeSubmit,
       disableLoading,
@@ -102,9 +102,9 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
         }
       })
       .catch(error => {
-        if (error.message.includes("Invalid login")) {
+        if (error.message.includes('Invalid login')) {
           Alert.error(
-            "The email address or password you entered is incorrect."
+            'The email address or password you entered is incorrect.'
           );
         } else {
           Alert.error(error.message);
@@ -122,11 +122,11 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
 
   render() {
     const {
-      children = __("Save"),
+      children = __('Save'),
       btnSize,
       icon,
       type,
-      btnStyle = "success",
+      btnStyle = 'success',
       disabled,
       block,
       uppercase

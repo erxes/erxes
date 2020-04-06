@@ -1,15 +1,15 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { Alert, withProps } from "modules/common/utils";
-import FacebookComment from "modules/inbox/components/conversationDetail/workarea/facebook/FacebookComment";
-import { mutations } from "modules/inbox/graphql";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { Alert, withProps } from 'modules/common/utils';
+import FacebookComment from 'modules/inbox/components/conversationDetail/workarea/facebook/FacebookComment';
+import { mutations } from 'modules/inbox/graphql';
 import {
   IFacebookComment,
   ReplyFacebookCommentMutationResponse,
   ReplyFaceBookCommentMutationVariables
-} from "modules/inbox/types";
-import * as React from "react";
-import { graphql } from "react-apollo";
+} from 'modules/inbox/types';
+import * as React from 'react';
+import { graphql } from 'react-apollo';
 
 type Props = {
   comment: IFacebookComment;
@@ -54,7 +54,7 @@ export default withProps<Props>(
       ReplyFacebookCommentMutationResponse,
       ReplyFaceBookCommentMutationVariables
     >(gql(mutations.conversationsReplyFacebookComment), {
-      name: "replyMutation"
+      name: 'replyMutation'
     })
   )(FacebookCommentContainer)
 );

@@ -1,15 +1,15 @@
-import FormControl from "modules/common/components/form/Control";
-import Form from "modules/common/components/form/Form";
-import FormGroup from "modules/common/components/form/Group";
-import ControlLabel from "modules/common/components/form/Label";
-import Info from "modules/common/components/Info";
-import Spinner from "modules/common/components/Spinner";
-import { ModalFooter } from "modules/common/styles/main";
-import { IButtonMutateProps, IFormProps } from "modules/common/types";
-import { __ } from "modules/common/utils";
-import * as React from "react";
-import Accounts from "../../containers/Accounts";
-import SelectBrand from "../../containers/SelectBrand";
+import FormControl from 'modules/common/components/form/Control';
+import Form from 'modules/common/components/form/Form';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import Info from 'modules/common/components/Info';
+import Spinner from 'modules/common/components/Spinner';
+import { ModalFooter } from 'modules/common/styles/main';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
+import * as React from 'react';
+import Accounts from '../../containers/Accounts';
+import SelectBrand from '../../containers/SelectBrand';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -34,7 +34,7 @@ class Gmail extends React.Component<Props, { loading: boolean }> {
 
     return {
       ...values,
-      kind: "gmail",
+      kind: 'gmail',
       accountId,
       data: { email }
     };
@@ -49,9 +49,9 @@ class Gmail extends React.Component<Props, { loading: boolean }> {
         {this.state.loading && <Spinner />}
         <FormGroup>
           <Info>
-            <strong>{__("Email add account description question")}</strong>
+            <strong>{__('Email add account description question')}</strong>
             <br />
-            {__("Email add account description")}
+            {__('Email add account description')}
           </Info>
         </FormGroup>
 
@@ -77,7 +77,7 @@ class Gmail extends React.Component<Props, { loading: boolean }> {
 
         <ModalFooter>
           {renderButton({
-            name: "integration",
+            name: 'integration',
             values: this.generateDoc(values),
             isSubmitted,
             callback: this.props.closeModal

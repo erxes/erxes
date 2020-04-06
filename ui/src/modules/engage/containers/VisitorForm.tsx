@@ -1,10 +1,10 @@
-import React from "react";
-import { IUser } from "../../auth/types";
-import { IBrand } from "../../settings/brands/types";
-import FormBase from "../components/FormBase";
-import VisitorForm from "../components/VisitorForm";
-import { IEngageMessage, IEngageMessageDoc } from "../types";
-import withFormMutations from "./withFormMutations";
+import React from 'react';
+import { IUser } from '../../auth/types';
+import { IBrand } from '../../settings/brands/types';
+import FormBase from '../components/FormBase';
+import VisitorForm from '../components/VisitorForm';
+import { IEngageMessage, IEngageMessageDoc } from '../types';
+import withFormMutations from './withFormMutations';
 
 type Props = {
   kind?: string;
@@ -21,7 +21,7 @@ class VisitorFormContainer extends React.Component<FinalProps> {
   render() {
     const content = props => <VisitorForm {...this.props} {...props} />;
 
-    return <FormBase kind={this.props.kind || ""} content={content} />;
+    return <FormBase kind={this.props.kind || ''} content={content} />;
   }
 }
 

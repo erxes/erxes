@@ -1,19 +1,19 @@
-import ActivityInputs from "modules/activityLogs/components/ActivityInputs";
-import ActivityLogs from "modules/activityLogs/containers/ActivityLogs";
-import React, { useEffect, useState } from "react";
+import ActivityInputs from 'modules/activityLogs/components/ActivityInputs';
+import ActivityLogs from 'modules/activityLogs/containers/ActivityLogs';
+import React, { useEffect, useState } from 'react';
 
-import { IItem, IItemParams, IOptions } from "modules/boards/types";
-import Checklists from "modules/checklists/containers/Checklists";
-import FormControl from "modules/common/components/form/Control";
-import FormGroup from "modules/common/components/form/Group";
-import ControlLabel from "modules/common/components/form/Label";
-import Icon from "modules/common/components/Icon";
-import Uploader from "modules/common/components/Uploader";
-import { IAttachment } from "modules/common/types";
-import { __, extractAttachment } from "modules/common/utils";
-import { LeftContainer, TitleRow } from "../../styles/item";
-import Labels from "../label/Labels";
-import Actions from "./Actions";
+import { IItem, IItemParams, IOptions } from 'modules/boards/types';
+import Checklists from 'modules/checklists/containers/Checklists';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import Icon from 'modules/common/components/Icon';
+import Uploader from 'modules/common/components/Uploader';
+import { IAttachment } from 'modules/common/types';
+import { __, extractAttachment } from 'modules/common/utils';
+import { LeftContainer, TitleRow } from '../../styles/item';
+import Labels from '../label/Labels';
+import Actions from './Actions';
 
 type DescProps = {
   item: IItem;
@@ -46,13 +46,13 @@ const Description = (props: DescProps) => {
       <TitleRow>
         <ControlLabel>
           <Icon icon="align-left-justify" />
-          {__("Description")}
+          {__('Description')}
         </ControlLabel>
       </TitleRow>
 
       <FormControl
         componentClass="textarea"
-        value={description || ""}
+        value={description || ''}
         onBlur={onBlurDescription}
         onChange={onChangeDescription}
       />
@@ -106,7 +106,7 @@ const Left = (props: Props) => {
           <TitleRow>
             <ControlLabel>
               <Icon icon="label-alt" />
-              {__("Labels")}
+              {__('Labels')}
             </ControlLabel>
           </TitleRow>
 
@@ -118,7 +118,7 @@ const Left = (props: Props) => {
         <TitleRow>
           <ControlLabel>
             <Icon icon="paperclip" />
-            {__("Attachments")}
+            {__('Attachments')}
           </ControlLabel>
         </TitleRow>
 
@@ -145,7 +145,7 @@ const Left = (props: Props) => {
         contentId={item._id}
         contentType={options.type}
         extraTabs={
-          options.type === "task" ? [] : [{ name: "task", label: "Task" }]
+          options.type === 'task' ? [] : [{ name: 'task', label: 'Task' }]
         }
       />
     </LeftContainer>

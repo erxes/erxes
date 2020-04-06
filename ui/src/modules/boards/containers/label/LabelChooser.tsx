@@ -1,20 +1,20 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import {
   IItem,
   IPipelineLabel,
   PipelineLabelsQueryResponse
-} from "modules/boards/types";
-import Spinner from "modules/common/components/Spinner";
-import { Alert, withProps } from "modules/common/utils";
-import * as React from "react";
-import { graphql } from "react-apollo";
-import LabelChooser from "../../components/label/LabelChooser";
-import { mutations, queries } from "../../graphql";
+} from 'modules/boards/types';
+import Spinner from 'modules/common/components/Spinner';
+import { Alert, withProps } from 'modules/common/utils';
+import * as React from 'react';
+import { graphql } from 'react-apollo';
+import LabelChooser from '../../components/label/LabelChooser';
+import { mutations, queries } from '../../graphql';
 import {
   PipelineLabelMutationResponse,
   PipelineLabelMutationVariables
-} from "../../types";
+} from '../../types';
 
 type Props = {
   item: IItem;
@@ -70,7 +70,7 @@ class LabelChooserContainer extends React.Component<
         .then(() => {
           if (onSelect) {
             onSelect(
-              labels.filter(label => selectedLabelIds.includes(label._id || ""))
+              labels.filter(label => selectedLabelIds.includes(label._id || ''))
             );
           }
         })
@@ -99,17 +99,17 @@ export default withProps<Props>(
       PipelineLabelMutationResponse,
       PipelineLabelMutationVariables
     >(gql(mutations.pipelineLabelsLabel), {
-      name: "pipelineLabelMutation"
+      name: 'pipelineLabelMutation'
     }),
     graphql<Props, PipelineLabelsQueryResponse, { pipelineId: string }>(
       gql(queries.pipelineLabels),
       {
-        name: "pipelineLabelsQuery",
+        name: 'pipelineLabelsQuery',
         options: ({ item }) => ({
           variables: {
             pipelineId: item.pipeline._id
           },
-          fetchPolicy: "network-only"
+          fetchPolicy: 'network-only'
         })
       }
     )

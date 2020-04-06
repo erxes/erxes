@@ -1,15 +1,15 @@
-import { IBoard } from "modules/boards/types";
-import Button from "modules/common/components/Button";
-import DataWithLoader from "modules/common/components/DataWithLoader";
-import ModalTrigger from "modules/common/components/ModalTrigger";
-import { TopHeader } from "modules/common/styles/main";
-import { IButtonMutateProps } from "modules/common/types";
-import Sidebar from "modules/layout/components/Sidebar";
-import { SidebarList as List } from "modules/layout/styles";
-import React from "react";
-import { IOption } from "../types";
-import BoardForm from "./BoardForm";
-import BoardRow from "./BoardRow";
+import { IBoard } from 'modules/boards/types';
+import Button from 'modules/common/components/Button';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import { TopHeader } from 'modules/common/styles/main';
+import { IButtonMutateProps } from 'modules/common/types';
+import Sidebar from 'modules/layout/components/Sidebar';
+import { SidebarList as List } from 'modules/layout/styles';
+import React from 'react';
+import { IOption } from '../types';
+import BoardForm from './BoardForm';
+import BoardRow from './BoardRow';
 
 type Props = {
   currentBoardId?: string;
@@ -44,7 +44,7 @@ class Boards extends React.Component<Props, {}> {
   renderSidebarHeader() {
     const { renderButton, type, options } = this.props;
 
-    const boardName = options ? options.boardName : "Board";
+    const boardName = options ? options.boardName : 'Board';
 
     const addBoard = (
       <Button
@@ -77,7 +77,7 @@ class Boards extends React.Component<Props, {}> {
     const { loading, boards, options } = this.props;
 
     const boardName =
-      options && options.boardName ? options.boardName.toLowerCase() : "board";
+      options && options.boardName ? options.boardName.toLowerCase() : 'board';
 
     return (
       <Sidebar wide={true} header={this.renderSidebarHeader()} full={true}>

@@ -1,13 +1,13 @@
-import { AvatarWrapper } from "modules/activityLogs/styles";
-import Icon from "modules/common/components/Icon";
-import ModalTrigger from "modules/common/components/ModalTrigger";
-import NameCard from "modules/common/components/nameCard/NameCard";
-import { InfoWrapper, Links } from "modules/common/styles/main";
-import { renderFullName } from "modules/common/utils";
-import CustomerForm from "modules/customers/containers/CustomerForm";
-import { ICustomer } from "modules/customers/types";
-import React from "react";
-import { CustomerState, Name, NameContainer } from "../../styles";
+import { AvatarWrapper } from 'modules/activityLogs/styles';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import NameCard from 'modules/common/components/nameCard/NameCard';
+import { InfoWrapper, Links } from 'modules/common/styles/main';
+import { renderFullName } from 'modules/common/utils';
+import CustomerForm from 'modules/customers/containers/CustomerForm';
+import { ICustomer } from 'modules/customers/types';
+import React from 'react';
+import { CustomerState, Name, NameContainer } from '../../styles';
 
 type Props = {
   customer: ICustomer;
@@ -25,8 +25,8 @@ class InfoSection extends React.Component<Props> {
       return null;
     }
 
-    if (!value.includes("http")) {
-      link = "https://".concat(value);
+    if (!value.includes('http')) {
+      link = 'https://'.concat(value);
     }
 
     return (
@@ -39,12 +39,12 @@ class InfoSection extends React.Component<Props> {
   renderLinks(links) {
     return (
       <Links>
-        {this.renderLink(links.facebook, "facebook-official")}
-        {this.renderLink(links.linkedIn, "linkedin")}
-        {this.renderLink(links.twitter, "twitter")}
-        {this.renderLink(links.youtube, "youtube-play")}
-        {this.renderLink(links.github, "github-circled")}
-        {this.renderLink(links.website, "external-link-alt")}
+        {this.renderLink(links.facebook, 'facebook-official')}
+        {this.renderLink(links.linkedIn, 'linkedin')}
+        {this.renderLink(links.twitter, 'twitter')}
+        {this.renderLink(links.youtube, 'youtube-play')}
+        {this.renderLink(links.github, 'github-circled')}
+        {this.renderLink(links.website, 'external-link-alt')}
       </Links>
     );
   }

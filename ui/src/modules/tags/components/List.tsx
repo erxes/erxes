@@ -1,16 +1,16 @@
-import Button from "modules/common/components/Button";
-import DataWithLoader from "modules/common/components/DataWithLoader";
-import ModalTrigger from "modules/common/components/ModalTrigger";
-import Table from "modules/common/components/table";
-import { Title } from "modules/common/styles/main";
-import { IButtonMutateProps } from "modules/common/types";
-import { __ } from "modules/common/utils";
-import Wrapper from "modules/layout/components/Wrapper";
-import { ITag } from "modules/tags/types";
-import React from "react";
-import FormComponent from "./Form";
-import Row from "./Row";
-import Sidebar from "./Sidebar";
+import Button from 'modules/common/components/Button';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Table from 'modules/common/components/table';
+import { Title } from 'modules/common/styles/main';
+import { IButtonMutateProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
+import Wrapper from 'modules/layout/components/Wrapper';
+import { ITag } from 'modules/tags/types';
+import React from 'react';
+import FormComponent from './Form';
+import Row from './Row';
+import Sidebar from './Sidebar';
 
 type Props = {
   tags: ITag[];
@@ -43,7 +43,7 @@ function List({ tags, type, remove, loading, renderButton }: Props) {
 
   const title = (
     <Title capitalize={true}>
-      {type} {__("tags")}
+      {type} {__('tags')}
     </Title>
   );
   const actionBar = (
@@ -58,9 +58,9 @@ function List({ tags, type, remove, loading, renderButton }: Props) {
     <Table>
       <thead>
         <tr>
-          <th>{__("Name")}</th>
-          <th>{__("Item counts")}</th>
-          <th>{__("Actions")}</th>
+          <th>{__('Name')}</th>
+          <th>{__('Item counts')}</th>
+          <th>{__('Actions')}</th>
         </tr>
       </thead>
       <tbody>
@@ -79,8 +79,8 @@ function List({ tags, type, remove, loading, renderButton }: Props) {
   );
 
   const breadcrumb = [
-    { title: __("Settings"), link: "/settings" },
-    { title: __("Tags"), link: "/tags/engageMessage" },
+    { title: __('Settings'), link: '/settings' },
+    { title: __('Tags'), link: '/tags/engageMessage' },
     { title: __(type) }
   ];
 

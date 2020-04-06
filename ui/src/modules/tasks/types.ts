@@ -1,5 +1,5 @@
-import { IItem } from "modules/boards/types";
-import { IActivityLogForMonth } from "../activityLogs/types";
+import { IItem } from 'modules/boards/types';
+import { IActivityLogForMonth } from '../activityLogs/types';
 
 export type EditMutationVariables = {
   _id: string;

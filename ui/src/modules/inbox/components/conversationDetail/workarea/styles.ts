@@ -1,5 +1,5 @@
-import { colors, dimensions } from "modules/common/styles";
-import styled from "styled-components";
+import { colors, dimensions } from 'modules/common/styles';
+import styled from 'styled-components';
 
 const ConversationWrapper = styled.div`
   height: 100%;

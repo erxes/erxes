@@ -1,12 +1,12 @@
-import Label from "modules/common/components/Label";
-import Tip from "modules/common/components/Tip";
-import WithPermission from "modules/common/components/WithPermission";
-import { colors, dimensions } from "modules/common/styles";
-import { __, setBadge } from "modules/common/utils";
-import Robot from "modules/robot/containers/Robot";
-import React from "react";
-import { NavLink } from "react-router-dom";
-import styled from "styled-components";
+import Label from 'modules/common/components/Label';
+import Tip from 'modules/common/components/Tip';
+import WithPermission from 'modules/common/components/WithPermission';
+import { colors, dimensions } from 'modules/common/styles';
+import { __, setBadge } from 'modules/common/utils';
+import Robot from 'modules/robot/containers/Robot';
+import React from 'react';
+import { NavLink } from 'react-router-dom';
+import styled from 'styled-components';
 
 const LeftNavigation = styled.aside`
   width: ${dimensions.headerSpacingWide}px;
@@ -67,7 +67,7 @@ const Nav = styled.nav`
       background: rgba(0, 0, 0, 0.13);
 
       &:before {
-        content: "";
+        content: '';
         width: 3px;
         background: ${colors.colorCoreTeal};
         position: absolute;
@@ -129,7 +129,7 @@ class Navigation extends React.Component<{
     const unreadCount = nextProps.unreadConversationsCount;
 
     if (unreadCount !== this.props.unreadConversationsCount) {
-      setBadge(unreadCount, __("Team Inbox").toString());
+      setBadge(unreadCount, __('Team Inbox').toString());
     }
   }
 
@@ -168,47 +168,47 @@ class Navigation extends React.Component<{
         </NavLink>
         <Nav>
           {this.renderNavItem(
-            "showConversations",
-            __("Conversation"),
-            "/inbox",
-            "icon-chat",
+            'showConversations',
+            __('Conversation'),
+            '/inbox',
+            'icon-chat',
             unreadIndicator
           )}
           {this.renderNavItem(
-            "showGrowthHacks",
-            __("Growth Hacking"),
-            "/growthHack",
-            "icon-idea"
+            'showGrowthHacks',
+            __('Growth Hacking'),
+            '/growthHack',
+            'icon-idea'
           )}
           {this.renderNavItem(
-            "showDeals",
-            __("Deal"),
-            "/deal",
-            "icon-piggy-bank"
+            'showDeals',
+            __('Deal'),
+            '/deal',
+            'icon-piggy-bank'
           )}
           {this.renderNavItem(
-            "showCustomers",
-            __("Contacts"),
-            "/contacts/customers/lead",
-            "icon-users"
+            'showCustomers',
+            __('Contacts'),
+            '/contacts/customers/lead',
+            'icon-users'
           )}
           {this.renderNavItem(
-            "showForms",
-            __("Pop ups"),
-            "/leads",
-            "icon-laptop"
+            'showForms',
+            __('Pop ups'),
+            '/leads',
+            'icon-laptop'
           )}
           {this.renderNavItem(
-            "showEngagesMessages",
-            __("Engage"),
-            "/engage",
-            "icon-megaphone"
+            'showEngagesMessages',
+            __('Engage'),
+            '/engage',
+            'icon-megaphone'
           )}
           {this.renderNavItem(
-            "showKnowledgeBase",
-            __("Knowledge Base"),
-            "/knowledgeBase",
-            "icon-book"
+            'showKnowledgeBase',
+            __('Knowledge Base'),
+            '/knowledgeBase',
+            'icon-book'
           )}
         </Nav>
         <Robot />

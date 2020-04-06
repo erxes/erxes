@@ -1,12 +1,12 @@
-import Box from "modules/common/components/Box";
-import Button from "modules/common/components/Button";
-import DataWithLoader from "modules/common/components/DataWithLoader";
-import { IRouterProps } from "modules/common/types";
-import { __, router } from "modules/common/utils";
-import { FieldStyle, SidebarCounter, SidebarList } from "modules/layout/styles";
-import { IIntegration } from "modules/settings/integrations/types";
-import React from "react";
-import { withRouter } from "react-router-dom";
+import Box from 'modules/common/components/Box';
+import Button from 'modules/common/components/Button';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import { IRouterProps } from 'modules/common/types';
+import { __, router } from 'modules/common/utils';
+import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
+import { IIntegration } from 'modules/settings/integrations/types';
+import React from 'react';
+import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
   counts: { [key: string]: number };
@@ -39,7 +39,7 @@ function Leads({
               href="#filter"
               tabIndex={0}
               className={
-                router.getParam(history, "form") === form._id ? "active" : ""
+                router.getParam(history, 'form') === form._id ? 'active' : ''
               }
               onClick={onClick.bind(null, form._id)}
             >
@@ -64,7 +64,7 @@ function Leads({
   );
 
   return (
-    <Box title={__("Filter by Pop Ups")} name="showFilterByPopUps">
+    <Box title={__('Filter by Pop Ups')} name="showFilterByPopUps">
       <DataWithLoader
         data={data}
         loading={loading}

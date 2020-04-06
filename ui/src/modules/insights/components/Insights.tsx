@@ -1,10 +1,10 @@
-import { ResponsivePie } from "@nivo/pie";
-import EmptyState from "modules/common/components/EmptyState";
-import Spinner from "modules/common/components/Spinner";
-import { __ } from "modules/common/utils";
-import React from "react";
-import { ChartWrapper, FlexItem, InsightTitle, LoaderWrapper } from "../styles";
-import { IPieChartData } from "../types";
+import { ResponsivePie } from '@nivo/pie';
+import EmptyState from 'modules/common/components/EmptyState';
+import Spinner from 'modules/common/components/Spinner';
+import { __ } from 'modules/common/utils';
+import React from 'react';
+import { ChartWrapper, FlexItem, InsightTitle, LoaderWrapper } from '../styles';
+import { IPieChartData } from '../types';
 
 type Props = {
   data: IPieChartData[];

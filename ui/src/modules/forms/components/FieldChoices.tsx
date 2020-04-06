@@ -1,7 +1,7 @@
-import Icon from "modules/common/components/Icon";
-import { __ } from "modules/common/utils";
-import React from "react";
-import { FieldWrapper, Options } from "../styles";
+import Icon from 'modules/common/components/Icon';
+import { __ } from 'modules/common/utils';
+import React from 'react';
+import { FieldWrapper, Options } from '../styles';
 
 type Props = {
   onChoiceClick: (choice: string) => void;
@@ -34,51 +34,51 @@ function FieldChoices(props: Props) {
       <FieldChoice
         {...props}
         type="input"
-        text={__("Text input")}
+        text={__('Text input')}
         icon="edit-alt"
       />
       <FieldChoice
         {...props}
         type="textarea"
-        text={__("Text area")}
+        text={__('Text area')}
         icon="paragraph"
       />
       <FieldChoice
         {...props}
         type="check"
-        text={__("Checkbox")}
+        text={__('Checkbox')}
         icon="check-square"
       />
       <FieldChoice
         {...props}
         type="radio"
-        text={__("Radio button")}
+        text={__('Radio button')}
         icon="check-circle"
       />
       <FieldChoice
         {...props}
         type="select"
-        text={__("Select")}
+        text={__('Select')}
         icon="sort-amount-down"
       />
-      <FieldChoice {...props} type="file" text={__("File")} icon="paperclip" />
+      <FieldChoice {...props} type="file" text={__('File')} icon="paperclip" />
       <FieldChoice
         {...props}
         type="email"
-        text={__("Email")}
+        text={__('Email')}
         icon="envelope-alt"
       />
-      <FieldChoice {...props} type="phone" text={__("Phone")} icon="phone" />
+      <FieldChoice {...props} type="phone" text={__('Phone')} icon="phone" />
       <FieldChoice
         {...props}
         type="firstName"
-        text={__("First name")}
+        text={__('First name')}
         icon="user-6"
       />
       <FieldChoice
         {...props}
         type="lastName"
-        text={__("Last name")}
+        text={__('Last name')}
         icon="user-6"
       />
     </Options>

@@ -1,8 +1,8 @@
-import { ICompany } from "modules/companies/types";
-import { ITag } from "modules/tags/types";
-import { IActivityLog } from "../activityLogs/types";
-import { IUser } from "../auth/types";
-import { IIntegration } from "../settings/integrations/types";
+import { ICompany } from 'modules/companies/types';
+import { ITag } from 'modules/tags/types';
+import { IActivityLog } from '../activityLogs/types';
+import { IUser } from '../auth/types';
+import { IIntegration } from '../settings/integrations/types';
 
 export interface IVisitorContact {
   email?: string;

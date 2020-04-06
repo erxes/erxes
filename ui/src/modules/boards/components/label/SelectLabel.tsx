@@ -1,8 +1,8 @@
-import SelectWithSearch from "modules/common/components/SelectWithSearch";
-import { IOption, IQueryParams } from "modules/common/types";
-import React from "react";
-import { queries } from "../../graphql/index";
-import { IPipelineLabel } from "../../types";
+import SelectWithSearch from 'modules/common/components/SelectWithSearch';
+import { IOption, IQueryParams } from 'modules/common/types';
+import React from 'react';
+import { queries } from '../../graphql/index';
+import { IPipelineLabel } from '../../types';
 
 // get user options for react-select-plus
 export function generateLabelOptions(array: IPipelineLabel[] = []): IOption[] {
@@ -10,7 +10,7 @@ export function generateLabelOptions(array: IPipelineLabel[] = []): IOption[] {
     const label = item || ({} as IPipelineLabel);
 
     return {
-      value: label._id || "",
+      value: label._id || '',
       label: label.name
     };
   });
@@ -44,7 +44,7 @@ export default ({
       name={name}
       filterParams={filterParams}
       values={
-        typeof defaultValue === "string"
+        typeof defaultValue === 'string'
           ? multi
             ? [defaultValue]
             : defaultValue

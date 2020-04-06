@@ -1,15 +1,15 @@
-import Button from "modules/common/components/Button";
-import FormControl from "modules/common/components/form/Control";
-import FormGroup from "modules/common/components/form/Group";
-import ControlLabel from "modules/common/components/form/Label";
-import { FlexPad, InlineForm } from "modules/common/components/step/styles";
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import { FlexPad, InlineForm } from 'modules/common/components/step/styles';
 import {
   RULE_CONDITIONS,
   VISITOR_AUDIENCE_RULES
-} from "modules/engage/constants";
-import React from "react";
-import styled from "styled-components";
-import { IConditionsRule } from "../../types";
+} from 'modules/engage/constants';
+import React from 'react';
+import styled from 'styled-components';
+import { IConditionsRule } from '../../types';
 
 const RuleDescription = styled.p`
   text-transform: initial;
@@ -17,7 +17,7 @@ const RuleDescription = styled.p`
 
 type Props = {
   rules: IConditionsRule[];
-  onChange: (name: "rules", rules: IConditionsRule[]) => void;
+  onChange: (name: 'rules', rules: IConditionsRule[]) => void;
 };
 
 type State = {
@@ -42,8 +42,8 @@ class ConditionsRule extends React.Component<Props, State> {
         _id: Math.random().toString(),
         kind: selectedOption.value,
         text: selectedOption.text,
-        condition: "",
-        value: ""
+        condition: '',
+        value: ''
       });
 
       this.setState({ rules });
@@ -53,24 +53,24 @@ class ConditionsRule extends React.Component<Props, State> {
   renderDescription(rule) {
     let description;
     switch (rule.kind) {
-      case "browserLanguage":
+      case 'browserLanguage':
         description =
-          "Recognizes which language is set for visitor’s browser. Insert only Language codes in value field as appointed in ISO-639, i.e “en” for English, “fr” for French, “de” for German etc.";
+          'Recognizes which language is set for visitor’s browser. Insert only Language codes in value field as appointed in ISO-639, i.e “en” for English, “fr” for French, “de” for German etc.';
         break;
-      case "currentPageUrl":
+      case 'currentPageUrl':
         description =
-          "Write your desired page URL, excluding domain name. For example: If you want to place your engagement message on https://office.erxes.io/pricing - then write /pricing";
+          'Write your desired page URL, excluding domain name. For example: If you want to place your engagement message on https://office.erxes.io/pricing - then write /pricing';
         break;
-      case "country":
+      case 'country':
         description =
-          "Locates visitor’s physical location in country  resolution. Insert only Country codes in value field as appointed in ISO-3166 standard, i.e “gb” for Great Britain, “fr” for French, “de” for German, “jp” for Japanese etc.";
+          'Locates visitor’s physical location in country  resolution. Insert only Country codes in value field as appointed in ISO-3166 standard, i.e “gb” for Great Britain, “fr” for French, “de” for German, “jp” for Japanese etc.';
         break;
-      case "city":
+      case 'city':
         description =
-          "Locates visitor’s physical location in city resolution. Write a name of the City in value field. If Country’s not set, every city with same name will meet the criteria.";
+          'Locates visitor’s physical location in city resolution. Write a name of the City in value field. If Country’s not set, every city with same name will meet the criteria.';
         break;
       default:
-        description = "Counts individual visitor’s visitting number.";
+        description = 'Counts individual visitor’s visitting number.';
     }
     return description;
   }
@@ -82,7 +82,7 @@ class ConditionsRule extends React.Component<Props, State> {
       rules = rules.filter(r => r._id !== rule._id);
 
       this.setState({ rules });
-      this.props.onChange("rules", rules);
+      this.props.onChange('rules', rules);
     };
 
     const changeProp = (name, value) => {
@@ -97,15 +97,15 @@ class ConditionsRule extends React.Component<Props, State> {
       }
 
       this.setState({ rules });
-      this.props.onChange("rules", rules);
+      this.props.onChange('rules', rules);
     };
 
     const onChangeValue = e => {
-      changeProp("value", e.target.value);
+      changeProp('value', e.target.value);
     };
 
     const onChangeCondition = e => {
-      changeProp("condition", e.target.value);
+      changeProp('condition', e.target.value);
     };
 
     return (

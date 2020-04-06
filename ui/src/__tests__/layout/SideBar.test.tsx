@@ -1,15 +1,15 @@
-import { shallow } from "enzyme";
-import React from "react";
+import { shallow } from 'enzyme';
+import React from 'react';
 
-import Sidebar from "../../modules/layout/components/Sidebar";
+import Sidebar from '../../modules/layout/components/Sidebar';
 
-describe("Sidebar component", () => {
+describe('Sidebar component', () => {
   const defaultProps = {
-    children: "child"
+    children: 'child'
   };
 
-  test("renders Sidebar successfully", () => {
+  test('renders Sidebar successfully', () => {
     const wrapper = shallow(<Sidebar {...defaultProps} />);
-    expect(wrapper).not.toBe("");
+    expect(wrapper).not.toBe('');
   });
 });

@@ -1,10 +1,10 @@
-import EmptyState from "modules/common/components/EmptyState";
-import Table from "modules/common/components/table";
-import { Count } from "modules/common/styles/main";
-import { __ } from "modules/common/utils";
-import React from "react";
-import { IIntegration } from "../../types";
-import IntegrationListItem from "./IntegrationListItem";
+import EmptyState from 'modules/common/components/EmptyState';
+import Table from 'modules/common/components/table';
+import { Count } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
+import React from 'react';
+import { IIntegration } from '../../types';
+import IntegrationListItem from './IntegrationListItem';
 
 type Props = {
   integrations: IIntegration[];
@@ -59,15 +59,15 @@ class IntegrationList extends React.Component<Props> {
     return (
       <>
         <Count>
-          {integrationsCount} {kind} integration{integrationsCount > 1 && "s"}
+          {integrationsCount} {kind} integration{integrationsCount > 1 && 's'}
         </Count>
         <Table>
           <thead>
             <tr>
-              <th>{__("Name")}</th>
-              <th>{__("Kind")}</th>
-              <th>{__("Brand")}</th>
-              <th>{__("Actions")}</th>
+              <th>{__('Name')}</th>
+              <th>{__('Kind')}</th>
+              <th>{__('Brand')}</th>
+              <th>{__('Actions')}</th>
             </tr>
           </thead>
           <tbody>{this.renderRows()}</tbody>

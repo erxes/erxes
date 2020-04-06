@@ -1,19 +1,19 @@
-import { Formgroup, Label } from "modules/common/components/form/styles";
-import { colors, dimensions } from "modules/common/styles";
-import { rgba } from "modules/common/styles/color";
+import { Formgroup, Label } from 'modules/common/components/form/styles';
+import { colors, dimensions } from 'modules/common/styles';
+import { rgba } from 'modules/common/styles/color';
 import {
   DragHandler,
   SortableWrapper,
   SortItem
-} from "modules/common/styles/sort";
+} from 'modules/common/styles/sort';
 import {
   fadeIn,
   slideDown,
   slideLeft,
   slideRight
-} from "modules/common/utils/animations";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
+} from 'modules/common/utils/animations';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const PreviewTitle = styled.div`
   background-color: ${colors.colorSecondary};

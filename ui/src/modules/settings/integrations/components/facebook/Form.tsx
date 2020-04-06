@@ -1,14 +1,14 @@
-import FormControl from "modules/common/components/form/Control";
-import Form from "modules/common/components/form/Form";
-import FormGroup from "modules/common/components/form/Group";
-import ControlLabel from "modules/common/components/form/Label";
-import Spinner from "modules/common/components/Spinner";
-import { ModalFooter } from "modules/common/styles/main";
-import { IButtonMutateProps, IFormProps } from "modules/common/types";
-import React from "react";
-import Accounts from "../../containers/Accounts";
-import SelectBrand from "../../containers/SelectBrand";
-import { IPages } from "../../types";
+import FormControl from 'modules/common/components/form/Control';
+import Form from 'modules/common/components/form/Form';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import Spinner from 'modules/common/components/Spinner';
+import { ModalFooter } from 'modules/common/styles/main';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import React from 'react';
+import Accounts from '../../containers/Accounts';
+import SelectBrand from '../../containers/SelectBrand';
+import { IPages } from '../../types';
 
 type Props = {
   kind: string;
@@ -58,7 +58,7 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
       kind,
       accountId: accountId ? accountId : values.accountId,
       data: {
-        pageIds: this.collectCheckboxValues("pages")
+        pageIds: this.collectCheckboxValues('pages')
       }
     };
   };
@@ -116,7 +116,7 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
 
         <ModalFooter>
           {renderButton({
-            name: "integration",
+            name: 'integration',
             values: this.generateDoc(values),
             isSubmitted,
             callback: this.props.closeModal

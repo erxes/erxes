@@ -1,7 +1,7 @@
-import { colors, dimensions, typography } from "modules/common/styles";
-import { rgba } from "modules/common/styles/color";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
+import { colors, dimensions, typography } from 'modules/common/styles';
+import { rgba } from 'modules/common/styles/color';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 const unitSpace = `${dimensions.unitSpacing}px`;
@@ -42,7 +42,7 @@ const LogoContainer = styled.div`
   height: 56px;
   cursor: pointer;
   box-shadow: 0 0 ${unitSpace} 0 ${rgba(colors.colorBlack, 0.2)};
-  background-image: url("/images/erxes.png");
+  background-image: url('/images/erxes.png');
   background-color: ${colors.colorPrimary};
   background-position: center;
   background-size: 20px;
@@ -67,7 +67,7 @@ const LogoContainer = styled.div`
     font-size: ${unitSpace};
   }
 
-  input[type="file"] {
+  input[type='file'] {
     display: none;
   }
 
@@ -196,19 +196,19 @@ const BackgroundSelector = styled.div`
     background-size: 220%;
 
     &.background-1 {
-      background-image: url("/images/patterns/bg-1.png");
+      background-image: url('/images/patterns/bg-1.png');
     }
 
     &.background-2 {
-      background-image: url("/images/patterns/bg-2.png");
+      background-image: url('/images/patterns/bg-2.png');
     }
 
     &.background-3 {
-      background-image: url("/images/patterns/bg-3.png");
+      background-image: url('/images/patterns/bg-3.png');
     }
 
     &.background-4 {
-      background-image: url("/images/patterns/bg-4.png");
+      background-image: url('/images/patterns/bg-4.png');
     }
 
     &.background-5 {

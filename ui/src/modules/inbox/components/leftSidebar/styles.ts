@@ -1,7 +1,7 @@
-import { colors, dimensions } from "modules/common/styles";
-import { SimpleButton } from "modules/common/styles/main";
-import styled, { css } from "styled-components";
-import styledTS from "styled-components-ts";
+import { colors, dimensions } from 'modules/common/styles';
+import { SimpleButton } from 'modules/common/styles/main';
+import styled, { css } from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const FlexRoot = styled.div`
   display: flex;
@@ -34,7 +34,7 @@ const RowContent = styledTS<{ isChecked?: boolean }>(styled.div)`
   max-width: 100%;
   transition: all ease 0.3s;
   position: relative;
-  padding-left: ${props => props.isChecked && "30px"};
+  padding-left: ${props => props.isChecked && '30px'};
 
   &:hover {
     padding-left: 30px;
@@ -45,7 +45,7 @@ const RowContent = styledTS<{ isChecked?: boolean }>(styled.div)`
   }
 
   ${CheckBox} {
-    width: ${props => (props.isChecked ? "30px" : "0")};
+    width: ${props => (props.isChecked ? '30px' : '0')};
     margin: 0;
     overflow: hidden;
     transition: all ease 0.3s;
@@ -138,7 +138,7 @@ const RowItem = styledTS<{
     `};
   &:hover {
     background: ${props =>
-      !props.isRead || props.isActive ? "" : colors.bgLight};
+      !props.isRead || props.isActive ? '' : colors.bgLight};
     cursor: pointer;
   }
 `;
@@ -153,8 +153,8 @@ const Idle = styled.div`
   transition: all ease 0.3s;
 
   &:before {
-    font-family: "erxes";
-    content: "\\ea47";
+    font-family: 'erxes';
+    content: '\\ea47';
     font-size: 10px;
     position: absolute;
     color: ${colors.colorWhite};
@@ -194,7 +194,7 @@ const LeftContent = styledTS<{ isOpen?: boolean }>(styled.div)`
   display: flex;
   position: relative;
   flex-direction: row;
-  padding-left: ${props => props.isOpen && "200px"};
+  padding-left: ${props => props.isOpen && '200px'};
   transition: padding 0.3s ease;
   margin: 10px 10px 10px 0;
   box-shadow: 0 0 5px 0 rgba(0,0,0,.08);
@@ -205,7 +205,7 @@ const LeftContent = styledTS<{ isOpen?: boolean }>(styled.div)`
   }
 `;
 
-const shadowColor = "rgba(0,0,0,0.15)";
+const shadowColor = 'rgba(0,0,0,0.15)';
 
 const AdditionalSidebar = styled.div`
   width: 200px;
@@ -245,7 +245,7 @@ const GroupTitle = styledTS<{ isOpen?: boolean }>(styled.div)`
     margin-right: 0;
     display: inline-block;
     transition: all ease 0.3s;
-    transform: ${props => props.isOpen && "rotate(180deg)"};
+    transform: ${props => props.isOpen && 'rotate(180deg)'};
   }
 
   &:hover {

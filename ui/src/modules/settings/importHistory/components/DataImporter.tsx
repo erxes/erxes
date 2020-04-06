@@ -1,9 +1,9 @@
-import Icon from "modules/common/components/Icon";
-import { colors } from "modules/common/styles";
-import { lighten } from "modules/common/styles/color";
-import { rotate } from "modules/common/utils/animations";
-import React from "react";
-import styled from "styled-components";
+import Icon from 'modules/common/components/Icon';
+import { colors } from 'modules/common/styles';
+import { lighten } from 'modules/common/styles/color';
+import { rotate } from 'modules/common/utils/animations';
+import React from 'react';
+import styled from 'styled-components';
 
 const ImportButton = styled.label`
   border-radius: 30px;

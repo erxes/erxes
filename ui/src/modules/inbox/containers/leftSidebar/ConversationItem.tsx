@@ -1,6 +1,6 @@
-import ConversationItem from "modules/inbox/components/leftSidebar/ConversationItem";
-import React from "react";
-import { IConversation } from "../../types";
+import ConversationItem from 'modules/inbox/components/leftSidebar/ConversationItem';
+import React from 'react';
+import { IConversation } from '../../types';
 
 type Props = {
   conversation: IConversation;

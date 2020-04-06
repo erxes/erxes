@@ -1,19 +1,19 @@
-import apolloClient from "apolloClient";
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import withCurrentUser from "modules/auth/containers/withCurrentUser";
-import { IUser } from "modules/auth/types";
-import React from "react";
-import { graphql } from "react-apollo";
-import { withProps } from "../../common/utils";
-import Onboarding from "../components/Onboarding";
-import { FEATURE_DETAILS } from "../constants";
-import { mutations, queries, subscriptions } from "../graphql";
+import apolloClient from 'apolloClient';
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import withCurrentUser from 'modules/auth/containers/withCurrentUser';
+import { IUser } from 'modules/auth/types';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withProps } from '../../common/utils';
+import Onboarding from '../components/Onboarding';
+import { FEATURE_DETAILS } from '../constants';
+import { mutations, queries, subscriptions } from '../graphql';
 import {
   ForceCompleteMutationResponse,
   GetAvailableFeaturesQueryResponse,
   IFeature
-} from "../types";
+} from '../types';
 
 type Props = {
   show: boolean;
@@ -40,7 +40,7 @@ class OnboardingContainer extends React.Component<
   changeStep = (step: string) => {
     const { getAvailableFeaturesQuery } = this.props;
 
-    if (step === "featureList" && getAvailableFeaturesQuery) {
+    if (step === 'featureList' && getAvailableFeaturesQuery) {
       getAvailableFeaturesQuery.refetch();
     }
 
@@ -49,12 +49,12 @@ class OnboardingContainer extends React.Component<
 
   forceComplete = () => {
     this.props.forceCompleteMutation().then(() => {
-      this.setState({ currentStep: "" });
+      this.setState({ currentStep: '' });
     });
   };
 
   componentDidMount() {
-    if (window.location.href.includes("signedIn=true")) {
+    if (window.location.href.includes('signedIn=true')) {
       setTimeout(() => {
         apolloClient.mutate({
           mutation: gql(mutations.checkStatus)
@@ -80,7 +80,7 @@ class OnboardingContainer extends React.Component<
           const { type } = onboardingChanged;
 
           if (
-            ["initial", "inComplete"].includes(type) &&
+            ['initial', 'inComplete'].includes(type) &&
             !this.state.currentStep
           ) {
             this.setState({ currentStep: type });
@@ -134,10 +134,10 @@ class OnboardingContainer extends React.Component<
 export default withProps<Props>(
   compose(
     graphql<{}>(gql(queries.getAvailableFeatures), {
-      name: "getAvailableFeaturesQuery"
+      name: 'getAvailableFeaturesQuery'
     }),
     graphql<{}>(gql(mutations.forceComplete), {
-      name: "forceCompleteMutation"
+      name: 'forceCompleteMutation'
     })
   )(withCurrentUser(OnboardingContainer))
 );

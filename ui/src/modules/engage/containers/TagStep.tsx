@@ -1,16 +1,16 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import ButtonMutate from "modules/common/components/ButtonMutate";
-import { IButtonMutateProps } from "modules/common/types";
-import { withProps } from "modules/common/utils";
-import { CountQueryResponse } from "modules/customers/types";
-import TagStep from "modules/engage/components/step/TagStep";
-import { mutations } from "modules/tags/graphql";
-import { TagsQueryResponse } from "modules/tags/types";
-import React from "react";
-import { graphql } from "react-apollo";
-import { queries } from "../graphql";
-import { sumCounts } from "../utils";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import { IButtonMutateProps } from 'modules/common/types';
+import { withProps } from 'modules/common/utils';
+import { CountQueryResponse } from 'modules/customers/types';
+import TagStep from 'modules/engage/components/step/TagStep';
+import { mutations } from 'modules/tags/graphql';
+import { TagsQueryResponse } from 'modules/tags/types';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { queries } from '../graphql';
+import { sumCounts } from '../utils';
 
 type Props = {
   tagIds: string[];
@@ -77,11 +77,11 @@ const getRefetchQueries = () => {
   return [
     {
       query: gql(queries.customerCounts),
-      variables: { only: "byTag" }
+      variables: { only: 'byTag' }
     },
     {
       query: gql(queries.tags),
-      variables: { type: "customer" }
+      variables: { type: 'customer' }
     }
   ];
 };
@@ -89,16 +89,16 @@ const getRefetchQueries = () => {
 export default withProps<Props>(
   compose(
     graphql<Props, TagsQueryResponse>(gql(queries.tags), {
-      name: "tagsQuery",
-      options: () => ({ variables: { type: "customer" } })
+      name: 'tagsQuery',
+      options: () => ({ variables: { type: 'customer' } })
     }),
     graphql<Props, CountQueryResponse, { only: string }>(
       gql(queries.customerCounts),
       {
-        name: "customerCountsQuery",
+        name: 'customerCountsQuery',
         options: {
           variables: {
-            only: "byTag"
+            only: 'byTag'
           }
         }
       }

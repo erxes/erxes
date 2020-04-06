@@ -1,17 +1,17 @@
-import { COLORS } from "modules/boards/constants";
-import Button from "modules/common/components/Button";
+import { COLORS } from 'modules/boards/constants';
+import Button from 'modules/common/components/Button';
 import {
   ControlLabel,
   FormControl,
   FormGroup
-} from "modules/common/components/form";
-import Form from "modules/common/components/form/Form";
-import Icon from "modules/common/components/Icon";
-import { IButtonMutateProps, IFormProps } from "modules/common/types";
-import { BackgroundSelector } from "modules/leads/components/step/style";
-import * as React from "react";
-import { ChooseColor } from "../../styles/label";
-import { IPipelineLabel } from "../../types";
+} from 'modules/common/components/form';
+import Form from 'modules/common/components/form/Form';
+import Icon from 'modules/common/components/Icon';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { BackgroundSelector } from 'modules/leads/components/step/style';
+import * as React from 'react';
+import { ChooseColor } from '../../styles/label';
+import { IPipelineLabel } from '../../types';
 
 type IProps = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -30,7 +30,7 @@ class FormComponent extends React.Component<IProps, State> {
     const { label } = nextProps;
     const prevLabel = prevState.label;
 
-    const defaultLabel = { colorCode: COLORS[0], name: "" };
+    const defaultLabel = { colorCode: COLORS[0], name: '' };
 
     if (
       (label && label._id !== prevLabel._id) ||
@@ -39,7 +39,7 @@ class FormComponent extends React.Component<IProps, State> {
       return {
         label: nextProps.label || {
           colorCode: COLORS[0],
-          name: ""
+          name: ''
         }
       };
     }
@@ -58,7 +58,7 @@ class FormComponent extends React.Component<IProps, State> {
   }
 
   getDefaultLabel() {
-    return { colorCode: COLORS[0], name: "" };
+    return { colorCode: COLORS[0], name: '' };
   }
 
   componentDidUpdate(prevProps) {
@@ -127,7 +127,7 @@ class FormComponent extends React.Component<IProps, State> {
           <FormControl
             {...formProps}
             name="name"
-            value={label ? label.name : ""}
+            value={label ? label.name : ''}
             onChange={this.onNameChange}
             required={true}
             autoFocus={true}
@@ -152,7 +152,7 @@ class FormComponent extends React.Component<IProps, State> {
         )}
 
         {renderButton({
-          name: "label",
+          name: 'label',
           values: {
             name: label.name,
             colorCode: label.colorCode

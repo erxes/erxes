@@ -1,13 +1,13 @@
-import client from "apolloClient";
-import gql from "graphql-tag";
-import ButtonMutate from "modules/common/components/ButtonMutate";
-import { IButtonMutateProps, IRouterProps } from "modules/common/types";
-import { Alert } from "modules/common/utils";
-import { mutations, queries } from "modules/settings/integrations/graphql";
-import * as React from "react";
-import { withRouter } from "react-router-dom";
-import Twitter from "../../components/twitter/Twitter";
-import { getRefetchQueries } from "../utils";
+import client from 'apolloClient';
+import gql from 'graphql-tag';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
+import { Alert } from 'modules/common/utils';
+import { mutations, queries } from 'modules/settings/integrations/graphql';
+import * as React from 'react';
+import { withRouter } from 'react-router-dom';
+import Twitter from '../../components/twitter/Twitter';
+import { getRefetchQueries } from '../utils';
 
 type Props = {
   type?: string;
@@ -25,19 +25,19 @@ class TwitterContainer extends React.Component<FinalProps, State> {
   constructor(props: FinalProps) {
     super(props);
 
-    this.state = { twitterAccountId: "", accountId: "" };
+    this.state = { twitterAccountId: '', accountId: '' };
   }
 
   onAccountSelect = (accountId?: string) => {
     if (!accountId) {
-      return this.setState({ twitterAccountId: "", accountId: "" });
+      return this.setState({ twitterAccountId: '', accountId: '' });
     }
 
     client
       .query({
         query: gql(queries.fetchApi),
         variables: {
-          path: "/twitter/get-account",
+          path: '/twitter/get-account',
           params: { accountId }
         }
       })
@@ -55,7 +55,7 @@ class TwitterContainer extends React.Component<FinalProps, State> {
   };
 
   onRemoveAccount = () => {
-    this.setState({ twitterAccountId: "" });
+    this.setState({ twitterAccountId: '' });
   };
 
   renderButton = ({
@@ -69,7 +69,7 @@ class TwitterContainer extends React.Component<FinalProps, State> {
         mutation={mutations.integrationsCreateExternalIntegration}
         variables={values}
         callback={callback}
-        refetchQueries={getRefetchQueries("gmail")}
+        refetchQueries={getRefetchQueries('gmail')}
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully added a ${name}`}

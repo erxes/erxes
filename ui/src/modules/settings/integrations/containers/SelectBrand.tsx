@@ -1,14 +1,14 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import ButtonMutate from "modules/common/components/ButtonMutate";
-import Spinner from "modules/common/components/Spinner";
-import { IButtonMutateProps, IFormProps } from "modules/common/types";
-import { mutations as brandMutations } from "modules/settings/brands/graphql";
-import { queries as brandQueries } from "modules/settings/brands/graphql";
-import React from "react";
-import { ChildProps, graphql } from "react-apollo";
-import { AllBrandsQueryResponse } from "../../brands/types";
-import SelectBrand from "../components/SelectBrand";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import Spinner from 'modules/common/components/Spinner';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { mutations as brandMutations } from 'modules/settings/brands/graphql';
+import { queries as brandQueries } from 'modules/settings/brands/graphql';
+import React from 'react';
+import { ChildProps, graphql } from 'react-apollo';
+import { AllBrandsQueryResponse } from '../../brands/types';
+import SelectBrand from '../components/SelectBrand';
 
 type Props = {
   onChange: () => void;
@@ -78,7 +78,7 @@ const getRefetchQueries = () => {
 
 export default compose(
   graphql<AllBrandsQueryResponse>(gql(brandQueries.brands), {
-    name: "brandsQuery",
+    name: 'brandsQuery',
     options: () => ({
       refetchQueries: getRefetchQueries
     })

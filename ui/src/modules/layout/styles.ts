@@ -1,9 +1,9 @@
-import { TabContainer } from "modules/common/components/tabs/styles";
-import { twinkling } from "modules/common/utils/animations";
-import styled, { css } from "styled-components";
-import styledTS from "styled-components-ts";
-import { colors, dimensions, typography } from "../common/styles";
-import { lighten, rgba } from "../common/styles/color";
+import { TabContainer } from 'modules/common/components/tabs/styles';
+import { twinkling } from 'modules/common/utils/animations';
+import styled, { css } from 'styled-components';
+import styledTS from 'styled-components-ts';
+import { colors, dimensions, typography } from '../common/styles';
+import { lighten, rgba } from '../common/styles/color';
 
 const UserHelper = styled.div`
   height: 50px;
@@ -26,7 +26,7 @@ const PageHeader = styled.div`
 `;
 
 const Layout = styledTS<{ isSqueezed?: boolean }>(styled.main)`
-  height: ${props => (props.isSqueezed ? "calc(100% - 36px)" : "100%")};
+  height: ${props => (props.isSqueezed ? 'calc(100% - 36px)' : '100%')};
   display: flex;
   flex: 1;
   max-width: 100%;
@@ -94,8 +94,8 @@ const MainContent = styledTS<{ transparent?: boolean; center?: boolean }>(
   min-width: 480px;
   box-shadow: ${props =>
     !props.transparent && `0 0 6px 1px ${colors.shadowPrimary}`};
-  height: ${props => props.center && "100%"};
-  margin: ${props => !props.center && "10px 10px 10px 0"};
+  height: ${props => props.center && '100%'};
+  margin: ${props => !props.center && '10px 10px 10px 0'};
 `;
 
 const ContentBox = styledTS<{ transparent?: boolean }>(styled.div)`
@@ -107,9 +107,9 @@ const ContentBox = styledTS<{ transparent?: boolean }>(styled.div)`
 
 const ContentHeader = styledTS<{ background: string }>(styled.div)`
   background: ${props =>
-    props.background === "transparent" ? "none" : colors[props.background]};
+    props.background === 'transparent' ? 'none' : colors[props.background]};
   padding: ${props =>
-    props.background === "transparent" ? 0 : `0 ${dimensions.coreSpacing}px`};
+    props.background === 'transparent' ? 0 : `0 ${dimensions.coreSpacing}px`};
   border-bottom: 1px solid ${colors.borderPrimary};
   z-index: 2;
 `;
@@ -138,7 +138,7 @@ const BarItems = styled.div`
     margin-left: ${dimensions.unitSpacing}px;
   }
 
-  input[type="text"] {
+  input[type='text'] {
     width: auto;
     display: inline-block;
   }
@@ -146,7 +146,7 @@ const BarItems = styled.div`
 
 const HeaderItems = styledTS<{ rightAligned?: boolean }>(styled.div)`
   align-self: center;
-  margin-left: ${props => props.rightAligned && "auto"};
+  margin-left: ${props => props.rightAligned && 'auto'};
 
   > * + * {
     margin-left: ${dimensions.unitSpacing}px;
@@ -163,14 +163,14 @@ const SideContent = styledTS<{
   position: relative;
   flex-direction: column;
   flex-shrink: 0;
-  width: ${props => (props.wide ? "340px" : "290px")};
-  flex: ${props => (props.half ? "1" : "none")};
-  background: ${props => (props.full ? colors.colorWhite : "none")};
+  width: ${props => (props.wide ? '340px' : '290px')};
+  flex: ${props => (props.half ? '1' : 'none')};
+  background: ${props => (props.full ? colors.colorWhite : 'none')};
   margin: ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px ${
   dimensions.unitSpacing
 }px 0;
   box-shadow: ${props =>
-    props.full ? `0 0 6px 1px ${colors.shadowPrimary}` : "none"};
+    props.full ? `0 0 6px 1px ${colors.shadowPrimary}` : 'none'};
 
   ${TabContainer} {
     position: sticky;
@@ -186,12 +186,12 @@ const SidebarHeader = styledTS<{
 }>(styled.div)`
   background-color: ${colors.bgLight};
   height: ${dimensions.headerSpacing}px;
-  margin-bottom: ${props => props.spaceBottom && "10px"};
+  margin-bottom: ${props => props.spaceBottom && '10px'};
   align-items: center;
   padding: 0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px;
   border-bottom: 1px solid ${colors.borderPrimary};
-  text-transform: ${props => props.uppercase && "uppercase"};
-  font-weight: ${props => (props.bold ? "bold" : "500")};
+  text-transform: ${props => props.uppercase && 'uppercase'};
+  font-weight: ${props => (props.bold ? 'bold' : '500')};
   display: flex;
   font-size: ${typography.fontSizeHeading8}px;
   flex-direction: row;
@@ -199,7 +199,7 @@ const SidebarHeader = styledTS<{
 `;
 
 const SidebarTitle = styledTS<{ children: any }>(
-  styled(SidebarHeader.withComponent("h3"))
+  styled(SidebarHeader.withComponent('h3'))
 )`
   padding: 0 ${dimensions.coreSpacing}px;
   margin: 0;
@@ -225,17 +225,17 @@ const SidebarBox = styledTS<{
   collapsible?: boolean;
   full?: boolean;
 }>(styled.div)`
-  background-color: ${props => (props.noBackground ? "" : colors.colorWhite)};
+  background-color: ${props => (props.noBackground ? '' : colors.colorWhite)};
   margin-bottom: ${dimensions.unitSpacing}px;
   box-shadow: ${props =>
-    props.noShadow ? "none" : `0 0 6px 1px ${colors.shadowPrimary}`};
+    props.noShadow ? 'none' : `0 0 6px 1px ${colors.shadowPrimary}`};
   padding-bottom: ${props =>
-    props.collapsible ? `${dimensions.unitSpacing}px` : "0"};
-  position: ${props => (props.full ? "initial" : "relative")};
+    props.collapsible ? `${dimensions.unitSpacing}px` : '0'};
+  position: ${props => (props.full ? 'initial' : 'relative')};
   justify-content: center;
   transition: max-height 0.4s;
-  overflow: ${props => (props.collapsible ? "hidden" : "initial")};
-  display: ${props => props.full && "flex"};
+  overflow: ${props => (props.collapsible ? 'hidden' : 'initial')};
+  display: ${props => props.full && 'flex'};
 
   &:last-child {
     margin-bottom: 0;
@@ -273,9 +273,9 @@ const HelperButtons = styledTS<{ isSidebarOpen?: boolean }>(styled.div)`
   position: absolute;
   right: ${dimensions.coreSpacing}px;
   top: ${props =>
-    props.isSidebarOpen ? `${dimensions.unitSpacing - 2}px` : "15px"};
+    props.isSidebarOpen ? `${dimensions.unitSpacing - 2}px` : '15px'};
   color: ${colors.colorCoreLightGray};
-  padding-right: ${props => (props.isSidebarOpen ? "20px" : "0")};
+  padding-right: ${props => (props.isSidebarOpen ? '20px' : '0')};
 
   a, button {
     color: ${colors.colorCoreLightGray};
@@ -323,7 +323,7 @@ const SidebarList = styledTS<{ capitalize?: boolean }>(styled.ul)`
     overflow: hidden;
     text-overflow: ellipsis;
     text-decoration: none;
-    text-transform: ${props => (props.capitalize ? "capitalize" : "normal")};
+    text-transform: ${props => (props.capitalize ? 'capitalize' : 'normal')};
     outline: 0;
     border-left: 2px solid transparent;
     transition: background 0.3s ease;
@@ -361,11 +361,11 @@ const SidebarCounter = styledTS<{ nowrap?: boolean; fullLength?: boolean }>(
   styled.div
 )`
   font-size: ${typography.fontSizeHeading8}px;
-  text-align: ${props => (props.nowrap ? "right" : "left")};
+  text-align: ${props => (props.nowrap ? 'right' : 'left')};
   color: ${colors.colorCoreGray};
   margin-top: 2px;
   overflow: hidden;
-  text-overflow: ${props => !props.fullLength && "ellipsis"};
+  text-overflow: ${props => !props.fullLength && 'ellipsis'};
   padding-left: 5px;
 
   a {
@@ -388,7 +388,7 @@ const SidebarCounter = styledTS<{ nowrap?: boolean; fullLength?: boolean }>(
 
 const FieldStyle = styledTS<{ overflow?: string }>(styled.div)`
   white-space: nowrap;
-  overflow: ${props => (props.overflow ? props.overflow : "hidden")};
+  overflow: ${props => (props.overflow ? props.overflow : 'hidden')};
   text-overflow: ellipsis;
   flex: 1;
 `;
@@ -444,16 +444,16 @@ const Authlayout = styled.div`
   height: 100%;
   overflow: hidden;
   position: relative;
-  background: ${colors.colorPrimaryDark} url("/images/stars.png") repeat top
+  background: ${colors.colorPrimaryDark} url('/images/stars.png') repeat top
     center;
   flex: 1;
 
   &:before {
-    content: "";
+    content: '';
     position: absolute;
     width: 100%;
     height: 100%;
-    background: transparent url("/images/twinkling.png") repeat top center;
+    background: transparent url('/images/twinkling.png') repeat top center;
     animation: ${twinkling} 200s linear infinite;
   }
 

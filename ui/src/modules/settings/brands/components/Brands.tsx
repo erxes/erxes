@@ -1,17 +1,17 @@
-import Button from "modules/common/components/Button";
-import DataWithLoader from "modules/common/components/DataWithLoader";
-import EmptyState from "modules/common/components/EmptyState";
-import HeaderDescription from "modules/common/components/HeaderDescription";
-import ModalTrigger from "modules/common/components/ModalTrigger";
-import Pagination from "modules/common/components/pagination/Pagination";
-import { Title } from "modules/common/styles/main";
-import React from "react";
-import { __ } from "../../../common/utils";
-import Wrapper from "../../../layout/components/Wrapper";
-import IntegrationList from "../../integrations/containers/common/IntegrationList";
-import ManageIntegrations from "../containers/ManageIntegrations";
-import Sidebar from "../containers/Sidebar";
-import { IBrand } from "../types";
+import Button from 'modules/common/components/Button';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import EmptyState from 'modules/common/components/EmptyState';
+import HeaderDescription from 'modules/common/components/HeaderDescription';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Pagination from 'modules/common/components/pagination/Pagination';
+import { Title } from 'modules/common/styles/main';
+import React from 'react';
+import { __ } from '../../../common/utils';
+import Wrapper from '../../../layout/components/Wrapper';
+import IntegrationList from '../../integrations/containers/common/IntegrationList';
+import ManageIntegrations from '../containers/ManageIntegrations';
+import Sidebar from '../containers/Sidebar';
+import { IBrand } from '../types';
 
 type Props = {
   integrationsCount: number;
@@ -30,9 +30,9 @@ class Brands extends React.Component<Props, {}> {
     } = this.props;
 
     const breadcrumb = [
-      { title: __("Settings"), link: "/settings" },
-      { title: __("Brands"), link: "/settings/brands" },
-      { title: `${currentBrand.name || ""}` }
+      { title: __('Settings'), link: '/settings' },
+      { title: __('Brands'), link: '/settings/brands' },
+      { title: `${currentBrand.name || ''}` }
     ];
 
     if (!currentBrand._id) {
@@ -84,16 +84,16 @@ class Brands extends React.Component<Props, {}> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={`${currentBrand.name || ""}`}
+            title={`${currentBrand.name || ''}`}
             breadcrumb={breadcrumb}
           />
         }
         mainHead={
           <HeaderDescription
             icon="/images/actions/32.svg"
-            title={__("Brands")}
+            title={__('Brands')}
             description={__(
-              "Add unlimited Brands with unlimited support to further your growth and accelerate your business."
+              'Add unlimited Brands with unlimited support to further your growth and accelerate your business.'
             )}
           />
         }

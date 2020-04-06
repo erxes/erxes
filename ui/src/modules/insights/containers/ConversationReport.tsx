@@ -1,17 +1,17 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import React from "react";
-import { graphql } from "react-apollo";
-import { BrandsQueryResponse } from "../../settings/brands/types";
-import ConversationReport from "../components/ConversationReport";
-import { queries } from "../graphql";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { BrandsQueryResponse } from '../../settings/brands/types';
+import ConversationReport from '../components/ConversationReport';
+import { queries } from '../graphql';
 import {
   ConversationCustomerAvgQueryResponse,
   ConversationInternalAvgQueryResponse,
   ConversationOverallAvgQueryResponse,
   ConversationSummaryDataQueryResponse,
   IQueryParams
-} from "../types";
+} from '../types';
 
 type Props = {
   history: any;
@@ -73,33 +73,33 @@ const options = ({ queryParams }) => {
 
 export default compose(
   graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
-    name: "brandsQuery"
+    name: 'brandsQuery'
   }),
   graphql<Props, ConversationCustomerAvgQueryResponse>(
     gql(queries.insightsConversationCustomerAvg),
     {
-      name: "insightsConversationCustomerAvgQuery",
+      name: 'insightsConversationCustomerAvgQuery',
       options
     }
   ),
   graphql<Props, ConversationInternalAvgQueryResponse>(
     gql(queries.insightsConversationInternalAvg),
     {
-      name: "insightsConversationInternalAvgQuery",
+      name: 'insightsConversationInternalAvgQuery',
       options
     }
   ),
   graphql<Props, ConversationOverallAvgQueryResponse>(
     gql(queries.insightsConversationOverallAvg),
     {
-      name: "insightsConversationOverallAvgQuery",
+      name: 'insightsConversationOverallAvgQuery',
       options
     }
   ),
   graphql<Props, ConversationSummaryDataQueryResponse>(
     gql(queries.insightsConversationSummary),
     {
-      name: "insightsConversationSummaryQuery",
+      name: 'insightsConversationSummaryQuery',
       options
     }
   )

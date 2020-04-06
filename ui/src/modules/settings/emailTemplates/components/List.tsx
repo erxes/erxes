@@ -1,19 +1,19 @@
-import HeaderDescription from "modules/common/components/HeaderDescription";
-import Icon from "modules/common/components/Icon";
-import ModalTrigger from "modules/common/components/ModalTrigger";
-import { IButtonMutateProps } from "modules/common/types";
-import { __ } from "modules/common/utils";
-import React from "react";
-import List from "../../common/components/List";
-import { ICommonListProps } from "../../common/types";
+import HeaderDescription from 'modules/common/components/HeaderDescription';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import { IButtonMutateProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
+import React from 'react';
+import List from '../../common/components/List';
+import { ICommonListProps } from '../../common/types';
 import {
   Actions,
   IframePreview,
   Template,
   TemplateBox,
   Templates
-} from "../styles";
-import Form from "./Form";
+} from '../styles';
+import Form from './Form';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -79,10 +79,10 @@ class EmailTemplateList extends React.Component<Props> {
         formTitle="New email template"
         size="lg"
         breadcrumb={[
-          { title: __("Settings"), link: "/settings" },
-          { title: __("Email templates") }
+          { title: __('Settings'), link: '/settings' },
+          { title: __('Email templates') }
         ]}
-        title={__("Email templates")}
+        title={__('Email templates')}
         leftActionBar={
           <HeaderDescription
             icon="/images/actions/22.svg"

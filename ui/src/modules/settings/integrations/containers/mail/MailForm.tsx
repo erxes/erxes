@@ -1,22 +1,22 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import debounce from "lodash/debounce";
-import withCurrentUser from "modules/auth/containers/withCurrentUser";
-import { IUser } from "modules/auth/types";
-import Spinner from "modules/common/components/Spinner";
-import { Alert, withProps } from "modules/common/utils";
-import { queries as messageQueries } from "modules/inbox/graphql";
-import { IMail } from "modules/inbox/types";
-import { mutations, queries } from "modules/settings/integrations/graphql";
-import * as React from "react";
-import { graphql } from "react-apollo";
-import MailForm from "../../components/mail/MailForm";
-import { IntegrationsQueryResponse } from "../../types";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import debounce from 'lodash/debounce';
+import withCurrentUser from 'modules/auth/containers/withCurrentUser';
+import { IUser } from 'modules/auth/types';
+import Spinner from 'modules/common/components/Spinner';
+import { Alert, withProps } from 'modules/common/utils';
+import { queries as messageQueries } from 'modules/inbox/graphql';
+import { IMail } from 'modules/inbox/types';
+import { mutations, queries } from 'modules/settings/integrations/graphql';
+import * as React from 'react';
+import { graphql } from 'react-apollo';
+import MailForm from '../../components/mail/MailForm';
+import { IntegrationsQueryResponse } from '../../types';
 import {
   defaultCustomerFields,
   defaultMailFields,
   defaultMessageFields
-} from "./constants";
+} from './constants';
 
 type Props = {
   integrationId?: string;
@@ -69,13 +69,13 @@ const MailFormContainer = (props: FinalProps) => {
   }) => {
     return sendMailMutation({ variables, optimisticResponse, update })
       .then(() => {
-        Alert.success("You have successfully sent a email");
+        Alert.success('You have successfully sent a email');
 
         if (isReply) {
           debounce(
             () =>
               Alert.info(
-                "This email conversation will be automatically moved to a resolved state."
+                'This email conversation will be automatically moved to a resolved state.'
               ),
             3300
           )();
@@ -97,7 +97,7 @@ const MailFormContainer = (props: FinalProps) => {
       return save({ variables });
     }
 
-    const email = mailData ? mailData.integrationEmail : "";
+    const email = mailData ? mailData.integrationEmail : '';
 
     const integrationSendMail = {
       _id: Math.round(Math.random() * -1000000),
@@ -111,10 +111,10 @@ const MailFormContainer = (props: FinalProps) => {
       },
       mailData: {
         ...defaultMailFields,
-        bcc: [{ __typename: "Email", email: variables.bcc }],
-        to: [{ __typename: "Email", email: variables.to }],
-        from: [{ __typename: "Email", email: variables.to }],
-        cc: [{ __typename: "Email", email: variables.cc }],
+        bcc: [{ __typename: 'Email', email: variables.bcc }],
+        to: [{ __typename: 'Email', email: variables.to }],
+        from: [{ __typename: 'Email', email: variables.to }],
+        cc: [{ __typename: 'Email', email: variables.cc }],
         body: variables.body,
         subject: variables.subject,
         attachments: variables.attachments,
@@ -122,7 +122,7 @@ const MailFormContainer = (props: FinalProps) => {
       }
     };
 
-    const optimisticResponse = { __typename: "Mutation", integrationSendMail };
+    const optimisticResponse = { __typename: 'Mutation', integrationSendMail };
 
     const update = store => {
       const selector = {
@@ -166,18 +166,18 @@ const MailFormContainer = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql<Props, IntegrationsQueryResponse>(gql(queries.integrations), {
-      name: "integrationsQuery",
+      name: 'integrationsQuery',
       options: () => {
         return {
-          variables: { kind: "mail" },
-          fetchPolicy: "network-only"
+          variables: { kind: 'mail' },
+          fetchPolicy: 'network-only'
         };
       }
     }),
     graphql<Props>(gql(mutations.integrationSendMail), {
-      name: "sendMailMutation",
+      name: 'sendMailMutation',
       options: () => ({
-        refetchQueries: ["activityLogs"]
+        refetchQueries: ['activityLogs']
       })
     })
   )(withCurrentUser(MailFormContainer))

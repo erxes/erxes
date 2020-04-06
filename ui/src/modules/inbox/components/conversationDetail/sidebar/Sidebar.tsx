@@ -1,74 +1,74 @@
-import { Tabs, TabTitle } from "modules/common/components/tabs";
-import Sidebar from "modules/layout/components/Sidebar";
-import React from "react";
-import { BasicInfo, TabContent } from "./styles";
+import { Tabs, TabTitle } from 'modules/common/components/tabs';
+import Sidebar from 'modules/layout/components/Sidebar';
+import React from 'react';
+import { BasicInfo, TabContent } from './styles';
 
-import asyncComponent from "modules/common/components/AsyncComponent";
-import Box from "modules/common/components/Box";
-import { __ } from "modules/common/utils";
-import CompanySection from "modules/companies/components/common/CompanySection";
-import { ICustomer } from "modules/customers/types";
-import { IConversation } from "../../../types";
+import asyncComponent from 'modules/common/components/AsyncComponent';
+import Box from 'modules/common/components/Box';
+import { __ } from 'modules/common/utils';
+import CompanySection from 'modules/companies/components/common/CompanySection';
+import { ICustomer } from 'modules/customers/types';
+import { IConversation } from '../../../types';
 
 const ActionSection = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-Sidebar-ActionSection" */ "modules/customers/containers/common/ActionSection")
+  import(/* webpackChunkName:"Inbox-Sidebar-ActionSection" */ 'modules/customers/containers/common/ActionSection')
 );
 
 const CustomFieldsSection = asyncComponent(
   () =>
-    import(/* webpackChunkName:"Inbox-Sidebar-CustomFieldsSection" */ "modules/customers/containers/common/CustomFieldsSection"),
-  { height: "200px", width: "100%", color: "#fff" }
+    import(/* webpackChunkName:"Inbox-Sidebar-CustomFieldsSection" */ 'modules/customers/containers/common/CustomFieldsSection'),
+  { height: '200px', width: '100%', color: '#fff' }
 );
 
 const PortableDeals = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-Sidebar-PortableDeals" */ "modules/deals/components/PortableDeals")
+  import(/* webpackChunkName:"Inbox-Sidebar-PortableDeals" */ 'modules/deals/components/PortableDeals')
 );
 
 const PortableTasks = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-Sidebar-PortableTasks" */ "modules/tasks/components/PortableTasks")
+  import(/* webpackChunkName:"Inbox-Sidebar-PortableTasks" */ 'modules/tasks/components/PortableTasks')
 );
 
 const PortableTickets = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-Sidebar-PortableTickets" */ "modules/tickets/components/PortableTickets")
+  import(/* webpackChunkName:"Inbox-Sidebar-PortableTickets" */ 'modules/tickets/components/PortableTickets')
 );
 
 const Contacts = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-Sidebar-Contacts" */ "modules/companies/components/detail/Contacts")
+  import(/* webpackChunkName:"Inbox-Sidebar-Contacts" */ 'modules/companies/components/detail/Contacts')
 );
 
 const DetailInfo = asyncComponent(
   () =>
-    import(/* webpackChunkName:"Inbox-Sidebar-InfoSection" */ "modules/customers/components/common/DetailInfo"),
+    import(/* webpackChunkName:"Inbox-Sidebar-InfoSection" */ 'modules/customers/components/common/DetailInfo'),
   { isBox: true }
 );
 
 const InfoSection = asyncComponent(
   () =>
-    import(/* webpackChunkName:"Inbox-Sidebar-InfoSection" */ "modules/customers/components/common/InfoSection"),
+    import(/* webpackChunkName:"Inbox-Sidebar-InfoSection" */ 'modules/customers/components/common/InfoSection'),
   { withImage: true }
 );
 
 const DevicePropertiesSection = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-Sidebar-DevicePropertiesSection" */ "modules/customers/components/common/DevicePropertiesSection")
+  import(/* webpackChunkName:"Inbox-Sidebar-DevicePropertiesSection" */ 'modules/customers/components/common/DevicePropertiesSection')
 );
 
 const TrackedDataSection = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-Sidebar-TrackedDataSection" */ "modules/customers/components/common/TrackedDataSection")
+  import(/* webpackChunkName:"Inbox-Sidebar-TrackedDataSection" */ 'modules/customers/components/common/TrackedDataSection')
 );
 
 const TaggerSection = asyncComponent(
   () =>
-    import(/* webpackChunkName:"Inbox-Sidebar-TaggerSection" */ "modules/customers/components/common/TaggerSection"),
-  { height: "200px", width: "100%", color: "#fff" }
+    import(/* webpackChunkName:"Inbox-Sidebar-TaggerSection" */ 'modules/customers/components/common/TaggerSection'),
+  { height: '200px', width: '100%', color: '#fff' }
 );
 
 const SidebarActivity = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-Sidebar-SidebarActivity" */ "modules/inbox/containers/conversationDetail/SidebarActivity")
+  import(/* webpackChunkName:"Inbox-Sidebar-SidebarActivity" */ 'modules/inbox/containers/conversationDetail/SidebarActivity')
 );
 
 const ConversationDetails = asyncComponent(
   () =>
-    import(/* webpackChunkName:"Inbox-Sidebar-ConversationDetails" */ "./ConversationDetails"),
+    import(/* webpackChunkName:"Inbox-Sidebar-ConversationDetails" */ './ConversationDetails'),
   { isBox: true }
 );
 
@@ -97,8 +97,8 @@ class Index extends React.Component<IndexProps, IndexState> {
     super(props);
 
     this.state = {
-      currentTab: "customer",
-      currentSubTab: "details"
+      currentTab: 'customer',
+      currentSubTab: 'details'
     };
   }
 
@@ -120,7 +120,7 @@ class Index extends React.Component<IndexProps, IndexState> {
   };
 
   renderDeviceProperties = ({ customer, kind, toggleSection }: IRenderData) => {
-    if (!(kind === "messenger" || kind === "form")) {
+    if (!(kind === 'messenger' || kind === 'form')) {
       return null;
     }
     return (
@@ -142,14 +142,14 @@ class Index extends React.Component<IndexProps, IndexState> {
       loading
     } = this.props;
 
-    const { kind = "" } = customer.integration || {};
+    const { kind = '' } = customer.integration || {};
 
-    if (currentSubTab === "details") {
+    if (currentSubTab === 'details') {
       return (
         <TabContent>
           <DetailInfo customer={customer} />
           <Box
-            title={__("Conversation details")}
+            title={__('Conversation details')}
             name="showConversationDetails"
             callback={toggleSection}
           >
@@ -162,7 +162,7 @@ class Index extends React.Component<IndexProps, IndexState> {
             collapseCallback={toggleSection}
           />
           <Box
-            title={__("Contact information")}
+            title={__('Contact information')}
             name="showCustomFields"
             callback={toggleSection}
           >
@@ -174,7 +174,7 @@ class Index extends React.Component<IndexProps, IndexState> {
       );
     }
 
-    if (currentSubTab === "activity") {
+    if (currentSubTab === 'activity') {
       return (
         <SidebarActivity customer={customer} currentSubTab={currentSubTab} />
       );
@@ -193,10 +193,10 @@ class Index extends React.Component<IndexProps, IndexState> {
     const { currentTab, currentSubTab } = this.state;
     const { customer, toggleSection } = this.props;
 
-    if (currentTab === "customer") {
-      const detailsOnClick = () => this.onSubtabClick("details");
-      const activityOnClick = () => this.onSubtabClick("activity");
-      const relatedOnClick = () => this.onSubtabClick("related");
+    if (currentTab === 'customer') {
+      const detailsOnClick = () => this.onSubtabClick('details');
+      const activityOnClick = () => this.onSubtabClick('activity');
+      const relatedOnClick = () => this.onSubtabClick('related');
 
       return (
         <>
@@ -206,22 +206,22 @@ class Index extends React.Component<IndexProps, IndexState> {
           <ActionSection customer={customer} />
           <Tabs full={true}>
             <TabTitle
-              className={currentSubTab === "details" ? "active" : ""}
+              className={currentSubTab === 'details' ? 'active' : ''}
               onClick={detailsOnClick}
             >
-              {__("Details")}
+              {__('Details')}
             </TabTitle>
             <TabTitle
-              className={currentSubTab === "activity" ? "active" : ""}
+              className={currentSubTab === 'activity' ? 'active' : ''}
               onClick={activityOnClick}
             >
-              {__("Activity")}
+              {__('Activity')}
             </TabTitle>
             <TabTitle
-              className={currentSubTab === "related" ? "active" : ""}
+              className={currentSubTab === 'related' ? 'active' : ''}
               onClick={relatedOnClick}
             >
-              {__("Related")}
+              {__('Related')}
             </TabTitle>
           </Tabs>
           {this.renderTabSubContent()}
@@ -243,23 +243,23 @@ class Index extends React.Component<IndexProps, IndexState> {
 
   render() {
     const { currentTab } = this.state;
-    const customerOnClick = () => this.onTabClick("customer");
-    const companyOnClick = () => this.onTabClick("company");
+    const customerOnClick = () => this.onTabClick('customer');
+    const companyOnClick = () => this.onTabClick('company');
 
     return (
       <Sidebar full={true}>
         <Tabs full={true}>
           <TabTitle
-            className={currentTab === "customer" ? "active" : ""}
+            className={currentTab === 'customer' ? 'active' : ''}
             onClick={customerOnClick}
           >
-            {__("Customer")}
+            {__('Customer')}
           </TabTitle>
           <TabTitle
-            className={currentTab === "company" ? "active" : ""}
+            className={currentTab === 'company' ? 'active' : ''}
             onClick={companyOnClick}
           >
-            {__("Company")}
+            {__('Company')}
           </TabTitle>
         </Tabs>
         {this.renderTabContent()}

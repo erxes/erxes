@@ -1,19 +1,19 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import Alert from "modules/common/utils/Alert";
-import React from "react";
-import { graphql } from "react-apollo";
-import { withProps } from "../../common/utils";
-import AssignBox from "../components/assignBox/AssignBox";
-import { mutations } from "../graphql";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import Alert from 'modules/common/utils/Alert';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withProps } from '../../common/utils';
+import AssignBox from '../components/assignBox/AssignBox';
+import { mutations } from '../graphql';
 import {
   AssignMutationResponse,
   AssignMutationVariables,
   IConversation,
   UnAssignMutationResponse,
   UnAssignMutationVariables
-} from "../types";
-import { refetchSidebarConversationsOptions } from "../utils";
+} from '../types';
+import { refetchSidebarConversationsOptions } from '../utils';
 
 type Props = {
   targets: IConversation[];
@@ -40,7 +40,7 @@ const AssignBoxContainer = (props: FinalProps) => {
       }
     })
       .then(() => {
-        Alert.success("The conversation Assignee has been renewed.");
+        Alert.success('The conversation Assignee has been renewed.');
       })
       .catch(e => {
         callback(e);
@@ -55,7 +55,7 @@ const AssignBoxContainer = (props: FinalProps) => {
       }
     })
       .then(() => {
-        Alert.success("The conversation Assignee removed");
+        Alert.success('The conversation Assignee removed');
       })
       .catch(e => {
         Alert.error(e.message);
@@ -76,14 +76,14 @@ export default withProps<Props>(
     graphql<Props, AssignMutationResponse, AssignMutationVariables>(
       gql(mutations.conversationsAssign),
       {
-        name: "assignMutation",
+        name: 'assignMutation',
         options: () => refetchSidebarConversationsOptions()
       }
     ),
     graphql<Props, UnAssignMutationResponse, UnAssignMutationVariables>(
       gql(mutations.conversationsUnassign),
       {
-        name: "conversationsUnassign",
+        name: 'conversationsUnassign',
         options: () => refetchSidebarConversationsOptions()
       }
     )

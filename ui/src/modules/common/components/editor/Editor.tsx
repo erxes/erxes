@@ -1,7 +1,7 @@
-import Draft from "draft-js";
-import { ContentState, EditorState, RichUtils } from "draft-js";
-import createLinkPlugin from "draft-js-anchor-plugin";
-import "draft-js-anchor-plugin/lib/plugin.css";
+import Draft from 'draft-js';
+import { ContentState, EditorState, RichUtils } from 'draft-js';
+import createLinkPlugin from 'draft-js-anchor-plugin';
+import 'draft-js-anchor-plugin/lib/plugin.css';
 import {
   BlockquoteButton,
   BoldButton,
@@ -10,18 +10,18 @@ import {
   OrderedListButton,
   UnderlineButton,
   UnorderedListButton
-} from "draft-js-buttons";
-import createEmojiPlugin from "draft-js-emoji-plugin";
-import "draft-js-emoji-plugin/lib/plugin.css";
-import { stateToHTML } from "draft-js-export-html";
-import Editor from "draft-js-plugins-editor";
-import createToolbarPlugin, { Separator } from "draft-js-static-toolbar-plugin";
-import "draft-js-static-toolbar-plugin/lib/plugin.css";
-import { getDraftDecorator } from "modules/common/components/editor/DraftjsHelpers";
-import Icon from "modules/common/components/Icon";
-import React from "react";
-import HeadlinesButton from "./HeadlinesButton";
-import { RichEditorControlsRoot, RichEditorRoot } from "./styles";
+} from 'draft-js-buttons';
+import createEmojiPlugin from 'draft-js-emoji-plugin';
+import 'draft-js-emoji-plugin/lib/plugin.css';
+import { stateToHTML } from 'draft-js-export-html';
+import Editor from 'draft-js-plugins-editor';
+import createToolbarPlugin, { Separator } from 'draft-js-static-toolbar-plugin';
+import 'draft-js-static-toolbar-plugin/lib/plugin.css';
+import { getDraftDecorator } from 'modules/common/components/editor/DraftjsHelpers';
+import Icon from 'modules/common/components/Icon';
+import React from 'react';
+import HeadlinesButton from './HeadlinesButton';
+import { RichEditorControlsRoot, RichEditorRoot } from './styles';
 
 type ErxesEditorProps = {
   editorState: EditorState;
@@ -52,14 +52,14 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
     const options = settings => {
       if (props.isTopPopup) {
         return {
-          top: settings.decoratorRect.y - 30 + "px", // change this value (30) for manage the distance between cursor and bottom edge of popover
-          transform: "scale(1) translateY(-100%)"
+          top: settings.decoratorRect.y - 30 + 'px', // change this value (30) for manage the distance between cursor and bottom edge of popover
+          transform: 'scale(1) translateY(-100%)'
         };
       }
 
       return {
-        top: settings.decoratorRect.y + "px",
-        transform: "scale(1)"
+        top: settings.decoratorRect.y + 'px',
+        transform: 'scale(1)'
       };
     };
 
@@ -70,11 +70,11 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
       selectButtonContent: <Icon icon="smile" />,
       positionSuggestions: settings => {
         return {
-          left: settings.decoratorRect.x + "px",
-          boxShadow: "0 0 12px 0 rgba(0, 0, 0, 0.1)",
-          transformOrigin: "1em 0%",
-          position: "fixed",
-          transition: "all 0.2s cubic-bezier(0.3, 1.2, 0.2, 1) 0s",
+          left: settings.decoratorRect.x + 'px',
+          boxShadow: '0 0 12px 0 rgba(0, 0, 0, 0.1)',
+          transformOrigin: '1em 0%',
+          position: 'fixed',
+          transition: 'all 0.2s cubic-bezier(0.3, 1.2, 0.2, 1) 0s',
           ...options(settings)
         };
       }
@@ -105,7 +105,7 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
     return false;
   };
 
-  toggleBlockType = (blockType: string = "unstyled") => {
+  toggleBlockType = (blockType: string = 'unstyled') => {
     const { onChange, editorState } = this.props;
 
     onChange(RichUtils.toggleBlockType(editorState, blockType));
@@ -148,7 +148,7 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
 
     // If the user changes block type before entering any text, we can
     // either style the placeholder or hide it. Let's just hide it now.
-    let className = "RichEditor-editor";
+    let className = 'RichEditor-editor';
     const contentState = editorState.getCurrentContent();
 
     if (!contentState.hasText()) {
@@ -156,9 +156,9 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
         contentState
           .getBlockMap()
           .first()
-          .getType() !== "unstyled"
+          .getType() !== 'unstyled'
       ) {
-        className += " RichEditor-hidePlaceholder";
+        className += ' RichEditor-hidePlaceholder';
       }
     }
 
@@ -236,8 +236,8 @@ export const createStateFromHTML = (
 export const clearContent = editorState =>
   EditorState.push(
     editorState,
-    ContentState.createFromText(""),
-    "insert-fragment"
+    ContentState.createFromText(''),
+    'insert-fragment'
   );
 
 export default {

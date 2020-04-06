@@ -1,20 +1,20 @@
-import client from "apolloClient";
-import gql from "graphql-tag";
-import { IButtonMutateProps } from "modules/common/types";
-import { Alert } from "modules/common/utils";
-import { generatePaginationParams } from "modules/common/utils/router";
+import client from 'apolloClient';
+import gql from 'graphql-tag';
+import { IButtonMutateProps } from 'modules/common/types';
+import { Alert } from 'modules/common/utils';
+import { generatePaginationParams } from 'modules/common/utils/router';
 import {
   ICommonFormProps,
   ICommonListProps
-} from "modules/settings/common/types";
-import { queries as generalQueries } from "modules/settings/general/graphql";
-import { queries as permissionQueries } from "modules/settings/permissions/graphql";
-import { IUserGroup } from "modules/settings/permissions/types";
-import React from "react";
-import { graphql } from "react-apollo";
-import { commonListComposer } from "../../utils";
-import UserList from "../components/UserList";
-import { mutations, queries } from "../graphql";
+} from 'modules/settings/common/types';
+import { queries as generalQueries } from 'modules/settings/general/graphql';
+import { queries as permissionQueries } from 'modules/settings/permissions/graphql';
+import { IUserGroup } from 'modules/settings/permissions/types';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { commonListComposer } from '../../utils';
+import UserList from '../components/UserList';
+import { mutations, queries } from '../graphql';
 
 type Props = ICommonListProps &
   ICommonFormProps & {
@@ -52,7 +52,7 @@ class UserListContainer extends React.Component<
       .then(() => {
         listQuery.refetch();
 
-        Alert.success("Congrats, Successfully updated.");
+        Alert.success('Congrats, Successfully updated.');
       })
       .catch((error: Error) => {
         Alert.error(error.message);
@@ -66,7 +66,7 @@ class UserListContainer extends React.Component<
         variables: { email }
       })
       .then(() => {
-        Alert.success("Successfully resent the invitation");
+        Alert.success('Successfully resent the invitation');
       })
       .catch(e => {
         Alert.error(e.message);
@@ -99,40 +99,40 @@ const options = ({ queryParams }: { queryParams: any }): any => {
     variables: {
       ...generatePaginationParams(queryParams),
       searchValue: queryParams.searchValue,
-      isActive: queryParams.isActive === "false" ? false : true,
+      isActive: queryParams.isActive === 'false' ? false : true,
       brandIds: queryParams.brandIds
     },
-    fetchPolicy: "network-only"
+    fetchPolicy: 'network-only'
   };
 };
 
 export default commonListComposer<{ queryParams: any; history: any }>({
-  text: "team member",
-  label: "users",
+  text: 'team member',
+  label: 'users',
   stringAddMutation: mutations.usersInvite,
   stringEditMutation: mutations.usersEdit,
 
   gqlListQuery: graphql(gql(queries.users), {
-    name: "listQuery",
+    name: 'listQuery',
     options
   }),
   gqlAddMutation: graphql(gql(mutations.usersInvite), {
-    name: "addMutation"
+    name: 'addMutation'
   }),
   gqlEditMutation: graphql(gql(mutations.usersEdit), {
-    name: "editMutation"
+    name: 'editMutation'
   }),
   gqlRemoveMutation: graphql<{ queryParams: any }>(
     gql(mutations.usersSetActiveStatus),
     {
-      name: "statusChangedMutation",
+      name: 'statusChangedMutation',
       options: ({ queryParams }) => ({
         refetchQueries: [
           {
             query: gql(queries.users),
             variables: {
               ...generatePaginationParams(queryParams),
-              isActive: !(queryParams.isActive === "false" ? false : true)
+              isActive: !(queryParams.isActive === 'false' ? false : true)
             }
           }
         ]
@@ -140,12 +140,12 @@ export default commonListComposer<{ queryParams: any; history: any }>({
     }
   ),
   gqlTotalCountQuery: graphql(gql(queries.usersTotalCount), {
-    name: "totalCountQuery",
+    name: 'totalCountQuery',
     options
   }),
   ListComponent: UserListContainer,
   gqlConfigsQuery: graphql(gql(generalQueries.configsGetEnv), {
-    name: "configsEnvQuery",
-    options: { fetchPolicy: "network-only" }
+    name: 'configsEnvQuery',
+    options: { fetchPolicy: 'network-only' }
   })
 });

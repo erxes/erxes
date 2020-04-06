@@ -1,8 +1,8 @@
-import Button from "modules/common/components/Button";
-import NameCard from "modules/common/components/nameCard/NameCard";
-import React from "react";
-import { IMessage } from "../../../../../types";
-import { AppMessageBox, CallButton, FlexItem, UserInfo } from "../styles";
+import Button from 'modules/common/components/Button';
+import NameCard from 'modules/common/components/nameCard/NameCard';
+import React from 'react';
+import { IMessage } from '../../../../../types';
+import { AppMessageBox, CallButton, FlexItem, UserInfo } from '../styles';
 
 type Props = {
   message: IMessage;

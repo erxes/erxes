@@ -1,15 +1,15 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import Spinner from "modules/common/components/Spinner";
-import { Alert, confirm, withProps } from "modules/common/utils";
-import React from "react";
-import { graphql } from "react-apollo";
-import MessengerAppList from "../components/MessengerAppList";
-import { mutations, queries } from "../graphql";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import Spinner from 'modules/common/components/Spinner';
+import { Alert, confirm, withProps } from 'modules/common/utils';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import MessengerAppList from '../components/MessengerAppList';
+import { mutations, queries } from '../graphql';
 import {
   MessengerAppsQueryResponse,
   MessengerAppsRemoveMutationResponse
-} from "../types";
+} from '../types';
 
 type Props = {
   queryParams: any;
@@ -32,11 +32,11 @@ const MessengerAppContainer = (props: FinalProps) => {
 
   const remove = app => {
     confirm().then(() => {
-      Alert.warning("Removing... Please wait!!!");
+      Alert.warning('Removing... Please wait!!!');
 
       removeMutation({ variables: { _id: app._id } })
         .then(() => {
-          Alert.success("You successfully deleted a messenger");
+          Alert.success('You successfully deleted a messenger');
         })
 
         .catch(error => {
@@ -57,18 +57,18 @@ const MessengerAppContainer = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql<Props, MessengerAppsQueryResponse>(gql(queries.messengerApps), {
-      name: "messengerAppsQuery",
+      name: 'messengerAppsQuery',
       options: ({ kind }) => {
         return {
           variables: { kind },
-          fetchPolicy: "network-only"
+          fetchPolicy: 'network-only'
         };
       }
     }),
     graphql<Props, MessengerAppsRemoveMutationResponse>(
       gql(mutations.messengerAppsRemove),
       {
-        name: "removeMutation",
+        name: 'removeMutation',
         options: ({ kind }) => {
           return {
             refetchQueries: [

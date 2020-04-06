@@ -1,18 +1,18 @@
-import Toggle from "modules/common/components/Toggle";
-import { ScrollWrapper } from "modules/common/styles/main";
-import { __ } from "modules/common/utils";
-import React from "react";
+import Toggle from 'modules/common/components/Toggle';
+import { ScrollWrapper } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
+import React from 'react';
 import {
   NotificationConfig,
   NotificationModule
-} from "../../../notifications/types";
+} from '../../../notifications/types';
 import {
   Description,
   InlineItems,
   ModuleBox,
   SubHeading,
   SubItem
-} from "../../styles";
+} from '../../styles';
 
 type Props = {
   modules: NotificationModule[];
@@ -86,13 +86,13 @@ class NotificationSettings extends React.Component<Props> {
     const content = (
       <React.Fragment>
         <SubHeading>
-          {__("Notifications")}
+          {__('Notifications')}
           <span>
-            {__("Get notified and notify others to keep everything up to date")}
+            {__('Get notified and notify others to keep everything up to date')}
           </span>
         </SubHeading>
         <InlineItems>
-          {__("Get notification by email")}
+          {__('Get notification by email')}
           <Toggle
             defaultChecked={this.props.getNotificationByEmail}
             onChange={this.onEmailConfigChange}

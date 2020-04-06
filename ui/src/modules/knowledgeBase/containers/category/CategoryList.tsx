@@ -1,16 +1,16 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { Alert, confirm } from "modules/common/utils";
-import React from "react";
-import { graphql } from "react-apollo";
-import CategoryList from "../../components/category/CategoryList";
-import { mutations, queries } from "../../graphql";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { Alert, confirm } from 'modules/common/utils';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import CategoryList from '../../components/category/CategoryList';
+import { mutations, queries } from '../../graphql';
 import {
   ArticlesTotalCountQueryResponse,
   CategoriesQueryResponse,
   CategoriesTotalCountQueryResponse,
   RemoveCategoriesMutationResponse
-} from "../../types";
+} from '../../types';
 
 type Props = {
   currentCategoryId: string;
@@ -43,7 +43,7 @@ const KnowledgeBaseContainer = (props: FinalProps) => {
         .then(() => {
           categoriesQuery.refetch();
 
-          Alert.success("You successfully deleted a category");
+          Alert.success('You successfully deleted a category');
         })
         .catch(error => {
           Alert.error(error.message);
@@ -70,7 +70,7 @@ export default compose(
   graphql<Props, CategoriesQueryResponse, { topicIds: string[] }>(
     gql(queries.knowledgeBaseCategories),
     {
-      name: "categoriesQuery",
+      name: 'categoriesQuery',
       options: ({ topicIds }) => {
         return {
           variables: {
@@ -83,22 +83,22 @@ export default compose(
   graphql<Props, ArticlesTotalCountQueryResponse, { categoryIds: string[] }>(
     gql(queries.knowledgeBaseArticlesTotalCount),
     {
-      name: "articlesCountQuery",
+      name: 'articlesCountQuery',
       options: ({ currentCategoryId }) => ({
-        variables: { categoryIds: [currentCategoryId] || "" }
+        variables: { categoryIds: [currentCategoryId] || '' }
       })
     }
   ),
   graphql<Props, CategoriesTotalCountQueryResponse>(
     gql(queries.knowledgeBaseCategoriesTotalCount),
     {
-      name: "categoriesCountQuery"
+      name: 'categoriesCountQuery'
     }
   ),
   graphql<Props, RemoveCategoriesMutationResponse, { _id: string }>(
     gql(mutations.knowledgeBaseCategoriesRemove),
     {
-      name: "removeCategoriesMutation",
+      name: 'removeCategoriesMutation',
       options: ({ currentCategoryId }) => {
         const refetchQueries: any[] = [
           {

@@ -1,14 +1,14 @@
-import { getEnv } from "apolloClient";
-import Button from "modules/common/components/Button";
-import EmptyState from "modules/common/components/EmptyState";
-import Info from "modules/common/components/Info";
-import { ModalFooter } from "modules/common/styles/main";
-import { __ } from "modules/common/utils";
-import { MarkdownWrapper } from "modules/settings/styles";
-import React from "react";
-import CopyToClipboard from "react-copy-to-clipboard";
-import ReactMarkdown from "react-markdown";
-import { ILeadIntegration } from "../types";
+import { getEnv } from 'apolloClient';
+import Button from 'modules/common/components/Button';
+import EmptyState from 'modules/common/components/EmptyState';
+import Info from 'modules/common/components/Info';
+import { ModalFooter } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
+import { MarkdownWrapper } from 'modules/settings/styles';
+import React from 'react';
+import CopyToClipboard from 'react-copy-to-clipboard';
+import ReactMarkdown from 'react-markdown';
+import { ILeadIntegration } from '../types';
 
 type Props = {
   integration: ILeadIntegration;
@@ -46,7 +46,7 @@ const getInstallCode = (brandCode: string, formCode: string) => {
           form_id: "${formCode}",
         }],
       };
-      ${installCodeIncludeScript("form")}
+      ${installCodeIncludeScript('form')}
     </script>
   `;
 };
@@ -67,9 +67,9 @@ class Manage extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    let code = "";
-    let embedCode = "";
-    let buttonCode = "";
+    let code = '';
+    let embedCode = '';
+    let buttonCode = '';
     const integration = props.integration;
 
     // showed install code automatically in edit mode
@@ -77,9 +77,9 @@ class Manage extends React.Component<Props, State> {
       const brand = integration.brand;
       const form = integration.form || {};
 
-      code = getInstallCode(brand.code, form.code || "");
-      embedCode = getEmbedCode(form.code || "");
-      buttonCode = getButtonCode(form.code || "");
+      code = getInstallCode(brand.code, form.code || '');
+      embedCode = getEmbedCode(form.code || '');
+      buttonCode = getButtonCode(form.code || '');
     }
 
     this.state = {
@@ -98,11 +98,11 @@ class Manage extends React.Component<Props, State> {
     return (
       <>
         <MarkdownWrapper>
-          <ReactMarkdown source={code || ""} />
+          <ReactMarkdown source={code || ''} />
           {code ? (
             <CopyToClipboard text={code} onCopy={onCopy}>
               <Button size="small" btnStyle="primary" icon="copy">
-                {copied ? "Copied" : "Copy to clipboard"}
+                {copied ? 'Copied' : 'Copy to clipboard'}
               </Button>
             </CopyToClipboard>
           ) : (
@@ -112,20 +112,20 @@ class Manage extends React.Component<Props, State> {
         <br />
         <Info>
           {__(
-            "If your flow type is embedded paste the code below additionally that you want erxes pop ups to appear"
+            'If your flow type is embedded paste the code below additionally that you want erxes pop ups to appear'
           )}
         </Info>
         <MarkdownWrapper>
-          <ReactMarkdown source={embedCode || ""} />
+          <ReactMarkdown source={embedCode || ''} />
         </MarkdownWrapper>
         <br />
         <Info>
           {__(
-            "If your flow type is popup paste the code below additionally in your button"
+            'If your flow type is popup paste the code below additionally in your button'
           )}
         </Info>
         <MarkdownWrapper>
-          <ReactMarkdown source={buttonCode || ""} />
+          <ReactMarkdown source={buttonCode || ''} />
         </MarkdownWrapper>
       </>
     );
@@ -136,7 +136,7 @@ class Manage extends React.Component<Props, State> {
       <>
         <Info>
           {__(
-            "Paste the code below before the body tag on every page you want erxes pop ups to appear"
+            'Paste the code below before the body tag on every page you want erxes pop ups to appear'
           )}
         </Info>
 

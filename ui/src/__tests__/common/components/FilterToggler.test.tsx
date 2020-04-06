@@ -1,18 +1,18 @@
-import { shallow } from "enzyme";
-import React from "react";
+import { shallow } from 'enzyme';
+import React from 'react';
 
-import FilterToggler from "../../../modules/inbox/components/leftSidebar/FilterToggler";
+import FilterToggler from '../../../modules/inbox/components/leftSidebar/FilterToggler';
 
-describe("FilterToggler component", () => {
+describe('FilterToggler component', () => {
   const defaultProps = {
-    groupText: "Channels",
+    groupText: 'Channels',
     isOpen: false,
 
     toggle: (params: { isOpen: boolean }) => null
   };
 
-  test("renders FilterToggler successfully", () => {
+  test('renders FilterToggler successfully', () => {
     const wrapper = shallow(<FilterToggler {...defaultProps} />);
-    expect(wrapper).not.toBe("");
+    expect(wrapper).not.toBe('');
   });
 });

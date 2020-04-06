@@ -1,16 +1,16 @@
-import { getEnv } from "apolloClient";
-import CKEditor from "ckeditor4-react";
-import { colors } from "modules/common/styles";
-import React from "react";
-import { IEditorProps } from "../types";
+import { getEnv } from 'apolloClient';
+import CKEditor from 'ckeditor4-react';
+import { colors } from 'modules/common/styles';
+import React from 'react';
+import { IEditorProps } from '../types';
 
 const { REACT_APP_API_URL } = getEnv();
 
 export const getMentionedUserIds = (content: string) => {
-  const re = new RegExp('<a[^>]* mentioned-user-id="([^"]*)"', "g");
+  const re = new RegExp('<a[^>]* mentioned-user-id="([^"]*)"', 'g');
 
   const mentionedUserIds: string[] = (content.match(re) || []).map(m =>
-    m.replace(re, "$1")
+    m.replace(re, '$1')
   );
 
   return mentionedUserIds.filter((value, index, self) => {
@@ -22,7 +22,7 @@ class EditorCK extends React.Component<IEditorProps> {
   constructor(props: IEditorProps) {
     super(props);
 
-    CKEditor.editorUrl = "/ckeditor/ckeditor.js";
+    CKEditor.editorUrl = '/ckeditor/ckeditor.js';
   }
 
   render() {
@@ -41,7 +41,7 @@ class EditorCK extends React.Component<IEditorProps> {
       autoGrow,
       autoGrowMinHeight = 180,
       autoGrowMaxHeight,
-      toolbarLocation = "top"
+      toolbarLocation = 'top'
     } = this.props;
 
     const mentionDataFeed = (opts, callback) => {
@@ -49,7 +49,7 @@ class EditorCK extends React.Component<IEditorProps> {
         return;
       }
 
-      const matchProperty = "fullName";
+      const matchProperty = 'fullName';
       const query = opts.query.toLowerCase();
 
       const data = mentionUsers.filter(
@@ -67,11 +67,11 @@ class EditorCK extends React.Component<IEditorProps> {
           height,
           startupFocus: autoFocus,
           uiColor: colors.bgLight,
-          dialog_backgroundCoverColor: "#30435C",
+          dialog_backgroundCoverColor: '#30435C',
           allowedContent: true,
           toolbarLocation,
           extraPlugins: `codemirror,strinsert,onCtrlEnter${
-            autoGrow ? ",autogrow" : ""
+            autoGrow ? ',autogrow' : ''
           }`,
           autoGrow_minHeight: autoGrowMinHeight,
           autoGrow_maxHeight: autoGrowMaxHeight,
@@ -80,42 +80,42 @@ class EditorCK extends React.Component<IEditorProps> {
           autoGrowOnStartup: true,
           toolbar: toolbar || [
             {
-              name: "document",
-              groups: ["mode", "document", "doctools"],
-              items: ["Source", "NewPage"]
+              name: 'document',
+              groups: ['mode', 'document', 'doctools'],
+              items: ['Source', 'NewPage']
             },
-            { name: "colors", items: ["TextColor", "BGColor"] },
+            { name: 'colors', items: ['TextColor', 'BGColor'] },
             {
-              name: "basicstyles",
+              name: 'basicstyles',
               items: [
-                "Bold",
-                "Italic",
-                "Underline",
-                "Strike",
-                "-",
-                "Image",
-                "Table",
-                "EmojiPanel"
+                'Bold',
+                'Italic',
+                'Underline',
+                'Strike',
+                '-',
+                'Image',
+                'Table',
+                'EmojiPanel'
               ]
             },
             {
-              name: "paragraph",
-              groups: ["list", "indent", "blocks", "align", "bidi"],
+              name: 'paragraph',
+              groups: ['list', 'indent', 'blocks', 'align', 'bidi'],
               items: [
-                "NumberedList",
-                "BulletedList",
-                "Blockquote",
-                "JustifyLeft",
-                "JustifyCenter",
-                "JustifyRight",
-                "JustifyBlock"
+                'NumberedList',
+                'BulletedList',
+                'Blockquote',
+                'JustifyLeft',
+                'JustifyCenter',
+                'JustifyRight',
+                'JustifyBlock'
               ]
             },
-            { name: "links", items: ["Link", "Unlink"] },
-            { name: "styles", items: ["Styles", "Format", "Font", "FontSize"] },
-            { name: "others", items: [insertItems && "strinsert"] },
-            { name: "clear", items: ["RemoveFormat"] },
-            { name: "tools", items: ["Maximize"] }
+            { name: 'links', items: ['Link', 'Unlink'] },
+            { name: 'styles', items: ['Styles', 'Format', 'Font', 'FontSize'] },
+            { name: 'others', items: [insertItems && 'strinsert'] },
+            { name: 'clear', items: ['RemoveFormat'] },
+            { name: 'tools', items: ['Maximize'] }
           ],
           mentions: [
             {
@@ -123,8 +123,8 @@ class EditorCK extends React.Component<IEditorProps> {
               itemTemplate:
                 '<li data-id="{id}">' +
                 '<img class="editor-avatar" src="{avatar}"' +
-                "<strong>{fullName}</strong>" +
-                "</li>",
+                '<strong>{fullName}</strong>' +
+                '</li>',
               outputTemplate:
                 '<a mentioned-user-id="{id}">@{fullName}</a><span>&nbsp;</span>',
               minChars: 0

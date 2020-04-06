@@ -1,24 +1,24 @@
-import dayjs from "dayjs";
-import Assignees from "modules/boards/components/Assignees";
-import Details from "modules/boards/components/Details";
-import DueDateLabel from "modules/boards/components/DueDateLabel";
-import Labels from "modules/boards/components/label/Labels";
-import EditForm from "modules/boards/containers/editForm/EditForm";
-import { ItemContainer, ItemDate } from "modules/boards/styles/common";
+import dayjs from 'dayjs';
+import Assignees from 'modules/boards/components/Assignees';
+import Details from 'modules/boards/components/Details';
+import DueDateLabel from 'modules/boards/components/DueDateLabel';
+import Labels from 'modules/boards/components/label/Labels';
+import EditForm from 'modules/boards/containers/editForm/EditForm';
+import { ItemContainer, ItemDate } from 'modules/boards/styles/common';
 import {
   Footer,
   PriceContainer,
   Right,
   Status
-} from "modules/boards/styles/item";
-import { Content } from "modules/boards/styles/stage";
-import { IOptions } from "modules/boards/types";
-import { renderAmount, renderPriority } from "modules/boards/utils";
-import Icon from "modules/common/components/Icon";
-import { colors } from "modules/common/styles";
-import { __ } from "modules/common/utils";
-import React from "react";
-import { IDeal } from "../types";
+} from 'modules/boards/styles/item';
+import { Content } from 'modules/boards/styles/stage';
+import { IOptions } from 'modules/boards/types';
+import { renderAmount, renderPriority } from 'modules/boards/utils';
+import Icon from 'modules/common/components/Icon';
+import { colors } from 'modules/common/styles';
+import { __ } from 'modules/common/utils';
+import React from 'react';
+import { IDeal } from '../types';
 
 type Props = {
   stageId?: string;
@@ -57,7 +57,7 @@ class DealItem extends React.PureComponent<Props> {
       return null;
     }
 
-    return <ItemDate>{dayjs(date).format("lll")}</ItemDate>;
+    return <ItemDate>{dayjs(date).format('lll')}</ItemDate>;
   }
 
   renderStatusLabel(text, color) {
@@ -73,15 +73,15 @@ class DealItem extends React.PureComponent<Props> {
       return null;
     }
 
-    if (stage.probability === "Lost") {
-      return this.renderStatusLabel("Lost", colors.colorCoreRed);
+    if (stage.probability === 'Lost') {
+      return this.renderStatusLabel('Lost', colors.colorCoreRed);
     }
 
-    if (stage.probability === "Won") {
-      return this.renderStatusLabel("Won", colors.colorCoreGreen);
+    if (stage.probability === 'Won') {
+      return this.renderStatusLabel('Won', colors.colorCoreGreen);
     }
 
-    return this.renderStatusLabel("In Progress", colors.colorCoreBlue);
+    return this.renderStatusLabel('In Progress', colors.colorCoreBlue);
   }
 
   renderContent() {
@@ -111,7 +111,7 @@ class DealItem extends React.PureComponent<Props> {
         <DueDateLabel closeDate={closeDate} isComplete={isComplete} />
 
         <Footer>
-          {item.isWatched ? <Icon icon="eye" /> : __("Last updated")}
+          {item.isWatched ? <Icon icon="eye" /> : __('Last updated')}
           <Right>{this.renderDate(item.modifiedAt)}</Right>
         </Footer>
       </>

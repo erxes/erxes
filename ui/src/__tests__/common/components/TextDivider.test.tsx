@@ -1,16 +1,16 @@
-import { shallow } from "enzyme";
-import React from "react";
+import { shallow } from 'enzyme';
+import React from 'react';
 
-import TextDivider from "../../../modules/common/components/TextDivider";
+import TextDivider from '../../../modules/common/components/TextDivider';
 
-describe("TextDivider component", () => {
+describe('TextDivider component', () => {
   const defaultProps = {
-    text: "today",
+    text: 'today',
     date: new Date()
   };
 
-  test("renders TextDivider successfully", () => {
+  test('renders TextDivider successfully', () => {
     const wrapper = shallow(<TextDivider {...defaultProps} />);
-    expect(wrapper).not.toBe("");
+    expect(wrapper).not.toBe('');
   });
 });

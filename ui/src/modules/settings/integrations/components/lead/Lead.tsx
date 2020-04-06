@@ -1,16 +1,16 @@
-import Button from "modules/common/components/Button";
-import FormControl from "modules/common/components/form/Control";
-import Form from "modules/common/components/form/Form";
-import FormGroup from "modules/common/components/form/Group";
-import ControlLabel from "modules/common/components/form/Label";
-import Info from "modules/common/components/Info";
-import { ModalFooter } from "modules/common/styles/main";
-import { IButtonMutateProps, IFormProps } from "modules/common/types";
-import { __ } from "modules/common/utils";
-import React from "react";
-import Select from "react-select-plus";
-import { Options } from "../../styles";
-import { IIntegration, ISelectMessengerApps } from "../../types";
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import Form from 'modules/common/components/form/Form';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import Info from 'modules/common/components/Info';
+import { ModalFooter } from 'modules/common/styles/main';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
+import React from 'react';
+import Select from 'react-select-plus';
+import { Options } from '../../styles';
+import { IIntegration, ISelectMessengerApps } from '../../types';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -31,8 +31,8 @@ class Lead extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      selectedMessengerId: "",
-      selectedFormId: ""
+      selectedMessengerId: '',
+      selectedFormId: ''
     };
   }
 
@@ -57,12 +57,12 @@ class Lead extends React.Component<Props, State> {
 
   onChangeMessenger = obj => {
     this.setState({ selectedMessenger: obj });
-    this.setState({ selectedMessengerId: obj ? obj.value : "" });
+    this.setState({ selectedMessengerId: obj ? obj.value : '' });
   };
 
   onChangeLead = obj => {
     this.setState({ selectedLead: obj });
-    this.setState({ selectedFormId: obj && obj.form ? obj.form._id : "" });
+    this.setState({ selectedFormId: obj && obj.form ? obj.form._id : '' });
   };
 
   renderOption = option => {
@@ -82,7 +82,7 @@ class Lead extends React.Component<Props, State> {
       <>
         <Info>
           {__(
-            "Add a Lead here and see it on your Messenger Widget! In order to see Leads in your inbox, please make sure it is added in your channel."
+            'Add a Lead here and see it on your Messenger Widget! In order to see Leads in your inbox, please make sure it is added in your channel.'
           )}
         </Info>
         <FormGroup>
@@ -128,7 +128,7 @@ class Lead extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: "lead integration",
+            name: 'lead integration',
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal

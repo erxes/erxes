@@ -1,13 +1,13 @@
-import { AppConsumer } from "appContext";
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { IUser } from "modules/auth/types";
-import React from "react";
-import { graphql } from "react-apollo";
-import { withProps } from "../../common/utils";
-import Robot from "../components/Robot";
-import { queries } from "../graphql";
-import { EntriesQueryResponse } from "../types";
+import { AppConsumer } from 'appContext';
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { IUser } from 'modules/auth/types';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withProps } from '../../common/utils';
+import Robot from '../components/Robot';
+import { queries } from '../graphql';
+import { EntriesQueryResponse } from '../types';
 
 type Props = {
   entriesQuery: EntriesQueryResponse;
@@ -37,9 +37,9 @@ export default withProps<{}>(
   compose(
     graphql<{}>(gql(queries.entries), {
       options: {
-        variables: { action: "customerScoring" }
+        variables: { action: 'customerScoring' }
       },
-      name: "entriesQuery"
+      name: 'entriesQuery'
     })
   )(RobotContainer)
 );

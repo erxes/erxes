@@ -1,10 +1,10 @@
-import Button from "modules/common/components/Button";
-import FormControl from "modules/common/components/form/Control";
-import FormGroup from "modules/common/components/form/Group";
-import ControlLabel from "modules/common/components/form/Label";
-import { ModalFooter } from "modules/common/styles/main";
-import { __ } from "modules/common/utils";
-import React from "react";
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import { ModalFooter } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
+import React from 'react';
 
 type Props = {
   save: (
@@ -25,12 +25,12 @@ class ChangePassword extends React.Component<Props> {
   generateDoc = () => {
     return {
       currentPassword: (document.getElementById(
-        "current-password"
+        'current-password'
       ) as HTMLInputElement).value,
-      newPassword: (document.getElementById("new-password") as HTMLInputElement)
+      newPassword: (document.getElementById('new-password') as HTMLInputElement)
         .value,
       confirmation: (document.getElementById(
-        "new-password-confirmation"
+        'new-password-confirmation'
       ) as HTMLInputElement).value
     };
   };
@@ -48,7 +48,7 @@ class ChangePassword extends React.Component<Props> {
           <ControlLabel>Current Password</ControlLabel>
           <FormControl
             type="password"
-            placeholder={__("Current password")}
+            placeholder={__('Current password')}
             id="current-password"
           />
         </FormGroup>
@@ -59,7 +59,7 @@ class ChangePassword extends React.Component<Props> {
           <ControlLabel>New Password</ControlLabel>
           <FormControl
             type="password"
-            placeholder={__("Enter new password")}
+            placeholder={__('Enter new password')}
             id="new-password"
           />
         </FormGroup>
@@ -68,7 +68,7 @@ class ChangePassword extends React.Component<Props> {
           <ControlLabel>Re-type Password to confirm</ControlLabel>
           <FormControl
             type="password"
-            placeholder={__("Re-type password")}
+            placeholder={__('Re-type password')}
             id="new-password-confirmation"
           />
         </FormGroup>

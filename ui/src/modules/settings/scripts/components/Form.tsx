@@ -1,15 +1,15 @@
-import FormControl from "modules/common/components/form/Control";
-import FormGroup from "modules/common/components/form/Group";
-import ControlLabel from "modules/common/components/form/Label";
-import { IButtonMutateProps, IFormProps } from "modules/common/types";
-import { __ } from "modules/common/utils";
-import { ITopic } from "modules/knowledgeBase/types";
-import { IIntegration } from "modules/settings/integrations/types";
-import React from "react";
-import Select from "react-select-plus";
-import CommonForm from "../../common/components/Form";
-import { ICommonFormProps } from "../../common/types";
-import { IScript } from "../types";
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
+import { ITopic } from 'modules/knowledgeBase/types';
+import { IIntegration } from 'modules/settings/integrations/types';
+import React from 'react';
+import Select from 'react-select-plus';
+import CommonForm from '../../common/components/Form';
+import { ICommonFormProps } from '../../common/types';
+import { IScript } from '../types';
 
 type Props = {
   object?: IScript;
@@ -78,7 +78,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
           <FormControl
             {...formProps}
             name="name"
-            defaultValue={object.name || ""}
+            defaultValue={object.name || ''}
             required={true}
             autoFocus={true}
           />
@@ -91,7 +91,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             {...formProps}
             name="messengerId"
             componentClass="select"
-            placeholder={__("Select messenger")}
+            placeholder={__('Select messenger')}
             defaultValue={object.messengerId}
           >
             <option />
@@ -107,7 +107,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
           <ControlLabel>Leads</ControlLabel>
 
           <Select
-            placeholder={__("Select leads")}
+            placeholder={__('Select leads')}
             onChange={this.onChangeLeads}
             value={this.state.leads}
             options={this.generateLeadOptions(leads)}
@@ -122,7 +122,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             {...formProps}
             name="kbTopicId"
             componentClass="select"
-            placeholder={__("Select topic")}
+            placeholder={__('Select topic')}
             defaultValue={object.kbTopicId}
           >
             <option />

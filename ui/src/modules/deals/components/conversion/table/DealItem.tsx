@@ -1,9 +1,9 @@
-import { renderAmount } from "modules/boards/utils";
-import Tip from "modules/common/components/Tip";
-import { getUserAvatar } from "modules/common/utils";
-import { IDeal } from "modules/deals/types";
-import * as React from "react";
-import { BodyRow } from "../style";
+import { renderAmount } from 'modules/boards/utils';
+import Tip from 'modules/common/components/Tip';
+import { getUserAvatar } from 'modules/common/utils';
+import { IDeal } from 'modules/deals/types';
+import * as React from 'react';
+import { BodyRow } from '../style';
 
 type Props = {
   deal: IDeal;
@@ -12,7 +12,7 @@ type Props = {
 export default class DealItem extends React.PureComponent<Props> {
   render() {
     const { deal } = this.props;
-    const stageName = deal.stage ? deal.stage.name : "";
+    const stageName = deal.stage ? deal.stage.name : '';
 
     return (
       <BodyRow>
@@ -30,7 +30,7 @@ export default class DealItem extends React.PureComponent<Props> {
                 alt={user.details && (user.details.fullName || user.email)}
                 width="22px"
                 height="22px"
-                style={{ marginLeft: "2px", borderRadius: "11px" }}
+                style={{ marginLeft: '2px', borderRadius: '11px' }}
               />
             </Tip>
           ))}

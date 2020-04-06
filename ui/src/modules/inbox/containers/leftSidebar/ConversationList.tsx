@@ -1,19 +1,19 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { IUser } from "modules/auth/types";
-import { router as routerUtils, withProps } from "modules/common/utils";
-import ConversationList from "modules/inbox/components/leftSidebar/ConversationList";
-import { queries, subscriptions } from "modules/inbox/graphql";
-import { generateParams } from "modules/inbox/utils";
-import React from "react";
-import { graphql } from "react-apollo";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { IUser } from 'modules/auth/types';
+import { router as routerUtils, withProps } from 'modules/common/utils';
+import ConversationList from 'modules/inbox/components/leftSidebar/ConversationList';
+import { queries, subscriptions } from 'modules/inbox/graphql';
+import { generateParams } from 'modules/inbox/utils';
+import React from 'react';
+import { graphql } from 'react-apollo';
 import {
   ConversationsQueryResponse,
   ConvesationsQueryVariables,
   IConversation
-} from "../../types";
-import { ConversationsTotalCountQueryResponse } from "../../types";
-import { InboxManagementActionConsumer } from "../Inbox";
+} from '../../types';
+import { ConversationsTotalCountQueryResponse } from '../../types';
+import { InboxManagementActionConsumer } from '../Inbox';
 
 type Props = {
   currentUser?: IUser;
@@ -98,11 +98,11 @@ export default withProps<Props>(
     graphql<Props, ConversationsQueryResponse, ConvesationsQueryVariables>(
       gql(queries.sidebarConversations),
       {
-        name: "conversationsQuery",
+        name: 'conversationsQuery',
         options: ({ queryParams }) => ({
           variables: generateParams(queryParams),
           notifyOnNetworkStatusChange: true,
-          fetchPolicy: "network-only",
+          fetchPolicy: 'network-only',
           // every minute
           pollInterval: 60000
         })
@@ -111,7 +111,7 @@ export default withProps<Props>(
     graphql<Props, ConversationsTotalCountQueryResponse>(
       gql(queries.totalConversationsCount),
       {
-        name: "totalCountQuery",
+        name: 'totalCountQuery',
         options: ({ queryParams }) => ({
           notifyOnNetworkStatusChange: true,
           variables: generateOptions(queryParams)

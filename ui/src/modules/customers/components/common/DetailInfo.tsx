@@ -1,17 +1,17 @@
-import dayjs from "dayjs";
-import Icon from "modules/common/components/Icon";
-import Tip from "modules/common/components/Tip";
-import { __ } from "modules/common/utils";
-import { GENDER_TYPES } from "modules/customers/constants";
-import { Status } from "modules/customers/styles";
-import { ICustomer } from "modules/customers/types";
+import dayjs from 'dayjs';
+import Icon from 'modules/common/components/Icon';
+import Tip from 'modules/common/components/Tip';
+import { __ } from 'modules/common/utils';
+import { GENDER_TYPES } from 'modules/customers/constants';
+import { Status } from 'modules/customers/styles';
+import { ICustomer } from 'modules/customers/types';
 import {
   FieldStyle,
   SidebarCounter,
   SidebarFlexRow,
   SidebarList
-} from "modules/layout/styles";
-import React from "react";
+} from 'modules/layout/styles';
+import React from 'react';
 
 type Props = {
   customer: ICustomer;
@@ -23,8 +23,8 @@ class DetailInfo extends React.PureComponent<Props> {
     return (
       <li>
         <FieldStyle>{__(`${label}`)}:</FieldStyle>
-        <SidebarCounter fullLength={label === "Description"}>
-          {value || "-"}
+        <SidebarCounter fullLength={label === 'Description'}>
+          {value || '-'}
         </SidebarCounter>
       </li>
     );
@@ -35,9 +35,9 @@ class DetailInfo extends React.PureComponent<Props> {
       if (status) {
         return (
           <Tip text={`Status: ${status}`} placement="top">
-            <Status verified={status === "valid"}>
+            <Status verified={status === 'valid'}>
               <Icon
-                icon={status === "valid" ? "shield-check" : "shield-slash"}
+                icon={status === 'valid' ? 'shield-check' : 'shield-slash'}
               />
             </Status>
           </Tip>
@@ -48,7 +48,7 @@ class DetailInfo extends React.PureComponent<Props> {
 
     return (
       <li>
-        <FieldStyle>{__("Primary email")}:</FieldStyle>
+        <FieldStyle>{__('Primary email')}:</FieldStyle>
         <SidebarCounter>
           {email ? (
             <a href={`mailto:${email}`}>
@@ -56,7 +56,7 @@ class DetailInfo extends React.PureComponent<Props> {
               {renderStatus()}
             </a>
           ) : (
-            "-"
+            '-'
           )}
         </SidebarCounter>
       </li>
@@ -68,7 +68,7 @@ class DetailInfo extends React.PureComponent<Props> {
       return null;
     }
 
-    return this.renderRow("Position", customer.position);
+    return this.renderRow('Position', customer.position);
   }
 
   render() {
@@ -76,28 +76,28 @@ class DetailInfo extends React.PureComponent<Props> {
 
     return (
       <SidebarList className="no-link">
-        {this.renderRow("Code", customer.code)}
+        {this.renderRow('Code', customer.code)}
         {this.renderEmail(
           customer.emailValidationStatus,
           customer.primaryEmail
         )}
-        {this.renderRow("Primary phone", customer.primaryPhone)}
+        {this.renderRow('Primary phone', customer.primaryPhone)}
         {this.renderPosition(customer)}
         {this.renderRow(
-          "Owner",
+          'Owner',
           customer.owner && customer.owner.details
             ? customer.owner.details.fullName
-            : ""
+            : ''
         )}
-        {this.renderRow("Department", customer.department)}
-        {this.renderRow("Gender", GENDER_TYPES[customer.sex || 0])}
+        {this.renderRow('Department', customer.department)}
+        {this.renderRow('Gender', GENDER_TYPES[customer.sex || 0])}
         {this.renderRow(
-          "Birthday",
-          customer.birthDate && dayjs(customer.birthDate).format("MMM,DD YYYY")
+          'Birthday',
+          customer.birthDate && dayjs(customer.birthDate).format('MMM,DD YYYY')
         )}
-        {this.renderRow("Do not disturb", customer.doNotDisturb)}
+        {this.renderRow('Do not disturb', customer.doNotDisturb)}
         <SidebarFlexRow>
-          {__(`Description`)}:<span>{customer.description || "-"}</span>
+          {__(`Description`)}:<span>{customer.description || '-'}</span>
         </SidebarFlexRow>
       </SidebarList>
     );

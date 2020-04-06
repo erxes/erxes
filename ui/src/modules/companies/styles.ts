@@ -1,6 +1,6 @@
-import { SidebarList } from "modules/layout/styles";
-import styled from "styled-components";
-import { colors, dimensions } from "../common/styles";
+import { SidebarList } from 'modules/layout/styles';
+import styled from 'styled-components';
+import { colors, dimensions } from '../common/styles';
 
 const CompaniesTableWrapper = styled.div`
   td {

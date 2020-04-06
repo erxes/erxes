@@ -1,17 +1,17 @@
-import { getEnv } from "apolloClient";
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import Bulk from "modules/common/components/Bulk";
-import { Alert, withProps } from "modules/common/utils";
-import { generatePaginationParams } from "modules/common/utils/router";
-import queryString from "query-string";
-import React from "react";
-import { graphql } from "react-apollo";
-import { withRouter } from "react-router-dom";
-import { IRouterProps } from "../../common/types";
-import { DefaultColumnsConfigQueryResponse } from "../../settings/properties/types";
-import CompaniesList from "../components/list/CompaniesList";
-import { mutations, queries } from "../graphql";
+import { getEnv } from 'apolloClient';
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import Bulk from 'modules/common/components/Bulk';
+import { Alert, withProps } from 'modules/common/utils';
+import { generatePaginationParams } from 'modules/common/utils/router';
+import queryString from 'query-string';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
+import { IRouterProps } from '../../common/types';
+import { DefaultColumnsConfigQueryResponse } from '../../settings/properties/types';
+import CompaniesList from '../components/list/CompaniesList';
+import { mutations, queries } from '../graphql';
 import {
   ListConfigQueryResponse,
   ListQueryVariables,
@@ -20,7 +20,7 @@ import {
   MergeMutationVariables,
   RemoveMutationResponse,
   RemoveMutationVariables
-} from "../types";
+} from '../types';
 
 type Props = {
   queryParams?: any;
@@ -59,7 +59,7 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
       companiesListConfigQuery.fieldsDefaultColumnsConfig || [];
 
     // load config from local storage
-    const localConfig = localStorage.getItem("erxes_company_columns_config");
+    const localConfig = localStorage.getItem('erxes_company_columns_config');
 
     if (localConfig) {
       columnsConfig = JSON.parse(localConfig);
@@ -71,7 +71,7 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
       })
         .then(() => {
           emptyBulk();
-          Alert.success("You successfully deleted a company");
+          Alert.success('You successfully deleted a company');
         })
         .catch(e => {
           Alert.error(e.message);
@@ -86,7 +86,7 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
         }
       })
         .then(response => {
-          Alert.success("You successfully merged companies");
+          Alert.success('You successfully merged companies');
           callback();
           history.push(
             `/contacts/companies/details/${response.data.companiesMerge._id}`
@@ -97,7 +97,7 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
         });
     };
 
-    const searchValue = this.props.queryParams.searchValue || "";
+    const searchValue = this.props.queryParams.searchValue || '';
     const { list = [], totalCount = 0 } =
       companiesMainQuery.companiesMain || {};
 
@@ -116,10 +116,10 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
 
       const stringified = queryString.stringify({
         ...queryParams,
-        type: "company"
+        type: 'company'
       });
 
-      window.open(`${REACT_APP_API_URL}/file-export?${stringified}`, "_blank");
+      window.open(`${REACT_APP_API_URL}/file-export?${stringified}`, '_blank');
     };
 
     const updatedProps = {
@@ -166,26 +166,26 @@ export default withProps<Props>(
     graphql<{ queryParams: any }, MainQueryResponse, ListQueryVariables>(
       gql(queries.companiesMain),
       {
-        name: "companiesMainQuery",
+        name: 'companiesMainQuery',
         options: generateParams
       }
     ),
     graphql<{}, ListConfigQueryResponse, {}>(gql(queries.companiesListConfig), {
-      name: "companiesListConfigQuery"
+      name: 'companiesListConfigQuery'
     }),
     // mutations
     graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.companiesRemove),
       {
-        name: "companiesRemove"
+        name: 'companiesRemove'
       }
     ),
     graphql<{}, MergeMutationResponse, MergeMutationVariables>(
       gql(mutations.companiesMerge),
       {
-        name: "companiesMerge",
+        name: 'companiesMerge',
         options: {
-          refetchQueries: ["companiesMain", "companyCounts"]
+          refetchQueries: ['companiesMain', 'companyCounts']
         }
       }
     )

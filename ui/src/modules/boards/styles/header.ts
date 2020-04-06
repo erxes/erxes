@@ -1,7 +1,7 @@
-import { colors, dimensions } from "modules/common/styles";
-import { BarItems } from "modules/layout/styles";
-import styled, { css } from "styled-components";
-import styledTS from "styled-components-ts";
+import { colors, dimensions } from 'modules/common/styles';
+import { BarItems } from 'modules/layout/styles';
+import styled, { css } from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 // header
 export const PageHeader = styled.div`
@@ -62,7 +62,7 @@ export const HeaderButton = styledTS<{
   height: 32px;
   border-radius: 4px;
   transition: background 0.3s ease;
-  background: ${props => props.hasBackground && "rgba(0, 0, 0, 0.04)"};
+  background: ${props => props.hasBackground && 'rgba(0, 0, 0, 0.04)'};
   font-weight: 500;
   display: inline-block;
   vertical-align: middle;

@@ -1,4 +1,4 @@
-import { engageDetailFields } from "./queries";
+import { engageDetailFields } from './queries';
 
 const setPause = `
   mutation setPause($_id: String!) {

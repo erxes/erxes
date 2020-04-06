@@ -1,9 +1,9 @@
-import Icon from "modules/common/components/Icon";
-import { Tabs, TabTitle } from "modules/common/components/tabs";
-import { __ } from "modules/common/utils";
-import NoteForm from "modules/internalNotes/containers/Form";
-import { WhiteBoxRoot } from "modules/layout/styles";
-import React from "react";
+import Icon from 'modules/common/components/Icon';
+import { Tabs, TabTitle } from 'modules/common/components/tabs';
+import { __ } from 'modules/common/utils';
+import NoteForm from 'modules/internalNotes/containers/Form';
+import { WhiteBoxRoot } from 'modules/layout/styles';
+import React from 'react';
 
 type Props = {
   contentType: string;
@@ -23,7 +23,7 @@ class ActivityInputs extends React.PureComponent<Props, State> {
     super(props);
 
     this.state = {
-      currentTab: "newNote"
+      currentTab: 'newNote'
     };
   }
 
@@ -35,7 +35,7 @@ class ActivityInputs extends React.PureComponent<Props, State> {
     const { contentTypeId, contentType, showEmail } = this.props;
     const { currentTab } = this.state;
 
-    if (currentTab === "newNote") {
+    if (currentTab === 'newNote') {
       return (
         <NoteForm contentType={contentType} contentTypeId={contentTypeId} />
       );
@@ -55,10 +55,10 @@ class ActivityInputs extends React.PureComponent<Props, State> {
     if (showEmail) {
       tabEmail = (
         <TabTitle
-          className={this.state.currentTab === "email" ? "active" : ""}
-          onClick={this.onChangeTab.bind(this, "email")}
+          className={this.state.currentTab === 'email' ? 'active' : ''}
+          onClick={this.onChangeTab.bind(this, 'email')}
         >
-          <Icon icon="envelope-add" /> {__("Email")}
+          <Icon icon="envelope-add" /> {__('Email')}
         </TabTitle>
       );
     }
@@ -78,10 +78,10 @@ class ActivityInputs extends React.PureComponent<Props, State> {
       <WhiteBoxRoot>
         <Tabs>
           <TabTitle
-            className={currentTab === "newNote" ? "active" : ""}
-            onClick={this.onChangeTab.bind(this, "newNote")}
+            className={currentTab === 'newNote' ? 'active' : ''}
+            onClick={this.onChangeTab.bind(this, 'newNote')}
           >
-            <Icon icon="file-plus" /> {__("New note")}
+            <Icon icon="file-plus" /> {__('New note')}
           </TabTitle>
 
           {this.renderExtraTab()}

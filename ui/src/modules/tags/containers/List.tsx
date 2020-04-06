@@ -1,13 +1,13 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import ButtonMutate from "modules/common/components/ButtonMutate";
-import { IButtonMutateProps } from "modules/common/types";
-import { Alert, confirm, withProps } from "modules/common/utils";
-import React from "react";
-import { graphql } from "react-apollo";
-import List from "../components/List";
-import { mutations, queries } from "../graphql";
-import { RemoveMutationResponse, TagsQueryResponse } from "../types";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import { IButtonMutateProps } from 'modules/common/types';
+import { Alert, confirm, withProps } from 'modules/common/utils';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import List from '../components/List';
+import { mutations, queries } from '../graphql';
+import { RemoveMutationResponse, TagsQueryResponse } from '../types';
 
 type Props = {
   type: string;
@@ -25,7 +25,7 @@ const ListContainer = (props: FinalProps) => {
     confirm().then(() => {
       removeMutation({ variables: { ids: [tag._id] } })
         .then(() => {
-          Alert.success("You successfully deleted a tag");
+          Alert.success('You successfully deleted a tag');
           tagsQuery.refetch();
         })
         .catch(e => {
@@ -50,7 +50,7 @@ const ListContainer = (props: FinalProps) => {
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully ${
-          object ? "updated" : "added"
+          object ? 'updated' : 'added'
         } a ${name}`}
       />
     );
@@ -80,16 +80,16 @@ const getRefetchQueries = (type: string) => {
 export default withProps<Props>(
   compose(
     graphql<Props, TagsQueryResponse, { type: string }>(gql(queries.tags), {
-      name: "tagsQuery",
+      name: 'tagsQuery',
       options: ({ type }) => ({
         variables: { type },
-        fetchPolicy: "network-only"
+        fetchPolicy: 'network-only'
       })
     }),
     graphql<Props, RemoveMutationResponse, { ids: string[] }>(
       gql(mutations.remove),
       {
-        name: "removeMutation",
+        name: 'removeMutation',
         options: ({ type }: Props) => ({
           refetchQueries: getRefetchQueries(type)
         })

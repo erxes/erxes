@@ -1,6 +1,6 @@
-import { colors, dimensions } from "modules/common/styles";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
+import { colors, dimensions } from 'modules/common/styles';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const LabelWrapper = styled.div`
   padding: ${dimensions.coreSpacing}px;

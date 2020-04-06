@@ -1,9 +1,9 @@
-import { IButtonMutateProps } from "modules/common/types";
-import { TargetCount } from "modules/engage/types";
-import { IBrand } from "modules/settings/brands/types";
-import React from "react";
-import Common from "./Common";
-import BrandForm from "./forms/BrandForm";
+import { IButtonMutateProps } from 'modules/common/types';
+import { TargetCount } from 'modules/engage/types';
+import { IBrand } from 'modules/settings/brands/types';
+import React from 'react';
+import Common from './Common';
+import BrandForm from './forms/BrandForm';
 
 type Props = {
   brandIds: string[];

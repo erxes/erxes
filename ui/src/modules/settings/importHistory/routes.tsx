@@ -1,14 +1,14 @@
-import asyncComponent from "modules/common/components/AsyncComponent";
-import queryString from "query-string";
-import React from "react";
-import { Route } from "react-router-dom";
+import asyncComponent from 'modules/common/components/AsyncComponent';
+import queryString from 'query-string';
+import React from 'react';
+import { Route } from 'react-router-dom';
 
 const Histories = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings Histories" */ "./containers/Histories")
+  import(/* webpackChunkName: "Settings Histories" */ './containers/Histories')
 );
 
 const HistoryDetail = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings Histories" */ "./containers/HistoryDetail")
+  import(/* webpackChunkName: "Settings Histories" */ './containers/HistoryDetail')
 );
 
 const importHistories = ({ location }) => {

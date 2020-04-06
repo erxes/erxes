@@ -1,10 +1,10 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { queries } from "modules/auth/graphql";
-import { IUser } from "modules/auth/types";
-import { Alert, withProps } from "modules/common/utils";
-import React from "react";
-import { graphql } from "react-apollo";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { queries } from 'modules/auth/graphql';
+import { IUser } from 'modules/auth/types';
+import { Alert, withProps } from 'modules/common/utils';
+import React from 'react';
+import { graphql } from 'react-apollo';
 import {
   GetNotificationByEmailMutationResponse,
   GetNotificationByEmailMutationVariables,
@@ -12,8 +12,8 @@ import {
   NotificationModulesQueryResponse,
   SaveNotificationConfigMutationResponse,
   SaveNotificationConfigMutationVariables
-} from "../../../notifications/types";
-import NotificationSettings from "../components/NotificationSettings";
+} from '../../../notifications/types';
+import NotificationSettings from '../components/NotificationSettings';
 
 type Props = {
   notificationModulesQuery: NotificationModulesQueryResponse;
@@ -35,7 +35,7 @@ const NotificationSettingsContainer = (props: Props) => {
   const configGetNotificationByEmail = variables => {
     configGetNotificationByEmailMutation({ variables })
       .then(() => {
-        Alert.success("You successfully changed a notification setting");
+        Alert.success('You successfully changed a notification setting');
       })
       .catch(error => {
         Alert.success(error.message);
@@ -46,7 +46,7 @@ const NotificationSettingsContainer = (props: Props) => {
   const saveNotificationConfigurations = variables => {
     saveNotificationConfigurationsMutation({ variables })
       .then(() => {
-        Alert.success("You successfully changed a notification setting");
+        Alert.success('You successfully changed a notification setting');
         notificationConfigurationsQuery.refetch();
       })
       .catch(error => {
@@ -86,7 +86,7 @@ export default withProps<{}>(
         }
       `,
       {
-        name: "notificationModulesQuery"
+        name: 'notificationModulesQuery'
       }
     ),
     graphql<{}, NotificationConfigsQueryResponse>(
@@ -100,7 +100,7 @@ export default withProps<{}>(
         }
       `,
       {
-        name: "notificationConfigurationsQuery"
+        name: 'notificationConfigurationsQuery'
       }
     ),
     graphql<
@@ -116,7 +116,7 @@ export default withProps<{}>(
         }
       `,
       {
-        name: "configGetNotificationByEmailMutation",
+        name: 'configGetNotificationByEmailMutation',
         options: () => ({
           refetchQueries: [
             {
@@ -145,7 +145,7 @@ export default withProps<{}>(
         }
       `,
       {
-        name: "saveNotificationConfigurationsMutation"
+        name: 'saveNotificationConfigurationsMutation'
       }
     )
   )(NotificationSettingsContainer)

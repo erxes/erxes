@@ -1,5 +1,5 @@
-import { IConversation } from "modules/inbox/types";
-import React from "react";
+import { IConversation } from 'modules/inbox/types';
+import React from 'react';
 
 type Props = {
   conversation: IConversation;

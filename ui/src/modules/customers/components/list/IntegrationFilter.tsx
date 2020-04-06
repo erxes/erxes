@@ -1,11 +1,11 @@
-import Box from "modules/common/components/Box";
-import DataWithLoader from "modules/common/components/DataWithLoader";
-import { IRouterProps } from "modules/common/types";
-import { __, router } from "modules/common/utils";
-import { FieldStyle, SidebarCounter, SidebarList } from "modules/layout/styles";
-import { INTEGRATION_KINDS } from "modules/settings/integrations/constants";
-import React from "react";
-import { withRouter } from "react-router-dom";
+import Box from 'modules/common/components/Box';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import { IRouterProps } from 'modules/common/types';
+import { __, router } from 'modules/common/utils';
+import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
+import { INTEGRATION_KINDS } from 'modules/settings/integrations/constants';
+import React from 'react';
+import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
   counts: { [key: string]: number };
@@ -24,9 +24,9 @@ function IntegrationFilter({ history, counts }: IProps) {
             href="#filter"
             tabIndex={0}
             className={
-              router.getParam(history, "integrationType") === kind.value
-                ? "active"
-                : ""
+              router.getParam(history, 'integrationType') === kind.value
+                ? 'active'
+                : ''
             }
             onClick={onClick.bind(null, kind.value)}
           >
@@ -40,7 +40,7 @@ function IntegrationFilter({ history, counts }: IProps) {
 
   return (
     <Box
-      title={__("Filter by integrations")}
+      title={__('Filter by integrations')}
       name="showFilterByIntegrations"
       collapsible={true}
     >

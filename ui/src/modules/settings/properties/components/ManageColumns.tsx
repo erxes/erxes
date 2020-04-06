@@ -1,12 +1,12 @@
-import Button from "modules/common/components/Button";
-import FormControl from "modules/common/components/form/Control";
-import SortableList from "modules/common/components/SortableList";
-import { colors } from "modules/common/styles";
-import { ScrollWrapper } from "modules/common/styles/main";
-import { __ } from "modules/common/utils";
-import React from "react";
-import styled from "styled-components";
-import { FieldsCombinedByType, IConfigColumn } from "../types";
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import SortableList from 'modules/common/components/SortableList';
+import { colors } from 'modules/common/styles';
+import { ScrollWrapper } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
+import React from 'react';
+import styled from 'styled-components';
+import { FieldsCombinedByType, IConfigColumn } from '../types';
 
 const Header = styled.div`
   display: flex;
@@ -104,8 +104,8 @@ class ManageColumns extends React.Component<Props, State> {
     return (
       <form onSubmit={this.onSubmit}>
         <Header>
-          <span>{__("Column name")}</span>
-          <span>{__("Visible")}</span>
+          <span>{__('Column name')}</span>
+          <span>{__('Visible')}</span>
         </Header>
         <ScrollWrapper calcHeight="320">
           <SortableList

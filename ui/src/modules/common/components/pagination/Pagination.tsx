@@ -1,11 +1,11 @@
-import Icon from "modules/common/components/Icon";
-import { router } from "modules/common/utils";
-import React from "react";
-import { withRouter } from "react-router-dom";
-import { IRouterProps } from "../../types";
-import { difference, intersection, range, union } from "../../utils";
-import PerPageChooser from "./PerPageChooser";
-import { PaginationList, PaginationWrapper } from "./styles";
+import Icon from 'modules/common/components/Icon';
+import { router } from 'modules/common/utils';
+import React from 'react';
+import { withRouter } from 'react-router-dom';
+import { IRouterProps } from '../../types';
+import { difference, intersection, range, union } from '../../utils';
+import PerPageChooser from './PerPageChooser';
+import { PaginationList, PaginationWrapper } from './styles';
 
 // pages calculation
 const generatePages = (pageCount: number, currentPage: number): number[] => {
@@ -88,10 +88,10 @@ class Page extends React.Component<{
     const { currentPage, page } = this.props;
 
     if (page !== -1) {
-      let className = "";
+      let className = '';
 
       if (page === currentPage) {
-        className += " active disabled";
+        className += ' active disabled';
       }
 
       return (
@@ -157,15 +157,15 @@ class Pagination extends React.Component<IPaginationProps> {
       return null;
     }
 
-    let prevClass = "";
-    let nextClass = "";
+    let prevClass = '';
+    let nextClass = '';
 
     if (currentPage <= 1) {
-      prevClass = "disabled";
+      prevClass = 'disabled';
     }
 
     if (currentPage >= totalPagesCount) {
-      nextClass = "disabled";
+      nextClass = 'disabled';
     }
 
     return (
@@ -212,8 +212,8 @@ interface IPaginationContainerProps extends IRouterProps {
 const PaginationContainer = (props: IPaginationContainerProps) => {
   const { history, count = 100 } = props;
 
-  const currentPage = Number(router.getParam(history, "page")) || 1;
-  const perPage = Number(router.getParam(history, "perPage")) || 20;
+  const currentPage = Number(router.getParam(history, 'page')) || 1;
+  const perPage = Number(router.getParam(history, 'perPage')) || 20;
 
   let totalPagesCount = parseInt((count / perPage).toString(), 10) + 1;
 

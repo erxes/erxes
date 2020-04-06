@@ -1,10 +1,10 @@
-import asyncComponent from "modules/common/components/AsyncComponent";
-import queryString from "query-string";
-import React from "react";
-import { Route } from "react-router-dom";
+import asyncComponent from 'modules/common/components/AsyncComponent';
+import queryString from 'query-string';
+import React from 'react';
+import { Route } from 'react-router-dom';
 
 const Properties = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings Properties" */ "./containers/Properties")
+  import(/* webpackChunkName: "Settings Properties" */ './containers/Properties')
 );
 
 const properties = ({ location }) => {

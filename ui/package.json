@@ -65,13 +65,13 @@
     "gitDir": "../",
     "linters": {
       "ui/src/**/*.{ts,tsx,json,css}": [
-        "prettier --write",
+        "prettier --single-quote --write",
         "git add"
       ]
     }
   },
   "scripts": {
-    "format": "prettier --write 'src/**/*.@(ts|tsx)'",
+    "format": "prettier --single-quote --write 'src/**/*.@(ts|tsx)'",
     "precommit": "lint-staged",
     "start": "react-scripts start",
     "build": "yarn generateVersion && react-scripts build",

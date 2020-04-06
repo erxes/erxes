@@ -1,17 +1,17 @@
-import { IUser } from "modules/auth/types";
-import Button from "modules/common/components/Button";
-import Icon from "modules/common/components/Icon";
-import ModalTrigger from "modules/common/components/ModalTrigger";
-import Tip from "modules/common/components/Tip";
-import { IButtonMutateProps } from "modules/common/types";
-import { __ } from "modules/common/utils";
-import { FieldStyle } from "modules/layout/styles";
-import { ActionButtons, SidebarListItem } from "modules/settings/styles";
-import React from "react";
-import { Link } from "react-router-dom";
-import ChannelForm from "../containers/ChannelForm";
-import { IChannel } from "../types";
-import MemberAvatars from "./MemberAvatars";
+import { IUser } from 'modules/auth/types';
+import Button from 'modules/common/components/Button';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Tip from 'modules/common/components/Tip';
+import { IButtonMutateProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
+import { FieldStyle } from 'modules/layout/styles';
+import { ActionButtons, SidebarListItem } from 'modules/settings/styles';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import ChannelForm from '../containers/ChannelForm';
+import { IChannel } from '../types';
+import MemberAvatars from './MemberAvatars';
 
 type Props = {
   channel: IChannel;
@@ -32,7 +32,7 @@ class ChannelRow extends React.Component<Props, {}> {
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text={__("Edit")} placement="bottom">
+        <Tip text={__('Edit')} placement="bottom">
           <Icon icon="edit" />
         </Tip>
       </Button>

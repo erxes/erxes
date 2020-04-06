@@ -1,12 +1,12 @@
-import Box from "modules/common/components/Box";
-import Button from "modules/common/components/Button";
-import EmptyState from "modules/common/components/EmptyState";
-import { Alert } from "modules/common/utils";
-import Sidebar from "modules/layout/components/Sidebar";
-import React from "react";
-import { SidebarContent } from "../styles";
-import { IFieldGroup } from "../types";
-import GenerateField from "./GenerateField";
+import Box from 'modules/common/components/Box';
+import Button from 'modules/common/components/Button';
+import EmptyState from 'modules/common/components/EmptyState';
+import { Alert } from 'modules/common/utils';
+import Sidebar from 'modules/layout/components/Sidebar';
+import React from 'react';
+import { SidebarContent } from '../styles';
+import { IFieldGroup } from '../types';
+import GenerateField from './GenerateField';
 
 type Props = {
   fieldGroup: IFieldGroup;
@@ -47,7 +47,7 @@ class GenerateGroup extends React.Component<Props, State> {
 
       this.cancelEditing();
 
-      return Alert.success("Success");
+      return Alert.success('Success');
     });
   };
 
@@ -119,7 +119,7 @@ class GenerateGroup extends React.Component<Props, State> {
               field={field}
               key={index}
               onValueChange={this.onValueChange}
-              defaultValue={data[field._id] || ""}
+              defaultValue={data[field._id] || ''}
             />
           );
         })}

@@ -1,7 +1,7 @@
-import gql from "graphql-tag";
-import queryString from "query-string";
-import { queries } from "./graphql";
-import { IConversation } from "./types";
+import gql from 'graphql-tag';
+import queryString from 'query-string';
+import { queries } from './graphql';
+import { IConversation } from './types';
 
 export const generateParams = queryParams => ({
   limit: queryParams.limit ? parseInt(queryParams.limit, 10) : 10,
@@ -47,7 +47,7 @@ export const isConversationMailKind = (conversation: IConversation) => {
     integration: { kind }
   } = conversation;
 
-  return kind === "gmail" || kind.includes("nylas");
+  return kind === 'gmail' || kind.includes('nylas');
 };
 
 /**
@@ -56,7 +56,7 @@ export const isConversationMailKind = (conversation: IConversation) => {
  */
 export const extractEmail = (str?: string) => {
   if (!str || str.length === 0) {
-    return "";
+    return '';
   }
 
   // eslint-disable-next-line
@@ -64,21 +64,21 @@ export const extractEmail = (str?: string) => {
   const emails = str.match(emailRegex);
 
   if (!emails) {
-    return "";
+    return '';
   }
 
-  return emails.join(" ");
+  return emails.join(' ');
 };
 
 export const urlify = (text: string) => {
   const urlRegex = /(\b((https?|ftp|file):\/\/)?(www\.)[-A-Z0-9+&@#%?=~_|!:,.;]*[-A-Z0-9+&@#%=~_|])/gi;
 
   let content = text.replace(urlRegex, url => {
-    if (url.includes("http://") || url.includes("https://")) {
-      return '<a href="' + url + '" target="_blank">' + url + "</a>";
+    if (url.includes('http://') || url.includes('https://')) {
+      return '<a href="' + url + '" target="_blank">' + url + '</a>';
     }
 
-    return '<a href="https://' + url + '" target="_blank">' + url + "</a>";
+    return '<a href="https://' + url + '" target="_blank">' + url + '</a>';
   });
 
   if (text.includes('<a href="')) {

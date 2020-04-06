@@ -1,16 +1,16 @@
-import ActionButtons from "modules/common/components/ActionButtons";
-import Button from "modules/common/components/Button";
-import EmptyState from "modules/common/components/EmptyState";
-import ModalTrigger from "modules/common/components/ModalTrigger";
-import Table from "modules/common/components/table";
-import Toggle from "modules/common/components/Toggle";
-import { __, Alert, confirm } from "modules/common/utils";
-import React from "react";
-import Collapse from "react-bootstrap/Collapse";
-import PropertyForm from "../containers/PropertyForm";
-import PropertyGroupForm from "../containers/PropertyGroupForm";
-import { CollapseRow, DropIcon, FieldType } from "../styles";
-import { IField, IFieldGroup } from "../types";
+import ActionButtons from 'modules/common/components/ActionButtons';
+import Button from 'modules/common/components/Button';
+import EmptyState from 'modules/common/components/EmptyState';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Table from 'modules/common/components/table';
+import Toggle from 'modules/common/components/Toggle';
+import { __, Alert, confirm } from 'modules/common/utils';
+import React from 'react';
+import Collapse from 'react-bootstrap/Collapse';
+import PropertyForm from '../containers/PropertyForm';
+import PropertyGroupForm from '../containers/PropertyGroupForm';
+import { CollapseRow, DropIcon, FieldType } from '../styles';
+import { IField, IFieldGroup } from '../types';
 
 type Props = {
   group: IFieldGroup;
@@ -39,7 +39,7 @@ class PropertyRow extends React.Component<Props, State> {
 
   visibleHandler = (e, property) => {
     if (property.isDefinedByErxes) {
-      return Alert.error("You cannot update this property");
+      return Alert.error('You cannot update this property');
     }
 
     const isVisible = e.target.checked;
@@ -88,7 +88,7 @@ class PropertyRow extends React.Component<Props, State> {
         <td>
           {lastUpdatedUser && lastUpdatedUser.details
             ? lastUpdatedUser.details.fullName
-            : "Unknown"}
+            : 'Unknown'}
         </td>
         <td>
           <Toggle
@@ -124,9 +124,9 @@ class PropertyRow extends React.Component<Props, State> {
       <Table hover={true}>
         <thead>
           <tr>
-            <th>{__("Name")}</th>
-            <th>{__("Last Updated By")}</th>
-            <th>{__("Visible")}</th>
+            <th>{__('Name')}</th>
+            <th>{__('Last Updated By')}</th>
+            <th>{__('Visible')}</th>
             <th />
           </tr>
         </thead>

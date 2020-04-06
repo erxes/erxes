@@ -1,9 +1,9 @@
-import CustomFieldsSection from "modules/companies/containers/detail/CustomFieldsSection";
-import { ICompany } from "modules/companies/types";
-import TaggerSection from "modules/customers/components/common/TaggerSection";
-import Sidebar from "modules/layout/components/Sidebar";
-import React from "react";
-import BasicInfoSection from "../common/BasicInfoSection";
+import CustomFieldsSection from 'modules/companies/containers/detail/CustomFieldsSection';
+import { ICompany } from 'modules/companies/types';
+import TaggerSection from 'modules/customers/components/common/TaggerSection';
+import Sidebar from 'modules/layout/components/Sidebar';
+import React from 'react';
+import BasicInfoSection from '../common/BasicInfoSection';
 
 type Props = {
   company: ICompany;

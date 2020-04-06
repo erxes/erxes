@@ -1,11 +1,11 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { generatePaginationParams } from "modules/common/utils/router";
-import * as React from "react";
-import { graphql } from "react-apollo";
-import LogList from "../components/LogList";
-import queries from "../queries";
-import { LogsQueryResponse } from "../types";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { generatePaginationParams } from 'modules/common/utils/router';
+import * as React from 'react';
+import { graphql } from 'react-apollo';
+import LogList from '../components/LogList';
+import queries from '../queries';
+import { LogsQueryResponse } from '../types';
 
 type FinalProps = {
   can: (action: string) => boolean;
@@ -13,7 +13,7 @@ type FinalProps = {
 
 const List = (props: FinalProps) => {
   const { queryParams, logsQuery } = props;
-  const errorMessage = logsQuery.error ? logsQuery.error.message : "";
+  const errorMessage = logsQuery.error ? logsQuery.error.message : '';
   const isLoading = logsQuery.loading;
 
   const updatedProps = {
@@ -49,7 +49,7 @@ const commonOptions = queryParams => {
 
 export default compose(
   graphql<Props, LogsQueryResponse>(gql(queries.logs), {
-    name: "logsQuery",
+    name: 'logsQuery',
     options: ({ queryParams }) => ({
       notifyOnNetworkStatusChange: true,
       variables: {

@@ -1,18 +1,18 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import Chooser from "modules/common/components/Chooser";
-import { Alert, withProps } from "modules/common/utils";
-import ProductCategoryChooser from "modules/deals/components/product/ProductCategoryChooser";
-import ProductForm from "modules/settings/productService/containers/product/ProductForm";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import Chooser from 'modules/common/components/Chooser';
+import { Alert, withProps } from 'modules/common/utils';
+import ProductCategoryChooser from 'modules/deals/components/product/ProductCategoryChooser';
+import ProductForm from 'modules/settings/productService/containers/product/ProductForm';
 import {
   mutations as productMutations,
   queries as productQueries
-} from "modules/settings/productService/graphql";
-import { ProductCategoriesQueryResponse } from "modules/settings/productService/types";
-import React from "react";
-import { graphql } from "react-apollo";
-import { IProduct, IProductDoc } from "../../../settings/productService/types";
-import { ProductAddMutationResponse, ProductsQueryResponse } from "../../types";
+} from 'modules/settings/productService/graphql';
+import { ProductCategoriesQueryResponse } from 'modules/settings/productService/types';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { IProduct, IProductDoc } from '../../../settings/productService/types';
+import { ProductAddMutationResponse, ProductsQueryResponse } from '../../types';
 
 type Props = {
   data: { name: string; products: IProduct[] };
@@ -57,7 +57,7 @@ class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
       .then(() => {
         this.props.productsQuery.refetch();
 
-        Alert.success("You successfully added a product or service");
+        Alert.success('You successfully added a product or service');
 
         callback();
       })
@@ -84,10 +84,10 @@ class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
       ...this.props,
       data: { name: data.name, datas: data.products },
       search: this.search,
-      title: "Product",
+      title: 'Product',
       renderName: (product: IProduct) => {
         if (product.code) {
-          return product.code.concat(" - ", product.name);
+          return product.code.concat(' - ', product.name);
         }
 
         return product.name;
@@ -97,7 +97,7 @@ class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
       ),
       perPage: this.state.perPage,
       add: this.addProduct,
-      clearState: () => this.search("", true),
+      clearState: () => this.search('', true),
       datas: productsQuery.products || [],
       onSelect
     };
@@ -118,7 +118,7 @@ export default withProps<Props>(
       ProductsQueryResponse,
       { perPage: number; categoryId: string }
     >(gql(productQueries.products), {
-      name: "productsQuery",
+      name: 'productsQuery',
       options: props => ({
         variables: {
           perPage: 20,
@@ -129,14 +129,14 @@ export default withProps<Props>(
     graphql<{}, ProductCategoriesQueryResponse, {}>(
       gql(productQueries.productCategories),
       {
-        name: "productCategoriesQuery"
+        name: 'productCategoriesQuery'
       }
     ),
     // mutations
     graphql<{}, ProductAddMutationResponse, IProduct>(
       gql(productMutations.productAdd),
       {
-        name: "productAdd",
+        name: 'productAdd',
         options: () => ({
           refetchQueries: [
             {

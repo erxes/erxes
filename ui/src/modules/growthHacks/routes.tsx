@@ -1,33 +1,33 @@
-import asyncComponent from "modules/common/components/AsyncComponent";
-import queryString from "query-string";
-import React from "react";
-import { Redirect, Route } from "react-router-dom";
+import asyncComponent from 'modules/common/components/AsyncComponent';
+import queryString from 'query-string';
+import React from 'react';
+import { Redirect, Route } from 'react-router-dom';
 
 const GrowthHackBoard = asyncComponent(() =>
-  import(/* webpackChunkName: "GrowthHackBoard" */ "./components/GrowthHackBoard")
+  import(/* webpackChunkName: "GrowthHackBoard" */ './components/GrowthHackBoard')
 );
 
 const GrowthHackHome = asyncComponent(() =>
-  import(/* webpackChunkName: "GrowthHackHome" */ "./containers/home/Home")
+  import(/* webpackChunkName: "GrowthHackHome" */ './containers/home/Home')
 );
 const PriorityMatrix = asyncComponent(() =>
-  import(/* webpackChunkName: "PriorityMatrix" */ "./components/priorityMatrix/PriorityMatrix")
+  import(/* webpackChunkName: "PriorityMatrix" */ './components/priorityMatrix/PriorityMatrix')
 );
 
 const EditableGrowthHackList = asyncComponent(() =>
-  import(/* webpackChunkName: "EditableGrowthHackList" */ "./containers/EditableGrowthHackList")
+  import(/* webpackChunkName: "EditableGrowthHackList" */ './containers/EditableGrowthHackList')
 );
 
 const WeightedScore = asyncComponent(() =>
-  import(/* webpackChunkName: "WeightedScore" */ "./components/weightedScore/WeightedScore")
+  import(/* webpackChunkName: "WeightedScore" */ './components/weightedScore/WeightedScore')
 );
 
 const FunnelImpact = asyncComponent(() =>
-  import(/* webpackChunkName: "FunnelImpact" */ "./components/funnelImpact/FunnelImpact")
+  import(/* webpackChunkName: "FunnelImpact" */ './components/funnelImpact/FunnelImpact')
 );
 
 const growthHack = () => {
-  const growthHacksLink = "/growthHack/home";
+  const growthHacksLink = '/growthHack/home';
 
   return <Redirect to={growthHacksLink} />;
 };

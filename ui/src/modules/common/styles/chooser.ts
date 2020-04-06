@@ -1,10 +1,10 @@
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
-import { dimensions } from ".";
-import colors from "./colors";
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
+import { dimensions } from '.';
+import colors from './colors';
 
-const columnSizing = "20px";
-const borderRadius = "2px";
+const columnSizing = '20px';
+const borderRadius = '2px';
 
 const Columns = styled.div`
   display: flex;
@@ -88,7 +88,7 @@ const Title = styledTS<{ full?: boolean }>(styled.h4)`
   margin: 0 0 ${columnSizing} 0;
   background: ${colors.bgActive};
   padding: 10px ${columnSizing};
-  white-space: ${props => (props.full ? "normal" : "nowrap")};
+  white-space: ${props => (props.full ? 'normal' : 'nowrap')};
   font-size: 12px;
   text-transform: uppercase;
   overflow: hidden;

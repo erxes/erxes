@@ -1,11 +1,11 @@
-import gql from "graphql-tag";
-import ButtonMutate from "modules/common/components/ButtonMutate";
-import { IButtonMutateProps } from "modules/common/types";
-import { generatePaginationParams } from "modules/common/utils/router";
-import React from "react";
-import ArticleForm from "../../components/article/ArticleForm";
-import { mutations, queries } from "../../graphql";
-import { IArticle } from "../../types";
+import gql from 'graphql-tag';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import { IButtonMutateProps } from 'modules/common/types';
+import { generatePaginationParams } from 'modules/common/utils/router';
+import React from 'react';
+import ArticleForm from '../../components/article/ArticleForm';
+import { mutations, queries } from '../../graphql';
+import { IArticle } from '../../types';
 
 type Props = {
   article: IArticle;
@@ -42,7 +42,7 @@ const ArticleContainer = (props: Props) => {
         type="submit"
         isSubmitted={isSubmitted}
         successMessage={`You successfully ${
-          object ? "updated" : "added"
+          object ? 'updated' : 'added'
         } an ${name}`}
       />
     );

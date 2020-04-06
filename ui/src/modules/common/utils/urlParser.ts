@@ -12,17 +12,17 @@ const extractHostname = (url: string) => {
   let hostname;
 
   if (!url) {
-    url = "";
+    url = '';
   }
 
-  if (url.indexOf("://") > -1) {
-    hostname = url.split("/")[2];
+  if (url.indexOf('://') > -1) {
+    hostname = url.split('/')[2];
   } else {
-    hostname = url.split("/")[0];
+    hostname = url.split('/')[0];
   }
 
-  hostname = hostname.split(":")[0];
-  hostname = hostname.split("?")[0];
+  hostname = hostname.split(':')[0];
+  hostname = hostname.split('?')[0];
 
   return hostname;
 };
@@ -30,16 +30,16 @@ const extractHostname = (url: string) => {
 // extract root domain e.g: domain.com
 const extractRootDomain = (url: string) => {
   let domain = extractHostname(url);
-  const splitArr = domain.split(".");
+  const splitArr = domain.split('.');
   const arrLen = splitArr.length;
 
   if (arrLen > 2) {
-    domain = splitArr[arrLen - 2] + "." + splitArr[arrLen - 1];
+    domain = splitArr[arrLen - 2] + '.' + splitArr[arrLen - 1];
     if (
       splitArr[arrLen - 1].length === 2 &&
       splitArr[arrLen - 1].length === 2
     ) {
-      domain = splitArr[arrLen - 3] + "." + domain;
+      domain = splitArr[arrLen - 3] + '.' + domain;
     }
   }
   return domain;

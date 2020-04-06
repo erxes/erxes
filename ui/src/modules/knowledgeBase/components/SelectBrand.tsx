@@ -1,9 +1,9 @@
-import FormControl from "modules/common/components/form/Control";
-import FormGroup from "modules/common/components/form/Group";
-import ControlLabel from "modules/common/components/form/Label";
-import { __ } from "modules/common/utils";
-import React from "react";
-import { IBrand } from "../../settings/brands/types";
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import { __ } from 'modules/common/utils';
+import React from 'react';
+import { IBrand } from '../../settings/brands/types';
 
 type Props = {
   brands: IBrand[];
@@ -18,7 +18,7 @@ const SelectBrand = ({ brands, onChange, defaultValue }: Props) => (
     <FormControl
       id="selectBrand"
       componentClass="select"
-      placeholder={__("Select Brand")}
+      placeholder={__('Select Brand')}
       defaultValue={defaultValue}
       onChange={onChange}
     >

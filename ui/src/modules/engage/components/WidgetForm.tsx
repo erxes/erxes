@@ -1,24 +1,24 @@
-import { IUser } from "modules/auth/types";
-import Button from "modules/common/components/Button";
-import EditorCK from "modules/common/components/EditorCK";
-import FormControl from "modules/common/components/form/Control";
-import FormGroup from "modules/common/components/form/Group";
-import ControlLabel from "modules/common/components/form/Label";
-import Uploader from "modules/common/components/Uploader";
-import { ModalFooter } from "modules/common/styles/main";
-import { __ } from "modules/common/utils";
-import { ICustomer } from "modules/customers/types";
-import { EMAIL_CONTENT } from "modules/engage/constants";
-import { METHODS } from "modules/engage/constants";
-import { FlexContent, FlexItem } from "modules/layout/styles";
-import { IEmailTemplate } from "modules/settings/emailTemplates/types";
-import { MAIL_TOOLBARS_CONFIG } from "modules/settings/integrations/constants";
-import React from "react";
-import { IAttachment } from "../../common/types";
-import { IBrand } from "../../settings/brands/types";
-import MessengerPreview from "../containers/MessengerPreview";
-import { Half, Recipient, Recipients } from "../styles";
-import { IEngageEmail, IEngageMessageDoc, IEngageMessenger } from "../types";
+import { IUser } from 'modules/auth/types';
+import Button from 'modules/common/components/Button';
+import EditorCK from 'modules/common/components/EditorCK';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import Uploader from 'modules/common/components/Uploader';
+import { ModalFooter } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
+import { ICustomer } from 'modules/customers/types';
+import { EMAIL_CONTENT } from 'modules/engage/constants';
+import { METHODS } from 'modules/engage/constants';
+import { FlexContent, FlexItem } from 'modules/layout/styles';
+import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
+import { MAIL_TOOLBARS_CONFIG } from 'modules/settings/integrations/constants';
+import React from 'react';
+import { IAttachment } from '../../common/types';
+import { IBrand } from '../../settings/brands/types';
+import MessengerPreview from '../containers/MessengerPreview';
+import { Half, Recipient, Recipients } from '../styles';
+import { IEngageEmail, IEngageMessageDoc, IEngageMessenger } from '../types';
 
 type Props = {
   customers: ICustomer[];
@@ -44,10 +44,10 @@ class WidgetForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      content: "",
-      channel: props.channelType || "email",
+      content: '',
+      channel: props.channelType || 'email',
       attachments: [],
-      sentAs: "snippet"
+      sentAs: 'snippet'
     };
   }
 
@@ -57,28 +57,28 @@ class WidgetForm extends React.Component<Props, State> {
     const { save, customers } = this.props;
 
     const doc = {
-      title: (document.getElementById("title") as HTMLInputElement).value,
+      title: (document.getElementById('title') as HTMLInputElement).value,
       customerIds: customers.map(customer => customer._id),
-      method: ""
+      method: ''
     } as IEngageMessageDoc;
 
-    if (this.state.channel === "email") {
+    if (this.state.channel === 'email') {
       doc.method = METHODS.EMAIL;
       doc.email = {
-        subject: (document.getElementById("emailSubject") as HTMLInputElement)
+        subject: (document.getElementById('emailSubject') as HTMLInputElement)
           .value,
         attachments: this.state.attachments,
         content: this.state.content
       } as IEngageEmail;
     }
 
-    if (this.state.channel === "messenger") {
+    if (this.state.channel === 'messenger') {
       doc.method = METHODS.MESSENGER;
       doc.messenger = {
-        brandId: (document.getElementById("brandId") as HTMLInputElement).value,
-        kind: (document.getElementById("messengerKind") as HTMLInputElement)
+        brandId: (document.getElementById('brandId') as HTMLInputElement).value,
+        kind: (document.getElementById('messengerKind') as HTMLInputElement)
           .value,
-        sentAs: (document.getElementById("sentAs") as HTMLInputElement).value,
+        sentAs: (document.getElementById('sentAs') as HTMLInputElement).value,
         content: this.state.content
       } as IEngageMessenger;
     }
@@ -99,11 +99,11 @@ class WidgetForm extends React.Component<Props, State> {
   };
 
   onEditorChange = e => {
-    this.onChangeCommon("content", e.editor.getData());
+    this.onChangeCommon('content', e.editor.getData());
   };
 
   onSentAsChange = e => {
-    this.onChangeCommon("sentAs", e.target.value);
+    this.onChangeCommon('sentAs', e.target.value);
   };
 
   findTemplate = id => {
@@ -113,7 +113,7 @@ class WidgetForm extends React.Component<Props, State> {
       return template.content;
     }
 
-    return "";
+    return '';
   };
 
   renderReceivers() {
@@ -123,8 +123,8 @@ class WidgetForm extends React.Component<Props, State> {
         <Recipients>
           {this.props.customers.map(customer => (
             <Recipient key={customer._id}>
-              <strong>{customer.firstName}</strong>{" "}
-              {customer.primaryEmail || "Unknown"}
+              <strong>{customer.firstName}</strong>{' '}
+              {customer.primaryEmail || 'Unknown'}
             </Recipient>
           ))}
         </Recipients>
@@ -147,8 +147,8 @@ class WidgetForm extends React.Component<Props, State> {
             onChange={this.onChannelChange}
             defaultValue={this.state.channel}
           >
-            <option value="email">{__("Email")}</option>
-            <option value="messenger">{__("Messenger")}</option>
+            <option value="email">{__('Email')}</option>
+            <option value="messenger">{__('Messenger')}</option>
           </FormControl>
         </FormGroup>
       </Half>
@@ -163,13 +163,13 @@ class WidgetForm extends React.Component<Props, State> {
         onChange={this.onEditorChange}
         insertItems={EMAIL_CONTENT}
         toolbar={[
-          { name: "insert", items: ["strinsert"] },
+          { name: 'insert', items: ['strinsert'] },
           ...MAIL_TOOLBARS_CONFIG
         ]}
       />
     );
 
-    if (this.state.channel === "messenger") {
+    if (this.state.channel === 'messenger') {
       return (
         <FlexContent>
           <FlexItem>
@@ -238,7 +238,7 @@ class WidgetForm extends React.Component<Props, State> {
 
     const { attachments } = this.state;
     const onChange = attachmentsAtt =>
-      this.onChangeCommon("attachments", attachmentsAtt);
+      this.onChangeCommon('attachments', attachmentsAtt);
 
     return (
       <>
@@ -250,7 +250,7 @@ class WidgetForm extends React.Component<Props, State> {
 
           <FormGroup>
             <ControlLabel>Email templates:</ControlLabel>
-            <p>{__("Insert email template to content")}</p>
+            <p>{__('Insert email template to content')}</p>
             <FormControl
               id="emailTemplateId"
               componentClass="select"

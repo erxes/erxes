@@ -1,10 +1,10 @@
-import asyncComponent from "modules/common/components/AsyncComponent";
-import queryString from "query-string";
-import React from "react";
-import { Route } from "react-router-dom";
+import asyncComponent from 'modules/common/components/AsyncComponent';
+import queryString from 'query-string';
+import React from 'react';
+import { Route } from 'react-router-dom';
 
 const Profile = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings - Profile" */ "./containers/Profile")
+  import(/* webpackChunkName: "Settings - Profile" */ './containers/Profile')
 );
 
 const profile = ({ location }) => {

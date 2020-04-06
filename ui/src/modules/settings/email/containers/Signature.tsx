@@ -1,23 +1,23 @@
-import { AppConsumer } from "appContext";
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { queries } from "modules/auth/graphql";
-import { IUser } from "modules/auth/types";
-import { Alert, withProps } from "modules/common/utils";
-import { queries as teamQueries } from "modules/settings/team/graphql";
-import { UserDetailQueryResponse } from "modules/settings/team/types";
-import React from "react";
-import { graphql } from "react-apollo";
-import Spinner from "../../../common/components/Spinner";
-import { queries as brandQueries } from "../../brands/graphql";
-import { BrandsQueryResponse } from "../../brands/types";
-import Signature from "../components/Signature";
+import { AppConsumer } from 'appContext';
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { queries } from 'modules/auth/graphql';
+import { IUser } from 'modules/auth/types';
+import { Alert, withProps } from 'modules/common/utils';
+import { queries as teamQueries } from 'modules/settings/team/graphql';
+import { UserDetailQueryResponse } from 'modules/settings/team/types';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import Spinner from '../../../common/components/Spinner';
+import { queries as brandQueries } from '../../brands/graphql';
+import { BrandsQueryResponse } from '../../brands/types';
+import Signature from '../components/Signature';
 import {
   IEmailSignature,
   IEmailSignatureWithBrand,
   UsersConfigEmailSignaturesMutationResponse,
   UsersConfigEmailSignaturesMutationVariables
-} from "../types";
+} from '../types';
 
 type Props = {
   currentUser: IUser;
@@ -53,7 +53,7 @@ const SignatureContainer = (props: FinalProps) => {
 
     saveMutation({ variables: { signatures: doc } })
       .then(() => {
-        Alert.success("Great job! You just set up your email signature.");
+        Alert.success('Great job! You just set up your email signature.');
         callback();
         userDetailQuery.refetch();
       })
@@ -75,8 +75,8 @@ const SignatureContainer = (props: FinalProps) => {
 
     signatures.push({
       brandId: brand._id,
-      brandName: brand.name || "",
-      signature: oldEntry ? oldEntry.signature : ""
+      brandName: brand.name || '',
+      signature: oldEntry ? oldEntry.signature : ''
     });
   });
 
@@ -92,12 +92,12 @@ const SignatureContainer = (props: FinalProps) => {
 const WithQuery = withProps<Props>(
   compose(
     graphql<Props, BrandsQueryResponse, {}>(gql(brandQueries.brands), {
-      name: "brandsQuery"
+      name: 'brandsQuery'
     }),
     graphql<Props, UserDetailQueryResponse, { _id: string }>(
       gql(teamQueries.userDetail),
       {
-        name: "userDetailQuery",
+        name: 'userDetailQuery',
         options: ({ currentUser }: { currentUser: IUser }) => ({
           variables: { _id: currentUser._id }
         })
@@ -116,7 +116,7 @@ const WithQuery = withProps<Props>(
         }
       `,
       {
-        name: "saveMutation",
+        name: 'saveMutation',
         options: () => ({
           refetchQueries: [
             {

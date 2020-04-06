@@ -1,17 +1,17 @@
-import EmptyState from "modules/common/components/EmptyState";
-import Spinner from "modules/common/components/Spinner";
-import { __ } from "modules/common/utils";
-import React from "react";
-import { Link } from "react-router-dom";
-import { INotification } from "../types";
-import NotificationRow from "./NotificationRow";
+import EmptyState from 'modules/common/components/EmptyState';
+import Spinner from 'modules/common/components/Spinner';
+import { __ } from 'modules/common/utils';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { INotification } from '../types';
+import NotificationRow from './NotificationRow';
 import {
   MarkAllRead,
   NotificationList,
   NotificationSeeAll,
   NotificationWrapper,
   PopoverContent
-} from "./styles";
+} from './styles';
 
 type Props = {
   notifications: INotification[];
@@ -39,12 +39,12 @@ class NotificationsLatest extends React.Component<Props> {
           ))}
         </NotificationList>
         <NotificationSeeAll>
-          <Link to="/notifications">{__("See all")}</Link>
+          <Link to="/notifications">{__('See all')}</Link>
         </NotificationSeeAll>
         <MarkAllRead>
           <span onClick={markAsRead.bind(this, [])}>
-            {__("Mark all as read")}
-          </span>{" "}
+            {__('Mark all as read')}
+          </span>{' '}
         </MarkAllRead>
       </React.Fragment>
     );
@@ -52,7 +52,7 @@ class NotificationsLatest extends React.Component<Props> {
     const emptyContent = (
       <PopoverContent>
         <EmptyState
-          text={__("Looks like you are all caught up")}
+          text={__('Looks like you are all caught up')}
           image="/images/actions/17.svg"
         />
       </PopoverContent>

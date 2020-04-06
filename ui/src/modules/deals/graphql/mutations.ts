@@ -2,8 +2,8 @@ import {
   commonFields,
   commonMutationParams,
   commonMutationVariables
-} from "modules/boards/graphql/mutations";
-import { dealFields } from "./queries";
+} from 'modules/boards/graphql/mutations';
+import { dealFields } from './queries';
 
 const dealMutationVariables = `
   $productsData: JSON,

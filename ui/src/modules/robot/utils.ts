@@ -1,9 +1,9 @@
-import { IUser } from "modules/auth/types";
+import { IUser } from 'modules/auth/types';
 
 export const getCurrentUserName = (user: IUser) => {
   if (!user.details) {
-    return "Dear";
+    return 'Dear';
   }
 
-  return user.details.shortName || user.details.fullName || "";
+  return user.details.shortName || user.details.fullName || '';
 };

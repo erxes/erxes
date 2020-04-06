@@ -1,6 +1,6 @@
-import Datetime from "@nateradebaugh/react-datetime";
-import React from "react";
-import { FlexWrapper } from "./styles";
+import Datetime from '@nateradebaugh/react-datetime';
+import React from 'react';
+import { FlexWrapper } from './styles';
 
 type Props = {
   onChange?: (e: React.FormEvent<HTMLElement>) => void;
@@ -17,7 +17,7 @@ type Props = {
 
 class DateControl extends React.Component<Props> {
   static defaultProps = {
-    dateFormat: "MMM,DD YYYY"
+    dateFormat: 'MMM,DD YYYY'
   };
 
   componentDidMount() {
@@ -38,7 +38,7 @@ class DateControl extends React.Component<Props> {
       timeFormat,
       required
     } = this.props;
-    const errorMessage = errors && errors[name || ""];
+    const errorMessage = errors && errors[name || ''];
 
     // cancel custom browser default form validation error
     const onChange = e => {
@@ -49,9 +49,9 @@ class DateControl extends React.Component<Props> {
 
     const inputProps = {
       name,
-      placeholder: placeholder || "",
+      placeholder: placeholder || '',
       required: required || false,
-      autoComplete: "off"
+      autoComplete: 'off'
     };
 
     const attributes = {

@@ -1,11 +1,11 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { Alert } from "modules/common/utils";
-import { confirm } from "modules/common/utils";
-import LeadState from "modules/customers/components/detail/LeadState";
-import React from "react";
-import { graphql } from "react-apollo";
-import { mutations } from "../graphql";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { Alert } from 'modules/common/utils';
+import { confirm } from 'modules/common/utils';
+import LeadState from 'modules/customers/components/detail/LeadState';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { mutations } from '../graphql';
 import {
   ChangeStateMutationResponse,
   ChangeStateMutationVariables,
@@ -13,7 +13,7 @@ import {
   EditMutationResponse,
   ICustomer,
   ICustomerDoc
-} from "../types";
+} from '../types';
 
 type Props = {
   customer: ICustomer;
@@ -30,7 +30,7 @@ class CustomerChooser extends React.Component<FinalProps> {
     const { customersEdit, customer, customersChangeState } = this.props;
 
     const changeState = (value: string) => {
-      confirm("Are your sure you want to convert lead to customer?").then(() =>
+      confirm('Are your sure you want to convert lead to customer?').then(() =>
         customersChangeState({
           variables: {
             _id: customer._id,
@@ -38,7 +38,7 @@ class CustomerChooser extends React.Component<FinalProps> {
           }
         })
           .then(() => {
-            Alert.success("You successfully converted to customer");
+            Alert.success('You successfully converted to customer');
           })
           .catch(e => {
             Alert.error(e.message);
@@ -51,7 +51,7 @@ class CustomerChooser extends React.Component<FinalProps> {
         variables: { _id: customer._id, leadStatus: state }
       })
         .then(() => {
-          Alert.success("You successfully updated state");
+          Alert.success('You successfully updated state');
         })
         .catch(e => {
           Alert.error(e.message);
@@ -73,10 +73,10 @@ export default compose(
   graphql<Props, EditMutationResponse, ICustomerDoc>(
     gql(mutations.customersEdit),
     {
-      name: "customersEdit",
+      name: 'customersEdit',
       options: () => {
         return {
-          refetchQueries: ["customersMain", "customers"]
+          refetchQueries: ['customersMain', 'customers']
         };
       }
     }
@@ -84,9 +84,9 @@ export default compose(
   graphql<Props, ChangeStateMutationResponse, ChangeStateMutationVariables>(
     gql(mutations.customersChangeState),
     {
-      name: "customersChangeState",
+      name: 'customersChangeState',
       options: {
-        refetchQueries: ["customersMain", "customerCounts", "customerDetail"]
+        refetchQueries: ['customersMain', 'customerCounts', 'customerDetail']
       }
     }
   )

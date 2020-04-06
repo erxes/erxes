@@ -1,8 +1,8 @@
-import { LeftItem } from "modules/common/components/step/styles";
-import { colors, dimensions } from "modules/common/styles";
-import { BoxRoot, DateContainer } from "modules/common/styles/main";
-import { WhiteBoxRoot } from "modules/layout/styles";
-import styled from "styled-components";
+import { LeftItem } from 'modules/common/components/step/styles';
+import { colors, dimensions } from 'modules/common/styles';
+import { BoxRoot, DateContainer } from 'modules/common/styles/main';
+import { WhiteBoxRoot } from 'modules/layout/styles';
+import styled from 'styled-components';
 
 const BoxItem = styled.div`
   flex-basis: 300px;

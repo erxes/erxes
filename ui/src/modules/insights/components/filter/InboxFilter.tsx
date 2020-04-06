@@ -1,14 +1,14 @@
-import ControlLabel from "modules/common/components/form/Label";
-import { ISelectedOption } from "modules/common/types";
-import { __, router } from "modules/common/utils";
-import { IBrand } from "modules/settings/brands/types";
-import React from "react";
-import Select from "react-select-plus";
-import { FlexItem } from "../../styles";
-import { IQueryParams } from "../../types";
-import { formatDate } from "../../utils";
-import { integrationOptions, selectOptions } from "../../utils";
-import Filter from "./Filter";
+import ControlLabel from 'modules/common/components/form/Label';
+import { ISelectedOption } from 'modules/common/types';
+import { __, router } from 'modules/common/utils';
+import { IBrand } from 'modules/settings/brands/types';
+import React from 'react';
+import Select from 'react-select-plus';
+import { FlexItem } from '../../styles';
+import { IQueryParams } from '../../types';
+import { formatDate } from '../../utils';
+import { integrationOptions, selectOptions } from '../../utils';
+import Filter from './Filter';
 
 type Props = {
   brands: IBrand[];
@@ -26,12 +26,12 @@ class InboxFilter extends React.Component<Props, States> {
   constructor(props) {
     super(props);
 
-    const { brandIds = "", integrationIds = "" } = props.queryParams || {};
+    const { brandIds = '', integrationIds = '' } = props.queryParams || {};
 
     this.state = {
       ...props.queryParams,
-      brandIds: brandIds.split(","),
-      integrationIds: integrationIds.split(",")
+      brandIds: brandIds.split(','),
+      integrationIds: integrationIds.split(',')
     };
   }
 
@@ -48,8 +48,8 @@ class InboxFilter extends React.Component<Props, States> {
     const { integrationIds, brandIds } = this.state;
 
     router.setParams(history, {
-      integrationIds: (integrationIds || []).join(","),
-      brandIds: (brandIds || []).join(","),
+      integrationIds: (integrationIds || []).join(','),
+      brandIds: (brandIds || []).join(','),
       startDate: formatDate(startDate),
       endDate: formatDate(endDate)
     });
@@ -66,7 +66,7 @@ class InboxFilter extends React.Component<Props, States> {
       <FlexItem>
         <ControlLabel>Integrations</ControlLabel>
         <Select
-          placeholder={__("Choose integrations")}
+          placeholder={__('Choose integrations')}
           value={this.state.integrationIds || []}
           onChange={this.onTypeChange}
           optionRenderer={options}
@@ -91,7 +91,7 @@ class InboxFilter extends React.Component<Props, States> {
         <ControlLabel>Brands</ControlLabel>
 
         <Select
-          placeholder={__("Choose brands")}
+          placeholder={__('Choose brands')}
           value={this.state.brandIds || []}
           onChange={this.onBrandChange}
           optionRenderer={options}

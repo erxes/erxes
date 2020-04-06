@@ -1,15 +1,15 @@
-import { shallow } from "enzyme";
-import React from "react";
+import { shallow } from 'enzyme';
+import React from 'react';
 
-import AuthLayout from "../../modules/layout/components/AuthLayout";
+import AuthLayout from '../../modules/layout/components/AuthLayout';
 
-describe("AuthLayout component", () => {
+describe('AuthLayout component', () => {
   const defaultProps = {
     content: false
   };
 
-  test("renders AuthLayout successfully", () => {
+  test('renders AuthLayout successfully', () => {
     const wrapper = shallow(<AuthLayout {...defaultProps} />);
-    expect(wrapper).not.toBe("");
+    expect(wrapper).not.toBe('');
   });
 });

@@ -1,7 +1,7 @@
-import { colors, dimensions, typography } from "modules/common/styles";
-import { darken } from "modules/common/styles/color";
-import { BoxRoot } from "modules/common/styles/main";
-import styled from "styled-components";
+import { colors, dimensions, typography } from 'modules/common/styles';
+import { darken } from 'modules/common/styles/color';
+import { BoxRoot } from 'modules/common/styles/main';
+import styled from 'styled-components';
 
 const rowTitleSize = 250;
 const boxSize = 150;

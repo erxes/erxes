@@ -1,12 +1,12 @@
-import FormControl from "modules/common/components/form/Control";
-import Icon from "modules/common/components/Icon";
-import { IButtonMutateProps } from "modules/common/types";
-import { __ } from "modules/common/utils";
-import { CustomerCounts, RadioContainer } from "modules/engage/styles";
-import { TargetCount } from "modules/engage/types";
-import { ISegment, ISegmentDoc } from "modules/segments/types";
-import React from "react";
-import Targets from "../Targets";
+import FormControl from 'modules/common/components/form/Control';
+import Icon from 'modules/common/components/Icon';
+import { IButtonMutateProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
+import { CustomerCounts, RadioContainer } from 'modules/engage/styles';
+import { TargetCount } from 'modules/engage/types';
+import { ISegment, ISegmentDoc } from 'modules/segments/types';
+import React from 'react';
+import Targets from '../Targets';
 
 type Props<Target, OnSubmit> = {
   name: string;
@@ -74,7 +74,7 @@ class Common<Target, OnSubmit> extends React.Component<
       <CustomerCounts>
         <Icon icon="users" size={50} />
         <p>
-          {this.props.customersCount(targetIds)} {__("customers")}
+          {this.props.customersCount(targetIds)} {__('customers')}
         </p>
       </CustomerCounts>
     );

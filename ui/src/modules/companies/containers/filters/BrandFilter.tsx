@@ -1,13 +1,13 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import BrandFilter from "modules/customers/components/list/BrandFilter";
-import { queries } from "modules/settings/brands/graphql";
-import React from "react";
-import { graphql } from "react-apollo";
-import { withProps } from "../../../common/utils";
-import { BrandsQueryResponse } from "../../../settings/brands/types";
-import { queries as companyQueries } from "../../graphql";
-import { CountQueryResponse } from "../../types";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import BrandFilter from 'modules/customers/components/list/BrandFilter';
+import { queries } from 'modules/settings/brands/graphql';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withProps } from '../../../common/utils';
+import { BrandsQueryResponse } from '../../../settings/brands/types';
+import { queries as companyQueries } from '../../graphql';
+import { CountQueryResponse } from '../../types';
 
 type FinalProps = {
   brandsQuery?: BrandsQueryResponse;
@@ -40,16 +40,16 @@ type Props = {
 export default withProps<Props>(
   compose(
     graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
-      name: "brandsQuery",
+      name: 'brandsQuery',
       skip: ({ loadingMainQuery }) => loadingMainQuery
     }),
     graphql<Props, CountQueryResponse, { only: string }>(
       gql(companyQueries.companyCounts),
       {
-        name: "companyCountsQuery",
+        name: 'companyCountsQuery',
         skip: ({ loadingMainQuery }) => loadingMainQuery,
         options: {
-          variables: { only: "byBrand" }
+          variables: { only: 'byBrand' }
         }
       }
     )

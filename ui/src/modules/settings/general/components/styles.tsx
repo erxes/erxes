@@ -1,6 +1,6 @@
-import { colors, dimensions } from "modules/common/styles";
-import styled, { css } from "styled-components";
-import styledTS from "styled-components-ts";
+import { colors, dimensions } from 'modules/common/styles';
+import styled, { css } from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const Verify = styled.div`
   display: flex;

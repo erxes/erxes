@@ -1,15 +1,15 @@
-import Button from "modules/common/components/Button";
-import DataWithLoader from "modules/common/components/DataWithLoader";
-import FormControl from "modules/common/components/form/Control";
-import Pagination from "modules/common/components/pagination/Pagination";
-import { __, Alert, router } from "modules/common/utils";
-import Wrapper from "modules/layout/components/Wrapper";
-import { INotification } from "modules/notifications/types";
-import React from "react";
-import { withRouter } from "react-router-dom";
-import { IRouterProps } from "../../common/types";
-import NotificationRow from "./NotificationRow";
-import { NotifList } from "./styles";
+import Button from 'modules/common/components/Button';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import FormControl from 'modules/common/components/form/Control';
+import Pagination from 'modules/common/components/pagination/Pagination';
+import { __, Alert, router } from 'modules/common/utils';
+import Wrapper from 'modules/layout/components/Wrapper';
+import { INotification } from 'modules/notifications/types';
+import React from 'react';
+import { withRouter } from 'react-router-dom';
+import { IRouterProps } from '../../common/types';
+import NotificationRow from './NotificationRow';
+import { NotifList } from './styles';
 
 type Props = {
   notifications: INotification[];
@@ -43,7 +43,7 @@ class NotificationList extends React.Component<Props, State> {
     });
 
     if (unreadNotifications.length === 0) {
-      Alert.success("This page has no notification");
+      Alert.success('This page has no notification');
       return;
     }
 
@@ -80,7 +80,7 @@ class NotificationList extends React.Component<Props, State> {
         componentClass="checkbox"
         onClick={this.filterByUnread}
       >
-        {__("Show unread")}
+        {__('Show unread')}
       </FormControl>
     );
 
@@ -113,8 +113,8 @@ class NotificationList extends React.Component<Props, State> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__("Notifications")}
-            breadcrumb={[{ title: __("Notifications") }]}
+            title={__('Notifications')}
+            breadcrumb={[{ title: __('Notifications') }]}
           />
         }
         actionBar={actionBar}

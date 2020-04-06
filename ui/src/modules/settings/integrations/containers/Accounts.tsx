@@ -1,18 +1,18 @@
-import { getEnv } from "apolloClient";
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import Spinner from "modules/common/components/Spinner";
-import { IFormProps } from "modules/common/types";
-import { Alert, withProps } from "modules/common/utils";
-import { mutations, queries } from "modules/settings/integrations/graphql";
-import React from "react";
-import { graphql } from "react-apollo";
-import Accounts from "../components/Accounts";
+import { getEnv } from 'apolloClient';
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import Spinner from 'modules/common/components/Spinner';
+import { IFormProps } from 'modules/common/types';
+import { Alert, withProps } from 'modules/common/utils';
+import { mutations, queries } from 'modules/settings/integrations/graphql';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import Accounts from '../components/Accounts';
 import {
   AccountsQueryResponse,
   IntegrationTypes,
   RemoveAccountMutationResponse
-} from "../types";
+} from '../types';
 
 type Props = {
   kind: IntegrationTypes;
@@ -43,7 +43,7 @@ class AccountContainer extends React.Component<FinalProps, {}> {
 
     removeAccount({ variables: { _id: accountId } })
       .then(() => {
-        Alert.success("You successfully removed an account");
+        Alert.success('You successfully removed an account');
         onRemove(accountId);
       })
       .catch(e => {
@@ -60,7 +60,7 @@ class AccountContainer extends React.Component<FinalProps, {}> {
 
     if (fetchApiQuery.error) {
       return (
-        <span style={{ color: "red" }}>Integrations api is not running</span>
+        <span style={{ color: 'red' }}>Integrations api is not running</span>
       );
     }
 
@@ -85,17 +85,17 @@ export default withProps<Props>(
     graphql<Props, RemoveAccountMutationResponse, { _id: string }>(
       gql(mutations.removeAccount),
       {
-        name: "removeAccount",
+        name: 'removeAccount',
         options: {
-          refetchQueries: ["integrationsFetchApi"]
+          refetchQueries: ['integrationsFetchApi']
         }
       }
     ),
     graphql<Props, AccountsQueryResponse>(gql(queries.fetchApi), {
-      name: "fetchApiQuery",
+      name: 'fetchApiQuery',
       options: ({ kind }) => ({
         variables: {
-          path: "/accounts",
+          path: '/accounts',
           params: { kind }
         }
       })

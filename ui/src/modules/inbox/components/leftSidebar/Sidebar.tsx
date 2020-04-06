@@ -1,19 +1,19 @@
-import { IUser } from "modules/auth/types";
-import asyncComponent from "modules/common/components/AsyncComponent";
-import Icon from "modules/common/components/Icon";
-import { __ } from "modules/common/utils";
-import FilterToggler from "modules/inbox/containers/leftSidebar/FilterToggler";
-import Resolver from "modules/inbox/containers/Resolver";
-import Tagger from "modules/inbox/containers/Tagger";
-import { queries } from "modules/inbox/graphql";
-import { PopoverButton } from "modules/inbox/styles";
-import Sidebar from "modules/layout/components/Sidebar";
-import { TAG_TYPES } from "modules/tags/constants";
-import React from "react";
-import RTG from "react-transition-group";
-import { InboxManagementActionConsumer } from "../../containers/Inbox";
-import { StatusFilterPopover } from "../../containers/leftSidebar";
-import { IConversation } from "../../types";
+import { IUser } from 'modules/auth/types';
+import asyncComponent from 'modules/common/components/AsyncComponent';
+import Icon from 'modules/common/components/Icon';
+import { __ } from 'modules/common/utils';
+import FilterToggler from 'modules/inbox/containers/leftSidebar/FilterToggler';
+import Resolver from 'modules/inbox/containers/Resolver';
+import Tagger from 'modules/inbox/containers/Tagger';
+import { queries } from 'modules/inbox/graphql';
+import { PopoverButton } from 'modules/inbox/styles';
+import Sidebar from 'modules/layout/components/Sidebar';
+import { TAG_TYPES } from 'modules/tags/constants';
+import React from 'react';
+import RTG from 'react-transition-group';
+import { InboxManagementActionConsumer } from '../../containers/Inbox';
+import { StatusFilterPopover } from '../../containers/leftSidebar';
+import { IConversation } from '../../types';
 import {
   AdditionalSidebar,
   DropdownWrapper,
@@ -21,24 +21,24 @@ import {
   RightItems,
   SidebarActions,
   ToggleButton
-} from "./styles";
+} from './styles';
 
 const DateFilter = asyncComponent(
   () =>
-    import(/* webpackChunkName:"Inbox-DateFilter" */ "modules/common/components/DateFilter"),
-  { height: "15px", width: "70px" }
+    import(/* webpackChunkName:"Inbox-DateFilter" */ 'modules/common/components/DateFilter'),
+  { height: '15px', width: '70px' }
 );
 
 const AssignBoxPopover = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-AssignBoxPopover" */ "../assignBox/AssignBoxPopover")
+  import(/* webpackChunkName:"Inbox-AssignBoxPopover" */ '../assignBox/AssignBoxPopover')
 );
 
 const ConversationList = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-ConversationList" */ "modules/inbox/containers/leftSidebar/ConversationList")
+  import(/* webpackChunkName:"Inbox-ConversationList" */ 'modules/inbox/containers/leftSidebar/ConversationList')
 );
 
 const FilterList = asyncComponent(() =>
-  import(/* webpackChunkName: "Inbox-FilterList" */ "modules/inbox/containers/leftSidebar/FilterList")
+  import(/* webpackChunkName: "Inbox-FilterList" */ 'modules/inbox/containers/leftSidebar/FilterList')
 );
 
 type Props = {
@@ -92,10 +92,10 @@ class LeftSidebar extends React.Component<Props, State> {
           <RightItems>
             <AssignBoxPopover
               targets={bulk}
-              trigger={this.renderTrigger("Assign")}
+              trigger={this.renderTrigger('Assign')}
             />
 
-            <Tagger targets={bulk} trigger={this.renderTrigger("Tag")} />
+            <Tagger targets={bulk} trigger={this.renderTrigger('Tag')} />
           </RightItems>
         </Sidebar.Header>
       );
@@ -145,9 +145,9 @@ class LeftSidebar extends React.Component<Props, State> {
           <FilterToggler groupText="Channels" toggleName="showChannels">
             <FilterList
               query={{
-                queryName: "channelList",
+                queryName: 'channelList',
                 variables: { memberIds: [currentUser._id] },
-                dataName: "channels"
+                dataName: 'channels'
               }}
               counts="byChannels"
               paramKey="channelId"
@@ -158,7 +158,7 @@ class LeftSidebar extends React.Component<Props, State> {
 
           <FilterToggler groupText="Brands" toggleName="showBrands">
             <FilterList
-              query={{ queryName: "brandList", dataName: "brands" }}
+              query={{ queryName: 'brandList', dataName: 'brands' }}
               counts="byBrands"
               queryParams={queryParams}
               paramKey="brandId"
@@ -169,8 +169,8 @@ class LeftSidebar extends React.Component<Props, State> {
           <FilterToggler groupText="Integrations" toggleName="showIntegrations">
             <FilterList
               query={{
-                queryName: "integrationsGetUsedTypes",
-                dataName: "integrationsGetUsedTypes"
+                queryName: 'integrationsGetUsedTypes',
+                dataName: 'integrationsGetUsedTypes'
               }}
               queryParams={queryParams}
               counts="byIntegrationTypes"
@@ -182,8 +182,8 @@ class LeftSidebar extends React.Component<Props, State> {
           <FilterToggler groupText="Tags" toggleName="showTags">
             <FilterList
               query={{
-                queryName: "tagList",
-                dataName: "tags",
+                queryName: 'tagList',
+                dataName: 'tags',
                 variables: {
                   type: TAG_TYPES.CONVERSATION
                 }

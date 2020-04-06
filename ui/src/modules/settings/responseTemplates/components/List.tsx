@@ -1,18 +1,18 @@
-import { FormControl } from "modules/common/components/form";
-import ControlLabel from "modules/common/components/form/Label";
-import HeaderDescription from "modules/common/components/HeaderDescription";
-import Table from "modules/common/components/table";
-import { IButtonMutateProps, IRouterProps } from "modules/common/types";
-import { __, router } from "modules/common/utils";
-import { FlexItem, FlexRow } from "modules/insights/styles";
-import SelectBrands from "modules/settings/brands/containers/SelectBrands";
-import { FilterContainer } from "modules/settings/team/styles";
-import * as React from "react";
-import { withRouter } from "react-router-dom";
-import List from "../../common/components/List";
-import RowActions from "../../common/components/RowActions";
-import { ICommonListProps } from "../../common/types";
-import Form from "../components/Form";
+import { FormControl } from 'modules/common/components/form';
+import ControlLabel from 'modules/common/components/form/Label';
+import HeaderDescription from 'modules/common/components/HeaderDescription';
+import Table from 'modules/common/components/table';
+import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
+import { __, router } from 'modules/common/utils';
+import { FlexItem, FlexRow } from 'modules/insights/styles';
+import SelectBrands from 'modules/settings/brands/containers/SelectBrands';
+import { FilterContainer } from 'modules/settings/team/styles';
+import * as React from 'react';
+import { withRouter } from 'react-router-dom';
+import List from '../../common/components/List';
+import RowActions from '../../common/components/RowActions';
+import { ICommonListProps } from '../../common/types';
+import Form from '../components/Form';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -35,7 +35,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
     } = props;
 
     this.state = {
-      searchValue: searchValue || ""
+      searchValue: searchValue || ''
     };
   }
 
@@ -69,7 +69,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
   };
 
   handleKeyDown = (e: React.KeyboardEvent<Element>) => {
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       const { value, name } = e.currentTarget as HTMLInputElement;
 
       router.setParams(this.props.history, { [name]: value });
@@ -118,9 +118,9 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
       <Table>
         <thead>
           <tr>
-            <th>{__("Brand")}</th>
-            <th>{__("Name")}</th>
-            <th>{__("Actions")}</th>
+            <th>{__('Brand')}</th>
+            <th>{__('Name')}</th>
+            <th>{__('Actions')}</th>
           </tr>
         </thead>
         <tbody>{this.renderRows(props)}</tbody>
@@ -133,10 +133,10 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
       <List
         formTitle="New response template"
         breadcrumb={[
-          { title: __("Settings"), link: "/settings" },
-          { title: __("Response templates") }
+          { title: __('Settings'), link: '/settings' },
+          { title: __('Response templates') }
         ]}
-        title={__("Response templates")}
+        title={__('Response templates')}
         leftActionBar={
           <HeaderDescription
             icon="/images/actions/24.svg"

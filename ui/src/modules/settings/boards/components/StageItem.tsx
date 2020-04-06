@@ -1,9 +1,9 @@
-import { IStage } from "modules/boards/types";
-import Button from "modules/common/components/Button";
-import FormControl from "modules/common/components/form/Control";
-import React from "react";
-import { PROBABILITY } from "../constants";
-import { StageItemContainer } from "../styles";
+import { IStage } from 'modules/boards/types';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import React from 'react';
+import { PROBABILITY } from '../constants';
+import { StageItemContainer } from '../styles';
 
 type Props = {
   stage: IStage;

@@ -1,11 +1,11 @@
-import { InMemoryCache } from "apollo-cache-inmemory";
-import { ApolloClient } from "apollo-client";
-import { split } from "apollo-link";
-import { onError } from "apollo-link-error";
-import { createHttpLink } from "apollo-link-http";
-import { WebSocketLink } from "apollo-link-ws";
-import { getMainDefinition } from "apollo-utilities";
-import { Alert, getCookie } from "modules/common/utils";
+import { InMemoryCache } from 'apollo-cache-inmemory';
+import { ApolloClient } from 'apollo-client';
+import { split } from 'apollo-link';
+import { onError } from 'apollo-link-error';
+import { createHttpLink } from 'apollo-link-http';
+import { WebSocketLink } from 'apollo-link-ws';
+import { getMainDefinition } from 'apollo-utilities';
+import { Alert, getCookie } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 
 // get env config from process.env or window.env
@@ -24,7 +24,7 @@ const { REACT_APP_API_URL, REACT_APP_API_SUBSCRIPTION_URL } = getEnv();
 // Create an http link:
 const httpLink = createHttpLink({
   uri: `${REACT_APP_API_URL}/graphql`,
-  credentials: "include"
+  credentials: 'include'
 });
 
 // Error handler
@@ -32,13 +32,13 @@ const errorLink = onError(({ networkError, graphQLErrors }) => {
   if (graphQLErrors && graphQLErrors.length > 0) {
     const [error] = graphQLErrors;
 
-    if (error.message === "Login required") {
+    if (error.message === 'Login required') {
       window.location.reload();
     }
   }
 
   if (networkError) {
-    Alert.error(__("NetworkError"));
+    Alert.error(__('NetworkError'));
   }
 });
 
@@ -47,7 +47,7 @@ const httpLinkWithMiddleware = errorLink.concat(httpLink);
 
 // Subscription config
 export const wsLink: any = new WebSocketLink({
-  uri: REACT_APP_API_SUBSCRIPTION_URL || "ws://localhost",
+  uri: REACT_APP_API_SUBSCRIPTION_URL || 'ws://localhost',
   options: {
     lazy: true,
     reconnect: true,
@@ -68,7 +68,7 @@ const link = split(
   // split based on operation type
   ({ query }) => {
     const { kind, operation }: Definintion = getMainDefinition(query);
-    return kind === "OperationDefinition" && operation === "subscription";
+    return kind === 'OperationDefinition' && operation === 'subscription';
   },
   wsLink,
   httpLinkWithMiddleware

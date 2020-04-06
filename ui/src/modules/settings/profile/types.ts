@@ -1,4 +1,4 @@
-import { IUserDoc } from "../../auth/types";
+import { IUserDoc } from '../../auth/types';
 
 export type ChangePasswordMutationVariables = {
   currentPassword: string;

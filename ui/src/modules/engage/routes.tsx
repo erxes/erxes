@@ -1,18 +1,18 @@
-import asyncComponent from "modules/common/components/AsyncComponent";
-import queryString from "query-string";
-import React from "react";
-import { Route } from "react-router-dom";
+import asyncComponent from 'modules/common/components/AsyncComponent';
+import queryString from 'query-string';
+import React from 'react';
+import { Route } from 'react-router-dom';
 
 const MessageForm = asyncComponent(() =>
-  import(/* webpackChunkName: "MessageForm - Engage" */ "./containers/MessageForm")
+  import(/* webpackChunkName: "MessageForm - Engage" */ './containers/MessageForm')
 );
 
 const MessageList = asyncComponent(() =>
-  import(/* webpackChunkName: "MessageList - Engage" */ "./containers/MessageList")
+  import(/* webpackChunkName: "MessageList - Engage" */ './containers/MessageList')
 );
 
 const EmailStatistics = asyncComponent(() =>
-  import(/* webpackChunkName: "EmailStatistics - Engage" */ "./containers/EmailStatistics")
+  import(/* webpackChunkName: "EmailStatistics - Engage" */ './containers/EmailStatistics')
 );
 
 const engageList = history => {

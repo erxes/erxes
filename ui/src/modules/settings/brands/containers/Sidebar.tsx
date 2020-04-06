@@ -1,19 +1,19 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import ButtonMutate from "modules/common/components/ButtonMutate";
-import { IButtonMutateProps, IRouterProps } from "modules/common/types";
-import { Alert, confirm, withProps } from "modules/common/utils";
-import React from "react";
-import { ChildProps, graphql } from "react-apollo";
-import { withRouter } from "react-router-dom";
-import Sidebar from "../components/Sidebar";
-import { mutations, queries } from "../graphql";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
+import { Alert, confirm, withProps } from 'modules/common/utils';
+import React from 'react';
+import { ChildProps, graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
+import Sidebar from '../components/Sidebar';
+import { mutations, queries } from '../graphql';
 import {
   BrandRemoveMutationResponse,
   BrandRemoveMutationVariables,
   BrandsCountQueryResponse,
   BrandsQueryResponse
-} from "../types";
+} from '../types';
 
 type Props = {
   queryParams: any;
@@ -47,8 +47,8 @@ const SidebarContainer = (props: ChildProps<FinalProps>) => {
         variables: { _id: brandId }
       })
         .then(() => {
-          Alert.success("You successfully deleted a brand.");
-          history.push("/settings/brands");
+          Alert.success('You successfully deleted a brand.');
+          history.push('/settings/brands');
         })
         .catch(error => {
           Alert.error(error.message);
@@ -72,7 +72,7 @@ const SidebarContainer = (props: ChildProps<FinalProps>) => {
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully ${
-          object ? "updated" : "added"
+          object ? 'updated' : 'added'
         } a ${name}`}
       />
     );
@@ -106,7 +106,7 @@ const getRefetchQueries = (queryParams, currentBrandId?: string) => {
     },
     {
       query: gql(queries.brandDetail),
-      variables: { _id: currentBrandId || "" }
+      variables: { _id: currentBrandId || '' }
     },
     { query: gql(queries.brandsCount) }
   ];
@@ -117,22 +117,22 @@ export default withProps<Props>(
     graphql<Props, BrandsQueryResponse, { perPage: number }>(
       gql(queries.brands),
       {
-        name: "brandsQuery",
+        name: 'brandsQuery',
         options: ({ queryParams }: { queryParams: any }) => ({
           variables: {
             perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20
           },
-          fetchPolicy: "network-only"
+          fetchPolicy: 'network-only'
         })
       }
     ),
     graphql<Props, BrandsCountQueryResponse, {}>(gql(queries.brandsCount), {
-      name: "brandsCountQuery"
+      name: 'brandsCountQuery'
     }),
     graphql<Props, BrandRemoveMutationResponse, BrandRemoveMutationVariables>(
       gql(mutations.brandRemove),
       {
-        name: "removeMutation",
+        name: 'removeMutation',
         options: ({ queryParams, currentBrandId }: Props) => ({
           refetchQueries: getRefetchQueries(queryParams, currentBrandId)
         })

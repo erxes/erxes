@@ -1,11 +1,11 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { withProps } from "modules/common/utils";
-import { queries as brandQueries } from "modules/settings/brands/graphql";
-import React from "react";
-import { graphql } from "react-apollo";
-import { BrandsQueryResponse } from "../../brands/types";
-import List from "../components/List";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { withProps } from 'modules/common/utils';
+import { queries as brandQueries } from 'modules/settings/brands/graphql';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { BrandsQueryResponse } from '../../brands/types';
+import List from '../components/List';
 
 type Props = {
   listQuery: BrandsQueryResponse;
@@ -28,7 +28,7 @@ const ListContainer = (props: Props) => {
 export default withProps<Props>(
   compose(
     graphql<Props, BrandsQueryResponse, {}>(gql(brandQueries.brands), {
-      name: "listQuery"
+      name: 'listQuery'
     })
   )(ListContainer)
 );

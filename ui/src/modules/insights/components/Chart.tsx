@@ -1,10 +1,10 @@
-import { ResponsiveLine } from "@nivo/line";
-import EmptyState from "modules/common/components/EmptyState";
-import Spinner from "modules/common/components/Spinner";
-import { colors } from "modules/common/styles";
-import React from "react";
-import { ChartWrapper, LoaderWrapper } from "../styles";
-import { IChartParams } from "../types";
+import { ResponsiveLine } from '@nivo/line';
+import EmptyState from 'modules/common/components/EmptyState';
+import Spinner from 'modules/common/components/Spinner';
+import { colors } from 'modules/common/styles';
+import React from 'react';
+import { ChartWrapper, LoaderWrapper } from '../styles';
+import { IChartParams } from '../types';
 
 interface IProps {
   data: IChartParams[];
@@ -17,7 +17,7 @@ interface IProps {
 class Chart extends React.Component<IProps> {
   render() {
     const { data, height, loading, type } = this.props;
-    let typeId = "count";
+    let typeId = 'count';
     let marginLeft = 35;
 
     if (loading) {
@@ -44,11 +44,11 @@ class Chart extends React.Component<IProps> {
       return null;
     });
 
-    if (type === "conversation-report") {
-      typeId = "sec";
+    if (type === 'conversation-report') {
+      typeId = 'sec';
     }
 
-    const chartData = [{ id: typeId, color: "#eee", data }];
+    const chartData = [{ id: typeId, color: '#eee', data }];
 
     return (
       <ChartWrapper height={height}>

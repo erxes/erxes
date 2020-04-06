@@ -1,11 +1,11 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { IPipeline, WatchMutation, WatchVariables } from "modules/boards/types";
-import { Alert, withProps } from "modules/common/utils";
-import * as React from "react";
-import { graphql } from "react-apollo";
-import PipelineWatch from "../components/PipelineWatch";
-import { mutations, queries } from "../graphql";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { IPipeline, WatchMutation, WatchVariables } from 'modules/boards/types';
+import { Alert, withProps } from 'modules/common/utils';
+import * as React from 'react';
+import { graphql } from 'react-apollo';
+import PipelineWatch from '../components/PipelineWatch';
+import { mutations, queries } from '../graphql';
 
 type IProps = {
   pipeline: IPipeline;
@@ -27,7 +27,7 @@ class WatchContainer extends React.Component<FinalProps> {
 
       watchMutation({ variables: { _id, isAdd, type } })
         .then(() => {
-          Alert.success("You successfully changed");
+          Alert.success('You successfully changed');
         })
         .catch(error => {
           Alert.error(error.message);
@@ -48,7 +48,7 @@ export default withProps<IProps>(
     graphql<IProps, WatchMutation, WatchVariables>(
       gql(mutations.pipelinesWatch),
       {
-        name: "watchMutation",
+        name: 'watchMutation',
         options: ({ pipeline }: { pipeline: IPipeline }) => ({
           refetchQueries: [
             {

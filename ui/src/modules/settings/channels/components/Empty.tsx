@@ -1,8 +1,8 @@
-import EmptyState from "modules/common/components/EmptyState";
-import { __ } from "modules/common/utils";
-import Wrapper from "modules/layout/components/Wrapper";
-import React from "react";
-import Sidebar from "../containers/Sidebar";
+import EmptyState from 'modules/common/components/EmptyState';
+import { __ } from 'modules/common/utils';
+import Wrapper from 'modules/layout/components/Wrapper';
+import React from 'react';
+import Sidebar from '../containers/Sidebar';
 
 type Props = {
   queryParams?: any;
@@ -13,8 +13,8 @@ class Empty extends React.Component<Props, {}> {
     const { queryParams } = this.props;
 
     const breadcrumb = [
-      { title: __("Settings"), link: "/settings" },
-      { title: __("Channels"), link: "/settings/channels" }
+      { title: __('Settings'), link: '/settings' },
+      { title: __('Channels'), link: '/settings/channels' }
     ];
 
     const content = (
@@ -28,7 +28,7 @@ class Empty extends React.Component<Props, {}> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header title={__("Channels")} breadcrumb={breadcrumb} />
+          <Wrapper.Header title={__('Channels')} breadcrumb={breadcrumb} />
         }
         leftSidebar={<Sidebar queryParams={queryParams} />}
         content={content}

@@ -1,13 +1,13 @@
-import dayjs from "dayjs";
-import Button from "modules/common/components/Button";
-import Icon from "modules/common/components/Icon";
-import Label from "modules/common/components/Label";
-import ModalTrigger from "modules/common/components/ModalTrigger";
-import Tip from "modules/common/components/Tip";
-import { __, getUserAvatar } from "modules/common/utils";
-import React from "react";
-import ArticleForm from "../../containers/article/ArticleForm";
-import { IArticle } from "../../types";
+import dayjs from 'dayjs';
+import Button from 'modules/common/components/Button';
+import Icon from 'modules/common/components/Icon';
+import Label from 'modules/common/components/Label';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Tip from 'modules/common/components/Tip';
+import { __, getUserAvatar } from 'modules/common/utils';
+import React from 'react';
+import ArticleForm from '../../containers/article/ArticleForm';
+import { IArticle } from '../../types';
 import {
   ActionButtons,
   ArticleColumn,
@@ -17,7 +17,7 @@ import {
   ReactionCount,
   ReactionCounts,
   RowArticle
-} from "./styles";
+} from './styles';
 
 type Props = {
   article: IArticle;
@@ -50,7 +50,7 @@ const ArticleRow = (props: Props) => {
 
     const editButton = (
       <Button btnStyle="link">
-        <Tip text={__("Edit")}>
+        <Tip text={__('Edit')}>
           <Icon icon="edit" />
         </Tip>
       </Button>
@@ -80,7 +80,7 @@ const ArticleRow = (props: Props) => {
   const title = (
     <ArticleTitle>
       {article.title}
-      {article.status === "draft" && (
+      {article.status === 'draft' && (
         <Label lblStyle="simple">{article.status}</Label>
       )}
     </ArticleTitle>
@@ -93,23 +93,23 @@ const ArticleRow = (props: Props) => {
         <p>{article.summary}</p>
         <ArticleMeta>
           <img
-            alt={(user.details && user.details.fullName) || "author"}
+            alt={(user.details && user.details.fullName) || 'author'}
             src={getUserAvatar(user)}
           />
-          {__("Written By")}
+          {__('Written By')}
           <AuthorName>
             {(user.details && user.details.fullName) ||
               user.username ||
               user.email}
           </AuthorName>
-          <Icon icon="clock-eight" /> {__("Created")}{" "}
-          {dayjs(article.createdDate).format("ll")}
+          <Icon icon="clock-eight" /> {__('Created')}{' '}
+          {dayjs(article.createdDate).format('ll')}
           <ReactionCounts>{renderReactions()}</ReactionCounts>
         </ArticleMeta>
       </ArticleColumn>
       <ActionButtons>
-        {renderEditAction("")}
-        <Tip text={__("Delete")}>
+        {renderEditAction('')}
+        <Tip text={__('Delete')}>
           <Button btnStyle="link" onClick={remove} icon="cancel-1" />
         </Tip>
       </ActionButtons>

@@ -1,10 +1,10 @@
-import Icon from "modules/common/components/Icon";
-import { HomeContainer } from "modules/common/styles/main";
-import { __ } from "modules/common/utils";
-import ModulItem from "modules/robot/components/ModulItem";
-import { Content, Greeting, NavButton } from "modules/robot/components/styles";
-import * as React from "react";
-import RTG from "react-transition-group";
+import Icon from 'modules/common/components/Icon';
+import { HomeContainer } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
+import ModulItem from 'modules/robot/components/ModulItem';
+import { Content, Greeting, NavButton } from 'modules/robot/components/styles';
+import * as React from 'react';
+import RTG from 'react-transition-group';
 
 type Props = {
   changeRoute: (route: string) => void;
@@ -14,7 +14,7 @@ type Props = {
 
 class Assistant extends React.Component<Props> {
   changeRoute = (route?: string) => {
-    this.props.changeRoute(route || "");
+    this.props.changeRoute(route || '');
   };
 
   render() {
@@ -29,7 +29,7 @@ class Assistant extends React.Component<Props> {
         unmountOnExit={true}
       >
         <Content>
-          <NavButton onClick={this.changeRoute.bind(this, "")} right={true}>
+          <NavButton onClick={this.changeRoute.bind(this, '')} right={true}>
             <Icon icon="times" size={17} />
           </NavButton>
           <HomeContainer>
@@ -46,22 +46,22 @@ class Assistant extends React.Component<Props> {
 
             <ModulItem
               title="Start onboarding"
-              description={__("Your step by step guide")}
+              description={__('Your step by step guide')}
               color="#de59b2"
               icon="list-2"
-              onClick={this.changeRoute.bind(this, "onboardStart")}
+              onClick={this.changeRoute.bind(this, 'onboardStart')}
             />
 
             <ModulItem
               title="Customer merge"
-              description={__("Automatically merge same people")}
+              description={__('Automatically merge same people')}
               icon="users"
               color="#ec542b"
               disabled={true}
             />
             <ModulItem
               title="Company meta"
-              description={__("Automatically retrive company info")}
+              description={__('Automatically retrive company info')}
               color="#3599cb"
               icon="briefcase"
               disabled={true}
@@ -69,7 +69,7 @@ class Assistant extends React.Component<Props> {
 
             <ModulItem
               title="Customer Scoring"
-              description={__("Customer scoring depends on activity")}
+              description={__('Customer scoring depends on activity')}
               color="#27b553"
               icon="user-2"
               disabled={true}

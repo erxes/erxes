@@ -1,9 +1,9 @@
-import React from "react";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
+import React from 'react';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const IconStyle = styledTS<{ size?: number }>(styled.i)`
-  font-size: ${props => (props.size ? `${props.size}px` : "inherit")};
+  font-size: ${props => (props.size ? `${props.size}px` : 'inherit')};
   color: ${props => props.color && props.color};
 `;
 
@@ -19,10 +19,10 @@ type Props = {
 function Icon(props: Props) {
   const { isActive, color } = props;
 
-  let changedColor = color || "";
+  let changedColor = color || '';
 
   if (isActive) {
-    changedColor = "black";
+    changedColor = 'black';
   }
 
   return (

@@ -1,18 +1,18 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { STORAGE_BOARD_KEY } from "modules/boards/constants";
-import { BoardsQueryResponse } from "modules/boards/types";
-import { getDefaultBoardAndPipelines } from "modules/boards/utils";
-import ButtonMutate from "modules/common/components/ButtonMutate";
-import { IButtonMutateProps, IRouterProps } from "modules/common/types";
-import { Alert, confirm, withProps } from "modules/common/utils";
-import routerUtils from "modules/common/utils/router";
-import React from "react";
-import { graphql } from "react-apollo";
-import { withRouter } from "react-router-dom";
-import Boards from "../components/Boards";
-import { mutations, queries } from "../graphql";
-import { IOption, RemoveBoardMutationResponse } from "../types";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { STORAGE_BOARD_KEY } from 'modules/boards/constants';
+import { BoardsQueryResponse } from 'modules/boards/types';
+import { getDefaultBoardAndPipelines } from 'modules/boards/utils';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
+import { Alert, confirm, withProps } from 'modules/common/utils';
+import routerUtils from 'modules/common/utils/router';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
+import Boards from '../components/Boards';
+import { mutations, queries } from '../graphql';
+import { IOption, RemoveBoardMutationResponse } from '../types';
 
 type Props = {
   history?: any;
@@ -36,8 +36,8 @@ class BoardsContainer extends React.Component<FinalProps> {
     const removeHash = () => {
       const { location } = history;
 
-      if (location.hash.includes("showBoardModal")) {
-        routerUtils.removeHash(history, "showBoardModal");
+      if (location.hash.includes('showBoardModal')) {
+        routerUtils.removeHash(history, 'showBoardModal');
       }
     };
 
@@ -61,7 +61,7 @@ class BoardsContainer extends React.Component<FinalProps> {
               );
             }
 
-            Alert.success("You successfully deleted a board");
+            Alert.success('You successfully deleted a board');
           })
           .catch(error => {
             Alert.error(error.message);
@@ -86,7 +86,7 @@ class BoardsContainer extends React.Component<FinalProps> {
           type="submit"
           beforeSubmit={removeHash}
           successMessage={`You successfully ${
-            object ? "updated" : "added"
+            object ? 'updated' : 'added'
           } a ${name}`}
         />
       );
@@ -106,7 +106,7 @@ class BoardsContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = () => {
-  return ["boards", "boardGetLast", "pipelines"];
+  return ['boards', 'boardGetLast', 'pipelines'];
 };
 
 const generateOptions = () => ({
@@ -116,7 +116,7 @@ const generateOptions = () => ({
 export default withProps<Props>(
   compose(
     graphql<Props, BoardsQueryResponse, {}>(gql(queries.boards), {
-      name: "boardsQuery",
+      name: 'boardsQuery',
       options: ({ type }) => ({
         variables: { type }
       })
@@ -124,7 +124,7 @@ export default withProps<Props>(
     graphql<Props, RemoveBoardMutationResponse, {}>(
       gql(mutations.boardRemove),
       {
-        name: "removeMutation",
+        name: 'removeMutation',
         options: generateOptions()
       }
     )

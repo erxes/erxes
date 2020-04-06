@@ -1,23 +1,23 @@
-import { getDefaultBoardAndPipelines } from "modules/boards/utils";
-import asyncComponent from "modules/common/components/AsyncComponent";
-import queryString from "query-string";
-import React from "react";
-import { Redirect, Route } from "react-router-dom";
+import { getDefaultBoardAndPipelines } from 'modules/boards/utils';
+import asyncComponent from 'modules/common/components/AsyncComponent';
+import queryString from 'query-string';
+import React from 'react';
+import { Redirect, Route } from 'react-router-dom';
 
 const Calendar = asyncComponent(() =>
-  import(/* webpackChunkName: "Calendar" */ "./components/calendar/Calendar")
+  import(/* webpackChunkName: "Calendar" */ './components/calendar/Calendar')
 );
 
 const DealBoard = asyncComponent(() =>
-  import(/* webpackChunkName: "DealBoard" */ "./components/DealBoard")
+  import(/* webpackChunkName: "DealBoard" */ './components/DealBoard')
 );
 
 const Conversation = asyncComponent(() =>
-  import(/* webpackChunkName: "Conversion" */ "./components/conversion/Conversion")
+  import(/* webpackChunkName: "Conversion" */ './components/conversion/Conversion')
 );
 
 const deals = () => {
-  let dealsLink = "/deal/board";
+  let dealsLink = '/deal/board';
 
   const { defaultBoards, defaultPipelines } = getDefaultBoardAndPipelines();
 

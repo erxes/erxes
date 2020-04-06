@@ -1,7 +1,7 @@
-import { dimensions } from "modules/common/styles";
-import { __ } from "modules/common/utils";
-import React from "react";
-import styled from "styled-components";
+import { dimensions } from 'modules/common/styles';
+import { __ } from 'modules/common/utils';
+import React from 'react';
+import styled from 'styled-components';
 
 const MainDescription = styled.div`
   max-width: 610px;

@@ -1,20 +1,20 @@
-import { getEnv } from "apolloClient";
-import dayjs from "dayjs";
-import T from "i18n-react";
-import { IUser, IUserDoc } from "modules/auth/types";
-import React from "react";
-import { DateWrapper } from "../styles/main";
-import { IAttachment } from "../types";
-import Alert from "./Alert";
-import confirm from "./confirmation/confirm";
-import router from "./router";
-import toggleCheckBoxes from "./toggleCheckBoxes";
-import uploadHandler from "./uploadHandler";
-import urlParser from "./urlParser";
+import { getEnv } from 'apolloClient';
+import dayjs from 'dayjs';
+import T from 'i18n-react';
+import { IUser, IUserDoc } from 'modules/auth/types';
+import React from 'react';
+import { DateWrapper } from '../styles/main';
+import { IAttachment } from '../types';
+import Alert from './Alert';
+import confirm from './confirmation/confirm';
+import router from './router';
+import toggleCheckBoxes from './toggleCheckBoxes';
+import uploadHandler from './uploadHandler';
+import urlParser from './urlParser';
 
 export const renderFullName = data => {
   if (data.firstName || data.lastName) {
-    return (data.firstName || "") + " " + (data.lastName || "");
+    return (data.firstName || '') + ' ' + (data.lastName || '');
   }
 
   if (data.primaryEmail || data.primaryPhone) {
@@ -22,16 +22,16 @@ export const renderFullName = data => {
   }
 
   if (data.emails && data.emails.length > 0) {
-    return data.emails[0] || "Unknown";
+    return data.emails[0] || 'Unknown';
   }
 
   const { visitorContactInfo } = data;
 
   if (visitorContactInfo) {
-    return visitorContactInfo.phone || visitorContactInfo.email || "Unknown";
+    return visitorContactInfo.phone || visitorContactInfo.email || 'Unknown';
   }
 
-  return "Unknown";
+  return 'Unknown';
 };
 
 export const renderUserFullName = data => {
@@ -45,7 +45,7 @@ export const renderUserFullName = data => {
     return data.email || data.username;
   }
 
-  return "Unknown";
+  return 'Unknown';
 };
 
 export const setTitle = (title: string, force: boolean) => {
@@ -55,17 +55,17 @@ export const setTitle = (title: string, force: boolean) => {
 };
 
 export const setBadge = (count: number, title: string) => {
-  const favicon = document.getElementById("favicon") as HTMLAnchorElement;
+  const favicon = document.getElementById('favicon') as HTMLAnchorElement;
 
   if (count) {
     if (document.title.includes(title)) {
       setTitle(`(${count}) ${title}`, true);
     }
 
-    favicon.href = "/favicon-unread.png";
+    favicon.href = '/favicon-unread.png';
   } else {
     setTitle(title, true);
-    favicon.href = "/favicon.png";
+    favicon.href = '/favicon.png';
   }
 };
 
@@ -141,7 +141,7 @@ export const __ = (key: string, options?: any) => {
   const translation = T.translate(key, options);
 
   if (!translation) {
-    return "";
+    return '';
   }
 
   return translation.toString();
@@ -153,7 +153,7 @@ export const __ = (key: string, options?: any) => {
  * @return {String} - URL
  */
 export const readFile = (value: string): string => {
-  if (!value || urlParser.isValidURL(value) || value.includes("/")) {
+  if (!value || urlParser.isValidURL(value) || value.includes('/')) {
     return value;
   }
 
@@ -166,7 +166,7 @@ export const getUserAvatar = (user: IUserDoc) => {
   const { details = {} } = user;
 
   if (!details.avatar) {
-    return "/images/avatar-colored.svg";
+    return '/images/avatar-colored.svg';
   }
 
   return readFile(details.avatar);
@@ -221,10 +221,10 @@ export const setCookie = (cname: string, cvalue: string, exdays = 100) => {
 
 export const getCookie = cname => {
   const name = `${cname}=`;
-  const ca = document.cookie.split(";");
+  const ca = document.cookie.split(';');
 
   for (let c of ca) {
-    while (c.charAt(0) === " ") {
+    while (c.charAt(0) === ' ') {
       c = c.substring(1);
     }
 
@@ -233,16 +233,16 @@ export const getCookie = cname => {
     }
   }
 
-  return "";
+  return '';
 };
 
 /**
  * Generate random string
  */
 export const generateRandomString = (len: number = 10) => {
-  const charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  const charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
-  let randomString = "";
+  let randomString = '';
 
   for (let i = 0; i < len; i++) {
     const position = Math.floor(Math.random() * charSet.length);
@@ -275,12 +275,12 @@ export const sendDesktopNotification = (doc: {
 
     const notification = new Notification(doc.title, {
       body: doc.content,
-      icon: "/favicon.png",
-      dir: "ltr"
+      icon: '/favicon.png',
+      dir: 'ltr'
     });
 
     // notify by sound
-    const audio = new Audio("/sound/notify.mp3");
+    const audio = new Audio('/sound/notify.mp3');
     audio.play();
 
     notification.onclick = () => {
@@ -290,21 +290,21 @@ export const sendDesktopNotification = (doc: {
   };
 
   // Browser doesn't support Notification api
-  if (!("Notification" in window)) {
+  if (!('Notification' in window)) {
     return;
   }
 
-  if (Notification.permission === "granted") {
+  if (Notification.permission === 'granted') {
     return notify();
   }
 
-  if (Notification.permission !== "denied") {
+  if (Notification.permission !== 'denied') {
     Notification.requestPermission(permission => {
-      if (!("permission" in Notification)) {
+      if (!('permission' in Notification)) {
         (Notification as any).permission = permission;
       }
 
-      if (permission === "granted") {
+      if (permission === 'granted') {
         return notify();
       }
     });
@@ -320,8 +320,8 @@ export const roundToTwo = value => {
 };
 
 function createLinkFromUrl(url) {
-  if (!url.includes("http")) {
-    url = "http://" + url;
+  if (!url.includes('http')) {
+    url = 'http://' + url;
   }
 
   const onClick = e => {
@@ -337,7 +337,7 @@ function createLinkFromUrl(url) {
 }
 
 export function formatValue(value) {
-  if (typeof value === "boolean") {
+  if (typeof value === 'boolean') {
     return value.toString();
   }
 
@@ -345,22 +345,22 @@ export function formatValue(value) {
     return createLinkFromUrl(value);
   }
 
-  if (typeof value === "string") {
+  if (typeof value === 'string') {
     if (
       dayjs(value).isValid() &&
-      (value.includes("/") || value.includes("-"))
+      (value.includes('/') || value.includes('-'))
     ) {
-      return <DateWrapper>{dayjs(value).format("lll")}</DateWrapper>;
+      return <DateWrapper>{dayjs(value).format('lll')}</DateWrapper>;
     }
 
     return value;
   }
 
-  if (value && typeof value === "object") {
+  if (value && typeof value === 'object') {
     return value.toString();
   }
 
-  return value || "-";
+  return value || '-';
 }
 
 export function isEmptyContent(content: string) {

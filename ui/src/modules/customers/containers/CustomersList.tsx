@@ -1,17 +1,17 @@
-import { getEnv } from "apolloClient";
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { Alert, withProps } from "modules/common/utils";
-import { generatePaginationParams } from "modules/common/utils/router";
-import queryString from "query-string";
-import React from "react";
-import { graphql } from "react-apollo";
-import { withRouter } from "react-router-dom";
-import Bulk from "../../common/components/Bulk";
-import { IRouterProps } from "../../common/types";
-import { ListConfigQueryResponse } from "../../companies/types";
-import CustomersList from "../components/list/CustomersList";
-import { mutations, queries } from "../graphql";
+import { getEnv } from 'apolloClient';
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { Alert, withProps } from 'modules/common/utils';
+import { generatePaginationParams } from 'modules/common/utils/router';
+import queryString from 'query-string';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
+import Bulk from '../../common/components/Bulk';
+import { IRouterProps } from '../../common/types';
+import { ListConfigQueryResponse } from '../../companies/types';
+import CustomersList from '../components/list/CustomersList';
+import { mutations, queries } from '../graphql';
 import {
   ListQueryVariables,
   MainQueryResponse,
@@ -19,7 +19,7 @@ import {
   MergeMutationVariables,
   RemoveMutationResponse,
   RemoveMutationVariables
-} from "../types";
+} from '../types';
 
 type Props = {
   queryParams: any;
@@ -48,7 +48,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
     this.state = {
       loading: false,
       mergeCustomerLoading: false,
-      responseId: ""
+      responseId: ''
     };
   }
 
@@ -65,7 +65,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       customersListConfigQuery.fieldsDefaultColumnsConfig || [];
 
     // load config from local storage
-    const localConfig = localStorage.getItem("erxes_customer_columns_config");
+    const localConfig = localStorage.getItem('erxes_customer_columns_config');
 
     if (localConfig) {
       columnsConfig = JSON.parse(localConfig);
@@ -77,7 +77,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       })
         .then(() => {
           emptyBulk();
-          Alert.success("You successfully deleted a customer");
+          Alert.success('You successfully deleted a customer');
         })
         .catch(e => {
           Alert.error(e.message);
@@ -96,7 +96,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
         .then((result: any) => {
           callback();
           this.setState({ mergeCustomerLoading: false });
-          Alert.success("You successfully merged a customer");
+          Alert.success('You successfully merged a customer');
           history.push(
             `/contacts/customers/details/${result.data.customersMerge._id}`
           );
@@ -122,7 +122,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
 
       const exportQuery = {
         ...queryParams,
-        type: "customer"
+        type: 'customer'
       };
 
       if (popupData) {
@@ -131,10 +131,10 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
 
       const stringified = queryString.stringify(exportQuery);
 
-      window.open(`${REACT_APP_API_URL}/file-export?${stringified}`, "_blank");
+      window.open(`${REACT_APP_API_URL}/file-export?${stringified}`, '_blank');
     };
 
-    const searchValue = this.props.queryParams.searchValue || "";
+    const searchValue = this.props.queryParams.searchValue || '';
 
     const { list = [], totalCount = 0 } =
       customersMainQuery.customersMain || {};
@@ -191,7 +191,7 @@ export default withProps<Props>(
     graphql<Props, MainQueryResponse, ListQueryVariables>(
       gql(queries.customersMain),
       {
-        name: "customersMainQuery",
+        name: 'customersMainQuery',
         options: ({ queryParams, type }) => ({
           variables: generateParams({ queryParams, type })
         })
@@ -200,22 +200,22 @@ export default withProps<Props>(
     graphql<Props, ListConfigQueryResponse, {}>(
       gql(queries.customersListConfig),
       {
-        name: "customersListConfigQuery"
+        name: 'customersListConfigQuery'
       }
     ),
     // mutations
     graphql<Props, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.customersRemove),
       {
-        name: "customersRemove"
+        name: 'customersRemove'
       }
     ),
     graphql<Props, MergeMutationResponse, MergeMutationVariables>(
       gql(mutations.customersMerge),
       {
-        name: "customersMerge",
+        name: 'customersMerge',
         options: {
-          refetchQueries: ["customersMain", "customerCounts"]
+          refetchQueries: ['customersMain', 'customerCounts']
         }
       }
     )

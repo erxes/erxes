@@ -1,17 +1,17 @@
-import Button from "modules/common/components/Button";
-import { FormControl } from "modules/common/components/form";
-import { __ } from "modules/common/utils";
-import { FlexRightItem } from "modules/layout/styles";
-import React from "react";
-import Select from "react-select-plus";
-import { IConditionFilter, IEvent, IField } from "../../types";
+import Button from 'modules/common/components/Button';
+import { FormControl } from 'modules/common/components/form';
+import { __ } from 'modules/common/utils';
+import { FlexRightItem } from 'modules/layout/styles';
+import React from 'react';
+import Select from 'react-select-plus';
+import { IConditionFilter, IEvent, IField } from '../../types';
 import {
   ConditionItem,
   FilterProperty,
   FilterRow,
   SubProperties
-} from "../styles";
-import Filter from "./Filter";
+} from '../styles';
+import Filter from './Filter';
 
 type OnChangeParams = {
   key: string;
@@ -69,8 +69,8 @@ class Condition extends React.Component<Props, State> {
 
     return onChange({
       key: conditionKey,
-      name: currentEventName || "",
-      occurence: occurence || "exactly",
+      name: currentEventName || '',
+      occurence: occurence || 'exactly',
       occurenceValue: occurenceValue || 0,
       attributeFilters
     });
@@ -97,7 +97,7 @@ class Condition extends React.Component<Props, State> {
 
   onChangeEvents = (option: IField) => {
     this.setState(
-      { currentEventName: option ? option.value : "" },
+      { currentEventName: option ? option.value : '' },
       this.onChangeFilter
     );
   };
@@ -117,9 +117,9 @@ class Condition extends React.Component<Props, State> {
   addAttributeFilter = () => {
     const attributeFilter = {
       key: Math.random().toString(),
-      name: "",
-      operator: "",
-      value: ""
+      name: '',
+      operator: '',
+      value: ''
     };
 
     const { attributeFilters } = this.state;
@@ -171,7 +171,7 @@ class Condition extends React.Component<Props, State> {
         value={currentEventName}
         onChange={this.onChangeEvents}
         options={eventsData}
-        placeholder={__("Select event")}
+        placeholder={__('Select event')}
       />
     );
   }

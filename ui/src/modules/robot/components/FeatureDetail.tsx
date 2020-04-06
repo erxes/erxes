@@ -1,13 +1,13 @@
-import ProgressBar from "modules/common/components/ProgressBar";
-import colors from "modules/common/styles/colors";
-import { roundToTwo } from "modules/common/utils";
-import React from "react";
-import { Link } from "react-router-dom";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
-import { IFeature } from "../types";
-import { Title } from "./styles";
-import VideoPopup from "./VideoPopup";
+import ProgressBar from 'modules/common/components/ProgressBar';
+import colors from 'modules/common/styles/colors';
+import { roundToTwo } from 'modules/common/utils';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
+import { IFeature } from '../types';
+import { Title } from './styles';
+import VideoPopup from './VideoPopup';
 
 const Wrapper = styled.div`
   width: 315px;
@@ -47,8 +47,8 @@ const ChecklistItem = styledTS<{ isComplete?: boolean }>(styled.li)`
   }
 
 	a {
-    text-decoration: ${props => props.isComplete && "line-through"};
-	  font-style: ${props => props.isComplete && "italic"};
+    text-decoration: ${props => props.isComplete && 'line-through'};
+	  font-style: ${props => props.isComplete && 'italic'};
 		color: ${props =>
       props.isComplete ? colors.colorCoreGray : colors.textPrimary};
 
@@ -147,7 +147,7 @@ class FeatureDetail extends React.Component<Props> {
   renderVideo() {
     const { feature } = this.props;
 
-    if (feature.videoUrl && feature.videoUrl !== "url") {
+    if (feature.videoUrl && feature.videoUrl !== 'url') {
       return (
         <VideoPopup
           onVideoClick={this.props.completeShowStep}

@@ -1,17 +1,17 @@
-import dayjs from "dayjs";
-import Assignees from "modules/boards/components/Assignees";
-import Details from "modules/boards/components/Details";
-import DueDateLabel from "modules/boards/components/DueDateLabel";
-import Labels from "modules/boards/components/label/Labels";
-import EditForm from "modules/boards/containers/editForm/EditForm";
-import { ItemContainer, ItemDate } from "modules/boards/styles/common";
-import { Footer, PriceContainer, Right } from "modules/boards/styles/item";
-import { Content } from "modules/boards/styles/stage";
-import { IOptions } from "modules/boards/types";
-import { renderPriority } from "modules/boards/utils";
-import { __ } from "modules/common/utils";
-import React from "react";
-import { ITicket } from "../types";
+import dayjs from 'dayjs';
+import Assignees from 'modules/boards/components/Assignees';
+import Details from 'modules/boards/components/Details';
+import DueDateLabel from 'modules/boards/components/DueDateLabel';
+import Labels from 'modules/boards/components/label/Labels';
+import EditForm from 'modules/boards/containers/editForm/EditForm';
+import { ItemContainer, ItemDate } from 'modules/boards/styles/common';
+import { Footer, PriceContainer, Right } from 'modules/boards/styles/item';
+import { Content } from 'modules/boards/styles/stage';
+import { IOptions } from 'modules/boards/types';
+import { renderPriority } from 'modules/boards/utils';
+import { __ } from 'modules/common/utils';
+import React from 'react';
+import { ITicket } from '../types';
 
 type Props = {
   stageId: string;
@@ -27,12 +27,12 @@ type Props = {
 };
 
 class TicketItem extends React.PureComponent<Props> {
-  renderDate(date, format = "YYYY-MM-DD") {
+  renderDate(date, format = 'YYYY-MM-DD') {
     if (!date) {
       return null;
     }
 
-    return <ItemDate>{dayjs(date).format("lll")}</ItemDate>;
+    return <ItemDate>{dayjs(date).format('lll')}</ItemDate>;
   }
 
   renderForm = () => {
@@ -75,7 +75,7 @@ class TicketItem extends React.PureComponent<Props> {
         <DueDateLabel closeDate={closeDate} isComplete={isComplete} />
 
         <Footer>
-          {__("Last updated")}:<Right>{this.renderDate(item.modifiedAt)}</Right>
+          {__('Last updated')}:<Right>{this.renderDate(item.modifiedAt)}</Right>
         </Footer>
       </>
     );

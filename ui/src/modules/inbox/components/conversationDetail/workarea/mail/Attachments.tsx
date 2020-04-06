@@ -1,16 +1,16 @@
-import { getEnv } from "apolloClient";
-import Icon from "modules/common/components/Icon";
-import Tip from "modules/common/components/Tip";
-import { __ } from "modules/common/utils";
-import { IMailAttachment } from "modules/inbox/types";
-import * as React from "react";
+import { getEnv } from 'apolloClient';
+import Icon from 'modules/common/components/Icon';
+import Tip from 'modules/common/components/Tip';
+import { __ } from 'modules/common/utils';
+import { IMailAttachment } from 'modules/inbox/types';
+import * as React from 'react';
 import {
   AttachmentItem,
   AttachmentsContainer,
   Download,
   FileInfo,
   FileName
-} from "./style";
+} from './style';
 
 type Props = {
   attachments: IMailAttachment[];
@@ -19,7 +19,7 @@ type Props = {
   messageId: string;
 };
 
-const units = ["B", "KB", "MB", "GB"];
+const units = ['B', 'KB', 'MB', 'GB'];
 
 class Attachments extends React.PureComponent<Props, {}> {
   formatSize(size) {
@@ -34,7 +34,7 @@ class Attachments extends React.PureComponent<Props, {}> {
   }
 
   getIcon(type: string) {
-    if (type.startsWith("image")) {
+    if (type.startsWith('image')) {
       return <Icon icon="image-v" size={14} />;
     }
 
@@ -54,19 +54,19 @@ class Attachments extends React.PureComponent<Props, {}> {
       size,
       attachmentId,
       content_type,
-      mimeType = "",
-      filename = ""
+      mimeType = '',
+      filename = ''
     } = attachment;
     const type = mimeType ? mimeType : content_type;
 
     return (
       <AttachmentItem key={id}>
-        {this.getIcon(type || "")}
+        {this.getIcon(type || '')}
         <FileName>{filename}</FileName>
 
         <FileInfo>
           <span>{this.formatSize(size)}</span>
-          <Tip text={__("Download")}>
+          <Tip text={__('Download')}>
             <Download
               href={this.createLink(id || attachmentId, filename, type)}
               target="_blank"

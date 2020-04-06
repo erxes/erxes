@@ -1,30 +1,30 @@
-import Button from "modules/common/components/Button";
-import DataWithLoader from "modules/common/components/DataWithLoader";
-import DropdownToggle from "modules/common/components/DropdownToggle";
-import FormControl from "modules/common/components/form/Control";
-import Icon from "modules/common/components/Icon";
-import ModalTrigger from "modules/common/components/ModalTrigger";
-import Pagination from "modules/common/components/pagination/Pagination";
-import SortHandler from "modules/common/components/SortHandler";
-import Table from "modules/common/components/table";
-import { __, Alert, confirm, router } from "modules/common/utils";
-import { menuContacts } from "modules/common/utils/menus";
-import { CompaniesTableWrapper } from "modules/companies/styles";
-import Wrapper from "modules/layout/components/Wrapper";
-import { BarItems } from "modules/layout/styles";
-import ManageColumns from "modules/settings/properties/containers/ManageColumns";
-import TaggerPopover from "modules/tags/components/TaggerPopover";
-import React from "react";
-import Dropdown from "react-bootstrap/Dropdown";
-import { withRouter } from "react-router-dom";
-import { Link } from "react-router-dom";
-import { IRouterProps } from "../../../common/types";
-import { IConfigColumn } from "../../../settings/properties/types";
-import CompanyForm from "../../containers/CompanyForm";
-import { ICompany } from "../../types";
-import CompaniesMerge from "../detail/CompaniesMerge";
-import CompanyRow from "./CompanyRow";
-import Sidebar from "./Sidebar";
+import Button from 'modules/common/components/Button';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
+import FormControl from 'modules/common/components/form/Control';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Pagination from 'modules/common/components/pagination/Pagination';
+import SortHandler from 'modules/common/components/SortHandler';
+import Table from 'modules/common/components/table';
+import { __, Alert, confirm, router } from 'modules/common/utils';
+import { menuContacts } from 'modules/common/utils/menus';
+import { CompaniesTableWrapper } from 'modules/companies/styles';
+import Wrapper from 'modules/layout/components/Wrapper';
+import { BarItems } from 'modules/layout/styles';
+import ManageColumns from 'modules/settings/properties/containers/ManageColumns';
+import TaggerPopover from 'modules/tags/components/TaggerPopover';
+import React from 'react';
+import Dropdown from 'react-bootstrap/Dropdown';
+import { withRouter } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { IRouterProps } from '../../../common/types';
+import { IConfigColumn } from '../../../settings/properties/types';
+import CompanyForm from '../../containers/CompanyForm';
+import { ICompany } from '../../types';
+import CompaniesMerge from '../detail/CompaniesMerge';
+import CompanyRow from './CompanyRow';
+import Sidebar from './Sidebar';
 
 interface IProps extends IRouterProps {
   companies: ICompany[];
@@ -64,7 +64,7 @@ class CompaniesList extends React.Component<IProps, State> {
 
   onChange = () => {
     const { toggleAll, companies } = this.props;
-    toggleAll(companies, "companies");
+    toggleAll(companies, 'companies');
   };
 
   search = e => {
@@ -77,7 +77,7 @@ class CompaniesList extends React.Component<IProps, State> {
 
     this.setState({ searchValue });
     this.timer = setTimeout(() => {
-      router.removeParams(history, "page");
+      router.removeParams(history, 'page');
       router.setParams(history, { searchValue });
     }, 500);
   };
@@ -94,7 +94,7 @@ class CompaniesList extends React.Component<IProps, State> {
 
   moveCursorAtTheEnd = e => {
     const tmpValue = e.target.value;
-    e.target.value = "";
+    e.target.value = '';
     e.target.value = tmpValue;
   };
 
@@ -132,7 +132,7 @@ class CompaniesList extends React.Component<IProps, State> {
                   <SortHandler sortField={name} label={__(label)} />
                 </th>
               ))}
-              <th>{__("Tags")}</th>
+              <th>{__('Tags')}</th>
             </tr>
           </thead>
           <tbody id="companies">
@@ -157,7 +157,7 @@ class CompaniesList extends React.Component<IProps, State> {
       </Button>
     );
 
-    const editColumns = <a href="#edit">{__("Edit columns")}</a>;
+    const editColumns = <a href="#edit">{__('Edit columns')}</a>;
 
     const mergeButton = (
       <Button btnStyle="primary" size="small" icon="merge">
@@ -236,7 +236,7 @@ class CompaniesList extends React.Component<IProps, State> {
       <BarItems>
         <FormControl
           type="text"
-          placeholder={__("Type to search")}
+          placeholder={__('Type to search')}
           onChange={this.search}
           value={this.state.searchValue}
           autoFocus={true}
@@ -246,7 +246,7 @@ class CompaniesList extends React.Component<IProps, State> {
         <Dropdown className="dropdown-btn" alignRight={true}>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
             <Button btnStyle="simple" size="small">
-              {__("Customize ")} <Icon icon="angle-down" />
+              {__('Customize ')} <Icon icon="angle-down" />
             </Button>
           </Dropdown.Toggle>
           <Dropdown.Menu>
@@ -259,19 +259,19 @@ class CompaniesList extends React.Component<IProps, State> {
             </li>
             <li>
               <Link to="/settings/properties?type=company">
-                {__("Properties")}
+                {__('Properties')}
               </Link>
             </li>
             <li>
               <a href="#export" onClick={exportCompanies.bind(this, bulk)}>
-                {__("Export companies")}
+                {__('Export companies')}
               </a>
             </li>
           </Dropdown.Menu>
         </Dropdown>
         <Link to="/settings/importHistories?type=company">
           <Button btnStyle="primary" size="small" icon="arrow-from-right">
-            {__("Go to import")}
+            {__('Go to import')}
           </Button>
         </Link>
         <ModalTrigger

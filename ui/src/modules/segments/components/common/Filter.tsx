@@ -1,12 +1,12 @@
-import Button from "modules/common/components/Button";
-import { FormControl } from "modules/common/components/form";
-import { __ } from "modules/common/utils";
-import { operators } from "modules/customers/constants";
-import { FlexRightItem } from "modules/layout/styles";
-import React from "react";
-import Select from "react-select-plus";
-import { IConditionFilter, IField } from "../../types";
-import { ConditionItem, FilterProperty, FilterRow } from "../styles";
+import Button from 'modules/common/components/Button';
+import { FormControl } from 'modules/common/components/form';
+import { __ } from 'modules/common/utils';
+import { operators } from 'modules/customers/constants';
+import { FlexRightItem } from 'modules/layout/styles';
+import React from 'react';
+import Select from 'react-select-plus';
+import { IConditionFilter, IField } from '../../types';
+import { ConditionItem, FilterProperty, FilterRow } from '../styles';
 
 type Props = {
   fields: IField[];
@@ -30,7 +30,7 @@ class Filter extends React.Component<Props, State> {
     const { filter } = this.props;
 
     this.state = {
-      key: filter.key || "",
+      key: filter.key || '',
       currentName: filter.name,
       currentOperator: filter.operator,
       currentValue: filter.value
@@ -80,9 +80,9 @@ class Filter extends React.Component<Props, State> {
     return fields.reduce((acc, field) => {
       const value = field.value;
       const key =
-        value && value.includes(".")
-          ? value.substr(0, value.indexOf("."))
-          : "general";
+        value && value.includes('.')
+          ? value.substr(0, value.indexOf('.'))
+          : 'general';
 
       if (!acc[key]) {
         acc[key] = [];
@@ -117,7 +117,7 @@ class Filter extends React.Component<Props, State> {
         clearable={false}
         value={currentName}
         onChange={this.onChangeField}
-        placeholder={__("Select property")}
+        placeholder={__('Select property')}
       />
     );
   }
@@ -131,7 +131,7 @@ class Filter extends React.Component<Props, State> {
         onChange={this.onChangeOperators}
         value={currentOperator}
       >
-        <option value="">{__("Select operator")}...</option>
+        <option value="">{__('Select operator')}...</option>
         {operators.map(c => (
           <option value={c.value} key={c.value}>
             {c.name}
@@ -145,7 +145,7 @@ class Filter extends React.Component<Props, State> {
     const { onRemove } = this.props;
 
     if (onRemove) {
-      onRemove(this.props.filter.key || "");
+      onRemove(this.props.filter.key || '');
     }
   };
 
@@ -170,7 +170,7 @@ class Filter extends React.Component<Props, State> {
   renderValueInput = () => {
     const { currentValue, currentOperator } = this.state;
 
-    if (["is", "ins", "it", "if"].indexOf(currentOperator) >= 0) {
+    if (['is', 'ins', 'it', 'if'].indexOf(currentOperator) >= 0) {
       return null;
     }
 

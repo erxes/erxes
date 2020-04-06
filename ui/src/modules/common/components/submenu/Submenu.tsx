@@ -1,8 +1,8 @@
-import { ISubMenuItem } from "modules/common/types";
-import { __ } from "modules/common/utils";
-import React from "react";
-import styled from "styled-components";
-import MenuItem from "./MenuItem";
+import { ISubMenuItem } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
+import React from 'react';
+import styled from 'styled-components';
+import MenuItem from './MenuItem';
 
 const Items = styled.ul`
   display: inline-block;
@@ -17,7 +17,7 @@ function Submenu({ items }: { items?: ISubMenuItem[] }) {
     return (
       <Items>
         {items.map(b => (
-          <MenuItem to={b.link || ""} key={b.title}>
+          <MenuItem to={b.link || ''} key={b.title}>
             {__(b.title)}
           </MenuItem>
         ))}

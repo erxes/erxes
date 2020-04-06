@@ -1,11 +1,11 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { Alert, confirm } from "modules/common/utils";
-import { generatePaginationParams } from "modules/common/utils/router";
-import React from "react";
-import { graphql } from "react-apollo";
-import PermissionList from "../components/PermissionList";
-import { mutations, queries } from "../graphql";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { Alert, confirm } from 'modules/common/utils';
+import { generatePaginationParams } from 'modules/common/utils/router';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import PermissionList from '../components/PermissionList';
+import { mutations, queries } from '../graphql';
 import {
   IUserGroup,
   PermissionActionsQueryResponse,
@@ -14,7 +14,7 @@ import {
   PermissionsQueryResponse,
   PermissionTotalCountQueryResponse,
   UsersGroupsQueryResponse
-} from "../types";
+} from '../types';
 
 type FinalProps = {
   can: (action: string) => boolean;
@@ -39,7 +39,7 @@ const List = (props: FinalProps) => {
         variables: { ids: [id] }
       })
         .then(() => {
-          Alert.success("You successfully deleted a permission.");
+          Alert.success('You successfully deleted a permission.');
         })
         .catch(error => {
           Alert.error(error.message);
@@ -94,7 +94,7 @@ const commonOptions = queryParams => {
     action: queryParams.action,
     userId: queryParams.userId,
     groupId: queryParams.groupId,
-    allowed: queryParams.allowed === "notAllowed" ? false : true,
+    allowed: queryParams.allowed === 'notAllowed' ? false : true,
     ...generatePaginationParams(queryParams)
   };
 
@@ -106,7 +106,7 @@ const commonOptions = queryParams => {
 
 export default compose(
   graphql<Props, PermissionTotalCountQueryResponse>(gql(queries.totalCount), {
-    name: "totalCountQuery",
+    name: 'totalCountQuery',
     options: ({ queryParams }) => ({
       notifyOnNetworkStatusChange: true,
       variables: {
@@ -114,12 +114,12 @@ export default compose(
         action: queryParams.action,
         userId: queryParams.userId,
         groupId: queryParams.groupId,
-        allowed: queryParams.allowed === "notAllowed" ? false : true
+        allowed: queryParams.allowed === 'notAllowed' ? false : true
       }
     })
   }),
   graphql<Props, PermissionsQueryResponse>(gql(queries.permissions), {
-    name: "permissionsQuery",
+    name: 'permissionsQuery',
     options: ({ queryParams }) => ({
       notifyOnNetworkStatusChange: true,
       variables: {
@@ -127,26 +127,26 @@ export default compose(
         action: queryParams.action,
         userId: queryParams.userId,
         groupId: queryParams.groupId,
-        allowed: queryParams.allowed === "notAllowed" ? false : true,
+        allowed: queryParams.allowed === 'notAllowed' ? false : true,
         ...generatePaginationParams(queryParams)
       }
     })
   }),
   graphql<Props, PermissionModulesQueryResponse>(gql(queries.modules), {
-    name: "modulesQuery"
+    name: 'modulesQuery'
   }),
   graphql<Props, PermissionActionsQueryResponse>(gql(queries.actions), {
-    name: "actionsQuery"
+    name: 'actionsQuery'
   }),
   graphql<{}, UsersGroupsQueryResponse>(gql(queries.usersGroups), {
-    name: "usersGroupsQuery"
+    name: 'usersGroupsQuery'
   }),
 
   // mutations
   graphql<Props, PermissionRemoveMutationResponse>(
     gql(mutations.permissionRemove),
     {
-      name: "removeMutation",
+      name: 'removeMutation',
       options: ({ queryParams }) => ({
         refetchQueries: commonOptions(queryParams)
       })

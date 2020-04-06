@@ -1,13 +1,13 @@
-import ActionButtons from "modules/common/components/ActionButtons";
-import Button from "modules/common/components/Button";
-import Icon from "modules/common/components/Icon";
-import ModalTrigger from "modules/common/components/ModalTrigger";
-import Tip from "modules/common/components/Tip";
-import { __ } from "modules/common/utils";
-import React from "react";
+import ActionButtons from 'modules/common/components/ActionButtons';
+import Button from 'modules/common/components/Button';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Tip from 'modules/common/components/Tip';
+import { __ } from 'modules/common/utils';
+import React from 'react';
 
 type Props = {
-  size?: "sm" | "lg" | "xl";
+  size?: 'sm' | 'lg' | 'xl';
   object: any;
   renderForm: (
     doc: { object: any; closeModal: () => void; save: () => void }
@@ -32,7 +32,7 @@ export default class RowActions extends React.Component<Props, {}> {
     }
 
     return (
-      <Tip text={__("Delete")}>
+      <Tip text={__('Delete')}>
         <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
       </Tip>
     );
@@ -43,7 +43,7 @@ export default class RowActions extends React.Component<Props, {}> {
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text={__("Edit")}>
+        <Tip text={__('Edit')}>
           <Icon icon="edit" />
         </Tip>
       </Button>

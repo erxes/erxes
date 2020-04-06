@@ -1,8 +1,8 @@
-import SelectWithSearch from "modules/common/components/SelectWithSearch";
-import { IOption, IQueryParams } from "modules/common/types";
-import React from "react";
-import { queries } from "../graphql";
-import { ICompany } from "../types";
+import SelectWithSearch from 'modules/common/components/SelectWithSearch';
+import { IOption, IQueryParams } from 'modules/common/types';
+import React from 'react';
+import { queries } from '../graphql';
+import { ICompany } from '../types';
 
 // get company options for react-select-plus
 export function generateCompanyOptions(array: ICompany[] = []): IOption[] {
@@ -11,7 +11,7 @@ export function generateCompanyOptions(array: ICompany[] = []): IOption[] {
 
     return {
       value: company._id,
-      label: company.primaryName || "",
+      label: company.primaryName || '',
       avatar: company.avatar
     };
   });
@@ -41,7 +41,7 @@ export default ({
       queryName="companies"
       name={name}
       values={
-        typeof defaultValue === "string"
+        typeof defaultValue === 'string'
           ? multi
             ? [defaultValue]
             : defaultValue

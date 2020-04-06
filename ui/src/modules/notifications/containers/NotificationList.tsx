@@ -1,17 +1,17 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { IQueryParams } from "modules/common/types";
-import { Alert, withProps } from "modules/common/utils";
-import { generatePaginationParams } from "modules/common/utils/router";
-import React from "react";
-import { graphql } from "react-apollo";
-import NotificationList from "../components/NotificationList";
-import { mutations, queries } from "../graphql";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { IQueryParams } from 'modules/common/types';
+import { Alert, withProps } from 'modules/common/utils';
+import { generatePaginationParams } from 'modules/common/utils/router';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import NotificationList from '../components/NotificationList';
+import { mutations, queries } from '../graphql';
 import {
   MarkAsReadMutationResponse,
   NotificationsCountQueryResponse,
   NotificationsQueryResponse
-} from "../types";
+} from '../types';
 
 type Props = {
   queryParams: IQueryParams;
@@ -41,7 +41,7 @@ class NotificationListContainer extends React.Component<FinalProps> {
             notificationCountQuery.refetch();
           }
 
-          Alert.success("Notification have been seen");
+          Alert.success('Notification have been seen');
         })
         .catch(error => {
           Alert.error(error.message);
@@ -67,11 +67,11 @@ export default withProps<Props>(
       NotificationsQueryResponse,
       { requireRead: boolean; page?: number; perPage?: number; title?: string }
     >(gql(queries.notifications), {
-      name: "notificationsQuery",
+      name: 'notificationsQuery',
       options: ({ queryParams }) => ({
         variables: {
           ...generatePaginationParams(queryParams),
-          requireRead: queryParams.requireRead === "true" ? true : false,
+          requireRead: queryParams.requireRead === 'true' ? true : false,
           title: queryParams.title
         }
       })
@@ -79,10 +79,10 @@ export default withProps<Props>(
     graphql<Props, NotificationsCountQueryResponse>(
       gql(queries.notificationCounts),
       {
-        name: "notificationCountQuery",
+        name: 'notificationCountQuery',
         options: ({ queryParams }) => ({
           variables: {
-            requireRead: queryParams.requireRead === "true" ? true : false
+            requireRead: queryParams.requireRead === 'true' ? true : false
           }
         })
       }
@@ -90,7 +90,7 @@ export default withProps<Props>(
     graphql<Props, MarkAsReadMutationResponse, { _ids?: string[] }>(
       gql(mutations.markAsRead),
       {
-        name: "notificationsMarkAsReadMutation",
+        name: 'notificationsMarkAsReadMutation',
         options: {
           refetchQueries: [
             {
@@ -100,7 +100,7 @@ export default withProps<Props>(
                 requireRead: false
               }
             },
-            "notificationCounts"
+            'notificationCounts'
           ]
         }
       }

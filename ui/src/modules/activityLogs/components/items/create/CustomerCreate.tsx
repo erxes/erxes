@@ -1,13 +1,13 @@
-import dayjs from "dayjs";
+import dayjs from 'dayjs';
 import {
   ActivityDate,
   FlexBody,
   FlexCenterContent
-} from "modules/activityLogs/styles";
-import { IActivityLog } from "modules/activityLogs/types";
-import Tip from "modules/common/components/Tip";
-import { renderUserFullName } from "modules/common/utils";
-import React from "react";
+} from 'modules/activityLogs/styles';
+import { IActivityLog } from 'modules/activityLogs/types';
+import Tip from 'modules/common/components/Tip';
+import { renderUserFullName } from 'modules/common/utils';
+import React from 'react';
 
 type Props = {
   activity: IActivityLog;
@@ -18,7 +18,7 @@ class CustomerCreate extends React.Component<Props> {
     const { activity } = this.props;
     const { createdByDetail } = activity;
 
-    if (createdByDetail && createdByDetail.type === "user") {
+    if (createdByDetail && createdByDetail.type === 'user') {
       const userName = renderUserFullName(createdByDetail.content);
 
       return (
@@ -28,13 +28,13 @@ class CustomerCreate extends React.Component<Props> {
       );
     }
 
-    if (createdByDetail && createdByDetail.type === "brand") {
+    if (createdByDetail && createdByDetail.type === 'brand') {
       const { content } = createdByDetail;
 
       return (
         <span>
           This customer registered to erxes by
-          {content ? ` ${content.name}'s integrations` : ""}
+          {content ? ` ${content.name}'s integrations` : ''}
         </span>
       );
     }
@@ -53,9 +53,9 @@ class CustomerCreate extends React.Component<Props> {
     return (
       <FlexCenterContent>
         <FlexBody>{this.renderContent()}</FlexBody>
-        <Tip text={dayjs(createdAt).format("llll")}>
+        <Tip text={dayjs(createdAt).format('llll')}>
           <ActivityDate>
-            {dayjs(createdAt).format("MMM D, h:mm A")}
+            {dayjs(createdAt).format('MMM D, h:mm A')}
           </ActivityDate>
         </Tip>
       </FlexCenterContent>

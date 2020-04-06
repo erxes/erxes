@@ -1,6 +1,6 @@
-import { colors, dimensions } from "modules/common/styles";
-import { rgba } from "modules/common/styles/color";
-import styled from "styled-components";
+import { colors, dimensions } from 'modules/common/styles';
+import { rgba } from 'modules/common/styles/color';
+import styled from 'styled-components';
 
 const Templates = styled.div`
   display: flex;

@@ -1,21 +1,21 @@
-import { __ } from "modules/common/utils";
-import { menuInbox } from "modules/common/utils/menus";
-import Wrapper from "modules/layout/components/Wrapper";
-import React from "react";
-import { IBrand } from "../../settings/brands/types";
+import { __ } from 'modules/common/utils';
+import { menuInbox } from 'modules/common/utils/menus';
+import Wrapper from 'modules/layout/components/Wrapper';
+import React from 'react';
+import { IBrand } from '../../settings/brands/types';
 import {
   InsightContent,
   InsightRow,
   InsightTitle,
   InsightWrapper
-} from "../styles";
-import { IChartParams, IQueryParams } from "../types";
-import { convertTime } from "../utils";
-import Chart from "./Chart";
-import InboxFilter from "./filter/InboxFilter";
-import Sidebar from "./Sidebar";
-import Summary from "./Summary";
-import TeamMembers from "./TeamMembers";
+} from '../styles';
+import { IChartParams, IQueryParams } from '../types';
+import { convertTime } from '../utils';
+import Chart from './Chart';
+import InboxFilter from './filter/InboxFilter';
+import Sidebar from './Sidebar';
+import Summary from './Summary';
+import TeamMembers from './TeamMembers';
 
 type Props = {
   brands: IBrand[];
@@ -45,7 +45,7 @@ class FirstResponse extends React.Component<Props> {
       <InsightContent>
         <InsightRow>
           {this.renderTitle(
-            "Daily First Response Resolve Rate",
+            'Daily First Response Resolve Rate',
             convertTime(time)
           )}
 
@@ -56,7 +56,7 @@ class FirstResponse extends React.Component<Props> {
 
         <InsightRow>
           {this.renderTitle(
-            "Daily First Response Resolve Rate by Team Members",
+            'Daily First Response Resolve Rate by Team Members',
             convertTime(time)
           )}
           <TeamMembers loading={isLoading} datas={teamMembers || []} />
@@ -85,7 +85,7 @@ class FirstResponse extends React.Component<Props> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__("First Response Report")}
+            title={__('First Response Report')}
             submenu={menuInbox}
           />
         }

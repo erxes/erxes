@@ -1,19 +1,19 @@
-import { AppConsumer } from "appContext";
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { IUser } from "modules/auth/types";
-import { withProps } from "modules/common/utils";
-import FacebookConversation from "modules/inbox/components/conversationDetail/workarea/facebook/FacebookConversation";
-import { queries, subscriptions } from "modules/inbox/graphql";
+import { AppConsumer } from 'appContext';
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { IUser } from 'modules/auth/types';
+import { withProps } from 'modules/common/utils';
+import FacebookConversation from 'modules/inbox/components/conversationDetail/workarea/facebook/FacebookConversation';
+import { queries, subscriptions } from 'modules/inbox/graphql';
 import {
   FacebookCommentsQueryResponse,
   IConversation,
   IFacebookComment,
   IFacebookPost,
   MessagesQueryResponse
-} from "modules/inbox/types";
-import * as React from "react";
-import { graphql } from "react-apollo";
+} from 'modules/inbox/types';
+import * as React from 'react';
+import { graphql } from 'react-apollo';
 
 type Props = {
   conversation: IConversation;
@@ -156,13 +156,13 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
     graphql<Props, FacebookCommentsQueryResponse, { postId: string }>(
       gql(queries.converstationFacebookComments),
       {
-        name: "commentsQuery",
+        name: 'commentsQuery',
         options: ({ conversation }: { conversation: IConversation }) => {
           return {
             variables: {
               postId: conversation._id
             },
-            fetchPolicy: "network-only"
+            fetchPolicy: 'network-only'
           };
         }
       }
@@ -170,13 +170,13 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
     graphql<Props, MessagesQueryResponse, { conversationId: string }>(
       gql(queries.conversationMessages),
       {
-        name: "internalNotesQuery",
+        name: 'internalNotesQuery',
         options: ({ conversation }: { conversation: IConversation }) => {
           return {
             variables: {
               conversationId: conversation._id
             },
-            fetchPolicy: "network-only"
+            fetchPolicy: 'network-only'
           };
         }
       }

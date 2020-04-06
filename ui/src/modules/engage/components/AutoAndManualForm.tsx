@@ -1,29 +1,29 @@
-import { IUser } from "modules/auth/types";
-import Button from "modules/common/components/Button";
-import { SmallLoader } from "modules/common/components/ButtonMutate";
-import FormControl from "modules/common/components/form/Control";
-import { Step, Steps } from "modules/common/components/step";
+import { IUser } from 'modules/auth/types';
+import Button from 'modules/common/components/Button';
+import { SmallLoader } from 'modules/common/components/ButtonMutate';
+import FormControl from 'modules/common/components/form/Control';
+import { Step, Steps } from 'modules/common/components/step';
 import {
   StepWrapper,
   TitleContainer
-} from "modules/common/components/step/styles";
-import { __ } from "modules/common/utils";
-import Wrapper from "modules/layout/components/Wrapper";
-import { IBrand } from "modules/settings/brands/types";
-import { IEmailTemplate } from "modules/settings/emailTemplates/types";
-import React from "react";
-import { Link } from "react-router-dom";
-import { IBreadCrumbItem } from "../../common/types";
+} from 'modules/common/components/step/styles';
+import { __ } from 'modules/common/utils';
+import Wrapper from 'modules/layout/components/Wrapper';
+import { IBrand } from 'modules/settings/brands/types';
+import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { IBreadCrumbItem } from '../../common/types';
 import {
   IEngageEmail,
   IEngageMessage,
   IEngageMessageDoc,
   IEngageMessenger,
   IEngageScheduleDate
-} from "../types";
-import ChannelStep from "./step/ChannelStep";
-import MessageStep from "./step/MessageStep";
-import MessageTypeStep from "./step/MessageTypeStep";
+} from '../types';
+import ChannelStep from './step/ChannelStep';
+import MessageStep from './step/MessageStep';
+import MessageTypeStep from './step/MessageTypeStep';
 
 type Props = {
   message?: IEngageMessage;
@@ -65,7 +65,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     const messenger = message.messenger || ({} as IEngageMessenger);
     const email = message.email || {};
 
-    let content = email.content || "";
+    let content = email.content || '';
 
     if (messenger.content) {
       content = messenger.content;
@@ -74,8 +74,8 @@ class AutoAndManualForm extends React.Component<Props, State> {
     this.state = {
       activeStep: 1,
       maxStep: 3,
-      method: message.method || "email",
-      title: message.title || "",
+      method: message.method || 'email',
+      title: message.title || '',
       segmentIds: message.segmentIds || [],
       brandIds: message.brandIds || [],
       tagIds: message.tagIds || [],
@@ -110,29 +110,29 @@ class AutoAndManualForm extends React.Component<Props, State> {
       scheduleDate: this.state.scheduleDate
     } as IEngageMessageDoc;
 
-    if (this.state.method === "email") {
+    if (this.state.method === 'email') {
       const email = this.state.email || ({} as IEngageEmail);
 
       doc.email = {
-        subject: email.subject || "",
+        subject: email.subject || '',
         content: this.state.content,
         attachments: email.attachments,
-        templateId: email.templateId || ""
+        templateId: email.templateId || ''
       };
-    } else if (this.state.method === "messenger") {
+    } else if (this.state.method === 'messenger') {
       const messenger = this.state.messenger || ({} as IEngageMessenger);
 
       doc.messenger = {
-        brandId: messenger.brandId || "",
-        kind: messenger.kind || "",
-        sentAs: messenger.sentAs || "",
+        brandId: messenger.brandId || '',
+        kind: messenger.kind || '',
+        sentAs: messenger.sentAs || '',
         content: this.state.content
       };
     }
 
     const response = this.props.validateDoc(type, doc);
 
-    if (response.status === "ok" && response.doc) {
+    if (response.status === 'ok' && response.doc) {
       return this.props.save(response.doc);
     }
   };
@@ -149,15 +149,15 @@ class AutoAndManualForm extends React.Component<Props, State> {
     );
 
     const saveButton = () => {
-      if (kind === "auto") {
+      if (kind === 'auto') {
         return (
           <>
             <Button
               disabled={isActionLoading}
               btnStyle="warning"
               size="small"
-              icon={isActionLoading ? undefined : "file-alt"}
-              onClick={this.handleSubmit.bind(this, "draft")}
+              icon={isActionLoading ? undefined : 'file-alt'}
+              onClick={this.handleSubmit.bind(this, 'draft')}
             >
               Save & Draft
             </Button>
@@ -165,8 +165,8 @@ class AutoAndManualForm extends React.Component<Props, State> {
               disabled={isActionLoading}
               btnStyle="success"
               size="small"
-              icon={isActionLoading ? undefined : "checked-1"}
-              onClick={this.handleSubmit.bind(this, "live")}
+              icon={isActionLoading ? undefined : 'checked-1'}
+              onClick={this.handleSubmit.bind(this, 'live')}
             >
               Save & Live
             </Button>
@@ -178,8 +178,8 @@ class AutoAndManualForm extends React.Component<Props, State> {
           disabled={isActionLoading}
           btnStyle="success"
           size="small"
-          icon={isActionLoading ? undefined : "checked-1"}
-          onClick={this.handleSubmit.bind(this, "live")}
+          icon={isActionLoading ? undefined : 'checked-1'}
+          onClick={this.handleSubmit.bind(this, 'live')}
         >
           {isActionLoading && <SmallLoader />}
           Save
@@ -213,13 +213,13 @@ class AutoAndManualForm extends React.Component<Props, State> {
     } = this.state;
 
     const onChange = e =>
-      this.changeState("title", (e.target as HTMLInputElement).value);
+      this.changeState('title', (e.target as HTMLInputElement).value);
 
     return (
       <StepWrapper>
         <Wrapper.Header title={renderTitle()} breadcrumb={breadcrumbs} />
         <TitleContainer>
-          <div>{__("Title")}</div>
+          <div>{__('Title')}</div>
           <FormControl
             required={true}
             onChange={onChange}

@@ -1,9 +1,9 @@
-import ButtonMutate from "modules/common/components/ButtonMutate";
-import { IButtonMutateProps, IRouterProps } from "modules/common/types";
-import Chatfuel from "modules/settings/integrations/components/chatfuel/Form";
-import { mutations } from "modules/settings/integrations/graphql";
-import React from "react";
-import { withRouter } from "react-router-dom";
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
+import Chatfuel from 'modules/settings/integrations/components/chatfuel/Form';
+import { mutations } from 'modules/settings/integrations/graphql';
+import React from 'react';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   type?: string;

@@ -1,18 +1,18 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { IUser } from "modules/auth/types";
-import { IOptions } from "modules/boards/types";
-import { Alert, withProps } from "modules/common/utils";
-import { mutations } from "modules/forms/graphql";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { IUser } from 'modules/auth/types';
+import { IOptions } from 'modules/boards/types';
+import { Alert, withProps } from 'modules/common/utils';
+import { mutations } from 'modules/forms/graphql';
 import {
   IFormSubmission,
   IFormSubmissionParams,
   SaveFormSubmissionMutation
-} from "modules/forms/types";
-import React from "react";
-import { graphql } from "react-apollo";
-import GrowthHackEditForm from "../components/GrowthHackEditForm";
-import { IGrowthHack, IGrowthHackParams } from "../types";
+} from 'modules/forms/types';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import GrowthHackEditForm from '../components/GrowthHackEditForm';
+import { IGrowthHack, IGrowthHackParams } from '../types';
 
 type Props = {
   options: IOptions;
@@ -49,11 +49,11 @@ class GrowthHackEditFormContainer extends React.Component<FinalProps> {
         formId,
         formSubmissions,
         contentTypeId,
-        contentType: "growthHack"
+        contentType: 'growthHack'
       }
     })
       .then(() => {
-        Alert.success("You successfully updated");
+        Alert.success('You successfully updated');
       })
       .catch(error => {
         Alert.error(error.message);
@@ -75,7 +75,7 @@ export default withProps<Props>(
     graphql<Props, SaveFormSubmissionMutation, IFormSubmissionParams>(
       gql(mutations.formSubmissionsSave),
       {
-        name: "saveFormSubmissionMutation"
+        name: 'saveFormSubmissionMutation'
       }
     )
   )(GrowthHackEditFormContainer)

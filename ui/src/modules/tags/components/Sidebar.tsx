@@ -1,8 +1,8 @@
-import { __ } from "modules/common/utils";
-import Sidebar from "modules/layout/components/Sidebar";
-import { SidebarList } from "modules/layout/styles";
-import React from "react";
-import { NavLink } from "react-router-dom";
+import { __ } from 'modules/common/utils';
+import Sidebar from 'modules/layout/components/Sidebar';
+import { SidebarList } from 'modules/layout/styles';
+import React from 'react';
+import { NavLink } from 'react-router-dom';
 
 function TagsSidebar() {
   const { Title } = Sidebar.Section;
@@ -10,36 +10,36 @@ function TagsSidebar() {
   return (
     <Sidebar>
       <Sidebar.Section>
-        <Title>{__("Tags type")}</Title>
+        <Title>{__('Tags type')}</Title>
         <SidebarList>
           <li>
             <NavLink activeClassName="active" to="/tags/engageMessage">
-              {__("Engage Message")}
+              {__('Engage Message')}
             </NavLink>
           </li>
           <li>
             <NavLink activeClassName="active" to="/tags/conversation">
-              {__("Conversation")}
+              {__('Conversation')}
             </NavLink>
           </li>
           <li>
             <NavLink activeClassName="active" to="/tags/customer">
-              {__("Customer")}
+              {__('Customer')}
             </NavLink>
           </li>
           <li>
             <NavLink activeClassName="active" to="/tags/company">
-              {__("Company")}
+              {__('Company')}
             </NavLink>
           </li>
           <li>
             <NavLink activeClassName="active" to="/tags/integration">
-              {__("Integration")}
+              {__('Integration')}
             </NavLink>
           </li>
           <li>
             <NavLink activeClassName="active" to="/tags/product">
-              {__("Product & Service")}
+              {__('Product & Service')}
             </NavLink>
           </li>
         </SidebarList>

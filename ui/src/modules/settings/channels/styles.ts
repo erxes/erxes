@@ -1,5 +1,5 @@
-import { colors, dimensions } from "modules/common/styles";
-import styled from "styled-components";
+import { colors, dimensions } from 'modules/common/styles';
+import styled from 'styled-components';
 
 const imageSize = 30;
 
@@ -20,7 +20,7 @@ const MemberImg = styled.img`
   }
 `;
 
-const More = styled(MemberImg.withComponent("span"))`
+const More = styled(MemberImg.withComponent('span'))`
   color: ${colors.colorWhite};
   text-align: center;
   vertical-align: middle;

@@ -1,16 +1,16 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { queries as boardQueries } from "modules/boards/graphql";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { queries as boardQueries } from 'modules/boards/graphql';
 import {
   BoardDetailQueryResponse,
   BoardsGetLastQueryResponse,
   BoardsQueryResponse,
   IPipeline
-} from "modules/boards/types";
-import React from "react";
-import { graphql } from "react-apollo";
-import DealFilter from "../components/filter/DealFilter";
-import { IQueryParams } from "../types";
+} from 'modules/boards/types';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import DealFilter from '../components/filter/DealFilter';
+import { IQueryParams } from '../types';
 
 type Props = {
   location: any;
@@ -56,21 +56,21 @@ const DealFilterContainer = (props: FinalProps) => {
 
 export default compose(
   graphql<Props, BoardsQueryResponse>(gql(boardQueries.boards), {
-    name: "boardsQuery",
+    name: 'boardsQuery',
     options: () => ({
-      variables: { type: "deal" }
+      variables: { type: 'deal' }
     })
   }),
   graphql<Props, BoardsGetLastQueryResponse>(gql(boardQueries.boardGetLast), {
-    name: "boardGetLastQuery",
+    name: 'boardGetLastQuery',
     options: () => ({
-      variables: { type: "deal" }
+      variables: { type: 'deal' }
     })
   }),
   graphql<Props, BoardDetailQueryResponse, { _id: string }>(
     gql(boardQueries.boardDetail),
     {
-      name: "boardDetailQuery",
+      name: 'boardDetailQuery',
       skip: ({ queryParams }) => !queryParams.boardId,
       options: ({ queryParams }) => ({
         variables: {

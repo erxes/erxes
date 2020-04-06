@@ -1,8 +1,8 @@
-import { fadeIn, slideDown } from "modules/common/utils/animations";
-import React from "react";
-import ReactDOM from "react-dom";
-import styled from "styled-components";
-import { readFile } from "../utils";
+import { fadeIn, slideDown } from 'modules/common/utils/animations';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import styled from 'styled-components';
+import { readFile } from '../utils';
 
 const PreviewWrapper = styled.div`
   position: fixed;
@@ -67,11 +67,11 @@ class ImageWithPreview extends React.Component<Props, State> {
   };
 
   componentDidMount() {
-    document.addEventListener("keydown", this.handleKeydown);
+    document.addEventListener('keydown', this.handleKeydown);
   }
 
   componentWillUnmount() {
-    document.removeEventListener("keydown", this.handleKeydown);
+    document.removeEventListener('keydown', this.handleKeydown);
   }
 
   handleKeydown = e => {
@@ -87,14 +87,14 @@ class ImageWithPreview extends React.Component<Props, State> {
       <>
         <Image
           {...this.props}
-          src={readFile(src || "")}
+          src={readFile(src || '')}
           onLoad={onLoad}
           onClick={this.toggleImage}
         />
         {this.state.visible && (
           <PreviewPortal>
             <PreviewWrapper onClick={this.toggleImage}>
-              <img alt={alt} src={readFile(src || "")} />
+              <img alt={alt} src={readFile(src || '')} />
             </PreviewWrapper>
           </PreviewPortal>
         )}
@@ -109,7 +109,7 @@ class PreviewPortal extends React.Component<{ children: React.ReactNode }> {
   constructor(props) {
     super(props);
 
-    this.el = document.createElement("div");
+    this.el = document.createElement('div');
   }
 
   componentDidMount() {

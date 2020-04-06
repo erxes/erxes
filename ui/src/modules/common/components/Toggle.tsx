@@ -1,8 +1,8 @@
-import { colors } from "modules/common/styles";
-import React from "react";
-import Toggle from "react-toggle";
-import "react-toggle/style.css";
-import styled from "styled-components";
+import { colors } from 'modules/common/styles';
+import React from 'react';
+import Toggle from 'react-toggle';
+import 'react-toggle/style.css';
+import styled from 'styled-components';
 
 const Wrapper = styled.div`
   line-height: 10px;
@@ -32,8 +32,8 @@ type Props = {
   id?: string;
   checked?: boolean;
   defaultChecked?: boolean;
-  "aria-labelledby"?: string;
-  "aria-label"?: string;
+  'aria-labelledby'?: string;
+  'aria-label'?: string;
   onFocus?: (e: React.FormEvent) => void;
   onBlur?: (e: React.FormEvent) => void;
   disabled?: boolean;

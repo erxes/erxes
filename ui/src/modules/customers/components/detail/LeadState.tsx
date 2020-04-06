@@ -1,9 +1,9 @@
-import Button from "modules/common/components/Button";
-import Icon from "modules/common/components/Icon";
-import { LEAD_CHOICES } from "modules/customers/constants";
-import { LeadStateWrapper, StateItem } from "modules/customers/styles";
-import { ICustomer } from "modules/customers/types";
-import React from "react";
+import Button from 'modules/common/components/Button';
+import Icon from 'modules/common/components/Icon';
+import { LEAD_CHOICES } from 'modules/customers/constants';
+import { LeadStateWrapper, StateItem } from 'modules/customers/styles';
+import { ICustomer } from 'modules/customers/types';
+import React from 'react';
 
 type IProps = {
   customer: ICustomer;
@@ -17,7 +17,7 @@ class LeadState extends React.Component<IProps, { currentState: string }> {
 
     const { customer } = props;
 
-    this.state = { currentState: customer.leadStatus || "new" };
+    this.state = { currentState: customer.leadStatus || 'new' };
   }
 
   findIndex = () => {
@@ -35,13 +35,13 @@ class LeadState extends React.Component<IProps, { currentState: string }> {
   };
 
   convertToCustomer = () => {
-    this.props.changeCustomerState("customer");
+    this.props.changeCustomerState('customer');
   };
 
   render() {
     const { customer, saveState } = this.props;
 
-    if (customer.state !== "lead") {
+    if (customer.state !== 'lead') {
       return null;
     }
 

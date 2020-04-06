@@ -1,22 +1,22 @@
-import asyncComponent from "modules/common/components/AsyncComponent";
-import queryString from "query-string";
-import React from "react";
-import { Route, Switch } from "react-router-dom";
+import asyncComponent from 'modules/common/components/AsyncComponent';
+import queryString from 'query-string';
+import React from 'react';
+import { Route, Switch } from 'react-router-dom';
 
 const AuthLayout = asyncComponent(() =>
-  import(/* webpackChunkName: "AuthLayout" */ "../layout/components/AuthLayout")
+  import(/* webpackChunkName: "AuthLayout" */ '../layout/components/AuthLayout')
 );
 
 const ForgotPassword = asyncComponent(() =>
-  import(/* webpackChunkName: "ForgotPassword" */ "./containers/ForgotPassword")
+  import(/* webpackChunkName: "ForgotPassword" */ './containers/ForgotPassword')
 );
 
 const ResetPassword = asyncComponent(() =>
-  import(/* webpackChunkName: "ResetPassword" */ "./containers/ResetPassword")
+  import(/* webpackChunkName: "ResetPassword" */ './containers/ResetPassword')
 );
 
 const SignIn = asyncComponent(() =>
-  import(/* webpackChunkName: "SignIn" */ "./containers/SignIn")
+  import(/* webpackChunkName: "SignIn" */ './containers/SignIn')
 );
 
 const signIn = () => <AuthLayout content={<SignIn />} />;
@@ -25,7 +25,7 @@ const forgotPassword = () => <AuthLayout content={<ForgotPassword />} />;
 
 const resetPassword = ({ location }) => {
   const parsed = queryString.parse(location.search);
-  return <AuthLayout content={<ResetPassword token={parsed.token || ""} />} />;
+  return <AuthLayout content={<ResetPassword token={parsed.token || ''} />} />;
 };
 
 const routes = () => {

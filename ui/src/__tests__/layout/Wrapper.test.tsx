@@ -1,15 +1,15 @@
-import { shallow } from "enzyme";
-import React from "react";
+import { shallow } from 'enzyme';
+import React from 'react';
 
-import Wrapper from "../../modules/layout/components/Wrapper";
+import Wrapper from '../../modules/layout/components/Wrapper';
 
-describe("WithPermission component", () => {
+describe('WithPermission component', () => {
   const defaultProps = {
-    content: "content"
+    content: 'content'
   };
 
-  test("renders Wrapper successfully", () => {
+  test('renders Wrapper successfully', () => {
     const wrapper = shallow(<Wrapper {...defaultProps} />);
-    expect(wrapper).not.toBe("");
+    expect(wrapper).not.toBe('');
   });
 });

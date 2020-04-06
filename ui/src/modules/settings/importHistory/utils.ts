@@ -1,5 +1,5 @@
-import { getEnv } from "apolloClient";
-import { uploadHandler } from "modules/common/utils";
+import { getEnv } from 'apolloClient';
+import { uploadHandler } from 'modules/common/utils';
 
 export const handleXlsUpload = ({
   e,
@@ -18,9 +18,9 @@ export const handleXlsUpload = ({
 
   uploadHandler({
     files: xlsFile,
-    extraFormData: [{ key: "type", value: type }],
+    extraFormData: [{ key: 'type', value: type }],
     url: `${REACT_APP_API_URL}/import-file`,
-    responseType: "json",
+    responseType: 'json',
     beforeUpload: () => {
       if (beforeUploadCallback) {
         beforeUploadCallback();

@@ -1,18 +1,18 @@
-import asyncComponent from "modules/common/components/AsyncComponent";
-import queryString from "query-string";
-import React from "react";
-import { Route } from "react-router-dom";
+import asyncComponent from 'modules/common/components/AsyncComponent';
+import queryString from 'query-string';
+import React from 'react';
+import { Route } from 'react-router-dom';
 
 const Store = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings Store" */ "./containers/Store")
+  import(/* webpackChunkName: "Settings Store" */ './containers/Store')
 );
 
 const CreateMessenger = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings CreateMessenger" */ "./containers/messenger/Create")
+  import(/* webpackChunkName: "Settings CreateMessenger" */ './containers/messenger/Create')
 );
 
 const EditMessenger = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings EditMessenger" */ "./containers/messenger/Edit")
+  import(/* webpackChunkName: "Settings EditMessenger" */ './containers/messenger/Edit')
 );
 
 const createMessenger = ({ location }) => {

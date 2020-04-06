@@ -1,19 +1,19 @@
-import client from "apolloClient";
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import React from "react";
-import { graphql } from "react-apollo";
-import { BrandsQueryResponse } from "../../settings/brands/types";
-import ResponseReport from "../components/ResponseReport";
-import VolumeReport from "../components/VolumeReport";
-import { queries } from "../graphql";
+import client from 'apolloClient';
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { BrandsQueryResponse } from '../../settings/brands/types';
+import ResponseReport from '../components/ResponseReport';
+import VolumeReport from '../components/VolumeReport';
+import { queries } from '../graphql';
 import {
   IChartParams,
   IPieChartData,
   IPunchCardData,
   IQueryParams,
   SummaryData
-} from "../types";
+} from '../types';
 
 type Props = {
   history: any;
@@ -65,7 +65,7 @@ class VolumenAndResponseReportContainer extends React.Component<
   }
 
   componentDidMount() {
-    this.load("summaryData", "insightsSummaryData", false);
+    this.load('summaryData', 'insightsSummaryData', false);
   }
 
   componentWillUpdate(nextProps) {
@@ -73,7 +73,7 @@ class VolumenAndResponseReportContainer extends React.Component<
       JSON.stringify(this.props.queryParams) !==
       JSON.stringify(nextProps.queryParams)
     ) {
-      this.load("summaryData", "insightsSummaryData", false);
+      this.load('summaryData', 'insightsSummaryData', false);
     }
   }
 
@@ -110,24 +110,24 @@ class VolumenAndResponseReportContainer extends React.Component<
           [queryName]: data[graphqQueryName] || []
         } as any);
 
-        if (queryName === "summaryData") {
-          this.load("trend", "insightsTrend", false);
+        if (queryName === 'summaryData') {
+          this.load('trend', 'insightsTrend', false);
         }
 
-        if (queryName === "trend") {
-          this.load("punchCard", "insightsPunchCard", false);
+        if (queryName === 'trend') {
+          this.load('punchCard', 'insightsPunchCard', false);
         }
 
-        if (queryName === "punchCard") {
+        if (queryName === 'punchCard') {
           this.load(
-            "integrationChart",
-            "insightsIntegrations",
-            type === "response"
+            'integrationChart',
+            'insightsIntegrations',
+            type === 'response'
           );
         }
 
-        if (queryName === "integrationChart") {
-          this.load("tagChart", "insightsTags", type === "response");
+        if (queryName === 'integrationChart') {
+          this.load('tagChart', 'insightsTags', type === 'response');
         }
       });
   };
@@ -156,7 +156,7 @@ class VolumenAndResponseReportContainer extends React.Component<
       loading
     };
 
-    if (type === "volume") {
+    if (type === 'volume') {
       const volumeProps = {
         ...extendedProps,
         integrationChart,
@@ -172,6 +172,6 @@ class VolumenAndResponseReportContainer extends React.Component<
 
 export default compose(
   graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
-    name: "brandsQuery"
+    name: 'brandsQuery'
   })
 )(VolumenAndResponseReportContainer);

@@ -1,31 +1,31 @@
-import { toArray } from "modules/boards/utils";
-import DealEditForm from "./components/DealEditForm";
-import DealItem from "./components/DealItem";
-import { mutations, queries, subscriptions } from "./graphql";
+import { toArray } from 'modules/boards/utils';
+import DealEditForm from './components/DealEditForm';
+import DealItem from './components/DealItem';
+import { mutations, queries, subscriptions } from './graphql';
 
 const options = {
   EditForm: DealEditForm,
   Item: DealItem,
-  type: "deal",
-  title: "Deal",
+  type: 'deal',
+  title: 'Deal',
   queriesName: {
-    itemsQuery: "deals",
-    detailQuery: "dealDetail",
-    archivedItemsQuery: "archivedDeals",
-    archivedItemsCountQuery: "archivedDealsCount"
+    itemsQuery: 'deals',
+    detailQuery: 'dealDetail',
+    archivedItemsQuery: 'archivedDeals',
+    archivedItemsCountQuery: 'archivedDealsCount'
   },
   mutationsName: {
-    addMutation: "dealsAdd",
-    editMutation: "dealsEdit",
-    removeMutation: "dealsRemove",
-    changeMutation: "dealsChange",
-    updateOrderMutation: "dealsUpdateOrder",
-    watchMutation: "dealsWatch",
-    archiveMutation: "dealsArchive",
-    copyMutation: "dealsCopy"
+    addMutation: 'dealsAdd',
+    editMutation: 'dealsEdit',
+    removeMutation: 'dealsRemove',
+    changeMutation: 'dealsChange',
+    updateOrderMutation: 'dealsUpdateOrder',
+    watchMutation: 'dealsWatch',
+    archiveMutation: 'dealsArchive',
+    copyMutation: 'dealsCopy'
   },
   subscriptionName: {
-    changeSubscription: "dealsChanged"
+    changeSubscription: 'dealsChanged'
   },
   queries: {
     itemsQuery: queries.deals,
@@ -47,11 +47,11 @@ const options = {
     changeSubscription: subscriptions.dealsChanged
   },
   texts: {
-    addText: "Add a deal",
-    updateSuccessText: "You successfully updated a deal",
-    deleteSuccessText: "You successfully deleted a deal",
-    changeSuccessText: "You successfully changed a deal",
-    copySuccessText: "You successfully copied a deal"
+    addText: 'Add a deal',
+    updateSuccessText: 'You successfully updated a deal',
+    deleteSuccessText: 'You successfully deleted a deal',
+    changeSuccessText: 'You successfully changed a deal',
+    copySuccessText: 'You successfully copied a deal'
   },
   isMove: true,
   getExtraParams: (queryParams: any) => {

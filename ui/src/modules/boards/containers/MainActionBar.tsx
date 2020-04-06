@@ -1,21 +1,21 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { PageHeader } from "modules/boards/styles/header";
-import { getDefaultBoardAndPipelines } from "modules/boards/utils";
-import Spinner from "modules/common/components/Spinner";
-import { IRouterProps } from "modules/common/types";
-import { router as routerUtils, withProps } from "modules/common/utils";
-import queryString from "query-string";
-import React from "react";
-import { graphql } from "react-apollo";
-import { withRouter } from "react-router-dom";
-import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from "../constants";
-import { queries } from "../graphql";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { PageHeader } from 'modules/boards/styles/header';
+import { getDefaultBoardAndPipelines } from 'modules/boards/utils';
+import Spinner from 'modules/common/components/Spinner';
+import { IRouterProps } from 'modules/common/types';
+import { router as routerUtils, withProps } from 'modules/common/utils';
+import queryString from 'query-string';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
+import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from '../constants';
+import { queries } from '../graphql';
 import {
   BoardDetailQueryResponse,
   BoardsGetLastQueryResponse,
   BoardsQueryResponse
-} from "../types";
+} from '../types';
 
 type Props = {
   type: string;
@@ -30,15 +30,15 @@ type FinalProps = {
 } & Props;
 
 const FILTER_PARAMS = [
-  "search",
-  "userIds",
-  "priority",
-  "assignedUserIds",
-  "labelIds",
-  "productIds",
-  "companyIds",
-  "customerIds",
-  "closeDateType"
+  'search',
+  'userIds',
+  'priority',
+  'assignedUserIds',
+  'labelIds',
+  'productIds',
+  'companyIds',
+  'customerIds',
+  'closeDateType'
 ];
 
 const generateQueryParams = ({ location }) => {
@@ -50,7 +50,7 @@ export const getBoardId = ({ location }) => {
   return queryParams.id;
 };
 
-const defaultParams = ["id", "pipelineId"];
+const defaultParams = ['id', 'pipelineId'];
 
 /*
  * Main board component
@@ -58,7 +58,7 @@ const defaultParams = ["id", "pipelineId"];
 class Main extends React.Component<FinalProps> {
   onSearch = (search: string) => {
     if (!search) {
-      return routerUtils.removeParams(this.props.history, "search");
+      return routerUtils.removeParams(this.props.history, 'search');
     }
 
     routerUtils.setParams(this.props.history, { search });
@@ -223,13 +223,13 @@ class Main extends React.Component<FinalProps> {
 const MainActionBarContainer = withProps<Props>(
   compose(
     graphql<Props, BoardsQueryResponse>(gql(queries.boards), {
-      name: "boardsQuery",
+      name: 'boardsQuery',
       options: ({ type }) => ({
         variables: { type }
       })
     }),
     graphql<Props, BoardsGetLastQueryResponse>(gql(queries.boardGetLast), {
-      name: "boardGetLastQuery",
+      name: 'boardGetLastQuery',
       skip: getBoardId,
       options: ({ type }) => ({
         variables: { type }
@@ -238,7 +238,7 @@ const MainActionBarContainer = withProps<Props>(
     graphql<Props, BoardDetailQueryResponse, { _id: string }>(
       gql(queries.boardDetail),
       {
-        name: "boardDetailQuery",
+        name: 'boardDetailQuery',
         skip: props => !getBoardId(props),
         options: props => ({
           variables: { _id: getBoardId(props) }

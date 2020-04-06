@@ -1,30 +1,30 @@
-import GrowthHackEditForm from "modules/growthHacks/containers/GrowthHackEditForm";
-import GrowthHackItem from "./components/GrowthHackItem";
-import { mutations, queries, subscriptions } from "./graphql";
+import GrowthHackEditForm from 'modules/growthHacks/containers/GrowthHackEditForm';
+import GrowthHackItem from './components/GrowthHackItem';
+import { mutations, queries, subscriptions } from './graphql';
 
 const options = {
   EditForm: GrowthHackEditForm,
   Item: GrowthHackItem,
-  type: "growthHack",
-  title: "Growth hacking",
+  type: 'growthHack',
+  title: 'Growth hacking',
   queriesName: {
-    itemsQuery: "growthHacks",
-    detailQuery: "growthHackDetail",
-    archivedItemsQuery: "archivedGrowthHacks",
-    archivedItemsCountQuery: "archivedGrowthHacksCount"
+    itemsQuery: 'growthHacks',
+    detailQuery: 'growthHackDetail',
+    archivedItemsQuery: 'archivedGrowthHacks',
+    archivedItemsCountQuery: 'archivedGrowthHacksCount'
   },
   mutationsName: {
-    addMutation: "growthHacksAdd",
-    editMutation: "growthHacksEdit",
-    removeMutation: "growthHacksRemove",
-    changeMutation: "growthHacksChange",
-    updateOrderMutation: "growthHacksUpdateOrder",
-    watchMutation: "growthHacksWatch",
-    archiveMutation: "growthHacksArchive",
-    copyMutation: "growthHacksCopy"
+    addMutation: 'growthHacksAdd',
+    editMutation: 'growthHacksEdit',
+    removeMutation: 'growthHacksRemove',
+    changeMutation: 'growthHacksChange',
+    updateOrderMutation: 'growthHacksUpdateOrder',
+    watchMutation: 'growthHacksWatch',
+    archiveMutation: 'growthHacksArchive',
+    copyMutation: 'growthHacksCopy'
   },
   subscriptionName: {
-    changeSubscription: "growthHacksChanged"
+    changeSubscription: 'growthHacksChanged'
   },
   queries: {
     itemsQuery: queries.growthHacks,
@@ -46,11 +46,11 @@ const options = {
     changeSubscription: subscriptions.growthHacksChanged
   },
   texts: {
-    addText: "Add an experiment",
-    updateSuccessText: "You successfully updated an experiment",
-    deleteSuccessText: "You successfully deleted an experiment",
-    copySuccessText: "You successfully copied an experiment",
-    changeSuccessText: "You successfully changed an experiment"
+    addText: 'Add an experiment',
+    updateSuccessText: 'You successfully updated an experiment',
+    deleteSuccessText: 'You successfully deleted an experiment',
+    copySuccessText: 'You successfully copied an experiment',
+    changeSuccessText: 'You successfully changed an experiment'
   },
   isMove: false,
   getExtraParams: (queryParams: any) => {

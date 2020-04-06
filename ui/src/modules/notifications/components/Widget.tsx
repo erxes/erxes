@@ -1,13 +1,13 @@
-import Icon from "modules/common/components/Icon";
-import Label from "modules/common/components/Label";
-import { Tabs, TabTitle } from "modules/common/components/tabs";
-import { __ } from "modules/common/utils";
-import React from "react";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Popover from "react-bootstrap/Popover";
-import { INotification } from "../types";
-import NotificationsLatest from "./NotificationsLatest";
-import { NotifButton } from "./styles";
+import Icon from 'modules/common/components/Icon';
+import Label from 'modules/common/components/Label';
+import { Tabs, TabTitle } from 'modules/common/components/tabs';
+import { __ } from 'modules/common/utils';
+import React from 'react';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
+import { INotification } from '../types';
+import NotificationsLatest from './NotificationsLatest';
+import { NotifButton } from './styles';
 
 type Props = {
   unreadCount: number;
@@ -26,7 +26,7 @@ class Widget extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      currentTab: "Recent"
+      currentTab: 'Recent'
     };
   }
 
@@ -65,12 +65,12 @@ class Widget extends React.Component<Props, State> {
     };
 
     const recentOnClick = () => {
-      this.onTabClick("Recent");
+      this.onTabClick('Recent');
       showNotifications(false);
     };
 
     const unreadOnClick = () => {
-      this.onTabClick("Unread");
+      this.onTabClick('Unread');
       showNotifications(true);
     };
 
@@ -78,16 +78,16 @@ class Widget extends React.Component<Props, State> {
       <Popover id="npopover" className="notification-popover">
         <Tabs full={true}>
           <TabTitle
-            className={currentTab === "Recent" ? "active" : ""}
+            className={currentTab === 'Recent' ? 'active' : ''}
             onClick={recentOnClick}
           >
-            {__("Recent")}
+            {__('Recent')}
           </TabTitle>
           <TabTitle
-            className={currentTab === "Unread" ? "active" : ""}
+            className={currentTab === 'Unread' ? 'active' : ''}
             onClick={unreadOnClick}
           >
-            {__("Unread")}
+            {__('Unread')}
           </TabTitle>
         </Tabs>
         <NotificationsLatest {...popoverProps} />

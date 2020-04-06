@@ -1,7 +1,7 @@
-import Button from "modules/common/components/Button";
-import { FormControl, FormGroup } from "modules/common/components/form";
-import * as React from "react";
-import { Footer } from "./styles";
+import Button from 'modules/common/components/Button';
+import { FormControl, FormGroup } from 'modules/common/components/form';
+import * as React from 'react';
+import { Footer } from './styles';
 
 type Props = {
   replyComment: (
@@ -28,7 +28,7 @@ class ReplyingMessage extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      post: ""
+      post: ''
     };
   }
 
@@ -66,7 +66,7 @@ class ReplyingMessage extends React.Component<Props, State> {
   moveCursorAtTheEnd(e) {
     const tmpValue = e.target.value;
 
-    e.target.value = "";
+    e.target.value = '';
     e.target.value = tmpValue;
   }
 

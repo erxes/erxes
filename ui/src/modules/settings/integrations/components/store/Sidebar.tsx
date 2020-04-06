@@ -1,7 +1,7 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { INTEGRATION_FILTERS } from "../../constants";
-import { Category, FixedSection, LeftSidebar, SidebarList } from "./styles";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { INTEGRATION_FILTERS } from '../../constants';
+import { Category, FixedSection, LeftSidebar, SidebarList } from './styles';
 
 type Props = {
   currentType: string;
@@ -13,7 +13,7 @@ class SideBar extends React.Component<Props> {
       <Link key={item} to={`?type=${item}`}>
         <Category
           key={item}
-          isActive={(this.props.currentType || "All integrations") === item}
+          isActive={(this.props.currentType || 'All integrations') === item}
         >
           {item}
         </Category>

@@ -1,19 +1,19 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import ButtonMutate from "modules/common/components/ButtonMutate";
-import { IButtonMutateProps, IRouterProps } from "modules/common/types";
-import { Alert, confirm, withProps } from "modules/common/utils";
-import React from "react";
-import { graphql } from "react-apollo";
-import { withRouter } from "react-router-dom";
-import Sidebar from "../components/Sidebar";
-import { mutations, queries } from "../graphql";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
+import { Alert, confirm, withProps } from 'modules/common/utils';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
+import Sidebar from '../components/Sidebar';
+import { mutations, queries } from '../graphql';
 import {
   ChannelsCountQueryResponse,
   ChannelsQueryResponse,
   RemoveChannelMutationResponse,
   RemoveChannelMutationVariables
-} from "../types";
+} from '../types';
 
 type Props = {
   queryParams: any;
@@ -47,9 +47,9 @@ const SidebarContainer = (props: FinalProps) => {
         variables: { _id: channelId }
       })
         .then(() => {
-          Alert.success("You successfully deleted a channel.");
+          Alert.success('You successfully deleted a channel.');
 
-          history.push("/settings/channels");
+          history.push('/settings/channels');
         })
         .catch(error => {
           Alert.error(error.message);
@@ -73,7 +73,7 @@ const SidebarContainer = (props: FinalProps) => {
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully ${
-          object ? "updated" : "added"
+          object ? 'updated' : 'added'
         } a ${name}`}
       />
     );
@@ -109,7 +109,7 @@ const getRefetchQueries = (queryParams, currentChannelId?: string) => {
     },
     {
       query: gql(queries.channelDetail),
-      variables: { _id: currentChannelId || "" }
+      variables: { _id: currentChannelId || '' }
     },
     { query: gql(queries.channelsCount) }
   ];
@@ -120,24 +120,24 @@ export default withProps<Props>(
     graphql<Props, ChannelsQueryResponse, { perPage: number }>(
       gql(queries.channels),
       {
-        name: "channelsQuery",
+        name: 'channelsQuery',
         options: ({ queryParams }: { queryParams: any }) => ({
           variables: {
             perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20
           },
-          fetchPolicy: "network-only"
+          fetchPolicy: 'network-only'
         })
       }
     ),
     graphql<Props, ChannelsCountQueryResponse, {}>(gql(queries.channelsCount), {
-      name: "channelsCountQuery"
+      name: 'channelsCountQuery'
     }),
     graphql<
       Props,
       RemoveChannelMutationResponse,
       RemoveChannelMutationVariables
     >(gql(mutations.channelRemove), {
-      name: "removeMutation",
+      name: 'removeMutation',
       options: ({ queryParams, currentChannelId }: Props) => ({
         refetchQueries: getRefetchQueries(queryParams, currentChannelId)
       })

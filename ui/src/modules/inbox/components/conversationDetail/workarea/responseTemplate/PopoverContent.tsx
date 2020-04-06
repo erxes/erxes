@@ -1,8 +1,8 @@
-import Button from "modules/common/components/Button";
-import EmptyState from "modules/common/components/EmptyState";
-import FormControl from "modules/common/components/form/Control";
-import { IAttachment } from "modules/common/types";
-import { __ } from "modules/common/utils";
+import Button from 'modules/common/components/Button';
+import EmptyState from 'modules/common/components/EmptyState';
+import FormControl from 'modules/common/components/form/Control';
+import { IAttachment } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
 import {
   InlineColumn,
   InlineHeader,
@@ -13,12 +13,12 @@ import {
   PopoverLoadMore,
   TemplateContent,
   TemplateTitle
-} from "modules/inbox/styles";
-import { IBrand } from "modules/settings/brands/types";
-import { IResponseTemplate } from "modules/settings/responseTemplates/types";
-import React from "react";
-import { Link } from "react-router-dom";
-import strip from "strip";
+} from 'modules/inbox/styles';
+import { IBrand } from 'modules/settings/brands/types';
+import { IResponseTemplate } from 'modules/settings/responseTemplates/types';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import strip from 'strip';
 
 type Props = {
   brandId?: string;
@@ -103,7 +103,7 @@ class PopoverContent extends React.Component<Props, State> {
     return (
       <PopoverLoadMore>
         <Button btnStyle="simple" onClick={this.fetchTemplates}>
-          {__("Load more")}
+          {__('Load more')}
         </Button>
       </PopoverLoadMore>
     );
@@ -124,9 +124,9 @@ class PopoverContent extends React.Component<Props, State> {
   render() {
     const { brands } = this.props;
 
-    const onChangeSearchValue = e => this.onChangeFilter(e, "searchValue");
+    const onChangeSearchValue = e => this.onChangeFilter(e, 'searchValue');
 
-    const onChangeBrand = e => this.onChangeFilter(e, "brandId");
+    const onChangeBrand = e => this.onChangeFilter(e, 'brandId');
 
     return (
       <>
@@ -135,7 +135,7 @@ class PopoverContent extends React.Component<Props, State> {
             <InlineColumn>
               <FormControl
                 type="text"
-                placeholder={__("Search") as string}
+                placeholder={__('Search') as string}
                 onChange={onChangeSearchValue}
                 defaultValue={this.state.searchValue}
                 autoFocus={true}
@@ -144,7 +144,7 @@ class PopoverContent extends React.Component<Props, State> {
             <InlineColumn>
               <FormControl
                 componentClass="select"
-                placeholder={__("Select Brand") as string}
+                placeholder={__('Select Brand') as string}
                 onChange={onChangeBrand}
                 defaultValue={this.state.brandId}
               >
@@ -168,7 +168,7 @@ class PopoverContent extends React.Component<Props, State> {
           <PopoverList center={true}>
             <li>
               <Link to="/settings/response-templates">
-                {__("Manage templates")}
+                {__('Manage templates')}
               </Link>
             </li>
           </PopoverList>

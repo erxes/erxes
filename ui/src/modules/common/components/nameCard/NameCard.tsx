@@ -1,8 +1,8 @@
-import React from "react";
-import styled from "styled-components";
-import { IUser } from "../../../auth/types";
-import { colors } from "../../styles";
-import Avatar from "./Avatar";
+import React from 'react';
+import styled from 'styled-components';
+import { IUser } from '../../../auth/types';
+import { colors } from '../../styles';
+import Avatar from './Avatar';
 
 const NameCardStyled = styled.div`
   overflow: hidden;

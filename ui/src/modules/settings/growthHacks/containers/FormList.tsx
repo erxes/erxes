@@ -1,10 +1,10 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { queries } from "modules/forms/graphql";
-import { FormsQueryResponse } from "modules/forms/types";
-import React from "react";
-import { graphql } from "react-apollo";
-import FormList from "../components/FormList";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { queries } from 'modules/forms/graphql';
+import { FormsQueryResponse } from 'modules/forms/types';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import FormList from '../components/FormList';
 
 type Props = {
   onChangeForm: (stageId: string, value: string) => void;
@@ -31,6 +31,6 @@ class FormListContainer extends React.Component<FinalProps> {
 
 export default compose(
   graphql<Props, FormsQueryResponse>(gql(queries.forms), {
-    name: "formsQuery"
+    name: 'formsQuery'
   })
 )(FormListContainer);

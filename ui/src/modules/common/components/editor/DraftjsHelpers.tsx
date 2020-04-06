@@ -1,5 +1,5 @@
-import { CompositeDecorator } from "draft-js";
-import React from "react";
+import { CompositeDecorator } from 'draft-js';
+import React from 'react';
 
 type Props = {
   contentState: any;
@@ -19,7 +19,7 @@ const findImageEntities = (contentBlock, callback, contentState) => {
     const entityKey = character.getEntity();
     return (
       entityKey !== null &&
-      contentState.getEntity(entityKey).getType() === "IMAGE"
+      contentState.getEntity(entityKey).getType() === 'IMAGE'
     );
   }, callback);
 };

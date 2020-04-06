@@ -1,18 +1,18 @@
-import FormControl from "modules/common/components/form/Control";
-import FormGroup from "modules/common/components/form/Group";
-import ControlLabel from "modules/common/components/form/Label";
-import { FlexItem, LeftItem } from "modules/common/components/step/styles";
-import Toggle from "modules/common/components/Toggle";
-import timezones from "modules/common/constants/timezones";
-import { __ } from "modules/common/utils";
-import React from "react";
-import Select from "react-select-plus";
-import { IOnlineHour } from "../../../types";
-import OnlineHours from "./OnlineHours";
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
+import Toggle from 'modules/common/components/Toggle';
+import timezones from 'modules/common/constants/timezones';
+import { __ } from 'modules/common/utils';
+import React from 'react';
+import Select from 'react-select-plus';
+import { IOnlineHour } from '../../../types';
+import OnlineHours from './OnlineHours';
 
 type Props = {
   onChange: (
-    name: "onlineHours" | "isOnline" | "availabilityMethod" | "timezone",
+    name: 'onlineHours' | 'isOnline' | 'availabilityMethod' | 'timezone',
     value: string
   ) => void;
   isOnline: boolean;
@@ -23,7 +23,7 @@ type Props = {
 
 class Availability extends React.Component<Props> {
   onSelectChange = (e, name) => {
-    let value = "";
+    let value = '';
 
     if (e) {
       value = e.value;
@@ -40,11 +40,11 @@ class Availability extends React.Component<Props> {
 
   onOnlineHoursChange = onlineHours => {
     this.setState({ onlineHours });
-    this.props.onChange("onlineHours", onlineHours);
+    this.props.onChange('onlineHours', onlineHours);
   };
 
   renderOnlineHours() {
-    if (this.props.availabilityMethod === "manual") {
+    if (this.props.availabilityMethod === 'manual') {
       return null;
     }
 
@@ -57,11 +57,11 @@ class Availability extends React.Component<Props> {
   }
 
   renderIsOnline() {
-    if (this.props.availabilityMethod === "auto") {
+    if (this.props.availabilityMethod === 'auto') {
       return null;
     }
 
-    const onChange = e => this.onChangeFunction("isOnline", e.target.checked);
+    const onChange = e => this.onChangeFunction('isOnline', e.target.checked);
 
     return (
       <FormGroup>
@@ -83,11 +83,11 @@ class Availability extends React.Component<Props> {
   render() {
     const onChange = e =>
       this.onChangeFunction(
-        "availabilityMethod",
+        'availabilityMethod',
         (e.currentTarget as HTMLInputElement).value
       );
 
-    const timezoneOnChange = e => this.onSelectChange(e, "timezone");
+    const timezoneOnChange = e => this.onSelectChange(e, 'timezone');
 
     return (
       <FlexItem>
@@ -96,21 +96,21 @@ class Availability extends React.Component<Props> {
             <FormControl
               value="manual"
               componentClass="radio"
-              checked={this.props.availabilityMethod === "manual"}
+              checked={this.props.availabilityMethod === 'manual'}
               onChange={onChange}
               inline={true}
             >
-              {__("Turn online/offline manually")}
+              {__('Turn online/offline manually')}
             </FormControl>
 
             <FormControl
               value="auto"
               componentClass="radio"
-              checked={this.props.availabilityMethod === "auto"}
+              checked={this.props.availabilityMethod === 'auto'}
               onChange={onChange}
               inline={true}
             >
-              {__("Set to follow your schedule")}
+              {__('Set to follow your schedule')}
             </FormControl>
           </FormGroup>
 

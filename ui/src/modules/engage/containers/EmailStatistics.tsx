@@ -1,13 +1,13 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import EmptyState from "modules/common/components/EmptyState";
-import Spinner from "modules/common/components/Spinner";
-import React from "react";
-import { graphql } from "react-apollo";
-import { withProps } from "../../common/utils";
-import EmailStatistics from "../components/EmailStatistics";
-import { queries } from "../graphql";
-import { EngageMessageDetailQueryResponse } from "../types";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import EmptyState from 'modules/common/components/EmptyState';
+import Spinner from 'modules/common/components/Spinner';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withProps } from '../../common/utils';
+import EmailStatistics from '../components/EmailStatistics';
+import { queries } from '../graphql';
+import { EngageMessageDetailQueryResponse } from '../types';
 
 type Props = {
   messageId: string;
@@ -44,7 +44,7 @@ export default withProps<Props>(
     graphql<Props, EngageMessageDetailQueryResponse, { _id: string }>(
       gql(queries.engageMessageStats),
       {
-        name: "engageMessageDetailQuery",
+        name: 'engageMessageDetailQuery',
         options: ({ messageId }) => ({
           variables: {
             _id: messageId

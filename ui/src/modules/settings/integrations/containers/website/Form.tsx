@@ -1,27 +1,27 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import ButtonMutate from "modules/common/components/ButtonMutate";
-import Spinner from "modules/common/components/Spinner";
-import { IButtonMutateProps, IRouterProps } from "modules/common/types";
-import { withProps } from "modules/common/utils";
-import { queries } from "modules/settings/integrations/graphql";
-import React from "react";
-import { graphql, withApollo } from "react-apollo";
-import { withRouter } from "react-router-dom";
-import Website from "../../components/website/website";
-import { mutations } from "../../graphql";
-import { IntegrationsQueryResponse } from "../../types";
-import { integrationsListParams } from "../utils";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import Spinner from 'modules/common/components/Spinner';
+import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
+import { withProps } from 'modules/common/utils';
+import { queries } from 'modules/settings/integrations/graphql';
+import React from 'react';
+import { graphql, withApollo } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
+import Website from '../../components/website/website';
+import { mutations } from '../../graphql';
+import { IntegrationsQueryResponse } from '../../types';
+import { integrationsListParams } from '../utils';
 
 const getRefetchQueries = () => {
   return [
     {
       query: gql(queries.messengerApps),
-      variables: { kind: "website" }
+      variables: { kind: 'website' }
     },
     {
       query: gql(queries.messengerAppsCount),
-      variables: { kind: "website" }
+      variables: { kind: 'website' }
     }
   ];
 };
@@ -77,15 +77,15 @@ class WebsiteContainer extends React.Component<FinalProps> {
 export default withProps<Props>(
   compose(
     graphql<Props, IntegrationsQueryResponse>(gql(queries.integrations), {
-      name: "integrationsQuery",
+      name: 'integrationsQuery',
       options: ({ queryParams }) => {
         return {
           notifyOnNetworkStatusChange: true,
           variables: {
             ...integrationsListParams(queryParams || {}),
-            kind: "messenger"
+            kind: 'messenger'
           },
-          fetchPolicy: "network-only"
+          fetchPolicy: 'network-only'
         };
       }
     }),

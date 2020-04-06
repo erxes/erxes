@@ -1,8 +1,8 @@
-import { IUser } from "modules/auth/types";
-import Tip from "modules/common/components/Tip";
-import { getUserAvatar } from "modules/common/utils";
-import React from "react";
-import { MemberImg, Members, More } from "../styles";
+import { IUser } from 'modules/auth/types';
+import Tip from 'modules/common/components/Tip';
+import { getUserAvatar } from 'modules/common/utils';
+import React from 'react';
+import { MemberImg, Members, More } from '../styles';
 
 type Props = {
   selectedMemberIds: string[];

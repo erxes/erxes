@@ -1,5 +1,5 @@
-import React from "react";
-import { TextArea } from "./styles";
+import React from 'react';
+import { TextArea } from './styles';
 
 type Props = {
   onChange?: (e: React.FormEvent<HTMLTextAreaElement>) => void;

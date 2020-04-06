@@ -1,17 +1,17 @@
-import { formatText } from "modules/activityLogs/utils";
-import Button from "modules/common/components/Button";
-import FormControl from "modules/common/components/form/Control";
-import Icon from "modules/common/components/Icon";
-import IntegrationIcon from "modules/common/components/IntegrationIcon";
-import Tip from "modules/common/components/Tip";
-import { Column, Columns, Title } from "modules/common/styles/chooser";
-import { CenterContent, ModalFooter } from "modules/common/styles/main";
-import { __ } from "modules/common/utils";
-import { IBrandDoc } from "modules/settings/brands/types";
-import { IChannelDoc } from "modules/settings/channels/types";
-import React from "react";
-import { BrandName, IntegrationName } from "../../styles";
-import { IIntegration } from "../../types";
+import { formatText } from 'modules/activityLogs/utils';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import Icon from 'modules/common/components/Icon';
+import IntegrationIcon from 'modules/common/components/IntegrationIcon';
+import Tip from 'modules/common/components/Tip';
+import { Column, Columns, Title } from 'modules/common/styles/chooser';
+import { CenterContent, ModalFooter } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
+import { IBrandDoc } from 'modules/settings/brands/types';
+import { IChannelDoc } from 'modules/settings/channels/types';
+import React from 'react';
+import { BrandName, IntegrationName } from '../../styles';
+import { IIntegration } from '../../types';
 
 type Props = {
   current: IChannelDoc | IBrandDoc;
@@ -45,7 +45,7 @@ class ManageIntegrations extends React.Component<Props, State> {
     this.state = {
       selectedIntegrations: current.integrations || [],
       hasMore: true,
-      searchValue: ""
+      searchValue: ''
     };
   }
 
@@ -92,7 +92,7 @@ class ManageIntegrations extends React.Component<Props, State> {
   handleChange = (type, integration) => {
     const { selectedIntegrations } = this.state;
 
-    if (type === "plus-1") {
+    if (type === 'plus-1') {
       return this.setState({
         selectedIntegrations: [...selectedIntegrations, integration]
       });
@@ -146,7 +146,7 @@ class ManageIntegrations extends React.Component<Props, State> {
     const { selectedIntegrations } = this.state;
 
     if (
-      icon === "plus-1" &&
+      icon === 'plus-1' &&
       selectedIntegrations.some(e => e._id === integration._id)
     ) {
       return null;
@@ -164,13 +164,13 @@ class ManageIntegrations extends React.Component<Props, State> {
         <Columns>
           <Column>
             <FormControl
-              placeholder={__("Type to search")}
+              placeholder={__('Type to search')}
               onChange={this.search}
               autoFocus={true}
             />
             <ul>
               {allIntegrations.map(integration =>
-                this.renderRow(integration, "plus-1")
+                this.renderRow(integration, 'plus-1')
               )}
               {this.state.hasMore && (
                 <CenterContent>
@@ -194,7 +194,7 @@ class ManageIntegrations extends React.Component<Props, State> {
             </Title>
             <ul>
               {selectedIntegrations.map(integration =>
-                this.renderRow(integration, "times")
+                this.renderRow(integration, 'times')
               )}
             </ul>
           </Column>

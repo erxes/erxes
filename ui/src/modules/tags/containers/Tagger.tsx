@@ -1,20 +1,20 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { Alert, withProps } from "modules/common/utils";
-import React from "react";
-import { graphql } from "react-apollo";
-import Tagger from "../components/Tagger";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { Alert, withProps } from 'modules/common/utils';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import Tagger from '../components/Tagger';
 import {
   ITagTypes,
   TagMutationResponse,
   TagMutationVariables,
   TagsQueryResponse
-} from "../types";
+} from '../types';
 
 type Props = {
   // targets can be conversation, customer, company etc ...
   targets?: any[];
-  event?: "onClick" | "onExit";
+  event?: 'onClick' | 'onExit';
   type: ITagTypes | string;
   successCallback?: () => void;
   className?: string;
@@ -88,13 +88,13 @@ const mutation = gql`
 export default withProps<Props>(
   compose(
     graphql<Props, TagsQueryResponse, { type: string }>(query, {
-      name: "tagsQuery",
+      name: 'tagsQuery',
       options: (props: Props) => ({
         variables: { type: props.type }
       })
     }),
     graphql<Props, TagMutationResponse, TagMutationVariables>(mutation, {
-      name: "tagMutation",
+      name: 'tagMutation',
       options: ({ refetchQueries }) => ({
         refetchQueries
       })

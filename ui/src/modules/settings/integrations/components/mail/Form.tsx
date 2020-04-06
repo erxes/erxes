@@ -1,19 +1,19 @@
-import Button from "modules/common/components/Button";
-import FormControl from "modules/common/components/form/Control";
-import CommonForm from "modules/common/components/form/Form";
-import FormGroup from "modules/common/components/form/Group";
-import ControlLabel from "modules/common/components/form/Label";
-import Info from "modules/common/components/Info";
-import ModalTrigger from "modules/common/components/ModalTrigger";
-import Spinner from "modules/common/components/Spinner";
-import { ModalFooter } from "modules/common/styles/main";
-import { IButtonMutateProps, IFormProps } from "modules/common/types";
-import { __ } from "modules/common/utils";
-import * as React from "react";
-import Accounts from "../../containers/Accounts";
-import MailProviderForm from "../../containers/mail/MailProviderForm";
-import SelectBrand from "../../containers/SelectBrand";
-import { IntegrationTypes } from "../../types";
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import CommonForm from 'modules/common/components/form/Form';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import Info from 'modules/common/components/Info';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Spinner from 'modules/common/components/Spinner';
+import { ModalFooter } from 'modules/common/styles/main';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
+import * as React from 'react';
+import Accounts from '../../containers/Accounts';
+import MailProviderForm from '../../containers/mail/MailProviderForm';
+import SelectBrand from '../../containers/SelectBrand';
+import { IntegrationTypes } from '../../types';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -58,21 +58,21 @@ class Form extends React.Component<Props, { loading: boolean }> {
     let title;
 
     switch (kind) {
-      case "nylas-imap":
-        mutationName = "addImapAccount";
-        title = "Add IMAP";
+      case 'nylas-imap':
+        mutationName = 'addImapAccount';
+        title = 'Add IMAP';
         break;
-      case "nylas-exchange":
-        mutationName = "addExchangeAccount";
-        title = "Add Exchange";
+      case 'nylas-exchange':
+        mutationName = 'addExchangeAccount';
+        title = 'Add Exchange';
         break;
-      case "nylas-outlook":
-        mutationName = "addMailAccount";
-        title = "Add Outlook";
+      case 'nylas-outlook':
+        mutationName = 'addMailAccount';
+        title = 'Add Outlook';
         break;
-      case "nylas-yahoo":
-        mutationName = "addMailAccount";
-        title = "Add Yahoo";
+      case 'nylas-yahoo':
+        mutationName = 'addMailAccount';
+        title = 'Add Yahoo';
         break;
     }
 
@@ -91,14 +91,14 @@ class Form extends React.Component<Props, { loading: boolean }> {
 
     const accountProps = {
       kind: kind as IntegrationTypes,
-      addLink: "nylas/oauth2/callback",
+      addLink: 'nylas/oauth2/callback',
       onSelect: onAccountSelect,
       onRemove: onRemoveAccount,
       formProps,
-      ...(kind === "nylas-outlook" ||
-      kind === "nylas-imap" ||
-      kind === "nylas-yahoo" ||
-      kind === "nylas-exchange"
+      ...(kind === 'nylas-outlook' ||
+      kind === 'nylas-imap' ||
+      kind === 'nylas-yahoo' ||
+      kind === 'nylas-exchange'
         ? { renderForm: this.renderForm }
         : {})
     };
@@ -108,9 +108,9 @@ class Form extends React.Component<Props, { loading: boolean }> {
         {this.state.loading && <Spinner />}
         <FormGroup>
           <Info>
-            <strong>{__("Email add account description question")}</strong>
+            <strong>{__('Email add account description question')}</strong>
             <br />
-            {__("Email add account description")}
+            {__('Email add account description')}
           </Info>
         </FormGroup>
 
@@ -125,7 +125,7 @@ class Form extends React.Component<Props, { loading: boolean }> {
 
         <ModalFooter>
           {this.props.renderButton({
-            name: "integration",
+            name: 'integration',
             values: this.generateDoc(values),
             isSubmitted,
             callback: this.props.closeModal

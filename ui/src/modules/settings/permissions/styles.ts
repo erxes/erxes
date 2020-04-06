@@ -1,8 +1,8 @@
-import { colors, dimensions } from "modules/common/styles";
-import { DateContainer } from "modules/common/styles/main";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
-import { ActionButtons, SidebarListItem } from "../styles";
+import { colors, dimensions } from 'modules/common/styles';
+import { DateContainer } from 'modules/common/styles/main';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
+import { ActionButtons, SidebarListItem } from '../styles';
 
 const FilterWrapper = styled.div`
   padding: 10px 20px;
@@ -57,7 +57,7 @@ const StepHeader = styledTS<{ isDone?: boolean; number: string }>(styled.div)`
     position: absolute;
     left: ${dimensions.coreSpacing}px;
     top: 10px;
-    content: '${props => (props.isDone ? "✓" : props.number)}';
+    content: '${props => (props.isDone ? '✓' : props.number)}';
     width: 30px;
     height: 30px;
     border-radius: 15px;

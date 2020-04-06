@@ -1,10 +1,10 @@
-import Icon from "modules/common/components/Icon";
-import { colors } from "modules/common/styles";
-import { BoxRoot, FullContent } from "modules/common/styles/main";
-import { __ } from "modules/common/utils";
-import { METHODS } from "modules/engage/constants";
-import React from "react";
-import styled from "styled-components";
+import Icon from 'modules/common/components/Icon';
+import { colors } from 'modules/common/styles';
+import { BoxRoot, FullContent } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
+import { METHODS } from 'modules/engage/constants';
+import React from 'react';
+import styled from 'styled-components';
 
 const Box = styled(BoxRoot)`
   width: 320px;
@@ -34,13 +34,13 @@ const Box = styled(BoxRoot)`
 `;
 
 type Props = {
-  onChange: (name: "method", value: string) => void;
+  onChange: (name: 'method', value: string) => void;
   method: string;
 };
 
 class ChannelStep extends React.Component<Props> {
   renderBox(name, icon, desc) {
-    const onClick = () => this.props.onChange("method", name);
+    const onClick = () => this.props.onChange('method', name);
 
     return (
       <Box selected={this.props.method === name} onClick={onClick}>
@@ -56,13 +56,13 @@ class ChannelStep extends React.Component<Props> {
       <FullContent center={true}>
         {this.renderBox(
           METHODS.EMAIL,
-          "envelope-edit",
+          'envelope-edit',
           `Delivered to a user's email inbox Customize with your own templates`
         )}
         {this.renderBox(
           METHODS.MESSENGER,
-          "comment-edit",
-          "Delivered inside your app Reach active users"
+          'comment-edit',
+          'Delivered inside your app Reach active users'
         )}
       </FullContent>
     );

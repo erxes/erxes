@@ -1,7 +1,7 @@
-import { colors, dimensions } from "modules/common/styles";
-import { darken, lighten } from "modules/common/styles/color";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
+import { colors, dimensions } from 'modules/common/styles';
+import { darken, lighten } from 'modules/common/styles/color';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const GroupHead = styledTS<{
   disabled?: boolean;
@@ -15,10 +15,10 @@ const GroupHead = styledTS<{
   overflow: hidden;
   align-items: stretch;
   font-weight: bold;
-  flex-direction: ${props => props.vertical && "column"};
+  flex-direction: ${props => props.vertical && 'column'};
 
   &:hover {
-    cursor: ${props => (props.disabled ? "not-allowed" : "pointer")};
+    cursor: ${props => (props.disabled ? 'not-allowed' : 'pointer')};
     box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.15);
   }
 `;

@@ -1,8 +1,8 @@
-import { ICustomer } from "modules/customers/types";
-import Sidebar from "modules/layout/components/Sidebar";
-import React from "react";
+import { ICustomer } from 'modules/customers/types';
+import Sidebar from 'modules/layout/components/Sidebar';
+import React from 'react';
 
-import DetailInfo from "./DetailInfo";
+import DetailInfo from './DetailInfo';
 
 type Props = {
   customer: ICustomer;

@@ -1,13 +1,13 @@
-import Spinner from "modules/common/components/Spinner";
-import { __ } from "modules/common/utils";
-import React from "react";
+import Spinner from 'modules/common/components/Spinner';
+import { __ } from 'modules/common/utils';
+import React from 'react';
 import {
   LoaderWrapper,
   Row,
   SummaryCount,
   SummaryItem,
   SummaryTitle
-} from "../styles";
+} from '../styles';
 
 type Props = {
   data: any;
@@ -18,12 +18,12 @@ type Props = {
 
 class Summary extends React.Component<Props> {
   renderSummary(item, index) {
-    if (typeof item === "number") {
+    if (typeof item === 'number') {
       return (
         <SummaryItem isSmall={this.props.isSmall} key={index}>
           <SummaryTitle>
             <span>
-              {index === 3 ? "4 sec ++" : `${index} - ${index + 1} sec`}
+              {index === 3 ? '4 sec ++' : `${index} - ${index + 1} sec`}
             </span>
           </SummaryTitle>
           <SummaryCount>{item}</SummaryCount>
@@ -40,7 +40,7 @@ class Summary extends React.Component<Props> {
                 maximumFractionDigits: 2
               })
             : 0}
-          {this.props.type && <span>{__("sec")}</span>}
+          {this.props.type && <span>{__('sec')}</span>}
         </SummaryCount>
       </SummaryItem>
     );

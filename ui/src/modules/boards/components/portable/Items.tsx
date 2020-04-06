@@ -1,12 +1,12 @@
-import Box from "modules/common/components/Box";
-import EmptyState from "modules/common/components/EmptyState";
-import Icon from "modules/common/components/Icon";
-import ModalTrigger from "modules/common/components/ModalTrigger";
-import { ButtonRelated } from "modules/common/styles/main";
-import { __ } from "modules/common/utils";
-import React from "react";
-import { ItemChooser } from "../../containers/portable/";
-import { IItem, IOptions } from "../../types";
+import Box from 'modules/common/components/Box';
+import EmptyState from 'modules/common/components/EmptyState';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import { ButtonRelated } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
+import React from 'react';
+import { ItemChooser } from '../../containers/portable/';
+import { IItem, IOptions } from '../../types';
 
 type IData = {
   options: IOptions;
@@ -25,7 +25,7 @@ class Items extends React.Component<Props, { openItemId?: string }> {
     super(props);
 
     this.state = {
-      openItemId: ""
+      openItemId: ''
     };
   }
 
@@ -34,7 +34,7 @@ class Items extends React.Component<Props, { openItemId?: string }> {
   };
 
   beforePopupClose = () => {
-    this.setState({ openItemId: "" });
+    this.setState({ openItemId: '' });
   };
 
   renderItems = () => {
@@ -81,7 +81,7 @@ class Items extends React.Component<Props, { openItemId?: string }> {
 
     const relTrigger = (
       <ButtonRelated>
-        <button>{__("See related " + data.options.title + "..")}</button>
+        <button>{__('See related ' + data.options.title + '..')}</button>
       </ButtonRelated>
     );
 

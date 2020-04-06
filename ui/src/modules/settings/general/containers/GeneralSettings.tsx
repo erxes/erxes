@@ -1,13 +1,13 @@
-import { AppConsumer } from "appContext";
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import Spinner from "modules/common/components/Spinner";
-import { Alert, withProps } from "modules/common/utils";
-import React from "react";
-import { graphql } from "react-apollo";
-import GeneralSettings from "../components/GeneralSettings";
-import { mutations, queries } from "../graphql";
-import { ConfigsQueryResponse, IConfigsMap } from "../types";
+import { AppConsumer } from 'appContext';
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import Spinner from 'modules/common/components/Spinner';
+import { Alert, withProps } from 'modules/common/utils';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import GeneralSettings from '../components/GeneralSettings';
+import { mutations, queries } from '../graphql';
+import { ConfigsQueryResponse, IConfigsMap } from '../types';
 
 type FinalProps = {
   configsQuery: ConfigsQueryResponse;
@@ -30,7 +30,7 @@ class SettingsContainer extends React.Component<FinalProps> {
         .then(() => {
           configsQuery.refetch();
 
-          Alert.success("You successfully updated general settings");
+          Alert.success('You successfully updated general settings');
         })
         .catch(error => {
           Alert.error(error.message);
@@ -64,10 +64,10 @@ class SettingsContainer extends React.Component<FinalProps> {
 export default withProps<{}>(
   compose(
     graphql<{}, ConfigsQueryResponse>(gql(queries.configs), {
-      name: "configsQuery"
+      name: 'configsQuery'
     }),
     graphql<{}>(gql(mutations.updateConfigs), {
-      name: "updateConfigs"
+      name: 'updateConfigs'
     })
   )(SettingsContainer)
 );

@@ -1,4 +1,4 @@
-import { IIntegration } from "modules/settings/integrations/types";
+import { IIntegration } from 'modules/settings/integrations/types';
 
 export interface IBrand {
   _id: string;

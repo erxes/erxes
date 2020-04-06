@@ -1,12 +1,12 @@
-import client from "apolloClient";
-import gql from "graphql-tag";
-import FilterByParams from "modules/common/components/FilterByParams";
-import Spinner from "modules/common/components/Spinner";
-import { Alert } from "modules/common/utils";
-import { queries } from "modules/inbox/graphql";
-import { NoHeight } from "modules/inbox/styles";
-import { generateParams } from "modules/inbox/utils";
-import React from "react";
+import client from 'apolloClient';
+import gql from 'graphql-tag';
+import FilterByParams from 'modules/common/components/FilterByParams';
+import Spinner from 'modules/common/components/Spinner';
+import { Alert } from 'modules/common/utils';
+import { queries } from 'modules/inbox/graphql';
+import { NoHeight } from 'modules/inbox/styles';
+import { generateParams } from 'modules/inbox/utils';
+import React from 'react';
 
 type Props = {
   query?: { queryName: string; dataName: string; variables?: any };
@@ -73,7 +73,7 @@ export default class FilterList extends React.PureComponent<Props, State> {
       .query({
         query: gql(queries.conversationCounts),
         variables: { ...generateParams({ ...queryParams }), only: counts },
-        fetchPolicy: ignoreCache ? "network-only" : "cache-first"
+        fetchPolicy: ignoreCache ? 'network-only' : 'cache-first'
       })
       .then(({ data, loading }: { data: any; loading: boolean }) => {
         if (this.mounted) {

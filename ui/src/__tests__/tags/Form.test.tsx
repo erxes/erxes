@@ -1,12 +1,12 @@
-import { shallow } from "enzyme";
-import React from "react";
+import { shallow } from 'enzyme';
+import React from 'react';
 
-import { IButtonMutateProps } from "modules/common/types";
-import Form from "../../modules/tags/components/Form";
+import { IButtonMutateProps } from 'modules/common/types';
+import Form from '../../modules/tags/components/Form';
 
-describe("Form component", () => {
+describe('Form component', () => {
   const defaultProps = {
-    type: "typ",
+    type: 'typ',
     save: (params: {
       doc: {
         _id?: string;
@@ -20,8 +20,8 @@ describe("Form component", () => {
     renderButton: (props: IButtonMutateProps) => <div />
   };
 
-  test("renders Form successfully", () => {
+  test('renders Form successfully', () => {
     const wrapper = shallow(<Form {...defaultProps} />);
-    expect(wrapper).not.toBe("");
+    expect(wrapper).not.toBe('');
   });
 });

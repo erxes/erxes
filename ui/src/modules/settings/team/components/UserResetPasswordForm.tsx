@@ -1,11 +1,11 @@
-import { IUser } from "modules/auth/types";
-import Button from "modules/common/components/Button";
-import FormControl from "modules/common/components/form/Control";
-import FormGroup from "modules/common/components/form/Group";
-import ControlLabel from "modules/common/components/form/Label";
-import { ModalFooter } from "modules/common/styles/main";
-import { __ } from "modules/common/utils";
-import React from "react";
+import { IUser } from 'modules/auth/types';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import { ModalFooter } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
+import React from 'react';
 
 type Props = {
   object: IUser;
@@ -27,10 +27,10 @@ class UserResetPasswordForm extends React.Component<Props> {
   generateDoc = () => {
     return {
       _id: this.props.object._id,
-      newPassword: (document.getElementById("new-password") as HTMLInputElement)
+      newPassword: (document.getElementById('new-password') as HTMLInputElement)
         .value,
       repeatPassword: (document.getElementById(
-        "repeat-password"
+        'repeat-password'
       ) as HTMLInputElement).value
     };
   };
@@ -48,7 +48,7 @@ class UserResetPasswordForm extends React.Component<Props> {
 
           <FormControl
             type="password"
-            placeholder={__("Enter new password")}
+            placeholder={__('Enter new password')}
             id="new-password"
           />
         </FormGroup>
@@ -58,7 +58,7 @@ class UserResetPasswordForm extends React.Component<Props> {
 
           <FormControl
             type="password"
-            placeholder={__("repeat password")}
+            placeholder={__('repeat password')}
             id="repeat-password"
           />
         </FormGroup>

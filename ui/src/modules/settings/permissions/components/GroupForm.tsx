@@ -1,13 +1,13 @@
-import Button from "modules/common/components/Button";
-import FormControl from "modules/common/components/form/Control";
-import Form from "modules/common/components/form/Form";
-import FormGroup from "modules/common/components/form/Group";
-import ControlLabel from "modules/common/components/form/Label";
-import { ModalFooter } from "modules/common/styles/main";
-import { IButtonMutateProps, IFormProps } from "modules/common/types";
-import SelectTeamMembers from "modules/settings/team/containers/SelectTeamMembers";
-import React from "react";
-import { IUserGroupDocument } from "../types";
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import Form from 'modules/common/components/form/Form';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import { ModalFooter } from 'modules/common/styles/main';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
+import React from 'react';
+import { IUserGroupDocument } from '../types';
 
 type Props = {
   closeModal: () => void;
@@ -106,7 +106,7 @@ class GroupForm extends React.Component<Props, State> {
           </Button>
 
           {this.props.renderButton({
-            name: "user group",
+            name: 'user group',
             values: this.generateDoc(values),
             isSubmitted,
             callback: this.props.closeModal,

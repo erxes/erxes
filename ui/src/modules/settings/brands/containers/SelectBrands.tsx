@@ -1,8 +1,8 @@
-import SelectWithSearch from "modules/common/components/SelectWithSearch";
-import { IOption, IQueryParams } from "modules/common/types";
-import * as React from "react";
-import { queries } from "../graphql";
-import { IBrand } from "../types";
+import SelectWithSearch from 'modules/common/components/SelectWithSearch';
+import { IOption, IQueryParams } from 'modules/common/types';
+import * as React from 'react';
+import { queries } from '../graphql';
+import { IBrand } from '../types';
 
 // get config options for react-select-plus
 export function generateBrandOptions(array: IBrand[] = []): IOption[] {
@@ -43,7 +43,7 @@ export default ({
       name={name}
       customQuery={queries.brands}
       values={
-        typeof defaultValue === "string"
+        typeof defaultValue === 'string'
           ? multi
             ? [defaultValue]
             : defaultValue

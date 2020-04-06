@@ -1,11 +1,11 @@
-import Button from "modules/common/components/Button";
+import Button from 'modules/common/components/Button';
 import {
   LauncherContainer,
   WebPreview,
   WidgetPreview
-} from "modules/engage/styles";
-import React from "react";
-import styled from "styled-components";
+} from 'modules/engage/styles';
+import React from 'react';
+import styled from 'styled-components';
 import {
   BodyContent,
   CallOutBody,
@@ -19,7 +19,7 @@ import {
   PreviewTitle,
   SlideLeftContent,
   SlideRightContent
-} from "./styles";
+} from './styles';
 
 export const ShoutBox = styled(WebPreview)`
   height: 100%;
@@ -98,7 +98,7 @@ class CommonPreview extends React.Component<Props, {}> {
   render() {
     const { type, theme, color } = this.props;
 
-    if (type === "shoutbox") {
+    if (type === 'shoutbox') {
       return (
         <ShoutBox>
           <WidgetPreview className="type-default">
@@ -111,7 +111,7 @@ class CommonPreview extends React.Component<Props, {}> {
       );
     }
 
-    if (type === "popup") {
+    if (type === 'popup') {
       return (
         <CenterContainer>
           <OverlayTrigger />
@@ -120,7 +120,7 @@ class CommonPreview extends React.Component<Props, {}> {
       );
     }
 
-    if (type === "dropdown") {
+    if (type === 'dropdown') {
       return (
         <PreviewContainer>
           <DropdownContent style={{ borderColor: theme ? theme : color }}>
@@ -130,7 +130,7 @@ class CommonPreview extends React.Component<Props, {}> {
       );
     }
 
-    if (type === "slideInLeft") {
+    if (type === 'slideInLeft') {
       return (
         <PreviewContainer>
           <SlideLeftContent>{this.renderContent()}</SlideLeftContent>
@@ -138,7 +138,7 @@ class CommonPreview extends React.Component<Props, {}> {
       );
     }
 
-    if (type === "slideInRight") {
+    if (type === 'slideInRight') {
       return (
         <PreviewContainer>
           <SlideRightContent>{this.renderContent()}</SlideRightContent>

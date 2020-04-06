@@ -1,5 +1,5 @@
-import React from "react";
-import StyledTable from "./styles";
+import React from 'react';
+import StyledTable from './styles';
 
 type Props = {
   children: React.ReactNode;

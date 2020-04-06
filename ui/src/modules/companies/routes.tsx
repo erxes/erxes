@@ -1,14 +1,14 @@
-import asyncComponent from "modules/common/components/AsyncComponent";
-import queryString from "query-string";
-import React from "react";
-import { Route } from "react-router-dom";
+import asyncComponent from 'modules/common/components/AsyncComponent';
+import queryString from 'query-string';
+import React from 'react';
+import { Route } from 'react-router-dom';
 
 const CompanyDetails = asyncComponent(() =>
-  import(/* webpackChunkName: "CompanyDetails" */ "./containers/detail/CompanyDetails")
+  import(/* webpackChunkName: "CompanyDetails" */ './containers/detail/CompanyDetails')
 );
 
 const CompaniesList = asyncComponent(() =>
-  import(/* webpackChunkName: "CompaniesList" */ "./containers/CompaniesList")
+  import(/* webpackChunkName: "CompaniesList" */ './containers/CompaniesList')
 );
 
 const details = ({ match }) => {

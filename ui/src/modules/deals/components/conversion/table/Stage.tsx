@@ -1,11 +1,11 @@
-import { IStage } from "modules/boards/types";
-import Icon from "modules/common/components/Icon";
-import Spinner from "modules/common/components/Spinner";
-import * as React from "react";
-import Collapse from "react-bootstrap/Collapse";
-import { IDeal } from "../../../types";
-import { BodyRow, StageName } from "../style";
-import DealList from "./DealList";
+import { IStage } from 'modules/boards/types';
+import Icon from 'modules/common/components/Icon';
+import Spinner from 'modules/common/components/Spinner';
+import * as React from 'react';
+import Collapse from 'react-bootstrap/Collapse';
+import { IDeal } from '../../../types';
+import { BodyRow, StageName } from '../style';
+import DealList from './DealList';
 
 type Props = {
   stage: IStage;

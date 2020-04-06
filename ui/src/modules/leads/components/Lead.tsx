@@ -1,23 +1,23 @@
-import Button from "modules/common/components/Button";
-import FormControl from "modules/common/components/form/Control";
-import ConditionsRule from "modules/common/components/rule/ConditionsRule";
-import { Step, Steps } from "modules/common/components/step";
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import ConditionsRule from 'modules/common/components/rule/ConditionsRule';
+import { Step, Steps } from 'modules/common/components/step';
 import {
   StepWrapper,
   TitleContainer
-} from "modules/common/components/step/styles";
-import { IConditionsRule } from "modules/common/types";
-import { Alert } from "modules/common/utils";
-import { __ } from "modules/common/utils";
-import Wrapper from "modules/layout/components/Wrapper";
-import { ILeadData, ILeadIntegration } from "../types";
+} from 'modules/common/components/step/styles';
+import { IConditionsRule } from 'modules/common/types';
+import { Alert } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
+import Wrapper from 'modules/layout/components/Wrapper';
+import { ILeadData, ILeadIntegration } from '../types';
 
-import React from "react";
-import { Link } from "react-router-dom";
+import React from 'react';
+import { Link } from 'react-router-dom';
 
-import { SmallLoader } from "modules/common/components/ButtonMutate";
-import { IFormData } from "modules/forms/types";
-import { IField } from "modules/settings/properties/types";
+import { SmallLoader } from 'modules/common/components/ButtonMutate';
+import { IFormData } from 'modules/forms/types';
+import { IField } from 'modules/settings/properties/types';
 import {
   CallOut,
   ChooseType,
@@ -25,7 +25,7 @@ import {
   FullPreviewStep,
   OptionStep,
   SuccessStep
-} from "./step";
+} from './step';
 
 type Props = {
   integration?: ILeadIntegration;
@@ -87,36 +87,36 @@ class Lead extends React.Component<Props, State> {
     this.state = {
       activeStep: 1,
 
-      type: leadData.loadType || "shoutbox",
-      successAction: leadData.successAction || "",
-      fromEmail: leadData.fromEmail || "",
-      userEmailTitle: leadData.userEmailTitle || "",
-      userEmailContent: leadData.userEmailContent || "",
+      type: leadData.loadType || 'shoutbox',
+      successAction: leadData.successAction || '',
+      fromEmail: leadData.fromEmail || '',
+      userEmailTitle: leadData.userEmailTitle || '',
+      userEmailContent: leadData.userEmailContent || '',
       adminEmails: leadData.adminEmails || [],
-      adminEmailTitle: leadData.adminEmailTitle || "",
-      adminEmailContent: leadData.adminEmailContent || "",
-      thankContent: leadData.thankContent || "Thank you.",
-      redirectUrl: leadData.redirectUrl || "",
+      adminEmailTitle: leadData.adminEmailTitle || '',
+      adminEmailContent: leadData.adminEmailContent || '',
+      thankContent: leadData.thankContent || 'Thank you.',
+      redirectUrl: leadData.redirectUrl || '',
       rules: leadData.rules || [],
 
       brand: integration.brandId,
       language: integration.languageCode,
       title: integration.name,
-      calloutTitle: callout.title || "Title",
-      bodyValue: callout.body || "",
-      calloutBtnText: callout.buttonText || "Start",
-      color: "",
+      calloutTitle: callout.title || 'Title',
+      bodyValue: callout.body || '',
+      calloutBtnText: callout.buttonText || 'Start',
+      color: '',
       logoPreviewStyle: {},
       defaultValue: {},
-      logo: "",
+      logo: '',
       formData: {
-        title: form.title || "",
-        desc: form.description || "",
-        btnText: form.buttonText || "Send",
+        title: form.title || '',
+        desc: form.description || '',
+        btnText: form.buttonText || 'Send',
         fields: [],
-        type: form.type || ""
+        type: form.type || ''
       },
-      theme: leadData.themeColor || "#6569DF",
+      theme: leadData.themeColor || '#6569DF',
       logoPreviewUrl: callout.featuredImage,
       isSkip: callout.skip && true
     };
@@ -128,15 +128,15 @@ class Lead extends React.Component<Props, State> {
     const { brand, calloutTitle, title, rules, formData } = this.state;
 
     if (!title) {
-      return Alert.error("Write title");
+      return Alert.error('Write title');
     }
 
     if (!formData.title) {
-      return Alert.error("Write Form title");
+      return Alert.error('Write Form title');
     }
 
     if (!brand) {
-      return Alert.error("Choose a brand");
+      return Alert.error('Choose a brand');
     }
 
     const doc = {
@@ -194,7 +194,7 @@ class Lead extends React.Component<Props, State> {
           disabled={isActionLoading}
           btnStyle="success"
           size="small"
-          icon={isActionLoading ? undefined : "checked-1"}
+          icon={isActionLoading ? undefined : 'checked-1'}
           onClick={this.handleSubmit}
         >
           {isActionLoading && <SmallLoader />}
@@ -242,18 +242,18 @@ class Lead extends React.Component<Props, State> {
     const { integration } = this.props;
     const leadData = integration && integration.leadData;
     const brand = integration && integration.brand;
-    const breadcrumb = [{ title: __("Pop Ups"), link: "/leads" }];
-    const constant = isSkip ? "form" : "callout";
+    const breadcrumb = [{ title: __('Pop Ups'), link: '/leads' }];
+    const constant = isSkip ? 'form' : 'callout';
 
     const onChange = e =>
-      this.onChange("title", (e.currentTarget as HTMLInputElement).value);
+      this.onChange('title', (e.currentTarget as HTMLInputElement).value);
 
     return (
       <>
-        <Wrapper.Header title={__("Leads")} breadcrumb={breadcrumb} />
+        <Wrapper.Header title={__('Leads')} breadcrumb={breadcrumb} />
         <StepWrapper>
           <TitleContainer>
-            <div>{__("Title")}</div>
+            <div>{__('Title')}</div>
             <FormControl
               required={true}
               onChange={onChange}
@@ -286,7 +286,7 @@ class Lead extends React.Component<Props, State> {
                 skip={isSkip}
               />
             </Step>
-            <Step img="/images/icons/erxes-12.svg" title={"Form"}>
+            <Step img="/images/icons/erxes-12.svg" title={'Form'}>
               <FormStep
                 type={type}
                 color={color}

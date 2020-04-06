@@ -1,12 +1,12 @@
-import * as React from "react";
+import * as React from 'react';
 
-import { ICustomer } from "modules/customers/types";
-import { IFacebookComment, IFacebookPost, IMessage } from "modules/inbox/types";
+import { ICustomer } from 'modules/customers/types';
+import { IFacebookComment, IFacebookPost, IMessage } from 'modules/inbox/types';
 
-import FacebookComment from "modules/inbox/containers/conversationDetail/facebook/FacebookComment";
-import { SimpleMessage } from "../conversation/messages";
-import FacebookPost from "./FacebookPost";
-import { ShowMore } from "./styles";
+import FacebookComment from 'modules/inbox/containers/conversationDetail/facebook/FacebookComment';
+import { SimpleMessage } from '../conversation/messages';
+import FacebookPost from './FacebookPost';
+import { ShowMore } from './styles';
 
 type Props = {
   post?: IFacebookPost;
@@ -52,9 +52,9 @@ export default class FacebookConversation extends React.Component<Props> {
     const { comments } = this.props;
 
     const replies = comments.filter(msg => {
-      const parentId = getAttr(msg, "parentId");
+      const parentId = getAttr(msg, 'parentId');
 
-      return parentId && parentId === getAttr(comment, "commentId");
+      return parentId && parentId === getAttr(comment, 'commentId');
     });
 
     return replies.map(reply => (
@@ -74,7 +74,7 @@ export default class FacebookConversation extends React.Component<Props> {
     const parentComments: IFacebookComment[] = [];
 
     for (const comment of comments) {
-      if (!getAttr(comment, "parentId")) {
+      if (!getAttr(comment, 'parentId')) {
         parentComments.push(comment);
       }
     }

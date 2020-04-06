@@ -1,9 +1,9 @@
-import Icon from "modules/common/components/Icon";
-import React from "react";
-import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
-import { DragHandler, SortableWrapper, SortItem } from "../styles/sort";
-import { reorder } from "../utils";
-import EmptyState from "./EmptyState";
+import Icon from 'modules/common/components/Icon';
+import React from 'react';
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
+import { DragHandler, SortableWrapper, SortItem } from '../styles/sort';
+import { reorder } from '../utils';
+import EmptyState from './EmptyState';
 
 type Props = {
   fields: any[];
@@ -17,7 +17,7 @@ type Props = {
 
 class SortableList extends React.Component<Props> {
   static defaultProps = {
-    droppableId: "droppableId"
+    droppableId: 'droppableId'
   };
 
   onDragEnd = result => {

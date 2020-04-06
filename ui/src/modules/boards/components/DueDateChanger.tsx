@@ -1,10 +1,10 @@
-import Datetime from "@nateradebaugh/react-datetime";
-import Icon from "modules/common/components/Icon";
-import { rgba } from "modules/common/styles/color";
-import colors from "modules/common/styles/colors";
-import * as React from "react";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
+import Datetime from '@nateradebaugh/react-datetime';
+import Icon from 'modules/common/components/Icon';
+import { rgba } from 'modules/common/styles/color';
+import colors from 'modules/common/styles/colors';
+import * as React from 'react';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 export const DateWrapper = styledTS<{ color: string; hasValue?: boolean }>(
   styled.div
@@ -22,7 +22,7 @@ export const DateWrapper = styledTS<{ color: string; hasValue?: boolean }>(
 		border-radius: 2px;
 		font-weight: 500;
 		line-height: 25px;
-		width: ${props => (props.hasValue ? "130px" : "100px")};
+		width: ${props => (props.hasValue ? '130px' : '100px')};
 		font-size: 12px;
 
 		&:hover {
@@ -86,7 +86,7 @@ class DueDateChanger extends React.Component<IProps> {
       <DateWrapper color={color} hasValue={this.hasValue()}>
         <Icon icon="clock-eight" />
         <Datetime
-          inputProps={{ placeholder: "Due date" }}
+          inputProps={{ placeholder: 'Due date' }}
           dateFormat="MMM,DD YYYY"
           timeFormat={false}
           value={value}

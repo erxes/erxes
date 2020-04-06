@@ -1,6 +1,6 @@
-import { colors, dimensions } from "modules/common/styles";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
+import { colors, dimensions } from 'modules/common/styles';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const ModulRow = styled.div`
   display: flex;
@@ -53,9 +53,9 @@ const NavButton = styledTS<{ right?: boolean }>(styled.div)`
   text-align: center;
   width: 28px;
   height: 28px;
-  margin-left: ${props => !props.right && "-7px"};;
+  margin-left: ${props => !props.right && '-7px'};;
   margin-top: -5px;
-  float: ${props => props.right && "right"};
+  float: ${props => props.right && 'right'};
   background: ${props => props.right && colors.bgActive};
   position: sticky;
   top: 0;

@@ -1,13 +1,13 @@
-import Button from "modules/common/components/Button";
-import Icon from "modules/common/components/Icon";
-import ModalTrigger from "modules/common/components/ModalTrigger";
-import Tip from "modules/common/components/Tip";
-import { __ } from "modules/common/utils";
-import React from "react";
-import { Link } from "react-router-dom";
-import CategoryForm from "../../containers/category/CategoryForm";
-import { ICategory } from "../../types";
-import { ActionButtons, CategoryItem } from "./styles";
+import Button from 'modules/common/components/Button';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Tip from 'modules/common/components/Tip';
+import { __ } from 'modules/common/utils';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import CategoryForm from '../../containers/category/CategoryForm';
+import { ICategory } from '../../types';
+import { ActionButtons, CategoryItem } from './styles';
 
 type Props = {
   topicIds: string;
@@ -34,7 +34,7 @@ class CategoryRow extends React.Component<Props> {
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text={__("Edit")} placement="bottom">
+        <Tip text={__('Edit')} placement="bottom">
           <Icon icon="edit" />
         </Tip>
       </Button>
@@ -64,7 +64,7 @@ class CategoryRow extends React.Component<Props> {
         </Link>
         <ActionButtons>
           {this.renderEditAction()}
-          <Tip text={__("Delete")} placement="bottom">
+          <Tip text={__('Delete')} placement="bottom">
             <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
           </Tip>
         </ActionButtons>

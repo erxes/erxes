@@ -1,14 +1,14 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { queries } from "modules/boards/graphql";
-import { StagesQueryResponse } from "modules/boards/types";
-import EmptyState from "modules/common/components/EmptyState";
-import Spinner from "modules/common/components/Spinner";
-import { withProps } from "modules/common/utils";
-import List from "modules/deals/components/conversion/list/List";
-import Table from "modules/deals/components/conversion/table/Table";
-import * as React from "react";
-import { graphql } from "react-apollo";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { queries } from 'modules/boards/graphql';
+import { StagesQueryResponse } from 'modules/boards/types';
+import EmptyState from 'modules/common/components/EmptyState';
+import Spinner from 'modules/common/components/Spinner';
+import { withProps } from 'modules/common/utils';
+import List from 'modules/deals/components/conversion/list/List';
+import Table from 'modules/deals/components/conversion/table/Table';
+import * as React from 'react';
+import { graphql } from 'react-apollo';
 
 type Props = {
   pipelineId: string;
@@ -34,7 +34,7 @@ class DealStagesContainer extends React.Component<FinalProps> {
       );
     }
 
-    if (localStorage.getItem("cacheInvalidated") === "true") {
+    if (localStorage.getItem('cacheInvalidated') === 'true') {
       stagesQuery.refetch({ pipelineId });
     }
 
@@ -44,7 +44,7 @@ class DealStagesContainer extends React.Component<FinalProps> {
 
     const stages = stagesQuery.stages || [];
 
-    if (type === "more") {
+    if (type === 'more') {
       return <Table {...this.props} stages={stages} />;
     }
 
@@ -55,7 +55,7 @@ class DealStagesContainer extends React.Component<FinalProps> {
 export default withProps<Props>(
   compose(
     graphql<Props, StagesQueryResponse>(gql(queries.stages), {
-      name: "stagesQuery",
+      name: 'stagesQuery',
       skip: ({ pipelineId }) => !pipelineId,
       options: ({ pipelineId, queryParams }) => ({
         variables: {

@@ -1,11 +1,11 @@
-import { ColorButton } from "modules/boards/styles/common";
-import Icon from "modules/common/components/Icon";
-import { __ } from "modules/common/utils";
-import * as React from "react";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import { ChooseLabelWrapper } from "../../styles/label";
-import { IPipelineLabel } from "../../types";
-import Overlay from "./Overlay";
+import { ColorButton } from 'modules/boards/styles/common';
+import Icon from 'modules/common/components/Icon';
+import { __ } from 'modules/common/utils';
+import * as React from 'react';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import { ChooseLabelWrapper } from '../../styles/label';
+import { IPipelineLabel } from '../../types';
+import Overlay from './Overlay';
 
 type Props = {
   pipelineId: string;
@@ -78,7 +78,7 @@ class ChooseLabel extends React.Component<
         >
           <ColorButton>
             <Icon icon="label-alt" />
-            {__("Labels")}
+            {__('Labels')}
           </ColorButton>
         </OverlayTrigger>
       </ChooseLabelWrapper>

@@ -1,21 +1,21 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import Bulk from "modules/common/components/Bulk";
-import { IRouterProps } from "modules/common/types";
-import queryString from "query-string";
-import React from "react";
-import { graphql } from "react-apollo";
-import { withRouter } from "react-router-dom";
-import { withProps } from "../../common/utils";
-import routerUtils from "../../common/utils/router";
-import MessageList from "../components/MessageList";
-import { queries } from "../graphql";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import Bulk from 'modules/common/components/Bulk';
+import { IRouterProps } from 'modules/common/types';
+import queryString from 'query-string';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
+import { withProps } from '../../common/utils';
+import routerUtils from '../../common/utils/router';
+import MessageList from '../components/MessageList';
+import { queries } from '../graphql';
 import {
   EngageMessagesQueryResponse,
   EngageMessagesTotalCountQueryResponse,
   ListQueryVariables
-} from "../types";
-import { generateListQueryVariables } from "../utils";
+} from '../types';
+import { generateListQueryVariables } from '../utils';
 
 type Props = {
   type: string;
@@ -49,7 +49,7 @@ class MessageListContainer extends React.Component<FinalProps, State> {
 
     const shouldRefetchList = routerUtils.getParam(
       history,
-      "engageRefetchList"
+      'engageRefetchList'
     );
 
     if (shouldRefetchList) {
@@ -94,7 +94,7 @@ const MessageListContainerWithData = withProps<Props>(
     graphql<Props, EngageMessagesQueryResponse, ListQueryVariables>(
       gql(queries.engageMessages),
       {
-        name: "engageMessagesQuery",
+        name: 'engageMessagesQuery',
         options: props => ({
           variables: generateListQueryVariables(props)
         })
@@ -103,7 +103,7 @@ const MessageListContainerWithData = withProps<Props>(
     graphql<Props, EngageMessagesTotalCountQueryResponse, ListQueryVariables>(
       gql(queries.engageMessagesTotalCount),
       {
-        name: "engageMessagesTotalCountQuery",
+        name: 'engageMessagesTotalCountQuery',
         options: props => ({
           variables: generateListQueryVariables(props)
         })

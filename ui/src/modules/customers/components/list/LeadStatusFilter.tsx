@@ -1,14 +1,14 @@
-import React from "react";
-import { withRouter } from "react-router-dom";
+import React from 'react';
+import { withRouter } from 'react-router-dom';
 
-import Box from "modules/common/components/Box";
-import DataWithLoader from "modules/common/components/DataWithLoader";
-import Icon from "modules/common/components/Icon";
-import { __, router } from "modules/common/utils";
-import { FieldStyle, SidebarCounter, SidebarList } from "modules/layout/styles";
-import { IRouterProps } from "../../../common/types";
-import { LEAD_STATUS_TYPES } from "../../constants";
-import { leadStatusChoices } from "../../utils";
+import Box from 'modules/common/components/Box';
+import DataWithLoader from 'modules/common/components/DataWithLoader';
+import Icon from 'modules/common/components/Icon';
+import { __, router } from 'modules/common/utils';
+import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
+import { IRouterProps } from '../../../common/types';
+import { LEAD_STATUS_TYPES } from '../../constants';
+import { leadStatusChoices } from '../../utils';
 
 interface IProps extends IRouterProps {
   counts: { [key: string]: number };
@@ -19,7 +19,7 @@ interface IProps extends IRouterProps {
 class LeadStatusFilter extends React.Component<IProps> {
   renderCounts = () => {
     const { history, counts } = this.props;
-    const paramKey = "leadStatus";
+    const paramKey = 'leadStatus';
 
     const onClick = (key, value) => {
       router.setParams(history, { [key]: value });
@@ -36,8 +36,8 @@ class LeadStatusFilter extends React.Component<IProps> {
                   tabIndex={0}
                   className={
                     router.getParam(history, [paramKey]) === value
-                      ? "active"
-                      : ""
+                      ? 'active'
+                      : ''
                   }
                   onClick={onClick.bind(this, paramKey, value)}
                 >
@@ -59,7 +59,7 @@ class LeadStatusFilter extends React.Component<IProps> {
       router.setParams(history, { leadStatus: null });
     };
 
-    const extraButtons = router.getParam(history, "leadStatus") && (
+    const extraButtons = router.getParam(history, 'leadStatus') && (
       <a href="#cancel" tabIndex={0} onClick={onClear}>
         <Icon icon="times-circle" />
       </a>
@@ -68,7 +68,7 @@ class LeadStatusFilter extends React.Component<IProps> {
     return (
       <Box
         extraButtons={extraButtons}
-        title={__("Filter by lead status")}
+        title={__('Filter by lead status')}
         name="showFilterByStatus"
       >
         <DataWithLoader

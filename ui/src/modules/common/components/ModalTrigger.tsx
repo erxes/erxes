@@ -1,27 +1,27 @@
-import { __ } from "modules/common/utils";
-import React from "react";
-import { Modal } from "react-bootstrap";
-import { withRouter } from "react-router-dom";
-import RTG from "react-transition-group";
-import { CloseModal } from "../styles/main";
-import { IRouterProps } from "../types";
-import routerUtils from "../utils/router";
-import Icon from "./Icon";
+import { __ } from 'modules/common/utils';
+import React from 'react';
+import { Modal } from 'react-bootstrap';
+import { withRouter } from 'react-router-dom';
+import RTG from 'react-transition-group';
+import { CloseModal } from '../styles/main';
+import { IRouterProps } from '../types';
+import routerUtils from '../utils/router';
+import Icon from './Icon';
 
 type Props = {
   title: string;
   trigger: React.ReactNode;
   autoOpenKey?: string;
   content: ({ closeModal }: { closeModal: () => void }) => void;
-  size?: "sm" | "lg" | "xl";
+  size?: 'sm' | 'lg' | 'xl';
   ignoreTrans?: boolean;
   dialogClassName?: string;
-  backDrop?: "static" | boolean;
+  backDrop?: 'static' | boolean;
   enforceFocus?: boolean;
   hideHeader?: boolean;
   isOpen?: boolean;
   history: any;
-  paddingContent?: "no-padding";
+  paddingContent?: 'no-padding';
   centered?: boolean;
   onExit?: () => void;
 } & IRouterProps;
@@ -50,7 +50,7 @@ class ModalTrigger extends React.Component<Props, State> {
 
     this.state = {
       isOpen: props.isOpen || false,
-      autoOpenKey: ""
+      autoOpenKey: ''
     };
   }
 

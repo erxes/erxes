@@ -1,3 +1,3 @@
-import commonListComposer from "./commonListComposer";
+import commonListComposer from './commonListComposer';
 
 export { commonListComposer };

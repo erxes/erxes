@@ -1,12 +1,12 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { IRouterProps } from "modules/common/types";
-import { Alert, confirm, withProps } from "modules/common/utils";
-import React from "react";
-import { graphql } from "react-apollo";
-import { withRouter } from "react-router-dom";
-import MessageListRow from "../components/MessageListRow";
-import { mutations, queries } from "../graphql";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { IRouterProps } from 'modules/common/types';
+import { Alert, confirm, withProps } from 'modules/common/utils';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
+import MessageListRow from '../components/MessageListRow';
+import { mutations, queries } from '../graphql';
 import {
   IEngageMessage,
   MutationVariables,
@@ -14,8 +14,8 @@ import {
   SetLiveManualMutationResponse,
   SetLiveMutationResponse,
   SetPauseMutationResponse
-} from "../types";
-import { crudMutationsOptions } from "../utils";
+} from '../types';
+import { crudMutationsOptions } from '../utils';
 
 type Props = {
   isChecked: boolean;
@@ -66,7 +66,7 @@ const MessageRowContainer = (props: FinalProps) => {
     confirm().then(() => {
       doMutation(removeMutation, `You just deleted an engagement message.`)
         .then(() => {
-          history.push("/engage");
+          history.push('/engage');
         })
         .catch(e => {
           Alert.error(e.message);
@@ -77,12 +77,12 @@ const MessageRowContainer = (props: FinalProps) => {
   const setLiveManual = () =>
     doMutation(
       setLiveManualMutation,
-      "Yay! Your engagement message is now live."
+      'Yay! Your engagement message is now live.'
     );
   const setLive = () =>
-    doMutation(setLiveMutation, "Yay! Your engagement message is now live.");
+    doMutation(setLiveMutation, 'Yay! Your engagement message is now live.');
   const setPause = () =>
-    doMutation(setPauseMutation, "Your engagement message is paused for now.");
+    doMutation(setPauseMutation, 'Your engagement message is paused for now.');
 
   const updatedProps = {
     ...props,
@@ -105,7 +105,7 @@ const statusMutationsOptions = ({ queryParams, message }) => {
       {
         query: gql(queries.statusCounts),
         variables: {
-          kind: queryParams.kind || ""
+          kind: queryParams.kind || ''
         }
       },
       {
@@ -123,28 +123,28 @@ export default withProps<Props>(
     graphql<Props, RemoveMutationResponse, MutationVariables>(
       gql(mutations.messageRemove),
       {
-        name: "removeMutation",
+        name: 'removeMutation',
         options: crudMutationsOptions
       }
     ),
     graphql<Props, SetPauseMutationResponse, MutationVariables>(
       gql(mutations.setPause),
       {
-        name: "setPauseMutation",
+        name: 'setPauseMutation',
         options: statusMutationsOptions
       }
     ),
     graphql<Props, SetLiveMutationResponse, MutationVariables>(
       gql(mutations.setLive),
       {
-        name: "setLiveMutation",
+        name: 'setLiveMutation',
         options: statusMutationsOptions
       }
     ),
     graphql<Props, SetLiveManualMutationResponse, MutationVariables>(
       gql(mutations.setLiveManual),
       {
-        name: "setLiveManualMutation",
+        name: 'setLiveManualMutation',
         options: statusMutationsOptions
       }
     )

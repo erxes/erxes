@@ -1,12 +1,12 @@
-import Button from "modules/common/components/Button";
-import FormGroup from "modules/common/components/form/Group";
-import ControlLabel from "modules/common/components/form/Label";
-import Icon from "modules/common/components/Icon";
-import { days, hours } from "modules/settings/integrations/constants";
-import { FlexRow } from "modules/settings/integrations/styles";
-import React from "react";
-import Select from "react-select-plus";
-import { IOnlineHour } from "../../../types";
+import Button from 'modules/common/components/Button';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import Icon from 'modules/common/components/Icon';
+import { days, hours } from 'modules/settings/integrations/constants';
+import { FlexRow } from 'modules/settings/integrations/styles';
+import React from 'react';
+import Select from 'react-select-plus';
+import { IOnlineHour } from '../../../types';
 
 type Props = {
   prevOptions: any[];
@@ -73,15 +73,15 @@ class OnlineHours extends React.Component<Props, State> {
     };
 
     const onDayChange = e => {
-      this.onTimeItemChange(onlineHour._id, "day", e.value);
+      this.onTimeItemChange(onlineHour._id, 'day', e.value);
     };
 
     const onFromChange = e => {
-      this.onTimeItemChange(onlineHour._id, "from", e.value);
+      this.onTimeItemChange(onlineHour._id, 'from', e.value);
     };
 
     const onToChange = e => {
-      this.onTimeItemChange(onlineHour._id, "to", e.value);
+      this.onTimeItemChange(onlineHour._id, 'to', e.value);
     };
 
     const { _id, day, from, to } = onlineHour;

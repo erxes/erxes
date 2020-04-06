@@ -1,14 +1,14 @@
-import asyncComponent from "modules/common/components/AsyncComponent";
-import Button from "modules/common/components/Button";
-import { SmallLoader } from "modules/common/components/ButtonMutate";
-import FormControl from "modules/common/components/form/Control";
-import Icon from "modules/common/components/Icon";
-import NameCard from "modules/common/components/nameCard/NameCard";
-import Tip from "modules/common/components/Tip";
-import { IAttachmentPreview } from "modules/common/types";
-import { __, Alert, readFile, uploadHandler } from "modules/common/utils";
-import { deleteHandler } from "modules/common/utils/uploadHandler";
-import ResponseTemplate from "modules/inbox/containers/conversationDetail/responseTemplate/ResponseTemplate";
+import asyncComponent from 'modules/common/components/AsyncComponent';
+import Button from 'modules/common/components/Button';
+import { SmallLoader } from 'modules/common/components/ButtonMutate';
+import FormControl from 'modules/common/components/form/Control';
+import Icon from 'modules/common/components/Icon';
+import NameCard from 'modules/common/components/nameCard/NameCard';
+import Tip from 'modules/common/components/Tip';
+import { IAttachmentPreview } from 'modules/common/types';
+import { __, Alert, readFile, uploadHandler } from 'modules/common/utils';
+import { deleteHandler } from 'modules/common/utils/uploadHandler';
+import ResponseTemplate from 'modules/inbox/containers/conversationDetail/responseTemplate/ResponseTemplate';
 import {
   Attachment,
   AttachmentIndicator,
@@ -21,20 +21,20 @@ import {
   PreviewImg,
   RespondBoxStyled,
   SmallEditor
-} from "modules/inbox/styles";
-import ManageVideoRoom from "modules/videoCall/containers/ManageRoom";
-import React from "react";
-import { IUser } from "../../../../auth/types";
-import { IIntegration } from "../../../../settings/integrations/types";
-import { IResponseTemplate } from "../../../../settings/responseTemplates/types";
-import { AddMessageMutationVariables, IConversation } from "../../../types";
+} from 'modules/inbox/styles';
+import ManageVideoRoom from 'modules/videoCall/containers/ManageRoom';
+import React from 'react';
+import { IUser } from '../../../../auth/types';
+import { IIntegration } from '../../../../settings/integrations/types';
+import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
+import { AddMessageMutationVariables, IConversation } from '../../../types';
 
 const Editor = asyncComponent(
-  () => import(/* webpackChunkName: "Editor-in-Inbox" */ "./Editor"),
+  () => import(/* webpackChunkName: "Editor-in-Inbox" */ './Editor'),
   {
-    height: "137px",
-    width: "100%",
-    color: "#fff"
+    height: '137px',
+    width: '100%',
+    color: '#fff'
   }
 );
 
@@ -72,12 +72,12 @@ class RespondBox extends React.Component<Props, State> {
 
     this.state = {
       isInactive: !this.checkIsActive(props.conversation),
-      editorKey: "editor",
+      editorKey: 'editor',
       isInternal: props.showInternal || false,
       sending: false,
       attachments: [],
-      responseTemplate: "",
-      content: "",
+      responseTemplate: '',
+      content: '',
       mentionedUserIds: [],
       loading: {}
     };
@@ -87,7 +87,7 @@ class RespondBox extends React.Component<Props, State> {
     const { content } = this.state;
 
     // draftjs empty content
-    if (content === "<p><br></p>" || content === "") {
+    if (content === '<p><br></p>' || content === '') {
       return false;
     }
 
@@ -104,7 +104,7 @@ class RespondBox extends React.Component<Props, State> {
       }
 
       // clear previous content
-      this.setState({ content: "" });
+      this.setState({ content: '' });
     }
 
     return true;
@@ -133,7 +133,7 @@ class RespondBox extends React.Component<Props, State> {
   }
 
   getUnsendMessage = (id: string) => {
-    return localStorage.getItem(id) || "";
+    return localStorage.getItem(id) || '';
   };
 
   // save editor current content to state
@@ -152,7 +152,7 @@ class RespondBox extends React.Component<Props, State> {
 
   checkIsActive(conversation: IConversation) {
     return (
-      conversation.integration.kind !== "messenger" ||
+      conversation.integration.kind !== 'messenger' ||
       (conversation.customer && conversation.customer.isOnline)
     );
   }
@@ -160,7 +160,7 @@ class RespondBox extends React.Component<Props, State> {
   hideMask = () => {
     this.setState({ isInactive: false });
 
-    const element = document.querySelector(".DraftEditor-root") as HTMLElement;
+    const element = document.querySelector('.DraftEditor-root') as HTMLElement;
 
     if (!element) {
       return;
@@ -192,7 +192,7 @@ class RespondBox extends React.Component<Props, State> {
   };
 
   handleDeleteFile = (url: string) => {
-    const urlArray = url.split("/");
+    const urlArray = url.split('/');
 
     // checking whether url is full path or just file name
     const fileName =
@@ -206,14 +206,14 @@ class RespondBox extends React.Component<Props, State> {
     deleteHandler({
       fileName,
       afterUpload: ({ status }) => {
-        if (status === "ok") {
+        if (status === 'ok') {
           const remainedAttachments = this.state.attachments.filter(
             a => a.url !== url
           );
 
           this.setState({ attachments: remainedAttachments });
 
-          Alert.success("You successfully deleted a file");
+          Alert.success('You successfully deleted a file');
         } else {
           Alert.error(status);
         }
@@ -259,7 +259,7 @@ class RespondBox extends React.Component<Props, State> {
   };
 
   cleanText(text: string) {
-    return text.replace(/&nbsp;/g, " ");
+    return text.replace(/&nbsp;/g, ' ');
   }
 
   addMessage = () => {
@@ -268,8 +268,8 @@ class RespondBox extends React.Component<Props, State> {
 
     const message = {
       conversationId: conversation._id,
-      content: this.cleanText(content) || " ",
-      contentType: "text",
+      content: this.cleanText(content) || ' ',
+      contentType: 'text',
       internal: isInternal,
       attachments,
       mentionedUserIds
@@ -286,7 +286,7 @@ class RespondBox extends React.Component<Props, State> {
         // clear attachments, content, mentioned user ids
         return this.setState({
           attachments: [],
-          content: "",
+          content: '',
           sending: false,
           mentionedUserIds: []
         });
@@ -309,7 +309,7 @@ class RespondBox extends React.Component<Props, State> {
           {attachments.map(attachment => (
             <Attachment key={attachment.name}>
               <AttachmentThumb>
-                {attachment.type.startsWith("image") && (
+                {attachment.type.startsWith('image') && (
                   <PreviewImg
                     style={{
                       backgroundImage: `url(${readFile(attachment.url)})`
@@ -344,7 +344,7 @@ class RespondBox extends React.Component<Props, State> {
       return (
         <Mask onClick={this.hideMask}>
           {__(
-            "Customer is offline Click to hide and send messages and they will receive them the next time they are online"
+            'Customer is offline Click to hide and send messages and they will receive them the next time they are online'
           )}
         </Mask>
       );
@@ -357,10 +357,10 @@ class RespondBox extends React.Component<Props, State> {
     const { isInternal, responseTemplate } = this.state;
     const { responseTemplates, conversation } = this.props;
 
-    let type = "message";
+    let type = 'message';
 
     if (isInternal) {
-      type = "note";
+      type = 'note';
     }
 
     const placeholder = __(
@@ -389,7 +389,7 @@ class RespondBox extends React.Component<Props, State> {
   renderCheckbox(kind: string) {
     const { isInternal } = this.state;
 
-    if (kind.includes("nylas") || kind === "gmail") {
+    if (kind.includes('nylas') || kind === 'gmail') {
       return null;
     }
 
@@ -401,7 +401,7 @@ class RespondBox extends React.Component<Props, State> {
         onChange={this.toggleForm}
         disabled={this.props.showInternal}
       >
-        {__("Internal note")}
+        {__('Internal note')}
       </FormControl>
     );
   }
@@ -410,7 +410,7 @@ class RespondBox extends React.Component<Props, State> {
     const { conversation, refetchMessages, refetchDetail } = this.props;
     const integration = conversation.integration || ({} as IIntegration);
 
-    if (this.state.isInternal || integration.kind !== "messenger") {
+    if (this.state.isInternal || integration.kind !== 'messenger') {
       return null;
     }
 
@@ -428,7 +428,7 @@ class RespondBox extends React.Component<Props, State> {
     const { conversation } = this.props;
     const integration = conversation.integration || ({} as IIntegration);
     const disabled =
-      integration.kind.includes("nylas") || integration.kind === "gmail";
+      integration.kind.includes('nylas') || integration.kind === 'gmail';
 
     return (
       <EditorActions>
@@ -436,7 +436,7 @@ class RespondBox extends React.Component<Props, State> {
 
         {this.renderVideoRoom()}
 
-        <Tip text={__("Attach file")}>
+        <Tip text={__('Attach file')}>
           <label>
             <Icon icon="paperclip" />
             <input
@@ -460,7 +460,7 @@ class RespondBox extends React.Component<Props, State> {
           size="small"
           icon="message"
         >
-          {!disabled && "Send"}
+          {!disabled && 'Send'}
         </Button>
       </EditorActions>
     );
@@ -509,7 +509,7 @@ class RespondBox extends React.Component<Props, State> {
     const integration = conversation.integration || ({} as IIntegration);
     const { kind } = integration;
 
-    const isMail = kind.includes("nylas") || kind === "gmail";
+    const isMail = kind.includes('nylas') || kind === 'gmail';
 
     if (isMail) {
       return this.renderMailRespondBox();

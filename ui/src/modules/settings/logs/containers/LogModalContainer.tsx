@@ -1,11 +1,11 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import Spinner from "modules/common/components/Spinner";
-import React from "react";
-import { graphql } from "react-apollo";
-import LogModal from "../components/LogModalContent";
-import queries from "../queries";
-import { ILog, SchemaLabelsQueryResponse } from "../types";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import Spinner from 'modules/common/components/Spinner';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import LogModal from '../components/LogModalContent';
+import queries from '../queries';
+import { ILog, SchemaLabelsQueryResponse } from '../types';
 
 type Props = {
   schemaLabelsQuery: SchemaLabelsQueryResponse;
@@ -33,7 +33,7 @@ const LogModalContainer = (props: Props) => {
 
 export default compose(
   graphql<Props, SchemaLabelsQueryResponse>(gql(queries.getDbSchemaLabels), {
-    name: "schemaLabelsQuery",
+    name: 'schemaLabelsQuery',
     options: ({ log }) => ({ variables: { type: log.type } })
   })
 )(LogModalContainer);

@@ -1,11 +1,11 @@
-import { IPipeline } from "modules/boards/types";
-import ActionButtons from "modules/common/components/ActionButtons";
-import Button from "modules/common/components/Button";
-import Tip from "modules/common/components/Tip";
-import { IButtonMutateProps } from "modules/common/types";
-import React from "react";
-import PipelineForm from "../containers/PipelineForm";
-import { IOption } from "../types";
+import { IPipeline } from 'modules/boards/types';
+import ActionButtons from 'modules/common/components/ActionButtons';
+import Button from 'modules/common/components/Button';
+import Tip from 'modules/common/components/Tip';
+import { IButtonMutateProps } from 'modules/common/types';
+import React from 'react';
+import PipelineForm from '../containers/PipelineForm';
+import { IOption } from '../types';
 
 type Props = {
   pipeline: IPipeline;
@@ -65,7 +65,7 @@ class PipelineRow extends React.Component<Props, State> {
       <PipelineForm
         options={options}
         type={type}
-        boardId={pipeline.boardId || ""}
+        boardId={pipeline.boardId || ''}
         renderButton={renderButton}
         pipeline={pipeline}
         closeModal={closeModal}

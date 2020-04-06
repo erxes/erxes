@@ -1,16 +1,16 @@
-import { shallow } from "enzyme";
-import React from "react";
+import { shallow } from 'enzyme';
+import React from 'react';
 
-import DataWithLoader from "../../../modules/common/components/DataWithLoader";
+import DataWithLoader from '../../../modules/common/components/DataWithLoader';
 
-describe("DataWithLoader component", () => {
+describe('DataWithLoader component', () => {
   const defaultProps = {
-    data: "today",
+    data: 'today',
     loading: false
   };
 
-  test("renders DataWithLoader successfully", () => {
+  test('renders DataWithLoader successfully', () => {
     const wrapper = shallow(<DataWithLoader {...defaultProps} />);
-    expect(wrapper).not.toBe("");
+    expect(wrapper).not.toBe('');
   });
 });

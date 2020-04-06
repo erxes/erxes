@@ -1,11 +1,11 @@
-import T from "i18n-react";
-import React from "react";
-import ReactDOM from "react-dom";
-import styled from "styled-components";
-import AlertStyled from "./Alert";
+import T from 'i18n-react';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import styled from 'styled-components';
+import AlertStyled from './Alert';
 
 const AlertWrapper = styled.div.attrs({
-  id: "alert-wrapper"
+  id: 'alert-wrapper'
 })`
   position: fixed;
   top: 0;
@@ -31,8 +31,8 @@ const createAlert = (type: string, text: string) => {
   timeout = setTimeout(() => {
     alertcount = 0;
 
-    if (document.getElementById("alert-container")) {
-      const container = document.getElementById("alert-container");
+    if (document.getElementById('alert-container')) {
+      const container = document.getElementById('alert-container');
 
       if (container) {
         document.body.removeChild(container);
@@ -40,15 +40,15 @@ const createAlert = (type: string, text: string) => {
     }
   }, 3500);
 
-  if (!document.getElementById("alert-container")) {
-    const popup = document.createElement("div");
-    popup.setAttribute("id", "alert-container");
+  if (!document.getElementById('alert-container')) {
+    const popup = document.createElement('div');
+    popup.setAttribute('id', 'alert-container');
     document.body.appendChild(popup);
 
     ReactDOM.render(<AlertWrapper />, popup);
   }
 
-  const wrapper = document.getElementById("alert-wrapper");
+  const wrapper = document.getElementById('alert-wrapper');
 
   ReactDOM.render(
     <AlertStyled key={alertcount} type={type}>
@@ -58,11 +58,11 @@ const createAlert = (type: string, text: string) => {
   );
 };
 
-const success = (text: string) => createAlert("success", text);
+const success = (text: string) => createAlert('success', text);
 const error = (text: string) =>
-  createAlert("error", text.replace("GraphQL error:", ""));
-const warning = (text: string) => createAlert("warning", text);
-const info = (text: string) => createAlert("info", text);
+  createAlert('error', text.replace('GraphQL error:', ''));
+const warning = (text: string) => createAlert('warning', text);
+const info = (text: string) => createAlert('info', text);
 
 const Alert = {
   success,

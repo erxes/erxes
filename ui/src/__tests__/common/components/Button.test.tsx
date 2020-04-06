@@ -1,27 +1,27 @@
-import { mount, shallow } from "enzyme";
-import React from "react";
+import { mount, shallow } from 'enzyme';
+import React from 'react';
 
-import Button from "../../../modules/common/components/Button";
+import Button from '../../../modules/common/components/Button';
 
-describe("Button component", () => {
+describe('Button component', () => {
   const defaultProps = {
-    btnStyle: "default",
-    size: "medium",
+    btnStyle: 'default',
+    size: 'medium',
     block: false,
-    type: "button"
+    type: 'button'
   };
 
-  test("renders successfully", () => {
+  test('renders successfully', () => {
     shallow(<Button />);
   });
 
-  test("check Element ", () => {
+  test('check Element ', () => {
     const props = {
       ...defaultProps,
-      href: "www.google.com"
+      href: 'www.google.com'
     };
     const rendered = mount(<Button {...props} />);
-    const href = rendered.find("a");
+    const href = rendered.find('a');
 
     expect(href.length).toBe(1);
   });

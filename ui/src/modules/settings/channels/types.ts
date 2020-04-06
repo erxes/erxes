@@ -1,5 +1,5 @@
-import { IUser } from "modules/auth/types";
-import { IIntegration } from "modules/settings/integrations/types";
+import { IUser } from 'modules/auth/types';
+import { IIntegration } from 'modules/settings/integrations/types';
 
 export interface IChannel {
   _id: string;

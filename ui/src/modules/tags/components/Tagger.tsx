@@ -1,14 +1,14 @@
-import FilterableList from "modules/common/components/filterableList/FilterableList";
-import Spinner from "modules/common/components/Spinner";
-import { __ } from "modules/common/utils";
-import { ITag, ITagTypes } from "modules/tags/types";
-import React from "react";
+import FilterableList from 'modules/common/components/filterableList/FilterableList';
+import Spinner from 'modules/common/components/Spinner';
+import { __ } from 'modules/common/utils';
+import { ITag, ITagTypes } from 'modules/tags/types';
+import React from 'react';
 
 type Props = {
   type: ITagTypes | string;
   // targets can be conversation, customer, company etc ...
   targets?: any[];
-  event?: "onClick" | "onExit";
+  event?: 'onClick' | 'onExit';
   className?: string;
 
   // from container
@@ -43,20 +43,20 @@ class Tagger extends React.Component<Props, { tagsForList: any[] }> {
         0
       );
 
-      let state = "none";
+      let state = 'none';
 
       if (count > 0) {
         if (count === targets.length) {
-          state = "all";
+          state = 'all';
         } else if (count < targets.length) {
-          state = "some";
+          state = 'some';
         }
       }
 
       return {
         _id,
         title: name,
-        iconClass: "icon-tag-alt",
+        iconClass: 'icon-tag-alt',
         iconColor: colorCode,
         selectedBy: state
       };
@@ -79,7 +79,7 @@ class Tagger extends React.Component<Props, { tagsForList: any[] }> {
       return;
     }
 
-    tag(tags.filter(t => t.selectedBy === "all").map(t => t._id));
+    tag(tags.filter(t => t.selectedBy === 'all').map(t => t._id));
   };
 
   render() {
@@ -91,7 +91,7 @@ class Tagger extends React.Component<Props, { tagsForList: any[] }> {
 
     const links = [
       {
-        title: __("Manage tags"),
+        title: __('Manage tags'),
         href: `/tags/${type}`
       }
     ];

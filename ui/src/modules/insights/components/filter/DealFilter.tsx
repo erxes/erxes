@@ -1,13 +1,13 @@
-import { IBoard, IPipeline } from "modules/boards/types";
-import ControlLabel from "modules/common/components/form/Label";
-import { ISelectedOption } from "modules/common/types";
-import { __, router } from "modules/common/utils";
-import React from "react";
-import Select from "react-select-plus";
-import { FlexItem } from "../../styles";
-import { IQueryParams } from "../../types";
-import { selectOptions } from "../../utils";
-import Filter from "./Filter";
+import { IBoard, IPipeline } from 'modules/boards/types';
+import ControlLabel from 'modules/common/components/form/Label';
+import { ISelectedOption } from 'modules/common/types';
+import { __, router } from 'modules/common/utils';
+import React from 'react';
+import Select from 'react-select-plus';
+import { FlexItem } from '../../styles';
+import { IQueryParams } from '../../types';
+import { selectOptions } from '../../utils';
+import Filter from './Filter';
 type Props = {
   queryParams: IQueryParams;
   history: any;
@@ -24,11 +24,11 @@ class DealFilter extends React.Component<Props, States> {
   constructor(props) {
     super(props);
 
-    const { boardId = "", pipelineIds = "" } = props.queryParams || {};
+    const { boardId = '', pipelineIds = '' } = props.queryParams || {};
 
     this.state = {
       boardId,
-      pipelineIds: pipelineIds.split(","),
+      pipelineIds: pipelineIds.split(','),
       ...props.queryParams
     };
   }
@@ -42,7 +42,7 @@ class DealFilter extends React.Component<Props, States> {
 
     const { history } = this.props;
     router.setParams(history, {
-      pipelineIds: "",
+      pipelineIds: '',
       boardId: board && board.value
     });
   };
@@ -52,7 +52,7 @@ class DealFilter extends React.Component<Props, States> {
     const { pipelineIds, boardId } = this.state;
 
     router.setParams(history, {
-      pipelineIds: (pipelineIds || []).join(","),
+      pipelineIds: (pipelineIds || []).join(','),
       boardId,
       startDate,
       endDate
@@ -70,10 +70,10 @@ class DealFilter extends React.Component<Props, States> {
 
     return (
       <FlexItem>
-        <ControlLabel>{__("Pipelines")}</ControlLabel>
+        <ControlLabel>{__('Pipelines')}</ControlLabel>
 
         <Select
-          placeholder={__("Choose pipelines")}
+          placeholder={__('Choose pipelines')}
           value={this.state.pipelineIds || []}
           onChange={this.onPipelineChange}
           optionRenderer={options}
@@ -95,14 +95,14 @@ class DealFilter extends React.Component<Props, States> {
 
     return (
       <FlexItem>
-        <ControlLabel>{__("Boards")}</ControlLabel>
+        <ControlLabel>{__('Boards')}</ControlLabel>
 
         <Select
-          placeholder={__("Choose board")}
-          value={this.state.boardId || ""}
+          placeholder={__('Choose board')}
+          value={this.state.boardId || ''}
           onChange={this.onBoardChange}
           optionRenderer={options}
-          options={selectOptions([{ _id: "", name: __("All") }, ...boards])}
+          options={selectOptions([{ _id: '', name: __('All') }, ...boards])}
         />
       </FlexItem>
     );

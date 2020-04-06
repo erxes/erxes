@@ -1,8 +1,8 @@
-import { IAttachment } from "modules/common/types";
-import { ISavedConformity } from "modules/conformity/types";
-import { IUser } from "../auth/types";
-import { ICompany } from "../companies/types";
-import { ICustomer } from "../customers/types";
+import { IAttachment } from 'modules/common/types';
+import { ISavedConformity } from 'modules/conformity/types';
+import { IUser } from '../auth/types';
+import { ICompany } from '../companies/types';
+import { ICustomer } from '../customers/types';
 
 export interface IOptions {
   EditForm: any;

@@ -1,22 +1,22 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import ButtonMutate from "modules/common/components/ButtonMutate";
-import Spinner from "modules/common/components/Spinner";
-import { IButtonMutateProps, IRouterProps } from "modules/common/types";
-import { Alert, confirm, withProps } from "modules/common/utils";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import Spinner from 'modules/common/components/Spinner';
+import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
+import { Alert, confirm, withProps } from 'modules/common/utils';
 import {
   mutations as engageMutations,
   queries as engageQueries
-} from "modules/engage/graphql";
+} from 'modules/engage/graphql';
 import {
   EngageConfigQueryResponse,
   EngageVerifiedEmailsQueryResponse
-} from "modules/engage/types";
-import React from "react";
-import { graphql } from "react-apollo";
-import { withRouter } from "react-router-dom";
-import { queries } from "../../integrations/graphql";
-import EngageSettingsContent from "../components/EngageSettingsContent";
+} from 'modules/engage/types';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
+import { queries } from '../../integrations/graphql';
+import EngageSettingsContent from '../components/EngageSettingsContent';
 
 type Props = {
   engagesConfigDetailQuery: EngageConfigQueryResponse;
@@ -50,7 +50,7 @@ class SettingsContainer extends React.Component<Props> {
           mutation={engageMutations.engagesUpdateConfigs}
           variables={values}
           callback={callback}
-          refetchQueries={"engagesConfigDetail"}
+          refetchQueries={'engagesConfigDetail'}
           isSubmitted={isSubmitted}
           type="submit"
           successMessage={`You successfully updated engages config`}
@@ -67,7 +67,7 @@ class SettingsContainer extends React.Component<Props> {
         .then(() => {
           engagesVerifiedEmailsQuery.refetch();
           Alert.success(
-            "Successfully sent verification email. Please check your inbox"
+            'Successfully sent verification email. Please check your inbox'
           );
         })
 
@@ -77,7 +77,7 @@ class SettingsContainer extends React.Component<Props> {
     };
 
     const removeVerifiedEmail = (email: string) => {
-      confirm("You are about to remove verified email. Are your sure ?").then(
+      confirm('You are about to remove verified email. Are your sure ?').then(
         () => {
           engagesRemoveVerifiedEmailMutation({
             variables: {
@@ -86,7 +86,7 @@ class SettingsContainer extends React.Component<Props> {
           })
             .then(() => {
               engagesVerifiedEmailsQuery.refetch();
-              Alert.success("Successfully removed");
+              Alert.success('Successfully removed');
             })
 
             .catch(e => {
@@ -105,7 +105,7 @@ class SettingsContainer extends React.Component<Props> {
         }
       })
         .then(() => {
-          Alert.success("Successfully sent");
+          Alert.success('Successfully sent');
         })
 
         .catch(e => {
@@ -139,23 +139,23 @@ export default withProps<{}>(
     graphql<{}, EngageVerifiedEmailsQueryResponse, {}>(
       gql(engageQueries.verifiedEmails),
       {
-        name: "engagesVerifiedEmailsQuery"
+        name: 'engagesVerifiedEmailsQuery'
       }
     ),
     graphql<{}, EngageConfigQueryResponse, {}>(
       gql(queries.engagesConfigDetail),
       {
-        name: "engagesConfigDetailQuery"
+        name: 'engagesConfigDetailQuery'
       }
     ),
     graphql(gql(engageMutations.verifyEmail), {
-      name: "engagesVerifyEmailMutation"
+      name: 'engagesVerifyEmailMutation'
     }),
     graphql(gql(engageMutations.removeVerifiedEmail), {
-      name: "engagesRemoveVerifiedEmailMutation"
+      name: 'engagesRemoveVerifiedEmailMutation'
     }),
     graphql(gql(engageMutations.sendTestEmail), {
-      name: "engagesSendTestEmailMutation"
+      name: 'engagesSendTestEmailMutation'
     })
   )(withRouter<Props>(SettingsContainer))
 );

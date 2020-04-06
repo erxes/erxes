@@ -1,12 +1,12 @@
-import Label from "modules/common/components/Label";
-import { colors, dimensions } from "modules/common/styles";
-import React from "react";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
-import { ITag } from "../../tags/types";
+import Label from 'modules/common/components/Label';
+import { colors, dimensions } from 'modules/common/styles';
+import React from 'react';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
+import { ITag } from '../../tags/types';
 
 const TagList = styledTS<{ length: number }>(styled.div).attrs({
-  className: props => (props.length > 0 ? "tags" : "")
+  className: props => (props.length > 0 ? 'tags' : '')
 })`
   > span {
     margin-right: ${dimensions.unitSpacing / 2}px;

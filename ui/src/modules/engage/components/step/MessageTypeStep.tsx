@@ -1,18 +1,18 @@
-import FormControl from "modules/common/components/form/Control";
-import FormGroup from "modules/common/components/form/Group";
-import ControlLabel from "modules/common/components/form/Label";
-import { FlexItem } from "modules/common/components/step/styles";
-import { MESSAGE_TYPES } from "modules/engage/constants";
-import { SelectMessageType } from "modules/engage/styles";
-import React from "react";
-import BrandStep from "../../containers/BrandStep";
-import SegmentStep from "../../containers/SegmentStep";
-import TagStep from "../../containers/TagStep";
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import { FlexItem } from 'modules/common/components/step/styles';
+import { MESSAGE_TYPES } from 'modules/engage/constants';
+import { SelectMessageType } from 'modules/engage/styles';
+import React from 'react';
+import BrandStep from '../../containers/BrandStep';
+import SegmentStep from '../../containers/SegmentStep';
+import TagStep from '../../containers/TagStep';
 
 type Props = {
   clearState: () => void;
   onChange: (
-    name: "brandIds" | "tagIds" | "segmentIds",
+    name: 'brandIds' | 'tagIds' | 'segmentIds',
     value: string[]
   ) => void;
   segmentIds: string[];
@@ -28,7 +28,7 @@ class MessageTypeStep extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = { messageType: "segment" };
+    this.state = { messageType: 'segment' };
   }
 
   onChange = (e: React.FormEvent<HTMLElement>) => {
@@ -72,10 +72,10 @@ class MessageTypeStep extends React.Component<Props, State> {
     let Component;
 
     switch (this.state.messageType) {
-      case "brand":
+      case 'brand':
         Component = BrandStep;
         break;
-      case "tag":
+      case 'tag':
         Component = TagStep;
         break;
       default:

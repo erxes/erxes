@@ -1,3 +1,3 @@
-import Lead from "./Lead";
+import Lead from './Lead';
 
 export { Lead };

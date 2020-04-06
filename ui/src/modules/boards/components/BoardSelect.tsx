@@ -1,11 +1,11 @@
-import FormGroup from "modules/common/components/form/Group";
-import ControlLabel from "modules/common/components/form/Label";
-import { __ } from "modules/common/utils";
-import React from "react";
-import Select from "react-select-plus";
-import { FormContainer } from "../styles/common";
-import { IBoard, IPipeline, IStage } from "../types";
-import { selectOptions } from "../utils";
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import { __ } from 'modules/common/utils';
+import React from 'react';
+import Select from 'react-select-plus';
+import { FormContainer } from '../styles/common';
+import { IBoard, IPipeline, IStage } from '../types';
+import { selectOptions } from '../utils';
 
 type Props = {
   boards: IBoard[];
@@ -62,7 +62,7 @@ class BoardSelect extends React.Component<Props> {
         <FormGroup>
           <ControlLabel>Board</ControlLabel>
           {this.renderSelect(
-            __("Choose a board"),
+            __('Choose a board'),
             boardId,
             board => onChangeBoard(board.value),
             selectOptions(boards)
@@ -72,7 +72,7 @@ class BoardSelect extends React.Component<Props> {
         <FormGroup>
           <ControlLabel>Pipeline</ControlLabel>
           {this.renderSelect(
-            __("Choose a pipeline"),
+            __('Choose a pipeline'),
             pipelineId,
             pipeline => onChangePipeline(pipeline.value),
             selectOptions(pipelines)
@@ -82,7 +82,7 @@ class BoardSelect extends React.Component<Props> {
         <FormGroup>
           <ControlLabel>Stage</ControlLabel>
           {this.renderSelect(
-            __("Choose a stage"),
+            __('Choose a stage'),
             stageId,
             stage => onChangeStage(stage.value, callback),
             selectOptions(stages)

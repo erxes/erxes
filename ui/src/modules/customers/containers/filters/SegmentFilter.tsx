@@ -1,11 +1,11 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import Segments from "modules/segments/containers/Filter";
-import React from "react";
-import { graphql } from "react-apollo";
-import { withProps } from "../../../common/utils";
-import { queries as customerQueries } from "../../graphql";
-import { CountQueryResponse } from "../../types";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import Segments from 'modules/segments/containers/Filter';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withProps } from '../../../common/utils';
+import { queries as customerQueries } from '../../graphql';
+import { CountQueryResponse } from '../../types';
 
 const SegmentFilterContainer = (props: {
   customersCountQuery?: CountQueryResponse;
@@ -29,10 +29,10 @@ export default withProps<WrapperProps>(
     graphql<WrapperProps, CountQueryResponse, { only: string }>(
       gql(customerQueries.customerCounts),
       {
-        name: "customersCountQuery",
+        name: 'customersCountQuery',
         skip: ({ loadingMainQuery }) => loadingMainQuery,
         options: ({ type }) => ({
-          variables: { type, only: "bySegment" }
+          variables: { type, only: 'bySegment' }
         })
       }
     )

@@ -1,23 +1,23 @@
-import { IBoardCount } from "modules/boards/types";
-import EmptyState from "modules/common/components/EmptyState";
-import Icon from "modules/common/components/Icon";
-import { Tabs, TabTitle } from "modules/common/components/tabs";
-import { __ } from "modules/common/utils";
-import { GROWTHHACK_STATES } from "modules/growthHacks/constants";
-import Wrapper from "modules/layout/components/Wrapper";
-import { FieldStyle, SidebarCounter, SidebarList } from "modules/layout/styles";
-import React from "react";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Popover from "react-bootstrap/Popover";
-import { Link } from "react-router-dom";
-import PipelineList from "../../containers/home/PipelineList";
+import { IBoardCount } from 'modules/boards/types';
+import EmptyState from 'modules/common/components/EmptyState';
+import Icon from 'modules/common/components/Icon';
+import { Tabs, TabTitle } from 'modules/common/components/tabs';
+import { __ } from 'modules/common/utils';
+import { GROWTHHACK_STATES } from 'modules/growthHacks/constants';
+import Wrapper from 'modules/layout/components/Wrapper';
+import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
+import React from 'react';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
+import { Link } from 'react-router-dom';
+import PipelineList from '../../containers/home/PipelineList';
 import {
   BoxContainer,
   CountItem,
   FilterButton,
   FilterWrapper,
   HelperButtons
-} from "./styles";
+} from './styles';
 
 type Props = {
   queryParams: any;
@@ -29,7 +29,7 @@ class Home extends React.Component<Props> {
   renderBoards() {
     const { queryParams, boardsWithCount } = this.props;
 
-    const { id = "", state = "" } = queryParams;
+    const { id = '', state = '' } = queryParams;
 
     if (boardsWithCount.length === 0) {
       return <EmptyState text="There is no campaign" icon="folder-2" />;
@@ -38,7 +38,7 @@ class Home extends React.Component<Props> {
     return boardsWithCount.map(board => (
       <li key={board._id}>
         <Link
-          className={id === board._id ? "active" : ""}
+          className={id === board._id ? 'active' : ''}
           to={`/growthHack/home?id=${board._id}&state=${state}`}
         >
           <FieldStyle>{board.name}</FieldStyle>
@@ -52,7 +52,7 @@ class Home extends React.Component<Props> {
     return (
       <Popover id="score-popover">
         <Popover.Title as="h3">
-          {__("Marketing campaigns")}
+          {__('Marketing campaigns')}
           <Link to="/settings/boards/growthHack">
             <Icon icon="cog" size={14} />
           </Link>
@@ -66,26 +66,26 @@ class Home extends React.Component<Props> {
 
   renderFilter = () => {
     const { queryParams } = this.props;
-    const { state, id = "" } = queryParams;
+    const { state, id = '' } = queryParams;
 
     return (
       <FilterWrapper>
         <Tabs grayBorder={true}>
           <Link to={`/growthHack/home?id=${id}`}>
-            <TabTitle className={!state ? "active" : ""}>All</TabTitle>
+            <TabTitle className={!state ? 'active' : ''}>All</TabTitle>
           </Link>
           <Link to={`/growthHack/home?id=${id}&state=In progress`}>
-            <TabTitle className={state === "In progress" ? "active" : ""}>
+            <TabTitle className={state === 'In progress' ? 'active' : ''}>
               In progress
             </TabTitle>
           </Link>
           <Link to={`/growthHack/home?id=${id}&state=Not started`}>
-            <TabTitle className={state === "Not started" ? "active" : ""}>
+            <TabTitle className={state === 'Not started' ? 'active' : ''}>
               Not started
             </TabTitle>
           </Link>
           <Link to={`/growthHack/home?id=${id}&state=Completed`}>
-            <TabTitle className={state === "Completed" ? "active" : ""}>
+            <TabTitle className={state === 'Completed' ? 'active' : ''}>
               Completed
             </TabTitle>
           </Link>
@@ -98,7 +98,7 @@ class Home extends React.Component<Props> {
             overlay={this.renderPopover()}
           >
             <FilterButton>
-              {__("Filter by campaign")} <Icon icon="angle-down" />
+              {__('Filter by campaign')} <Icon icon="angle-down" />
             </FilterButton>
           </OverlayTrigger>
         </HelperButtons>
@@ -107,19 +107,19 @@ class Home extends React.Component<Props> {
   };
 
   renderCountItem = (state: string) => {
-    let iconContent = "eabd";
+    let iconContent = 'eabd';
 
     switch (state) {
-      case "In progress":
-        iconContent = "ecc5";
+      case 'In progress':
+        iconContent = 'ecc5';
         break;
 
-      case "Not started":
-        iconContent = "eb46";
+      case 'Not started':
+        iconContent = 'eb46';
         break;
 
-      case "Completed":
-        iconContent = "ecd7";
+      case 'Completed':
+        iconContent = 'ecd7';
         break;
     }
 
@@ -150,8 +150,8 @@ class Home extends React.Component<Props> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={`${"Growth Hacking" || ""}`}
-            breadcrumb={[{ title: __("Growth Hacking") }]}
+            title={`${'Growth Hacking' || ''}`}
+            breadcrumb={[{ title: __('Growth Hacking') }]}
           />
         }
         content={this.renderContent()}

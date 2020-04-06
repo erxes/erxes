@@ -1,12 +1,12 @@
-import * as React from "react";
+import * as React from 'react';
 
-import NameCard from "modules/common/components/nameCard/NameCard";
-import { ICustomer } from "modules/customers/types";
-import { IFacebookPost } from "modules/inbox/types";
-import Date from "./Date";
-import FacebookContent from "./FacebookContent";
-import { Counts, PostContainer, User } from "./styles";
-import UserName from "./UserName";
+import NameCard from 'modules/common/components/nameCard/NameCard';
+import { ICustomer } from 'modules/customers/types';
+import { IFacebookPost } from 'modules/inbox/types';
+import Date from './Date';
+import FacebookContent from './FacebookContent';
+import { Counts, PostContainer, User } from './styles';
+import UserName from './UserName';
 
 type Props = {
   post: IFacebookPost;
@@ -36,7 +36,7 @@ export default class FacebookPost extends React.Component<Props, {}> {
 
         <User isPost={true}>
           <UserName
-            username={`${customer.firstName} ${customer.lastName || ""}`}
+            username={`${customer.firstName} ${customer.lastName || ''}`}
             userId={post.senderId}
           />
           <Date type="post" timestamp={post.timestamp} />

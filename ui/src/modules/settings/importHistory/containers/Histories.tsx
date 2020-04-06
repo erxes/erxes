@@ -1,15 +1,15 @@
-import { AppConsumer } from "appContext";
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { IRouterProps } from "modules/common/types";
-import { Alert, router, withProps } from "modules/common/utils";
-import { generatePaginationParams } from "modules/common/utils/router";
-import React from "react";
-import { graphql } from "react-apollo";
-import { withRouter } from "react-router-dom";
-import Histories from "../components/Histories";
-import { mutations, queries } from "../graphql";
-import { ImportHistoriesQueryResponse, RemoveMutationResponse } from "../types";
+import { AppConsumer } from 'appContext';
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { IRouterProps } from 'modules/common/types';
+import { Alert, router, withProps } from 'modules/common/utils';
+import { generatePaginationParams } from 'modules/common/utils/router';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
+import Histories from '../components/Histories';
+import { mutations, queries } from '../graphql';
+import { ImportHistoriesQueryResponse, RemoveMutationResponse } from '../types';
 
 type Props = {
   queryParams: any;
@@ -52,18 +52,18 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
       closeLoadingBar
     } = this.props;
 
-    if (!router.getParam(history, "type")) {
-      router.setParams(history, { type: "customer" }, true);
+    if (!router.getParam(history, 'type')) {
+      router.setParams(history, { type: 'customer' }, true);
     }
 
-    const currentType = router.getParam(history, "type");
+    const currentType = router.getParam(history, 'type');
 
     const removeHistory = historyId => {
       // reset top indicator
       closeLoadingBar();
 
-      localStorage.setItem("erxes_import_data", historyId);
-      localStorage.setItem("erxes_import_data_type", "remove");
+      localStorage.setItem('erxes_import_data', historyId);
+      localStorage.setItem('erxes_import_data_type', 'remove');
 
       showLoadingBar(true);
 
@@ -96,7 +96,7 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
 
 const historiesListParams = queryParams => ({
   ...generatePaginationParams(queryParams),
-  type: queryParams.type || "customer"
+  type: queryParams.type || 'customer'
 });
 
 const HistoriesWithProps = withProps<Props>(
@@ -104,9 +104,9 @@ const HistoriesWithProps = withProps<Props>(
     graphql<Props, ImportHistoriesQueryResponse, { type: string }>(
       gql(queries.histories),
       {
-        name: "historiesQuery",
+        name: 'historiesQuery',
         options: ({ queryParams }) => ({
-          fetchPolicy: "network-only",
+          fetchPolicy: 'network-only',
           variables: historiesListParams(queryParams)
         })
       }
@@ -114,9 +114,9 @@ const HistoriesWithProps = withProps<Props>(
     graphql<Props, RemoveMutationResponse, { _id: string }>(
       gql(mutations.importHistoriesRemove),
       {
-        name: "importHistoriesRemove",
+        name: 'importHistoriesRemove',
         options: {
-          refetchQueries: ["importHistories"]
+          refetchQueries: ['importHistories']
         }
       }
     )

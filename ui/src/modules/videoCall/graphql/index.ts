@@ -1,3 +1,3 @@
-import mutations from "./mutations";
+import mutations from './mutations';
 
 export { mutations };

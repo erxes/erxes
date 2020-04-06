@@ -1,8 +1,8 @@
-import { colors, dimensions } from "modules/common/styles";
-import { IAnimatedLoader } from "modules/common/types";
-import React from "react";
-import styled, { keyframes } from "styled-components";
-import styledTS from "styled-components-ts";
+import { colors, dimensions } from 'modules/common/styles';
+import { IAnimatedLoader } from 'modules/common/types';
+import React from 'react';
+import styled, { keyframes } from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const placeHolderShimmer = keyframes`
   0% { background-position: -468px 0 }
@@ -20,9 +20,9 @@ const Loader = styledTS<IAnimatedLoader>(styled.div)`
     ${props => (props.color ? colors.bgLight : colors.borderDarker)} 18%, 
     ${props => (props.color ? props.color : colors.borderPrimary)} 33%);
   background-size: 800px 200px;
-  width: ${props => (props.width ? props.width : "100%")};
-  height: ${props => (props.height ? props.height : "100%")};
-  border-radius: ${props => (props.round ? "50%" : "2px")};
+  width: ${props => (props.width ? props.width : '100%')};
+  height: ${props => (props.height ? props.height : '100%')};
+  border-radius: ${props => (props.round ? '50%' : '2px')};
   margin-right: ${props => props.marginRight};
   margin: ${props => props.margin};
   position: relative;

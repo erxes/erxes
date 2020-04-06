@@ -1,10 +1,10 @@
-import PriorityIndicator from "modules/boards/components/editForm/PriorityIndicator";
-import DropdownToggle from "modules/common/components/DropdownToggle";
-import Icon from "modules/common/components/Icon";
-import colors from "modules/common/styles/colors";
-import * as React from "react";
-import Dropdown from "react-bootstrap/Dropdown";
-import styled from "styled-components";
+import PriorityIndicator from 'modules/boards/components/editForm/PriorityIndicator';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
+import Icon from 'modules/common/components/Icon';
+import colors from 'modules/common/styles/colors';
+import * as React from 'react';
+import Dropdown from 'react-bootstrap/Dropdown';
+import styled from 'styled-components';
 
 export const ActionItem = styled.button`
   width: 100%;

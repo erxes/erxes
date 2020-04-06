@@ -1,7 +1,7 @@
-import ImageWithPreview from "modules/common/components/ImageWithPreview";
-import * as React from "react";
-import xss from "xss";
-import { ContentContainer } from "./styles";
+import ImageWithPreview from 'modules/common/components/ImageWithPreview';
+import * as React from 'react';
+import xss from 'xss';
+import { ContentContainer } from './styles';
 
 type Props = {
   content: string;
@@ -19,8 +19,8 @@ export default class FacebookContent extends React.Component<Props, {}> {
     const { scrollBottom } = this.props;
 
     return attachments.map((link, index) => {
-      if (link.includes("youtube.com")) {
-        const iframeSrc = link.split("v=")[1].substring(0, 11);
+      if (link.includes('youtube.com')) {
+        const iframeSrc = link.split('v=')[1].substring(0, 11);
 
         return (
           <iframe
@@ -35,7 +35,7 @@ export default class FacebookContent extends React.Component<Props, {}> {
           />
         );
       }
-      if (link.includes("xx.fbcdn.net")) {
+      if (link.includes('xx.fbcdn.net')) {
         return (
           <iframe
             key={index}
@@ -49,7 +49,7 @@ export default class FacebookContent extends React.Component<Props, {}> {
           />
         );
       }
-      if (link.includes("fna.fbcdn.net")) {
+      if (link.includes('fna.fbcdn.net')) {
         return (
           <ImageWithPreview
             alt={link}

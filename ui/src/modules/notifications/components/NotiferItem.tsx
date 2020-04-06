@@ -1,9 +1,9 @@
-import debounce from "lodash/debounce";
-import Icon from "modules/common/components/Icon";
-import * as React from "react";
-import RTG from "react-transition-group";
-import styled from "styled-components";
-import { Item } from "./styles";
+import debounce from 'lodash/debounce';
+import Icon from 'modules/common/components/Icon';
+import * as React from 'react';
+import RTG from 'react-transition-group';
+import styled from 'styled-components';
+import { Item } from './styles';
 
 const Close = styled.div`
   position: absolute;

@@ -1,8 +1,8 @@
-import { colors, dimensions } from "modules/common/styles";
-import { MainContent } from "modules/layout/styles";
-import { Divider } from "modules/settings/main/styles";
-import styled, { css } from "styled-components";
-import styledTS from "styled-components-ts";
+import { colors, dimensions } from 'modules/common/styles';
+import { MainContent } from 'modules/layout/styles';
+import { Divider } from 'modules/settings/main/styles';
+import styled, { css } from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const FixedContent = styled.div`
   position: relative;
@@ -21,13 +21,13 @@ const StageWrap = styled.div`
 `;
 
 const StageContainer = styledTS<{ spacing?: number }>(styled.div)`
-  min-width: ${props => (props.spacing ? props.spacing : "100")}%;
+  min-width: ${props => (props.spacing ? props.spacing : '100')}%;
   font-size: 12px;
   justify-content: space-between;
   float: right;
 `;
 
-const Content = styled("div")`
+const Content = styled('div')`
   background-color: rgb(255, 255, 255);
   box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 2px 0px;
   border-radius: 3px;
@@ -37,7 +37,7 @@ const Content = styled("div")`
   align-items: center;
 `;
 
-const Stayed = styled("div")`
+const Stayed = styled('div')`
   border-left: 1px solid ${colors.borderPrimary};
   padding: 9px ${dimensions.coreSpacing}px;
   font-weight: 600;
@@ -51,21 +51,21 @@ const Stayed = styled("div")`
   }
 `;
 
-const Name = styled("div")`
+const Name = styled('div')`
   flex: 1;
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   font-size: 14px;
   flex-shrink: 0;
 `;
 
-const Values = styled("div")`
+const Values = styled('div')`
   text-align: right;
   padding: 6px 10px 0 10px;
   font-weight: bold;
   color: ${colors.colorCoreGreen};
 `;
 
-const Lost = styled("span")`
+const Lost = styled('span')`
   color: ${colors.colorCoreRed};
   margin-right: 10px;
 `;
@@ -144,7 +144,7 @@ const StageName = styledTS<{ open?: boolean; isCollabsible?: boolean }>(
     color: ${colors.colorSecondary};
     transition: all ease 0.3s;
     display: inline-block;
-    transform: ${props => props.open && "rotate(180deg)"};
+    transform: ${props => props.open && 'rotate(180deg)'};
   }
 `;
 

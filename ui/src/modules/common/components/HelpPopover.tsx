@@ -1,9 +1,9 @@
-import Icon from "modules/common/components/Icon";
-import * as React from "react";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Popover from "react-bootstrap/Popover";
-import styled from "styled-components";
-import { colors, dimensions } from "../styles";
+import Icon from 'modules/common/components/Icon';
+import * as React from 'react';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
+import styled from 'styled-components';
+import { colors, dimensions } from '../styles';
 
 const PopoverContent = styled.div`
   padding: ${dimensions.coreSpacing}px;
@@ -29,7 +29,7 @@ const IconClass = styled.div`
 
 type Props = {
   title?: string;
-  trigger?: "hover" | "click" | "focus";
+  trigger?: 'hover' | 'click' | 'focus';
 };
 
 class HelpPopover extends React.Component<Props> {
@@ -49,7 +49,7 @@ class HelpPopover extends React.Component<Props> {
     const { trigger } = this.props;
     return (
       <OverlayTrigger
-        trigger={trigger || "click"}
+        trigger={trigger || 'click'}
         placement="auto"
         overlay={this.renderContent()}
         rootClose={true}

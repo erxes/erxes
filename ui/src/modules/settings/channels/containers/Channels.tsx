@@ -1,20 +1,20 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { IRouterProps } from "modules/common/types";
-import { router as routerUtils, withProps } from "modules/common/utils";
-import queryString from "query-string";
-import React from "react";
-import { graphql } from "react-apollo";
-import { withRouter } from "react-router-dom";
-import { IntegrationsCountQueryResponse } from "../../integrations/types";
-import DumbChannels from "../components/Channels";
-import Empty from "../components/Empty";
-import { queries } from "../graphql";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { IRouterProps } from 'modules/common/types';
+import { router as routerUtils, withProps } from 'modules/common/utils';
+import queryString from 'query-string';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
+import { IntegrationsCountQueryResponse } from '../../integrations/types';
+import DumbChannels from '../components/Channels';
+import Empty from '../components/Empty';
+import { queries } from '../graphql';
 import {
   ChannelDetailQueryResponse,
   ChannelsGetLastQueryResponse,
   IChannel
-} from "../types";
+} from '../types';
 
 type Props = {
   currentChannelId: string;
@@ -59,17 +59,17 @@ const ChannelsContainer = withProps<Props>(
     graphql<Props, ChannelDetailQueryResponse, { _id: string }>(
       gql(queries.channelDetail),
       {
-        name: "channelDetailQuery",
+        name: 'channelDetailQuery',
         options: ({ currentChannelId }: { currentChannelId: string }) => ({
           variables: { _id: currentChannelId },
-          fetchPolicy: "network-only"
+          fetchPolicy: 'network-only'
         })
       }
     ),
     graphql<Props, IntegrationsCountQueryResponse, { channelId: string }>(
       gql(queries.integrationsCount),
       {
-        name: "integrationsCountQuery",
+        name: 'integrationsCountQuery',
         options: ({ currentChannelId }: { currentChannelId: string }) => ({
           variables: { channelId: currentChannelId }
         })
@@ -126,11 +126,11 @@ const WithLastChannel = withProps<withCurrentIdProps>(
     graphql<withCurrentIdProps, ChannelsGetLastQueryResponse, { _id: string }>(
       gql(queries.channelsGetLast),
       {
-        name: "lastChannelQuery",
+        name: 'lastChannelQuery',
         skip: ({ queryParams }) => queryParams._id,
         options: ({ queryParams }: withCurrentIdProps) => ({
           variables: { _id: queryParams._id },
-          fetchPolicy: "network-only"
+          fetchPolicy: 'network-only'
         })
       }
     )

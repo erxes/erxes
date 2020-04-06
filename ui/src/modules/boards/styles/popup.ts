@@ -1,18 +1,18 @@
-import { colors } from "modules/common/styles";
-import { darken, lighten } from "modules/common/styles/color";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
+import { colors } from 'modules/common/styles';
+import { darken, lighten } from 'modules/common/styles/color';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const buttonColor = name => {
-  if (name === "red") {
+  if (name === 'red') {
     return lighten(colors.colorCoreRed, 10);
   }
 
-  if (name === "green") {
+  if (name === 'green') {
     return lighten(colors.colorCoreGreen, 10);
   }
 
-  if (name === "yellow") {
+  if (name === 'yellow') {
     return lighten(colors.colorCoreYellow, 10);
   }
 
@@ -37,7 +37,7 @@ export const Button = styledTS<{
     cursor: pointer;
   }
   
-  ${props => props.extra && "padding-left: 40px;"}
+  ${props => props.extra && 'padding-left: 40px;'}
 `;
 
 export const CloseDateLabel = styled(Button)`

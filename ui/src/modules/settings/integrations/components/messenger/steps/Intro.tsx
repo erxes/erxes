@@ -1,15 +1,15 @@
-import FormControl from "modules/common/components/form/Control";
-import FormGroup from "modules/common/components/form/Group";
-import ControlLabel from "modules/common/components/form/Label";
-import { FlexItem, LeftItem } from "modules/common/components/step/styles";
-import { __ } from "modules/common/utils";
-import { IMessages } from "modules/settings/integrations/types";
-import { SubHeading } from "modules/settings/styles";
-import React from "react";
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
+import { __ } from 'modules/common/utils';
+import { IMessages } from 'modules/settings/integrations/types';
+import { SubHeading } from 'modules/settings/styles';
+import React from 'react';
 
 type Props = {
   onChange: (
-    name: "supporterIds" | "messages",
+    name: 'supporterIds' | 'messages',
     value: IMessages | string[]
   ) => void;
   languageCode: string;
@@ -38,7 +38,7 @@ class Intro extends React.Component<Props, State> {
 
     this.setState({ messages });
 
-    this.props.onChange("messages", messages);
+    this.props.onChange('messages', messages);
   };
 
   render() {
@@ -46,39 +46,39 @@ class Intro extends React.Component<Props, State> {
     const message = this.state.messages[languageCode] || {};
 
     const welcomeOnChange = e =>
-      this.onMessageChange("welcome", (e.target as HTMLInputElement).value);
+      this.onMessageChange('welcome', (e.target as HTMLInputElement).value);
 
     const awayMessage = e =>
-      this.onMessageChange("away", (e.target as HTMLInputElement).value);
+      this.onMessageChange('away', (e.target as HTMLInputElement).value);
 
     const thankMessage = e =>
-      this.onMessageChange("thank", (e.target as HTMLInputElement).value);
+      this.onMessageChange('thank', (e.target as HTMLInputElement).value);
 
     return (
       <FlexItem>
         <LeftItem>
-          <SubHeading>{__("Online messaging")}</SubHeading>
+          <SubHeading>{__('Online messaging')}</SubHeading>
 
           <FormGroup>
             <ControlLabel>Welcome message</ControlLabel>
 
             <FormControl
               componentClass="textarea"
-              placeholder={__("Write here Welcome message.")}
+              placeholder={__('Write here Welcome message.')}
               rows={3}
               value={message.welcome}
               onChange={welcomeOnChange}
             />
           </FormGroup>
 
-          <SubHeading>{__("Offline messaging")}</SubHeading>
+          <SubHeading>{__('Offline messaging')}</SubHeading>
 
           <FormGroup>
             <ControlLabel>Away message</ControlLabel>
 
             <FormControl
               componentClass="textarea"
-              placeholder={__("Write here Away message.")}
+              placeholder={__('Write here Away message.')}
               rows={3}
               value={message.away}
               onChange={awayMessage}
@@ -90,7 +90,7 @@ class Intro extends React.Component<Props, State> {
 
             <FormControl
               componentClass="textarea"
-              placeholder={__("Write here Thank you message.")}
+              placeholder={__('Write here Thank you message.')}
               rows={3}
               value={message.thank}
               onChange={thankMessage}

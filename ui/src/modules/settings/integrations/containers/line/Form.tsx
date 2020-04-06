@@ -1,13 +1,13 @@
-import { IButtonMutateProps, IRouterProps } from "modules/common/types";
-import { mutations, queries } from "modules/settings/integrations/graphql";
+import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
+import { mutations, queries } from 'modules/settings/integrations/graphql';
 
-import client from "apolloClient";
-import gql from "graphql-tag";
-import ButtonMutate from "modules/common/components/ButtonMutate";
-import { Alert } from "modules/common/utils";
-import Line from "modules/settings/integrations/components/line/Line";
-import React from "react";
-import { withRouter } from "react-router";
+import client from 'apolloClient';
+import gql from 'graphql-tag';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import { Alert } from 'modules/common/utils';
+import Line from 'modules/settings/integrations/components/line/Line';
+import React from 'react';
+import { withRouter } from 'react-router';
 
 type Props = {
   type?: string;
@@ -24,7 +24,7 @@ class LineContainer extends React.Component<FinalProps, State> {
   constructor(props: FinalProps) {
     super(props);
 
-    this.state = { webhookUrl: "" };
+    this.state = { webhookUrl: '' };
   }
 
   renderButton = ({
@@ -47,7 +47,7 @@ class LineContainer extends React.Component<FinalProps, State> {
 
   onSave = (integration?) => {
     if (!integration) {
-      return this.setState({ webhookUrl: "" });
+      return this.setState({ webhookUrl: '' });
     }
 
     const id = integration.integrationsCreateExternalIntegration._id;

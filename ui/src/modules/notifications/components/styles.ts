@@ -1,6 +1,6 @@
-import { colors, dimensions } from "modules/common/styles";
-import styled, { css } from "styled-components";
-import styledTS from "styled-components-ts";
+import { colors, dimensions } from 'modules/common/styles';
+import styled, { css } from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const NotificationWrapper = styled.div`
   position: relative;
@@ -121,7 +121,7 @@ const PopoverContent = styled.div`
 
 const CreatedUser = styledTS<{ isList?: boolean }>(styled.div)`
   font-weight: 600;
-  max-width: ${props => props.isList && "80%"};
+  max-width: ${props => props.isList && '80%'};
 
   span {
     padding-left: ${dimensions.unitSpacing - 5}px;

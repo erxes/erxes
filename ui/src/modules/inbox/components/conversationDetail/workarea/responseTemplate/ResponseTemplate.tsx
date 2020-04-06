@@ -1,17 +1,17 @@
-import Button from "modules/common/components/Button";
-import Icon from "modules/common/components/Icon";
-import Tip from "modules/common/components/Tip";
-import { IAttachment } from "modules/common/types";
-import { __ } from "modules/common/utils";
-import Modal from "modules/inbox/containers/conversationDetail/responseTemplate/Modal";
-import PopoverContent from "modules/inbox/containers/conversationDetail/responseTemplate/PopoverContent";
-import { ResponseTemplateStyled } from "modules/inbox/styles";
-import { IBrand } from "modules/settings/brands/types";
-import { IResponseTemplate } from "modules/settings/responseTemplates/types";
-import React from "react";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Popover from "react-bootstrap/Popover";
-import strip from "strip";
+import Button from 'modules/common/components/Button';
+import Icon from 'modules/common/components/Icon';
+import Tip from 'modules/common/components/Tip';
+import { IAttachment } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
+import Modal from 'modules/inbox/containers/conversationDetail/responseTemplate/Modal';
+import PopoverContent from 'modules/inbox/containers/conversationDetail/responseTemplate/PopoverContent';
+import { ResponseTemplateStyled } from 'modules/inbox/styles';
+import { IBrand } from 'modules/settings/brands/types';
+import { IResponseTemplate } from 'modules/settings/responseTemplates/types';
+import React from 'react';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
+import strip from 'strip';
 
 type Props = {
   brandId?: string;
@@ -40,7 +40,7 @@ class ResponseTemplate extends React.Component<Props, State> {
 
     const saveTrigger = (
       <Button id="response-template-handler" btnStyle="link">
-        <Tip text={__("Save as template")}>
+        <Tip text={__('Save as template')}>
           <Icon icon="file-upload-alt" />
         </Tip>
       </Button>
@@ -48,7 +48,7 @@ class ResponseTemplate extends React.Component<Props, State> {
 
     const popover = (
       <Popover className="popover-template" id="templates-popover">
-        <Popover.Title as="h3">{__("Response Templates")}</Popover.Title>
+        <Popover.Title as="h3">{__('Response Templates')}</Popover.Title>
         <Popover.Content>
           <PopoverContent {...this.props} onSelectTemplate={this.hidePopover} />
         </Popover.Content>
@@ -67,7 +67,7 @@ class ResponseTemplate extends React.Component<Props, State> {
           }}
         >
           <Button btnStyle="link">
-            <Tip text={__("Response template")}>
+            <Tip text={__('Response template')}>
               <Icon icon="file-bookmark-alt" />
             </Tip>
           </Button>

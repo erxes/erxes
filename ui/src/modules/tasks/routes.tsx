@@ -1,15 +1,15 @@
-import { getDefaultBoardAndPipelines } from "modules/boards/utils";
-import asyncComponent from "modules/common/components/AsyncComponent";
-import queryString from "query-string";
-import React from "react";
-import { Redirect, Route } from "react-router-dom";
+import { getDefaultBoardAndPipelines } from 'modules/boards/utils';
+import asyncComponent from 'modules/common/components/AsyncComponent';
+import queryString from 'query-string';
+import React from 'react';
+import { Redirect, Route } from 'react-router-dom';
 
 const TaskBoard = asyncComponent(() =>
-  import(/* webpackChunkName: "TaskBoard" */ "./components/TaskBoard")
+  import(/* webpackChunkName: "TaskBoard" */ './components/TaskBoard')
 );
 
 const tasks = () => {
-  let link = "/task/board";
+  let link = '/task/board';
 
   const { defaultBoards, defaultPipelines } = getDefaultBoardAndPipelines();
 

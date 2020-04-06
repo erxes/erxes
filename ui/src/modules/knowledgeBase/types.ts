@@ -1,5 +1,5 @@
-import { IUser } from "modules/auth/types";
-import { IBrand } from "modules/settings/brands/types";
+import { IUser } from 'modules/auth/types';
+import { IBrand } from 'modules/settings/brands/types';
 
 export interface IArticle {
   _id: string;

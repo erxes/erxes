@@ -1,18 +1,18 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { Alert, withProps } from "modules/common/utils";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { Alert, withProps } from 'modules/common/utils';
 import {
   AddIntegrationMutationResponse,
   AddIntegrationMutationVariables
-} from "modules/settings/integrations/types";
-import { AddFieldsMutationResponse } from "modules/settings/properties/types";
-import React from "react";
-import { graphql } from "react-apollo";
-import { withRouter } from "react-router-dom";
-import { IRouterProps } from "../../common/types";
-import Lead from "../components/Lead";
-import { mutations } from "../graphql";
-import { ILeadData } from "../types";
+} from 'modules/settings/integrations/types';
+import { AddFieldsMutationResponse } from 'modules/settings/properties/types';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
+import { IRouterProps } from '../../common/types';
+import Lead from '../components/Lead';
+import { mutations } from '../graphql';
+import { ILeadData } from '../types';
 
 type Props = {} & IRouterProps &
   AddIntegrationMutationResponse &
@@ -55,11 +55,11 @@ class CreateLeadContainer extends React.Component<Props, State> {
           }
         })
           .then(() => {
-            Alert.success("You successfully added a lead");
+            Alert.success('You successfully added a lead');
 
             history.push({
-              pathname: "/leads",
-              search: "?popUpRefetchList=true"
+              pathname: '/leads',
+              search: '?popUpRefetchList=true'
             });
           })
 
@@ -95,7 +95,7 @@ export default withProps<{}>(
       AddIntegrationMutationResponse,
       AddIntegrationMutationVariables
     >(gql(mutations.integrationsCreateLeadIntegration), {
-      name: "addIntegrationMutation"
+      name: 'addIntegrationMutation'
     })
   )(withRouter<Props>(CreateLeadContainer))
 );

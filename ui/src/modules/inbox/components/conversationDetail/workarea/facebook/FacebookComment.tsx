@@ -1,15 +1,15 @@
-import * as React from "react";
+import * as React from 'react';
 
-import ModalTrigger from "modules/common/components/ModalTrigger";
-import NameCard from "modules/common/components/nameCard/NameCard";
-import { IFacebookComment } from "modules/inbox/types";
-import Date from "./Date";
-import FacebookContent from "./FacebookContent";
-import { ChildPost, Comment, FlexItem, Reply, ShowMore, User } from "./styles";
-import UserName from "./UserName";
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import NameCard from 'modules/common/components/nameCard/NameCard';
+import { IFacebookComment } from 'modules/inbox/types';
+import Date from './Date';
+import FacebookContent from './FacebookContent';
+import { ChildPost, Comment, FlexItem, Reply, ShowMore, User } from './styles';
+import UserName from './UserName';
 
-import Icon from "modules/common/components/Icon";
-import ReplyingMessage from "./ReplyingMessage";
+import Icon from 'modules/common/components/Icon';
+import ReplyingMessage from './ReplyingMessage';
 
 type Props = {
   comment: IFacebookComment;
@@ -77,7 +77,7 @@ export default class FacebookComment extends React.Component<
         changeHasReply={this.changeHasReply}
         conversationId={comment.conversationId}
         commentId={comment.commentId}
-        currentUserName={`${customer.firstName} ${customer.lastName || ""}`}
+        currentUserName={`${customer.firstName} ${customer.lastName || ''}`}
         replyComment={replyComment}
         {...props}
       />
@@ -92,7 +92,7 @@ export default class FacebookComment extends React.Component<
             <FlexItem>
               <Comment>
                 <UserName
-                  username={`${customer.firstName} ${customer.lastName || ""}`}
+                  username={`${customer.firstName} ${customer.lastName || ''}`}
                 />
                 <FacebookContent
                   content={comment.content}

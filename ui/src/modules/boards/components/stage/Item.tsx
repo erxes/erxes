@@ -1,11 +1,11 @@
-import { IItem, IOptions } from "modules/boards/types";
-import { IRouterProps } from "modules/common/types";
-import routerUtils from "modules/common/utils/router";
-import { IDeal } from "modules/deals/types";
-import { ITicket } from "modules/tickets/types";
-import queryString from "query-string";
-import React from "react";
-import { withRouter } from "react-router-dom";
+import { IItem, IOptions } from 'modules/boards/types';
+import { IRouterProps } from 'modules/common/types';
+import routerUtils from 'modules/common/utils/router';
+import { IDeal } from 'modules/deals/types';
+import { ITicket } from 'modules/tickets/types';
+import queryString from 'query-string';
+import React from 'react';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   stageId?: string;
@@ -23,7 +23,7 @@ class Item extends React.PureComponent<Props, { isFormVisible: boolean }> {
 
     const { item, history } = props;
 
-    const itemIdQueryParam = routerUtils.getParam(history, "itemId");
+    const itemIdQueryParam = routerUtils.getParam(history, 'itemId');
 
     let isFormVisible = false;
 
@@ -56,10 +56,10 @@ class Item extends React.PureComponent<Props, { isFormVisible: boolean }> {
     const { beforePopupClose, history } = this.props;
 
     this.setState({ isFormVisible: false }, () => {
-      const itemIdQueryParam = routerUtils.getParam(history, "itemId");
+      const itemIdQueryParam = routerUtils.getParam(history, 'itemId');
 
       if (itemIdQueryParam) {
-        routerUtils.removeParams(history, "itemId");
+        routerUtils.removeParams(history, 'itemId');
       }
 
       if (beforePopupClose) {

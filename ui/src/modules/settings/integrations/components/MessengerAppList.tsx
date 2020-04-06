@@ -1,12 +1,12 @@
-import ActionButtons from "modules/common/components/ActionButtons";
-import Button from "modules/common/components/Button";
-import EmptyState from "modules/common/components/EmptyState";
-import Label from "modules/common/components/Label";
-import Table from "modules/common/components/table";
-import Tip from "modules/common/components/Tip";
-import { __ } from "modules/common/utils";
-import React from "react";
-import { IMessengerApp } from "../types";
+import ActionButtons from 'modules/common/components/ActionButtons';
+import Button from 'modules/common/components/Button';
+import EmptyState from 'modules/common/components/EmptyState';
+import Label from 'modules/common/components/Label';
+import Table from 'modules/common/components/table';
+import Tip from 'modules/common/components/Tip';
+import { __ } from 'modules/common/utils';
+import React from 'react';
+import { IMessengerApp } from '../types';
 
 type Props = {
   messengerApps: IMessengerApp[];
@@ -24,7 +24,7 @@ class MessengerAppList extends React.Component<Props> {
     const onClick = () => remove(app);
 
     return (
-      <Tip text={__("Delete")}>
+      <Tip text={__('Delete')}>
         <Button btnStyle="link" onClick={onClick} icon="cancel-1" />
       </Tip>
     );
@@ -60,9 +60,9 @@ class MessengerAppList extends React.Component<Props> {
       <Table>
         <thead>
           <tr>
-            <th>{__("Name")}</th>
-            <th>{__("Kind")}</th>
-            <th>{__("Actions")}</th>
+            <th>{__('Name')}</th>
+            <th>{__('Kind')}</th>
+            <th>{__('Actions')}</th>
           </tr>
         </thead>
         <tbody>{messengerApps.map(app => this.renderRow(app))}</tbody>

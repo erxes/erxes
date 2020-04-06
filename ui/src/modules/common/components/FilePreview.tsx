@@ -1,9 +1,9 @@
-import Icon from "modules/common/components/Icon";
-import ImageWithPreview from "modules/common/components/ImageWithPreview";
-import React from "react";
-import styled from "styled-components";
-import { rgba } from "../styles/color";
-import colors from "../styles/colors";
+import Icon from 'modules/common/components/Icon';
+import ImageWithPreview from 'modules/common/components/ImageWithPreview';
+import React from 'react';
+import styled from 'styled-components';
+import { rgba } from '../styles/color';
+import colors from '../styles/colors';
 
 const Wrapper = styled.a`
   border-radius: 4px;
@@ -78,9 +78,9 @@ export default function FilePreview({ fileUrl, fileName }: Props) {
 
   const renderFile = (icon: string) => {
     const attr = {
-      rel: "noopener noreferrer",
+      rel: 'noopener noreferrer',
       href: fileUrl,
-      target: "_blank"
+      target: '_blank'
     };
 
     return (
@@ -117,44 +117,44 @@ export default function FilePreview({ fileUrl, fileName }: Props) {
     );
   };
 
-  const fileExtension = fileUrl.split(".").pop();
+  const fileExtension = fileUrl.split('.').pop();
 
   let filePreview;
 
   switch (fileExtension) {
-    case "docx":
-      filePreview = renderFile("doc");
+    case 'docx':
+      filePreview = renderFile('doc');
       break;
-    case "pptx":
-      filePreview = renderFile("ppt");
+    case 'pptx':
+      filePreview = renderFile('ppt');
       break;
-    case "xlsx":
-      filePreview = renderFile("xls");
+    case 'xlsx':
+      filePreview = renderFile('xls');
       break;
-    case "mp4":
+    case 'mp4':
       filePreview = renderVideo();
       break;
-    case "jpeg":
-    case "jpg":
-    case "gif":
-    case "png":
+    case 'jpeg':
+    case 'jpg':
+    case 'gif':
+    case 'png':
       filePreview = renderImagePreview();
       break;
-    case "zip":
-    case "csv":
-    case "doc":
-    case "ppt":
-    case "psd":
-    case "avi":
-    case "txt":
-    case "rar":
-    case "mp3":
-    case "pdf":
-    case "xls":
+    case 'zip':
+    case 'csv':
+    case 'doc':
+    case 'ppt':
+    case 'psd':
+    case 'avi':
+    case 'txt':
+    case 'rar':
+    case 'mp3':
+    case 'pdf':
+    case 'xls':
       filePreview = renderFile(fileExtension);
       break;
     default:
-      filePreview = renderFile("file-2");
+      filePreview = renderFile('file-2');
   }
 
   return filePreview;

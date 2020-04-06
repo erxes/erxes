@@ -1,21 +1,21 @@
-import { shallow } from "enzyme";
-import React from "react";
-import ConfirmDialog from "../../../modules/common/components/ConfirmDialog";
+import { shallow } from 'enzyme';
+import React from 'react';
+import ConfirmDialog from '../../../modules/common/components/ConfirmDialog';
 
-describe("ConfirmDialog component", () => {
+describe('ConfirmDialog component', () => {
   const defaultProps = {
     options: {
-      okLabel: "string",
-      cancelLabel: "string",
+      okLabel: 'string',
+      cancelLabel: 'string',
       enableEscape: false
     },
-    confirmation: "yes",
+    confirmation: 'yes',
     proceed: () => null,
     dismiss: () => null
   };
 
-  test("renders successfully", () => {
+  test('renders successfully', () => {
     const wrapper = shallow(<ConfirmDialog {...defaultProps} />);
-    expect(wrapper).not.toBe("");
+    expect(wrapper).not.toBe('');
   });
 });

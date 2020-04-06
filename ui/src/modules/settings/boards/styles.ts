@@ -1,8 +1,8 @@
-import { colors } from "modules/common/styles";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
-import { SidebarListItem } from "../styles";
-import { LinkButton } from "../team/styles";
+import { colors } from 'modules/common/styles';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
+import { SidebarListItem } from '../styles';
+import { LinkButton } from '../team/styles';
 
 const BoardItem = styledTS<{ isActive: boolean }>(styled(SidebarListItem))`
   overflow: hidden;
@@ -59,7 +59,7 @@ const StageItemContainer = styled.div`
 
 const SelectMemberStyled = styledTS<{ zIndex?: number }>(styled.div)`
   position: relative;
-  z-index: ${props => (props.zIndex ? props.zIndex : "2001")};
+  z-index: ${props => (props.zIndex ? props.zIndex : '2001')};
 `;
 
 export { BoardItem, StageList, StageItemContainer, SelectMemberStyled };

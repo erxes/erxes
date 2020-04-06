@@ -1,14 +1,14 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { Alert, withProps } from "modules/common/utils";
-import { IIntegration } from "modules/settings/integrations/types";
-import { FieldsQueryResponse, IField } from "modules/settings/properties/types";
-import React from "react";
-import { graphql } from "react-apollo";
-import { withRouter } from "react-router-dom";
-import { IRouterProps } from "../../common/types";
-import Form from "../components/Form";
-import { mutations, queries } from "../graphql";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { Alert, withProps } from 'modules/common/utils';
+import { IIntegration } from 'modules/settings/integrations/types';
+import { FieldsQueryResponse, IField } from 'modules/settings/properties/types';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
+import { IRouterProps } from '../../common/types';
+import Form from '../components/Form';
+import { mutations, queries } from '../graphql';
 import {
   AddFieldMutationResponse,
   AddFieldMutationVariables,
@@ -20,7 +20,7 @@ import {
   IFormData,
   RemoveFieldMutationResponse,
   RemoveFieldMutationVariables
-} from "../types";
+} from '../types';
 
 type Props = {
   renderPreviewWrapper: (previewRenderer, fields: IField[]) => void;
@@ -110,15 +110,15 @@ class EditFormContainer extends React.Component<FinalProps> {
 
             createFieldsData.push({
               ...field,
-              contentType: "form",
+              contentType: 'form',
               contentTypeId: formId
             });
           }
 
           // collect fields to remove
           for (const dbFieldId of dbFieldIds) {
-            if (!existingIds.includes(dbFieldId || "")) {
-              removeFieldsData.push({ _id: dbFieldId || "" });
+            if (!existingIds.includes(dbFieldId || '')) {
+              removeFieldsData.push({ _id: dbFieldId || '' });
             }
           }
 
@@ -143,7 +143,7 @@ class EditFormContainer extends React.Component<FinalProps> {
 
         .then(() => {
           if (showMessage) {
-            Alert.success("You successfully updated a form");
+            Alert.success('You successfully updated a form');
           }
 
           fieldsQuery.refetch().then(() => {
@@ -174,21 +174,21 @@ export default withProps<Props>(
       FieldsQueryResponse,
       { contentType: string; contentTypeId: string }
     >(gql(queries.fields), {
-      name: "fieldsQuery",
+      name: 'fieldsQuery',
       options: ({ formId }) => {
         return {
           variables: {
-            contentType: "form",
+            contentType: 'form',
             contentTypeId: formId
           },
-          fetchPolicy: "network-only"
+          fetchPolicy: 'network-only'
         };
       }
     }),
     graphql<Props, FormDetailQueryResponse, { _id: string }>(
       gql(queries.formDetail),
       {
-        name: "formDetailQuery",
+        name: 'formDetailQuery',
         options: ({ formId }) => ({
           variables: {
             _id: formId
@@ -199,25 +199,25 @@ export default withProps<Props>(
     graphql<Props, AddFieldMutationResponse, AddFieldMutationVariables>(
       gql(mutations.fieldsAdd),
       {
-        name: "addFieldMutation"
+        name: 'addFieldMutation'
       }
     ),
     graphql<Props, EditFormMutationResponse, EditFormMutationVariables>(
       gql(mutations.editForm),
       {
-        name: "editFormMutation"
+        name: 'editFormMutation'
       }
     ),
     graphql<Props, EditFieldMutationResponse, EditFieldMutationVariables>(
       gql(mutations.fieldsEdit),
       {
-        name: "editFieldMutation"
+        name: 'editFieldMutation'
       }
     ),
     graphql<Props, RemoveFieldMutationResponse, RemoveFieldMutationVariables>(
       gql(mutations.fieldsRemove),
       {
-        name: "removeFieldMutation"
+        name: 'removeFieldMutation'
       }
     )
   )(withRouter<FinalProps>(EditFormContainer))

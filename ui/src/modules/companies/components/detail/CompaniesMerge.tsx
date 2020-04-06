@@ -1,20 +1,20 @@
-import Button from "modules/common/components/Button";
-import Icon from "modules/common/components/Icon";
-import { Column, Columns, Title } from "modules/common/styles/chooser";
-import { ModalFooter } from "modules/common/styles/main";
+import Button from 'modules/common/components/Button';
+import Icon from 'modules/common/components/Icon';
+import { Column, Columns, Title } from 'modules/common/styles/chooser';
+import { ModalFooter } from 'modules/common/styles/main';
 import {
   COMPANY_DATAS,
   COMPANY_INFO,
   COMPANY_LINKS
-} from "modules/companies/constants";
+} from 'modules/companies/constants';
 import {
   Info,
   InfoAvatar,
   InfoDetail,
   InfoTitle
-} from "modules/customers/styles";
-import React from "react";
-import { ICompany, ICompanyLinks } from "../../types";
+} from 'modules/customers/styles';
+import React from 'react';
+import { ICompany, ICompanyLinks } from '../../types';
 
 type Props = {
   objects: ICompany[];
@@ -72,10 +72,10 @@ class CompaniesMerge extends React.Component<Props, State> {
   handleChange = (type, key, value) => {
     const selectedValues = { ...this.state.selectedValues };
 
-    if (type === "plus-1") {
+    if (type === 'plus-1') {
       selectedValues[key] = value;
 
-      if (key === "links") {
+      if (key === 'links') {
         const links = Object.assign(
           { ...this.state.selectedValues.links },
           value
@@ -103,7 +103,7 @@ class CompaniesMerge extends React.Component<Props, State> {
               return null;
             }
 
-            if (info.field === "links") {
+            if (info.field === 'links') {
               return this.renderLinks(company[key], icon);
             }
 
@@ -133,11 +133,11 @@ class CompaniesMerge extends React.Component<Props, State> {
 
   renderValue = (field, value) => {
     switch (field) {
-      case "owner":
+      case 'owner':
         return this.renderOwner(value);
-      case "parentCompany":
+      case 'parentCompany':
         return this.renderParentCompany(value);
-      case "avatar":
+      case 'avatar':
         return <InfoAvatar src={value} alt="avatar" />;
 
       default:
@@ -196,14 +196,14 @@ class CompaniesMerge extends React.Component<Props, State> {
       <form onSubmit={this.save}>
         <Columns>
           <Column className="multiple">
-            {this.renderCompany(company1, "plus-1")}
+            {this.renderCompany(company1, 'plus-1')}
           </Column>
 
           <Column className="multiple">
-            {this.renderCompany(company2, "plus-1")}
+            {this.renderCompany(company2, 'plus-1')}
           </Column>
 
-          <Column>{this.renderCompany(selectedValues, "times")}</Column>
+          <Column>{this.renderCompany(selectedValues, 'times')}</Column>
         </Columns>
 
         <ModalFooter>

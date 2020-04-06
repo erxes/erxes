@@ -1,19 +1,19 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { IRouterProps } from "modules/common/types";
-import { router as routerUtils, withProps } from "modules/common/utils";
-import queryString from "query-string";
-import React from "react";
-import { graphql } from "react-apollo";
-import { withRouter } from "react-router-dom";
-import KnowledgeBaseComponent from "../components/KnowledgeBase";
-import { queries } from "../graphql";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { IRouterProps } from 'modules/common/types';
+import { router as routerUtils, withProps } from 'modules/common/utils';
+import queryString from 'query-string';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
+import KnowledgeBaseComponent from '../components/KnowledgeBase';
+import { queries } from '../graphql';
 import {
   ArticlesTotalCountQueryResponse,
   CategoryDetailQueryResponse,
   ICategory,
   LastCategoryQueryResponse
-} from "../types";
+} from '../types';
 
 type Props = {
   queryParams: any;
@@ -49,10 +49,10 @@ const KnowledgeBaseContainer = withProps<Props>(
     graphql<Props, CategoryDetailQueryResponse, { _id: string }>(
       gql(queries.knowledgeBaseCategoryDetail),
       {
-        name: "categoryDetailQuery",
+        name: 'categoryDetailQuery',
         options: ({ currentCategoryId }) => ({
           variables: { _id: currentCategoryId },
-          fetchPolicy: "network-only"
+          fetchPolicy: 'network-only'
         }),
         skip: ({ currentCategoryId }) => !currentCategoryId
       }
@@ -60,7 +60,7 @@ const KnowledgeBaseContainer = withProps<Props>(
     graphql<Props, ArticlesTotalCountQueryResponse, { categoryIds: string[] }>(
       gql(queries.knowledgeBaseArticlesTotalCount),
       {
-        name: "articlesCountQuery",
+        name: 'articlesCountQuery',
         options: ({ currentCategoryId }) => ({
           variables: { categoryIds: [currentCategoryId] }
         }),
@@ -111,7 +111,7 @@ class WithCurrentId extends React.Component<WithCurrentIdFinalProps> {
 
     const updatedProps = {
       ...this.props,
-      currentCategoryId: id || ""
+      currentCategoryId: id || ''
     };
 
     return <KnowledgeBaseContainer {...updatedProps} />;
@@ -123,9 +123,9 @@ const WithLastCategory = withProps<WithCurrentIdProps>(
     graphql<WithCurrentIdProps, LastCategoryQueryResponse>(
       gql(queries.categoriesGetLast),
       {
-        name: "lastCategoryQuery",
+        name: 'lastCategoryQuery',
         skip: ({ queryParams }: { queryParams: any }) => queryParams.id,
-        options: () => ({ fetchPolicy: "network-only" })
+        options: () => ({ fetchPolicy: 'network-only' })
       }
     )
   )(WithCurrentId)

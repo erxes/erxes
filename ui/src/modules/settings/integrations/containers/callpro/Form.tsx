@@ -1,9 +1,9 @@
-import ButtonMutate from "modules/common/components/ButtonMutate";
-import { IButtonMutateProps, IRouterProps } from "modules/common/types";
-import CallPro from "modules/settings/integrations/components/callpro/Form";
-import { mutations } from "modules/settings/integrations/graphql";
-import React from "react";
-import { withRouter } from "react-router-dom";
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
+import CallPro from 'modules/settings/integrations/components/callpro/Form';
+import { mutations } from 'modules/settings/integrations/graphql';
+import React from 'react';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   type?: string;

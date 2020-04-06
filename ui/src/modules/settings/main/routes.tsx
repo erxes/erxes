@@ -1,9 +1,9 @@
-import asyncComponent from "modules/common/components/AsyncComponent";
-import React from "react";
-import { Route } from "react-router-dom";
+import asyncComponent from 'modules/common/components/AsyncComponent';
+import React from 'react';
+import { Route } from 'react-router-dom';
 
 const Settings = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings" */ "./components/Settings")
+  import(/* webpackChunkName: "Settings" */ './components/Settings')
 );
 
 const routes = () => (

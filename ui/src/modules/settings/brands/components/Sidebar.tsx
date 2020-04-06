@@ -1,17 +1,17 @@
-import Button from "modules/common/components/Button";
-import EmptyState from "modules/common/components/EmptyState";
-import LoadMore from "modules/common/components/LoadMore";
-import ModalTrigger from "modules/common/components/ModalTrigger";
-import Spinner from "modules/common/components/Spinner";
-import { TopHeader } from "modules/common/styles/main";
-import { IButtonMutateProps } from "modules/common/types";
-import { __ } from "modules/common/utils";
-import LeftSidebar from "modules/layout/components/Sidebar";
-import { SidebarList as List } from "modules/layout/styles";
-import React from "react";
-import { IBrand } from "../types";
-import BrandForm from "./BrandForm";
-import BrandRow from "./BrandRow";
+import Button from 'modules/common/components/Button';
+import EmptyState from 'modules/common/components/EmptyState';
+import LoadMore from 'modules/common/components/LoadMore';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Spinner from 'modules/common/components/Spinner';
+import { TopHeader } from 'modules/common/styles/main';
+import { IButtonMutateProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
+import LeftSidebar from 'modules/layout/components/Sidebar';
+import { SidebarList as List } from 'modules/layout/styles';
+import React from 'react';
+import { IBrand } from '../types';
+import BrandForm from './BrandForm';
+import BrandRow from './BrandRow';
 
 type Props = {
   brands: IBrand[];
@@ -45,7 +45,7 @@ class Sidebar extends React.Component<Props, {}> {
         uppercase={false}
         icon="plus-circle"
       >
-        {__("Add New Brand")}
+        {__('Add New Brand')}
       </Button>
     );
 

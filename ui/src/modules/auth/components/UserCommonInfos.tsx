@@ -1,14 +1,14 @@
-import AvatarUpload from "modules/common/components/AvatarUpload";
-import CollapseContent from "modules/common/components/CollapseContent";
-import FormControl from "modules/common/components/form/Control";
-import FormGroup from "modules/common/components/form/Group";
-import ControlLabel from "modules/common/components/form/Label";
-import timezones from "modules/common/constants/timezones";
-import { FormColumn, FormWrapper } from "modules/common/styles/main";
-import { IFormProps } from "modules/common/types";
-import { __ } from "modules/common/utils";
-import React from "react";
-import { IUser } from "../types";
+import AvatarUpload from 'modules/common/components/AvatarUpload';
+import CollapseContent from 'modules/common/components/CollapseContent';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import timezones from 'modules/common/constants/timezones';
+import { FormColumn, FormWrapper } from 'modules/common/styles/main';
+import { IFormProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
+import React from 'react';
+import { IUser } from '../types';
 
 type Props = {
   user: IUser;
@@ -25,7 +25,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
     return (
       <React.Fragment>
         <CollapseContent
-          title={__("General Information")}
+          title={__('General Information')}
           open={true}
           compact={true}
         >
@@ -40,7 +40,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
                 <FormControl
                   type="text"
                   name="fullName"
-                  defaultValue={details.fullName || ""}
+                  defaultValue={details.fullName || ''}
                   {...formProps}
                 />
               </FormGroup>
@@ -49,7 +49,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
                 <FormControl
                   type="text"
                   name="shortName"
-                  defaultValue={details.shortName || ""}
+                  defaultValue={details.shortName || ''}
                   {...formProps}
                 />
               </FormGroup>
@@ -70,7 +70,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
                   name="description"
                   max={250}
                   componentClass="textarea"
-                  defaultValue={details.description || ""}
+                  defaultValue={details.description || ''}
                   {...formProps}
                 />
               </FormGroup>
@@ -91,7 +91,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
                 <FormControl
                   type="text"
                   name="position"
-                  defaultValue={details.position || ""}
+                  defaultValue={details.position || ''}
                   {...formProps}
                 />
               </FormGroup>
@@ -100,7 +100,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
                 <FormControl
                   type="text"
                   name="operatorPhone"
-                  defaultValue={details.operatorPhone || ""}
+                  defaultValue={details.operatorPhone || ''}
                   {...formProps}
                 />
               </FormGroup>
@@ -118,7 +118,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
           </FormWrapper>
         </CollapseContent>
 
-        <CollapseContent title={__("Links")} compact={true}>
+        <CollapseContent title={__('Links')} compact={true}>
           <FormWrapper>
             <FormColumn>
               <FormGroup>
@@ -126,7 +126,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
                 <FormControl
                   type="url"
                   name="linkedIn"
-                  defaultValue={links.linkedIn || ""}
+                  defaultValue={links.linkedIn || ''}
                   {...formProps}
                 />
               </FormGroup>
@@ -135,7 +135,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
                 <FormControl
                   type="url"
                   name="twitter"
-                  defaultValue={links.twitter || ""}
+                  defaultValue={links.twitter || ''}
                   {...formProps}
                 />
               </FormGroup>
@@ -144,7 +144,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
                 <FormControl
                   type="url"
                   name="facebook"
-                  defaultValue={links.facebook || ""}
+                  defaultValue={links.facebook || ''}
                   {...formProps}
                 />
               </FormGroup>
@@ -155,7 +155,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
                 <FormControl
                   type="url"
                   name="youtube"
-                  defaultValue={links.youtube || ""}
+                  defaultValue={links.youtube || ''}
                   {...formProps}
                 />
               </FormGroup>
@@ -164,7 +164,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
                 <FormControl
                   type="url"
                   name="github"
-                  defaultValue={links.github || ""}
+                  defaultValue={links.github || ''}
                   {...formProps}
                 />
               </FormGroup>
@@ -173,7 +173,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
                 <FormControl
                   type="url"
                   name="website"
-                  defaultValue={links.website || ""}
+                  defaultValue={links.website || ''}
                   {...formProps}
                 />
               </FormGroup>

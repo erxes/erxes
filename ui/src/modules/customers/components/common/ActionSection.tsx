@@ -1,21 +1,21 @@
-import Button from "modules/common/components/Button";
-import DropdownToggle from "modules/common/components/DropdownToggle";
-import { ControlLabel } from "modules/common/components/form";
-import Icon from "modules/common/components/Icon";
-import ModalTrigger from "modules/common/components/ModalTrigger";
-import { __, Alert, confirm } from "modules/common/utils";
-import CompaniesMerge from "modules/companies/components/detail/CompaniesMerge";
-import CompanyForm from "modules/companies/containers/CompanyForm";
-import { ICompany } from "modules/companies/types";
-import TargetMerge from "modules/customers/components/common/TargetMerge";
-import CustomersMerge from "modules/customers/components/detail/CustomersMerge";
-import CustomerForm from "modules/customers/containers/CustomerForm";
-import { Actions, MailBox, States } from "modules/customers/styles";
-import { ICustomer } from "modules/customers/types";
-import { Box } from "modules/settings/growthHacks/styles";
-import MailForm from "modules/settings/integrations/containers/mail/MailForm";
-import React from "react";
-import Dropdown from "react-bootstrap/Dropdown";
+import Button from 'modules/common/components/Button';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
+import { ControlLabel } from 'modules/common/components/form';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import { __, Alert, confirm } from 'modules/common/utils';
+import CompaniesMerge from 'modules/companies/components/detail/CompaniesMerge';
+import CompanyForm from 'modules/companies/containers/CompanyForm';
+import { ICompany } from 'modules/companies/types';
+import TargetMerge from 'modules/customers/components/common/TargetMerge';
+import CustomersMerge from 'modules/customers/components/detail/CustomersMerge';
+import CustomerForm from 'modules/customers/containers/CustomerForm';
+import { Actions, MailBox, States } from 'modules/customers/styles';
+import { ICustomer } from 'modules/customers/types';
+import { Box } from 'modules/settings/growthHacks/styles';
+import MailForm from 'modules/settings/integrations/containers/mail/MailForm';
+import React from 'react';
+import Dropdown from 'react-bootstrap/Dropdown';
 
 type Props = {
   coc: ICustomer | ICompany;
@@ -31,7 +31,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
     super(props);
 
     this.state = {
-      customerState: props.cocType === "customer" ? props.coc.state : ""
+      customerState: props.cocType === 'customer' ? props.coc.state : ''
     };
   }
 
@@ -44,9 +44,9 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
         <MailForm
           fromEmail={primaryEmail}
           refetchQueries={
-            cocType === "customer"
-              ? ["activityLogsCustomer"]
-              : ["activityLogsCompany"]
+            cocType === 'customer'
+              ? ['activityLogsCustomer']
+              : ['activityLogsCompany']
           }
           closeModal={props.closeModal}
         />
@@ -64,7 +64,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
               size="small"
               btnStyle="primary"
             >
-              {__("Email")}
+              {__('Email')}
             </Button>
           }
           size="lg"
@@ -77,7 +77,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
           btnStyle="primary"
           disabled={primaryPhone ? false : true}
         >
-          {__("Call")}
+          {__('Call')}
         </Button>
       </>
     );
@@ -86,7 +86,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
   renderButton() {
     return (
       <Button size="small" btnStyle="primary">
-        {__("Action")} <Icon icon="angle-down" />
+        {__('Action')} <Icon icon="angle-down" />
       </Button>
     );
   }
@@ -106,9 +106,9 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
       <li>
         <ModalTrigger
           title="Edit basic info"
-          trigger={<a href="#edit">{__("Edit")}</a>}
+          trigger={<a href="#edit">{__('Edit')}</a>}
           size="lg"
-          content={cocType === "company" ? companyForm : customerForm}
+          content={cocType === 'company' ? companyForm : customerForm}
         />
       </li>
     );
@@ -141,12 +141,12 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
   renderChangeStateForm() {
     const options = [
       {
-        value: "lead",
-        desc: "A person who preparing to buy some service or product."
+        value: 'lead',
+        desc: 'A person who preparing to buy some service or product.'
       },
       {
-        value: "customer",
-        desc: "A person who already bought some service or product."
+        value: 'customer',
+        desc: 'A person who already bought some service or product.'
       }
     ];
 
@@ -165,8 +165,8 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
 
     return (
       <ModalTrigger
-        title={__("Change state")}
-        trigger={<a href="#changeState">{__("Change state")}</a>}
+        title={__('Change state')}
+        trigger={<a href="#changeState">{__('Change state')}</a>}
         content={modalContent}
         hideHeader={true}
         centered={true}
@@ -193,7 +193,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
           cus.lastName ||
           cus.primaryEmail ||
           cus.primaryPhone ||
-          "Unknown"
+          'Unknown'
       }));
     };
 
@@ -201,7 +201,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
       return companies.map((c, key) => ({
         key,
         value: JSON.stringify(c),
-        label: c.primaryName || c.website || "Unknown"
+        label: c.primaryName || c.website || 'Unknown'
       }));
     };
 
@@ -220,16 +220,16 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
                 object={coc}
                 searchObject={search}
                 mergeForm={
-                  cocType === "customer" ? CustomersMerge : CompaniesMerge
+                  cocType === 'customer' ? CustomersMerge : CompaniesMerge
                 }
                 generateOptions={
-                  cocType === "customer" ? generateOptions : targetMergeOptions
+                  cocType === 'customer' ? generateOptions : targetMergeOptions
                 }
               />
             </li>
             <li>
               <a href="#delete" onClick={onClick}>
-                {__("Delete")}
+                {__('Delete')}
               </a>
             </li>
             <li>{this.renderChangeStateForm()}</li>

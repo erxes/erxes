@@ -1,10 +1,10 @@
-import { ArchiveStatus } from "modules/boards/styles/item";
-import Icon from "modules/common/components/Icon";
-import { CloseModal } from "modules/common/styles/main";
-import { __ } from "modules/common/utils";
-import React from "react";
-import Modal from "react-bootstrap/Modal";
-import { IEditFormContent, IItem, IItemParams, IOptions } from "../../types";
+import { ArchiveStatus } from 'modules/boards/styles/item';
+import Icon from 'modules/common/components/Icon';
+import { CloseModal } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
+import React from 'react';
+import Modal from 'react-bootstrap/Modal';
+import { IEditFormContent, IItem, IItemParams, IOptions } from '../../types';
 
 type Props = {
   options: IOptions;
@@ -89,11 +89,11 @@ class EditForm extends React.Component<Props, State> {
   };
 
   renderArchiveStatus() {
-    if (this.props.item.status === "archived") {
+    if (this.props.item.status === 'archived') {
       return (
         <ArchiveStatus>
           <Icon icon="archive-alt" />
-          <span>{__("This card is archived.")}</span>
+          <span>{__('This card is archived.')}</span>
         </ArchiveStatus>
       );
     }
@@ -112,7 +112,7 @@ class EditForm extends React.Component<Props, State> {
 
     return (
       <Modal.Header closeButton={true}>
-        <Modal.Title>{__("Edit")}</Modal.Title>
+        <Modal.Title>{__('Edit')}</Modal.Title>
       </Modal.Header>
     );
   }

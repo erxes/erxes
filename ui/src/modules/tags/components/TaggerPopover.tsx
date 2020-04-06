@@ -1,8 +1,8 @@
-import { __ } from "modules/common/utils";
-import React from "react";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Popover from "react-bootstrap/Popover";
-import Tagger from "../containers/Tagger";
+import { __ } from 'modules/common/utils';
+import React from 'react';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
+import Tagger from '../containers/Tagger';
 
 type Props = {
   type: string;
@@ -18,7 +18,7 @@ function TaggerPopover(props: Props) {
 
   const popover = (
     <Popover id="tags-popover">
-      <Popover.Title as="h3">{__("Choose your tags")}</Popover.Title>
+      <Popover.Title as="h3">{__('Choose your tags')}</Popover.Title>
       <Popover.Content>
         <Tagger
           event="onExit"

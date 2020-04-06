@@ -1,25 +1,25 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import EmptyState from "modules/common/components/EmptyState";
-import Spinner from "modules/common/components/Spinner";
-import { IRouterProps } from "modules/common/types";
-import { router as routerUtils, withProps } from "modules/common/utils";
-import React, { Component } from "react";
-import { graphql } from "react-apollo";
-import { DragDropContext, Droppable } from "react-beautiful-dnd";
-import { withRouter } from "react-router-dom";
-import styled from "styled-components";
-import { PIPELINE_UPDATE_STATUSES } from "../constants";
-import { queries } from "../graphql";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import EmptyState from 'modules/common/components/EmptyState';
+import Spinner from 'modules/common/components/Spinner';
+import { IRouterProps } from 'modules/common/types';
+import { router as routerUtils, withProps } from 'modules/common/utils';
+import React, { Component } from 'react';
+import { graphql } from 'react-apollo';
+import { DragDropContext, Droppable } from 'react-beautiful-dnd';
+import { withRouter } from 'react-router-dom';
+import styled from 'styled-components';
+import { PIPELINE_UPDATE_STATUSES } from '../constants';
+import { queries } from '../graphql';
 import {
   IItemMap,
   IOptions,
   IPipeline,
   IStageMap,
   StagesQueryResponse
-} from "../types";
-import { PipelineConsumer, PipelineProvider } from "./PipelineContext";
-import Stage from "./Stage";
+} from '../types';
+import { PipelineConsumer, PipelineProvider } from './PipelineContext';
+import Stage from './Stage';
 
 const Container = styled.div`
   height: 100%;
@@ -61,15 +61,15 @@ class WithStages extends Component<WithStagesQueryProps> {
   }
 
   afterFinish = () => {
-    const pipelineUpdate = sessionStorage.getItem("pipelineUpdate");
+    const pipelineUpdate = sessionStorage.getItem('pipelineUpdate');
 
     // if there is a newRequest
     if (pipelineUpdate === PIPELINE_UPDATE_STATUSES.NEW_REQUEST) {
-      sessionStorage.setItem("pipelineUpdate", PIPELINE_UPDATE_STATUSES.START);
+      sessionStorage.setItem('pipelineUpdate', PIPELINE_UPDATE_STATUSES.START);
 
       routerUtils.setParams(this.props.history, { key: Math.random() });
     } else {
-      sessionStorage.setItem("pipelineUpdate", PIPELINE_UPDATE_STATUSES.END);
+      sessionStorage.setItem('pipelineUpdate', PIPELINE_UPDATE_STATUSES.END);
     }
   };
 
@@ -195,7 +195,7 @@ const WithStagesQuery = (props: WithStagesQueryProps) => {
 export default withProps<Props>(
   compose(
     graphql<Props, StagesQueryResponse>(gql(queries.stages), {
-      name: "stagesQuery",
+      name: 'stagesQuery',
       options: ({ pipeline, queryParams, options: { getExtraParams } }) => ({
         variables: {
           pipelineId: pipeline._id,

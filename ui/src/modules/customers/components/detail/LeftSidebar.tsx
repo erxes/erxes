@@ -1,14 +1,14 @@
-import BasicInfoSection from "modules/customers/components/common/BasicInfoSection";
-import CustomFieldsSection from "modules/customers/containers/common/CustomFieldsSection";
-import Sidebar from "modules/layout/components/Sidebar";
-import React from "react";
+import BasicInfoSection from 'modules/customers/components/common/BasicInfoSection';
+import CustomFieldsSection from 'modules/customers/containers/common/CustomFieldsSection';
+import Sidebar from 'modules/layout/components/Sidebar';
+import React from 'react';
 
-import { ICustomer } from "modules/customers/types";
+import { ICustomer } from 'modules/customers/types';
 import {
   DevicePropertiesSection,
   TaggerSection,
   TrackedDataSection
-} from "../common";
+} from '../common';
 
 type Props = {
   customer: ICustomer;

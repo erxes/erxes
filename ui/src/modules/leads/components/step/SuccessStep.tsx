@@ -1,22 +1,22 @@
-import FormControl from "modules/common/components/form/Control";
-import FormGroup from "modules/common/components/form/Group";
-import ControlLabel from "modules/common/components/form/Label";
-import { LeftItem, Preview } from "modules/common/components/step/styles";
-import { ILeadData } from "modules/leads/types";
-import React from "react";
-import SuccessPreview from "./preview/SuccessPreview";
-import { FlexItem } from "./style";
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import { LeftItem, Preview } from 'modules/common/components/step/styles';
+import { ILeadData } from 'modules/leads/types';
+import React from 'react';
+import SuccessPreview from './preview/SuccessPreview';
+import { FlexItem } from './style';
 
 type Name =
-  | "successAction"
-  | "fromEmail"
-  | "userEmailTitle"
-  | "userEmailContent"
-  | "adminEmails"
-  | "adminEmailTitle"
-  | "adminEmailContent"
-  | "redirectUrl"
-  | "thankContent";
+  | 'successAction'
+  | 'fromEmail'
+  | 'userEmailTitle'
+  | 'userEmailContent'
+  | 'adminEmails'
+  | 'adminEmailTitle'
+  | 'adminEmailContent'
+  | 'redirectUrl'
+  | 'thankContent';
 
 type Props = {
   type: string;
@@ -39,18 +39,18 @@ class SuccessStep extends React.Component<Props, State> {
     const leadData = props.leadData || {};
 
     this.state = {
-      successAction: leadData.successAction || "onPage"
+      successAction: leadData.successAction || 'onPage'
     };
   }
 
   handleSuccessActionChange = () => {
     const element = document.getElementById(
-      "successAction"
+      'successAction'
     ) as HTMLInputElement;
     const value = element.value;
 
     this.setState({ successAction: value });
-    this.props.onChange("successAction", value);
+    this.props.onChange('successAction', value);
   };
 
   onChangeFunction = (name: Name, value: string) => {
@@ -59,43 +59,43 @@ class SuccessStep extends React.Component<Props, State> {
   };
 
   renderEmailFields(leadData: ILeadData) {
-    if (this.state.successAction !== "email") {
+    if (this.state.successAction !== 'email') {
       return null;
     }
 
     const fromEmailOnChange = e =>
       this.onChangeFunction(
-        "fromEmail",
+        'fromEmail',
         (e.currentTarget as HTMLInputElement).value
       );
 
     const userEmailTitle = e =>
       this.onChangeFunction(
-        "userEmailTitle",
+        'userEmailTitle',
         (e.currentTarget as HTMLInputElement).value
       );
 
     const userEmailContent = e =>
       this.onChangeFunction(
-        "userEmailContent",
+        'userEmailContent',
         (e.currentTarget as HTMLInputElement).value
       );
 
     const adminEmails = e =>
       this.onChangeFunction(
-        "adminEmails",
+        'adminEmails',
         (e.currentTarget as HTMLInputElement).value
       );
 
     const adminEmailTitle = e =>
       this.onChangeFunction(
-        "adminEmailTitle",
+        'adminEmailTitle',
         (e.currentTarget as HTMLInputElement).value
       );
 
     const adminEmailContent = e =>
       this.onChangeFunction(
-        "adminEmailContent",
+        'adminEmailContent',
         (e.currentTarget as HTMLInputElement).value
       );
 
@@ -138,7 +138,7 @@ class SuccessStep extends React.Component<Props, State> {
             id="adminEmails"
             type="text"
             defaultValue={
-              leadData.adminEmails ? leadData.adminEmails.join(",") : ""
+              leadData.adminEmails ? leadData.adminEmails.join(',') : ''
             }
             onChange={adminEmails}
           />
@@ -169,13 +169,13 @@ class SuccessStep extends React.Component<Props, State> {
   }
 
   renderRedirectUrl(leadData) {
-    if (this.state.successAction !== "redirect") {
+    if (this.state.successAction !== 'redirect') {
       return null;
     }
 
     const onChange = e =>
       this.onChangeFunction(
-        "redirectUrl",
+        'redirectUrl',
         (e.currentTarget as HTMLInputElement).value
       );
 
@@ -200,11 +200,11 @@ class SuccessStep extends React.Component<Props, State> {
 
     const onChange = e =>
       this.onChangeFunction(
-        "thankContent",
+        'thankContent',
         (e.currentTarget as HTMLInputElement).value
       );
 
-    if (successAction !== "onPage") {
+    if (successAction !== 'onPage') {
       return null;
     }
 

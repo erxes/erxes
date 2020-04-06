@@ -1,15 +1,15 @@
-import { FullContent, MiddleContent } from "modules/common/styles/main";
-import React from "react";
+import { FullContent, MiddleContent } from 'modules/common/styles/main';
+import React from 'react';
 import {
   Contents,
   HeightedWrapper,
   MainHead,
   VerticalContent
-} from "../styles";
-import ActionBar from "./ActionBar";
-import Header from "./Header";
-import PageContent from "./PageContent";
-import Sidebar from "./Sidebar";
+} from '../styles';
+import ActionBar from './ActionBar';
+import Header from './Header';
+import PageContent from './PageContent';
+import Sidebar from './Sidebar';
 
 type Props = {
   header?: React.ReactNode;

@@ -1,16 +1,16 @@
-import Button from "modules/common/components/Button";
-import CollapseContent from "modules/common/components/CollapseContent";
-import { FormControl } from "modules/common/components/form";
-import FormGroup from "modules/common/components/form/Group";
-import ControlLabel from "modules/common/components/form/Label";
-import Info from "modules/common/components/Info";
-import CURRENCIES from "modules/common/constants/currencies";
-import { Title } from "modules/common/styles/main";
-import { __ } from "modules/common/utils";
-import Wrapper from "modules/layout/components/Wrapper";
-import React from "react";
-import Select from "react-select-plus";
-import { ContentBox } from "../../styles";
+import Button from 'modules/common/components/Button';
+import CollapseContent from 'modules/common/components/CollapseContent';
+import { FormControl } from 'modules/common/components/form';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import Info from 'modules/common/components/Info';
+import CURRENCIES from 'modules/common/constants/currencies';
+import { Title } from 'modules/common/styles/main';
+import { __ } from 'modules/common/utils';
+import Wrapper from 'modules/layout/components/Wrapper';
+import React from 'react';
+import Select from 'react-select-plus';
+import { ContentBox } from '../../styles';
 import {
   FILE_MIME_TYPES,
   FILE_SYSTEM_TYPES,
@@ -18,10 +18,10 @@ import {
   LANGUAGES,
   MEASUREMENTS,
   SERVICE_TYPES
-} from "../constants";
-import { IConfigsMap } from "../types";
-import Header from "./Header";
-import Sidebar from "./Sidebar";
+} from '../constants';
+import { IConfigsMap } from '../types';
+import Header from './Header';
+import Sidebar from './Sidebar';
 
 type Props = {
   currentLanguage: string;
@@ -104,8 +104,8 @@ class GeneralSettings extends React.Component<Props, State> {
     const { configsMap, language } = this.state;
 
     const breadcrumb = [
-      { title: __("Settings"), link: "/settings" },
-      { title: __("General system config") }
+      { title: __('Settings'), link: '/settings' },
+      { title: __('General system config') }
     ];
 
     const actionButtons = (
@@ -124,11 +124,11 @@ class GeneralSettings extends React.Component<Props, State> {
       label: `${item.label} (${item.extension})`
     }));
     const mimeTypeDesc =
-      "Comma-separated list of media types. Leave it blank for accepting all media types";
+      'Comma-separated list of media types. Leave it blank for accepting all media types';
 
     const content = (
       <ContentBox>
-        <CollapseContent title={__("General settings")}>
+        <CollapseContent title={__('General settings')}>
           <FormGroup>
             <ControlLabel>Language</ControlLabel>
             <Select
@@ -145,7 +145,7 @@ class GeneralSettings extends React.Component<Props, State> {
             <Select
               options={CURRENCIES}
               value={configsMap.dealCurrency}
-              onChange={this.onChangeMultiCombo.bind(this, "dealCurrency")}
+              onChange={this.onChangeMultiCombo.bind(this, 'dealCurrency')}
               multi={true}
             />
           </FormGroup>
@@ -155,20 +155,20 @@ class GeneralSettings extends React.Component<Props, State> {
             <Select
               options={MEASUREMENTS}
               value={configsMap.dealUOM}
-              onChange={this.onChangeMultiCombo.bind(this, "dealUOM")}
+              onChange={this.onChangeMultiCombo.bind(this, 'dealUOM')}
               multi={true}
             />
           </FormGroup>
         </CollapseContent>
 
-        <CollapseContent title={__("File upload")}>
+        <CollapseContent title={__('File upload')}>
           <Info>
             <a
               target="_blank"
               href="https://docs.erxes.io/administrator/system-config#file-upload"
               rel="noopener noreferrer"
             >
-              {__("More: Understanding file upload")}
+              {__('More: Understanding file upload')}
             </a>
           </Info>
           <FormGroup>
@@ -177,7 +177,7 @@ class GeneralSettings extends React.Component<Props, State> {
             <Select
               value={configsMap.UPLOAD_FILE_TYPES}
               options={mimeTypeOptions}
-              onChange={this.onChangeMultiCombo.bind(this, "UPLOAD_FILE_TYPES")}
+              onChange={this.onChangeMultiCombo.bind(this, 'UPLOAD_FILE_TYPES')}
               multi={true}
               delimiter=","
               simpleValue={true}
@@ -191,7 +191,7 @@ class GeneralSettings extends React.Component<Props, State> {
               options={mimeTypeOptions}
               onChange={this.onChangeMultiCombo.bind(
                 this,
-                "WIDGETS_UPLOAD_FILE_TYPES"
+                'WIDGETS_UPLOAD_FILE_TYPES'
               )}
               multi={true}
               delimiter=","
@@ -206,7 +206,7 @@ class GeneralSettings extends React.Component<Props, State> {
               clearable={false}
               onChange={this.onChangeSingleCombo.bind(
                 this,
-                "UPLOAD_SERVICE_TYPE"
+                'UPLOAD_SERVICE_TYPE'
               )}
             />
           </FormGroup>
@@ -215,12 +215,12 @@ class GeneralSettings extends React.Component<Props, State> {
             <ControlLabel>{KEY_LABELS.FILE_SYSTEM_PUBLIC}</ControlLabel>
             <Select
               options={FILE_SYSTEM_TYPES}
-              value={configsMap.FILE_SYSTEM_PUBLIC || "true"}
+              value={configsMap.FILE_SYSTEM_PUBLIC || 'true'}
               clearable={false}
               searchable={false}
               onChange={this.onChangeSingleCombo.bind(
                 this,
-                "FILE_SYSTEM_PUBLIC"
+                'FILE_SYSTEM_PUBLIC'
               )}
             />
           </FormGroup>
@@ -233,12 +233,12 @@ class GeneralSettings extends React.Component<Props, State> {
               href="https://console.cloud.google.com/storage/browser"
               rel="noopener noreferrer"
             >
-              {__("More: Create or find your Google Cloud Storage bucket")}
+              {__('More: Create or find your Google Cloud Storage bucket')}
             </a>
           </Info>
           <FormGroup>
             <ControlLabel>Google Bucket Name</ControlLabel>
-            {this.renderItem("GOOGLE_CLOUD_STORAGE_BUCKET")}
+            {this.renderItem('GOOGLE_CLOUD_STORAGE_BUCKET')}
           </FormGroup>
         </CollapseContent>
 
@@ -249,71 +249,71 @@ class GeneralSettings extends React.Component<Props, State> {
               href="https://docs.erxes.io/administrator/environment-variables#aws-s3"
               rel="noopener noreferrer"
             >
-              {__("More: Understanding AWS S3 Variables")}
+              {__('More: Understanding AWS S3 Variables')}
             </a>
           </Info>
-          {this.renderItem("AWS_ACCESS_KEY_ID")}
-          {this.renderItem("AWS_SECRET_ACCESS_KEY")}
-          {this.renderItem("AWS_BUCKET")}
-          {this.renderItem("AWS_PREFIX")}
+          {this.renderItem('AWS_ACCESS_KEY_ID')}
+          {this.renderItem('AWS_SECRET_ACCESS_KEY')}
+          {this.renderItem('AWS_BUCKET')}
+          {this.renderItem('AWS_PREFIX')}
           {this.renderItem(
-            "AWS_COMPATIBLE_SERVICE_ENDPOINT",
-            "Used when using s3 compatible service"
+            'AWS_COMPATIBLE_SERVICE_ENDPOINT',
+            'Used when using s3 compatible service'
           )}
-          {this.renderItem("AWS_FORCE_PATH_STYLE")}
+          {this.renderItem('AWS_FORCE_PATH_STYLE')}
         </CollapseContent>
 
         <CollapseContent title="AWS SES">
           <Info>
-            <p>{__("Used when using SES for transaction emails")}</p>
+            <p>{__('Used when using SES for transaction emails')}</p>
             <a
               target="_blank"
               href="https://docs.erxes.io/administrator/environment-variables#aws-ses"
               rel="noopener noreferrer"
             >
-              {__("More: Understanding AWS SES Variables")}
+              {__('More: Understanding AWS SES Variables')}
             </a>
           </Info>
-          {this.renderItem("AWS_SES_ACCESS_KEY_ID")}
-          {this.renderItem("AWS_SES_SECRET_ACCESS_KEY")}
-          {this.renderItem("AWS_REGION")}
-          {this.renderItem("AWS_SES_CONFIG_SET")}
+          {this.renderItem('AWS_SES_ACCESS_KEY_ID')}
+          {this.renderItem('AWS_SES_SECRET_ACCESS_KEY')}
+          {this.renderItem('AWS_REGION')}
+          {this.renderItem('AWS_SES_CONFIG_SET')}
         </CollapseContent>
 
         <CollapseContent title="Google">
-          {this.renderItem("GOOGLE_PROJECT_ID")}
-          {this.renderItem("GOOGLE_APPLICATION_CREDENTIALS")}
-          {this.renderItem("GOOGLE_CLIENT_ID")}
-          {this.renderItem("GOOGLE_CLIENT_SECRET")}
+          {this.renderItem('GOOGLE_PROJECT_ID')}
+          {this.renderItem('GOOGLE_APPLICATION_CREDENTIALS')}
+          {this.renderItem('GOOGLE_CLIENT_ID')}
+          {this.renderItem('GOOGLE_CLIENT_SECRET')}
         </CollapseContent>
 
-        <CollapseContent title={__("Common mail config")}>
+        <CollapseContent title={__('Common mail config')}>
           <Info>
             <a
               target="_blank"
               href="https://docs.erxes.io/administrator/environment-variables#email-settings"
               rel="noopener noreferrer"
             >
-              {__("More: Understanding Email Settings")}
+              {__('More: Understanding Email Settings')}
             </a>
           </Info>
 
-          {this.renderItem("COMPANY_EMAIL_FROM")}
+          {this.renderItem('COMPANY_EMAIL_FROM')}
           {this.renderItem(
-            "DEFAULT_EMAIL_SERVICE",
-            "Write your default email service name. Default email service is SES"
+            'DEFAULT_EMAIL_SERVICE',
+            'Write your default email service name. Default email service is SES'
           )}
         </CollapseContent>
 
-        <CollapseContent title={__("Custom mail service")}>
+        <CollapseContent title={__('Custom mail service')}>
           <Info>
-            {__("Fill up these inputs if you are using custom email service")}
+            {__('Fill up these inputs if you are using custom email service')}
           </Info>
-          {this.renderItem("MAIL_SERVICE")}
-          {this.renderItem("MAIL_PORT")}
-          {this.renderItem("MAIL_USER")}
-          {this.renderItem("MAIL_PASS")}
-          {this.renderItem("MAIL_HOST")}
+          {this.renderItem('MAIL_SERVICE')}
+          {this.renderItem('MAIL_PORT')}
+          {this.renderItem('MAIL_USER')}
+          {this.renderItem('MAIL_PASS')}
+          {this.renderItem('MAIL_HOST')}
         </CollapseContent>
       </ContentBox>
     );
@@ -322,14 +322,14 @@ class GeneralSettings extends React.Component<Props, State> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__("General system config")}
+            title={__('General system config')}
             breadcrumb={breadcrumb}
           />
         }
         mainHead={<Header />}
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{__("General system config")}</Title>}
+            left={<Title>{__('General system config')}</Title>}
             right={actionButtons}
           />
         }

@@ -1,17 +1,17 @@
-import { PriorityIndicator } from "modules/boards/components/editForm";
-import Move from "modules/boards/containers/editForm/Move";
-import { ColorButton } from "modules/boards/styles/common";
+import { PriorityIndicator } from 'modules/boards/components/editForm';
+import Move from 'modules/boards/containers/editForm/Move';
+import { ColorButton } from 'modules/boards/styles/common';
 import {
   HeaderContent,
   HeaderRow,
   MetaInfo,
   TitleRow
-} from "modules/boards/styles/item";
-import { IOptions } from "modules/boards/types";
-import FormControl from "modules/common/components/form/Control";
-import Participators from "modules/inbox/components/conversationDetail/workarea/Participators";
-import React, { useEffect, useState } from "react";
-import { IGrowthHack } from "../../types";
+} from 'modules/boards/styles/item';
+import { IOptions } from 'modules/boards/types';
+import FormControl from 'modules/common/components/form/Control';
+import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
+import React, { useEffect, useState } from 'react';
+import { IGrowthHack } from '../../types';
 
 type Props = {
   item: IGrowthHack;

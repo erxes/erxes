@@ -1,10 +1,10 @@
-import dayjs from "dayjs";
-import EmptyState from "modules/common/components/EmptyState";
-import React from "react";
-import { IUser } from "../../auth/types";
-import { ActivityTitle, Timeline } from "../styles";
-import { IActivityLog } from "../types";
-import ActivityItem from "./ActivityItem";
+import dayjs from 'dayjs';
+import EmptyState from 'modules/common/components/EmptyState';
+import React from 'react';
+import { IUser } from '../../auth/types';
+import { ActivityTitle, Timeline } from '../styles';
+import { IActivityLog } from '../types';
+import ActivityItem from './ActivityItem';
 
 type Props = {
   activities: IActivityLog[];
@@ -34,10 +34,10 @@ class ActivityList extends React.Component<Props> {
   renderTimeLine(activities) {
     const result = activities.reduce((item, activity) => {
       const { contentType } = activity;
-      const createdDate = dayjs(activity.createdAt).format("MMMM YYYY");
+      const createdDate = dayjs(activity.createdAt).format('MMMM YYYY');
 
       if (
-        contentType === "taskDetail" &&
+        contentType === 'taskDetail' &&
         dayjs(activity.createdAt) >= dayjs()
       ) {
         item.Upcoming = item.Upcoming || [];

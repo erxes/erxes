@@ -1,24 +1,24 @@
-import { COLORS } from "modules/boards/constants";
-import { FlexContent } from "modules/boards/styles/item";
-import { IPipeline, IStage } from "modules/boards/types";
-import Button from "modules/common/components/Button";
-import FormControl from "modules/common/components/form/Control";
-import Form from "modules/common/components/form/Form";
-import FormGroup from "modules/common/components/form/Group";
-import ControlLabel from "modules/common/components/form/Label";
-import { colors } from "modules/common/styles";
-import { IButtonMutateProps, IFormProps } from "modules/common/types";
-import { __ } from "modules/common/utils";
-import { ColorPick, ColorPicker, ExpandWrapper } from "modules/settings/styles";
-import SelectTeamMembers from "modules/settings/team/containers/SelectTeamMembers";
-import React from "react";
-import Modal from "react-bootstrap/Modal";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Popover from "react-bootstrap/Popover";
-import BlockPicker from "react-color/lib/Block";
-import { SelectMemberStyled } from "../styles";
-import { IOption } from "../types";
-import Stages from "./Stages";
+import { COLORS } from 'modules/boards/constants';
+import { FlexContent } from 'modules/boards/styles/item';
+import { IPipeline, IStage } from 'modules/boards/types';
+import Button from 'modules/common/components/Button';
+import FormControl from 'modules/common/components/form/Control';
+import Form from 'modules/common/components/form/Form';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import { colors } from 'modules/common/styles';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
+import { ColorPick, ColorPicker, ExpandWrapper } from 'modules/settings/styles';
+import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
+import React from 'react';
+import Modal from 'react-bootstrap/Modal';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
+import BlockPicker from 'react-color/lib/Block';
+import { SelectMemberStyled } from '../styles';
+import { IOption } from '../types';
+import Stages from './Stages';
 
 type Props = {
   type: string;
@@ -50,7 +50,7 @@ class PipelineForm extends React.Component<Props, State> {
 
     this.state = {
       stages: (stages || []).map(stage => ({ ...stage })),
-      visibility: pipeline ? pipeline.visibility || "public" : "public",
+      visibility: pipeline ? pipeline.visibility || 'public' : 'public',
       selectedMemberIds: pipeline ? pipeline.memberIds || [] : [],
       backgroundColor:
         (pipeline && pipeline.bgColor) || colors.colorPrimaryDark,
@@ -120,7 +120,7 @@ class PipelineForm extends React.Component<Props, State> {
   renderSelectMembers() {
     const { visibility, selectedMemberIds } = this.state;
 
-    if (visibility === "public") {
+    if (visibility === 'public') {
       return;
     }
 
@@ -181,7 +181,7 @@ class PipelineForm extends React.Component<Props, State> {
     const pipelineName =
       options && options.pipelineName
         ? options.pipelineName.toLowerCase()
-        : "pipeline";
+        : 'pipeline';
 
     const popoverBottom = (
       <Popover id="color-picker">
@@ -227,8 +227,8 @@ class PipelineForm extends React.Component<Props, State> {
                   value={this.state.visibility}
                   onChange={this.onChangeVisibility}
                 >
-                  <option value="public">{__("Public")}</option>
-                  <option value="private">{__("Private")}</option>
+                  <option value="public">{__('Public')}</option>
+                  <option value="private">{__('Private')}</option>
                 </FormControl>
               </FormGroup>
             </ExpandWrapper>

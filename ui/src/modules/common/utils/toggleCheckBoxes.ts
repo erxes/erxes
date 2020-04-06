@@ -5,13 +5,13 @@ export default (containerId: string, checked: boolean) => {
     return;
   }
 
-  const elements = container.getElementsByTagName("input");
+  const elements = container.getElementsByTagName('input');
 
   // tslint:disable-next-line
   for (let i = 0; i < elements.length; i++) {
     const element = elements[i];
 
-    if (element.type === "checkbox") {
+    if (element.type === 'checkbox') {
       element.checked = checked;
     }
   }

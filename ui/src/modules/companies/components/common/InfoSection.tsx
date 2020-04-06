@@ -1,12 +1,12 @@
-import { AvatarWrapper } from "modules/activityLogs/styles";
-import Icon from "modules/common/components/Icon";
-import ModalTrigger from "modules/common/components/ModalTrigger";
-import NameCard from "modules/common/components/nameCard/NameCard";
-import { InfoWrapper, Links } from "modules/common/styles/main";
-import { Name, NameContainer } from "modules/customers/styles";
-import React from "react";
-import CompanyForm from "../../containers/CompanyForm";
-import { ICompany } from "../../types";
+import { AvatarWrapper } from 'modules/activityLogs/styles';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import NameCard from 'modules/common/components/nameCard/NameCard';
+import { InfoWrapper, Links } from 'modules/common/styles/main';
+import { Name, NameContainer } from 'modules/customers/styles';
+import React from 'react';
+import CompanyForm from '../../containers/CompanyForm';
+import { ICompany } from '../../types';
 
 type Props = {
   company: ICompany;
@@ -21,8 +21,8 @@ class InfoSection extends React.Component<Props> {
       return null;
     }
 
-    if (!value.includes("http")) {
-      link = "http://".concat(value);
+    if (!value.includes('http')) {
+      link = 'http://'.concat(value);
     }
 
     return (
@@ -35,12 +35,12 @@ class InfoSection extends React.Component<Props> {
   renderLinks(links) {
     return (
       <Links>
-        {this.renderLink(links.facebook, "facebook")}
-        {this.renderLink(links.linkedIn, "linkedin")}
-        {this.renderLink(links.twitter, "twitter")}
-        {this.renderLink(links.youtube, "youtube-play")}
-        {this.renderLink(links.github, "github-circled")}
-        {this.renderLink(links.website, "external-link-alt")}
+        {this.renderLink(links.facebook, 'facebook')}
+        {this.renderLink(links.linkedIn, 'linkedin')}
+        {this.renderLink(links.twitter, 'twitter')}
+        {this.renderLink(links.youtube, 'youtube-play')}
+        {this.renderLink(links.github, 'github-circled')}
+        {this.renderLink(links.website, 'external-link-alt')}
       </Links>
     );
   }

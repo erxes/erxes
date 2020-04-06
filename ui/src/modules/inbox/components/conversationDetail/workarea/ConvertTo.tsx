@@ -1,14 +1,14 @@
-import Button from "modules/common/components/Button";
-import DropdownToggle from "modules/common/components/DropdownToggle";
-import Icon from "modules/common/components/Icon";
-import { __ } from "modules/common/utils";
-import DealConvertTrigger from "modules/deals/components/DealConvertTrigger";
-import { IConversation } from "modules/inbox/types";
-import TaskConvertTrigger from "modules/tasks/components/TaskConvertTrigger";
-import TicketConvertTrigger from "modules/tickets/components/TicketConvertTrigger";
-import React from "react";
-import Dropdown from "react-bootstrap/Dropdown";
-import styled from "styled-components";
+import Button from 'modules/common/components/Button';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
+import Icon from 'modules/common/components/Icon';
+import { __ } from 'modules/common/utils';
+import DealConvertTrigger from 'modules/deals/components/DealConvertTrigger';
+import { IConversation } from 'modules/inbox/types';
+import TaskConvertTrigger from 'modules/tasks/components/TaskConvertTrigger';
+import TicketConvertTrigger from 'modules/tickets/components/TicketConvertTrigger';
+import React from 'react';
+import Dropdown from 'react-bootstrap/Dropdown';
+import styled from 'styled-components';
 
 const Container = styled.div`
   display: inline-block;
@@ -45,7 +45,7 @@ export default (props: Props) => {
   const triggerProps = {
     assignedUserIds,
     relTypeIds: customerIds,
-    relType: "customer",
+    relType: 'customer',
     sourceConversationId,
     refetch
   };
@@ -55,7 +55,7 @@ export default (props: Props) => {
       <Dropdown>
         <Dropdown.Toggle as={DropdownToggle} id="dropdown-convert-to">
           <Button size="small">
-            {__("Convert")} <Icon icon="angle-down" />
+            {__('Convert')} <Icon icon="angle-down" />
           </Button>
         </Dropdown.Toggle>
         <Dropdown.Menu>

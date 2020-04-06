@@ -1,15 +1,15 @@
-import Button from "modules/common/components/Button";
-import EditorCK from "modules/common/components/EditorCK";
-import Form from "modules/common/components/form/Form";
-import Info from "modules/common/components/Info";
-import { Tabs, TabTitle } from "modules/common/components/tabs";
-import { ModalFooter } from "modules/common/styles/main";
-import { IButtonMutateProps, IFormProps } from "modules/common/types";
-import { __ } from "modules/common/utils";
-import { EMAIL_TEMPLATE } from "modules/engage/constants";
-import React from "react";
-import styled from "styled-components";
-import { IBrand } from "../../brands/types";
+import Button from 'modules/common/components/Button';
+import EditorCK from 'modules/common/components/EditorCK';
+import Form from 'modules/common/components/form/Form';
+import Info from 'modules/common/components/Info';
+import { Tabs, TabTitle } from 'modules/common/components/tabs';
+import { ModalFooter } from 'modules/common/styles/main';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
+import { EMAIL_TEMPLATE } from 'modules/engage/constants';
+import React from 'react';
+import styled from 'styled-components';
+import { IBrand } from '../../brands/types';
 
 const ContentWrapper = styled.div`
   margin-top: 20px;
@@ -35,7 +35,7 @@ class Config extends React.Component<Props, State> {
 
     this.state = {
       template: template || props.defaultTemplate,
-      currentTab: type || "simple"
+      currentTab: type || 'simple'
     };
   }
 
@@ -71,7 +71,7 @@ class Config extends React.Component<Props, State> {
   templateControl() {
     const { currentTab } = this.state;
 
-    if (currentTab === "custom") {
+    if (currentTab === 'custom') {
       return (
         <ContentWrapper>
           <EditorCK
@@ -86,7 +86,7 @@ class Config extends React.Component<Props, State> {
 
     return (
       <ContentWrapper>
-        <Info>{__("Your email will be sent with Erxes email template.")}</Info>
+        <Info>{__('Your email will be sent with Erxes email template.')}</Info>
       </ContentWrapper>
     );
   }
@@ -96,23 +96,23 @@ class Config extends React.Component<Props, State> {
     const { currentTab } = this.state;
     const { values, isSubmitted } = formProps;
 
-    const simpleOnClick = () => this.onTabClick("simple");
-    const customOnClick = () => this.onTabClick("custom");
+    const simpleOnClick = () => this.onTabClick('simple');
+    const customOnClick = () => this.onTabClick('custom');
 
     return (
       <>
         <Tabs full={true}>
           <TabTitle
-            className={currentTab === "simple" ? "active" : ""}
+            className={currentTab === 'simple' ? 'active' : ''}
             onClick={simpleOnClick}
           >
-            {__("Simple")}
+            {__('Simple')}
           </TabTitle>
           <TabTitle
-            className={currentTab === "custom" ? "active" : ""}
+            className={currentTab === 'custom' ? 'active' : ''}
             onClick={customOnClick}
           >
-            {__("Custom")}
+            {__('Custom')}
           </TabTitle>
         </Tabs>
         {this.templateControl()}
@@ -123,7 +123,7 @@ class Config extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: "email appearance",
+            name: 'email appearance',
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal

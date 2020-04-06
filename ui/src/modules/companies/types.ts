@@ -1,7 +1,7 @@
-import { ITag } from "modules/tags/types";
-import { IActivityLog, IActivityLogForMonth } from "../activityLogs/types";
-import { IUser } from "../auth/types";
-import { ICustomer } from "../customers/types";
+import { ITag } from 'modules/tags/types';
+import { IActivityLog, IActivityLogForMonth } from '../activityLogs/types';
+import { IUser } from '../auth/types';
+import { ICustomer } from '../customers/types';
 
 export interface ICompanyLinks {
   linkedIn?: string;

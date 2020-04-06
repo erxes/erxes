@@ -1,17 +1,17 @@
-import Box from "modules/common/components/Box";
-import EmptyState from "modules/common/components/EmptyState";
-import Icon from "modules/common/components/Icon";
-import ModalTrigger from "modules/common/components/ModalTrigger";
-import Tip from "modules/common/components/Tip";
-import { ButtonRelated } from "modules/common/styles/main";
-import { __, urlParser } from "modules/common/utils";
-import GetConformity from "modules/conformity/containers/GetConformity";
-import { SectionBody, SectionBodyItem } from "modules/layout/styles";
-import React from "react";
-import { Link } from "react-router-dom";
-import CompanyChooser from "../../containers/CompanyChooser";
-import { queries } from "../../graphql";
-import { ICompany } from "../../types";
+import Box from 'modules/common/components/Box';
+import EmptyState from 'modules/common/components/EmptyState';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Tip from 'modules/common/components/Tip';
+import { ButtonRelated } from 'modules/common/styles/main';
+import { __, urlParser } from 'modules/common/utils';
+import GetConformity from 'modules/conformity/containers/GetConformity';
+import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import CompanyChooser from '../../containers/CompanyChooser';
+import { queries } from '../../graphql';
+import { ICompany } from '../../types';
 
 type Props = {
   name: string;
@@ -27,8 +27,8 @@ function Component(
   {
     name,
     items = [],
-    mainType = "",
-    mainTypeId = "",
+    mainType = '',
+    mainTypeId = '',
     onSelect,
     collapseCallback
   }: Props
@@ -61,7 +61,7 @@ function Component(
 
   const relCompanyTrigger = (
     <ButtonRelated>
-      <button>{__("See related companies..")}</button>
+      <button>{__('See related companies..')}</button>
     </ButtonRelated>
   );
 
@@ -90,10 +90,10 @@ function Component(
           <Link to={`/contacts/companies/details/${company._id}`}>
             <Icon icon="arrow-to-right" />
           </Link>
-          <span>{company.primaryName || "Unknown"}</span>
-          <Tip text={company.website || ""}>
+          <span>{company.primaryName || 'Unknown'}</span>
+          <Tip text={company.website || ''}>
             <a href={`//${company.website}`}>
-              {urlParser.extractRootDomain(company.website || "")}
+              {urlParser.extractRootDomain(company.website || '')}
             </a>
           </Tip>
         </SectionBodyItem>
@@ -105,7 +105,7 @@ function Component(
 
   return (
     <Box
-      title={__("Companies")}
+      title={__('Companies')}
       name="showCompanies"
       extraButtons={quickButtons}
       isOpen={true}

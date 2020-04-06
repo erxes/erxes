@@ -1,21 +1,21 @@
-import DropdownToggle from "modules/common/components/DropdownToggle";
-import Icon from "modules/common/components/Icon";
-import ModalTrigger from "modules/common/components/ModalTrigger";
-import { DropIcon } from "modules/common/styles/main";
-import { IButtonMutateProps } from "modules/common/types";
-import { __ } from "modules/common/utils";
-import React from "react";
-import Dropdown from "react-bootstrap/Dropdown";
-import CategoryForm from "../../containers/category/CategoryForm";
-import CategoryList from "../../containers/category/CategoryList";
-import KnowledgeForm from "../../containers/knowledge/KnowledgeForm";
-import { ITopic } from "../../types";
+import DropdownToggle from 'modules/common/components/DropdownToggle';
+import Icon from 'modules/common/components/Icon';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import { DropIcon } from 'modules/common/styles/main';
+import { IButtonMutateProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
+import React from 'react';
+import Dropdown from 'react-bootstrap/Dropdown';
+import CategoryForm from '../../containers/category/CategoryForm';
+import CategoryList from '../../containers/category/CategoryList';
+import KnowledgeForm from '../../containers/knowledge/KnowledgeForm';
+import { ITopic } from '../../types';
 import {
   KnowledgeBaseRow,
   RowActions,
   SectionHead,
   SectionTitle
-} from "./styles";
+} from './styles';
 
 type Props = {
   queryParams: any;
@@ -69,16 +69,16 @@ class KnowledgeRow extends React.Component<Props, State> {
     const { categories } = this.props.topic;
 
     if (categories.includes(nextProps.currentCategoryId)) {
-      this.setState({ detailed: collapse("", false, true) });
+      this.setState({ detailed: collapse('', false, true) });
     }
   }
 
   renderManage() {
     const { topic, renderButton, remove, refetchTopics } = this.props;
 
-    const addCategory = <Dropdown.Item>{__("Add category")}</Dropdown.Item>;
+    const addCategory = <Dropdown.Item>{__('Add category')}</Dropdown.Item>;
     const manageTopic = (
-      <Dropdown.Item>{__("Edit Knowledge Base")}</Dropdown.Item>
+      <Dropdown.Item>{__('Edit Knowledge Base')}</Dropdown.Item>
     );
 
     const content = props => (
@@ -100,7 +100,7 @@ class KnowledgeRow extends React.Component<Props, State> {
 
     return (
       <RowActions>
-        <Dropdown alignRight={true} style={{ float: "left" }}>
+        <Dropdown alignRight={true} style={{ float: 'left' }}>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-knowledgebase">
             <Icon icon="cog" size={15} />
           </Dropdown.Toggle>

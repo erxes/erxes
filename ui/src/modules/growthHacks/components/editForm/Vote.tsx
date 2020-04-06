@@ -1,9 +1,9 @@
-import { ColorButton } from "modules/boards/styles/common";
-import Icon from "modules/common/components/Icon";
-import { colors } from "modules/common/styles";
-import { __ } from "modules/common/utils";
-import * as React from "react";
-import { IGrowthHack } from "../../types";
+import { ColorButton } from 'modules/boards/styles/common';
+import Icon from 'modules/common/components/Icon';
+import { colors } from 'modules/common/styles';
+import { __ } from 'modules/common/utils';
+import * as React from 'react';
+import { IGrowthHack } from '../../types';
 
 type IProps = {
   item: IGrowthHack;
@@ -22,10 +22,10 @@ class Vote extends React.Component<IProps> {
     return (
       <ColorButton
         onClick={onClick}
-        color={isVoted ? colors.colorCoreGreen : ""}
+        color={isVoted ? colors.colorCoreGreen : ''}
       >
         <Icon icon="thumbs-up" />
-        {__(isVoted ? "Unvote" : "Vote")}
+        {__(isVoted ? 'Unvote' : 'Vote')}
       </ColorButton>
     );
   }

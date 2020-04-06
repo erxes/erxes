@@ -1,6 +1,6 @@
-import Datetime from "@nateradebaugh/react-datetime";
-import dayjs from "dayjs";
-import { REMINDER_MINUTES } from "modules/boards/constants";
+import Datetime from '@nateradebaugh/react-datetime';
+import dayjs from 'dayjs';
+import { REMINDER_MINUTES } from 'modules/boards/constants';
 import {
   Button,
   CalenderWrapper,
@@ -8,21 +8,21 @@ import {
   CloseDateContent,
   CloseDateWrapper,
   DateGrid
-} from "modules/boards/styles/popup";
-import FormControl from "modules/common/components/form/Control";
-import ControlLabel from "modules/common/components/form/Label";
-import React from "react";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Popover from "react-bootstrap/Popover";
-import Select from "react-select-plus";
-import { generateButtonClass, selectOptions } from "../../utils";
+} from 'modules/boards/styles/popup';
+import FormControl from 'modules/common/components/form/Control';
+import ControlLabel from 'modules/common/components/form/Label';
+import React from 'react';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
+import Select from 'react-select-plus';
+import { generateButtonClass, selectOptions } from '../../utils';
 
 type Props = {
   closeDate: Date;
   isComplete: boolean;
   reminderMinute: number;
   onChangeField: (
-    name: "closeDate" | "reminderMinute" | "isComplete",
+    name: 'closeDate' | 'reminderMinute' | 'isComplete',
     value: any
   ) => void;
 };
@@ -50,7 +50,7 @@ class CloseDate extends React.Component<Props, State> {
   };
 
   minuteOnChange = ({ value }: { value: string }) => {
-    this.props.onChangeField("reminderMinute", parseInt(value, 10));
+    this.props.onChangeField('reminderMinute', parseInt(value, 10));
   };
 
   dateOnChange = date => {
@@ -64,12 +64,12 @@ class CloseDate extends React.Component<Props, State> {
   onSave = () => {
     const { dueDate } = this.state;
 
-    this.props.onChangeField("closeDate", dueDate);
+    this.props.onChangeField('closeDate', dueDate);
     this.hideContent();
   };
 
   remove = () => {
-    this.props.onChangeField("closeDate", null);
+    this.props.onChangeField('closeDate', null);
     this.hideContent();
   };
 
@@ -77,8 +77,8 @@ class CloseDate extends React.Component<Props, State> {
     const { reminderMinute } = this.props;
     const { dueDate } = this.state;
 
-    const day = dayjs(dueDate).format("YYYY/MM/DD");
-    const time = dayjs(dueDate).format("HH:mm");
+    const day = dayjs(dueDate).format('YYYY/MM/DD');
+    const time = dayjs(dueDate).format('HH:mm');
 
     return (
       <Popover id="pipeline-popover">
@@ -98,7 +98,7 @@ class CloseDate extends React.Component<Props, State> {
 
           <CalenderWrapper>
             <Datetime
-              inputProps={{ placeholder: "Click to select a date" }}
+              inputProps={{ placeholder: 'Click to select a date' }}
               dateFormat="YYYY/MM/DD"
               timeFormat="HH:mm"
               value={dueDate}
@@ -107,9 +107,9 @@ class CloseDate extends React.Component<Props, State> {
               input={false}
               onChange={this.dateOnChange}
               defaultValue={dayjs()
-                .startOf("day")
-                .add(12, "hour")
-                .format("YYYY-MM-DD HH:mm:ss")}
+                .startOf('day')
+                .add(12, 'hour')
+                .format('YYYY-MM-DD HH:mm:ss')}
             />
           </CalenderWrapper>
 
@@ -138,15 +138,15 @@ class CloseDate extends React.Component<Props, State> {
 
   render() {
     const { isComplete, onChangeField, closeDate } = this.props;
-    const time = dayjs(closeDate).format("HH:mm");
+    const time = dayjs(closeDate).format('HH:mm');
 
-    const onChange = e => onChangeField("isComplete", e.target.checked);
+    const onChange = e => onChangeField('isComplete', e.target.checked);
 
     const trigger = (
       <Button colorName={generateButtonClass(closeDate, isComplete)}>
         {closeDate
-          ? `${dayjs(closeDate).format("MMM DD")} at ${time}`
-          : "Close date"}
+          ? `${dayjs(closeDate).format('MMM DD')} at ${time}`
+          : 'Close date'}
       </Button>
     );
 

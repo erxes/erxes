@@ -1,21 +1,21 @@
-import dayjs from "dayjs";
-import TextInfo from "modules/common/components/TextInfo";
-import colors from "modules/common/styles/colors";
-import React from "react";
-import Col from "react-bootstrap/Col";
-import Row from "react-bootstrap/Row";
-import { LogBox } from "../styles";
-import { ILog, ILogDesc } from "../types";
-import { flattenObject, isObjectEmpty } from "../utils";
+import dayjs from 'dayjs';
+import TextInfo from 'modules/common/components/TextInfo';
+import colors from 'modules/common/styles/colors';
+import React from 'react';
+import Col from 'react-bootstrap/Col';
+import Row from 'react-bootstrap/Row';
+import { LogBox } from '../styles';
+import { ILog, ILogDesc } from '../types';
+import { flattenObject, isObjectEmpty } from '../utils';
 
 // field names used to show properly formatted date values
 const DATE_FIELD_NAMES = [
-  "createdAt",
-  "createdDate",
-  "modifiedAt",
-  "lastSeenAt",
-  "closeDate",
-  "modifiedDate"
+  'createdAt',
+  'createdDate',
+  'modifiedAt',
+  'lastSeenAt',
+  'closeDate',
+  'modifiedDate'
 ];
 
 type Props = {
@@ -29,7 +29,7 @@ export default class LogModal extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
 
-    this.extraDesc = JSON.parse(props.log.extraDesc || "[]") || [];
+    this.extraDesc = JSON.parse(props.log.extraDesc || '[]') || [];
   }
 
   /**
@@ -37,11 +37,11 @@ export default class LogModal extends React.Component<Props> {
    * @param {Object|string|number[]]} array List of values
    * @param {string} name Field name at database
    */
-  buildListFromArray(array: any[] = [], name: string = ""): JSX.Element {
+  buildListFromArray(array: any[] = [], name: string = ''): JSX.Element {
     const list: JSX.Element[] = [];
 
     array.forEach((elem, index) => {
-      if (typeof elem !== "object") {
+      if (typeof elem !== 'object') {
         let value: string = elem.toString();
 
         // Finding mapped name behind id field
@@ -58,7 +58,7 @@ export default class LogModal extends React.Component<Props> {
         list.push(<li key={Math.random()}>{value}</li>);
       }
 
-      if (typeof elem === "object") {
+      if (typeof elem === 'object') {
         const sub: JSX.Element[] = this.buildListFromObject(elem);
 
         list.push(<li key={Math.random()}>{index + 1}:</li>);
@@ -83,7 +83,7 @@ export default class LogModal extends React.Component<Props> {
     const list: JSX.Element[] = [];
 
     if (isObjectEmpty(flatObject)) {
-      return [<span key={"empty-object"} />];
+      return [<span key={'empty-object'} />];
     }
 
     for (const name of names) {
@@ -100,7 +100,7 @@ export default class LogModal extends React.Component<Props> {
       let value: string = String(field);
 
       if (DATE_FIELD_NAMES.includes(name)) {
-        value = dayjs(field).format("YYYY-MM-DD HH:mm");
+        value = dayjs(field).format('YYYY-MM-DD HH:mm');
       }
 
       if (this.extraDesc) {
@@ -120,7 +120,7 @@ export default class LogModal extends React.Component<Props> {
         </li>
       );
 
-      if (typeof field === "object") {
+      if (typeof field === 'object') {
         if (Array.isArray(field)) {
           item = this.buildListFromArray(field, name);
 
@@ -162,14 +162,14 @@ export default class LogModal extends React.Component<Props> {
       return <span />;
     }
 
-    const clean = jsonString.replace("\n", "");
+    const clean = jsonString.replace('\n', '');
     const parsed = JSON.parse(clean);
 
     if (isObjectEmpty(parsed)) {
       return <span />;
     }
 
-    if (typeof parsed === "object" && !Array.isArray(parsed)) {
+    if (typeof parsed === 'object' && !Array.isArray(parsed)) {
       return <ul>{this.buildListFromObject(parsed)}</ul>;
     }
 
@@ -188,13 +188,13 @@ export default class LogModal extends React.Component<Props> {
     let color: string = colors.colorPrimary;
 
     switch (cls) {
-      case "success":
+      case 'success':
         color = colors.colorCoreGreen;
         break;
-      case "warning":
+      case 'warning':
         color = colors.colorCoreYellow;
         break;
-      case "danger":
+      case 'danger':
         color = colors.colorCoreRed;
         break;
       default:
@@ -223,10 +223,10 @@ export default class LogModal extends React.Component<Props> {
     return (
       <>
         <Row>
-          {this.renderData(log.oldData, "Before any changes", "default")}
-          {this.renderData(log.addedData, "Added fields", "success")}
-          {this.renderData(log.changedData, "Changed fields", "warning")}
-          {this.renderData(log.removedData, "Removed fields", "danger")}
+          {this.renderData(log.oldData, 'Before any changes', 'default')}
+          {this.renderData(log.addedData, 'Added fields', 'success')}
+          {this.renderData(log.changedData, 'Changed fields', 'warning')}
+          {this.renderData(log.removedData, 'Removed fields', 'danger')}
         </Row>
       </>
     );

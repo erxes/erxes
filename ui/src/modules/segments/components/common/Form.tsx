@@ -1,14 +1,14 @@
-import Button from "modules/common/components/Button";
-import EmptyState from "modules/common/components/EmptyState";
-import FormControl from "modules/common/components/form/Control";
-import CommonForm from "modules/common/components/form/Form";
-import FormGroup from "modules/common/components/form/Group";
-import ControlLabel from "modules/common/components/form/Label";
-import Icon from "modules/common/components/Icon";
-import { ModalFooter } from "modules/common/styles/main";
-import { IButtonMutateProps, IFormProps } from "modules/common/types";
-import { __, generateRandomColorCode } from "modules/common/utils";
-import { FlexContent, FlexItem } from "modules/layout/styles";
+import Button from 'modules/common/components/Button';
+import EmptyState from 'modules/common/components/EmptyState';
+import FormControl from 'modules/common/components/form/Control';
+import CommonForm from 'modules/common/components/form/Form';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import Icon from 'modules/common/components/Icon';
+import { ModalFooter } from 'modules/common/styles/main';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { __, generateRandomColorCode } from 'modules/common/utils';
+import { FlexContent, FlexItem } from 'modules/layout/styles';
 import {
   IConditionFilter,
   IEvent,
@@ -16,17 +16,17 @@ import {
   ISegment,
   ISegmentCondition,
   ISegmentWithConditionDoc
-} from "modules/segments/types";
-import { ColorPick, ColorPicker, ExpandWrapper } from "modules/settings/styles";
-import React from "react";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Popover from "react-bootstrap/Popover";
-import ChromePicker from "react-color/lib/Chrome";
-import { Link } from "react-router-dom";
-import { FilterBox, SegmentTitle, SegmentWrapper } from "../styles";
-import AddConditionButton from "./AddConditionButton";
-import EventCondition from "./EventCondition";
-import PropertyCondition from "./PropertyCondition";
+} from 'modules/segments/types';
+import { ColorPick, ColorPicker, ExpandWrapper } from 'modules/settings/styles';
+import React from 'react';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
+import ChromePicker from 'react-color/lib/Chrome';
+import { Link } from 'react-router-dom';
+import { FilterBox, SegmentTitle, SegmentWrapper } from '../styles';
+import AddConditionButton from './AddConditionButton';
+import EventCondition from './EventCondition';
+import PropertyCondition from './PropertyCondition';
 
 type Props = {
   contentType?: string;
@@ -54,9 +54,9 @@ class Form extends React.Component<Props, State> {
     super(props);
 
     const segment: ISegment = props.segment || {
-      name: "",
-      description: "",
-      subOf: "",
+      name: '',
+      description: '',
+      subOf: '',
       color: generateRandomColorCode(),
       conditions: []
     };
@@ -83,7 +83,7 @@ class Form extends React.Component<Props, State> {
     occurenceValue: number;
   }) => {
     const condition = {
-      type: "event",
+      type: 'event',
       key: args.key,
       eventName: args.name,
       eventOccurence: args.occurence,
@@ -109,7 +109,7 @@ class Form extends React.Component<Props, State> {
     value: string;
   }) => {
     const condition = {
-      type: "property",
+      type: 'property',
       key: args.key,
       propertyName: args.name,
       propertyOperator: args.operator,
@@ -173,7 +173,7 @@ class Form extends React.Component<Props, State> {
     return (
       <Link to={`/segments/edit/${contentType}/${subOf}`} target="_blank">
         <Icon icon="arrows-up-right" />
-        {__("See parent segment conditions")}
+        {__('See parent segment conditions')}
       </Link>
     );
   }
@@ -181,15 +181,15 @@ class Form extends React.Component<Props, State> {
   renderCondition(condition: ISegmentCondition) {
     const { fields, events } = this.props;
 
-    if (condition.type === "property") {
+    if (condition.type === 'property') {
       return (
         <PropertyCondition
           fields={fields}
           key={condition.key}
-          conditionKey={condition.key || ""}
-          name={condition.propertyName || ""}
-          operator={condition.propertyOperator || ""}
-          value={condition.propertyValue || ""}
+          conditionKey={condition.key || ''}
+          name={condition.propertyName || ''}
+          operator={condition.propertyOperator || ''}
+          value={condition.propertyValue || ''}
           onChange={this.changePropertyCondition}
           onRemove={this.removeCondition}
         />
@@ -200,9 +200,9 @@ class Form extends React.Component<Props, State> {
       <EventCondition
         events={events}
         key={condition.key}
-        conditionKey={condition.key || ""}
-        name={condition.eventName || ""}
-        occurence={condition.eventOccurence || ""}
+        conditionKey={condition.key || ''}
+        name={condition.eventName || ''}
+        occurence={condition.eventOccurence || ''}
         occurenceValue={condition.eventOccurenceValue || 0}
         attributeFilters={condition.eventAttributeFilters || []}
         onChange={this.changeEventCondition}
@@ -226,7 +226,7 @@ class Form extends React.Component<Props, State> {
     return (
       <>
         <SegmentTitle>
-          {__("Filters")} {this.renderParent()}
+          {__('Filters')} {this.renderParent()}
         </SegmentTitle>
         {conditions.map(condition => this.renderCondition(condition))}
       </>
@@ -235,7 +235,7 @@ class Form extends React.Component<Props, State> {
 
   renderSubOf(formProps: IFormProps) {
     const onChange = (e: React.FormEvent) =>
-      this.handleChange("subOf", (e.currentTarget as HTMLInputElement).value);
+      this.handleChange('subOf', (e.currentTarget as HTMLInputElement).value);
 
     return (
       <FormGroup>
@@ -244,10 +244,10 @@ class Form extends React.Component<Props, State> {
           {...formProps}
           name="subOf"
           componentClass="select"
-          value={this.state.subOf || ""}
+          value={this.state.subOf || ''}
           onChange={onChange}
         >
-          <option value="">{__("Not selected")}</option>
+          <option value="">{__('Not selected')}</option>
           {this.props.headSegments.map(segment => (
             <option value={segment._id} key={segment._id}>
               {segment.name}
@@ -281,15 +281,15 @@ class Form extends React.Component<Props, State> {
     const { name, description, color, conditions } = this.state;
 
     const nameOnChange = (e: React.FormEvent) =>
-      this.handleChange("name", (e.currentTarget as HTMLInputElement).value);
+      this.handleChange('name', (e.currentTarget as HTMLInputElement).value);
 
     const descOnChange = (e: React.FormEvent) =>
       this.handleChange(
-        "description",
+        'description',
         (e.currentTarget as HTMLInputElement).value
       );
 
-    const colorOnChange = e => this.handleChange("color", e.hex);
+    const colorOnChange = e => this.handleChange('color', e.hex);
 
     const onPreviewCount = () => {
       if (previewCount) {
@@ -377,7 +377,7 @@ class Form extends React.Component<Props, State> {
             )}
 
             {renderButton({
-              name: "segment",
+              name: 'segment',
               values: this.generateDoc(values),
               callback: afterSave,
               isSubmitted,

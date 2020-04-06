@@ -1,11 +1,11 @@
-import { IUser } from "modules/auth/types";
-import * as React from "react";
-import RTG from "react-transition-group";
-import Onboarding from "../containers/Onboarding";
-import { IEntry } from "../types";
-import { getCurrentUserName } from "../utils";
-import Assistant from "./assistant/Assistant";
-import { Bot } from "./styles";
+import { IUser } from 'modules/auth/types';
+import * as React from 'react';
+import RTG from 'react-transition-group';
+import Onboarding from '../containers/Onboarding';
+import { IEntry } from '../types';
+import { getCurrentUserName } from '../utils';
+import Assistant from './assistant/Assistant';
+import { Bot } from './styles';
 
 type Props = {
   entries: IEntry[];
@@ -20,7 +20,7 @@ class Robot extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = { currentRoute: "onboardInitial" };
+    this.state = { currentRoute: 'onboardInitial' };
   }
 
   changeRoute = (currentRoute: string) => {
@@ -34,16 +34,16 @@ class Robot extends React.Component<Props, State> {
     return (
       <>
         <Assistant
-          show={currentRoute === "assistant"}
+          show={currentRoute === 'assistant'}
           changeRoute={this.changeRoute}
           currentUserName={getCurrentUserName(currentUser)}
         />
         <Onboarding
           changeRoute={this.changeRoute}
-          show={currentRoute.includes("onboard")}
+          show={currentRoute.includes('onboard')}
           currentUser={currentUser}
           currentStep={
-            currentRoute === "onboardStart" ? "featureList" : undefined
+            currentRoute === 'onboardStart' ? 'featureList' : undefined
           }
         />
       </>
@@ -51,11 +51,11 @@ class Robot extends React.Component<Props, State> {
   };
 
   changeContent = () => {
-    if (this.state.currentRoute === "assistant") {
-      return this.changeRoute("");
+    if (this.state.currentRoute === 'assistant') {
+      return this.changeRoute('');
     }
 
-    return this.changeRoute("assistant");
+    return this.changeRoute('assistant');
   };
 
   render() {

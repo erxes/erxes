@@ -1,10 +1,10 @@
-import { dimensions } from "modules/common/styles";
-import { __ } from "modules/common/utils";
-import { AlertItem } from "modules/common/utils/Alert/Alert";
-import React from "react";
-import RTG from "react-transition-group";
-import styled from "styled-components";
-import Icon from "../../common/components/Icon";
+import { dimensions } from 'modules/common/styles';
+import { __ } from 'modules/common/utils';
+import { AlertItem } from 'modules/common/utils/Alert/Alert';
+import React from 'react';
+import RTG from 'react-transition-group';
+import styled from 'styled-components';
+import Icon from '../../common/components/Icon';
 
 const OldBrowserWarning = styled(AlertItem)`
   position: fixed;
@@ -43,7 +43,7 @@ class DetectBrowser extends React.PureComponent<{}, State> {
     const { userAgent } = navigator;
 
     const splittedVersion = userAgent.split(name)[1];
-    const browserVersion = splittedVersion.split(".")[0];
+    const browserVersion = splittedVersion.split('.')[0];
 
     if (Number(browserVersion) < minVersion) {
       return (
@@ -56,14 +56,14 @@ class DetectBrowser extends React.PureComponent<{}, State> {
         >
           <OldBrowserWarning type="error">
             <b>
-              {__("Please upgrade your browser to use erxes!")}
+              {__('Please upgrade your browser to use erxes!')}
               <Icon icon="cancel" size={10} onClick={this.closeAlert} />
             </b>
             <div>
               {__(
-                "Unfortunately, You are running on a browser that may not be fully compatible with erxes"
-              )}{" "}
-              {__(`Please use recommended version`)} - {name.replace("/", "")}{" "}
+                'Unfortunately, You are running on a browser that may not be fully compatible with erxes'
+              )}{' '}
+              {__(`Please use recommended version`)} - {name.replace('/', '')}{' '}
               {minVersion}+.
             </div>
           </OldBrowserWarning>
@@ -77,27 +77,27 @@ class DetectBrowser extends React.PureComponent<{}, State> {
   render() {
     const { userAgent } = navigator;
 
-    if (userAgent.indexOf("Chrome") !== -1) {
-      return this.renderWarning("Chrome/", 58);
+    if (userAgent.indexOf('Chrome') !== -1) {
+      return this.renderWarning('Chrome/', 58);
     }
 
     if (
-      userAgent.indexOf("Safari") !== -1 &&
-      userAgent.indexOf("Chrome") === -1
+      userAgent.indexOf('Safari') !== -1 &&
+      userAgent.indexOf('Chrome') === -1
     ) {
-      return this.renderWarning("Version/", 11);
+      return this.renderWarning('Version/', 11);
     }
 
-    if (userAgent.indexOf("Firefox") !== -1) {
-      return this.renderWarning("Firefox/", 59);
+    if (userAgent.indexOf('Firefox') !== -1) {
+      return this.renderWarning('Firefox/', 59);
     }
 
-    if (userAgent.indexOf("Opera") !== -1 || userAgent.indexOf("OPR") !== -1) {
-      return this.renderWarning("Opera/", 45);
+    if (userAgent.indexOf('Opera') !== -1 || userAgent.indexOf('OPR') !== -1) {
+      return this.renderWarning('Opera/', 45);
     }
 
-    if (userAgent.indexOf("Edge") !== -1) {
-      return this.renderWarning("Edge/", 16);
+    if (userAgent.indexOf('Edge') !== -1) {
+      return this.renderWarning('Edge/', 16);
     }
 
     return null;

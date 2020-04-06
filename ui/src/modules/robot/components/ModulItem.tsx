@@ -1,7 +1,7 @@
-import Icon from "modules/common/components/Icon";
-import * as React from "react";
-import styled, { css } from "styled-components";
-import { Count, GroupHead } from "./assistant/styles";
+import Icon from 'modules/common/components/Icon';
+import * as React from 'react';
+import styled, { css } from 'styled-components';
+import { Count, GroupHead } from './assistant/styles';
 
 const IconContainer = styled(Count)`
   padding: 10px 20px;
@@ -11,8 +11,8 @@ const Modul = styled(GroupHead)`
   width: 100%;
   margin-bottom: 15px;
   margin-right: 20px;
-  max-width: ${props => props.vertical && "30%"};
-  min-width: ${props => props.vertical && "130px"};
+  max-width: ${props => props.vertical && '30%'};
+  min-width: ${props => props.vertical && '130px'};
 
   &:last-child {
     margin-right: 0;
@@ -74,7 +74,7 @@ type State = {
 class ModulItem extends React.Component<Props, State> {
   render() {
     const {
-      icon = "chat",
+      icon = 'chat',
       title,
       description,
       color,

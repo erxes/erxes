@@ -1,5 +1,5 @@
-import Icon from "modules/common/components/Icon";
-import React from "react";
+import Icon from 'modules/common/components/Icon';
+import React from 'react';
 import {
   BoxContent,
   HelperButtons,
@@ -10,7 +10,7 @@ import {
   SidebarTitle,
   SidebarToggle,
   SideContent
-} from "../styles";
+} from '../styles';
 
 function Title({
   children,
@@ -75,7 +75,7 @@ class Section extends React.Component<Props, State> {
   };
 
   renderCollapseButton = () => {
-    const icon = this.state.collapse ? "angle-double-up" : "angle-double-down";
+    const icon = this.state.collapse ? 'angle-double-up' : 'angle-double-down';
 
     return (
       <SidebarToggle tabIndex={0} onClick={this.toggleCollapse}>

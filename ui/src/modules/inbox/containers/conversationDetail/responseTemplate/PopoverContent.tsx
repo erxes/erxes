@@ -1,18 +1,18 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { withProps } from "modules/common/utils";
-import PopoverContent from "modules/inbox/components/conversationDetail/workarea/responseTemplate/PopoverContent";
-import { IBrand } from "modules/settings/brands/types";
-import { queries as responseTemplateQuery } from "modules/settings/responseTemplates/graphql";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { withProps } from 'modules/common/utils';
+import PopoverContent from 'modules/inbox/components/conversationDetail/workarea/responseTemplate/PopoverContent';
+import { IBrand } from 'modules/settings/brands/types';
+import { queries as responseTemplateQuery } from 'modules/settings/responseTemplates/graphql';
 import {
   IResponseTemplate,
   ResponseTemplatesQueryResponse,
   ResponseTemplatesTotalCountQueryResponse
-} from "modules/settings/responseTemplates/types";
-import React from "react";
-import { graphql } from "react-apollo";
+} from 'modules/settings/responseTemplates/types';
+import React from 'react';
+import { graphql } from 'react-apollo';
 
-import { AppConsumer } from "appContext";
+import { AppConsumer } from 'appContext';
 
 type Props = {
   onSelect: (responseTemplate?: IResponseTemplate) => void;
@@ -88,7 +88,7 @@ const withQuery = () =>
       graphql<Props & { searchValue: string }, ResponseTemplatesQueryResponse>(
         gql(responseTemplateQuery.responseTemplates),
         {
-          name: "responseTemplatesQuery",
+          name: 'responseTemplatesQuery',
           options: ({ searchValue, brandId }) => {
             return {
               variables: {
@@ -101,7 +101,7 @@ const withQuery = () =>
         }
       ),
       graphql(gql(responseTemplateQuery.responseTemplatesTotalCount), {
-        name: "responseTemplatesTotalCountQuery"
+        name: 'responseTemplatesTotalCountQuery'
       })
     )(PopoverContentContainer)
   );
@@ -119,7 +119,7 @@ class Wrapper extends React.Component<Props, WrapperState> {
 
     this.withQuery = withQuery();
 
-    this.state = { searchValue: "", brandId: props.brandId };
+    this.state = { searchValue: '', brandId: props.brandId };
   }
 
   search = <T extends keyof WrapperState>(name: T, value: WrapperState[T]) => {

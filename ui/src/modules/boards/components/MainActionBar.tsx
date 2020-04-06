@@ -1,22 +1,22 @@
-import DropdownToggle from "modules/common/components/DropdownToggle";
-import EmptyState from "modules/common/components/EmptyState";
-import Icon from "modules/common/components/Icon";
-import Tip from "modules/common/components/Tip";
-import { __ } from "modules/common/utils";
-import Participators from "modules/inbox/components/conversationDetail/workarea/Participators";
-import React from "react";
-import Dropdown from "react-bootstrap/Dropdown";
-import { Link } from "react-router-dom";
-import PipelineWatch from "../containers/PipelineWatch";
+import DropdownToggle from 'modules/common/components/DropdownToggle';
+import EmptyState from 'modules/common/components/EmptyState';
+import Icon from 'modules/common/components/Icon';
+import Tip from 'modules/common/components/Tip';
+import { __ } from 'modules/common/utils';
+import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
+import React from 'react';
+import Dropdown from 'react-bootstrap/Dropdown';
+import { Link } from 'react-router-dom';
+import PipelineWatch from '../containers/PipelineWatch';
 import {
   HeaderButton,
   HeaderItems,
   HeaderLabel,
   HeaderLink,
   PageHeader
-} from "../styles/header";
-import { IBoard, IOptions, IPipeline } from "../types";
-import RightMenu from "./RightMenu";
+} from '../styles/header';
+import { IBoard, IOptions, IPipeline } from '../types';
+import RightMenu from './RightMenu';
 
 type Props = {
   onSearch: (search: string) => void;
@@ -39,9 +39,9 @@ type Props = {
 
 class MainActionBar extends React.Component<Props> {
   static defaultProps = {
-    viewType: "board",
-    boardText: "Board",
-    pipelineText: "Pipeline"
+    viewType: 'board',
+    boardText: 'Board',
+    pipelineText: 'Pipeline'
   };
 
   renderBoards() {
@@ -143,10 +143,10 @@ class MainActionBar extends React.Component<Props> {
       return null;
     }
 
-    if (currentPipeline.visibility === "public") {
+    if (currentPipeline.visibility === 'public') {
       return (
         <HeaderButton>
-          <Icon icon="earthgrid" /> {__("Public")}
+          <Icon icon="earthgrid" /> {__('Public')}
         </HeaderButton>
       );
     }
@@ -156,7 +156,7 @@ class MainActionBar extends React.Component<Props> {
     return (
       <>
         <HeaderButton>
-          <Icon icon="users-alt" /> {__("Private")}
+          <Icon icon="users-alt" /> {__('Private')}
         </HeaderButton>
         <Participators participatedUsers={members} limit={3} />
       </>
@@ -179,35 +179,35 @@ class MainActionBar extends React.Component<Props> {
     const actionBarLeft = (
       <HeaderItems>
         <HeaderLabel>
-          <Icon icon="web-grid-alt" /> {__(boardText || "")}:{" "}
+          <Icon icon="web-grid-alt" /> {__(boardText || '')}:{' '}
         </HeaderLabel>
         <Dropdown>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-board">
             <HeaderButton rightIconed={true}>
-              {(currentBoard && currentBoard.name) || __("Choose board")}
+              {(currentBoard && currentBoard.name) || __('Choose board')}
               <Icon icon="angle-down" />
             </HeaderButton>
           </Dropdown.Toggle>
           <Dropdown.Menu>{this.renderBoards()}</Dropdown.Menu>
         </Dropdown>
         <HeaderLabel>
-          <Icon icon="web-section-alt" /> {__(pipelineText || "")}:{" "}
+          <Icon icon="web-section-alt" /> {__(pipelineText || '')}:{' '}
         </HeaderLabel>
         <Dropdown>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-pipeline">
             <HeaderButton rightIconed={true}>
               {(currentPipeline && currentPipeline.name) ||
-                __("Choose pipeline")}
+                __('Choose pipeline')}
               <Icon icon="angle-down" />
             </HeaderButton>
           </Dropdown.Toggle>
           <Dropdown.Menu>{this.renderPipelines()}</Dropdown.Menu>
         </Dropdown>
         <HeaderLink>
-          <Tip text={__("Manage Board & Pipeline")} placement="bottom">
+          <Tip text={__('Manage Board & Pipeline')} placement="bottom">
             <Link
               to={`/settings/boards/${type}?boardId=${
-                currentBoard ? currentBoard._id : ""
+                currentBoard ? currentBoard._id : ''
               }`}
             >
               <Icon icon="cog" />

@@ -1,13 +1,13 @@
-import { IButtonMutateProps, IFormProps } from "modules/common/types";
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 
-import FormControl from "modules/common/components/form/Control";
-import Form from "modules/common/components/form/Form";
-import FormGroup from "modules/common/components/form/Group";
-import ControlLabel from "modules/common/components/form/Label";
-import Spinner from "modules/common/components/Spinner";
-import { ModalFooter } from "modules/common/styles/main";
-import React from "react";
-import SelectBrand from "../../containers/SelectBrand";
+import FormControl from 'modules/common/components/form/Control';
+import Form from 'modules/common/components/form/Form';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import Spinner from 'modules/common/components/Spinner';
+import { ModalFooter } from 'modules/common/styles/main';
+import React from 'react';
+import SelectBrand from '../../containers/SelectBrand';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -27,7 +27,7 @@ class Telegram extends React.Component<Props, { loading: boolean }> {
     return {
       name: values.name,
       brandId: values.brandId,
-      kind: "smooch-telegram",
+      kind: 'smooch-telegram',
       data: {
         displayName: values.name,
         token: values.token
@@ -62,14 +62,14 @@ class Telegram extends React.Component<Props, { loading: boolean }> {
           target="_blank"
           rel="noopener noreferrer"
         >
-          {"Learn more about Telegram"}
+          {'Learn more about Telegram'}
         </a>
 
         <SelectBrand isRequired={true} formProps={formProps} />
 
         <ModalFooter>
           {renderButton({
-            name: "integration",
+            name: 'integration',
             values: this.generateDoc(values),
             isSubmitted,
             callback: this.props.closeModal

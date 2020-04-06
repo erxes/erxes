@@ -1,6 +1,6 @@
-import dayjs from "dayjs";
-import { IOption } from "modules/common/types";
-import { INTEGRATION_KINDS } from "modules/settings/integrations/constants";
+import dayjs from 'dayjs';
+import { IOption } from 'modules/common/types';
+import { INTEGRATION_KINDS } from 'modules/settings/integrations/constants';
 
 export function selectOptions(array) {
   const options: IOption[] = [];
@@ -23,7 +23,7 @@ export function integrationOptions() {
 
 export function convertTime(second?: number) {
   if (!second) {
-    return "0";
+    return '0';
   }
 
   const hours = Math.floor(second / 3600);
@@ -32,14 +32,14 @@ export function convertTime(second?: number) {
 
   return (
     hours.toString() +
-    "h : " +
+    'h : ' +
     minutes.toString() +
-    "m : " +
+    'm : ' +
     seconds.toString() +
-    "s"
+    's'
   );
 }
 
 export function formatDate(date: string): string {
-  return dayjs(date).format("YYYY-MM-DD HH:mm");
+  return dayjs(date).format('YYYY-MM-DD HH:mm');
 }

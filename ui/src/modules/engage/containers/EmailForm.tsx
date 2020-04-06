@@ -1,11 +1,11 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import React from "react";
-import { graphql } from "react-apollo";
-import { withProps } from "../../common/utils";
-import EmailForm from "../components/EmailForm";
-import { queries } from "../graphql";
-import { EngageVerifiedEmailsQueryResponse, IEmailFormProps } from "../types";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withProps } from '../../common/utils';
+import EmailForm from '../components/EmailForm';
+import { queries } from '../graphql';
+import { EngageVerifiedEmailsQueryResponse, IEmailFormProps } from '../types';
 
 type FinalProps = {
   engageVerifiedEmailsQuery: EngageVerifiedEmailsQueryResponse;
@@ -30,7 +30,7 @@ export default withProps<IEmailFormProps>(
   compose(
     graphql<IEmailFormProps, EngageVerifiedEmailsQueryResponse>(
       gql(queries.verifiedEmails),
-      { name: "engageVerifiedEmailsQuery" }
+      { name: 'engageVerifiedEmailsQuery' }
     )
   )(EmailFormContainer)
 );

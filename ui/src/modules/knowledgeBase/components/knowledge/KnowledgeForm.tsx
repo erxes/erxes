@@ -1,36 +1,36 @@
-import { getEnv } from "apolloClient";
-import Button from "modules/common/components/Button";
-import EmptyState from "modules/common/components/EmptyState";
-import FormControl from "modules/common/components/form/Control";
-import Form from "modules/common/components/form/Form";
-import FormGroup from "modules/common/components/form/Group";
-import ControlLabel from "modules/common/components/form/Label";
-import Info from "modules/common/components/Info";
-import Uploader from "modules/common/components/Uploader";
-import colors from "modules/common/styles/colors";
-import { ModalFooter } from "modules/common/styles/main";
+import { getEnv } from 'apolloClient';
+import Button from 'modules/common/components/Button';
+import EmptyState from 'modules/common/components/EmptyState';
+import FormControl from 'modules/common/components/form/Control';
+import Form from 'modules/common/components/form/Form';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import Info from 'modules/common/components/Info';
+import Uploader from 'modules/common/components/Uploader';
+import colors from 'modules/common/styles/colors';
+import { ModalFooter } from 'modules/common/styles/main';
 import {
   IAttachment,
   IButtonMutateProps,
   IFormProps
-} from "modules/common/types";
-import { __ } from "modules/common/utils";
-import { FlexContent } from "modules/layout/styles";
-import { IBrand } from "modules/settings/brands/types";
-import SelectBrand from "modules/settings/integrations/containers/SelectBrand";
+} from 'modules/common/types';
+import { __ } from 'modules/common/utils';
+import { FlexContent } from 'modules/layout/styles';
+import { IBrand } from 'modules/settings/brands/types';
+import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
 import {
   ColorPick,
   ColorPicker,
   ExpandWrapper,
   MarkdownWrapper
-} from "modules/settings/styles";
-import React from "react";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Popover from "react-bootstrap/Popover";
-import ChromePicker from "react-color/lib/Chrome";
-import CopyToClipboard from "react-copy-to-clipboard";
-import ReactMarkdown from "react-markdown";
-import { ITopic } from "../../types";
+} from 'modules/settings/styles';
+import React from 'react';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
+import ChromePicker from 'react-color/lib/Chrome';
+import CopyToClipboard from 'react-copy-to-clipboard';
+import ReactMarkdown from 'react-markdown';
+import { ITopic } from '../../types';
 
 type Props = {
   topic: ITopic;
@@ -86,10 +86,10 @@ class KnowledgeForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    let code = "";
-    let tag = "";
+    let code = '';
+    let tag = '';
     let color = colors.colorPrimary;
-    let backgroundImage = "";
+    let backgroundImage = '';
 
     const { topic } = props;
 
@@ -116,7 +116,7 @@ class KnowledgeForm extends React.Component<Props, State> {
   };
 
   onCopy = (name: string) => {
-    if (name === "code") {
+    if (name === 'code') {
       return this.setState({ copied: true });
     }
 
@@ -124,7 +124,7 @@ class KnowledgeForm extends React.Component<Props, State> {
   };
 
   onBackgroundImageChange = ([file]: IAttachment[]) => {
-    this.setState({ backgroundImage: file ? file.url : "" });
+    this.setState({ backgroundImage: file ? file.url : '' });
   };
 
   remove = () => {
@@ -142,7 +142,7 @@ class KnowledgeForm extends React.Component<Props, State> {
         {code ? (
           <CopyToClipboard text={code} onCopy={this.onCopy.bind(this, name)}>
             <Button size="small" btnStyle="primary" icon="copy">
-              {copied ? "Copied" : "Copy to clipboard"}
+              {copied ? 'Copied' : 'Copy to clipboard'}
             </Button>
           </CopyToClipboard>
         ) : (
@@ -160,16 +160,16 @@ class KnowledgeForm extends React.Component<Props, State> {
         <>
           <FormGroup>
             <ControlLabel>Install code</ControlLabel>
-            {this.renderScript(code, copied, "code")}
+            {this.renderScript(code, copied, 'code')}
           </FormGroup>
 
           <FormGroup>
             <Info>
               {__(
-                "Paste the tag below where you want erxes knowledgebase to appear"
+                'Paste the tag below where you want erxes knowledgebase to appear'
               )}
             </Info>
-            {this.renderScript(tag, tagCopied, "tag")}
+            {this.renderScript(tag, tagCopied, 'tag')}
           </FormGroup>
         </>
       );
@@ -216,7 +216,7 @@ class KnowledgeForm extends React.Component<Props, State> {
   renderFormContent(topic = {} as ITopic, formProps: IFormProps) {
     const { color, backgroundImage } = this.state;
     const { brand } = topic;
-    const brandId = brand != null ? brand._id : "";
+    const brandId = brand != null ? brand._id : '';
 
     const popoverTop = (
       <Popover id="color-picker">
@@ -261,7 +261,7 @@ class KnowledgeForm extends React.Component<Props, State> {
               <FormControl
                 {...formProps}
                 componentClass="select"
-                defaultValue={topic.languageCode || "en"}
+                defaultValue={topic.languageCode || 'en'}
                 name="languageCode"
               >
                 <option />
@@ -297,9 +297,9 @@ class KnowledgeForm extends React.Component<Props, State> {
               backgroundImage
                 ? [
                     {
-                      name: "backgroundImage",
+                      name: 'backgroundImage',
                       url: backgroundImage,
-                      type: "img"
+                      type: 'img'
                     }
                   ]
                 : []
@@ -321,10 +321,10 @@ class KnowledgeForm extends React.Component<Props, State> {
       <>
         {this.renderFormContent(
           topic || {
-            title: "",
-            description: "",
-            languageCode: "",
-            brand: { _id: "" }
+            title: '',
+            description: '',
+            languageCode: '',
+            brand: { _id: '' }
           },
           { ...formProps }
         )}
@@ -348,7 +348,7 @@ class KnowledgeForm extends React.Component<Props, State> {
             </Button>
           )}
           {renderButton({
-            name: "knowledge base",
+            name: 'knowledge base',
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,

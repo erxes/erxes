@@ -1,6 +1,6 @@
-import { IField } from "modules/settings/properties/types";
-import React from "react";
-import CommonPreview from "./CommonPreview";
+import { IField } from 'modules/settings/properties/types';
+import React from 'react';
+import CommonPreview from './CommonPreview';
 
 type Props = {
   previewRenderer: () => React.ReactNode;

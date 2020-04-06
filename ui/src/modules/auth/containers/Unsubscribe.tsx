@@ -1,4 +1,4 @@
-import { getEnv } from "apolloClient";
+import { getEnv } from 'apolloClient';
 
 const redirect = (name, value) => {
   const { REACT_APP_API_URL } = getEnv();
@@ -12,11 +12,11 @@ const Unsubscribe = props => {
     const { uid, cid } = queryParams;
 
     if (cid) {
-      redirect("cid", queryParams.cid);
+      redirect('cid', queryParams.cid);
     }
 
     if (uid) {
-      redirect("uid", queryParams.uid);
+      redirect('uid', queryParams.uid);
     }
   }
 

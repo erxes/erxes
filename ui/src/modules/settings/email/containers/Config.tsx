@@ -1,18 +1,18 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import ButtonMutate from "modules/common/components/ButtonMutate";
-import { colors } from "modules/common/styles";
-import { IButtonMutateProps } from "modules/common/types";
-import { withProps } from "modules/common/utils";
-import { mutations as brandMutations } from "modules/settings/brands/graphql";
-import { queries as brandQueries } from "modules/settings/brands/graphql";
-import React from "react";
-import { graphql } from "react-apollo";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import { colors } from 'modules/common/styles';
+import { IButtonMutateProps } from 'modules/common/types';
+import { withProps } from 'modules/common/utils';
+import { mutations as brandMutations } from 'modules/settings/brands/graphql';
+import { queries as brandQueries } from 'modules/settings/brands/graphql';
+import React from 'react';
+import { graphql } from 'react-apollo';
 import {
   BrandDetailQueryResponse,
   BrandsConfigEmailMutationResponse
-} from "../../brands/types";
-import Config from "../components/Config";
+} from '../../brands/types';
+import Config from '../components/Config';
 
 const defaultTemplate = `<p>Dear {{fullName}},</p>
 <p>You received following messages at <strong>{{brandName}}</strong>:</p>
@@ -120,7 +120,7 @@ export default withProps<Props>(
         }
       `,
       {
-        name: "brandDetailQuery",
+        name: 'brandDetailQuery',
         options: ({ brandId }: { brandId: string }) => {
           return {
             variables: {
@@ -132,7 +132,7 @@ export default withProps<Props>(
     ),
 
     graphql(gql(brandMutations.brandsConfigEmail), {
-      name: "configEmailMutation"
+      name: 'configEmailMutation'
     })
   )(ConfigContainer)
 );

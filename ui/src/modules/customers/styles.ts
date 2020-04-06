@@ -1,7 +1,7 @@
-import { colors, dimensions, typography } from "modules/common/styles";
-import { SidebarList } from "modules/layout/styles";
-import styled, { css } from "styled-components";
-import styledTS from "styled-components-ts";
+import { colors, dimensions, typography } from 'modules/common/styles';
+import { SidebarList } from 'modules/layout/styles';
+import styled, { css } from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const Info = styled.div`
   margin-top: 5px;

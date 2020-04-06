@@ -1,10 +1,10 @@
 import {
   TabCaption,
   TabContainer
-} from "modules/common/components/tabs/styles";
-import { colors } from "modules/common/styles";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
+} from 'modules/common/components/tabs/styles';
+import { colors } from 'modules/common/styles';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const FilterBox = styled.div`
   .Select {
@@ -88,7 +88,7 @@ const TopBar = styled.div`
     flex: 1;
     margin-right: 10px;
 
-    input[type="text"] {
+    input[type='text'] {
       width: 100%;
     }
   }

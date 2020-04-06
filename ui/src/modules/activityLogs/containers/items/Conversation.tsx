@@ -1,17 +1,17 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import Conversation from "modules/activityLogs/components/items/Conversation";
-import { IActivityLog } from "modules/activityLogs/types";
-import Spinner from "modules/common/components/Spinner";
-import { withProps } from "modules/common/utils";
-import { queries } from "modules/inbox/graphql";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import Conversation from 'modules/activityLogs/components/items/Conversation';
+import { IActivityLog } from 'modules/activityLogs/types';
+import Spinner from 'modules/common/components/Spinner';
+import { withProps } from 'modules/common/utils';
+import { queries } from 'modules/inbox/graphql';
 import {
   ConversationDetailQueryResponse,
   FacebookCommentsQueryResponse,
   MessagesQueryResponse
-} from "modules/inbox/types";
-import React from "react";
-import { graphql } from "react-apollo";
+} from 'modules/inbox/types';
+import React from 'react';
+import { graphql } from 'react-apollo';
 
 type Props = {
   activity: IActivityLog;
@@ -57,7 +57,7 @@ export default withProps<Props>(
     graphql<Props, ConversationDetailQueryResponse>(
       gql(queries.conversationDetail),
       {
-        name: "conversationDetailQuery",
+        name: 'conversationDetailQuery',
         options: ({ conversationId }) => ({
           variables: {
             _id: conversationId
@@ -66,7 +66,7 @@ export default withProps<Props>(
       }
     ),
     graphql<Props, MessagesQueryResponse>(gql(queries.conversationMessages), {
-      name: "messagesQuery",
+      name: 'messagesQuery',
       options: ({ conversationId }) => ({
         variables: {
           conversationId,
@@ -78,8 +78,8 @@ export default withProps<Props>(
     graphql<Props, FacebookCommentsQueryResponse>(
       gql(queries.converstationFacebookComments),
       {
-        name: "commentsQuery",
-        skip: ({ activity }) => activity.contentType !== "comment",
+        name: 'commentsQuery',
+        skip: ({ activity }) => activity.contentType !== 'comment',
         options: ({ conversationId, activity }) => ({
           variables: {
             postId: conversationId,

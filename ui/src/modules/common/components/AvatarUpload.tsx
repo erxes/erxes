@@ -1,9 +1,9 @@
-import { colors } from "modules/common/styles";
-import React from "react";
-import styled from "styled-components";
-import { Alert, readFile, uploadHandler } from "../utils";
-import Icon from "./Icon";
-import Spinner from "./Spinner";
+import { colors } from 'modules/common/styles';
+import React from 'react';
+import styled from 'styled-components';
+import { Alert, readFile, uploadHandler } from '../utils';
+import Icon from './Icon';
+import Spinner from './Spinner';
 
 const Avatar = styled.div`
   width: 100px;
@@ -45,7 +45,7 @@ const Avatar = styled.div`
     }
   }
 
-  input[type="file"] {
+  input[type='file'] {
     display: none;
   }
 
@@ -71,7 +71,7 @@ class AvatarUpload extends React.Component<Props, State> {
   constructor(props, context) {
     super(props, context);
 
-    const defaultAvatar = props.defaultAvatar || "/images/avatar-colored.svg";
+    const defaultAvatar = props.defaultAvatar || '/images/avatar-colored.svg';
 
     this.state = {
       avatarPreviewUrl: this.props.avatar || defaultAvatar,
@@ -91,12 +91,12 @@ class AvatarUpload extends React.Component<Props, State> {
       files: imageFile,
 
       beforeUpload: () => {
-        this.setState({ avatarPreviewStyle: { opacity: "0.2" } });
+        this.setState({ avatarPreviewStyle: { opacity: '0.2' } });
       },
 
       afterUpload: ({ response }) => {
         this.setState({
-          avatarPreviewStyle: { opacity: "1" }
+          avatarPreviewStyle: { opacity: '1' }
         });
 
         // call success event
@@ -107,7 +107,7 @@ class AvatarUpload extends React.Component<Props, State> {
           this.setUploadPreview(null);
         }
 
-        Alert.info("Looking good!");
+        Alert.info('Looking good!');
       },
 
       afterRead: ({ result, fileInfo }) => {
