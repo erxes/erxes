@@ -1,9 +1,10 @@
 import { Brands, Channels, Integrations, Tags } from '../../../db/models';
 import { INTEGRATION_NAMES_MAP, KIND_CHOICES, TAG_TYPES } from '../../../db/models/definitions/constants';
 import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
+
+import { sendRPCMessage } from '../../../messageBroker';
 import { IContext } from '../../types';
 import { paginate } from '../../utils';
-
 /**
  * Common helper for integrations & integrationsTotalCount
  */
@@ -144,6 +145,10 @@ const integrationQueries = {
     { dataSources }: IContext,
   ) {
     return dataSources.IntegrationsAPI.fetchApi(path, params);
+  },
+
+  async integrationGetLineWebhookUrl(_root, { _id }: { _id: string }) {
+    return sendRPCMessage({ action: 'line-webhook', data: { _id } });
   },
 };
 
