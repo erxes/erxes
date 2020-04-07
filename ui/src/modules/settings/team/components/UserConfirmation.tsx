@@ -52,19 +52,19 @@ class Confirmation extends React.Component<{
         <h2>{__('Set up your password')}</h2>
         <form onSubmit={this.onSubmit}>
           <FormGroup>
-            <ControlLabel>Full name</ControlLabel>
+            <ControlLabel>{__('Full name')}</ControlLabel>
             <FormControl id="fullName" />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>Username</ControlLabel>
+            <ControlLabel>{__('Username')}</ControlLabel>
             <FormControl id="username" />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>Password</ControlLabel>
+            <ControlLabel>{__('New Password')}</ControlLabel>
             <FormControl type="password" id="password" />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>Password Confirmation</ControlLabel>
+            <ControlLabel>{__('Re-type Password to confirm')}</ControlLabel>
             <FormControl type="password" id="passwordConfirmation" />
           </FormGroup>
           <Button btnStyle="success" type="submit" block={true}>

@@ -91,8 +91,10 @@ class Brands extends React.Component<Props, {}> {
         mainHead={
           <HeaderDescription
             icon="/images/actions/32.svg"
-            title="Brands"
-            description="Add unlimited Brands with unlimited support to further your growth and accelerate your business."
+            title={__('Brands')}
+            description={__(
+              'Add unlimited Brands with unlimited support to further your growth and accelerate your business.'
+            )}
           />
         }
         actionBar={

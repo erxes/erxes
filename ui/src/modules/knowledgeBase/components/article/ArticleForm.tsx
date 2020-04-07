@@ -94,7 +94,7 @@ class ArticleForm extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>Title</ControlLabel>
+          <ControlLabel required={true}>{__('Title')}</ControlLabel>
           <FormControl
             {...formProps}
             name="title"
@@ -105,7 +105,7 @@ class ArticleForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Summary</ControlLabel>
+          <ControlLabel>{__('Summary')}</ControlLabel>
           <FormControl
             {...formProps}
             name="summary"
@@ -116,7 +116,7 @@ class ArticleForm extends React.Component<Props, State> {
         <FlexContent>
           <FlexItem count={4}>
             <FormGroup>
-              <ControlLabel required={true}>Reactions</ControlLabel>
+              <ControlLabel required={true}>{__('Reactions')}</ControlLabel>
               <Select
                 multi={true}
                 value={reactionChoices}
@@ -129,7 +129,7 @@ class ArticleForm extends React.Component<Props, State> {
           </FlexItem>
           <FlexItem count={2} hasSpace={true}>
             <FormGroup>
-              <ControlLabel required={true}>Status</ControlLabel>
+              <ControlLabel required={true}>{__('Status')}</ControlLabel>
               <FormControl
                 {...formProps}
                 name="status"
@@ -148,7 +148,7 @@ class ArticleForm extends React.Component<Props, State> {
           </FlexItem>
         </FlexContent>
         <FormGroup>
-          <ControlLabel required={true}>Content</ControlLabel>
+          <ControlLabel required={true}>{__('Content')}</ControlLabel>
           <EditorCK content={content} onChange={this.onChange} height={300} />
         </FormGroup>
 
@@ -159,7 +159,7 @@ class ArticleForm extends React.Component<Props, State> {
             onClick={this.props.closeModal}
             icon="cancel-1"
           >
-            Cancel
+            {__('Cancel')}
           </Button>
 
           {renderButton({

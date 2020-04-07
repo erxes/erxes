@@ -38,6 +38,7 @@ type State = {
   collectedMentions: any;
   suggestions: any;
   templatesState: any;
+  hideTemplates: boolean;
 };
 
 const MentionEntry = props => {
@@ -91,7 +92,8 @@ export default class Editor extends React.Component<EditorProps, State> {
       ),
       collectedMentions: [],
       suggestions: this.props.mentions.toArray(),
-      templatesState: null
+      templatesState: null,
+      hideTemplates: false
     };
 
     this.mentionPlugin = createMentionPlugin({
@@ -126,7 +128,7 @@ export default class Editor extends React.Component<EditorProps, State> {
   }
 
   onChange = editorState => {
-    this.setState({ editorState });
+    this.setState({ editorState, hideTemplates: false });
 
     this.props.onChange(this.getContent(editorState));
 
@@ -232,11 +234,15 @@ export default class Editor extends React.Component<EditorProps, State> {
     this.onArrow(e, 1);
   };
 
+  onEscape = () => {
+    this.setState({ hideTemplates: true });
+  };
+
   // Render response templates suggestions
   renderTemplates() {
-    const { templatesState } = this.state;
+    const { templatesState, hideTemplates } = this.state;
 
-    if (!templatesState) {
+    if (!templatesState || hideTemplates) {
       return null;
     }
 
@@ -309,7 +315,7 @@ export default class Editor extends React.Component<EditorProps, State> {
     // handle enter  in editor
     if (e.key === 'Enter') {
       // select response template
-      if (this.state.templatesState) {
+      if (this.state.templatesState && !this.state.hideTemplates) {
         this.onSelectTemplate();
 
         return null;
@@ -356,6 +362,7 @@ export default class Editor extends React.Component<EditorProps, State> {
       keyBindingFn: this.keyBindingFn,
       onUpArrow: this.onUpArrow,
       onDownArrow: this.onDownArrow,
+      onEscape: this.onEscape,
       handleFileInput: this.props.handleFileInput,
       isTopPopup: true,
       plugins,
