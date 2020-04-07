@@ -48,7 +48,7 @@ class ListContainer extends React.Component<FinalProps> {
 
     integrationsQuery.refetch();
     integrationsTotalCountQuery.refetch();
-  }
+  };
 
   render() {
     const {

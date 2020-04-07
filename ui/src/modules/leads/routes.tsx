@@ -15,7 +15,7 @@ const List = asyncComponent(() =>
   import(/* webpackChunkName: "List - Form" */ './containers/List')
 );
 
-const forms = (history) => {
+const forms = history => {
   const { location } = history;
 
   const queryParams = queryString.parse(location.search);

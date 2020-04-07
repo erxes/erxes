@@ -35,6 +35,7 @@ type ErxesEditorProps = {
   keyBindingFn?: (e: any) => any;
   onUpArrow?: (e: KeyboardEvent) => void;
   onDownArrow?: (e: KeyboardEvent) => void;
+  onEscape?: (e: KeyboardEvent) => void;
   handleFileInput?: (e: React.FormEvent<HTMLInputElement>) => void;
   placeholder?: string | React.ReactNode;
 };
@@ -128,6 +129,7 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
       controls,
       onUpArrow,
       onDownArrow,
+      onEscape,
       bordered,
       isTopPopup = false,
       plugins
@@ -172,6 +174,7 @@ export class ErxesEditor extends React.Component<ErxesEditorProps> {
             keyBindingFn={this.props.keyBindingFn}
             onUpArrow={onUpArrow}
             onDownArrow={onDownArrow}
+            onEscape={onEscape}
             ref={element => {
               this.editor = element;
             }}
