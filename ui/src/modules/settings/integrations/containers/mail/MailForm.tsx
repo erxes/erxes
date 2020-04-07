@@ -103,6 +103,8 @@ const MailFormContainer = (props: FinalProps) => {
       _id: Math.round(Math.random() * -1000000),
       ...defaultMessageFields,
       conversationId,
+      videoCallData: null,
+      contentType: '',
       content: variables.body,
       customer: {
         ...defaultCustomerFields,
@@ -127,7 +129,7 @@ const MailFormContainer = (props: FinalProps) => {
     const update = store => {
       const selector = {
         query: gql(messageQueries.conversationMessages),
-        variables: { conversationId, limit: 10 }
+        variables: { conversationId, limit: 10, skip: 0 }
       };
 
       // Read the data from our cache for this query.
