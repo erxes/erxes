@@ -97,7 +97,7 @@ export const queries = `
   ): [Integration]
 
   integrationsGetUsedTypes: [integrationsGetUsedTypes]
-
+  integrationGetLineWebhookUrl(_id: String!): String
   integrationDetail(_id: String!): Integration
   integrationsTotalCount: integrationsTotalCount
   integrationsFetchApi(path: String!, params: JSON!): JSON
