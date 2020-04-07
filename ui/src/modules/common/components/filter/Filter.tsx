@@ -1,9 +1,9 @@
 import gql from 'graphql-tag';
 import Chip from 'modules/common/components/Chip';
-import { router } from 'modules/common/utils';
+import { __, router } from 'modules/common/utils';
 import { cleanIntegrationKind } from 'modules/settings/integrations/containers/utils';
 import React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import styled from 'styled-components';
 import { IRouterProps } from '../../types';
 import createChipText from './createChipText';
@@ -30,9 +30,16 @@ function Filter({ queryParams = {}, history }: IProps) {
 
     const onClick = () => onClickClose([paramKey]);
 
+    const intlChipText = __(paramKey);
+    const useIntlChipText = intlChipText !== queryParams[paramKey];
+
     return (
       <Chip capitalize={true} onClick={onClick}>
-        {bool ? paramKey : cleanIntegrationKind(queryParams[paramKey])}
+        {bool
+          ? paramKey
+          : useIntlChipText
+          ? intlChipText
+          : cleanIntegrationKind(queryParams[paramKey])}
       </Chip>
     );
   };
@@ -93,8 +100,6 @@ function Filter({ queryParams = {}, history }: IProps) {
       {renderFilterWithData('brand', 'brand')}
       {renderFilterWithDate()}
       {renderFilterWithData('form', 'form', '_id title')}
-      {renderFilterParam('leadStatus', false)}
-      {renderFilterParam('lifecycleState', false)}
     </Filters>
   );
 }

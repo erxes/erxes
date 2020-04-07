@@ -48,22 +48,22 @@ class CallPro extends React.Component<Props, { loading: boolean }> {
         {this.state.loading && <Spinner />}
         <FormGroup>
           <ControlLabel required={true}>Name</ControlLabel>
-          <FormControl {...formProps} name='name' required={true} />
+          <FormControl {...formProps} name="name" required={true} />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel required={true}>Phone number</ControlLabel>
           <FormControl
             {...formProps}
-            type='number'
-            name='phoneNumber'
+            type="number"
+            name="phoneNumber"
             required={true}
           />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>Record url</ControlLabel>
-          <FormControl {...formProps} type='text' name='recordUrl' />
+          <FormControl {...formProps} type="text" name="recordUrl" />
         </FormGroup>
 
         <SelectBrand isRequired={true} formProps={formProps} />

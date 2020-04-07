@@ -47,7 +47,7 @@ const List = (props: FinalProps) => {
     });
   };
 
-  const isLoading = 
+  const isLoading =
     permissionsQuery.loading ||
     modulesQuery.loading ||
     actionsQuery.loading ||
@@ -55,7 +55,9 @@ const List = (props: FinalProps) => {
     totalCountQuery.loading;
 
   const groups = usersGroupsQuery.usersGroups || [];
-  const currentGroup = groups.find(group => queryParams.groupId === group._id) || {} as IUserGroup;
+  const currentGroup =
+    groups.find(group => queryParams.groupId === group._id) ||
+    ({} as IUserGroup);
 
   const updatedProps = {
     ...props,

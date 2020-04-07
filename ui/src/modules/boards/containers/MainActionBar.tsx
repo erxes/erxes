@@ -8,10 +8,14 @@ import { router as routerUtils, withProps } from 'modules/common/utils';
 import queryString from 'query-string';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from '../constants';
 import { queries } from '../graphql';
-import { BoardDetailQueryResponse, BoardsGetLastQueryResponse, BoardsQueryResponse } from '../types';
+import {
+  BoardDetailQueryResponse,
+  BoardsGetLastQueryResponse,
+  BoardsQueryResponse
+} from '../types';
 
 type Props = {
   type: string;
@@ -34,7 +38,7 @@ const FILTER_PARAMS = [
   'productIds',
   'companyIds',
   'customerIds',
-  'closeDateType',
+  'closeDateType'
 ];
 
 const generateQueryParams = ({ location }) => {
@@ -56,17 +60,17 @@ class Main extends React.Component<FinalProps> {
     if (!search) {
       return routerUtils.removeParams(this.props.history, 'search');
     }
-    
+
     routerUtils.setParams(this.props.history, { search });
   };
 
   onSelect = (values: string[] | string, name: string) => {
     const params = generateQueryParams(this.props.history);
 
-    if(params.closeDateType === values) {
+    if (params.closeDateType === values) {
       return routerUtils.removeParams(this.props.history, name);
-    } 
-    
+    }
+
     return routerUtils.setParams(this.props.history, { [name]: values });
   };
 

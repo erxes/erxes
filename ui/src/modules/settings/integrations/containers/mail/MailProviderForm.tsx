@@ -2,7 +2,8 @@ import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { mutations } from 'modules/settings/integrations/graphql';
 import React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
+import ExchangeForm from '../../components/mail/ExchangeForm';
 import ImapForm from '../../components/mail/ImapForm';
 import MailAuthForm from '../../components/mail/MailAuthForm';
 
@@ -50,6 +51,10 @@ class MailProviderFormContainer extends React.Component<FinalProps> {
 
     if (kind === 'nylas-imap') {
       return <ImapForm {...updatedProps} />;
+    }
+
+    if (kind === 'nylas-exchange') {
+      return <ExchangeForm {...updatedProps} />;
     }
 
     return <MailAuthForm {...updatedProps} />;

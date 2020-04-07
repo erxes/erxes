@@ -1,6 +1,9 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { BoardDetailQueryResponse, PipelinesQueryResponse } from 'modules/boards/types';
+import {
+  BoardDetailQueryResponse,
+  PipelinesQueryResponse
+} from 'modules/boards/types';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps } from 'modules/common/types';
@@ -105,7 +108,7 @@ class PipelinesContainer extends React.Component<FinalProps> {
       remove,
       renderButton,
       updateOrder,
-      currentBoard: boardDetailQuery.boardDetail || {},
+      currentBoard: boardDetailQuery.boardDetail || {}
     };
 
     return <Pipelines {...extendedProps} />;
@@ -130,16 +133,13 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<Props, BoardDetailQueryResponse>(
-      gql(queries.boardDetail),
-      {
-        name: 'boardDetailQuery',
-        options: ({ boardId }: { boardId?: string }) => ({
-          variables: { _id: boardId },
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
+    graphql<Props, BoardDetailQueryResponse>(gql(queries.boardDetail), {
+      name: 'boardDetailQuery',
+      options: ({ boardId }: { boardId?: string }) => ({
+        variables: { _id: boardId },
+        fetchPolicy: 'network-only'
+      })
+    }),
     graphql<
       Props,
       RemovePipelineMutationResponse,

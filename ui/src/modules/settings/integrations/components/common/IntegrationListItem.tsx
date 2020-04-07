@@ -7,7 +7,7 @@ import Tip from 'modules/common/components/Tip';
 import WithPermission from 'modules/common/components/WithPermission';
 import { __ } from 'modules/common/utils';
 import InstallCode from 'modules/settings/integrations/components/InstallCode';
-import { KIND_CHOICES } from 'modules/settings/integrations/constants';
+import { INTEGRATION_KINDS } from 'modules/settings/integrations/constants';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { cleanIntegrationKind } from '../../containers/utils';
@@ -48,7 +48,7 @@ class IntegrationListItem extends React.Component<Props> {
   renderEditAction() {
     const { integration, editIntegration } = this.props;
 
-    if (integration.kind === KIND_CHOICES.MESSENGER) {
+    if (integration.kind === INTEGRATION_KINDS.MESSENGER) {
       return null;
     }
 
@@ -87,7 +87,7 @@ class IntegrationListItem extends React.Component<Props> {
   renderMessengerActions(integration) {
     const kind = integration.kind;
 
-    if (kind === KIND_CHOICES.MESSENGER) {
+    if (kind === INTEGRATION_KINDS.MESSENGER) {
       const editTrigger = (
         <Button btnStyle="link">
           <Tip text="Install code">

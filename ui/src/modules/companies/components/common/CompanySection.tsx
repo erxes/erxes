@@ -6,10 +6,7 @@ import Tip from 'modules/common/components/Tip';
 import { ButtonRelated } from 'modules/common/styles/main';
 import { __, urlParser } from 'modules/common/utils';
 import GetConformity from 'modules/conformity/containers/GetConformity';
-import {
-  SectionBody,
-  SectionBodyItem
-} from 'modules/layout/styles';
+import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import CompanyChooser from '../../containers/CompanyChooser';
@@ -58,7 +55,7 @@ function Component(
 
   const companyTrigger = (
     <button>
-      <Icon icon="add" />
+      <Icon icon="plus-circle" />
     </button>
   );
 
@@ -101,7 +98,7 @@ function Component(
           </Tip>
         </SectionBodyItem>
       ))}
-      {items.length === 0 && <EmptyState icon="briefcase" text="No company" />}
+      {items.length === 0 && <EmptyState icon="building" text="No company" />}
       {mainTypeId && mainType && relQuickButtons}
     </SectionBody>
   );

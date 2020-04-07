@@ -15,6 +15,7 @@
       "installation/docker",
       "installation/heroku",
       "installation/aws",
+      "installation/digitalocean",
       "installation/upgrade"
     ],
     "User's Guide": [
@@ -46,7 +47,8 @@
       "developer/graphql-api",
       "developer/push-notifications",
       "developer/android-sdk",
-      "developer/ios-sdk"
+      "developer/ios-sdk",
+      "developer/troubleshooting"
     ]
   }
 }

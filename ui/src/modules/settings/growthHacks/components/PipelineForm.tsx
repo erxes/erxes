@@ -187,7 +187,7 @@ class PipelineForm extends React.Component<Props, State> {
       label: template.name
     }));
 
-    const onChange = (item) => this.onChangeValue('templateId', item.value);
+    const onChange = item => this.onChangeValue('templateId', item.value);
 
     return (
       <FormGroup>
@@ -212,7 +212,7 @@ class PipelineForm extends React.Component<Props, State> {
       label: board.name
     }));
 
-    const onChange = (item) => this.onChangeValue('boardId', item.value);
+    const onChange = item => this.onChangeValue('boardId', item.value);
 
     return (
       <FormGroup>
@@ -247,7 +247,7 @@ class PipelineForm extends React.Component<Props, State> {
     const object = pipeline || ({} as IPipeline);
     const { startDate, endDate, metric, visibility } = this.state;
 
-    const onChangeMetric = (item) => this.onChangeValue('metric', item.value);
+    const onChangeMetric = item => this.onChangeValue('metric', item.value);
 
     const popoverBottom = (
       <Popover id="color-picker">
@@ -370,7 +370,9 @@ class PipelineForm extends React.Component<Props, State> {
                     >
                       <ColorPick>
                         <ColorPicker
-                          style={{ backgroundColor: this.state.backgroundColor }}
+                          style={{
+                            backgroundColor: this.state.backgroundColor
+                          }}
                         />
                       </ColorPick>
                     </OverlayTrigger>
@@ -408,7 +410,7 @@ class PipelineForm extends React.Component<Props, State> {
 
   render() {
     const { show, closeModal } = this.props;
-    
+
     if (!show) {
       return null;
     }

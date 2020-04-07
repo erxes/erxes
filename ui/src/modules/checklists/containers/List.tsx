@@ -95,7 +95,7 @@ function ListContainer(props: FinalProps) {
         isSubmitted={isSubmitted}
         btnSize="small"
         type="submit"
-        icon=""
+        icon="check-1"
       />
     );
   }
@@ -115,20 +115,16 @@ function ListContainer(props: FinalProps) {
   };
 
   return <List {...listProps} />;
-}
+} // end ListContainer()
 
-const options = (props: Props) => {
-  return {
-    refetchQueries: [
-      {
-        query: gql(queries.checklistDetail),
-        variables: {
-          _id: props.listId
-        }
-      }
-    ]
-  };
-};
+const options = (props: Props) => ({
+  refetchQueries: [
+    {
+      query: gql(queries.checklistDetail),
+      variables: { _id: props.listId }
+    }
+  ]
+});
 
 export default withProps<Props>(
   compose(

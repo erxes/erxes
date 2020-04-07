@@ -7,7 +7,7 @@ import { generatePaginationParams } from 'modules/common/utils/router';
 import queryString from 'query-string';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '../../common/types';
 import { DefaultColumnsConfigQueryResponse } from '../../settings/properties/types';
 import CompaniesList from '../components/list/CompaniesList';
@@ -154,8 +154,6 @@ const generateParams = ({ queryParams }) => ({
     brand: queryParams.brand,
     ids: queryParams.ids,
     searchValue: queryParams.searchValue,
-    leadStatus: queryParams.leadStatus,
-    lifecycleState: queryParams.lifecycleState,
     sortField: queryParams.sortField,
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)

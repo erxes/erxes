@@ -78,7 +78,7 @@ class DealColumn extends React.Component<Props, {}> {
     const { deals, onUpdate, onRemove } = this.props;
 
     if (deals.length === 0) {
-      return <EmptyState icon="piggy-bank" text="No deal" />;
+      return <EmptyState icon="piggy-bank" text="No Sales Pipelines" />;
     }
 
     const contents = deals.map((deal: IDeal, index: number) => (

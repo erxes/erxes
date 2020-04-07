@@ -180,11 +180,30 @@ class IntegrationConfigs extends React.Component<Props, State> {
           </ContentDisabler>
         </CollapseContent>
 
+        <CollapseContent title="Sunshine Conversations API">
+          <Info>
+            <a
+              target="_blank"
+              href="https://docs.erxes.io/administrator/system-config#sunshine-conversations-api-integration"
+              rel="noopener noreferrer"
+            >
+              {__('More: Understanding Smooch Integration Variables')}
+            </a>
+          </Info>
+          {this.renderItem('SMOOCH_APP_ID')}
+          {this.renderItem('SMOOCH_APP_KEY_ID')}
+          {this.renderItem('SMOOCH_APP_KEY_SECRET')}
+          {this.renderItem(
+            'SMOOCH_WEBHOOK_CALLBACK_URL',
+            'https://yourdomain/smooch/webhook'
+          )}
+        </CollapseContent>
+
         <CollapseContent title="WhatsApp Chat-API">
           <Info>
             <a
               target="_blank"
-              href="https://docs.erxes.io/administrator/environment-variables#whatsapp-settings"
+              href="https://docs.erxes.io/administrator/system-config#whatsapp-integration"
               rel="noopener noreferrer"
             >
               {__('More: Understanding WhatsApp Integration Variables')}

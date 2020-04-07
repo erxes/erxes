@@ -17,7 +17,7 @@ type Props = {
   modules: IModule[];
   groups: IUserGroup[];
   refetchQueries: any;
-}
+};
 
 class PermissionRow extends React.Component<Props> {
   renderForm = props => {
@@ -33,7 +33,7 @@ class PermissionRow extends React.Component<Props> {
     };
 
     return <PermissionForm {...extendedProps} />;
-  }
+  };
 
   render() {
     const { permission, actions, removeItem } = this.props;
@@ -54,13 +54,16 @@ class PermissionRow extends React.Component<Props> {
           {permission.allowed ? (
             <TextInfo textStyle="success">{__('Allowed')}</TextInfo>
           ) : (
-              <TextInfo textStyle="danger">{__('Not Allowed')}</TextInfo>
-            )}
+            <TextInfo textStyle="danger">{__('Not Allowed')}</TextInfo>
+          )}
         </td>
         <td>
           <ActionButtons>
             <Tip text="Delete">
-              <Button btnStyle="link" onClick={removeItem.bind(null, permission._id)}>
+              <Button
+                btnStyle="link"
+                onClick={removeItem.bind(null, permission._id)}
+              >
                 <Icon icon="cancel-1" />
               </Button>
             </Tip>

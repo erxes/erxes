@@ -1,6 +1,6 @@
-import { colors, dimensions } from 'modules/common/styles';
+import { colors, dimensions, typography } from 'modules/common/styles';
 import { SidebarList } from 'modules/layout/styles';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const Info = styled.div`
@@ -26,11 +26,40 @@ const InfoDetail = styled.p`
   color: ${colors.colorCoreGray};
 `;
 
+const Actions = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 0 ${dimensions.coreSpacing}px ${dimensions.unitSpacing}px;
+
+  > a,
+  button {
+    flex: 1;
+  }
+
+  > div {
+    margin-left: 10px;
+  }
+`;
+
 const Action = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
   margin-bottom: ${dimensions.unitSpacing}px;
+`;
+
+const States = styled.div`
+  display: flex;
+  margin-bottom: ${dimensions.unitSpacing}px;
+
+  > div {
+    width: 100%;
+
+    b {
+      font-size: 16px;
+      line-height: 22px;
+    }
+  }
 `;
 
 const List = styled(SidebarList)`
@@ -76,16 +105,40 @@ const Contact = styled.div`
   }
 `;
 
-const Name = styled.div`
+const NameContainer = styled.div`
   flex: 1;
   word-break: break-word;
-  margin-bottom: 10px;
 
   p {
     color: ${colors.colorCoreLightGray};
     margin: 0;
     font-size: 12px;
   }
+`;
+
+const Name = styledTS<{ fontSize?: number }>(styled.div)`
+  font-size: ${props => props.fontSize && `${props.fontSize}px`};
+  font-weight: 500;
+
+  i {
+    margin-left: 10px;
+    transition: all 0.3s ease;
+    color: ${colors.colorCoreLightGray};
+
+    &:hover {
+      cursor: pointer;
+      color: ${colors.colorCoreGray};
+    }
+  }
+`;
+
+const CustomerState = styled.div`
+  text-transform: capitalize;
+  text-align: center;
+  font-size: ${typography.fontSizeUppercase}px;
+  line-height: 20px;
+  font-weight: 500;
+  color: ${colors.colorCoreGray};
 `;
 
 const TabContent = styled.div`
@@ -110,16 +163,171 @@ const BooleanStatus = styledTS<{ isTrue?: boolean }>(styled.div)`
   }
 `;
 
+const UserHeader = styled.div`
+  margin: 0 -10px;
+  padding: 10px 0;
+`;
+
+const MailBox = styled.div`
+  background: ${colors.colorWhite};
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  transition: all ease 0.3s;
+`;
+
+const Status = styledTS<{ verified: boolean }>(styled.span)`
+  background: ${props =>
+    props.verified ? colors.colorCoreGreen : colors.bgGray};
+  color: ${props =>
+    props.verified ? colors.colorWhite : colors.textSecondary};
+  width: 18px;
+  height: 18px;
+  text-align: center;
+  border-radius: 9px;
+  font-size: 11px;
+  line-height: 18px;
+`;
+
+export const LeadStateWrapper = styled.div`
+  display: flex;
+  padding: 0 ${dimensions.coreSpacing}px;
+  margin-bottom: ${dimensions.unitSpacing}px;
+  align-items: center;
+
+  > button {
+    margin-left: 10px;
+  }
+`;
+
+export const StateItem = styledTS<{ active?: boolean; past?: boolean }>(
+  styled.div
+)`
+	flex: 1;
+	padding: 5px ${dimensions.coreSpacing}px;
+	line-height: ${dimensions.coreSpacing}px;
+	position: relative;
+	color: ${props => (props.active ? colors.colorWhite : colors.textSecondary)};
+	background: ${props => (props.active ? colors.colorCoreBlue : colors.bgGray)};
+	border-right: none;
+	margin-right: ${dimensions.unitSpacing}px;
+	margin-left: 5px;
+	font-weight: 500;
+	height: 32px;
+	transition: opacity 0.3s ease;
+
+	&:hover {
+		opacity: 0.85;
+		cursor: pointer;
+	}
+
+	&:first-child {
+		border-top-left-radius: 17px;
+		border-bottom-left-radius: 17px;
+		margin-left: 0;
+
+		&:after, &:before {
+			left: ${dimensions.coreSpacing}px;
+		}
+	}
+
+	&:last-child {
+		border-top-right-radius: 17px;
+		border-bottom-right-radius: 17px;
+		margin-right: 0;
+
+		&:after, &:before {
+			right: ${dimensions.coreSpacing}px;
+		}
+	}
+
+	&:after, &:before {
+		content: '';
+		position: absolute;
+		height: 50%;
+		left: 0;
+		right: -5px;
+		left: -5px;
+	}
+	
+	&:after {
+		background: ${colors.bgGray};
+		transform: skew(-30deg) translate3d(0, 0, 0);
+		bottom: 0;
+	}
+
+	&:before {
+		background: ${colors.bgGray};
+		transform: skew(28deg) translate3d(0, 0, 0);
+		top: 0;
+	}
+
+	${props =>
+    props.active &&
+    css`
+      color: ${colors.colorWhite};
+      background: ${colors.colorCoreBlue};
+
+      &:after {
+        background: ${colors.colorCoreBlue};
+      }
+
+      &:before {
+        background: ${colors.colorCoreBlue};
+      }
+    `};
+
+	${props =>
+    props.past &&
+    css`
+      color: ${colors.colorWhite};
+      background: ${colors.colorCoreGreen};
+
+      &:after {
+        background: ${colors.colorCoreGreen};
+      }
+
+      &:before {
+        background: ${colors.colorCoreGreen};
+      }
+    `};
+
+	> div {
+		z-index: 2;
+		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+		i {
+			margin-right: 5px;
+		}
+	}
+
+	span {
+		opacity: 0.8;
+		font-weight: normal;
+		font-size: 90%;
+		margin-left: 5px;
+	}
+`;
+
 export {
   InfoTitle,
   InfoDetail,
   Info,
+  Actions,
   Action,
   List,
   InfoAvatar,
   Contact,
+  NameContainer,
   Name,
   TabContent,
   ClickableRow,
-  BooleanStatus
+  BooleanStatus,
+  CustomerState,
+  UserHeader,
+  MailBox,
+  Status,
+  States
 };

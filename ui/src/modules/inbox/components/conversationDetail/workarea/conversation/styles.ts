@@ -171,6 +171,10 @@ const FormTable = styled.div`
   }
 `;
 
+const CellWrapper = styled.div`
+  display: inline-block;
+`;
+
 const CallBox = styled.div`
   border: 1px solid ${colors.borderPrimary};
   border-radius: 5px;
@@ -194,7 +198,8 @@ const CallButton = styled.div`
     margin-bottom: 15px;
   }
 
-  button, a {
+  button,
+  a {
     width: 100%;
     border-radius: 5px;
     background: ${colors.colorCoreBlue};
@@ -250,5 +255,6 @@ export {
   CallButton,
   UserInfo,
   FlexItem,
-  CallBox
+  CallBox,
+  CellWrapper
 };

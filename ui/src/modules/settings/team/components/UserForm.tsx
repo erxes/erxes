@@ -1,8 +1,8 @@
 import UserCommonInfos from 'modules/auth/components/UserCommonInfos';
 import { IUser, IUserDetails, IUserLinks } from 'modules/auth/types';
+import CollapseContent from 'modules/common/components/CollapseContent';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
-import { ColumnTitle } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import SelectBrands from 'modules/settings/brands/containers/SelectBrands';
@@ -182,11 +182,12 @@ class UserForm extends React.Component<Props, State> {
           onAvatarUpload={this.onAvatarUpload}
           formProps={formProps}
         />
-        <ColumnTitle>{__('Other')}</ColumnTitle>
 
-        {this.renderChannels()}
-        {this.renderGroups()}
-        {this.renderBrands()}
+        <CollapseContent title={__('Other')} compact={true}>
+          {this.renderChannels()}
+          {this.renderGroups()}
+          {this.renderBrands()}
+        </CollapseContent>
       </div>
     );
   };

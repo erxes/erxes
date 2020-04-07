@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import Assignees from 'modules/boards/components/Assignees';
 import Details from 'modules/boards/components/Details';
 import DueDateLabel from 'modules/boards/components/DueDateLabel';
 import Labels from 'modules/boards/components/label/Labels';
@@ -9,7 +10,6 @@ import { Content } from 'modules/boards/styles/stage';
 import { IOptions } from 'modules/boards/types';
 import { renderPriority } from 'modules/boards/utils';
 import { __ } from 'modules/common/utils';
-import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
 import React from 'react';
 import { ITicket } from '../types';
 
@@ -32,9 +32,7 @@ class TicketItem extends React.PureComponent<Props> {
       return null;
     }
 
-    return (
-      <ItemDate>{dayjs(date).format('lll')}</ItemDate>
-    );
+    return <ItemDate>{dayjs(date).format('lll')}</ItemDate>;
   }
 
   renderForm = () => {
@@ -70,7 +68,7 @@ class TicketItem extends React.PureComponent<Props> {
 
         <PriceContainer>
           <Right>
-            <Participators participatedUsers={item.assignedUsers} limit={3} />
+            <Assignees users={item.assignedUsers} />
           </Right>
         </PriceContainer>
 

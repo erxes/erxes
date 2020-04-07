@@ -8,7 +8,7 @@ import { withProps } from 'modules/common/utils';
 import mutations from 'modules/settings/boards/graphql/mutations';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import PipelineList from '../../components/home/PipelineList';
 
 type Props = { queryParams: any } & IRouterProps;
@@ -37,14 +37,14 @@ class PipelineListContainer extends React.Component<FinalProps> {
       object
     }: IButtonMutateProps) => {
       const afterSave = () => {
-        if(callback) {
+        if (callback) {
           callback();
         }
 
-        if(pipelinesQuery) {
+        if (pipelinesQuery) {
           pipelinesQuery.refetch(queryParams.id);
         }
-      }
+      };
 
       return (
         <ButtonMutate
@@ -61,7 +61,9 @@ class PipelineListContainer extends React.Component<FinalProps> {
       );
     };
 
-    return <PipelineList renderAddButton={renderAddButton} pipelines={pipelines} />;
+    return (
+      <PipelineList renderAddButton={renderAddButton} pipelines={pipelines} />
+    );
   }
 }
 

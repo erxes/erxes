@@ -40,12 +40,12 @@ const SegmentStep = (props: Props) => {
     messageType,
     renderContent,
     segmentFields,
-    headSegments,
+    headSegments
   } = props;
 
   const formProps = {
     fields: segmentFields,
-    headSegments,
+    headSegments
   };
 
   const orderedSegments: ISegment[] = [];

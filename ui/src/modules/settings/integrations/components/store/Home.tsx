@@ -36,14 +36,19 @@ class Home extends React.Component<Props, State> {
     const { searchValue } = this.state;
     const { queryParams } = this.props;
 
-    if (prevProps.queryParams.type !== queryParams.type ||
-      prevState.searchValue !== searchValue) {
+    if (
+      prevProps.queryParams.type !== queryParams.type ||
+      prevState.searchValue !== searchValue
+    ) {
       this.setState({
-        integrations: INTEGRATIONS.filter(integration => (
-          integration.name.toLowerCase().indexOf(searchValue) !== -1 &&
-          integration.category.indexOf(queryParams.type || 'All integrations') !== -1
-        ))
-      })
+        integrations: INTEGRATIONS.filter(
+          integration =>
+            integration.name.toLowerCase().indexOf(searchValue) !== -1 &&
+            integration.category.indexOf(
+              queryParams.type || 'All integrations'
+            ) !== -1
+        )
+      });
     }
   }
 
@@ -74,7 +79,7 @@ class Home extends React.Component<Props, State> {
         <FullHeight>
           <EmptyState
             text={`No results for "${searchValue}"`}
-            image='/images/actions/2.svg'
+            image="/images/actions/2.svg"
           />
         </FullHeight>
       );
@@ -90,7 +95,7 @@ class Home extends React.Component<Props, State> {
       <Content>
         <Sidebar currentType={queryParams.type} />
         <IntegrationWrapper>
-          <h3>{queryParams.type || "All Integrations"}</h3>
+          <h3>{queryParams.type || 'All Integrations'}</h3>
           {this.renderIntegrations()}
         </IntegrationWrapper>
       </Content>

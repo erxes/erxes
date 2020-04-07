@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import Assignees from 'modules/boards/components/Assignees';
 import Details from 'modules/boards/components/Details';
 import DueDateLabel from 'modules/boards/components/DueDateLabel';
 import Labels from 'modules/boards/components/label/Labels';
@@ -16,7 +17,6 @@ import { renderAmount, renderPriority } from 'modules/boards/utils';
 import Icon from 'modules/common/components/Icon';
 import { colors } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
-import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
 import React from 'react';
 import { IDeal } from '../types';
 
@@ -104,14 +104,14 @@ class DealItem extends React.PureComponent<Props> {
           {renderAmount(item.amount)}
 
           <Right>
-            <Participators participatedUsers={item.assignedUsers} limit={3} />
+            <Assignees users={item.assignedUsers} />
           </Right>
         </PriceContainer>
 
         <DueDateLabel closeDate={closeDate} isComplete={isComplete} />
 
         <Footer>
-          {item.isWatched ? <Icon icon="eye-2" /> : __('Last updated')}
+          {item.isWatched ? <Icon icon="eye" /> : __('Last updated')}
           <Right>{this.renderDate(item.modifiedAt)}</Right>
         </Footer>
       </>

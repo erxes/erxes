@@ -63,7 +63,7 @@ export const hours = [
   { value: '11:59 PM', label: '11:59 PM' }
 ];
 
-export const KIND_CHOICES = {
+export const INTEGRATION_KINDS = {
   MESSENGER: 'messenger',
   FACEBOOK_MESSENGER: 'facebook-messenger',
   FACEBOOK_POST: 'facebook-post',
@@ -71,40 +71,43 @@ export const KIND_CHOICES = {
   NYLAS_GMAIL: 'nylas-gmail',
   NYLAS_IMAP: 'nylas-imap',
   NYLAS_OUTLOOK: 'nylas-outlook',
+  NYLAS_EXCHANGE: 'nylas-exchange',
   NYLAS_OFFICE365: 'nylas-office365',
   NYLAS_YAHOO: 'nylas-yahoo',
   LEAD: 'lead',
   CALLPRO: 'callpro',
   TWITTER_DM: 'twitter-dm',
   CHATFUEL: 'chatfuel',
+  SMOOCH_TELEGRAM: 'smooch-telegram',
+  SMOOCH_VIBER: 'smooch-viber',
+  SMOOCH_LINE: 'smooch-line',
+  SMOOCH_TWILIO: 'smooch-twilio',
   WHATSAPP: 'whatsapp',
-  ALL_LIST: [
-    'messenger',
-    'facebook-post',
-    'facebook-messenger',
-    'lead',
-    'callpro',
-    'twitter-dm',
-    'chatfuel',
-    'gmail',
-    'nylas-gmail',
-    'nylas-imap',
-    'nylas-office365',
-    'nylas-outlook',
-    'whatsapp'
+  ALL: [
+    { text: 'Messenger', value: 'messenger' },
+    { text: 'Facebook post', value: 'facebook-post' },
+    {
+      text: 'Facebook messenger',
+      value: 'facebook-messenger'
+    },
+    { text: 'Gmail', value: 'gmail' },
+    { text: 'Nylas gmail', value: 'nylas-gmail' },
+    { text: 'IMAP', value: 'nylas-imap' },
+    { text: 'Office 365', value: 'nylas-office365' },
+    { text: 'Exchange', value: 'nylas-exchange' },
+    { text: 'Outlook', value: 'nylas-outlook' },
+    { text: 'Yahoo', value: 'nylas-yahoo' },
+    { text: 'Pop Ups', value: 'lead' },
+    { text: 'Callpro', value: 'callpro' },
+    { text: 'Twitter direct message', value: 'twitter-dm' },
+    { text: 'Chatfuel', value: 'chatfuel' },
+    { text: 'Telegram', value: 'smooch-telegram' },
+    { text: 'Viber', value: 'smooch-viber' },
+    { text: 'Line', value: 'smooch-line' },
+    { text: 'Twilio', value: 'smooch-twilio' },
+    { text: 'WhatsApp', value: 'whatsapp' }
   ]
 };
-
-export const KIND_CHOICES_WITH_TEXT = [
-  { text: 'Messenger', value: 'messenger' },
-  { text: 'Facebook post', value: 'facebook-post' },
-  { text: 'facebook messenger', value: 'facebook-messenger' },
-  { text: 'Pop Ups', value: 'lead' },
-  { text: 'Callpro', value: 'callpro' },
-  { text: 'Chatfuel', value: 'chatfuel' },
-  { text: 'Gmail', value: 'nylas-gmail' },
-  { text: 'WhatsApp', value: 'whatsapp' }
-];
 
 export const FORM_LOAD_TYPES = {
   SHOUTBOX: 'shoutbox',
@@ -225,6 +228,19 @@ export const INTEGRATIONS = [
       'All integrations, For support teams, Email marketing, Marketing automation, Conversation'
   },
   {
+    name: 'Microsoft Exchange by Nylas',
+    description:
+      'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
+    inMessenger: false,
+    isAvailable: true,
+    kind: 'nylas-exchange',
+    logo: '/images/integrations/exchange.png',
+    createModal: 'nylas-exchange',
+    createUrl: '/settings/integrations/nylas-exchange',
+    category:
+      'All integrations, For support teams, Email marketing, Marketing automation, Conversation'
+  },
+  {
     name: 'Pop Ups',
     description: 'Find your lead forms right here in your Widget',
     inMessenger: true,
@@ -329,13 +345,49 @@ export const INTEGRATIONS = [
     category: 'All integrations, For support teams, Messaging, Conversation'
   },
   {
-    name: 'Viber',
+    name: 'Telegram by Sunshine Conversations',
+    description:
+      'Cloud-based mobile and desktop messaging app with a focus on speed and security',
+    inMessenger: false,
+    isAvailable: true,
+    kind: 'smooch-telegram',
+    logo: '/images/integrations/telegram.png',
+    createModal: 'smooch-telegram',
+    category: 'All integrations, For support teams, Messaging, Conversation'
+  },
+  {
+    name: 'Viber by Sunshine Conversations ',
     description: `Soon you'll be able to connect Viber straight to your Team Inbox`,
     inMessenger: false,
-    isAvailable: false,
+    isAvailable: true,
+    kind: 'smooch-viber',
     logo: '/images/integrations/viber.png',
+    createModal: 'smooch-viber',
     category:
       'All integrations, For support teams, Marketing automation, Messaging, Conversation'
+  },
+  {
+    name: 'Line by Sunshine Conversations',
+    description: 'See and reply to Line messages in your Team Inbox',
+    inMessenger: false,
+    isAvailable: true,
+    kind: 'smooch-line',
+    logo: '/images/integrations/line.png',
+    createModal: 'smooch-line',
+    category:
+      'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Phone and video, Conversation'
+  },
+  {
+    name: 'Twilio SMS by Sunshine Conversations',
+    description:
+      'Connect Twilio API for SMS then send and receive text messages anywhere in the world',
+    inMessenger: false,
+    isAvailable: true,
+    kind: 'smooch-twilio',
+    logo: '/images/integrations/twilio-ipm.png',
+    createModal: 'smooch-twilio',
+    category:
+      'All integrations, For support teams, For sales teams, For marketing teams, Messaging, Marketing automation, Conversation'
   },
   {
     name: 'Wechat',
@@ -348,15 +400,6 @@ export const INTEGRATIONS = [
       'All integrations, For support teams, Messaging, Marketing automation, Social media, Conversation'
   },
   {
-    name: 'Line',
-    description: 'See and reply to Line messages in your Team Inbox',
-    inMessenger: false,
-    isAvailable: false,
-    logo: '/images/integrations/line.png',
-    category:
-      'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Phone and video, Conversation'
-  },
-  {
     name: 'Twitter post',
     description: 'Connect to your twitter posts here in your Team Inbox',
     inMessenger: false,
@@ -367,7 +410,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Instagram',
-    description: 'Connect to your twitter posts here in your Team Inbox',
+    description: 'Connect to your instagram posts here in your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/instagram.png',
@@ -505,16 +548,6 @@ export const INTEGRATIONS = [
     logo: '/images/integrations/twilio-ipm.png',
     category:
       'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Conversation'
-  },
-  {
-    name: 'Twilio SMS',
-    description:
-      'Connect Twilio API for SMS then send and receive text messages anywhere in the world',
-    inMessenger: false,
-    isAvailable: false,
-    logo: '/images/integrations/twilio-ipm.png',
-    category:
-      'All integrations, For support teams, For sales teams, For marketing teams, Messaging, Marketing automation, Conversation'
   },
   {
     name: 'WIT.AI',

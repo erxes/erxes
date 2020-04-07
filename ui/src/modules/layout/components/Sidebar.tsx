@@ -51,7 +51,7 @@ type State = {
 
 class Section extends React.Component<Props, State> {
   static defaultProps = {
-    maxHeight: 240
+    maxHeight: 255
   };
 
   static Title = Title;

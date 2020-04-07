@@ -36,7 +36,7 @@ class Row extends React.Component<Props> {
         <td onClick={onClick}>
           <FormControl
             checked={isChecked}
-            componentClass='checkbox'
+            componentClass="checkbox"
             onChange={onChange}
           />
         </td>

@@ -112,7 +112,10 @@ class Index extends React.Component<IndexProps, IndexState> {
 
   renderTrackedData = ({ customer, kind, toggleSection }: IRenderData) => {
     return (
-      <TrackedDataSection customer={customer} collapseCallback={toggleSection} />
+      <TrackedDataSection
+        customer={customer}
+        collapseCallback={toggleSection}
+      />
     );
   };
 
@@ -127,12 +130,6 @@ class Index extends React.Component<IndexProps, IndexState> {
       />
     );
   };
-
-  renderActions() {
-    const { customer } = this.props;
-
-    return <ActionSection customer={customer} />;
-  }
 
   renderTabSubContent() {
     const { currentSubTab } = this.state;
@@ -204,10 +201,9 @@ class Index extends React.Component<IndexProps, IndexState> {
       return (
         <>
           <BasicInfo>
-            <InfoSection customer={customer} />
+            <InfoSection customer={customer} hideForm={true} />
           </BasicInfo>
-          {this.renderActions()}
-
+          <ActionSection customer={customer} />
           <Tabs full={true}>
             <TabTitle
               className={currentSubTab === 'details' ? 'active' : ''}

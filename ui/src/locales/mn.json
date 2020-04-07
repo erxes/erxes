@@ -1,4 +1,5 @@
 {
+  "Homepage link": "https://www.erxes.io",
   "Are you sure?": "Та энэ үйлдлийг хийхдээ итгэлтэй байна уу? ",
   "Yes, I am": "Тийм",
   "No, Cancel": "Үгүй",
@@ -345,7 +346,7 @@
   "Knowledge base": "Мэдлэгийн сан",
   "Notification": "Мэдэгдэл",
   "Notifications": "Мэдэгдлүүд",
-  "Show Unread":"Уншаагүйг харах",
+  "Show Unread": "Уншаагүйг харах",
   "Unread": "Уншаагүйг харах",
   "Recent": "Жагсаалт харах",
   "Mark all as read": "Бүгдийг уншсан гэж тэмдэглэ",

@@ -641,32 +641,196 @@ In order to integrate the Yahoo you will need to generate app password for the E
 1. Create the Chat-API account go to [website](https://app.chat-api.com/registration)
 2. Copy **API key** from [here](https://app.chat-api.com/user/settings)
 
++ Click on your profile, then select settings.
+
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/integration/chat-api-whatsapp-3.png">
+
++ Copy API key value
+
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/integration/chat-api-whatsapp-4.png">
+
+
    **Configuration:**
 
-- Go to Erxes Settings => System config => Integrations config => Chat-API.
+- Go to Erxes Settings => System config => Integrations config => WhatsApp Chat-API.
 
 <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/integration/chat-api-whatsapp-1.png">
 
-**For then test purpose you can use [ngrok](http://ngrok.io/) for your webhook**
++ Paste API key to corresponding field.
 
-```Shell
-cd /path/to/erxes-integrations
-ngrok http 3400
-```
++ Put your webhook url into CHAT-API WEBHOOK CALLBACK URL field. 
++ For example 'https://erxes-integrations/whatsapp/webhook'
 
 When you start erxes-integration repo webhook will automatically created according to your configuration
 
 ### Erxes WhatsApp integration settings.
 
 1. Go to your erxes.domain.com - settings - integrations page
+
 2. Copy your instanceId and token from [here](https://app.chat-api.com/dashboard)
+
    <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/chat-api-whatsapp-2.png">
-3. Click on **Add Integrations** and select WhatsApp.
-4. Paste instanceId and token into corresponding fields
-5. Select your brand and click save.
+
+3. To connect to api, you need to scan the QR code from the device on which WhatsApp is registered.
+
++ If your account is registered less than a month ago, you need to pass a secure authorization to reduce the likelihood of blocking or authorization failure.
+
+   <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/chat-api-whatsapp-1.gif">
+
+4. Click on **Add Integrations** and select WhatsApp.
+
+  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/chat-api-whatsapp-5.png">
+
+5. Paste instanceId and token into corresponding fields
+
+6. Select your brand and click save.
+
+7. Go to Setting=> Channel=> Add new channel=> Connect WhatsApp integration.
 
 
-## Engage configuration
+## Sunshine Conversations API Integration
+
+1. Create your Sunshine Conversations API account [here](https://smooch.io/signup/).
+
+2. After you create a account. Sign in to [smooch.io](https://app.smooch.io/login).
+
+3. Create new Sunshine Conversations app
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-1.png">
+
+4. Go to your created app. Then select Settings tab.
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-3.png">
+
+5. In order to create api key click on "Generate API key".
+
+6. Copy and paste your App id, API Key ID and secret to Erxes Settings => System config => Integrations config => Sunshine Conversations API
+
+ <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-4.png">
+
+ <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-5.png">
+
+7. Put your webhook url into SMOOCH WEBHOOK CALLBACK URL field. 
++ For example 'https://erxes-integrations/smooch/webhook'
+
+### Viber
+
+1. Create a Public Account 
++ You can create an account for testing and development purpose by registering on the [Viber admin panel](https://partners.viber.com/).
++ Fill out all required fields and create your Bot account.
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-viber-3">
++ You can share the QR code with your customers and partners.
+
+
+2. Once you have your Public Account token, copy and paste it into Viber token field on the Add Viber page from erxes App Store. Then click on “Save”.
+
+ <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-viber-2.png">
+
+ <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-viber-1.png">
+
+ 
+3. Go to Setting=> Channel=> Add new channel=> Connect Viber integration.
+
+### Telegram
+
+1. Sign in to telegram [here](https://web.telegram.org/#/login).
+
+2. In order to create telegram bot go to [BotFather](https://telegram.me/botfather).
+
+ <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-telegram-3.png">
+
+3. Type /newbot and send it to BotFather. Then follow the instructions from BotFather to create a bot.
+
+ <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-telegram-4.png">
+
+ <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-telegram-5">
+
+ + You can share the link with your customers and partners and they can connect with you.
+
+4. Then copy your bot token and paste it into Telegram Bot Token field on the add Telegram page from erxes App Store. Then click on “Save”
+
+
+ <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-telegram-1.png">
+
+ <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-telegram-2.png">
+
+5. Go to Setting=> Channel=> Add new channel=> Connect Telegram integration.
+
+### LINE 
+
++ A Channel ID and Channel Secret will need to be retrieved from the Line Developers Platform
+
++ The Smooch Webhook URL will need to be added to the LINE Developers Platform.
+
+1. Sign in to a [Line Developer Console](https://developers.line.biz/console/)
+
+2. Select the Provider you created in the LINE Official Accounts platform previously or create new one.
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-line-1.png">
+
+3. Create Channel and select it to connect.
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-line-2.png">
+
++ Then you will get your channel id and secret.
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-line-3.png">
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-line-4.png">
+
+4. Go to Erxes settings => App store => **add line**.
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-line-5.png">
+
+5. Copy and paste your channel id and secret to corresponding fields on the add LINE page from erxes App Store. Then click on “Save”. Then erxes will give you a webhook url.
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-line-6.png">
+
+6. Navigate to the Messaging API tab and add the Webook URL found in the previous step to the Webhook URL field.
+
+7. Press Update and then Verify.
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-line-7.png">
+
+8. Turn on the Use Webhook switch.
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-line-8.png">
+
+9. Get your QR Code from Messaging API tab and share the QR Code with your customers and partners. This code will allow them to connect with you using LINE chat.
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-line-9">
+
+10. Go to Setting=> Channel=> Add new channel=> Connect LINE integration.
+
+### Twilio SMS
+
+1. Sign in to a [Twilio Console](https://www.twilio.com/console)
+
+2. Go to the [Twilio Console](https://www.twilio.com/console) and press the red "Get a Trial Number" button. Twilio will recommend a phone number based on your location.
+
++ If you don't have a preference, you can click on the red "Choose this Number" button. However, if you would like to purchase a number from a different country or you just would like a different number from the one recommended, you can click on "Search for a different number".
+
++ You can select a number from any country available on Twilio. The only prerequisite for Erxes integration to work is SMS capability. Bear in mind that Twilio does offer numbers without SMS functionality, those won't work.
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-twilio-1.png">
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-twilio-4">
+
+3. Copy and paste your ACCOUNT SID and AUTH TOKEN to corresponding fields on the add Twilio SMS page from erxes App Store.
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-twilio-1.png">
+
+4. Get your phone number sid from [twilio](https://www.twilio.com/console/phone-numbers/incoming)
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-twilio-2.png">
+
+5. Copy and paste your PHONE NUMBER SID to PHONE NUMBER SID field on the add Twilio SMS page from erxes App Store. Then click on “Save”.
+
+<img src="https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-twilio-3.png">
+
+6. Go to Setting=> Channel=> Add new channel=> Connect Twilio integration.
+
+## Engage configurations
 
 ### AWS SES
 

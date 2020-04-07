@@ -43,7 +43,7 @@ class Brands extends React.Component<Props, {}> {
           size="small"
         />
       );
-    };
+    }
 
     const trigger = (
       <Button btnStyle="simple" uppercase={false} icon="web-grid-alt">
@@ -59,7 +59,7 @@ class Brands extends React.Component<Props, {}> {
           size="small"
         />
       );
-    };
+    }
 
     const content = props => (
       <ManageIntegrations
@@ -91,15 +91,14 @@ class Brands extends React.Component<Props, {}> {
         mainHead={
           <HeaderDescription
             icon="/images/actions/32.svg"
-            title="Brands"
-            description="Add unlimited Brands with unlimited support to further your growth and accelerate your business."
+            title={__('Brands')}
+            description={__(
+              'Add unlimited Brands with unlimited support to further your growth and accelerate your business.'
+            )}
           />
         }
         actionBar={
-          <Wrapper.ActionBar
-            left={leftActionBar}
-            right={rightActionBar}
-          />
+          <Wrapper.ActionBar left={leftActionBar} right={rightActionBar} />
         }
         leftSidebar={
           <Sidebar

@@ -50,7 +50,7 @@ const Events: any = {
 
     this.sendRequest("events-receive", {
       customerId,
-      ...data,
+      ...data
     });
   }
 };
