@@ -12,6 +12,7 @@ import {
   Users,
 } from '../../../db/models';
 import { IUserDocument } from '../../../db/models/definitions/users';
+import { debugBase } from '../../../debuggers';
 import { MODULE_NAMES } from '../../constants';
 import { can } from '../../permissions/utils';
 import { createXlsFile, generateXlsx } from '../../utils';
@@ -49,6 +50,8 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
       const customerParams: ICustomerListArgs = query;
 
       if (customerParams.form && customerParams.popupData) {
+        debugBase('Start an aggregation for popups export');
+
         const messagesAggregate = await FormSubmissions.aggregate([
           {
             $match: { formId: customerParams.form, customerId: { $exists: true, $ne: null } },
@@ -91,6 +94,10 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
           },
         ]).allowDiskUse(true);
 
+        debugBase(`End an aggregation for popups export. Message length: ${messagesAggregate.length}`);
+
+        debugBase('Start filtering lead messages for popups export');
+
         const messages: any[] = [];
 
         messagesAggregate.forEach(message => {
@@ -108,6 +115,8 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
             messages.push(formData);
           }
         });
+
+        debugBase(`End filtering lead messages for popups export. Lead message length: ${messages.length}`);
 
         data = messages;
       } else {
@@ -213,6 +222,8 @@ const fillLeadHeaders = async (formId: string) => {
 };
 
 const buildLeadFile = async (datas: any, formId: string, sheet: any, columnNames: string[], rowIndex: number) => {
+  debugBase(`Start building an excel file for popups export`);
+
   const headers: IColumnLabel[] = await fillLeadHeaders(formId);
 
   const displayValue = item => {
@@ -237,6 +248,8 @@ const buildLeadFile = async (datas: any, formId: string, sheet: any, columnNames
       addCell(column, cellValue, sheet, columnNames, rowIndex);
     }
   }
+
+  debugBase('End building an excel file for popups export');
 };
 
 export const buildFile = async (query: any, user: IUserDocument): Promise<{ name: string; response: string }> => {
