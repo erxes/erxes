@@ -89,7 +89,7 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
           {
             $sort: { createdAt: -1 },
           },
-        ]);
+        ]).allowDiskUse(true);
 
         const messages: any[] = [];
 
