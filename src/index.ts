@@ -3,7 +3,7 @@ import * as express from 'express';
 import initCallPro from './callpro/controller';
 import initChatfuel from './chatfuel/controller';
 import { connect } from './connection';
-import { debugInit, debugIntegrations, debugRequest, debugResponse, debugTwitter } from './debuggers';
+import { debugInit, debugIntegrations, debugRequest, debugResponse } from './debuggers';
 import initFacebook from './facebook/controller';
 import initGmail from './gmail/controller';
 import { removeIntegration, updateIntegrationConfigs } from './helpers';
@@ -14,7 +14,6 @@ import { initNylas } from './nylas/controller';
 import { initRedis } from './redisClient';
 import initSmooch from './smooch/controller';
 import { init } from './startup';
-import * as twitterApi from './twitter/api';
 import initTwitter from './twitter/controller';
 import userMiddleware from './userMiddleware';
 import initDaily from './videoCall/controller';
@@ -59,12 +58,6 @@ app.post('/update-configs', async (req, res, next) => {
   }
 
   debugResponse(debugIntegrations, req);
-
-  try {
-    await twitterApi.registerWebhook();
-  } catch (e) {
-    debugTwitter(e.message);
-  }
 
   return res.json({ status: 'ok' });
 });
