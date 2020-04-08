@@ -1,4 +1,5 @@
 import { colors, dimensions } from 'modules/common/styles';
+import { fadeIn } from 'modules/common/utils/animations';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -25,11 +26,12 @@ const Greeting = styled.div`
 `;
 
 const Bot = styled.div`
-  position: absolute;
+  position: fixed;
   bottom: 0;
-  width: 100%;
+  width: 70px;
   padding: 10px 0;
   text-align: center;
+  z-index: 15;
 
   &:hover {
     cursor: pointer;
@@ -54,7 +56,6 @@ const NavButton = styledTS<{ right?: boolean }>(styled.div)`
   width: 28px;
   height: 28px;
   margin-left: ${props => !props.right && '-7px'};;
-  margin-top: -5px;
   float: ${props => props.right && 'right'};
   background: ${props => props.right && colors.bgActive};
   position: sticky;
@@ -84,6 +85,7 @@ const Content = styled.div`
   max-height: calc(100% - 75px);
   overflow: auto;
   flex-direction: column;
+  z-index: 15;
 `;
 
 const SeeAll = styled.a`
@@ -98,12 +100,17 @@ const SeeAll = styled.a`
 const BackDrop = styled.div`
   position: fixed;
   top: 0;
+  width: 100%;
+  height: 100%;
+  bottom: 0;
   left: 0;
   right: 0;
-  bottom: 0;
-  z-index: 1070;
-  background-color: #30435c;
-  opacity: 0.7;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 13;
+  transition: opacity 0.3s;
+  animation-name: ${fadeIn};
+  animation-duration: 0.8s;
+  animation-timing-function: linear;
 `;
 
 export { Bot, ModulRow, Greeting, Title, NavButton, Content, SeeAll, BackDrop };

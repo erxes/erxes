@@ -1,8 +1,8 @@
 import { fadeIn, slideDown } from 'modules/common/utils/animations';
 import React from 'react';
-import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import { readFile } from '../utils';
+import CommonPortal from './CommonPortal';
 
 const PreviewWrapper = styled.div`
   position: fixed;
@@ -92,36 +92,14 @@ class ImageWithPreview extends React.Component<Props, State> {
           onClick={this.toggleImage}
         />
         {this.state.visible && (
-          <PreviewPortal>
+          <CommonPortal>
             <PreviewWrapper onClick={this.toggleImage}>
               <img alt={alt} src={readFile(src || '')} />
             </PreviewWrapper>
-          </PreviewPortal>
+          </CommonPortal>
         )}
       </>
     );
-  }
-}
-
-class PreviewPortal extends React.Component<{ children: React.ReactNode }> {
-  private el;
-
-  constructor(props) {
-    super(props);
-
-    this.el = document.createElement('div');
-  }
-
-  componentDidMount() {
-    document.body.appendChild(this.el);
-  }
-
-  componentWillUnmount() {
-    document.body.removeChild(this.el);
-  }
-
-  render() {
-    return ReactDOM.createPortal(this.props.children, this.el);
   }
 }
 

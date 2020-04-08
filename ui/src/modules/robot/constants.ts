@@ -332,3 +332,26 @@ export const FEATURE_DETAILS = {
     }
   }
 };
+
+export const TEAM_FEATURES = [
+  {
+    name: 'Marketing',
+    features: []
+  },
+  {
+    name: 'Sales',
+    features: []
+  },
+  {
+    name: 'Customer Support',
+    features: []
+  },
+  {
+    name: 'Management',
+    features: []
+  },
+  {
+    name: 'General',
+    features: []
+  }
+];

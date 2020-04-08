@@ -3,8 +3,6 @@ import * as React from 'react';
 import RTG from 'react-transition-group';
 import Onboarding from '../containers/Onboarding';
 import { IEntry } from '../types';
-import { getCurrentUserName } from '../utils';
-import Assistant from './assistant/Assistant';
 import { Bot } from './styles';
 
 type Props = {
@@ -32,30 +30,23 @@ class Robot extends React.Component<Props, State> {
     const { currentUser } = this.props;
 
     return (
-      <>
-        <Assistant
-          show={currentRoute === 'assistant'}
-          changeRoute={this.changeRoute}
-          currentUserName={getCurrentUserName(currentUser)}
-        />
-        <Onboarding
-          changeRoute={this.changeRoute}
-          show={currentRoute.includes('onboard')}
-          currentUser={currentUser}
-          currentStep={
-            currentRoute === 'onboardStart' ? 'featureList' : undefined
-          }
-        />
-      </>
+      <Onboarding
+        changeRoute={this.changeRoute}
+        show={currentRoute.includes('onboard')}
+        currentUser={currentUser}
+        currentStep={
+          currentRoute === 'onboardStart' ? 'featureList' : undefined
+        }
+      />
     );
   };
 
   changeContent = () => {
-    if (this.state.currentRoute === 'assistant') {
+    if (this.state.currentRoute === 'onboardStart') {
       return this.changeRoute('');
     }
 
-    return this.changeRoute('assistant');
+    return this.changeRoute('onboardStart');
   };
 
   render() {

@@ -9,6 +9,7 @@ import { getCurrentUserName } from '../utils';
 import ModulItem from './ModulItem';
 import { Content, Greeting, NavButton, SeeAll } from './styles';
 import Suggestion from './Suggestion';
+import Welcome from './Welcome';
 
 type Props = {
   availableFeatures: IFeature[];
@@ -78,9 +79,7 @@ class Onboarding extends React.Component<Props, State> {
     };
 
     if (currentStep === 'initial') {
-      return (
-        <Suggestion {...commonProps} buttonText="Start" onClick={onClick} />
-      );
+      return <Welcome currentUserName={getCurrentUserName(currentUser)} />;
     }
 
     if (currentStep === 'inComplete') {

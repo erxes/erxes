@@ -23,8 +23,6 @@ class RobotContainer extends React.Component<Props> {
       entries: entriesQuery.robotEntries || []
     };
 
-    console.log(entriesQuery);
-
     return (
       <AppConsumer>
         {({ currentUser }) =>
