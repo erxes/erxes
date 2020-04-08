@@ -55,9 +55,6 @@ RABBITMQ_HOST = RABBITMQ_HOST
 REDIS_HOST = REDIS_HOST # we will update it later on
 REDIS_PASSWORD = REDIS_PASS # we will update it later on
 REDIS_PORT = 28229 # update it later on
-WIDGETS_DOMAIN = https://erxes-widget.herokuapp.com
-PORT_CRONS: 3600,
-PORT_WORKERS: 3700,
 JWT_TOKEN_SECRET: "replact it with your token"
 ```
 
@@ -126,10 +123,13 @@ The steps of installing them are same as above.
 ```sh
 PORT = 3400
 DOMAIN = https://erxes-integration.herokuapp.com
-MAIN_API_DOMAIN = MAIN_API_DOMAIN
-MAIN_APP_DOMAIN = MAIN_APP_DOMAIN
-MONGO_URL = MONGO_URL # we will update it later on
+MAIN_API_DOMAIN = API domain
+MAIN_APP_DOMAIN = Front app domain
+MONGO_URL = INTEGRATION_MONGO_URL # we will update it later on
 RABBITMQ_HOST = copy and paste from erxes-api RABBITMQ_HOST config var
+REDIS_HOST = copy and paste from erxes-api REDIS_HOST config var
+REDIS_PASSWORD = copy and paste from erxes-api REDIS_PASSWORD config var
+REDIS_PORT = copy and paste from erxes-api REDIS_PORT config var
 ```
 
 [![Deploy Widgets](https://www.herokucdn.com/deploy/button.svg#heroku "Deploy erxes integrations")](https://heroku.com/deploy?template=https://github.com/erxes/erxes-integrations/tree/develop)
