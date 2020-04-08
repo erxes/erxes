@@ -46,11 +46,10 @@ Now it's time to install erxes API - click the button below and set the config v
 **Config vars:**
 
 ```sh
+PORT = 3300
 DOMAIN = https://erxes-api.herokuapp.com
-INTEGRATIONS_API_DOMAIN = https://ERXESINTEGRATIONSAPINAME.herokuapp.com
 MAIN_APP_DOMAIN = https://erxes.herokuapp.com
 MONGO_URL = mongodb:// # leave it as is, we will update it later on
-PORT = 3300
 RABBITMQ_HOST = RABBITMQ_HOST
 REDIS_HOST = REDIS_HOST # we will update it later on
 REDIS_PASSWORD = REDIS_PASS # we will update it later on
