@@ -30,16 +30,9 @@ function Filter({ queryParams = {}, history }: IProps) {
 
     const onClick = () => onClickClose([paramKey]);
 
-    const intlChipText = __(paramKey);
-    const useIntlChipText = intlChipText !== queryParams[paramKey];
-
     return (
       <Chip capitalize={true} onClick={onClick}>
-        {bool
-          ? paramKey
-          : useIntlChipText
-          ? intlChipText
-          : cleanIntegrationKind(queryParams[paramKey])}
+        {bool ? paramKey : __(cleanIntegrationKind(queryParams[paramKey]))}
       </Chip>
     );
   };
