@@ -10,7 +10,7 @@ on:
       - develop
 
 jobs:
-  build:
+  docs:
     runs-on: ubuntu-18.04
 
     strategy:
@@ -31,10 +31,25 @@ jobs:
     - name: Install
       run: |
         cd docs/website
-        yarn install
+        yarn install --frozen-lockfile
+
     - name: Build
+      if: github.event_name == 'pull_request'
       run: |
         cd docs/website
         yarn run build
       env:
         CI: true
+
+    - name: Publish
+      if: github.event_name == 'push' && matrix.node-version == '8.x'
+      run: |
+        cd docs/website
+        git config --global user.email "$DOC_USERNAME@users.noreply.github.com"
+        git config --global user.name "$DOC_USERNAME"
+        echo "machine github.com login $DOC_USERNAME password $DOC_TOKEN" > ~/.netrc
+        GIT_USER=$DOC_USERNAME CURRENT_BRANCH=develop yarn run publish-gh-pages
+      env:
+        CI: true
+        DOC_USERNAME: ${{ secrets.DOC_USERNAME }}
+        DOC_TOKEN: ${{ secrets.DOC_TOKEN }}
