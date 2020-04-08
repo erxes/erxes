@@ -4,7 +4,7 @@ import { IRouterProps } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { AllUsersQueryResponse } from '../../settings/team/types';
 import { mutations, queries } from '../graphql';
 import {
@@ -62,7 +62,10 @@ function withSaveAndEdit<IComponentProps>(Component) {
           .then(() => {
             Alert.success(msg);
 
-            history.push({ pathname: '/engage', search: '?engageRefetchList=true' });
+            history.push({
+              pathname: '/engage',
+              search: '?engageRefetchList=true'
+            });
           })
           .catch(error => {
             Alert.error(error.message);
@@ -185,11 +188,14 @@ function withSaveAndEdit<IComponentProps>(Component) {
   );
 }
 
-
-export const engageRefetchQueries = ({ isEdit }: { isEdit?: boolean }): string[] => [
+export const engageRefetchQueries = ({
+  isEdit
+}: {
+  isEdit?: boolean;
+}): string[] => [
   ...crudMutationsOptions().refetchQueries,
-  ...isEdit ? ['activityLogs'] : [],
-  'engageMessageDetail',
-]
+  ...(isEdit ? ['activityLogs'] : []),
+  'engageMessageDetail'
+];
 
 export default withSaveAndEdit;

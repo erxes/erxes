@@ -1,5 +1,5 @@
-import { __, Alert, uploadHandler } from 'modules/common/utils';
-import React, { useEffect, useState } from 'react';
+import { __, Alert, confirm, uploadHandler } from 'modules/common/utils';
+import React from 'react';
 import styled from 'styled-components';
 import { rgba } from '../styles/color';
 import colors from '../styles/colors';
@@ -17,10 +17,35 @@ const Item = styled.div`
 
 const Delete = styled.span`
   text-decoration: underline;
+  transition: all 0.3s ease;
+  color: ${colors.colorCoreGray};
 
   &:hover {
     color: ${colors.colorCoreBlack};
     cursor: pointer;
+  }
+`;
+
+const ToggleButton = styled(Delete.withComponent('div'))`
+  padding: 7px 15px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+
+  &:hover {
+    background: ${rgba(colors.colorCoreDarkBlue, 0.07)};
+  }
+`;
+
+const LoadingContainer = styled(List)`
+  background: ${colors.bgActive};
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  > div {
+    height: 80px;
+    margin-right: 7px;
   }
 `;
 
@@ -29,9 +54,9 @@ const UploadBtn = styled.div`
   margin-top: 10px;
 
   label {
-    padding: 8px 20px;
+    padding: 7px 15px;
     background: ${rgba(colors.colorCoreDarkBlue, 0.05)};
-    border-radius: 20px;
+    border-radius: 4px;
     font-weight: 500;
     transition: background 0.3s ease;
     display: inline-block;
@@ -50,65 +75,85 @@ const UploadBtn = styled.div`
 type Props = {
   defaultFileList: IAttachment[];
   onChange: (attachments: IAttachment[]) => void;
+  single?: boolean;
   limit?: number;
   multiple?: boolean;
 };
 
-function Uploader(props: Props) {
-  const [attachments, setAttachments] = useState(props.defaultFileList);
-  const [loading, setLoading] = useState(false);
+type State = {
+  attachments: IAttachment[];
+  loading: boolean;
+  hideOthers: boolean;
+};
 
-  useEffect(
-    () => {
-      setAttachments(props.defaultFileList);
-    },
-    [props.defaultFileList]
-  );
+class Uploader extends React.Component<Props, State> {
+  static defaultProps = {
+    multiple: true,
+    limit: 4
+  };
 
-  function handleFileInput({ target }) {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      attachments: props.defaultFileList || [],
+      loading: false,
+      hideOthers: true
+    };
+  }
+
+  handleFileInput = ({ target }) => {
     const files = target.files;
 
     uploadHandler({
       files,
 
       beforeUpload: () => {
-        setLoading(true);
+        this.setState({
+          loading: true
+        });
       },
 
       afterUpload: ({ status, response, fileInfo }) => {
         if (status !== 'ok') {
           Alert.error(response);
-
-          return setLoading(false);
+          return this.setState({ loading: false });
         }
 
         Alert.info('Success');
 
-        setLoading(false);
-
         // set attachments
         const attachment = { url: response, ...fileInfo };
-        const updated = [...attachments, attachment];
 
-        setAttachments(updated);
-        props.onChange(updated);
+        const attachments = [attachment, ...this.state.attachments];
+
+        this.props.onChange(attachments);
+
+        this.setState({
+          loading: false,
+          attachments
+        });
       }
     });
 
     target.value = '';
-  }
+  };
 
-  function removeAttachmentByIndex(index: number) {
-    const updated = [...attachments];
+  removeAttachment = (index: number) => {
+    const attachments = [...this.state.attachments];
 
-    updated.splice(index, 1);
+    attachments.splice(index, 1);
 
-    setAttachments(updated);
-    props.onChange(updated);
-  }
+    this.setState({ attachments });
 
-  function renderItem(item: IAttachment, index: number) {
-    const removeAttachment = () => removeAttachmentByIndex(index);
+    this.props.onChange(attachments);
+  };
+
+  renderItem = (item: IAttachment, index: number) => {
+    const removeAttachment = () => {
+      confirm().then(() => this.removeAttachment(index));
+    };
+
     const remove = <Delete onClick={removeAttachment}>{__('Delete')}</Delete>;
 
     return (
@@ -116,12 +161,12 @@ function Uploader(props: Props) {
         <Attachment attachment={item} additionalItem={remove} />
       </Item>
     );
-  }
+  };
 
-  function renderBtn() {
-    const { multiple, limit } = props;
+  renderUploadButton() {
+    const { multiple, single } = this.props;
 
-    if (limit && limit === attachments.length) {
+    if (single && this.state.attachments.length > 0) {
       return null;
     }
 
@@ -129,26 +174,60 @@ function Uploader(props: Props) {
       <UploadBtn>
         <label>
           {__('Upload an attachment')}
-          <input type="file" multiple={multiple} onChange={handleFileInput} />
+          <input
+            type="file"
+            multiple={multiple}
+            onChange={this.handleFileInput}
+          />
         </label>
-        {loading && (
-          <Spinner size={18} top="auto" bottom="0" left="auto" right="10px" />
-        )}
       </UploadBtn>
     );
   }
 
-  return (
-    <>
-      <List>{attachments.map((item, index) => renderItem(item, index))}</List>
-      {renderBtn()}
-    </>
-  );
-}
+  toggleAttachments = () => {
+    this.setState({ hideOthers: !this.state.hideOthers });
+  };
 
-Uploader.defaultProps = {
-  multiple: true,
-  defaultFileList: []
-};
+  renderToggleButton = (hiddenCount: number) => {
+    if (hiddenCount > 0) {
+      const buttonText = this.state.hideOthers
+        ? `${__('View all attachments')} (${hiddenCount} ${__('hidden')})`
+        : `${__('Show fewer attachments')}`;
+
+      return (
+        <ToggleButton onClick={this.toggleAttachments}>
+          {buttonText}
+        </ToggleButton>
+      );
+    }
+
+    return null;
+  };
+
+  render() {
+    const { limit = 4 } = this.props;
+    const { attachments, hideOthers, loading } = this.state;
+
+    const length = attachments.length;
+
+    return (
+      <>
+        {loading && (
+          <LoadingContainer>
+            <Spinner objective={true} size={18} />
+            {__('Uploading')}...
+          </LoadingContainer>
+        )}
+        <List>
+          {this.state.attachments
+            .slice(0, limit && hideOthers ? limit : length)
+            .map((item, index) => this.renderItem(item, index))}
+        </List>
+        {this.renderToggleButton(length - limit)}
+        {this.renderUploadButton()}
+      </>
+    );
+  }
+}
 
 export default Uploader;

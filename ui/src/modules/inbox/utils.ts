@@ -71,18 +71,15 @@ export const extractEmail = (str?: string) => {
 };
 
 export const urlify = (text: string) => {
-  let content = text;
   const urlRegex = /(\b((https?|ftp|file):\/\/)?(www\.)[-A-Z0-9+&@#%?=~_|!:,.;]*[-A-Z0-9+&@#%=~_|])/gi;
 
-  if (urlRegex) {
-    content = text.replace(urlRegex, url => {
-      if (url.includes('http://') || url.includes('https://')) {
-        return '<a href="' + url + '" target="_blank">' + url + '</a>';
-      }
+  let content = text.replace(urlRegex, url => {
+    if (url.includes('http://') || url.includes('https://')) {
+      return '<a href="' + url + '" target="_blank">' + url + '</a>';
+    }
 
-      return '<a href="https://' + url + '" target="_blank">' + url + '</a>';
-    });
-  }
+    return '<a href="https://' + url + '" target="_blank">' + url + '</a>';
+  });
 
   if (text.includes('<a href="')) {
     content = text.replace('<a href="', '<a target="_blank" href="');

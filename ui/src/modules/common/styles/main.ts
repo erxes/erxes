@@ -141,7 +141,7 @@ const ActivityContent = styledTS<{ isEmpty: boolean }>(styled.div)`
 
 const DropIcon = styledTS<{ isOpen: boolean }>(styled.span)`
   font-size: 18px;
-  line-height: 18px;
+  line-height: 22px;
 
   &:after {
     cursor: pointer;
@@ -149,7 +149,7 @@ const DropIcon = styledTS<{ isOpen: boolean }>(styled.span)`
     font-family: 'erxes';
     float: right;
     transition: all ease 0.3s;
-    margin-left: ${dimensions.unitSpacing}px;
+    margin-left: ${dimensions.unitSpacing - 2}px;
     transform: ${props => props.isOpen && `rotate(180deg)`};
   }
 `;

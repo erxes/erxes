@@ -3,7 +3,7 @@ import Bulk from 'modules/common/components/Bulk';
 import { IBulkContentProps } from 'modules/common/components/Bulk';
 import DumbSidebar from 'modules/inbox/components/leftSidebar/Sidebar';
 import React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '../../../common/types';
 import { getConfig, setConfig } from '../../utils';
 

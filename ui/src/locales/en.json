@@ -1,4 +1,5 @@
 {
+  "Homepage link": "https://www.erxes.io",
   "Are you sure?": "Are you sure? This cannot be undone.",
   "Yes, I am": "Yes, I am",
   "No, Cancel": "No, Cancel",
@@ -147,6 +148,7 @@
   "Current Password": "Current Password",
   "Current password": "Current password",
   "New Password": "New Password",
+  "Set up your password": "Set up your password",
   "Re-type Password to confirm": "Re-type Password to confirm",
   "Signature": "Signature",
   "simple": "simple",
@@ -939,5 +941,21 @@
   "Engage config": "Engage config",
   "Join a call": "Join a call",
   "Invite to video call": "Invite to video call",
-  "Video call invitation sent": "Video call invitation sent"
+  "Video call invitation sent": "Video call invitation sent",
+  "Show the full message": "Show the full message",
+  "Snippet": "Snippet",
+  "Add New Brand": "Add New Brand",
+  "Basic JavaScript": "Website",
+  "Google tag manager": "Google Tag Manager",
+  "gtm_b": "To install erxes on your website with Google Tag Manager, just follow these steps.",
+  "gtm_li_1": "Navigate to the <b>Tags section</b> of your Google Tag Manager account",
+  "gtm_li_2": "Create a <b>new tag</b> and name it (for example: \"inflow\")",
+  "gtm_li_3": "Click the Tag Configuration section and choose <b>Custom HTML</b>{' '} tag type",
+  "gtm_li_4": "Paste the code below",
+  "gtm_li_5": "Next, click the Triggering section and choose “All Pages”",
+  "gtm_li_6": "Click ‘Save’ button in the top-right corner of the page",
+  "gtm_li_7": "Next click ‘Submit’ button in the top-right corner of the page to save the changes you made",
+  "gtm_li_8": "Now, erxes chat will be installed using your Google Tag Manager account. Just make sure you copy the gtm code to your website",
+  "For websites and web apps with full-page refreshes. Paste the code below before the body tag on every page you want erxes chat to appear": "For websites and web apps with full-page refreshes. Paste the code below before the body tag on every page you want erxes chat to appear",
+  "To connect Google Tag Manager to erxes, you must have an active Google Tag Manager account with a published container": "To connect Google Tag Manager to erxes, you must have an active Google Tag Manager account with a published container"
 }

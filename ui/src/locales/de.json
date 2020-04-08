@@ -1,4 +1,5 @@
 {
+  "Homepage link": "https://www.erxes.io",
   "Are you sure?": "Sind Sie sicher?",
   "Yes, I am": "Ja, bin ich",
   "No, Cancel": "Nein, abbrechen",
@@ -137,6 +138,7 @@
   "Brand": "Marke",
   "Current Password": "Aktuelles Passwort",
   "Current password": "Aktuelles Passwort",
+  "Set up your password": "Passwort-Einstellung",
   "New Password": "Neues Passwort",
   "Re-type Password to confirm": "Geben Sie das Passwort zur Bestätigung erneut ein",
   "Signature": "Unterschrift",
@@ -800,5 +802,21 @@
   "Choose messengers": "Choose messengers",
   "erxes allows you to create multiple messengers": "erxes allows you to create multiple messengers",
   "erxes allows you to create multiple brands": "erxes allows you to create multiple brands",
-  "erxes allows you to create multiple channels": "erxes allows you to create multiple channels"
+  "erxes allows you to create multiple channels": "erxes allows you to create multiple channels",
+  "Show the full message": "Zeige die ganze Nachricht",
+  "Snippet": "Ausschnitt",
+  "Add New Brand": "Eine \"brand\" erstellen",
+  "Basic JavaScript": "Webseite",
+  "Google tag manager": "Google Tag Manager",
+  "gtm_b": "So fügen Sie das wiget über GTM ein.",
+  "gtm_li_1": "öffnen Sie die Tags innerhalb von GTM",
+  "gtm_li_2": "erstellen Sie einen neuen tag (zB \"inflow\")",
+  "gtm_li_3": "klicken Sie den tag container und wählen Sie als Typ: Custom HTML",
+  "gtm_li_4": "fügen Sie den unten stehen code ein",
+  "gtm_li_5": "unter Triggering wählen Sie \"Auf allen Seiten\"",
+  "gtm_li_6": "speichern nicht vergessen (oben rechts)",
+  "gtm_li_7": "anschließend müssen sie die Änderungen über Submit bestätigen",
+  "gtm_li_8": "das widget wird nun auf den Webseiten geladen, auf denen GTM aktivier ist",
+  "For websites and web apps with full-page refreshes. Paste the code below before the body tag on every page you want erxes chat to appear": "Für Webseite oder Web-App mit full-page refresh. Bitte fügen Sie den code VOR dem <body> tag auf allen Webseiten ein, auf denen das widget aktiv sein soll.",
+  "To connect Google Tag Manager to erxes, you must have an active Google Tag Manager account with a published container": "Um das widget über Google Tag Manager (GTM) zu installieren benötigen Sie einen aktivierten GTM account mit einem veröffnetlichen container."
 }

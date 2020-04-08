@@ -82,7 +82,7 @@ function Component({
           </SectionBodyItem>
         ))}
         {customersObj.length === 0 && (
-          <EmptyState icon="user-5" text="No customer" />
+          <EmptyState icon="user-6" text="No customer" />
         )}
         {mainTypeId && mainType && relQuickButtons}
       </SectionBody>
@@ -105,7 +105,7 @@ function Component({
       size="lg"
       trigger={
         <button>
-          <Icon icon="add" />
+          <Icon icon="plus-circle" />
         </button>
       }
       content={customerChooser}

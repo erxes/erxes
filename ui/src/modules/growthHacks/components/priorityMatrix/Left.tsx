@@ -5,7 +5,7 @@ import { __ } from 'modules/common/utils';
 import { LeftContent, ScrollContent } from 'modules/growthHacks/styles';
 import { IGrowthHackParams } from 'modules/growthHacks/types';
 import React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import GrowthHackAddTrigger from '../GrowthHackAddTrigger';
 
 interface IProps extends IRouterProps {

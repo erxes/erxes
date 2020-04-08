@@ -32,10 +32,6 @@ const StageRoot = styledTS<{ isDragging: boolean }>(styled.div)`
 `;
 
 const Content = styledTS<{ type?: string }>(styled.div)`
-  flex-grow: 1;
-  flex-basis: 100%;
-  display: flex;
-  flex-direction: column;
 
   h5 {
     ${props => css`

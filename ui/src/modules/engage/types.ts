@@ -111,7 +111,7 @@ export type SetLiveMutationResponse = {
 
 export type SetLiveManualMutationResponse = {
   setLiveManualMutation: (
-    params: { vairables: MutationVariables }
+    params: { variables: MutationVariables }
   ) => Promise<void>;
 };
 
@@ -135,7 +135,7 @@ export type WithFormAddMutationResponse = {
 export type WithFormEditMutationResponse = {
   editMutation: (
     params: {
-      vairables: WithFormMutationVariables;
+      variables: WithFormMutationVariables;
     }
   ) => Promise<any>;
 };
