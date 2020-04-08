@@ -105,7 +105,7 @@ describe('Test board model', () => {
     try {
       await Boards.removeBoard(board._id);
     } catch (e) {
-      expect(e.message).toEqual('There is a stage that has a item');
+      expect(e.message).toMatch('has items named');
     }
   });
 
@@ -286,7 +286,7 @@ describe('Test board model', () => {
     try {
       await Pipelines.removePipeline(pipeline._id);
     } catch (e) {
-      expect(e.message).toEqual('There is a stage that has a item');
+      expect(e.message).toMatch('has items named');
     }
   });
 
