@@ -13,20 +13,16 @@ jobs:
   docs:
     runs-on: ubuntu-18.04
 
-    strategy:
-      matrix:
-        node-version: [8.x, 10.x, 12.x]
-
     # name: Node ${{ matrix.node-version }}
 
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
 
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Use Node.js 10.x
       uses: actions/setup-node@v1
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: 10.x
 
     - name: Install
       run: |
@@ -42,7 +38,7 @@ jobs:
         CI: true
 
     - name: Publish
-      if: github.event_name == 'push' && matrix.node-version == '8.x'
+      if: github.event_name == 'push'
       run: |
         cd docs/website
         git config --global user.email "$DOC_USERNAME@users.noreply.github.com"
