@@ -128,6 +128,12 @@ const fetchApi = `
   }
 `;
 
+const integrationGetLineWebhookUrl = `
+  query integrationGetLineWebhookUrl($id: String!) {
+    integrationGetLineWebhookUrl(_id: $id)
+  }
+`;
+
 export default {
   fetchApi,
   users,
@@ -137,5 +143,6 @@ export default {
   integrations,
   engagesConfigDetail,
   messengerApps,
-  messengerAppsCount
+  messengerAppsCount,
+  integrationGetLineWebhookUrl
 };

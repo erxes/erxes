@@ -3,7 +3,6 @@ import { Route } from 'react-router-dom';
 import BoardRoutes from './boards/routes';
 import BrandsRoutes from './brands/routes';
 import ChannelsRoutes from './channels/routes';
-import EmailRoutes from './email/routes';
 import EmailTemplatesRoutes from './emailTemplates/routes';
 import General from './general/routes';
 import GrowthHackRoutes from './growthHacks/routes';
@@ -29,7 +28,6 @@ const routes = () => (
     <ProfileRoutes key="profile" />
     <TeamRoutes key="team" />
     <EmailTemplatesRoutes key="EmailTemplatesRoutes" />
-    <EmailRoutes key="EmailRoutes" />
     <ScriptsRoutes key="ScriptsRoutes" />
     <IntegrationsRoutes key="IntegrationsRoutes" />
     <BoardRoutes key="BoardRoutes" />
