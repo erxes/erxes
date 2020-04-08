@@ -33,6 +33,8 @@ jobs:
         cd docs/website
         yarn install
     - name: Build
-      run: yarn run build
+      run: |
+        cd docs/website
+        yarn run build
       env:
         CI: true
