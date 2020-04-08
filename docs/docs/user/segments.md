@@ -4,7 +4,7 @@ title: Segments
 ---
 
 <!--Content-->
-Erxes let you filter and segment an important group of data for targeted purposes. A segment is smaller group of your contacts defined by rules or filters that you set. Coordinate and manage your companies and customers in one go from the company database. It enables you to segment companies and customers by websites, size, plan industry, session count or some criteria in a more realistic way.
+ A segment is smaller group of your contacts defined by rules or filters that you set. Coordinate and manage your companies and customers in one go from the company database. Erxes let you filter and segment an important group of data for targeted purposes such as by websites, size, plan industry, session count or some criteria in a more realistic way.
 
 
 ---
