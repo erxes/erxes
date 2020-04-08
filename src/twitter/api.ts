@@ -156,6 +156,7 @@ export const registerWebhook = async () => {
     request
       .post(requestOptions)
       .then(res => {
+        debugTwitter('Successfully registered twitter webhook');
         resolve(res);
       })
       .catch(er => {

@@ -220,7 +220,7 @@ describe('Twitter test test', () => {
       expect(await Customers.find({}).countDocuments()).toBe(1);
     }
 
-    mock.restore();
+    await mock.restore();
   });
 
   test('Store test getOrCreateCustomer with mongo error', async () => {
@@ -240,6 +240,6 @@ describe('Twitter test test', () => {
       expect(await Customers.find({}).countDocuments()).toBe(1);
     }
 
-    mock.restore();
+    await mock.restore();
   });
 });

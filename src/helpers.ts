@@ -196,8 +196,8 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
     }
 
     await TwitterConversationMessages.deleteMany(selector);
-    await TwitterConversations.deleteMany(selector);
-    await TwitterCustomers.deleteMany({ conversationId: { $in: conversationIds } });
+    await TwitterConversations.deleteMany({ conversationId: { $in: conversationIds } });
+    await TwitterCustomers.deleteMany(selector);
   }
 
   if (kind === 'whatsapp') {

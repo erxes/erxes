@@ -1,5 +1,5 @@
 import { sendRPCMessage } from '../messageBroker';
-import { IIntegration } from '../models/Integrations';
+import { IIntegrationDocument } from '../models/Integrations';
 import { ConversationMessages, Conversations, Customers, IConversationDocument } from './models';
 
 export interface IUser {
@@ -16,7 +16,7 @@ export interface IUser {
   profile_image_url_https: string;
 }
 
-export const getOrCreateCustomer = async (integration: IIntegration, userId: string, receiver: IUser) => {
+export const getOrCreateCustomer = async (integration: IIntegrationDocument, userId: string, receiver: IUser) => {
   let customer = await Customers.findOne({ userId });
 
   if (customer) {
@@ -27,6 +27,8 @@ export const getOrCreateCustomer = async (integration: IIntegration, userId: str
   try {
     customer = await Customers.create({
       userId: receiver.id,
+      // not integrationId on erxes-api !!
+      integrationId: integration._id,
       profilePic: receiver.profile_image_url_https,
       name: receiver.name,
       screenName: receiver.screen_name,
@@ -40,6 +42,7 @@ export const getOrCreateCustomer = async (integration: IIntegration, userId: str
     const apiCustomerResponse = await sendRPCMessage({
       action: 'get-create-update-customer',
       payload: JSON.stringify({
+        //  integrationId on erxes-api
         integrationId: integration.erxesApiId,
         firstName: receiver.screen_name,
         avatar: receiver.profile_image_url_https,

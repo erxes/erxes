@@ -5,6 +5,7 @@ export interface ICustomer {
   // id on erxes-api
   erxesApiId?: string;
   userId: string;
+  integrationId: string;
 
   name: string;
   screenName: string;
@@ -17,6 +18,8 @@ export interface ICustomerDocument extends ICustomer, Document {}
 export const customerSchema = new Schema({
   _id: field({ pkey: true }),
   userId: { type: String, unique: true },
+  // not integrationId on erxes-api
+  integrationId: String,
   erxesApiId: String,
 
   name: String,
