@@ -104,8 +104,8 @@ Now install erxes Widget app by clicking the deploy button below and set config 
 **Config vars:**
 
 ```sh
-API_SUBSCRIPTIONS_URL = ws://erxes-api.herokuapp.com/subscriptions
-MAIN_API_URL = https://erxes.herokuapp.com
+API_SUBSCRIPTIONS_URL = wss://erxes-api.herokuapp.com/subscriptions
+API_URL = https://erxes-api.herokuapp.com
 PORT = 3200
 ROOT_URL = https://erxes-widget.herokuapp.com
 ```
@@ -132,7 +132,7 @@ MONGO_URL = MONGO_URL # we will update it later on
 RABBITMQ_HOST = copy and paste from erxes-api RABBITMQ_HOST config var
 ```
 
-[![Deploy Widgets](https://www.herokucdn.com/deploy/button.svg#heroku "Deploy erxes engages email sender")](https://heroku.com/deploy?template=https://github.com/erxes/erxes-integrations/tree/develop)
+[![Deploy Widgets](https://www.herokucdn.com/deploy/button.svg#heroku "Deploy erxes integrations")](https://heroku.com/deploy?template=https://github.com/erxes/erxes-integrations/tree/develop)
 
 Once the app is deployed, go to `Settings` and click `Config Vars` button.  
 Copy `MONGODB_URI`'s value and paste it into `MONGO_URL`.
