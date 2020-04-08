@@ -3,7 +3,6 @@ import {
   Brands,
   Channels,
   ConversationMessages,
-  Customers,
   Deals,
   Fields,
   FormSubmissions,
@@ -12,7 +11,6 @@ import {
   Tickets,
   Users,
 } from '../../../db/models';
-import { IMessage, IMessageDocument } from '../../../db/models/definitions/conversationMessages';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { debugBase } from '../../../debuggers';
 import { MODULE_NAMES } from '../../constants';
@@ -64,11 +62,11 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
         for (const message of messages) {
           const customerId = message.customerId || '';
 
-          if (messagesMap[customerId]) {
-            messagesMap[customerId].push(message.formWidgetData);
-          } else {
+          if (!messagesMap[customerId]) {
             messagesMap[customerId] = [message.formWidgetData];
           }
+
+          messagesMap[customerId].push(message.formWidgetData);
         }
 
         const uniqueCustomerIds = await FormSubmissions.distinct('customerId', { formId: customerParams.form });
