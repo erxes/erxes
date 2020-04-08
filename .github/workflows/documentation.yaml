@@ -1,0 +1,38 @@
+name: Publish documentation
+
+on:
+  push:
+    branches:
+      - develop
+      - 'actions/docs'
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+
+    strategy:
+      matrix:
+        node-version: [8.x, 10.x, 12.x]
+
+    # name: Node ${{ matrix.node-version }}
+
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install
+      run: |
+        cd website
+        yarn install
+    - name: Build
+      run: yarn run build
+      env:
+        CI: true
