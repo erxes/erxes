@@ -30,7 +30,7 @@ jobs:
 
     - name: Install
       run: |
-        cd website
+        cd docs/website
         yarn install
     - name: Build
       run: yarn run build
