@@ -317,37 +317,40 @@ export const loadClass = () => {
 
       const nullValues = ['', null];
 
-      let hasContactInfo = false;
+      let possibleLead = false;
       let score = 0;
       let searchText = (customer.emails || []).join(' ').concat(' ', (customer.phones || []).join(' '));
 
       if (!nullValues.includes(customer.firstName || '')) {
         score += 10;
+        possibleLead = true;
         searchText = searchText.concat(' ', customer.firstName || '');
       }
 
       if (!nullValues.includes(customer.lastName || '')) {
         score += 5;
+        possibleLead = true;
         searchText = searchText.concat(' ', customer.lastName || '');
       }
 
       if (!nullValues.includes(customer.code || '')) {
         score += 10;
+        possibleLead = true;
         searchText = searchText.concat(' ', customer.code || '');
       }
 
       if (!nullValues.includes(customer.primaryEmail || '')) {
-        hasContactInfo = true;
+        possibleLead = true;
         score += 15;
       }
 
       if (!nullValues.includes(customer.primaryPhone || '')) {
-        hasContactInfo = true;
+        possibleLead = true;
         score += 10;
       }
 
       if (customer.visitorContactInfo != null) {
-        hasContactInfo = true;
+        possibleLead = true;
         score += 5;
 
         searchText = searchText.concat(
@@ -362,7 +365,7 @@ export const loadClass = () => {
 
       let state = customer.state || 'visitor';
 
-      if (hasContactInfo && state !== 'customer') {
+      if (possibleLead && state !== 'customer') {
         state = 'lead';
       }
 
