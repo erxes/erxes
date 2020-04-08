@@ -2,7 +2,8 @@ import * as moment from 'moment';
 import {
   Brands,
   Channels,
-  // ConversationMessages,
+  ConversationMessages,
+  Customers,
   Deals,
   Fields,
   FormSubmissions,
@@ -11,6 +12,7 @@ import {
   Tickets,
   Users,
 } from '../../../db/models';
+import { IMessage, IMessageDocument } from '../../../db/models/definitions/conversationMessages';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { debugBase } from '../../../debuggers';
 import { MODULE_NAMES } from '../../constants';
@@ -50,75 +52,49 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
       const customerParams: ICustomerListArgs = query;
 
       if (customerParams.form && customerParams.popupData) {
-        debugBase('Start an aggregation for popups export');
+        debugBase('Start an query for popups export');
 
-        const messagesAggregate = await FormSubmissions.aggregate([
-          {
-            $match: { formId: customerParams.form, customerId: { $exists: true, $ne: null } },
-          },
-          {
-            $group: {
-              _id: null,
-              customerIds: {
-                $addToSet: '$customerId',
-              },
-            },
-          },
-          {
-            $lookup: {
-              from: 'conversation_messages',
-              let: { letCustomerIds: '$customerIds' },
-              pipeline: [
-                {
-                  $match: {
-                    $expr: {
-                      $and: [{ $in: ['$customerId', '$$letCustomerIds'] }, { $ne: ['formWidgetData', null] }],
-                    },
-                  },
-                },
-              ],
-              as: 'messagesWithFormData',
-            },
-          },
-          {
-            $unwind: '$messagesWithFormData',
-          },
-          {
-            $project: {
-              formWidgetData: '$messagesWithFormData.formWidgetData',
-              createdAt: '$messagesWithFormData.createdAt',
-            },
-          },
-          {
-            $sort: { createdAt: -1 },
-          },
-        ]).allowDiskUse(true);
+        const messages = await ConversationMessages.find(
+          { formWidgetData: { $exists: true, $ne: null }, customerId: { $exists: true } },
+          { formWidgetData: 1, customerId: 1 },
+        );
 
-        debugBase(`End an aggregation for popups export. Message length: ${messagesAggregate.length}`);
+        const messagesMap: { [key: string]: any[] } = {};
 
-        debugBase('Start filtering lead messages for popups export');
+        for (const message of messages) {
+          const customerId = message.customerId || '';
 
-        const messages: any[] = [];
+          if (messagesMap[customerId]) {
+            messagesMap[customerId].push(message.formWidgetData);
+          } else {
+            messagesMap[customerId] = [message.formWidgetData];
+          }
+        }
 
-        messagesAggregate.forEach(message => {
-          if (message.formWidgetData && Array.isArray(message.formWidgetData)) {
-            const formData = message.formWidgetData;
+        const uniqueCustomerIds = await FormSubmissions.distinct('customerId', { formId: customerParams.form });
+        const formDatas: any[] = [];
+
+        for (const customerId of uniqueCustomerIds) {
+          const filteredMessages = messagesMap[customerId] || [];
+
+          for (const filteredMessage of filteredMessages) {
+            const formData: any[] = filteredMessage;
 
             formData.push({
-              _id: message._id,
+              _id: filteredMessage._id,
               type: 'input',
               validation: 'date',
               text: 'Created',
-              value: message.createdAt,
+              value: filteredMessage.createdAt,
             });
 
-            messages.push(formData);
+            formDatas.push(formData);
           }
-        });
+        }
 
-        debugBase(`End filtering lead messages for popups export. Lead message length: ${messages.length}`);
+        debugBase('End an query for popups export');
 
-        data = messages;
+        data = formDatas;
       } else {
         const qb = new CustomerBuildQuery(customerParams, {});
         await qb.buildAllQueries();
