@@ -28,10 +28,12 @@ const hasItem = async (type: string, pipelineId: string, prevItemIds: string[] =
   const collection = getCollection(type);
 
   for (const stage of stages) {
-    const itemCount = await collection.find({ stageId: stage._id }).countDocuments();
+    const items = await collection.find({ stageId: stage._id }).lean();
 
-    if (itemCount > 0) {
-      throw new Error('There is a stage that has a item');
+    if (items.length > 0) {
+      const itemNames = items.map(item => item.name);
+
+      throw new Error(`Stage "${stage.name}" has items named "${itemNames.join(', ')}"`);
     }
   }
 };
