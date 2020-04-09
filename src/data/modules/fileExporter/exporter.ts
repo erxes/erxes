@@ -63,7 +63,7 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
           const customerId = message.customerId || '';
 
           if (!messagesMap[customerId]) {
-            messagesMap[customerId] = [message.formWidgetData];
+            messagesMap[customerId] = [];
           }
 
           messagesMap[customerId].push(message.formWidgetData);
