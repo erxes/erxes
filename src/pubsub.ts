@@ -19,7 +19,7 @@ interface IGoogleOptions {
 const { PUBSUB_TYPE, NODE_ENV, PROCESS_NAME } = process.env;
 
 // Google pubsub message handler
-const commonMessageHandler = (payload) => {
+const commonMessageHandler = payload => {
   return JSON.parse(payload.data.toString());
 };
 
@@ -44,7 +44,7 @@ const configGooglePubsub = (): IGoogleOptions => {
 const createPubsubInstance = () => {
   let pubsub;
 
-  if (NODE_ENV === 'test' || NODE_ENV === 'command' || PROCESS_NAME === 'crons' || PROCESS_NAME === 'workers') {
+  if (NODE_ENV === 'test' || NODE_ENV === 'command' || PROCESS_NAME === 'crons') {
     pubsub = {
       asyncIterator: () => null,
       publish: () => null,
@@ -61,7 +61,7 @@ const createPubsubInstance = () => {
     return new GooglePubSub(googleOptions, undefined, commonMessageHandler);
   } else {
     return new RedisPubSub({
-      connectionListener: (error) => {
+      connectionListener: error => {
         if (error) {
           console.error(error);
         }
