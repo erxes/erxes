@@ -74,9 +74,12 @@ const segmentQueries = {
   /**
    * Preview count
    */
-  async segmentsPreviewCount(_root, { contentType, conditions }: { contentType: string; conditions }) {
+  async segmentsPreviewCount(
+    _root,
+    { contentType, conditions, subOf }: { contentType: string; conditions; subOf?: string },
+  ) {
     const { positiveList, negativeList } = await fetchBySegments(
-      { name: 'preview', color: '#fff', subOf: '', contentType, conditions },
+      { name: 'preview', color: '#fff', subOf: subOf || '', contentType, conditions },
       'count',
     );
 
