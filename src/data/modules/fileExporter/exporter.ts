@@ -54,7 +54,7 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
 
         const messages = await ConversationMessages.find(
           { formWidgetData: { $exists: true, $ne: null }, customerId: { $exists: true } },
-          { formWidgetData: 1, customerId: 1 },
+          { formWidgetData: 1, customerId: 1, createdAt: 1 },
         );
 
         const messagesMap: { [key: string]: any[] } = {};
@@ -66,25 +66,36 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
             messagesMap[customerId] = [];
           }
 
-          messagesMap[customerId].push(message.formWidgetData);
+          messagesMap[customerId].push({
+            datas: message.formWidgetData,
+            createdInfo: {
+              _id: message._id,
+              type: 'input',
+              validation: 'date',
+              text: 'Created',
+              value: message.createdAt,
+            },
+          });
         }
 
-        const uniqueCustomerIds = await FormSubmissions.distinct('customerId', { formId: customerParams.form });
+        const uniqueCustomerIds = await FormSubmissions.find(
+          { formId: customerParams.form },
+          { customerId: 1, submittedAt: 1 },
+        )
+          .sort({
+            submittedAt: -1,
+          })
+          .distinct('customerId');
+
         const formDatas: any[] = [];
 
         for (const customerId of uniqueCustomerIds) {
           const filteredMessages = messagesMap[customerId] || [];
 
-          for (const filteredMessage of filteredMessages) {
-            const formData: any[] = filteredMessage;
+          for (const { datas, createdInfo } of filteredMessages) {
+            const formData: any[] = datas;
 
-            formData.push({
-              _id: filteredMessage._id,
-              type: 'input',
-              validation: 'date',
-              text: 'Created',
-              value: filteredMessage.createdAt,
-            });
+            formData.push(createdInfo);
 
             formDatas.push(formData);
           }
