@@ -475,9 +475,9 @@ export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
 
   await Configs.updateConfigs(configsMap);
 
-  const updatedTwitterConfig = await getTwitterConfig();
-
   resetConfigsCache();
+
+  const updatedTwitterConfig = await getTwitterConfig();
 
   const updatedNylasClientId = await getValueAsString('NYLAS_CLIENT_ID');
   const updatedNylasClientSecret = await getValueAsString('NYLAS_CLIENT_SECRET');
