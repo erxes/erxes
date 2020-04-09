@@ -2,7 +2,7 @@ import * as moment from 'moment';
 import {
   Brands,
   Channels,
-  // ConversationMessages,
+  ConversationMessages,
   Deals,
   Fields,
   FormSubmissions,
@@ -12,6 +12,7 @@ import {
   Users,
 } from '../../../db/models';
 import { IUserDocument } from '../../../db/models/definitions/users';
+import { debugBase } from '../../../debuggers';
 import { MODULE_NAMES } from '../../constants';
 import { can } from '../../permissions/utils';
 import { createXlsFile, generateXlsx } from '../../utils';
@@ -49,67 +50,60 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
       const customerParams: ICustomerListArgs = query;
 
       if (customerParams.form && customerParams.popupData) {
-        const messagesAggregate = await FormSubmissions.aggregate([
-          {
-            $match: { formId: customerParams.form, customerId: { $exists: true, $ne: null } },
-          },
-          {
-            $group: {
-              _id: null,
-              customerIds: {
-                $addToSet: '$customerId',
-              },
-            },
-          },
-          {
-            $lookup: {
-              from: 'conversation_messages',
-              let: { letCustomerIds: '$customerIds' },
-              pipeline: [
-                {
-                  $match: {
-                    $expr: {
-                      $and: [{ $in: ['$customerId', '$$letCustomerIds'] }, { $ne: ['formWidgetData', null] }],
-                    },
-                  },
-                },
-              ],
-              as: 'messagesWithFormData',
-            },
-          },
-          {
-            $unwind: '$messagesWithFormData',
-          },
-          {
-            $project: {
-              formWidgetData: '$messagesWithFormData.formWidgetData',
-              createdAt: '$messagesWithFormData.createdAt',
-            },
-          },
-          {
-            $sort: { createdAt: -1 },
-          },
-        ]);
+        debugBase('Start an query for popups export');
 
-        const messages: any[] = [];
+        const messages = await ConversationMessages.find(
+          { formWidgetData: { $exists: true, $ne: null }, customerId: { $exists: true } },
+          { formWidgetData: 1, customerId: 1, createdAt: 1 },
+        );
 
-        messagesAggregate.forEach(message => {
-          if (message.formWidgetData && Array.isArray(message.formWidgetData)) {
-            const formData = message.formWidgetData;
+        const messagesMap: { [key: string]: any[] } = {};
 
-            formData.push({
+        for (const message of messages) {
+          const customerId = message.customerId || '';
+
+          if (!messagesMap[customerId]) {
+            messagesMap[customerId] = [];
+          }
+
+          messagesMap[customerId].push({
+            datas: message.formWidgetData,
+            createdInfo: {
               _id: message._id,
               type: 'input',
               validation: 'date',
               text: 'Created',
               value: message.createdAt,
-            });
+            },
+          });
+        }
 
-            messages.push(formData);
+        const uniqueCustomerIds = await FormSubmissions.find(
+          { formId: customerParams.form },
+          { customerId: 1, submittedAt: 1 },
+        )
+          .sort({
+            submittedAt: -1,
+          })
+          .distinct('customerId');
+
+        const formDatas: any[] = [];
+
+        for (const customerId of uniqueCustomerIds) {
+          const filteredMessages = messagesMap[customerId] || [];
+
+          for (const { datas, createdInfo } of filteredMessages) {
+            const formData: any[] = datas;
+
+            formData.push(createdInfo);
+
+            formDatas.push(formData);
           }
-        });
+        }
 
-        data = messages;
+        debugBase('End an query for popups export');
+
+        data = formDatas;
       } else {
         const qb = new CustomerBuildQuery(customerParams, {});
         await qb.buildAllQueries();
@@ -213,6 +207,8 @@ const fillLeadHeaders = async (formId: string) => {
 };
 
 const buildLeadFile = async (datas: any, formId: string, sheet: any, columnNames: string[], rowIndex: number) => {
+  debugBase(`Start building an excel file for popups export`);
+
   const headers: IColumnLabel[] = await fillLeadHeaders(formId);
 
   const displayValue = item => {
@@ -237,6 +233,8 @@ const buildLeadFile = async (datas: any, formId: string, sheet: any, columnNames
       addCell(column, cellValue, sheet, columnNames, rowIndex);
     }
   }
+
+  debugBase('End building an excel file for popups export');
 };
 
 export const buildFile = async (query: any, user: IUserDocument): Promise<{ name: string; response: string }> => {

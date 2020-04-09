@@ -46,23 +46,6 @@ const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
 const WIDGETS_DOMAIN = getSubServiceDomain({ name: 'WIDGETS_DOMAIN' });
 const INTEGRATIONS_API_DOMAIN = getSubServiceDomain({ name: 'INTEGRATIONS_API_DOMAIN' });
 
-// firebase app initialization
-fs.exists(path.join(__dirname, '..', '/google_cred.json'), exists => {
-  if (!exists) {
-    return;
-  }
-
-  const admin = require('firebase-admin').default;
-  const serviceAccount = require('../google_cred.json');
-  const firebaseServiceAccount = serviceAccount;
-
-  if (firebaseServiceAccount.private_key) {
-    admin.initializeApp({
-      credential: admin.credential.cert(firebaseServiceAccount),
-    });
-  }
-});
-
 const app = express();
 
 app.disable('x-powered-by');
@@ -198,7 +181,7 @@ app.get('/read-mail-attachment', async (req: any, res) => {
   const integrationPath = kind.includes('nylas') ? 'nylas' : kind;
 
   res.redirect(
-    `${INTEGRATIONS_API_DOMAIN}/${integrationPath}/get-attachment?messageId=${messageId}&attachmentId=${attachmentId}&integrationId=${integrationId}&filename=${filename}&contentType=${contentType}&=userId${req.user._id}`,
+    `${INTEGRATIONS_API_DOMAIN}/${integrationPath}/get-attachment?messageId=${messageId}&attachmentId=${attachmentId}&integrationId=${integrationId}&filename=${filename}&contentType=${contentType}&userId=${req.user._id}`,
   );
 });
 
@@ -222,8 +205,6 @@ app.post('/delete-file', async (req: any, res) => {
 app.post('/upload-file', async (req: any, res, next) => {
   if (req.query.kind === 'nylas') {
     debugExternalApi(`Pipeing request to ${INTEGRATIONS_API_DOMAIN}`);
-
-    req.headers.userId = req.user_id;
 
     return req.pipe(
       request

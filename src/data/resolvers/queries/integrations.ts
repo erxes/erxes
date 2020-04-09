@@ -16,7 +16,9 @@ const generateFilterQuery = async ({ kind, channelId, brandId, searchValue, tag 
   }
 
   if (kind === 'mail') {
-    query.kind = { $in: ['gmail', 'nylas-gmail', 'nylas-imap', 'nylas-office365', 'nylas-outlook', 'nylas-yahoo'] };
+    query.kind = {
+      $in: ['gmail', 'nylas-gmail', 'nylas-imap', 'nylas-office365', 'nylas-outlook', 'nylas-yahoo', 'nylas-exchange'],
+    };
   }
 
   // filter integrations by channel

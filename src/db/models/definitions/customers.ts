@@ -106,32 +106,6 @@ export const visitorContactSchema = new Schema(
   { _id: false },
 );
 
-/*
- * messenger schema
- */
-export const messengerSchema = new Schema(
-  {
-    lastSeenAt: field({
-      type: Date,
-      label: 'Last seen at',
-    }),
-    sessionCount: field({
-      type: Number,
-      label: 'Session count',
-    }),
-    isActive: field({
-      type: Boolean,
-      label: 'Is online',
-    }),
-    customData: field({
-      type: Object,
-      optional: true,
-      label: 'Custom data',
-    }),
-  },
-  { _id: false },
-);
-
 export const customerSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
