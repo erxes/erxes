@@ -38,7 +38,7 @@ type Props = {
   headSegments: ISegment[];
   isForm?: boolean;
   afterSave?: () => void;
-  previewCount?: (conditions: ISegmentCondition[]) => void;
+  previewCount?: (conditions: ISegmentCondition[], subOf?: string) => void;
 };
 
 type State = {
@@ -278,7 +278,7 @@ class Form extends React.Component<Props, State> {
     } = this.props;
 
     const { values, isSubmitted } = formProps;
-    const { name, description, color, conditions } = this.state;
+    const { name, description, color, conditions, subOf } = this.state;
 
     const nameOnChange = (e: React.FormEvent) =>
       this.handleChange('name', (e.currentTarget as HTMLInputElement).value);
@@ -293,7 +293,7 @@ class Form extends React.Component<Props, State> {
 
     const onPreviewCount = () => {
       if (previewCount) {
-        previewCount(conditions);
+        previewCount(conditions, subOf);
       }
     };
 

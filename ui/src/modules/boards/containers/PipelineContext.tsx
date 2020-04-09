@@ -194,23 +194,27 @@ export class PipelineProvider extends React.Component<Props, State> {
       destination
     });
 
-    // update item to database
-    const itemId = result.draggableId.split('-')[0];
-    this.itemChange(itemId, destination.droppableId);
-
     this.setState({
       itemMap
     });
     invalidateCache();
 
-    // save orders to database
-    return this.saveItemOrders(itemMap, [
-      source.droppableId,
-      destination.droppableId
-    ]);
+    // saving to database
+    const itemId = result.draggableId.split('-')[0];
+
+    this.itemChange(itemId, destination.droppableId, () => {
+      this.saveItemOrders(itemMap, [
+        source.droppableId,
+        destination.droppableId
+      ]);
+    });
   };
 
-  itemChange = (itemId: string, destinationStageId: string) => {
+  itemChange = (
+    itemId: string,
+    destinationStageId: string,
+    callback: () => void
+  ) => {
     const { options } = this.props;
 
     client
@@ -220,6 +224,9 @@ export class PipelineProvider extends React.Component<Props, State> {
           _id: itemId,
           destinationStageId
         }
+      })
+      .then(() => {
+        callback();
       })
       .catch((e: Error) => {
         Alert.error(e.message);
