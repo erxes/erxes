@@ -9,6 +9,7 @@ import {
   nylasGmailCustomerFactory,
 } from '../factories';
 import { buildEmail } from '../gmail/util';
+import * as gmailUtils from '../gmail/util';
 import * as messageBroker from '../messageBroker';
 import { Accounts, Integrations } from '../models';
 import Configs from '../models/Configs';
@@ -361,10 +362,8 @@ describe('Nylas gmail test', () => {
   });
 
   test('Get client config', async () => {
-    const sendRPCMessageMock = sinon.stub(messageBroker, 'sendRPCMessage').callsFake(() => {
-      return Promise.resolve({
-        configs: { GOOGLE_CLIENT_ID: 'GOOGLE_CLIENT_ID', GOOGLE_CLIENT_SECRET: 'GOOGLE_CLIENT_SECRET' },
-      });
+    const getGoogleConfigmock = sinon.stub(gmailUtils, 'getGoogleConfigs').callsFake(() => {
+      return Promise.resolve({ GOOGLE_CLIENT_ID: 'GOOGLE_CLIENT_ID', GOOGLE_CLIENT_SECRET: 'GOOGLE_CLIENT_SECRET' });
     });
 
     const config = await nylasUtils.getClientConfig('gmail');
@@ -373,14 +372,12 @@ describe('Nylas gmail test', () => {
     expect(clientId).toEqual('GOOGLE_CLIENT_ID');
     expect(clientSecret).toEqual('GOOGLE_CLIENT_SECRET');
 
-    sendRPCMessageMock.restore();
+    await getGoogleConfigmock.restore();
   });
 
   test('Get provider settings', async () => {
-    const sendRPCMessageMock = sinon.stub(messageBroker, 'sendRPCMessage').callsFake(() => {
-      return Promise.resolve({
-        configs: { GOOGLE_CLIENT_ID: 'GOOGLE_CLIENT_ID', GOOGLE_CLIENT_SECRET: 'GOOGLE_CLIENT_SECRET' },
-      });
+    const getGoogleConfigmock = sinon.stub(gmailUtils, 'getGoogleConfigs').callsFake(() => {
+      return Promise.resolve({ GOOGLE_CLIENT_ID: 'GOOGLE_CLIENT_ID', GOOGLE_CLIENT_SECRET: 'GOOGLE_CLIENT_SECRET' });
     });
 
     const settings = await nylasUtils.getProviderSettings('gmail', 'refreshToken');
@@ -393,7 +390,7 @@ describe('Nylas gmail test', () => {
       }),
     );
 
-    sendRPCMessageMock.restore();
+    await getGoogleConfigmock.restore();
   });
 
   test('Encrypt and Decrypt password', async () => {
