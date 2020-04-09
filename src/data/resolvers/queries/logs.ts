@@ -4,12 +4,7 @@ import { channelSchema } from '../../../db/models/definitions/channels';
 import { checklistItemSchema, checklistSchema } from '../../../db/models/definitions/checklists';
 import { linkSchema, ruleSchema } from '../../../db/models/definitions/common';
 import { companySchema } from '../../../db/models/definitions/companies';
-import {
-  customerSchema,
-  locationSchema,
-  messengerSchema as customerMessengerSchema,
-  visitorContactSchema,
-} from '../../../db/models/definitions/customers';
+import { customerSchema, locationSchema, visitorContactSchema } from '../../../db/models/definitions/customers';
 import {
   dealSchema,
   productCategorySchema,
@@ -99,7 +94,7 @@ const LOG_MAPPINGS: ISchemaMap[] = [
   },
   {
     name: MODULE_NAMES.CUSTOMER,
-    schemas: [customerMessengerSchema, customerSchema, linkSchema, locationSchema, visitorContactSchema],
+    schemas: [customerSchema, linkSchema, locationSchema, visitorContactSchema],
   },
   {
     name: MODULE_NAMES.DEAL,
