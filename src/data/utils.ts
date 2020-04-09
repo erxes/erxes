@@ -15,6 +15,14 @@ import { sendMessage } from '../messageBroker';
 import { graphqlPubsub } from '../pubsub';
 import { get, set } from '../redisClient';
 
+export const initFirebase = (value: string): void => {
+  const serviceAccount = JSON.parse(value);
+
+  if (serviceAccount.private_key) {
+    admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+  }
+};
+
 /*
  * Check that given file is not harmful
  */

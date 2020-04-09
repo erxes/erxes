@@ -1,7 +1,7 @@
 import { Configs } from '../../../db/models';
 import { moduleCheckPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { registerOnboardHistory, resetConfigsCache } from '../../utils';
+import { initFirebase, registerOnboardHistory, resetConfigsCache } from '../../utils';
 
 const configMutations = {
   /**
@@ -25,6 +25,10 @@ const configMutations = {
       resetConfigsCache();
 
       const updatedConfig = await Configs.getConfig(code);
+
+      if (['GOOGLE_APPLICATION_CREDENTIALS_JSON'].includes(code)) {
+        initFirebase(configsMap[code]);
+      }
 
       if (
         ['dealUOM', 'dealCurrency'].includes(code) &&

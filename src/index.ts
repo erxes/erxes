@@ -46,23 +46,6 @@ const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
 const WIDGETS_DOMAIN = getSubServiceDomain({ name: 'WIDGETS_DOMAIN' });
 const INTEGRATIONS_API_DOMAIN = getSubServiceDomain({ name: 'INTEGRATIONS_API_DOMAIN' });
 
-// firebase app initialization
-fs.exists(path.join(__dirname, '..', '/google_cred.json'), exists => {
-  if (!exists) {
-    return;
-  }
-
-  const admin = require('firebase-admin').default;
-  const serviceAccount = require('../google_cred.json');
-  const firebaseServiceAccount = serviceAccount;
-
-  if (firebaseServiceAccount.private_key) {
-    admin.initializeApp({
-      credential: admin.credential.cert(firebaseServiceAccount),
-    });
-  }
-});
-
 const app = express();
 
 app.disable('x-powered-by');
