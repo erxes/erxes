@@ -3,7 +3,7 @@ name: Widgets CI
 on:
   push:
     branches:
-      - '*'
+      - '**'
     paths:
       - 'widgets/**'
       - '.github/workflows/widgets.yaml'
