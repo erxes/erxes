@@ -197,6 +197,7 @@ export class PipelineProvider extends React.Component<Props, State> {
     this.setState({
       itemMap
     });
+
     invalidateCache();
 
     // saving to database

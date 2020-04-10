@@ -30,6 +30,7 @@ export const commonFields = `
   _id
   name
   stageId
+  hasNotified
   pipeline {
     _id
     name
@@ -124,7 +125,7 @@ const pipelineLabelsEdit = `
 
 const pipelineLabelsRemove = `
   mutation pipelineLabelsRemove($_id: String!) {
-    pipelineLabelsRemove(_id: $_id) 
+    pipelineLabelsRemove(_id: $_id)
   }
 `;
 
