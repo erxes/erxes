@@ -283,6 +283,7 @@ class GeneralSettings extends React.Component<Props, State> {
         <CollapseContent title="Google">
           {this.renderItem('GOOGLE_PROJECT_ID')}
           {this.renderItem('GOOGLE_APPLICATION_CREDENTIALS')}
+          {this.renderItem('GOOGLE_APPLICATION_CREDENTIALS_JSON')}
           {this.renderItem('GOOGLE_CLIENT_ID')}
           {this.renderItem('GOOGLE_CLIENT_SECRET')}
         </CollapseContent>
