@@ -3,10 +3,7 @@ name: Widgets CI
 on:
   push:
     branches:
-      - master
-      - develop
-      - apm
-      - 'actions/widgets'
+      - '*'
     paths:
       - 'widgets/**'
       - '.github/workflows/widgets.yaml'
@@ -64,10 +61,9 @@ jobs:
         yarn build
 
     - name: Build docker image on push
-      if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/apm' || github.ref == 'refs/heads/actions/widgets' )
+      if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/apm' )
       run: |
         cd widgets
-        echo ${GITHUB_REF#refs/heads/}
         docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_TOKEN
         docker build -t erxes/erxes-widgets:${GITHUB_REF#refs/heads/} -f Dockerfile .
         docker push erxes/erxes-widgets:${GITHUB_REF#refs/heads/}
