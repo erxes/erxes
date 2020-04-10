@@ -9,6 +9,7 @@ on:
       - 'actions/widgets'
     paths:
       - 'widgets/**'
+      - '.github/workflows/widgets.yaml'
   pull_request:
     branches:
       - master
