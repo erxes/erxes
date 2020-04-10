@@ -68,6 +68,7 @@ jobs:
       run: |
         cd widgets
         echo ${GITHUB_REF#refs/heads/}
+        docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_TOKEN
         docker build -t erxes/erxes-widgets:${GITHUB_REF#refs/heads/} -f Dockerfile .
         docker push erxes/erxes-widgets:${GITHUB_REF#refs/heads/}
       env:
