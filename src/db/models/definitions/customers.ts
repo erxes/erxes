@@ -110,7 +110,7 @@ export const customerSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
 
-    state: field({ type: String, esType: 'keyword' }),
+    state: field({ type: String, esType: 'keyword', label: 'State' }),
 
     createdAt: field({ type: Date, label: 'Created at' }),
     modifiedAt: field({ type: Date, label: 'Modified at' }),
