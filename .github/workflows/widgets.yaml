@@ -1,20 +1,22 @@
-name: Publish documentation
+name: Widgets CI
 
 on:
   push:
     branches:
-      - develop
+      - '**'
     paths:
-      - 'docs/**'
-      - '.github/workflows/documentation.yaml'
+      - 'widgets/**'
+      - '.github/workflows/widgets.yaml'
   pull_request:
     branches:
+      - master
       - develop
+      - apm
     paths:
-      - 'docs/**'
+      - 'widgets/**'
 
 jobs:
-  docs:
+  widgets:
     runs-on: ubuntu-18.04
 
     # name: Node ${{ matrix.node-version }}
@@ -38,33 +40,33 @@ jobs:
       uses: actions/cache@v1
       with:
         path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-        key: ${{ runner.os }}-yarn-${{ hashFiles('docs/**/yarn.lock') }}
+        key: ${{ runner.os }}-yarn-${{ hashFiles('widgets/**/yarn.lock') }}
         restore-keys: |
-          ${{ runner.os }}-yarn-${{ hashFiles('docs/**/yarn.lock') }}
+          ${{ runner.os }}-yarn-${{ hashFiles('widgets/**/yarn.lock') }}
           ${{ runner.os }}-yarn-
 
     - name: Install
       run: |
-        cd docs/website
+        cd widgets
         yarn install
 
-    - name: Build
-      if: github.event_name == 'pull_request'
+    - name: Lint
       run: |
-        cd docs/website
-        yarn run build
-      env:
-        CI: true
+        cd widgets
+        yarn lint
 
-    - name: Publish
-      if: github.event_name == 'push'
+    - name: Build
       run: |
-        cd docs/website
-        git config --global user.email "$DOC_USERNAME@users.noreply.github.com"
-        git config --global user.name "$DOC_USERNAME"
-        echo "machine github.com login $DOC_USERNAME password $DOC_TOKEN" > ~/.netrc
-        GIT_USER=$DOC_USERNAME CURRENT_BRANCH=develop yarn run publish-gh-pages
+        cd widgets
+        yarn build
+
+    - name: Build docker image on push
+      if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/apm' )
+      run: |
+        cd widgets
+        docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_TOKEN
+        docker build -t erxes/erxes-widgets:${GITHUB_REF#refs/heads/} -f Dockerfile .
+        docker push erxes/erxes-widgets:${GITHUB_REF#refs/heads/}
       env:
-        CI: true
-        DOC_USERNAME: ${{ secrets.DOC_USERNAME }}
-        DOC_TOKEN: ${{ secrets.DOC_TOKEN }}
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
