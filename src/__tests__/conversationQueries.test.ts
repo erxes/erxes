@@ -170,6 +170,8 @@ describe('conversationQueries', () => {
       }
     `;
 
+  let dataSources;
+
   beforeEach(async () => {
     brand = await brandFactory();
     user = await userFactory({});
@@ -183,6 +185,11 @@ describe('conversationQueries', () => {
       memberIds: [user._id],
       integrationIds: [integration._id],
     });
+
+    dataSources = { IntegrationsAPI: new IntegrationsAPI() };
+    const spy = jest.spyOn(dataSources.IntegrationsAPI, 'fetchApi');
+
+    spy.mockImplementation(() => Promise.resolve([]));
   });
 
   afterEach(async () => {
@@ -247,40 +254,17 @@ describe('conversationQueries', () => {
       conversationId: conversation._id,
     });
 
-    expect(responses[0].videoCallData).toBeNull();
-
     await conversationMessageFactory({ internal: false, conversationId: conversation._id });
 
     responses = await graphqlRequest(qryConversationMessage, 'conversationMessages', {
       conversationId: conversation._id,
     });
 
-    expect(responses[0].videoCallData).toBeNull();
-
     await conversationMessageFactory({
       conversationId: conversation._id,
       contentType: MESSAGE_TYPES.VIDEO_CALL,
       internal: false,
     });
-
-    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
-
-    try {
-      await graphqlRequest(
-        qryConversationMessage,
-        'conversationMessages',
-        {
-          conversationId: conversation._id,
-        },
-        { dataSources },
-      );
-    } catch (e) {
-      expect(e[0].message).toBe('Integrations api is not running');
-    }
-
-    const spy = jest.spyOn(dataSources.IntegrationsAPI, 'fetchApi');
-
-    spy.mockImplementation(() => Promise.resolve());
 
     responses = await graphqlRequest(
       qryConversationMessage,
@@ -318,46 +302,6 @@ describe('conversationQueries', () => {
     });
 
     expect(responses.length).toBe(1);
-  });
-
-  test('Conversation messages (Integrations api is not running)', async () => {
-    const nyalsGmailIntegration = await integrationFactory({ kind: 'nylas-gmail' });
-    const nyalsGmailConversation = await conversationFactory({ integrationId: nyalsGmailIntegration._id });
-
-    await conversationMessageFactory({ conversationId: nyalsGmailConversation._id, internal: false });
-
-    const gmailIntegration = await integrationFactory({ kind: 'gmail' });
-    const gmailConversation = await conversationFactory({ integrationId: gmailIntegration._id });
-
-    await conversationMessageFactory({ conversationId: gmailConversation._id, internal: false });
-
-    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
-
-    try {
-      await graphqlRequest(
-        qryConversationMessage,
-        'conversationMessages',
-        {
-          conversationId: nyalsGmailConversation._id,
-        },
-        { dataSources },
-      );
-    } catch (e) {
-      expect(e[0].message).toBe('Integrations api is not running');
-    }
-
-    try {
-      await graphqlRequest(
-        qryConversationMessage,
-        'conversationMessages',
-        {
-          conversationId: gmailConversation._id,
-        },
-        { dataSources },
-      );
-    } catch (e) {
-      expect(e[0].message).toBe('Integrations api is not running');
-    }
   });
 
   test('Conversation messages total count', async () => {
@@ -948,23 +892,6 @@ describe('conversationQueries', () => {
     const facebookIntegration = await integrationFactory({ kind: 'facebook-post' });
     const facebookConversation = await conversationFactory({ integrationId: facebookIntegration._id });
 
-    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
-
-    try {
-      await graphqlRequest(
-        qryConversationDetail,
-        'conversationDetail',
-        { _id: facebookConversation._id },
-        { user, dataSources },
-      );
-    } catch (e) {
-      expect(e[0].message).toBe('Integrations api is not running');
-    }
-
-    const spy = jest.spyOn(dataSources.IntegrationsAPI, 'fetchApi');
-
-    spy.mockImplementation(() => Promise.resolve());
-
     try {
       await graphqlRequest(
         qryConversationDetail,
@@ -980,8 +907,6 @@ describe('conversationQueries', () => {
   test('Conversation detail video call', async () => {
     const messengerConversation = await conversationFactory();
 
-    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
-
     let response = await graphqlRequest(
       qryConversationDetail,
       'conversationDetail',
@@ -996,21 +921,6 @@ describe('conversationQueries', () => {
       contentType: MESSAGE_TYPES.VIDEO_CALL,
     });
 
-    try {
-      await graphqlRequest(
-        qryConversationDetail,
-        'conversationDetail',
-        { _id: messengerConversation._id },
-        { user, dataSources },
-      );
-    } catch (e) {
-      expect(e[0].message).toBe('Integrations api is not running');
-    }
-
-    const spy = jest.spyOn(dataSources.IntegrationsAPI, 'fetchApi');
-
-    spy.mockImplementation(() => Promise.resolve());
-
     response = await graphqlRequest(
       qryConversationDetail,
       'conversationDetail',
@@ -1018,29 +928,12 @@ describe('conversationQueries', () => {
       { user, dataSources },
     );
 
-    expect(response.videoCallData).toBeNull();
+    expect(response.videoCallData).not.toBeNull();
   });
 
   test('Conversation detail callpro audio', async () => {
     const callProIntegration = await integrationFactory({ kind: 'callpro' });
     const callProConverstaion = await conversationFactory({ integrationId: callProIntegration._id });
-
-    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
-
-    try {
-      await graphqlRequest(
-        qryConversationDetail,
-        'conversationDetail',
-        { _id: callProConverstaion._id },
-        { user, dataSources },
-      );
-    } catch (e) {
-      expect(e[0].message).toBe('Integrations api is not running');
-    }
-
-    const spy = jest.spyOn(dataSources.IntegrationsAPI, 'fetchApi');
-
-    spy.mockImplementation(() => Promise.resolve());
 
     const normalUser = await userFactory({ isOwner: false });
 
@@ -1106,12 +999,6 @@ describe('conversationQueries', () => {
       }
     `;
 
-    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
-
-    try {
-      await graphqlRequest(qry, 'converstationFacebookComments', { postId: 'postId' }, { dataSources });
-    } catch (e) {
-      expect(e[0].message).toBe('Integrations api is not running');
-    }
+    await graphqlRequest(qry, 'converstationFacebookComments', { postId: 'postId' }, { dataSources });
   });
 });
