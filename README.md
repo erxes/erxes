@@ -41,22 +41,22 @@ erxes helps you attract and engage more customers while giving you high lead con
 ### Ubuntu 16.04/18.04 LTS
 Follow these deployment instructions.
 
-[![ubuntu](https://erxes-os.s3-us-west-2.amazonaws.com/github/ubuntu.png)](https://docs.erxes.io/installation/ubuntu)
+[![ubuntu](https://erxes-os.s3-us-west-2.amazonaws.com/github/ubuntu-logo.png)](https://docs.erxes.io/installation/ubuntu)
 
 ### Debian 10
 Follow these deployment instructions.
 
-[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/debian.png)](https://docs.erxes.io/installation/debian10)
+[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/debian-logo.png)](https://docs.erxes.io/installation/debian10)
 
 ### CentOS 8
 Follow these deployment instructions.
 
-[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/centos.png)](https://docs.erxes.io/installation/centos8)
+[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/centos-logo.png)](https://docs.erxes.io/installation/centos8)
 
 ### Docker
 Follow these deployment instructions.
 
-[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/docker.png)](https://docs.erxes.io/installation/docker)
+[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/docker-logo.png)](https://docs.erxes.io/installation/docker)
 
 ### Heroku
 Host your own erxes server with One-Click Deploy.
@@ -66,7 +66,7 @@ Host your own erxes server with One-Click Deploy.
 ### AWS Marketplace
 Launch an EC2 instance using erxes in the AWS Marketplace.
 
-[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/aws.png)](https://aws.amazon.com/marketplace/pp/B086MZ9FVS/)
+[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/aws-logo.png)](https://aws.amazon.com/marketplace/pp/B086MZ9FVS/)
 
 ### DigitalOcean Droplet
 Deploy to a DigitalOcean droplet with our one-click install listing from the DigitalOcean Marketplace.
