@@ -1,0 +1,72 @@
+name: Widgets CI
+
+on:
+  push:
+    branches:
+      - '**'
+    paths:
+      - 'widgets/**'
+      - '.github/workflows/widgets.yaml'
+  pull_request:
+    branches:
+      - master
+      - develop
+      - apm
+    paths:
+      - 'widgets/**'
+
+jobs:
+  widgets:
+    runs-on: ubuntu-18.04
+
+    # name: Node ${{ matrix.node-version }}
+
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js 10.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 10.x
+
+    # https://github.com/actions/cache/blob/master/examples.md#node---yarn
+    - name: Get yarn cache directory path
+      id: yarn-cache-dir-path
+      run: echo "::set-output name=dir::$(yarn cache dir)"
+
+    - name: Cache Node.js modules
+      id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+      uses: actions/cache@v1
+      with:
+        path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+        key: ${{ runner.os }}-yarn-${{ hashFiles('widgets/**/yarn.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-yarn-${{ hashFiles('widgets/**/yarn.lock') }}
+          ${{ runner.os }}-yarn-
+
+    - name: Install
+      run: |
+        cd widgets
+        yarn install
+
+    - name: Lint
+      run: |
+        cd widgets
+        yarn lint
+
+    - name: Build
+      run: |
+        cd widgets
+        yarn build
+
+    - name: Build docker image on push
+      if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/apm' )
+      run: |
+        cd widgets
+        docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_TOKEN
+        docker build -t erxes/erxes-widgets:${GITHUB_REF#refs/heads/} -f Dockerfile .
+        docker push erxes/erxes-widgets:${GITHUB_REF#refs/heads/}
+      env:
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
