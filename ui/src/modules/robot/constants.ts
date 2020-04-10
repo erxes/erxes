@@ -333,25 +333,33 @@ export const FEATURE_DETAILS = {
   }
 };
 
-export const TEAM_FEATURES = [
+export const FEATURE_CATEGORIES = [
   {
     name: 'Marketing',
-    features: []
+    features: ['growthHacks', 'leads', 'engages']
   },
   {
     name: 'Sales',
-    features: []
+    features: ['deals', 'segments', 'customers']
   },
   {
     name: 'Customer Support',
-    features: []
+    features: ['inbox', 'tickets', 'knowledgeBase']
   },
   {
     name: 'Management',
-    features: []
+    features: [
+      'tasks',
+      'permissions',
+      'properties',
+      'tags',
+      'integrations',
+      'insights',
+      'importHistories'
+    ]
   },
   {
     name: 'General',
-    features: []
+    features: ['inbox', 'permissions', 'tags', 'integrations']
   }
 ];

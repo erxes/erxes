@@ -6,7 +6,7 @@ import { IUser } from 'modules/auth/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '../../common/utils';
-import Onboarding from '../components/Onboarding';
+import AssistantContent from '../components/AssistantContent';
 import { FEATURE_DETAILS } from '../constants';
 import { mutations, queries, subscriptions } from '../graphql';
 import {
@@ -16,10 +16,11 @@ import {
 } from '../types';
 
 type Props = {
-  show: boolean;
   changeRoute: (route: string) => void;
   currentUser: IUser;
-  currentStep?: string;
+  currentRoute?: string;
+  showContent: boolean;
+  toggleContent: (isShow: boolean) => void;
 };
 
 type FinalProps = Props &
@@ -27,29 +28,20 @@ type FinalProps = Props &
     getAvailableFeaturesQuery?: GetAvailableFeaturesQueryResponse;
   };
 
-class OnboardingContainer extends React.Component<
-  FinalProps,
-  { currentStep?: string }
-> {
-  constructor(props: FinalProps) {
-    super(props);
-
-    this.state = { currentStep: props.currentStep };
-  }
-
-  changeStep = (step: string) => {
+class AssistantContentContainer extends React.Component<FinalProps> {
+  changeStep = (route: string) => {
     const { getAvailableFeaturesQuery } = this.props;
 
-    if (step === 'featureList' && getAvailableFeaturesQuery) {
+    if (route === 'todoList' && getAvailableFeaturesQuery) {
       getAvailableFeaturesQuery.refetch();
     }
 
-    this.setState({ currentStep: step });
+    this.props.changeRoute(route);
   };
 
   forceComplete = () => {
     this.props.forceCompleteMutation().then(() => {
-      this.setState({ currentStep: '' });
+      this.props.changeRoute('');
     });
   };
 
@@ -79,36 +71,36 @@ class OnboardingContainer extends React.Component<
         if (onboardingChanged) {
           const { type } = onboardingChanged;
 
-          if (
-            ['initial', 'inComplete'].includes(type) &&
-            !this.state.currentStep
-          ) {
-            this.setState({ currentStep: type });
+          console.log(type);
+          if (['initial', 'inComplete'].includes(type)) {
+            this.props.changeRoute(type);
+            this.props.toggleContent(true);
           }
         }
       }
     });
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.currentStep !== this.props.currentStep) {
-      this.setState({ currentStep: nextProps.currentStep });
-    }
-  }
-
   render() {
-    const { currentStep } = this.state;
-    const {
-      getAvailableFeaturesQuery,
-      currentUser,
-      changeRoute,
-      show
-    } = this.props;
+    const { getAvailableFeaturesQuery } = this.props;
 
-    const availableFeatures: IFeature[] = (getAvailableFeaturesQuery
+    const allFeatures: IFeature[] = getAvailableFeaturesQuery
       ? getAvailableFeaturesQuery.onboardingGetAvailableFeatures || []
-      : []
-    ).map(feature => {
+      : [];
+
+    // get feature categories
+    const savedCategories = localStorage.getItem('erxesCustomizationTeams');
+    let categorizedFeatures = allFeatures;
+
+    if (savedCategories) {
+      const chosenTeams = JSON.parse(savedCategories);
+
+      categorizedFeatures = allFeatures.filter(feature =>
+        chosenTeams.includes(feature.name)
+      );
+    }
+
+    const features = categorizedFeatures.map(feature => {
       const details = FEATURE_DETAILS[feature.name] || {};
 
       return {
@@ -118,14 +110,11 @@ class OnboardingContainer extends React.Component<
     });
 
     return (
-      <Onboarding
-        show={show}
-        currentUser={currentUser}
-        currentStep={currentStep}
-        changeStep={this.changeStep}
-        changeRoute={changeRoute}
+      <AssistantContent
+        {...this.props}
+        changeRoute={this.changeStep}
         forceComplete={this.forceComplete}
-        availableFeatures={availableFeatures}
+        availableFeatures={features}
       />
     );
   }
@@ -139,5 +128,5 @@ export default withProps<Props>(
     graphql<{}>(gql(mutations.forceComplete), {
       name: 'forceCompleteMutation'
     })
-  )(withCurrentUser(OnboardingContainer))
+  )(withCurrentUser(AssistantContentContainer))
 );

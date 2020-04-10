@@ -12,8 +12,11 @@ const ModulRow = styled.div`
 `;
 
 const Greeting = styled.div`
-  margin-bottom: 20px;
-  font-size: 15px;
+  margin-bottom: 16px;
+  padding: 0 16px;
+  font-size: 18px;
+  line-height: 27px;
+  letter-spacing: -0.2px;
 
   span {
     margin-left: 5px;
@@ -21,7 +24,7 @@ const Greeting = styled.div`
 
   p {
     margin-top: ${dimensions.unitSpacing}px;
-    font-size: 14px;
+    color: ${colors.colorCoreGray};
   }
 `;
 
@@ -43,7 +46,7 @@ const Bot = styled.div`
 `;
 
 const Title = styled.h2`
-  margin: 0 0 20px;
+  margin: 0 0 16px;
   font-size: 16px;
   text-transform: capitalize;
 `;
@@ -77,8 +80,7 @@ const Content = styled.div`
   padding: ${dimensions.coreSpacing}px;
   border-radius: 10px;
   background: ${colors.bgLight};
-  min-width: 300px;
-  max-width: 500px;
+  width: 320px;
   box-shadow: 0 5px 15px 1px rgba(0, 0, 0, 0.15);
   bottom: 65px;
   left: 15px;
@@ -88,12 +90,32 @@ const Content = styled.div`
   z-index: 15;
 `;
 
-const SeeAll = styled.a`
-  display: block;
-  text-align: center;
+const SubHeader = styled.a`
+  font-weight: 600;
+  color: rgb(119, 120, 122);
+  display: flex;
+  justify-content: space-between;
 
   &:hover {
     cursor: pointer;
+  }
+`;
+
+const CompletedTaskWrapper = styled.div`
+  padding: 0 16px;
+  margin-top: 8px;
+`;
+
+const CompletedTaskName = styled.div`
+  font-size: 14px;
+  margin-top: 5px;
+  color: rgb(155, 156, 158);
+  text-decoration-line: line-through;
+  text-transform: capitalize;
+
+  &:hover {
+    cursor: pointer;
+    color: ${colors.textSecondary};
   }
 `;
 
@@ -113,4 +135,15 @@ const BackDrop = styled.div`
   animation-timing-function: linear;
 `;
 
-export { Bot, ModulRow, Greeting, Title, NavButton, Content, SeeAll, BackDrop };
+export {
+  Bot,
+  ModulRow,
+  Greeting,
+  Title,
+  NavButton,
+  Content,
+  SubHeader,
+  BackDrop,
+  CompletedTaskWrapper,
+  CompletedTaskName
+};

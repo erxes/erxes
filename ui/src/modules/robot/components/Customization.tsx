@@ -1,9 +1,9 @@
 import { colors } from 'modules/common/styles';
-import { __ } from 'modules/common/utils';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { TEAM_FEATURES } from '../constants';
+import { FEATURE_CATEGORIES } from '../constants';
+import { IFeatureCategory } from '../types';
 
 const Wrapper = styled.div``;
 
@@ -35,21 +35,41 @@ type Props = {
 };
 
 function Customization(props: Props) {
-  const [teams, setTeams] = useState<string[]>([]);
+  const [categories, setCategories] = useState<IFeatureCategory[]>([]);
 
-  const renderItem = item => {
-    const isChosen = teams.includes(item.name);
+  const saveTeams = () => {
+    let mergedFeatures: string[] = [];
+
+    categories.map(category => {
+      return (mergedFeatures = mergedFeatures.concat(category.features));
+    });
+
+    // remove duplicated features and save to localstorages
+    localStorage.setItem(
+      'erxesCustomizationTeams',
+      JSON.stringify(
+        mergedFeatures.filter(
+          (item, pos) => mergedFeatures.indexOf(item) === pos
+        )
+      )
+    );
+  };
+
+  const renderItem = (item: IFeatureCategory) => {
+    const isChosen = categories.includes(item);
 
     const toggleItem = () => {
       if (isChosen) {
-        return setTeams(teams.filter(team => item.name !== team));
+        return setCategories(
+          categories.filter(category => item.name !== category.name)
+        );
       }
 
-      if (teams.length > 2) {
+      if (categories.length > 2) {
         return;
       }
 
-      return setTeams([...teams, item.name]);
+      return setCategories([...categories, item]);
     };
 
     return (
@@ -59,7 +79,6 @@ function Customization(props: Props) {
     );
   };
 
-  console.log(teams);
   return (
     <Wrapper>
       <h3>What team are you on?</h3>
@@ -69,8 +88,8 @@ function Customization(props: Props) {
         us. Let's get you the most out of erxes.
       </p>
       <p>You can choose maximum 3 of the below fields in priority order</p>
-      <Container>{TEAM_FEATURES.map(team => renderItem(team))}</Container>
-      {props.renderButton('Finish', () => {})}
+      <Container>{FEATURE_CATEGORIES.map(team => renderItem(team))}</Container>
+      {props.renderButton('Finish', saveTeams)}
     </Wrapper>
   );
 }

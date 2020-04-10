@@ -7,7 +7,7 @@ import Indicator from './Indicator';
 import { BackDrop } from './styles';
 
 const Wrapper = styled.div`
-  width: 280px;
+  width: 320px;
   margin: 0;
   transition: 0.3s height ease;
   position: relative;
@@ -53,7 +53,7 @@ class Welcome extends React.PureComponent<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = { activeStep: 1 };
+    this.state = { activeStep: 0 };
   }
 
   changeStep = () => {

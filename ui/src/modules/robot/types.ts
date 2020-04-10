@@ -17,6 +17,11 @@ export type IEntry = {
   data: object;
 };
 
+export type IFeatureCategory = {
+  name: string;
+  features: string[];
+};
+
 export type StepsCompletenessQueryResponse = {
   onboardingStepsCompleteness: { [key: string]: boolean };
   subscribeToMore: any;

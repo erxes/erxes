@@ -9,7 +9,7 @@ const IconContainer = styled(Count)`
 
 const Modul = styled(GroupHead)`
   width: 100%;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
   margin-right: 20px;
   max-width: ${props => props.vertical && '30%'};
   min-width: ${props => props.vertical && '130px'};
@@ -43,9 +43,11 @@ const Text = styled.div`
   padding: 10px 15px;
   font-weight: normal;
   flex: 1;
+  display: flex;
+  align-items: center;
 
   h4 {
-    font-size: 13px;
+    font-size: 14px;
     margin: 0;
     text-transform: capitalize;
   }
@@ -96,7 +98,7 @@ class ModulItem extends React.Component<Props, State> {
         </IconContainer>
         <Text>
           <h4>{title}</h4>
-          {!vertical && <p>{description}</p>}
+          {description && <p>{description}</p>}
         </Text>
       </Modul>
     );

@@ -1,5 +1,4 @@
 import colors from 'modules/common/styles/colors';
-import { __ } from 'modules/common/utils';
 import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';

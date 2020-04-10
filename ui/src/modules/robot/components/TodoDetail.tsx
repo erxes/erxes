@@ -1,17 +1,13 @@
 import ProgressBar from 'modules/common/components/ProgressBar';
 import colors from 'modules/common/styles/colors';
-import { roundToTwo } from 'modules/common/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { IFeature } from '../types';
+import { calculatePercentage } from '../utils';
 import { Title } from './styles';
 import VideoPopup from './VideoPopup';
-
-const Wrapper = styled.div`
-  width: 315px;
-`;
 
 const Checklist = styled.ul`
   padding: 0;
@@ -73,11 +69,7 @@ type Props = {
   stepsCompleteness: { [key: string]: boolean };
 };
 
-class FeatureDetail extends React.Component<Props> {
-  calculatePercentage = (total: number, done: number) => {
-    return roundToTwo((done * 100) / total);
-  };
-
+class TodoDetail extends React.Component<Props> {
   renderProgress = () => {
     const { feature, stepsCompleteness } = this.props;
 
@@ -98,7 +90,7 @@ class FeatureDetail extends React.Component<Props> {
       }
     }
 
-    const percent = this.calculatePercentage(total, done);
+    const percent = calculatePercentage(total, done);
 
     return (
       <Progress>
@@ -165,15 +157,15 @@ class FeatureDetail extends React.Component<Props> {
     const { feature } = this.props;
 
     return (
-      <Wrapper>
+      <>
         <Title>{feature.text}</Title>
         {this.renderVideo()}
         <p>{feature.description}</p>
         {this.renderProgress()}
         {this.renderSettings()}
-      </Wrapper>
+      </>
     );
   }
 }
 
-export default FeatureDetail;
+export default TodoDetail;
