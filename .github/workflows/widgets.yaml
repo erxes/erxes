@@ -67,9 +67,9 @@ jobs:
       if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/apm' || github.ref == 'refs/heads/actions/widgets' )
       run: |
         cd widgets
-        echo ${{github.ref}}
-        docker build -t erxes/erxes-widgets:${{github.ref}} -f Dockerfile .
-        docker push erxes/erxes-widgets:${{github.ref}}
+        echo ${GITHUB_REF#refs/heads/}
+        docker build -t erxes/erxes-widgets:${GITHUB_REF#refs/heads/} -f Dockerfile .
+        docker push erxes/erxes-widgets:${GITHUB_REF#refs/heads/}
       env:
         DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
