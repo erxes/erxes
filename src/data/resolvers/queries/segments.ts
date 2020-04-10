@@ -83,16 +83,19 @@ const segmentQueries = {
       'count',
     );
 
-    const response = await fetchElk('count', contentType === 'customer' ? 'customers' : 'companies', {
-      query: {
-        bool: {
-          must: positiveList,
-          must_not: negativeList,
+    try {
+      const response = await fetchElk('count', contentType === 'customer' ? 'customers' : 'companies', {
+        query: {
+          bool: {
+            must: positiveList,
+            must_not: negativeList,
+          },
         },
-      },
-    });
-
-    return response.count;
+      });
+      return response.count;
+    } catch (e) {
+      return 0;
+    }
   },
 };
 

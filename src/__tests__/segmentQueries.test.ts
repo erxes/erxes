@@ -138,6 +138,14 @@ describe('segmentQueries', () => {
       }
     `;
 
+    const mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
+      return Promise.reject('error');
+    });
+
+    await graphqlRequest(qry, 'segmentsPreviewCount', { contentType: 'customer', conditions: [] });
+
+    mock.restore();
+
     await graphqlRequest(qry, 'segmentsPreviewCount', { contentType: 'customer', conditions: [] });
   });
 });
