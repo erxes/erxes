@@ -188,7 +188,7 @@ export class PipelineProvider extends React.Component<Props, State> {
     // to avoid to refetch current tab
     sessionStorage.setItem('currentTab', 'true');
 
-    const { itemMap } = reorderItemMap({
+    const { itemMap, target } = reorderItemMap({
       itemMap: this.state.itemMap,
       source,
       destination
@@ -201,21 +201,10 @@ export class PipelineProvider extends React.Component<Props, State> {
     invalidateCache();
 
     // saving to database
-    const itemId = result.draggableId.split('-')[0];
-
-    this.itemChange(itemId, destination.droppableId, () => {
-      this.saveItemOrders(itemMap, [
-        source.droppableId,
-        destination.droppableId
-      ]);
-    });
+    this.itemChange(target._id, destination.droppableId, target.order);
   };
 
-  itemChange = (
-    itemId: string,
-    destinationStageId: string,
-    callback: () => void
-  ) => {
+  itemChange = (itemId: string, destinationStageId: string, order: number) => {
     const { options } = this.props;
 
     client
@@ -223,11 +212,9 @@ export class PipelineProvider extends React.Component<Props, State> {
         mutation: gql(options.mutations.changeMutation),
         variables: {
           _id: itemId,
-          destinationStageId
+          destinationStageId,
+          order
         }
-      })
-      .then(() => {
-        callback();
       })
       .catch((e: Error) => {
         Alert.error(e.message);

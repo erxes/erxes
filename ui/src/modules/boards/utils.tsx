@@ -58,6 +58,20 @@ export const reorderItemMap = ({
   const target = current[source.index];
   target.modifiedAt = new Date();
 
+  let prevOrder = 0;
+  if (destination.index > 0) {
+    prevOrder = next[destination.index - 1].order;
+  }
+
+  let afterOrder = 1;
+  if (next.length > destination.index) {
+    afterOrder = next[destination.index].order;
+  } else {
+    afterOrder = next.length + 1;
+  }
+
+  target.order = (prevOrder + afterOrder) / 2;
+
   // moving to same list
   if (source.droppableId === destination.droppableId) {
     const reordered = reorder(current, source.index, destination.index);
@@ -68,7 +82,8 @@ export const reorderItemMap = ({
     };
 
     return {
-      itemMap: updateditemMap
+      itemMap: updateditemMap,
+      target
     };
   }
 
@@ -87,7 +102,8 @@ export const reorderItemMap = ({
   };
 
   return {
-    itemMap: result
+    itemMap: result,
+    target
   };
 };
 
