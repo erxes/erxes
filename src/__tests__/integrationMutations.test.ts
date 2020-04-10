@@ -53,7 +53,6 @@ describe('mutations', () => {
 
   let dataSources;
   let fetchSpy;
-  let createIntegrationSpy;
   let createAccountSpy;
 
   beforeEach(async () => {
@@ -61,9 +60,6 @@ describe('mutations', () => {
 
     fetchSpy = jest.spyOn(utils, 'fetchCronsApi');
     fetchSpy.mockImplementation(() => Promise.resolve('ok'));
-
-    createIntegrationSpy = jest.spyOn(dataSources.IntegrationsAPI, 'createIntegration');
-    createIntegrationSpy.mockImplementation(() => Promise.resolve());
 
     createAccountSpy = jest.spyOn(dataSources.IntegrationsAPI, 'createAccount');
     createAccountSpy.mockImplementation(() => Promise.resolve());
@@ -84,7 +80,6 @@ describe('mutations', () => {
     await Integrations.deleteMany({});
 
     fetchSpy.mockRestore();
-    createIntegrationSpy.mockRestore();
     createAccountSpy.mockRestore();
   });
 
@@ -345,9 +340,16 @@ describe('mutations', () => {
       brandId: brand._id,
     };
 
-    await graphqlRequest(mutation, 'integrationsCreateExternalIntegration', args, { dataSources });
+    try {
+      await graphqlRequest(mutation, 'integrationsCreateExternalIntegration', args, { dataSources });
+    } catch (e) {
+      expect(e[0].message).toBe('Error: Integrations api is not running');
+    }
 
     args.kind = 'facebook-post';
+
+    const createIntegrationSpy = jest.spyOn(dataSources.IntegrationsAPI, 'createIntegration');
+    createIntegrationSpy.mockImplementation(() => Promise.resolve());
 
     await graphqlRequest(mutation, 'integrationsCreateExternalIntegration', args, { dataSources });
 
@@ -364,6 +366,8 @@ describe('mutations', () => {
     const response = await graphqlRequest(mutation, 'integrationsCreateExternalIntegration', args, { dataSources });
 
     expect(response).toBeDefined();
+
+    createIntegrationSpy.mockRestore();
   });
 
   test('Add mail account', async () => {

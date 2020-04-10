@@ -8,18 +8,9 @@ import utils from '../data/utils';
 import './setup.ts';
 
 describe('Import history mutations', () => {
-  let fetchSpy;
-
-  beforeEach(async () => {
-    fetchSpy = jest.spyOn(utils, 'fetchWorkersApi');
-    fetchSpy.mockImplementation(() => Promise.resolve('ok'));
-  });
-
   afterEach(async () => {
     // Clearing test data
     await ImportHistory.deleteMany({});
-
-    fetchSpy.mockRestore();
   });
 
   test('Remove import histories', async () => {
@@ -40,7 +31,17 @@ describe('Import history mutations', () => {
 
     const mock = sinon.stub(workerUtils, 'createWorkers').callsFake();
 
-    await graphqlRequest(mutation, 'importHistoriesRemove', { _id: history._id });
+    try {
+      await graphqlRequest(mutation, 'importHistoriesRemove', { _id: history._id });
+    } catch (e) {
+      expect(e[0].message).toBe(
+        'Error: Failed to connect workers api. Check WORKERS_API_DOMAIN env or workers api is not running',
+      );
+    }
+
+    const fetchSpy = jest.spyOn(utils, 'fetchWorkersApi');
+    fetchSpy.mockImplementation(() => Promise.resolve('ok'));
+
     await graphqlRequest(mutation, 'importHistoriesRemove', { _id: customerHistory._id });
     await graphqlRequest(mutation, 'importHistoriesRemove', { _id: companyHistory._id });
     await graphqlRequest(mutation, 'importHistoriesRemove', { _id: productHistory._id });
@@ -50,6 +51,7 @@ describe('Import history mutations', () => {
     expect(historyObj.status).toBe('Removing');
 
     mock.restore();
+    fetchSpy.mockRestore();
   });
 
   test('Remove import histories (Error)', async () => {
@@ -81,6 +83,17 @@ describe('Import history mutations', () => {
 
     const importHistory = await importHistoryFactory({});
 
+    try {
+      await graphqlRequest(mutation, 'importHistoriesCancel', { _id: importHistory._id });
+    } catch (e) {
+      expect(e[0].message).toBe(
+        'Error: Failed to connect workers api. Check WORKERS_API_DOMAIN env or workers api is not running',
+      );
+    }
+
+    const fetchSpy = jest.spyOn(utils, 'fetchWorkersApi');
+    fetchSpy.mockImplementation(() => Promise.resolve('ok'));
+
     const response = await graphqlRequest(mutation, 'importHistoriesCancel', { _id: importHistory._id });
 
     expect(response).toBe(true);
@@ -91,6 +104,8 @@ describe('Import history mutations', () => {
     } catch (e) {
       expect(e[0].message).toBe('History not found');
     }
+
+    fetchSpy.mockRestore();
   });
 
   test('Cancel import history (Error)', async () => {

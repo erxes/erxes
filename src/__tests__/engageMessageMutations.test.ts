@@ -78,14 +78,10 @@ describe('engage message mutation tests', () => {
     messenger: $messenger
   `;
 
-  let fetchSpy;
   let dataSources;
 
   beforeEach(async () => {
     dataSources = { EngagesAPI: new EngagesAPI() };
-
-    fetchSpy = jest.spyOn(utils, 'fetchCronsApi');
-    fetchSpy.mockImplementation(() => Promise.resolve('ok'));
 
     // Creating test data
     _user = await userFactory({});
@@ -157,7 +153,6 @@ describe('engage message mutation tests', () => {
 
   afterEach(async () => {
     spy.mockRestore();
-    fetchSpy.mockRestore();
 
     // Clearing test data
     _doc = null;
@@ -511,6 +506,17 @@ describe('engage message mutation tests', () => {
     const editedUser = await userFactory();
     const args = { ..._doc, _id: _message._id, fromUserId: editedUser._id };
 
+    try {
+      await graphqlRequest(mutation, 'engageMessageEdit', args);
+    } catch (e) {
+      expect(e[0].message).toBe(
+        'Error: Failed to connect crons api. Check CRONS_API_DOMAIN env or crons api is not running',
+      );
+    }
+
+    const fetchSpy = jest.spyOn(utils, 'fetchCronsApi');
+    fetchSpy.mockImplementation(() => Promise.resolve('ok'));
+
     const engageMessage = await graphqlRequest(mutation, 'engageMessageEdit', args);
 
     const tags = engageMessage.getTags.map(tag => tag._id);
@@ -538,6 +544,8 @@ describe('engage message mutation tests', () => {
     expect(engageMessage.fromUser._id).toBe(args.fromUserId);
 
     await graphqlRequest(mutation, 'engageMessageEdit', { ..._doc, _id: _message._id });
+
+    fetchSpy.mockRestore();
   });
 
   test('Remove engage message', async () => {
@@ -549,13 +557,24 @@ describe('engage message mutation tests', () => {
       }
     `;
 
-    await graphqlRequest(mutation, 'engageMessageRemove', { _id: _message._id });
+    try {
+      await graphqlRequest(mutation, 'engageMessageRemove', { _id: _message._id });
+    } catch (e) {
+      expect(e[0].message).toBe(
+        'Error: Failed to connect crons api. Check CRONS_API_DOMAIN env or crons api is not running',
+      );
+    }
 
-    expect(await EngageMessages.findOne({ _id: _message._id })).toBe(null);
+    const fetchSpy = jest.spyOn(utils, 'fetchCronsApi');
+    fetchSpy.mockImplementation(() => Promise.resolve('ok'));
 
     _message = await engageMessageFactory({ kind: 'post' });
 
     await graphqlRequest(mutation, 'engageMessageRemove', { _id: _message._id });
+
+    expect(await EngageMessages.findOne({ _id: _message._id })).toBe(null);
+
+    fetchSpy.mockRestore();
   });
 
   test('Set live engage message', async () => {
@@ -566,6 +585,17 @@ describe('engage message mutation tests', () => {
         }
       }
     `;
+
+    try {
+      await graphqlRequest(mutation, 'engageMessageSetLive', { _id: _message._id });
+    } catch (e) {
+      expect(e[0].message).toBe(
+        'Error: Failed to connect crons api. Check CRONS_API_DOMAIN env or crons api is not running',
+      );
+    }
+
+    const fetchSpy = jest.spyOn(utils, 'fetchCronsApi');
+    fetchSpy.mockImplementation(() => Promise.resolve('ok'));
 
     let response = await graphqlRequest(mutation, 'engageMessageSetLive', { _id: _message._id });
 
@@ -578,6 +608,8 @@ describe('engage message mutation tests', () => {
     expect(response.isLive).toBe(true);
 
     await graphqlRequest(mutation, 'engageMessageSetLive', { _id: _message._id });
+
+    fetchSpy.mockRestore();
   });
 
   test('Set pause engage message', async () => {
