@@ -73,8 +73,14 @@ describe('Conversation message mutations', () => {
     }
   `;
 
+  let dataSources;
+
   beforeEach(async () => {
-    spy.mockImplementation();
+    dataSources = { IntegrationsAPI: new IntegrationsAPI() };
+
+    const integrationsApiSpy = jest.spyOn(dataSources.IntegrationsAPI, 'fetchApi');
+
+    integrationsApiSpy.mockImplementation(() => Promise.resolve([]));
 
     user = await userFactory({});
     customer = await customerFactory({ primaryEmail: faker.internet.email() });
@@ -83,6 +89,7 @@ describe('Conversation message mutations', () => {
       kind: KIND_CHOICES.LEAD,
       messengerData: { welcomeMessage: 'welcome', notifyCustomer: true },
     });
+
     leadConversation = await conversationFactory({
       integrationId: leadIntegration._id,
       customerId: customer._id,
@@ -193,8 +200,6 @@ describe('Conversation message mutations', () => {
     const response = await graphqlRequest(addMutation, 'conversationMessageAdd', args, { dataSources: {} });
 
     expect(response).toBeDefined();
-
-    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
 
     try {
       await graphqlRequest(addMutation, 'conversationMessageAdd', args, { dataSources });
@@ -426,26 +431,22 @@ describe('Conversation message mutations', () => {
   });
 
   test('Delete video chat room', async () => {
-    expect.assertions(1);
-
     const mutation = `
       mutation conversationDeleteVideoChatRoom($name: String!) {
         conversationDeleteVideoChatRoom(name: $name)
       }
     `;
 
-    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
+    const mock = sinon.stub(dataSources.IntegrationsAPI, 'deleteDailyVideoChatRoom').callsFake(() => {
+      return Promise.resolve(true);
+    });
 
-    try {
-      await graphqlRequest(mutation, 'conversationDeleteVideoChatRoom', { name: 'fakeId' }, { dataSources });
-    } catch (e) {
-      expect(e[0].message).toBe('Integrations api is not running');
-    }
+    await graphqlRequest(mutation, 'conversationDeleteVideoChatRoom', { name: 'fakeId' }, { dataSources });
+
+    mock.restore();
   });
 
   test('Create video chat room', async () => {
-    expect.assertions(2);
-
     const mutation = `
       mutation conversationCreateVideoChatRoom($_id: String!) {
         conversationCreateVideoChatRoom(_id: $_id) {
@@ -457,13 +458,6 @@ describe('Conversation message mutations', () => {
     `;
 
     const conversation = await conversationFactory();
-    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
-
-    try {
-      await graphqlRequest(mutation, 'conversationCreateVideoChatRoom', { _id: conversation._id }, { dataSources });
-    } catch (e) {
-      expect(e[0].message).toBe('Integrations api is not running');
-    }
 
     const mock = sinon.stub(dataSources.IntegrationsAPI, 'createDailyVideoChatRoom').callsFake(() => {
       return Promise.resolve({ status: 'ongoing' });
