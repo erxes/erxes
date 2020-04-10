@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - develop
-      - 'actions/docs'
     paths:
       - 'docs/**'
   pull_request:
@@ -38,7 +37,7 @@ jobs:
       uses: actions/cache@v1
       with:
         path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-        key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+        key: ${{ runner.os }}-yarn-${{ hashFiles('docs/**/yarn.lock') }}
         restore-keys: |
           ${{ runner.os }}-yarn-
 
