@@ -39,6 +39,7 @@ jobs:
         path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
         key: ${{ runner.os }}-yarn-${{ hashFiles('docs/**/yarn.lock') }}
         restore-keys: |
+          ${{ runner.os }}-yarn-${{ hashFiles('docs/**/yarn.lock') }}
           ${{ runner.os }}-yarn-
 
     - name: Install
