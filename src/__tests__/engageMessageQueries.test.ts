@@ -340,6 +340,10 @@ describe('engageQueries', () => {
       }
     `;
 
-    await graphqlRequest(qry, 'engagesConfigDetail', {}, { dataSources });
+    try {
+      await graphqlRequest(qry, 'engagesConfigDetail', {}, { dataSources });
+    } catch (e) {
+      expect(e[0].message).toBe('Engages api is not running');
+    }
   });
 });
