@@ -13,4 +13,3 @@ stages:
 
 include:
 - local: '/ui/.ui.gitlab-ci.yml'
-- local: '/widgets/.widgets.gitlab-ci.yml'
