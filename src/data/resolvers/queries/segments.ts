@@ -8,8 +8,8 @@ const segmentQueries = {
   /**
    * Segments list
    */
-  segments(_root, { contentType }: { contentType: string }, { commonQuerySelector }: IContext) {
-    return Segments.find({ ...commonQuerySelector, contentType }).sort({ name: 1 });
+  segments(_root, { contentTypes }: { contentTypes: string[] }, { commonQuerySelector }: IContext) {
+    return Segments.find({ ...commonQuerySelector, contentType: { $in: contentTypes } }).sort({ name: 1 });
   },
 
   /**
