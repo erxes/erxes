@@ -11,9 +11,9 @@ export const fetchBySegments = async (segment: ISegment, action: 'search' | 'cou
   }
 
   const { contentType } = segment;
-  const index = contentType === 'customer' ? 'customers' : 'companies';
-  const idField = contentType === 'customer' ? 'customerId' : 'companyId';
-  const schema = contentType === 'customer' ? customerSchema : companySchema;
+  const index = contentType === 'company' ? 'companies' : 'customers';
+  const idField = contentType === 'company' ? 'companyId' : 'customerId';
+  const schema = contentType === 'company' ? companySchema : customerSchema;
   const typesMap: { [key: string]: any } = {};
 
   schema.eachPath(name => {
@@ -24,7 +24,7 @@ export const fetchBySegments = async (segment: ISegment, action: 'search' | 'cou
   const propertyPositive: any[] = [];
   const propertyNegative: any[] = [];
 
-  if (contentType === 'customer') {
+  if (contentType !== 'company') {
     propertyNegative.push({
       term: {
         status: 'Deleted',

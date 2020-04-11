@@ -86,7 +86,7 @@ const internalNoteMutations = {
 
       notifDoc.notifType = NOTIFICATION_TYPES.CUSTOMER_MENTION;
       notifDoc.content = Customers.getCustomerName(customer);
-      notifDoc.link = `/contacts/customers/details/${customer._id}`;
+      notifDoc.link = `/contacts/details/${customer._id}`;
       notifDoc.contentTypeId = customer._id;
       notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.CUSTOMER;
     }
@@ -96,7 +96,7 @@ const internalNoteMutations = {
 
       notifDoc.notifType = NOTIFICATION_TYPES.CUSTOMER_MENTION;
       notifDoc.content = Companies.getCompanyName(company);
-      notifDoc.link = `/contacts/companies/details/${company._id}`;
+      notifDoc.link = `/companies/details/${company._id}`;
       notifDoc.contentTypeId = company._id;
       notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.COMPANY;
     }
