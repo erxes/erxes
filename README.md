@@ -38,7 +38,7 @@ erxes helps you attract and engage more customers while giving you high lead con
 
 ## Contributors
 
-This project exists thanks to all the people who contribute. [[Contribute]](CONTRIBUTING.md).
+This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)]
 <a href="graphs/contributors"><img src="https://opencollective.com/erxes/contributors.svg?width=890" /></a>
 
 
