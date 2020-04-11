@@ -11,12 +11,26 @@ function TagsSidebar() {
     <Sidebar>
       <Sidebar.Section>
         <Title>{__('Segments')}</Title>
+
         <SidebarList>
           <li>
             <NavLink activeClassName="active" to="/segments/customer">
               {__('Customer')}
             </NavLink>
           </li>
+
+          <li>
+            <NavLink activeClassName="active" to="/segments/lead">
+              {__('Lead')}
+            </NavLink>
+          </li>
+
+          <li>
+            <NavLink activeClassName="active" to="/segments/visitor">
+              {__('Visitor')}
+            </NavLink>
+          </li>
+
           <li>
             <NavLink activeClassName="active" to="/segments/company">
               {__('Company')}

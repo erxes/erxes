@@ -12,7 +12,7 @@ const CustomersList = asyncComponent(() =>
 );
 
 const contacts = () => {
-  return <Redirect to="/contacts/customers/customer" />;
+  return <Redirect to="/contacts/customer" />;
 };
 
 const detail = ({ match }) => {
@@ -34,16 +34,16 @@ const routes = () => {
       <Route key="/contacts" exact={true} path="/contacts" render={contacts} />
 
       <Route
-        key="/contacts/customers/details/:id"
+        key="/contacts/details/:id"
         exact={true}
-        path="/contacts/customers/details/:id"
+        path="/contacts/details/:id"
         component={detail}
       />
 
       <Route
-        key="/contacts/customers/:type"
+        key="/contacts/:type"
         exact={true}
-        path="/contacts/customers/:type"
+        path="/contacts/:type"
         component={list}
       />
     </React.Fragment>

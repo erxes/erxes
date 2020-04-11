@@ -97,9 +97,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
           callback();
           this.setState({ mergeCustomerLoading: false });
           Alert.success('You successfully merged a customer');
-          history.push(
-            `/contacts/customers/details/${result.data.customersMerge._id}`
-          );
+          history.push(`/contacts/details/${result.data.customersMerge._id}`);
         })
         .catch(e => {
           Alert.error(e.message);
