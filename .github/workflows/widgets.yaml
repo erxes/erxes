@@ -40,9 +40,10 @@ jobs:
       uses: actions/cache@v1
       with:
         path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-        key: ${{ runner.os }}-yarn-${{ hashFiles('widgets/**/yarn.lock') }}
+        key: ${{ runner.os }}-yarn-widgets-${{ hashFiles('widgets/**/yarn.lock') }}
         restore-keys: |
-          ${{ runner.os }}-yarn-${{ hashFiles('widgets/**/yarn.lock') }}
+          ${{ runner.os }}-yarn-widgets-${{ hashFiles('widgets/**/yarn.lock') }}
+          ${{ runner.os }}-yarn-widgets-
           ${{ runner.os }}-yarn-
 
     - name: Install
