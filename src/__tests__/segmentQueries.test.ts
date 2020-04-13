@@ -19,8 +19,8 @@ describe('segmentQueries', () => {
     await segmentFactory({ contentType: 'company' });
 
     const qry = `
-      query segments($contentType: String!) {
-        segments(contentType: $contentType) {
+      query segments($contentTypes: [String]!) {
+        segments(contentTypes: $contentTypes) {
           _id
         }
       }
@@ -28,14 +28,14 @@ describe('segmentQueries', () => {
 
     // customer segment ==================
     let response = await graphqlRequest(qry, 'segments', {
-      contentType: 'customer',
+      contentTypes: ['customer'],
     });
 
     expect(response.length).toBe(1);
 
     // company segment ==================
     response = await graphqlRequest(qry, 'segments', {
-      contentType: 'company',
+      contentTypes: ['company'],
     });
 
     expect(response.length).toBe(1);
