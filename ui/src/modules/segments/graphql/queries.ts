@@ -9,8 +9,8 @@ const segmentFields = `
 `;
 
 const segments = `
-  query segments($contentType: String!) {
-    segments(contentType: $contentType) {
+  query segments($contentTypes: [String]!) {
+    segments(contentTypes: $contentTypes) {
       ${segmentFields}
 
       getSubSegments {

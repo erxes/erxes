@@ -20,6 +20,7 @@ type Props = {
   saveItem: (doc: { [key: string]: any }, callback?: (item) => void) => void;
   onUpdate: (item: IItem, prevStageId?: string) => void;
   sendToBoard?: (item: any) => void;
+  onChangeStage?: (stageId: string) => void;
 };
 
 class Actions extends React.Component<Props> {
@@ -40,7 +41,8 @@ class Actions extends React.Component<Props> {
       options,
       copyItem,
       removeItem,
-      sendToBoard
+      sendToBoard,
+      onChangeStage
     } = this.props;
 
     const onLabelChange = labels => saveItem({ labels });
@@ -81,6 +83,7 @@ class Actions extends React.Component<Props> {
           removeItem={removeItem}
           saveItem={saveItem}
           sendToBoard={sendToBoard}
+          onChangeStage={onChangeStage}
         />
       </ActionContainer>
     );

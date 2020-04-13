@@ -120,6 +120,7 @@ export default function TicketEditForm(props: Props) {
             item={item}
             addItem={addItem}
             sendToBoard={sendToBoard}
+            onChangeStage={onChangeStage}
           />
 
           <Sidebar

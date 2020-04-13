@@ -191,6 +191,7 @@ export default class DealEditForm extends React.Component<Props, State> {
             sendToBoard={sendToBoard}
             item={item}
             addItem={addItem}
+            onChangeStage={onChangeStage}
           />
 
           <Sidebar

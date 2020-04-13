@@ -9,13 +9,19 @@ import { ConditionItem, FilterProperty, FilterRow } from '../styles';
 
 const operators = [
   { name: 'equals', value: 'e' },
-  { name: 'does not equal', value: 'dne' },
+  { name: 'is not equal to', value: 'dne' },
   { name: 'contains', value: 'c' },
   { name: 'does not contain', value: 'dnc' },
   { name: 'is set', value: 'is', noInput: true },
   { name: 'is not set', value: 'ins', noInput: true },
   { name: 'is greater than', value: 'igt' },
   { name: 'is less than', value: 'ilt' },
+  { name: 'will occur before on following n-th minute', value: 'wobm' },
+  { name: 'will occur after on following n-th minute', value: 'woam' },
+  { name: 'will occur before on following n-th day', value: 'wobd' },
+  { name: 'will occur after on following n-th day', value: 'woad' },
+  { name: 'date relative less than', value: 'drlt' },
+  { name: 'date relative greater than', value: 'drgt' },
   { name: 'is true', value: 'it', noInput: true },
   { name: 'is false', value: 'if', noInput: true }
 ];

@@ -87,6 +87,7 @@ export const commonFields = `
       avatar
     }
   }
+  order
 `;
 
 const stagesUpdateOrder = `
