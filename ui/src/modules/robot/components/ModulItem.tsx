@@ -1,18 +1,24 @@
 import Icon from 'modules/common/components/Icon';
+import { darken, lighten } from 'modules/common/styles/color';
+import colors from 'modules/common/styles/colors';
+import dimensions from 'modules/common/styles/dimensions';
 import * as React from 'react';
-import styled, { css } from 'styled-components';
-import { Count, GroupHead } from './assistant/styles';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
-const IconContainer = styled(Count)`
-  padding: 10px 20px;
-`;
-
-const Modul = styled(GroupHead)`
+const Modul = styledTS<{
+  disabled?: boolean;
+}>(styled.div)`
+  display: inline-flex;
+  background: ${colors.colorWhite};
+  border-radius: ${dimensions.unitSpacing}px;
+  box-shadow: 0 0 15px 2px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  align-items: stretch;
+  font-weight: bold;
   width: 100%;
   margin-bottom: 10px;
   margin-right: 20px;
-  max-width: ${props => props.vertical && '30%'};
-  min-width: ${props => props.vertical && '130px'};
 
   &:last-child {
     margin-right: 0;
@@ -23,20 +29,23 @@ const Modul = styled(GroupHead)`
     margin-right: 0;
   }
 
-  ${props =>
-    props.vertical &&
-    css`
-      ${IconContainer} {
-        padding: 5px 20px;
-      }
-    `};
+  &:hover {
+    cursor: ${props => (props.disabled ? 'not-allowed' : 'pointer')};
+    box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.15);
+  }
+`;
 
-  ${props =>
-    props.isComplete &&
-    css`
-      transform: scale(0.9);
-      opacity: 0.6;
-    `};
+const IconContainer = styledTS<{ color?: string }>(styled.div)`
+  padding: 10px 20px;
+  color: ${colors.colorWhite};
+  background: ${props =>
+    `linear-gradient(195deg, ${lighten(
+      props.color || colors.colorPrimaryDark,
+      40
+    )} 0%, ${darken(props.color || colors.colorPrimaryDark, 20)} 100%);;`}
+  display: flex;
+  align-items: center;
+  font-size: 16px;
 `;
 
 const Text = styled.div`
@@ -62,10 +71,8 @@ type Props = {
   icon?: string;
   color?: string;
   title: string;
-  vertical?: boolean;
   description?: string;
   onClick?: () => void;
-  isComplete?: boolean;
   disabled?: boolean;
 };
 
@@ -81,18 +88,11 @@ class ModulItem extends React.Component<Props, State> {
       description,
       color,
       onClick,
-      vertical,
-      isComplete,
       disabled
     } = this.props;
 
     return (
-      <Modul
-        onClick={onClick}
-        vertical={vertical}
-        isComplete={isComplete}
-        disabled={disabled}
-      >
+      <Modul onClick={onClick} disabled={disabled}>
         <IconContainer color={color}>
           <Icon icon={icon} />
         </IconContainer>

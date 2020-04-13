@@ -42,13 +42,16 @@ class AssistantContent extends React.Component<Props, State> {
     };
 
     if (currentRoute === 'initial') {
-      return <Welcome currentUserName={getCurrentUserName(currentUser)} />;
+      return (
+        <Welcome
+          currentUserName={getCurrentUserName(currentUser)}
+          changeRoute={changeRoute}
+        />
+      );
     }
 
     if (currentRoute === 'inComplete') {
-      return (
-        <Suggestion {...commonProps} buttonText="Resume" onClick={onClick} />
-      );
+      return <Suggestion {...commonProps} onClick={onClick} />;
     }
 
     if (currentRoute === 'todoList' || currentRoute === 'todoDetail') {

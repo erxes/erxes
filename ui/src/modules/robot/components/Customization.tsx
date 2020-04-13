@@ -5,8 +5,6 @@ import styledTS from 'styled-components-ts';
 import { FEATURE_CATEGORIES } from '../constants';
 import { IFeatureCategory } from '../types';
 
-const Wrapper = styled.div``;
-
 const Container = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -31,13 +29,19 @@ const TeamName = styledTS<{ chosen: boolean }>(styled.div)`
 `;
 
 type Props = {
-  renderButton: (text: string, onClick) => React.ReactNode;
+  renderButton: (
+    text: string,
+    onClick,
+    icon: string,
+    disabled: boolean
+  ) => React.ReactNode;
+  changeRoute: (route: string) => void;
 };
 
 function Customization(props: Props) {
   const [categories, setCategories] = useState<IFeatureCategory[]>([]);
 
-  const saveTeams = () => {
+  const saveCategories = () => {
     let mergedFeatures: string[] = [];
 
     categories.map(category => {
@@ -53,6 +57,8 @@ function Customization(props: Props) {
         )
       )
     );
+
+    props.changeRoute('todoList');
   };
 
   const renderItem = (item: IFeatureCategory) => {
@@ -80,17 +86,25 @@ function Customization(props: Props) {
   };
 
   return (
-    <Wrapper>
+    <>
       <h3>What team are you on?</h3>
       <p>
         erxes help large scope of area in the business. By knowing where you're
         in your business will help us to understand where you want to start with
         us. Let's get you the most out of erxes.
       </p>
-      <p>You can choose maximum 3 of the below fields in priority order</p>
+      <p>
+        You can choose <strong>maximum 3</strong> of the below fields in
+        priority order
+      </p>
       <Container>{FEATURE_CATEGORIES.map(team => renderItem(team))}</Container>
-      {props.renderButton('Finish', saveTeams)}
-    </Wrapper>
+      {props.renderButton(
+        'Finish',
+        saveCategories,
+        'check-circle',
+        categories.length === 0
+      )}
+    </>
   );
 }
 

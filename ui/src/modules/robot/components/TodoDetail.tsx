@@ -56,7 +56,8 @@ const ChecklistItem = styledTS<{ isComplete?: boolean }>(styled.li)`
 
 const Progress = styled.div`
   display: flex;
-  margin: 30px 0 10px;
+  margin: 20px 0 10px;
+  align-items: center;
 
   span {
     margin-left: 10px;
@@ -97,7 +98,7 @@ class TodoDetail extends React.Component<Props> {
         <ProgressBar
           percentage={percent}
           color={colors.colorCoreBlue}
-          height="18px"
+          height="10px"
         />
         <span>{percent}%</span>
       </Progress>

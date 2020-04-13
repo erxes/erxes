@@ -41,7 +41,7 @@ class AssistantContentContainer extends React.Component<FinalProps> {
 
   forceComplete = () => {
     this.props.forceCompleteMutation().then(() => {
-      this.props.changeRoute('');
+      this.props.toggleContent(false);
     });
   };
 
@@ -51,7 +51,7 @@ class AssistantContentContainer extends React.Component<FinalProps> {
         apolloClient.mutate({
           mutation: gql(mutations.checkStatus)
         });
-      }, 400);
+      }, 4000);
     }
   }
 
@@ -71,7 +71,6 @@ class AssistantContentContainer extends React.Component<FinalProps> {
         if (onboardingChanged) {
           const { type } = onboardingChanged;
 
-          console.log(type);
           if (['initial', 'inComplete'].includes(type)) {
             this.props.changeRoute(type);
             this.props.toggleContent(true);
@@ -92,7 +91,7 @@ class AssistantContentContainer extends React.Component<FinalProps> {
     const savedCategories = localStorage.getItem('erxesCustomizationTeams');
     let categorizedFeatures = allFeatures;
 
-    if (savedCategories) {
+    if (savedCategories && savedCategories.length > 2) {
       const chosenTeams = JSON.parse(savedCategories);
 
       categorizedFeatures = allFeatures.filter(feature =>

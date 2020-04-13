@@ -1,16 +1,18 @@
 import { IUser } from 'modules/auth/types';
 import Icon from 'modules/common/components/Icon';
+import ProgressBar from 'modules/common/components/ProgressBar';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import TodoDetail from '../containers/TodoDetail';
 import { IFeature } from '../types';
-import { getCurrentUserName } from '../utils';
+import { calculatePercentage, getCurrentUserName } from '../utils';
 import ModulItem from './ModulItem';
 import {
   CompletedTaskName,
   CompletedTaskWrapper,
   Greeting,
   NavButton,
+  ProgressText,
   SubHeader
 } from './styles';
 
@@ -59,6 +61,25 @@ class Todo extends React.Component<Props, State> {
         </NavButton>
         {content}
       </>
+    );
+  };
+
+  renderProgress = () => {
+    const { availableFeatures } = this.props;
+    const completedCount = availableFeatures.filter(
+      feature => feature.isComplete
+    ).length;
+
+    const percent = calculatePercentage(
+      availableFeatures.length,
+      completedCount
+    );
+
+    return (
+      <div>
+        <ProgressBar percentage={percent} color="#3B85F4" height="8px" />
+        <ProgressText>{percent}% done - keep going!</ProgressText>
+      </div>
     );
   };
 
@@ -141,9 +162,11 @@ class Todo extends React.Component<Props, State> {
               </span>
             </b>
             <p>Let's get your set up workspace for success.</p>
+
+            {this.renderProgress()}
           </Greeting>
           {availableFeatures
-            .filter(feature => !feature.isComplete)
+            .filter((feature, index) => !feature.isComplete && index < 9)
             .map(availabeFeature => this.renderFeature(availabeFeature))}
 
           {this.renderCompleted()}

@@ -3,14 +3,6 @@ import { fadeIn } from 'modules/common/utils/animations';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const ModulRow = styled.div`
-  display: flex;
-
-  &:last-child {
-    margin: 0;
-  }
-`;
-
 const Greeting = styled.div`
   margin-bottom: 16px;
   padding: 0 16px;
@@ -135,9 +127,13 @@ const BackDrop = styled.div`
   animation-timing-function: linear;
 `;
 
+const ProgressText = styled.div`
+  color: ${colors.colorCoreGray};
+  font-size: 12px;
+`;
+
 export {
   Bot,
-  ModulRow,
   Greeting,
   Title,
   NavButton,
@@ -145,5 +141,6 @@ export {
   SubHeader,
   BackDrop,
   CompletedTaskWrapper,
-  CompletedTaskName
+  CompletedTaskName,
+  ProgressText
 };

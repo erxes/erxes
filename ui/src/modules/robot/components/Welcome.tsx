@@ -1,5 +1,6 @@
 import Button from 'modules/common/components/Button';
 import CommonPortal from 'modules/common/components/CommonPortal';
+import Icon from 'modules/common/components/Icon';
 import * as React from 'react';
 import styled from 'styled-components';
 import Customization from './Customization';
@@ -7,14 +8,13 @@ import Indicator from './Indicator';
 import { BackDrop } from './styles';
 
 const Wrapper = styled.div`
-  width: 320px;
   margin: 0;
-  transition: 0.3s height ease;
   position: relative;
 
   img {
     width: 100%;
-    margin-bottom: 30px;
+    padding: 10px 20px;
+    margin-bottom: 20px;
   }
 
   h3 {
@@ -43,6 +43,7 @@ const ButtonWrapper = styled.div`
 type Props = {
   onClick?: () => void;
   currentUserName: string;
+  changeRoute: (route: string) => void;
 };
 
 type State = {
@@ -61,7 +62,7 @@ class Welcome extends React.PureComponent<Props, State> {
     this.setState({ activeStep: activeStep === 1 ? 0 : activeStep + 1 });
   };
 
-  renderButton = (text: string, onClick) => {
+  renderButton = (text: string, onClick, icon: string, disabled?: boolean) => {
     const handleClick = () => {
       this.changeStep();
       onClick();
@@ -69,8 +70,13 @@ class Welcome extends React.PureComponent<Props, State> {
 
     return (
       <ButtonWrapper>
-        <Button uppercase={false} onClick={handleClick}>
-          {text}
+        <Button
+          uppercase={false}
+          onClick={handleClick}
+          btnStyle="primary"
+          disabled={disabled}
+        >
+          {text} <Icon icon={icon} />
         </Button>
       </ButtonWrapper>
     );
@@ -92,12 +98,21 @@ class Welcome extends React.PureComponent<Props, State> {
               up your business here already.
             </p>
           </div>
-          {this.renderButton('Get Started', this.changeStep)}
+          {this.renderButton(
+            'Get Started',
+            this.changeStep,
+            'arrow-circle-right'
+          )}
         </>
       );
     }
 
-    return <Customization renderButton={this.renderButton} />;
+    return (
+      <Customization
+        changeRoute={this.props.changeRoute}
+        renderButton={this.renderButton}
+      />
+    );
   };
 
   render() {

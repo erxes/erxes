@@ -11,7 +11,7 @@ const Round = styledTS<{ active?: boolean }>(styled.div)`
 	width: 10px;
 	height: 10px;
 	border-radius: 5px;
-	background: ${colors.colorCoreBlue};
+	background: ${colors.colorCoreRed};
 	margin-right: 5px;
 	transition: 0.3s transform ease;
 	opacity:  ${props => (props.active ? '1' : '0.5')};;
