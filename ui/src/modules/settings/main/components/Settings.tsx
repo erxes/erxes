@@ -108,6 +108,11 @@ class Settings extends React.PureComponent {
               '/settings/email-templates'
             )}
             {this.renderBox(
+              'Email Appearance',
+              '/images/icons/erxes-08.svg',
+              '/settings/emails'
+            )}
+            {this.renderBox(
               'Script manager',
               '/images/icons/erxes-12.svg',
               '/settings/scripts'
