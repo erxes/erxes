@@ -47,6 +47,56 @@ type ReorderItemMap = {
   destination: IDraggableLocation;
 };
 
+export const orderHelper = ({
+  prevOrder,
+  afterOrder
+}: {
+  prevOrder: number;
+  afterOrder: number;
+}) => {
+  if (!prevOrder && !afterOrder) {
+    return 1;
+  }
+
+  if (!afterOrder) {
+    return parseFloat(prevOrder.toFixed()) + 1;
+  }
+
+  const splitAfter = afterOrder.toString().split('.');
+  const intPart = parseFloat(splitAfter[0]);
+  const fraction = '0.'.concat(splitAfter[1] || '0');
+
+  if (!prevOrder) {
+    if (splitAfter.length === 1) {
+      return intPart === 1 ? 0.9 : intPart - 1;
+    }
+
+    const endChar = fraction.substr(-1);
+    const endNum =
+      endChar === '1' ? '09' : (parseFloat(endChar) - 1).toString();
+    return intPart + parseFloat(fraction.slice(0, -1).concat(endNum));
+  }
+
+  const prevFraction = '0.'.concat(prevOrder.toString().split('.')[1] || '0');
+  const diffLen =
+    prevFraction.length > fraction.length
+      ? prevFraction.length
+      : fraction.length;
+
+  if (prevFraction.length === fraction.length || fraction === '0.0') {
+    const diff = parseFloat((afterOrder - prevOrder).toFixed(diffLen));
+    return diff.toString().substr(-1) === '1'
+      ? parseFloat((afterOrder - 0.1 ** (diffLen - 1)).toFixed(diffLen + 1))
+      : parseFloat((afterOrder - 0.1 ** (diffLen - 2)).toFixed(diffLen));
+  } else {
+    return parseFloat(
+      (
+        afterOrder - parseFloat('0.'.concat('0'.repeat(diffLen - 3), '1'))
+      ).toFixed(diffLen)
+    );
+  }
+};
+
 export const reorderItemMap = ({
   itemMap,
   source,
@@ -58,19 +108,11 @@ export const reorderItemMap = ({
   const target = current[source.index];
   target.modifiedAt = new Date();
 
-  let prevOrder = 0;
-  if (destination.index > 0) {
-    prevOrder = next[destination.index - 1].order;
-  }
-
-  let afterOrder = 1;
-  if (next.length > destination.index) {
-    afterOrder = next[destination.index].order;
-  } else {
-    afterOrder = next.length + 1;
-  }
-
-  target.order = (prevOrder + afterOrder) / 2;
+  const prevOrder =
+    destination.index > 0 ? next[destination.index - 1].order : 0;
+  const afterOrder =
+    next.length > destination.index ? next[destination.index].order : 0;
+  target.order = orderHelper({ prevOrder, afterOrder }) || 1;
 
   // moving to same list
   if (source.droppableId === destination.droppableId) {
