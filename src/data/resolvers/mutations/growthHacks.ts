@@ -169,16 +169,19 @@ const growthHackMutations = {
    */
   async growthHacksChange(
     _root,
-    { _id, destinationStageId }: { _id: string; destinationStageId: string },
+    { _id, destinationStageId, order }: { _id: string; destinationStageId: string, order: number },
     { user }: { user: IUserDocument },
   ) {
     const growthHack = await GrowthHacks.getGrowthHack(_id);
 
-    await GrowthHacks.updateGrowthHack(_id, {
+    const extendedDoc = {
       modifiedAt: new Date(),
       modifiedBy: user._id,
       stageId: destinationStageId,
-    });
+      order
+    };
+
+    const updatedGrowthHack = await GrowthHacks.updateGrowthHack(_id, extendedDoc);
 
     const { content, action } = await itemsChange(user._id, growthHack, MODULE_NAMES.GROWTH_HACK, destinationStageId);
 
@@ -190,6 +193,16 @@ const growthHackMutations = {
       action,
       contentType: MODULE_NAMES.GROWTH_HACK,
     });
+
+    await putUpdateLog(
+      {
+        type: MODULE_NAMES.GROWTH_HACK,
+        object: growthHack,
+        newData: extendedDoc,
+        updatedDocument: updatedGrowthHack,
+      },
+      user,
+    );
 
     // if move between stages
     if (destinationStageId !== growthHack.stageId) {

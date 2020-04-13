@@ -313,7 +313,7 @@ export const archivedItems = async (params: IArchiveArgs, collection: any) => {
     return collection
       .find(filter)
       .sort({
-        createdAt: -1,
+        modifiedAt: -1,
       })
       .skip(page || 0)
       .limit(perPage || 20);
