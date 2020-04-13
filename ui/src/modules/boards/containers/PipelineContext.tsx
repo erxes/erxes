@@ -374,6 +374,10 @@ export class PipelineProvider extends React.Component<Props, State> {
       return this.onRemoveItem(item._id, prevStageId);
     }
 
+    if (item.status === 'archived') {
+      return this.onRemoveItem(item._id, item.stageId);
+    }
+
     // Moved between stages
     if (prevStageId && stageId !== prevStageId) {
       // remove from old stage
