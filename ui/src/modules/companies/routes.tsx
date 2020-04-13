@@ -27,18 +27,13 @@ const routes = () => {
   return (
     <React.Fragment>
       <Route
-        path="/contacts/companies/details/:id"
+        path="/companies/details/:id"
         exact={true}
-        key="/contacts/companies/details/:id"
+        key="/companies/details/:id"
         component={details}
       />
 
-      <Route
-        path="/contacts/companies"
-        exact={true}
-        key="/contacts/companies"
-        component={list}
-      />
+      <Route path="/companies" exact={true} key="/companies" component={list} />
     </React.Fragment>
   );
 };

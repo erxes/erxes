@@ -271,14 +271,17 @@ class CustomersList extends React.Component<IProps, State> {
             {__('Go to import')}
           </Button>
         </Link>
-        <ModalTrigger
-          title="New customer"
-          autoOpenKey="showCustomerModal"
-          trigger={addTrigger}
-          size="lg"
-          content={customerForm}
-          backDrop="static"
-        />
+
+        {type === 'visitor' ? null : (
+          <ModalTrigger
+            title="New customer"
+            autoOpenKey="showCustomerModal"
+            trigger={addTrigger}
+            size="lg"
+            content={customerForm}
+            backDrop="static"
+          />
+        )}
       </BarItems>
     );
 

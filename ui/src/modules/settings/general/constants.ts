@@ -107,8 +107,9 @@ export const KEY_LABELS = {
   GOOGLE_PROJECT_ID: 'Google Project Id',
   GOOGLE_GMAIL_TOPIC: 'Google Gmail Topic',
   GOOGLE_APPLICATION_CREDENTIALS: 'Google Application Credentials',
+  GOOGLE_APPLICATION_CREDENTIALS_JSON: 'Google Application Credentials JSON',
   GOOGLE_GMAIL_SUBSCRIPTION_NAME: 'Google Gmail Subscription Name',
-  GOOGLE_CLIENT_ID: 'Google Clien Id',
+  GOOGLE_CLIENT_ID: 'Google Client Id',
   GOOGLE_CLIENT_SECRET: 'Google Client Secret',
 
   DAILY_API_KEY: 'Daily api key',

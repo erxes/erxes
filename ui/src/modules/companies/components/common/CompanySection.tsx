@@ -87,7 +87,7 @@ function Component(
     <SectionBody>
       {items.map((company, index) => (
         <SectionBodyItem key={index}>
-          <Link to={`/contacts/companies/details/${company._id}`}>
+          <Link to={`/companies/details/${company._id}`}>
             <Icon icon="arrow-to-right" />
           </Link>
           <span>{company.primaryName || 'Unknown'}</span>

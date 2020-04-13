@@ -79,7 +79,7 @@ class SegmentsFormContainer extends React.Component<
     );
   };
 
-  previewCount = (conditions: ISegmentCondition[]) => {
+  previewCount = (conditions: ISegmentCondition[], subOf?: string) => {
     const { contentType } = this.props;
 
     this.setState({ loading: true });
@@ -89,7 +89,8 @@ class SegmentsFormContainer extends React.Component<
         query: gql(queries.segmentsPreviewCount),
         variables: {
           contentType,
-          conditions
+          conditions,
+          subOf
         }
       })
       .then(({ data }) => {
