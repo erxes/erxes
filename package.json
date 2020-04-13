@@ -31,6 +31,7 @@
     "initProject": "ts-node ./src/commands/initProject.ts",
     "createGooglePubsubTopics": "ts-node ./src/commands/createGooglePubsubTopics.ts",
     "customCommand": "ts-node ./src/commands/customCommand.ts",
+    "updateItemsOrder": "ts-node ./src/commands/updateItemsOrder.ts",
     "resetMigrations": "ts-node ./src/commands/resetMigrations.ts",
     "verifyCustomerEmails": "DEBUG=erxes-api:* ts-node ./src/commands/verifyCustomerEmails.ts",
     "repairPermissionData": "ts-node ./src/commands/repairPermissionData.ts",

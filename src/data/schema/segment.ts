@@ -32,7 +32,7 @@ export const types = `
 `;
 
 export const queries = `
-  segments(contentType: String!): [Segment]
+  segments(contentTypes: [String]!): [Segment]
   segmentDetail(_id: String): Segment
   segmentsGetHeads: [Segment]
   segmentsEvents(contentType: String!): [JSON]

@@ -8,8 +8,8 @@ const segmentQueries = {
   /**
    * Segments list
    */
-  segments(_root, { contentType }: { contentType: string }, { commonQuerySelector }: IContext) {
-    return Segments.find({ ...commonQuerySelector, contentType }).sort({ name: 1 });
+  segments(_root, { contentTypes }: { contentTypes: string[] }, { commonQuerySelector }: IContext) {
+    return Segments.find({ ...commonQuerySelector, contentType: { $in: contentTypes } }).sort({ name: 1 });
   },
 
   /**
@@ -83,16 +83,19 @@ const segmentQueries = {
       'count',
     );
 
-    const response = await fetchElk('count', contentType === 'customer' ? 'customers' : 'companies', {
-      query: {
-        bool: {
-          must: positiveList,
-          must_not: negativeList,
+    try {
+      const response = await fetchElk('count', contentType === 'customer' ? 'customers' : 'companies', {
+        query: {
+          bool: {
+            must: positiveList,
+            must_not: negativeList,
+          },
         },
-      },
-    });
-
-    return response.count;
+      });
+      return response.count;
+    } catch (e) {
+      return 0;
+    }
   },
 };
 

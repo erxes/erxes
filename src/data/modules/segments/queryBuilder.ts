@@ -11,9 +11,9 @@ export const fetchBySegments = async (segment: ISegment, action: 'search' | 'cou
   }
 
   const { contentType } = segment;
-  const index = contentType === 'customer' ? 'customers' : 'companies';
-  const idField = contentType === 'customer' ? 'customerId' : 'companyId';
-  const schema = contentType === 'customer' ? customerSchema : companySchema;
+  const index = contentType === 'company' ? 'companies' : 'customers';
+  const idField = contentType === 'company' ? 'companyId' : 'customerId';
+  const schema = contentType === 'company' ? companySchema : customerSchema;
   const typesMap: { [key: string]: any } = {};
 
   schema.eachPath(name => {
@@ -24,7 +24,7 @@ export const fetchBySegments = async (segment: ISegment, action: 'search' | 'cou
   const propertyPositive: any[] = [];
   const propertyNegative: any[] = [];
 
-  if (contentType === 'customer') {
+  if (contentType !== 'company') {
     propertyNegative.push({
       term: {
         status: 'Deleted',
@@ -298,5 +298,46 @@ function elkConvertConditionToQuery(args: {
         field,
       },
     });
+  }
+
+  if (['woam', 'wobm', 'woad', 'wobd'].includes(operator)) {
+    let gte = '';
+    let lte = '';
+
+    // will occur after on following n-th minute
+    if (operator === 'woam') {
+      gte = `now-${fixedValue}m/m`;
+      lte = `now-${fixedValue}m/m`;
+    }
+
+    // will occur before on following n-th minute
+    if (operator === 'wobm') {
+      gte = `now+${fixedValue}m/m`;
+      lte = `now+${fixedValue}m/m`;
+    }
+
+    // will occur after on following n-th day
+    if (operator === 'woad') {
+      gte = `now-${fixedValue}d/d`;
+      lte = `now-${fixedValue}d/d`;
+    }
+
+    // will occur before on following n-th day
+    if (operator === 'wobd') {
+      gte = `now+${fixedValue}d/d`;
+      lte = `now+${fixedValue}d/d`;
+    }
+
+    positive.push({ range: { [field]: { gte, lte } } });
+  }
+
+  // date relative less than
+  if (operator === 'drlt') {
+    positive.push({ range: { [field]: { lte: fixedValue } } });
+  }
+
+  // date relative greater than
+  if (operator === 'drgt') {
+    positive.push({ range: { [field]: { gte: fixedValue } } });
   }
 }

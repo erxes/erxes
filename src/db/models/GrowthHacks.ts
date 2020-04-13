@@ -2,6 +2,7 @@ import { Model, model } from 'mongoose';
 import { ActivityLogs } from '.';
 import { fillSearchTextItem, updateOrder, watchItem } from './boardUtils';
 import { IOrderInput } from './definitions/boards';
+import { BOARD_STATUSES } from './definitions/constants';
 import { growthHackSchema, IGrowthHack, IGrowthHackDocument } from './definitions/growthHacks';
 
 export interface IGrowthHackModel extends Model<IGrowthHackDocument> {
@@ -29,13 +30,19 @@ export const loadGrowthHackClass = () => {
      * Create a growth hack
      */
     public static async createGrowthHack(doc: IGrowthHack) {
-      const growthHacksCount = await GrowthHacks.find({
-        stageId: doc.stageId,
-      }).countDocuments();
+      const lastVisibleGrowthHacks = await GrowthHacks.find(
+        {
+          stageId: doc.stageId,
+          status: { $ne: BOARD_STATUSES.ARCHIVED },
+        },
+        { order: 1 },
+      )
+        .sort({ order: -1 })
+        .limit(1);
 
       const growthHack = await GrowthHacks.create({
         ...doc,
-        order: growthHacksCount,
+        order: ((lastVisibleGrowthHacks ? lastVisibleGrowthHacks[0].order : 0) || 0) + 1,
         createdAt: new Date(),
         modifiedAt: new Date(),
         searchText: fillSearchTextItem(doc),

@@ -1,8 +1,10 @@
+import * as sinon from 'sinon';
 import { graphqlRequest } from '../db/connection';
 import { brandFactory, engageMessageFactory, segmentFactory, tagsFactory, userFactory } from '../db/factories';
 import { Brands, EngageMessages, Segments, Tags, Users } from '../db/models';
 
 import { EngagesAPI } from '../data/dataSources';
+import utils from '../data/utils';
 import './setup.ts';
 
 describe('engageQueries', () => {
@@ -36,6 +38,16 @@ describe('engageQueries', () => {
     }
   `;
 
+  let fetchSpy;
+  let dataSources;
+
+  beforeEach(async () => {
+    dataSources = { EngagesAPI: new EngagesAPI() };
+
+    fetchSpy = jest.spyOn(utils, 'fetchCronsApi');
+    fetchSpy.mockImplementation(() => Promise.resolve('ok'));
+  });
+
   afterEach(async () => {
     // Clearing test data
     await EngageMessages.deleteMany({});
@@ -43,6 +55,8 @@ describe('engageQueries', () => {
     await Tags.deleteMany({});
     await Brands.deleteMany({});
     await Segments.deleteMany({});
+
+    fetchSpy.mockRestore();
   });
 
   test('Engage messages', async () => {
@@ -195,8 +209,6 @@ describe('engageQueries', () => {
       }
     `;
 
-    const dataSources = { EngagesAPI: new EngagesAPI() };
-
     let response = await graphqlRequest(qry, 'engageMessageDetail', { _id: engageMessage._id }, { dataSources });
 
     expect(response._id).toBe(engageMessage._id);
@@ -312,13 +324,13 @@ describe('engageQueries', () => {
       }
     `;
 
-    const dataSources = { EngagesAPI: new EngagesAPI() };
+    const mock = sinon.stub(dataSources.EngagesAPI, 'engagesGetVerifiedEmails').callsFake(() => {
+      return Promise.resolve([]);
+    });
 
-    try {
-      await graphqlRequest(qry, 'engageVerifiedEmails', {}, { dataSources });
-    } catch (e) {
-      expect(e[0].message).toBe('Engages api is not running');
-    }
+    await graphqlRequest(qry, 'engageVerifiedEmails', {}, { dataSources });
+
+    mock.restore();
   });
 
   test('configDetail', async () => {
@@ -327,8 +339,6 @@ describe('engageQueries', () => {
         engagesConfigDetail
       }
     `;
-
-    const dataSources = { EngagesAPI: new EngagesAPI() };
 
     try {
       await graphqlRequest(qry, 'engagesConfigDetail', {}, { dataSources });

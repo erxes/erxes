@@ -14,6 +14,7 @@ import {
 import { Brands, Customers, EmailDeliveries, Integrations, Users } from '../db/models';
 
 import { IntegrationsAPI } from '../data/dataSources';
+import utils from '../data/utils';
 import { graphqlRequest } from '../db/connection';
 
 describe('mutations', () => {
@@ -50,7 +51,19 @@ describe('mutations', () => {
     },
   };
 
+  let dataSources;
+  let fetchSpy;
+  let createAccountSpy;
+
   beforeEach(async () => {
+    dataSources = { IntegrationsAPI: new IntegrationsAPI() };
+
+    fetchSpy = jest.spyOn(utils, 'fetchCronsApi');
+    fetchSpy.mockImplementation(() => Promise.resolve('ok'));
+
+    createAccountSpy = jest.spyOn(dataSources.IntegrationsAPI, 'createAccount');
+    createAccountSpy.mockImplementation(() => Promise.resolve());
+
     // Creating test data
     _brand = await brandFactory({});
     tag = await tagsFactory();
@@ -65,6 +78,9 @@ describe('mutations', () => {
     await Customers.deleteMany({});
     await EmailDeliveries.deleteMany({});
     await Integrations.deleteMany({});
+
+    fetchSpy.mockRestore();
+    createAccountSpy.mockRestore();
   });
 
   test('Create messenger integration', async () => {
@@ -318,8 +334,6 @@ describe('mutations', () => {
 
     const brand = await brandFactory();
 
-    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
-
     const args: any = {
       kind: 'nylas-gmail',
       name: 'Nyals gmail integration',
@@ -333,36 +347,27 @@ describe('mutations', () => {
     }
 
     args.kind = 'facebook-post';
-    try {
-      await graphqlRequest(mutation, 'integrationsCreateExternalIntegration', args, { dataSources });
-    } catch (e) {
-      expect(e[0].message).toBe('Error: Integrations api is not running');
-    }
+
+    const createIntegrationSpy = jest.spyOn(dataSources.IntegrationsAPI, 'createIntegration');
+    createIntegrationSpy.mockImplementation(() => Promise.resolve());
+
+    await graphqlRequest(mutation, 'integrationsCreateExternalIntegration', args, { dataSources });
 
     args.kind = 'twitter-dm';
     args.data = { data: 'data' };
 
-    try {
-      await graphqlRequest(mutation, 'integrationsCreateExternalIntegration', args, { dataSources });
-    } catch (e) {
-      expect(e[0].message).toBe('Error: Integrations api is not running');
-    }
+    await graphqlRequest(mutation, 'integrationsCreateExternalIntegration', args, { dataSources });
 
     args.kind = 'smooch-viber';
     args.data = { data: 'data' };
 
-    try {
-      await graphqlRequest(mutation, 'integrationsCreateExternalIntegration', args, { dataSources });
-    } catch (e) {
-      expect(e[0].message).toBe('Error: Integrations api is not running');
-    }
-
-    const spy = jest.spyOn(dataSources.IntegrationsAPI, 'createIntegration');
-    spy.mockImplementation(() => Promise.resolve());
+    await graphqlRequest(mutation, 'integrationsCreateExternalIntegration', args, { dataSources });
 
     const response = await graphqlRequest(mutation, 'integrationsCreateExternalIntegration', args, { dataSources });
 
     expect(response).toBeDefined();
+
+    createIntegrationSpy.mockRestore();
   });
 
   test('Add mail account', async () => {
@@ -386,13 +391,7 @@ describe('mutations', () => {
       kind: 'facebook-post',
     };
 
-    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
-
-    try {
-      await graphqlRequest(mutation, 'integrationAddMailAccount', args, { dataSources });
-    } catch (e) {
-      expect(e[0].message).toBe('Integrations api is not running');
-    }
+    await graphqlRequest(mutation, 'integrationAddMailAccount', args, { dataSources });
   });
 
   test('Add exchange account', async () => {
@@ -422,13 +421,7 @@ describe('mutations', () => {
       username: 'smtpHost',
     };
 
-    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
-
-    try {
-      await graphqlRequest(mutation, 'integrationAddExchangeAccount', args, { dataSources });
-    } catch (e) {
-      expect(e[0].message).toBe('Integrations api is not running');
-    }
+    await graphqlRequest(mutation, 'integrationAddExchangeAccount', args, { dataSources });
   });
 
   test('Add imap account', async () => {
@@ -464,34 +457,27 @@ describe('mutations', () => {
       kind: 'facebook-post',
     };
 
-    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
-
-    try {
-      await graphqlRequest(mutation, 'integrationAddImapAccount', args, { dataSources });
-    } catch (e) {
-      expect(e[0].message).toBe('Integrations api is not running');
-    }
+    await graphqlRequest(mutation, 'integrationAddImapAccount', args, { dataSources });
   });
 
   test('Update config', async () => {
-    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
-
     const mutation = `
       mutation integrationsUpdateConfigs($configsMap: JSON!) {
         integrationsUpdateConfigs(configsMap: $configsMap)
       }
     `;
 
-    try {
-      await graphqlRequest(
-        mutation,
-        'integrationsUpdateConfigs',
-        { configsMap: { FACEBOOK_TOKEN: 'token' } },
-        { dataSources },
-      );
-    } catch (e) {
-      expect(e[0].message).toBe('Integrations api is not running');
-    }
+    const spy = jest.spyOn(dataSources.IntegrationsAPI, 'updateConfigs');
+    spy.mockImplementation(() => Promise.resolve());
+
+    await graphqlRequest(
+      mutation,
+      'integrationsUpdateConfigs',
+      { configsMap: { FACEBOOK_TOKEN: 'token' } },
+      { dataSources },
+    );
+
+    spy.mockRestore();
   });
 
   test('Remove account', async () => {
@@ -504,7 +490,6 @@ describe('mutations', () => {
     const integration1 = await integrationFactory();
 
     const spy = jest.spyOn(messageBroker, 'sendRPCMessage');
-
     spy.mockImplementation(() => Promise.resolve({ erxesApiIds: [integration1._id] }));
 
     const response = await graphqlRequest(mutation, 'integrationsRemoveAccount', { _id: 'accountId' });
@@ -563,8 +548,6 @@ describe('mutations', () => {
       kind: 'nylas-gmail',
     };
 
-    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
-
     const customer = await customerFactory({ primaryEmail: args.to[0] });
 
     const spy = jest.spyOn(dataSources.IntegrationsAPI, 'sendEmail');
@@ -598,6 +581,9 @@ describe('mutations', () => {
 
     const messengerIntegration = await integrationFactory({ kind: 'messenger', formId: form._id, tagIds: [tag._id] });
 
+    const removeSpy = jest.spyOn(dataSources.IntegrationsAPI, 'removeIntegration');
+    removeSpy.mockImplementation(() => Promise.resolve());
+
     await graphqlRequest(mutation, 'integrationsRemove', {
       _id: messengerIntegration._id,
     });
@@ -606,22 +592,18 @@ describe('mutations', () => {
 
     const facebookPostIntegration = await integrationFactory({ kind: 'facebook-post' });
 
-    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
+    await graphqlRequest(
+      mutation,
+      'integrationsRemove',
+      {
+        _id: facebookPostIntegration._id,
+      },
+      {
+        dataSources,
+      },
+    );
 
-    try {
-      await graphqlRequest(
-        mutation,
-        'integrationsRemove',
-        {
-          _id: facebookPostIntegration._id,
-        },
-        {
-          dataSources,
-        },
-      );
-    } catch (e) {
-      expect(e[0].message).toBe('Integrations api is not running');
-    }
+    removeSpy.mockRestore();
   });
 
   test('Integrations archive', async () => {

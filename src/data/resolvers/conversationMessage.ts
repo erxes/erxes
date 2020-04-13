@@ -54,7 +54,6 @@ export default {
 
     try {
       const response = await dataSources.IntegrationsAPI.fetchApi('/daily/room', { erxesApiMessageId: message._id });
-
       return response;
     } catch (e) {
       debugExternalApi(e);

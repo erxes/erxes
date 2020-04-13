@@ -1,6 +1,7 @@
 import * as _ from 'underscore';
 import { Brands, Conformities, Segments, Tags } from '../../../db/models';
 import { KIND_CHOICES } from '../../../db/models/definitions/constants';
+import { debugBase } from '../../../debuggers';
 import { fetchElk } from '../../../elasticsearch';
 import { COC_LEAD_STATUS_TYPES } from '../../constants';
 import { fetchBySegments } from '../segments/queryBuilder';
@@ -17,10 +18,14 @@ export const countBySegment = async (contentType: string, qb): Promise<ICountBy>
 
   // Count customers by segment
   for (const s of segments) {
-    await qb.buildAllQueries();
-    await qb.segmentFilter(s._id);
-
-    counts[s._id] = await qb.runQueries('count');
+    try {
+      await qb.buildAllQueries();
+      await qb.segmentFilter(s._id);
+      counts[s._id] = await qb.runQueries('count');
+    } catch (e) {
+      debugBase(`Error during segment count ${e.message}`);
+      counts[s._id] = 0;
+    }
   }
 
   return counts;

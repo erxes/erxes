@@ -69,7 +69,7 @@ const customerQueries = {
    * Group customer counts by brands, segments, integrations, tags
    */
   async customerCounts(_root, params: ICountParams, { commonQuerySelector, commonQuerySelectorElk }: IContext) {
-    const { only } = params;
+    const { only, type } = params;
 
     const counts = {
       bySegment: {},
@@ -84,7 +84,7 @@ const customerQueries = {
 
     switch (only) {
       case 'bySegment':
-        counts.bySegment = await countBySegment('customer', qb);
+        counts.bySegment = await countBySegment(type || 'customer', qb);
         break;
 
       case 'byBrand':

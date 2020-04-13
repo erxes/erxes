@@ -195,7 +195,7 @@ const dealMutations = {
    */
   async dealsChange(
     _root,
-    { _id, destinationStageId }: { _id: string; destinationStageId: string },
+    { _id, destinationStageId, order }: { _id: string; destinationStageId: string; order: number },
     { user }: IContext,
   ) {
     const deal = await Deals.getDeal(_id);
@@ -204,6 +204,7 @@ const dealMutations = {
       modifiedAt: new Date(),
       modifiedBy: user._id,
       stageId: destinationStageId,
+      order,
     };
 
     const updatedDeal = await Deals.updateDeal(_id, extendedDoc);
