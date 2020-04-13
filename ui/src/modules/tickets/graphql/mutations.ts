@@ -43,8 +43,8 @@ const ticketsRemove = `
 `;
 
 const ticketsChange = `
-  mutation ticketsChange($_id: String!, $destinationStageId: String!) {
-    ticketsChange(_id: $_id, destinationStageId: $destinationStageId) {
+  mutation ticketsChange($_id: String!, $destinationStageId: String!, $order: Float) {
+    ticketsChange(_id: $_id, destinationStageId: $destinationStageId, order: $order) {
       _id
     }
   }
