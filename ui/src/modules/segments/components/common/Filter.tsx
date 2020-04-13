@@ -9,7 +9,7 @@ import { ConditionItem, FilterProperty, FilterRow } from '../styles';
 
 const operators = [
   { name: 'equals', value: 'e' },
-  { name: 'does not equal', value: 'dne' },
+  { name: 'is not equal to', value: 'dne' },
   { name: 'contains', value: 'c' },
   { name: 'does not contain', value: 'dnc' },
   { name: 'is set', value: 'is', noInput: true },

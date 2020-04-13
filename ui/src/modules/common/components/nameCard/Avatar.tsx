@@ -68,7 +68,7 @@ function Element({
 }) {
   if (customer) {
     return (
-      <Link to={customer && `/contacts/customers/details/${customer._id}`}>
+      <Link to={customer && `/contacts/details/${customer._id}`}>
         {children}
       </Link>
     );

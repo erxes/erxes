@@ -24,8 +24,7 @@ class CompanyDetails extends React.Component<Props> {
     const title = company.primaryName || 'Unknown';
 
     const breadcrumb = [
-      { title: __('Contacts'), link: '/contacts' },
-      { title: __('Companies'), link: '/contacts/companies' },
+      { title: __('Companies'), link: '/companies' },
       { title }
     ];
 
