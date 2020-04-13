@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import { Alert } from 'modules/common/utils';
 import React from 'react';
 import { requestIdleCallback } from 'request-idle-callback';
-import { mutations } from '../graphql';
+import { mutations, queries } from '../graphql';
 import {
   IDragResult,
   IFilterParams,
@@ -201,11 +201,44 @@ export class PipelineProvider extends React.Component<Props, State> {
     invalidateCache();
 
     // saving to database
-    this.itemChange(target._id, destination.droppableId, target.order);
+    this.itemChange(
+      target._id,
+      destination.droppableId,
+      target.order,
+      source.droppableId
+    );
   };
 
-  itemChange = (itemId: string, destinationStageId: string, order: number) => {
+  refetchQueryBuild = (stageId: string) => {
+    const { options, queryParams } = this.props;
+
+    return {
+      query: gql(queries.stageDetail),
+      variables: {
+        _id: stageId,
+        search: queryParams.search,
+        customerIds: queryParams.customerIds,
+        companyIds: queryParams.companyIds,
+        assignedUserIds: queryParams.assignedUserIds,
+        extraParams: options.getExtraParams(queryParams),
+        closeDateType: queryParams.closeDateType,
+        userIds: queryParams.userIds
+      }
+    };
+  };
+
+  itemChange = (
+    itemId: string,
+    destinationStageId: string,
+    order: number,
+    sourceStageId: string = ''
+  ) => {
     const { options } = this.props;
+    const refetchQueries = [this.refetchQueryBuild(destinationStageId)];
+
+    if (sourceStageId) {
+      refetchQueries.unshift(this.refetchQueryBuild(sourceStageId));
+    }
 
     client
       .mutate({
@@ -214,7 +247,8 @@ export class PipelineProvider extends React.Component<Props, State> {
           _id: itemId,
           destinationStageId,
           order
-        }
+        },
+        refetchQueries
       })
       .catch((e: Error) => {
         Alert.error(e.message);
@@ -363,7 +397,7 @@ export class PipelineProvider extends React.Component<Props, State> {
           prevOrder: 0,
           afterOrder: afterItem ? afterItem.order : 0
         });
-        this.itemChange(item._id, stageId, item.order);
+        this.itemChange(item._id, stageId, item.order, prevStageId);
       });
     } else {
       const items = [...itemMap[stageId]];

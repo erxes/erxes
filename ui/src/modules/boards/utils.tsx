@@ -47,6 +47,10 @@ type ReorderItemMap = {
   destination: IDraggableLocation;
 };
 
+const round = (num: number, fixed: number = 0) => {
+  return parseFloat(num.toFixed(fixed));
+};
+
 export const orderHelper = ({
   prevOrder,
   afterOrder
@@ -59,22 +63,21 @@ export const orderHelper = ({
   }
 
   if (!afterOrder) {
-    return parseFloat(prevOrder.toFixed()) + 1;
+    return round(prevOrder) + 1;
   }
 
   const splitAfter = afterOrder.toString().split('.');
-  const intPart = parseFloat(splitAfter[0]);
   const fraction = '0.'.concat(splitAfter[1] || '0');
 
   if (!prevOrder) {
-    if (splitAfter.length === 1) {
-      return intPart === 1 ? 0.9 : intPart - 1;
-    }
+    const afterLen = fraction.length;
+    const afterDotLen = fraction === '0.0' ? 1 : 0;
+    const diffIs1Len = afterOrder.toString().substr(-1) === '1' ? 1 : 0;
 
-    const endChar = fraction.substr(-1);
-    const endNum =
-      endChar === '1' ? '09' : (parseFloat(endChar) - 1).toString();
-    return intPart + parseFloat(fraction.slice(0, -1).concat(endNum));
+    return round(
+      afterOrder - 0.1 ** (afterLen - 2 - afterDotLen + diffIs1Len),
+      afterLen + diffIs1Len
+    );
   }
 
   const prevFraction = '0.'.concat(prevOrder.toString().split('.')[1] || '0');
@@ -83,18 +86,14 @@ export const orderHelper = ({
       ? prevFraction.length
       : fraction.length;
 
-  if (prevFraction.length === fraction.length || fraction === '0.0') {
-    const diff = parseFloat((afterOrder - prevOrder).toFixed(diffLen));
-    return diff.toString().substr(-1) === '1'
-      ? parseFloat((afterOrder - 0.1 ** (diffLen - 1)).toFixed(diffLen + 1))
-      : parseFloat((afterOrder - 0.1 ** (diffLen - 2)).toFixed(diffLen));
-  } else {
-    return parseFloat(
-      (
-        afterOrder - parseFloat('0.'.concat('0'.repeat(diffLen - 3), '1'))
-      ).toFixed(diffLen)
-    );
-  }
+  const diff = round(afterOrder - prevOrder, diffLen);
+  const dotLen = fraction === '0.0' && prevFraction === '0.0' ? 1 : 0;
+  const is1Len = diff.toString().substr(-1) === '1' ? 1 : 0;
+
+  return round(
+    afterOrder - 0.1 ** (diffLen - 2 - dotLen + is1Len),
+    diffLen + is1Len
+  );
 };
 
 export const reorderItemMap = ({
