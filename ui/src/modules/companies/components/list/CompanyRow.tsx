@@ -51,7 +51,7 @@ function CompanyRow({
   };
 
   const onTrClick = () => {
-    history.push(`/contacts/companies/details/${company._id}`);
+    history.push(`/companies/details/${company._id}`);
   };
 
   return (

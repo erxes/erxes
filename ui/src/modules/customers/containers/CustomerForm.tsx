@@ -51,9 +51,7 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
         closeModal();
 
         if (redirectType === 'detail') {
-          return history.push(
-            `/contacts/customers/details/${data.customersAdd._id}`
-          );
+          return history.push(`/contacts/details/${data.customersAdd._id}`);
         }
 
         const currentLocation = `${window.location.pathname}${

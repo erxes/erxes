@@ -49,7 +49,7 @@ export default withProps<Props>(
     graphql(gql(queries.segments), {
       name: 'segmentsQuery',
       options: ({ contentType }: { contentType: string }) => ({
-        variables: { contentType }
+        variables: { contentTypes: [contentType] }
       })
     })
   )(withRouter<FinalProps>(FilterContainer))
