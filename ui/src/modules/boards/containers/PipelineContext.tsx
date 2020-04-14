@@ -13,8 +13,8 @@ import {
   IOptions,
   IPipeline
 } from '../types';
-import { invalidateCache } from '../utils';
-import { collectOrders, reorder, reorderItemMap } from '../utils';
+import { invalidateCache, orderHelper } from '../utils';
+import { reorder, reorderItemMap } from '../utils';
 
 type Props = {
   pipeline: IPipeline;
@@ -188,7 +188,7 @@ export class PipelineProvider extends React.Component<Props, State> {
     // to avoid to refetch current tab
     sessionStorage.setItem('currentTab', 'true');
 
-    const { itemMap } = reorderItemMap({
+    const { itemMap, target } = reorderItemMap({
       itemMap: this.state.itemMap,
       source,
       destination
@@ -201,33 +201,54 @@ export class PipelineProvider extends React.Component<Props, State> {
     invalidateCache();
 
     // saving to database
-    const itemId = result.draggableId.split('-')[0];
+    this.itemChange(
+      target._id,
+      destination.droppableId,
+      target.order,
+      source.droppableId
+    );
+  };
 
-    this.itemChange(itemId, destination.droppableId, () => {
-      this.saveItemOrders(itemMap, [
-        source.droppableId,
-        destination.droppableId
-      ]);
-    });
+  refetchQueryBuild = (stageId: string) => {
+    const { options, queryParams } = this.props;
+
+    return {
+      query: gql(queries.stageDetail),
+      variables: {
+        _id: stageId,
+        search: queryParams.search,
+        customerIds: queryParams.customerIds,
+        companyIds: queryParams.companyIds,
+        assignedUserIds: queryParams.assignedUserIds,
+        extraParams: options.getExtraParams(queryParams),
+        closeDateType: queryParams.closeDateType,
+        userIds: queryParams.userIds
+      }
+    };
   };
 
   itemChange = (
     itemId: string,
     destinationStageId: string,
-    callback: () => void
+    order: number,
+    sourceStageId: string = ''
   ) => {
     const { options } = this.props;
+    const refetchQueries = [this.refetchQueryBuild(destinationStageId)];
+
+    if (sourceStageId) {
+      refetchQueries.unshift(this.refetchQueryBuild(sourceStageId));
+    }
 
     client
       .mutate({
         mutation: gql(options.mutations.changeMutation),
         variables: {
           _id: itemId,
-          destinationStageId
-        }
-      })
-      .then(() => {
-        callback();
+          destinationStageId,
+          order
+        },
+        refetchQueries
       })
       .catch((e: Error) => {
         Alert.error(e.message);
@@ -248,41 +269,6 @@ export class PipelineProvider extends React.Component<Props, State> {
       .catch((e: Error) => {
         Alert.error(e.message);
       });
-  };
-
-  saveItemOrders = (itemMap: IItemMap, stageIds: string[]) => {
-    const { options, queryParams } = this.props;
-
-    for (const stageId of stageIds) {
-      const orders = collectOrders(itemMap[stageId]);
-
-      client
-        .mutate({
-          mutation: gql(options.mutations.updateOrderMutation),
-          variables: {
-            orders,
-            stageId
-          },
-          refetchQueries: [
-            {
-              query: gql(queries.stageDetail),
-              variables: {
-                _id: stageId,
-                search: queryParams.search,
-                customerIds: queryParams.customerIds,
-                companyIds: queryParams.companyIds,
-                assignedUserIds: queryParams.assignedUserIds,
-                extraParams: options.getExtraParams(queryParams),
-                closeDateType: queryParams.closeDateType,
-                userIds: queryParams.userIds
-              }
-            }
-          ]
-        })
-        .catch((e: Error) => {
-          Alert.error(e.message);
-        });
-    }
   };
 
   /*
@@ -380,9 +366,16 @@ export class PipelineProvider extends React.Component<Props, State> {
     const { stageId } = item;
     const { itemMap } = this.state;
 
+    // to avoid to refetch current tab
+    sessionStorage.setItem('currentTab', 'true');
+
     // Moved to anothor board or pipeline
     if (!itemMap[stageId] && prevStageId) {
       return this.onRemoveItem(item._id, prevStageId);
+    }
+
+    if (item.status === 'archived') {
+      return this.onRemoveItem(item._id, item.stageId);
     }
 
     // Moved between stages
@@ -403,7 +396,12 @@ export class PipelineProvider extends React.Component<Props, State> {
       };
 
       this.setState({ itemMap: newitemMap }, () => {
-        this.saveItemOrders(newitemMap, [stageId]);
+        const afterItem = itemMap[stageId][0];
+        item.order = orderHelper({
+          prevOrder: 0,
+          afterOrder: afterItem ? afterItem.order : 0
+        });
+        this.itemChange(item._id, stageId, item.order, prevStageId);
       });
     } else {
       const items = [...itemMap[stageId]];
