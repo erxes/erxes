@@ -919,8 +919,6 @@ export const frontendEnv = ({ name, req, requestInfo }: { name: string; req?: an
   const cookies = req ? req.cookies : requestInfo.cookies;
   const keys = Object.keys(cookies).filter(key => key.startsWith('REACT_APP'));
 
-  debugBase(`cookies: ${JSON.stringify(cookies)}`);
-
   const envs: { [key: string]: string } = {};
 
   for (const key of keys) {

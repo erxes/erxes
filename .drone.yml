@@ -17,9 +17,9 @@ pipeline:
       - npm -v
       - yarn --version
       - yarn install
-      # - yarn lint
-      # - yarn tsc
-      # - yarn test
+      - yarn lint
+      - yarn tsc
+      - yarn test
       - mkdir src/private/xlsTemplateOutputs
 
   build:
