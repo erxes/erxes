@@ -17,9 +17,9 @@ export type IEntry = {
   data: object;
 };
 
-export type IFeatureCategory = {
+export type IFeatureEntry = {
   name: string;
-  features: string[];
+  key: string;
 };
 
 export type StepsCompletenessQueryResponse = {

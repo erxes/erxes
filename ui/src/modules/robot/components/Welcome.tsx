@@ -7,6 +7,10 @@ import Customization from './Customization';
 import Indicator from './Indicator';
 import { BackDrop } from './styles';
 
+const WelcomeContent = styled.div`
+  width: 280px;
+`;
+
 const Wrapper = styled.div`
   margin: 0;
   position: relative;
@@ -87,7 +91,7 @@ class Welcome extends React.PureComponent<Props, State> {
       const { currentUserName } = this.props;
 
       return (
-        <>
+        <WelcomeContent>
           <img alt="welcome" src="/images/actions/welcome.svg" />
           <div>
             <h3>
@@ -103,7 +107,7 @@ class Welcome extends React.PureComponent<Props, State> {
             this.changeStep,
             'arrow-circle-right'
           )}
-        </>
+        </WelcomeContent>
       );
     }
 

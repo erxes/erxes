@@ -3,9 +3,12 @@ import { fadeIn } from 'modules/common/utils/animations';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const Greeting = styled.div`
-  margin-bottom: 16px;
+const SubContent = styled.div`
   padding: 0 16px;
+`;
+
+const Greeting = styled(SubContent)`
+  margin-bottom: 16px;
   font-size: 18px;
   line-height: 27px;
   letter-spacing: -0.2px;
@@ -72,7 +75,7 @@ const Content = styled.div`
   padding: ${dimensions.coreSpacing}px;
   border-radius: 10px;
   background: ${colors.bgLight};
-  width: 320px;
+  min-width: 320px;
   box-shadow: 0 5px 15px 1px rgba(0, 0, 0, 0.15);
   bottom: 65px;
   left: 15px;
@@ -80,6 +83,10 @@ const Content = styled.div`
   overflow: auto;
   flex-direction: column;
   z-index: 15;
+`;
+
+const ContentWrapper = styled.div`
+  width: 280px;
 `;
 
 const SubHeader = styled.a`
@@ -135,9 +142,11 @@ const ProgressText = styled.div`
 export {
   Bot,
   Greeting,
+  SubContent,
   Title,
   NavButton,
   Content,
+  ContentWrapper,
   SubHeader,
   BackDrop,
   CompletedTaskWrapper,

@@ -113,27 +113,22 @@ class TodoDetail extends React.Component<Props> {
     }
 
     return (
-      <>
-        <Checklist>
-          {feature.settings.map((setting, index) => {
-            const detail = feature.settingsDetails[setting];
+      <Checklist>
+        {feature.settings.map((setting, index) => {
+          const detail = feature.settingsDetails[setting];
 
-            return (
-              <ChecklistItem
-                key={index}
-                isComplete={stepsCompleteness[setting]}
-              >
-                <Link to={`${detail.url}#signedIn=true`}>{detail.name}</Link>
-                {stepsCompleteness[setting] && (
-                  <span role="img" aria-label="Selebration">
-                    🎉
-                  </span>
-                )}
-              </ChecklistItem>
-            );
-          })}
-        </Checklist>
-      </>
+          return (
+            <ChecklistItem key={index} isComplete={stepsCompleteness[setting]}>
+              <Link to={`${detail.url}#signedIn=true`}>{detail.name}</Link>
+              {stepsCompleteness[setting] && (
+                <span role="img" aria-label="Selebration">
+                  🎉
+                </span>
+              )}
+            </ChecklistItem>
+          );
+        })}
+      </Checklist>
     );
   }
 

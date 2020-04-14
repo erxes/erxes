@@ -12,3 +12,18 @@ export const getCurrentUserName = (user: IUser) => {
 export const calculatePercentage = (total: number, done: number) => {
   return roundToTwo((done * 100) / total);
 };
+
+export const orderArray = (array, order) => {
+  array.sort((a, b) => {
+    const A = a.name;
+    const B = b.name;
+
+    if (order.indexOf(A) > order.indexOf(B)) {
+      return 1;
+    } else {
+      return -1;
+    }
+  });
+
+  return array;
+};

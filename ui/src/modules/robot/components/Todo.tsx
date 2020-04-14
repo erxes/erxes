@@ -10,6 +10,7 @@ import ModulItem from './ModulItem';
 import {
   CompletedTaskName,
   CompletedTaskWrapper,
+  ContentWrapper,
   Greeting,
   NavButton,
   ProgressText,
@@ -71,8 +72,8 @@ class Todo extends React.Component<Props, State> {
     ).length;
 
     const percent = calculatePercentage(
-      availableFeatures.length,
-      completedCount
+      availableFeatures.length + 1,
+      completedCount + 1
     );
 
     return (
@@ -85,7 +86,7 @@ class Todo extends React.Component<Props, State> {
 
   renderFeature(feature: IFeature, completed?: boolean) {
     const { changeRoute } = this.props;
-    const { text, isComplete, icon, color, name } = feature;
+    const { text, icon, color, name } = feature;
 
     const onClick = () => {
       this.setState({ selectedFeature: feature }, () => {
@@ -93,24 +94,21 @@ class Todo extends React.Component<Props, State> {
       });
     };
 
-    const title = `${__('Configure')} ${text}`;
-
     if (completed) {
       return (
         <CompletedTaskName key={name} onClick={onClick}>
-          {title}
+          {text}
         </CompletedTaskName>
       );
     }
 
     return (
       <ModulItem
-        title={title}
+        title={text}
         icon={icon}
         color={color}
         key={name}
         onClick={onClick}
-        isComplete={isComplete}
       />
     );
   }
@@ -121,10 +119,6 @@ class Todo extends React.Component<Props, State> {
       feature => feature.isComplete
     );
 
-    if (completedTasks.length === 0) {
-      return;
-    }
-
     const { showComplete } = this.state;
 
     return (
@@ -133,10 +127,14 @@ class Todo extends React.Component<Props, State> {
           {__('Show completed')}
           <Icon icon={showComplete ? 'angle-down' : 'angle-up'} />
         </SubHeader>
-        {showComplete &&
-          completedTasks.map(availabeFeature =>
-            this.renderFeature(availabeFeature, true)
-          )}
+        {showComplete && (
+          <>
+            {completedTasks.map(availabeFeature =>
+              this.renderFeature(availabeFeature, true)
+            )}
+            <CompletedTaskName>Set up your account</CompletedTaskName>
+          </>
+        )}
       </CompletedTaskWrapper>
     );
   };
@@ -166,7 +164,7 @@ class Todo extends React.Component<Props, State> {
             {this.renderProgress()}
           </Greeting>
           {availableFeatures
-            .filter((feature, index) => !feature.isComplete && index < 9)
+            .filter((feature, index) => !feature.isComplete && index < 6)
             .map(availabeFeature => this.renderFeature(availabeFeature))}
 
           {this.renderCompleted()}
@@ -182,7 +180,7 @@ class Todo extends React.Component<Props, State> {
   };
 
   render() {
-    return this.renderContent();
+    return <ContentWrapper>{this.renderContent()}</ContentWrapper>;
   }
 }
 

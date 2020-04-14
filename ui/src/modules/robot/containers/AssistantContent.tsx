@@ -14,6 +14,7 @@ import {
   GetAvailableFeaturesQueryResponse,
   IFeature
 } from '../types';
+import { orderArray } from '../utils';
 
 type Props = {
   changeRoute: (route: string) => void;
@@ -75,6 +76,13 @@ class AssistantContentContainer extends React.Component<FinalProps> {
             this.props.changeRoute(type);
             this.props.toggleContent(true);
           }
+
+          if (
+            type === 'initial' &&
+            localStorage.getItem('erxesCustomizationTeams')
+          ) {
+            this.props.changeRoute('todoList');
+          }
         }
       }
     });
@@ -88,18 +96,20 @@ class AssistantContentContainer extends React.Component<FinalProps> {
       : [];
 
     // get feature categories
-    const savedCategories = localStorage.getItem('erxesCustomizationTeams');
-    let categorizedFeatures = allFeatures;
+    const savedFeatures = localStorage.getItem('erxesCustomizationTeams');
+    let sortedFeatures = allFeatures;
 
-    if (savedCategories && savedCategories.length > 2) {
-      const chosenTeams = JSON.parse(savedCategories);
+    if (savedFeatures && savedFeatures.length > 2) {
+      const chosenFeatures = JSON.parse(savedFeatures);
 
-      categorizedFeatures = allFeatures.filter(feature =>
-        chosenTeams.includes(feature.name)
+      // order by selected order
+      sortedFeatures = orderArray(
+        allFeatures.filter(feature => chosenFeatures.includes(feature.name)),
+        chosenFeatures
       );
     }
 
-    const features = categorizedFeatures.map(feature => {
+    const features = sortedFeatures.map(feature => {
       const details = FEATURE_DETAILS[feature.name] || {};
 
       return {

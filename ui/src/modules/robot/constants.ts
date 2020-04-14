@@ -24,6 +24,37 @@ export const FEATURE_DETAILS = {
       }
     }
   },
+  deals: {
+    text: 'Configure Sales pipeline',
+    color: '#379ecb',
+    icon: 'piggy-bank',
+    description:
+      'Control your sales pipeline from one responsive field by precisely analyzing your progress and determining your next best move for success.',
+    videoUrl: 'https://www.youtube.com/embed/jEkxpLdOMvU?autoplay=1',
+    videoThumb: 'https://img.youtube.com/vi/jEkxpLdOMvU/mqdefault.jpg',
+    settingsDetails: {
+      dealBoardsCreate: {
+        name: 'Create a sales board',
+        url: '/settings/boards/deal#showBoardModal=true'
+      },
+      dealPipelinesCreate: {
+        name: 'Create a sales pipeline',
+        url: '/settings/boards/deal#showPipelineModal=true'
+      },
+      'configure.dealCurrency': {
+        name: 'Configure currencies',
+        url: '/settings/general'
+      },
+      'configure.dealUOM': {
+        name: 'Configure unit of measurement',
+        url: '/settings/general'
+      },
+      dealCreate: {
+        name: 'Now add deals',
+        url: '/deal/board'
+      }
+    }
+  },
   inbox: {
     text: 'Team inbox',
     description:
@@ -52,39 +83,9 @@ export const FEATURE_DETAILS = {
       }
     }
   },
-  deals: {
-    text: 'Sales pipeline',
-    color: '#379ecb',
-    icon: 'piggy-bank',
-    description:
-      'Control your sales pipeline from one responsive field by precisely analyzing your progress and determining your next best move for success.',
-    videoUrl: 'https://www.youtube.com/embed/jEkxpLdOMvU?autoplay=1',
-    videoThumb: 'https://img.youtube.com/vi/jEkxpLdOMvU/mqdefault.jpg',
-    settingsDetails: {
-      dealBoardsCreate: {
-        name: 'Create a sales board',
-        url: '/settings/boards/deal#showBoardModal=true'
-      },
-      dealPipelinesCreate: {
-        name: 'Create a sales pipeline',
-        url: '/settings/boards/deal#showPipelineModal=true'
-      },
-      dealCreate: {
-        name: 'Now add deals',
-        url: '/deal/board'
-      },
-      'configure.dealCurrency': {
-        name: 'Configure currencies',
-        url: '/settings/general'
-      },
-      'configure.dealUOM': {
-        name: 'Configure unit of measurement',
-        url: '/settings/general'
-      }
-    }
-  },
+
   leads: {
-    text: 'Pop Ups',
+    text: 'Pop-ups & Forms',
     color: '#c84b49',
     icon: 'laptop',
     description:
@@ -103,7 +104,7 @@ export const FEATURE_DETAILS = {
     }
   },
   engages: {
-    text: 'Engages',
+    text: 'Email & SMS Marketing',
     color: '#e359ae',
     icon: 'megaphone',
     videoUrl: 'https://www.youtube.com/embed/hd07s0oZ83A?autoplay=1',
@@ -126,7 +127,7 @@ export const FEATURE_DETAILS = {
     }
   },
   tasks: {
-    text: 'Task',
+    text: 'Task Management',
     color: colors.colorCoreTeal,
     icon: 'clipboard',
     description:
@@ -169,7 +170,7 @@ export const FEATURE_DETAILS = {
     }
   },
   knowledgeBase: {
-    text: 'Knowledge base',
+    text: 'Set Up Knowledge base',
     icon: 'book',
     color: '#45b94c',
     description:
@@ -191,7 +192,7 @@ export const FEATURE_DETAILS = {
     }
   },
   customers: {
-    text: 'Database',
+    text: 'Manage Your Contacts',
     icon: 'users',
     color: colors.colorCoreBlue,
     description:
@@ -282,11 +283,11 @@ export const FEATURE_DETAILS = {
     }
   },
   integrations: {
-    text: 'integrations',
+    text: 'Live Chat & In-App-Messaging',
     color: colors.colorCoreYellow,
     icon: 'puzzle',
     description:
-      'All your tools in one connected shared team inbox. Integrations help your team get more done in erxes.',
+      'Enable businesses to capture every single customer feedback and communicate in real time. You can educate your customers through knowledge-base from the erxes Messenger.',
     videoUrl: 'url',
     settingsDetails: {
       messengerIntegrationCreate: {
@@ -333,11 +334,47 @@ export const FEATURE_DETAILS = {
   }
 };
 
-export const FEATURE_CATEGORIES = [
+export const FEATURES = [
   {
-    name: 'Marketing',
-    features: ['growthHacks', 'leads', 'engages']
+    name: 'Scale your business with Growth Hacking',
+    key: 'growthHacks'
   },
+  {
+    name: 'Drive leads* to a successful close with Sales Pipeline*',
+    key: 'deals'
+  },
+  {
+    name: 'Stay in sync with Shared Team Inbox',
+    key: 'inbox'
+  },
+  {
+    name: 'Increase conversion with Email & SMS Marketing',
+    key: 'engages'
+  },
+  {
+    name: 'Manage your customers from the Contact Management',
+    key: 'customers'
+  },
+  {
+    name: 'Connect with your customers with Live Chat & In-App-Messaging',
+    key: 'integrations'
+  },
+  {
+    name: 'Never miss a potential lead with Pop-ups & Forms',
+    key: 'leads'
+  },
+
+  {
+    name: 'Educate both your customers and staff with Knowledge Base',
+    key: 'knowledgeBase'
+  },
+  {
+    name: 'Power your team’s success with Task Management ',
+    key: 'tasks'
+  }
+];
+
+export const www = [
   {
     name: 'Sales',
     features: ['deals', 'segments', 'customers']

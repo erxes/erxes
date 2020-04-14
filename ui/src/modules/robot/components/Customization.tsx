@@ -1,27 +1,33 @@
 import { colors } from 'modules/common/styles';
+import { rgba } from 'modules/common/styles/color';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { FEATURE_CATEGORIES } from '../constants';
-import { IFeatureCategory } from '../types';
+import { FEATURES } from '../constants';
+import { IFeatureEntry } from '../types';
+import { SubContent } from './styles';
 
 const Container = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  margin: 0 -5px;
+  width: 420px;
 `;
 
-const Item = styled.div`
-  flex-basis: 50%;
+const Features = styled.div`
   display: flex;
+  flex-direction: column;
+  margin-top: 20px;
 `;
 
-const TeamName = styledTS<{ chosen: boolean }>(styled.div)`
-	border: 1px solid ${props => (props.chosen ? colors.colorPrimary : '#ddd')};
-	padding: 8px 12px;
-	margin: 5px
+const FeatureName = styledTS<{ chosen: boolean }>(styled.div)`
+  border: 1px solid ${props => (props.chosen ? colors.colorPrimary : '#ddd')};
+  background: ${props => props.chosen && rgba(colors.colorPrimary, 0.1)};
+	padding: 5px 16px;
+	margin-bottom: 8px
 	flex: 1;
-	border-radius: 4px;
+  border-radius: 4px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
 	
 	&:hover {
 		cursor: pointer;
@@ -39,72 +45,65 @@ type Props = {
 };
 
 function Customization(props: Props) {
-  const [categories, setCategories] = useState<IFeatureCategory[]>([]);
+  const [features, setFeatures] = useState<IFeatureEntry[]>([]);
 
-  const saveCategories = () => {
-    let mergedFeatures: string[] = [];
+  const saveFeatures = () => {
+    const featuresToSave: string[] = [];
 
-    categories.map(category => {
-      return (mergedFeatures = mergedFeatures.concat(category.features));
+    features.map(category => {
+      return featuresToSave.push(category.key);
     });
 
-    // remove duplicated features and save to localstorages
+    // save to localstorages
     localStorage.setItem(
       'erxesCustomizationTeams',
-      JSON.stringify(
-        mergedFeatures.filter(
-          (item, pos) => mergedFeatures.indexOf(item) === pos
-        )
-      )
+      JSON.stringify(featuresToSave)
     );
 
     props.changeRoute('todoList');
   };
 
-  const renderItem = (item: IFeatureCategory) => {
-    const isChosen = categories.includes(item);
+  const renderItem = (item: IFeatureEntry) => {
+    const isChosen = features.includes(item);
 
     const toggleItem = () => {
       if (isChosen) {
-        return setCategories(
-          categories.filter(category => item.name !== category.name)
+        return setFeatures(
+          features.filter(category => item.name !== category.name)
         );
       }
 
-      if (categories.length > 2) {
-        return;
-      }
-
-      return setCategories([...categories, item]);
+      return setFeatures([...features, item]);
     };
 
     return (
-      <Item key={item.name} onClick={toggleItem}>
-        <TeamName chosen={isChosen}>{item.name}</TeamName>
-      </Item>
+      <FeatureName key={item.name} onClick={toggleItem} chosen={isChosen}>
+        {item.name}
+      </FeatureName>
     );
   };
 
   return (
-    <>
-      <h3>What team are you on?</h3>
-      <p>
-        erxes help large scope of area in the business. By knowing where you're
-        in your business will help us to understand where you want to start with
-        us. Let's get you the most out of erxes.
-      </p>
-      <p>
-        You can choose <strong>maximum 3</strong> of the below fields in
-        priority order
-      </p>
-      <Container>{FEATURE_CATEGORIES.map(team => renderItem(team))}</Container>
+    <Container>
+      <SubContent>
+        <h3>Where do you want to start?</h3>
+        <p>
+          There are a tons of you can do with <strong>erxes</strong>. Let's pick
+          the place to start, and we'll help you to get the most out of it.
+        </p>
+        <p>
+          You can choose <strong>at least two</strong> of the below fields in
+          priority order
+        </p>
+      </SubContent>
+      <Features>{FEATURES.map(team => renderItem(team))}</Features>
       {props.renderButton(
         'Finish',
-        saveCategories,
+        saveFeatures,
         'check-circle',
-        categories.length === 0
+        features.length < 2
       )}
-    </>
+    </Container>
   );
 }
 
