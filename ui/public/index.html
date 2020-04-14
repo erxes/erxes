@@ -31,11 +31,6 @@
     </noscript>
 
     <script>
-      function setCookie(cname, cvalue) {
-        var d = new Date();
-        document.cookie = cname + "=" + cvalue + ";path=/";
-      }
-
       // get env config from process.env or window.env
       const getEnv = (name, defaultValue) => {
         if (window.env && window.env[name]) {
@@ -53,7 +48,8 @@
 
       for (var i=0;i<window.envMaps.length;i++) {
         var envMap = window.envMaps[i];
-        setCookie(envMap.name, getEnv(envMap.name, envMap.processValue));
+
+        localStorage.setItem(`erxes_env_${envMap.name}`, getEnv(envMap.name, envMap.processValue));
       }
     </script>
 
