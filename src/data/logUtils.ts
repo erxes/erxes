@@ -39,6 +39,7 @@ import {
   Users,
   UsersGroups,
 } from '../db/models/index';
+import { debugBase } from '../debuggers';
 import { sendMessage } from '../messageBroker';
 import { automationHelper } from './automationUtils';
 import { MODULE_NAMES } from './constants';
@@ -1269,6 +1270,7 @@ export const putCreateLog = async (params: ILogDataParams, user: IUserDocument) 
  * @param user User information from mutation context
  */
 export const putUpdateLog = async (params: ILogDataParams, user: IUserDocument) => {
+  debugBase(`putUpdateLog start 5555555555555555555555555`);
   const descriptions = await gatherDescriptions({
     action: LOG_ACTIONS.UPDATE,
     type: params.type,
@@ -1276,6 +1278,7 @@ export const putUpdateLog = async (params: ILogDataParams, user: IUserDocument) 
     updatedDocument: params.updatedDocument,
   });
 
+  debugBase(`gathered 66666666666666666666`);
   return putLog(
     {
       ...params,
