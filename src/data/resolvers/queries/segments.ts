@@ -84,7 +84,7 @@ const segmentQueries = {
     );
 
     try {
-      const response = await fetchElk('count', contentType === 'customer' ? 'customers' : 'companies', {
+      const response = await fetchElk('count', contentType === 'company' ? 'companies' : 'customers', {
         query: {
           bool: {
             must: positiveList,
@@ -92,6 +92,7 @@ const segmentQueries = {
           },
         },
       });
+
       return response.count;
     } catch (e) {
       return 0;
