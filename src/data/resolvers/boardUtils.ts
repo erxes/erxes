@@ -120,28 +120,19 @@ export const sendNotifications = async ({
 interface INotifLinkParams {
   contentType: string;
   oldItem: any;
-  destinationStageId: string;
+  pipelineId: string;
+  pipeBoardId: string;
 }
 
 /**
  * When board items are moved between stages, old notification links are broken.
  */
 const fixNotificationLinks = async (params: INotifLinkParams) => {
-  const { contentType, oldItem, destinationStageId } = params;
+  const { contentType, oldItem, pipelineId, pipeBoardId } = params;
 
-  const notifications = await Notifications.find({ contentType, contentTypeId: oldItem._id }).lean();
+  const link = `/${contentType}/board?id=${pipeBoardId}&pipelineId=${pipelineId}&itemId=${oldItem._id}`;
 
-  for (const notif of notifications) {
-    if (oldItem.stageId !== destinationStageId) {
-      const stage = await Stages.getStage(destinationStageId);
-      const pipeline = await Pipelines.getPipeline(stage.pipelineId);
-      const board = await Boards.getBoard(pipeline.boardId);
-
-      const link = `/${notif.contentType}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${oldItem._id}`;
-
-      await Notifications.update({ _id: notif._id }, { $set: { link } });
-    }
-  }
+  await Notifications.updateMany({ contentType, contentTypeId: oldItem._id }, { $set: { link } });
 };
 
 export const itemsChange = async (userId: string, item: any, contentType: string, destinationStageId: string) => {
@@ -172,7 +163,9 @@ export const itemsChange = async (userId: string, item: any, contentType: string
 
     ActivityLogs.createBoardItemMovementLog(item, contentType, userId, activityLogContent);
 
-    await fixNotificationLinks({ contentType, oldItem: item, destinationStageId });
+    await fixNotificationLinks({
+      contentType, oldItem: item, pipelineId: pipeline._id, pipeBoardId: board._id
+    });
   }
 
   return { content, action };
