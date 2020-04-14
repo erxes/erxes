@@ -1,4 +1,5 @@
 import { IUserDocument } from '../db/models/definitions/users';
+import { debugBase } from '../debuggers';
 import { sendRPCMessage } from '../messageBroker';
 import { graphqlPubsub } from '../pubsub';
 import { IFinalLogParams } from './logUtils';
@@ -25,13 +26,14 @@ const checkAutomation = async (kind: string, body: any, user: IUserDocument) => 
     'rpc_queue:erxes-api_erxes-automations',
   );
 
+  debugBase(`pull responseeeee 99999999999999999999`);
   if (apiAutomationResponse.response.length === 0) {
     return;
   }
 
   try {
     const responseId = Math.random().toString();
-
+    debugBase(`publish 10101101010101010`);
     graphqlPubsub.publish('automationResponded', {
       automationResponded: {
         userId: user._id,
@@ -40,6 +42,7 @@ const checkAutomation = async (kind: string, body: any, user: IUserDocument) => 
         content: apiAutomationResponse.response,
       },
     });
+    debugBase(`published 10101101010101010`);
   } catch (e) {
     // Any other error is serious
     if (e.message !== 'Configuration does not exist') {
