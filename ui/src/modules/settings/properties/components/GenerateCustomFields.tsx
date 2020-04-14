@@ -51,10 +51,6 @@ class GenerateGroup extends React.Component<Props, State> {
     });
   };
 
-  toggleEditing = () => {
-    this.setState({ editing: true });
-  };
-
   cancelEditing = () => {
     this.setState({
       editing: false
@@ -64,8 +60,7 @@ class GenerateGroup extends React.Component<Props, State> {
   onChange = ({ _id, value }) => {
     const { data } = this.state;
 
-    this.setState({ data: { ...data, [_id]: value } });
-    this.toggleEditing();
+    this.setState({ data: { ...data, [_id]: value }, editing: true });
   };
 
   renderButtons() {
@@ -95,10 +90,6 @@ class GenerateGroup extends React.Component<Props, State> {
     );
   }
 
-  onValueChange = ({ _id, value }) => {
-    return this.onChange({ _id, value });
-  };
-
   renderContent() {
     const { fieldGroup } = this.props;
     const { data } = this.state;
@@ -118,7 +109,7 @@ class GenerateGroup extends React.Component<Props, State> {
             <GenerateField
               field={field}
               key={index}
-              onValueChange={this.onValueChange}
+              onValueChange={this.onChange}
               defaultValue={data[field._id] || ''}
             />
           );
