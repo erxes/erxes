@@ -4,7 +4,6 @@ import { getCompanies, getCustomers } from '../../../db/models/boardUtils';
 import { IOrderInput } from '../../../db/models/definitions/boards';
 import { BOARD_STATUSES, NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { IDeal } from '../../../db/models/definitions/deals';
-import { debugBase } from '../../../debuggers';
 import { graphqlPubsub } from '../../../pubsub';
 import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
@@ -199,7 +198,6 @@ const dealMutations = {
     { _id, destinationStageId, order }: { _id: string; destinationStageId: string; order: number },
     { user }: IContext,
   ) {
-    debugBase(`begin dealsChange 1111111111111111111`);
     const deal = await Deals.getDeal(_id);
 
     const extendedDoc = {
@@ -210,11 +208,8 @@ const dealMutations = {
     };
 
     const updatedDeal = await Deals.updateDeal(_id, extendedDoc);
-    debugBase(`get and updated 2222222222222222222`);
 
     const { content, action } = await itemsChange(user._id, deal, MODULE_NAMES.DEAL, destinationStageId);
-
-    debugBase(`itemsChange function end 333333333333333333333`);
 
     await sendNotifications({
       item: deal,
@@ -225,7 +220,6 @@ const dealMutations = {
       contentType: MODULE_NAMES.DEAL,
     });
 
-    debugBase(`sended notifications 444444444444444444444444444`);
     await putUpdateLog(
       {
         type: MODULE_NAMES.DEAL,

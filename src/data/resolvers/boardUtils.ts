@@ -15,7 +15,6 @@ import { IDealDocument } from '../../db/models/definitions/deals';
 import { ITaskDocument } from '../../db/models/definitions/tasks';
 import { ITicketDocument } from '../../db/models/definitions/tickets';
 import { IUserDocument } from '../../db/models/definitions/users';
-import { debugBase } from '../../debuggers';
 import { can } from '../permissions/utils';
 import { checkLogin } from '../permissions/wrappers';
 import utils from '../utils';
@@ -137,14 +136,12 @@ const fixNotificationLinks = async (params: INotifLinkParams) => {
 };
 
 export const itemsChange = async (userId: string, item: any, contentType: string, destinationStageId: string) => {
-  debugBase(`start itemsChange zzzzzz 1111111111111`);
   const oldStageId = item ? item.stageId || '' : '';
 
   let action = `changed order of your ${contentType}:`;
   let content = `'${item.name}'`;
 
   if (oldStageId !== destinationStageId) {
-    debugBase(`start diff stage condition zzzzzz 22222222222222222222`);
     const stage = await Stages.getStage(destinationStageId);
     const oldStage = await Stages.getStage(oldStageId);
 
@@ -164,10 +161,7 @@ export const itemsChange = async (userId: string, item: any, contentType: string
       text: `${oldStage.name} to ${stage.name}`,
     };
 
-    debugBase(`get stage, pipeline, boards zzzzzz 33333333333333333`);
-
     ActivityLogs.createBoardItemMovementLog(item, contentType, userId, activityLogContent);
-    debugBase(`createdBoardItemMovemendLog zzzzzz 444444444444444444`);
 
     await fixNotificationLinks({
       contentType,
@@ -175,7 +169,6 @@ export const itemsChange = async (userId: string, item: any, contentType: string
       pipelineId: pipeline._id,
       pipeBoardId: board._id,
     });
-    debugBase(`end itemsChange zzzzzz 9999999999999999`);
   }
 
   return { content, action };
