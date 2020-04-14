@@ -52,7 +52,7 @@ export const loadTaskClass = () => {
 
       const task = await Tasks.create({
         ...doc,
-        order: ((lastVisibleTasks ? lastVisibleTasks[0].order : 0) || 0) + 1,
+        order: ((lastVisibleTasks && lastVisibleTasks.length > 0 ? lastVisibleTasks[0].order : 0) || 0) + 1,
         createdAt: new Date(),
         modifiedAt: new Date(),
         searchText: fillSearchTextItem(doc),
