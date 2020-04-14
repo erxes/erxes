@@ -43,6 +43,11 @@ export const checkFieldNames = async (type: string, fields: string[]) => {
       property.type = 'ownerEmail';
     }
 
+    if (fieldName === 'tag') {
+      property.name = 'tagIds';
+      property.type = 'tag';
+    }
+
     if (!property.type) {
       throw new Error('Bad column name');
     }

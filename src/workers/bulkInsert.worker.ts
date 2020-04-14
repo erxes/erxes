@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose';
-import { Companies, Customers, ImportHistory, Products, Users } from '../db/models';
+import { Companies, Customers, ImportHistory, Products, Tags, Users } from '../db/models';
 import { graphqlPubsub } from '../pubsub';
 import { connect } from './utils';
 
@@ -81,6 +81,16 @@ connect().then(async () => {
             const owner = await Users.findOne({ email: userEmail }).lean();
 
             coc[property.name] = owner ? owner._id : '';
+          }
+          break;
+
+        case 'tag':
+          {
+            const tagName = value.toString();
+
+            const tag = await Tags.findOne({ name: new RegExp(`.*${tagName}.*`, 'i') }).lean();
+
+            coc[property.name] = tag ? [tag._id] : [];
           }
           break;
 
