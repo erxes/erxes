@@ -37,13 +37,19 @@ export const loadDealClass = () => {
         }
       }
 
-      const lastVisibleDeals = await Deals.find({
-        stageId: doc.stageId, status: { $ne: BOARD_STATUSES.ARCHIVED }
-      }, {order: 1}).sort({ order: -1 }).limit(1)
+      const lastVisibleDeals = await Deals.find(
+        {
+          stageId: doc.stageId,
+          status: { $ne: BOARD_STATUSES.ARCHIVED },
+        },
+        { order: 1 },
+      )
+        .sort({ order: -1 })
+        .limit(1);
 
       const deal = await Deals.create({
         ...doc,
-        order: ((lastVisibleDeals ? lastVisibleDeals[0].order : 0) || 0) + 1,
+        order: ((lastVisibleDeals && lastVisibleDeals.length > 0 ? lastVisibleDeals[0].order : 0) || 0) + 1,
         createdAt: new Date(),
         modifiedAt: new Date(),
         searchText: fillSearchTextItem(doc),

@@ -30,14 +30,21 @@ export const loadGrowthHackClass = () => {
      * Create a growth hack
      */
     public static async createGrowthHack(doc: IGrowthHack) {
-      const lastVisibleGrowthHacks = await GrowthHacks.find({
-        stageId: doc.stageId, status: { $ne: BOARD_STATUSES.ARCHIVED }
-      }, {order: 1}).sort({ order: -1 }).limit(1)
-
+      const lastVisibleGrowthHacks = await GrowthHacks.find(
+        {
+          stageId: doc.stageId,
+          status: { $ne: BOARD_STATUSES.ARCHIVED },
+        },
+        { order: 1 },
+      )
+        .sort({ order: -1 })
+        .limit(1);
 
       const growthHack = await GrowthHacks.create({
         ...doc,
-        order: ((lastVisibleGrowthHacks ? lastVisibleGrowthHacks[0].order : 0) || 0) + 1,
+        order:
+          ((lastVisibleGrowthHacks && lastVisibleGrowthHacks.length > 0 ? lastVisibleGrowthHacks[0].order : 0) || 0) +
+          1,
         createdAt: new Date(),
         modifiedAt: new Date(),
         searchText: fillSearchTextItem(doc),

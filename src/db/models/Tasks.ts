@@ -40,13 +40,19 @@ export const loadTaskClass = () => {
         }
       }
 
-      const lastVisibleTasks = await Tasks.find({
-        stageId: doc.stageId, status: { $ne: BOARD_STATUSES.ARCHIVED }
-      }, {order: 1}).sort({ order: -1 }).limit(1)
+      const lastVisibleTasks = await Tasks.find(
+        {
+          stageId: doc.stageId,
+          status: { $ne: BOARD_STATUSES.ARCHIVED },
+        },
+        { order: 1 },
+      )
+        .sort({ order: -1 })
+        .limit(1);
 
       const task = await Tasks.create({
         ...doc,
-        order: ((lastVisibleTasks ? lastVisibleTasks[0].order : 0) || 0) + 1,
+        order: ((lastVisibleTasks && lastVisibleTasks.length > 0 ? lastVisibleTasks[0].order : 0) || 0) + 1,
         createdAt: new Date(),
         modifiedAt: new Date(),
         searchText: fillSearchTextItem(doc),
