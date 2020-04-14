@@ -35,9 +35,9 @@ export const notificationSchema = new Schema({
   link: field({ type: String }),
   content: field({ type: String }),
   createdUser: field({ type: String }),
-  receiver: field({ type: String }),
-  contentType: field({ type: String }),
-  contentTypeId: field({ type: String }),
+  receiver: field({ type: String, index: true }),
+  contentType: field({ type: String, index: true }),
+  contentTypeId: field({ type: String, index: true }),
   date: field({
     type: Date,
     default: Date.now,
