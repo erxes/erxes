@@ -1,6 +1,7 @@
 import Button from 'modules/common/components/Button';
 import CommonPortal from 'modules/common/components/CommonPortal';
 import Icon from 'modules/common/components/Icon';
+import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import styled from 'styled-components';
 import Customization from './Customization';
@@ -95,11 +96,13 @@ class Welcome extends React.PureComponent<Props, State> {
           <img alt="welcome" src="/images/actions/welcome.svg" />
           <div>
             <h3>
-              Welcome, <b>{currentUserName}</b>
+              {__('Welcome')}, <b>{currentUserName}</b>
             </h3>
             <p>
-              We're thrilled to have you on board and can't wait to see you set
-              up your business here already.
+              {__(
+                "We're thrilled to have you on board and can't wait to see you set up your business here already"
+              )}
+              .
             </p>
           </div>
           {this.renderButton(

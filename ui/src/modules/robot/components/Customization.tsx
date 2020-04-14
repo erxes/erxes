@@ -56,7 +56,7 @@ function Customization(props: Props) {
 
     // save to localstorages
     localStorage.setItem(
-      'erxesCustomizationTeams',
+      'erxes_customization_features',
       JSON.stringify(featuresToSave)
     );
 

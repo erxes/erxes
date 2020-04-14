@@ -79,7 +79,7 @@ class AssistantContentContainer extends React.Component<FinalProps> {
 
           if (
             type === 'initial' &&
-            localStorage.getItem('erxesCustomizationTeams')
+            localStorage.getItem('erxes_customization_features')
           ) {
             this.props.changeRoute('todoList');
           }
@@ -96,7 +96,7 @@ class AssistantContentContainer extends React.Component<FinalProps> {
       : [];
 
     // get feature categories
-    const savedFeatures = localStorage.getItem('erxesCustomizationTeams');
+    const savedFeatures = localStorage.getItem('erxes_customization_features');
     let sortedFeatures = allFeatures;
 
     if (savedFeatures && savedFeatures.length > 2) {

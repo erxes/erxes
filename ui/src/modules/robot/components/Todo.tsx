@@ -132,7 +132,7 @@ class Todo extends React.Component<Props, State> {
             {completedTasks.map(availabeFeature =>
               this.renderFeature(availabeFeature, true)
             )}
-            <CompletedTaskName>Set up your account</CompletedTaskName>
+            <CompletedTaskName>{__('Set up your account')}</CompletedTaskName>
           </>
         )}
       </CompletedTaskWrapper>
@@ -154,12 +154,12 @@ class Todo extends React.Component<Props, State> {
         <>
           <Greeting>
             <b>
-              Hello! {getCurrentUserName(currentUser)}
+              {__('Hello')}! {getCurrentUserName(currentUser)}
               <span role="img" aria-label="Wave">
                 👋
               </span>
             </b>
-            <p>Let's get your set up workspace for success.</p>
+            <p>{__("Let's get your set up workspace for success")}.</p>
 
             {this.renderProgress()}
           </Greeting>
