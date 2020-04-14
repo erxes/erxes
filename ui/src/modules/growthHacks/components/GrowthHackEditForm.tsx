@@ -126,6 +126,7 @@ export default class GrowthHackEditForm extends React.Component<Props> {
               onUpdate={onUpdate}
               sendToBoard={sendToBoard}
               saveItem={saveItem}
+              onChangeStage={onChangeStage}
             />
             <Left
               type={options.type}

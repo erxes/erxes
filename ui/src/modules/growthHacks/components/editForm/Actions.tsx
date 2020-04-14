@@ -29,6 +29,7 @@ type Props = {
   sendToBoard?: (item: any) => void;
   saveItem: (doc: { [key: string]: any }, callback?: (item) => void) => void;
   removeItem: (itemId: string) => void;
+  onChangeStage?: (stageId: string) => void;
 };
 
 class Actions extends React.Component<Props> {
@@ -42,7 +43,8 @@ class Actions extends React.Component<Props> {
       saveItem,
       sendToBoard,
       dateOnChange,
-      onUpdate
+      onUpdate,
+      onChangeStage
     } = this.props;
 
     const hackStages = item.hackStages || [];
@@ -115,6 +117,7 @@ class Actions extends React.Component<Props> {
           removeItem={removeItem}
           saveItem={saveItem}
           sendToBoard={sendToBoard}
+          onChangeStage={onChangeStage}
         />
       </ActionContainer>
     );
