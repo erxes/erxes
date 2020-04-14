@@ -14,6 +14,7 @@ import apolloServer from './apolloClient';
 import { buildFile } from './data/modules/fileExporter/exporter';
 import insightExports from './data/modules/insights/insightExports';
 import {
+  authCookieOptions,
   checkFile,
   deleteFile,
   frontendEnv,
@@ -63,6 +64,16 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+
+app.get('/set-frontend-cookies', async (req: any, res) => {
+  const envMaps = JSON.parse(req.query.envs || '{}');
+
+  for (const key of Object.keys(envMaps)) {
+    res.cookie(key, envMaps[key], authCookieOptions(req.secure));
+  }
+
+  return res.send('success');
+});
 
 app.get('/script-manager', widgetsMiddleware);
 
