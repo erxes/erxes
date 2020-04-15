@@ -18,7 +18,8 @@ class VideoChatMessage extends React.PureComponent<Props> {
     const iframe: any = document.createElement('iframe');
     iframe.id = iframeId;
     iframe.src = this.props.videoCallData.url;
-    iframe.allow = "camera *;microphone *";
+    iframe.allow = "camera; microphone";
+    iframe.allowusermedia = true;
     
     videoChatContainer.appendChild(iframe);
     const widgetRoot = document.getElementById('page-root');
