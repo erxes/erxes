@@ -29,10 +29,6 @@ export const createWorkers = (workerPath: string, workerData: any, results: stri
 
           workers.push(worker);
 
-          worker.on('message', () => {
-            removeWorker(worker);
-          });
-
           worker.on('error', e => {
             debugWorkers(e);
             removeWorker(worker);

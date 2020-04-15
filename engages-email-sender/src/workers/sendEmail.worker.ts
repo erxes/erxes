@@ -73,8 +73,6 @@ connect().then(async () => {
         'failure',
         `Error occurred while sending email to ${customer.email}: ${e.message}`,
       );
-      cancel = true;
-      parentPort.postMessage('Error occurred');
     }
 
     await Stats.updateOne({ engageMessageId }, { $inc: { total: 1 } });
@@ -88,7 +86,7 @@ connect().then(async () => {
 
   for (const customer of result) {
     await new Promise(resolve => {
-      setTimeout(resolve, 3000);
+      setTimeout(resolve, 1000);
     });
 
     await sendEmail(customer);
