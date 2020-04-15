@@ -5,6 +5,7 @@ import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import styled from 'styled-components';
+import { TUTORIALS } from '../constants';
 
 const Description = styled.div`
   display: flex;
@@ -15,6 +16,7 @@ const Description = styled.div`
   span {
     color: ${colors.colorCoreGray};
     margin-left: 5px;
+    font-style: italic;
   }
 `;
 
@@ -29,6 +31,23 @@ const Header = styled.div`
   p {
     margin: 0;
     font-size: 16px;
+    color: ${colors.colorCoreGray};
+  }
+`;
+
+const Soon = styled.div`
+  margin: 0;
+  font-size: 18px;
+  padding: 10px 20px;
+  border-bottom: 1px solid ${colors.borderPrimary};
+  opacity: 0.8;
+  cursor: not-allowed;
+  font-style: italic;
+
+  &:after {
+    content: 'Coming soon';
+    font-size: 70%;
+    margin-left: 5px;
     color: ${colors.colorCoreGray};
   }
 `;
@@ -49,19 +68,20 @@ function Tutorial() {
     return window.location.toString().includes(id);
   };
 
-  const renderVideo = () => {
+  const renderVideo = (url: string) => {
     return (
       <iframe
         title="erxes tutorial"
         width="100%"
         height="478"
-        src="https://www.youtube.com/embed/hd07s0oZ83A"
+        src={url}
         frameBorder="0"
         allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
         allowFullScreen={true}
       />
     );
   };
+
   const renderHeader = () => {
     return (
       <Header>
@@ -84,7 +104,7 @@ function Tutorial() {
   const renderIcon = () => {
     return (
       <IconWrapper>
-        <Icon icon="check-circle" />
+        <Icon icon="plus-circle" />
       </IconWrapper>
     );
   };
@@ -92,91 +112,44 @@ function Tutorial() {
   const renderDescription = (step: string, time: string) => {
     return (
       <Description>
-        {__(step)} <span>{__(time)}</span>
+        {__(step)}. <span>{__(time)}</span>
       </Description>
     );
   };
 
   const content = (
     <>
-      <CollapseContent
-        id="defaultStage"
-        title="Default stage"
-        open={isOpen('defaultStage')}
-        beforeTitle={renderIcon()}
-        image="/images/actions/23.svg"
-        description={renderDescription('6 steps.', 'About 5 minutes')}
-      >
-        <CollapseContent title={__('Profile settings')} compact={true}>
-          {renderVideo()}
-        </CollapseContent>
-        <CollapseContent title={__('Organization settings')} compact={true}>
-          {renderVideo()}
-        </CollapseContent>
-        <CollapseContent title={__('System configuration')} compact={true}>
-          {renderVideo()}
-        </CollapseContent>
-        <CollapseContent title={__('Signature')} compact={true}>
-          {renderVideo()}
-        </CollapseContent>
-        <CollapseContent title={__('Notification')} compact={true}>
-          {renderVideo()}
-        </CollapseContent>
-      </CollapseContent>
-      <CollapseContent
-        id="settingStage"
-        open={isOpen('settingStage')}
-        beforeTitle={renderIcon()}
-        title={__('Setting up stage')}
-        image="/images/actions/21.svg"
-        description={renderDescription('19 steps.', 'About 19 minutes')}
-      >
-        <CollapseContent title={__('Brands')} compact={true}>
-          {renderVideo()}
-        </CollapseContent>
-        <CollapseContent title={__('NotifiChannelscation')} compact={true}>
-          {renderVideo()}
-        </CollapseContent>
-        <CollapseContent title={__('App store')} compact={true}>
-          {renderVideo()}
-        </CollapseContent>
+      {TUTORIALS.map(group => (
         <CollapseContent
-          title={__('Sales pipeline stage + Product service')}
-          compact={true}
+          key={group.key}
+          contendId={group.key}
+          open={isOpen(group.key)}
+          beforeTitle={renderIcon()}
+          title={__(group.title)}
+          image={group.image}
+          imageBackground={group.color}
+          description={renderDescription(
+            group.description.step,
+            group.description.duration
+          )}
         >
-          {renderVideo()}
+          {group.videos.map(video => {
+            if (video.isSoon) {
+              return <Soon key={video.name}>{__(video.name)}</Soon>;
+            }
+
+            return (
+              <CollapseContent
+                key={video.name}
+                title={__(video.name)}
+                compact={true}
+              >
+                {renderVideo(video.url)}
+              </CollapseContent>
+            );
+          })}
         </CollapseContent>
-        <CollapseContent title={__('Campaign & projects')} compact={true}>
-          {renderVideo()}
-        </CollapseContent>
-        <CollapseContent title={__('Task stage')} compact={true}>
-          {renderVideo()}
-        </CollapseContent>
-        <CollapseContent title={__('Tickets stage')} compact={true}>
-          {renderVideo()}
-        </CollapseContent>
-        <CollapseContent
-          title={__('Tags - inbox, customer, engage pop, up')}
-          compact={true}
-        >
-          {renderVideo()}
-        </CollapseContent>
-        <CollapseContent title={__('Segments - customer')} compact={true}>
-          {renderVideo()}
-        </CollapseContent>
-      </CollapseContent>
-      <CollapseContent
-        id="usingStage"
-        beforeTitle={renderIcon()}
-        open={isOpen('usingStage')}
-        title={__('Using stage')}
-        image="/images/actions/35.svg"
-        description={renderDescription('8 steps.', 'About 20 minutes')}
-      >
-        <CollapseContent title="Team inbox" compact={true}>
-          {renderVideo()}
-        </CollapseContent>
-      </CollapseContent>
+      ))}
     </>
   );
 

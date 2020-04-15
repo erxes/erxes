@@ -6,7 +6,11 @@ import { rgba } from '../styles/color';
 import colors from '../styles/colors';
 import Icon from './Icon';
 
-const Title = styledTS<{ compact?: boolean; hasImage?: boolean }>(styled.a)`
+const Title = styledTS<{
+  compact?: boolean;
+  hasImage?: boolean;
+  background?: string;
+}>(styled.a)`
   padding: ${props => (props.compact ? '10px 20px' : '20px')};
   transition: background 0.3s ease;
   display: flex;
@@ -35,7 +39,7 @@ const Title = styledTS<{ compact?: boolean; hasImage?: boolean }>(styled.a)`
         border-radius: 100% 12%;
         width: 300px;
         height: 200%;
-        background-color: ${rgba(colors.colorCoreYellow, 0.13)};
+        background-color: ${rgba(props.background, 0.13)};
         right: -40px;
         top: -30px;
       }
@@ -93,7 +97,7 @@ const Content = styledTS<{ full: boolean }>(styled.div)`
 `;
 
 type Props = {
-  id?: string;
+  contendId?: string;
   title: string;
   children: React.ReactNode;
   description?: React.ReactNode;
@@ -102,6 +106,7 @@ type Props = {
   image?: string;
   beforeTitle?: React.ReactNode;
   onClick?: () => void;
+  imageBackground?: string;
 };
 
 function CollapseContent(props: Props) {
@@ -118,11 +123,12 @@ function CollapseContent(props: Props) {
   return (
     <Container open={open}>
       <Title
-        href={props.id && `#${props.id}`}
-        id={props.id}
+        href={props.contendId && `#${props.contendId}`}
+        id={props.contendId}
         onClick={onClick}
         compact={props.compact}
         hasImage={hasImage}
+        background={props.imageBackground}
       >
         <Left>
           {props.beforeTitle}

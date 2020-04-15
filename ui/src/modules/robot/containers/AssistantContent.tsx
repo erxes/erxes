@@ -52,7 +52,7 @@ class AssistantContentContainer extends React.Component<FinalProps> {
         apolloClient.mutate({
           mutation: gql(mutations.checkStatus)
         });
-      }, 4000);
+      }, 3000);
     }
   }
 

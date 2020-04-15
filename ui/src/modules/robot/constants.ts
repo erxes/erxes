@@ -25,7 +25,7 @@ export const FEATURE_DETAILS = {
     }
   },
   deals: {
-    text: 'Configure Sales pipeline',
+    text: 'Sales pipeline',
     color: '#379ecb',
     icon: 'piggy-bank',
     description:
@@ -170,7 +170,7 @@ export const FEATURE_DETAILS = {
     }
   },
   knowledgeBase: {
-    text: 'Set Up Knowledge base',
+    text: 'Knowledge base',
     icon: 'book',
     color: '#45b94c',
     description:
@@ -192,7 +192,7 @@ export const FEATURE_DETAILS = {
     }
   },
   customers: {
-    text: 'Manage Your Contacts',
+    text: 'Contact Management',
     icon: 'users',
     color: colors.colorCoreBlue,
     description:
@@ -336,67 +336,41 @@ export const FEATURE_DETAILS = {
 
 export const FEATURES = [
   {
-    name: 'Scale your business with Growth Hacking',
+    name: '<b>Scale your business</b> with Growth Hacking',
     key: 'growthHacks'
   },
   {
-    name: 'Drive leads* to a successful close with Sales Pipeline*',
+    name: '<b>Drive leads to a successful close</b> with Sales Pipeline',
     key: 'deals'
   },
   {
-    name: 'Stay in sync with Shared Team Inbox',
+    name: '<b>Stay in sync</b> with Shared Team Inbox',
     key: 'inbox'
   },
   {
-    name: 'Increase conversion with Email & SMS Marketing',
+    name: '<b>Increase conversion</b> with Email & SMS Marketing',
     key: 'engages'
   },
   {
-    name: 'Manage your customers from the Contact Management',
+    name: '<b>Manage your customers</b> from the Contact Management',
     key: 'customers'
   },
   {
-    name: 'Connect with your customers with Live Chat & In-App-Messaging',
+    name:
+      '<b>Connect with your customers</b> with Live Chat & In-App-Messaging',
     key: 'integrations'
   },
   {
-    name: 'Never miss a potential lead with Pop-ups & Forms',
+    name: '<b>Never miss a potential lead</b> with Pop-ups & Forms',
     key: 'leads'
   },
 
   {
-    name: 'Educate both your customers and staff with Knowledge Base',
+    name: '<b>Educate both your customers and staff</b> with Knowledge Base',
     key: 'knowledgeBase'
   },
   {
-    name: 'Power your team’s success with Task Management ',
+    name: '<b>Power your team’s success</b> with Task Management',
     key: 'tasks'
-  }
-];
-
-export const www = [
-  {
-    name: 'Sales',
-    features: ['deals', 'segments', 'customers']
-  },
-  {
-    name: 'Customer Support',
-    features: ['inbox', 'tickets', 'knowledgeBase']
-  },
-  {
-    name: 'Management',
-    features: [
-      'tasks',
-      'permissions',
-      'properties',
-      'tags',
-      'integrations',
-      'insights',
-      'importHistories'
-    ]
-  },
-  {
-    name: 'General',
-    features: ['inbox', 'permissions', 'tags', 'integrations']
   }
 ];

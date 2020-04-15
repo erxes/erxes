@@ -8,7 +8,7 @@ import { IFeatureEntry } from '../types';
 import { SubContent } from './styles';
 
 const Container = styled.div`
-  width: 420px;
+  width: 425px;
 `;
 
 const Features = styled.div`
@@ -18,12 +18,15 @@ const Features = styled.div`
 `;
 
 const FeatureName = styledTS<{ chosen: boolean }>(styled.div)`
-  border: 1px solid ${props => (props.chosen ? colors.colorPrimary : '#ddd')};
-  background: ${props => props.chosen && rgba(colors.colorPrimary, 0.1)};
+  border: 1px solid ${props => (props.chosen ? colors.colorSecondary : '#ddd')};
+  background: ${props => props.chosen && rgba(colors.colorSecondary, 0.1)};
 	padding: 5px 16px;
 	margin-bottom: 8px
 	flex: 1;
   border-radius: 4px;
+  transition: all 0.3s ease;
+  color: ${props =>
+    props.chosen ? colors.colorSecondary : colors.textPrimary};
   
   &:last-child {
     margin-bottom: 0;
@@ -50,8 +53,8 @@ function Customization(props: Props) {
   const saveFeatures = () => {
     const featuresToSave: string[] = [];
 
-    features.map(category => {
-      return featuresToSave.push(category.key);
+    features.map(feature => {
+      return featuresToSave.push(feature.key);
     });
 
     // save to localstorages
@@ -69,7 +72,7 @@ function Customization(props: Props) {
     const toggleItem = () => {
       if (isChosen) {
         return setFeatures(
-          features.filter(category => item.name !== category.name)
+          features.filter(feature => item.key !== feature.key)
         );
       }
 
@@ -77,9 +80,12 @@ function Customization(props: Props) {
     };
 
     return (
-      <FeatureName key={item.name} onClick={toggleItem} chosen={isChosen}>
-        {item.name}
-      </FeatureName>
+      <FeatureName
+        key={item.key}
+        onClick={toggleItem}
+        chosen={isChosen}
+        dangerouslySetInnerHTML={{ __html: item.name }}
+      />
     );
   };
 
@@ -92,11 +98,13 @@ function Customization(props: Props) {
           the place to start, and we'll help you to get the most out of it.
         </p>
         <p>
-          You can choose <strong>at least two</strong> of the below fields in
-          priority order
+          <i>
+            You can choose <strong>at least two</strong> fields in your priority
+            order
+          </i>
         </p>
       </SubContent>
-      <Features>{FEATURES.map(team => renderItem(team))}</Features>
+      <Features>{FEATURES.map(feature => renderItem(feature))}</Features>
       {props.renderButton(
         'Finish',
         saveFeatures,

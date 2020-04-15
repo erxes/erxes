@@ -5,6 +5,11 @@ import styledTS from 'styled-components-ts';
 
 const SubContent = styled.div`
   padding: 0 16px;
+
+  p {
+    font-size: 12px;
+    color: ${colors.textSecondary};
+  }
 `;
 
 const Greeting = styled(SubContent)`
@@ -20,6 +25,7 @@ const Greeting = styled(SubContent)`
   p {
     margin-top: ${dimensions.unitSpacing}px;
     color: ${colors.colorCoreGray};
+    font-size: 18px;
   }
 `;
 
@@ -74,7 +80,7 @@ const Content = styled.div`
   position: fixed;
   padding: ${dimensions.coreSpacing}px;
   border-radius: 10px;
-  background: ${colors.bgLight};
+  background: ${colors.colorWhite};
   min-width: 320px;
   box-shadow: 0 5px 15px 1px rgba(0, 0, 0, 0.15);
   bottom: 65px;
