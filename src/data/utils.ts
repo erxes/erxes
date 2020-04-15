@@ -377,22 +377,20 @@ export const createTransporter = async ({ ses }) => {
   });
 };
 
-/**
- * Send email
- */
-export const sendEmail = async ({
-  toEmails = [],
-  fromEmail,
-  title,
-  template = {},
-  modifier,
-}: {
+export interface IEmailParams {
   toEmails?: string[];
   fromEmail?: string;
   title?: string;
   template?: { name?: string; data?: any; isCustom?: boolean };
   modifier?: (data: any, email: string) => void;
-}) => {
+}
+
+/**
+ * Send email
+ */
+export const sendEmail = async (params: IEmailParams) => {
+  const { toEmails = [], fromEmail, title, template = {}, modifier } = params;
+
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
   const DEFAULT_EMAIL_SERVICE = await getConfig('DEFAULT_EMAIL_SERVICE', 'SES');
   const COMPANY_EMAIL_FROM = await getConfig('COMPANY_EMAIL_FROM', '');
@@ -413,7 +411,7 @@ export const sendEmail = async ({
     return debugEmail(e.message);
   }
 
-  const { isCustom, data, name } = template;
+  const { isCustom, data = {}, name } = template;
 
   // for unsubscribe url
   data.domain = MAIN_APP_DOMAIN;
@@ -424,7 +422,7 @@ export const sendEmail = async ({
     }
 
     // generate email content by given template
-    let html = await applyTemplate(data, name || '');
+    let html = await applyTemplate(data, name || 'base');
 
     if (!isCustom) {
       html = await applyTemplate({ content: html }, 'base');
