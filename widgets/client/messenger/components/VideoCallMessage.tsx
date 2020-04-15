@@ -15,9 +15,10 @@ class VideoChatMessage extends React.PureComponent<Props> {
     videoChatContainer.id = 'erxes-video-container';
 
     // add iframe
-    const iframe = document.createElement('iframe');
+    const iframe: any = document.createElement('iframe');
     iframe.id = iframeId;
     iframe.src = this.props.videoCallData.url;
+    iframe.allow = "camera *;microphone *";
     
     videoChatContainer.appendChild(iframe);
     const widgetRoot = document.getElementById('page-root');
