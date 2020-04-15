@@ -34,6 +34,12 @@ export const createWorkers = (workerPath: string, workerData: any, results: stri
             removeWorker(worker);
           });
 
+          worker.on('message', msg => {
+            if (msg === 'Successfully finished job') {
+              removeWorker(worker);
+            }
+          });
+
           worker.on('exit', code => {
             if (code !== 0) {
               debugWorkers(`Worker stopped with exit code ${code}`);
