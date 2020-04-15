@@ -23,18 +23,11 @@ connect().then(async () => {
   }
 
   const { user, email, result, engageMessageId } = workerData;
-
   const { content, subject, attachments } = email;
 
   const transporter = await createTransporter();
 
-  const customerEmails = result.map(customer => customer.email);
-
-  if (customerEmails.length > 0) {
-    await Logs.createLog(engageMessageId, 'regular', `Preparing to send emails to ${customerEmails}`);
-  }
-
-  for (const customer of result) {
+  const sendEmail = async customer => {
     const mailMessageId = Random.id();
 
     let mailAttachment = [];
@@ -85,6 +78,20 @@ connect().then(async () => {
     }
 
     await Stats.updateOne({ engageMessageId }, { $inc: { total: 1 } });
+  };
+
+  const customerEmails = result.map(customer => customer.email);
+
+  if (customerEmails.length > 0) {
+    await Logs.createLog(engageMessageId, 'regular', `Preparing to send emails to ${customerEmails}`);
+  }
+
+  for (const customer of result) {
+    await new Promise(resolve => {
+      setTimeout(resolve, 3000);
+    });
+
+    await sendEmail(customer);
   }
 
   mongoose.connection.close();
