@@ -2,6 +2,7 @@ import * as faker from 'faker';
 import * as Random from 'meteor-random';
 import { EngagesAPI, IntegrationsAPI } from '../data/dataSources';
 import widgetMutations, { getMessengerData } from '../data/resolvers/mutations/widgets';
+import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
   conversationFactory,
@@ -639,5 +640,30 @@ describe('lead', () => {
     expect(formData[3].value).toBe('88998833');
     expect(formData[4].value).toBe('radio2');
     expect(formData[5].value).toBe('check1, check2');
+  });
+
+  test('widgetsSendEmail', async () => {
+    const emailParams = {
+      toEmails: ['test-mail@gmail.com'],
+      fromEmail: 'admin@erxes.io',
+      title: 'Thank you for submitting.',
+      content: 'We have received your request',
+    };
+
+    const spyEmail = jest.spyOn(widgetMutations, 'widgetsSendEmail');
+
+    const mutation = `
+      mutation widgetsSendEmail($toEmails: [String], $fromEmail: String, $title: String, $content: String) {
+        widgetsSendEmail(toEmails: $toEmails, fromEmail: $fromEmail, title: $title, content: $content)
+      }
+    `;
+
+    spyEmail.mockImplementation(() => Promise.resolve());
+
+    const response = await graphqlRequest(mutation, 'widgetsSendEmail', emailParams);
+
+    expect(response).toBe(null);
+
+    spyEmail.mockRestore();
   });
 });

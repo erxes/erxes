@@ -531,11 +531,12 @@ const widgetMutations = {
   async widgetsSendEmail(_root, args: IWidgetEmailParams) {
     const { toEmails, fromEmail, title, content } = args;
 
-    const modifier = (data: any) => {
-      data.content = content;
-    };
-
-    await sendEmail({ toEmails, fromEmail, title, modifier });
+    await sendEmail({
+      toEmails,
+      fromEmail,
+      title,
+      template: { isCustom: false, data: { content } },
+    });
   },
 };
 
