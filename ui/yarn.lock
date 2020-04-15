@@ -2580,10 +2580,10 @@ atob@^2.1.1:
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.2.tgz#6d9517eb9e030d2436666651e86bd9f6f13533c9"
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
 
-autolinker@^3.0.0:
-  version "3.0.4"
-  resolved "https://registry.yarnpkg.com/autolinker/-/autolinker-3.0.4.tgz#8db74f7915f6c2518263d87863f002d912fddd36"
-  integrity sha512-zsrfNgJ0pLhj50KUR5/0wpNlSKxMFkip50yRrCbPgeQZjNb6hmj40Oo7sWiL1up+XG/oqRQjMf5MTyuiCk7EAw==
+autolinker@3.14.0:
+  version "3.14.0"
+  resolved "https://registry.yarnpkg.com/autolinker/-/autolinker-3.14.0.tgz#70f01bc0fb8be8b2340480df7f323abe04ee4b3f"
+  integrity sha512-4b9rvvEkeCC0v/vUtsEyTGrZz2ltGZFqJvifSFlegeTP1q8549jFoohJPqxvAeS9cVa64JlZiXA9Q51G9iti7w==
   dependencies:
     tslib "^1.9.3"
 

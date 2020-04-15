@@ -78,11 +78,12 @@ erxesContainer.id = container;
 erxesContainer.className = "erxes-messenger-hidden";
 
 // add iframe
-const iframe = document.createElement("iframe");
+const iframe: any = document.createElement("iframe");
 
 iframe.id = iframeId;
 iframe.src = generateIntegrationUrl("messenger");
 iframe.style.display = "none";
+iframe.allow = "camera *;microphone *";
 
 erxesContainer.appendChild(iframe);
 document.body.appendChild(erxesContainer);
