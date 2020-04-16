@@ -125,6 +125,8 @@ export const RULE_CONDITIONS = {
 };
 
 export const SCHEDULE_TYPES = [
+  { value: 'minute', label: 'Every minute' },
+  { value: 'hour', label: 'Every hour' },
   { value: 'day', label: 'Every Day' },
   { value: 'month', label: 'Every Month' },
   { value: 'year', label: 'Every Year' },

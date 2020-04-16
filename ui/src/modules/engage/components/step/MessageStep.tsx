@@ -14,7 +14,7 @@ type Props = {
   brands: IBrand[];
   onChange: (
     name: 'messenger' | 'email' | 'content' | 'scheduleDate' | 'fromUserId',
-    value: IEngageEmail | IEngageMessenger | IEngageScheduleDate | string
+    value?: IEngageEmail | IEngageMessenger | IEngageScheduleDate | string
   ) => void;
   users: IUser[];
   method: string;

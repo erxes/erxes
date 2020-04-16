@@ -95,7 +95,6 @@ export const engageDetailFields = `
     type
     month
     day
-    time
   }
   brand {
     name
