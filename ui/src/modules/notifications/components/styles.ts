@@ -91,16 +91,17 @@ const NotifButton = styled.div`
   transition: all 0.3s ease;
 
   i {
-    font-size: 18px;
+    font-size: 20px;
   }
 
   span {
     position: absolute;
     top: -4px;
-    right: -10px;
-    padding: 4px;
+    right: -8px;
+    padding: 3px;
     min-width: 18px;
     min-height: 18px;
+    line-height: 12px;
   }
 `;
 

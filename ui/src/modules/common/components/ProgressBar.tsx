@@ -13,7 +13,7 @@ const ContentContainer = styled.div`
 
 const Wrapper = styledTS<{ height?: string }>(styled.div)`
   position: relative;
-  padding: 8px 30px;
+  padding: 0px 30px;
   background: ${colors.bgMain};
   width: 100%;
   height: ${props => (props.height ? props.height : '36px')};
