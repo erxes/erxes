@@ -159,7 +159,7 @@ class Todo extends React.Component<Props, State> {
                 👋
               </span>
             </b>
-            <p>{__("Let's get your set up workspace for success")}.</p>
+            <p>{__("Let's set up your workplace for success")}.</p>
 
             {this.renderProgress()}
           </Greeting>
