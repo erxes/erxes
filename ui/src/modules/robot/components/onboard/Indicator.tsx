@@ -8,14 +8,14 @@ const Wrapper = styled.div`
 `;
 
 const Round = styledTS<{ active?: boolean }>(styled.div)`
-	width: 10px;
-	height: 10px;
-	border-radius: 5px;
+	width: 8px;
+	height: 8px;
+	border-radius: 4px;
 	background: ${colors.colorCoreRed};
 	margin-right: 5px;
 	transition: 0.3s transform ease;
-	opacity:  ${props => (props.active ? '1' : '0.5')};;
-	transform: ${props => props.active && 'scale(1.14)'};
+	opacity:  ${props => (props.active ? '1' : '0.4')};;
+	transform: ${props => props.active && 'scale(1.18)'};
 
 	&:last-child {
 		margin: 0;

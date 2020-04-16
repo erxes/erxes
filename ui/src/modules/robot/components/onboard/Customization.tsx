@@ -1,11 +1,12 @@
 import { colors } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
+import { __ } from 'modules/common/utils';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { FEATURES } from '../constants';
-import { IFeatureEntry } from '../types';
-import { SubContent } from './styles';
+import { FEATURES } from '../../constants';
+import { IFeatureEntry } from '../../types';
+import { SubContent } from '../styles';
 
 const Container = styled.div`
   width: 425px;
@@ -92,10 +93,13 @@ function Customization(props: Props) {
   return (
     <Container>
       <SubContent>
-        <h3>Where do you want to start?</h3>
+        <h3>{__('Where do you want to start')}?</h3>
         <p>
-          There are a tons of you can do with <strong>erxes</strong>. Let's pick
-          the place to start, and we'll help you to get the most out of it.
+          There are a tons of you can do with <strong>erxes</strong>.
+          {__(
+            "Let's pick the place to start, and we'll help you to get the most out of it"
+          )}
+          .
         </p>
         <p>
           <i>

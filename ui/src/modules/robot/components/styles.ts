@@ -114,9 +114,8 @@ const CompletedTaskWrapper = styled.div`
 const CompletedTaskName = styled.div`
   font-size: 14px;
   margin-top: 5px;
-  color: rgb(155, 156, 158);
+  color: #9b9c9e;
   text-decoration-line: line-through;
-  text-transform: capitalize;
 
   &:hover {
     cursor: pointer;
@@ -132,7 +131,7 @@ const BackDrop = styled.div`
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(48, 67, 92, 0.8);
   z-index: 13;
   transition: opacity 0.3s;
   animation-name: ${fadeIn};

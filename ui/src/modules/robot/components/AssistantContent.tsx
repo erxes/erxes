@@ -3,10 +3,10 @@ import React from 'react';
 import RTG from 'react-transition-group';
 import { IFeature } from '../types';
 import { getCurrentUserName } from '../utils';
+import Onboarding from './onboard/Onboarding';
 import { Content } from './styles';
 import Suggestion from './Suggestion';
 import Todo from './Todo';
-import Welcome from './Welcome';
 
 type Props = {
   availableFeatures: IFeature[];
@@ -16,6 +16,7 @@ type Props = {
   currentUser: IUser;
   showContent: boolean;
   toggleContent: (isShow: boolean) => void;
+  savedFeatures?: string | null;
 };
 
 type State = {
@@ -29,11 +30,14 @@ class AssistantContent extends React.Component<Props, State> {
       currentRoute,
       changeRoute,
       currentUser,
-      forceComplete
+      forceComplete,
+      savedFeatures,
+      toggleContent
     } = this.props;
 
     const commonProps = {
       forceComplete,
+      toggleContent,
       currentUserName: getCurrentUserName(currentUser)
     };
 
@@ -41,17 +45,23 @@ class AssistantContent extends React.Component<Props, State> {
       changeRoute('todoList');
     };
 
+    const onBoarding = (
+      <Onboarding
+        currentUserName={getCurrentUserName(currentUser)}
+        changeRoute={changeRoute}
+      />
+    );
+
     if (currentRoute === 'initial') {
-      return (
-        <Welcome
-          currentUserName={getCurrentUserName(currentUser)}
-          changeRoute={changeRoute}
-        />
-      );
+      return onBoarding;
     }
 
     if (currentRoute === 'inComplete') {
-      return <Suggestion {...commonProps} onClick={onClick} />;
+      return !savedFeatures ? (
+        onBoarding
+      ) : (
+        <Suggestion {...commonProps} onClick={onClick} />
+      );
     }
 
     if (currentRoute === 'todoList' || currentRoute === 'todoDetail') {

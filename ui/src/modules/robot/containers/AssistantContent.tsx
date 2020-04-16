@@ -121,6 +121,7 @@ class AssistantContentContainer extends React.Component<FinalProps> {
     return (
       <AssistantContent
         {...this.props}
+        savedFeatures={savedFeatures}
         changeRoute={this.changeStep}
         forceComplete={this.forceComplete}
         availableFeatures={features}

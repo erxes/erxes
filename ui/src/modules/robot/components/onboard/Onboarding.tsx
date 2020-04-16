@@ -1,30 +1,20 @@
 import Button from 'modules/common/components/Button';
 import CommonPortal from 'modules/common/components/CommonPortal';
 import Icon from 'modules/common/components/Icon';
-import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import styled from 'styled-components';
+import { BackDrop } from '../styles';
 import Customization from './Customization';
 import Indicator from './Indicator';
-import { BackDrop } from './styles';
-
-const WelcomeContent = styled.div`
-  width: 280px;
-`;
+import Welcome from './Welcome';
 
 const Wrapper = styled.div`
   margin: 0;
   position: relative;
 
-  img {
-    width: 100%;
-    padding: 10px 20px;
-    margin-bottom: 20px;
-  }
-
   h3 {
     margin: 10px 0 20px;
-    font-size: 24px;
+    font-size: 22px;
   }
 
   p {
@@ -37,6 +27,7 @@ const Footer = styled.div`
   align-items: center;
   height: 34px;
   margin-top: 20px;
+  padding-left: 16px;
 `;
 
 const ButtonWrapper = styled.div`
@@ -55,7 +46,7 @@ type State = {
   activeStep: number;
 };
 
-class Welcome extends React.PureComponent<Props, State> {
+class Onboarding extends React.PureComponent<Props, State> {
   constructor(props) {
     super(props);
 
@@ -92,25 +83,11 @@ class Welcome extends React.PureComponent<Props, State> {
       const { currentUserName } = this.props;
 
       return (
-        <WelcomeContent>
-          <img alt="welcome" src="/images/actions/welcome.svg" />
-          <div>
-            <h3>
-              {__('Welcome')}, <b>{currentUserName}</b>
-            </h3>
-            <p>
-              {__(
-                "We're thrilled to have you on board and can't wait to see you set up your business here already"
-              )}
-              .
-            </p>
-          </div>
-          {this.renderButton(
-            'Get Started',
-            this.changeStep,
-            'arrow-circle-right'
-          )}
-        </WelcomeContent>
+        <Welcome
+          changeStep={this.changeStep}
+          currentUserName={currentUserName}
+          renderButton={this.renderButton}
+        />
       );
     }
 
@@ -137,4 +114,4 @@ class Welcome extends React.PureComponent<Props, State> {
   }
 }
 
-export default Welcome;
+export default Onboarding;

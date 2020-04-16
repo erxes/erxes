@@ -6,9 +6,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const Modul = styledTS<{
-  disabled?: boolean;
-}>(styled.div)`
+const Modul = styledTS<{ disabled?: boolean }>(styled.div)`
   display: inline-flex;
   background: ${colors.colorWhite};
   border-radius: ${dimensions.unitSpacing}px;
@@ -76,33 +74,23 @@ type Props = {
   disabled?: boolean;
 };
 
-type State = {
-  show: boolean;
-};
-
-class ModulItem extends React.Component<Props, State> {
-  render() {
-    const {
-      icon = 'chat',
-      title,
-      description,
-      color,
-      onClick,
-      disabled
-    } = this.props;
-
-    return (
-      <Modul onClick={onClick} disabled={disabled}>
-        <IconContainer color={color}>
-          <Icon icon={icon} />
-        </IconContainer>
-        <Text>
-          <h4>{title}</h4>
-          {description && <p>{description}</p>}
-        </Text>
-      </Modul>
-    );
-  }
+export default function ModulItem({
+  icon = 'chat',
+  title,
+  description,
+  color,
+  onClick,
+  disabled
+}: Props) {
+  return (
+    <Modul onClick={onClick} disabled={disabled}>
+      <IconContainer color={color}>
+        <Icon icon={icon} />
+      </IconContainer>
+      <Text>
+        <h4>{title}</h4>
+        {description && <p>{description}</p>}
+      </Text>
+    </Modul>
+  );
 }
-
-export default ModulItem;

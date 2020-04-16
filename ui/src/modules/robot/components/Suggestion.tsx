@@ -1,7 +1,9 @@
 import Button from 'modules/common/components/Button';
+import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import * as React from 'react';
 import styled from 'styled-components';
+import { NavButton } from './styles';
 
 const Wrapper = styled.div`
   width: 280px;
@@ -26,13 +28,24 @@ type Props = {
   onClick: () => void;
   currentUserName: string;
   forceComplete: () => void;
+  toggleContent: (isShow: boolean) => void;
 };
 
-class Suggestion extends React.PureComponent<Props> {
-  render() {
-    const { onClick, currentUserName, forceComplete } = this.props;
+export default function Suggestion({
+  onClick,
+  currentUserName,
+  forceComplete,
+  toggleContent
+}: Props) {
+  const onHide = () => {
+    toggleContent(false);
+  };
 
-    return (
+  return (
+    <>
+      <NavButton onClick={onHide} right={true}>
+        <Icon icon="times" size={17} />
+      </NavButton>
       <Wrapper>
         <span role="img" aria-label="Wave">
           👋
@@ -53,8 +66,6 @@ class Suggestion extends React.PureComponent<Props> {
           </Button>
         </div>
       </Wrapper>
-    );
-  }
+    </>
+  );
 }
-
-export default Suggestion;
