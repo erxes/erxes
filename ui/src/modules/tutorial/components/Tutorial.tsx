@@ -95,7 +95,14 @@ function Tutorial() {
           {__(
             'Here is where you can check your performance and find some tips'
           )}
-          !
+          ! For further help, please consult the{' '}
+          <a
+            target="_blank"
+            href="https://docs.erxes.io/overview/getting-started"
+          >
+            documentation
+          </a>
+          .
         </p>
       </Header>
     );
