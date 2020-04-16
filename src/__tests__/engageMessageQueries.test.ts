@@ -4,7 +4,6 @@ import { brandFactory, engageMessageFactory, segmentFactory, tagsFactory, userFa
 import { Brands, EngageMessages, Segments, Tags, Users } from '../db/models';
 
 import { EngagesAPI } from '../data/dataSources';
-import utils from '../data/utils';
 import './setup.ts';
 
 describe('engageQueries', () => {
@@ -38,14 +37,10 @@ describe('engageQueries', () => {
     }
   `;
 
-  let fetchSpy;
   let dataSources;
 
   beforeEach(async () => {
     dataSources = { EngagesAPI: new EngagesAPI() };
-
-    fetchSpy = jest.spyOn(utils, 'fetchCronsApi');
-    fetchSpy.mockImplementation(() => Promise.resolve('ok'));
   });
 
   afterEach(async () => {
@@ -55,8 +50,6 @@ describe('engageQueries', () => {
     await Tags.deleteMany({});
     await Brands.deleteMany({});
     await Segments.deleteMany({});
-
-    fetchSpy.mockRestore();
   });
 
   test('Engage messages', async () => {

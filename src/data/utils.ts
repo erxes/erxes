@@ -611,16 +611,6 @@ export const sendRequest = async (
 };
 
 /**
- * Send request to crons api
- */
-export const fetchCronsApi = ({ path, method, body, params }: IRequestParams) => {
-  return sendRequest(
-    { url: `${getSubServiceDomain({ name: 'CRONS_API_DOMAIN' })}${path}`, method, body, params },
-    'Failed to connect crons api. Check CRONS_API_DOMAIN env or crons api is not running',
-  );
-};
-
-/**
  * Send request to workers api
  */
 export const fetchWorkersApi = ({ path, method, body, params }: IRequestParams) => {
@@ -768,7 +758,6 @@ export default {
   sendMobileNotification,
   readFile,
   createTransporter,
-  fetchCronsApi,
   fetchWorkersApi,
 };
 
@@ -932,7 +921,6 @@ export const getSubServiceDomain = ({ name }: { name: string }): string => {
   const defaultMappings = {
     WIDGETS_DOMAIN: `${MAIN_APP_DOMAIN}/widgets`,
     INTEGRATIONS_API_DOMAIN: `${MAIN_APP_DOMAIN}/integrations`,
-    CRONS_API_DOMAIN: `${MAIN_APP_DOMAIN}/crons`,
     WORKERS_API_DOMAIN: `${MAIN_APP_DOMAIN}/workers`,
     LOGS_API_DOMAIN: `${MAIN_APP_DOMAIN}/logs`,
     ENGAGES_API_DOMAIN: `${MAIN_APP_DOMAIN}/engages`,
