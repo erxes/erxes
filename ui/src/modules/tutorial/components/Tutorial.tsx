@@ -99,6 +99,7 @@ function Tutorial() {
           <a
             target="_blank"
             href="https://docs.erxes.io/overview/getting-started"
+            rel="noopener noreferrer"
           >
             documentation
           </a>
