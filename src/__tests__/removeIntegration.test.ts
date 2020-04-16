@@ -12,7 +12,7 @@ import {
 } from '../factories';
 import { removeAccount, removeIntegration } from '../helpers';
 import { Accounts, Integrations } from '../models';
-import * as auth from '../nylas/auth';
+import * as nylasApi from '../nylas/api';
 import { NylasGmailConversationMessages, NylasGmailConversations, NylasGmailCustomers } from '../nylas/models';
 import './setup.ts';
 
@@ -157,7 +157,7 @@ describe('Nylas remove integration test', () => {
   test('Remove integration by accountId', async () => {
     const { customerId, conversationId, messageId } = await entryFactory('asd@mail.com');
 
-    const mock = sinon.stub(auth, 'enableOrDisableAccount').callsFake();
+    const mock = sinon.stub(nylasApi, 'enableOrDisableAccount').callsFake();
     const erxesApiIds = await removeAccount(accountId);
 
     // Remove integration
@@ -175,7 +175,7 @@ describe('Nylas remove integration test', () => {
   test('Remove nylas-gmail integration by [erxesApiId]', async () => {
     const { customerId, conversationId, messageId } = await entryFactory('foo@mail.com');
 
-    const mock = sinon.stub(auth, 'enableOrDisableAccount').callsFake();
+    const mock = sinon.stub(nylasApi, 'enableOrDisableAccount').callsFake();
     const integrationErxesApiId = await removeIntegration(erxesApiId);
 
     // Remove integration

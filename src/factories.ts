@@ -18,6 +18,8 @@ export const accountFactory = (params: {
   kind?: string;
   name?: string;
   email?: string;
+  host?: string;
+  username?: string;
   scope?: string;
   expireDate?: string;
   token?: string;
@@ -36,6 +38,8 @@ export const accountFactory = (params: {
     email: params.email || '',
     token: params.token || '',
     scope: params.scope || '',
+    host: params.host || '',
+    username: params.username || '',
     expireDate: params.expireDate || '',
     tokenSecret: params.tokenSecret || '',
     nylasToken: params.nylasToken || '',

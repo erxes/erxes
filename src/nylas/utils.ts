@@ -1,9 +1,10 @@
 import * as crypto from 'crypto';
 import * as dotenv from 'dotenv';
-import * as Nylas from 'nylas';
 import { debugNylas } from '../debuggers';
 import { getGoogleConfigs } from '../gmail/util';
-import { getConfig, getEnv } from '../utils';
+import { Accounts, Integrations } from '../models';
+import { compose, getConfig, getEnv } from '../utils';
+import { getMessageById } from './api';
 import {
   GOOGLE_OAUTH_ACCESS_TOKEN_URL,
   GOOGLE_OAUTH_AUTH_URL,
@@ -12,19 +13,68 @@ import {
   MICROSOFT_OAUTH_AUTH_URL,
   MICROSOFT_SCOPES,
 } from './constants';
+import {
+  createOrGetNylasConversation as storeConversation,
+  createOrGetNylasConversationMessage as storeMessage,
+  createOrGetNylasCustomer as storeCustomer,
+} from './store';
 
 // load config
 dotenv.config();
 
 /**
- * Check nylas credentials
- * @returns void
+ * Sync messages with messageId from webhook
+ * @param {String} accountId
+ * @param {String} messageId
+ * @retusn {Promise} nylas messages object
  */
-const checkCredentials = () => {
-  return Nylas.clientCredentials();
+const syncMessages = async (accountId: string, messageId: string) => {
+  const account = await Accounts.findOne({ uid: accountId }).lean();
+
+  if (!account) {
+    return debugNylas('Account not found with uid: ', accountId);
+  }
+
+  const integration = await Integrations.findOne({ accountId: account._id });
+
+  if (!integration) {
+    return debugNylas('Integration not found with accountId: ', account._id);
+  }
+
+  const { nylasToken, email, kind } = account;
+
+  let message;
+
+  try {
+    message = await getMessageById(nylasToken, messageId);
+  } catch (e) {
+    debugNylas(`Failed to get nylas message by id: ${e.message}`);
+
+    return e;
+  }
+
+  const [from] = message.from;
+
+  // Prevent to send email to itself
+  if (from.email === account.email && !message.subject.includes('Re:')) {
+    return;
+  }
+
+  const doc = {
+    kind,
+    message: JSON.parse(JSON.stringify(message)),
+    toEmail: email,
+    integrationIds: {
+      id: integration._id,
+      erxesApiId: integration.erxesApiId,
+    },
+  };
+
+  // Store new received message
+  return compose(storeMessage, storeConversation, storeCustomer)(doc);
 };
 
-const getNylasConfig = async () => {
+export const getNylasConfig = async () => {
   return {
     NYLAS_CLIENT_ID: await getConfig('NYLAS_CLIENT_ID'),
     NYLAS_CLIENT_SECRET: await getConfig('NYLAS_CLIENT_SECRET'),
@@ -52,35 +102,11 @@ const buildEmailAddress = (emailStr: string[]) => {
 };
 
 /**
- * Set token for nylas and
- * check credentials
- * @param {String} accessToken
- * @returns {Boolean} credentials
- */
-const setNylasToken = (accessToken: string) => {
-  if (!checkCredentials()) {
-    debugNylas('Nylas is not configured');
-
-    return false;
-  }
-
-  if (!accessToken) {
-    debugNylas('Access token not found');
-
-    return false;
-  }
-
-  const nylas = Nylas.with(accessToken);
-
-  return nylas;
-};
-
-/**
  * Get client id and secret
  * for selected provider
  * @returns void
  */
-const getClientConfig = async (kind: string): Promise<string[]> => {
+export const getClientConfig = async (kind: string): Promise<string[]> => {
   const MICROSOFT_CLIENT_ID = await getConfig('MICROSOFT_CLIENT_ID');
   const MICROSOFT_CLIENT_SECRET = await getConfig('MICROSOFT_CLIENT_SECRET');
   const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } = await getGoogleConfigs();
@@ -95,7 +121,7 @@ const getClientConfig = async (kind: string): Promise<string[]> => {
   }
 };
 
-const getProviderSettings = async (kind: string, refreshToken: string) => {
+export const getProviderSettings = async (kind: string, refreshToken: string) => {
   const DOMAIN = getEnv({ name: 'DOMAIN', defaultValue: '' });
 
   const [clientId, clientSecret] = await getClientConfig(kind);
@@ -154,98 +180,11 @@ const getProviderConfigs = (kind: string) => {
 };
 
 /**
- * Request to Nylas SDK
- * @param {String} - accessToken
- * @param {String} - parent
- * @param {String} - child
- * @param {String} - filter
- * @returns {Promise} - nylas response
- */
-const nylasRequest = ({
-  parent,
-  child,
-  accessToken,
-  filter,
-}: {
-  parent: string;
-  child: string;
-  accessToken: string;
-  filter?: any;
-}) => {
-  const nylas = setNylasToken(accessToken);
-
-  if (!nylas) {
-    return;
-  }
-
-  return nylas[parent][child](filter)
-    .then(response => response)
-    .catch(e => debugNylas(e.message));
-};
-
-/**
- * Nylas file request
- */
-const nylasFileRequest = (nylasFile: any, method: string) => {
-  return new Promise((resolve, reject) => {
-    nylasFile[method]((err, file) => {
-      if (err) {
-        reject(err);
-      }
-
-      return resolve(file);
-    });
-  });
-};
-
-/**
- * Get Nylas SDK instrance
- */
-const nylasInstance = (name: string, method: string, options?: any, action?: string) => {
-  if (!action) {
-    return Nylas[name][method](options);
-  }
-
-  return Nylas[name][method](options)[action]();
-};
-
-/**
- * Get Nylas SDK instance with token
- */
-const nylasInstanceWithToken = async ({
-  accessToken,
-  name,
-  method,
-  options,
-  action,
-}: {
-  accessToken: string;
-  name: string;
-  method: string;
-  options?: any;
-  action?: string;
-}) => {
-  const nylas = setNylasToken(accessToken);
-
-  if (!nylas) {
-    return;
-  }
-
-  const instance = nylas[name][method](options);
-
-  if (!action) {
-    return instance;
-  }
-
-  return instance[action]();
-};
-
-/**
  * Encrypt password
  * @param {String} password
  * @returns {String} encrypted password
  */
-const encryptPassword = async (password: string): Promise<string> => {
+export const encryptPassword = async (password: string): Promise<string> => {
   const ENCRYPTION_KEY = await getConfig('ENCRYPTION_KEY', '');
   const ALGORITHM = await getConfig('ALGORITHM', '');
 
@@ -272,7 +211,7 @@ const encryptPassword = async (password: string): Promise<string> => {
  * @param {String} password
  * @returns {String} decrypted password
  */
-const decryptPassword = async (password: string): Promise<string> => {
+export const decryptPassword = async (password: string): Promise<string> => {
   const ENCRYPTION_KEY = await getConfig('ENCRYPTION_KEY', '');
   const ALGORITHM = await getConfig('ALGORITHM', '');
 
@@ -298,18 +237,4 @@ const decryptPassword = async (password: string): Promise<string> => {
   }
 };
 
-export {
-  nylasFileRequest,
-  setNylasToken,
-  getProviderConfigs,
-  nylasRequest,
-  checkCredentials,
-  getNylasConfig,
-  buildEmailAddress,
-  encryptPassword,
-  decryptPassword,
-  getProviderSettings,
-  getClientConfig,
-  nylasInstance,
-  nylasInstanceWithToken,
-};
+export { getProviderConfigs, buildEmailAddress, syncMessages };

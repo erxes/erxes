@@ -30,7 +30,7 @@ import {
   Customers as GmailCustomers,
 } from './gmail/models';
 import { Accounts, Integrations } from './models';
-import { enableOrDisableAccount, removeExistingNylasWebhook } from './nylas/auth';
+import { removeExistingNylasWebhook } from './nylas/auth';
 import {
   NylasExchangeConversationMessages,
   NylasExchangeConversations,
@@ -81,6 +81,7 @@ import {
 
 import { stopPushNotification } from './gmail/watch';
 import Configs from './models/Configs';
+import { enableOrDisableAccount } from './nylas/api';
 import { setupNylas } from './nylas/controller';
 import { createNylasWebhook } from './nylas/tracker';
 import { setupSmooch } from './smooch/controller';

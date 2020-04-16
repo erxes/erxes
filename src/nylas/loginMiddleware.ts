@@ -3,8 +3,9 @@ import * as querystring from 'querystring';
 import { debugNylas, debugRequest } from '../debuggers';
 import { Accounts } from '../models';
 import { sendRequest } from '../utils';
+import { checkCredentials } from './api';
 import { AUTHORIZED_REDIRECT_URL, GOOGLE_OAUTH_TOKEN_VALIDATION_URL, MICROSOFT_GRAPH_URL } from './constants';
-import { checkCredentials, encryptPassword, getClientConfig, getProviderConfigs } from './utils';
+import { encryptPassword, getClientConfig, getProviderConfigs } from './utils';
 
 // loading config
 dotenv.config();
@@ -116,7 +117,7 @@ const getOAuthCredentials = async (req, res, next) => {
 
   await Accounts.create(doc);
 
-  res.redirect(AUTHORIZED_REDIRECT_URL);
+  return res.redirect(AUTHORIZED_REDIRECT_URL);
 };
 
 /**

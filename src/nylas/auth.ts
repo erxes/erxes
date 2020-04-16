@@ -1,11 +1,11 @@
 import * as dotenv from 'dotenv';
 import { debugNylas } from '../debuggers';
-import Accounts, { IAccount } from '../models/Accounts';
+import { IAccount } from '../models/Accounts';
 import { getConfig, sendRequest } from '../utils';
 import { CONNECT_AUTHORIZE_URL, CONNECT_TOKEN_URL, NYLAS_API_URL } from './constants';
 import { updateAccount } from './store';
 import { IIntegrateProvider } from './types';
-import { decryptPassword, getNylasConfig, getProviderSettings, nylasInstance } from './utils';
+import { decryptPassword, getNylasConfig, getProviderSettings } from './utils';
 
 // loading config
 dotenv.config();
@@ -142,7 +142,7 @@ const connectImapToNylas = async (account: IAccount & { _id: string }) => {
  * @param {String} kind
  * @param {Object} settings
  */
-const integrateProviderToNylas = async (args: IIntegrateProvider) => {
+export const integrateProviderToNylas = async (args: IIntegrateProvider) => {
   const { email, kind, settings, scopes } = args;
 
   let code;
@@ -189,25 +189,6 @@ const integrateProviderToNylas = async (args: IIntegrateProvider) => {
   }
 };
 
-/**
- * Enable or Disable nylas account billing state
- * @param {String} accountId
- * @param {Boolean} enable
- */
-const enableOrDisableAccount = async (accountId: string, enable: boolean) => {
-  debugNylas(`${enable} account with uid: ${accountId}`);
-
-  await nylasInstance('accounts', 'find', accountId).then(account => {
-    if (enable) {
-      return account.upgrade();
-    }
-
-    return account.downgrade();
-  });
-
-  return Accounts.updateOne({ uid: accountId }, { $set: { billingState: enable ? 'paid' : 'cancelled' } });
-};
-
 const removeExistingNylasWebhook = async (): Promise<void> => {
   const NYLAS_CLIENT_ID = await getConfig('NYLAS_CLIENT_ID');
   const NYLAS_CLIENT_SECRET = await getConfig('NYLAS_CLIENT_SECRET');
@@ -247,8 +228,6 @@ const removeExistingNylasWebhook = async (): Promise<void> => {
 
 export {
   removeExistingNylasWebhook,
-  enableOrDisableAccount,
-  integrateProviderToNylas,
   connectProviderToNylas,
   connectImapToNylas,
   connectYahooAndOutlookToNylas,
