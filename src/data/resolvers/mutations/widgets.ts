@@ -23,7 +23,7 @@ import { trackViewPageEvent } from '../../../events';
 import { graphqlPubsub } from '../../../pubsub';
 import { get, set } from '../../../redisClient';
 import { IContext } from '../../types';
-import { registerOnboardHistory, sendMobileNotification } from '../../utils';
+import { registerOnboardHistory, sendEmail, sendMobileNotification } from '../../utils';
 import { conversationNotifReceivers } from './conversations';
 
 interface ISubmission {
@@ -31,6 +31,13 @@ interface ISubmission {
   value: any;
   type?: string;
   validation?: string;
+}
+
+interface IWidgetEmailParams {
+  toEmails: string[];
+  fromEmail: string;
+  title: string;
+  content: string;
 }
 
 export const getMessengerData = async (integration: IIntegrationDocument) => {
@@ -187,7 +194,7 @@ const widgetMutations = {
       submittedAt: new Date(),
     };
 
-    FormSubmissions.createFormSubmission(doc);
+    await FormSubmissions.createFormSubmission(doc);
 
     // create conversation
     const conversation = await Conversations.createConversation({
@@ -519,6 +526,17 @@ const widgetMutations = {
     });
 
     return 'ok';
+  },
+
+  async widgetsSendEmail(_root, args: IWidgetEmailParams) {
+    const { toEmails, fromEmail, title, content } = args;
+
+    await sendEmail({
+      toEmails,
+      fromEmail,
+      title,
+      template: { isCustom: false, data: { content } },
+    });
   },
 };
 

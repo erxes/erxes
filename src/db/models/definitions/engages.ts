@@ -7,7 +7,6 @@ export interface IScheduleDate {
   type?: string;
   month?: string | number;
   day?: string | number;
-  time?: string;
 }
 
 interface IScheduleDateDocument extends IScheduleDate, Document {}
@@ -47,6 +46,7 @@ export interface IEngageMessage {
   email?: IEmail;
   scheduleDate?: IScheduleDate;
   messenger?: IMessenger;
+  lastRunAt?: Date;
 
   totalCustomersCount?: number;
   validCustomersCount?: number;
@@ -67,7 +67,6 @@ export const scheduleDateSchema = new Schema(
     type: field({ type: String, optional: true, label: 'Type' }),
     month: field({ type: String, optional: true, label: 'Month' }),
     day: field({ type: String, optional: true, label: 'Day' }),
-    time: field({ type: Date, optional: true, label: 'Time' }),
   },
   { _id: false },
 );
@@ -134,6 +133,7 @@ export const engageMessageSchema = schemaWrapper(
     email: field({ type: emailSchema, label: 'Email' }),
     scheduleDate: field({ type: scheduleDateSchema, label: 'Schedule date' }),
     messenger: field({ type: messengerSchema, label: 'Messenger' }),
+    lastRunAt: field({ type: Date, optional: true }),
 
     totalCustomersCount: field({ type: Number, optional: true }),
     validCustomersCount: field({ type: Number, optional: true }),

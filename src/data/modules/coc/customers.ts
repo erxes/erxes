@@ -140,7 +140,6 @@ export class Builder extends CommonBuilder<IListArgs> {
       ...this.context.commonQuerySelector,
       status: { $ne: STATUSES.DELETED },
       state: this.params.type || 'customer',
-      profileScore: { $gt: 0 },
       $or: [
         {
           integrationId: { $in: [null, undefined, ''] },

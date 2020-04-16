@@ -38,14 +38,12 @@ export const types = `
     type: String,
     month: String,
     day: String,
-    time: Date,
   }
 
   input EngageScheduleDateInput {
     type: String,
     month: String,
     day: String,
-    time: Date,
   }
 
   input EngageMessageEmail {

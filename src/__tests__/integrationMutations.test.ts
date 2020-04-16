@@ -14,7 +14,6 @@ import {
 import { Brands, Customers, EmailDeliveries, Integrations, Users } from '../db/models';
 
 import { IntegrationsAPI } from '../data/dataSources';
-import utils from '../data/utils';
 import { graphqlRequest } from '../db/connection';
 
 describe('mutations', () => {
@@ -52,14 +51,10 @@ describe('mutations', () => {
   };
 
   let dataSources;
-  let fetchSpy;
   let createAccountSpy;
 
   beforeEach(async () => {
     dataSources = { IntegrationsAPI: new IntegrationsAPI() };
-
-    fetchSpy = jest.spyOn(utils, 'fetchCronsApi');
-    fetchSpy.mockImplementation(() => Promise.resolve('ok'));
 
     createAccountSpy = jest.spyOn(dataSources.IntegrationsAPI, 'createAccount');
     createAccountSpy.mockImplementation(() => Promise.resolve());
@@ -79,7 +74,6 @@ describe('mutations', () => {
     await EmailDeliveries.deleteMany({});
     await Integrations.deleteMany({});
 
-    fetchSpy.mockRestore();
     createAccountSpy.mockRestore();
   });
 
