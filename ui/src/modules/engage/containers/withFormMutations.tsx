@@ -108,12 +108,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
         templateId: ''
       };
 
-      const scheduleDate = message.scheduleDate || {
-        type: '',
-        month: '',
-        day: '',
-        time: ''
-      };
+      const scheduleDate = message.scheduleDate;
 
       const updatedProps = {
         ...this.props,
@@ -136,11 +131,13 @@ function withSaveAndEdit<IComponentProps>(Component) {
             content: email.content,
             templateId: email.templateId
           },
-          scheduleDate: {
-            type: scheduleDate.type,
-            month: scheduleDate.month,
-            day: scheduleDate.day
-          }
+          scheduleDate: scheduleDate
+            ? {
+                type: scheduleDate.type,
+                month: scheduleDate.month,
+                day: scheduleDate.day
+              }
+            : null
         }
       };
 
