@@ -23,6 +23,8 @@ schedule.scheduleJob('1 * * * * *', async () => {
 
   const messages = await findMessages({ 'scheduleDate.type': 'minute' });
 
+  debugCrons(`Found every minute messages ${messages.length}`);
+
   await runJobs(messages);
 });
 
@@ -31,6 +33,8 @@ schedule.scheduleJob('10 10 * * * *', async () => {
   debugCrons('Checking every hour jobs ....');
 
   const messages = await findMessages({ 'scheduleDate.type': 'hour' });
+
+  debugCrons(`Found every hour  messages ${messages.length}`);
 
   await runJobs(messages);
 });
