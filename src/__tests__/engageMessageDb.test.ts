@@ -254,12 +254,15 @@ describe('createConversation', () => {
   test('createOrUpdateConversationAndMessages', async () => {
     const user = await userFactory({ fullName: 'Full name' });
 
+    const replacedContent = 'hi Full name';
+
     const kwargs = {
       customer: _customer,
       integration: _integration,
       user,
+      replacedContent,
       engageData: engageDataFactory({
-        content: 'hi {{ customer.name }} {{ user.fullName }}',
+        content: replacedContent,
         messageId: '_id',
       }),
     };
@@ -282,17 +285,16 @@ describe('createConversation', () => {
     expect(await Conversations.find().countDocuments()).toBe(1);
     expect(await Messages.find().countDocuments()).toBe(1);
 
-    const customerName = `${_customer.firstName} ${_customer.lastName}`;
-
     // check message fields
     expect(message._id).toBeDefined();
-    expect(message.content).toBe(`hi ${customerName} Full name`);
+    expect(message.content).toBe(replacedContent);
+    expect(message.engageData && message.engageData.content).toBe(replacedContent);
     expect(message.userId).toBe(user._id);
     expect(message.customerId).toBe(_customer._id);
 
     // check conversation fields
     expect(conversation._id).toBeDefined();
-    expect(conversation.content).toBe(`hi ${customerName} Full name`);
+    expect(conversation.content).toBe(replacedContent);
     expect(conversation.integrationId).toBe(_integration._id);
 
     // second time ==========================
@@ -380,7 +382,7 @@ describe('createVisitorMessages', () => {
             value: 10,
           },
         ],
-        content: 'hi {{ customer.name }}',
+        content: 'hi,{{ customer.name }}',
       },
     });
 
@@ -391,7 +393,7 @@ describe('createVisitorMessages', () => {
       isLive: true,
       messenger: {
         brandId: _brand._id,
-        content: 'hi',
+        content: 'hi,{{ customer.firstName }} {{ customer.lastName }}',
       },
     });
 
@@ -444,10 +446,10 @@ describe('createVisitorMessages', () => {
       throw new Error('conversation not found');
     }
 
-    const content = `hi ${_customer.firstName} ${_customer.lastName}`;
+    const content = `hi,${_customer.firstName || ''} ${_customer.lastName || ''}`;
 
     expect(conversation._id).toBeDefined();
-    expect(conversation.content).toBe(content);
+    expect(conversation.content).toBe('hi,');
     expect(conversation.customerId).toBe(_customer._id);
     expect(conversation.integrationId).toBe(_integration._id);
 

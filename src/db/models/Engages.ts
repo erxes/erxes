@@ -51,6 +51,7 @@ export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
     integration: IIntegrationDocument;
     user: IUserDocument;
     engageData: IEngageData;
+    replacedContent: string;
   }): Promise<IMessageDocument | null>;
   createVisitorMessages(params: {
     brand: IBrandDocument;
@@ -229,12 +230,21 @@ export const loadClass = () => {
         // if given visitor is matched with given condition then create
         // conversations
         if (isPassedAllRules) {
+          // replace keys in content
+          const replacedContent = this.replaceKeys({
+            content: messenger.content,
+            customer,
+            user,
+          });
+
           const conversationMessage = await this.createOrUpdateConversationAndMessages({
             customer,
             integration,
             user,
+            replacedContent,
             engageData: {
               ...messenger,
+              content: replacedContent,
               engageKind: 'visitorAuto',
               messageId: message._id,
               fromUserId: message.fromUserId,
@@ -262,8 +272,9 @@ export const loadClass = () => {
       integration: IIntegrationDocument;
       user: IUserDocument;
       engageData: IEngageData;
+      replacedContent: string;
     }) {
-      const { customer, integration, user, engageData } = args;
+      const { customer, integration, user, engageData, replacedContent } = args;
 
       const prevMessage: IMessageDocument | null = await ConversationMessages.findOne({
         customerId: customer._id,
@@ -286,13 +297,6 @@ export const loadClass = () => {
 
         return null;
       }
-
-      // replace keys in content
-      const replacedContent = this.replaceKeys({
-        content: engageData.content,
-        customer,
-        user,
-      });
 
       // create conversation
       const conversation = await Conversations.createConversation({
@@ -420,7 +424,9 @@ export const loadClass = () => {
       let result = content;
 
       // replace customer fields
-      result = result.replace(/{{\s?customer.name\s?}}/gi, `${customer.firstName} ${customer.lastName}`);
+      result = result.replace(/{{\s?customer.firstName\s?}}/gi, customer.firstName || '');
+      result = result.replace(/{{\s?customer.lastName\s?}}/gi, customer.lastName || '');
+      result = result.replace(/{{\s?customer.name\s?}}/gi, `${customer.firstName || ''} ${customer.lastName || ''}`);
       result = result.replace(/{{\s?customer.email\s?}}/gi, customer.primaryEmail || '');
 
       // replace user fields

@@ -21,40 +21,6 @@ import { MESSAGE_KINDS } from '../../constants';
 import { fetchBySegments } from '../../modules/segments/queryBuilder';
 
 /**
- * Dynamic content tags
- */
-const replaceKeys = ({
-  content,
-  customer,
-  user,
-}: {
-  content: string;
-  customer: ICustomerDocument;
-  user: IUserDocument;
-}): string => {
-  let result = content;
-
-  let customerName = customer.firstName || customer.lastName || 'Customer';
-
-  if (customer.firstName && customer.lastName) {
-    customerName = `${customer.firstName} ${customer.lastName}`;
-  }
-
-  const details = user.details && Object.keys(user.details.toJSON()).length > 0 ? user.details.toJSON() : {};
-
-  // replace customer fields
-  result = result.replace(/{{\s?customer.name\s?}}/gi, customerName);
-  result = result.replace(/{{\s?customer.email\s?}}/gi, customer.primaryEmail || '');
-
-  // replace user fields
-  result = result.replace(/{{\s?user.fullName\s?}}/gi, details.fullName || '');
-  result = result.replace(/{{\s?user.position\s?}}/gi, details.position || '');
-  result = result.replace(/{{\s?user.email\s?}}/gi, user.email || '');
-
-  return result;
-};
-
-/**
  * Find customers
  */
 export const findCustomers = async ({
@@ -189,7 +155,7 @@ const sendViaMessenger = async (
 
   for (const customer of customers) {
     // replace keys in content
-    const replacedContent = replaceKeys({ content, customer, user });
+    const replacedContent = EngageMessages.replaceKeys({ content, customer, user });
 
     // create conversation
     const conversation = await Conversations.createConversation({
