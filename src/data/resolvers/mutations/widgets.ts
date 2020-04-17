@@ -194,7 +194,7 @@ const widgetMutations = {
       submittedAt: new Date(),
     };
 
-    await FormSubmissions.createFormSubmission(doc);
+    FormSubmissions.createFormSubmission(doc);
 
     // create conversation
     const conversation = await Conversations.createConversation({

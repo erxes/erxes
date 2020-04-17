@@ -42,7 +42,6 @@ export const isTimeInBetween = (date: Date, startTime: string, closeTime: string
 export interface IIntegrationModel extends Model<IIntegrationDocument> {
   getIntegration(_id: string): IIntegrationDocument;
   findIntegrations(query: any, options?: any): Query<IIntegrationDocument[]>;
-  generateLeadDoc(mainDoc: IIntegration, leadData: ILeadData): IIntegration;
   createIntegration(doc: IIntegration, userId: string): Promise<IIntegrationDocument>;
   createMessengerIntegration(doc: IIntegration, userId: string): Promise<IIntegrationDocument>;
   updateMessengerIntegration(_id: string, doc: IIntegration): Promise<IIntegrationDocument>;
@@ -55,8 +54,8 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
   updateBasicInfo(_id: string, doc: IIntegrationBasicInfo): Promise<IIntegrationDocument>;
 
   getWidgetIntegration(brandCode: string, kind: string, brandObject?: boolean): any;
-  increaseViewCount(formId: string): Promise<IIntegrationDocument>;
-  increaseContactsGathered(formId: string): Promise<IIntegrationDocument>;
+  increaseViewCount(formId: string, get?: boolean): Promise<IIntegrationDocument>;
+  increaseContactsGathered(formId: string, get?: boolean): Promise<IIntegrationDocument>;
   isOnline(integration: IIntegrationDocument, now?: Date): boolean;
 }
 
@@ -80,14 +79,6 @@ export const loadClass = () => {
      */
     public static findIntegrations(query, options) {
       return Integrations.find({ ...query, isActive: { $ne: false } }, options);
-    }
-
-    /**
-     * Generate lead integration data based on the given lead data (leadData)
-     * and integration data (mainDoc)
-     */
-    public static generateLeadDoc(mainDoc: IIntegration, leadData: ILeadData) {
-      return { ...mainDoc, kind: KIND_CHOICES.LEAD, leadData };
     }
 
     /**
@@ -138,7 +129,7 @@ export const loadClass = () => {
      * Create a lead kind integration
      */
     public static createLeadIntegration({ leadData = {}, ...mainDoc }: IIntegration, userId: string) {
-      const doc = this.generateLeadDoc({ ...mainDoc }, leadData);
+      const doc = { ...mainDoc, kind: KIND_CHOICES.LEAD, leadData };
 
       if (Object.keys(leadData).length === 0) {
         throw new Error('leadData must be supplied');
@@ -161,7 +152,18 @@ export const loadClass = () => {
      * Update lead integration
      */
     public static async updateLeadIntegration(_id: string, { leadData = {}, ...mainDoc }: IIntegration) {
-      const doc = this.generateLeadDoc(mainDoc, leadData);
+      const prevEntry = await Integrations.getIntegration(_id);
+      const prevLeadData: ILeadData = prevEntry.leadData || {};
+
+      const doc = {
+        kind: KIND_CHOICES.LEAD,
+        ...mainDoc,
+        leadData: {
+          ...leadData,
+          viewCount: prevLeadData.viewCount,
+          contactsGathered: prevLeadData.contactsGathered,
+        },
+      };
 
       await Integrations.updateOne({ _id }, { $set: doc }, { runValidators: true });
 
@@ -228,47 +230,23 @@ export const loadClass = () => {
       return integration;
     }
 
-    public static async increaseViewCount(formId: string) {
-      const integration = await Integrations.findOne({ formId });
-
-      if (!integration) {
-        throw new Error('Integration not found');
-      }
-
-      const leadData = integration.leadData || { viewCount: 0 };
-
-      let viewCount = leadData.viewCount || 0;
-
-      viewCount++;
-
-      leadData.viewCount = viewCount;
-
-      await Integrations.updateOne({ formId }, { leadData });
-
-      return Integrations.findOne({ formId });
+    public static async increaseViewCount(formId: string, get = false) {
+      const response = await Integrations.updateOne(
+        { formId, leadData: { $exists: true } },
+        { $inc: { 'leadData.viewCount': 1 } },
+      );
+      return get ? Integrations.findOne({ formId }) : response;
     }
 
     /*
      * Increase form submitted count
      */
-    public static async increaseContactsGathered(formId: string) {
-      const integration = await Integrations.findOne({ formId });
-
-      if (!integration) {
-        throw new Error('Integration not found');
-      }
-
-      const leadData = integration.leadData || { contactsGathered: 0 };
-
-      let contactsGathered = leadData.contactsGathered || 0;
-
-      contactsGathered++;
-
-      leadData.contactsGathered = contactsGathered;
-
-      await Integrations.updateOne({ formId }, { leadData });
-
-      return Integrations.findOne({ formId });
+    public static async increaseContactsGathered(formId: string, get = false) {
+      const response = await Integrations.updateOne(
+        { formId, leadData: { $exists: true } },
+        { $inc: { 'leadData.contactsGathered': 1 } },
+      );
+      return get ? Integrations.findOne({ formId }) : response;
     }
 
     public static isOnline(integration: IIntegrationDocument, now = new Date()) {
