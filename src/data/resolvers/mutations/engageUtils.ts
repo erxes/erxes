@@ -203,6 +203,7 @@ const sendViaMessenger = async (
     // create message
     await ConversationMessages.createMessage({
       engageData: {
+        engageKind: 'auto',
         messageId: message._id,
         fromUserId,
         ...message.messenger.toJSON(),

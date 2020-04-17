@@ -235,6 +235,7 @@ export const loadClass = () => {
             user,
             engageData: {
               ...messenger,
+              engageKind: 'visitorAuto',
               messageId: message._id,
               fromUserId: message.fromUserId,
             },
