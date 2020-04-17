@@ -86,7 +86,7 @@ function Tutorial() {
     return (
       <Header>
         <h1>
-          {__('Welcome to video tutorial Dashboard')}{' '}
+          {__('Welcome to erxes video tutorial')}{' '}
           <span role="img" aria-label="Wave">
             👋
           </span>
