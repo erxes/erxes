@@ -119,11 +119,13 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
 
     await EngageMessages.setCustomersCount(engageMessage._id, 'validCustomersCount', customerInfos.length);
 
-    if (data.customers.length > 0 && process.env.ENGAGE_ADMINS) {
-      data.customers = [...customerInfos, ...JSON.parse(process.env.ENGAGE_ADMINS)];
-    }
+    if (data.customers.length > 0) {
+      if (process.env.ENGAGE_ADMINS) {
+        data.customers = [...customerInfos, ...JSON.parse(process.env.ENGAGE_ADMINS)];
+      }
 
-    await sendMessage('erxes-api:engages-notification', { action: 'sendEngage', data });
+      await sendMessage('erxes-api:engages-notification', { action: 'sendEngage', data });
+    }
   }
 
   if (engageMessage.method === METHODS.MESSENGER && engageMessage.kind !== MESSAGE_KINDS.VISITOR_AUTO) {
