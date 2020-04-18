@@ -320,6 +320,7 @@ describe('engage message mutation tests', () => {
     process.env.AWS_ENDPOINT = '123';
     process.env.MAIL_PORT = '123';
     process.env.AWS_REGION = 'us-west-2';
+    process.env.ENGAGE_ADMINS = '[{"_id":"WkjhEfjJ4QW9EEW9F","name":"engageAdmin","email":"mrbatamar@gmail.com"}]';
 
     const emessage = await engageMessageFactory({
       method: 'email',
