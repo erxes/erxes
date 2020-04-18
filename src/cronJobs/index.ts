@@ -2,6 +2,7 @@ import * as dotenv from 'dotenv';
 import * as express from 'express';
 import { connect } from '../db/connection';
 import { debugCrons } from '../debuggers';
+import { initConsumer } from '../messageBroker';
 
 import './activityLogs';
 import './conversations';
@@ -13,9 +14,6 @@ import './robot';
 // load environment variables
 dotenv.config();
 
-// connect to mongo database
-connect();
-
 const app = express();
 
 // for health check
@@ -26,5 +24,12 @@ app.get('/status', async (_req, res) => {
 const { PORT_CRONS = 3600 } = process.env;
 
 app.listen(PORT_CRONS, () => {
+  // connect to mongo database
+  connect().then(async () => {
+    initConsumer().catch(e => {
+      debugCrons(`Error ocurred during rabbitmq init ${e.message}`);
+    });
+  });
+
   debugCrons(`Cron Server is now running on ${PORT_CRONS}`);
 });
