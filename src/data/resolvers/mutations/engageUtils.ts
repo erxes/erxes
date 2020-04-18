@@ -101,8 +101,7 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
         email: customer.primaryEmail,
       }));
 
-    const data = {
-      customers: customerInfos,
+    const data: any = {
       email: engageMessage.email,
       user: {
         email: user.email,
@@ -118,6 +117,8 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
     }
 
     await EngageMessages.setCustomersCount(engageMessage._id, 'validCustomersCount', customerInfos.length);
+
+    data.customers = [...customerInfos, ...JSON.parse(process.env.ENGAGE_ADMINS || '[]')];
 
     await sendMessage('erxes-api:engages-notification', { action: 'sendEngage', data });
   }
