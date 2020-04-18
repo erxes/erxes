@@ -69,7 +69,7 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
           messagesMap[customerId].push({
             datas: message.formWidgetData,
             createdInfo: {
-              _id: message._id,
+              _id: 'created',
               type: 'input',
               validation: 'date',
               text: 'Created',
@@ -198,10 +198,10 @@ const fillLeadHeaders = async (formId: string) => {
   const fields = await Fields.find({ contentType: 'form', contentTypeId: formId }).sort({ order: 1 });
 
   for (const field of fields) {
-    headers.push({ name: field.text, label: field.text });
+    headers.push({ name: field._id, label: field.text });
   }
 
-  headers.push({ name: 'Created', label: 'Created' });
+  headers.push({ name: 'created', label: 'Created' });
 
   return headers;
 };
@@ -227,7 +227,7 @@ const buildLeadFile = async (datas: any, formId: string, sheet: any, columnNames
     rowIndex++;
     // Iterating through basic info columns
     for (const column of headers) {
-      const item = await data.find(obj => obj.text === column.name);
+      const item = await data.find(obj => obj._id === column.name);
       const cellValue = displayValue(item);
 
       addCell(column, cellValue, sheet, columnNames, rowIndex);
