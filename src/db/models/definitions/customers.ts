@@ -66,7 +66,7 @@ export interface ICustomer {
   deviceTokens?: string[];
   code?: string;
   isOnline?: boolean;
-  lastSeenAt?: number;
+  lastSeenAt?: Date;
   sessionCount?: number;
 }
 

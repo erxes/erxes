@@ -523,6 +523,9 @@ describe('Customers model tests', () => {
         phone,
         isUser: _customer.isUser,
       },
+      customData: {
+        firstName: 'firstName',
+      },
     });
 
     expect(customer).toBeDefined();
@@ -542,6 +545,8 @@ describe('Customers model tests', () => {
     expect(customer.lastSeenAt).toBeDefined();
     expect(customer.isOnline).toBe(true);
     expect(customer.sessionCount).toBe(1);
+
+    expect(customer.firstName).toBe('firstName');
   });
 
   test('updateMessengerCustomer()', async () => {
@@ -645,7 +650,7 @@ describe('Customers model tests', () => {
     const customer = await Customers.updateSession(_customer._id);
 
     expect(customer.isOnline).toBeTruthy();
-    expect(customer.lastSeenAt && customer.lastSeenAt >= now.getTime()).toBeTruthy();
+    expect(customer.lastSeenAt && customer.lastSeenAt.getTime() >= now.getTime()).toBeTruthy();
   });
 
   test('saveVisitorContactInfo()', async () => {
