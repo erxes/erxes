@@ -58,8 +58,8 @@ const features: { [key: string]: { settings: string[]; settingsPermissions: stri
     settingsPermissions: ['integrationsCreateMessengerIntegration', 'manageChannels', 'manageBrands'],
   },
   leads: {
-    settings: ['leadIntegrationCreate', 'leadIntegrationInstalled'],
-    settingsPermissions: ['integrationsCreateLeadIntegration'],
+    settings: ['brandCreate', 'leadIntegrationCreate', 'leadIntegrationInstalled'],
+    settingsPermissions: ['integrationsCreateLeadIntegration', 'manageBrands'],
   },
   knowledgeBase: {
     settings: ['knowledgeBaseTopicCreate', 'knowledgeBaseCategoryCreate', 'knowledgeBaseArticleCreate'],

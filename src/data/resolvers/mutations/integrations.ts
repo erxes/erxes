@@ -29,7 +29,7 @@ const integrationMutations = {
       user,
     );
 
-    await registerOnboardHistory({ type: `${integration.kind}IntegrationCreate`, user });
+    await registerOnboardHistory({ type: 'messengerIntegrationCreate', user });
 
     return integration;
   },
@@ -82,6 +82,8 @@ const integrationMutations = {
       },
       user,
     );
+
+    await registerOnboardHistory({ type: 'leadIntegrationCreate', user });
 
     return integration;
   },
