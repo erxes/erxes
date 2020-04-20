@@ -55,7 +55,7 @@ class EditProfile extends React.Component<Props, State> {
           shortName: values.shortName,
           fullName: values.fullName,
           position: values.position,
-          location: values.userLocation,
+          location: values.location,
           description: values.description
         },
         links: {
