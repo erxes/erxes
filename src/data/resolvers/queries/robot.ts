@@ -41,8 +41,8 @@ const features: { [key: string]: { settings: string[]; settingsPermissions: stri
     ],
   },
   engages: {
-    settings: ['emailTemplateCreate', 'tagCreate', 'engageCreate'],
-    settingsPermissions: ['manageEmailTemplate', 'manageTags', 'engageMessageAdd'],
+    settings: ['engageVerifyEmail', 'engageSendTestEmail', 'emailTemplateCreate', 'segmentCreate', 'engageCreate'],
+    settingsPermissions: ['manageEmailTemplate', 'manageSegments', 'engageMessageAdd', 'engageMessageRemove'],
   },
   contacts: {
     settings: ['leadCreate', 'customerCreate', 'companyCreate', 'productCreate', 'fieldCreate', 'tagCreate'],
