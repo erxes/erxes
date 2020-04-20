@@ -118,6 +118,32 @@ export const FEATURE_DETAILS = {
       }
     }
   },
+  integrations: {
+    text: 'Live Chat & In-App-Messaging',
+    color: colors.colorCoreYellow,
+    icon: 'puzzle',
+    description:
+      'Enable businesses to capture every single customer feedback and communicate in real time. You can educate your customers through knowledge-base from the erxes Messenger.',
+    videoUrl: 'url',
+    settingsDetails: {
+      brandCreate: {
+        name: 'Create a brand',
+        url: '/settings/brands#showBrandAddModal=true'
+      },
+      messengerIntegrationCreate: {
+        name: 'Create your Messenger',
+        url: '/settings/integrations/createMessenger'
+      },
+      connectIntegrationsToChannel: {
+        name: 'Connect integration to channel',
+        url: '/settings/channels#showManageIntegrationModal=true'
+      },
+      messengerIntegrationInstalled: {
+        name: 'Install messenger code',
+        url: '#'
+      }
+    }
+  },
   leads: {
     text: 'Pop-ups & Forms',
     color: '#c84b49',
@@ -290,24 +316,6 @@ export const FEATURE_DETAILS = {
       permissionCreate: {
         name: 'Manage permission',
         url: '/settings/permissions'
-      }
-    }
-  },
-  integrations: {
-    text: 'Live Chat & In-App-Messaging',
-    color: colors.colorCoreYellow,
-    icon: 'puzzle',
-    description:
-      'Enable businesses to capture every single customer feedback and communicate in real time. You can educate your customers through knowledge-base from the erxes Messenger.',
-    videoUrl: 'url',
-    settingsDetails: {
-      messengerIntegrationCreate: {
-        name: 'Create your Messenger',
-        url: '/settings/integrations/createMessenger'
-      },
-      facebookIntegrationCreate: {
-        name: 'Connect your Facebook messenger',
-        url: '/settings/integrations#showFacebookMessengerModal=true'
       }
     }
   },
