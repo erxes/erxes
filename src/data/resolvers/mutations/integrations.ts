@@ -7,6 +7,7 @@ import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
+import { registerOnboardHistory } from '../../utils';
 
 interface IEditIntegration extends IIntegration {
   _id: string;
@@ -27,6 +28,8 @@ const integrationMutations = {
       },
       user,
     );
+
+    await registerOnboardHistory({ type: 'messengerIntegrationCreate', user });
 
     return integration;
   },
@@ -79,6 +82,8 @@ const integrationMutations = {
       },
       user,
     );
+
+    await registerOnboardHistory({ type: 'leadIntegrationCreate', user });
 
     return integration;
   },

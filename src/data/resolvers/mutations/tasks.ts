@@ -7,7 +7,7 @@ import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { checkUserIds } from '../../utils';
+import { checkUserIds, registerOnboardHistory } from '../../utils';
 import {
   copyChecklists,
   copyPipelineLabels,
@@ -103,6 +103,8 @@ const taskMutations = {
         content: activityContent,
       });
 
+      await registerOnboardHistory({ type: 'taskAssignUser', user });
+
       notificationDoc.invitedUsers = addedUserIds;
       notificationDoc.removedUsers = removedUserIds;
     }
@@ -166,7 +168,7 @@ const taskMutations = {
    */
   async tasksChange(
     _root,
-    { _id, destinationStageId, order }: { _id: string; destinationStageId: string, order: number },
+    { _id, destinationStageId, order }: { _id: string; destinationStageId: string; order: number },
     { user }: IContext,
   ) {
     const task = await Tasks.getTask(_id);
@@ -175,7 +177,7 @@ const taskMutations = {
       modifiedAt: new Date(),
       modifiedBy: user._id,
       stageId: destinationStageId,
-      order
+      order,
     };
 
     const updatedTask = await Tasks.updateTask(_id, extendedDoc);
