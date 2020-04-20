@@ -73,17 +73,51 @@ export const FEATURE_DETAILS = {
         name: 'Then create an integration',
         url: '/settings/integrations'
       },
-      responseTemplateCreate: {
-        name: 'Add a response template',
-        url: '/settings/response-templates#showListFormModal=true'
-      },
       connectIntegrationsToChannel: {
         name: 'Connect integration to channel',
         url: '/settings/channels#showManageIntegrationModal=true'
+      },
+      responseTemplateCreate: {
+        name: 'Add a response template',
+        url: '/settings/response-templates#showListFormModal=true'
       }
     }
   },
-
+  contacts: {
+    text: 'Contact Management',
+    icon: 'users',
+    color: colors.colorCoreBlue,
+    description:
+      'Access our all-in-one CRM & product, and service system in one go so that it’s easier to coordinate and manage your interactions with your customers.',
+    videoUrl: 'https://www.youtube.com/embed/Axazk8K30Qk?autoplay=1',
+    videoThumb: 'https://img.youtube.com/vi/Axazk8K30Qk/mqdefault.jpg',
+    settingsDetails: {
+      leadCreate: {
+        name: 'Create a lead',
+        url: '/contacts/lead#showCustomerModal=true'
+      },
+      customerCreate: {
+        name: 'Create a customer',
+        url: '/contacts/customer#showCustomerModal=true'
+      },
+      companyCreate: {
+        name: 'Create a company',
+        url: '/companies#showCompanyModal=true'
+      },
+      productCreate: {
+        name: 'Create a product or service',
+        url: '/settings/product-service#showProductModal=true'
+      },
+      fieldCreate: {
+        name: 'Create a property',
+        url: '/settings/properties?type=customer'
+      },
+      tagCreate: {
+        name: 'Create email tag',
+        url: '/tags/engageMessage#showTagengageMessageModal=true'
+      }
+    }
+  },
   leads: {
     text: 'Pop-ups & Forms',
     color: '#c84b49',
@@ -188,29 +222,6 @@ export const FEATURE_DETAILS = {
       knowledgeBaseArticleCreate: {
         name: 'Now write articles',
         url: '/knowledgebase#showKBAddArticleModal=true'
-      }
-    }
-  },
-  customers: {
-    text: 'Contact Management',
-    icon: 'users',
-    color: colors.colorCoreBlue,
-    description:
-      'Access our all-in-one CRM & product, and service system in one go so that it’s easier to coordinate and manage your interactions with your customers.',
-    videoUrl: 'https://www.youtube.com/embed/Axazk8K30Qk?autoplay=1',
-    videoThumb: 'https://img.youtube.com/vi/Axazk8K30Qk/mqdefault.jpg',
-    settingsDetails: {
-      customerCreate: {
-        name: 'Create a contact',
-        url: '/contacts/customer#showCustomerModal=true'
-      },
-      companyCreate: {
-        name: 'Create a company',
-        url: '/companies#showCompanyModal=true'
-      },
-      productCreate: {
-        name: 'Create a product or service',
-        url: '/settings/product-service#showProductModal=true'
       }
     }
   },
@@ -353,7 +364,7 @@ export const FEATURES = [
   },
   {
     name: '<b>Manage your customers</b> from the Contact Management',
-    key: 'customers'
+    key: 'contacts'
   },
   {
     name:
