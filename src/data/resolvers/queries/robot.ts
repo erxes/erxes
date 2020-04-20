@@ -49,8 +49,13 @@ const features: { [key: string]: { settings: string[]; settingsPermissions: stri
     settingsPermissions: ['customersAdd', 'companiesAdd', 'manageProducts', 'manageTags', 'manageForms'],
   },
   integrations: {
-    settings: ['messengerIntegrationCreate', 'facebookIntegrationCreate'],
-    settingsPermissions: ['integrationsCreateMessengerIntegration'],
+    settings: [
+      'brandCreate',
+      'messengerIntegrationCreate',
+      'connectIntegrationsToChannel',
+      'messengerIntegrationInstalled',
+    ],
+    settingsPermissions: ['integrationsCreateMessengerIntegration', 'manageChannels', 'manageBrands'],
   },
   leads: {
     settings: ['leadIntegrationCreate', 'leadIntegrationInstalled'],
