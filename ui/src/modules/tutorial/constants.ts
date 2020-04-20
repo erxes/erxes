@@ -50,23 +50,19 @@ export const TUTORIALS = [
     videos: [
       {
         name: 'Brands',
-        url: 'https://www.youtube-nocookie.com/embed/hd07s0oZ83A',
-        isSoon: true
+        url: 'https://www.youtube-nocookie.com/embed/ri17N4J478E'
       },
       {
         name: 'Channels',
-        url: 'https://www.youtube-nocookie.com/embed/hd07s0oZ83A',
-        isSoon: true
+        url: 'https://www.youtube-nocookie.com/embed/OLGy8_0pNEE'
       },
       {
         name: 'App store',
-        url: 'https://www.youtube-nocookie.com/embed/hd07s0oZ83A',
-        isSoon: true
+        url: 'https://www.youtube-nocookie.com/embed/ZHdwkZSnkxU'
       },
       {
         name: 'Sales pipeline stage + Product service',
-        url: 'https://www.youtube-nocookie.com/embed/hd07s0oZ83A',
-        isSoon: true
+        url: 'https://www.youtube-nocookie.com/embed/QAMP5AOxnlI'
       },
       {
         name: 'Campaign & Projects',
@@ -80,8 +76,7 @@ export const TUTORIALS = [
       },
       {
         name: 'Task stage',
-        url: 'https://www.youtube-nocookie.com/embed/hd07s0oZ83A',
-        isSoon: true
+        url: 'https://www.youtube-nocookie.com/embed/HAmu8vEgpLQ'
       },
       {
         name: 'Tickets stage',
