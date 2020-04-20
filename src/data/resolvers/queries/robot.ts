@@ -62,8 +62,14 @@ const features: { [key: string]: { settings: string[]; settingsPermissions: stri
     settingsPermissions: ['integrationsCreateLeadIntegration', 'manageBrands'],
   },
   knowledgeBase: {
-    settings: ['knowledgeBaseTopicCreate', 'knowledgeBaseCategoryCreate', 'knowledgeBaseArticleCreate'],
-    settingsPermissions: ['manageKnowledgeBase'],
+    settings: [
+      'brandCreate',
+      'knowledgeBaseTopicCreate',
+      'knowledgeBaseCategoryCreate',
+      'knowledgeBaseArticleCreate',
+      'knowledgeBaseInstalled',
+    ],
+    settingsPermissions: ['manageKnowledgeBase', 'manageBrands'],
   },
   tasks: {
     settings: ['taskBoardsCreate', 'taskPipelinesCreate', 'taskCreate'],
