@@ -72,8 +72,8 @@ const features: { [key: string]: { settings: string[]; settingsPermissions: stri
     settingsPermissions: ['manageKnowledgeBase', 'manageBrands'],
   },
   tasks: {
-    settings: ['taskBoardsCreate', 'taskPipelinesCreate', 'taskCreate'],
-    settingsPermissions: ['taskBoardsAdd', 'taskPipelinesAdd', 'taskStagesAdd'],
+    settings: ['taskBoardsCreate', 'taskPipelinesCreate', 'taskCreate', 'taskAssignUser'],
+    settingsPermissions: ['taskBoardsAdd', 'taskPipelinesAdd', 'taskStagesAdd', 'taskAdd', 'taskEdit'],
   },
 };
 
