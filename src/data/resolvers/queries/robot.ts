@@ -30,8 +30,8 @@ const features: { [key: string]: { settings: string[]; settingsPermissions: stri
       'brandCreate',
       'channelCreate',
       'messengerIntegrationCreate',
-      'responseTemplateCreate',
       'connectIntegrationsToChannel',
+      'responseTemplateCreate',
     ],
     settingsPermissions: [
       'manageBrands',
@@ -44,9 +44,9 @@ const features: { [key: string]: { settings: string[]; settingsPermissions: stri
     settings: ['emailTemplateCreate', 'tagCreate', 'engageCreate'],
     settingsPermissions: ['manageEmailTemplate', 'manageTags', 'engageMessageAdd'],
   },
-  customers: {
-    settings: ['customerCreate', 'companyCreate', 'productCreate'],
-    settingsPermissions: ['customersAdd', 'companiesAdd', 'manageProducts'],
+  contacts: {
+    settings: ['leadCreate', 'customerCreate', 'companyCreate', 'productCreate', 'fieldCreate', 'tagCreate'],
+    settingsPermissions: ['customersAdd', 'companiesAdd', 'manageProducts', 'manageTags', 'manageForms'],
   },
   integrations: {
     settings: ['messengerIntegrationCreate', 'facebookIntegrationCreate'],
