@@ -788,11 +788,13 @@ export const knowledgeBaseTopicFactory = async (params: IKnowledgeBaseTopicFacto
     color: params.color,
   };
 
-  return KnowledgeBaseTopics.create({
-    ...doc,
-    ...params,
-    userId: params.userId || faker.random.word(),
-  });
+  return KnowledgeBaseTopics.createDoc(
+    {
+      ...doc,
+      ...params,
+    },
+    params.userId || faker.random.word(),
+  );
 };
 
 interface IKnowledgeBaseCategoryFactoryInput {
