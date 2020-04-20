@@ -18,14 +18,14 @@ const Categories = (props: ChildProps<{}, QueryResponse>) => {
 
   const extendedProps = {
     ...props,
-    kbTopic: data.knowledgeBaseTopicDetail
+    kbTopic: data.widgetsKnowledgeBaseTopicDetail
   };
 
   return <DumbCategories {...extendedProps} />;
 };
 
 type QueryResponse = {
-  knowledgeBaseTopicDetail: IKbTopic;
+  widgetsKnowledgeBaseTopicDetail: IKbTopic;
 };
 
 const CategoriesWithData = graphql<{}, QueryResponse>(
