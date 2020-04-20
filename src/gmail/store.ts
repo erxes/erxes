@@ -8,7 +8,7 @@ interface IIntegrationIds {
   erxesApiId: string;
 }
 
-const createOrGetCustomer = async (email: string, integrationIds: IIntegrationIds) => {
+export const createOrGetCustomer = async (email: string, integrationIds: IIntegrationIds) => {
   const { erxesApiId, id } = integrationIds;
 
   let customer = await Customers.findOne({ email });
@@ -48,7 +48,7 @@ const createOrGetCustomer = async (email: string, integrationIds: IIntegrationId
   return customer;
 };
 
-const createOrGetConversation = async (args: {
+export const createOrGetConversation = async (args: {
   email: string;
   subject: string;
   receivedEmail: string;
@@ -62,18 +62,18 @@ const createOrGetConversation = async (args: {
   let conversation;
 
   if (reply) {
-    const dumpMessage = await ConversationMessages.findOne({
-      $or: [{ headerId: { $in: reply } }, { headerId: { $eq: reply } }],
-    }).sort({ createdAt: -1 });
+    const headerIds = Array.isArray(reply) ? reply : [reply];
 
-    if (dumpMessage) {
+    const message = await ConversationMessages.findOne({ headerId: { $in: headerIds } });
+
+    if (message) {
       conversation = await Conversations.findOne({
-        _id: dumpMessage.conversationId,
+        _id: message.conversationId,
       });
     }
   }
 
-  if (!conversation) {
+  if (conversation == null || !conversation) {
     try {
       conversation = await Conversations.create({
         to: receivedEmail,
@@ -106,7 +106,7 @@ const createOrGetConversation = async (args: {
   return conversation;
 };
 
-const createOrGetConversationMessage = async (args: {
+export const createOrGetConversationMessage = async (args: {
   messageId: string;
   message: any;
   customerErxesApiId: string;
@@ -160,5 +160,3 @@ const createOrGetConversationMessage = async (args: {
     }
   }
 };
-
-export { createOrGetConversation, createOrGetConversationMessage, createOrGetCustomer };

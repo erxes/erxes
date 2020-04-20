@@ -1,8 +1,7 @@
 import { debugGmail, debugRequest, debugResponse } from '../debuggers';
 import Accounts from '../models/Accounts';
 import { getEnv } from '../utils';
-import { getAccessToken, getAuthorizeUrl } from './auth';
-import { getProfile } from './util';
+import { getAccessToken, getAuthorizeUrl, getProfile } from './api';
 
 const loginMiddleware = async (req, res) => {
   const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });

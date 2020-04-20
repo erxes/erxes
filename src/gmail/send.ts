@@ -1,6 +1,5 @@
-import { debugGmail } from '../debuggers';
-import { getOauthClient, gmailClient } from './auth';
-import { ICredentials, IMailParams } from './types';
+import { composeEmail } from './api';
+import { IMailParams } from './types';
 import { getCredentialsByEmailAccountId } from './util';
 
 const encodeBase64 = (subject: string) => {
@@ -84,37 +83,4 @@ export const sendGmail = async (accountId: string, email: string, mailParams: IM
   const doc = { credentials, message, accountId, threadId: mailParams.threadId };
 
   return composeEmail(doc);
-};
-
-export const composeEmail = async ({
-  credentials,
-  message,
-  threadId,
-}: {
-  credentials: ICredentials;
-  message: string;
-  accountId: string;
-  threadId?: string;
-}) => {
-  try {
-    const auth = await getOauthClient();
-
-    auth.setCredentials(credentials);
-
-    const params = {
-      auth,
-      userId: 'me',
-      response: { threadId },
-      uploadType: 'multipart',
-      media: {
-        mimeType: 'message/rfc822',
-        body: message,
-      },
-    };
-
-    return gmailClient.messages.send(params);
-  } catch (e) {
-    debugGmail(`Error Google: Could not send email ${e}`);
-    throw e;
-  }
 };

@@ -1,29 +1,7 @@
 import { debugGmail } from '../debuggers';
 import Accounts, { IAccount } from '../models/Accounts';
 import { getCommonGoogleConfigs, getConfig } from '../utils';
-import { getOauthClient, gmailClient } from './auth';
 import { ICredentials } from './types';
-
-/**
- * Gets the current user's Gmail profile
- */
-export const getProfile = async (credentials: ICredentials, email?: string) => {
-  debugGmail(`Gmail get an user profile`);
-
-  try {
-    const auth = await getOauthClient();
-
-    auth.setCredentials(credentials);
-
-    return gmailClient.getProfile({
-      auth,
-      userId: email || 'me',
-    });
-  } catch (e) {
-    debugGmail(`Error Google: Gmail failed to get user profile ${e}`);
-    throw e;
-  }
-};
 
 export const getCredentialsByEmailAccountId = async ({
   email,
@@ -243,4 +221,24 @@ export const getGoogleConfigs = async () => {
     GOOGLE_APPLICATION_CREDENTIALS,
     GOOGLE_GMAIL_SUBSCRIPTION_NAME: await getConfig('GOOGLE_GMAIL_SUBSCRIPTION_NAME', 'gmail_topic_subscription'),
   };
+};
+
+export const refreshAccessToken = async (_id: string, tokens: ICredentials): Promise<void> => {
+  const account = await Accounts.findOne({ _id });
+
+  if (!account) {
+    return debugGmail(`Error Google: Account not found id with ${_id}`);
+  }
+
+  account.token = tokens.access_token;
+
+  if (tokens.refresh_token) {
+    account.tokenSecret = tokens.refresh_token;
+  }
+
+  if (tokens.expiry_date) {
+    account.expireDate = tokens.expiry_date.toString();
+  }
+
+  await account.save();
 };

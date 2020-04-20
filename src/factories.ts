@@ -59,6 +59,7 @@ export const integrationFactory = (params: {
   accountId?: string;
   erxesApiId?: string;
   email?: string;
+  gmailHistoryId?: string;
   facebookPageIds?: string[];
   facebookPageTokensMap?: object;
   viberBotToken?: string;
@@ -68,6 +69,7 @@ export const integrationFactory = (params: {
     accountId: params.accountId || '_id',
     email: params.email || 'user@mail.com',
     erxesApiId: params.erxesApiId || '_id',
+    gmailHistoryId: params.gmailHistoryId || '',
     facebookPageIds: params.facebookPageIds || [],
     facebookPageTokensMap: params.facebookPageTokensMap || {},
     viberBotToken: params.viberBotToken || 'aaksjfhakjsfhkalhf',
