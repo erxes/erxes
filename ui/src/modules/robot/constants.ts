@@ -18,6 +18,10 @@ export const FEATURE_DETAILS = {
         name: 'Then create a project',
         url: '/settings/boards/growthHack#showPipelineModal=true'
       },
+      growthHackTemplatesDuplicate: {
+        name: 'Duplicate growth hacking templates',
+        url: '/settings/boards/growthHackTemplate'
+      },
       growthHackCreate: {
         name: 'Now add an experiments',
         url: '/growthHack/board'
@@ -41,13 +45,9 @@ export const FEATURE_DETAILS = {
         name: 'Create a sales pipeline',
         url: '/settings/boards/deal#showPipelineModal=true'
       },
-      'configure.dealCurrency': {
-        name: 'Configure currencies',
-        url: '/settings/general'
-      },
-      'configure.dealUOM': {
-        name: 'Configure unit of measurement',
-        url: '/settings/general'
+      productCreate: {
+        name: 'Configure product & service',
+        url: '/settings/product-service#showProductModal=true'
       },
       dealCreate: {
         name: 'Now add deals',
