@@ -71,7 +71,7 @@ export const TUTORIALS = [
       },
       {
         name: 'Growth hacking template',
-        url: 'https://www.youtube-nocookie.com/embed/hd07s0oZ83A',
+        url: '',
         isSoon: true
       },
       {
@@ -80,13 +80,12 @@ export const TUTORIALS = [
       },
       {
         name: 'Tickets stage',
-        url: 'https://www.youtube-nocookie.com/embed/hd07s0oZ83A',
+        url: '',
         isSoon: true
       },
       {
         name: 'Tags - inbox, customer, engage pop, up',
-        url: 'https://www.youtube-nocookie.com/embed/hd07s0oZ83A',
-        isSoon: true
+        url: 'https://www.youtube-nocookie.com/embed/5tGbsUsUiJ4'
       },
       {
         name: 'Segments - customer',
@@ -118,7 +117,7 @@ export const TUTORIALS = [
       },
       {
         name: 'Script Manager',
-        url: 'https://www.youtube-nocookie.com/embed/hd07s0oZ83A',
+        url: '',
         isSoon: true
       }
     ]
@@ -135,8 +134,7 @@ export const TUTORIALS = [
     videos: [
       {
         name: 'Team inbox',
-        url: 'https://www.youtube-nocookie.com/embed/hd07s0oZ83A',
-        isSoon: true
+        url: 'https://www.youtube-nocookie.com/embed/eVcqpG0zsiY'
       },
       {
         name: 'Growth Hacking',
@@ -145,33 +143,27 @@ export const TUTORIALS = [
       },
       {
         name: 'Sales',
-        url: 'https://www.youtube-nocookie.com/embed/hd07s0oZ83A',
-        isSoon: true
+        url: 'https://www.youtube-nocookie.com/embed/yqc9l_1-qFA'
       },
       {
-        name: 'Database',
-        url: 'https://www.youtube-nocookie.com/embed/hd07s0oZ83A',
-        isSoon: true
+        name: 'Contacts',
+        url: 'https://www.youtube-nocookie.com/embed/S-dLvUPiaQI'
       },
       {
         name: 'Leads',
-        url: 'https://www.youtube-nocookie.com/embed/hd07s0oZ83A',
-        isSoon: true
+        url: 'https://www.youtube-nocookie.com/embed/7lz3mIbfIS4'
       },
       {
         name: 'Engage',
-        url: 'https://www.youtube-nocookie.com/embed/hd07s0oZ83A',
-        isSoon: true
+        url: 'https://www.youtube-nocookie.com/embed/06MmTqGkB3Y'
       },
       {
         name: 'Knowledge Base',
-        url: 'https://www.youtube-nocookie.com/embed/hd07s0oZ83A',
-        isSoon: true
+        url: 'https://www.youtube-nocookie.com/embed/r0s1aOUa0_c'
       },
       {
         name: 'Task',
-        url: 'https://www.youtube-nocookie.com/embed/hd07s0oZ83A',
-        isSoon: true
+        url: 'https://www.youtube-nocookie.com/embed/4rbO5I_Ezq0'
       }
     ]
   }
