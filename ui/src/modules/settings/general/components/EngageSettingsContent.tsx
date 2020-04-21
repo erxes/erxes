@@ -124,7 +124,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
           </p>
           <a
             target="_blank"
-            href="https://docs.erxes.io/administrator/integrations#aws-ses-integration"
+            href="https://docs.erxes.io/administrator/system-config#aws-ses"
             rel="noopener noreferrer"
           >
             {__('More: Understanding Amazon SES')}
