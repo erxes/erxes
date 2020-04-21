@@ -164,7 +164,7 @@ class Todo extends React.Component<Props, State> {
             {this.renderProgress()}
           </Greeting>
           {availableFeatures
-            .filter((feature, index) => !feature.isComplete && index < 6)
+            .filter(feature => !feature.isComplete)
             .map(availabeFeature => this.renderFeature(availabeFeature))}
 
           {this.renderCompleted()}
