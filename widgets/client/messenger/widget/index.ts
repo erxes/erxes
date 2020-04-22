@@ -151,12 +151,22 @@ window.addEventListener("message", async (event: MessageEvent) => {
     if (message === "notifier") {
       clearTimer();
       delaydToggleClass("erxes-notifier-shown", isVisible);
+
+      // change container div dimension
+      if (!isVisible) {
+        delaydSetClass("erxes-messenger-hidden");
+      }
     }
 
     if (message === "notifierFull") {
-      erxesContainer.className += ` erxes-notifier-${
-        isVisible ? "shown" : "hidden"
-      } fullMessage`;
+      clearTimer();
+
+      // add class and hide notifier
+      if (isVisible) {
+        erxesContainer.className += " erxes-notifier-shown fullMessage";
+      } else {
+        delaydSetClass("erxes-messenger-hidden");
+      }
     }
 
     if (message === "requestingBrowserInfo" && iframe.contentWindow) {
