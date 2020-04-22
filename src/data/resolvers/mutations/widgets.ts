@@ -193,8 +193,18 @@ const widgetMutations = {
           location: browserInfo,
           firstName: customer.firstName ? customer.firstName : firstName,
           lastName: customer.lastName ? customer.lastName : lastName,
-          primaryEmail: customer.primaryEmail ? customer.primaryEmail : email,
-          primaryPhone: customer.primaryPhone ? customer.primaryPhone : phone,
+          ...(customer.primaryEmail
+            ? {}
+            : {
+                emails: [email],
+                primaryEmail: email,
+              }),
+          ...(customer.primaryPhone
+            ? {}
+            : {
+                phones: [phone],
+                primaryPhone: phone,
+              }),
         },
       },
     );
