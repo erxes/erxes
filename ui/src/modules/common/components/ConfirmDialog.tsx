@@ -76,13 +76,13 @@ class ConfirmDialog extends React.Component<Props, State> {
   }
 
   render() {
-    const { confirmation = 'Are you sure?' } = this.props;
+    const { confirmation = 'Are you sure?', options = {} } = this.props;
 
     const {
       okLabel = 'Yes, I am',
       cancelLabel = 'No, Cancel',
       enableEscape = true
-    } = this.props.options || {};
+    } = options;
 
     return (
       <Modal

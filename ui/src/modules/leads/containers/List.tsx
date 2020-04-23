@@ -68,10 +68,8 @@ class ListContainer extends React.Component<FinalProps> {
     const integrations = integrationsQuery.integrations || [];
 
     const remove = (integrationId: string) => {
-      const message = `
-        If you remove a pop ups, then all related conversations, customers will also be removed.
-        Are you sure?
-      `;
+      const message =
+        'If you remove a pop ups, then all related conversations, customers will also be removed. Are you sure?';
 
       confirm(message).then(() => {
         removeMutation({
