@@ -169,7 +169,7 @@ const growthHackMutations = {
    */
   async growthHacksChange(
     _root,
-    { _id, destinationStageId, order }: { _id: string; destinationStageId: string, order: number },
+    { _id, destinationStageId, order }: { _id: string; destinationStageId: string; order: number },
     { user }: { user: IUserDocument },
   ) {
     const growthHack = await GrowthHacks.getGrowthHack(_id);
@@ -178,7 +178,7 @@ const growthHackMutations = {
       modifiedAt: new Date(),
       modifiedBy: user._id,
       stageId: destinationStageId,
-      order
+      order,
     };
 
     const updatedGrowthHack = await GrowthHacks.updateGrowthHack(_id, extendedDoc);

@@ -169,7 +169,7 @@ const ticketMutations = {
    */
   async ticketsChange(
     _root,
-    { _id, destinationStageId, order }: { _id: string; destinationStageId: string, order: number },
+    { _id, destinationStageId, order }: { _id: string; destinationStageId: string; order: number },
     { user }: IContext,
   ) {
     const ticket = await Tickets.getTicket(_id);
@@ -178,7 +178,7 @@ const ticketMutations = {
       modifiedAt: new Date(),
       modifiedBy: user._id,
       stageId: destinationStageId,
-      order
+      order,
     };
 
     const updatedTicket = await Tickets.updateTicket(_id, extendedDoc);
@@ -199,10 +199,10 @@ const ticketMutations = {
         type: MODULE_NAMES.TICKET,
         object: ticket,
         newData: extendedDoc,
-        updatedDocument: updatedTicket
+        updatedDocument: updatedTicket,
       },
-      user
-    )
+      user,
+    );
 
     // if move between stages
     if (destinationStageId !== ticket.stageId) {

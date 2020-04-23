@@ -7,10 +7,10 @@ dotenv.config();
 const command = async () => {
   await connect();
 
-  await Deals.updateMany({}, {$inc: {order: + 1}});
-  await Tasks.updateMany({}, {$inc: {order: + 1}});
-  await Tickets.updateMany({}, {$inc: {order: + 1}});
-  await GrowthHacks.updateMany({}, {$inc: {order: + 1}});
+  await Deals.updateMany({}, { $inc: { order: +1 } });
+  await Tasks.updateMany({}, { $inc: { order: +1 } });
+  await Tickets.updateMany({}, { $inc: { order: +1 } });
+  await GrowthHacks.updateMany({}, { $inc: { order: +1 } });
 
   process.exit();
 };

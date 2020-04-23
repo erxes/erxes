@@ -164,7 +164,10 @@ export const itemsChange = async (userId: string, item: any, contentType: string
     ActivityLogs.createBoardItemMovementLog(item, contentType, userId, activityLogContent);
 
     await fixNotificationLinks({
-      contentType, oldItem: item, pipelineId: pipeline._id, pipeBoardId: board._id
+      contentType,
+      oldItem: item,
+      pipelineId: pipeline._id,
+      pipeBoardId: board._id,
     });
   }
 

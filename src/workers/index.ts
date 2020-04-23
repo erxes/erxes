@@ -1,4 +1,3 @@
-import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
 import * as dotenv from 'dotenv';
 import * as express from 'express';
@@ -31,8 +30,8 @@ app.get('/status', async (_req, res) => {
   res.end('ok');
 });
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.urlencoded());
+app.use(express.json());
 app.use(cookieParser());
 
 app.use(userMiddleware);
