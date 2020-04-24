@@ -123,8 +123,8 @@ class WidgetForm extends React.Component<Props, State> {
         <Recipients>
           {this.props.customers.map(customer => (
             <Recipient key={customer._id}>
-              <strong>{customer.firstName}</strong>{' '}
-              {customer.primaryEmail || 'Unknown'}
+              <strong>{customer.firstName}</strong>
+              <span>({customer.primaryEmail || 'Unknown'})</span>
             </Recipient>
           ))}
         </Recipients>
@@ -141,7 +141,6 @@ class WidgetForm extends React.Component<Props, State> {
       <Half>
         <FormGroup>
           <ControlLabel>Channel:</ControlLabel>
-
           <FormControl
             componentClass="select"
             onChange={this.onChannelChange}
@@ -174,9 +173,9 @@ class WidgetForm extends React.Component<Props, State> {
         <FlexContent>
           <FlexItem>
             <FormGroup>
-              <ControlLabel>Brand:</ControlLabel>
+              <ControlLabel required={true}>Brand:</ControlLabel>
 
-              <FormControl id="brandId" componentClass="select">
+              <FormControl id="brandId" componentClass="select" required={true}>
                 <option />
                 {this.props.brands.map((b, index) => (
                   <option key={`brand-${index}`} value={b._id}>
@@ -189,9 +188,13 @@ class WidgetForm extends React.Component<Props, State> {
               <FlexContent>
                 <FlexItem>
                   <FormGroup>
-                    <ControlLabel>Messenger kind:</ControlLabel>
+                    <ControlLabel required={true}>Messenger kind:</ControlLabel>
 
-                    <FormControl id="messengerKind" componentClass="select">
+                    <FormControl
+                      id="messengerKind"
+                      componentClass="select"
+                      required={true}
+                    >
                       <option />
                       {this.props.messengerKinds.map((t, index) => (
                         <option key={`messengerKind-${index}`} value={t.value}>
