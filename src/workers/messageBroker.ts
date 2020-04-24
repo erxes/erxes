@@ -1,6 +1,7 @@
 import * as amqplib from 'amqplib';
 import * as dotenv from 'dotenv';
 import { RABBITMQ_QUEUES } from '../data/constants';
+import { debugWorkers } from '../debuggers';
 import { receiveImportCancel, receiveImportRemove, receiveImportXls } from './utils';
 
 dotenv.config();
@@ -15,25 +16,21 @@ export const initConsumer = async () => {
     connection = await amqplib.connect(RABBITMQ_HOST);
     channel = await connection.createChannel();
 
-    // Remove import histories
-    await channel.assertQueue(RABBITMQ_QUEUES.IMPORT_HISTORY_REMOVE);
+    await channel.assertQueue(RABBITMQ_QUEUES.WORKERS);
 
-    channel.consume(RABBITMQ_QUEUES.IMPORT_HISTORY_REMOVE, async msg => {
+    channel.consume(RABBITMQ_QUEUES.WORKERS, async msg => {
       if (msg !== null) {
-        const content = msg.content.toString();
+        debugWorkers(`Received queue message ${msg.content.toString()}`);
 
-        await receiveImportRemove(content);
+        const content = JSON.parse(msg.content.toString());
 
-        channel.ack(msg);
-      }
-    });
+        if (content.type === 'removeImport') {
+          await receiveImportRemove(content);
+        }
 
-    // Cancel import histories
-    await channel.assertQueue(RABBITMQ_QUEUES.IMPORT_HISTORY_CANCEL);
-
-    channel.consume(RABBITMQ_QUEUES.IMPORT_HISTORY_CANCEL, async msg => {
-      if (msg !== null) {
-        receiveImportCancel();
+        if (content.type === 'cancelImport') {
+          receiveImportCancel();
+        }
 
         channel.ack(msg);
       }
@@ -43,7 +40,9 @@ export const initConsumer = async () => {
 
     channel.consume(RABBITMQ_QUEUES.RPC_API, async msg => {
       if (msg !== null) {
-        const content = msg.content.toString();
+        debugWorkers(`Received rpc queue message ${msg.content.toString()}`);
+
+        const content = JSON.parse(msg.content.toString());
         const response: any = {};
 
         try {

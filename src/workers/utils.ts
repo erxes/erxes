@@ -104,7 +104,7 @@ export const connect = () => mongoose.connect(MONGO_URL, { useNewUrlParser: true
 
 // xls file import, cancel, removal
 export const receiveImportRemove = async (content: any) => {
-  const { contentType, importHistoryId } = JSON.parse(content || '{}');
+  const { contentType, importHistoryId } = content;
 
   const importHistory = await ImportHistories.getImportHistory(importHistoryId);
 
@@ -131,7 +131,7 @@ export const receiveImportCancel = () => {
 };
 
 export const receiveImportXls = async (content: any) => {
-  const { file, type, scopeBrandIds, user } = JSON.parse(content || '{}');
+  const { file, type, scopeBrandIds, user } = content;
 
   try {
     return importXlsFile(file, type, { scopeBrandIds, user });
