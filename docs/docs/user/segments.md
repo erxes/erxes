@@ -37,7 +37,7 @@ You can create a new segment by different ways from different paths.
   The created segments will be used in Customer, Company, Leads and Engage features. 
 </aside>
 
----
+
 
 ## Create Properties Segments
 The properties segment is a data management and analytics solution that helps you make sense of customer and company basic data coming from multiple sources. 
@@ -67,12 +67,83 @@ The properties segment is a data management and analytics solution that helps yo
 </aside>
 
 
-### Sub-segments of segment.
+
+### Sub-segments of segment
 Sub-segment allows you to create a new filter on the parent segment. Once we have created the segment on the above example. If we need more filters on that segment, you can create a new segment. In the sub-segment section, you need to call the parent segment. The following example shows who had set their primary email from created users in March 2020.   
 
 <div>
   <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/segments/3.png">
 </div>
+
+
+### Study case of segment
+ <!--Content-->
+ Learn the following case studies for how to set segments using some SELECT OPERATORs on date fields.  
+
+
+ + date relative less than
+ + date relative greater than 
+ + will occur before on following n-th minute 
+ + will occur after on following n-th minute 
+ + will occur before on following n-th day
+ + will occur after on following n-th day
+
+---
+
+#### Date relative less than
+
+This operator let you filter on date fields that the all-action or all-state had been being occurred until your specified date.  
+Take an example, let's create a segment that inactive users **for the last 3 weeks**.  In this case, use "date relative less than"  operator to show all inactive users who did not seen at on exactly twenty-one days from the current time.
+
+`"date relative less than now-21d/d " `- filters the specified data from the past until 21 days ago from the current time.
+
+
+```
+Last seen at "date relative less than" "now-21d/d"
+
+```
+
+<div>
+  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/segments/date+less+than.png">
+</div>
+
+<br>
+
+In the value field, you can insert minutes also such `date related less than now-30m/m`. It will show you the all actions that had been being happened 30 minutes ago. 
+
+For some special case, you can create an action that `date related less than now+24h/h`, which means you can filter all data **from** the past **until** tomorrow.
+
+#### Date relative greater than
+
+This operator let you filter on date fields that the all-action or all-state will have been being occurred from your specified date.  
+Take an example, let's create a segment that all users registered in the last 24 hours.  In this case, use "date relative greater than"  operator to show all users who created at last 24 hours from the current time.
+
+`"date relative greater than now-24h/h " `- filters the specified data between 24 hours ago from the current time and future time.
+
+
+```
+Created at "date relative greater than" "now-24h/h"
+```
+
+<div>
+  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/segments/date+greater+than.png">
+</div>
+
+<br>
+<br>
+
+In the value field, you can insert minutes also such `date related greater than now-30m/m`. It will show you the all actions that start from 30 minutes ago to future. 
+
+For some special case, you can create an action that `date related greater than now+1d/d`, which means you can filter all data from tomorrow to future.
+
+
+#### Will occur before on following n-th minute/day
+
+This operator let you filter on date fields that the action had occurred until your specified date.
+
+#### Will occur after on following n-th minute/day
+
+This operator let you filter on date fields that the action has occurred until your specified date.
 
 
 
