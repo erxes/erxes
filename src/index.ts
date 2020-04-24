@@ -2,7 +2,6 @@ import * as cookieParser from 'cookie-parser';
 import * as cors from 'cors';
 import * as dotenv from 'dotenv';
 import * as express from 'express';
-import * as formidable from 'formidable';
 import * as fs from 'fs';
 import { createServer } from 'http';
 import * as mongoose from 'mongoose';
@@ -14,7 +13,6 @@ import { buildFile } from './data/modules/fileExporter/exporter';
 import insightExports from './data/modules/insights/insightExports';
 import {
   authCookieOptions,
-  checkFile,
   deleteFile,
   frontendEnv,
   getEnv,
@@ -22,12 +20,12 @@ import {
   handleUnsubscription,
   readFileRequest,
   registerOnboardHistory,
-  uploadFile,
 } from './data/utils';
 import { connect } from './db/connection';
 import { debugBase, debugExternalApi, debugInit } from './debuggers';
 import { identifyCustomer, trackCustomEvent, trackViewPageEvent, updateCustomerProperty } from './events';
-import { initConsumer, sendRPCMessage } from './messageBroker';
+import { initConsumer } from './messageBroker';
+import { importer, uploader } from './middlewares/fileMiddleware';
 import userMiddleware from './middlewares/userMiddleware';
 import widgetsMiddleware from './middlewares/widgetsMiddleware';
 import { initRedis } from './redisClient';
@@ -211,49 +209,7 @@ app.post('/delete-file', async (req: any, res) => {
   return res.status(500).send(status);
 });
 
-// file upload
-app.post('/upload-file', async (req: any, res, next) => {
-  if (req.query.kind === 'nylas') {
-    debugExternalApi(`Pipeing request to ${INTEGRATIONS_API_DOMAIN}`);
-
-    return req.pipe(
-      request
-        .post(`${INTEGRATIONS_API_DOMAIN}/nylas/upload`)
-        .on('response', response => {
-          if (response.statusCode !== 200) {
-            return next(response.statusMessage);
-          }
-
-          return response.pipe(res);
-        })
-        .on('error', e => {
-          debugExternalApi(`Error from pipe ${e.message}`);
-          next(e);
-        }),
-    );
-  }
-
-  const form = new formidable.IncomingForm();
-
-  form.parse(req, async (_error, _fields, response) => {
-    const file = response.file || response.upload;
-
-    // check file ====
-    const status = await checkFile(file, req.headers.source);
-
-    if (status === 'ok') {
-      try {
-        const result = await uploadFile(frontendEnv({ name: 'API_URL', req }), file, response.upload ? true : false);
-
-        return res.send(result);
-      } catch (e) {
-        return res.status(500).send(filterXSS(e.message));
-      }
-    }
-
-    return res.status(500).send(status);
-  });
-});
+app.post('/upload-file', uploader);
 
 // redirect to integration
 app.get('/connect-integration', async (req: any, res, _next) => {
@@ -267,48 +223,7 @@ app.get('/connect-integration', async (req: any, res, _next) => {
 });
 
 // file import
-app.post('/import-file', async (req: any, res) => {
-  // require login
-  if (!req.user) {
-    return res.end('foribidden');
-  }
-
-  try {
-    const scopeBrandIds = JSON.parse(req.cookies.scopeBrandIds || '[]');
-    const form = new formidable.IncomingForm();
-
-    form.parse(req, async (_err, fields: any, response) => {
-      let status = '';
-      let result;
-
-      try {
-        status = await checkFile(response.file);
-      } catch (e) {
-        return res.json({ status: e.message });
-      }
-
-      // if file is not ok then send error
-      if (status !== 'ok') {
-        return res.json(status);
-      }
-
-      try {
-        result = await sendRPCMessage({
-          file: response.file,
-          type: fields.type,
-          scopeBrandIds,
-          user: req.user,
-        });
-
-        return res.json(result);
-      } catch (e) {
-        return res.json(e.message);
-      }
-    });
-  } catch (e) {
-    return res.json({ status: 'error', message: e.message });
-  }
-});
+app.post('/import-file', importer);
 
 // unsubscribe
 app.get('/unsubscribe', async (req: any, res) => {

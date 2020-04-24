@@ -2,9 +2,13 @@ import * as dotenv from 'dotenv';
 import * as mongoose from 'mongoose';
 import * as os from 'os';
 import * as path from 'path';
+import { checkFieldNames } from '../data/modules/fields/utils';
+import { ImportHistory } from '../db/models';
 import ImportHistories from '../db/models/ImportHistory';
-import { debugImport, debugWorkers } from '../debuggers';
-import { importXlsFile } from './bulkInsert';
+import { debugImport } from '../debuggers';
+
+const { MONGO_URL = '' } = process.env;
+export const connect = () => mongoose.connect(MONGO_URL, { useNewUrlParser: true, useCreateIndex: true });
 
 dotenv.config();
 
@@ -98,10 +102,6 @@ export const clearIntervals = () => {
   intervals = [];
 };
 
-const { MONGO_URL = '' } = process.env;
-
-export const connect = () => mongoose.connect(MONGO_URL, { useNewUrlParser: true, useCreateIndex: true });
-
 // xls file import, cancel, removal
 export const receiveImportRemove = async (content: any) => {
   const { contentType, importHistoryId } = content;
@@ -131,13 +131,42 @@ export const receiveImportCancel = () => {
 };
 
 export const receiveImportXls = async (content: any) => {
-  const { file, type, scopeBrandIds, user } = content;
+  const { type, fieldNames, scopeBrandIds, user, datas } = content;
 
-  try {
-    return importXlsFile(file, type, { scopeBrandIds, user });
-  } catch (e) {
-    debugWorkers(`Error occured while importing ${e.message}`);
-
-    return { status: 'error', message: e.message };
+  if (datas.length === 0) {
+    throw new Error('Please import more at least one row of data');
   }
+
+  const properties = await checkFieldNames(type, fieldNames);
+
+  const importHistory = await ImportHistory.create({
+    contentType: type,
+    total: datas.length,
+    userId: user._id,
+    date: Date.now(),
+  });
+
+  const results: string[] = splitToCore(datas);
+
+  const workerFile =
+    process.env.NODE_ENV === 'production'
+      ? `./dist/workers/bulkInsert.worker.js`
+      : './src/workers/bulkInsert.worker.import.js';
+
+  const workerPath = path.resolve(workerFile);
+
+  const percentagePerData = Number(((1 / datas.length) * 100).toFixed(3));
+
+  const workerData = {
+    scopeBrandIds,
+    user,
+    contentType: type,
+    properties,
+    importHistoryId: importHistory._id,
+    percentagePerData,
+  };
+
+  await createWorkers(workerPath, workerData, results);
+
+  return { id: importHistory.id };
 };

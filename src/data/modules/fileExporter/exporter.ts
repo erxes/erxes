@@ -270,16 +270,20 @@ export const buildFile = async (query: any, user: IUserDocument): Promise<{ name
           const keys = Object.getOwnPropertyNames(item.customFieldsData) || [];
 
           for (const fieldId of keys) {
-            const propertyObj = await Fields.findOne({ _id: fieldId });
+            const field = await Fields.findOne({ _id: fieldId });
 
-            if (propertyObj && propertyObj.text) {
-              addCell(
-                { name: propertyObj.text, label: propertyObj.text },
-                item.customFieldsData[fieldId],
-                sheet,
-                columnNames,
-                rowIndex,
-              );
+            if (field && field.text) {
+              let value = item.customFieldsData[fieldId];
+
+              if (Array.isArray(value)) {
+                value = value.join(', ');
+              }
+
+              if (field.validation === 'date') {
+                value = moment(value).format('YYYY-MM-DD HH:mm');
+              }
+
+              addCell({ name: field.text, label: field.text }, value, sheet, columnNames, rowIndex);
             }
           }
         }
