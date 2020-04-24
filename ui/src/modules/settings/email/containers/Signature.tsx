@@ -4,8 +4,6 @@ import * as compose from 'lodash.flowright';
 import { queries } from 'modules/auth/graphql';
 import { IUser } from 'modules/auth/types';
 import { Alert, withProps } from 'modules/common/utils';
-import { queries as teamQueries } from 'modules/settings/team/graphql';
-import { UserDetailQueryResponse } from 'modules/settings/team/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Spinner from '../../../common/components/Spinner';
@@ -25,15 +23,14 @@ type Props = {
 };
 
 type FinalProps = {
-  userDetailQuery: UserDetailQueryResponse;
   brandsQuery: BrandsQueryResponse;
 } & Props &
   UsersConfigEmailSignaturesMutationResponse;
 
 const SignatureContainer = (props: FinalProps) => {
-  const { userDetailQuery, brandsQuery, saveMutation } = props;
+  const { currentUser, brandsQuery, saveMutation } = props;
 
-  if (userDetailQuery.loading || brandsQuery.loading) {
+  if (brandsQuery.loading) {
     return <Spinner />;
   }
 
@@ -54,16 +51,15 @@ const SignatureContainer = (props: FinalProps) => {
     saveMutation({ variables: { signatures: doc } })
       .then(() => {
         Alert.success('Great job! You just set up your email signature.');
+
         callback();
-        userDetailQuery.refetch();
       })
       .catch(error => {
-        Alert.success(error.message);
+        Alert.error(error.message);
       });
   };
 
-  const user = userDetailQuery.userDetail;
-  const emailSignatures = user.emailSignatures || [];
+  const emailSignatures = currentUser.emailSignatures || [];
   const signatures: IEmailSignatureWithBrand[] = [];
   const brands = brandsQuery.brands || [];
 
@@ -94,15 +90,6 @@ const WithQuery = withProps<Props>(
     graphql<Props, BrandsQueryResponse, {}>(gql(brandQueries.brands), {
       name: 'brandsQuery'
     }),
-    graphql<Props, UserDetailQueryResponse, { _id: string }>(
-      gql(teamQueries.userDetail),
-      {
-        name: 'userDetailQuery',
-        options: ({ currentUser }: { currentUser: IUser }) => ({
-          variables: { _id: currentUser._id }
-        })
-      }
-    ),
     graphql<
       Props,
       UsersConfigEmailSignaturesMutationResponse,

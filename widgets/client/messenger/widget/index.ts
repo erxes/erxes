@@ -78,11 +78,12 @@ erxesContainer.id = container;
 erxesContainer.className = "erxes-messenger-hidden";
 
 // add iframe
-const iframe = document.createElement("iframe");
+const iframe: any = document.createElement("iframe");
 
 iframe.id = iframeId;
 iframe.src = generateIntegrationUrl("messenger");
 iframe.style.display = "none";
+iframe.allow = "camera *;microphone *";
 
 erxesContainer.appendChild(iframe);
 document.body.appendChild(erxesContainer);
@@ -150,12 +151,22 @@ window.addEventListener("message", async (event: MessageEvent) => {
     if (message === "notifier") {
       clearTimer();
       delaydToggleClass("erxes-notifier-shown", isVisible);
+
+      // change container div dimension
+      if (!isVisible) {
+        delaydSetClass("erxes-messenger-hidden");
+      }
     }
 
     if (message === "notifierFull") {
-      erxesContainer.className += ` erxes-notifier-${
-        isVisible ? "shown" : "hidden"
-      } fullMessage`;
+      clearTimer();
+
+      // add class and hide notifier
+      if (isVisible) {
+        erxesContainer.className += " erxes-notifier-shown fullMessage";
+      } else {
+        delaydSetClass("erxes-messenger-hidden");
+      }
     }
 
     if (message === "requestingBrowserInfo" && iframe.contentWindow) {

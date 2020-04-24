@@ -1,21 +1,3 @@
-export const connectors = {
-  any: 'any',
-  all: 'all'
-};
-
-export const operators = [
-  { name: 'equals', value: 'e' },
-  { name: 'does not equal', value: 'dne' },
-  { name: 'contains', value: 'c' },
-  { name: 'does not contain', value: 'dnc' },
-  { name: 'is set', value: 'is', noInput: true },
-  { name: 'is not set', value: 'ins', noInput: true },
-  { name: 'is greater than', value: 'igt' },
-  { name: 'is less than', value: 'ilt' },
-  { name: 'is true', value: 'it', noInput: true },
-  { name: 'is false', value: 'if', noInput: true }
-];
-
 export const CUSTOMER_BASIC_INFO = {
   avatar: 'Avatar',
   firstName: 'First Name',
@@ -24,8 +6,6 @@ export const CUSTOMER_BASIC_INFO = {
   primaryPhone: 'Primary Phone',
   position: 'Position',
   department: 'Department',
-  leadStatus: 'Pop Ups Status',
-  lifecycleState: 'Lifecycle state',
   hasAuthority: 'Has Authority',
   description: 'Description',
   doNotDisturb: 'Do not disturb',
@@ -38,8 +18,6 @@ export const CUSTOMER_BASIC_INFO = {
     { field: 'primaryPhone', label: 'Primary Phone' },
     { field: 'position', label: 'Position' },
     { field: 'department', label: 'Department' },
-    { field: 'leadStatus', label: 'Pop Ups Status' },
-    { field: 'lifecycleState', label: 'Lifecycle state' },
     { field: 'hasAuthority', label: 'Has Authority' },
     { field: 'description', label: 'Description' },
     { field: 'doNotDisturb', label: 'Do not disturb' }
@@ -60,8 +38,8 @@ export const CUSTOMER_DATAS = {
 
 export const LEAD_STATUS_TYPES = {
   new: 'New',
-  inProgress: 'In Progress',
-  attemptedToContact: 'Attempted to contact',
+  attemptedToContact: 'Contacted',
+  inProgress: 'Working',
   badTiming: 'Bad Timing',
   unqualified: 'Unqualified'
 };
@@ -71,17 +49,6 @@ export const GENDER_TYPES = {
   1: 'Male',
   2: 'Female',
   9: 'Not applicable'
-};
-
-export const LIFECYCLE_STATE_TYPES = {
-  subscriber: 'Subscriber',
-  lead: 'Pop Ups',
-  marketingQualifiedLead: 'Marketing Qualified Lead',
-  salesQualifiedLead: 'Sales Qualified Lead',
-  opportunity: 'Opportunity',
-  customer: 'Customer',
-  evangelist: 'Evangelist',
-  other: 'Other'
 };
 
 export const CUSTOMER_LINKS = {
@@ -101,3 +68,11 @@ export const CUSTOMER_LINKS = {
     { field: 'website', label: 'Website' }
   ]
 };
+
+export const LEAD_CHOICES = [
+  { label: 'New', value: 'new' },
+  { label: 'Contacted', value: 'attemptedToContact' },
+  { label: 'Working', value: 'inProgress' },
+  { label: 'Bad timing', value: 'Bad timing' },
+  { label: 'Unqualified', value: 'unqualified' }
+];

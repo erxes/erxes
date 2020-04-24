@@ -6,7 +6,7 @@ import { Alert } from 'modules/common/utils';
 import Facebook from 'modules/settings/integrations/components/facebook/Form';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { IPages } from '../../types';
 import { getRefetchQueries } from '../utils';
 

@@ -2,11 +2,14 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import EmptyState from 'modules/common/components/EmptyState';
 import Spinner from 'modules/common/components/Spinner';
-import { withProps } from 'modules/common/utils';
-import React from 'react';
+import { IRouterProps } from 'modules/common/types';
+import { router as routerUtils, withProps } from 'modules/common/utils';
+import React, { Component } from 'react';
 import { graphql } from 'react-apollo';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
+import { withRouter } from 'react-router-dom';
 import styled from 'styled-components';
+import { PIPELINE_UPDATE_STATUSES } from '../constants';
 import { queries } from '../graphql';
 import {
   IItemMap,
@@ -31,19 +34,17 @@ type Props = {
   options: IOptions;
 };
 
-class WithStages extends React.Component<WithStatesQueryProps, {}> {
+class WithStages extends Component<WithStagesQueryProps> {
   componentWillReceiveProps(nextProps: Props) {
     const { stagesQuery, queryParams } = this.props;
     const { pipelineId } = queryParams;
 
-    if (this.queryParamsChanged(queryParams, nextProps)) {
+    if (this.queryParamsChanged(queryParams, nextProps.queryParams)) {
       stagesQuery.refetch({ pipelineId });
     }
   }
 
-  queryParamsChanged = (queryParams, nextProps: Props) => {
-    const nextQueryParams = nextProps.queryParams;
-
+  queryParamsChanged = (queryParams: any, nextQueryParams: any) => {
     if (nextQueryParams.itemId || (!queryParams.key && queryParams.itemId)) {
       return false;
     }
@@ -58,6 +59,19 @@ class WithStages extends React.Component<WithStatesQueryProps, {}> {
   countStages(obj) {
     return Object.keys(obj).length;
   }
+
+  afterFinish = () => {
+    const pipelineUpdate = sessionStorage.getItem('pipelineUpdate');
+
+    // if there is a newRequest
+    if (pipelineUpdate === PIPELINE_UPDATE_STATUSES.NEW_REQUEST) {
+      sessionStorage.setItem('pipelineUpdate', PIPELINE_UPDATE_STATUSES.START);
+
+      routerUtils.setParams(this.props.history, { key: Math.random() });
+    } else {
+      sessionStorage.setItem('pipelineUpdate', PIPELINE_UPDATE_STATUSES.END);
+    }
+  };
 
   render() {
     const {
@@ -89,9 +103,20 @@ class WithStages extends React.Component<WithStatesQueryProps, {}> {
         queryParams={queryParams}
         options={options}
         queryParamsChanged={this.queryParamsChanged}
+        afterFinish={this.afterFinish}
       >
         <PipelineConsumer>
-          {({ stageLoadMap, itemMap, onDragEnd, stageIds }) => (
+          {({
+            stageLoadMap,
+            itemMap,
+            onDragEnd,
+            stageIds,
+            scheduleStage,
+            onLoadStage,
+            onAddItem,
+            onRemoveItem,
+            onChangeRealTimeStageIds
+          }) => (
             <DragDropContext onDragEnd={onDragEnd}>
               <Droppable
                 droppableId="pipeline"
@@ -122,6 +147,11 @@ class WithStages extends React.Component<WithStatesQueryProps, {}> {
                           queryParams={queryParams}
                           loadingState={stageLoadMap[stageId]}
                           refetchStages={stagesQuery.refetch}
+                          scheduleStage={scheduleStage}
+                          onLoad={onLoadStage}
+                          onAddItem={onAddItem}
+                          onRemoveItem={onRemoveItem}
+                          onChangeRealTimeStageIds={onChangeRealTimeStageIds}
                         />
                       );
                     })}
@@ -137,11 +167,12 @@ class WithStages extends React.Component<WithStatesQueryProps, {}> {
   }
 }
 
-type WithStatesQueryProps = {
+type WithStagesQueryProps = {
   stagesQuery: StagesQueryResponse;
-} & Props;
+} & IRouterProps &
+  Props;
 
-const WithStatesQuery = (props: WithStatesQueryProps) => {
+const WithStagesQuery = (props: WithStagesQueryProps) => {
   const { stagesQuery } = props;
 
   if (stagesQuery.loading) {
@@ -179,5 +210,5 @@ export default withProps<Props>(
         }
       })
     })
-  )(WithStatesQuery)
+  )(withRouter(WithStagesQuery))
 );

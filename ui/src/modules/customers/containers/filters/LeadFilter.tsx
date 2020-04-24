@@ -72,9 +72,14 @@ function LeadFilterContainer(props: Props) {
   return <LeadFilter {...updatedProps} />;
 }
 
-export default withProps<{ loadingMainQuery: boolean }>(
+type WrapperProps = {
+  type: string;
+  loadingMainQuery: boolean;
+};
+
+export default withProps<WrapperProps>(
   compose(
-    graphql<{ loadingMainQuery: boolean }, IntegrationsQueryResponse, {}>(
+    graphql<WrapperProps, IntegrationsQueryResponse, {}>(
       gql(integrationQuery.integrations),
       {
         name: 'integrationsQuery',
@@ -84,23 +89,22 @@ export default withProps<{ loadingMainQuery: boolean }>(
         skip: ({ loadingMainQuery }) => loadingMainQuery
       }
     ),
-    graphql<{ loadingMainQuery: boolean }, IntegrationsCountQueryResponse, {}>(
+    graphql<WrapperProps, IntegrationsCountQueryResponse, {}>(
       gql(integrationQuery.integrationTotalCount),
       {
         name: 'totalCountQuery',
         skip: ({ loadingMainQuery }) => loadingMainQuery
       }
     ),
-    graphql<
-      { loadingMainQuery: boolean },
-      CountQueryResponse,
-      { only: string }
-    >(gql(queries.customerCounts), {
-      name: 'customersCountQuery',
-      skip: ({ loadingMainQuery }) => loadingMainQuery,
-      options: {
-        variables: { only: 'byForm' }
+    graphql<WrapperProps, CountQueryResponse, { only: string }>(
+      gql(queries.customerCounts),
+      {
+        name: 'customersCountQuery',
+        skip: ({ loadingMainQuery }) => loadingMainQuery,
+        options: ({ type }) => ({
+          variables: { type, only: 'byForm' }
+        })
       }
-    })
+    )
   )(LeadFilterContainer)
 );

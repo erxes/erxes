@@ -5,6 +5,8 @@ import { Alert, withProps } from 'modules/common/utils';
 import ActionSection from 'modules/customers/components/common/ActionSection';
 import { mutations, queries } from 'modules/customers/graphql';
 import {
+  ChangeStateMutationResponse,
+  ChangeStateMutationVariables,
   ICustomer,
   MergeMutationResponse,
   MergeMutationVariables,
@@ -24,10 +26,18 @@ type Props = {
 type FinalProps = Props &
   RemoveMutationResponse &
   MergeMutationResponse &
+  ChangeStateMutationResponse &
   IRouterProps;
 
 const ActionSectionContainer = (props: FinalProps) => {
-  const { isSmall, customer, customersRemove, customersMerge, history } = props;
+  const {
+    isSmall,
+    customer,
+    customersRemove,
+    customersMerge,
+    customersChangeState,
+    history
+  } = props;
 
   const { _id } = customer;
 
@@ -37,7 +47,22 @@ const ActionSectionContainer = (props: FinalProps) => {
     })
       .then(() => {
         Alert.success('You successfully deleted a customer');
-        history.push('/contacts/customers/all');
+        history.push('/contacts/customer');
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+  };
+
+  const changeState = (value: string) => {
+    customersChangeState({
+      variables: {
+        _id,
+        value
+      }
+    })
+      .then(() => {
+        Alert.success('You successfully changed the state');
       })
       .catch(e => {
         Alert.error(e.message);
@@ -53,9 +78,7 @@ const ActionSectionContainer = (props: FinalProps) => {
     })
       .then(response => {
         Alert.success('You successfully merged a customer');
-        history.push(
-          `/contacts/customers/details/${response.data.customersMerge._id}`
-        );
+        history.push(`/contacts/details/${response.data.customersMerge._id}`);
       })
       .catch(e => {
         Alert.error(e.message);
@@ -87,6 +110,7 @@ const ActionSectionContainer = (props: FinalProps) => {
     cocType: 'customer',
     remove,
     merge,
+    changeState,
     search: searchCustomer
   };
 
@@ -94,7 +118,7 @@ const ActionSectionContainer = (props: FinalProps) => {
 };
 
 const generateOptions = () => ({
-  refetchQueries: ['customersMain', 'customerCounts']
+  refetchQueries: ['customersMain', 'customerCounts', 'customerDetail']
 });
 
 export default withProps<Props>(
@@ -111,6 +135,13 @@ export default withProps<Props>(
       gql(mutations.customersMerge),
       {
         name: 'customersMerge',
+        options: generateOptions()
+      }
+    ),
+    graphql<Props, ChangeStateMutationResponse, ChangeStateMutationVariables>(
+      gql(mutations.customersChangeState),
+      {
+        name: 'customersChangeState',
         options: generateOptions()
       }
     )

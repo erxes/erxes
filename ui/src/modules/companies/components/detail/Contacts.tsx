@@ -23,7 +23,7 @@ class Contacts extends React.Component<Props> {
         <NameCard.Avatar customer={customer} size={30} />
         {renderFullName(customer)}
 
-        <Link to={`/contacts/customers/details/${customer._id}`}>
+        <Link to={`/contacts/details/${customer._id}`}>
           <Icon icon="arrow-to-right" />
         </Link>
       </Contact>

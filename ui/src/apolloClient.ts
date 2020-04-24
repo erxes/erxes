@@ -9,16 +9,14 @@ import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 
 // get env config from process.env or window.env
-export const getEnv = () => {
-  const wenv = (window as any).env || {};
+export const getEnv = (): any => {
+  const envs = {};
 
-  const getItem = name => wenv[name] || process.env[name];
+  for (const envMap of (window as any).envMaps) {
+    envs[envMap.name] = localStorage.getItem(`erxes_env_${envMap.name}`);
+  }
 
-  return {
-    REACT_APP_API_URL: getItem('REACT_APP_API_URL'),
-    REACT_APP_API_SUBSCRIPTION_URL: getItem('REACT_APP_API_SUBSCRIPTION_URL'),
-    REACT_APP_CDN_HOST: getItem('REACT_APP_CDN_HOST')
-  };
+  return envs;
 };
 
 const { REACT_APP_API_URL, REACT_APP_API_SUBSCRIPTION_URL } = getEnv();

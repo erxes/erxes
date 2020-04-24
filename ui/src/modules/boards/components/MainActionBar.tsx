@@ -210,7 +210,7 @@ class MainActionBar extends React.Component<Props> {
                 currentBoard ? currentBoard._id : ''
               }`}
             >
-              <Icon icon="bright" />
+              <Icon icon="cog" />
             </Link>
           </Tip>
         </HeaderLink>

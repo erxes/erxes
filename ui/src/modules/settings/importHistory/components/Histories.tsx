@@ -10,6 +10,7 @@ import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
 import DataImporter from 'modules/settings/importHistory/containers/DataImporter';
 import React from 'react';
+import ExportPopupsData from '../containers/ExportPopupsData';
 import { IImportHistory } from '../types';
 import HistoryRow from './Row';
 import Sidebar from './Sidebar';
@@ -145,12 +146,21 @@ class Histories extends React.Component<Props & IRouterProps> {
     );
   };
 
+  renderExportPopupsData() {
+    if (this.props.currentType !== 'customer') {
+      return null;
+    }
+
+    return <ExportPopupsData />;
+  }
+
   renderImportButton = () => {
     return (
       <BarItems>
         {this.renderTemplateButton()}
         {this.renderDataImporter()}
         {this.renderExportButton()}
+        {this.renderExportPopupsData()}
       </BarItems>
     );
   };

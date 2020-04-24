@@ -29,7 +29,7 @@ const defaultCustomerFields = {
   companies: null,
   customFieldsData: null,
   getTags: null,
-  isUser: null,
+  state: 'visitor',
   lastName: null,
   primaryPhone: null,
   tagIds: null

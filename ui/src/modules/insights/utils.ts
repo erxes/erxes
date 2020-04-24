@@ -1,25 +1,20 @@
 import dayjs from 'dayjs';
-import { KIND_CHOICES } from 'modules/settings/integrations/constants';
-
-export type OptionsType = {
-  value: string;
-  label: string;
-};
+import { IOption } from 'modules/common/types';
+import { INTEGRATION_KINDS } from 'modules/settings/integrations/constants';
 
 export function selectOptions(array) {
-  const options: OptionsType[] = [];
+  const options: IOption[] = [];
   array.map(item => options.push({ value: item._id, label: item.name }));
   return options;
 }
 
-export function integrationOptions(array) {
-  const options: OptionsType[] = [];
-  const types = KIND_CHOICES.ALL_LIST;
+export function integrationOptions() {
+  const options: IOption[] = [];
 
-  array.map(item =>
+  INTEGRATION_KINDS.ALL.map(item =>
     options.push({
-      value: types.includes(item) ? item : '',
-      label: item
+      value: item.value,
+      label: item.text
     })
   );
 

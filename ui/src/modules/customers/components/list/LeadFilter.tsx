@@ -6,7 +6,7 @@ import { __, router } from 'modules/common/utils';
 import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
 import { IIntegration } from 'modules/settings/integrations/types';
 import React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
   counts: { [key: string]: number };
@@ -19,7 +19,7 @@ interface IProps extends IRouterProps {
 function Leads({
   history,
   counts,
-  integrations,
+  integrations = [],
   loading,
   loadMore,
   all

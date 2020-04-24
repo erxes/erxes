@@ -32,8 +32,8 @@ const tasksRemove = `
 `;
 
 const tasksChange = `
-  mutation tasksChange($_id: String!, $destinationStageId: String!) {
-    tasksChange(_id: $_id, destinationStageId: $destinationStageId) {
+  mutation tasksChange($_id: String!, $destinationStageId: String!, $order: Float) {
+    tasksChange(_id: $_id, destinationStageId: $destinationStageId, order: $order) {
       _id
     }
   }

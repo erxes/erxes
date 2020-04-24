@@ -1,7 +1,7 @@
 import apolloClient from 'apolloClient';
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import ButtonMutate from '../../common/components/ButtonMutate';
 import { IButtonMutateProps, IRouterProps } from '../../common/types';
 import SignIn from '../components/SignIn';
@@ -14,9 +14,7 @@ const SignInContainer = (props: IRouterProps) => {
     const callbackResponse = () => {
       apolloClient.resetStore();
 
-      if (window.location.href.includes('sign-in')) {
-        history.push('/?signedIn=true');
-      }
+      history.push('/?signedIn=true');
 
       window.location.reload();
     };

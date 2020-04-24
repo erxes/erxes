@@ -7,7 +7,7 @@ import { withProps } from 'modules/common/utils';
 import { queries } from 'modules/settings/integrations/graphql';
 import React from 'react';
 import { graphql, withApollo } from 'react-apollo';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import Website from '../../components/website/website';
 import { mutations } from '../../graphql';
 import { IntegrationsQueryResponse } from '../../types';

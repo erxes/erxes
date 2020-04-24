@@ -1,12 +1,30 @@
 import Button from 'modules/common/components/Button';
 import { FormControl } from 'modules/common/components/form';
 import { __ } from 'modules/common/utils';
-import { operators } from 'modules/customers/constants';
 import { FlexRightItem } from 'modules/layout/styles';
 import React from 'react';
 import Select from 'react-select-plus';
 import { IConditionFilter, IField } from '../../types';
 import { ConditionItem, FilterProperty, FilterRow } from '../styles';
+
+const operators = [
+  { name: 'equals', value: 'e' },
+  { name: 'is not equal to', value: 'dne' },
+  { name: 'contains', value: 'c' },
+  { name: 'does not contain', value: 'dnc' },
+  { name: 'is set', value: 'is', noInput: true },
+  { name: 'is not set', value: 'ins', noInput: true },
+  { name: 'is greater than', value: 'igt' },
+  { name: 'is less than', value: 'ilt' },
+  { name: 'will occur before on following n-th minute', value: 'wobm' },
+  { name: 'will occur after on following n-th minute', value: 'woam' },
+  { name: 'will occur before on following n-th day', value: 'wobd' },
+  { name: 'will occur after on following n-th day', value: 'woad' },
+  { name: 'date relative less than', value: 'drlt' },
+  { name: 'date relative greater than', value: 'drgt' },
+  { name: 'is true', value: 'it', noInput: true },
+  { name: 'is false', value: 'if', noInput: true }
+];
 
 type Props = {
   fields: IField[];
@@ -79,9 +97,10 @@ class Filter extends React.Component<Props, State> {
 
     return fields.reduce((acc, field) => {
       const value = field.value;
-      const key = value.includes('.')
-        ? value.substr(0, value.indexOf('.'))
-        : 'general';
+      const key =
+        value && value.includes('.')
+          ? value.substr(0, value.indexOf('.'))
+          : 'general';
 
       if (!acc[key]) {
         acc[key] = [];

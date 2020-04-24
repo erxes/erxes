@@ -4,7 +4,7 @@ import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
-import { Alert } from 'modules/common/utils';
+import { __, Alert } from 'modules/common/utils';
 import {
   EMAIL_CONTENT,
   MESSENGER_KINDS,
@@ -21,7 +21,7 @@ type Props = {
   brands: IBrand[];
   onChange: (
     name: 'messenger' | 'content' | 'scheduleDate' | 'fromUserId',
-    value: IEngageMessenger | IEngageScheduleDate | string
+    value?: IEngageMessenger | IEngageScheduleDate | string
   ) => void;
   users: IUser[];
   hasKind: boolean;
@@ -126,7 +126,7 @@ class MessengerForm extends React.Component<Props, State> {
       <FlexItem>
         <FlexPad overflow="auto" direction="column" count="3">
           <FormGroup>
-            <ControlLabel>Message:</ControlLabel>
+            <ControlLabel>{__('Message:')}</ControlLabel>
 
             <EditorCK
               content={this.props.content}
@@ -175,7 +175,7 @@ class MessengerForm extends React.Component<Props, State> {
           {this.renderKind(this.props.hasKind)}
 
           <FormGroup>
-            <ControlLabel>Sent as:</ControlLabel>
+            <ControlLabel>{__('Sent as:')}</ControlLabel>
             <FormControl
               componentClass="select"
               onChange={onChangeSentAs}
@@ -184,7 +184,7 @@ class MessengerForm extends React.Component<Props, State> {
               <option />{' '}
               {SENT_AS_CHOICES.SELECT_OPTIONS.map(s => (
                 <option key={s.value} value={s.value}>
-                  {s.text}
+                  {__(s.text)}
                 </option>
               ))}
             </FormControl>

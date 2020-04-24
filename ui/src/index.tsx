@@ -9,7 +9,7 @@ import 'modules/common/styles/global-styles.ts';
 import React from 'react';
 import { ApolloProvider } from 'react-apollo';
 import { render } from 'react-dom';
-import apolloClient from './apolloClient';
+import apolloClient, { getEnv } from './apolloClient';
 import Routes from './routes';
 
 dayjs.extend(localizedFormat);
@@ -17,9 +17,18 @@ dayjs.extend(relativeTime);
 
 const target = document.querySelector('#root');
 
-render(
-  <ApolloProvider client={apolloClient}>
-    <Routes />
-  </ApolloProvider>,
-  target
-);
+const envs = getEnv();
+
+fetch(
+  `${envs.REACT_APP_API_URL}/set-frontend-cookies?envs=${JSON.stringify(envs)}`,
+  { credentials: 'include' }
+)
+  .then(response => response.text())
+  .then(() => {
+    render(
+      <ApolloProvider client={apolloClient}>
+        <Routes />
+      </ApolloProvider>,
+      target
+    );
+  });

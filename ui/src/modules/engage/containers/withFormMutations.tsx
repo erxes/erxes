@@ -4,7 +4,7 @@ import { IRouterProps } from 'modules/common/types';
 import { Alert, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { AllUsersQueryResponse } from '../../settings/team/types';
 import { mutations, queries } from '../graphql';
 import {
@@ -61,9 +61,11 @@ function withSaveAndEdit<IComponentProps>(Component) {
         })
           .then(() => {
             Alert.success(msg);
-            history.push('/engage');
 
-            this.setState({ isLoading: false });
+            history.push({
+              pathname: '/engage',
+              search: '?engageRefetchList=true'
+            });
           })
           .catch(error => {
             Alert.error(error.message);
@@ -75,7 +77,6 @@ function withSaveAndEdit<IComponentProps>(Component) {
       // save
       const save = doc => {
         doc.kind = message.kind ? message.kind : kind;
-        doc.scheduleDate = doc.kind !== 'manual' ? doc.scheduleDate : null;
 
         if (messageId) {
           return doMutation(
@@ -107,12 +108,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
         templateId: ''
       };
 
-      const scheduleDate = message.scheduleDate || {
-        type: '',
-        month: '',
-        day: '',
-        time: ''
-      };
+      const scheduleDate = message.scheduleDate;
 
       const updatedProps = {
         ...this.props,
@@ -135,12 +131,13 @@ function withSaveAndEdit<IComponentProps>(Component) {
             content: email.content,
             templateId: email.templateId
           },
-          scheduleDate: {
-            type: scheduleDate.type,
-            month: scheduleDate.month,
-            day: scheduleDate.day,
-            time: scheduleDate.time
-          }
+          scheduleDate: scheduleDate
+            ? {
+                type: scheduleDate.type,
+                month: scheduleDate.month,
+                day: scheduleDate.day
+              }
+            : null
         }
       };
 
@@ -169,11 +166,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
         {
           name: 'addMutation',
           options: {
-            refetchQueries: [
-              ...crudMutationsOptions().refetchQueries,
-              'engageMessageDetail',
-              'activityLogs'
-            ]
+            refetchQueries: engageRefetchQueries({})
           }
         }
       ),
@@ -182,15 +175,22 @@ function withSaveAndEdit<IComponentProps>(Component) {
         {
           name: 'editMutation',
           options: {
-            refetchQueries: [
-              ...crudMutationsOptions().refetchQueries,
-              'engageMessageDetail'
-            ]
+            refetchQueries: engageRefetchQueries({ isEdit: true })
           }
         }
       )
     )(withRouter<FinalProps>(Container))
   );
 }
+
+export const engageRefetchQueries = ({
+  isEdit
+}: {
+  isEdit?: boolean;
+}): string[] => [
+  ...crudMutationsOptions().refetchQueries,
+  ...(isEdit ? ['activityLogs'] : []),
+  'engageMessageDetail'
+];
 
 export default withSaveAndEdit;

@@ -55,7 +55,7 @@ export type RemoveMutationResponse = {
 
 // query types
 export type LeadIntegrationsQueryResponse = {
-  integrations: ILeadIntegration;
+  integrations: ILeadIntegration[];
   loading: boolean;
   refetch: () => void;
 };

@@ -50,7 +50,7 @@ class BrandRow extends React.Component<Props> {
         <Link to={`?_id=${brand._id}`}>{brand.name}</Link>
         <ActionButtons>
           {this.renderEditAction()}
-          <Tip text="Delete" placement="bottom">
+          <Tip text={__('Delete')} placement="bottom">
             <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
           </Tip>
         </ActionButtons>

@@ -22,6 +22,7 @@ import {
   generateForwardMailContent
 } from '../../containers/utils';
 
+import { IUser } from 'modules/auth/types';
 import MailChooser from './MailChooser';
 import {
   AttachmentContainer,
@@ -40,6 +41,7 @@ import {
 import { FlexRow, Subject } from './styles';
 
 type Props = {
+  currentUser: IUser;
   integrationId?: string;
   integrations: IIntegration[];
   fromEmail?: string;
@@ -368,6 +370,7 @@ class MailForm extends React.Component<Props, State> {
     uploadHandler({
       kind: 'nylas',
       files,
+      userId: this.props.currentUser._id,
       extraFormData: [
         { key: 'erxesApiId', value: this.props.integrationId || from || '' }
       ],

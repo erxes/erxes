@@ -1,5 +1,5 @@
 import React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 
 import Box from 'modules/common/components/Box';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
@@ -61,15 +61,14 @@ class LeadStatusFilter extends React.Component<IProps> {
 
     const extraButtons = router.getParam(history, 'leadStatus') && (
       <a href="#cancel" tabIndex={0} onClick={onClear}>
-        <Icon icon="cancel-1" />
+        <Icon icon="times-circle" />
       </a>
     );
 
     return (
       <Box
         extraButtons={extraButtons}
-        title={__('Filter by pop ups status')}
-        collapsible={true}
+        title={__('Filter by lead status')}
         name="showFilterByStatus"
       >
         <DataWithLoader

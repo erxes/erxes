@@ -130,14 +130,7 @@ class Row extends React.Component<Props> {
         <td>{integration.brand ? integration.brand.name : ''}</td>
         <td>{lead.viewCount || 0}</td>
         <td>{percentage.substring(0, 4)} %</td>
-        <td>
-          <Tip text={__('View')}>
-            <Link to={`/contacts/customers/all?form=${integration.formId}`}>
-              <Icon icon="eye-2" />
-            </Link>
-          </Tip>{' '}
-          {lead.contactsGathered || 0}
-        </td>
+        <td>{lead.contactsGathered || 0}</td>
         <td>
           <DateWrapper>{dayjs(form.createdDate).format('ll')}</DateWrapper>
         </td>

@@ -1,9 +1,9 @@
 import withCurrentUser from 'modules/auth/containers/withCurrentUser';
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import { userConfirmation } from 'modules/settings/team/routes';
+import queryString from 'query-string';
 import React from 'react';
-import { Route, Router, Switch } from 'react-router-dom';
-import history from './browserHistory';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import AuthRoutes from './modules/auth/routes';
 import { IUser } from './modules/auth/types';
 import CompaniesRoutes from './modules/companies/routes';
@@ -21,11 +21,22 @@ import SettingsRoutes from './modules/settings/routes';
 import TagsRoutes from './modules/tags/routes';
 import TaskRoutes from './modules/tasks/routes';
 import TicketRoutes from './modules/tickets/routes';
+import TutorialRoutes from './modules/tutorial/routes';
 import VideoCallRoutes from './modules/videoCall/routes';
 
 const MainLayout = asyncComponent(() =>
   import(/* webpackChunkName: "MainLayout" */ 'modules/layout/containers/MainLayout')
 );
+
+const Unsubscribe = asyncComponent(() =>
+  import(/* webpackChunkName: "Unsubscribe" */ 'modules/auth/containers/Unsubscribe')
+);
+
+export const unsubscribe = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <Unsubscribe queryParams={queryParams} />;
+};
 
 const renderRoutes = currentUser => {
   if (currentUser) {
@@ -48,6 +59,7 @@ const renderRoutes = currentUser => {
           <TaskRoutes />
           <GrowthHackRoutes />
           <VideoCallRoutes />
+          <TutorialRoutes />
         </MainLayout>
       </>
     );
@@ -67,7 +79,18 @@ const renderRoutes = currentUser => {
 };
 
 const Routes = ({ currentUser }: { currentUser: IUser }) => (
-  <Router history={history}>{renderRoutes(currentUser)}</Router>
+  <Router>
+    <>
+      <Route
+        key="/unsubscribe"
+        exact={true}
+        path="/unsubscribe"
+        component={unsubscribe}
+      />
+
+      {renderRoutes(currentUser)}
+    </>
+  </Router>
 );
 
 export default withCurrentUser(Routes);
