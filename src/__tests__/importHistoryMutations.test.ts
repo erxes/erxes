@@ -4,7 +4,6 @@ import { companyFactory, customerFactory, importHistoryFactory, productFactory }
 import { ImportHistory } from '../db/models';
 import * as workerUtils from '../workers/utils';
 
-import utils from '../data/utils';
 import './setup.ts';
 
 describe('Import history mutations', () => {
@@ -39,9 +38,6 @@ describe('Import history mutations', () => {
       );
     }
 
-    const fetchSpy = jest.spyOn(utils, 'fetchWorkersApi');
-    fetchSpy.mockImplementation(() => Promise.resolve('ok'));
-
     await graphqlRequest(mutation, 'importHistoriesRemove', { _id: customerHistory._id });
     await graphqlRequest(mutation, 'importHistoriesRemove', { _id: companyHistory._id });
     await graphqlRequest(mutation, 'importHistoriesRemove', { _id: productHistory._id });
@@ -51,7 +47,6 @@ describe('Import history mutations', () => {
     expect(historyObj.status).toBe('Removing');
 
     mock.restore();
-    fetchSpy.mockRestore();
   });
 
   test('Remove import histories (Error)', async () => {
@@ -91,9 +86,6 @@ describe('Import history mutations', () => {
       );
     }
 
-    const fetchSpy = jest.spyOn(utils, 'fetchWorkersApi');
-    fetchSpy.mockImplementation(() => Promise.resolve('ok'));
-
     const response = await graphqlRequest(mutation, 'importHistoriesCancel', { _id: importHistory._id });
 
     expect(response).toBe(true);
@@ -104,8 +96,6 @@ describe('Import history mutations', () => {
     } catch (e) {
       expect(e[0].message).toBe('History not found');
     }
-
-    fetchSpy.mockRestore();
   });
 
   test('Cancel import history (Error)', async () => {

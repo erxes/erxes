@@ -27,7 +27,7 @@ import {
 import { connect } from './db/connection';
 import { debugBase, debugExternalApi, debugInit } from './debuggers';
 import { identifyCustomer, trackCustomEvent, trackViewPageEvent, updateCustomerProperty } from './events';
-import { initConsumer } from './messageBroker';
+import { initConsumer, sendRPCMessage } from './messageBroker';
 import userMiddleware from './middlewares/userMiddleware';
 import widgetsMiddleware from './middlewares/widgetsMiddleware';
 import { initRedis } from './redisClient';
@@ -267,34 +267,44 @@ app.get('/connect-integration', async (req: any, res, _next) => {
 });
 
 // file import
-app.post('/import-file', async (req: any, res, next) => {
+app.post('/import-file', async (req: any, res) => {
   // require login
   if (!req.user) {
     return res.end('foribidden');
   }
 
-  const WORKERS_API_DOMAIN = getSubServiceDomain({ name: 'WORKERS_API_DOMAIN' });
-
-  debugExternalApi(`Pipeing request to ${WORKERS_API_DOMAIN}`);
-
   try {
-    const result = await req.pipe(
-      request
-        .post(`${WORKERS_API_DOMAIN}/import-file`)
-        .on('response', response => {
-          if (response.statusCode !== 200) {
-            return next(response.statusMessage);
-          }
+    const scopeBrandIds = JSON.parse(req.cookies.scopeBrandIds || '[]');
+    const form = new formidable.IncomingForm();
 
-          return response.pipe(res);
-        })
-        .on('error', e => {
-          debugExternalApi(`Error from pipe ${e.message}`);
-          next(e);
-        }),
-    );
+    form.parse(req, async (_err, fields: any, response) => {
+      let status = '';
+      let result;
 
-    return result;
+      try {
+        status = await checkFile(response.file);
+      } catch (e) {
+        return res.json({ status: e.message });
+      }
+
+      // if file is not ok then send error
+      if (status !== 'ok') {
+        return res.json(status);
+      }
+
+      try {
+        result = await sendRPCMessage({
+          file: response.file,
+          type: fields.type,
+          scopeBrandIds,
+          user: req.user,
+        });
+
+        return res.json(result);
+      } catch (e) {
+        return res.json(e.message);
+      }
+    });
   } catch (e) {
     return res.json({ status: 'error', message: e.message });
   }

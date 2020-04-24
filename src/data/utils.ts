@@ -610,16 +610,6 @@ export const sendRequest = async (
   }
 };
 
-/**
- * Send request to workers api
- */
-export const fetchWorkersApi = ({ path, method, body, params }: IRequestParams) => {
-  return sendRequest(
-    { url: `${getSubServiceDomain({ name: 'WORKERS_API_DOMAIN' })}${path}`, method, body, params },
-    'Failed to connect workers api. Check WORKERS_API_DOMAIN env or workers api is not running',
-  );
-};
-
 export const registerOnboardHistory = ({ type, user }: { type: string; user: IUserDocument }) =>
   OnboardingHistories.getOrCreate({ type, user })
     .then(({ status }) => {
@@ -758,7 +748,6 @@ export default {
   sendMobileNotification,
   readFile,
   createTransporter,
-  fetchWorkersApi,
 };
 
 export const cleanHtml = (content?: string) => strip(content || '').substring(0, 100);
@@ -921,7 +910,6 @@ export const getSubServiceDomain = ({ name }: { name: string }): string => {
   const defaultMappings = {
     WIDGETS_DOMAIN: `${MAIN_APP_DOMAIN}/widgets`,
     INTEGRATIONS_API_DOMAIN: `${MAIN_APP_DOMAIN}/integrations`,
-    WORKERS_API_DOMAIN: `${MAIN_APP_DOMAIN}/workers`,
     LOGS_API_DOMAIN: `${MAIN_APP_DOMAIN}/logs`,
     ENGAGES_API_DOMAIN: `${MAIN_APP_DOMAIN}/engages`,
   };

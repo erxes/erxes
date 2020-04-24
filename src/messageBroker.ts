@@ -1,6 +1,7 @@
 import * as amqplib from 'amqplib';
 import * as dotenv from 'dotenv';
 import * as uuid from 'uuid';
+import { RABBITMQ_QUEUES } from './data/constants';
 import {
   receiveEmailVerifierNotification,
   receiveEngagesNotification,
@@ -18,7 +19,7 @@ const { NODE_ENV, RABBITMQ_HOST = 'amqp://localhost' } = process.env;
 let connection;
 let channel;
 
-export const sendRPCMessage = async (message): Promise<any> => {
+export const sendRPCMessage = async (message: any): Promise<any> => {
   const response = await new Promise((resolve, reject) => {
     const correlationId = uuid();
 
@@ -45,7 +46,7 @@ export const sendRPCMessage = async (message): Promise<any> => {
         { noAck: true },
       );
 
-      channel.sendToQueue('rpc_queue:erxes-api', Buffer.from(JSON.stringify(message)), {
+      channel.sendToQueue(RABBITMQ_QUEUES.RPC_API, Buffer.from(JSON.stringify(message)), {
         correlationId,
         replyTo: q.queue,
       });

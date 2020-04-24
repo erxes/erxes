@@ -1,7 +1,10 @@
 import * as dotenv from 'dotenv';
 import * as mongoose from 'mongoose';
 import * as os from 'os';
-import { debugImport } from '../debuggers';
+import * as path from 'path';
+import ImportHistories from '../db/models/ImportHistory';
+import { debugImport, debugWorkers } from '../debuggers';
+import { importXlsFile } from './bulkInsert';
 
 dotenv.config();
 
@@ -97,8 +100,44 @@ export const clearIntervals = () => {
 
 const { MONGO_URL = '' } = process.env;
 
-export const connect = () =>
-  mongoose.connect(
-    MONGO_URL,
-    { useNewUrlParser: true, useCreateIndex: true },
-  );
+export const connect = () => mongoose.connect(MONGO_URL, { useNewUrlParser: true, useCreateIndex: true });
+
+// xls file import, cancel, removal
+export const receiveImportRemove = async (content: any) => {
+  const { contentType, importHistoryId } = JSON.parse(content || '{}');
+
+  const importHistory = await ImportHistories.getImportHistory(importHistoryId);
+
+  const results = splitToCore(importHistory.ids || []);
+
+  const workerFile =
+    process.env.NODE_ENV === 'production'
+      ? `./dist/workers/importHistoryRemove.worker.js`
+      : './src/workers/importHistoryRemove.worker.import.js';
+
+  const workerPath = path.resolve(workerFile);
+
+  await createWorkers(workerPath, { contentType, importHistoryId }, results);
+
+  return { status: 'started removing' };
+};
+
+export const receiveImportCancel = () => {
+  clearIntervals();
+
+  removeWorkers();
+
+  return { status: 'ok' };
+};
+
+export const receiveImportXls = async (content: any) => {
+  const { file, type, scopeBrandIds, user } = JSON.parse(content || '{}');
+
+  try {
+    return importXlsFile(file, type, { scopeBrandIds, user });
+  } catch (e) {
+    debugWorkers(`Error occured while importing ${e.message}`);
+
+    return { status: 'error', message: e.message };
+  }
+};

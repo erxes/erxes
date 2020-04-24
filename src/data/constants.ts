@@ -280,3 +280,10 @@ export const MODULE_NAMES = {
   SCRIPT: 'script',
   FIELD: 'field',
 };
+
+export const RABBITMQ_QUEUES = {
+  PUT_LOG: 'putLog',
+  RPC_API: 'rpc_queue:erxes-api',
+  IMPORT_HISTORY_REMOVE: 'importHistoryRemove',
+  IMPORT_HISTORY_CANCEL: 'importHistoryCancel',
+};
