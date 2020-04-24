@@ -20,6 +20,8 @@ let connection;
 let channel;
 
 export const sendRPCMessage = async (message: any): Promise<any> => {
+  debugBase(`Sending rpc message to ${JSON.stringify(message)}`);
+
   const response = await new Promise((resolve, reject) => {
     const correlationId = uuid();
 

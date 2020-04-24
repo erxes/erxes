@@ -15,7 +15,8 @@ const importHistoryMutations = {
 
     await ImportHistory.updateOne({ _id: importHistory._id }, { $set: { status: 'Removing' } });
 
-    await sendMessage(RABBITMQ_QUEUES.IMPORT_HISTORY_REMOVE, {
+    await sendMessage(RABBITMQ_QUEUES.WORKERS, {
+      type: 'removeImport',
       contentType: importHistory.contentType,
       importHistoryId: importHistory._id,
     });
@@ -35,7 +36,9 @@ const importHistoryMutations = {
       throw new Error('History not found');
     }
 
-    await sendMessage(RABBITMQ_QUEUES.IMPORT_HISTORY_CANCEL, {});
+    await sendMessage(RABBITMQ_QUEUES.WORKERS, {
+      type: 'cancelImport',
+    });
 
     return true;
   },
