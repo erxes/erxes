@@ -234,7 +234,7 @@ export const loadClass = () => {
         ...doc,
       });
 
-      if (doc.primaryEmail) {
+      if (doc.primaryEmail && !doc.emailValidationStatus) {
         validateEmail(doc.primaryEmail);
       }
 
