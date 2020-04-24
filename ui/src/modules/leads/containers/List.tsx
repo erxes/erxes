@@ -68,10 +68,8 @@ class ListContainer extends React.Component<FinalProps> {
     const integrations = integrationsQuery.integrations || [];
 
     const remove = (integrationId: string) => {
-      const message = `
-        If you remove a pop ups, then all related conversations, customers will also be removed.
-        Are you sure?
-      `;
+      const message =
+        'If you remove a pop ups, then all related conversations, customers will also be removed. Are you sure?';
 
       confirm(message).then(() => {
         removeMutation({
@@ -90,11 +88,7 @@ class ListContainer extends React.Component<FinalProps> {
     };
 
     const archive = (integrationId: string) => {
-      const message = `
-        If you archive a pop ups, then you won't be able to see customers & conversations 
-        related to this pop ups anymore.
-        Are you sure?
-      `;
+      const message = `If you archive a pop ups, then you won't be able to see customers & conversations related to this pop ups anymore. Are you sure?`;
 
       confirm(message).then(() => {
         archiveIntegration({ variables: { _id: integrationId } })

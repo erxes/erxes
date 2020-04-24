@@ -5,7 +5,7 @@ import { IUser } from 'modules/auth/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '../../common/utils';
-import FeatureDetail from '../components/FeatureDetail';
+import TodoDetail from '../components/TodoDetail';
 import { mutations, queries, subscriptions } from '../graphql';
 import {
   CompleteShowStepMutationResponse,
@@ -23,7 +23,7 @@ type FinalProps = Props &
     currentUser: IUser;
   };
 
-class FeatureDetailContainer extends React.Component<FinalProps> {
+class TodoDetailContainer extends React.Component<FinalProps> {
   componentWillMount() {
     const { stepsCompletenessQuery, currentUser } = this.props;
 
@@ -52,7 +52,7 @@ class FeatureDetailContainer extends React.Component<FinalProps> {
         stepsCompletenessQuery.onboardingStepsCompleteness || {}
     };
 
-    return <FeatureDetail {...updatedProps} />;
+    return <TodoDetail {...updatedProps} />;
   }
 }
 
@@ -71,5 +71,5 @@ export default withProps<Props>(
     graphql<{}>(gql(mutations.completeShowStep), {
       name: 'completeShowStepMutation'
     })
-  )(withCurrentUser(FeatureDetailContainer))
+  )(withCurrentUser(TodoDetailContainer))
 );

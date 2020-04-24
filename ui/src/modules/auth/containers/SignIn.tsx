@@ -14,9 +14,7 @@ const SignInContainer = (props: IRouterProps) => {
     const callbackResponse = () => {
       apolloClient.resetStore();
 
-      if (window.location.href.includes('sign-in')) {
-        history.push('/?signedIn=true');
-      }
+      history.push('/?signedIn=true');
 
       window.location.reload();
     };

@@ -19,7 +19,7 @@ interface IProps extends IRouterProps {
 function Leads({
   history,
   counts,
-  integrations,
+  integrations = [],
   loading,
   loadMore,
   all

@@ -77,7 +77,6 @@ function withSaveAndEdit<IComponentProps>(Component) {
       // save
       const save = doc => {
         doc.kind = message.kind ? message.kind : kind;
-        doc.scheduleDate = doc.kind !== 'manual' ? doc.scheduleDate : null;
 
         if (messageId) {
           return doMutation(
@@ -109,12 +108,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
         templateId: ''
       };
 
-      const scheduleDate = message.scheduleDate || {
-        type: '',
-        month: '',
-        day: '',
-        time: ''
-      };
+      const scheduleDate = message.scheduleDate;
 
       const updatedProps = {
         ...this.props,
@@ -137,12 +131,13 @@ function withSaveAndEdit<IComponentProps>(Component) {
             content: email.content,
             templateId: email.templateId
           },
-          scheduleDate: {
-            type: scheduleDate.type,
-            month: scheduleDate.month,
-            day: scheduleDate.day,
-            time: scheduleDate.time
-          }
+          scheduleDate: scheduleDate
+            ? {
+                type: scheduleDate.type,
+                month: scheduleDate.month,
+                day: scheduleDate.day
+              }
+            : null
         }
       };
 

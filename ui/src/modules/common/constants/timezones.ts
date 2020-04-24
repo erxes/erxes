@@ -342,7 +342,7 @@ const timezones = [
   { value: 'Asia/Tokyo', label: 'Asia/Tokyo' },
   { value: 'Asia/Ujung_Pandang', label: 'Asia/Ujung_Pandang' },
   { value: 'Asia/Ulaanbaatar', label: 'Asia/Ulaanbaatar' },
-  { value: 'Asia/Ulan_Bator', label: 'Asia/Ulan_Bator' },
+  { value: 'Asia/Choibalsan', label: 'Asia/Choibalsan' },
   { value: 'Asia/Urumqi', label: 'Asia/Urumqi' },
   { value: 'Asia/Vientiane', label: 'Asia/Vientiane' },
   { value: 'Asia/Vladivostok', label: 'Asia/Vladivostok' },

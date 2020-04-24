@@ -12,7 +12,7 @@ We would love for you to contribute to Erxes and help make it even better than i
 * [Submission Guidelines](#submission-guidelines)
 * [Coding Standards](#coding-standards)
 * [Commit Message Guidelines](#commit-message-guidelines)
-* [Swag for Contributions]()
+* [Swag for Contributions](#swag-for-contributions)
 
 
 ### Found a Bug?
@@ -389,4 +389,4 @@ revert: feat(inbox): add 'graphiteWidth' option
 To show our appreciation, we are sending everyone who contributes to erxes a special package, which includes a t-shirt and stickers. [Click here](https://erxes.io/hubspot-alternative-erxes-swag) to claim your swag. (Worldwide free shipping included!)
 
 <p align="center">
-  <img src="https://erxes.io/static/images/t-shirt.jpeg" width="500" title="erxes Swag"></p>
+  <img src="https://erxes.io/static/images/swag.gif" title="erxes Swag"></p>

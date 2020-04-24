@@ -9,13 +9,13 @@ import { AppConsumer, AppProvider } from "./AppContext";
 import queries from "./graphql";
 
 type QueryResponse = {
-  knowledgeBaseTopicDetail: IKbTopic;
+  widgetsKnowledgeBaseTopicDetail: IKbTopic;
 };
 
 const Topic = (props: ChildProps<{}, QueryResponse>) => {
   const { data } = props;
 
-  if (!data || data.loading || !data.knowledgeBaseTopicDetail) {
+  if (!data || data.loading || !data.widgetsKnowledgeBaseTopicDetail) {
     return null;
   }
 
@@ -23,7 +23,7 @@ const Topic = (props: ChildProps<{}, QueryResponse>) => {
     color,
     languageCode,
     backgroundImage
-  } = data.knowledgeBaseTopicDetail;
+  } = data.widgetsKnowledgeBaseTopicDetail;
 
   // set language
   setLocale(languageCode);
