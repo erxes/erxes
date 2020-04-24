@@ -36,9 +36,9 @@ export const initConsumer = async () => {
       }
     });
 
-    await channel.assertQueue(RABBITMQ_QUEUES.RPC_API);
+    await channel.assertQueue(RABBITMQ_QUEUES.RPC_API_TO_WORKERS);
 
-    channel.consume(RABBITMQ_QUEUES.RPC_API, async msg => {
+    channel.consume(RABBITMQ_QUEUES.RPC_API_TO_WORKERS, async msg => {
       if (msg !== null) {
         debugWorkers(`Received rpc queue message ${msg.content.toString()}`);
 
