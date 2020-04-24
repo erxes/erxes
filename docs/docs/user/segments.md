@@ -109,9 +109,9 @@ Last seen at "date relative less than" "now-21d/d"
 
 <br>
 
-In the value field, you can insert minutes also such `date related less than now-30m/m`. It will show you the all actions that had been being happened 30 minutes ago. 
+- In the value field, you can insert minutes also such `date related less than now-30m/m`. It will show you the all actions that had been being happened 30 minutes ago. 
 
-For some special case, you can create an action that `date related less than now+24h/h`, which means you can filter all data **from** the past **until** tomorrow.
+- For some special case, you can create an action that `date related less than now+24h/h`, which means you can filter all data **from** the past **until** tomorrow.
 
 #### Date relative greater than
 
@@ -132,22 +132,41 @@ Created at "date relative greater than" "now-24h/h"
 <br>
 <br>
 
-In the value field, you can insert minutes also such `date related greater than now-30m/m`. It will show you the all actions that start from 30 minutes ago to future. 
+- In the value field, you can insert minutes also such `date related greater than now-30m/m`. It will show you the all actions that start from 30 minutes ago to future. 
 
-For some special case, you can create an action that `date related greater than now+1d/d`, which means you can filter all data from tomorrow to future.
-
-
-#### Will occur before on following n-th minute/day
-
-This operator let you filter on date fields that the action had occurred until your specified date.
-
-#### Will occur after on following n-th minute/day
-
-This operator let you filter on date fields that the action has occurred until your specified date.
+- For some special case, you can create an action that `date related greater than now+1d/d`, which means you can filter all data from tomorrow to future.
 
 
+#### Will occur before on following n-th minute/ n-th day
 
----
+This operator let you filter on date fields that the action or the state will occur on the exact n-th minute or n-th day. Take an example, let's create a segment that all users date will expire on eleven days later from current time. In this case, use "will occur before on following n-th day"  operator to show the users whose date will expire on eleven days later from the current time. This means the segment will show you the number of users whose specified action will occur before on the following 11th day.
+
+`"expire date" - "will occur before on following n-th day" - "11" `- filters the specified data which date will just expire 11 days later from the current moment.
+
+
+<div>
+  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/segments/will+occur+before.png">
+</div>
+
+<br>
+
+- **The difference between  "will occur before on following n-th minute" and "will occur before on following n-th day" is the system will check n-th minute and n-th day respectively.**
+
+#### Will occur after on following n-th minute/n-th day
+
+This operator let you filter on date fields that the action or the state occurred on the exact n-th minute or n-th day. Take an example, let's create a segment that all users date expired and which have elapsed on just 2nd day. In this case, use "will occur after on following n-th day"  operator to show the users whose date expired at two days ago from the current time. This means, the action has already ended and 2 days have elapsed. 
+
+`"expire date" - "will occur after on following n-th day" - "2" `- filters the specified data which elapsed on just second date.
+
+
+<div>
+  <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/segments/will+occur+after.png">
+</div>
+
+<br>
+
+- **The difference between  "will occur after on following n-th minute" and "will occur after on following n-th day" is the system will check n-th minute and n-th day respectively.**
+
 
 ## Create Event Segments
 Events are actions that are triggered by something your customer performs on your site or app. Every time the event occurs, a new record is created in the analytics database. Refer to the following instruction to create event-based segments. 
