@@ -483,7 +483,7 @@ Basic steps to install Erxes scripts.
 
 ---
 ## Advanced setup
-Advanced steps to install scripts.
+Advanced steps to install scripts. Erxes let you enable to track all possible customer fields from messenger.
 
 ### Get data from your web app (for logged-in users)
 #### Step 1:Copy messenger install code.
@@ -509,85 +509,98 @@ Advanced steps to install scripts.
 
 <img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/5.+Source+3.png />
 
-#### Step 3: If you want to get user email, phone  and code automatically.  You can write under brand id in your code:
+#### Step 3: If you want to get user information automatically, you can insert additional field under `brand_id ` in your messenger script. Insert the messenger script in your web body section. :
+
+```
+<script>
+  window.erxesSettings = {
+    messenger: {
+      brand_id: "sNbKdZ",
+      email: 'email1111@yahoo.com',
+      phone: '88833331111',
+      data: {
+        avatar: 'https://cdn1.iconfinder.com/data/icons/female-avatars-vol-1/256/female-portrait-avatar-profile-woman-sexy-afro-2-512.png',
+        firstName: 'firstName1111',
+        lastName: 'lastName1111',
+        birthDate: new Date('2020-01-01'),
+        sex: 1,
+        emailValidationStatus: 'valid',
+        position: 'position',
+        department: 'department',
+        leadStatus: 'working',
+        hasAuthority: 'Yes',
+        description: 'bio',
+        doNotDisturb: 'Yes',
+        code: 'id',
+        'links.linkedIn': 'http://linkedin.com/test',
+        'links.twitter': 'http://twitter.com/test',
+        'links.facebook': 'http://facebook.com/test',
+        'links.github': 'http://github.com/test',
+        'links.youtube': 'http://youtube.com/test',
+        'links.website': 'http://website.com/test',
+
+        // custom fields ===========
+       // createdAt is reserved field
+        updatePlan: new Date('2020-04-25'),
+        plan: 'paid',
+      },
+      companyData: {
+        name: 'name',
+        'links.website': 'http://website.com',
+      },
+    },
+  };
+  
+(function() {
+  var script = document.createElement('script');
+  script.src = "http://localhost:3200/build/messengerWidget.bundle.js";
+  script.async = true;
+  var entry = document.getElementsByTagName('script')[0];
+  entry.parentNode.insertBefore(script, entry);
+})();
+
+</script>
 
 ```
 
-email: ”<Logged in user email>”,
 
-phone: “<Logged in user phone>”,
+#### Step 4: As you can see the user details, all value will be automatically displayed on each field on user profile.
 
-code:”<Arbitrary unique value>",
+<img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/trackeddata.png />
+
+
+
+#### Step 5: Check the custom fields value, it is shown on Tracked data field on left down side. 
+(see the bellow figure).
 
 ```
+       // custom fields ===========
+       // createdAt is reserved field
+        updatePlan: new Date('2020-04-25'),
+        plan: 'paid',
+```
 
-(see the below figure).
+<img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/trackeddata1.png />
 
-<img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/6.+Source+4.png />
 
-#### Step 4: After you edit you will see user email, phone, and code will be automatically displayed on the right sidebar.
+#### Step 6: Check the companyData value, it is shown on Companied field on upper right side. 
+(see the above figure).
 
-<img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/7.+Result+1.png />
+```
+companyData: {
+        name: 'name',
+        'links.website': 'http://website.com',
+      },
+```
 
 <p>
 <aside class="notice">
 
-Email, phone, and code fields are automatically filled out by user profile.
+ If you want to get any data of your Web app  automatically.  You can just write in your source code inside the data section. It will be shown on TRACKED DATA section. 
 
 </aside>
 </p>
 
-<img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/8.+Result+2.png />
-
-#### Step 5: If you want to get firstname, lastname, bio automatically.  You can write under brand id in your code:
-
-```
-data :{
-
-firstName:”<Firstname>”,
-
-lastName:”<LastName>”,
-
-bio:”<Bio>”,
-
-}
-```
-(see the below figure).
-
-<img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/9.+Source+5.png />
-
-
-#### Step 6:  After you edit you will see user firstname, lastname and bio will be automatically displayed on the right sidebar.
-
-<img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/10.+Result+3.png />
-
-
-<p>
-<aside class="notice">
-
- Firstname, Lastname, and bio fields are automatically filled out by user profile.
-
-</aside>
-</p>
-
-
-<img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/11.+Result+4.png />
-
-#### Step 7:   Also If you want to get any data of your Web app  automatically.  You can just write in your source code inside the data section. (See the below figure).
-
-
-<img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/13.+Source+6.png />
-
-
-<p>
-<aside class="notice">
-
- These fields are displayed in the messenger data section on the right sidebar.
-
-</aside>
-</p>
-
-<img src=https://erxes-docs.s3-us-west-2.amazonaws.com/script-installation/advancedsetup/12.+Result+5.png />
 
 ### Manipulate your messenger function 
 
