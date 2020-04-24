@@ -14,4 +14,3 @@ email-verifier
 logger
 engages-email-sender
 dist/cronJobs
-dist/workers
