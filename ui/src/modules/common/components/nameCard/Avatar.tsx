@@ -1,5 +1,4 @@
 import { colors } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
 import { readFile } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
 import React from 'react';
@@ -20,10 +19,10 @@ const AvatarStyled = styledTS<{ state?: string }>(styled.span)`
   color: ${colors.colorWhite};
 
   background: ${props =>
-    (props.state === 'lead' && rgba(colors.colorCoreYellow, 0.8)) ||
-    (props.state === 'visitor' && rgba(colors.colorLightGray, 0.6)) ||
-    (props.state === 'customer' && rgba(colors.colorCoreTeal, 0.8)) ||
-    rgba(colors.colorSecondary, 0.8)};
+    (props.state === 'lead' && colors.colorCoreYellow) ||
+    (props.state === 'visitor' && '#8e92bf') ||
+    (props.state === 'customer' && colors.colorPrimary) ||
+    colors.colorSecondary};
 
   > span {
     position: absolute;
