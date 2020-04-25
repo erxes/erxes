@@ -85,6 +85,7 @@ export const importer = async (req: any, res, next) => {
         const { fieldNames, usedSheets } = await readXlsFile(response.file);
 
         const result = await sendRPCMessage(RABBITMQ_QUEUES.RPC_API_TO_WORKERS, {
+          action: 'createImport',
           type: fields.type,
           fieldNames,
           datas: usedSheets,

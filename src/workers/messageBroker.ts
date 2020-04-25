@@ -24,10 +24,6 @@ export const initConsumer = async () => {
 
         const content = JSON.parse(msg.content.toString());
 
-        if (content.type === 'removeImport') {
-          await receiveImportRemove(content);
-        }
-
         if (content.type === 'cancelImport') {
           receiveImportCancel();
         }
@@ -43,11 +39,12 @@ export const initConsumer = async () => {
         debugWorkers(`Received rpc queue message ${msg.content.toString()}`);
 
         const content = JSON.parse(msg.content.toString());
-        const response: any = {};
+
+        const response = { status: 'success', data: {}, errorMessage: '' };
 
         try {
-          response.status = 'success';
-          response.data = await receiveImportXls(content);
+          response.data =
+            content.action === 'removeImport' ? await receiveImportRemove(content) : await receiveImportXls(content);
         } catch (e) {
           response.status = 'error';
           response.errorMessage = e.message;

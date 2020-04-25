@@ -1,5 +1,5 @@
 import { ImportHistory } from '../../../db/models';
-import { sendMessage } from '../../../messageBroker';
+import { sendMessage, sendRPCMessage } from '../../../messageBroker';
 import { MODULE_NAMES, RABBITMQ_QUEUES } from '../../constants';
 import { putDeleteLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
@@ -15,13 +15,17 @@ const importHistoryMutations = {
 
     await ImportHistory.updateOne({ _id: importHistory._id }, { $set: { status: 'Removing' } });
 
-    await sendMessage(RABBITMQ_QUEUES.WORKERS, {
-      type: 'removeImport',
+    const response = await sendRPCMessage(RABBITMQ_QUEUES.RPC_API_TO_WORKERS, {
+      action: 'removeImport',
       contentType: importHistory.contentType,
       importHistoryId: importHistory._id,
     });
 
-    await putDeleteLog({ type: MODULE_NAMES.IMPORT_HISTORY, object: importHistory }, user);
+    if (response.status === 'ok') {
+      await putDeleteLog({ type: MODULE_NAMES.IMPORT_HISTORY, object: importHistory }, user);
+    } else {
+      throw new Error(response.message);
+    }
 
     return ImportHistory.findOne({ _id: importHistory._id });
   },
@@ -29,13 +33,7 @@ const importHistoryMutations = {
   /**
    * Cancel uploading process
    */
-  async importHistoriesCancel(_root, { _id }: { _id: string }) {
-    const importHistory = await ImportHistory.findOne({ _id });
-
-    if (!importHistory) {
-      throw new Error('History not found');
-    }
-
+  async importHistoriesCancel(_root) {
     await sendMessage(RABBITMQ_QUEUES.WORKERS, {
       type: 'cancelImport',
     });
