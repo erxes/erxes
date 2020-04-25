@@ -41,12 +41,14 @@ describe('Test tickets mutations', () => {
     $name: String!,
     $stageId: String!
     $assignedUserIds: [String]
+    $status: String
   `;
 
   const commonTicketParams = `
     name: $name
     stageId: $stageId
     assignedUserIds: $assignedUserIds
+    status: $status
   `;
 
   beforeEach(async () => {
@@ -112,6 +114,7 @@ describe('Test tickets mutations', () => {
 
     const user = await userFactory();
     args.assignedUserIds = [user.id];
+    args.status = 'archived';
 
     updatedTicket = await graphqlRequest(mutation, 'ticketsEdit', args);
 

@@ -86,6 +86,17 @@ const growthHackMutations = {
       contentType: MODULE_NAMES.GROWTH_HACK,
     };
 
+    if (doc.status && oldGrowthHack.status && oldGrowthHack.status !== doc.status) {
+      const activityAction = doc.status === 'active' ? 'activated' : 'archived';
+
+      await ActivityLogs.createArchiveLog({
+        item: updatedGrowthHack,
+        contentType: 'growthHack',
+        action: activityAction,
+        userId: user._id,
+      });
+    }
+
     if (doc.assignedUserIds && doc.assignedUserIds.length > 0 && oldGrowthHack.assignedUserIds) {
       const { addedUserIds, removedUserIds } = checkUserIds(
         oldGrowthHack.assignedUserIds || [],
@@ -290,8 +301,15 @@ const growthHackMutations = {
     return clone;
   },
 
-  async growthHacksArchive(_root, { stageId }: { stageId: string }) {
-    await GrowthHacks.updateMany({ stageId }, { $set: { status: BOARD_STATUSES.ARCHIVED } });
+  async growthHacksArchive(_root, { stageId }: { stageId: string }, { user }: IContext) {
+    const updatedGrowthHack = await GrowthHacks.updateMany({ stageId }, { $set: { status: BOARD_STATUSES.ARCHIVED } });
+
+    await ActivityLogs.createArchiveLog({
+      item: updatedGrowthHack,
+      contentType: 'growthHack',
+      action: 'archived',
+      userId: user._id,
+    });
 
     return 'ok';
   },

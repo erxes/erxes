@@ -46,6 +46,7 @@ describe('Test deals mutations', () => {
     $stageId: String!
     $assignedUserIds: [String]
     $productsData: JSON
+    $status: String
   `;
 
   const commonDealParams = `
@@ -53,6 +54,7 @@ describe('Test deals mutations', () => {
     stageId: $stageId
     assignedUserIds: $assignedUserIds
     productsData: $productsData
+    status: $status
   `;
 
   beforeEach(async () => {
@@ -156,6 +158,8 @@ describe('Test deals mutations', () => {
 
     // not products data and assigneduserIDs
     args.productsData = [];
+    args.status = 'archived';
+
     delete args.assignedUserIds;
     response = await graphqlRequest(mutation, 'dealsEdit', args);
 

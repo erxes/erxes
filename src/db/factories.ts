@@ -470,6 +470,7 @@ interface ICustomerFactoryInput {
   deviceTokens?: string[];
   emailValidationStatus?: string;
   mergedIds?: string[];
+  relatedIntegrationIds?: string[];
 }
 
 export const customerFactory = async (params: ICustomerFactoryInput = {}, useModelMethod = false) => {
@@ -501,6 +502,7 @@ export const customerFactory = async (params: ICustomerFactoryInput = {}, useMod
     visitorContactInfo: params.visitorContactInfo,
     deviceTokens: params.deviceTokens || [],
     mergedIds: params.mergedIds || [],
+    relatedIntegrationIds: params.relatedIntegrationIds || [],
   };
 
   if (useModelMethod) {

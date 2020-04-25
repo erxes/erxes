@@ -120,6 +120,17 @@ const dealMutations = {
       contentType: MODULE_NAMES.DEAL,
     };
 
+    if (doc.status && oldDeal.status && oldDeal.status !== doc.status) {
+      const activityAction = doc.status === 'active' ? 'activated' : 'archived';
+
+      await ActivityLogs.createArchiveLog({
+        item: updatedDeal,
+        contentType: 'deal',
+        action: activityAction,
+        userId: user._id,
+      });
+    }
+
     if (Object.keys(checkedAssignUserIds).length > 0) {
       const { addedUserIds, removedUserIds } = checkedAssignUserIds;
 
@@ -314,8 +325,15 @@ const dealMutations = {
     return clone;
   },
 
-  async dealsArchive(_root, { stageId }: { stageId: string }) {
-    await Deals.updateMany({ stageId }, { $set: { status: BOARD_STATUSES.ARCHIVED } });
+  async dealsArchive(_root, { stageId }: { stageId: string }, { user }: IContext) {
+    const updatedDeal = await Deals.updateMany({ stageId }, { $set: { status: BOARD_STATUSES.ARCHIVED } });
+
+    await ActivityLogs.createArchiveLog({
+      item: updatedDeal,
+      contentType: 'deal',
+      action: 'archived',
+      userId: user._id,
+    });
 
     return 'ok';
   },

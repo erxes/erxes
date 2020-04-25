@@ -41,12 +41,14 @@ describe('Test tasks mutations', () => {
     $name: String!,
     $stageId: String!
     $assignedUserIds: [String]
+    $status: String
   `;
 
   const commonTaskParams = `
     name: $name
     stageId: $stageId
     assignedUserIds: $assignedUserIds
+    status: $status
   `;
 
   beforeEach(async () => {
@@ -114,6 +116,7 @@ describe('Test tasks mutations', () => {
 
     const user = await userFactory();
     args.assignedUserIds = [user.id];
+    args.status = 'archived';
 
     updatedTask = await graphqlRequest(mutation, 'tasksEdit', args);
 

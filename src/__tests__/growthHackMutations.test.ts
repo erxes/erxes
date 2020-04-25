@@ -30,6 +30,7 @@ describe('Test growthHacks mutations', () => {
     $stageId: String!
     $hackStages: [String]
     $assignedUserIds: [String]
+    $status: String
   `;
 
   const commonGrowthHackParams = `
@@ -37,6 +38,7 @@ describe('Test growthHacks mutations', () => {
     stageId: $stageId
     hackStages: $hackStages
     assignedUserIds: $assignedUserIds
+    status: $status
   `;
 
   beforeEach(async () => {
@@ -94,6 +96,7 @@ describe('Test growthHacks mutations', () => {
       _id: growthHack._id,
       name: 'changed-name',
       stageId: stage2._id,
+      status: 'archived',
     };
 
     const mutation = `

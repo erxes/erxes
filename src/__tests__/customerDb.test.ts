@@ -636,6 +636,20 @@ describe('Customers model tests', () => {
     });
 
     expect(foundCustomer && foundCustomer._id).toBe(customer._id);
+
+    // related integrationIds
+
+    customer = await customerFactory({
+      relatedIntegrationIds: ['123'],
+      code: '1234',
+    });
+
+    foundCustomer = await Customers.getWidgetCustomer({
+      integrationId: '1234',
+      code: '1234',
+    });
+
+    expect(foundCustomer && foundCustomer._id).toBe(customer._id);
   });
 
   test('updateSession()', async () => {
@@ -684,5 +698,11 @@ describe('Customers model tests', () => {
     });
 
     expect(updated.location && updated.location.language).toBe('en');
+  });
+
+  test('changeState()', async () => {
+    const updated = await Customers.changeState(_customer._id, 'state');
+
+    expect(updated.state).toBe('state');
   });
 });

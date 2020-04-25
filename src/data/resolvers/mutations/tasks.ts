@@ -91,6 +91,17 @@ const taskMutations = {
       contentType: MODULE_NAMES.TASK,
     };
 
+    if (doc.status && oldTask.status && oldTask.status !== doc.status) {
+      const activityAction = doc.status === 'active' ? 'activated' : 'archived';
+
+      await ActivityLogs.createArchiveLog({
+        item: updatedTask,
+        contentType: 'task',
+        action: activityAction,
+        userId: user._id,
+      });
+    }
+
     if (doc.assignedUserIds) {
       const { addedUserIds, removedUserIds } = checkUserIds(oldTask.assignedUserIds, doc.assignedUserIds);
 
@@ -283,8 +294,15 @@ const taskMutations = {
     return clone;
   },
 
-  async tasksArchive(_root, { stageId }: { stageId: string }) {
-    await Tasks.updateMany({ stageId }, { $set: { status: BOARD_STATUSES.ARCHIVED } });
+  async tasksArchive(_root, { stageId }: { stageId: string }, { user }: IContext) {
+    const updatedTask = await Tasks.updateMany({ stageId }, { $set: { status: BOARD_STATUSES.ARCHIVED } });
+
+    await ActivityLogs.createArchiveLog({
+      item: updatedTask,
+      contentType: 'task',
+      action: 'archive',
+      userId: user._id,
+    });
 
     return 'ok';
   },
