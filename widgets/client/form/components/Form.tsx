@@ -228,23 +228,18 @@ class Form extends React.Component<Props, State> {
               content: userEmailContent
             });
           }
-
-          // send email to admins
-          if (
-            adminEmails &&
-            fromEmail &&
-            adminEmailTitle &&
-            adminEmailContent
-          ) {
-            sendEmail({
-              toEmails: adminEmails,
-              fromEmail,
-              title: adminEmailTitle,
-              content: adminEmailContent
-            });
-          }
         }
-      }
+
+        // send email to admins
+        if (adminEmails && fromEmail && adminEmailTitle && adminEmailContent) {
+          sendEmail({
+            toEmails: adminEmails,
+            fromEmail,
+            title: adminEmailTitle,
+            content: adminEmailContent
+          });
+        }
+      } // end successAction = "email"
 
       return this.renderSuccessForm(thankContent);
     }

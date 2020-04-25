@@ -27,7 +27,7 @@ const ProductItemContainer = styled.div`
   padding: 8px;
 
   ${Input} {
-    direction: rtl;
+    text-align: right;
   }
 `;
 
@@ -60,8 +60,12 @@ const FooterInfo = styled.div`
   table {
     text-align: right;
     float: right;
-    width: 40%;
-    font-size: 16px;
+    width: 50%;
+    font-size: 14px;
+  }
+
+  ${Input} {
+    direction: rtl;
   }
 `;
 

@@ -3,7 +3,7 @@ import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import CallPro from 'modules/settings/integrations/components/callpro/Form';
 import { mutations } from 'modules/settings/integrations/graphql';
 import React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   type?: string;

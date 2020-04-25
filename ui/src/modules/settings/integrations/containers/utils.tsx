@@ -54,7 +54,16 @@ export const formatStr = (emailString?: string) => {
 };
 
 export const cleanIntegrationKind = (name: string) => {
-  return name.replace('nylas-', '');
+  if (name.includes('nylas')) {
+    name = name.replace('nylas-', '');
+  }
+  if (name.includes('smooch')) {
+    name = name.replace('smooch-', '');
+  }
+  if (name === 'lead') {
+    name = 'popups';
+  }
+  return name;
 };
 
 export const formatObj = (emailArray: IEmail[]) => {

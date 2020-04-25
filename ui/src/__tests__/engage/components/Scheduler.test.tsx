@@ -8,13 +8,12 @@ describe('Scheduler component', () => {
   const testIEngageScheduleDate: IEngageScheduleDate = {
     type: 'string',
     month: 'string',
-    day: 'string',
-    time: new Date()
+    day: 'string'
   };
 
   const defaultProps = {
     scheduleDate: testIEngageScheduleDate,
-    onChange: (name: 'scheduleDate', value: IEngageScheduleDate) => null
+    onChange: (name: 'scheduleDate', value?: IEngageScheduleDate) => null
   };
 
   test('renders successfully', () => {

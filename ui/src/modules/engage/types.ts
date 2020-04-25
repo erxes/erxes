@@ -6,12 +6,11 @@ import { ISegment, ISegmentCondition, ISegmentDoc } from '../segments/types';
 import { IBrand } from '../settings/brands/types';
 import { ITag } from '../tags/types';
 
-export interface IEngageScheduleDate {
+export type IEngageScheduleDate = {
   type: string;
   month: string;
   day: string;
-  time: Date;
-}
+} | null;
 
 export interface IEngageMessenger {
   brandId: string;
@@ -111,7 +110,7 @@ export type SetLiveMutationResponse = {
 
 export type SetLiveManualMutationResponse = {
   setLiveManualMutation: (
-    params: { vairables: MutationVariables }
+    params: { variables: MutationVariables }
   ) => Promise<void>;
 };
 
@@ -135,7 +134,7 @@ export type WithFormAddMutationResponse = {
 export type WithFormEditMutationResponse = {
   editMutation: (
     params: {
-      vairables: WithFormMutationVariables;
+      variables: WithFormMutationVariables;
     }
   ) => Promise<any>;
 };
@@ -209,7 +208,7 @@ export type TargetCount = {
 export type IEmailFormProps = {
   onChange: (
     name: 'email' | 'content' | 'fromUserId' | 'scheduleDate',
-    value: IEngageEmail | IEngageScheduleDate | string
+    value?: IEngageEmail | IEngageScheduleDate | string
   ) => void;
   message?: string;
   users: IUser[];

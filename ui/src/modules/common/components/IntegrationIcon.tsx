@@ -20,11 +20,16 @@ const RoundedBackground = styledTS<{ type: string; size?: number }>(
     (props.type === 'lead' && darken(colors.colorCoreYellow, 32)) ||
     (props.type === 'messenger' && colors.colorCoreBlue) ||
     (props.type === 'twitter-dm' && colors.socialTwitter) ||
-    (props.type === 'facebook' && colors.socialFacebook) ||
+    (props.type === 'facebook-post' && colors.socialFacebook) ||
     (props.type === 'facebook-messenger' && colors.socialFacebookMessenger) ||
     (props.type === 'gmail' && colors.socialGmail) ||
+    (props.type === 'whatsapp' && colors.socialWhatsApp) ||
     (props.type.includes('nylas') && colors.socialGmail) ||
-    colors.colorCoreBlue};
+    (props.type.includes('telegram') && colors.socialTelegram) ||
+    (props.type.includes('viber') && colors.socialViber) ||
+    (props.type.includes('line') && colors.socialLine) ||
+    (props.type.includes('twilio') && colors.socialTwilio) ||
+    colors.colorCoreRed};
 
   i {
     color: ${colors.colorWhite};
@@ -50,6 +55,9 @@ class IntegrationIcon extends React.PureComponent<Props> {
       case 'facebook-messenger':
         icon = 'messenger';
         break;
+      case 'facebook-post':
+        icon = 'facebook';
+        break;
       case 'twitter-dm':
         icon = 'twitter';
         break;
@@ -57,28 +65,37 @@ class IntegrationIcon extends React.PureComponent<Props> {
         icon = 'comment';
         break;
       case 'nylas-gmail':
-        icon = 'mail-alt';
+      case 'gmail':
+        icon = 'gmail';
         break;
       case 'nylas-imap':
-        icon = 'mail-alt';
-        break;
+      case 'nylas-exchange':
       case 'nylas-office365':
-        icon = 'mail-alt';
-        break;
       case 'nylas-outlook':
-        icon = 'mail-alt';
-        break;
       case 'nylas-yahoo':
         icon = 'mail-alt';
         break;
-      case 'gmail':
-        icon = 'mail-alt';
-        break;
       case 'callpro':
-        icon = 'phone-call';
+        icon = 'phone-volume';
         break;
       case 'chatfuel':
         icon = 'comment-dots';
+        break;
+      case 'smooch-line':
+        icon = 'line';
+        break;
+      case 'smooch-telegram':
+        icon = 'telegram-alt';
+        break;
+      case 'smooch-viber':
+        icon = 'viber';
+        break;
+      case 'smooch-twilio':
+        icon = 'twilio';
+        break;
+
+      case 'whatsapp':
+        icon = 'whatsapp-fill';
         break;
       default:
         icon = 'doc-text-inv-1';

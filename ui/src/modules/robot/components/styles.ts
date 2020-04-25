@@ -1,18 +1,22 @@
 import { colors, dimensions } from 'modules/common/styles';
+import { fadeIn } from 'modules/common/utils/animations';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const ModulRow = styled.div`
-  display: flex;
+const SubContent = styled.div`
+  padding: 0 16px;
 
-  &:last-child {
-    margin: 0;
+  p {
+    font-size: 12px;
+    color: ${colors.textSecondary};
   }
 `;
 
-const Greeting = styled.div`
-  margin-bottom: 20px;
-  font-size: 15px;
+const Greeting = styled(SubContent)`
+  margin-bottom: 16px;
+  font-size: 18px;
+  line-height: 27px;
+  letter-spacing: -0.2px;
 
   span {
     margin-left: 5px;
@@ -20,16 +24,18 @@ const Greeting = styled.div`
 
   p {
     margin-top: ${dimensions.unitSpacing}px;
-    font-size: 14px;
+    color: ${colors.colorCoreGray};
+    font-size: 18px;
   }
 `;
 
 const Bot = styled.div`
-  position: absolute;
+  position: fixed;
   bottom: 0;
-  width: 100%;
+  width: 70px;
   padding: 10px 0;
   text-align: center;
+  z-index: 15;
 
   &:hover {
     cursor: pointer;
@@ -41,7 +47,7 @@ const Bot = styled.div`
 `;
 
 const Title = styled.h2`
-  margin: 0 0 20px;
+  margin: 0 0 16px;
   font-size: 16px;
   text-transform: capitalize;
 `;
@@ -54,11 +60,10 @@ const NavButton = styledTS<{ right?: boolean }>(styled.div)`
   width: 28px;
   height: 28px;
   margin-left: ${props => !props.right && '-7px'};;
-  margin-top: -5px;
   float: ${props => props.right && 'right'};
   background: ${props => props.right && colors.bgActive};
   position: sticky;
-  top: 0;
+  top: -5px;
 
   &:hover {
     background: ${props =>
@@ -75,24 +80,81 @@ const Content = styled.div`
   position: fixed;
   padding: ${dimensions.coreSpacing}px;
   border-radius: 10px;
-  background: ${colors.bgLight};
-  min-width: 300px;
-  max-width: 500px;
+  background: ${colors.colorWhite};
+  min-width: 320px;
   box-shadow: 0 5px 15px 1px rgba(0, 0, 0, 0.15);
   bottom: 65px;
   left: 15px;
   max-height: calc(100% - 75px);
   overflow: auto;
   flex-direction: column;
+  z-index: 15;
 `;
 
-const SeeAll = styled.a`
-  display: block;
-  text-align: center;
+const ContentWrapper = styled.div`
+  width: 280px;
+`;
+
+const SubHeader = styled.a`
+  font-weight: 600;
+  color: rgb(119, 120, 122);
+  display: flex;
+  justify-content: space-between;
 
   &:hover {
     cursor: pointer;
   }
 `;
 
-export { Bot, ModulRow, Greeting, Title, NavButton, Content, SeeAll };
+const CompletedTaskWrapper = styled.div`
+  padding: 0 16px;
+  margin-top: 8px;
+`;
+
+const CompletedTaskName = styled.div`
+  font-size: 14px;
+  margin-top: 5px;
+  color: #9b9c9e;
+  text-decoration-line: line-through;
+
+  &:hover {
+    cursor: pointer;
+    color: ${colors.textSecondary};
+  }
+`;
+
+const BackDrop = styled.div`
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(48, 67, 92, 0.8);
+  z-index: 13;
+  transition: opacity 0.3s;
+  animation-name: ${fadeIn};
+  animation-duration: 0.8s;
+  animation-timing-function: linear;
+`;
+
+const ProgressText = styled.div`
+  color: ${colors.colorCoreGray};
+  font-size: 12px;
+`;
+
+export {
+  Bot,
+  Greeting,
+  SubContent,
+  Title,
+  NavButton,
+  Content,
+  ContentWrapper,
+  SubHeader,
+  BackDrop,
+  CompletedTaskWrapper,
+  CompletedTaskName,
+  ProgressText
+};

@@ -46,6 +46,7 @@ export const growthHackFields = `
   }
   status
   labelIds
+  order
 `;
 
 const growthHackDetailFields = `
@@ -190,7 +191,7 @@ const pipelineDetail = `
 
 const pipelineStateCount = `
   query pipelineStateCount($boardId: String, $type: String) {
-    pipelineStateCount(boardId: $boardId, type: $type) 
+    pipelineStateCount(boardId: $boardId, type: $type)
   }
 `;
 
@@ -220,9 +221,7 @@ const archivedGrowthHacksCount = `
     archivedGrowthHacksCount(
       pipelineId: $pipelineId,
       search: $search
-    ) {
-      ${growthHackFields}
-    }
+    )
   }
 `;
 

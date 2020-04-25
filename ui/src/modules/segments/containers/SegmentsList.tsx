@@ -47,13 +47,13 @@ const SegmentListContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, SegmentsQueryResponse, { contentType: string }>(
+    graphql<Props, SegmentsQueryResponse, { contentTypes: string[] }>(
       gql(queries.segments),
       {
         name: 'segmentsQuery',
         options: ({ contentType }) => ({
           fetchPolicy: 'network-only',
-          variables: { contentType }
+          variables: { contentTypes: [contentType] }
         })
       }
     ),

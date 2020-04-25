@@ -9,7 +9,7 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { ISelectedOption } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import PortableDeals from 'modules/deals/components/PortableDeals';
-import { KIND_CHOICES } from 'modules/settings/integrations/constants';
+import { INTEGRATION_KINDS } from 'modules/settings/integrations/constants';
 import { Capitalize } from 'modules/settings/permissions/styles';
 import PortableTasks from 'modules/tasks/components/PortableTasks';
 import React, { useEffect, useState } from 'react';
@@ -41,13 +41,13 @@ export default function TicketEditForm(props: Props) {
   );
 
   function renderSidebarFields(saveItem) {
-    const sourceValues = KIND_CHOICES.ALL_LIST.map(key => ({
-      label: __(key),
-      value: key
+    const sourceValues = INTEGRATION_KINDS.ALL.map(kind => ({
+      label: __(kind.text),
+      value: kind.value
     }));
 
     sourceValues.push({
-      label: __('other'),
+      label: __('Other'),
       value: 'other'
     });
 
@@ -120,6 +120,7 @@ export default function TicketEditForm(props: Props) {
             item={item}
             addItem={addItem}
             sendToBoard={sendToBoard}
+            onChangeStage={onChangeStage}
           />
 
           <Sidebar

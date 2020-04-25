@@ -55,7 +55,7 @@ function Component(
 
   const companyTrigger = (
     <button>
-      <Icon icon="add" />
+      <Icon icon="plus-circle" />
     </button>
   );
 
@@ -87,7 +87,7 @@ function Component(
     <SectionBody>
       {items.map((company, index) => (
         <SectionBodyItem key={index}>
-          <Link to={`/contacts/companies/details/${company._id}`}>
+          <Link to={`/companies/details/${company._id}`}>
             <Icon icon="arrow-to-right" />
           </Link>
           <span>{company.primaryName || 'Unknown'}</span>
@@ -98,7 +98,7 @@ function Component(
           </Tip>
         </SectionBodyItem>
       ))}
-      {items.length === 0 && <EmptyState icon="briefcase" text="No company" />}
+      {items.length === 0 && <EmptyState icon="building" text="No company" />}
       {mainTypeId && mainType && relQuickButtons}
     </SectionBody>
   );

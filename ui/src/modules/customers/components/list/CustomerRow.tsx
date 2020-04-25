@@ -71,7 +71,7 @@ function CustomerRow({
   };
 
   const onTrClick = () => {
-    history.push(`/contacts/customers/details/${customer._id}`);
+    history.push(`/contacts/details/${customer._id}`);
   };
 
   return (
@@ -91,7 +91,7 @@ function CustomerRow({
         </td>
       ))}
       <td onClick={onTrClick}>
-        <Tags tags={tags} limit={2} />
+        <Tags tags={tags || []} limit={2} />
       </td>
     </tr>
   );

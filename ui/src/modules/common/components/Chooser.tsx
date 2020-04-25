@@ -132,7 +132,7 @@ class CommonChooser extends React.Component<Props, State> {
       );
     }
 
-    return <EmptyState text="No items added" icon="list-2" />;
+    return <EmptyState text="No items added" icon="list-ul" />;
   }
 
   render() {

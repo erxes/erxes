@@ -68,7 +68,9 @@ class EditFormContainer extends React.Component<FinalProps> {
       document: gql(options.subscriptions.changeSubscription),
       variables: { _id: itemId },
       updateQuery: () => {
-        this.props.detailQuery.refetch();
+        if (document.querySelectorAll('.modal').length < 2) {
+          this.props.detailQuery.refetch();
+        }
       }
     });
   }
@@ -275,7 +277,7 @@ export default (props: WrapperProps) => {
             onAdd={onAddItem || props.onAdd}
             onRemove={onRemoveItem || props.onRemove}
             onUpdate={onUpdateItem || props.onUpdate}
-            options={options || props.options}
+            options={props.options || options}
           />
         );
       }}

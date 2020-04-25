@@ -8,7 +8,7 @@ import { FlexItem, FlexRow } from 'modules/insights/styles';
 import SelectBrands from 'modules/settings/brands/containers/SelectBrands';
 import { FilterContainer } from 'modules/settings/team/styles';
 import * as React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import List from '../../common/components/List';
 import RowActions from '../../common/components/RowActions';
 import { ICommonListProps } from '../../common/types';

@@ -95,7 +95,6 @@ export const engageDetailFields = `
     type
     month
     day
-    time
   }
   brand {
     name
@@ -198,8 +197,8 @@ const segmentFields = `
 `;
 
 const segments = `
-  query segments {
-    segments(contentType: "customer") {
+  query segments($contentTypes: [String]!) {
+    segments(contentTypes: $contentTypes) {
       ${segmentFields}
 
       getSubSegments {

@@ -38,7 +38,7 @@ type Props = {
   headSegments: ISegment[];
   isForm?: boolean;
   afterSave?: () => void;
-  previewCount?: (conditions: ISegmentCondition[]) => void;
+  previewCount?: (conditions: ISegmentCondition[], subOf?: string) => void;
 };
 
 type State = {
@@ -130,7 +130,7 @@ class Form extends React.Component<Props, State> {
   };
 
   handleChange = <T extends keyof State>(name: T, value: State[T]) => {
-    this.setState({ [name]: value } as Pick<State, keyof State>);
+    this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
   };
 
   generateDoc = (values: {
@@ -140,7 +140,7 @@ class Form extends React.Component<Props, State> {
     color: string;
   }) => {
     const { segment, contentType } = this.props;
-    const { conditions } = this.state;
+    const { color, conditions } = this.state;
     const finalValues = values;
 
     const updatedConditions: ISegmentCondition[] = [];
@@ -156,6 +156,7 @@ class Form extends React.Component<Props, State> {
 
     return {
       ...finalValues,
+      color,
       contentType,
       conditions: updatedConditions
     };
@@ -277,7 +278,7 @@ class Form extends React.Component<Props, State> {
     } = this.props;
 
     const { values, isSubmitted } = formProps;
-    const { name, description, color, conditions } = this.state;
+    const { name, description, color, conditions, subOf } = this.state;
 
     const nameOnChange = (e: React.FormEvent) =>
       this.handleChange('name', (e.currentTarget as HTMLInputElement).value);
@@ -292,7 +293,7 @@ class Form extends React.Component<Props, State> {
 
     const onPreviewCount = () => {
       if (previewCount) {
-        previewCount(conditions);
+        previewCount(conditions, subOf);
       }
     };
 

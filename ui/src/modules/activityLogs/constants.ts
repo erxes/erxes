@@ -75,6 +75,10 @@ export const ICON_AND_COLOR_TABLE = {
     icon: 'twitter',
     color: '#1da1f2'
   },
+  whatsapp: {
+    icon: 'whatsapp',
+    color: '#128c7e'
+  },
   assignee: {
     icon: 'user-check',
     color: '#6569df'
@@ -82,5 +86,9 @@ export const ICON_AND_COLOR_TABLE = {
   checklist: {
     icon: 'check-square',
     color: '#6569df'
+  },
+  archive: {
+    icon: 'archive-alt',
+    color: '#fdb761'
   }
 };

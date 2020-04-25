@@ -14,7 +14,7 @@ import {
 } from 'modules/engage/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { queries } from '../../integrations/graphql';
 import EngageSettingsContent from '../components/EngageSettingsContent';
 

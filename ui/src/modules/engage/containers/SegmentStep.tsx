@@ -67,7 +67,7 @@ const SegmentStepContainer = (props: FinalProps) => {
       )
     : [];
 
-  const count = segment => {
+  const count = () => {
     customerCountsQuery.refetch();
   };
 
@@ -115,7 +115,12 @@ const SegmentStepContainer = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql<Props, SegmentsQueryResponse>(gql(queries.segments), {
-      name: 'segmentsQuery'
+      name: 'segmentsQuery',
+      options: {
+        variables: {
+          contentTypes: ['lead', 'customer', 'visitor']
+        }
+      }
     }),
     graphql<Props, CountQueryResponse, { only: string }>(
       gql(queries.customerCounts),

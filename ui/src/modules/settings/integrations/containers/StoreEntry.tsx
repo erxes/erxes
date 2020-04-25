@@ -19,12 +19,18 @@ type Props = {
     form: number;
     facebook: number;
     gmail: number;
+    exchange: number;
     callpro: number;
     chatfuel: number;
     imap: number;
     office365: number;
     outlook: number;
     yahoo: number;
+    telegram: number;
+    viber: number;
+    line: number;
+    twilio: number;
+    whatsapp: number;
   };
 };
 

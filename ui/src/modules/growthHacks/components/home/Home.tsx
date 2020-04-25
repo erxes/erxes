@@ -54,7 +54,7 @@ class Home extends React.Component<Props> {
         <Popover.Title as="h3">
           {__('Marketing campaigns')}
           <Link to="/settings/boards/growthHack">
-            <Icon icon="settings" />
+            <Icon icon="cog" size={14} />
           </Link>
         </Popover.Title>
         <Popover.Content>
@@ -107,11 +107,11 @@ class Home extends React.Component<Props> {
   };
 
   renderCountItem = (state: string) => {
-    let iconContent = 'e8df';
+    let iconContent = 'eabd';
 
     switch (state) {
       case 'In progress':
-        iconContent = 'e8e9';
+        iconContent = 'ecc5';
         break;
 
       case 'Not started':

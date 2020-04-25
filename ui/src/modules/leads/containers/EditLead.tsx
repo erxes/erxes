@@ -8,7 +8,7 @@ import {
 } from 'modules/settings/integrations/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '../../common/types';
 import Lead from '../components/Lead';
 import { mutations, queries } from '../graphql';
@@ -76,9 +76,10 @@ class EditLeadContainer extends React.Component<FinalProps, State> {
           .then(() => {
             Alert.success('You successfully updated a lead');
 
-            history.push('/leads');
-
-            this.setState({ isReadyToSaveForm: false, isLoading: false });
+            history.push({
+              pathname: '/leads',
+              search: '?popUpRefetchList=true'
+            });
           })
 
           .catch(error => {

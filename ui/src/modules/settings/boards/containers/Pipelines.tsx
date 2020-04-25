@@ -108,7 +108,7 @@ class PipelinesContainer extends React.Component<FinalProps> {
       remove,
       renderButton,
       updateOrder,
-      currentBoard: boardDetailQuery.boardDetail || {}
+      currentBoard: boardDetailQuery ? boardDetailQuery.boardDetail : undefined
     };
 
     return <Pipelines {...extendedProps} />;
@@ -135,6 +135,7 @@ export default withProps<Props>(
     ),
     graphql<Props, BoardDetailQueryResponse>(gql(queries.boardDetail), {
       name: 'boardDetailQuery',
+      skip: ({ boardId }: { boardId?: string }) => !boardId,
       options: ({ boardId }: { boardId?: string }) => ({
         variables: { _id: boardId },
         fetchPolicy: 'network-only'

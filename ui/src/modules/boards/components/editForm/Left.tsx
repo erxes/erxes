@@ -69,6 +69,7 @@ type Props = {
   onUpdate: (item: IItem, prevStageId?: string) => void;
   addItem: (doc: IItemParams, callback: () => void) => void;
   sendToBoard?: (item: any) => void;
+  onChangeStage?: (stageId: string) => void;
 };
 
 const Left = (props: Props) => {
@@ -80,7 +81,8 @@ const Left = (props: Props) => {
     removeItem,
     onUpdate,
     addItem,
-    sendToBoard
+    sendToBoard,
+    onChangeStage
   } = props;
 
   const onChangeAttachment = (files: IAttachment[]) =>
@@ -99,13 +101,14 @@ const Left = (props: Props) => {
         saveItem={saveItem}
         onUpdate={onUpdate}
         sendToBoard={sendToBoard}
+        onChangeStage={onChangeStage}
       />
 
       {item.labels.length > 0 && (
         <FormGroup>
           <TitleRow>
             <ControlLabel>
-              <Icon icon="tag-alt" />
+              <Icon icon="label-alt" />
               {__('Labels')}
             </ControlLabel>
           </TitleRow>

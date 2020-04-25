@@ -74,6 +74,7 @@ class KnowledgeList extends React.Component<Props> {
           autoOpenKey="showKBAddModal"
           trigger={trigger}
           content={content}
+          enforceFocus={false}
         />
       </TopHeader>
     );

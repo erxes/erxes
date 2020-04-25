@@ -1,4 +1,5 @@
 import { colors } from 'modules/common/styles';
+import { rgba } from 'modules/common/styles/color';
 import { readFile } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
 import React from 'react';
@@ -8,13 +9,7 @@ import styledTS from 'styled-components-ts';
 import { IUser } from '../../../auth/types';
 import { ICompany } from '../../../companies/types';
 
-const AvatarStyled = styledTS<{
-  isUser?: boolean;
-  messenger?: boolean;
-  twitter?: boolean;
-  facebook?: boolean;
-  hasAvatar?: boolean;
-}>(styled.span)`
+const AvatarStyled = styledTS<{ state?: string }>(styled.span)`
   display: block;
   max-width: 80px;
   border-radius: 40px;
@@ -25,11 +20,10 @@ const AvatarStyled = styledTS<{
   color: ${colors.colorWhite};
 
   background: ${props =>
-    (props.hasAvatar && 'none') ||
-    (props.isUser && colors.colorCoreTeal) ||
-    (props.messenger && colors.colorPrimary) ||
-    (props.facebook && colors.socialFacebook) ||
-    colors.colorSecondary};
+    (props.state === 'lead' && rgba(colors.colorCoreYellow, 0.8)) ||
+    (props.state === 'visitor' && rgba(colors.colorLightGray, 0.6)) ||
+    (props.state === 'customer' && rgba(colors.colorCoreTeal, 0.8)) ||
+    rgba(colors.colorSecondary, 0.8)};
 
   > span {
     position: absolute;
@@ -62,7 +56,6 @@ type Props = {
   company?: ICompany;
   size?: number;
   icon?: React.ReactNode;
-  hasAvatar?: boolean;
   letterCount?: number;
 };
 
@@ -75,7 +68,7 @@ function Element({
 }) {
   if (customer) {
     return (
-      <Link to={customer && `/contacts/customers/details/${customer._id}`}>
+      <Link to={customer && `/contacts/details/${customer._id}`}>
         {children}
       </Link>
     );
@@ -103,17 +96,16 @@ class Avatar extends React.Component<Props> {
   }
 
   generateTypes() {
-    const { customer, hasAvatar } = this.props;
+    const { customer } = this.props;
 
     if (customer) {
       return {
-        isUser: customer.isUser,
-        hasAvatar
+        state: customer.state
       };
     }
 
     return {
-      isUser: true
+      state: true
     };
   }
 
@@ -165,7 +157,7 @@ class Avatar extends React.Component<Props> {
     }
 
     return (
-      <AvatarStyled {...this.generateTypes()}>
+      <AvatarStyled state={customer && customer.state}>
         <Element customer={customer}>
           {avatar ? this.renderImage(avatar) : this.renderInitials(fullName)}
         </Element>

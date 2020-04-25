@@ -170,7 +170,9 @@ export default class Field extends React.Component<Props, State> {
         selected={this.state.dateValue}
         onChange={this.onDateChange}
         className="form-control"
-        dateFormat="YYYY/MM/DD"
+        showTimeSelect={true}
+        timeFormat="HH:mm"
+        dateFormat="YYYY/MM/DD HH:mm"
       />
     );
   }

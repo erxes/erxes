@@ -1,3 +1,4 @@
+import { __ } from 'modules/common/utils';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import styled from 'styled-components';
@@ -75,15 +76,13 @@ class ConfirmDialog extends React.Component<Props, State> {
   }
 
   render() {
-    const {
-      confirmation = 'Are you sure? This cannot be undone.'
-    } = this.props;
+    const { confirmation = 'Are you sure?', options = {} } = this.props;
 
     const {
       okLabel = 'Yes, I am',
       cancelLabel = 'No, Cancel',
       enableEscape = true
-    } = this.props.options || {};
+    } = options;
 
     return (
       <Modal
@@ -98,7 +97,7 @@ class ConfirmDialog extends React.Component<Props, State> {
           <IconWrapper>
             <Icon icon="exclamation-triangle" />
           </IconWrapper>
-          {confirmation}
+          {__(confirmation)}
         </ModalBody>
         <ModalFooter>
           <Button

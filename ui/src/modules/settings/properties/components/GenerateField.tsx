@@ -1,3 +1,4 @@
+import Datetime from '@nateradebaugh/react-datetime';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
@@ -81,9 +82,19 @@ export default class GenerateField extends React.Component<Props, State> {
     if (validation === 'date') {
       attrs.max = '9999-12-31';
 
-      if (value) {
-        attrs.value = new Date(value).toLocaleDateString();
+      // redefine onChange since date chooser returns the value, not event
+      attrs.onChange = val => {
+        this.setState({ value: val });
+        this.onChange(val, val);
       }
+
+      return <Datetime
+        {...attrs}
+        value={value}
+        dateFormat="YYYY/MM/DD"
+        timeFormat="HH:mm"
+        closeOnSelect={true}
+      />
     }
 
     if (validation === 'number') {
@@ -126,12 +137,12 @@ export default class GenerateField extends React.Component<Props, State> {
         defaultFileList={value || []}
         onChange={onChangeFile}
         multiple={false}
-        limit={1}
+        single={true}
       />
     );
   }
 
-  /*
+  /**
    * Handle all types of fields changes
    * @param {Object} e - Event object
    * @param {String} optionValue - per radio button or checkbox value

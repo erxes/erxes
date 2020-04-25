@@ -14,7 +14,7 @@ const Header = styled.div`
   background: ${colors.bgActive};
   border: 1px solid ${colors.borderPrimary};
   border-radius: 2px;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
 
   > span {
     text-transform: uppercase;

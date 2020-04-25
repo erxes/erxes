@@ -15,10 +15,12 @@ class VideoChatMessage extends React.PureComponent<Props> {
     videoChatContainer.id = 'erxes-video-container';
 
     // add iframe
-    const iframe = document.createElement('iframe');
+    const iframe: any = document.createElement('iframe');
     iframe.id = iframeId;
     iframe.src = this.props.videoCallData.url;
-
+    iframe.allow = "camera; microphone";
+    iframe.allowusermedia = true;
+    
     videoChatContainer.appendChild(iframe);
     const widgetRoot = document.getElementById('page-root');
 
@@ -38,7 +40,7 @@ class VideoChatMessage extends React.PureComponent<Props> {
               <span role="img" aria-label="Phone">
                 📞
               </span>{' '}
-              {__('Video chat ended')}
+              {__('Video call ended')}
             </strong>
           </div>
         </div>
@@ -48,7 +50,7 @@ class VideoChatMessage extends React.PureComponent<Props> {
     return (
       <div className="app-message-box spaced">
         <div className="user-info">
-          <h4>{__('You are invited to a video chat')}</h4>
+          <h4>{__('You are invited to a video call')}</h4>
           <h2>
             <span role="img" aria-label="Wave">
               👏

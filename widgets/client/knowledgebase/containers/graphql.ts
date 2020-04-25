@@ -55,8 +55,8 @@ const getKbCategoryQuery = `
 `;
 
 const getKbTopicQuery = `
-  query knowledgeBaseTopicDetail($_id: String!) {
-    knowledgeBaseTopicDetail(_id: $_id) {
+  query widgetsKnowledgeBaseTopicDetail($_id: String!) {
+    widgetsKnowledgeBaseTopicDetail(_id: $_id) {
       title
       description
       color

@@ -5,7 +5,7 @@ import { IntegrationsCountQueryResponse } from 'modules/settings/integrations/ty
 import queryString from 'query-string';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '../../../common/types';
 import DumbBrands from '../components/Brands';
 import Empty from '../components/Empty';

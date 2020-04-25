@@ -209,7 +209,10 @@ const withQuery = ({ customQuery }) =>
           if (searchValue === 'reload') {
             return {
               context,
-              variables: { searchValue: '', ...filterParams },
+              variables: {
+                ids: typeof values === 'string' ? [values] : values,
+                ...filterParams
+              },
               fetchPolicy: 'network-only',
               notifyOnNetworkStatusChange: true
             };

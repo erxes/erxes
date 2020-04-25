@@ -25,6 +25,7 @@ type Params = {
   afterRead?: (params: AfterReadParams) => void;
   url?: string;
   kind?: string;
+  userId?: string;
   responseType?: string;
   extraFormData?: Array<{ key: string; value: string }>;
 };
@@ -78,6 +79,7 @@ const uploadHandler = (params: Params) => {
     url = `${REACT_APP_API_URL}/upload-file`,
     kind = 'main',
     responseType = 'text',
+    userId,
     extraFormData = []
   } = params;
 
@@ -126,7 +128,8 @@ const uploadHandler = (params: Params) => {
       fetch(`${url}?kind=${kind}`, {
         method: 'post',
         body: formData,
-        credentials: 'include'
+        credentials: 'include',
+        ...(userId ? { headers: { userId } } : {})
       })
         .then(response => {
           response[responseType]()

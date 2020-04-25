@@ -292,6 +292,7 @@ class KnowledgeForm extends React.Component<Props, State> {
           <ControlLabel>Background image: </ControlLabel>
           <Uploader
             multiple={false}
+            single={true}
             defaultFileList={
               backgroundImage
                 ? [

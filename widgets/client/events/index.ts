@@ -3,11 +3,8 @@ import { getEnv } from "../utils";
 
 const Events: any = {
   init(args: any) {
-    const customerId = getLocalStorageItem("customerId");
-
     this.sendEvent({
       name: "pageView",
-      customerId,
       attributes: { url: args.url }
     });
   },
@@ -49,7 +46,12 @@ const Events: any = {
   },
 
   sendEvent(data: any) {
-    this.sendRequest("events-receive", data);
+    const customerId = getLocalStorageItem("customerId");
+
+    this.sendRequest("events-receive", {
+      customerId,
+      ...data
+    });
   }
 };
 
