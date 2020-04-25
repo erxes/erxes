@@ -11,8 +11,10 @@ export const debugGmail = debug('erxes-integrations:gmail');
 export const debugCallPro = debug('erxes-integrations:callpro');
 export const debugChatfuel = debug('erxes-integrations:chatfuel');
 export const debugNylas = debug('erxes-integrations:nylas');
+export const debugWhatsapp = debug('erxes-integrations:whatsapp');
 export const debugExternalRequests = debug('erxes-integrations:external-requests');
 export const debugDaily = debug('erxes-integrations:daily');
+export const debugSmooch = debug('erxes-integrations:smooch');
 
 export const debugRequest = (debugInstance, req) =>
   debugInstance(`

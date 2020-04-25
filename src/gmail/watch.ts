@@ -2,10 +2,10 @@ import { PubSub } from '@google-cloud/pubsub';
 import * as fs from 'fs';
 import { debugGmail } from '../debuggers';
 import { Accounts } from '../models';
-import { getOauthClient, gmailClient, refreshAccessToken } from './auth';
+import { getOauthClient, gmailClient } from './api';
 import { syncPartially } from './receiveEmails';
 import { ICredentials, IPubsubMessage } from './types';
-import { getCredentialsByEmailAccountId, getGoogleConfigs } from './util';
+import { getCredentialsByEmailAccountId, getGoogleConfigs, refreshAccessToken } from './util';
 
 /**
  * Create topic and subscription for gmail

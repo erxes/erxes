@@ -1,16 +1,15 @@
-import * as request from 'request';
 import { debugGmail } from '../debuggers';
 import { Integrations } from '../models';
 import { IIntegrationDocument } from '../models/Integrations';
-import { getOauthClient, gmailClient } from './auth';
+import { getHistoryList, getOauthClient, sendBatchRequest, sendSingleRequest } from './api';
 import { createOrGetConversation, createOrGetConversationMessage, createOrGetCustomer } from './store';
-import { ICredentials, IMessage, IMessageAdded } from './types';
-import { extractEmailFromString, getCredentialsByEmailAccountId, parseBatchResponse, parseMessage } from './util';
+import { IMessage } from './types';
+import { extractEmailFromString, getCredentialsByEmailAccountId, parseMessage } from './util';
 
 /**
  * Get full message with historyId
  */
-const syncByHistoryId = async (accountId: string, startHistoryId: string) => {
+export const syncByHistoryId = async (accountId: string, startHistoryId: string) => {
   let response;
 
   try {
@@ -20,20 +19,14 @@ const syncByHistoryId = async (accountId: string, startHistoryId: string) => {
 
     auth.setCredentials(credentials);
 
-    const historyResponse = await gmailClient.history.list({
-      auth,
-      userId: 'me',
-      startHistoryId,
-    });
+    const data = await getHistoryList(auth, startHistoryId);
 
-    const { data = {} } = historyResponse;
-
-    if (!data.history || !data.historyId) {
-      debugGmail(`No changes made with given historyId ${startHistoryId}`);
+    if (!data) {
       return;
     }
 
     const { history = [] } = data;
+
     const receivedMessages = [];
 
     // Collection messages only history type is messagesAdded
@@ -168,92 +161,4 @@ const processReceivedEmails = async (
 
     await createOrGetConversationMessage(messageDoc);
   });
-};
-
-/**
- * Send multiple request at once
- */
-const sendBatchRequest = (auth: any, messages: IMessageAdded[]) => {
-  debugGmail('Sending batch request');
-
-  const { credentials } = auth;
-  const { access_token } = credentials;
-  const boundary = 'erxes';
-
-  let body = '';
-
-  for (const item of messages) {
-    body += `--${boundary}\n`;
-    body += 'Content-Type: application/http\n\n';
-    body += `GET /gmail/v1/users/me/messages/${item.message.id}?format=full\n`;
-  }
-
-  body += `--${boundary}--\n`;
-
-  const headers = {
-    'Content-Type': 'multipart/mixed; boundary=' + boundary,
-    Authorization: 'Bearer ' + access_token,
-  };
-
-  return new Promise((resolve, reject) => {
-    request.post(
-      'https://www.googleapis.com/batch/gmail/v1',
-      {
-        body,
-        headers,
-      },
-      (error, response, _body) => {
-        if (!error && response.statusCode === 200) {
-          const payloads = parseBatchResponse(_body);
-
-          return resolve(payloads);
-        }
-
-        return reject(error);
-      },
-    );
-  });
-};
-
-const sendSingleRequest = async (auth: any, messages: IMessageAdded[]) => {
-  const [data] = messages;
-  const { message } = data;
-
-  let response: IMessage;
-
-  debugGmail(`Request to get a single message`);
-
-  try {
-    response = await gmailClient.messages.get({
-      auth,
-      userId: 'me',
-      id: message.id,
-    });
-  } catch (e) {
-    debugGmail(`Error Google: Request to get a single message failed ${e}`);
-    throw e;
-  }
-
-  return response;
-};
-
-export const getAttachment = async (credentials: ICredentials, messageId: string, attachmentId: string) => {
-  debugGmail('Request to get an attachment');
-
-  try {
-    const auth = await getOauthClient();
-
-    auth.setCredentials(credentials);
-
-    const response = await gmailClient.messages.attachments.get({
-      id: attachmentId,
-      userId: 'me',
-      messageId,
-    });
-
-    return response.data || '';
-  } catch (e) {
-    debugGmail(`Failed to get attachment: ${e}`);
-    throw e;
-  }
 };

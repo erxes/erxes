@@ -75,7 +75,7 @@ describe('Twitter test test', () => {
     expect(await Conversations.countDocuments()).toEqual(1);
     expect(await Customers.countDocuments()).toEqual(1);
 
-    mock.restore();
+    await mock.restore();
   });
 
   test('Recieve dm with null requestBody', async () => {
@@ -126,7 +126,7 @@ describe('Twitter test test', () => {
 
     expect(await ConversationMessages.find({}).countDocuments()).toBe(1);
 
-    mock.restore();
+    await mock.restore();
   });
 
   test('Store test createConverstaionMessage with rabittMq error', async () => {
@@ -144,7 +144,7 @@ describe('Twitter test test', () => {
       expect(await ConversationMessages.find({}).countDocuments()).toBe(0);
     }
 
-    mock.restore();
+    await mock.restore();
   });
 
   test('Store test getOrCreateConversation with rabittMq error', async () => {
@@ -161,7 +161,7 @@ describe('Twitter test test', () => {
       expect(await Conversations.find({}).countDocuments()).toBe(1);
     }
 
-    mock.restore();
+    await mock.restore();
   });
 
   test('Store test getOrCreateConversation', async () => {
@@ -200,7 +200,7 @@ describe('Twitter test test', () => {
       expect(await Conversations.find({}).countDocuments()).toBe(1);
     }
 
-    mock.restore();
+    await mock.restore();
   });
 
   test('Store test getOrCreateCustomer with rabittMq error', async () => {
@@ -220,7 +220,7 @@ describe('Twitter test test', () => {
       expect(await Customers.find({}).countDocuments()).toBe(1);
     }
 
-    mock.restore();
+    await mock.restore();
   });
 
   test('Store test getOrCreateCustomer with mongo error', async () => {
@@ -240,6 +240,6 @@ describe('Twitter test test', () => {
       expect(await Customers.find({}).countDocuments()).toBe(1);
     }
 
-    mock.restore();
+    await mock.restore();
   });
 });

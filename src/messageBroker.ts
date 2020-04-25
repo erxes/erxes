@@ -1,11 +1,14 @@
 import * as amqplib from 'amqplib';
 import * as dotenv from 'dotenv';
 import * as uuid from 'uuid';
+
 import { debugBase, debugGmail } from './debuggers';
+import { removeAccount, removeCustomers } from './helpers';
+
 import { handleFacebookMessage } from './facebook/handleFacebookMessage';
 import { watchPushNotification } from './gmail/watch';
-import { removeAccount, removeCustomers } from './helpers';
 import { Integrations } from './models';
+import { getLineWebhookUrl } from './smooch/api';
 
 dotenv.config();
 
@@ -87,7 +90,7 @@ export const sendRPCMessage = async (message): Promise<any> => {
         { noAck: true },
       );
 
-      channel.sendToQueue('rpc_queue:erxes-integrations', Buffer.from(JSON.stringify(message)), {
+      channel.sendToQueue('rpc_queue:integrations_to_api', Buffer.from(JSON.stringify(message)), {
         correlationId,
         replyTo: q.queue,
       });
@@ -130,10 +133,10 @@ export const initConsumer = async () => {
       }
     });
 
-    // listen for rpc queue =========
-    await channel.assertQueue('rpc_queue:erxes-api');
+    // listen for rpc queue from api =========
+    await channel.assertQueue('rpc_queue:api_to_integrations');
 
-    channel.consume('rpc_queue:erxes-api', async msg => {
+    channel.consume('rpc_queue:api_to_integrations', async msg => {
       if (msg !== null) {
         debugBase(`Received rpc queue message ${msg.content.toString()}`);
 
@@ -148,6 +151,18 @@ export const initConsumer = async () => {
             response = {
               status: 'success',
               data: await removeAccount(data._id),
+            };
+          } catch (e) {
+            response = {
+              status: 'error',
+              errorMessage: e.message,
+            };
+          }
+        } else if (action === 'line-webhook') {
+          try {
+            response = {
+              status: 'success',
+              data: await getLineWebhookUrl(data._id),
             };
           } catch (e) {
             response = {

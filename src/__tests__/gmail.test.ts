@@ -1,15 +1,16 @@
 import * as sinon from 'sinon';
 import { accountFactory, integrationFactory } from '../factories';
 import * as gmailUtils from '../gmail//util';
-import { refreshAccessToken } from '../gmail/auth';
+import * as api from '../gmail/api';
 import { ConversationMessages, Conversations, Customers } from '../gmail/models';
-import * as receive from '../gmail/receiveEmails';
+import * as receivedEmail from '../gmail/receiveEmails';
 import * as send from '../gmail/send';
 import * as store from '../gmail/store';
-import { getCredentialsByEmailAccountId } from '../gmail/util';
+import { getCredentialsByEmailAccountId, refreshAccessToken } from '../gmail/util';
 import * as watch from '../gmail/watch';
 import * as messageBroker from '../messageBroker';
-import { Accounts } from '../models';
+import { Accounts, Integrations } from '../models';
+import * as utils from '../utils';
 import './setup.ts';
 
 describe('Gmail test', () => {
@@ -39,6 +40,9 @@ describe('Gmail test', () => {
     const integration = await integrationFactory({
       kind: 'gmail',
       erxesApiId: 'alksdjkl',
+      email: 'john@gmail.com',
+      gmailHistoryId: 'gmailHistoryId',
+      accountId: account._id,
     });
 
     accountId = account._id;
@@ -51,56 +55,161 @@ describe('Gmail test', () => {
     await Customers.remove({});
     await Conversations.remove({});
     await ConversationMessages.remove({});
+    await Integrations.remove({});
   });
 
   test('Create or get customer', async () => {
-    const mock = sinon.stub(messageBroker, 'sendRPCMessage').callsFake(() => {
-      return Promise.resolve({ _id: 'asdlkajsdklj' });
-    });
+    const sendRequestMock = sinon.stub(messageBroker, 'sendRPCMessage');
+
+    sendRequestMock.onCall(0).returns(Promise.resolve({ _id: 'foo' }));
 
     await store.createOrGetCustomer('test123@mail.com', {
       id: integrationId,
       erxesApiId,
     });
 
-    const customer = await Customers.findOne({ email: 'test123@mail.com' });
+    const customerCreated = await Customers.findOne({ email: 'test123@mail.com' });
 
-    expect(customer.email).toEqual('test123@mail.com');
-    expect(customer.integrationId).toEqual(integrationId);
-    expect(customer.erxesApiId).toEqual('asdlkajsdklj');
+    expect(customerCreated.email).toEqual('test123@mail.com');
+    expect(customerCreated.integrationId).toEqual(integrationId);
+    expect(customerCreated.erxesApiId).toEqual('foo');
 
-    mock.restore();
+    const existingCustomer = await store.createOrGetCustomer('test123@mail.com', { id: integrationId, erxesApiId });
+
+    expect(existingCustomer._id).toBe(customerCreated._id);
+
+    sendRequestMock.onCall(1).throws(new Error('Failed to create customer in API'));
+
+    try {
+      await store.createOrGetCustomer('john@mail.com', {
+        id: integrationId,
+        erxesApiId,
+      });
+    } catch (e) {
+      expect(e.message).toBe('Failed to create customer in API');
+      expect(await Customers.findOne({ email: 'john@mail.com' })).toBeNull();
+    }
+
+    const customerMock = sinon.stub(Customers, 'create').throws(new Error('duplicated'));
+
+    try {
+      await store.createOrGetCustomer('dave@mail.com', {
+        id: integrationId,
+        erxesApiId,
+      });
+    } catch (e) {
+      expect(e.message).toBe('Concurrent request: customer duplication');
+    }
+
+    customerMock.restore();
+    sendRequestMock.restore();
   });
 
   test('Create or get conversation', async () => {
-    const mock = sinon.stub(messageBroker, 'sendRPCMessage').callsFake(() => {
-      return Promise.resolve({ _id: 'dkjskldj' });
-    });
+    const sendRequestMock = sinon.stub(messageBroker, 'sendRPCMessage');
 
-    await store.createOrGetConversation({
+    sendRequestMock.onCall(0).returns(Promise.resolve({ _id: 'dkjskldj' }));
+
+    const integrationIds = {
+      id: integrationId,
+      erxesApiId,
+    };
+
+    const args = {
       email: 'test123@mail.com',
       subject: 'alksdjalk',
       receivedEmail: 'test22@mail.com',
-      integrationIds: {
-        id: integrationId,
-        erxesApiId,
-      },
+      integrationIds,
       customerErxesApiId: 'akjsdlkajsd',
+    };
+
+    await store.createOrGetConversation(args);
+
+    const conversationCreated = await Conversations.findOne({ integrationId });
+
+    expect(conversationCreated.to).toEqual('test22@mail.com');
+    expect(conversationCreated.from).toEqual('test123@mail.com');
+    expect(conversationCreated.erxesApiId).toEqual('dkjskldj');
+
+    sendRequestMock.onCall(1).returns(Promise.resolve({ _id: 'dqwje' }));
+
+    await ConversationMessages.create({
+      messageId: 'ajklsdja',
+      conversationId: conversationCreated._id,
     });
 
-    const conversation = await Conversations.findOne({ integrationId });
+    const conversationWithReply = await store.createOrGetConversation({
+      email: 'test@mail.com',
+      subject: 'alksdjalk',
+      receivedEmail: 'test2@mail.com',
+      integrationIds,
+      customerErxesApiId: 'akjsdlkajsd',
+      reply: ['alskjd'],
+    });
 
-    expect(conversation.to).toEqual('test22@mail.com');
-    expect(conversation.from).toEqual('test123@mail.com');
-    expect(conversation.erxesApiId).toEqual('dkjskldj');
+    expect(conversationWithReply.to).toEqual('test2@mail.com');
+    expect(conversationWithReply.from).toEqual('test@mail.com');
+    expect(conversationWithReply.erxesApiId).toEqual('dqwje');
 
-    mock.restore();
+    sendRequestMock.onCall(2).returns(Promise.resolve({ _id: 'qwjke' }));
+
+    await ConversationMessages.create({
+      messageId: 'eqwe',
+      conversationId: conversationWithReply._id,
+      headerId: 'headerId',
+    });
+
+    const conversationWithReplyMessage = await store.createOrGetConversation({
+      email: 'test3@mail.com',
+      subject: 'alksdjalk',
+      receivedEmail: 'test5@mail.com',
+      integrationIds,
+      customerErxesApiId: 'akjsdlkajsd',
+      reply: ['headerId'],
+    });
+
+    expect(conversationWithReplyMessage.to).toEqual('test2@mail.com');
+    expect(conversationWithReplyMessage.from).toEqual('test@mail.com');
+    expect(conversationWithReplyMessage.erxesApiId).toEqual('dqwje');
+
+    // Check duplication
+    const duplicationMock = sinon.stub(Conversations, 'create').throws(new Error('duplicated'));
+
+    try {
+      await store.createOrGetConversation({
+        email: 'test2@mail.com',
+        subject: 'alksdjalk',
+        receivedEmail: 'test@mail.com',
+        integrationIds,
+        customerErxesApiId: 'akjsdlkajsd',
+      });
+    } catch (e) {
+      expect(e.message).toBe('Concurrent request: conversation duplication');
+    }
+
+    duplicationMock.restore();
+
+    sendRequestMock.onCall(2).throws(new Error('Failed to create conversation in API'));
+
+    try {
+      await store.createOrGetConversation({
+        email: 'test199@mail.com',
+        subject: 'alksdjalk',
+        receivedEmail: 'test22@mail.com',
+        integrationIds,
+        customerErxesApiId: 'akjsdlkajsd',
+      });
+    } catch (e) {
+      expect(e.message).toBe('Error: Failed to create conversation in API');
+    }
+
+    sendRequestMock.restore();
   });
 
   test('Create or get message', async () => {
-    const mock = sinon.stub(messageBroker, 'sendRPCMessage').callsFake(() => {
-      return Promise.resolve({ _id: 'dkjskldj' });
-    });
+    const mock = sinon.stub(messageBroker, 'sendRPCMessage');
+
+    mock.onCall(0).returns(Promise.resolve({ _id: 'dkjskldj' }));
 
     await store.createOrGetConversationMessage({
       messageId: 'ajklsdja',
@@ -126,6 +235,47 @@ describe('Gmail test', () => {
     expect(message.headerId).toEqual('headerId');
     expect(message.threadId).toEqual('threadId');
     expect(JSON.stringify(message.to)).toEqual(JSON.stringify([{ email: 'foo@mail.com' }]));
+
+    // Message already exist
+    await ConversationMessages.create({ messageId: 'messageId', conversationId: 'aklsjdalskdj' });
+
+    await store.createOrGetConversationMessage({
+      messageId: 'messageId',
+      customerErxesApiId: 'kljalkdjalk',
+      conversationIds: {
+        id: 'aklsjdalskdj',
+        erxesApiId: 'erxesApiId',
+      },
+      message: {
+        conversationId: 'alksjdalkdj',
+        to: 'foo@mail.com',
+        from: 'john@mail.com',
+        reply: ['asdasdklj'],
+        references: 'references',
+      },
+    });
+
+    mock.onCall(1).throws(new Error('Failed to create conversation message in API'));
+
+    try {
+      await store.createOrGetConversationMessage({
+        messageId: 'qwerty',
+        customerErxesApiId: 'kljalkdjalk',
+        conversationIds: {
+          id: 'aklsjdalskdj',
+          erxesApiId: 'erxesApiId',
+        },
+        message: {
+          conversationId: 'alksjdalkdj',
+          to: 'foo@mail.com',
+          from: 'john@mail.com',
+          reply: ['asdasdklj'],
+          references: 'references',
+        },
+      });
+    } catch (e) {
+      expect(e.message).toBe('Error: Failed to create conversation message in API');
+    }
 
     mock.restore();
   });
@@ -167,7 +317,6 @@ describe('Gmail test', () => {
             value: '<DFA8BC9E-8561-42A9-9313-AD0F5ED24186@gmail.com>',
           },
         ],
-        body: { size: 0 },
         parts: [
           {
             partId: '0',
@@ -179,8 +328,7 @@ describe('Gmail test', () => {
             ],
             body: {
               size: 519,
-              data:
-                'DQoNCj4gQmVnaW4gZm9yd2FyZGVkIG1lc3NhZ2U6DQo-IA0KPiBGcm9tOiBNdW5raGJvbGQgRGVtYmVsIDxtdW5nZWh1Ym9sdWRAZ21haWwuY29tPg0KPiBTdWJqZWN0OiBGd2Q6IHRlc3QgdHVyc2hpbHQNCj4gRGF0ZTogT2N0b2JlciAzMSwgMjAxOCBhdCAxNjoyNDoxMiBHTVQrOA0KPiBUbzogQ29udGFjdHMgPG11bmtoYm9sZC5kQG5tdGVjLmNvPg0KPiBDYzogTXVua2hib2xkIERlbWJlbCA8bXVua2hib2xkLmRlQGdtYWlsLmNvbT4NCj4gDQo-IA0KPiANCj4-IEJlZ2luIGZvcndhcmRlZCBtZXNzYWdlOg0KPj4gDQo-PiBGcm9tOiBtdW5raGJvbGQuZEBubXRlYy5jbyA8bWFpbHRvOm11bmtoYm9sZC5kQG5tdGVjLmNvPg0KPj4gU3ViamVjdDogdGVzdCB0dXJzaGlsdA0KPj4gRGF0ZTogT2N0b2JlciAyOSwgMjAxOCBhdCAxNjowNTozNSBHTVQrOA0KPj4gVG86IG11bmtoYm9sZC5kQG5tdGVjLmNvIDxtYWlsdG86bXVua2hib2xkLmRAbm10ZWMuY28-DQo-PiANCj4-IDxwPmhlbGxvdyB3b3JsZDwvcD4NCg0K',
+              data: 'alksjdalksjdakljsd',
             },
           },
           {
@@ -206,8 +354,7 @@ describe('Gmail test', () => {
                 ],
                 body: {
                   size: 4829,
-                  data:
-                    'PGh0bWw-PGhlYWQ-PG1ldGEgaHR0cC1lcXVpdj0iQ29udGVudC1UeXBlIiBjb250ZW50PSJ0ZXh0L2h0bWw7IGNoYXJzZXQ9dXMtYXNjaWkiPjwvaGVhZD48Ym9keSBzdHlsZT0id29yZC13cmFwOiBicmVhay13b3JkOyAtd2Via2l0LW5ic3AtbW9kZTogc3BhY2U7IGxpbmUtYnJlYWs6IGFmdGVyLXdoaXRlLXNwYWNlOyIgY2xhc3M9IiI-PGJyIGNsYXNzPSIiPjxkaXY-PGJyIGNsYXNzPSIiPjxibG9ja3F1b3RlIHR5cGU9ImNpdGUiIGNsYXNzPSIiPjxkaXYgY2xhc3M9IiI-QmVnaW4gZm9yd2FyZGVkIG1lc3NhZ2U6PC9kaXY-PGJyIGNsYXNzPSJBcHBsZS1pbnRlcmNoYW5nZS1uZXdsaW5lIj48ZGl2IHN0eWxlPSJtYXJnaW4tdG9wOiAwcHg7IG1hcmdpbi1yaWdodDogMHB4OyBtYXJnaW4tYm90dG9tOiAwcHg7IG1hcmdpbi1sZWZ0OiAwcHg7IiBjbGFzcz0iIj48c3BhbiBzdHlsZT0iZm9udC1mYW1pbHk6IC13ZWJraXQtc3lzdGVtLWZvbnQsIEhlbHZldGljYSBOZXVlLCBIZWx2ZXRpY2EsIHNhbnMtc2VyaWY7IGNvbG9yOnJnYmEoMCwgMCwgMCwgMS4wKTsiIGNsYXNzPSIiPjxiIGNsYXNzPSIiPkZyb206IDwvYj48L3NwYW4-PHNwYW4gc3R5bGU9ImZvbnQtZmFtaWx5OiAtd2Via2l0LXN5c3RlbS1mb250LCBIZWx2ZXRpY2EgTmV1ZSwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmOyIgY2xhc3M9IiI-TXVua2hib2xkIERlbWJlbCAmbHQ7PGEgaHJlZj0ibWFpbHRvOm11bmdlaHVib2x1ZEBnbWFpbC5jb20iIGNsYXNzPSIiPm11bmdlaHVib2x1ZEBnbWFpbC5jb208L2E-Jmd0OzxiciBjbGFzcz0iIj48L3NwYW4-PC9kaXY-PGRpdiBzdHlsZT0ibWFyZ2luLXRvcDogMHB4OyBtYXJnaW4tcmlnaHQ6IDBweDsgbWFyZ2luLWJvdHRvbTogMHB4OyBtYXJnaW4tbGVmdDogMHB4OyIgY2xhc3M9IiI-PHNwYW4gc3R5bGU9ImZvbnQtZmFtaWx5OiAtd2Via2l0LXN5c3RlbS1mb250LCBIZWx2ZXRpY2EgTmV1ZSwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmOyBjb2xvcjpyZ2JhKDAsIDAsIDAsIDEuMCk7IiBjbGFzcz0iIj48YiBjbGFzcz0iIj5TdWJqZWN0OiA8L2I-PC9zcGFuPjxzcGFuIHN0eWxlPSJmb250LWZhbWlseTogLXdlYmtpdC1zeXN0ZW0tZm9udCwgSGVsdmV0aWNhIE5ldWUsIEhlbHZldGljYSwgc2Fucy1zZXJpZjsiIGNsYXNzPSIiPjxiIGNsYXNzPSIiPkZ3ZDogdGVzdCB0dXJzaGlsdDwvYj48YnIgY2xhc3M9IiI-PC9zcGFuPjwvZGl2PjxkaXYgc3R5bGU9Im1hcmdpbi10b3A6IDBweDsgbWFyZ2luLXJpZ2h0OiAwcHg7IG1hcmdpbi1ib3R0b206IDBweDsgbWFyZ2luLWxlZnQ6IDBweDsiIGNsYXNzPSIiPjxzcGFuIHN0eWxlPSJmb250LWZhbWlseTogLXdlYmtpdC1zeXN0ZW0tZm9udCwgSGVsdmV0aWNhIE5ldWUsIEhlbHZldGljYSwgc2Fucy1zZXJpZjsgY29sb3I6cmdiYSgwLCAwLCAwLCAxLjApOyIgY2xhc3M9IiI-PGIgY2xhc3M9IiI-RGF0ZTogPC9iPjwvc3Bhbj48c3BhbiBzdHlsZT0iZm9udC1mYW1pbHk6IC13ZWJraXQtc3lzdGVtLWZvbnQsIEhlbHZldGljYSBOZXVlLCBIZWx2ZXRpY2EsIHNhbnMtc2VyaWY7IiBjbGFzcz0iIj5PY3RvYmVyIDMxLCAyMDE4IGF0IDE2OjI0OjEyIEdNVCs4PGJyIGNsYXNzPSIiPjwvc3Bhbj48L2Rpdj48ZGl2IHN0eWxlPSJtYXJnaW4tdG9wOiAwcHg7IG1hcmdpbi1yaWdodDogMHB4OyBtYXJnaW4tYm90dG9tOiAwcHg7IG1hcmdpbi1sZWZ0OiAwcHg7IiBjbGFzcz0iIj48c3BhbiBzdHlsZT0iZm9udC1mYW1pbHk6IC13ZWJraXQtc3lzdGVtLWZvbnQsIEhlbHZldGljYSBOZXVlLCBIZWx2ZXRpY2EsIHNhbnMtc2VyaWY7IGNvbG9yOnJnYmEoMCwgMCwgMCwgMS4wKTsiIGNsYXNzPSIiPjxiIGNsYXNzPSIiPlRvOiA8L2I-PC9zcGFuPjxzcGFuIHN0eWxlPSJmb250LWZhbWlseTogLXdlYmtpdC1zeXN0ZW0tZm9udCwgSGVsdmV0aWNhIE5ldWUsIEhlbHZldGljYSwgc2Fucy1zZXJpZjsiIGNsYXNzPSIiPkNvbnRhY3RzICZsdDs8YSBocmVmPSJtYWlsdG86bXVua2hib2xkLmRAbm10ZWMuY28iIGNsYXNzPSIiPm11bmtoYm9sZC5kQG5tdGVjLmNvPC9hPiZndDs8YnIgY2xhc3M9IiI-PC9zcGFuPjwvZGl2PjxkaXYgc3R5bGU9Im1hcmdpbi10b3A6IDBweDsgbWFyZ2luLXJpZ2h0OiAwcHg7IG1hcmdpbi1ib3R0b206IDBweDsgbWFyZ2luLWxlZnQ6IDBweDsiIGNsYXNzPSIiPjxzcGFuIHN0eWxlPSJmb250LWZhbWlseTogLXdlYmtpdC1zeXN0ZW0tZm9udCwgSGVsdmV0aWNhIE5ldWUsIEhlbHZldGljYSwgc2Fucy1zZXJpZjsgY29sb3I6cmdiYSgwLCAwLCAwLCAxLjApOyIgY2xhc3M9IiI-PGIgY2xhc3M9IiI-Q2M6IDwvYj48L3NwYW4-PHNwYW4gc3R5bGU9ImZvbnQtZmFtaWx5OiAtd2Via2l0LXN5c3RlbS1mb250LCBIZWx2ZXRpY2EgTmV1ZSwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmOyIgY2xhc3M9IiI-TXVua2hib2xkIERlbWJlbCAmbHQ7PGEgaHJlZj0ibWFpbHRvOm11bmtoYm9sZC5kZUBnbWFpbC5jb20iIGNsYXNzPSIiPm11bmtoYm9sZC5kZUBnbWFpbC5jb208L2E-Jmd0OzxiciBjbGFzcz0iIj48L3NwYW4-PC9kaXY-PGJyIGNsYXNzPSIiPjxkaXYgY2xhc3M9IiI-PG1ldGEgaHR0cC1lcXVpdj0iQ29udGVudC1UeXBlIiBjb250ZW50PSJ0ZXh0L2h0bWw7IGNoYXJzZXQ9dXMtYXNjaWkiIGNsYXNzPSIiPjxkaXYgc3R5bGU9IndvcmQtd3JhcDogYnJlYWstd29yZDsgLXdlYmtpdC1uYnNwLW1vZGU6IHNwYWNlOyBsaW5lLWJyZWFrOiBhZnRlci13aGl0ZS1zcGFjZTsiIGNsYXNzPSIiPjxiciBjbGFzcz0iIj4NCjxkaXYgY2xhc3M9IiI-PGJyIGNsYXNzPSIiPjxibG9ja3F1b3RlIHR5cGU9ImNpdGUiIGNsYXNzPSIiPjxkaXYgY2xhc3M9IiI-QmVnaW4gZm9yd2FyZGVkIG1lc3NhZ2U6PC9kaXY-PGJyIGNsYXNzPSJBcHBsZS1pbnRlcmNoYW5nZS1uZXdsaW5lIj48ZGl2IHN0eWxlPSJtYXJnaW4tdG9wOiAwcHg7IG1hcmdpbi1yaWdodDogMHB4OyBtYXJnaW4tYm90dG9tOiAwcHg7IG1hcmdpbi1sZWZ0OiAwcHg7IiBjbGFzcz0iIj48c3BhbiBzdHlsZT0iZm9udC1mYW1pbHk6IC13ZWJraXQtc3lzdGVtLWZvbnQsICZxdW90O0hlbHZldGljYSBOZXVlJnF1b3Q7LCBIZWx2ZXRpY2EsIHNhbnMtc2VyaWY7IiBjbGFzcz0iIj48YiBjbGFzcz0iIj5Gcm9tOiA8L2I-PC9zcGFuPjxzcGFuIHN0eWxlPSJmb250LWZhbWlseTogLXdlYmtpdC1zeXN0ZW0tZm9udCwgSGVsdmV0aWNhIE5ldWUsIEhlbHZldGljYSwgc2Fucy1zZXJpZjsiIGNsYXNzPSIiPjxhIGhyZWY9Im1haWx0bzptdW5raGJvbGQuZEBubXRlYy5jbyIgY2xhc3M9IiI-bXVua2hib2xkLmRAbm10ZWMuY288L2E-PGJyIGNsYXNzPSIiPjwvc3Bhbj48L2Rpdj48ZGl2IHN0eWxlPSJtYXJnaW4tdG9wOiAwcHg7IG1hcmdpbi1yaWdodDogMHB4OyBtYXJnaW4tYm90dG9tOiAwcHg7IG1hcmdpbi1sZWZ0OiAwcHg7IiBjbGFzcz0iIj48c3BhbiBzdHlsZT0iZm9udC1mYW1pbHk6IC13ZWJraXQtc3lzdGVtLWZvbnQsICZxdW90O0hlbHZldGljYSBOZXVlJnF1b3Q7LCBIZWx2ZXRpY2EsIHNhbnMtc2VyaWY7IiBjbGFzcz0iIj48YiBjbGFzcz0iIj5TdWJqZWN0OiA8L2I-PC9zcGFuPjxzcGFuIHN0eWxlPSJmb250LWZhbWlseTogLXdlYmtpdC1zeXN0ZW0tZm9udCwgSGVsdmV0aWNhIE5ldWUsIEhlbHZldGljYSwgc2Fucy1zZXJpZjsiIGNsYXNzPSIiPjxiIGNsYXNzPSIiPnRlc3QgdHVyc2hpbHQ8L2I-PGJyIGNsYXNzPSIiPjwvc3Bhbj48L2Rpdj48ZGl2IHN0eWxlPSJtYXJnaW4tdG9wOiAwcHg7IG1hcmdpbi1yaWdodDogMHB4OyBtYXJnaW4tYm90dG9tOiAwcHg7IG1hcmdpbi1sZWZ0OiAwcHg7IiBjbGFzcz0iIj48c3BhbiBzdHlsZT0iZm9udC1mYW1pbHk6IC13ZWJraXQtc3lzdGVtLWZvbnQsICZxdW90O0hlbHZldGljYSBOZXVlJnF1b3Q7LCBIZWx2ZXRpY2EsIHNhbnMtc2VyaWY7IiBjbGFzcz0iIj48YiBjbGFzcz0iIj5EYXRlOiA8L2I-PC9zcGFuPjxzcGFuIHN0eWxlPSJmb250LWZhbWlseTogLXdlYmtpdC1zeXN0ZW0tZm9udCwgSGVsdmV0aWNhIE5ldWUsIEhlbHZldGljYSwgc2Fucy1zZXJpZjsiIGNsYXNzPSIiPk9jdG9iZXIgMjksIDIwMTggYXQgMTY6MDU6MzUgR01UKzg8YnIgY2xhc3M9IiI-PC9zcGFuPjwvZGl2PjxkaXYgc3R5bGU9Im1hcmdpbi10b3A6IDBweDsgbWFyZ2luLXJpZ2h0OiAwcHg7IG1hcmdpbi1ib3R0b206IDBweDsgbWFyZ2luLWxlZnQ6IDBweDsiIGNsYXNzPSIiPjxzcGFuIHN0eWxlPSJmb250LWZhbWlseTogLXdlYmtpdC1zeXN0ZW0tZm9udCwgJnF1b3Q7SGVsdmV0aWNhIE5ldWUmcXVvdDssIEhlbHZldGljYSwgc2Fucy1zZXJpZjsiIGNsYXNzPSIiPjxiIGNsYXNzPSIiPlRvOiA8L2I-PC9zcGFuPjxzcGFuIHN0eWxlPSJmb250LWZhbWlseTogLXdlYmtpdC1zeXN0ZW0tZm9udCwgSGVsdmV0aWNhIE5ldWUsIEhlbHZldGljYSwgc2Fucy1zZXJpZjsiIGNsYXNzPSIiPjxhIGhyZWY9Im1haWx0bzptdW5raGJvbGQuZEBubXRlYy5jbyIgY2xhc3M9IiI-bXVua2hib2xkLmRAbm10ZWMuY288L2E-PGJyIGNsYXNzPSIiPjwvc3Bhbj48L2Rpdj48YnIgY2xhc3M9IiI-PGRpdiBjbGFzcz0iIj48ZGl2IGNsYXNzPSIiPiZsdDtwJmd0O2hlbGxvdyB3b3JsZCZsdDsvcCZndDs8aW1nIGNsYXNzPSIiIGFwcGxlLWlubGluZT0ieWVzIiBpZD0iMUQ3NEUzRDUtRTA3OC00MUM1LUFBMTktREIyQTJCODI3ODM4IiBzcmM9ImNpZDpDNDg4NjM3QS03NTdGLTQ4ODQtQkNFMC1FRDM5MTRFMEFDODVAbGFuIj48L2Rpdj48L2Rpdj48L2Jsb2NrcXVvdGU-PC9kaXY-PGJyIGNsYXNzPSIiPjwvZGl2PjwvZGl2PjwvYmxvY2txdW90ZT48L2Rpdj48YnIgY2xhc3M9IiI-PC9ib2R5PjwvaHRtbD4=',
+                  data: 'jalksdjalksdjl',
                 },
               },
               {
@@ -230,8 +377,7 @@ describe('Gmail test', () => {
                   },
                 ],
                 body: {
-                  attachmentId:
-                    'ANGjdJ9D5l-l06ZJE8fm3puWwehb0GXq6E0NzblV35a0jgD-R6NbVkA2Z5HXVrJ4wuTX1HG0PUsKnYQ45tknJb8WYLg-DisvMDht3p6xZC8v2mB1p11_sfLsMcxKt9pl858gTlYB_ObJWpVep3wCduRSD55RnUw7hMn1yrdNT_7826oz6Eo8EieRstmnOZGzGR-xKBf_3uYY7SisBkzQeyuGBs-Kd9ltKiBD4BjUmvJ2GBntFTwJ_7zsQLGKyMSGnv3bkHU3dhWIvUIMxNWCUQe9L1eFStf1DU5RIOQiTVhG6mLFZveSusWqnrazPw3Q3IOjfnnzXjVIlzDYfcHt9xoGjJf4jPpI5UJxx_glRulpv_fNe8EdnN_revSbu8ksKBYsRlrQ0I2a0t-7sau2',
+                  attachmentId: 'attachmentId',
                   size: 112714,
                 },
               },
@@ -252,19 +398,28 @@ describe('Gmail test', () => {
     expect(data.attachments[0].filename).toEqual('clear-400x400-logo.png');
     expect(data.attachments[0].mimeType).toEqual('image/png');
     expect(data.attachments[0].size).toEqual(112714);
-    expect(data.attachments[0].attachmentId).toEqual(
-      'ANGjdJ9D5l-l06ZJE8fm3puWwehb0GXq6E0NzblV35a0jgD-R6NbVkA2Z5HXVrJ4wuTX1HG0PUsKnYQ45tknJb8WYLg-DisvMDht3p6xZC8v2mB1p11_sfLsMcxKt9pl858gTlYB_ObJWpVep3wCduRSD55RnUw7hMn1yrdNT_7826oz6Eo8EieRstmnOZGzGR-xKBf_3uYY7SisBkzQeyuGBs-Kd9ltKiBD4BjUmvJ2GBntFTwJ_7zsQLGKyMSGnv3bkHU3dhWIvUIMxNWCUQe9L1eFStf1DU5RIOQiTVhG6mLFZveSusWqnrazPw3Q3IOjfnnzXjVIlzDYfcHt9xoGjJf4jPpI5UJxx_glRulpv_fNe8EdnN_revSbu8ksKBYsRlrQ0I2a0t-7sau2',
-    );
+    expect(data.attachments[0].attachmentId).toEqual('attachmentId');
+    expect(gmailUtils.parseMessage({})).toBeUndefined();
+
+    delete doc.payload.headers;
+
+    const withoutHeader = gmailUtils.parseMessage(doc);
+
+    expect(withoutHeader.to).toBeUndefined();
+    expect(withoutHeader.from).toBeUndefined();
+    expect(withoutHeader.cc).toBeUndefined();
+    expect(withoutHeader.bcc).toBeUndefined();
+    expect(withoutHeader.subject).toBeUndefined();
   });
 
   test('Get attachment', async () => {
     const buf = Buffer.from('ajsdklajdlaskjda', 'utf8');
 
-    const mock = sinon.stub(receive, 'getAttachment').callsFake(() => {
+    const mock = sinon.stub(api, 'getAttachment').callsFake(() => {
       return Promise.resolve(buf);
     });
 
-    const response = await receive.getAttachment(credential, 'messageId', 'attachmentId');
+    const response = await api.getAttachment(credential, 'messageId', 'attachmentId');
 
     expect(response).toEqual(buf);
 
@@ -285,9 +440,17 @@ describe('Gmail test', () => {
       from: [{ email: 'demo4@gmail.com', name: 'demo4' }],
       references: 'references',
       headerId: 'headerId',
+      attachments: [
+        {
+          mimeType: 'mimeType',
+          size: 123,
+          filename: 'filename',
+          data: 'data',
+        },
+      ],
     };
 
-    const mock = sinon.stub(send, 'composeEmail').callsFake();
+    const mock = sinon.stub(api, 'composeEmail').callsFake();
     const spy = sinon.spy(send, 'createMimeMessage');
 
     await send.sendGmail(accountId, 'user@gmail.com', doc);
@@ -300,10 +463,10 @@ describe('Gmail test', () => {
 
   test('Get profile', async () => {
     const mock = sinon
-      .stub(gmailUtils, 'getProfile')
+      .stub(api, 'getProfile')
       .callsFake(() => Promise.resolve({ data: { emailAddress: 'john@gmail.com' } }));
 
-    const response = await gmailUtils.getProfile(credential);
+    const response = await api.getProfile(credential);
 
     expect(response.data.emailAddress).toEqual('john@gmail.com');
 
@@ -317,6 +480,8 @@ describe('Gmail test', () => {
 
     expect(response.access_token).toEqual(account.token);
     expect(response.refresh_token).toEqual(account.tokenSecret);
+
+    expect(await getCredentialsByEmailAccountId({ accountId: 'aklsjd' })).toBeUndefined();
   });
 
   test('Get credential by email', async () => {
@@ -351,5 +516,211 @@ describe('Gmail test', () => {
     expect(account.token).toEqual(credential.access_token);
     expect(account.tokenSecret).toEqual(credential.refresh_token);
     expect(account.expireDate).toEqual(credential.expiry_date.toString());
+
+    expect(await refreshAccessToken('alksjd', credential)).toBeUndefined();
+  });
+
+  test('Get Google configs', async () => {
+    const configMock = sinon.stub(utils, 'getConfig');
+
+    configMock.onCall(0).returns(Promise.resolve('GOOGLE_GMAIL_TOPIC'));
+    configMock.onCall(1).returns(Promise.resolve('GOOGLE_GMAIL_SUBSCRIPTION_NAME'));
+
+    const googleConfigMock = sinon.stub(utils, 'getCommonGoogleConfigs').callsFake(() => {
+      return Promise.resolve({
+        GOOGLE_CLIENT_ID: 'GOOGLE_CLIENT_ID',
+        GOOGLE_CLIENT_SECRET: 'GOOGLE_CLIENT_SECRET',
+        GOOGLE_PROJECT_ID: 'GOOGLE_PROJECT_ID',
+        GOOGLE_APPLICATION_CREDENTIALS: 'GOOGLE_APPLICATION_CREDENTIALS',
+      });
+    });
+
+    const response = await gmailUtils.getGoogleConfigs();
+
+    expect(response.GOOGLE_CLIENT_ID).toBe('GOOGLE_CLIENT_ID');
+    expect(response.GOOGLE_CLIENT_SECRET).toBe('GOOGLE_CLIENT_SECRET');
+    expect(response.GOOGLE_PROJECT_ID).toBe('GOOGLE_PROJECT_ID');
+    expect(response.GOOGLE_APPLICATION_CREDENTIALS).toBe('GOOGLE_APPLICATION_CREDENTIALS');
+    expect(response.GOOGLE_GMAIL_TOPIC).toBe('GOOGLE_GMAIL_TOPIC');
+    expect(response.GOOGLE_GMAIL_SUBSCRIPTION_NAME).toBe('GOOGLE_GMAIL_SUBSCRIPTION_NAME');
+
+    configMock.restore();
+    googleConfigMock.restore();
+  });
+
+  test('Parse batch response', async () => {
+    const body = `Content-Length: response_total_content_length\r\n{"kind": "farm#animal","etag": "etag/pony"}Content-Length: response_total_content_length\r\n{"kind": "farm#animal","etag": "etag/pony"}\r\n`;
+
+    const result = gmailUtils.parseBatchResponse(body);
+
+    expect(result).toEqual([{ etag: 'etag/pony', kind: 'farm#animal' }]);
+  });
+
+  test('Sync by history id', async () => {
+    const singleRequestMock = sinon.stub(api, 'sendSingleRequest').callsFake(() => {
+      return Promise.resolve(true);
+    });
+
+    const batchRequestMock = sinon.stub(api, 'sendBatchRequest').callsFake(() => {
+      return Promise.resolve(true);
+    });
+
+    const oauthClientMock = sinon.stub(api, 'getOauthClient').callsFake(() => {
+      return Promise.resolve({ setCredentials: value => value });
+    });
+
+    const getHistoryMock = sinon.stub(api, 'getHistoryList');
+
+    getHistoryMock.onCall(0).returns(undefined);
+
+    // No data found in getHistoryList
+    expect(await receivedEmail.syncByHistoryId(accountId, 'startHistoryId')).toBeUndefined();
+
+    getHistoryMock.onCall(1).returns(Promise.resolve({ history: [] }));
+
+    // Empty data history
+    expect(await receivedEmail.syncByHistoryId(accountId, 'startHistoryId')).toBeUndefined();
+
+    getHistoryMock.onCall(2).returns(
+      Promise.resolve({
+        history: [{ messagesAdded: [{ item: 1 }] }],
+      }),
+    );
+
+    // Single message
+    const firstResponse = await receivedEmail.syncByHistoryId(accountId, 'startHistoryId');
+
+    expect(firstResponse.singleMessage).toBeTruthy();
+
+    getHistoryMock.onCall(3).returns(
+      Promise.resolve({
+        history: [{ messagesAdded: [{ item: 1 }, { item: 2 }] }],
+      }),
+    );
+
+    // Batch messages
+    const secondResponse = await receivedEmail.syncByHistoryId(accountId, 'startHistoryId');
+
+    expect(secondResponse.batchMessages).toBeTruthy();
+
+    getHistoryMock.onCall(4).throws(new Error('Failed to get messages'));
+
+    try {
+      await receivedEmail.syncByHistoryId(accountId, 'startHistoryId');
+    } catch (e) {
+      expect(e.message).toBe('Failed to get messages');
+    }
+
+    oauthClientMock.restore();
+    getHistoryMock.restore();
+    singleRequestMock.restore();
+    batchRequestMock.restore();
+  });
+
+  test('Sync partially', async () => {
+    try {
+      await receivedEmail.syncPartially('email', 'startHistoryId');
+    } catch (e) {
+      expect(e.message).toBe('Integration not found in syncPartially');
+    }
+
+    const syncByHistoryIdMock = sinon.stub(receivedEmail, 'syncByHistoryId');
+
+    syncByHistoryIdMock.onCall(0).returns(undefined);
+
+    expect(await receivedEmail.syncPartially('john@gmail.com', 'startHistoryId')).toBeNull();
+
+    syncByHistoryIdMock.onCall(1).returns(
+      Promise.resolve({
+        batchMessages: undefined,
+        singleMessage: undefined,
+      }),
+    );
+
+    expect(await receivedEmail.syncPartially('john@gmail.com', 'startHistoryId')).toBeUndefined();
+
+    const message = {
+      messageId: 'messageId',
+      from: '<test1@gmail.com>',
+      subject: 'subject',
+      labelIds: ['SENT'],
+    };
+
+    const parseMessageMock = sinon.stub(gmailUtils, 'parseMessage');
+
+    parseMessageMock.onCall(0).returns(message);
+    parseMessageMock.onCall(1).returns(message);
+    parseMessageMock.returns({
+      messageId: 'alksjdlkaj',
+      from: '<test1@gmail.com>',
+      subject: 'subject',
+      labelIds: [],
+    });
+
+    const batchMessages = [message, message, message];
+
+    syncByHistoryIdMock.onCall(2).returns(
+      Promise.resolve({
+        batchMessages,
+        singleMessage: undefined,
+      }),
+    );
+
+    const mock1 = sinon.stub(store, 'createOrGetCustomer').callsFake(() => {
+      return Promise.resolve({ _id: 'customerId', erxesApiId: 'customerErxesApiId' });
+    });
+
+    const mock2 = sinon.stub(store, 'createOrGetConversation').callsFake(() => {
+      return Promise.resolve({ _id: 'conversationId', erxesApiId: 'conversationErxesApiId' });
+    });
+
+    const mock3 = sinon.stub(store, 'createOrGetConversationMessage').callsFake(() => {
+      return Promise.resolve({ _id: 'conversationMessageId', erxesApiId: 'conversationMessageErxesApiId' });
+    });
+
+    const batchMessageIntegration = await integrationFactory({ email: 'test99@gmail.com', erxesApiId: 'askjdqiwlej' });
+
+    await receivedEmail.syncPartially(batchMessageIntegration.email, 'aklsdjsssw');
+
+    const updatedIntegration = await Integrations.findOne({ _id: batchMessageIntegration._id }).lean();
+
+    expect(updatedIntegration.gmailHistoryId).toBe('aklsdjsssw');
+
+    syncByHistoryIdMock.onCall(3).returns(
+      Promise.resolve({
+        batchMessages: undefined,
+        singleMessage: { data: message },
+      }),
+    );
+
+    const singleMessageIntegration = await integrationFactory({
+      email: 'tesdsdst99@gmail.com',
+      erxesApiId: 'ewewkjkq',
+    });
+
+    await receivedEmail.syncPartially(singleMessageIntegration.email, 'lkwj');
+
+    const integration = await Integrations.findOne({ _id: singleMessageIntegration._id }).lean();
+
+    expect(integration.gmailHistoryId).toBe('lkwj');
+
+    syncByHistoryIdMock.onCall(4).throws(new Error('Failed to sync history id'));
+
+    try {
+      await receivedEmail.syncPartially(batchMessageIntegration.email, 'aklsdjsssw');
+    } catch (e) {
+      expect(e.message).toBe('Failed to sync history id');
+    }
+
+    syncByHistoryIdMock.restore();
+    mock1.restore();
+    mock2.restore();
+    mock3.restore();
+  });
+
+  test('Extract email from string', () => {
+    expect(gmailUtils.extractEmailFromString('<john@gmail.com>')).toBe('john@gmail.com');
+    expect(gmailUtils.extractEmailFromString('')).toBe('');
+    expect(gmailUtils.extractEmailFromString('john')).toBe('');
   });
 });

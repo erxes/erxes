@@ -10,19 +10,19 @@ module.exports = {
   coverageDirectory: 'src/__tests__/coverage/',
   collectCoverage: true,
   collectCoverageFrom: [
+    'src/nylas/**',
+    'src/gmail/**',
     'src/facebook/**',
     'src/twitter/**',
+    '!src/nylas/api.ts',
+    '!src/nylas/controller.ts',
+    '!src/gmail/api.ts',
+    '!src/gmail/watch.ts',
+    '!src/gmail/controller.ts',
     '!src/twitter/api.ts',
     '!src/facebook/utils.ts',
     '!src/facebook/handleFacebookMessage.ts',
   ],
-  coverageThreshold: {
-    global: {
-      functions: 100,
-      lines: 100,
-      statements: 100,
-    },
-  },
   globals: {
     'ts-jest': {
       tsConfigFile: 'tsconfig.json',

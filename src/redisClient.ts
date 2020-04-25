@@ -77,6 +77,33 @@ export const getArray = async (key: string): Promise<any> => {
 };
 
 /*
+ * Check if value exists in set
+ */
+export const inArray = async (setKey: string, setMember: string): Promise<any> => {
+  try {
+    const response = await new Promise((resolve, reject) => {
+      client.sismember(setKey, setMember, (error, reply) => {
+        if (error) {
+          return reject(error);
+        }
+
+        return resolve(reply);
+      });
+    });
+
+    return response;
+
+    // handle already stored invalid type error
+  } catch (e) {
+    if (e.message.includes('WRONGTYPE')) {
+      client.del(setKey);
+    }
+
+    return false;
+  }
+};
+
+/*
  * Set array
  */
 export const setArray = (key: string, value: any[]) => {

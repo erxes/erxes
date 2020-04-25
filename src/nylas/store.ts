@@ -2,8 +2,10 @@ import { debugNylas } from '../debuggers';
 import { sendRPCMessage } from '../messageBroker';
 import { Accounts } from '../models';
 import { cleanHtml } from '../utils';
-import { checkConcurrentError } from '../utils';
 import {
+  NylasExchangeConversationMessages,
+  NylasExchangeConversations,
+  NylasExchangeCustomers,
   NylasGmailConversationMessages,
   NylasGmailConversations,
   NylasGmailCustomers,
@@ -21,9 +23,6 @@ import {
   NylasYahooCustomers,
 } from './models';
 import {
-  IAPIConversation,
-  IAPIConversationMessage,
-  IAPICustomer,
   IGetOrCreateArguments,
   INylasConversationArguments,
   INylasConversationMessageArguments,
@@ -35,6 +34,11 @@ const NYLAS_MODELS = {
     customers: NylasGmailCustomers,
     conversations: NylasGmailConversations,
     conversationMessages: NylasGmailConversationMessages,
+  },
+  exchange: {
+    customers: NylasExchangeCustomers,
+    conversations: NylasExchangeConversations,
+    conversationMessages: NylasExchangeConversationMessages,
   },
   imap: {
     customers: NylasImapCustomers,
@@ -68,11 +72,7 @@ const updateAccount = async (_id: string, accountId: string, accessToken: string
   const selector = { _id };
   const updateFields = { $set: { uid: accountId, nylasToken: accessToken, billingState } };
 
-  try {
-    await Accounts.updateOne(selector, updateFields);
-  } catch (e) {
-    throw new Error(e.mesasge);
-  }
+  await Accounts.updateOne(selector, updateFields);
 };
 
 /**
@@ -274,7 +274,7 @@ const createOrGetNylasConversationMessage = async ({
  * @param {Object} args - doc, selector, apiField, name
  * @param {Promise} selected model
  */
-const getOrCreate = async ({ kind, collectionName, selector, fields }: IGetOrCreateArguments) => {
+export const getOrCreate = async ({ kind, collectionName, selector, fields }: IGetOrCreateArguments) => {
   const map = {
     customers: {
       action: 'get-create-update-customer',
@@ -294,39 +294,28 @@ const getOrCreate = async ({ kind, collectionName, selector, fields }: IGetOrCre
 
   let selectedObj = await model.findOne(selector);
 
-  if (!selectedObj) {
-    try {
-      selectedObj = await model.create(fields.doc);
-    } catch (e) {
-      checkConcurrentError(e, collectionName);
-    }
+  if (selectedObj === null) {
+    selectedObj = await model.create(fields.doc);
 
     try {
-      const response = await requestMainApi(map[collectionName].action, fields.api);
+      const action = map[collectionName].action;
+
+      const response = await sendRPCMessage({
+        action,
+        metaInfo: action.includes('message') ? 'replaceContent' : null,
+        payload: JSON.stringify(fields.api),
+      });
 
       selectedObj[map[collectionName].apiField] = response._id;
 
       await selectedObj.save();
     } catch (e) {
       await model.deleteOne({ _id: selectedObj._id });
-      throw new Error(e);
+      throw e;
     }
   }
 
   return selectedObj;
-};
-
-/**
- * Send post request to Main API to store
- * @param {String} action
- * @returns {Promise} main api response
- */
-const requestMainApi = (action: string, params: IAPICustomer | IAPIConversation | IAPIConversationMessage) => {
-  return sendRPCMessage({
-    action,
-    metaInfo: action.includes('message') ? 'replaceContent' : null,
-    payload: JSON.stringify(params),
-  });
 };
 
 export {
@@ -335,5 +324,4 @@ export {
   createOrGetNylasConversationMessage,
   NYLAS_MODELS,
   updateAccount,
-  requestMainApi,
 };

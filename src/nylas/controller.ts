@@ -3,18 +3,15 @@ import * as dotenv from 'dotenv';
 import * as formidable from 'formidable';
 import * as Nylas from 'nylas';
 import { debugNylas, debugRequest } from '../debuggers';
-import { Accounts, Integrations } from '../models';
-import { sendRequest } from '../utils';
-import { getAttachment, sendMessage, syncMessages, uploadFile } from './api';
 import {
-  connectImapToNylas,
-  connectProviderToNylas,
-  connectYahooAndOutlookToNylas,
-  enableOrDisableAccount,
-} from './auth';
+  createNylasIntegration,
+  getMessage,
+  nylasFileUpload,
+  nylasGetAttachment,
+  nylasSendEmail,
+} from './handleController';
 import { authProvider, getOAuthCredentials } from './loginMiddleware';
-import { NYLAS_MODELS } from './store';
-import { buildEmailAddress, getNylasConfig } from './utils';
+import { getNylasConfig, syncMessages } from './utils';
 
 // load config
 dotenv.config();
@@ -49,7 +46,7 @@ export const initNylas = async app => {
     return res.status(200).send('success');
   });
 
-  app.post('/nylas/create-integration', async (req, res, _next) => {
+  app.post('/nylas/create-integration', async (req, res, next) => {
     debugRequest(debugNylas, req);
 
     const { accountId, integrationId } = req.body;
@@ -60,37 +57,10 @@ export const initNylas = async app => {
       kind = kind.split('-')[1];
     }
 
-    debugNylas(`Creating nylas integration kind: ${kind}`);
-
-    const account = await Accounts.getAccount({ _id: accountId });
-
-    await Integrations.create({
-      kind,
-      accountId,
-      email: account.email,
-      erxesApiId: integrationId,
-    });
-
-    // Connect provider to nylas ===========
-    switch (kind) {
-      case 'imap':
-        await connectImapToNylas(account);
-        break;
-      case 'outlook':
-        await connectYahooAndOutlookToNylas(kind, account);
-        break;
-      case 'yahoo':
-        await connectYahooAndOutlookToNylas(kind, account);
-        break;
-      default:
-        await connectProviderToNylas(kind, account);
-        break;
-    }
-
-    const updatedAccount = await Accounts.getAccount({ _id: accountId });
-
-    if (updatedAccount.billingState === 'cancelled') {
-      await enableOrDisableAccount(updatedAccount.uid, true);
+    try {
+      await createNylasIntegration(kind, accountId, integrationId);
+    } catch (e) {
+      next(e);
     }
 
     debugNylas(`Successfully created the integration and connected to nylas`);
@@ -107,29 +77,16 @@ export const initNylas = async app => {
       return next('erxesApiMessageId is not provided!');
     }
 
-    const integration = await Integrations.findOne({ erxesApiId: integrationId }).lean();
+    try {
+      const message = await getMessage(erxesApiMessageId, integrationId);
 
-    if (!integration) {
-      return next('Integration not found!');
+      return res.json(message);
+    } catch (e) {
+      next(e);
     }
-
-    const account = await Accounts.findOne({ _id: integration.accountId }).lean();
-
-    const conversationMessages = NYLAS_MODELS[account.kind].conversationMessages;
-
-    const message = await conversationMessages.findOne({ erxesApiMessageId }).lean();
-
-    if (!message) {
-      return next('Conversation message not found');
-    }
-
-    // attach account email for dinstinguish sender
-    message.integrationEmail = account.email;
-
-    return res.json(message);
   });
 
-  app.post('/nylas/upload', async (req, res, next) => {
+  app.post('/nylas/upload', async (req, res) => {
     debugNylas('Uploading a file...');
 
     const form = new formidable.IncomingForm();
@@ -137,23 +94,8 @@ export const initNylas = async app => {
     form.parse(req, async (_error, fields, response) => {
       const { erxesApiId } = fields;
 
-      const integration = await Integrations.findOne({ erxesApiId }).lean();
-
-      if (!integration) {
-        return next('Integration not found');
-      }
-
-      const account = await Accounts.findOne({ _id: integration.accountId }).lean();
-
-      if (!account) {
-        return next('Account not found');
-      }
-
-      const file = response.file || response.upload;
-
       try {
-        const result = await uploadFile(file, account.nylasToken);
-
+        const result = await nylasFileUpload(erxesApiId, response);
         return res.send(result);
       } catch (e) {
         return res.status(500).send(e.message);
@@ -164,33 +106,21 @@ export const initNylas = async app => {
   app.get('/nylas/get-attachment', async (req, res, next) => {
     const { attachmentId, integrationId, filename, contentType } = req.query;
 
-    const integration = await Integrations.findOne({ erxesApiId: integrationId }).lean();
+    try {
+      const response = await nylasGetAttachment(attachmentId, integrationId);
 
-    if (!integration) {
-      return next('Integration not found');
+      const headerOptions = { 'Content-Type': contentType };
+
+      if (!['image/png', 'image/jpeg', 'image/jpg', 'application/pdf'].includes(contentType)) {
+        headerOptions['Content-Disposition'] = `attachment;filename=${filename}`;
+      }
+
+      res.writeHead(200, headerOptions);
+
+      return res.end(response.body, 'base64');
+    } catch (e) {
+      next(e);
     }
-
-    const account = await Accounts.findOne({ _id: integration.accountId }).lean();
-
-    if (!account) {
-      return next('Account not found');
-    }
-
-    const response: { body?: Buffer } = await getAttachment(attachmentId, account.nylasToken);
-
-    if (!response) {
-      return next('Attachment not found');
-    }
-
-    const headerOptions = { 'Content-Type': contentType };
-
-    if (!['image/png', 'image/jpeg', 'image/jpg', 'application/pdf'].includes(contentType)) {
-      headerOptions['Content-Disposition'] = `attachment;filename=${filename}`;
-    }
-
-    res.writeHead(200, headerOptions);
-
-    return res.end(response.body, 'base64');
   });
 
   app.post('/nylas/send', async (req, res, next) => {
@@ -200,57 +130,12 @@ export const initNylas = async app => {
     const { data, erxesApiId } = req.body;
     const params = JSON.parse(data);
 
-    const integration = await Integrations.findOne({ erxesApiId }).lean();
-
-    if (!integration) {
-      throw new Error('Integration not found');
-    }
-
-    const account = await Accounts.findOne({ _id: integration.accountId }).lean();
-
-    if (!account) {
-      throw new Error('Account not found');
-    }
-
     try {
-      const { shouldResolve, to, cc, bcc, body, threadId, subject, attachments, replyToMessageId } = params;
-
-      const doc = {
-        to: buildEmailAddress(to),
-        cc: buildEmailAddress(cc),
-        bcc: buildEmailAddress(bcc),
-        subject: replyToMessageId && !subject.includes('Re:') ? `Re: ${subject}` : subject,
-        body,
-        threadId,
-        files: attachments,
-        replyToMessageId,
-      };
-
-      const message = await sendMessage(account.nylasToken, doc);
-
-      debugNylas('Successfully sent message');
-
-      if (shouldResolve) {
-        debugNylas('Resolve this message ======');
-
-        return res.json({ status: 'ok' });
-      }
-
-      // Set mail to inbox
-      await sendRequest({
-        url: `https://api.nylas.com/messages/${message.id}`,
-        method: 'PUT',
-        headerParams: {
-          Authorization: `Basic ${Buffer.from(`${account.nylasToken}:`).toString('base64')}`,
-        },
-        body: { unread: true },
-      });
+      await nylasSendEmail(erxesApiId, params);
 
       return res.json({ status: 'ok' });
     } catch (e) {
-      debugNylas(`Failed to send message: ${e}`);
-
-      return next(e);
+      next(e);
     }
   });
 };

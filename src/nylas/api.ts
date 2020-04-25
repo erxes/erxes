@@ -1,14 +1,8 @@
 import * as fs from 'fs';
+import * as Nylas from 'nylas';
 import { debugNylas } from '../debuggers';
-import { Accounts, Integrations } from '../models';
-import { compose } from '../utils';
-import {
-  createOrGetNylasConversation as storeConversation,
-  createOrGetNylasConversationMessage as storeMessage,
-  createOrGetNylasCustomer as storeCustomer,
-} from './store';
+import { Accounts } from '../models';
 import { IMessageDraft } from './types';
-import { nylasFileRequest, nylasInstanceWithToken, nylasRequest } from './utils';
 
 /**
  * Build message and send API request
@@ -61,58 +55,6 @@ const sendMessage = (accessToken: string, args: IMessageDraft) => {
 };
 
 /**
- * Sync messages with messageId from webhook
- * @param {String} accountId
- * @param {String} messageId
- * @retusn {Promise} nylas messages object
- */
-const syncMessages = async (accountId: string, messageId: string) => {
-  const account = await Accounts.findOne({ uid: accountId }).lean();
-
-  if (!account) {
-    return debugNylas('Account not found with uid: ', accountId);
-  }
-
-  const integration = await Integrations.findOne({ accountId: account._id });
-
-  if (!integration) {
-    return debugNylas('Integration not found with accountId: ', account._id);
-  }
-
-  const { nylasToken, email, kind } = account;
-
-  let message;
-
-  try {
-    message = await getMessageById(nylasToken, messageId);
-  } catch (e) {
-    debugNylas(`Failed to get nylas message by id: ${e.message}`);
-
-    return e;
-  }
-
-  const [from] = message.from;
-
-  // Prevent to send email to itself
-  if (from.email === account.email && !message.subject.includes('Re:')) {
-    return;
-  }
-
-  const doc = {
-    kind,
-    message: JSON.parse(message),
-    toEmail: email,
-    integrationIds: {
-      id: integration._id,
-      erxesApiId: integration.erxesApiId,
-    },
-  };
-
-  // Store new received message
-  return compose(storeMessage, storeConversation, storeCustomer)(doc);
-};
-
-/**
  * Upload a file to Nylas
  * @param {String} accessToken - nylas account accessToken
  * @param {String} name
@@ -158,4 +100,142 @@ const getAttachment = async (fileId: string, accessToken: string) => {
   return nylasFileRequest(nylasFile, 'download');
 };
 
-export { uploadFile, syncMessages, sendMessage, getMessageById, getMessages, getAttachment };
+/**
+ * Check nylas credentials
+ * @returns void
+ */
+const checkCredentials = () => {
+  return Nylas.clientCredentials();
+};
+
+/**
+ * Set token for nylas and
+ * check credentials
+ * @param {String} accessToken
+ * @returns {Boolean} credentials
+ */
+export const setNylasToken = (accessToken: string) => {
+  if (!checkCredentials()) {
+    debugNylas('Nylas is not configured');
+
+    return false;
+  }
+
+  if (!accessToken) {
+    debugNylas('Access token not found');
+
+    return false;
+  }
+
+  const nylas = Nylas.with(accessToken);
+
+  return nylas;
+};
+
+/**
+ * Request to Nylas SDK
+ * @param {String} - accessToken
+ * @param {String} - parent
+ * @param {String} - child
+ * @param {String} - filter
+ * @returns {Promise} - nylas response
+ */
+export const nylasRequest = ({
+  parent,
+  child,
+  accessToken,
+  filter,
+}: {
+  parent: string;
+  child: string;
+  accessToken: string;
+  filter?: any;
+}) => {
+  const nylas = setNylasToken(accessToken);
+
+  if (!nylas) {
+    return;
+  }
+
+  return nylas[parent][child](filter)
+    .then(response => response)
+    .catch(e => debugNylas(e.message));
+};
+
+/**
+ * Nylas file request
+ */
+export const nylasFileRequest = (nylasFile: any, method: string) => {
+  return new Promise((resolve, reject) => {
+    nylasFile[method]((err, file) => {
+      if (err) {
+        reject(err);
+      }
+
+      return resolve(file);
+    });
+  });
+};
+
+/**
+ * Get Nylas SDK instrance
+ */
+export const nylasInstance = (name: string, method: string, options?: any, action?: string) => {
+  if (!action) {
+    return Nylas[name][method](options);
+  }
+
+  return Nylas[name][method](options)[action]();
+};
+
+/**
+ * Get Nylas SDK instance with token
+ */
+export const nylasInstanceWithToken = async ({
+  accessToken,
+  name,
+  method,
+  options,
+  action,
+}: {
+  accessToken: string;
+  name: string;
+  method: string;
+  options?: any;
+  action?: string;
+}) => {
+  const nylas = setNylasToken(accessToken);
+
+  if (!nylas) {
+    return;
+  }
+
+  const instance = nylas[name][method](options);
+
+  if (!action) {
+    return instance;
+  }
+
+  return instance[action]();
+};
+
+/**
+ * Enable or Disable nylas account billing state
+ * @param {String} accountId
+ * @param {Boolean} enable
+ */
+export const enableOrDisableAccount = async (accountId: string, enable: boolean) => {
+  debugNylas(`${enable} account with uid: ${accountId}`);
+
+  await nylasInstance('accounts', 'find', accountId).then(account => {
+    if (enable) {
+      return account.upgrade();
+    }
+
+    return account.downgrade();
+  });
+
+  return Accounts.updateOne({ uid: accountId }, { $set: { billingState: enable ? 'paid' : 'cancelled' } });
+};
+
+export { uploadFile, sendMessage, getMessageById, getMessages, getAttachment, checkCredentials };

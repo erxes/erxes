@@ -12,9 +12,12 @@ import Accounts from './models/Accounts';
 import Configs from './models/Configs';
 import { initNylas } from './nylas/controller';
 import { initRedis } from './redisClient';
+import initSmooch from './smooch/controller';
 import { init } from './startup';
 import initTwitter from './twitter/controller';
+import userMiddleware from './userMiddleware';
 import initDaily from './videoCall/controller';
+import initWhatsapp from './whatsapp/controller';
 
 const app = express();
 
@@ -30,6 +33,8 @@ const rawBodySaver = (req, _res, buf, encoding) => {
 
 app.use(bodyParser.urlencoded({ limit: '10mb', verify: rawBodySaver, extended: true }));
 app.use(bodyParser.json({ limit: '10mb', verify: rawBodySaver }));
+
+app.use(userMiddleware);
 
 // Intentionally placing this route above raw bodyParser
 // File upload in nylas controller is not working with rawParser
@@ -110,8 +115,13 @@ initTwitter(app);
 // init chatfuel
 initChatfuel(app);
 
+// init whatsapp
+initWhatsapp(app);
 // init chatfuel
 initDaily(app);
+
+// init smooch
+initSmooch(app);
 
 // Error handling middleware
 app.use((error, _req, res, _next) => {

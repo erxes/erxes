@@ -29,6 +29,13 @@ export const nylasImapCustomerSchema = new Schema(customerCommonSchema);
 export const nylasOutlookCustomerSchema = new Schema(customerCommonSchema);
 export const nylasYahooCustomerSchema = new Schema(customerCommonSchema);
 export const nylasOffice365CustomerSchema = new Schema(customerCommonSchema);
+export const nylasExchangeCustomerSchema = new Schema(customerCommonSchema);
+
+// tslint:disable-next-line
+export const NylasExchangeCustomers = model<INylasCustomerDocument, INylasCustomerModel>(
+  'customers_nylas_exchange',
+  nylasExchangeCustomerSchema,
+);
 
 // tslint:disable-next-line
 export const NylasGmailCustomers = model<INylasCustomerDocument, INylasCustomerModel>(
@@ -96,6 +103,13 @@ export const nylasImapConversationSchema = new Schema(conversationCommonSchema);
 export const nylasOutlookConversationSchema = new Schema(conversationCommonSchema);
 export const nylasYahooConversationSchema = new Schema(conversationCommonSchema);
 export const nylasOffice365ConversationSchema = new Schema(conversationCommonSchema);
+export const nylasExchangeConversationSchema = new Schema(conversationCommonSchema);
+
+// tslint:disable-next-line
+export const NylasExchangeConversations = model<INylasConversationDocument, INylasConversatonModel>(
+  'conversations_nylas_exchange',
+  nylasExchangeConversationSchema,
+);
 
 // tslint:disable-next-line
 export const NylasGmailConversations = model<INylasConversationDocument, INylasConversatonModel>(
@@ -223,8 +237,15 @@ export const nylasImapConversationMessageSchema = new Schema(conversationMessage
 export const nylasYahooConversationMessageSchema = new Schema(conversationMessageCommonSchema);
 export const nylasOutlookConversationMessageSchema = new Schema(conversationMessageCommonSchema);
 export const nylasOffice365ConversationMessageSchema = new Schema(conversationMessageCommonSchema);
+export const nylasExchangeConversationMessageSchema = new Schema(conversationMessageCommonSchema);
 
 export interface INylasConversationMessageModel extends Model<INylasConversationMessageDocument> {}
+
+// tslint:disable-next-line
+export const NylasExchangeConversationMessages = model<
+  INylasConversationMessageDocument,
+  INylasConversationMessageModel
+>('conversation_messages_nylas_exchange', nylasExchangeConversationMessageSchema);
 
 // tslint:disable-next-line
 export const NylasGmailConversationMessages = model<INylasConversationMessageDocument, INylasConversationMessageModel>(
