@@ -71,7 +71,7 @@ function CustomerRow({
   };
 
   const onTrClick = () => {
-    history.push(`/contacts/customers/details/${customer._id}`);
+    history.push(`/contacts/details/${customer._id}`);
   };
 
   return (

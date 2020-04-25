@@ -47,7 +47,7 @@ const ActionSectionContainer = (props: FinalProps) => {
     })
       .then(() => {
         Alert.success('You successfully deleted a customer');
-        history.push('/contacts/customers/customer');
+        history.push('/contacts/customer');
       })
       .catch(e => {
         Alert.error(e.message);
@@ -78,9 +78,7 @@ const ActionSectionContainer = (props: FinalProps) => {
     })
       .then(response => {
         Alert.success('You successfully merged a customer');
-        history.push(
-          `/contacts/customers/details/${response.data.customersMerge._id}`
-        );
+        history.push(`/contacts/details/${response.data.customersMerge._id}`);
       })
       .catch(e => {
         Alert.error(e.message);

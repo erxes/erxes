@@ -10,10 +10,11 @@ interface IProps {
   item: IItem;
   saveItem: (doc: { [key: string]: any }, callback?: (item) => void) => void;
   sendToBoard?: (item: any) => void;
+  onChangeStage?: (stageId: string) => void;
 }
 
 export const ArchiveBtn = (props: IProps) => {
-  const { removeItem, item, saveItem, sendToBoard } = props;
+  const { removeItem, item, saveItem, sendToBoard, onChangeStage } = props;
 
   if (item.status === 'archived') {
     const onRemove = () => removeItem(item._id);
@@ -42,6 +43,9 @@ export const ArchiveBtn = (props: IProps) => {
 
   const onArchive = () => {
     saveItem({ status: 'archived' });
+    if (onChangeStage) {
+      onChangeStage(item.stageId);
+    }
   };
 
   return (

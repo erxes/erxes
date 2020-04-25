@@ -10,7 +10,12 @@ import { graphql } from 'react-apollo';
 import { BrandsQueryResponse } from '../../settings/brands/types';
 import { EmailTemplatesQueryResponse } from '../../settings/emailTemplates/containers/List';
 import Widget from '../components/Widget';
-import { MESSAGE_KINDS, MESSENGER_KINDS, SENT_AS_CHOICES } from '../constants';
+import {
+  MESSAGE_KINDS,
+  MESSENGER_KINDS,
+  METHODS,
+  SENT_AS_CHOICES
+} from '../constants';
 import { mutations, queries } from '../graphql';
 import { crudMutationsOptions } from '../utils';
 
@@ -49,6 +54,14 @@ const WidgetContainer = (props: FinalProps) => {
     doc.kind = MESSAGE_KINDS.MANUAL;
     doc.isLive = true;
     doc.fromUserId = currentUser._id;
+
+    if (doc.method === METHODS.EMAIL && !doc.email.content) {
+      return Alert.warning('Please fill in email content');
+    }
+
+    if (doc.method === METHODS.MESSENGER && !doc.messenger.content) {
+      return Alert.warning('Please fill in message content');
+    }
 
     messagesAddMutation({
       variables: doc

@@ -41,14 +41,13 @@ describe('EmailForm component', () => {
   const testIEngageScheduleDate: IEngageScheduleDate = {
     type: 'string',
     month: 'string',
-    day: 'string',
-    time: new Date()
+    day: 'string'
   };
 
   const defaultProps = {
     onChange: (
       name: 'email' | 'content' | 'fromUserId' | 'scheduleDate',
-      value: IEngageEmail | IEngageScheduleDate | string
+      value?: IEngageEmail | IEngageScheduleDate | string
     ) => null,
     message: 'string',
     users: testUsers,

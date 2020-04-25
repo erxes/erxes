@@ -159,6 +159,7 @@ const MailFormContainer = (props: FinalProps) => {
     ...props,
     sendMail,
     integrations,
+    currentUser,
     emailSignatures: currentUser.emailSignatures || []
   };
 

@@ -1,3 +1,4 @@
+import Icon from 'modules/common/components/Icon';
 import { IButtonMutateProps } from 'modules/common/types';
 import { TargetCount } from 'modules/engage/types';
 import { IBrand } from 'modules/settings/brands/types';
@@ -38,6 +39,12 @@ const BrandStep = (props: Props) => {
     renderContent
   } = props;
 
+  const icons: React.ReactNode[] = [];
+
+  brands.forEach(brand => {
+    icons.push(<Icon icon="medal-1" style={{ color: '#3B85F4' }} />);
+  });
+
   return (
     <Common<IBrand, {}>
       name="brandIds"
@@ -51,6 +58,7 @@ const BrandStep = (props: Props) => {
       renderButton={renderButton}
       Form={BrandForm}
       content={renderContent}
+      icons={icons}
     />
   );
 };

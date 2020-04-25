@@ -54,7 +54,7 @@ interface IProps extends IRouterProps {
     }
   ) => Promise<void>;
   queryParams: any;
-  exportData: (bulk: Array<{ _id: string }>, popupData: boolean) => void;
+  exportData: (bulk: Array<{ _id: string }>) => void;
   responseId: string;
 }
 
@@ -253,17 +253,10 @@ class CustomersList extends React.Component<IProps, State> {
               </Link>
             </li>
             <li>
-              <a href="#export" onClick={exportData.bind(this, bulk, false)}>
+              <a href="#export" onClick={exportData.bind(this, bulk)}>
                 {__('Export customers')}
               </a>
             </li>
-            {queryParams.form && (
-              <li>
-                <a href="#export" onClick={exportData.bind(this, bulk, true)}>
-                  {__('Export Pop-Ups data')}
-                </a>
-              </li>
-            )}
           </Dropdown.Menu>
         </Dropdown>
         <Link to="/settings/importHistories?type=customer">
@@ -271,14 +264,17 @@ class CustomersList extends React.Component<IProps, State> {
             {__('Go to import')}
           </Button>
         </Link>
-        <ModalTrigger
-          title="New customer"
-          autoOpenKey="showCustomerModal"
-          trigger={addTrigger}
-          size="lg"
-          content={customerForm}
-          backDrop="static"
-        />
+
+        {type === 'visitor' ? null : (
+          <ModalTrigger
+            title="New customer"
+            autoOpenKey="showCustomerModal"
+            trigger={addTrigger}
+            size="lg"
+            content={customerForm}
+            backDrop="static"
+          />
+        )}
       </BarItems>
     );
 
