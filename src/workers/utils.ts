@@ -119,7 +119,7 @@ export const receiveImportRemove = async (content: any) => {
 
   await createWorkers(workerPath, { contentType, importHistoryId }, results);
 
-  return { status: 'started removing' };
+  return { status: 'ok' };
 };
 
 export const receiveImportCancel = () => {
