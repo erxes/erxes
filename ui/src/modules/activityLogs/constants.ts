@@ -86,5 +86,9 @@ export const ICON_AND_COLOR_TABLE = {
   checklist: {
     icon: 'check-square',
     color: '#6569df'
+  },
+  archive: {
+    icon: 'archive-alt',
+    color: '#fdb761'
   }
 };
