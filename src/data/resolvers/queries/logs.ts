@@ -4,12 +4,7 @@ import { channelSchema } from '../../../db/models/definitions/channels';
 import { checklistItemSchema, checklistSchema } from '../../../db/models/definitions/checklists';
 import { linkSchema, ruleSchema } from '../../../db/models/definitions/common';
 import { companySchema } from '../../../db/models/definitions/companies';
-import {
-  customerSchema,
-  locationSchema,
-  messengerSchema as customerMessengerSchema,
-  visitorContactSchema,
-} from '../../../db/models/definitions/customers';
+import { customerSchema, locationSchema, visitorContactSchema } from '../../../db/models/definitions/customers';
 import {
   dealSchema,
   productCategorySchema,
@@ -37,6 +32,7 @@ import { conditionSchema, segmentSchema } from '../../../db/models/definitions/s
 import { tagSchema } from '../../../db/models/definitions/tags';
 import { taskSchema } from '../../../db/models/definitions/tasks';
 import { ticketSchema } from '../../../db/models/definitions/tickets';
+import { userSchema } from '../../../db/models/definitions/users';
 import { MODULE_NAMES } from '../../constants';
 import { fetchLogs, ILogQueryParams } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
@@ -98,7 +94,7 @@ const LOG_MAPPINGS: ISchemaMap[] = [
   },
   {
     name: MODULE_NAMES.CUSTOMER,
-    schemas: [customerMessengerSchema, customerSchema, linkSchema, locationSchema, visitorContactSchema],
+    schemas: [customerSchema, linkSchema, locationSchema, visitorContactSchema],
   },
   {
     name: MODULE_NAMES.DEAL,
@@ -188,6 +184,10 @@ const LOG_MAPPINGS: ISchemaMap[] = [
     name: MODULE_NAMES.SCRIPT,
     schemas: [scriptSchema],
   },
+  {
+    name: MODULE_NAMES.USER,
+    schemas: [userSchema],
+  },
 ];
 
 /**
@@ -212,17 +212,9 @@ const logQueries = {
    * Fetches logs from logs api server
    */
   logs(_root, params: ILogQueryParams) {
-    const { start, end, userId, action, page, perPage } = params;
-
-    return fetchLogs({
-      start,
-      end,
-      userId,
-      action,
-      page,
-      perPage,
-    });
+    return fetchLogs(params);
   },
+
   async getDbSchemaLabels(_root, params: { type: string }) {
     let fieldNames: INameLabel[] = [];
 

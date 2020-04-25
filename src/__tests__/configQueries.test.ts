@@ -36,11 +36,7 @@ describe('configQueries', () => {
     expect(response.USE_BRAND_RESTRICTIONS).toBe('true');
   });
 
-  test('config get env', async () => {
-    process.env.MAIN_APP_DOMAIN = 'http://fake.erxes.io';
-    process.env.DOMAIN = 'http://fake.erxes.io';
-    process.env.WIDGETS_DOMAIN = 'http://fake.erxes.io';
-
+  test('configsVersions', async () => {
     process.env.NODE_ENV = 'dev';
 
     const qry = `

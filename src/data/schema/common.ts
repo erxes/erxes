@@ -25,7 +25,7 @@ export const conformityQueryFields = `
 
 export const commonTypes = `
   name: String!
-  order: Int
+  order: Float
   createdAt: Date
   hasNotified: Boolean
   assignedUserIds: [String]

@@ -1,5 +1,4 @@
 import * as faker from 'faker';
-import * as moment from 'moment';
 import * as sinon from 'sinon';
 import { MESSAGE_KINDS } from '../data/constants';
 import * as engageUtils from '../data/resolvers/mutations/engageUtils';
@@ -30,7 +29,7 @@ import {
 import * as messageBroker from '../messageBroker';
 
 import { EngagesAPI } from '../data/dataSources';
-import utils, { handleUnsubscription } from '../data/utils';
+import { handleUnsubscription } from '../data/utils';
 import { EMAIL_VALIDATION_STATUSES, KIND_CHOICES, STATUSES } from '../db/models/definitions/constants';
 import './setup.ts';
 
@@ -78,7 +77,11 @@ describe('engage message mutation tests', () => {
     messenger: $messenger
   `;
 
+  let dataSources;
+
   beforeEach(async () => {
+    dataSources = { EngagesAPI: new EngagesAPI() };
+
     // Creating test data
     _user = await userFactory({});
     _tag = await tagsFactory({});
@@ -126,7 +129,6 @@ describe('engage message mutation tests', () => {
         type: 'year',
         month: '2',
         day: '14',
-        time: moment('2018-08-24T12:45:00'),
       },
       messenger: {
         brandId: _brand._id,
@@ -149,6 +151,7 @@ describe('engage message mutation tests', () => {
 
   afterEach(async () => {
     spy.mockRestore();
+
     // Clearing test data
     _doc = null;
     await Users.deleteMany({});
@@ -163,7 +166,7 @@ describe('engage message mutation tests', () => {
     await ConversationMessages.deleteMany({});
   });
 
-  test('findCustomrs', async () => {
+  test('findCustomers', async () => {
     const segment = await segmentFactory({});
     const brand = await brandFactory({});
     await integrationFactory({ brandId: brand._id });
@@ -317,6 +320,7 @@ describe('engage message mutation tests', () => {
     process.env.AWS_ENDPOINT = '123';
     process.env.MAIL_PORT = '123';
     process.env.AWS_REGION = 'us-west-2';
+    process.env.ENGAGE_ADMINS = '[{"_id":"WkjhEfjJ4QW9EEW9F","name":"engageAdmin","email":"mrbatamar@gmail.com"}]';
 
     const emessage = await engageMessageFactory({
       method: 'email',
@@ -403,7 +407,6 @@ describe('engage message mutation tests', () => {
           type
           day
           month
-          time
         }
         segments {
           _id
@@ -435,7 +438,11 @@ describe('engage message mutation tests', () => {
     }
 
     try {
-      await graphqlRequest(engageMessageAddMutation, 'engageMessageAdd', { ..._doc, brandIds: ['_id'] });
+      await graphqlRequest(engageMessageAddMutation, 'engageMessageAdd', {
+        ..._doc,
+        kind: 'manual',
+        brandIds: ['_id'],
+      });
     } catch (e) {
       expect(e[0].message).toBe('No customers found who have valid emails');
     }
@@ -498,15 +505,10 @@ describe('engage message mutation tests', () => {
       }
     `;
 
-    const fetchSpy = jest.spyOn(utils, 'fetchCronsApi');
-    fetchSpy.mockImplementation(() => Promise.resolve('ok'));
-
     const editedUser = await userFactory();
     const args = { ..._doc, _id: _message._id, fromUserId: editedUser._id };
 
     const engageMessage = await graphqlRequest(mutation, 'engageMessageEdit', args);
-
-    fetchSpy.mockRestore();
 
     const tags = engageMessage.getTags.map(tag => tag._id);
 
@@ -532,15 +534,7 @@ describe('engage message mutation tests', () => {
     expect(engageMessage.email.toJSON()).toEqual(_doc.email);
     expect(engageMessage.fromUser._id).toBe(args.fromUserId);
 
-    process.env.CRONS_API_DOMAIN = 'http://fake.erxes.io';
-
-    try {
-      await graphqlRequest(mutation, 'engageMessageEdit', { ..._doc, _id: _message._id });
-    } catch (e) {
-      expect(e[0].message).toBe(
-        'Error: Failed to connect crons api. Check CRONS_API_DOMAIN env or crons api is not running',
-      );
-    }
+    await graphqlRequest(mutation, 'engageMessageEdit', { ..._doc, _id: _message._id });
   });
 
   test('Remove engage message', async () => {
@@ -552,26 +546,11 @@ describe('engage message mutation tests', () => {
       }
     `;
 
-    const fetchSpy = jest.spyOn(utils, 'fetchCronsApi');
-    fetchSpy.mockImplementation(() => Promise.resolve('ok'));
+    _message = await engageMessageFactory({ kind: 'post' });
 
     await graphqlRequest(mutation, 'engageMessageRemove', { _id: _message._id });
 
     expect(await EngageMessages.findOne({ _id: _message._id })).toBe(null);
-
-    fetchSpy.mockRestore();
-
-    process.env.CRONS_API_DOMAIN = 'http://fake.erxes.io';
-
-    _message = await engageMessageFactory({ kind: 'post' });
-
-    try {
-      await graphqlRequest(mutation, 'engageMessageRemove', { _id: _message._id });
-    } catch (e) {
-      expect(e[0].message).toBe(
-        'Error: Failed to connect crons api. Check CRONS_API_DOMAIN env or crons api is not running',
-      );
-    }
   });
 
   test('Set live engage message', async () => {
@@ -583,14 +562,9 @@ describe('engage message mutation tests', () => {
       }
     `;
 
-    const fetchSpy = jest.spyOn(utils, 'fetchCronsApi');
-    fetchSpy.mockImplementation(() => Promise.resolve('ok'));
-
     let response = await graphqlRequest(mutation, 'engageMessageSetLive', { _id: _message._id });
 
     expect(response.isLive).toBe(true);
-
-    fetchSpy.mockRestore();
 
     const manualMessage = await engageMessageFactory({ kind: MESSAGE_KINDS.MANUAL });
 
@@ -598,15 +572,7 @@ describe('engage message mutation tests', () => {
 
     expect(response.isLive).toBe(true);
 
-    process.env.CRONS_API_DOMAIN = 'http://fake.erxes.io';
-
-    try {
-      await graphqlRequest(mutation, 'engageMessageSetLive', { _id: _message._id });
-    } catch (e) {
-      expect(e[0].message).toBe(
-        'Error: Failed to connect crons api. Check CRONS_API_DOMAIN env or crons api is not running',
-      );
-    }
+    await graphqlRequest(mutation, 'engageMessageSetLive', { _id: _message._id });
   });
 
   test('Set pause engage message', async () => {
@@ -695,40 +661,36 @@ describe('engage message mutation tests', () => {
   });
 
   test('configSave', async () => {
-    process.env.ENGAGES_API_DOMAIN = 'http://fake.erxes.io';
-
     const mutation = `
       mutation engagesUpdateConfigs($configsMap: JSON!) {
         engagesUpdateConfigs(configsMap: $configsMap)
       }
     `;
 
-    const dataSources = { EngagesAPI: new EngagesAPI() };
+    const mock = sinon.stub(dataSources.EngagesAPI, 'engagesUpdateConfigs').callsFake(() => {
+      return Promise.resolve([]);
+    });
 
-    try {
-      await graphqlRequest(
-        mutation,
-        'engagesUpdateConfigs',
-        { configsMap: { accessKeyId: 'accessKeyId' } },
-        { dataSources },
-      );
-    } catch (e) {
-      expect(e[0].message).toBe('Engages api is not running');
-    }
+    await graphqlRequest(
+      mutation,
+      'engagesUpdateConfigs',
+      { configsMap: { accessKeyId: 'accessKeyId' } },
+      { dataSources },
+    );
+
+    mock.restore();
   });
 
   test('dataSources', async () => {
-    process.env.ENGAGES_API_DOMAIN = 'http://fake.erxes.io';
-
-    const dataSources = { EngagesAPI: new EngagesAPI() };
-
     const check = async (mutation, name, args) => {
-      try {
-        await graphqlRequest(mutation, name, args, { dataSources });
-      } catch (e) {
-        expect(e[0].message).toBe('Engages api is not running');
-      }
+      await graphqlRequest(mutation, name, args, { dataSources });
     };
+
+    const api = dataSources.EngagesAPI;
+
+    let mock = sinon.stub(api, 'engagesVerifyEmail').callsFake(() => {
+      return Promise.resolve('true');
+    });
 
     await check(
       `
@@ -740,6 +702,10 @@ describe('engage message mutation tests', () => {
       { email: 'email@yahoo.com' },
     );
 
+    mock = sinon.stub(api, 'engagesRemoveVerifiedEmail').callsFake(() => {
+      return Promise.resolve('true');
+    });
+
     await check(
       `
       mutation engageMessageRemoveVerifiedEmail($email: String!) {
@@ -750,6 +716,10 @@ describe('engage message mutation tests', () => {
       { email: 'email@yahoo.com' },
     );
 
+    mock = sinon.stub(api, 'engagesSendTestEmail').callsFake(() => {
+      return Promise.resolve('true');
+    });
+
     await check(
       `
       mutation engageMessageSendTestEmail($from: String!, $to: String!, $content: String!) {
@@ -759,5 +729,7 @@ describe('engage message mutation tests', () => {
       'engageMessageSendTestEmail',
       { from: 'from@yahoo.com', to: 'to@yahoo.com', content: 'content' },
     );
+
+    mock.restore();
   });
 });

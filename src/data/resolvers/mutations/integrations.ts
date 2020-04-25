@@ -3,10 +3,11 @@ import { IIntegration, IMessengerData, IUiOptions } from '../../../db/models/def
 import { IExternalIntegrationParams } from '../../../db/models/Integrations';
 import { debugExternalApi } from '../../../debuggers';
 import { sendRPCMessage } from '../../../messageBroker';
-import { MODULE_NAMES } from '../../constants';
+import { MODULE_NAMES, RABBITMQ_QUEUES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
+import { registerOnboardHistory } from '../../utils';
 
 interface IEditIntegration extends IIntegration {
   _id: string;
@@ -27,6 +28,8 @@ const integrationMutations = {
       },
       user,
     );
+
+    await registerOnboardHistory({ type: 'messengerIntegrationCreate', user });
 
     return integration;
   },
@@ -80,6 +83,8 @@ const integrationMutations = {
       user,
     );
 
+    await registerOnboardHistory({ type: 'leadIntegrationCreate', user });
+
     return integration;
   },
 
@@ -112,6 +117,10 @@ const integrationMutations = {
 
     if (kind === 'twitter-dm') {
       kind = 'twitter';
+    }
+
+    if (kind.includes('smooch')) {
+      kind = 'smooch';
     }
 
     try {
@@ -162,6 +171,10 @@ const integrationMutations = {
     return dataSources.IntegrationsAPI.createAccount(data);
   },
 
+  integrationAddExchangeAccount(_root, data, { dataSources }) {
+    return dataSources.IntegrationsAPI.createAccount(data);
+  },
+
   /**
    * Create Yahoo, Outlook account
    */
@@ -185,9 +198,15 @@ const integrationMutations = {
         'nylas-imap',
         'nylas-office365',
         'nylas-outlook',
+        'nylas-exchange',
         'nylas-yahoo',
         'chatfuel',
         'twitter-dm',
+        'smooch-viber',
+        'smooch-telegram',
+        'smooch-line',
+        'smooch-twilio',
+        'whatsapp',
       ].includes(integration.kind)
     ) {
       await dataSources.IntegrationsAPI.removeIntegration({ integrationId: _id });
@@ -203,7 +222,10 @@ const integrationMutations = {
    */
   async integrationsRemoveAccount(_root, { _id }: { _id: string }) {
     try {
-      const { erxesApiIds } = await sendRPCMessage({ action: 'remove-account', data: { _id } });
+      const { erxesApiIds } = await sendRPCMessage(RABBITMQ_QUEUES.RPC_API_TO_INTEGRATIONS, {
+        action: 'remove-account',
+        data: { _id },
+      });
 
       for (const id of erxesApiIds) {
         await Integrations.removeIntegration(id);

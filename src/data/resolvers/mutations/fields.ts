@@ -1,6 +1,8 @@
 import { Fields, FieldsGroups } from '../../../db/models';
 import { IField, IFieldGroup } from '../../../db/models/definitions/fields';
 import { IOrderInput } from '../../../db/models/Fields';
+import { MODULE_NAMES } from '../../constants';
+import { putCreateLog } from '../../logUtils';
 import { moduleCheckPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
@@ -16,8 +18,19 @@ const fieldMutations = {
   /**
    * Adds field object
    */
-  fieldsAdd(_root, args: IField, { user }: IContext) {
-    return Fields.createField({ ...args, lastUpdatedUserId: user._id });
+  async fieldsAdd(_root, args: IField, { user }: IContext) {
+    const field = await Fields.createField({ ...args, lastUpdatedUserId: user._id });
+
+    await putCreateLog(
+      {
+        type: MODULE_NAMES.FIELD,
+        newData: args,
+        object: field,
+      },
+      user,
+    );
+
+    return field;
   },
 
   /**

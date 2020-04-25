@@ -14,6 +14,9 @@ ELASTICSEARCH_URL = os.getenv('ELASTICSEARCH_URL')
 client = Elasticsearch([ELASTICSEARCH_URL])
 
 customer_mapping = {
+    'state': {
+        'type': 'keyword',
+    },
     'primaryEmail': {
         'type': 'text',
         'analyzer': 'uax_url_email_analyzer',

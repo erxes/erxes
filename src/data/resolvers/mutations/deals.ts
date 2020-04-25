@@ -120,7 +120,18 @@ const dealMutations = {
       contentType: MODULE_NAMES.DEAL,
     };
 
-    if (checkedAssignUserIds) {
+    if (doc.status && oldDeal.status && oldDeal.status !== doc.status) {
+      const activityAction = doc.status === 'active' ? 'activated' : 'archived';
+
+      await ActivityLogs.createArchiveLog({
+        item: updatedDeal,
+        contentType: 'deal',
+        action: activityAction,
+        userId: user._id,
+      });
+    }
+
+    if (Object.keys(checkedAssignUserIds).length > 0) {
       const { addedUserIds, removedUserIds } = checkedAssignUserIds;
 
       const activityContent = { addedUserIds, removedUserIds };
@@ -148,11 +159,44 @@ const dealMutations = {
       user,
     );
 
-    graphqlPubsub.publish('dealsChanged', {
-      dealsChanged: {
-        _id: updatedDeal._id,
+    if (oldDeal.stageId === updatedDeal.stageId) {
+      graphqlPubsub.publish('dealsChanged', {
+        dealsChanged: {
+          _id: updatedDeal._id,
+        },
+      });
+
+      return updatedDeal;
+    }
+
+    // if deal moves between stages
+    const { content, action } = await itemsChange(user._id, oldDeal, MODULE_NAMES.DEAL, updatedDeal.stageId);
+
+    await sendNotifications({
+      item: updatedDeal,
+      user,
+      type: NOTIFICATION_TYPES.DEAL_CHANGE,
+      content,
+      action,
+      contentType: MODULE_NAMES.DEAL,
+    });
+
+    const updatedStage = await Stages.getStage(updatedDeal.stageId);
+    const oldStage = await Stages.getStage(oldDeal.stageId);
+
+    graphqlPubsub.publish('pipelinesChanged', {
+      pipelinesChanged: {
+        _id: updatedStage.pipelineId,
       },
     });
+
+    if (updatedStage.pipelineId !== oldStage.pipelineId) {
+      graphqlPubsub.publish('pipelinesChanged', {
+        pipelinesChanged: {
+          _id: oldStage.pipelineId,
+        },
+      });
+    }
 
     return updatedDeal;
   },
@@ -162,16 +206,19 @@ const dealMutations = {
    */
   async dealsChange(
     _root,
-    { _id, destinationStageId }: { _id: string; destinationStageId: string },
+    { _id, destinationStageId, order }: { _id: string; destinationStageId: string; order: number },
     { user }: IContext,
   ) {
     const deal = await Deals.getDeal(_id);
 
-    await Deals.updateDeal(_id, {
+    const extendedDoc = {
       modifiedAt: new Date(),
       modifiedBy: user._id,
       stageId: destinationStageId,
-    });
+      order,
+    };
+
+    const updatedDeal = await Deals.updateDeal(_id, extendedDoc);
 
     const { content, action } = await itemsChange(user._id, deal, MODULE_NAMES.DEAL, destinationStageId);
 
@@ -183,6 +230,16 @@ const dealMutations = {
       action,
       contentType: MODULE_NAMES.DEAL,
     });
+
+    await putUpdateLog(
+      {
+        type: MODULE_NAMES.DEAL,
+        object: deal,
+        newData: extendedDoc,
+        updatedDocument: updatedDeal,
+      },
+      user,
+    );
 
     // if move between stages
     if (destinationStageId !== deal.stageId) {
@@ -268,8 +325,15 @@ const dealMutations = {
     return clone;
   },
 
-  async dealsArchive(_root, { stageId }: { stageId: string }) {
-    await Deals.updateMany({ stageId }, { $set: { status: BOARD_STATUSES.ARCHIVED } });
+  async dealsArchive(_root, { stageId }: { stageId: string }, { user }: IContext) {
+    const updatedDeal = await Deals.updateMany({ stageId }, { $set: { status: BOARD_STATUSES.ARCHIVED } });
+
+    await ActivityLogs.createArchiveLog({
+      item: updatedDeal,
+      contentType: 'deal',
+      action: 'archived',
+      userId: user._id,
+    });
 
     return 'ok';
   },

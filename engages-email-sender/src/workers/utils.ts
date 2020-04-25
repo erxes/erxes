@@ -13,10 +13,6 @@ export const createWorkers = (workerPath: string, workerData: any, results: stri
     // tslint:disable-next-line
     const Worker = require('worker_threads').Worker;
 
-    if (workers.length > 0) {
-      return reject(new Error('Workers are busy'));
-    }
-
     const interval = setImmediate(() => {
       results.forEach(result => {
         try {
@@ -29,13 +25,15 @@ export const createWorkers = (workerPath: string, workerData: any, results: stri
 
           workers.push(worker);
 
-          worker.on('message', () => {
-            removeWorker(worker);
-          });
-
           worker.on('error', e => {
             debugWorkers(e);
             removeWorker(worker);
+          });
+
+          worker.on('message', msg => {
+            if (msg === 'Successfully finished job') {
+              removeWorker(worker);
+            }
           });
 
           worker.on('exit', code => {

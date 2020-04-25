@@ -2,6 +2,7 @@ import * as faker from 'faker';
 import * as Random from 'meteor-random';
 import { EngagesAPI, IntegrationsAPI } from '../data/dataSources';
 import widgetMutations, { getMessengerData } from '../data/resolvers/mutations/widgets';
+import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
   conversationFactory,
@@ -58,9 +59,6 @@ describe('messenger connect', () => {
       primaryPhone: '96221050',
       deviceTokens: ['111'],
     });
-
-    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
-    process.env.ENGAGES_API_DOMAIN = 'http://fake.erxes.io';
 
     const dataSources = { IntegrationsAPI: new IntegrationsAPI(), EngagesAPI: new EngagesAPI() };
     const user = await userFactory({});
@@ -187,7 +185,6 @@ describe('messenger connect', () => {
     expect(customer.createdAt < now).toBeTruthy();
 
     // must be updated
-    expect(customer.isUser).toBeTruthy();
     expect((customer.deviceTokens || []).length).toBe(2);
     expect(customer.deviceTokens).toContain('111');
     expect(customer.deviceTokens).toContain('222');
@@ -643,5 +640,30 @@ describe('lead', () => {
     expect(formData[3].value).toBe('88998833');
     expect(formData[4].value).toBe('radio2');
     expect(formData[5].value).toBe('check1, check2');
+  });
+
+  test('widgetsSendEmail', async () => {
+    const emailParams = {
+      toEmails: ['test-mail@gmail.com'],
+      fromEmail: 'admin@erxes.io',
+      title: 'Thank you for submitting.',
+      content: 'We have received your request',
+    };
+
+    const spyEmail = jest.spyOn(widgetMutations, 'widgetsSendEmail');
+
+    const mutation = `
+      mutation widgetsSendEmail($toEmails: [String], $fromEmail: String, $title: String, $content: String) {
+        widgetsSendEmail(toEmails: $toEmails, fromEmail: $fromEmail, title: $title, content: $content)
+      }
+    `;
+
+    spyEmail.mockImplementation(() => Promise.resolve());
+
+    const response = await graphqlRequest(mutation, 'widgetsSendEmail', emailParams);
+
+    expect(response).toBe(null);
+
+    spyEmail.mockRestore();
   });
 });

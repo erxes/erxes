@@ -1,11 +1,11 @@
 import * as _ from 'underscore';
 import { EngageMessages } from '../../../db/models';
 import { IEngageMessage } from '../../../db/models/definitions/engages';
-import { MESSAGE_KINDS, MODULE_NAMES } from '../../constants';
+import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import utils from '../../utils';
+import { registerOnboardHistory } from '../../utils';
 import { send } from './engageUtils';
 
 interface IEngageMessageEdit extends IEngageMessage {
@@ -55,12 +55,6 @@ const engageMutations = {
     const engageMessage = await EngageMessages.getEngageMessage(_id);
     const updated = await EngageMessages.updateEngageMessage(_id, doc);
 
-    try {
-      await utils.fetchCronsApi({ path: '/update-or-remove-schedule', method: 'POST', body: { _id, update: 'true' } });
-    } catch (e) {
-      throw new Error(e);
-    }
-
     await putUpdateLog(
       {
         type: MODULE_NAMES.ENGAGE,
@@ -80,12 +74,6 @@ const engageMutations = {
   async engageMessageRemove(_root, { _id }: { _id: string }, { user }: IContext) {
     const engageMessage = await EngageMessages.getEngageMessage(_id);
 
-    try {
-      await utils.fetchCronsApi({ path: '/update-or-remove-schedule', method: 'POST', body: { _id } });
-    } catch (e) {
-      throw new Error(e);
-    }
-
     const removed = await EngageMessages.removeEngageMessage(_id);
 
     await putDeleteLog(
@@ -102,24 +90,8 @@ const engageMutations = {
   /**
    * Engage message set live
    */
-  async engageMessageSetLive(_root, { _id }: { _id: string }) {
-    const engageMessage = await EngageMessages.engageMessageSetLive(_id);
-
-    const { kind } = engageMessage;
-
-    if (kind !== MESSAGE_KINDS.MANUAL) {
-      try {
-        await utils.fetchCronsApi({
-          path: '/create-schedule',
-          method: 'POST',
-          body: { message: JSON.stringify(engageMessage) },
-        });
-      } catch (e) {
-        throw new Error(e);
-      }
-    }
-
-    return engageMessage;
+  engageMessageSetLive(_root, { _id }: { _id: string }) {
+    return EngageMessages.engageMessageSetLive(_id);
   },
 
   /**
@@ -143,7 +115,9 @@ const engageMutations = {
   /**
    * Engage message verify email
    */
-  engageMessageVerifyEmail(_root, { email }: { email: string }, { dataSources }: IContext) {
+  async engageMessageVerifyEmail(_root, { email }: { email: string }, { dataSources, user }: IContext) {
+    await registerOnboardHistory({ type: 'engageVerifyEmail', user });
+
     return dataSources.EngagesAPI.engagesVerifyEmail({ email });
   },
 
@@ -154,7 +128,9 @@ const engageMutations = {
     return dataSources.EngagesAPI.engagesRemoveVerifiedEmail({ email });
   },
 
-  engageMessageSendTestEmail(_root, args, { dataSources }: IContext) {
+  async engageMessageSendTestEmail(_root, args, { dataSources, user }: IContext) {
+    await registerOnboardHistory({ type: 'engageSendTestEmail', user });
+
     return dataSources.EngagesAPI.engagesSendTestEmail(args);
   },
 };

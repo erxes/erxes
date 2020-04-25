@@ -1,3 +1,4 @@
+import * as getUuid from 'uuid-by-string';
 import { Customers } from './db/models';
 import { debugBase } from './debuggers';
 import { client, fetchElk, getIndexPrefix } from './elasticsearch';
@@ -42,15 +43,16 @@ export const saveEvent = async (args: ISaveEventArgs) => {
   const index = `${getIndexPrefix()}events`;
 
   try {
-    let response = await fetchElk('search', 'events', {
-      size: 1,
-      query: searchQuery,
-    });
-
-    if (response.hits.total.value === 0) {
-      response = await client.index({
-        index,
-        body: {
+    const response = await client.update({
+      index,
+      // generate unique id based on searchQuery
+      id: getUuid(JSON.stringify(searchQuery)),
+      body: {
+        script: {
+          source: 'ctx._source["count"] += 1',
+          lang: 'painless',
+        },
+        upsert: {
           type,
           name,
           customerId,
@@ -58,20 +60,8 @@ export const saveEvent = async (args: ISaveEventArgs) => {
           count: 1,
           attributes: attributes || {},
         },
-      });
-    } else {
-      response = await client.updateByQuery({
-        index,
-        refresh: true,
-        body: {
-          script: {
-            lang: 'painless',
-            source: 'ctx._source["count"] += 1',
-          },
-          query: searchQuery,
-        },
-      });
-    }
+      },
+    });
 
     debugBase(`Response ${JSON.stringify(response)}`);
   } catch (e) {

@@ -7,7 +7,7 @@ import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { checkUserIds } from '../../utils';
+import { checkUserIds, registerOnboardHistory } from '../../utils';
 import {
   copyChecklists,
   copyPipelineLabels,
@@ -91,6 +91,17 @@ const taskMutations = {
       contentType: MODULE_NAMES.TASK,
     };
 
+    if (doc.status && oldTask.status && oldTask.status !== doc.status) {
+      const activityAction = doc.status === 'active' ? 'activated' : 'archived';
+
+      await ActivityLogs.createArchiveLog({
+        item: updatedTask,
+        contentType: 'task',
+        action: activityAction,
+        userId: user._id,
+      });
+    }
+
     if (doc.assignedUserIds) {
       const { addedUserIds, removedUserIds } = checkUserIds(oldTask.assignedUserIds, doc.assignedUserIds);
 
@@ -102,6 +113,8 @@ const taskMutations = {
         contentType: 'task',
         content: activityContent,
       });
+
+      await registerOnboardHistory({ type: 'taskAssignUser', user });
 
       notificationDoc.invitedUsers = addedUserIds;
       notificationDoc.removedUsers = removedUserIds;
@@ -119,11 +132,44 @@ const taskMutations = {
       user,
     );
 
-    graphqlPubsub.publish('tasksChanged', {
-      tasksChanged: {
-        _id: updatedTask._id,
+    if (oldTask.stageId === updatedTask.stageId) {
+      graphqlPubsub.publish('tasksChanged', {
+        tasksChanged: {
+          _id: updatedTask._id,
+        },
+      });
+
+      return updatedTask;
+    }
+
+    // if task moves between stages
+    const { content, action } = await itemsChange(user._id, oldTask, MODULE_NAMES.TASK, updatedTask.stageId);
+
+    await sendNotifications({
+      item: updatedTask,
+      user,
+      type: NOTIFICATION_TYPES.TASK_CHANGE,
+      content,
+      action,
+      contentType: MODULE_NAMES.TASK,
+    });
+
+    const updatedStage = await Stages.getStage(updatedTask.stageId);
+    const oldStage = await Stages.getStage(oldTask.stageId);
+
+    graphqlPubsub.publish('pipelinesChanged', {
+      pipelinesChanged: {
+        _id: updatedStage.pipelineId,
       },
     });
+
+    if (updatedStage.pipelineId !== oldStage.pipelineId) {
+      graphqlPubsub.publish('pipelinesChanged', {
+        pipelinesChanged: {
+          _id: oldStage.pipelineId,
+        },
+      });
+    }
 
     return updatedTask;
   },
@@ -133,16 +179,19 @@ const taskMutations = {
    */
   async tasksChange(
     _root,
-    { _id, destinationStageId }: { _id: string; destinationStageId: string },
+    { _id, destinationStageId, order }: { _id: string; destinationStageId: string; order: number },
     { user }: IContext,
   ) {
     const task = await Tasks.getTask(_id);
 
-    await Tasks.updateTask(_id, {
+    const extendedDoc = {
       modifiedAt: new Date(),
       modifiedBy: user._id,
       stageId: destinationStageId,
-    });
+      order,
+    };
+
+    const updatedTask = await Tasks.updateTask(_id, extendedDoc);
 
     const { content, action } = await itemsChange(user._id, task, MODULE_NAMES.TASK, destinationStageId);
 
@@ -154,6 +203,16 @@ const taskMutations = {
       content,
       contentType: MODULE_NAMES.TASK,
     });
+
+    await putUpdateLog(
+      {
+        type: MODULE_NAMES.TASK,
+        object: task,
+        newData: extendedDoc,
+        updatedDocument: updatedTask,
+      },
+      user,
+    );
 
     // if move between stages
     if (destinationStageId !== task.stageId) {
@@ -235,8 +294,15 @@ const taskMutations = {
     return clone;
   },
 
-  async tasksArchive(_root, { stageId }: { stageId: string }) {
-    await Tasks.updateMany({ stageId }, { $set: { status: BOARD_STATUSES.ARCHIVED } });
+  async tasksArchive(_root, { stageId }: { stageId: string }, { user }: IContext) {
+    const updatedTask = await Tasks.updateMany({ stageId }, { $set: { status: BOARD_STATUSES.ARCHIVED } });
+
+    await ActivityLogs.createArchiveLog({
+      item: updatedTask,
+      contentType: 'task',
+      action: 'archive',
+      userId: user._id,
+    });
 
     return 'ok';
   },

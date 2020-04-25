@@ -397,9 +397,7 @@ interface ICompanyFactoryInput {
   tagIds?: string[];
   scopeBrandIds?: string[];
   plan?: string;
-  leadStatus?: string;
   status?: string;
-  lifecycleState?: string;
   createdAt?: Date;
   modifiedAt?: Date;
   phones?: string[];
@@ -421,9 +419,7 @@ export const companyFactory = (params: ICompanyFactoryInput = {}) => {
     website: params.website || faker.internet.domainName(),
     tagIds: params.tagIds || [],
     plan: params.plan || faker.random.word(),
-    leadStatus: params.leadStatus || 'open',
     status: params.status || STATUSES.ACTIVE,
-    lifecycleState: params.lifecycleState || 'lead',
     phones: params.phones || [],
     emails: params.emails || [],
     scopeBrandIds: params.scopeBrandIds || [],
@@ -461,7 +457,6 @@ interface ICustomerFactoryInput {
   doNotDisturb?: string;
   leadStatus?: string;
   status?: string;
-  lifecycleState?: string;
   customFieldsData?: any;
   trackedData?: any;
   tagIds?: string[];
@@ -475,6 +470,7 @@ interface ICustomerFactoryInput {
   deviceTokens?: string[];
   emailValidationStatus?: string;
   mergedIds?: string[];
+  relatedIntegrationIds?: string[];
 }
 
 export const customerFactory = async (params: ICustomerFactoryInput = {}, useModelMethod = false) => {
@@ -491,9 +487,8 @@ export const customerFactory = async (params: ICustomerFactoryInput = {}, useMod
     primaryPhone: params.primaryPhone,
     emails: params.emails || [],
     phones: params.phones || [],
-    leadStatus: params.leadStatus || 'open',
+    leadStatus: params.leadStatus || 'new',
     status: params.status || STATUSES.ACTIVE,
-    lifecycleState: params.lifecycleState || 'lead',
     lastSeenAt: faker.date.between(createdAt, new Date()),
     isOnline: params.isOnline || false,
     sessionCount: faker.random.number(),
@@ -507,6 +502,7 @@ export const customerFactory = async (params: ICustomerFactoryInput = {}, useMod
     visitorContactInfo: params.visitorContactInfo,
     deviceTokens: params.deviceTokens || [],
     mergedIds: params.mergedIds || [],
+    relatedIntegrationIds: params.relatedIntegrationIds || [],
   };
 
   if (useModelMethod) {
@@ -794,11 +790,13 @@ export const knowledgeBaseTopicFactory = async (params: IKnowledgeBaseTopicFacto
     color: params.color,
   };
 
-  return KnowledgeBaseTopics.create({
-    ...doc,
-    ...params,
-    userId: params.userId || faker.random.word(),
-  });
+  return KnowledgeBaseTopics.createDoc(
+    {
+      ...doc,
+      ...params,
+    },
+    params.userId || faker.random.word(),
+  );
 };
 
 interface IKnowledgeBaseCategoryFactoryInput {

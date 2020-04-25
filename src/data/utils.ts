@@ -15,6 +15,14 @@ import { sendMessage } from '../messageBroker';
 import { graphqlPubsub } from '../pubsub';
 import { get, set } from '../redisClient';
 
+export const initFirebase = (value: string): void => {
+  const serviceAccount = JSON.parse(value);
+
+  if (serviceAccount.private_key) {
+    admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+  }
+};
+
 /*
  * Check that given file is not harmful
  */
@@ -283,9 +291,8 @@ export const readFileRequest = async (key: string): Promise<any> => {
 /*
  * Save binary data to amazon s3
  */
-export const uploadFile = async (file, fromEditor = false): Promise<any> => {
+export const uploadFile = async (apiUrl: string, file, fromEditor = false): Promise<any> => {
   const IS_PUBLIC = await getConfig('FILE_SYSTEM_PUBLIC');
-  const DOMAIN = getEnv({ name: 'DOMAIN' });
   const UPLOAD_SERVICE_TYPE = await getConfig('UPLOAD_SERVICE_TYPE', 'AWS');
 
   const nameOrLink = UPLOAD_SERVICE_TYPE === 'AWS' ? await uploadFileAWS(file) : await uploadFileGCS(file);
@@ -294,7 +301,7 @@ export const uploadFile = async (file, fromEditor = false): Promise<any> => {
     const editorResult = { fileName: file.name, uploaded: 1, url: nameOrLink };
 
     if (IS_PUBLIC !== 'true') {
-      editorResult.url = `${DOMAIN}/read-file?key=${nameOrLink}`;
+      editorResult.url = `${apiUrl}/read-file?key=${nameOrLink}`;
     }
 
     return editorResult;
@@ -370,27 +377,25 @@ export const createTransporter = async ({ ses }) => {
   });
 };
 
-/**
- * Send email
- */
-export const sendEmail = async ({
-  toEmails = [],
-  fromEmail,
-  title,
-  template = {},
-  modifier,
-}: {
+export interface IEmailParams {
   toEmails?: string[];
   fromEmail?: string;
   title?: string;
   template?: { name?: string; data?: any; isCustom?: boolean };
   modifier?: (data: any, email: string) => void;
-}) => {
+}
+
+/**
+ * Send email
+ */
+export const sendEmail = async (params: IEmailParams) => {
+  const { toEmails = [], fromEmail, title, template = {}, modifier } = params;
+
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
   const DEFAULT_EMAIL_SERVICE = await getConfig('DEFAULT_EMAIL_SERVICE', 'SES');
   const COMPANY_EMAIL_FROM = await getConfig('COMPANY_EMAIL_FROM', '');
   const AWS_SES_CONFIG_SET = await getConfig('AWS_SES_CONFIG_SET', '');
-  const DOMAIN = getEnv({ name: 'DOMAIN' });
+  const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
 
   // do not send email it is running in test mode
   if (NODE_ENV === 'test') {
@@ -406,10 +411,10 @@ export const sendEmail = async ({
     return debugEmail(e.message);
   }
 
-  const { isCustom, data, name } = template;
+  const { isCustom, data = {}, name } = template;
 
   // for unsubscribe url
-  data.domain = DOMAIN;
+  data.domain = MAIN_APP_DOMAIN;
 
   for (const toEmail of toEmails) {
     if (modifier) {
@@ -417,7 +422,7 @@ export const sendEmail = async ({
     }
 
     // generate email content by given template
-    let html = await applyTemplate(data, name || '');
+    let html = await applyTemplate(data, name || 'base');
 
     if (!isCustom) {
       html = await applyTemplate({ content: html }, 'base');
@@ -570,8 +575,6 @@ export const sendRequest = async (
   { url, method, headers, form, body, params }: IRequestParams,
   errorMessage?: string,
 ) => {
-  const DOMAIN = getEnv({ name: 'DOMAIN' });
-
   debugExternalApi(`
     Sending request to
     url: ${url}
@@ -583,7 +586,7 @@ export const sendRequest = async (
   try {
     const response = await requestify.request(url, {
       method,
-      headers: { 'Content-Type': 'application/json', origin: DOMAIN, ...(headers || {}) },
+      headers: { 'Content-Type': 'application/json', ...(headers || {}) },
       form,
       body,
       params,
@@ -605,30 +608,6 @@ export const sendRequest = async (
       throw new Error(message);
     }
   }
-};
-
-/**
- * Send request to crons api
- */
-export const fetchCronsApi = ({ path, method, body, params }: IRequestParams) => {
-  const CRONS_API_DOMAIN = getEnv({ name: 'CRONS_API_DOMAIN' });
-
-  return sendRequest(
-    { url: `${CRONS_API_DOMAIN}${path}`, method, body, params },
-    'Failed to connect crons api. Check CRONS_API_DOMAIN env or crons api is not running',
-  );
-};
-
-/**
- * Send request to workers api
- */
-export const fetchWorkersApi = ({ path, method, body, params }: IRequestParams) => {
-  const WORKERS_API_DOMAIN = getEnv({ name: 'WORKERS_API_DOMAIN' });
-
-  return sendRequest(
-    { url: `${WORKERS_API_DOMAIN}${path}`, method, body, params },
-    'Failed to connect workers api. Check WORKERS_API_DOMAIN env or workers api is not running',
-  );
 };
 
 export const registerOnboardHistory = ({ type, user }: { type: string; user: IUserDocument }) =>
@@ -769,8 +748,6 @@ export default {
   sendMobileNotification,
   readFile,
   createTransporter,
-  fetchCronsApi,
-  fetchWorkersApi,
 };
 
 export const cleanHtml = (content?: string) => strip(content || '').substring(0, 100);
@@ -835,7 +812,7 @@ export const handleUnsubscription = async (query: { cid: string; uid: string }) 
   return true;
 };
 
-export const validateEmail = (email: string) => {
+export const validateEmail = async (email: string, wait?: boolean) => {
   const data = { email };
 
   const EMAIL_VERIFIER_ENDPOINT = getEnv({ name: 'EMAIL_VERIFIER_ENDPOINT', defaultValue: '' });
@@ -844,16 +821,40 @@ export const validateEmail = (email: string) => {
     return sendMessage('erxes-api:email-verifier-notification', { action: 'emailVerify', data });
   }
 
-  sendRequest({
+  const requestOptions = {
     url: `${EMAIL_VERIFIER_ENDPOINT}/verify-single`,
     method: 'POST',
     body: { email },
-  })
-    .then(async ({ status }) => {
-      await Customers.updateOne({ primaryEmail: email }, { $set: { emailValidationStatus: status } });
+  };
+
+  const updateCustomer = status =>
+    Customers.updateOne({ primaryEmail: email }, { $set: { emailValidationStatus: status } });
+
+  const successCallback = response => updateCustomer(response.status);
+
+  const errorCallback = e => {
+    if (e.message === 'timeout exceeded') {
+      return updateCustomer('unverifiable');
+    }
+
+    debugExternalApi(`Error occurred during email verify ${e.message}`);
+  };
+
+  if (wait) {
+    try {
+      const response = await sendRequest(requestOptions);
+      return successCallback(response);
+    } catch (e) {
+      await errorCallback(e);
+    }
+  }
+
+  sendRequest(requestOptions)
+    .then(async response => {
+      await successCallback(response);
     })
-    .catch(e => {
-      debugExternalApi(`Error occurred during email verify ${e.message}`);
+    .catch(async e => {
+      await errorCallback(e);
     });
 };
 
@@ -888,4 +889,36 @@ export const getConfig = async (code, defaultValue?) => {
 
 export const resetConfigsCache = () => {
   set('configs_erxes_api', '');
+};
+
+export const frontendEnv = ({ name, req, requestInfo }: { name: string; req?: any; requestInfo?: any }): string => {
+  const cookies = req ? req.cookies : requestInfo.cookies;
+  const keys = Object.keys(cookies).filter(key => key.startsWith('REACT_APP'));
+
+  const envs: { [key: string]: string } = {};
+
+  for (const key of keys) {
+    envs[key.replace('REACT_APP_', '')] = cookies[key];
+  }
+
+  return envs[name];
+};
+
+export const getSubServiceDomain = ({ name }: { name: string }): string => {
+  const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
+
+  const defaultMappings = {
+    WIDGETS_DOMAIN: `${MAIN_APP_DOMAIN}/widgets`,
+    INTEGRATIONS_API_DOMAIN: `${MAIN_APP_DOMAIN}/integrations`,
+    LOGS_API_DOMAIN: `${MAIN_APP_DOMAIN}/logs`,
+    ENGAGES_API_DOMAIN: `${MAIN_APP_DOMAIN}/engages`,
+  };
+
+  const domain = getEnv({ name });
+
+  if (domain) {
+    return domain;
+  }
+
+  return defaultMappings[name];
 };

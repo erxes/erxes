@@ -1,6 +1,14 @@
 import { Document, Schema } from 'mongoose';
-import { ACTIVITY_CONTENT_TYPES } from './constants';
 import { field, schemaWrapper } from './utils';
+
+export const CONTENT_TYPES = {
+  CUSTOMER: 'customer',
+  LEAD: 'lead',
+  VISITOR: 'visitor',
+  COMPANY: 'company',
+
+  ALL: ['customer', 'lead', 'visitor', 'company'],
+};
 
 export interface IAttributeFilter {
   name: string;
@@ -92,7 +100,7 @@ export const segmentSchema = schemaWrapper(
     _id: field({ pkey: true }),
     contentType: field({
       type: String,
-      enum: ACTIVITY_CONTENT_TYPES.ALL,
+      enum: CONTENT_TYPES.ALL,
       label: 'Content type',
     }),
     name: field({ type: String }),

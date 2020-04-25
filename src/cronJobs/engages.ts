@@ -1,121 +1,116 @@
-import * as moment from 'moment';
 import * as schedule from 'node-schedule';
 import { send } from '../data/resolvers/mutations/engageUtils';
 import { EngageMessages } from '../db/models';
-import { IEngageMessageDocument, IScheduleDate } from '../db/models/definitions/engages';
 import { debugCrons } from '../debuggers';
 
-interface IEngageSchedules {
-  id: string;
-  job: any;
-}
-
-// Track runtime cron job instances
-export const ENGAGE_SCHEDULES: IEngageSchedules[] = [];
-
-/**
- * Update or Remove selected engage message
- * @param _id - Engage id
- * @param update - Action type
- */
-export const updateOrRemoveSchedule = async (engageMessageId: string, update?: boolean) => {
-  const selectedIndex = ENGAGE_SCHEDULES.findIndex(engage => engage.id === engageMessageId);
-
-  if (selectedIndex === -1) {
-    return;
-  }
-
-  // Remove selected job instance and update tracker
-  ENGAGE_SCHEDULES[selectedIndex].job.cancel();
-  ENGAGE_SCHEDULES.splice(selectedIndex, 1);
-
-  if (!update) {
-    return;
-  }
-
-  const message = await EngageMessages.findOne({ _id: engageMessageId });
-
-  if (!message) {
-    return;
-  }
-
-  return createSchedule(message);
-};
-
-/**
- * Create cron job for an engage message
- */
-export const createSchedule = (message: IEngageMessageDocument) => {
-  const { scheduleDate } = message;
-
-  if (scheduleDate) {
-    const rule = createScheduleRule(scheduleDate);
-
-    const job = schedule.scheduleJob(rule, () => {
-      debugCrons(`Running cron with rule ${rule}`);
-
-      send(message);
-    });
-
-    // Collect cron job instances
-    ENGAGE_SCHEDULES.push({ id: message._id, job });
-  }
-};
-
-/**
- * Create cron job schedule rule
- */
-export const createScheduleRule = (scheduleDate: IScheduleDate) => {
-  if (!scheduleDate || (!scheduleDate.type && !scheduleDate.time)) {
-    return '0 45 23 * * *';
-  }
-
-  if (!scheduleDate.time) {
-    return '0 45 23 * * *';
-  }
-
-  const time = moment(new Date(scheduleDate.time));
-
-  const hour = time.hour() || '*';
-  const minute = time.minute() || '0';
-  const month = scheduleDate.month || '*';
-
-  let dayOfWeek = '*';
-  let day: string | number = '*';
-
-  // Schedule type day of week [0-6]
-  if (scheduleDate.type && scheduleDate.type.length === 1) {
-    dayOfWeek = scheduleDate.type || '*';
-  }
-
-  if (scheduleDate.type === 'month' || scheduleDate.type === 'year') {
-    day = scheduleDate.day || '*';
-  }
-
-  /*
-      *    *    *    *    *    *
-    ┬    ┬    ┬    ┬    ┬    ┬
-    │    │    │    │    │    │
-    │    │    │    │    │    └ day of week (0 - 7) (0 or 7 is Sun)
-    │    │    │    │    └───── month (1 - 12)
-    │    │    │    └────────── day of month (1 - 31)
-    │    │    └─────────────── hour (0 - 23)
-    │    └──────────────────── minute (0 - 59)
-    └───────────────────────── second (0 - 59, OPTIONAL)
-  */
-
-  return `${minute} ${hour} ${day} ${month} ${dayOfWeek}`;
-};
-
-const initCronJob = async () => {
-  const messages = await EngageMessages.find({
+const findMessages = (selector = {}) => {
+  return EngageMessages.find({
     kind: { $in: ['auto', 'visitorAuto'] },
     isLive: true,
+    ...selector,
   });
+};
 
+const runJobs = async messages => {
   for (const message of messages) {
-    createSchedule(message);
+    await send(message);
   }
 };
 
-initCronJob();
+// every minute at 1sec
+schedule.scheduleJob('1 * * * * *', async () => {
+  debugCrons('Checking every minute jobs ....');
+
+  const messages = await findMessages({ 'scheduleDate.type': 'minute' });
+
+  debugCrons(`Found every minute messages ${messages.length}`);
+
+  await runJobs(messages);
+});
+
+// every hour at 10min:10sec
+schedule.scheduleJob('10 10 * * * *', async () => {
+  debugCrons('Checking every hour jobs ....');
+
+  const messages = await findMessages({ 'scheduleDate.type': 'hour' });
+
+  debugCrons(`Found every hour  messages ${messages.length}`);
+
+  await runJobs(messages);
+});
+
+// every day at 11hour:20min:20sec
+schedule.scheduleJob('20 20 11 * * *', async () => {
+  debugCrons('Checking every day jobs ....');
+
+  // every day messages ===========
+  const everyDayMessages = await findMessages({ 'scheduleDate.type': 'day' });
+  await runJobs(everyDayMessages);
+
+  const now = new Date();
+  const day = now.getDate();
+  const month = now.getMonth() + 1;
+  const year = now.getFullYear();
+
+  // every nth day messages =======
+  const everyNthDayMessages = await findMessages({ 'scheduleDate.type': day.toString() });
+  await runJobs(everyNthDayMessages);
+
+  // every month messages ========
+  let everyMonthMessages = await findMessages({ 'scheduleDate.type': 'month' });
+
+  everyMonthMessages = everyMonthMessages.filter(message => {
+    const { lastRunAt, scheduleDate } = message;
+
+    if (!lastRunAt) {
+      return true;
+    }
+
+    // ignore if last run month is this month
+    if (lastRunAt.getMonth() === month) {
+      return false;
+    }
+
+    return scheduleDate && scheduleDate.day === day.toString();
+  });
+
+  debugCrons(`Found every month messages ${everyMonthMessages.length}`);
+
+  await runJobs(everyMonthMessages);
+
+  await EngageMessages.updateMany(
+    { _id: { $in: everyMonthMessages.map(m => m._id) } },
+    { $set: { lastRunAt: new Date() } },
+  );
+
+  // every year messages ========
+  let everyYearMessages = await findMessages({ 'scheduleDate.type': 'year' });
+
+  everyYearMessages = everyYearMessages.filter(message => {
+    const { lastRunAt, scheduleDate } = message;
+
+    if (!lastRunAt) {
+      return true;
+    }
+
+    // ignore if last run year is this year
+    if (lastRunAt.getFullYear() === year) {
+      return false;
+    }
+
+    if (scheduleDate && scheduleDate.month !== month.toString()) {
+      return false;
+    }
+
+    return scheduleDate && scheduleDate.day === day.toString();
+  });
+
+  debugCrons(`Found every year messages ${everyYearMessages.length}`);
+
+  await runJobs(everyYearMessages);
+
+  await EngageMessages.updateMany(
+    { _id: { $in: everyYearMessages.map(m => m._id) } },
+    { $set: { lastRunAt: new Date() } },
+  );
+});

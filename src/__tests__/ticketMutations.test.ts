@@ -41,12 +41,14 @@ describe('Test tickets mutations', () => {
     $name: String!,
     $stageId: String!
     $assignedUserIds: [String]
+    $status: String
   `;
 
   const commonTicketParams = `
     name: $name
     stageId: $stageId
     assignedUserIds: $assignedUserIds
+    status: $status
   `;
 
   beforeEach(async () => {
@@ -112,6 +114,7 @@ describe('Test tickets mutations', () => {
 
     const user = await userFactory();
     args.assignedUserIds = [user.id];
+    args.status = 'archived';
 
     updatedTicket = await graphqlRequest(mutation, 'ticketsEdit', args);
 
@@ -158,6 +161,33 @@ describe('Test tickets mutations', () => {
     const updatedTicket = await graphqlRequest(mutation, 'ticketsChange', args);
 
     expect(updatedTicket._id).toEqual(args._id);
+  });
+
+  test('Update ticket move to pipeline stage', async () => {
+    const mutation = `
+      mutation ticketsEdit($_id: String!, ${commonTicketParamDefs}) {
+        ticketsEdit(_id: $_id, ${commonTicketParams}) {
+          _id
+          name
+          stageId
+          assignedUserIds
+        }
+      }
+    `;
+
+    const anotherPipeline = await pipelineFactory({ boardId: board._id });
+    const anotherStage = await stageFactory({ pipelineId: anotherPipeline._id });
+
+    const args = {
+      _id: ticket._id,
+      stageId: anotherStage._id,
+      name: ticket.name || '',
+    };
+
+    const updatedTicket = await graphqlRequest(mutation, 'ticketsEdit', args);
+
+    expect(updatedTicket._id).toEqual(args._id);
+    expect(updatedTicket.stageId).toEqual(args.stageId);
   });
 
   test('Ticket update orders', async () => {
@@ -302,8 +332,8 @@ describe('Test tickets mutations', () => {
 
     await graphqlRequest(mutation, 'ticketsArchive', { stageId: ticketStage._id });
 
-    const tasks = await Tickets.find({ stageId: ticketStage._id, status: BOARD_STATUSES.ARCHIVED });
+    const tickets = await Tickets.find({ stageId: ticketStage._id, status: BOARD_STATUSES.ARCHIVED });
 
-    expect(tasks.length).toBe(3);
+    expect(tickets.length).toBe(3);
   });
 });

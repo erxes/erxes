@@ -1,13 +1,7 @@
 import { Document, Schema } from 'mongoose';
 
 import { ILink, linkSchema } from './common';
-import {
-  COMPANY_BUSINESS_TYPES,
-  COMPANY_INDUSTRY_TYPES,
-  COMPANY_LEAD_STATUS_TYPES,
-  COMPANY_LIFECYCLE_STATE_TYPES,
-  STATUSES,
-} from './constants';
+import { COMPANY_BUSINESS_TYPES, COMPANY_INDUSTRY_TYPES, STATUSES } from './constants';
 
 import { field, schemaWrapper } from './utils';
 
@@ -32,9 +26,7 @@ export interface ICompany {
   phones?: string[];
 
   mergedIds?: string[];
-  leadStatus?: string;
   status?: string;
-  lifecycleState?: string;
   businessType?: string;
   description?: string;
   employees?: number;
@@ -91,6 +83,7 @@ export const companySchema = schemaWrapper(
       enum: COMPANY_INDUSTRY_TYPES,
       label: 'Industry',
       optional: true,
+      esType: 'keyword',
     }),
 
     website: field({
@@ -111,7 +104,7 @@ export const companySchema = schemaWrapper(
       label: 'Parent Company',
     }),
 
-    primaryEmail: field({ type: String, optional: true, label: 'Primary email' }),
+    primaryEmail: field({ type: String, optional: true, label: 'Primary email', esType: 'email' }),
     emails: field({ type: [String], optional: true, label: 'Emails' }),
 
     primaryPhone: field({ type: String, optional: true, label: 'Primary phone' }),
@@ -119,26 +112,13 @@ export const companySchema = schemaWrapper(
 
     ownerId: field({ type: String, optional: true, label: 'Owner' }),
 
-    leadStatus: field({
-      type: String,
-      enum: COMPANY_LEAD_STATUS_TYPES,
-      optional: true,
-      label: 'Lead Status',
-    }),
-
     status: field({
       type: String,
       enum: STATUSES.ALL,
       default: STATUSES.ACTIVE,
       optional: true,
       label: 'Status',
-    }),
-
-    lifecycleState: field({
-      type: String,
-      enum: COMPANY_LIFECYCLE_STATE_TYPES,
-      optional: true,
-      label: 'Lifecycle State',
+      esType: 'keyword',
     }),
 
     businessType: field({
@@ -146,6 +126,7 @@ export const companySchema = schemaWrapper(
       enum: COMPANY_BUSINESS_TYPES,
       optional: true,
       label: 'Business Type',
+      esType: 'keyword',
     }),
 
     description: field({ type: String, optional: true, label: 'Description' }),

@@ -123,4 +123,16 @@ describe('Test activity model', () => {
 
     expect(activity.contentId).toEqual('123');
   });
+
+  test('Activity create archive log', async () => {
+    const deal = await dealFactory({});
+    const activity = await ActivityLogs.createArchiveLog({
+      item: deal,
+      contentType: 'deal',
+      action: 'archive',
+      userId: '123',
+    });
+
+    expect(activity.createdBy).toEqual('123');
+  });
 });

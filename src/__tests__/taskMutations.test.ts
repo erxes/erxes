@@ -41,12 +41,14 @@ describe('Test tasks mutations', () => {
     $name: String!,
     $stageId: String!
     $assignedUserIds: [String]
+    $status: String
   `;
 
   const commonTaskParams = `
     name: $name
     stageId: $stageId
     assignedUserIds: $assignedUserIds
+    status: $status
   `;
 
   beforeEach(async () => {
@@ -114,6 +116,7 @@ describe('Test tasks mutations', () => {
 
     const user = await userFactory();
     args.assignedUserIds = [user.id];
+    args.status = 'archived';
 
     updatedTask = await graphqlRequest(mutation, 'tasksEdit', args);
 
@@ -209,6 +212,33 @@ describe('Test tasks mutations', () => {
     const updatedTask = await graphqlRequest(mutation, 'tasksChange', args);
 
     expect(updatedTask._id).toEqual(args._id);
+  });
+
+  test('Update task move to pipeline stage', async () => {
+    const mutation = `
+      mutation tasksEdit($_id: String!, ${commonTaskParamDefs}) {
+        tasksEdit(_id: $_id, ${commonTaskParams}) {
+          _id
+          name
+          stageId
+          assignedUserIds
+        }
+      }
+    `;
+
+    const anotherPipeline = await pipelineFactory({ boardId: board._id });
+    const anotherStage = await stageFactory({ pipelineId: anotherPipeline._id });
+
+    const args = {
+      _id: task._id,
+      stageId: anotherStage._id,
+      name: task.name || '',
+    };
+
+    const updatedTask = await graphqlRequest(mutation, 'tasksEdit', args);
+
+    expect(updatedTask._id).toEqual(args._id);
+    expect(updatedTask.stageId).toEqual(args.stageId);
   });
 
   test('Task update orders', async () => {

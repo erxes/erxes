@@ -4,6 +4,7 @@ import {
   ChecklistItems,
   Checklists,
   Conformities,
+  Notifications,
   PipelineLabels,
   Pipelines,
   Stages,
@@ -116,10 +117,28 @@ export const sendNotifications = async ({
   });
 };
 
-export const itemsChange = async (userId: string, item: any, type: string, destinationStageId: string) => {
+interface INotifLinkParams {
+  contentType: string;
+  oldItem: any;
+  pipelineId: string;
+  pipeBoardId: string;
+}
+
+/**
+ * When board items are moved between stages, old notification links are broken.
+ */
+const fixNotificationLinks = async (params: INotifLinkParams) => {
+  const { contentType, oldItem, pipelineId, pipeBoardId } = params;
+
+  const link = `/${contentType}/board?id=${pipeBoardId}&pipelineId=${pipelineId}&itemId=${oldItem._id}`;
+
+  await Notifications.updateMany({ contentType, contentTypeId: oldItem._id }, { $set: { link } });
+};
+
+export const itemsChange = async (userId: string, item: any, contentType: string, destinationStageId: string) => {
   const oldStageId = item ? item.stageId || '' : '';
 
-  let action = `changed order of your ${type}:`;
+  let action = `changed order of your ${contentType}:`;
   let content = `'${item.name}'`;
 
   if (oldStageId !== destinationStageId) {
@@ -142,7 +161,14 @@ export const itemsChange = async (userId: string, item: any, type: string, desti
       text: `${oldStage.name} to ${stage.name}`,
     };
 
-    ActivityLogs.createBoardItemMovementLog(item, type, userId, activityLogContent);
+    ActivityLogs.createBoardItemMovementLog(item, contentType, userId, activityLogContent);
+
+    await fixNotificationLinks({
+      contentType,
+      oldItem: item,
+      pipelineId: pipeline._id,
+      pipeBoardId: board._id,
+    });
   }
 
   return { content, action };

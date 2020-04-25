@@ -40,8 +40,8 @@ import {
   UsersGroups,
 } from '../db/models/index';
 import { sendMessage } from '../messageBroker';
-import { MODULE_NAMES } from './constants';
-import { getEnv, registerOnboardHistory, sendRequest } from './utils';
+import { MODULE_NAMES, RABBITMQ_QUEUES } from './constants';
+import { getSubServiceDomain, registerOnboardHistory, sendRequest } from './utils';
 
 export type LogDesc = {
   [key: string]: any;
@@ -63,6 +63,11 @@ interface IContentTypeParams {
   contentTypeId: string;
 }
 
+/**
+ * @param object - Previous state of the object
+ * @param newData - Requested update data
+ * @param updatedDocument - State after any updates to the object
+ */
 export interface ILogDataParams {
   type: string;
   description?: string;
@@ -83,6 +88,7 @@ export interface ILogQueryParams {
   action?: string;
   page?: number;
   perPage?: number;
+  type?: string;
 }
 
 interface IDescriptions {
@@ -237,7 +243,7 @@ const gatherNames = async (params: ILogParams): Promise<LogDesc[]> => {
 
   for (const id of uniqueIds) {
     const item = await collection.findOne({ _id: id });
-    let name: string = '';
+    let name: string = `item with id "${id}" has been deleted`;
 
     if (item) {
       for (const n of nameFields) {
@@ -245,9 +251,9 @@ const gatherNames = async (params: ILogParams): Promise<LogDesc[]> => {
           name = item[n];
         }
       }
-
-      options.push({ [foreignKey]: id, name });
     }
+
+    options.push({ [foreignKey]: id, name });
   }
 
   return options;
@@ -826,6 +832,25 @@ const gatherPipelineTemplateFieldNames = async (
   return options;
 };
 
+const gatherUserFieldNames = async (doc: IUserDocument, prevList?: LogDesc[]): Promise<LogDesc[]> => {
+  let options: LogDesc[] = [];
+
+  if (prevList) {
+    options = prevList;
+  }
+
+  // show only user group names of users for now
+  options = await gatherNames({
+    collection: UsersGroups,
+    idFields: doc.groupIds || [],
+    foreignKey: 'groupIds',
+    nameFields: ['name'],
+    prevList: options,
+  });
+
+  return options;
+};
+
 const gatherDescriptions = async (params: IDescriptionParams): Promise<IDescriptions> => {
   const { action, type, obj, updatedDocument } = params;
 
@@ -1199,6 +1224,16 @@ const gatherDescriptions = async (params: IDescriptionParams): Promise<IDescript
       }
 
       break;
+    case MODULE_NAMES.USER:
+      description = `"${obj.username || obj.email}" has been ${action}`;
+
+      extraDesc = await gatherUserFieldNames(obj);
+
+      if (updatedDocument) {
+        extraDesc = await gatherUserFieldNames(updatedDocument, extraDesc);
+      }
+
+      break;
     default:
       break;
   }
@@ -1276,7 +1311,7 @@ export const putDeleteLog = async (params: ILogDataParams, user: IUserDocument) 
 
 const putLog = async (params: IFinalLogParams, user: IUserDocument) => {
   try {
-    return sendMessage('putLog', {
+    return sendMessage(RABBITMQ_QUEUES.PUT_LOG, {
       ...params,
       createdBy: user._id,
       unicode: user.username || user.email || user._id,
@@ -1294,14 +1329,7 @@ const putLog = async (params: IFinalLogParams, user: IUserDocument) => {
  * @param {Object} param0 Request
  */
 export const fetchLogs = (params: ILogQueryParams) => {
-  const LOGS_DOMAIN = getEnv({ name: 'LOGS_API_DOMAIN' });
-
-  if (!LOGS_DOMAIN) {
-    return {
-      logs: [],
-      totalCount: 0,
-    };
-  }
+  const LOGS_DOMAIN = getSubServiceDomain({ name: 'LOGS_API_DOMAIN' });
 
   return sendRequest(
     { url: `${LOGS_DOMAIN}/logs`, method: 'get', body: { params: JSON.stringify(params) } },

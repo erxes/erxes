@@ -57,11 +57,11 @@ const fieldQueries = {
    * Generates all field choices base on given kind.
    */
   async fieldsCombinedByContentType(_root, { contentType }: { contentType: string }) {
-    let schema: any = Companies.schema;
+    let schema: any = Customers.schema;
     let fields: Array<{ _id: number; name: string; label?: string }> = [];
 
-    if (contentType === FIELD_CONTENT_TYPES.CUSTOMER) {
-      schema = Customers.schema;
+    if (contentType === FIELD_CONTENT_TYPES.COMPANY) {
+      schema = Companies.schema;
     }
 
     // generate list using customer or company schema
@@ -91,25 +91,27 @@ const fieldQueries = {
       }
     }
 
+    let mappingProperties: any = {};
+
     // extend fields list using tracked fields data
     try {
-      const index = `${getIndexPrefix()}${contentType === 'customer' ? 'customers' : 'companies'}`;
+      const index = `${getIndexPrefix()}${contentType === 'company' ? 'companies' : 'customers'}`;
       const response = await getMappings(index);
-      const mappingProperties = response[index].mappings.properties;
-
-      if (mappingProperties.trackedData) {
-        const trackedDataFields = Object.keys(mappingProperties.trackedData.properties);
-
-        for (const trackedDataField of trackedDataFields) {
-          fields.push({
-            _id: Math.random(),
-            name: `trackedData.${trackedDataField}`,
-            label: trackedDataField,
-          });
-        }
-      }
+      mappingProperties = response[index].mappings.properties;
     } catch (e) {
-      debugBase(e.message);
+      debugBase(`Error occurred in fieldsCombinedByContentType ${e.message}`);
+    }
+
+    if (mappingProperties.trackedData) {
+      const trackedDataFields = Object.keys(mappingProperties.trackedData.properties || {});
+
+      for (const trackedDataField of trackedDataFields) {
+        fields.push({
+          _id: Math.random(),
+          name: `trackedData.${trackedDataField}`,
+          label: trackedDataField,
+        });
+      }
     }
 
     return fields;
@@ -119,24 +121,23 @@ const fieldQueries = {
    * Default list columns config
    */
   fieldsDefaultColumnsConfig(_root, { contentType }: { contentType: string }): IFieldsDefaultColmns {
-    if (contentType === FIELD_CONTENT_TYPES.CUSTOMER) {
+    if (contentType === FIELD_CONTENT_TYPES.COMPANY) {
       return [
-        { name: 'firstName', label: 'First name', order: 1 },
-        { name: 'lastName', label: 'Last name', order: 1 },
-        { name: 'primaryEmail', label: 'Primary email', order: 2 },
-        { name: 'primaryPhone', label: 'Primary phone', order: 3 },
+        { name: 'primaryName', label: 'Primary Name', order: 1 },
+        { name: 'size', label: 'Size', order: 2 },
+        { name: 'links.website', label: 'Website', order: 3 },
+        { name: 'industry', label: 'Industry', order: 4 },
+        { name: 'plan', label: 'Plan', order: 5 },
+        { name: 'lastSeenAt', label: 'Last seen at', order: 6 },
+        { name: 'sessionCount', label: 'Session count', order: 7 },
       ];
     }
 
-    // if contentType is company
     return [
-      { name: 'primaryName', label: 'Primary Name', order: 1 },
-      { name: 'size', label: 'Size', order: 2 },
-      { name: 'links.website', label: 'Website', order: 3 },
-      { name: 'industry', label: 'Industry', order: 4 },
-      { name: 'plan', label: 'Plan', order: 5 },
-      { name: 'lastSeenAt', label: 'Last seen at', order: 6 },
-      { name: 'sessionCount', label: 'Session count', order: 7 },
+      { name: 'firstName', label: 'First name', order: 1 },
+      { name: 'lastName', label: 'Last name', order: 1 },
+      { name: 'primaryEmail', label: 'Primary email', order: 2 },
+      { name: 'primaryPhone', label: 'Primary phone', order: 3 },
     ];
   },
 };

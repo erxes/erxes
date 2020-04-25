@@ -51,6 +51,7 @@ export const queries = `
   widgetsTotalUnreadCount(integrationId: String!, customerId: String!): Int
   widgetsMessengerSupporters(integrationId: String!): [User]
   widgetsKnowledgeBaseArticles(topicId: String!, searchString: String) : [KnowledgeBaseArticle]
+  widgetsKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
 `;
 
 export const mutations = `

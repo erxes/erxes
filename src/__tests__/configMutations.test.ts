@@ -1,3 +1,5 @@
+import * as sinon from 'sinon';
+import * as utils from '../data/utils';
 import { graphqlRequest } from '../db/connection';
 
 import { Configs } from '../db/models';
@@ -25,5 +27,18 @@ describe('Test configs mutations', () => {
 
     expect(codeConfig.value.length).toEqual(1);
     expect(codeConfig.value[0]).toEqual('USD');
+
+    const firebaseMock = sinon.stub(utils, 'initFirebase').callsFake();
+
+    await graphqlRequest(mutation, 'configsUpdate', {
+      configsMap: { GOOGLE_APPLICATION_CREDENTIALS_JSON: ['serviceAccount'] },
+    });
+
+    const googleConfig = await Configs.getConfig('GOOGLE_APPLICATION_CREDENTIALS_JSON');
+
+    expect(googleConfig.value.length).toEqual(1);
+    expect(googleConfig.value[0]).toEqual('serviceAccount');
+
+    firebaseMock.restore();
   });
 });
