@@ -137,6 +137,7 @@ const ticketMutations = {
       graphqlPubsub.publish('ticketsChanged', {
         ticketsChanged: {
           _id: updatedTicket._id,
+          name: updatedTicket.name,
         },
       });
 

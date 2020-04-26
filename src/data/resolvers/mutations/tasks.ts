@@ -136,6 +136,7 @@ const taskMutations = {
       graphqlPubsub.publish('tasksChanged', {
         tasksChanged: {
           _id: updatedTask._id,
+          name: updatedTask.name,
         },
       });
 

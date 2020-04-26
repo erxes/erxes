@@ -132,6 +132,7 @@ const growthHackMutations = {
       graphqlPubsub.publish('growthHacksChanged', {
         growthHacksChanged: {
           _id: updatedGrowthHack._id,
+          name: updatedGrowthHack.name,
         },
       });
 

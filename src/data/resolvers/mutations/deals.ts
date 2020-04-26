@@ -163,6 +163,7 @@ const dealMutations = {
       graphqlPubsub.publish('dealsChanged', {
         dealsChanged: {
           _id: updatedDeal._id,
+          name: updatedDeal.name,
         },
       });
 
