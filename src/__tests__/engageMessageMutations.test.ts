@@ -30,7 +30,7 @@ import * as messageBroker from '../messageBroker';
 
 import { EngagesAPI } from '../data/dataSources';
 import { handleUnsubscription } from '../data/utils';
-import { EMAIL_VALIDATION_STATUSES, KIND_CHOICES, STATUSES } from '../db/models/definitions/constants';
+import { KIND_CHOICES } from '../db/models/definitions/constants';
 import './setup.ts';
 
 describe('engage message mutation tests', () => {
@@ -90,8 +90,8 @@ describe('engage message mutation tests', () => {
 
     _customer = await customerFactory({
       integrationId: _integration._id,
-      emailValidationStatus: EMAIL_VALIDATION_STATUSES.VALID,
-      status: STATUSES.ACTIVE,
+      emailValidationStatus: 'valid',
+      status: 'active',
       profileScore: 1,
       primaryEmail: faker.internet.email(),
       firstName: faker.random.word(),

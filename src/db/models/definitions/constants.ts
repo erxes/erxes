@@ -221,8 +221,6 @@ export const FIELDS_GROUPS_CONTENT_TYPES = {
   ALL: ['customer', 'company', 'product'],
 };
 
-export const CUSTOMER_LEAD_STATUS_TYPES = ['', 'new', 'contacte', 'working', 'openDeal', 'unqualified'];
-
 export const CUSTOMER_LIFECYCLE_STATE_TYPES = [
   '',
   'subscriber',
@@ -233,18 +231,6 @@ export const CUSTOMER_LIFECYCLE_STATE_TYPES = [
   'customer',
   'evangelist',
   'other',
-];
-
-export const COMPANY_LEAD_STATUS_TYPES = [
-  '',
-  'new',
-  'open',
-  'inProgress',
-  'openDeal',
-  'unqualified',
-  'attemptedToContact',
-  'connected',
-  'badTiming',
 ];
 
 export const COMPANY_LIFECYCLE_STATE_TYPES = [
@@ -346,12 +332,6 @@ export const PROBABILITY = {
   DONE: 'Done',
   RESOLVED: 'Resolved',
   ALL: ['10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', 'Won', 'Lost', 'Done', 'Resolved'],
-};
-
-export const STATUSES = {
-  ACTIVE: 'Active',
-  DELETED: 'Deleted',
-  ALL: ['Active', 'Deleted'],
 };
 
 export const BOARD_STATUSES = {
@@ -458,13 +438,45 @@ export const NOTIFICATION_CONTENT_TYPES = {
   ALL: ['task', 'deal', 'company', 'customer', 'ticket', 'channel', 'conversation'],
 };
 
-export const EMAIL_VALIDATION_STATUSES = {
-  VALID: 'valid',
-  INVALID: 'invalid',
-  ACCEPT_ALL_UNVERIFIABLE: 'accept_all_unverifiable',
-  UNKNOWN: 'unknown',
-  DISPOSABLE: 'disposable',
-  CATCHALL: 'catchall',
-  BAD_SYNTAX: 'badsyntax',
-  ALL: ['valid', 'invalid', 'accept_all_unverifiable', 'unknown', 'disposable', 'catchall', 'badsyntax'],
+const STATUSES = [
+  { label: 'Active', value: 'active' },
+  { label: 'Deleted', value: 'deleted' },
+];
+
+export const COMPANY_SELECT_OPTIONS = {
+  BUSINESS_TYPES: [
+    { label: 'Competitor', value: 'Competitor' },
+    { label: 'Customer', value: 'Customer' },
+    { label: 'Investor', value: 'Investor' },
+    { label: 'Partner', value: 'Partner' },
+    { label: 'Press', value: 'Press' },
+    { label: 'Prospect', value: 'Prospect' },
+    { label: 'Reseller', value: 'Reseller' },
+    { label: 'Other', value: 'Other' },
+  ],
+  STATUSES,
+};
+
+export const CUSTOMER_SELECT_OPTIONS = {
+  SEX: [
+    { label: 'Male', value: 1 },
+    { label: 'Female', value: 2 },
+  ],
+  EMAIL_VALIDATION_STATUSES: [
+    { label: 'Valid', value: 'valid' },
+    { label: 'Invalid', value: 'invalid' },
+    { label: 'Accept all unverifiable', value: 'accept_all_unverifiable' },
+    { label: 'Unknown', value: 'unknown' },
+    { label: 'Disposable', value: 'disposable' },
+    { label: 'Catch all', value: 'catchall' },
+    { label: 'Bad syntax', value: 'badsyntax' },
+  ],
+  LEAD_STATUS_TYPES: [
+    { label: 'New', value: 'new' },
+    { label: 'Contacted', value: 'attemptedToContact' },
+    { label: 'Working', value: 'inProgress' },
+    { label: 'Bad Timing', value: 'badTiming' },
+    { label: 'Unqualified', value: 'unqualified' },
+  ],
+  STATUSES,
 };
