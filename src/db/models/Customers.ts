@@ -1,7 +1,6 @@
 import { Model, model } from 'mongoose';
 import { validateEmail, validSearchText } from '../../data/utils';
 import { ActivityLogs, Conformities, Conversations, EngageMessages, Fields, InternalNotes } from './';
-import { EMAIL_VALIDATION_STATUSES, STATUSES } from './definitions/constants';
 import { customerSchema, ICustomer, ICustomerDocument } from './definitions/customers';
 import { IUserDocument } from './definitions/users';
 
@@ -91,7 +90,7 @@ export const loadClass = () => {
      * Checking if customer has duplicated unique properties
      */
     public static async checkDuplication(customerFields: ICustomerFieldsInput, idsToExclude?: string[] | string) {
-      const query: { status: {}; [key: string]: any } = { status: { $ne: STATUSES.DELETED } };
+      const query: { status: {}; [key: string]: any } = { status: { $ne: 'deleted' } };
       let previousEntry;
 
       // Adding exclude operator to the query
@@ -264,7 +263,7 @@ export const loadClass = () => {
         const oldCustomer = await Customers.getCustomer(_id);
 
         if (doc.primaryEmail !== oldCustomer.primaryEmail) {
-          doc.emailValidationStatus = EMAIL_VALIDATION_STATUSES.UNKNOWN;
+          doc.emailValidationStatus = 'unknown';
 
           validateEmail(doc.primaryEmail);
         }
@@ -442,7 +441,7 @@ export const loadClass = () => {
           emails = [...emails, ...(customerObj.emails || [])];
           phones = [...phones, ...(customerObj.phones || [])];
 
-          await Customers.findByIdAndUpdate(customerId, { $set: { status: STATUSES.DELETED } });
+          await Customers.findByIdAndUpdate(customerId, { $set: { status: 'deleted' } });
         }
       }
 

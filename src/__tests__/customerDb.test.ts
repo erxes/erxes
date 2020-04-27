@@ -18,7 +18,7 @@ import {
   ImportHistory,
   InternalNotes,
 } from '../db/models';
-import { ACTIVITY_CONTENT_TYPES, STATUSES } from '../db/models/definitions/constants';
+import { ACTIVITY_CONTENT_TYPES } from '../db/models/definitions/constants';
 
 import { ICustomer, ICustomerDocument } from '../db/models/definitions/customers';
 import './setup.ts';
@@ -450,7 +450,7 @@ describe('Customers model tests', () => {
     // Checking old customers datas to be deleted
     const oldCustomer = (await Customers.findOne({ _id: customerIds[0] })) || { status: '' };
 
-    expect(oldCustomer.status).toBe(STATUSES.DELETED);
+    expect(oldCustomer.status).toBe('deleted');
     expect(await Conversations.find({ customerId: customerIds[0] })).toHaveLength(0);
     expect(await ConversationMessages.find({ customerId: customerIds[0] })).toHaveLength(0);
 

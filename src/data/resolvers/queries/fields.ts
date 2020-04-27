@@ -1,5 +1,5 @@
 import { FIELD_CONTENT_TYPES, FIELDS_GROUPS_CONTENT_TYPES } from '../../../data/constants';
-import { Companies, Customers, Fields, FieldsGroups } from '../../../db/models';
+import { Companies, Customers, Fields, FieldsGroups, Integrations } from '../../../db/models';
 import { debugBase } from '../../../debuggers';
 import { getIndexPrefix, getMappings } from '../../../elasticsearch';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
@@ -14,24 +14,44 @@ export interface IFieldsQuery {
   contentTypeId?: string;
 }
 
+const getIntegrations = async () => {
+  return Integrations.aggregate([
+    {
+      $project: {
+        _id: 0,
+        label: '$name',
+        value: '$_id',
+      },
+    },
+  ]);
+};
+
 /*
  * Generates fields using given schema
  */
-const generateFieldsFromSchema = (queSchema: any, namePrefix: string) => {
+const generateFieldsFromSchema = async (queSchema: any, namePrefix: string) => {
   const queFields: any = [];
 
   // field definations
   const paths = queSchema.paths;
 
+  const integrations = await getIntegrations();
+
   queSchema.eachPath(name => {
-    const label = paths[name].options.label;
+    const path = paths[name];
+
+    const label = path.options.label;
+    const type = path.instance;
+    const selectOptions = name === 'integrationId' ? integrations || [] : path.options.selectOptions;
 
     // add to fields list
-    if (label) {
+    if (['String', 'Number', 'Date'].includes(type) && label) {
       queFields.push({
         _id: Math.random(),
         name: `${namePrefix}${name}`,
         label,
+        type: path.instance,
+        selectOptions,
       });
     }
   });
@@ -65,14 +85,14 @@ const fieldQueries = {
     }
 
     // generate list using customer or company schema
-    fields = [...fields, ...generateFieldsFromSchema(schema, '')];
+    fields = [...fields, ...(await generateFieldsFromSchema(schema, ''))];
 
-    schema.eachPath(name => {
+    schema.eachPath(async name => {
       const path = schema.paths[name];
 
       // extend fields list using sub schema fields
       if (path.schema) {
-        fields = [...fields, ...generateFieldsFromSchema(path.schema, `${name}.`)];
+        fields = [...fields, ...(await generateFieldsFromSchema(path.schema, `${name}.`))];
       }
     });
 

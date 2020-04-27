@@ -2,7 +2,6 @@ import { Model, model } from 'mongoose';
 import { validSearchText } from '../../data/utils';
 import { ActivityLogs, Conformities, Fields, InternalNotes } from './';
 import { companySchema, ICompany, ICompanyDocument } from './definitions/companies';
-import { STATUSES } from './definitions/constants';
 import { IUserDocument } from './definitions/users';
 
 export interface ICompanyModel extends Model<ICompanyDocument> {
@@ -43,7 +42,7 @@ export const loadClass = () => {
       },
       idsToExclude?: string[] | string,
     ) {
-      const query: { status: {}; [key: string]: any } = { status: { $ne: STATUSES.DELETED } };
+      const query: { status: {}; [key: string]: any } = { status: { $ne: 'deleted' } };
       let previousEntry;
 
       // Adding exclude operator to the query
@@ -215,9 +214,9 @@ export const loadClass = () => {
         // Merging company phones
         phones = phones.concat(companyPhones);
 
-        companyObj.status = STATUSES.DELETED;
+        companyObj.status = 'deleted';
 
-        await Companies.findByIdAndUpdate(companyId, { $set: { status: STATUSES.DELETED } });
+        await Companies.findByIdAndUpdate(companyId, { $set: { status: 'deleted' } });
       }
 
       // Removing Duplicates

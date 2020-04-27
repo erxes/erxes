@@ -1,7 +1,7 @@
 import { Document, Schema } from 'mongoose';
 
 import { ILink, linkSchema } from './common';
-import { COMPANY_BUSINESS_TYPES, COMPANY_INDUSTRY_TYPES, STATUSES } from './constants';
+import { COMPANY_INDUSTRY_TYPES, COMPANY_SELECT_OPTIONS } from './constants';
 
 import { field, schemaWrapper } from './utils';
 
@@ -46,6 +46,10 @@ export interface ICompanyDocument extends ICompany, Document {
   modifiedAt: Date;
   searchText: string;
 }
+
+const getEnum = (fieldName: string): string[] => {
+  return COMPANY_SELECT_OPTIONS[fieldName].map(option => option.value);
+};
 
 export const companySchema = schemaWrapper(
   new Schema({
@@ -114,19 +118,21 @@ export const companySchema = schemaWrapper(
 
     status: field({
       type: String,
-      enum: STATUSES.ALL,
-      default: STATUSES.ACTIVE,
+      enum: getEnum('STATUSES'),
+      default: 'active',
       optional: true,
       label: 'Status',
       esType: 'keyword',
+      selectOptions: COMPANY_SELECT_OPTIONS.STATUSES,
     }),
 
     businessType: field({
       type: String,
-      enum: COMPANY_BUSINESS_TYPES,
+      enum: getEnum('BUSINESS_TYPES'),
       optional: true,
       label: 'Business Type',
       esType: 'keyword',
+      selectOptions: COMPANY_SELECT_OPTIONS.BUSINESS_TYPES,
     }),
 
     description: field({ type: String, optional: true, label: 'Description' }),

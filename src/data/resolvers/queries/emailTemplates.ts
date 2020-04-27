@@ -1,14 +1,13 @@
 import { EmailTemplates } from '../../../db/models';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { paginate } from '../../utils';
 
 const emailTemplateQueries = {
   /**
    * Email templates list
    */
-  emailTemplates(_root, args: { page: number; perPage: number }, { commonQuerySelector }: IContext) {
-    return paginate(EmailTemplates.find(commonQuerySelector), args);
+  emailTemplates(_root, _args, { commonQuerySelector }: IContext) {
+    return EmailTemplates.find(commonQuerySelector);
   },
 
   /**
