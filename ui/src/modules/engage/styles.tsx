@@ -168,7 +168,6 @@ const Recipient = styled.div`
 
 const Half = styled.div`
   width: 50%;
-  border-right: 1px solid ${colors.borderPrimary};
 
   &:last-of-type {
     border: none;
