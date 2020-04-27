@@ -105,11 +105,15 @@ class Filter extends React.Component<Props, State> {
     );
   };
 
-  onChangeSelect = (option: { label: string; value: string }) => {
-    this.setState({ currentValue: option.value.toString() }, this.onChange);
+  onChangeSelect = (option: { value: string }) => {
+    const value = !option ? '' : option.value.toString();
+
+    this.setState({ currentValue: value }, this.onChange);
   };
 
-  onChangeField = ({ value }: { value: string }) => {
+  onChangeField = (option: { value: string }) => {
+    const value = !option ? '' : option.value;
+
     this.setState({ currentName: value }, this.onChange);
   };
 
@@ -160,6 +164,7 @@ class Filter extends React.Component<Props, State> {
 
     return (
       <Select
+        key="propertyName"
         isRequired={true}
         options={groupData ? this.generateValues() : fields}
         clearable={false}
@@ -180,14 +185,15 @@ class Filter extends React.Component<Props, State> {
 
     return (
       <FormControl
+        key={currentName}
         componentClass="select"
         onChange={this.onChangeOperators}
         value={currentOperator}
       >
         <option value="">{__('Select operator')}...</option>
-        {fieldOperator.map(c => (
-          <option value={c.value} key={c.value}>
-            {c.name}
+        {fieldOperator.map((operator, index) => (
+          <option value={operator.value} key={`${index}-${operator.value}`}>
+            {operator.name}
           </option>
         ))}
       </FormControl>
