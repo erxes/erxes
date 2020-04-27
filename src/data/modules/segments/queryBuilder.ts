@@ -1,5 +1,7 @@
 import * as _ from 'underscore';
 import { Segments } from '../../../db/models';
+import { companySchema } from '../../../db/models/definitions/companies';
+import { customerSchema } from '../../../db/models/definitions/customers';
 import { ICondition, ISegment } from '../../../db/models/definitions/segments';
 import { fetchElk } from '../../../elasticsearch';
 
@@ -9,21 +11,20 @@ export const fetchBySegments = async (segment: ISegment, action: 'search' | 'cou
   }
 
   const { contentType } = segment;
-  const index = contentType === 'customer' ? 'customers' : 'companies';
-  const idField = contentType === 'customer' ? 'customerId' : 'companyId';
+  const index = contentType === 'company' ? 'companies' : 'customers';
+  const idField = contentType === 'company' ? 'companyId' : 'customerId';
+  const schema = contentType === 'company' ? companySchema : customerSchema;
+  const typesMap: { [key: string]: any } = {};
+
+  schema.eachPath(name => {
+    const path = schema.paths[name];
+    typesMap[name] = path.options.esType;
+  });
 
   const propertyPositive: any[] = [];
   const propertyNegative: any[] = [];
 
-  if (contentType === 'customer') {
-    propertyPositive.push({
-      range: {
-        profileScore: {
-          gt: 0,
-        },
-      },
-    });
-
+  if (contentType !== 'company') {
     propertyNegative.push({
       term: {
         status: 'Deleted',
@@ -34,7 +35,7 @@ export const fetchBySegments = async (segment: ISegment, action: 'search' | 'cou
   const eventPositive = [];
   const eventNegative = [];
 
-  await generateQueryBySegment({ segment, propertyPositive, propertyNegative, eventNegative, eventPositive });
+  await generateQueryBySegment({ segment, typesMap, propertyPositive, propertyNegative, eventNegative, eventPositive });
 
   let idsByEvents = [];
 
@@ -51,17 +52,15 @@ export const fetchBySegments = async (segment: ISegment, action: 'search' | 'cou
     });
 
     idsByEvents = eventsResponse.hits.hits.map(hit => hit._source[idField]);
+
+    propertyPositive.push({
+      terms: {
+        _id: idsByEvents,
+      },
+    });
   }
 
   if (action === 'count') {
-    if (idsByEvents.length > 0) {
-      propertyPositive.push({
-        terms: {
-          _id: idsByEvents,
-        },
-      });
-    }
-
     return {
       positiveList: propertyPositive,
       negativeList: propertyNegative,
@@ -96,8 +95,9 @@ const generateQueryBySegment = async (args: {
   eventPositive;
   eventNegative;
   segment: ISegment;
+  typesMap: { [key: string]: any };
 }) => {
-  const { segment, propertyNegative, propertyPositive, eventNegative, eventPositive } = args;
+  const { segment, typesMap, propertyNegative, propertyPositive, eventNegative, eventPositive } = args;
 
   // Fetching parent segment
   const embeddedParentSegment = await Segments.findOne({ _id: segment.subOf });
@@ -121,8 +121,11 @@ const generateQueryBySegment = async (args: {
   }
 
   for (const condition of propertyConditions) {
+    const field = condition.propertyName || '';
+
     elkConvertConditionToQuery({
-      field: condition.propertyName || '',
+      field,
+      type: typesMap[field],
       operator: condition.propertyOperator || '',
       value: condition.propertyValue || '',
       positive: propertyPositive,
@@ -183,27 +186,42 @@ const generateQueryBySegment = async (args: {
   }
 };
 
-function elkConvertConditionToQuery(args: { field: string; operator: string; value: string; positive; negative }) {
-  const { field, operator, value, positive, negative } = args;
+function elkConvertConditionToQuery(args: {
+  field: string;
+  type?: any;
+  operator: string;
+  value: string;
+  positive;
+  negative;
+}) {
+  const { field, type, operator, value, positive, negative } = args;
 
   const fixedValue = value.toLocaleLowerCase();
 
   // equal
   if (operator === 'e') {
-    positive.push({
-      term: {
-        [`${field}.keyword`]: value,
-      },
-    });
+    if (['keyword', 'email'].includes(type)) {
+      positive.push({
+        term: { [field]: value },
+      });
+    } else {
+      positive.push({
+        term: { [`${field}.keyword`]: value },
+      });
+    }
   }
 
   // does not equal
   if (operator === 'dne') {
-    negative.push({
-      term: {
-        [`${field}.keyword`]: value,
-      },
-    });
+    if (['keyword', 'email'].includes(type)) {
+      negative.push({
+        term: { [field]: value },
+      });
+    } else {
+      negative.push({
+        term: { [`${field}.keyword`]: value },
+      });
+    }
   }
 
   // contains
@@ -280,5 +298,46 @@ function elkConvertConditionToQuery(args: { field: string; operator: string; val
         field,
       },
     });
+  }
+
+  if (['woam', 'wobm', 'woad', 'wobd'].includes(operator)) {
+    let gte = '';
+    let lte = '';
+
+    // will occur after on following n-th minute
+    if (operator === 'woam') {
+      gte = `now-${fixedValue}m/m`;
+      lte = `now-${fixedValue}m/m`;
+    }
+
+    // will occur before on following n-th minute
+    if (operator === 'wobm') {
+      gte = `now+${fixedValue}m/m`;
+      lte = `now+${fixedValue}m/m`;
+    }
+
+    // will occur after on following n-th day
+    if (operator === 'woad') {
+      gte = `now-${fixedValue}d/d`;
+      lte = `now-${fixedValue}d/d`;
+    }
+
+    // will occur before on following n-th day
+    if (operator === 'wobd') {
+      gte = `now+${fixedValue}d/d`;
+      lte = `now+${fixedValue}d/d`;
+    }
+
+    positive.push({ range: { [field]: { gte, lte } } });
+  }
+
+  // date relative less than
+  if (operator === 'drlt') {
+    positive.push({ range: { [field]: { lte: fixedValue } } });
+  }
+
+  // date relative greater than
+  if (operator === 'drgt') {
+    positive.push({ range: { [field]: { gte: fixedValue } } });
   }
 }

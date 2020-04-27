@@ -31,7 +31,6 @@ export interface IListArgs extends IConformityQueryParams {
   form?: string;
   startDate?: string;
   endDate?: string;
-  lifecycleState?: string;
   leadStatus?: string;
   type?: string;
   integrationType?: string;
@@ -44,6 +43,28 @@ export interface IListArgs extends IConformityQueryParams {
 export class Builder extends CommonBuilder<IListArgs> {
   constructor(params: IListArgs, context) {
     super('customers', params, context);
+
+    this.addStateFilter();
+  }
+
+  public addStateFilter() {
+    if (this.params.type) {
+      this.positiveList.push({
+        term: {
+          state: this.params.type,
+        },
+      });
+    }
+  }
+
+  public resetPositiveList() {
+    this.positiveList = [];
+
+    this.addStateFilter();
+
+    if (this.context.commonQuerySelectorElk) {
+      this.positiveList.push(this.context.commonQuerySelectorElk);
+    }
   }
 
   // filter by brand
@@ -52,7 +73,7 @@ export class Builder extends CommonBuilder<IListArgs> {
 
     this.positiveList.push({
       terms: {
-        integrationId: integrations.map(i => i._id),
+        relatedIntegrationIds: integrations.map(i => i._id),
       },
     });
   }
@@ -60,13 +81,14 @@ export class Builder extends CommonBuilder<IListArgs> {
   // filter by integration
   public async integrationFilter(integration: string): Promise<void> {
     const integrations = await Integrations.findIntegrations({ kind: integration });
+
     /**
      * Since both of brand and integration filters use a same integrationId field
      * we need to intersect two arrays of integration ids.
      */
     this.positiveList.push({
       terms: {
-        integrationId: integrations.map(i => i._id),
+        relatedIntegrationIds: integrations.map(i => i._id),
       },
     });
   }
@@ -77,7 +99,7 @@ export class Builder extends CommonBuilder<IListArgs> {
 
     this.positiveList.push({
       terms: {
-        integrationId: integrations.map(i => i._id),
+        relatedIntegrationIds: integrations.map(i => i._id),
       },
     });
   }
@@ -117,7 +139,7 @@ export class Builder extends CommonBuilder<IListArgs> {
     const selector = {
       ...this.context.commonQuerySelector,
       status: { $ne: STATUSES.DELETED },
-      profileScore: { $gt: 0 },
+      state: this.params.type || 'customer',
       $or: [
         {
           integrationId: { $in: [null, undefined, ''] },

@@ -104,8 +104,15 @@ export default {
       return null;
     }
 
-    return dataSources.IntegrationsAPI.fetchApi('/daily/get-active-room', {
-      erxesApiConversationId: conversation._id,
-    });
+    try {
+      const response = await dataSources.IntegrationsAPI.fetchApi('/daily/get-active-room', {
+        erxesApiConversationId: conversation._id,
+      });
+
+      return response;
+    } catch (e) {
+      debugExternalApi(e);
+      return null;
+    }
   },
 };

@@ -128,7 +128,7 @@ export const commonItemFieldsSchema = {
   watchedUserIds: field({ type: [String], label: 'Watched users' }),
   labelIds: field({ type: [String], label: 'Labels' }),
   attachments: field({ type: [attachmentSchema], label: 'Attachments' }),
-  stageId: field({ type: String, label: 'Stage' }),
+  stageId: field({ type: String, label: 'Stage', index: true }),
   initialStageId: field({ type: String, optional: true, label: 'Initial stage' }),
   modifiedAt: field({
     type: Date,
@@ -143,6 +143,7 @@ export const commonItemFieldsSchema = {
     type: String,
     enum: BOARD_STATUSES.ALL,
     default: BOARD_STATUSES.ACTIVE,
+    index: true,
   }),
 };
 

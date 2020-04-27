@@ -11,11 +11,12 @@ import {
   Tickets,
   Users,
 } from '../../../db/models';
-import { NOTIFICATION_CONTENT_TYPES, NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
+import { BOARD_TYPES, NOTIFICATION_CONTENT_TYPES, NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { IDealDocument } from '../../../db/models/definitions/deals';
 import { IInternalNote } from '../../../db/models/definitions/internalNotes';
 import { ITaskDocument } from '../../../db/models/definitions/tasks';
 import { ITicketDocument } from '../../../db/models/definitions/tickets';
+import { graphqlPubsub } from '../../../pubsub';
 import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { moduleRequireLogin } from '../../permissions/wrappers';
@@ -42,6 +43,8 @@ const sendNotificationOfItems = async (
   });
 
   utils.sendNotification(notifDocItems);
+
+  graphqlPubsub.publish('activityLogsChanged');
 };
 
 const internalNoteMutations = {
@@ -83,7 +86,7 @@ const internalNoteMutations = {
 
       notifDoc.notifType = NOTIFICATION_TYPES.CUSTOMER_MENTION;
       notifDoc.content = Customers.getCustomerName(customer);
-      notifDoc.link = `/contacts/customers/details/${customer._id}`;
+      notifDoc.link = `/contacts/details/${customer._id}`;
       notifDoc.contentTypeId = customer._id;
       notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.CUSTOMER;
     }
@@ -93,7 +96,7 @@ const internalNoteMutations = {
 
       notifDoc.notifType = NOTIFICATION_TYPES.CUSTOMER_MENTION;
       notifDoc.content = Companies.getCompanyName(company);
-      notifDoc.link = `/contacts/companies/details/${company._id}`;
+      notifDoc.link = `/companies/details/${company._id}`;
       notifDoc.contentTypeId = company._id;
       notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.COMPANY;
     }
@@ -179,6 +182,10 @@ const internalNoteMutations = {
       user,
     );
 
+    if (BOARD_TYPES.ALL.includes(updated.contentType)) {
+      graphqlPubsub.publish('activityLogsChanged');
+    }
+
     return updated;
   },
 
@@ -190,6 +197,10 @@ const internalNoteMutations = {
     const removed = await InternalNotes.removeInternalNote(_id);
 
     await putDeleteLog({ type: MODULE_NAMES.INTERNAL_NOTE, object: internalNote }, user);
+
+    if (BOARD_TYPES.ALL.includes(internalNote.contentType)) {
+      graphqlPubsub.publish('activityLogsChanged');
+    }
 
     return removed;
   },

@@ -1,27 +1,23 @@
 import { graphqlRequest } from '../db/connection';
-import { configFactory } from '../db/factories';
 
+import { configFactory } from '../db/factories';
 import './setup.ts';
 
 describe('configQueries', () => {
-  test('config detail', async () => {
-    const config = await configFactory();
-
-    const args = { code: config.code };
+  test('configs', async () => {
+    await configFactory({});
 
     const qry = `
-      query configsDetail($code: String!) {
-        configsDetail(code: $code) {
+      query configs {
+        configs {
           _id
-          code
-          value
         }
       }
     `;
 
-    const response = await graphqlRequest(qry, 'configsDetail', args);
+    const response = await graphqlRequest(qry, 'configs');
 
-    expect(response.code).toBe(config.code);
+    expect(response.length).toBe(1);
   });
 
   test('config get env', async () => {
@@ -40,11 +36,7 @@ describe('configQueries', () => {
     expect(response.USE_BRAND_RESTRICTIONS).toBe('true');
   });
 
-  test('config get env', async () => {
-    process.env.MAIN_APP_DOMAIN = 'http://fake.erxes.io';
-    process.env.DOMAIN = 'http://fake.erxes.io';
-    process.env.WIDGETS_DOMAIN = 'http://fake.erxes.io';
-
+  test('configsVersions', async () => {
     process.env.NODE_ENV = 'dev';
 
     const qry = `

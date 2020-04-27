@@ -1,0 +1,31 @@
+name: ElkSyncer CI
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+    paths:
+      - 'elkSyncer/**'
+      - '.github/workflows/elk-syncer.yaml'
+
+jobs:
+  elkSyncer:
+    runs-on: ubuntu-18.04
+
+    # name: Node ${{ matrix.node-version }}
+
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+
+    - name: Build docker image on push
+      if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' )
+      run: |
+        cd elkSyncer
+        docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_TOKEN
+        docker build -t erxes/erxes-elksyncer:${GITHUB_REF#refs/heads/} -f Dockerfile .
+        docker push erxes/erxes-elksyncer:${GITHUB_REF#refs/heads/}
+      env:
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}

@@ -8,16 +8,30 @@ import { IContext } from '../../types';
 
 const features: { [key: string]: { settings: string[]; settingsPermissions: string[] } } = {
   growthHacks: {
-    settings: ['growthHackBoardsCreate', 'growthHackPipelinesCreate', 'growthHackCreate'],
-    settingsPermissions: ['growthHackBoardsAdd', 'growthHackPipelinesAdd', 'growthHackStagesAdd'],
+    settings: [
+      'growthHackBoardsCreate',
+      'growthHackPipelinesCreate',
+      'growthHackTemplatesDuplicate',
+      'growthHackCreate',
+    ],
+    settingsPermissions: [
+      'growthHackBoardsAdd',
+      'growthHackPipelinesAdd',
+      'growthHackStagesAdd',
+      'growthHackTemplatesDuplicate',
+    ],
+  },
+  deals: {
+    settings: ['dealBoardsCreate', 'dealPipelinesCreate', 'productCreate', 'dealCreate'],
+    settingsPermissions: ['dealBoardsAdd', 'dealPipelinesAdd', 'dealStagesAdd', 'manageProducts'],
   },
   inbox: {
     settings: [
       'brandCreate',
       'channelCreate',
       'messengerIntegrationCreate',
-      'responseTemplateCreate',
       'connectIntegrationsToChannel',
+      'responseTemplateCreate',
     ],
     settingsPermissions: [
       'manageBrands',
@@ -26,61 +40,40 @@ const features: { [key: string]: { settings: string[]; settingsPermissions: stri
       'manageResponseTemplate',
     ],
   },
-  deals: {
-    settings: ['dealBoardsCreate', 'dealPipelinesCreate', 'dealCreate', 'configure.dealCurrency', 'configure.dealUOM'],
-    settingsPermissions: ['dealBoardsAdd', 'dealPipelinesAdd', 'dealStagesAdd', 'manageGeneralSettings'],
-  },
-  leads: {
-    settings: ['leadIntegrationCreate', 'leadIntegrationInstalled'],
-    settingsPermissions: ['integrationsCreateLeadIntegration'],
-  },
   engages: {
-    settings: ['emailTemplateCreate', 'tagCreate', 'engageCreate'],
-    settingsPermissions: ['manageEmailTemplate', 'manageTags', 'engageMessageAdd'],
+    settings: ['engageVerifyEmail', 'engageSendTestEmail', 'emailTemplateCreate', 'segmentCreate', 'engageCreate'],
+    settingsPermissions: ['manageEmailTemplate', 'manageSegments', 'engageMessageAdd', 'engageMessageRemove'],
   },
-  tasks: {
-    settings: ['taskBoardsCreate', 'taskPipelinesCreate', 'taskCreate'],
-    settingsPermissions: ['taskBoardsAdd', 'taskPipelinesAdd', 'taskStagesAdd'],
-  },
-  tickets: {
-    settings: ['ticketBoardsCreate', 'ticketPipelinesCreate', 'ticketCreate'],
-    settingsPermissions: ['ticketBoardsAdd', 'ticketPipelinesAdd', 'ticketStagesAdd'],
-  },
-  knowledgeBase: {
-    settings: ['knowledgeBaseTopicCreate', 'knowledgeBaseCategoryCreate', 'knowledgeBaseArticleCreate'],
-    settingsPermissions: ['manageKnowledgeBase'],
-  },
-  customers: {
-    settings: ['customerCreate', 'companyCreate', 'productCreate'],
-    settingsPermissions: ['customersAdd', 'companiesAdd', 'manageProducts'],
-  },
-  segments: {
-    settings: ['customerSegmentCreate', 'companySegmentCreate'],
-    settingsPermissions: ['manageSegments'],
-  },
-  tags: {
-    settings: ['customerTagCreate', 'companyTagCreate'],
-    settingsPermissions: ['manageTags'],
-  },
-  properties: {
-    settings: ['customerFieldCreate', 'companyFieldCreate'],
-    settingsPermissions: ['manageForms'],
-  },
-  permissions: {
-    settings: ['permissionCreate'],
-    settingsPermissions: ['managePermissions'],
+  contacts: {
+    settings: ['leadCreate', 'customerCreate', 'companyCreate', 'productCreate', 'fieldCreate', 'tagCreate'],
+    settingsPermissions: ['customersAdd', 'companiesAdd', 'manageProducts', 'manageTags', 'manageForms'],
   },
   integrations: {
-    settings: ['messengerIntegrationCreate', 'facebookIntegrationCreate'],
-    settingsPermissions: ['integrationsCreateMessengerIntegration'],
+    settings: [
+      'brandCreate',
+      'messengerIntegrationCreate',
+      'connectIntegrationsToChannel',
+      'messengerIntegrationInstalled',
+    ],
+    settingsPermissions: ['integrationsCreateMessengerIntegration', 'manageChannels', 'manageBrands'],
   },
-  insights: {
-    settings: ['showInsights'],
-    settingsPermissions: ['showInsights'],
+  leads: {
+    settings: ['brandCreate', 'leadIntegrationCreate', 'leadIntegrationInstalled'],
+    settingsPermissions: ['integrationsCreateLeadIntegration', 'manageBrands'],
   },
-  importHistories: {
-    settings: ['customer_template.xlsxDownload', 'company_template.xlsxDownload'],
-    settingsPermissions: ['importXlsFile'],
+  knowledgeBase: {
+    settings: [
+      'brandCreate',
+      'knowledgeBaseTopicCreate',
+      'knowledgeBaseCategoryCreate',
+      'knowledgeBaseArticleCreate',
+      'knowledgeBaseInstalled',
+    ],
+    settingsPermissions: ['manageKnowledgeBase', 'manageBrands'],
+  },
+  tasks: {
+    settings: ['taskBoardsCreate', 'taskPipelinesCreate', 'taskCreate', 'taskAssignUser'],
+    settingsPermissions: ['taskBoardsAdd', 'taskPipelinesAdd', 'taskStagesAdd', 'taskAdd', 'taskEdit'],
   },
 };
 

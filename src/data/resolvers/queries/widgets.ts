@@ -4,11 +4,13 @@ import {
   Integrations,
   KnowledgeBaseArticles as KnowledgeBaseArticlesModel,
   KnowledgeBaseCategories as KnowledgeBaseCategoriesModel,
+  KnowledgeBaseTopics,
   KnowledgeBaseTopics as KnowledgeBaseTopicsModel,
   Users,
 } from '../../../db/models';
 import Messages from '../../../db/models/ConversationMessages';
 import { IIntegrationDocument } from '../../../db/models/definitions/integrations';
+import { registerOnboardHistory } from '../../utils';
 
 export const isMessengerOnline = async (integration: IIntegrationDocument) => {
   if (!integration.messengerData) {
@@ -92,15 +94,10 @@ export default {
 
   async widgetsConversationDetail(_root, args: { _id: string; integrationId: string }) {
     const { _id, integrationId } = args;
-    const conversation = await Conversations.findOne({ _id });
-
-    if (!conversation) {
-      return null;
-    }
-
+    const conversation = await Conversations.findOne({ _id, integrationId });
     const integration = await Integrations.findOne({ _id: integrationId });
 
-    if (!integration) {
+    if (!conversation || !integration) {
       return null;
     }
 
@@ -147,5 +144,20 @@ export default {
     const messengerData = integration.messengerData || { supporterIds: [] };
 
     return Users.find({ _id: { $in: messengerData.supporterIds || [] } });
+  },
+
+  /**
+   * Topic detail
+   */
+  async widgetsKnowledgeBaseTopicDetail(_root, { _id }: { _id: string }) {
+    const topic = await KnowledgeBaseTopics.findOne({ _id });
+
+    if (topic && topic.createdBy) {
+      const user = await Users.getUser(topic.createdBy);
+
+      registerOnboardHistory({ type: 'knowledgeBaseInstalled', user });
+    }
+
+    return topic;
   },
 };

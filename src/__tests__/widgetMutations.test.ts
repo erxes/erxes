@@ -1,6 +1,8 @@
 import * as faker from 'faker';
 import * as Random from 'meteor-random';
+import { EngagesAPI, IntegrationsAPI } from '../data/dataSources';
 import widgetMutations, { getMessengerData } from '../data/resolvers/mutations/widgets';
+import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
   conversationFactory,
@@ -25,7 +27,7 @@ import {
   MessengerApps,
 } from '../db/models';
 import { IBrandDocument } from '../db/models/definitions/brands';
-import { CONVERSATION_STATUSES } from '../db/models/definitions/constants';
+import { CONVERSATION_STATUSES, MESSAGE_TYPES } from '../db/models/definitions/constants';
 import { ICustomerDocument } from '../db/models/definitions/customers';
 import { IIntegrationDocument } from '../db/models/definitions/integrations';
 import './setup.ts';
@@ -34,6 +36,14 @@ describe('messenger connect', () => {
   let _brand: IBrandDocument;
   let _integration: IIntegrationDocument;
   let _customer: ICustomerDocument;
+
+  const res = {
+    cookie: () => {
+      return 'cookie';
+    },
+  };
+
+  const context: any = {};
 
   beforeEach(async () => {
     // Creating test data
@@ -49,6 +59,18 @@ describe('messenger connect', () => {
       primaryPhone: '96221050',
       deviceTokens: ['111'],
     });
+
+    const dataSources = { IntegrationsAPI: new IntegrationsAPI(), EngagesAPI: new EngagesAPI() };
+    const user = await userFactory({});
+
+    context.requestInfo = { secure: false };
+    context.dataSources = dataSources;
+    context.user = user;
+    context.res = res;
+    context.commonQuerySelector = {};
+    context.userBrandIdsSelector = {};
+    context.brandIdSelector = {};
+    context.docModifier = doc => doc;
   });
 
   afterEach(async () => {
@@ -61,7 +83,7 @@ describe('messenger connect', () => {
 
   test('brand not found', async () => {
     try {
-      await widgetMutations.widgetsMessengerConnect({}, { brandCode: 'invalidCode' });
+      await widgetMutations.widgetsMessengerConnect({}, { brandCode: 'invalidCode' }, context);
     } catch (e) {
       expect(e.message).toBe('Brand not found');
     }
@@ -71,7 +93,7 @@ describe('messenger connect', () => {
     const brand = await brandFactory({});
 
     try {
-      await widgetMutations.widgetsMessengerConnect({}, { brandCode: brand.code || '' });
+      await widgetMutations.widgetsMessengerConnect({}, { brandCode: brand.code || '' }, context);
     } catch (e) {
       expect(e.message).toBe('Integration not found');
     }
@@ -99,6 +121,7 @@ describe('messenger connect', () => {
     const { integrationId, brand, messengerData } = await widgetMutations.widgetsMessengerConnect(
       {},
       { brandCode: _brand.code || '', email: faker.internet.email() },
+      context,
     );
 
     expect(integrationId).toBe(_integration._id);
@@ -114,6 +137,7 @@ describe('messenger connect', () => {
     const { customerId } = await widgetMutations.widgetsMessengerConnect(
       {},
       { brandCode: _brand.code || '', email, companyData: { name: 'company' }, deviceToken: '111' },
+      context,
     );
 
     expect(customerId).toBeDefined();
@@ -145,6 +169,7 @@ describe('messenger connect', () => {
         isUser: true,
         deviceToken: '222',
       },
+      context,
     );
 
     expect(customerId).toBeDefined();
@@ -160,7 +185,6 @@ describe('messenger connect', () => {
     expect(customer.createdAt < now).toBeTruthy();
 
     // must be updated
-    expect(customer.isUser).toBeTruthy();
     expect((customer.deviceTokens || []).length).toBe(2);
     expect(customer.deviceTokens).toContain('111');
     expect(customer.deviceTokens).toContain('222');
@@ -192,6 +216,7 @@ describe('insertMessage()', () => {
     const message = await widgetMutations.widgetsInsertMessage(
       {},
       {
+        contentType: MESSAGE_TYPES.TEXT,
         integrationId: _integration._id,
         customerId: _customer._id,
         message: faker.lorem.sentence(),
@@ -228,6 +253,7 @@ describe('insertMessage()', () => {
     const message = await widgetMutations.widgetsInsertMessage(
       {},
       {
+        contentType: MESSAGE_TYPES.TEXT,
         integrationId: _integration._id,
         customerId: _customer._id,
         message: 'withConversationId',
@@ -614,5 +640,30 @@ describe('lead', () => {
     expect(formData[3].value).toBe('88998833');
     expect(formData[4].value).toBe('radio2');
     expect(formData[5].value).toBe('check1, check2');
+  });
+
+  test('widgetsSendEmail', async () => {
+    const emailParams = {
+      toEmails: ['test-mail@gmail.com'],
+      fromEmail: 'admin@erxes.io',
+      title: 'Thank you for submitting.',
+      content: 'We have received your request',
+    };
+
+    const spyEmail = jest.spyOn(widgetMutations, 'widgetsSendEmail');
+
+    const mutation = `
+      mutation widgetsSendEmail($toEmails: [String], $fromEmail: String, $title: String, $content: String) {
+        widgetsSendEmail(toEmails: $toEmails, fromEmail: $fromEmail, title: $title, content: $content)
+      }
+    `;
+
+    spyEmail.mockImplementation(() => Promise.resolve());
+
+    const response = await graphqlRequest(mutation, 'widgetsSendEmail', emailParams);
+
+    expect(response).toBe(null);
+
+    spyEmail.mockRestore();
   });
 });

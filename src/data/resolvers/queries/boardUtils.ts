@@ -2,7 +2,7 @@ import * as moment from 'moment';
 import { Conformities, Pipelines, Stages } from '../../../db/models';
 import { IItemCommonFields } from '../../../db/models/definitions/boards';
 import { BOARD_STATUSES } from '../../../db/models/definitions/constants';
-import { getNextMonth, getToday, paginate, regexSearchText } from '../../utils';
+import { getNextMonth, getToday, regexSearchText } from '../../utils';
 import { IListParams } from './boards';
 
 export interface IArchiveArgs {
@@ -33,6 +33,7 @@ export const generateCommonFilters = async (currentUserId: string, args: any) =>
     type,
     labelIds,
     priority,
+    userIds,
   } = args;
 
   const isListEmpty = value => {
@@ -171,6 +172,12 @@ export const generateCommonFilters = async (currentUserId: string, args: any) =>
     }
   }
 
+  if (userIds) {
+    const isEmpty = isListEmpty(userIds);
+
+    filter.userId = isEmpty ? { $in: [null, []] } : { $in: userIds };
+  }
+
   return filter;
 };
 
@@ -292,6 +299,7 @@ export const archivedItems = async (params: IArchiveArgs, collection: any) => {
   const { pipelineId, search, ...listArgs } = params;
 
   const filter: any = { status: BOARD_STATUSES.ARCHIVED };
+  const { page = 0, perPage = 0 } = listArgs;
 
   const stages = await Stages.find({ pipelineId });
 
@@ -302,8 +310,34 @@ export const archivedItems = async (params: IArchiveArgs, collection: any) => {
       Object.assign(filter, regexSearchText(search, 'name'));
     }
 
-    return paginate(collection.find(filter).sort({ createdAt: -1 }), listArgs);
+    return collection
+      .find(filter)
+      .sort({
+        modifiedAt: -1,
+      })
+      .skip(page || 0)
+      .limit(perPage || 20);
   }
 
   return [];
+};
+
+export const archivedItemsCount = async (params: IArchiveArgs, collection: any) => {
+  const { pipelineId, search } = params;
+
+  const filter: any = { status: BOARD_STATUSES.ARCHIVED };
+
+  const stages = await Stages.find({ pipelineId });
+
+  if (stages.length > 0) {
+    filter.stageId = { $in: stages.map(stage => stage._id) };
+
+    if (search) {
+      Object.assign(filter, regexSearchText(search, 'name'));
+    }
+
+    return collection.countDocuments(filter);
+  }
+
+  return 0;
 };

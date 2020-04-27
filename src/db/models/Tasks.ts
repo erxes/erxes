@@ -2,6 +2,7 @@ import { Model, model } from 'mongoose';
 import { ActivityLogs } from '.';
 import { fillSearchTextItem, updateOrder, watchItem } from './boardUtils';
 import { IItemCommonFields as ITask, IOrderInput } from './definitions/boards';
+import { BOARD_STATUSES } from './definitions/constants';
 import { ITaskDocument, taskSchema } from './definitions/tasks';
 
 export interface ITaskModel extends Model<ITaskDocument> {
@@ -39,13 +40,19 @@ export const loadTaskClass = () => {
         }
       }
 
-      const tasksCount = await Tasks.find({
-        stageId: doc.stageId,
-      }).countDocuments();
+      const lastVisibleTasks = await Tasks.find(
+        {
+          stageId: doc.stageId,
+          status: { $ne: BOARD_STATUSES.ARCHIVED },
+        },
+        { order: 1 },
+      )
+        .sort({ order: -1 })
+        .limit(1);
 
       const task = await Tasks.create({
         ...doc,
-        order: tasksCount,
+        order: ((lastVisibleTasks && lastVisibleTasks.length > 0 ? lastVisibleTasks[0].order : 0) || 0) + 1,
         createdAt: new Date(),
         modifiedAt: new Date(),
         searchText: fillSearchTextItem(doc),

@@ -1,7 +1,7 @@
 import { Model, model } from 'mongoose';
 import { validateEmail, validSearchText } from '../../data/utils';
 import { ActivityLogs, Conformities, Conversations, EngageMessages, Fields, InternalNotes } from './';
-import { STATUSES } from './definitions/constants';
+import { EMAIL_VALIDATION_STATUSES, STATUSES } from './definitions/constants';
 import { customerSchema, ICustomer, ICustomerDocument } from './definitions/customers';
 import { IUserDocument } from './definitions/users';
 
@@ -9,6 +9,7 @@ interface IGetCustomerParams {
   email?: string;
   phone?: string;
   code?: string;
+  integrationId?: string;
   cachedCustomerId?: string;
 }
 
@@ -19,21 +20,25 @@ interface ICustomerFieldsInput {
 }
 
 interface ICreateMessengerCustomerParams {
-  integrationId?: string;
-  email?: string;
-  hasValidEmail?: boolean;
-  phone?: string;
-  code?: string;
-  isUser?: boolean;
-  firstName?: string;
-  lastName?: string;
-  description?: string;
-  deviceToken?: string;
+  doc: {
+    integrationId: string;
+    email?: string;
+    emailValidationStatus?: string;
+    phone?: string;
+    code?: string;
+    isUser?: boolean;
+    firstName?: string;
+    lastName?: string;
+    description?: string;
+    deviceToken?: string;
+  };
+  customData?: any;
 }
 
 export interface IUpdateMessengerCustomerParams {
   _id: string;
   doc: {
+    integrationId: string;
     email?: string;
     phone?: string;
     code?: string;
@@ -66,13 +71,14 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
   markCustomerAsActive(customerId: string): Promise<ICustomerDocument>;
   markCustomerAsNotActive(_id: string): Promise<ICustomerDocument>;
   removeCustomers(customerIds: string[]): Promise<{ n: number; ok: number }>;
+  changeState(_id: string, value: string): Promise<ICustomerDocument>;
   mergeCustomers(customerIds: string[], customerFields: ICustomer, user?: IUserDocument): Promise<ICustomerDocument>;
   bulkInsert(fieldNames: string[], fieldValues: string[][], user: IUserDocument): Promise<string[]>;
   updateProfileScore(customerId: string, save: boolean): never;
 
   // widgets ===
   getWidgetCustomer(doc: IGetCustomerParams): Promise<ICustomerDocument | null>;
-  createMessengerCustomer(doc: ICreateMessengerCustomerParams): Promise<ICustomerDocument>;
+  createMessengerCustomer(param: ICreateMessengerCustomerParams): Promise<ICustomerDocument>;
   updateMessengerCustomer(param: IUpdateMessengerCustomerParams): Promise<ICustomerDocument>;
   updateSession(_id: string): Promise<ICustomerDocument>;
   updateLocation(_id: string, browserInfo: IBrowserInfo): Promise<ICustomerDocument>;
@@ -186,6 +192,7 @@ export const loadClass = () => {
      */
     public static async createVisitor(): Promise<string> {
       const customer = await Customers.create({
+        state: 'visitor',
         createdAt: new Date(),
         modifiedAt: new Date(),
       });
@@ -216,10 +223,9 @@ export const loadClass = () => {
 
       // clean custom field values
       doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
-      const isValid = await validateEmail(doc.primaryEmail);
 
-      if (doc.primaryEmail && isValid) {
-        doc.hasValidEmail = true;
+      if (doc.integrationId) {
+        doc.relatedIntegrationIds = [doc.integrationId];
       }
 
       const customer = await Customers.create({
@@ -228,8 +234,16 @@ export const loadClass = () => {
         ...doc,
       });
 
+      if (doc.primaryEmail && !doc.emailValidationStatus) {
+        validateEmail(doc.primaryEmail);
+      }
+
       // calculateProfileScore
       await Customers.updateProfileScore(customer._id, true);
+
+      if (doc.state) {
+        await Customers.updateOne({ _id: customer._id }, { $set: { state: doc.state } });
+      }
 
       await ActivityLogs.createCocLog({ coc: customer, contentType: 'customer' });
 
@@ -247,8 +261,13 @@ export const loadClass = () => {
       doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
 
       if (doc.primaryEmail) {
-        const isValid = await validateEmail(doc.primaryEmail);
-        doc.hasValidEmail = isValid;
+        const oldCustomer = await Customers.getCustomer(_id);
+
+        if (doc.primaryEmail !== oldCustomer.primaryEmail) {
+          doc.emailValidationStatus = EMAIL_VALIDATION_STATUSES.UNKNOWN;
+
+          validateEmail(doc.primaryEmail);
+        }
       }
 
       await Customers.updateOne({ _id }, { $set: { ...doc, modifiedAt: new Date() } });
@@ -297,34 +316,43 @@ export const loadClass = () => {
       }
 
       const nullValues = ['', null];
+
+      let possibleLead = false;
       let score = 0;
       let searchText = (customer.emails || []).join(' ').concat(' ', (customer.phones || []).join(' '));
 
       if (!nullValues.includes(customer.firstName || '')) {
         score += 10;
+        possibleLead = true;
         searchText = searchText.concat(' ', customer.firstName || '');
       }
 
       if (!nullValues.includes(customer.lastName || '')) {
         score += 5;
+        possibleLead = true;
         searchText = searchText.concat(' ', customer.lastName || '');
       }
 
       if (!nullValues.includes(customer.code || '')) {
         score += 10;
+        possibleLead = true;
         searchText = searchText.concat(' ', customer.code || '');
       }
 
       if (!nullValues.includes(customer.primaryEmail || '')) {
+        possibleLead = true;
         score += 15;
       }
 
       if (!nullValues.includes(customer.primaryPhone || '')) {
+        possibleLead = true;
         score += 10;
       }
 
       if (customer.visitorContactInfo != null) {
+        possibleLead = true;
         score += 5;
+
         searchText = searchText.concat(
           ' ',
           customer.visitorContactInfo.email || '',
@@ -335,16 +363,24 @@ export const loadClass = () => {
 
       searchText = validSearchText([searchText]);
 
+      let state = customer.state || 'visitor';
+
+      if (possibleLead && state !== 'customer') {
+        state = 'lead';
+      }
+
+      const modifier = { $set: { profileScore: score, searchText, state } };
+
       if (!save) {
         return {
           updateOne: {
             filter: { _id: customerId },
-            update: { $set: { profileScore: score, searchText } },
+            update: modifier,
           },
         };
       }
 
-      await Customers.updateOne({ _id: customerId }, { $set: { profileScore: score, searchText } });
+      await Customers.updateOne({ _id: customerId }, modifier);
     }
     /**
      * Remove customers
@@ -444,9 +480,7 @@ export const loadClass = () => {
     /*
      * Get widget customer
      */
-    public static async getWidgetCustomer(params: IGetCustomerParams) {
-      const { email, phone, code, cachedCustomerId } = params;
-
+    public static async getWidgetCustomer({ integrationId, email, phone, code, cachedCustomerId }: IGetCustomerParams) {
       let customer: ICustomerDocument | null = null;
 
       if (email) {
@@ -469,13 +503,50 @@ export const loadClass = () => {
         customer = await Customers.findOne({ _id: cachedCustomerId });
       }
 
+      if (customer) {
+        const ids = customer.relatedIntegrationIds;
+
+        if (integrationId && ids && !ids.includes(integrationId)) {
+          ids.push(integrationId);
+          await Customers.updateOne({ _id: customer._id }, { $set: { relatedIntegrationIds: ids } });
+          customer = await Customers.findOne({ _id: customer._id });
+        }
+      }
+
       return customer;
     }
 
-    public static fixListFields(doc: any, customer?: ICustomerDocument) {
+    public static customerFieldNames() {
+      const names: string[] = [];
+
+      customerSchema.eachPath(name => {
+        names.push(name);
+
+        const path = customerSchema.paths[name];
+
+        if (path.schema) {
+          path.schema.eachPath(subName => {
+            names.push(`${name}.${subName}`);
+          });
+        }
+      });
+
+      return names;
+    }
+
+    public static fixListFields(doc: any, customData = {}, customer?: ICustomerDocument) {
       let emails: string[] = [];
       let phones: string[] = [];
       let deviceTokens: string[] = [];
+
+      // extract basic fields from customData
+      for (const name of this.customerFieldNames()) {
+        if (customData[name]) {
+          doc[name] = customData[name];
+
+          delete customData[name];
+        }
+      }
 
       if (customer) {
         emails = customer.emails || [];
@@ -514,16 +585,17 @@ export const loadClass = () => {
       doc.emails = emails;
       doc.phones = phones;
       doc.deviceTokens = deviceTokens;
-
-      return doc;
     }
 
     /*
      * Create a new messenger customer
      */
-    public static async createMessengerCustomer(doc: ICreateMessengerCustomerParams) {
+    public static async createMessengerCustomer({ doc, customData }: ICreateMessengerCustomerParams) {
+      this.fixListFields(doc, customData);
+
       return this.createCustomer({
-        ...this.fixListFields(doc),
+        ...doc,
+        trackedData: customData,
         lastSeenAt: new Date(),
         isOnline: true,
         sessionCount: 1,
@@ -533,21 +605,19 @@ export const loadClass = () => {
     /*
      * Update messenger customer
      */
-    public static async updateMessengerCustomer(param: IUpdateMessengerCustomerParams) {
-      const { _id, doc } = param;
-
+    public static async updateMessengerCustomer({ _id, doc, customData }: IUpdateMessengerCustomerParams) {
       const customer = await Customers.findOne({ _id });
 
       if (!customer) {
         throw new Error('Customer not found');
       }
 
-      if (customer.isUser) {
-        doc.isUser = true;
-      }
+      this.fixListFields(doc, customData, customer);
 
       const modifier = {
-        ...this.fixListFields(doc, customer),
+        ...doc,
+        trackedData: customData,
+        state: doc.isUser ? 'customer' : customer.state,
         modifiedAt: new Date(),
       };
 
@@ -575,7 +645,7 @@ export const loadClass = () => {
       // Preventing session count to increase on page every refresh
       // Close your web site tab and reopen it after 6 seconds then it will increase
       // session count by 1
-      if (customer.lastSeenAt && now.getTime() - customer.lastSeenAt > 6 * 1000) {
+      if (customer.lastSeenAt && now.getTime() - customer.lastSeenAt.getTime() > 6 * 1000) {
         // update session count
         query.$inc = { sessionCount: 1 };
       }
@@ -584,6 +654,20 @@ export const loadClass = () => {
       await Customers.findByIdAndUpdate(_id, query);
 
       // updated customer
+      return Customers.findOne({ _id });
+    }
+
+    /*
+     * Change state
+     */
+    public static async changeState(_id: string, value: string) {
+      await Customers.findByIdAndUpdate(
+        { _id },
+        {
+          $set: { state: value },
+        },
+      );
+
       return Customers.findOne({ _id });
     }
 

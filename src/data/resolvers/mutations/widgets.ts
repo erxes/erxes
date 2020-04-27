@@ -18,9 +18,12 @@ import { IBrowserInfo, IVisitorContactInfoParams } from '../../../db/models/Cust
 import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
 import { IIntegrationDocument, IMessengerDataMessagesItem } from '../../../db/models/definitions/integrations';
 import { IKnowledgebaseCredentials, ILeadCredentials } from '../../../db/models/definitions/messengerApps';
+import { debugBase, debugExternalApi } from '../../../debuggers';
+import { trackViewPageEvent } from '../../../events';
 import { graphqlPubsub } from '../../../pubsub';
 import { get, set } from '../../../redisClient';
-import { registerOnboardHistory, sendMobileNotification } from '../../utils';
+import { IContext } from '../../types';
+import { registerOnboardHistory, sendEmail, sendMobileNotification } from '../../utils';
 import { conversationNotifReceivers } from './conversations';
 
 interface ISubmission {
@@ -28,6 +31,13 @@ interface ISubmission {
   value: any;
   type?: string;
   validation?: string;
+}
+
+interface IWidgetEmailParams {
+  toEmails: string[];
+  fromEmail: string;
+  title: string;
+  content: string;
 }
 
 export const getMessengerData = async (integration: IIntegrationDocument) => {
@@ -120,9 +130,10 @@ const widgetMutations = {
       formId: string;
       submissions: ISubmission[];
       browserInfo: any;
+      cachedCustomerId?: string;
     },
   ) {
-    const { integrationId, formId, submissions, browserInfo } = args;
+    const { integrationId, formId, submissions, browserInfo, cachedCustomerId } = args;
 
     const form = await Forms.findOne({ _id: formId });
 
@@ -162,7 +173,7 @@ const widgetMutations = {
     });
 
     // get or create customer
-    let customer = await Customers.getWidgetCustomer({ email, phone });
+    let customer = await Customers.getWidgetCustomer({ integrationId, email, phone, cachedCustomerId });
 
     if (!customer) {
       customer = await Customers.createCustomer({
@@ -174,7 +185,29 @@ const widgetMutations = {
       });
     }
 
-    await Customers.updateLocation(customer._id, browserInfo);
+    // update location info and missing fields
+    await Customers.findByIdAndUpdate(
+      { _id: customer._id },
+      {
+        $set: {
+          location: browserInfo,
+          firstName: customer.firstName ? customer.firstName : firstName,
+          lastName: customer.lastName ? customer.lastName : lastName,
+          ...(customer.primaryEmail
+            ? {}
+            : {
+                emails: [email],
+                primaryEmail: email,
+              }),
+          ...(customer.primaryPhone
+            ? {}
+            : {
+                phones: [phone],
+                primaryPhone: phone,
+              }),
+        },
+      },
+    );
 
     // Inserting customer id into submitted customer ids
     const doc = {
@@ -242,6 +275,7 @@ const widgetMutations = {
       cachedCustomerId?: string;
       deviceToken?: string;
     },
+    { dataSources }: IContext,
   ) {
     const { brandCode, email, phone, code, isUser, companyData, data, cachedCustomerId, deviceToken } = args;
 
@@ -262,45 +296,36 @@ const widgetMutations = {
     }
 
     let customer = await Customers.getWidgetCustomer({
+      integrationId: integration._id,
       cachedCustomerId,
       email,
       phone,
       code,
     });
 
-    if (customer) {
-      // update prev customer
-      customer = await Customers.updateMessengerCustomer({
-        _id: customer._id,
-        doc: {
-          email,
-          phone,
-          code,
-          isUser,
-          deviceToken,
-        },
-        customData,
-      });
+    const doc = {
+      integrationId: integration._id,
+      email,
+      phone,
+      code,
+      isUser,
+      deviceToken,
+    };
 
-      // create new customer
-    } else {
-      customer = await Customers.createMessengerCustomer({
-        integrationId: integration._id,
-        email,
-        phone,
-        code,
-        isUser,
-        deviceToken,
-      });
-    }
+    customer = customer
+      ? await Customers.updateMessengerCustomer({ _id: customer._id, doc, customData })
+      : await Customers.createMessengerCustomer({ doc, customData });
 
     // get or create company
-    if (companyData) {
+    if (companyData && companyData.name) {
       let company = await Companies.findOne({
         $or: [{ names: { $in: [companyData.name] } }, { primaryName: companyData.name }],
       });
 
       if (!company) {
+        companyData.primaryName = companyData.name;
+        companyData.names = [companyData.name];
+
         company = await Companies.createCompany({ ...companyData, scopeBrandIds: [brand._id] });
       }
 
@@ -313,9 +338,23 @@ const widgetMutations = {
       });
     }
 
+    let videoCallUsageStatus = false;
+
+    try {
+      videoCallUsageStatus = await dataSources.IntegrationsAPI.fetchApi('/videoCall/usageStatus');
+    } catch (e) {
+      debugExternalApi(e.message);
+    }
+
+    if (integration.createdUserId) {
+      const user = await Users.getUser(integration.createdUserId);
+
+      registerOnboardHistory({ type: 'messengerIntegrationInstalled', user });
+    }
+
     return {
       integrationId: integration._id,
-      uiOptions: integration.uiOptions,
+      uiOptions: { ...(integration.uiOptions ? integration.uiOptions.toJSON() : {}), videoCallUsageStatus },
       languageCode: integration.languageCode,
       messengerData: await getMessengerData(integration),
       customerId: customer._id,
@@ -334,9 +373,10 @@ const widgetMutations = {
       conversationId?: string;
       message: string;
       attachments?: any[];
+      contentType: string;
     },
   ) {
-    const { integrationId, customerId, conversationId, message, attachments } = args;
+    const { integrationId, customerId, conversationId, message, attachments, contentType } = args;
 
     const conversationContent = strip(message || '').substring(0, 100);
 
@@ -371,6 +411,7 @@ const widgetMutations = {
       customerId,
       content: message,
       attachments,
+      contentType,
     });
 
     await Conversations.updateOne(
@@ -464,6 +505,13 @@ const widgetMutations = {
     // update location
     await Customers.updateLocation(customerId, browserInfo);
 
+    try {
+      await trackViewPageEvent({ customerId, attributes: { url: browserInfo.url } });
+    } catch (e) {
+      /* istanbul ignore next */
+      debugBase(`Error occurred during widgets save browser info ${e.message}`);
+    }
+
     // update messenger session data
     const customer = await Customers.updateSession(customerId);
 
@@ -509,6 +557,17 @@ const widgetMutations = {
     });
 
     return 'ok';
+  },
+
+  async widgetsSendEmail(_root, args: IWidgetEmailParams) {
+    const { toEmails, fromEmail, title, content } = args;
+
+    await sendEmail({
+      toEmails,
+      fromEmail,
+      title,
+      template: { isCustom: false, data: { content } },
+    });
   },
 };
 

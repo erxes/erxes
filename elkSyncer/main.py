@@ -14,11 +14,17 @@ ELASTICSEARCH_URL = os.getenv('ELASTICSEARCH_URL')
 client = Elasticsearch([ELASTICSEARCH_URL])
 
 customer_mapping = {
+    'state': {
+        'type': 'keyword',
+    },
     'primaryEmail': {
         'type': 'text',
         'analyzer': 'uax_url_email_analyzer',
     },
     'integrationId': {
+        'type': 'keyword',
+    },
+    'relatedIntegrationIds': {
         'type': 'keyword',
     },
     'scopeBrandIds': {
@@ -33,9 +39,6 @@ customer_mapping = {
     'leadStatus': {
         'type': 'keyword',
     },
-    'lifecycleState': {
-        'type': 'keyword',
-    },
     'tagIds': {
         'type': 'keyword',
     },
@@ -46,6 +49,9 @@ customer_mapping = {
         'type': 'keyword',
     },
     'status': {
+        'type': 'keyword',
+    },
+    'emailValidationStatus': {
         'type': 'keyword',
     },
 }
@@ -68,12 +74,6 @@ company_mapping = {
         'type': 'keyword',
     },
     'ownerId': {
-        'type': 'keyword',
-    },
-    'leadStatus': {
-        'type': 'keyword',
-    },
-    'lifecycleState': {
         'type': 'keyword',
     },
     'tagIds': {

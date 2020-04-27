@@ -1,8 +1,9 @@
 import * as _ from 'underscore';
 import { Brands, Conformities, Segments, Tags } from '../../../db/models';
 import { KIND_CHOICES } from '../../../db/models/definitions/constants';
+import { debugBase } from '../../../debuggers';
 import { fetchElk } from '../../../elasticsearch';
-import { COC_LEAD_STATUS_TYPES, COC_LIFECYCLE_STATE_TYPES } from '../../constants';
+import { COC_LEAD_STATUS_TYPES } from '../../constants';
 import { fetchBySegments } from '../segments/queryBuilder';
 
 export interface ICountBy {
@@ -17,10 +18,14 @@ export const countBySegment = async (contentType: string, qb): Promise<ICountBy>
 
   // Count customers by segment
   for (const s of segments) {
-    await qb.buildAllQueries();
-    await qb.segmentFilter(s._id);
-
-    counts[s._id] = await qb.runQueries('count');
+    try {
+      await qb.buildAllQueries();
+      await qb.segmentFilter(s._id);
+      counts[s._id] = await qb.runQueries('count');
+    } catch (e) {
+      debugBase(`Error during segment count ${e.message}`);
+      counts[s._id] = 0;
+    }
   }
 
   return counts;
@@ -71,19 +76,6 @@ export const countByLeadStatus = async (qb): Promise<ICountBy> => {
   return counts;
 };
 
-export const countByLifecycleStatus = async (qb): Promise<ICountBy> => {
-  const counts: ICountBy = {};
-
-  for (const type of COC_LIFECYCLE_STATE_TYPES) {
-    await qb.buildAllQueries();
-    qb.lifecycleStateFilter(type);
-
-    counts[type] = await qb.runQueries('count');
-  }
-
-  return counts;
-};
-
 export const countByIntegrationType = async (qb): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
@@ -105,7 +97,6 @@ interface ICommonListArgs {
   ids?: string[];
   searchValue?: string;
   brand?: string;
-  lifecycleState?: string;
   leadStatus?: string;
   conformityMainType?: string;
   conformityMainTypeId?: string;
@@ -162,8 +153,8 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   // filter by search value
   public searchFilter(value: string): void {
     this.positiveList.push({
-      regexp: {
-        searchText: `.*+${value}.*`,
+      match_phrase: {
+        searchText: value,
       },
     });
   }
@@ -182,15 +173,6 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     this.positiveList.push({
       term: {
         leadStatus,
-      },
-    });
-  }
-
-  // filter by lifecycleState
-  public lifecycleStateFilter(lifecycleState: string): void {
-    this.positiveList.push({
-      term: {
-        lifecycleState,
       },
     });
   }
@@ -253,11 +235,6 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     // filter by leadStatus
     if (this.params.leadStatus) {
       this.leadStatusFilter(this.params.leadStatus);
-    }
-
-    // filter by lifecycleState
-    if (this.params.lifecycleState) {
-      this.lifecycleStateFilter(this.params.lifecycleState);
     }
 
     // If there are ids and form params, returning ids filter only filter by ids

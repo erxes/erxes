@@ -18,8 +18,7 @@ const args = {
   ownerId: faker.random.word(),
   position: faker.random.word(),
   department: faker.random.word(),
-  leadStatus: 'open',
-  lifecycleState: 'lead',
+  leadStatus: 'new',
   hasAuthority: faker.random.word(),
   description: faker.random.word(),
   doNotDisturb: faker.random.word(),
@@ -45,7 +44,6 @@ const checkCustomer = src => {
   expect(src.position).toBe(args.position);
   expect(src.department).toBe(args.department);
   expect(src.leadStatus).toBe(args.leadStatus);
-  expect(src.lifecycleState).toBe(args.lifecycleState);
   expect(src.hasAuthority).toBe(args.hasAuthority);
   expect(src.description).toBe(args.description);
   expect(src.doNotDisturb).toBe(args.doNotDisturb);
@@ -69,7 +67,6 @@ describe('Customers mutations', () => {
     $position: String
     $department: String
     $leadStatus: String
-    $lifecycleState:  String
     $hasAuthority: String
     $description: String
     $doNotDisturb: String
@@ -88,7 +85,6 @@ describe('Customers mutations', () => {
     position: $position
     department: $department
     leadStatus: $leadStatus
-    lifecycleState: $lifecycleState
     hasAuthority: $hasAuthority
     description: $description
     doNotDisturb: $doNotDisturb
@@ -127,7 +123,6 @@ describe('Customers mutations', () => {
           position
           department
           leadStatus
-          lifecycleState
           hasAuthority
           description
           doNotDisturb
@@ -165,7 +160,6 @@ describe('Customers mutations', () => {
           position
           department
           leadStatus
-          lifecycleState
           hasAuthority
           description
           doNotDisturb
@@ -221,5 +215,22 @@ describe('Customers mutations', () => {
     const customer = await graphqlRequest(mutation, 'customersMerge', params, context);
 
     expect(customer.firstName).toBe(params.customerFields.firstName);
+  });
+
+  test('Change state', async () => {
+    const mutation = `
+      mutation customersChangeState($_id: String!, $value: String!) {
+        customersChangeState(_id: $_id, value: $value) {
+          _id
+          state
+        }
+      }
+    `;
+
+    await graphqlRequest(mutation, 'customersChangeState', { _id: _customer._id, value: 'customer' }, context);
+
+    const updatedCustomer = await Customers.getCustomer(_customer._id);
+
+    expect(updatedCustomer.state).toBe('customer');
   });
 });

@@ -77,7 +77,7 @@ describe('fieldQueries', () => {
   test('Fields combined by content type', async () => {
     const mock = sinon.stub(elk, 'getMappings').callsFake(() => {
       return Promise.resolve({
-        customers: {
+        [`${elk.getIndexPrefix()}customers`]: {
           mappings: {
             properties: {
               trackedData: {

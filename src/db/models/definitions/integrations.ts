@@ -72,6 +72,8 @@ export interface ILeadData {
   themeColor?: string;
   callout?: ICallout;
   rules?: IRule;
+  viewCount?: number;
+  contactsGathered?: number;
 }
 
 export interface ILeadDataDocument extends ILeadData, Document {

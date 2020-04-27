@@ -1,5 +1,6 @@
 import { Model, model } from 'mongoose';
 import { ConversationMessages, Conversations, Users } from '.';
+import { getNumberOfVisits } from '../../events';
 import { IBrowserInfo } from './Customers';
 import { IBrandDocument } from './definitions/brands';
 import { IEngageData, IMessageDocument } from './definitions/conversationMessages';
@@ -38,7 +39,7 @@ export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
   engageMessageSetLive(_id: string): Promise<IEngageMessageDocument>;
   engageMessageSetPause(_id: string): Promise<IEngageMessageDocument>;
   removeEngageMessage(_id: string): void;
-  setCustomerIds(_id: string, customers: ICustomerDocument[]): Promise<IEngageMessageDocument>;
+  setCustomersCount(_id: string, type: string, count: number): Promise<IEngageMessageDocument>;
   changeCustomer(newCustomerId: string, customerIds: string[]): Promise<IEngageMessageDocument>;
   removeCustomersEngages(customerIds: string[]): Promise<{ n: number; ok: number }>;
 
@@ -50,6 +51,7 @@ export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
     integration: IIntegrationDocument;
     user: IUserDocument;
     engageData: IEngageData;
+    replacedContent: string;
   }): Promise<IMessageDocument | null>;
   createVisitorMessages(params: {
     brand: IBrandDocument;
@@ -134,10 +136,10 @@ export const loadClass = () => {
     }
 
     /**
-     * Save matched customer ids
+     * Save matched customers count
      */
-    public static async setCustomerIds(_id: string, customers: ICustomerDocument[]) {
-      await EngageMessages.updateOne({ _id }, { $set: { customerIds: customers.map(customer => customer._id) } });
+    public static async setCustomersCount(_id: string, type: string, count: number) {
+      await EngageMessages.updateOne({ _id }, { $set: { [type]: count } });
 
       return EngageMessages.findOne({ _id });
     }
@@ -217,23 +219,33 @@ export const loadClass = () => {
         }
 
         // check for rules ===
-        const urlVisits = customer.urlVisits || {};
+        const numberOfVisits = await getNumberOfVisits(customer._id, browserInfo.url);
 
         const isPassedAllRules = await this.checkRules({
           rules: messenger.rules,
           browserInfo,
-          numberOfVisits: urlVisits[browserInfo.url] || 0,
+          numberOfVisits,
         });
 
         // if given visitor is matched with given condition then create
         // conversations
         if (isPassedAllRules) {
+          // replace keys in content
+          const replacedContent = this.replaceKeys({
+            content: messenger.content,
+            customer,
+            user,
+          });
+
           const conversationMessage = await this.createOrUpdateConversationAndMessages({
             customer,
             integration,
             user,
+            replacedContent,
             engageData: {
               ...messenger,
+              content: replacedContent,
+              engageKind: 'visitorAuto',
               messageId: message._id,
               fromUserId: message.fromUserId,
             },
@@ -260,8 +272,9 @@ export const loadClass = () => {
       integration: IIntegrationDocument;
       user: IUserDocument;
       engageData: IEngageData;
+      replacedContent: string;
     }) {
-      const { customer, integration, user, engageData } = args;
+      const { customer, integration, user, engageData, replacedContent } = args;
 
       const prevMessage: IMessageDocument | null = await ConversationMessages.findOne({
         customerId: customer._id,
@@ -284,13 +297,6 @@ export const loadClass = () => {
 
         return null;
       }
-
-      // replace keys in content
-      const replacedContent = this.replaceKeys({
-        content: engageData.content,
-        customer,
-        user,
-      });
 
       // create conversation
       const conversation = await Conversations.createConversation({
@@ -418,7 +424,9 @@ export const loadClass = () => {
       let result = content;
 
       // replace customer fields
-      result = result.replace(/{{\s?customer.name\s?}}/gi, `${customer.firstName} ${customer.lastName}`);
+      result = result.replace(/{{\s?customer.firstName\s?}}/gi, customer.firstName || '');
+      result = result.replace(/{{\s?customer.lastName\s?}}/gi, customer.lastName || '');
+      result = result.replace(/{{\s?customer.name\s?}}/gi, `${customer.firstName || ''} ${customer.lastName || ''}`);
       result = result.replace(/{{\s?customer.email\s?}}/gi, customer.primaryEmail || '');
 
       // replace user fields

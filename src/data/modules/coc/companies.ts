@@ -24,8 +24,6 @@ export interface IListArgs extends IConformityQueryParams {
   tag?: string;
   ids?: string[];
   searchValue?: string;
-  lifecycleState?: string;
-  leadStatus?: string;
   brand?: string;
   sortField?: string;
   sortDirection?: number;

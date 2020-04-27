@@ -26,7 +26,7 @@ describe('growthHackQueries', () => {
     assignedUsers { _id }
     impact
     labels { _id }
-    assignedUsers { _id }
+    createdUser { _id }
     votedUsers { _id }
     stage { _id }
     isVoted
@@ -211,7 +211,7 @@ describe('growthHackQueries', () => {
     expect(response.isVoted).toBe(false);
   });
 
-  test('Get archived tickets', async () => {
+  test('Get archived growth hacks', async () => {
     const pipeline = await pipelineFactory({ type: BOARD_TYPES.GROWTH_HACK });
     const stage = await stageFactory({ pipelineId: pipeline._id });
     const args = {
@@ -259,5 +259,49 @@ describe('growthHackQueries', () => {
     });
 
     expect(response.length).toBe(0);
+  });
+
+  test('Get archived growth hacks count', async () => {
+    const pipeline = await pipelineFactory({ type: BOARD_TYPES.GROWTH_HACK });
+    const stage = await stageFactory({ pipelineId: pipeline._id });
+    const args = {
+      stageId: stage._id,
+      status: BOARD_STATUSES.ARCHIVED,
+    };
+
+    await growthHackFactory({ ...args, name: 'james' });
+    await growthHackFactory({ ...args, name: 'jone' });
+    await growthHackFactory({ ...args, name: 'gerrad' });
+
+    const qry = `
+      query archivedGrowthHacksCount(
+        $pipelineId: String!,
+        $search: String,
+      ) {
+        archivedGrowthHacksCount(
+          pipelineId: $pipelineId
+          search: $search
+        )
+      }
+    `;
+
+    let response = await graphqlRequest(qry, 'archivedGrowthHacksCount', {
+      pipelineId: pipeline._id,
+    });
+
+    expect(response).toBe(3);
+
+    response = await graphqlRequest(qry, 'archivedGrowthHacksCount', {
+      pipelineId: pipeline._id,
+      search: 'james',
+    });
+
+    expect(response).toBe(1);
+
+    response = await graphqlRequest(qry, 'archivedGrowthHacksCount', {
+      pipelineId: 'fakeId',
+    });
+
+    expect(response).toBe(0);
   });
 });

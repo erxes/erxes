@@ -46,6 +46,18 @@ export interface IActivityLogModel extends Model<IActivityLogDocument> {
     contentType: string;
     action: string;
   }): Promise<IActivityLogDocument>;
+
+  createArchiveLog({
+    item,
+    contentType,
+    action,
+    userId,
+  }: {
+    item: any;
+    contentType: string;
+    action: string;
+    userId: string;
+  }): Promise<IActivityLogDocument>;
 }
 
 export const loadClass = () => {
@@ -164,6 +176,26 @@ export const loadClass = () => {
       };
 
       return ActivityLogs.create(doc);
+    }
+
+    public static async createArchiveLog({
+      item,
+      contentType,
+      action,
+      userId,
+    }: {
+      item: any;
+      contentType: string;
+      action: string;
+      userId: string;
+    }) {
+      return ActivityLogs.addActivityLog({
+        contentType,
+        contentId: item._id,
+        action: 'archive',
+        content: action,
+        createdBy: userId,
+      });
     }
 
     public static async createChecklistLog({

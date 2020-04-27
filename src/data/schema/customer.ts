@@ -19,6 +19,7 @@ export const types = `
 
   type Customer {
     _id: String!
+    state: String
     createdAt: Date
     modifiedAt: Date
     avatar: String
@@ -35,7 +36,6 @@ export const types = `
     phones: [String]
 
     phone: String
-    isUser: Boolean
     tagIds: [String]
     remoteAddress: String
     internalNotes: JSON
@@ -47,11 +47,11 @@ export const types = `
     position: String
     department: String
     leadStatus: String
-    lifecycleState: String
     hasAuthority: String
     description: String
     doNotDisturb: String
     code: String
+    emailValidationStatus: String
 
     isOnline: Boolean
     lastSeenAt: Date
@@ -85,7 +85,6 @@ const queryParams = `
   form: String
   startDate: String
   endDate: String
-  lifecycleState: String
   leadStatus: String
   sortField: String
   sortDirection: Int
@@ -113,7 +112,6 @@ const fields = `
   position: String
   department: String
   leadStatus: String
-  lifecycleState:  String
   hasAuthority: String
   description: String
   doNotDisturb: String
@@ -125,8 +123,9 @@ const fields = `
 `;
 
 export const mutations = `
-  customersAdd(${fields}): Customer
+  customersAdd(state: String, ${fields}): Customer
   customersEdit(_id: String!, ${fields}): Customer
   customersMerge(customerIds: [String], customerFields: JSON): Customer
   customersRemove(customerIds: [String]): [String]
+  customersChangeState(_id: String!, value: String!): Customer
 `;

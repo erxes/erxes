@@ -1,69 +1,74 @@
-# erxes Inc - erxes API
+# erxes
 
 erxes is an open source growth marketing platform. Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot with the mission and community-driven ecosystem.
 
-<a href="https://demo.erxes.io/">View demo</a> <b>| </b> <a href="https://github.com/erxes/erxes-api/archive/master.zip">Download ZIP </a> <b> | </b> <a href="https://slack.erxes.io">Join us on Slack</a> <b> | </b> <a href=" https://spectrum.chat/erxes">Join us on Spectrum</a>
+<a href="https://demo.erxes.io/">Live demo</a> <b>| </b> <a href="https://community.erxes.io/register/Gw4WRJnk9fSbyAXTq">Join our community</a>
 
-## Status  <br>
-
+![Docker Pulls](https://img.shields.io/docker/pulls/erxes/erxes-api)
 ![Build Status](https://drone.erxes.io/api/badges/erxes/erxes-api/status.svg?branch=master)
 [![Coverage Status](https://coveralls.io/repos/github/erxes/erxes-api/badge.svg?branch=master)](https://coveralls.io/github/erxes/erxes-widgets-api?branch=master)
 [![Known Vulnerabilities](https://snyk.io/test/github/erxes/erxes-api/badge.svg)](https://snyk.io/test/github/erxes/erxes-api)
 
-## Running the server
+<a href="https://erxes.io" target="_blank"><img src="https://erxes-os.s3-us-west-2.amazonaws.com/github/git-erxes.gif" alt="Open Source Growth Marketing Platform "></a>
 
-#### 1. Node (version >= 4) and NPM need to be installed.
+## Features
 
-Make sure your MongoDB and Redis server is running.
+<img src="https://s3.amazonaws.com/erxes/github/features-transparent.png" width="400" align="right" style="max-width: 50%">
 
-#### 2. Clone and install dependencies.
+erxes helps you attract and engage more customers while giving you high lead conversion. With erxes, all your marketing, sales and customer service tools are merged into one platform for greater output. Replace Hubspot with the mission and community-driven ecosystem.
 
-```Shell
-git clone https://github.com/erxes/erxes-api.git
-cd erxes-api
-yarn install
-```
+* **Growth Hacking:** Managing your entire growth operation made easy. From ideas to actual performance, making sure everything recorded, prioritized and centralized in the single platform to get tested with pool of analysis and learnings, which made the growing as pleasure.
+* **Email & SMS Marketing:** Reach your customer with personalized messaging. Keeping your customers hooked is definitely a challenge. Start converting your prospects into potential customers through email, SMS, Live chat, and In-app-messaging or more interactions to drive them to a successful close. You can connect to your customers in a whole new way with Erxes!
+* **Pop-ups & Forms:** Create Stylish Pop-ups and Forms that Bring Leads. Turn regular visitors into qualified leads by capturing them with a customizable pop-ups, forms, and embedded placements. Erxes helps you to create stylish and contextual pop-ups, banners and bars fit all your marketing needs.
+* **Sales Pipeline:** Track your entire sales pipeline from one dashboard. All your customer information and sales process in one board to follow up flawlessly. Have your sales managers to know everything needed to deliver increased levels of personalization before they contact customers.
+* **Contact Management:** Manage Visitors, Customers, and Companies. Access our all-in-one CRM system in one go so that it’s easier to coordinate and manage your contacts and interactions with your customers. Erxes Contacts provides whole segmentation tools for you to work more effiecently.
+* **Lead Scoring:** Identify and Target Sales-Ready Leads.
+* **Shared Team Inbox:** Communicate faster and easier with your customers via one truly omnichannel platform. Combine real-time client and team communication with in-app messaging, live chat, email and form, so your customers can reach you however and wherever they want. 
+* **Messenger:** Talk to Your Customers in Continuous Omnichannel Conversations. Enable businesses to capture every single customer feedback and communicate in real time. You can educate your customers through knowledge-base from the erxes Messenger.
+* **Knowledge base:** Create Help Articles for Customer Self-service. Educate both your customers and staff by creating a help center related to your brands, products and services to reach higher level of satisfactions.
+* **Task Management:** Work More Collaboratively and Get More Done. Save time, manage your projects, monitor your team and increase your productivity in just a few clicks. Erxes helps to turn chaos into clarity and make everything perfect. 
+## Documentation
+  * <a href="https://docs.erxes.io/installation/docker">Install erxes</a> <br>
+  * <a href="https://docs.erxes.io">erxes documentation</a> <br>
+  * <a href="https://docs.erxes.io/developer/contributing">Contributing to erxes</a> <br>
 
-#### 3. Create configuration from sample file. We use [dotenv](https://github.com/motdotla/dotenv) for this.
+## Deployment
 
-```Shell
-cp .env.sample .env
-```
+### Ubuntu 16.04/18.04 LTS
+Follow these deployment instructions.
 
-.env file description
+[![ubuntu](https://erxes-os.s3-us-west-2.amazonaws.com/github/ubuntu-logo.png)](https://docs.erxes.io/installation/ubuntu)
 
-```.env
-NODE_ENV=development                        (Node environment: development | production)
-PORT=3300                                   (Server port)
+### Debian 10
+Follow these deployment instructions.
 
-MONGO_URL=mongodb://localhost/erxes         (MongoDB url)
-TEST_MONGO_URL=mongodb://localhost/test
+[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/debian-logo.png)](https://docs.erxes.io/installation/debian10)
 
-REDIS_HOST=localhost                        (Redis server url)
-REDIS_PORT=6379                             (Redis server port)
+### CentOS 8
+Follow these deployment instructions.
 
-MAIN_APP_DOMAIN=http://localhost:3000       (erxes project url)
-DOMAIN='http://localhost:3300'              (erxes-api project url)
-```
+[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/centos-logo.png)](https://docs.erxes.io/installation/centos8)
 
-#### 4. Start the server.
+### Docker
+Follow these deployment instructions.
 
-For development:
+[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/docker-logo.png)](https://docs.erxes.io/installation/docker)
 
-```Shell
-yarn dev
-```
+### Heroku
+Host your own erxes server with One-Click Deploy.
 
-For production:
+[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/heroku.png)](https://heroku.com/deploy?template=https://github.com/erxes/erxes/tree/develop)
 
-```Shell
-yarn build
-yarn start
-```
+### AWS Marketplace
+Launch an EC2 instance using erxes in the AWS Marketplace.
 
-#### 5. Running servers
-- GraphQL server: [http://localhost:3300/graphql](http://localhost:3300/graphql)
-- Websocket subscriptions server: [ws://localhost:3300/subscriptions](ws://localhost:3300/subscriptions)
+[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/aws-logo.png)](https://aws.amazon.com/marketplace/pp/B086MZ9FVS/)
+
+### DigitalOcean Droplet
+Deploy to a DigitalOcean droplet with our one-click install listing from the DigitalOcean Marketplace.
+
+[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/droplet.png)](https://marketplace.digitalocean.com/apps/erxes)
+
 
 ## Contributors
 
@@ -77,7 +82,6 @@ Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com
 
 <a href="https://opencollective.com/erxes#backers" target="_blank"><img src="https://opencollective.com/erxes/backers.svg?width=890"></a>
 
-
 ## Sponsors
 
 Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/erxes#sponsor)]
@@ -87,11 +91,8 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 <a href="https://opencollective.com/erxes/sponsor/2/website" target="_blank"><img src="https://opencollective.com/erxes/sponsor/2/avatar.svg"></a>
 <a href="https://opencollective.com/erxes/sponsor/3/website" target="_blank"><img src="https://opencollective.com/erxes/sponsor/3/avatar.svg"></a>
 <a href="https://opencollective.com/erxes/sponsor/4/website" target="_blank"><img src="https://opencollective.com/erxes/sponsor/4/avatar.svg"></a>
-<a href="https://opencollective.com/erxes/sponsor/5/website" target="_blank"><img src="https://opencollective.com/erxes/sponsor/5/avatar.svg"></a>
 <a href="https://opencollective.com/erxes/sponsor/6/website" target="_blank"><img src="https://opencollective.com/erxes/sponsor/6/avatar.svg"></a>
-<a href="https://opencollective.com/erxes/sponsor/7/website" target="_blank"><img src="https://opencollective.com/erxes/sponsor/7/avatar.svg"></a>
 <a href="https://opencollective.com/erxes/sponsor/8/website" target="_blank"><img src="https://opencollective.com/erxes/sponsor/8/avatar.svg"></a>
-<a href="https://opencollective.com/erxes/sponsor/9/website" target="_blank"><img src="https://opencollective.com/erxes/sponsor/9/avatar.svg"></a>
 
 ## In-kind sponsors
 
@@ -101,5 +102,5 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 <a href="https://www.transifex.com/" target="_blank"><img src="https://s3.amazonaws.com/erxes/github/transifex.png" width="100px;" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
 <a href="https://www.browserstack.com/" target="_blank"><img src="https://s3.amazonaws.com/erxes/github/browserstack.png" width="130px;" /></a>
 
-## Copyright & License
-Copyright (c) 2018 erxes Inc - Released under the [MIT license.](https://github.com/erxes/erxes/blob/develop/LICENSE.md)
+## License
+<a href="https://github.com/erxes/erxes/blob/master/LICENSE.md">GNU General Public License v3.0</a>

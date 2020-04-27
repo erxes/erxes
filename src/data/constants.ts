@@ -278,4 +278,12 @@ export const MODULE_NAMES = {
   SEGMENT: 'segment',
   ENGAGE: 'engage',
   SCRIPT: 'script',
+  FIELD: 'field',
+};
+
+export const RABBITMQ_QUEUES = {
+  PUT_LOG: 'putLog',
+  RPC_API_TO_INTEGRATIONS: 'rpc_queue:api_to_integrations',
+  RPC_API_TO_WORKERS: 'rpc_queue:api_to_workers',
+  WORKERS: 'workers',
 };

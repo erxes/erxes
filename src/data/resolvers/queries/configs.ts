@@ -1,19 +1,20 @@
 import { Configs } from '../../../db/models';
 import { moduleRequireLogin } from '../../permissions/wrappers';
-import { getEnv, sendRequest } from '../../utils';
+import { IContext } from '../../types';
+import { frontendEnv, getEnv, sendRequest } from '../../utils';
 
 const configQueries = {
   /**
    * Config object
    */
-  configsDetail(_root, { code }: { code: string }) {
-    return Configs.findOne({ code });
+  configs(_root) {
+    return Configs.find({});
   },
 
-  async configsVersions(_root) {
+  async configsVersions(_root, _args, { requestInfo }: IContext) {
     const erxesDomain = getEnv({ name: 'MAIN_APP_DOMAIN' });
-    const domain = getEnv({ name: 'DOMAIN' });
-    const widgetsDomain = getEnv({ name: 'WIDGETS_DOMAIN' });
+    const domain = frontendEnv({ name: 'API_URL', requestInfo });
+    const widgetsDomain = frontendEnv({ name: 'CDN_HOST', requestInfo });
 
     let erxesVersion;
     let apiVersion;

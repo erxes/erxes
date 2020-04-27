@@ -1,12 +1,12 @@
 import { HTTPCache, RESTDataSource } from 'apollo-datasource-rest';
 import { debugBase } from '../../debuggers';
-import { getEnv } from '../utils';
+import { getSubServiceDomain } from '../utils';
 
 export default class EngagesAPI extends RESTDataSource {
   constructor() {
     super();
 
-    const ENGAGES_API_DOMAIN = getEnv({ name: 'ENGAGES_API_DOMAIN' });
+    const ENGAGES_API_DOMAIN = getSubServiceDomain({ name: 'ENGAGES_API_DOMAIN' });
 
     this.baseURL = ENGAGES_API_DOMAIN;
     this.httpCache = new HTTPCache();
@@ -28,8 +28,8 @@ export default class EngagesAPI extends RESTDataSource {
     return this.get(`/configs/detail`);
   }
 
-  public async engagesConfigSave(params) {
-    return this.post(`/configs/save`, params);
+  public async engagesUpdateConfigs(configsMap) {
+    return this.post(`/configs/save`, configsMap);
   }
 
   public async engagesSendTestEmail(params) {

@@ -68,4 +68,8 @@ export default {
   labels(ticket: ITicketDocument) {
     return PipelineLabels.find({ _id: { $in: ticket.labelIds || [] } });
   },
+
+  createdUser(ticket: ITicketDocument) {
+    return Users.findOne({ _id: ticket.userId });
+  },
 };

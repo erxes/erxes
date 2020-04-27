@@ -20,7 +20,7 @@ import {
 } from '../db/models';
 import { ACTIVITY_CONTENT_TYPES, STATUSES } from '../db/models/definitions/constants';
 
-import { ICustomerDocument } from '../db/models/definitions/customers';
+import { ICustomer, ICustomerDocument } from '../db/models/definitions/customers';
 import './setup.ts';
 
 describe('Customers model tests', () => {
@@ -121,7 +121,7 @@ describe('Customers model tests', () => {
     }
 
     // Create without any error
-    const doc = {
+    const doc: ICustomer = {
       primaryEmail: 'dombo@yahoo.com',
       emails: ['dombo@yahoo.com'],
       firstName: 'firstName',
@@ -129,6 +129,7 @@ describe('Customers model tests', () => {
       primaryPhone: '12312132',
       phones: ['12312132'],
       code: 'code1234',
+      state: 'lead',
     };
 
     let customerObj = await Customers.createCustomer(doc);
@@ -138,9 +139,9 @@ describe('Customers model tests', () => {
     expect(customerObj.firstName).toBe(doc.firstName);
     expect(customerObj.lastName).toBe(doc.lastName);
     expect(customerObj.primaryEmail).toBe(doc.primaryEmail);
-    expect(customerObj.emails).toEqual(expect.arrayContaining(doc.emails));
+    expect(customerObj.emails).toEqual(expect.arrayContaining(doc.emails || []));
     expect(customerObj.primaryPhone).toBe(doc.primaryPhone);
-    expect(customerObj.phones).toEqual(expect.arrayContaining(doc.phones));
+    expect(customerObj.phones).toEqual(expect.arrayContaining(doc.phones || []));
     expect(customerObj.searchText).toEqual('dombo@yahoo.com 12312132 firstName lastName code1234');
 
     customerObj = await Customers.createCustomer(
@@ -516,10 +517,15 @@ describe('Customers model tests', () => {
     const phone = '422999';
 
     const customer = await Customers.createMessengerCustomer({
-      integrationId: _customer.integrationId,
-      email,
-      phone,
-      isUser: _customer.isUser,
+      doc: {
+        integrationId: _customer.integrationId,
+        email,
+        phone,
+        isUser: _customer.isUser,
+      },
+      customData: {
+        firstName: 'firstName',
+      },
     });
 
     expect(customer).toBeDefined();
@@ -534,17 +540,20 @@ describe('Customers model tests', () => {
     expect(customer.primaryPhone).toBe(phone);
     expect(customer.phones).toContain(phone);
 
-    expect(customer.isUser).toBe(_customer.isUser);
     expect(customer.createdAt >= now).toBe(true);
 
     expect(customer.lastSeenAt).toBeDefined();
     expect(customer.isOnline).toBe(true);
     expect(customer.sessionCount).toBe(1);
+
+    expect(customer.firstName).toBe('firstName');
   });
 
   test('updateMessengerCustomer()', async () => {
+    const integration = await integrationFactory();
+
     try {
-      await Customers.updateMessengerCustomer({ _id: '_id', doc: {}, customData: {} });
+      await Customers.updateMessengerCustomer({ _id: '_id', doc: { integrationId: integration._id }, customData: {} });
     } catch (e) {
       expect(e.message).toBe('Customer not found');
     }
@@ -559,6 +568,7 @@ describe('Customers model tests', () => {
     const customer = await Customers.updateMessengerCustomer({
       _id: _customer._id,
       doc: {
+        integrationId: integration._id,
         email,
         phone,
         isUser: true,
@@ -572,8 +582,6 @@ describe('Customers model tests', () => {
 
     expect(customer.primaryPhone).toBe(phone);
     expect(customer.phones).toContain(phone);
-
-    expect(customer.isUser).toBe(true);
   });
 
   test('getWidgetCustomer()', async () => {
@@ -628,6 +636,20 @@ describe('Customers model tests', () => {
     });
 
     expect(foundCustomer && foundCustomer._id).toBe(customer._id);
+
+    // related integrationIds
+
+    customer = await customerFactory({
+      relatedIntegrationIds: ['123'],
+      code: '1234',
+    });
+
+    foundCustomer = await Customers.getWidgetCustomer({
+      integrationId: '1234',
+      code: '1234',
+    });
+
+    expect(foundCustomer && foundCustomer._id).toBe(customer._id);
   });
 
   test('updateSession()', async () => {
@@ -642,7 +664,7 @@ describe('Customers model tests', () => {
     const customer = await Customers.updateSession(_customer._id);
 
     expect(customer.isOnline).toBeTruthy();
-    expect(customer.lastSeenAt && customer.lastSeenAt >= now.getTime()).toBeTruthy();
+    expect(customer.lastSeenAt && customer.lastSeenAt.getTime() >= now.getTime()).toBeTruthy();
   });
 
   test('saveVisitorContactInfo()', async () => {
@@ -676,5 +698,11 @@ describe('Customers model tests', () => {
     });
 
     expect(updated.location && updated.location.language).toBe('en');
+  });
+
+  test('changeState()', async () => {
+    const updated = await Customers.changeState(_customer._id, 'state');
+
+    expect(updated.state).toBe('state');
   });
 });

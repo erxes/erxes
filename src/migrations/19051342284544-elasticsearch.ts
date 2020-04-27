@@ -1,10 +1,13 @@
 import * as dotenv from 'dotenv';
+import { connect } from '../db/connection';
 import { Segments } from '../db/models';
 import { ICondition } from '../db/models/definitions/segments';
 
 dotenv.config();
 
 module.exports.up = async () => {
+  await connect();
+
   const segments = await Segments.find();
 
   for (const segment of segments) {
@@ -23,6 +26,10 @@ module.exports.up = async () => {
       });
     }
 
-    await Segments.updateOne({ _id: segment._id }, { $set: { conditions: newConditions } });
+    try {
+      await Segments.updateOne({ _id: segment._id }, { $set: { conditions: newConditions } });
+    } catch (e) {
+      console.log(e.message);
+    }
   }
 };

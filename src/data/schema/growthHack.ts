@@ -31,6 +31,7 @@ const commonQueryFields = `
   hackStage: [String]
   priority: [String]
   labelIds: [String]
+  userIds: [String]
 `;
 
 export const queries = `
@@ -53,6 +54,7 @@ export const queries = `
   ): JSON
 
   archivedGrowthHacks(pipelineId: String!, search: String, page: Int, perPage: Int): [GrowthHack]
+  archivedGrowthHacksCount(pipelineId: String!, search: String): Int
 `;
 
 const commonParams = `
@@ -74,7 +76,7 @@ const commonParams = `
 export const mutations = `
   growthHacksAdd(${commonParams}, labelIds: [String]): GrowthHack
   growthHacksEdit(_id: String!, ${commonParams}): GrowthHack
-  growthHacksChange( _id: String!, destinationStageId: String!): GrowthHack
+  growthHacksChange( _id: String!, destinationStageId: String!, order: Float): GrowthHack
   growthHacksUpdateOrder(stageId: String!, orders: [OrderItem]): [GrowthHack]
   growthHacksRemove(_id: String!): GrowthHack
   growthHacksWatch(_id: String, isAdd: Boolean): GrowthHack

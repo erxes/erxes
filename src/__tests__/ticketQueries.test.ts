@@ -31,6 +31,7 @@ describe('ticketQueries', () => {
     isWatched
     hasNotified
     labels { _id }
+    createdUser { _id }
   `;
 
   const qryTicketFilter = `
@@ -229,5 +230,49 @@ describe('ticketQueries', () => {
     });
 
     expect(response.length).toBe(0);
+  });
+
+  test('Get archived tickets count', async () => {
+    const pipeline = await pipelineFactory({ type: BOARD_TYPES.TICKET });
+    const stage = await stageFactory({ pipelineId: pipeline._id });
+    const args = {
+      stageId: stage._id,
+      status: BOARD_STATUSES.ARCHIVED,
+    };
+
+    await ticketFactory({ ...args, name: 'james' });
+    await ticketFactory({ ...args, name: 'jone' });
+    await ticketFactory({ ...args, name: 'gerrad' });
+
+    const qry = `
+      query archivedTicketsCount(
+        $pipelineId: String!,
+        $search: String
+      ) {
+        archivedTicketsCount(
+          pipelineId: $pipelineId
+          search: $search
+        )
+      }
+    `;
+
+    let response = await graphqlRequest(qry, 'archivedTicketsCount', {
+      pipelineId: pipeline._id,
+    });
+
+    expect(response).toBe(3);
+
+    response = await graphqlRequest(qry, 'archivedTicketsCount', {
+      pipelineId: pipeline._id,
+      search: 'james',
+    });
+
+    expect(response).toBe(1);
+
+    response = await graphqlRequest(qry, 'archivedTicketsCount', {
+      pipelineId: 'fakeId',
+    });
+
+    expect(response).toBe(0);
   });
 });

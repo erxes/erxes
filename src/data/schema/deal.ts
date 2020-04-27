@@ -48,6 +48,7 @@ const commonQueryParams = `
   priority: [String]
   sortField: String
   sortDirection: Int
+  userIds: [String]
   `;
 
 export const queries = `
@@ -60,6 +61,7 @@ export const queries = `
     ${conformityQueryFields}
     ): [Deal]
   archivedDeals(pipelineId: String!, search: String, page: Int, perPage: Int): [Deal]
+  archivedDealsCount(pipelineId: String!, search: String): Int
   dealsTotalAmounts(
     ${commonQueryParams}
     ${conformityQueryFields}
@@ -69,7 +71,7 @@ export const queries = `
 export const mutations = `
   dealsAdd(name: String!, ${copyParams}, ${dealMutationParams}, ${commonMutationParams}): Deal
   dealsEdit(_id: String!, name: String, ${dealMutationParams}, ${commonMutationParams}): Deal
-  dealsChange( _id: String!, destinationStageId: String): Deal
+  dealsChange( _id: String!, destinationStageId: String, order: Float): Deal
   dealsUpdateOrder(stageId: String!, orders: [OrderItem]): [Deal]
   dealsRemove(_id: String!): Deal
   dealsWatch(_id: String, isAdd: Boolean): Deal

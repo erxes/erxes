@@ -1,14 +1,7 @@
 import { Customers, Forms } from '../../../db/models';
 import { KIND_CHOICES, TAG_TYPES } from '../../../db/models/definitions/constants';
 import { Builder as BuildQuery, IListArgs } from '../../modules/coc/customers';
-import {
-  countByBrand,
-  countByLeadStatus,
-  countByLifecycleStatus,
-  countBySegment,
-  countByTag,
-  ICountBy,
-} from '../../modules/coc/utils';
+import { countByBrand, countByLeadStatus, countBySegment, countByTag, ICountBy } from '../../modules/coc/utils';
 import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
@@ -76,7 +69,7 @@ const customerQueries = {
    * Group customer counts by brands, segments, integrations, tags
    */
   async customerCounts(_root, params: ICountParams, { commonQuerySelector, commonQuerySelectorElk }: IContext) {
-    const { only } = params;
+    const { only, type } = params;
 
     const counts = {
       bySegment: {},
@@ -85,14 +78,13 @@ const customerQueries = {
       byTag: {},
       byForm: {},
       byLeadStatus: {},
-      byLifecycleState: {},
     };
 
     const qb = new BuildQuery(params, { commonQuerySelector, commonQuerySelectorElk });
 
     switch (only) {
       case 'bySegment':
-        counts.bySegment = await countBySegment('customer', qb);
+        counts.bySegment = await countBySegment(type || 'customer', qb);
         break;
 
       case 'byBrand':
@@ -109,10 +101,6 @@ const customerQueries = {
 
       case 'byLeadStatus':
         counts.byLeadStatus = await countByLeadStatus(qb);
-        break;
-
-      case 'byLifecycleState':
-        counts.byLifecycleState = await countByLifecycleStatus(qb);
         break;
 
       case 'byIntegrationType':

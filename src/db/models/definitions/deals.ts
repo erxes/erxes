@@ -47,6 +47,7 @@ export interface IProductData extends Document {
   discount?: number;
   amount?: number;
   tickUsed?: boolean;
+  assignUserId?: string;
 }
 
 interface IPaymentsData {
@@ -125,6 +126,7 @@ export const productDataSchema = new Schema(
     discount: field({ type: Number, label: 'Discount' }),
     amount: field({ type: Number, label: 'Amount' }),
     tickUsed: field({ type: Boolean, label: 'TickUsed' }),
+    assignUserId: field({ type: String, label: 'AssignUserId' }),
   },
   { _id: false },
 );

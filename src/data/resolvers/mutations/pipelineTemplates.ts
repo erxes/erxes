@@ -4,6 +4,7 @@ import { IPipelineTemplate, IPipelineTemplateStage } from '../../../db/models/de
 import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { IContext } from '../../types';
+import { registerOnboardHistory } from '../../utils';
 import { checkPermission } from '../boardUtils';
 
 interface IPipelineTemplatesEdit extends IPipelineTemplate {
@@ -64,6 +65,8 @@ const pipelineTemplateMutations = {
     const pipelineTemplate = await PipelineTemplates.getPipelineTemplate(_id);
 
     await checkPermission(pipelineTemplate.type, user, 'templatesDuplicate');
+
+    await registerOnboardHistory({ type: `${pipelineTemplate.type}TemplatesDuplicate`, user });
 
     return PipelineTemplates.duplicatePipelineTemplate(_id);
   },

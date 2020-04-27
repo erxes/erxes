@@ -1,8 +1,13 @@
 import * as amqplib from 'amqplib';
 import * as dotenv from 'dotenv';
 import * as uuid from 'uuid';
-import { receiveIntegrationsNotification, receiveRpcMessage } from './data/modules/integrations/receiveMessage';
-import { Customers, RobotEntries } from './db/models';
+import {
+  receiveEmailVerifierNotification,
+  receiveEngagesNotification,
+  receiveIntegrationsNotification,
+  receiveRpcMessage,
+} from './data/modules/integrations/receiveMessage';
+import { RobotEntries } from './db/models';
 import { debugBase } from './debuggers';
 import { graphqlPubsub } from './pubsub';
 
@@ -13,7 +18,9 @@ const { NODE_ENV, RABBITMQ_HOST = 'amqp://localhost' } = process.env;
 let connection;
 let channel;
 
-export const sendRPCMessage = async (message): Promise<any> => {
+export const sendRPCMessage = async (queueName: string, message: any): Promise<any> => {
+  debugBase(`Sending rpc message ${JSON.stringify(message)} to queue ${queueName}`);
+
   const response = await new Promise((resolve, reject) => {
     const correlationId = uuid();
 
@@ -31,7 +38,7 @@ export const sendRPCMessage = async (message): Promise<any> => {
             if (res.status === 'success') {
               resolve(res.data);
             } else {
-              reject(res.errorMessage);
+              reject(new Error(res.errorMessage));
             }
 
             channel.deleteQueue(q.queue);
@@ -40,7 +47,7 @@ export const sendRPCMessage = async (message): Promise<any> => {
         { noAck: true },
       );
 
-      channel.sendToQueue('rpc_queue:erxes-api', Buffer.from(JSON.stringify(message)), {
+      channel.sendToQueue(queueName, Buffer.from(JSON.stringify(message)), {
         correlationId,
         replyTo: q.queue,
       });
@@ -55,19 +62,21 @@ export const sendMessage = async (queueName: string, data?: any) => {
     return;
   }
 
+  debugBase(`Sending message to ${queueName}`);
+
   await channel.assertQueue(queueName);
   await channel.sendToQueue(queueName, Buffer.from(JSON.stringify(data || {})));
 };
 
-const initConsumer = async () => {
+export const initConsumer = async () => {
   // Consumer
   connection = await amqplib.connect(RABBITMQ_HOST);
   channel = await connection.createChannel();
 
   // listen for rpc queue =========
-  await channel.assertQueue('rpc_queue:erxes-integrations');
+  await channel.assertQueue('rpc_queue:integrations_to_api');
 
-  channel.consume('rpc_queue:erxes-integrations', async msg => {
+  channel.consume('rpc_queue:integrations_to_api', async msg => {
     if (msg !== null) {
       debugBase(`Received rpc queue message ${msg.content.toString()}`);
 
@@ -104,14 +113,27 @@ const initConsumer = async () => {
     }
   });
 
-  // listen for engage api ===========
-  await channel.assertQueue('engages-api:set-donot-disturb');
+  // listen for email verifier notification ===========
+  await channel.assertQueue('emailVerifierNotification');
 
-  channel.consume('engages-api:set-donot-disturb', async msg => {
+  channel.consume('emailVerifierNotification', async msg => {
     if (msg !== null) {
-      const data = JSON.parse(msg.content.toString());
+      debugBase(`Received email verifier notification ${msg.content.toString()}`);
 
-      await Customers.updateOne({ _id: data.customerId }, { $set: { doNotDisturb: 'Yes' } });
+      await receiveEmailVerifierNotification(JSON.parse(msg.content.toString()));
+
+      channel.ack(msg);
+    }
+  });
+
+  // listen for engage notification ===========
+  await channel.assertQueue('engagesNotification');
+
+  channel.consume('engagesNotification', async msg => {
+    if (msg !== null) {
+      debugBase(`Received engages notification ${msg.content.toString()}`);
+
+      await receiveEngagesNotification(JSON.parse(msg.content.toString()));
 
       channel.ack(msg);
     }
@@ -136,7 +158,3 @@ const initConsumer = async () => {
     }
   });
 };
-
-initConsumer().catch(e => {
-  debugBase(`Error ocurred during rabbitmq init ${e.message}`);
-});

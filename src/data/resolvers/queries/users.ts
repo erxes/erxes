@@ -40,7 +40,7 @@ const queryBuilder = async (params: IListArgs) => {
     selector.isActive = true;
   }
 
-  if (ids) {
+  if (ids && ids.length > 0) {
     return { _id: { $in: ids } };
   }
 

@@ -38,6 +38,8 @@ describe('dealQueries', () => {
     stage { _id }
     boardId
     pipeline { _id }
+    userId
+    createdUser { _id }
   `;
 
   const qryDealFilter = `
@@ -57,6 +59,7 @@ describe('dealQueries', () => {
       $date: ItemDate
       $labelIds: [String]
       $initialStageId: String
+      $userIds: [String]
     ) {
       deals(
         search: $search
@@ -74,6 +77,7 @@ describe('dealQueries', () => {
         date: $date
         labelIds: $labelIds
         initialStageId: $initialStageId
+        userIds: $userIds
       ) {
         ${commonDealTypes}
       }
@@ -295,6 +299,24 @@ describe('dealQueries', () => {
     const response = await graphqlRequest(qryDealFilter, 'deals', args);
 
     expect(response.length).toBe(1);
+  });
+
+  test('Deals filtered by created user', async () => {
+    const board = await boardFactory();
+    const pipeline = await pipelineFactory({ boardId: board._id });
+    const stage = await stageFactory({ pipelineId: pipeline._id });
+
+    const user = await userFactory();
+
+    const dealParams = { userId: user._id, stageId: stage._id };
+
+    await dealFactory(dealParams);
+    await dealFactory(dealParams);
+    await dealFactory(dealParams);
+
+    const response = await graphqlRequest(qryDealFilter, 'deals', { userIds: [user._id] });
+
+    expect(response.length).toBe(3);
   });
 
   test('Deals', async () => {
@@ -603,5 +625,49 @@ describe('dealQueries', () => {
     });
 
     expect(response.length).toBe(0);
+  });
+
+  test('Get archived deals count', async () => {
+    const pipeline = await pipelineFactory();
+    const stage = await stageFactory({ pipelineId: pipeline._id });
+    const args = {
+      stageId: stage._id,
+      status: BOARD_STATUSES.ARCHIVED,
+    };
+
+    await dealFactory({ ...args, name: 'james' });
+    await dealFactory({ ...args, name: 'jone' });
+    await dealFactory({ ...args, name: 'gerrad' });
+
+    const qry = `
+      query archivedDealsCount(
+        $pipelineId: String!,
+        $search: String
+      ) {
+        archivedDealsCount(
+          pipelineId: $pipelineId
+          search: $search
+        )
+      }
+    `;
+
+    let response = await graphqlRequest(qry, 'archivedDealsCount', {
+      pipelineId: pipeline._id,
+    });
+
+    expect(response).toBe(3);
+
+    response = await graphqlRequest(qry, 'archivedDealsCount', {
+      pipelineId: pipeline._id,
+      search: 'james',
+    });
+
+    expect(response).toBe(1);
+
+    response = await graphqlRequest(qry, 'archivedDealsCount', {
+      pipelineId: 'fakeId',
+    });
+
+    expect(response).toBe(0);
   });
 });

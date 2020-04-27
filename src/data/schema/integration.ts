@@ -97,7 +97,7 @@ export const queries = `
   ): [Integration]
 
   integrationsGetUsedTypes: [integrationsGetUsedTypes]
-
+  integrationGetLineWebhookUrl(_id: String!): String
   integrationDetail(_id: String!): Integration
   integrationsTotalCount: integrationsTotalCount
   integrationsFetchApi(path: String!, params: JSON!): JSON
@@ -172,6 +172,14 @@ export const mutations = `
     attachments: [JSON]
   ): JSON
 
+  integrationAddExchangeAccount(
+    email: String!
+    password: String!
+    host: String!
+    username: String
+    kind: String
+  ): JSON
+
   integrationAddImapAccount(
     email: String!
     password: String!
@@ -187,4 +195,6 @@ export const mutations = `
     password: String!
     kind: String!
   ): JSON
+
+  integrationsUpdateConfigs(configsMap: JSON!): JSON
 `;

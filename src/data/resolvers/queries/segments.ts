@@ -8,8 +8,8 @@ const segmentQueries = {
   /**
    * Segments list
    */
-  segments(_root, { contentType }: { contentType: string }, { commonQuerySelector }: IContext) {
-    return Segments.find({ ...commonQuerySelector, contentType }).sort({ name: 1 });
+  segments(_root, { contentTypes }: { contentTypes: string[] }, { commonQuerySelector }: IContext) {
+    return Segments.find({ ...commonQuerySelector, contentType: { $in: contentTypes } }).sort({ name: 1 });
   },
 
   /**
@@ -35,6 +35,14 @@ const segmentQueries = {
         terms: {
           field: 'name',
         },
+        aggs: {
+          hits: {
+            top_hits: {
+              _source: ['attributes'],
+              size: 1,
+            },
+          },
+        },
       },
     };
 
@@ -47,19 +55,18 @@ const segmentQueries = {
     const aggreEvents = await fetchElk('search', 'events', {
       aggs,
       query,
-      size: 0,
     });
 
-    const aggreHits = await fetchElk('search', 'events', {
-      aggs,
-      query,
-      size: aggreEvents.aggregations.names.buckets.length,
-    });
+    const buckets = aggreEvents.aggregations.names.buckets || [];
 
-    const events = aggreHits.hits.hits.map(hit => ({
-      name: hit._source.name,
-      attributeNames: Object.keys(hit._source.attributes),
-    }));
+    const events = buckets.map(bucket => {
+      const [hit] = bucket.hits.hits.hits;
+
+      return {
+        name: bucket.key,
+        attributeNames: Object.keys(hit._source.attributes),
+      };
+    });
 
     return events;
   },
@@ -67,22 +74,29 @@ const segmentQueries = {
   /**
    * Preview count
    */
-  async segmentsPreviewCount(_root, { contentType, conditions }: { contentType: string; conditions }) {
+  async segmentsPreviewCount(
+    _root,
+    { contentType, conditions, subOf }: { contentType: string; conditions; subOf?: string },
+  ) {
     const { positiveList, negativeList } = await fetchBySegments(
-      { name: 'preview', color: '#fff', subOf: '', contentType, conditions },
+      { name: 'preview', color: '#fff', subOf: subOf || '', contentType, conditions },
       'count',
     );
 
-    const response = await fetchElk('count', contentType === 'customer' ? 'customers' : 'companies', {
-      query: {
-        bool: {
-          must: positiveList,
-          must_not: negativeList,
+    try {
+      const response = await fetchElk('count', contentType === 'company' ? 'companies' : 'customers', {
+        query: {
+          bool: {
+            must: positiveList,
+            must_not: negativeList,
+          },
         },
-      },
-    });
+      });
 
-    return response.count;
+      return response.count;
+    } catch (e) {
+      return 0;
+    }
   },
 };
 

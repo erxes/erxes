@@ -50,6 +50,7 @@ const apolloServer = new ApolloServer({
 
     const requestInfo = {
       secure: req.secure,
+      cookies: req.cookies,
     };
 
     const user = req.user;
@@ -80,7 +81,7 @@ const apolloServer = new ApolloServer({
         scopeBrandIds = brandIds;
       }
 
-      if (user.isOwner) {
+      if (!user.isOwner) {
         brandIdSelector = { _id: { $in: scopeBrandIds } };
         commonQuerySelector = { scopeBrandIds: { $in: scopeBrandIds } };
         commonQuerySelectorElk = { terms: { scopeBrandIds } };

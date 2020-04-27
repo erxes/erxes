@@ -1,11 +1,14 @@
+import './setup.ts';
+
 import * as faker from 'faker';
-import { graphqlRequest } from '../db/connection';
+import * as messageBroker from '../messageBroker';
+
 import { brandFactory, channelFactory, integrationFactory, tagsFactory } from '../db/factories';
 import { Brands, Channels, Integrations, Tags } from '../db/models';
-import { TAG_TYPES } from '../db/models/definitions/constants';
 
 import { IntegrationsAPI } from '../data/dataSources';
-import './setup.ts';
+import { graphqlRequest } from '../db/connection';
+import { TAG_TYPES } from '../db/models/definitions/constants';
 
 describe('integrationQueries', () => {
   const qryIntegrations = `
@@ -249,8 +252,6 @@ describe('integrationQueries', () => {
   });
 
   test('Fetch integration api', async () => {
-    process.env.INTEGRATIONS_API_DOMAIN = 'http://fake.erxes.io';
-
     const qry = `
       query integrationsFetchApi($path: String!, $params: JSON!) {
         integrationsFetchApi(path: $path, params: $params)
@@ -282,5 +283,39 @@ describe('integrationQueries', () => {
 
     expect(usedTypes[0]._id).toBe('messenger');
     expect(usedTypes[0].name).toBe('Web messenger');
+  });
+
+  test('line webhook', async () => {
+    const query = `
+    query integrationGetLineWebhookUrl($_id: String!) {
+      integrationGetLineWebhookUrl(_id: $_id)
+    }
+    `;
+
+    const spy = jest.spyOn(messageBroker, 'sendRPCMessage');
+
+    spy.mockImplementation(() => Promise.resolve('https://webhookurl'));
+
+    const response = await graphqlRequest(query, 'integrationGetLineWebhookUrl', { _id: 'id' });
+
+    try {
+      await graphqlRequest(query, 'integrationGetLineWebhookUrl', { _id: 'id' });
+    } catch (e) {
+      expect(e[0].message).toBeDefined();
+    }
+
+    expect(response).toBe('https://webhookurl');
+
+    spy.mockRestore();
+
+    const spy1 = jest.spyOn(messageBroker, 'sendRPCMessage');
+
+    spy1.mockImplementation(() => Promise.resolve('https://webhookurl'));
+
+    const secondResponse = await graphqlRequest(query, 'integrationGetLineWebhookUrl', { _id: 'id' });
+
+    expect(secondResponse).toBe('https://webhookurl');
+
+    spy1.mockRestore();
   });
 });

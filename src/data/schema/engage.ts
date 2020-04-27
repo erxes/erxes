@@ -15,6 +15,9 @@ export const types = `
     createdAt: Date
     type: String
     messengerReceivedCustomerIds: [String]
+    totalCustomersCount: Int
+    validCustomersCount: Int
+
     brand: Brand
 
     email: JSON
@@ -35,20 +38,12 @@ export const types = `
     type: String,
     month: String,
     day: String,
-    time: Date,
-  }
-
-  type EngagesConfig {
-    accessKeyId: String
-    secretAccessKey: String
-    region: String
   }
 
   input EngageScheduleDateInput {
     type: String,
     month: String,
     day: String,
-    time: Date,
   }
 
   input EngageMessageEmail {
@@ -84,7 +79,7 @@ export const queries = `
   engageMessagesTotalCount(${listParams}): Int
   engageMessageDetail(_id: String): EngageMessage
   engageMessageCounts(name: String!, kind: String, status: String): JSON
-  engagesConfigDetail: EngagesConfig
+  engagesConfigDetail: JSON
   engageVerifiedEmails: [String]
 `;
 
@@ -114,7 +109,7 @@ export const mutations = `
   engageMessageSetLive(_id: String!): EngageMessage
   engageMessageSetPause(_id: String!): EngageMessage
   engageMessageSetLiveManual(_id: String!): EngageMessage
-  engagesConfigSave(accessKeyId: String, secretAccessKey: String, region: String): EngagesConfig
+  engagesUpdateConfigs(configsMap: JSON!): JSON
   engageMessageVerifyEmail(email: String!): String
   engageMessageRemoveVerifiedEmail(email: String!): String
   engageMessageSendTestEmail(from: String!, to: String!, content: String!): String

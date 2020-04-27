@@ -42,10 +42,11 @@ describe('Test deals mutations', () => {
   let user: IUserDocument;
 
   const commonDealParamDefs = `
-    $name: String!,
+    $name: String!
     $stageId: String!
     $assignedUserIds: [String]
     $productsData: JSON
+    $status: String
   `;
 
   const commonDealParams = `
@@ -53,6 +54,7 @@ describe('Test deals mutations', () => {
     stageId: $stageId
     assignedUserIds: $assignedUserIds
     productsData: $productsData
+    status: $status
   `;
 
   beforeEach(async () => {
@@ -137,6 +139,31 @@ describe('Test deals mutations', () => {
     response = await graphqlRequest(mutation, 'dealsEdit', args);
 
     expect(response.assignedUserIds).toContain(user1._id);
+
+    // if assigned productsData
+    const user2 = await userFactory();
+    args.productsData.push({ productId: product2._id, assignUserId: user2._id });
+
+    response = await graphqlRequest(mutation, 'dealsEdit', args);
+
+    expect(response.assignedUserIds).toContain(user2._id);
+
+    // if assigned productsData unassign assignedUserIds
+    delete args.productsData;
+    try {
+      response = await graphqlRequest(mutation, 'dealsEdit', args);
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
+
+    // not products data and assigneduserIDs
+    args.productsData = [];
+    args.status = 'archived';
+
+    delete args.assignedUserIds;
+    response = await graphqlRequest(mutation, 'dealsEdit', args);
+
+    expect(response.assignedUserIds).toEqual([user1._id]);
   });
 
   test('Change deal', async () => {
@@ -179,6 +206,33 @@ describe('Test deals mutations', () => {
     const updatedDeal = await graphqlRequest(mutation, 'dealsChange', args);
 
     expect(updatedDeal._id).toEqual(args._id);
+  });
+
+  test('Update deal move to pipeline stage', async () => {
+    const mutation = `
+      mutation dealsEdit($_id: String!, ${commonDealParamDefs}) {
+        dealsEdit(_id: $_id, ${commonDealParams}) {
+          _id
+          name
+          stageId
+          assignedUserIds
+        }
+      }
+    `;
+
+    const anotherPipeline = await pipelineFactory({ boardId: board._id });
+    const anotherStage = await stageFactory({ pipelineId: anotherPipeline._id });
+
+    const args = {
+      _id: deal._id,
+      stageId: anotherStage._id,
+      name: deal.name || '',
+    };
+
+    const updatedDeal = await graphqlRequest(mutation, 'dealsEdit', args);
+
+    expect(updatedDeal._id).toEqual(args._id);
+    expect(updatedDeal.stageId).toEqual(args.stageId);
   });
 
   test('Deal update orders', async () => {

@@ -90,7 +90,7 @@ export const loadProductClass = () => {
 export interface IProductCategoryModel extends Model<IProductCategoryDocument> {
   getProductCatogery(selector: any): Promise<IProductCategoryDocument>;
   createProductCategory(doc: IProductCategory): Promise<IProductCategoryDocument>;
-  updateProductCategory(_id: string, doc: IProduct): Promise<IProductCategoryDocument>;
+  updateProductCategory(_id: string, doc: IProductCategory): Promise<IProductCategoryDocument>;
   removeProductCategory(_id: string): void;
 }
 

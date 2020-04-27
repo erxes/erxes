@@ -1,3 +1,36 @@
+# [0.13.0](https://github.com/erxes/erxes-api/compare/0.12.5...0.13.0) (2020-03-17)
+
+
+### Bug Fixes
+
+* **activity-log:**  checked empty content ([ce3daea](https://github.com/erxes/erxes-api/commit/ce3daeac23631dceb745ec4be20127b46097f7c9))
+* **conversation:** counting left, joined messages in messsageCount field ([9f8201d](https://github.com/erxes/erxes-api/commit/9f8201d9e4e57e07a5b07ea030e929139bd76ddd)), closes [#694](https://github.com/erxes/erxes-api/issues/694)
+* **importHistory:** cannot remove contacts if there are too many contacts ([be6ee64](https://github.com/erxes/erxes-api/commit/be6ee64d0602b230b0230de12ce3686a287729fd)), closes [erxes/erxes#1681](https://github.com/erxes/erxes/issues/1681)
+* remove account only when there is no integration ([1e33a60](https://github.com/erxes/erxes-api/commit/1e33a60256d2d2ee10534803e57dea7172383281))
+
+
+### Features
+
+* **board:** add archive functionality ([49e09f7](https://github.com/erxes/erxes-api/commit/49e09f7eb23dde1c5c0211b9b20240d52feecca3)), closes [erxes/erxes#1625](https://github.com/erxes/erxes/issues/1625)
+* **email-verification:** added email verification service ([d509e99](https://github.com/erxes/erxes-api/commit/d509e999f04b961ef38e0eb9c98cf64cdf656d3d)), closes [#1662](https://github.com/erxes/erxes-api/issues/1662)
+* **users:** filter by brand ([9dca98e](https://github.com/erxes/erxes-api/commit/9dca98e9e4ff369fea01c2a3272b534a077396d3)), closes [#681](https://github.com/erxes/erxes-api/issues/681)
+* **videoCall:** add video call integration using daily.co ([bb25bf9](https://github.com/erxes/erxes-api/commit/bb25bf96e70df43b0ee572f4b1e9eef6d490980d)), closes [erxes/erxes#1638](https://github.com/erxes/erxes/issues/1638)
+
+
+### Performance Improvements
+
+* **customer:** export pop-ups data for customer list when filtering by pop ups ([9fb2574](https://github.com/erxes/erxes-api/commit/9fb25749c0c75b35b5968aa29acbd05bc084a787)), closes [erxes/erxes#1674](https://github.com/erxes/erxes/issues/1674)
+* **merge-repos:** merged logger & engage-mail-sender repos ([6d2d8dd](https://github.com/erxes/erxes-api/commit/6d2d8dd85510f475d13ad49ea986fa4d9d89f276)), closes [#736](https://github.com/erxes/erxes-api/issues/736)
+
+## [0.12.5](https://github.com/erxes/erxes-api/compare/0.12.4...0.12.5) (2020-03-06)
+
+
+### Bug Fixes
+
+* **account:** remove account ([#725](https://github.com/erxes/erxes-api/issues/725)) ([fb477c3](https://github.com/erxes/erxes-api/commit/fb477c33277f74fe09e28d786e310bc72168ab80))
+
+## [0.12.4](https://github.com/erxes/erxes-api/compare/0.12.3...0.12.4) (2020-03-06)
+
 ## [0.12.3](https://github.com/erxes/erxes-api/compare/0.12.2...0.12.3) (2020-01-28)
 
 ## [0.12.2](https://github.com/erxes/erxes-api/compare/0.12.1...0.12.2) (2020-01-28)

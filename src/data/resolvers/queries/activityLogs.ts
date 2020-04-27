@@ -101,7 +101,12 @@ const activityLogQueries = {
 
     const collectTasks = async () => {
       if (contentType !== 'task') {
-        collectItems(await Tasks.find({ _id: { $in: relatedTaskIds } }).sort({ closeDate: 1 }), 'taskDetail');
+        collectItems(
+          await Tasks.find({ $and: [{ _id: { $in: relatedTaskIds } }, { status: { $ne: 'archived' } }] }).sort({
+            closeDate: 1,
+          }),
+          'taskDetail',
+        );
       }
     };
 

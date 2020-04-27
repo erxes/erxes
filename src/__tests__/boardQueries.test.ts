@@ -324,21 +324,21 @@ describe('boardQueries', () => {
   test('Stages', async () => {
     const pipeline = await pipelineFactory();
 
-    const args = { pipelineId: pipeline._id, probability: PROBABILITY.LOST };
+    const args = { pipelineId: pipeline._id, probability: PROBABILITY.LOST, status: BOARD_STATUSES.ACTIVE };
 
     await stageFactory(args);
     await stageFactory(args);
     await stageFactory(args);
 
     const qry = `
-      query stages($pipelineId: String!, $isNotLost: Boolean) {
-        stages(pipelineId: $pipelineId, isNotLost: $isNotLost) {
+      query stages($pipelineId: String!, $isNotLost: Boolean, $isAll: Boolean) {
+        stages(pipelineId: $pipelineId, isNotLost: $isNotLost, isAll: $isAll) {
           ${commonStageTypes}
         }
       }
     `;
 
-    const filter = { pipelineId: pipeline._id, isNotLost: false };
+    const filter = { pipelineId: pipeline._id, isNotLost: false, isAll: false };
 
     let response = await graphqlRequest(qry, 'stages', filter);
 
@@ -353,6 +353,15 @@ describe('boardQueries', () => {
     response = await graphqlRequest(qry, 'stages', filter);
 
     expect(response.length).toBe(2);
+
+    args.status = BOARD_STATUSES.ARCHIVED;
+
+    await stageFactory(args);
+
+    filter.isAll = true;
+    response = await graphqlRequest(qry, 'stages', filter);
+
+    expect(response.length).toBe(3);
   });
 
   test('Stage detail', async () => {
@@ -549,5 +558,32 @@ describe('boardQueries', () => {
     response = await graphqlRequest(qry, 'archivedStages', { pipelineId: pipeline._id, search: stage1.name });
 
     expect(response.length).toBe(1);
+  });
+
+  test('Archived stages count ', async () => {
+    const pipeline = await pipelineFactory();
+
+    const params = {
+      pipelineId: pipeline._id,
+      status: BOARD_STATUSES.ARCHIVED,
+    };
+
+    const stage1 = await stageFactory(params);
+    await stageFactory(params);
+    await stageFactory(params);
+
+    const qry = `
+      query archivedStagesCount($pipelineId: String!, $search: String) {
+        archivedStagesCount(pipelineId: $pipelineId, search: $search)
+      }
+    `;
+
+    let response = await graphqlRequest(qry, 'archivedStagesCount', { pipelineId: pipeline._id });
+
+    expect(response).toBe(3);
+
+    response = await graphqlRequest(qry, 'archivedStagesCount', { pipelineId: pipeline._id, search: stage1.name });
+
+    expect(response).toBe(1);
   });
 });

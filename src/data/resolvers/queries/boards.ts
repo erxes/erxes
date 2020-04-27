@@ -16,12 +16,13 @@ export interface IListParams extends IConformityQueryParams {
   skip?: number;
   date?: IDate;
   search?: string;
-  customerIds?: [string];
-  companyIds?: [string];
-  assignedUserIds?: [string];
+  customerIds?: string[];
+  companyIds?: string[];
+  assignedUserIds?: string[];
   sortField?: string;
   sortDirection?: number;
-  labelIds?: [string];
+  labelIds?: string[];
+  userIds?: string[];
 }
 
 const boardQueries = {
@@ -155,13 +156,17 @@ const boardQueries = {
   /**
    *  Stages list
    */
-  stages(_root, { pipelineId, isNotLost }: { pipelineId: string; isNotLost: boolean }) {
-    const filter: any = { status: { $ne: BOARD_STATUSES.ARCHIVED } };
+  stages(_root, { pipelineId, isNotLost, isAll }: { pipelineId: string; isNotLost: boolean; isAll: boolean }) {
+    const filter: any = {};
 
     filter.pipelineId = pipelineId;
 
     if (isNotLost) {
       filter.probability = { $ne: 'Lost' };
+    }
+
+    if (!isAll) {
+      filter.$or = [{ status: null }, { status: BOARD_STATUSES.ACTIVE }];
     }
 
     return Stages.find(filter).sort({ order: 1, createdAt: -1 });
@@ -189,6 +194,16 @@ const boardQueries = {
     }
 
     return paginate(Stages.find(filter).sort({ createdAt: -1 }), listArgs);
+  },
+
+  archivedStagesCount(_root, { pipelineId, search }: { pipelineId: string; search?: string }) {
+    const filter: any = { pipelineId, status: BOARD_STATUSES.ARCHIVED };
+
+    if (search) {
+      Object.assign(filter, regexSearchText(search, 'name'));
+    }
+
+    return Stages.countDocuments(filter);
   },
 
   /**

@@ -1,0 +1,8 @@
+*.md
+*.yml
+.dockerignore
+.git*
+.prettierrc
+Dockerfile*
+src
+*.tar.gz
