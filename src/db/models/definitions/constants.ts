@@ -439,8 +439,8 @@ export const NOTIFICATION_CONTENT_TYPES = {
 };
 
 const STATUSES = [
-  { label: 'Active', value: 'active' },
-  { label: 'Deleted', value: 'deleted' },
+  { label: 'Active', value: 'Active' },
+  { label: 'Deleted', value: 'Deleted' },
 ];
 
 export const COMPANY_SELECT_OPTIONS = {
@@ -455,12 +455,18 @@ export const COMPANY_SELECT_OPTIONS = {
     { label: 'Other', value: 'Other' },
   ],
   STATUSES,
+  DO_NOT_DISTURB: [
+    { label: 'Yes', value: 'Yes' },
+    { label: 'No', value: 'No' },
+  ],
 };
 
 export const CUSTOMER_SELECT_OPTIONS = {
   SEX: [
+    { label: 'Not known', value: 0 },
     { label: 'Male', value: 1 },
     { label: 'Female', value: 2 },
+    { label: 'Not applicable', value: 9 },
   ],
   EMAIL_VALIDATION_STATUSES: [
     { label: 'Valid', value: 'valid' },
@@ -479,4 +485,17 @@ export const CUSTOMER_SELECT_OPTIONS = {
     { label: 'Unqualified', value: 'unqualified' },
   ],
   STATUSES,
+  DO_NOT_DISTURB: [
+    { label: 'Yes', value: 'Yes' },
+    { label: 'No', value: 'No' },
+  ],
+  HAS_AUTHORITY: [
+    { label: 'Yes', value: 'Yes' },
+    { label: 'No', value: 'No' },
+  ],
+  STATE: [
+    { label: 'Visitor', value: 'visitor' },
+    { label: 'Lead', value: 'lead' },
+    { label: 'Customer', value: 'customer' },
+  ],
 };
