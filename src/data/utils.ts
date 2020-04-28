@@ -34,7 +34,7 @@ export const checkFile = async (file, source?: string) => {
   const { size } = file;
 
   // 20mb
-  if (size > 20000000) {
+  if (size > 20 * 1024 * 1024) {
     return 'Too large file';
   }
 
