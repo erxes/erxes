@@ -98,3 +98,8 @@ export interface ICommonListProps {
   totalCount: number;
   loading: boolean;
 }
+
+export interface ICommonFormProps {
+  object?: any;
+  closeModal: () => void;
+}

@@ -24,4 +24,17 @@ export const __ = (key: string, options?: any) => {
   return translation.toString();
 };
 
+export const generateRandomString = (len: number = 10) => {
+  const charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+
+  let randomString = '';
+
+  for (let i = 0; i < len; i++) {
+    const position = Math.floor(Math.random() * charSet.length);
+    randomString += charSet.substring(position, position + 1);
+  }
+
+  return randomString;
+};
+
 export { commonListComposer, Alert, confirm };

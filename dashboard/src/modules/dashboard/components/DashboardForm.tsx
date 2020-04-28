@@ -2,8 +2,8 @@ import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { IFormProps } from 'modules/common/types';
-import CommonForm from 'modules/settings/common/components/Form';
-import { ICommonFormProps } from 'modules/settings/common/types';
+import CommonForm from 'modules/common/components/Form';
+import { ICommonFormProps } from 'modules/common/types';
 import React from 'react';
 import { IDashboard } from '../types';
 

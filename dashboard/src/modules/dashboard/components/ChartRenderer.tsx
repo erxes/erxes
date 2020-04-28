@@ -18,6 +18,7 @@ import {
   XAxis,
   YAxis
 } from 'recharts';
+
 import styled from 'styled-components';
 
 import dayjs from 'dayjs';
