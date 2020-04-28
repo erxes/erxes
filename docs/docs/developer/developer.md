@@ -42,6 +42,9 @@ cp .env.sample .env
 # Install dependencies (package.json)
 yarn install
 
+# Create admin user & save the returned password
+yarn initProject
+
 # Load sample data
 yarn loadInitialData
 
@@ -74,5 +77,5 @@ Visit http://localhost:3000 and login using following credentials
 
 ```
 username: admin@erxes.io
-password: erxes
+password: the password generate during initProject
 ```
