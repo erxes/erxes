@@ -7,7 +7,7 @@ export const types = `
 `;
 
 export const queries = `
-  emailTemplates: [EmailTemplate]
+  emailTemplates(page: Int, perPage: Int): [EmailTemplate]
   emailTemplatesTotalCount: Int
 `;
 

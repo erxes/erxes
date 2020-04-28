@@ -31,7 +31,7 @@ describe('emailTemplateQueries', () => {
 
     const response = await graphqlRequest(qry, 'emailTemplates', args);
 
-    expect(response.length).toBe(3);
+    expect(response.length).toBe(2);
   });
 
   test('Get email template total count', async () => {
