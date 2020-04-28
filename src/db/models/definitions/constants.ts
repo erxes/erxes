@@ -453,11 +453,13 @@ export const COMPANY_SELECT_OPTIONS = {
     { label: 'Prospect', value: 'Prospect' },
     { label: 'Reseller', value: 'Reseller' },
     { label: 'Other', value: 'Other' },
+    { label: 'Unknown', value: '' },
   ],
   STATUSES,
   DO_NOT_DISTURB: [
     { label: 'Yes', value: 'Yes' },
     { label: 'No', value: 'No' },
+    { label: 'Unknown', value: '' },
   ],
 };
 
@@ -483,15 +485,18 @@ export const CUSTOMER_SELECT_OPTIONS = {
     { label: 'Working', value: 'inProgress' },
     { label: 'Bad Timing', value: 'badTiming' },
     { label: 'Unqualified', value: 'unqualified' },
+    { label: 'Unknown', value: '' },
   ],
   STATUSES,
   DO_NOT_DISTURB: [
     { label: 'Yes', value: 'Yes' },
     { label: 'No', value: 'No' },
+    { label: 'Unknown', value: '' },
   ],
   HAS_AUTHORITY: [
     { label: 'Yes', value: 'Yes' },
     { label: 'No', value: 'No' },
+    { label: 'Unknown', value: '' },
   ],
   STATE: [
     { label: 'Visitor', value: 'visitor' },
