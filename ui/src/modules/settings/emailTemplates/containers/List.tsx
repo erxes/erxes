@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { generatePaginationParams } from 'modules/common/utils/router';
 import { graphql } from 'react-apollo';
 import { commonListComposer } from '../../utils';
 import List from '../components/List';
@@ -23,9 +24,10 @@ export default commonListComposer<Props>({
 
   gqlListQuery: graphql(gql(queries.emailTemplates), {
     name: 'listQuery',
-    options: () => {
+    options: ({ queryParams }: { queryParams: any }) => {
       return {
-        notifyOnNetworkStatusChange: true
+        notifyOnNetworkStatusChange: true,
+        variables: generatePaginationParams(queryParams)
       };
     }
   }),
