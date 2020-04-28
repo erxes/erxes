@@ -77,5 +77,5 @@ Visit http://localhost:3000 and login using following credentials
 
 ```
 username: admin@erxes.io
-password: the password generate during initProject
+password: the password generated during initProject
 ```
