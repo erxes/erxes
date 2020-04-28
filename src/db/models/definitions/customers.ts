@@ -114,7 +114,14 @@ export const customerSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
 
-    state: field({ type: String, esType: 'keyword', label: 'State' }),
+    state: field({
+      type: String,
+      esType: 'keyword',
+      label: 'State',
+      default: 'visitor',
+      enum: getEnum('STATE'),
+      selectOptions: CUSTOMER_SELECT_OPTIONS.STATE,
+    }),
 
     createdAt: field({ type: Date, label: 'Created at' }),
     modifiedAt: field({ type: Date, label: 'Modified at' }),
@@ -164,20 +171,30 @@ export const customerSchema = schemaWrapper(
     status: field({
       type: String,
       enum: getEnum('STATUSES'),
-      default: 'active',
       optional: true,
       label: 'Status',
-      index: true,
+      default: 'Active',
       esType: 'keyword',
+      index: true,
       selectOptions: CUSTOMER_SELECT_OPTIONS.STATUSES,
     }),
 
-    hasAuthority: field({ type: String, optional: true, label: 'Has authority' }),
+    hasAuthority: field({
+      type: String,
+      optional: true,
+      default: 'No',
+      label: 'Has authority',
+      enum: getEnum('HAS_AUTHORITY'),
+      selectOptions: CUSTOMER_SELECT_OPTIONS.HAS_AUTHORITY,
+    }),
     description: field({ type: String, optional: true, label: 'Description' }),
     doNotDisturb: field({
       type: String,
       optional: true,
+      default: 'No',
+      enum: getEnum('DO_NOT_DISTURB'),
       label: 'Do not disturb',
+      selectOptions: CUSTOMER_SELECT_OPTIONS.DO_NOT_DISTURB,
     }),
     links: field({ type: linkSchema, default: {}, label: 'Links' }),
 
@@ -205,7 +222,11 @@ export const customerSchema = schemaWrapper(
     searchText: field({ type: String, optional: true, index: true }),
     code: field({ type: String, label: 'Code', optional: true }),
 
-    isOnline: field({ type: Boolean, label: 'Is online', optional: true }),
+    isOnline: field({
+      type: Boolean,
+      label: 'Is online',
+      optional: true,
+    }),
     lastSeenAt: field({ type: Date, label: 'Last seen at', optional: true }),
     sessionCount: field({ type: Number, label: 'Session count', optional: true }),
   }),

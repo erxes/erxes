@@ -119,7 +119,7 @@ export const companySchema = schemaWrapper(
     status: field({
       type: String,
       enum: getEnum('STATUSES'),
-      default: 'active',
+      default: 'Active',
       optional: true,
       label: 'Status',
       esType: 'keyword',
@@ -140,7 +140,10 @@ export const companySchema = schemaWrapper(
     doNotDisturb: field({
       type: String,
       optional: true,
+      default: 'No',
+      enum: getEnum('DO_NOT_DISTURB'),
       label: 'Do not disturb',
+      selectOptions: COMPANY_SELECT_OPTIONS.DO_NOT_DISTURB,
     }),
     links: field({ type: linkSchema, default: {}, label: 'Links' }),
 
