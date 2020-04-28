@@ -86,6 +86,8 @@ export type AddMutationVariables = {
 };
 
 export type IField = {
+  selectOptions?: Array<{ label: string; value: string | number }>;
+  type?: string;
   value: string;
   label: string;
 };
