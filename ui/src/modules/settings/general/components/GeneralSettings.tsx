@@ -322,7 +322,7 @@ class GeneralSettings extends React.Component<Props, State> {
               href="https://docs.erxes.io/administrator/system-config#custom-mail-service"
               rel="noopener noreferrer"
             >
-              {__('Learn case of custom email service')}
+              {__('Learn the case of custom email service')}
             </a>
             
           </Info>

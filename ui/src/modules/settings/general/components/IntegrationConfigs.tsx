@@ -167,7 +167,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
           <Info>
             <a
               target="_blank"
-              href="https://docs.erxes.io/administrator/system-config#gmail-1"
+              href="https://docs.erxes.io/administrator/system-config#gmail"
               rel="noopener noreferrer"
             >
               {__('Learn how to set Gmail Integration Variables')}
