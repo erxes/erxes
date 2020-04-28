@@ -19,9 +19,9 @@ const args = {
   position: faker.random.word(),
   department: faker.random.word(),
   leadStatus: 'new',
-  hasAuthority: faker.random.word(),
+  hasAuthority: 'No',
   description: faker.random.word(),
-  doNotDisturb: faker.random.word(),
+  doNotDisturb: 'Yes',
   links: {
     linkedIn: 'linkedIn',
     twitter: 'twitter',
