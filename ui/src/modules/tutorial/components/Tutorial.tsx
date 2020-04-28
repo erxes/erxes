@@ -35,23 +35,6 @@ const Header = styled.div`
   }
 `;
 
-const Soon = styled.div`
-  margin: 0;
-  font-size: 18px;
-  padding: 10px 20px;
-  border-bottom: 1px solid ${colors.borderPrimary};
-  opacity: 0.8;
-  cursor: not-allowed;
-  font-style: italic;
-
-  &:after {
-    content: 'Coming soon';
-    font-size: 70%;
-    margin-left: 5px;
-    color: ${colors.colorCoreGray};
-  }
-`;
-
 const IconWrapper = styled.div`
   margin-right: 20px;
   font-size: 18px;
@@ -141,21 +124,15 @@ function Tutorial() {
             group.description.duration
           )}
         >
-          {group.videos.map(video => {
-            if (video.isSoon) {
-              return <Soon key={video.name}>{__(video.name)}</Soon>;
-            }
-
-            return (
-              <CollapseContent
-                key={video.name}
-                title={__(video.name)}
-                compact={true}
-              >
-                {renderVideo(video.url)}
-              </CollapseContent>
-            );
-          })}
+          {group.videos.map(video => (
+            <CollapseContent
+              key={video.name}
+              title={__(video.name)}
+              compact={true}
+            >
+              {renderVideo(video.url)}
+            </CollapseContent>
+          ))}
         </CollapseContent>
       ))}
     </>
