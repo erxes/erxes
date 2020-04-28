@@ -89,7 +89,6 @@ class CompanyForm extends React.Component<Props, State> {
       _id: finalValues._id,
       ...this.state,
       size: Number(finalValues.size),
-      businessType: finalValues.businessType,
       description: finalValues.description,
       code: finalValues.code,
       links: {

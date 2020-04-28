@@ -70,6 +70,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
           size="lg"
           content={content}
           paddingContent="no-padding"
+          enforceFocus={false}
         />
         <Button
           href={primaryPhone && `tel:${primaryPhone}`}
