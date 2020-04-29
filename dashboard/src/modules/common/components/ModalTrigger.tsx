@@ -2,7 +2,7 @@ import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Modal } from 'react-bootstrap';
 import { withRouter } from 'react-router-dom';
-import RTG from 'react-transition-group';
+import * as RTG from 'react-transition-group';
 import { CloseModal } from '../styles/main';
 import { IRouterProps } from '../types';
 import routerUtils from '../utils/router';

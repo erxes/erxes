@@ -1,10 +1,10 @@
-import client from '../../../apolloClient';
 import gql from 'graphql-tag';
 import { colors } from 'modules/common/styles';
 import { __, Alert } from 'modules/common/utils';
 import { rotate } from 'modules/common/utils/animations';
 import React from 'react';
 import styled from 'styled-components';
+import client from '../../../apolloClient';
 import Button from '../components/Button';
 
 export const SmallLoader = styled.i`

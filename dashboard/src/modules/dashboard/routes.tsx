@@ -5,20 +5,25 @@ import DashboardDetail from './containers/DashboardDetail';
 import DashboardList from './containers/DashboardList';
 import ExplorePage from './containers/Explore';
 
-const dashboards = ({ location }) => {
-  return <DashboardList queryParams={queryString.parse(location.search)} />;
+const dashboards = ({ location, history }) => {
+  return (
+    <DashboardList
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
 };
 
-const dashboardDetail = ({ match }) => {
+const dashboardDetail = ({ match, history }) => {
   const id = match.params.id;
 
-  return <DashboardDetail id={id} />;
+  return <DashboardDetail id={id} history={history} />;
 };
 
-const explorePage = ({ location }) => {
+const explorePage = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
 
-  return <ExplorePage queryParams={queryParams} />;
+  return <ExplorePage queryParams={queryParams} history={history} />;
 };
 
 const routes = () => {

@@ -6,6 +6,7 @@ import ChartRenderer from '../ChartRenderer';
 import FilterGroup from './FilterGroup';
 import MemberGroup from './MemberGroup';
 import SelectChartType from './SelectChartType';
+import stateChangeHeuristics from './stateChangeHeuristics.js';
 import TimeGroup from './TimeGroup';
 
 const ControlsRow = styled(Row)`
@@ -56,6 +57,7 @@ const ExploreQueryBuilder = ({
     setVizState={setVizState}
     cubejsApi={cubejsApi}
     wrapWithQueryRenderer={false}
+    stateChangeHeuristics={stateChangeHeuristics}
     render={({
       measures,
       availableMeasures,
@@ -76,10 +78,11 @@ const ExploreQueryBuilder = ({
       updateChartType,
       validatedQuery
     }) => [
-      <ControlsRow justify="space-around" align="top" key="1">
+      <ControlsRow type="flex" justify="space-around" align="top" key="1">
         <Col span={24}>
           <Row align="top" style={{ paddingBottom: 23 }}>
             <MemberGroup
+              title="Measures"
               members={measures}
               availableMembers={availableMeasures}
               addMemberName="Measure"
@@ -87,6 +90,7 @@ const ExploreQueryBuilder = ({
             />
             <StyledDivider type="vertical" />
             <MemberGroup
+              title="Dimensions"
               members={dimensions}
               availableMembers={availableDimensions}
               addMemberName="Dimension"
@@ -94,6 +98,7 @@ const ExploreQueryBuilder = ({
             />
             <StyledDivider type="vertical" />
             <MemberGroup
+              title="Segments"
               members={segments}
               availableMembers={availableSegments}
               addMemberName="Segment"
@@ -101,6 +106,7 @@ const ExploreQueryBuilder = ({
             />
             <StyledDivider type="vertical" />
             <TimeGroup
+              title="Time"
               members={timeDimensions}
               availableMembers={availableTimeDimensions}
               addMemberName="Time"

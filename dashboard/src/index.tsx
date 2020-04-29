@@ -2,11 +2,11 @@ import React from 'react';
 import { render } from 'react-dom';
 import './index.css';
 
-import { ApolloProvider } from 'react-apollo';
 import { CubeProvider } from '@cubejs-client/react';
+import { ApolloProvider } from 'react-apollo';
 
-import apolloClient, { getEnv } from './apolloClient';
 import cubejs from '@cubejs-client/core';
+import apolloClient, { getEnv } from './apolloClient';
 import Routes from './routes';
 
 const target = document.querySelector('#root');

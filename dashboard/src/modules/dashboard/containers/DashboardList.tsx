@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
-import { generatePaginationParams } from 'modules/common/utils/router';
 import { commonListComposer } from 'modules/common/utils';
+import { generatePaginationParams } from 'modules/common/utils/router';
 import { graphql } from 'react-apollo';
 import DashboardList from '../components/DashboardList';
 import { mutations, queries } from '../graphql';
@@ -13,6 +13,7 @@ export type DashboardsQueryResponse = {
 };
 
 type Props = {
+  history: any;
   queryParams: any;
 };
 

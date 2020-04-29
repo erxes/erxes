@@ -14,6 +14,7 @@ import {
 
 type Props = {
   id: string;
+  history: any;
 };
 
 type FinalProps = {

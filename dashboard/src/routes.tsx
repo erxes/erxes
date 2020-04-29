@@ -1,11 +1,11 @@
 import { Layout } from 'antd';
+import DashboardRoutes from 'modules/dashboard/routes';
 import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
-import DashboardRoutes from 'modules/dashboard/routes';
 
 const Routes = () => {
   return (
-    <Layout>
+    <Layout style={{ height: '100%' }}>
       <Layout.Content>
         <Router>
           <DashboardRoutes />

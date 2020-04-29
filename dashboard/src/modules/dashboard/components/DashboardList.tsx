@@ -1,7 +1,7 @@
+import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { IButtonMutateProps, ICommonListProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Actions, Template, TemplateBox, Templates } from '../styles';
 import DashboardForm from './DashboardForm';
@@ -68,7 +68,25 @@ class DashboardList extends React.Component<Props> {
   };
 
   render() {
-    return <div>{this.renderContent}</div>;
+    const trigger = (
+      <Button btnStyle="success" size="small" icon="plus-circle">
+        xaxax
+      </Button>
+    );
+    return (
+      <div>
+        <ModalTrigger
+          title={'Dashboard'}
+          // size={size}
+          enforceFocus={false}
+          trigger={trigger}
+          autoOpenKey="showListFormModal"
+          content={this.renderForm}
+          dialogClassName="transform"
+        />
+        {this.renderContent(this.props)}
+      </div>
+    );
   }
 }
 

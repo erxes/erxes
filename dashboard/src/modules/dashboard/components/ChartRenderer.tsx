@@ -116,25 +116,27 @@ const TypeToChartComponent = {
       </CartesianChart>
     );
   },
-  pie: ({ resultSet, height }) => (
-    <ResponsiveContainer width="100%" height={height}>
-      <PieChart>
-        <Pie
-          isAnimationActive={false}
-          data={resultSet.chartPivot()}
-          nameKey="x"
-          dataKey={resultSet.seriesNames()[0].key}
-          fill="#8884d8"
-        >
-          {resultSet.chartPivot().map((e, index) => (
-            <Cell key={index} fill={colors[index % colors.length]} />
-          ))}
-        </Pie>
-        <Legend />
-        <Tooltip />
-      </PieChart>
-    </ResponsiveContainer>
-  ),
+  pie: ({ resultSet, height }) => {
+    return (
+      <ResponsiveContainer width="100%" height={height}>
+        <PieChart>
+          <Pie
+            isAnimationActive={false}
+            data={resultSet.chartPivot()}
+            nameKey="x"
+            dataKey={resultSet.seriesNames()[0].key}
+            fill="#8884d8"
+          >
+            {resultSet.chartPivot().map((e, index) => (
+              <Cell key={index} fill={colors[index % colors.length]} />
+            ))}
+          </Pie>
+          <Legend />
+          <Tooltip />
+        </PieChart>
+      </ResponsiveContainer>
+    );
+  },
   table: ({ resultSet }) => (
     <Table
       pagination={false}
@@ -175,9 +177,12 @@ const Spinner = () => (
   </SpinContainer>
 );
 
-const renderChart = Component => ({ resultSet, error, height }) =>
-  (resultSet && <Component height={height} resultSet={resultSet} />) ||
-  (error && error.toString()) || <Spinner />;
+const renderChart = Component => ({ resultSet, error, height }) => {
+  return (
+    (resultSet && <Component height={height} resultSet={resultSet} />) ||
+    (error && error.toString()) || <Spinner />
+  );
+};
 
 const ChartRenderer = ({
   vizState,
@@ -190,9 +195,20 @@ const ChartRenderer = ({
   const component = TypeToMemoChartComponent[chartType];
   const renderProps = useCubeQuery(query);
 
-  console.log(renderProps);
+  if (renderProps.resultSet) {
+    // renderProps.resultSet.chartPivot().map(result => {
+    //   if (result.category === 'undefined') {
+    //     const index = renderProps.resultSet.chartPivot().indexOf(result);
+    //     if (index !== -1) {
+    //       renderProps.resultSet.chartPivot().splice(index, 1);
+    //     }
+    //   }
+    // });
 
-  return renderChart(component)({ height: chartHeight, ...renderProps });
+    return renderChart(component)({ height: chartHeight, ...renderProps });
+  }
+
+  return <Spinner />;
 };
 
 export default ChartRenderer;

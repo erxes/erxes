@@ -12,6 +12,7 @@ import { DashboardItemDetailsQueryResponse } from '../types';
 
 type Props = {
   queryParams: any;
+  history: any;
 };
 
 type FinalProps = {

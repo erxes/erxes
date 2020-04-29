@@ -1,8 +1,8 @@
+import T from 'i18n-react';
+import React from 'react';
+import Alert from './Alert';
 import commonListComposer from './commonListComposer';
 import confirm from './confirmation/confirm';
-import Alert from './Alert';
-import React from 'react';
-import T from 'i18n-react';
 
 export function withProps<IProps>(
   Wrapped: new (props: IProps) => React.Component<IProps>
