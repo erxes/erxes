@@ -56,7 +56,6 @@ REDIS_PASSWORD = REDIS_PASS # we will update it later on
 REDIS_PORT = 28229 # update it later on
 JWT_TOKEN_SECRET: "replact it with your token"
 LOGS_API_DOMAIN = "update it when you install logger app"
-ENGAGES_API_DOMAIN = "update it when you install email engages app"
 INTEGRATIONS_API_DOMAIN = "update it when you install integrations app"
 ```
 
