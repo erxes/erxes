@@ -83,6 +83,7 @@ const sidebarConversations = `
       tags {
         _id
         name
+        colorCode
       }
       readUserIds
     }
