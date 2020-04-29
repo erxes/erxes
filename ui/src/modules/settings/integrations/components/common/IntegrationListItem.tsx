@@ -11,6 +11,7 @@ import { INTEGRATION_KINDS } from 'modules/settings/integrations/constants';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { cleanIntegrationKind } from '../../containers/utils';
+import { INTEGRATIONS_COLORS } from '../../integrationColors';
 import { IIntegration } from '../../types';
 import CommonFieldForm from './CommonFieldForm';
 
@@ -150,7 +151,7 @@ class IntegrationListItem extends React.Component<Props> {
       <tr key={integration._id}>
         <td>{integration.name}</td>
         <td>
-          <Label className={`label-${integrationKind}`}>
+          <Label lblColor={INTEGRATIONS_COLORS[integrationKind]}>
             {integrationKind}
           </Label>
         </td>
