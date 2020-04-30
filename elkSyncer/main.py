@@ -2,9 +2,10 @@
 
 import os
 import subprocess
+
+import pymongo
 from dotenv import load_dotenv
 from elasticsearch import Elasticsearch
-import pymongo
 
 load_dotenv()
 
