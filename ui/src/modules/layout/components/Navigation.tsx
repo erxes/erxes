@@ -188,7 +188,7 @@ class Navigation extends React.Component<{
           {this.renderNavItem(
             'showCustomers',
             __('Contacts'),
-            '/contacts/lead',
+            '/contacts',
             'icon-users'
           )}
           {this.renderNavItem(
