@@ -329,7 +329,7 @@ class CustomersList extends React.Component<IProps, State> {
           <Button
             btnStyle="danger"
             size="small"
-            icon="cancel-1"
+            icon="times-circle"
             onClick={onClick}
           >
             Remove

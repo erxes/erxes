@@ -28,20 +28,15 @@ function Tags({ tags, limit }: Props) {
 
   return (
     <TagList length={length}>
-      {tags.slice(0, limit ? limit : length).map(tag => (
-        <Label
-          key={tag.name}
-          style={{ backgroundColor: tag.colorCode }}
-          ignoreTrans={true}
-        >
-          <span>{tag.name}</span>
-        </Label>
-      ))}
+      {tags.slice(0, limit ? limit : length).map(tag => {
+        return (
+          <Label key={tag.name} lblColor={tag.colorCode} ignoreTrans={true}>
+            <span>{tag.name}</span>
+          </Label>
+        );
+      })}
       {limit && length - limit > 0 && (
-        <Label
-          style={{ backgroundColor: colors.colorCoreLightGray }}
-          ignoreTrans={true}
-        >
+        <Label lblColor={colors.colorCoreGray} ignoreTrans={true}>
           <span>{`+${length - limit}`}</span>
         </Label>
       )}

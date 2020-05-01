@@ -10,7 +10,7 @@ const emailTemplates = `
 
 const totalCount = `
   query totalEmailTemplatesCount {
-	  emailTemplatesTotalCount
+    emailTemplatesTotalCount
   }
 `;
 

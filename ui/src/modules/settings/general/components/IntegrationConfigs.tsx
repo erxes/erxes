@@ -84,8 +84,8 @@ class IntegrationConfigs extends React.Component<Props, State> {
       <ContentBox>
         <CollapseContent title="Facebook">
           <Info>
-            <a target="_blank" href="Variables" rel="noopener noreferrer">
-              {__('More: Understanding Facebook Integration Variables')}
+            <a target="_blank" href="https://docs.erxes.io/administrator/system-config#facebook" rel="noopener noreferrer">
+              {__('Learn how to set Facebook Integration Variables')}
             </a>
           </Info>
           {this.renderItem('FACEBOOK_APP_ID')}
@@ -97,10 +97,10 @@ class IntegrationConfigs extends React.Component<Props, State> {
           <Info>
             <a
               target="_blank"
-              href="https://docs.erxes.io/administrator/environment-variables#twitter-settings"
+              href="https://docs.erxes.io/administrator/system-config#twitter"
               rel="noopener noreferrer"
             >
-              {__('More: Understanding Twitter Integration Variables')}
+              {__('Learn how to set Twitter Integration Variables')}
             </a>
           </Info>
           {this.renderItem('TWITTER_CONSUMER_KEY')}
@@ -114,10 +114,10 @@ class IntegrationConfigs extends React.Component<Props, State> {
           <Info>
             <a
               target="_blank"
-              href="https://docs.erxes.io/administrator/integrations#nylas-integration"
+              href="https://docs.erxes.io/administrator/system-config#nylas-integrations"
               rel="noopener noreferrer"
             >
-              {__('More: Understanding Nylas Integration')}
+              {__('Learn how to set Nylas Integration')}
             </a>
           </Info>
 
@@ -137,6 +137,15 @@ class IntegrationConfigs extends React.Component<Props, State> {
         </CollapseContent>
 
         <CollapseContent title="Video call">
+        <Info>
+            <a
+              target="_blank"
+              href="https://docs.erxes.io/administrator/system-config#video-calls"
+              rel="noopener noreferrer"
+            >
+              {__('Learn more about Video call configuration')}
+            </a>
+          </Info>
           <FormGroup>
             <ControlLabel>Video call type</ControlLabel>
             <FormControl
@@ -158,10 +167,10 @@ class IntegrationConfigs extends React.Component<Props, State> {
           <Info>
             <a
               target="_blank"
-              href="https://docs.erxes.io/administrator/integrations#gmail-integration"
+              href="https://docs.erxes.io/administrator/system-config#gmail"
               rel="noopener noreferrer"
             >
-              {__('More: Understanding Gmail Integration Variables')}
+              {__('Learn how to set Gmail Integration Variables')}
             </a>
           </Info>
           <FormGroup horizontal={true}>
@@ -187,7 +196,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
               href="https://docs.erxes.io/administrator/system-config#sunshine-conversations-api-integration"
               rel="noopener noreferrer"
             >
-              {__('More: Understanding Smooch Integration Variables')}
+              {__('Learn how to set Smooch Integration Variables')}
             </a>
           </Info>
           {this.renderItem('SMOOCH_APP_ID')}
@@ -206,7 +215,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
               href="https://docs.erxes.io/administrator/system-config#whatsapp-integration"
               rel="noopener noreferrer"
             >
-              {__('More: Understanding WhatsApp Integration Variables')}
+              {__('Learn how to set WhatsApp Integration Variables')}
             </a>
           </Info>
           {this.renderItem('CHAT_API_UID')}
