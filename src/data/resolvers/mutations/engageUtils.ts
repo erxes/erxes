@@ -128,7 +128,7 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
       action: 'writeLog',
       data: {
         engageMessageId,
-        msg: `Matched ${customerInfos.length} customers with valid emails of total ${customers.length} customers`,
+        msg: `Matched ${customerInfos.length} customers`,
       },
     });
 
