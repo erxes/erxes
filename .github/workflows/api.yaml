@@ -19,6 +19,8 @@ on:
     branches:
       - master
       - develop
+      - crons
+      - workers
     paths:
       - '**'
       - '!.github/**'
@@ -88,12 +90,12 @@ jobs:
         MAIN_APP_DOMAIN: http://localhost:3000
 
     - name: Build
-      if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' )
+      if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/crons' || github.ref == 'refs/heads/workers')
       run: |
         yarn build
 
     - name: Build docker image [push]
-      if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' )
+      if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/crons' || github.ref == 'refs/heads/workers')
       run: |
         echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
         docker build -t erxes/erxes-api:${GITHUB_REF#refs/heads/} -f Dockerfile .
