@@ -444,7 +444,7 @@ describe('engage message mutation tests', () => {
         brandIds: ['_id'],
       });
     } catch (e) {
-      expect(e[0].message).toBe('No customers found who have valid emails');
+      expect(e[0].message).toBe('No customers found');
     }
 
     const engageMessage = await graphqlRequest(engageMessageAddMutation, 'engageMessageAdd', _doc);
