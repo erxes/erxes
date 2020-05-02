@@ -2,7 +2,8 @@ import * as Random from 'meteor-random';
 import * as mongoose from 'mongoose';
 import { debugWorkers } from '../debuggers';
 import { Logs, Stats } from '../models';
-import { createTransporter, getEnv, replaceKeys } from '../utils';
+import { initRedis } from '../redisClient';
+import { createTransporter, getConfigs, getEnv, replaceKeys } from '../utils';
 import { connect } from './utils';
 
 // tslint:disable-next-line
@@ -21,6 +22,8 @@ connect().then(async () => {
   if (cancel) {
     return;
   }
+
+  initRedis();
 
   const { user, email, result, engageMessageId } = workerData;
   const { content, subject, attachments } = email;
@@ -82,6 +85,14 @@ connect().then(async () => {
 
   if (customerEmails.length > 0) {
     await Logs.createLog(engageMessageId, 'regular', `Preparing to send emails to ${customerEmails}`);
+  }
+
+  const configs = await getConfigs();
+  const unverifiedEmailsLimit = parseInt(configs.unverifiedEmailsLimit || '100', 10);
+
+  if (result.length > unverifiedEmailsLimit) {
+    await Logs.createLog(engageMessageId, 'failure', `Unverified emails limit exceeced ${unverifiedEmailsLimit}`);
+    return;
   }
 
   for (const customer of result) {

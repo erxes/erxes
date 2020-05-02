@@ -102,13 +102,11 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
       },
     });
 
-    const customerInfos = customers
-      .filter(customer => customer.emailValidationStatus === 'valid')
-      .map(customer => ({
-        _id: customer._id,
-        name: Customers.getCustomerName(customer),
-        email: customer.primaryEmail,
-      }));
+    const customerInfos = customers.map(customer => ({
+      _id: customer._id,
+      name: Customers.getCustomerName(customer),
+      email: customer.primaryEmail,
+    }));
 
     const data = {
       email: engageMessage.email,
@@ -123,7 +121,7 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
 
     if (engageMessage.kind === MESSAGE_KINDS.MANUAL && customerInfos.length === 0) {
       await EngageMessages.deleteOne({ _id: engageMessage._id });
-      throw new Error('No customers found who have valid emails');
+      throw new Error('No customers found');
     }
 
     await sendQueueMessage({
