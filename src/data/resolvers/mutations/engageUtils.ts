@@ -69,6 +69,10 @@ export const findCustomers = async ({
   return Customers.find({ $or: [{ doNotDisturb: 'No' }, { doNotDisturb: { $exists: false } }], ...customerQuery });
 };
 
+const sendQueueMessage = args => {
+  return sendMessage('erxes-api:engages-notification', args);
+};
+
 export const send = async (engageMessage: IEngageMessageDocument) => {
   const { customerIds, segmentIds, tagIds, brandIds, fromUserId } = engageMessage;
 
@@ -88,6 +92,16 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
   await EngageMessages.setCustomersCount(engageMessage._id, 'totalCustomersCount', customers.length);
 
   if (engageMessage.method === METHODS.EMAIL) {
+    const engageMessageId = engageMessage._id;
+
+    await sendQueueMessage({
+      action: 'writeLog',
+      data: {
+        engageMessageId,
+        msg: `Run at ${new Date()}`,
+      },
+    });
+
     const customerInfos = customers
       .filter(customer => customer.emailValidationStatus === 'valid')
       .map(customer => ({
@@ -104,13 +118,21 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
         name: user.details && user.details.fullName,
         position: user.details && user.details.position,
       },
-      engageMessageId: engageMessage._id,
+      engageMessageId,
     };
 
     if (engageMessage.kind === MESSAGE_KINDS.MANUAL && customerInfos.length === 0) {
       await EngageMessages.deleteOne({ _id: engageMessage._id });
       throw new Error('No customers found who have valid emails');
     }
+
+    await sendQueueMessage({
+      action: 'writeLog',
+      data: {
+        engageMessageId,
+        msg: `Matched ${customerInfos.length} customers with valid emails of total ${customers.length} customers`,
+      },
+    });
 
     await EngageMessages.setCustomersCount(engageMessage._id, 'validCustomersCount', customerInfos.length);
 
@@ -119,7 +141,7 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
         data.customers = [...customerInfos, ...JSON.parse(process.env.ENGAGE_ADMINS)];
       }
 
-      await sendMessage('erxes-api:engages-notification', { action: 'sendEngage', data });
+      await sendQueueMessage({ action: 'sendEngage', data });
     }
   }
 
