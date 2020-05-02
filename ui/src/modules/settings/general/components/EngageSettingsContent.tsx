@@ -170,6 +170,16 @@ class EngageSettingsContent extends React.Component<Props, State> {
           />
         </FormGroup>
 
+        <FormGroup>
+          <ControlLabel>Unverified emails limit</ControlLabel>
+          <FormControl
+            {...formProps}
+            max={140}
+            name="unverifiedEmailsLimit"
+            defaultValue={configsMap.unverifiedEmailsLimit || 100}
+          />
+        </FormGroup>
+
         <ModalFooter>
           {renderButton({
             name: 'configsMap',
