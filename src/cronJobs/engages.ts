@@ -19,11 +19,7 @@ const runJobs = async messages => {
 
 // every minute at 1sec
 schedule.scheduleJob('1 * * * * *', async () => {
-  debugCrons('Checking every minute jobs ....');
-
   const messages = await findMessages({ 'scheduleDate.type': 'minute' });
-
-  debugCrons(`Found every minute messages ${messages.length}`);
 
   await runJobs(messages);
 });
