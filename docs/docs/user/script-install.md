@@ -656,7 +656,7 @@ You can manipulate the position of the messenger body like following. The messen
   
 (function() {
   var script = document.createElement('script');
-  script.src = "https://w.office.erxes.io/build/messengerWidget.bundle.js";
+  script.src = "http://localhost:3200/build/messengerWidget.bundle.js";
   script.async = true;
   var entry = document.getElementsByTagName('script')[0];
   entry.parentNode.insertBefore(script, entry);
