@@ -2,13 +2,13 @@ import * as dotenv from 'dotenv';
 import * as express from 'express';
 import { connect } from '../db/connection';
 import { debugCrons } from '../debuggers';
-import { initConsumer } from '../messageBroker';
 
 import './activityLogs';
 import './conversations';
 import './deals';
 import './engages';
 import './integrations';
+import { initPublisher } from './messageBroker';
 import './robot';
 
 // load environment variables
@@ -26,7 +26,7 @@ const { PORT_CRONS = 3600 } = process.env;
 app.listen(PORT_CRONS, () => {
   // connect to mongo database
   connect().then(async () => {
-    initConsumer().catch(e => {
+    initPublisher().catch(e => {
       debugCrons(`Error ocurred during rabbitmq init ${e.message}`);
     });
   });

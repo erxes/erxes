@@ -16,7 +16,7 @@ export const sendMessage = async (queueName: string, data?: any) => {
   }
 };
 
-const initPublisher = async () => {
+export const initPublisher = async () => {
   try {
     connection = await amqplib.connect(RABBITMQ_HOST);
     channel = await connection.createChannel();
@@ -24,5 +24,3 @@ const initPublisher = async () => {
     debugCrons(e.message);
   }
 };
-
-initPublisher();
