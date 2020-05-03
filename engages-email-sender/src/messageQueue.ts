@@ -2,7 +2,7 @@ import * as amqplib from 'amqplib';
 import * as dotenv from 'dotenv';
 import { debugBase } from './debuggers';
 import { Logs } from './models';
-import { start } from './workers';
+import { start } from './sender';
 
 dotenv.config();
 

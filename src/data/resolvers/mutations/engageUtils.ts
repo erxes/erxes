@@ -106,6 +106,7 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
       _id: customer._id,
       name: Customers.getCustomerName(customer),
       email: customer.primaryEmail,
+      emailValidationStatus: customer.emailValidationStatus,
     }));
 
     const data = {
