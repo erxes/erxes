@@ -36,7 +36,7 @@ schedule.scheduleJob('10 10 * * * *', async () => {
 });
 
 // every day at 11hour:20min:20sec
-schedule.scheduleJob('20 20 11 * * *', async () => {
+schedule.scheduleJob('20 10 18 * * *', async () => {
   debugCrons('Checking every day jobs ....');
 
   // every day messages ===========

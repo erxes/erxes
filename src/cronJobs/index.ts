@@ -3,12 +3,12 @@ import * as express from 'express';
 import { connect } from '../db/connection';
 import { debugCrons } from '../debuggers';
 
+import { initRabbitMQ } from '../messageBroker';
 import './activityLogs';
 import './conversations';
 import './deals';
 import './engages';
 import './integrations';
-import { initPublisher } from './messageBroker';
 import './robot';
 
 // load environment variables
@@ -26,9 +26,7 @@ const { PORT_CRONS = 3600 } = process.env;
 app.listen(PORT_CRONS, () => {
   // connect to mongo database
   connect().then(async () => {
-    initPublisher().catch(e => {
-      debugCrons(`Error ocurred during rabbitmq init ${e.message}`);
-    });
+    initRabbitMQ();
   });
 
   debugCrons(`Cron Server is now running on ${PORT_CRONS}`);
