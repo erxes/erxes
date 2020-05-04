@@ -2,7 +2,7 @@ import React from 'react';
 import RGL, { WidthProvider } from 'react-grid-layout';
 
 import { Icon } from '@ant-design/compatible';
-import { Button, Typography } from 'antd';
+import { Button } from 'antd';
 
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
@@ -13,7 +13,6 @@ import { IDashboardItem } from '../types';
 import ChartRenderer from './ChartRenderer';
 import DashboardItem from './DashboardItem';
 import dragBackground from './drag-background.svg';
-import PageHeader from './PageHeader';
 
 const ReactGridLayout = WidthProvider(RGL);
 
@@ -116,31 +115,20 @@ class Dashboard extends React.Component<Props, State> {
     );
 
     return (
-      <div>
-        <PageHeader
-          noBorder={true}
-          title={<Typography.Title level={4}>Dashboard</Typography.Title>}
-          button={
-            <Link to={`/dashboard/explore?dashboardId=${dashboardId}`}>
-              <Button type="primary">Add chart</Button>
-            </Link>
-          }
-        />
-        <DragField
-          margin={[12, 12]}
-          containerPadding={[0, 0]}
-          onDragStart={() => this.setIsDragging(true)}
-          onDragStop={() => this.setIsDragging(false)}
-          onResizeStart={() => this.setIsDragging(true)}
-          onResizeStop={() => this.setIsDragging(false)}
-          cols={24}
-          rowHeight={40}
-          onLayoutChange={this.onLayoutChange}
-          isDragging={this.state.isDragging}
-        >
-          {dashboardItems.map(deserializeItem).map(dashboardItem)}
-        </DragField>
-      </div>
+      <DragField
+        margin={[12, 12]}
+        containerPadding={[0, 0]}
+        onDragStart={() => this.setIsDragging(true)}
+        onDragStop={() => this.setIsDragging(false)}
+        onResizeStart={() => this.setIsDragging(true)}
+        onResizeStop={() => this.setIsDragging(false)}
+        cols={24}
+        rowHeight={40}
+        onLayoutChange={this.onLayoutChange}
+        isDragging={this.state.isDragging}
+      >
+        {dashboardItems.map(deserializeItem).map(dashboardItem)}
+      </DragField>
     );
   }
 }

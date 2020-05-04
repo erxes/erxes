@@ -43,13 +43,17 @@ export type AddDashboardItemMutationVariables = {
 };
 
 export type AddDashboardItemMutationResponse = {
-  addDashboardItemMutation: (params: {
-    variables: AddDashboardItemMutationVariables;
-  }) => Promise<void>;
+  addDashboardItemMutation: (
+    params: {
+      variables: AddDashboardItemMutationVariables;
+    }
+  ) => Promise<void>;
 };
 
 export type EditDashboardItemMutationResponse = {
-  editDashboardItemMutation: (params: {
-    variables: EditDashboardItemMutationVariables;
-  }) => Promise<void>;
+  editDashboardItemMutation: (
+    params: {
+      variables: EditDashboardItemMutationVariables;
+    }
+  ) => Promise<void>;
 };

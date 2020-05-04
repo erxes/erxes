@@ -1,15 +1,15 @@
-import React from 'react';
-import { render } from 'react-dom';
-import './index.css';
-
-import { CubeProvider } from '@cubejs-client/react';
-import { ApolloProvider } from 'react-apollo';
-
 import cubejs from '@cubejs-client/core';
+import { CubeProvider } from '@cubejs-client/react';
+import React from 'react';
+import { ApolloProvider } from 'react-apollo';
+import { render } from 'react-dom';
 import apolloClient, { getEnv } from './apolloClient';
+import './index.css';
+import './index.less';
+
 import Routes from './routes';
 
-const target = document.querySelector('#root');
+const target = document.getElementById('root');
 
 const { REACT_APP_CUBEJS_TOKEN, REACT_APP_CUBEJS_API_URL } = getEnv();
 

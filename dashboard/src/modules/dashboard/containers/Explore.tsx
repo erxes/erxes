@@ -1,9 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import Spinner from 'modules/common/components/Spinner';
 
-import { IRouterProps } from 'modules/common/types';
-import { Alert, withProps } from 'modules/common/utils';
+// import { IRouterProps } from 'modules/common/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Chart from '../components/Chart';
@@ -19,8 +17,7 @@ type FinalProps = {
   dashBoardItemDetailsQuery: DashboardItemDetailsQueryResponse;
   addDashboardItemMutation: (params) => Promise<void>;
   editDashboardItemMutation: (params) => Promise<void>;
-} & Props &
-  IRouterProps;
+} & Props;
 
 type State = {
   isLoading: boolean;
@@ -43,7 +40,7 @@ class DashboardContainer extends React.Component<FinalProps, State> {
     } = this.props;
 
     if (dashBoardItemDetailsQuery && dashBoardItemDetailsQuery.loading) {
-      return <Spinner objective={true} />;
+      return <div />;
     }
 
     const dashboardId = queryParams.dashboardId;
@@ -62,13 +59,13 @@ class DashboardContainer extends React.Component<FinalProps, State> {
         variables: { ...params }
       })
         .then(() => {
-          Alert.success('Success');
+          // Alert.success('Success');
 
           history.goBack();
         })
 
         .catch(error => {
-          Alert.error(error.message);
+          // Alert.error(error.message);
 
           this.setState({ isLoading: false });
         });
@@ -89,31 +86,29 @@ class DashboardContainer extends React.Component<FinalProps, State> {
   }
 }
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, DashboardItemDetailsQueryResponse>(
-      gql(queries.dashboardItemDetail),
-      {
-        name: 'dashBoardItemDetailsQuery',
-        skip: ({ queryParams }) => !queryParams.itemId,
-        options: ({ queryParams }) => ({
-          variables: {
-            itemId: queryParams.itemId
-          }
-        })
-      }
-    ),
-    graphql(gql(mutations.dashboardItemAdd), {
-      name: 'addDashboardItemMutation',
-      options: () => ({
-        refetchQueries: ['dashboardItemsQuery']
+export default compose(
+  graphql<Props, DashboardItemDetailsQueryResponse>(
+    gql(queries.dashboardItemDetail),
+    {
+      name: 'dashBoardItemDetailsQuery',
+      skip: ({ queryParams }) => !queryParams.itemId,
+      options: ({ queryParams }) => ({
+        variables: {
+          itemId: queryParams.itemId
+        }
       })
-    }),
-    graphql(gql(mutations.dashboardItemEdit), {
-      name: 'editDashboardItemMutation',
-      options: () => ({
-        refetchQueries: ['dashboardItemsQuery']
-      })
+    }
+  ),
+  graphql(gql(mutations.dashboardItemAdd), {
+    name: 'addDashboardItemMutation',
+    options: () => ({
+      refetchQueries: ['dashboardItemsQuery']
     })
-  )(DashboardContainer)
-);
+  }),
+  graphql(gql(mutations.dashboardItemEdit), {
+    name: 'editDashboardItemMutation',
+    options: () => ({
+      refetchQueries: ['dashboardItemsQuery']
+    })
+  })
+)(DashboardContainer);

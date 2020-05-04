@@ -174,6 +174,12 @@ class Navigation extends React.Component<{
             unreadIndicator
           )}
           {this.renderNavItem(
+            'showDashboards',
+            __('Dashboard'),
+            '/dashboard',
+            'icon-dashboard'
+          )}
+          {this.renderNavItem(
             'showGrowthHacks',
             __('Growth Hacking'),
             '/growthHack',

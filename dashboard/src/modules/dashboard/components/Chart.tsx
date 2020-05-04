@@ -1,11 +1,5 @@
 import React from 'react';
 
-import Button from 'modules/common/components/Button';
-import { SmallLoader } from 'modules/common/components/ButtonMutate';
-import { FormControl } from 'modules/common/components/form';
-import { TitleContainer } from 'modules/common/components/step/styles';
-import { __, Alert } from 'modules/common/utils';
-import { Link } from 'react-router-dom';
 import { IDashboardItem } from '../types';
 import ExploreQueryBuilder from './QueryBuilder/ExploreQueryBuilder';
 
@@ -49,10 +43,10 @@ class Chart extends React.Component<Props, State> {
     const { dashboardId, dashboardItem } = this.props;
 
     if (!name) {
-      return Alert.error('Write name');
+      return window.alert('Write name');
     }
     if (!vizState) {
-      return Alert.error('Choose chart');
+      return window.alert('Choose chart');
     }
 
     const doc = {
@@ -65,57 +59,47 @@ class Chart extends React.Component<Props, State> {
     this.props.save(doc);
   };
 
-  renderSaveButton = () => {
-    const { isActionLoading } = this.props;
+  // renderSaveButton = () => {
+  //   const { isActionLoading } = this.props;
 
-    const cancelButton = (
-      <Link to="/leads">
-        <Button btnStyle="simple" size="small" icon="cancel-1">
-          Cancel
-        </Button>
-      </Link>
-    );
+  //   const cancelButton = (
+  //     <Link to="/leads">
+  //       <Button btnStyle="simple" size="small" icon="cancel-1">
+  //         Cancel
+  //       </Button>
+  //     </Link>
+  //   );
 
-    return (
-      <Button.Group>
-        {cancelButton}
+  //   return (
+  //     <Button.Group>
+  //       {cancelButton}
 
-        <Button
-          disabled={isActionLoading}
-          btnStyle="success"
-          size="small"
-          icon={isActionLoading ? undefined : 'checked-1'}
-          onClick={this.handleSubmit}
-        >
-          {isActionLoading && <SmallLoader />}
-          Save
-        </Button>
-      </Button.Group>
-    );
-  };
+  //       <Button
+  //         disabled={isActionLoading}
+  //         btnStyle="success"
+  //         size="small"
+  //         icon={isActionLoading ? undefined : 'checked-1'}
+  //         onClick={this.handleSubmit}
+  //       >
+  //         {isActionLoading && <SmallLoader />}
+  //         Save
+  //       </Button>
+  //     </Button.Group>
+  //   );
+  // };
 
   onChange = (key: string, value: any) => {
     this.setState({ [key]: value } as any);
   };
 
   render() {
-    const { vizState, name } = this.state;
+    const { vizState } = this.state;
 
-    const onChange = e =>
-      this.onChange('name', (e.currentTarget as HTMLInputElement).value);
+    // const onChange = e =>
+    //   this.onChange('name', (e.currentTarget as HTMLInputElement).value);
 
     return (
       <div>
-        <TitleContainer>
-          <div>{__('Name')}</div>
-          <FormControl
-            required={true}
-            onChange={onChange}
-            defaultValue={name}
-            autoFocus={true}
-          />
-          {this.renderSaveButton()}
-        </TitleContainer>
         <ExploreQueryBuilder
           vizState={vizState}
           setVizState={this.setVizState}
