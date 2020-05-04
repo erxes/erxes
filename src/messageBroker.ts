@@ -75,7 +75,7 @@ export const initRabbitMQ = async () => {
 };
 
 export const initConsumer = async () => {
-  initRabbitMQ();
+  await initRabbitMQ();
 
   // listen for rpc queue =========
   await channel.assertQueue('rpc_queue:integrations_to_api');
