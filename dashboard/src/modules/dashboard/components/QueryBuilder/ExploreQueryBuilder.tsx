@@ -6,6 +6,7 @@ import ChartRenderer from '../ChartRenderer';
 import ButtonDropdown from './ButtonDropdown';
 import MemberGroup from './MemberGroup';
 import SelectChartType from './SelectChartType';
+import stateChangeHeuristics from './stateChangeHeuristics.js';
 import TimeGroup from './TimeGroup';
 import { schemaTypes } from './Types';
 
@@ -74,6 +75,7 @@ class ExploreQueryBuilder extends React.Component<Props> {
         setVizState={setVizState}
         cubejsApi={cubejsApi}
         wrapWithQueryRenderer={false}
+        stateChangeHeuristics={stateChangeHeuristics}
         render={({
           measures,
           availableMeasures,

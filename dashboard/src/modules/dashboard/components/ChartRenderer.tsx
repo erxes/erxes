@@ -26,24 +26,54 @@ import numeral from 'numeral';
 import './recharts-theme.less';
 
 const numberFormatter = item => numeral(item).format('0,0');
-const dateFormatter = item => dayjs(item).format('MMM');
+// const dateFormatter = item => dayjs(item).format('MMM');
 
-const colors = ['#7DB3FF', '#49457B', '#FF7C78'];
-const xAxisFormatter = item => {
+const colors = [
+  '#7DB3FF',
+  '#49457B',
+  '#FF7C78',
+  '#32a852',
+  '#7c2bba',
+  '#d1a924',
+  '#05f238'
+];
+
+const dateFormatter = (item, dateType) => {
+  switch (dateType) {
+    case 'day':
+      return dayjs(item).format('MMM/DD');
+    case 'month':
+      return dayjs(item).format('MMM');
+    case 'year':
+      return dayjs(item).format('YYYY');
+    case 'week':
+      return dayjs(item).format('MMM/DD');
+    default:
+      return dayjs(item).format('YYYY');
+  }
+};
+
+const xAxisFormatter = (item, dateType) => {
   if (dayjs(item).isValid()) {
-    return dateFormatter(item);
+    return dateFormatter(item, dateType);
   } else {
     return numberFormatter(item);
   }
 };
 
-const CartesianChart = ({ resultSet, children, ChartComponent, height }) => (
+const CartesianChart = ({
+  resultSet,
+  children,
+  ChartComponent,
+  height,
+  dateType
+}) => (
   <ResponsiveContainer width="100%" height={height}>
     <ChartComponent margin={{ left: -10 }} data={resultSet.chartPivot()}>
       <XAxis
         axisLine={false}
         tickLine={false}
-        tickFormatter={xAxisFormatter}
+        tickFormatter={item => xAxisFormatter(item, dateType)}
         dataKey="x"
         minTickGap={20}
       />
@@ -55,17 +85,21 @@ const CartesianChart = ({ resultSet, children, ChartComponent, height }) => (
       <CartesianGrid vertical={false} />
       {children}
       <Legend />
-      <Tooltip labelFormatter={dateFormatter} formatter={numberFormatter} />
+      <Tooltip
+        labelFormatter={item => xAxisFormatter(item, dateType)}
+        formatter={numberFormatter}
+      />
     </ChartComponent>
   </ResponsiveContainer>
 );
 
 const TypeToChartComponent = {
-  line: ({ resultSet, height }) => (
+  line: ({ resultSet, height, dateType }) => (
     <CartesianChart
       resultSet={resultSet}
       height={height}
       ChartComponent={LineChart}
+      dateType={dateType}
     >
       {resultSet.seriesNames().map((series, i) => (
         <Line
@@ -77,12 +111,13 @@ const TypeToChartComponent = {
       ))}
     </CartesianChart>
   ),
-  bar: ({ resultSet, height }) => {
+  bar: ({ resultSet, height, dateType }) => {
     return (
       <CartesianChart
         resultSet={resultSet}
         height={height}
         ChartComponent={BarChart}
+        dateType={dateType}
       >
         {resultSet.seriesNames().map((series, i) => (
           <Bar
@@ -96,11 +131,12 @@ const TypeToChartComponent = {
       </CartesianChart>
     );
   },
-  area: ({ resultSet, height }) => {
+  area: ({ resultSet, height, dateType }) => {
     return (
       <CartesianChart
         resultSet={resultSet}
         height={height}
+        dateType={dateType}
         ChartComponent={AreaChart}
       >
         {resultSet.seriesNames().map((series, i) => (
@@ -139,7 +175,6 @@ const TypeToChartComponent = {
   },
   table: ({ resultSet }) => (
     <Table
-      pagination={false}
       columns={resultSet.tableColumns().map(c => ({ ...c, dataIndex: c.key }))}
       dataSource={resultSet.tablePivot()}
     />
@@ -177,9 +212,11 @@ const Spinner = () => (
   </SpinContainer>
 );
 
-const renderChart = Component => ({ resultSet, error, height }) => {
+const renderChart = Component => ({ resultSet, dateType, error, height }) => {
   return (
-    (resultSet && <Component height={height} resultSet={resultSet} />) ||
+    (resultSet && (
+      <Component height={height} resultSet={resultSet} dateType={dateType} />
+    )) ||
     (error && error.toString()) || <Spinner />
   );
 };
@@ -196,16 +233,15 @@ const ChartRenderer = ({
   const renderProps = useCubeQuery(query);
 
   if (renderProps.resultSet) {
-    // renderProps.resultSet.chartPivot().map(result => {
-    //   if (result.category === 'undefined') {
-    //     const index = renderProps.resultSet.chartPivot().indexOf(result);
-    //     if (index !== -1) {
-    //       renderProps.resultSet.chartPivot().splice(index, 1);
-    //     }
-    //   }
-    // });
+    const { timeDimensions } = query;
 
-    return renderChart(component)({ height: chartHeight, ...renderProps });
+    const dateType = timeDimensions[0].granularity;
+
+    return renderChart(component)({
+      height: chartHeight,
+      ...renderProps,
+      dateType
+    });
   }
 
   return <Spinner />;

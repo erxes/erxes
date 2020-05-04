@@ -1,7 +1,8 @@
 import React from 'react';
 
-import { Button, Input, Modal } from 'antd';
+import { Button, Input, Modal, Typography } from 'antd';
 import { IDashboardItem } from '../types';
+import PageHeader from './PageHeader';
 import ExploreQueryBuilder from './QueryBuilder/ExploreQueryBuilder';
 
 type Props = {
@@ -85,9 +86,18 @@ class Chart extends React.Component<Props, State> {
 
     return (
       <div>
-        <Button type="primary" onClick={() => this.onChange('visible', true)}>
-          Modal
-        </Button>
+        <PageHeader
+          title={<Typography.Title level={4}>Explore chart</Typography.Title>}
+          button={
+            <Button
+              type="primary"
+              onClick={() => this.onChange('visible', true)}
+            >
+              Add to dashboard
+            </Button>
+          }
+        />
+
         <Modal
           key="modal"
           title="Save Chart"
