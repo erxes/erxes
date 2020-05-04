@@ -19,7 +19,7 @@ const StyledCard = styled(Card)`
   }
 `;
 
-const DashboardItemDropdown = ({ itemId }) => {
+const DashboardItemDropdown = ({ itemId, dashboardId }) => {
   // const [removeDashboardItem] = useMutation(DELETE_DASHBOARD_ITEM, {
   //   refetchQueries: [
   //     {
@@ -30,7 +30,9 @@ const DashboardItemDropdown = ({ itemId }) => {
   const dashboardItemDropdownMenu = (
     <Menu>
       <Menu.Item>
-        <Link to={`/explore?itemId=${itemId}`}>Edit</Link>
+        <Link to={`/explore?itemId=${itemId}?dashboardId=${dashboardId}`}>
+          Edit
+        </Link>
       </Menu.Item>
       {/* <Menu.Item
         onClick={() =>
@@ -65,7 +67,7 @@ const DashboardItemDropdown = ({ itemId }) => {
   );
 };
 
-const DashboardItem = ({ itemId, children, title }) => (
+const DashboardItem = ({ itemId, dashboardId, children, title }) => (
   <StyledCard
     title={title}
     bordered={false}
@@ -73,7 +75,7 @@ const DashboardItem = ({ itemId, children, title }) => (
       height: '100%',
       width: '100%'
     }}
-    extra={<DashboardItemDropdown itemId={itemId} />}
+    extra={<DashboardItemDropdown itemId={itemId} dashboardId={dashboardId} />}
   >
     {children}
   </StyledCard>

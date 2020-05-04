@@ -108,7 +108,12 @@ class Dashboard extends React.Component<Props, State> {
 
     const dashboardItem = item => (
       <div key={item._id} data-grid={defaultLayout(item)}>
-        <DashboardItem key={item._id} itemId={item._id} title={item.name}>
+        <DashboardItem
+          key={item._id}
+          itemId={item._id}
+          dashboardId={dashboardId}
+          title={item.name}
+        >
           <ChartRenderer vizState={item.vizState} />
         </DashboardItem>
       </div>

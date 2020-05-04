@@ -26,8 +26,8 @@ const MemberGroup = ({
     <MemberDropdown
       onClick={m => updateMethods.add(m)}
       availableMembers={availableMembers}
-      type='dashed'
-      icon={<Icon type='plus' />}
+      type="dashed"
+      icon={<Icon type="plus" />}
     >
       {addMemberName}
     </MemberDropdown>

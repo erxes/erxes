@@ -1,13 +1,13 @@
 import { QueryBuilder } from '@cubejs-client/react';
-import { Card, Col, Divider, Row } from 'antd';
+import { Card, Col, Divider, Menu, Row } from 'antd';
 import React from 'react';
 import styled from 'styled-components';
 import ChartRenderer from '../ChartRenderer';
-// import FilterGroup from './FilterGroup';
+import ButtonDropdown from './ButtonDropdown';
 import MemberGroup from './MemberGroup';
 import SelectChartType from './SelectChartType';
-// import stateChangeHeuristics from './stateChangeHeuristics.js';
 import TimeGroup from './TimeGroup';
+import { types } from './Types';
 
 const ControlsRow = styled(Row)`
   background: #ffffff;
@@ -21,12 +21,6 @@ const StyledDivider = styled(Divider)`
   top: 0.5em;
   background: #f4f5f6;
 `;
-
-// const HorizontalDivider = styled(Divider)`
-//   padding: 0;
-//   margin: 0;
-//   background: #f4f5f6;
-// `;
 
 const ChartCard = styled(Card)`
   border-radius: 4px;
@@ -43,99 +37,160 @@ const Empty = styled.div`
   margin-top: 185px;
 `;
 
-const ExploreQueryBuilder = ({
-  vizState,
-  cubejsApi,
-  setVizState
-}: {
+const LabelStyled = styled.div`
+  margin-bottom: 12px;
+  color: #a1a1b5;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 11px;
+  font-weight: bold;
+`;
+
+type Props = {
   vizState: any;
-  cubejsApi?: any;
   setVizState: any;
-}) => (
-  <QueryBuilder
-    vizState={vizState}
-    setVizState={setVizState}
-    cubejsApi={cubejsApi}
-    wrapWithQueryRenderer={false}
-    render={({
-      measures,
-      availableMeasures,
-      updateMeasures,
-      dimensions,
-      availableDimensions,
-      updateDimensions,
-      segments,
-      availableSegments,
-      updateSegments,
-      timeDimensions,
-      availableTimeDimensions,
-      updateTimeDimensions,
-      isQueryPresent,
-      chartType,
-      updateChartType,
-      validatedQuery
-    }) => [
-      <ControlsRow justify="space-around" align="top" key="1">
-        <Col span={24}>
-          <Row align="top" style={{ paddingBottom: 23 }}>
-            <MemberGroup
-              members={measures}
-              availableMembers={availableMeasures}
-              addMemberName="Measure"
-              updateMethods={updateMeasures}
-            />
-            <StyledDivider type="vertical" />
-            <MemberGroup
-              members={dimensions}
-              availableMembers={availableDimensions}
-              addMemberName="Dimension"
-              updateMethods={updateDimensions}
-            />
-            <StyledDivider type="vertical" />
-            <MemberGroup
-              members={segments}
-              availableMembers={availableSegments}
-              addMemberName="Segment"
-              updateMethods={updateSegments}
-            />
-            <StyledDivider type="vertical" />
-            <TimeGroup
-              members={timeDimensions}
-              availableMembers={availableTimeDimensions}
-              addMemberName="Time"
-              updateMethods={updateTimeDimensions}
-            />
-          </Row>
-        </Col>
-      </ControlsRow>,
-      <ChartRow justify="space-around" align="top" gutter={24} key="2">
-        <Col span={24}>
-          {isQueryPresent ? (
+  cubejsApi?: any;
+};
+
+type State = {
+  type: string;
+};
+
+class ExploreQueryBuilder extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = { type: '' };
+  }
+
+  updateType = type => {
+    this.setState({ type });
+  };
+
+  render() {
+    const { vizState, setVizState, cubejsApi } = this.props;
+
+    const menu = (
+      <Menu>
+        {types.map(type => (
+          <Menu.Item key={type} onClick={() => this.updateType(type)}>
+            {type}
+          </Menu.Item>
+        ))}
+      </Menu>
+    );
+
+    return (
+      <QueryBuilder
+        vizState={vizState}
+        setVizState={setVizState}
+        cubejsApi={cubejsApi}
+        wrapWithQueryRenderer={false}
+        render={({
+          measures,
+          availableMeasures,
+          updateMeasures,
+          dimensions,
+          availableDimensions,
+          updateDimensions,
+          segments,
+          availableSegments,
+          updateSegments,
+          timeDimensions,
+          availableTimeDimensions,
+          updateTimeDimensions,
+          isQueryPresent,
+          chartType,
+          updateChartType,
+          validatedQuery
+        }) => {
+          return (
             <>
-              <Row style={{ marginTop: 15, marginBottom: 25 }}>
-                <SelectChartType
-                  chartType={chartType}
-                  updateChartType={updateChartType}
-                />
-              </Row>
+              <ControlsRow justify="space-around" align="top" key="1">
+                <Col span={24}>
+                  <Row align="top" style={{ paddingBottom: 23 }}>
+                    <span>
+                      <LabelStyled>Type</LabelStyled>
+                      <ButtonDropdown overlay={menu}>
+                        {this.state.type || 'Type'}
+                      </ButtonDropdown>
+                    </span>
+                    <StyledDivider type="vertical" />
+                    <span>
+                      <LabelStyled>Measure</LabelStyled>
+                      <MemberGroup
+                        members={measures}
+                        availableMembers={availableMeasures}
+                        addMemberName="Measure"
+                        updateMethods={updateMeasures}
+                      />
+                    </span>
+                    <StyledDivider type="vertical" />
+                    <span>
+                      <LabelStyled>Dimension</LabelStyled>
+                      <MemberGroup
+                        members={dimensions}
+                        availableMembers={availableDimensions}
+                        addMemberName="Dimension"
+                        updateMethods={updateDimensions}
+                      />
+                    </span>
+                    <StyledDivider type="vertical" />
+                    <span>
+                      <LabelStyled>Segment</LabelStyled>
+                      <MemberGroup
+                        members={segments}
+                        availableMembers={availableSegments}
+                        addMemberName="Segment"
+                        updateMethods={updateSegments}
+                      />
+                    </span>
+                    <StyledDivider type="vertical" />
+                    <span>
+                      <LabelStyled>Time</LabelStyled>
+                      <TimeGroup
+                        members={timeDimensions}
+                        availableMembers={availableTimeDimensions}
+                        addMemberName="Time"
+                        updateMethods={updateTimeDimensions}
+                      />
+                    </span>
+                  </Row>
+                </Col>
+              </ControlsRow>
               ,
-              <ChartCard style={{ minHeight: 420 }}>
-                <ChartRenderer
-                  vizState={{ query: validatedQuery, chartType }}
-                  chartHeight={400}
-                />
-              </ChartCard>
+              <ChartRow justify="space-around" align="top" gutter={24} key="2">
+                <Col span={24}>
+                  {isQueryPresent ? (
+                    <>
+                      <Row style={{ marginTop: 15, marginBottom: 25 }}>
+                        <SelectChartType
+                          chartType={chartType}
+                          updateChartType={updateChartType}
+                        />
+                      </Row>
+                      ,
+                      <ChartCard style={{ minHeight: 420 }}>
+                        <ChartRenderer
+                          vizState={{ query: validatedQuery, chartType }}
+                          chartHeight={400}
+                        />
+                      </ChartCard>
+                    </>
+                  ) : (
+                    <Empty>
+                      <h2>Build Your Query</h2>
+                      <p>Choose a measure or dimension to get started</p>
+                    </Empty>
+                  )}
+                </Col>
+              </ChartRow>
             </>
-          ) : (
-            <Empty>
-              <h2>Build Your Query</h2>
-              <p>Choose a measure or dimension to get started</p>
-            </Empty>
-          )}
-        </Col>
-      </ChartRow>
-    ]}
-  />
-);
+          );
+        }}
+      />
+    );
+  }
+}
 
 export default ExploreQueryBuilder;

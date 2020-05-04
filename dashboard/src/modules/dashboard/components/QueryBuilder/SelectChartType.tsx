@@ -50,7 +50,6 @@ const SelectChartType = ({ chartType, updateChartType }) => {
   return (
     <ButtonDropdown
       overlay={menu}
-      
       icon={<Icon type={foundChartType ? foundChartType.icon : ''} />}
     >
       {foundChartType ? foundChartType.title : ''}
