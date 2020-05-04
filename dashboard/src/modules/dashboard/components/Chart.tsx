@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { Button, Input, Modal } from 'antd';
 import { IDashboardItem } from '../types';
 import ExploreQueryBuilder from './QueryBuilder/ExploreQueryBuilder';
 
@@ -18,6 +19,8 @@ type Props = {
 type State = {
   vizState: string;
   name: string;
+  type: string;
+  visible: boolean;
 };
 
 class Chart extends React.Component<Props, State> {
@@ -28,7 +31,9 @@ class Chart extends React.Component<Props, State> {
 
     this.state = {
       vizState: dashboardItem.vizState,
-      name: dashboardItem.name
+      type: dashboardItem.type,
+      name: dashboardItem.name,
+      visible: false
     };
   }
 
@@ -36,10 +41,12 @@ class Chart extends React.Component<Props, State> {
     this.setState({ vizState });
   };
 
-  handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  setType = type => {
+    this.setState({ type });
+  };
 
-    const { name, vizState } = this.state;
+  handleSubmit = () => {
+    const { name, vizState, type } = this.state;
     const { dashboardId, dashboardItem } = this.props;
 
     if (!name) {
@@ -53,56 +60,55 @@ class Chart extends React.Component<Props, State> {
       _id: dashboardItem ? dashboardItem._id : '',
       name,
       vizState,
-      dashboardId
+      dashboardId,
+      type
     };
 
     this.props.save(doc);
   };
 
-  // renderSaveButton = () => {
-  //   const { isActionLoading } = this.props;
-
-  //   const cancelButton = (
-  //     <Link to="/leads">
-  //       <Button btnStyle="simple" size="small" icon="cancel-1">
-  //         Cancel
-  //       </Button>
-  //     </Link>
-  //   );
-
-  //   return (
-  //     <Button.Group>
-  //       {cancelButton}
-
-  //       <Button
-  //         disabled={isActionLoading}
-  //         btnStyle="success"
-  //         size="small"
-  //         icon={isActionLoading ? undefined : 'checked-1'}
-  //         onClick={this.handleSubmit}
-  //       >
-  //         {isActionLoading && <SmallLoader />}
-  //         Save
-  //       </Button>
-  //     </Button.Group>
-  //   );
-  // };
+  setTitleModalVisible = value => {
+    this.setState({
+      visible: value
+    });
+  };
 
   onChange = (key: string, value: any) => {
     this.setState({ [key]: value } as any);
   };
 
   render() {
-    const { vizState } = this.state;
+    const { vizState, type, visible, name } = this.state;
 
-    // const onChange = e =>
-    //   this.onChange('name', (e.currentTarget as HTMLInputElement).value);
+    const onChange = e =>
+      this.onChange('name', (e.currentTarget as HTMLInputElement).value);
 
     return (
       <div>
+        <Button type="primary" onClick={() => this.onChange('visible', true)}>
+          Modal
+        </Button>
+        <Modal
+          key="modal"
+          title="Save Chart"
+          visible={visible}
+          onOk={async () => {
+            this.onChange('visible', false);
+            this.handleSubmit();
+          }}
+          onCancel={() => this.setTitleModalVisible(false)}
+        >
+          <Input
+            placeholder="Dashboard Item Name"
+            value={name}
+            onChange={e => onChange(e)}
+          />
+        </Modal>
         <ExploreQueryBuilder
           vizState={vizState}
           setVizState={this.setVizState}
+          type={type}
+          setType={this.setType}
         />
       </div>
     );

@@ -51,7 +51,8 @@ const TimeGroup = ({
   members,
   availableMembers,
   addMemberName,
-  updateMethods
+  updateMethods,
+  type
 }) => {
   const granularityMenu = (member, onClick) => (
     <Menu>
@@ -89,6 +90,7 @@ const TimeGroup = ({
               updateMethods.update(m, { ...m, dimension: updateWith })
             }
             availableMembers={availableMembers}
+            schemaType={type}
           >
             {m.dimension.title}
           </MemberDropdown>
@@ -129,8 +131,9 @@ const TimeGroup = ({
             })
           }
           availableMembers={availableMembers}
-          type='dashed'
-          icon={<Icon type='plus' />}
+          type="dashed"
+          icon={<Icon type="plus" />}
+          schemaType={type}
         >
           {addMemberName}
         </MemberDropdown>

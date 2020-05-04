@@ -15,6 +15,7 @@ export interface IDashboardItem {
   layout: string;
   vizState: string;
   name: string;
+  type: string;
 }
 
 export type DashboardItemsQueryResponse = {

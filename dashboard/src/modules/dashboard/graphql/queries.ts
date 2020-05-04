@@ -28,6 +28,7 @@ const dashboardItemDetail = `
       layout
       vizState
       name
+      type
     }
   }
 `;

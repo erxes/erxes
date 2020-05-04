@@ -7,7 +7,7 @@ import ButtonDropdown from './ButtonDropdown';
 import MemberGroup from './MemberGroup';
 import SelectChartType from './SelectChartType';
 import TimeGroup from './TimeGroup';
-import { types } from './Types';
+import { schemaTypes } from './Types';
 
 const ControlsRow = styled(Row)`
   background: #ffffff;
@@ -50,31 +50,19 @@ type Props = {
   vizState: any;
   setVizState: any;
   cubejsApi?: any;
+  type?: string;
+  setType: any;
 };
 
-type State = {
-  type: string;
-};
-
-class ExploreQueryBuilder extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = { type: '' };
-  }
-
-  updateType = type => {
-    this.setState({ type });
-  };
-
+class ExploreQueryBuilder extends React.Component<Props> {
   render() {
-    const { vizState, setVizState, cubejsApi } = this.props;
+    const { vizState, setVizState, cubejsApi, setType, type } = this.props;
 
     const menu = (
       <Menu>
-        {types.map(type => (
-          <Menu.Item key={type} onClick={() => this.updateType(type)}>
-            {type}
+        {schemaTypes.map(schemaType => (
+          <Menu.Item key={schemaType} onClick={() => setType(schemaType)}>
+            {schemaType}
           </Menu.Item>
         ))}
       </Menu>
@@ -111,50 +99,59 @@ class ExploreQueryBuilder extends React.Component<Props, State> {
                   <Row align="top" style={{ paddingBottom: 23 }}>
                     <span>
                       <LabelStyled>Type</LabelStyled>
-                      <ButtonDropdown overlay={menu}>
-                        {this.state.type || 'Type'}
+                      <ButtonDropdown overlay={menu} type="dashed">
+                        {type || 'Type'}
                       </ButtonDropdown>
                     </span>
+
                     <StyledDivider type="vertical" />
-                    <span>
-                      <LabelStyled>Measure</LabelStyled>
-                      <MemberGroup
-                        members={measures}
-                        availableMembers={availableMeasures}
-                        addMemberName="Measure"
-                        updateMethods={updateMeasures}
-                      />
-                    </span>
-                    <StyledDivider type="vertical" />
-                    <span>
-                      <LabelStyled>Dimension</LabelStyled>
-                      <MemberGroup
-                        members={dimensions}
-                        availableMembers={availableDimensions}
-                        addMemberName="Dimension"
-                        updateMethods={updateDimensions}
-                      />
-                    </span>
-                    <StyledDivider type="vertical" />
-                    <span>
-                      <LabelStyled>Segment</LabelStyled>
-                      <MemberGroup
-                        members={segments}
-                        availableMembers={availableSegments}
-                        addMemberName="Segment"
-                        updateMethods={updateSegments}
-                      />
-                    </span>
-                    <StyledDivider type="vertical" />
-                    <span>
-                      <LabelStyled>Time</LabelStyled>
-                      <TimeGroup
-                        members={timeDimensions}
-                        availableMembers={availableTimeDimensions}
-                        addMemberName="Time"
-                        updateMethods={updateTimeDimensions}
-                      />
-                    </span>
+                    {type ? (
+                      <>
+                        <span>
+                          <LabelStyled>Measure</LabelStyled>
+                          <MemberGroup
+                            type={type}
+                            members={measures}
+                            availableMembers={availableMeasures}
+                            addMemberName="Measure"
+                            updateMethods={updateMeasures}
+                          />
+                        </span>
+                        <StyledDivider type="vertical" />
+                        <span>
+                          <LabelStyled>Dimension</LabelStyled>
+                          <MemberGroup
+                            type={type}
+                            members={dimensions}
+                            availableMembers={availableDimensions}
+                            addMemberName="Dimension"
+                            updateMethods={updateDimensions}
+                          />
+                        </span>
+                        <StyledDivider type="vertical" />
+                        <span>
+                          <LabelStyled>Segment</LabelStyled>
+                          <MemberGroup
+                            type={type}
+                            members={segments}
+                            availableMembers={availableSegments}
+                            addMemberName="Segment"
+                            updateMethods={updateSegments}
+                          />
+                        </span>
+                        <StyledDivider type="vertical" />
+                        <span>
+                          <LabelStyled>Time</LabelStyled>
+                          <TimeGroup
+                            type={type}
+                            members={timeDimensions}
+                            availableMembers={availableTimeDimensions}
+                            addMemberName="Time"
+                            updateMethods={updateTimeDimensions}
+                          />
+                        </span>
+                      </>
+                    ) : null}
                   </Row>
                 </Col>
               </ControlsRow>
