@@ -29,12 +29,8 @@ export interface ITypedListItem {
 }
 
 export const isValidDate = value => {
-  if (!value) {
-    return false;
-  }
-
   if (
-    validator.isISO8601(value.toString()) ||
+    (value && validator.isISO8601(value.toString())) ||
     /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/.test(value.toString()) ||
     value instanceof Date
   ) {
