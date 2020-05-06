@@ -58,7 +58,7 @@ const customerFields = `
   location
 
   customFieldsData
-  getTrackedData
+  trackedData
 
   tagIds
   getTags {

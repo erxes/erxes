@@ -265,7 +265,7 @@ const generateCustomerDetailQuery = params => {
   if (showTrackedData) {
     fields = `
       ${fields}
-      getTrackedData
+      trackedData
     `;
   }
 
