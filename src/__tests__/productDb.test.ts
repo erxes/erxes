@@ -93,7 +93,7 @@ describe('Test products model', () => {
     productObj = await Products.updateProduct(product._id, args);
 
     if (productObj.customFieldsData) {
-      expect(productObj.customFieldsData[0].value).toBe('10');
+      expect(productObj.customFieldsData[0].value).toBe(10);
     }
   });
 
