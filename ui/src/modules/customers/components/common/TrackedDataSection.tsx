@@ -26,7 +26,7 @@ class TrackedDataSection extends React.Component<Props> {
     const { customer } = this.props;
     const { isOnline, sessionCount, lastSeenAt } = customer;
 
-    const trackedData = customer.getTrackedData || [];
+    const trackedData = customer.trackedData || [];
 
     if (!trackedData) {
       return <EmptyState icon="chat" text="Empty" size="small" />;
@@ -54,7 +54,7 @@ class TrackedDataSection extends React.Component<Props> {
         </li>
         {trackedData.map((data, index) => (
           <li key={index}>
-            <FieldStyle>{data.name}</FieldStyle>
+            <FieldStyle>{data.field}</FieldStyle>
             <SidebarCounter>
               {this.renderCustomValue(data.value)}
             </SidebarCounter>
