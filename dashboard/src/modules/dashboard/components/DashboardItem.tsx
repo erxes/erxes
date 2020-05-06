@@ -30,7 +30,7 @@ const DashboardItemDropdown = ({ itemId, dashboardId }) => {
   const dashboardItemDropdownMenu = (
     <Menu>
       <Menu.Item>
-        <Link to={`/explore?itemId=${itemId}?dashboardId=${dashboardId}`}>
+        <Link to={`/explore?itemId=${itemId}&dashboardId=${dashboardId}`}>
           Edit
         </Link>
       </Menu.Item>

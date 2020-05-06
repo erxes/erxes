@@ -31,7 +31,7 @@ class Chart extends React.Component<Props, State> {
     const dashboardItem = props.dashboardItem || {};
 
     this.state = {
-      vizState: dashboardItem.vizState,
+      vizState: JSON.parse(dashboardItem.vizState),
       type: dashboardItem.type,
       name: dashboardItem.name,
       visible: false

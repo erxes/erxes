@@ -231,12 +231,14 @@ const ChartRenderer = ({
   const { query, chartType } = vizState;
   const component = TypeToMemoChartComponent[chartType];
   const renderProps = useCubeQuery(query);
+  let dateType = 'month';
 
   if (renderProps.resultSet) {
     const { timeDimensions } = query;
 
-    const dateType = timeDimensions[0].granularity;
-
+    if (timeDimensions[0]) {
+      dateType = timeDimensions[0].granularity;
+    }
     return renderChart(component)({
       height: chartHeight,
       ...renderProps,

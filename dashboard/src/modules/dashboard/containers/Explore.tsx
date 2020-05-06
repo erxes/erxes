@@ -78,7 +78,7 @@ class DashboardContainer extends React.Component<FinalProps, State> {
         isActionLoading={this.state.isLoading}
         dashboardItem={
           dashBoardItemDetailsQuery
-            ? dashBoardItemDetailsQuery.dashboardItem
+            ? dashBoardItemDetailsQuery.dashboardItemDetail
             : undefined
         }
       />
@@ -94,7 +94,7 @@ export default compose(
       skip: ({ queryParams }) => !queryParams.itemId,
       options: ({ queryParams }) => ({
         variables: {
-          itemId: queryParams.itemId
+          _id: queryParams.itemId
         }
       })
     }

@@ -24,7 +24,7 @@ export type DashboardItemsQueryResponse = {
 };
 
 export type DashboardItemDetailsQueryResponse = {
-  dashboardItem: IDashboardItem;
+  dashboardItemDetail: IDashboardItem;
   loading: boolean;
 };
 
