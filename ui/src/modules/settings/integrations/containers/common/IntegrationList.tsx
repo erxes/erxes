@@ -44,11 +44,8 @@ const IntegrationListContainer = (props: FinalProps) => {
   const integrations = integrationsQuery.integrations || [];
 
   const removeIntegration = integration => {
-    const message = `
-      If you remove an integration, then all related conversations, customers & pop ups
-      will also be removed.
-      Are you sure?
-    `;
+    const message =
+      'If you remove an integration, then all related conversations, customers & pop ups will also be removed. Are you sure?';
 
     confirm(message).then(() => {
       Alert.warning('Removing... Please wait!!!');
@@ -65,11 +62,8 @@ const IntegrationListContainer = (props: FinalProps) => {
   };
 
   const archive = (id: string) => {
-    const message = `
-      If you archive an integration, then you won't be able to see customers & conversations 
-      related to this integration anymore.
-      Are you sure?
-    `;
+    const message =
+      "If you archive an integration, then you won't be able to see customers & conversations related to this integration anymore. Are you sure?";
 
     confirm(message).then(() => {
       archiveIntegration({ variables: { _id: id } })

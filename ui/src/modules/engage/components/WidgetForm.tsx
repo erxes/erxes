@@ -14,11 +14,13 @@ import { FlexContent, FlexItem } from 'modules/layout/styles';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import { MAIL_TOOLBARS_CONFIG } from 'modules/settings/integrations/constants';
 import React from 'react';
+import Select from 'react-select-plus';
 import { IAttachment } from '../../common/types';
 import { IBrand } from '../../settings/brands/types';
 import MessengerPreview from '../containers/MessengerPreview';
 import { Half, Recipient, Recipients } from '../styles';
 import { IEngageEmail, IEngageMessageDoc, IEngageMessenger } from '../types';
+import { generateEmailTemplateParams } from '../utils';
 
 type Props = {
   customers: ICustomer[];
@@ -37,6 +39,7 @@ type State = {
   channel: string;
   attachments: IAttachment[];
   sentAs: string;
+  templateId: string;
 };
 
 class WidgetForm extends React.Component<Props, State> {
@@ -47,7 +50,8 @@ class WidgetForm extends React.Component<Props, State> {
       content: '',
       channel: props.channelType || 'email',
       attachments: [],
-      sentAs: 'snippet'
+      sentAs: 'snippet',
+      templateId: ''
     };
   }
 
@@ -95,7 +99,7 @@ class WidgetForm extends React.Component<Props, State> {
   };
 
   templateChange = e => {
-    this.setState({ content: this.findTemplate(e.target.value) });
+    this.setState({ content: this.findTemplate(e.value), templateId: e.value });
   };
 
   onEditorChange = e => {
@@ -123,8 +127,8 @@ class WidgetForm extends React.Component<Props, State> {
         <Recipients>
           {this.props.customers.map(customer => (
             <Recipient key={customer._id}>
-              <strong>{customer.firstName}</strong>{' '}
-              {customer.primaryEmail || 'Unknown'}
+              <strong>{customer.firstName}</strong>
+              <span>({customer.primaryEmail || 'Unknown'})</span>
             </Recipient>
           ))}
         </Recipients>
@@ -141,7 +145,6 @@ class WidgetForm extends React.Component<Props, State> {
       <Half>
         <FormGroup>
           <ControlLabel>Channel:</ControlLabel>
-
           <FormControl
             componentClass="select"
             onChange={this.onChannelChange}
@@ -174,9 +177,9 @@ class WidgetForm extends React.Component<Props, State> {
         <FlexContent>
           <FlexItem>
             <FormGroup>
-              <ControlLabel>Brand:</ControlLabel>
+              <ControlLabel required={true}>Brand:</ControlLabel>
 
-              <FormControl id="brandId" componentClass="select">
+              <FormControl id="brandId" componentClass="select" required={true}>
                 <option />
                 {this.props.brands.map((b, index) => (
                   <option key={`brand-${index}`} value={b._id}>
@@ -189,9 +192,13 @@ class WidgetForm extends React.Component<Props, State> {
               <FlexContent>
                 <FlexItem>
                   <FormGroup>
-                    <ControlLabel>Messenger kind:</ControlLabel>
+                    <ControlLabel required={true}>Messenger kind:</ControlLabel>
 
-                    <FormControl id="messengerKind" componentClass="select">
+                    <FormControl
+                      id="messengerKind"
+                      componentClass="select"
+                      required={true}
+                    >
                       <option />
                       {this.props.messengerKinds.map((t, index) => (
                         <option key={`messengerKind-${index}`} value={t.value}>
@@ -251,18 +258,13 @@ class WidgetForm extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Email templates:</ControlLabel>
             <p>{__('Insert email template to content')}</p>
-            <FormControl
-              id="emailTemplateId"
-              componentClass="select"
+
+            <Select
+              value={this.state.templateId}
               onChange={this.templateChange}
-            >
-              <option />
-              {this.props.emailTemplates.map(t => (
-                <option key={t._id} value={t._id}>
-                  {t.name}
-                </option>
-              ))}
-            </FormControl>
+              options={generateEmailTemplateParams(this.props.emailTemplates)}
+              clearable={false}
+            />
           </FormGroup>
         </Half>
 
@@ -299,12 +301,18 @@ class WidgetForm extends React.Component<Props, State> {
         <ModalFooter>
           <Button
             btnStyle="simple"
-            icon="cancel-1"
+            icon="times-circle"
+            uppercase={false}
             onClick={this.props.closeModal}
           >
             Close
           </Button>
-          <Button type="submit" btnStyle="success" icon="send">
+          <Button
+            uppercase={false}
+            type="submit"
+            btnStyle="success"
+            icon="message"
+          >
             Send
           </Button>
         </ModalFooter>

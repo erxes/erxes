@@ -88,6 +88,7 @@ export const commonFields = `
       avatar
     }
   }
+  order
 `;
 
 const stagesUpdateOrder = `
@@ -125,7 +126,7 @@ const pipelineLabelsEdit = `
 
 const pipelineLabelsRemove = `
   mutation pipelineLabelsRemove($_id: String!) {
-    pipelineLabelsRemove(_id: $_id) 
+    pipelineLabelsRemove(_id: $_id)
   }
 `;
 

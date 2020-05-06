@@ -1,26 +1,24 @@
+import debounce from 'lodash/debounce';
 import { IUser } from 'modules/auth/types';
 import * as React from 'react';
 import RTG from 'react-transition-group';
-import Onboarding from '../containers/Onboarding';
-import { IEntry } from '../types';
-import { getCurrentUserName } from '../utils';
-import Assistant from './assistant/Assistant';
+import AssistantContent from '../containers/AssistantContent';
 import { Bot } from './styles';
 
 type Props = {
-  entries: IEntry[];
   currentUser: IUser;
 };
 
 type State = {
   currentRoute: string;
+  showContent: boolean;
 };
 
 class Robot extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = { currentRoute: 'onboardInitial' };
+    this.state = { currentRoute: 'todoList', showContent: false };
   }
 
   changeRoute = (currentRoute: string) => {
@@ -28,34 +26,35 @@ class Robot extends React.Component<Props, State> {
   };
 
   renderContent = () => {
-    const { currentRoute } = this.state;
     const { currentUser } = this.props;
 
     return (
-      <>
-        <Assistant
-          show={currentRoute === 'assistant'}
-          changeRoute={this.changeRoute}
-          currentUserName={getCurrentUserName(currentUser)}
-        />
-        <Onboarding
-          changeRoute={this.changeRoute}
-          show={currentRoute.includes('onboard')}
-          currentUser={currentUser}
-          currentStep={
-            currentRoute === 'onboardStart' ? 'featureList' : undefined
-          }
-        />
-      </>
+      <AssistantContent
+        changeRoute={this.changeRoute}
+        currentUser={currentUser}
+        currentRoute={this.state.currentRoute}
+        showContent={this.state.showContent}
+        toggleContent={this.toggleContent}
+      />
     );
   };
 
+  toggleContent = (isShow: boolean) => {
+    this.setState({ showContent: isShow }, () => {
+      if (!isShow) {
+        debounce(() => this.changeRoute('todoList'), 500)();
+      }
+    });
+  };
+
   changeContent = () => {
-    if (this.state.currentRoute === 'assistant') {
-      return this.changeRoute('');
+    const { currentRoute } = this.state;
+
+    if (currentRoute && !currentRoute.includes('todo')) {
+      return;
     }
 
-    return this.changeRoute('assistant');
+    return this.toggleContent(!this.state.showContent);
   };
 
   render() {
@@ -69,7 +68,7 @@ class Robot extends React.Component<Props, State> {
           classNames="robot"
         >
           <Bot onClick={this.changeContent}>
-            <img src="/images/erxes-bot.svg" alt="ai robot" />
+            <img src="/images/erxes-bot.svg" alt="assitant robot" />
           </Bot>
         </RTG.CSSTransition>
       </>

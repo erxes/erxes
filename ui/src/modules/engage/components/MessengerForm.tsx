@@ -21,7 +21,7 @@ type Props = {
   brands: IBrand[];
   onChange: (
     name: 'messenger' | 'content' | 'scheduleDate' | 'fromUserId',
-    value: IEngageMessenger | IEngageScheduleDate | string
+    value?: IEngageMessenger | IEngageScheduleDate | string
   ) => void;
   users: IUser[];
   hasKind: boolean;

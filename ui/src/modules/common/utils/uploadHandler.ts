@@ -25,6 +25,7 @@ type Params = {
   afterRead?: (params: AfterReadParams) => void;
   url?: string;
   kind?: string;
+  userId?: string;
   responseType?: string;
   extraFormData?: Array<{ key: string; value: string }>;
 };
@@ -78,6 +79,7 @@ const uploadHandler = (params: Params) => {
     url = `${REACT_APP_API_URL}/upload-file`,
     kind = 'main',
     responseType = 'text',
+    userId,
     extraFormData = []
   } = params;
 
@@ -99,11 +101,11 @@ const uploadHandler = (params: Params) => {
     const fileInfo = { name: file.name, size: file.size, type: file.type };
 
     // skip file that size is more than 15mb
-    if (fileInfo.size > 15728640) {
+    if (fileInfo.size > 20 * 1024 * 1024) {
       Alert.warning(
         `Your file ${
           fileInfo.name
-        } size too large file. Upload file size is less than 15MB`
+        } size is too large. Upload files less than 15MB of size.`
       );
 
       continue;
@@ -126,7 +128,8 @@ const uploadHandler = (params: Params) => {
       fetch(`${url}?kind=${kind}`, {
         method: 'post',
         body: formData,
-        credentials: 'include'
+        credentials: 'include',
+        ...(userId ? { headers: { userId } } : {})
       })
         .then(response => {
           response[responseType]()

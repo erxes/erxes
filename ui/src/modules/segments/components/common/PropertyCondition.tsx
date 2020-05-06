@@ -32,9 +32,12 @@ class Condition extends React.Component<Props, {}> {
 
   render() {
     const { fields, conditionKey, name, operator, value } = this.props;
+
     const cleanFields = fields.map(item => ({
-      value: item.name,
-      label: item.label
+      value: item.name || item._id,
+      label: item.label || item.title,
+      type: (item.type || '').toLowerCase(),
+      selectOptions: item.selectOptions || []
     }));
 
     const filter = {

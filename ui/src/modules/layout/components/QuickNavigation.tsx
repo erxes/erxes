@@ -6,6 +6,7 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tip from 'modules/common/components/Tip';
 import { colors } from 'modules/common/styles';
+import { rgba } from 'modules/common/styles/color';
 import { __ } from 'modules/common/utils';
 import Widget from 'modules/notifications/containers/Widget';
 import NotificationSettings from 'modules/settings/profile/containers/NotificationSettings';
@@ -41,24 +42,36 @@ const NameCardWrapper = styled.div`
 `;
 
 const NavItem = styledTS<{ odd?: boolean }>(styled.div)`
-  padding-left: 20px;
-  padding-right: ${props => props.odd && '20px'};
+  padding-left: 18px;
+  padding-right: ${props => props.odd && '15px'};
   display: table-cell;
   vertical-align: middle;
+
+  > a {
+    color: ${colors.textPrimary};
+  }
 
   ${props =>
     props.odd &&
     css`
-      padding-right: 20px;
-      background: ${colors.bgLight};
+      padding: 0;
+      background: ${rgba(colors.colorSecondary, 0.1)};
+      transition: background 0.3s ease;
+
+      &:hover {
+        background: ${rgba(colors.colorSecondary, 0.18)};
+      }
+
+      > a {
+        padding: 0 14px 0 17px;
+        color: ${colors.colorSecondary};
+        display: block;
+        line-height: 48px;
+      }
     `}
 
   .dropdown-menu {
     min-width: 240px;
-  }
-
-  > a {
-    color: ${colors.colorCoreDarkGray};
   }
 `;
 
@@ -110,17 +123,23 @@ const QuickNavigation = ({
       <Tip text={__('Task')} placement="bottom">
         <NavItem odd={true}>
           <Link to="/task">
-            <Icon icon="clipboard" size={16} />
+            <Icon icon="file-check-alt" size={19} />
           </Link>
         </NavItem>
       </Tip>
-
+      <NavItem>
+        <Tip text={__('Help')} placement="bottom">
+          <Link to="/tutorial#defaultStage">
+            <Icon icon="question-circle" size={20} />
+          </Link>
+        </Tip>
+      </NavItem>
       <NavItem>
         <Widget />
       </NavItem>
       <NavItem>
         <Link to="/settings">
-          <Icon icon="settings" size={18} />
+          <Icon icon="cog" size={20} />
         </Link>
       </NavItem>
       <NavItem>

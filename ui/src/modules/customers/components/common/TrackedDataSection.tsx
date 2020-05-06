@@ -40,7 +40,7 @@ class TrackedDataSection extends React.Component<Props> {
             {isOnline ? (
               <Label lblStyle="success">Online</Label>
             ) : (
-              <Label>Offline</Label>
+              <Label lblStyle="simple">Offline</Label>
             )}
           </SidebarCounter>
         </li>

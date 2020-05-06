@@ -1,35 +1,36 @@
 import color from 'color';
 import { __ } from 'modules/common/utils';
-import { shake } from 'modules/common/utils/animations';
+import { shake as animationShake } from 'modules/common/utils/animations';
 import React from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { colors } from '../styles';
+import { darken, rgba } from '../styles/color';
 
 const types = {
   default: {
-    background: colors.colorSecondary
+    color: colors.colorSecondary
   },
   primary: {
-    background: colors.colorPrimary
+    color: colors.colorPrimaryDark
   },
   success: {
-    background: colors.colorCoreGreen
+    color: colors.colorCoreGreen
   },
   danger: {
-    background: colors.colorCoreRed
+    color: colors.colorCoreRed
   },
   warning: {
-    background: colors.colorCoreYellow
+    color: colors.colorCoreYellow
   },
   simple: {
-    background: colors.colorCoreLightGray
+    color: colors.colorCoreGray
   }
 };
 
 const LabelStyled = styledTS<{
-  lblStyle: string;
-  hasLightBackground?: boolean;
+  lblColor: string;
+  isLightColor?: boolean;
   shake?: boolean;
 }>(styled.span)`
   border-radius: 14px;
@@ -39,11 +40,22 @@ const LabelStyled = styledTS<{
   font-size: 8px;
   display: inline-block;
   line-height: 1.32857143;
-  background: ${props => types[props.lblStyle].background};
+  background: ${props =>
+    props.isLightColor
+      ? rgba(props.lblColor, 0.2)
+      : rgba(props.lblColor, 0.15)};
   color: ${props =>
-    props.hasLightBackground ? colors.colorBlack : colors.colorWhite};
+    props.isLightColor ? darken(props.lblColor, 50) : props.lblColor};
   border: none;
-  animation: ${props => (props.shake ? `${shake} 3.5s ease infinite` : 'none')};
+  animation: ${props =>
+    props.shake ? `${animationShake} 3.5s ease infinite` : 'none'};
+  
+  ${props =>
+    props.shake &&
+    css`
+      background: ${colors.colorCoreRed};
+      color: ${colors.colorWhite};
+    `};
 
   &:hover {
     cursor: default;
@@ -56,68 +68,34 @@ const LabelStyled = styledTS<{
     line-height: 0.5;
     text-align: center;
   }
-
-  &.label-default {
-    background: ${colors.colorPrimary};
-  }
-
-  &.label-form,
-  &.label-lead {
-    background: ${colors.colorCoreYellow};
-  }
-
-  &.label-facebook {
-    background: ${colors.socialFacebook};
-  }
-
-  &.label-messenger {
-    background: ${colors.colorCoreBlue};
-  }
-
-  &.label-facebook-messenger {
-    background: ${colors.socialFacebookMessenger};
-  }
-
-  &.label-knowledgebase {
-    background: ${colors.colorCoreTeal};
-  }
-
-  &.label-googleMeet {
-    background: ${colors.socialGoogleMeet};
-  }
-
-  &.label-twitter {
-    background: ${colors.socialTwitter}
-  }
-
-  &.label-gmail {
-    background: ${colors.socialGmail}
-  }
 `;
 
 type Props = {
+  lblStyle?: string;
+  lblColor?: string;
   children: React.ReactNode | string;
   className?: string;
   shake?: boolean;
   ignoreTrans?: boolean;
-  style?: any;
-  lblStyle?: string;
-};
-
-const defaultProps = {
-  lblStyle: 'default',
-  shake: false
 };
 
 class Label extends React.Component<Props> {
   render() {
-    const { ignoreTrans, children, style } = this.props;
+    const {
+      ignoreTrans,
+      children,
+      lblColor,
+      lblStyle = 'default',
+      shake = false
+    } = this.props;
 
     const updatedProps = {
       ...this.props,
-      hasLightBackground: style
-        ? color(style.backgroundColor).isLight()
-        : undefined
+      lblColor: lblColor ? lblColor : types[lblStyle].color,
+      shake,
+      isLightColor: lblColor
+        ? color(lblColor).isLight()
+        : color(types[lblStyle].color).isLight()
     };
 
     let content;
@@ -128,11 +106,7 @@ class Label extends React.Component<Props> {
       content = __(children);
     }
 
-    return (
-      <LabelStyled {...defaultProps} {...updatedProps}>
-        {content}
-      </LabelStyled>
-    );
+    return <LabelStyled {...updatedProps}>{content}</LabelStyled>;
   }
 }
 

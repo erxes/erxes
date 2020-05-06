@@ -64,6 +64,7 @@ export default class TaskEditForm extends React.Component<Props> {
             sendToBoard={sendToBoard}
             item={item}
             addItem={addItem}
+            onChangeStage={onChangeStage}
           />
 
           <Sidebar

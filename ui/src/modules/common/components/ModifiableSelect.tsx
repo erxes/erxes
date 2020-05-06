@@ -201,7 +201,7 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
     this.setState({ inputValue: e.target.value });
   };
 
-  renderInput = () => {
+  render() {
     const { name, type, required } = this.props;
 
     if (this.state.adding) {
@@ -275,10 +275,6 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
         </Button>
       </Wrapper>
     );
-  };
-
-  render() {
-    return this.renderInput();
   }
 }
 

@@ -47,6 +47,55 @@ type ReorderItemMap = {
   destination: IDraggableLocation;
 };
 
+const round = (num: number, fixed: number = 0) => {
+  return parseFloat(num.toFixed(fixed));
+};
+
+export const orderHelper = ({
+  prevOrder,
+  afterOrder
+}: {
+  prevOrder: number;
+  afterOrder: number;
+}) => {
+  if (!prevOrder && !afterOrder) {
+    return 1;
+  }
+
+  if (!afterOrder) {
+    return round(prevOrder) + 1;
+  }
+
+  const splitAfter = afterOrder.toString().split('.');
+  const fraction = '0.'.concat(splitAfter[1] || '0');
+
+  if (!prevOrder) {
+    const afterLen = fraction.length;
+    const afterDotLen = fraction === '0.0' ? 1 : 0;
+    const diffIs1Len = afterOrder.toString().substr(-1) === '1' ? 1 : 0;
+
+    return round(
+      afterOrder - 0.1 ** (afterLen - 2 - afterDotLen + diffIs1Len),
+      afterLen + diffIs1Len
+    );
+  }
+
+  const prevFraction = '0.'.concat(prevOrder.toString().split('.')[1] || '0');
+  const diffLen =
+    prevFraction.length > fraction.length
+      ? prevFraction.length
+      : fraction.length;
+
+  const diff = round(afterOrder - prevOrder, diffLen);
+  const dotLen = fraction === '0.0' && prevFraction === '0.0' ? 1 : 0;
+  const is1Len = diff.toString().substr(-1) === '1' ? 1 : 0;
+
+  return round(
+    afterOrder - 0.1 ** (diffLen - 2 - dotLen + is1Len),
+    diffLen + is1Len
+  );
+};
+
 export const reorderItemMap = ({
   itemMap,
   source,
@@ -58,6 +107,12 @@ export const reorderItemMap = ({
   const target = current[source.index];
   target.modifiedAt = new Date();
 
+  const prevOrder =
+    destination.index > 0 ? next[destination.index - 1].order : 0;
+  const afterOrder =
+    next.length > destination.index ? next[destination.index].order : 0;
+  target.order = orderHelper({ prevOrder, afterOrder }) || 1;
+
   // moving to same list
   if (source.droppableId === destination.droppableId) {
     const reordered = reorder(current, source.index, destination.index);
@@ -68,7 +123,8 @@ export const reorderItemMap = ({
     };
 
     return {
-      itemMap: updateditemMap
+      itemMap: updateditemMap,
+      target
     };
   }
 
@@ -87,7 +143,8 @@ export const reorderItemMap = ({
   };
 
   return {
-    itemMap: result
+    itemMap: result,
+    target
   };
 };
 

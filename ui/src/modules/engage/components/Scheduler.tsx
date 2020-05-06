@@ -1,16 +1,15 @@
-import Datetime from '@nateradebaugh/react-datetime';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { __ } from 'modules/common/utils';
 import { SCHEDULE_TYPES } from 'modules/engage/constants';
 import React from 'react';
-import { DateTimePicker, SelectMonth } from '../styles';
+import { SelectMonth } from '../styles';
 import { IEngageScheduleDate } from '../types';
 
 type Props = {
   scheduleDate: IEngageScheduleDate;
-  onChange: (name: 'scheduleDate', value: IEngageScheduleDate) => void;
+  onChange: (name: 'scheduleDate', value?: IEngageScheduleDate) => void;
 };
 
 type State = {
@@ -25,9 +24,17 @@ class Scheduler extends React.Component<Props, State> {
   }
 
   changeSchedule = (key, value) => {
-    const scheduleDate = { ...this.state.scheduleDate };
+    let scheduleDate = this.state.scheduleDate
+      ? { ...this.state.scheduleDate }
+      : null;
 
-    scheduleDate[key] = value;
+    if (key === 'type' && !value) {
+      scheduleDate = null;
+    }
+
+    if (scheduleDate) {
+      scheduleDate[key] = value;
+    }
 
     this.setState({ scheduleDate });
 
@@ -49,7 +56,7 @@ class Scheduler extends React.Component<Props, State> {
   }
 
   renderMonthSelector() {
-    const { type, month } = this.state.scheduleDate;
+    const { type, month } = this.state.scheduleDate || { type: '', month: '' };
 
     if (type !== 'year') {
       return null;
@@ -69,7 +76,7 @@ class Scheduler extends React.Component<Props, State> {
   }
 
   renderDaySelector() {
-    const { type, day } = this.state.scheduleDate;
+    const { type, day } = this.state.scheduleDate || { type: '', day: '' };
 
     if (type !== 'year' && type !== 'month') {
       return null;
@@ -89,16 +96,10 @@ class Scheduler extends React.Component<Props, State> {
   }
 
   render() {
-    const { type, time } = this.state.scheduleDate;
-
-    const props = {
-      inputProps: { placeholder: __('Click to select a date') },
-      timeFormat: 'HH:mm'
-    };
+    const { type } = this.state.scheduleDate || { type: '' };
 
     const onChange = e =>
       this.changeSchedule('type', (e.target as HTMLInputElement).value);
-    const onChangeSchedule = e => this.changeSchedule('time', e);
 
     return (
       <FormGroup>
@@ -116,17 +117,6 @@ class Scheduler extends React.Component<Props, State> {
           {this.renderMonthSelector()}
           {this.renderDaySelector()}
         </SelectMonth>
-
-        <DateTimePicker>
-          <ControlLabel>Choose time:</ControlLabel>
-          <Datetime
-            {...props}
-            value={time}
-            onChange={onChangeSchedule}
-            dateFormat={false}
-            input={false}
-          />
-        </DateTimePicker>
       </FormGroup>
     );
   }

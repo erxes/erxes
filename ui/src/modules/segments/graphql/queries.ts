@@ -9,8 +9,8 @@ const segmentFields = `
 `;
 
 const segments = `
-  query segments($contentType: String!) {
-    segments(contentType: $contentType) {
+  query segments($contentTypes: [String]!) {
+    segments(contentTypes: $contentTypes) {
       ${segmentFields}
 
       getSubSegments {
@@ -31,8 +31,8 @@ const segmentDetail = `
   }
 `;
 const segmentsPreviewCount = `
-  query segmentsPreviewCount($contentType: String!, $conditions: JSON) {
-    segmentsPreviewCount(contentType: $contentType, conditions: $conditions)
+  query segmentsPreviewCount($contentType: String!, $conditions: JSON, $subOf: String) {
+    segmentsPreviewCount(contentType: $contentType, conditions: $conditions, subOf: $subOf)
   }
 `;
 

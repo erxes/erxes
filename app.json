@@ -10,7 +10,7 @@
   ],
   "website": "https://erxes.io",
   "repository": "https://github.com/erxes/erxes",
-  "logo": "https://raw.githubusercontent.com/erxes/erxes/master/public/images/logo-dark.png",
+  "logo": "https://raw.githubusercontent.com/erxes/erxes/master/ui/public/images/logo-dark.png",
   "success_url": "/",
   "env": {
     "PORT": {

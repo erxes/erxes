@@ -45,8 +45,8 @@ const dealsRemove = `
 `;
 
 const dealsChange = `
-  mutation dealsChange($_id: String!, $destinationStageId: String!) {
-    dealsChange(_id: $_id, destinationStageId: $destinationStageId) {
+  mutation dealsChange($_id: String!, $destinationStageId: String!, $order: Float) {
+    dealsChange(_id: $_id, destinationStageId: $destinationStageId, order: $order) {
       _id
     }
   }

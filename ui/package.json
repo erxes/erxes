@@ -16,7 +16,7 @@
     "apollo-link-http": "^1.5.16",
     "apollo-link-ws": "^1.0.8",
     "apollo-utilities": "^1.0.5",
-    "autolinker": "^3.0.0",
+    "autolinker": "3.14.0",
     "bat-draft-js-mention-plugin": "^2.0.1",
     "ckeditor4-react": "^1.0.0",
     "classnames": "^2.2.5",

@@ -20,6 +20,13 @@ export const crudMutationsOptions = () => {
   };
 };
 
+export const generateEmailTemplateParams = emailTemplates => {
+  return emailTemplates.map(template => ({
+    value: template._id,
+    label: template.name
+  }));
+};
+
 /**
  * Sum selected item's customers count
  * @param ids - customer ids

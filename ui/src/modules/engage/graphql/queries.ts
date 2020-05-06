@@ -95,7 +95,6 @@ export const engageDetailFields = `
     type
     month
     day
-    time
   }
   brand {
     name
@@ -150,16 +149,6 @@ const userDetail = `
   }
 `;
 
-const emailTemplates = `
-  query emailTemplates {
-    emailTemplates {
-      _id
-      name
-      content
-    }
-  }
-`;
-
 const engageMessagesTotalCount = `
   query engageMessagesTotalCount(${listParamsDef}) {
     engageMessagesTotalCount(${listParamsValue})
@@ -198,8 +187,8 @@ const segmentFields = `
 `;
 
 const segments = `
-  query segments {
-    segments(contentType: "customer") {
+  query segments($contentTypes: [String]!) {
+    segments(contentTypes: $contentTypes) {
       ${segmentFields}
 
       getSubSegments {
@@ -292,7 +281,6 @@ export default {
   userDetail,
   segments,
   brands,
-  emailTemplates,
   customerCounts,
   segmentDetail,
   headSegments,
