@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
 
-import { ILink, linkSchema } from './common';
+import { customFieldSchema, ICustomField, ILink, linkSchema } from './common';
 import { CUSTOMER_SELECT_OPTIONS } from './constants';
 
 import { field, schemaWrapper } from './utils';
@@ -59,8 +59,8 @@ export interface ICustomer {
 
   mergedIds?: string[];
   status?: string;
-  customFieldsData?: any;
-  trackedData?: any;
+  customFieldsData?: ICustomField[];
+  trackedData?: ICustomField[];
   location?: ILocation;
   visitorContactInfo?: IVisitorContact;
   deviceTokens?: string[];
@@ -86,14 +86,14 @@ export interface ICustomerDocument extends ICustomer, Document {
 /* location schema */
 export const locationSchema = new Schema(
   {
-    remoteAddress: field({ type: String, label: 'Remote address' }),
-    country: field({ type: String, label: 'Country' }),
-    countryCode: field({ type: String, label: 'Country code' }),
-    city: field({ type: String, label: 'City' }),
-    region: field({ type: String, label: 'Region' }),
-    hostname: field({ type: String, label: 'Host name' }),
-    language: field({ type: String, label: 'Language' }),
-    userAgent: field({ type: String, label: 'User agent' }),
+    remoteAddress: field({ type: String, label: 'Remote address', optional: true }),
+    country: field({ type: String, label: 'Country', optional: true }),
+    countryCode: field({ type: String, label: 'Country code', optional: true }),
+    city: field({ type: String, label: 'City', optional: true }),
+    region: field({ type: String, label: 'Region', optional: true }),
+    hostname: field({ type: String, label: 'Host name', optional: true }),
+    language: field({ type: String, label: 'Language', optional: true }),
+    userAgent: field({ type: String, label: 'User agent', optional: true }),
   },
   { _id: false },
 );
@@ -205,8 +205,8 @@ export const customerSchema = schemaWrapper(
     // Merged customer ids
     mergedIds: field({ type: [String], optional: true }),
 
-    trackedData: field({ type: Object, optional: true, label: 'Tracked Data' }),
-    customFieldsData: field({ type: Object, optional: true, label: 'Custom fields data' }),
+    trackedData: field({ type: [customFieldSchema], optional: true, label: 'Tracked Data' }),
+    customFieldsData: field({ type: [customFieldSchema], optional: true, label: 'Custom fields data' }),
 
     location: field({ type: locationSchema, optional: true, label: 'Location' }),
 

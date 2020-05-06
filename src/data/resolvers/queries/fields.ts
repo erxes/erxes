@@ -1,7 +1,6 @@
 import { FIELD_CONTENT_TYPES, FIELDS_GROUPS_CONTENT_TYPES } from '../../../data/constants';
 import { Companies, Customers, Fields, FieldsGroups, Integrations } from '../../../db/models';
-import { debugBase } from '../../../debuggers';
-import { getIndexPrefix, getMappings } from '../../../elasticsearch';
+import { fetchElk } from '../../../elasticsearch';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
@@ -111,27 +110,34 @@ const fieldQueries = {
       }
     }
 
-    let mappingProperties: any = {};
+    const aggre = await fetchElk('search', contentType === 'company' ? 'companies' : 'customers', {
+      size: 0,
+      _source: false,
+      aggs: {
+        trackedDataKeys: {
+          nested: {
+            path: 'trackedData',
+          },
+          aggs: {
+            fieldKeys: {
+              terms: {
+                field: 'trackedData.field',
+                size: 10000,
+              },
+            },
+          },
+        },
+      },
+    });
 
-    // extend fields list using tracked fields data
-    try {
-      const index = `${getIndexPrefix()}${contentType === 'company' ? 'companies' : 'customers'}`;
-      const response = await getMappings(index);
-      mappingProperties = response[index].mappings.properties;
-    } catch (e) {
-      debugBase(`Error occurred in fieldsCombinedByContentType ${e.message}`);
-    }
+    const buckets = (aggre.aggregations.trackedDataKeys.fieldKeys || { buckets: [] }).buckets;
 
-    if (mappingProperties.trackedData) {
-      const trackedDataFields = Object.keys(mappingProperties.trackedData.properties || {});
-
-      for (const trackedDataField of trackedDataFields) {
-        fields.push({
-          _id: Math.random(),
-          name: `trackedData.${trackedDataField}`,
-          label: trackedDataField,
-        });
-      }
+    for (const bucket of buckets) {
+      fields.push({
+        _id: Math.random(),
+        name: `trackedData.${bucket.key}`,
+        label: bucket.key,
+      });
     }
 
     return fields;

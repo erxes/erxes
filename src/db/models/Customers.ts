@@ -1,6 +1,7 @@
 import { Model, model } from 'mongoose';
 import { validateEmail, validSearchText } from '../../data/utils';
 import { ActivityLogs, Conformities, Conversations, EngageMessages, Fields, InternalNotes } from './';
+import { ICustomField } from './definitions/common';
 import { customerSchema, ICustomer, ICustomerDocument } from './definitions/customers';
 import { IUserDocument } from './definitions/users';
 
@@ -221,7 +222,7 @@ export const loadClass = () => {
       }
 
       // clean custom field values
-      doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
+      doc.customFieldsData = await Fields.prepareCustomFieldsData(doc.customFieldsData);
 
       if (doc.integrationId) {
         doc.relatedIntegrationIds = [doc.integrationId];
@@ -257,7 +258,7 @@ export const loadClass = () => {
       await Customers.checkDuplication(doc, _id);
 
       // clean custom field values
-      doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
+      doc.customFieldsData = await Fields.prepareCustomFieldsData(doc.customFieldsData);
 
       if (doc.primaryEmail) {
         const oldCustomer = await Customers.getCustomer(_id);
@@ -406,7 +407,7 @@ export const loadClass = () => {
 
       let scopeBrandIds: string[] = [];
       let tagIds: string[] = [];
-      let customFieldsData = {};
+      let customFieldsData: ICustomField[] = [];
 
       let emails: string[] = [];
       let phones: string[] = [];
@@ -427,7 +428,7 @@ export const loadClass = () => {
           customerFields.integrationId = customerObj.integrationId;
 
           // merge custom fields data
-          customFieldsData = { ...customFieldsData, ...(customerObj.customFieldsData || {}) };
+          customFieldsData = [...customFieldsData, ...(customerObj.customFieldsData || [])];
 
           // Merging scopeBrandIds
           scopeBrandIds = [...scopeBrandIds, ...(customerObj.scopeBrandIds || [])];
@@ -594,7 +595,7 @@ export const loadClass = () => {
 
       return this.createCustomer({
         ...doc,
-        trackedData: customData,
+        trackedData: Fields.generateTypedListFromMap(customData),
         lastSeenAt: new Date(),
         isOnline: true,
         sessionCount: 1,
@@ -615,7 +616,7 @@ export const loadClass = () => {
 
       const modifier = {
         ...doc,
-        trackedData: customData,
+        trackedData: Fields.generateTypedListFromMap(customData),
         state: doc.isUser ? 'customer' : customer.state,
         modifiedAt: new Date(),
       };

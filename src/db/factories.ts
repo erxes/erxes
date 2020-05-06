@@ -48,6 +48,7 @@ import {
   Users,
   UsersGroups,
 } from './models';
+import { ICustomField } from './models/definitions/common';
 import {
   ACTIVITY_CONTENT_TYPES,
   BOARD_STATUSES,
@@ -490,8 +491,8 @@ export const customerFactory = async (params: ICustomerFactoryInput = {}, useMod
     lastSeenAt: faker.date.between(createdAt, new Date()),
     isOnline: params.isOnline || false,
     sessionCount: faker.random.number(),
-    customFieldsData: params.customFieldsData || {},
-    trackedData: params.trackedData || {},
+    customFieldsData: params.customFieldsData || [],
+    trackedData: params.trackedData || [],
     tagIds: params.tagIds || [Random.id()],
     ownerId: params.ownerId || Random.id(),
     emailValidationStatus: params.emailValidationStatus || 'unknown',
@@ -1092,7 +1093,7 @@ interface IProductFactoryInput {
   description?: string;
   tagIds?: string[];
   categoryId?: string;
-  customFieldsData?: object;
+  customFieldsData?: ICustomField[];
 }
 
 export const productFactory = async (params: IProductFactoryInput = {}) => {

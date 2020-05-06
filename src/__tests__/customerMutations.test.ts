@@ -30,7 +30,6 @@ const args = {
     github: 'github',
     website: 'website',
   },
-  customFieldsData: {},
 };
 
 const checkCustomer = src => {
@@ -142,7 +141,7 @@ describe('Customers mutations', () => {
     const customer = await graphqlRequest(mutation, 'customersAdd', args, context);
 
     checkCustomer(customer);
-    expect(customer.customFieldsData).toEqual(null);
+    expect(customer.customFieldsData.length).toEqual(0);
   });
 
   test('Edit customer', async () => {
@@ -181,7 +180,7 @@ describe('Customers mutations', () => {
     expect(customer._id).toBe(_customer._id);
 
     checkCustomer(customer);
-    expect(customer.customFieldsData).toEqual({});
+    expect(customer.customFieldsData.length).toEqual(0);
   });
 
   test('Remove customer', async () => {

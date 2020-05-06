@@ -47,25 +47,20 @@ export default {
 
       const { customFieldsData } = product;
 
-      if (customFieldsData) {
-        const customFields = {};
-        const fieldIds: string[] = [];
+      const customFields = [];
 
-        Object.keys(customFieldsData).forEach(_id => {
-          fieldIds.push(_id);
-        });
+      for (const customFieldData of customFieldsData || []) {
+        const field = await Fields.findOne({ _id: customFieldData.field });
 
-        const fields = await Fields.find({ _id: { $in: fieldIds }, contentType: 'product' });
-
-        for (const field of fields) {
-          customFields[field._id] = {
+        if (field) {
+          customFields[customFieldData.field] = {
             text: field.text,
-            data: customFieldsData[field._id],
+            data: customFieldData.value,
           };
         }
-
-        product.customFieldsData = customFields;
       }
+
+      product.customFieldsData = customFields;
 
       // Add product object to resulting list
       products.push({

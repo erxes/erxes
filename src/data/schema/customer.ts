@@ -61,7 +61,6 @@ export const types = `
     links: CustomerLinks
     companies: [Company]
     conversations: [Conversation]
-    getTrackedData: JSON
     getTags: [Tag]
     owner: User
   }

@@ -69,7 +69,6 @@ describe('Companies mutations', () => {
       size: faker.random.number(),
       industry: 'Airlines',
       tagIds: company.tagIds,
-      customFieldsData: {},
       parentCompanyId: parent._id,
     };
 
@@ -102,7 +101,7 @@ describe('Companies mutations', () => {
     expect(result.size).toBe(args.size);
     expect(result.industry).toBe(args.industry);
     expect(expect.arrayContaining(result.tagIds)).toEqual(args.tagIds);
-    expect(result.customFieldsData).toEqual(args.customFieldsData);
+    expect(result.customFieldsData.length).toEqual(0);
     expect(result.parentCompanyId).toBe(parent._id);
   });
 
@@ -127,7 +126,6 @@ describe('Companies mutations', () => {
       emails: [faker.internet.email()],
       size: faker.random.number(),
       industry: faker.random.word(),
-      customFieldsData: {},
       ownerId: _user._id,
       parentCompanyId: parent._id,
       tagIds: [tag2._id],
@@ -166,7 +164,7 @@ describe('Companies mutations', () => {
     expect(result.size).toBe(args.size);
     expect(result.industry).toBe(args.industry);
     expect(expect.arrayContaining(result.tagIds)).toEqual(args.tagIds);
-    expect(result.customFieldsData).toEqual(args.customFieldsData);
+    expect(result.customFieldsData.length).toEqual(0);
     expect(result.ownerId).toBe(_user._id);
     expect(result.parentCompanyId).toBe(parent._id);
     expect(result.mergedIds.length).toBe(1);

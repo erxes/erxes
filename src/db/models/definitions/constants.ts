@@ -474,6 +474,7 @@ export const CUSTOMER_SELECT_OPTIONS = {
     { label: 'Valid', value: 'valid' },
     { label: 'Invalid', value: 'invalid' },
     { label: 'Accept all unverifiable', value: 'accept_all_unverifiable' },
+    { label: 'Unverifiable', value: 'unverifiable' },
     { label: 'Unknown', value: 'unknown' },
     { label: 'Disposable', value: 'disposable' },
     { label: 'Catch all', value: 'catchall' },
@@ -504,3 +505,8 @@ export const CUSTOMER_SELECT_OPTIONS = {
     { label: 'Customer', value: 'customer' },
   ],
 };
+
+export const SEGMENT_STRING_OPERATORS = ['e', 'dne', 'c', 'dnc'];
+export const SEGMENT_BOOLEAN_OPERATORS = ['is', 'ins', 'it', 'if'];
+export const SEGMENT_NUMBER_OPERATORS = ['numbere', 'numberdne', 'numberigt', 'numberilt'];
+export const SEGMENT_DATE_OPERATORS = ['dateigt', 'dateilt', 'wobm', 'woam', 'wobd', 'woad', 'drlt', 'drgt'];

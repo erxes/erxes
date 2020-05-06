@@ -229,7 +229,7 @@ describe('customerQueries', () => {
           location
           visitorContactInfo
           customFieldsData
-          getTrackedData
+          trackedData
           ownerId
           position
           department

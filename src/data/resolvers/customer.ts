@@ -10,21 +10,6 @@ export default {
     return Tags.find({ _id: { $in: customer.tagIds || [] } });
   },
 
-  getTrackedData(customer: ICustomerDocument) {
-    const results: Array<{ name: string; value: string }> = [];
-
-    const trackedData = customer.trackedData || {};
-
-    Object.keys(trackedData).forEach(key => {
-      results.push({
-        name: key.replace(/_/g, ' '),
-        value: trackedData[key],
-      });
-    });
-
-    return results;
-  },
-
   conversations(customer: ICustomerDocument) {
     return Conversations.find({ customerId: customer._id });
   },
