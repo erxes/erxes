@@ -54,10 +54,11 @@ const dateFormatter = (item, dateType) => {
 };
 
 const xAxisFormatter = (item, dateType) => {
-  if (dayjs(item).isValid()) {
+  console.log(dateType);
+  if (dateType) {
     return dateFormatter(item, dateType);
   } else {
-    return numberFormatter(item);
+    return item.toString();
   }
 };
 
@@ -235,7 +236,7 @@ const ChartRenderer = ({
   const { query, chartType } = vizState;
   const component = TypeToMemoChartComponent[chartType];
   const renderProps = useCubeQuery(query);
-  let dateType = 'month';
+  let dateType = '';
 
   if (renderProps.resultSet) {
     const { timeDimensions } = query;

@@ -7,9 +7,9 @@ const generateMember = (availableMembers, schemaType) => {
 
   if (availableMembers) {
     availableMembers.forEach(members => {
-      const name = members.name.split('.');
+      const name = members.name;
 
-      if (name[0] === schemaType) {
+      if (name.startsWith(schemaType)) {
         generatedMembers.push(members);
       }
     });
