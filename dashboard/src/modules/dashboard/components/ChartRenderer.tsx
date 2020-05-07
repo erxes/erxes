@@ -153,25 +153,29 @@ const TypeToChartComponent = {
     );
   },
   pie: ({ resultSet, height }) => {
-    return (
-      <ResponsiveContainer width="100%" height={height}>
-        <PieChart>
-          <Pie
-            isAnimationActive={false}
-            data={resultSet.chartPivot()}
-            nameKey="x"
-            dataKey={resultSet.seriesNames()[0].key}
-            fill="#8884d8"
-          >
-            {resultSet.chartPivot().map((e, index) => (
-              <Cell key={index} fill={colors[index % colors.length]} />
-            ))}
-          </Pie>
-          <Legend />
-          <Tooltip />
-        </PieChart>
-      </ResponsiveContainer>
-    );
+    if (resultSet.seriesNames()[0]) {
+      return (
+        <ResponsiveContainer width="100%" height={height}>
+          <PieChart>
+            <Pie
+              isAnimationActive={false}
+              data={resultSet.chartPivot()}
+              nameKey="x"
+              dataKey={resultSet.seriesNames()[0].key}
+              fill="#8884d8"
+            >
+              {resultSet.chartPivot().map((e, index) => (
+                <Cell key={index} fill={colors[index % colors.length]} />
+              ))}
+            </Pie>
+            <Legend />
+            <Tooltip />
+          </PieChart>
+        </ResponsiveContainer>
+      );
+    }
+
+    return <></>;
   },
   table: ({ resultSet }) => (
     <Table

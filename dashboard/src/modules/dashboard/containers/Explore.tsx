@@ -2,6 +2,7 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 
 // import { IRouterProps } from 'modules/common/types';
+import Alert from 'modules/common/utils/Alert';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Chart from '../components/Chart';
@@ -59,13 +60,13 @@ class DashboardContainer extends React.Component<FinalProps, State> {
         variables: { ...params }
       })
         .then(() => {
-          // Alert.success('Success');
+          Alert.success('Success');
 
           history.goBack();
         })
 
         .catch(error => {
-          // Alert.error(error.message);
+          Alert.error(error.message);
 
           this.setState({ isLoading: false });
         });

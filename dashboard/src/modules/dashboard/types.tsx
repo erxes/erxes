@@ -21,6 +21,7 @@ export interface IDashboardItem {
 export type DashboardItemsQueryResponse = {
   dashboardItems: IDashboardItem[];
   loading: boolean;
+  refetch: () => void;
 };
 
 export type DashboardItemDetailsQueryResponse = {
@@ -43,6 +44,10 @@ export type AddDashboardItemMutationVariables = {
   dashboardId: string;
 };
 
+export type RemoveDashboardItemMutationVariables = {
+  _id: string;
+};
+
 export type AddDashboardItemMutationResponse = {
   addDashboardItemMutation: (params: {
     variables: AddDashboardItemMutationVariables;
@@ -52,5 +57,11 @@ export type AddDashboardItemMutationResponse = {
 export type EditDashboardItemMutationResponse = {
   editDashboardItemMutation: (params: {
     variables: EditDashboardItemMutationVariables;
+  }) => Promise<void>;
+};
+
+export type RemoveDashboardItemMutationResponse = {
+  removeDashboardItemMutation: (params: {
+    variables: RemoveDashboardItemMutationVariables;
   }) => Promise<void>;
 };

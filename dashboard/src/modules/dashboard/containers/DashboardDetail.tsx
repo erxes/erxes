@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import Alert from 'modules/common/utils/Alert';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Dashboard from '../components/Dashboard';
@@ -7,7 +8,9 @@ import { mutations, queries } from '../graphql';
 import {
   DashboardItemsQueryResponse,
   EditDashboardItemMutationResponse,
-  EditDashboardItemMutationVariables
+  EditDashboardItemMutationVariables,
+  RemoveDashboardItemMutationResponse,
+  RemoveDashboardItemMutationVariables
 } from '../types';
 
 type Props = {
@@ -18,14 +21,20 @@ type Props = {
 type FinalProps = {
   dashboardItemsQuery: DashboardItemsQueryResponse;
 } & Props &
-  EditDashboardItemMutationResponse;
+  EditDashboardItemMutationResponse &
+  RemoveDashboardItemMutationResponse;
 
 class DashboardContainer extends React.Component<FinalProps, {}> {
   render() {
-    const { dashboardItemsQuery, editDashboardItemMutation, id } = this.props;
+    const {
+      dashboardItemsQuery,
+      editDashboardItemMutation,
+      id,
+      removeDashboardItemMutation
+    } = this.props;
 
     if (dashboardItemsQuery.loading) {
-      return  <div/>;
+      return <div />;
     }
 
     const editDashboardItem = params => {
@@ -34,12 +43,29 @@ class DashboardContainer extends React.Component<FinalProps, {}> {
           _id: params._id,
           layout: params.layout
         }
+      }).catch(() => {
+        return;
       });
+    };
+
+    const removeDashboardItem = itemId => {
+      removeDashboardItemMutation({
+        variables: {
+          _id: itemId
+        }
+      })
+        .then(() => {
+          dashboardItemsQuery.refetch();
+        })
+        .catch(error => {
+          Alert.error(error.message);
+        });
     };
 
     return (
       <Dashboard
         editDashboardItem={editDashboardItem}
+        removeDashboardItem={removeDashboardItem}
         dashboardItems={dashboardItemsQuery.dashboardItems || []}
         dashboardId={id}
       />
@@ -65,6 +91,16 @@ export default compose(
     EditDashboardItemMutationVariables
   >(gql(mutations.dashboardItemEdit), {
     name: 'editDashboardItemMutation',
+    options: {
+      refetchQueries: ['dashboardItemsQuery']
+    }
+  }),
+  graphql<
+    Props,
+    RemoveDashboardItemMutationResponse,
+    RemoveDashboardItemMutationVariables
+  >(gql(mutations.dashboardItemRemove), {
+    name: 'removeDashboardItemMutation',
     options: {
       refetchQueries: ['dashboardItemsQuery']
     }

@@ -1,12 +1,8 @@
 import React from 'react';
 import RGL, { WidthProvider } from 'react-grid-layout';
 
-import { Icon } from '@ant-design/compatible';
-import { Button } from 'antd';
-
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
-import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { IDashboardItem } from '../types';
@@ -48,6 +44,7 @@ type Props = {
   dashboardItems: IDashboardItem[];
   dashboardId: string;
   editDashboardItem: (doc: { _id: string; layout: string }) => void;
+  removeDashboardItem: (itemId: string) => void;
 };
 
 type State = {
@@ -86,7 +83,7 @@ class Dashboard extends React.Component<Props, State> {
   };
 
   render() {
-    const { dashboardItems, dashboardId } = this.props;
+    const { dashboardItems, dashboardId, removeDashboardItem } = this.props;
 
     if (dashboardItems.length === 0) {
       return (
@@ -97,27 +94,30 @@ class Dashboard extends React.Component<Props, State> {
           }}
         >
           <h2>There are no charts on this dashboard</h2>
-          <Link to={`/dashboard/explore?dashboardId=${dashboardId}`}>
-            <Button type="primary" size="large" icon={<Icon type="plus" />}>
-              Add chart
-            </Button>
-          </Link>
         </div>
       );
     }
 
-    const dashboardItem = item => (
-      <div key={item._id} data-grid={defaultLayout(item)}>
-        <DashboardItem
-          key={item._id}
-          itemId={item._id}
-          dashboardId={dashboardId}
-          title={item.name}
-        >
-          <ChartRenderer vizState={item.vizState} />
-        </DashboardItem>
-      </div>
-    );
+    const dashboardItem = item => {
+      if (item.layout) {
+        const height = item.layout.h * 40;
+
+        return (
+          <div key={item._id} data-grid={defaultLayout(item)}>
+            <DashboardItem
+              key={item._id}
+              itemId={item._id}
+              dashboardId={dashboardId}
+              title={item.name}
+              removeDashboardItem={removeDashboardItem}
+            >
+              <ChartRenderer vizState={item.vizState} chartHeight={height} />
+            </DashboardItem>
+          </div>
+        );
+      }
+      return <></>;
+    };
 
     return (
       <DragField
