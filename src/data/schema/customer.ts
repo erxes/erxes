@@ -56,6 +56,7 @@ export const types = `
     isOnline: Boolean
     lastSeenAt: Date
     sessionCount: Int
+    urlVisits: [JSON]
 
     integration: Integration
     links: CustomerLinks
