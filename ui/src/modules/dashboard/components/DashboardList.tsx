@@ -3,6 +3,7 @@ import { IButtonMutateProps } from 'modules/common/types';
 import React, { useState } from 'react';
 import { BoxContainer, ProjectItem } from '../styles';
 import { IDashboard } from '../types';
+import DashbaordForm from './DashboardForm';
 import DashboardRow from './DashboardRow';
 
 type Props = {
@@ -16,11 +17,16 @@ function DashboardList(props: Props) {
   const toggleVisibility = () => {
     setVisibility(!showPopup);
   };
-
   const renderAddForm = () => {
-    // const { renderAddButton } = props;
+    const { renderAddButton } = props;
 
-    return <div />;
+    return (
+      <DashbaordForm
+        renderButton={renderAddButton}
+        show={showPopup}
+        closeModal={toggleVisibility}
+      />
+    );
   };
 
   const { dashboards } = props;

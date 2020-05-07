@@ -56,13 +56,12 @@ const ProjectItem = styledTS<{ new?: boolean }>(styled(BoxItem))`
   }
 
   &:before {
-    content: '\\ec35';
+    content: '\\ea32';
     font-family: 'erxes';
     position: absolute;
     color: ${colors.colorCoreDarkBlue};
     font-size: 196px;
-    transform: rotate(10deg);
-    right: -15%;
+    right: -10%;
     bottom: -80px;
     opacity: 0.06;
   }

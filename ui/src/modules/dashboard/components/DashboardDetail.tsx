@@ -27,7 +27,7 @@ class DashboardDetail extends React.Component<Props, {}> {
         header={
           <Wrapper.Header
             title={`${'Dashboard' || ''}`}
-            breadcrumb={[{ title: __('Dashboard') }, { title: __('Detail') }]}
+            breadcrumb={[{ title: __('Dashboard'), link: '/dashboard' }]}
           />
         }
         actionBar={actionBar}

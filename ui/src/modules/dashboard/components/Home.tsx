@@ -23,7 +23,7 @@ class Home extends React.Component<Props> {
         header={
           <Wrapper.Header
             title={`${'Dashboard' || ''}`}
-            breadcrumb={[{ title: __('Dashboard') }]}
+            breadcrumb={[{ title: __('Dashboard'), link: '/dashboard' }]}
           />
         }
         content={this.renderContent()}
