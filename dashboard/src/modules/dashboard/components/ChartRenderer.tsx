@@ -26,7 +26,6 @@ import numeral from 'numeral';
 import './recharts-theme.less';
 
 const numberFormatter = item => numeral(item).format('0,0');
-// const dateFormatter = item => dayjs(item).format('MMM');
 
 const colors = [
   '#7DB3FF',
@@ -54,7 +53,6 @@ const dateFormatter = (item, dateType) => {
 };
 
 const xAxisFormatter = (item, dateType) => {
-  console.log(dateType);
   if (dateType) {
     return dateFormatter(item, dateType);
   } else {
