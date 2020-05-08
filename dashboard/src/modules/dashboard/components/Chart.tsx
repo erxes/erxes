@@ -33,7 +33,7 @@ class Chart extends React.Component<Props, State> {
     this.state = {
       vizState: dashboardItem.vizState
         ? JSON.parse(dashboardItem.vizState)
-        : '',
+        : {},
       type: dashboardItem.type,
       name: dashboardItem.name,
       visible: false,

@@ -44,6 +44,10 @@ export type AddDashboardItemMutationVariables = {
   dashboardId: string;
 };
 
+export type RemoveDashboardItemMutationVariables = {
+  _id: string;
+};
+
 export type AddDashboardItemMutationResponse = {
   addDashboardItemMutation: (params: {
     variables: AddDashboardItemMutationVariables;
@@ -54,10 +58,6 @@ export type EditDashboardItemMutationResponse = {
   editDashboardItemMutation: (params: {
     variables: EditDashboardItemMutationVariables;
   }) => Promise<void>;
-};
-
-export type RemoveDashboardItemMutationVariables = {
-  _id: string;
 };
 
 export type RemoveDashboardItemMutationResponse = {

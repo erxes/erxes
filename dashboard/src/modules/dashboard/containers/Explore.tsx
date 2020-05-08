@@ -1,8 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-
-// import { IRouterProps } from 'modules/common/types';
-import { Alert } from 'antd';
+import Alert from 'modules/common/utils/Alert';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Chart from '../components/Chart';
@@ -60,13 +58,13 @@ class DashboardContainer extends React.Component<FinalProps, State> {
         variables: { ...params },
       })
         .then(() => {
+          Alert.success('Success');
           history.goBack();
-          return <Alert message='Success' type='success' />;
         })
 
         .catch(error => {
           this.setState({ isLoading: false });
-          return <Alert message={error.message} type='error' />;
+          return Alert.error(error.message);
         });
     };
 

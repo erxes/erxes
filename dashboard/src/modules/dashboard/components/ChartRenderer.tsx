@@ -26,7 +26,6 @@ import numeral from 'numeral';
 import './recharts-theme.less';
 
 const numberFormatter = item => numeral(item).format('0,0');
-// const dateFormatter = item => dayjs(item).format('MMM');
 
 const colors = [
   '#7DB3FF',
@@ -54,10 +53,10 @@ const dateFormatter = (item, dateType) => {
 };
 
 const xAxisFormatter = (item, dateType) => {
-  if (dayjs(item).isValid()) {
+  if (dateType) {
     return dateFormatter(item, dateType);
   } else {
-    return numberFormatter(item);
+    return item.toString();
   }
 };
 
@@ -155,14 +154,14 @@ const TypeToChartComponent = {
   pie: ({ resultSet, height }) => {
     if (resultSet.seriesNames()[0]) {
       return (
-        <ResponsiveContainer width='100%' height={height}>
+        <ResponsiveContainer width="100%" height={height}>
           <PieChart>
             <Pie
               isAnimationActive={false}
               data={resultSet.chartPivot()}
-              nameKey='x'
+              nameKey="x"
               dataKey={resultSet.seriesNames()[0].key}
-              fill='#8884d8'
+              fill="#8884d8"
             >
               {resultSet.chartPivot().map((e, index) => (
                 <Cell key={index} fill={colors[index % colors.length]} />
@@ -234,7 +233,7 @@ const ChartRenderer = ({
   const { query, chartType } = vizState;
   const component = TypeToMemoChartComponent[chartType];
   const renderProps = useCubeQuery(query);
-  let dateType = 'month';
+  let dateType = '';
 
   if (renderProps.resultSet) {
     const { timeDimensions } = query;

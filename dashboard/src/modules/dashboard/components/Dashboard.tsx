@@ -44,7 +44,7 @@ type Props = {
   dashboardItems: IDashboardItem[];
   dashboardId: string;
   editDashboardItem: (doc: { _id: string; layout: string }) => void;
-  removeDashboardItem: (id: string) => void;
+  removeDashboardItem: (itemId: string) => void;
 };
 
 type State = {
@@ -98,19 +98,26 @@ class Dashboard extends React.Component<Props, State> {
       );
     }
 
-    const dashboardItem = item => (
-      <div key={item._id} data-grid={defaultLayout(item)}>
-        <DashboardItem
-          key={item._id}
-          itemId={item._id}
-          dashboardId={dashboardId}
-          title={item.name}
-          removeDashboardItem={removeDashboardItem}
-        >
-          <ChartRenderer vizState={item.vizState} />
-        </DashboardItem>
-      </div>
-    );
+    const dashboardItem = item => {
+      if (item.layout) {
+        const height = item.layout.h * 40;
+
+        return (
+          <div key={item._id} data-grid={defaultLayout(item)}>
+            <DashboardItem
+              key={item._id}
+              itemId={item._id}
+              dashboardId={dashboardId}
+              title={item.name}
+              removeDashboardItem={removeDashboardItem}
+            >
+              <ChartRenderer vizState={item.vizState} chartHeight={height} />
+            </DashboardItem>
+          </div>
+        );
+      }
+      return <></>;
+    };
 
     return (
       <DragField

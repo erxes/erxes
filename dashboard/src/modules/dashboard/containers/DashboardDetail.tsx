@@ -1,6 +1,6 @@
-import { Alert } from 'antd';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import Alert from 'modules/common/utils/Alert';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Dashboard from '../components/Dashboard';
@@ -43,8 +43,8 @@ class DashboardContainer extends React.Component<FinalProps, {}> {
           _id: params._id,
           layout: params.layout,
         },
-      }).catch(error => {
-        return <Alert message={error.message} type='error' />;
+      }).catch(() => {
+        return;
       });
     };
 
@@ -56,11 +56,9 @@ class DashboardContainer extends React.Component<FinalProps, {}> {
       })
         .then(() => {
           dashboardItemsQuery.refetch();
-          return <Alert message='Success' type='success' />;
         })
-
         .catch(error => {
-          return <Alert message={error.message} type='error' />;
+          Alert.error(error.message);
         });
     };
 
@@ -103,8 +101,18 @@ export default compose(
     EditDashboardItemMutationVariables
   >(gql(mutations.dashboardItemEdit), {
     name: 'editDashboardItemMutation',
-    options: () => ({
+    options: {
       refetchQueries: ['dashboardItemsQuery'],
-    }),
+    },
+  }),
+  graphql<
+    Props,
+    RemoveDashboardItemMutationResponse,
+    RemoveDashboardItemMutationVariables
+  >(gql(mutations.dashboardItemRemove), {
+    name: 'removeDashboardItemMutation',
+    options: {
+      refetchQueries: ['dashboardItemsQuery'],
+    },
   })
 )(DashboardContainer);
