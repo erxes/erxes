@@ -1,12 +1,8 @@
 import React from 'react';
 import RGL, { WidthProvider } from 'react-grid-layout';
 
-import { Icon } from '@ant-design/compatible';
-import { Button } from 'antd';
-
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
-import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { IDashboardItem } from '../types';
@@ -32,7 +28,7 @@ const DragField = styledTS<any>(styled(ReactGridLayout))`
 const deserializeItem = i => ({
   ...i,
   layout: JSON.parse(i.layout) || {},
-  vizState: JSON.parse(i.vizState)
+  vizState: JSON.parse(i.vizState),
 });
 
 const defaultLayout = i => ({
@@ -41,13 +37,14 @@ const defaultLayout = i => ({
   w: i.layout.w || 4,
   h: i.layout.h || 8,
   minW: 4,
-  minH: 8
+  minH: 8,
 });
 
 type Props = {
   dashboardItems: IDashboardItem[];
   dashboardId: string;
   editDashboardItem: (doc: { _id: string; layout: string }) => void;
+  removeDashboardItem: (id: string) => void;
 };
 
 type State = {
@@ -73,35 +70,30 @@ class Dashboard extends React.Component<Props, State> {
         x: l.x,
         y: l.y,
         w: l.w,
-        h: l.h
+        h: l.h,
       });
 
       if (item && toUpdate !== item.layout) {
         editDashboardItem({
           _id: item._id,
-          layout: toUpdate
+          layout: toUpdate,
         });
       }
     });
   };
 
   render() {
-    const { dashboardItems, dashboardId } = this.props;
+    const { dashboardItems, dashboardId, removeDashboardItem } = this.props;
 
     if (dashboardItems.length === 0) {
       return (
         <div
           style={{
             textAlign: 'center',
-            padding: 12
+            padding: 12,
           }}
         >
           <h2>There are no charts on this dashboard</h2>
-          <Link to={`/dashboard/explore?dashboardId=${dashboardId}`}>
-            <Button type="primary" size="large" icon={<Icon type="plus" />}>
-              Add chart
-            </Button>
-          </Link>
         </div>
       );
     }
@@ -113,6 +105,7 @@ class Dashboard extends React.Component<Props, State> {
           itemId={item._id}
           dashboardId={dashboardId}
           title={item.name}
+          removeDashboardItem={removeDashboardItem}
         >
           <ChartRenderer vizState={item.vizState} />
         </DashboardItem>

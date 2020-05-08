@@ -1,8 +1,11 @@
+import { getEnv } from 'apolloClient';
 import Button from 'modules/common/components/Button';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { Link } from 'react-router-dom';
+
+const { REACT_APP_DASHBOARD_URL } = getEnv();
 
 type Props = {
   id: string;
@@ -36,7 +39,7 @@ class DashboardDetail extends React.Component<Props, {}> {
             title="dashboard"
             width="100%"
             height="100%"
-            src={`http://localhost:3500/details/${id}`}
+            src={`${REACT_APP_DASHBOARD_URL}/details/${id}`}
             frameBorder="0"
             allowFullScreen={true}
           />

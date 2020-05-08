@@ -1,6 +1,6 @@
 // import { useMutation } from '@apollo/react-hooks';
 import { Icon } from '@ant-design/compatible';
-import { Card, Dropdown, Menu } from 'antd';
+import { Card, Dropdown, Menu, Modal } from 'antd';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
@@ -19,14 +19,11 @@ const StyledCard = styled(Card)`
   }
 `;
 
-const DashboardItemDropdown = ({ itemId, dashboardId }) => {
-  // const [removeDashboardItem] = useMutation(DELETE_DASHBOARD_ITEM, {
-  //   refetchQueries: [
-  //     {
-  //       query: GET_DASHBOARD_ITEMS,
-  //     },
-  //   ],
-  // });
+const DashboardItemDropdown = ({
+  itemId,
+  dashboardId,
+  removeDashboardItem,
+}) => {
   const dashboardItemDropdownMenu = (
     <Menu>
       <Menu.Item>
@@ -34,48 +31,55 @@ const DashboardItemDropdown = ({ itemId, dashboardId }) => {
           Edit
         </Link>
       </Menu.Item>
-      {/* <Menu.Item
+      <Menu.Item
         onClick={() =>
           Modal.confirm({
             title: 'Are you sure you want to delete this item?',
             okText: 'Yes',
-            okType: 'danger',
             cancelText: 'No',
 
             onOk() {
-              removeDashboardItem({
-                variables: {
-                  id: itemId,
-                },
-              });
+              removeDashboardItem(itemId);
             },
           })
         }
       >
         Delete
-      </Menu.Item> */}
+      </Menu.Item>
     </Menu>
   );
   return (
     <Dropdown
       overlay={dashboardItemDropdownMenu}
-      placement="bottomLeft"
+      placement='bottomLeft'
       trigger={['click']}
     >
-      <Icon type="menu" />
+      <Icon type='menu' />
     </Dropdown>
   );
 };
 
-const DashboardItem = ({ itemId, dashboardId, children, title }) => (
+const DashboardItem = ({
+  itemId,
+  dashboardId,
+  children,
+  title,
+  removeDashboardItem,
+}) => (
   <StyledCard
     title={title}
     bordered={false}
     style={{
       height: '100%',
-      width: '100%'
+      width: '100%',
     }}
-    extra={<DashboardItemDropdown itemId={itemId} dashboardId={dashboardId} />}
+    extra={
+      <DashboardItemDropdown
+        itemId={itemId}
+        dashboardId={dashboardId}
+        removeDashboardItem={removeDashboardItem}
+      />
+    }
   >
     {children}
   </StyledCard>

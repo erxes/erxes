@@ -5,12 +5,12 @@ import React from 'react';
 const RemoveButtonGroup = ({ onRemoveClick, children, ...props }) => (
   <Button.Group
     style={{
-      marginRight: 8
+      marginRight: 8,
     }}
     {...props}
   >
     {children}
-    <Button type='danger' ghost={true} onClick={onRemoveClick}>
+    <Button type='dashed' onClick={onRemoveClick}>
       <Icon type='close' />
     </Button>
   </Button.Group>

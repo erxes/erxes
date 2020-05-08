@@ -31,10 +31,12 @@ class Chart extends React.Component<Props, State> {
     const dashboardItem = props.dashboardItem || {};
 
     this.state = {
-      vizState: JSON.parse(dashboardItem.vizState),
+      vizState: dashboardItem.vizState
+        ? JSON.parse(dashboardItem.vizState)
+        : '',
       type: dashboardItem.type,
       name: dashboardItem.name,
-      visible: false
+      visible: false,
     };
   }
 
@@ -62,7 +64,7 @@ class Chart extends React.Component<Props, State> {
       name,
       vizState,
       dashboardId,
-      type
+      type,
     };
 
     this.props.save(doc);
@@ -70,7 +72,7 @@ class Chart extends React.Component<Props, State> {
 
   setTitleModalVisible = value => {
     this.setState({
-      visible: value
+      visible: value,
     });
   };
 
@@ -90,7 +92,7 @@ class Chart extends React.Component<Props, State> {
           title={<Typography.Title level={4}>Explore chart</Typography.Title>}
           button={
             <Button
-              type="primary"
+              type='primary'
               onClick={() => this.onChange('visible', true)}
             >
               Add to dashboard
@@ -99,8 +101,8 @@ class Chart extends React.Component<Props, State> {
         />
 
         <Modal
-          key="modal"
-          title="Save Chart"
+          key='modal'
+          title='Save Chart'
           visible={visible}
           onOk={async () => {
             this.onChange('visible', false);
@@ -109,7 +111,7 @@ class Chart extends React.Component<Props, State> {
           onCancel={() => this.setTitleModalVisible(false)}
         >
           <Input
-            placeholder="Dashboard Item Name"
+            placeholder='Dashboard Item Name'
             value={name}
             onChange={e => onChange(e)}
           />

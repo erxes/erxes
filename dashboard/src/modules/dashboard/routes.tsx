@@ -20,16 +20,16 @@ const routes = () => {
   return (
     <React.Fragment>
       <Route
-        key="/detail"
+        key='/detail'
         exact={true}
-        path="/details/:id"
+        path='/details/:id'
         component={dashboardDetail}
       />
 
       <Route
-        key="/explore"
+        key='/explore'
         exact={true}
-        path="/explore"
+        path='/explore'
         component={explorePage}
       />
     </React.Fragment>
