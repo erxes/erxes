@@ -366,14 +366,20 @@ export const createTransporter = async ({ ses }) => {
   const MAIL_PASS = await getConfig('MAIL_PASS');
   const MAIL_HOST = await getConfig('MAIL_HOST');
 
+  let auth;
+
+  if (MAIL_USER && MAIL_PASS) {
+    auth = {
+      user: MAIL_USER,
+      pass: MAIL_PASS,
+    };
+  }
+
   return nodemailer.createTransport({
     service: MAIL_SERVICE,
     host: MAIL_HOST,
     port: MAIL_PORT,
-    auth: {
-      user: MAIL_USER,
-      pass: MAIL_PASS,
-    },
+    auth,
   });
 };
 
