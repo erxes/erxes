@@ -14,11 +14,13 @@ import { FlexContent, FlexItem } from 'modules/layout/styles';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import { MAIL_TOOLBARS_CONFIG } from 'modules/settings/integrations/constants';
 import React from 'react';
+import Select from 'react-select-plus';
 import { IAttachment } from '../../common/types';
 import { IBrand } from '../../settings/brands/types';
 import MessengerPreview from '../containers/MessengerPreview';
 import { Half, Recipient, Recipients } from '../styles';
 import { IEngageEmail, IEngageMessageDoc, IEngageMessenger } from '../types';
+import { generateEmailTemplateParams } from '../utils';
 
 type Props = {
   customers: ICustomer[];
@@ -37,6 +39,7 @@ type State = {
   channel: string;
   attachments: IAttachment[];
   sentAs: string;
+  templateId: string;
 };
 
 class WidgetForm extends React.Component<Props, State> {
@@ -47,7 +50,8 @@ class WidgetForm extends React.Component<Props, State> {
       content: '',
       channel: props.channelType || 'email',
       attachments: [],
-      sentAs: 'snippet'
+      sentAs: 'snippet',
+      templateId: ''
     };
   }
 
@@ -95,7 +99,7 @@ class WidgetForm extends React.Component<Props, State> {
   };
 
   templateChange = e => {
-    this.setState({ content: this.findTemplate(e.target.value) });
+    this.setState({ content: this.findTemplate(e.value), templateId: e.value });
   };
 
   onEditorChange = e => {
@@ -254,18 +258,13 @@ class WidgetForm extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Email templates:</ControlLabel>
             <p>{__('Insert email template to content')}</p>
-            <FormControl
-              id="emailTemplateId"
-              componentClass="select"
+
+            <Select
+              value={this.state.templateId}
               onChange={this.templateChange}
-            >
-              <option />
-              {this.props.emailTemplates.map(t => (
-                <option key={t._id} value={t._id}>
-                  {t.name}
-                </option>
-              ))}
-            </FormControl>
+              options={generateEmailTemplateParams(this.props.emailTemplates)}
+              clearable={false}
+            />
           </FormGroup>
         </Half>
 

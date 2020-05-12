@@ -83,6 +83,7 @@ const sidebarConversations = `
       tags {
         _id
         name
+        colorCode
       }
       readUserIds
     }
@@ -264,7 +265,7 @@ const generateCustomerDetailQuery = params => {
   if (showTrackedData) {
     fields = `
       ${fields}
-      getTrackedData
+      trackedData
     `;
   }
 

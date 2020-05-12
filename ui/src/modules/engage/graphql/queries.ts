@@ -149,16 +149,6 @@ const userDetail = `
   }
 `;
 
-const emailTemplates = `
-  query emailTemplates {
-    emailTemplates {
-      _id
-      name
-      content
-    }
-  }
-`;
-
 const engageMessagesTotalCount = `
   query engageMessagesTotalCount(${listParamsDef}) {
     engageMessagesTotalCount(${listParamsValue})
@@ -291,7 +281,6 @@ export default {
   userDetail,
   segments,
   brands,
-  emailTemplates,
   customerCounts,
   segmentDetail,
   headSegments,

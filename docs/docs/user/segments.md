@@ -178,7 +178,7 @@ Copy the code below and paste it onto your website page body section.
    <script>
     (function() {
     var script = document.createElement('script');
-    script.src = "https://w.office.erxes.io/build/eventsWidget.bundle.js";
+    script.src = "http://localhost:3200/build/eventsWidget.bundle.js";
     script.async = true;
     var entry = document.getElementsByTagName('script')[0];
     entry.parentNode.insertBefore(script, entry);

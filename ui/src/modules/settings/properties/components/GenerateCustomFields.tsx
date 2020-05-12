@@ -145,12 +145,23 @@ class GenerateGroups extends React.Component<GroupsProps> {
   saveGroup = (groupData, callback) => {
     const { customFieldsData, save } = this.props;
 
+    const prevData = {};
+    (customFieldsData || []).forEach(cd => (prevData[cd.field] = cd.value));
+
     const updatedData = {
-      ...(customFieldsData || {}),
+      ...prevData,
       ...(groupData || {})
     };
 
-    save({ customFieldsData: updatedData }, callback);
+    save(
+      {
+        customFieldsData: Object.keys(updatedData).map(key => ({
+          field: key,
+          value: updatedData[key]
+        }))
+      },
+      callback
+    );
   };
 
   render() {
@@ -168,8 +179,8 @@ class GenerateGroups extends React.Component<GroupsProps> {
     return fieldsGroups.map(fieldGroup => {
       const data = {};
 
-      for (const field of fieldGroup.fields) {
-        data[field._id] = customFieldsData[field._id];
+      for (const customFieldData of customFieldsData || []) {
+        data[customFieldData.field] = customFieldData.value;
       }
 
       return (
