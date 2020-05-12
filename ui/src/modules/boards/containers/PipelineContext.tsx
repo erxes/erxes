@@ -209,20 +209,36 @@ export class PipelineProvider extends React.Component<Props, State> {
     );
   };
 
-  refetchQueryBuild = (stageId: string) => {
+  refetchQueryVariables = () => {
     const { options, queryParams } = this.props;
 
+    return {
+      search: queryParams.search,
+      customerIds: queryParams.customerIds,
+      companyIds: queryParams.companyIds,
+      assignedUserIds: queryParams.assignedUserIds,
+      extraParams: options.getExtraParams(queryParams),
+      closeDateType: queryParams.closeDateType,
+      userIds: queryParams.userIds
+    };
+  };
+
+  refetchQueryBuild = (stageId: string) => {
     return {
       query: gql(queries.stageDetail),
       variables: {
         _id: stageId,
-        search: queryParams.search,
-        customerIds: queryParams.customerIds,
-        companyIds: queryParams.companyIds,
-        assignedUserIds: queryParams.assignedUserIds,
-        extraParams: options.getExtraParams(queryParams),
-        closeDateType: queryParams.closeDateType,
-        userIds: queryParams.userIds
+        ...this.refetchQueryVariables()
+      }
+    };
+  };
+
+  refetchStagesQueryBuild = (pipelineId: string) => {
+    return {
+      query: gql(queries.stages),
+      variables: {
+        pipelineId,
+        ...this.refetchQueryVariables()
       }
     };
   };
@@ -256,6 +272,8 @@ export class PipelineProvider extends React.Component<Props, State> {
   };
 
   saveStageOrders = (stageIds: string[]) => {
+    const { pipeline } = this.props;
+
     client
       .mutate({
         mutation: gql(mutations.stagesUpdateOrder),
@@ -264,7 +282,8 @@ export class PipelineProvider extends React.Component<Props, State> {
             _id: stageId,
             order: index
           }))
-        }
+        },
+        refetchQueries: [this.refetchStagesQueryBuild(pipeline._id)]
       })
       .catch((e: Error) => {
         Alert.error(e.message);

@@ -123,6 +123,7 @@ export interface IStage {
   formId: string;
   pipelineId: string;
   status: string;
+  order: number;
 }
 
 export interface IPipelineLabel {
