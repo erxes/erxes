@@ -377,6 +377,7 @@ pip3 install mongo-connector==3.1.1 \
     && pip3 install elastic2-doc-manager==1.0.0 \
     && pip3 install python-dotenv==0.11.0
 
+mkdir -p /var/log/mongo-connector/
 
 # elkSyncer env
 cat <<EOF >$erxes_syncer_dir/.env
