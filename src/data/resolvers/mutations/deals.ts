@@ -164,6 +164,7 @@ const dealMutations = {
         dealsChanged: {
           _id: updatedDeal._id,
           name: updatedDeal.name,
+          stageId: updatedDeal.stageId,
         },
       });
 

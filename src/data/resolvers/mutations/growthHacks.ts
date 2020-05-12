@@ -133,6 +133,7 @@ const growthHackMutations = {
         growthHacksChanged: {
           _id: updatedGrowthHack._id,
           name: updatedGrowthHack.name,
+          stageId: updatedGrowthHack.stageId,
         },
       });
 

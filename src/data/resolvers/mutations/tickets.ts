@@ -138,6 +138,7 @@ const ticketMutations = {
         ticketsChanged: {
           _id: updatedTicket._id,
           name: updatedTicket.name,
+          stageId: updatedTicket.stageId,
         },
       });
 

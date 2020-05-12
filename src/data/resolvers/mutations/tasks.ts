@@ -137,6 +137,7 @@ const taskMutations = {
         tasksChanged: {
           _id: updatedTask._id,
           name: updatedTask.name,
+          stageId: updatedTask.stageId,
         },
       });
 
