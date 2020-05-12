@@ -1,18 +1,22 @@
 import Icon from 'modules/common/components/Icon';
+import { darken, lighten } from 'modules/common/styles/color';
+import colors from 'modules/common/styles/colors';
+import dimensions from 'modules/common/styles/dimensions';
 import * as React from 'react';
-import styled, { css } from 'styled-components';
-import { Count, GroupHead } from './assistant/styles';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
-const IconContainer = styled(Count)`
-  padding: 10px 20px;
-`;
-
-const Modul = styled(GroupHead)`
+const Modul = styledTS<{ disabled?: boolean }>(styled.div)`
+  display: inline-flex;
+  background: ${colors.colorWhite};
+  border-radius: ${dimensions.unitSpacing}px;
+  box-shadow: 0 0 15px 2px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  align-items: stretch;
+  font-weight: bold;
   width: 100%;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
   margin-right: 20px;
-  max-width: ${props => props.vertical && '30%'};
-  min-width: ${props => props.vertical && '130px'};
 
   &:last-child {
     margin-right: 0;
@@ -23,29 +27,34 @@ const Modul = styled(GroupHead)`
     margin-right: 0;
   }
 
-  ${props =>
-    props.vertical &&
-    css`
-      ${IconContainer} {
-        padding: 5px 20px;
-      }
-    `};
+  &:hover {
+    cursor: ${props => (props.disabled ? 'not-allowed' : 'pointer')};
+    box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.15);
+  }
+`;
 
-  ${props =>
-    props.isComplete &&
-    css`
-      transform: scale(0.9);
-      opacity: 0.6;
-    `};
+const IconContainer = styledTS<{ color?: string }>(styled.div)`
+  padding: 10px 20px;
+  color: ${colors.colorWhite};
+  background: ${props =>
+    `linear-gradient(195deg, ${lighten(
+      props.color || colors.colorPrimaryDark,
+      40
+    )} 0%, ${darken(props.color || colors.colorPrimaryDark, 20)} 100%);;`}
+  display: flex;
+  align-items: center;
+  font-size: 16px;
 `;
 
 const Text = styled.div`
   padding: 10px 15px;
   font-weight: normal;
   flex: 1;
+  display: flex;
+  align-items: center;
 
   h4 {
-    font-size: 13px;
+    font-size: 14px;
     margin: 0;
     text-transform: capitalize;
   }
@@ -60,47 +69,28 @@ type Props = {
   icon?: string;
   color?: string;
   title: string;
-  vertical?: boolean;
   description?: string;
   onClick?: () => void;
-  isComplete?: boolean;
   disabled?: boolean;
 };
 
-type State = {
-  show: boolean;
-};
-
-class ModulItem extends React.Component<Props, State> {
-  render() {
-    const {
-      icon = 'chat',
-      title,
-      description,
-      color,
-      onClick,
-      vertical,
-      isComplete,
-      disabled
-    } = this.props;
-
-    return (
-      <Modul
-        onClick={onClick}
-        vertical={vertical}
-        isComplete={isComplete}
-        disabled={disabled}
-      >
-        <IconContainer color={color}>
-          <Icon icon={icon} />
-        </IconContainer>
-        <Text>
-          <h4>{title}</h4>
-          {!vertical && <p>{description}</p>}
-        </Text>
-      </Modul>
-    );
-  }
+export default function ModulItem({
+  icon = 'chat',
+  title,
+  description,
+  color,
+  onClick,
+  disabled
+}: Props) {
+  return (
+    <Modul onClick={onClick} disabled={disabled}>
+      <IconContainer color={color}>
+        <Icon icon={icon} />
+      </IconContainer>
+      <Text>
+        <h4>{title}</h4>
+        {description && <p>{description}</p>}
+      </Text>
+    </Modul>
+  );
 }
-
-export default ModulItem;

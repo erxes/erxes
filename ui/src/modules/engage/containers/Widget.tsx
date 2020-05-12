@@ -5,12 +5,18 @@ import { IUser } from 'modules/auth/types';
 import { Alert, withProps } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
 import { AddMutationResponse, IEngageMessageDoc } from 'modules/engage/types';
+import { queries as templatesQuery } from 'modules/settings/emailTemplates/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { BrandsQueryResponse } from '../../settings/brands/types';
 import { EmailTemplatesQueryResponse } from '../../settings/emailTemplates/containers/List';
 import Widget from '../components/Widget';
-import { MESSAGE_KINDS, MESSENGER_KINDS, SENT_AS_CHOICES } from '../constants';
+import {
+  MESSAGE_KINDS,
+  MESSENGER_KINDS,
+  METHODS,
+  SENT_AS_CHOICES
+} from '../constants';
 import { mutations, queries } from '../graphql';
 import { crudMutationsOptions } from '../utils';
 
@@ -19,6 +25,7 @@ type Props = {
   emptyBulk?: () => void;
   modalTrigger?: React.ReactNode;
   channelType?: string;
+  totalCountQuery?: any;
 };
 
 type FinalProps = {
@@ -50,6 +57,14 @@ const WidgetContainer = (props: FinalProps) => {
     doc.isLive = true;
     doc.fromUserId = currentUser._id;
 
+    if (doc.method === METHODS.EMAIL && !doc.email.content) {
+      return Alert.warning('Please fill in email content');
+    }
+
+    if (doc.method === METHODS.MESSENGER && !doc.messenger.content) {
+      return Alert.warning('Please fill in message content');
+    }
+
     messagesAddMutation({
       variables: doc
     })
@@ -79,11 +94,19 @@ const WidgetContainer = (props: FinalProps) => {
   return <Widget {...updatedProps} />;
 };
 
-export default withProps<Props>(
+const withQueries = withProps<Props>(
   compose(
-    graphql<Props, EmailTemplatesQueryResponse>(gql(queries.emailTemplates), {
-      name: 'emailTemplatesQuery'
-    }),
+    graphql<Props, EmailTemplatesQueryResponse>(
+      gql(templatesQuery.emailTemplates),
+      {
+        name: 'emailTemplatesQuery',
+        options: ({ totalCountQuery }) => ({
+          variables: {
+            perPage: totalCountQuery.emailTemplatesTotalCount
+          }
+        })
+      }
+    ),
     graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
       name: 'brandsQuery'
     }),
@@ -95,4 +118,12 @@ export default withProps<Props>(
       }
     )
   )(withCurrentUser(WidgetContainer))
+);
+
+export default withProps<Props>(
+  compose(
+    graphql(gql(templatesQuery.totalCount), {
+      name: 'totalCountQuery'
+    })
+  )(withQueries)
 );

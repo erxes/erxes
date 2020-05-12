@@ -7,23 +7,48 @@ import Select from 'react-select-plus';
 import { IConditionFilter, IField } from '../../types';
 import { ConditionItem, FilterProperty, FilterRow } from '../styles';
 
-const operators = [
-  { name: 'equals', value: 'e' },
-  { name: 'is not equal to', value: 'dne' },
-  { name: 'contains', value: 'c' },
-  { name: 'does not contain', value: 'dnc' },
-  { name: 'is set', value: 'is', noInput: true },
-  { name: 'is not set', value: 'ins', noInput: true },
-  { name: 'is greater than', value: 'igt' },
-  { name: 'is less than', value: 'ilt' },
-  { name: 'will occur before on following n-th minute', value: 'wobm' },
-  { name: 'will occur after on following n-th minute', value: 'woam' },
-  { name: 'will occur before on following n-th day', value: 'wobd' },
-  { name: 'will occur after on following n-th day', value: 'woad' },
-  { name: 'date relative less than', value: 'drlt' },
-  { name: 'date relative greater than', value: 'drgt' },
-  { name: 'is true', value: 'it', noInput: true },
-  { name: 'is false', value: 'if', noInput: true }
+const operators = {
+  string: [
+    { name: 'equals', value: 'e' },
+    { name: 'is not equal to', value: 'dne' },
+    { name: 'contains', value: 'c' },
+    { name: 'does not contain', value: 'dnc' },
+    { name: 'is set', value: 'is', noInput: true },
+    { name: 'is not set', value: 'ins', noInput: true }
+  ],
+  boolean: [
+    { name: 'is true', value: 'it', noInput: true },
+    { name: 'is false', value: 'if', noInput: true },
+    { name: 'is set', value: 'is', noInput: true },
+    { name: 'is not set', value: 'ins', noInput: true }
+  ],
+  number: [
+    { name: 'number: equals', value: 'numbere' },
+    { name: 'number: is not equal to', value: 'numberdne' },
+    { name: 'number: is greater than', value: 'numberigt' },
+    { name: 'number: is less than', value: 'numberilt' },
+    { name: 'is set', value: 'is', noInput: true },
+    { name: 'is not set', value: 'ins', noInput: true }
+  ],
+  date: [
+    { name: 'date: is greater than', value: 'dateigt' },
+    { name: 'date: is less than', value: 'dateilt' },
+    { name: 'will occur before on following n-th minute', value: 'wobm' },
+    { name: 'will occur after on following n-th minute', value: 'woam' },
+    { name: 'will occur before on following n-th day', value: 'wobd' },
+    { name: 'will occur after on following n-th day', value: 'woad' },
+    { name: 'date relative less than', value: 'drlt' },
+    { name: 'date relative greater than', value: 'drgt' },
+    { name: 'is set', value: 'is', noInput: true },
+    { name: 'is not set', value: 'ins', noInput: true }
+  ]
+};
+
+const defaultOperators = [
+  ...operators.string,
+  ...operators.boolean,
+  ...operators.number,
+  ...operators.date
 ];
 
 type Props = {
@@ -88,7 +113,15 @@ class Filter extends React.Component<Props, State> {
     );
   };
 
-  onChangeField = ({ value }: { value: string }) => {
+  onChangeSelect = (option: { value: string }) => {
+    const value = !option ? '' : option.value.toString();
+
+    this.setState({ currentValue: value }, this.onChange);
+  };
+
+  onChangeField = (option: { value: string }) => {
+    const value = !option ? '' : option.value;
+
     this.setState({ currentName: value }, this.onChange);
   };
 
@@ -112,6 +145,15 @@ class Filter extends React.Component<Props, State> {
     }, {});
   };
 
+  getSelectedField(currentName: string) {
+    const { fields } = this.props;
+
+    const field =
+      fields.find(item => item.value === currentName) || ({} as IField);
+
+    return field;
+  }
+
   generateValues = () => {
     const objects = this.groupByType();
     const array = [] as any;
@@ -130,6 +172,7 @@ class Filter extends React.Component<Props, State> {
 
     return (
       <Select
+        key="propertyName"
         isRequired={true}
         options={groupData ? this.generateValues() : fields}
         clearable={false}
@@ -141,18 +184,24 @@ class Filter extends React.Component<Props, State> {
   }
 
   renderOperators() {
-    const { currentOperator } = this.state;
+    const { currentName, currentOperator } = this.state;
+
+    const field = this.getSelectedField(currentName);
+
+    const type = field.type || '';
+    const fieldOperator = operators[type] || defaultOperators;
 
     return (
       <FormControl
+        key={currentName}
         componentClass="select"
         onChange={this.onChangeOperators}
         value={currentOperator}
       >
         <option value="">{__('Select operator')}...</option>
-        {operators.map(c => (
-          <option value={c.value} key={c.value}>
-            {c.name}
+        {fieldOperator.map((operator, index) => (
+          <option value={operator.value} key={`${index}-${operator.value}`}>
+            {operator.name}
           </option>
         ))}
       </FormControl>
@@ -185,11 +234,35 @@ class Filter extends React.Component<Props, State> {
     );
   };
 
-  renderValueInput = () => {
-    const { currentValue, currentOperator } = this.state;
+  renderSelect(
+    value: string | number,
+    options: Array<{ label: string; value: string | number }>
+  ) {
+    return (
+      <Select
+        placeholder={__('Select value')}
+        value={value}
+        options={options}
+        isRequired={true}
+        clearable={false}
+        onChange={this.onChangeSelect}
+      />
+    );
+  }
+
+  renderPropertyComponent = () => {
+    const { currentName, currentValue, currentOperator } = this.state;
 
     if (['is', 'ins', 'it', 'if'].indexOf(currentOperator) >= 0) {
       return null;
+    }
+
+    const field = this.getSelectedField(currentName);
+
+    const { selectOptions = [] } = field;
+
+    if (selectOptions.length > 0) {
+      return this.renderSelect(currentValue, selectOptions);
     }
 
     return <FormControl value={currentValue} onChange={this.onChangeValue} />;
@@ -201,7 +274,7 @@ class Filter extends React.Component<Props, State> {
         <FilterRow>
           <FilterProperty>{this.renderNames()}</FilterProperty>
           <FilterProperty>{this.renderOperators()}</FilterProperty>
-          {this.renderValueInput()}
+          <FilterProperty>{this.renderPropertyComponent()}</FilterProperty>
         </FilterRow>
         <FlexRightItem>{this.renderRemoveButton()}</FlexRightItem>
       </ConditionItem>

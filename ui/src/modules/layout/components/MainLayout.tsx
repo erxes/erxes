@@ -2,6 +2,7 @@ import { IUser } from 'modules/auth/types';
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import { IRouterProps } from 'modules/common/types';
 import { NotifProvider } from 'modules/notifications/context';
+import Robot from 'modules/robot/containers/Robot';
 import ImportIndicator from 'modules/settings/importHistory/containers/ImportIndicator';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
@@ -67,6 +68,7 @@ class MainLayout extends React.Component<IProps> {
           </MainWrapper>
           <DetectBrowser />
         </Layout>
+        <Robot />
       </>
     );
   }

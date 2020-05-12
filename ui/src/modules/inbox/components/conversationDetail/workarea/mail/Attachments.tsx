@@ -66,7 +66,7 @@ class Attachments extends React.PureComponent<Props, {}> {
 
         <FileInfo>
           <span>{this.formatSize(size)}</span>
-          <Tip text={__('Download')}>
+          <Tip text={__('Download')} placement="top">
             <Download
               href={this.createLink(id || attachmentId, filename, type)}
               target="_blank"

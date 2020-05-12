@@ -89,7 +89,6 @@ class CompanyForm extends React.Component<Props, State> {
       _id: finalValues._id,
       ...this.state,
       size: Number(finalValues.size),
-      businessType: finalValues.businessType,
       description: finalValues.description,
       code: finalValues.code,
       links: {
@@ -214,7 +213,6 @@ class CompanyForm extends React.Component<Props, State> {
                     value={primaryName}
                     options={names || []}
                     name="Name"
-                    adding={true}
                     required={true}
                     onChange={this.onChange.bind(this, 'names', 'primaryName')}
                   />

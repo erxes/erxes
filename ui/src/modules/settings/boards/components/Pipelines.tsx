@@ -22,7 +22,7 @@ type Props = {
   boardId: string;
   options?: IOption;
   refetch: ({ boardId }: { boardId?: string }) => Promise<any>;
-  currentBoard: IBoard;
+  currentBoard?: IBoard;
 } & IRouterProps;
 
 type State = {
@@ -176,7 +176,11 @@ class Pipelines extends React.Component<Props, State> {
   }
 
   render() {
-    const leftActionBar = <Title>{this.props.currentBoard.name}</Title>;
+    const { currentBoard } = this.props;
+
+    const leftActionBar = (
+      <Title>{currentBoard ? currentBoard.name : ''}</Title>
+    );
 
     return (
       <>

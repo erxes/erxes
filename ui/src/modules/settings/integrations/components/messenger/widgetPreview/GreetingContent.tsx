@@ -23,7 +23,7 @@ function GreetingContent() {
           </li>
           <li>
             <LeftSide>
-              <img key="1" src="/images/avatar-colored.svg" alt="avatar" />
+              <img src="/images/avatar-colored.svg" alt="avatar" />
             </LeftSide>
             <RightSide>
               <div>{dayjs(new Date()).format('LT')}</div>

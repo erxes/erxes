@@ -95,7 +95,6 @@ export const engageDetailFields = `
     type
     month
     day
-    time
   }
   brand {
     name
@@ -146,16 +145,6 @@ const userDetail = `
         position
       }
       email
-    }
-  }
-`;
-
-const emailTemplates = `
-  query emailTemplates {
-    emailTemplates {
-      _id
-      name
-      content
     }
   }
 `;
@@ -292,7 +281,6 @@ export default {
   userDetail,
   segments,
   brands,
-  emailTemplates,
   customerCounts,
   segmentDetail,
   headSegments,

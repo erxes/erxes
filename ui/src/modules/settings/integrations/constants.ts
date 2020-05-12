@@ -155,7 +155,8 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Facebook messenger',
-    description: 'Connect to Facebook messages right from your Team Inbox',
+    description:
+      'Connect and manage Facebook Messages right from your Team Inbox',
     inMessenger: false,
     isAvailable: true,
     kind: 'facebook-messenger',
@@ -302,8 +303,8 @@ export const INTEGRATIONS = [
       'All integrations, For support teams, Marketing automation, Phone and video, Conversation'
   },
   {
-    name: 'Twitter direct message',
-    description: 'Connect to your twitter DMs here in your Team Inbox',
+    name: 'Twitter',
+    description: 'Connect Twitter DMs to your Team Inbox',
     inMessenger: false,
     isAvailable: true,
     kind: 'twitter-dm',
@@ -345,9 +346,9 @@ export const INTEGRATIONS = [
     category: 'All integrations, For support teams, Messaging, Conversation'
   },
   {
-    name: 'Telegram by Sunshine Conversations',
+    name: 'Telegram',
     description:
-      'Cloud-based mobile and desktop messaging app with a focus on speed and security',
+      'Connect to your Telegram, a cloud-based mobile and desktop messaging app',
     inMessenger: false,
     isAvailable: true,
     kind: 'smooch-telegram',
@@ -356,8 +357,8 @@ export const INTEGRATIONS = [
     category: 'All integrations, For support teams, Messaging, Conversation'
   },
   {
-    name: 'Viber by Sunshine Conversations ',
-    description: `Soon you'll be able to connect Viber straight to your Team Inbox`,
+    name: 'Viber',
+    description: 'Connect Viber to your Team Inbox',
     inMessenger: false,
     isAvailable: true,
     kind: 'smooch-viber',
@@ -429,8 +430,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Amazon Lex',
-    description:
-      'Building conversational interfaces into any application using voice and text',
+    description: 'Build conversational interfaces using voice and text',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/amazon-lex.png',
@@ -440,7 +440,7 @@ export const INTEGRATIONS = [
   {
     name: 'Cisco Jabber',
     description:
-      'Connect your Cisco account and collaborate anywhere from your Team Inbox',
+      'Connect your Cisco account and collaborate from your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/cisco-jabber.png',
@@ -459,7 +459,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Dashbot',
-    description: 'Connect to bot analytics platform Dashbot account',
+    description: 'Connect to bot analytics platform - Dashbot',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/dashbot.png',
@@ -496,7 +496,8 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Microsoft Luis',
-    description: 'Get fast and effective way messages in your Team Inbox',
+    description:
+      'Connect this fast and effective way of messaging to your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/microsoft.png',
@@ -504,8 +505,9 @@ export const INTEGRATIONS = [
       'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Natural language processing, Conversation'
   },
   {
-    name: 'Microsoft Teams',
-    description: 'Meet team members and shared file through your Team Inbox',
+    name: 'Microsoft Team',
+    description:
+      'Communicate with your team members and share files through your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/ms-teams.png',
@@ -523,7 +525,8 @@ export const INTEGRATIONS = [
   },
   {
     name: 'SAP Conversational AI',
-    description: 'Connect SAP AI and send voice messages to your Team Inbox',
+    description:
+      'Connect SAP AI and send voice messages through your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/sap.png',
@@ -532,7 +535,8 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Slack',
-    description: 'Connect Slack to instant message in your Team Inbox',
+    description:
+      'Connect Slack to send instant messages through your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/slack.png',
@@ -551,7 +555,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'WIT.AI',
-    description: 'Connect WIT.AI then shared knowledge in your Team Inbox',
+    description: 'Connect WIT.AI and share knowledge in your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/wit.png',
@@ -561,7 +565,7 @@ export const INTEGRATIONS = [
   {
     name: 'Agatha Answers',
     description:
-      'Connect Agatha Answers then increases productivity in your Team Inbox',
+      'Connect Agatha Answers to increase productivity in your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/agatha-answers.png',
@@ -570,7 +574,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Asana',
-    description: 'Connect Asana then track and manage in your Team Inbox',
+    description: 'Connect Asana to track and manage tasks',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/asana.png',
@@ -616,7 +620,7 @@ export const INTEGRATIONS = [
   {
     name: 'Chatbot.mn',
     description:
-      'Connect Chatbot then can benefit by business in your Team Inbox',
+      'Connect Chatbot to your Team Inbox and increase customer engagement',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/chatbot.png',
@@ -625,8 +629,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Clearbit',
-    description:
-      'Get a hold of your Clearbit message deeply understand in your Team Inbox',
+    description: 'Connect Clearbit and supercharge your customer interactions',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/clearbit.png',
@@ -646,7 +649,7 @@ export const INTEGRATIONS = [
   {
     name: 'Doorbell.io',
     description:
-      'Connect DoorBell and understand many languages in your TeamInbox',
+      'Connect DoorBell and understand different languages in your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/doorbell.png',
@@ -655,7 +658,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Dropbox',
-    description: 'Connect Dropbox files right from your Team Inbox',
+    description: 'Connect Dropbox files to your Team Inbox',
     inMessenger: false,
     isAvailable: false,
     logo: '/images/integrations/dropbox.png',
