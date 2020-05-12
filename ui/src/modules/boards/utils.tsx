@@ -106,11 +106,21 @@ export const reorderItemMap = ({
 
   const target = current[source.index];
   target.modifiedAt = new Date();
+  let checkSelf = 0;
+
+  if (
+    source.droppableId === destination.droppableId &&
+    source.index < destination.index
+  ) {
+    checkSelf = 1;
+  }
 
   const prevOrder =
-    destination.index > 0 ? next[destination.index - 1].order : 0;
+    destination.index > 0 ? next[destination.index - 1 + checkSelf].order : 0;
   const afterOrder =
-    next.length > destination.index ? next[destination.index].order : 0;
+    next.length > destination.index + checkSelf
+      ? next[destination.index + checkSelf].order
+      : 0;
   target.order = orderHelper({ prevOrder, afterOrder }) || 1;
 
   // moving to same list

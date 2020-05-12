@@ -19,7 +19,6 @@ const options = {
     editMutation: 'ticketsEdit',
     removeMutation: 'ticketsRemove',
     changeMutation: 'ticketsChange',
-    updateOrderMutation: 'ticketsUpdateOrder',
     watchMutation: 'ticketsWatch',
     archiveMutation: 'ticketsArchive',
     copyMutation: 'ticketsCopy'
@@ -38,7 +37,6 @@ const options = {
     editMutation: mutations.ticketsEdit,
     removeMutation: mutations.ticketsRemove,
     changeMutation: mutations.ticketsChange,
-    updateOrderMutation: mutations.ticketsUpdateOrder,
     watchMutation: mutations.ticketsWatch,
     archiveMutation: mutations.ticketsArchive,
     copyMutation: mutations.ticketsCopy

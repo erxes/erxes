@@ -39,14 +39,6 @@ const tasksChange = `
   }
 `;
 
-const tasksUpdateOrder = `
-  mutation tasksUpdateOrder($stageId: String!, $orders: [OrderItem]) {
-    tasksUpdateOrder(stageId: $stageId, orders: $orders) {
-      _id
-    }
-  }
-`;
-
 const tasksWatch = `
   mutation tasksWatch($_id: String!, $isAdd: Boolean!) {
     tasksWatch(_id: $_id, isAdd: $isAdd) {
@@ -75,7 +67,6 @@ export default {
   tasksEdit,
   tasksRemove,
   tasksChange,
-  tasksUpdateOrder,
   tasksWatch,
   tasksArchive,
   tasksCopy
