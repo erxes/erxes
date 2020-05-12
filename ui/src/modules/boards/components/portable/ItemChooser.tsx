@@ -83,7 +83,7 @@ class ItemChooser extends React.Component<Props, State> {
     const filtered = stageId || pipelineId || boardId;
 
     return (
-      <>
+      <div>
         <OverlayTrigger
           ref={overlayTrigger => {
             this.ref = overlayTrigger;
@@ -102,7 +102,7 @@ class ItemChooser extends React.Component<Props, State> {
             </span>
           </Select>
         </OverlayTrigger>
-      </>
+      </div>
     );
   };
 
