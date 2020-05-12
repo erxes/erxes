@@ -1,5 +1,4 @@
 import { ActivityLogs, GrowthHacks, Stages } from '../../../db/models';
-import { IOrderInput } from '../../../db/models/definitions/boards';
 import { BOARD_STATUSES, BOARD_TYPES, NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { IGrowthHack } from '../../../db/models/definitions/growthHacks';
 import { IUserDocument } from '../../../db/models/definitions/users';
@@ -235,13 +234,6 @@ const growthHackMutations = {
   },
 
   /**
-   * Update growth hack orders (not sendNotifaction, ordered card to change)
-   */
-  growthHacksUpdateOrder(_root, { stageId, orders }: { stageId: string; orders: IOrderInput[] }) {
-    return GrowthHacks.updateOrder(stageId, orders);
-  },
-
-  /**
    * Remove a growth hack
    */
   async growthHacksRemove(_root, { _id }: { _id: string }, { user }: { user: IUserDocument }) {
@@ -322,7 +314,6 @@ const growthHackMutations = {
 
 checkPermission(growthHackMutations, 'growthHacksAdd', 'growthHacksAdd');
 checkPermission(growthHackMutations, 'growthHacksEdit', 'growthHacksEdit');
-checkPermission(growthHackMutations, 'growthHacksUpdateOrder', 'growthHacksUpdateOrder');
 checkPermission(growthHackMutations, 'growthHacksRemove', 'growthHacksRemove');
 checkPermission(growthHackMutations, 'growthHacksWatch', 'growthHacksWatch');
 checkPermission(growthHackMutations, 'growthHacksArchive', 'growthHacksArchive');

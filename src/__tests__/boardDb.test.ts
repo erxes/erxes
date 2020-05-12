@@ -375,4 +375,10 @@ describe('Test board model', () => {
     expect(updatedStage.order).toBe(5);
     expect(updatedStageToOrder.order).toBe(9);
   });
+
+  test('Update stage orders when orders length is zero', async () => {
+    const response = await Stages.updateOrder([]);
+
+    expect(response.length).toBe(0);
+  });
 });
