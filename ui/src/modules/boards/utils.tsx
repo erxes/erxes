@@ -58,10 +58,12 @@ export const orderHelper = ({
   prevOrder: number;
   afterOrder: number;
 }) => {
+  // empty stage
   if (!prevOrder && !afterOrder) {
     return 1;
   }
 
+  // end of stage
   if (!afterOrder) {
     return round(prevOrder) + 1;
   }
@@ -69,6 +71,7 @@ export const orderHelper = ({
   const splitAfter = afterOrder.toString().split('.');
   const fraction = '0.'.concat(splitAfter[1] || '0');
 
+  // begin of stage
   if (!prevOrder) {
     const afterLen = fraction.length;
     const afterDotLen = fraction === '0.0' ? 1 : 0;
@@ -80,6 +83,7 @@ export const orderHelper = ({
     );
   }
 
+  // between items on stage
   const prevFraction = '0.'.concat(prevOrder.toString().split('.')[1] || '0');
   const diffLen =
     prevFraction.length > fraction.length
