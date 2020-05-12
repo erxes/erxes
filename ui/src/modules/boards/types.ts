@@ -20,7 +20,6 @@ export interface IOptions {
     editMutation: string;
     removeMutation: string;
     changeMutation: string;
-    updateOrderMutation: string;
     watchMutation: string;
     copyMutation: string;
     archiveMutation: string;
@@ -39,7 +38,6 @@ export interface IOptions {
     editMutation: string;
     removeMutation: string;
     changeMutation: string;
-    updateOrderMutation: string;
     watchMutation: string;
     archiveMutation: string;
     copyMutation: string;
@@ -125,6 +123,7 @@ export interface IStage {
   formId: string;
   pipelineId: string;
   status: string;
+  order: number;
 }
 
 export interface IPipelineLabel {
