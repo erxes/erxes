@@ -119,18 +119,19 @@ class Row extends React.Component<Props> {
   };
 
   render() {
-    let status = <Label lblStyle="default">Sending</Label>;
+    let status = <Label>Sending</Label>;
 
     const { isChecked, message, remove } = this.props;
     const {
       stats = { send: '' },
       brand = { name: '' },
+      kind,
       validCustomersCount
     } = message;
 
     const totalCount = stats.total || 0;
 
-    if (validCustomersCount === totalCount) {
+    if (kind === 'manual' && validCustomersCount === totalCount) {
       status = <Label lblStyle="success">Sent</Label>;
     }
 
@@ -145,7 +146,7 @@ class Row extends React.Component<Props> {
         </td>
         <td>
           <RowTitle onClick={this.onClick}>{message.title}</RowTitle>
-          {message.isDraft ? <Label lblStyle="primary">Draft</Label> : null}
+          {message.isDraft ? <Label lblStyle="simple">Draft</Label> : null}
           {this.renderRules()}
         </td>
         <td className="text-normal">

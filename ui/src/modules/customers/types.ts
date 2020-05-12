@@ -59,7 +59,7 @@ export interface ICustomer extends ICustomerDoc {
   _id: string;
   owner?: IUser;
   integration?: IIntegration;
-  getTrackedData?: any;
+  trackedData?: any[];
   getTags?: ITag[];
   companies?: ICompany[];
 }
