@@ -46,25 +46,20 @@ export default {
 
       const { customFieldsData } = product;
 
-      if (customFieldsData) {
-        const customFields = {};
-        const fieldIds: string[] = [];
+      const customFields = [];
 
-        Object.keys(customFieldsData).forEach(_id => {
-          fieldIds.push(_id);
-        });
+      for (const customFieldData of customFieldsData || []) {
+        const field = await Fields.findOne({ _id: customFieldData.field });
 
-        const fields = await Fields.find({ _id: { $in: fieldIds }, contentType: 'product' });
-
-        for (const field of fields) {
-          customFields[field._id] = {
+        if (field) {
+          customFields[customFieldData.field] = {
             text: field.text,
-            data: customFieldsData[field._id],
+            data: customFieldData.value,
           };
         }
-
-        product.customFieldsData = customFields;
       }
+
+      product.customFieldsData = customFields;
 
       // Add product object to resulting list
       products.push({
@@ -77,10 +72,10 @@ export default {
   },
 
   amount(deal: IDealDocument) {
-    const data = deal.productsData;
+    const productsData = deal.productsData || [];
     const amountsMap = {};
 
-    (data || []).forEach(product => {
+    productsData.forEach(product => {
       const type = product.currency;
 
       if (type) {
@@ -96,7 +91,7 @@ export default {
   },
 
   assignedUsers(deal: IDealDocument) {
-    return Users.find({ _id: { $in: deal.assignedUserIds } });
+    return Users.find({ _id: { $in: deal.assignedUserIds || [] } });
   },
 
   async pipeline(deal: IDealDocument) {
@@ -114,7 +109,7 @@ export default {
   },
 
   isWatched(deal: IDealDocument, _args, { user }: IContext) {
-    const watchedUserIds = deal.watchedUserIds;
+    const watchedUserIds = deal.watchedUserIds || [];
 
     if (watchedUserIds && watchedUserIds.includes(user._id)) {
       return true;
@@ -128,7 +123,7 @@ export default {
   },
 
   labels(deal: IDealDocument) {
-    return PipelineLabels.find({ _id: { $in: deal.labelIds } });
+    return PipelineLabels.find({ _id: { $in: deal.labelIds || [] } });
   },
 
   createdUser(deal: IDealDocument) {

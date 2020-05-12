@@ -5,6 +5,7 @@ import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
+import { registerOnboardHistory } from '../../utils';
 
 interface ICustomersEdit extends ICustomer {
   _id: string;
@@ -16,6 +17,7 @@ const customerMutations = {
    */
   async customersAdd(_root, doc: ICustomer, { user, docModifier }: IContext) {
     const modifiedDoc = docModifier(doc);
+
     const customer = await Customers.createCustomer(modifiedDoc, user);
 
     await putCreateLog(
@@ -26,6 +28,8 @@ const customerMutations = {
       },
       user,
     );
+
+    await registerOnboardHistory({ type: `${customer.state}Create`, user });
 
     return customer;
   },

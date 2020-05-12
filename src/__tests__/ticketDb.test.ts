@@ -92,19 +92,6 @@ describe('Test Tickets model', () => {
     expect(updatedTicket.closeDate).toEqual(ticket.closeDate);
   });
 
-  test('Update ticket orders', async () => {
-    const dealToOrder = await ticketFactory({});
-
-    const [updatedTicket, updatedDealToOrder] = await Tickets.updateOrder(stage._id, [
-      { _id: ticket._id, order: 9 },
-      { _id: dealToOrder._id, order: 3 },
-    ]);
-
-    expect(updatedTicket.stageId).toBe(stage._id);
-    expect(updatedTicket.order).toBe(3);
-    expect(updatedDealToOrder.order).toBe(9);
-  });
-
   test('Watch ticket', async () => {
     await Tickets.watchTicket(ticket._id, true, user._id);
 

@@ -1,6 +1,7 @@
 import * as _ from 'underscore';
 import { Segments } from '../../../db/models';
 import { companySchema } from '../../../db/models/definitions/companies';
+import { SEGMENT_DATE_OPERATORS, SEGMENT_NUMBER_OPERATORS } from '../../../db/models/definitions/constants';
 import { customerSchema } from '../../../db/models/definitions/customers';
 import { ICondition, ISegment } from '../../../db/models/definitions/segments';
 import { fetchElk } from '../../../elasticsearch';
@@ -186,6 +187,43 @@ const generateQueryBySegment = async (args: {
   }
 };
 
+const generateNestedQuery = (kind: string, field: string, operator: string, query: any) => {
+  const fieldKey = field.replace(`${kind}.`, '');
+
+  let fieldValue = 'value';
+
+  if (SEGMENT_NUMBER_OPERATORS.includes(operator)) {
+    fieldValue = 'numberValue';
+  }
+
+  if (SEGMENT_DATE_OPERATORS.includes(operator)) {
+    fieldValue = 'dateValue';
+  }
+
+  let updatedQuery = query;
+
+  updatedQuery = JSON.stringify(updatedQuery).replace(`${kind}.${fieldKey}`, `${kind}.${fieldValue}`);
+  updatedQuery = JSON.parse(updatedQuery);
+
+  return {
+    nested: {
+      path: kind,
+      query: {
+        bool: {
+          must: [
+            {
+              term: {
+                [`${kind}.field`]: fieldKey,
+              },
+            },
+            updatedQuery,
+          ],
+        },
+      },
+    },
+  };
+};
+
 function elkConvertConditionToQuery(args: {
   field: string;
   type?: any;
@@ -198,106 +236,109 @@ function elkConvertConditionToQuery(args: {
 
   const fixedValue = value.toLocaleLowerCase();
 
+  let positiveQuery;
+  let negativeQuery;
+
   // equal
-  if (operator === 'e') {
-    if (['keyword', 'email'].includes(type)) {
-      positive.push({
+  if (['e', 'numbere'].includes(operator)) {
+    if (['keyword', 'email'].includes(type) || operator === 'numbere') {
+      positiveQuery = {
         term: { [field]: value },
-      });
+      };
     } else {
-      positive.push({
-        term: { [`${field}.keyword`]: value },
-      });
+      positiveQuery = {
+        match_phrase: { [field]: value },
+      };
     }
   }
 
   // does not equal
-  if (operator === 'dne') {
-    if (['keyword', 'email'].includes(type)) {
-      negative.push({
+  if (['dne', 'numberdne'].includes(operator)) {
+    if (['keyword', 'email'].includes(type) || operator === 'numberdne') {
+      negativeQuery = {
         term: { [field]: value },
-      });
+      };
     } else {
-      negative.push({
-        term: { [`${field}.keyword`]: value },
-      });
+      negativeQuery = {
+        match_phrase: { [field]: value },
+      };
     }
   }
 
   // contains
   if (operator === 'c') {
-    positive.push({
+    positiveQuery = {
       wildcard: {
         [field]: `*${fixedValue}*`,
       },
-    });
+    };
   }
 
   // does not contains
   if (operator === 'dnc') {
-    negative.push({
+    negativeQuery = {
       wildcard: {
         [field]: `*${fixedValue}*`,
       },
-    });
+    };
   }
 
   // greater than equal
-  if (operator === 'igt') {
-    positive.push({
+  if (['igt', 'numberigt', 'dateigt'].includes(operator)) {
+    positiveQuery = {
       range: {
         [field]: {
           gte: fixedValue,
         },
       },
-    });
+    };
   }
 
   // less then equal
-  if (operator === 'ilt') {
-    positive.push({
+  if (['ilt', 'numberilt', 'dateilt'].includes(operator)) {
+    positiveQuery = {
       range: {
         [field]: {
           lte: fixedValue,
         },
       },
-    });
+    };
   }
 
   // is true
   if (operator === 'it') {
-    positive.push({
+    positiveQuery = {
       term: {
         [field]: true,
       },
-    });
+    };
   }
 
-  // is true
+  // is false
   if (operator === 'if') {
-    positive.push({
+    positiveQuery = {
       term: {
         [field]: false,
       },
-    });
+    };
   }
 
   // is set
   if (operator === 'is') {
-    positive.push({
+    positiveQuery = {
       exists: {
         field,
       },
-    });
+    };
   }
 
   // is not set
   if (operator === 'ins') {
-    negative.push({
+    negativeQuery = {
       exists: {
         field,
       },
-    });
+    };
   }
 
   if (['woam', 'wobm', 'woad', 'wobd'].includes(operator)) {
@@ -328,16 +369,36 @@ function elkConvertConditionToQuery(args: {
       lte = `now+${fixedValue}d/d`;
     }
 
-    positive.push({ range: { [field]: { gte, lte } } });
+    positiveQuery = { range: { [field]: { gte, lte } } };
   }
 
   // date relative less than
   if (operator === 'drlt') {
-    positive.push({ range: { [field]: { lte: fixedValue } } });
+    positiveQuery = { range: { [field]: { lte: fixedValue } } };
   }
 
   // date relative greater than
   if (operator === 'drgt') {
-    positive.push({ range: { [field]: { gte: fixedValue } } });
+    positiveQuery = { range: { [field]: { gte: fixedValue } } };
+  }
+
+  for (const nestedType of ['customFieldsData', 'trackedData', 'attributes']) {
+    if (field.includes(nestedType)) {
+      if (positiveQuery) {
+        positiveQuery = generateNestedQuery(nestedType, field, operator, positiveQuery);
+      }
+
+      if (negativeQuery) {
+        negativeQuery = generateNestedQuery(nestedType, field, operator, negativeQuery);
+      }
+    }
+  }
+
+  if (positiveQuery) {
+    positive.push(positiveQuery);
+  }
+
+  if (negativeQuery) {
+    negative.push(negativeQuery);
   }
 }

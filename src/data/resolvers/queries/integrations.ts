@@ -3,6 +3,7 @@ import { INTEGRATION_NAMES_MAP, KIND_CHOICES, TAG_TYPES } from '../../../db/mode
 import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
 
 import { sendRPCMessage } from '../../../messageBroker';
+import { RABBITMQ_QUEUES } from '../../constants';
 import { IContext } from '../../types';
 import { paginate } from '../../utils';
 /**
@@ -150,7 +151,7 @@ const integrationQueries = {
   },
 
   async integrationGetLineWebhookUrl(_root, { _id }: { _id: string }) {
-    return sendRPCMessage({ action: 'line-webhook', data: { _id } });
+    return sendRPCMessage(RABBITMQ_QUEUES.RPC_API_TO_INTEGRATIONS, { action: 'line-webhook', data: { _id } });
   },
 };
 

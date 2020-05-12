@@ -19,8 +19,9 @@ const { NODE_ENV, RABBITMQ_HOST = 'amqp://localhost' } = process.env;
 let connection;
 let channel;
 
-export const sendRPCMessage = async (message, channelTxt = 'rpc_queue:erxes-api'): Promise<any> => {
-  debugBase(`SendRPCMessage to ${channelTxt}: ${JSON.stringify(message)}`);
+export const sendRPCMessage = async (queueName: string, message: any): Promise<any> => {
+  debugBase(`Sending rpc message ${JSON.stringify(message)} to queue ${queueName}`);
+
   const response = await new Promise((resolve, reject) => {
     const correlationId = uuid();
 
@@ -47,7 +48,7 @@ export const sendRPCMessage = async (message, channelTxt = 'rpc_queue:erxes-api'
         { noAck: true },
       );
 
-      channel.sendToQueue(channelTxt, Buffer.from(JSON.stringify(message)), {
+      channel.sendToQueue(queueName, Buffer.from(JSON.stringify(message)), {
         correlationId,
         replyTo: q.queue,
       });
@@ -68,15 +69,19 @@ export const sendMessage = async (queueName: string, data?: any) => {
   await channel.sendToQueue(queueName, Buffer.from(JSON.stringify(data || {})));
 };
 
-export const initConsumer = async () => {
+export const initRabbitMQ = async () => {
   // Consumer
   connection = await amqplib.connect(RABBITMQ_HOST);
   channel = await connection.createChannel();
+};
+
+export const initConsumer = async () => {
+  await initRabbitMQ();
 
   // listen for rpc queue =========
-  await channel.assertQueue('rpc_queue:erxes-integrations');
+  await channel.assertQueue('rpc_queue:integrations_to_api');
 
-  channel.consume('rpc_queue:erxes-integrations', async msg => {
+  channel.consume('rpc_queue:integrations_to_api', async msg => {
     if (msg !== null) {
       debugBase(`Received rpc queue message ${msg.content.toString()}`);
 

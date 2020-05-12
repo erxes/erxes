@@ -6,13 +6,13 @@ const erkhetPostData = async (shape: IShapeDocument, data: any) => {
   let billType = 1;
   let customerCode = '';
 
-  const companyIds = await sendRPCMessage({
+  const companyIds = await sendRPCMessage('rpc_queue:erxes-automations', {
     action: 'get-saved-conformities',
     payload: JSON.stringify({ mainType: 'deal', mainTypeId: data.deal._id, relTypes: ['company'] }),
   });
 
   if (companyIds.length > 0) {
-    const companies = await sendRPCMessage({
+    const companies = await sendRPCMessage('rpc_queue:erxes-automations', {
       action: 'get-companies',
       payload: JSON.stringify({ _id: { $in: companyIds } }),
     });
@@ -34,13 +34,13 @@ const erkhetPostData = async (shape: IShapeDocument, data: any) => {
   }
 
   if (billType === 1) {
-    const customerIds = await sendRPCMessage({
+    const customerIds = await sendRPCMessage('rpc_queue:erxes-automations', {
       action: 'get-saved-conformities',
       payload: JSON.stringify({ mainType: 'deal', mainTypeId: data.deal._id, relTypes: ['customer'] }),
     });
 
     if (customerIds.length > 0) {
-      const customers = await sendRPCMessage({
+      const customers = await sendRPCMessage('rpc_queue:erxes-automations', {
         action: 'get-customers',
         payload: JSON.stringify({ _id: { $in: customerIds } }),
       });
@@ -49,7 +49,7 @@ const erkhetPostData = async (shape: IShapeDocument, data: any) => {
   }
 
   const productsIds = data.deal.productsData.map(item => item.productId);
-  const products = await sendRPCMessage({
+  const products = await sendRPCMessage('rpc_queue:erxes-automations', {
     action: 'get-products',
     payload: JSON.stringify({ _id: { $in: productsIds } }),
   });
@@ -129,13 +129,10 @@ const erkhetPostData = async (shape: IShapeDocument, data: any) => {
     orderInfos: JSON.stringify(orderInfos),
   };
 
-  return sendRPCMessage(
-    {
-      action: 'get-response-send-order-info',
-      payload: JSON.stringify(postData),
-    },
-    'rpc_queue:erxes-automation-erkhet',
-  );
+  return sendRPCMessage('rpc_queue:erxes-automation-erkhet', {
+    action: 'get-response-send-order-info',
+    payload: JSON.stringify(postData),
+  });
 };
 
 export default erkhetPostData;

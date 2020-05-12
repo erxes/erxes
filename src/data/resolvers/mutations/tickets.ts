@@ -1,7 +1,6 @@
 import { ActivityLogs, Checklists, Conformities, Stages, Tickets } from '../../../db/models';
 import { getCompanies, getCustomers } from '../../../db/models/boardUtils';
-import { IOrderInput } from '../../../db/models/definitions/boards';
-import { BOARD_STATUSES, NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
+import { BOARD_STATUSES, BOARD_TYPES, NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { ITicket } from '../../../db/models/definitions/tickets';
 import { graphqlPubsub } from '../../../pubsub';
 import { MODULE_NAMES } from '../../constants';
@@ -94,6 +93,17 @@ const ticketMutations = {
       contentType: MODULE_NAMES.TICKET,
     };
 
+    if (doc.status && oldTicket.status && oldTicket.status !== doc.status) {
+      const activityAction = doc.status === 'active' ? 'activated' : 'archived';
+
+      await ActivityLogs.createArchiveLog({
+        item: updatedTicket,
+        contentType: 'task',
+        action: activityAction,
+        userId: user._id,
+      });
+    }
+
     if (doc.assignedUserIds) {
       const { addedUserIds, removedUserIds } = checkUserIds(oldTicket.assignedUserIds, doc.assignedUserIds);
 
@@ -124,9 +134,8 @@ const ticketMutations = {
 
     if (oldTicket.stageId === updatedTicket.stageId) {
       graphqlPubsub.publish('ticketsChanged', {
-        ticketsChanged: {
-          _id: updatedTicket._id,
-        },
+        ticketsChanged: updatedTicket,
+        user,
       });
 
       return updatedTicket;
@@ -150,14 +159,18 @@ const ticketMutations = {
     graphqlPubsub.publish('pipelinesChanged', {
       pipelinesChanged: {
         _id: updatedStage.pipelineId,
+        type: BOARD_TYPES.TICKET,
       },
+      user,
     });
 
     if (updatedStage.pipelineId !== oldStage.pipelineId) {
       graphqlPubsub.publish('pipelinesChanged', {
         pipelinesChanged: {
           _id: oldStage.pipelineId,
+          type: BOARD_TYPES.TICKET,
         },
+        user,
       });
     }
 
@@ -211,18 +224,13 @@ const ticketMutations = {
       graphqlPubsub.publish('pipelinesChanged', {
         pipelinesChanged: {
           _id: stage.pipelineId,
+          type: BOARD_TYPES.TICKET,
         },
+        user,
       });
     }
 
     return ticket;
-  },
-
-  /**
-   * Update ticket orders (not sendNotifaction, ordered card to change)
-   */
-  ticketsUpdateOrder(_root, { stageId, orders }: { stageId: string; orders: IOrderInput[] }) {
-    return Tickets.updateOrder(stageId, orders);
   },
 
   /**
@@ -286,8 +294,15 @@ const ticketMutations = {
     return clone;
   },
 
-  async ticketsArchive(_root, { stageId }: { stageId: string }) {
-    await Tickets.updateMany({ stageId }, { $set: { status: BOARD_STATUSES.ARCHIVED } });
+  async ticketsArchive(_root, { stageId }: { stageId: string }, { user }: IContext) {
+    const updatedTicket = await Tickets.updateMany({ stageId }, { $set: { status: BOARD_STATUSES.ARCHIVED } });
+
+    await ActivityLogs.createArchiveLog({
+      item: updatedTicket,
+      contentType: 'ticket',
+      action: 'archive',
+      userId: user._id,
+    });
 
     return 'ok';
   },
@@ -295,7 +310,6 @@ const ticketMutations = {
 
 checkPermission(ticketMutations, 'ticketsAdd', 'ticketsAdd');
 checkPermission(ticketMutations, 'ticketsEdit', 'ticketsEdit');
-checkPermission(ticketMutations, 'ticketsUpdateOrder', 'ticketsUpdateOrder');
 checkPermission(ticketMutations, 'ticketsRemove', 'ticketsRemove');
 checkPermission(ticketMutations, 'ticketsWatch', 'ticketsWatch');
 checkPermission(ticketMutations, 'ticketsArchive', 'ticketsArchive');

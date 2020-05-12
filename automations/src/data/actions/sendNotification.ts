@@ -17,7 +17,7 @@ const sendNotification = async (shape: IShapeDocument, data: any) => {
     contentTypeId: objectData._id,
   };
 
-  return sendRPCMessage({ action: 'send-notifications', payload: JSON.stringify(doc) });
+  return sendRPCMessage('rpc_queue:erxes-automations', { action: 'send-notifications', payload: JSON.stringify(doc) });
 };
 
 export default sendNotification;

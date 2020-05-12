@@ -169,6 +169,7 @@ export const loadClass = () => {
         {
           customerId,
           engageData: { $exists: true },
+          'engageData.engageKind': { $ne: 'auto' },
           isCustomerRead: { $ne: true },
         },
         { $set: { isCustomerRead: true } },

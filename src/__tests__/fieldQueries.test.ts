@@ -75,16 +75,33 @@ describe('fieldQueries', () => {
   });
 
   test('Fields combined by content type', async () => {
-    const mock = sinon.stub(elk, 'getMappings').callsFake(() => {
+    const mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
       return Promise.resolve({
-        [`${elk.getIndexPrefix()}customers`]: {
-          mappings: {
-            properties: {
-              trackedData: {
-                properties: {
-                  name: 'value',
+        aggregations: {
+          trackedDataKeys: {
+            fieldKeys: {
+              buckets: [
+                {
+                  key: 'pageView',
+                  hits: {
+                    hits: {
+                      hits: [
+                        {
+                          _source: {
+                            name: 'pageView',
+                            attributes: [
+                              {
+                                field: 'url',
+                                value: '/test',
+                              },
+                            ],
+                          },
+                        },
+                      ],
+                    },
+                  },
                 },
-              },
+              ],
             },
           },
         },

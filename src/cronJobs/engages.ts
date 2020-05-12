@@ -19,8 +19,6 @@ const runJobs = async messages => {
 
 // every minute at 1sec
 schedule.scheduleJob('1 * * * * *', async () => {
-  debugCrons('Checking every minute jobs ....');
-
   const messages = await findMessages({ 'scheduleDate.type': 'minute' });
 
   await runJobs(messages);
@@ -31,6 +29,8 @@ schedule.scheduleJob('10 10 * * * *', async () => {
   debugCrons('Checking every hour jobs ....');
 
   const messages = await findMessages({ 'scheduleDate.type': 'hour' });
+
+  debugCrons(`Found every hour  messages ${messages.length}`);
 
   await runJobs(messages);
 });
@@ -43,6 +43,8 @@ schedule.scheduleJob('20 20 11 * * *', async () => {
   const everyDayMessages = await findMessages({ 'scheduleDate.type': 'day' });
   await runJobs(everyDayMessages);
 
+  debugCrons(`Found every day messages ${everyDayMessages.length}`);
+
   const now = new Date();
   const day = now.getDate();
   const month = now.getMonth() + 1;
@@ -51,6 +53,8 @@ schedule.scheduleJob('20 20 11 * * *', async () => {
   // every nth day messages =======
   const everyNthDayMessages = await findMessages({ 'scheduleDate.type': day.toString() });
   await runJobs(everyNthDayMessages);
+
+  debugCrons(`Found every nth day messages ${everyNthDayMessages.length}`);
 
   // every month messages ========
   let everyMonthMessages = await findMessages({ 'scheduleDate.type': 'month' });

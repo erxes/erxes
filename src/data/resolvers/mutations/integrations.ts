@@ -3,10 +3,11 @@ import { IIntegration, IMessengerData, IUiOptions } from '../../../db/models/def
 import { IExternalIntegrationParams } from '../../../db/models/Integrations';
 import { debugExternalApi } from '../../../debuggers';
 import { sendRPCMessage } from '../../../messageBroker';
-import { MODULE_NAMES } from '../../constants';
+import { MODULE_NAMES, RABBITMQ_QUEUES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
+import { registerOnboardHistory } from '../../utils';
 
 interface IEditIntegration extends IIntegration {
   _id: string;
@@ -27,6 +28,8 @@ const integrationMutations = {
       },
       user,
     );
+
+    await registerOnboardHistory({ type: 'messengerIntegrationCreate', user });
 
     return integration;
   },
@@ -79,6 +82,8 @@ const integrationMutations = {
       },
       user,
     );
+
+    await registerOnboardHistory({ type: 'leadIntegrationCreate', user });
 
     return integration;
   },
@@ -217,7 +222,10 @@ const integrationMutations = {
    */
   async integrationsRemoveAccount(_root, { _id }: { _id: string }) {
     try {
-      const { erxesApiIds } = await sendRPCMessage({ action: 'remove-account', data: { _id } });
+      const { erxesApiIds } = await sendRPCMessage(RABBITMQ_QUEUES.RPC_API_TO_INTEGRATIONS, {
+        action: 'remove-account',
+        data: { _id },
+      });
 
       for (const id of erxesApiIds) {
         await Integrations.removeIntegration(id);

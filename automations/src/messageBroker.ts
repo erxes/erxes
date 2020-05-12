@@ -11,8 +11,8 @@ const { RABBITMQ_HOST = 'amqp://localhost' } = process.env;
 let conn;
 let channel;
 
-export const sendRPCMessage = async (message, channelTxt = 'rpc_queue:erxes-automations'): Promise<any> => {
-  debugBase(`SendRPCMessage to ${channelTxt}: ${JSON.stringify(message)}`);
+export const sendRPCMessage = async (queueName: string, message: any): Promise<any> => {
+  debugBase(`Sending rpc message ${JSON.stringify(message)} to queue ${queueName}`);
 
   const response = await new Promise((resolve, reject) => {
     const correlationId = uuid();
@@ -42,7 +42,7 @@ export const sendRPCMessage = async (message, channelTxt = 'rpc_queue:erxes-auto
         { noAck: true },
       );
 
-      channel.sendToQueue(channelTxt, Buffer.from(JSON.stringify(message)), {
+      channel.sendToQueue(queueName, Buffer.from(JSON.stringify(message)), {
         correlationId,
         replyTo: q.queue,
       });

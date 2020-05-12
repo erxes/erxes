@@ -69,7 +69,7 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
           messagesMap[customerId].push({
             datas: message.formWidgetData,
             createdInfo: {
-              _id: message._id,
+              _id: 'created',
               type: 'input',
               validation: 'date',
               text: 'Created',
@@ -198,10 +198,10 @@ const fillLeadHeaders = async (formId: string) => {
   const fields = await Fields.find({ contentType: 'form', contentTypeId: formId }).sort({ order: 1 });
 
   for (const field of fields) {
-    headers.push({ name: field.text, label: field.text });
+    headers.push({ name: field._id, label: field.text });
   }
 
-  headers.push({ name: 'Created', label: 'Created' });
+  headers.push({ name: 'created', label: 'Created' });
 
   return headers;
 };
@@ -227,7 +227,7 @@ const buildLeadFile = async (datas: any, formId: string, sheet: any, columnNames
     rowIndex++;
     // Iterating through basic info columns
     for (const column of headers) {
-      const item = await data.find(obj => obj.text === column.name);
+      const item = await data.find(obj => obj._id === column.name);
       const cellValue = displayValue(item);
 
       addCell(column, cellValue, sheet, columnNames, rowIndex);
@@ -270,16 +270,20 @@ export const buildFile = async (query: any, user: IUserDocument): Promise<{ name
           const keys = Object.getOwnPropertyNames(item.customFieldsData) || [];
 
           for (const fieldId of keys) {
-            const propertyObj = await Fields.findOne({ _id: fieldId });
+            const field = await Fields.findOne({ _id: fieldId });
 
-            if (propertyObj && propertyObj.text) {
-              addCell(
-                { name: propertyObj.text, label: propertyObj.text },
-                item.customFieldsData[fieldId],
-                sheet,
-                columnNames,
-                rowIndex,
-              );
+            if (field && field.text) {
+              let value = item.customFieldsData[fieldId];
+
+              if (Array.isArray(value)) {
+                value = value.join(', ');
+              }
+
+              if (field.validation === 'date') {
+                value = moment(value).format('YYYY-MM-DD HH:mm');
+              }
+
+              addCell({ name: field.text, label: field.text }, value, sheet, columnNames, rowIndex);
             }
           }
         }

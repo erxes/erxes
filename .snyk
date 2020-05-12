@@ -13,53 +13,57 @@ ignore:
   SNYK-JS-MINIMIST-559764:
     - '@axelspringer/graphql-google-pubsub > @google-cloud/pubsub > google-gax > grpc > node-pre-gyp > mkdirp > minimist':
         reason: None given
-        expires: '2020-04-25T09:17:23.755Z'
+        expires: '2020-05-25T09:25:59.452Z'
     - '@axelspringer/graphql-google-pubsub > @google-cloud/pubsub > google-gax > grpc > node-pre-gyp > tar > mkdirp > minimist':
         reason: None given
-        expires: '2020-04-25T09:17:23.755Z'
+        expires: '2020-05-25T09:25:59.452Z'
     - '@axelspringer/graphql-google-pubsub > @google-cloud/pubsub > google-gax > grpc-gcp > grpc > node-pre-gyp > mkdirp > minimist':
         reason: None given
-        expires: '2020-04-25T09:17:23.755Z'
+        expires: '2020-05-25T09:25:59.452Z'
     - '@axelspringer/graphql-google-pubsub > @google-cloud/pubsub > google-gax > grpc-gcp > grpc > node-pre-gyp > tar > mkdirp > minimist':
         reason: None given
-        expires: '2020-04-25T09:17:23.755Z'
+        expires: '2020-05-25T09:25:59.452Z'
     - '@axelspringer/graphql-google-pubsub > @google-cloud/pubsub > google-gax > grpc > node-pre-gyp > rc > minimist':
         reason: None given
-        expires: '2020-04-25T09:17:23.755Z'
+        expires: '2020-05-25T09:25:59.452Z'
     - '@axelspringer/graphql-google-pubsub > @google-cloud/pubsub > google-gax > grpc-gcp > grpc > node-pre-gyp > rc > minimist':
         reason: None given
-        expires: '2020-04-25T09:17:23.755Z'
+        expires: '2020-05-25T09:25:59.452Z'
     - minimist:
         reason: None given
-        expires: '2020-04-25T09:17:23.755Z'
+        expires: '2020-05-25T09:25:59.452Z'
     - mkdirp > minimist:
         reason: None given
-        expires: '2020-04-25T09:17:23.755Z'
+        expires: '2020-05-25T09:25:59.453Z'
     - node-pre-gyp > mkdirp > minimist:
         reason: None given
-        expires: '2020-04-25T09:17:23.756Z'
+        expires: '2020-05-25T09:25:59.453Z'
     - node-pre-gyp > tar > mkdirp > minimist:
         reason: None given
-        expires: '2020-04-25T09:17:23.756Z'
+        expires: '2020-05-25T09:25:59.453Z'
     - node-pre-gyp > rc > minimist:
         reason: None given
-        expires: '2020-04-25T09:17:23.756Z'
+        expires: '2020-05-25T09:25:59.453Z'
     - snyk > @snyk/update-notifier > latest-version > package-json > registry-auth-token > rc > minimist:
         reason: None given
-        expires: '2020-04-25T09:17:23.756Z'
+        expires: '2020-05-25T09:25:59.453Z'
     - snyk > @snyk/update-notifier > latest-version > package-json > registry-url > rc > minimist:
         reason: None given
-        expires: '2020-04-25T09:17:23.756Z'
+        expires: '2020-05-25T09:25:59.453Z'
     - handlebars > optimist > minimist:
         reason: None given
-        expires: '2020-04-25T09:17:23.756Z'
+        expires: '2020-05-25T09:25:59.453Z'
   SNYK-JS-BSON-561052:
     - mongoose > bson:
         reason: None given
-        expires: '2020-04-25T09:17:23.755Z'
+        expires: '2020-05-25T09:25:59.452Z'
     - mongoose > mongodb > bson:
         reason: None given
-        expires: '2020-04-25T09:17:23.755Z'
+        expires: '2020-05-25T09:25:59.452Z'
+  SNYK-JS-JQUERY-565129:
+    - requestify > jquery:
+        reason: None given
+        expires: '2020-05-25T09:25:59.453Z'
 # patches apply the minimum changes required to fix a vulnerability
 patch:
   SNYK-JS-HTTPSPROXYAGENT-469131:

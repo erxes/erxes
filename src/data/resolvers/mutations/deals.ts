@@ -1,8 +1,7 @@
 import * as _ from 'underscore';
 import { ActivityLogs, Checklists, Conformities, Deals, Stages } from '../../../db/models';
 import { getCompanies, getCustomers } from '../../../db/models/boardUtils';
-import { IOrderInput } from '../../../db/models/definitions/boards';
-import { BOARD_STATUSES, NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
+import { BOARD_STATUSES, BOARD_TYPES, NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { IDeal } from '../../../db/models/definitions/deals';
 import { graphqlPubsub } from '../../../pubsub';
 import { MODULE_NAMES } from '../../constants';
@@ -120,6 +119,17 @@ const dealMutations = {
       contentType: MODULE_NAMES.DEAL,
     };
 
+    if (doc.status && oldDeal.status && oldDeal.status !== doc.status) {
+      const activityAction = doc.status === 'active' ? 'activated' : 'archived';
+
+      await ActivityLogs.createArchiveLog({
+        item: updatedDeal,
+        contentType: 'deal',
+        action: activityAction,
+        userId: user._id,
+      });
+    }
+
     if (Object.keys(checkedAssignUserIds).length > 0) {
       const { addedUserIds, removedUserIds } = checkedAssignUserIds;
 
@@ -150,9 +160,8 @@ const dealMutations = {
 
     if (oldDeal.stageId === updatedDeal.stageId) {
       graphqlPubsub.publish('dealsChanged', {
-        dealsChanged: {
-          _id: updatedDeal._id,
-        },
+        dealsChanged: updatedDeal,
+        user,
       });
 
       return updatedDeal;
@@ -176,14 +185,18 @@ const dealMutations = {
     graphqlPubsub.publish('pipelinesChanged', {
       pipelinesChanged: {
         _id: updatedStage.pipelineId,
+        type: BOARD_TYPES.DEAL,
       },
+      user,
     });
 
     if (updatedStage.pipelineId !== oldStage.pipelineId) {
       graphqlPubsub.publish('pipelinesChanged', {
         pipelinesChanged: {
           _id: oldStage.pipelineId,
+          type: BOARD_TYPES.DEAL,
         },
+        user,
       });
     }
 
@@ -237,18 +250,13 @@ const dealMutations = {
       graphqlPubsub.publish('pipelinesChanged', {
         pipelinesChanged: {
           _id: stage.pipelineId,
+          type: BOARD_TYPES.DEAL,
         },
+        user,
       });
     }
 
     return deal;
-  },
-
-  /**
-   * Update deal orders (not sendNotifaction, ordered card to change)
-   */
-  dealsUpdateOrder(_root, { stageId, orders }: { stageId: string; orders: IOrderInput[] }) {
-    return Deals.updateOrder(stageId, orders);
   },
 
   /**
@@ -314,8 +322,15 @@ const dealMutations = {
     return clone;
   },
 
-  async dealsArchive(_root, { stageId }: { stageId: string }) {
-    await Deals.updateMany({ stageId }, { $set: { status: BOARD_STATUSES.ARCHIVED } });
+  async dealsArchive(_root, { stageId }: { stageId: string }, { user }: IContext) {
+    const updatedDeal = await Deals.updateMany({ stageId }, { $set: { status: BOARD_STATUSES.ARCHIVED } });
+
+    await ActivityLogs.createArchiveLog({
+      item: updatedDeal,
+      contentType: 'deal',
+      action: 'archived',
+      userId: user._id,
+    });
 
     return 'ok';
   },
@@ -323,7 +338,6 @@ const dealMutations = {
 
 checkPermission(dealMutations, 'dealsAdd', 'dealsAdd');
 checkPermission(dealMutations, 'dealsEdit', 'dealsEdit');
-checkPermission(dealMutations, 'dealsUpdateOrder', 'dealsUpdateOrder');
 checkPermission(dealMutations, 'dealsRemove', 'dealsRemove');
 checkPermission(dealMutations, 'dealsWatch', 'dealsWatch');
 checkPermission(dealMutations, 'dealsArchive', 'dealsArchive');

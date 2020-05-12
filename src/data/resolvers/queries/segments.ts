@@ -64,7 +64,7 @@ const segmentQueries = {
 
       return {
         name: bucket.key,
-        attributeNames: Object.keys(hit._source.attributes),
+        attributeNames: hit._source.attributes.map(attr => attr.field),
       };
     });
 

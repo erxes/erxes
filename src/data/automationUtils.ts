@@ -17,13 +17,10 @@ const checkAutomation = async (kind: string, body: any, user: IUserDocument) => 
     return;
   }
 
-  const apiAutomationResponse = await sendRPCMessage(
-    {
-      action: 'get-response-check-automation',
-      data,
-    },
-    'rpc_queue:erxes-api_erxes-automations',
-  );
+  const apiAutomationResponse = await sendRPCMessage('rpc_queue:erxes-api_erxes-automations', {
+    action: 'get-response-check-automation',
+    data,
+  });
 
   if (apiAutomationResponse.response.length === 0) {
     return;

@@ -9,7 +9,7 @@ const workerToErxes = async (shape: IShapeDocument, data: any) => {
 
   switch (kind) {
     case 'salary.worker':
-      const teamMember = await sendRPCMessage({
+      const teamMember = await sendRPCMessage('rpc_queue:erxes-automations', {
         action: 'get-or-error-user',
         payload: JSON.stringify({ email: data.old_code }),
       });
@@ -52,7 +52,10 @@ const workerToErxes = async (shape: IShapeDocument, data: any) => {
       sendData = {};
   }
 
-  return sendRPCMessage({ action: 'method-from-kind', payload: JSON.stringify(sendData) });
+  return sendRPCMessage('rpc_queue:erxes-automations', {
+    action: 'method-from-kind',
+    payload: JSON.stringify(sendData),
+  });
 };
 
 export default workerToErxes;

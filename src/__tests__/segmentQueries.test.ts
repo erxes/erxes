@@ -105,7 +105,12 @@ describe('segmentQueries', () => {
                       {
                         _source: {
                           name: 'pageView',
-                          attributes: [],
+                          attributes: [
+                            {
+                              field: 'url',
+                              value: '/test',
+                            },
+                          ],
                         },
                       },
                     ],

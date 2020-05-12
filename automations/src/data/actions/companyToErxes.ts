@@ -5,7 +5,7 @@ const companyToErxes = async (data: any) => {
   const objectData = JSON.parse(data.object)[0];
   const doc = objectData.fields;
 
-  const company = await sendRPCMessage({
+  const company = await sendRPCMessage('rpc_queue:erxes-automations', {
     action: 'get-or-error-company',
     payload: JSON.stringify({ code: data.old_code }),
   });
@@ -47,7 +47,10 @@ const companyToErxes = async (data: any) => {
     };
   }
 
-  return sendRPCMessage({ action: 'method-from-kind', payload: JSON.stringify(sendData) });
+  return sendRPCMessage('rpc_queue:erxes-automations', {
+    action: 'method-from-kind',
+    payload: JSON.stringify(sendData),
+  });
 };
 
 export default companyToErxes;

@@ -509,36 +509,24 @@ describe('save integration messenger configurations test', () => {
   });
 
   test('Increase view count of lead', async () => {
-    expect.assertions(3);
+    expect.assertions(2);
 
-    try {
-      await Integrations.increaseViewCount('_id');
-    } catch (e) {
-      expect(e.message).toBe('Integration not found');
-    }
-
-    let updated = await Integrations.increaseViewCount(_integration.formId);
+    let updated = await Integrations.increaseViewCount(_integration.formId, true);
 
     expect(updated.leadData && updated.leadData.viewCount).toBe(1);
 
-    updated = await Integrations.increaseViewCount(_integration.formId);
+    updated = await Integrations.increaseViewCount(_integration.formId, true);
     expect(updated.leadData && updated.leadData.viewCount).toBe(2);
   });
 
   test('Increase contacts gathered', async () => {
-    expect.assertions(3);
+    expect.assertions(2);
 
-    try {
-      await Integrations.increaseContactsGathered('_id');
-    } catch (e) {
-      expect(e.message).toBe('Integration not found');
-    }
-
-    let updated = await Integrations.increaseContactsGathered(_integration.formId);
+    let updated = await Integrations.increaseContactsGathered(_integration.formId, true);
 
     expect(updated.leadData && updated.leadData.contactsGathered).toBe(1);
 
-    updated = await Integrations.increaseContactsGathered(_integration.formId);
+    updated = await Integrations.increaseContactsGathered(_integration.formId, true);
     expect(updated.leadData && updated.leadData.contactsGathered).toBe(2);
   });
 

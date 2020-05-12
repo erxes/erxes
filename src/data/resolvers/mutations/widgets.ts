@@ -185,7 +185,29 @@ const widgetMutations = {
       });
     }
 
-    await Customers.updateLocation(customer._id, browserInfo);
+    // update location info and missing fields
+    await Customers.findByIdAndUpdate(
+      { _id: customer._id },
+      {
+        $set: {
+          location: browserInfo,
+          firstName: customer.firstName ? customer.firstName : firstName,
+          lastName: customer.lastName ? customer.lastName : lastName,
+          ...(customer.primaryEmail
+            ? {}
+            : {
+                emails: [email],
+                primaryEmail: email,
+              }),
+          ...(customer.primaryPhone
+            ? {}
+            : {
+                phones: [phone],
+                primaryPhone: phone,
+              }),
+        },
+      },
+    );
 
     // Inserting customer id into submitted customer ids
     const doc = {
@@ -194,7 +216,7 @@ const widgetMutations = {
       submittedAt: new Date(),
     };
 
-    await FormSubmissions.createFormSubmission(doc);
+    FormSubmissions.createFormSubmission(doc);
 
     // create conversation
     const conversation = await Conversations.createConversation({
@@ -295,12 +317,15 @@ const widgetMutations = {
       : await Customers.createMessengerCustomer({ doc, customData });
 
     // get or create company
-    if (companyData) {
+    if (companyData && companyData.name) {
       let company = await Companies.findOne({
         $or: [{ names: { $in: [companyData.name] } }, { primaryName: companyData.name }],
       });
 
       if (!company) {
+        companyData.primaryName = companyData.name;
+        companyData.names = [companyData.name];
+
         company = await Companies.createCompany({ ...companyData, scopeBrandIds: [brand._id] });
       }
 
@@ -319,6 +344,12 @@ const widgetMutations = {
       videoCallUsageStatus = await dataSources.IntegrationsAPI.fetchApi('/videoCall/usageStatus');
     } catch (e) {
       debugExternalApi(e.message);
+    }
+
+    if (integration.createdUserId) {
+      const user = await Users.getUser(integration.createdUserId);
+
+      registerOnboardHistory({ type: 'messengerIntegrationInstalled', user });
     }
 
     return {

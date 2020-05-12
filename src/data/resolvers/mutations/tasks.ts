@@ -1,13 +1,13 @@
 import { ActivityLogs, Checklists, Conformities, Stages, Tasks } from '../../../db/models';
 import { getCompanies, getCustomers } from '../../../db/models/boardUtils';
-import { IItemCommonFields as ITask, IOrderInput } from '../../../db/models/definitions/boards';
-import { BOARD_STATUSES, NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
+import { IItemCommonFields as ITask } from '../../../db/models/definitions/boards';
+import { BOARD_STATUSES, BOARD_TYPES, NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { graphqlPubsub } from '../../../pubsub';
 import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { checkUserIds } from '../../utils';
+import { checkUserIds, registerOnboardHistory } from '../../utils';
 import {
   copyChecklists,
   copyPipelineLabels,
@@ -91,6 +91,17 @@ const taskMutations = {
       contentType: MODULE_NAMES.TASK,
     };
 
+    if (doc.status && oldTask.status && oldTask.status !== doc.status) {
+      const activityAction = doc.status === 'active' ? 'activated' : 'archived';
+
+      await ActivityLogs.createArchiveLog({
+        item: updatedTask,
+        contentType: 'task',
+        action: activityAction,
+        userId: user._id,
+      });
+    }
+
     if (doc.assignedUserIds) {
       const { addedUserIds, removedUserIds } = checkUserIds(oldTask.assignedUserIds, doc.assignedUserIds);
 
@@ -102,6 +113,8 @@ const taskMutations = {
         contentType: 'task',
         content: activityContent,
       });
+
+      await registerOnboardHistory({ type: 'taskAssignUser', user });
 
       notificationDoc.invitedUsers = addedUserIds;
       notificationDoc.removedUsers = removedUserIds;
@@ -121,9 +134,8 @@ const taskMutations = {
 
     if (oldTask.stageId === updatedTask.stageId) {
       graphqlPubsub.publish('tasksChanged', {
-        tasksChanged: {
-          _id: updatedTask._id,
-        },
+        tasksChanged: updatedTask,
+        user,
       });
 
       return updatedTask;
@@ -147,14 +159,18 @@ const taskMutations = {
     graphqlPubsub.publish('pipelinesChanged', {
       pipelinesChanged: {
         _id: updatedStage.pipelineId,
+        type: BOARD_TYPES.TASK,
       },
+      user,
     });
 
     if (updatedStage.pipelineId !== oldStage.pipelineId) {
       graphqlPubsub.publish('pipelinesChanged', {
         pipelinesChanged: {
           _id: oldStage.pipelineId,
+          type: BOARD_TYPES.TASK,
         },
+        user,
       });
     }
 
@@ -208,18 +224,13 @@ const taskMutations = {
       graphqlPubsub.publish('pipelinesChanged', {
         pipelinesChanged: {
           _id: stage.pipelineId,
+          type: BOARD_TYPES.TASK,
         },
+        user,
       });
     }
 
     return task;
-  },
-
-  /**
-   * Update task orders (not sendNotifaction, ordered card to change)
-   */
-  tasksUpdateOrder(_root, { stageId, orders }: { stageId: string; orders: IOrderInput[] }) {
-    return Tasks.updateOrder(stageId, orders);
   },
 
   /**
@@ -281,8 +292,15 @@ const taskMutations = {
     return clone;
   },
 
-  async tasksArchive(_root, { stageId }: { stageId: string }) {
-    await Tasks.updateMany({ stageId }, { $set: { status: BOARD_STATUSES.ARCHIVED } });
+  async tasksArchive(_root, { stageId }: { stageId: string }, { user }: IContext) {
+    const updatedTask = await Tasks.updateMany({ stageId }, { $set: { status: BOARD_STATUSES.ARCHIVED } });
+
+    await ActivityLogs.createArchiveLog({
+      item: updatedTask,
+      contentType: 'task',
+      action: 'archive',
+      userId: user._id,
+    });
 
     return 'ok';
   },
@@ -290,7 +308,6 @@ const taskMutations = {
 
 checkPermission(taskMutations, 'tasksAdd', 'tasksAdd');
 checkPermission(taskMutations, 'tasksEdit', 'tasksEdit');
-checkPermission(taskMutations, 'tasksUpdateOrder', 'tasksUpdateOrder');
 checkPermission(taskMutations, 'tasksRemove', 'tasksRemove');
 checkPermission(taskMutations, 'tasksWatch', 'tasksWatch');
 checkPermission(taskMutations, 'tasksArchive', 'tasksArchive');

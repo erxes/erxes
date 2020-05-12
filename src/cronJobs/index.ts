@@ -3,6 +3,7 @@ import * as express from 'express';
 import { connect } from '../db/connection';
 import { debugCrons } from '../debuggers';
 
+import { initRabbitMQ } from '../messageBroker';
 import './activityLogs';
 import './conversations';
 import './deals';
@@ -12,9 +13,6 @@ import './robot';
 
 // load environment variables
 dotenv.config();
-
-// connect to mongo database
-connect();
 
 const app = express();
 
@@ -26,5 +24,10 @@ app.get('/status', async (_req, res) => {
 const { PORT_CRONS = 3600 } = process.env;
 
 app.listen(PORT_CRONS, () => {
+  // connect to mongo database
+  connect().then(async () => {
+    initRabbitMQ();
+  });
+
   debugCrons(`Cron Server is now running on ${PORT_CRONS}`);
 });

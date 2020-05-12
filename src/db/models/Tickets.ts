@@ -1,7 +1,6 @@
 import { Model, model } from 'mongoose';
 import { ActivityLogs } from '.';
-import { fillSearchTextItem, updateOrder, watchItem } from './boardUtils';
-import { IOrderInput } from './definitions/boards';
+import { fillSearchTextItem, watchItem } from './boardUtils';
 import { BOARD_STATUSES } from './definitions/constants';
 import { ITicket, ITicketDocument, ticketSchema } from './definitions/tickets';
 
@@ -9,7 +8,6 @@ export interface ITicketModel extends Model<ITicketDocument> {
   createTicket(doc: ITicket): Promise<ITicketDocument>;
   getTicket(_id: string): Promise<ITicketDocument>;
   updateTicket(_id: string, doc: ITicket): Promise<ITicketDocument>;
-  updateOrder(stageId: string, orders: IOrderInput[]): Promise<ITicketDocument[]>;
   watchTicket(_id: string, isAdd: boolean, userId: string): void;
 }
 
@@ -73,13 +71,6 @@ export const loadTicketClass = () => {
       await Tickets.updateOne({ _id }, { $set: doc, searchText });
 
       return Tickets.findOne({ _id });
-    }
-
-    /*
-     * Update given tickets orders
-     */
-    public static async updateOrder(stageId: string, orders: IOrderInput[]) {
-      return updateOrder(Tickets, orders, stageId);
     }
 
     /**

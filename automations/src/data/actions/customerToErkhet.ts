@@ -37,10 +37,10 @@ const customerToErkhet = async (shape: IShapeDocument, data: any) => {
     orderInfos: JSON.stringify(sendData),
   };
 
-  return sendRPCMessage(
-    { action: 'customer-change', payload: JSON.stringify(postData) },
-    'rpc_queue:erxes-automation-erkhet',
-  );
+  return sendRPCMessage('rpc_queue:erxes-automation-erkhet', {
+    action: 'customer-change',
+    payload: JSON.stringify(postData),
+  });
 };
 
 export default customerToErkhet;

@@ -15,6 +15,7 @@ export interface ILogModel extends Model<ILogDocument> {
 }
 
 export const logSchema = new Schema({
+  createdAt: { type: Date, default: new Date() },
   engageMessageId: { type: String },
   message: { type: String },
   type: { type: String },
