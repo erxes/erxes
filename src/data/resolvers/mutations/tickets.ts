@@ -1,7 +1,7 @@
 import { ActivityLogs, Checklists, Conformities, Stages, Tickets } from '../../../db/models';
 import { getCompanies, getCustomers } from '../../../db/models/boardUtils';
 import { IOrderInput } from '../../../db/models/definitions/boards';
-import { BOARD_STATUSES, NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
+import { BOARD_STATUSES, BOARD_TYPES, NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { ITicket } from '../../../db/models/definitions/tickets';
 import { graphqlPubsub } from '../../../pubsub';
 import { MODULE_NAMES } from '../../constants';
@@ -135,11 +135,8 @@ const ticketMutations = {
 
     if (oldTicket.stageId === updatedTicket.stageId) {
       graphqlPubsub.publish('ticketsChanged', {
-        ticketsChanged: {
-          _id: updatedTicket._id,
-          name: updatedTicket.name,
-          stageId: updatedTicket.stageId,
-        },
+        ticketsChanged: updatedTicket,
+        user,
       });
 
       return updatedTicket;
@@ -163,14 +160,18 @@ const ticketMutations = {
     graphqlPubsub.publish('pipelinesChanged', {
       pipelinesChanged: {
         _id: updatedStage.pipelineId,
+        type: BOARD_TYPES.TICKET,
       },
+      user,
     });
 
     if (updatedStage.pipelineId !== oldStage.pipelineId) {
       graphqlPubsub.publish('pipelinesChanged', {
         pipelinesChanged: {
           _id: oldStage.pipelineId,
+          type: BOARD_TYPES.TICKET,
         },
+        user,
       });
     }
 
@@ -224,7 +225,9 @@ const ticketMutations = {
       graphqlPubsub.publish('pipelinesChanged', {
         pipelinesChanged: {
           _id: stage.pipelineId,
+          type: BOARD_TYPES.TICKET,
         },
+        user,
       });
     }
 
