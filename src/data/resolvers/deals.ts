@@ -62,10 +62,9 @@ export default {
 
       product.customFieldsData = customFields;
 
-      // Add product object to resulting list
       products.push({
-        ...data.toJSON(),
-        product: product.toJSON(),
+        ...(typeof data.toJSON === 'function' ? data.toJSON() : data),
+        product,
       });
     }
 

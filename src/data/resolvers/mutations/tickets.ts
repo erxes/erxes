@@ -135,7 +135,6 @@ const ticketMutations = {
     if (oldTicket.stageId === updatedTicket.stageId) {
       graphqlPubsub.publish('ticketsChanged', {
         ticketsChanged: updatedTicket,
-        user,
       });
 
       return updatedTicket;
@@ -161,7 +160,6 @@ const ticketMutations = {
         _id: updatedStage.pipelineId,
         type: BOARD_TYPES.TICKET,
       },
-      user,
     });
 
     if (updatedStage.pipelineId !== oldStage.pipelineId) {
@@ -170,7 +168,6 @@ const ticketMutations = {
           _id: oldStage.pipelineId,
           type: BOARD_TYPES.TICKET,
         },
-        user,
       });
     }
 
@@ -226,7 +223,6 @@ const ticketMutations = {
           _id: stage.pipelineId,
           type: BOARD_TYPES.TICKET,
         },
-        user,
       });
     }
 

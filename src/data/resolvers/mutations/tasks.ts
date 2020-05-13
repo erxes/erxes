@@ -135,7 +135,6 @@ const taskMutations = {
     if (oldTask.stageId === updatedTask.stageId) {
       graphqlPubsub.publish('tasksChanged', {
         tasksChanged: updatedTask,
-        user,
       });
 
       return updatedTask;
@@ -161,7 +160,6 @@ const taskMutations = {
         _id: updatedStage.pipelineId,
         type: BOARD_TYPES.TASK,
       },
-      user,
     });
 
     if (updatedStage.pipelineId !== oldStage.pipelineId) {
@@ -170,7 +168,6 @@ const taskMutations = {
           _id: oldStage.pipelineId,
           type: BOARD_TYPES.TASK,
         },
-        user,
       });
     }
 
@@ -226,7 +223,6 @@ const taskMutations = {
           _id: stage.pipelineId,
           type: BOARD_TYPES.TASK,
         },
-        user,
       });
     }
 

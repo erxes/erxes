@@ -130,7 +130,6 @@ const growthHackMutations = {
     if (oldGrowthHack.stageId === updatedGrowthHack.stageId) {
       graphqlPubsub.publish('growthHacksChanged', {
         growthHacksChanged: updatedGrowthHack,
-        user,
       });
 
       return updatedGrowthHack;
@@ -161,7 +160,6 @@ const growthHackMutations = {
         _id: updatedStage.pipelineId,
         type: BOARD_TYPES.GROWTH_HACK,
       },
-      user,
     });
 
     if (updatedStage.pipelineId !== oldStage.pipelineId) {
@@ -170,7 +168,6 @@ const growthHackMutations = {
           _id: oldStage.pipelineId,
           type: BOARD_TYPES.GROWTH_HACK,
         },
-        user,
       });
     }
 
@@ -226,7 +223,6 @@ const growthHackMutations = {
           _id: stage.pipelineId,
           type: BOARD_TYPES.GROWTH_HACK,
         },
-        user,
       });
     }
 
