@@ -8,6 +8,8 @@ on:
     paths:
       - 'logger/**'
       - '.github/workflows/logger.yaml'
+    tags:
+      - '*'
 
 jobs:
   logger:
