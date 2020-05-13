@@ -56,7 +56,7 @@ export default {
       case BOARD_TYPES.DEAL: {
         const filter = await generateDealCommonFilters(
           user._id,
-          { ...args, stageId: stage._id, pipelineId: stage.pipelineId, filterArchive: false },
+          { ...args, stageId: stage._id, pipelineId: stage.pipelineId },
           args.extraParams,
         );
 
@@ -65,7 +65,7 @@ export default {
       case BOARD_TYPES.TICKET: {
         const filter = await generateTicketCommonFilters(
           user._id,
-          { ...args, stageId: stage._id, pipelineId: stage.pipelineId, filterArchive: false },
+          { ...args, stageId: stage._id, pipelineId: stage.pipelineId },
           args.extraParams,
         );
 
@@ -76,7 +76,6 @@ export default {
           ...args,
           stageId: stage._id,
           pipelineId: stage.pipelineId,
-          filterArchive: false,
         });
 
         return Tasks.find(filter).countDocuments();
@@ -84,7 +83,7 @@ export default {
       case BOARD_TYPES.GROWTH_HACK: {
         const filter = await generateGrowthHackCommonFilters(
           user._id,
-          { ...args, stageId: stage._id, pipelineId: stage.pipelineId, filterArchive: false },
+          { ...args, stageId: stage._id, pipelineId: stage.pipelineId },
           args.extraParams,
         );
 
