@@ -44,9 +44,9 @@ const apolloServer = new ApolloServer({
   playground,
   uploads: false,
   context: ({ req, res, connection }) => {
-    let user = req ? req.user : null;
+    let user = req && req.user ? req.user : null;
 
-    if (!user) {
+    if (!req) {
       if (connection && connection.context && connection.context.user) {
         user = connection.context.user;
       }
