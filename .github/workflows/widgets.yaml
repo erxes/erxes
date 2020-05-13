@@ -7,6 +7,8 @@ on:
     paths:
       - 'widgets/**'
       - '.github/workflows/widgets.yaml'
+    tags:
+      - '*'
   pull_request:
     branches:
       - master
@@ -61,13 +63,17 @@ jobs:
         cd widgets
         yarn build
 
-    - name: Build docker image on push
+    - name: Build docker image [push]
       if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/apm' )
       run: |
         cd widgets
-        docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_TOKEN
+        echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
         docker build -t erxes/erxes-widgets:${GITHUB_REF#refs/heads/} -f Dockerfile .
         docker push erxes/erxes-widgets:${GITHUB_REF#refs/heads/}
-      env:
-        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build docker image [tag]
+      if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+      run: |
+        cd widgets
+        docker build -t erxes/erxes-widgets:${GITHUB_REF#refs/tags/} -f Dockerfile .
+        docker push erxes/erxes-widgets:${GITHUB_REF#refs/tags/}
