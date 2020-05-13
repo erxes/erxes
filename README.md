@@ -38,7 +38,7 @@ erxes helps you attract and engage more customers while giving you high lead con
   
 ## Deployment
 
-### Ubuntu 16.04/18.04 LTS
+### Ubuntu 16.04/18.04 LTS/18.06
 Follow these deployment instructions.
 
 [![ubuntu](https://erxes-os.s3-us-west-2.amazonaws.com/github/ubuntu-logo.png)](https://docs.erxes.io/installation/ubuntu)
