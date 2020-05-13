@@ -1,6 +1,6 @@
 # erxes
 
-erxes is an open source growth marketing platform. Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot with the mission and community-driven ecosystem.
+erxes is a free and open fair-code licensed all-in-one growth marketing & management software. We offer an all-in-one solution for sales, marketing, and customer service teams, with a focus on the entire customer experience. Replace Hubspot with the mission and community-driven ecosystem.
 
 <a href="https://demo.erxes.io/">Live demo</a> <b>| </b> <a href="https://community.erxes.io/register/Gw4WRJnk9fSbyAXTq">Join our community</a>
 
@@ -15,7 +15,7 @@ erxes is an open source growth marketing platform. Marketing, sales, and custome
 
 <img src="https://s3.amazonaws.com/erxes/github/features-transparent.png" width="400" align="right" style="max-width: 50%">
 
-erxes helps you attract and engage more customers while giving you high lead conversion. With erxes, all your marketing, sales and customer service tools are merged into one platform for greater output. Replace Hubspot with the mission and community-driven ecosystem.
+erxes helps you attract and engage more customers while giving you high lead conversion. With erxes, all your marketing, sales and customer service tools are merged into one platform for greater output.
 
 * **Growth Hacking:** Managing your entire growth operation made easy. From ideas to actual performance, making sure everything recorded, prioritized and centralized in the single platform to get tested with pool of analysis and learnings, which made the growing as pleasure.
 * **Email & SMS Marketing:** Reach your customer with personalized messaging. Keeping your customers hooked is definitely a challenge. Start converting your prospects into potential customers through email, SMS, Live chat, and In-app-messaging or more interactions to drive them to a successful close. You can connect to your customers in a whole new way with Erxes!
