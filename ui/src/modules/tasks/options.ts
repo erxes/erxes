@@ -19,7 +19,6 @@ const options = {
     editMutation: 'tasksEdit',
     removeMutation: 'tasksRemove',
     changeMutation: 'tasksChange',
-    updateOrderMutation: 'tasksUpdateOrder',
     watchMutation: 'tasksWatch',
     archiveMutation: 'tasksArchive',
     copyMutation: 'tasksCopy'
@@ -38,7 +37,6 @@ const options = {
     editMutation: mutations.tasksEdit,
     removeMutation: mutations.tasksRemove,
     changeMutation: mutations.tasksChange,
-    updateOrderMutation: mutations.tasksUpdateOrder,
     watchMutation: mutations.tasksWatch,
     archiveMutation: mutations.tasksArchive,
     copyMutation: mutations.tasksCopy

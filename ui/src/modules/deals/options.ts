@@ -19,7 +19,6 @@ const options = {
     editMutation: 'dealsEdit',
     removeMutation: 'dealsRemove',
     changeMutation: 'dealsChange',
-    updateOrderMutation: 'dealsUpdateOrder',
     watchMutation: 'dealsWatch',
     archiveMutation: 'dealsArchive',
     copyMutation: 'dealsCopy'
@@ -38,7 +37,6 @@ const options = {
     editMutation: mutations.dealsEdit,
     removeMutation: mutations.dealsRemove,
     changeMutation: mutations.dealsChange,
-    updateOrderMutation: mutations.dealsUpdateOrder,
     watchMutation: mutations.dealsWatch,
     archiveMutation: mutations.dealsArchive,
     copyMutation: mutations.dealsCopy

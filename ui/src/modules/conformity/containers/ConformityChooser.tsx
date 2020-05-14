@@ -18,7 +18,6 @@ type Props = {
   stageId?: string;
   boardId?: string;
   pipelineId?: string;
-  showSelect?: boolean;
   refetchQuery: string;
 } & CommonProps;
 
