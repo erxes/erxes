@@ -5,7 +5,6 @@ try {
     compilerOptions: {
       experimentalDecorators: false,
     },
-    files: ['./importHistoryRemove.worker.ts'],
     transpileOnly: true,
   });
 } catch (e) {
