@@ -40,14 +40,19 @@ const createIframe = (setting: Setting) => {
   }
 
   // add iframe
-  const iframe = document.createElement("iframe");
+  let iframe: any = document.getElementById(iframeId);
 
-  iframe.id = iframeId;
+  if (!iframe) {
+    iframe = document.createElement("iframe");
+
+    iframe.id = iframeId;
+    iframe.style.display = "none";
+    iframe.style.width = "100%";
+    iframe.style.margin = "0 auto";
+    iframe.style.height = "100%";
+  }
+
   iframe.src = generateIntegrationUrl("form");
-  iframe.style.display = "none";
-  iframe.style.width = "100%";
-  iframe.style.margin = "0 auto";
-  iframe.style.height = "100%";
 
   container.appendChild(iframe);
 
