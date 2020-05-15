@@ -30,11 +30,14 @@ const createIframe = (setting: Setting) => {
   const formId = setting.form_id;
 
   // container
-  const container = document.createElement("div");
   const containerId = `erxes-container-${formId}`;
   const iframeId = `erxes-iframe-${formId}`;
+  let container = document.getElementById(containerId);
 
-  container.id = containerId;
+  if (!container) {
+    container = document.createElement("div");
+    container.id = containerId;
+  }
 
   // add iframe
   const iframe = document.createElement("iframe");
