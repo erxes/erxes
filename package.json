@@ -1,6 +1,6 @@
 {
   "name": "erxes-integrations",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "description": "erxes integrations",
   "homepage": "https://erxes.io",
   "repository": {
@@ -14,7 +14,7 @@
     "graphql",
     "apollo"
   ],
-  "license": "MIT",
+  "license": "GNU General Public License v3.0 with Commons Clause",
   "private": true,
   "scripts": {
     "start": "node dist",

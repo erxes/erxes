@@ -1,3 +1,27 @@
+# [0.14.0](https://github.com/erxes/erxes-integrations/compare/0.13.0...0.14.0) (2020-04-25)
+
+
+### Bug Fixes
+
+* add try catch in third party request and check env ([b89e39a](https://github.com/erxes/erxes-integrations/commit/b89e39af2ec0261c49534aff0e4b0ffc26b5ed4d))
+* add user middleware ([71d7a4d](https://github.com/erxes/erxes-integrations/commit/71d7a4dafdee6c51a1f79f952c120782ea0de346))
+* test in nylas and remove unused field in loginMiddleware ([6f87472](https://github.com/erxes/erxes-integrations/commit/6f87472079dd31e3abcb2f66a575c584c2aa4cbd))
+* **test:** add env to drone.yml for nylas test ([9139a6c](https://github.com/erxes/erxes-integrations/commit/9139a6cd0a6ff862d3c8fa5787ce63622aed0558))
+* **test:** remove colon in drone.yml for nylas test ([6a131a2](https://github.com/erxes/erxes-integrations/commit/6a131a2c6591938dc848260f8080ab5b9da0be3e))
+
+
+### Features
+
+* **integration:** integrated Viber, Telegram, Line, Twilio Sms using Sunshine Conversation API ([4e56584](https://github.com/erxes/erxes-integrations/commit/4e5658425590c3e9353f1563766366766140f170)), closes [#102](https://github.com/erxes/erxes-integrations/issues/102)
+* **whatsapp:** added whatspp integration ([d0c66b6](https://github.com/erxes/erxes-integrations/commit/d0c66b67c17bc0922f120720eb29cb2e7dcbf245)), closes [#77](https://github.com/erxes/erxes-integrations/issues/77)
+* nylas exchange provider ([a51db14](https://github.com/erxes/erxes-integrations/commit/a51db14bd6a0319623db985ffde5249ee4b6575f))
+
+
+### Performance Improvements
+
+* **test:** complete gmail test coverage ([0a94066](https://github.com/erxes/erxes-integrations/commit/0a94066225c94e281e43ddab4c849ef3e45658b0))
+* **test:** improve nylas test coverage ([ab83714](https://github.com/erxes/erxes-integrations/commit/ab837141521db43cb7f64cbcba61ea822a551f21))
+
 # [0.13.0](https://github.com/erxes/erxes-integrations/compare/0.12.4...0.13.0) (2020-03-17)
 
 
