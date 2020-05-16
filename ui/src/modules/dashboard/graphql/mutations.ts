@@ -22,7 +22,14 @@ const dashboardEdit = `
 	}
 `;
 
+const dashboardRemove = `
+	mutation dashboardRemove($_id: String!) {
+		dashboardRemove(_id: $_id)
+	}
+`;
+
 export default {
+  dashboardRemove,
   dashboardAdd,
   dashboardEdit
 };

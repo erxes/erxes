@@ -1,9 +1,8 @@
 import { IButtonMutateProps } from 'modules/common/types';
-// import PipelineForm from 'modules/settings/boards/containers/PipelineForm';
 import React, { useState } from 'react';
 import { BoxContainer, ProjectItem } from '../styles';
 import { IDashboard } from '../types';
-import DashbaordForm from './DashboardForm';
+import DashbaordForm from '../containers/DashboardForm';
 import DashboardRow from './DashboardRow';
 
 type Props = {
@@ -18,15 +17,7 @@ function DashboardList(props: Props) {
     setVisibility(!showPopup);
   };
   const renderAddForm = () => {
-    const { renderAddButton } = props;
-
-    return (
-      <DashbaordForm
-        renderButton={renderAddButton}
-        show={showPopup}
-        closeModal={toggleVisibility}
-      />
-    );
+    return <DashbaordForm show={showPopup} closeModal={toggleVisibility} />;
   };
 
   const { dashboards } = props;

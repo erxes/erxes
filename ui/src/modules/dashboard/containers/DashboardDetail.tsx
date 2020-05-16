@@ -1,74 +1,50 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import ButtonMutate from 'modules/common/components/ButtonMutate';
-import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
+import Spinner from 'modules/common/components/Spinner';
 import { withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import DashboardList from '../components/DashboardList';
-import { mutations, queries } from '../graphql';
-import { DashboardsQueryResponse } from '../types';
+import { queries } from '../graphql';
+import { DashboardDetailsQueryResponse } from '../types';
+import DashboardDetail from '../components/DashboardDetail';
 
-type Props = { queryParams: any } & IRouterProps;
+type Props = {
+  id: string;
+};
 
 type FinalProps = {
-  dashboardsQuery?: DashboardsQueryResponse;
+  dashboardDetailQuery: DashboardDetailsQueryResponse;
 } & Props;
 
-class DashboardListContainer extends React.Component<FinalProps> {
+class CustomerDetailsContainer extends React.Component<FinalProps, {}> {
   render() {
-    const { dashboardsQuery } = this.props;
+    const { dashboardDetailQuery } = this.props;
 
-    const dashboards = dashboardsQuery ? dashboardsQuery.dashboards || [] : [];
+    if (dashboardDetailQuery.loading) {
+      return <Spinner />;
+    }
 
-    const renderAddButton = ({
-      name,
-      values,
-      isSubmitted,
-      callback,
-      object
-    }: IButtonMutateProps) => {
-      const afterSave = () => {
-        if (callback) {
-          callback();
-        }
-
-        if (dashboardsQuery) {
-          dashboardsQuery.refetch();
-        }
-      };
-
-      return (
-        <ButtonMutate
-          mutation={mutations.dashboardAdd}
-          variables={values}
-          callback={afterSave}
-          refetchQueries={[]}
-          isSubmitted={isSubmitted}
-          type="submit"
-          successMessage={`You successfully ${
-            object ? 'updated' : 'added'
-          } a ${name}`}
-        />
-      );
+    const updatedProps = {
+      ...this.props,
+      dashboard: dashboardDetailQuery.dashboardDetails || {}
     };
 
-    return (
-      <DashboardList
-        renderAddButton={renderAddButton}
-        dashboards={dashboards}
-      />
-    );
+    return <DashboardDetail {...updatedProps} />;
   }
 }
 
-export default withRouter(
-  withProps<Props>(
-    compose(
-      graphql<Props, DashboardsQueryResponse>(gql(queries.dashboards), {
-        name: 'dashboardsQuery'
-      })
-    )(DashboardListContainer)
-  )
+export default withProps<Props>(
+  compose(
+    graphql<Props, DashboardDetailsQueryResponse, { _id: string }>(
+      gql(queries.dashboardDetails),
+      {
+        name: 'dashboardDetailQuery',
+        options: ({ id }: { id: string }) => ({
+          variables: {
+            _id: id
+          }
+        })
+      }
+    )
+  )(CustomerDetailsContainer)
 );

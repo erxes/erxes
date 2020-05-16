@@ -61,7 +61,8 @@ const ProjectItem = styledTS<{ new?: boolean }>(styled(BoxItem))`
     position: absolute;
     color: ${colors.colorCoreDarkBlue};
     font-size: 196px;
-    right: -10%;
+    transform: rotate(10deg);
+    right: -15%;
     bottom: -80px;
     opacity: 0.06;
   }

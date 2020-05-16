@@ -8,7 +8,7 @@ const Dashboard = asyncComponent(() =>
 );
 
 const DashboardDetail = asyncComponent(() =>
-  import(/* webpackChunkName: "Dashboards" */ './components/DashboardDetail')
+  import(/* webpackChunkName: "Dashboards" */ './containers/DashboardDetail')
 );
 
 const DashboardItem = asyncComponent(() =>

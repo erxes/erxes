@@ -18,6 +18,15 @@ const dashboards = `
   }
 `;
 
+const dashboardDetails = `
+  query dashboardDetails($_id: String!) {
+    dashboardDetails(_id: $_id) {
+	    _id
+	    name
+    }
+  }
+`;
+
 const totalCount = `
   query dashboardsTotalCount {
 	  dashboardsTotalCount
@@ -27,5 +36,6 @@ const totalCount = `
 export default {
   dashboardItemDetail,
   totalCount,
-  dashboards
+  dashboards,
+  dashboardDetails
 };

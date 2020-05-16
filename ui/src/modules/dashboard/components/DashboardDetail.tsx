@@ -4,47 +4,95 @@ import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { IDashboard } from '../types';
+import { Title } from 'modules/common/styles/main';
+import DashbaordForm from '../containers/DashboardForm';
 
 const { REACT_APP_DASHBOARD_URL } = getEnv();
 
 type Props = {
   id: string;
+  dashboard: IDashboard;
+};
+type State = {
+  show: boolean;
 };
 
-class DashboardDetail extends React.Component<Props, {}> {
+class DashboardDetail extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      show: false
+    };
+  }
+
+  showPopup = () => {
+    const { show } = this.state;
+
+    console.log(show);
+
+    this.setState({
+      show: show ? false : true
+    });
+  };
+
   render() {
-    const { id } = this.props;
+    const { id, dashboard } = this.props;
+    const { show } = this.state;
+
+    const renderAddForm = () => {
+      return (
+        <DashbaordForm
+          show={show}
+          closeModal={this.showPopup}
+          dashboard={dashboard}
+        />
+      );
+    };
+
+    const leftActionBar = (
+      <Title onClick={this.showPopup}>{dashboard.name}</Title>
+    );
 
     const rightActionBar = (
       <Link to={`/dashboard/explore/${id}`}>
         <Button btnStyle="primary" size="small" icon="arrow-from-right">
           Add chart
         </Button>
+        <Button btnStyle="danger" size="small" icon="arrow-from-right">
+          Remove
+        </Button>
       </Link>
     );
 
-    const actionBar = <Wrapper.ActionBar right={rightActionBar} />;
+    const actionBar = (
+      <Wrapper.ActionBar right={rightActionBar} left={leftActionBar} />
+    );
 
     return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={`${'Dashboard' || ''}`}
-            breadcrumb={[{ title: __('Dashboard'), link: '/dashboard' }]}
-          />
-        }
-        actionBar={actionBar}
-        content={
-          <iframe
-            title="dashboard"
-            width="100%"
-            height="100%"
-            src={`${REACT_APP_DASHBOARD_URL}/details/${id}`}
-            frameBorder="0"
-            allowFullScreen={true}
-          />
-        }
-      />
+      <>
+        {renderAddForm()}
+        <Wrapper
+          header={
+            <Wrapper.Header
+              title={`${'Dashboard' || ''}`}
+              breadcrumb={[{ title: __('Dashboard'), link: '/dashboard' }]}
+            />
+          }
+          actionBar={actionBar}
+          content={
+            <iframe
+              title="dashboard"
+              width="100%"
+              height="100%"
+              src={`${REACT_APP_DASHBOARD_URL}/details/${id}`}
+              frameBorder="0"
+              allowFullScreen={true}
+            />
+          }
+        />
+      </>
     );
   }
 }

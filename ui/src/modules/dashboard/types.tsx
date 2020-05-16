@@ -27,6 +27,11 @@ export type DashboardItemDetailsQueryResponse = {
   loading: boolean;
 };
 
+export type DashboardDetailsQueryResponse = {
+  dashboardDetails: IDashboard;
+  loading: boolean;
+};
+
 export type EditDashboardItemMutationVariables = {
   _id: string;
   layout: string;
