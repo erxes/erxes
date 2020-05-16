@@ -11,6 +11,13 @@ const MONGO_URL = getEnv({ name: 'MONGO_URL', defaultValue: '' });
 mongoose.Promise = global.Promise;
 mongoose.set('useFindAndModify', false);
 
+export const connectionOptions = {
+  useNewUrlParser: true,
+  useCreateIndex: true,
+  autoReconnect: true,
+  useFindAndModify: false,
+};
+
 mongoose.connection
   .on('connected', () => {
     if (NODE_ENV !== 'test') {
@@ -27,5 +34,5 @@ mongoose.connection
 export const connect = (url?: string) => {
   const URI = url || process.env.MONGO_URL;
 
-  return mongoose.connect(URI, { useNewUrlParser: true, useCreateIndex: true });
+  return mongoose.connect(URI, connectionOptions);
 };

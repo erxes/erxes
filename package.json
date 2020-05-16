@@ -19,7 +19,7 @@
   "scripts": {
     "start": "node dist",
     "dev": "DEBUG=erxes-integrations:* node_modules/.bin/ts-node-dev --respawn --ignore-watch node_modules src",
-    "test": "NODE_ENV=test jest --forceExit",
+    "test": "NODE_ENV=test node --expose-gc --max_old_space_size=4000 ./node_modules/.bin/jest --runInBand --forceExit --silent --logHeapUsage",
     "build": "tsc -p tsconfig.prod.json",
     "lint": "tslint 'src/**/*.ts'",
     "format": "prettier --write 'src/**/*.ts'",
@@ -53,6 +53,7 @@
     "googleapis": "^40.0.0",
     "meteor-random": "^0.0.3",
     "migrate": "^1.6.2",
+    "mongodb-memory-server": "^6.6.0",
     "mongoose": "5.7.5",
     "nylas": "^4.7.0",
     "querystring": "^0.2.0",
@@ -79,6 +80,7 @@
     "@types/mongoose": "^5.2.1",
     "@types/node": "^10.12.18",
     "@types/q": "^1.5.0",
+    "@types/uuid": "^7.0.3",
     "faker": "^4.1.0",
     "husky": "^0.13.4",
     "jest": "22.0.4",
@@ -95,6 +97,6 @@
   },
   "snyk": true,
   "engines": {
-    "node": "10.x.x"
+    "node": ">=10.x.x"
   }
 }

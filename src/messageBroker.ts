@@ -1,6 +1,6 @@
 import * as amqplib from 'amqplib';
 import * as dotenv from 'dotenv';
-import * as uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 
 import { debugBase, debugGmail } from './debuggers';
 import { removeAccount, removeCustomers } from './helpers';
