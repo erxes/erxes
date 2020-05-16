@@ -11,7 +11,7 @@
     "graphql",
     "apollo"
   ],
-  "license": "MIT",
+  "license": "GNU General Public License v3.0 with Commons Clause",
   "private": true,
   "scripts": {
     "start": "node dist",
