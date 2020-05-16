@@ -1,7 +1,7 @@
 {
   "name": "erxes",
   "version": "0.14.0",
-  "description": "erxes is an AI meets open source messaging platform for sales and marketing teams.",
+  "description": "Free and open fair-code licensed all-in-one growth marketing & management software",
   "homepage": "https://erxes.io",
   "repository": "https://github.com/erxes/erxes",
   "bugs": "https://github.com/erxes/erxes/issues",
@@ -11,7 +11,7 @@
     "apollo",
     "react"
   ],
-  "license": "MIT",
+  "license": "GNU General Public License v3.0 with Commons Clause",
   "private": true,
   "collective": {
     "type": "opencollective",
