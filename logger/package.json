@@ -13,7 +13,6 @@
     "graphql",
     "apollo"
   ],
-  "license": "MIT",
   "scripts": {
     "start": "node dist",
     "dev": "DEBUG=erxes-logger:* node_modules/.bin/ts-node-dev --respawn src",

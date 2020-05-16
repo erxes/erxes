@@ -1,6 +1,6 @@
 {
   "name": "erxes-api",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "description": "GraphQL API for erxes main project",
   "homepage": "https://erxes.io",
   "repository": "https://github.com/erxes/erxes-api",
@@ -11,7 +11,7 @@
     "graphql",
     "apollo"
   ],
-  "license": "MIT",
+  "license": "GNU General Public License v3.0 with Commons Clause",
   "private": true,
   "scripts": {
     "start": "node dist",
