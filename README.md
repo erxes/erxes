@@ -10,8 +10,7 @@ erxes is a free and open fair-code licensed all-in-one growth marketing & manage
 [![codebeat badge](https://codebeat.co/badges/33270439-27de-42e9-b48a-da76192b3b22)](https://codebeat.co/projects/github-com-erxes-erxes-master)
 ![Docker Pulls](https://img.shields.io/docker/pulls/erxes/erxes)
 [![Known Vulnerabilities](https://snyk.io/test/github/erxes/erxes/badge.svg)](https://snyk.io/test/github/erxes/erxes)
-[![Backer](https://opencollective.com/erxes/backers/badge.svg?label=Backer&color=brightgreen)](https://opencollective.com/erxes/)
-[![Sponsor](https://opencollective.com/erxes/sponsors/badge.svg?label=Sponsor&color=brightgreen)](https://opencollective.com/erxes/)
+[![All financial contributors badge](https://bit.ly/3bCSG6i)](https://opencollective.com/erxes/)
 
 <a href="https://erxes.io" target="_blank"><img src="https://erxes-os.s3-us-west-2.amazonaws.com/github/git-erxes.gif" alt="Open Source Growth Marketing Platform "></a>
 
@@ -84,18 +83,6 @@ This project exists thanks to all the people who contribute. [[Contribute](CONTR
 Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/erxes#backer)]
 
 <a href="https://opencollective.com/erxes#backers" target="_blank"><img src="https://opencollective.com/erxes/backers.svg?width=890"></a>
-
-## Sponsors
-
-Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/erxes#sponsor)]
-
-<a href="https://opencollective.com/erxes/sponsor/0/website" target="_blank"><img src="https://opencollective.com/erxes/sponsor/0/avatar.svg"></a>
-<a href="https://opencollective.com/erxes/sponsor/1/website" target="_blank"><img src="https://opencollective.com/erxes/sponsor/1/avatar.svg"></a>
-<a href="https://opencollective.com/erxes/sponsor/2/website" target="_blank"><img src="https://opencollective.com/erxes/sponsor/2/avatar.svg"></a>
-<a href="https://opencollective.com/erxes/sponsor/3/website" target="_blank"><img src="https://opencollective.com/erxes/sponsor/3/avatar.svg"></a>
-<a href="https://opencollective.com/erxes/sponsor/4/website" target="_blank"><img src="https://opencollective.com/erxes/sponsor/4/avatar.svg"></a>
-<a href="https://opencollective.com/erxes/sponsor/6/website" target="_blank"><img src="https://opencollective.com/erxes/sponsor/6/avatar.svg"></a>
-<a href="https://opencollective.com/erxes/sponsor/8/website" target="_blank"><img src="https://opencollective.com/erxes/sponsor/8/avatar.svg"></a>
 
 ## In-kind sponsors
 
