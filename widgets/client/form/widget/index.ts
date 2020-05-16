@@ -30,21 +30,29 @@ const createIframe = (setting: Setting) => {
   const formId = setting.form_id;
 
   // container
-  const container = document.createElement("div");
   const containerId = `erxes-container-${formId}`;
   const iframeId = `erxes-iframe-${formId}`;
+  let container = document.getElementById(containerId);
 
-  container.id = containerId;
+  if (!container) {
+    container = document.createElement("div");
+    container.id = containerId;
+  }
 
   // add iframe
-  const iframe = document.createElement("iframe");
+  let iframe: any = document.getElementById(iframeId);
 
-  iframe.id = iframeId;
+  if (!iframe) {
+    iframe = document.createElement("iframe");
+
+    iframe.id = iframeId;
+    iframe.style.display = "none";
+    iframe.style.width = "100%";
+    iframe.style.margin = "0 auto";
+    iframe.style.height = "100%";
+  }
+
   iframe.src = generateIntegrationUrl("form");
-  iframe.style.display = "none";
-  iframe.style.width = "100%";
-  iframe.style.margin = "0 auto";
-  iframe.style.height = "100%";
 
   container.appendChild(iframe);
 
