@@ -5,7 +5,13 @@ import { debugBase } from './utils';
 dotenv.config();
 
 mongoose.Promise = global.Promise;
-mongoose.set('useFindAndModify', false);
+
+export const connectionOptions = {
+  useNewUrlParser: true,
+  useCreateIndex: true,
+  autoReconnect: true,
+  useFindAndModify: false,
+};
 
 const { MONGO_URL } = process.env;
 
@@ -21,7 +27,7 @@ mongoose.connection
   });
 
 export const connect = (URL?: string) => {
-  return mongoose.connect(URL || MONGO_URL, { useNewUrlParser: true, useCreateIndex: true });
+  return mongoose.connect(URL || MONGO_URL, connectionOptions);
 };
 
 export function disconnect() {

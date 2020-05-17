@@ -5,11 +5,17 @@ import { debugDb } from './debuggers';
 dotenv.config();
 
 mongoose.Promise = global.Promise;
-mongoose.set('useFindAndModify', false);
+
+export const connectionOptions = {
+  useNewUrlParser: true,
+  useCreateIndex: true,
+  autoReconnect: true,
+  useFindAndModify: false,
+};
 
 export const connect = () => {
   const URI = process.env.MONGO_URL;
-  mongoose.connect(URI, { useNewUrlParser: true, useCreateIndex: true });
+  mongoose.connect(URI, connectionOptions);
 
   mongoose.connection
     .on('connected', () => {
