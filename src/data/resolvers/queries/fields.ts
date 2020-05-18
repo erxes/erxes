@@ -110,25 +110,30 @@ const fieldQueries = {
       }
     }
 
-    const aggre = await fetchElk('search', contentType === 'company' ? 'companies' : 'customers', {
-      size: 0,
-      _source: false,
-      aggs: {
-        trackedDataKeys: {
-          nested: {
-            path: 'trackedData',
-          },
-          aggs: {
-            fieldKeys: {
-              terms: {
-                field: 'trackedData.field',
-                size: 10000,
+    const aggre = await fetchElk(
+      'search',
+      contentType === 'company' ? 'companies' : 'customers',
+      {
+        size: 0,
+        _source: false,
+        aggs: {
+          trackedDataKeys: {
+            nested: {
+              path: 'trackedData',
+            },
+            aggs: {
+              fieldKeys: {
+                terms: {
+                  field: 'trackedData.field',
+                  size: 10000,
+                },
               },
             },
           },
         },
       },
-    });
+      { aggregations: { trackedDataKeys: {} } },
+    );
 
     const buckets = (aggre.aggregations.trackedDataKeys.fieldKeys || { buckets: [] }).buckets;
 
