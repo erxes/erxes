@@ -36,7 +36,7 @@ const generateFieldsFromSchema = async (queSchema: any, namePrefix: string) => {
 
   const integrations = await getIntegrations();
 
-  queSchema.eachPath(name => {
+  for (const name of Object.keys(paths)) {
     const path = paths[name];
 
     const label = path.options.label;
@@ -53,7 +53,7 @@ const generateFieldsFromSchema = async (queSchema: any, namePrefix: string) => {
         selectOptions,
       });
     }
-  });
+  }
 
   return queFields;
 };
@@ -89,14 +89,14 @@ const fieldQueries = {
     // generate list using customer or company schema
     fields = [...fields, ...(await generateFieldsFromSchema(schema, ''))];
 
-    schema.eachPath(async name => {
+    for (const name of Object.keys(schema.paths)) {
       const path = schema.paths[name];
 
       // extend fields list using sub schema fields
       if (path.schema) {
         fields = [...fields, ...(await generateFieldsFromSchema(path.schema, `${name}.`))];
       }
-    });
+    }
 
     const customFields = await Fields.find({ contentType });
 
