@@ -18,6 +18,21 @@ type Props = {
   toggleBulk: (target: any, toAdd: boolean) => void;
 };
 
+function displayObjectListItem(customer, customerFieldName, subFieldName) {
+  const objectList = customer[customerFieldName] || [];
+  const subFieldKey = subFieldName.replace(`${customerFieldName}.`, '');
+
+  const subField = objectList.find
+    ? objectList.find(obj => obj.field === subFieldKey)
+    : [];
+
+  if (!subField) {
+    return null;
+  }
+
+  return formatValue(subField.value);
+}
+
 function displayValue(customer, name) {
   const value = _.get(customer, name);
 
@@ -28,6 +43,14 @@ function displayValue(customer, name) {
         {formatValue(customer.firstName)}
       </FlexItem>
     );
+  }
+
+  if (name.includes('customFieldsData')) {
+    return displayObjectListItem(customer, 'customFieldsData', name);
+  }
+
+  if (name.includes('trackedData')) {
+    return displayObjectListItem(customer, 'trackedData', name);
   }
 
   if (name === 'visitorContactInfo') {
