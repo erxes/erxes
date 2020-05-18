@@ -93,7 +93,7 @@ const StyledTable = styledTS<{
       th,
       td {
         padding: ${dimensions.unitSpacing - 2}px ${dimensions.coreSpacing -
-    4}px;
+    2}px;
 
         &:first-child {
           padding-left: ${dimensions.coreSpacing}px;
