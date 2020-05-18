@@ -37,7 +37,7 @@ title: Getting  Started
 
 ### Installation Guide
 
-- <a href="../installation/ubuntu">Ubuntu 16.04 LTS</a>
+- <a href="../installation/ubuntu">Ubuntu 18.04</a>
 - <a href="../installation/debian10">Debian 10</a>
 - <a href="../installation/centos8">CentOS 8</a>
 - <a href="../installation/redhat8">RHEL 8</a>
