@@ -1,12 +1,16 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import Spinner from 'modules/common/components/Spinner';
-import { withProps } from 'modules/common/utils';
+import { IRouterProps } from 'modules/common/types';
+import { Alert, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { queries } from '../graphql';
-import { DashboardDetailsQueryResponse } from '../types';
 import DashboardDetail from '../components/DashboardDetail';
+import { mutations, queries } from '../graphql';
+import {
+  DashboardDetailsQueryResponse,
+  RemoveDashboardMutationResponse
+} from '../types';
 
 type Props = {
   id: string;
@@ -14,19 +18,39 @@ type Props = {
 
 type FinalProps = {
   dashboardDetailQuery: DashboardDetailsQueryResponse;
-} & Props;
+} & Props &
+  RemoveDashboardMutationResponse &
+  IRouterProps;
 
 class CustomerDetailsContainer extends React.Component<FinalProps, {}> {
   render() {
-    const { dashboardDetailQuery } = this.props;
+    const {
+      dashboardDetailQuery,
+      removeDashboardMutation,
+      history
+    } = this.props;
 
     if (dashboardDetailQuery.loading) {
       return <Spinner />;
     }
 
+    const removeDashboard = (dashboardId: string) => {
+      removeDashboardMutation({
+        variables: { _id: dashboardId }
+      })
+        .then(() => {
+          history.goBack();
+          Alert.success('You successfully deleted a dashboard');
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    };
+
     const updatedProps = {
       ...this.props,
-      dashboard: dashboardDetailQuery.dashboardDetails || {}
+      dashboard: dashboardDetailQuery.dashboardDetails || {},
+      removeDashboard
     };
 
     return <DashboardDetail {...updatedProps} />;
@@ -40,10 +64,17 @@ export default withProps<Props>(
       {
         name: 'dashboardDetailQuery',
         options: ({ id }: { id: string }) => ({
+          refetchQueries: ['dashboards'],
           variables: {
             _id: id
           }
         })
+      }
+    ),
+    graphql<Props, RemoveDashboardMutationResponse, { _id: string }>(
+      gql(mutations.dashboardRemove),
+      {
+        name: 'removeDashboardMutation'
       }
     )
   )(CustomerDetailsContainer)

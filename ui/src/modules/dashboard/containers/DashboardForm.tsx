@@ -1,8 +1,8 @@
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
 import React from 'react';
-import { mutations } from '../graphql';
 import DashbaordForm from '../components/DashboardForm';
+import { mutations } from '../graphql';
 import { IDashboard } from '../types';
 
 type Props = {
@@ -12,36 +12,35 @@ type Props = {
 };
 
 class DashboardFormContainer extends React.Component<Props> {
-  render() {
-    const renderButton = ({
-      name,
-      values,
-      isSubmitted,
-      callback,
-      object
-    }: IButtonMutateProps) => {
-      const afterSave = () => {
-        if (callback) {
-          callback();
-        }
-      };
+  renderButton = ({
+    name,
+    values,
+    isSubmitted,
+    callback,
+    object
+  }: IButtonMutateProps) => {
+    return (
+      <ButtonMutate
+        mutation={object ? mutations.dashboardEdit : mutations.dashboardAdd}
+        variables={values}
+        callback={callback}
+        refetchQueries={['dashboards', 'dashboardDetails']}
+        isSubmitted={isSubmitted}
+        type="submit"
+        successMessage={`You successfully ${
+          object ? 'updated' : 'added'
+        } a ${name}`}
+      />
+    );
+  };
 
-      return (
-        <ButtonMutate
-          mutation={object ? mutations.dashboardEdit : mutations.dashboardAdd}
-          variables={values}
-          callback={afterSave}
-          refetchQueries={['dashboards', 'dashboardDetails']}
-          isSubmitted={isSubmitted}
-          type="submit"
-          successMessage={`You successfully ${
-            object ? 'updated' : 'added'
-          } a ${name}`}
-        />
-      );
+  render() {
+    const updatedProps = {
+      ...this.props,
+      renderButton: this.renderButton
     };
 
-    return <DashbaordForm renderButton={renderButton} {...this.props} />;
+    return <DashbaordForm {...updatedProps} />;
   }
 }
 

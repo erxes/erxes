@@ -62,3 +62,11 @@ export type EditDashboardItemMutationResponse = {
     }
   ) => Promise<void>;
 };
+
+export type RemoveDashboardMutationResponse = {
+  removeDashboardMutation: (
+    params: {
+      variables: { _id: string };
+    }
+  ) => Promise<any>;
+};

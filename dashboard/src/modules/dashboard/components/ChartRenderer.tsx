@@ -16,7 +16,7 @@ import {
   ResponsiveContainer,
   Tooltip,
   XAxis,
-  YAxis,
+  YAxis
 } from 'recharts';
 
 import styled from 'styled-components';
@@ -34,7 +34,7 @@ const colors = [
   '#32a852',
   '#7c2bba',
   '#d1a924',
-  '#05f238',
+  '#05f238'
 ];
 
 const dateFormatter = (item, dateType) => {
@@ -65,15 +65,15 @@ const CartesianChart = ({
   children,
   ChartComponent,
   height,
-  dateType,
+  dateType
 }) => (
-  <ResponsiveContainer width='100%' height={height}>
+  <ResponsiveContainer width="100%" height={height}>
     <ChartComponent margin={{ left: -10 }} data={resultSet.chartPivot()}>
       <XAxis
         axisLine={false}
         tickLine={false}
         tickFormatter={item => xAxisFormatter(item, dateType)}
-        dataKey='x'
+        dataKey="x"
         minTickGap={20}
       />
       <YAxis
@@ -121,7 +121,7 @@ const TypeToChartComponent = {
         {resultSet.seriesNames().map((series, i) => (
           <Bar
             key={series.key}
-            stackId='a'
+            stackId="a"
             dataKey={series.key}
             name={series.title}
             fill={colors[i]}
@@ -141,7 +141,7 @@ const TypeToChartComponent = {
         {resultSet.seriesNames().map((series, i) => (
           <Area
             key={series.key}
-            stackId='a'
+            stackId="a"
             dataKey={series.key}
             name={series.title}
             stroke={colors[i]}
@@ -159,7 +159,6 @@ const TypeToChartComponent = {
             <Pie
               isAnimationActive={false}
               data={resultSet.chartPivot()}
-              nameKey="x"
               dataKey={resultSet.seriesNames()[0].key}
               fill="#8884d8"
             >
@@ -175,18 +174,26 @@ const TypeToChartComponent = {
     }
     return <></>;
   },
-  table: ({ resultSet }) => (
-    <Table
-      columns={resultSet.tableColumns().map(c => ({ ...c, dataIndex: c.key }))}
-      dataSource={resultSet.tablePivot()}
-    />
-  ),
+  table: ({ resultSet }) => {
+    return (
+      <Table
+        columns={resultSet
+          .tableColumns()
+          .map(c => ({ ...c, dataIndex: c.key }))}
+        dataSource={resultSet.tablePivot().map((result, index) => ({
+          ...result,
+          key: `${index}+${result.value}`
+        }))}
+      />
+    );
+  },
+
   number: ({ resultSet }) => (
     <Row
-      justify='center'
-      align='middle'
+      justify="center"
+      align="middle"
       style={{
-        height: '100%',
+        height: '100%'
       }}
     >
       <Col>
@@ -195,11 +202,11 @@ const TypeToChartComponent = {
         ))}
       </Col>
     </Row>
-  ),
+  )
 };
 const TypeToMemoChartComponent = Object.keys(TypeToChartComponent)
   .map(key => ({
-    [key]: React.memo(TypeToChartComponent[key]),
+    [key]: React.memo(TypeToChartComponent[key])
   }))
   .reduce((a, b) => ({ ...a, ...b }));
 
@@ -210,7 +217,7 @@ const SpinContainer = styled.div`
 `;
 const Spinner = () => (
   <SpinContainer>
-    <Spin size='large' />
+    <Spin size="large" />
   </SpinContainer>
 );
 
@@ -225,7 +232,7 @@ const renderChart = Component => ({ resultSet, dateType, error, height }) => {
 
 const ChartRenderer = ({
   vizState,
-  chartHeight = 300,
+  chartHeight = 300
 }: {
   vizState?: any;
   chartHeight?: any;
@@ -244,7 +251,7 @@ const ChartRenderer = ({
     return renderChart(component)({
       height: chartHeight,
       ...renderProps,
-      dateType,
+      dateType
     });
   }
 

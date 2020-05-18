@@ -1,18 +1,19 @@
 import { getEnv } from 'apolloClient';
 import Button from 'modules/common/components/Button';
-import { __ } from 'modules/common/utils';
+import { Title } from 'modules/common/styles/main';
+import { __, confirm } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { IDashboard } from '../types';
-import { Title } from 'modules/common/styles/main';
 import DashbaordForm from '../containers/DashboardForm';
+import { IDashboard } from '../types';
 
 const { REACT_APP_DASHBOARD_URL } = getEnv();
 
 type Props = {
   id: string;
   dashboard: IDashboard;
+  removeDashboard: (dashboardId: string) => void;
 };
 type State = {
   show: boolean;
@@ -30,10 +31,16 @@ class DashboardDetail extends React.Component<Props, State> {
   showPopup = () => {
     const { show } = this.state;
 
-    console.log(show);
-
     this.setState({
       show: show ? false : true
+    });
+  };
+
+  remove = () => {
+    const { id, removeDashboard } = this.props;
+
+    return confirm().then(() => {
+      removeDashboard(id);
     });
   };
 
@@ -56,14 +63,21 @@ class DashboardDetail extends React.Component<Props, State> {
     );
 
     const rightActionBar = (
-      <Link to={`/dashboard/explore/${id}`}>
-        <Button btnStyle="primary" size="small" icon="arrow-from-right">
-          Add chart
-        </Button>
-        <Button btnStyle="danger" size="small" icon="arrow-from-right">
+      <>
+        <Link to={`/dashboard/explore/${id}`}>
+          <Button btnStyle="primary" size="small" icon="arrow-from-right">
+            Add chart
+          </Button>
+        </Link>
+        <Button
+          onClick={this.remove}
+          btnStyle="danger"
+          size="small"
+          icon="arrow-from-right"
+        >
           Remove
         </Button>
-      </Link>
+      </>
     );
 
     const actionBar = (
