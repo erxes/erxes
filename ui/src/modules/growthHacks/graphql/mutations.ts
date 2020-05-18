@@ -62,14 +62,6 @@ const growthHacksChange = `
   }
 `;
 
-const growthHacksUpdateOrder = `
-  mutation growthHacksUpdateOrder($stageId: String!, $orders: [OrderItem]) {
-    growthHacksUpdateOrder(stageId: $stageId, orders: $orders) {
-      _id
-    }
-  }
-`;
-
 const growthHacksWatch = `
   mutation growthHacksWatch($_id: String!, $isAdd: Boolean!) {
     growthHacksWatch(_id: $_id, isAdd: $isAdd) {
@@ -106,7 +98,6 @@ export default {
   growthHacksEdit,
   growthHacksRemove,
   growthHacksChange,
-  growthHacksUpdateOrder,
   growthHacksWatch,
   growthHacksVote,
   growthHacksArchive,

@@ -125,12 +125,13 @@ class Row extends React.Component<Props> {
     const {
       stats = { send: '' },
       brand = { name: '' },
+      kind,
       validCustomersCount
     } = message;
 
     const totalCount = stats.total || 0;
 
-    if (validCustomersCount === totalCount) {
+    if (kind === 'manual' && validCustomersCount === totalCount) {
       status = <Label lblStyle="success">Sent</Label>;
     }
 

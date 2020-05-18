@@ -58,10 +58,12 @@ export const orderHelper = ({
   prevOrder: number;
   afterOrder: number;
 }) => {
+  // empty stage
   if (!prevOrder && !afterOrder) {
     return 1;
   }
 
+  // end of stage
   if (!afterOrder) {
     return round(prevOrder) + 1;
   }
@@ -69,6 +71,7 @@ export const orderHelper = ({
   const splitAfter = afterOrder.toString().split('.');
   const fraction = '0.'.concat(splitAfter[1] || '0');
 
+  // begin of stage
   if (!prevOrder) {
     const afterLen = fraction.length;
     const afterDotLen = fraction === '0.0' ? 1 : 0;
@@ -80,6 +83,7 @@ export const orderHelper = ({
     );
   }
 
+  // between items on stage
   const prevFraction = '0.'.concat(prevOrder.toString().split('.')[1] || '0');
   const diffLen =
     prevFraction.length > fraction.length
@@ -106,11 +110,21 @@ export const reorderItemMap = ({
 
   const target = current[source.index];
   target.modifiedAt = new Date();
+  let checkSelf = 0;
+
+  if (
+    source.droppableId === destination.droppableId &&
+    source.index < destination.index
+  ) {
+    checkSelf = 1;
+  }
 
   const prevOrder =
-    destination.index > 0 ? next[destination.index - 1].order : 0;
+    destination.index > 0 ? next[destination.index - 1 + checkSelf].order : 0;
   const afterOrder =
-    next.length > destination.index ? next[destination.index].order : 0;
+    next.length > destination.index + checkSelf
+      ? next[destination.index + checkSelf].order
+      : 0;
   target.order = orderHelper({ prevOrder, afterOrder }) || 1;
 
   // moving to same list

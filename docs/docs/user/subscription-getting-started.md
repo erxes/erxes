@@ -14,19 +14,20 @@ Describe how to set the subscription
 <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/getting+started/gs2.jpg" class="hw"/>
 </div>
 
-1. Insert an **email address**
-2. Click **Sign Up** button
-3. Insert **confirmation code** sent to the email address
-4. Click **confirm**
+1. Go to https://erxes.io/create 
+2. Insert an **email address** and click on the Sign Up button. 
+3. On the next page, enter your **company name**, which becomes your **subdomain title**. 
+4. The next page is your erxes dashboard with the subdomain address as “**xxx.app.erxes.io**”
+5. Meanwhile, open your email and follow the **email confirmation instructions**.
+6. Back at your erxes dashboard click on **Get Started** of the erxes Bot (in the right bottom corner) to enter your **full name** and set your **username and password**. Click save.
+7. Pick which setup to start first by choosing at least two features from the options and click Finish.
+8. Follow the Bots instructions or go straight to the Help, Settings sections on the top left corner.
 
 <div>
 <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/getting+started/gs3.jpg" class="hw"/>
 <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/getting+started/gs4.jpg" class="hw"/>
 </div>
 
-1. Insert your **Company name**
-2. Click **Create** to confirm
-3. Click for **Initial Setup**
 
 ---
 ## Signing in

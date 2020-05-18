@@ -50,14 +50,6 @@ const ticketsChange = `
   }
 `;
 
-const ticketsUpdateOrder = `
-  mutation ticketsUpdateOrder($stageId: String!, $orders: [OrderItem]) {
-    ticketsUpdateOrder(stageId: $stageId, orders: $orders) {
-      _id
-    }
-  }
-`;
-
 const ticketsWatch = `
   mutation ticketsWatch($_id: String!, $isAdd: Boolean!) {
     ticketsWatch(_id: $_id, isAdd: $isAdd) {
@@ -87,7 +79,6 @@ export default {
   ticketsEdit,
   ticketsRemove,
   ticketsChange,
-  ticketsUpdateOrder,
   ticketsWatch,
   ticketsArchive,
   ticketsCopy

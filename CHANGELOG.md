@@ -1,3 +1,53 @@
+# [0.14.0](https://github.com/erxes/erxes/compare/0.13.0...%s) (2020-04-25)
+
+
+### Bug Fixes
+
+* add userId in uploadHandler ([d0a6813](https://github.com/erxes/erxes/commit/d0a681303f091fb3893c75e2fe007e73b9156ecb))
+* edit in troubleshooting doc ([1347b9b](https://github.com/erxes/erxes/commit/1347b9b45411503c84e9e16f046dbf39d7377858))
+* mail optimistic response ([a4552a4](https://github.com/erxes/erxes/commit/a4552a4e8339a1cda1a5145ccda07ea9f86edc16))
+* on open reload search with values ([b278c83](https://github.com/erxes/erxes/commit/b278c83a491cba65c804d4acb4dec0fd35bbd9c1))
+* **contacts:** add default value to integrations in LeadFilter ([045b453](https://github.com/erxes/erxes/commit/045b45311bae56f746bfc4c151576fd05d61ef7a)), closes [#1945](https://github.com/erxes/erxes/issues/1945)
+* refetch list in lead ([8b60c9e](https://github.com/erxes/erxes/commit/8b60c9eb9b9854d2a513b9c9c25af94e8b5d18fd))
+* show clear filter button only for search filters ([d725c2b](https://github.com/erxes/erxes/commit/d725c2bbc33495d3d69bf5eb4c76fafcfe8fcbdd))
+* **engage:** typo link in engage config ([5e22544](https://github.com/erxes/erxes/commit/5e22544159bdad17b40ff8b3ff5c380ecc4d5b48)), closes [#1938](https://github.com/erxes/erxes/issues/1938)
+* **segments:** wrong preview count for the segment with parent segment ([1ca4272](https://github.com/erxes/erxes/commit/1ca427280f2deda938666185ee610c7cbeefb91a)), closes [#1906](https://github.com/erxes/erxes/issues/1906)
+* typo in generatel settings google ([043972b](https://github.com/erxes/erxes/commit/043972b38ab7ebfd74a4768bbab3b6fbb1f1da0d))
+* update engage list after create and edit ([7a45f5b](https://github.com/erxes/erxes/commit/7a45f5be8abcbdfd68eda323531b7c2b90552d78))
+
+
+### Features
+
+* nylas exchange provider ([538caf7](https://github.com/erxes/erxes/commit/538caf7b4359e462bf892c80c91d1f78a27330a1))
+* **activity log:** show archive history on activity log (deal,ticket,task,growthHack) ([5dff5d4](https://github.com/erxes/erxes/commit/5dff5d49966eaf58df2fb15aea93021f3efd11de)), closes [#1952](https://github.com/erxes/erxes/issues/1952)
+* **integration:** integrated Viber, Telegram, Line, Twilio Sms using Sunshine Conversation API ([bdf5e0f](https://github.com/erxes/erxes/commit/bdf5e0f9fb3d3913f1321b3bc733928f598096e0)), closes [#1851](https://github.com/erxes/erxes/issues/1851)
+* **integration:** integration whatsapp ([cca738e](https://github.com/erxes/erxes/commit/cca738eda90e50c0b83d66f56949321bacb2663b)), closes [#1105](https://github.com/erxes/erxes/issues/1105)
+* **segments:** new rules ([ba2a9a7](https://github.com/erxes/erxes/commit/ba2a9a7d4656d71a42d3cb344051767779a8b7e1)), closes [#1915](https://github.com/erxes/erxes/issues/1915)
+
+
+### Performance Improvements
+
+* **appstore:** fix confirmation message when delete, archive ([0cd9f51](https://github.com/erxes/erxes/commit/0cd9f5139d97b74a56b96faf1a980268ff81402c))
+* **appStore:** fix typo (close [#1845](https://github.com/erxes/erxes/issues/1845)) ([2f48751](https://github.com/erxes/erxes/commit/2f4875195d92708f1ae1ab499f45ae0a2659b471))
+* **common:** improve uploader component ([3b5ef8e](https://github.com/erxes/erxes/commit/3b5ef8eb95aa0cd431a8d8677501c7f6d74987b8))
+* **common:** remove lead status filter from customer, update icons ([1d8cf84](https://github.com/erxes/erxes/commit/1d8cf8475457ee530f604f099bce9a0bf0c18f07))
+* **common:** update icon package, change some new icons, show attachment file type as icon. (close [#1848](https://github.com/erxes/erxes/issues/1848) [#1843](https://github.com/erxes/erxes/issues/1843)) ([97e390f](https://github.com/erxes/erxes/commit/97e390f6704e6bee640e677f4f48dc2488e6b50f))
+* **customers:** added lead logic ([e4046dc](https://github.com/erxes/erxes/commit/e4046dc57c19137d8dfcbebe83b153fa84d7c0dd)), closes [#1850](https://github.com/erxes/erxes/issues/1850)
+* **deal:** improve performance when deal item dragging ([72a6617](https://github.com/erxes/erxes/commit/72a66173e68d0e48db0a4ef9f81052da8ba2f109))
+* **firebase:** add google credential field ([b283626](https://github.com/erxes/erxes/commit/b28362667e1e1f27adb8ec54be3f868e0d7b8453)), closes [#1907](https://github.com/erxes/erxes/issues/1907)
+* **growthhack:** fix arviched growth hack list ([#1842](https://github.com/erxes/erxes/issues/1842)) ([523bb0d](https://github.com/erxes/erxes/commit/523bb0d017cacedca8a1ae721f933c6b85333aaf))
+* **knowledgebase:** fix can not write rgb color or hex ([fcdc096](https://github.com/erxes/erxes/commit/fcdc0968931183b800a0d647d0ebe8a68901f1b9))
+* **segments:** added lead, visitor content types ([7ce200c](https://github.com/erxes/erxes/commit/7ce200c10eb5c9d5d9a6e874f39fbf275b9d1e36)), closes [#1920](https://github.com/erxes/erxes/issues/1920)
+* **settings:** email appreareance menu has been removed because it is unused ([8eec36d](https://github.com/erxes/erxes/commit/8eec36dfa6d2856c918b32e1481c0d76f1b78d04))
+* **teaminbox:** add file preview on file from popup ([d6b8c30](https://github.com/erxes/erxes/commit/d6b8c3002135203e36357cc49b056077631ffc48))
+* **teaminbox:** can download or view a file from popups ([cea4312](https://github.com/erxes/erxes/commit/cea4312d43f3f15998a1f366e09ca42cc70a1134))
+* **teaminbox:** convert text to link (close [#1820](https://github.com/erxes/erxes/issues/1820)) ([06b4180](https://github.com/erxes/erxes/commit/06b418042221f19ffe859af8debad87111e3197d))
+* **teaminbox:** implemented escape to dismiss response templates ([e2f892f](https://github.com/erxes/erxes/commit/e2f892fcff0e5f7e1f61599a954d61483709653c))
+* **widget:** add allow attribute on video call iframe ([3d148ac](https://github.com/erxes/erxes/commit/3d148ac3a27eef8505a86ac88ae7f0883ba1b42b))
+* **widget:** ask allow access when video chat starts in widget. close [#1858](https://github.com/erxes/erxes/issues/1858) ([4a964d6](https://github.com/erxes/erxes/commit/4a964d687755d7985548da94ab3cc2551e3989ab))
+* **widget:** fix full message bug when send engage message (close [#1944](https://github.com/erxes/erxes/issues/1944)) ([8b25b08](https://github.com/erxes/erxes/commit/8b25b084313dc8eb599ff0bea4104d90e1120a8e))
+* **widget:** fix widget searchbar (close [#1862](https://github.com/erxes/erxes/issues/1862)) ([7e3aeb9](https://github.com/erxes/erxes/commit/7e3aeb9c99356c85a37c4262bc20aa7313116024))
+
 # [0.13.0](https://github.com/erxes/erxes/compare/0.12.1...0.13.0) (2020-03-17)
 
 

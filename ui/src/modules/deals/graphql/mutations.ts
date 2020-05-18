@@ -52,14 +52,6 @@ const dealsChange = `
   }
 `;
 
-const dealsUpdateOrder = `
-  mutation dealsUpdateOrder($stageId: String!, $orders: [OrderItem]) {
-    dealsUpdateOrder(stageId: $stageId, orders: $orders) {
-      _id
-    }
-  }
-`;
-
 const dealsWatch = `
   mutation dealsWatch($_id: String!, $isAdd: Boolean!) {
     dealsWatch(_id: $_id, isAdd: $isAdd) {
@@ -89,7 +81,6 @@ export default {
   dealsEdit,
   dealsRemove,
   dealsChange,
-  dealsUpdateOrder,
   dealsWatch,
   dealsArchive,
   dealsCopy

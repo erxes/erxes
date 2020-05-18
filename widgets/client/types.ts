@@ -1,4 +1,5 @@
 import { ICallout } from './form/types';
+import { IWebsiteApp } from './messenger/types';
 
 export type ENV = {
   API_URL: string;
@@ -100,7 +101,7 @@ export interface IIntegrationMessengerData {
   notifyCustomer: boolean;
   knowledgeBaseTopicId: string;
   formCode: string;
-  websiteAppData?: { [key: string]: string };
+  websiteApps?: IWebsiteApp[];
   availabilityMethod: string;
   isOnline: boolean;
   requireAuth: boolean;

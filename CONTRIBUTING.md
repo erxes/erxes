@@ -36,6 +36,14 @@ You can also reach us at hello@erxes.opencollective.com.
 
 ## Credits
 
+### Swag for Contributions
+
+As of March 2020, we have started **Swag for Contributions** program. To show our appreciation, we are sending everyone who contributes to erxes a special package, which includes a t-shirt and stickers. [Click here](https://erxes.io/hubspot-alternative-erxes-swag) to learn more.
+
+<p align="center">
+  <img src="https://erxes.io/static/images/swag.gif" title="erxes Swag"></p>
+
+
 ### Contributors
 
 Thank you to all the people who have already contributed to erxes!
