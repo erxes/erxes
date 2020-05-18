@@ -75,7 +75,10 @@ const fieldQueries = {
   /**
    * Generates all field choices base on given kind.
    */
-  async fieldsCombinedByContentType(_root, { contentType }: { contentType: string }) {
+  async fieldsCombinedByContentType(
+    _root,
+    { contentType, excludedNames }: { contentType: string; excludedNames?: string[] },
+  ) {
     let schema: any = Customers.schema;
     let fields: Array<{ _id: number; name: string; label?: string }> = [];
 
@@ -145,7 +148,7 @@ const fieldQueries = {
       });
     }
 
-    return fields;
+    return fields.filter(field => !(excludedNames || []).includes(field.name));
   },
 
   /**
@@ -166,9 +169,11 @@ const fieldQueries = {
 
     return [
       { name: 'firstName', label: 'First name', order: 1 },
-      { name: 'lastName', label: 'Last name', order: 1 },
-      { name: 'primaryEmail', label: 'Primary email', order: 2 },
-      { name: 'primaryPhone', label: 'Primary phone', order: 3 },
+      { name: 'lastName', label: 'Last name', order: 2 },
+      { name: 'primaryEmail', label: 'Primary email', order: 3 },
+      { name: 'lastSeenAt', label: 'Last seen at', order: 4 },
+      { name: 'sessionCount', label: 'Session count', order: 5 },
+      { name: 'profileScore', label: 'Profile score', order: 6 },
     ];
   },
 };
