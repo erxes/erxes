@@ -151,7 +151,6 @@ export const moduleObjects = {
           'dealsAdd',
           'dealsEdit',
           'dealsRemove',
-          'dealsUpdateOrder',
           'dealsWatch',
           'dealsArchive',
           'exportDeals',
@@ -214,10 +213,6 @@ export const moduleObjects = {
         description: 'Edit deal',
       },
       {
-        name: 'dealsUpdateOrder',
-        description: 'Update deal order',
-      },
-      {
         name: 'dealsRemove',
         description: 'Remove deal',
       },
@@ -259,7 +254,6 @@ export const moduleObjects = {
           'ticketsAdd',
           'ticketsEdit',
           'ticketsRemove',
-          'ticketsUpdateOrder',
           'ticketsWatch',
           'ticketsArchive',
           'exportTickets',
@@ -322,10 +316,6 @@ export const moduleObjects = {
         description: 'Edit ticket',
       },
       {
-        name: 'ticketsUpdateOrder',
-        description: 'Update ticket order',
-      },
-      {
         name: 'ticketsRemove',
         description: 'Remove ticket',
       },
@@ -367,7 +357,6 @@ export const moduleObjects = {
           'growthHacksAdd',
           'growthHacksEdit',
           'growthHacksRemove',
-          'growthHacksUpdateOrder',
           'growthHacksWatch',
           'growthHacksArchive',
           'growthHackTemplatesAdd',
@@ -434,10 +423,6 @@ export const moduleObjects = {
         description: 'Edit growth hacking',
       },
       {
-        name: 'growthHacksUpdateOrder',
-        description: 'Update growth hacking order',
-      },
-      {
         name: 'growthHacksRemove',
         description: 'Remove growth hacking',
       },
@@ -495,7 +480,6 @@ export const moduleObjects = {
           'tasksAdd',
           'tasksEdit',
           'tasksRemove',
-          'tasksUpdateOrder',
           'tasksWatch',
           'tasksArchive',
           'exportTasks',
@@ -556,10 +540,6 @@ export const moduleObjects = {
       {
         name: 'tasksEdit',
         description: 'Edit task',
-      },
-      {
-        name: 'tasksUpdateOrder',
-        description: 'Update task order',
       },
       {
         name: 'tasksRemove',

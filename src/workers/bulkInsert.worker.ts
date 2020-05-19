@@ -51,7 +51,7 @@ connect().then(async () => {
 
     const doc: any = {
       scopeBrandIds,
-      customFieldsData: {},
+      customFieldsData: [],
     };
 
     let colIndex = 0;
@@ -63,7 +63,10 @@ connect().then(async () => {
       switch (property.type) {
         case 'customProperty':
           {
-            doc.customFieldsData[property.id] = fieldValue[colIndex];
+            doc.customFieldsData.push({
+              field: property.id,
+              value: fieldValue[colIndex],
+            });
           }
           break;
 

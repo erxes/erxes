@@ -1,6 +1,5 @@
 import { ActivityLogs, GrowthHacks, Stages } from '../../../db/models';
-import { IOrderInput } from '../../../db/models/definitions/boards';
-import { BOARD_STATUSES, NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
+import { BOARD_STATUSES, BOARD_TYPES, NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
 import { IGrowthHack } from '../../../db/models/definitions/growthHacks';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { graphqlPubsub } from '../../../pubsub';
@@ -130,9 +129,7 @@ const growthHackMutations = {
 
     if (oldGrowthHack.stageId === updatedGrowthHack.stageId) {
       graphqlPubsub.publish('growthHacksChanged', {
-        growthHacksChanged: {
-          _id: updatedGrowthHack._id,
-        },
+        growthHacksChanged: updatedGrowthHack,
       });
 
       return updatedGrowthHack;
@@ -161,6 +158,7 @@ const growthHackMutations = {
     graphqlPubsub.publish('pipelinesChanged', {
       pipelinesChanged: {
         _id: updatedStage.pipelineId,
+        type: BOARD_TYPES.GROWTH_HACK,
       },
     });
 
@@ -168,6 +166,7 @@ const growthHackMutations = {
       graphqlPubsub.publish('pipelinesChanged', {
         pipelinesChanged: {
           _id: oldStage.pipelineId,
+          type: BOARD_TYPES.GROWTH_HACK,
         },
       });
     }
@@ -222,18 +221,12 @@ const growthHackMutations = {
       graphqlPubsub.publish('pipelinesChanged', {
         pipelinesChanged: {
           _id: stage.pipelineId,
+          type: BOARD_TYPES.GROWTH_HACK,
         },
       });
     }
 
     return growthHack;
-  },
-
-  /**
-   * Update growth hack orders (not sendNotifaction, ordered card to change)
-   */
-  growthHacksUpdateOrder(_root, { stageId, orders }: { stageId: string; orders: IOrderInput[] }) {
-    return GrowthHacks.updateOrder(stageId, orders);
   },
 
   /**
@@ -317,7 +310,6 @@ const growthHackMutations = {
 
 checkPermission(growthHackMutations, 'growthHacksAdd', 'growthHacksAdd');
 checkPermission(growthHackMutations, 'growthHacksEdit', 'growthHacksEdit');
-checkPermission(growthHackMutations, 'growthHacksUpdateOrder', 'growthHacksUpdateOrder');
 checkPermission(growthHackMutations, 'growthHacksRemove', 'growthHacksRemove');
 checkPermission(growthHackMutations, 'growthHacksWatch', 'growthHacksWatch');
 checkPermission(growthHackMutations, 'growthHacksArchive', 'growthHacksArchive');

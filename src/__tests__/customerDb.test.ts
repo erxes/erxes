@@ -18,7 +18,7 @@ import {
   ImportHistory,
   InternalNotes,
 } from '../db/models';
-import { ACTIVITY_CONTENT_TYPES, STATUSES } from '../db/models/definitions/constants';
+import { ACTIVITY_CONTENT_TYPES } from '../db/models/definitions/constants';
 
 import { ICustomer, ICustomerDocument } from '../db/models/definitions/customers';
 import './setup.ts';
@@ -184,7 +184,7 @@ describe('Customers model tests', () => {
       await Customers.createCustomer({
         primaryEmail: 'email',
         emails: ['dombo@yahoo.com'],
-        customFieldsData: { [field._id]: 'invalid number' },
+        customFieldsData: [{ field: field._id, value: 'invalid number' }],
       });
     } catch (e) {
       expect(e.message).toBe(`${field.text}: Invalid number`);
@@ -257,7 +257,7 @@ describe('Customers model tests', () => {
       await Customers.updateCustomer(_customer._id, {
         primaryEmail: 'email',
         emails: ['dombo@yahoo.com'],
-        customFieldsData: { [field._id]: 'invalid number' },
+        customFieldsData: [{ field: field._id, value: 'invalid number' }],
       });
     } catch (e) {
       expect(e.message).toBe(`${field.text}: Invalid number`);
@@ -450,7 +450,7 @@ describe('Customers model tests', () => {
     // Checking old customers datas to be deleted
     const oldCustomer = (await Customers.findOne({ _id: customerIds[0] })) || { status: '' };
 
-    expect(oldCustomer.status).toBe(STATUSES.DELETED);
+    expect(oldCustomer.status).toBe('deleted');
     expect(await Conversations.find({ customerId: customerIds[0] })).toHaveLength(0);
     expect(await ConversationMessages.find({ customerId: customerIds[0] })).toHaveLength(0);
 
