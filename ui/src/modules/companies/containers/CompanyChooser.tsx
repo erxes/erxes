@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Alert, withProps } from 'modules/common/utils';
+import { withProps } from 'modules/common/utils';
 import ConformityChooser from 'modules/conformity/containers/ConformityChooser';
 import React from 'react';
 import { graphql } from 'react-apollo';
@@ -41,24 +41,7 @@ class CompanyChooser extends React.Component<
   };
 
   render() {
-    const { data, companiesQuery, companiesAdd, search } = this.props;
-
-    // add company
-    const addCompany = ({ doc, callback }) => {
-      companiesAdd({
-        variables: doc
-      })
-        .then(() => {
-          companiesQuery.refetch();
-
-          Alert.success('You successfully added a company');
-
-          callback();
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    };
+    const { data, companiesQuery, search } = this.props;
 
     const renderName = company => {
       return company.primaryName || company.website || 'Unknown';
@@ -84,12 +67,10 @@ class CompanyChooser extends React.Component<
       renderForm: formProps => (
         <CompanyForm
           {...formProps}
-          action={addCompany}
           getAssociatedCompany={getAssociatedCompany}
         />
       ),
       renderName,
-      add: addCompany,
       newItem: this.state.newCompany,
       resetAssociatedItem: this.resetAssociatedItem,
       datas: companiesQuery.companies || [],

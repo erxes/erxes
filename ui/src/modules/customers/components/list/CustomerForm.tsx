@@ -412,7 +412,7 @@ class CustomerForm extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: 'customer',
+            name: customer.state || 'customer',
             values: this.generateDoc(values),
             isSubmitted,
             object: this.props.customer,

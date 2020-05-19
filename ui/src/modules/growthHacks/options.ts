@@ -18,7 +18,6 @@ const options = {
     editMutation: 'growthHacksEdit',
     removeMutation: 'growthHacksRemove',
     changeMutation: 'growthHacksChange',
-    updateOrderMutation: 'growthHacksUpdateOrder',
     watchMutation: 'growthHacksWatch',
     archiveMutation: 'growthHacksArchive',
     copyMutation: 'growthHacksCopy'
@@ -37,7 +36,6 @@ const options = {
     editMutation: mutations.growthHacksEdit,
     removeMutation: mutations.growthHacksRemove,
     changeMutation: mutations.growthHacksChange,
-    updateOrderMutation: mutations.growthHacksUpdateOrder,
     watchMutation: mutations.growthHacksWatch,
     archiveMutation: mutations.growthHacksArchive,
     copyMutation: mutations.growthHacksCopy

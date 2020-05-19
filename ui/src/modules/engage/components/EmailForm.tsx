@@ -20,6 +20,7 @@ import {
 import React from 'react';
 import Select from 'react-select-plus';
 import { IEmailFormProps, IEngageEmail, IEngageScheduleDate } from '../types';
+import { generateEmailTemplateParams } from '../utils';
 import Scheduler from './Scheduler';
 
 type Props = IEmailFormProps & { verifiedEmails: string[]; error?: string };
@@ -158,10 +159,13 @@ class EmailForm extends React.Component<Props, State> {
 
     const onChangeContent = e =>
       this.changeContent('subject', (e.target as HTMLInputElement).value);
-    const onChangeTemplate = e =>
-      this.templateChange((e.target as HTMLInputElement).value);
+
     const onChangeAttachment = attachmentsArr =>
       this.changeContent('attachments', attachmentsArr);
+
+    const onChangeTemplate = e => {
+      this.templateChange(e.value);
+    };
 
     return (
       <FlexItem>
@@ -204,18 +208,13 @@ class EmailForm extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Email template:</ControlLabel>
             <p>{__('Insert email template to content')}</p>
-            <FormControl
-              componentClass="select"
+
+            <Select
               onChange={onChangeTemplate}
               value={this.state.email.templateId}
-            >
-              <option />{' '}
-              {this.props.templates.map(t => (
-                <option key={t._id} value={t._id}>
-                  {t.name}
-                </option>
-              ))}
-            </FormControl>
+              options={generateEmailTemplateParams(this.props.templates)}
+              clearable={false}
+            />
           </FormGroup>
           <FormGroup>
             <ControlLabel>Attachments: </ControlLabel>

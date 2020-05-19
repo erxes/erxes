@@ -119,7 +119,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
         <Info>
           <p>
             {__(
-              'Amazon Simple Email Service enables you to send and receive email using a reliable and scalable email platform. Set up your custom amazon simple email service account'
+              'Amazon Simple Email Service enables you to send and receive email using a reliable and scalable email platform. Set up your custom amazon simple email service account.'
             )}
           </p>
           <a
@@ -127,7 +127,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
             href="https://docs.erxes.io/administrator/system-config#aws-ses"
             rel="noopener noreferrer"
           >
-            {__('More: Understanding Amazon SES')}
+            {__('Learn more about Amazon SES configuration')}
           </a>
         </Info>
         <FormGroup>
@@ -167,6 +167,16 @@ class EngageSettingsContent extends React.Component<Props, State> {
             max={140}
             name="configSet"
             defaultValue={configsMap.configSet}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Unverified emails limit</ControlLabel>
+          <FormControl
+            {...formProps}
+            max={140}
+            name="unverifiedEmailsLimit"
+            defaultValue={configsMap.unverifiedEmailsLimit || 100}
           />
         </FormGroup>
 

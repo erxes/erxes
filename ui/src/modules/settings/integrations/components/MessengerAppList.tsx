@@ -6,6 +6,7 @@ import Table from 'modules/common/components/table';
 import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
 import React from 'react';
+import { INTEGRATIONS_COLORS } from '../integrationColors';
 import { IMessengerApp } from '../types';
 
 type Props = {
@@ -35,7 +36,7 @@ class MessengerAppList extends React.Component<Props> {
       <tr key={app._id}>
         <td>{app.name}</td>
         <td>
-          <Label className={`label-${app.kind}`}>{app.kind}</Label>
+          <Label lblColor={INTEGRATIONS_COLORS[app.kind]}>{app.kind}</Label>
         </td>
         <td>
           <ActionButtons>{this.renderRemoveAction(app)}</ActionButtons>

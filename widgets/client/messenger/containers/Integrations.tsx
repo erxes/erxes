@@ -7,13 +7,13 @@ const container = () => {
   return (
     <AppConsumer>
       {({ getMessengerData }) => {
-        const { formCode, showChat, websiteAppData } = getMessengerData();
+        const { formCode, showChat, websiteApps } = getMessengerData();
 
         return (
           <Integrations
             brandCode={connection.setting.brand_id}
             formCode={formCode}
-            websiteAppData={websiteAppData}
+            websiteApps={websiteApps}
             hideConversations={!showChat}
           />
         );

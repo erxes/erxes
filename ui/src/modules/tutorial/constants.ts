@@ -33,8 +33,7 @@ export const TUTORIALS = [
       },
       {
         name: 'Logs',
-        url: '',
-        isSoon: true
+        url: 'https://www.youtube-nocookie.com/embed/AHOtbefxwaw'
       }
     ]
   },
@@ -66,13 +65,11 @@ export const TUTORIALS = [
       },
       {
         name: 'Campaign & Projects',
-        url: 'https://www.youtube-nocookie.com/embed/hd07s0oZ83A',
-        isSoon: true
+        url: 'https://www.youtube-nocookie.com/embed/vhqnzeGZCTI'
       },
       {
         name: 'Growth hacking template',
-        url: '',
-        isSoon: true
+        url: 'https://www.youtube-nocookie.com/embed/d-_ne4gwKGw'
       },
       {
         name: 'Task stage',
@@ -80,8 +77,7 @@ export const TUTORIALS = [
       },
       {
         name: 'Tickets stage',
-        url: '',
-        isSoon: true
+        url: 'https://www.youtube-nocookie.com/embed/-ftlUWsLDWc'
       },
       {
         name: 'Tags - inbox, customer, engage pop, up',
@@ -117,8 +113,7 @@ export const TUTORIALS = [
       },
       {
         name: 'Script Manager',
-        url: '',
-        isSoon: true
+        url: 'https://www.youtube-nocookie.com/embed/Ky0IQ5UJ5xo'
       }
     ]
   },
@@ -138,8 +133,7 @@ export const TUTORIALS = [
       },
       {
         name: 'Growth Hacking',
-        url: 'https://www.youtube-nocookie.com/embed/hd07s0oZ83A',
-        isSoon: true
+        url: 'https://www.youtube-nocookie.com/embed/lpOTx6t4JFA'
       },
       {
         name: 'Sales',
