@@ -1,3 +1,24 @@
+## [0.14.1](https://github.com/erxes/erxes-api/compare/0.14.0...0.14.1) (2020-05-19)
+
+
+### Bug Fixes
+
+* **emails:** sending empty auth info ([a0fcc5f](https://github.com/erxes/erxes-api/commit/a0fcc5fd1dd967af562ba8d5f606178e635041cc)), closes [#777](https://github.com/erxes/erxes-api/issues/777)
+* **emailTemplate:** revert change in email template query ([f19b35e](https://github.com/erxes/erxes-api/commit/f19b35e1e4960a91096de342151a40081e4fa618))
+* **engages:** added unverifed emails limit config ([5312fae](https://github.com/erxes/erxes-api/commit/5312fae15cd2f3febbfbeaf00538f0c612022a9c)), closes [erxes/erxes#1931](https://github.com/erxes/erxes/issues/1931)
+* **test:** change random string to enum in factory ([535c803](https://github.com/erxes/erxes-api/commit/535c8036cdec9fbac8f9e828f0be6f30512879d4))
+
+
+### Performance Improvements
+
+* **customer:** added uriVisits field on schema ([c1e39ce](https://github.com/erxes/erxes-api/commit/c1e39ce7d257f6da351b0fc97001cb19288c41db)), closes [#776](https://github.com/erxes/erxes-api/issues/776)
+* **customers:** flatten customFieldsData, trackedData fields ([934970b](https://github.com/erxes/erxes-api/commit/934970b6160f1a849ead3b23923c6b3ff2871462)), closes [#774](https://github.com/erxes/erxes-api/issues/774)
+* **docker:** upgrade dockerfile nodejs version ([5e7ea88](https://github.com/erxes/erxes-api/commit/5e7ea88b66eec6b9f936ec61ff01f5b1796b0d2d)), closes [erxes/erxes#1993](https://github.com/erxes/erxes/issues/1993)
+* **node:** update package.json for node v12 ([15e498a](https://github.com/erxes/erxes-api/commit/15e498ab0efbb1704100ba227d4007f51fd5cbb4))
+* **schema:** add select options to enum fields  ([4af015b](https://github.com/erxes/erxes-api/commit/4af015b513d5ee349b167928678758043d71b4fc))
+* **schema:** add select options to some field in customer erxes/erxes[#1959](https://github.com/erxes/erxes-api/issues/1959) ([2720987](https://github.com/erxes/erxes-api/commit/2720987c028ded43bd541ac0e221e72434fa6b7a))
+* **stage:** count archived cards ([3700afa](https://github.com/erxes/erxes-api/commit/3700afaa20912286e12d442ebb0047d398abb081)), closes [#778](https://github.com/erxes/erxes-api/issues/778)
+
 # [0.14.0](https://github.com/erxes/erxes-api/compare/0.13.0...0.14.0) (2020-04-25)
 
 
