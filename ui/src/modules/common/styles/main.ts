@@ -280,6 +280,12 @@ const Count = styled.div`
   color: #666;
 `;
 
+const Limited = styled.div`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+`;
+
 export {
   BoxRoot,
   FullContent,
@@ -302,5 +308,6 @@ export {
   SimpleButton,
   TopHeader,
   Title,
-  Count
+  Count,
+  Limited
 };
