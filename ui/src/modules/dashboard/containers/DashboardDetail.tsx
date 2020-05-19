@@ -37,7 +37,7 @@ class CustomerDetailsContainer extends React.Component<FinalProps, {}> {
     const removeDashboard = () => {
       removeDashboardMutation()
         .then(() => {
-          Alert.success('Succes');
+          Alert.success('You successfully deleted a dashboard');
           history.goBack();
         })
         .catch(e => {
@@ -62,6 +62,7 @@ export default withProps<Props>(
       {
         name: 'dashboardDetailQuery',
         options: ({ id }: { id: string }) => ({
+          refetchQueries: ['dashboards'],
           variables: {
             _id: id
           }

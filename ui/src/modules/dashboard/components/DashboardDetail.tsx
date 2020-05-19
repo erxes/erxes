@@ -4,9 +4,9 @@ import { __, confirm } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import DashbaordForm from '../containers/DashboardForm';
 import { IDashboard } from '../types';
 import { Title } from 'modules/common/styles/main';
-import DashbaordForm from '../containers/DashboardForm';
 
 const { REACT_APP_DASHBOARD_URL } = getEnv();
 

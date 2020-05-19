@@ -1,8 +1,8 @@
 import { IButtonMutateProps } from 'modules/common/types';
 import React, { useState } from 'react';
+import DashbaordForm from '../containers/DashboardForm';
 import { BoxContainer, ProjectItem } from '../styles';
 import { IDashboard } from '../types';
-import DashbaordForm from '../containers/DashboardForm';
 import DashboardRow from './DashboardRow';
 
 type Props = {
@@ -16,6 +16,7 @@ function DashboardList(props: Props) {
   const toggleVisibility = () => {
     setVisibility(!showPopup);
   };
+
   const renderAddForm = () => {
     return <DashbaordForm show={showPopup} closeModal={toggleVisibility} />;
   };
