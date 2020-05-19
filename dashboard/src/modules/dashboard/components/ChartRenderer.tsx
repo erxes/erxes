@@ -16,7 +16,7 @@ import {
   ResponsiveContainer,
   Tooltip,
   XAxis,
-  YAxis
+  YAxis,
 } from 'recharts';
 
 import styled from 'styled-components';
@@ -34,7 +34,7 @@ const colors = [
   '#32a852',
   '#7c2bba',
   '#d1a924',
-  '#05f238'
+  '#05f238',
 ];
 
 const dateFormatter = (item, dateType) => {
@@ -65,18 +65,14 @@ const CartesianChart = ({
   children,
   ChartComponent,
   height,
-  dateType
+  dateType,
 }) => (
   <ResponsiveContainer width="100%" height={height}>
     <ChartComponent margin={{ left: -10 }} data={resultSet.chartPivot()}>
       <XAxis
         axisLine={false}
         tickLine={false}
-<<<<<<< HEAD
         tickFormatter={(item) => xAxisFormatter(item, dateType)}
-=======
-        tickFormatter={item => xAxisFormatter(item, dateType)}
->>>>>>> e8ff78da1dd356e0278649f1191a6421c4c03346
         dataKey="x"
         minTickGap={20}
       />
@@ -183,10 +179,10 @@ const TypeToChartComponent = {
       <Table
         columns={resultSet
           .tableColumns()
-          .map(c => ({ ...c, dataIndex: c.key }))}
+          .map((c) => ({ ...c, dataIndex: c.key }))}
         dataSource={resultSet.tablePivot().map((result, index) => ({
           ...result,
-          key: `${index}+${result.value}`
+          key: `${index}+${result.value}`,
         }))}
       />
     );
@@ -197,7 +193,7 @@ const TypeToChartComponent = {
       justify="center"
       align="middle"
       style={{
-        height: '100%'
+        height: '100%',
       }}
     >
       <Col>
@@ -206,16 +202,11 @@ const TypeToChartComponent = {
         ))}
       </Col>
     </Row>
-  )
+  ),
 };
 const TypeToMemoChartComponent = Object.keys(TypeToChartComponent)
-<<<<<<< HEAD
   .map((key) => ({
     [key]: React.memo(TypeToChartComponent[key]),
-=======
-  .map(key => ({
-    [key]: React.memo(TypeToChartComponent[key])
->>>>>>> e8ff78da1dd356e0278649f1191a6421c4c03346
   }))
   .reduce((a, b) => ({ ...a, ...b }));
 
@@ -241,7 +232,7 @@ const renderChart = (Component) => ({ resultSet, dateType, error, height }) => {
 
 const ChartRenderer = ({
   vizState,
-  chartHeight = 300
+  chartHeight = 300,
 }: {
   vizState?: any;
   chartHeight?: any;
@@ -260,7 +251,7 @@ const ChartRenderer = ({
     return renderChart(component)({
       height: chartHeight,
       ...renderProps,
-      dateType
+      dateType,
     });
   }
 

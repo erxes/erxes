@@ -1,16 +1,16 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import Spinner from 'modules/common/components/Spinner';
-import { withProps, Alert } from 'modules/common/utils';
+import { IRouterProps } from 'modules/common/types';
+import { Alert, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { queries, mutations } from '../graphql';
+import DashboardDetail from '../components/DashboardDetail';
+import { mutations, queries } from '../graphql';
 import {
   DashboardDetailsQueryResponse,
   RemoveDashboardMutationResponse
 } from '../types';
-import DashboardDetail from '../components/DashboardDetail';
-import { IRouterProps } from 'modules/common/types';
 
 type Props = {
   id: string;
