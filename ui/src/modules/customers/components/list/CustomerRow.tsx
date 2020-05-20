@@ -6,7 +6,7 @@ import Tags from 'modules/common/components/Tags';
 import TextInfo from 'modules/common/components/TextInfo';
 import { formatValue } from 'modules/common/utils';
 import { FlexItem } from 'modules/companies/styles';
-import { LEAD_STATUS_TYPES } from 'modules/customers/constants';
+import { GENDER_TYPES, LEAD_STATUS_TYPES } from 'modules/customers/constants';
 import { BooleanStatus, ClickableRow } from 'modules/customers/styles';
 import { ICustomer } from 'modules/customers/types';
 import { IConfigColumn } from 'modules/settings/properties/types';
@@ -59,15 +59,15 @@ function displayValue(customer, name) {
   }
 
   if (name === 'location.country') {
-    if (!customer.location) {
-      return '-';
+    if (customer.location && customer.location.country) {
+      return (
+        <>
+          {renderFlag(customer.location.countryCode)} {value}
+        </>
+      );
     }
 
-    return (
-      <>
-        {renderFlag(customer.location.countryCode)} {value}
-      </>
-    );
+    return '-';
   }
 
   if (name.includes('userAgent')) {
@@ -83,6 +83,10 @@ function displayValue(customer, name) {
     return (
       <PrimaryEmail email={value} status={customer.emailValidationStatus} />
     );
+  }
+
+  if (name === 'sex') {
+    return GENDER_TYPES[value];
   }
 
   if (name === 'leadStatus') {
