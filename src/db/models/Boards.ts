@@ -22,20 +22,16 @@ export interface IOrderInput {
 // Not mongoose document, just stage shaped plain object
 type IPipelineStage = IStage & { _id: string };
 
-const hasItem = async (type: string, pipelineId: string, prevItemIds: string[] = []) => {
-  const stages = await Stages.find({ pipelineId, _id: { $nin: prevItemIds } });
+const removeStageWithItems = async (type: string, pipelineId: string, prevItemIds: string[] = []) => {
+  const selector = { pipelineId, _id: { $nin: prevItemIds } };
+
+  const stageIds = await Stages.find(selector).distinct('_id');
 
   const collection = getCollection(type);
 
-  for (const stage of stages) {
-    const items = await collection.find({ stageId: stage._id }).lean();
+  await collection.deleteMany({ stageId: { $in: stageIds } });
 
-    if (items.length > 0) {
-      const itemNames = items.map(item => item.name);
-
-      throw new Error(`Stage "${stage.name}" has items named "${itemNames.join(', ')}"`);
-    }
-  }
+  return Stages.deleteMany(selector);
 };
 
 const createOrUpdatePipelineStages = async (stages: IPipelineStage[], pipelineId: string, type: string) => {
@@ -53,7 +49,7 @@ const createOrUpdatePipelineStages = async (stages: IPipelineStage[], pipelineId
   const prevEntries = await Stages.find({ _id: { $in: prevItemIds } });
   const prevEntriesIds = prevEntries.map(entry => entry._id);
 
-  await hasItem(type, pipelineId, prevItemIds);
+  await removeStageWithItems(type, pipelineId, prevItemIds);
 
   for (const stage of stages) {
     order++;
@@ -144,7 +140,7 @@ export const loadBoardClass = () => {
       const pipelines = await Pipelines.find({ boardId: _id });
 
       for (const pipeline of pipelines) {
-        await hasItem(pipeline.type, pipeline._id);
+        await removeStageWithItems(pipeline.type, pipeline._id);
       }
 
       for (const pipeline of pipelines) {
@@ -244,7 +240,7 @@ export const loadPipelineClass = () => {
       const pipeline = await Pipelines.getPipeline(_id);
 
       if (!checked) {
-        await hasItem(pipeline.type, pipeline._id);
+        await removeStageWithItems(pipeline.type, pipeline._id);
       }
 
       const stages = await Stages.find({ pipelineId: pipeline._id });
@@ -316,7 +312,7 @@ export const loadStageClass = () => {
       const stage = await Stages.getStage(_id);
       const pipeline = await Pipelines.getPipeline(stage.pipelineId);
 
-      await hasItem(pipeline.type, pipeline._id);
+      await removeStageWithItems(pipeline.type, pipeline._id);
 
       if (stage.formId) {
         await Forms.removeForm(stage.formId);
