@@ -101,9 +101,8 @@ echo "Installed Yarn successfully"
 # username that erxes will be installed in
 username=erxes
 
-# create a new user erxes
-useradd -m -s /bin/bash -U -G sudo $username
-# echo erxes:new_password | chpasswd
+# create a new user erxes if it does not exist
+id -u erxes &>/dev/null || useradd -m -s /bin/bash -U -G sudo $username
 
 cd /home/$username
 
