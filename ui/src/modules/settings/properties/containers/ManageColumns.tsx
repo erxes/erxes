@@ -74,7 +74,14 @@ export default withProps<Props>(
         options: ({ contentType }) => {
           return {
             variables: {
-              contentType
+              contentType,
+              excludedNames: [
+                'state',
+                'avatar',
+                'ownerId',
+                'status',
+                'integrationId'
+              ]
             }
           };
         }
