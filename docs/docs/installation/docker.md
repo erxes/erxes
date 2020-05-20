@@ -118,7 +118,7 @@ Official Docker compose documentation: https://docs.docker.com/compose/install/
 5. Go to `localhost:3000` on your browser, and you're ready to login.
 
 ```
-(username: admin@erxes.io , password: erxes)
+(username: admin@erxes.io , password: auto generated password)
 ```
 
 ### Default ports
