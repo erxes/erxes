@@ -257,8 +257,10 @@ export const loadClass = () => {
       // Checking duplicated fields of customer
       await Customers.checkDuplication(doc, _id);
 
-      // clean custom field values
-      doc.customFieldsData = await Fields.prepareCustomFieldsData(doc.customFieldsData);
+      if (doc.customFieldsData) {
+        // clean custom field values
+        doc.customFieldsData = await Fields.prepareCustomFieldsData(doc.customFieldsData);
+      }
 
       if (doc.primaryEmail) {
         const oldCustomer = await Customers.getCustomer(_id);
