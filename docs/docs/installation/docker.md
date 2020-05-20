@@ -178,7 +178,7 @@ services:
       PORT: "3300"
       NODE_ENV: production
       DEBUG: "erxes-api:*"
-      JWT_TOKEN_SECRET=token
+      JWT_TOKEN_SECRET: token
       # public urls
       MAIN_APP_DOMAIN: http://localhost:3000
       WIDGETS_DOMAIN: http://localhost:3200
@@ -238,7 +238,7 @@ services:
     environment:
       # erxes-workers
       PORT_WORKERS: "3700"
-      JWT_TOKEN_SECRET=token
+      JWT_TOKEN_SECRET: token
       NODE_ENV: production
       DEBUG: "erxes-workers:*"
       # MongoDB
