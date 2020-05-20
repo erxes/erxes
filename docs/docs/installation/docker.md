@@ -124,7 +124,6 @@ Official Docker compose documentation: https://docs.docker.com/compose/install/
 ### Default ports
 _Must be published to host machine network_
 * erxes main frontend app will run on port 3000
-* erxes-widgets-api will run on port 3100
 * erxes-widgets will run on port 3200
 * erxes-api will run on port 3300
 * erxes-integrations will run on port 3400
