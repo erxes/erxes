@@ -51,7 +51,7 @@ function Component({
 
   const relCustomerTrigger = (
     <ButtonRelated>
-      <button>{__('See related customers..')}</button>
+      <span>{__('See related customers..')}</span>
     </ButtonRelated>
   );
 

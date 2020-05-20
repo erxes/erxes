@@ -32,6 +32,7 @@ export type RemoveBoardMutationResponse = {
   removeMutation: (
     params: {
       variables: RemoveBoardMutationVariables;
+      refetchQueries: string[];
     }
   ) => Promise<void>;
 };
