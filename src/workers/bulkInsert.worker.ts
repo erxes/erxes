@@ -107,6 +107,14 @@ connect().then(async () => {
             if (property.name === 'primaryPhone' && value) {
               doc.phones = [value];
             }
+
+            if (property.name === 'phones' && value) {
+              doc.phones = value.toString().split(',');
+            }
+
+            if (property.name === 'emails' && value) {
+              doc.emails = value.toString().split(',');
+            }
           }
           break;
       }
