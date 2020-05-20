@@ -6,8 +6,6 @@ import configs from './api/configs';
 import deliveryReports from './api/deliveryReports';
 import { initRedis } from './redisClient';
 
-initRedis();
-
 // load environment variables
 dotenv.config();
 
@@ -15,10 +13,6 @@ import { connect } from './connection';
 import { debugBase, debugInit } from './debuggers';
 import { initConsumer } from './messageQueue';
 import { trackEngages } from './trackers/engageTracker';
-
-connect();
-
-initConsumer();
 
 const app = express();
 
@@ -53,5 +47,14 @@ app.use((error, _req, res, _next) => {
 const { PORT } = process.env;
 
 app.listen(PORT, () => {
+  // connect to mongo database
+  connect().then(async () => {
+    initConsumer().catch(e => {
+      debugBase(`Error ocurred during rabbitmq init ${e.message}`);
+    });
+
+    initRedis();
+  });
+
   debugInit(`Engages server is running on port ${PORT}`);
 });

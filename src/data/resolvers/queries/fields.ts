@@ -1,7 +1,6 @@
 import { FIELD_CONTENT_TYPES, FIELDS_GROUPS_CONTENT_TYPES } from '../../../data/constants';
-import { Companies, Customers, Fields, FieldsGroups } from '../../../db/models';
-import { debugBase } from '../../../debuggers';
-import { getIndexPrefix, getMappings } from '../../../elasticsearch';
+import { Companies, Customers, Fields, FieldsGroups, Integrations } from '../../../db/models';
+import { fetchElk } from '../../../elasticsearch';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
@@ -14,27 +13,47 @@ export interface IFieldsQuery {
   contentTypeId?: string;
 }
 
+const getIntegrations = async () => {
+  return Integrations.aggregate([
+    {
+      $project: {
+        _id: 0,
+        label: '$name',
+        value: '$_id',
+      },
+    },
+  ]);
+};
+
 /*
  * Generates fields using given schema
  */
-const generateFieldsFromSchema = (queSchema: any, namePrefix: string) => {
+const generateFieldsFromSchema = async (queSchema: any, namePrefix: string) => {
   const queFields: any = [];
 
   // field definations
   const paths = queSchema.paths;
 
-  queSchema.eachPath(name => {
-    const label = paths[name].options.label;
+  const integrations = await getIntegrations();
+
+  for (const name of Object.keys(paths)) {
+    const path = paths[name];
+
+    const label = path.options.label;
+    const type = path.instance;
+    const selectOptions = name === 'integrationId' ? integrations || [] : path.options.selectOptions;
 
     // add to fields list
-    if (label) {
+    if (['String', 'Number', 'Date', 'Boolean'].includes(type) && label) {
       queFields.push({
         _id: Math.random(),
         name: `${namePrefix}${name}`,
         label,
+        type: path.instance,
+        selectOptions,
       });
     }
-  });
+  }
 
   return queFields;
 };
@@ -56,7 +75,10 @@ const fieldQueries = {
   /**
    * Generates all field choices base on given kind.
    */
-  async fieldsCombinedByContentType(_root, { contentType }: { contentType: string }) {
+  async fieldsCombinedByContentType(
+    _root,
+    { contentType, excludedNames }: { contentType: string; excludedNames?: string[] },
+  ) {
     let schema: any = Customers.schema;
     let fields: Array<{ _id: number; name: string; label?: string }> = [];
 
@@ -65,16 +87,16 @@ const fieldQueries = {
     }
 
     // generate list using customer or company schema
-    fields = [...fields, ...generateFieldsFromSchema(schema, '')];
+    fields = [...fields, ...(await generateFieldsFromSchema(schema, ''))];
 
-    schema.eachPath(name => {
+    for (const name of Object.keys(schema.paths)) {
       const path = schema.paths[name];
 
       // extend fields list using sub schema fields
       if (path.schema) {
-        fields = [...fields, ...generateFieldsFromSchema(path.schema, `${name}.`)];
+        fields = [...fields, ...(await generateFieldsFromSchema(path.schema, `${name}.`))];
       }
-    });
+    }
 
     const customFields = await Fields.find({ contentType });
 
@@ -91,30 +113,42 @@ const fieldQueries = {
       }
     }
 
-    let mappingProperties: any = {};
+    const aggre = await fetchElk(
+      'search',
+      contentType === 'company' ? 'companies' : 'customers',
+      {
+        size: 0,
+        _source: false,
+        aggs: {
+          trackedDataKeys: {
+            nested: {
+              path: 'trackedData',
+            },
+            aggs: {
+              fieldKeys: {
+                terms: {
+                  field: 'trackedData.field',
+                  size: 10000,
+                },
+              },
+            },
+          },
+        },
+      },
+      { aggregations: { trackedDataKeys: {} } },
+    );
 
-    // extend fields list using tracked fields data
-    try {
-      const index = `${getIndexPrefix()}${contentType === 'company' ? 'companies' : 'customers'}`;
-      const response = await getMappings(index);
-      mappingProperties = response[index].mappings.properties;
-    } catch (e) {
-      debugBase(`Error occurred in fieldsCombinedByContentType ${e.message}`);
+    const buckets = (aggre.aggregations.trackedDataKeys.fieldKeys || { buckets: [] }).buckets;
+
+    for (const bucket of buckets) {
+      fields.push({
+        _id: Math.random(),
+        name: `trackedData.${bucket.key}`,
+        label: bucket.key,
+      });
     }
 
-    if (mappingProperties.trackedData) {
-      const trackedDataFields = Object.keys(mappingProperties.trackedData.properties || {});
-
-      for (const trackedDataField of trackedDataFields) {
-        fields.push({
-          _id: Math.random(),
-          name: `trackedData.${trackedDataField}`,
-          label: trackedDataField,
-        });
-      }
-    }
-
-    return fields;
+    return fields.filter(field => !(excludedNames || []).includes(field.name));
   },
 
   /**
@@ -135,9 +169,11 @@ const fieldQueries = {
 
     return [
       { name: 'firstName', label: 'First name', order: 1 },
-      { name: 'lastName', label: 'Last name', order: 1 },
-      { name: 'primaryEmail', label: 'Primary email', order: 2 },
-      { name: 'primaryPhone', label: 'Primary phone', order: 3 },
+      { name: 'lastName', label: 'Last name', order: 2 },
+      { name: 'primaryEmail', label: 'Primary email', order: 3 },
+      { name: 'lastSeenAt', label: 'Last seen at', order: 4 },
+      { name: 'sessionCount', label: 'Session count', order: 5 },
+      { name: 'profileScore', label: 'Profile score', order: 6 },
     ];
   },
 };

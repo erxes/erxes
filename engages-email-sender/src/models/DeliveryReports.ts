@@ -17,6 +17,7 @@ export interface IStatsDocument extends IStats, Document {}
 
 export const statsSchema = new Schema({
   engageMessageId: { type: String },
+  createdAt: { type: Date, default: new Date() },
   open: { type: Number, default: 0 },
   click: { type: Number, default: 0 },
   complaint: { type: Number, default: 0 },

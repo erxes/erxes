@@ -99,16 +99,6 @@ describe('Test board model', () => {
     }
   });
 
-  test("Can't remove a board", async () => {
-    expect.assertions(1);
-
-    try {
-      await Boards.removeBoard(board._id);
-    } catch (e) {
-      expect(e.message).toMatch('has items named');
-    }
-  });
-
   // Test deal pipeline
   test('Create pipeline', async () => {
     const createdPipeline = await Pipelines.createPipeline(
@@ -262,7 +252,17 @@ describe('Test board model', () => {
     const removePipeline = await pipelineFactory();
     const removedStage = await stageFactory({ pipelineId: removePipeline._id });
 
-    const isDeleted = await Pipelines.removePipeline(removePipeline.id);
+    const isDeleted = await Pipelines.removePipeline(removePipeline.id, true);
+
+    expect(isDeleted).toBeTruthy();
+    expect(await Stages.findOne({ _id: removedStage._id })).toBeNull();
+  });
+
+  test('Remove pipeline with stage items', async () => {
+    const removePipeline = await pipelineFactory();
+    const removedStage = await stageFactory({ pipelineId: removePipeline._id });
+
+    const isDeleted = await Pipelines.removePipeline(removePipeline.id, false);
 
     expect(isDeleted).toBeTruthy();
     expect(await Stages.findOne({ _id: removedStage._id })).toBeNull();
@@ -277,16 +277,6 @@ describe('Test board model', () => {
       await Pipelines.removePipeline(fakePipelineId);
     } catch (e) {
       expect(e.message).toEqual('Pipeline not found');
-    }
-  });
-
-  test("Can't remove a pipeline", async () => {
-    expect.assertions(1);
-
-    try {
-      await Pipelines.removePipeline(pipeline._id);
-    } catch (e) {
-      expect(e.message).toMatch('has items named');
     }
   });
 
@@ -374,5 +364,11 @@ describe('Test board model', () => {
 
     expect(updatedStage.order).toBe(5);
     expect(updatedStageToOrder.order).toBe(9);
+  });
+
+  test('Update stage orders when orders length is zero', async () => {
+    const response = await Stages.updateOrder([]);
+
+    expect(response.length).toBe(0);
   });
 });

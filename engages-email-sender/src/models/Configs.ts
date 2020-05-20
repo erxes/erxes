@@ -82,11 +82,13 @@ export const loadClass = () => {
       const accessKeyId = await getValueAsString('accessKeyId');
       const secretAccessKey = await getValueAsString('secretAccessKey');
       const region = await getValueAsString('region');
+      const unverifiedEmailsLimit = await getValueAsString('unverifiedEmailsLimit');
 
       return {
         accessKeyId,
         secretAccessKey,
         region,
+        unverifiedEmailsLimit,
       };
     }
   }

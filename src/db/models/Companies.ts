@@ -1,8 +1,8 @@
 import { Model, model } from 'mongoose';
 import { validSearchText } from '../../data/utils';
 import { ActivityLogs, Conformities, Fields, InternalNotes } from './';
+import { ICustomField } from './definitions/common';
 import { companySchema, ICompany, ICompanyDocument } from './definitions/companies';
-import { STATUSES } from './definitions/constants';
 import { IUserDocument } from './definitions/users';
 
 export interface ICompanyModel extends Model<ICompanyDocument> {
@@ -43,7 +43,7 @@ export const loadClass = () => {
       },
       idsToExclude?: string[] | string,
     ) {
-      const query: { status: {}; [key: string]: any } = { status: { $ne: STATUSES.DELETED } };
+      const query: { status: {}; [key: string]: any } = { status: { $ne: 'deleted' } };
       let previousEntry;
 
       // Adding exclude operator to the query
@@ -127,7 +127,7 @@ export const loadClass = () => {
       }
 
       // clean custom field values
-      doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
+      doc.customFieldsData = await Fields.prepareCustomFieldsData(doc.customFieldsData);
 
       const company = await Companies.create({
         ...doc,
@@ -150,7 +150,7 @@ export const loadClass = () => {
       await Companies.checkDuplication(doc, [_id]);
 
       // clean custom field values
-      doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
+      doc.customFieldsData = await Fields.prepareCustomFieldsData(doc.customFieldsData);
 
       const searchText = Companies.fillSearchText(Object.assign(await Companies.getCompany(_id), doc) as ICompany);
 
@@ -181,7 +181,7 @@ export const loadClass = () => {
       await this.checkDuplication(companyFields, companyIds);
 
       let scopeBrandIds: string[] = [];
-      let customFieldsData = {};
+      let customFieldsData: ICustomField[] = [];
       let tagIds: string[] = [];
       let names: string[] = [];
       let emails: string[] = [];
@@ -201,7 +201,7 @@ export const loadClass = () => {
         scopeBrandIds = scopeBrandIds.concat(companyScopeBrandIds);
 
         // merge custom fields data
-        customFieldsData = { ...customFieldsData, ...(companyObj.customFieldsData || {}) };
+        customFieldsData = [...customFieldsData, ...(companyObj.customFieldsData || [])];
 
         // Merging company's tag into 1 array
         tagIds = tagIds.concat(companyTags);
@@ -215,9 +215,9 @@ export const loadClass = () => {
         // Merging company phones
         phones = phones.concat(companyPhones);
 
-        companyObj.status = STATUSES.DELETED;
+        companyObj.status = 'deleted';
 
-        await Companies.findByIdAndUpdate(companyId, { $set: { status: STATUSES.DELETED } });
+        await Companies.findByIdAndUpdate(companyId, { $set: { status: 'deleted' } });
       }
 
       // Removing Duplicates

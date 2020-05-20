@@ -68,10 +68,14 @@ export const sendMessage = async (queueName: string, data?: any) => {
   await channel.sendToQueue(queueName, Buffer.from(JSON.stringify(data || {})));
 };
 
-export const initConsumer = async () => {
+export const initRabbitMQ = async () => {
   // Consumer
   connection = await amqplib.connect(RABBITMQ_HOST);
   channel = await connection.createChannel();
+};
+
+export const initConsumer = async () => {
+  await initRabbitMQ();
 
   // listen for rpc queue =========
   await channel.assertQueue('rpc_queue:integrations_to_api');

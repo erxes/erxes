@@ -1,6 +1,6 @@
 {
   "name": "erxes-api",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "description": "GraphQL API for erxes main project",
   "homepage": "https://erxes.io",
   "repository": "https://github.com/erxes/erxes-api",
@@ -11,7 +11,7 @@
     "graphql",
     "apollo"
   ],
-  "license": "MIT",
+  "license": "GNU General Public License v3.0 with Commons Clause",
   "private": true,
   "scripts": {
     "start": "node dist",
@@ -19,7 +19,7 @@
     "start-workers": "node dist/workers",
     "dev": "DEBUG=erxes-api:* NODE_ENV=development node_modules/.bin/ts-node-dev --respawn --ignore-watch node_modules -- src",
     "dev-crons": "PROCESS_NAME=crons DEBUG=erxes-crons:* NODE_ENV=development node_modules/.bin/ts-node-dev --respawn src/cronJobs",
-    "dev-workers": "PROCESS_NAME=workers DEBUG=erxes-workers:* NODE_ENV=development node_modules/.bin/ts-node-dev --experimental-worker --respawn src/workers",
+    "dev-workers": "PROCESS_NAME=workers DEBUG=erxes-workers:* NODE_ENV=development NODE_OPTIONS='--experimental-worker' node_modules/.bin/ts-node src/workers/index.ts",
     "build": "tsc -p tsconfig.prod.json && cp -rf src/private dist/ && yarn generateVersion",
     "lint": "tslint '../src/**/*.ts'",
     "format": "prettier --write '../src/**/*.ts'",
@@ -55,6 +55,7 @@
     "apollo-server-express": "^2.9.7",
     "aws-sdk": "^2.151.0",
     "bcryptjs": "^2.4.3",
+    "cookie": "^0.4.1",
     "cookie-parser": "^1.4.3",
     "cors": "^2.8.1",
     "debug": "^4.1.1",
@@ -134,6 +135,6 @@
   },
   "snyk": true,
   "engines": {
-    "node": "10.x.x"
+    "node": ">=10.x.x"
   }
 }

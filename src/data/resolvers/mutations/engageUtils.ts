@@ -7,12 +7,7 @@ import {
   Segments,
   Users,
 } from '../../../db/models';
-import {
-  CONVERSATION_STATUSES,
-  EMAIL_VALIDATION_STATUSES,
-  KIND_CHOICES,
-  METHODS,
-} from '../../../db/models/definitions/constants';
+import { CONVERSATION_STATUSES, KIND_CHOICES, METHODS } from '../../../db/models/definitions/constants';
 import { ICustomerDocument } from '../../../db/models/definitions/customers';
 import { IEngageMessageDocument } from '../../../db/models/definitions/engages';
 import { IUserDocument } from '../../../db/models/definitions/users';
@@ -74,6 +69,10 @@ export const findCustomers = async ({
   return Customers.find({ $or: [{ doNotDisturb: 'No' }, { doNotDisturb: { $exists: false } }], ...customerQuery });
 };
 
+const sendQueueMessage = args => {
+  return sendMessage('erxes-api:engages-notification', args);
+};
+
 export const send = async (engageMessage: IEngageMessageDocument) => {
   const { customerIds, segmentIds, tagIds, brandIds, fromUserId } = engageMessage;
 
@@ -93,13 +92,22 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
   await EngageMessages.setCustomersCount(engageMessage._id, 'totalCustomersCount', customers.length);
 
   if (engageMessage.method === METHODS.EMAIL) {
-    const customerInfos = customers
-      .filter(customer => customer.emailValidationStatus === EMAIL_VALIDATION_STATUSES.VALID)
-      .map(customer => ({
-        _id: customer._id,
-        name: Customers.getCustomerName(customer),
-        email: customer.primaryEmail,
-      }));
+    const engageMessageId = engageMessage._id;
+
+    await sendQueueMessage({
+      action: 'writeLog',
+      data: {
+        engageMessageId,
+        msg: `Run at ${new Date()}`,
+      },
+    });
+
+    const customerInfos = customers.map(customer => ({
+      _id: customer._id,
+      name: Customers.getCustomerName(customer),
+      email: customer.primaryEmail,
+      emailValidationStatus: customer.emailValidationStatus,
+    }));
 
     const data = {
       email: engageMessage.email,
@@ -109,13 +117,21 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
         name: user.details && user.details.fullName,
         position: user.details && user.details.position,
       },
-      engageMessageId: engageMessage._id,
+      engageMessageId,
     };
 
     if (engageMessage.kind === MESSAGE_KINDS.MANUAL && customerInfos.length === 0) {
       await EngageMessages.deleteOne({ _id: engageMessage._id });
-      throw new Error('No customers found who have valid emails');
+      throw new Error('No customers found');
     }
+
+    await sendQueueMessage({
+      action: 'writeLog',
+      data: {
+        engageMessageId,
+        msg: `Matched ${customerInfos.length} customers`,
+      },
+    });
 
     await EngageMessages.setCustomersCount(engageMessage._id, 'validCustomersCount', customerInfos.length);
 
@@ -124,7 +140,7 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
         data.customers = [...customerInfos, ...JSON.parse(process.env.ENGAGE_ADMINS)];
       }
 
-      await sendMessage('erxes-api:engages-notification', { action: 'sendEngage', data });
+      await sendQueueMessage({ action: 'sendEngage', data });
     }
   }
 

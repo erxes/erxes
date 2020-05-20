@@ -41,12 +41,14 @@ describe('Test tasks mutations', () => {
     $name: String!,
     $stageId: String!
     $assignedUserIds: [String]
+    $status: String
   `;
 
   const commonTaskParams = `
     name: $name
     stageId: $stageId
     assignedUserIds: $assignedUserIds
+    status: $status
   `;
 
   beforeEach(async () => {
@@ -114,6 +116,7 @@ describe('Test tasks mutations', () => {
 
     const user = await userFactory();
     args.assignedUserIds = [user.id];
+    args.status = 'archived';
 
     updatedTask = await graphqlRequest(mutation, 'tasksEdit', args);
 
@@ -236,34 +239,6 @@ describe('Test tasks mutations', () => {
 
     expect(updatedTask._id).toEqual(args._id);
     expect(updatedTask.stageId).toEqual(args.stageId);
-  });
-
-  test('Task update orders', async () => {
-    const taskToStage = await taskFactory({});
-
-    const args = {
-      orders: [
-        { _id: task._id, order: 9 },
-        { _id: taskToStage._id, order: 3 },
-      ],
-      stageId: stage._id,
-    };
-
-    const mutation = `
-      mutation tasksUpdateOrder($stageId: String!, $orders: [OrderItem]) {
-        tasksUpdateOrder(stageId: $stageId, orders: $orders) {
-          _id
-          stageId
-          order
-        }
-      }
-    `;
-
-    const [updatedTask, updatedTaskToOrder] = await graphqlRequest(mutation, 'tasksUpdateOrder', args);
-
-    expect(updatedTask.order).toBe(3);
-    expect(updatedTaskToOrder.order).toBe(9);
-    expect(updatedTask.stageId).toBe(stage._id);
   });
 
   test('Remove task', async () => {

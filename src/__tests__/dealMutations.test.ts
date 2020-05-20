@@ -46,6 +46,7 @@ describe('Test deals mutations', () => {
     $stageId: String!
     $assignedUserIds: [String]
     $productsData: JSON
+    $status: String
   `;
 
   const commonDealParams = `
@@ -53,6 +54,7 @@ describe('Test deals mutations', () => {
     stageId: $stageId
     assignedUserIds: $assignedUserIds
     productsData: $productsData
+    status: $status
   `;
 
   beforeEach(async () => {
@@ -156,6 +158,8 @@ describe('Test deals mutations', () => {
 
     // not products data and assigneduserIDs
     args.productsData = [];
+    args.status = 'archived';
+
     delete args.assignedUserIds;
     response = await graphqlRequest(mutation, 'dealsEdit', args);
 
@@ -229,34 +233,6 @@ describe('Test deals mutations', () => {
 
     expect(updatedDeal._id).toEqual(args._id);
     expect(updatedDeal.stageId).toEqual(args.stageId);
-  });
-
-  test('Deal update orders', async () => {
-    const dealToStage = await dealFactory({});
-
-    const args = {
-      orders: [
-        { _id: deal._id, order: 9 },
-        { _id: dealToStage._id, order: 3 },
-      ],
-      stageId: stage._id,
-    };
-
-    const mutation = `
-      mutation dealsUpdateOrder($stageId: String!, $orders: [OrderItem]) {
-        dealsUpdateOrder(stageId: $stageId, orders: $orders) {
-          _id
-          stageId
-          order
-        }
-      }
-    `;
-
-    const [updatedDeal, updatedDealToOrder] = await graphqlRequest(mutation, 'dealsUpdateOrder', args);
-
-    expect(updatedDeal.order).toBe(3);
-    expect(updatedDealToOrder.order).toBe(9);
-    expect(updatedDeal.stageId).toBe(stage._id);
   });
 
   test('Remove deal', async () => {

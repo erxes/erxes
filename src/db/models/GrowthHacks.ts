@@ -1,7 +1,6 @@
 import { Model, model } from 'mongoose';
 import { ActivityLogs } from '.';
-import { fillSearchTextItem, updateOrder, watchItem } from './boardUtils';
-import { IOrderInput } from './definitions/boards';
+import { fillSearchTextItem, watchItem } from './boardUtils';
 import { BOARD_STATUSES } from './definitions/constants';
 import { growthHackSchema, IGrowthHack, IGrowthHackDocument } from './definitions/growthHacks';
 
@@ -9,7 +8,6 @@ export interface IGrowthHackModel extends Model<IGrowthHackDocument> {
   getGrowthHack(_id: string): Promise<IGrowthHackDocument>;
   createGrowthHack(doc: IGrowthHack): Promise<IGrowthHackDocument>;
   updateGrowthHack(_id: string, doc: IGrowthHack): Promise<IGrowthHackDocument>;
-  updateOrder(stageId: string, orders: IOrderInput[]): Promise<IGrowthHackDocument[]>;
   watchGrowthHack(_id: string, isAdd: boolean, userId: string): void;
   voteGrowthHack(_id: string, isVote: boolean, userId: string): Promise<IGrowthHackDocument>;
 }
@@ -65,13 +63,6 @@ export const loadGrowthHackClass = () => {
       await GrowthHacks.updateOne({ _id }, { $set: doc, searchText });
 
       return GrowthHacks.findOne({ _id });
-    }
-
-    /*
-     * Update given growth hack orders
-     */
-    public static async updateOrder(stageId: string, orders: IOrderInput[]) {
-      return updateOrder(GrowthHacks, orders, stageId);
     }
 
     /**

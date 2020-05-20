@@ -1,29 +1,16 @@
+import * as dotenv from 'dotenv';
 import * as Random from 'meteor-random';
-import * as mongoose from 'mongoose';
-import { debugWorkers } from '../debuggers';
-import { Logs, Stats } from '../models';
-import { createTransporter, getEnv, replaceKeys } from '../utils';
-import { connect } from './utils';
+import { debugEngages } from './debuggers';
+import { Logs, Stats } from './models';
+import { createTransporter, getConfigs, getEnv, replaceKeys } from './utils';
 
-// tslint:disable-next-line
-const { parentPort, workerData } = require('worker_threads');
+dotenv.config();
 
-let cancel = false;
-
-parentPort.once('message', message => {
-  if (message === 'cancel') {
-    parentPort.postMessage('Cancelled');
-    cancel = true;
-  }
-});
-
-connect().then(async () => {
-  if (cancel) {
-    return;
-  }
-
-  const { user, email, result, engageMessageId } = workerData;
+export const start = async data => {
+  const { user, email, engageMessageId, customers } = data;
   const { content, subject, attachments } = email;
+
+  await Stats.create({ engageMessageId });
 
   const transporter = await createTransporter();
 
@@ -64,10 +51,10 @@ connect().then(async () => {
         },
       });
       const msg = `Sent email to: ${customer.email}`;
-      debugWorkers(msg);
+      debugEngages(msg);
       await Logs.createLog(engageMessageId, 'success', msg);
     } catch (e) {
-      debugWorkers(e.message);
+      debugEngages(e.message);
       await Logs.createLog(
         engageMessageId,
         'failure',
@@ -78,13 +65,36 @@ connect().then(async () => {
     await Stats.updateOne({ engageMessageId }, { $inc: { total: 1 } });
   };
 
-  const customerEmails = result.map(customer => customer.email);
+  const configs = await getConfigs();
+  const unverifiedEmailsLimit = parseInt(configs.unverifiedEmailsLimit || '100', 10);
 
-  if (customerEmails.length > 0) {
-    await Logs.createLog(engageMessageId, 'regular', `Preparing to send emails to ${customerEmails}`);
+  let filteredCustomers = [];
+  let emails = [];
+
+  if (customers.length > unverifiedEmailsLimit) {
+    await Logs.createLog(
+      engageMessageId,
+      'regular',
+      `Unverified emails limit exceeced ${unverifiedEmailsLimit}. Customers who have unverified emails will be eliminated.`,
+    );
+
+    for (const customer of customers) {
+      if (customer.emailValidationStatus === 'valid') {
+        filteredCustomers.push(customer);
+
+        emails.push(customer.email);
+      }
+    }
+  } else {
+    filteredCustomers = customers;
+    emails = customers.map(customer => customer.email);
   }
 
-  for (const customer of result) {
+  if (emails.length > 0) {
+    await Logs.createLog(engageMessageId, 'regular', `Preparing to send emails to ${emails.length}: ${emails}`);
+  }
+
+  for (const customer of filteredCustomers) {
     await new Promise(resolve => {
       setTimeout(resolve, 1000);
     });
@@ -92,7 +102,5 @@ connect().then(async () => {
     await sendEmail(customer);
   }
 
-  mongoose.connection.close();
-
-  parentPort.postMessage('Successfully finished job');
-});
+  return true;
+};

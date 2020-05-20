@@ -1,7 +1,6 @@
 import * as moment from 'moment';
 import * as _ from 'underscore';
 import { Customers, FormSubmissions, Integrations } from '../../../db/models';
-import { STATUSES } from '../../../db/models/definitions/constants';
 import { IConformityQueryParams } from '../../resolvers/queries/types';
 import { CommonBuilder } from './utils';
 
@@ -138,7 +137,7 @@ export class Builder extends CommonBuilder<IListArgs> {
 
     const selector = {
       ...this.context.commonQuerySelector,
-      status: { $ne: STATUSES.DELETED },
+      status: { $ne: 'deleted' },
       state: this.params.type || 'customer',
       $or: [
         {

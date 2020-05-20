@@ -1,7 +1,7 @@
 import { Model, model } from 'mongoose';
 import { validateEmail, validSearchText } from '../../data/utils';
 import { ActivityLogs, Conformities, Conversations, EngageMessages, Fields, InternalNotes } from './';
-import { EMAIL_VALIDATION_STATUSES, STATUSES } from './definitions/constants';
+import { ICustomField } from './definitions/common';
 import { customerSchema, ICustomer, ICustomerDocument } from './definitions/customers';
 import { IUserDocument } from './definitions/users';
 
@@ -91,7 +91,7 @@ export const loadClass = () => {
      * Checking if customer has duplicated unique properties
      */
     public static async checkDuplication(customerFields: ICustomerFieldsInput, idsToExclude?: string[] | string) {
-      const query: { status: {}; [key: string]: any } = { status: { $ne: STATUSES.DELETED } };
+      const query: { status: {}; [key: string]: any } = { status: { $ne: 'deleted' } };
       let previousEntry;
 
       // Adding exclude operator to the query
@@ -222,7 +222,7 @@ export const loadClass = () => {
       }
 
       // clean custom field values
-      doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
+      doc.customFieldsData = await Fields.prepareCustomFieldsData(doc.customFieldsData);
 
       if (doc.integrationId) {
         doc.relatedIntegrationIds = [doc.integrationId];
@@ -258,13 +258,13 @@ export const loadClass = () => {
       await Customers.checkDuplication(doc, _id);
 
       // clean custom field values
-      doc.customFieldsData = await Fields.cleanMulti(doc.customFieldsData || {});
+      doc.customFieldsData = await Fields.prepareCustomFieldsData(doc.customFieldsData);
 
       if (doc.primaryEmail) {
         const oldCustomer = await Customers.getCustomer(_id);
 
         if (doc.primaryEmail !== oldCustomer.primaryEmail) {
-          doc.emailValidationStatus = EMAIL_VALIDATION_STATUSES.UNKNOWN;
+          doc.emailValidationStatus = 'unknown';
 
           validateEmail(doc.primaryEmail);
         }
@@ -407,7 +407,7 @@ export const loadClass = () => {
 
       let scopeBrandIds: string[] = [];
       let tagIds: string[] = [];
-      let customFieldsData = {};
+      let customFieldsData: ICustomField[] = [];
 
       let emails: string[] = [];
       let phones: string[] = [];
@@ -428,7 +428,7 @@ export const loadClass = () => {
           customerFields.integrationId = customerObj.integrationId;
 
           // merge custom fields data
-          customFieldsData = { ...customFieldsData, ...(customerObj.customFieldsData || {}) };
+          customFieldsData = [...customFieldsData, ...(customerObj.customFieldsData || [])];
 
           // Merging scopeBrandIds
           scopeBrandIds = [...scopeBrandIds, ...(customerObj.scopeBrandIds || [])];
@@ -442,7 +442,7 @@ export const loadClass = () => {
           emails = [...emails, ...(customerObj.emails || [])];
           phones = [...phones, ...(customerObj.phones || [])];
 
-          await Customers.findByIdAndUpdate(customerId, { $set: { status: STATUSES.DELETED } });
+          await Customers.findByIdAndUpdate(customerId, { $set: { status: 'deleted' } });
         }
       }
 
@@ -595,7 +595,7 @@ export const loadClass = () => {
 
       return this.createCustomer({
         ...doc,
-        trackedData: customData,
+        trackedData: Fields.generateTypedListFromMap(customData),
         lastSeenAt: new Date(),
         isOnline: true,
         sessionCount: 1,
@@ -616,7 +616,7 @@ export const loadClass = () => {
 
       const modifier = {
         ...doc,
-        trackedData: customData,
+        trackedData: Fields.generateTypedListFromMap(customData),
         state: doc.isUser ? 'customer' : customer.state,
         modifiedAt: new Date(),
       };

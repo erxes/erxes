@@ -47,7 +47,7 @@ const INTEGRATIONS_API_DOMAIN = getSubServiceDomain({ name: 'INTEGRATIONS_API_DO
 const app = express();
 
 app.disable('x-powered-by');
-app.use(express.urlencoded());
+app.use(express.urlencoded({ extended: true }));
 app.use(
   express.json({
     limit: '15mb',

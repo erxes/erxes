@@ -1,7 +1,8 @@
 import * as amqplib from 'amqplib';
 import * as dotenv from 'dotenv';
 import { debugBase } from './debuggers';
-import { start } from './workers';
+import { Logs } from './models';
+import { start } from './sender';
 
 dotenv.config();
 
@@ -26,6 +27,10 @@ export const initConsumer = async () => {
 
         if (action === 'sendEngage') {
           await start(data);
+        }
+
+        if (action === 'writeLog') {
+          await Logs.createLog(data.engageMessageId, 'regular', data.msg);
         }
 
         channel.ack(msg);
