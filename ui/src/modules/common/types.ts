@@ -79,6 +79,7 @@ export type IButtonMutateProps = {
   name?: string;
   values: any;
   isSubmitted: boolean;
+  confirmationUpdate?: boolean;
   callback?: () => void;
   resetSubmit?: () => void;
   size?: string;

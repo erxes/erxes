@@ -11,6 +11,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import Boards from '../components/Boards';
+import { getWarningMessage } from '../constants';
 import { mutations, queries } from '../graphql';
 import { IOption, RemoveBoardMutationResponse } from '../types';
 
@@ -43,9 +44,10 @@ class BoardsContainer extends React.Component<FinalProps> {
 
     // remove action
     const remove = boardId => {
-      confirm().then(() => {
+      confirm(getWarningMessage('Board'), { hasDeleteConfirm: true }).then(() => {
         removeMutation({
-          variables: { _id: boardId }
+          variables: { _id: boardId },
+          refetchQueries: getRefetchQueries()
         })
           .then(() => {
             // if deleted board is default board

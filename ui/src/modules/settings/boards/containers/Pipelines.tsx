@@ -11,6 +11,7 @@ import { __, Alert, confirm, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Pipelines from '../components/Pipelines';
+import { getWarningMessage } from '../constants';
 import { mutations, queries } from '../graphql';
 import {
   IOption,
@@ -51,7 +52,7 @@ class PipelinesContainer extends React.Component<FinalProps> {
 
     // remove action
     const remove = pipelineId => {
-      confirm().then(() => {
+      confirm(getWarningMessage('Pipeline'), { hasDeleteConfirm: true }).then(() => {
         removePipelineMutation({
           variables: { _id: pipelineId }
         })
@@ -75,13 +76,15 @@ class PipelinesContainer extends React.Component<FinalProps> {
       values,
       isSubmitted,
       callback,
-      object
+      object,
+      confirmationUpdate
     }: IButtonMutateProps) => {
       return (
         <ButtonMutate
           mutation={object ? mutations.pipelineEdit : mutations.pipelineAdd}
           variables={values}
           callback={callback}
+          confirmationUpdate={confirmationUpdate}
           refetchQueries={getRefetchQueries(boardId)}
           isSubmitted={isSubmitted}
           type="submit"
