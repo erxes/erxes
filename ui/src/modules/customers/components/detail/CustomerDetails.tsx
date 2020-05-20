@@ -107,7 +107,6 @@ class CustomerDetails extends React.Component<Props> {
       </>
     );
 
-    console.log(customer);
     return (
       <Wrapper
         header={
