@@ -58,7 +58,7 @@ export interface IConformityDocument extends IConformity, Document {
 export const conformitySchema = new Schema({
   _id: field({ pkey: true }),
   mainType: field({ type: String, index: true }),
-  mainTypeId: field({ type: String }),
+  mainTypeId: field({ type: String, index: true }),
   relType: field({ type: String, index: true }),
-  relTypeId: field({ type: String }),
+  relTypeId: field({ type: String, index: true }),
 });
