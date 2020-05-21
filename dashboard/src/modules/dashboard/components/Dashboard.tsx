@@ -116,7 +116,7 @@ class Dashboard extends React.Component<Props, State> {
           </div>
         );
       }
-      return <h2>There are no charts on this dashboard</h2>;
+      return;
     };
 
     return (
