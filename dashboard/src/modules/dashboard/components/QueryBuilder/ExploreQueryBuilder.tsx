@@ -61,7 +61,7 @@ class ExploreQueryBuilder extends React.Component<Props> {
 
     const menu = (
       <Menu>
-        {schemaTypes.map(schemaType => (
+        {schemaTypes.map((schemaType) => (
           <Menu.Item key={schemaType} onClick={() => setType(schemaType)}>
             {schemaType}
           </Menu.Item>
@@ -92,7 +92,7 @@ class ExploreQueryBuilder extends React.Component<Props> {
           isQueryPresent,
           chartType,
           updateChartType,
-          validatedQuery
+          validatedQuery,
         }) => {
           return (
             <>
@@ -113,6 +113,7 @@ class ExploreQueryBuilder extends React.Component<Props> {
                           <LabelStyled>Measure</LabelStyled>
                           <MemberGroup
                             type={type}
+                            memberGroupType="measure"
                             members={measures}
                             availableMembers={availableMeasures}
                             addMemberName="Measure"
@@ -124,6 +125,7 @@ class ExploreQueryBuilder extends React.Component<Props> {
                           <LabelStyled>Dimension</LabelStyled>
                           <MemberGroup
                             type={type}
+                            memberGroupType="dimensions"
                             members={dimensions}
                             availableMembers={availableDimensions}
                             addMemberName="Dimension"
@@ -136,6 +138,7 @@ class ExploreQueryBuilder extends React.Component<Props> {
                           <MemberGroup
                             type={type}
                             members={segments}
+                            memberGroupType="segments"
                             availableMembers={availableSegments}
                             addMemberName="Segment"
                             updateMethods={updateSegments}

@@ -6,7 +6,7 @@ const generateMember = (availableMembers, schemaType) => {
   const generatedMembers = [] as any;
 
   if (availableMembers) {
-    availableMembers.forEach(members => {
+    availableMembers.forEach((members) => {
       const name = members.name;
 
       if (name.startsWith(schemaType)) {
@@ -27,7 +27,7 @@ const memberMenu = (onClick, availableMembers, schemaType) => {
   return (
     <Menu>
       {generatedMembers.length ? (
-        generatedMembers.map(m => (
+        generatedMembers.map((m) => (
           <Menu.Item key={m.name} onClick={() => onClick(m)}>
             {m.title}
           </Menu.Item>

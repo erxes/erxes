@@ -6,39 +6,39 @@ const ChartTypes = [
   {
     name: 'line',
     title: 'Line',
-    icon: 'line-chart'
+    icon: 'line-chart',
   },
   {
     name: 'area',
     title: 'Area',
-    icon: 'area-chart'
+    icon: 'area-chart',
   },
   {
     name: 'bar',
     title: 'Bar',
-    icon: 'bar-chart'
+    icon: 'bar-chart',
   },
   {
     name: 'pie',
     title: 'Pie',
-    icon: 'pie-chart'
+    icon: 'pie-chart',
   },
   {
     name: 'table',
     title: 'Table',
-    icon: 'table'
+    icon: 'table',
   },
   {
     name: 'number',
     title: 'Number',
-    icon: 'info-circle'
-  }
+    icon: 'info-circle',
+  },
 ];
 
 const SelectChartType = ({ chartType, updateChartType }) => {
   const menu = (
     <Menu>
-      {ChartTypes.map(m => (
+      {ChartTypes.map((m) => (
         <Menu.Item key={m.title} onClick={() => updateChartType(m.name)}>
           <Icon type={m.icon} />
           {m.title}
@@ -46,7 +46,7 @@ const SelectChartType = ({ chartType, updateChartType }) => {
       ))}
     </Menu>
   );
-  const foundChartType = ChartTypes.find(t => t.name === chartType);
+  const foundChartType = ChartTypes.find((t) => t.name === chartType);
   return (
     <ButtonDropdown
       overlay={menu}

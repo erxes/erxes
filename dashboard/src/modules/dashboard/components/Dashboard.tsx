@@ -14,7 +14,7 @@ const ReactGridLayout = WidthProvider(RGL);
 
 const DragField = styledTS<any>(styled(ReactGridLayout))`
   margin: 16px 28px 50px 28px;
-  ${props =>
+  ${(props) =>
     props.isDragging
       ? `
     background: url(${dragBackground});
@@ -25,13 +25,13 @@ const DragField = styledTS<any>(styled(ReactGridLayout))`
       : ''};
 `;
 
-const deserializeItem = i => ({
+const deserializeItem = (i) => ({
   ...i,
   layout: JSON.parse(i.layout) || {},
   vizState: JSON.parse(i.vizState),
 });
 
-const defaultLayout = i => ({
+const defaultLayout = (i) => ({
   x: i.layout.x || 0,
   y: i.layout.y || 0,
   w: i.layout.w || 4,
@@ -57,15 +57,15 @@ class Dashboard extends React.Component<Props, State> {
     this.state = { isDragging: false };
   }
 
-  setIsDragging = value => {
+  setIsDragging = (value) => {
     this.setState({ isDragging: value });
   };
 
-  onLayoutChange = newLayout => {
+  onLayoutChange = (newLayout) => {
     const { dashboardItems, editDashboardItem } = this.props;
 
-    newLayout.forEach(l => {
-      const item = dashboardItems.find(i => i._id.toString() === l.i);
+    newLayout.forEach((l) => {
+      const item = dashboardItems.find((i) => i._id.toString() === l.i);
       const toUpdate = JSON.stringify({
         x: l.x,
         y: l.y,
@@ -98,7 +98,7 @@ class Dashboard extends React.Component<Props, State> {
       );
     }
 
-    const dashboardItem = item => {
+    const dashboardItem = (item) => {
       if (item.layout) {
         const height = item.layout.h * 40;
 
@@ -116,7 +116,7 @@ class Dashboard extends React.Component<Props, State> {
           </div>
         );
       }
-      return <></>;
+      return <h2>There are no charts on this dashboard</h2>;
     };
 
     return (

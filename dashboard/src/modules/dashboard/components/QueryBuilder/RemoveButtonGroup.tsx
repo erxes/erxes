@@ -10,8 +10,8 @@ const RemoveButtonGroup = ({ onRemoveClick, children, ...props }) => (
     {...props}
   >
     {children}
-    <Button type='dashed' onClick={onRemoveClick}>
-      <Icon type='close' />
+    <Button type="dashed" onClick={onRemoveClick}>
+      <Icon type="close" />
     </Button>
   </Button.Group>
 );

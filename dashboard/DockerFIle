@@ -1,0 +1,6 @@
+FROM node:alpine
+WORKDIR /dashboard/
+COPY yarn.lock package.json ./
+RUN yarn install
+CMD ["yarn", "start"]
+

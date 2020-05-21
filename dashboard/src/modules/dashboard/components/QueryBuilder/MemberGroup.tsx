@@ -9,43 +9,56 @@ type Props = {
   members: any;
   addMemberName: string;
   type: string;
+  memberGroupType: string;
 };
 
 class MemberGroup extends React.Component<Props> {
-  render() {
+  renderMember = () => {
     const {
       members,
-      availableMembers,
       addMemberName,
+      availableMembers,
       updateMethods,
-      type
+      type,
+      memberGroupType,
     } = this.props;
+
+    if (members.length > 0 && memberGroupType === 'measure') {
+      return <span />;
+    }
+
+    return (
+      <MemberDropdown
+        onClick={(m) => updateMethods.add(m)}
+        availableMembers={availableMembers}
+        type="dashed"
+        schemaType={type}
+        icon={<Icon type="plus" />}
+      >
+        {addMemberName}
+      </MemberDropdown>
+    );
+  };
+  render() {
+    const { members, availableMembers, updateMethods, type } = this.props;
 
     return (
       <span>
-        {members.map(m => (
+        {members.map((m) => (
           <RemoveButtonGroup
             key={m.index || m.name}
             onRemoveClick={() => updateMethods.remove(m)}
           >
             <MemberDropdown
               availableMembers={availableMembers}
-              onClick={updateWith => updateMethods.update(m, updateWith)}
+              onClick={(updateWith) => updateMethods.update(m, updateWith)}
               schemaType={type}
             >
               {m.title}
             </MemberDropdown>
           </RemoveButtonGroup>
         ))}
-        <MemberDropdown
-          onClick={m => updateMethods.add(m)}
-          availableMembers={availableMembers}
-          type="dashed"
-          schemaType={type}
-          icon={<Icon type="plus" />}
-        >
-          {addMemberName}
-        </MemberDropdown>
+        {this.renderMember()}
       </span>
     );
   }
