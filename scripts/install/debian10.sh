@@ -205,6 +205,7 @@ cat <<EOF >/home/$username/ecosystem.json
       "cwd": "$erxes_api_dir",
       "script": "dist/workers",
       "log_date_format": "YYYY-MM-DD HH:mm Z",
+      "node_args": "--experimental-worker",
       "env": {
         "PORT_WORKERS": 3700,
         "NODE_ENV": "production",
