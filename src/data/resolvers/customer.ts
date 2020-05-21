@@ -56,7 +56,7 @@ export default {
       relTypes: ['company'],
     });
 
-    return Companies.find({ _id: { $in: companyIds || [] } });
+    return Companies.find({ _id: { $in: companyIds || [] } }).limit(10);
   },
 
   owner(customer: ICustomerDocument) {
