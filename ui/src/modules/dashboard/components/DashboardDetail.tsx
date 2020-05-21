@@ -65,7 +65,7 @@ class DashboardDetail extends React.Component<Props, State> {
     const rightActionBar = (
       <>
         <Link to={`/dashboard/explore/${id}`}>
-          <Button btnStyle="primary" size="small" icon="arrow-from-right">
+          <Button btnStyle="primary" size="small" icon="plus-circle">
             Add chart
           </Button>
         </Link>
@@ -73,7 +73,7 @@ class DashboardDetail extends React.Component<Props, State> {
           onClick={this.remove}
           btnStyle="danger"
           size="small"
-          icon="arrow-from-right"
+          icon="cancel-1"
         >
           Remove
         </Button>
