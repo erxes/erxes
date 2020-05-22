@@ -7,7 +7,7 @@ Start converting your prospects into potential customers through Email, SMS, Mes
 
 - Please follow the steps for setup: **Engage**
 
-<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/engage/engage1.jpg">
+![](https://s3-us-west-2.amazonaws.com/erxes-docs/engage/engage1.jpg)
 
 1. Filter by **Kind, Status, Tags**
 2. List of **Created Engage**
@@ -19,7 +19,7 @@ Start converting your prospects into potential customers through Email, SMS, Mes
 
 The Engage feature consists of three types of messages:
 
-<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/engage/engage2.jpg">
+![](https://s3-us-west-2.amazonaws.com/erxes-docs/engage/engage2.jpg)
 
 1. Auto message
 2. Manual message
@@ -33,7 +33,7 @@ Send mass emails to your target customers automatically at scheduled time. The c
 
 - Please follow the steps for setup: **Engage->New Message-> Choose Channel**
 
-<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/engage/engage3.jpg">
+![](https://s3-us-west-2.amazonaws.com/erxes-docs/engage/engage3.jpg)
 
 1. **Insert Title** for Auto Message
 2. **Choose Channel**
@@ -43,7 +43,7 @@ Send mass emails to your target customers automatically at scheduled time. The c
 
 - Please follow the steps for setup: **Engage->New Message-> Choose Channel->**
 
-<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/engage/engage4.jpg">
+![](https://s3-us-west-2.amazonaws.com/erxes-docs/engage/engage4.jpg)
 
 1. **Choose Segment/Create Segment**
 2. **Number** of customers
@@ -53,7 +53,7 @@ Send mass emails to your target customers automatically at scheduled time. The c
 
 - Please follow the steps for setup: **Engage->New Message-> Choose Channel-> Compose your message**
 
-<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/engage/enage5.jpg">
+![](https://s3-us-west-2.amazonaws.com/erxes-docs/engage/enage5.jpg)
 
 1. **Type your message**
 2. Choose **team member** to send from
@@ -62,7 +62,7 @@ Send mass emails to your target customers automatically at scheduled time. The c
 5. **Attach files**
 6. Set your **schedule**
 7. Set your **month**
-8. Set your __day__
+8. Set your **day**
 9. Set **time**
 10. **Appearance** of message
 11. Click **Save** to send
@@ -71,7 +71,7 @@ Send mass emails to your target customers automatically at scheduled time. The c
 
 - Please follow the steps for setup: **Engage**
 
-<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/engage/engage6.jpg">
+![](https://s3-us-west-2.amazonaws.com/erxes-docs/engage/engage6.jpg)
 
 1. **Pause/Send** message automatically at any time
 
@@ -83,7 +83,7 @@ Main function of Manual message is to send mass emails only once
 
 - Please follow the steps for setup: **Engage->New Message->Manual message->Choose Channel**
 
-<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/engage/engage3.jpg">
+![](https://s3-us-west-2.amazonaws.com/erxes-docs/engage/engage3.jpg)
 
 1. **Insert Title** for Manual Message
 2. **Choose Channel**
@@ -93,7 +93,7 @@ Main function of Manual message is to send mass emails only once
 
 - Please follow the steps for setup: **Engage->New Message->Manual message->Choose Channel->Choose Segment**
 
-<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/engage/engage4.jpg">
+![](https://s3-us-west-2.amazonaws.com/erxes-docs/engage/engage4.jpg)
 
 1. Choose **Segment**
 2. **Numbers** of customer to receive manual message
@@ -103,7 +103,7 @@ Main function of Manual message is to send mass emails only once
 
 - Please follow the steps for setup: **Engage->New Message->Manual message->Choose Channel->Choose Segment->Compose message**
 
-<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/engage/enage7.jpg">
+![](https://s3-us-west-2.amazonaws.com/erxes-docs/engage/enage7.jpg)
 
 1. **Compose your message**
 2. Choose **Team member**
@@ -121,7 +121,7 @@ Visitor Auto message is displayed for unregistered users who visits company’s 
 
 - Please follow the steps for setup: **Engage->New Message->Visitor Auto message->Add Rule**
 
-<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/engage/engage8.jpg">
+![](https://s3-us-west-2.amazonaws.com/erxes-docs/engage/engage8.jpg)
 
 1. **Title** for Visitor Auto message
 2. Add rule for visitors
@@ -131,7 +131,7 @@ Visitor Auto message is displayed for unregistered users who visits company’s 
 
 - Please follow the steps for setup: **Engage->New Message->Visitor Auto message->Add Rule->Compose your message**
 
-<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/engage/engage9.jpg">
+![](https://s3-us-west-2.amazonaws.com/erxes-docs/engage/engage9.jpg)
 
 1. Compose your message
 2. Write your **message**
