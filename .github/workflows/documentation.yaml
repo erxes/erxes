@@ -23,10 +23,10 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
 
-    - name: Use Node.js 10.x
+    - name: Use Node.js 12.x
       uses: actions/setup-node@v1
       with:
-        node-version: 10.x
+        node-version: 12.x
 
     # https://github.com/actions/cache/blob/master/examples.md#node---yarn
     - name: Get yarn cache directory path
@@ -46,13 +46,13 @@ jobs:
 
     - name: Install
       run: |
-        cd docs/website
+        cd docs
         yarn install
 
     - name: Build
       if: github.event_name == 'pull_request'
       run: |
-        cd docs/website
+        cd docs
         yarn run build
       env:
         CI: true
@@ -60,11 +60,11 @@ jobs:
     - name: Publish
       if: github.event_name == 'push'
       run: |
-        cd docs/website
+        cd docs
         git config --global user.email "$DOC_USERNAME@users.noreply.github.com"
         git config --global user.name "$DOC_USERNAME"
         echo "machine github.com login $DOC_USERNAME password $DOC_TOKEN" > ~/.netrc
-        GIT_USER=$DOC_USERNAME CURRENT_BRANCH=develop yarn run publish-gh-pages
+        GIT_USER=$DOC_USERNAME CURRENT_BRANCH=develop yarn deploy
       env:
         CI: true
         DOC_USERNAME: ${{ secrets.DOC_USERNAME }}
