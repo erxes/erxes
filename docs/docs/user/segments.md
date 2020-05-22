@@ -40,8 +40,7 @@ The properties segment is a data management and analytics solution that helps yo
 
 * **Let's take an example, It is shown the number of new users created in March 2020.**
 
-![](https://erxes-docs.s3-us-west-2.amazonaws.com/segments/2.png"
-style="border:1px solid #eee;" />
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/segments/2.png)
 
 1. Insert Name for the Segment.
 2. Choose Sub Segment.
@@ -179,11 +178,11 @@ You can arrange the event occurs (such as when a user clicks a button). The exam
 
 While your configured event is triggered, the event will be recorded on your database, then you can create the event segments.
 
-![](https://erxes-docs.s3-us-west-2.amazonaws.com/segments/5.png" >
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/segments/5.png)
 
 In the above script, there are configured attributes such as price and view. You can add more filters on the attributes.
 
-![](https://erxes-docs.s3-us-west-2.amazonaws.com/segments/4.png" >
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/segments/4.png)
 
 ---
 
@@ -205,8 +204,8 @@ Erxes allows you to create customer properties segment based on event triggers. 
 
 #### Check user's registered attribute
 
-![](https://erxes-docs.s3-us-west-2.amazonaws.com/segments/6.png" >
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/segments/6.png)
 
 #### Customer segment based on event triggers using properties segment(Tracked data section).
 
-![](https://erxes-docs.s3-us-west-2.amazonaws.com/segments/7.png" >
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/segments/7.png)
