@@ -91,6 +91,7 @@ export const KEY_LABELS = {
   FACEBOOK_APP_ID: 'Facebook App Id',
   FACEBOOK_APP_SECRET: 'Facebook App Secret',
   FACEBOOK_VERIFY_TOKEN: 'Facebook Verify Token',
+  FACEBOOK_PERMISSIONS: 'Facebook permissions',
   TWITTER_CONSUMER_KEY: 'Twitter Consumer Key',
   TWITTER_CONSUMER_SECRET: 'Twitter Consumer secret',
   TWITTER_ACCESS_TOKEN: 'Twitter Access Token',
