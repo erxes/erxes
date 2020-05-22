@@ -98,7 +98,9 @@ const fieldQueries = {
       }
     }
 
-    const customFields = await Fields.find({ contentType });
+    const customFields = await Fields.find({
+      contentType: contentType === FIELD_CONTENT_TYPES.COMPANY ? 'company' : 'customer',
+    });
 
     // extend fields list using custom fields data
     for (const customField of customFields) {
