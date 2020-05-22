@@ -98,10 +98,10 @@ module.exports = {
       {
         docs: {
           // It is recommended to set document id as docs home page (`docs/` path).
-          homePageId: 'doc1',
+          homePageId: '',
           sidebarPath: require.resolve('./sidebars.js'),
           routeBasePath: '',
-          editUrl: 'https://github.com/erxes/erxes/edit/develop/docs/website/',
+          editUrl: 'https://github.com/erxes/erxes/edit/develop/docs',
           showLastUpdateAuthor: true,
           showLastUpdateTime: true
         },
