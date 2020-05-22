@@ -38,6 +38,10 @@
           return window.env[name];
         }
 
+        if (defaultValue.includes('REACT_APP')) {
+          return;
+        }
+
         return defaultValue;
       };
 
