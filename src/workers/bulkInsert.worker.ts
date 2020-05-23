@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose';
-import { Companies, Customers, ImportHistory, Products, Tags, Users } from '../db/models';
+import { Companies, Conformities, Customers, ImportHistory, Products, Tags, Users } from '../db/models';
 import { graphqlPubsub } from '../pubsub';
 import { connect } from './utils';
 
@@ -86,6 +86,12 @@ connect().then(async () => {
           }
           break;
 
+        case 'companiesPrimaryNames':
+          {
+            doc.companiesPrimaryNames = (value || '').toString().split(',');
+          }
+          break;
+
         case 'tag':
           {
             const tagName = value.toString();
@@ -128,7 +134,24 @@ connect().then(async () => {
 
     await create(doc, user)
       .then(async cocObj => {
+        if (doc.companiesPrimaryNames && doc.companiesPrimaryNames.length > 0) {
+          const companies = await Companies.find({ primaryName: { $in: doc.companiesPrimaryNames } }, { _id: 1 });
+          const companyIds = companies.map(company => company._id);
+
+          console.log(doc.companiesPrimaryNames, companyIds);
+
+          for (const _id of companyIds) {
+            await Conformities.addConformity({
+              mainType: 'customer',
+              mainTypeId: cocObj._id,
+              relType: 'company',
+              relTypeId: _id,
+            });
+          }
+        }
+
         await ImportHistory.updateOne({ _id: importHistoryId }, { $push: { ids: [cocObj._id] } });
+
         // Increasing success count
         inc.success++;
       })

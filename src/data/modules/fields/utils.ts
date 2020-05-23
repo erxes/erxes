@@ -38,6 +38,11 @@ export const checkFieldNames = async (type: string, fields: string[]) => {
       property.id = fieldObj._id;
     }
 
+    if (fieldName === 'companiesPrimaryNames') {
+      property.name = 'companyIds';
+      property.type = 'companiesPrimaryNames';
+    }
+
     if (fieldName === 'ownerEmail') {
       property.name = 'ownerId';
       property.type = 'ownerEmail';
