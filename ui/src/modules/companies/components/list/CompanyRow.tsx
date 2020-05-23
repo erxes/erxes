@@ -16,6 +16,21 @@ type Props = {
   toggleBulk: (company: ICompany, isChecked?: boolean) => void;
 };
 
+function displayObjectListItem(company, customFieldName, subFieldName) {
+  const objectList = company[customFieldName] || [];
+  const subFieldKey = subFieldName.replace(`${customFieldName}.`, '');
+
+  const subField = objectList.find
+    ? objectList.find(obj => obj.field === subFieldKey)
+    : [];
+
+  if (!subField) {
+    return null;
+  }
+
+  return formatValue(subField.value);
+}
+
 function displayValue(company, name) {
   const value = _.get(company, name);
 
@@ -26,6 +41,10 @@ function displayValue(company, name) {
         {formatValue(company.primaryName)}
       </FlexItem>
     );
+  }
+
+  if (name.includes('customFieldsData')) {
+    return displayObjectListItem(company, 'customFieldsData', name);
   }
 
   return formatValue(value);
