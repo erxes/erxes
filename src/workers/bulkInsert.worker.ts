@@ -138,8 +138,6 @@ connect().then(async () => {
           const companies = await Companies.find({ primaryName: { $in: doc.companiesPrimaryNames } }, { _id: 1 });
           const companyIds = companies.map(company => company._id);
 
-          console.log(doc.companiesPrimaryNames, companyIds);
-
           for (const _id of companyIds) {
             await Conformities.addConformity({
               mainType: 'customer',
