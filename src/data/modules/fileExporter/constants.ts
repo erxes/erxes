@@ -44,6 +44,7 @@ export const CHANNEL_BASIC_INFOS = [
 export const PERMISSION_BASIC_INFOS = ['module', 'action', 'userId', 'groupId', 'requiredActions', 'allowed'];
 
 export const CUSTOMER_BASIC_INFOS = [
+  'state',
   'firstName',
   'lastName',
   'primaryEmail',
