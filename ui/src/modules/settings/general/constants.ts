@@ -12,7 +12,8 @@ export const LANGUAGES = [
   { label: 'Chinese', value: 'zh-cn' },
   { label: 'Hindi', value: 'hi' },
   { label: 'Vietnam', value: 'vi' },
-  { label: 'Indonesian', value: 'yi' }
+  { label: 'Indonesian', value: 'yi' },
+  { label: 'Republic of Serbia', value: 'en_RS' }
 ];
 
 export const SERVICE_TYPES = [
