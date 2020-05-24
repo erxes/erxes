@@ -106,6 +106,10 @@ connect().then(async () => {
           {
             doc[property.name] = value.toString();
 
+            if (property.name === 'primaryName' && value) {
+              doc.names = [value];
+            }
+
             if (property.name === 'primaryEmail' && value) {
               doc.emails = [value];
             }
@@ -120,6 +124,10 @@ connect().then(async () => {
 
             if (property.name === 'emails' && value) {
               doc.emails = value.toString().split(',');
+            }
+
+            if (property.name === 'names' && value) {
+              doc.names = value.toString().split(',');
             }
           }
           break;
