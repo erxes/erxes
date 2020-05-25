@@ -80,7 +80,9 @@ export default withProps<Props>(
                 'avatar',
                 'ownerId',
                 'status',
-                'integrationId'
+                'integrationId',
+                'emailValidationStatus',
+                'location.countryCode'
               ]
             }
           };

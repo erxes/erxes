@@ -228,6 +228,15 @@ export const MoveFormContainer = styled.div`
   will-change: transform;
 `;
 
+export const ItemsWrapper = styled.div`
+  padding: 12px 12px 0 12px;
+
+  > div {
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 4px 0px;
+    background: ${colors.bgLight};
+  }
+`;
+
 export const PipelineName = styled.div`
   font-weight: bold;
   font-size: 15px;
