@@ -1,0 +1,14 @@
+{
+  "name": "dashboard",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "node index.js",
+    "loadInitialData": "mongorestore --db erxes ./dashboardData"
+  },
+  "dependencies": {
+    "@cubejs-backend/elasticsearch-driver": "^0.19.17",
+    "@cubejs-backend/mongobi-driver": "^0.19.14",
+    "@cubejs-backend/server": "^0.19.14"
+  }
+}

@@ -13,5 +13,6 @@ elkSyncer
 email-verifier
 logger
 engages-email-sender
+dashboard
 dist/cronJobs
 dist/workers
