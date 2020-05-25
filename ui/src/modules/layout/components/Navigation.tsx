@@ -10,8 +10,6 @@ import styled from 'styled-components';
 
 const { REACT_APP_DASHBOARD_URL } = getEnv();
 
-console.log(REACT_APP_DASHBOARD_URL);
-
 const LeftNavigation = styled.aside`
   width: ${dimensions.headerSpacingWide}px;
   background: ${colors.colorPrimaryDark};
@@ -178,7 +176,7 @@ class Navigation extends React.Component<{
             'icon-chat',
             unreadIndicator
           )}
-          {REACT_APP_DASHBOARD_URL
+          {REACT_APP_DASHBOARD_URL !== 'undefined'
             ? this.renderNavItem(
                 'showDashboards',
                 __('Dashboard'),
