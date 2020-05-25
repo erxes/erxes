@@ -9,7 +9,6 @@ import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
 
 const { REACT_APP_DASHBOARD_URL } = getEnv();
-console.log(REACT_APP_DASHBOARD_URL);
 
 const LeftNavigation = styled.aside`
   width: ${dimensions.headerSpacingWide}px;
