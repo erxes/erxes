@@ -1,0 +1,24 @@
+FROM python:3.7.6-slim
+
+WORKDIR /home/mongobi
+
+
+RUN apt-get update && \ 
+  pip install python-dotenv==0.11.0 && \
+  apt-get install -y wget  && \
+  echo "deb http://security.debian.org/debian-security jessie/updates main" >> /etc/apt/sources.list
+RUN apt-get update -y && apt-get install -y --no-install-recommends \
+  libssl1.0.0 && \
+  apt-get install -y libssl-dev  && \
+  apt-get install -y libgssapi-krb5-2  && \
+  wget https://info-mongodb-com.s3.amazonaws.com/mongodb-bi/v2/mongodb-bi-linux-x86_64-ubuntu1804-v2.13.1.tgz && \
+  tar -xvzf mongodb-bi-linux-x86_64-ubuntu1804-v2.13.1.tgz
+WORKDIR /home/mongobi/mongodb-bi-linux-x86_64-ubuntu1804-v2.13.1
+RUN mkdir /logs  && \
+  ls  && \ 
+  echo $PATH  && \
+  install -m755 bin/mongo* /usr/local/bin/
+
+COPY mongosqld.py .
+
+CMD ["python", "mongosqld.py"]
