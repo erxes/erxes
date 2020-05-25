@@ -93,6 +93,7 @@ class Chart extends React.Component<Props, State> {
           button={
             <Button
               type='primary'
+              shape="round"
               onClick={() => this.onChange('visible', true)}
             >
               Add to dashboard

@@ -2,6 +2,7 @@ import { Icon } from '@ant-design/compatible';
 import { Menu } from 'antd';
 import React from 'react';
 import ButtonDropdown from './ButtonDropdown';
+
 const ChartTypes = [
   {
     name: 'line',

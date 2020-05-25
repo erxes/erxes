@@ -1,11 +1,8 @@
-// import { useMutation } from '@apollo/react-hooks';
 import { Icon } from '@ant-design/compatible';
 import { Card, Dropdown, Menu, Modal } from 'antd';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-// import { DELETE_DASHBOARD_ITEM } from '../graphql/mutations';
-// import { GET_DASHBOARD_ITEMS } from '../graphql/queries';
 
 const StyledCard = styled(Card)`
   box-shadow: 0px 2px 4px rgba(141, 149, 166, 0.1);

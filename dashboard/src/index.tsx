@@ -1,11 +1,11 @@
 import cubejs from '@cubejs-client/core';
 import { CubeProvider } from '@cubejs-client/react';
+import 'antd/dist/antd.min.css';
 import React from 'react';
 import { ApolloProvider } from 'react-apollo';
 import { render } from 'react-dom';
 import apolloClient, { getEnv } from './apolloClient';
 import './index.css';
-import './index.less';
 
 import Routes from './routes';
 

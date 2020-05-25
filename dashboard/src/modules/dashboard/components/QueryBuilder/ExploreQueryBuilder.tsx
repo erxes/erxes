@@ -11,16 +11,17 @@ import TimeGroup from './TimeGroup';
 import { schemaTypes } from './Types';
 
 const ControlsRow = styled(Row)`
-  background: #ffffff;
+  background: #fff;
   margin-bottom: 12px;
-  padding: 18px 28px 10px 28px;
+  padding: 20px;
+  margin: 0 0 12px;
 `;
 
 const StyledDivider = styled(Divider)`
   margin: 0 12px;
-  height: 4.5em;
-  top: 0.5em;
-  background: #f4f5f6;
+  height: 57px;
+  top: 4px;
+  background: #ddd;
 `;
 
 const ChartCard = styled(Card)`
@@ -28,9 +29,12 @@ const ChartCard = styled(Card)`
   border: none;
 `;
 
-const ChartRow = styled(Row)`
-  padding-left: 28px;
-  padding-right: 28px;
+const ChartWraper = styled.div`
+  margin: 20px;
+`;
+
+const SelectType = styled.div`
+  margin: 20px 0;
 `;
 
 const Empty = styled.div`
@@ -38,13 +42,14 @@ const Empty = styled.div`
   margin-top: 185px;
 `;
 
-const LabelStyled = styled.div`
+const Label = styled.label`
   margin-bottom: 12px;
   color: #a1a1b5;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   font-size: 11px;
   font-weight: bold;
+  display: block;
 `;
 
 type Props = {
@@ -98,9 +103,9 @@ class ExploreQueryBuilder extends React.Component<Props> {
             <>
               <ControlsRow justify="space-around" align="top" key="1">
                 <Col span={24}>
-                  <Row align="top" style={{ paddingBottom: 23 }}>
+                  <Row align="top">
                     <span>
-                      <LabelStyled>Type</LabelStyled>
+                      <Label>Type</Label>
                       <ButtonDropdown overlay={menu} type="dashed">
                         {type || 'Type'}
                       </ButtonDropdown>
@@ -110,7 +115,7 @@ class ExploreQueryBuilder extends React.Component<Props> {
                     {type ? (
                       <>
                         <span>
-                          <LabelStyled>Measure</LabelStyled>
+                          <Label>Measure</Label>
                           <MemberGroup
                             type={type}
                             memberGroupType="measure"
@@ -122,7 +127,7 @@ class ExploreQueryBuilder extends React.Component<Props> {
                         </span>
                         <StyledDivider type="vertical" />
                         <span>
-                          <LabelStyled>Dimension</LabelStyled>
+                          <Label>Dimension</Label>
                           <MemberGroup
                             type={type}
                             memberGroupType="dimensions"
@@ -134,7 +139,7 @@ class ExploreQueryBuilder extends React.Component<Props> {
                         </span>
                         <StyledDivider type="vertical" />
                         <span>
-                          <LabelStyled>Segment</LabelStyled>
+                          <Label>Segment</Label>
                           <MemberGroup
                             type={type}
                             members={segments}
@@ -146,7 +151,7 @@ class ExploreQueryBuilder extends React.Component<Props> {
                         </span>
                         <StyledDivider type="vertical" />
                         <span>
-                          <LabelStyled>Time</LabelStyled>
+                          <Label>Time</Label>
                           <TimeGroup
                             type={type}
                             members={timeDimensions}
@@ -160,33 +165,29 @@ class ExploreQueryBuilder extends React.Component<Props> {
                   </Row>
                 </Col>
               </ControlsRow>
-              ,
-              <ChartRow justify="space-around" align="top" gutter={24} key="2">
-                <Col span={24}>
-                  {isQueryPresent ? (
-                    <>
-                      <Row style={{ marginTop: 15, marginBottom: 25 }}>
-                        <SelectChartType
-                          chartType={chartType}
-                          updateChartType={updateChartType}
-                        />
-                      </Row>
-                      ,
-                      <ChartCard style={{ minHeight: 420 }}>
-                        <ChartRenderer
-                          vizState={{ query: validatedQuery, chartType }}
-                          chartHeight={400}
-                        />
-                      </ChartCard>
-                    </>
-                  ) : (
-                    <Empty>
-                      <h2>Build Your Query</h2>
-                      <p>Choose a measure or dimension to get started</p>
-                    </Empty>
-                  )}
-                </Col>
-              </ChartRow>
+              <ChartWraper>
+                {isQueryPresent ? (
+                  <>
+                    <SelectType>
+                      <SelectChartType
+                        chartType={chartType}
+                        updateChartType={updateChartType}
+                      />
+                    </SelectType>
+                    <ChartCard style={{ minHeight: 420 }}>
+                      <ChartRenderer
+                        vizState={{ query: validatedQuery, chartType }}
+                        chartHeight={400}
+                      />
+                    </ChartCard>
+                  </>
+                ) : (
+                  <Empty>
+                    <h2>Build Your Query</h2>
+                    <p>Choose a measure or dimension to get started</p>
+                  </Empty>
+                )}
+              </ChartWraper>
             </>
           );
         }}

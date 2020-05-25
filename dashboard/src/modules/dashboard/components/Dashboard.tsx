@@ -8,21 +8,19 @@ import styledTS from 'styled-components-ts';
 import { IDashboardItem } from '../types';
 import ChartRenderer from './ChartRenderer';
 import DashboardItem from './DashboardItem';
-import dragBackground from './drag-background.svg';
 
 const ReactGridLayout = WidthProvider(RGL);
 
 const DragField = styledTS<any>(styled(ReactGridLayout))`
-  margin: 16px 28px 50px 28px;
+  margin: 20px;
+  
   ${(props) =>
-    props.isDragging
-      ? `
-    background: url(${dragBackground});
-    background-repeat: repeat-y;
-    background-position: 0px -4px;
-    background-size: 100% 52px;
-  `
-      : ''};
+    props.isDragging && `
+      background: url('/images/drag-background.svg');
+      background-repeat: repeat-y;
+      background-position: 0px -4px;
+      background-size: 100%;
+  `};
 `;
 
 const deserializeItem = (i) => ({
@@ -121,7 +119,7 @@ class Dashboard extends React.Component<Props, State> {
 
     return (
       <DragField
-        margin={[12, 12]}
+        margin={[20, 20]}
         containerPadding={[0, 0]}
         onDragStart={() => this.setIsDragging(true)}
         onDragStop={() => this.setIsDragging(false)}

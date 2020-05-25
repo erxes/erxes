@@ -3,8 +3,14 @@ import React from 'react';
 import styled from 'styled-components';
 
 const StyledRow = styled(Row)`
-  padding: 23px 28px 13px 28px;
+  padding: 20px 20px 10px 20px;
   background: white;
+  display: flex;
+  align-items: center;
+
+  h4 {
+    margin: 0;
+  }
 `;
 
 const ButtonsCol = styled(Col)`
