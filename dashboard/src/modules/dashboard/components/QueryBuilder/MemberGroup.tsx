@@ -20,10 +20,9 @@ class MemberGroup extends React.Component<Props> {
       availableMembers,
       updateMethods,
       type,
-      memberGroupType,
     } = this.props;
 
-    if (members.length > 0 && memberGroupType === 'measure') {
+    if (members.length > 0) {
       return <span />;
     }
 

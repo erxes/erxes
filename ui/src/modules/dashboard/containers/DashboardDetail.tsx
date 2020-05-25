@@ -62,7 +62,6 @@ export default withProps<Props>(
       {
         name: 'dashboardDetailQuery',
         options: ({ id }: { id: string }) => ({
-          refetchQueries: ['dashboards'],
           variables: {
             _id: id
           }
@@ -74,6 +73,7 @@ export default withProps<Props>(
       {
         name: 'removeDashboardMutation',
         options: props => ({
+          refetchQueries: ['dashboards'],
           variables: {
             _id: props.id
           }
