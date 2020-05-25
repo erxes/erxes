@@ -84,7 +84,6 @@ import Configs from './models/Configs';
 import { enableOrDisableAccount } from './nylas/api';
 import { setupNylas } from './nylas/controller';
 import { createNylasWebhook } from './nylas/tracker';
-import { setupSmooch } from './smooch/controller';
 
 export const removeIntegration = async (integrationErxesApiId: string): Promise<string> => {
   const integration = await Integrations.findOne({ erxesApiId: integrationErxesApiId });
@@ -531,7 +530,7 @@ export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
       prevSmoochAppKeySecret !== updatedSmoochAppKeySecret ||
       prevSmoochAppId !== updatedSmoochAppId
     ) {
-      await setupSmooch();
+      await smoochApi.setupSmooch();
       await smoochApi.setupSmoochWebhook();
     }
 
