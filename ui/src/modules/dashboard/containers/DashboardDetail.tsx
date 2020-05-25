@@ -24,11 +24,7 @@ type FinalProps = {
 
 class CustomerDetailsContainer extends React.Component<FinalProps, {}> {
   render() {
-    const {
-      dashboardDetailQuery,
-      removeDashboardMutation,
-      history
-    } = this.props;
+    const { dashboardDetailQuery, removeDashboardMutation } = this.props;
 
     if (dashboardDetailQuery.loading) {
       return <Spinner />;
@@ -38,7 +34,7 @@ class CustomerDetailsContainer extends React.Component<FinalProps, {}> {
       removeDashboardMutation()
         .then(() => {
           Alert.success('You successfully deleted a dashboard');
-          history.goBack();
+          window.location.href = '/dashboard';
         })
         .catch(e => {
           Alert.error(e.message);
