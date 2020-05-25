@@ -4,9 +4,6 @@ import React from 'react';
 
 const RemoveButtonGroup = ({ onRemoveClick, children, ...props }) => (
   <Button.Group
-    style={{
-      marginRight: 8
-    }}
     {...props}
   >
     {children}

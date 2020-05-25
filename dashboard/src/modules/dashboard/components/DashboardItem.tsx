@@ -7,12 +7,15 @@ import styled from 'styled-components';
 const StyledCard = styled(Card)`
   box-shadow: 0px 2px 4px rgba(141, 149, 166, 0.1);
   border-radius: 4px;
+  height: 100%;
+  width: 100%;
 
   .ant-card-head {
     border: none;
   }
+
   .ant-card-body {
-    padding-top: 12px;
+    padding-top: 10px;
   }
 `;
 
@@ -66,10 +69,6 @@ const DashboardItem = ({
   <StyledCard
     title={title}
     bordered={false}
-    style={{
-      height: '100%',
-      width: '100%',
-    }}
     extra={
       <DashboardItemDropdown
         itemId={itemId}

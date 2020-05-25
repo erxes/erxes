@@ -2,12 +2,13 @@ import { getEnv } from 'apolloClient';
 import { BoardContainer, BoardContent } from 'modules/boards/styles/common';
 import { PageHeader } from 'modules/boards/styles/header';
 import Button from 'modules/common/components/Button';
+import Icon from 'modules/common/components/Icon';
 import { __, confirm } from 'modules/common/utils';
 import Header from 'modules/layout/components/Header';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import DashbaordForm from '../containers/DashboardForm';
-import { Title } from '../styles';
+import { RightActions, Title } from '../styles';
 import { IDashboard } from '../types';
 
 const { REACT_APP_DASHBOARD_URL } = getEnv();
@@ -61,25 +62,28 @@ class DashboardDetail extends React.Component<Props, State> {
     };
 
     const leftActionBar = (
-      <Title onClick={this.showPopup}>{dashboard.name}</Title>
+      <Title onClick={this.showPopup}>
+        {dashboard.name}
+        <Icon icon="pen-1" />
+      </Title>
     );
 
     const rightActionBar = (
-      <div>
-        <Link to={`/dashboard/explore/${id}`}>
-          <Button uppercase={false} btnStyle="primary" icon="plus-circle">
-            Add chart
-          </Button>
-        </Link>
+      <RightActions>
         <Button
           onClick={this.remove}
-          btnStyle="danger"
+          btnStyle="simple"
           uppercase={false}
           icon="times-circle"
         >
           Remove
         </Button>
-      </div>
+        <Link to={`/dashboard/explore/${id}`}>
+          <Button uppercase={false} btnStyle="primary" icon="plus-circle">
+            Add chart
+          </Button>
+        </Link>
+      </RightActions>
     );
 
     return (

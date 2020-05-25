@@ -51,10 +51,9 @@ WIDGET_API_PATH=''
 
 ```
 
-- `HTTPS `this is boolean variables, set true if you are using secure ssl.
+- `HTTPS`this is boolean variables, set true if you are using secure ssl.
 - `MAIN_APP_DOMAIN` this is your main application's domain where is erxes/erxes repository is running.
 - `WIDGETS_DOMAIN` your widget application's domain where is erxes/widgets repository is running.
 - `DOMAIN` this is your erxes-api application's domain where is erxes/erxes-api repository is running.
 - `NODE_ENV` set to production on live mode, set to development on development mode.
 - `PORT` this option will define which port is your application running, you can change to any port you want.
-

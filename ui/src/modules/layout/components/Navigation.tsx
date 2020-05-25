@@ -1,3 +1,4 @@
+import { getEnv } from 'apolloClient';
 import Label from 'modules/common/components/Label';
 import Tip from 'modules/common/components/Tip';
 import WithPermission from 'modules/common/components/WithPermission';
@@ -6,6 +7,8 @@ import { __, setBadge } from 'modules/common/utils';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
+
+const { REACT_APP_DASHBOARD_URL } = getEnv();
 
 const LeftNavigation = styled.aside`
   width: ${dimensions.headerSpacingWide}px;
@@ -166,12 +169,14 @@ class Navigation extends React.Component<{
           <img src="/images/erxes.png" alt="erxes" />
         </NavLink>
         <Nav>
-          {this.renderNavItem(
-            'showDashboards',
-            __('Dashboard'),
-            '/dashboard',
-            'icon-dashboard'
-          )}
+          {REACT_APP_DASHBOARD_URL !== 'undefined'
+            ? this.renderNavItem(
+                'showDashboards',
+                __('Dashboard'),
+                '/dashboard',
+                'icon-dashboard'
+              )
+            : null}
           {this.renderNavItem(
             'showConversations',
             __('Conversation'),
@@ -179,6 +184,7 @@ class Navigation extends React.Component<{
             'icon-chat',
             unreadIndicator
           )}
+
           {this.renderNavItem(
             'showGrowthHacks',
             __('Growth Hacking'),
@@ -194,7 +200,7 @@ class Navigation extends React.Component<{
           {this.renderNavItem(
             'showCustomers',
             __('Contacts'),
-            '/contacts/lead',
+            '/contacts',
             'icon-users'
           )}
           {this.renderNavItem(

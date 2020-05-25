@@ -1,6 +1,7 @@
 import React from 'react';
 import RGL, { WidthProvider } from 'react-grid-layout';
 
+import { Empty } from 'antd';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import styled from 'styled-components';
@@ -8,6 +9,7 @@ import styledTS from 'styled-components-ts';
 import { IDashboardItem } from '../types';
 import ChartRenderer from './ChartRenderer';
 import DashboardItem from './DashboardItem';
+import { EmptyWrapper } from './styles';
 
 const ReactGridLayout = WidthProvider(RGL);
 
@@ -34,8 +36,8 @@ const defaultLayout = (i) => ({
   y: i.layout.y || 0,
   w: i.layout.w || 4,
   h: i.layout.h || 8,
-  minW: 4,
-  minH: 8,
+  minW: 3,
+  minH: 3,
 });
 
 type Props = {
@@ -85,14 +87,15 @@ class Dashboard extends React.Component<Props, State> {
 
     if (dashboardItems.length === 0) {
       return (
-        <div
-          style={{
-            textAlign: 'center',
-            padding: 12,
-          }}
-        >
-          <h2>There are no charts on this dashboard</h2>
-        </div>
+        <EmptyWrapper>
+          <Empty
+            image="/images/empty.svg"
+            imageStyle={{
+              height: 200,
+            }}
+            description="There are no charts on this dashboard"
+          />
+        </EmptyWrapper>
       );
     }
 
@@ -114,7 +117,7 @@ class Dashboard extends React.Component<Props, State> {
           </div>
         );
       }
-      return <h2>There are no charts on this dashboard</h2>;
+      return;
     };
 
     return (

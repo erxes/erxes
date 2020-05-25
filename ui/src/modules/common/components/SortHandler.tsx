@@ -8,13 +8,12 @@ import styled from 'styled-components';
 const SortWrapper = styled.div`
   display: flex;
   flex-direction: row;
-  padding: 0 0 0 17px;
   position: relative;
   cursor: pointer;
 
   .arrow {
     position: absolute;
-    left: 0;
+    left: -13px;
     border-right: 4px solid transparent;
     border-left: 4px solid transparent;
 

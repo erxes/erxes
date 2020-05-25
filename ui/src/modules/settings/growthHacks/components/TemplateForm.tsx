@@ -127,6 +127,7 @@ class TemplateForm extends React.Component<Props & ICommonFormProps, State> {
         renderContent={this.renderContent}
         generateDoc={this.generateDoc}
         object={this.props.object}
+        confirmationUpdate={true}
       />
     );
   }

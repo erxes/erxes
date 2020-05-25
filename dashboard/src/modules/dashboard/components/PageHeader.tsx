@@ -10,6 +10,9 @@ const StyledRow = styled(Row)`
 
   h4 {
     margin: 0;
+    font-size: 24px;
+    line-height: 30px;
+    font-weight: 400;
   }
 `;
 

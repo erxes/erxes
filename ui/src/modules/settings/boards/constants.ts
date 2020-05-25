@@ -38,3 +38,7 @@ export const PROBABILITY = {
     ALL: [...COMMON_PERCENT, 'Resolved']
   }
 };
+
+export const getWarningMessage = (type: string): string => {
+  return `Are you sure you want to delete? everything related to this ${type} will be deleted, this action cannot be undone`;
+};

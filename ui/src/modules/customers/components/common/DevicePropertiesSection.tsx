@@ -11,6 +11,20 @@ type Props = {
   collapseCallback?: () => void;
 };
 
+export const renderFlag = (countryCode?: string) => {
+  if (!countryCode) {
+    return null;
+  }
+
+  return (
+    <img
+      alt="Flag"
+      style={{ marginBottom: '2px', width: '17px' }}
+      src={`https://www.countryflags.io/${countryCode}/shiny/24.png`}
+    />
+  );
+};
+
 class DevicePropertiesSection extends React.Component<Props> {
   renderDeviceProperty = (
     text: string,
@@ -32,20 +46,6 @@ class DevicePropertiesSection extends React.Component<Props> {
     return null;
   };
 
-  renderFlag = (countryCode?: string) => {
-    if (!countryCode) {
-      return null;
-    }
-
-    return (
-      <img
-        alt="Flag"
-        style={{ marginBottom: '2px', width: '17px' }}
-        src={`https://www.countryflags.io/${countryCode}/shiny/24.png`}
-      />
-    );
-  };
-
   renderContent() {
     const { customer } = this.props;
     const location = customer.location;
@@ -60,7 +60,7 @@ class DevicePropertiesSection extends React.Component<Props> {
       <SidebarList className="no-link">
         {this.renderDeviceProperty(
           'Location',
-          this.renderFlag(location.countryCode),
+          renderFlag(location.countryCode),
           location.country
         )}
         {this.renderDeviceProperty(

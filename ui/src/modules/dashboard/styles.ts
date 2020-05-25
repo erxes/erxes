@@ -6,6 +6,27 @@ import styledTS from 'styled-components-ts';
 const Title = styled.div`
   font-size: 24px;
   margin: 10px 0 14px;
+  display: flex;
+  align-items: center;
+
+  i {
+    font-size: 16px;
+    color: ${colors.colorCoreGray};
+    margin-left: ${dimensions.unitSpacing}px;
+    visibility: hidden;
+  }
+
+  &:hover {
+    cursor: pointer;
+
+    i {
+      visibility: visible;
+    }
+  }
+`;
+
+const RightActions = styled.div`
+  align-self: center;
 `;
 
 const BoxContainer = styled.div`
@@ -101,4 +122,4 @@ const ProjectItem = styledTS<{ new?: boolean }>(styled(BoxItem))`
     `};
 `;
 
-export { BoxContainer, ProjectItem, Title };
+export { BoxContainer, ProjectItem, Title, RightActions };

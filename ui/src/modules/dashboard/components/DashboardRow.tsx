@@ -12,7 +12,7 @@ class PipelineRow extends React.Component<Props, {}> {
     const { dashboard } = this.props;
 
     return (
-      <Link to={`/dashboard/details/${dashboard._id}`}>
+      <Link to={`/dashboard/${dashboard._id}`}>
         <ProjectItem key={dashboard._id}>
           <h5>{dashboard.name}</h5>
         </ProjectItem>

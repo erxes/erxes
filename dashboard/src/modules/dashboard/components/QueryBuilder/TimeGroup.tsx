@@ -1,51 +1,11 @@
 import { Icon } from '@ant-design/compatible';
 import { Menu } from 'antd';
+import { dateRanges } from 'modules/dashboard/constants';
 import React from 'react';
+import { TimesWrapper } from '../styles';
 import ButtonDropdown from './ButtonDropdown';
 import MemberDropdown from './MemberDropdown';
 import RemoveButtonGroup from './RemoveButtonGroup';
-const DateRanges = [
-  {
-    title: 'All time',
-    value: undefined
-  },
-  {
-    value: 'Today'
-  },
-  {
-    value: 'Yesterday'
-  },
-  {
-    value: 'This week'
-  },
-  {
-    value: 'This month'
-  },
-  {
-    value: 'This quarter'
-  },
-  {
-    value: 'This year'
-  },
-  {
-    value: 'Last 7 days'
-  },
-  {
-    value: 'Last 30 days'
-  },
-  {
-    value: 'Last week'
-  },
-  {
-    value: 'Last month'
-  },
-  {
-    value: 'Last quarter'
-  },
-  {
-    value: 'Last year'
-  }
-];
 
 const TimeGroup = ({
   members,
@@ -70,7 +30,7 @@ const TimeGroup = ({
 
   const dateRangeMenu = onClick => (
     <Menu>
-      {DateRanges.map(m => (
+      {dateRanges.map(m => (
         <Menu.Item key={m.title || m.value} onClick={() => onClick(m)}>
           {m.title || m.value}
         </Menu.Item>
@@ -79,7 +39,7 @@ const TimeGroup = ({
   );
 
   return (
-    <span>
+    <TimesWrapper>
       {members.map(m => [
         <RemoveButtonGroup
           onRemoveClick={() => updateMethods.remove(m)}
@@ -95,27 +55,20 @@ const TimeGroup = ({
             {m.dimension.title}
           </MemberDropdown>
         </RemoveButtonGroup>,
-        <b key={`${m.dimension.name}-for`}>FOR</b>,
+        <strong key={`${m.dimension.name}-for`}>FOR</strong>,
         <ButtonDropdown
           overlay={dateRangeMenu(dateRange =>
             updateMethods.update(m, { ...m, dateRange: dateRange.value })
           )}
-          style={{
-            marginLeft: 8,
-            marginRight: 8
-          }}
           key={`${m.dimension.name}-date-range`}
         >
           {m.dateRange || 'All time'}
         </ButtonDropdown>,
-        <b key={`${m.dimension.name}-by`}>BY</b>,
+        <strong key={`${m.dimension.name}-by`}>BY</strong>,
         <ButtonDropdown
           overlay={granularityMenu(m.dimension, granularity =>
             updateMethods.update(m, { ...m, granularity: granularity.name })
           )}
-          style={{
-            marginLeft: 8
-          }}
           key={`${m.dimension.name}-granularity`}
         >
           {m.dimension.granularities.find(g => g.name === m.granularity) &&
@@ -138,7 +91,7 @@ const TimeGroup = ({
           {addMemberName}
         </MemberDropdown>
       )}
-    </span>
+    </TimesWrapper>
   );
 };
 
