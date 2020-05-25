@@ -1,0 +1,7 @@
+FROM node:10.16.0-slim
+WORKDIR /dashboard/
+RUN chown -R node:node /dashboard
+COPY --chown=node:node . /dashboard
+USER node
+EXPOSE 4200
+ENTRYPOINT [ "node", "--max_old_space_size=8192", "dist" ]
