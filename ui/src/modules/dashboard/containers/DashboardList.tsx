@@ -46,6 +46,8 @@ class DashboardListContainer extends React.Component<FinalProps> {
           callback={afterSave}
           refetchQueries={[]}
           isSubmitted={isSubmitted}
+          uppercase={false}
+          icon="plus-circle"
           type="submit"
           successMessage={`You successfully ${
             object ? 'updated' : 'added'

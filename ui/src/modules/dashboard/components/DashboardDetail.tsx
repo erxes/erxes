@@ -1,11 +1,13 @@
 import { getEnv } from 'apolloClient';
+import { BoardContainer, BoardContent } from 'modules/boards/styles/common';
+import { PageHeader } from 'modules/boards/styles/header';
 import Button from 'modules/common/components/Button';
-import { Title } from 'modules/common/styles/main';
 import { __, confirm } from 'modules/common/utils';
-import Wrapper from 'modules/layout/components/Wrapper';
+import Header from 'modules/layout/components/Header';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import DashbaordForm from '../containers/DashboardForm';
+import { Title } from '../styles';
 import { IDashboard } from '../types';
 
 const { REACT_APP_DASHBOARD_URL } = getEnv();
@@ -63,50 +65,46 @@ class DashboardDetail extends React.Component<Props, State> {
     );
 
     const rightActionBar = (
-      <>
+      <div>
         <Link to={`/dashboard/explore/${id}`}>
-          <Button btnStyle="primary" size="small" icon="arrow-from-right">
+          <Button uppercase={false} btnStyle="primary" icon="plus-circle">
             Add chart
           </Button>
         </Link>
         <Button
           onClick={this.remove}
           btnStyle="danger"
-          size="small"
-          icon="arrow-from-right"
+          uppercase={false}
+          icon="times-circle"
         >
           Remove
         </Button>
-      </>
-    );
-
-    const actionBar = (
-      <Wrapper.ActionBar right={rightActionBar} left={leftActionBar} />
+      </div>
     );
 
     return (
-      <>
+      <BoardContainer>
         {renderAddForm()}
-        <Wrapper
-          header={
-            <Wrapper.Header
-              title={`${'Dashboard' || ''}`}
-              breadcrumb={[{ title: __('Dashboard'), link: '/dashboard' }]}
-            />
-          }
-          actionBar={actionBar}
-          content={
-            <iframe
-              title="dashboard"
-              width="100%"
-              height="100%"
-              src={`${REACT_APP_DASHBOARD_URL}/details/${id}`}
-              frameBorder="0"
-              allowFullScreen={true}
-            />
-          }
+        <Header
+          title={`${'Dashboard' || ''}`}
+          breadcrumb={[{ title: __('Dashboard'), link: '/dashboard' }]}
         />
-      </>
+
+        <BoardContent transparent={true} bgColor="transparent">
+          <PageHeader>
+            {leftActionBar}
+            {rightActionBar}
+          </PageHeader>
+          <iframe
+            title="dashboard"
+            width="100%"
+            height="100%"
+            src={`${REACT_APP_DASHBOARD_URL}/details/${id}`}
+            frameBorder="0"
+            allowFullScreen={true}
+          />
+        </BoardContent>
+      </BoardContainer>
     );
   }
 }

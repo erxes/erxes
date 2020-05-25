@@ -167,17 +167,17 @@ class Navigation extends React.Component<{
         </NavLink>
         <Nav>
           {this.renderNavItem(
+            'showDashboards',
+            __('Dashboard'),
+            '/dashboard',
+            'icon-dashboard'
+          )}
+          {this.renderNavItem(
             'showConversations',
             __('Conversation'),
             '/inbox',
             'icon-chat',
             unreadIndicator
-          )}
-          {this.renderNavItem(
-            'showDashboards',
-            __('Dashboard'),
-            '/dashboard',
-            'icon-dashboard'
           )}
           {this.renderNavItem(
             'showGrowthHacks',
