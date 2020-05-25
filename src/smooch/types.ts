@@ -8,6 +8,19 @@ export interface IGetOrCreateArguments {
   };
 }
 
+export interface ISmoochProps {
+  kind: string;
+  erxesApiId: string;
+  telegramBotToken?: string;
+  viberBotToken?: string;
+  smoochDisplayName?: string;
+  lineChannelId?: string;
+  lineChannelSecret?: string;
+  twilioSid?: string;
+  twilioAuthToken?: string;
+  twilioPhoneSid?: string;
+}
+
 export interface IAttachment {
   type?: string;
   url?: string;

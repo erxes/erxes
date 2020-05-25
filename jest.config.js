@@ -14,6 +14,8 @@ module.exports = {
     'src/gmail/**',
     'src/facebook/**',
     'src/twitter/**',
+    'src/whatsapp/**',
+    'src/smooch/**',
     '!src/nylas/api.ts',
     '!src/nylas/controller.ts',
     '!src/gmail/api.ts',

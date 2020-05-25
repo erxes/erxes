@@ -62,7 +62,10 @@ export const integrationFactory = (params: {
   gmailHistoryId?: string;
   facebookPageIds?: string[];
   facebookPageTokensMap?: object;
-  viberBotToken?: string;
+  smoochIntegrationId?: string;
+  whatsappinstanceId?: string;
+  telegramBotToken?: string;
+  whatsappToken?: string;
 }) => {
   const integration = new Integrations({
     kind: params.kind || 'facebook',
@@ -72,7 +75,10 @@ export const integrationFactory = (params: {
     gmailHistoryId: params.gmailHistoryId || '',
     facebookPageIds: params.facebookPageIds || [],
     facebookPageTokensMap: params.facebookPageTokensMap || {},
-    viberBotToken: params.viberBotToken || 'aaksjfhakjsfhkalhf',
+    smoochIntegrationId: params.smoochIntegrationId || 'aaksjfhakjsfhkalhf',
+    whatsappinstanceId: params.whatsappinstanceId || '123456',
+    whatsappToken: params.whatsappToken || 'asdag123',
+    telegramBotToken: params.telegramBotToken || 'asfasfk;alskf',
   });
 
   return integration.save();
