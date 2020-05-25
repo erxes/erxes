@@ -17,8 +17,8 @@ const boardGetLast = `
 `;
 
 const pipelines = `
-  query pipelines($boardId: String!) {
-    pipelines(boardId: $boardId) {
+  query pipelines($boardId: String!, $type: String) {
+    pipelines(boardId: $boardId, type: $type) {
       _id
       name
       boardId

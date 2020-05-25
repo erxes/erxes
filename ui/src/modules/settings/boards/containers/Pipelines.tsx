@@ -130,8 +130,8 @@ export default withProps<Props>(
       gql(queries.pipelines),
       {
         name: 'pipelinesQuery',
-        options: ({ boardId = '' }: { boardId: string }) => ({
-          variables: { boardId },
+        options: ({ boardId = '', type }: { boardId: string, type: string }) => ({
+          variables: { boardId, type },
           fetchPolicy: 'network-only'
         })
       }
