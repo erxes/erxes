@@ -7,7 +7,8 @@ import { graphql } from 'react-apollo';
 import ManageColumns from '../components/ManageColumns';
 import {
   DefaultColumnsConfigQueryResponse,
-  FieldsCombinedByTypeQueryResponse
+  FieldsCombinedByTypeQueryResponse,
+  IConfigColumn
 } from '../types';
 
 type Props = {
@@ -48,18 +49,37 @@ const ManageColumnsContainer = (props: FinalProps) => {
     }
   };
 
-  let columnsConfig =
-    fieldsDefaultColumnsConfigQuery.fieldsDefaultColumnsConfig;
+  const defaultColumns = fieldsDefaultColumnsConfigQuery.fieldsDefaultColumnsConfig;
+
+  let columns: IConfigColumn[] = [];
 
   if (storageItem) {
-    columnsConfig = JSON.parse(storageItem);
+    columns = JSON.parse(storageItem);
+  } else {
+    const defaultColumnsMap = {};
+
+    defaultColumns.forEach(col => {
+      defaultColumnsMap[col.name] = col;
+    });
+
+    columns = (fieldsQuery.fieldsCombinedByContentType || [])
+      .map((field) => {
+        const conf = defaultColumnsMap[field.name];
+
+        return {
+          ...field,
+          _id: Math.random().toString(),
+          order: conf ? conf.order : 0,
+          checked: conf
+        }
+      })
+      .sort((a, b) => a.order - b.order);
   }
 
   const updatedProps = {
     ...props,
-    config: columnsConfig,
     save,
-    fields: fieldsQuery.fieldsCombinedByContentType
+    columns
   };
 
   return <ManageColumns {...updatedProps} />;

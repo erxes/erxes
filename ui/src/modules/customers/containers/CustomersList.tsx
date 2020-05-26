@@ -58,6 +58,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       customersListConfigQuery,
       customersRemove,
       customersMerge,
+      type,
       history
     } = this.props;
 
@@ -65,7 +66,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       customersListConfigQuery.fieldsDefaultColumnsConfig || [];
 
     // load config from local storage
-    const localConfig = localStorage.getItem('erxes_customer_columns_config');
+    const localConfig = localStorage.getItem(`erxes_${type}_columns_config`);
 
     if (localConfig) {
       columnsConfig = JSON.parse(localConfig);
