@@ -1,5 +1,7 @@
+import { tableSchema } from '../tablePrefix';
+
 cube(`Conversations`, {
-  sql: `SELECT * FROM erxes.conversations`,
+  sql: `SELECT * FROM ${tableSchema()}.conversations`,
 
   joins: {
     Integrations: {
@@ -42,7 +44,7 @@ cube(`Conversations`, {
   dimensions: {
     _id: {
       sql: `${CUBE}.\`_id\``,
-      type: `string`, 
+      type: `string`,
       primaryKey: true,
     },
     assigneduserid: {
