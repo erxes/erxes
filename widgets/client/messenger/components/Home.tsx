@@ -1,5 +1,5 @@
 import * as classNames from "classnames";
-import * as moment from "moment";
+import * as dayjs from "dayjs";
 import * as React from "react";
 import * as RTG from "react-transition-group";
 import { facebook, twitter, youtube } from "../../icons/Icons";
@@ -96,7 +96,7 @@ class Home extends React.Component<Props, State> {
 
     return (
       <div className="assist-bar">
-        <time>{moment(new Date()).format("lll")}</time>
+        <time>{dayjs(new Date()).format("lll")}</time>
         <div className="socials">
           <SocialLink url={links.facebook} icon={facebook} />
           <SocialLink url={links.twitter} icon={twitter} />

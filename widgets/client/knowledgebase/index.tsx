@@ -1,3 +1,6 @@
+import * as dayjs from "dayjs";
+import * as localizedFormat from "dayjs/plugin/localizedFormat";
+import * as relativeTime from "dayjs/plugin/relativeTime";
 import "erxes-icon/css/erxes.min.css";
 
 import * as React from "react";
@@ -7,6 +10,9 @@ import client from "../apollo-client";
 import { connection } from "./connection";
 import { KnowledgeBase } from "./containers";
 import "./sass/style.scss";
+
+dayjs.extend(localizedFormat);
+dayjs.extend(relativeTime);
 
 const render = () => {
   // render root react component
