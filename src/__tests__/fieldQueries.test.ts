@@ -189,9 +189,10 @@ describe('fieldQueries', () => {
     });
 
     expect(responses.length).toBe(7);
-    expect(responses[0].name).toBe('firstName');
-    expect(responses[1].name).toBe('lastName');
-    expect(responses[2].name).toBe('primaryEmail');
+    expect(responses[0].name).toBe('location.country');
+    expect(responses[1].name).toBe('firstName');
+    expect(responses[2].name).toBe('lastName');
+    expect(responses[3].name).toBe('primaryEmail');
 
     // get company default config
     responses = await graphqlRequest(qry, 'fieldsDefaultColumnsConfig', {
