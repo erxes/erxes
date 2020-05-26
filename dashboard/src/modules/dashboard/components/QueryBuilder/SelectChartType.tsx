@@ -1,44 +1,13 @@
 import { Icon } from '@ant-design/compatible';
 import { Menu } from 'antd';
+import { chartTypes } from 'modules/dashboard/constants';
 import React from 'react';
 import ButtonDropdown from './ButtonDropdown';
-const ChartTypes = [
-  {
-    name: 'line',
-    title: 'Line',
-    icon: 'line-chart',
-  },
-  {
-    name: 'area',
-    title: 'Area',
-    icon: 'area-chart',
-  },
-  {
-    name: 'bar',
-    title: 'Bar',
-    icon: 'bar-chart',
-  },
-  {
-    name: 'pie',
-    title: 'Pie',
-    icon: 'pie-chart',
-  },
-  {
-    name: 'table',
-    title: 'Table',
-    icon: 'table',
-  },
-  {
-    name: 'number',
-    title: 'Number',
-    icon: 'info-circle',
-  },
-];
 
 const SelectChartType = ({ chartType, updateChartType }) => {
   const menu = (
     <Menu>
-      {ChartTypes.map((m) => (
+      {chartTypes.map((m) => (
         <Menu.Item key={m.title} onClick={() => updateChartType(m.name)}>
           <Icon type={m.icon} />
           {m.title}
@@ -46,7 +15,9 @@ const SelectChartType = ({ chartType, updateChartType }) => {
       ))}
     </Menu>
   );
-  const foundChartType = ChartTypes.find((t) => t.name === chartType);
+
+  const foundChartType = chartTypes.find((t) => t.name === chartType);
+  
   return (
     <ButtonDropdown
       overlay={menu}

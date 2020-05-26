@@ -44,31 +44,33 @@ class BoardsContainer extends React.Component<FinalProps> {
 
     // remove action
     const remove = boardId => {
-      confirm(getWarningMessage('Board'), { hasDeleteConfirm: true }).then(() => {
-        removeMutation({
-          variables: { _id: boardId },
-          refetchQueries: getRefetchQueries()
-        })
-          .then(() => {
-            // if deleted board is default board
-            const { defaultBoards } = getDefaultBoardAndPipelines();
-            const defaultBoardId = defaultBoards[type];
-
-            if (defaultBoardId === boardId) {
-              delete defaultBoards[type];
-
-              localStorage.setItem(
-                STORAGE_BOARD_KEY,
-                JSON.stringify(defaultBoards)
-              );
-            }
-
-            Alert.success('You successfully deleted a board');
+      confirm(getWarningMessage('Board'), { hasDeleteConfirm: true }).then(
+        () => {
+          removeMutation({
+            variables: { _id: boardId },
+            refetchQueries: getRefetchQueries()
           })
-          .catch(error => {
-            Alert.error(error.message);
-          });
-      });
+            .then(() => {
+              // if deleted board is default board
+              const { defaultBoards } = getDefaultBoardAndPipelines();
+              const defaultBoardId = defaultBoards[type];
+
+              if (defaultBoardId === boardId) {
+                delete defaultBoards[type];
+
+                localStorage.setItem(
+                  STORAGE_BOARD_KEY,
+                  JSON.stringify(defaultBoards)
+                );
+              }
+
+              Alert.success('You successfully deleted a board');
+            })
+            .catch(error => {
+              Alert.error(error.message);
+            });
+        }
+      );
     };
 
     const renderButton = ({

@@ -52,23 +52,25 @@ class PipelinesContainer extends React.Component<FinalProps> {
 
     // remove action
     const remove = pipelineId => {
-      confirm(getWarningMessage('Pipeline'), { hasDeleteConfirm: true }).then(() => {
-        removePipelineMutation({
-          variables: { _id: pipelineId }
-        })
-          .then(() => {
-            pipelinesQuery.refetch({ boardId });
-
-            const msg = `${__(`You successfully deleted a`)} ${__(
-              'pipeline'
-            )}.`;
-
-            Alert.success(msg);
+      confirm(getWarningMessage('Pipeline'), { hasDeleteConfirm: true }).then(
+        () => {
+          removePipelineMutation({
+            variables: { _id: pipelineId }
           })
-          .catch(error => {
-            Alert.error(error.message);
-          });
-      });
+            .then(() => {
+              pipelinesQuery.refetch({ boardId });
+
+              const msg = `${__(`You successfully deleted a`)} ${__(
+                'pipeline'
+              )}.`;
+
+              Alert.success(msg);
+            })
+            .catch(error => {
+              Alert.error(error.message);
+            });
+        }
+      );
     };
 
     const renderButton = ({

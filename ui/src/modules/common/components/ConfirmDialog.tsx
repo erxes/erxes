@@ -51,8 +51,8 @@ class ConfirmDialog extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = { 
-      show: true, 
+    this.state = {
+      show: true,
       confirm: '',
       errors: {}
     };
@@ -113,23 +113,24 @@ class ConfirmDialog extends React.Component<Props, State> {
 
   renderConfirmDelete() {
     const { errors, confirm } = this.state;
-    const { hasDeleteConfirm = false, hasUpdateConfirm = false } = this.props.options || {};
+    const { hasDeleteConfirm = false, hasUpdateConfirm = false } =
+      this.props.options || {};
 
     if (!hasDeleteConfirm && !hasUpdateConfirm) {
       return null;
     }
 
-    const label = hasDeleteConfirm ? 
-      'Confirm deletion by typing delete' :
-      'Confirm change by typing update'
+    const label = hasDeleteConfirm
+      ? 'Confirm deletion by typing delete'
+      : 'Confirm change by typing update';
 
     return (
       <FormGroup>
         <ControlLabel required={true}>{label}</ControlLabel>
-        <FormControl 
+        <FormControl
           name="confirm"
           required={true}
-          value={confirm} 
+          value={confirm}
           errors={errors}
           onChange={this.handleChange}
         />
