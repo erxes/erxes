@@ -1,5 +1,5 @@
 import * as classNames from "classnames";
-import * as moment from "moment";
+import * as dayjs from "dayjs";
 import * as React from "react";
 import { defaultAvatar } from "../../icons/Icons";
 import { __, readFile, striptags } from "../../utils";
@@ -45,9 +45,9 @@ function ConversationItem({
       <div className="erxes-right-side">
         <div
           className="erxes-date erxes-tooltip"
-          data-tooltip={moment(createdAt).format("YYYY-MM-DD, HH:mm:ss")}
+          data-tooltip={dayjs(createdAt).format("YYYY-MM-DD, HH:mm:ss")}
         >
-          {moment(createdAt).format("LT")}
+          {dayjs(createdAt).format("LT")}
         </div>
         <div className="erxes-name">{fullName}</div>
         <div className="erxes-last-message">{striptags(content)}</div>
