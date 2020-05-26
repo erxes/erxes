@@ -1,5 +1,7 @@
+import { tableSchema } from '../tablePrefix';
+
 cube(`Users`, {
-  sql: `SELECT * FROM erxes.users`,
+  sql: `SELECT * FROM ${tableSchema()}.users`,
 
   joins: {},
 

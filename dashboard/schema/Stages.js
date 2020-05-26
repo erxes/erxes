@@ -1,5 +1,7 @@
+import { tableSchema } from '../tablePrefix';
+
 cube(`Stages`, {
-  sql: `SELECT * FROM erxes.stages`,
+  sql: `SELECT * FROM ${tableSchema()}.stages`,
 
   joins: {
     Pipelines: {

@@ -1,46 +1,46 @@
+import { tableSchema } from '../tablePrefix';
+
 cube(`Channels`, {
-  sql: `SELECT * FROM erxes.channels`,
-  
-  joins: {
-    
-  },
-  
+  sql: `SELECT * FROM ${tableSchema()}.channels`,
+
+  joins: {},
+
   measures: {
     count: {
       type: `count`,
-      drillMembers: [name, userid, createdat]
+      drillMembers: [name, userid, createdat],
     },
-    
+
     conversationcount: {
       sql: `${CUBE}.\`conversationCount\``,
-      type: `sum`
+      type: `sum`,
     },
-    
+
     openconversationcount: {
       sql: `${CUBE}.\`openConversationCount\``,
-      type: `sum`
-    }
+      type: `sum`,
+    },
   },
-  
+
   dimensions: {
     description: {
       sql: `description`,
-      type: `string`
+      type: `string`,
     },
-    
+
     name: {
       sql: `name`,
-      type: `string`
+      type: `string`,
     },
-    
+
     userid: {
       sql: `${CUBE}.\`userId\``,
-      type: `string`
+      type: `string`,
     },
-    
+
     createdat: {
       sql: `${CUBE}.\`createdAt\``,
-      type: `time`
-    }
-  }
+      type: `time`,
+    },
+  },
 });
