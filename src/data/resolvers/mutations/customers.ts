@@ -17,6 +17,7 @@ const customerMutations = {
    */
   async customersAdd(_root, doc: ICustomer, { user, docModifier }: IContext) {
     const modifiedDoc = docModifier(doc);
+
     const customer = await Customers.createCustomer(modifiedDoc, user);
 
     await putCreateLog(

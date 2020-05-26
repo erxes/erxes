@@ -93,19 +93,6 @@ describe('Test tasks model', () => {
     expect(updatedTask.closeDate).toEqual(task.closeDate);
   });
 
-  test('Update task orders', async () => {
-    const dealToOrder = await taskFactory({});
-
-    const [updatedTask, updatedDealToOrder] = await Tasks.updateOrder(stage._id, [
-      { _id: task._id, order: 9 },
-      { _id: dealToOrder._id, order: 3 },
-    ]);
-
-    expect(updatedTask.stageId).toBe(stage._id);
-    expect(updatedTask.order).toBe(3);
-    expect(updatedDealToOrder.order).toBe(9);
-  });
-
   test('Watch task', async () => {
     await Tasks.watchTask(task._id, true, user._id);
 

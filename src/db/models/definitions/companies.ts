@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
 
-import { ILink, linkSchema } from './common';
+import { customFieldSchema, ICustomField, ILink, linkSchema } from './common';
 import { COMPANY_INDUSTRY_TYPES, COMPANY_SELECT_OPTIONS } from './constants';
 
 import { field, schemaWrapper } from './utils';
@@ -33,7 +33,7 @@ export interface ICompany {
   doNotDisturb?: string;
   links?: ILink;
   tagIds?: string[];
-  customFieldsData?: any;
+  customFieldsData?: ICustomField[];
   website?: string;
   code?: string;
 }
@@ -119,7 +119,7 @@ export const companySchema = schemaWrapper(
     status: field({
       type: String,
       enum: getEnum('STATUSES'),
-      default: 'active',
+      default: 'Active',
       optional: true,
       label: 'Status',
       esType: 'keyword',
@@ -140,7 +140,10 @@ export const companySchema = schemaWrapper(
     doNotDisturb: field({
       type: String,
       optional: true,
+      default: 'No',
+      enum: getEnum('DO_NOT_DISTURB'),
       label: 'Do not disturb',
+      selectOptions: COMPANY_SELECT_OPTIONS.DO_NOT_DISTURB,
     }),
     links: field({ type: linkSchema, default: {}, label: 'Links' }),
 
@@ -153,10 +156,7 @@ export const companySchema = schemaWrapper(
     // Merged company ids
     mergedIds: field({ type: [String], optional: true, label: 'Merged companies' }),
 
-    customFieldsData: field({
-      type: Object,
-      label: 'Custom fields',
-    }),
+    customFieldsData: field({ type: [customFieldSchema], optional: true, label: 'Custom fields data' }),
     searchText: field({ type: String, optional: true, index: true }),
     code: field({ type: String, label: 'Code', optional: true }),
   }),

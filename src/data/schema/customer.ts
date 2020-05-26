@@ -56,12 +56,12 @@ export const types = `
     isOnline: Boolean
     lastSeenAt: Date
     sessionCount: Int
+    urlVisits: [JSON]
 
     integration: Integration
     links: CustomerLinks
     companies: [Company]
     conversations: [Conversation]
-    getTrackedData: JSON
     getTags: [Tag]
     owner: User
   }

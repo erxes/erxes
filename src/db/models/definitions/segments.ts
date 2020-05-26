@@ -62,29 +62,28 @@ export const conditionSchema = new Schema(
     propertyName: field({
       type: String,
       optional: true,
-      label: 'Value',
     }),
 
     propertyOperator: field({
       type: String,
       optional: true,
-      label: 'Date unit',
     }),
 
     propertyValue: field({
       type: String,
       optional: true,
-      label: 'Brand',
     }),
 
     eventName: field({
       type: String,
       optional: true,
     }),
+
     eventOccurence: field({
       type: String,
       optional: true,
     }),
+
     eventOccurenceValue: field({
       type: Number,
       optional: true,

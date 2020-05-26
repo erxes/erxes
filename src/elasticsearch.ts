@@ -23,7 +23,7 @@ export const getIndexPrefix = () => {
   return `${dbName}__`;
 };
 
-export const fetchElk = async (action, index: string, body: any) => {
+export const fetchElk = async (action, index: string, body: any, defaultValue?: any) => {
   if (NODE_ENV === 'test') {
     return action === 'search' ? { hits: { total: { value: 0 }, hits: [] } } : 0;
   }
@@ -36,6 +36,10 @@ export const fetchElk = async (action, index: string, body: any) => {
 
     return response;
   } catch (e) {
+    if (defaultValue) {
+      return defaultValue;
+    }
+
     debugBase(`Error during elk query ${e}`);
     throw new Error(e);
   }

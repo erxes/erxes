@@ -1,5 +1,5 @@
 import * as getUuid from 'uuid-by-string';
-import { Customers } from './db/models';
+import { Customers, Fields } from './db/models';
 import { debugBase } from './debuggers';
 import { client, fetchElk, getIndexPrefix } from './elasticsearch';
 
@@ -58,7 +58,7 @@ export const saveEvent = async (args: ISaveEventArgs) => {
           customerId,
           createdAt: new Date(),
           count: 1,
-          attributes: attributes || {},
+          attributes: Fields.generateTypedListFromMap(attributes || {}),
         },
       },
     });
@@ -111,8 +111,19 @@ export const trackViewPageEvent = (args: { customerId: string; attributes: any }
     customerId,
     attributes,
     additionalQuery: {
-      term: {
-        'attributes.url.keyword': attributes.url,
+      bool: {
+        must: [
+          {
+            term: {
+              'attributes.field': 'url',
+            },
+          },
+          {
+            term: {
+              'attributes.value': attributes.url,
+            },
+          },
+        ],
       },
     },
   });
@@ -158,7 +169,15 @@ export const updateCustomerProperty = async ({
   let modifier: any = { [name]: value };
 
   if (!['firstName', 'lastName', 'primaryPhone', 'primaryEmail', 'code'].includes(name)) {
-    modifier = { [`trackedData.${name}`]: value };
+    const customer = await Customers.findOne({ _id: customerId });
+
+    if (customer) {
+      const prev = {};
+      (customer.trackedData || []).forEach(td => (prev[td.field] = td.value));
+      prev[name] = value;
+
+      modifier = { trackedData: Fields.generateTypedListFromMap(prev) };
+    }
   }
 
   await Customers.updateOne({ _id: customerId }, { $set: modifier });

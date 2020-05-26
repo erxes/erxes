@@ -75,16 +75,33 @@ describe('fieldQueries', () => {
   });
 
   test('Fields combined by content type', async () => {
-    const mock = sinon.stub(elk, 'getMappings').callsFake(() => {
+    const mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
       return Promise.resolve({
-        [`${elk.getIndexPrefix()}customers`]: {
-          mappings: {
-            properties: {
-              trackedData: {
-                properties: {
-                  name: 'value',
+        aggregations: {
+          trackedDataKeys: {
+            fieldKeys: {
+              buckets: [
+                {
+                  key: 'pageView',
+                  hits: {
+                    hits: {
+                      hits: [
+                        {
+                          _source: {
+                            name: 'pageView',
+                            attributes: [
+                              {
+                                field: 'url',
+                                value: '/test',
+                              },
+                            ],
+                          },
+                        },
+                      ],
+                    },
+                  },
                 },
-              },
+              ],
             },
           },
         },
@@ -171,11 +188,10 @@ describe('fieldQueries', () => {
       contentType: 'customer',
     });
 
-    expect(responses.length).toBe(4);
+    expect(responses.length).toBe(6);
     expect(responses[0].name).toBe('firstName');
     expect(responses[1].name).toBe('lastName');
     expect(responses[2].name).toBe('primaryEmail');
-    expect(responses[3].name).toBe('primaryPhone');
 
     // get company default config
     responses = await graphqlRequest(qry, 'fieldsDefaultColumnsConfig', {

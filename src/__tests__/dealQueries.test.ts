@@ -19,7 +19,7 @@ import { BOARD_STATUSES } from '../db/models/definitions/constants';
 import './setup.ts';
 
 describe('dealQueries', () => {
-  const commonDealTypes = `
+  const commonDealFields = `
     _id
     name
     stageId
@@ -79,7 +79,7 @@ describe('dealQueries', () => {
         initialStageId: $initialStageId
         userIds: $userIds
       ) {
-        ${commonDealTypes}
+        ${commonDealFields}
       }
     }
   `;
@@ -173,7 +173,7 @@ describe('dealQueries', () => {
       throw new Error('Field not found');
     }
 
-    const customFieldsData = { [field1._id]: 'text' };
+    const customFieldsData = [{ field: field1._id, value: 'text' }];
 
     const product = await productFactory({ customFieldsData });
     const productNoCustomData = await productFactory();
@@ -334,7 +334,7 @@ describe('dealQueries', () => {
     const qry = `
       query deals($stageId: String!, $pipelineId: String, $sortField: String, $sortDirection: Int) {
         deals(stageId: $stageId, pipelineId: $pipelineId, sortField: $sortField, sortDirection: $sortDirection) {
-          ${commonDealTypes}
+          ${commonDealFields}
         }
       }
     `;
@@ -374,7 +374,7 @@ describe('dealQueries', () => {
     const qry = `
       query dealDetail($_id: String!) {
         dealDetail(_id: $_id) {
-          ${commonDealTypes}
+          ${commonDealFields}
         }
       }
     `;

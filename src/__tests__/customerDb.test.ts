@@ -184,7 +184,7 @@ describe('Customers model tests', () => {
       await Customers.createCustomer({
         primaryEmail: 'email',
         emails: ['dombo@yahoo.com'],
-        customFieldsData: { [field._id]: 'invalid number' },
+        customFieldsData: [{ field: field._id, value: 'invalid number' }],
       });
     } catch (e) {
       expect(e.message).toBe(`${field.text}: Invalid number`);
@@ -257,7 +257,7 @@ describe('Customers model tests', () => {
       await Customers.updateCustomer(_customer._id, {
         primaryEmail: 'email',
         emails: ['dombo@yahoo.com'],
-        customFieldsData: { [field._id]: 'invalid number' },
+        customFieldsData: [{ field: field._id, value: 'invalid number' }],
       });
     } catch (e) {
       expect(e.message).toBe(`${field.text}: Invalid number`);

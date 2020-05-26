@@ -127,6 +127,53 @@ export const moduleObjects = {
       },
     ],
   },
+  dashboards: {
+    name: 'dashboards',
+    description: 'Dashboards',
+    actions: [
+      {
+        name: 'dashboardsAll',
+        description: 'All',
+        use: [
+          'showDashboards',
+          'dashboardAdd',
+          'dashboardEdit',
+          'dashboardRemove',
+          'dashboardItemAdd',
+          'dashboardItemEdit',
+          'dashboardItemRemove',
+        ],
+      },
+      {
+        name: 'dashboardAdd',
+        description: 'Add dashboard',
+      },
+      {
+        name: 'dashboardEdit',
+        description: 'Edit dashboard',
+      },
+      {
+        name: 'dashboardRemove',
+        description: 'Remove dashboard',
+      },
+      {
+        name: 'dashboardItemAdd',
+        description: 'Add dashboard item',
+      },
+      {
+        name: 'dashboardItemEdit',
+        description: 'Edit dashboard item',
+      },
+      {
+        name: 'dashboardItemRemove',
+        description: 'Remove dashboard item',
+      },
+      {
+        name: 'showDashboards',
+        description: 'Show dashboards',
+      },
+    ],
+  },
   deals: {
     name: 'deals',
     description: 'Deals',
@@ -151,7 +198,6 @@ export const moduleObjects = {
           'dealsAdd',
           'dealsEdit',
           'dealsRemove',
-          'dealsUpdateOrder',
           'dealsWatch',
           'dealsArchive',
           'exportDeals',
@@ -214,10 +260,6 @@ export const moduleObjects = {
         description: 'Edit deal',
       },
       {
-        name: 'dealsUpdateOrder',
-        description: 'Update deal order',
-      },
-      {
         name: 'dealsRemove',
         description: 'Remove deal',
       },
@@ -259,7 +301,6 @@ export const moduleObjects = {
           'ticketsAdd',
           'ticketsEdit',
           'ticketsRemove',
-          'ticketsUpdateOrder',
           'ticketsWatch',
           'ticketsArchive',
           'exportTickets',
@@ -322,10 +363,6 @@ export const moduleObjects = {
         description: 'Edit ticket',
       },
       {
-        name: 'ticketsUpdateOrder',
-        description: 'Update ticket order',
-      },
-      {
         name: 'ticketsRemove',
         description: 'Remove ticket',
       },
@@ -367,7 +404,6 @@ export const moduleObjects = {
           'growthHacksAdd',
           'growthHacksEdit',
           'growthHacksRemove',
-          'growthHacksUpdateOrder',
           'growthHacksWatch',
           'growthHacksArchive',
           'growthHackTemplatesAdd',
@@ -434,10 +470,6 @@ export const moduleObjects = {
         description: 'Edit growth hacking',
       },
       {
-        name: 'growthHacksUpdateOrder',
-        description: 'Update growth hacking order',
-      },
-      {
         name: 'growthHacksRemove',
         description: 'Remove growth hacking',
       },
@@ -495,7 +527,6 @@ export const moduleObjects = {
           'tasksAdd',
           'tasksEdit',
           'tasksRemove',
-          'tasksUpdateOrder',
           'tasksWatch',
           'tasksArchive',
           'exportTasks',
@@ -556,10 +587,6 @@ export const moduleObjects = {
       {
         name: 'tasksEdit',
         description: 'Edit task',
-      },
-      {
-        name: 'tasksUpdateOrder',
-        description: 'Update task order',
       },
       {
         name: 'tasksRemove',

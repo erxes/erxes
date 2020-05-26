@@ -66,19 +66,6 @@ describe('Test growthHacks model', () => {
     expect(updatedGrowthHack.closeDate).toEqual(growthHack.closeDate);
   });
 
-  test('Update growthHack orders', async () => {
-    const growthHackToOrder = await growthHackFactory({});
-
-    const [updatedGrowthHack, updatedGrowthHackToOrder] = await GrowthHacks.updateOrder(stage._id, [
-      { _id: growthHack._id, order: 9 },
-      { _id: growthHackToOrder._id, order: 3 },
-    ]);
-
-    expect(updatedGrowthHack.stageId).toBe(stage._id);
-    expect(updatedGrowthHack.order).toBe(3);
-    expect(updatedGrowthHackToOrder.order).toBe(9);
-  });
-
   test('Watch growthHack', async () => {
     await GrowthHacks.watchGrowthHack(growthHack._id, true, user._id);
 

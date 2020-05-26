@@ -1,5 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { commonItemFieldsSchema, IItemCommonFields } from './boards';
+import { customFieldSchema, ICustomField } from './common';
 import { PRODUCT_TYPES } from './constants';
 import { field, schemaWrapper } from './utils';
 
@@ -12,7 +13,7 @@ export interface IProduct {
   sku?: string;
   unitPrice?: number;
   code: string;
-  customFieldsData?: any;
+  customFieldsData?: ICustomField[];
   productId?: string;
   tagIds?: string[];
 }
@@ -84,10 +85,7 @@ export const productSchema = schemaWrapper(
     description: field({ type: String, optional: true, label: 'Description' }),
     sku: field({ type: String, optional: true, label: 'Stock keeping unit' }),
     unitPrice: field({ type: Number, optional: true, label: 'Unit price' }),
-    customFieldsData: field({
-      type: Object,
-      label: 'Custom fields data',
-    }),
+    customFieldsData: field({ type: [customFieldSchema], optional: true, label: 'Custom fields data' }),
     createdAt: field({
       type: Date,
       default: new Date(),

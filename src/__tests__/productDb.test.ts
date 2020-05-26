@@ -82,14 +82,19 @@ describe('Test products model', () => {
     expect(productObj.sku).toEqual(`${product.sku}-update`);
 
     // testing custom field data
-    const field = await fieldFactory({ contentType: 'product', contentTypeId: product._id });
-    args.customFieldsData = {
-      [field._id]: 10,
-    };
+    const field1 = await fieldFactory({ contentType: 'product', contentTypeId: product._id });
+    const field2 = await fieldFactory({ contentType: 'product', contentTypeId: product._id, validation: 'date' });
+
+    args.customFieldsData = [
+      { field: field1._id, value: 10 },
+      { field: field2._id, value: '2011-01-01' },
+    ];
 
     productObj = await Products.updateProduct(product._id, args);
 
-    expect(productObj.customFieldsData[field._id]).toBe(10);
+    if (productObj.customFieldsData) {
+      expect(productObj.customFieldsData[0].value).toBe(10);
+    }
   });
 
   test('Can not remove products', async () => {

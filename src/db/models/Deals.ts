@@ -1,7 +1,6 @@
 import { Model, model } from 'mongoose';
 import { ActivityLogs } from '.';
-import { fillSearchTextItem, updateOrder, watchItem } from './boardUtils';
-import { IOrderInput } from './definitions/boards';
+import { fillSearchTextItem, watchItem } from './boardUtils';
 import { BOARD_STATUSES } from './definitions/constants';
 import { dealSchema, IDeal, IDealDocument } from './definitions/deals';
 
@@ -9,7 +8,6 @@ export interface IDealModel extends Model<IDealDocument> {
   getDeal(_id: string): Promise<IDealDocument>;
   createDeal(doc: IDeal): Promise<IDealDocument>;
   updateDeal(_id: string, doc: IDeal): Promise<IDealDocument>;
-  updateOrder(stageId: string, orders: IOrderInput[]): Promise<IDealDocument[]>;
   watchDeal(_id: string, isAdd: boolean, userId: string): void;
 }
 
@@ -70,13 +68,6 @@ export const loadDealClass = () => {
       await Deals.updateOne({ _id }, { $set: doc, searchText });
 
       return Deals.findOne({ _id });
-    }
-
-    /*
-     * Update given deals orders
-     */
-    public static async updateOrder(stageId: string, orders: IOrderInput[]) {
-      return updateOrder(Deals, orders, stageId);
     }
 
     /**

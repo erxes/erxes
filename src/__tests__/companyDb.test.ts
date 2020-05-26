@@ -116,7 +116,7 @@ describe('Companies model tests', () => {
     try {
       await Companies.createCompany({
         primaryName: 'name',
-        customFieldsData: { [field._id]: 'invalid number' },
+        customFieldsData: [{ field: field._id, value: 'invalid number' }],
       });
     } catch (e) {
       expect(e.message).toBe(`${field.text}: Invalid number`);
@@ -157,7 +157,7 @@ describe('Companies model tests', () => {
     try {
       await Companies.updateCompany(_company._id, {
         primaryName: 'name',
-        customFieldsData: { [field._id]: 'invalid number' },
+        customFieldsData: [{ field: field._id, value: 'invalid number' }],
       });
     } catch (e) {
       expect(e.message).toBe(`${field.text}: Invalid number`);

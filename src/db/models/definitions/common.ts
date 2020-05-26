@@ -51,4 +51,23 @@ const linkSchema = new Schema(
   { _id: false },
 );
 
-export { linkSchema, ruleSchema };
+const customFieldSchema = new Schema(
+  {
+    field: field({ type: String }),
+    value: field({ type: Schema.Types.Mixed }),
+    stringValue: field({ type: String, optional: true }),
+    numberValue: field({ type: Number, optional: true }),
+    dateValue: field({ type: Date, optional: true }),
+  },
+  { _id: false },
+);
+
+export interface ICustomField {
+  field: string;
+  value: any;
+  stringValue?: string;
+  numberValue?: number;
+  dateValue?: Date;
+}
+
+export { linkSchema, ruleSchema, customFieldSchema };

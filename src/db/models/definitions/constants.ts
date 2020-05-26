@@ -439,8 +439,8 @@ export const NOTIFICATION_CONTENT_TYPES = {
 };
 
 const STATUSES = [
-  { label: 'Active', value: 'active' },
-  { label: 'Deleted', value: 'deleted' },
+  { label: 'Active', value: 'Active' },
+  { label: 'Deleted', value: 'Deleted' },
 ];
 
 export const COMPANY_SELECT_OPTIONS = {
@@ -453,19 +453,28 @@ export const COMPANY_SELECT_OPTIONS = {
     { label: 'Prospect', value: 'Prospect' },
     { label: 'Reseller', value: 'Reseller' },
     { label: 'Other', value: 'Other' },
+    { label: 'Unknown', value: '' },
   ],
   STATUSES,
+  DO_NOT_DISTURB: [
+    { label: 'Yes', value: 'Yes' },
+    { label: 'No', value: 'No' },
+    { label: 'Unknown', value: '' },
+  ],
 };
 
 export const CUSTOMER_SELECT_OPTIONS = {
   SEX: [
+    { label: 'Not known', value: 0 },
     { label: 'Male', value: 1 },
     { label: 'Female', value: 2 },
+    { label: 'Not applicable', value: 9 },
   ],
   EMAIL_VALIDATION_STATUSES: [
     { label: 'Valid', value: 'valid' },
     { label: 'Invalid', value: 'invalid' },
     { label: 'Accept all unverifiable', value: 'accept_all_unverifiable' },
+    { label: 'Unverifiable', value: 'unverifiable' },
     { label: 'Unknown', value: 'unknown' },
     { label: 'Disposable', value: 'disposable' },
     { label: 'Catch all', value: 'catchall' },
@@ -477,6 +486,27 @@ export const CUSTOMER_SELECT_OPTIONS = {
     { label: 'Working', value: 'inProgress' },
     { label: 'Bad Timing', value: 'badTiming' },
     { label: 'Unqualified', value: 'unqualified' },
+    { label: 'Unknown', value: '' },
   ],
   STATUSES,
+  DO_NOT_DISTURB: [
+    { label: 'Yes', value: 'Yes' },
+    { label: 'No', value: 'No' },
+    { label: 'Unknown', value: '' },
+  ],
+  HAS_AUTHORITY: [
+    { label: 'Yes', value: 'Yes' },
+    { label: 'No', value: 'No' },
+    { label: 'Unknown', value: '' },
+  ],
+  STATE: [
+    { label: 'Visitor', value: 'visitor' },
+    { label: 'Lead', value: 'lead' },
+    { label: 'Customer', value: 'customer' },
+  ],
 };
+
+export const SEGMENT_STRING_OPERATORS = ['e', 'dne', 'c', 'dnc'];
+export const SEGMENT_BOOLEAN_OPERATORS = ['is', 'ins', 'it', 'if'];
+export const SEGMENT_NUMBER_OPERATORS = ['numbere', 'numberdne', 'numberigt', 'numberilt'];
+export const SEGMENT_DATE_OPERATORS = ['dateigt', 'dateilt', 'wobm', 'woam', 'wobd', 'woad', 'drlt', 'drgt'];

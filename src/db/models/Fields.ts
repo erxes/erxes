@@ -20,6 +20,26 @@ export interface IOrderInput {
   order: number;
 }
 
+export interface ITypedListItem {
+  field: string;
+  value: any;
+  stringValue?: string;
+  numberValue?: number;
+  dateValue?: Date;
+}
+
+export const isValidDate = value => {
+  if (
+    (value && validator.isISO8601(value.toString())) ||
+    /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/.test(value.toString()) ||
+    value instanceof Date
+  ) {
+    return true;
+  }
+
+  return false;
+};
+
 export interface IFieldModel extends Model<IFieldDocument> {
   checkIsDefinedByErxes(_id: string): never;
   createField(doc: IField): Promise<IFieldDocument>;
@@ -28,7 +48,9 @@ export interface IFieldModel extends Model<IFieldDocument> {
   updateOrder(orders: IOrderInput[]): Promise<IFieldDocument[]>;
   clean(_id: string, _value: string | Date | number): string | Date | number;
   cleanMulti(data: { [key: string]: any }): any;
-
+  generateTypedListFromMap(data: { [key: string]: any }): ITypedListItem[];
+  generateTypedItem(field: string, value: string): ITypedListItem;
+  prepareCustomFieldsData(customFieldsData?: Array<{ field: string; value: any }>): Promise<ITypedListItem[]>;
   updateFieldsVisible(_id: string, isVisible: boolean, lastUpdatedUserId: string): Promise<IFieldDocument>;
 }
 
@@ -177,7 +199,7 @@ export const loadFieldClass = () => {
 
         // date
         if (validation === 'date') {
-          if (!validator.isISO8601(value)) {
+          if (!isValidDate(value)) {
             throwError('Invalid date');
           }
 
@@ -191,9 +213,8 @@ export const loadFieldClass = () => {
     /*
      * Validates multiple fields, fixes values if necessary
      */
-    public static async cleanMulti(data: { [key: string]: string }) {
+    public static async cleanMulti(data: { [key: string]: any }) {
       const ids = Object.keys(data);
-
       const fixedValues = {};
 
       // validate individual fields
@@ -202,6 +223,48 @@ export const loadFieldClass = () => {
       }
 
       return fixedValues;
+    }
+
+    public static generateTypedItem(field: string, value: string): ITypedListItem {
+      let stringValue;
+      let numberValue;
+      let dateValue;
+
+      if (value) {
+        stringValue = value.toString();
+
+        // number
+        if (validator.isFloat(value.toString())) {
+          numberValue = value;
+          stringValue = null;
+        }
+
+        if (isValidDate(value)) {
+          dateValue = value;
+          stringValue = null;
+        }
+      }
+
+      return { field, value, stringValue, numberValue, dateValue };
+    }
+
+    public static generateTypedListFromMap(data: { [key: string]: any }): ITypedListItem[] {
+      const ids = Object.keys(data || {});
+      return ids.map(_id => this.generateTypedItem(_id, data[_id]));
+    }
+
+    public static async prepareCustomFieldsData(
+      customFieldsData?: Array<{ field: string; value: any }>,
+    ): Promise<ITypedListItem[]> {
+      const result: ITypedListItem[] = [];
+
+      for (const customFieldData of customFieldsData || []) {
+        await Fields.clean(customFieldData.field, customFieldData.value);
+
+        result.push(Fields.generateTypedItem(customFieldData.field, customFieldData.value));
+      }
+
+      return result;
     }
 
     /**

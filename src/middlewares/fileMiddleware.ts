@@ -1,6 +1,7 @@
 import * as formidable from 'formidable';
 import * as fs from 'fs';
 import * as request from 'request';
+import * as _ from 'underscore';
 import * as xlsxPopulate from 'xlsx-populate';
 import { RABBITMQ_QUEUES } from '../data/constants';
 import { can } from '../data/permissions/utils';
@@ -43,14 +44,24 @@ const readXlsFile = async (file): Promise<{ fieldNames: string[]; usedSheets: an
         }
 
         const usedSheets = usedRange.value();
+        const compactedRows: any[] = [];
+
+        for (const row of usedSheets) {
+          // to prevent empty data entry since xlsPopulate returns empty cells
+          const compactRow = _.compact(row);
+
+          if (compactRow.length > 0) {
+            compactedRows.push(row);
+          }
+        }
 
         // Getting columns
         const fieldNames = usedSheets[0];
 
         // Removing column
-        usedSheets.shift();
+        compactedRows.shift();
 
-        return resolve({ fieldNames, usedSheets });
+        return resolve({ fieldNames, usedSheets: compactedRows });
       })
       .catch(e => {
         return reject(e);

@@ -1,4 +1,4 @@
-FROM node:10.16.0-slim
+FROM node:12.16.3-slim
 WORKDIR /erxes-engages
 RUN chown -R node:node /erxes-engages
 COPY --chown=node:node . /erxes-engages

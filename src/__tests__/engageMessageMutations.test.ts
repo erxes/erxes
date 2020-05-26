@@ -91,7 +91,7 @@ describe('engage message mutation tests', () => {
     _customer = await customerFactory({
       integrationId: _integration._id,
       emailValidationStatus: 'valid',
-      status: 'active',
+      status: 'Active',
       profileScore: 1,
       primaryEmail: faker.internet.email(),
       firstName: faker.random.word(),
@@ -444,7 +444,7 @@ describe('engage message mutation tests', () => {
         brandIds: ['_id'],
       });
     } catch (e) {
-      expect(e[0].message).toBe('No customers found who have valid emails');
+      expect(e[0].message).toBe('No customers found');
     }
 
     const engageMessage = await graphqlRequest(engageMessageAddMutation, 'engageMessageAdd', _doc);
