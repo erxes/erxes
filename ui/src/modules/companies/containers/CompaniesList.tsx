@@ -62,7 +62,7 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
     const localConfig = localStorage.getItem('erxes_companies_columns_config');
 
     if (localConfig) {
-      columnsConfig = JSON.parse(localConfig);
+      columnsConfig = JSON.parse(localConfig).filter(conf => conf.checked);
     }
 
     const removeCompanies = ({ companyIds }, emptyBulk) => {

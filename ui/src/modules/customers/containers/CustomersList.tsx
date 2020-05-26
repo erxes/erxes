@@ -69,7 +69,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
     const localConfig = localStorage.getItem(`erxes_${type}_columns_config`);
 
     if (localConfig) {
-      columnsConfig = JSON.parse(localConfig);
+      columnsConfig = JSON.parse(localConfig).filter(conf => conf.checked);
     }
 
     const removeCustomers = ({ customerIds }, emptyBulk) => {
