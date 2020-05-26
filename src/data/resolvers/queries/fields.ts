@@ -170,6 +170,7 @@ const fieldQueries = {
     }
 
     return [
+      { name: 'location.country', label: 'Country', order: 0 },
       { name: 'firstName', label: 'First name', order: 1 },
       { name: 'lastName', label: 'Last name', order: 2 },
       { name: 'primaryEmail', label: 'Primary email', order: 3 },
