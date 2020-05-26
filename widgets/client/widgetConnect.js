@@ -1,8 +1,8 @@
-import '@nateradebaugh/react-datetime/css/react-datetime.css';
+import "@nateradebaugh/react-datetime/css/react-datetime.css";
 import * as React from 'react';
-import * as dayjs from 'dayjs';
-import * as localizedFormat from 'dayjs/plugin/localizedFormat';
-import * as relativeTime from 'dayjs/plugin/relativeTime';
+import * as dayjs from "dayjs";
+import * as localizedFormat from "dayjs/plugin/localizedFormat";
+import * as relativeTime from "dayjs/plugin/relativeTime";
 import * as ReactDOM from 'react-dom';
 import { ApolloProvider } from 'react-apollo';
 import client from './apollo-client';
