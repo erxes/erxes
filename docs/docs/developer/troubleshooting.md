@@ -38,3 +38,12 @@ When you create the IMAP account check you entered correct values for example:
 * Permission Denied, when creating or checking Google Topic and Subscription make sure your service account has owner role in IAM & Admin -> IAM.
 
 * If you are not receiving any emails, please check you add Grant Publish Topic right to **gmail-api-push@system.gserviceaccount.com** in IAM & Admin -> IAM -> Add.
+
+* When the Integration repository starts it will automatically create a topic and subscription for syncing, receiving emails. But if you have not configured your system environment you might see the following error - [ Google Cloud Getting started ]( ttps://cloud.google.com/docs/authentication/getting-started)
+```
+7 PERMISSION_DENIED: User not authorized to perform this action.
+```
+To fix the above error set the following variable to your environment.
+```
+export GOOGLE_APPLICATION_CREDENTIALS="/Path/to/your/[google_cred].json"
+```
