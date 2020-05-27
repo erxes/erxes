@@ -1,4 +1,4 @@
-name: UI CI
+name: Dashboard CI
 
 on:
   push:
@@ -30,6 +30,7 @@ jobs:
 
     - name: test
       run: |
+        pwd
         echo $GITHUB_WORKSPACE
         ls -alh $GITHUB_WORKSPACE
         ls -alh $GITHUB_WORKSPACE/ui
