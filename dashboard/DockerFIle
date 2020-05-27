@@ -1,7 +1,5 @@
-FROM node:10.16.0-slim
-WORKDIR /dashboard/
-RUN chown -R node:node /dashboard
-COPY --chown=node:node . /dashboard
-USER node
-EXPOSE 4200
-ENTRYPOINT [ "node", "--max_old_space_size=8192", "dist" ]
+FROM erxes/json-helper:latest
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY build /usr/share/nginx/html
+ENTRYPOINT [ "sh", "/usr/local/bin/start-app" ]

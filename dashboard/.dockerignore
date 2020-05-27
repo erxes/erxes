@@ -1,12 +1,8 @@
-commands
-node_modules
 public
-scripts
 src
 .env*
 .git*
 *.md
 Dockerfile*
-jest*.js
 *.json
 yarn.lock
