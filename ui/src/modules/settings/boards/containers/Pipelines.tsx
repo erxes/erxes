@@ -84,7 +84,7 @@ class PipelinesContainer extends React.Component<FinalProps> {
           mutation={object ? mutations.pipelineEdit : mutations.pipelineAdd}
           variables={values}
           callback={callback}
-          confirmationUpdate={confirmationUpdate}
+          confirmationUpdate={object ? confirmationUpdate : false}
           refetchQueries={getRefetchQueries(boardId)}
           isSubmitted={isSubmitted}
           type="submit"
