@@ -9,6 +9,7 @@ import {
   TaggerSection,
   TrackedDataSection
 } from '../common';
+import WebsiteActivity from '../common/WebsiteActivity';
 
 type Props = {
   customer: ICustomer;
@@ -26,6 +27,7 @@ export default class LeftSidebar extends React.Component<Props> {
         <CustomFieldsSection customer={customer} />
         <DevicePropertiesSection customer={customer} />
         <TrackedDataSection customer={customer} />
+        <WebsiteActivity urlVisits={customer.urlVisits || []} />
         <TaggerSection
           data={customer}
           type="customer"

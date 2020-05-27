@@ -120,7 +120,11 @@ export default class SimpleMessage extends React.Component<Props, {}> {
     }
 
     if (!message.content) {
-      return this.renderAttachment(hasAttachment);
+      return (
+        <MessageContent staff={isStaff} internal={message.internal}>
+          {this.renderAttachment(hasAttachment)}{' '}
+        </MessageContent>
+      );
     }
 
     return (

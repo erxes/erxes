@@ -5,7 +5,6 @@ const CommonConfig = require('./webpack.config');
 
 module.exports = Merge(CommonConfig, {
   plugins: [
-    new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
     new webpack.LoaderOptionsPlugin({
       minimize: true,
       debug: false,
@@ -23,12 +22,10 @@ module.exports = Merge(CommonConfig, {
           beautify: false,
         },
         compress: {
-          warnings: false,
           pure_getters: true,
           unsafe: true,
           unsafe_comps: true,
         },
-        warnings: false,
       },
     }),
   ],

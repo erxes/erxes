@@ -111,7 +111,11 @@ class RespondBox extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { sending, content } = this.state;
+    const { sending, content, responseTemplate } = this.state;
+
+    if (responseTemplate && responseTemplate === prevState.responseTemplate) {
+      this.setState({ responseTemplate: '' });
+    }
 
     if (sending && content !== prevState.content) {
       this.setState({ sending: false });

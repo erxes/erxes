@@ -7,7 +7,7 @@ The following steps are required prior using the system.
 
 ## Create admin user
 
-The below command will create first admin user with a random password.  
+The below command will create first admin user with a random password.
 The password will be printed in the terminal.
 
 ```
@@ -21,7 +21,7 @@ password: ********
 
 ## Load initial data
 
-The below command will create initial permission groups, permissions, growth hack templates, email templates and some sample data, and reset the admin password.  
+The below command will create initial permission groups, permissions, growth hack templates, email templates and some sample data, and reset the admin password.
 The password will be printed in the terminal.
 
 ```

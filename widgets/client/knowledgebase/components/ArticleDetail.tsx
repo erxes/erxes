@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import * as moment from "moment";
+import * as dayjs from "dayjs";
 import * as React from "react";
 import { defaultAvatar } from "../../icons/Icons";
 import { __, makeClickableLink, readFile } from "../../utils";
@@ -118,7 +118,7 @@ export default class ArticleDetail extends React.PureComponent<
               <div>
                 {modifiedDate ? __("Modified ") : __("Created ")}
                 <span>
-                  {moment(modifiedDate ? modifiedDate : createdDate).format(
+                  {dayjs(modifiedDate ? modifiedDate : createdDate).format(
                     "lll"
                   )}
                 </span>

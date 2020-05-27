@@ -39,9 +39,11 @@ export interface IContentTypeFields {
 }
 
 export interface IConfigColumn {
+  _id: string;
   name: string;
   label: string;
   order: number;
+  checked?: boolean;
 }
 
 // query types

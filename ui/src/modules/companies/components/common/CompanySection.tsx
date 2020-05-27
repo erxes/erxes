@@ -61,7 +61,7 @@ function Component(
 
   const relCompanyTrigger = (
     <ButtonRelated>
-      <button>{__('See related companies..')}</button>
+      <span>{__('See related companies..')}</span>
     </ButtonRelated>
   );
 

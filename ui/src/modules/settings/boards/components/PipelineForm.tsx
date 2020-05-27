@@ -291,7 +291,8 @@ class PipelineForm extends React.Component<Props, State> {
               values: this.generateDoc(values),
               isSubmitted,
               callback: closeModal,
-              object: pipeline
+              object: pipeline,
+              confirmationUpdate: true
             })}
           </Modal.Footer>
         </Modal.Body>
