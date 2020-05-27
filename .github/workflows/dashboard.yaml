@@ -19,7 +19,7 @@ on:
       - 'dashboard/**'
 
 jobs:
-  ui:
+  dashboard:
     runs-on: ubuntu-18.04
 
     # name: Node ${{ matrix.node-version }}
