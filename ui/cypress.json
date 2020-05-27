@@ -1,0 +1,5 @@
+{
+  "projectId": "bg7eun",
+  "ignoreTestFiles": "*.spec.js",
+  "baseUrl": "http://localhost:3000"
+}

@@ -82,7 +82,9 @@
     "generateVersion": "node commands/generateVersion.js",
     "componentTest": "jest --runInBand --forceExit --detectOpenHandles --coverage",
     "snyk-protect": "snyk protect",
-    "prepare": "yarn run snyk-protect"
+    "prepare": "yarn run snyk-protect",
+    "open-cypress": "yarn run cypress open",
+    "record-cypress": "cypress run --record --key fd048d49-6b4c-4e6b-885f-819a533c2fc4"
   },
   "devDependencies": {
     "@types/draft-js": "^0.10.24",
@@ -94,6 +96,7 @@
     "@types/react-dom": "^16.0.7",
     "@types/react-router-dom": "^5.1.3",
     "@types/styled-components": "^3.0.0",
+    "cypress": "^4.7.0",
     "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",
     "enzyme-to-json": "^3.3.4",
