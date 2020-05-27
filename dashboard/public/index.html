@@ -58,6 +58,15 @@
           processValue: '%REACT_APP_DASHBOARD_API_TOKEN%',
         },
       ];
+
+      for (var i = 0; i < window.envMaps.length; i++) {
+        var envMap = window.envMaps[i];
+
+        localStorage.setItem(
+          `erxes_env_${envMap.name}`,
+          getEnv(envMap.name, envMap.processValue)
+        );
+      }
     </script>
     <div id="root"></div>
     <!--
