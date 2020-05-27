@@ -2,41 +2,30 @@ import { Configs } from '../models';
 import { configFactory } from './factories';
 import './setup';
 
-test('updateConfig', async done => {
-  await Configs.updateConfigs({
+test('Test updateConfigs()', async done => {
+  const doc = {
     accessKeyId: 'accessKeyId',
     secretAccessKey: 'secretAccessKey',
     region: 'region',
-  });
+  };
 
-  const accessKeyId = await Configs.findOne({ code: 'accessKeyId' });
+  await Configs.updateConfigs(doc);
 
-  const secretAccessKey = await Configs.findOne({ code: 'secretAccessKey' });
+  const accessKeyId = await Configs.findOne({ code: doc.accessKeyId });
+  const secretAccessKey = await Configs.findOne({ code: doc.secretAccessKey });
+  const region = await Configs.findOne({ code: doc.region });
 
-  const region = await Configs.findOne({ code: 'region' });
-
-  expect(accessKeyId).toBeDefined();
-  expect(accessKeyId.value).toBe('accessKeyId');
-  expect(secretAccessKey).toBeDefined();
-  expect(secretAccessKey.value).toBe('secretAccessKey');
-  expect(region).toBeDefined();
-  expect(region.value).toBe('region');
+  expect(accessKeyId.value).toBe(doc.accessKeyId);
+  expect(secretAccessKey.value).toBe(doc.secretAccessKey);
+  expect(region.value).toBe(doc.region);
 
   done();
 });
 
-test('getConfigs', async done => {
-  const accessKeyId = await configFactory({
-    code: 'accessKeyId',
-  });
-
-  const secretAccessKey = await configFactory({
-    code: 'secretAccessKey',
-  });
-
-  const region = await configFactory({
-    code: 'region',
-  });
+test('Test getConfigs()', async done => {
+  const accessKeyId = await configFactory({ code: 'accessKeyId' });
+  const secretAccessKey = await configFactory({ code: 'secretAccessKey' });
+  const region = await configFactory({ code: 'region' });
 
   let configs = await Configs.getSESConfigs();
 
@@ -53,4 +42,12 @@ test('getConfigs', async done => {
   expect(configs.region).toBe('');
 
   done();
+});
+
+test('Test createOrUpdateConfig()', async () => {
+  const config = await configFactory({ code: 'code', value: 'value' });
+
+  const updated = await Configs.createOrUpdateConfig({ code: config.code, value: 'updatedValue' });
+
+  expect(updated.value).toBe('updatedValue');
 });
