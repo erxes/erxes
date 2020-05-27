@@ -79,6 +79,7 @@ Following steps explain the Google Cloud Project. Which allows us to use Google 
   And configure **GOOGLE PROJECT ID**, **GOOGLE APPLICATION CREDENTIALS** fields as in the sceenshot
 
   - **GOOGLE APPLICATION CREDENTIALS** is google_cred file's path by default it's ./google_cred.json no need to change
+  - **GOOGLE APPLICATION CREDENTIALS JSON** is google_cred (service account) file's content for **Firebase** configuration
 
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google/google-general-12.png)
 
