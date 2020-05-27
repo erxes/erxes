@@ -71,7 +71,7 @@ Following steps explain the Google Cloud Project. Which allows us to use Google 
 
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google/google-general-10.png)
 
-- Replace the file you downloaded from google (service account) with **erxes-api/google_cred.json.sample erxes-integrations/google_cred.json.sample** and rename them to **google_cred.json**
+* Copy the service account file's content to google_cred.json in **erxes-api/google_cred.json.sample**, **erxes-integrations/google_cred.json.sample**, and rename them to **google_cred.json**
 
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google/google-general-11.png)
 
