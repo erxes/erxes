@@ -76,6 +76,7 @@ export const types = `
     showChat: Boolean
     showLauncher: Boolean
     forceLogoutWhenResolve: Boolean
+    showVideoCallRequest: Boolean
   }
 
   input MessengerUiOptions {

@@ -1,6 +1,5 @@
 import * as faker from 'faker';
 import * as Random from 'meteor-random';
-import { EngagesAPI, IntegrationsAPI } from '../data/dataSources';
 import widgetMutations, { getMessengerData } from '../data/resolvers/mutations/widgets';
 import { graphqlRequest } from '../db/connection';
 import {
@@ -37,14 +36,6 @@ describe('messenger connect', () => {
   let _integration: IIntegrationDocument;
   let _customer: ICustomerDocument;
 
-  const res = {
-    cookie: () => {
-      return 'cookie';
-    },
-  };
-
-  const context: any = {};
-
   beforeEach(async () => {
     // Creating test data
     _brand = await brandFactory();
@@ -59,18 +50,6 @@ describe('messenger connect', () => {
       primaryPhone: '96221050',
       deviceTokens: ['111'],
     });
-
-    const dataSources = { IntegrationsAPI: new IntegrationsAPI(), EngagesAPI: new EngagesAPI() };
-    const user = await userFactory({});
-
-    context.requestInfo = { secure: false };
-    context.dataSources = dataSources;
-    context.user = user;
-    context.res = res;
-    context.commonQuerySelector = {};
-    context.userBrandIdsSelector = {};
-    context.brandIdSelector = {};
-    context.docModifier = doc => doc;
   });
 
   afterEach(async () => {
@@ -83,7 +62,7 @@ describe('messenger connect', () => {
 
   test('brand not found', async () => {
     try {
-      await widgetMutations.widgetsMessengerConnect({}, { brandCode: 'invalidCode' }, context);
+      await widgetMutations.widgetsMessengerConnect({}, { brandCode: 'invalidCode' });
     } catch (e) {
       expect(e.message).toBe('Brand not found');
     }
@@ -93,7 +72,7 @@ describe('messenger connect', () => {
     const brand = await brandFactory({});
 
     try {
-      await widgetMutations.widgetsMessengerConnect({}, { brandCode: brand.code || '' }, context);
+      await widgetMutations.widgetsMessengerConnect({}, { brandCode: brand.code || '' });
     } catch (e) {
       expect(e.message).toBe('Integration not found');
     }
@@ -121,7 +100,6 @@ describe('messenger connect', () => {
     const { integrationId, brand, messengerData } = await widgetMutations.widgetsMessengerConnect(
       {},
       { brandCode: _brand.code || '', email: faker.internet.email() },
-      context,
     );
 
     expect(integrationId).toBe(_integration._id);
@@ -137,7 +115,6 @@ describe('messenger connect', () => {
     const { customerId } = await widgetMutations.widgetsMessengerConnect(
       {},
       { brandCode: _brand.code || '', email, companyData: { name: 'company' }, deviceToken: '111' },
-      context,
     );
 
     expect(customerId).toBeDefined();
@@ -169,7 +146,6 @@ describe('messenger connect', () => {
         isUser: true,
         deviceToken: '222',
       },
-      context,
     );
 
     expect(customerId).toBeDefined();
