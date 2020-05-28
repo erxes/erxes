@@ -273,7 +273,6 @@ const widgetMutations = {
       cachedCustomerId?: string;
       deviceToken?: string;
     },
-    { dataSources }: IContext,
   ) {
     const { brandCode, email, phone, code, isUser, companyData, data, cachedCustomerId, deviceToken } = args;
 
@@ -336,14 +335,6 @@ const widgetMutations = {
       });
     }
 
-    let videoCallUsageStatus = false;
-
-    try {
-      videoCallUsageStatus = await dataSources.IntegrationsAPI.fetchApi('/videoCall/usageStatus');
-    } catch (e) {
-      debugExternalApi(e.message);
-    }
-
     if (integration.createdUserId) {
       const user = await Users.getUser(integration.createdUserId);
 
@@ -352,7 +343,7 @@ const widgetMutations = {
 
     return {
       integrationId: integration._id,
-      uiOptions: { ...(integration.uiOptions ? integration.uiOptions.toJSON() : {}), videoCallUsageStatus },
+      uiOptions: integration.uiOptions,
       languageCode: integration.languageCode,
       messengerData: await getMessengerData(integration),
       customerId: customer._id,
