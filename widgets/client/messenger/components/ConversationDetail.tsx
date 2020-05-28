@@ -70,7 +70,7 @@ class ConversationDetail extends React.Component<Props, State> {
       goToConversationList,
       isOnline,
       color,
-      loading
+      loading,
     } = this.props;
 
     const placeholder = !messages.length
@@ -120,6 +120,7 @@ class ConversationDetail extends React.Component<Props, State> {
               isParentFocused={this.state.isFocused}
               onTextInputBlur={this.onTextInputBlur}
               collapseHead={this.inputFocus}
+              isOnline={isOnline}
             />
           </div>
         </div>
