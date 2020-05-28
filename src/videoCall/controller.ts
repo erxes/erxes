@@ -166,7 +166,7 @@ const init = async app => {
       const callRecord = await CallRecords.createCallRecord(doc);
 
       const ownerTokenResponse = await sendDailyRequest(`/api/v1/meeting-tokens/`, 'POST', {
-        properties: { room_name: response.name },
+        properties: { room_name: response.name, enable_recording: 'cloud' },
       });
 
       return res.json({
