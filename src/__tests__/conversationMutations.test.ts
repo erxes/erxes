@@ -4,13 +4,7 @@ import * as faker from 'faker';
 import * as sinon from 'sinon';
 import * as messageBroker from '../messageBroker';
 
-import {
-  conversationFactory,
-  conversationMessageFactory,
-  customerFactory,
-  integrationFactory,
-  userFactory,
-} from '../db/factories';
+import { conversationFactory, customerFactory, integrationFactory, userFactory } from '../db/factories';
 import { Conversations, Customers, Integrations, Users } from '../db/models';
 import { CONVERSATION_STATUSES, KIND_CHOICES } from '../db/models/definitions/constants';
 
