@@ -1,6 +1,7 @@
 import { Document, Model, model, Schema } from 'mongoose';
 
 export type MessageType = 'regular' | 'success' | 'failure';
+export const LOG_MESSAGE_TYPES = ['regular', 'success', 'failure'];
 
 export interface ILog {
   engageMessageId: string;
@@ -11,14 +12,14 @@ export interface ILog {
 export interface ILogDocument extends ILog, Document {}
 
 export interface ILogModel extends Model<ILogDocument> {
-  createLog(engageMessageId: string, type: MessageType, message: string): Promise<void>;
+  createLog(engageMessageId: string, type: MessageType, message: string): Promise<ILogDocument>;
 }
 
 export const logSchema = new Schema({
-  createdAt: { type: Date, default: new Date() },
-  engageMessageId: { type: String },
-  message: { type: String },
-  type: { type: String },
+  createdAt: { type: Date, default: new Date(), label: 'Created at' },
+  engageMessageId: { type: String, label: 'Engage message id' },
+  message: { type: String, label: 'Message' },
+  type: { type: String, label: 'Message type', enum: LOG_MESSAGE_TYPES },
 });
 
 export const loadLogClass = () => {

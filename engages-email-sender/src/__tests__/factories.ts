@@ -1,6 +1,13 @@
 import * as faker from 'faker';
 import { Configs, Stats } from '../models';
 
+/**
+ * Returns random element of an array
+ */
+export const randomElementOfArray = array => {
+  return array[Math.floor(Math.random() * array.length)];
+};
+
 export const configFactory = params => {
   const configObj = new Configs({
     code: params.code || faker.random.word(),

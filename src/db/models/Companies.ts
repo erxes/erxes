@@ -150,7 +150,9 @@ export const loadClass = () => {
       await Companies.checkDuplication(doc, [_id]);
 
       // clean custom field values
-      doc.customFieldsData = await Fields.prepareCustomFieldsData(doc.customFieldsData);
+      if (doc.customFieldsData) {
+        doc.customFieldsData = await Fields.prepareCustomFieldsData(doc.customFieldsData);
+      }
 
       const searchText = Companies.fillSearchText(Object.assign(await Companies.getCompany(_id), doc) as ICompany);
 
