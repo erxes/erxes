@@ -10,28 +10,36 @@ Following the steps in this document you can upgrade the system version.
 
 Since the current [Debian installation script](https://github.com/erxes/erxes/blob/develop/scripts/install/debian10.sh) and [CentOS installation script](https://github.com/erxes/erxes/blob/develop/scripts/install/centos8.sh) aret updated to 0.14.1, they can be used to upgrade erxes v0.13.0 to v 0.14.1 if you are hosting erxes on Centos, Ubuntu or Debian.
 
-1. First, stop all pm2 processes and delete pm2 apps, and move erxes, erxes-api, erxes-integrations and ecosystem.json somewehre as a backup. Also backup nginx config file in /etc/nginx/sites-available/default and dump your mongodb.
+1. SSH into your server as `erxes`.
 
-2. Then run the installation script as root
-
-```
-    # If erxes hosted on Debian or Ubuntu
-    bash -c "\$(wget -O - https://raw.githubusercontent.com/erxes/erxes/develop/scripts/install/debian10.sh)"
-
-    # If erxes hosted on CentOS
-    bash -c "$(curl https://raw.githubusercontent.com/erxes/erxes/develop/scripts/install/centos8.sh)"
-```
-
-3. Afther the installation complete, run the following commands.
+2. First, stop all pm2 processes and delete pm2 apps.
 
 ```
-   su erxes
-   cd ~/erxes-api
-   export MONGO_URL=mongodb://localhost/erxes?replicaSet=rs0
-   yarn migrate
+pm2 stop ecosystem.json
+pm2 delete ecosystem.json
 ```
 
-4. Lastly, update ecosystem.json start pm2, and update nginx config using your backup and reload nginx.
+3. Move erxes, erxes-api, erxes-integrations and ecosystem.json somewehre as a backup. Also backup nginx config file in /etc/nginx/sites-available/default and dump your mongodb.
+
+4. Then run the installation script as `root`
+
+```
+# If erxes hosted on Debian or Ubuntu
+bash -c "\$(wget -O - https://raw.githubusercontent.com/erxes/erxes/develop/scripts/install/debian10.sh)"
+
+# If erxes hosted on CentOS
+bash -c "$(curl https://raw.githubusercontent.com/erxes/erxes/develop/scripts/install/centos8.sh)"
+```
+
+5. Afther the installation complete, run the following commands as `erxes` user
+
+```
+cd ~/erxes-api
+export MONGO_URL=mongodb://localhost/erxes?replicaSet=rs0
+yarn migrate
+```
+
+6. Lastly, update `ecosystem.json` and start pm2 by `pm2 start ecosystem.json`, and update nginx config using your backup and reload nginx by `systemctl reload nginx`.
 
    Note: We have noticed that `pm2 reload ecosystem.json` and `pm2 restart ecosystem.json` sometimes not picking up any changes to the `ecosystem.json` for some reason. So if you need to update `ecosystem.json` file, please use `pm2 delete ecosystem.json` and `pm2 start ecosystem.json` in the feature.
 
