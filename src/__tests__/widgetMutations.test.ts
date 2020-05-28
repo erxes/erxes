@@ -1,6 +1,5 @@
 import * as faker from 'faker';
 import * as Random from 'meteor-random';
-import { EngagesAPI, IntegrationsAPI } from '../data/dataSources';
 import widgetMutations, { getMessengerData } from '../data/resolvers/mutations/widgets';
 import { graphqlRequest } from '../db/connection';
 import {

@@ -18,11 +18,10 @@ import { IBrowserInfo, IVisitorContactInfoParams } from '../../../db/models/Cust
 import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
 import { IIntegrationDocument, IMessengerDataMessagesItem } from '../../../db/models/definitions/integrations';
 import { IKnowledgebaseCredentials, ILeadCredentials } from '../../../db/models/definitions/messengerApps';
-import { debugBase, debugExternalApi } from '../../../debuggers';
+import { debugBase } from '../../../debuggers';
 import { trackViewPageEvent } from '../../../events';
 import { graphqlPubsub } from '../../../pubsub';
 import { get, set } from '../../../redisClient';
-import { IContext } from '../../types';
 import { registerOnboardHistory, sendEmail, sendMobileNotification } from '../../utils';
 import { conversationNotifReceivers } from './conversations';
 
