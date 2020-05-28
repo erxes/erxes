@@ -63,9 +63,6 @@ git clone git@github.com:erxes/erxes.git
 # Go to the erxes directory:
 cd erxes
 
-# Copy preconfigured environment variables:
-cp .env.sample .env
-
 # Install dependencies (package.json)
 yarn install
 
