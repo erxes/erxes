@@ -71,7 +71,7 @@ Following steps explain the Google Cloud Project. Which allows us to use Google 
 
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google/google-general-10.png)
 
-- Replace the file you downloaded from google (service account) with **erxes-api/google_cred.json.sample erxes-integrations/google_cred.json.sample** and rename them to **google_cred.json**
+* Copy the service account file's content to google_cred.json in **erxes-api/google_cred.json.sample**, **erxes-integrations/google_cred.json.sample**, and rename them to **google_cred.json**
 
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google/google-general-11.png)
 
@@ -79,6 +79,7 @@ Following steps explain the Google Cloud Project. Which allows us to use Google 
   And configure **GOOGLE PROJECT ID**, **GOOGLE APPLICATION CREDENTIALS** fields as in the sceenshot
 
   - **GOOGLE APPLICATION CREDENTIALS** is google_cred file's path by default it's ./google_cred.json no need to change
+  - **GOOGLE APPLICATION CREDENTIALS JSON** is google_cred (service account) file's content for **Firebase** configuration
 
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google/google-general-12.png)
 
@@ -593,47 +594,48 @@ In order to integrate the Yahoo you will need to generate app password for the E
 
 - Go to Settings/App Store and click on Add button of the Yahoo section
 
-  ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-1.png)
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-1.png)
 
 * You will see a modal, then click on add account
 
 
-    ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-2.png)
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-2.png)
 
 - Now you need to generate password for erxes, go ahead and click the link.
 
 
-    ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-3.png)
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-3.png)
 
 - You will be jump into Yahoo, sign in and click on Account Security in Settings as follows.
 
 
-    ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-4.png)
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-4.png)
 
+   
 - Scroll to bottom and click on <b>Generate app password</b> link.
 
 
-    ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-5.png)
+  ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-5.png)
 
 - Click on the <b>Select an app</b> and select Other app.
 
 
-    ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-6.png)
+  ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-6.png)
 
 - Then name your app as <b>Erxes</b> and click on the <b>Generate</b> button.
 
 
-    ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-7.png)
+  ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-7.png)
 
 - Great, you got the password, Now copy password and navigate back to the Erxes Settings/App Store
 
 
-    ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-8.png)
+  ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-8.png)
 
 - Fill your email address and paste your password, that is it click on the save button and create yahoo integration.
 
 
-    ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-9.png)
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-9.png)
 
 ## WhatsApp Integration
 

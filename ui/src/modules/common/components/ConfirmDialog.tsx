@@ -120,12 +120,12 @@ class ConfirmDialog extends React.Component<Props, State> {
     }
 
     const label = hasDeleteConfirm ? 
-      'Confirm deletion by typing delete' :
-      'Confirm change by typing update'
+      'Type delete in the filed below to confirm.' :
+      'Type update in the filed below to confirm.'
 
     return (
       <FormGroup>
-        <ControlLabel required={true}>{label}</ControlLabel>
+        <ControlLabel required={true} uppercase={false}>{label}</ControlLabel>
         <FormControl 
           name="confirm"
           required={true}
