@@ -25,7 +25,7 @@ pm2 delete ecosystem.json
 
 ```
 # If erxes hosted on Debian or Ubuntu
-bash -c "\$(wget -O - https://raw.githubusercontent.com/erxes/erxes/develop/scripts/install/debian10.sh)"
+bash -c "$(wget -O - https://raw.githubusercontent.com/erxes/erxes/develop/scripts/install/debian10.sh)"
 
 # If erxes hosted on CentOS
 bash -c "$(curl https://raw.githubusercontent.com/erxes/erxes/develop/scripts/install/centos8.sh)"
