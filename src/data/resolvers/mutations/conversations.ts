@@ -53,7 +53,7 @@ const sendConversationToIntegrations = (
     const images: string[] = (doc.content.match(regex) || []).map(m => m.replace(regex, '$1'));
 
     const attachments = doc.attachments as any[];
-    console.log(images);
+
     images.forEach(img => {
       attachments.push({ type: 'image', url: img });
     });
