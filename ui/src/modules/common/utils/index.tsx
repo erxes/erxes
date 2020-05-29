@@ -164,6 +164,10 @@ export const readFile = (value: string): string => {
 };
 
 export const getUserAvatar = (user: IUserDoc) => {
+  if (!user) {
+    return '';
+  }
+
   const { details = {} } = user;
 
   if (!details.avatar) {
