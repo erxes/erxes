@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose';
-import { Companies, Customers, ImportHistory, Products, Tags, Users } from '../db/models';
+import { Companies, Conformities, Customers, ImportHistory, Products, Tags, Users } from '../db/models';
 import { graphqlPubsub } from '../pubsub';
 import { connect } from './utils';
 
@@ -51,7 +51,7 @@ connect().then(async () => {
 
     const doc: any = {
       scopeBrandIds,
-      customFieldsData: {},
+      customFieldsData: [],
     };
 
     let colIndex = 0;
@@ -63,7 +63,10 @@ connect().then(async () => {
       switch (property.type) {
         case 'customProperty':
           {
-            doc.customFieldsData[property.id] = fieldValue[colIndex];
+            doc.customFieldsData.push({
+              field: property.id,
+              value: fieldValue[colIndex],
+            });
           }
           break;
 
@@ -83,6 +86,12 @@ connect().then(async () => {
           }
           break;
 
+        case 'companiesPrimaryNames':
+          {
+            doc.companiesPrimaryNames = (value || '').toString().split(',');
+          }
+          break;
+
         case 'tag':
           {
             const tagName = value.toString();
@@ -97,12 +106,28 @@ connect().then(async () => {
           {
             doc[property.name] = value.toString();
 
+            if (property.name === 'primaryName' && value) {
+              doc.names = [value];
+            }
+
             if (property.name === 'primaryEmail' && value) {
               doc.emails = [value];
             }
 
             if (property.name === 'primaryPhone' && value) {
               doc.phones = [value];
+            }
+
+            if (property.name === 'phones' && value) {
+              doc.phones = value.toString().split(',');
+            }
+
+            if (property.name === 'emails' && value) {
+              doc.emails = value.toString().split(',');
+            }
+
+            if (property.name === 'names' && value) {
+              doc.names = value.toString().split(',');
             }
           }
           break;
@@ -117,7 +142,22 @@ connect().then(async () => {
 
     await create(doc, user)
       .then(async cocObj => {
+        if (doc.companiesPrimaryNames && doc.companiesPrimaryNames.length > 0) {
+          const companies = await Companies.find({ primaryName: { $in: doc.companiesPrimaryNames } }, { _id: 1 });
+          const companyIds = companies.map(company => company._id);
+
+          for (const _id of companyIds) {
+            await Conformities.addConformity({
+              mainType: 'customer',
+              mainTypeId: cocObj._id,
+              relType: 'company',
+              relTypeId: _id,
+            });
+          }
+        }
+
         await ImportHistory.updateOne({ _id: importHistoryId }, { $push: { ids: [cocObj._id] } });
+
         // Increasing success count
         inc.success++;
       })

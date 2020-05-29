@@ -1,3 +1,59 @@
+# [0.14.0](https://github.com/erxes/erxes-api/compare/0.13.0...0.14.0) (2020-04-25)
+
+
+### Bug Fixes
+
+* add nylas-exchange type in mail integrations ([4863734](https://github.com/erxes/erxes-api/commit/4863734b5d8e8c17bb5706f3a4fec625b0de3781))
+* add userId in upload-file and mail-attachment ([7e86c2d](https://github.com/erxes/erxes-api/commit/7e86c2dc5bd2e934097123ec89da07086539d2ba))
+* send userId for middleware in integration ([4be0628](https://github.com/erxes/erxes-api/commit/4be062874665bb4cad0932666dfd9c147abfbfcb)), closes [#751](https://github.com/erxes/erxes-api/issues/751)
+* **popups:** resetting stats when update ([0d71b70](https://github.com/erxes/erxes-api/commit/0d71b704c763e8cfd3309e16b6b1148b518010ab)), closes [#763](https://github.com/erxes/erxes-api/issues/763)
+
+
+### Features
+
+* add nylas exchange provider ([6394f3e](https://github.com/erxes/erxes-api/commit/6394f3ee2c54df47d167ae675b1871bc7659441c))
+* **messenger:** tracking all possible customer fields ([1b82095](https://github.com/erxes/erxes-api/commit/1b820952cd938615eb4de4ebf5b8c418a501d179)), closes [#764](https://github.com/erxes/erxes-api/issues/764)
+
+
+### Performance Improvements
+
+* **engage:** refactor cronjobs ([176e3ca](https://github.com/erxes/erxes-api/commit/176e3ca305482f21d521dde71399968d8129d0fe)), closes [erxes/erxes#1940](https://github.com/erxes/erxes/issues/1940)
+* **env:** remove DOMAIN variable ([7da2d8c](https://github.com/erxes/erxes-api/commit/7da2d8cc92d7d70aeca9234f168ae1c3803dca49)), closes [#747](https://github.com/erxes/erxes-api/issues/747)
+* **env:** using rabbitmq instead of WORKERS_API_DOMAIN ([5ee39d8](https://github.com/erxes/erxes-api/commit/5ee39d8001291e2b4c39d23700936aedff3813e2)), closes [#767](https://github.com/erxes/erxes-api/issues/767)
+
+
+### BREAKING CHANGES
+
+* **env:** rabbitmq env is required in workers service.
+
+# [1.0.0](https://github.com/erxes/erxes-api/compare/0.13.0...1.0.0) (2020-04-25)
+
+
+### Bug Fixes
+
+* add nylas-exchange type in mail integrations ([4863734](https://github.com/erxes/erxes-api/commit/4863734b5d8e8c17bb5706f3a4fec625b0de3781))
+* add userId in upload-file and mail-attachment ([7e86c2d](https://github.com/erxes/erxes-api/commit/7e86c2dc5bd2e934097123ec89da07086539d2ba))
+* send userId for middleware in integration ([4be0628](https://github.com/erxes/erxes-api/commit/4be062874665bb4cad0932666dfd9c147abfbfcb)), closes [#751](https://github.com/erxes/erxes-api/issues/751)
+* **popups:** resetting stats when update ([0d71b70](https://github.com/erxes/erxes-api/commit/0d71b704c763e8cfd3309e16b6b1148b518010ab)), closes [#763](https://github.com/erxes/erxes-api/issues/763)
+
+
+### Features
+
+* add nylas exchange provider ([6394f3e](https://github.com/erxes/erxes-api/commit/6394f3ee2c54df47d167ae675b1871bc7659441c))
+* **messenger:** tracking all possible customer fields ([1b82095](https://github.com/erxes/erxes-api/commit/1b820952cd938615eb4de4ebf5b8c418a501d179)), closes [#764](https://github.com/erxes/erxes-api/issues/764)
+
+
+### Performance Improvements
+
+* **engage:** refactor cronjobs ([176e3ca](https://github.com/erxes/erxes-api/commit/176e3ca305482f21d521dde71399968d8129d0fe)), closes [erxes/erxes#1940](https://github.com/erxes/erxes/issues/1940)
+* **env:** remove DOMAIN variable ([7da2d8c](https://github.com/erxes/erxes-api/commit/7da2d8cc92d7d70aeca9234f168ae1c3803dca49)), closes [#747](https://github.com/erxes/erxes-api/issues/747)
+* **env:** using rabbitmq instead of WORKERS_API_DOMAIN ([5ee39d8](https://github.com/erxes/erxes-api/commit/5ee39d8001291e2b4c39d23700936aedff3813e2)), closes [#767](https://github.com/erxes/erxes-api/issues/767)
+
+
+### BREAKING CHANGES
+
+* **env:** rabbitmq env is required in workers service.
+
 # [0.13.0](https://github.com/erxes/erxes-api/compare/0.12.5...0.13.0) (2020-03-17)
 
 

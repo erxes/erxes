@@ -18,11 +18,10 @@ import { IBrowserInfo, IVisitorContactInfoParams } from '../../../db/models/Cust
 import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
 import { IIntegrationDocument, IMessengerDataMessagesItem } from '../../../db/models/definitions/integrations';
 import { IKnowledgebaseCredentials, ILeadCredentials } from '../../../db/models/definitions/messengerApps';
-import { debugBase, debugExternalApi } from '../../../debuggers';
+import { debugBase } from '../../../debuggers';
 import { trackViewPageEvent } from '../../../events';
 import { graphqlPubsub } from '../../../pubsub';
 import { get, set } from '../../../redisClient';
-import { IContext } from '../../types';
 import { registerOnboardHistory, sendEmail, sendMobileNotification } from '../../utils';
 import { conversationNotifReceivers } from './conversations';
 
@@ -69,18 +68,16 @@ export const getMessengerData = async (integration: IIntegrationDocument) => {
   const formCode = leadApp && leadApp.credentials ? (leadApp.credentials as ILeadCredentials).formCode : null;
 
   // website app ============
-  const websiteApp = await MessengerApps.findOne({
+  const websiteApps = await MessengerApps.find({
     kind: 'website',
     'credentials.integrationId': integration._id,
   });
-
-  const websiteAppData = websiteApp && websiteApp.credentials;
 
   return {
     ...(messengerData || {}),
     messages: messagesByLanguage,
     knowledgeBaseTopicId: topicId,
-    websiteAppData,
+    websiteApps,
     formCode,
   };
 };
@@ -275,7 +272,6 @@ const widgetMutations = {
       cachedCustomerId?: string;
       deviceToken?: string;
     },
-    { dataSources }: IContext,
   ) {
     const { brandCode, email, phone, code, isUser, companyData, data, cachedCustomerId, deviceToken } = args;
 
@@ -338,14 +334,6 @@ const widgetMutations = {
       });
     }
 
-    let videoCallUsageStatus = false;
-
-    try {
-      videoCallUsageStatus = await dataSources.IntegrationsAPI.fetchApi('/videoCall/usageStatus');
-    } catch (e) {
-      debugExternalApi(e.message);
-    }
-
     if (integration.createdUserId) {
       const user = await Users.getUser(integration.createdUserId);
 
@@ -354,7 +342,7 @@ const widgetMutations = {
 
     return {
       integrationId: integration._id,
-      uiOptions: { ...(integration.uiOptions ? integration.uiOptions.toJSON() : {}), videoCallUsageStatus },
+      uiOptions: integration.uiOptions,
       languageCode: integration.languageCode,
       messengerData: await getMessengerData(integration),
       customerId: customer._id,

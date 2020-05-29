@@ -4,13 +4,7 @@ import * as faker from 'faker';
 import * as sinon from 'sinon';
 import * as messageBroker from '../messageBroker';
 
-import {
-  conversationFactory,
-  conversationMessageFactory,
-  customerFactory,
-  integrationFactory,
-  userFactory,
-} from '../db/factories';
+import { conversationFactory, customerFactory, integrationFactory, userFactory } from '../db/factories';
 import { Conversations, Customers, Integrations, Users } from '../db/models';
 import { CONVERSATION_STATUSES, KIND_CHOICES } from '../db/models/definitions/constants';
 
@@ -90,6 +84,7 @@ describe('Conversation message mutations', () => {
       integrationId: leadIntegration._id,
       customerId: customer._id,
       assignedUserId: user._id,
+      participatedUserIds: [user._id],
       content: 'lead content',
     });
 
@@ -204,6 +199,7 @@ describe('Conversation message mutations', () => {
     }
 
     args.conversationId = facebookMessengerConversation._id;
+    args.content = '<img src="img">';
 
     try {
       await graphqlRequest(addMutation, 'conversationMessageAdd', args, { dataSources });
@@ -291,12 +287,11 @@ describe('Conversation message mutations', () => {
     let mock = sinon.stub(messageBroker, 'sendMessage').callsFake(() => {
       return Promise.resolve('success');
     });
-    const message = await conversationMessageFactory({ conversationId: facebookConversation._id });
     const comment = await integrationFactory({ kind: 'facebook-post' });
 
     const args = {
       conversationId: facebookConversation._id,
-      content: message.content,
+      content: 'content',
       commentId: comment._id,
     };
 

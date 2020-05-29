@@ -17,7 +17,7 @@ export const checkFieldNames = async (type: string, fields: string[]) => {
 
   for (let fieldName of fields) {
     if (!fieldName) {
-      return properties;
+      continue;
     }
 
     fieldName = fieldName.trim();
@@ -38,6 +38,11 @@ export const checkFieldNames = async (type: string, fields: string[]) => {
       property.id = fieldObj._id;
     }
 
+    if (fieldName === 'companiesPrimaryNames') {
+      property.name = 'companyIds';
+      property.type = 'companiesPrimaryNames';
+    }
+
     if (fieldName === 'ownerEmail') {
       property.name = 'ownerId';
       property.type = 'ownerEmail';
@@ -49,7 +54,7 @@ export const checkFieldNames = async (type: string, fields: string[]) => {
     }
 
     if (!property.type) {
-      throw new Error('Bad column name');
+      throw new Error(`Bad column name ${fieldName}`);
     }
 
     properties.push(property);

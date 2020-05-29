@@ -161,7 +161,6 @@ const dealMutations = {
     if (oldDeal.stageId === updatedDeal.stageId) {
       graphqlPubsub.publish('dealsChanged', {
         dealsChanged: updatedDeal,
-        user,
       });
 
       return updatedDeal;
@@ -187,7 +186,6 @@ const dealMutations = {
         _id: updatedStage.pipelineId,
         type: BOARD_TYPES.DEAL,
       },
-      user,
     });
 
     if (updatedStage.pipelineId !== oldStage.pipelineId) {
@@ -196,7 +194,6 @@ const dealMutations = {
           _id: oldStage.pipelineId,
           type: BOARD_TYPES.DEAL,
         },
-        user,
       });
     }
 
@@ -252,7 +249,6 @@ const dealMutations = {
           _id: stage.pipelineId,
           type: BOARD_TYPES.DEAL,
         },
-        user,
       });
     }
 

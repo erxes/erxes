@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "start": "node dist",
-    "dev": "NODE_ENV=development DEBUG=erxes-engages:* node_modules/.bin/ts-node-dev --experimental-worker --respawn src",
+    "dev": "NODE_ENV=development DEBUG=erxes-engages:* node_modules/.bin/ts-node-dev --respawn src",
     "build": "tsc -p tsconfig.prod.json",
     "test": "jest --coverage --forceExit --runInBand"
   },

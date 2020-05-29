@@ -5,7 +5,6 @@ try {
     compilerOptions: {
       experimentalDecorators: false,
     },
-    files: ['./bulkerInsert.worker.ts'],
     transpileOnly: true,
   });
 } catch (e) {

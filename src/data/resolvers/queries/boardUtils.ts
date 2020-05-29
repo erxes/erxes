@@ -34,18 +34,13 @@ export const generateCommonFilters = async (currentUserId: string, args: any) =>
     labelIds,
     priority,
     userIds,
-    filterArchive = true,
   } = args;
 
   const isListEmpty = value => {
     return value.length === 1 && value[0].length === 0;
   };
 
-  const filter: any = {};
-
-  if (filterArchive) {
-    filter.status = { $ne: BOARD_STATUSES.ARCHIVED };
-  }
+  const filter: any = { status: { $ne: BOARD_STATUSES.ARCHIVED } };
 
   let filterIds: string[] = [];
 

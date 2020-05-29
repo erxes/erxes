@@ -8,6 +8,8 @@ on:
     paths:
       - 'logger/**'
       - '.github/workflows/logger.yaml'
+    tags:
+      - '*'
 
 jobs:
   logger:
@@ -63,5 +65,6 @@ jobs:
       if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
       run: |
         cd logger
+        echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
         docker build -t erxes/erxes-logger:${GITHUB_REF#refs/tags/} -f Dockerfile .
         docker push erxes/erxes-logger:${GITHUB_REF#refs/tags/}

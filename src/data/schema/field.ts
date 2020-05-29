@@ -32,7 +32,7 @@ export const fieldsTypes = `
 
 export const fieldsQueries = `
   fields(contentType: String!, contentTypeId: String): [Field]
-  fieldsCombinedByContentType(contentType: String!): JSON
+  fieldsCombinedByContentType(contentType: String! excludedNames: [String]): JSON
   fieldsDefaultColumnsConfig(contentType: String!): [ColumnConfigItem]
 `;
 
