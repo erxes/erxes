@@ -39,7 +39,7 @@ export MONGO_URL=mongodb://localhost/erxes?replicaSet=rs0
 yarn migrate
 ```
 
-6. Lastly, update `ecosystem.json` and start pm2 by `pm2 start ecosystem.json`, and update nginx config using your backup and reload nginx by `systemctl reload nginx`.
+6. Lastly, update `/home/erxes/erxes/ui/build/js/env.js`, `ecosystem.json` and start pm2 by `pm2 start ecosystem.json`, and update nginx config using your backup and reload nginx by `systemctl reload nginx`.
 
    Note: We have noticed that `pm2 reload ecosystem.json` and `pm2 restart ecosystem.json` sometimes not picking up any changes to the `ecosystem.json` for some reason. So if you need to update `ecosystem.json` file, please use `pm2 delete ecosystem.json` and `pm2 start ecosystem.json` in the feature.
 
