@@ -47,7 +47,7 @@ class Form extends React.Component<Props & ICommonFormProps> {
               isSubmitted,
               callback: closeModal,
               object,
-              confirmationUpdate: object ? confirmationUpdate : false,
+              confirmationUpdate: object ? confirmationUpdate : false
             })}
         </ModalFooter>
       </>

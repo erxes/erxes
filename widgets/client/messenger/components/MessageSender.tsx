@@ -14,7 +14,7 @@ type Props = {
   readMessages: (conversationId: string) => void;
   onTextInputBlur: () => void;
   collapseHead: () => void;
-  videoCallUsageStatus: boolean;
+  showVideoCallRequest: boolean;
 };
 
 type State = {
@@ -169,7 +169,7 @@ class MessageSender extends React.Component<Props, State> {
   }
 
   renderVideoCallRequest() {
-    if (!this.props.videoCallUsageStatus) {
+    if (!this.props.showVideoCallRequest) {
       return null;
     }
 

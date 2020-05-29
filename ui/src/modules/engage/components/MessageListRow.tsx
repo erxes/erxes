@@ -132,7 +132,10 @@ class Row extends React.Component<Props> {
 
     const totalCount = stats.total || 0;
 
-    if (message.method === 'messenger' || (kind === 'manual' && validCustomersCount === totalCount)) {
+    if (
+      message.method === 'messenger' ||
+      (kind === 'manual' && validCustomersCount === totalCount)
+    ) {
       status = <Label lblStyle="success">Sent</Label>;
     }
 
