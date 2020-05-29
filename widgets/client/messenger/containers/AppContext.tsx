@@ -1,18 +1,18 @@
-import gql from 'graphql-tag';
-import * as React from 'react';
-import client from '../../apollo-client';
-import { getLocalStorageItem, setLocalStorageItem } from '../../common';
+import gql from "graphql-tag";
+import * as React from "react";
+import client from "../../apollo-client";
+import { getLocalStorageItem, setLocalStorageItem } from "../../common";
 import {
   IBrand,
   IBrowserInfo,
   IIntegrationMessengerData,
   IIntegrationUiOptions
-} from '../../types';
-import uploadHandler from '../../uploadHandler';
-import { postMessage, requestBrowserInfo } from '../../utils';
-import { connection } from '../connection';
-import graphqlTypes from '../graphql';
-import { IAttachment, IFaqArticle, IFaqCategory, IMessage } from '../types';
+} from "../../types";
+import uploadHandler from "../../uploadHandler";
+import { postMessage, requestBrowserInfo } from "../../utils";
+import { connection } from "../connection";
+import graphqlTypes from "../graphql";
+import { IAttachment, IFaqArticle, IFaqCategory, IMessage } from "../types";
 
 interface IState {
   unreadCount: number;
@@ -21,7 +21,8 @@ interface IState {
   lastUnreadMessage?: IMessage;
   isMessengerVisible: boolean;
   isSavingNotified: boolean;
-  activeRoute: string | '';
+  activeRoute: string | "";
+  currentWebsiteApp?: string;
   activeConversation: string | null;
   activeFaqCategory: IFaqCategory | null;
   activeFaqArticle: IFaqArticle | null;
@@ -42,6 +43,7 @@ interface IStore extends IState {
   changeRoute: (route: string) => void;
   changeConversation: (converstionId: string) => void;
   goToConversation: (conversationId: string) => void;
+  goToWebsiteApp: (name: string) => void;
   goToFaqCategory: (category?: IFaqCategory) => void;
   goToFaqArticle: (article: IFaqArticle) => void;
   goToConversationList: () => void;
@@ -65,10 +67,10 @@ interface IStore extends IState {
 }
 
 export const MESSAGE_TYPES = {
-  VIDEO_CALL: 'videoCall',
-  VIDEO_CALL_REQUEST: 'videoCallRequest',
-  TEXT: 'text',
-  ALL: ['videoCall', 'videoCallRequest', 'text']
+  VIDEO_CALL: "videoCall",
+  VIDEO_CALL_REQUEST: "videoCallRequest",
+  TEXT: "text",
+  ALL: ["videoCall", "videoCallRequest", "text"]
 };
 
 const AppContext = React.createContext({} as IStore);
@@ -79,22 +81,22 @@ export class AppProvider extends React.Component<{}, IState> {
   constructor(props: {}) {
     super(props);
 
-    let activeRoute = 'conversationList';
+    let activeRoute = "conversationList";
 
     const { messengerData } = connection.data;
     const { requireAuth, showChat } = messengerData;
 
     // if visitor did not give email or phone then ask
     if (!this.isLoggedIn() && requireAuth) {
-      activeRoute = 'accquireInformation';
+      activeRoute = "accquireInformation";
     }
 
-    if (!requireAuth && !getLocalStorageItem('hasNotified')) {
-      activeRoute = 'home';
+    if (!requireAuth && !getLocalStorageItem("hasNotified")) {
+      activeRoute = "home";
     }
 
     if (!showChat) {
-      activeRoute = 'home';
+      activeRoute = "home";
     }
 
     this.state = {
@@ -120,7 +122,7 @@ export class AppProvider extends React.Component<{}, IState> {
   isLoggedIn = () => {
     const { email, phone }: any = connection.setting;
 
-    return email || phone || getLocalStorageItem('getNotifiedType');
+    return email || phone || getLocalStorageItem("getNotifiedType");
   };
 
   getUiOptions = () => {
@@ -142,7 +144,7 @@ export class AppProvider extends React.Component<{}, IState> {
   isSmallContainer = () => {
     const { activeRoute } = this.state;
 
-    if (activeRoute === 'accquireInformation') {
+    if (activeRoute === "accquireInformation") {
       return true;
     }
 
@@ -151,7 +153,7 @@ export class AppProvider extends React.Component<{}, IState> {
 
   saveBrowserInfo = () => {
     requestBrowserInfo({
-      source: 'fromMessenger',
+      source: "fromMessenger",
       callback: (browserInfo: IBrowserInfo) => {
         const variables = {
           customerId: connection.data.customerId,
@@ -178,14 +180,14 @@ export class AppProvider extends React.Component<{}, IState> {
     const { activeRoute } = this.state;
 
     // notify parent window launcher state
-    postMessage('fromMessenger', 'messenger', {
+    postMessage("fromMessenger", "messenger", {
       isVisible: !isVisible,
       isSmallContainer: this.isSmallContainer()
     });
 
     let state: any = { isMessengerVisible: !isVisible };
 
-    if (activeRoute.includes('conversation')) {
+    if (activeRoute.includes("conversation")) {
       state = { ...state, ...this.prepareOpenLastConversation() };
     }
 
@@ -198,22 +200,22 @@ export class AppProvider extends React.Component<{}, IState> {
 
   toggleNotifier = (isVisible?: boolean) => {
     // notify state
-    postMessage('fromMessenger', 'notifier', { isVisible: !isVisible });
+    postMessage("fromMessenger", "notifier", { isVisible: !isVisible });
   };
 
   toggleNotifierFull = (isVisible?: boolean) => {
     // notify state
-    postMessage('fromMessenger', 'notifierFull', { isVisible: !isVisible });
+    postMessage("fromMessenger", "notifierFull", { isVisible: !isVisible });
   };
 
   changeRoute = (route: string) => {
     if (
-      route === 'conversationDetail' &&
+      route === "conversationDetail" &&
       !this.isLoggedIn() &&
       connection.data.messengerData.requireAuth
     ) {
       // if visitor did not give email or phone then ask
-      return this.setState({ activeRoute: 'accquireInformation' });
+      return this.setState({ activeRoute: "accquireInformation" });
     }
 
     this.setState({ activeRoute: route });
@@ -228,7 +230,7 @@ export class AppProvider extends React.Component<{}, IState> {
 
     const options = {
       activeConversation: _id,
-      activeRoute: _id ? 'conversationDetail' : 'conversationCreate',
+      activeRoute: _id ? "conversationDetail" : "conversationCreate",
       lastUnreadMessage
     };
 
@@ -239,9 +241,15 @@ export class AppProvider extends React.Component<{}, IState> {
     this.setState(options);
   };
 
+  goToWebsiteApp = (name: string) => {
+    this.setState({ currentWebsiteApp: name });
+
+    this.changeRoute("websiteApp");
+  };
+
   goToConversation = (conversationId: string) => {
     this.changeConversation(conversationId);
-    this.changeRoute('conversationDetail');
+    this.changeRoute("conversationDetail");
     this.readMessages(conversationId);
   };
 
@@ -253,22 +261,22 @@ export class AppProvider extends React.Component<{}, IState> {
 
     this.setState({
       activeRoute:
-        activeFaqCategory || category ? 'faqCategory' : 'conversationList'
+        activeFaqCategory || category ? "faqCategory" : "conversationList"
     });
   };
 
   goToFaqArticle = (article: IFaqArticle) => {
     this.setState({
-      activeRoute: 'faqArticle',
+      activeRoute: "faqArticle",
       activeFaqArticle: article
     });
   };
 
   goToConversationList = () => {
     // reset current conversation
-    this.changeConversation('');
+    this.changeConversation("");
 
-    this.changeRoute('conversationList');
+    this.changeRoute("conversationList");
   };
 
   getLastConversationId = () => {
@@ -289,8 +297,8 @@ export class AppProvider extends React.Component<{}, IState> {
     const _id = this.getLastConversationId();
 
     return {
-      activeConversation: _id || '',
-      activeRoute: _id ? 'conversationDetail' : 'conversationCreate'
+      activeConversation: _id || "",
+      activeRoute: _id ? "conversationDetail" : "conversationCreate"
     };
   };
 
@@ -336,14 +344,14 @@ export class AppProvider extends React.Component<{}, IState> {
         }
 
         // save email
-        setLocalStorageItem('getNotifiedType', type);
-        setLocalStorageItem('getNotifiedValue', value);
+        setLocalStorageItem("getNotifiedType", type);
+        setLocalStorageItem("getNotifiedValue", value);
 
         // redirect to conversation
         this.setState(this.prepareOpenLastConversation());
 
         // notify parent window launcher state
-        postMessage('fromMessenger', 'messenger', {
+        postMessage("fromMessenger", "messenger", {
           isVisible: true,
           isSmallContainer: this.isSmallContainer()
         });
@@ -359,12 +367,12 @@ export class AppProvider extends React.Component<{}, IState> {
     }
 
     // reset local storage items
-    setLocalStorageItem('getNotifiedType', '');
-    setLocalStorageItem('getNotifiedValue', '');
-    setLocalStorageItem('customerId', '');
-    setLocalStorageItem('hasNotified', '');
+    setLocalStorageItem("getNotifiedType", "");
+    setLocalStorageItem("getNotifiedValue", "");
+    setLocalStorageItem("customerId", "");
+    setLocalStorageItem("hasNotified", "");
 
-    this.setLastConversationId('');
+    this.setLastConversationId("");
 
     this.toggle(true);
     window.location.reload();
@@ -373,7 +381,7 @@ export class AppProvider extends React.Component<{}, IState> {
   readConversation = (conversationId: string) => {
     this.toggle();
     this.changeConversation(conversationId);
-    this.changeRoute('conversationDetail');
+    this.changeRoute("conversationDetail");
     this.readMessages(conversationId);
     this.toggleNotifier();
     this.toggle();
@@ -430,9 +438,9 @@ export class AppProvider extends React.Component<{}, IState> {
     // generate optimistic response
     if (activeConversation) {
       optimisticResponse = {
-        __typename: 'Mutation',
+        __typename: "Mutation",
         widgetsInsertMessage: {
-          __typename: 'ConversationMessage',
+          __typename: "ConversationMessage",
           _id: Math.round(Math.random() * -1000000),
           contentType: MESSAGE_TYPES.TEXT,
           conversationId: activeConversation,
@@ -478,7 +486,7 @@ export class AppProvider extends React.Component<{}, IState> {
 
     // Preventing from creating new conversations
     if (!activeConversation && sendingMessage) {
-      return 'Already sending';
+      return "Already sending";
     }
 
     this.setState({ sendingMessage: true });
@@ -552,7 +560,7 @@ export class AppProvider extends React.Component<{}, IState> {
         const attachment = { url: response, ...fileInfo };
 
         // send message with attachment
-        self.sendMessage(MESSAGE_TYPES.TEXT, 'This message has an attachment', [
+        self.sendMessage(MESSAGE_TYPES.TEXT, "This message has an attachment", [
           attachment
         ]);
       },
@@ -583,6 +591,7 @@ export class AppProvider extends React.Component<{}, IState> {
           toggleNotifierFull: this.toggleNotifierFull,
           changeRoute: this.changeRoute,
           changeConversation: this.changeConversation,
+          goToWebsiteApp: this.goToWebsiteApp,
           goToConversation: this.goToConversation,
           goToFaqCategory: this.goToFaqCategory,
           goToFaqArticle: this.goToFaqArticle,

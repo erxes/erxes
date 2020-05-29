@@ -12,7 +12,13 @@ const CustomersList = asyncComponent(() =>
 );
 
 const contacts = () => {
-  return <Redirect to="/contacts/customer" />;
+  const lastVisited = localStorage.getItem('erxes_contact_url') || 'visitor';
+
+  if (lastVisited === 'companies') {
+    return <Redirect to={lastVisited} />;
+  }
+
+  return <Redirect to={`/contacts/${lastVisited}`} />;
 };
 
 const detail = ({ match }) => {
@@ -24,6 +30,8 @@ const detail = ({ match }) => {
 const list = ({ match, location }) => {
   const queryParams = queryString.parse(location.search);
   const type = match.params.type;
+
+  localStorage.setItem('erxes_contact_url', type);
 
   return <CustomersList queryParams={queryParams} type={type} />;
 };

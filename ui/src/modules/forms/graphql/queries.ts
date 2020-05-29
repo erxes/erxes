@@ -171,8 +171,8 @@ const fields = `
 `;
 
 const fieldsCombinedByContentType = `
-  query fieldsCombinedByContentType($contentType: String!) {
-    fieldsCombinedByContentType(contentType: $contentType)
+  query fieldsCombinedByContentType($contentType: String!, $excludedNames: [String]) {
+    fieldsCombinedByContentType(contentType: $contentType, excludedNames: $excludedNames)
   }
 `;
 

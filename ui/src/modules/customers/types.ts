@@ -55,11 +55,18 @@ export interface ICustomerDoc {
   sessionCount?: number;
 }
 
+export interface IUrlVisits {
+  url: string;
+  count: number;
+  createdAt: string;
+}
+
 export interface ICustomer extends ICustomerDoc {
   _id: string;
   owner?: IUser;
   integration?: IIntegration;
   trackedData?: any[];
+  urlVisits?: IUrlVisits[];
   getTags?: ITag[];
   companies?: ICompany[];
 }

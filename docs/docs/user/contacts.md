@@ -3,142 +3,122 @@ id: contacts
 title: Contacts
 ---
 
-<!--Content-->
-Coordinate and manage your companies and customers in one go from company database. It enables you to filter companies and customers by websites, size, plan industry, session count  in an more realistic way.
+Coordinate and manage your companies and customers in one go from company database. It enables you to filter companies and customers by websites, size, plan industry, session count in an more realistic way.
 
 ---
 
-##  Customers
+## Customers
 
-+ Please follow the steps for setup: __Customers__
+- Please follow the steps for setup: **Customers**
 
+![](https://s3.us-west-2.amazonaws.com/erxes-docs/contact-1.png)
 
-<div>
-<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/contact-1.PNG"/>
-</div>
+1. Filter customers by **Segments, Tags, Brands, Integrations, Form, Lead Status, and Lifecycle States**
+2. List of **Customers detailss**
+3. Type **Customer’s name** to search
+4. Change the **Customize**
+5. Click **Add Customer**
 
-1. Filter customers by __Segments, Tags, Brands, Integrations, Form, Lead Status, and Lifecycle States__ 
-2. List of __Customers detailss__ 
-3. Type __Customer’s name__ to search
-4. Change the __Customize__
-5. Click __Add Customer__
+### Add New Customer
 
-###  Add New Customer
-+ Please follow the steps for setup: __Contacts__ -> __Customers__ -> __Add Customer__
+- Please follow the steps for setup: **Contacts** -> **Customers** -> **Add Customer**
 
-<div>
-<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/contact-2.PNG"/>
-</div>
+![](https://s3.us-west-2.amazonaws.com/erxes-docs/contact-2.png)
 
-1. Upload customer’s __Profile Photo__ 
-2. Insert customer’s  __First Name__ 
-3. Insert customer’s  __Last Name__ 
-4. Customer’s __Email Address__
-5. Customer’s __Primary Phone__
-6. Customer’s  __Position__ 
-7. Related __Department__ 
-8. Choose __Lead Status__ of customer
-9. Choose __Lifecycle__ State of customer
-10. Choose __Assigned owner__   for the customer
-11. Choose __Authority & Do Not Disturb__
-12. Insert bio __Description__ of the customer
-13. Link customer’s __Social Accounts__
-14. __Click Save__
+1. Upload customer’s **Profile Photo**
+2. Insert customer’s **First Name**
+3. Insert customer’s **Last Name**
+4. Customer’s **Email Address**
+5. Customer’s **Primary Phone**
+6. Customer’s **Position**
+7. Related **Department**
+8. Choose **Lead Status** of customer
+9. Choose **Lifecycle** State of customer
+10. Choose **Assigned owner** for the customer
+11. Choose **Authority & Do Not Disturb**
+12. Insert bio **Description** of the customer
+13. Link customer’s **Social Accounts**
+14. **Click Save**
 
-*By filling out customer’s information accurately, it will be seen in customers feature section*
+_By filling out customer’s information accurately, it will be seen in customers feature section_
 
- ###  Create Tags for the Customers
+### Create Tags for the Customers
 
-+ Please follow the steps for setup: __Contacts__ -> __Customers__ -> __Select Customer__
- 
-<div>
-<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/contact-3.PNG"/>
-<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/contact-4.PNG"/>
-</div>
+- Please follow the steps for setup: **Contacts** -> **Customers** -> **Select Customer**
 
-1. __Select customer__ to create Tag
-2. You may send __direct email/message__  to the selected customers
-3. __Choose Tags__ for the customer
+![](https://s3.us-west-2.amazonaws.com/erxes-docs/contact-3.png)
+![](https://s3.us-west-2.amazonaws.com/erxes-docs/contact-4.png)
 
-*You may tag conversations in Team Inbox section*
+1. **Select customer** to create Tag
+2. You may send **direct email/message** to the selected customers
+3. **Choose Tags** for the customer
+
+_You may tag conversations in Team Inbox section_
 
 ### Customer’s contact details
-You can view full contact details by clicking on the customer from customers feature
-+ Please follow the steps for setup:  __Contacts__ -> __Customers__ -> __Select Customer__
 
-<div>
-<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/contact-5.PNG"/>
-</div>
+You can view full contact details by clicking on the customer from customers feature
+
+- Please follow the steps for setup: **Contacts** -> **Customers** -> **Select Customer**
+
+![](https://s3.us-west-2.amazonaws.com/erxes-docs/contact-5.png)
 
 ---
 
-##  Companies
+## Companies
 
-+ Please follow the steps for setup: __Companies__
+- Please follow the steps for setup: **Companies**
 
-<div>
-<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/marketing-11.png"/>
-</div>
+![](https://s3-us-west-2.amazonaws.com/erxes-docs/marketing-11.png)
 
-1. Filter Companies by __Segments, Tags, Lead Status, Lifecycle States, and Brand__ 
-2. List of __Companies details__ 
-3. Type Companies name to __search__ 
-4. __Edit Columns__ of Companies 
-5. Click __Add Company__
+1. Filter Companies by **Segments, Tags, Lead Status, Lifecycle States, and Brand**
+2. List of **Companies details**
+3. Type Companies name to **search**
+4. **Edit Columns** of Companies
+5. Click **Add Company**
 
 ### Add New Company
 
-+ Please follow the steps for setup: __Contacts__ -> __Companies__ -> __New Company__
+- Please follow the steps for setup: **Contacts** -> **Companies** -> **New Company**
 
-<div>
-<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/contact-6.PNG"/>
-</div>
+![](https://s3.us-west-2.amazonaws.com/erxes-docs/contact-6.png)
 
-1. Upload __Company’s logo__ 
-2. Insert  __Company name__ 
-3. Choose  __Parent Company__ 
-4. Choose __Industry__
-5. Choose __Business Type__
-6. Choose  __Team member__  assigned to the company
-7. Insert __Company size__ 
-8. Insert __Email address__ 
-9. Insert __Phone number__ 
-10. Choose __Lead Status__ for the company
-11. Choose __Lifecycle State__
-12. Insert Bio  __Description__ of the company
-13. Select __“Do Not Disturb”__
-14. Link Company’s __Social Accounts__
-14. __Click Save__
+1. Upload **Company’s logo**
+2. Insert **Company name**
+3. Choose **Parent Company**
+4. Choose **Industry**
+5. Choose **Business Type**
+6. Choose **Team member** assigned to the company
+7. Insert **Company size**
+8. Insert **Email address**
+9. Insert **Phone number**
+10. Choose **Lead Status** for the company
+11. Choose **Lifecycle State**
+12. Insert Bio **Description** of the company
+13. Select **“Do Not Disturb”**
+14. Link Company’s **Social Accounts**
+15. **Click Save**
 
-*By filling out company’s information accurately, it will be seen in companies  feature section*
-
+_By filling out company’s information accurately, it will be seen in companies feature section_
 
 ### Create Tags for the Company
 
 Categorize companies in to one abstract group
 
-+ Please follow the steps for setup: __Contacts__ -> __Companies__ -> __Select Company__
+- Please follow the steps for setup: **Contacts** -> **Companies** -> **Select Company**
 
+![](https://s3.us-west-2.amazonaws.com/erxes-docs/contact-8.png)
+![](https://s3.us-west-2.amazonaws.com/erxes-docs/contact-4.png)
 
-<div>
-<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/contact-8.PNG"/>
-<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/contact-4.PNG"/>
-</div>
+1. Upload **Select Company**
+2. Insert **Choose your tags**
 
-1. Upload __Select Company__ 
-2. Insert  __Choose your tags__ 
-
-
-*You may tag conversations in Team Inbox section*
-
+_You may tag conversations in Team Inbox section_
 
 ### Company’s contact details
 
-You can view full contact details by clicking on the company from company’s feature 
+You can view full contact details by clicking on the company from company’s feature
 
-+ Please follow the steps for setup: __Contacts__ -> __Companies__ -> __Select Company__
+- Please follow the steps for setup: **Contacts** -> **Companies** -> **Select Company**
 
-
-<div>
-<img src="https://s3.us-west-2.amazonaws.com/erxes-docs/contact-10.PNG"/>
-</div>
+![](https://s3.us-west-2.amazonaws.com/erxes-docs/contact-10.png)

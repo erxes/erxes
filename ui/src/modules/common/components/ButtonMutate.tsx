@@ -1,7 +1,7 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { colors } from 'modules/common/styles';
-import { __, Alert } from 'modules/common/utils';
+import { __, Alert, confirm } from 'modules/common/utils';
 import { rotate } from 'modules/common/utils/animations';
 import React from 'react';
 import styled from 'styled-components';
@@ -37,6 +37,7 @@ type Props = {
   disabled?: boolean;
   disableLoading?: boolean;
   block?: boolean;
+  confirmationUpdate?: boolean;
   beforeSubmit?: () => void;
   resetSubmit?: () => void;
 };
@@ -61,7 +62,7 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
     }
   };
 
-  mutate = () => {
+  invokeMutate = () => {
     const {
       mutation,
       callback,
@@ -118,6 +119,24 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
           this.setState({ isLoading: false });
         }
       });
+  };
+
+  mutate = () => {
+    const { confirmationUpdate } = this.props;
+
+    if (confirmationUpdate) {
+      return confirm('This will permanently update are you absolutely sure?', {
+        hasUpdateConfirm: true
+      })
+        .then(() => {
+          this.invokeMutate();
+        })
+        .catch(error => {
+          Alert.error(error.message);
+        });
+    }
+
+    return this.invokeMutate();
   };
 
   render() {

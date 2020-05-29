@@ -154,8 +154,6 @@ const ClickableRow = styled.span`
 `;
 
 const BooleanStatus = styledTS<{ isTrue?: boolean }>(styled.div)`
-  text-align: center;
-
   i {
     font-size: 16px;
     color: ${props =>
@@ -173,19 +171,6 @@ const MailBox = styled.div`
   border-bottom-left-radius: 4px;
   border-bottom-right-radius: 4px;
   transition: all ease 0.3s;
-`;
-
-const Status = styledTS<{ verified: boolean }>(styled.span)`
-  background: ${props =>
-    props.verified ? colors.colorCoreGreen : colors.bgGray};
-  color: ${props =>
-    props.verified ? colors.colorWhite : colors.textSecondary};
-  width: 18px;
-  height: 18px;
-  text-align: center;
-  border-radius: 9px;
-  font-size: 11px;
-  line-height: 18px;
 `;
 
 export const LeadStateWrapper = styled.div`
@@ -328,6 +313,5 @@ export {
   CustomerState,
   UserHeader,
   MailBox,
-  Status,
   States
 };

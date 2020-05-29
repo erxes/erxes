@@ -76,7 +76,7 @@ class DetailContainer extends React.Component<FinalProps> {
     const conversation = detailQuery.conversationDetail;
 
     if (conversation.integration.kind === 'messenger') {
-      const customerId = conversation.customer._id;
+      const customerId = conversation.customer && conversation.customer._id;
 
       this.prevSubscriptions.customerHandler = detailQuery.subscribeToMore({
         document: gql(subscriptions.customerConnectionChanged),

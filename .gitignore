@@ -1,6 +1,7 @@
 .DS_Store
 node_modules
 /node_modules
+dist
 .env
 *.un~
 *.swp
@@ -14,5 +15,4 @@ static
 .env.test.local
 .env.production.local
 package-lock.json
-yarn.lock
 dump.rdb

@@ -338,6 +338,7 @@ $darker-blue: #3b85f4;
     button,
     > a {
       background: $darker-blue;
+      border: 1px solid transparent;
       border-color: $darker-blue;
       border-radius: 5px;
       box-shadow: none;

@@ -142,6 +142,7 @@ const customerDetail = `
   query customerDetail($_id: String!) {
     customerDetail(_id: $_id) {
       ${customerFields}
+      urlVisits
       integration {
         kind
         name

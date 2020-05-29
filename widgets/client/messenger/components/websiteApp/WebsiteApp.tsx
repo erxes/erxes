@@ -1,27 +1,28 @@
 import * as React from "react";
 import { __ } from "../../../utils";
+import { IWebsiteApp } from "../../types";
 
 type Props = {
-  config: { [key: string]: string };
-  changeRoute: (route: string) => void;
+  websiteApp: IWebsiteApp;
+  goToWebsiteApp: (name: string) => void;
   color: string;
 };
 
 function WebsiteApp(props: Props) {
-  const { config, changeRoute, color } = props;
+  const { websiteApp, goToWebsiteApp, color } = props;
 
-  const onClick = () => changeRoute("websiteApp");
+  const onClick = () => goToWebsiteApp(websiteApp.name);
 
   return (
     <div className="websiteApp-home">
-      <p>{config.description}</p>
+      <p>{websiteApp.credentials.description}</p>
 
       <button
         onClick={onClick}
         className="erxes-button btn-block"
         style={{ backgroundColor: color }}
       >
-        {config.buttonText}
+        {websiteApp.credentials.buttonText}
       </button>
     </div>
   );

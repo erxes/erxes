@@ -56,7 +56,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
     this.onChangeConfig(code, e.target.value);
   };
 
-  renderItem(key: string, description?: string) {
+  renderItem(key: string, description?: string, defaultValue?: string) {
     const { configsMap } = this.state;
 
     return (
@@ -64,7 +64,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
         <ControlLabel>{KEY_LABELS[key]}</ControlLabel>
         {description && <p>{__(description)}</p>}
         <FormControl
-          defaultValue={configsMap[key]}
+          defaultValue={configsMap[key] || defaultValue}
           onChange={this.onChangeInput.bind(this, key)}
         />
       </FormGroup>
@@ -95,6 +95,11 @@ class IntegrationConfigs extends React.Component<Props, State> {
           {this.renderItem('FACEBOOK_APP_ID')}
           {this.renderItem('FACEBOOK_APP_SECRET')}
           {this.renderItem('FACEBOOK_VERIFY_TOKEN')}
+          {this.renderItem(
+            'FACEBOOK_PERMISSIONS',
+            '',
+            'manage_pages, pages_show_list, publish_pages, pages_messaging,pages_messaging_subscriptions'
+          )}
         </CollapseContent>
 
         <CollapseContent title="Twitter">

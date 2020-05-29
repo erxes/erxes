@@ -1,4 +1,5 @@
-import { ICallout } from './form/types';
+import { ICallout } from "./form/types";
+import { IWebsiteApp } from "./messenger/types";
 
 export type ENV = {
   API_URL: string;
@@ -100,13 +101,14 @@ export interface IIntegrationMessengerData {
   notifyCustomer: boolean;
   knowledgeBaseTopicId: string;
   formCode: string;
-  websiteAppData?: { [key: string]: string };
+  websiteApps?: IWebsiteApp[];
   availabilityMethod: string;
   isOnline: boolean;
   requireAuth: boolean;
   showChat: boolean;
   showLauncher: boolean;
   forceLogoutWhenResolve: boolean;
+  showVideoCallRequest: boolean;
   onlineHours: IIntegrationMessengerOnlineHours[];
   timezone?: string;
   messages?: IIntegrationMessengerDataMessagesItem;
@@ -133,7 +135,7 @@ export interface IIntegrationUiOptions {
   color: string;
   wallpaper: string;
   logo: string;
-  videoCallUsageStatus: boolean;
+  showVideoCallRequest: boolean;
 }
 
 export interface IIntegration {

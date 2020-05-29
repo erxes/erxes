@@ -81,5 +81,6 @@ jobs:
       if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
       run: |
         cd ui
+        echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
         docker build -t erxes/erxes:${GITHUB_REF#refs/tags/} -f Dockerfile .
         docker push erxes/erxes:${GITHUB_REF#refs/tags/}
