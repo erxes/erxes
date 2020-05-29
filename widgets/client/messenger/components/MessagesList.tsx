@@ -25,6 +25,7 @@ type Props = {
   ) => void;
   isLoggedIn: () => boolean;
   getColor?: string;
+  toggleVideoCall: () => void;
 };
 
 type State = {
@@ -151,11 +152,22 @@ class MessagesList extends React.Component<Props, State> {
                     timeout={500}
                     classNames="slide-in"
                   >
-                    <Message color={color} {...message} />
+                    <Message
+                      toggleVideo={this.props.toggleVideoCall}
+                      color={color}
+                      {...message}
+                    />
                   </RTG.CSSTransition>
                 );
               } else {
-                return <Message key={message._id} color={color} {...message} />;
+                return (
+                  <Message
+                    key={message._id}
+                    toggleVideo={this.props.toggleVideoCall}
+                    color={color}
+                    {...message}
+                  />
+                );
               }
             })}
           </RTG.TransitionGroup>
