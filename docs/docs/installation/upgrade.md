@@ -19,7 +19,7 @@ pm2 stop ecosystem.json
 pm2 delete ecosystem.json
 ```
 
-3. Move erxes, erxes-api, erxes-integrations and ecosystem.json somewehre as a backup. Also backup nginx config file in /etc/nginx/sites-available/default and dump your mongodb.
+3. Move erxes, erxes-api, erxes-integrations and ecosystem.json somewhere as a backup. Also backup nginx config file in /etc/nginx/sites-available/default and dump your mongodb.
 
 4. Then run the installation script as `root`
 
