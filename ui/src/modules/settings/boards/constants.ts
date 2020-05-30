@@ -40,5 +40,5 @@ export const PROBABILITY = {
 };
 
 export const getWarningMessage = (type: string): string => {
-  return `Are you sure you want to delete? everything related to this ${type} will be deleted, this action cannot be undone`;
+  return `This will permanently delete the current ${type}. Are you sure absolutely sure?`;
 };

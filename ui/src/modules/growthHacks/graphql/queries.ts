@@ -162,10 +162,15 @@ const growthHacksTotalCount = `
 
 const growthHacksPriorityMatrix = `
   query growthHacksPriorityMatrix(
-    ${commonParams}
-  ) {
+    $pipelineId: String,
+    $search: String,
+    $assignedUserIds: [String],
+    $closeDateType: String) {
     growthHacksPriorityMatrix(
-      ${commonParamDefs}
+      pipelineId: $pipelineId,
+      search: $search,
+      assignedUserIds: $assignedUserIds,
+      closeDateType: $closeDateType
     )
   }
 `;

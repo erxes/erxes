@@ -929,6 +929,13 @@
   dependencies:
     regenerator-runtime "^0.13.2"
 
+"@babel/runtime@^7.8.3":
+  version "7.10.0"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.10.0.tgz#2cdcd6d7a391c24f7154235134c830cfb58ac0b1"
+  integrity sha512-tgYb3zVApHbLHYOPWtVwg25sBqHhfBXRKeKoTIyoheIxln1nA7oBl7SfHfiTG2GhDPI8EUBkOD/0wJCP/3HN4Q==
+  dependencies:
+    regenerator-runtime "^0.13.4"
+
 "@babel/template@^7.1.0", "@babel/template@^7.4.0", "@babel/template@^7.4.4":
   version "7.4.4"
   resolved "https://registry.yarnpkg.com/@babel/template/-/template-7.4.4.tgz#f4b88d1225689a08f5bc3a17483545be9e4ed237"
@@ -989,13 +996,14 @@
   resolved "https://registry.yarnpkg.com/@csstools/normalize.css/-/normalize.css-9.0.1.tgz#c27b391d8457d1e893f1eddeaf5e5412d12ffbb5"
   integrity sha512-6It2EVfGskxZCQhuykrfnALg7oVeiI6KclWSmGDqB0AiInVrTGB9Jp9i4/Ad21u9Jde/voVQz6eFX/eSg/UsPA==
 
-"@daily-co/daily-js@^0.9.97":
-  version "0.9.97"
-  resolved "https://registry.yarnpkg.com/@daily-co/daily-js/-/daily-js-0.9.97.tgz#260869768ea23dd808d142a7207d00679e76879a"
-  integrity sha512-cL1r1hNIIrR/SJZ97gyaobCmyuZ1praAQ7H+EbBqfXlecqO9kOBIWEBbSBpcjeq0c+m8umvBwtQePlpAQKhFTw==
+"@daily-co/daily-js@^0.9.991":
+  version "0.9.991"
+  resolved "https://registry.yarnpkg.com/@daily-co/daily-js/-/daily-js-0.9.991.tgz#43580ae888aa40904e13184224e38b07b7c5ef25"
+  integrity sha512-m/owwe3EwUAZX9l7zs4uTDWSgUjoJgtSAFykNIl7Xam3rq3uQ1v7PmgJMjopWQtLik+x0r9zBTqQ/xAfgpa2Rw==
   dependencies:
-    "@babel/runtime" "^7.5.5"
-    events "^3.0.0"
+    "@babel/runtime" "^7.8.3"
+    bowser "^2.8.1"
+    events "^3.1.0"
     fast-equals "^1.6.3"
     lodash "^4.17.15"
     rollup-plugin-terser "^4.0.4"
@@ -2889,6 +2897,11 @@ boolbase@^1.0.0, boolbase@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/boolbase/-/boolbase-1.0.0.tgz#68dff5fbe60c51eb37725ea9e3ed310dcc1e776e"
   integrity sha1-aN/1++YMUes3cl6p4+0xDcwed24=
+
+bowser@^2.8.1:
+  version "2.9.0"
+  resolved "https://registry.yarnpkg.com/bowser/-/bowser-2.9.0.tgz#3bed854233b419b9a7422d9ee3e85504373821c9"
+  integrity sha512-2ld76tuLBNFekRgmJfT2+3j5MIrP6bFict8WAIT3beq+srz1gcKNAdNKMqHqauQt63NmAa88HfP1/Ypa9Er3HA==
 
 boxen@^1.2.1:
   version "1.3.0"
@@ -5390,6 +5403,11 @@ events@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/events/-/events-3.0.0.tgz#9a0a0dfaf62893d92b875b8f2698ca4114973e88"
   integrity sha512-Dc381HFWJzEOhQ+d8pkNon++bk9h6cdAoAj4iE6Q4y6xgTzySWXlKn05/TVNpjnfRqi/X0EpJEJohPjNI3zpVA==
+
+events@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/events/-/events-3.1.0.tgz#84279af1b34cb75aa88bf5ff291f6d0bd9b31a59"
+  integrity sha512-Rv+u8MLHNOdMjTAFeT3nCjHn2aGlx435FP/sDHNaRhDEMwyI/aB22Kj2qIN8R0cw3z28psEQLYwxVKLsKrMgWg==
 
 eventsource@^1.0.7:
   version "1.0.7"

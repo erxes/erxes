@@ -8,8 +8,8 @@ const inputScale = '12px';
 const inputBorderWidth = '2px';
 const textInputHeight = '34px';
 
-const Label = styled.label`
-  text-transform: uppercase;
+const Label = styledTS<{ uppercase?: boolean }>(styled.label)`
+  text-transform: ${props => (props.uppercase ? 'uppercase' : 'none')};
   display: inline-block;
   font-weight: ${typography.fontWeightMedium};
   color: ${colors.textPrimary};

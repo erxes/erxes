@@ -233,7 +233,9 @@ class GeneralSettings extends React.Component<Props, State> {
               href="https://docs.erxes.io/administrator/system-config#google-cloud-storage"
               rel="noopener noreferrer"
             >
-              {__('Learn how to create or find your Google Cloud Storage bucket')}
+              {__(
+                'Learn how to create or find your Google Cloud Storage bucket'
+              )}
             </a>
           </Info>
           <FormGroup>
@@ -265,13 +267,17 @@ class GeneralSettings extends React.Component<Props, State> {
 
         <CollapseContent title="AWS SES">
           <Info>
-            <p>{__('In this field, the AWS SES configuration is dedicated to providing transaction emails.')}</p>
+            <p>
+              {__(
+                'In this field, the AWS SES configuration is dedicated to providing transaction emails.'
+              )}
+            </p>
             <a
               target="_blank"
               href="https://docs.erxes.io/administrator/system-config#aws-ses"
               rel="noopener noreferrer"
             >
-              {__("Learn how to set Amazon SES variables")}
+              {__('Learn how to set Amazon SES variables')}
             </a>
           </Info>
           {this.renderItem('AWS_SES_ACCESS_KEY_ID')}
@@ -281,13 +287,13 @@ class GeneralSettings extends React.Component<Props, State> {
         </CollapseContent>
 
         <CollapseContent title="Google">
-        <Info>
+          <Info>
             <a
               target="_blank"
               href="https://docs.erxes.io/administrator/system-config#google"
               rel="noopener noreferrer"
-                  >
-              {__("Learn how to set Google variables")}
+            >
+              {__('Learn how to set Google variables')}
             </a>
           </Info>
           {this.renderItem('GOOGLE_PROJECT_ID')}
@@ -317,14 +323,13 @@ class GeneralSettings extends React.Component<Props, State> {
 
         <CollapseContent title={__('Custom mail service')}>
           <Info>
-          <a
+            <a
               target="_blank"
               href="https://docs.erxes.io/administrator/system-config#custom-mail-service"
               rel="noopener noreferrer"
             >
               {__('Learn the case of custom email service')}
             </a>
-            
           </Info>
           {this.renderItem('MAIL_SERVICE')}
           {this.renderItem('MAIL_PORT')}
