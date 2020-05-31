@@ -68,7 +68,6 @@ jobs:
       if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/apm' || github.ref == 'refs/heads/automations' || github.ref == 'refs/heads/actions-dashboard')
       run: |
         cd dashboard
-        cp -a $GITHUB_WORKSPACE/ui/nginx $GITHUB_WORKSPACE/dashboard/
         echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
         docker build -t erxes/erxes-dashboard-front:${GITHUB_REF#refs/heads/} -f Dockerfile .
         docker push erxes/erxes-dashboard-front:${GITHUB_REF#refs/heads/}
@@ -77,7 +76,6 @@ jobs:
       if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
       run: |
         cd dashboard
-        cp -a $GITHUB_WORKSPACE/ui/nginx $GITHUB_WORKSPACE/dashboard/
         echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
         docker build -t erxes/erxes-dashboard-front:${GITHUB_REF#refs/tags/} -f Dockerfile .
         docker push erxes/erxes-dashboard-front:${GITHUB_REF#refs/tags/}

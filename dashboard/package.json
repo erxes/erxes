@@ -1,6 +1,7 @@
 {
   "name": "dashboard",
   "version": "0.1.0",
+  "homepage": "/dashboard/front",
   "private": true,
   "dependencies": {
     "@ant-design/compatible": "^1.0.2",
