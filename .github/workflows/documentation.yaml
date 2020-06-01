@@ -22,6 +22,8 @@ jobs:
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 50
 
     - name: Use Node.js 12.x
       uses: actions/setup-node@v1
@@ -54,8 +56,6 @@ jobs:
       run: |
         cd docs
         yarn run build
-      env:
-        CI: true
 
     - name: Publish
       if: github.event_name == 'push'
@@ -66,6 +66,5 @@ jobs:
         echo "machine github.com login $DOC_USERNAME password $DOC_TOKEN" > ~/.netrc
         GIT_USER=$DOC_USERNAME CURRENT_BRANCH=develop yarn deploy
       env:
-        CI: true
         DOC_USERNAME: ${{ secrets.DOC_USERNAME }}
         DOC_TOKEN: ${{ secrets.DOC_TOKEN }}
