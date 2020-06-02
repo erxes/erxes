@@ -7,7 +7,7 @@ context('Login', () => {
     cy.clearCookies();
   });
 
-  it('cy.getCookie() - get a browser cookie', () => {
+  it('Sign In', () => {
     const email = 'ganzorig.b@nmma.co';
     const password = 'password';
 

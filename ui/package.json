@@ -2,7 +2,7 @@
   "name": "erxes",
   "private": true,
   "dependencies": {
-    "@daily-co/daily-js": "^0.9.97",
+    "@daily-co/daily-js": "^0.9.991",
     "@nateradebaugh/react-datetime": "^4.0.0-rc.10",
     "@nivo/line": "0.35.0",
     "@nivo/pie": "0.35.0",

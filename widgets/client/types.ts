@@ -108,6 +108,7 @@ export interface IIntegrationMessengerData {
   showChat: boolean;
   showLauncher: boolean;
   forceLogoutWhenResolve: boolean;
+  showVideoCallRequest: boolean;
   onlineHours: IIntegrationMessengerOnlineHours[];
   timezone?: string;
   messages?: IIntegrationMessengerDataMessagesItem;
@@ -134,7 +135,7 @@ export interface IIntegrationUiOptions {
   color: string;
   wallpaper: string;
   logo: string;
-  videoCallUsageStatus: boolean;
+  showVideoCallRequest: boolean;
 }
 
 export interface IIntegration {

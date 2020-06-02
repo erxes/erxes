@@ -63,6 +63,7 @@ type State = {
   showChat?: boolean;
   showLauncher?: boolean;
   forceLogoutWhenResolve?: boolean;
+  showVideoCallRequest?: boolean;
 };
 
 class CreateMessenger extends React.Component<Props, State> {
@@ -76,7 +77,8 @@ class CreateMessenger extends React.Component<Props, State> {
       requireAuth: true,
       showChat: true,
       showLauncher: true,
-      forceLogoutWhenResolve: false
+      forceLogoutWhenResolve: false,
+      showVideoCallRequest: false
     };
     const links = configData.links || {};
     const messages = configData.messages || {};
@@ -102,6 +104,7 @@ class CreateMessenger extends React.Component<Props, State> {
         _id: Math.random(),
         ...h
       })),
+      showVideoCallRequest: configData.showVideoCallRequest,
       logo: uiOptions.logo || '',
       logoPreviewStyle: {},
       logoPreviewUrl: uiOptions.logo || '/images/erxes.png',
@@ -152,7 +155,8 @@ class CreateMessenger extends React.Component<Props, State> {
       requireAuth,
       showChat,
       showLauncher,
-      forceLogoutWhenResolve
+      forceLogoutWhenResolve,
+      showVideoCallRequest
     } = this.state;
 
     if (!languageCode) {
@@ -189,6 +193,7 @@ class CreateMessenger extends React.Component<Props, State> {
         showChat,
         showLauncher,
         forceLogoutWhenResolve,
+        showVideoCallRequest,
         links
       },
       uiOptions: {
@@ -255,7 +260,8 @@ class CreateMessenger extends React.Component<Props, State> {
       requireAuth,
       showChat,
       showLauncher,
-      forceLogoutWhenResolve
+      forceLogoutWhenResolve,
+      showVideoCallRequest
     } = this.state;
 
     const message = messages[languageCode];
@@ -299,6 +305,7 @@ class CreateMessenger extends React.Component<Props, State> {
                 showChat={showChat}
                 showLauncher={showLauncher}
                 forceLogoutWhenResolve={forceLogoutWhenResolve}
+                showVideoCallRequest={showVideoCallRequest}
               />
             </Step>
 
