@@ -554,7 +554,7 @@ const widgetMutations = {
       toEmails,
       fromEmail,
       title,
-      template: { isCustom: false, data: { content } },
+      template: { data: { content } },
     });
   },
 };

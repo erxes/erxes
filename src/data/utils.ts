@@ -387,7 +387,9 @@ export interface IEmailParams {
   toEmails?: string[];
   fromEmail?: string;
   title?: string;
-  template?: { name?: string; data?: any; isCustom?: boolean };
+  customHtml?: string;
+  customHtmlData?: any;
+  template?: { name?: string; data?: any };
   modifier?: (data: any, email: string) => void;
 }
 
@@ -395,7 +397,7 @@ export interface IEmailParams {
  * Send email
  */
 export const sendEmail = async (params: IEmailParams) => {
-  const { toEmails = [], fromEmail, title, template = {}, modifier } = params;
+  const { toEmails = [], fromEmail, title, customHtml, customHtmlData, template = {}, modifier } = params;
 
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
   const DEFAULT_EMAIL_SERVICE = await getConfig('DEFAULT_EMAIL_SERVICE', 'SES');
@@ -417,7 +419,7 @@ export const sendEmail = async (params: IEmailParams) => {
     return debugEmail(e.message);
   }
 
-  const { isCustom, data = {}, name } = template;
+  const { data = {}, name } = template;
 
   // for unsubscribe url
   data.domain = MAIN_APP_DOMAIN;
@@ -430,8 +432,8 @@ export const sendEmail = async (params: IEmailParams) => {
     // generate email content by given template
     let html = await applyTemplate(data, name || 'base');
 
-    if (!isCustom) {
-      html = await applyTemplate({ content: html }, 'base');
+    if (customHtml) {
+      html = Handlebars.compile(customHtml)(customHtmlData || {});
     }
 
     const mailOptions = {
