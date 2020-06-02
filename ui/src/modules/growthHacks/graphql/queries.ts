@@ -30,6 +30,9 @@ export const growthHackFields = `
       avatar
     }
   }
+  stage {
+    name
+  }
   voteCount
   priority
   hackStages
