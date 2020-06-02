@@ -13,6 +13,7 @@ import {
   IOptions,
   IStage,
   ItemsQueryResponse,
+  RemoveStageMutation,
   SaveItemMutation
 } from '../types';
 
@@ -35,6 +36,7 @@ type StageProps = {
 type FinalStageProps = {
   addMutation: SaveItemMutation;
   itemsQuery?: ItemsQueryResponse;
+  removeStageMutation: RemoveStageMutation;
 } & StageProps;
 
 class StageContainer extends React.PureComponent<FinalStageProps> {
@@ -78,6 +80,25 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
           ...items,
           ...(data[options.queriesName.itemsQuery] || [])
         ]);
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+  };
+
+  removeStage = (id: string) => {
+    const { removeStageMutation, refetchStages, stage } = this.props;
+
+    const message =
+      'This will permanently delete any items related to this stage. Are you absolutely sure?';
+
+    confirm(message, { hasDeleteConfirm: true })
+      .then(() => {
+        removeStageMutation({ variables: { _id: id } }).then(() => {
+          Alert.success('You have successfully removed a stage');
+
+          refetchStages({ pipelineId: stage.pipelineId });
+        });
       })
       .catch(e => {
         Alert.error(e.message);
@@ -177,6 +198,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
         items={items}
         archiveItems={this.archiveItems}
         archiveList={this.archiveList}
+        removeStage={this.removeStage}
         loadingItems={loadingItems}
         loadMore={this.loadMore}
         onAddItem={onAddItem}
@@ -223,6 +245,9 @@ const withQuery = ({ options }) => {
             loadingState === 'readyToLoad' ? 'network-only' : 'cache-only',
           notifyOnNetworkStatusChange: loadingState === 'readyToLoad'
         })
+      }),
+      graphql<StageProps>(gql(mutations.stagesRemove), {
+        name: 'removeStageMutation'
       })
     )(StageContainer)
   );

@@ -1,7 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
-import { colors } from 'modules/common/styles';
 import { IButtonMutateProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
 import { mutations as brandMutations } from 'modules/settings/brands/graphql';
@@ -14,48 +13,6 @@ import {
 } from '../../brands/types';
 import Config from '../components/Config';
 
-const defaultTemplate = `<p>Dear {{fullName}},</p>
-<p>You received following messages at <strong>{{brandName}}</strong>:</p>
-<ul class="messages">
-  {{#each messages}}
-    <li><span>{{content}}</span></li>
-  {{/each}}
-</ul>
-<p><a href="{domain}">See all messages on <strong>{{domain}}</strong></a></p>
-<footer>Powered by <a href="https://crm.nmma.co/" target="_blank">Erxes</a>.</footer>
-
-<style type="text/css">
-    .erxes-mail {
-        font-family: Arial;
-        font-size: 13px;
-    }
-    .messages {
-        background: #eee;
-        list-style: none;
-        padding: 20px;
-        margin-bottom: 20px;
-    }
-    .messages li {
-        margin-bottom: 10px;
-    }
-    .messages li:last-child {
-        margin-bottom: 0;
-    }
-    .messages li span {
-        display: inline-block;
-        background-color: #482b82;
-        padding: 12px 16px;
-        border-radius: 5px;
-        color: #fff;
-    }
-    footer {
-        border-top: 1px solid ${colors.borderDarker};
-        margin-top: 40px;
-        padding-top: 10px;
-        font-weight: bold;
-    }
-</style>`;
-
 type Props = {
   refetch: () => void;
   closeModal: () => void;
@@ -64,13 +21,14 @@ type Props = {
 
 type FinalProps = {
   brandDetailQuery: BrandDetailQueryResponse;
+  emailConfigQuery: any;
 } & Props &
   BrandsConfigEmailMutationResponse;
 
 const ConfigContainer = (props: FinalProps) => {
-  const { brandDetailQuery } = props;
+  const { brandDetailQuery, emailConfigQuery } = props;
 
-  if (brandDetailQuery.loading) {
+  if (brandDetailQuery.loading || emailConfigQuery.loading) {
     return null;
   }
 
@@ -96,7 +54,7 @@ const ConfigContainer = (props: FinalProps) => {
   const updatedProps = {
     ...props,
     brand: brandDetailQuery.brandDetail,
-    defaultTemplate,
+    defaultTemplate: emailConfigQuery.brandsGetDefaultEmailConfig || '',
     renderButton
   };
 
@@ -128,6 +86,17 @@ export default withProps<Props>(
             }
           };
         }
+      }
+    ),
+
+    graphql(
+      gql`
+        query brandsGetDefaultEmailConfig {
+          brandsGetDefaultEmailConfig
+        }
+      `,
+      {
+        name: 'emailConfigQuery'
       }
     ),
 

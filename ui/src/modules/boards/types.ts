@@ -81,6 +81,9 @@ export interface IItemParams {
 }
 
 export type SaveItemMutation = ({ variables: IItemParams }) => Promise<any>;
+export type RemoveStageMutation = (
+  { variables }: { variables: { _id: string } }
+) => Promise<any>;
 
 export interface IPipeline {
   _id: string;
