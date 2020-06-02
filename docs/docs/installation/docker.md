@@ -153,7 +153,7 @@ The latest version [**release**](https://github.com/erxes/erxes/releases) source
 version: "2.1"
 services:
   erxes:
-    image: erxes/erxes:0.10.1
+    image: erxes/erxes:0.14.1
     container_name: erxes
     restart: unless-stopped
     environment:
@@ -168,7 +168,7 @@ services:
       - erxes-net
 
   erxes-api:
-    image: erxes/erxes-api:0.10.1
+    image: erxes/erxes-api:0.14.1
     container_name: erxes-api
     restart: unless-stopped
     environment:
@@ -202,7 +202,7 @@ services:
       - erxes-net
 
   erxes-crons:
-    image: erxes/erxes-api:0.10.1
+    image: erxes/erxes-api:0.14.1
     container_name: erxes-crons
     entrypoint: ["node", "--max_old_space_size=8192", "dist/cronJobs"]
     restart: unless-stopped
@@ -229,7 +229,7 @@ services:
       - erxes-net
 
   erxes-workers:
-    image: erxes/erxes-api:0.10.1
+    image: erxes/erxes-api:0.14.1
     container_name: erxes-workers
     entrypoint: ["node", "--max_old_space_size=8192", "--experimental-worker", "dist/workers"]
     restart: unless-stopped
@@ -258,7 +258,7 @@ services:
       - erxes-net
 
   erxes-widgets:
-    image: erxes/erxes-widgets:0.10.1
+    image: erxes/erxes-widgets:0.14.1
     container_name: erxes-widgets
     restart: unless-stopped
     environment:
