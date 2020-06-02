@@ -76,6 +76,11 @@ export default {
     const amountsMap = {};
 
     productsData.forEach(product => {
+      // Tick paid or used is false then exclude
+      if (!product.tickUsed) {
+        return;
+      }
+
       const type = product.currency;
 
       if (type) {

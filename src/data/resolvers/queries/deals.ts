@@ -91,7 +91,11 @@ const dealQueries = {
           amount: '$productsData.amount',
           currency: '$productsData.currency',
           type: '$stageProbability.probability',
+          tickUsed: '$productsData.tickUsed',
         },
+      },
+      {
+        $match: { tickUsed: true }
       },
       {
         $group: {

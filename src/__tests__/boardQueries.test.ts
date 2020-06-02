@@ -429,6 +429,7 @@ describe('boardQueries', () => {
         productId: product._id,
         currency: 'USD',
         amount: 200,
+        tickUsed: true,
       },
       {
         productId: product._id,

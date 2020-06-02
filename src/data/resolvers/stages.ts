@@ -31,7 +31,11 @@ export default {
           $project: {
             amount: '$productsData.amount',
             currency: '$productsData.currency',
+            tickUsed: '$productsData.tickUsed',
           },
+        },
+        {
+          $match: { tickUsed: true }
         },
         {
           $group: {
