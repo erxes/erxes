@@ -142,7 +142,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
     const { stage, refetchStages, options } = this.props;
 
     const message = `
-    This will remove list from the board. To view archived list and bring them back to the board, click “Menu” > “Archived Items”. 
+    This will remove list from the board. To view archived list and bring them back to the board, click “Menu” > “Archived Items”.
     Are you sure?
     `;
 

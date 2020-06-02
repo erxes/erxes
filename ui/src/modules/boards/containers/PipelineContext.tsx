@@ -1,5 +1,6 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
+import DisableSpinner from 'modules/common/components/DisableSpinner';
 import { Alert } from 'modules/common/utils';
 import React from 'react';
 import { requestIdleCallback } from 'request-idle-callback';
@@ -38,6 +39,7 @@ type State = {
   stageIds: string[];
   isShowLabel: boolean;
   realTimeStageIds: string[];
+  isNotDrag: boolean;
 };
 
 interface IStore {
@@ -82,7 +84,8 @@ export class PipelineProvider extends React.Component<Props, State> {
       stageLoadMap: {},
       stageIds,
       isShowLabel: false,
-      realTimeStageIds: []
+      realTimeStageIds: [],
+      isNotDrag: false
     };
 
     PipelineProvider.tasks = [];
@@ -346,6 +349,10 @@ export class PipelineProvider extends React.Component<Props, State> {
       (task: Task) => !task.isComplete
     );
 
+    if (!this.state.isNotDrag){
+      this.setState({isNotDrag: true});
+    }
+
     while (
       (deadline.timeRemaining() > 0 || deadline.didTimeout) &&
       inCompleteTask
@@ -358,6 +365,10 @@ export class PipelineProvider extends React.Component<Props, State> {
 
     if (inCompleteTask) {
       PipelineProvider.currentTask = requestIdleCallback(this.runTaskQueue);
+    }
+
+    if (PipelineProvider.currentTask === null) {
+      this.setState({isNotDrag: false})
     }
   };
 
@@ -437,10 +448,21 @@ export class PipelineProvider extends React.Component<Props, State> {
     this.setState({ isShowLabel: !this.state.isShowLabel });
   };
 
+  renderSpinner = () => {
+    if (this.state.isNotDrag) {
+      return <DisableSpinner
+        width={`${this.state.stageIds.length * 290 - 5}px`}
+      />
+    }
+
+    return;
+  }
+
   render() {
     const { itemMap, stageLoadMap, stageIds, isShowLabel } = this.state;
-
     return (
+      <>
+      {this.renderSpinner()}
       <PipelineContext.Provider
         value={{
           options: this.props.options,
@@ -460,6 +482,7 @@ export class PipelineProvider extends React.Component<Props, State> {
       >
         {this.props.children}
       </PipelineContext.Provider>
+      </>
     );
   }
 }
