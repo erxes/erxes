@@ -349,6 +349,7 @@ export class PipelineProvider extends React.Component<Props, State> {
     const inCompleteTask = PipelineProvider.tasks.find(
       (task: Task) => !task.isComplete
     );
+
     if (!this.state.isNotDrag){
       this.setState({isNotDrag: true});
     }
