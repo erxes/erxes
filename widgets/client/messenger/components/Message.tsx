@@ -20,6 +20,7 @@ type Props = {
   color?: string;
   contentType?: string;
   videoCallData?: IVideoCallData;
+  toggleVideo: () => void;
 };
 
 class Message extends React.Component<Props> {
@@ -83,6 +84,7 @@ class Message extends React.Component<Props> {
     if (contentType === MESSAGE_TYPES.VIDEO_CALL) {
       return (
         <VideoCallMessage
+          toggleVideo={this.props.toggleVideo}
           videoCallData={videoCallData || { status: "end", url: "" }}
         />
       );

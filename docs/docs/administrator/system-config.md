@@ -71,7 +71,7 @@ Following steps explain the Google Cloud Project. Which allows us to use Google 
 
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google/google-general-10.png)
 
-* Copy the service account file's content to google_cred.json in **erxes-api/google_cred.json.sample**, **erxes-integrations/google_cred.json.sample**, and rename them to **google_cred.json**
+- Copy the service account file's content to google_cred.json in **erxes-api/google_cred.json.sample**, **erxes-integrations/google_cred.json.sample**, and rename them to **google_cred.json**
 
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google/google-general-11.png)
 
@@ -458,14 +458,14 @@ TWITTER_WEBHOOK_ENV=''
 - `TWITTER_CONSUMER_SECRET` your twitter developer account's Consumer Secret (API Secret) here
 - `TWITTER_ACCESS_TOKEN` your twitter developer account's secret token ID (API Secret) here
 - `TWITTER_ACCESS_TOKEN_SECRET` you should only change the domain of this env variables. This is twitter's callback url
-- `TWITTER_WEBHOOK_ENV`='https://erxes.domain.com/service/oauth/twitter_callback'
+- `TWITTER_WEBHOOK_ENV`='your twitter developer account`s dev environments value'
 
 1. [Create twitter app](https://developer.twitter.com/en/docs/basics/apps/overview)
 2. Fill the form with following example and create your application.
 
 - Name: erxes.domain.com
 - Website: erxes.domain.com
-- Callback URL: https://erxes.domain.com/service/oauth/twitter_callback
+- Callback URL: https://erxes.domain.com/twitter/callback/add
 
 3. Go to Permissions tab and select Read, Write and Access direct messages. Don't forget to Update settings button.
 
@@ -596,44 +596,35 @@ In order to integrate the Yahoo you will need to generate app password for the E
 
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-1.png)
 
-* You will see a modal, then click on add account
-
+- You will see a modal, then click on add account
 
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-2.png)
 
 - Now you need to generate password for erxes, go ahead and click the link.
 
-
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-3.png)
 
 - You will be jump into Yahoo, sign in and click on Account Security in Settings as follows.
 
-
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-4.png)
 
-   
 - Scroll to bottom and click on <b>Generate app password</b> link.
 
-
-  ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-5.png)
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-5.png)
 
 - Click on the <b>Select an app</b> and select Other app.
 
-
-  ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-6.png)
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-6.png)
 
 - Then name your app as <b>Erxes</b> and click on the <b>Generate</b> button.
 
-
-  ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-7.png)
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-7.png)
 
 - Great, you got the password, Now copy password and navigate back to the Erxes Settings/App Store
 
-
-  ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-8.png)
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-8.png)
 
 - Fill your email address and paste your password, that is it click on the save button and create yahoo integration.
-
 
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-yahoo-9.png)
 

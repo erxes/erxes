@@ -118,26 +118,34 @@ class Row extends React.Component<Props> {
     return this.props.edit();
   };
 
-  render() {
-    let status = <Label>Sending</Label>;
-
-    const { isChecked, message, remove } = this.props;
+  renderStatus() {
+    const { message } = this.props;
 
     const {
       stats = { send: '' },
-      brand = { name: '' },
       kind,
       validCustomersCount
     } = message;
 
     const totalCount = stats.total || 0;
 
-    if (
-      message.method === 'messenger' ||
-      (kind === 'manual' && validCustomersCount === totalCount)
-    ) {
-      status = <Label lblStyle="success">Sent</Label>;
+    if (!message.isLive) {
+      return <Label>draft</Label>;
     }
+
+    if (kind === 'manual') {
+      if (message.method === 'messenger' || validCustomersCount === totalCount) {
+        return <Label lblStyle="success">Sent</Label>;
+      }
+    }
+
+    return <Label>Sending</Label>;
+  }
+
+  render() {
+    const { isChecked, message, remove } = this.props;
+    const { stats = { send: '' }, brand = { name: '' } } = message;
+    const totalCount = stats.total || 0;
 
     return (
       <tr key={message._id}>
@@ -156,7 +164,7 @@ class Row extends React.Component<Props> {
         <td className="text-normal">
           <NameCard user={message.fromUser} avatarSize={30} />
         </td>
-        <td>{status}</td>
+        <td>{this.renderStatus()}</td>
         <td className="text-primary">
           <Icon icon="cube-2" />
           <b> {totalCount}</b>

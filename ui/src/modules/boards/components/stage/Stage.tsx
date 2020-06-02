@@ -28,6 +28,7 @@ import ItemList from '../stage/ItemList';
 
 type Props = {
   loadingItems: () => boolean;
+  removeStage: (stageId: string) => void;
   index: number;
   stage: IStage;
   length: number;
@@ -189,6 +190,8 @@ export default class Stage extends React.Component<Props, {}> {
   }
 
   renderPopover() {
+    const { stage } = this.props;
+
     const archiveList = () => {
       this.props.archiveList();
       this.onClosePopover();
@@ -196,6 +199,11 @@ export default class Stage extends React.Component<Props, {}> {
 
     const archiveItems = () => {
       this.props.archiveItems();
+      this.onClosePopover();
+    };
+
+    const removeStage = () => {
+      this.props.removeStage(stage._id);
       this.onClosePopover();
     };
 
@@ -207,6 +215,9 @@ export default class Stage extends React.Component<Props, {}> {
           </li>
           <li onClick={archiveList} key="archive-list">
             Archive This List
+          </li>
+          <li onClick={removeStage} key="remove-stage">
+            Remove stage
           </li>
         </ActionList>
       </Popover>
