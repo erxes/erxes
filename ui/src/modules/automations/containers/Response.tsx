@@ -30,6 +30,10 @@ function AutomationResponse({ currentUser }: Props) {
   const content = response.automationResponded.content;
   const responseId = response.automationResponded.responseId;
 
+  if (!content || !content[0]) {
+    return <></>;
+  }
+
   if (
     localStorage.getItem('automationResponseId') &&
     localStorage.getItem('automationResponseId') === responseId
@@ -38,12 +42,14 @@ function AutomationResponse({ currentUser }: Props) {
   }
 
   const myWindow =
-    window.open('', '_blank', 'width=800,height=800') || ({} as any);
+    window.open('', '_blank', 'width=800, height=800') || ({} as any);
 
   localStorage.setItem('automationResponseId', responseId);
 
-  if (myWindow && content) {
+  if ('document' in myWindow && 'write' in myWindow.document) {
     myWindow.document.write(content[0]);
+  } else {
+    alert('please allow Pop-ups and redirects on site settings!!!');
   }
 
   return <></>;
