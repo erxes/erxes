@@ -40,6 +40,10 @@ export const receiveRpcMessage = async msg => {
         const products = await Products.find({ ...doc });
         return sendSuccess(products);
 
+      case 'get-users':
+        const users = await Users.find({ ...doc });
+        return sendSuccess(users);
+
       case 'get-or-error-product-category':
         const productCategory = await ProductCategories.findOne({ ...doc });
         if (!productCategory) {

@@ -59,6 +59,17 @@ const erkhetPostData = async (shape: IShapeDocument, data: any) => {
     productCodeById[product._id] = product.code;
   }
 
+  const assignUserIds = data.deal.productsData.filter(item => item.assignUserId).map(item => item.assignUserId);
+  const assignUsers = await sendRPCMessage('rpc_queue:erxes-automations', {
+    action: 'get-users',
+    payload: JSON.stringify({ _id: { $in: assignUserIds } }),
+  });
+
+  const userEmailById = {};
+  for (const user of assignUsers) {
+    userEmailById[user._id] = user.email;
+  }
+
   const details = [];
   for (const productData of data.deal.productsData) {
     // not tickUsed product not sent
@@ -76,6 +87,7 @@ const erkhetPostData = async (shape: IShapeDocument, data: any) => {
       amount: productData.amount,
       discount: productData.discount,
       inventoryCode: productCodeById[productData.productId],
+      workerEmail: productData.assignUserId && userEmailById[productData.assignUserId],
     });
   }
 
