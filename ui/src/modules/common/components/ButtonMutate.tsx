@@ -125,13 +125,15 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
     const { confirmationUpdate } = this.props;
 
     if (confirmationUpdate) {
-      return confirm('This will permanently update are you absolutely sure?', { hasUpdateConfirm: true })
+      return confirm('This will permanently update are you absolutely sure?', {
+        hasUpdateConfirm: true
+      })
         .then(() => {
           this.invokeMutate();
         })
         .catch(error => {
           Alert.error(error.message);
-        })
+        });
     }
 
     return this.invokeMutate();
@@ -146,7 +148,7 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
       btnStyle = 'success',
       disabled,
       block,
-      uppercase,
+      uppercase
     } = this.props;
 
     const { isLoading } = this.state;

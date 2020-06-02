@@ -49,7 +49,8 @@ const ManageColumnsContainer = (props: FinalProps) => {
     }
   };
 
-  const defaultColumns = fieldsDefaultColumnsConfigQuery.fieldsDefaultColumnsConfig;
+  const defaultColumns =
+    fieldsDefaultColumnsConfigQuery.fieldsDefaultColumnsConfig;
 
   let columns: IConfigColumn[] = [];
 
@@ -63,7 +64,7 @@ const ManageColumnsContainer = (props: FinalProps) => {
     });
 
     columns = (fieldsQuery.fieldsCombinedByContentType || [])
-      .map((field) => {
+      .map(field => {
         const conf = defaultColumnsMap[field.name];
 
         return {
@@ -71,7 +72,7 @@ const ManageColumnsContainer = (props: FinalProps) => {
           _id: Math.random().toString(),
           order: conf ? conf.order : 0,
           checked: conf
-        }
+        };
       })
       .sort((a, b) => a.order - b.order);
   }

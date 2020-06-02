@@ -8,6 +8,7 @@ type Props = {
   isOnline: boolean;
   color?: string;
   inputFocus: () => void;
+  toggleVideoCall: () => void;
 };
 
 export default class extends React.Component<Props> {
