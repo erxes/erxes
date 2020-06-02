@@ -203,7 +203,6 @@ describe('User mutations', () => {
           content: invitationUrl,
           domain: MAIN_APP_DOMAIN,
         },
-        isCustom: true,
       },
     });
 
@@ -238,7 +237,6 @@ describe('User mutations', () => {
           content: invitationUrl,
           domain: MAIN_APP_DOMAIN,
         },
-        isCustom: true,
       },
     });
 

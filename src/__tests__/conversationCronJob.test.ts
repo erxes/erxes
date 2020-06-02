@@ -124,7 +124,6 @@ describe('Cronjob conversation send email', () => {
 
     if (calledArgs.template) {
       expect(expectedArgs.template.name).toBe(calledArgs.template.name);
-      expect(expectedArgs.template.isCustom).toBe(calledArgs.template.isCustom);
       expect(expectedArgs.template.data.question.toJSON()).toEqual(calledArgs.template.data.question);
       expect(expectedArgs.template.data.brand.toJSON()).toEqual(calledArgs.template.data.brand.toJSON());
       expect(expectedArgs.template.data.customer.toJSON()).toEqual(calledArgs.template.data.customer.toJSON());

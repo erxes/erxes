@@ -23,7 +23,6 @@ const sendInvitationEmail = ({ email, token }: { email: string; token: string })
         content: confirmationUrl,
         domain: MAIN_APP_DOMAIN,
       },
-      isCustom: true,
     },
   });
 };

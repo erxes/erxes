@@ -3,7 +3,6 @@ import * as _ from 'underscore';
 import { ConversationMessages, Conversations, Customers, Integrations } from '../../../db/models';
 import Messages from '../../../db/models/ConversationMessages';
 import {
-  CONVERSATION_STATUSES,
   KIND_CHOICES,
   MESSAGE_TYPES,
   NOTIFICATION_CONTENT_TYPES,
@@ -11,7 +10,6 @@ import {
 } from '../../../db/models/definitions/constants';
 import { IMessageDocument } from '../../../db/models/definitions/conversationMessages';
 import { IConversationDocument } from '../../../db/models/definitions/conversations';
-import { IMessengerData } from '../../../db/models/definitions/integrations';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { debugExternalApi } from '../../../debuggers';
 import { sendMessage } from '../../../messageBroker';
@@ -365,42 +363,10 @@ const conversationMutations = {
    * Change conversation status
    */
   async conversationsChangeStatus(_root, { _ids, status }: { _ids: string[]; status: string }, { user }: IContext) {
-    const { conversations } = await Conversations.checkExistanceConversations(_ids);
-
     await Conversations.changeStatusConversation(_ids, status, user._id);
 
     // notify graphl subscription
     publishConversationsChanged(_ids, status);
-
-    for (const conversation of conversations) {
-      if (status === CONVERSATION_STATUSES.CLOSED) {
-        const customer = await Customers.getCustomer(conversation.customerId);
-        const integration = await Integrations.getIntegration(conversation.integrationId);
-
-        const messengerData: IMessengerData = integration.messengerData || {};
-        const notifyCustomer = messengerData.notifyCustomer || false;
-
-        if (notifyCustomer && customer.primaryEmail) {
-          // send email to customer
-          utils.sendEmail({
-            toEmails: [customer.primaryEmail],
-            title: 'Conversation detail',
-            template: {
-              name: 'conversationDetail',
-              data: {
-                conversationDetail: {
-                  title: 'Conversation detail',
-                  messages: await ConversationMessages.find({
-                    conversationId: conversation._id,
-                  }),
-                  date: new Date(),
-                },
-              },
-            },
-          });
-        }
-      }
-    }
 
     const updatedConversations = await Conversations.find({ _id: { $in: _ids } });
 

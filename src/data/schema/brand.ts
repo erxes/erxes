@@ -17,6 +17,7 @@ export const queries = `
   brandDetail(_id: String!): Brand
   brandsTotalCount: Int
   brandsGetLast: Brand
+  brandsGetDefaultEmailConfig: String
 `;
 
 export const mutations = `
