@@ -1,4 +1,3 @@
-import { PIPELINE_UPDATE_STATUSES } from 'modules/boards/constants';
 import {
   ActionButton,
   ActionList,
@@ -39,7 +38,6 @@ type Props = {
   options: IOptions;
   archiveItems: () => void;
   archiveList: () => void;
-  onChangeRealTimeStageIds: (stageId: string) => void;
 };
 export default class Stage extends React.Component<Props, {}> {
   private bodyRef;
@@ -78,25 +76,6 @@ export default class Stage extends React.Component<Props, {}> {
         return clearInterval(handle);
       }
     }, 1000);
-  }
-
-  componentDidUpdate(prevProps) {
-    const { current } = this.bodyRef;
-
-    if (!current) {
-      return;
-    }
-
-    const { stage, onChangeRealTimeStageIds } = this.props;
-    const pipelineUpdate = sessionStorage.getItem('pipelineUpdate');
-
-    if (
-      (pipelineUpdate === PIPELINE_UPDATE_STATUSES.START ||
-        pipelineUpdate === PIPELINE_UPDATE_STATUSES.NEW_REQUEST) &&
-      stage.itemsTotalCount !== prevProps.stage.itemsTotalCount
-    ) {
-      onChangeRealTimeStageIds(stage._id);
-    }
   }
 
   shouldComponentUpdate(nextProps: Props) {

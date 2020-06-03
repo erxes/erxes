@@ -30,7 +30,6 @@ type StageProps = {
   scheduleStage: (stageId: string) => void;
   onAddItem: (stageId: string, item: IItem) => void;
   onRemoveItem: (itemId: string, stageId: string) => void;
-  onChangeRealTimeStageIds: (stageId: string) => void;
 };
 
 type FinalStageProps = {
@@ -177,8 +176,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
       options,
       onAddItem,
       onRemoveItem,
-      loadingState,
-      onChangeRealTimeStageIds
+      loadingState
     } = this.props;
 
     const loadingItems = () => {
@@ -203,7 +201,6 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
         loadMore={this.loadMore}
         onAddItem={onAddItem}
         onRemoveItem={onRemoveItem}
-        onChangeRealTimeStageIds={onChangeRealTimeStageIds}
       />
     );
   }

@@ -25,7 +25,6 @@ type Props = {
     queryParams: IFilterParams,
     nextQueryParams: IFilterParams
   ) => boolean;
-  afterFinish: () => void;
 };
 
 type StageLoadMap = {
@@ -37,7 +36,6 @@ type State = {
   stageLoadMap: StageLoadMap;
   stageIds: string[];
   isShowLabel: boolean;
-  realTimeStageIds: string[];
 };
 
 interface IStore {
@@ -53,7 +51,6 @@ interface IStore {
   onUpdateItem: (item: IItem, prevStageId?: string) => void;
   isShowLabel: boolean;
   toggleLabels: () => void;
-  onChangeRealTimeStageIds: (stageId: string) => void;
 }
 
 const PipelineContext = React.createContext({} as IStore);
@@ -81,8 +78,7 @@ export class PipelineProvider extends React.Component<Props, State> {
       itemMap: initialItemMap || {},
       stageLoadMap: {},
       stageIds,
-      isShowLabel: false,
-      realTimeStageIds: []
+      isShowLabel: false
     };
 
     PipelineProvider.tasks = [];
@@ -90,7 +86,7 @@ export class PipelineProvider extends React.Component<Props, State> {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    const { queryParams, queryParamsChanged, initialItemMap } = this.props;
+    const { queryParams, queryParamsChanged } = this.props;
 
     if (queryParamsChanged(queryParams, nextProps.queryParams)) {
       const { stageIds } = this.state;
@@ -102,57 +98,7 @@ export class PipelineProvider extends React.Component<Props, State> {
         this.scheduleStage(stageId);
       });
     }
-
-    // when adding or removing stage
-    const nextStageIds = Object.keys(nextProps.initialItemMap || {});
-    const nowStageIds = Object.keys(initialItemMap || {});
-
-    if (nextStageIds.length !== nowStageIds.length) {
-      let stageIds = [...this.state.stageIds];
-      const itemMap = { ...this.state.itemMap };
-
-      const newStageId = nextStageIds.find(
-        stageId => !stageIds.includes(stageId)
-      );
-
-      if (newStageId) {
-        stageIds.push(newStageId);
-
-        itemMap[newStageId] = [];
-      } else {
-        const deletedStageId = stageIds.find(
-          stageId => !nextStageIds.includes(stageId)
-        );
-
-        stageIds = stageIds.filter(stageId => deletedStageId !== stageId);
-
-        delete itemMap[deletedStageId || ''];
-      }
-
-      this.setState({
-        stageIds,
-        itemMap
-      });
-    }
   }
-
-  componentDidUpdate() {
-    const { realTimeStageIds } = this.state;
-
-    if (realTimeStageIds.length >= 2) {
-      this.setState({ realTimeStageIds: [] });
-
-      this.props.afterFinish();
-    }
-  }
-
-  onChangeRealTimeStageIds = (stageId: string) => {
-    this.setState(prevState => {
-      return {
-        realTimeStageIds: [...prevState.realTimeStageIds, stageId]
-      };
-    });
-  };
 
   onDragEnd = result => {
     // dropped nowhere
@@ -455,8 +401,7 @@ export class PipelineProvider extends React.Component<Props, State> {
           stageLoadMap,
           stageIds,
           isShowLabel,
-          toggleLabels: this.toggleLabels,
-          onChangeRealTimeStageIds: this.onChangeRealTimeStageIds
+          toggleLabels: this.toggleLabels
         }}
       >
         {this.props.children}
