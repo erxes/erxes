@@ -217,6 +217,7 @@ export const loadClass = () => {
         status: {
           $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN],
         },
+        messageCount: { $gt: 1 },
       });
     }
     /**
