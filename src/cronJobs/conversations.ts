@@ -13,6 +13,8 @@ export const sendMessageEmail = async () => {
   // new or open conversations
   const conversations = await Conversations.newOrOpenConversation();
 
+  debugCrons(`Found ${conversations.length} conversations`);
+
   for (const conversation of conversations) {
     const customer = await Customers.findOne({ _id: conversation.customerId }).lean();
 
