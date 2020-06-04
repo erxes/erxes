@@ -142,7 +142,6 @@ class Index extends React.Component<IndexProps, IndexState> {
       toggleSection,
       loading
     } = this.props;
-    console.log('inbox', customer);
 
     const { kind = '' } = customer.integration || {};
 
