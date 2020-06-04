@@ -259,6 +259,7 @@ const generateCustomerDetailQuery = params => {
     integration {
       kind
     }
+    urlVisits
     ${customerQueries.basicFields}
   `;
 

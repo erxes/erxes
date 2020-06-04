@@ -7,6 +7,7 @@ import asyncComponent from 'modules/common/components/AsyncComponent';
 import Box from 'modules/common/components/Box';
 import { __ } from 'modules/common/utils';
 import CompanySection from 'modules/companies/components/common/CompanySection';
+import WebsiteActivity from 'modules/customers/components/common/WebsiteActivity';
 import { ICustomer } from 'modules/customers/types';
 import { IConversation } from '../../../types';
 
@@ -141,6 +142,7 @@ class Index extends React.Component<IndexProps, IndexState> {
       toggleSection,
       loading
     } = this.props;
+    console.log('inbox', customer);
 
     const { kind = '' } = customer.integration || {};
 
@@ -161,15 +163,10 @@ class Index extends React.Component<IndexProps, IndexState> {
             refetchQueries={taggerRefetchQueries}
             collapseCallback={toggleSection}
           />
-          <Box
-            title={__('Contact information')}
-            name="showCustomFields"
-            callback={toggleSection}
-          >
-            <CustomFieldsSection loading={loading} customer={customer} />
-          </Box>
+          <CustomFieldsSection loading={loading} customer={customer} />
           {this.renderTrackedData({ customer, kind, toggleSection })}
           {this.renderDeviceProperties({ customer, kind, toggleSection })}
+          <WebsiteActivity urlVisits={customer.urlVisits || []} />
         </TabContent>
       );
     }
