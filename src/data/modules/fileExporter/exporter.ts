@@ -227,7 +227,8 @@ const buildLeadFile = async (datas: any, formId: string, sheet: any, columnNames
     rowIndex++;
     // Iterating through basic info columns
     for (const column of headers) {
-      const item = await data.find(obj => obj._id === column.name);
+      const item = await data.find(obj => obj._id === column.name || obj.text.trim() === column.label.trim());
+
       const cellValue = displayValue(item);
 
       addCell(column, cellValue, sheet, columnNames, rowIndex);
