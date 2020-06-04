@@ -6,6 +6,7 @@ import { UserDetailQueryResponse } from 'modules/settings/team/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { requestIdleCallback } from 'request-idle-callback';
+import DragDisabler from '../components/DragDisabler';
 import { mutations, queries, subscriptions } from '../graphql';
 import {
   IDragResult,
@@ -45,6 +46,7 @@ type State = {
   stageLoadMap: StageLoadMap;
   stageIds: string[];
   isShowLabel: boolean;
+  isDragEnabled?: boolean;
 };
 
 interface IStore {
@@ -387,6 +389,10 @@ class PipelineProviderInner extends React.Component<Props, State> {
         this.runTaskQueue
       );
     }
+
+    if (PipelineProviderInner.currentTask === null) {
+      this.setState({ isDragEnabled: true });
+    }
   };
 
   onAddItem = (stageId: string, item: IItem) => {
@@ -465,27 +471,39 @@ class PipelineProviderInner extends React.Component<Props, State> {
   };
 
   render() {
-    const { itemMap, stageLoadMap, stageIds, isShowLabel } = this.state;
+    const {
+      itemMap,
+      stageLoadMap,
+      stageIds,
+      isShowLabel,
+      isDragEnabled
+    } = this.state;
 
     return (
-      <PipelineContext.Provider
-        value={{
-          options: this.props.options,
-          onDragEnd: this.onDragEnd,
-          onLoadStage: this.onLoadStage,
-          scheduleStage: this.scheduleStage,
-          onAddItem: this.onAddItem,
-          onRemoveItem: this.onRemoveItem,
-          onUpdateItem: this.onUpdateItem,
-          itemMap,
-          stageLoadMap,
-          stageIds,
-          isShowLabel,
-          toggleLabels: this.toggleLabels
-        }}
-      >
-        {this.props.children}
-      </PipelineContext.Provider>
+      <>
+        {!isDragEnabled && (
+          <DragDisabler width={`${this.state.stageIds.length * 290 - 5}px`} />
+        )}
+
+        <PipelineContext.Provider
+          value={{
+            options: this.props.options,
+            onDragEnd: this.onDragEnd,
+            onLoadStage: this.onLoadStage,
+            scheduleStage: this.scheduleStage,
+            onAddItem: this.onAddItem,
+            onRemoveItem: this.onRemoveItem,
+            onUpdateItem: this.onUpdateItem,
+            itemMap,
+            stageLoadMap,
+            stageIds,
+            isShowLabel,
+            toggleLabels: this.toggleLabels
+          }}
+        >
+          {this.props.children}
+        </PipelineContext.Provider>
+      </>
     );
   }
 }
