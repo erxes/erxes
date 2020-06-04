@@ -3,10 +3,10 @@ import * as compose from 'lodash.flowright';
 import EmptyState from 'modules/common/components/EmptyState';
 import { IRouterProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import { queries, subscriptions } from '../graphql';
+import { queries } from '../graphql';
 import { RootBack, ScrolledContent } from '../styles/common';
 import { IOptions, PipelineDetailQueryResponse } from '../types';
 import Pipeline from './Pipeline';
@@ -16,50 +16,37 @@ type Props = {
 } & WrapperProps &
   IRouterProps;
 
-const Board = (props: Props) => {
-  const { pipelineDetailQuery, queryParams, options } = props;
+class Board extends React.Component<Props> {
+  render() {
+    const { pipelineDetailQuery, queryParams, options } = this.props;
 
-  useEffect(() => {
-    const pipelineId = queryParams.pipelineId;
+    if (!pipelineDetailQuery || !pipelineDetailQuery.pipelineDetail) {
+      return (
+        <EmptyState
+          image="/images/actions/18.svg"
+          text="Oh boy, looks like you need to get a head start on your board"
+          size="small"
+          light={true}
+        />
+      );
+    }
+
+    const pipeline = pipelineDetailQuery.pipelineDetail;
 
     return (
-      pipelineDetailQuery &&
-      pipelineDetailQuery.subscribeToMore({
-        document: gql(subscriptions.pipelinesChanged),
-        variables: { _id: pipelineId },
-        updateQuery: () => {
-          console.log('received'); // tslint:disable-line
-        }
-      })
-    );
-  });
-
-  const pipeline = pipelineDetailQuery && pipelineDetailQuery.pipelineDetail;
-
-  if (!pipeline) {
-    return (
-      <EmptyState
-        image="/images/actions/18.svg"
-        text="Oh boy, looks like you need to get a head start on your board"
-        size="small"
-        light={true}
-      />
+      <RootBack style={{ backgroundColor: pipeline.bgColor }}>
+        <ScrolledContent>
+          <Pipeline
+            options={options}
+            pipeline={pipeline}
+            key={pipeline._id}
+            queryParams={queryParams}
+          />
+        </ScrolledContent>
+      </RootBack>
     );
   }
-
-  return (
-    <RootBack style={{ backgroundColor: pipeline.bgColor }}>
-      <ScrolledContent>
-        <Pipeline
-          options={options}
-          pipeline={pipeline}
-          key={pipeline._id}
-          queryParams={queryParams}
-        />
-      </ScrolledContent>
-    </RootBack>
-  );
-};
+}
 
 type WrapperProps = {
   queryParams: any;

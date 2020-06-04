@@ -1,9 +1,12 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
+import * as compose from 'lodash.flowright';
+import { Alert, withProps } from 'modules/common/utils';
+import { UserDetailQueryResponse } from 'modules/settings/team/types';
 import React from 'react';
+import { graphql } from 'react-apollo';
 import { requestIdleCallback } from 'request-idle-callback';
-import { mutations, queries } from '../graphql';
+import { mutations, queries, subscriptions } from '../graphql';
 import {
   IDragResult,
   IFilterParams,
@@ -11,12 +14,13 @@ import {
   IItemMap,
   INonFilterParams,
   IOptions,
-  IPipeline
+  IPipeline,
+  PipelineDetailQueryResponse
 } from '../types';
 import { invalidateCache, orderHelper } from '../utils';
 import { reorder, reorderItemMap } from '../utils';
 
-type Props = {
+type WrapperProps = {
   pipeline: IPipeline;
   initialItemMap?: IItemMap;
   options: IOptions;
@@ -25,6 +29,11 @@ type Props = {
     queryParams: IFilterParams,
     nextQueryParams: IFilterParams
   ) => boolean;
+};
+
+type Props = WrapperProps & {
+  currentUserQuery: UserDetailQueryResponse;
+  pipelineDetailQuery: any;
 };
 
 type StageLoadMap = {
@@ -63,14 +72,14 @@ type Task = {
   isComplete: boolean;
 };
 
-export class PipelineProvider extends React.Component<Props, State> {
+class PipelineProviderInner extends React.Component<Props, State> {
   static tasks: Task[] = [];
   static currentTask: Task | null;
 
   constructor(props: Props) {
     super(props);
 
-    const { initialItemMap } = props;
+    const { pipeline, pipelineDetailQuery, initialItemMap } = props;
 
     const stageIds = Object.keys(initialItemMap || {});
 
@@ -81,8 +90,56 @@ export class PipelineProvider extends React.Component<Props, State> {
       isShowLabel: false
     };
 
-    PipelineProvider.tasks = [];
-    PipelineProvider.currentTask = null;
+    PipelineProviderInner.tasks = [];
+    PipelineProviderInner.currentTask = null;
+
+    pipelineDetailQuery.subscribeToMore({
+      document: gql(subscriptions.pipelinesChanged),
+      variables: { _id: pipeline._id },
+      updateQuery: (
+        prev,
+        {
+          subscriptionData: {
+            data: { pipelinesChanged }
+          }
+        }
+      ) => {
+        const {
+          data: {
+            destinationStageId,
+            destinationIndex,
+            oldStageId,
+            oldIndex,
+            updateOrderProccessId
+          },
+          itemId
+        } = pipelinesChanged;
+
+        if (
+          updateOrderProccessId !==
+          localStorage.getItem('updateOrderProccessId')
+        ) {
+          this.onDragEnd(
+            {
+              destination: {
+                droppableId: destinationStageId,
+                index: destinationIndex
+              },
+              draggableId: itemId,
+              combine: null,
+              mode: 'FLUID',
+              reason: 'DROP',
+              source: {
+                droppableId: oldStageId,
+                index: oldIndex
+              },
+              type: 'DEFAULT'
+            },
+            false
+          );
+        }
+      }
+    });
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -91,8 +148,8 @@ export class PipelineProvider extends React.Component<Props, State> {
     if (queryParamsChanged(queryParams, nextProps.queryParams)) {
       const { stageIds } = this.state;
 
-      PipelineProvider.tasks = [];
-      PipelineProvider.currentTask = null;
+      PipelineProviderInner.tasks = [];
+      PipelineProviderInner.currentTask = null;
 
       stageIds.forEach((stageId: string) => {
         this.scheduleStage(stageId);
@@ -100,7 +157,7 @@ export class PipelineProvider extends React.Component<Props, State> {
     }
   }
 
-  onDragEnd = result => {
+  onDragEnd = (result, saveToDb = true) => {
     // dropped nowhere
     if (!result.destination) {
       return;
@@ -128,11 +185,10 @@ export class PipelineProvider extends React.Component<Props, State> {
       this.setState({ stageIds });
 
       // save orders to database
-      return this.saveStageOrders(stageIds);
+      if (saveToDb) {
+        return this.saveStageOrders(stageIds);
+      }
     }
-
-    // to avoid to refetch current tab
-    sessionStorage.setItem('currentTab', 'true');
 
     const { itemMap, target } = reorderItemMap({
       itemMap: this.state.itemMap,
@@ -147,12 +203,16 @@ export class PipelineProvider extends React.Component<Props, State> {
     invalidateCache();
 
     // saving to database
-    this.itemChange(
-      target._id,
-      destination.droppableId,
-      target.order,
-      source.droppableId
-    );
+    if (saveToDb) {
+      this.itemChange({
+        itemId: target._id,
+        destinationStageId: destination.droppableId,
+        destinationIndex: destination.index,
+        destinationOrder: target.order,
+        sourceStageId: source.droppableId,
+        sourceIndex: source.index
+      });
+    }
   };
 
   refetchQueryVariables = () => {
@@ -189,12 +249,23 @@ export class PipelineProvider extends React.Component<Props, State> {
     };
   };
 
-  itemChange = (
-    itemId: string,
-    destinationStageId: string,
-    order: number,
-    sourceStageId: string = ''
-  ) => {
+  itemChange = (args: {
+    itemId: string;
+    destinationStageId: string;
+    destinationIndex: number;
+    destinationOrder: number;
+    sourceStageId: string;
+    sourceIndex: number;
+  }) => {
+    const {
+      itemId,
+      destinationStageId,
+      destinationIndex,
+      destinationOrder,
+      sourceStageId,
+      sourceIndex
+    } = args;
+
     const { options } = this.props;
     const refetchQueries = [this.refetchQueryBuild(destinationStageId)];
 
@@ -202,13 +273,21 @@ export class PipelineProvider extends React.Component<Props, State> {
       refetchQueries.unshift(this.refetchQueryBuild(sourceStageId));
     }
 
+    const updateOrderProccessId = Math.random().toString();
+
+    localStorage.setItem('updateOrderProccessId', updateOrderProccessId);
+
     client
       .mutate({
         mutation: gql(options.mutations.changeMutation),
         variables: {
-          _id: itemId,
+          itemId,
           destinationStageId,
-          order
+          destinationIndex,
+          destinationOrder,
+          sourceStageId,
+          sourceIndex,
+          updateOrderProccessId
         },
         refetchQueries
       })
@@ -244,7 +323,7 @@ export class PipelineProvider extends React.Component<Props, State> {
    */
   onLoadStage = (stageId: string, items: IItem[]) => {
     const { itemMap, stageLoadMap } = this.state;
-    const task = PipelineProvider.tasks.find(t => t.stageId === stageId);
+    const task = PipelineProviderInner.tasks.find(t => t.stageId === stageId);
 
     if (task) {
       task.isComplete = true;
@@ -260,9 +339,9 @@ export class PipelineProvider extends React.Component<Props, State> {
    * Register given stage to tasks queue
    */
   scheduleStage = (stageId: string) => {
-    let currentTask = PipelineProvider.currentTask;
+    let currentTask = PipelineProviderInner.currentTask;
 
-    PipelineProvider.tasks.push({
+    PipelineProviderInner.tasks.push({
       handler: (id: string) => {
         const { stageLoadMap } = this.state;
         const states = Object.values(stageLoadMap);
@@ -289,7 +368,7 @@ export class PipelineProvider extends React.Component<Props, State> {
     didTimeout: boolean;
     timeRemaining: () => number;
   }) => {
-    const inCompleteTask = PipelineProvider.tasks.find(
+    const inCompleteTask = PipelineProviderInner.tasks.find(
       (task: Task) => !task.isComplete
     );
 
@@ -301,10 +380,12 @@ export class PipelineProvider extends React.Component<Props, State> {
       handler(stageId);
     }
 
-    PipelineProvider.currentTask = null;
+    PipelineProviderInner.currentTask = null;
 
     if (inCompleteTask) {
-      PipelineProvider.currentTask = requestIdleCallback(this.runTaskQueue);
+      PipelineProviderInner.currentTask = requestIdleCallback(
+        this.runTaskQueue
+      );
     }
   };
 
@@ -330,9 +411,6 @@ export class PipelineProvider extends React.Component<Props, State> {
   onUpdateItem = (item: IItem, prevStageId?: string) => {
     const { stageId } = item;
     const { itemMap } = this.state;
-
-    // to avoid to refetch current tab
-    sessionStorage.setItem('currentTab', 'true');
 
     // Moved to anothor board or pipeline
     if (!itemMap[stageId] && prevStageId) {
@@ -362,11 +440,13 @@ export class PipelineProvider extends React.Component<Props, State> {
 
       this.setState({ itemMap: newitemMap }, () => {
         const afterItem = itemMap[stageId][0];
+
         item.order = orderHelper({
           prevOrder: 0,
           afterOrder: afterItem ? afterItem.order : 0
         });
-        this.itemChange(item._id, stageId, item.order, prevStageId);
+
+        // this.itemChange(item._id, stageId, item.order, prevStageId);
       });
     } else {
       const items = [...itemMap[stageId]];
@@ -409,3 +489,14 @@ export class PipelineProvider extends React.Component<Props, State> {
     );
   }
 }
+
+export const PipelineProvider = withProps<WrapperProps>(
+  compose(
+    graphql<Props, PipelineDetailQueryResponse>(gql(queries.pipelineDetail), {
+      name: 'pipelineDetailQuery',
+      options: ({ pipeline }) => ({
+        variables: { _id: pipeline._id }
+      })
+    })
+  )(PipelineProviderInner)
+);
