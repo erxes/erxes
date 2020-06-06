@@ -52,10 +52,22 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
       if (customerParams.form && customerParams.popupData) {
         debugBase('Start an query for popups export');
 
-        const messages = await ConversationMessages.find(
-          { formWidgetData: { $exists: true, $ne: null }, customerId: { $exists: true } },
-          { formWidgetData: 1, customerId: 1, createdAt: 1 },
-        );
+        const fields = await Fields.find({ contentType: 'form', contentTypeId: customerParams.form });
+
+        if (fields.length === 0) {
+          return [];
+        }
+
+        const messageQuery: any = {
+          'formWidgetData._id': { $in: fields.map(field => field._id) },
+          customerId: { $exists: true },
+        };
+
+        const messages = await ConversationMessages.find(messageQuery, {
+          formWidgetData: 1,
+          customerId: 1,
+          createdAt: 1,
+        });
 
         const messagesMap: { [key: string]: any[] } = {};
 
