@@ -1,5 +1,9 @@
 {
   "projectId": "bg7eun",
   "ignoreTestFiles": "*.spec.js",
-  "baseUrl": "http://localhost:3000"
+  "baseUrl": "http://localhost:3000",
+  "viewportWidth": 1368,
+  "viewportHeight": 768,
+  "userEmail": "admin@erxes.io",
+  "userPassword": "E212021erxes."
 }

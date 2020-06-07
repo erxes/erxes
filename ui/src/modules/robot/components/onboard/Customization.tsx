@@ -28,11 +28,11 @@ const FeatureName = styledTS<{ chosen: boolean }>(styled.div)`
   transition: all 0.3s ease;
   color: ${props =>
     props.chosen ? colors.colorSecondary : colors.textPrimary};
-  
+
   &:last-child {
     margin-bottom: 0;
   }
-	
+
 	&:hover {
 		cursor: pointer;
 	}
@@ -82,6 +82,7 @@ function Customization(props: Props) {
 
     return (
       <FeatureName
+        id={`robot-item-${item.key}`}
         key={item.key}
         onClick={toggleItem}
         chosen={isChosen}
@@ -108,7 +109,9 @@ function Customization(props: Props) {
           </i>
         </p>
       </SubContent>
-      <Features>{FEATURES.map(feature => renderItem(feature))}</Features>
+      <Features id="robot-features">
+        {FEATURES.map(feature => renderItem(feature))}
+      </Features>
       {props.renderButton(
         'Finish',
         saveFeatures,

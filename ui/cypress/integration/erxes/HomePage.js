@@ -12,8 +12,8 @@ context('Cypress.platform', () => {
     });
 
     if (!token) {
-      const email = 'ganzorig.b@nmma.co';
-      const password = 'password';
+      const email = 'admin@erxes.io';
+      const password = 'E212021erxes.';
 
       cy.get('input[name=email]').type(email);
       cy.get('input[name=password]').type(`${password}{enter}`);
