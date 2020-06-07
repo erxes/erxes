@@ -106,6 +106,10 @@ class PipelineProviderInner extends React.Component<Props, State> {
           }
         }
       ) => {
+        if (!pipelinesChanged || !pipelinesChanged.data) {
+          return;
+        }
+
         const {
           data: {
             destinationStageId,
@@ -430,9 +434,18 @@ class PipelineProviderInner extends React.Component<Props, State> {
     // Moved between stages
     if (prevStageId && stageId !== prevStageId) {
       // remove from old stage
-      const prevStageItems = itemMap[prevStageId].filter(
-        (d: IItem) => d._id !== item._id
-      );
+      let sourceIndex;
+      const prevStageItems: IItem[] = [];
+
+      for (let i = 0; i < itemMap[prevStageId].length; i++) {
+        const d = itemMap[prevStageId][i];
+
+        if (d._id === item._id) {
+          sourceIndex = i;
+        } else {
+          prevStageItems.push(d);
+        }
+      }
 
       // add to new stage's front
       const items = [...itemMap[stageId]];
@@ -452,7 +465,14 @@ class PipelineProviderInner extends React.Component<Props, State> {
           afterOrder: afterItem ? afterItem.order : 0
         });
 
-        // this.itemChange(item._id, stageId, item.order, prevStageId);
+        this.itemChange({
+          itemId: item._id,
+          destinationStageId: stageId,
+          destinationIndex: 0,
+          destinationOrder: item.order,
+          sourceStageId: prevStageId,
+          sourceIndex
+        });
       });
     } else {
       const items = [...itemMap[stageId]];
