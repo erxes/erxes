@@ -23,9 +23,6 @@ const options = {
     archiveMutation: 'dealsArchive',
     copyMutation: 'dealsCopy'
   },
-  subscriptionName: {
-    changeSubscription: 'dealsChanged'
-  },
   queries: {
     itemsQuery: queries.deals,
     detailQuery: queries.dealDetail,

@@ -22,9 +22,6 @@ const options = {
     archiveMutation: 'growthHacksArchive',
     copyMutation: 'growthHacksCopy'
   },
-  subscriptionName: {
-    changeSubscription: 'growthHacksChanged'
-  },
   queries: {
     itemsQuery: queries.growthHacks,
     detailQuery: queries.growthHackDetail,
