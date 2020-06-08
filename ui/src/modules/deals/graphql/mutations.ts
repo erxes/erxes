@@ -15,8 +15,8 @@ const dealMutationParams = `
   paymentsData: $paymentsData,
 `;
 
-const copyVariables = `$companyIds: [String], $customerIds: [String], $labelIds: [String], $proccessId: String`;
-const copyParams = `companyIds: $companyIds, customerIds: $customerIds, labelIds: $labelIds, proccessId: $proccessId`;
+const copyVariables = `$companyIds: [String], $customerIds: [String], $labelIds: [String]`;
+const copyParams = `companyIds: $companyIds, customerIds: $customerIds, labelIds: $labelIds`;
 
 const dealsAdd = `
   mutation dealsAdd($name: String!, ${copyVariables}, ${dealMutationVariables} ${commonMutationVariables}) {
