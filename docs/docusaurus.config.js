@@ -1,7 +1,7 @@
 module.exports = {
   title: 'erxes',
   tagline: 'Documentation',
-  url: 'https://docs.erxes.io',
+  url: 'https://www.erxes.org',
   baseUrl: '/',
   favicon: 'img/favicon.ico',
   organizationName: 'erxes', // Usually your GitHub org/user name.
