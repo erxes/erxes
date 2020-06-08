@@ -12,6 +12,7 @@ import { __, Alert } from 'modules/common/utils';
 import { Recipient, Recipients } from 'modules/engage/styles';
 import { ContentBox } from 'modules/settings/styles';
 import React from 'react';
+import { KEY_LABELS } from '../constants';
 import { IConfigsMap } from '../types';
 import { Verify } from './styles';
 
@@ -35,7 +36,17 @@ type State = {
   configSet?: string;
   emailVerificationType?: string;
   trueMailApiKey?: string;
+  telnyxApiKey?: string;
+  telnyxPhone?: string;
 };
+
+type CommonFields =
+  | 'emailToVerify'
+  | 'testFrom'
+  | 'testTo'
+  | 'testContent'
+  | 'telnyxApiKey'
+  | 'telnyxPhone';
 
 class EngageSettingsContent extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -49,7 +60,9 @@ class EngageSettingsContent extends React.Component<Props, State> {
       region: configsMap.region || '',
       configSet: configsMap.configSet || '',
       emailVerificationType: configsMap.emailVerificationType || '',
-      trueMailApiKey: configsMap.trueMailApiKey || ''
+      trueMailApiKey: configsMap.trueMailApiKey || '',
+      telnyxApiKey: configsMap.telnyxApiKey || '',
+      telnyxPhone: configsMap.telnyxPhone || ''
     };
   }
 
@@ -57,10 +70,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
     return { configsMap: values };
   };
 
-  onChangeCommon = (
-    name: 'emailToVerify' | 'testFrom' | 'testTo' | 'testContent',
-    e
-  ) => {
+  onChangeCommon = (name: CommonFields, e) => {
     this.setState({ [name]: e.currentTarget.value });
   };
 
@@ -111,7 +121,6 @@ class EngageSettingsContent extends React.Component<Props, State> {
 
   renderContent = (formProps: IFormProps) => {
     const { configsMap, renderButton } = this.props;
-
     const { values, isSubmitted } = formProps;
 
     return (
@@ -177,6 +186,28 @@ class EngageSettingsContent extends React.Component<Props, State> {
             max={140}
             name="unverifiedEmailsLimit"
             defaultValue={configsMap.unverifiedEmailsLimit || 100}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>{KEY_LABELS.TELNYX_API_KEY}</ControlLabel>
+          {<p>{__('Required for sending SMS messages')}</p>}
+          <FormControl
+            {...formProps}
+            name="telnyxApiKey"
+            defaultValue={configsMap.telnyxApiKey}
+            onChange={this.onChangeCommon.bind(this, 'telnyxApiKey')}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>{KEY_LABELS.TELNYX_PHONE}</ControlLabel>
+          {<p>{__('SMS sender number')}</p>}
+          <FormControl
+            {...formProps}
+            name="telnyxPhone"
+            defaultValue={configsMap.telnyxPhone}
+            onChange={this.onChangeCommon.bind(this, 'telnyxPhone')}
           />
         </FormGroup>
 
