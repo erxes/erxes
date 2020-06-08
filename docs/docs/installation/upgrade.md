@@ -6,7 +6,7 @@ sidebar_label: Upgrade
 
 Following the steps in this document you can upgrade the system version.
 
-## Upgrad erxes 0.13.0 to 0.14.1
+## Upgrade erxes 0.13.0 to 0.14.1
 
 Since the current [Debian installation script](https://github.com/erxes/erxes/blob/develop/scripts/install/debian10.sh) and [CentOS installation script](https://github.com/erxes/erxes/blob/develop/scripts/install/centos8.sh) aret updated to 0.14.1, they can be used to upgrade erxes v0.13.0 to v 0.14.1 if you are hosting erxes on Centos, Ubuntu or Debian.
 
@@ -50,7 +50,7 @@ yarn migrate
 - Since version `latest vx.x.x` Erxes started using RabbitMQ as message broker service. To update, please see example changes at docker [installation guide.](docker)
 - Engage module is moved to [separate repository](https://github.com/erxes/erxes-engages-email-sender). Also docker [installation guide](docker) is updated to reflect related changes.
 
-### Env changes
+### Environment changes
 
 - erxes
 
