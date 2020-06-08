@@ -82,6 +82,7 @@ export const engageDetailFields = `
   totalCustomersCount
   validCustomersCount
   stats
+  smsContent
 
   messenger
   fromUser {

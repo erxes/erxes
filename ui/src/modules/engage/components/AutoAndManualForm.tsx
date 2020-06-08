@@ -14,6 +14,7 @@ import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { IBreadCrumbItem } from '../../common/types';
+import { METHODS } from '../constants';
 import {
   IEngageEmail,
   IEngageMessage,
@@ -21,6 +22,7 @@ import {
   IEngageMessenger,
   IEngageScheduleDate
 } from '../types';
+import SmsForm from './SmsForm';
 import ChannelStep from './step/ChannelStep';
 import MessageStep from './step/MessageStep';
 import MessageTypeStep from './step/MessageTypeStep';
@@ -55,6 +57,7 @@ type State = {
   messenger?: IEngageMessenger;
   email?: IEngageEmail;
   scheduleDate: IEngageScheduleDate;
+  smsContent?: string;
 };
 
 class AutoAndManualForm extends React.Component<Props, State> {
@@ -83,7 +86,8 @@ class AutoAndManualForm extends React.Component<Props, State> {
       fromUserId: message.fromUserId,
       messenger: message.messenger,
       email: message.email,
-      scheduleDate: message.scheduleDate
+      scheduleDate: message.scheduleDate,
+      smsContent: message.smsContent || ''
     };
   }
 
@@ -107,7 +111,8 @@ class AutoAndManualForm extends React.Component<Props, State> {
       title: this.state.title,
       fromUserId: this.state.fromUserId,
       method: this.state.method,
-      scheduleDate: this.state.scheduleDate
+      scheduleDate: this.state.scheduleDate,
+      smsContent: this.state.smsContent
     } as IEngageMessageDoc;
 
     if (this.state.method === 'email') {
@@ -173,6 +178,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
           </>
         );
       }
+
       return (
         <Button
           disabled={isActionLoading}
@@ -195,17 +201,66 @@ class AutoAndManualForm extends React.Component<Props, State> {
     );
   };
 
+  renderMessageContent() {
+    const { message, brands, users, kind, templates } = this.props;
+
+    const {
+      messenger,
+      email,
+      fromUserId,
+      content,
+      scheduleDate,
+      method,
+      smsContent
+    } = this.state;
+
+    const imagePath = '/images/icons/erxes-08.svg';
+
+    if (method === METHODS.SMS) {
+      return (
+        <Step noButton={true} title="Compose your SMS" img={imagePath}>
+          <SmsForm
+            onChange={this.changeState}
+            users={users}
+            messageKind={kind}
+            fromUserId={fromUserId}
+            scheduleDate={scheduleDate}
+            smsContent={smsContent}
+          />
+        </Step>
+      );
+    }
+
+    return (
+      <Step
+        img={imagePath}
+        title="Compose your message"
+        noButton={true}
+        message={message}
+      >
+        <MessageStep
+          brands={brands}
+          onChange={this.changeState}
+          users={users}
+          method={this.state.method}
+          templates={templates}
+          kind={kind}
+          messenger={messenger}
+          email={email}
+          fromUserId={fromUserId}
+          content={content}
+          scheduleDate={scheduleDate}
+        />
+      </Step>
+    );
+  }
+
   render() {
     const { renderTitle, breadcrumbs } = this.props;
 
     const {
       activeStep,
       maxStep,
-      messenger,
-      email,
-      fromUserId,
-      content,
-      scheduleDate,
       segmentIds,
       brandIds,
       title,
@@ -249,26 +304,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
             />
           </Step>
 
-          <Step
-            img="/images/icons/erxes-08.svg"
-            title="Compose your message"
-            noButton={true}
-            message={this.props.message}
-          >
-            <MessageStep
-              brands={this.props.brands}
-              onChange={this.changeState}
-              users={this.props.users}
-              method={this.state.method}
-              templates={this.props.templates}
-              kind={this.props.kind}
-              messenger={messenger}
-              email={email}
-              fromUserId={fromUserId}
-              content={content}
-              scheduleDate={scheduleDate}
-            />
-          </Step>
+          {this.renderMessageContent()}
         </Steps>
       </StepWrapper>
     );

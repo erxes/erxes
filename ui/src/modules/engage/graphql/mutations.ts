@@ -51,6 +51,7 @@ const commonVariables = `
   $email: EngageMessageEmail,
   $scheduleDate: EngageScheduleDateInput,
   $messenger: EngageMessageMessenger,
+  $smsContent: String,
 `;
 
 const commonParams = `
@@ -68,6 +69,7 @@ const commonParams = `
   email: $email,
   messenger: $messenger,
   scheduleDate: $scheduleDate,
+  smsContent: $smsContent,
 `;
 
 const messagesAdd = `
