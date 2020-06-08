@@ -5,7 +5,7 @@ import {
 import { Amount } from 'modules/boards/styles/stage';
 import React from 'react';
 import PriorityIndicator from './components/editForm/PriorityIndicator';
-import { IDraggableLocation, IItemMap } from './types';
+import { IDraggableLocation, IItem, IItemMap } from './types';
 
 type Options = {
   _id: string;
@@ -43,61 +43,8 @@ export const reorder = (
 
 type ReorderItemMap = {
   itemMap: IItemMap;
-  source: IDraggableLocation;
+  source: IDraggableLocation & { item?: IItem };
   destination: IDraggableLocation;
-};
-
-const round = (num: number, fixed: number = 0) => {
-  return parseFloat(num.toFixed(fixed));
-};
-
-export const orderHelper = ({
-  prevOrder,
-  afterOrder
-}: {
-  prevOrder: number;
-  afterOrder: number;
-}) => {
-  // empty stage
-  if (!prevOrder && !afterOrder) {
-    return 1;
-  }
-
-  // end of stage
-  if (!afterOrder) {
-    return round(prevOrder) + 1;
-  }
-
-  const splitAfter = afterOrder.toString().split('.');
-  const fraction = '0.'.concat(splitAfter[1] || '0');
-
-  // begin of stage
-  if (!prevOrder) {
-    const afterLen = fraction.length;
-    const afterDotLen = fraction === '0.0' ? 1 : 0;
-    const diffIs1Len = afterOrder.toString().substr(-1) === '1' ? 1 : 0;
-
-    return round(
-      afterOrder - 0.1 ** (afterLen - 2 - afterDotLen + diffIs1Len),
-      afterLen + diffIs1Len
-    );
-  }
-
-  // between items on stage
-  const prevFraction = '0.'.concat(prevOrder.toString().split('.')[1] || '0');
-  const diffLen =
-    prevFraction.length > fraction.length
-      ? prevFraction.length
-      : fraction.length;
-
-  const diff = round(afterOrder - prevOrder, diffLen);
-  const dotLen = fraction === '0.0' && prevFraction === '0.0' ? 1 : 0;
-  const is1Len = diff.toString().substr(-1) === '1' ? 1 : 0;
-
-  return round(
-    afterOrder - 0.1 ** (diffLen - 2 - dotLen + is1Len),
-    diffLen + is1Len
-  );
 };
 
 export const reorderItemMap = ({
@@ -108,24 +55,13 @@ export const reorderItemMap = ({
   const current = [...itemMap[source.droppableId]];
   const next = [...itemMap[destination.droppableId]];
 
-  const target = current[source.index];
-  target.modifiedAt = new Date();
-  let checkSelf = 0;
+  let target = current[source.index];
 
-  if (
-    source.droppableId === destination.droppableId &&
-    source.index < destination.index
-  ) {
-    checkSelf = 1;
+  if (!target && source.item) {
+    target = source.item;
   }
 
-  const prevOrder =
-    destination.index > 0 ? next[destination.index - 1 + checkSelf].order : 0;
-  const afterOrder =
-    next.length > destination.index + checkSelf
-      ? next[destination.index + checkSelf].order
-      : 0;
-  target.order = orderHelper({ prevOrder, afterOrder }) || 1;
+  target.modifiedAt = new Date();
 
   // moving to same list
   if (source.droppableId === destination.droppableId) {
@@ -138,6 +74,7 @@ export const reorderItemMap = ({
 
     return {
       itemMap: updateditemMap,
+      aboveItem: next[destination.index - 1],
       target
     };
   }
@@ -158,6 +95,7 @@ export const reorderItemMap = ({
 
   return {
     itemMap: result,
+    aboveItem: next[destination.index - 1],
     target
   };
 };

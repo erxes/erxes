@@ -49,6 +49,12 @@ class AddFormContainer extends React.Component<FinalProps> {
     doc.assignedUserIds = assignedUserIds;
     doc.sourceConversationId = sourceConversationId;
 
+    const proccessId = Math.random().toString();
+
+    localStorage.setItem('proccessId', proccessId);
+
+    doc.proccessId = proccessId;
+
     addMutation({ variables: doc })
       .then(({ data }) => {
         if (options.texts.addSuccessText) {

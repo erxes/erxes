@@ -18,7 +18,7 @@ import {
   IPipeline,
   PipelineDetailQueryResponse
 } from '../types';
-import { invalidateCache, orderHelper } from '../utils';
+import { invalidateCache } from '../utils';
 import { reorder, reorderItemMap } from '../utils';
 
 type WrapperProps = {
@@ -112,37 +112,46 @@ class PipelineProviderInner extends React.Component<Props, State> {
 
         const {
           data: {
+            item,
             destinationStageId,
             destinationIndex,
             oldStageId,
-            oldIndex,
-            updateOrderProccessId
+            oldIndex
           },
-          itemId
+          action,
+          proccessId
         } = pipelinesChanged;
 
-        if (
-          updateOrderProccessId !==
-          localStorage.getItem('updateOrderProccessId')
-        ) {
-          this.onDragEnd(
-            {
-              destination: {
-                droppableId: destinationStageId,
-                index: destinationIndex
+        if (proccessId !== localStorage.getItem('proccessId')) {
+          if (action === 'orderUpdated') {
+            this.onDragEnd(
+              {
+                destination: {
+                  droppableId: destinationStageId,
+                  index: destinationIndex
+                },
+                draggableId: item._id,
+                combine: null,
+                mode: 'FLUID',
+                reason: 'DROP',
+                source: {
+                  item,
+                  droppableId: oldStageId,
+                  index: oldIndex
+                },
+                type: 'DEFAULT'
               },
-              draggableId: itemId,
-              combine: null,
-              mode: 'FLUID',
-              reason: 'DROP',
-              source: {
-                droppableId: oldStageId,
-                index: oldIndex
-              },
-              type: 'DEFAULT'
-            },
-            false
-          );
+              false
+            );
+          }
+
+          if (action === 'itemAdd') {
+            this.onAddItem(destinationStageId, item);
+          }
+
+          if (action === 'itemRemove') {
+            this.onRemoveItem(item._id, oldStageId);
+          }
         }
       }
     });
@@ -196,7 +205,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
       }
     }
 
-    const { itemMap, target } = reorderItemMap({
+    const { itemMap, target, aboveItem } = reorderItemMap({
       itemMap: this.state.itemMap,
       source,
       destination
@@ -212,9 +221,9 @@ class PipelineProviderInner extends React.Component<Props, State> {
     if (saveToDb) {
       this.itemChange({
         itemId: target._id,
+        aboveItemId: aboveItem ? aboveItem._id : '',
         destinationStageId: destination.droppableId,
         destinationIndex: destination.index,
-        destinationOrder: target.order,
         sourceStageId: source.droppableId,
         sourceIndex: source.index
       });
@@ -257,17 +266,17 @@ class PipelineProviderInner extends React.Component<Props, State> {
 
   itemChange = (args: {
     itemId: string;
+    aboveItemId?: string;
     destinationStageId: string;
     destinationIndex: number;
-    destinationOrder: number;
     sourceStageId: string;
     sourceIndex: number;
   }) => {
     const {
       itemId,
+      aboveItemId,
       destinationStageId,
       destinationIndex,
-      destinationOrder,
       sourceStageId,
       sourceIndex
     } = args;
@@ -279,21 +288,20 @@ class PipelineProviderInner extends React.Component<Props, State> {
       refetchQueries.unshift(this.refetchQueryBuild(sourceStageId));
     }
 
-    const updateOrderProccessId = Math.random().toString();
-
-    localStorage.setItem('updateOrderProccessId', updateOrderProccessId);
+    const proccessId = Math.random().toString();
+    localStorage.setItem('proccessId', proccessId);
 
     client
       .mutate({
         mutation: gql(options.mutations.changeMutation),
         variables: {
           itemId,
+          aboveItemId,
           destinationStageId,
           destinationIndex,
-          destinationOrder,
           sourceStageId,
           sourceIndex,
-          updateOrderProccessId
+          proccessId
         },
         refetchQueries
       })
@@ -458,18 +466,10 @@ class PipelineProviderInner extends React.Component<Props, State> {
       };
 
       this.setState({ itemMap: newitemMap }, () => {
-        const afterItem = itemMap[stageId][0];
-
-        item.order = orderHelper({
-          prevOrder: 0,
-          afterOrder: afterItem ? afterItem.order : 0
-        });
-
         this.itemChange({
           itemId: item._id,
           destinationStageId: stageId,
           destinationIndex: 0,
-          destinationOrder: item.order,
           sourceStageId: prevStageId,
           sourceIndex
         });
