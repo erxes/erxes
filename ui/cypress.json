@@ -4,6 +4,8 @@
   "baseUrl": "http://localhost:3000",
   "viewportWidth": 1368,
   "viewportHeight": 768,
-  "userEmail": "admin@erxes.io",
-  "userPassword": "E212021erxes."
+  "env": {
+    "userEmail": "admin@erxes.io",
+    "userPassword": "E212021erxes."
+  }
 }
