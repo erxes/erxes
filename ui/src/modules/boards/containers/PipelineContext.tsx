@@ -146,7 +146,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
           }
 
           if (action === 'itemAdd') {
-            this.onAddItem(destinationStageId, item);
+            this.onAddItem(destinationStageId, item, destinationIndex);
           }
 
           if (action === 'itemRemove') {
@@ -407,13 +407,16 @@ class PipelineProviderInner extends React.Component<Props, State> {
     }
   };
 
-  onAddItem = (stageId: string, item: IItem) => {
+  onAddItem = (stageId: string, item: IItem, index?: number) => {
     const { itemMap } = this.state;
     const items = itemMap[stageId];
 
-    this.setState({
-      itemMap: { ...itemMap, [stageId]: [...items, item] }
-    });
+    // dot not add to hidden index
+    if (!index || items.length >= index) {
+      this.setState({
+        itemMap: { ...itemMap, [stageId]: [...items, item] }
+      });
+    }
   };
 
   onRemoveItem = (itemId: string, stageId: string) => {
