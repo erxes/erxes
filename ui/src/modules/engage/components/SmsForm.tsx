@@ -5,23 +5,22 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import { IEngageScheduleDate } from '../types';
+import { IEngageScheduleDate, IEngageSms } from '../types';
 import Scheduler from './Scheduler';
 
 type Props = {
   onChange: (
-    name: 'smsContent' | 'scheduleDate' | 'fromUserId',
-    value?: IEngageScheduleDate | string
+    name: 'shortMessage' | 'scheduleDate' | 'fromUserId',
+    value?: IEngageScheduleDate | IEngageSms | string
   ) => void;
-  users: IUser[];
   messageKind: string;
-  fromUserId: string;
   scheduleDate: IEngageScheduleDate;
-  smsContent?: string;
+  shortMessage?: IEngageSms;
+  users: IUser[];
+  fromUserId: string;
 };
 
 type State = {
-  fromUserId: string;
   scheduleDate: IEngageScheduleDate;
 };
 
@@ -29,14 +28,15 @@ class MessengerForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { fromUserId, scheduleDate } = props;
-
-    this.state = { fromUserId, scheduleDate };
+    this.state = { scheduleDate: props.scheduleDate };
   }
 
-  changeFromUserId = fromUserId => {
-    this.setState({ fromUserId });
-    this.props.onChange('fromUserId', fromUserId);
+  onChangeSms = (key: string, value: string) => {
+    const shortMessage = { ...this.props.shortMessage } as IEngageSms;
+
+    shortMessage[key] = value;
+
+    this.props.onChange('shortMessage', shortMessage);
   };
 
   renderScheduler() {
@@ -55,32 +55,26 @@ class MessengerForm extends React.Component<Props, State> {
   }
 
   render() {
-    const { onChange, smsContent, users } = this.props;
+    const { fromUserId, onChange, shortMessage, users } = this.props;
+
+    const onChangeTitle = e =>
+      this.onChangeSms('from', (e.target as HTMLInputElement).value);
+
+    const onChangeContent = e =>
+      this.onChangeSms('content', (e.target as HTMLInputElement).value);
 
     const onChangeFrom = e =>
-      this.changeFromUserId((e.target as HTMLInputElement).value);
-
-    const onContentChange = e =>
-      onChange('smsContent', (e.target as HTMLInputElement).value);
+      onChange('fromUserId', (e.target as HTMLInputElement).value);
 
     return (
       <FlexItem>
         <FlexPad overflow="auto" direction="column" count="3">
           <FormGroup>
-            <ControlLabel>{__('Message:')}</ControlLabel>
-            <FormControl
-              componentClass="textarea"
-              defaultValue={smsContent}
-              onBlur={onContentChange}
-            />
-          </FormGroup>
-
-          <FormGroup>
             <ControlLabel>From:</ControlLabel>
             <FormControl
               componentClass="select"
               onChange={onChangeFrom}
-              value={this.state.fromUserId}
+              defaultValue={fromUserId}
             >
               <option />{' '}
               {users.map(user => (
@@ -90,7 +84,21 @@ class MessengerForm extends React.Component<Props, State> {
               ))}
             </FormControl>
           </FormGroup>
-
+          <FormGroup>
+            <ControlLabel>Title:</ControlLabel>
+            <FormControl
+              onBlur={onChangeTitle}
+              defaultValue={shortMessage && shortMessage.from}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{__('Message:')}</ControlLabel>
+            <FormControl
+              componentClass="textarea"
+              defaultValue={shortMessage && shortMessage.content}
+              onBlur={onChangeContent}
+            />
+          </FormGroup>
           {this.renderScheduler()}
         </FlexPad>
       </FlexItem>
