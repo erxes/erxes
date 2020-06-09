@@ -14,6 +14,7 @@ type Props = {
   contentType: string;
   target?: string;
   extraTabs: Array<{ name: string; label: string }>;
+  activityType: string;
 };
 
 type FinalProps = {
@@ -34,6 +35,12 @@ class Container extends React.Component<FinalProps, {}> {
     });
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.profileImage !== this.props.activityType) {
+      this.props.activityLogQuery.refetch();
+    }
+  }
+
   componentWillUnmount() {
     this.unsubscribe();
   }
@@ -42,8 +49,8 @@ class Container extends React.Component<FinalProps, {}> {
     const {
       target,
       activityLogQuery,
-      onChangeActivityTab,
-      extraTabs
+      extraTabs,
+      onChangeActivityTab
     } = this.props;
 
     const props = {
@@ -80,7 +87,7 @@ const WithData = withProps<WithDataProps>(
             variables: {
               contentId,
               contentType,
-              activityType: activityType === 'activity' ? '' : activityType
+              activityType
             }
           };
         }
@@ -107,6 +114,7 @@ export default class Wrapper extends React.Component<
 
   render() {
     const { contentId, contentType, target, extraTabs } = this.props;
+    const { activityType } = this.state;
 
     return (
       <WithData
@@ -114,7 +122,7 @@ export default class Wrapper extends React.Component<
         contentId={contentId}
         contentType={contentType}
         extraTabs={extraTabs}
-        activityType={this.state.activityType}
+        activityType={activityType}
         onChangeActivityTab={this.onChangeActivityTab}
       />
     );
