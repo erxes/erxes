@@ -85,7 +85,9 @@ export const reorderItemMap = ({
   current.splice(source.index, 1);
 
   // insert into next
-  next.splice(destination.index, 0, target);
+  if (next.length >= destination.index) {
+    next.splice(destination.index, 0, target);
+  }
 
   const result = {
     ...itemMap,
