@@ -14,7 +14,6 @@ type Props = {
   contentType: string;
   target?: string;
   extraTabs: Array<{ name: string; label: string }>;
-  activityType: string;
 };
 
 type FinalProps = {
