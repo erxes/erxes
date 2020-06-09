@@ -45,8 +45,8 @@ const dealsRemove = `
 `;
 
 const dealsChange = `
-  mutation dealsChange($itemId: String!, $aboveItemId: String, $destinationStageId: String!, $destinationIndex: Float, $sourceStageId: String, $sourceIndex: Float, $proccessId: String) {
-    dealsChange(itemId: $itemId, aboveItemId: $aboveItemId, destinationStageId: $destinationStageId, destinationIndex: $destinationIndex, sourceStageId: $sourceStageId, sourceIndex: $sourceIndex, proccessId: $proccessId) {
+  mutation dealsChange($itemId: String!, $aboveItemId: String, $destinationStageId: String!, $sourceStageId: String, $proccessId: String) {
+    dealsChange(itemId: $itemId, aboveItemId: $aboveItemId, destinationStageId: $destinationStageId, sourceStageId: $sourceStageId, proccessId: $proccessId) {
       _id
     }
   }
