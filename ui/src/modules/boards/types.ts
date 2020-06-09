@@ -76,6 +76,7 @@ export interface IItemParams {
   sourceConversationId?: string;
   labelIds?: string[];
   proccessId?: string;
+  aboveItemId?: string;
 }
 
 export type SaveItemMutation = ({ variables: IItemParams }) => Promise<any>;
@@ -261,7 +262,12 @@ export type RemoveVariables = {
 
 export type RemoveMutation = ({ variables: RemoveVariables }) => Promise<any>;
 
-export type CopyMutation = ({ variables: RemoveVariables }) => Promise<any>;
+export type CopyVariables = {
+  _id: string;
+  proccessId: string;
+};
+
+export type CopyMutation = ({ variables: CopyVariables }) => Promise<any>;
 
 export type ItemsQueryResponse = {
   loading: boolean;

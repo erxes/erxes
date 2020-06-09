@@ -78,7 +78,11 @@ class EditFormContainer extends React.Component<FinalProps> {
   copyItem(itemId: string, callback: () => void) {
     const { copyMutation, onAdd, options, stageId } = this.props;
 
-    copyMutation({ variables: { _id: itemId } })
+    const proccessId = Math.random().toString();
+
+    localStorage.setItem('proccessId', proccessId);
+
+    copyMutation({ variables: { _id: itemId, proccessId } })
       .then(({ data }) => {
         callback();
 

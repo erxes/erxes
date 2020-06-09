@@ -68,8 +68,8 @@ const dealsArchive = `
 `;
 
 const dealsCopy = `
-  mutation dealsCopy($_id: String!) {
-    dealsCopy(_id: $_id) {
+  mutation dealsCopy($_id: String!, $proccessId: String) {
+    dealsCopy(_id: $_id, proccessId: $proccessId) {
       ${commonFields}
       ${dealFields}
     }

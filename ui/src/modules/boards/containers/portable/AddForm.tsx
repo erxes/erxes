@@ -25,6 +25,7 @@ type IProps = {
   getAssociatedItem?: (itemId: string) => void;
   closeModal: () => void;
   refetch?: () => void;
+  aboveItemId?: string;
 };
 
 type FinalProps = {
@@ -43,7 +44,8 @@ class AddFormContainer extends React.Component<FinalProps> {
       refetch,
       assignedUserIds,
       sourceConversationId,
-      getAssociatedItem
+      getAssociatedItem,
+      aboveItemId
     } = this.props;
 
     doc.assignedUserIds = assignedUserIds;
@@ -54,6 +56,7 @@ class AddFormContainer extends React.Component<FinalProps> {
     localStorage.setItem('proccessId', proccessId);
 
     doc.proccessId = proccessId;
+    doc.aboveItemId = aboveItemId;
 
     addMutation({ variables: doc })
       .then(({ data }) => {

@@ -1,5 +1,6 @@
 export const commonMutationVariables = `
   $proccessId: String,
+  $aboveItemId: String,
   $stageId: String,
   $closeDate: Date,
   $description: String,
@@ -15,6 +16,7 @@ export const commonMutationVariables = `
 
 export const commonMutationParams = `
   proccessId: $proccessId,
+  aboveItemId: $aboveItemId,
   stageId: $stageId,
   closeDate: $closeDate,
   description: $description,
