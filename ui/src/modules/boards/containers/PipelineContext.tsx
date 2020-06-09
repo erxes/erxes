@@ -152,6 +152,24 @@ class PipelineProviderInner extends React.Component<Props, State> {
           if (action === 'itemRemove') {
             this.onRemoveItem(item._id, oldStageId);
           }
+
+          // refetch stages info ===
+          const changedStageIds: string[] = [];
+
+          if (destinationStageId) {
+            changedStageIds.push(destinationStageId);
+          }
+          if (oldStageId && !changedStageIds.includes(oldStageId)) {
+            changedStageIds.push(oldStageId);
+          }
+
+          for (const id of changedStageIds) {
+            client.query({
+              query: gql(queries.stageDetail),
+              fetchPolicy: 'network-only',
+              variables: { _id: id }
+            });
+          }
         }
       }
     });
