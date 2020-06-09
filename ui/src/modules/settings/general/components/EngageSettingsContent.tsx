@@ -38,6 +38,7 @@ type State = {
   trueMailApiKey?: string;
   telnyxApiKey?: string;
   telnyxPhone?: string;
+  telnyxProfileId?: string;
 };
 
 type CommonFields =
@@ -46,7 +47,8 @@ type CommonFields =
   | 'testTo'
   | 'testContent'
   | 'telnyxApiKey'
-  | 'telnyxPhone';
+  | 'telnyxPhone'
+  | 'telnyxProfileId';
 
 class EngageSettingsContent extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -62,7 +64,8 @@ class EngageSettingsContent extends React.Component<Props, State> {
       emailVerificationType: configsMap.emailVerificationType || '',
       trueMailApiKey: configsMap.trueMailApiKey || '',
       telnyxApiKey: configsMap.telnyxApiKey || '',
-      telnyxPhone: configsMap.telnyxPhone || ''
+      telnyxPhone: configsMap.telnyxPhone || '',
+      telnyxProfileId: configsMap.telnyxProfileId || ''
     };
   }
 
@@ -202,12 +205,35 @@ class EngageSettingsContent extends React.Component<Props, State> {
 
         <FormGroup>
           <ControlLabel>{KEY_LABELS.TELNYX_PHONE}</ControlLabel>
-          {<p>{__('SMS sender number')}</p>}
+          {
+            <p>
+              {__(
+                'SMS sender number (The phone number you have purchased from telnyx)'
+              )}
+            </p>
+          }
           <FormControl
             {...formProps}
             name="telnyxPhone"
             defaultValue={configsMap.telnyxPhone}
             onChange={this.onChangeCommon.bind(this, 'telnyxPhone')}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>{KEY_LABELS.TELNYX_PROFILE_ID}</ControlLabel>
+          {
+            <p>
+              {__(
+                'Required to properly display "from" number when sending international SMS. If not set, telnyx replaces "from" number to the text "Sender"'
+              )}
+            </p>
+          }
+          <FormControl
+            {...formProps}
+            name="telnyxProfileId"
+            defaultValue={configsMap.telnyxProfileId}
+            onChange={this.onChangeCommon.bind(this, 'telnyxProfileId')}
           />
         </FormGroup>
 
