@@ -14,6 +14,7 @@ import React from 'react';
 import parse from 'ua-parser-js';
 import { renderFlag } from '../common/DevicePropertiesSection';
 import PrimaryEmail from '../common/PrimaryEmail';
+import PrimaryPhone from '../common/PrimaryPhone';
 
 type Props = {
   customer: ICustomer;
@@ -82,6 +83,12 @@ function displayValue(customer, name) {
   if (name === 'primaryEmail') {
     return (
       <PrimaryEmail email={value} status={customer.emailValidationStatus} />
+    );
+  }
+
+  if (name === 'primaryPhone') {
+    return (
+      <PrimaryPhone phone={value} status={customer.phoneValidationStatus} />
     );
   }
 
