@@ -15,7 +15,9 @@
     "email-deep-validator": "^3.3.0",
     "express": "^4.16.4",
     "mongoose": "5.7.5",
+    "request-promise": "^4.2.5",
     "requestify": "^0.2.5",
+    "xlsx-populate": "^1.21.0",
     "xss": "^1.0.6"
   },
   "peerOptionalDependencies": {

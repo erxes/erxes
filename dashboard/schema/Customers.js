@@ -53,6 +53,11 @@ cube(`Customers`, {
       type: `string`,
     },
 
+    phonevalidationstatus: {
+      sql: `${CUBE}.\`phoneValidationStatus\``,
+      type: `string`,
+    },
+
     leadstatus: {
       type: `string`,
       case: {

@@ -141,6 +141,8 @@ describe('Customers mutations', () => {
     const customer = await graphqlRequest(mutation, 'customersAdd', args, context);
 
     checkCustomer(customer);
+    expect(customer.emailValidationStatus).toBe(undefined);
+    expect(customer.phoneValidationStatus).toBe(undefined);
     expect(customer.customFieldsData.length).toEqual(0);
   });
 
@@ -178,6 +180,8 @@ describe('Customers mutations', () => {
     const customer = await graphqlRequest(mutation, 'customersEdit', { _id: _customer._id, ...args }, context);
 
     expect(customer._id).toBe(_customer._id);
+    expect(customer.emailValidationStatus).toBe(undefined);
+    expect(customer.phoneValidationStatus).toBe(undefined);
 
     checkCustomer(customer);
     expect(customer.customFieldsData.length).toEqual(0);
