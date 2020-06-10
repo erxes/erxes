@@ -28,6 +28,7 @@ const basicFields = `
   doNotDisturb
   code
   emailValidationStatus
+  phoneValidationStatus
 
   isOnline
   lastSeenAt

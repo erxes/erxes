@@ -10,6 +10,7 @@ import {
 } from 'modules/layout/styles';
 import React from 'react';
 import PrimaryEmail from './PrimaryEmail';
+import PrimaryPhone from './PrimaryPhone';
 
 type Props = {
   customer: ICustomer;
@@ -39,6 +40,17 @@ class DetailInfo extends React.PureComponent<Props> {
     );
   }
 
+  renderPhone(status?: string, phone?: string) {
+    return (
+      <li>
+        <FieldStyle>{__('Primary phone')}:</FieldStyle>
+        <SidebarCounter>
+          <PrimaryPhone phone={phone} status={status} />
+        </SidebarCounter>
+      </li>
+    );
+  }
+
   renderPosition(customer) {
     if (!this.props.hasPosition) {
       return null;
@@ -57,7 +69,10 @@ class DetailInfo extends React.PureComponent<Props> {
           customer.emailValidationStatus,
           customer.primaryEmail
         )}
-        {this.renderRow('Primary phone', customer.primaryPhone)}
+         {this.renderPhone(
+          customer.phoneValidationStatus,
+          customer.primaryPhone
+        )}
         {this.renderPosition(customer)}
         {this.renderRow(
           'Owner',
