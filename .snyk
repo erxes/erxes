@@ -14,56 +14,161 @@ ignore:
     - '@axelspringer/graphql-google-pubsub > @google-cloud/pubsub > google-gax > grpc > node-pre-gyp > mkdirp > minimist':
         reason: None given
         expires: '2020-05-25T09:25:59.452Z'
+      minimist:
+        reason: None given
+        expires: '2020-07-10T10:03:30.120Z'
     - '@axelspringer/graphql-google-pubsub > @google-cloud/pubsub > google-gax > grpc > node-pre-gyp > tar > mkdirp > minimist':
         reason: None given
         expires: '2020-05-25T09:25:59.452Z'
+      mkdirp > minimist:
+        reason: None given
+        expires: '2020-07-10T10:03:30.121Z'
     - '@axelspringer/graphql-google-pubsub > @google-cloud/pubsub > google-gax > grpc-gcp > grpc > node-pre-gyp > mkdirp > minimist':
         reason: None given
         expires: '2020-05-25T09:25:59.452Z'
+      node-pre-gyp > mkdirp > minimist:
+        reason: None given
+        expires: '2020-07-10T10:03:30.121Z'
     - '@axelspringer/graphql-google-pubsub > @google-cloud/pubsub > google-gax > grpc-gcp > grpc > node-pre-gyp > tar > mkdirp > minimist':
         reason: None given
         expires: '2020-05-25T09:25:59.452Z'
+      node-pre-gyp > tar > mkdirp > minimist:
+        reason: None given
+        expires: '2020-07-10T10:03:30.121Z'
     - '@axelspringer/graphql-google-pubsub > @google-cloud/pubsub > google-gax > grpc > node-pre-gyp > rc > minimist':
         reason: None given
         expires: '2020-05-25T09:25:59.452Z'
+      '@axelspringer/graphql-google-pubsub > @google-cloud/pubsub > google-gax > grpc > node-pre-gyp > mkdirp > minimist':
+        reason: None given
+        expires: '2020-07-10T10:03:30.121Z'
     - '@axelspringer/graphql-google-pubsub > @google-cloud/pubsub > google-gax > grpc-gcp > grpc > node-pre-gyp > rc > minimist':
         reason: None given
         expires: '2020-05-25T09:25:59.452Z'
+      '@axelspringer/graphql-google-pubsub > @google-cloud/pubsub > google-gax > grpc > node-pre-gyp > tar > mkdirp > minimist':
+        reason: None given
+        expires: '2020-07-10T10:03:30.121Z'
     - minimist:
         reason: None given
         expires: '2020-05-25T09:25:59.452Z'
+      '@axelspringer/graphql-google-pubsub > @google-cloud/pubsub > google-gax > grpc-gcp > grpc > node-pre-gyp > mkdirp > minimist':
+        reason: None given
+        expires: '2020-07-10T10:03:30.121Z'
     - mkdirp > minimist:
         reason: None given
         expires: '2020-05-25T09:25:59.453Z'
+      '@axelspringer/graphql-google-pubsub > @google-cloud/pubsub > google-gax > grpc-gcp > grpc > node-pre-gyp > tar > mkdirp > minimist':
+        reason: None given
+        expires: '2020-07-10T10:03:30.121Z'
     - node-pre-gyp > mkdirp > minimist:
         reason: None given
         expires: '2020-05-25T09:25:59.453Z'
+      node-pre-gyp > rc > minimist:
+        reason: None given
+        expires: '2020-07-10T10:03:30.121Z'
     - node-pre-gyp > tar > mkdirp > minimist:
         reason: None given
         expires: '2020-05-25T09:25:59.453Z'
+      '@axelspringer/graphql-google-pubsub > @google-cloud/pubsub > google-gax > grpc > node-pre-gyp > rc > minimist':
+        reason: None given
+        expires: '2020-07-10T10:03:30.121Z'
     - node-pre-gyp > rc > minimist:
         reason: None given
         expires: '2020-05-25T09:25:59.453Z'
+      snyk > @snyk/update-notifier > latest-version > package-json > registry-auth-token > rc > minimist:
+        reason: None given
+        expires: '2020-07-10T10:03:30.121Z'
     - snyk > @snyk/update-notifier > latest-version > package-json > registry-auth-token > rc > minimist:
         reason: None given
         expires: '2020-05-25T09:25:59.453Z'
+      snyk > @snyk/update-notifier > latest-version > package-json > registry-url > rc > minimist:
+        reason: None given
+        expires: '2020-07-10T10:03:30.121Z'
     - snyk > @snyk/update-notifier > latest-version > package-json > registry-url > rc > minimist:
         reason: None given
         expires: '2020-05-25T09:25:59.453Z'
+      '@axelspringer/graphql-google-pubsub > @google-cloud/pubsub > google-gax > grpc-gcp > grpc > node-pre-gyp > rc > minimist':
+        reason: None given
+        expires: '2020-07-10T10:03:30.121Z'
     - handlebars > optimist > minimist:
         reason: None given
-        expires: '2020-05-25T09:25:59.453Z'
+        expires: '2020-07-10T10:03:30.121Z'
   SNYK-JS-BSON-561052:
     - mongoose > bson:
         reason: None given
-        expires: '2020-05-25T09:25:59.452Z'
+        expires: '2020-07-10T10:03:30.120Z'
     - mongoose > mongodb > bson:
         reason: None given
-        expires: '2020-05-25T09:25:59.452Z'
+        expires: '2020-07-10T10:03:30.121Z'
   SNYK-JS-JQUERY-565129:
     - requestify > jquery:
         reason: None given
-        expires: '2020-05-25T09:25:59.453Z'
+        expires: '2020-07-10T10:03:30.121Z'
+  SNYK-JS-WEBSOCKETEXTENSIONS-570623:
+    - firebase-admin > @firebase/database > faye-websocket > websocket-driver > websocket-extensions:
+        reason: None given
+        expires: '2020-07-10T10:03:30.120Z'
+  SNYK-JS-JQUERY-567880:
+    - requestify > jquery:
+        reason: None given
+        expires: '2020-07-10T10:03:30.121Z'
+  SNYK-JS-LODASH-567746:
+    - snyk > @snyk/snyk-cocoapods-plugin > @snyk/dep-graph > graphlib > lodash:
+        reason: None given
+        expires: '2020-07-10T10:03:30.121Z'
+    - elasticsearch > lodash:
+        reason: None given
+        expires: '2020-07-10T10:03:30.121Z'
+    - snyk > lodash:
+        reason: None given
+        expires: '2020-07-10T10:03:30.121Z'
+    - snyk > snyk-config > lodash:
+        reason: None given
+        expires: '2020-07-10T10:03:30.121Z'
+    - snyk > @snyk/dep-graph > lodash:
+        reason: None given
+        expires: '2020-07-10T10:03:30.121Z'
+    - snyk > inquirer > lodash:
+        reason: None given
+        expires: '2020-07-10T10:03:30.121Z'
+    - snyk > snyk-mvn-plugin > lodash:
+        reason: None given
+        expires: '2020-07-10T10:03:30.121Z'
+    - snyk > snyk-nodejs-lockfile-parser > lodash:
+        reason: None given
+        expires: '2020-07-10T10:03:30.121Z'
+    - snyk > snyk-nuget-plugin > lodash:
+        reason: None given
+        expires: '2020-07-10T10:03:30.121Z'
+    - snyk > snyk-nodejs-lockfile-parser > graphlib > lodash:
+        reason: None given
+        expires: '2020-07-10T10:03:30.121Z'
+    - snyk > @snyk/snyk-cocoapods-plugin > @snyk/dep-graph > lodash:
+        reason: None given
+        expires: '2020-07-10T10:03:30.121Z'
+    - snyk > @snyk/dep-graph > graphlib > lodash:
+        reason: None given
+        expires: '2020-07-10T10:03:30.121Z'
+    - snyk > snyk-nuget-plugin > dotnet-deps-parser > lodash:
+        reason: None given
+        expires: '2020-07-10T10:03:30.121Z'
+    - snyk > snyk-php-plugin > @snyk/composer-lockfile-parser > lodash:
+        reason: None given
+        expires: '2020-07-10T10:03:30.121Z'
+    - snyk > snyk-go-plugin > graphlib > lodash:
+        reason: None given
+        expires: '2020-07-10T10:03:30.121Z'
+    - snyk > @snyk/snyk-cocoapods-plugin > @snyk/cocoapods-lockfile-parser > @snyk/dep-graph > lodash:
+        reason: None given
+        expires: '2020-07-10T10:03:30.121Z'
+    - xlsx-populate > lodash:
+        reason: None given
+        expires: '2020-07-10T10:03:30.121Z'
+    - snyk > @snyk/snyk-cocoapods-plugin > @snyk/cocoapods-lockfile-parser > @snyk/ruby-semver > lodash:
+        reason: None given
+        expires: '2020-07-10T10:03:30.121Z'
+    - snyk > @snyk/snyk-cocoapods-plugin > @snyk/cocoapods-lockfile-parser > @snyk/dep-graph > graphlib > lodash:
+        reason: None given
+        expires: '2020-07-10T10:03:30.121Z'
 # patches apply the minimum changes required to fix a vulnerability
 patch:
   SNYK-JS-HTTPSPROXYAGENT-469131:
