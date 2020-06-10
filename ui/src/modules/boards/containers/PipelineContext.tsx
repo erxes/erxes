@@ -20,6 +20,7 @@ import {
 } from '../types';
 import { invalidateCache } from '../utils';
 import { reorder, reorderItemMap } from '../utils';
+import InvisibleItemInUrl from './InvisibleItemInUrl';
 
 type WrapperProps = {
   pipeline: IPipeline;
@@ -42,6 +43,7 @@ type StageLoadMap = {
 };
 
 type State = {
+  itemIds: string[];
   itemMap: IItemMap;
   stageLoadMap: StageLoadMap;
   stageIds: string[];
@@ -86,6 +88,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
     const stageIds = Object.keys(initialItemMap || {});
 
     this.state = {
+      itemIds: [],
       itemMap: initialItemMap || {},
       stageLoadMap: {},
       stageIds,
@@ -384,7 +387,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
    * - Mark stage's loading state as loaded
    */
   onLoadStage = (stageId: string, items: IItem[]) => {
-    const { itemMap, stageLoadMap } = this.state;
+    const { itemMap, stageLoadMap, itemIds } = this.state;
     const task = PipelineProviderInner.tasks.find(t => t.stageId === stageId);
 
     if (task) {
@@ -392,6 +395,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
     }
 
     this.setState({
+      itemIds: [...itemIds, ...items.map(item => item._id)],
       itemMap: { ...itemMap, [stageId]: items },
       stageLoadMap: { ...stageLoadMap, [stageId]: 'loaded' }
     });
@@ -498,13 +502,13 @@ class PipelineProviderInner extends React.Component<Props, State> {
       const items = [...itemMap[stageId]];
       items.unshift(item);
 
-      const newitemMap = {
+      const newItemMap = {
         ...itemMap,
         [stageId]: items,
         [prevStageId]: prevStageItems
       };
 
-      this.setState({ itemMap: newitemMap }, () => {
+      this.setState({ itemMap: newItemMap }, () => {
         this.itemChange({
           itemId: item._id,
           destinationStageId: stageId,
@@ -525,6 +529,24 @@ class PipelineProviderInner extends React.Component<Props, State> {
 
   toggleLabels = () => {
     this.setState({ isShowLabel: !this.state.isShowLabel });
+  };
+
+  renderInvisibleItemInUrl = () => {
+    const { queryParams, options } = this.props;
+    const { itemId } = queryParams;
+    const { isDragEnabled } = this.state;
+
+    if (!isDragEnabled || !itemId) {
+      return null;
+    }
+
+    const { itemIds } = this.state;
+
+    if (itemIds.includes(itemId)) {
+      return null;
+    }
+
+    return <InvisibleItemInUrl itemId={itemId} options={options} />;
   };
 
   render() {
@@ -559,6 +581,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
           }}
         >
           {this.props.children}
+          {this.renderInvisibleItemInUrl()}
         </PipelineContext.Provider>
       </>
     );
