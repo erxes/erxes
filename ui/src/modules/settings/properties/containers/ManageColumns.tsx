@@ -103,6 +103,7 @@ export default withProps<Props>(
                 'status',
                 'integrationId',
                 'emailValidationStatus',
+                'phoneValidationStatus',
                 'location.countryCode'
               ]
             }

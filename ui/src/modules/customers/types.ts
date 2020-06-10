@@ -49,7 +49,8 @@ export interface ICustomerDoc {
   code?: string;
   birthDate?: string;
   emailValidationStatus?: string;
-
+  phoneValidationStatus?: string;
+  
   isOnline?: boolean;
   lastSeenAt?: number;
   sessionCount?: number;
