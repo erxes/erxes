@@ -1,4 +1,6 @@
 import {
+  commonDragParams,
+  commonDragVariables,
   commonFields,
   commonMutationParams,
   commonMutationVariables
@@ -45,8 +47,8 @@ const dealsRemove = `
 `;
 
 const dealsChange = `
-  mutation dealsChange($itemId: String!, $aboveItemId: String, $destinationStageId: String!, $sourceStageId: String, $proccessId: String) {
-    dealsChange(itemId: $itemId, aboveItemId: $aboveItemId, destinationStageId: $destinationStageId, sourceStageId: $sourceStageId, proccessId: $proccessId) {
+  mutation dealsChange(${commonDragVariables}) {
+    dealsChange(${commonDragParams}) {
       _id
     }
   }

@@ -1,4 +1,6 @@
 import {
+  commonDragParams,
+  commonDragVariables,
   commonFields,
   commonMutationParams,
   commonMutationVariables
@@ -32,8 +34,8 @@ const tasksRemove = `
 `;
 
 const tasksChange = `
-  mutation tasksChange($_id: String!, $destinationStageId: String!, $order: Float) {
-    tasksChange(_id: $_id, destinationStageId: $destinationStageId, order: $order) {
+  mutation tasksChange(${commonDragVariables}) {
+    tasksChange(${commonDragParams}) {
       _id
     }
   }
@@ -55,8 +57,8 @@ const tasksArchive = `
 `;
 
 const tasksCopy = `
-  mutation tasksCopy($_id: String!) {
-    tasksCopy(_id: $_id) {
+  mutation tasksCopy($_id: String!, $proccessId: String) {
+    tasksCopy(_id: $_id, proccessId: $proccessId) {
       ${commonFields}
     }
   }

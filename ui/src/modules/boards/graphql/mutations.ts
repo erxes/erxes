@@ -30,6 +30,22 @@ export const commonMutationParams = `
   sourceConversationId: $sourceConversationId,
 `;
 
+export const commonDragVariables = `
+  $itemId: String!,
+  $aboveItemId: String,
+  $destinationStageId: String!,
+  $sourceStageId: String,
+  $proccessId: String
+`;
+
+export const commonDragParams = `
+  itemId: $itemId,
+  aboveItemId: $aboveItemId,
+  destinationStageId: $destinationStageId,
+  sourceStageId: $sourceStageId,
+  proccessId: $proccessId
+`;
+
 export const commonFields = `
   _id
   name
