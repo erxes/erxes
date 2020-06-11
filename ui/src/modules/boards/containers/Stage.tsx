@@ -28,7 +28,7 @@ type StageProps = {
   refetchStages: ({ pipelineId }: { pipelineId?: string }) => Promise<any>;
   onLoad: (stageId: string, items: IItem[]) => void;
   scheduleStage: (stageId: string) => void;
-  onAddItem: (stageId: string, item: IItem) => void;
+  onAddItem: (stageId: string, item: IItem, aboveItemId?: string) => void;
   onRemoveItem: (itemId: string, stageId: string) => void;
 };
 
@@ -141,7 +141,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
     const { stage, refetchStages, options } = this.props;
 
     const message = `
-    This will remove list from the board. To view archived list and bring them back to the board, click “Menu” > “Archived Items”. 
+    This will remove list from the board. To view archived list and bring them back to the board, click “Menu” > “Archived Items”.
     Are you sure?
     `;
 

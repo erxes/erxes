@@ -57,7 +57,7 @@ interface IStore {
   onLoadStage: (stageId: string, items: IItem[]) => void;
   scheduleStage: (stageId: string) => void;
   onDragEnd: (result: IDragResult) => void;
-  onAddItem: (stageId: string, item: IItem) => void;
+  onAddItem: (stageId: string, item: IItem, aboveItemId?: string) => void;
   onRemoveItem: (itemId: string, stageId: string) => void;
   onUpdateItem: (item: IItem, prevStageId?: string) => void;
   isShowLabel: boolean;
@@ -117,19 +117,29 @@ class PipelineProviderInner extends React.Component<Props, State> {
         } = pipelinesChanged;
 
         if (proccessId !== localStorage.getItem('proccessId')) {
-          const { itemMap } = this.state;
+          // const { itemMap } = this.state;
 
           if (action === 'orderUpdated') {
-            const destIndex = this.findItemIndex(
-              destinationStageId,
-              aboveItemId
-            );
+            let destIndex = aboveItemId
+              ? this.findItemIndex(destinationStageId, aboveItemId)
+              : 0;
+
+            const srcIndex = this.findItemIndex(oldStageId, item._id);
+
+            if (
+              destIndex !== undefined &&
+              aboveItemId &&
+              ((destinationStageId === oldStageId && destIndex < srcIndex) ||
+                destinationStageId !== oldStageId)
+            ) {
+              destIndex = destIndex + 1;
+            }
 
             this.onDragEnd(
               {
                 destination: {
                   droppableId: destinationStageId,
-                  index: destIndex ? destIndex + 1 : 0
+                  index: destIndex
                 },
                 draggableId: item._id,
                 combine: null,
@@ -138,7 +148,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
                 source: {
                   item,
                   droppableId: oldStageId,
-                  index: this.findItemIndex(oldStageId, item._id) || 0
+                  index: srcIndex
                 },
                 type: 'DEFAULT'
               },
@@ -147,26 +157,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
           }
 
           if (action === 'itemAdd') {
-            const items = itemMap[destinationStageId] || [];
-            const aboveItem = items.find(i => i._id === aboveItemId);
-
-            if (aboveItem) {
-              const aboveItemIndex = this.findItemIndex(
-                destinationStageId,
-                aboveItemId
-              );
-
-              this.setState({
-                itemMap: {
-                  ...itemMap,
-                  [destinationStageId]: items.splice(
-                    aboveItemIndex ? aboveItemIndex + 1 : 0,
-                    0,
-                    item
-                  )
-                }
-              });
-            }
+            this.onAddItem(destinationStageId, item, aboveItemId);
           }
 
           if (action === 'itemRemove') {
@@ -455,13 +446,30 @@ class PipelineProviderInner extends React.Component<Props, State> {
     }
   };
 
-  onAddItem = (stageId: string, item: IItem) => {
+  onAddItem = (stageId: string, item: IItem, aboveItemId: string = '') => {
     const { itemMap } = this.state;
-    const items = itemMap[stageId];
+    const items = itemMap[stageId] || [];
 
-    this.setState({
-      itemMap: { ...itemMap, [stageId]: [...items, item] }
-    });
+    if (!aboveItemId) {
+      this.setState({
+        itemMap: { ...itemMap, [stageId]: [...items, item] }
+      });
+
+      return;
+    }
+
+    const aboveIndex = this.findItemIndex(stageId, aboveItemId);
+
+    if (aboveIndex !== undefined) {
+      items.splice(aboveIndex + 1, 0, { ...item });
+
+      this.setState({
+        itemMap: {
+          ...itemMap,
+          [stageId]: [...items]
+        }
+      });
+    }
   };
 
   onRemoveItem = (itemId: string, stageId: string) => {

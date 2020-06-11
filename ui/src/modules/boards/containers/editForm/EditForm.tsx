@@ -26,14 +26,14 @@ type WrapperProps = {
   options?: IOptions;
   isPopupVisible: boolean;
   beforePopupClose?: () => void;
-  onAdd?: (stageId: string, item: IItem) => void;
+  onAdd?: (stageId: string, item: IItem, aboveItemId?: string) => void;
   onRemove?: (itemId: string, stageId: string) => void;
   onUpdate?: (item: IItem, prevStageId: string) => void;
   hideHeader?: boolean;
 };
 
 type ContainerProps = {
-  onAdd: (stageId: string, item: IItem) => void;
+  onAdd: (stageId: string, item: IItem, aboveItemId?: string) => void;
   onRemove: (itemId: string, stageId: string) => void;
   onUpdate: (item: IItem, prevStageId: string) => void;
   options: IOptions;
@@ -87,7 +87,7 @@ class EditFormContainer extends React.Component<FinalProps> {
         callback();
 
         if (onAdd) {
-          onAdd(stageId, data[options.mutationsName.copyMutation]);
+          onAdd(stageId, data[options.mutationsName.copyMutation], itemId);
         }
       })
       .catch(error => {

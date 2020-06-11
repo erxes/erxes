@@ -65,16 +65,27 @@ export const reorderItemMap = ({
 
   // moving to same list
   if (source.droppableId === destination.droppableId) {
-    const reordered = reorder(current, source.index, destination.index);
+    // drag down, index -1
+    const specInd = source.index < destination.index ? 0 : 1;
+
+    const aboveItem = next[destination.index - specInd];
+
+    if (source.index !== undefined) {
+      current.splice(source.index, 1);
+    }
+
+    if (destination.index !== undefined) {
+      current.splice(destination.index, 0, target);
+    }
 
     const updateditemMap = {
       ...itemMap,
-      [source.droppableId]: reordered
+      [source.droppableId]: current
     };
 
     return {
       itemMap: updateditemMap,
-      aboveItem: next[destination.index - 1],
+      aboveItem,
       target
     };
   }
@@ -82,10 +93,12 @@ export const reorderItemMap = ({
   // moving to different list
 
   // remove from original
-  current.splice(source.index, 1);
+  if (source.index !== undefined) {
+    current.splice(source.index, 1);
+  }
 
   // insert into next
-  if (next.length >= destination.index) {
+  if (destination.index !== undefined && next.length >= destination.index) {
     next.splice(destination.index, 0, target);
   }
 
