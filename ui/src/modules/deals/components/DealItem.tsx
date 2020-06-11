@@ -111,6 +111,7 @@ class DealItem extends React.PureComponent<Props> {
 
         <PriceContainer>
           {renderAmount(item.amount)}
+
           <Right>
             <Assignees users={item.assignedUsers} />
           </Right>
