@@ -23,6 +23,9 @@ const options = {
     archiveMutation: 'ticketsArchive',
     copyMutation: 'ticketsCopy'
   },
+  subscriptionName: {
+    changeSubscription: 'ticketsChanged'
+  },
   queries: {
     itemsQuery: queries.tickets,
     detailQuery: queries.ticketDetail,

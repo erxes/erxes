@@ -23,6 +23,9 @@ const options = {
     archiveMutation: 'tasksArchive',
     copyMutation: 'tasksCopy'
   },
+  subscriptionName: {
+    changeSubscription: 'tasksChanged'
+  },
   queries: {
     itemsQuery: queries.tasks,
     detailQuery: queries.taskDetail,
