@@ -55,13 +55,15 @@ const integrationQueries = {
       page: number;
       perPage: number;
       kind: string;
+
       searchValue: string;
       channelId: string;
       brandId: string;
       tag: string;
     },
+    { singleBrandIdSelector }: IContext,
   ) {
-    const query = await generateFilterQuery(args);
+    const query = { ...singleBrandIdSelector, ...(await generateFilterQuery(args)) };
     const integrations = paginate(Integrations.findIntegrations(query), args);
 
     return integrations.sort({ name: 1 });

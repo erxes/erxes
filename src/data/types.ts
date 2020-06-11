@@ -10,6 +10,7 @@ export interface IContext {
   userBrandIdsSelector: {};
   commonQuerySelector: {};
   commonQuerySelectorElk: {};
+  singleBrandIdSelector: {};
   dataSources: {
     EngagesAPI: any;
     IntegrationsAPI: any;
