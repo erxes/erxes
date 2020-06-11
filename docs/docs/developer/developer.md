@@ -63,6 +63,9 @@ git clone git@github.com:erxes/erxes.git
 # Go to the erxes directory:
 cd erxes
 
+#Go to the ui folder 
+cd ui/
+
 # Copy preconfigured environment variables:
 cp .env.sample .env
 
