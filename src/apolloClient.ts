@@ -65,6 +65,7 @@ const apolloServer = new ApolloServer({
     if (USE_BRAND_RESTRICTIONS !== 'true') {
       return {
         brandIdSelector: {},
+        singleBrandIdSelector: {},
         userBrandIdsSelector: {},
         docModifier: doc => doc,
         commonQuerySelector: {},
@@ -80,6 +81,7 @@ const apolloServer = new ApolloServer({
     let commonQuerySelector = {};
     let commonQuerySelectorElk;
     let userBrandIdsSelector = {};
+    let singleBrandIdSelector = {};
 
     if (user) {
       brandIds = user.brandIds || [];
@@ -93,11 +95,13 @@ const apolloServer = new ApolloServer({
         commonQuerySelector = { scopeBrandIds: { $in: scopeBrandIds } };
         commonQuerySelectorElk = { terms: { scopeBrandIds } };
         userBrandIdsSelector = { brandIds: { $in: scopeBrandIds } };
+        singleBrandIdSelector = { brandId: { $in: scopeBrandIds } };
       }
     }
 
     return {
       brandIdSelector,
+      singleBrandIdSelector,
       docModifier: doc => ({ ...doc, scopeBrandIds }),
       commonQuerySelector,
       commonQuerySelectorElk,
