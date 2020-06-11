@@ -6,15 +6,62 @@
  */
 
 /* You can override the default Infima variables here. */
+
 :root {
-  --ifm-color-primary: #25c2a0;
-  --ifm-color-primary-dark: rgb(33, 175, 144);
-  --ifm-color-primary-darker: rgb(31, 165, 136);
-  --ifm-color-primary-darkest: rgb(26, 136, 112);
-  --ifm-color-primary-light: rgb(70, 203, 174);
-  --ifm-color-primary-lighter: rgb(102, 212, 189);
-  --ifm-color-primary-lightest: rgb(146, 224, 208);
-  --ifm-code-font-size: 95%;
+  --white: #fff;
+  --black: #000;
+  --nebula-blue: #5468ff;
+  --moon-grey: #f5f5fa;
+  --proton-grey: #c5c9e0;
+  --nova-grey: #848ab8;
+  --telluric-blue: #5d6494;
+  --solstice-blue: #3a416f;
+  --cosmos-black: #21243d;
+  
+
+}
+
+:root {
+  --ifm-font-size-base: 16px;
+  --ifm-code-font-size: 90%;
+  --ifm-footer-background-color: var(--moon-grey);
+  --ifm-menu-color-background-active: var(--ifm-color-emphasis-200);
+  --ifm-color-primary: var(--nebula-blue);
+  --ifm-heading-color:  var(--cosmos-black);
+  --ifm-menu-color-active: #5629B6;
+  --ifm-color-primary-dark: #4d25a4;
+  --ifm-color-primary-darker: #49239b;
+  --ifm-color-primary-darkest: #3c1d7f;
+  --ifm-color-primary-light: #5f2dc8;
+  --ifm-color-primary-lighter: #6330d0;
+  --ifm-color-primary-lightest: #784bd7;
+}
+
+html[data-theme='dark'] {
+  --ifm-font-base-color: #dee0f2;
+  --ifm-navbar-link-hover-color: #8b9dff;
+  --ifm-link-color: #8b9dff;
+  --ifm-menu-color-active: #8b9dff;
+  --ifm-background-color: #0a141c;
+  --ifm-heading-color: #dee0f2;
+  --ifm-footer-background-color: #0a141c;
+  --ifm-navbar-background-color: #21243d;
+  --ifm-menu-color-background-active: #21243d;
+}
+
+#hero {
+  background-image: linear-gradient(
+    var(--ifm-navbar-background-color),
+    var(--ifm-footer-background-color)
+  );
+}
+
+html[data-theme='dark'] .react-toggle-track {
+  background-color: var(--ifm-footer-background-color);
+}
+
+.footer .footer__logo {
+  max-width: 5rem;
 }
 
 .docusaurus-highlight-code-line {

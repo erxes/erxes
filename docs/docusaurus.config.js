@@ -3,7 +3,7 @@ module.exports = {
   tagline: 'Documentation',
   url: 'https://www.erxes.org',
   baseUrl: '/',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/favicon.png',
   organizationName: 'erxes', // Usually your GitHub org/user name.
   projectName: 'erxes', // Usually your repo name.
   themeConfig: {
@@ -18,27 +18,27 @@ module.exports = {
     sidebarCollapsible: true,
     image: 'img/erxes.png',
     navbar: {
-      title: 'erxes',
       logo: {
         alt: 'erxes logo',
-        src: 'img/erxes.png',
+        src: 'img/logo_dark.svg',
+        srcDark: 'img/logo.svg',
       },
       links: [
         {
           to: 'overview/getting-started/',
           activeBasePath: '',
-          label: 'Docs',
-          position: 'left',
+          label: 'Documentation',
+          position: 'right',
         },
         {
-          href: 'https://erxes.io/signin',
-          label: 'Sign in',
+          href: 'https://github.com/erxes/erxes',
+          label: 'GitHub',
           position: 'right'
         },
         {
-          href: 'https://erxes.io/create',
-          label: 'Get Started',
-          position: 'right',
+          href: 'https://erxes.io/blog/',
+          label: 'Blog',
+          position: 'right'
         },
       ],
     },
@@ -63,15 +63,11 @@ module.exports = {
           items: [
             {
               label: 'Stack Overflow',
-              href: 'https://stackoverflow.com/questions/tagged/docusaurus',
-            },
-            {
-              label: 'Discord',
-              href: 'https://discordapp.com/invite/docusaurus',
+              href: 'https://stackoverflow.com/questions/tagged/erxes',
             },
             {
               label: 'Twitter',
-              href: 'https://twitter.com/docusaurus',
+              href: 'https://twitter.com/ErxesHQ',
             },
           ],
         },
@@ -89,6 +85,11 @@ module.exports = {
           ],
         },
       ],
+      logo: {
+        alt: 'erxes Open Source Logo',
+        src: 'img/logo.svg',
+        href: 'https://erxes.io',
+      },
       copyright: `Copyright © ${new Date().getFullYear()} erxes Inc.`,
     },
   },
