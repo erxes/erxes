@@ -156,7 +156,8 @@ su $username -c "cd $erxes_integrations_dir && yarn install && yarn build"
 # install pm2 globally
 yarn global add  pm2
 
-JWT_TOKEN_SECRET=$(openssl rand -hex 16)
+JWT_TOKEN_SECRET=$(openssl rand -base64 24)
+MONGO_PASS=$(openssl rand -hex 16)
 
 # create an ecosystem.json in erxes home directory and change owner and permission
 cat <<EOF >/home/$username/ecosystem.json
@@ -174,7 +175,7 @@ cat <<EOF >/home/$username/ecosystem.json
         "MAIN_APP_DOMAIN": "http://$erxes_domain",
         "LOGS_API_DOMAIN": "http://127.0.0.1:3800",
         "ENGAGES_API_DOMAIN": "http://127.0.0.1:3900",
-        "MONGO_URL": "mongodb://localhost/erxes?replicaSet=rs0",
+        "MONGO_URL": "mongodb://erxes:$MONGO_PASS@localhost/erxes?authSource=admin&replicaSet=rs0",
         "REDIS_HOST": "localhost",
         "REDIS_PORT": 6379,
         "REDIS_PASSWORD": "",
@@ -193,7 +194,7 @@ cat <<EOF >/home/$username/ecosystem.json
         "NODE_ENV": "production",
         "PROCESS_NAME": "crons",
         "DEBUG": "erxes-crons:*",
-        "MONGO_URL": "mongodb://localhost/erxes?replicaSet=rs0",
+        "MONGO_URL": "mongodb://erxes:$MONGO_PASS@localhost/erxes?authSource=admin&replicaSet=rs0",
         "REDIS_HOST": "localhost",
         "REDIS_PORT": 6379,
         "REDIS_PASSWORD": "",
@@ -210,7 +211,7 @@ cat <<EOF >/home/$username/ecosystem.json
         "PORT_WORKERS": 3700,
         "NODE_ENV": "production",
         "DEBUG": "erxes-workers:*",
-        "MONGO_URL": "mongodb://localhost/erxes?replicaSet=rs0",
+        "MONGO_URL": "mongodb://erxes:$MONGO_PASS@localhost/erxes?authSource=admin&replicaSet=rs0",
         "REDIS_HOST": "localhost",
         "REDIS_PORT": 6379,
         "REDIS_PASSWORD": "",
@@ -241,7 +242,7 @@ cat <<EOF >/home/$username/ecosystem.json
         "NODE_ENV": "production",
         "DEBUG": "erxes-engages:*",
         "MAIN_API_DOMAIN": "http://$erxes_domain/api",
-        "MONGO_URL": "mongodb://localhost/erxes-engages?replicaSet=rs0",
+        "MONGO_URL": "mongodb://erxes:$MONGO_PASS@localhost/erxes-engages?authSource=admin&replicaSet=rs0",
         "RABBITMQ_HOST": "amqp://localhost",
         "REDIS_HOST": "localhost",
         "REDIS_PORT": 6379,
@@ -257,7 +258,7 @@ cat <<EOF >/home/$username/ecosystem.json
         "PORT": 3800,
         "NODE_ENV": "production",
         "DEBUG": "erxes-logs:*",
-        "MONGO_URL": "mongodb://localhost/erxes_logs?replicaSet=rs0",
+        "MONGO_URL": "mongodb://erxes:$MONGO_PASS@localhost/erxes_logs?authSource=admin&replicaSet=rs0",
         "RABBITMQ_HOST": "amqp://localhost"
       }
     },
@@ -273,7 +274,7 @@ cat <<EOF >/home/$username/ecosystem.json
         "DOMAIN": "http://$erxes_domain/integrations",
         "MAIN_APP_DOMAIN": "http://$erxes_domain",
         "MAIN_API_DOMAIN": "http://$erxes_domain/api",
-        "MONGO_URL": "mongodb://localhost/erxes_integrations?replicaSet=rs0",
+        "MONGO_URL": "mongodb://erxes:$MONGO_PASS@localhost/erxes_integrations?authSource=admin&replicaSet=rs0",
         "RABBITMQ_HOST": "amqp://localhost",
         "REDIS_HOST": "localhost",
         "REDIS_PORT": 6379,
@@ -287,6 +288,9 @@ EOF
 chown $username:$username /home/$username/ecosystem.json
 chmod 644 /home/$username/ecosystem.json
 
+# set mongod password
+result=$(mongo --eval "db=db.getSiblingDB('admin'); db.createUser({ user: 'erxes', pwd: \"$MONGO_PASS\", roles: [ 'root' ] })" )
+echo $result
 
 # set up mongod ReplicaSet
 systemctl stop mongod
@@ -301,18 +305,20 @@ systemLog:
   logAppend: true
   path: /var/log/mongodb/mongod.log
 net:
-  bindIp: localhost,$(hostname),$(hostname -I | sed 's/ /,/')
+  bindIp: localhost
 processManagement:
   timeZoneInfo: /usr/share/zoneinfo
 replication:
   replSetName: "rs0"
+security:
+  authorization: enabled
 EOF
 systemctl start mongod
 curl https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh > /usr/local/bin/wait-for-it.sh
 chmod +x /usr/local/bin/wait-for-it.sh
 /usr/local/bin/wait-for-it.sh --timeout=0 localhost:27017
 while true; do
-    healt=$(mongo --eval "rs.initiate().ok" --quiet)
+    healt=$(mongo --eval "db=db.getSiblingDB('admin'); db.auth('erxes', \"$MONGO_PASS\"); rs.initiate().ok" --quiet)
     if [ $healt -eq 0 ]; then
         break
     fi
@@ -350,7 +356,7 @@ mkdir -p /var/log/mongo-connector/
 
 # elkSyncer env
 cat <<EOF >$erxes_syncer_dir/.env
-MONGO_URL=mongodb://localhost/erxes?replicaSet=rs0
+MONGO_URL=mongodb://erxes:$MONGO_PASS@localhost/erxes?authSource=admin&replicaSet=rs0
 ELASTICSEARCH_URL=http://localhost:9200
 EOF
 
@@ -434,6 +440,12 @@ server {
 EOF
 # reload nginx service
 systemctl reload nginx
+
+## setting up ufw firewall
+echo 'y' | ufw enable
+ufw allow 22
+ufw allow 80
+ufw allow 443
 
 echo
 echo -e "\e[32mInstallation complete\e[0m"
