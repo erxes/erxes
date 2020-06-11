@@ -450,13 +450,22 @@ class PipelineProviderInner extends React.Component<Props, State> {
     }
   };
 
-  onAddItem = (stageId: string, item: IItem, aboveItemId: string = '') => {
+  onAddItem = (stageId: string, item: IItem, aboveItemId?: string) => {
     const { itemMap } = this.state;
     const items = itemMap[stageId] || [];
 
-    if (!aboveItemId) {
+    if (aboveItemId === undefined) {
       this.setState({
         itemMap: { ...itemMap, [stageId]: [...items, item] }
+      });
+
+      return;
+    }
+
+    // archive recovery to stages begin
+    if (!aboveItemId) {
+      this.setState({
+        itemMap: { ...itemMap, [stageId]: [item, ...items] }
       });
 
       return;
