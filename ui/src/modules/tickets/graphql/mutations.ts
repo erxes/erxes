@@ -62,8 +62,8 @@ const ticketsWatch = `
 `;
 
 const ticketsArchive = `
-  mutation ticketsArchive($stageId: String!) {
-    ticketsArchive(stageId: $stageId)
+  mutation ticketsArchive($stageId: String!, $proccessId: String) {
+    ticketsArchive(stageId: $stageId, proccessId: $proccessId)
   }
 `;
 

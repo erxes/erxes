@@ -84,8 +84,8 @@ const growthHacksVote = `
 `;
 
 const growthHacksArchive = `
-  mutation growthHacksArchive($stageId: String!) {
-    growthHacksArchive(stageId: $stageId)
+  mutation growthHacksArchive($stageId: String!, $proccessId: String) {
+    growthHacksArchive(stageId: $stageId, proccessId: $proccessId)
   }
 `;
 

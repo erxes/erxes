@@ -51,8 +51,8 @@ const tasksWatch = `
 `;
 
 const tasksArchive = `
-  mutation tasksArchive($stageId: String!) {
-    tasksArchive(stageId: $stageId)
+  mutation tasksArchive($stageId: String!, $proccessId: String) {
+    tasksArchive(stageId: $stageId, proccessId: $proccessId)
   }
 `;
 

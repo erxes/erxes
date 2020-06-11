@@ -120,8 +120,6 @@ class PipelineProviderInner extends React.Component<Props, State> {
         } = pipelinesChanged;
 
         if (proccessId !== localStorage.getItem('proccessId')) {
-          // const { itemMap } = this.state;
-
           if (action === 'orderUpdated') {
             let destIndex = aboveItemId
               ? this.findItemIndex(destinationStageId, aboveItemId)
@@ -165,6 +163,17 @@ class PipelineProviderInner extends React.Component<Props, State> {
 
           if (action === 'itemRemove') {
             this.onRemoveItem(item._id, oldStageId);
+          }
+
+          if (action === 'itemsRemove') {
+            const { itemMap } = this.state;
+
+            this.setState({
+              itemMap: {
+                ...itemMap,
+                [destinationStageId]: []
+              }
+            });
           }
 
           // refetch stages info ===

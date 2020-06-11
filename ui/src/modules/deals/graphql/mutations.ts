@@ -64,8 +64,8 @@ const dealsWatch = `
 `;
 
 const dealsArchive = `
-  mutation dealsArchive($stageId: String!) {
-    dealsArchive(stageId: $stageId)
+  mutation dealsArchive($stageId: String!, $proccessId: String) {
+    dealsArchive(stageId: $stageId, proccessId: $proccessId)
   }
 `;
 

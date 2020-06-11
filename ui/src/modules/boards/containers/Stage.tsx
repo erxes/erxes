@@ -115,6 +115,9 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
     const stageId = stage._id;
 
     confirm(message).then(() => {
+      const proccessId = Math.random().toString();
+      localStorage.setItem('proccessId', proccessId);
+
       client
         .mutate({
           mutation: gql(options.mutations.archiveMutation),
@@ -122,7 +125,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
           refetchQueries: [
             {
               query: gql(queries.stageDetail),
-              variables: { _id: stageId }
+              variables: { _id: stageId, proccessId }
             }
           ]
         })
