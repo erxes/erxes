@@ -1,0 +1,58 @@
+# Configuration for probot-stale - https://github.com/probot/stale
+
+# Number of days of inactivity before an Issue or Pull Request becomes stale
+daysUntilStale: 30
+
+# Number of days of inactivity before an Issue or Pull Request with the stale label is closed.
+# Set to false to disable. If disabled, issues still need to be closed manually, but will remain marked as stale.
+daysUntilClose: 5
+
+# Only issues or pull requests with all of these labels are check if stale. Defaults to `[]` (disabled)
+onlyLabels: []
+
+# Issues or Pull Requests with these labels will never be considered stale. Set to `[]` to disable
+exemptLabels:
+  - pinned
+  - security
+  - "[Status] Maybe Later"
+
+# Set to true to ignore issues in a project (defaults to false)
+exemptProjects: false
+
+# Set to true to ignore issues in a milestone (defaults to false)
+exemptMilestones: false
+
+# Set to true to ignore issues with an assignee (defaults to false)
+exemptAssignees: false
+
+# Label to use when marking as stale
+staleLabel: stale
+
+# Comment to post when marking as stale. Set to `false` to disable
+markComment: >
+
+# Limit the number of actions per hour, from 1-30. Default is 30
+limitPerRun: 30
+
+# Optionally, specify configuration settings that are specific to just 'issues' or 'pulls':
+pulls:
+  markComment: >
+    Thank you for your contribution! However, it has
+    not had any activity on it in the past 30 days and will be closed in
+    5 days if no updates occur. If you believe the changes are still valid then please verify your
+    branch has no conflicts with target and rebase if needed. If you
+    are awaiting a (re-)review then please let us know.
+
+issues:
+  markComment: >
+    Thank you for your contribution! However, it has
+    not had any activity on it in the past 30 days and will be closed in
+    5 days if no updates occur. If you would like this issue to remain open:
+
+      1. Verify that you can still reproduce the issue in the latest version of erxes
+      1. Comment that the issue is still reproducible and include:
+          * What version of erxes you reproduced the issue on
+          * What OS and version you reproduced the issue on
+          * What steps you followed to reproduce the issue
+#   exemptLabels:
+#     - confirmed

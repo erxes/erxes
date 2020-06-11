@@ -1,0 +1,65 @@
+.erxes-launcher {
+  animation: pop .2s cubic-bezier(.25, .46, .45, .94) 1;
+  background-color: $main-color;
+  background-image: url($widget-logo);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: $core-spacing !important;
+  border-radius: 28px;
+  bottom: 8px;
+  box-shadow: 0 0 10px 0 rgba($black, .2);
+  color: $main-color;
+  cursor: pointer;
+  height: 56px;
+  left: auto;
+  line-height: 56px;
+  margin-left: auto;
+  margin-top: auto;
+  pointer-events: auto;
+  position: fixed !important;
+  right: 8px;
+  text-align: center;
+  top: auto;
+  transition: box-shadow .3s ease-in-out, background-image .3s ease-in;
+  width: 56px;
+  z-index: $z-index-above - 1;
+
+  span {
+    background: $red;
+    border-radius: 10px;
+    color: $white;
+    display: block;
+    font-size: 10px;
+    height: $core-spacing;
+    line-height: $core-spacing;
+    position: absolute;
+    right: -2px;
+    text-align: center;
+    top: -5px;
+    width: $core-spacing;
+  }
+
+  &.close,
+  &.close-launcher {
+    background-image: url($close) !important;
+    background-position: 50%;
+    background-size: inherit;
+    transition: box-shadow .3s ease-in-out, background-image .3s ease-in;
+
+    &::before {
+      animation: none;
+    }
+  }
+
+  &::before {
+    @include animation(.5s, 3s, animationPulse, linear, 10);
+    border-radius: 50%;
+    color: inherit;
+    content: '';
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+  }
+}

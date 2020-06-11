@@ -1,0 +1,54 @@
+.feedback {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+}
+
+.reactions {
+	display: flex;
+	justify-content: center;
+	margin-bottom: -23px;
+	height: 46px;
+
+	&.clicked span:not(.active) img {
+		@include prefix((
+			filter: grayscale(100%)
+		), webkit moz ms o);
+		height: 30px;
+		width: 30px;
+		padding: 2px;
+		opacity: 0.9;
+	}
+
+  span {
+		margin-right: 10px;
+		width: 44px;
+		vertical-align: middle;
+    text-align: center;
+
+		&:hover {
+			cursor: pointer;
+		}
+
+		&.active img {
+			height: 38px;
+			width: 38px;
+		}
+
+		img {
+			height: 34px;
+			width: 34px;
+			padding: 3px;
+			background: $white;
+			border-radius: 50%;
+			box-shadow: 0 3px 8px rgba(0,0,0,.08), 0 3px 8px rgba(0,0,0,.15);
+			transition: all 0.3s ease;
+
+			&:hover {
+				height: 38px;
+				width: 38px;
+			}
+		}
+	}
+}

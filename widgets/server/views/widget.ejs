@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+  </head>
+  <body>
+    <script>
+       window.erxesEnv = <%- env %>;
+
+       <% if (locals.kbTopicId) { %>
+        window.knowledgebaseSettings = {
+          topic_id: "<%- kbTopicId %>"
+        }
+       <% } %>
+     </script>
+
+    <div id="root">
+    </div>
+
+    <script src="<%= JSON.parse(env).ROOT_URL %>/build/<%= type %>.bundle.js"></script>
+  </body>
+</html>

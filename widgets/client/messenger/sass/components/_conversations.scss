@@ -1,0 +1,128 @@
+#page-root {
+  #erxes-video-container {
+    background: #fff;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: -30px;
+  }
+
+  iframe#erxes-video-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    outline: 0;
+  }
+}
+
+.erxes-conversation-detail {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  max-height: 100%;
+}
+
+.erxes-conversation-content {
+  display: flex;
+  flex: 1;
+  position: relative;
+
+  .erxes-content-wrapper {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    display: flex;
+    flex-direction: column; 
+  }
+}
+
+.erxes-conversation-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.erxes-list-item {
+  @include prefix((
+    transition: background .3s ease-in-out
+  ), webkit moz ms o);
+  overflow: hidden;
+  position: relative;
+
+  &:hover {
+    background: $bg-color;
+    cursor: pointer;
+  }
+
+  &.unread {
+    .erxes-last-message {
+      color: lighten($black, 20%);
+      font-weight: bold;
+    }
+  }
+
+  .erxes-left-side {
+    border-radius: 25px;
+    float: left;
+    height: 42px;
+    margin: 15px 10px 15px 15px;
+    padding: 5px;
+    text-align: center;
+    width: 40px;
+
+    > span {
+      align-items: center;
+      background: rgba($black, .04);
+      border: 1px solid $border-color;
+      border-radius: 21px;
+      box-sizing: border-box;
+      display: flex;
+      height: 42px;
+      justify-content: center;
+      width: 42px;
+    }
+
+    svg {
+      stroke: $text-color-light;
+    }
+  }
+
+  &:last-child .erxes-right-side {
+    border: none;
+  }
+
+  .erxes-right-side {
+    border-bottom: 1px solid $grey;
+    margin-left: 75px;
+    padding: 20px 20px 20px 0;
+  }
+
+  .erxes-name {
+    font-weight: 400;
+
+    > span {
+      color: $text-color-light;
+    }
+  }
+
+  .erxes-last-message {
+    color: $text-color;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .erxes-date {
+    color: $text-color-light;
+    float: right;
+    font-size: 12px;
+    margin-top: 2px;
+
+    &.erxes-tooltip::before {
+      right: 0;
+    }
+  }
+}
