@@ -24,6 +24,9 @@ export interface IOptions {
     copyMutation: string;
     archiveMutation: string;
   };
+  subscriptionName: {
+    changeSubscription: string;
+  };
   queries: {
     itemsQuery: string;
     detailQuery: string;
