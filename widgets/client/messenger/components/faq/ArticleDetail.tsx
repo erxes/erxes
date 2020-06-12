@@ -1,4 +1,4 @@
-import * as moment from "moment";
+import * as dayjs from "dayjs";
 import * as React from "react";
 import { iconLeft } from "../../../icons/Icons";
 import { __, makeClickableLink } from "../../../utils";
@@ -49,7 +49,7 @@ export default class ArticleDetail extends React.PureComponent<Props> {
               <h2>{title}</h2>
               <div className="date">
                 {__("Created ")}:{" "}
-                <span>{moment(createdDate).format("lll")}</span>
+                <span>{dayjs(createdDate).format("lll")}</span>
               </div>
               <p>{summary}</p>
               <p dangerouslySetInnerHTML={{ __html: content }} />

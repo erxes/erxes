@@ -1,3 +1,22 @@
+## [0.14.1](https://github.com/erxes/erxes/compare/0.14.0...%s) (2020-05-19)
+
+
+### Bug Fixes
+
+* **customer:** fix can not insert hyperlink in email form ([5ef5582](https://github.com/erxes/erxes/commit/5ef558292480c6a5b805e65e2e8e0c8d23b2acda))
+* Not working search deal, task, ticket on Customer sidebar ([#1980](https://github.com/erxes/erxes/issues/1980)) ([a586790](https://github.com/erxes/erxes/commit/a586790f9af9c770c149f5af5968a34f9230d605))
+* **customers:** not displaying trackedData, customFields data in customer list ([0fbd6b0](https://github.com/erxes/erxes/commit/0fbd6b065c4c7631752197ef6cd7dd0185c9b286)), closes [#1999](https://github.com/erxes/erxes/issues/1999)
+* **emailTemplate:** fix conflict and revert change ([4445434](https://github.com/erxes/erxes/commit/4445434f8367c49830f6644347d183dbb57ad648))
+* **engae:** fix not showing all email templates, improve select ui (close [#1962](https://github.com/erxes/erxes/issues/1962)) ([7aced58](https://github.com/erxes/erxes/commit/7aced583bf5603be74097e21cc59eeda9fd39f04))
+* **tutorial:** complete and fix video tutorial ([6b61bf9](https://github.com/erxes/erxes/commit/6b61bf9ecb8f94258c97d96ef11b1eec241f6187))
+* **widgets:** not displaying multiple website apps ([1992f27](https://github.com/erxes/erxes/commit/1992f27c0e21b0bef1822c50bcc01326bafaac4a)), closes [#1996](https://github.com/erxes/erxes/issues/1996)
+
+
+### Performance Improvements
+
+* **node:** update node-sass and package.json ([341a9b3](https://github.com/erxes/erxes/commit/341a9b3453f147569e4969817678e4817b11b37b)), closes [#1993](https://github.com/erxes/erxes/issues/1993)
+* **segment:** add select options to segment condition ([95a7932](https://github.com/erxes/erxes/commit/95a793218fc12357bec36bd497ddcb49482c39d2)), closes [#1960](https://github.com/erxes/erxes/issues/1960)
+
 # [0.14.0](https://github.com/erxes/erxes/compare/0.13.0...%s) (2020-04-25)
 
 

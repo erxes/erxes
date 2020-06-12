@@ -7,10 +7,11 @@ type Props = {
   ignoreTrans?: boolean;
   htmlFor?: string;
   required?: boolean;
+  uppercase?: boolean;
 };
 
 function ControlLabel(props: Props) {
-  const { children, ignoreTrans, required } = props;
+  const { children, ignoreTrans, required, uppercase = true } = props;
 
   let content = children;
 
@@ -19,7 +20,7 @@ function ControlLabel(props: Props) {
   }
 
   return (
-    <Label>
+    <Label uppercase={uppercase}>
       {content}
       {required && <span> *</span>}
     </Label>

@@ -191,7 +191,7 @@ class CustomersList extends React.Component<IProps, State> {
       return (
         <ManageColumns
           {...props}
-          contentType="customer"
+          contentType={type}
           location={location}
           history={history}
         />

@@ -86,15 +86,17 @@ export default class GenerateField extends React.Component<Props, State> {
       attrs.onChange = val => {
         this.setState({ value: val });
         this.onChange(val, val);
-      }
+      };
 
-      return <Datetime
-        {...attrs}
-        value={value}
-        dateFormat="YYYY/MM/DD"
-        timeFormat="HH:mm"
-        closeOnSelect={true}
-      />
+      return (
+        <Datetime
+          {...attrs}
+          value={value}
+          dateFormat="YYYY/MM/DD"
+          timeFormat="HH:mm"
+          closeOnSelect={true}
+        />
+      );
     }
 
     if (validation === 'number') {

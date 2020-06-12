@@ -206,15 +206,15 @@ Integration is a way of communicating with customers who are emerging into the o
 
 - Please follow the steps for setup: General Settings->App Store > Add Facebook
 
-  ![](https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-2.png" style="width:370px;height:250px;" />
-  ![](https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-3.png" style="width:390px;height:250px;" />
+  ![](https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-2.png) 
+  ![](https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-3.png)
 
 1. Click Add to connect Facebook
 2. Click Add Account
 
-![](https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-4.png" style="width:350px;height:200px;" />
+![](https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-4.png)
 <br/>
-![](https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-5.png" style="width:350px;height:320px;" />
+![](https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-5.png)
 
 3. Link your Facebook Account
 4. Select all the Pages you manage
@@ -226,7 +226,7 @@ Integration is a way of communicating with customers who are emerging into the o
 
 ## Link facebook account
 
-![](https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-6.png" style="width:400px;height:350px;" />
+![](https://s3-us-west-2.amazonaws.com/erxes-docs/customer-support/customer-support-6.png)
 
 6.  Insert name for the Facebook Integration
 7.  Choose the Brand for the Integration
@@ -244,7 +244,8 @@ Integration is a way of communicating with customers who are emerging into the o
 
 Marketing Team settings include following features:
 
-![](https://s3-us-west-2.amazonaws.com/erxes-docs/marketing-1.png)
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/marketing-1.PNG)
+
 
 1. **Email Template**
 2. **Email Appearance**
@@ -255,7 +256,8 @@ Team members will be able to choose from email templates and send out one messag
 
 - Please follow the steps for setup: **General Settings** -> **Email Template** -> **New Email Template**
 
-![](https://s3.us-west-2.amazonaws.com/erxes-docs/marketing-2.png)
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/marketing-2.PNG)
+
 
 1. Click **New Email Template**
 2. **Edit & Delete** Created Email Template
@@ -264,7 +266,7 @@ Team members will be able to choose from email templates and send out one messag
 
 - Please follow the steps for setup: **General Settings** -> **Email Template** -> **New Email Template**
 
-![](https://s3.us-west-2.amazonaws.com/erxes-docs/marketing-3.png)
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/marketing-3.PNG)
 .
 
 1. Insert **name** for New Email Template
@@ -277,7 +279,7 @@ _Created New Email Template will be used in further Engage feature to send mass 
 
 - Please follow the steps for setup: **General Settings** -> **Email Template**
 
-![](https://s3.us-west-2.amazonaws.com/erxes-docs/marketing-4.png)
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/marketing-4.PNG)
 
 _Created New Email Template will be used in further Engage feature to send mass email to customers_
 
@@ -285,8 +287,8 @@ _Created New Email Template will be used in further Engage feature to send mass 
 
 ## Email Appearance
 
-![](https://s3-us-west-2.amazonaws.com/erxes-docs/marketing-6.png)
-![](https://s3-us-west-2.amazonaws.com/erxes-docs/marketing-7.png)
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/marketing-6.PNG)
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/marketing-7.PNG)
 
 1. Choose your **email template type**
 2. **Insert** email template HTML
@@ -298,7 +300,7 @@ _The email template must be in HTML format_
 
 Sales Team settings include following features:
 
-![](https://s3-us-west-2.amazonaws.com/erxes-docs/sale_board_settings.jpg)
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/sale_board_settings.jpg)
 
 1. **Board & Pipelines**
 2. **Product & Service**
@@ -311,7 +313,7 @@ Manage your boards and pipelines so that it's easy to manage incoming leads or r
 
 - Please follow the steps for setup: **General Settings -> Board & Pipeline> Add Board -> Add Pipeline**
 
-![](https://s3-us-west-2.amazonaws.com/erxes-docs/sale_board.jpg)
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/sale_board.jpg)
 
 1. Click **Add** button to create **Board**
 2. Click **Add** button to create **Pipeline**
@@ -324,7 +326,7 @@ The Board & Pipeline will be further used in Deal feature
 
 - Please follow the steps for setup: **General Settings -> Board & Pipeline> Add Board**
 
-![](https://s3-us-west-2.amazonaws.com/erxes-docs/step_new_addboard.jpg)
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/step_new_addboard.jpg)
 
 1. Click **Add** to create Board
 2. **Insert name** for the **Board**
@@ -338,7 +340,7 @@ The Board & Pipeline will be further used in Deal feature
 
 - Please follow the steps for setup: **General Settings -> Board & Pipeline> Add Board**
 
-![](https://s3-us-west-2.amazonaws.com/erxes-docs/boards_and_pipelines_steps.jpg)
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/boards_and_pipelines_steps.jpg)
 
 1. Click **Add Pipeline**
 2. Insert **Name** for Pipeline

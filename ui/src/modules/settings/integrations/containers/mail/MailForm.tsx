@@ -71,7 +71,7 @@ const MailFormContainer = (props: FinalProps) => {
       .then(() => {
         Alert.success('You have successfully sent a email');
 
-        if (isReply) {
+        if (isReply && variables.shouldResolve) {
           debounce(
             () =>
               Alert.info(

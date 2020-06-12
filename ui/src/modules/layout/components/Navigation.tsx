@@ -184,7 +184,6 @@ class Navigation extends React.Component<{
             'icon-chat',
             unreadIndicator
           )}
-
           {this.renderNavItem(
             'showGrowthHacks',
             __('Growth Hacking'),

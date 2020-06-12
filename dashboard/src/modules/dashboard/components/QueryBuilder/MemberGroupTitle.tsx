@@ -10,7 +10,6 @@ const LabelStyled = styled.div`
   font-size: 11px;
   font-weight: bold;
 `;
-
 const MemberGroupTitle = (title) => <LabelStyled>{title}</LabelStyled>;
 
 export default MemberGroupTitle;

@@ -1,4 +1,4 @@
-import * as moment from "moment";
+import * as dayjs from "dayjs";
 import * as React from "react";
 import { defaultAvatar } from "../../icons/Icons";
 import { __, readFile } from "../../utils";
@@ -45,7 +45,7 @@ export default class Article extends React.Component<Props> {
             <div>
               {article.modifiedDate ? __("Modified ") : __("Created ")}
               <span>
-                {moment(
+                {dayjs(
                   article.modifiedDate
                     ? article.modifiedDate
                     : article.createdDate

@@ -5,10 +5,10 @@ title: Getting  Started
 
 ### Overview
 
-- [Overview](overview)
-- [Architecture Overview](architecture-overview)
-- [Deployment Overview](deployment-overview)
-- [Integrations Overview](integrations-overview)
+- [Overview](/overview/overview)
+- [Architecture Overview](/overview/architecture-overview)
+- [Deployment Overview](/overview/deployment-overview)
+- [Integrations Overview](/overview/integrations-overview)
 
 ### User's Guide
 

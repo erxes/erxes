@@ -86,7 +86,7 @@ class PipelinesContainer extends React.Component<FinalProps> {
           mutation={object ? mutations.pipelineEdit : mutations.pipelineAdd}
           variables={values}
           callback={callback}
-          confirmationUpdate={confirmationUpdate}
+          confirmationUpdate={object ? confirmationUpdate : false}
           refetchQueries={getRefetchQueries(boardId)}
           isSubmitted={isSubmitted}
           type="submit"
@@ -132,8 +132,14 @@ export default withProps<Props>(
       gql(queries.pipelines),
       {
         name: 'pipelinesQuery',
-        options: ({ boardId = '' }: { boardId: string }) => ({
-          variables: { boardId },
+        options: ({
+          boardId = '',
+          type
+        }: {
+          boardId: string;
+          type: string;
+        }) => ({
+          variables: { boardId, type },
           fetchPolicy: 'network-only'
         })
       }
