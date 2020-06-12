@@ -46,7 +46,7 @@ const ticketsRemove = `
 
 const ticketsChange = `
   mutation ticketsChange(${commonDragVariables}) {
-    ticketsChange((${commonDragParams}) {
+    ticketsChange(${commonDragParams}) {
       _id
     }
   }
