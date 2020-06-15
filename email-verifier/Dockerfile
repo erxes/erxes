@@ -1,4 +1,4 @@
-FROM node:12.16.3-slim
+FROM node:12.16-slim
 WORKDIR /erxes-email-verifier
 RUN chown -R node:node /erxes-email-verifier
 COPY --chown=node:node . /erxes-email-verifier

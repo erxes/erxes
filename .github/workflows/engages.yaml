@@ -27,10 +27,10 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
 
-    - name: Use Node.js 10.x
+    - name: Use Node.js 12.16.x
       uses: actions/setup-node@v1
       with:
-        node-version: 10.x
+        node-version: 12.16.x
 
     # https://github.com/actions/cache/blob/master/examples.md#node---yarn
     - name: Get yarn cache directory path
