@@ -1,0 +1,29 @@
+name: UI base image CI
+
+on:
+  push:
+    branches:
+      - 'develop'
+    paths:
+      - 'ui/nginx/**'
+      - 'ui/docker-entrypoint.sh'
+      - 'ui/base.Dockerfile'
+      - 'ui/base.Dockerfile.dockerignore'
+      - '.github/workflows/ui_base.yml'
+
+jobs:
+  build base docker image:
+    runs-on: ubuntu-18.04
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build base docker image
+      env:
+        NGINX_VERSION: nginx:1.18-alpine
+        TAG_VERSION: base-1.18-alpine
+      run: |
+        cd ui
+        echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+        DOCKER_BUILDKIT=1 docker build --build-arg NGINX_VERSION=$NGINX_VERSION -t erxes/erxes:$TAG_VERSION -f base.Dockerfile .
+        docker push erxes/erxes:$TAG_VERSION
