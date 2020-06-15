@@ -103,8 +103,6 @@ export default {
       return {
         messages: [],
         isOnline: await isMessengerOnline(integration),
-        participatedUsers: [],
-        supporters: [],
       };
     }
 
