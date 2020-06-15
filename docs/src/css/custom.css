@@ -17,8 +17,6 @@
   --telluric-blue: #5d6494;
   --solstice-blue: #3a416f;
   --cosmos-black: #21243d;
-  
-
 }
 
 :root {
@@ -58,6 +56,10 @@ html[data-theme='dark'] {
 
 html[data-theme='dark'] .react-toggle-track {
   background-color: var(--ifm-footer-background-color);
+}
+
+.blogPostTitle_node_modules-\@docusaurus-theme-classic-src-theme-BlogPostItem- {
+  font-size: 2.5rem !important;
 }
 
 .footer .footer__logo {

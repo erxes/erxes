@@ -36,7 +36,7 @@ module.exports = {
           position: 'right'
         },
         {
-          href: 'https://erxes.io/blog/',
+          to: 'blog/',
           label: 'Blog',
           position: 'right'
         },
