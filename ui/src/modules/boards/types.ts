@@ -24,9 +24,6 @@ export interface IOptions {
     copyMutation: string;
     archiveMutation: string;
   };
-  subscriptionName: {
-    changeSubscription: string;
-  };
   queries: {
     itemsQuery: string;
     detailQuery: string;
@@ -41,9 +38,6 @@ export interface IOptions {
     watchMutation: string;
     archiveMutation: string;
     copyMutation: string;
-  };
-  subscriptions: {
-    changeSubscription: string;
   };
   texts: {
     addText: string;
