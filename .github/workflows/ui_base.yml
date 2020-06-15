@@ -12,7 +12,7 @@ on:
       - '.github/workflows/ui_base.yml'
 
 jobs:
-  build base docker image:
+  build_base_docker_image:
     runs-on: ubuntu-18.04
 
     steps:
