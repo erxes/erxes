@@ -20,10 +20,10 @@ jobs:
 
     - name: Build base docker image
       env:
-        NGINX_VERSION: nginx:1.18-alpine
+        BASE_IMAGE: nginx:1.18-alpine
         TAG_VERSION: base-1.18-alpine
       run: |
         cd ui
         echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-        DOCKER_BUILDKIT=1 docker build --build-arg NGINX_VERSION=$NGINX_VERSION -t erxes/erxes:$TAG_VERSION -f base.Dockerfile .
+        DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes:$TAG_VERSION -f base.Dockerfile .
         docker push erxes/erxes:$TAG_VERSION
