@@ -3,13 +3,13 @@ name: Publish documentation
 on:
   push:
     branches:
-      - erxes-docs-blog
+      - test-ci
     paths:
       - 'docs/**'
       - '.github/workflows/documentation.yaml'
   pull_request:
     branches:
-      - erxes-docs-blog
+      - test-ci
     paths:
       - 'docs/**'
 
@@ -61,6 +61,6 @@ jobs:
       if: github.event_name == 'push'
       run: |
         cd docs
-        git config --global user.email "github-action@users.noreply.github.com"
-        git config --global user.name "github-actions"
-        GIT_USER=github-actions CURRENT_BRANCH=erxes-docs-blog yarn deploy
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        GIT_USER=github-actions CURRENT_BRANCH=test-ci yarn deploy
