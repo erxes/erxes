@@ -17,6 +17,9 @@
   --telluric-blue: #5d6494;
   --solstice-blue: #3a416f;
   --cosmos-black: #21243d;
+
+  /* heading */
+  --ifm-h1-font-size: 2.8rem;
 }
 
 :root {

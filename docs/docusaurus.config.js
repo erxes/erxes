@@ -49,12 +49,20 @@ module.exports = {
           title: 'Docs',
           items: [
             {
-              label: 'Style Guide',
-              to: 'docs/',
+              label: 'Getting Started',
+              to: '/overview/getting-started/',
             },
             {
-              label: 'Second Doc',
-              to: 'docs/doc2/',
+              label: 'Installation Guide',
+              to: '/installation/docker/',
+            },
+            {
+              label: 'Administrator`s Guide',
+              to: '/administrator/creating-first-user',
+            },
+            {
+              label: 'Developers Guide',
+              to: '/developer/developer',
             },
           ],
         },
@@ -62,25 +70,42 @@ module.exports = {
           title: 'Community',
           items: [
             {
-              label: 'Stack Overflow',
-              href: 'https://stackoverflow.com/questions/tagged/erxes',
+              label: 'Join our community chat',
+              href: 'https://community.erxes.io/register/Gw4WRJnk9fSbyAXTq',
             },
             {
-              label: 'Twitter',
-              href: 'https://twitter.com/ErxesHQ',
+              label: 'Join our facebook group',
+              href: 'https://www.facebook.com/groups/erxescommunity',
             },
           ],
         },
         {
-          title: 'More',
+          title: 'Company',
           items: [
+            {
+              label: 'About us',
+              href: 'https://erxes.io/team',
+            },
             {
               label: 'Blog',
               href: 'https://erxes.io/blog',
             },
             {
-              label: 'GitHub',
-              href: 'https://github.com/erxes/erxes',
+              label: 'Roadmap',
+              href: 'https://trello.com/b/jTjXaI28/erxes-inc-roadmap',
+            },
+          ],
+        },
+        {
+          title: 'Support The erxes',
+          items: [
+            {
+              label: 'Back us on Open Collective',
+              href: 'https://opencollective.com/erxes',
+            },
+            {
+              label: 'Back us on Github',
+              href: 'https://github.com/sponsors/erxes',
             },
           ],
         },

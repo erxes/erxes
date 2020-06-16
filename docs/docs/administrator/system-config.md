@@ -588,6 +588,42 @@ Basic integration setting has done. Now you need to connect your account to Erxe
 3. Select your brand and click save.
 4. Go to Setting => Channel=> Add new channel=> Connect gmail integration.
 
+### Gmail IMAP
+
+In Erxes you can also integrate your Gmail as IMAP.
+
+- Go to Erxes settings => App Store => IMAP.
+
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/gmail_imap_1.png)
+
+- Click on the Add account and fill out the form as follows:
+
+> You can also read Google IMAP Settings in [Google Help Center](https://support.google.com/mail/answer/7126229?hl=en)
+
+  ```
+  EMAIL: yourmail@gmail.com
+  PASSWORD: your gmail password
+  IMAP HOST: imap.gmail.com
+  IMAP PORT: 993
+  SMTP HOST: smtp.gmail.com
+  SMTP PORT: 465
+  ```
+
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/gmail_imap_2.png)
+
+- In order to integrate your Gmail, you also need to make some config in [gmail](https://gmail.com/). Go to Settings => See all settings.
+
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/gmail_imap_3.png)
+
+- In the Settings section click on the Forwarding and POP/IMAP.
+- Enable IMAP and click on the Save changes button on the bottom of the page.
+
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/gmail_imap_4.png)
+
+- Last thing you should do is enable Less secure app access in [Google settings](https://myaccount.google.com/lesssecureapps) because Google automatically blocks third party access.
+
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/gmail_imap_5.png)
+
 ### Yahoo
 
 In order to integrate the Yahoo you will need to generate app password for the Erxes, please follow below steps.
