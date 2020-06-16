@@ -5,6 +5,8 @@ import {
 import { growthHackFields } from './queries';
 
 const commonVariables = `
+  $proccessId: String,
+  $aboveItemId: String,
   $stageId: String,
   $closeDate: Date,
   $description: String,
@@ -20,6 +22,8 @@ const commonVariables = `
 `;
 
 const commonParams = `
+  proccessId: $proccessId,
+  aboveItemId: $aboveItemId,
   stageId: $stageId,
   closeDate: $closeDate,
   description: $description,
@@ -60,7 +64,7 @@ const growthHacksRemove = `
 
 const growthHacksChange = `
   mutation growthHacksChange(${commonDragVariables}) {
-    growthHacksChange((${commonDragParams}) {
+    growthHacksChange(${commonDragParams}) {
       _id
     }
   }
