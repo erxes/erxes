@@ -97,10 +97,13 @@ jobs:
         GIT_USER: git
       run: |
         cd docs
-        git config --global user.email "actions@gihub.com"
-        git config --global user.name "github-actions"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git config --global user.name "github-actions[bot]"
         yarn install
         yarn deploy
+
+      # git config --global user.email "actions@gihub.com"
+      # git config --global user.name "github-actions"
 
       # git config --global user.email "builds@github-ci.com"
       # git config --global user.name "GitHub CI"

@@ -9,7 +9,6 @@ tags: [release note, open source]
 
 
 
-
 Welcome to the March 2020 release of Erxes. The number of updates and new features are highlighted in this version. Therefore, the breaking change has done in this release. Major features of the 0.13.0 series, compared to release 0.12.0\.
 
 <!--truncate-->
@@ -32,7 +31,7 @@ Welcome to the March 2020 release of Erxes. The number of updates and new featur
 *   **Added showErxesMessenger trigger in the messenger**. It was complicated to fix the position of launcher icon to the bottom, especially on mobile, since it overlapped with other elements, particularly bottom navbar. Hence, while it is attached to the scope of the body on a single page app, it will remain on other pages as well. Now it would be great if a messenger can be launched programmatically like erxes.launch() on some user interaction, “like clicking on request for help button”. Rather than attaching to document, there should be an option to attach the erxes launcher to a specific element, as it causes the problem in single-page apps since it is not ideal to display the launcher icon in every page. Additionally, Erxes messenger has an ability to hide launcher from admin.
 *   **Erxes now supports video calls service.** It allows us to easy to create and configure on-demand video call URLs by using the Daily.co API integration.
 *   **Added archive function in Deal, Task, Ticket and Growth hacking cards.** All cards can be archived and then it can be looked back and sent to board task or list.
-*   **Added email verification service.** Some email services such AWS SES possible to directly block for unverified emails. So it is necessary to verify email using email verification service like TrueMail before sending email in order to prevent the server would block verified emails.  
+*   **Added email verification service.** Some email services such AWS SES possible to directly block for unverified emails. So it is necessary to verify email using email verification service like TrueMail before sending email in order to prevent the server would block verified emails.
 
 #### Improvements and Bug fixes:
 
