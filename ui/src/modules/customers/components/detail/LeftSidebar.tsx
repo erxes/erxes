@@ -20,7 +20,6 @@ type Props = {
 export default class LeftSidebar extends React.Component<Props> {
   render() {
     const { customer, wide, taggerRefetchQueries } = this.props;
-
     return (
       <Sidebar wide={wide}>
         <BasicInfoSection customer={customer} />

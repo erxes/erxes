@@ -23,7 +23,7 @@ class MemberGroup extends React.Component<Props> {
     } = this.props;
 
     if (members.length > 0) {
-      return <span />;
+      return null;
     }
 
     return (
@@ -42,7 +42,7 @@ class MemberGroup extends React.Component<Props> {
     const { members, availableMembers, updateMethods, type } = this.props;
 
     return (
-      <span>
+      <>
         {members.map((m) => (
           <RemoveButtonGroup
             key={m.index || m.name}
@@ -58,7 +58,7 @@ class MemberGroup extends React.Component<Props> {
           </RemoveButtonGroup>
         ))}
         {this.renderMember()}
-      </span>
+      </>
     );
   }
 }

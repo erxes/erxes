@@ -1,8 +1,33 @@
 import { colors, dimensions } from 'modules/common/styles';
-import { SimpleButton } from 'modules/common/styles/main';
 import { BoxItem } from 'modules/settings/growthHacks/styles';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
+
+const Title = styled.div`
+  font-size: 24px;
+  margin: 10px 0 14px;
+  display: flex;
+  align-items: center;
+
+  i {
+    font-size: 16px;
+    color: ${colors.colorCoreGray};
+    margin-left: ${dimensions.unitSpacing}px;
+    visibility: hidden;
+  }
+
+  &:hover {
+    cursor: pointer;
+
+    i {
+      visibility: visible;
+    }
+  }
+`;
+
+const RightActions = styled.div`
+  align-self: center;
+`;
 
 const BoxContainer = styled.div`
   display: flex;
@@ -97,68 +122,4 @@ const ProjectItem = styledTS<{ new?: boolean }>(styled(BoxItem))`
     `};
 `;
 
-const PipelineMeta = styled.div`
-  font-size: 12px;
-  color: ${colors.colorCoreGray};
-  margin-top: 70px;
-
-  i {
-    margin-right: ${dimensions.unitSpacing / 2}px;
-  }
-
-  span {
-    margin-bottom: 5px;
-  }
-`;
-
-const CountItem = styledTS<{ content: string }>(styled(ProjectItem))`
-
-  &:before {
-    content: ${props => `'\\${props.content}'`};
-    right: 0;
-    bottom: -90px;
-    transform: rotate(0deg);
-  }
-
-  > strong {
-    font-size: 60px;
-    margin-top: 30px;
-    line-height: 1;
-  }
-`;
-
-const FilterWrapper = styled.div`
-  padding: 0 20px;
-  margin: -20px 0 10px;
-  position: sticky;
-  top: 0;
-  background: ${colors.colorWhite};
-  z-index: 2;
-`;
-
-const HelperButtons = styled.div`
-  position: absolute;
-  right: 20px;
-  top: 7px;
-  z-index: 3;
-  display: flex;
-  align-items: center;
-`;
-
-const FilterButton = styled(SimpleButton)`
-  width: auto;
-  height: auto;
-  padding: 5px 15px;
-  border-radius: 20px;
-  margin-left: 5px;
-`;
-
-export {
-  BoxContainer,
-  ProjectItem,
-  PipelineMeta,
-  CountItem,
-  FilterWrapper,
-  FilterButton,
-  HelperButtons
-};
+export { BoxContainer, ProjectItem, Title, RightActions };
