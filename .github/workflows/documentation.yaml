@@ -77,20 +77,7 @@ jobs:
           ${{ runner.os }}-yarn-docs-
           ${{ runner.os }}-yarn-
 
-    # - name: Add key to allow access to repository
-    #   env:
-    #     SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-    #   run: |
-    #     mkdir -p ~/.ssh
-    #     ssh-keyscan github.com >> ~/.ssh/known_hosts
-    #     echo "${{ secrets.GH_PAGES_DEPLOY }}" > ~/.ssh/id_rsa
-    #     chmod 600 ~/.ssh/id_rsa
-    #     cat <<EOT >> ~/.ssh/config
-    #     Host github.com
-    #     HostName github.com
-    #     IdentityFile ~/.ssh/id_rsa
-    #     EOT
-    - name: Add key to allow access to repository
+    - name: Release to GitHub Pages
       env:
         GH_PAGES_DEPLOY: ${{ secrets.GH_PAGES_DEPLOY }}
         USE_SSH: true
@@ -100,8 +87,8 @@ jobs:
         eval "$(ssh-agent -s)"; touch docs_key; chmod 0600 docs_key
         echo "$GH_PAGES_DEPLOY" > "docs_key"
         ssh-add docs_key
-        git config --global user.email "builds@github-ci.com"
-        git config --global user.name "GitHub CI"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git config --global user.name "github-actions[bot]"
         yarn install
         yarn deploy
 
@@ -115,9 +102,3 @@ jobs:
     #     git config --global user.name "github-actions[bot]"
     #     yarn install
     #     yarn deploy
-
-      # git config --global user.email "actions@gihub.com"
-      # git config --global user.name "github-actions"
-
-      # git config --global user.email "builds@github-ci.com"
-      # git config --global user.name "GitHub CI"

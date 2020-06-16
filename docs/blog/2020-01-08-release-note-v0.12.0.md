@@ -8,7 +8,7 @@ tags: [release note, open source]
 ---
 
 
-Erxes 0.12.0 release contains the number of new features, resolved issues and improvements. Therefore, the breaking changes has done in this release. Major features of the 0.12.0 series, compared to release 0.11.2\.
+Erxes 0.12.0 release contains the number of new features, resolved issues and improvements. Therefore, the breaking changes has done in this release. Major features of the 0.12.0 series, compared to release 0.11.2.
 
 <!--truncate-->
 
