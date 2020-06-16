@@ -61,6 +61,6 @@ jobs:
       if: github.event_name == 'push'
       run: |
         cd docs
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
+        git config --global user.email "action@github.com"
+        git config --global user.name "GitHub Action"
         GIT_USER=github-actions CURRENT_BRANCH=test-ci yarn deploy
