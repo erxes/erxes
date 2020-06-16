@@ -24,7 +24,7 @@ jobs:
     - uses: actions/checkout@v2
     - uses: actions/setup-node@v1
       with:
-        node-version: 12.x
+        node-version: 12.16.x
 
     # https://github.com/actions/cache/blob/master/examples.md#node---yarn
     - name: Get yarn cache directory path
@@ -59,7 +59,7 @@ jobs:
 
     - uses: actions/setup-node@v1
       with:
-        node-version: 12.x
+        node-version: 12.16.x
 
     # https://github.com/actions/cache/blob/master/examples.md#node---yarn
     - name: Get yarn cache directory path
@@ -97,7 +97,7 @@ jobs:
         GIT_USER: git
       run: |
         cd docs
-        git config --global user.email "actions@gihub.com"
-        git config --global user.name "gh-actions"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git config --global user.name "github-actions[bot]"
         yarn install
         yarn deploy
