@@ -61,7 +61,8 @@ class DashbaordForm extends React.Component<Props, {}> {
             <Button
               btnStyle="simple"
               type="button"
-              icon="cancel-1"
+              icon="times-circle"
+              uppercase={false}
               onClick={closeModal}
             >
               Cancel
@@ -93,7 +94,6 @@ class DashbaordForm extends React.Component<Props, {}> {
         onHide={closeModal}
         enforceFocus={false}
         animation={false}
-        size="lg"
       >
         <Form renderContent={this.renderContent} />
       </Modal>
