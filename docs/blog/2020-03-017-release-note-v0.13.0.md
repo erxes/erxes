@@ -8,7 +8,7 @@ tags: [release note, open source]
 ---
 
 
-Welcome to the March 2020 release of Erxes. The number of updates and new features are highlighted in this version. Therefore, the breaking change has done in this release. Major features of the 0.13.0 series, compared to release 0.12.0\.
+Welcome to the March 2020 release of Erxes. The number of updates and new features are highlighted in this version. Therefore, the breaking change has done in this release. Major features of the 0.13.0 series, compared to release 0.12.0.
 
 <!--truncate-->
 
