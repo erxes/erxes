@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import Spinner from 'modules/common/components/Spinner';
 import Alert from 'modules/common/utils/Alert';
 import React from 'react';
 import { graphql } from 'react-apollo';
@@ -34,7 +35,7 @@ class DashboardContainer extends React.Component<FinalProps, {}> {
     } = this.props;
 
     if (dashboardItemsQuery.loading) {
-      return <div />;
+      return <Spinner objective={true} />;
     }
 
     const editDashboardItem = params => {

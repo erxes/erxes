@@ -48,7 +48,7 @@ const routes = () => {
       <Route
         key="/dashboard/detail"
         exact={true}
-        path="/dashboard/details/:id"
+        path="/dashboard/:id"
         component={dashboardDetail}
       />
       <Route
