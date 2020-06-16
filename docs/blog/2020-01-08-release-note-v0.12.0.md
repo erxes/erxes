@@ -8,7 +8,6 @@ tags: [release note, open source]
 ---
 
 
-
 Erxes 0.12.0 release contains the number of new features, resolved issues and improvements. Therefore, the breaking changes has done in this release. Major features of the 0.12.0 series, compared to release 0.11.2\.
 
 <!--truncate-->
@@ -36,7 +35,7 @@ Erxes 0.12.0 release contains the number of new features, resolved issues and im
 *   **Fixed move card labels bug in Deal, Ticket, Task card**. When a deal/task/ticket is moved between pipelines, labels inside of card does not move alongside. Now labels inside the deal/task/ticket card should also be available in the new pipeline.
 *   Able to add cc bcc in reply on email integration.
 *   **Mail: not receiving updates in realtime.** Before it was not clear to get email into inbox in a timely manner. Now while receive the new email, it is shown on bold email in inbox list without refreshing.
-*   Fixed checkbox field error and multiple submit bug in the form.  
+*   Fixed checkbox field error and multiple submit bug in the form.
 
 #### Breaking changes:
 

@@ -101,3 +101,6 @@ jobs:
         git config --global user.name "github-actions"
         yarn install
         yarn deploy
+
+      # git config --global user.email "builds@github-ci.com"
+      # git config --global user.name "GitHub CI"
