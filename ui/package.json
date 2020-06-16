@@ -36,6 +36,7 @@
     "graphql-tag": "^2.6.1",
     "i18n-react": "^0.6.4",
     "juice": "^5.2.0",
+    "lodash": "^4.17.15",
     "lodash.flowright": "^3.5.0",
     "query-string": "^5.0.0",
     "react": "^16.11.0",
