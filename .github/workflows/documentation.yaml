@@ -61,4 +61,6 @@ jobs:
       if: github.event_name == 'push'
       run: |
         cd docs
+        git config --global user.name $(jq .pusher.username $GITHUB_PAYLOAD)
+        git config --global user.email $(jq .pusher.email $GITHUB_PAYLOAD)
         GIT_USER=github-actions CURRENT_BRANCH=erxes-docs-blog yarn deploy
