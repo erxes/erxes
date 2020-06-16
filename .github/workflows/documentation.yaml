@@ -52,15 +52,21 @@ jobs:
         yarn install
 
     - name: Build
-      if: github.event_name == 'pull_request'
+      # if: github.event_name == 'pull_request'
       run: |
         cd docs
         yarn run build
 
-    - name: Publish
-      if: github.event_name == 'push'
-      run: |
-        cd docs
-        git config --global user.email "action@github.com"
-        git config --global user.name "GitHub Action"
-        GIT_USER=github-actions CURRENT_BRANCH=test-ci yarn deploy
+    - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build
+
+    # - name: Publish
+    #   if: github.event_name == 'push'
+    #   run: |
+    #     cd docs
+    #     git config --global user.email "action@github.com"
+    #     git config --global user.name "GitHub Action"
+    #     GIT_USER=github-actions CURRENT_BRANCH=test-ci yarn deploy
