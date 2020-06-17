@@ -1,3 +1,10 @@
+## [0.14.3](https://github.com/erxes/erxes-api/compare/0.14.2...0.14.3) (2020-06-17)
+
+
+### Bug Fixes
+
+* **initial-script:** wrapped connection string in double quote ([8fe761e](https://github.com/erxes/erxes-api/commit/8fe761e5d94db58123f7425d04fadd77564d04f6))
+
 ## [0.14.2](https://github.com/erxes/erxes-api/compare/0.14.1...0.14.2) (2020-06-17)
 
 
