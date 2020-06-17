@@ -1,3 +1,10 @@
+## [0.14.2](https://github.com/erxes/erxes-api/compare/0.14.1...0.14.2) (2020-06-17)
+
+
+### Bug Fixes
+
+* **commands:** passed uri option to loadInitialData command ([d2296e0](https://github.com/erxes/erxes-api/commit/d2296e02b54b88a92c04d87d28fc41c6bcefd31c))
+
 ## [0.14.1](https://github.com/erxes/erxes-api/compare/0.14.0...0.14.1) (2020-05-19)
 
 
