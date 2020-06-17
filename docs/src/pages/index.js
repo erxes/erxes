@@ -37,7 +37,7 @@ const Header = () => {
         </Link>
       </div>
       <h6 className={styles.suggestion}>
-        Are you looking for plug-and-play, easy to use, and flexibility that scales? 
+        Are you looking for a flexible and scalable option with low-effort set up?
         <a href="https://erxes.io/" target="_blank"> Try <b>erxes Cloud</b></a>
       </h6>
     </div>
@@ -53,7 +53,7 @@ function Home() {
 
   return (
     <Layout
-      title={`${title} - ${tagline}`}
+      title={title}
       description={tagline}
       ogImage={ogImage}
       url={url}
