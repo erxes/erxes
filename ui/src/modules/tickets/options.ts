@@ -1,7 +1,7 @@
 import { toArray } from 'modules/boards/utils';
 import TicketEditForm from 'modules/tickets/components/TicketEditForm';
 import TicketItem from './components/TicketItem';
-import { mutations, queries, subscriptions } from './graphql';
+import { mutations, queries } from './graphql';
 
 const options = {
   EditForm: TicketEditForm,
@@ -23,9 +23,6 @@ const options = {
     archiveMutation: 'ticketsArchive',
     copyMutation: 'ticketsCopy'
   },
-  subscriptionName: {
-    changeSubscription: 'ticketsChanged'
-  },
   queries: {
     itemsQuery: queries.tickets,
     detailQuery: queries.ticketDetail,
@@ -40,9 +37,6 @@ const options = {
     watchMutation: mutations.ticketsWatch,
     archiveMutation: mutations.ticketsArchive,
     copyMutation: mutations.ticketsCopy
-  },
-  subscriptions: {
-    changeSubscription: subscriptions.ticketsChanged
   },
   texts: {
     addText: 'Add a ticket',
