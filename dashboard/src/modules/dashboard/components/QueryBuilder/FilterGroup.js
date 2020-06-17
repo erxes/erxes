@@ -77,4 +77,5 @@ FilterGroup.propTypes = {
   addMemberName: PropTypes.string.isRequired,
   updateMethods: PropTypes.object.isRequired
 };
+
 export default FilterGroup;
