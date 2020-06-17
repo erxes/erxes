@@ -28,7 +28,13 @@ module.exports = {
           to: 'overview/getting-started/',
           activeBasePath: '',
           label: 'Documentation',
-          position: 'right',
+          position: 'left',
+        },
+        {
+          to: '/user/subscription-getting-started',
+          activeBasePath: '',
+          label: 'Tutorial',
+          position: 'left',
         },
         {
           href: 'https://github.com/erxes/erxes',

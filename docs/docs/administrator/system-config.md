@@ -600,15 +600,6 @@ In Erxes you can also integrate your Gmail as IMAP.
 
 > You can also read Google IMAP Settings in [Google Help Center](https://support.google.com/mail/answer/7126229?hl=en)
 
-  ```
-  EMAIL: yourmail@gmail.com
-  PASSWORD: your gmail password
-  IMAP HOST: imap.gmail.com
-  IMAP PORT: 993
-  SMTP HOST: smtp.gmail.com
-  SMTP PORT: 465
-  ```
-
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/gmail_imap_2.png)
 
 - In order to integrate your Gmail, you also need to make some config in [gmail](https://gmail.com/). Go to Settings => See all settings.
