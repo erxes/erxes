@@ -1,9 +1,9 @@
 module.exports = {
   title: 'erxes',
-  tagline: 'Documentation',
-  url: 'https://docs.erxes.io',
+  tagline: 'erxes is a free and open fair-code licensed all-in-one growth marketing and management tool for a smoother customer journey',
+  url: 'https://www.erxes.org',
   baseUrl: '/',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/favicon.png',
   organizationName: 'erxes', // Usually your GitHub org/user name.
   projectName: 'erxes', // Usually your repo name.
   themeConfig: {
@@ -18,27 +18,33 @@ module.exports = {
     sidebarCollapsible: true,
     image: 'img/erxes.png',
     navbar: {
-      title: 'erxes',
       logo: {
         alt: 'erxes logo',
-        src: 'img/erxes.png',
+        src: 'img/logo_dark.svg',
+        srcDark: 'img/logo.svg',
       },
       links: [
         {
           to: 'overview/getting-started/',
           activeBasePath: '',
-          label: 'Docs',
+          label: 'Documentation',
           position: 'left',
         },
         {
-          href: 'https://erxes.io/signin',
-          label: 'Sign in',
+          to: '/user/subscription-getting-started',
+          activeBasePath: '',
+          label: 'Tutorial',
+          position: 'left',
+        },
+        {
+          href: 'https://github.com/erxes/erxes',
+          label: 'GitHub',
           position: 'right'
         },
         {
-          href: 'https://erxes.io/create',
-          label: 'Get Started',
-          position: 'right',
+          href: 'https://erxes.io/blog/',
+          label: 'Blog',
+          position: 'right'
         },
       ],
     },
@@ -49,12 +55,37 @@ module.exports = {
           title: 'Docs',
           items: [
             {
-              label: 'Style Guide',
-              to: 'docs/',
+              label: 'Getting Started',
+              to: '/overview/getting-started/',
             },
             {
-              label: 'Second Doc',
-              to: 'docs/doc2/',
+              label: 'Installation Guide',
+              to: '/installation/docker/',
+            },
+            {
+              label: 'Administrator`s Guide',
+              to: '/administrator/creating-first-user',
+            },
+            {
+              label: 'Developers Guide',
+              to: '/developer/developer',
+            },
+          ],
+        },
+        {
+          title: 'Company',
+          items: [
+            {
+              label: 'About us',
+              href: 'https://erxes.io/team',
+            },
+            {
+              label: 'Blog',
+              href: 'https://erxes.io/blog',
+            },
+            {
+              label: 'Roadmap',
+              href: 'https://trello.com/b/jTjXaI28/erxes-inc-roadmap',
             },
           ],
         },
@@ -62,33 +93,35 @@ module.exports = {
           title: 'Community',
           items: [
             {
-              label: 'Stack Overflow',
-              href: 'https://stackoverflow.com/questions/tagged/docusaurus',
+              label: 'Join our community chat',
+              href: 'https://community.erxes.io/register/Gw4WRJnk9fSbyAXTq',
             },
             {
-              label: 'Discord',
-              href: 'https://discordapp.com/invite/docusaurus',
-            },
-            {
-              label: 'Twitter',
-              href: 'https://twitter.com/docusaurus',
+              label: 'Join our facebook group',
+              href: 'https://www.facebook.com/groups/erxescommunity',
             },
           ],
         },
+       
         {
-          title: 'More',
+          title: 'Support The erxes',
           items: [
             {
-              label: 'Blog',
-              href: 'https://erxes.io/blog',
+              label: 'Back us on Open Collective',
+              href: 'https://opencollective.com/erxes',
             },
             {
-              label: 'GitHub',
-              href: 'https://github.com/erxes/erxes',
+              label: 'Back us on Github',
+              href: 'https://github.com/sponsors/erxes',
             },
           ],
         },
       ],
+      logo: {
+        alt: 'erxes Open Source Logo',
+        src: 'img/logo.svg',
+        href: 'https://erxes.io',
+      },
       copyright: `Copyright © ${new Date().getFullYear()} erxes Inc.`,
     },
   },

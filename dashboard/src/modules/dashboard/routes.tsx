@@ -1,6 +1,6 @@
 import queryString from 'query-string';
 import React from 'react';
-import { Route } from 'react-router-dom';
+import { BrowserRouter, Route } from 'react-router-dom';
 import DashboardDetail from './containers/DashboardDetail';
 import ExplorePage from './containers/Explore';
 
@@ -18,21 +18,23 @@ const explorePage = ({ location, history }) => {
 
 const routes = () => {
   return (
-    <React.Fragment>
-      <Route
-        key='/detail'
-        exact={true}
-        path='/details/:id'
-        component={dashboardDetail}
-      />
+    <BrowserRouter basename="/dashboard">
+      <React.Fragment>
+        <Route
+          key='/detail'
+          exact={true}
+          path='/details/:id'
+          component={dashboardDetail}
+        />
 
-      <Route
-        key='/explore'
-        exact={true}
-        path='/explore'
-        component={explorePage}
-      />
-    </React.Fragment>
+        <Route
+          key='/explore'
+          exact={true}
+          path='/explore'
+          component={explorePage}
+        />
+      </React.Fragment>
+    </BrowserRouter>
   );
 };
 
