@@ -176,12 +176,28 @@ class PipelineProviderInner extends React.Component<Props, State> {
             });
           }
 
-          // refetch stages info ===
-          const changedStageIds: string[] = [];
+          if (action === 'itemUpdate') {
+            const { itemMap } = this.state;
+            const items = [...itemMap[item.stageId]];
+            const index = items.findIndex(d => d._id === item._id);
 
-          if (destinationStageId) {
+            items[index] = item;
+
+            this.setState({
+              itemMap: { ...itemMap, [item.stageId]: items }
+            });
+          }
+
+          // refetch stages info ===
+          const changedStageIds: string[] = [item.stageId];
+
+          if (
+            destinationStageId &&
+            !changedStageIds.includes(destinationStageId)
+          ) {
             changedStageIds.push(destinationStageId);
           }
+
           if (oldStageId && !changedStageIds.includes(oldStageId)) {
             changedStageIds.push(oldStageId);
           }

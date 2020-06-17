@@ -9,15 +9,6 @@ const pipelinesChanged = `
   }
 `;
 
-const itemsDetailChanged = `
-  subscription itemsDetailChanged($_id: String!) {
-    itemsDetailChanged(_id: $_id) {
-      _id
-    }
-  }
-`;
-
 export default {
-  pipelinesChanged,
-  itemsDetailChanged
+  pipelinesChanged
 };
