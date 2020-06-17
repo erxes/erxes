@@ -1,6 +1,6 @@
 module.exports = {
   title: 'erxes',
-  tagline: 'Documentation',
+  tagline: 'erxes is a free and open fair-code licensed all-in-one growth marketing and management tool for a smoother customer journey',
   url: 'https://www.erxes.org',
   baseUrl: '/',
   favicon: 'img/favicon.png',
@@ -67,19 +67,6 @@ module.exports = {
           ],
         },
         {
-          title: 'Community',
-          items: [
-            {
-              label: 'Join our community chat',
-              href: 'https://community.erxes.io/register/Gw4WRJnk9fSbyAXTq',
-            },
-            {
-              label: 'Join our facebook group',
-              href: 'https://www.facebook.com/groups/erxescommunity',
-            },
-          ],
-        },
-        {
           title: 'Company',
           items: [
             {
@@ -96,6 +83,20 @@ module.exports = {
             },
           ],
         },
+        {
+          title: 'Community',
+          items: [
+            {
+              label: 'Join our community chat',
+              href: 'https://community.erxes.io/register/Gw4WRJnk9fSbyAXTq',
+            },
+            {
+              label: 'Join our facebook group',
+              href: 'https://www.facebook.com/groups/erxescommunity',
+            },
+          ],
+        },
+       
         {
           title: 'Support The erxes',
           items: [
