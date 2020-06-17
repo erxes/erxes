@@ -27,7 +27,7 @@ done
 # Dependencies
 #
 apt-get -qqy update
-apt-get -qqy install -y curl wget gnupg apt-transport-https software-properties-common python3-pip
+apt-get -qqy install -y curl wget gnupg apt-transport-https software-properties-common python3-pip ufw
 
 # MongoDB
 echo "Installing MongoDB"
