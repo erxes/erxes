@@ -82,7 +82,7 @@ jobs:
       run: |
         cd ui
         echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-        docker build -t erxes/erxes:${GITHUB_REF#refs/heads/} -f Dockerfile .
+        docker build -t erxes/erxes:${GITHUB_REF#refs/heads/} -f ui.Dockerfile .
         docker push erxes/erxes:${GITHUB_REF#refs/heads/}
 
     - name: Build docker image [tag]
@@ -92,5 +92,5 @@ jobs:
       run: |
         cd ui
         echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-        DOCKER_BUILDKIT=1 docker --build-arg BASE_IMAGE=$BASE_IMAGE build -t erxes/erxes:${GITHUB_REF#refs/tags/} -f Dockerfile .
+        DOCKER_BUILDKIT=1 docker --build-arg BASE_IMAGE=$BASE_IMAGE build -t erxes/erxes:${GITHUB_REF#refs/tags/} -f ui.Dockerfile .
         docker push erxes/erxes:${GITHUB_REF#refs/tags/}
