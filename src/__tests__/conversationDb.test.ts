@@ -312,6 +312,8 @@ describe('Conversation db', () => {
   });
 
   test('Conversation message', async () => {
+    await conversationMessageFactory({ conversationId: _conversation._id, internal: false });
+
     // non answered messages =========
     const nonAnweredMessage = await ConversationMessages.getNonAsnweredMessage(_conversation._id);
 
@@ -325,7 +327,7 @@ describe('Conversation db', () => {
 
     const adminMessages = await ConversationMessages.getAdminMessages(_conversation._id);
 
-    expect(adminMessages.length).toBe(1);
+    expect(adminMessages.length).toBe(2);
 
     // mark sent as read messages ==================
     await ConversationMessages.updateMany(

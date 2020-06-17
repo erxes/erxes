@@ -91,6 +91,7 @@ describe('engage message mutation tests', () => {
     _customer = await customerFactory({
       integrationId: _integration._id,
       emailValidationStatus: 'valid',
+      phoneValidationStatus: 'valid',
       status: 'Active',
       profileScore: 1,
       primaryEmail: faker.internet.email(),

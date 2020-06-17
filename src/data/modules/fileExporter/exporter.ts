@@ -52,10 +52,22 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
       if (customerParams.form && customerParams.popupData) {
         debugBase('Start an query for popups export');
 
-        const messages = await ConversationMessages.find(
-          { formWidgetData: { $exists: true, $ne: null }, customerId: { $exists: true } },
-          { formWidgetData: 1, customerId: 1, createdAt: 1 },
-        );
+        const fields = await Fields.find({ contentType: 'form', contentTypeId: customerParams.form });
+
+        if (fields.length === 0) {
+          return [];
+        }
+
+        const messageQuery: any = {
+          'formWidgetData._id': { $in: fields.map(field => field._id) },
+          customerId: { $exists: true },
+        };
+
+        const messages = await ConversationMessages.find(messageQuery, {
+          formWidgetData: 1,
+          customerId: 1,
+          createdAt: 1,
+        });
 
         const messagesMap: { [key: string]: any[] } = {};
 
@@ -227,7 +239,8 @@ const buildLeadFile = async (datas: any, formId: string, sheet: any, columnNames
     rowIndex++;
     // Iterating through basic info columns
     for (const column of headers) {
-      const item = await data.find(obj => obj._id === column.name);
+      const item = await data.find(obj => obj._id === column.name || obj.text.trim() === column.label.trim());
+
       const cellValue = displayValue(item);
 
       addCell(column, cellValue, sheet, columnNames, rowIndex);

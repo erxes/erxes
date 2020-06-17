@@ -5,7 +5,9 @@ import { Users } from '../db/models';
 const main = async () => {
   const MONGO_URL = getEnv({ name: 'MONGO_URL' });
 
-  const result = await shelljs.exec(`mongorestore --db erxes ./src/initialData/common`, { silent: true });
+  const result = await shelljs.exec(`mongorestore --uri "${MONGO_URL}" --db erxes ./src/initialData/common`, {
+    silent: true,
+  });
   const output = result.stderr + result.stdout;
 
   console.log(output);
@@ -20,7 +22,7 @@ const main = async () => {
 
   const pwdHash = await Users.generatePassword(newPwd);
 
-  await shelljs.exec(`mongo ${MONGO_URL} --eval 'db.users.update({}, { $set: {password: "${pwdHash}" } })'`, {
+  await shelljs.exec(`mongo "${MONGO_URL}" --eval 'db.users.update({}, { $set: {password: "${pwdHash}" } })'`, {
     silent: true,
   });
 

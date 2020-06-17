@@ -866,6 +866,52 @@ export const validateEmail = async (email: string, wait?: boolean) => {
     });
 };
 
+export const validatePhone = async (phone: string, wait?: boolean) => {
+  const data = { phone };
+
+  const EMAIL_VERIFIER_ENDPOINT = getEnv({ name: 'EMAIL_VERIFIER_ENDPOINT', defaultValue: '' });
+
+  if (!EMAIL_VERIFIER_ENDPOINT) {
+    return sendMessage('erxes-api:phone-verifier-notification', { action: 'phoneVerify', data });
+  }
+
+  const requestOptions = {
+    url: `${EMAIL_VERIFIER_ENDPOINT}/verify-singlePhone`,
+    method: 'POST',
+    body: { phone },
+  };
+
+  const updateCustomer = status =>
+    Customers.updateOne({ primaryPhone: phone }, { $set: { phoneValidationStatus: status } });
+
+  const successCallback = response => updateCustomer(response.result.status);
+
+  const errorCallback = e => {
+    if (e.message === 'timeout exceeded') {
+      return updateCustomer('unverifiable');
+    }
+
+    debugExternalApi(`Error occurred during phone verify ${e.message}`);
+  };
+
+  if (wait) {
+    try {
+      const response = await sendRequest(requestOptions);
+      return successCallback(response);
+    } catch (e) {
+      await errorCallback(e);
+    }
+  }
+
+  sendRequest(requestOptions)
+    .then(async response => {
+      await successCallback(response);
+    })
+    .catch(async e => {
+      await errorCallback(e);
+    });
+};
+
 export const getConfigs = async () => {
   const configsCache = await get('configs_erxes_api');
 

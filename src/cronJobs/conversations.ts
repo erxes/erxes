@@ -13,6 +13,8 @@ export const sendMessageEmail = async () => {
   // new or open conversations
   const conversations = await Conversations.newOrOpenConversation();
 
+  debugCrons(`Found ${conversations.length} conversations`);
+
   for (const conversation of conversations) {
     const customer = await Customers.findOne({ _id: conversation.customerId }).lean();
 
@@ -21,17 +23,17 @@ export const sendMessageEmail = async () => {
     });
 
     if (!integration) {
-      return;
+      continue;
     }
 
     if (!customer || !customer.primaryEmail) {
-      return;
+      continue;
     }
 
     const brand = await Brands.findOne({ _id: integration.brandId }).lean();
 
     if (!brand) {
-      return;
+      continue;
     }
 
     // user's last non answered question
@@ -40,7 +42,7 @@ export const sendMessageEmail = async () => {
     const adminMessages = await ConversationMessages.getAdminMessages(conversation._id);
 
     if (adminMessages.length < 1) {
-      return;
+      continue;
     }
 
     // generate admin unread answers

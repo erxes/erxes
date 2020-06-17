@@ -106,4 +106,12 @@ describe('Test Tickets model', () => {
 
     expect(unwatchedTicket.watchedUserIds).not.toContain(user._id);
   });
+
+  test('Test removeTickets()', async () => {
+    await Tickets.removeTickets([ticket._id]);
+
+    const removed = await Tickets.findOne({ _id: ticket._id });
+
+    expect(removed).toBe(null);
+  });
 });

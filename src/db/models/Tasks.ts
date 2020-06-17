@@ -1,8 +1,8 @@
 import { Model, model } from 'mongoose';
 import { ActivityLogs } from '.';
-import { fillSearchTextItem, watchItem } from './boardUtils';
+import { destroyBoardItemRelations, fillSearchTextItem, watchItem } from './boardUtils';
 import { IItemCommonFields as ITask } from './definitions/boards';
-import { BOARD_STATUSES } from './definitions/constants';
+import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
 import { ITaskDocument, taskSchema } from './definitions/tasks';
 
 export interface ITaskModel extends Model<ITaskDocument> {
@@ -10,6 +10,7 @@ export interface ITaskModel extends Model<ITaskDocument> {
   getTask(_id: string): Promise<ITaskDocument>;
   updateTask(_id: string, doc: ITask): Promise<ITaskDocument>;
   watchTask(_id: string, isAdd: boolean, userId: string): void;
+  removeTasks(_ids: string[]): Promise<{ n: number; ok: number }>;
 }
 
 export const loadTaskClass = () => {
@@ -39,19 +40,8 @@ export const loadTaskClass = () => {
         }
       }
 
-      const lastVisibleTasks = await Tasks.find(
-        {
-          stageId: doc.stageId,
-          status: { $ne: BOARD_STATUSES.ARCHIVED },
-        },
-        { order: 1 },
-      )
-        .sort({ order: -1 })
-        .limit(1);
-
       const task = await Tasks.create({
         ...doc,
-        order: ((lastVisibleTasks && lastVisibleTasks.length > 0 ? lastVisibleTasks[0].order : 0) || 0) + 1,
         createdAt: new Date(),
         modifiedAt: new Date(),
         searchText: fillSearchTextItem(doc),
@@ -79,6 +69,15 @@ export const loadTaskClass = () => {
      */
     public static async watchTask(_id: string, isAdd: boolean, userId: string) {
       return watchItem(Tasks, _id, isAdd, userId);
+    }
+
+    public static async removeTasks(_ids: string[]) {
+      // completely remove all related things
+      for (const _id of _ids) {
+        await destroyBoardItemRelations(_id, ACTIVITY_CONTENT_TYPES.TASK);
+      }
+
+      return Tasks.deleteMany({ _id: { $in: _ids } });
     }
   }
 

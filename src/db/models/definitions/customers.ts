@@ -49,6 +49,7 @@ export interface ICustomer {
   description?: string;
   doNotDisturb?: string;
   emailValidationStatus?: string;
+  phoneValidationStatus?: string;
   links?: ILink;
   relatedIntegrationIds?: string[];
   integrationId?: string;
@@ -153,6 +154,15 @@ export const customerSchema = schemaWrapper(
 
     primaryPhone: field({ type: String, label: 'Primary Phone', optional: true }),
     phones: field({ type: [String], optional: true, label: 'Phones' }),
+
+    phoneValidationStatus: field({
+      type: String,
+      enum: getEnum('PHONE_VALIDATION_STATUSES'),
+      default: 'unknown',
+      label: 'Phone validation status',
+      esType: 'keyword',
+      selectOptions: CUSTOMER_SELECT_OPTIONS.PHONE_VALIDATION_STATUSES,
+    }),
     profileScore: field({ type: Number, index: true, optional: true, label: 'Profile score' }),
 
     ownerId: field({ type: String, optional: true, label: 'Owner' }),

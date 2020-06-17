@@ -1,4 +1,4 @@
-import { commonTypes } from './common';
+import { commonDragParams, commonTypes } from './common';
 
 export const types = `
   type GrowthHack {
@@ -58,6 +58,8 @@ export const queries = `
 `;
 
 const commonParams = `
+  proccessId: String,
+  aboveItemId: String,
   name: String,
   stageId: String,
   assignedUserIds: [String],
@@ -76,10 +78,10 @@ const commonParams = `
 export const mutations = `
   growthHacksAdd(${commonParams}, labelIds: [String]): GrowthHack
   growthHacksEdit(_id: String!, ${commonParams}): GrowthHack
-  growthHacksChange( _id: String!, destinationStageId: String!, order: Float): GrowthHack
+  growthHacksChange(${commonDragParams}): GrowthHack
   growthHacksRemove(_id: String!): GrowthHack
   growthHacksWatch(_id: String, isAdd: Boolean): GrowthHack
   growthHacksVote(_id: String!, isVote: Boolean): GrowthHack
-  growthHacksCopy(_id: String!): GrowthHack
-  growthHacksArchive(stageId: String!): String
+  growthHacksCopy(_id: String!, proccessId: String): GrowthHack
+  growthHacksArchive(stageId: String!, proccessId: String): String
 `;

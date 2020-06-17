@@ -74,6 +74,12 @@ describe('widgetQueries', () => {
     expect(response).toBe(null);
 
     response = await graphqlRequest(qry, 'widgetsConversationDetail', {
+      _id: '_id',
+      integrationId: conversation.integrationId,
+    });
+    expect(response).not.toBeNull();
+
+    response = await graphqlRequest(qry, 'widgetsConversationDetail', {
       _id: conversation._id,
       integrationId: conversation.integrationId,
     });

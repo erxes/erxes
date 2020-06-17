@@ -1,5 +1,5 @@
 import { Model, model } from 'mongoose';
-import { validateEmail, validSearchText } from '../../data/utils';
+import { validateEmail, validatePhone, validSearchText } from '../../data/utils';
 import { ActivityLogs, Conformities, Conversations, EngageMessages, Fields, InternalNotes } from './';
 import { ICustomField } from './definitions/common';
 import { customerSchema, ICustomer, ICustomerDocument } from './definitions/customers';
@@ -25,6 +25,7 @@ interface ICreateMessengerCustomerParams {
     email?: string;
     emailValidationStatus?: string;
     phone?: string;
+    phoneValidationStatus?: string;
     code?: string;
     isUser?: boolean;
     firstName?: string;
@@ -238,6 +239,10 @@ export const loadClass = () => {
         validateEmail(doc.primaryEmail);
       }
 
+      if (doc.primaryPhone && !doc.phoneValidationStatus) {
+        validatePhone(doc.primaryPhone);
+      }
+
       // calculateProfileScore
       await Customers.updateProfileScore(customer._id, true);
 
@@ -269,6 +274,16 @@ export const loadClass = () => {
           doc.emailValidationStatus = 'unknown';
 
           validateEmail(doc.primaryEmail);
+        }
+      }
+
+      if (doc.primaryPhone) {
+        const oldCustomer = await Customers.getCustomer(_id);
+
+        if (doc.primaryPhone !== oldCustomer.primaryPhone) {
+          doc.phoneValidationStatus = 'unknown';
+
+          validatePhone(doc.primaryPhone);
         }
       }
 

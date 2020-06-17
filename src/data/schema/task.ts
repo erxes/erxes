@@ -1,4 +1,4 @@
-import { commonMutationParams, commonTypes, conformityQueryFields, copyParams } from './common';
+import { commonDragParams, commonMutationParams, commonTypes, conformityQueryFields, copyParams } from './common';
 
 export const types = `
   type Task {
@@ -35,9 +35,9 @@ export const queries = `
 export const mutations = `
   tasksAdd(name: String!, ${copyParams}, ${commonMutationParams}): Task
   tasksEdit(_id: String!, name: String, ${commonMutationParams}): Task
-  tasksChange( _id: String!, destinationStageId: String, order: Float): Task
+  tasksChange(${commonDragParams}): Task
   tasksRemove(_id: String!): Task
   tasksWatch(_id: String, isAdd: Boolean): Task
-  tasksCopy(_id: String!): Task
-  tasksArchive(stageId: String!): String
+  tasksCopy(_id: String!, proccessId: String): Task
+  tasksArchive(stageId: String!, proccessId: String): String
 `;

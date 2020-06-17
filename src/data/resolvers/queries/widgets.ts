@@ -94,8 +94,17 @@ export default {
 
   async widgetsConversationDetail(_root, args: { _id: string; integrationId: string }) {
     const { _id, integrationId } = args;
+
     const conversation = await Conversations.findOne({ _id, integrationId });
     const integration = await Integrations.findOne({ _id: integrationId });
+
+    // When no one writes a message
+    if (!conversation && integration) {
+      return {
+        messages: [],
+        isOnline: await isMessengerOnline(integration),
+      };
+    }
 
     if (!conversation || !integration) {
       return null;

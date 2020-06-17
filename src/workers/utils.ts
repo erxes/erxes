@@ -134,7 +134,7 @@ export const receiveImportXls = async (content: any) => {
   const { type, fieldNames, scopeBrandIds, user, datas } = content;
 
   if (datas.length === 0) {
-    throw new Error('Please import more at least one row of data');
+    throw new Error('Please import at least one row of data');
   }
 
   const properties = await checkFieldNames(type, fieldNames);
