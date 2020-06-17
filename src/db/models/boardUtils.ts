@@ -1,4 +1,15 @@
-import { Companies, Conformities, Customers, Deals, GrowthHacks, Tasks, Tickets } from '.';
+import {
+  ActivityLogs,
+  Checklists,
+  Companies,
+  Conformities,
+  Customers,
+  Deals,
+  GrowthHacks,
+  InternalNotes,
+  Tasks,
+  Tickets,
+} from '.';
 import { validSearchText } from '../../data/utils';
 import { IItemCommonFields, IOrderInput } from './definitions/boards';
 import { ICompanyDocument } from './definitions/companies';
@@ -104,4 +115,12 @@ export const getCustomers = async (mainType: string, mainTypeId: string): Promis
   const customerIds = conformities.map(c => c.relTypeId);
 
   return Customers.find({ _id: { $in: customerIds } });
+};
+
+// Removes all board item related things
+export const destroyBoardItemRelations = async (contentTypeId: string, contentType: string) => {
+  await ActivityLogs.removeActivityLog(contentTypeId);
+  await Checklists.removeChecklists(contentType, contentTypeId);
+  await Conformities.removeConformity({ mainType: contentType, mainTypeId: contentTypeId });
+  await InternalNotes.remove({ contentType, contentTypeId });
 };

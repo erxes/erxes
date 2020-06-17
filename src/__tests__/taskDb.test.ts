@@ -107,4 +107,12 @@ describe('Test tasks model', () => {
 
     expect(unwatchedTask.watchedUserIds).not.toContain(user._id);
   });
+
+  test('Test removeTasks()', async () => {
+    await Tasks.removeTasks([task._id]);
+
+    const removed = await Tasks.findOne({ _id: task._id });
+
+    expect(removed).toBe(null);
+  });
 });

@@ -1,7 +1,7 @@
 import { Model, model } from 'mongoose';
 import { ActivityLogs } from '.';
-import { fillSearchTextItem, watchItem } from './boardUtils';
-import { BOARD_STATUSES } from './definitions/constants';
+import { destroyBoardItemRelations, fillSearchTextItem, watchItem } from './boardUtils';
+import { ACTIVITY_CONTENT_TYPES, BOARD_STATUSES } from './definitions/constants';
 import { ITicket, ITicketDocument, ticketSchema } from './definitions/tickets';
 
 export interface ITicketModel extends Model<ITicketDocument> {
@@ -9,6 +9,7 @@ export interface ITicketModel extends Model<ITicketDocument> {
   getTicket(_id: string): Promise<ITicketDocument>;
   updateTicket(_id: string, doc: ITicket): Promise<ITicketDocument>;
   watchTicket(_id: string, isAdd: boolean, userId: string): void;
+  removeTickets(_ids: string[]): Promise<{ n: number; ok: number }>;
 }
 
 export const loadTicketClass = () => {
@@ -78,6 +79,15 @@ export const loadTicketClass = () => {
      */
     public static async watchTicket(_id: string, isAdd: boolean, userId: string) {
       return watchItem(Tickets, _id, isAdd, userId);
+    }
+
+    public static async removeTickets(_ids: string[]) {
+      // completely remove all related things
+      for (const _id of _ids) {
+        await destroyBoardItemRelations(_id, ACTIVITY_CONTENT_TYPES.TICKET);
+      }
+
+      return Tickets.deleteMany({ _id: { $in: _ids } });
     }
   }
 

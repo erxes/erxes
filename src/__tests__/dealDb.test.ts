@@ -122,4 +122,12 @@ describe('Test deals model', () => {
 
     expect(unwatchedDeal.watchedUserIds).not.toContain(user._id);
   });
+
+  test('Test removeDeals()', async () => {
+    await Deals.removeDeals([deal._id]);
+
+    const removed = await Deals.findOne({ _id: deal._id });
+
+    expect(removed).toBe(null);
+  });
 });
