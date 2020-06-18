@@ -146,7 +146,7 @@ class PipelineForm extends React.Component<Props, State> {
   };
 
   renderDominantUsers() {
-    const { isCheckUser, excludeCheckUserIds } = this.state;
+    const { isCheckUser, excludeCheckUserIds, selectedMemberIds } = this.state;
 
     if (!isCheckUser) {
       return;
@@ -155,12 +155,12 @@ class PipelineForm extends React.Component<Props, State> {
     return (
       <FormGroup>
         <SelectMemberStyled>
-          <ControlLabel>Users eligible to see all cards</ControlLabel>
+          <ControlLabel>Users eligible to see all {this.props.type}s</ControlLabel>
 
           <SelectTeamMembers
             label="Choose members"
             name="excludeCheckUserIds"
-            value={excludeCheckUserIds}
+            value={selectedMemberIds.concat(excludeCheckUserIds)}
             onSelect={this.onChangeDominantUsers}
           />
         </SelectMemberStyled>
@@ -255,7 +255,7 @@ class PipelineForm extends React.Component<Props, State> {
 
           <FormGroup>
             <ControlLabel>
-              Show only the user's assigned(created) cards
+              Show only the user's assigned(created) {this.props.type}s
             </ControlLabel>
             <FormControl
               componentClass="checkbox"
