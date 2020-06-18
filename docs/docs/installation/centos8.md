@@ -26,10 +26,12 @@ Switch to user `erxes` and run the following commands based on your needs.
 ```sh
 su erxes
 cd ~/erxes-api
-export MONGO_URL=mongodb://localhost/erxes?replicaSet=rs0
+export MONGO_URL="API_MONGO_URL"
 ```
 
-The following will create an admin user admin@erxes.io with a random password (check your console to grab the password)
+- `API_MONGO_URL` - copy and paste the value of the `MONGO_URL` env var of erxes-api in the `/home/erxes/ecosystem.json`
+
+The following will create an admin user admin@erxes.io with a random password. The password will be printed into your terminal.
 
 ```
 yarn initProject
@@ -37,7 +39,7 @@ yarn initProject
 
 ## Load initial data
 
-The below command will create initial permission groups, permissions, growth hack templates, email templates and some sample data and reset the admin password (check your console to grab the password)
+The below command will create initial permission groups, permissions, growth hack templates, email templates and some sample data and reset the admin password and it will be printed into terminal.
 
 ```
 yarn loadInitialData
@@ -78,7 +80,7 @@ window.env = {
   NODE_ENV: "production",
   REACT_APP_API_URL: "https://your_domain/api",
   REACT_APP_API_SUBSCRIPTION_URL: "wss://your_domain/api/subscriptions",
-  REACT_APP_CDN_HOST: "https://your_domain/widgets"
+  REACT_APP_CDN_HOST: "https://your_domain/widgets",
 };
 ```
 
