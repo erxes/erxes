@@ -503,8 +503,5 @@ firewall-cmd --zone=public --permanent --add-service=ssh
 firewall-cmd --zone=public --permanent --add-service=https
 firewall-cmd --zone=public --permanent --add-service=http
 
-# run yarn initProject
-su $username -c "export MONGO_URL=\"$API_MONGO_URL\" && cd $erxes_api_dir && yarn initProject"
-
 echo
 echo -e "\e[32mInstallation complete\e[0m"
