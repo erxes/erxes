@@ -15,11 +15,11 @@ To have erxes up and running quickly, you can follow the following steps.
 
    `bash -c "$(curl https://raw.githubusercontent.com/erxes/erxes/develop/scripts/install/centos8.sh)"`
 
-   **Note**: you will be asked to provide a domain for nginx server to set up config for erxes and the password for admin@erxes.io user will be printed into terminal console at the and of the installation.
+   **Note**: you will be asked to provide a domain for nginx server to set up config for erxes
 
 3. Log in to your domain DNS and create A record based on your new server IP.
 
-## Load initial data
+## Create an admin user
 
 Switch to user `erxes` and run the following commands based on your needs.
 
@@ -29,7 +29,15 @@ cd ~/erxes-api
 export MONGO_URL="API_MONGO_URL"
 ```
 
-- `API_MONGO_URL` - this is the value of the `MONGO_URL` env var of erxes-api in the `/home/erxes/ecosystem.json`
+- `API_MONGO_URL` - copy and paste the value of the `MONGO_URL` env var of erxes-api in the `/home/erxes/ecosystem.json`
+
+The following will create an admin user admin@erxes.io with a random password. The password will be printed into your terminal.
+
+```
+yarn initProject
+```
+
+## Load initial data
 
 The below command will create initial permission groups, permissions, growth hack templates, email templates and some sample data and reset the admin password and it will be printed into terminal.
 

@@ -455,8 +455,5 @@ ufw allow 22
 ufw allow 80
 ufw allow 443
 
-# run yarn initProject
-su $username -c "export MONGO_URL=\"$API_MONGO_URL\" && cd $erxes_api_dir && yarn initProject"
-
 echo
 echo -e "\e[32mInstallation complete\e[0m"
