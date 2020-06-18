@@ -476,12 +476,13 @@ class PipelineProviderInner extends React.Component<Props, State> {
   };
 
   onAddItem = (stageId: string, item: IItem, aboveItemId?: string) => {
-    const { itemMap } = this.state;
+    const { itemMap, itemIds } = this.state;
     const items = itemMap[stageId] || [];
 
     if (aboveItemId === undefined) {
       this.setState({
-        itemMap: { ...itemMap, [stageId]: [...items, item] }
+        itemMap: { ...itemMap, [stageId]: [...items, item] },
+        itemIds: [...itemIds, item._id]
       });
 
       return;
@@ -490,7 +491,8 @@ class PipelineProviderInner extends React.Component<Props, State> {
     // archive recovery to stages begin
     if (!aboveItemId) {
       this.setState({
-        itemMap: { ...itemMap, [stageId]: [item, ...items] }
+        itemMap: { ...itemMap, [stageId]: [item, ...items] },
+        itemIds: [...itemIds, item._id]
       });
 
       return;
@@ -505,7 +507,8 @@ class PipelineProviderInner extends React.Component<Props, State> {
         itemMap: {
           ...itemMap,
           [stageId]: [...items]
-        }
+        },
+        itemIds: [...itemIds, item._id]
       });
     }
   };
