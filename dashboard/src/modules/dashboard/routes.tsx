@@ -18,7 +18,7 @@ const explorePage = ({ location, history }) => {
 
 const routes = () => {
   return (
-    <BrowserRouter basename="/dashboard">
+    <BrowserRouter basename="/dashboard/front">
       <React.Fragment>
         <Route
           key='/detail'
