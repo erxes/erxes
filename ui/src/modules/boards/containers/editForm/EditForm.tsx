@@ -67,7 +67,24 @@ class EditFormContainer extends React.Component<FinalProps> {
     this.unsubcribe = detailQuery.subscribeToMore({
       document: gql(subscriptions.pipelinesChanged),
       variables: { _id: itemId },
-      updateQuery: () => {
+      updateQuery: (
+        prev,
+        {
+          subscriptionData: {
+            data: { pipelinesChanged }
+          }
+        }
+      ) => {
+        if (!pipelinesChanged || !pipelinesChanged.data) {
+          return;
+        }
+
+        const { proccessId } = pipelinesChanged;
+
+        if (proccessId === localStorage.getItem('proccessId')) {
+          return;
+        }
+
         if (document.querySelectorAll('.modal').length < 2) {
           this.props.detailQuery.refetch();
         }
