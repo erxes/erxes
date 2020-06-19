@@ -1,4 +1,5 @@
 import { AuthBox } from 'modules/auth/styles';
+import { IUser } from 'modules/auth/types';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
@@ -21,6 +22,7 @@ class Confirmation extends React.Component<{
       username: string;
     }
   ) => void;
+  currentUser?: IUser;
 }> {
   onSubmit = e => {
     e.preventDefault();
@@ -76,6 +78,14 @@ class Confirmation extends React.Component<{
   }
 
   render() {
+    if (this.props.currentUser) {
+      return (
+        <div style={{ width: '50%', margin: 'auto' }}>
+          {this.renderContent()}
+        </div>
+      );
+    }
+
     return <AuthLayout content={this.renderContent()} />;
   }
 }
