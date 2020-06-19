@@ -69,7 +69,7 @@ chmod 0755 /usr/local/bin/certbot-auto
 `/usr/local/bin/certbot-auto --nginx` command will install multiple Python packages that are required by certbot and prompt you to answer some questions. Please follow the interactive prompt.
 
 2. Log in to your server as `erxes` via `ssh` or switch to `erxes` from `root` user.  
-   Edit `erxes/build/js/env.js` file where env vars for frontend app are stored.
+   Edit `/home/erxes/erxes/ui/build/js/env.js` file where env vars for frontend app are stored.
    The content of the file should be as follows:
 
 ```javascript
@@ -82,7 +82,7 @@ window.env = {
 };
 ```
 
-3. Update all env vars with HTTPS url in the `ecosystem.json` file.
+3. Update all env vars with HTTPS & WSS url (i.e. `http://` => `https://` & `ws://` => `wss://`) in the `/home/erxes/ecosystem.json` file.
 4. Finally, you need to restart pm2 erxes processes by running the following command:
 
 ```sh
