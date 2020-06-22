@@ -4,21 +4,21 @@ import * as formidable from 'formidable';
 import * as Nylas from 'nylas';
 import { debugNylas, debugRequest } from '../debuggers';
 import {
+  // createNylasIntegration,
   createNylasIntegration,
   getMessage,
   nylasFileUpload,
   nylasGetAttachment,
   nylasSendEmail,
 } from './handleController';
-import { authProvider, getOAuthCredentials } from './loginMiddleware';
+import loginMiddleware from './loginMiddleware';
 import { getNylasConfig, syncMessages } from './utils';
 
 // load config
 dotenv.config();
 
 export const initNylas = async app => {
-  app.get('/nylas/oauth2/callback', getOAuthCredentials);
-  app.post('/nylas/auth/callback', authProvider);
+  app.get('/nylas/oauth2/callback', loginMiddleware);
 
   app.get('/nylas/webhook', (req, res) => {
     // Validation endpoint for webhook
@@ -49,16 +49,16 @@ export const initNylas = async app => {
   app.post('/nylas/create-integration', async (req, res, next) => {
     debugRequest(debugNylas, req);
 
-    const { accountId, integrationId } = req.body;
+    const { integrationId, data } = req.body;
+
+    const args = JSON.parse(data);
 
     let { kind } = req.body;
 
-    if (kind.includes('nylas')) {
-      kind = kind.split('-')[1];
-    }
+    kind = kind.split('-')[1];
 
     try {
-      await createNylasIntegration(kind, accountId, integrationId);
+      await createNylasIntegration(kind, integrationId, args);
     } catch (e) {
       next(e);
     }

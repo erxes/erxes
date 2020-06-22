@@ -1,7 +1,6 @@
 import * as querystring from 'querystring';
 import * as sinon from 'sinon';
 import * as debuggers from '../debuggers';
-import { Accounts } from '../models';
 import * as api from '../nylas/api';
 import {
   AUTHORIZED_REDIRECT_URL,
@@ -9,8 +8,9 @@ import {
   GOOGLE_OAUTH_AUTH_URL,
   GOOGLE_SCOPES,
 } from '../nylas/constants';
-import { authProvider, getOAuthCredentials } from '../nylas/loginMiddleware';
+import getOAuthCredentials from '../nylas/loginMiddleware';
 import * as nylasUtils from '../nylas/utils';
+import * as redisUtils from '../redisClient';
 import * as utils from '../utils';
 import './setup.ts';
 
@@ -35,6 +35,7 @@ describe('Login middleware test', () => {
   let debugRequestMock;
   let checkCredentialsMock;
   let getClientConfigMock;
+  let uidMock;
 
   const setConfigAndCredentials = (isCredentialed: boolean, isClientConfigred: boolean): void => {
     checkCredentialsMock.callsFake(() => isCredentialed);
@@ -47,6 +48,7 @@ describe('Login middleware test', () => {
 
     checkCredentialsMock = sinon.stub(api, 'checkCredentials');
     getClientConfigMock = sinon.stub(nylasUtils, 'getClientConfig');
+    uidMock = sinon.stub(utils, 'generateUid').returns('123');
 
     debugRequestMock = sinon.stub(debuggers, 'debugRequest').callsFake(() => {
       return 'debugRequest';
@@ -60,8 +62,7 @@ describe('Login middleware test', () => {
     debugRequestMock.restore();
     checkCredentialsMock.restore();
     getClientConfigMock.restore();
-
-    Accounts.remove({});
+    uidMock.restore();
   });
 
   test('OAuth get code test', async () => {
@@ -144,10 +145,7 @@ describe('Login middleware test', () => {
 
     const response = await getOAuthCredentials(req, res, next);
 
-    const account = await Accounts.findOne({ email: 'johndoe@gmail.com' });
-
-    expect(response).toBe(AUTHORIZED_REDIRECT_URL);
-    expect(account.email).toBe('johndoe@gmail.com');
+    expect(response).toBe(`${AUTHORIZED_REDIRECT_URL}?uid=123#showgmailModal=true`);
 
     sendRequestMock.restore();
   });
@@ -171,48 +169,25 @@ describe('Login middleware test', () => {
 
     const response = await getOAuthCredentials(req, res, next);
 
-    const account = await Accounts.findOne({ email: 'johndoe@O365.com' });
-
-    expect(response).toBe(AUTHORIZED_REDIRECT_URL);
-    expect(account.email).toBe('johndoe@O365.com');
+    expect(response).toEqual(`${AUTHORIZED_REDIRECT_URL}?uid=123#showoffice365Modal=true`);
 
     sendRequestMock.restore();
   });
 
-  test('Auth provider test', async () => {
-    req.body = {
-      kind: 'nylas-imap',
-      email: 'test@imap.com',
-    };
+  test('OAuth O365 already authorized', async () => {
+    req.query.kind = 'nylas-office365';
+    req.query.code = 'code';
 
-    const encryptMock = sinon.stub(nylasUtils, 'encryptPassword');
+    setConfigAndCredentials(true, true);
 
-    const nextFuncConfigError = (e: Error) => {
-      expect(e.message).toBe('Missing email or password config');
-    };
+    const mock = sinon.stub(redisUtils, 'get').callsFake(() => {
+      return Promise.resolve('email,refreshToken');
+    });
 
-    const nextFuncAccountError = (e: Error) => {
-      expect(e.message).toBe('Failed to save imap account');
-    };
+    const response = await getOAuthCredentials(req, res, next);
 
-    encryptMock.onCall(0).returns(Promise.resolve('password'));
+    expect(response).toEqual(`${AUTHORIZED_REDIRECT_URL}?#showoffice365Modal=true`);
 
-    await authProvider(req, res, nextFuncConfigError);
-
-    req.body.password = 'password';
-    req.body.imapHost = 'imapHost';
-
-    const response = await authProvider(req, res, nextFuncConfigError);
-
-    const account = await Accounts.findOne({ email: 'test@imap.com' });
-
-    expect(response).toBe(AUTHORIZED_REDIRECT_URL);
-    expect(account.email).toBe('test@imap.com');
-
-    encryptMock.onCall(1).throws(new Error('Failed to save imap account'));
-
-    await authProvider(req, res, nextFuncAccountError);
-
-    encryptMock.restore();
+    mock.restore();
   });
 });

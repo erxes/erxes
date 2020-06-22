@@ -16,7 +16,7 @@ interface IRequestParams {
   headerParams?: { [key: string]: string };
   method: string;
   params?: { [key: string]: string };
-  body?: { [key: string]: string | string[] | boolean | IProviderSettings };
+  body?: { [key: string]: string | string[] | boolean | { [key: string]: string } | IProviderSettings };
 }
 
 /**
@@ -194,4 +194,13 @@ export const getCommonGoogleConfigs = async () => {
 
 export const resetConfigsCache = () => {
   set('configs_erxes_integrations', '');
+};
+
+export const generateUid = () => {
+  return (
+    '_' +
+    Math.random()
+      .toString(36)
+      .substr(2, 9)
+  );
 };

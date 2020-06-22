@@ -60,6 +60,7 @@ export const integrationFactory = (params: {
   erxesApiId?: string;
   email?: string;
   gmailHistoryId?: string;
+  nylasAccountId?: string;
   facebookPageIds?: string[];
   facebookPageTokensMap?: object;
   smoochIntegrationId?: string;
@@ -73,6 +74,7 @@ export const integrationFactory = (params: {
     email: params.email || 'user@mail.com',
     erxesApiId: params.erxesApiId || '_id',
     gmailHistoryId: params.gmailHistoryId || '',
+    nylasAccountId: params.nylasAccountId || '',
     facebookPageIds: params.facebookPageIds || [],
     facebookPageTokensMap: params.facebookPageTokensMap || {},
     smoochIntegrationId: params.smoochIntegrationId || 'aaksjfhakjsfhkalhf',

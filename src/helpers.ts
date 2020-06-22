@@ -135,7 +135,7 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
     await Integrations.deleteOne({ _id });
   }
 
-  if (kind === 'gmail' && !account.nylasToken) {
+  if (kind === 'gmail' && !integration.nylasToken) {
     debugGmail('Removing gmail entries');
 
     const conversationIds = await GmailConversations.find(selector).distinct('_id');
@@ -143,7 +143,7 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
     integrationRemoveBy = { email: integration.email };
 
     try {
-      await stopPushNotification(account.uid);
+      await stopPushNotification(integration.email);
     } catch (e) {
       debugGmail('Failed to stop push notification of gmail account');
       throw e;
@@ -154,7 +154,7 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
     await GmailConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
   }
 
-  if (kind === 'gmail' && account.nylasToken) {
+  if (kind === 'gmail' && integration.nylasToken) {
     debugNylas('Removing nylas entries');
 
     const conversationIds = await NylasGmailConversations.find(selector).distinct('_id');
@@ -165,7 +165,7 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
 
     try {
       // Cancel nylas subscription
-      await enableOrDisableAccount(account.uid, false);
+      await enableOrDisableAccount(integration.nylasAccountId, false);
     } catch (e) {
       debugNylas('Failed to cancel nylas-gmail account subscription');
       throw e;
@@ -248,7 +248,7 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
 
     try {
       // Cancel nylas subscription
-      await enableOrDisableAccount(account.uid, false);
+      await enableOrDisableAccount(integration.nylasAccountId, false);
     } catch (e) {
       debugNylas('Failed to cancel subscription of nylas-imap account');
       throw e;
@@ -266,7 +266,7 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
 
     try {
       // Cancel nylas subscription
-      await enableOrDisableAccount(account.uid, false);
+      await enableOrDisableAccount(integration.nylasAccountId, false);
     } catch (e) {
       debugNylas('Failed to subscription nylas-office365 account');
       throw e;
@@ -284,7 +284,7 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
 
     try {
       // Cancel nylas subscription
-      await enableOrDisableAccount(account.uid, false);
+      await enableOrDisableAccount(integration.nylasAccountId, false);
     } catch (e) {
       debugNylas('Failed to subscription nylas-outlook account');
       throw e;
@@ -302,7 +302,7 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
 
     try {
       // Cancel nylas subscription
-      await enableOrDisableAccount(account.uid, false);
+      await enableOrDisableAccount(integration.nylasAccountId, false);
     } catch (e) {
       debugNylas('Failed to subscription nylas-exchange account');
       throw e;
@@ -320,7 +320,7 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
 
     try {
       // Cancel nylas subscription
-      await enableOrDisableAccount(account.uid, false);
+      await enableOrDisableAccount(integration.nylasAccountId, false);
     } catch (e) {
       debugNylas('Failed to subscription nylas-yahoo account');
       throw e;
