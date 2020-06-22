@@ -19,7 +19,7 @@ import './setup.ts';
 describe('Test nylas controller', () => {
   let sendRequestMock;
   let nylasInstanceMock;
-  let erxesApiId;
+  const erxesApiId = null;
 
   beforeEach(async () => {
     sendRequestMock = sinon.stub(utils, 'sendRequest');
