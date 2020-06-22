@@ -111,6 +111,7 @@ describe('Nylas remove integration test', () => {
     const integration = await integrationFactory({
       ...doc,
       nylasAccountId: 'nylasAccountId',
+      nylasToken: 'nylasToken',
       erxesApiId: 'alkjdlkj',
     });
 
@@ -154,6 +155,7 @@ describe('Nylas remove integration test', () => {
     const { customerId, conversationId, messageId } = await entryFactory('foo@mail.com');
 
     const mock = sinon.stub(nylasApi, 'enableOrDisableAccount').callsFake();
+
     const integrationErxesApiId = await removeIntegration(erxesApiId);
 
     // Remove integration
