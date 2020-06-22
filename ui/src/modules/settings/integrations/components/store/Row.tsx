@@ -12,6 +12,7 @@ type Props = {
   integrations: any[];
   totalCount: ByKindTotalCount;
   queryParams: any;
+  customLink: (kind: string, addLink: string) => void;
 };
 
 type State = {
@@ -104,7 +105,7 @@ class Row extends React.Component<Props, State> {
       return <StoreEntry {...commonProp} kind={kind} />;
     }
 
-    return <Entry {...commonProp} />;
+    return <Entry {...commonProp} customLink={this.props.customLink} />;
   }
 
   renderList() {

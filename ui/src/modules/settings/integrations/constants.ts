@@ -211,7 +211,7 @@ export const INTEGRATIONS = [
     kind: 'nylas-office365',
     logo: '/images/integrations/office365.png',
     createModal: 'nylas-office365',
-    createUrl: '/settings/integrations/nylas-office365',
+    createUrl: 'nylas/oauth2/callback',
     category:
       'All integrations, For support teams, Marketing automation, Email marketing, Conversation'
   },
@@ -224,7 +224,7 @@ export const INTEGRATIONS = [
     kind: 'nylas-gmail',
     logo: '/images/integrations/gmail.png',
     createModal: 'nylas-gmail',
-    createUrl: '/settings/integrations/nylas-gmail',
+    createUrl: 'nylas/oauth2/callback',
     category:
       'All integrations, For support teams, Email marketing, Marketing automation, Conversation'
   },
