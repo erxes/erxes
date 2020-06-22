@@ -1,0 +1,18 @@
+.clientsWrapper {
+	border-bottom: 1px solid rgba(180,180,180, 0.2);
+	padding: 50px 0;
+}
+
+.clients {
+	align-items: center;
+	display: flex;
+	justify-content: center;
+	flex-wrap: wrap;
+}
+
+.clients img {
+	max-height: 72px;
+	margin-right: 20px;
+	opacity: .6;
+	max-width: 180px;
+}

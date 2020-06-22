@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import { IUser } from 'modules/auth/types';
 import { Alert, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
@@ -11,13 +12,19 @@ import { ConfirmMutationResponse, ConfirmMutationVariables } from '../types';
 
 type Props = {
   queryParams: any;
+  currentUser?: IUser;
 };
 
 type FinalProps = Props & IRouterProps & ConfirmMutationResponse;
 
 class UserConfirmationContainer extends React.Component<FinalProps> {
   render() {
-    const { usersConfirmInvitation, queryParams, history } = this.props;
+    const {
+      usersConfirmInvitation,
+      queryParams,
+      history,
+      currentUser
+    } = this.props;
 
     const confirmUser = ({
       password,
@@ -49,7 +56,8 @@ class UserConfirmationContainer extends React.Component<FinalProps> {
     };
 
     const updatedProps = {
-      confirmUser
+      confirmUser,
+      currentUser
     };
 
     return <UserConfirmation {...updatedProps} />;

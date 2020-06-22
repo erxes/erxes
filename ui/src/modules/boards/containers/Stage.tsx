@@ -28,9 +28,8 @@ type StageProps = {
   refetchStages: ({ pipelineId }: { pipelineId?: string }) => Promise<any>;
   onLoad: (stageId: string, items: IItem[]) => void;
   scheduleStage: (stageId: string) => void;
-  onAddItem: (stageId: string, item: IItem) => void;
+  onAddItem: (stageId: string, item: IItem, aboveItemId?: string) => void;
   onRemoveItem: (itemId: string, stageId: string) => void;
-  onChangeRealTimeStageIds: (stageId: string) => void;
 };
 
 type FinalStageProps = {
@@ -116,6 +115,9 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
     const stageId = stage._id;
 
     confirm(message).then(() => {
+      const proccessId = Math.random().toString();
+      localStorage.setItem('proccessId', proccessId);
+
       client
         .mutate({
           mutation: gql(options.mutations.archiveMutation),
@@ -123,7 +125,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
           refetchQueries: [
             {
               query: gql(queries.stageDetail),
-              variables: { _id: stageId }
+              variables: { _id: stageId, proccessId }
             }
           ]
         })
@@ -142,7 +144,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
     const { stage, refetchStages, options } = this.props;
 
     const message = `
-    This will remove list from the board. To view archived list and bring them back to the board, click “Menu” > “Archived Items”. 
+    This will remove list from the board. To view archived list and bring them back to the board, click “Menu” > “Archived Items”.
     Are you sure?
     `;
 
@@ -177,8 +179,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
       options,
       onAddItem,
       onRemoveItem,
-      loadingState,
-      onChangeRealTimeStageIds
+      loadingState
     } = this.props;
 
     const loadingItems = () => {
@@ -203,7 +204,6 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
         loadMore={this.loadMore}
         onAddItem={onAddItem}
         onRemoveItem={onRemoveItem}
-        onChangeRealTimeStageIds={onChangeRealTimeStageIds}
       />
     );
   }
