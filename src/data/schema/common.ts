@@ -52,6 +52,8 @@ export const commonTypes = `
 `;
 
 export const commonMutationParams = `
+  proccessId: String,
+  aboveItemId: String,
   stageId: String,
   assignedUserIds: [String],
   attachments: [AttachmentInput],
@@ -63,6 +65,14 @@ export const commonMutationParams = `
   priority: String,
   status: String,
   sourceConversationId: String,
+`;
+
+export const commonDragParams = `
+  itemId: String!,
+  aboveItemId: String,
+  destinationStageId: String!,
+  sourceStageId: String,
+  proccessId: String
 `;
 
 export const copyParams = `companyIds: [String], customerIds: [String], labelIds: [String]`;

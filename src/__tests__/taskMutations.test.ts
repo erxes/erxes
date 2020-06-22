@@ -51,6 +51,22 @@ describe('Test tasks mutations', () => {
     status: $status
   `;
 
+  const commonDragParamDefs = `
+    $itemId: String!,
+    $aboveItemId: String,
+    $destinationStageId: String!,
+    $sourceStageId: String,
+    $proccessId: String
+  `;
+
+  const commonDragParams = `
+    itemId: $itemId,
+    aboveItemId: $aboveItemId,
+    destinationStageId: $destinationStageId,
+    sourceStageId: $sourceStageId,
+    proccessId: $proccessId
+  `;
+
   beforeEach(async () => {
     // Creating test data
     board = await boardFactory({ type: BOARD_TYPES.TASK });
@@ -174,44 +190,54 @@ describe('Test tasks mutations', () => {
 
   test('Change task', async () => {
     const args = {
-      _id: task._id,
-      destinationStageId: task.stageId || '',
+      proccessId: Math.random().toString(),
+      itemId: task._id,
+      aboveItemId: '',
+      destinationStageId: task.stageId,
+      sourceStageId: task.stageId
     };
 
     const mutation = `
-      mutation tasksChange($_id: String!, $destinationStageId: String) {
-        tasksChange(_id: $_id, destinationStageId: $destinationStageId) {
-          _id,
+      mutation tasksChange(${commonDragParamDefs}) {
+        tasksChange(${commonDragParams}) {
+          _id
+          name
           stageId
+          order
         }
       }
     `;
-
     const updatedTask = await graphqlRequest(mutation, 'tasksChange', args);
 
-    expect(updatedTask._id).toEqual(args._id);
+    expect(updatedTask._id).toEqual(args.itemId);
   });
 
   test('Change task if move to another stage', async () => {
     const anotherStage = await stageFactory({ pipelineId: pipeline._id });
 
     const args = {
-      _id: task._id,
+      proccessId: Math.random().toString(),
+      itemId: task._id,
+      aboveItemId: '',
       destinationStageId: anotherStage._id,
+      sourceStageId: task.stageId
     };
 
+
     const mutation = `
-      mutation tasksChange($_id: String!, $destinationStageId: String) {
-        tasksChange(_id: $_id, destinationStageId: $destinationStageId) {
-          _id,
+      mutation tasksChange(${commonDragParamDefs}) {
+        tasksChange(${commonDragParams}) {
+          _id
+          name
           stageId
+          order
         }
       }
     `;
 
     const updatedTask = await graphqlRequest(mutation, 'tasksChange', args);
 
-    expect(updatedTask._id).toEqual(args._id);
+    expect(updatedTask._id).toEqual(args.itemId);
   });
 
   test('Update task move to pipeline stage', async () => {

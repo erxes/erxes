@@ -1,15 +1,13 @@
 import {
-  ActivityLogs,
   Boards,
   ChecklistItems,
   Checklists,
   Conformities,
-  Notifications,
   PipelineLabels,
   Pipelines,
   Stages,
 } from '../../db/models';
-import { getCollection } from '../../db/models/boardUtils';
+import { getCollection, getNewOrder } from '../../db/models/boardUtils';
 import { NOTIFICATION_TYPES } from '../../db/models/definitions/constants';
 import { IDealDocument } from '../../db/models/definitions/deals';
 import { ITaskDocument } from '../../db/models/definitions/tasks';
@@ -115,63 +113,6 @@ export const sendNotifications = async ({
   await utils.sendNotification({
     ...notificationDoc,
   });
-};
-
-interface INotifLinkParams {
-  contentType: string;
-  oldItem: any;
-  pipelineId: string;
-  pipeBoardId: string;
-}
-
-/**
- * When board items are moved between stages, old notification links are broken.
- */
-const fixNotificationLinks = async (params: INotifLinkParams) => {
-  const { contentType, oldItem, pipelineId, pipeBoardId } = params;
-
-  const link = `/${contentType}/board?id=${pipeBoardId}&pipelineId=${pipelineId}&itemId=${oldItem._id}`;
-
-  await Notifications.updateMany({ contentType, contentTypeId: oldItem._id }, { $set: { link } });
-};
-
-export const itemsChange = async (userId: string, item: any, contentType: string, destinationStageId: string) => {
-  const oldStageId = item ? item.stageId || '' : '';
-
-  let action = `changed order of your ${contentType}:`;
-  let content = `'${item.name}'`;
-
-  if (oldStageId !== destinationStageId) {
-    const stage = await Stages.getStage(destinationStageId);
-    const oldStage = await Stages.getStage(oldStageId);
-
-    const pipeline = await Pipelines.getPipeline(stage.pipelineId);
-    const oldPipeline = await Pipelines.getPipeline(oldStage.pipelineId);
-
-    const board = await Boards.getBoard(pipeline.boardId);
-    const oldBoard = await Boards.getBoard(oldPipeline.boardId);
-
-    action = `moved '${item.name}' from ${oldBoard.name}-${oldPipeline.name}-${oldStage.name} to `;
-
-    content = `${board.name}-${pipeline.name}-${stage.name}`;
-
-    const activityLogContent = {
-      oldStageId,
-      destinationStageId,
-      text: `${oldStage.name} to ${stage.name}`,
-    };
-
-    ActivityLogs.createBoardItemMovementLog(item, contentType, userId, activityLogContent);
-
-    await fixNotificationLinks({
-      contentType,
-      oldItem: item,
-      pipelineId: pipeline._id,
-      pipeBoardId: board._id,
-    });
-  }
-
-  return { content, action };
 };
 
 export const boardId = async (item: any) => {
@@ -385,6 +326,7 @@ export const prepareBoardItemDoc = async (_id: string, type: string, userId: str
     description: item.description,
     priority: item.priority,
     labelIds: item.labelIds,
+    order: await getNewOrder({ collection, stageId: item.stageId, aboveItemId: item._id }),
 
     attachments: (item.attachments || []).map(a => ({
       url: a.url,

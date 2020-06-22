@@ -8,6 +8,7 @@ import {
   userFactory,
 } from '../db/factories';
 import { Boards, Deals, Pipelines, Stages } from '../db/models';
+import { getItem } from '../db/models/boardUtils';
 import { IBoardDocument, IPipelineDocument, IStageDocument } from '../db/models/definitions/boards';
 import { IDealDocument } from '../db/models/definitions/deals';
 import { IPipelineLabelDocument } from '../db/models/definitions/pipelineLabels';
@@ -59,6 +60,18 @@ describe('Test deals model', () => {
     }
 
     const response = await Deals.getDeal(deal._id);
+
+    expect(response).toBeDefined();
+  });
+
+  test('Get item on deal', async () => {
+    try {
+      await getItem('deal', 'fakeId');
+    } catch (e) {
+      expect(e.message).toBe('deal not found');
+    }
+
+    const response = await getItem('deal', deal._id);
 
     expect(response).toBeDefined();
   });
@@ -121,5 +134,13 @@ describe('Test deals model', () => {
     const unwatchedDeal = await Deals.getDeal(deal._id);
 
     expect(unwatchedDeal.watchedUserIds).not.toContain(user._id);
+  });
+
+  test('Test removeDeals()', async () => {
+    await Deals.removeDeals([deal._id]);
+
+    const removed = await Deals.findOne({ _id: deal._id });
+
+    expect(removed).toBe(null);
   });
 });

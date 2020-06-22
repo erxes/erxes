@@ -273,13 +273,9 @@ export const subscriptions = `
     importHistoryChanged(_id: String!): ImportHistory
     notificationInserted(userId: String): Notification
     onboardingChanged(userId: String!): OnboardingNotification
-    
-    pipelinesChanged(_id: String!): Pipeline
-    dealsChanged(_id: String!): Deal
-    ticketsChanged(_id: String!): Ticket
-    tasksChanged(_id: String!): Task
-    growthHacksChanged(_id: String!): GrowthHack
-    
+
+    pipelinesChanged(_id: String!): PipelineChangeResponse
+
     checklistsChanged(contentType: String!, contentTypeId: String!): Checklist
     checklistDetailChanged(_id: String!): Checklist
   }

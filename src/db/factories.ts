@@ -1095,6 +1095,7 @@ interface IGrowthHackFactoryInput {
   votedUserIds?: string[];
   labelIds?: string[];
   initialStageId?: string;
+  order?: number;
 }
 
 export const growthHackFactory = async (params: IGrowthHackFactoryInput = {}) => {
@@ -1118,6 +1119,7 @@ export const growthHackFactory = async (params: IGrowthHackFactoryInput = {}) =>
     impact: params.impact || 0,
     priority: params.priority,
     labelIds: params.labelIds || [],
+    order: params.order || Math.random()
   });
 
   return growthHack.save();

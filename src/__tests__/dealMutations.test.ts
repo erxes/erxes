@@ -57,6 +57,22 @@ describe('Test deals mutations', () => {
     status: $status
   `;
 
+  const commonDragParamDefs = `
+    $itemId: String!,
+    $aboveItemId: String,
+    $destinationStageId: String!,
+    $sourceStageId: String,
+    $proccessId: String
+  `;
+
+  const commonDragParams = `
+    itemId: $itemId,
+    aboveItemId: $aboveItemId,
+    destinationStageId: $destinationStageId,
+    sourceStageId: $sourceStageId,
+    proccessId: $proccessId
+  `;
+
   beforeEach(async () => {
     // Creating test data
     user = await userFactory();
@@ -168,44 +184,55 @@ describe('Test deals mutations', () => {
 
   test('Change deal', async () => {
     const args = {
-      _id: deal._id,
+      proccessId: Math.random().toString(),
+      itemId: deal._id,
+      aboveItemId: '',
       destinationStageId: deal.stageId,
+      sourceStageId: deal.stageId
     };
 
     const mutation = `
-      mutation dealsChange($_id: String!, $destinationStageId: String) {
-        dealsChange(_id: $_id, destinationStageId: $destinationStageId) {
-          _id,
+      mutation dealsChange(${commonDragParamDefs}) {
+        dealsChange(${commonDragParams}) {
+          _id
+          name
           stageId
+          order
         }
       }
     `;
 
     const updatedDeal = await graphqlRequest(mutation, 'dealsChange', args);
 
-    expect(updatedDeal._id).toEqual(args._id);
+    expect(updatedDeal._id).toEqual(args.itemId);
   });
 
   test('Change deal if move to another stage', async () => {
     const anotherStage = await stageFactory({ pipelineId: pipeline._id });
 
     const args = {
-      _id: deal._id,
+      proccessId: Math.random().toString(),
+      itemId: deal._id,
+      aboveItemId: '',
       destinationStageId: anotherStage._id,
+      sourceStageId: deal.stageId
     };
 
+
     const mutation = `
-      mutation dealsChange($_id: String!, $destinationStageId: String) {
-        dealsChange(_id: $_id, destinationStageId: $destinationStageId) {
-          _id,
+      mutation dealsChange(${commonDragParamDefs}) {
+        dealsChange(${commonDragParams}) {
+          _id
+          name
           stageId
+          order
         }
       }
     `;
 
     const updatedDeal = await graphqlRequest(mutation, 'dealsChange', args);
 
-    expect(updatedDeal._id).toEqual(args._id);
+    expect(updatedDeal._id).toEqual(args.itemId);
   });
 
   test('Update deal move to pipeline stage', async () => {
