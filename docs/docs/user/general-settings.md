@@ -128,6 +128,8 @@ Customer or companies will fill this property
 1. Created Group
 2. Created Property under Group
 
+***
+
 ## Import histories
 
 If you are migrating from other systems or have a need to export the data you have collected, here's the place.
@@ -138,7 +140,7 @@ If you are migrating from other systems or have a need to export the data you ha
 2. Import history attempt list
 3. Control buttons
 
-You can import & export the following type of data:
+You can import & export the following types of data:
 
 | Data type | Import | Export |
 | ------------- | :-----------: | :-----: |
@@ -207,6 +209,13 @@ The following tables describe all available fields to be imported.
 | sku | string | Stock keeping unit
 | code | string | Code
 | unitPrice | number | Unit price
+
+
+Customers, companies, product & services have custom field attributes which can be set from "Settings -> Properties".
+
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/general-settings/customProperty.png)
+
+If you want these custom attributes to be imported, then you must include the name of the attribute as a column in the template. For example, if you needed to import a custom property named **"DealCount"**, then you add **"DealCount"** to the customer template. This name has to be **exactly the same & case-sensitive**.
 
 #### 4. Deal/Task/Ticket template
 
