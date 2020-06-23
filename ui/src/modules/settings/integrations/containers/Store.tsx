@@ -1,3 +1,4 @@
+import { getEnv } from 'apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import Spinner from 'modules/common/components/Spinner';
@@ -22,10 +23,18 @@ const Store = (props: FinalProps) => {
     return <Spinner />;
   }
 
+  const customLink = (kind: string, addLink: string) => {
+    const { REACT_APP_API_URL } = getEnv();
+    const url = `${REACT_APP_API_URL}/connect-integration?link=${addLink}&kind=${kind}`;
+
+    window.location.replace(url);
+  };
+
   const totalCount = totalCountQuery.integrationsTotalCount.byKind;
 
   const updatedProps = {
     ...props,
+    customLink,
     totalCount
   };
 

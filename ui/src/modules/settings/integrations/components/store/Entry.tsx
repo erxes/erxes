@@ -43,6 +43,7 @@ type Props = {
   integration: any;
   getClassName: (selectedKind: string) => string;
   toggleBox: (kind: string) => void;
+  customLink?: (kind: string, addLink: string) => void;
   messengerAppsCount?: number;
   queryParams: any;
   totalCount: TotalCount;
@@ -171,15 +172,13 @@ function renderCreate(createUrl, createModal) {
   }
 
   if (createModal === INTEGRATION_KINDS.NYLAS_OFFICE365) {
-    const trigger = <h6>+ {__('Add')}</h6>;
-
     const content = props => <NylasForm kind={createModal} {...props} />;
 
     return (
       <ModalTrigger
         title="Add Office 365"
-        trigger={trigger}
         content={content}
+        autoOpenKey="showoffice365Modal"
       />
     );
   }
@@ -195,12 +194,14 @@ function renderCreate(createUrl, createModal) {
   }
 
   if (createModal === INTEGRATION_KINDS.NYLAS_GMAIL) {
-    const trigger = <h6>+ {__('Add')}</h6>;
-
     const content = props => <NylasForm kind={createModal} {...props} />;
 
     return (
-      <ModalTrigger title="Add gmail" trigger={trigger} content={content} />
+      <ModalTrigger
+        title="Add gmail"
+        content={content}
+        autoOpenKey="showgmailModal"
+      />
     );
   }
 
@@ -316,13 +317,30 @@ function Entry({
   getClassName,
   toggleBox,
   messengerAppsCount,
-  totalCount
+  totalCount,
+  customLink
 }: Props) {
   const { kind } = integration;
+  const { createUrl, createModal } = integration;
 
   const boxOnClick = () => toggleBox(kind);
 
-  const { createUrl, createModal } = integration;
+  const handleLink = () => {
+    return customLink && customLink(kind, createUrl);
+  };
+
+  function renderCustomLink() {
+    if (
+      ![
+        INTEGRATION_KINDS.NYLAS_GMAIL,
+        INTEGRATION_KINDS.NYLAS_OFFICE365
+      ].includes(kind)
+    ) {
+      return null;
+    }
+
+    return <h6 onClick={handleLink}>+{__('Add')}</h6>;
+  }
 
   return (
     <IntegrationItem key={integration.name} className={getClassName(kind)}>
@@ -331,6 +349,7 @@ function Entry({
         <h5>
           {integration.name} {getCount(kind, totalCount, messengerAppsCount)}
         </h5>
+        {renderCustomLink()}
         <p>
           {integration.description}
           {renderType(integration.inMessenger)}
