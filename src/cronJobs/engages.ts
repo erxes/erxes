@@ -32,7 +32,7 @@ const checkHourMinuteJobs = async () => {
   await runJobs(messages);
 };
 
-const checkDayMinuteJobs = async () => {
+const checkDayJobs = async () => {
   debugCrons('Checking every day jobs ....');
 
   // every day messages ===========
@@ -123,5 +123,5 @@ schedule.scheduleJob('10 10 * * * *', async () => {
 
 // every day at 11hour:20min:20sec
 schedule.scheduleJob('20 20 11 * * *', async () => {
-  checkDayMinuteJobs();
+  checkDayJobs();
 });
