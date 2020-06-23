@@ -45,7 +45,6 @@
     ]
   },
   "dependencies": {
-    "@axelspringer/graphql-google-pubsub": "^1.2.1",
     "@google-cloud/pubsub": "^1.1.5",
     "@google-cloud/storage": "^4.0.0",
     "@types/mongoose": "^5.5.32",
