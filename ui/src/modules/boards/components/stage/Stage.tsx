@@ -1,4 +1,3 @@
-import { PIPELINE_UPDATE_STATUSES } from 'modules/boards/constants';
 import {
   ActionButton,
   ActionList,
@@ -39,7 +38,6 @@ type Props = {
   options: IOptions;
   archiveItems: () => void;
   archiveList: () => void;
-  onChangeRealTimeStageIds: (stageId: string) => void;
 };
 export default class Stage extends React.Component<Props, {}> {
   private bodyRef;
@@ -80,25 +78,6 @@ export default class Stage extends React.Component<Props, {}> {
     }, 1000);
   }
 
-  componentDidUpdate(prevProps) {
-    const { current } = this.bodyRef;
-
-    if (!current) {
-      return;
-    }
-
-    const { stage, onChangeRealTimeStageIds } = this.props;
-    const pipelineUpdate = sessionStorage.getItem('pipelineUpdate');
-
-    if (
-      (pipelineUpdate === PIPELINE_UPDATE_STATUSES.START ||
-        pipelineUpdate === PIPELINE_UPDATE_STATUSES.NEW_REQUEST) &&
-      stage.itemsTotalCount !== prevProps.stage.itemsTotalCount
-    ) {
-      onChangeRealTimeStageIds(stage._id);
-    }
-  }
-
   shouldComponentUpdate(nextProps: Props) {
     const { stage, index, length, items, loadingItems } = this.props;
 
@@ -126,7 +105,7 @@ export default class Stage extends React.Component<Props, {}> {
   };
 
   renderAddItemTrigger() {
-    const { options, stage, onAddItem } = this.props;
+    const { options, stage, onAddItem, items } = this.props;
     const addText = options.texts.addText;
 
     const trigger = (
@@ -142,7 +121,8 @@ export default class Stage extends React.Component<Props, {}> {
       options,
       showSelect: false,
       callback: (item: IItem) => onAddItem(stage._id, item),
-      stageId: stage._id
+      stageId: stage._id,
+      aboveItemId: items.length > 0 ? items[items.length - 1]._id : ''
     };
 
     const content = props => <AddForm {...props} {...formProps} />;

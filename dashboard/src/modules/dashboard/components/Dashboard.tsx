@@ -93,7 +93,7 @@ class Dashboard extends React.Component<Props, State> {
             imageStyle={{
               height: 200,
             }}
-            description="There are no charts on this dashboard"
+            description="There are no charts"
           />
         </EmptyWrapper>
       );

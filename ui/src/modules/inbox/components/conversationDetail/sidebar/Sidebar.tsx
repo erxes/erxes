@@ -3,6 +3,7 @@ import Sidebar from 'modules/layout/components/Sidebar';
 import React from 'react';
 import { BasicInfo, TabContent } from './styles';
 
+import { IUser } from 'modules/auth/types';
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import Box from 'modules/common/components/Box';
 import { __ } from 'modules/common/utils';
@@ -74,6 +75,7 @@ const ConversationDetails = asyncComponent(
 );
 
 type IndexProps = {
+  currentUser: IUser;
   conversation: IConversation;
   customer: ICustomer;
   loading: boolean;
@@ -136,6 +138,7 @@ class Index extends React.Component<IndexProps, IndexState> {
     const { currentSubTab } = this.state;
 
     const {
+      currentUser,
       taggerRefetchQueries,
       conversation,
       customer,
@@ -172,7 +175,11 @@ class Index extends React.Component<IndexProps, IndexState> {
 
     if (currentSubTab === 'activity') {
       return (
-        <SidebarActivity customer={customer} currentSubTab={currentSubTab} />
+        <SidebarActivity
+          currentUser={currentUser}
+          customer={customer}
+          currentSubTab={currentSubTab}
+        />
       );
     }
 
