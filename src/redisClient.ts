@@ -123,3 +123,19 @@ export const removeKey = async (key: string) => {
     });
   });
 };
+
+/**
+ * Health check status
+ * retryStrategy - get response immediately
+ */
+export const redisStatus = () => {
+  return new Promise((resolve, reject) => {
+    client.ping((error, result) => {
+      if (error) {
+        return reject(error);
+      }
+
+      return resolve(result);
+    });
+  });
+};

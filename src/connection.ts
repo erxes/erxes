@@ -36,3 +36,18 @@ export const connect = (url?: string) => {
 
   return mongoose.connect(URI, connectionOptions);
 };
+
+/**
+ * Health check status
+ */
+export const mongoStatus = () => {
+  return new Promise((resolve, reject) => {
+    mongoose.connection.db.admin().ping((err, result) => {
+      if (err) {
+        return reject(err);
+      }
+
+      return resolve(result);
+    });
+  });
+};
