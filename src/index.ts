@@ -21,14 +21,14 @@ import {
   readFileRequest,
   registerOnboardHistory,
 } from './data/utils';
-import { connect } from './db/connection';
+import { connect, mongoStatus } from './db/connection';
 import { debugBase, debugExternalApi, debugInit } from './debuggers';
 import { identifyCustomer, trackCustomEvent, trackViewPageEvent, updateCustomerProperty } from './events';
-import { initConsumer } from './messageBroker';
+import { initConsumer, rabbitMQStatus } from './messageBroker';
 import { importer, uploader } from './middlewares/fileMiddleware';
 import userMiddleware from './middlewares/userMiddleware';
 import widgetsMiddleware from './middlewares/widgetsMiddleware';
-import { initRedis } from './redisClient';
+import { initRedis, redisStatus } from './redisClient';
 import init from './startup';
 
 // load environment variables
@@ -126,7 +126,28 @@ app.get('/download-template', async (req: any, res) => {
 });
 
 // for health check
-app.get('/status', async (_req, res) => {
+app.get('/status', async (_req, res, next) => {
+  try {
+    await mongoStatus();
+  } catch (e) {
+    debugBase('MongoDB is not running');
+    return next(e);
+  }
+
+  try {
+    await redisStatus();
+  } catch (e) {
+    debugBase('Redis is not running');
+    return next(e);
+  }
+
+  try {
+    await rabbitMQStatus();
+  } catch (e) {
+    debugBase('RabbitMQ is not running');
+    return next(e);
+  }
+
   res.end('ok');
 });
 
