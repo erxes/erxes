@@ -17,6 +17,7 @@ import { debugBase } from '../../../debuggers';
 import { sendMessage } from '../../../messageBroker';
 import { MESSAGE_KINDS } from '../../constants';
 import { fetchBySegments } from '../../modules/segments/queryBuilder';
+import { chunkArray } from '../../utils';
 
 /**
  * Find customers
@@ -114,17 +115,6 @@ export const sendViaEmail = async (engageMessage: IEngageMessageDocument, custom
   const customerInfos: Array<{ _id: string; name: string; email: string; emailValidationStatus: string }> = [];
 
   const onFinishPiping = async () => {
-    const data = {
-      email: engageMessage.email,
-      customers: customerInfos,
-      user: {
-        email: user.email,
-        name: user.details && user.details.fullName,
-        position: user.details && user.details.position,
-      },
-      engageMessageId,
-    };
-
     if (engageMessage.kind === MESSAGE_KINDS.MANUAL && customerInfos.length === 0) {
       await EngageMessages.deleteOne({ _id: engageMessage._id });
       throw new Error('No customers found');
@@ -143,12 +133,25 @@ export const sendViaEmail = async (engageMessage: IEngageMessageDocument, custom
 
     await EngageMessages.setCustomersCount(engageMessage._id, 'validCustomersCount', customerInfos.length);
 
-    if (data.customers.length > 0) {
-      if (process.env.ENGAGE_ADMINS) {
-        data.customers = [...customerInfos, ...JSON.parse(process.env.ENGAGE_ADMINS)];
-      }
+    if (customerInfos.length > 0) {
+      const data: any = {
+        email: engageMessage.email,
+        customers: [],
+        user: {
+          email: user.email,
+          name: user.details && user.details.fullName,
+          position: user.details && user.details.position,
+        },
+        engageMessageId,
+      };
 
-      await sendQueueMessage({ action: 'sendEngage', data });
+      const chunks = chunkArray(customerInfos, 500);
+
+      for (const chunk of chunks) {
+        data.customers = chunk;
+
+        await sendQueueMessage({ action: 'sendEngage', data });
+      }
     }
   };
 

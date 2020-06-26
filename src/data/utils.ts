@@ -976,3 +976,19 @@ export const getSubServiceDomain = ({ name }: { name: string }): string => {
 
   return defaultMappings[name];
 };
+
+export const chunkArray = (myArray, chunkSize: number) => {
+  let index = 0;
+
+  const arrayLength = myArray.length;
+  const tempArray: any[] = [];
+
+  for (index = 0; index < arrayLength; index += chunkSize) {
+    const myChunk = myArray.slice(index, index + chunkSize);
+
+    // Do something if you want with the group
+    tempArray.push(myChunk);
+  }
+
+  return tempArray;
+};
