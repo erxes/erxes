@@ -138,7 +138,7 @@ const QuickNavigation = ({
         <Widget />
       </NavItem>
       <NavItem>
-        <Link to="/settings">
+        <Link id="Settings " to="/settings">
           <Icon icon="cog" size={20} />
         </Link>
       </NavItem>

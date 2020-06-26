@@ -27,10 +27,10 @@ class Settings extends React.PureComponent {
     const breadcrumb = [{ title: __('Settings'), link: '/settings' }];
 
     const content = (
-      <MenusContainer>
+      <MenusContainer id={'SettingsMain'}>
         <Row>
           <RowTitle>{__('General Settings')}</RowTitle>
-          <div>
+          <div id={'SettingsGeneralSettingsFather'}>
             {this.renderBox(
               'System config',
               '/images/icons/erxes-16.svg',
@@ -81,7 +81,7 @@ class Settings extends React.PureComponent {
         <Divider />
         <Row>
           <RowTitle>{__('Integration Settings')}</RowTitle>
-          <div>
+          <div id={'SettingsIntegrationSettingsFather'}>
             {this.renderBox(
               'Channels',
               '/images/icons/erxes-05.svg',
@@ -122,7 +122,7 @@ class Settings extends React.PureComponent {
         <Divider />
         <Row>
           <RowTitle>{__('Growth Hacking Settings')}</RowTitle>
-          <div>
+          <div id={'SettingsGrowthHackingSettingsFather'}>
             {this.renderBox(
               'Marketing campaigns & Projects',
               '/images/icons/erxes-20.svg',
@@ -138,7 +138,7 @@ class Settings extends React.PureComponent {
         <Divider />
         <Row>
           <RowTitle>{__('Sales Pipeline Settings')}</RowTitle>
-          <div>
+          <div id={'SettingsSalesPipelineSettingsFather'}>
             {this.renderBox(
               'Sales board & Pipelines',
               '/images/icons/erxes-19.svg',
@@ -154,7 +154,7 @@ class Settings extends React.PureComponent {
         <Divider />
         <Row>
           <RowTitle>{__('Ticket Settings')}</RowTitle>
-          <div>
+          <div id={'SettingsTicketSettingsFather'}>
             {this.renderBox(
               'Ticket Sales board & Pipelines',
               '/images/icons/erxes-19.svg',
@@ -165,7 +165,7 @@ class Settings extends React.PureComponent {
         <Divider />
         <Row>
           <RowTitle>{__('Task Settings')}</RowTitle>
-          <div>
+          <div id={'SettingsTaskSettingsFather'}>
             {this.renderBox(
               'Task Sales board & Pipelines',
               '/images/icons/erxes-19.svg',

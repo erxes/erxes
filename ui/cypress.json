@@ -3,9 +3,9 @@
   "ignoreTestFiles": "*.spec.js",
   "baseUrl": "http://localhost:3000",
   "viewportWidth": 1368,
-  "viewportHeight": 768,
+  "viewportHeight": 920,
   "env": {
     "userEmail": "admin@erxes.io",
-    "userPassword": "E212021erxes."
+    "userPassword": "Genesis1o1"
   }
 }
