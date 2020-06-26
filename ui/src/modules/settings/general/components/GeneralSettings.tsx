@@ -127,7 +127,7 @@ class GeneralSettings extends React.Component<Props, State> {
       'Comma-separated list of media types. Leave it blank for accepting all media types';
 
     const content = (
-      <ContentBox>
+      <ContentBox id={'GeneralSettingsMenuFather'}>
         <CollapseContent title={__('General settings')}>
           <FormGroup>
             <ControlLabel>Language</ControlLabel>

@@ -117,7 +117,7 @@ const QuickNavigation = ({
   }
 
   return (
-    <nav>
+    <nav id={'SettingsNav'}>
       {brandsCombo}
 
       <Tip text={__('Task')} placement="bottom">
@@ -138,7 +138,7 @@ const QuickNavigation = ({
         <Widget />
       </NavItem>
       <NavItem>
-        <Link id="Settings " to="/settings">
+        <Link id="Settings" to="/settings">
           <Icon icon="cog" size={20} />
         </Link>
       </NavItem>
