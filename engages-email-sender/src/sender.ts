@@ -10,7 +10,9 @@ export const start = async data => {
   const { user, email, engageMessageId, customers } = data;
   const { content, subject, attachments } = email;
 
-  await Stats.create({ engageMessageId });
+  if (!(await Stats.findOne({ engageMessageId }))) {
+    await Stats.create({ engageMessageId });
+  }
 
   const transporter = await createTransporter();
 
