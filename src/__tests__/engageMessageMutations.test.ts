@@ -167,12 +167,12 @@ describe('engage message mutation tests', () => {
     await ConversationMessages.deleteMany({});
   });
 
-  test('findCustomers', async () => {
+  test('generateCustomerSelector', async () => {
     const segment = await segmentFactory({});
     const brand = await brandFactory({});
     await integrationFactory({ brandId: brand._id });
 
-    await engageUtils.findCustomers({ segmentIds: [segment._id], brandIds: [brand._id] });
+    await engageUtils.generateCustomerSelector({ segmentIds: [segment._id], brandIds: [brand._id] });
   });
 
   test('Engage utils send via messenger', async () => {
