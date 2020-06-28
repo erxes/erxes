@@ -145,7 +145,7 @@ export const sendViaEmail = async (engageMessage: IEngageMessageDocument, custom
         engageMessageId,
       };
 
-      const chunks = chunkArray(customerInfos, 1000);
+      const chunks = chunkArray(customerInfos, 3000);
 
       for (const chunk of chunks) {
         data.customers = chunk;
