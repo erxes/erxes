@@ -199,7 +199,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
           <Form renderContent={this.renderContent} />
         </CollapseContent>
 
-        <CollapseContent title="Verify Email">
+        <CollapseContent title="Verify the email addresses that you send email from ">
           {this.renderVerifiedEmails()}
 
           <Verify>
@@ -220,7 +220,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
             </Button>
           </Verify>
         </CollapseContent>
-        <CollapseContent title="Send test email">
+        <CollapseContent title="Send your first testing email">
           <FormGroup>
             <ControlLabel>From</ControlLabel>
             <FormControl

@@ -183,60 +183,6 @@ const removeAccount = `
   }
 `;
 
-const addMailAccount = `
-  mutation integrationAddMailAccount(
-    $email: String!
-    $password: String!
-    $kind: String!
-  ) {
-    integrationAddMailAccount(
-      email: $email
-      password: $password
-      kind: $kind
-    )
-  } 
-`;
-
-const addExchangeAccount = `
-  mutation integrationAddExchangeAccount(
-    $email: String!
-    $password: String!
-    $host: String!
-    $username: String
-    $kind: String!
-  ) {
-      integrationAddExchangeAccount(
-      email: $email
-      password: $password
-      host: $host
-      username: $username
-      kind: $kind
-    )
-  }
-`;
-
-const addImapAccount = `
-  mutation integrationAddImapAccount(
-    $email: String! 
-    $password: String!
-    $imapHost: String!
-    $imapPort: Int!
-    $smtpHost: String!
-    $smtpPort: Int!
-    $kind: String!
-  ) {
-    integrationAddImapAccount(
-      email: $email 
-      password: $password
-      imapHost: $imapHost
-      imapPort: $imapPort
-      smtpHost: $smtpHost
-      smtpPort: $smtpPort
-      kind: $kind
-    )
-  }
-`;
-
 const integrationsUpdateConfigs = `
   mutation integrationsUpdateConfigs($configsMap: JSON!) {
     integrationsUpdateConfigs(configsMap: $configsMap)
@@ -266,8 +212,5 @@ export default {
   messengerAppsAddWebsite,
   messengerAppsRemove,
   removeAccount,
-  integrationSendMail,
-  addImapAccount,
-  addMailAccount,
-  addExchangeAccount
+  integrationSendMail
 };

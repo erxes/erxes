@@ -581,6 +581,11 @@ a:hover {
   border: none;
   margin-top: 1px;
   box-shadow: 0 5px 15px 1px rgba(0, 0, 0, 0.15);
+  max-height: 220px;
+}
+
+.Select-menu {
+  max-height: 216px;
 }
 
 .Select-menu-outer, .Select-option:last-child {

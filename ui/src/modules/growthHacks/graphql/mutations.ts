@@ -1,6 +1,12 @@
+import {
+  commonDragParams,
+  commonDragVariables
+} from 'modules/boards/graphql/mutations';
 import { growthHackFields } from './queries';
 
 const commonVariables = `
+  $proccessId: String,
+  $aboveItemId: String,
   $stageId: String,
   $closeDate: Date,
   $description: String,
@@ -16,6 +22,8 @@ const commonVariables = `
 `;
 
 const commonParams = `
+  proccessId: $proccessId,
+  aboveItemId: $aboveItemId,
   stageId: $stageId,
   closeDate: $closeDate,
   description: $description,
@@ -55,8 +63,8 @@ const growthHacksRemove = `
 `;
 
 const growthHacksChange = `
-  mutation growthHacksChange($_id: String!, $destinationStageId: String!, $order: Float) {
-    growthHacksChange(_id: $_id, destinationStageId: $destinationStageId, order: $order) {
+  mutation growthHacksChange(${commonDragVariables}) {
+    growthHacksChange(${commonDragParams}) {
       _id
     }
   }
@@ -80,14 +88,14 @@ const growthHacksVote = `
 `;
 
 const growthHacksArchive = `
-  mutation growthHacksArchive($stageId: String!) {
-    growthHacksArchive(stageId: $stageId)
+  mutation growthHacksArchive($stageId: String!, $proccessId: String) {
+    growthHacksArchive(stageId: $stageId, proccessId: $proccessId)
   }
 `;
 
 const growthHacksCopy = `
-  mutation growthHacksCopy($_id: String!) {
-    growthHacksCopy(_id: $_id) {
+  mutation growthHacksCopy($_id: String!, $proccessId: String) {
+    growthHacksCopy(_id: $_id, proccessId: $proccessId) {
       ${growthHackFields}
     }
   }

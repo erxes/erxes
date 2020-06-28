@@ -21,7 +21,7 @@ type Props = {
   remove: () => void;
   internalNote: IInternalNote;
   isLoading: boolean;
-  currenUser: IUser;
+  currentUser: IUser;
 };
 
 class InternalNote extends React.Component<Props, { editing: boolean }> {
@@ -55,9 +55,9 @@ class InternalNote extends React.Component<Props, { editing: boolean }> {
   };
 
   renderContent() {
-    const { internalNote, isLoading, edit, currenUser } = this.props;
+    const { internalNote, isLoading, edit, currentUser } = this.props;
     const { content } = internalNote;
-    const isCurrentUserNote = currenUser._id === internalNote.createdUser._id;
+    const isCurrentUserNote = currentUser._id === internalNote.createdUser._id;
 
     if (this.state.editing) {
       return (
@@ -80,8 +80,8 @@ class InternalNote extends React.Component<Props, { editing: boolean }> {
   }
 
   render() {
-    const { internalNote, remove, currenUser } = this.props;
-    const isCurrentUserNote = currenUser._id === internalNote.createdUser._id;
+    const { internalNote, remove, currentUser } = this.props;
+    const isCurrentUserNote = currentUser._id === internalNote.createdUser._id;
 
     return (
       <LogWrapper>
