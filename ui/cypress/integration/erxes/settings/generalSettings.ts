@@ -35,7 +35,11 @@ describe('Settings Check', () => {
     //cy.get('#GeneralSettingsMenuFather').children().should('have.length',8).eq(3).click();
     const awss3 = cy.get('#GeneralSettingsMenuFather').children().should('have.length',8).eq(3).click();
     //awss3.find('input').should('have.length',6).eq(0).type('blah')
-    awss3.find('input')
+    cy.get('.dJEUCp > .collapse > .sc-dyGzUR > :nth-child(2) > .sc-hXRMBi > .sc-kfGgVZ').type('blah')
+    cy.get('.dJEUCp > .collapse > .sc-dyGzUR > :nth-child(3) > .sc-hXRMBi > .sc-kfGgVZ').type('blah')
+    cy.get('.dJEUCp > .collapse > .sc-dyGzUR > :nth-child(4) > .sc-hXRMBi > .sc-kfGgVZ').type('blah')
+    cy.get('.dJEUCp > .collapse > .sc-dyGzUR > :nth-child(5) > .sc-hXRMBi > .sc-kfGgVZ').type('blah')
+    cy.get('.dJEUCp > .collapse > .sc-dyGzUR > :nth-child(6) > .sc-hXRMBi > .sc-kfGgVZ').type('blah')
 
 
 
