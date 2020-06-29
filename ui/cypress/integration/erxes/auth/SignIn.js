@@ -1,8 +1,5 @@
 context('Login', () => {
   beforeEach(() => {
-    cy.server()
-    // cy.exec('cd ../../erxes-api; yarn loadInitialData')
-    cy.exec('yarn build')
     Cypress.Cookies.debug(true);
     cy.visit('/');
     cy.clearCookies();
@@ -33,5 +30,6 @@ context('Login', () => {
 
     cy.get('button[id="robot-get-started"]').click();
     cy.get('div[id="robot-feature-close"]').click();
+
   });
 });

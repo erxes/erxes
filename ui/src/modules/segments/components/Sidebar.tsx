@@ -12,7 +12,7 @@ function TagsSidebar() {
       <Sidebar.Section>
         <Title>{__('Segments')}</Title>
 
-        <SidebarList>
+        <SidebarList id={'SegmentSidebar'}>
           <li>
             <NavLink activeClassName="active" to="/segments/customer">
               {__('Customer')}

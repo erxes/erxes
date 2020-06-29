@@ -33,7 +33,7 @@ class Wrapper extends React.Component<Props> {
 
     if (center) {
       return (
-        <FullContent center={true} align={true}>
+        <FullContent center={true} align={true} id={'AAAAAAA'}>
           <MiddleContent transparent={transparent}>
             <PageContent
               actionBar={actionBar}

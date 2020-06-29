@@ -46,7 +46,7 @@ class Segments extends React.Component<Props> {
             </a>
           </Dropdown.Toggle>
           <Dropdown.Menu>
-            <li>
+            <li id={'SegmentsNewPage'}>
               <Link to={`/segments/new/${contentType}`}>
                 {__('New segment')}
               </Link>
