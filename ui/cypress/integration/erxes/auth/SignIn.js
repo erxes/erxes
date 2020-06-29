@@ -1,8 +1,5 @@
 context('Login', () => {
   beforeEach(() => {
-    cy.server()
-    // cy.exec('cd ../../erxes-api; yarn loadInitialData')
-    cy.exec('yarn build')
     Cypress.Cookies.debug(true);
     cy.visit('/');
     cy.clearCookies();
