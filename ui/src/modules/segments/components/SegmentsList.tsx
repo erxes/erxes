@@ -60,7 +60,7 @@ class SegmentsList extends React.Component<Props> {
             <th />
           </tr>
         </thead>
-        <tbody>
+        <tbody id={'SegmentShowing'}>
           {parentSegments.map(segment => (
             <tr key={segment._id}>
               <td>

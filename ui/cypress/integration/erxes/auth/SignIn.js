@@ -30,6 +30,5 @@ context('Login', () => {
 
     cy.get('button[id="robot-get-started"]').click();
     cy.get('div[id="robot-feature-close"]').click();
-
   });
 });
