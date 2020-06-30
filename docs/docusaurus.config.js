@@ -38,6 +38,16 @@ module.exports = {
         },
         {
           href: 'https://github.com/erxes/erxes',
+          prependBaseUrlToHref: true,
+          position: 'right', 
+          label: 'Star',
+          className: 'github-button',
+          'data-show-count': 'true',
+          'data-size': 'large',
+          'aria-label': 'Star erxes/erxes on GitHub'
+        },
+        {
+          href: 'https://github.com/erxes/erxes',
           label: 'GitHub',
           position: 'right'
         },

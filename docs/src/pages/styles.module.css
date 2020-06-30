@@ -22,16 +22,20 @@
 }
 
 .description {
-  font-weight: normal;
-  font-size: 1.1rem;
+  font-weight: 300;
+  opacity: 0.9;
+  font-size: 25px;
   margin-bottom: 40px;
+  color: var(--ifm-heading-color);
 }
 
 .suggestion {
   font-weight: normal;
-  max-width: 30rem;
+  max-width: 40rem;
   margin: 2rem auto 1rem auto;
   line-height: 1.5;
+  color: var(--ifm-heading-color);
+  font-size: 0.85rem;
 }
 
 .suggestion a {
@@ -39,14 +43,42 @@
   display: block;
 }
 
-.buttons {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.cta {
+  padding: 50px 0 80px;
 }
 
-.buttons a {
-  margin-right: 10px;
+.section {
+  padding: 3rem 0;
+}
+
+.list {
+  margin-bottom: 40px;
+  list-style: none;
+  counter-reset: list;   
+}
+
+.list li {
+  position: relative;
+  margin-bottom: 10px;
+  font-size: 20px;
+}
+
+.list li:before {
+  counter-increment: list;
+  content: counter(list);
+  position: absolute;
+  margin-left: -18px;
+  color: #bbb;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+table {
+  display: table;
+}
+
+table tr td>img {
+  width: 1em;
 }
 
 @media screen and (max-width: 966px) {

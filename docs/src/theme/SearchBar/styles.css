@@ -21,6 +21,22 @@
   visibility: hidden;
 }
 
+.navbar__items > span {
+  margin-top: 7px;
+}
+
+.footer {
+  padding-top: 60px;
+}
+
+.center {
+  text-align: center;
+}
+
+.even-column {
+  background: rgba(180,180,180, 0.1);
+}
+
 @media (max-width: 360px) {
   .search-bar {
     width: 0 !important;
