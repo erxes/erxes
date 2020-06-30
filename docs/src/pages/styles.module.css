@@ -5,88 +5,94 @@
  * and scoped locally.
  */
 
-.heroBanner {
-  padding: 4rem 0;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
+ .heroBanner {
+	padding: 4rem 0;
+	text-align: center;
+	position: relative;
+	overflow: hidden;
 }
 
 .header {
-  padding: 0 5rem;
-}
-
-.headingOne {
-  font-weight: 800;
-  letter-spacing: 1.2px;
+	padding: 0 5rem;
 }
 
 .description {
-  font-weight: 300;
-  opacity: 0.9;
-  font-size: 25px;
-  margin-bottom: 40px;
-  color: var(--ifm-heading-color);
+	font-weight: 300;
+	opacity: 0.9;
+	font-size: 25px;
+	margin-bottom: 40px;
+	color: var(--ifm-heading-color);
 }
 
 .suggestion {
-  font-weight: normal;
-  max-width: 40rem;
-  margin: 2rem auto 1rem auto;
-  line-height: 1.5;
-  color: var(--ifm-heading-color);
-  font-size: 0.85rem;
+	font-weight: normal;
+	max-width: 40rem;
+	margin: 2rem auto 1rem auto;
+	line-height: 1.5;
+	color: var(--ifm-heading-color);
+	font-size: 0.85rem;
 }
 
 .suggestion a {
-  text-decoration: underline;
-  display: block;
+	text-decoration: underline;
+	display: block;
 }
 
 .cta {
-  padding: 50px 0 80px;
+	padding: 50px 0 80px;
 }
 
 .section {
-  padding: 3rem 0;
+	padding: 3rem 0;
 }
 
 .list {
-  margin-bottom: 40px;
-  list-style: none;
-  counter-reset: list;   
+	margin-bottom: 40px;
+	list-style: none;
+	counter-reset: list;   
 }
 
 .list li {
-  position: relative;
-  margin-bottom: 10px;
-  font-size: 20px;
+	position: relative;
+	margin-bottom: 10px;
+	font-size: 20px;
 }
 
 .list li:before {
-  counter-increment: list;
-  content: counter(list);
-  position: absolute;
-  margin-left: -18px;
-  color: #bbb;
-  font-size: 20px;
-  font-weight: bold;
+	counter-increment: list;
+	content: counter(list);
+	position: absolute;
+	margin-left: -18px;
+	color: #bbb;
+	font-size: 20px;
+	font-weight: bold;
+}
+
+.tableWrapper {
+	overflow: auto;
 }
 
 table {
-  display: table;
+	display: table;
 }
 
-table tr td>img {
-  width: 1em;
+table tr td > img {
+	width: 1em;
 }
 
 @media screen and (max-width: 966px) {
-  .heroBanner {
-    padding: 2rem;
-  }
+	.heroBanner {
+		padding: 2rem;
+	}
 
-  .header {
-    padding: 0;
-  }
+	.header {
+		padding: 0;
+	}
+}
+
+@media (min-width: 600px) {
+	.headingOne {
+		font-weight: 800;
+		letter-spacing: 1.2px;
+	}
 }

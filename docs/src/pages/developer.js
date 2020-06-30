@@ -11,8 +11,7 @@ import { PartnerForm } from '../components/partnerForm';
 import { Step } from '../components/step';
 import { Buttons } from '../components/buttons';
 
-
-export default function Agency() {
+export default function Developer() {
   const context = useDocusaurusContext();
   const {siteConfig = {}} = context;
   const {tagline, url, favicon} = siteConfig;
@@ -51,7 +50,7 @@ export default function Agency() {
       </header>
       <main>
         <div className="container">
-          <section className={classnames('center', styles.section)}>
+          <section className={classnames('center-desktop', styles.section)}>
             <h2>Are you a good fit?</h2>
 
             <h3>Become a developer partner if:</h3>
@@ -60,7 +59,10 @@ export default function Agency() {
               <li>You’re interested in offering erxes to your clients and earning a commission for what you sell.</li>
               <li>You already use erxes to build customer-centric solutions for your clients and your business.</li>
             </ol>
-            <Table />
+
+            <div className={styles.tableWrapper}>
+              <Table />
+            </div>
           </section>
 					
 					<Step />
