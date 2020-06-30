@@ -80,16 +80,18 @@ class Boards extends React.Component<Props, {}> {
       options && options.boardName ? options.boardName.toLowerCase() : 'board';
 
     return (
-      <Sidebar wide={true} header={this.renderSidebarHeader()} full={true}>
-        <DataWithLoader
-          data={<List>{this.renderItems()}</List>}
-          loading={loading}
-          count={boards.length}
-          emptyText={`There is no ${boardName}`}
-          emptyImage="/images/actions/18.svg"
-          objective={true}
-        />
-      </Sidebar>
+      <div id="boardSidebar">
+        <Sidebar wide={true} header={this.renderSidebarHeader()} full={true}>
+          <DataWithLoader
+            data={<List>{this.renderItems()}</List>}
+            loading={loading}
+            count={boards.length}
+            emptyText={`There is no ${boardName}`}
+            emptyImage="/images/actions/18.svg"
+            objective={true}
+          />
+        </Sidebar>
+      </div>
     );
   }
 }
