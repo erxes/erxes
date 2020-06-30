@@ -30,7 +30,7 @@ class Settings extends React.PureComponent {
       <MenusContainer>
         <Row>
           <RowTitle>{__('General Settings')}</RowTitle>
-          <div>
+          <div id="general-settings-father">
             {this.renderBox(
               'System config',
               '/images/icons/erxes-16.svg',

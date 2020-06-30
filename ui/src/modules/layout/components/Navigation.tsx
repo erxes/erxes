@@ -168,7 +168,7 @@ class Navigation extends React.Component<{
         <NavLink to="/">
           <img src="/images/erxes.png" alt="erxes" />
         </NavLink>
-        <Nav>
+        <Nav id="navigation">
           {REACT_APP_DASHBOARD_URL !== 'undefined'
             ? this.renderNavItem(
                 'showDashboards',

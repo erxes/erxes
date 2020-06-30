@@ -41,13 +41,13 @@ class Segments extends React.Component<Props> {
       <>
         <Dropdown alignRight={true} style={{ float: 'left' }}>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-manage">
-            <a href="#settings">
+            <a id="contacts-segments-settings" href="#settings">
               <Icon icon="cog" />
             </a>
           </Dropdown.Toggle>
           <Dropdown.Menu>
             <li>
-              <Link to={`/segments/new/${contentType}`}>
+              <Link id="new-segment" to={`/segments/new/${contentType}`}>
                 {__('New segment')}
               </Link>
             </li>
