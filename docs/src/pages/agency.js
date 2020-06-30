@@ -51,7 +51,7 @@ export default function Agency() {
       </header>
       <main>
         <div className="container">
-          <section className={classnames('center', styles.section)}>
+          <section className={classnames('center-desktop', styles.section)}>
             <h2>Are you a good fit?</h2>
 
             <h3>Become an agency partner if:</h3>
@@ -61,7 +61,9 @@ export default function Agency() {
               <li>You provide tech implementation that handles CRM, systems integrations, or IT services.</li>
               <li>You provide hands-on services in marketing, sales, or customer service.</li>
             </ol>
-            <Table />
+            <div className={styles.tableWrapper}>
+              <Table />
+            </div>
           </section>
 
           <Step />

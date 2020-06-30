@@ -41,7 +41,7 @@ module.exports = {
           prependBaseUrlToHref: true,
           position: 'right', 
           label: 'Star',
-          className: 'github-button',
+          className: 'github-button hide-mobile',
           'data-show-count': 'true',
           'data-size': 'large',
           'aria-label': 'Star erxes/erxes on GitHub'
@@ -52,7 +52,7 @@ module.exports = {
           position: 'right'
         },
         {
-          href: 'https://erxes.io/blog/',
+          to: 'blog/',
           label: 'Blog',
           position: 'right'
         },

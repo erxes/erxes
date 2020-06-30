@@ -72,3 +72,34 @@ html[data-theme='dark'] .react-toggle-track {
   margin: 0 calc(-1 * var(--ifm-pre-padding));
   padding: 0 var(--ifm-pre-padding);
 }
+
+.navbar__items > span {
+  margin-top: 7px;
+  display: none;
+}
+
+.menu__list-item > span {
+  margin-left: 8px;
+}
+
+.footer {
+  padding-top: 60px;
+}
+
+.center {
+  text-align: center;
+}
+
+.even-column {
+  background: rgba(180,180,180, 0.1);
+}
+
+@media (min-width: 600px) {
+	.center-desktop {
+		text-align: center;
+  }
+  
+  .navbar__items > span {
+    display: block;
+  }
+}
