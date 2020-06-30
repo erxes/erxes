@@ -339,7 +339,7 @@ class Form extends React.Component<Props, State> {
 
           <FormGroup>
             <ControlLabel>Color</ControlLabel>
-            <div>
+            <div id="segment-color">
               <OverlayTrigger
                 trigger="click"
                 rootClose={true}
@@ -356,7 +356,7 @@ class Form extends React.Component<Props, State> {
 
         {this.renderFilters()}
 
-        <ModalFooter>
+        <ModalFooter id="button-group">
           <Button.Group>
             {isForm && (
               <Link to={`/segments/${contentType}`}>
@@ -368,6 +368,7 @@ class Form extends React.Component<Props, State> {
 
             {previewCount && (
               <Button
+                id="segment-show-count"
                 uppercase={false}
                 icon="crosshairs"
                 onClick={onPreviewCount}

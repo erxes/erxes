@@ -67,11 +67,11 @@ class Onboarding extends React.PureComponent<Props, State> {
     return (
       <ButtonWrapper>
         <Button
+          id="robot-get-started"
           uppercase={false}
           onClick={handleClick}
           btnStyle="primary"
           disabled={disabled}
-          id="robot-get-started"
         >
           {text} <Icon icon={icon} />
         </Button>

@@ -41,7 +41,7 @@ class Segments extends React.Component<Props> {
       <>
         <Dropdown alignRight={true} style={{ float: 'left' }}>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-manage">
-            <a href="#settings">
+            <a id="contacts-segments-settings" href="#settings">
               <Icon icon="cog" />
             </a>
           </Dropdown.Toggle>

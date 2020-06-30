@@ -179,6 +179,7 @@ class Filter extends React.Component<Props, State> {
         value={currentName}
         onChange={this.onChangeField}
         placeholder={__('Select property')}
+        id="New-segment-select-property"
       />
     );
   }
@@ -193,6 +194,7 @@ class Filter extends React.Component<Props, State> {
 
     return (
       <FormControl
+        id="segment-select-operator"
         key={currentName}
         componentClass="select"
         onChange={this.onChangeOperators}
