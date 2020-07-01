@@ -67,10 +67,6 @@ export default function IndividualAgency() {
             </p>
 
 						<div className={styles.subscribe} data-erxes-embed="PXH7Fc"></div>
-
-						<p>
-							Subscribe to the erxes Agency Marketing auto email course and the occasional email highlighting how you can use erxes to become more profitable per client, streamline your efforts and help your clients do the same.
-						</p>
           </section>
         </div>
       </main>

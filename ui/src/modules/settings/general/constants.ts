@@ -123,7 +123,11 @@ export const KEY_LABELS = {
   SMOOCH_WEBHOOK_CALLBACK_URL: 'Smooch Webhook Callback Url',
 
   CHAT_API_UID: 'Chat-API API key',
-  CHAT_API_WEBHOOK_CALLBACK_URL: 'Chat-API Webhook Callback Url'
+  CHAT_API_WEBHOOK_CALLBACK_URL: 'Chat-API Webhook Callback Url',
+
+  TELNYX_API_KEY: 'Telnyx API key',
+  TELNYX_PHONE: 'Telnyx phone number',
+  TELNYX_PROFILE_ID: 'Telnyx messaging profile id'
 };
 
 export const FILE_MIME_TYPES = [
