@@ -80,12 +80,13 @@ describe('Test activity model', () => {
     expect(activity1.contentId).toEqual(item._id);
   });
 
-  test('Activity create board item movement log', async () => {
+  test('Activity create board item segment log', async () => {
     const customer = await customerFactory({});
     const segment1 = await segmentFactory({});
     const segment2 = await segmentFactory({});
+    const segment3 = await segmentFactory({});
 
-    const foundedActivity = await ActivityLogs.create({
+    await ActivityLogs.create({
       contentType: 'customer',
       action: 'segment',
       contentId: customer._id,
@@ -95,11 +96,21 @@ describe('Test activity model', () => {
       },
     });
 
-    const activity1 = await ActivityLogs.createSegmentLog(segment1, customer, 'customer');
-    const activity2 = await ActivityLogs.createSegmentLog(segment2, customer, 'customer');
+    const activity1 = await ActivityLogs.createSegmentLog(segment1, [customer._id], 'customer');
+    const activity2 = await ActivityLogs.createSegmentLog(segment2, [customer._id], 'customer');
+    const activity3 = await ActivityLogs.createSegmentLog(
+      segment3, [
+        customer._id,
+        (await customerFactory({}))._id,
+        (await customerFactory({}))._id,
+        (await customerFactory({}))._id,
+        (await customerFactory({}))._id,
+      ], 'customer', 3
+    );
 
-    expect(activity1._id).toEqual(foundedActivity._id);
-    expect(activity2._id).toEqual(activity2._id);
+    expect(activity1).toBe(undefined);
+    expect(activity2.length).toEqual(1);
+    expect(activity3.length).toEqual(2);
   });
 
   test('Activity create assignee log', async () => {

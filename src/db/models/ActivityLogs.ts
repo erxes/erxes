@@ -3,14 +3,13 @@ import { activityLogSchema, IActivityLogDocument, IActivityLogInput } from './de
 
 import { IItemCommonFieldsDocument } from './definitions/boards';
 import { ACTIVITY_ACTIONS } from './definitions/constants';
-import { ICustomerDocument } from './definitions/customers';
 import { ISegmentDocument } from './definitions/segments';
 
 export interface IActivityLogModel extends Model<IActivityLogDocument> {
   addActivityLog(doc: IActivityLogInput): Promise<IActivityLogDocument>;
   removeActivityLog(contentId: string): void;
 
-  createSegmentLog(segment: ISegmentDocument, customer: ICustomerDocument, type: string);
+  createSegmentLog(segment: ISegmentDocument, customer: string[], type: string, maxBulk?: number);
   createLogFromWidget(type: string, payload): Promise<IActivityLogDocument>;
   createCocLog({ coc, contentType }: { coc: any; contentType: string }): Promise<IActivityLogDocument>;
   createBoardItemLog({
@@ -151,31 +150,52 @@ export const loadClass = () => {
     }
 
     /**
-     * Create a customer or company segment log
+     * Create a customer or company segment logs
      */
-    public static async createSegmentLog(segment: ISegmentDocument, customer: ICustomerDocument, type: string) {
-      const foundSegment = await ActivityLogs.findOne({
+    public static async createSegmentLog(segment: ISegmentDocument, contentIds: string[], type: string, maxBulk: number = 10000) {
+      const foundSegments = await ActivityLogs.find({
         contentType: type,
         action: 'segment',
-        contentId: customer._id,
+        contentId: {$in: contentIds},
         'content.id': segment._id,
-      });
+      }, {contentId: 1});
 
-      if (foundSegment) {
-        return foundSegment;
+      const foundContentIds = foundSegments.map(s => s.contentId)
+
+      const diffContentIds = contentIds.filter(x => !foundContentIds.includes(x));
+
+      let bulkOpt: Array<{
+        contentType: string,
+        contentId: string,
+        action: string;
+        content: {}
+      }> = [];
+
+      let bulkCounter = 0;
+
+      for (const contentId of diffContentIds) {
+        bulkCounter = bulkCounter + 1;
+
+        bulkOpt.push({
+          contentType: type,
+          contentId,
+          action: 'segment',
+          content: {
+            id: segment._id,
+            content: segment.name,
+          },
+        })
+
+        if ( bulkCounter === maxBulk ) {
+          await ActivityLogs.insertMany(bulkOpt);
+          bulkOpt = [];
+          bulkCounter = 0;
+        }
       }
 
-      const doc = {
-        contentType: type,
-        contentId: customer._id,
-        action: 'segment',
-        content: {
-          id: segment._id,
-          content: segment.name,
-        },
-      };
+      if (bulkOpt.length === 0){return;}
 
-      return ActivityLogs.create(doc);
+      return ActivityLogs.insertMany(bulkOpt)
     }
 
     public static async createArchiveLog({
