@@ -22,6 +22,7 @@ const Header = () => {
       <p className={styles.suggestion}>
         Explore our alternative no set-up and scalable hosted version.
         <a href="https://erxes.io/" target="_blank"> Try <b>Erxes Cloud</b></a>
+        <i>Due to the minimum hosting requirements, many small businesses will benefit from using our flexible and scalable cloud product for real production sites</i>
       </p>
     </div>
   );
