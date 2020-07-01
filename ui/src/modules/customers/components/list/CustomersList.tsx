@@ -53,9 +53,9 @@ interface IProps extends IRouterProps {
       callback: () => void;
     }
   ) => Promise<void>;
+  verifyCustomers: (doc: { verificationType: string }) => void;
   queryParams: any;
   exportData: (bulk: Array<{ _id: string }>) => void;
-  verifyBulk: (type: string) => void;
   responseId: string;
 }
 
@@ -92,16 +92,10 @@ class CustomersList extends React.Component<IProps, State> {
     removeCustomers({ customerIds }, emptyBulk);
   };
 
-  verifyPhones = customers => {
-    const customerIds: string[] = [];
+  verifyCustomers = (verificationType: string) => {
+    const { verifyCustomers } = this.props;
 
-    customers.forEach(customer => {
-      customerIds.push(customer._id);
-    });
-
-    const { removeCustomers, emptyBulk } = this.props;
-
-    removeCustomers({ customerIds }, emptyBulk);
+    verifyCustomers({ verificationType });
   };
 
   renderContent() {
@@ -271,12 +265,12 @@ class CustomersList extends React.Component<IProps, State> {
               </a>
             </li>
             <li>
-              <a href="#verify/emails" onClick={exportData.bind(this, bulk)}>
+              <a onClick={this.verifyCustomers.bind(this, 'email')}>
                 {__('Verify emails')}
               </a>
             </li>
             <li>
-              <a href="#verify/phones" onClick={exportData.bind(this, bulk)}>
+              <a onClick={this.verifyCustomers.bind(this, 'phone')}>
                 {__('Verify phone numbers')}
               </a>
             </li>
