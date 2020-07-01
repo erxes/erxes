@@ -251,8 +251,8 @@ class Lead extends React.Component<Props, State> {
     return (
       <>
         <Wrapper.Header title={__('Leads')} breadcrumb={breadcrumb} />
-        <StepWrapper>
-          <TitleContainer>
+        <StepWrapper id="CreatePopupsFather">
+          <TitleContainer id="CreatePopupsTitle">
             <div>{__('Title')}</div>
             <FormControl
               required={true}

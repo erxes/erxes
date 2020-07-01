@@ -35,6 +35,8 @@ context("Login", () => {
     cy.get('button[id="robot-get-started"]').click();
     cy.get('div[id="robot-feature-close"]').click();
 
+    // random fake name
+    const randomm = fakeName(3);
     //  pop ups
     cy.get("#navigation")
       .children()
@@ -76,11 +78,11 @@ context("Login", () => {
 
     // call out
 
-    cy.get("#callout-title").type(" 123");
+    cy.get("#callout-title").type(randomm);
 
-    cy.get("#callout-body").type("Erxes");
+    cy.get("#callout-body").type(randomm);
 
-    cy.get("#callout-btn-text").type("12345");
+    cy.get("#callout-btn-text").type(randomm);
 
     // cy.get('i[icon="plus"]').click();
 
@@ -99,9 +101,9 @@ context("Login", () => {
 
     //form
 
-    cy.get('input[name="title"]').type("Erxes");
-    cy.get('textarea[name="desc"]').type("Erxes is open source software");
-    cy.get('input[name="btnText"]').type(" Erxes");
+    cy.get('input[name="title"]').type(randomm);
+    cy.get('textarea[name="desc"]').type(randomm);
+    cy.get('input[name="btnText"]').type(randomm);
 
     //new field
     //text input
@@ -114,14 +116,14 @@ context("Login", () => {
       .children()
       .children()
       .eq(1)
-      .type("Hello");
+      .type(randomm);
 
     cy.get("#ModalBody")
       .children()
       .children()
       .children()
       .eq(2)
-      .type("Hello Erxes");
+      .type(randomm);
 
     cy.get("#ModalBody")
       .children()
@@ -137,7 +139,7 @@ context("Login", () => {
       .children()
       .children()
       .eq(5)
-      .type("Hello");
+      .type(randomm);
 
     cy.get("#ModalBody")
       .children()
@@ -158,14 +160,14 @@ context("Login", () => {
       .children()
       .children()
       .eq(1)
-      .type("Hello");
+      .type(randomm);
 
     cy.get("#ModalBody")
       .children()
       .children()
       .children()
       .eq(2)
-      .type("Hello Erxes");
+      .type(randomm);
 
     cy.get("#ModalBody")
       .children()
@@ -181,7 +183,7 @@ context("Login", () => {
       .children()
       .children()
       .eq(5)
-      .type("Hello");
+      .type(randomm);
 
     cy.get("#ModalBody")
       .children()
@@ -241,9 +243,9 @@ context("Login", () => {
     //create brand
     cy.get('i[icon="plus-circle"]').click();
 
-    cy.get('input[name="name"]').type("Nissan");
+    cy.get('input[name="name"]').type(randomm);
 
-    cy.get('textarea[name="description"]').type("Fast, safe");
+    cy.get('textarea[name="description"]').type(randomm);
     cy.get('button[icon="check-circle"]').click();
 
     //language
@@ -269,7 +271,7 @@ context("Login", () => {
     // on success
 
     cy.get('select[id="successAction"]').select("redirect");
-    cy.get('input[id="redirectUrl"]').type("redirect 123");
+    cy.get('input[id="redirectUrl"]').type(randomm);
 
     //next to Full preview
 
@@ -297,6 +299,55 @@ context("Login", () => {
 
     ul();
 
+    cy.get('button[icon="checked-1"]').click();
+
+    //install code
+    cy.get("#integrations")
+      .children()
+      .eq(1);
+
+    cy.get("#integrations")
+      .children()
+      .eq(1)
+      .children()
+      .eq(9)
+      .children(2)
+      .children()
+      .eq(1)
+      .click();
+    cy.get('button[class="close"]').click();
+
+    //manage
+    cy.get("#integrations")
+      .children()
+      .eq(1);
+
+    cy.get("#integrations")
+      .children()
+      .eq(1)
+      .children()
+      .eq(9)
+      .children(2)
+      .children()
+      .eq(0)
+      .click();
+    cy.get('button[icon="cancel-1"]').click();
+
+    //delete
+
+    cy.get("#integrations")
+      .children()
+      .eq(1);
+
+    cy.get("#integrations")
+      .children()
+      .eq(1)
+      .children()
+      .eq(9)
+      .children(2)
+      .children()
+      .eq(3)
+      .click();
     cy.get('button[icon="checked-1"]').click();
   });
 });
