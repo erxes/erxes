@@ -13,15 +13,15 @@ const Header = () => {
   return (
     <div className={styles.header}>
       <h1 className={styles.headingOne}>
-        Combine all your business tools into one streamlined and integrated free and open-source framework
+        Combine all your business tools into one streamlined and integrated open-source framework
       </h1>
       <p className={styles.description}>
-        erxes acts as your all-one-solution replacing random and incompatible <b>marketing</b>, <b>sales</b> and <b>customer service</b> services with one focused on the entire customer experience.
+        erxes replaces random and incompatible <b>marketing</b>, <b>customer service</b> and <b>sales</b> products with one framework focused on the entire customer experience.
       </p>
       <Buttons />
       <p className={styles.suggestion}>
-        Due to the minimum hosting requirements, many small businesses will benefit from using our flexible and scalable cloud product for real production sites. Are you looking for a flexible and scalable option with low-effort set up?
-        <a href="https://erxes.io/" target="_blank"> Try <b>erxes Cloud</b></a>
+        Explore our alternative no set-up and scalable hosted version.
+        <a href="https://erxes.io/" target="_blank"> Try <b>Erxes Cloud</b></a>
       </p>
     </div>
   );

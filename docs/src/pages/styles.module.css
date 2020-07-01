@@ -16,10 +16,14 @@
 	padding: 0 5rem;
 }
 
+.headingOne {
+	font-size: 32px;
+}
+
 .description {
 	font-weight: 300;
 	opacity: 0.9;
-	font-size: 25px;
+	font-size: 20px;
 	margin-bottom: 40px;
 	color: var(--ifm-heading-color);
 }
@@ -39,7 +43,7 @@
 }
 
 .cta {
-	padding: 50px 0 80px;
+	padding: 30px 0;
 }
 
 .section {
@@ -94,5 +98,14 @@ table tr td > img {
 	.headingOne {
 		font-weight: 800;
 		letter-spacing: 1.2px;
+		font-size: var(--ifm-h1-font-size);
+	}
+
+	.description {
+		font-size: 25px;
+	}
+
+	.cta {
+		padding: 50px 0 80px;
 	}
 }
