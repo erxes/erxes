@@ -67,10 +67,6 @@ export default function AgencyAppDevelopers() {
             </p>
 
             <div data-erxes-embed="r57v72" className={styles.subscribe}></div>
-
-						<p>
-							Subscribe to the erxes Agency App and Web Developers auto email course and the occasional email highlighting how you can use erxes to become more profitable per client, streamline your efforts and help your clients do the same.
-						</p>
           </section>
         </div>
       </main>
