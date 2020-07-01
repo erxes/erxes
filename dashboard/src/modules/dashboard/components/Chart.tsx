@@ -1,9 +1,10 @@
 import React from 'react';
 
-import { Button, Input, Modal, Typography } from 'antd';
+import { Button, Input, Modal } from 'antd';
 import { IDashboardItem } from '../types';
 import PageHeader from './PageHeader';
 import ExploreQueryBuilder from './QueryBuilder/ExploreQueryBuilder';
+import { ShadowedHeader } from './styles';
 
 type Props = {
   dashboardItem?: IDashboardItem;
@@ -88,34 +89,38 @@ class Chart extends React.Component<Props, State> {
 
     return (
       <div>
-        <PageHeader
-          title={<Typography.Title level={4}>Explore chart</Typography.Title>}
-          button={
-            <Button
-              type='primary'
-              onClick={() => this.onChange('visible', true)}
-            >
-              Add to dashboard
-            </Button>
-          }
-        />
-
-        <Modal
-          key='modal'
-          title='Save Chart'
-          visible={visible}
-          onOk={async () => {
-            this.onChange('visible', false);
-            this.handleSubmit();
-          }}
-          onCancel={() => this.setTitleModalVisible(false)}
-        >
-          <Input
-            placeholder='Dashboard Item Name'
-            value={name}
-            onChange={e => onChange(e)}
+        <ShadowedHeader>
+          <PageHeader
+            title={<h4>Explore chart</h4>}
+            button={
+              <Button
+                type='primary'
+                shape="round"
+                onClick={() => this.onChange('visible', true)}
+              >
+                Add to dashboard
+              </Button>
+            }
           />
-        </Modal>
+
+          <Modal
+            key='modal'
+            title='Save Chart'
+            visible={visible}
+            onOk={async () => {
+              this.onChange('visible', false);
+              this.handleSubmit();
+            }}
+            onCancel={() => this.setTitleModalVisible(false)}
+          >
+            <Input
+              placeholder='Dashboard Item Name'
+              value={name}
+              onChange={e => onChange(e)}
+            />
+          </Modal>
+        </ShadowedHeader>
+        
         <ExploreQueryBuilder
           vizState={vizState}
           setVizState={this.setVizState}

@@ -1,6 +1,7 @@
 import { getEnv } from 'apolloClient';
+import { BoardContainer, BoardContent } from 'modules/boards/styles/common';
 import { __ } from 'modules/common/utils';
-import Wrapper from 'modules/layout/components/Wrapper';
+import Header from 'modules/layout/components/Header';
 import React from 'react';
 
 const { REACT_APP_DASHBOARD_URL } = getEnv();
@@ -14,14 +15,13 @@ class DashboardDetail extends React.Component<Props, {}> {
     const { id } = this.props;
 
     return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={`${'Dashboard' || ''}`}
-            breadcrumb={[{ title: __('Dashboard') }]}
-          />
-        }
-        content={
+      <BoardContainer>
+        <Header
+          title={`${'Dashboard' || ''}`}
+          breadcrumb={[{ title: __('Dashboard') }]}
+        />
+
+        <BoardContent transparent={true} bgColor="transparent">
           <iframe
             title="dashboard"
             width="100%"
@@ -30,8 +30,8 @@ class DashboardDetail extends React.Component<Props, {}> {
             frameBorder="0"
             allowFullScreen={true}
           />
-        }
-      />
+        </BoardContent>
+      </BoardContainer>
     );
   }
 }

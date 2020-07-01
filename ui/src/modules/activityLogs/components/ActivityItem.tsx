@@ -20,7 +20,7 @@ import SegmentLog from './items/SegmentLog';
 
 type Props = {
   activity: IActivityLog;
-  currenUser: IUser;
+  currentUser: IUser;
 };
 
 class ActivityItem extends React.Component<Props> {
@@ -44,7 +44,7 @@ class ActivityItem extends React.Component<Props> {
   }
 
   render() {
-    const { activity, currenUser } = this.props;
+    const { activity, currentUser } = this.props;
     const { _id, contentType, action } = activity;
 
     switch ((action && action) || contentType) {
@@ -54,7 +54,7 @@ class ActivityItem extends React.Component<Props> {
           <InternalNote
             noteId={_id}
             activity={activity}
-            currenUser={currenUser}
+            currentUser={currentUser}
           />
         );
       case 'conversation':

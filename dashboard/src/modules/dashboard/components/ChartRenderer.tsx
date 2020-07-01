@@ -1,5 +1,8 @@
 import { useCubeQuery } from '@cubejs-client/react';
-import { Col, Row, Spin, Statistic, Table } from 'antd';
+import { Col, Row, Statistic, Table } from 'antd';
+import dayjs from 'dayjs';
+import Spinner from 'modules/common/components/Spinner';
+import numeral from 'numeral';
 import React from 'react';
 import {
   Area,
@@ -18,24 +21,9 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-
-import styled from 'styled-components';
-
-import dayjs from 'dayjs';
-import numeral from 'numeral';
-import './recharts-theme.less';
+import { chartColors } from '../constants';
 
 const numberFormatter = (item) => numeral(item).format('0,0');
-
-const colors = [
-  '#7DB3FF',
-  '#49457B',
-  '#FF7C78',
-  '#32a852',
-  '#7c2bba',
-  '#d1a924',
-  '#05f238',
-];
 
 const dateFormatter = (item, dateType) => {
   switch (dateType) {
@@ -107,7 +95,7 @@ const TypeToChartComponent = {
           key={series.key}
           dataKey={series.key}
           name={series.title}
-          stroke={colors[i]}
+          stroke={chartColors[i]}
         />
       ))}
     </CartesianChart>
@@ -126,7 +114,7 @@ const TypeToChartComponent = {
             stackId="a"
             dataKey={series.key}
             name={series.title}
-            fill={colors[i]}
+            fill={chartColors[i]}
           />
         ))}
       </CartesianChart>
@@ -146,8 +134,8 @@ const TypeToChartComponent = {
             stackId="a"
             dataKey={series.key}
             name={series.title}
-            stroke={colors[i]}
-            fill={colors[i]}
+            stroke={chartColors[i]}
+            fill={chartColors[i]}
           />
         ))}
       </CartesianChart>
@@ -166,7 +154,7 @@ const TypeToChartComponent = {
               fill="#8884d8"
             >
               {resultSet.chartPivot().map((e, index) => (
-                <Cell key={index} fill={colors[index % colors.length]} />
+                <Cell key={index} fill={chartColors[index % chartColors.length]} />
               ))}
             </Pie>
             <Legend />
@@ -213,23 +201,12 @@ const TypeToMemoChartComponent = Object.keys(TypeToChartComponent)
   }))
   .reduce((a, b) => ({ ...a, ...b }));
 
-const SpinContainer = styled.div`
-  text-align: center;
-  padding: 30px 50px;
-  margin-top: 30px;
-`;
-const Spinner = () => (
-  <SpinContainer>
-    <Spin size="large" />
-  </SpinContainer>
-);
-
 const renderChart = (Component) => ({ resultSet, dateType, error, height }) => {
   return (
     (resultSet && (
       <Component height={height} resultSet={resultSet} dateType={dateType} />
     )) ||
-    (error && error.toString()) || <Spinner />
+    (error && error.toString()) || <Spinner objective={true} />
   );
 };
 
@@ -258,7 +235,7 @@ const ChartRenderer = ({
     });
   }
 
-  return <Spinner />;
+  return <Spinner objective={true} />;
 };
 
 export default ChartRenderer;

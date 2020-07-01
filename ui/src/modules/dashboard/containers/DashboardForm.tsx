@@ -27,6 +27,7 @@ class DashboardFormContainer extends React.Component<Props> {
         refetchQueries={['dashboards', 'dashboardDetails']}
         isSubmitted={isSubmitted}
         type="submit"
+        uppercase={false}
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
         } a ${name}`}

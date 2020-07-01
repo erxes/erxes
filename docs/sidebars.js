@@ -26,27 +26,7 @@ module.exports = {
         "installation/upgrade"
       ],
     },
-    {
-      type: 'category',
-      label: 'User\'s Guide',
-      items: [
-        "user/subscription-getting-started",
-        "user/initial-setup",
-        "user/general-settings",
-        "user/team-inbox",
-        "user/knowledge-base",
-        "user/popups",
-        "user/script-install",
-        "user/contacts",
-        "user/segments",
-        "user/sales-pipeline",
-        "user/engage",
-        "user/insights",
-        "user/profile-settings",
-        "user/notification",
-        "user/mobile-apps"
-      ],
-    },
+    
     {
       type: 'category',
       label: 'Administrator\'s Guide',
@@ -72,4 +52,28 @@ module.exports = {
       ],
     },
   ],
+  tutorials: [
+    {
+      type: 'category',
+      label: 'User\'s Guide',
+      items: [
+        "user/subscription-getting-started",
+        "user/initial-setup",
+        "user/general-settings",
+        "user/team-inbox",
+        "user/knowledge-base",
+        "user/popups",
+        "user/script-install",
+        "user/contacts",
+        "user/segments",
+        "user/sales-pipeline",
+        "user/engage",
+        "user/insights",
+        "user/profile-settings",
+        "user/notification",
+        "user/mobile-apps"
+      ],
+    },
+  ],
+  
 };
