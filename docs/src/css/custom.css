@@ -20,6 +20,7 @@
 
   /* heading */
   --ifm-h1-font-size: 2.8rem;
+  --ifm-h2-font-size: 25px;
 }
 
 :root {
@@ -70,4 +71,39 @@ html[data-theme='dark'] .react-toggle-track {
   display: block;
   margin: 0 calc(-1 * var(--ifm-pre-padding));
   padding: 0 var(--ifm-pre-padding);
+}
+
+.navbar__items > span {
+  margin-top: 7px;
+  display: none;
+}
+
+.menu__list-item > span {
+  margin-left: 8px;
+}
+
+.footer {
+  padding-top: 60px;
+}
+
+.center {
+  text-align: center;
+}
+
+.container.container-sm {
+  max-width: 720px;
+}
+
+.even-column {
+  background: rgba(180,180,180, 0.08);
+}
+
+@media (min-width: 600px) {
+	.center-desktop {
+		text-align: center;
+  }
+  
+  .navbar__items > span {
+    display: block;
+  }
 }
