@@ -16,11 +16,15 @@
 .dedicationWrapper {
 	display: flex;
 	align-items: center;
-	padding: 50px 0;
+	padding: 20px 0;
+}
+
+.dedicationWrapper img {
+	margin: 20px auto;
 }
 
 .featureImage {
-	height: 130px;
+	height: 120px;
 	margin: 20px auto;
 	display: block;
 }
@@ -131,5 +135,9 @@
 
 	.clients img {
 		margin-bottom: 0;
+	}
+
+	.dedicationWrapper {
+		padding: 50px 0;
 	}
 }
