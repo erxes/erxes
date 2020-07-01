@@ -49,6 +49,12 @@ const NavItem = styledTS<{ odd?: boolean }>(styled.div)`
 
   > a {
     color: ${colors.textPrimary};
+    display: flex;
+    align-items: center;
+
+    > span {
+      margin-left: 5px;
+    }
   }
 
   ${props =>
@@ -128,11 +134,9 @@ const QuickNavigation = ({
         </NavItem>
       </Tip>
       <NavItem>
-        <Tip text={__('Help')} placement="bottom">
-          <Link to="/tutorial#defaultStage">
-            <Icon icon="question-circle" size={20} />
-          </Link>
-        </Tip>
+        <Link to="/tutorial#defaultStage">
+          <Icon icon="question-circle" size={20} /> <span>{__('Help')}</span>
+        </Link>
       </NavItem>
       <NavItem>
         <Widget />
