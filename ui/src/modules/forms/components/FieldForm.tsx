@@ -258,7 +258,7 @@ class FieldForm extends React.Component<Props, State> {
             {mode === 'create' ? 'Add' : 'Edit'} {field.type} field
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body>{this.renderContent()}</Modal.Body>
+        <Modal.Body id="ModalBody">{this.renderContent()}</Modal.Body>
       </Modal>
     );
   }

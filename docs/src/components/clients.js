@@ -1,6 +1,6 @@
 import React from 'react';
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import styles from './clients.module.css';
+import styles from './styles.module.css';
 
 const clients = [
 	{
@@ -45,6 +45,7 @@ export const Clients = () => {
   return (
 		<section className={styles.clientsWrapper}>
 			<div className="container">
+				<h2>Trusted by hundreds of companies across the world.</h2>
 				<div className={styles.clients}>
 					{clients.map(({src, alt}) => {
 						return (
