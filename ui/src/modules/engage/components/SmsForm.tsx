@@ -97,6 +97,8 @@ class MessengerForm extends React.Component<Props, State> {
               componentClass="textarea"
               defaultValue={shortMessage && shortMessage.content}
               onBlur={onChangeContent}
+              // sms part max size
+              max={160}
             />
           </FormGroup>
           {this.renderScheduler()}
