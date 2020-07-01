@@ -1,4 +1,9 @@
 export const types = `
+  type EngageMessageSms {
+    from: String!,
+    content: String!
+  }
+
   type EngageMessage {
     _id: String!
     kind: String
@@ -22,6 +27,7 @@ export const types = `
 
     email: JSON
     messenger: JSON
+    shortMessage: EngageMessageSms
 
     scheduleDate: EngageScheduleDate
     segments: [Segment]
@@ -59,6 +65,11 @@ export const types = `
     sentAs: String,
     content: String,
     rules: [InputRule],
+  }
+
+  input EngageMessageSmsInput {
+    from: String!,
+    content: String!
   }
 `;
 
@@ -100,6 +111,7 @@ const commonParams = `
   email: EngageMessageEmail,
   scheduleDate: EngageScheduleDateInput,
   messenger: EngageMessageMessenger,
+  shortMessage: EngageMessageSmsInput
 `;
 
 export const mutations = `

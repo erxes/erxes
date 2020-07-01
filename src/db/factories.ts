@@ -218,6 +218,7 @@ interface IEngageMessageFactoryInput {
   messenger?: IMessenger;
   title?: string;
   email?: IEmail;
+  smsContent?: string;
 }
 
 export const engageMessageFactory = (params: IEngageMessageFactoryInput = {}) => {
@@ -234,6 +235,7 @@ export const engageMessageFactory = (params: IEngageMessageFactoryInput = {}) =>
     isDraft: params.isDraft || false,
     messenger: params.messenger,
     email: params.email,
+    smsContent: params.smsContent || 'Sms content',
   });
 
   return engageMessage.save();

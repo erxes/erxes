@@ -19,9 +19,12 @@ import { MESSAGE_KINDS } from '../../constants';
 import { fetchBySegments } from '../../modules/segments/queryBuilder';
 import { chunkArray } from '../../utils';
 
-/**
- * Find customers
- */
+interface IEngageParams {
+  engageMessage: IEngageMessageDocument;
+  customersSelector: any;
+  user: IUserDocument;
+}
+
 export const generateCustomerSelector = async ({
   customerIds,
   segmentIds = [],
@@ -73,7 +76,7 @@ export const generateCustomerSelector = async ({
   return { $or: [{ doNotDisturb: 'No' }, { doNotDisturb: { $exists: false } }], ...customerQuery };
 };
 
-const sendQueueMessage = args => {
+const sendQueueMessage = (args: any) => {
   return sendMessage('erxes-api:engages-notification', args);
 };
 
@@ -93,15 +96,23 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
   const customersSelector = await generateCustomerSelector({ customerIds, segmentIds, tagIds, brandIds });
 
   if (engageMessage.method === METHODS.MESSENGER && engageMessage.kind !== MESSAGE_KINDS.VISITOR_AUTO) {
-    return sendViaMessenger(engageMessage, customersSelector, user);
+    return sendViaMessenger({ engageMessage, customersSelector, user });
   }
 
   if (engageMessage.method === METHODS.EMAIL) {
-    return sendViaEmail(engageMessage, customersSelector, user);
+    return sendEmailOrSms({ engageMessage, customersSelector, user }, 'sendEngage');
+  }
+
+  if (engageMessage.method === METHODS.SMS) {
+    return sendEmailOrSms({ engageMessage, customersSelector, user }, 'sendEngageSms');
   }
 };
 
-export const sendViaEmail = async (engageMessage: IEngageMessageDocument, customersSelector, user: IUserDocument) => {
+// Prepares queue data to engages-email-sender
+const sendEmailOrSms = async (
+  { engageMessage, customersSelector, user }: IEngageParams,
+  action: 'sendEngage' | 'sendEngageSms',
+) => {
   const engageMessageId = engageMessage._id;
 
   await sendQueueMessage({
@@ -112,7 +123,14 @@ export const sendViaEmail = async (engageMessage: IEngageMessageDocument, custom
     },
   });
 
-  const customerInfos: Array<{ _id: string; name: string; email: string; emailValidationStatus: string }> = [];
+  const customerInfos: Array<{
+    _id: string;
+    name: string;
+    email: string;
+    emailValidationStatus: string;
+    phoneValidationStatus: string;
+    phone: string;
+  }> = [];
 
   const onFinishPiping = async () => {
     if (engageMessage.kind === MESSAGE_KINDS.MANUAL && customerInfos.length === 0) {
@@ -143,6 +161,7 @@ export const sendViaEmail = async (engageMessage: IEngageMessageDocument, custom
           position: user.details && user.details.position,
         },
         engageMessageId,
+        shortMessage: engageMessage.shortMessage || {},
       };
 
       const chunks = chunkArray(customerInfos, 3000);
@@ -150,7 +169,7 @@ export const sendViaEmail = async (engageMessage: IEngageMessageDocument, custom
       for (const chunk of chunks) {
         data.customers = chunk;
 
-        await sendQueueMessage({ action: 'sendEngage', data });
+        await sendQueueMessage({ action, data });
       }
     }
   };
@@ -164,6 +183,8 @@ export const sendViaEmail = async (engageMessage: IEngageMessageDocument, custom
         name: Customers.getCustomerName(customer),
         email: customer.primaryEmail,
         emailValidationStatus: customer.emailValidationStatus,
+        phoneValidationStatus: customer.phoneValidationStatus,
+        phone: customer.primaryPhone,
       });
 
       // signal upstream that we are ready to take more data
@@ -171,7 +192,14 @@ export const sendViaEmail = async (engageMessage: IEngageMessageDocument, custom
     },
   });
 
-  const customerFields = { firstName: 1, lastName: 1, primaryEmail: 1, emailValidationStatus: 1 };
+  const customerFields = {
+    firstName: 1,
+    lastName: 1,
+    primaryEmail: 1,
+    emailValidationStatus: 1,
+    phoneValidationStatus: 1,
+    primaryPhone: 1,
+  };
   const customersStream = (Customers.find(customersSelector, customerFields) as any).stream();
 
   return new Promise((resolve, reject) => {
@@ -192,14 +220,14 @@ export const sendViaEmail = async (engageMessage: IEngageMessageDocument, custom
 /**
  * Send via messenger
  */
-const sendViaMessenger = async (message: IEngageMessageDocument, customersSelector, user: IUserDocument) => {
-  const { fromUserId } = message;
+const sendViaMessenger = async ({ engageMessage, customersSelector, user }: IEngageParams) => {
+  const { fromUserId, messenger, _id } = engageMessage;
 
-  if (!message.messenger) {
+  if (!messenger) {
     return;
   }
 
-  const { brandId, content } = message.messenger;
+  const { brandId, content } = messenger;
 
   // find integration
   const integration = await Integrations.findOne({
@@ -273,9 +301,9 @@ const sendViaMessenger = async (message: IEngageMessageDocument, customersSelect
     conversationMessagesBulk.insert({
       engageData: {
         engageKind: 'auto',
-        messageId: message._id,
+        messageId: _id,
         fromUserId,
-        ...(message.messenger ? message.messenger.toJSON() : {}),
+        ...(messenger ? messenger.toJSON() : {}),
       },
       conversationId,
       userId: fromUserId,
@@ -308,7 +336,7 @@ const sendViaMessenger = async (message: IEngageMessageDocument, customersSelect
 
     pipe.on('finish', async () => {
       // save matched customers count
-      await EngageMessages.setCustomersCount(message._id, 'totalCustomersCount', iteratorCounter);
+      await EngageMessages.setCustomersCount(_id, 'totalCustomersCount', iteratorCounter);
 
       if (iteratorCounter % bulkSize !== 0) {
         await executeBulks();
@@ -317,4 +345,4 @@ const sendViaMessenger = async (message: IEngageMessageDocument, customersSelect
       resolve('done');
     });
   });
-};
+}; // end sendViaMessenger()

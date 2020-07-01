@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { IRule, ruleSchema } from './common';
-import { MESSENGER_KINDS, METHODS, SENT_AS_CHOICES } from './constants';
+import { ENGAGE_KINDS, MESSENGER_KINDS, METHODS, SENT_AS_CHOICES } from './constants';
 import { field, schemaWrapper } from './utils';
 
 export interface IScheduleDate {
@@ -30,6 +30,11 @@ export interface IMessenger {
 
 interface IMessengerDocument extends IMessenger, Document {}
 
+interface IShortMessage {
+  from: string;
+  content: string;
+}
+
 export interface IEngageMessage {
   kind?: string;
   segmentIds?: string[];
@@ -47,6 +52,7 @@ export interface IEngageMessage {
   scheduleDate?: IScheduleDate;
   messenger?: IMessenger;
   lastRunAt?: Date;
+  shortMessage?: IShortMessage;
 
   totalCustomersCount?: number;
   validCustomersCount?: number;
@@ -100,10 +106,18 @@ export const messengerSchema = new Schema(
   { _id: false },
 );
 
+export const smsSchema = new Schema(
+  {
+    from: field({ type: String, label: 'From text' }),
+    content: field({ type: String, label: 'SMS content' }),
+  },
+  { _id: false },
+);
+
 export const engageMessageSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    kind: field({ type: String, label: 'Kind' }),
+    kind: field({ type: String, label: 'Kind', enum: ENGAGE_KINDS.ALL }),
     segmentId: field({ type: String, optional: true }), // TODO Remove
     segmentIds: field({
       type: [String],
@@ -137,5 +151,7 @@ export const engageMessageSchema = schemaWrapper(
 
     totalCustomersCount: field({ type: Number, optional: true }),
     validCustomersCount: field({ type: Number, optional: true }),
+
+    shortMessage: field({ type: smsSchema, label: 'Short message' }),
   }),
 );

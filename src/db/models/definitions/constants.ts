@@ -32,7 +32,15 @@ export const SENT_AS_CHOICES = {
 export const METHODS = {
   MESSENGER: 'messenger',
   EMAIL: 'email',
-  ALL: ['messenger', 'email'],
+  SMS: 'sms',
+  ALL: ['messenger', 'email', 'sms'],
+};
+
+export const ENGAGE_KINDS = {
+  AUTO: 'auto',
+  MANUAL: 'manual',
+  VISITOR_AUTO: 'visitorAuto',
+  ALL: ['auto', 'manual', 'visitorAuto'],
 };
 
 export const LEAD_LOAD_TYPES = {
