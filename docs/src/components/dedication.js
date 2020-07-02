@@ -16,7 +16,7 @@ export const Dedication = () => {
 								<p className={styles.description}>
 									The erxes platform is ideal for individual marketers managing multiple brands and web properties. All features of erxes are available across multiple instances of an erxes installation. This means you can manage all your properties in one place including customer service and Sales.
 								</p>
-								<Link href="/agency" className={styles.link}>Learn More »</Link>
+								<Link href="/individual-and-agency-marketers" className={styles.link}>Learn More »</Link>
 							</div>
 						</div>
 						<div className={classnames('col col--6')}>
@@ -26,7 +26,7 @@ export const Dedication = () => {
 								<p className={styles.description}>
 									The erxes platform is ideal for individual web and app developers looking to offer customers additional tools to help their businesses achieve their business objectives. Integrated into one platform the open source version can be maintained by agency developers as an extra service they can offer.
 								</p>
-								<Link href="/developer" className={styles.link}>Learn More »</Link>
+								<Link href="/agency-app-and-web-developers" className={styles.link}>Learn More »</Link>
 							</div>
 						</div>
 					</div>
