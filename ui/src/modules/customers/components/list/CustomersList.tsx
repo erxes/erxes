@@ -265,12 +265,18 @@ class CustomersList extends React.Component<IProps, State> {
               </a>
             </li>
             <li>
-              <a onClick={this.verifyCustomers.bind(this, 'email')}>
+              <a
+                href="javascript:void(0)"
+                onClick={this.verifyCustomers.bind(this, 'email')}
+              >
                 {__('Verify emails')}
               </a>
             </li>
             <li>
-              <a onClick={this.verifyCustomers.bind(this, 'phone')}>
+              <a
+                href="javascript:void(0)"
+                onClick={this.verifyCustomers.bind(this, 'phone')}
+              >
                 {__('Verify phone numbers')}
               </a>
             </li>
