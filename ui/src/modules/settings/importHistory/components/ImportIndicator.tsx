@@ -84,9 +84,7 @@ class ImportIndicator extends React.Component<Props> {
         {this.renderType(contentType, true)} {__('data successfully imported')}.{' '}
         {this.showErrors(errorMsgs || [])}{' '}
         {id && (
-          <Link id={'IMPORTTTTT'} to={`/settings/importHistory/${id}`}>
-            {__('Show result')}.
-          </Link>
+          <Link to={`/settings/importHistory/${id}`}>{__('Show result')}.</Link>
         )}
       </div>
     );

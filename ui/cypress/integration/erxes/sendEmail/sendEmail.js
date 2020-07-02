@@ -1,4 +1,5 @@
 import 'cypress-file-upload';
+import { fakeNameCustomer } from "../utils";
 
 context('Send Email Verification', () => {
   beforeEach(() => {
@@ -22,7 +23,7 @@ context('Send Email Verification', () => {
     // General Settings Main
     cy.get('#SettingsGeneralSettingsFather').children().should('have.length',9);
 
-
+    //Segment
     // cy.get('#SettingsGeneralSettingsFather').children().eq(5).click();
     // var segmentsSidebar = ["customer", "lead", "visitor","company"];
     // for(let i=0; i<=segmentsSidebar.length; i++ ){
@@ -75,26 +76,28 @@ context('Send Email Verification', () => {
     // }
 
     //Brand
-    cy.get('#SettingsIntegrationSettingsFather').children().eq(1).click();
-    cy.url().should('include', '/settings/brands');
-    cy.wait(1500)
-    // cy.get('#BrandSidebar').find('li').then(li => {
-    //   const liCount = Cypress.$(li).length;
-    //   cy.get('#NewBrandButton').click()
-    //   cy.get('input').type('asdf')
-    //   cy.get('textarea').type('something')
-    //   cy.get('button[icon=check-circle]').click()
-    //   cy.get('#BrandSidebar > li').should('have.length', liCount + 1); 
+    // cy.get('#SettingsIntegrationSettingsFather').children().eq(1).click();
+    // cy.url().should('include', '/settings/brands');
+    // cy.wait(1500)
+    // // cy.get('#BrandSidebar').find('li').then(li => {
+    // //   const liCount = Cypress.$(li).length;
+    // //   cy.get('#NewBrandButton').click()
+    // //   cy.get('input').type('asdf')
+    // //   cy.get('textarea').type('something')
+    // //   cy.get('button[icon=check-circle]').click()
+    // //   cy.get('#BrandSidebar > li').should('have.length', liCount + 1); 
+    // // })
+
+
+    // cy.get('#ManageIntegration').click()
+    // cy.get('input').type('nani').clear()
+    // //cy.get('.modal-body').children().get('i[icon=plus-1]').click({multiple:true})
+    // cy.get('.modal-body').within(() => {
+    //     cy.get('ul').children().eq(3).click()
     // })
-    cy.get('#ManageIntegration').click()
-    cy.get('input').type('nani').clear()
-    //cy.get('.modal-body').children().get('i[icon=plus-1]').click({multiple:true})
-    cy.get('.modal-body').within(() => {
-        cy.get('ul').children().eq(3).click()
-    })
-    cy.get('form > .sc-gGBfsJ > .PFIuR').click()
-    cy.wait(1000)
-    cy.get('.PFIuR').click()
+    // cy.get('form > .sc-gGBfsJ > .PFIuR').click()
+    // cy.wait(1000)
+    // cy.get('.PFIuR').click()
       
   
     //Import & Export
@@ -115,5 +118,44 @@ context('Send Email Verification', () => {
     //         encoding: 'utf8'
     //       })
     //     })
+
+
+
+    // //Contacts Email Verify
+    //   cy.get("#navigation")
+    //   .children()
+    //   .eq(3)
+    //   .click();
+    // // random fakename
+    // const random = fakeNameCustomer();
+
+    // //Customer Email Verify
+    // cy.get('a[href="/contacts/customer"]').click();
+
+    // cy.get('button[icon="plus-circle"]').click();
+
+    // cy.get('input[name="firstName"]').type(random);
+
+    // cy.get('input[placeholder="Add Email"]').type(random + "@nmma.co");
+
+    // cy.get("#customerPrimaryEmailSave")
+    //   .children()
+    //   .eq(1)
+    //   .click();
+
+    // cy.get('button[icon="check-circle"]').click();
+
+    // cy.wait(2000);
+
+    // cy.get('#customers > tr:first').children().eq(4).within(() => {
+    //   cy.get('i').then($itag => {
+    //     if($itag.hasClass('icon-shield-slash')){
+    //       cy.reload()
+    //     } else {
+    //       cy.log('not verified your email')
+    //     }
+    //   })
+    // });
+  
     });
 });
