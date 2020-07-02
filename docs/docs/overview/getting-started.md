@@ -15,6 +15,7 @@ title: Getting  Started
 - [Subscription getting started](/user/subscription-getting-started)
 - [Initial setup](/user/initial-setup)
 - [General settings](/user/general-settings)
+- [Import](/user/import)
 - [Team Inbox](/user/team-inbox)
 - [Knowledge Base](/user/knowledge-base)
 - [Popups](/user/popups)

@@ -71,7 +71,8 @@ module.exports = {
         "user/insights",
         "user/profile-settings",
         "user/notification",
-        "user/mobile-apps"
+        "user/mobile-apps",
+        "user/import"
       ],
     },
   ],
