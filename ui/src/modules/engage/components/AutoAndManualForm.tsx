@@ -183,7 +183,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
               icon={isActionLoading ? undefined : 'checked-1'}
               onClick={this.handleSubmit.bind(this, 'live')}
             >
-              Save & Live
+              Send & Live
             </Button>
           </>
         );
@@ -198,7 +198,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
           onClick={this.handleSubmit.bind(this, 'live')}
         >
           {isActionLoading && <SmallLoader />}
-          Save
+          Send
         </Button>
       );
     };
