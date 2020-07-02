@@ -1,6 +1,6 @@
 module.exports = {
   title: 'erxes',
-  tagline: 'Documentation',
+  tagline: 'erxes is a free and open fair-code licensed all-in-one growth marketing and management tool for a smoother customer journey',
   url: 'https://www.erxes.org',
   baseUrl: '/',
   favicon: 'img/favicon.png',
@@ -28,7 +28,23 @@ module.exports = {
           to: 'overview/getting-started/',
           activeBasePath: '',
           label: 'Documentation',
-          position: 'right',
+          position: 'left',
+        },
+        {
+          to: '/user/subscription-getting-started',
+          activeBasePath: '',
+          label: 'Tutorial',
+          position: 'left',
+        },
+        {
+          href: 'https://github.com/erxes/erxes',
+          prependBaseUrlToHref: true,
+          position: 'right', 
+          label: 'Star',
+          className: 'github-button hide-mobile',
+          'data-show-count': 'true',
+          'data-size': 'large',
+          'aria-label': 'Star erxes/erxes on GitHub'
         },
         {
           href: 'https://github.com/erxes/erxes',
@@ -36,7 +52,7 @@ module.exports = {
           position: 'right'
         },
         {
-          href: 'https://erxes.io/blog/',
+          to: 'blog/',
           label: 'Blog',
           position: 'right'
         },
@@ -49,12 +65,37 @@ module.exports = {
           title: 'Docs',
           items: [
             {
-              label: 'Style Guide',
-              to: 'docs/',
+              label: 'Getting Started',
+              to: '/overview/getting-started/',
             },
             {
-              label: 'Second Doc',
-              to: 'docs/doc2/',
+              label: 'Installation Guide',
+              to: '/installation/docker/',
+            },
+            {
+              label: 'Administrator`s Guide',
+              to: '/administrator/creating-first-user',
+            },
+            {
+              label: 'Developers Guide',
+              to: '/developer/developer',
+            },
+          ],
+        },
+        {
+          title: 'Company',
+          items: [
+            {
+              label: 'About us',
+              href: 'https://erxes.io/team',
+            },
+            {
+              label: 'Blog',
+              href: 'https://erxes.io/blog',
+            },
+            {
+              label: 'Roadmap',
+              href: 'https://trello.com/b/jTjXaI28/erxes-inc-roadmap',
             },
           ],
         },
@@ -62,25 +103,26 @@ module.exports = {
           title: 'Community',
           items: [
             {
-              label: 'Stack Overflow',
-              href: 'https://stackoverflow.com/questions/tagged/erxes',
+              label: 'Join our community chat',
+              href: 'https://community.erxes.io/register/Gw4WRJnk9fSbyAXTq',
             },
             {
-              label: 'Twitter',
-              href: 'https://twitter.com/ErxesHQ',
+              label: 'Join our facebook group',
+              href: 'https://www.facebook.com/groups/erxescommunity',
             },
           ],
         },
+       
         {
-          title: 'More',
+          title: 'Support The erxes',
           items: [
             {
-              label: 'Blog',
-              href: 'https://erxes.io/blog',
+              label: 'Back us on Open Collective',
+              href: 'https://opencollective.com/erxes',
             },
             {
-              label: 'GitHub',
-              href: 'https://github.com/erxes/erxes',
+              label: 'Back us on Github',
+              href: 'https://github.com/sponsors/erxes',
             },
           ],
         },

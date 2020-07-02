@@ -3,13 +3,12 @@ import * as compose from 'lodash.flowright';
 import EmptyState from 'modules/common/components/EmptyState';
 import Spinner from 'modules/common/components/Spinner';
 import { IRouterProps } from 'modules/common/types';
-import { router as routerUtils, withProps } from 'modules/common/utils';
+import { withProps } from 'modules/common/utils';
 import React, { Component } from 'react';
 import { graphql } from 'react-apollo';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { withRouter } from 'react-router-dom';
 import styled from 'styled-components';
-import { PIPELINE_UPDATE_STATUSES } from '../constants';
 import { queries } from '../graphql';
 import {
   IItemMap,
@@ -60,19 +59,6 @@ class WithStages extends Component<WithStagesQueryProps> {
     return Object.keys(obj).length;
   }
 
-  afterFinish = () => {
-    const pipelineUpdate = sessionStorage.getItem('pipelineUpdate');
-
-    // if there is a newRequest
-    if (pipelineUpdate === PIPELINE_UPDATE_STATUSES.NEW_REQUEST) {
-      sessionStorage.setItem('pipelineUpdate', PIPELINE_UPDATE_STATUSES.START);
-
-      routerUtils.setParams(this.props.history, { key: Math.random() });
-    } else {
-      sessionStorage.setItem('pipelineUpdate', PIPELINE_UPDATE_STATUSES.END);
-    }
-  };
-
   render() {
     const {
       initialItemMap,
@@ -103,7 +89,6 @@ class WithStages extends Component<WithStagesQueryProps> {
         queryParams={queryParams}
         options={options}
         queryParamsChanged={this.queryParamsChanged}
-        afterFinish={this.afterFinish}
       >
         <PipelineConsumer>
           {({
@@ -114,8 +99,7 @@ class WithStages extends Component<WithStagesQueryProps> {
             scheduleStage,
             onLoadStage,
             onAddItem,
-            onRemoveItem,
-            onChangeRealTimeStageIds
+            onRemoveItem
           }) => (
             <DragDropContext onDragEnd={onDragEnd}>
               <Droppable
@@ -151,7 +135,6 @@ class WithStages extends Component<WithStagesQueryProps> {
                           onLoad={onLoadStage}
                           onAddItem={onAddItem}
                           onRemoveItem={onRemoveItem}
-                          onChangeRealTimeStageIds={onChangeRealTimeStageIds}
                         />
                       );
                     })}

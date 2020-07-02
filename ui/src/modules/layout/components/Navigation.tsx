@@ -169,13 +169,6 @@ class Navigation extends React.Component<{
           <img src="/images/erxes.png" alt="erxes" />
         </NavLink>
         <Nav>
-          {this.renderNavItem(
-            'showConversations',
-            __('Conversation'),
-            '/inbox',
-            'icon-chat',
-            unreadIndicator
-          )}
           {REACT_APP_DASHBOARD_URL !== 'undefined'
             ? this.renderNavItem(
                 'showDashboards',
@@ -184,6 +177,13 @@ class Navigation extends React.Component<{
                 'icon-dashboard'
               )
             : null}
+          {this.renderNavItem(
+            'showConversations',
+            __('Conversation'),
+            '/inbox',
+            'icon-chat',
+            unreadIndicator
+          )}
           {this.renderNavItem(
             'showGrowthHacks',
             __('Growth Hacking'),

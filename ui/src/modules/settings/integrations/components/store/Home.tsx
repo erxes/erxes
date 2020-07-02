@@ -14,6 +14,7 @@ import { Content, FullHeight, IntegrationWrapper, SearchInput } from './styles';
 type Props = {
   totalCount: ByKindTotalCount;
   queryParams: any;
+  customLink: (kind: string, addLink: string) => void;
 };
 
 type State = {
@@ -58,7 +59,7 @@ class Home extends React.Component<Props, State> {
 
   renderIntegrations() {
     const { integrations, searchValue } = this.state;
-    const { totalCount, queryParams } = this.props;
+    const { totalCount, queryParams, customLink } = this.props;
 
     const datas = [] as any;
     const rows = [...integrations];
@@ -69,6 +70,7 @@ class Home extends React.Component<Props, State> {
           key={rows.length}
           integrations={rows.splice(0, 4)}
           totalCount={totalCount}
+          customLink={customLink}
           queryParams={queryParams}
         />
       );

@@ -3,10 +3,6 @@ import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
 
-const UserConfirmation = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings - UserConfirmation" */ './containers/UserConfirmation')
-);
-
 const UserDetail = asyncComponent(() =>
   import(/* webpackChunkName: "Settings - UserDetail" */ './containers/UserDetailForm')
 );
@@ -25,12 +21,6 @@ const userDetail = ({ match, location }) => {
   const id = match.params.id;
 
   return <UserDetail _id={id} queryParams={queryParams} />;
-};
-
-export const userConfirmation = ({ location }) => {
-  const queryParams = queryString.parse(location.search);
-
-  return <UserConfirmation queryParams={queryParams} />;
 };
 
 const routes = () => (

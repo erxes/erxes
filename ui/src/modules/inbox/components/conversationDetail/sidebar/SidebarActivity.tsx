@@ -25,6 +25,7 @@ class SidebarActivity extends React.Component<Props> {
       currentUser,
       currentSubTab
     } = this.props;
+
     const hasActivity = hasAnyActivity(activityLogsCustomer);
 
     return (

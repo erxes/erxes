@@ -352,3 +352,17 @@ export type CommonFieldsEditResponse = {
     params: { variables: { _id: string; name: string; brandId: string } }
   ) => Promise<any>;
 };
+
+export type ProviderFormInput = (
+  key:
+    | 'email'
+    | 'password'
+    | 'imapHost'
+    | 'imapPort'
+    | 'smtpHost'
+    | 'smtpPort'
+    | 'host'
+    | 'username'
+    | string,
+  value: string | number
+) => void;

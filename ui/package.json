@@ -81,9 +81,7 @@
     "eject": "react-scripts eject",
     "lint": "tslint 'src/**/*.@(ts|tsx)'",
     "generateVersion": "node commands/generateVersion.js",
-    "componentTest": "jest --runInBand --forceExit --detectOpenHandles --coverage",
-    "snyk-protect": "snyk protect",
-    "prepare": "yarn run snyk-protect"
+    "componentTest": "jest --runInBand --forceExit --detectOpenHandles --coverage"
   },
   "devDependencies": {
     "@types/draft-js": "^0.10.24",

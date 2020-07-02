@@ -102,7 +102,10 @@ class MessengerForm extends React.Component<Props, State> {
     }
 
     return (
-      <Scheduler scheduleDate={this.state.scheduleDate} onChange={onChange} />
+      <Scheduler
+        scheduleDate={this.state.scheduleDate || ({} as IEngageScheduleDate)}
+        onChange={onChange}
+      />
     );
   }
 

@@ -156,7 +156,7 @@ su $username -c "mkdir -p $erxes_dir $erxes_api_dir $erxes_integrations_dir"
 su $username -c "curl -L https://github.com/erxes/erxes/archive/0.14.1.tar.gz | tar --strip-components=1 -xz -C $erxes_root_dir"
 
 # download erxes-api
-su $username -c "curl -L https://github.com/erxes/erxes-api/archive/0.14.1.tar.gz | tar --strip-components=1 -xz -C $erxes_api_dir"
+su $username -c "curl -L https://github.com/erxes/erxes-api/archive/0.14.3.tar.gz | tar --strip-components=1 -xz -C $erxes_api_dir"
 
 # download integrations
 su $username -c "curl -L https://github.com/erxes/erxes-integrations/archive/0.14.1.tar.gz | tar --strip-components=1 -xz -C $erxes_integrations_dir"
@@ -189,7 +189,15 @@ npm i -g pm2
 JWT_TOKEN_SECRET=$(openssl rand -base64 24)
 MONGO_PASS=$(openssl rand -hex 16)
 
-# create ecosystem.json in erxes home directory and change owner and permission
+API_MONGO_URL="mongodb://erxes:$MONGO_PASS@localhost/erxes?authSource=admin&replicaSet=rs0"
+
+ENGAGES_MONGO_URL="mongodb://erxes:$MONGO_PASS@localhost/erxes-engages?authSource=admin&replicaSet=rs0"
+
+LOGGER_MONGO_URL="mongodb://erxes:$MONGO_PASS@localhost/erxes_logs?authSource=admin&replicaSet=rs0"
+
+INTEGRATIONS_MONGO_URL="mongodb://erxes:$MONGO_PASS@localhost/erxes_integrations?authSource=admin&replicaSet=rs0"
+
+# create an ecosystem.json in erxes home directory and change owner and permission
 cat <<EOF >/home/$username/ecosystem.json
 {
   "apps": [
@@ -205,7 +213,7 @@ cat <<EOF >/home/$username/ecosystem.json
         "MAIN_APP_DOMAIN": "http://$erxes_domain",
         "LOGS_API_DOMAIN": "http://127.0.0.1:3800",
         "ENGAGES_API_DOMAIN": "http://127.0.0.1:3900",
-        "MONGO_URL": "mongodb://erxes:$MONGO_PASS@localhost/erxes?authSource=admin&replicaSet=rs0",
+        "MONGO_URL": "$API_MONGO_URL",
         "REDIS_HOST": "localhost",
         "REDIS_PORT": 6379,
         "REDIS_PASSWORD": "",
@@ -224,7 +232,7 @@ cat <<EOF >/home/$username/ecosystem.json
         "NODE_ENV": "production",
         "PROCESS_NAME": "crons",
         "DEBUG": "erxes-crons:*",
-        "MONGO_URL": "mongodb://erxes:$MONGO_PASS@localhost/erxes?authSource=admin&replicaSet=rs0",
+        "MONGO_URL": "$API_MONGO_URL",
         "REDIS_HOST": "localhost",
         "REDIS_PORT": 6379,
         "REDIS_PASSWORD": "",
@@ -241,7 +249,7 @@ cat <<EOF >/home/$username/ecosystem.json
         "PORT_WORKERS": 3700,
         "NODE_ENV": "production",
         "DEBUG": "erxes-workers:*",
-        "MONGO_URL": "mongodb://erxes:$MONGO_PASS@localhost/erxes?authSource=admin&replicaSet=rs0",
+        "MONGO_URL": "$API_MONGO_URL",
         "REDIS_HOST": "localhost",
         "REDIS_PORT": 6379,
         "REDIS_PASSWORD": "",
@@ -272,7 +280,7 @@ cat <<EOF >/home/$username/ecosystem.json
         "NODE_ENV": "production",
         "DEBUG": "erxes-engages:*",
         "MAIN_API_DOMAIN": "http://$erxes_domain/api",
-        "MONGO_URL": "mongodb://erxes:$MONGO_PASS@localhost/erxes-engages?authSource=admin&replicaSet=rs0",
+        "MONGO_URL": "$ENGAGES_MONGO_URL",
         "RABBITMQ_HOST": "amqp://localhost",
         "REDIS_HOST": "localhost",
         "REDIS_PORT": 6379,
@@ -288,7 +296,7 @@ cat <<EOF >/home/$username/ecosystem.json
         "PORT": 3800,
         "NODE_ENV": "production",
         "DEBUG": "erxes-logs:*",
-        "MONGO_URL": "mongodb://erxes:$MONGO_PASS@localhost/erxes_logs?authSource=admin&replicaSet=rs0",
+        "MONGO_URL": "$LOGGER_MONGO_URL",
         "RABBITMQ_HOST": "amqp://localhost"
       }
     },
@@ -304,7 +312,7 @@ cat <<EOF >/home/$username/ecosystem.json
         "DOMAIN": "http://$erxes_domain/integrations",
         "MAIN_APP_DOMAIN": "http://$erxes_domain",
         "MAIN_API_DOMAIN": "http://$erxes_domain/api",
-        "MONGO_URL": "mongodb://erxes:$MONGO_PASS@localhost/erxes_integrations?authSource=admin&replicaSet=rs0",
+        "MONGO_URL": "$INTEGRATIONS_MONGO_URL",
         "RABBITMQ_HOST": "amqp://localhost",
         "REDIS_HOST": "localhost",
         "REDIS_PORT": 6379,
@@ -388,7 +396,7 @@ mkdir -p /var/log/mongo-connector/
 
 # elkSyncer env
 cat <<EOF >$erxes_syncer_dir/.env
-MONGO_URL=mongodb://erxes:$MONGO_PASS@localhost/erxes?authSource=admin&replicaSet=rs0
+MONGO_URL=$API_MONGO_URL
 ELASTICSEARCH_URL=http://localhost:9200
 EOF
 
