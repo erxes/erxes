@@ -15,7 +15,7 @@ type Props = {
 
 class TrackedDataSection extends React.Component<Props> {
   renderCustomValue = (value: string) => {
-    if (isValidDate(value) || isTimeStamp(value)) {
+    if (isValidDate(value)) {
       return dayjs(value).format('lll');
     }
 
