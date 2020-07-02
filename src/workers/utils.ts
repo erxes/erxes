@@ -2,12 +2,15 @@ import * as dotenv from 'dotenv';
 import * as mongoose from 'mongoose';
 import * as os from 'os';
 import * as path from 'path';
+import * as XlsxStreamReader from 'xlsx-stream-reader';
 import { checkFieldNames } from '../data/modules/fields/utils';
+import { deleteFileAWS, s3Stream } from '../data/utils';
 import { ImportHistory } from '../db/models';
 import ImportHistories from '../db/models/ImportHistory';
 import { debugImport } from '../debuggers';
 
 const { MONGO_URL = '' } = process.env;
+
 export const connect = () => mongoose.connect(MONGO_URL, { useNewUrlParser: true, useCreateIndex: true });
 
 dotenv.config();
@@ -130,8 +133,70 @@ export const receiveImportCancel = () => {
   return { status: 'ok' };
 };
 
+const readXlsFile = async (fileName: string): Promise<{ fieldNames: string[]; datas: any[] }> => {
+  return new Promise(async (resolve, reject) => {
+    let rowCount = 0;
+
+    const usedSheets: any[] = [];
+
+    const xlsxReader = XlsxStreamReader();
+
+    try {
+      const stream = await s3Stream(fileName);
+
+      stream.pipe(xlsxReader);
+
+      xlsxReader.on('worksheet', workSheetReader => {
+        if (workSheetReader > 1) {
+          return workSheetReader.skip();
+        }
+
+        workSheetReader.on('row', row => {
+          if (rowCount > 100000) {
+            return reject(new Error('You can only import 100000 rows one at a time'));
+          }
+
+          if (row.values.length > 0) {
+            usedSheets.push(row.values);
+            rowCount++;
+          }
+        });
+
+        workSheetReader.process();
+      });
+
+      xlsxReader.on('end', () => {
+        const compactedRows: any = [];
+
+        for (const row of usedSheets) {
+          if (row.length > 0) {
+            row.shift();
+
+            compactedRows.push(row);
+          }
+        }
+
+        const fieldNames = usedSheets[0];
+
+        // Removing column
+        compactedRows.shift();
+
+        return resolve({ fieldNames, datas: compactedRows });
+      });
+
+      xlsxReader.on('error', error => {
+        return reject(error);
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 export const receiveImportXls = async (content: any) => {
-  const { type, fieldNames, scopeBrandIds, user, datas } = content;
+  const { fileName, type, scopeBrandIds, user } = content;
+
+  const { fieldNames, datas } = await readXlsFile(fileName);
 
   if (datas.length === 0) {
     throw new Error('Please import at least one row of data');
@@ -167,6 +232,8 @@ export const receiveImportXls = async (content: any) => {
   };
 
   await createWorkers(workerPath, workerData, results);
+
+  await deleteFileAWS(fileName);
 
   return { id: importHistory.id };
 };

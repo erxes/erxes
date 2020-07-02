@@ -14,6 +14,7 @@ import {
   Tickets,
   Users,
 } from '../db/models';
+import { initRabbitMQ } from '../messageBroker';
 import { graphqlPubsub } from '../pubsub';
 import { connect } from './utils';
 
@@ -33,6 +34,8 @@ connect().then(async () => {
   if (cancel) {
     return;
   }
+
+  await initRabbitMQ();
 
   const { user, scopeBrandIds, result, contentType, properties, importHistoryId, percentagePerData } = workerData;
 
@@ -196,6 +199,10 @@ connect().then(async () => {
 
     if (contentType === 'customer' && !doc.emailValidationStatus) {
       doc.emailValidationStatus = 'unknown';
+    }
+
+    if (contentType === 'customer' && !doc.phoneValidationStatus) {
+      doc.phoneValidationStatus = 'unknown';
     }
 
     // set board item created user

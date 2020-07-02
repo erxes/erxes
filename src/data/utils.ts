@@ -124,8 +124,11 @@ const createGCS = async () => {
 /*
  * Save binary data to amazon s3
  */
-export const uploadFileAWS = async (file: { name: string; path: string; type: string }): Promise<string> => {
-  const IS_PUBLIC = await getConfig('FILE_SYSTEM_PUBLIC', 'true');
+export const uploadFileAWS = async (
+  file: { name: string; path: string; type: string },
+  forcePrivate: boolean = false,
+): Promise<string> => {
+  const IS_PUBLIC = forcePrivate ? false : await getConfig('FILE_SYSTEM_PUBLIC', 'true');
   const AWS_PREFIX = await getConfig('AWS_PREFIX');
   const AWS_BUCKET = await getConfig('AWS_BUCKET');
 
@@ -164,7 +167,7 @@ export const uploadFileAWS = async (file: { name: string; path: string; type: st
 /*
  * Delete file from amazon s3
  */
-const deleteFileAWS = async (fileName: string) => {
+export const deleteFileAWS = async (fileName: string) => {
   const AWS_BUCKET = await getConfig('AWS_BUCKET');
 
   const params = { Bucket: AWS_BUCKET, Key: fileName };
@@ -991,4 +994,19 @@ export const chunkArray = (myArray, chunkSize: number) => {
   }
 
   return tempArray;
+};
+
+/**
+ * Create s3 stream for excel file
+ */
+export const s3Stream = async (key: string): Promise<any> => {
+  try {
+    const AWS_BUCKET = await getConfig('AWS_BUCKET');
+
+    const s3 = await createAWS();
+
+    return s3.getObject({ Bucket: AWS_BUCKET, Key: key }).createReadStream();
+  } catch (e) {
+    throw e;
+  }
 };
