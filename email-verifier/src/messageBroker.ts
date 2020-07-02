@@ -1,6 +1,7 @@
 import * as amqplib from 'amqplib';
 import * as dotenv from 'dotenv';
 import { bulk, single } from './api';
+import { validateBulkPhones, validateSinglePhone } from './apiPhoneVerifier';
 import { debugBase } from './utils';
 
 dotenv.config();
@@ -27,6 +28,23 @@ export const initConsumer = async () => {
         if (action === 'emailVerify') {
           const { emails, email } = data;
           email ? single(email) : bulk(emails);
+        }
+
+        channel.ack(msg);
+      }
+    });
+
+    await channel.assertQueue('erxes-api:phone-verifier-notification');
+
+    channel.consume('erxes-api:phone-verifier-notification', async msg => {
+      if (msg !== null) {
+        const { action, data } = JSON.parse(msg.content.toString());
+
+        debugBase(`Receiving queue data from erxes-api`, action, data);
+
+        if (action === 'phoneVerify') {
+          const { phones, phone } = data;
+          phone ? validateSinglePhone(phone) : validateBulkPhones(phones);
         }
 
         channel.ack(msg);
