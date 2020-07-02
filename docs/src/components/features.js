@@ -1,36 +1,37 @@
 import React from 'react';
 import classnames from 'classnames';
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import styles from './features.module.css';
+import styles from './styles.module.css';
 
 const rows = [
 	{
 		title: "1",
 		features: [
 			{
-				title: <>Open-source</>,
-				imageUrl: 'img/os.svg',
+				title: "Customer Service & Ticketing",
+				imageUrl: 'img/service.svg',
 				description: (
 					<>
-						An open-source platform means your team retains control over the service's technical roadmap, and your team is free to develop additional features without restriction. Supported by a vibrant open source community.
+						Quickly start servicing any volume of customer tickets and customer service inquiries or complaints. Integrated into the entire framework, your customer service activities are no longer hidden in a separate system away from Sales and/or Marketing. 
 					</>
 				),
 			},
 			{
-				title: <>Security</>,
-				imageUrl: 'img/security.svg',
+				title: "Pop-ups, Lead capture and forms for serious websites",
+				imageUrl: 'img/lead.svg',
+				even: true,
 				description: (
 					<>
-						Erxes offers an all-in-one growth marketing solution behind the banking industry firewall. Run your complete Growth Marketing lifecycle under your existing security and IT policies. Deploy to public, private, or hybrid clouds with full access to source code and total control of your single-tenant system.
+						Easily create forms, pop-ups and lead capture sequences that match your design, your format and using the images and text you know works for your business. If you don't know where to start, use one of our customizable forms.
 					</>
 				),
 			},
 			{
-				title: <>Privacy</>,
-				imageUrl: 'img/privacy.svg',
+				title: "Email marketing and autoresponder sequences",
+				imageUrl: 'img/marketing.svg',
 				description: (
 					<>
-						Clients' IP address, usage patterns, the contents of your messages — SaaS services know more about your company than you do. In contrast, erxes provides the benefits of an all-in-one marketing solution without sacrificing privacy.
+						Your email campaigns are only limited by your own creativity and efforts. You are not limited with email sending limits that skyrocket out of control with high costs. Make unlimited autoresponders that fit your complete email or segmented lists.
 					</>
 				),
 			},
@@ -40,46 +41,47 @@ const rows = [
 		title: "2",
 		features: [
 			{
-				title: <>Legal Compliance</>,
-				imageUrl: 'img/gdpr.svg',
+				title: "Website Live Chat and Automated Chat",
+				imageUrl: 'img/chat.svg',
 				description: (
 					<>
-						Consumer data protection laws, data regulations, GDPR, and even non-disclosure agreements are complex and ever-changing, with heavy penalties for breach. Self- hosting your marketing, sales, and customer support software simplifies compliance and reduces risk.
+						With one copy/pasted JavaScript code you can start immediately chatting with your website visitors live, or offer automatic messaging pop-up when you are not available. Help your customers at the exact moment they are visiting your website and interested in your products or services.
 					</>
 				),
 			},
 			{
-				title: <>Extensibility</>,
+				title: "Integrate your Social Channels",
 				imageUrl: 'img/extend.svg',
+				even: true,
 				description: (
 					<>
-						Erxes offers enterprise-grade customization with complete access to source code, UI text files, APIs, drivers, and a wide array of open-source integrations and samples. Whether it's branding the login page or white-labeling mobile apps, the enterprise is in total control.
+						The powerful inbox consolidates all your channels into one easy to manage and use inbox. Customizable to work with your work-flow, you can now integrate with popular social media channels, emails and website chat to stay on top of all your communication channels.
 					</>
 				),
 			},
 			{
-				title: <>Scalability</>,
+				title: "Manage your project across teams and brands",
 				imageUrl: 'img/scale.svg',
 				description: (
 					<>
-						Erxes was built ground-up for enterprise with a single-tenant private cloud architecture offering high availability and horizontal scaling. Tens of thousands of users can operate out of a single team, and hundreds of teams can be deployed in an enterprise.
+						Intuitive and integrated, the kanban style (think Trello) project management boards will increase productivity for your and your teams as everything is integrated with the customer journey for your company.
 					</>
 				),
 			},
 		]
 	}
-  
 ];
 
-function Feature({imageUrl, title, description}) {
-  const imgUrl = useBaseUrl(imageUrl);
+function Feature({imageUrl, title, description, even}) {
+	const imgUrl = useBaseUrl(imageUrl);
+	
   return (
-    <div className={classnames('col col--4', styles.feature)}>
+    <div className={classnames('col col--4', { 'even-column': even })}>
       {imgUrl && (
         <img className={styles.featureImage} src={imgUrl} alt={title} />
       )}
-      <h3>{title}</h3>
-      <p>{description}</p>
+      <h2>{title}</h2>
+      <p className={styles.description}>{description}</p>
     </div>
   );
 }

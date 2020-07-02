@@ -3,6 +3,7 @@ import EmailForm from 'modules/engage/containers/EmailForm';
 import { IBrand } from 'modules/settings/brands/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import React from 'react';
+import { METHODS } from '../../constants';
 import {
   IEngageEmail,
   IEngageMessenger,
@@ -43,7 +44,7 @@ class MessageStep extends React.Component<Props> {
       scheduleDate
     } = this.props;
 
-    if (method === 'email') {
+    if (method === METHODS.EMAIL) {
       return (
         <EmailForm
           onChange={onChange}
