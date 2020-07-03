@@ -2,7 +2,6 @@ import * as amqplib from 'amqplib';
 import * as dotenv from 'dotenv';
 import * as uuid from 'uuid';
 import {
-  receiveEmailVerifierNotification,
   receiveEngagesNotification,
   receiveIntegrationsNotification,
   receiveRpcMessage,
@@ -113,19 +112,6 @@ export const initConsumer = async () => {
   channel.consume('integrationsNotification', async msg => {
     if (msg !== null) {
       await receiveIntegrationsNotification(JSON.parse(msg.content.toString()));
-      channel.ack(msg);
-    }
-  });
-
-  // listen for email verifier notification ===========
-  await channel.assertQueue('emailVerifierNotification');
-
-  channel.consume('emailVerifierNotification', async msg => {
-    if (msg !== null) {
-      debugBase(`Received email verifier notification ${msg.content.toString()}`);
-
-      await receiveEmailVerifierNotification(JSON.parse(msg.content.toString()));
-
       channel.ack(msg);
     }
   });

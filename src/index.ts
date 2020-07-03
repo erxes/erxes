@@ -20,6 +20,7 @@ import {
   handleUnsubscription,
   readFileRequest,
   registerOnboardHistory,
+  updateContacts,
 } from './data/utils';
 import { connect, mongoStatus } from './db/connection';
 import { debugBase, debugExternalApi, debugInit } from './debuggers';
@@ -299,6 +300,14 @@ app.post(`/telnyx/webhook-failover`, async (req, res, next) => {
   const ENGAGES_API_DOMAIN = getSubServiceDomain({ name: 'ENGAGES_API_DOMAIN' });
 
   return pipeRequest(req, res, next, `${ENGAGES_API_DOMAIN}/telnyx/webhook-failover`);
+});
+
+// verifier web hook
+app.post(`/verifier/webhook`, async (req, res) => {
+  const { emails, phones } = req.body;
+  phones ? updateContacts('phone', phones) : updateContacts('email', emails);
+
+  return res.send('success');
 });
 
 // Error handling middleware

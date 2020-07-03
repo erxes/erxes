@@ -8,6 +8,7 @@ import typeDefs from './data/schema';
 import { Conversations, Customers, Users } from './db/models';
 import { graphqlPubsub } from './pubsub';
 import { addToArray, get, inArray, removeFromArray, set } from './redisClient';
+import { frontendEnv } from './data/utils';
 
 // load environment variables
 dotenv.config();
@@ -60,6 +61,7 @@ const apolloServer = new ApolloServer({
     const requestInfo = {
       secure: req.secure,
       cookies: req.cookies,
+      hostname: frontendEnv({ name: 'API_URL', req }),
     };
 
     if (USE_BRAND_RESTRICTIONS !== 'true') {

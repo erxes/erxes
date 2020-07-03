@@ -5,13 +5,13 @@ import * as fs from 'fs';
 import * as Handlebars from 'handlebars';
 import * as nodemailer from 'nodemailer';
 import * as requestify from 'requestify';
+import { Transform } from 'stream';
 import * as strip from 'strip';
 import * as xlsxPopulate from 'xlsx-populate';
 import { Configs, Customers, Notifications, Users } from '../db/models';
 import { IUser, IUserDocument } from '../db/models/definitions/users';
 import { OnboardingHistories } from '../db/models/Robot';
 import { debugBase, debugEmail, debugExternalApi } from '../debuggers';
-import { sendMessage } from '../messageBroker';
 import { graphqlPubsub } from '../pubsub';
 import { get, set } from '../redisClient';
 
@@ -575,7 +575,7 @@ interface IRequestParams {
   method?: string;
   headers?: { [key: string]: string };
   params?: { [key: string]: string };
-  body?: { [key: string]: string };
+  body?: { [key: string]: any };
   form?: { [key: string]: string };
 }
 
@@ -824,13 +824,7 @@ export const handleUnsubscription = async (query: { cid: string; uid: string }) 
 };
 
 export const validateEmail = async (email: string, wait?: boolean) => {
-  const data = { email };
-
   const EMAIL_VERIFIER_ENDPOINT = getEnv({ name: 'EMAIL_VERIFIER_ENDPOINT', defaultValue: '' });
-
-  if (!EMAIL_VERIFIER_ENDPOINT) {
-    return sendMessage('erxes-api:email-verifier-notification', { action: 'emailVerify', data });
-  }
 
   const requestOptions = {
     url: `${EMAIL_VERIFIER_ENDPOINT}/verify-single`,
@@ -870,13 +864,7 @@ export const validateEmail = async (email: string, wait?: boolean) => {
 };
 
 export const validatePhone = async (phone: string, wait?: boolean) => {
-  const data = { phone };
-
   const EMAIL_VERIFIER_ENDPOINT = getEnv({ name: 'EMAIL_VERIFIER_ENDPOINT', defaultValue: '' });
-
-  if (!EMAIL_VERIFIER_ENDPOINT) {
-    return sendMessage('erxes-api:phone-verifier-notification', { action: 'phoneVerify', data });
-  }
 
   const requestOptions = {
     url: `${EMAIL_VERIFIER_ENDPOINT}/verify-singlePhone`,
@@ -887,14 +875,14 @@ export const validatePhone = async (phone: string, wait?: boolean) => {
   const updateCustomer = status =>
     Customers.updateOne({ primaryPhone: phone }, { $set: { phoneValidationStatus: status } });
 
-  const successCallback = response => updateCustomer(response.result.status);
+  const successCallback = response => updateCustomer(response.status);
 
   const errorCallback = e => {
     if (e.message === 'timeout exceeded') {
       return updateCustomer('unverifiable');
     }
 
-    debugExternalApi(`Error occurred during phone verify ${e.message}`);
+    debugExternalApi(`Error occurred during phone verification. Error: ${e.message}`);
   };
 
   if (wait) {
@@ -913,6 +901,142 @@ export const validatePhone = async (phone: string, wait?: boolean) => {
     .catch(async e => {
       await errorCallback(e);
     });
+};
+
+export const validateBulk = async (verificationType: string, hostname: string) => {
+  const EMAIL_VERIFIER_ENDPOINT = getEnv({ name: 'EMAIL_VERIFIER_ENDPOINT', defaultValue: '' });
+
+  if (verificationType === 'email') {
+    const emails: Array<{}> = [];
+
+    const customerTransformerToEmailStream = new Transform({
+      objectMode: true,
+
+      transform(customer, _encoding, callback) {
+        emails.push(customer.primaryEmail);
+
+        callback();
+      },
+    });
+
+    const customersEmailStream = (Customers.find(
+      {
+        primaryEmail: { $exists: true, $ne: null },
+        emailValidationStatus: 'unknown',
+      },
+      { primaryEmail: 1, _id: 0 },
+    ).limit(1000) as any).stream();
+
+    return new Promise((resolve, reject) => {
+      const pipe = customersEmailStream.pipe(customerTransformerToEmailStream);
+
+      pipe.on('finish', async () => {
+        try {
+          const requestOptions = {
+            url: `${EMAIL_VERIFIER_ENDPOINT}/verify-bulkEmails`,
+            method: 'POST',
+            body: { emails, hostname },
+          };
+
+          sendRequest(requestOptions)
+            .then(res => {
+              debugBase(`Response: ${res}`);
+            })
+            .catch(error => {
+              throw error;
+            });
+        } catch (e) {
+          return reject(e);
+        }
+
+        resolve('done');
+      });
+    });
+  }
+
+  const phones: Array<{}> = [];
+
+  const customerTransformerStream = new Transform({
+    objectMode: true,
+
+    transform(customer, _encoding, callback) {
+      phones.push(customer.primaryPhone);
+
+      callback();
+    },
+  });
+
+  const customersStream = (Customers.find(
+    {
+      primaryPhone: { $exists: true, $ne: null },
+      phoneValidationStatus: 'unknown',
+    },
+    { primaryPhone: 1, _id: 0 },
+  ).limit(1000) as any).stream();
+
+  return new Promise((resolve, reject) => {
+    const pipe = customersStream.pipe(customerTransformerStream);
+
+    pipe.on('finish', async () => {
+      try {
+        const requestOptions = {
+          url: `${EMAIL_VERIFIER_ENDPOINT}/verify-bulkPhones`,
+          method: 'POST',
+          body: { phones, hostname },
+        };
+
+        sendRequest(requestOptions)
+          .then(res => {
+            debugBase(`Response: ${res}`);
+          })
+          .catch(error => {
+            throw error;
+          });
+      } catch (e) {
+        return reject(e);
+      }
+
+      resolve('done');
+    });
+  });
+};
+
+export const updateContacts = async (type: string, data: []) => {
+  if (type === 'email') {
+    const bulkOps: Array<{
+      updateOne: {
+        filter: { primaryEmail: string };
+        update: { emailValidationStatus: string };
+      };
+    }> = [];
+
+    for (const { email, status } of data) {
+      bulkOps.push({
+        updateOne: {
+          filter: { primaryEmail: email },
+          update: { emailValidationStatus: status },
+        },
+      });
+    }
+    await Customers.bulkWrite(bulkOps);
+  }
+
+  const phoneBulkOps: Array<{
+    updateOne: {
+      filter: { primaryPhone: string };
+      update: { phoneValidationStatus: string };
+    };
+  }> = [];
+
+  for (const { phone, status } of data) {
+    phoneBulkOps.push({
+      updateOne: {
+        filter: { primaryPhone: phone },
+        update: { phoneValidationStatus: status },
+      },
+    });
+  }
+  await Customers.bulkWrite(phoneBulkOps);
 };
 
 export const getConfigs = async () => {
@@ -969,6 +1093,7 @@ export const getSubServiceDomain = ({ name }: { name: string }): string => {
     INTEGRATIONS_API_DOMAIN: `${MAIN_APP_DOMAIN}/integrations`,
     LOGS_API_DOMAIN: `${MAIN_APP_DOMAIN}/logs`,
     ENGAGES_API_DOMAIN: `${MAIN_APP_DOMAIN}/engages`,
+    VERIFIER_API_DOMAIN: `${MAIN_APP_DOMAIN}/verifier`,
   };
 
   const domain = getEnv({ name });
