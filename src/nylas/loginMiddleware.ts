@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 import * as querystring from 'querystring';
 import { debugNylas, debugRequest } from '../debuggers';
-import { get, set } from '../redisClient';
+import { set } from '../redisClient';
 import { generateUid, sendRequest } from '../utils';
 import { checkCredentials } from './api';
 import { AUTHORIZED_REDIRECT_URL, GOOGLE_OAUTH_TOKEN_VALIDATION_URL, MICROSOFT_GRAPH_URL } from './constants';
