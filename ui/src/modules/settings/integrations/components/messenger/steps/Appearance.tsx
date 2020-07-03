@@ -12,7 +12,7 @@ import {
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
-import ChromePicker from 'react-color/lib/Chrome';
+import TwitterPicker from 'react-color/lib/Twitter';
 
 type Props = {
   onChange: (
@@ -107,7 +107,7 @@ class Appearance extends React.Component<Props, State> {
 
     const popoverContent = (
       <Popover id="color-picker">
-        <ChromePicker color={this.state.color} onChange={onChange} />
+        <TwitterPicker color={this.state.color} onChange={onChange} />
       </Popover>
     );
 

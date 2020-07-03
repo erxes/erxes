@@ -21,7 +21,7 @@ import { ColorPick, ColorPicker, ExpandWrapper } from 'modules/settings/styles';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
-import ChromePicker from 'react-color/lib/Chrome';
+import TwitterPicker from 'react-color/lib/Twitter';
 import { Link } from 'react-router-dom';
 import { FilterBox, SegmentTitle, SegmentWrapper } from '../styles';
 import AddConditionButton from './AddConditionButton';
@@ -299,7 +299,7 @@ class Form extends React.Component<Props, State> {
 
     const popoverTop = (
       <Popover id="color-picker">
-        <ChromePicker color={color} onChange={colorOnChange} />
+        <TwitterPicker triangle="hide" color={color} onChange={colorOnChange} />
       </Popover>
     );
 

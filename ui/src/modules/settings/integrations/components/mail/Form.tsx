@@ -95,6 +95,14 @@ class Form extends React.Component<Props, State> {
             <strong>{__('Email add account description question')}</strong>
             <br />
             {__('Email add account description')}
+            <br />
+            <a
+              target="_blank"
+              href="https://www.erxes.org/administrator/system-config/#gmail-imap"
+              rel="noopener noreferrer"
+            >
+              {__('Learn how to connect a Gmail using IMAP')}
+            </a>
           </Info>
         </FormGroup>
 

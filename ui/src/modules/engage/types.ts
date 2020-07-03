@@ -27,6 +27,11 @@ export interface IEngageEmail {
   attachments?: IAttachment[];
 }
 
+export interface IEngageSms {
+  from: string;
+  content: string;
+}
+
 export interface IEngageStats {
   send: number;
   delivery: number;
@@ -71,6 +76,7 @@ export interface IEngageMessageDoc {
   email?: IEngageEmail;
   messenger?: IEngageMessenger;
   scheduleDate?: IEngageScheduleDate;
+  shortMessage?: IEngageSms;
 }
 
 export interface IEngageMessage extends IEngageMessageDoc {

@@ -90,8 +90,12 @@ html[data-theme='dark'] .react-toggle-track {
   text-align: center;
 }
 
+.container.container-sm {
+  max-width: 720px;
+}
+
 .even-column {
-  background: rgba(180,180,180, 0.1);
+  background: rgba(180,180,180, 0.08);
 }
 
 @media (min-width: 600px) {
