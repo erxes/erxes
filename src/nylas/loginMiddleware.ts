@@ -29,13 +29,6 @@ const getOAuthCredential = async (req, res, next) => {
 
   kind = kind.split('-')[1];
 
-  // Check user is already authorized or not
-  const userAuthorizedApp = await get(`${kind}-credential`, false);
-
-  if (userAuthorizedApp) {
-    return res.redirect(`${AUTHORIZED_REDIRECT_URL}?#show${kind}Modal=true`);
-  }
-
   if (!checkCredentials()) {
     return next(new Error('Nylas not configured, check your env'));
   }
@@ -118,7 +111,7 @@ const getOAuthCredential = async (req, res, next) => {
   // when user create the Gmail or O365 integration
   await set(`${uid}-credential`, `${email},${refresh_token}`);
 
-  return res.redirect(`${AUTHORIZED_REDIRECT_URL}?uid=${uid}#show${kind}Modal=true`);
+  return res.redirect(`${AUTHORIZED_REDIRECT_URL}&uid=${uid}#show${kind}Modal=true`);
 };
 
 export default getOAuthCredential;
