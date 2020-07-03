@@ -54,7 +54,7 @@ class Sidebar extends React.Component<Props> {
     return (
       <LeftSidebar header={this.renderSidebarHeader()}>
         <LeftSidebar.Section>
-          <List>
+          <List id={'ImportExportSidebar'}>
             {this.renderListItem(ITEM_TYPES.BRAND, 'Brands')}
             {this.renderListItem(ITEM_TYPES.CHANNEL, 'Channels')}
             {this.renderListItem(ITEM_TYPES.CUSTOMER, 'Customers')}

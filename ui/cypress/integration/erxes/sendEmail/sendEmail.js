@@ -23,41 +23,43 @@ context('Send Email Verification', () => {
     // General Settings Main
     cy.get('#SettingsGeneralSettingsFather').children().should('have.length',9);
 
-    //Segment
+    // //Segment
     // cy.get('#SettingsGeneralSettingsFather').children().eq(5).click();
     // var segmentsSidebar = ["customer", "lead", "visitor","company"];
-    // for(let i=0; i<=segmentsSidebar.length; i++ ){
-    //     // cy.url().should('include', '/segments/' + segmentsSidebar[i]);
-    //     cy.get('#SegmentSidebar').children().eq(i).click()
-    //     cy.get('#SegmentShowing').find('tr').then(tr => {
-    //     //already created segment count
-    //     const trCount = Cypress.$(tr).length;
-
-    //     cy.get('#NewSegmentButton').click();
-
-    //     cy.get('input[name=name]').type('a1')
-    //     cy.get('input[name=description]').type('testinga1')
-    //     cy.get('select[name=subOf]').select('a1')
-    //     cy.get('.sc-fZwumE').click();
-    //     cy.get('div > input').clear().type(`#000000`)
-    //     cy.get('.sc-fZwumE').click();
-    //     cy.get('button[icon=subject]').click({multiple: true})    
-    //     cy.get('div.Select-placeholder:first').click().get('.Select-option:contains(State)').click()
-    //     cy.get('div.Select-placeholder:first').click().get('.Select-option:contains(Visitor)').click();
-    //     cy.get('button[icon=times]').click({multiple: true})
-
-    //     cy.get('button[icon=computer-mouse]').click()
-    //     cy.get('button[icon=check-circle]').click()
-
-    //     cy.log(cy.get('#SegmentShowing > tr').its('length'));
+    // for(let i=0; i<segmentsSidebar.length; i++){
+    //     cy.get('#SegmentSidebar').children().eq(i).click()   
+    //     cy.url().should('include', '/segments/' + segmentsSidebar[i]);
         
-    //     //greather than old counted number.
-    //     cy.get('#SegmentShowing > tr').should('have.length', trCount + 1);   
+    //     cy.wait(1000)
+    //     cy.get('#SegmentShowing').find('tr').then(tr => {
+    //       //already created segment count
+    //       const trCount = Cypress.$(tr).length;
+    //       cy.log(trCount);
+
+    //       cy.get('#NewSegmentButton').click();
+
+    //       cy.get('input[name=name]').type('a1')
+    //       cy.get('input[name=description]').type('testinga1')
+    //       cy.get('select[name=subOf]').select('a1')
+    //       cy.get('.sc-fZwumE').click();
+    //       cy.get('div > input').clear().type(`#000000`)
+    //       cy.get('.sc-fZwumE').click();
+    //       cy.get('button[icon=subject]').click({multiple: true})    
+    //       cy.get('div.Select-placeholder:first').click().get('.Select-option:contains(Created)').click()
+    //       cy.get('#segment-select-operator').select('is set')
+    //       cy.get('button[icon=times]').click({multiple: true})
+
+    //       cy.get('button[icon=computer-mouse]').click()
+    //       cy.get('button[icon=check-circle]').click()
+
+    //       //greather than old counted number.
+    //       cy.get('#SegmentShowing > tr').should('have.length', trCount + 1);   
+    //       cy.wait(1000)
           
     //   });    
     // }
     
-    //Tags
+    // //Tags
     // cy.get('#SettingsGeneralSettingsFather').children().eq(4).click();
     // cy.url().should('include', '/tags/conversation');
     
@@ -66,7 +68,7 @@ context('Send Email Verification', () => {
     //   cy.get('#TagsShowing').find('tr').then(tr => {
     //     const trCount = Cypress.$(tr).length;
     //     cy.get('#AddTagButton').click()
-    //     cy.get('input[name=name]').type('last3')
+    //     cy.get('input[name=name]').type('last3' + i)
     //     cy.get('.sc-cPuPxo').click()
     //     cy.get('[style="position: relative;"] > input').clear().type('#000000')
     //     cy.get('.sc-cPuPxo').click()
@@ -75,18 +77,19 @@ context('Send Email Verification', () => {
     //   })
     // }
 
-    //Brand
+    // //Brand
     // cy.get('#SettingsIntegrationSettingsFather').children().eq(1).click();
     // cy.url().should('include', '/settings/brands');
     // cy.wait(1500)
-    // // cy.get('#BrandSidebar').find('li').then(li => {
-    // //   const liCount = Cypress.$(li).length;
-    // //   cy.get('#NewBrandButton').click()
-    // //   cy.get('input').type('asdf')
-    // //   cy.get('textarea').type('something')
-    // //   cy.get('button[icon=check-circle]').click()
-    // //   cy.get('#BrandSidebar > li').should('have.length', liCount + 1); 
-    // // })
+    // cy.get('#BrandSidebar').find('li').then(li => {
+    //   const liCount = Cypress.$(li).length;
+    //   cy.get('#NewBrandButton').click()
+    //   cy.get('input').type('asdf')
+    //   cy.get('textarea').type('something')
+    //   cy.get('button[icon=check-circle]').click()
+    //   cy.get('#BrandSidebar > li').should('have.length', liCount + 1); 
+    // })
+    // cy.get('#BrandSidebar').children().eq(0).click()
 
 
     // cy.get('#ManageIntegration').click()
@@ -101,23 +104,34 @@ context('Send Email Verification', () => {
       
   
     //Import & Export
-    //cy.get('#SettingsGeneralSettingsFather').children().eq(6).click();
+    cy.get('#SettingsGeneralSettingsFather').children().eq(6).click();
+
+    const impoexpo = ["brand","channel","customer","company","permission","product","deal","task","ticket","user"]
+
+    // for(let i=0; i<5; i++){
+    //   cy.get('#ImportExportSidebar').children().eq(i).click()
+    //   cy.wait(2000)
+    // }
     //cy.get('i[icon=folder-download]').click()
     
-    //cy.get('button[icon=user-minus]').click()
-    //cy.get('button[icon=checked-1]').click()
-    //cy.wait(60000)
-    //cy.reload()
-    // cy.fixture('customer.xlsx', 'binary')
-    //     .then(Cypress.Blob.binaryStringToBlob)
-    //     .then(fileContent => {
-    //       cy.get('input[type=file]').attachFile({
-    //         fileContent,
-    //         fileName: 'customer.xlsx',
-    //         mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    //         encoding: 'utf8'
-    //       })
-    //     })
+    
+    
+    cy.fixture('customer.xlsx', 'binary')
+        .then(Cypress.Blob.binaryStringToBlob)
+        .then(fileContent => {
+          cy.get('input[type=file]').attachFile({
+            fileContent,
+            fileName: 'customer.xlsx',
+            mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            encoding: 'utf8'
+          })
+        })
+
+    // cy.wait(60000)
+    // cy.reload()
+    // cy.get('button[icon=user-minus]').click()
+    // cy.get('button[icon=checked-1]').click()
+
 
 
 
