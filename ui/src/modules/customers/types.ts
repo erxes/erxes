@@ -50,7 +50,7 @@ export interface ICustomerDoc {
   birthDate?: string;
   emailValidationStatus?: string;
   phoneValidationStatus?: string;
-  
+
   isOnline?: boolean;
   lastSeenAt?: number;
   sessionCount?: number;
@@ -97,6 +97,18 @@ export type RemoveMutationResponse = {
 export type MergeMutationVariables = {
   customerIds: string[];
   customerFields: ICustomer;
+};
+
+export type VerifyMutationVariables = {
+  verificationType: string;
+};
+
+export type VerifyMutationResponse = {
+  customersVerify: (
+    doc: {
+      variables: VerifyMutationVariables;
+    }
+  ) => Promise<any>;
 };
 
 export type MergeMutationResponse = {
