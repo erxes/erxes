@@ -104,33 +104,49 @@ context('Send Email Verification', () => {
       
   
     //Import & Export
-    cy.get('#SettingsGeneralSettingsFather').children().eq(6).click();
-
-    const impoexpo = ["brand","channel","customer","company","permission","product","deal","task","ticket","user"]
-
+    
+    //const impoexpo = ["brand","channel","customer","company","permission","product","deal","task","ticket","user"]
     // for(let i=0; i<5; i++){
     //   cy.get('#ImportExportSidebar').children().eq(i).click()
     //   cy.wait(2000)
     // }
     //cy.get('i[icon=folder-download]').click()
-    
-    
-    
-    cy.fixture('customer.xlsx', 'binary')
-        .then(Cypress.Blob.binaryStringToBlob)
-        .then(fileContent => {
-          cy.get('input[type=file]').attachFile({
-            fileContent,
-            fileName: 'customer.xlsx',
-            mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            encoding: 'utf8'
-          })
-        })
-
     // cy.wait(60000)
     // cy.reload()
     // cy.get('button[icon=user-minus]').click()
     // cy.get('button[icon=checked-1]').click()
+
+    cy.get('#navigation').children().eq(3).click()
+    cy.get('a[href="/contacts/customer"]').click()
+    cy.get('#customers').find('tr').then(tr => {
+          //already created segment count
+          const trCount = Cypress.$(tr).length;
+          cy.get('#Settings').click()
+          cy.get('#SettingsGeneralSettingsFather').children().eq(6).click();
+
+          //file upload
+          cy.fixture('customer.xlsx', 'binary')
+            .then(Cypress.Blob.binaryStringToBlob)
+            .then(fileContent => {
+              cy.get('input[type=file]').attachFile({
+                fileContent,
+                fileName: 'customer.xlsx',
+                mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                encoding: 'utf8'
+              })
+          })
+          cy.wait(35000)
+          cy.reload()
+          cy.get('#navigation').children().eq(3).click()
+          cy.get('a[href="/contacts/customer"]').click()
+
+
+         
+          cy.get('#customers > tr').should('have.length', trCount + 1);   
+          cy.wait(1000)
+          
+      });    
+    }
 
 
 
