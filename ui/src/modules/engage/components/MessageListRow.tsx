@@ -48,7 +48,7 @@ class Row extends React.Component<Props> {
 
     const links: React.ReactNode[] = [];
 
-    if (msg.method === 'email') {
+    if (['email', 'sms'].includes(msg.method)) {
       links.push(show);
     }
 
@@ -111,11 +111,13 @@ class Row extends React.Component<Props> {
   onClick = () => {
     const { message } = this.props;
 
-    if (message.method === 'email') {
+    if (['email', 'sms'].includes(message.method)) {
       return this.props.show();
     }
 
-    return this.props.edit();
+    if (message.kind !== MESSAGE_KINDS.MANUAL) {
+      return this.props.edit();
+    }
   };
 
   renderStatus() {

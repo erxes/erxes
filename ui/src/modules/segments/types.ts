@@ -62,6 +62,7 @@ export type SegmentsQueryResponse = {
 export type HeadSegmentsQueryResponse = {
   segmentsGetHeads: ISegment[];
   loading: boolean;
+  refetch: () => void;
 };
 
 export type EventsQueryResponse = {
