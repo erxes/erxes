@@ -305,7 +305,8 @@ app.post(`/telnyx/webhook-failover`, async (req, res, next) => {
 // verifier web hook
 app.post(`/verifier/webhook`, async (req, res) => {
   const { emails, phones } = req.body;
-  phones ? updateContacts('phone', phones) : updateContacts('email', emails);
+
+  phones ? await updateContacts('phone', phones) : await updateContacts('email', emails);
 
   return res.send('success');
 });
