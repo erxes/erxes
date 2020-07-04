@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import Box from 'modules/common/components/Box';
 import EmptyState from 'modules/common/components/EmptyState';
 import Label from 'modules/common/components/Label';
-import { __, isTimeStamp, isValidDate } from 'modules/common/utils';
+import { __, isValidDate } from 'modules/common/utils';
 import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
 import React from 'react';
 import { ICustomer } from '../../types';
@@ -15,7 +15,7 @@ type Props = {
 
 class TrackedDataSection extends React.Component<Props> {
   renderCustomValue = (value: string) => {
-    if (isValidDate(value) || isTimeStamp(value)) {
+    if (isValidDate(value)) {
       return dayjs(value).format('lll');
     }
 

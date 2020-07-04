@@ -5,7 +5,12 @@
     "moduleResolution": "node",
     "module": "esnext",
     "target": "es5",
-    "lib": ["es6", "dom", "es2018", "esnext.asynciterable"],
+    "lib": [
+      "es6",
+      "dom",
+      "es2018",
+      "esnext.asynciterable"
+    ],
     "sourceMap": true,
     "jsx": "preserve",
     "rootDir": "src",
@@ -23,6 +28,13 @@
     "noEmit": true,
     "noUnusedLocals": true
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "build", "scripts", "webpack"]
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "build",
+    "scripts",
+    "webpack"
+  ]
 }
