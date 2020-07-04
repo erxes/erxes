@@ -197,7 +197,7 @@ class PipelineForm extends React.Component<Props, State> {
     );
 
     return (
-      <>
+      <div id="manage-pipeline-modal">
         <Modal.Header closeButton={true}>
           <Modal.Title>
             {pipeline ? `Edit ${pipelineName}` : `Add ${pipelineName}`}
@@ -270,12 +270,14 @@ class PipelineForm extends React.Component<Props, State> {
 
           <FormGroup>
             <ControlLabel>Stages</ControlLabel>
-            <Stages
-              options={options}
-              type={this.props.type}
-              stages={this.state.stages}
-              onChangeStages={this.onChangeStages}
-            />
+            <div id="stages-in-pipeline-form">
+              <Stages
+                options={options}
+                type={this.props.type}
+                stages={this.state.stages}
+                onChangeStages={this.onChangeStages}
+              />
+            </div>
           </FormGroup>
 
           <Modal.Footer>
@@ -298,7 +300,7 @@ class PipelineForm extends React.Component<Props, State> {
             })}
           </Modal.Footer>
         </Modal.Body>
-      </>
+      </div>
     );
   };
 
