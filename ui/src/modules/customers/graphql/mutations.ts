@@ -107,10 +107,17 @@ const customersChangeState = `
   }
 `;
 
+const customersVerify = `
+  mutation customersVerify($verificationType: String!) {
+    customersVerify(verificationType: $verificationType)
+  }
+`;
+
 export default {
   customersAdd,
   customersEdit,
   customersRemove,
   customersChangeState,
-  customersMerge
+  customersMerge,
+  customersVerify
 };
