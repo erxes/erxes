@@ -1,3 +1,22 @@
+const detailFields = `
+  avatar
+  fullName
+  shortName
+  position
+  location
+  description
+  operatorPhone
+`;
+
+const linkFields = `
+  linkedIn
+  twitter
+  facebook
+  github
+  youtube
+  website
+`;
+
 const userDetail = `
   query userDetail($_id: String) {
     userDetail(_id: $_id) {
@@ -8,21 +27,10 @@ const userDetail = `
       groupIds
 
       details {
-        avatar
-        fullName
-        shortName
-        position
-        location
-        description
-        operatorPhone
+        ${detailFields}
       }
       links {
-        linkedIn
-        twitter
-        facebook
-        github
-        youtube
-        website
+        ${linkFields}
       }
       emailSignatures
       getNotificationByEmail
@@ -75,21 +83,11 @@ const users = `
       brandIds
 
       details {
-        avatar
-        fullName
-        shortName
-        position
-        description
-        location
+        ${detailFields}
       }
 
       links {
-        linkedIn
-        twitter
-        facebook
-        github
-        youtube
-        website
+        ${linkFields}
       }
     }
   }
