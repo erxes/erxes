@@ -7,7 +7,7 @@ import { checkFieldNames } from '../data/modules/fields/utils';
 import { deleteFileAWS, s3Stream } from '../data/utils';
 import { ImportHistory } from '../db/models';
 import ImportHistories from '../db/models/ImportHistory';
-import { debugImport } from '../debuggers';
+import { debugImport, debugWorkers } from '../debuggers';
 
 const { MONGO_URL = '' } = process.env;
 
@@ -141,8 +141,12 @@ const readXlsFile = async (fileName: string): Promise<{ fieldNames: string[]; da
 
     const xlsxReader = XlsxStreamReader();
 
+    const errorCallback = error => {
+      reject(new Error(error.code));
+    };
+
     try {
-      const stream = await s3Stream(fileName);
+      const stream = await s3Stream(fileName, errorCallback);
 
       stream.pipe(xlsxReader);
 
@@ -194,46 +198,60 @@ const readXlsFile = async (fileName: string): Promise<{ fieldNames: string[]; da
 };
 
 export const receiveImportXls = async (content: any) => {
-  const { fileName, type, scopeBrandIds, user } = content;
+  try {
+    const { fileName, type, scopeBrandIds, user } = content;
 
-  const { fieldNames, datas } = await readXlsFile(fileName);
+    const { fieldNames, datas } = await readXlsFile(fileName);
 
-  if (datas.length === 0) {
-    throw new Error('Please import at least one row of data');
+    if (datas.length === 0) {
+      throw new Error('Please import at least one row of data');
+    }
+
+    const properties = await checkFieldNames(type, fieldNames);
+
+    const importHistory = await ImportHistory.create({
+      contentType: type,
+      total: datas.length,
+      userId: user._id,
+      date: Date.now(),
+    });
+
+    const results: string[] = splitToCore(datas);
+
+    const workerFile =
+      process.env.NODE_ENV === 'production'
+        ? `./dist/workers/bulkInsert.worker.js`
+        : './src/workers/bulkInsert.worker.import.js';
+
+    const workerPath = path.resolve(workerFile);
+
+    const percentagePerData = Number(((1 / datas.length) * 100).toFixed(3));
+
+    const workerData = {
+      scopeBrandIds,
+      user,
+      contentType: type,
+      properties,
+      importHistoryId: importHistory._id,
+      percentagePerData,
+    };
+
+    await createWorkers(workerPath, workerData, results);
+
+    await deleteFileAWS(fileName);
+
+    return { id: importHistory.id };
+  } catch (e) {
+    debugWorkers(e.message);
+    throw e;
   }
+};
 
-  const properties = await checkFieldNames(type, fieldNames);
-
-  const importHistory = await ImportHistory.create({
-    contentType: type,
-    total: datas.length,
-    userId: user._id,
-    date: Date.now(),
-  });
-
-  const results: string[] = splitToCore(datas);
-
-  const workerFile =
-    process.env.NODE_ENV === 'production'
-      ? `./dist/workers/bulkInsert.worker.js`
-      : './src/workers/bulkInsert.worker.import.js';
-
-  const workerPath = path.resolve(workerFile);
-
-  const percentagePerData = Number(((1 / datas.length) * 100).toFixed(3));
-
-  const workerData = {
-    scopeBrandIds,
-    user,
-    contentType: type,
-    properties,
-    importHistoryId: importHistory._id,
-    percentagePerData,
-  };
-
-  await createWorkers(workerPath, workerData, results);
-
-  await deleteFileAWS(fileName);
-
-  return { id: importHistory.id };
+export const generateUid = () => {
+  return (
+    '_' +
+    Math.random()
+      .toString(36)
+      .substr(2, 9)
+  );
 };

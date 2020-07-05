@@ -1124,14 +1124,14 @@ export const chunkArray = (myArray, chunkSize: number) => {
 /**
  * Create s3 stream for excel file
  */
-export const s3Stream = async (key: string): Promise<any> => {
-  try {
-    const AWS_BUCKET = await getConfig('AWS_BUCKET');
+export const s3Stream = async (key: string, errorCallback: (error: any) => void): Promise<any> => {
+  const AWS_BUCKET = await getConfig('AWS_BUCKET');
 
-    const s3 = await createAWS();
+  const s3 = await createAWS();
 
-    return s3.getObject({ Bucket: AWS_BUCKET, Key: key }).createReadStream();
-  } catch (e) {
-    throw e;
-  }
+  const stream = s3.getObject({ Bucket: AWS_BUCKET, Key: key }).createReadStream();
+
+  stream.on('error', errorCallback);
+
+  return stream;
 };

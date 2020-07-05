@@ -1,9 +1,9 @@
 import * as faker from 'faker';
 import * as sinon from 'sinon';
+import * as utils from '../data/utils';
 import { graphqlRequest } from '../db/connection';
 import { customerFactory, integrationFactory, userFactory } from '../db/factories';
 import { Brands, Customers, Integrations, Users } from '../db/models';
-import * as messageBroker from '../messageBroker';
 import './setup.ts';
 
 /*
@@ -239,7 +239,7 @@ describe('Customers mutations', () => {
   });
 
   test('Verify emails', async () => {
-    const mock = sinon.stub(messageBroker, 'sendMessage').callsFake(() => {
+    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
       return Promise.resolve('success');
     });
 
