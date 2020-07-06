@@ -20,8 +20,7 @@
     }
   },
   "hooks": {
-    "after:my-plugin:bump": "./scripts/build.sh",
-    "after:bump": "cd ui && npm run build",
+    "after:bump": "./scripts/build.sh",
     "after:git:release": "echo After git push, before github release",
     "after:release": "echo Successfully released ${name} v${version} to ${repo.repository}."
   }
