@@ -6,6 +6,59 @@ title: Ubuntu 18.04
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
+## Server Installation Requirements
+
+erxes gives you many options for installing the erxes platform. Below you will find two guides. The first guide is the **Quick Start** guide where we provide a script that automates most of the installation process. The second guide is a comprehensive, **Step by Step** guide where advanced developers can see exactly what is being installed and how.
+
+:::info Ubuntu 18.04
+These instructions are for installing erxes on **Ubuntu 18.04**. They should work on any hosting provider that allows you to install Ubuntu 18.04.
+:::
+
+### Minimum required server resources
+
+Each hosting company has slightly different server configurations and set-ups. Hosting companies such as [Linode.com](https://www.linode.com/), [Digital Ocean](https://digitalocean.com) and [AWS EC2](https://aws.amazon.com/ec2) offer many different server specifications and configuration options.
+
+To properly install and maintain your erxes installation, the minimum requirements are:
+
+- Ubuntu 18.04 (or other supported Linus distribution)
+- 4 cpus
+- 8GB RAM
+- ability to to SSH as **root user**
+
+:::tip Use one-click installs
+You can also use the [Digital Ocean Marketplace](https://marketplace.digitalocean.com/apps/erxes) and [AWS Marketplace](https://aws.amazon.com/marketplace/pp/B086MZ9FVS?qid=1594055516154&sr=0-1&ref_=srh_res_product_title) for an even easier set-up experience.
+:::
+
+### Setting up a server with Ubuntu 18.04
+
+- You must have an account with your hosting provider prior to doing these steps.
+- You need to create a server with **Ubuntu 18.04** installed, a minimum of **4cpus** and **8GB RAM**. At this time, erxes needs a minimum of 4 cpus and 8GB RAM to finish installation.
+
+### Configure your DNS Records to point at your server
+
+- Your server will have an ip address. You will need to point your `A records` under the _DNS Editor_ for the domain which will host your erxes installation. The propagation is often reported to take up to 24 hours. Most of the time, propagation of your domain name happens within the hour.
+
+:::note Example with a domain called, example.com
+
+If your domain name is **example.com**, and the **ip address** assigned to your server is **44.123.32.12**, then you will have two `A records` that look like this:
+
+| Type | Name            | Value                  |
+| ---- | --------------- | ---------------------- |
+| A    | www.example.com | points to 44.123.32.12 |
+
+:::
+
+:::note Example with a subdomain called, erxes.example.com
+
+If your domain name is **erxes.example.com**, and the **ip address** assigned to your server is **44.123.32.12**, then you will have two `A records` that look like this:
+
+| Type | Name              | Value                  |
+| ---- | ----------------- | ---------------------- |
+| A    | erxes.example.com | points to 44.123.32.12 |
+
+**Note:** You do not need to create a subdomain named "erxes.example.com", you can use another name of your choice such as "admin.example.com".
+:::
+
 <Tabs
   defaultValue='step-by-step'
   values={[
@@ -22,35 +75,150 @@ You can simply follow [Debian doc](/installation/debian10) to install manually.
 </TabItem>
 <TabItem value='step-by-step'>
 
-TODO:
+## Log into server as root and create erxes user
 
-- Change to SSL in the .env files.
-- Implement SSL before erxes configurations
-- Settle the elkSyncer issue
-- Test on different hosting services
-- Also we should mention that firewall should be enabled and only SSH port, Nginx 80, 443 should be opened.
-- MongoDB, ElasticSearch, RabbitMQ, Redis all DBs are not authenticated by default and insecure.
--
+- Open the terminal or command prompt on your computer. (You will need your **IP address**. In the above example, **44.123.32.12**).
 
-Log into the server as root user.
+```bash
+ssh root@your-ip-address
 
+    The authenticity of host '44.123.32.12 (44.123.32.12)' can't be established.
+    ECDSA key fingerprint is SHA256:RbrZOxtr/emNySeNd8rh2C9VPGY76JbSs1Dhpvfkfrk.
+    Are you sure you want to continue connecting (yes/no/[fingerprint])?
+
+Yes
+
+    Warning: Permanently added '44.123.32.12' (ECDSA) to the list of known hosts.
+    Welcome to Ubuntu 18.04.4 LTS (GNU/Linux 4.15.0-101-generic x86_64)
 ```
+
+- Add a user called, "erxes" and grant that user administrative access rights
+
+You don't want to use the **root** user to administer your server. So everything will be done by a user called, **erxes**. To accomplish this run the following commands. They will add a user called **erxes**, give it a password and assign administrative access rights.
+
+```bash
 adduser erxes
-erxes123
+
+    Adding user `erxes' ...
+    Adding new group `erxes' (1000) ...
+    Adding new user `erxes' (1000) with group `erxes' ...
+    Creating home directory `/home/erxes' ...
+    Copying files from `/etc/skel' ...
+
+Enter new UNIX password: erxes123
+Retype new UNIX password: erxes123
+
+    passwd: password updated successfully
+    Changing the user information for erxes
+    Enter the new value, or press ENTER for the default
+
+    	Full Name []:
+        Room Number []:
+        Work Phone []:
+        Home Phone []:
+        Other []:
+
+Is the information correct? [Y/n] y
+
 usermod -aG sudo erxes
 ```
 
-- exit from server
-- log back in as erxes user
+## Set-up a basic firewall for SSH, nginx 80 and port 443
+
+- Allow OpenSSH, enable it and check the status. OpenSSH will use **port 22**.
+
+```bash
+
+ufw allow OpenSSH
+
+    Rules updated
+    Rules updated (v6)
+
+ufw enable
+Command may disrupt existing ssh connections. Proceed with operation (y|n)? y
+
+    Firewall is active and enabled on system startup
+
+
+ufw status
+
+    Status: active
+
+    To                         Action      From
+    --                         ------      ----
+    OpenSSH                    ALLOW       Anywhere
+    OpenSSH (v6)               ALLOW       Anywhere (v6)
+
+```
+
+Your output should like something like the above.
+
+-- Open port 80 (for NGINX) and open port 443. Port 80 allows **http** traffic and port 443 allows **https** traffic.
+
+```bash
+
+ufw allow proto tcp from any to any port 80,443
+
+    Rule added
+    Rule added (v6)
+
+Command may disrupt existing ssh connections. Proceed with operation (y|n)? y
+
+    Firewall is active and enabled on system startup
+
+ufw status
+
+    Status: active
+
+    To                         Action      From
+    --                         ------      ----
+    OpenSSH                    ALLOW       Anywhere
+    80,443/tcp                 ALLOW       Anywhere
+    OpenSSH (v6)               ALLOW       Anywhere (v6)
+    80,443/tcp (v6)            ALLOW       Anywhere (v6)
+
+```
+
+- Exit from server, so that you can log back in as **erxes**
+
+```bash
+exit
+
+    logout
+    Connection to 44.123.32.12 closed.
+```
+
+- Log back into the server as the **erxes** user and provide the password
+
+```bash
+ssh erxes@44.123.32.12
+erxes@45.79.248.46's password:
+
+    Welcome to Ubuntu 18.04.4 LTS (GNU/Linux 4.15.0-101-generic x86_64)
+```
+
+In the following section, you will install software dependencies that are needed to run erxes. You will also need to install various tools that will help to administer your server or install the packages themselves.
 
 ## Nvm install
 
-```
+**Node Version Manage (nvm)** is a tool that allows you to download and install [Node.js](https://nodejs.org/). You can read more about the installation process here: [How to install NVM](https://gist.github.com/d2s/372b5943bce17b964a79)
+
+- Install **nvm** and initialize by reload the shell configuration.
+
+```bash
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
-
+source ~/.bashrc
 ```
 
-- log out and log back in to have nvm boot
+- Verify **nvm** is installed by running:
+
+```bash
+command -v nvm
+
+    nvm
+```
+
+If you got the above output, then you are ready to continue with the following steps.
 
 ## NodeJS install
 
@@ -102,7 +270,7 @@ sudo vim /etc/mongod.conf
 
 ```
 replication:
-replSetName: rs0
+  replSetName: rs0
 ```
 
 ### verify
