@@ -325,11 +325,21 @@ const Count = styled.div`
 
 const Collapse = styled.div`
   padding: ${dimensions.coreSpacing}px;
-  cursor: pointer;
   transition: all ease 0.5s;
+
+  .dropdown {
+    display: none;
+  }
 `;
 
-const Header = styled.div`
+const CollapseTrigger = styled.div`
+  &:hover {
+    cursor: pointer;
+    opacity: 0.9;
+  }
+`;
+
+const Header = styled(CollapseTrigger)`
   border-bottom: 1px solid ${colors.colorShadowGray};
   padding-bottom: ${dimensions.unitSpacing}px;
   margin-bottom: ${dimensions.coreSpacing}px;
@@ -392,5 +402,6 @@ export {
   CenterText,
   ExpandButton,
   DeleteAction,
-  JumpTo
+  JumpTo,
+  CollapseTrigger
 };

@@ -49,10 +49,17 @@ export interface ICustomerDoc {
   code?: string;
   birthDate?: string;
   emailValidationStatus?: string;
+  phoneValidationStatus?: string;
 
   isOnline?: boolean;
   lastSeenAt?: number;
   sessionCount?: number;
+}
+
+export interface IUrlVisits {
+  url: string;
+  count: number;
+  createdAt: string;
 }
 
 export interface ICustomer extends ICustomerDoc {
@@ -60,6 +67,7 @@ export interface ICustomer extends ICustomerDoc {
   owner?: IUser;
   integration?: IIntegration;
   trackedData?: any[];
+  urlVisits?: IUrlVisits[];
   getTags?: ITag[];
   companies?: ICompany[];
 }
@@ -89,6 +97,18 @@ export type RemoveMutationResponse = {
 export type MergeMutationVariables = {
   customerIds: string[];
   customerFields: ICustomer;
+};
+
+export type VerifyMutationVariables = {
+  verificationType: string;
+};
+
+export type VerifyMutationResponse = {
+  customersVerify: (
+    doc: {
+      variables: VerifyMutationVariables;
+    }
+  ) => Promise<any>;
 };
 
 export type MergeMutationResponse = {

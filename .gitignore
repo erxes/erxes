@@ -15,5 +15,4 @@ static
 .env.test.local
 .env.production.local
 package-lock.json
-yarn.lock
 dump.rdb

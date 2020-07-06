@@ -15,7 +15,7 @@ import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
-import BlockPicker from 'react-color/lib/Block';
+import TwitterPicker from 'react-color/lib/Twitter';
 import { SelectMemberStyled } from '../styles';
 import { IOption } from '../types';
 import Stages from './Stages';
@@ -146,7 +146,7 @@ class PipelineForm extends React.Component<Props, State> {
   };
 
   renderDominantUsers() {
-    const { isCheckUser, excludeCheckUserIds } = this.state;
+    const { isCheckUser, excludeCheckUserIds, selectedMemberIds } = this.state;
 
     if (!isCheckUser) {
       return;
@@ -155,12 +155,14 @@ class PipelineForm extends React.Component<Props, State> {
     return (
       <FormGroup>
         <SelectMemberStyled>
-          <ControlLabel>Users eligible to see all cards</ControlLabel>
+          <ControlLabel>
+            Users eligible to see all {this.props.type}s
+          </ControlLabel>
 
           <SelectTeamMembers
             label="Choose members"
             name="excludeCheckUserIds"
-            value={excludeCheckUserIds}
+            value={selectedMemberIds.concat(excludeCheckUserIds)}
             onSelect={this.onChangeDominantUsers}
           />
         </SelectMemberStyled>
@@ -185,8 +187,9 @@ class PipelineForm extends React.Component<Props, State> {
 
     const popoverBottom = (
       <Popover id="color-picker">
-        <BlockPicker
+        <TwitterPicker
           width="266px"
+          triangle="hide"
           color={this.state.backgroundColor}
           onChange={this.onColorChange}
           colors={COLORS}
@@ -255,7 +258,7 @@ class PipelineForm extends React.Component<Props, State> {
 
           <FormGroup>
             <ControlLabel>
-              Show only the user's assigned(created) cards
+              Show only the user's assigned(created) {this.props.type}s
             </ControlLabel>
             <FormControl
               componentClass="checkbox"
@@ -291,7 +294,8 @@ class PipelineForm extends React.Component<Props, State> {
               values: this.generateDoc(values),
               isSubmitted,
               callback: closeModal,
-              object: pipeline
+              object: pipeline,
+              confirmationUpdate: true
             })}
           </Modal.Footer>
         </Modal.Body>

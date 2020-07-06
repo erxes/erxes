@@ -56,7 +56,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
     this.onChangeConfig(code, e.target.value);
   };
 
-  renderItem(key: string, description?: string) {
+  renderItem(key: string, description?: string, defaultValue?: string) {
     const { configsMap } = this.state;
 
     return (
@@ -64,7 +64,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
         <ControlLabel>{KEY_LABELS[key]}</ControlLabel>
         {description && <p>{__(description)}</p>}
         <FormControl
-          defaultValue={configsMap[key]}
+          defaultValue={configsMap[key] || defaultValue}
           onChange={this.onChangeInput.bind(this, key)}
         />
       </FormGroup>
@@ -84,13 +84,22 @@ class IntegrationConfigs extends React.Component<Props, State> {
       <ContentBox>
         <CollapseContent title="Facebook">
           <Info>
-            <a target="_blank" href="https://docs.erxes.io/administrator/system-config#facebook" rel="noopener noreferrer">
+            <a
+              target="_blank"
+              href="https://docs.erxes.io/administrator/system-config#facebook"
+              rel="noopener noreferrer"
+            >
               {__('Learn how to set Facebook Integration Variables')}
             </a>
           </Info>
           {this.renderItem('FACEBOOK_APP_ID')}
           {this.renderItem('FACEBOOK_APP_SECRET')}
           {this.renderItem('FACEBOOK_VERIFY_TOKEN')}
+          {this.renderItem(
+            'FACEBOOK_PERMISSIONS',
+            '',
+            'manage_pages, pages_show_list, publish_pages, pages_messaging,pages_messaging_subscriptions'
+          )}
         </CollapseContent>
 
         <CollapseContent title="Twitter">
@@ -129,15 +138,10 @@ class IntegrationConfigs extends React.Component<Props, State> {
           )}
           {this.renderItem('MICROSOFT_CLIENT_ID')}
           {this.renderItem('MICROSOFT_CLIENT_SECRET')}
-          {this.renderItem(
-            'ENCRYPTION_KEY',
-            'Must be 256 bits (32 characters)'
-          )}
-          {this.renderItem('ALGORITHM', 'aes-256-cbc')}
         </CollapseContent>
 
         <CollapseContent title="Video call">
-        <Info>
+          <Info>
             <a
               target="_blank"
               href="https://docs.erxes.io/administrator/system-config#video-calls"

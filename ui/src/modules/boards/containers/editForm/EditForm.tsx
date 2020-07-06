@@ -7,7 +7,7 @@ import { AllUsersQueryResponse } from 'modules/settings/team/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import ErrorMsg from '../../../common/components/ErrorMsg';
-import { queries } from '../../graphql';
+import { queries, subscriptions } from '../../graphql';
 import {
   CopyMutation,
   DetailQueryResponse,
@@ -26,14 +26,14 @@ type WrapperProps = {
   options?: IOptions;
   isPopupVisible: boolean;
   beforePopupClose?: () => void;
-  onAdd?: (stageId: string, item: IItem) => void;
+  onAdd?: (stageId: string, item: IItem, aboveItemId?: string) => void;
   onRemove?: (itemId: string, stageId: string) => void;
   onUpdate?: (item: IItem, prevStageId: string) => void;
   hideHeader?: boolean;
 };
 
 type ContainerProps = {
-  onAdd: (stageId: string, item: IItem) => void;
+  onAdd: (stageId: string, item: IItem, aboveItemId?: string) => void;
   onRemove: (itemId: string, stageId: string) => void;
   onUpdate: (item: IItem, prevStageId: string) => void;
   options: IOptions;
@@ -62,12 +62,29 @@ class EditFormContainer extends React.Component<FinalProps> {
   }
 
   componentDidMount() {
-    const { detailQuery, itemId, options } = this.props;
+    const { detailQuery, itemId } = this.props;
 
     this.unsubcribe = detailQuery.subscribeToMore({
-      document: gql(options.subscriptions.changeSubscription),
+      document: gql(subscriptions.pipelinesChanged),
       variables: { _id: itemId },
-      updateQuery: () => {
+      updateQuery: (
+        prev,
+        {
+          subscriptionData: {
+            data: { pipelinesChanged }
+          }
+        }
+      ) => {
+        if (!pipelinesChanged || !pipelinesChanged.data) {
+          return;
+        }
+
+        const { proccessId } = pipelinesChanged;
+
+        if (proccessId === localStorage.getItem('proccessId')) {
+          return;
+        }
+
         if (document.querySelectorAll('.modal').length < 2) {
           this.props.detailQuery.refetch();
         }
@@ -98,12 +115,16 @@ class EditFormContainer extends React.Component<FinalProps> {
   copyItem(itemId: string, callback: () => void) {
     const { copyMutation, onAdd, options, stageId } = this.props;
 
-    copyMutation({ variables: { _id: itemId } })
+    const proccessId = Math.random().toString();
+
+    localStorage.setItem('proccessId', proccessId);
+
+    copyMutation({ variables: { _id: itemId, proccessId } })
       .then(({ data }) => {
         callback();
 
         if (onAdd) {
-          onAdd(stageId, data[options.mutationsName.copyMutation]);
+          onAdd(stageId, data[options.mutationsName.copyMutation], itemId);
         }
       })
       .catch(error => {
@@ -113,6 +134,12 @@ class EditFormContainer extends React.Component<FinalProps> {
 
   saveItem = (doc: IItemParams, callback: (item) => void) => {
     const { itemId, editMutation, options } = this.props;
+
+    const proccessId = Math.random().toString();
+
+    localStorage.setItem('proccessId', proccessId);
+
+    doc.proccessId = proccessId;
 
     editMutation({ variables: { _id: itemId, ...doc } })
       .then(({ data }) => {

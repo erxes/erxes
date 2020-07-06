@@ -8,7 +8,7 @@ import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tags from 'modules/common/components/Tags';
 import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
-import { MESSAGE_KINDS } from 'modules/engage/constants';
+import { MESSAGE_KINDS, METHODS } from 'modules/engage/constants';
 import React from 'react';
 import { HelperText, RowTitle } from '../styles';
 import { IEngageMessage, IEngageMessenger } from '../types';
@@ -48,7 +48,7 @@ class Row extends React.Component<Props> {
 
     const links: React.ReactNode[] = [];
 
-    if (msg.method === 'email') {
+    if (['email', 'sms'].includes(msg.method)) {
       links.push(show);
     }
 
@@ -111,29 +111,73 @@ class Row extends React.Component<Props> {
   onClick = () => {
     const { message } = this.props;
 
-    if (message.method === 'email') {
+    if (['email', 'sms'].includes(message.method)) {
       return this.props.show();
     }
 
-    return this.props.edit();
+    if (message.kind !== MESSAGE_KINDS.MANUAL) {
+      return this.props.edit();
+    }
   };
 
-  render() {
-    let status = <Label>Sending</Label>;
+  renderStatus() {
+    const { message } = this.props;
 
-    const { isChecked, message, remove } = this.props;
-    const {
-      stats = { send: '' },
-      brand = { name: '' },
-      kind,
-      validCustomersCount
-    } = message;
+    const { stats = { send: '' }, kind, validCustomersCount } = message;
 
     const totalCount = stats.total || 0;
 
-    if (kind === 'manual' && validCustomersCount === totalCount) {
-      status = <Label lblStyle="success">Sent</Label>;
+    if (!message.isLive) {
+      return <Label>draft</Label>;
     }
+
+    if (kind === 'manual') {
+      if (
+        message.method === 'messenger' ||
+        validCustomersCount === totalCount
+      ) {
+        return <Label lblStyle="success">Sent</Label>;
+      }
+    }
+
+    return <Label>Sending</Label>;
+  }
+
+  renderType(msg) {
+    let icon: string = 'multiply';
+    let label: string = 'Other type';
+
+    switch (msg.method) {
+      case METHODS.EMAIL:
+        icon = 'envelope';
+        label = __('Email');
+
+        break;
+      case METHODS.SMS:
+        icon = 'comment-alt-message';
+        label = __('Sms');
+
+        break;
+      case METHODS.MESSENGER:
+        icon = 'comment-1';
+        label = __('Messenger');
+
+        break;
+      default:
+        break;
+    }
+
+    return (
+      <div>
+        <Icon icon={icon} /> {label}
+      </div>
+    );
+  }
+
+  render() {
+    const { isChecked, message, remove } = this.props;
+    const { stats = { send: '' }, brand = { name: '' } } = message;
+    const totalCount = stats.total || 0;
 
     return (
       <tr key={message._id}>
@@ -152,22 +196,12 @@ class Row extends React.Component<Props> {
         <td className="text-normal">
           <NameCard user={message.fromUser} avatarSize={30} />
         </td>
-        <td>{status}</td>
+        <td>{this.renderStatus()}</td>
         <td className="text-primary">
           <Icon icon="cube-2" />
           <b> {totalCount}</b>
         </td>
-        <td>
-          {message.email ? (
-            <div>
-              <Icon icon="envelope" /> {__('Email')}
-            </div>
-          ) : (
-            <div>
-              <Icon icon="comment-1" /> {__('Messenger')}
-            </div>
-          )}
-        </td>
+        <td>{this.renderType(message)}</td>
 
         <td>
           <b>{brand ? brand.name : '-'}</b>

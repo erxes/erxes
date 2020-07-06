@@ -18,7 +18,9 @@ import {
   MergeMutationResponse,
   MergeMutationVariables,
   RemoveMutationResponse,
-  RemoveMutationVariables
+  RemoveMutationVariables,
+  VerifyMutationResponse,
+  VerifyMutationVariables
 } from '../types';
 
 type Props = {
@@ -33,6 +35,7 @@ type FinalProps = {
 } & Props &
   RemoveMutationResponse &
   MergeMutationResponse &
+  VerifyMutationResponse &
   IRouterProps;
 
 type State = {
@@ -58,6 +61,8 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       customersListConfigQuery,
       customersRemove,
       customersMerge,
+      customersVerify,
+      type,
       history
     } = this.props;
 
@@ -65,10 +70,10 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       customersListConfigQuery.fieldsDefaultColumnsConfig || [];
 
     // load config from local storage
-    const localConfig = localStorage.getItem('erxes_customer_columns_config');
+    const localConfig = localStorage.getItem(`erxes_${type}_columns_config`);
 
     if (localConfig) {
-      columnsConfig = JSON.parse(localConfig);
+      columnsConfig = JSON.parse(localConfig).filter(conf => conf.checked);
     }
 
     const removeCustomers = ({ customerIds }, emptyBulk) => {
@@ -102,6 +107,24 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
         .catch(e => {
           Alert.error(e.message);
           this.setState({ mergeCustomerLoading: false });
+        });
+    };
+
+    const verifyCustomers = ({ verificationType }) => {
+      this.setState({ mergeCustomerLoading: true });
+
+      customersVerify({
+        variables: {
+          verificationType
+        }
+      })
+        .then(() => {
+          Alert.success(
+            'Your request has been successfully sent. Your contacts will be verified after a while'
+          );
+        })
+        .catch(e => {
+          Alert.error(e.message);
         });
     };
 
@@ -144,6 +167,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       mergeCustomers,
       responseId: this.state.responseId,
       removeCustomers,
+      verifyCustomers,
       mergeCustomerLoading: this.state.mergeCustomerLoading
     };
 
@@ -211,6 +235,12 @@ export default withProps<Props>(
         options: {
           refetchQueries: ['customersMain', 'customerCounts']
         }
+      }
+    ),
+    graphql<Props, VerifyMutationResponse, VerifyMutationVariables>(
+      gql(mutations.customersVerify),
+      {
+        name: 'customersVerify'
       }
     )
   )(withRouter<IRouterProps>(CustomerListContainer))

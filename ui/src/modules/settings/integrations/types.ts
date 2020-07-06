@@ -72,6 +72,7 @@ export interface IMessengerData {
   showChat?: boolean;
   showLauncher?: boolean;
   forceLogoutWhenResolve?: boolean;
+  showVideoCallRequest?: boolean;
   onlineHours?: IOnlineHour[];
   links?: ILink;
 }
@@ -351,3 +352,17 @@ export type CommonFieldsEditResponse = {
     params: { variables: { _id: string; name: string; brandId: string } }
   ) => Promise<any>;
 };
+
+export type ProviderFormInput = (
+  key:
+    | 'email'
+    | 'password'
+    | 'imapHost'
+    | 'imapPort'
+    | 'smtpHost'
+    | 'smtpPort'
+    | 'host'
+    | 'username'
+    | string,
+  value: string | number
+) => void;

@@ -57,12 +57,17 @@ class ChannelStep extends React.Component<Props> {
         {this.renderBox(
           METHODS.EMAIL,
           'envelope-edit',
-          `Delivered to a user's email inbox Customize with your own templates`
+          `Master email marketing with fully customized templates`
         )}
         {this.renderBox(
           METHODS.MESSENGER,
           'comment-edit',
-          'Delivered inside your app Reach active users'
+          'Interact personally with direct in-app-messaging'
+        )}
+        {this.renderBox(
+          METHODS.SMS,
+          'comment-alt-message',
+          `Send bulk SMS online with simple and direct texts`
         )}
       </FullContent>
     );

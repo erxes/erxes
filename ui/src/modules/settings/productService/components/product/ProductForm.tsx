@@ -61,6 +61,11 @@ class Form extends React.Component<Props> {
 
         <FormGroup>
           <ControlLabel required={true}>Code</ControlLabel>
+          <p>
+            Depending on your business type, you may type in a barcode or any
+            other UPC (Universal Product Code). If you don't use UPC, type in
+            any numeric value to differentiate your products.
+          </p>
           <FormControl
             {...formProps}
             name="code"

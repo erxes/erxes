@@ -76,7 +76,7 @@ class KnowledgeBase extends React.Component<Props> {
       <Title>
         {currentCategory.title}
         <span>
-          ({articlesCount} {articlesCount > 1 ? __('articles') : __('artcile')})
+          ({articlesCount} {articlesCount > 1 ? __('articles') : __('article')})
         </span>
       </Title>
     );

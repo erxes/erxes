@@ -38,3 +38,7 @@ export const PROBABILITY = {
     ALL: [...COMMON_PERCENT, 'Resolved']
   }
 };
+
+export const getWarningMessage = (type: string): string => {
+  return `This will permanently delete the current ${type}. Are you absolutely sure?`;
+};

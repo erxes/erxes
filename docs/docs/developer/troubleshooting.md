@@ -23,12 +23,22 @@ In **Outlook**, **Yahoo**, **IMAP** providers your password needs to be encrypte
 ## Nylas IMAP
 > Before you add IMAP account please make sure that you already config ENCRYPTION KEY, ALGORITHM [here](#password-encryption).
 
-When you create the IMAP account check you entered correct values for example:
+When you create the IMAP account, it should look like as follows:
+
 
 <img src="https://erxes-docs.s3-us-west-2.amazonaws.com/troubleshooting/troubleshoot-2.png" />
 
 * Common [a List of SMTP and IMAP Server](https://www.arclab.com/en/kb/email/list-of-smtp-and-imap-servers-mailserver-list.html).
 * If you have Nylas IMAP specific problem read [here](https://docs.nylas.com/docs/imap).
+
+## Nylas Gmail IMAP
+
+If you encounter **Invalid authentication or incorrect username password** when you create Gmail IMAP integration, Please check the following
+- Ensure that you entered the correct password
+- Ensure that you enabled the IMAP Access in [Gmail config](https://mail.google.com/mail/u/0/#settings/general)
+- Ensure that you turned on the [Less secure app](https://myaccount.google.com/lesssecureapps)
+
+If you don't know how to configure these, please go ahead to Gmail IMAP doc section [here](http://localhost:3000/administrator/system-config#gmail-imap)
 
 ## Gmail
 * Before you use Gmail integration please make sure that you enter correct GOOGLE TOPIC, GOOGLE GMAIL SUBSCRIPTION NAME it should be single string otherwise you will get invalid_format error.
@@ -38,3 +48,12 @@ When you create the IMAP account check you entered correct values for example:
 * Permission Denied, when creating or checking Google Topic and Subscription make sure your service account has owner role in IAM & Admin -> IAM.
 
 * If you are not receiving any emails, please check you add Grant Publish Topic right to **gmail-api-push@system.gserviceaccount.com** in IAM & Admin -> IAM -> Add.
+
+* When the Integration repository starts it will automatically create a topic and subscription for syncing, receiving emails. But if you have not configured your system environment you might see the following error - [ Google Cloud Getting started ]( ttps://cloud.google.com/docs/authentication/getting-started)
+```
+7 PERMISSION_DENIED: User not authorized to perform this action.
+```
+To fix the above error set the following variable to your environment.
+```
+export GOOGLE_APPLICATION_CREDENTIALS="/Path/to/your/[google_cred].json"
+```

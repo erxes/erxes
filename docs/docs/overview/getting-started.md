@@ -3,66 +3,58 @@ id: getting-started
 title: Getting  Started
 ---
 
-<!--Content-->
-
-<div class="row">
-  <div class="col-md-6" markdown="1">
-
 ### Overview
 
-- <a href="overview">Overview</a>
-- <a href="architecture-overview">Architecture Overview</a>
-- <a href="deployment-overview">Deployment Overview</a>
-- <a href="integrations-overview">Integrations Overview</a>
+- [Overview](/overview/overview)
+- [Architecture Overview](/overview/architecture-overview)
+- [Deployment Overview](/overview/deployment-overview)
+- [Integrations Overview](/overview/integrations-overview)
 
 ### User's Guide
 
-- <a href="../user/subscription-getting-started">Subscription getting started</a>
-- <a href="../user/initial-setup">Initial setup</a>
-- <a href="../user/general-settings">General settings</a>
-- <a href="../user/team-inbox">Team Inbox</a>
-- <a href="../user/knowledge-base">Knowledge Base</a>
-- <a href="../user/popups">Popups</a>
-- <a href="../user/script-install">Script installation</a>
-- <a href="../user/contacts">Contacts</a>
-- <a href="../user/segments">Segments</a>
-- <a href="../user/sales-pipeline">Sales pipeline</a>
-- <a href="../user/engage">Engage</a>
-- <a href="../user/insights">Insights</a>
-- <a href="../user/profile-settings">Profile settings</a>
-- <a href="../user/notification">Notifications</a>
-- <a href="../user/mobile-apps">Mobile Apps</a>
-    </div>
-  <div class="col-md-6" markdown="1">
+- [Subscription getting started](/user/subscription-getting-started)
+- [Initial setup](/user/initial-setup)
+- [General settings](/user/general-settings)
+- [Import](/user/import)
+- [Team Inbox](/user/team-inbox)
+- [Knowledge Base](/user/knowledge-base)
+- [Popups](/user/popups)
+- [Script installation](/user/script-install)
+- [Contacts](/user/contacts)
+- [Segments](/user/segments)
+- [Sales pipeline](/user/sales-pipeline)
+- [Engage](/user/engage)
+- [Insights](/user/insights)
+- [Profile settings](/user/profile-settings)
+- [Notifications](/user/notification)
+- [Mobile Apps](/user/mobile-apps)
+
 
 ### Installation Guide
 
-- <a href="../installation/ubuntu">Ubuntu 18.04</a>
-- <a href="../installation/debian10">Debian 10</a>
-- <a href="../installation/centos8">CentOS 8</a>
-- <a href="../installation/redhat8">RHEL 8</a>
-- <a href="../installation/docker">Docker</a>
-- <a href="../installation/heroku">Heroku</a>
-- <a href="../installation/aws">AWS Marketplace</a>
-- <a href="../installation/digitalocean">DigitalOcean Marketplace</a>
-- <a href="../installation/upgrade">Upgrade</a>
+- [Ubuntu 18.04](/installation/ubuntu)
+- [Debian 10](/installation/debian10)
+- [CentOS 8](/installation/centos8)
+- [RHEL 8](/installation/redhat8)
+- [Docker](/installation/docker)
+- [Heroku](/installation/heroku)
+- [AWS Marketplace](/installation/aws)
+- [DigitalOcean Marketplace](/installation/digitalocean)
+- [Upgrade](/installation/upgrade)
 
 ### Administrator's guide
 
-- <a href="../administrator/creating-first-user">Creating first user</a>
-- <a href="../administrator/environment-variables">Environment Variables</a>
-- <a href="../administrator/system-config">System configs</a>
-- <a href="../administrator/migration">Migration</a>
+- [Creating first user](/administrator/creating-first-user)
+- [Environment Variables](/administrator/environment-variables)
+- [System configs](/administrator/system-config)
+- [Migration](/administrator/migration)
 
 ### Developer's guide
 
-- <a href="../developer/graphql-api">GraphQL API</a>
-- <a href="../developer/coding-standards">Coding standards</a>
-- <a href="../developer/contributing">Contributing</a>
-- <a href="../developer/push-notifications">Push Notification</a>
-- <a href="../developer/android-sdk">Android SDK</a>
-- <a href="../developer/ios-sdk">iOS SDK</a>
-- <a href="../developer/troubleshooting">Troubleshooting</a>
-
-    </div>
-  </div>
+- [Developer](/developer/developer)
+- [Contributing](/developer/contributing)
+- [GraphQL API](/developer/graphql-api)
+- [Push Notifications](/developer/push-notifications)
+- [Android SDK](/developer/android-sdk)
+- [iOS SDK](/developer/ios-sdk)
+- [Troubleshooting](/developer/troubleshooting)

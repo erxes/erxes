@@ -1,6 +1,5 @@
-import * as moment from "moment";
+import Datetime from "@nateradebaugh/react-datetime";
 import * as React from "react";
-import DatePicker from "react-datepicker";
 import uploadHandler from "../../uploadHandler";
 import { FieldValue, IField, IFieldError } from "../types";
 
@@ -11,7 +10,7 @@ type Props = {
 };
 
 type State = {
-  dateValue: moment.Moment | null;
+  dateValue: Date | string;
   isAttachingFile?: boolean;
 };
 
@@ -88,7 +87,7 @@ export default class Field extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      dateValue: null
+      dateValue: ""
     };
   }
 
@@ -129,9 +128,9 @@ export default class Field extends React.Component<Props, State> {
     }
   };
 
-  onDateChange = (momentObj: moment.Moment) => {
-    this.setState({ dateValue: momentObj });
-    this.onChange(momentObj.toDate());
+  onDateChange = (date?: Date | string) => {
+    this.setState({ dateValue: date || "" });
+    this.onChange(date || "");
   };
 
   onRadioButtonsChange = (e: React.FormEvent<HTMLInputElement>) => {
@@ -166,11 +165,11 @@ export default class Field extends React.Component<Props, State> {
 
   renderDatepicker() {
     return (
-      <DatePicker
-        selected={this.state.dateValue}
+      <Datetime
+        value={this.state.dateValue}
+        defaultValue={new Date()}
+        viewDate={new Date()}
         onChange={this.onDateChange}
-        className="form-control"
-        showTimeSelect={true}
         timeFormat="HH:mm"
         dateFormat="YYYY/MM/DD HH:mm"
       />

@@ -20,6 +20,8 @@ const details = ({ match }) => {
 const list = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
+  localStorage.setItem('erxes_contact_url', 'companies');
+
   return <CompaniesList queryParams={queryParams} />;
 };
 

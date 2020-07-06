@@ -70,7 +70,8 @@ export const MESSENGER_KINDS = {
 export const METHODS = {
   MESSENGER: 'messenger',
   EMAIL: 'email',
-  ALL_LIST: ['messenger', 'email']
+  SMS: 'sms',
+  ALL_LIST: ['messenger', 'email', 'sms']
 };
 
 export const SENT_AS_CHOICES = {

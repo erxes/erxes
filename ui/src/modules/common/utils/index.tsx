@@ -3,7 +3,8 @@ import dayjs from 'dayjs';
 import T from 'i18n-react';
 import { IUser, IUserDoc } from 'modules/auth/types';
 import React from 'react';
-import { DateWrapper } from '../styles/main';
+import Tip from '../components/Tip';
+import { Limited } from '../styles/main';
 import { IAttachment } from '../types';
 import Alert from './Alert';
 import confirm from './confirmation/confirm';
@@ -163,6 +164,10 @@ export const readFile = (value: string): string => {
 };
 
 export const getUserAvatar = (user: IUserDoc) => {
+  if (!user) {
+    return '';
+  }
+
   const { details = {} } = user;
 
   if (!details.avatar) {
@@ -350,10 +355,14 @@ export function formatValue(value) {
       dayjs(value).isValid() &&
       (value.includes('/') || value.includes('-'))
     ) {
-      return <DateWrapper>{dayjs(value).format('lll')}</DateWrapper>;
+      return (
+        <Tip text={dayjs(value).format('D MMM YYYY, HH:mm')} placement="top">
+          <time>{dayjs(value).format('L')}</time>
+        </Tip>
+      );
     }
 
-    return value;
+    return <Limited>{value}</Limited>;
   }
 
   if (value && typeof value === 'object') {

@@ -18,5 +18,10 @@
       "preset": "angular",
       "infile": "CHANGELOG.md"
     }
+  },
+  "hooks": {
+    "after:bump": "./scripts/build.sh",
+    "after:git:release": "echo After git push, before github release",
+    "after:release": "echo Successfully released ${name} v${version} to ${repo.repository}."
   }
 }

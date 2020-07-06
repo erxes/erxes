@@ -53,7 +53,7 @@ class SortableList extends React.Component<Props> {
   }
 
   render() {
-    const { fields, child, isDragDisabled, droppableId } = this.props;
+    const { fields, child, isDragDisabled, droppableId = '' } = this.props;
 
     if (fields.length === 0) {
       return <EmptyState text="There is no fields" icon="ban" />;
@@ -61,7 +61,7 @@ class SortableList extends React.Component<Props> {
 
     return (
       <DragDropContext onDragEnd={this.onDragEnd}>
-        <Droppable droppableId={droppableId} type="ITEMS">
+        <Droppable droppableId={droppableId.toString()} type="ITEMS">
           {provided => (
             <SortableWrapper
               {...provided.droppableProps}
@@ -70,7 +70,7 @@ class SortableList extends React.Component<Props> {
               {fields.map((field, index) => (
                 <Draggable
                   key={field._id || index}
-                  draggableId={field._id || index || Math.random()}
+                  draggableId={field._id.toString() || index || Math.random()}
                   index={index}
                   isDragDisabled={isDragDisabled}
                 >
