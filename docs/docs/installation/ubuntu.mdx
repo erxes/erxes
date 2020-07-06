@@ -1,0 +1,642 @@
+---
+id: ubuntu
+title: Ubuntu 18.04
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs
+  defaultValue='step-by-step'
+  values={[
+    { label: 'Quickstart', value: 'quickstart' },
+    { label: 'Step by Step', value: 'step-by-step' },
+]}>
+
+<TabItem value='quickstart'>
+
+## Installing erxes on Ubuntu 18.04
+
+You can simply follow [Debian doc](/installation/debian10) to install manually.
+
+</TabItem>
+<TabItem value='step-by-step'>
+
+TODO:
+
+- Change to SSL in the .env files.
+- Implement SSL before erxes configurations
+- Settle the elkSyncer issue
+- Test on different hosting services
+- Also we should mention that firewall should be enabled and only SSH port, Nginx 80, 443 should be opened.
+- MongoDB, ElasticSearch, RabbitMQ, Redis all DBs are not authenticated by default and insecure.
+-
+
+Log into the server as root user.
+
+```
+adduser erxes
+erxes123
+usermod -aG sudo erxes
+```
+
+- exit from server
+- log back in as erxes user
+
+## Nvm install
+
+```
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
+
+```
+
+- log out and log back in to have nvm boot
+
+## NodeJS install
+
+```
+nvm install v12.16.3
+node -v (to check if installed)
+
+```
+
+## NvmPm2 install
+
+```
+npm install pm2 -g
+```
+
+## Yarn install
+
+```
+curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+sudo apt update && sudo apt install --no-install-recommends yarn
+
+```
+
+## MongoDB 3.6 replicaSet install
+
+```
+wget -qO - https://www.mongodb.org/static/pgp/server-3.6.asc | sudo apt-key add -
+echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.6 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.6.list
+sudo apt-get update
+sudo apt-get install -y mongodb-org
+sudo systemctl start mongod
+sudo systemctl enable mongod
+```
+
+### Convert mongodb to replicaset
+
+```
+sudo systemctl stop mongod
+```
+
+### open mongodb config file:
+
+```
+sudo vim /etc/mongod.conf
+```
+
+### Enable replicaset settings.
+
+```
+replication:
+replSetName: rs0
+```
+
+### verify
+
+```
+sudo cat /etc/mongod.conf
+```
+
+### start mongodb back
+
+```
+sudo systemctl start mongod
+```
+
+### connect to mongo shell
+
+```
+mongo
+```
+
+### Initialize replicaset
+
+```
+rs.initiate()
+```
+
+- after few seconds press enter to verify SECONDARY changes to PRIMARY
+- press `ctrl-c` to quit mongo
+
+## Redis
+
+```
+sudo apt-get install -y redis
+```
+
+## RabbitMQ
+
+(https://www.rabbitmq.com/install-debian.html#apt-packagecloud)
+
+### Erlang 22.x
+
+```
+curl -fsSL https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc | sudo apt-key add -
+sudo apt-get install apt-transport-https
+```
+
+- write following lines to this file. (This step needs to be automated, lot of users doesn't know how to exit vim)
+
+```
+sudo vim /etc/apt/sources.list.d/bintray.erlang.list
+```
+
+- PUT THIS IN THE FILE
+
+```txt
+# This repository provides Erlang packages produced by the RabbitMQ team
+# See below for supported distribution and component values
+deb https://dl.bintray.com/rabbitmq-erlang/debian bionic erlang-22.x
+```
+
+- verify
+
+```
+sudo cat /etc/apt/sources.list.d/bintray.erlang.list
+```
+
+- This is recommended. Metapackages such as erlang and erlang-nox must only be used with apt version pinning. They do not pin their dependency versions.
+
+```
+sudo apt-get install -y erlang-base \
+ erlang-asn1 erlang-crypto erlang-eldap erlang-ftp erlang-inets \
+ erlang-mnesia erlang-os-mon erlang-parsetools erlang-public-key \
+ erlang-runtime-tools erlang-snmp erlang-ssl \
+ erlang-syntax-tools erlang-tftp erlang-tools erlang-xmerl
+```
+
+## Adding key
+
+```
+wget -O - "https://packagecloud.io/rabbitmq/rabbitmq-server/gpgkey" | sudo apt-key add -
+```
+
+## Adding packagecloud repo
+
+```
+curl -s https://packagecloud.io/install/repositories/rabbitmq/rabbitmq-server/script.deb.sh | sudo bash
+```
+
+## Ready to install rabbitmq-server, but need erlang dependency
+
+```
+sudo apt-get install -y rabbitmq-server
+```
+
+## EleasticSearch
+
+```
+wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
+sudo apt-get update && sudo apt-get install elasticsearch
+sudo /bin/systemctl daemon-reload
+sudo /bin/systemctl enable elasticsearch.service
+sudo systemctl start elasticsearch.service
+sudo systemctl stop elasticsearch.service
+```
+
+## Nginx
+
+(https://launchpad.net/~nginx/+archive/ubuntu/stable)
+(Nginx from stable repo https://launchpad.net/~nginx/+archive/ubuntu/stable)
+
+```
+sudo add-apt-repository ppa:nginx/stable
+sudo apt-get update
+sudo apt-get install -y nginx
+# It started by default when we install it. Just making sure of things.
+sudo systemctl enable nginx
+sudo systemctl start nginx
+```
+
+## Install GitHub
+
+```
+sudo apt update
+sudo apt install git
+git --version
+```
+
+## Install erxes
+
+```
+cd ~
+mkdir erxes
+cd erxes
+git clone https://github.com/erxes/erxes.git
+git clone https://github.com/erxes/erxes-api.git
+git clone https://github.com/erxes/erxes-integrations.git
+```
+
+- The following assumes the following URLS. You need to use your own url.
+
+```
+localhost:3000 => erxes.acneskindisorder.com
+localhost:3200 => erxes.acneskindisorder.com/widgets
+localhost: 3300 => erxes.acneskindisorder.com/api
+localhost: 3400 => erxes.acneskindisorder.com/integrations
+```
+
+### Configure erxes UI
+
+```
+cd ~/erxes/erxes/ui
+yarn install
+cp .env.sample .env
+```
+
+- open .env file
+
+```bash
+vim .env
+```
+
+```
+PORT=3000
+NODE_ENV=development
+REACT_APP_CDN_HOST=http://erxes.acneskindisorder.com/widgets
+REACT_APP_API_URL=http://erxes.acneskindisorder.com/api
+REACT_APP_API_SUBSCRIPTION_URL=ws://erxes.acneskindisorder.com/api/subscriptions
+```
+
+### Configure erxes widgets
+
+```bash
+cd ~/erxes/erxes/widgets
+yarn install
+cp .env.sample .env
+vim .env
+```
+
+```
+PORT=3200
+ROOT_URL=http://erxes.acneskindisorder.com/widgets
+API_URL=http://erxes.acneskindisorder.com/api
+API_SUBSCRIPTIONS_URL=ws://erxes.acneskindisorder.com/api/subscriptions
+```
+
+```bash
+yarn build
+```
+
+### Configure erxes-api/logger
+
+```bash
+cd ~/erxes/erxes-api/logger
+yarn install
+cp .env.sample .env
+vim .env
+cat .env
+```
+
+```
+PORT=3800
+MONGO_URL=mongodb://localhost/erxes_logs
+# RabbitMQ
+RABBITMQ_HOST=amqp://localhost
+```
+
+[VERIFY THIS]
+(# RabbitMQ
+RABBITMQ_HOST=amqp://localhost)
+
+```bash
+yarn build
+```
+
+### Configure erxes-api/email-verifier
+
+```bash
+cd ~/erxes/erxes-api/email-verifier
+yarn install
+cp .env.sample .env
+
+vim .env
+```
+
+- change to production
+
+```bash
+cat .env
+```
+
+- results:
+
+```
+NODE_ENV=production
+PORT=4100
+
+# MongoDB
+MONGO_URL=mongodb://localhost/erxes-email-verifier
+
+# RabbitMQ
+RABBITMQ_HOST=amqp://localhost
+
+TRUE_MAIL_API_KEY=
+
+```
+
+```
+yarn build
+```
+
+### configure erxes-api/engages-email-sender
+
+```
+cd ~/erxes/erxes-api/engages-email-sender
+yarn install
+cp .env.sample .env
+vim .env
+```
+
+- change to production and add url .../api
+
+```
+cat .env
+```
+
+- results in
+
+```
+# general
+NODE_ENV=production
+PORT=3900
+
+# public urls
+MAIN_API_DOMAIN=http://erxes.acneskindisorder.com/api
+
+# MongoDB
+MONGO_URL=mongodb://localhost/erxes-engages
+TEST_MONGO_URL=mongodb://localhost/erxes-engages-test
+
+# RabbitMQ
+RABBITMQ_HOST=amqp://localhost
+
+# Redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=
+
+```
+
+```
+yarn build
+```
+
+### configure erxes-api/elkSyncer
+
+```bash
+cd ~/erxes/erxes-api/elkSyncer
+curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+sudo apt-get install python3-distutils
+
+add password erxes123
+y to continue
+
+python3 get-pip.py
+```
+
+### ~/.bashrc => PATH="$HOME/.local/bin:$PATH"
+
+```
+vim ~/.bashrc
+```
+
+```
+PATH="$HOME/.local/bin:$PATH"
+```
+
+- then save
+
+- issue the following in the terminal
+
+```bash
+PATH="$HOME/.local/bin:$PATH"
+export PATH
+```
+
+- install these
+
+```
+pip3 install -r requirements.txt
+cp .env.sample .env
+vim .env
+```
+
+- verify with
+
+```
+cat .env
+```
+
+- results / output
+
+```
+MONGO_URL=mongodb://mongo/erxes
+ELASTICSEARCH_URL=http://localhost:9200
+```
+
+- then build
+
+```
+yarn build
+```
+
+### configure erxes-api
+
+```
+cd ~/erxes/erxes-api
+yarn install
+cp .env.sample .env
+vim .env
+```
+
+```
+yarn build
+```
+
+### configure erxes-integrations
+
+```
+cd ~/erxes/erxes-integrations
+vim package.json
+"node": "10.x.x" => "node": ">=10.x.x"
+```
+
+```
+yarn install
+cp .env.sample .env
+vim .env
+cat .env
+```
+
+- output
+
+```
+NODE_ENV=production
+PORT=3400
+MONGO_URL=mongodb://localhost/erxes_integrations
+
+# Redis
+
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=
+
+# RABBITMQ
+
+RABBITMQ_HOST=amqp://localhost
+
+# public facing domains
+
+DOMAIN=http://erxes.acneskindisorder.com/integrations
+
+# erxes non public domains
+
+MAIN_APP_DOMAIN=http://erxes.acneskindisorder.com
+MAIN_API_DOMAIN=http://erxes.acneskindisorder.com/api
+
+```
+
+- then build
+
+```
+yarn build
+```
+
+### widgets
+
+```
+cd ~/erxes/erxes/widgets
+pm2 start dist --name widgets
+```
+
+### logger
+
+```
+cd ~/erxes/erxes-api/logger
+pm2 start dist --name logger
+```
+
+### email-verifier
+
+```
+cd ~/erxes/erxes-api/email-verifier
+pm2 start dist --name email-verifier
+```
+
+### engages-email-sender
+
+```
+cd ~/erxes/erxes-api/engages-email-sender
+pm2 start dist --name engages-email-sender
+```
+
+### elkSyncer [THIS IS BUGGED. NEEDS TO BE STOPPED]
+
+```
+cd ~/erxes/erxes-api/elkSyncer
+pm2 start main.py --name elkSyncer --interpreter python3
+```
+
+### api
+
+```
+cd ~/erxes/erxes-api
+pm2 start dist --name erxes-api
+pm2 start dist/cronJobs --name erxes-crons
+pm2 start dist/workers --name erxes-workers
+```
+
+### erxes-integrations
+
+```
+cd ~/erxes/erxes-integrations
+pm2 start dist --name erxes-integrations
+```
+
+### Nginx config
+
+```
+sudo vim /etc/nginx/sites-enabled/erxes.conf
+```
+
+- copy paste nginx config
+
+```
+sudo nginx -t
+sudo service nginx reload
+```
+
+```
+server {
+        listen 80;
+
+        server_name erxes.kaidawei.com;
+
+        # erxes build path
+        root /home/erxes/erxes/erxes/ui/build;
+        index index.html;
+
+        error_log /var/log/nginx/erxes.error.log;
+        access_log /var/log/nginx/erxes.access.log;
+
+        location / {
+                try_files $uri /index.html;
+        }
+
+        # widgets is running on 3200 port.
+        location /widgets/ {
+                proxy_pass http://127.0.0.1:3200/;
+                proxy_set_header Host $http_host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_http_version 1.1;
+        }
+
+        # api project is running on 3300 port.
+        location /api/ {
+                proxy_pass http://127.0.0.1:3300/;
+                proxy_set_header Host $http_host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection "Upgrade";
+        }
+        # erxes integrations project is running on 3400 port.
+        location /integrations/ {
+                proxy_pass http://127.0.0.1:3400/;
+                proxy_set_header Host $http_host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_http_version 1.1;
+        }
+}
+```
+
+- initialize Erxes
+
+```bash
+cd ~/erxes/erxes-api
+yarn initProject
+yarn loadPermission
+```
+
+</TabItem>
+
+</Tabs>
