@@ -20,10 +20,20 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.post('/verify-single', async (req, res, next) => {
   debugRequest(debugBase, req);
 
-  const { email } = req.body;
+  const { email, phone, hostname } = req.body;
+
+  if (email) {
+    try {
+      const result = await single(email, hostname);
+
+      return res.json(result);
+    } catch (e) {
+      return next(new Error(e));
+    }
+  }
 
   try {
-    const result = await single(email);
+    const result = await validateSinglePhone(phone, hostname);
 
     return res.json(result);
   } catch (e) {
@@ -31,42 +41,24 @@ app.post('/verify-single', async (req, res, next) => {
   }
 });
 
-app.post('/verify-bulkEmails', async (req, res, next) => {
+app.post('/verify-bulk', async (req, res, next) => {
   debugRequest(debugBase, req);
 
-  const { emails, hostname } = req.body;
+  const { phones, emails, hostname } = req.body;
+
+  if (phones) {
+    try {
+      const result = await validateBulkPhones(phones, hostname);
+
+      return res.json({ phones: result });
+    } catch (e) {
+      return next(e);
+    }
+  }
 
   try {
     const result = await bulk(emails, hostname);
     return res.json({ emails: result });
-  } catch (e) {
-    return next(e);
-  }
-});
-
-app.post('/verify-singlePhone', async (req, res, next) => {
-  debugRequest(debugBase, req);
-
-  const { phone } = req.body;
-
-  try {
-    const result = await validateSinglePhone(phone);
-
-    return res.json(result);
-  } catch (e) {
-    return next(new Error(e));
-  }
-});
-
-app.post('/verify-bulkPhones', async (req, res, next) => {
-  debugRequest(debugBase, req);
-
-  const { phones, hostname } = req.body;
-
-  try {
-    const result = await validateBulkPhones(phones, hostname);
-
-    return res.json({ phones: result });
   } catch (e) {
     return next(e);
   }

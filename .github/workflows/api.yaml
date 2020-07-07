@@ -48,90 +48,91 @@ jobs:
           - 27017:27017
 
     steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v2
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
 
-    - name: Use Node.js 12.16.x
-      uses: actions/setup-node@v1
-      with:
-        node-version: 12.16.x
+      - name: Use Node.js 12.16.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.16.x
 
-    # https://github.com/actions/cache/blob/master/examples.md#node---yarn
-    - name: Get yarn cache directory path
-      id: yarn-cache-dir-path
-      run: echo "::set-output name=dir::$(yarn cache dir)"
+      # https://github.com/actions/cache/blob/master/examples.md#node---yarn
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
 
-    - name: Cache Node.js modules
-      id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-      uses: actions/cache@v1
-      with:
-        path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-        key: ${{ runner.os }}-yarn-api-${{ hashFiles('yarn.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-yarn-api-${{ hashFiles('yarn.lock') }}
-          ${{ runner.os }}-yarn-api-
-          ${{ runner.os }}-yarn-
+      - name: Cache Node.js modules
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        uses: actions/cache@v1
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-api-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-api-${{ hashFiles('yarn.lock') }}
+            ${{ runner.os }}-yarn-api-
+            ${{ runner.os }}-yarn-
 
-    - name: Install
-      run: |
-        yarn install
+      - name: Install
+        run: |
+          yarn install
 
-    - name: Lint
-      run: |
-        yarn lint
+      - name: Lint
+        run: |
+          yarn lint
 
-    - name: Tsc
-      if: github.event_name == 'pull_request'
-      run: |
-        yarn tsc -p tsconfig.prod.json
+      - name: Tsc
+        if: github.event_name == 'pull_request'
+        run: |
+          yarn tsc -p tsconfig.prod.json
 
-    - name: Test
-      run: |
-        yarn test
-      env:
-        MONGO_URL: mongodb://localhost/erxes
-        TEST_MONGO_URL: mongodb://localhost/test
-        JWT_TOKEN_SECRET: token
-        MAIN_APP_DOMAIN: http://localhost:3000
+      - name: Test
+        run: |
+          yarn test
+        env:
+          MONGO_URL: mongodb://localhost/erxes
+          TEST_MONGO_URL: mongodb://localhost/test
+          JWT_TOKEN_SECRET: token
+          MAIN_APP_DOMAIN: http://localhost:3000
 
-    - name: Build
-      if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'push'
-      run: |
-        yarn build
+      - name: Build
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'push'
+        run: |
+          yarn build
 
-    - name: Prepare release assets [tag]
-      if: startsWith(github.ref, 'refs/tags/')
-      run: |
-        tar -zcf erxes-api-${GITHUB_REF#refs/tags/}.tar.gz dist
+      - name: Prepare release assets [tag]
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          cp package.json dist/
+          tar -zcf erxes-api-${GITHUB_REF#refs/tags/}.tar.gz dist
 
-    - name: Get release version [tag]
-      id: get_release_version
-      if: startsWith(github.ref, 'refs/tags/')
-      run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+      - name: Get release version [tag]
+        id: get_release_version
+        if: startsWith(github.ref, 'refs/tags/')
+        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
 
-    - name: Upload release assets [tag]
-      uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
-      with:
+      - name: Upload release assets [tag]
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
           files: ./erxes-api-${{ steps.get_release_version.outputs.VERSION }}.tar.gz
           name: Release ${{ steps.get_release_version.outputs.VERSION }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Build docker image [push]
-      if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/crons' || github.ref == 'refs/heads/workers')
-      env:
-        BASE_IMAGE: erxes/erxes-api:base-12.16.3-slim
-      run: |
-        echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-        DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes-api:${GITHUB_REF#refs/heads/} -f api.Dockerfile .
-        docker push erxes/erxes-api:${GITHUB_REF#refs/heads/}
+      - name: Build docker image [push]
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/crons' || github.ref == 'refs/heads/workers')
+        env:
+          BASE_IMAGE: erxes/erxes-api:base-12.16.3-slim
+        run: |
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes-api:${GITHUB_REF#refs/heads/} -f api.Dockerfile .
+          docker push erxes/erxes-api:${GITHUB_REF#refs/heads/}
 
-    - name: Build docker image [tag]
-      if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
-      env:
-        BASE_IMAGE: erxes/erxes-api:base-12.16.3-slim
-      run: |
-        echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-        DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes-api:${GITHUB_REF#refs/tags/} -f api.Dockerfile .
-        docker push erxes/erxes-api:${GITHUB_REF#refs/tags/}
+      - name: Build docker image [tag]
+        if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+        env:
+          BASE_IMAGE: erxes/erxes-api:base-12.16.3-slim
+        run: |
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes-api:${GITHUB_REF#refs/tags/} -f api.Dockerfile .
+          docker push erxes/erxes-api:${GITHUB_REF#refs/tags/}

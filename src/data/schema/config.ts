@@ -27,6 +27,7 @@ export const queries = `
   configs: [Config]
   configsVersions: ProjectInfos
   configsGetEnv: ENV
+  configsConstants: JSON
 `;
 
 export const mutations = `
