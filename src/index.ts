@@ -20,8 +20,8 @@ import {
   handleUnsubscription,
   readFileRequest,
   registerOnboardHistory,
-  updateContacts,
 } from './data/utils';
+import { updateContactsValidationStatus, updateContactValidationStatus } from './data/verifierUtils';
 import { connect, mongoStatus } from './db/connection';
 import { debugBase, debugExternalApi, debugInit } from './debuggers';
 import { identifyCustomer, trackCustomEvent, trackViewPageEvent, updateCustomerProperty } from './events';
@@ -304,9 +304,25 @@ app.post(`/telnyx/webhook-failover`, async (req, res, next) => {
 
 // verifier web hook
 app.post(`/verifier/webhook`, async (req, res) => {
-  const { emails, phones } = req.body;
+  const { emails, phones, email, phone } = req.body;
 
-  phones ? await updateContacts('phone', phones) : await updateContacts('email', emails);
+  switch (Object.keys(req.body)[0]) {
+    case 'email':
+      await updateContactValidationStatus(email);
+      break;
+    case 'emails':
+      await updateContactsValidationStatus('email', emails);
+      break;
+    case 'phone':
+      await updateContactValidationStatus(phone);
+      break;
+    case 'phones':
+      await updateContactsValidationStatus('phone', phones);
+      break;
+
+    default:
+      break;
+  }
 
   return res.send('success');
 });

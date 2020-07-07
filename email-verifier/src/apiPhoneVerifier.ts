@@ -26,7 +26,7 @@ const savePhone = async (doc: {
 
 const singleClearOut = async (phone: string): Promise<any> => {
   try {
-    return sendRequest({
+    const response = await sendRequest({
       url: 'https://api.clearoutphone.io/v1/phonenumber/validate',
       method: 'POST',
       headers: {
@@ -35,6 +35,8 @@ const singleClearOut = async (phone: string): Promise<any> => {
       },
       body: { number: phone },
     });
+
+    return JSON.parse(response);
   } catch (e) {
     debugBase(`Error occured during single phone validation ${e.message}`);
     throw e;
@@ -121,11 +123,17 @@ export const getStatus = async (listId: string) => {
   }
 };
 
-export const validateSinglePhone = async (phone: string) => {
+export const validateSinglePhone = async (phone: string, hostname: string) => {
   const phoneOnDb = await Phones.findOne({ phone }).lean();
 
   if (phoneOnDb) {
-    return { phone, status: phoneOnDb.status };
+    await sendRequest({
+      url: `${hostname}/verifier/webhook`,
+      method: 'POST',
+      body: {
+        phone: { phone, status: phoneOnDb.status },
+      },
+    });
   }
 
   if (!phone.includes('+')) {
@@ -151,10 +159,24 @@ export const validateSinglePhone = async (phone: string) => {
       internationalFormat: data.internationalFormat,
       localFormat: data.localFormat,
     });
-    return { phone, status: data.status };
-  }
 
-  return { phone, status: PHONE_VALIDATION_STATUSES.UNKNOWN };
+    await sendRequest({
+      url: `${hostname}/verifier/webhook`,
+      method: 'POST',
+      body: {
+        phone: { phone, status: data.status },
+      },
+    });
+  } else {
+    // if status is not success
+    await sendRequest({
+      url: `${hostname}/verifier/webhook`,
+      method: 'POST',
+      body: {
+        phone: { phone, status: PHONE_VALIDATION_STATUSES.UNKNOWN },
+      },
+    });
+  }
 };
 
 export const validateBulkPhones = async (phones: string[], hostname: string) => {

@@ -53,7 +53,7 @@ const bulkTrueMail = async (unverifiedEmails: string[], hostname: string) => {
   }
 };
 
-export const single = async (email: string) => {
+export const single = async (email: string, hostname: string) => {
   const emailOnDb = await Emails.findOne({ email });
 
   if (emailOnDb) {
@@ -64,7 +64,13 @@ export const single = async (email: string) => {
   const { validDomain, validMailbox } = await emailValidator.verify(email);
 
   if (validDomain && validMailbox) {
-    return { email, status: EMAIL_VALIDATION_STATUSES.VALID };
+    await sendRequest({
+      url: `${hostname}/verifier/webhook`,
+      method: 'POST',
+      body: {
+        email: { email, status: EMAIL_VALIDATION_STATUSES.VALID },
+      },
+    });
   }
 
   let response: { status?: string; result?: string } = {};
@@ -80,13 +86,26 @@ export const single = async (email: string) => {
 
   if (response.status === 'success') {
     const doc = { email, status: response.result };
+
     await Emails.createEmail(doc);
-    return doc;
+
+    await sendRequest({
+      url: `${hostname}/verifier/webhook`,
+      method: 'POST',
+      body: {
+        email: doc,
+      },
+    });
+  } else {
+    // if status is not success
+    await sendRequest({
+      url: `${hostname}/verifier/webhook`,
+      method: 'POST',
+      body: {
+        email: { email, status: EMAIL_VALIDATION_STATUSES.UNKNOWN },
+      },
+    });
   }
-
-  // if status is not success
-
-  return { email, status: EMAIL_VALIDATION_STATUSES.UNKNOWN };
 };
 
 export const bulk = async (emails: string[], hostname: string) => {
