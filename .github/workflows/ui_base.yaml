@@ -9,7 +9,7 @@ on:
       - 'ui/docker-entrypoint.sh'
       - 'ui/base.Dockerfile'
       - 'ui/base.Dockerfile.dockerignore'
-      - '.github/workflows/ui_base.yml'
+      - '.github/workflows/ui_base.yaml'
 
 jobs:
   build_base_docker_image:
