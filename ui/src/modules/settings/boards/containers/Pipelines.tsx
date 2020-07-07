@@ -81,13 +81,21 @@ class PipelinesContainer extends React.Component<FinalProps> {
       object,
       confirmationUpdate
     }: IButtonMutateProps) => {
+      const callBackResponse = () => {
+        pipelinesQuery.refetch({ boardId });
+
+        if (callback) {
+          return callback();
+        }
+      };
+
       return (
         <ButtonMutate
           mutation={object ? mutations.pipelineEdit : mutations.pipelineAdd}
           variables={values}
-          callback={callback}
+          callback={callBackResponse}
           confirmationUpdate={object ? confirmationUpdate : false}
-          refetchQueries={getRefetchQueries(boardId)}
+          refetchQueries={getRefetchQueries()}
           isSubmitted={isSubmitted}
           type="submit"
           successMessage={`You successfully ${
@@ -120,10 +128,8 @@ class PipelinesContainer extends React.Component<FinalProps> {
   }
 }
 
-const getRefetchQueries = (boardId: string) => {
-  return [
-    { query: gql(queries.pipelines), variables: { boardId: boardId || '' } }
-  ];
+const getRefetchQueries = () => {
+  return ['pipelinesQuery'];
 };
 
 export default withProps<Props>(

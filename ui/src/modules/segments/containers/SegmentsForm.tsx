@@ -46,6 +46,12 @@ class SegmentsFormContainer extends React.Component<
     };
   }
 
+  componentWillMount() {
+    const { headSegmentsQuery } = this.props;
+
+    headSegmentsQuery.refetch();
+  }
+
   renderButton = ({
     name,
     values,
