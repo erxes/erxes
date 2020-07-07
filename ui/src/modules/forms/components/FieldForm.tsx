@@ -172,6 +172,7 @@ class FieldForm extends React.Component<Props, State> {
           </ControlLabel>
 
           <FormControl
+            id="FieldLabel"
             type="text"
             value={field.text || ''}
             onChange={text}
@@ -182,6 +183,7 @@ class FieldForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel htmlFor="description">Field description</ControlLabel>
           <FormControl
+            id="FieldDescription"
             componentClass="textarea"
             value={field.description || ''}
             onChange={desc}
