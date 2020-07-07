@@ -22,16 +22,44 @@ const listParamsValue = `
   perPage: $perPage
 `;
 
+const commonFields = `
+  _id
+  title
+  kind
+  isDraft
+  isLive
+  createdAt
+  method
+  tagIds
+  brandIds
+  segmentIds
+  stats
+  messenger
+  email
+
+  totalCustomersCount
+  validCustomersCount
+
+  fromUser {
+    _id
+    email
+    details {
+      avatar
+      fullName
+      position
+    }
+  }
+  shortMessage {
+    from
+    content
+  }
+`;
+
 const engageMessages = `
   query engageMessages(${listParamsDef}) {
     engageMessages(${listParamsValue}) {
-      _id
-      title
-      isDraft
-      isLive
-      createdAt
-      kind
-      method
+      ${commonFields}
+
       brands {
         name
       }
@@ -39,58 +67,22 @@ const engageMessages = `
         _id
         name
       }
-      fromUser {
-        _id
-        details {
-          avatar
-          fullName
-          position
-        }
-      }
-      tagIds
-      brandIds 
-      segmentIds 
-      totalCustomersCount
-      validCustomersCount
-      stats
       getTags {
         _id
         name
         colorCode
       }
-      messenger
-      email
     }
   }
 `;
 
 export const engageDetailFields = `
-  _id
-  kind
-  segmentIds
-  tagIds
-  brandIds
-  customerIds
-  title
-  fromUserId
-  method
-  email
-  isDraft
-  isLive
-  stopDate
-  createdAt
-  totalCustomersCount
-  validCustomersCount
-  stats
+  ${commonFields}
 
-  messenger
-  fromUser {
-    _id
-    email
-    details {
-      fullName
-    }
-  }
+  customerIds
+  fromUserId
+  stopDate
+
   scheduleDate {
     type
     month

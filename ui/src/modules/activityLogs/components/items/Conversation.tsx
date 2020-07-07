@@ -5,6 +5,7 @@ import {
   ActivityRow,
   CenterText,
   Collapse,
+  CollapseTrigger,
   ConversationContent,
   Count,
   FlexBody,
@@ -175,6 +176,11 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
         kind = 'email';
         item = 'by gmail';
         break;
+      case 'nylas-imap':
+        action = 'send';
+        kind = 'email';
+        item = 'by imap';
+        break;
     }
 
     if (condition === 'comment') {
@@ -197,10 +203,10 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
 
     const { customer, content, createdAt, integration } = conversation;
 
-    if (this.state.toggleMessage) {
+    if (!this.state.toggleMessage) {
       return (
         <>
-          <Header>
+          <Header onClick={this.onCollapse}>
             {integration.kind.includes('messenger') ? (
               <span>
                 Conversation with <b>{renderFullName(customer)}</b>
@@ -215,7 +221,7 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
     }
 
     return (
-      <>
+      <CollapseTrigger onClick={this.onCollapse}>
         <FlexCenterContent>
           {this.renderAction()}
 
@@ -233,7 +239,7 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
             <Count>{messages && messages.length}</Count>
           </FlexCenterContent>
         )}
-      </>
+      </CollapseTrigger>
     );
   }
 
@@ -255,7 +261,7 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
             <Icon icon={iconAndColor.icon} />
           </ActivityIcon>
         </Tip>
-        <Collapse onClick={this.onCollapse}>{this.renderContent()}</Collapse>
+        <Collapse>{this.renderContent()}</Collapse>
       </ActivityRow>
     );
   }

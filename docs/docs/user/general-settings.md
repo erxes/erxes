@@ -128,37 +128,6 @@ Customer or companies will fill this property
 1. Created Group
 2. Created Property under Group
 
-## Import histories
-
-Datas’ imported by the customers and companies will be seen at Import Histories
-
-- Please follow the steps for setup: General Settings->Import Histories
-
-### Import histories list
-
-![](https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/importhistory1.png)
-
-1. Customer's import history
-2. Company's import history
-3. Successfully imported count
-4. Failed import count
-5. Total import count
-6. Imported date
-7. Imported user
-
-### Import histories detail
-
-![](https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/importhistory2.png)
-
-1. Import history's progress par by percentage
-2. Error messages
-
-### Importing in the background
-
-![](https://s3.us-west-2.amazonaws.com/erxes-docs/general-settings/importhistory3.png)
-
-1. You can see the importing process's percentage while browsing other modules. This is background process
-
 ## Permissions
 
 You can specify the user's actions through this permission feature

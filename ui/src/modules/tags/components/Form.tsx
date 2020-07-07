@@ -12,7 +12,7 @@ import { ITag } from 'modules/tags/types';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
-import BlockPicker from 'react-color/lib/Block';
+import TwitterPicker from 'react-color/lib/Twitter';
 import styled from 'styled-components';
 
 const ColorPick = styled.div`
@@ -80,7 +80,7 @@ class FormComponent extends React.Component<Props, State> {
 
     const popoverContent = (
       <Popover id="color-picker">
-        <BlockPicker
+        <TwitterPicker
           width="266px"
           color={colorCode}
           onChange={this.onColorChange}

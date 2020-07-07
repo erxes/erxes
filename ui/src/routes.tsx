@@ -1,7 +1,6 @@
 import withCurrentUser from 'modules/auth/containers/withCurrentUser';
 import AutomationResponse from 'modules/automations/containers/Response';
 import asyncComponent from 'modules/common/components/AsyncComponent';
-import { userConfirmation } from 'modules/settings/team/routes';
 import queryString from 'query-string';
 import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
@@ -34,6 +33,10 @@ const Unsubscribe = asyncComponent(() =>
   import(/* webpackChunkName: "Unsubscribe" */ 'modules/auth/containers/Unsubscribe')
 );
 
+const UserConfirmation = asyncComponent(() =>
+  import(/* webpackChunkName: "Settings - UserConfirmation" */ 'modules/settings/team/containers/UserConfirmation')
+);
+
 export const unsubscribe = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
@@ -41,6 +44,14 @@ export const unsubscribe = ({ location }) => {
 };
 
 const renderRoutes = currentUser => {
+  const userConfirmation = ({ location }) => {
+    const queryParams = queryString.parse(location.search);
+
+    return (
+      <UserConfirmation queryParams={queryParams} currentUser={currentUser} />
+    );
+  };
+
   if (currentUser) {
     return (
       <>
@@ -64,6 +75,13 @@ const renderRoutes = currentUser => {
           <VideoCallRoutes />
           <TutorialRoutes />
           <DashboardRoutes />
+
+          <Route
+            key="/confirmation"
+            exact={true}
+            path="/confirmation"
+            component={userConfirmation}
+          />
         </MainLayout>
       </>
     );

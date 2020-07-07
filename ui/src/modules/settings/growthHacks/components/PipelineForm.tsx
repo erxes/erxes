@@ -19,7 +19,7 @@ import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
-import BlockPicker from 'react-color/lib/Block';
+import TwitterPicker from 'react-color/lib/Twitter';
 import Select from 'react-select-plus';
 import { metricOptions } from '../constants';
 import { queries } from '../graphql';
@@ -251,8 +251,9 @@ class PipelineForm extends React.Component<Props, State> {
 
     const popoverBottom = (
       <Popover id="color-picker">
-        <BlockPicker
+        <TwitterPicker
           width="266px"
+          triangle="hide"
           color={this.state.backgroundColor}
           onChange={this.onColorChange}
           colors={COLORS}

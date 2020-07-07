@@ -138,11 +138,6 @@ class IntegrationConfigs extends React.Component<Props, State> {
           )}
           {this.renderItem('MICROSOFT_CLIENT_ID')}
           {this.renderItem('MICROSOFT_CLIENT_SECRET')}
-          {this.renderItem(
-            'ENCRYPTION_KEY',
-            'Must be 256 bits (32 characters)'
-          )}
-          {this.renderItem('ALGORITHM', 'aes-256-cbc')}
         </CollapseContent>
 
         <CollapseContent title="Video call">

@@ -63,16 +63,10 @@ const singlePageInstall = brandCode => {
   const { REACT_APP_CDN_HOST } = getEnv();
 
   return `
-    (window as any).erxesSettings = {
-      email: "<email>",
+    window.erxesSettings = {
       messenger: {
         brand_id: "${brandCode}",
       },
-      phone: "<phone>",
-      data: {
-         domain: "<website>",
-         ...
-      }
     };
     
     (() => {
@@ -80,7 +74,7 @@ const singlePageInstall = brandCode => {
       script.src = "${REACT_APP_CDN_HOST}/build/messengerWidget.bundle.js";
       script.async = true;
 
-      const entry = document.getElementsByTagName('script')[0] as any;
+      const entry = document.getElementsByTagName('script')[0];
       entry.parentNode.insertBefore(script, entry);
     })();
   `;

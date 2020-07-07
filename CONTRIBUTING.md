@@ -57,19 +57,19 @@ Thank you to all our backers! [[Become a backer](https://opencollective.com/erxe
 <a href="https://opencollective.com/erxes#backers" target="_blank"><img src="https://opencollective.com/erxes/backers.svg?width=890"></a>
 
 
-### Sponsors
+### Financial Contributors
 
-Thank you to all our sponsors! (please ask your company to also support this open source project by [becoming a sponsor](https://opencollective.com/erxes#sponsor))
+Thank you to all our sponsors! (please ask your company to also support this open source project by [becoming a sponsor](https://opencollective.com/erxes/contribute/))
 
-<a href="https://opencollective.com/erxes/sponsor/0/website" target="_blank"><img src="https://opencollective.com/erxes/sponsor/0/avatar.svg"></a>
-<a href="https://opencollective.com/erxes/sponsor/1/website" target="_blank"><img src="https://opencollective.com/erxes/sponsor/1/avatar.svg"></a>
-<a href="https://opencollective.com/erxes/sponsor/2/website" target="_blank"><img src="https://opencollective.com/erxes/sponsor/2/avatar.svg"></a>
-<a href="https://opencollective.com/erxes/sponsor/3/website" target="_blank"><img src="https://opencollective.com/erxes/sponsor/3/avatar.svg"></a>
-<a href="https://opencollective.com/erxes/sponsor/4/website" target="_blank"><img src="https://opencollective.com/erxes/sponsor/4/avatar.svg"></a>
-<a href="https://opencollective.com/erxes/sponsor/5/website" target="_blank"><img src="https://opencollective.com/erxes/sponsor/5/avatar.svg"></a>
-<a href="https://opencollective.com/erxes/sponsor/6/website" target="_blank"><img src="https://opencollective.com/erxes/sponsor/6/avatar.svg"></a>
-<a href="https://opencollective.com/erxes/sponsor/7/website" target="_blank"><img src="https://opencollective.com/erxes/sponsor/7/avatar.svg"></a>
-<a href="https://opencollective.com/erxes/sponsor/8/website" target="_blank"><img src="https://opencollective.com/erxes/sponsor/8/avatar.svg"></a>
-<a href="https://opencollective.com/erxes/sponsor/9/website" target="_blank"><img src="https://opencollective.com/erxes/sponsor/9/avatar.svg"></a>
+<a href="https://opencollective.com/golomtbank" target="_blank"><img src="https://images.opencollective.com/golomtbank/avatar.png"></a>
+<a href="https://opencollective.com/mostmoneymn" target="_blank"><img src="https://images.opencollective.com/mostmoneymn/avatar.png"></a>
+<a href="https://opencollective.com/zag-group" target="_blank"><img src="https://images.opencollective.com/zag-group/avatar.png"></a>
+<a href="https://opencollective.com/otmongolia" target="_blank"><img src="https://images.opencollective.com/otmongolia/avatar.png"></a>
+<a href="https://opencollective.com/mandukhaikhatan" target="_blank"><img src="https://images.opencollective.com/mandukhaikhatan/avatar.png"></a>
+<a href="https://opencollective.com/unreadtoday" target="_blank"><img src="https://images.opencollective.com/unreadtoday/avatar.png"></a>
+<a href="https://opencollective.com/mandaldaatgal" target="_blank"><img src="https://images.opencollective.com/mandaldaatgal/avatar.png"></a>
+<a href="https://opencollective.com/monnisgroup" target="_blank"><img src="https://images.opencollective.com/monnisgroup/avatar.png"></a>
+<a href="https://opencollective.com/mongolnewsmn" target="_blank"><img src="https://images.opencollective.com/mongolnewsmn/avatar.png"></a>
+<a href="https://opencollective.com/segsgermaa" target="_blank"><img src="https://images.opencollective.com/segsgermaa/avatar.png"></a>
 
 <!-- This `CONTRIBUTING.md` is based on @nayafia's template https://github.com/nayafia/contributing-template -->
