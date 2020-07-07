@@ -27,9 +27,7 @@
     "migrate": "NODE_ENV=command migrate --migrations-dir='./dist/migrations' --store='./db-migrate-store.js' up",
     "customCommand": "ts-node ./src/commands/customCommand.ts",
     "resetMigrations": "ts-node ./src/commands/resetMigrations.ts",
-    "release": "release-it",
-    "snyk-protect": "snyk protect",
-    "prepare": "yarn run snyk-protect"
+    "release": "release-it"
   },
   "lint-staged": {
     "*.ts": [
@@ -63,7 +61,6 @@
     "sanitize-html": "^1.20.1",
     "sinon": "^7.5.0",
     "smooch-core": "^8.8.0",
-    "snyk": "^1.305.0",
     "uuid": "^3.3.3"
   },
   "peerOptionalDependencies": {
@@ -95,7 +92,6 @@
     "tslint-config-standard": "^7.0.0",
     "typescript": "^3.7.2"
   },
-  "snyk": true,
   "engines": {
     "node": ">=10.x.x"
   }
