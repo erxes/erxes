@@ -119,7 +119,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build docker image [push]
-      if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/crons' || github.ref == 'refs/heads/workers')
+      if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/crons' || github.ref == 'refs/heads/workers')
       env:
         BASE_IMAGE: erxes/erxes-api:base-12.16.3-slim
       run: |
