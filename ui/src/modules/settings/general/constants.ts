@@ -13,7 +13,8 @@ export const LANGUAGES = [
   { label: 'Hindi', value: 'hi' },
   { label: 'Vietnam', value: 'vi' },
   { label: 'Indonesian', value: 'yi' },
-  { label: 'Republic of Serbia', value: 'en_RS' }
+  { label: 'Republic of Serbia', value: 'en_RS' },
+  { label: 'Dutch', value: 'nl' }
 ];
 
 export const SERVICE_TYPES = [
