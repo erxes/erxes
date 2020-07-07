@@ -1,5 +1,6 @@
 *.md
 *.yml
+*.yaml
 .dockerignore
 .git*
 .prettierrc
