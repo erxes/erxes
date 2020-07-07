@@ -23,7 +23,7 @@ To properly install and maintain your erxes installation, the minimum requiremen
 - Ubuntu 18.04 (or other supported Linus distribution)
 - 4 cpus
 - 8GB RAM
-- ability to to SSH as **root user**
+- ability to to SSH into the server
 
 :::tip Use one-click installs
 You can also use the [Digital Ocean Marketplace](https://marketplace.digitalocean.com/apps/erxes) and [AWS Marketplace](https://aws.amazon.com/marketplace/pp/B086MZ9FVS?qid=1594055516154&sr=0-1&ref_=srh_res_product_title) for an even easier set-up experience.
@@ -80,13 +80,14 @@ You can simply follow [Debian doc](/installation/debian10) to install manually.
 - Open the terminal or command prompt on your computer. (You will need your **IP address**. In the above example, **44.123.32.12**).
 
 ```bash
-ssh root@your-ip-address
+$ # example ssh root@44.123.32.12
+$ ssh root@your-ip-address
 
     The authenticity of host '44.123.32.12 (44.123.32.12)' can't be established.
     ECDSA key fingerprint is SHA256:RbrZOxtr/emNySeNd8rh2C9VPGY76JbSs1Dhpvfkfrk.
     Are you sure you want to continue connecting (yes/no/[fingerprint])?
 
-Yes
+$ Yes
 
     Warning: Permanently added '44.123.32.12' (ECDSA) to the list of known hosts.
     Welcome to Ubuntu 18.04.4 LTS (GNU/Linux 4.15.0-101-generic x86_64)
@@ -97,7 +98,7 @@ Yes
 You don't want to use the **root** user to administer your server. So everything will be done by a user called, **erxes**. To accomplish this run the following commands. They will add a user called **erxes**, give it a password and assign administrative access rights.
 
 ```bash
-adduser erxes
+$ adduser erxes
 
     Adding user `erxes' ...
     Adding new group `erxes' (1000) ...
@@ -105,8 +106,8 @@ adduser erxes
     Creating home directory `/home/erxes' ...
     Copying files from `/etc/skel' ...
 
-Enter new UNIX password: erxes123
-Retype new UNIX password: erxes123
+$ Enter new UNIX password: erxes123
+$ Retype new UNIX password: erxes123
 
     passwd: password updated successfully
     Changing the user information for erxes
@@ -118,9 +119,9 @@ Retype new UNIX password: erxes123
         Home Phone []:
         Other []:
 
-Is the information correct? [Y/n] y
+$ Is the information correct? [Y/n] y
 
-usermod -aG sudo erxes
+$ usermod -aG sudo erxes
 ```
 
 ## Set-up a basic firewall for SSH, nginx 80 and port 443
@@ -129,25 +130,25 @@ usermod -aG sudo erxes
 
 ```bash
 
-ufw allow OpenSSH
+$ ufw allow OpenSSH
 
     Rules updated
     Rules updated (v6)
 
-ufw enable
-Command may disrupt existing ssh connections. Proceed with operation (y|n)? y
+$ ufw enable
+$ Command may disrupt existing ssh connections. Proceed with operation (y|n)? y
 
     Firewall is active and enabled on system startup
 
 
-ufw status
+$ ufw status
 
-    Status: active
+Status: active
 
-    To                         Action      From
-    --                         ------      ----
-    OpenSSH                    ALLOW       Anywhere
-    OpenSSH (v6)               ALLOW       Anywhere (v6)
+To                         Action      From
+--                         ------      ----
+OpenSSH                    ALLOW       Anywhere
+OpenSSH (v6)               ALLOW       Anywhere (v6)
 
 ```
 
@@ -157,44 +158,44 @@ Your output should like something like the above.
 
 ```bash
 
-ufw allow proto tcp from any to any port 80,443
+$ ufw allow proto tcp from any to any port 80,443
 
-    Rule added
-    Rule added (v6)
+Rule added
+Rule added (v6)
 
-Command may disrupt existing ssh connections. Proceed with operation (y|n)? y
+$ Command may disrupt existing ssh connections. Proceed with operation (y|n)? y
 
-    Firewall is active and enabled on system startup
+Firewall is active and enabled on system startup
 
-ufw status
+$ ufw status
 
-    Status: active
+Status: active
 
-    To                         Action      From
-    --                         ------      ----
-    OpenSSH                    ALLOW       Anywhere
-    80,443/tcp                 ALLOW       Anywhere
-    OpenSSH (v6)               ALLOW       Anywhere (v6)
-    80,443/tcp (v6)            ALLOW       Anywhere (v6)
+To                         Action      From
+--                         ------      ----
+OpenSSH                    ALLOW       Anywhere
+80,443/tcp                 ALLOW       Anywhere
+OpenSSH (v6)               ALLOW       Anywhere (v6)
+80,443/tcp (v6)            ALLOW       Anywhere (v6)
 
 ```
 
 - Exit from server, so that you can log back in as **erxes**
 
 ```bash
-exit
+$ exit
 
-    logout
-    Connection to 44.123.32.12 closed.
+logout
+Connection to 44.123.32.12 closed.
 ```
 
 - Log back into the server as the **erxes** user and provide the password
 
 ```bash
-ssh erxes@44.123.32.12
-erxes@45.79.248.46's password:
+$ ssh erxes@44.123.32.12
+$ erxes@45.79.248.46's password:
 
-    Welcome to Ubuntu 18.04.4 LTS (GNU/Linux 4.15.0-101-generic x86_64)
+Welcome to Ubuntu 18.04.4 LTS (GNU/Linux 4.15.0-101-generic x86_64)
 ```
 
 In the following section, you will install software dependencies that are needed to run erxes. You will also need to install various tools that will help to administer your server or install the packages themselves.
@@ -206,124 +207,289 @@ In the following section, you will install software dependencies that are needed
 - Install **nvm** and initialize by reload the shell configuration.
 
 ```bash
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
-source ~/.bashrc
+$ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
+$ source ~/.bashrc
 ```
 
 - Verify **nvm** is installed by running:
 
 ```bash
-command -v nvm
+$ nvm --version # Your version of nvm may be different
 
-    nvm
+0.35.3
 ```
 
 If you got the above output, then you are ready to continue with the following steps.
 
-## NodeJS install
+## Install Node.js with nvm
 
-```
-nvm install v12.16.3
-node -v (to check if installed)
+You can read more about install **Node.js** with **nvm** here: [How to install Node.js with NVM](https://gist.github.com/d2s/372b5943bce17b964a79#install-nodejs-with-nvm)
 
+- Install **Node.js** and check to see if it is installed correctly.
+
+```bash
+$ nvm install v12.16.3
+
+Downloading and installing node v12.16.3...
+Downloading https://nodejs.org/dist/v12.16.3/node-v12.16.3-linux-x64.tar.xz...
+################################################################################## 100.0%
+Computing checksum with sha256sum
+Checksums matched!
+Now using node v12.16.3 (npm v6.14.4)
+Creating default alias: default -> v12.16.3
+
+
+$ node -v # Your version of node.js may be different
+
+v12.16.3
 ```
 
-## NvmPm2 install
+With **Node.js** installed, you can continue with the installation.
 
+## Install PM2
+
+**PM2** is a tool that helps you manage and keep erxes online. It is a process manager. You can read more about the installation process here: [How to install PM2](https://pm2.keymetrics.io/docs/usage/quick-start/)
+
+- Install **PM2** and check to see if it is installed correctly.
+
+```bash
+$ npm install pm2@latest -g
+
+* * *
+
++ pm2@4.4.0
+added 185 packages from 191 contributors in 9.605s
+
+$ pm2 --version
+
+* * *
+
+[PM2] Spawning PM2 daemon with pm2_home=/home/erxes/.pm2
+[PM2] PM2 Successfully daemonized
+4.4.0 # Your version of pm2 may be different
 ```
-npm install pm2 -g
-```
+
+You should receive a response from `pm2 --version`. The version should show as last line. You will need **PM2** later in the installation process. For now, continue on with the next steps to install **Yarn**.
 
 ## Yarn install
 
-```
-curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-sudo apt update && sudo apt install --no-install-recommends yarn
+**Yarn** is a package manager. The alternative is [npm](https://www.npmjs.com/). We recommend [yarn](https://yarnpkg.com/). For additional [yarn installation instructions, read this](https://classic.yarnpkg.com/en/docs/install/#debian-stable).
 
+- Install **yarn** and check to see if it is installed correctly.
+
+```bash
+$ curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+[sudo] password for erxes:
+OK
+
+$ echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+apt/sources.list.d/yarn.list
+deb https://dl.yarnpkg.com/debian/ stable main
+
+$ sudo apt update && sudo apt install --no-install-recommends yarn
+Hit:1 http://mirrors.linode.com/ubuntu bionic InRelease
+Get:2 http://mirrors.linode.com/ubuntu bionic-updates InRelease [88.7 kB]
+
+* * *
+
+Selecting previously unselected package yarn.
+(Reading database ... 102699 files and directories currently installed.)
+Preparing to unpack .../archives/yarn_1.22.4-1_all.deb ...
+Unpacking yarn (1.22.4-1) ...
+Setting up yarn (1.22.4-1) ...
+
+$ yarn --version
+1.22.4 # Your version of yarn may be different
 ```
 
-## MongoDB 3.6 replicaSet install
+As long as you received a version response to `yarn --version`, then you can continue and install **MongoDB**.
 
-```
-wget -qO - https://www.mongodb.org/static/pgp/server-3.6.asc | sudo apt-key add -
-echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.6 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.6.list
-sudo apt-get update
-sudo apt-get install -y mongodb-org
-sudo systemctl start mongod
-sudo systemctl enable mongod
+## Install MongoDB
+
+**MongoDB** is a robust and general purpose document-based database. For additional [MongoDB installation instructions, read this](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/).
+
+```bash
+$ wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | sudo apt-key add -
+OK
+
+$ echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.2.list
+$ sudo apt-get update
+Hit:1 http://mirrors.linode.com/ubuntu bionic InRelease
+Hit:2 http://mirrors.linode.com/ubuntu bionic-updates InRelease
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+
+* * *
+
+Fetched 18.0 kB in 1s (20.1 kB/s)
+Reading package lists... Done
+
+$ sudo apt-get install -y mongodb-org
+
+
+* * *
+
+Adding group `mongodb' (GID 115) ...
+Done.
+Adding user `mongodb' to group `mongodb' ...
+Adding user mongodb to group mongodb
+Done.
+Setting up mongodb-org (4.2.8) ...
+Processing triggers for man-db (2.8.3-2ubuntu0.1) ...
+
+
+$ sudo systemctl start mongod
+$ sudo systemctl enable mongod
+Created symlink /etc/systemd/system/multi-user.target.wants/mongod.service → /lib/systemd/system/mongod.service.
+
+$ mongod --version
+db version v4.2.8
+
+* * *
 ```
 
-### Convert mongodb to replicaset
+### Deploy a MongoDB Replica Set
 
-```
-sudo systemctl stop mongod
-```
+MongoDB [replica sets](https://docs.mongodb.com/manual/reference/glossary/#term-replica-set) add an extra layer of redundancy and help with load balancing. The are a group of **mongod processes** that maintain the same data set. You can read about **replication** [here](https://docs.mongodb.com/manual/replication/).
 
-### open mongodb config file:
+- Stop the **mongod** processes
 
-```
-sudo vim /etc/mongod.conf
+```bash
+$ sudo systemctl stop mongod
 ```
 
-### Enable replicaset settings.
+- Open **mongod.conf**
 
+```bash
+$ sudo nano /etc/mongod.conf
 ```
+
+- Enable the **replicaset** settings, by searching for `#replication`. Remove the `#` to activate it and edit to include the set name, as follows:
+
+```bash
 replication:
   replSetName: rs0
 ```
 
-### verify
+- Save and Exit with `<Ctrl> x`
+- Verify that the changes were saved.
 
-```
-sudo cat /etc/mongod.conf
-```
+```bash
+$ sudo cat /etc/mongod.conf
 
-### start mongodb back
+* * *
 
-```
-sudo systemctl start mongod
-```
+#security:
 
-### connect to mongo shell
+#operationProfiling:
 
-```
-mongo
-```
+replication:
+  replSetName: rs0
 
-### Initialize replicaset
+#sharding:
 
-```
-rs.initiate()
+## Enterprise-Only Options:
+
+* * *
 ```
 
-- after few seconds press enter to verify SECONDARY changes to PRIMARY
+- restart mongob
+
+```bash
+$ sudo systemctl start mongod
+```
+
+- Connect to mongo shell, initialize replicaSet and verify **SECONDARY** changes to **Primary**.
+
+```bash
+$ mongo
+
+> rs.initiate()
+
+{
+	"info2" : "no configuration specified. Using a default configuration for the set",
+	"me" : "127.0.0.1:27017",
+	"ok" : 1,
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1594140533, 1),
+		"signature" : {
+			"hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+			"keyId" : NumberLong(0)
+		}
+	},
+	"operationTime" : Timestamp(1594140533, 1)
+}
+
+rs0:SECONDARY>
+rs0:PRIMARY> # <----- This is what you are looking for
+rs0:PRIMARY> # press `ctrl-c` to quit mongo
+bye
+```
+
 - press `ctrl-c` to quit mongo
 
-## Redis
+If you were able to return to the command line prompt. Then you may continue with the installation of **Redis**.
 
+## Install Redis
+
+**Redis** is an in memory quick-response database. For additional [Redis installation instructions, read this](https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-redis-on-ubuntu-18-04).
+
+- Install **redis** and check to see if it is installed correctly.
+
+```bash
+$ sudo apt-get install -y redis-server
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+The following additional packages will be installed:
+  libjemalloc1 redis-tools
+
+   * * *
+
+$ sudo systemctl status redis
+● redis-server.service - Advanced key-value store
+   Loaded: loaded (/lib/systemd/system/redis-server.service; enabled; vendor preset: enab
+   Active: active (running) since Tue 2020-07-07 17:11:46 UTC; 56s ago
+
+   * * *
+
+   # ctrl+c to quit
 ```
-sudo apt-get install -y redis
+
+Providing you got **Active** output for **Redis** you may now continue with the next steps.
+
+## Install RabbitMQ and dependencies
+
+**RabbitMQ** is a message broker. It is used to relay messages to and from two other applications. For additional [RabbitMQ installation instructions, read this](https://www.rabbitmq.com/install-debian.html#apt-packagecloud).
+
+### Install Erlang 22.x
+
+**Erlang** is the programming language that **RabbitMQ** is written in. It must be installed when you install **RabbitMQ**. For additional information about [installing Erlang, read this](https://www.rabbitmq.com/install-debian.html#apt-bintray-erlang).
+
+- Install **Erlang**
+
+```bash
+$ curl -fsSL https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc | sudo apt-key add -
+OK
+
+$ sudo apt-get install apt-transport-https
+Reading package lists... Done
+Building dependency tree
+
+    * * *
+
+Unpacking apt-transport-https (1.6.12ubuntu0.1) ...
+Setting up apt-transport-https (1.6.12ubuntu0.1) ...
 ```
 
-## RabbitMQ
+- Create the `bintray.erlang.list` file and write to the `/etc/apt/sources.list.d` directory.
 
-(https://www.rabbitmq.com/install-debian.html#apt-packagecloud)
-
-### Erlang 22.x
-
-```
-curl -fsSL https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc | sudo apt-key add -
-sudo apt-get install apt-transport-https
+```bash
+$ sudo touch /etc/apt/sources.list.d/bintray.erlang.list
 ```
 
-- write following lines to this file. (This step needs to be automated, lot of users doesn't know how to exit vim)
-
-```
-sudo vim /etc/apt/sources.list.d/bintray.erlang.list
-```
-
-- PUT THIS IN THE FILE
+- Copy the following text to the `bintray.erlang.list` file.
 
 ```txt
 # This repository provides Erlang packages produced by the RabbitMQ team
@@ -331,51 +497,215 @@ sudo vim /etc/apt/sources.list.d/bintray.erlang.list
 deb https://dl.bintray.com/rabbitmq-erlang/debian bionic erlang-22.x
 ```
 
-- verify
+```bash
+$ sudo nano /etc/apt/sources.list.d/bintray.erlang.list
 
-```
-sudo cat /etc/apt/sources.list.d/bintray.erlang.list
-```
-
-- This is recommended. Metapackages such as erlang and erlang-nox must only be used with apt version pinning. They do not pin their dependency versions.
-
-```
-sudo apt-get install -y erlang-base \
- erlang-asn1 erlang-crypto erlang-eldap erlang-ftp erlang-inets \
- erlang-mnesia erlang-os-mon erlang-parsetools erlang-public-key \
- erlang-runtime-tools erlang-snmp erlang-ssl \
- erlang-syntax-tools erlang-tftp erlang-tools erlang-xmerl
+# paste the above text in the file and save with ctrl + x, y
 ```
 
-## Adding key
+- Verify that you have properly added the above text to the proper file.
 
-```
-wget -O - "https://packagecloud.io/rabbitmq/rabbitmq-server/gpgkey" | sudo apt-key add -
-```
-
-## Adding packagecloud repo
-
-```
-curl -s https://packagecloud.io/install/repositories/rabbitmq/rabbitmq-server/script.deb.sh | sudo bash
+```bash
+$ sudo cat /etc/apt/sources.list.d/bintray.erlang.list
 ```
 
-## Ready to install rabbitmq-server, but need erlang dependency
+- Update and list of `apt` sources
+
+```bash
+$ sudo apt-get update -y
+Hit:1 http://mirrors.linode.com/ubuntu bionic InRelease
+
+    * * *
+
+Hit:9 https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 Release
+Fetched 32.6 kB in 1s (45.9 kB/s)
+Reading package lists... Done
+```
+
+Metapackages such as erlang and erlang-nox must only be used with apt version pinning. They do not pin their dependency versions. The following steps are recommended.
+
+- Install **Erlang** packages.
+
+```bash
+$ sudo apt-get install -y erlang-base \
+    erlang-asn1 erlang-crypto erlang-eldap erlang-ftp erlang-inets \
+    erlang-mnesia erlang-os-mon erlang-parsetools erlang-public-key \
+    erlang-runtime-tools erlang-snmp erlang-ssl \
+    erlang-syntax-tools erlang-tftp erlang-tools erlang-xmerl
+```
+
+- Verify **Erlang** installation
+
+```bash
+$ erl
+
+Erlang/OTP 22 [erts-10.7.2.1] [source] [64-bit] [smp:4:4] [ds:4:4:10] [async-threads:1]
+
+Eshell V10.7.2.1  (abort with ^G)
+1>    # halt(). to exit
 
 ```
-sudo apt-get install -y rabbitmq-server
+
+- type `halt().` to exit from **Erlang** in the terminal.
+
+You have now installed the dependencies for **RabbitMQ**. Continue with the following steps.
+
+### Install RabbitMQ
+
+The following steps will install RabbitMQ.
+
+- Install **RabbitMQ** by importing a signing key from [PackageCloud](https://packagecloud.io/rabbitmq), add the PackageCloud repo, and **install rabbitmq-server**.
+
+```bash
+$ wget -O - "https://packagecloud.io/rabbitmq/rabbitmq-server/gpgkey" | sudo apt-key add -
+
+--2020-07-07 19:18:56--  https://packagecloud.io/rabbitmq/rabbitmq-server/gpgkey
+Resolving packagecloud.io (packagecloud.io)... 2600:1f1c:2e5:6900:4977:25fb:37af:af52,
+
+    * * *
+
+2020-07-07 19:18:56 (476 MB/s) - written to stdout [3954/3954]
+
+OK
+
+$ curl -s https://packagecloud.io/install/repositories/rabbitmq/rabbitmq-server/script.deb.sh | sudo bash
+
+Detected operating system as Ubuntu/bionic.
+Checking for curl...
+
+    * * *
+
+The repository is setup! You can now install packages.
+
+$ sudo apt-get install -y rabbitmq-server
+
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+The following additional packages will be installed:
+  socat
+The following NEW packages will be installed:
+  rabbitmq-server socat
+
+    * * *
+
+Processing triggers for man-db (2.8.3-2ubuntu0.1) ...
+Processing triggers for ureadahead (0.100.0-21) ...
+Processing triggers for systemd (237-3ubuntu10.41) ...
 ```
 
-## EleasticSearch
+- Enable and start the **RabbitMQ** server
 
+```bash
+$ sudo systemctl enable rabbitmq-server
+
+Synchronizing state of rabbitmq-server.service with SysV service script with /lib/systemd/systemd-sysv-install.
+Executing: /lib/systemd/systemd-sysv-install enable rabbitmq-server
+
+$ sudo systemctl start rabbitmq-server
 ```
-wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
-echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
-sudo apt-get update && sudo apt-get install elasticsearch
-sudo /bin/systemctl daemon-reload
-sudo /bin/systemctl enable elasticsearch.service
-sudo systemctl start elasticsearch.service
-sudo systemctl stop elasticsearch.service
+
+- Verify **RabbitMQ** is properly installed and running.
+
+```bash
+$ sudo service rabbitmq-server status
+
+● rabbitmq-server.service - RabbitMQ broker
+   Loaded: loaded (/lib/systemd/system/rabbitmq-server.service; enabled; vendor preset: enabled)
+   Active: active (running) since Tue 2020-07-07 19:23:42 UTC; 6min ago
+ Main PID: 28136 (beam.smp)
+   Status: "Initialized"
+    Tasks: 91 (limit: 4915)
+
+    * * *
+
+    # exit with ctrl + c
 ```
+
+- You can exit with `ctrl + c`
+
+If you see and **Active** message, similar to the above, then you are ready to continue and go onto installing **Elasticsearch**.
+
+## Install Elasticsearch
+
+**Elasticsearch** is a search feature that allows you to search for data in real time. For additional [Elasticsearch installation instructions, read this](https://www.elastic.co/guide/en/elasticsearch/reference/current/deb.html).
+
+```bash
+
+$ wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+OK
+
+$ echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
+$ sudo apt-get update && sudo apt-get install elasticsearch
+
+Hit:1 http://mirrors.linode.com/ubuntu bionic InRelease
+Hit:2 http://mirrors.linode.com/ubuntu bionic-updates InRelease
+
+    * * *
+
+Unpacking elasticsearch (7.8.0) ...
+Setting up elasticsearch (7.8.0) ...
+Created elasticsearch keystore in /etc/elasticsearch/elasticsearch.keystore
+Processing triggers for ureadahead (0.100.0-21) ...
+Processing triggers for systemd (237-3ubuntu10.41) ...
+
+$ sudo /bin/systemctl daemon-reload
+$ sudo /bin/systemctl enable elasticsearch.service
+
+Synchronizing state of elasticsearch.service with SysV service script with /lib/systemd/systemd-sysv-install.
+Executing: /lib/systemd/systemd-sysv-install enable elasticsearch
+Created symlink /etc/systemd/system/multi-user.target.wants/elasticsearch.service → /usr/lib/systemd/system/elasticsearch.service.
+
+$ sudo systemctl start elasticsearch.service
+
+# can take a minute
+```
+
+- Verify **Elasticsearch** is installed and running installing the following library and test the `GET /` response.
+
+```BASH
+$ sudo apt install libwww-perl
+
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+
+    * * *
+
+Do you want to continue? [Y/n] y
+
+Get:1 http://mirrors.linode.com/ubuntu bionic/main amd64 libdata-dump-perl all 1.23-1 [27.0 kB]
+Get:2 http://mirrors.linode.com/ubuntu bionic/main amd64 libencode-locale-perl all 1.05-1 [12.3 kB]
+Get:3 http://mirrors.linode.com/ubuntu bionic/main amd64 libtimedate-perl all 2.3000-2 [37.5 kB]
+
+    * * *
+
+Setting up liblwp-protocol-https-perl (6.07-2) ...
+Setting up libwww-perl (6.31-1ubuntu0.1) ...
+Processing triggers for man-db (2.8.3-2ubuntu0.1) ...
+
+$ GET /
+
+<HTML>
+<HEAD>
+<TITLE>Directory /</TITLE>
+<BASE HREF="file:/">
+</HEAD>
+<BODY>
+<H1>Directory listing of /</H1>
+<UL>
+<LI><A HREF="./">./</A>
+
+    * * *
+
+<LI><A HREF="vmlinuz">vmlinuz</A>
+<LI><A HREF="vmlinuz.old">vmlinuz.old</A>
+</UL>
+</BODY>
+</HTML>
+```
+
+If the `GET /` outputted the HTML page, similar to the above, then you are ready to configure your **NGINX** proxy server.
 
 ## Nginx
 
@@ -383,48 +713,64 @@ sudo systemctl stop elasticsearch.service
 (Nginx from stable repo https://launchpad.net/~nginx/+archive/ubuntu/stable)
 
 ```
+
 sudo add-apt-repository ppa:nginx/stable
 sudo apt-get update
 sudo apt-get install -y nginx
+
 # It started by default when we install it. Just making sure of things.
+
 sudo systemctl enable nginx
 sudo systemctl start nginx
-```
-
-## Install GitHub
 
 ```
+
+## NGINX CONFIG
+
+## LETS ENCRYPT
+
+## Install GitHub - NO GITHUB
+
+```
+
 sudo apt update
 sudo apt install git
 git --version
+
 ```
 
 ## Install erxes
 
 ```
+
 cd ~
 mkdir erxes
 cd erxes
 git clone https://github.com/erxes/erxes.git
 git clone https://github.com/erxes/erxes-api.git
 git clone https://github.com/erxes/erxes-integrations.git
+
 ```
 
 - The following assumes the following URLS. You need to use your own url.
 
 ```
+
 localhost:3000 => erxes.acneskindisorder.com
 localhost:3200 => erxes.acneskindisorder.com/widgets
 localhost: 3300 => erxes.acneskindisorder.com/api
 localhost: 3400 => erxes.acneskindisorder.com/integrations
+
 ```
 
 ### Configure erxes UI
 
 ```
+
 cd ~/erxes/erxes/ui
 yarn install
 cp .env.sample .env
+
 ```
 
 - open .env file
