@@ -71,6 +71,12 @@ export interface ICustomer {
   sessionCount?: number;
 }
 
+export interface IValidationResponse {
+  email?: string;
+  phone?: string;
+  status: string;
+}
+
 export interface ICustomerDocument extends ICustomer, Document {
   _id: string;
   location?: ILocationDocument;
@@ -133,7 +139,7 @@ export const customerSchema = schemaWrapper(
     birthDate: field({ type: Date, label: 'Date of birth', optional: true }),
     sex: field({
       type: Number,
-      label: 'Sex',
+      label: 'Pronoun',
       optional: true,
       esType: 'keyword',
       default: 0,

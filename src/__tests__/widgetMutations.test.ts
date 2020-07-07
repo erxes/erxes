@@ -1,6 +1,8 @@
 import * as faker from 'faker';
 import * as Random from 'meteor-random';
+import * as sinon from 'sinon';
 import widgetMutations, { getMessengerData } from '../data/resolvers/mutations/widgets';
+import * as utils from '../data/utils';
 import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
@@ -79,6 +81,10 @@ describe('messenger connect', () => {
   });
 
   test('returns proper integrationId', async () => {
+    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+      return Promise.resolve('success');
+    });
+
     await messengerAppFactory({
       kind: 'knowledgebase',
       name: 'kb',
@@ -106,9 +112,13 @@ describe('messenger connect', () => {
     expect(brand.code).toBe(_brand.code);
     expect(messengerData.formCode).toBe('formCode');
     expect(messengerData.knowledgeBaseTopicId).toBe('topicId');
+    mock.restore();
   });
 
   test('creates new customer', async () => {
+    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+      return Promise.resolve('success');
+    });
     const email = 'newCustomer@gmail.com';
     const now = new Date();
 
@@ -133,9 +143,14 @@ describe('messenger connect', () => {
     expect(customer.deviceTokens).toContain('111');
     expect(customer.createdAt >= now).toBeTruthy();
     expect(customer.sessionCount).toBe(1);
+    mock.restore();
   });
 
   test('updates existing customer', async () => {
+    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+      return Promise.resolve('success');
+    });
+
     const now = new Date();
 
     const { customerId } = await widgetMutations.widgetsMessengerConnect(
@@ -164,6 +179,7 @@ describe('messenger connect', () => {
     expect((customer.deviceTokens || []).length).toBe(2);
     expect(customer.deviceTokens).toContain('111');
     expect(customer.deviceTokens).toContain('222');
+    mock.restore();
   });
 });
 
@@ -242,6 +258,10 @@ describe('insertMessage()', () => {
 });
 
 describe('saveBrowserInfo()', () => {
+  const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+    return Promise.resolve('success');
+  });
+
   afterEach(async () => {
     // Clearing test data
     await Integrations.deleteMany({});
@@ -317,6 +337,8 @@ describe('saveBrowserInfo()', () => {
 
     expect(response && response.content).toBe('engageMessage');
   });
+
+  mock.restore();
 });
 
 describe('rest', () => {
@@ -467,6 +489,10 @@ describe('lead', () => {
   });
 
   test('leadConnect: success', async () => {
+    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+      return Promise.resolve('success');
+    });
+
     const brand = await brandFactory({});
     const form = await formFactory({});
 
@@ -488,6 +514,7 @@ describe('lead', () => {
 
     expect(response.integration._id).toBe(integration._id);
     expect(response.form._id).toBe(form._id);
+    mock.restore();
   });
 
   test('saveLead: form not found', async () => {
@@ -532,6 +559,10 @@ describe('lead', () => {
   });
 
   test('saveLead: success', async () => {
+    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+      return Promise.resolve('success');
+    });
+
     const form = await formFactory({});
 
     const emailField = await fieldFactory({
@@ -586,7 +617,7 @@ describe('lead', () => {
           { _id: emailField._id, type: 'email', value: 'email@yahoo.com' },
           { _id: firstNameField._id, type: 'firstName', value: 'firstName' },
           { _id: lastNameField._id, type: 'lastName', value: 'lastName' },
-          { _id: phoneField._id, type: 'phone', value: '88998833' },
+          { _id: phoneField._id, type: 'phone', value: '+88998833' },
           { _id: radioField._id, type: 'radio', value: 'radio2' },
           { _id: checkField._id, type: 'check', value: 'check1, check2' },
         ],
@@ -613,9 +644,10 @@ describe('lead', () => {
     expect(formData[0].value).toBe('email@yahoo.com');
     expect(formData[1].value).toBe('firstName');
     expect(formData[2].value).toBe('lastName');
-    expect(formData[3].value).toBe('88998833');
+    expect(formData[3].value).toBe('+88998833');
     expect(formData[4].value).toBe('radio2');
     expect(formData[5].value).toBe('check1, check2');
+    mock.restore();
   });
 
   test('widgetsSendEmail', async () => {

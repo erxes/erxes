@@ -1,4 +1,5 @@
 import { Configs } from '../../../db/models';
+import { DEFAULT_CONSTANT_VALUES } from '../../../db/models/definitions/constants';
 import { moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { frontendEnv, getEnv, sendRequest } from '../../utils';
@@ -48,6 +49,13 @@ const configQueries = {
   configsGetEnv(_root) {
     return {
       USE_BRAND_RESTRICTIONS: process.env.USE_BRAND_RESTRICTIONS,
+    };
+  },
+
+  configsConstants(_root) {
+    return {
+      allValues: Configs.constants(),
+      defaultValues: DEFAULT_CONSTANT_VALUES,
     };
   },
 };

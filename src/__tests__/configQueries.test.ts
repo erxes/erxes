@@ -61,4 +61,14 @@ describe('configQueries', () => {
     expect(config.apiVersion.packageVersion).toBe(null);
     expect(config.widgetVersion.packageVersion).toBe(null);
   });
+
+  test('configsConstants', async () => {
+    const qry = `
+      query configsConstants {
+        configsConstants
+      }
+    `;
+
+    await graphqlRequest(qry, 'configsConstants');
+  });
 });
