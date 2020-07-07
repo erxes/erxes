@@ -1,16 +1,17 @@
 import * as dotenv from 'dotenv';
 import * as Random from 'meteor-random';
+import * as Telnyx from 'telnyx';
 import { debugEngages } from './debuggers';
-import { Logs, Stats } from './models';
+import { Logs, SmsResponses, Stats } from './models';
 import { createTransporter, getConfigs, getEnv, replaceKeys } from './utils';
 
 dotenv.config();
 
-export const start = async data => {
+export const start = async (data: any) => {
   const { user, email, engageMessageId, customers } = data;
   const { content, subject, attachments } = email;
 
-  await Stats.create({ engageMessageId });
+  await Stats.findOneAndUpdate({ engageMessageId }, { engageMessageId }, { upsert: true });
 
   const transporter = await createTransporter();
 
@@ -103,4 +104,63 @@ export const start = async data => {
   }
 
   return true;
+};
+
+export const sendSms = async (data: any) => {
+  const { customers, engageMessageId, shortMessage } = data;
+
+  const configs = await getConfigs();
+
+  const { telnyxApiKey, telnyxPhone, telnyxProfileId } = configs;
+
+  const MAIN_API_DOMAIN = getEnv({ name: 'MAIN_API_DOMAIN' });
+
+  if (!(telnyxApiKey && telnyxPhone)) {
+    throw new Error('Telnyx API key & phone numbers are missing');
+  }
+
+  await Logs.createLog(engageMessageId, 'regular', `Preparing to send SMS to ${customers.length} customers`);
+
+  const telnyx = new Telnyx(telnyxApiKey);
+
+  for (const customer of customers) {
+    await new Promise(resolve => {
+      setTimeout(resolve, 1000);
+    });
+
+    const msg = {
+      from: telnyxPhone,
+      to: customer.phone,
+      text: shortMessage.content,
+      messaging_profile_id: '',
+      webhook_url: `${MAIN_API_DOMAIN}/telnyx/webhook`,
+      webhook_failover_url: `${MAIN_API_DOMAIN}/telnyx/webhook-failover`,
+    };
+
+    // telnyx sets from text properly when making international sms
+    if (telnyxProfileId) {
+      msg.messaging_profile_id = telnyxProfileId;
+      msg.from = shortMessage.from;
+    }
+
+    await telnyx.messages.create(msg, async (err, res) => {
+      if (err) {
+        await Logs.createLog(engageMessageId, 'failure', `${err.message} "${msg.to}"`);
+      }
+
+      if (res && res.data && res.data.to) {
+        const receiver = res.data.to.find(item => item.phone_number === msg.to);
+
+        await Logs.createLog(engageMessageId, 'success', `Message successfully sent to "${msg.to}"`);
+
+        await SmsResponses.createResponse({
+          engageMessageId,
+          status: receiver && receiver.status,
+          responseData: JSON.stringify(res.data),
+          to: msg.to,
+          messageId: res.data.id,
+        });
+      }
+    });
+  } // end customers loop
 };

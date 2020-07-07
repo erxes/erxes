@@ -1,8 +1,9 @@
 import * as faker from 'faker';
+import * as sinon from 'sinon';
+import * as utils from '../data/utils';
 import { graphqlRequest } from '../db/connection';
 import { customerFactory, integrationFactory, userFactory } from '../db/factories';
 import { Brands, Customers, Integrations, Users } from '../db/models';
-
 import './setup.ts';
 
 /*
@@ -235,5 +236,21 @@ describe('Customers mutations', () => {
     const updatedCustomer = await Customers.getCustomer(_customer._id);
 
     expect(updatedCustomer.state).toBe('customer');
+  });
+
+  test('Verify emails', async () => {
+    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+      return Promise.resolve('success');
+    });
+
+    const mutation = `
+      mutation customersVerify($verificationType: String!) {
+        customersVerify(verificationType: $verificationType)
+      }
+    `;
+
+    await graphqlRequest(mutation, 'customersVerify', { verificationType: 'email' }, context);
+
+    mock.restore();
   });
 });

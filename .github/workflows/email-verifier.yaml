@@ -52,6 +52,26 @@ jobs:
         cd email-verifier
         yarn build
 
+    - name: Prepare release assets [tag]
+      if: startsWith(github.ref, 'refs/tags/')
+      run: |
+        cd email-verifier
+        tar -zcf erxes-email-verifier-${GITHUB_REF#refs/tags/}.tar.gz dist
+
+    - name: Get release version [tag]
+      id: get_release_version
+      if: startsWith(github.ref, 'refs/tags/')
+      run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+
+    - name: Upload release assets [tag]
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+          files: ./email-verifier/erxes-email-verifier-${{ steps.get_release_version.outputs.VERSION }}.tar.gz
+          name: Release ${{ steps.get_release_version.outputs.VERSION }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Build docker image [push]
       if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' )
       run: |

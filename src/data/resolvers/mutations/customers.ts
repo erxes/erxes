@@ -5,7 +5,7 @@ import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { registerOnboardHistory } from '../../utils';
+import { registerOnboardHistory, validateBulk } from '../../utils';
 
 interface ICustomersEdit extends ICustomer {
   _id: string;
@@ -99,6 +99,10 @@ const customerMutations = {
     }
 
     return customerIds;
+  },
+
+  async customersVerify(_root, { verificationType }: { verificationType: string }, { requestInfo }) {
+    await validateBulk(verificationType, requestInfo.hostname);
   },
 };
 

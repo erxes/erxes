@@ -19,6 +19,7 @@
     "nodemailer": "^6.2.1",
     "redis": "^2.8.0",
     "requestify": "^0.2.5",
+    "telnyx": "^1.7.2",
     "xss": "^1.0.6"
   },
   "peerOptionalDependencies": {

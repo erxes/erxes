@@ -3,7 +3,6 @@ import * as dotenv from 'dotenv';
 import * as uuid from 'uuid';
 import { receiveRpcMessage as automationsRecRpcMsg } from './data/modules/automations/receiveMessage';
 import {
-  receiveEmailVerifierNotification,
   receiveEngagesNotification,
   receiveIntegrationsNotification,
   receiveRpcMessage,
@@ -118,19 +117,6 @@ export const initConsumer = async () => {
     }
   });
 
-  // listen for email verifier notification ===========
-  await channel.assertQueue('emailVerifierNotification');
-
-  channel.consume('emailVerifierNotification', async msg => {
-    if (msg !== null) {
-      debugBase(`Received email verifier notification ${msg.content.toString()}`);
-
-      await receiveEmailVerifierNotification(JSON.parse(msg.content.toString()));
-
-      channel.ack(msg);
-    }
-  });
-
   // listen for engage notification ===========
   await channel.assertQueue('engagesNotification');
 
@@ -176,5 +162,25 @@ export const initConsumer = async () => {
 
       channel.ack(msg);
     }
+  });
+};
+
+/**
+ * Health check rabbitMQ
+ */
+export const rabbitMQStatus = async () => {
+  return new Promise((resolve, reject) => {
+    // tslint:disable-next-line:no-submodule-imports
+    import('amqplib/callback_api')
+      .then(amqp => {
+        amqp.connect(RABBITMQ_HOST, error => {
+          if (error) {
+            return reject(error);
+          }
+
+          return resolve('ok');
+        });
+      })
+      .catch(e => reject(e));
   });
 };

@@ -46,6 +46,21 @@ export function disconnect() {
   return mongoose.connection.close();
 }
 
+/**
+ * Health check status
+ */
+export const mongoStatus = () => {
+  return new Promise((resolve, reject) => {
+    mongoose.connection.db.admin().ping((err, result) => {
+      if (err) {
+        return reject(err);
+      }
+
+      return resolve(result);
+    });
+  });
+};
+
 const schema = makeExecutableSchema({
   typeDefs,
   resolvers,

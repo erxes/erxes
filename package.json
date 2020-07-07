@@ -1,6 +1,6 @@
 {
   "name": "erxes-api",
-  "version": "0.14.3",
+  "version": "0.15.0",
   "description": "GraphQL API for erxes main project",
   "homepage": "https://erxes.io",
   "repository": "https://github.com/erxes/erxes-api",
@@ -24,7 +24,7 @@
     "lint": "tslint '../src/**/*.ts'",
     "format": "prettier --write '../src/**/*.ts'",
     "precommit": "lint-staged",
-    "test": "node --expose-gc --max_old_space_size=4000 ./node_modules/.bin/jest --runInBand --forceExit --silent --logHeapUsage",
+    "test": "node --expose-gc --max_old_space_size=4000 ./node_modules/.bin/jest --forceExit --silent --logHeapUsage",
     "generateVersion": "ts-node ./src/commands/generateVersion.ts",
     "loadInitialData": "ts-node ./src/commands/loadInitialData.ts",
     "loadPermission": "ts-node ./src/commands/loadPermissionData.ts",
@@ -45,7 +45,6 @@
     ]
   },
   "dependencies": {
-    "@axelspringer/graphql-google-pubsub": "^1.2.1",
     "@google-cloud/pubsub": "^1.1.5",
     "@google-cloud/storage": "^4.0.0",
     "@types/mongoose": "^5.5.32",
@@ -95,6 +94,7 @@
     "uuid-by-string": "^3.0.2",
     "validator": "^9.0.0",
     "xlsx-populate": "^1.20.1",
+    "xlsx-stream-reader": "^1.1.0",
     "xss": "^1.0.6"
   },
   "peerOptionalDependencies": {

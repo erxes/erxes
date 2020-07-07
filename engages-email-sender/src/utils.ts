@@ -2,6 +2,7 @@ import * as AWS from 'aws-sdk';
 import * as nodemailer from 'nodemailer';
 import { debugBase } from './debuggers';
 import Configs, { ISESConfig } from './models/Configs';
+import SmsResponses from './models/SmsResponses';
 import { get, set } from './redisClient';
 import { getApi } from './trackers/engageTracker';
 
@@ -200,4 +201,24 @@ export const getConfig = async (code, defaultValue?) => {
   }
 
   return configs[code];
+};
+
+export const saveTelnyxHookData = async (data: any) => {
+  if (data && data.payload) {
+    const { to = [], id } = data.payload;
+
+    const initialResponse = await SmsResponses.findOne({ messageId: id });
+
+    if (initialResponse) {
+      const receiver = to.find(item => item.phone_number === initialResponse.to);
+
+      await SmsResponses.createResponse({
+        engageMessageId: initialResponse.engageMessageId,
+        status: receiver && receiver.status,
+        responseData: JSON.stringify(data.payload),
+        to: initialResponse.to,
+        messageId: id,
+      });
+    }
+  }
 };

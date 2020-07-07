@@ -1,3 +1,34 @@
+# [0.15.0](https://github.com/erxes/erxes-api/compare/0.14.3...0.15.0) (2020-07-07)
+
+
+### Bug Fixes
+
+* **brands:** not using email config ([dd88de8](https://github.com/erxes/erxes-api/commit/dd88de8b37039d5f2df535f70a1a7069b9ea40fd)), closes [#789](https://github.com/erxes/erxes-api/issues/789)
+* **companies:** custom properties data is being cleared when update ([3decf6f](https://github.com/erxes/erxes-api/commit/3decf6f4188398b94201f344b339e4435b4bc21b)), closes [erxes/erxes#2019](https://github.com/erxes/erxes/issues/2019)
+* **customers:** clearing customFieldsData when update ([baa9d91](https://github.com/erxes/erxes-api/commit/baa9d915180051acc3a99aa95ba934998a7cacc5)), closes [#784](https://github.com/erxes/erxes-api/issues/784)
+* **customers:** clearing customFieldsData when update ([d7f51c9](https://github.com/erxes/erxes-api/commit/d7f51c9062342862c50d353f816b64880e6aec18)), closes [erxes/erxes#784](https://github.com/erxes/erxes/issues/784)
+* **email-verifier:** add request dependency ([ddc2ef3](https://github.com/erxes/erxes-api/commit/ddc2ef3713a7282f8765766c5307186b0467ce90))
+* **field:** validate empty string in required field ([f3474d8](https://github.com/erxes/erxes-api/commit/f3474d810dbebe204890942188bbee7222c0f9f0)), closes [erxes/erxes#2041](https://github.com/erxes/erxes/issues/2041)
+* **import:** Not filling the names field on the company with the primaryName in import ([43ae29e](https://github.com/erxes/erxes-api/commit/43ae29ec29fc21b9e03c39693b08ab9a32478309)), closes [#788](https://github.com/erxes/erxes-api/issues/788)
+* **segments:** fixed customer custom fields segment form ([f88c4dd](https://github.com/erxes/erxes-api/commit/f88c4dd3a75ba74ba936ed53aa1aafeb3c6560bf))
+* **users:** forgot password link bug ([86e7256](https://github.com/erxes/erxes-api/commit/86e72563b07a0133589dcd09f57a31fc5a023b6a)), closes [#786](https://github.com/erxes/erxes-api/issues/786)
+
+
+### Features
+
+* **import:** added companiesPrimaryNames column in customer import excel ([a452a5c](https://github.com/erxes/erxes-api/commit/a452a5cbd2c4d4c073dc846f5ba653ba6b093fd9)), closes [#787](https://github.com/erxes/erxes-api/issues/787)
+
+
+### Performance Improvements
+
+* **ci:** upload compiled version to github release assets ([add7d68](https://github.com/erxes/erxes-api/commit/add7d68e92f0bb01212a6e35fe5d5259a517dea6))
+* **engages:** used streams ([606d072](https://github.com/erxes/erxes-api/commit/606d0728a7fb5f844585adcdfa1cbe6f9173cc36)), closes [#801](https://github.com/erxes/erxes-api/issues/801)
+* **healthcheck:** add mongodb redis and rabbitmq healthcheck ([30da525](https://github.com/erxes/erxes-api/commit/30da525040b7e91f0f2280daa2d1db727a05280f)), closes [erxes/erxes#2073](https://github.com/erxes/erxes/issues/2073)
+* **import:** stream excel file import ([2cf2f53](https://github.com/erxes/erxes-api/commit/2cf2f53859cecd2aecef4d96a8ffa6dbc24e600f)), closes [erxes/erxes#2075](https://github.com/erxes/erxes/issues/2075)
+* **integrations:** add brand restriction option to integrations ([ff534a0](https://github.com/erxes/erxes-api/commit/ff534a02bf426fba33a53d324c0c44b3104ced24)), closes [erxes/erxes#2050](https://github.com/erxes/erxes/issues/2050)
+* **integrations:** add brand restriction option to integrations ([b79d178](https://github.com/erxes/erxes-api/commit/b79d17832866435abfed9ae386a17a9d7c130f0a)), closes [#2050](https://github.com/erxes/erxes-api/issues/2050)
+* **phoneValidation:** add phone validation to customer schema ([b61df74](https://github.com/erxes/erxes-api/commit/b61df74080aa5935e730b1fe044c67560461d729)), closes [#796](https://github.com/erxes/erxes-api/issues/796)
+
 ## [0.14.3](https://github.com/erxes/erxes-api/compare/0.14.2...0.14.3) (2020-06-17)
 
 

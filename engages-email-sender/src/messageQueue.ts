@@ -2,7 +2,7 @@ import * as amqplib from 'amqplib';
 import * as dotenv from 'dotenv';
 import { debugBase } from './debuggers';
 import { Logs } from './models';
-import { start } from './sender';
+import { sendSms, start } from './sender';
 
 dotenv.config();
 
@@ -31,6 +31,10 @@ export const initConsumer = async () => {
 
         if (action === 'writeLog') {
           await Logs.createLog(data.engageMessageId, 'regular', data.msg);
+        }
+
+        if (action === 'sendEngageSms') {
+          await sendSms(data);
         }
 
         channel.ack(msg);

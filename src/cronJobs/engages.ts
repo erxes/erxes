@@ -17,15 +17,12 @@ const runJobs = async messages => {
   }
 };
 
-// every minute at 1sec
-schedule.scheduleJob('1 * * * * *', async () => {
+const checkEveryMinuteJobs = async () => {
   const messages = await findMessages({ 'scheduleDate.type': 'minute' });
-
   await runJobs(messages);
-});
+};
 
-// every hour at 10min:10sec
-schedule.scheduleJob('10 10 * * * *', async () => {
+const checkHourMinuteJobs = async () => {
   debugCrons('Checking every hour jobs ....');
 
   const messages = await findMessages({ 'scheduleDate.type': 'hour' });
@@ -33,10 +30,9 @@ schedule.scheduleJob('10 10 * * * *', async () => {
   debugCrons(`Found every hour  messages ${messages.length}`);
 
   await runJobs(messages);
-});
+};
 
-// every day at 11hour:20min:20sec
-schedule.scheduleJob('20 20 11 * * *', async () => {
+const checkDayJobs = async () => {
   debugCrons('Checking every day jobs ....');
 
   // every day messages ===========
@@ -113,4 +109,19 @@ schedule.scheduleJob('20 20 11 * * *', async () => {
     { _id: { $in: everyYearMessages.map(m => m._id) } },
     { $set: { lastRunAt: new Date() } },
   );
+};
+
+// every minute at 1sec
+schedule.scheduleJob('1 * * * * *', async () => {
+  await checkEveryMinuteJobs();
+});
+
+// every hour at 10min:10sec
+schedule.scheduleJob('10 10 * * * *', async () => {
+  await checkHourMinuteJobs();
+});
+
+// every day at 11hour:20min:20sec
+schedule.scheduleJob('20 20 11 * * *', async () => {
+  checkDayJobs();
 });

@@ -165,24 +165,6 @@ const integrationMutations = {
   },
 
   /**
-   * Create IMAP account
-   */
-  integrationAddImapAccount(_root, data, { dataSources }) {
-    return dataSources.IntegrationsAPI.createAccount(data);
-  },
-
-  integrationAddExchangeAccount(_root, data, { dataSources }) {
-    return dataSources.IntegrationsAPI.createAccount(data);
-  },
-
-  /**
-   * Create Yahoo, Outlook account
-   */
-  integrationAddMailAccount(_root, data, { dataSources }) {
-    return dataSources.IntegrationsAPI.createAccount(data);
-  },
-
-  /**
    * Deletes an integration
    */
   async integrationsRemove(_root, { _id }: { _id: string }, { user, dataSources }: IContext) {

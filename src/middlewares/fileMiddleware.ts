@@ -1,73 +1,12 @@
 import * as formidable from 'formidable';
-import * as fs from 'fs';
 import * as request from 'request';
 import * as _ from 'underscore';
-import * as xlsxPopulate from 'xlsx-populate';
+import { filterXSS } from 'xss';
 import { RABBITMQ_QUEUES } from '../data/constants';
 import { can } from '../data/permissions/utils';
-import { checkFile, frontendEnv, getSubServiceDomain, uploadFile } from '../data/utils';
+import { checkFile, frontendEnv, getSubServiceDomain, uploadFile, uploadFileAWS } from '../data/utils';
 import { debugExternalApi } from '../debuggers';
 import { sendRPCMessage } from '../messageBroker';
-
-const readXlsFile = async (file): Promise<{ fieldNames: string[]; usedSheets: any[] }> => {
-  return new Promise(async (resolve, reject) => {
-    const readStream = fs.createReadStream(file.path);
-
-    // Directory to save file
-    const downloadDir = `${__dirname}/../private/xlsTemplateOutputs/${file.name}`;
-
-    // Converting pipe into promise
-    const pipe = stream =>
-      new Promise((resolver, rejecter) => {
-        stream.on('finish', resolver);
-        stream.on('error', rejecter);
-      });
-
-    // Creating streams
-    const writeStream = fs.createWriteStream(downloadDir);
-    const streamObj = await readStream.pipe(writeStream);
-
-    pipe(streamObj)
-      .then(async () => {
-        // After finished saving instantly create and load workbook from xls
-        const workbook = await xlsxPopulate.fromFileAsync(downloadDir);
-
-        // Deleting file after read
-        fs.unlink(downloadDir, () => {
-          return true;
-        });
-
-        const usedRange = workbook.sheet(0).usedRange();
-
-        if (!usedRange) {
-          return reject(new Error('Invalid file'));
-        }
-
-        const usedSheets = usedRange.value();
-        const compactedRows: any[] = [];
-
-        for (const row of usedSheets) {
-          // to prevent empty data entry since xlsPopulate returns empty cells
-          const compactRow = _.compact(row);
-
-          if (compactRow.length > 0) {
-            compactedRows.push(row);
-          }
-        }
-
-        // Getting columns
-        const fieldNames = usedSheets[0];
-
-        // Removing column
-        compactedRows.shift();
-
-        return resolve({ fieldNames, usedSheets: compactedRows });
-      })
-      .catch(e => {
-        return reject(e);
-      });
-  });
-};
 
 export const importer = async (req: any, res, next) => {
   if (!(await can('importXlsFile', req.user))) {
@@ -93,13 +32,12 @@ export const importer = async (req: any, res, next) => {
       }
 
       try {
-        const { fieldNames, usedSheets } = await readXlsFile(response.file);
+        const fileName = await uploadFileAWS(response.file, true);
 
         const result = await sendRPCMessage(RABBITMQ_QUEUES.RPC_API_TO_WORKERS, {
           action: 'createImport',
           type: fields.type,
-          fieldNames,
-          datas: usedSheets,
+          fileName,
           scopeBrandIds,
           user: req.user,
         });

@@ -51,13 +51,9 @@ describe('mutations', () => {
   };
 
   let dataSources;
-  let createAccountSpy;
 
   beforeEach(async () => {
     dataSources = { IntegrationsAPI: new IntegrationsAPI() };
-
-    createAccountSpy = jest.spyOn(dataSources.IntegrationsAPI, 'createAccount');
-    createAccountSpy.mockImplementation(() => Promise.resolve());
 
     // Creating test data
     _brand = await brandFactory({});
@@ -73,8 +69,6 @@ describe('mutations', () => {
     await Customers.deleteMany({});
     await EmailDeliveries.deleteMany({});
     await Integrations.deleteMany({});
-
-    createAccountSpy.mockRestore();
   });
 
   test('Create messenger integration', async () => {
@@ -363,96 +357,6 @@ describe('mutations', () => {
     expect(response).toBeDefined();
 
     createIntegrationSpy.mockRestore();
-  });
-
-  test('Add mail account', async () => {
-    const mutation = `
-      mutation integrationAddMailAccount(
-        $email: String!
-        $password: String!
-        $kind: String!
-      ) {
-        integrationAddMailAccount(
-          email: $email
-          password: $password
-          kind: $kind
-        )
-      }
-    `;
-
-    const args = {
-      email: 'email',
-      password: 'pass',
-      kind: 'facebook-post',
-    };
-
-    await graphqlRequest(mutation, 'integrationAddMailAccount', args, { dataSources });
-  });
-
-  test('Add exchange account', async () => {
-    const mutation = `
-      mutation integrationAddExchangeAccount(
-        $email: String!
-        $username: String
-        $password: String!
-        $kind: String!
-        $host: String!
-      ) {
-        integrationAddExchangeAccount(
-          email: $email
-          password: $password
-          username: $username
-          kind: $kind
-          host: $host
-        )
-      }
-    `;
-
-    const args = {
-      email: 'mail@exchange.com',
-      password: 'pass',
-      kind: 'exchange',
-      host: 'mail.exchange.com',
-      username: 'smtpHost',
-    };
-
-    await graphqlRequest(mutation, 'integrationAddExchangeAccount', args, { dataSources });
-  });
-
-  test('Add imap account', async () => {
-    const mutation = `
-      mutation integrationAddImapAccount(
-        $email: String!
-        $password: String!
-        $imapHost: String!
-        $imapPort: Int!
-        $smtpHost: String!
-        $smtpPort: Int!
-        $kind: String!
-      ) {
-        integrationAddImapAccount(
-          email: $email
-          password: $password
-          imapHost: $imapHost
-          imapPort: $imapPort
-          smtpHost: $smtpHost
-          smtpPort: $smtpPort
-          kind: $kind
-        )
-      }
-    `;
-
-    const args = {
-      email: 'email@yahoo.com',
-      password: 'pass',
-      imapHost: 'imapHost',
-      imapPort: 10,
-      smtpHost: 'smtpHost',
-      smtpPort: 10,
-      kind: 'facebook-post',
-    };
-
-    await graphqlRequest(mutation, 'integrationAddImapAccount', args, { dataSources });
   });
 
   test('Update config', async () => {
