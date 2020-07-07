@@ -29,6 +29,7 @@ const currentUser = `
       getNotificationByEmail
       permissionActions
       configs
+      configsConstants
     }
   }
 `;

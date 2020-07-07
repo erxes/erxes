@@ -6,7 +6,7 @@ import ControlLabel from 'modules/common/components/form/Label';
 import timezones from 'modules/common/constants/timezones';
 import { FormColumn, FormWrapper } from 'modules/common/styles/main';
 import { IFormProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
+import { __, getConstantFromStore } from 'modules/common/utils';
 import React from 'react';
 import { IUser } from '../types';
 
@@ -17,10 +17,26 @@ type Props = {
 };
 
 class UserCommonInfos extends React.PureComponent<Props> {
+  renderLink(link) {
+    const { user, formProps } = this.props;
+    const links = user.links || {};
+
+    return (
+      <FormGroup>
+        <ControlLabel>{link.label}</ControlLabel>
+        <FormControl
+          type="url"
+          name={link.value}
+          defaultValue={links[link.value] || ''}
+          {...formProps}
+        />
+      </FormGroup>
+    );
+  }
+
   render() {
     const { user, onAvatarUpload, formProps } = this.props;
     const details = user.details || {};
-    const links = user.links || {};
 
     return (
       <React.Fragment>
@@ -121,62 +137,9 @@ class UserCommonInfos extends React.PureComponent<Props> {
         <CollapseContent title={__('Links')} compact={true}>
           <FormWrapper>
             <FormColumn>
-              <FormGroup>
-                <ControlLabel>LinkedIn</ControlLabel>
-                <FormControl
-                  type="url"
-                  name="linkedIn"
-                  defaultValue={links.linkedIn || ''}
-                  {...formProps}
-                />
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel>Twitter</ControlLabel>
-                <FormControl
-                  type="url"
-                  name="twitter"
-                  defaultValue={links.twitter || ''}
-                  {...formProps}
-                />
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel>Facebook</ControlLabel>
-                <FormControl
-                  type="url"
-                  name="facebook"
-                  defaultValue={links.facebook || ''}
-                  {...formProps}
-                />
-              </FormGroup>
-            </FormColumn>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel>Youtube</ControlLabel>
-                <FormControl
-                  type="url"
-                  name="youtube"
-                  defaultValue={links.youtube || ''}
-                  {...formProps}
-                />
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel>Github</ControlLabel>
-                <FormControl
-                  type="url"
-                  name="github"
-                  defaultValue={links.github || ''}
-                  {...formProps}
-                />
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel>Website</ControlLabel>
-                <FormControl
-                  type="url"
-                  name="website"
-                  defaultValue={links.website || ''}
-                  {...formProps}
-                />
-              </FormGroup>
+              {getConstantFromStore('social_links').map(link =>
+                this.renderLink(link)
+              )}
             </FormColumn>
           </FormWrapper>
         </CollapseContent>
