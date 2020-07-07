@@ -394,7 +394,7 @@ replication:
 * * *
 ```
 
-- restart mongob
+- Restart mongob
 
 ```bash
 $ sudo systemctl start mongod
@@ -707,37 +707,211 @@ $ GET /
 
 If the `GET /` outputted the HTML page, similar to the above, then you are ready to configure your **NGINX** proxy server.
 
-## Nginx
+## Install and configure NGINX
 
-(https://launchpad.net/~nginx/+archive/ubuntu/stable)
-(Nginx from stable repo https://launchpad.net/~nginx/+archive/ubuntu/stable)
+**NGINX** is a very powerful web server. It is often used as a proxy server for emails. For additional [NGINX installation instructions, read this](https://www.nginx.com/resources/wiki/start/topics/tutorials/install/).
+
+NGINX is installed from the stable repo https://launchpad.net/~nginx/+archive/ubuntu/stable.
+
+```bash
+$ sudo add-apt-repository ppa:nginx/stable
+
+ This PPA contains the latest Stable Release version of the nginx web server software.
+
+**Only Non-End-of-Life Ubuntu Releases are supported in this PPA**
+
+**Development releases of Ubuntu are not officially supported by this PPA, and uploads for those will not be available until Beta releases for those versions**
+ More info: https://launchpad.net/~nginx/+archive/ubuntu/stable
+Press [ENTER] to continue or Ctrl-c to cancel adding it.
+
+    * * *
+
+Hit:15 https://packagecloud.io/rabbitmq/rabbitmq-server/ubuntu bionic InRelease
+Fetched 60.9 kB in 1s (57.4 kB/s)
+Reading package lists... Done
+
+$ sudo apt-get update
+
+Hit:1 http://mirrors.linode.com/ubuntu bionic InRelease
+Hit:2 http://mirrors.linode.com/ubuntu bionic-updates InRelease
+
+    * * *
+
+Fetched 32.6 kB in 1s (28.1 kB/s)
+Reading package lists... Done
+
+$ sudo apt-get install -y nginx
+
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+The following additional packages will be installed:
+
+    * * *
+
+Rules updated for profile 'OpenSSH'
+Skipped reloading firewall
+Processing triggers for ureadahead (0.100.0-21) ...
+Processing triggers for libc-bin (2.27-3ubuntu1) ...
+```
+
+**NGINX** started by default when you installed it. But it is recommended to `enable` and `start` anyway.
+
+```bash
+$ sudo systemctl enable nginx
+
+Synchronizing state of nginx.service with SysV service script with /lib/systemd/systemd-sysv-install.
+Executing: /lib/systemd/systemd-sysv-install enable nginx
+
+$ sudo systemctl start nginx
+```
+
+## Configure NGINX
+
+The next step is to configure **NGINX** so that it allows traffic from the firewall. You will be allowing `Ports 80 and 443`.
+
+- Ensure the `ufw` firewall knows about the available applications.
+
+```bash
+$ sudo ufw app list
+
+Available applications:
+  Nginx Full
+  Nginx HTTP
+  Nginx HTTPS
+  OpenSSH
+```
+
+The output should look something like the `Available applications` output above. `Nginx Full` should be listed.
+
+- Enable Port 80 and Port 443 to allow traffic.
+
+```bash
+$ sudo ufw allow 'Nginx Full'
+Rule added
+Rule added (v6)
+```
+
+- Verify that `ufw` has been updated.
+
+```bash
+$ sudo ufw status
+
+Status: active
+
+To                         Action      From
+--                         ------      ----
+OpenSSH                    ALLOW       Anywhere
+80,443/tcp                 ALLOW       Anywhere
+Nginx Full                 ALLOW       Anywhere
+OpenSSH (v6)               ALLOW       Anywhere (v6)
+80,443/tcp (v6)            ALLOW       Anywhere (v6)
+Nginx Full (v6)            ALLOW       Anywhere (v6)
+```
+
+Your output should match the above **Status** output.
+
+### Configure NGINX
+
+The next step is to create a server block with the correct directives to work with the erxes installation.
+
+- Below is the **NGINX server block** you need to _copy/paste_ into the file. Replace `YOUR-DOMAIN-COM` with your actual `domain name`.
+
+```txt
+server {
+        listen 80;
+
+        # your domain name here
+        server_name YOUR-DOMAIN-COM;
+
+        # erxes build path
+        root /home/erxes/erxes/erxes/ui/build;
+        index index.html;
+
+        error_log /var/log/nginx/erxes.error.log;
+        access_log /var/log/nginx/erxes.access.log;
+
+        location / {
+                try_files $uri /index.html;
+        }
+
+        # widgets is running on 3200 port.
+        location /widgets/ {
+                proxy_pass http://127.0.0.1:3200/;
+                proxy_set_header Host $http_host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_http_version 1.1;
+        }
+
+        # api project is running on 3300 port.
+        location /api/ {
+                proxy_pass http://127.0.0.1:3300/;
+                # proxy_set_header Host $http_host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                # proxy_set_header Connection "Upgrade";
+                proxy_set_header Connection 'upgrade';
+                proxy_set_header Host $host;
+        }
+        # erxes integrations project is running on 3400 port.
+        location /integrations/ {
+                proxy_pass http://127.0.0.1:3400/;
+                proxy_set_header Host $http_host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_http_version 1.1;
+        }
+}
+```
+
+- Create a new file in the correct directory, and name it your domain name. For example, if your domain name is `erxes.example.com`, name the file, `erxes.example.com`.
+
+```bash
+# example: sudo nano /etc/nginx/sites-available/erxes.example.com
+$ sudo nano /etc/nginx/sites-available/YOUR-DOMAIN-NAME
+
+# Copy and paste the above server block and save with ctrl + x
+```
+
+- Copy and paste the above server block and save with ctrl + x
+- Enable the file by creating a link form it to **sites-enabled**. Make sure to use your domain name exactly as you created the file above.
+
+```bash
+$ sudo ln -s /etc/nginx/sites-available/YOUR-DOMAIN-COM /etc/nginx/sites-enabled/
+```
+
+- Adjust the nginx.conf and uncomment the following line `server_names_hash_bucket_size 64;`
+
+```bash
+
+$ sudo nano /etc/nginx/nginx.conf
+```
+
+It should look like this:
+
+```txt
+http {
+    * * *
+    server_names_hash_bucket_size 64;
+    * * *
+}
+```
+
+- Test the NGINX files to make sure you don't have any errors
+
+```bash
+$ sudo nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
 
 ```
 
-sudo add-apt-repository ppa:nginx/stable
-sudo apt-get update
-sudo apt-get install -y nginx
-
-# It started by default when we install it. Just making sure of things.
-
-sudo systemctl enable nginx
-sudo systemctl start nginx
-
-```
-
-## NGINX CONFIG
+If you you get no errors, you are ready to install the SSL Certificates using **Let's Encrypt**.
 
 ## LETS ENCRYPT
-
-## Install GitHub - NO GITHUB
-
-```
-
-sudo apt update
-sudo apt install git
-git --version
-
-```
 
 ## Install erxes
 
