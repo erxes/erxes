@@ -67,8 +67,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         run: |
           cd widgets
-          cp package.json dist/
-          tar -zcf erxes-widgets-${GITHUB_REF#refs/tags/}.tar.gz dist locales static
+          tar -zcf erxes-widgets-${GITHUB_REF#refs/tags/}.tar.gz dist locales static package.json
 
       - name: Get release version [tag]
         id: get_release_version
