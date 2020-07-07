@@ -116,6 +116,7 @@ describe('userQueries', () => {
           brands { _id }
           permissionActions
           configs
+          configsConstants
         }
       }
     `;

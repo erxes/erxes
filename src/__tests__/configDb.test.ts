@@ -47,4 +47,8 @@ describe('Test configs model', () => {
     expect(updateConfig.value.length).toEqual(1);
     expect(updateConfig.value[0]).toEqual('update');
   });
+
+  test('constants', async () => {
+    Configs.constants();
+  });
 });
