@@ -145,7 +145,7 @@ describe('Login middleware test', () => {
 
     const response = await getOAuthCredentials(req, res, next);
 
-    expect(response).toBe(`${AUTHORIZED_REDIRECT_URL}?uid=123#showgmailModal=true`);
+    expect(response).toBe(`${AUTHORIZED_REDIRECT_URL}&uid=123#showgmailModal=true`);
 
     sendRequestMock.restore();
   });
@@ -169,25 +169,8 @@ describe('Login middleware test', () => {
 
     const response = await getOAuthCredentials(req, res, next);
 
-    expect(response).toEqual(`${AUTHORIZED_REDIRECT_URL}?uid=123#showoffice365Modal=true`);
+    expect(response).toEqual(`${AUTHORIZED_REDIRECT_URL}&uid=123#showoffice365Modal=true`);
 
     sendRequestMock.restore();
-  });
-
-  test('OAuth O365 already authorized', async () => {
-    req.query.kind = 'nylas-office365';
-    req.query.code = 'code';
-
-    setConfigAndCredentials(true, true);
-
-    const mock = sinon.stub(redisUtils, 'get').callsFake(() => {
-      return Promise.resolve('email,refreshToken');
-    });
-
-    const response = await getOAuthCredentials(req, res, next);
-
-    expect(response).toEqual(`${AUTHORIZED_REDIRECT_URL}?#showoffice365Modal=true`);
-
-    mock.restore();
   });
 });
