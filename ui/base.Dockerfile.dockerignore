@@ -12,3 +12,4 @@ Dockerfile*
 jest*.js
 *.json
 yarn.lock
+*.tar.gz
