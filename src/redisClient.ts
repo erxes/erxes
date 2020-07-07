@@ -109,3 +109,33 @@ export const inArray = async (setKey: string, setMember: string): Promise<any> =
 export const setArray = (key: string, value: any[]) => {
   client.set(key, JSON.stringify(value));
 };
+
+export const removeKey = async (key: string) => {
+  return new Promise((resolve, reject) => {
+    client.del(key, (error, response) => {
+      if (error) {
+        return reject(error);
+      }
+
+      if (response === 1) {
+        return resolve('success');
+      }
+    });
+  });
+};
+
+/**
+ * Health check status
+ * retryStrategy - get response immediately
+ */
+export const redisStatus = () => {
+  return new Promise((resolve, reject) => {
+    client.ping((error, result) => {
+      if (error) {
+        return reject(error);
+      }
+
+      return resolve(result);
+    });
+  });
+};

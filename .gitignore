@@ -12,3 +12,4 @@ coverage
 *.swp
 google_cred.json
 .cache
+yarn-error.log

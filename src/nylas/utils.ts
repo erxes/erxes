@@ -1,8 +1,7 @@
-import * as crypto from 'crypto';
 import * as dotenv from 'dotenv';
 import { debugNylas } from '../debuggers';
 import { getGoogleConfigs } from '../gmail/util';
-import { Accounts, Integrations } from '../models';
+import { Integrations } from '../models';
 import { compose, getConfig, getEnv } from '../utils';
 import { getMessageById } from './api';
 import {
@@ -29,19 +28,13 @@ dotenv.config();
  * @retusn {Promise} nylas messages object
  */
 const syncMessages = async (accountId: string, messageId: string) => {
-  const account = await Accounts.findOne({ uid: accountId }).lean();
-
-  if (!account) {
-    return debugNylas('Account not found with uid: ', accountId);
-  }
-
-  const integration = await Integrations.findOne({ accountId: account._id });
+  const integration = await Integrations.findOne({ nylasAccountId: accountId }).lean();
 
   if (!integration) {
-    return debugNylas('Integration not found with accountId: ', account._id);
+    throw new Error(`Integration not found with nylasAccountId: ${accountId}`);
   }
 
-  const { nylasToken, email, kind } = account;
+  const { nylasToken, email, kind } = integration;
 
   let message;
 
@@ -50,13 +43,13 @@ const syncMessages = async (accountId: string, messageId: string) => {
   } catch (e) {
     debugNylas(`Failed to get nylas message by id: ${e.message}`);
 
-    return e;
+    throw e;
   }
 
   const [from] = message.from;
 
   // Prevent to send email to itself
-  if (from.email === account.email && !message.subject.includes('Re:')) {
+  if (from.email === integration.email && !message.subject.includes('Re:')) {
     return;
   }
 
@@ -176,64 +169,6 @@ const getProviderConfigs = (kind: string) => {
         },
       };
     }
-  }
-};
-
-/**
- * Encrypt password
- * @param {String} password
- * @returns {String} encrypted password
- */
-export const encryptPassword = async (password: string): Promise<string> => {
-  const ENCRYPTION_KEY = await getConfig('ENCRYPTION_KEY', '');
-  const ALGORITHM = await getConfig('ALGORITHM', '');
-
-  if (!ALGORITHM || !ENCRYPTION_KEY) {
-    throw new Error('Missing IMAP config please check ALGORITHM and ENCRYPTION_KEY in System Configs');
-  }
-
-  try {
-    const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY), iv);
-
-    let encrypted = cipher.update(password);
-
-    encrypted = Buffer.concat([encrypted, cipher.final()]);
-
-    return iv.toString('hex') + ':' + encrypted.toString('hex');
-  } catch (e) {
-    throw e;
-  }
-};
-
-/**
- * Decrypt password
- * @param {String} password
- * @returns {String} decrypted password
- */
-export const decryptPassword = async (password: string): Promise<string> => {
-  const ENCRYPTION_KEY = await getConfig('ENCRYPTION_KEY', '');
-  const ALGORITHM = await getConfig('ALGORITHM', '');
-
-  if (!ALGORITHM || !ENCRYPTION_KEY) {
-    throw new Error('Missing IMAP config please check ALGORITHM and ENCRYPTION_KEY in System Configs');
-  }
-
-  const passwordParts = password.split(':');
-  const ivKey = Buffer.from(passwordParts.shift(), 'hex');
-
-  const encryptedPassword = Buffer.from(passwordParts.join(':'), 'hex');
-
-  try {
-    const decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY), ivKey);
-
-    let decrypted = decipher.update(encryptedPassword);
-
-    decrypted = Buffer.concat([decrypted, decipher.final()]);
-
-    return decrypted.toString();
-  } catch (e) {
-    throw e;
   }
 };
 

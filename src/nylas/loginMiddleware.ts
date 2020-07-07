@@ -1,11 +1,11 @@
 import * as dotenv from 'dotenv';
 import * as querystring from 'querystring';
 import { debugNylas, debugRequest } from '../debuggers';
-import { Accounts } from '../models';
-import { sendRequest } from '../utils';
+import { set } from '../redisClient';
+import { generateUid, sendRequest } from '../utils';
 import { checkCredentials } from './api';
 import { AUTHORIZED_REDIRECT_URL, GOOGLE_OAUTH_TOKEN_VALIDATION_URL, MICROSOFT_GRAPH_URL } from './constants';
-import { encryptPassword, getClientConfig, getProviderConfigs } from './utils';
+import { getClientConfig, getProviderConfigs } from './utils';
 
 // loading config
 dotenv.config();
@@ -15,7 +15,7 @@ const { DOMAIN } = process.env;
 const globals: { kind?: string } = {};
 
 // Provider specific OAuth2 ===========================
-const getOAuthCredentials = async (req, res, next) => {
+const getOAuthCredential = async (req, res, next) => {
   debugRequest(debugNylas, req);
 
   let { kind } = req.query;
@@ -27,9 +27,7 @@ const getOAuthCredentials = async (req, res, next) => {
     kind = globals.kind;
   }
 
-  if (kind.includes('nylas')) {
-    kind = kind.split('-')[1];
-  }
+  kind = kind.split('-')[1];
 
   if (!checkCredentials()) {
     return next(new Error('Nylas not configured, check your env'));
@@ -67,10 +65,12 @@ const getOAuthCredentials = async (req, res, next) => {
     code: req.query.code,
     redirect_uri: redirectUri,
     client_id: clientId,
+    state: '',
     client_secret: clientSecret,
-    ...(kind === 'office365' ? { scope: 'https://graph.microsoft.com/user.read' } : {}), // for graph api to get user info
+    ...(kind === 'office365' ? { scope: 'https://graph.microsoft.com/user.read' } : {}),
   };
 
+  // Google | O365 tokens
   const { access_token, refresh_token } = await sendRequest({
     url: urls.tokenUrl,
     method: 'post',
@@ -106,56 +106,12 @@ const getOAuthCredentials = async (req, res, next) => {
       break;
   }
 
-  const doc = {
-    email,
-    kind,
-    name: email,
-    scope: params.scope,
-    token: access_token,
-    tokenSecret: refresh_token,
-  };
+  const uid = generateUid();
+  // We will use email and refresh_token
+  // when user create the Gmail or O365 integration
+  await set(`${uid}-credential`, `${email},${refresh_token}`);
 
-  await Accounts.create(doc);
-
-  return res.redirect(AUTHORIZED_REDIRECT_URL);
+  return res.redirect(`${AUTHORIZED_REDIRECT_URL}&uid=${uid}#show${kind}Modal=true`);
 };
 
-/**
- * Create account
- * @param {String} email
- * @param {String} password
- * @param {String} imapHost
- * @param {String} smtpHost
- * @param {Number} imapPort
- * @param {Number} smtpPort
- */
-const authProvider = async (req, res, next) => {
-  debugRequest(debugNylas, req);
-
-  const { kind, email, password, ...otherParams } = req.body;
-
-  if (!email || !password) {
-    return next(new Error('Missing email or password config'));
-  }
-
-  try {
-    const doc = {
-      name: email,
-      email,
-      password: await encryptPassword(password),
-      ...(['nylas-imap', 'nylas-exchange'].includes(kind) ? otherParams : {}),
-    };
-
-    debugNylas(`Creating account with email: ${email}`);
-
-    doc.kind = kind.replace('nylas-', '');
-
-    await Accounts.create(doc);
-
-    return res.redirect(AUTHORIZED_REDIRECT_URL);
-  } catch (e) {
-    next(e);
-  }
-};
-
-export { getOAuthCredentials, authProvider };
+export default getOAuthCredential;

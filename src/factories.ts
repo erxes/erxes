@@ -60,9 +60,14 @@ export const integrationFactory = (params: {
   erxesApiId?: string;
   email?: string;
   gmailHistoryId?: string;
+  nylasAccountId?: string;
+  nylasToken?: string;
   facebookPageIds?: string[];
   facebookPageTokensMap?: object;
-  viberBotToken?: string;
+  smoochIntegrationId?: string;
+  whatsappinstanceId?: string;
+  telegramBotToken?: string;
+  whatsappToken?: string;
 }) => {
   const integration = new Integrations({
     kind: params.kind || 'facebook',
@@ -70,9 +75,14 @@ export const integrationFactory = (params: {
     email: params.email || 'user@mail.com',
     erxesApiId: params.erxesApiId || '_id',
     gmailHistoryId: params.gmailHistoryId || '',
+    nylasAccountId: params.nylasAccountId || '',
+    nylasToken: params.nylasToken || '',
     facebookPageIds: params.facebookPageIds || [],
     facebookPageTokensMap: params.facebookPageTokensMap || {},
-    viberBotToken: params.viberBotToken || 'aaksjfhakjsfhkalhf',
+    smoochIntegrationId: params.smoochIntegrationId || 'aaksjfhakjsfhkalhf',
+    whatsappinstanceId: params.whatsappinstanceId || '123456',
+    whatsappToken: params.whatsappToken || 'asdag123',
+    telegramBotToken: params.telegramBotToken || 'asfasfk;alskf',
   });
 
   return integration.save();

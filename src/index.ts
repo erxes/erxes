@@ -2,16 +2,16 @@ import * as bodyParser from 'body-parser';
 import * as express from 'express';
 import initCallPro from './callpro/controller';
 import initChatfuel from './chatfuel/controller';
-import { connect } from './connection';
+import { connect, mongoStatus } from './connection';
 import { debugInit, debugIntegrations, debugRequest, debugResponse } from './debuggers';
 import initFacebook from './facebook/controller';
 import initGmail from './gmail/controller';
 import { removeIntegration, updateIntegrationConfigs } from './helpers';
-import { initConsumer } from './messageBroker';
+import { initConsumer, rabbitMQStatus } from './messageBroker';
 import Accounts from './models/Accounts';
 import Configs from './models/Configs';
 import { initNylas } from './nylas/controller';
-import { initRedis } from './redisClient';
+import { initRedis, redisStatus } from './redisClient';
 import initSmooch from './smooch/controller';
 import { init } from './startup';
 import initTwitter from './twitter/controller';
@@ -46,6 +46,32 @@ app.use((req, _res, next) => {
   debugRequest(debugIntegrations, req);
 
   next();
+});
+
+// for health check
+app.get('/status', async (_req, res, next) => {
+  try {
+    await mongoStatus();
+  } catch (e) {
+    debugIntegrations('MongoDB is not running');
+    return next(e);
+  }
+
+  try {
+    await redisStatus();
+  } catch (e) {
+    debugIntegrations('Redis is not running');
+    return next(e);
+  }
+
+  try {
+    await rabbitMQStatus();
+  } catch (e) {
+    debugIntegrations('RabbitMQ is not running');
+    return next(e);
+  }
+
+  res.end('ok');
 });
 
 app.post('/update-configs', async (req, res, next) => {

@@ -104,26 +104,23 @@ describe('Facebook remove integration test', async () => {
 describe('Nylas remove integration test', () => {
   let integrationId: string;
   let erxesApiId: string;
-  let accountId: string;
 
   beforeEach(async () => {
     const doc = { kind: 'gmail', email: 'user@mail.com' };
 
-    const account = await accountFactory({ ...doc, nylasToken: 'askldjaslkjdlak' });
     const integration = await integrationFactory({
       ...doc,
-      accountId: account._id,
+      nylasAccountId: 'nylasAccountId',
+      nylasToken: 'nylasToken',
       erxesApiId: 'alkjdlkj',
     });
 
     integrationId = integration._id;
     erxesApiId = integration.erxesApiId;
-    accountId = account._id;
   });
 
   afterEach(async () => {
     await Integrations.remove({});
-    await Accounts.remove({});
 
     // Entries
     await NylasGmailCustomers.remove({});
@@ -154,28 +151,11 @@ describe('Nylas remove integration test', () => {
     };
   };
 
-  test('Remove integration by accountId', async () => {
-    const { customerId, conversationId, messageId } = await entryFactory('asd@mail.com');
-
-    const mock = sinon.stub(nylasApi, 'enableOrDisableAccount').callsFake();
-    const erxesApiIds = await removeAccount(accountId);
-
-    // Remove integration
-    expect(erxesApiIds).toEqual({ erxesApiIds: ['alkjdlkj'] });
-    expect(await Integrations.findOne({ kind: 'gmail' })).toBe(null);
-
-    // Remove entries
-    expect(await NylasGmailCustomers.findOne({ _id: customerId })).toBe(null);
-    expect(await NylasGmailConversations.findOne({ _id: conversationId })).toBe(null);
-    expect(await NylasGmailConversationMessages.findOne({ _id: messageId })).toBe(null);
-
-    mock.restore();
-  });
-
   test('Remove nylas-gmail integration by [erxesApiId]', async () => {
     const { customerId, conversationId, messageId } = await entryFactory('foo@mail.com');
 
     const mock = sinon.stub(nylasApi, 'enableOrDisableAccount').callsFake();
+
     const integrationErxesApiId = await removeIntegration(erxesApiId);
 
     // Remove integration

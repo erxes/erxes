@@ -4,6 +4,10 @@ import { field } from './utils';
 export interface IIntegration {
   kind: string;
   accountId: string;
+  emailScope?: string;
+  nylasToken?: string;
+  nylasAccountId?: string;
+  nylasBillingState?: string;
   erxesApiId: string;
   facebookPageIds?: string[];
   facebookPageTokensMap?: { [key: string]: string };
@@ -36,6 +40,10 @@ export const integrationSchema = new Schema({
   erxesApiId: String,
   phoneNumber: String,
   recordUrl: String,
+  emailScope: String,
+  nylasToken: String,
+  nylasAccountId: String,
+  nylasBillingState: String,
   facebookPageIds: [String],
   email: String,
   expiration: String,
