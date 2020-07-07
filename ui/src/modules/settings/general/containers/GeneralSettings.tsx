@@ -11,12 +11,13 @@ import { ConfigsQueryResponse, IConfigsMap } from '../types';
 
 type FinalProps = {
   configsQuery: ConfigsQueryResponse;
+  constantsQuery;
   updateConfigs: (configsMap: IConfigsMap) => Promise<void>;
 };
 
 class SettingsContainer extends React.Component<FinalProps> {
   render() {
-    const { updateConfigs, configsQuery } = this.props;
+    const { updateConfigs, configsQuery, constantsQuery } = this.props;
 
     if (configsQuery.loading) {
       return <Spinner objective={true} />;
@@ -51,6 +52,7 @@ class SettingsContainer extends React.Component<FinalProps> {
           <GeneralSettings
             {...this.props}
             configsMap={configsMap}
+            constants={constantsQuery.configsConstants || {}}
             save={save}
             currentLanguage={currentLanguage}
             changeLanguage={changeLanguage}
@@ -65,6 +67,9 @@ export default withProps<{}>(
   compose(
     graphql<{}, ConfigsQueryResponse>(gql(queries.configs), {
       name: 'configsQuery'
+    }),
+    graphql<{}>(gql(queries.configsConstants), {
+      name: 'constantsQuery'
     }),
     graphql<{}>(gql(mutations.updateConfigs), {
       name: 'updateConfigs'

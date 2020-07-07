@@ -28,6 +28,7 @@ type Props = {
   changeLanguage: (language: string) => void;
   save: (configsMap: IConfigsMap) => void;
   configsMap: IConfigsMap;
+  constants;
 };
 
 type State = {
@@ -99,6 +100,34 @@ class GeneralSettings extends React.Component<Props, State> {
       </FormGroup>
     );
   };
+
+  renderConstant(kind: string) {
+    const { constants } = this.props;
+    const { configsMap } = this.state;
+    const allValues = constants.allValues || {};
+    const defaultValues = constants.defaultValues || {};
+
+    const constant = allValues[kind] || [];
+
+    let value = configsMap[kind];
+
+    if (!value || value.length === 0) {
+      value = defaultValues[kind] || '';
+    }
+
+    return (
+      <FormGroup>
+        <ControlLabel>{KEY_LABELS[kind]}</ControlLabel>
+
+        <Select
+          options={constant}
+          value={value}
+          onChange={this.onChangeMultiCombo.bind(this, kind)}
+          multi={true}
+        />
+      </FormGroup>
+    );
+  }
 
   render() {
     const { configsMap, language } = this.state;
@@ -336,6 +365,12 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderItem('MAIL_USER')}
           {this.renderItem('MAIL_PASS')}
           {this.renderItem('MAIL_HOST')}
+        </CollapseContent>
+
+        <CollapseContent title={__('Constants')}>
+          {this.renderConstant('sex_choices')}
+          {this.renderConstant('company_industry_types')}
+          {this.renderConstant('social_links')}
         </CollapseContent>
       </ContentBox>
     );

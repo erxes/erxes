@@ -28,10 +28,10 @@ export const leadStatusChoices = __ => {
 export const genderChoices = __ => {
   const options: Array<{ value: string; label: string }> = [];
 
-  for (const key of Object.keys(GENDER_TYPES)) {
+  for (const key of Object.keys(GENDER_TYPES())) {
     options.push({
       value: key,
-      label: __(GENDER_TYPES[key])
+      label: __(GENDER_TYPES()[key])
     });
   }
 
