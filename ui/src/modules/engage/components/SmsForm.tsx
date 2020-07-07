@@ -149,7 +149,7 @@ class MessengerForm extends React.Component<Props, State> {
           </FormGroup>
           <FormGroup>
             <SMSInfo>
-              <ControlLabel>Title:</ControlLabel>
+              <ControlLabel>{__('SMS marketing from the title')}:</ControlLabel>
               <Char count={titleCount}>{titleCount}</Char>
             </SMSInfo>
             <FormControl
@@ -161,7 +161,7 @@ class MessengerForm extends React.Component<Props, State> {
           </FormGroup>
           <FormGroup>
             <SMSInfo>
-              <ControlLabel>{__('Message:')}</ControlLabel>
+              <ControlLabel>{__('SMS marketing content')}:</ControlLabel>
               <Char count={characterCount}>{characterCount}</Char>
             </SMSInfo>
             <FormControl
