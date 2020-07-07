@@ -1,3 +1,10 @@
+## [0.15.1](https://github.com/erxes/erxes/compare/0.15.0...0.15.1) (2020-07-07)
+
+
+### Features
+
+* **constants:** ability to configure constant choices ([b27024d](https://github.com/erxes/erxes/commit/b27024db062fa3f34bc5ccc6b1a751b9d8c663c9)), closes [#2096](https://github.com/erxes/erxes/issues/2096)
+
 # [0.15.0](https://github.com/erxes/erxes/compare/0.14.2...0.15.0) (2020-07-07)
 
 
