@@ -69,7 +69,7 @@ class DetailInfo extends React.PureComponent<Props> {
           customer.emailValidationStatus,
           customer.primaryEmail
         )}
-         {this.renderPhone(
+        {this.renderPhone(
           customer.phoneValidationStatus,
           customer.primaryPhone
         )}
@@ -81,7 +81,7 @@ class DetailInfo extends React.PureComponent<Props> {
             : ''
         )}
         {this.renderRow('Department', customer.department)}
-        {this.renderRow('Gender', GENDER_TYPES[customer.sex || 0])}
+        {this.renderRow('Gender', GENDER_TYPES()[customer.sex || 0])}
         {this.renderRow(
           'Birthday',
           customer.birthDate && dayjs(customer.birthDate).format('MMM,DD YYYY')

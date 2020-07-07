@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import Spinner from 'modules/common/components/Spinner';
-import { withProps } from 'modules/common/utils';
+import { storeConstantToStore, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { queries } from '../graphql';
@@ -19,10 +19,18 @@ const withCurrentUser = Component => {
       return <Spinner />;
     }
 
+    const currentUser = currentUserQuery.currentUser;
+
     const updatedProps = {
       ...props,
-      currentUser: currentUserQuery.currentUser
+      currentUser
     };
+
+    if (currentUser) {
+      const constants = currentUser.configsConstants || [];
+
+      constants.forEach(c => storeConstantToStore(c.key, c.values));
+    }
 
     return <Component {...updatedProps} />;
   };
