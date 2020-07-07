@@ -255,7 +255,7 @@ class CustomerForm extends React.Component<Props, State> {
                   />
                 </FormGroup>
 
-                {this.renderFormGroup('Gender', {
+                {this.renderFormGroup('Pronoun', {
                   ...formProps,
                   name: 'sex',
                   componentClass: 'select',
