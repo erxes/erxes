@@ -128,6 +128,7 @@ type IProps = {
   mainType?: string;
   mainTypeId?: string;
   isOpen?: boolean;
+  customers?: ICustomer[];
   onSelect?: (datas: ICustomer[]) => void;
 };
 
@@ -139,6 +140,7 @@ export default (props: IProps) => {
       component={Component}
       queryName="customers"
       itemsQuery={queries.customers}
+      alreadyItems={props.customers}
     />
   );
 };
