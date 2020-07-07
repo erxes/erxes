@@ -71,6 +71,12 @@ export interface ICustomer {
   sessionCount?: number;
 }
 
+export interface IValidationResponse {
+  email?: string;
+  phone?: string;
+  status: string;
+}
+
 export interface ICustomerDocument extends ICustomer, Document {
   _id: string;
   location?: ILocationDocument;

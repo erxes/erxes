@@ -81,8 +81,9 @@ jobs:
         yarn lint
 
     - name: Tsc
+      if: github.event_name == 'pull_request'
       run: |
-        yarn tsc
+        yarn tsc -p tsconfig.prod.json
 
     - name: Test
       run: |
@@ -94,12 +95,31 @@ jobs:
         MAIN_APP_DOMAIN: http://localhost:3000
 
     - name: Build
-      if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/crons' || github.ref == 'refs/heads/workers' || github.ref == 'refs/tags/')
+      if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'push'
       run: |
         yarn build
 
+    - name: Prepare release assets [tag]
+      if: startsWith(github.ref, 'refs/tags/')
+      run: |
+        tar -zcf erxes-api-${GITHUB_REF#refs/tags/}.tar.gz dist
+
+    - name: Get release version [tag]
+      id: get_release_version
+      if: startsWith(github.ref, 'refs/tags/')
+      run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+
+    - name: Upload release assets [tag]
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+          files: ./erxes-api-${{ steps.get_release_version.outputs.VERSION }}.tar.gz
+          name: Release ${{ steps.get_release_version.outputs.VERSION }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Build docker image [push]
-      if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/crons' || github.ref == 'refs/heads/workers' || github.ref == 'refs/tags/')
+      if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/crons' || github.ref == 'refs/heads/workers')
       env:
         BASE_IMAGE: erxes/erxes-api:base-12.16.3-slim
       run: |

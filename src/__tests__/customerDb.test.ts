@@ -20,6 +20,8 @@ import {
 } from '../db/models';
 import { ACTIVITY_CONTENT_TYPES } from '../db/models/definitions/constants';
 
+import * as sinon from 'sinon';
+import * as utils from '../data/utils';
 import { ICustomer, ICustomerDocument } from '../db/models/definitions/customers';
 import './setup.ts';
 
@@ -30,8 +32,8 @@ describe('Customers model tests', () => {
     _customer = await customerFactory({
       primaryEmail: 'email@gmail.com',
       emails: ['email@gmail.com', 'otheremail@gmail.com'],
-      primaryPhone: '99922210',
-      phones: ['99922210', '99922211'],
+      primaryPhone: '+99922210',
+      phones: ['+99922210', '+99922211'],
       code: 'code',
     });
   });
@@ -90,6 +92,7 @@ describe('Customers model tests', () => {
 
   test('Create customer', async () => {
     // check duplication ===============
+
     try {
       await Customers.createCustomer({ primaryEmail: 'email@gmail.com' });
     } catch (e) {
@@ -103,13 +106,13 @@ describe('Customers model tests', () => {
     }
 
     try {
-      await Customers.createCustomer({ primaryPhone: '99922210' });
+      await Customers.createCustomer({ primaryPhone: '+99922210' });
     } catch (e) {
       expect(e.message).toBe('Duplicated phone');
     }
 
     try {
-      await Customers.createCustomer({ primaryPhone: '99922211' });
+      await Customers.createCustomer({ primaryPhone: '+99922211' });
     } catch (e) {
       expect(e.message).toBe('Duplicated phone');
     }
@@ -126,11 +129,15 @@ describe('Customers model tests', () => {
       emails: ['dombo@yahoo.com'],
       firstName: 'firstName',
       lastName: 'lastName',
-      primaryPhone: '12312132',
+      primaryPhone: '+12312132',
       phones: ['12312132'],
       code: 'code1234',
       state: 'lead',
     };
+
+    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+      return Promise.resolve('success');
+    });
 
     let customerObj = await Customers.createCustomer(doc);
 
@@ -152,6 +159,7 @@ describe('Customers model tests', () => {
     );
 
     expect(customerObj).toBeDefined();
+    mock.restore();
   });
 
   test('Create visitor', async () => {
@@ -161,14 +169,18 @@ describe('Customers model tests', () => {
   });
 
   test('Create customer: searchText', async () => {
+    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+      return Promise.resolve('success');
+    });
     const doc = {
       primaryEmail: 'dombo@yahoo.com',
-      primaryPhone: '12312132',
+      primaryPhone: '+12312132',
     };
 
     const customerObj = await Customers.createCustomer(doc);
 
-    expect(customerObj.searchText).toEqual('dombo@yahoo.com 12312132');
+    expect(customerObj.searchText).toEqual('dombo@yahoo.com +12312132');
+    mock.restore();
   });
 
   test('Create customer: with customer fields validation error', async () => {
@@ -192,6 +204,10 @@ describe('Customers model tests', () => {
   });
 
   test('Update customer', async () => {
+    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+      return Promise.resolve('success');
+    });
+
     expect.assertions(6);
 
     const previousCustomer = await customerFactory({
@@ -203,13 +219,13 @@ describe('Customers model tests', () => {
       firstName: 'Dombo',
       primaryEmail: 'dombo@yahoo.com',
       emails: ['dombo@yahoo.com'],
-      primaryPhone: '242442200',
+      primaryPhone: '+242442200',
       phones: ['242442200'],
     };
 
     // test duplication
     try {
-      await Customers.updateCustomer(_customer._id, doc);
+      await Customers.updateCustomer(_customer._id, doc, 'localhost');
     } catch (e) {
       expect(e.message).toBe('Duplicated email');
     }
@@ -217,16 +233,18 @@ describe('Customers model tests', () => {
     // remove previous duplicated entry
     await Customers.deleteOne({ _id: previousCustomer._id });
 
-    let customerObj = await Customers.updateCustomer(_customer._id, doc);
+    let customerObj = await Customers.updateCustomer(_customer._id, doc, 'localhost');
 
     expect(customerObj.modifiedAt).toBeDefined();
     expect(customerObj.firstName).toBe(doc.firstName);
     expect(customerObj.primaryEmail).toBe(doc.primaryEmail);
     expect(customerObj.primaryPhone).toBe(doc.primaryPhone);
 
-    customerObj = await Customers.updateCustomer(_customer._id, { primaryEmail: '' });
+    customerObj = await Customers.updateCustomer(_customer._id, { primaryEmail: '' }, 'localhost');
 
     expect(customerObj.primaryEmail).toBe('');
+
+    mock.restore();
   });
 
   test('Mark customer as inactive', async () => {
@@ -254,11 +272,15 @@ describe('Customers model tests', () => {
     }
 
     try {
-      await Customers.updateCustomer(_customer._id, {
-        primaryEmail: 'email',
-        emails: ['dombo@yahoo.com'],
-        customFieldsData: [{ field: field._id, value: 'invalid number' }],
-      });
+      await Customers.updateCustomer(
+        _customer._id,
+        {
+          primaryEmail: 'email',
+          emails: ['dombo@yahoo.com'],
+          customFieldsData: [{ field: field._id, value: 'invalid number' }],
+        },
+        'localhost',
+      );
     } catch (e) {
       expect(e.message).toBe(`${field.text}: Invalid number`);
     }
@@ -299,6 +321,9 @@ describe('Customers model tests', () => {
   });
 
   test('Merge customers: without emails or phones', async () => {
+    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+      return Promise.resolve('success');
+    });
     const visitor1 = await customerFactory({});
     const visitor2 = await customerFactory({});
 
@@ -306,14 +331,18 @@ describe('Customers model tests', () => {
 
     const merged = await Customers.mergeCustomers(customerIds, {
       primaryEmail: 'merged@gmail.com',
-      primaryPhone: '2555225',
+      primaryPhone: '+2555225',
     });
 
     expect(merged.emails).toContain('merged@gmail.com');
-    expect(merged.phones).toContain('2555225');
+    expect(merged.phones).toContain('+2555225');
+    mock.restore();
   });
 
   test('Merge customers: without primaryEmail and primaryPhone', async () => {
+    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+      return Promise.resolve('success');
+    });
     const visitor1 = await customerFactory({});
     const visitor2 = await customerFactory({});
 
@@ -323,9 +352,14 @@ describe('Customers model tests', () => {
 
     expect(merged.emails).toHaveLength(0);
     expect(merged.phones).toHaveLength(0);
+    mock.restore();
   });
 
   test('Merge customers', async () => {
+    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+      return Promise.resolve('success');
+    });
+
     expect.assertions(19);
 
     const integration = await integrationFactory({});
@@ -413,7 +447,7 @@ describe('Customers model tests', () => {
       firstName: 'Test first name',
       lastName: 'Test last name',
       primaryEmail: 'Test email',
-      primaryPhone: 'Test phone',
+      primaryPhone: '+12049124',
       messengerData: {
         sessionCount: 6,
       },
@@ -490,6 +524,7 @@ describe('Customers model tests', () => {
     });
 
     expect(deals).toHaveLength(1);
+    mock.restore();
   });
 
   test('Update profile score', async () => {
@@ -511,10 +546,13 @@ describe('Customers model tests', () => {
   });
 
   test('createMessengerCustomer() must return a new customer', async () => {
+    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+      return Promise.resolve('success');
+    });
     const now = new Date();
 
     const email = 'uniqueEmail@gmail.com';
-    const phone = '422999';
+    const phone = '+422999';
 
     const customer = await Customers.createMessengerCustomer({
       doc: {
@@ -547,9 +585,14 @@ describe('Customers model tests', () => {
     expect(customer.sessionCount).toBe(1);
 
     expect(customer.firstName).toBe('firstName');
+    mock.restore();
   });
 
   test('updateMessengerCustomer()', async () => {
+    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+      return Promise.resolve('success');
+    });
+
     const integration = await integrationFactory();
 
     try {
@@ -559,7 +602,7 @@ describe('Customers model tests', () => {
     }
 
     const email = 'uniqueEmail@gmail.com';
-    const phone = '422999';
+    const phone = '+422999';
     const deviceToken = 'token';
 
     _customer.isUser = true;
@@ -582,6 +625,7 @@ describe('Customers model tests', () => {
 
     expect(customer.primaryPhone).toBe(phone);
     expect(customer.phones).toContain(phone);
+    mock.restore();
   });
 
   test('getWidgetCustomer()', async () => {

@@ -1,5 +1,6 @@
 *.md
 *.yml
+*.yaml
 .env*
 .git*
 .prettierrc
