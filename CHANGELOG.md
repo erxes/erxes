@@ -1,3 +1,10 @@
+# [0.15.0](https://github.com/erxes/erxes/compare/0.14.2...0.15.0) (2020-07-07)
+
+
+### Performance Improvements
+
+* **ci:** upload compiled version to github release assets ([07019a1](https://github.com/erxes/erxes/commit/07019a1bf1202ed6edfe37abde15bb2bb8745394))
+
 ## [0.14.2](https://github.com/erxes/erxes/compare/0.14.1...0.14.2) (2020-07-06)
 
 
