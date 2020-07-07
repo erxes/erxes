@@ -93,7 +93,7 @@ function displayValue(customer, name) {
   }
 
   if (name === 'sex') {
-    return GENDER_TYPES[value];
+    return GENDER_TYPES()[value];
   }
 
   if (name === 'leadStatus') {

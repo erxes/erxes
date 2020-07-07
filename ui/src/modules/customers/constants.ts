@@ -1,3 +1,5 @@
+import { getConstantFromStore } from 'modules/common/utils';
+
 export const CUSTOMER_BASIC_INFO = {
   avatar: 'Avatar',
   firstName: 'First Name',
@@ -44,12 +46,7 @@ export const LEAD_STATUS_TYPES = {
   unqualified: 'Unqualified'
 };
 
-export const GENDER_TYPES = {
-  0: 'Not known',
-  1: 'Male',
-  2: 'Female',
-  9: 'Not applicable'
-};
+export const GENDER_TYPES = () => getConstantFromStore('sex_choices', true);
 
 export const CUSTOMER_LINKS = {
   linkedIn: 'LinkedIn',
