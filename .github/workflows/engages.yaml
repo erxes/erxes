@@ -62,8 +62,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         run: |
           cd engages-email-sender
-          cp package.json dist/
-          tar -zcf erxes-engages-email-sender-${GITHUB_REF#refs/tags/}.tar.gz dist
+          tar -zcf erxes-engages-email-sender-${GITHUB_REF#refs/tags/}.tar.gz dist package.json
 
       - name: Get release version [tag]
         id: get_release_version
