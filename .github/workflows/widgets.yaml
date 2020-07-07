@@ -63,6 +63,26 @@ jobs:
         cd widgets
         yarn build
 
+    - name: Prepare release assets [tag]
+      if: startsWith(github.ref, 'refs/tags/')
+      run: |
+        cd widgets
+        tar -zcf erxes-widgets-${GITHUB_REF#refs/tags/}.tar.gz dist locales static
+
+    - name: Get release version [tag]
+      id: get_release_version
+      if: startsWith(github.ref, 'refs/tags/')
+      run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+
+    - name: Upload release assets [tag]
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+          files: ./widgets/erxes-widgets-${{ steps.get_release_version.outputs.VERSION }}.tar.gz
+          name: Release ${{ steps.get_release_version.outputs.VERSION }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Build docker image [push]
       if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/apm' )
       run: |
@@ -78,3 +98,4 @@ jobs:
         echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
         docker build -t erxes/erxes-widgets:${GITHUB_REF#refs/tags/} -f Dockerfile .
         docker push erxes/erxes-widgets:${GITHUB_REF#refs/tags/}
+
