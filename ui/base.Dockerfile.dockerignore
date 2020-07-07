@@ -4,6 +4,7 @@ public
 scripts
 src
 *.yml
+*.yaml
 .env*
 .git*
 .snyk
