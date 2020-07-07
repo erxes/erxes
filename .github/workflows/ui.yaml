@@ -81,7 +81,7 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       run: |
         cd ui
-        tar -zcf ui-${GITHUB_REF#refs/tags/}.tar.gz build
+        tar -zcf erxes-${GITHUB_REF#refs/tags/}.tar.gz build
 
     - name: Get release version [tag]
       id: get_release_version
@@ -92,7 +92,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       with:
-          files: ./ui/ui-${{ steps.get_release_version.outputs.VERSION }}.tar.gz
+          files: ./ui/erxes-${{ steps.get_release_version.outputs.VERSION }}.tar.gz
           name: Release ${{ steps.get_release_version.outputs.VERSION }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
