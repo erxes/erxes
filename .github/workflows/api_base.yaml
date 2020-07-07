@@ -5,7 +5,7 @@ on:
     branches:
       - develop
     paths:
-      - '.github/workflows/api_base.yml'
+      - '.github/workflows/api_base.yaml'
       - 'base.Dockerfile'
       - 'base.Dockerfile.dockerignore'
 
