@@ -81,7 +81,7 @@ class DetailInfo extends React.PureComponent<Props> {
             : ''
         )}
         {this.renderRow('Department', customer.department)}
-        {this.renderRow('Gender', GENDER_TYPES()[customer.sex || 0])}
+        {this.renderRow('Pronoun', GENDER_TYPES()[customer.sex || 0])}
         {this.renderRow(
           'Birthday',
           customer.birthDate && dayjs(customer.birthDate).format('MMM,DD YYYY')
