@@ -1,3 +1,12 @@
+# [0.15.0](https://github.com/erxes/erxes-integrations/compare/0.14.1...0.15.0) (2020-07-07)
+
+
+### Performance Improvements
+
+* **ci:** upload compiled version to github release assets ([2b9b47e](https://github.com/erxes/erxes-integrations/commit/2b9b47ebc7d08c3a0598c4c9e011361a466272e2))
+* **node:** update package.json for node v12 ([0256c10](https://github.com/erxes/erxes-integrations/commit/0256c10139e41489e3800526881f961e2cae16d5))
+* **nylas:** refactor and remove account ([5d65c81](https://github.com/erxes/erxes-integrations/commit/5d65c81b1279bb5d01c7764758afbaaac99751c7)), closes [erxes/erxes#2072](https://github.com/erxes/erxes/issues/2072)
+
 ## [0.14.1](https://github.com/erxes/erxes-integrations/compare/0.14.0...0.14.1) (2020-05-19)
 
 # [0.14.0](https://github.com/erxes/erxes-integrations/compare/0.13.0...0.14.0) (2020-04-25)
