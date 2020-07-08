@@ -34,14 +34,7 @@ const basicFields = `
   lastSeenAt
   sessionCount
 
-  links {
-    linkedIn
-    twitter
-    facebook
-    github
-    youtube
-    website
-  }
+  links
   ownerId
   owner {
     _id

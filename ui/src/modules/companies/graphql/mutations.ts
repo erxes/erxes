@@ -67,14 +67,7 @@ const companiesEdit = `
       description
       doNotDisturb
       code
-      links {
-        linkedIn
-        twitter
-        facebook
-        github
-        youtube
-        website
-      }
+      links
     }
   }
 `;

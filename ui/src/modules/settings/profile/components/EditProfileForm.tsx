@@ -4,7 +4,7 @@ import Button from 'modules/common/components/Button';
 import Form from 'modules/common/components/form/Form';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IFormProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
+import { __, getConstantFromStore } from 'modules/common/utils';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import PasswordConfirmation from './PasswordConfirmation';
@@ -46,6 +46,12 @@ class EditProfile extends React.Component<Props, State> {
   };
 
   handleSubmit = (password: string, values: any) => {
+    const links = {};
+
+    getConstantFromStore('social_links').forEach(link => {
+      links[link.value] = values[link.value];
+    });
+
     this.props.save(
       {
         username: values.username,
@@ -58,14 +64,7 @@ class EditProfile extends React.Component<Props, State> {
           location: values.location,
           description: values.description
         },
-        links: {
-          linkedIn: values.linkedin,
-          twitter: values.twitter,
-          facebook: values.facebook,
-          youtube: values.youtube,
-          github: values.github,
-          website: values.website
-        },
+        links,
         password
       },
       this.closeAllModals
