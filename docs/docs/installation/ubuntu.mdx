@@ -815,17 +815,17 @@ Your output should match the above **Status** output.
 
 The next step is to create a server block with the correct directives to work with the erxes installation.
 
-- Below is the **NGINX server block** you need to _copy/paste_ into the file. Replace `YOUR-DOMAIN-COM` with your actual `domain name`.
+- Below is the **NGINX server block** you need to _copy/paste_ into the file. Replace `YOUR_DOMAIN_COM` with your actual `domain name`.
 
 ```txt
 server {
         listen 80;
 
         # your domain name here
-        server_name YOUR-DOMAIN-COM;
+        server_name YOUR_DOMAIN_COM;
 
         # erxes build path
-        root /home/erxes/erxes/erxes/ui/build;
+        root /home/erxes/erxes.io/erxes/build;
         index index.html;
 
         error_log /var/log/nginx/erxes.error.log;
@@ -880,7 +880,7 @@ $ sudo nano /etc/nginx/sites-available/YOUR-DOMAIN-NAME
 - Enable the file by creating a link form it to **sites-enabled**. Make sure to use your domain name exactly as you created the file above.
 
 ```bash
-$ sudo ln -s /etc/nginx/sites-available/YOUR-DOMAIN-COM /etc/nginx/sites-enabled/
+$ sudo ln -s /etc/nginx/sites-available/YOUR_DOMAIN_COM /etc/nginx/sites-enabled/
 ```
 
 - Adjust the nginx.conf and uncomment the following line `server_names_hash_bucket_size 64;`
@@ -909,422 +909,610 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 
 ```
 
-If you you get no errors, you are ready to install the SSL Certificates using **Let's Encrypt**.
+If you you get no errors, you are ready to install the SSL Certificates using **Let's Encrypt** and **Certbot**.
 
-## LETS ENCRYPT
+## Install Let's Encrypt using Certbot
+
+**Let's Encrypt** enables you to use **HTTPS** on your website. It will issue you a certificate which shows that you control your domain. [Let's Encrypt additional information](https://www.nginx.com/resources/wiki/start/topics/tutorials/install/).
+
+You will follow the installation instructions as covered [here](https://certbot.eff.org/lets-encrypt/ubuntubionic-nginx), with [Certbot](https://certbot.eff.org/)
+
+- You will need to add a **Certbot** PPA to the list of repositories on the server.
+
+```bash
+$ sudo apt-get update
+Hit:1 http://mirrors.linode.com/ubuntu bionic InRelease
+Hit:2 http://mirrors.linode.com/ubuntu bionic-updates InRelease
+
+    * * *
+
+Get:11 http://security.ubuntu.com/ubuntu bionic-security InRelease [88.7 kB]
+Hit:13 https://packagecloud.io/rabbitmq/rabbitmq-server/ubuntu bionic InRelease
+Fetched 121 kB in 1s (84.4 kB/s)
+Reading package lists... Done
+
+$ sudo apt-get -y install software-properties-common
+
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+The following additional packages will be installed:
+python3-software-properties
+
+    * * *
+
+Processing triggers for dbus (1.12.2-1ubuntu1.1) ...
+Processing triggers for man-db (2.8.3-2ubuntu0.1) ...
+
+$ sudo add-apt-repository universe
+
+'universe' distribution component enabled for all sources.
+Hit:1 http://mirrors.linode.com/ubuntu bionic InRelease
+Hit:2 http://mirrors.linode.com/ubuntu bionic-updates InRelease
+Hit:3 http://mirrors.linode.com/ubuntu bionic-backports InRelease
+Hit:4 http://ppa.launchpad.net/nginx/stable/ubuntu bionic InRelease
+Hit:5 https://artifacts.elastic.co/packages/7.x/apt stable InRelease
+Ign:6 https://dl.bintray.com/rabbitmq-erlang/debian bionic InRelease
+Hit:7 https://dl.yarnpkg.com/debian stable InRelease
+Get:8 https://dl.bintray.com/rabbitmq-erlang/debian bionic Release [32.6 kB]
+Hit:9 http://security.ubuntu.com/ubuntu bionic-security InRelease
+Ign:10 https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 InRelease
+Hit:11 https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 Release
+Get:12 http://archive.ubuntu.com/ubuntu bionic InRelease [242 kB]
+Get:16 http://archive.ubuntu.com/ubuntu bionic/universe i386 Packages [8531 kB]
+Hit:13 https://packagecloud.io/rabbitmq/rabbitmq-server/ubuntu bionic InRelease
+Get:17 http://archive.ubuntu.com/ubuntu bionic/universe amd64 Packages [8570 kB]
+Get:18 http://archive.ubuntu.com/ubuntu bionic/universe Translation-en [4941 kB]
+Fetched 22.3 MB in 6s (3800 kB/s)
+Reading package lists... Done
+W: Skipping acquire of configured file 'erlang-22.x/i18n/Translation-en' as repository 'https://dl.bintray.com/rabbitmq-erlang/debian bionic InRelease' doesn't have the component 'erlang-22.x' (component misspelt in sources.list?)
+W: Skipping acquire of configured file 'erlang-22.x/cnf/Commands-amd64' as repository 'https://dl.bintray.com/rabbitmq-erlang/debian bionic InRelease' doesn't have the component 'erlang-22.x' (component misspelt in sources.list?)
+
+sudo add-apt-repository -y ppa:certbot/certbot
+
+Hit:1 http://mirrors.linode.com/ubuntu bionic InRelease
+Hit:2 http://mirrors.linode.com/ubuntu bionic-updates InRelease
+Hit:3 http://mirrors.linode.com/ubuntu bionic-backports InRelease
+Hit:4 https://artifacts.elastic.co/packages/7.x/apt stable InRelease
+Ign:5 https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 InRelease
+Hit:6 https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 Release
+Ign:7 https://dl.bintray.com/rabbitmq-erlang/debian bionic InRelease
+Hit:8 http://security.ubuntu.com/ubuntu bionic-security InRelease
+Hit:9 https://dl.yarnpkg.com/debian stable InRelease
+Get:10 https://dl.bintray.com/rabbitmq-erlang/debian bionic Release [32.6 kB]
+Get:11 http://ppa.launchpad.net/certbot/certbot/ubuntu bionic InRelease [21.3 kB]
+Hit:12 http://ppa.launchpad.net/nginx/stable/ubuntu bionic InRelease
+Hit:13 http://archive.ubuntu.com/ubuntu bionic InRelease
+Hit:15 https://packagecloud.io/rabbitmq/rabbitmq-server/ubuntu bionic InRelease
+Get:17 http://ppa.launchpad.net/certbot/certbot/ubuntu bionic/main i386 Packages [8028 B]
+Get:18 http://ppa.launchpad.net/certbot/certbot/ubuntu bionic/main amd64 Packages [8032 B]
+Get:19 http://ppa.launchpad.net/certbot/certbot/ubuntu bionic/main Translation-en [4176 B]
+Fetched 74.1 kB in 1s (57.4 kB/s)
+Reading package lists... Done
+W: Skipping acquire of configured file 'erlang-22.x/i18n/Translation-en' as repository 'https://dl.bintray.com/rabbitmq-erlang/debian bionic InRelease' doesn't have the component 'erlang-22.x' (component misspelt in sources.list?)
+W: Skipping acquire of configured file 'erlang-22.x/cnf/Commands-amd64' as repository 'https://dl.bintray.com/rabbitmq-erlang/debian bionic InRelease' doesn't have the component 'erlang-22.x' (component misspelt in sources.list?)
+
+sudo apt-get update
+
+Hit:1 http://mirrors.linode.com/ubuntu bionic InRelease
+Hit:2 http://mirrors.linode.com/ubuntu bionic-updates InRelease
+Hit:3 http://mirrors.linode.com/ubuntu bionic-backports InRelease
+Hit:4 https://artifacts.elastic.co/packages/7.x/apt stable InRelease
+Ign:5 https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 InRelease
+Ign:6 https://dl.bintray.com/rabbitmq-erlang/debian bionic InRelease
+Hit:7 https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 Release
+Get:8 https://dl.bintray.com/rabbitmq-erlang/debian bionic Release [32.6 kB]
+Hit:9 http://security.ubuntu.com/ubuntu bionic-security InRelease
+Hit:10 http://ppa.launchpad.net/certbot/certbot/ubuntu bionic InRelease
+Hit:11 https://dl.yarnpkg.com/debian stable InRelease
+Hit:12 http://ppa.launchpad.net/nginx/stable/ubuntu bionic InRelease
+Hit:13 http://archive.ubuntu.com/ubuntu bionic InRelease
+Hit:16 https://packagecloud.io/rabbitmq/rabbitmq-server/ubuntu bionic InRelease
+Fetched 32.6 kB in 1s (22.5 kB/s)
+Reading package lists... Done
+W: Skipping acquire of configured file 'erlang-22.x/i18n/Translation-en' as repository 'https://dl.bintray.com/rabbitmq-erlang/debian bionic InRelease' doesn't have the component 'erlang-22.x' (component misspelt in sources.list?)
+W: Skipping acquire of configured file 'erlang-22.x/cnf/Commands-amd64' as repository 'https://dl.bintray.com/rabbitmq-erlang/debian bionic InRelease' doesn't have the component 'erlang-22.x' (component misspelt in sources.list?)
+
+```
+
+Install Certbot
+Run this command on the command line on the machine to install Certbot.
+
+```bash
+$ sudo apt-get install -y certbot python3-certbot-nginx
+```
+
+```bash
+$ sudo certbot --nginx
+
+Saving debug log to /var/log/letsencrypt/letsencrypt.log
+Plugins selected: Authenticator nginx, Installer nginx
+Enter email address (used for urgent renewal and security notices) (Enter 'c' to
+cancel): david@acneskindisorder.com
+
+---
+
+Please read the Terms of Service at
+https://letsencrypt.org/documents/LE-SA-v1.2-November-15-2017.pdf. You must
+agree in order to register with the ACME server at
+https://acme-v02.api.letsencrypt.org/directory
+
+---
+
+(A)gree/(C)ancel: A
+
+---
+
+Would you be willing to share your email address with the Electronic Frontier
+Foundation, a founding partner of the Let's Encrypt project and the non-profit
+organization that develops Certbot? We'd like to send you email about our work
+encrypting the web, EFF news, campaigns, and ways to support digital freedom.
+
+---
+
+(Y)es/(N)o: Y
+
+Which names would you like to activate HTTPS for?
+
+---
+
+1: erxes.acneskindisorder.com
+
+---
+
+Select the appropriate numbers separated by commas and/or spaces, or leave input
+blank to select all options shown (Enter 'c' to cancel): 1
+Obtaining a new certificate
+Performing the following challenges:
+http-01 challenge for erxes.acneskindisorder.com
+Waiting for verification...
+Cleaning up challenges
+Deploying Certificate to VirtualHost /etc/nginx/sites-enabled/erxes.acneskindisorder.com
+
+Please choose whether or not to redirect HTTP traffic to HTTPS, removing HTTP access.
+
+---
+
+1: No redirect - Make no further changes to the webserver configuration.
+2: Redirect - Make all requests redirect to secure HTTPS access. Choose this for
+new sites, or if you're confident your site works on HTTPS. You can undo this
+change by editing your web server's configuration.
+
+---
+
+Select the appropriate number [1-2] then [enter] (press 'c' to cancel): 2
+Redirecting all traffic on port 80 to ssl in /etc/nginx/sites-enabled/erxes.acneskindisorder.com
+
+---
+
+Congratulations! You have successfully enabled
+https://erxes.acneskindisorder.com
+
+You should test your configuration at:
+https://www.ssllabs.com/ssltest/analyze.html?d=erxes.acneskindisorder.com
+
+---
+
+IMPORTANT NOTES:
+
+- Congratulations! Your certificate and chain have been saved at:
+  /etc/letsencrypt/live/erxes.acneskindisorder.com/fullchain.pem
+  Your key file has been saved at:
+  /etc/letsencrypt/live/erxes.acneskindisorder.com/privkey.pem
+  Your cert will expire on 2020-10-05. To obtain a new or tweaked
+  version of this certificate in the future, simply run certbot again
+  with the "certonly" option. To non-interactively renew _all_ of
+  your certificates, run "certbot renew"
+- Your account credentials have been saved in your Certbot
+  configuration directory at /etc/letsencrypt. You should make a
+  secure backup of this folder now. This configuration directory will
+  also contain certificates and private keys obtained by Certbot so
+  making regular backups of this folder is ideal.
+- If you like Certbot, please consider supporting our work by:
+
+  Donating to ISRG / Let's Encrypt: https://letsencrypt.org/donate
+  Donating to EFF: https://eff.org/donate-le
+
+Test automatic renewal
+
+$ sudo certbot renew --dry-run
+
+Saving debug log to /var/log/letsencrypt/letsencrypt.log
+
+---
+
+Processing /etc/letsencrypt/renewal/erxes.acneskindisorder.com.conf
+
+---
+
+Cert not due for renewal, but simulating renewal for dry run
+Plugins selected: Authenticator nginx, Installer nginx
+Renewing an existing certificate
+Performing the following challenges:
+http-01 challenge for erxes.acneskindisorder.com
+Waiting for verification...
+Cleaning up challenges
+
+---
+
+new certificate deployed with reload of nginx server; fullchain is
+/etc/letsencrypt/live/erxes.acneskindisorder.com/fullchain.pem
+
+---
+
+---
+
+** DRY RUN: simulating 'certbot renew' close to cert expiry
+** (The test certificates below have not been saved.)
+
+Congratulations, all renewals succeeded. The following certs have been renewed:
+/etc/letsencrypt/live/erxes.acneskindisorder.com/fullchain.pem (success)
+** DRY RUN: simulating 'certbot renew' close to cert expiry
+** (The test certificates above have not been saved.)
+
+---
+
+IMPORTANT NOTES:
+
+- Your account credentials have been saved in your Certbot
+  configuration directory at /etc/letsencrypt. You should make a
+  secure backup of this folder now. This configuration directory will
+  also contain certificates and private keys obtained by Certbot so
+  making regular backups of this folder is ideal.
+```
+
+Check your website in the broswer. You should see the **Secure Padlock** next to your URL. You are now ready to move onto the final steps to install **erxes** itself.
 
 ## Install erxes
 
-```
+All the dependencies for **erxes** are now installed. You have also configured your server. Follow these remaining steps to complete the installation of **erxes**.
 
-cd ~
-mkdir erxes
-cd erxes
-git clone https://github.com/erxes/erxes.git
-git clone https://github.com/erxes/erxes-api.git
-git clone https://github.com/erxes/erxes-integrations.git
+### Download, extract and install each of the erxes components
 
-```
-
-- The following assumes the following URLS. You need to use your own url.
-
-```
-
-localhost:3000 => erxes.acneskindisorder.com
-localhost:3200 => erxes.acneskindisorder.com/widgets
-localhost: 3300 => erxes.acneskindisorder.com/api
-localhost: 3400 => erxes.acneskindisorder.com/integrations
-
-```
-
-### Configure erxes UI
-
-```
-
-cd ~/erxes/erxes/ui
-yarn install
-cp .env.sample .env
-
-```
-
-- open .env file
+- Create the folder directories for the installation of erxes.
 
 ```bash
-vim .env
+$ cd ~
+$ mkdir -p ~/erxes.io/erxes \
+ -p ~/erxes.io/erxes-api\
+ -p ~/erxes.io/erxes-crons \
+ -p ~/erxes.io/erxes-workers \
+ -p ~/erxes.io/erxes-widgets \
+ -p ~/erxes.io/erxes-logger \
+ -p ~/erxes.io/erxes-engages-email-sender \
+ -p ~/erxes.io/erxes-email-verifier \
+ -p ~/erxes.io/erxes-integrations \
+ -p ~/erxes.io/erxes-elkSyncer
 ```
 
-```
-PORT=3000
-NODE_ENV=development
-REACT_APP_CDN_HOST=http://erxes.acneskindisorder.com/widgets
-REACT_APP_API_URL=http://erxes.acneskindisorder.com/api
-REACT_APP_API_SUBSCRIPTION_URL=ws://erxes.acneskindisorder.com/api/subscriptions
-```
-
-### Configure erxes widgets
-
-```bash
-cd ~/erxes/erxes/widgets
-yarn install
-cp .env.sample .env
-vim .env
-```
-
-```
-PORT=3200
-ROOT_URL=http://erxes.acneskindisorder.com/widgets
-API_URL=http://erxes.acneskindisorder.com/api
-API_SUBSCRIPTIONS_URL=ws://erxes.acneskindisorder.com/api/subscriptions
-```
+- Individually download and extract each of these 8 packages. (These commands place them in the proper installation directories.)
 
 ```bash
-yarn build
+$ curl -L https://github.com/erxes/erxes/releases/download/0.15.2/erxes-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes/
+$ curl -L https://github.com/erxes/erxes/releases/download/0.15.2/erxes-widgets-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-widgets/
+$ curl -L https://github.com/erxes/erxes-api/releases/download/0.15.2/erxes-api-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-api/
+$ curl -L https://github.com/erxes/erxes-api/releases/download/0.15.2/erxes-email-verifier-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-email-verifier/
+$ curl -L https://github.com/erxes/erxes-api/releases/download/0.15.2/erxes-engages-email-sender-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-engages-email-sender/
+$ curl -L https://github.com/erxes/erxes-api/releases/download/0.15.2/erxes-logger-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-logger/
+$ curl -L https://github.com/erxes/erxes-integrations/releases/download/0.15.2/erxes-integrations-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-integrations/
+$ curl -L https://github.com/erxes/erxes-api/releases/download/0.15.2/erxes-elksyncer-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-elksyncer/
 ```
 
-### Configure erxes-api/logger
-
-```bash
-cd ~/erxes/erxes-api/logger
-yarn install
-cp .env.sample .env
-vim .env
-cat .env
-```
-
-```
-PORT=3800
-MONGO_URL=mongodb://localhost/erxes_logs
-# RabbitMQ
-RABBITMQ_HOST=amqp://localhost
-```
-
-[VERIFY THIS]
-(# RabbitMQ
-RABBITMQ_HOST=amqp://localhost)
+- Install package dependencies (using `yarn install`) required for the packages that make up **erxes**.
 
 ```bash
-yarn build
+$ cd ~/erxes.io/erxes-widgets
+$ yarn install
+
+$ cd ~/erxes.io/erxes-api
+$ yarn install
+
+$ cd ~/erxes.io/erxes-email-verifier
+$ yarn install
+
+$ cd ~/erxes.io/erxes-engages-email-sender
+$ yarn install
+
+$ cd ~/erxes.io/erxes-logger
+$ yarn install
+
+$ cd ~/erxes.io/erxes-integrations
+$ yarn install
 ```
 
-### Configure erxes-api/email-verifier
+- Install and configure this final package, following these commands.
 
 ```bash
-cd ~/erxes/erxes-api/email-verifier
-yarn install
-cp .env.sample .env
-
-vim .env
+$ cd ~/erxes.io/erxes-elksyncer/elkSyncer
+$ sudo apt install python3-pip
+$ pip3 install -r requirements.txt
+$ sudo mkdir -p /var/log/mongo-connector/
+$ sudo chown -R erxes:erxes /var/log/mongo-connector/
 ```
 
-- change to production
+### Configure PM2 `ecosystem.config.js`
+
+In the following steps, you will **copy** and **create** an `ecosystem.config.js` file that **PM2** uses to manage the processes behind **erxes**. **Before it will work, you need to provide your exact URL and a password to encrypt all the communication between your front-end and your server.**
+
+- Create and open a new `ecosystem.config.js` file.
 
 ```bash
-cat .env
+$ cd ~/erxes.io
+$ sudo nano ecosystem.config.js
 ```
 
-- results:
+- Copy the following content into the file. This
 
+```js
+module.exports = {
+  apps: [
+    {
+      name: 'erxes-api',
+      script: 'dist',
+      cwd: '/home/erxes/erxes.io/erxes-api',
+      log_date_format: 'YYYY-MM-DD HH:mm Z',
+      node_args: '--max_old_space_size=4096',
+      env: {
+        PORT: 3300,
+        NODE_ENV: 'production',
+        JWT_TOKEN_SECRET: 'YOUR_SECRET_TOKEN',
+        DEBUG: 'erxes-api:*',
+        MONGO_URL: 'mongodb://localhost/erxes',
+        REDIS_HOST: 'localhost',
+        REDIS_PORT: 6379,
+        REDIS_PASSWORD: '',
+        RABBITMQ_HOST: 'amqp://localhost',
+        ELASTICSEARCH_URL: 'http://localhost:9200',
+        MAIN_APP_DOMAIN: 'https://YOUR_DOMAIN_COM',
+        WIDGETS_DOMAIN: '',
+        INTEGRATIONS_API_DOMAIN: 'https://YOUR_DOMAIN_COM/integrations',
+      },
+    },
+    {
+      name: 'erxes-cronjobs',
+      script: 'dist/cronJobs',
+      cwd: '/home/erxes/erxes.io/erxes-api',
+      log_date_format: 'YYYY-MM-DD HH:mm Z',
+      node_args: '--max_old_space_size=4096',
+      env: {
+        PORT_CRONS: 3600,
+        NODE_ENV: 'production',
+        PROCESS_NAME: 'crons',
+        DEBUG: 'erxes-crons:*',
+        MONGO_URL: 'mongodb://localhost/erxes',
+        REDIS_HOST: 'localhost',
+        REDIS_PORT: 6379,
+        REDIS_PASSWORD: '',
+        RABBITMQ_HOST: 'amqp://localhost',
+      },
+    },
+    {
+      name: 'erxes-workers',
+      script: 'dist/workers',
+      cwd: '/home/erxes/erxes.io/erxes-api',
+      log_date_format: 'YYYY-MM-DD HH:mm Z',
+      node_args: '--max_old_space_size=4096',
+      env: {
+        PORT_WORKERS: 3700,
+        NODE_ENV: 'production',
+        DEBUG: 'erxes-workers:*',
+        MONGO_URL: 'mongodb://localhost/erxes',
+        REDIS_HOST: 'localhost',
+        REDIS_PORT: 6379,
+        REDIS_PASSWORD: '',
+        RABBITMQ_HOST: 'amqp://localhost',
+        JWT_TOKEN_SECRET: 'YOUR_SECRET_TOKEN',
+      },
+    },
+    {
+      name: 'erxes-widgets',
+      script: 'dist',
+      cwd: '/home/erxes/erxes.io/erxes-widgets',
+      log_date_format: 'YYYY-MM-DD HH:mm Z',
+      node_args: '--max_old_space_size=4096',
+      env: {
+        PORT: 3200,
+        NODE_ENV: 'production',
+        ROOT_URL: 'https://YOUR_DOMAIN_COM/widgets',
+        API_URL: 'https://YOUR_DOMAIN_COM/api',
+        API_SUBSCRIPTIONS_URL: 'wss://YOUR_DOMAIN_COM/api/subscriptions',
+      },
+    },
+    {
+      name: 'erxes-engages',
+      script: 'dist',
+      cwd: '/home/erxes/erxes.io/erxes-engages-email-sender',
+      log_date_format: 'YYYY-MM-DD HH:mm Z',
+      node_args: '--max_old_space_size=4096',
+      env: {
+        PORT: 3900,
+        NODE_ENV: 'production',
+        DEBUG: 'erxes-engages:*',
+        MAIN_API_DOMAIN: 'https://YOUR_DOMAIN_COM/api',
+        MONGO_URL: 'mongodb://localhost/erxes_engages',
+        RABBITMQ_HOST: 'amqp://localhost',
+        REDIS_HOST: 'localhost',
+        REDIS_PORT: 6379,
+        REDIS_PASSWORD: '',
+      },
+    },
+    {
+      name: 'erxes-logger',
+      script: 'dist',
+      cwd: '/home/erxes/erxes.io/erxes-logger',
+      log_date_format: 'YYYY-MM-DD HH:mm Z',
+      node_args: '--max_old_space_size=4096',
+      env: {
+        PORT: 3800,
+        NODE_ENV: 'production',
+        DEBUG: 'erxes-logs:*',
+        MONGO_URL: 'mongodb://localhost/erxes_logger',
+        RABBITMQ_HOST: 'amqp://localhost',
+      },
+    },
+    {
+      name: 'erxes-integrations',
+      script: 'dist',
+      cwd: '/home/erxes/erxes.io/erxes-integrations',
+      log_date_format: 'YYYY-MM-DD HH:mm Z',
+      node_args: '--max_old_space_size=4096',
+      env: {
+        PORT: 3400,
+        NODE_ENV: 'production',
+        DEBUG: 'erxes-integrations:*',
+        DOMAIN: 'https://YOUR_DOMAIN_COM/integrations',
+        MAIN_APP_DOMAIN: 'https://YOUR_DOMAIN_COM',
+        MAIN_API_DOMAIN: 'https://YOUR_DOMAIN_COM/api',
+        MONGO_URL: 'mongodb://localhost/erxes_integrations',
+        RABBITMQ_HOST: 'amqp://localhost',
+        REDIS_HOST: 'localhost',
+        REDIS_PORT: 6379,
+        REDIS_PASSWORD: '',
+      },
+    },
+    {
+      name: 'erxes-elkSyncer',
+      script: 'main.py',
+      cwd: '/home/erxes/erxes.io/erxes-elkSyncer/elkSyncer',
+      log_date_format: 'YYYY-MM-DD HH:mm Z',
+      interpreter: '/usr/bin/python3',
+      env: {
+        MONGO_URL: 'mongodb://localhost/erxes',
+        ELASTICSEARCH_URL: 'http://localhost:9200',
+      },
+    },
+    {
+      name: 'erxes-email-verifier',
+      script: 'dist',
+      cwd: '/home/erxes/erxes.io/erxes-email-verifier',
+      log_date_format: 'YYYY-MM-DD HH:mm Z',
+      node_args: '--max_old_space_size=4096',
+      env: {
+        PORT_WORKERS: 3700,
+        NODE_ENV: 'production',
+        DEBUG: 'erxes-workers:*',
+        MONGO_URL: 'mongodb://localhost/erxes',
+        REDIS_HOST: 'localhost',
+        REDIS_PORT: 6379,
+        REDIS_PASSWORD: '',
+        RABBITMQ_HOST: 'amqp://localhost',
+        JWT_TOKEN_SECRET: 'YOUR_SECRET_TOKEN',
+      },
+    },
+  ],
+};
 ```
-NODE_ENV=production
-PORT=4100
 
-# MongoDB
-MONGO_URL=mongodb://localhost/erxes-email-verifier
+- Replace every instance of `YOUR_DOMAIN_COM` with your actual domain name.
 
-# RabbitMQ
-RABBITMQ_HOST=amqp://localhost
+For example,
 
-TRUE_MAIL_API_KEY=
+```js
+# change this
+MAIN_APP_DOMAIN: 'https://YOUR_DOMAIN_COM',
 
+# to this
+MAIN_APP_DOMAIN: 'https://erxes.example.com',
 ```
 
-```
-yarn build
-```
+:::caution Your Domain Name
+You **MUST** replace all instances of **YOUR_DOMAIN_COM** with your **actual domain name** in the `ecosystem.config.js` file. If you do not, **erxes** will not work. See example above.
+:::
 
-### configure erxes-api/engages-email-sender
+- Replace every instance of `YOUR_SECRET_TOKEN` with a strong password. **The secret token is the same for each instance. You have only one secret token.** You can use this [Password Generator](https://passwordsgenerator.net/), to create a strong token.
 
-```
-cd ~/erxes/erxes-api/engages-email-sender
-yarn install
-cp .env.sample .env
-vim .env
-```
+```js
+# change this
+JWT_TOKEN_SECRET: 'YOUR_SECRET_TOKEN',
 
-- change to production and add url .../api
-
-```
-cat .env
+# to this, for example.
+JWT_TOKEN_SECRET: '"D2E+N42:LPshXj$',
 ```
 
-- results in
+- Then save the file with `ctrl + x` and `y` to accept changes.
 
-```
-# general
-NODE_ENV=production
-PORT=3900
+:::caution Secret Token
+You **MUST** replace all instances of **YOUR_SECRET_TOKEN** with your own **unique and strong password** in the `ecosystem.config.js` file. If you do not, your expose your backend and you may run into security issues. See example above.
+:::
 
-# public urls
-MAIN_API_DOMAIN=http://erxes.acneskindisorder.com/api
-
-# MongoDB
-MONGO_URL=mongodb://localhost/erxes-engages
-TEST_MONGO_URL=mongodb://localhost/erxes-engages-test
-
-# RabbitMQ
-RABBITMQ_HOST=amqp://localhost
-
-# Redis
-REDIS_HOST=localhost
-REDIS_PORT=6379
-REDIS_PASSWORD=
-
-```
-
-```
-yarn build
-```
-
-### configure erxes-api/elkSyncer
+- Start PM2
 
 ```bash
-cd ~/erxes/erxes-api/elkSyncer
-curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-sudo apt-get install python3-distutils
-
-add password erxes123
-y to continue
-
-python3 get-pip.py
+$ pm2 start ecosystem.config.js
 ```
 
-### ~/.bashrc => PATH="$HOME/.local/bin:$PATH"
-
-```
-vim ~/.bashrc
-```
-
-```
-PATH="$HOME/.local/bin:$PATH"
-```
-
-- then save
-
-- issue the following in the terminal
+- Generate a startup script. Copy/paste the script in the terminal and run it.
 
 ```bash
-PATH="$HOME/.local/bin:$PATH"
-export PATH
+$ pm2 startup
+
+# will generate a script like this
+
+sudo env PATH=$PATH:/home/erxes/.nvm/versions/node/v12.16.3/bin /home/erxes/.nvm/versions/node/v12.16.3/lib/node_modules/pm2/bin/pm2 startup systemd -u erxes --hp /home/erxes
+
+# now copy / paste it
+
+$ sudo env PATH=$PATH:/home/erxes/.nvm/versions/node/v12.16.3/bin /home/erxes/.nvm/versions/node/v12.16.3/lib/node_modules/pm2/bin/pm2 startup systemd -u erxes --hp /home/erxes
 ```
 
-- install these
+- Save all the applications that **PM2** is managing.
 
-```
-pip3 install -r requirements.txt
-cp .env.sample .env
-vim .env
+```bash
+$ pm2 save
 ```
 
-- verify with
+- Verify all process are running.
 
-```
-cat .env
-```
-
-- results / output
-
-```
-MONGO_URL=mongodb://mongo/erxes
-ELASTICSEARCH_URL=http://localhost:9200
+```bash
+$ pm2 l
 ```
 
-- then build
+The status of all the processes should say **online**.
 
-```
-yarn build
-```
+### Configure frontend environment variables
 
-### configure erxes-api
+In the previous step, you set environment variables using **PM2**, but **PM2** does not have access to the bundled front-end static code. Therefore, you need to set the environment variables needed from the front-end differently.
 
-```
-cd ~/erxes/erxes-api
-yarn install
-cp .env.sample .env
-vim .env
+- Open the appropriate `env.js` file in the nano editor.
+
+```bash
+$ sudo nano ~/erxes.io/erxes/build/js/env.js
 ```
 
-```
-yarn build
-```
+- Copy the following **environment variables** in between the **{ }**, and replace **YOUR_DOMAIN_COM** with your actual domain name.
 
-### configure erxes-integrations
-
-```
-cd ~/erxes/erxes-integrations
-vim package.json
-"node": "10.x.x" => "node": ">=10.x.x"
+```bash
+    NODE_ENV: "production",
+    REACT_APP_API_URL: "https://YOUR_DOMAIN_COM/api",
+    REACT_APP_API_SUBSCRIPTION_URL: "wss://YOUR_DOMAIN_COM/api/subscriptions",
+    REACT_APP_CDN_HOST: "https://YOUR_DOMAIN_COM/widgets"
 ```
 
-```
-yarn install
-cp .env.sample .env
-vim .env
-cat .env
-```
+It should look like this, but **with your actual domain name**:
 
-- output
-
-```
-NODE_ENV=production
-PORT=3400
-MONGO_URL=mongodb://localhost/erxes_integrations
-
-# Redis
-
-REDIS_HOST=localhost
-REDIS_PORT=6379
-REDIS_PASSWORD=
-
-# RABBITMQ
-
-RABBITMQ_HOST=amqp://localhost
-
-# public facing domains
-
-DOMAIN=http://erxes.acneskindisorder.com/integrations
-
-# erxes non public domains
-
-MAIN_APP_DOMAIN=http://erxes.acneskindisorder.com
-MAIN_API_DOMAIN=http://erxes.acneskindisorder.com/api
-
-```
-
-- then build
-
-```
-yarn build
-```
-
-### widgets
-
-```
-cd ~/erxes/erxes/widgets
-pm2 start dist --name widgets
-```
-
-### logger
-
-```
-cd ~/erxes/erxes-api/logger
-pm2 start dist --name logger
-```
-
-### email-verifier
-
-```
-cd ~/erxes/erxes-api/email-verifier
-pm2 start dist --name email-verifier
-```
-
-### engages-email-sender
-
-```
-cd ~/erxes/erxes-api/engages-email-sender
-pm2 start dist --name engages-email-sender
-```
-
-### elkSyncer [THIS IS BUGGED. NEEDS TO BE STOPPED]
-
-```
-cd ~/erxes/erxes-api/elkSyncer
-pm2 start main.py --name elkSyncer --interpreter python3
-```
-
-### api
-
-```
-cd ~/erxes/erxes-api
-pm2 start dist --name erxes-api
-pm2 start dist/cronJobs --name erxes-crons
-pm2 start dist/workers --name erxes-workers
-```
-
-### erxes-integrations
-
-```
-cd ~/erxes/erxes-integrations
-pm2 start dist --name erxes-integrations
-```
-
-### Nginx config
-
-```
-sudo vim /etc/nginx/sites-enabled/erxes.conf
-```
-
-- copy paste nginx config
-
-```
-sudo nginx -t
-sudo service nginx reload
-```
-
-```
-server {
-        listen 80;
-
-        server_name erxes.kaidawei.com;
-
-        # erxes build path
-        root /home/erxes/erxes/erxes/ui/build;
-        index index.html;
-
-        error_log /var/log/nginx/erxes.error.log;
-        access_log /var/log/nginx/erxes.access.log;
-
-        location / {
-                try_files $uri /index.html;
-        }
-
-        # widgets is running on 3200 port.
-        location /widgets/ {
-                proxy_pass http://127.0.0.1:3200/;
-                proxy_set_header Host $http_host;
-                proxy_set_header X-Real-IP $remote_addr;
-                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                proxy_http_version 1.1;
-        }
-
-        # api project is running on 3300 port.
-        location /api/ {
-                proxy_pass http://127.0.0.1:3300/;
-                proxy_set_header Host $http_host;
-                proxy_set_header X-Real-IP $remote_addr;
-                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                proxy_http_version 1.1;
-                proxy_set_header Upgrade $http_upgrade;
-                proxy_set_header Connection "Upgrade";
-        }
-        # erxes integrations project is running on 3400 port.
-        location /integrations/ {
-                proxy_pass http://127.0.0.1:3400/;
-                proxy_set_header Host $http_host;
-                proxy_set_header X-Real-IP $remote_addr;
-                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                proxy_http_version 1.1;
-        }
+```bash
+window.env = {
+    NODE_ENV: "production",
+    REACT_APP_API_URL: "https://erxes.example.com/api",
+    REACT_APP_API_SUBSCRIPTION_URL: "wss://erxes.example.com/api/subscriptions",
+    REACT_APP_CDN_HOST: "https://erxes.example.com/widgets"
 }
 ```
+
+- save the file with `ctrl + x` and then `y` to accept all changes.
+
+You are now ready to **initialize** and **load the permissions** in **erxes**.
+
+</TabItem>
+</Tabs>
 
 - initialize Erxes
 
 ```bash
-cd ~/erxes/erxes-api
-yarn initProject
-yarn loadPermission
+$ cd ~
+$ export MONGO_URL="mongodb://localhost/erxes"
+node ~/erxes.io/erxes-api/dist/commands/initProject.js
+
+cd cd ~/erxes.io/erxes-api/dist
+node commands/loadPermissi
 ```
-
-</TabItem>
-
-</Tabs>
