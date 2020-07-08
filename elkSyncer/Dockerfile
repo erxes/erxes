@@ -8,8 +8,6 @@ RUN pip install mongo-connector==3.1.1 \
     && pip install python-dotenv==0.11.0 \
     && pip install certifi==0.0.8
 
-RUN mkdir /var/log/mongo-connector
-
 COPY mongo-connector-config.json .
 COPY main.py .
 
