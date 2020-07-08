@@ -126,28 +126,28 @@ erxes_integrations_dir=$erxes_root_dir/erxes-integrations
 su $username -c "mkdir -p $erxes_ui_dir $erxes_widgets_dir $erxes_api_dir $erxes_engages_dir $erxes_logger_dir $erxes_syncer_dir $erxes_email_verifier_dir $erxes_integrations_dir"
 
 # download erxes ui
-su $username -c "curl -L https://github.com/erxes/erxes/releases/download/0.15.3/erxes-0.15.3.tar.gz | tar --strip-components=1 -xz -C $erxes_ui_dir"
+su $username -c "curl -L https://github.com/erxes/erxes/releases/download/0.15.4/erxes-0.15.4.tar.gz | tar --strip-components=1 -xz -C $erxes_ui_dir"
 
 # download erxes widgets
-su $username -c "curl -L https://github.com/erxes/erxes/releases/download/0.15.3/erxes-widgets-0.15.3.tar.gz | tar -xz -C $erxes_widgets_dir"
+su $username -c "curl -L https://github.com/erxes/erxes/releases/download/0.15.4/erxes-widgets-0.15.4.tar.gz | tar -xz -C $erxes_widgets_dir"
 
 # download erxes-api
-su $username -c "curl -L https://github.com/erxes/erxes-api/releases/download/0.15.3/erxes-api-0.15.3.tar.gz | tar -xz -C $erxes_api_dir"
+su $username -c "curl -L https://github.com/erxes/erxes-api/releases/download/0.15.4/erxes-api-0.15.4.tar.gz | tar -xz -C $erxes_api_dir"
 
 # download engages-email-sender
-su $username -c "curl -L https://github.com/erxes/erxes-api/releases/download/0.15.3/erxes-engages-email-sender-0.15.3.tar.gz | tar -xz -C $erxes_engages_dir"
+su $username -c "curl -L https://github.com/erxes/erxes-api/releases/download/0.15.4/erxes-engages-email-sender-0.15.4.tar.gz | tar -xz -C $erxes_engages_dir"
 
 # download logger
-su $username -c "curl -L https://github.com/erxes/erxes-api/releases/download/0.15.3/erxes-logger-0.15.3.tar.gz | tar -xz -C $erxes_logger_dir"
+su $username -c "curl -L https://github.com/erxes/erxes-api/releases/download/0.15.4/erxes-logger-0.15.4.tar.gz | tar -xz -C $erxes_logger_dir"
 
 # download elkSyncer
-su $username -c "curl -L https://github.com/erxes/erxes-api/releases/download/0.15.3/erxes-elkSyncer-0.15.3.tar.gz | tar --strip-components=1 -xz -C $erxes_syncer_dir"
+su $username -c "curl -L https://github.com/erxes/erxes-api/releases/download/0.15.4/erxes-elkSyncer-0.15.4.tar.gz | tar --strip-components=1 -xz -C $erxes_syncer_dir"
 
 # download email-verifier
-su $username -c "curl -L https://github.com/erxes/erxes-api/releases/download/0.15.3/erxes-email-verifier-0.15.3.tar.gz | tar -xz -C $erxes_email_verifier_dir"
+su $username -c "curl -L https://github.com/erxes/erxes-api/releases/download/0.15.4/erxes-email-verifier-0.15.4.tar.gz | tar -xz -C $erxes_email_verifier_dir"
 
 # download integrations
-su $username -c "curl -L https://github.com/erxes/erxes-integrations/releases/download/0.15.3/erxes-integrations-0.15.3.tar.gz | tar -xz -C $erxes_integrations_dir"
+su $username -c "curl -L https://github.com/erxes/erxes-integrations/releases/download/0.15.4/erxes-integrations-0.15.4.tar.gz | tar -xz -C $erxes_integrations_dir"
 
 # install packages and build erxes
 # su $username -c "cd $erxes_ui_dir && yarn install"
