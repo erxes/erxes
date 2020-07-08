@@ -1,5 +1,6 @@
 import { debugNylas } from '../debuggers';
 import { Integrations } from '../models';
+import { addToArray, removeFromArray } from '../redisClient';
 import { sendRequest } from '../utils';
 import { getAttachment, sendMessage, uploadFile } from './api';
 import {
@@ -8,6 +9,7 @@ import {
   connectProviderToNylas,
   connectYahooAndOutlookToNylas,
 } from './auth';
+import { NYLAS_API_URL } from './constants';
 import { NYLAS_MODELS } from './store';
 import { INylasIntegrationData } from './types';
 import { buildEmailAddress } from './utils';
@@ -126,23 +128,23 @@ export const nylasSendEmail = async (erxesApiId: string, params: any) => {
 
     const message = await sendMessage(integration.nylasToken, doc);
 
-    debugNylas('Successfully sent message');
+    if (!shouldResolve) {
+      await addToArray('nylas_unread_messageId', message.id);
 
-    if (shouldResolve) {
-      debugNylas('Resolve this message ======');
+      // Set mail to inbox
+      await sendRequest({
+        url: `${NYLAS_API_URL}/messages/${message.id}`,
+        method: 'PUT',
+        headerParams: {
+          Authorization: `Basic ${Buffer.from(`${integration.nylasToken}:`).toString('base64')}`,
+        },
+        body: { unread: true },
+      });
 
-      return 'success';
+      await removeFromArray('nylas_unread_messageId', message.id);
     }
 
-    // Set mail to inbox
-    await sendRequest({
-      url: `https://api.nylas.com/messages/${message.id}`,
-      method: 'PUT',
-      headerParams: {
-        Authorization: `Basic ${Buffer.from(`${integration.nylasToken}:`).toString('base64')}`,
-      },
-      body: { unread: true },
-    });
+    debugNylas('Successfully sent message');
 
     return 'success';
   } catch (e) {

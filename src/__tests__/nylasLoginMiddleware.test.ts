@@ -10,7 +10,6 @@ import {
 } from '../nylas/constants';
 import getOAuthCredentials from '../nylas/loginMiddleware';
 import * as nylasUtils from '../nylas/utils';
-import * as redisUtils from '../redisClient';
 import * as utils from '../utils';
 import './setup.ts';
 

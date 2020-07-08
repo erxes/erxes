@@ -1,5 +1,6 @@
 import { debugNylas } from '../debuggers';
 import { sendRPCMessage } from '../messageBroker';
+import { inArray } from '../redisClient';
 import { cleanHtml } from '../utils';
 import {
   NylasExchangeConversationMessages,
@@ -228,12 +229,14 @@ const createOrGetNylasConversationMessage = async ({
     createdAt,
   };
 
+  const isUnreadMessage = await inArray('nylas_unread_messageId', message.id);
+
   // fields to save on api
   const api = {
     customerId,
     conversationId: erxesApiId,
     content: cleanHtml(message.body),
-    unread: message.unread,
+    unread: isUnreadMessage ? true : message.unread,
     createdAt,
   };
 

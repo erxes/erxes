@@ -259,6 +259,7 @@ describe('Test nylas controller', () => {
 
   test('Nylas send email', async () => {
     sendRequestMock.restore();
+    redisUtils.initRedis();
 
     try {
       await nylasSendEmail('alksjd', {});
