@@ -1,3 +1,5 @@
+import Icon from 'modules/common/components/Icon';
+import colors from 'modules/common/styles/colors';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import styled from 'styled-components';
@@ -11,7 +13,8 @@ const Preview = styled.div`
   flex-direction: column;
 
   h3 {
-    font-size: 18px;
+    font-size: 16px;
+    color: ${colors.colorCoreGray};
   }
 `;
 
@@ -50,7 +53,9 @@ type Props = {
 function SmsPreview(props: Props) {
   return (
     <Preview>
-      <h3>{__('Preview')}</h3>
+      <h3>
+        <Icon icon="eye" /> {__('Preview')}
+      </h3>
       <MobileFrame>
         <From>{props.title || '[From]'}</From>
         {props.message && <Message>{props.message}</Message>}

@@ -22,7 +22,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
     const links = user.links || {};
 
     return (
-      <FormGroup>
+      <FormGroup key={link.value}>
         <ControlLabel>{link.label}</ControlLabel>
         <FormControl
           type="url"
@@ -39,7 +39,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
     const details = user.details || {};
 
     return (
-      <React.Fragment>
+      <>
         <CollapseContent
           title={__('General Information')}
           open={true}
@@ -143,7 +143,7 @@ class UserCommonInfos extends React.PureComponent<Props> {
             </FormColumn>
           </FormWrapper>
         </CollapseContent>
-      </React.Fragment>
+      </>
     );
   }
 }
