@@ -34,7 +34,9 @@ export const updateContactValidationStatus = async (data: IValidationResponse) =
     await Customers.updateOne({ primaryEmail: email }, { $set: { emailValidationStatus: status } });
   }
 
-  await Customers.updateOne({ primaryPhone: phone }, { $set: { phoneValidationStatus: status } });
+  if (phone) {
+    await Customers.updateOne({ primaryPhone: phone }, { $set: { phoneValidationStatus: status } });
+  }
 };
 
 export const validateBulk = async (verificationType: string, hostname: string) => {
