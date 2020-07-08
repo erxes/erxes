@@ -368,18 +368,6 @@ export const INTEGRATIONS = [
       'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Phone and video, Conversation'
   },
   {
-    name: 'Twilio SMS by Sunshine Conversations',
-    description:
-      'Connect Twilio API for SMS then send and receive text messages anywhere in the world',
-    inMessenger: false,
-    isAvailable: true,
-    kind: 'smooch-twilio',
-    logo: '/images/integrations/twilio-ipm.png',
-    createModal: 'smooch-twilio',
-    category:
-      'All integrations, For support teams, For sales teams, For marketing teams, Messaging, Marketing automation, Conversation'
-  },
-  {
     name: 'Twitter',
     description: 'Connect Twitter DMs to your Team Inbox',
     inMessenger: false,
