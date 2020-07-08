@@ -109,9 +109,9 @@ class MessengerForm extends React.Component<Props, State> {
     users.map(user =>
       options.push({
         value: user._id,
-        label: (user.details && user.details.fullName) || user.username,
-        disabled: !(user.details && user.details.operatorPhone),
-        phone: user.details && user.details.operatorPhone
+        label: user.details && user.details.operatorPhone,
+        name: (user.details && user.details.fullName) || user.username,
+        disabled: !(user.details && user.details.operatorPhone)
       })
     );
 
@@ -120,7 +120,7 @@ class MessengerForm extends React.Component<Props, State> {
 
   fromOptionRenderer = option => (
     <div>
-      <strong>{option.label}</strong> <i>{option.phone}</i>
+      <strong>{option.name}</strong> <i>{option.label}</i>
     </div>
   );
 
