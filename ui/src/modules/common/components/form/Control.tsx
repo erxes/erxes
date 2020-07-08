@@ -28,6 +28,7 @@ type Props = {
   disabled?: boolean;
   round?: boolean;
   autoFocus?: boolean;
+  autoComplete?: string;
   onFocus?: (e: React.FormEvent<HTMLElement>) => void;
   componentClass?: string;
   min?: number;
@@ -104,6 +105,7 @@ class FormControl extends React.Component<Props> {
       disabled: props.disabled,
       onFocus: props.onFocus,
       autoFocus: props.autoFocus,
+      autoComplete: props.autoComplete,
       min: props.min,
       max: props.max,
       id: props.id,
