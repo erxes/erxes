@@ -957,5 +957,10 @@
   "gtm_li_7": "Next click ‘Submit’ button in the top-right corner of the page to save the changes you made",
   "gtm_li_8": "Now, erxes chat will be installed using your Google Tag Manager account. Just make sure you copy the gtm code to your website",
   "For websites and web apps with full-page refreshes. Paste the code below before the body tag on every page you want erxes chat to appear": "For websites and web apps with full-page refreshes. Paste the code below before the body tag on every page you want erxes chat to appear",
-  "To connect Google Tag Manager to erxes, you must have an active Google Tag Manager account with a published container": "To connect Google Tag Manager to erxes, you must have an active Google Tag Manager account with a published container"
+  "To connect Google Tag Manager to erxes, you must have an active Google Tag Manager account with a published container": "To connect Google Tag Manager to erxes, you must have an active Google Tag Manager account with a published container",
+  "Set up your initial account settings so that things run smoothly in unison": "Set up your initial account settings so that things run smoothly in unison",
+  "Google Cloud Storage": "Google Cloud Storage",
+  "Script manager": "Script manager",
+  "Growth Hacking Templates": "Growth Hacking Templates",
+  "Import & Export": "Import & Export"
 }
