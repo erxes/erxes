@@ -25,6 +25,7 @@ import {
 } from '../types';
 import SmsForm from './SmsForm';
 import ChannelStep from './step/ChannelStep';
+import FullPreviewStep from './step/FullPreviewStep';
 import MessageStep from './step/MessageStep';
 import MessageTypeStep from './step/MessageTypeStep';
 
@@ -245,8 +246,8 @@ class AutoAndManualForm extends React.Component<Props, State> {
       <Step
         img={imagePath}
         title="Compose your message"
-        noButton={true}
         message={message}
+        noButton={method !== METHODS.EMAIL && true}
       >
         <MessageStep
           brands={brands}
@@ -260,6 +261,27 @@ class AutoAndManualForm extends React.Component<Props, State> {
           fromUserId={fromUserId}
           content={content}
           scheduleDate={scheduleDate}
+        />
+      </Step>
+    );
+  }
+
+  renderPreviewContent() {
+    const { content, email, method } = this.state;
+
+    if (method !== METHODS.EMAIL) {
+      return <div />;
+    }
+
+    return (
+      <Step
+        img="/images/icons/erxes-19.svg"
+        title="Full Preview"
+        noButton={true}
+      >
+        <FullPreviewStep
+          content={content}
+          templateId={email && email.templateId}
         />
       </Step>
     );
@@ -315,6 +337,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
           </Step>
 
           {this.renderMessageContent()}
+          {this.renderPreviewContent()}
         </Steps>
       </StepWrapper>
     );
