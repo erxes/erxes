@@ -56,7 +56,8 @@ class EditProfile extends React.Component<Props, State> {
           fullName: values.fullName,
           position: values.position,
           location: values.location,
-          description: values.description
+          description: values.description,
+          operatorPhone: values.operatorPhone
         },
         links: {
           linkedIn: values.linkedin,
@@ -120,12 +121,13 @@ class EditProfile extends React.Component<Props, State> {
           <Button
             btnStyle="simple"
             onClick={this.props.closeModal}
-            icon="cancel-1"
+            icon="times-circle"
+            uppercase={false}
           >
             Cancel
           </Button>
 
-          <Button type="submit" btnStyle="success" icon="checked-1">
+          <Button type="submit" btnStyle="success" icon="plus-circle">
             Save
           </Button>
         </ModalFooter>
