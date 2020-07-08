@@ -69,14 +69,7 @@ const conversationDetailQuery = `
           description
           position
         }
-        links {
-          facebook
-          twitter
-          youtube
-          linkedIn
-          github
-          website
-        }
+        links
       }
     }
   }
