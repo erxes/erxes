@@ -8,19 +8,24 @@ import TabItem from '@theme/TabItem';
 
 ## Server Installation Requirements
 
-erxes gives you many options for installing the erxes platform. Below you will find two guides. The first guide is the **Quick Start** guide where we provide a script that automates most of the installation process. The second guide is a comprehensive, **Step by Step** guide where advanced developers can see exactly what is being installed and how.
+erxes gives you many options for installing the erxes platform. Below you will find two guides:
+
+The first guide is the **Quick Start** guide where we provide a script that automates most of the installation process. The second guide is a comprehensive, **Step by Step** guide where advanced developers can see exactly what is being installed and how.
 
 :::info Ubuntu 18.04
 These instructions are for installing erxes on **Ubuntu 18.04**. They should work on any hosting provider that allows you to install Ubuntu 18.04.
+
+**Ubuntu 18.04** is currently the only officially supported **Linux distro**. Other distros such as _Centos and Debian are not specifically supported_, but some users are able to adapt the below commands to make **erxes** work on them.
+
 :::
 
 ### Minimum required server resources
 
 Each hosting company has slightly different server configurations and set-ups. Hosting companies such as [Linode.com](https://www.linode.com/), [Digital Ocean](https://digitalocean.com) and [AWS EC2](https://aws.amazon.com/ec2) offer many different server specifications and configuration options.
 
-To properly install and maintain your erxes installation, the minimum requirements are:
+To install and properly run your **erxes** installation, you must meet these minimum requirements:
 
-- Ubuntu 18.04 (or other supported Linus distribution)
+- Ubuntu 18.04 installed and running
 - 4 cpus
 - 8GB RAM
 - ability to to SSH into the server
@@ -29,14 +34,18 @@ To properly install and maintain your erxes installation, the minimum requiremen
 You can also use the [Digital Ocean Marketplace](https://marketplace.digitalocean.com/apps/erxes) and [AWS Marketplace](https://aws.amazon.com/marketplace/pp/B086MZ9FVS?qid=1594055516154&sr=0-1&ref_=srh_res_product_title) for an even easier set-up experience.
 :::
 
-### Setting up a server with Ubuntu 18.04
+## First steps: Setting up a server with Ubuntu 18.04
 
-- You must have an account with your hosting provider prior to doing these steps.
-- You need to create a server with **Ubuntu 18.04** installed, a minimum of **4cpus** and **8GB RAM**. At this time, erxes needs a minimum of 4 cpus and 8GB RAM to finish installation.
+You must have an account with your hosting provider prior to doing these steps.
+
+- Create a server with **Ubuntu 18.04** installed, a minimum of **4cpus** and **8GB RAM**.
 
 ### Configure your DNS Records to point at your server
 
-- Your server will have an ip address. You will need to point your `A records` under the _DNS Editor_ for the domain which will host your erxes installation. The propagation is often reported to take up to 24 hours. Most of the time, propagation of your domain name happens within the hour.
+Your server will have an **ip address**. You will need to point your domain name to your new server.
+
+- If you are using a **sub-domain**, you will need to follow the instructions of updating the `A Records' of the hosting company for your website.
+- If you are NOT using a **sub-domain**, then you will need to follow the instructions of your domain name registrar.
 
 :::note Example with a domain called, example.com
 
@@ -45,19 +54,23 @@ If your domain name is **example.com**, and the **ip address** assigned to your 
 | Type | Name            | Value                  |
 | ---- | --------------- | ---------------------- |
 | A    | www.example.com | points to 44.123.32.12 |
+| A    | example.com     | points to 44.123.32.12 |
 
 :::
 
 :::note Example with a subdomain called, erxes.example.com
 
-If your domain name is **erxes.example.com**, and the **ip address** assigned to your server is **44.123.32.12**, then you will have two `A records` that look like this:
+If your domain name is **erxes.example.com**, and the **ip address** assigned to your server is **44.123.32.12**, then you will have a two `A records` that look like this:
 
-| Type | Name              | Value                  |
-| ---- | ----------------- | ---------------------- |
-| A    | erxes.example.com | points to 44.123.32.12 |
+| Type | Name                  | Value                  |
+| ---- | --------------------- | ---------------------- |
+| A    | erxes.example.com     | points to 44.123.32.12 |
+| A    | www.erxes.example.com | points to 44.123.32.12 |
 
-**Note:** You do not need to create a subdomain named "erxes.example.com", you can use another name of your choice such as "admin.example.com".
+**Note:** You do not need to create a subdomain called "erxes.example.com", you can use another name of your choice such as "admin.example.com".
 :::
+
+Please select from the **Quickstart** or **Step by Step** instructions below and continue with your installation of **erxes**.
 
 <Tabs
   defaultValue='step-by-step'
@@ -77,128 +90,107 @@ You can simply follow [Debian doc](/installation/debian10) to install manually.
 
 ## Log into server as root and create erxes user
 
-- Open the terminal or command prompt on your computer. (You will need your **IP address**. In the above example, **44.123.32.12**).
+- Open the terminal or command prompt on your computer. You will need your **IP address**. (In this example, **44.123.32.12**). Type `yes`, when asked if you want to continue connecting.
 
 ```bash
-$ # example ssh root@44.123.32.12
-$ ssh root@your-ip-address
-
-    The authenticity of host '44.123.32.12 (44.123.32.12)' can't be established.
-    ECDSA key fingerprint is SHA256:RbrZOxtr/emNySeNd8rh2C9VPGY76JbSs1Dhpvfkfrk.
-    Are you sure you want to continue connecting (yes/no/[fingerprint])?
-
-$ Yes
-
-    Warning: Permanently added '44.123.32.12' (ECDSA) to the list of known hosts.
-    Welcome to Ubuntu 18.04.4 LTS (GNU/Linux 4.15.0-101-generic x86_64)
+# example ssh root@44.123.32.12
+ssh root@your-ip-address
 ```
 
-- Add a user called, "erxes" and grant that user administrative access rights
+You don't want to use the **root** user to administer your server. So everything will be done by a user called, **erxes**. To accomplish this, run the following commands:
 
-You don't want to use the **root** user to administer your server. So everything will be done by a user called, **erxes**. To accomplish this run the following commands. They will add a user called **erxes**, give it a password and assign administrative access rights.
+- Add a user called "erxes". When prompted, enter in a **unique** password. Finish adding the user simply by pressing enter through the questions.
 
 ```bash
-$ adduser erxes
-
-    Adding user `erxes' ...
-    Adding new group `erxes' (1000) ...
-    Adding new user `erxes' (1000) with group `erxes' ...
-    Creating home directory `/home/erxes' ...
-    Copying files from `/etc/skel' ...
-
-$ Enter new UNIX password: erxes123
-$ Retype new UNIX password: erxes123
-
-    passwd: password updated successfully
-    Changing the user information for erxes
-    Enter the new value, or press ENTER for the default
-
-    	Full Name []:
-        Room Number []:
-        Work Phone []:
-        Home Phone []:
-        Other []:
-
-$ Is the information correct? [Y/n] y
-
-$ usermod -aG sudo erxes
+adduser erxes
 ```
+
+- Grant the **erxes** user adminstrative rights.
+
+```bash
+usermod -aG sudo erxes
+```
+
+Your last step as **root** user, is to set-up a basic firewall for your server.
 
 ## Set-up a basic firewall for SSH, nginx 80 and port 443
 
-- Allow OpenSSH, enable it and check the status. OpenSSH will use **port 22**.
+- Allow OpenSSH with **ufw**. OpenSSH will use **port 22**.
 
 ```bash
+ufw allow OpenSSH
+```
 
-$ ufw allow OpenSSH
+- Enable **ufw** and allow the "disrupt existing ssh connections". Type `y` when asked, "**Command may disrupt existing ssh connections. Proceed with operation (y|n)?**"
 
-    Rules updated
-    Rules updated (v6)
+```bash
+ufw enable
+```
 
-$ ufw enable
-$ Command may disrupt existing ssh connections. Proceed with operation (y|n)? y
+- Check the **ufw** status
 
-    Firewall is active and enabled on system startup
+```bash
+ufw status
+```
 
+You should have an output like below:
 
-$ ufw status
-
+```bash
 Status: active
 
 To                         Action      From
 --                         ------      ----
 OpenSSH                    ALLOW       Anywhere
 OpenSSH (v6)               ALLOW       Anywhere (v6)
-
 ```
 
-Your output should like something like the above.
-
--- Open port 80 (for NGINX) and open port 443. Port 80 allows **http** traffic and port 443 allows **https** traffic.
+- Allow **HTTP** (port 80) and **HTTPS** (port 443) with **ufw**
 
 ```bash
+ufw allow proto tcp from any to any port 80,443
+```
 
-$ ufw allow proto tcp from any to any port 80,443
+- Check the ufw status
 
-Rule added
-Rule added (v6)
+```bash
+ufw status
+```
 
-$ Command may disrupt existing ssh connections. Proceed with operation (y|n)? y
+You should have an output like below:
 
-Firewall is active and enabled on system startup
-
-$ ufw status
-
+```bash
 Status: active
 
-To                         Action      From
---                         ------      ----
-OpenSSH                    ALLOW       Anywhere
-80,443/tcp                 ALLOW       Anywhere
-OpenSSH (v6)               ALLOW       Anywhere (v6)
-80,443/tcp (v6)            ALLOW       Anywhere (v6)
+To Action From
 
+---
+
+OpenSSH ALLOW Anywhere
+80,443/tcp ALLOW Anywhere
+OpenSSH (v6) ALLOW Anywhere (v6)
+80,443/tcp (v6) ALLOW Anywhere (v6)
 ```
 
-- Exit from server, so that you can log back in as **erxes**
+- Exit from server, so that you can log back in as the **erxes** user
 
 ```bash
-$ exit
-
-logout
-Connection to 44.123.32.12 closed.
+exit
 ```
 
-- Log back into the server as the **erxes** user and provide the password
+You have created a new user called, "erxes" and you set-up a basic firewall to protect your server against malicious attacks.
+
+Please continue with the following steps to log in to your server as the **erxes** user.
+
+## Log in to your server as the "erxes" user.
+
+- Log back into the server as the **erxes** user and provide the password. You will need your IP address. (In this example, **44.123.32.12**). Enter your previously created password, if prompted.
 
 ```bash
-$ ssh erxes@44.123.32.12
-$ erxes@45.79.248.46's password:
-
-Welcome to Ubuntu 18.04.4 LTS (GNU/Linux 4.15.0-101-generic x86_64)
+# example ssh erxes@44.123.32.12
+ssh erxes@your-ip-address
 ```
 
-In the following section, you will install software dependencies that are needed to run erxes. You will also need to install various tools that will help to administer your server or install the packages themselves.
+In the following sections, you will install software dependencies that are needed to run **erxes**.
 
 ## Nvm install
 
@@ -207,66 +199,59 @@ In the following section, you will install software dependencies that are needed
 - Install **nvm** and initialize by reload the shell configuration.
 
 ```bash
-$ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
-$ source ~/.bashrc
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
+source ~/.bashrc
 ```
 
 - Verify **nvm** is installed by running:
 
 ```bash
-$ nvm --version # Your version of nvm may be different
+nvm --version
 
-0.35.3
+# 0.35.3
+# your version of nvm may be different
 ```
 
-If you got the above output, then you are ready to continue with the following steps.
+If you got the above output, then you are ready to continue with installing **Node.js**.
 
 ## Install Node.js with nvm
 
-You can read more about install **Node.js** with **nvm** here: [How to install Node.js with NVM](https://gist.github.com/d2s/372b5943bce17b964a79#install-nodejs-with-nvm)
+You can read more about installing **Node.js** with **nvm** here: [How to install Node.js with NVM](https://gist.github.com/d2s/372b5943bce17b964a79#install-nodejs-with-nvm)
 
-- Install **Node.js** and check to see if it is installed correctly.
+- Install **Node.js**
 
 ```bash
-$ nvm install v12.16.3
-
-Downloading and installing node v12.16.3...
-Downloading https://nodejs.org/dist/v12.16.3/node-v12.16.3-linux-x64.tar.xz...
-################################################################################## 100.0%
-Computing checksum with sha256sum
-Checksums matched!
-Now using node v12.16.3 (npm v6.14.4)
-Creating default alias: default -> v12.16.3
-
-
-$ node -v # Your version of node.js may be different
-
-v12.16.3
+nvm install v12.16.3
 ```
 
-With **Node.js** installed, you can continue with the installation.
+- Check to see if **Node.js** is installed correctly.
+
+```bash
+node -v
+
+# v12.16.3
+# your version of node.js may be different
+```
+
+With **Node.js** installed, you can continue with installing **PM2**.
 
 ## Install PM2
 
-**PM2** is a tool that helps you manage and keep erxes online. It is a process manager. You can read more about the installation process here: [How to install PM2](https://pm2.keymetrics.io/docs/usage/quick-start/)
+**PM2** is a tool that helps you manage and keep **erxes** online. It is a process manager. You can read more about the installation process here: [How to install PM2](https://pm2.keymetrics.io/docs/usage/quick-start/)
 
-- Install **PM2** and check to see if it is installed correctly.
+- Install **PM2**
 
 ```bash
-$ npm install pm2@latest -g
+npm install pm2@latest -g
+```
 
-* * *
+- Check to see if **PM2** is installed correctly.
 
-+ pm2@4.4.0
-added 185 packages from 191 contributors in 9.605s
+```bash
+pm2 --version
 
-$ pm2 --version
-
-* * *
-
-[PM2] Spawning PM2 daemon with pm2_home=/home/erxes/.pm2
-[PM2] PM2 Successfully daemonized
-4.4.0 # Your version of pm2 may be different
+# 4.4.0
+# your version of pm2 may be different
 ```
 
 You should receive a response from `pm2 --version`. The version should show as last line. You will need **PM2** later in the installation process. For now, continue on with the next steps to install **Yarn**.
@@ -275,31 +260,21 @@ You should receive a response from `pm2 --version`. The version should show as l
 
 **Yarn** is a package manager. The alternative is [npm](https://www.npmjs.com/). We recommend [yarn](https://yarnpkg.com/). For additional [yarn installation instructions, read this](https://classic.yarnpkg.com/en/docs/install/#debian-stable).
 
-- Install **yarn** and check to see if it is installed correctly.
+- Install **yarn**
 
 ```bash
-$ curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-[sudo] password for erxes:
-OK
+curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+sudo apt update && sudo apt install --no-install-recommends yarn
+```
 
-$ echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-apt/sources.list.d/yarn.list
-deb https://dl.yarnpkg.com/debian/ stable main
+- Check to see if **yarn** is installed correctly
 
-$ sudo apt update && sudo apt install --no-install-recommends yarn
-Hit:1 http://mirrors.linode.com/ubuntu bionic InRelease
-Get:2 http://mirrors.linode.com/ubuntu bionic-updates InRelease [88.7 kB]
+```bash
+yarn --version
 
-* * *
-
-Selecting previously unselected package yarn.
-(Reading database ... 102699 files and directories currently installed.)
-Preparing to unpack .../archives/yarn_1.22.4-1_all.deb ...
-Unpacking yarn (1.22.4-1) ...
-Setting up yarn (1.22.4-1) ...
-
-$ yarn --version
-1.22.4 # Your version of yarn may be different
+# 1.22.4
+# your version of yarn may be different
 ```
 
 As long as you received a version response to `yarn --version`, then you can continue and install **MongoDB**.
@@ -308,46 +283,29 @@ As long as you received a version response to `yarn --version`, then you can con
 
 **MongoDB** is a robust and general purpose document-based database. For additional [MongoDB installation instructions, read this](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/).
 
+- Install **MongoDB**
+
 ```bash
-$ wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | sudo apt-key add -
-OK
-
-$ echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.2.list
-$ sudo apt-get update
-Hit:1 http://mirrors.linode.com/ubuntu bionic InRelease
-Hit:2 http://mirrors.linode.com/ubuntu bionic-updates InRelease
-Reading package lists... Done
-Building dependency tree
-Reading state information... Done
-
-* * *
-
-Fetched 18.0 kB in 1s (20.1 kB/s)
-Reading package lists... Done
-
-$ sudo apt-get install -y mongodb-org
-
-
-* * *
-
-Adding group `mongodb' (GID 115) ...
-Done.
-Adding user `mongodb' to group `mongodb' ...
-Adding user mongodb to group mongodb
-Done.
-Setting up mongodb-org (4.2.8) ...
-Processing triggers for man-db (2.8.3-2ubuntu0.1) ...
-
-
-$ sudo systemctl start mongod
-$ sudo systemctl enable mongod
-Created symlink /etc/systemd/system/multi-user.target.wants/mongod.service → /lib/systemd/system/mongod.service.
-
-$ mongod --version
-db version v4.2.8
-
-* * *
+wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | sudo apt-key add -
+echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.2.list
+sudo apt-get update
+sudo apt-get install -y mongodb-org
 ```
+
+- Start and enable **MongoDB**
+
+```bash
+sudo systemctl start mongod
+sudo systemctl enable mongod
+```
+
+- Check to see if **MongoDB** is installed correctly
+
+```bash
+mongod --version
+```
+
+As long as you received a version response to `mongod --version`, then you can continue below.
 
 ### Deploy a MongoDB Replica Set
 
@@ -356,13 +314,13 @@ MongoDB [replica sets](https://docs.mongodb.com/manual/reference/glossary/#term-
 - Stop the **mongod** processes
 
 ```bash
-$ sudo systemctl stop mongod
+sudo systemctl stop mongod
 ```
 
 - Open **mongod.conf**
 
 ```bash
-$ sudo nano /etc/mongod.conf
+sudo nano /etc/mongod.conf
 ```
 
 - Enable the **replicaset** settings, by searching for `#replication`. Remove the `#` to activate it and edit to include the set name, as follows:
@@ -372,41 +330,29 @@ replication:
   replSetName: rs0
 ```
 
-- Save and Exit with `<Ctrl> x`
-- Verify that the changes were saved.
-
-```bash
-$ sudo cat /etc/mongod.conf
-
-* * *
-
-#security:
-
-#operationProfiling:
-
-replication:
-  replSetName: rs0
-
-#sharding:
-
-## Enterprise-Only Options:
-
-* * *
-```
+- Save and Exit with `ctrl + x` and then `y` to accept the changes.
 
 - Restart mongob
 
 ```bash
-$ sudo systemctl start mongod
+sudo systemctl start mongod
 ```
 
-- Connect to mongo shell, initialize replicaSet and verify **SECONDARY** changes to **Primary**.
+- Connect to mongo shell
 
 ```bash
-$ mongo
+mongo
+```
 
+- Initialize replicaSet
+
+```bash
 > rs.initiate()
+```
 
+- You should have an output similar to below. Verify **SECONDARY** changes to **Primary** by pressing enter several times.
+
+```bash
 {
 	"info2" : "no configuration specified. Using a default configuration for the set",
 	"me" : "127.0.0.1:27017",
@@ -423,11 +369,14 @@ $ mongo
 
 rs0:SECONDARY>
 rs0:PRIMARY> # <----- This is what you are looking for
-rs0:PRIMARY> # press `ctrl-c` to quit mongo
-bye
 ```
 
 - press `ctrl-c` to quit mongo
+
+```bash
+rs0:PRIMARY>
+bye
+```
 
 If you were able to return to the command line prompt. Then you may continue with the installation of **Redis**.
 
@@ -435,27 +384,33 @@ If you were able to return to the command line prompt. Then you may continue wit
 
 **Redis** is an in memory quick-response database. For additional [Redis installation instructions, read this](https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-redis-on-ubuntu-18-04).
 
-- Install **redis** and check to see if it is installed correctly.
+- Install **redis**
 
 ```bash
-$ sudo apt-get install -y redis-server
-Reading package lists... Done
-Building dependency tree
-Reading state information... Done
-The following additional packages will be installed:
-  libjemalloc1 redis-tools
-
-   * * *
-
-$ sudo systemctl status redis
-● redis-server.service - Advanced key-value store
-   Loaded: loaded (/lib/systemd/system/redis-server.service; enabled; vendor preset: enab
-   Active: active (running) since Tue 2020-07-07 17:11:46 UTC; 56s ago
-
-   * * *
-
-   # ctrl+c to quit
+sudo apt-get install -y redis-server
 ```
+
+- Check to see if **redis** is installed correctly.
+
+```bash
+sudo systemctl status redis
+```
+
+You should get an output similar to this
+
+```bash
+● redis-server.service - Advanced key-value store
+   Loaded: loaded (/lib/systemd/system/redis-server.service; enabled; vendor preset: enabled)
+   Active: active (running) since Wed 2020-07-08 20:39:33 UTC; 10s ago
+     Docs: http://redis.io/documentation,
+           man:redis-server(1)
+ Main PID: 15778 (redis-server)
+    Tasks: 4 (limit: 4915)
+   CGroup: /system.slice/redis-server.service
+           └─15778 /usr/bin/redis-server 127.0.0.1:6379
+```
+
+- Type `ctrl + c` to quit
 
 Providing you got **Active** output for **Redis** you may now continue with the next steps.
 
@@ -470,26 +425,23 @@ Providing you got **Active** output for **Redis** you may now continue with the 
 - Install **Erlang**
 
 ```bash
-$ curl -fsSL https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc | sudo apt-key add -
-OK
-
-$ sudo apt-get install apt-transport-https
-Reading package lists... Done
-Building dependency tree
-
-    * * *
-
-Unpacking apt-transport-https (1.6.12ubuntu0.1) ...
-Setting up apt-transport-https (1.6.12ubuntu0.1) ...
+curl -fsSL https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc | sudo apt-key add -
+sudo apt-get install apt-transport-https
 ```
 
 - Create the `bintray.erlang.list` file and write to the `/etc/apt/sources.list.d` directory.
 
 ```bash
-$ sudo touch /etc/apt/sources.list.d/bintray.erlang.list
+sudo touch /etc/apt/sources.list.d/bintray.erlang.list
 ```
 
-- Copy the following text to the `bintray.erlang.list` file.
+- Open the `bintray.erlang.list` file.
+
+```bash
+sudo nano /etc/apt/sources.list.d/bintray.erlang.list
+```
+
+- Now copy the following text to the open `bintray.erlang.list` file
 
 ```txt
 # This repository provides Erlang packages produced by the RabbitMQ team
@@ -497,29 +449,22 @@ $ sudo touch /etc/apt/sources.list.d/bintray.erlang.list
 deb https://dl.bintray.com/rabbitmq-erlang/debian bionic erlang-22.x
 ```
 
-```bash
-$ sudo nano /etc/apt/sources.list.d/bintray.erlang.list
-
-# paste the above text in the file and save with ctrl + x, y
-```
+- Save and exit with `ctrl + x` and then `y` to accept the changes.
 
 - Verify that you have properly added the above text to the proper file.
 
 ```bash
-$ sudo cat /etc/apt/sources.list.d/bintray.erlang.list
+sudo cat /etc/apt/sources.list.d/bintray.erlang.list
 ```
+
+The output should match the above pasted text.
+
+### Update all packages
 
 - Update and list of `apt` sources
 
 ```bash
-$ sudo apt-get update -y
-Hit:1 http://mirrors.linode.com/ubuntu bionic InRelease
-
-    * * *
-
-Hit:9 https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 Release
-Fetched 32.6 kB in 1s (45.9 kB/s)
-Reading package lists... Done
+sudo apt-get update -y
 ```
 
 Metapackages such as erlang and erlang-nox must only be used with apt version pinning. They do not pin their dependency versions. The following steps are recommended.
@@ -527,7 +472,7 @@ Metapackages such as erlang and erlang-nox must only be used with apt version pi
 - Install **Erlang** packages.
 
 ```bash
-$ sudo apt-get install -y erlang-base \
+sudo apt-get install -y erlang-base \
     erlang-asn1 erlang-crypto erlang-eldap erlang-ftp erlang-inets \
     erlang-mnesia erlang-os-mon erlang-parsetools erlang-public-key \
     erlang-runtime-tools erlang-snmp erlang-ssl \
@@ -537,18 +482,21 @@ $ sudo apt-get install -y erlang-base \
 - Verify **Erlang** installation
 
 ```bash
-$ erl
+erl
+```
 
+You should get an output similar to the following:
+
+```bash
 Erlang/OTP 22 [erts-10.7.2.1] [source] [64-bit] [smp:4:4] [ds:4:4:10] [async-threads:1]
 
 Eshell V10.7.2.1  (abort with ^G)
 1>    # halt(). to exit
-
 ```
 
 - type `halt().` to exit from **Erlang** in the terminal.
 
-You have now installed the dependencies for **RabbitMQ**. Continue with the following steps.
+You have now installed the **dependencies** for **RabbitMQ**. Continue with the following steps.
 
 ### Install RabbitMQ
 
@@ -557,155 +505,104 @@ The following steps will install RabbitMQ.
 - Install **RabbitMQ** by importing a signing key from [PackageCloud](https://packagecloud.io/rabbitmq), add the PackageCloud repo, and **install rabbitmq-server**.
 
 ```bash
-$ wget -O - "https://packagecloud.io/rabbitmq/rabbitmq-server/gpgkey" | sudo apt-key add -
-
---2020-07-07 19:18:56--  https://packagecloud.io/rabbitmq/rabbitmq-server/gpgkey
-Resolving packagecloud.io (packagecloud.io)... 2600:1f1c:2e5:6900:4977:25fb:37af:af52,
-
-    * * *
-
-2020-07-07 19:18:56 (476 MB/s) - written to stdout [3954/3954]
-
-OK
-
-$ curl -s https://packagecloud.io/install/repositories/rabbitmq/rabbitmq-server/script.deb.sh | sudo bash
-
-Detected operating system as Ubuntu/bionic.
-Checking for curl...
-
-    * * *
-
-The repository is setup! You can now install packages.
-
-$ sudo apt-get install -y rabbitmq-server
-
-Reading package lists... Done
-Building dependency tree
-Reading state information... Done
-The following additional packages will be installed:
-  socat
-The following NEW packages will be installed:
-  rabbitmq-server socat
-
-    * * *
-
-Processing triggers for man-db (2.8.3-2ubuntu0.1) ...
-Processing triggers for ureadahead (0.100.0-21) ...
-Processing triggers for systemd (237-3ubuntu10.41) ...
+wget -O - "https://packagecloud.io/rabbitmq/rabbitmq-server/gpgkey" | sudo apt-key add -
+curl -s https://packagecloud.io/install/repositories/rabbitmq/rabbitmq-server/script.deb.sh | sudo bash
+sudo apt-get install -y rabbitmq-server
 ```
 
 - Enable and start the **RabbitMQ** server
 
 ```bash
-$ sudo systemctl enable rabbitmq-server
-
-Synchronizing state of rabbitmq-server.service with SysV service script with /lib/systemd/systemd-sysv-install.
-Executing: /lib/systemd/systemd-sysv-install enable rabbitmq-server
-
-$ sudo systemctl start rabbitmq-server
+sudo systemctl enable rabbitmq-server
+sudo systemctl start rabbitmq-server
 ```
 
 - Verify **RabbitMQ** is properly installed and running.
 
 ```bash
-$ sudo service rabbitmq-server status
+sudo service rabbitmq-server status
+```
 
+You should see similar output to the following:
+
+```bash
 ● rabbitmq-server.service - RabbitMQ broker
    Loaded: loaded (/lib/systemd/system/rabbitmq-server.service; enabled; vendor preset: enabled)
-   Active: active (running) since Tue 2020-07-07 19:23:42 UTC; 6min ago
- Main PID: 28136 (beam.smp)
+   Active: active (running) since Wed 2020-07-08 21:11:16 UTC; 1min 21s ago
+ Main PID: 18883 (beam.smp)
    Status: "Initialized"
     Tasks: 91 (limit: 4915)
-
-    * * *
-
-    # exit with ctrl + c
+   CGroup: /system.slice/rabbitmq-server.service
+           ├─18883 /usr/lib/erlang/erts-10.7.2.1/bin/beam.smp -W w -K true -A 64 -MBas ageffcbf -MHas
+           ├─19000 erl_child_setup 32768
+           ├─19030 /usr/lib/erlang/erts-10.7.2.1/bin/epmd -daemon
+           ├─19058 inet_gethost 4
+           └─19059 inet_gethost 4
 ```
 
 - You can exit with `ctrl + c`
 
-If you see and **Active** message, similar to the above, then you are ready to continue and go onto installing **Elasticsearch**.
+If you see output similar to the above, then you are ready to continue and go onto installing **Elasticsearch**.
 
 ## Install Elasticsearch
 
 **Elasticsearch** is a search feature that allows you to search for data in real time. For additional [Elasticsearch installation instructions, read this](https://www.elastic.co/guide/en/elasticsearch/reference/current/deb.html).
 
+- Install **Elasticsearch**
+
 ```bash
+wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
+sudo apt-get update && sudo apt-get install elasticsearch
+```
 
-$ wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
-OK
+- Enable **Elasticsearch** with the following commands
 
-$ echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
-$ sudo apt-get update && sudo apt-get install elasticsearch
-
-Hit:1 http://mirrors.linode.com/ubuntu bionic InRelease
-Hit:2 http://mirrors.linode.com/ubuntu bionic-updates InRelease
-
-    * * *
-
-Unpacking elasticsearch (7.8.0) ...
-Setting up elasticsearch (7.8.0) ...
-Created elasticsearch keystore in /etc/elasticsearch/elasticsearch.keystore
-Processing triggers for ureadahead (0.100.0-21) ...
-Processing triggers for systemd (237-3ubuntu10.41) ...
-
-$ sudo /bin/systemctl daemon-reload
-$ sudo /bin/systemctl enable elasticsearch.service
-
-Synchronizing state of elasticsearch.service with SysV service script with /lib/systemd/systemd-sysv-install.
-Executing: /lib/systemd/systemd-sysv-install enable elasticsearch
-Created symlink /etc/systemd/system/multi-user.target.wants/elasticsearch.service → /usr/lib/systemd/system/elasticsearch.service.
-
-$ sudo systemctl start elasticsearch.service
+```bash
+sudo /bin/systemctl daemon-reload
+sudo /bin/systemctl enable elasticsearch.service
+sudo systemctl start elasticsearch.service
 
 # can take a minute
 ```
 
-- Verify **Elasticsearch** is installed and running installing the following library and test the `GET /` response.
+- Install **libwww-perl** to use for testing **Elasticsearch** is correctly installed. Press `y` when prompted to continue.
 
-```BASH
-$ sudo apt install libwww-perl
-
-Reading package lists... Done
-Building dependency tree
-Reading state information... Done
-
-    * * *
-
-Do you want to continue? [Y/n] y
-
-Get:1 http://mirrors.linode.com/ubuntu bionic/main amd64 libdata-dump-perl all 1.23-1 [27.0 kB]
-Get:2 http://mirrors.linode.com/ubuntu bionic/main amd64 libencode-locale-perl all 1.05-1 [12.3 kB]
-Get:3 http://mirrors.linode.com/ubuntu bionic/main amd64 libtimedate-perl all 2.3000-2 [37.5 kB]
-
-    * * *
-
-Setting up liblwp-protocol-https-perl (6.07-2) ...
-Setting up libwww-perl (6.31-1ubuntu0.1) ...
-Processing triggers for man-db (2.8.3-2ubuntu0.1) ...
-
-$ GET /
-
-<HTML>
-<HEAD>
-<TITLE>Directory /</TITLE>
-<BASE HREF="file:/">
-</HEAD>
-<BODY>
-<H1>Directory listing of /</H1>
-<UL>
-<LI><A HREF="./">./</A>
-
-    * * *
-
-<LI><A HREF="vmlinuz">vmlinuz</A>
-<LI><A HREF="vmlinuz.old">vmlinuz.old</A>
-</UL>
-</BODY>
-</HTML>
+```bash
+sudo apt install libwww-perl
 ```
 
-If the `GET /` outputted the HTML page, similar to the above, then you are ready to configure your **NGINX** proxy server.
+- Verify **Elasticsearch** is installed by testing the `GET /` response
+
+```bash
+GET /
+```
+
+You should get output similar to this:
+
+```html
+<html>
+  <head>
+    <title>Directory /</title>
+    <base href="file:/" />
+  </head>
+  <body>
+    <h1>Directory listing of /</h1>
+    <ul>
+      <li>
+        <a href="./">./</a>
+
+        * * *
+      </li>
+
+      <li><a href="vmlinuz">vmlinuz</a></li>
+      <li><a href="vmlinuz.old">vmlinuz.old</a></li>
+    </ul>
+  </body>
+</html>
+```
+
+If the `GET /` command outputted the HTML page, then you are ready to configure your **NGINX** proxy server.
 
 ## Install and configure NGINX
 
@@ -713,68 +610,36 @@ If the `GET /` outputted the HTML page, similar to the above, then you are ready
 
 NGINX is installed from the stable repo https://launchpad.net/~nginx/+archive/ubuntu/stable.
 
+- Install **NGINX** with the following commands. Press `enter` when prompted to continue.
+
 ```bash
-$ sudo add-apt-repository ppa:nginx/stable
-
- This PPA contains the latest Stable Release version of the nginx web server software.
-
-**Only Non-End-of-Life Ubuntu Releases are supported in this PPA**
-
-**Development releases of Ubuntu are not officially supported by this PPA, and uploads for those will not be available until Beta releases for those versions**
- More info: https://launchpad.net/~nginx/+archive/ubuntu/stable
-Press [ENTER] to continue or Ctrl-c to cancel adding it.
-
-    * * *
-
-Hit:15 https://packagecloud.io/rabbitmq/rabbitmq-server/ubuntu bionic InRelease
-Fetched 60.9 kB in 1s (57.4 kB/s)
-Reading package lists... Done
-
-$ sudo apt-get update
-
-Hit:1 http://mirrors.linode.com/ubuntu bionic InRelease
-Hit:2 http://mirrors.linode.com/ubuntu bionic-updates InRelease
-
-    * * *
-
-Fetched 32.6 kB in 1s (28.1 kB/s)
-Reading package lists... Done
-
-$ sudo apt-get install -y nginx
-
-Reading package lists... Done
-Building dependency tree
-Reading state information... Done
-The following additional packages will be installed:
-
-    * * *
-
-Rules updated for profile 'OpenSSH'
-Skipped reloading firewall
-Processing triggers for ureadahead (0.100.0-21) ...
-Processing triggers for libc-bin (2.27-3ubuntu1) ...
+sudo add-apt-repository ppa:nginx/stable
+sudo apt-get update
+sudo apt-get install -y nginx
 ```
 
 **NGINX** started by default when you installed it. But it is recommended to `enable` and `start` anyway.
 
+- Enable and start **NGINX**
+
 ```bash
-$ sudo systemctl enable nginx
-
-Synchronizing state of nginx.service with SysV service script with /lib/systemd/systemd-sysv-install.
-Executing: /lib/systemd/systemd-sysv-install enable nginx
-
-$ sudo systemctl start nginx
+sudo systemctl enable nginx
+sudo systemctl start nginx
 ```
 
 ## Configure NGINX
 
-The next step is to configure **NGINX** so that it allows traffic from the firewall. You will be allowing `Ports 80 and 443`.
+The next step is to configure **NGINX** so that it allows traffic through `Ports 80 and 443`.
 
 - Ensure the `ufw` firewall knows about the available applications.
 
 ```bash
-$ sudo ufw app list
+sudo ufw app list
+```
 
+You are expecting the following output:
+
+```bash
 Available applications:
   Nginx Full
   Nginx HTTP
@@ -787,16 +652,18 @@ The output should look something like the `Available applications` output above.
 - Enable Port 80 and Port 443 to allow traffic.
 
 ```bash
-$ sudo ufw allow 'Nginx Full'
-Rule added
-Rule added (v6)
+sudo ufw allow 'Nginx Full'
 ```
 
 - Verify that `ufw` has been updated.
 
 ```bash
-$ sudo ufw status
+sudo ufw status
+```
 
+You are expecting the following output.
+
+```bash
 Status: active
 
 To                         Action      From
@@ -809,19 +676,27 @@ OpenSSH (v6)               ALLOW       Anywhere (v6)
 Nginx Full (v6)            ALLOW       Anywhere (v6)
 ```
 
-Your output should match the above **Status** output.
+Your output should match the above output. Providing your output matches the above, you may continue to configuring **NGINX**.
 
 ### Configure NGINX
 
 The next step is to create a server block with the correct directives to work with the erxes installation.
 
-- Below is the **NGINX server block** you need to _copy/paste_ into the file. Replace `YOUR_DOMAIN_COM` with your actual `domain name`.
+- Create a new file in the correct directory, and name it your domain name. For example, if your domain name is `erxes.example.com`, name the file, `erxes.example.com`.
+
+```bash
+# example: sudo nano /etc/nginx/sites-available/erxes.example.com
+sudo nano /etc/nginx/sites-available/YOUR-DOMAIN-NAME
+```
+
+- Copy the below **NGINX server block** into the open file. **DO NOT SAVE THE FILE** until you replace the `YOUR_DOMAIN_COM` with your actual `domain name`.
 
 ```txt
 server {
         listen 80;
 
         # your domain name here
+        # for example, server_name erxes.example.com;
         server_name YOUR_DOMAIN_COM;
 
         # erxes build path
@@ -832,6 +707,8 @@ server {
         access_log /var/log/nginx/erxes.access.log;
 
         location / {
+                root /home/erxes/erxes.io/erxes/build;
+                index index.html;
                 try_files $uri /index.html;
         }
 
@@ -867,28 +744,20 @@ server {
 }
 ```
 
-- Create a new file in the correct directory, and name it your domain name. For example, if your domain name is `erxes.example.com`, name the file, `erxes.example.com`.
+- After replacing `YOUR_DOMAIN_COM` with your actual domain name. Save with `ctrl + x` and then `y` to accept the changes.
+- Enable the file by creating a link form it to **sites-enabled**. Make sure to **use your domain name** exactly as you created the file above. **Replace** `YOUR_DOMAIN_COM` **with your actual domain name.**
 
 ```bash
-# example: sudo nano /etc/nginx/sites-available/erxes.example.com
-$ sudo nano /etc/nginx/sites-available/YOUR-DOMAIN-NAME
-
-# Copy and paste the above server block and save with ctrl + x
+sudo ln -s /etc/nginx/sites-available/YOUR_DOMAIN_COM /etc/nginx/sites-enabled/
 ```
 
-- Copy and paste the above server block and save with ctrl + x
-- Enable the file by creating a link form it to **sites-enabled**. Make sure to use your domain name exactly as you created the file above.
+- Open the **nginx.conf**
 
 ```bash
-$ sudo ln -s /etc/nginx/sites-available/YOUR_DOMAIN_COM /etc/nginx/sites-enabled/
+sudo nano /etc/nginx/nginx.conf
 ```
 
-- Adjust the nginx.conf and uncomment the following line `server_names_hash_bucket_size 64;`
-
-```bash
-
-$ sudo nano /etc/nginx/nginx.conf
-```
+- Uncomment the following line `server_names_hash_bucket_size 64;`
 
 It should look like this:
 
@@ -900,16 +769,22 @@ http {
 }
 ```
 
-- Test the NGINX files to make sure you don't have any errors
+- Save with `ctrl + x` and then `y` to accept the changes.
+
+- Test the **NGINX** configuration to make sure you don't have any errors
 
 ```bash
-$ sudo nginx -t
-nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-nginx: configuration file /etc/nginx/nginx.conf test is successful
-
+sudo nginx -t
 ```
 
-If you you get no errors, you are ready to install the SSL Certificates using **Let's Encrypt** and **Certbot**.
+You should see the following output:
+
+```bash
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+```
+
+If you got no errors, you are ready to install the SSL Certificates using **Let's Encrypt** and **Certbot**.
 
 ## Install Let's Encrypt using Certbot
 
@@ -920,248 +795,38 @@ You will follow the installation instructions as covered [here](https://certbot.
 - You will need to add a **Certbot** PPA to the list of repositories on the server.
 
 ```bash
-$ sudo apt-get update
-Hit:1 http://mirrors.linode.com/ubuntu bionic InRelease
-Hit:2 http://mirrors.linode.com/ubuntu bionic-updates InRelease
-
-    * * *
-
-Get:11 http://security.ubuntu.com/ubuntu bionic-security InRelease [88.7 kB]
-Hit:13 https://packagecloud.io/rabbitmq/rabbitmq-server/ubuntu bionic InRelease
-Fetched 121 kB in 1s (84.4 kB/s)
-Reading package lists... Done
-
-$ sudo apt-get -y install software-properties-common
-
-Reading package lists... Done
-Building dependency tree
-Reading state information... Done
-The following additional packages will be installed:
-python3-software-properties
-
-    * * *
-
-Processing triggers for dbus (1.12.2-1ubuntu1.1) ...
-Processing triggers for man-db (2.8.3-2ubuntu0.1) ...
-
-$ sudo add-apt-repository universe
-
-'universe' distribution component enabled for all sources.
-Hit:1 http://mirrors.linode.com/ubuntu bionic InRelease
-Hit:2 http://mirrors.linode.com/ubuntu bionic-updates InRelease
-Hit:3 http://mirrors.linode.com/ubuntu bionic-backports InRelease
-Hit:4 http://ppa.launchpad.net/nginx/stable/ubuntu bionic InRelease
-Hit:5 https://artifacts.elastic.co/packages/7.x/apt stable InRelease
-Ign:6 https://dl.bintray.com/rabbitmq-erlang/debian bionic InRelease
-Hit:7 https://dl.yarnpkg.com/debian stable InRelease
-Get:8 https://dl.bintray.com/rabbitmq-erlang/debian bionic Release [32.6 kB]
-Hit:9 http://security.ubuntu.com/ubuntu bionic-security InRelease
-Ign:10 https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 InRelease
-Hit:11 https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 Release
-Get:12 http://archive.ubuntu.com/ubuntu bionic InRelease [242 kB]
-Get:16 http://archive.ubuntu.com/ubuntu bionic/universe i386 Packages [8531 kB]
-Hit:13 https://packagecloud.io/rabbitmq/rabbitmq-server/ubuntu bionic InRelease
-Get:17 http://archive.ubuntu.com/ubuntu bionic/universe amd64 Packages [8570 kB]
-Get:18 http://archive.ubuntu.com/ubuntu bionic/universe Translation-en [4941 kB]
-Fetched 22.3 MB in 6s (3800 kB/s)
-Reading package lists... Done
-W: Skipping acquire of configured file 'erlang-22.x/i18n/Translation-en' as repository 'https://dl.bintray.com/rabbitmq-erlang/debian bionic InRelease' doesn't have the component 'erlang-22.x' (component misspelt in sources.list?)
-W: Skipping acquire of configured file 'erlang-22.x/cnf/Commands-amd64' as repository 'https://dl.bintray.com/rabbitmq-erlang/debian bionic InRelease' doesn't have the component 'erlang-22.x' (component misspelt in sources.list?)
-
-sudo add-apt-repository -y ppa:certbot/certbot
-
-Hit:1 http://mirrors.linode.com/ubuntu bionic InRelease
-Hit:2 http://mirrors.linode.com/ubuntu bionic-updates InRelease
-Hit:3 http://mirrors.linode.com/ubuntu bionic-backports InRelease
-Hit:4 https://artifacts.elastic.co/packages/7.x/apt stable InRelease
-Ign:5 https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 InRelease
-Hit:6 https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 Release
-Ign:7 https://dl.bintray.com/rabbitmq-erlang/debian bionic InRelease
-Hit:8 http://security.ubuntu.com/ubuntu bionic-security InRelease
-Hit:9 https://dl.yarnpkg.com/debian stable InRelease
-Get:10 https://dl.bintray.com/rabbitmq-erlang/debian bionic Release [32.6 kB]
-Get:11 http://ppa.launchpad.net/certbot/certbot/ubuntu bionic InRelease [21.3 kB]
-Hit:12 http://ppa.launchpad.net/nginx/stable/ubuntu bionic InRelease
-Hit:13 http://archive.ubuntu.com/ubuntu bionic InRelease
-Hit:15 https://packagecloud.io/rabbitmq/rabbitmq-server/ubuntu bionic InRelease
-Get:17 http://ppa.launchpad.net/certbot/certbot/ubuntu bionic/main i386 Packages [8028 B]
-Get:18 http://ppa.launchpad.net/certbot/certbot/ubuntu bionic/main amd64 Packages [8032 B]
-Get:19 http://ppa.launchpad.net/certbot/certbot/ubuntu bionic/main Translation-en [4176 B]
-Fetched 74.1 kB in 1s (57.4 kB/s)
-Reading package lists... Done
-W: Skipping acquire of configured file 'erlang-22.x/i18n/Translation-en' as repository 'https://dl.bintray.com/rabbitmq-erlang/debian bionic InRelease' doesn't have the component 'erlang-22.x' (component misspelt in sources.list?)
-W: Skipping acquire of configured file 'erlang-22.x/cnf/Commands-amd64' as repository 'https://dl.bintray.com/rabbitmq-erlang/debian bionic InRelease' doesn't have the component 'erlang-22.x' (component misspelt in sources.list?)
-
 sudo apt-get update
-
-Hit:1 http://mirrors.linode.com/ubuntu bionic InRelease
-Hit:2 http://mirrors.linode.com/ubuntu bionic-updates InRelease
-Hit:3 http://mirrors.linode.com/ubuntu bionic-backports InRelease
-Hit:4 https://artifacts.elastic.co/packages/7.x/apt stable InRelease
-Ign:5 https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 InRelease
-Ign:6 https://dl.bintray.com/rabbitmq-erlang/debian bionic InRelease
-Hit:7 https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 Release
-Get:8 https://dl.bintray.com/rabbitmq-erlang/debian bionic Release [32.6 kB]
-Hit:9 http://security.ubuntu.com/ubuntu bionic-security InRelease
-Hit:10 http://ppa.launchpad.net/certbot/certbot/ubuntu bionic InRelease
-Hit:11 https://dl.yarnpkg.com/debian stable InRelease
-Hit:12 http://ppa.launchpad.net/nginx/stable/ubuntu bionic InRelease
-Hit:13 http://archive.ubuntu.com/ubuntu bionic InRelease
-Hit:16 https://packagecloud.io/rabbitmq/rabbitmq-server/ubuntu bionic InRelease
-Fetched 32.6 kB in 1s (22.5 kB/s)
-Reading package lists... Done
-W: Skipping acquire of configured file 'erlang-22.x/i18n/Translation-en' as repository 'https://dl.bintray.com/rabbitmq-erlang/debian bionic InRelease' doesn't have the component 'erlang-22.x' (component misspelt in sources.list?)
-W: Skipping acquire of configured file 'erlang-22.x/cnf/Commands-amd64' as repository 'https://dl.bintray.com/rabbitmq-erlang/debian bionic InRelease' doesn't have the component 'erlang-22.x' (component misspelt in sources.list?)
-
+sudo apt-get -y install software-properties-common
+sudo add-apt-repository universe
+sudo add-apt-repository -y ppa:certbot/certbot
+sudo apt-get update
 ```
 
-Install Certbot
-Run this command on the command line on the machine to install Certbot.
+- Install Certbot
 
 ```bash
-$ sudo apt-get install -y certbot python3-certbot-nginx
+sudo apt-get install -y certbot python3-certbot-nginx
 ```
+
+Execute Certbot. You will asked several questions, you can answer as follows:
+
+- Enter your email address and password
+- Agree with the **Terms of Service**
+- Answer `Yes` or `No`, if you want to share your email address with the Electronic Frontier Foundation
+- Select the corresponding number associated with your domain name, usually `1`
+- Choose `2` to redirect all your traffic to a secure **HTTPS**
 
 ```bash
-$ sudo certbot --nginx
-
-Saving debug log to /var/log/letsencrypt/letsencrypt.log
-Plugins selected: Authenticator nginx, Installer nginx
-Enter email address (used for urgent renewal and security notices) (Enter 'c' to
-cancel): david@acneskindisorder.com
-
----
-
-Please read the Terms of Service at
-https://letsencrypt.org/documents/LE-SA-v1.2-November-15-2017.pdf. You must
-agree in order to register with the ACME server at
-https://acme-v02.api.letsencrypt.org/directory
-
----
-
-(A)gree/(C)ancel: A
-
----
-
-Would you be willing to share your email address with the Electronic Frontier
-Foundation, a founding partner of the Let's Encrypt project and the non-profit
-organization that develops Certbot? We'd like to send you email about our work
-encrypting the web, EFF news, campaigns, and ways to support digital freedom.
-
----
-
-(Y)es/(N)o: Y
-
-Which names would you like to activate HTTPS for?
-
----
-
-1: erxes.acneskindisorder.com
-
----
-
-Select the appropriate numbers separated by commas and/or spaces, or leave input
-blank to select all options shown (Enter 'c' to cancel): 1
-Obtaining a new certificate
-Performing the following challenges:
-http-01 challenge for erxes.acneskindisorder.com
-Waiting for verification...
-Cleaning up challenges
-Deploying Certificate to VirtualHost /etc/nginx/sites-enabled/erxes.acneskindisorder.com
-
-Please choose whether or not to redirect HTTP traffic to HTTPS, removing HTTP access.
-
----
-
-1: No redirect - Make no further changes to the webserver configuration.
-2: Redirect - Make all requests redirect to secure HTTPS access. Choose this for
-new sites, or if you're confident your site works on HTTPS. You can undo this
-change by editing your web server's configuration.
-
----
-
-Select the appropriate number [1-2] then [enter] (press 'c' to cancel): 2
-Redirecting all traffic on port 80 to ssl in /etc/nginx/sites-enabled/erxes.acneskindisorder.com
-
----
-
-Congratulations! You have successfully enabled
-https://erxes.acneskindisorder.com
-
-You should test your configuration at:
-https://www.ssllabs.com/ssltest/analyze.html?d=erxes.acneskindisorder.com
-
----
-
-IMPORTANT NOTES:
-
-- Congratulations! Your certificate and chain have been saved at:
-  /etc/letsencrypt/live/erxes.acneskindisorder.com/fullchain.pem
-  Your key file has been saved at:
-  /etc/letsencrypt/live/erxes.acneskindisorder.com/privkey.pem
-  Your cert will expire on 2020-10-05. To obtain a new or tweaked
-  version of this certificate in the future, simply run certbot again
-  with the "certonly" option. To non-interactively renew _all_ of
-  your certificates, run "certbot renew"
-- Your account credentials have been saved in your Certbot
-  configuration directory at /etc/letsencrypt. You should make a
-  secure backup of this folder now. This configuration directory will
-  also contain certificates and private keys obtained by Certbot so
-  making regular backups of this folder is ideal.
-- If you like Certbot, please consider supporting our work by:
-
-  Donating to ISRG / Let's Encrypt: https://letsencrypt.org/donate
-  Donating to EFF: https://eff.org/donate-le
-
-Test automatic renewal
-
-$ sudo certbot renew --dry-run
-
-Saving debug log to /var/log/letsencrypt/letsencrypt.log
-
----
-
-Processing /etc/letsencrypt/renewal/erxes.acneskindisorder.com.conf
-
----
-
-Cert not due for renewal, but simulating renewal for dry run
-Plugins selected: Authenticator nginx, Installer nginx
-Renewing an existing certificate
-Performing the following challenges:
-http-01 challenge for erxes.acneskindisorder.com
-Waiting for verification...
-Cleaning up challenges
-
----
-
-new certificate deployed with reload of nginx server; fullchain is
-/etc/letsencrypt/live/erxes.acneskindisorder.com/fullchain.pem
-
----
-
----
-
-** DRY RUN: simulating 'certbot renew' close to cert expiry
-** (The test certificates below have not been saved.)
-
-Congratulations, all renewals succeeded. The following certs have been renewed:
-/etc/letsencrypt/live/erxes.acneskindisorder.com/fullchain.pem (success)
-** DRY RUN: simulating 'certbot renew' close to cert expiry
-** (The test certificates above have not been saved.)
-
----
-
-IMPORTANT NOTES:
-
-- Your account credentials have been saved in your Certbot
-  configuration directory at /etc/letsencrypt. You should make a
-  secure backup of this folder now. This configuration directory will
-  also contain certificates and private keys obtained by Certbot so
-  making regular backups of this folder is ideal.
+sudo certbot --nginx
 ```
 
-Check your website in the broswer. You should see the **Secure Padlock** next to your URL. You are now ready to move onto the final steps to install **erxes** itself.
+- Now run the following to test and set-up automatic renewal of your 90 day certbot. This needs to succeed so that your renewals are automatic.
+
+```bash
+sudo certbot renew --dry-run
+```
+
+Check your website in the browser. You should see the **Secure Padlock** next to your URL. You are now ready to move onto the final steps to install **erxes** itself.
 
 ## Install erxes
 
@@ -1169,11 +834,10 @@ All the dependencies for **erxes** are now installed. You have also configured y
 
 ### Download, extract and install each of the erxes components
 
-- Create the folder directories for the installation of erxes.
+- Create the empty folder directories for the installation of erxes.
 
 ```bash
-$ cd ~
-$ mkdir -p ~/erxes.io/erxes \
+mkdir -p ~/erxes.io/erxes \
  -p ~/erxes.io/erxes-api\
  -p ~/erxes.io/erxes-crons \
  -p ~/erxes.io/erxes-workers \
@@ -1188,47 +852,49 @@ $ mkdir -p ~/erxes.io/erxes \
 - Individually download and extract each of these 8 packages. (These commands place them in the proper installation directories.)
 
 ```bash
-$ curl -L https://github.com/erxes/erxes/releases/download/0.15.2/erxes-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes/
-$ curl -L https://github.com/erxes/erxes/releases/download/0.15.2/erxes-widgets-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-widgets/
-$ curl -L https://github.com/erxes/erxes-api/releases/download/0.15.2/erxes-api-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-api/
-$ curl -L https://github.com/erxes/erxes-api/releases/download/0.15.2/erxes-email-verifier-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-email-verifier/
-$ curl -L https://github.com/erxes/erxes-api/releases/download/0.15.2/erxes-engages-email-sender-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-engages-email-sender/
-$ curl -L https://github.com/erxes/erxes-api/releases/download/0.15.2/erxes-logger-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-logger/
-$ curl -L https://github.com/erxes/erxes-integrations/releases/download/0.15.2/erxes-integrations-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-integrations/
-$ curl -L https://github.com/erxes/erxes-api/releases/download/0.15.2/erxes-elksyncer-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-elksyncer/
+curl -L https://github.com/erxes/erxes/releases/download/0.15.2/erxes-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes/
+curl -L https://github.com/erxes/erxes/releases/download/0.15.2/erxes-widgets-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-widgets/
+curl -L https://github.com/erxes/erxes-api/releases/download/0.15.2/erxes-api-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-api/
+curl -L https://github.com/erxes/erxes-api/releases/download/0.15.2/erxes-email-verifier-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-email-verifier/
+curl -L https://github.com/erxes/erxes-api/releases/download/0.15.2/erxes-engages-email-sender-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-engages-email-sender/
+curl -L https://github.com/erxes/erxes-api/releases/download/0.15.2/erxes-logger-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-logger/
+curl -L https://github.com/erxes/erxes-integrations/releases/download/0.15.2/erxes-integrations-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-integrations/
+curl -L https://github.com/erxes/erxes-api/releases/download/0.15.2/erxes-elksyncer-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-elkSyncer/
 ```
 
 - Install package dependencies (using `yarn install`) required for the packages that make up **erxes**.
 
 ```bash
-$ cd ~/erxes.io/erxes-widgets
-$ yarn install
+cd ~/erxes.io/erxes-widgets
+yarn install
 
-$ cd ~/erxes.io/erxes-api
-$ yarn install
+cd ~/erxes.io/erxes-api
+yarn install
 
-$ cd ~/erxes.io/erxes-email-verifier
-$ yarn install
+cd ~/erxes.io/erxes-email-verifier
+yarn install
 
-$ cd ~/erxes.io/erxes-engages-email-sender
-$ yarn install
+cd ~/erxes.io/erxes-engages-email-sender
+yarn install
 
-$ cd ~/erxes.io/erxes-logger
-$ yarn install
+cd ~/erxes.io/erxes-logger
+yarn install
 
-$ cd ~/erxes.io/erxes-integrations
-$ yarn install
+cd ~/erxes.io/erxes-integrations
+yarn install
 ```
 
 - Install and configure this final package, following these commands.
 
 ```bash
-$ cd ~/erxes.io/erxes-elksyncer/elkSyncer
-$ sudo apt install python3-pip
-$ pip3 install -r requirements.txt
-$ sudo mkdir -p /var/log/mongo-connector/
-$ sudo chown -R erxes:erxes /var/log/mongo-connector/
+cd ~/erxes.io/erxes-elkSyncer/elkSyncer
+sudo apt -y install python3-pip
+pip3 install -r requirements.txt
+sudo mkdir -p /var/log/mongo-connector/
+sudo chown -R erxes:erxes /var/log/mongo-connector/
 ```
+
+After successfully each of the above packages, you may continue and configure **PM2**.
 
 ### Configure PM2 `ecosystem.config.js`
 
@@ -1237,11 +903,11 @@ In the following steps, you will **copy** and **create** an `ecosystem.config.js
 - Create and open a new `ecosystem.config.js` file.
 
 ```bash
-$ cd ~/erxes.io
-$ sudo nano ecosystem.config.js
+cd ~/erxes.io
+sudo nano ecosystem.config.js
 ```
 
-- Copy the following content into the file. This
+- Copy the following content into the file. **DO NOT SAVE THE FILE UNTIL ALL STEPS BELOW ARE COMPLETE**.
 
 ```js
 module.exports = {
@@ -1438,33 +1104,37 @@ You **MUST** replace all instances of **YOUR_SECRET_TOKEN** with your own **uniq
 - Start PM2
 
 ```bash
-$ pm2 start ecosystem.config.js
+pm2 start ecosystem.config.js
 ```
 
 - Generate a startup script. Copy/paste the script in the terminal and run it.
 
 ```bash
-$ pm2 startup
+pm2 startup
+```
 
-# will generate a script like this
+The above will generate a script like this: **DO NOT USE THIS EXAMPLE - USE YOURS GENERATED IN THE TERMINAL**
 
+```bash
 sudo env PATH=$PATH:/home/erxes/.nvm/versions/node/v12.16.3/bin /home/erxes/.nvm/versions/node/v12.16.3/lib/node_modules/pm2/bin/pm2 startup systemd -u erxes --hp /home/erxes
+```
 
-# now copy / paste it
+- Now copy **your output**. Similar to the below.
 
-$ sudo env PATH=$PATH:/home/erxes/.nvm/versions/node/v12.16.3/bin /home/erxes/.nvm/versions/node/v12.16.3/lib/node_modules/pm2/bin/pm2 startup systemd -u erxes --hp /home/erxes
+```bash
+# sudo env PATH=$PATH:/home/erxes/.nvm/versions/node/v12.16.3/bin /home/erxes/.nvm/versions/node/v12.16.3/lib/node_modules/pm2/bin/pm2 startup systemd -u erxes --hp /home/erxes
 ```
 
 - Save all the applications that **PM2** is managing.
 
 ```bash
-$ pm2 save
+pm2 save
 ```
 
 - Verify all process are running.
 
 ```bash
-$ pm2 l
+pm2 l
 ```
 
 The status of all the processes should say **online**.
@@ -1476,16 +1146,16 @@ In the previous step, you set environment variables using **PM2**, but **PM2** d
 - Open the appropriate `env.js` file in the nano editor.
 
 ```bash
-$ sudo nano ~/erxes.io/erxes/build/js/env.js
+sudo nano ~/erxes.io/erxes/build/js/env.js
 ```
 
 - Copy the following **environment variables** in between the **{ }**, and replace **YOUR_DOMAIN_COM** with your actual domain name.
 
 ```bash
-    NODE_ENV: "production",
-    REACT_APP_API_URL: "https://YOUR_DOMAIN_COM/api",
-    REACT_APP_API_SUBSCRIPTION_URL: "wss://YOUR_DOMAIN_COM/api/subscriptions",
-    REACT_APP_CDN_HOST: "https://YOUR_DOMAIN_COM/widgets"
+NODE_ENV: "production",
+REACT_APP_API_URL: "https://YOUR_DOMAIN_COM/api",
+REACT_APP_API_SUBSCRIPTION_URL: "wss://YOUR_DOMAIN_COM/api/subscriptions",
+REACT_APP_CDN_HOST: "https://YOUR_DOMAIN_COM/widgets"
 ```
 
 It should look like this, but **with your actual domain name**:
@@ -1509,10 +1179,9 @@ You are now ready to **initialize** and **load the permissions** in **erxes**.
 - initialize Erxes
 
 ```bash
-$ cd ~
-$ export MONGO_URL="mongodb://localhost/erxes"
-node ~/erxes.io/erxes-api/dist/commands/initProject.js
-
-cd cd ~/erxes.io/erxes-api/dist
-node commands/loadPermissi
+cd ~
+export MONGO_URL="mongodb://localhost/erxes"
+cd ~/erxes.io/erxes-api/dist
+node commands/initProject
+node commands/loadPermissionData
 ```
