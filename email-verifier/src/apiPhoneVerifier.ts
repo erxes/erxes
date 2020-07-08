@@ -146,7 +146,7 @@ export const validateSinglePhone = async (phone: string, hostname: string) => {
   if (phoneOnDb) {
     debugBase(`This phone number is already verified`);
 
-    await sendRequest({
+    return sendRequest({
       url: `${hostname}/verifier/webhook`,
       method: 'POST',
       body: {
@@ -212,9 +212,7 @@ export const validateBulkPhones = async (phones: string[], hostname: string) => 
 
   const verifiedPhones = phonesMap.map(verified => ({ phone: verified.phone, status: verified.status }));
 
-  const unverifiedPhones: string[] = phones.filter(
-    phone => !verifiedPhones.some(p => p.phone === phone) || phone.includes('+'),
-  );
+  const unverifiedPhones: string[] = phones.filter(phone => !verifiedPhones.some(p => p.phone === phone));
 
   if (verifiedPhones.length > 0) {
     try {

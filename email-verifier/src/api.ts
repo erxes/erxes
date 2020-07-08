@@ -72,7 +72,7 @@ export const single = async (email: string, hostname: string) => {
   if (emailOnDb) {
     debugBase(`This email is already verified`);
 
-    await sendRequest({
+    return sendRequest({
       url: `${hostname}/verifier/webhook`,
       method: 'POST',
       body: {
