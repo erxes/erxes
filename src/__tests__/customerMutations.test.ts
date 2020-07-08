@@ -130,14 +130,7 @@ describe('Customers mutations', () => {
           hasAuthority
           description
           doNotDisturb
-          links {
-            linkedIn
-            twitter
-            facebook
-            youtube
-            github
-            website
-          }
+          links
           customFieldsData
         }
       }
@@ -175,14 +168,7 @@ describe('Customers mutations', () => {
           hasAuthority
           description
           doNotDisturb
-          links {
-            linkedIn
-            twitter
-            facebook
-            youtube
-            github
-            website
-          }
+          links
           customFieldsData
         }
       }

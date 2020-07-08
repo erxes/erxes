@@ -245,14 +245,7 @@ describe('customerQueries', () => {
           hasAuthority
           description
           doNotDisturb
-          links {
-            linkedIn
-            twitter
-            facebook
-            youtube
-            github
-            website
-          }
+          links
           urlVisits
           conversations { _id }
           getTags { _id }
