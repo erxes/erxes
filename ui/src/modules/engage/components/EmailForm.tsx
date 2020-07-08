@@ -116,7 +116,7 @@ class EmailForm extends React.Component<Props, State> {
       users.map(user =>
         options.push({
           value: user._id,
-          label: (user.details && user.details.fullName) || user.username,
+          label: user.email || user.username,
           disabled: !verifiedEmails.includes(user.email)
         })
       );
