@@ -26,7 +26,7 @@ class LeftSidebar extends React.Component<Props> {
     }
 
     return (
-      <a href={link}>
+      <a href={link} target="_blank" rel="noopener noreferrer">
         <Icon icon={icon} />
       </a>
     );
