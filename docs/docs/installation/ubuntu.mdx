@@ -945,6 +945,7 @@ pip3 install -r requirements.txt
 pip3 install --upgrade requests
 sudo mkdir -p /var/log/mongo-connector/
 sudo chown -R erxes:erxes /var/log/mongo-connector/
+export PATH="$HOME/.local/bin:$PATH
 ```
 
 After successfully each of the above packages, you may continue and configure **PM2**.
@@ -1199,7 +1200,7 @@ In the previous step, you set environment variables using **PM2**, but **PM2** d
 - Open the appropriate `env.js` file in the nano editor.
 
 ```bash
-sudo nano ~/erxes.io/erxes/build/js/env.js
+nano ~/erxes.io/erxes/build/js/env.js
 ```
 
 - Copy the following **environment variables** in between the **{ }**, and replace **YOUR_DOMAIN_COM** with your actual domain name.
