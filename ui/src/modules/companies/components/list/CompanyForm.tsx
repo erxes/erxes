@@ -85,20 +85,19 @@ class CompanyForm extends React.Component<Props, State> {
       finalValues._id = company._id;
     }
 
+    const links = {};
+
+    getConstantFromStore('social_links').forEach(link => {
+      links[link.value] = finalValues[link.value];
+    });
+
     return {
       _id: finalValues._id,
       ...this.state,
       size: Number(finalValues.size),
       description: finalValues.description,
       code: finalValues.code,
-      links: {
-        linkedIn: finalValues.linkedIn,
-        twitter: finalValues.twitter,
-        facebook: finalValues.facebook,
-        github: finalValues.github,
-        youtube: finalValues.youtube,
-        website: finalValues.website
-      }
+      links
     };
   };
 
@@ -146,7 +145,7 @@ class CompanyForm extends React.Component<Props, State> {
 
   renderLink(formProps, link) {
     const { company } = this.props;
-    const links = company.links || {};
+    const links = (company ? company.links : {}) || {};
 
     return this.renderFormGroup(link.label, {
       ...formProps,

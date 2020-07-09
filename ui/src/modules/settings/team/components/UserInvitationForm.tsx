@@ -203,6 +203,7 @@ class UserInvitationForm extends React.Component<Props, State> {
                     autoFocus={i === 0}
                     onChange={this.onChange.bind(this, i, 'email')}
                     required={true}
+                    autoComplete="off"
                   />
                 </td>
 
@@ -211,9 +212,11 @@ class UserInvitationForm extends React.Component<Props, State> {
                     {...formProps}
                     name="password"
                     type="password"
+                    placeholder="Password"
                     value={input.password}
                     onChange={this.onChange.bind(this, i, 'password')}
                     required={true}
+                    autoComplete="new-password"
                   />
                 </td>
 
@@ -248,7 +251,12 @@ class UserInvitationForm extends React.Component<Props, State> {
         </InviteOption>
 
         <ModalFooter>
-          <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
+          <Button
+            btnStyle="simple"
+            onClick={closeModal}
+            icon="times-circle"
+            uppercase={false}
+          >
             Cancel
           </Button>
 
@@ -270,7 +278,7 @@ class UserInvitationForm extends React.Component<Props, State> {
           {__("Send an email and notify members that they've been invited!")}
         </Info>
 
-        <Form renderContent={this.renderContent} />
+        <Form autoComplete="off" renderContent={this.renderContent} />
       </>
     );
   }

@@ -1,3 +1,17 @@
+## [0.15.2](https://github.com/erxes/erxes/compare/0.15.1...0.15.2) (2020-07-07)
+
+
+### Features
+
+* **language:** add dutch language ([ba0e88f](https://github.com/erxes/erxes/commit/ba0e88f6de7d1659808f2bdd475eb0c2e991b980)), closes [#2088](https://github.com/erxes/erxes/issues/2088)
+
+## [0.15.1](https://github.com/erxes/erxes/compare/0.15.0...0.15.1) (2020-07-07)
+
+
+### Features
+
+* **constants:** ability to configure constant choices ([b27024d](https://github.com/erxes/erxes/commit/b27024db062fa3f34bc5ccc6b1a751b9d8c663c9)), closes [#2096](https://github.com/erxes/erxes/issues/2096)
+
 # [0.15.0](https://github.com/erxes/erxes/compare/0.14.2...0.15.0) (2020-07-07)
 
 

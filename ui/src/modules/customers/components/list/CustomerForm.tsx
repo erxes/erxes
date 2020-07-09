@@ -73,6 +73,12 @@ class CustomerForm extends React.Component<Props, State> {
       finalValues._id = customer._id;
     }
 
+    const links = {};
+
+    getConstantFromStore('social_links').forEach(link => {
+      links[link.value] = finalValues[link.value];
+    });
+
     return {
       _id: finalValues._id,
       ...this.state,
@@ -84,15 +90,7 @@ class CustomerForm extends React.Component<Props, State> {
       leadStatus: finalValues.leadStatus,
       description: finalValues.description,
       code: finalValues.code,
-
-      links: {
-        linkedIn: finalValues.linkedIn,
-        twitter: finalValues.twitter,
-        facebook: finalValues.facebook,
-        github: finalValues.github,
-        youtube: finalValues.youtube,
-        website: finalValues.website
-      }
+      links
     };
   };
 

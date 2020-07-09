@@ -17,14 +17,7 @@ const currentUser = `
         location
         description
       }
-      links {
-        linkedIn
-        twitter
-        facebook
-        youtube
-        github
-        website
-      }
+      links
       emailSignatures
       getNotificationByEmail
       permissionActions

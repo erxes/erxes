@@ -192,9 +192,11 @@ const MarkdownWrapper = styled.div`
 
 const DesktopPreview = styled.div`
   background: url('/images/previews/desktop.png') no-repeat;
+  background-size: cover;
   border: 1px solid ${colors.borderPrimary};
   border-radius: ${dimensions.unitSpacing / 2}px;
   flex: 1;
+  overflow: auto;
   padding-top: ${dimensions.headerSpacing - 20}px;
   margin-top: ${dimensions.coreSpacing}px;
 `;

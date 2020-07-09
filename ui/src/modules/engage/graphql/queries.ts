@@ -121,6 +121,7 @@ const users = `
         avatar
         fullName
         position
+        operatorPhone
       }
     }
   }
