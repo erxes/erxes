@@ -906,14 +906,14 @@ mkdir -p ~/erxes.io/erxes \
 **NOTE:** COPY THE ENTIRE CODE BLOCK AS ONE COMMAND.
 
 ```bash
-curl -L https://github.com/erxes/erxes/releases/download/0.15.2/erxes-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes/ \
-    && curl -L https://github.com/erxes/erxes/releases/download/0.15.2/erxes-widgets-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-widgets/ \
-    && curl -L https://github.com/erxes/erxes-api/releases/download/0.15.2/erxes-api-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-api/ \
-    && curl -L https://github.com/erxes/erxes-api/releases/download/0.15.2/erxes-email-verifier-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-email-verifier/ \
-    && curl -L https://github.com/erxes/erxes-api/releases/download/0.15.2/erxes-engages-email-sender-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-engages-email-sender/ \
-    && curl -L https://github.com/erxes/erxes-api/releases/download/0.15.2/erxes-logger-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-logger/ \
-    && curl -L https://github.com/erxes/erxes-integrations/releases/download/0.15.2/erxes-integrations-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-integrations/ \
-    && curl -L https://github.com/erxes/erxes-api/releases/download/0.15.2/erxes-elksyncer-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-elkSyncer/
+curl -L https://github.com/erxes/erxes/releases/download/0.15.4/erxes-0.15.4.tar.gz | tar -xz -C ~/erxes.io/erxes/ \
+    && curl -L https://github.com/erxes/erxes/releases/download/0.15.4/erxes-widgets-0.15.4.tar.gz | tar -xz -C ~/erxes.io/erxes-widgets/ \
+    && curl -L https://github.com/erxes/erxes-api/releases/download/0.15.4/erxes-api-0.15.4.tar.gz | tar -xz -C ~/erxes.io/erxes-api/ \
+    && curl -L https://github.com/erxes/erxes-api/releases/download/0.15.4/erxes-email-verifier-0.15.4.tar.gz | tar -xz -C ~/erxes.io/erxes-email-verifier/ \
+    && curl -L https://github.com/erxes/erxes-api/releases/download/0.15.4/erxes-engages-email-sender-0.15.4.tar.gz | tar -xz -C ~/erxes.io/erxes-engages-email-sender/ \
+    && curl -L https://github.com/erxes/erxes-api/releases/download/0.15.4/erxes-logger-0.15.4.tar.gz | tar -xz -C ~/erxes.io/erxes-logger/ \
+    && curl -L https://github.com/erxes/erxes-integrations/releases/download/0.15.4/erxes-integrations-0.15.4.tar.gz | tar -xz -C ~/erxes.io/erxes-integrations/ \
+    && curl -L https://github.com/erxes/erxes-api/releases/download/0.15.4/erxes-elksyncer-0.15.4.tar.gz | tar -xz -C ~/erxes.io/erxes-elkSyncer/
 ```
 
 - Install package dependencies (using `yarn install`) required for the packages that make up **erxes**.
@@ -1154,13 +1154,13 @@ The above will generate a script like this: **DO NOT USE THIS EXAMPLE - USE YOUR
 
 ```bash
 # DO NOT COPY THIS - USE THE ONE GENERATED IN THE TERMINAL
-sudo env PATH=$PATH:/home/erxes/.nvm/versions/node/v12.16.3/bin /home/erxes/.nvm/versions/node/v12.16.3/lib/node_modules/pm2/bin/pm2 startup systemd -u erxes --hp /home/erxes
+sudo env PATH=$PATH:/home/erxes/.nvm/versions/node/v12.18.2/bin /home/erxes/.nvm/versions/node/v12.18.2/lib/node_modules/pm2/bin/pm2 startup systemd -u erxes --hp /home/erxes
 ```
 
 - Now copy **your output**. Similar to the below.
 
 ```bash
-# sudo env PATH=$PATH:/home/erxes/.nvm/versions/node/v12.16.3/bin /home/erxes/.nvm/versions/node/v12.16.3/lib/node_modules/pm2/bin/pm2 startup systemd -u erxes --hp /home/erxes
+# sudo env PATH=$PATH:/home/erxes/.nvm/versions/node/v12.18.2/bin /home/erxes/.nvm/versions/node/v12.18.2/lib/node_modules/pm2/bin/pm2 startup systemd -u erxes --hp /home/erxes
 ```
 
 - Save all the applications that **PM2** is managing.
