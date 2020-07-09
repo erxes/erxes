@@ -9,7 +9,7 @@ dotenv.config();
 
 export const start = async (data: any) => {
   const { user, email, engageMessageId, customers } = data;
-  const { content, subject, attachments } = email;
+  const { content, subject, attachments, sender, replyTo } = email;
 
   await Stats.findOneAndUpdate({ engageMessageId }, { engageMessageId }, { upsert: true });
 
@@ -39,8 +39,9 @@ export const start = async (data: any) => {
 
     try {
       await transporter.sendMail({
-        from: user.email,
+        from: `${sender || ''} <${user.email}>`,
         to: customer.email,
+        replyTo,
         subject,
         attachments: mailAttachment,
         html: replacedContent,

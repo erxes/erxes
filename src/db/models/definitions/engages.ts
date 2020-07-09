@@ -15,6 +15,8 @@ export interface IEmail {
   attachments?: any;
   subject?: string;
   content?: string;
+  replyTo?: string;
+  sender?: string;
   templateId?: string;
 }
 
@@ -81,6 +83,8 @@ export const emailSchema = new Schema(
   {
     attachments: field({ type: Object, optional: true, label: 'Attachments' }),
     subject: field({ type: String, label: 'Subject' }),
+    sender: field({ type: String, optional: true, label: 'Sender' }),
+    replyTo: field({ type: String, optional: true, label: 'Reply to' }),
     content: field({ type: String, label: 'Content' }),
     templateId: field({ type: String, optional: true, label: 'Template' }),
   },
