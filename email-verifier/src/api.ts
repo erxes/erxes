@@ -14,7 +14,11 @@ const singleTrueMail = async (email: string) => {
       method: 'GET',
     });
 
-    return JSON.parse(response);
+    if (typeof response === 'string') {
+      return JSON.parse(response);
+    }
+
+    return response;
   } catch (e) {
     debugBase(`Error occured during single true mail validation ${e.message}`);
     throw e;
@@ -36,7 +40,16 @@ const bulkTrueMail = async (unverifiedEmails: string[], hostname: string) => {
       },
     });
 
-    const { data, error } = JSON.parse(result);
+    let data;
+    let error;
+
+    if (typeof result === 'string') {
+      data = JSON.parse(result).data;
+      error = JSON.parse(result).error;
+    } else {
+      data = result.data;
+      error = result.error;
+    }
 
     if (data) {
       const taskIds = await getArray('erxes_email_verifier_task_ids');
@@ -57,7 +70,15 @@ export const single = async (email: string, hostname: string) => {
   const emailOnDb = await Emails.findOne({ email });
 
   if (emailOnDb) {
-    return { email, status: emailOnDb.status };
+    debugBase(`This email is already verified`);
+
+    return sendRequest({
+      url: `${hostname}/verifier/webhook`,
+      method: 'POST',
+      body: {
+        email: { email, status: emailOnDb.status },
+      },
+    });
   }
 
   const emailValidator = new EmailValidator();
@@ -77,7 +98,10 @@ export const single = async (email: string, hostname: string) => {
 
   if (EMAIL_VERIFICATION_TYPE === 'truemail') {
     try {
+      debugBase(`Email is not found on verifier DB. Sending request to clearoutphone`);
       response = await singleTrueMail(email);
+
+      debugBase(`Received single email validation status`);
     } catch (e) {
       // request may fail
       throw e;
@@ -88,6 +112,8 @@ export const single = async (email: string, hostname: string) => {
     const doc = { email, status: response.result };
 
     await Emails.createEmail(doc);
+
+    debugBase(`Sending single email validation status to erxes-api`);
 
     await sendRequest({
       url: `${hostname}/verifier/webhook`,
@@ -122,6 +148,8 @@ export const bulk = async (emails: string[], hostname: string) => {
 
   if (verifiedEmails.length > 0) {
     try {
+      debugBase(`Sending already verified emails to erxes-api`);
+
       await sendRequest({
         url: `${hostname}/verifier/webhook`,
         method: 'POST',
@@ -136,6 +164,8 @@ export const bulk = async (emails: string[], hostname: string) => {
   }
 
   if (unverifiedEmails.length > 0) {
+    debugBase(`Sending  unverified email to truemail`);
+
     return bulkTrueMail(unverifiedEmails, hostname);
   }
 };
@@ -152,6 +182,8 @@ export const checkTask = async (taskId: string) => {
 };
 
 export const getTrueMailBulk = async (taskId: string, hostname: string) => {
+  debugBase(`Downloading bulk email validation result`);
+
   const url = `https://truemail.io/api/v1/tasks/${taskId}/download?access_token=${TRUE_MAIL_API_KEY}&timeout=30000`;
 
   const response = await sendRequest({
@@ -187,6 +219,8 @@ export const getTrueMailBulk = async (taskId: string, hostname: string) => {
       }
     }
   }
+
+  debugBase(`Sending bulk email validation result to erxes-api`);
 
   await sendRequest({
     url: `${hostname}/verifier/webhook`,

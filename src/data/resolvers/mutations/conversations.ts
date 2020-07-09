@@ -413,10 +413,10 @@ const conversationMutations = {
         erxesApiMessageId: message._id,
       });
 
-      message.videoCallData = videoCallData;
+      const updatedMessage = { ...message._doc, videoCallData };
 
       // publish new message to conversation detail
-      publishMessage(message);
+      publishMessage(updatedMessage);
 
       return videoCallData;
     } catch (e) {

@@ -4,7 +4,8 @@ import * as jwt from 'jsonwebtoken';
 import { Model, model } from 'mongoose';
 import * as sha256 from 'sha256';
 import { UsersGroups } from '.';
-import { IDetail, IEmailSignature, ILink, IUser, IUserDocument, userSchema } from './definitions/users';
+import { ILink } from './definitions/common';
+import { IDetail, IEmailSignature, IUser, IUserDocument, userSchema } from './definitions/users';
 
 const SALT_WORK_FACTOR = 10;
 
