@@ -1,3 +1,5 @@
+import { getConstantFromStore } from 'modules/common/utils';
+
 export const COMPANY_INFO = {
   avatar: 'Logo',
   primaryName: 'Primary Name',
@@ -54,62 +56,9 @@ export const COMPANY_DATAS = {
   ]
 };
 
-export const COMPANY_INDUSTRY_TYPES = [
-  'Advertising/Public Relations',
-  'Aerospace, Defense Contractors',
-  'Agriculture',
-  'Airlines',
-  'Alcoholic Beverages',
-  'Alternative Energy Production & Services',
-  'Architectural Services',
-  'Attorneys/Law Firms',
-  'Automotive',
-  'Banks',
-  'Bars & Restaurants',
-  'Books, Magazines & Newspapers',
-  'Builders/General Contractors',
-  'Business Services',
-  'Car Manufacturers',
-  'Coal Mining',
-  'Colleges, Universities & Schools',
-  'Commercial TV & Radio Stations',
-  'Computer Software',
-  'Construction',
-  'Dairy',
-  'Doctors & Other Health Professionals',
-  'Education',
-  'Energy & Natural Resources',
-  'Finance, Insurance & Real Estate',
-  'Food & Beverage',
-  'Foundations, Philanthropists & Non-Profits',
-  'Government Organization',
-  'Health',
-  'Hotels, Motels & Tourism',
-  'Insurance',
-  'Internet',
-  'Lawyers / Law Firms',
-  'Meat processing & products',
-  'Medical Supplies',
-  'Mining',
-  'Mortgage Bankers & Brokers',
-  'Music Production',
-  'Natural Gas Pipelines',
-  'Nursing Homes/Hospitals',
-  'Phone Companies',
-  'Postal Unions',
-  'Printing & Publishing',
-  'Private Equity & Investment Firms',
-  'Publishing & Printing',
-  'Real Estate',
-  'Retail Sales',
-  'Schools/Education',
-  'Sports, Professional',
-  'Telecom Services & Equipment',
-  'Textiles',
-  'Tobacco',
-  'Transportation',
-  'TV / Movies / Music'
-];
+export const COMPANY_INDUSTRY_TYPES = () => {
+  return getConstantFromStore('company_industry_types', false, true);
+};
 
 export const COMPANY_BUSINESS_TYPES = [
   'Competitor',

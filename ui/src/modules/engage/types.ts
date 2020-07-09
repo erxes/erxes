@@ -23,6 +23,8 @@ export interface IEngageMessenger {
 export interface IEngageEmail {
   templateId?: string;
   subject: string;
+  sender?: string;
+  replyTo?: string;
   content: string;
   attachments?: IAttachment[];
 }

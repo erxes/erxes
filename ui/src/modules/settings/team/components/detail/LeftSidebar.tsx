@@ -26,7 +26,7 @@ class LeftSidebar extends React.Component<Props> {
     }
 
     return (
-      <a href={link}>
+      <a href={link} target="_blank" rel="noopener noreferrer">
         <Icon icon={icon} />
       </a>
     );
@@ -66,7 +66,7 @@ class LeftSidebar extends React.Component<Props> {
             />
             <ModalTrigger
               title="Edit"
-              trigger={<Icon icon="edit" />}
+              trigger={<Icon icon="pen-1" />}
               size="lg"
               content={content}
             />

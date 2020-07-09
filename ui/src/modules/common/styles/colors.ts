@@ -7,6 +7,7 @@ const colorSecondary = '#6569DF';
 const colorCoreRed = '#EA475D';
 const colorCoreTeal = '#63D2D6';
 const colorCoreYellow = '#F7CE53';
+const colorCoreOrange = '#FF6600';
 const colorCoreGreen = '#3CCC38';
 const colorCoreBlue = '#3B85F4';
 const colorCoreDarkBlue = '#0a1e41';
@@ -66,6 +67,7 @@ export default {
   colorCoreRed,
   colorCoreTeal,
   colorCoreYellow,
+  colorCoreOrange,
   colorCoreBlue,
   colorCoreGreen,
   colorCoreBlack,

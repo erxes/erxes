@@ -91,7 +91,7 @@ class Message extends React.Component<Props> {
     }
 
     if (contentType === MESSAGE_TYPES.VIDEO_CALL_REQUEST) {
-      return <VideoCallRequest />;
+      return <VideoCallRequest color={color} />;
     }
 
     if (messengerAppData) {

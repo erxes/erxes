@@ -2,7 +2,7 @@ const commonParamsDef = `
   $username: String!,
   $email: String!,
   $details: UserDetails,
-  $links: UserLinks,
+  $links: JSON,
   $channelIds: [String]
   $groupIds: [String]
   $brandIds: [String]
@@ -31,7 +31,7 @@ const usersEditProfile = `
     $username: String!
     $email: String!
     $details: UserDetails
-    $links: UserLinks
+    $links: JSON 
     $password: String!
   ) {
     usersEditProfile(
