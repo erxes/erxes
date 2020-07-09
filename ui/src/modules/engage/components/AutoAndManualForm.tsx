@@ -121,6 +121,8 @@ class AutoAndManualForm extends React.Component<Props, State> {
 
       doc.email = {
         subject: email.subject || '',
+        sender: email.sender || '',
+        replyTo: (email.replyTo || '').split(' ').toString(),
         content: this.state.content,
         attachments: email.attachments,
         templateId: email.templateId || ''
