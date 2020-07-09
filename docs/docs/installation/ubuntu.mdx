@@ -265,7 +265,7 @@ You can read more about installing **Node.js** with **nvm** here: [How to instal
 - Install **Node.js**
 
 ```bash
-nvm install v12.16.3
+nvm install --lts
 ```
 
 - Check to see if **Node.js** is installed correctly.
@@ -277,7 +277,7 @@ node -v
 You should get a similar output as below:
 
 ```bash
-v12.16.3
+v12.18.2
 # your version of node.js may be different
 ```
 
@@ -520,7 +520,7 @@ The output should match the above pasted text.
 - Update and list of `apt` sources
 
 ```bash
-sudo apt-get update -y
+sudo apt-get update
 ```
 
 Metapackages such as erlang and erlang-nox must only be used with apt version pinning. They do not pin their dependency versions. The following steps are recommended.
@@ -622,40 +622,32 @@ sudo systemctl start elasticsearch.service
 # can take a minute
 ```
 
-- Install **libwww-perl** to use for testing **Elasticsearch** is correctly installed.
+- Verify **Elasticsearch** is installed by testing the response
 
 ```bash
-sudo apt install libwww-perl -y
-```
-
-- Verify **Elasticsearch** is installed by testing the `GET /` response
-
-```bash
-GET /
+curl localhost:9200
 ```
 
 You should get output similar to this:
 
-```html
-<html>
-  <head>
-    <title>Directory /</title>
-    <base href="file:/" />
-  </head>
-  <body>
-    <h1>Directory listing of /</h1>
-    <ul>
-      <li>
-        <a href="./">./</a>
-
-        * * *
-      </li>
-
-      <li><a href="vmlinuz">vmlinuz</a></li>
-      <li><a href="vmlinuz.old">vmlinuz.old</a></li>
-    </ul>
-  </body>
-</html>
+```json
+{
+  "name": "localhost",
+  "cluster_name": "elasticsearch",
+  "cluster_uuid": "CUntMmpoRTiLfCU_nTCeJg",
+  "version": {
+    "number": "7.8.0",
+    "build_flavor": "default",
+    "build_type": "deb",
+    "build_hash": "757314695644ea9a1dc2fecd26d1a43856725e65",
+    "build_date": "2020-06-14T19:35:50.234439Z",
+    "build_snapshot": false,
+    "lucene_version": "8.5.1",
+    "minimum_wire_compatibility_version": "6.8.0",
+    "minimum_index_compatibility_version": "6.0.0-beta1"
+  },
+  "tagline": "You Know, for Search"
+}
 ```
 
 If the `GET /` command outputted the HTML page, then you are ready to configure your **NGINX** proxy server.
@@ -894,6 +886,8 @@ All the dependencies for **erxes** are now installed. You have also configured y
 
 - Create the empty folder directories for the installation of erxes.
 
+**NOTE:** COPY THE ENTIRE CODE BLOCK AS ONE COMMAND.
+
 ```bash
 mkdir -p ~/erxes.io/erxes \
  -p ~/erxes.io/erxes-api\
@@ -909,31 +903,30 @@ mkdir -p ~/erxes.io/erxes \
 
 - Individually download and extract each of these 8 packages. (These commands place them in the proper installation directories.)
 
+**NOTE:** COPY THE ENTIRE CODE BLOCK AS ONE COMMAND.
+
 ```bash
-curl -L https://github.com/erxes/erxes/releases/download/0.15.2/erxes-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes/
-curl -L https://github.com/erxes/erxes/releases/download/0.15.2/erxes-widgets-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-widgets/
-curl -L https://github.com/erxes/erxes-api/releases/download/0.15.2/erxes-api-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-api/
-curl -L https://github.com/erxes/erxes-api/releases/download/0.15.2/erxes-email-verifier-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-email-verifier/
-curl -L https://github.com/erxes/erxes-api/releases/download/0.15.2/erxes-engages-email-sender-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-engages-email-sender/
-curl -L https://github.com/erxes/erxes-api/releases/download/0.15.2/erxes-logger-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-logger/
-curl -L https://github.com/erxes/erxes-integrations/releases/download/0.15.2/erxes-integrations-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-integrations/
-curl -L https://github.com/erxes/erxes-api/releases/download/0.15.2/erxes-elksyncer-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-elkSyncer/
+curl -L https://github.com/erxes/erxes/releases/download/0.15.2/erxes-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes/ \
+    && curl -L https://github.com/erxes/erxes/releases/download/0.15.2/erxes-widgets-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-widgets/ \
+    && curl -L https://github.com/erxes/erxes-api/releases/download/0.15.2/erxes-api-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-api/ \
+    && curl -L https://github.com/erxes/erxes-api/releases/download/0.15.2/erxes-email-verifier-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-email-verifier/ \
+    && curl -L https://github.com/erxes/erxes-api/releases/download/0.15.2/erxes-engages-email-sender-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-engages-email-sender/ \
+    && curl -L https://github.com/erxes/erxes-api/releases/download/0.15.2/erxes-logger-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-logger/ \
+    && curl -L https://github.com/erxes/erxes-integrations/releases/download/0.15.2/erxes-integrations-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-integrations/ \
+    && curl -L https://github.com/erxes/erxes-api/releases/download/0.15.2/erxes-elksyncer-0.15.2.tar.gz | tar -xz -C ~/erxes.io/erxes-elkSyncer/
 ```
 
 - Install package dependencies (using `yarn install`) required for the packages that make up **erxes**.
 
+**NOTE:** COPY THE ENTIRE CODE BLOCK AS ONE COMMAND.
+
 ```bash
-cd ~/erxes.io/erxes-widgets && yarn install
-
-cd ~/erxes.io/erxes-api && yarn install
-
-cd ~/erxes.io/erxes-email-verifier && yarn install
-
-cd ~/erxes.io/erxes-engages-email-sender && yarn install
-
-cd ~/erxes.io/erxes-logger && yarn install
-
-cd ~/erxes.io/erxes-integrations && yarn install
+cd ~/erxes.io/erxes-widgets && yarn install \
+    && cd ~/erxes.io/erxes-api && yarn install \
+    && cd ~/erxes.io/erxes-email-verifier && yarn install \
+    && cd ~/erxes.io/erxes-engages-email-sender && yarn install \
+    && cd ~/erxes.io/erxes-logger && yarn install \
+    && cd ~/erxes.io/erxes-integrations && yarn install
 ```
 
 - Install and configure this final package, following these commands.
@@ -942,10 +935,10 @@ cd ~/erxes.io/erxes-integrations && yarn install
 cd ~/erxes.io/erxes-elkSyncer/elkSyncer
 sudo apt -y install python3-pip
 pip3 install -r requirements.txt
-pip3 install --upgrade requests
+pip3 install --upgrade -r requirements.txt
 sudo mkdir -p /var/log/mongo-connector/
 sudo chown -R erxes:erxes /var/log/mongo-connector/
-export PATH="$HOME/.local/bin:$PATH
+export PATH="$HOME/.local/bin:$PATH"
 ```
 
 After successfully each of the above packages, you may continue and configure **PM2**.
@@ -958,10 +951,10 @@ In the following steps, you will **copy** and **create** an `ecosystem.config.js
 
 ```bash
 cd ~/erxes.io
-sudo nano ecosystem.config.js
+nano ecosystem.config.js
 ```
 
-- Copy the following content into the file. **DO NOT SAVE THE FILE UNTIL ALL STEPS BELOW ARE COMPLETE**.
+- Copy the following content into the file. **SAVE THE FILE WITHOUT ANY CHANGES\***.
 
 ```js
 module.exports = {
@@ -984,7 +977,7 @@ module.exports = {
         RABBITMQ_HOST: 'amqp://localhost',
         ELASTICSEARCH_URL: 'http://localhost:9200',
         MAIN_APP_DOMAIN: 'https://YOUR_DOMAIN_COM',
-        WIDGETS_DOMAIN: '',
+        WIDGETS_DOMAIN: 'https://YOUR_DOMAIN_COM/widgets',
         INTEGRATIONS_API_DOMAIN: 'https://YOUR_DOMAIN_COM/integrations',
       },
     },
@@ -1123,37 +1116,27 @@ module.exports = {
 };
 ```
 
-- Replace every instance of `YOUR_DOMAIN_COM` with your actual domain name.
+The next step is to set **environment variables** so that we can easily populate the **ecosystem.config.js** file.
 
-For example,
+- Run the following commands, but replace `YOUR_DOMAIN_COM` with your actual domain name.
 
-```js
-# change this
-MAIN_APP_DOMAIN: 'https://YOUR_DOMAIN_COM',
-
-# to this
-MAIN_APP_DOMAIN: 'https://erxes.example.com',
+```bash
+#export YOUR_DOMAIN_COM=erxes.example.com
+export YOUR_DOMAIN_COM=YOUR_DOMAIN_COM
+export YOUR_SECRET_TOKEN=`python3 -c 'import os,base64; print(base64.urlsafe_b64encode(os.urandom(16)).decode())'`
 ```
 
-:::caution Your Domain Name
-You **MUST** replace all instances of **YOUR_DOMAIN_COM** with your **actual domain name** in the `ecosystem.config.js` file. If you do not, **erxes** will not work. See example above.
-:::
+- Run each script below, to update your **DOMAIN_NAME_COM\*** in the **ecosystem.config.js**
 
-- Replace every instance of `YOUR_SECRET_TOKEN` with a strong password. **The secret token is the same for each instance. You have only one secret token.** You can use this [Password Generator](https://passwordsgenerator.net/), to create a strong token.
-
-```js
-# change this
-JWT_TOKEN_SECRET: 'YOUR_SECRET_TOKEN',
-
-# to this, for example.
-JWT_TOKEN_SECRET: '"D2E+N42:LPshXj$',
+```bash
+sed -i 's,YOUR_DOMAIN_COM,'"${YOUR_DOMAIN_COM}"',g' ecosystem.config.js
 ```
 
-- Then save the file with `ctrl + x` and `y` to accept changes.
+- Run each script below, to update your **SECRET_PASSWORD_TOKEN\*** in the **ecosystem.config.js**
 
-:::caution Secret Token
-You **MUST** replace all instances of **YOUR_SECRET_TOKEN** with your own **unique and strong password** in the `ecosystem.config.js` file. If you do not, your expose your backend and you may run into security issues. See example above.
-:::
+```bash
+sed -i 's,YOUR_SECRET_TOKEN,'"${YOUR_SECRET_TOKEN}"',g' ecosystem.config.js
+```
 
 - Start PM2
 
@@ -1170,6 +1153,7 @@ pm2 startup
 The above will generate a script like this: **DO NOT USE THIS EXAMPLE - USE YOURS GENERATED IN THE TERMINAL**
 
 ```bash
+# DO NOT COPY THIS - USE THE ONE GENERATED IN THE TERMINAL
 sudo env PATH=$PATH:/home/erxes/.nvm/versions/node/v12.16.3/bin /home/erxes/.nvm/versions/node/v12.16.3/lib/node_modules/pm2/bin/pm2 startup systemd -u erxes --hp /home/erxes
 ```
 
