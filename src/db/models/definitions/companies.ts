@@ -1,11 +1,9 @@
 import { Document, Schema } from 'mongoose';
 
-import { customFieldSchema, ICustomField, ILink, linkSchema } from './common';
+import { customFieldSchema, ICustomField, ILink } from './common';
 import { COMPANY_INDUSTRY_TYPES, COMPANY_SELECT_OPTIONS } from './constants';
 
 import { field, schemaWrapper } from './utils';
-
-interface ILinkDocument extends ILink, Document {}
 
 export interface ICompany {
   scopeBrandIds?: string[];
@@ -40,7 +38,6 @@ export interface ICompany {
 
 export interface ICompanyDocument extends ICompany, Document {
   _id: string;
-  links?: ILinkDocument;
   status?: string;
   createdAt: Date;
   modifiedAt: Date;
@@ -145,7 +142,7 @@ export const companySchema = schemaWrapper(
       label: 'Do not disturb',
       selectOptions: COMPANY_SELECT_OPTIONS.DO_NOT_DISTURB,
     }),
-    links: field({ type: linkSchema, default: {}, label: 'Links' }),
+    links: field({ type: Object, default: {}, label: 'Links' }),
 
     tagIds: field({
       type: [String],

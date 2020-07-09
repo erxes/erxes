@@ -1,31 +1,31 @@
 {
-    "oplogFile": "/var/log/mongo-connector/oplog.timestamp",
-    "noDump": false,
-    "batchSize": 5000,
-    "verbosity": 3,
-    "continueOnError": true,
-    "logging": {
-        "type": "stream"
+  "oplogFile": "oplog.timestamp",
+  "noDump": false,
+  "batchSize": 5000,
+  "verbosity": 3,
+  "continueOnError": true,
+  "logging": {
+    "type": "stream"
+  },
+  "namespaces": {
+    "erxes*.customers": {
+      "rename": "erxes*__customers._doc",
+      "excludeFields": ["urlVisits", "messengerData"]
     },
-    "namespaces": {
-        "erxes*.customers": {
-            "rename": "erxes*__customers._doc",
-            "excludeFields": ["urlVisits", "messengerData"]
-        },
-        "erxes*.companies": {
-            "rename": "erxes*__companies._doc"
+    "erxes*.companies": {
+      "rename": "erxes*__companies._doc"
+    }
+  },
+  "docManagers": [
+    {
+      "docManager": "elastic2_doc_manager",
+      "bulkSize": 10,
+      "uniqueKey": "_id",
+      "args": {
+        "clientOptions": {
+          "timeout": 5000
         }
-    },
-    "docManagers": [
-        {
-            "docManager": "elastic2_doc_manager",
-            "bulkSize": 10,
-            "uniqueKey": "_id",
-            "args": {
-                "clientOptions": {
-                    "timeout": 5000
-                }
-            }
-        }
-    ]
+      }
+    }
+  ]
 }

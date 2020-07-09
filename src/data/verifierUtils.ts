@@ -31,10 +31,12 @@ export const updateContactValidationStatus = async (data: IValidationResponse) =
   const { email, phone, status } = data;
 
   if (email) {
-    await Customers.updateOne({ primaryEmail: email }, { $set: { emailValidationStatus: status } });
+    await Customers.updateMany({ primaryEmail: email }, { $set: { emailValidationStatus: status } });
   }
 
-  await Customers.updateOne({ primaryPhone: phone }, { $set: { phoneValidationStatus: status } });
+  if (phone) {
+    await Customers.updateMany({ primaryPhone: phone }, { $set: { phoneValidationStatus: status } });
+  }
 };
 
 export const validateBulk = async (verificationType: string, hostname: string) => {
@@ -138,7 +140,7 @@ export const validateBulk = async (verificationType: string, hostname: string) =
 export const updateContactsValidationStatus = async (type: string, data: []) => {
   if (type === 'email') {
     const bulkOps: Array<{
-      updateOne: {
+      updateMany: {
         filter: { primaryEmail: string };
         update: { emailValidationStatus: string };
       };
@@ -146,7 +148,7 @@ export const updateContactsValidationStatus = async (type: string, data: []) => 
 
     for (const { email, status } of data) {
       bulkOps.push({
-        updateOne: {
+        updateMany: {
           filter: { primaryEmail: email },
           update: { emailValidationStatus: status },
         },
@@ -156,7 +158,7 @@ export const updateContactsValidationStatus = async (type: string, data: []) => 
   }
 
   const phoneBulkOps: Array<{
-    updateOne: {
+    updateMany: {
       filter: { primaryPhone: string };
       update: { phoneValidationStatus: string };
     };
@@ -164,7 +166,7 @@ export const updateContactsValidationStatus = async (type: string, data: []) => 
 
   for (const { phone, status } of data) {
     phoneBulkOps.push({
-      updateOne: {
+      updateMany: {
         filter: { primaryPhone: phone },
         update: { phoneValidationStatus: status },
       },
