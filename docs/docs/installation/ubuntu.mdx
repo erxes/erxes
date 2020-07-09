@@ -247,12 +247,16 @@ source ~/.bashrc
 
 ```bash
 nvm --version
+```
 
-# 0.35.3
+You should get a similar output as below:
+
+```bash
+0.35.3
 # your version of nvm may be different
 ```
 
-If you got the above output, then you are ready to continue with installing **Node.js**.
+You are ready to continue with installing **Node.js**.
 
 ## Install Node.js with nvm
 
@@ -268,8 +272,12 @@ nvm install v12.16.3
 
 ```bash
 node -v
+```
 
-# v12.16.3
+You should get a similar output as below:
+
+```bash
+v12.16.3
 # your version of node.js may be different
 ```
 
@@ -289,8 +297,12 @@ npm install pm2@latest -g
 
 ```bash
 pm2 --version
+```
 
-# 4.4.0
+You should get a similar output as below:
+
+```bash
+4.4.0
 # your version of pm2 may be different
 ```
 
@@ -312,8 +324,12 @@ sudo apt update && sudo apt install --no-install-recommends yarn
 
 ```bash
 yarn --version
+```
 
-# 1.22.4
+You should get a similar output as below:
+
+```bash
+1.22.4
 # your version of yarn may be different
 ```
 
@@ -804,7 +820,9 @@ It should look like this:
 ```txt
 http {
     * * *
+
     server_names_hash_bucket_size 64;
+
     * * *
 }
 ```
@@ -860,7 +878,7 @@ Execute Certbot. You will asked several questions, you can answer as follows:
 sudo certbot --nginx
 ```
 
-- Now run the following to test and set-up automatic renewal of your 90 day certbot. This needs to succeed so that your renewals are automatic.
+- Now run the following to **test and set-up** automatic renewal of your 90 day certbot. This needs to succeed so that your renewals are automatic.
 
 ```bash
 sudo certbot renew --dry-run
@@ -905,23 +923,17 @@ curl -L https://github.com/erxes/erxes-api/releases/download/0.15.2/erxes-elksyn
 - Install package dependencies (using `yarn install`) required for the packages that make up **erxes**.
 
 ```bash
-cd ~/erxes.io/erxes-widgets
-yarn install
+cd ~/erxes.io/erxes-widgets && yarn install
 
-cd ~/erxes.io/erxes-api
-yarn install
+cd ~/erxes.io/erxes-api && yarn install
 
-cd ~/erxes.io/erxes-email-verifier
-yarn install
+cd ~/erxes.io/erxes-email-verifier && yarn install
 
-cd ~/erxes.io/erxes-engages-email-sender
-yarn install
+cd ~/erxes.io/erxes-engages-email-sender && yarn install
 
-cd ~/erxes.io/erxes-logger
-yarn install
+cd ~/erxes.io/erxes-logger && yarn install
 
-cd ~/erxes.io/erxes-integrations
-yarn install
+cd ~/erxes.io/erxes-integrations && yarn install
 ```
 
 - Install and configure this final package, following these commands.
