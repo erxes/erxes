@@ -84,7 +84,7 @@ export const userSchema = new Schema({
   email: field({
     type: String,
     unique: true,
-    match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,8})+$/, 'Please fill a valid email address'],
+    match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,10})+$/, 'Please fill a valid email address'],
     label: 'Email',
   }),
   getNotificationByEmail: field({ type: Boolean, label: 'Get notification by email' }),
