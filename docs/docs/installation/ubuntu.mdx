@@ -31,7 +31,7 @@ To install and properly run your **erxes** installation, you must meet these min
 - ability to to SSH into the server
 
 :::tip Use one-click installs
-You can also use the [Digital Ocean Marketplace](https://marketplace.digitalocean.com/apps/erxes) and [AWS Marketplace](https://aws.amazon.com/marketplace/pp/B086MZ9FVS?qid=1594055516154&sr=0-1&ref_=srh_res_product_title) for an even easier set-up experience.
+You can use the [Digital Ocean Marketplace](https://marketplace.digitalocean.com/apps/erxes) and [AWS Marketplace](https://aws.amazon.com/marketplace/pp/B086MZ9FVS?qid=1594055516154&sr=0-1&ref_=srh_res_product_title) for an even easier set-up experience.
 :::
 
 ## First steps: Setting up a server with Ubuntu 18.04
@@ -59,6 +59,8 @@ If your domain name is **example.com**, and the **ip address** assigned to your 
 :::
 
 :::note Example with a subdomain called, erxes.example.com
+
+You first need to create a subdomain. For example, "erxes.example.com". Then you need to edit the **DNS**.
 
 If your domain name is **erxes.example.com**, and the **ip address** assigned to your server is **44.123.32.12**, then you will have a two `A records` that look like this:
 
@@ -111,7 +113,7 @@ adduser erxes
 usermod -aG sudo erxes
 ```
 
-Your last step as **root** user, is to set-up a basic firewall for your server.
+Your next step as **root** user, is to set-up a basic firewall for your server.
 
 ## Set-up a basic firewall for SSH, nginx 80 and port 443
 
@@ -171,6 +173,31 @@ OpenSSH (v6) ALLOW Anywhere (v6)
 80,443/tcp (v6) ALLOW Anywhere (v6)
 ```
 
+## All the **erxes** user to **SSH** into server
+
+- open the `sshd_config` file to edit
+
+```bash
+nano /etc/ssh/ssh_config
+```
+
+- Scroll down until you see `PasswordAuthentication`. Change it from `PasswordAuthentication no` to `PasswordAuthentication yes`.
+
+The line should look like this:
+
+```bash
+# To disable tunneled clear text passwords, change to no here!
+PasswordAuthentication yes
+```
+
+- Save and exit with `ctrl + x` and then `y` to accept the changes.
+
+- Reload the SSH config file
+
+```bash
+sudo service sshd reload
+```
+
 - Exit from server, so that you can log back in as the **erxes** user
 
 ```bash
@@ -183,10 +210,23 @@ Please continue with the following steps to log in to your server as the **erxes
 
 ## Log in to your server as the "erxes" user.
 
+Before you can log into your new server, we need to **add the SSH key** to your **local** computer.
+
+**NOTE:** You need to use the **IP address** of your server.
+
+- Run the following command and enter your password.
+
+```bash
+#ssh-copy-id erxes@44.123.32.12 <--- This is an example. Use your ip address
+ssh-copy-id erxes@your-IP-address
+```
+
+Now you can log into your server as the **erxes** user.
+
 - Log back into the server as the **erxes** user and provide the password. You will need your IP address. (In this example, **44.123.32.12**). Enter your previously created password, if prompted.
 
 ```bash
-# example ssh erxes@44.123.32.12
+# example ssh erxes@44.123.32.12 <--- This is an example. Use your ip address
 ssh erxes@your-ip-address
 ```
 
@@ -347,7 +387,7 @@ mongo
 - Initialize replicaSet
 
 ```bash
-> rs.initiate()
+rs.initiate()
 ```
 
 - You should have an output similar to below. Verify **SECONDARY** changes to **Primary** by pressing enter several times.
@@ -566,10 +606,10 @@ sudo systemctl start elasticsearch.service
 # can take a minute
 ```
 
-- Install **libwww-perl** to use for testing **Elasticsearch** is correctly installed. Press `y` when prompted to continue.
+- Install **libwww-perl** to use for testing **Elasticsearch** is correctly installed.
 
 ```bash
-sudo apt install libwww-perl
+sudo apt install libwww-perl -y
 ```
 
 - Verify **Elasticsearch** is installed by testing the `GET /` response
