@@ -62,6 +62,10 @@ html[data-theme='dark'] .react-toggle-track {
   background-color: var(--ifm-footer-background-color);
 }
 
+.blogPostTitle_node_modules-\@docusaurus-theme-classic-src-theme-BlogPostItem- {
+  font-size: 2.5rem !important;
+}
+
 .footer .footer__logo {
   max-width: 5rem;
 }
