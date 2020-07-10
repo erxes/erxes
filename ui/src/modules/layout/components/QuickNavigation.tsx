@@ -189,6 +189,7 @@ const QuickNavigation = ({
 
             <ModalTrigger
               title="Email signatures"
+              enforceFocus={false}
               trigger={
                 <li>
                   <a href="#email">{__('Email signatures')}</a>
