@@ -8,7 +8,7 @@ import TabItem from '@theme/TabItem';
 
 ## Server Installation Requirements
 
-erxes gives you many options for installing the erxes platform. Below you will find two guides:
+erxes gives you several options for installing the erxes platform. Below you will find two guides:
 
 The first guide is the **Quick Start** guide where we provide a script that automates most of the installation process. The second guide is a comprehensive, **Step by Step** guide where advanced developers can see exactly what is being installed and how.
 
@@ -39,13 +39,14 @@ You can use the [Digital Ocean Marketplace](https://marketplace.digitalocean.com
 You must have an account with your hosting provider prior to doing these steps.
 
 - Create a server with **Ubuntu 18.04** installed, a minimum of **4cpus** and **8GB RAM**.
+- If you're using a **subdomain**, then the **subdomain** must be created with your hosting provider hosting your main domain's website or app.
 
 ### Configure your DNS Records to point at your server
 
 Your server will have an **ip address**. You will need to point your domain name to your new server.
 
-- If you are using a **sub-domain**, you will need to follow the instructions of updating the `A Records' of the hosting company for your website.
-- If you are NOT using a **sub-domain**, then you will need to follow the instructions of your domain name registrar.
+- If you are using a **subdomain**, you will need to follow the instructions of updating the `A Records' of the hosting company for your website.
+- If you are NOT using a **subdomain**, then you will need to follow the instructions of your domain name registrar.
 
 :::note Example with a domain called, example.com
 
@@ -85,7 +86,9 @@ Please select from the **Quickstart** or **Step by Step** instructions below and
 
 ## Installing erxes on Ubuntu 18.04
 
-You can simply follow [Debian doc](/installation/debian10) to install manually.
+Look out for **Quickstart Installation** steps coming soon...
+
+### DO NOT TRY THE STEPS BELOW. THEY WILL NOT WORK YET
 
 </TabItem>
 <TabItem value='step-by-step'>
@@ -101,7 +104,7 @@ ssh root@your-ip-address
 
 You don't want to use the **root** user to administer your server. So everything will be done by a user called, **erxes**. To accomplish this, run the following commands:
 
-- Add a user called "erxes". When prompted, enter in a **unique** password. Finish adding the user simply by pressing enter through the questions.
+- Add a user called "erxes". When prompted, enter in a **unique** password. You will need to keep this password available, as later operations will require using it. (Finish adding the user simply by pressing the `enter` or `return` key through the questions.)
 
 ```bash
 adduser erxes
@@ -173,7 +176,7 @@ OpenSSH (v6) ALLOW Anywhere (v6)
 80,443/tcp (v6) ALLOW Anywhere (v6)
 ```
 
-## All the **erxes** user to **SSH** into server
+## Allow the "erxes" user to **SSH** into server
 
 - open the `sshd_config` file to edit
 
@@ -186,7 +189,6 @@ nano /etc/ssh/ssh_config
 The line should look like this:
 
 ```bash
-# To disable tunneled clear text passwords, change to no here!
 PasswordAuthentication yes
 ```
 
@@ -236,7 +238,7 @@ In the following sections, you will install software dependencies that are neede
 
 **Node Version Manage (nvm)** is a tool that allows you to download and install [Node.js](https://nodejs.org/). You can read more about the installation process here: [How to install NVM](https://gist.github.com/d2s/372b5943bce17b964a79)
 
-- Install **nvm** and initialize by reload the shell configuration.
+- Install **nvm** and initialize by reloading the shell configuration.
 
 ```bash
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
@@ -281,32 +283,7 @@ v12.18.2
 # your version of node.js may be different
 ```
 
-With **Node.js** installed, you can continue with installing **PM2**.
-
-## Install PM2
-
-**PM2** is a tool that helps you manage and keep **erxes** online. It is a process manager. You can read more about the installation process here: [How to install PM2](https://pm2.keymetrics.io/docs/usage/quick-start/)
-
-- Install **PM2**
-
-```bash
-npm install pm2@latest -g
-```
-
-- Check to see if **PM2** is installed correctly.
-
-```bash
-pm2 --version
-```
-
-You should get a similar output as below:
-
-```bash
-4.4.0
-# your version of pm2 may be different
-```
-
-You should receive a response from `pm2 --version`. The version should show as last line. You will need **PM2** later in the installation process. For now, continue on with the next steps to install **Yarn**.
+With **Node.js** installed, you can continue with installing **Yarn**.
 
 ## Yarn install
 
@@ -365,7 +342,7 @@ As long as you received a version response to `mongod --version`, then you can c
 
 ### Deploy a MongoDB Replica Set
 
-MongoDB [replica sets](https://docs.mongodb.com/manual/reference/glossary/#term-replica-set) add an extra layer of redundancy and help with load balancing. The are a group of **mongod processes** that maintain the same data set. You can read about **replication** [here](https://docs.mongodb.com/manual/replication/).
+MongoDB [replica sets](https://docs.mongodb.com/manual/reference/glossary/#term-replica-set) add an extra layer of redundancy and help with load balancing. They are a group of **mongod processes** that maintain matching data sets. You can read about **replication** [here](https://docs.mongodb.com/manual/replication/).
 
 - Stop the **mongod** processes
 
@@ -468,7 +445,7 @@ You should get an output similar to this
 
 - Type `ctrl + c` to quit
 
-Providing you got **Active** output for **Redis** you may now continue with the next steps.
+Providing you got **Active: active (running)** output for **Redis** you may now continue with the next steps.
 
 ## Install RabbitMQ and dependencies
 
@@ -526,6 +503,8 @@ sudo apt-get update
 Metapackages such as erlang and erlang-nox must only be used with apt version pinning. They do not pin their dependency versions. The following steps are recommended.
 
 - Install **Erlang** packages.
+
+**NOTE:** COPY THE ENTIRE CODE BLOCK AS ONE COMMAND.
 
 ```bash
 sudo apt-get install -y erlang-base \
@@ -650,7 +629,7 @@ You should get output similar to this:
 }
 ```
 
-If the `GET /` command outputted the HTML page, then you are ready to configure your **NGINX** proxy server.
+If the `curl` command outputted simlar output as above, then you are ready to configure your **NGINX** proxy server.
 
 ## Install and configure NGINX
 
@@ -658,11 +637,16 @@ If the `GET /` command outputted the HTML page, then you are ready to configure 
 
 NGINX is installed from the stable repo https://launchpad.net/~nginx/+archive/ubuntu/stable.
 
-- Install **NGINX** with the following commands. Press `enter` when prompted to continue.
+- Add the **PPA** for **NGINX**. Press `enter` when prompted to continue.
 
 ```bash
 sudo add-apt-repository ppa:nginx/stable
 sudo apt-get update
+```
+
+- Install **NGINX** with the following commands.
+
+```bash
 sudo apt-get install -y nginx
 ```
 
@@ -860,7 +844,7 @@ sudo apt-get install -y certbot python3-certbot-nginx
 
 Execute Certbot. You will asked several questions, you can answer as follows:
 
-- Enter your email address and password
+- Enter your email address
 - Agree with the **Terms of Service**
 - Answer `Yes` or `No`, if you want to share your email address with the Electronic Frontier Foundation
 - Select the corresponding number associated with your domain name, usually `1`
@@ -927,9 +911,13 @@ cd ~/erxes.io/erxes-widgets && yarn install \
     && cd ~/erxes.io/erxes-engages-email-sender && yarn install \
     && cd ~/erxes.io/erxes-logger && yarn install \
     && cd ~/erxes.io/erxes-integrations && yarn install
+
+# this step can take a few minutes
 ```
 
-- Install and configure this final package, following these commands.
+- Install and configure the **elkSyncer** package, following these commands.
+
+**Run these commands one by one**.
 
 ```bash
 cd ~/erxes.io/erxes-elkSyncer/elkSyncer
@@ -941,7 +929,32 @@ sudo chown -R erxes:erxes /var/log/mongo-connector/
 export PATH="$HOME/.local/bin:$PATH"
 ```
 
-After successfully each of the above packages, you may continue and configure **PM2**.
+After successfully each of the above packages, you may continue and install **PM2**.
+
+## Install PM2
+
+**PM2** is a tool that helps you manage and keep **erxes** online. It is a process manager. You can read more about the installation process here: [How to install PM2](https://pm2.keymetrics.io/docs/usage/quick-start/)
+
+- Install **PM2**
+
+```bash
+npm install pm2@latest -g
+```
+
+- Check to see if **PM2** is installed correctly.
+
+```bash
+pm2 --version
+```
+
+You should get a similar output as below:
+
+```bash
+4.4.0
+# your version of pm2 may be different
+```
+
+You should receive a response from `pm2 --version`. The version should show as last line. You will need **PM2** later in the installation process. For now, continue on with the next steps to install **Yarn**.
 
 ### Configure PM2 `ecosystem.config.js`
 
@@ -954,7 +967,7 @@ cd ~/erxes.io
 nano ecosystem.config.js
 ```
 
-- Copy the following content into the file. **SAVE THE FILE WITHOUT ANY CHANGES\***.
+- Copy the following content into the file. **SAVE THE FILE AS-IS WITHOUT ANY CHANGES\***.
 
 ```js
 module.exports = {
@@ -1118,11 +1131,16 @@ module.exports = {
 
 The next step is to set **environment variables** so that we can easily populate the **ecosystem.config.js** file.
 
-- Run the following commands, but replace `YOUR_DOMAIN_COM` with your actual domain name.
+- Run the following command, but replace `YOUR_DOMAIN_COM` with your actual domain name.
 
 ```bash
 #export YOUR_DOMAIN_COM=erxes.example.com
 export YOUR_DOMAIN_COM=YOUR_DOMAIN_COM
+```
+
+- Run the following command to create a **secret token**.
+
+```bash
 export YOUR_SECRET_TOKEN=`python3 -c 'import os,base64; print(base64.urlsafe_b64encode(os.urandom(16)).decode())'`
 ```
 
@@ -1154,13 +1172,14 @@ The above will generate a script like this: **DO NOT USE THIS EXAMPLE - USE YOUR
 
 ```bash
 # DO NOT COPY THIS - USE THE ONE GENERATED IN THE TERMINAL
-sudo env PATH=$PATH:/home/erxes/.nvm/versions/node/v12.18.2/bin /home/erxes/.nvm/versions/node/v12.18.2/lib/node_modules/pm2/bin/pm2 startup systemd -u erxes --hp /home/erxes
+# sudo env PATH=$PATH:/home/erxes/.nvm/versions/node/v12.18.2/bin /home/erxes/.nvm/versions/node/v12.18.2/lib/node_modules/pm2/bin/pm2 startup systemd -u erxes --hp /home/erxes
 ```
 
 - Now copy **your output**. Similar to the below.
 
 ```bash
-# sudo env PATH=$PATH:/home/erxes/.nvm/versions/node/v12.18.2/bin /home/erxes/.nvm/versions/node/v12.18.2/lib/node_modules/pm2/bin/pm2 startup systemd -u erxes --hp /home/erxes
+# THIS IS AN EXAMPLE - USE YOURS
+sudo env PATH=$PATH:/home/erxes/.nvm/versions/node/v12.18.2/bin /home/erxes/.nvm/versions/node/v12.18.2/lib/node_modules/pm2/bin/pm2 startup systemd -u erxes --hp /home/erxes
 ```
 
 - Save all the applications that **PM2** is managing.
@@ -1214,12 +1233,31 @@ You are now ready to **initialize** and **load the permissions** in **erxes**.
 </TabItem>
 </Tabs>
 
-- initialize Erxes
+- initialize Erxes and generate **login password**.
 
 ```bash
 cd ~
 export MONGO_URL="mongodb://localhost/erxes"
 cd ~/erxes.io/erxes-api/dist
 node commands/initProject
+```
+
+You should have a generated **password**. The output will be similar to this:
+
+```bash
+Your new password: HcEjfBMxws
+
+# note this down
+```
+
+- Run this final command to finish the installation of **erxes**.
+
+```bash
 node commands/loadPermissionData
 ```
+
+## Congratulations, time to log in
+
+You have installed **erxes** and all the dependencies. You may now visit your url, and log in.
+
+The username is **admin@erxes.io**, and the password is the password generated above.
