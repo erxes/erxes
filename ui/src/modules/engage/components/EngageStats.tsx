@@ -132,7 +132,6 @@ class EmailStatistics extends React.Component<Props> {
   renderEmailStats() {
     const { stats } = this.props.message;
     const emailStats = stats || ({} as IEngageStats);
-    const totalCount = emailStats && emailStats.total;
 
     if (this.props.message.method !== METHODS.EMAIL) {
       return null;
@@ -140,7 +139,7 @@ class EmailStatistics extends React.Component<Props> {
 
     return (
       <React.Fragment>
-        {this.renderBox('cube-2', 'Total', totalCount)}
+        {this.renderBox('cube-2', 'Total', emailStats.total)}
         {this.renderBox('telegram-alt', 'Sent', emailStats.send)}
         {this.renderBox('comment-check', 'Delivered', emailStats.delivery)}
         {this.renderBox('envelope-open', 'Opened', emailStats.open)}
