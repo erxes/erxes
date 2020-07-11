@@ -7,6 +7,7 @@ import {
   Subject
 } from 'modules/settings/integrations/components/mail/styles';
 import React from 'react';
+import { METHODS, SMS_DELIVERY_STATUSES } from '../constants';
 import {
   Box,
   BoxContent,
@@ -19,7 +20,7 @@ import {
   Shell,
   Title
 } from '../styles';
-import { IEngageMessage, IEngageStats } from '../types';
+import { IEngageMessage, IEngageSmsStats, IEngageStats } from '../types';
 
 type Props = {
   message: IEngageMessage;
@@ -62,6 +63,34 @@ class EmailStatistics extends React.Component<Props> {
     );
   }
 
+  getSubject() {
+    const { message } = this.props;
+
+    if (message.method === METHODS.EMAIL) {
+      return message.email && message.email.subject;
+    }
+
+    if (message.method === METHODS.SMS) {
+      return message.shortMessage && message.shortMessage.from;
+    }
+
+    return null;
+  }
+
+  getContent() {
+    const { message } = this.props;
+
+    if (message.method === METHODS.EMAIL) {
+      return message.email && message.email.content;
+    }
+
+    if (message.method === METHODS.SMS) {
+      return message.shortMessage && message.shortMessage.content;
+    }
+
+    return '';
+  }
+
   renderLeft() {
     const { message } = this.props;
 
@@ -80,7 +109,7 @@ class EmailStatistics extends React.Component<Props> {
         <Subject>
           <FlexRow>
             <label>{__('Subject')}:</label>
-            {message.email && message.email.subject}
+            {this.getSubject()}
           </FlexRow>
         </Subject>
         <Subject noBorder={true}>
@@ -91,7 +120,7 @@ class EmailStatistics extends React.Component<Props> {
             isFullmessage={false}
             showOverflow={true}
             dangerouslySetInnerHTML={{
-              __html: message.email ? message.email.content : ''
+              __html: this.getContent() || ''
             }}
           />
         </Subject>
@@ -100,11 +129,78 @@ class EmailStatistics extends React.Component<Props> {
     );
   }
 
+  renderEmailStats() {
+    const { stats } = this.props.message;
+    const emailStats = stats || ({} as IEngageStats);
+
+    if (this.props.message.method !== METHODS.EMAIL) {
+      return null;
+    }
+
+    return (
+      <React.Fragment>
+        {this.renderBox('cube-2', 'Total', emailStats.total)}
+        {this.renderBox('telegram-alt', 'Sent', emailStats.send)}
+        {this.renderBox('comment-check', 'Delivered', emailStats.delivery)}
+        {this.renderBox('envelope-open', 'Opened', emailStats.open)}
+        {this.renderBox('mouse-alt', 'Clicked', emailStats.click)}
+        {this.renderBox('frown', 'Complaint', emailStats.complaint)}
+        {this.renderBox('arrows-up-right', 'Bounce', emailStats.bounce)}
+        {this.renderBox(
+          'ban',
+          'Rendering failure',
+          emailStats.renderingfailure
+        )}
+        {this.renderBox('times-circle', 'Rejected', emailStats.reject)}
+      </React.Fragment>
+    );
+  }
+
+  renderSmsStats() {
+    const { smsStats } = this.props.message;
+    const stats = smsStats || ({} as IEngageSmsStats);
+
+    if (this.props.message.method !== METHODS.SMS) {
+      return null;
+    }
+
+    return (
+      <React.Fragment>
+        {this.renderBox('cube-2', 'Total', stats.total)}
+        {this.renderBox('list-ul', SMS_DELIVERY_STATUSES.QUEUED, stats.queued)}
+        {this.renderBox(
+          'comment-alt-message',
+          SMS_DELIVERY_STATUSES.SENDING,
+          stats.sending
+        )}
+        {this.renderBox('send', SMS_DELIVERY_STATUSES.SENT, stats.sent)}
+        {this.renderBox(
+          'checked',
+          SMS_DELIVERY_STATUSES.DELIVERED,
+          stats.delivered
+        )}
+        {this.renderBox(
+          'comment-alt-block',
+          SMS_DELIVERY_STATUSES.SENDING_FAILED,
+          stats.sending_failed
+        )}
+        {this.renderBox(
+          'multiply',
+          SMS_DELIVERY_STATUSES.DELIVERY_FAILED,
+          stats.delivery_failed
+        )}
+        {this.renderBox(
+          'comment-alt-question',
+          SMS_DELIVERY_STATUSES.DELIVERY_UNCONFIRMED,
+          stats.delivery_unconfirmed
+        )}
+      </React.Fragment>
+    );
+  }
+
   render() {
     const { message } = this.props;
-    const stats = message.stats || ({} as IEngageStats);
     const logs = message.logs || [];
-    const totalCount = stats.total;
 
     const actionBar = (
       <Wrapper.ActionBar left={<Title>{this.props.message.title}</Title>} />
@@ -115,16 +211,8 @@ class EmailStatistics extends React.Component<Props> {
         {this.renderLeft()}
         <Half>
           <RightSection>
-            {this.renderBox('cube-2', 'Total', totalCount)}
-            {this.renderBox('telegram-alt', 'Sent', stats.send)}
-            {this.renderBox('comment-check', 'Delivered', stats.delivery)}
-            {this.renderBox('envelope-open', 'Opened', stats.open)}
-            {this.renderBox('mouse-alt', 'Clicked', stats.click)}
-            {this.renderBox('frown', 'Complaint', stats.complaint)}
-            {this.renderBox('arrows-up-right', 'Bounce', stats.bounce)}
-            {this.renderBox('ban', 'Rendering failure', stats.renderingfailure)}
-            {this.renderBox('times-circle', 'Rejected', stats.reject)}
-
+            {this.renderEmailStats()}
+            {this.renderSmsStats()}
             <Shell>
               <div className="shell-wrap">
                 <p className="shell-top-bar">Log messages</p>
