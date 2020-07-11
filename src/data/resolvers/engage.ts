@@ -38,4 +38,8 @@ export default {
   logs(engageMessage: IEngageMessageDocument, _args, { dataSources }: IContext) {
     return dataSources.EngagesAPI.engagesLogs(engageMessage._id);
   },
+
+  smsStats(engageMessage: IEngageMessageDocument, _args, { dataSources }: IContext) {
+    return dataSources.EngagesAPI.engagesSmsStats(engageMessage._id);
+  },
 };

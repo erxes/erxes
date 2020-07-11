@@ -1,7 +1,8 @@
 import * as _ from 'underscore';
 import { EngageMessages } from '../../../db/models';
+import { METHODS } from '../../../db/models/definitions/constants';
 import { IEngageMessage } from '../../../db/models/definitions/engages';
-import { MODULE_NAMES } from '../../constants';
+import { MESSAGE_KINDS, MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
@@ -26,6 +27,10 @@ const engageMutations = {
    * Create new message
    */
   async engageMessageAdd(_root, doc: IEngageMessage, { user, docModifier }: IContext) {
+    if (doc.kind !== MESSAGE_KINDS.MANUAL && doc.method === METHODS.SMS) {
+      throw new Error('Manual engage message of type SMS is not supported');
+    }
+
     const engageMessage = await EngageMessages.createEngageMessage(docModifier(doc));
 
     await send(engageMessage);

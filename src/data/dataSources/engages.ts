@@ -67,4 +67,15 @@ export default class EngagesAPI extends RESTDataSource {
       return [];
     }
   }
-}
+
+  public async engagesSmsStats(engageMessageId) {
+    try {
+      const response = await this.get(`/deliveryReports/smsStats/${engageMessageId}`);
+
+      return response;
+    } catch (e) {
+      debugBase(e.message);
+      return {};
+    }
+  }
+} // end class
