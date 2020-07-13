@@ -95,12 +95,15 @@ echo "Installed Yarn successfully"
 # username that erxes will be installed in
 username=erxes
 
+NODE_VERSION=v12.16.3
+
 # create a new user erxes if it does not exist
 id -u erxes &>/dev/null || useradd -m -s /bin/bash -U -G sudo $username
 
 # erxes user home directory
 erxes_root_dir=/home/$username/erxes.io
 
+su $username -c "mkdir -p $erxes_root_dir"
 cd $erxes_root_dir
 
 # erxes repo
@@ -144,7 +147,7 @@ su $username -c "curl -L https://github.com/erxes/erxes-api/releases/download/0.
 su $username -c "curl -L https://github.com/erxes/erxes-integrations/releases/download/0.15.4/erxes-integrations-0.15.4.tar.gz | tar -xz -C $erxes_integrations_dir"
 
 # install pm2 globally
-yarn global add  pm2
+# yarn global add  pm2
 
 JWT_TOKEN_SECRET=$(openssl rand -base64 24)
 MONGO_PASS=$(openssl rand -hex 16)
@@ -264,7 +267,7 @@ cat > $erxes_root_dir/ecosystem.json << EOF
     },
     {
       "name": "erxes-email-verifier",
-      "cwd": "$erxes_logger_dir",
+      "cwd": "$erxes_email_verifier_dir",
       "script": "dist",
       "log_date_format": "YYYY-MM-DD HH:mm Z",
       "env": {
@@ -365,10 +368,7 @@ chown $username:$username $erxes_ui_dir/js/env.js
 chmod 664 $erxes_ui_dir/js/env.js
 
 # pip3 packages for elkSyncer
-pip3 install mongo-connector==3.1.1 \
-    && pip3 install elasticsearch==7.5.1 \
-    && pip3 install elastic2-doc-manager==1.0.0 \
-    && pip3 install python-dotenv==0.11.0
+pip3 install -r $erxes_syncer_dir/requirements.txt
 
 # elkSyncer env
 cat <<EOF >$erxes_syncer_dir/.env
@@ -378,14 +378,14 @@ EOF
 
 # install nvm and install node using nvm
 su $username -c "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash"
-su $username -c "source ~/.bashrc && nvm install v12.16.3"
+su $username -c "source ~/.nvm/nvm.sh && nvm install $NODE_VERSION && nvm alias default $NODE_VERSION && npm install -g yarn pm2"
 
 # make pm2 starts on boot
-pm2 startup -u $username --hp /home/$username
+env PATH=$PATH:/home/$username/.nvm/versions/node/$NODE_VERSION/bin pm2 startup -u $username --hp /home/$username
 systemctl enable pm2-$username
 
 # start erxes pm2 and save current processes
-su $username -c "source ~/.bashrc && nvm use v12.16.3 && cd $erxes_root_dir && pm2 start ecosystem.json && pm2 save"
+su $username -c "source ~/.nvm/nvm.sh && nvm use $NODE_VERSION && cd $erxes_root_dir && pm2 start ecosystem.json && pm2 save"
 
 # Nginx erxes config
 cat <<EOF >/etc/nginx/sites-available/default
