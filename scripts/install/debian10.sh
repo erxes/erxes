@@ -83,12 +83,6 @@ echo "Installing Nginx"
 apt-get -qqy install -y nginx
 echo "Installed Nginx successfully"
 
-# nodejs 10
-echo "Installing NodeJS"
-curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
-apt -qqy install -y nodejs build-essential
-echo "Installed Nginx successfully"
-
 # Yarn package manager
 echo "Installing Yarn package manager"
 curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
@@ -105,7 +99,7 @@ username=erxes
 id -u erxes &>/dev/null || useradd -m -s /bin/bash -U -G sudo $username
 
 # erxes user home directory
-erxes_root_dir=/home/$username
+erxes_root_dir=/home/$username/erxes.io
 
 cd $erxes_root_dir
 
@@ -149,33 +143,6 @@ su $username -c "curl -L https://github.com/erxes/erxes-api/releases/download/0.
 # download integrations
 su $username -c "curl -L https://github.com/erxes/erxes-integrations/releases/download/0.15.4/erxes-integrations-0.15.4.tar.gz | tar -xz -C $erxes_integrations_dir"
 
-# install packages and build erxes
-# su $username -c "cd $erxes_ui_dir && yarn install"
-
-# install erxes widgets packages
-su $username -c "cd $erxes_widgets_dir && yarn install"
-echo "Installed packages ----- Widgets"
-
-# install erxes api packages
-su $username -c "cd $erxes_api_dir && yarn install"
-echo "Installed packages ----- API"
-
-# install erxes engages packages
-su $username -c "cd $erxes_engages_dir && yarn install"
-echo "Installed packages ----- Engages"
-
-# install erxes logger packages
-su $username -c "cd $erxes_logger_dir && yarn install"
-echo "Installed packages ----- Logger"
-
-# install erxes email verifier packages
-su $username -c "cd $erxes_email_verifier_dir && yarn install"
-echo "Installed packages ----- Email Verifier"
-
-# install erxes integrations packages
-su $username -c "cd $erxes_integrations_dir && yarn install"
-echo "Installed packages ----- Integrations"
-
 # install pm2 globally
 yarn global add  pm2
 
@@ -192,8 +159,8 @@ LOGGER_MONGO_URL="mongodb://erxes:$MONGO_PASS@localhost/erxes_logs?authSource=ad
 
 INTEGRATIONS_MONGO_URL="mongodb://erxes:$MONGO_PASS@localhost/erxes_integrations?authSource=admin&replicaSet=rs0"
 
-# create an ecosystem.json in erxes home directory and change owner and permission
-cat > /home/$username/ecosystem.json << EOF
+# create an ecosystem.json in $erxes_root_dir directory and change owner and permission
+cat > $erxes_root_dir/ecosystem.json << EOF
 {
   "apps": [
     {
@@ -310,6 +277,17 @@ cat > /home/$username/ecosystem.json << EOF
       }
     },
     {
+      "name": "erxes-elkSyncer",
+      "cwd": "$erxes_syncer_dir",
+      "script": "main.py",
+      "log_date_format": "YYYY-MM-DD HH:mm Z",
+      "interpreter": "python3",
+      "env": {
+        "MONGO_URL": "$API_MONGO_URL",
+        "ELASTICSEARCH_URL": "http://localhost:9200"
+      }
+    },
+    {
       "name": "erxes-integrations",
       "cwd": "$erxes_integrations_dir",
       "script": "dist",
@@ -332,8 +310,8 @@ cat > /home/$username/ecosystem.json << EOF
 }
 EOF
 
-chown $username:$username /home/$username/ecosystem.json
-chmod 644 /home/$username/ecosystem.json
+chown $username:$username $erxes_root_dir/ecosystem.json
+chmod 644 $erxes_root_dir/ecosystem.json
 
 # set mongod password
 result=$(mongo --eval "db=db.getSiblingDB('admin'); db.createUser({ user: 'erxes', pwd: \"$MONGO_PASS\", roles: [ 'root' ] })" )
@@ -386,20 +364,11 @@ EOF
 chown $username:$username $erxes_ui_dir/js/env.js
 chmod 664 $erxes_ui_dir/js/env.js
 
-# make pm2 starts on boot
-pm2 startup -u $username --hp /home/$username
-systemctl enable pm2-$username
-
-# start erxes pm2 and save current processes
-su $username -c "cd /home/$username && pm2 start ecosystem.json && pm2 save"
-
 # pip3 packages for elkSyncer
 pip3 install mongo-connector==3.1.1 \
     && pip3 install elasticsearch==7.5.1 \
     && pip3 install elastic2-doc-manager==1.0.0 \
     && pip3 install python-dotenv==0.11.0
-
-mkdir -p /var/log/mongo-connector/
 
 # elkSyncer env
 cat <<EOF >$erxes_syncer_dir/.env
@@ -407,8 +376,16 @@ MONGO_URL=$API_MONGO_URL
 ELASTICSEARCH_URL=http://localhost:9200
 EOF
 
-# start elkSyncer with pm2
-su $username -c "cd $erxes_syncer_dir && pm2 start main.py --name erxes-elk-syncer --interpreter python3 && pm2 save"
+# install nvm and install node using nvm
+su $username -c "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash"
+su $username -c "source ~/.bashrc && nvm install v12.16.3"
+
+# make pm2 starts on boot
+pm2 startup -u $username --hp /home/$username
+systemctl enable pm2-$username
+
+# start erxes pm2 and save current processes
+su $username -c "source ~/.bashrc && nvm use v12.16.3 && cd $erxes_root_dir && pm2 start ecosystem.json && pm2 save"
 
 # Nginx erxes config
 cat <<EOF >/etc/nginx/sites-available/default
