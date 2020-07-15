@@ -28,17 +28,17 @@ export const SignIn = Cypress.Commands.add('signIn', () => {
 
   //cy.get('title').should('contain', 'Conversation');
 
-  cy.get('button[id="robot-get-started"]').click();
+  // cy.get('button[id="robot-get-started"]').click();
 
-  cy.get('div[id="robot-features"]')
-    .children()
-    .should('have.length', 9);
-  cy.get('button[id="robot-get-started"]').should('be.disabled');
+  // cy.get('div[id="robot-features"]')
+  //   .children()
+  //   .should('have.length', 9);
+  // cy.get('button[id="robot-get-started"]').should('be.disabled');
 
-  cy.get('div[id="robot-item-inbox"]').click();
-  cy.get('div[id="robot-item-contacts"]').click();
-  cy.get('div[id="robot-item-integrations"]').click();
+  // cy.get('div[id="robot-item-inbox"]').click();
+  // cy.get('div[id="robot-item-contacts"]').click();
+  // cy.get('div[id="robot-item-integrations"]').click();
 
-  cy.get('button[id="robot-get-started"]').click();
-  cy.get('div[id="robot-feature-close"]').click();
+  // cy.get('button[id="robot-get-started"]').click();
+  // cy.get('div[id="robot-feature-close"]').click();
 });
