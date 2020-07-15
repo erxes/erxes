@@ -155,7 +155,7 @@ describe('engage message mutation tests', () => {
     _doc = {
       title: 'Message test',
       kind: MESSAGE_KINDS.AUTO,
-      method: 'email',
+      method: METHODS.EMAIL,
       fromUserId: _user._id,
       isDraft: true,
       isLive: true,
@@ -219,7 +219,7 @@ describe('engage message mutation tests', () => {
   test('Engage utils send via messenger', async () => {
     const brand = await brandFactory();
     const emessage = await engageMessageFactory({
-      method: 'messenger',
+      method: METHODS.MESSENGER,
       title: 'Send via messenger',
       userId: _user._id,
       customerIds: [_customer._id],
@@ -237,7 +237,7 @@ describe('engage message mutation tests', () => {
     }
 
     const emessageWithoutUser = await engageMessageFactory({
-      method: 'messenger',
+      method: METHODS.MESSENGER,
       title: 'Send via messenger',
       userId: 'fromUserId',
       customerIds: [_customer._id],
@@ -260,7 +260,7 @@ describe('engage message mutation tests', () => {
     });
 
     const emessageWithBrand = await engageMessageFactory({
-      method: 'messenger',
+      method: METHODS.MESSENGER,
       title: 'Send via messenger',
       userId: _user._id,
       isLive: true,
@@ -338,7 +338,7 @@ describe('engage message mutation tests', () => {
     });
 
     const emessage = await engageMessageFactory({
-      method: 'messenger',
+      method: METHODS.MESSENGER,
       customerIds: [_customer._id],
       userId: user._id,
       isLive: true,
@@ -365,7 +365,7 @@ describe('engage message mutation tests', () => {
     process.env.ENGAGE_ADMINS = '[{"_id":"WkjhEfjJ4QW9EEW9F","name":"engageAdmin","email":"mrbatamar@gmail.com"}]';
 
     const emessage = await engageMessageFactory({
-      method: 'email',
+      method: METHODS.EMAIL,
       title: 'Send via email',
       userId: 'fromUserId',
       customerIds: [_customer],
@@ -383,7 +383,7 @@ describe('engage message mutation tests', () => {
     }
 
     const emessageWithUser = await engageMessageFactory({
-      method: 'email',
+      method: METHODS.EMAIL,
       title: 'Send via email',
       userId: _user._id,
       customerIds: [_customer._id],
@@ -403,7 +403,7 @@ describe('engage message mutation tests', () => {
     _customer.save();
 
     const emessageNoInitial = await engageMessageFactory({
-      method: 'email',
+      method: METHODS.EMAIL,
       title: 'Send via email',
       userId: _user._id,
       isLive: true,
@@ -718,5 +718,18 @@ describe('engage message mutation tests', () => {
     );
 
     mock.restore();
+  });
+
+  test('Test auto engage with type SMS', async () => {
+    try {
+      await graphqlRequest(engageMessageAddMutation, 'engageMessageAdd', {
+        ..._doc,
+        kind: MESSAGE_KINDS.AUTO,
+        method: METHODS.SMS,
+        brandIds: ['_id'],
+      });
+    } catch (e) {
+      expect(e[0].message).toBe('Manual engage message of type SMS is not supported');
+    }
   });
 });

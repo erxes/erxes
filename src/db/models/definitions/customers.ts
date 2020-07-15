@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
 
-import { customFieldSchema, ICustomField, ILink, linkSchema } from './common';
+import { customFieldSchema, ICustomField, ILink } from './common';
 import { CUSTOMER_SELECT_OPTIONS } from './constants';
 
 import { field, schemaWrapper } from './utils';
@@ -24,8 +24,6 @@ export interface IVisitorContact {
 }
 
 export interface IVisitorContactDocument extends IVisitorContact, Document {}
-
-interface ILinkDocument extends ILink, Document {}
 
 export interface ICustomer {
   state?: 'visitor' | 'lead' | 'customer';
@@ -80,7 +78,6 @@ export interface IValidationResponse {
 export interface ICustomerDocument extends ICustomer, Document {
   _id: string;
   location?: ILocationDocument;
-  links?: ILinkDocument;
   visitorContactInfo?: IVisitorContactDocument;
   profileScore?: number;
   status?: string;
@@ -212,7 +209,7 @@ export const customerSchema = schemaWrapper(
       label: 'Do not disturb',
       selectOptions: CUSTOMER_SELECT_OPTIONS.DO_NOT_DISTURB,
     }),
-    links: field({ type: linkSchema, default: {}, label: 'Links' }),
+    links: field({ type: Object, default: {}, label: 'Links' }),
 
     relatedIntegrationIds: field({ type: [String], optional: true }),
     integrationId: field({ type: String, optional: true, label: 'Integration', esType: 'keyword' }),

@@ -3,20 +3,20 @@ name: Api CI
 on:
   push:
     branches:
-      - '**'
+      - "**"
     paths:
-      - '**'
-      - '!.github/**'
-      - '.github/workflows/api.yaml'
-      - '!elkSyncer/**'
-      - '!email-verifier/**'
-      - '!engages-email-sender/**'
-      - '!logger/**'
-      - '!**.md'
-      - '!base.Dockerfile'
-      - '!base.Dockerfile.dockerignore'
+      - "**"
+      - "!.github/**"
+      - ".github/workflows/api.yaml"
+      - "!elkSyncer/**"
+      - "!email-verifier/**"
+      - "!engages-email-sender/**"
+      - "!logger/**"
+      - "!**.md"
+      - "!base.Dockerfile"
+      - "!base.Dockerfile.dockerignore"
     tags:
-      - '*'
+      - "*"
   pull_request:
     branches:
       - master
@@ -24,16 +24,16 @@ on:
       - crons
       - workers
     paths:
-      - '**'
-      - '!.github/**'
-      - '.github/workflows/api.yaml'
-      - '!elkSyncer/**'
-      - '!email-verifier/**'
-      - '!engages-email-sender/**'
-      - '!logger/**'
-      - '!**.md'
-      - '!base.Dockerfile'
-      - '!base.Dockerfile.dockerignore'
+      - "**"
+      - "!.github/**"
+      - ".github/workflows/api.yaml"
+      - "!elkSyncer/**"
+      - "!email-verifier/**"
+      - "!engages-email-sender/**"
+      - "!logger/**"
+      - "!**.md"
+      - "!base.Dockerfile"
+      - "!base.Dockerfile.dockerignore"
 
 jobs:
   api:
@@ -102,7 +102,7 @@ jobs:
       - name: Prepare release assets [tag]
         if: startsWith(github.ref, 'refs/tags/')
         run: |
-          tar -zcf erxes-api-${GITHUB_REF#refs/tags/}.tar.gz dist package.json
+          tar -zcf erxes-api-${GITHUB_REF#refs/tags/}.tar.gz dist node_modules package.json
 
       - name: Get release version [tag]
         id: get_release_version

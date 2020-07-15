@@ -306,22 +306,14 @@ app.post(`/telnyx/webhook-failover`, async (req, res, next) => {
 app.post(`/verifier/webhook`, async (req, res) => {
   const { emails, phones, email, phone } = req.body;
 
-  switch (Object.keys(req.body)[0]) {
-    case 'email':
-      await updateContactValidationStatus(email);
-      break;
-    case 'emails':
-      await updateContactsValidationStatus('email', emails);
-      break;
-    case 'phone':
-      await updateContactValidationStatus(phone);
-      break;
-    case 'phones':
-      await updateContactsValidationStatus('phone', phones);
-      break;
-
-    default:
-      break;
+  if (email) {
+    await updateContactValidationStatus(email);
+  } else if (emails) {
+    await updateContactsValidationStatus('email', emails);
+  } else if (phone) {
+    await updateContactValidationStatus(phone);
+  } else if (phones) {
+    await updateContactsValidationStatus('phone', phones);
   }
 
   return res.send('success');

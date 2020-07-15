@@ -2,14 +2,14 @@ import * as dotenv from 'dotenv';
 import * as Random from 'meteor-random';
 import * as Telnyx from 'telnyx';
 import { debugEngages } from './debuggers';
-import { Logs, SmsResponses, Stats } from './models';
+import { Logs, SmsRequests, Stats } from './models';
 import { createTransporter, getConfigs, getEnv, replaceKeys } from './utils';
 
 dotenv.config();
 
 export const start = async (data: any) => {
   const { user, email, engageMessageId, customers } = data;
-  const { content, subject, attachments } = email;
+  const { content, subject, attachments, sender, replyTo } = email;
 
   await Stats.findOneAndUpdate({ engageMessageId }, { engageMessageId }, { upsert: true });
 
@@ -39,8 +39,9 @@ export const start = async (data: any) => {
 
     try {
       await transporter.sendMail({
-        from: user.email,
+        from: `${sender || ''} <${user.email}>`,
         to: customer.email,
+        replyTo,
         subject,
         attachments: mailAttachment,
         html: replacedContent,
@@ -123,7 +124,9 @@ export const sendSms = async (data: any) => {
 
   const telnyx = new Telnyx(telnyxApiKey);
 
-  for (const customer of customers) {
+  const filteredCustomers = customers.filter(c => c.phone && c.phoneValidationStatus === 'valid');
+
+  for (const customer of filteredCustomers) {
     await new Promise(resolve => {
       setTimeout(resolve, 1000);
     });
@@ -143,24 +146,36 @@ export const sendSms = async (data: any) => {
       msg.from = shortMessage.from;
     }
 
-    await telnyx.messages.create(msg, async (err, res) => {
-      if (err) {
-        await Logs.createLog(engageMessageId, 'failure', `${err.message} "${msg.to}"`);
-      }
-
-      if (res && res.data && res.data.to) {
-        const receiver = res.data.to.find(item => item.phone_number === msg.to);
-
-        await Logs.createLog(engageMessageId, 'success', `Message successfully sent to "${msg.to}"`);
-
-        await SmsResponses.createResponse({
+    try {
+      await telnyx.messages.create(msg, async (err, res) => {
+        const request = await SmsRequests.createRequest({
           engageMessageId,
-          status: receiver && receiver.status,
-          responseData: JSON.stringify(res.data),
           to: msg.to,
-          messageId: res.data.id,
+          requestData: JSON.stringify(msg),
         });
-      }
-    });
+
+        if (err) {
+          await Logs.createLog(engageMessageId, 'failure', `${err.message} "${msg.to}"`);
+
+          await SmsRequests.updateRequest(request._id, {
+            errorMessages: [err.message],
+          });
+        }
+
+        if (res && res.data && res.data.to) {
+          const receiver = res.data.to.find(item => item.phone_number === msg.to);
+
+          await Logs.createLog(engageMessageId, 'success', `Message successfully sent to "${msg.to}"`);
+
+          await SmsRequests.updateRequest(request._id, {
+            status: receiver && receiver.status,
+            responseData: JSON.stringify(res.data),
+            telnyxId: res.data.id,
+          });
+        }
+      }); // end sms creation
+    } catch (e) {
+      await Logs.createLog(engageMessageId, 'failure', `${e.message} while sending to "${msg.to}"`);
+    }
   } // end customers loop
 };

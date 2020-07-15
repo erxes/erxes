@@ -26,7 +26,7 @@ export const types = `
     businessType: String
     description: String
     doNotDisturb: String
-    links: CompanyLinks
+    links: JSON
     owner: User
     parentCompany: Company
 
@@ -42,15 +42,6 @@ export const types = `
   type CompaniesListResponse {
     list: [Company],
     totalCount: Float,
-  }
-
-  type CompanyLinks {
-    linkedIn: String
-    twitter: String
-    facebook: String
-    github: String
-    youtube: String
-    website: String
   }
 `;
 

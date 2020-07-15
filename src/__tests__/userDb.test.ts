@@ -40,7 +40,7 @@ describe('User db utils', () => {
     const userObj = await Users.createUser({
       ..._user._doc,
       details: { ..._user.details.toJSON() },
-      links: { ..._user.links.toJSON() },
+      links: { ..._user.links },
       password: strongPassword,
       email: 'qwerty@qwerty.com',
     });
@@ -57,7 +57,6 @@ describe('User db utils', () => {
     expect(userObj.details.position).toBe(_user.details.position);
     expect(userObj.details.fullName).toBe(_user.details.fullName);
     expect(userObj.details.avatar).toBe(_user.details.avatar);
-    expect(userObj.links.toJSON()).toEqual(_user.links.toJSON());
   });
 
   test('Create user with empty string password', async () => {
@@ -310,7 +309,6 @@ describe('User db utils', () => {
     expect(userObj.details.position).toBe(updateDoc.details.position);
     expect(userObj.details.fullName).toBe(updateDoc.details.fullName);
     expect(userObj.details.avatar).toBe(updateDoc.details.avatar);
-    expect(userObj.links.toJSON()).toEqual(updateDoc.links.toJSON());
 
     // try without password ============
     await Users.updateUser(_user._id, {
@@ -394,7 +392,6 @@ describe('User db utils', () => {
     expect(userObj.details.position).toBe(updateDoc.details.position);
     expect(userObj.details.fullName).toBe(updateDoc.details.fullName);
     expect(userObj.details.avatar).toBe(updateDoc.details.avatar);
-    expect(userObj.links.toJSON()).toEqual(updateDoc.links.toJSON());
   });
 
   test('Config email signature', async () => {

@@ -8,12 +8,7 @@ export interface IRule {
 }
 
 export interface ILink {
-  linkedIn?: string;
-  twitter?: string;
-  facebook?: string;
-  github?: string;
-  youtube?: string;
-  website?: string;
+  [key: string]: string;
 }
 
 export interface IRuleDocument extends IRule, Document {
@@ -39,18 +34,6 @@ const ruleSchema = new Schema(
   { _id: false },
 );
 
-const linkSchema = new Schema(
-  {
-    linkedIn: field({ type: String, optional: true, label: 'LinkedIn' }),
-    twitter: field({ type: String, optional: true, label: 'Twitter' }),
-    facebook: field({ type: String, optional: true, label: 'Facebook' }),
-    github: field({ type: String, optional: true, label: 'Github' }),
-    youtube: field({ type: String, optional: true, label: 'Youtube' }),
-    website: field({ type: String, optional: true, label: 'Website' }),
-  },
-  { _id: false },
-);
-
 const customFieldSchema = new Schema(
   {
     field: field({ type: String }),
@@ -70,4 +53,4 @@ export interface ICustomField {
   dateValue?: Date;
 }
 
-export { linkSchema, ruleSchema, customFieldSchema };
+export { ruleSchema, customFieldSchema };

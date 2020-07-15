@@ -38,6 +38,7 @@ export const types = `
 
     stats: JSON
     logs: JSON
+    smsStats: JSON
   }
 
   type EngageScheduleDate {
@@ -55,6 +56,8 @@ export const types = `
   input EngageMessageEmail {
     content: String,
     subject: String!,
+    replyTo: String,
+    sender: String,
     attachments: [JSON]
     templateId: String
   }
