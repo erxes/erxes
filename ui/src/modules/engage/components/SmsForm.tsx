@@ -4,8 +4,10 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import colors from 'modules/common/styles/colors';
+import { ISelectedOption } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import React from 'react';
+import Select from 'react-select-plus';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { IEngageScheduleDate, IEngageSms } from '../types';
@@ -100,8 +102,30 @@ class MessengerForm extends React.Component<Props, State> {
     );
   }
 
+  fromSelectOptions = () => {
+    const { users } = this.props;
+    const options: any[] = [];
+
+    users.map(user =>
+      options.push({
+        value: user._id,
+        label: user.details && user.details.operatorPhone,
+        name: (user.details && user.details.fullName) || user.username,
+        disabled: !(user.details && user.details.operatorPhone)
+      })
+    );
+
+    return options;
+  };
+
+  fromOptionRenderer = option => (
+    <div>
+      <strong>{option.name}</strong> <i>{option.label}</i>
+    </div>
+  );
+
   render() {
-    const { fromUserId, onChange, shortMessage, users } = this.props;
+    const { fromUserId, onChange, shortMessage } = this.props;
     const { message, title, titleCount, characterCount } = this.state;
 
     const onChangeTitle = e =>
@@ -110,8 +134,10 @@ class MessengerForm extends React.Component<Props, State> {
     const onChangeContent = e =>
       this.onChangeSms('content', (e.target as HTMLInputElement).value);
 
-    const onChangeFrom = e =>
-      onChange('fromUserId', (e.target as HTMLInputElement).value);
+    const onChangeFrom = (value: ISelectedOption) => {
+      const userId = value ? value.value : '';
+      onChange('fromUserId', userId);
+    };
 
     const onChangeFromContent = e => {
       const from = (e.target as HTMLInputElement).value;
@@ -134,18 +160,13 @@ class MessengerForm extends React.Component<Props, State> {
         <FlexPad overflow="auto" direction="column" count="3">
           <FormGroup>
             <ControlLabel>From:</ControlLabel>
-            <FormControl
-              componentClass="select"
+            <Select
+              placeholder={__('Choose user')}
+              value={fromUserId}
               onChange={onChangeFrom}
-              defaultValue={fromUserId}
-            >
-              <option />{' '}
-              {users.map(user => (
-                <option key={user._id} value={user._id}>
-                  {user.details ? user.details.fullName : user.username}
-                </option>
-              ))}
-            </FormControl>
+              options={this.fromSelectOptions()}
+              optionRenderer={this.fromOptionRenderer}
+            />
           </FormGroup>
           <FormGroup>
             <SMSInfo>

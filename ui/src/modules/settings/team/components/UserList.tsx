@@ -19,6 +19,7 @@ import { FlexItem, FlexRow } from 'modules/insights/styles';
 import SelectBrands from 'modules/settings/brands/containers/SelectBrands';
 import { IUserGroup } from 'modules/settings/permissions/types';
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
 import List from '../../common/components/List';
 import { ICommonFormProps, ICommonListProps } from '../../common/types';
@@ -84,8 +85,18 @@ class UserList extends React.Component<FinalProps, States> {
   renderEditAction = (user: IUser) => {
     const { currentUser } = this.props;
 
+    if (user._id === currentUser._id) {
+      return (
+        <Tip text={__('View Profile')} placement="top">
+          <Link to="/profile">
+            <Icon icon="user-6" size={15} />
+          </Link>
+        </Tip>
+      );
+    }
+
     const editTrigger = (
-      <Button btnStyle="link" disabled={user._id === currentUser._id}>
+      <Button btnStyle="link">
         <Tip text={__('Edit')} placement="top">
           <Icon icon="pen-1" size={15} />
         </Tip>

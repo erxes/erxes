@@ -73,14 +73,7 @@ const customersEdit = `
       hasAuthority
       description
       doNotDisturb
-      links {
-        linkedIn
-        twitter
-        facebook
-        github
-        youtube
-        website
-      }
+      links
     }
   }
 `;

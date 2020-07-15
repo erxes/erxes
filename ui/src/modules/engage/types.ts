@@ -23,6 +23,8 @@ export interface IEngageMessenger {
 export interface IEngageEmail {
   templateId?: string;
   subject: string;
+  sender?: string;
+  replyTo?: string;
   content: string;
   attachments?: IAttachment[];
 }
@@ -42,6 +44,17 @@ export interface IEngageStats {
   renderingfailure: number;
   reject: number;
   total: number;
+}
+
+export interface IEngageSmsStats {
+  total: number;
+  queued: number;
+  sending: number;
+  sent: number;
+  delivered: number;
+  sending_failed: number;
+  delivery_failed: number;
+  delivery_unconfirmed: number;
 }
 
 export interface IEmailDelivery {
@@ -94,6 +107,7 @@ export interface IEngageMessage extends IEngageMessageDoc {
 
   stats?: IEngageStats;
   logs?: Array<{ message: string }>;
+  smsStats?: IEngageSmsStats;
 }
 
 // mutation types

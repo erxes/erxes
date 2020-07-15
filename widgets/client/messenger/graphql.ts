@@ -1,4 +1,4 @@
-import { connection } from './connection';
+import { connection } from "./connection";
 
 const messageFields = `
   _id
@@ -69,14 +69,7 @@ const conversationDetailQuery = `
           description
           position
         }
-        links {
-          facebook
-          twitter
-          youtube
-          linkedIn
-          github
-          website
-        }
+        links
       }
     }
   }
