@@ -11,8 +11,8 @@ const MessageList = asyncComponent(() =>
   import(/* webpackChunkName: "MessageList - Engage" */ './containers/MessageList')
 );
 
-const EmailStatistics = asyncComponent(() =>
-  import(/* webpackChunkName: "EmailStatistics - Engage" */ './containers/EmailStatistics')
+const EngageStats = asyncComponent(() =>
+  import(/* webpackChunkName: "EngageStats - Engage" */ './containers/EngageStats')
 );
 
 const engageList = history => {
@@ -29,7 +29,7 @@ const editForm = ({ match }) => {
 };
 
 const statistic = ({ match }) => {
-  return <EmailStatistics messageId={match.params._id} />;
+  return <EngageStats messageId={match.params._id} />;
 };
 
 const routes = () => {

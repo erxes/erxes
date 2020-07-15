@@ -5,7 +5,7 @@ import Spinner from 'modules/common/components/Spinner';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '../../common/utils';
-import EmailStatistics from '../components/EmailStatistics';
+import EngageStats from '../components/EngageStats';
 import { queries } from '../graphql';
 import { EngageMessageDetailQueryResponse } from '../types';
 
@@ -17,7 +17,7 @@ type FinalProps = {
   engageMessageDetailQuery: EngageMessageDetailQueryResponse;
 };
 
-const EmailStatisticsContainer = (props: FinalProps) => {
+const EngageStatsContainer = (props: FinalProps) => {
   const { engageMessageDetailQuery } = props;
 
   if (engageMessageDetailQuery.error) {
@@ -36,7 +36,7 @@ const EmailStatisticsContainer = (props: FinalProps) => {
 
   const message = engageMessageDetailQuery.engageMessageDetail;
 
-  return <EmailStatistics message={message} {...props} />;
+  return <EngageStats message={message} {...props} />;
 };
 
 export default withProps<Props>(
@@ -52,5 +52,5 @@ export default withProps<Props>(
         })
       }
     )
-  )(EmailStatisticsContainer)
+  )(EngageStatsContainer)
 );

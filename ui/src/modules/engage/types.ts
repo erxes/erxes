@@ -46,6 +46,17 @@ export interface IEngageStats {
   total: number;
 }
 
+export interface IEngageSmsStats {
+  total: number;
+  queued: number;
+  sending: number;
+  sent: number;
+  delivered: number;
+  sending_failed: number;
+  delivery_failed: number;
+  delivery_unconfirmed: number;
+}
+
 export interface IEmailDelivery {
   _id: string;
   subject: string;
@@ -96,6 +107,7 @@ export interface IEngageMessage extends IEngageMessageDoc {
 
   stats?: IEngageStats;
   logs?: Array<{ message: string }>;
+  smsStats?: IEngageSmsStats;
 }
 
 // mutation types
