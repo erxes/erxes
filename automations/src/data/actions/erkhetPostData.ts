@@ -18,7 +18,8 @@ const erkhetPostData = async (shape: IShapeDocument, data: any) => {
     });
 
     for (const company of companies) {
-      if (company.code && company.code.length === 7) {
+      const re = new RegExp('(^[А-ЯЁӨҮ]{2}[0-9]{8}$)|(^\\d{7}$)', 'gui');
+      if (re.test(company.code)) {
         const checkCompanyRes = await sendRequest({
           url: shape.config.checkCompanyUrl,
           method: 'GET',
