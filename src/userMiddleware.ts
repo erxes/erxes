@@ -15,7 +15,12 @@ const userMiddleware = async (req, _res, next) => {
     return next();
   }
 
-  if (path.startsWith('/gmail') || path.startsWith('/accounts') || path.startsWith('/nylas')) {
+  if (
+    path.startsWith('/gmail') ||
+    path.startsWith('/accounts') ||
+    path.startsWith('/nylas') ||
+    path.startsWith('/integrations')
+  ) {
     try {
       const userId = headers.userid || query.userId;
 
