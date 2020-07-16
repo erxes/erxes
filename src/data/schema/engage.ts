@@ -38,6 +38,7 @@ export const types = `
 
     stats: JSON
     logs: JSON
+    smsStats: JSON
   }
 
   type EngageScheduleDate {

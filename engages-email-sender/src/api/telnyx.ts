@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { debugEngages, debugRequest } from '../debuggers';
-import { saveTelnyxHookData } from '../utils';
+import { saveTelnyxHookData } from '../telnyxUtils';
 
 const router = Router();
 
