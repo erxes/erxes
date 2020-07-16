@@ -48,7 +48,7 @@ class Row extends React.Component<Props> {
 
     const links: React.ReactNode[] = [];
 
-    if (['email', 'sms'].includes(msg.method)) {
+    if ([METHODS.EMAIL, METHODS.SMS].includes(msg.method)) {
       links.push(show);
     }
 
@@ -111,7 +111,7 @@ class Row extends React.Component<Props> {
   onClick = () => {
     const { message } = this.props;
 
-    if (['email', 'sms'].includes(message.method)) {
+    if ([METHODS.EMAIL, METHODS.SMS].includes(message.method)) {
       return this.props.show();
     }
 
@@ -122,18 +122,16 @@ class Row extends React.Component<Props> {
 
   renderStatus() {
     const { message } = this.props;
-
     const { stats = { send: '' }, kind, validCustomersCount } = message;
-
     const totalCount = stats.total || 0;
 
     if (!message.isLive) {
       return <Label>draft</Label>;
     }
 
-    if (kind === 'manual') {
+    if (kind === MESSAGE_KINDS.MANUAL) {
       if (
-        message.method === 'messenger' ||
+        message.method === METHODS.MESSENGER ||
         validCustomersCount === totalCount
       ) {
         return <Label lblStyle="success">Sent</Label>;

@@ -4,7 +4,6 @@ import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
 import { TopHeader } from 'modules/common/styles/main';
-import { IButtonMutateProps } from 'modules/common/types';
 import { __, router } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
 import Wrapper from 'modules/layout/components/Wrapper';
@@ -12,10 +11,10 @@ import { SidebarList } from 'modules/layout/styles';
 import { ActionButtons, SidebarListItem } from 'modules/settings/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import CategoryForm from '../../containers/productCategory/CategoryForm';
 import TagFilter from '../../containers/TagFilter';
 import { IProductCategory } from '../../types';
 import ProductTypeFilter from '../product/filters/ProdcutTypeFilter';
-import Form from './CategoryForm';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -24,7 +23,6 @@ interface IProps {
   queryParams: any;
   refetch: any;
   remove: (productCategoryId: string) => void;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
   productCategories: IProductCategory[];
   productCategoriesCount: number;
   loading: boolean;
@@ -32,26 +30,18 @@ interface IProps {
 
 class List extends React.Component<IProps> {
   renderFormTrigger(trigger: React.ReactNode, category?: IProductCategory) {
-    const content = props => this.renderForm({ ...props, category });
+    const content = props => (
+      <CategoryForm
+        {...props}
+        category={category}
+        categories={this.props.productCategories}
+      />
+    );
 
     return (
       <ModalTrigger title="Add category" trigger={trigger} content={content} />
     );
   }
-
-  renderForm = props => {
-    const { refetch, renderButton, productCategories } = this.props;
-
-    const extendedProps = { ...props, refetch };
-
-    return (
-      <Form
-        {...extendedProps}
-        renderButton={renderButton}
-        categories={productCategories}
-      />
-    );
-  };
 
   clearCategoryFilter = () => {
     router.setParams(this.props.history, { categoryId: null });
