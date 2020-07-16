@@ -7,6 +7,11 @@ import { createTransporter, getConfigs, getEnv, replaceKeys } from './utils';
 
 dotenv.config();
 
+// alphanumeric sender id only works for countries outside north america
+const isNumberNorthAmerican = (phoneNumber: string) => {
+  return phoneNumber.substring(0, 2) === '+1';
+};
+
 export const start = async (data: any) => {
   const { user, email, engageMessageId, customers } = data;
   const { content, subject, attachments, sender, replyTo } = email;
@@ -144,6 +149,10 @@ export const sendSms = async (data: any) => {
     if (telnyxProfileId) {
       msg.messaging_profile_id = telnyxProfileId;
       msg.from = shortMessage.from;
+    }
+
+    if (isNumberNorthAmerican(msg.to)) {
+      msg.from = telnyxPhone;
     }
 
     try {
