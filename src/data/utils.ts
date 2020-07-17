@@ -4,6 +4,7 @@ import * as admin from 'firebase-admin';
 import * as fs from 'fs';
 import * as Handlebars from 'handlebars';
 import * as nodemailer from 'nodemailer';
+import * as path from 'path';
 import * as requestify from 'requestify';
 import * as strip from 'strip';
 import * as xlsxPopulate from 'xlsx-populate';
@@ -13,6 +14,8 @@ import { OnboardingHistories } from '../db/models/Robot';
 import { debugBase, debugEmail, debugExternalApi } from '../debuggers';
 import { graphqlPubsub } from '../pubsub';
 import { get, set } from '../redisClient';
+
+const uploadsFolderPath = path.join(__dirname, '../private/uploads');
 
 export const initFirebase = (value: string): void => {
   const serviceAccount = JSON.parse(value);
@@ -186,6 +189,31 @@ export const deleteFileAWS = async (fileName: string) => {
 };
 
 /*
+ * Save file to local disk
+ */
+export const uploadFileLocal = async (file: { name: string; path: string; type: string }): Promise<string> => {
+  const oldPath = file.path;
+
+  if (!fs.existsSync(uploadsFolderPath)) {
+    fs.mkdirSync(uploadsFolderPath);
+  }
+
+  const fileName = `${Math.random()}${file.name.replace(/ /g, '')}`;
+  const newPath = `${uploadsFolderPath}/${fileName}`;
+  const rawData = fs.readFileSync(oldPath);
+
+  return new Promise((resolve, reject) => {
+    fs.writeFile(newPath, rawData, err => {
+      if (err) {
+        return reject(err);
+      }
+
+      return resolve(fileName);
+    });
+  });
+};
+
+/*
  * Save file to google cloud storage
  */
 export const uploadFileGCS = async (file: { name: string; path: string; type: string }): Promise<string> => {
@@ -225,6 +253,18 @@ export const uploadFileGCS = async (file: { name: string; path: string; type: st
   const { metadata, name } = response;
 
   return IS_PUBLIC === 'true' ? metadata.mediaLink : name;
+};
+
+const deleteFileLocal = async (fileName: string) => {
+  return new Promise((resolve, reject) => {
+    fs.unlink(`${uploadsFolderPath}/${fileName}`, error => {
+      if (error) {
+        return reject(error);
+      }
+
+      return resolve('deleted');
+    });
+  });
 };
 
 const deleteFileGCS = async (fileName: string) => {
@@ -270,24 +310,38 @@ export const readFileRequest = async (key: string): Promise<any> => {
     return contents;
   }
 
-  const AWS_BUCKET = await getConfig('AWS_BUCKET');
-  const s3 = await createAWS();
+  if (UPLOAD_SERVICE_TYPE === 'AWS') {
+    const AWS_BUCKET = await getConfig('AWS_BUCKET');
+    const s3 = await createAWS();
 
-  return new Promise((resolve, reject) => {
-    s3.getObject(
-      {
-        Bucket: AWS_BUCKET,
-        Key: key,
-      },
-      (error, response) => {
+    return new Promise((resolve, reject) => {
+      s3.getObject(
+        {
+          Bucket: AWS_BUCKET,
+          Key: key,
+        },
+        (error, response) => {
+          if (error) {
+            return reject(error);
+          }
+
+          return resolve(response.Body);
+        },
+      );
+    });
+  }
+
+  if (UPLOAD_SERVICE_TYPE === 'local') {
+    return new Promise((resolve, reject) => {
+      fs.readFile(`${uploadsFolderPath}/${key}`, (error, response) => {
         if (error) {
           return reject(error);
         }
 
-        return resolve(response.Body);
-      },
-    );
-  });
+        return resolve(response);
+      });
+    });
+  }
 };
 
 /*
@@ -297,7 +351,19 @@ export const uploadFile = async (apiUrl: string, file, fromEditor = false): Prom
   const IS_PUBLIC = await getConfig('FILE_SYSTEM_PUBLIC');
   const UPLOAD_SERVICE_TYPE = await getConfig('UPLOAD_SERVICE_TYPE', 'AWS');
 
-  const nameOrLink = UPLOAD_SERVICE_TYPE === 'AWS' ? await uploadFileAWS(file) : await uploadFileGCS(file);
+  let nameOrLink = '';
+
+  if (UPLOAD_SERVICE_TYPE === 'AWS') {
+    nameOrLink = await uploadFileAWS(file);
+  }
+
+  if (UPLOAD_SERVICE_TYPE === 'GCS') {
+    nameOrLink = await uploadFileGCS(file);
+  }
+
+  if (UPLOAD_SERVICE_TYPE === 'local') {
+    nameOrLink = await uploadFileLocal(file);
+  }
 
   if (fromEditor) {
     const editorResult = { fileName: file.name, uploaded: 1, url: nameOrLink };
@@ -319,7 +385,13 @@ export const deleteFile = async (fileName: string): Promise<any> => {
     return deleteFileAWS(fileName);
   }
 
-  return deleteFileGCS(fileName);
+  if (UPLOAD_SERVICE_TYPE === 'GCS') {
+    return deleteFileGCS(fileName);
+  }
+
+  if (UPLOAD_SERVICE_TYPE === 'local') {
+    return deleteFileLocal(fileName);
+  }
 };
 
 /**
