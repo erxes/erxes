@@ -43,10 +43,6 @@ class Settings extends React.PureComponent {
   render() {
     const breadcrumb = [{ title: __('Settings'), link: '/settings' }];
 
-    const generalSettingsPermissions = [
-      'manageGeneralSettings',
-      'showGeneralSettings'
-    ];
     const integrationSettingsActions = [
       'showIntegrations',
       'integrationsCreateMessengerIntegration',
@@ -145,7 +141,7 @@ class Settings extends React.PureComponent {
               '/images/icons/erxes-16.svg',
               '/settings/general',
               'generalSettingsAll',
-              generalSettingsPermissions
+              ['manageGeneralSettings', 'showGeneralSettings']
             )}
             {this.renderBox(
               'Team Members',
