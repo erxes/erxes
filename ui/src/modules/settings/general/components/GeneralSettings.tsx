@@ -231,7 +231,7 @@ class GeneralSettings extends React.Component<Props, State> {
             <ControlLabel>{KEY_LABELS.UPLOAD_SERVICE_TYPE}</ControlLabel>
             <Select
               options={SERVICE_TYPES}
-              value={configsMap.UPLOAD_SERVICE_TYPE}
+              value={configsMap.UPLOAD_SERVICE_TYPE || 'AWS'}
               clearable={false}
               onChange={this.onChangeSingleCombo.bind(
                 this,

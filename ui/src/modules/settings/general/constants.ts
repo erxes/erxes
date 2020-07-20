@@ -18,6 +18,7 @@ export const LANGUAGES = [
 ];
 
 export const SERVICE_TYPES = [
+  { label: 'Local', value: 'local' },
   { label: 'Amazon Web Service', value: 'AWS' },
   { label: 'Google Cloud Service', value: 'GCS' }
 ];
