@@ -35,15 +35,12 @@ context("Login", () => {
     cy.get('button[id="robot-get-started"]').click();
     cy.get('div[id="robot-feature-close"]').click();
 
-    // Contacts
     cy.get("#navigation")
       .children()
       .eq(3)
       .click();
-    // random fakename
-    const random = fakeName(8);
 
-    // leads
+    const random = fakeName(6);
 
     cy.get('a[href="/contacts/lead"]').click();
 
@@ -60,15 +57,15 @@ context("Login", () => {
 
     cy.get('button[icon="check-circle"]').click();
 
-    cy.wait(2000);
+    cy.wait(500);
 
-    const random = fakeName(7);
+    const random = fakeName(5);
 
     cy.get('button[icon="plus-circle"]').click();
 
-    cy.get('input[name="firstName"]').type(random);
-
     cy.get('input[placeholder="Add Email"]').type(random + "@gmail.com");
+
+    cy.get('input[name="firstName"]').type(random);
 
     cy.get("#customerPrimaryEmailSave")
       .children()
@@ -77,14 +74,15 @@ context("Login", () => {
 
     cy.get('button[icon="check-circle"]').click();
 
-    cy.wait(2000);
+    cy.wait(500);
 
-    cy.get("#customers")
-      .children()
-      .eq(0)
-      .children()
-      .eq(0)
-      .click();
+    const customer = cy.get("#customers").get("tr");
+
+    customer.within(() => {
+      cy.get("#checkBox")
+        .eq(0)
+        .click();
+    });
 
     cy.get('button[icon="tag-alt"]').click();
 
@@ -107,102 +105,66 @@ context("Login", () => {
       .eq(0)
       .click();
 
-    cy.wait(2000);
+    cy.wait(500);
 
     cy.get('i[icon="tag-alt"]')
       .eq(1)
       .click();
-    cy.wait(2000);
+    cy.wait(500);
 
-    cy.get("#customers")
-      .children()
-      .eq(0)
-      .children()
-      .eq(0)
-      .click();
+    const customer = cy.get("#customers").get("tr");
 
-    cy.get("#customers")
-      .children()
-      .eq(1)
-      .children()
-      .eq(0)
-      .click();
+    customer.within(() => {
+      cy.get("#checkBox")
+        .eq(0)
+        .click();
+
+      cy.get("#checkBox")
+        .eq(1)
+        .click();
+    });
 
     cy.get('i[icon="merge"]').click();
 
-    cy.get('div[class="modal-body"]')
-      .children()
-      .children()
-      .children()
-      .eq(0)
-      .children()
-      .children()
-      .eq(0)
-      .click();
+    const mergeCustomerForm = cy.get('div[class="modal-body"]');
 
-    cy.get('div[class="modal-body"]')
-      .children()
-      .children()
-      .children()
-      .eq(1)
-      .children()
-      .children()
-      .eq(1)
-      .click();
+    mergeCustomerForm.within(() => {
+      cy.get("li")
+        .eq(0)
+        .click();
 
-    cy.get('div[class="modal-body"]')
-      .children()
-      .children()
-      .children()
-      .eq(1)
-      .children()
-      .children()
-      .eq(2)
-      .click();
+      cy.get("li")
+        .eq(1)
+        .click();
 
-    cy.get('div[class="modal-body"]')
-      .children()
-      .children()
-      .children()
-      .eq(0)
-      .children()
-      .children()
-      .eq(3)
-      .click();
+      cy.get("li")
+        .eq(7)
+        .click();
 
-    cy.get('div[class="modal-body"]')
-      .children()
-      .children()
-      .children()
-      .eq(0)
-      .children()
-      .children()
-      .eq(4)
-      .click();
+      cy.get("li")
+        .eq(8)
+        .click();
+      cy.get("li")
+        .eq(9)
+        .click();
+    });
 
     cy.get('button[icon="checked-1"]').click();
 
-    cy.wait(2000);
+    cy.wait(1000);
 
     cy.get('a[href="/contacts"]')
       .eq(1)
       .click();
 
-    cy.get("#customers")
-      .children()
-      .eq(0)
-      .children()
-      .eq(0)
-      .click();
+    cy.get("#checkBox").click();
 
-    cy.wait(1000);
     cy.get('button[icon="times-circle"]').click();
-    cy.wait(1000);
+
     cy.get('button[icon="checked-1"]').click();
 
-    //customers
-
     const random = fakeName(9);
+
     cy.get('a[href="/contacts/customer"]').click();
 
     cy.get('button[icon="plus-circle"]').click();
@@ -254,7 +216,6 @@ context("Login", () => {
       .click();
     cy.wait(2000);
 
-    //companies
     cy.get('a[href="/companies"]').click();
     cy.get('i[icon = "plus-circle"]').click();
 
@@ -286,12 +247,7 @@ context("Login", () => {
 
     cy.wait(2000);
 
-    cy.get("#companies")
-      .children()
-      .eq(0)
-      .children()
-      .eq(0)
-      .click();
+    cy.get("#checkbox").click();
 
     cy.get('button[icon="tag-alt"]').click();
 
@@ -319,5 +275,13 @@ context("Login", () => {
     cy.get('i[icon="tag-alt"]')
       .eq(1)
       .click();
+
+    cy.get("#checkbox").click();
+
+    cy.get('button[icon="cancel-1"]').click();
+
+    cy.get('button[icon="checked-1"]').click();
+
+    cy.wait(1000);
   });
 });
