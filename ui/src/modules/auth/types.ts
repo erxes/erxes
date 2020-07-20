@@ -37,6 +37,7 @@ export interface IUserDoc {
   participatedConversations?: IUserConversation[];
   permissionActions?: string[];
   configs?: any;
+  configsConstants?: any;
 }
 
 export interface IUser extends IUserDoc {

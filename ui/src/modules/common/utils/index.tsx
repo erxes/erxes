@@ -376,3 +376,31 @@ export function isEmptyContent(content: string) {
   // check if a string contains whitespace or empty
   return !/\S/.test(content);
 }
+
+export const storeConstantToStore = (key, values) => {
+  localStorage.setItem(`config:${key}`, JSON.stringify(values));
+};
+
+export const getConstantFromStore = (
+  key,
+  isMap?: boolean,
+  isFlat?: boolean
+) => {
+  const constant = JSON.parse(localStorage.getItem(`config:${key}`) || '[]');
+
+  if (isFlat) {
+    return constant.map(element => element.value);
+  }
+
+  if (!isMap) {
+    return constant;
+  }
+
+  const map = {};
+
+  constant.forEach(element => {
+    map[element.value] = element.label;
+  });
+
+  return map;
+};

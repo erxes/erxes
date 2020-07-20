@@ -13,7 +13,8 @@ export const LANGUAGES = [
   { label: 'Hindi', value: 'hi' },
   { label: 'Vietnam', value: 'vi' },
   { label: 'Indonesian', value: 'yi' },
-  { label: 'Republic of Serbia', value: 'en_RS' }
+  { label: 'Republic of Serbia', value: 'en_RS' },
+  { label: 'Dutch', value: 'nl' }
 ];
 
 export const SERVICE_TYPES = [
@@ -127,7 +128,11 @@ export const KEY_LABELS = {
 
   TELNYX_API_KEY: 'Telnyx API key',
   TELNYX_PHONE: 'Telnyx phone number',
-  TELNYX_PROFILE_ID: 'Telnyx messaging profile id'
+  TELNYX_PROFILE_ID: 'Telnyx messaging profile id',
+
+  sex_choices: 'Pronoun choices',
+  company_industry_types: 'Company industry types',
+  social_links: 'Social links'
 };
 
 export const FILE_MIME_TYPES = [

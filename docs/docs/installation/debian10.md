@@ -34,7 +34,9 @@ export MONGO_URL="API_MONGO_URL"
 The following will create an admin user admin@erxes.io with a random password. The password will be printed into your terminal.
 
 ```
+
 yarn initProject
+
 ```
 
 ## Load initial data
@@ -42,13 +44,17 @@ yarn initProject
 The below command will create initial permission groups, permissions, growth hack templates, email templates and some sample data and reset the admin password and it will be printed into terminal.
 
 ```
+
 yarn loadInitialData
+
 ```
 
 If do not want to load sample data then you can run following command just to load permissions.
 
 ```
+
 yarn loadPermission
+
 ```
 
 Now you have erxes up and running!

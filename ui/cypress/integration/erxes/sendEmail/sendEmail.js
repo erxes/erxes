@@ -9,6 +9,7 @@ context('Send Email Verification', () => {
   });
 
   it('Sign In', () => {
+
     const email = Cypress.env('userEmail');
     const password = Cypress.env('userPassword');
 
@@ -146,8 +147,6 @@ context('Send Email Verification', () => {
           cy.wait(1000)
           
       });    
-    }
-
 
 
 
@@ -186,6 +185,8 @@ context('Send Email Verification', () => {
     //     }
     //   })
     // });
-  
-    });
+  });
 });
+
+
+

@@ -4,6 +4,7 @@ public
 scripts
 src
 *.yml
+*.yaml
 .env*
 .git*
 .snyk
@@ -12,3 +13,4 @@ Dockerfile*
 jest*.js
 *.json
 yarn.lock
+*.tar.gz

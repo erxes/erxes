@@ -8,15 +8,6 @@ const detailFields = `
   operatorPhone
 `;
 
-const linkFields = `
-  linkedIn
-  twitter
-  facebook
-  github
-  youtube
-  website
-`;
-
 const userDetail = `
   query userDetail($_id: String) {
     userDetail(_id: $_id) {
@@ -29,9 +20,7 @@ const userDetail = `
       details {
         ${detailFields}
       }
-      links {
-        ${linkFields}
-      }
+      links
       emailSignatures
       getNotificationByEmail
     }
@@ -86,9 +75,7 @@ const users = `
         ${detailFields}
       }
 
-      links {
-        ${linkFields}
-      }
+      links
     }
   }
 `;
