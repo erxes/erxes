@@ -46,8 +46,24 @@ export const checkFile = async (file, source?: string) => {
   // determine file type using magic numbers
   const ft = fileType(buffer);
 
+  const unsupportedMimeTypes = ['text/csv', 'image/svg+xml'];
+
+  const oldMsOfficeDocs = ['application/msword', 'application/vnd.ms-excel', 'application/vnd.ms-powerpoint'];
+
+  // allow csv, svg to be uploaded
+  if (!ft && unsupportedMimeTypes.includes(file.type)) {
+    return 'ok';
+  }
+
   if (!ft) {
     return 'Invalid file type';
+  }
+
+  const { mime } = ft;
+
+  // allow old ms office docs to be uploaded
+  if (mime === 'application/x-msi' && oldMsOfficeDocs.includes(file.type)) {
+    return 'ok';
   }
 
   const defaultMimeTypes = [
@@ -61,8 +77,6 @@ export const checkFile = async (file, source?: string) => {
   ];
 
   const UPLOAD_FILE_TYPES = await getConfig(source === 'widgets' ? 'WIDGETS_UPLOAD_FILE_TYPES' : 'UPLOAD_FILE_TYPES');
-
-  const { mime } = ft;
 
   if (!((UPLOAD_FILE_TYPES && UPLOAD_FILE_TYPES.split(',')) || defaultMimeTypes).includes(mime)) {
     return 'Invalid configured file type';
