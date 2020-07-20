@@ -122,7 +122,12 @@ class Row extends React.Component<Props> {
 
   renderStatus() {
     const { message } = this.props;
-    const { stats = { send: '' }, kind, validCustomersCount } = message;
+    const {
+      stats = { send: '' },
+      kind,
+      validCustomersCount,
+      smsStats = { total: 0 }
+    } = message;
     const totalCount = stats.total || 0;
 
     if (!message.isLive) {
@@ -132,7 +137,8 @@ class Row extends React.Component<Props> {
     if (kind === MESSAGE_KINDS.MANUAL) {
       if (
         message.method === METHODS.MESSENGER ||
-        validCustomersCount === totalCount
+        validCustomersCount === totalCount ||
+        validCustomersCount === smsStats.total
       ) {
         return <Label lblStyle="success">Sent</Label>;
       }
