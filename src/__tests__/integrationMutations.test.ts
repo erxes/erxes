@@ -76,11 +76,12 @@ describe('mutations', () => {
       name: _integration.name,
       brandId: _brand._id,
       languageCode: 'en',
+      channelIds: ['randomId'],
     };
 
     const mutation = `
-      mutation integrationsCreateMessengerIntegration(${commonParamDefs}) {
-        integrationsCreateMessengerIntegration(${commonParams}) {
+      mutation integrationsCreateMessengerIntegration($channelIds: [String] ${commonParamDefs}) {
+        integrationsCreateMessengerIntegration(channelIds: $channelIds ${commonParams}) {
           name
           brandId
           languageCode
@@ -103,15 +104,18 @@ describe('mutations', () => {
       name: _integration.name,
       brandId: secondBrand._id,
       languageCode: 'en',
+      channelIds: ['randomId'],
     };
 
     const mutation = `
       mutation integrationsEditMessengerIntegration(
         $_id: String!
+        $channelIds: [String]
         ${commonParamDefs}
       ) {
         integrationsEditMessengerIntegration(
         _id: $_id
+        channelIds: $channelIds
         ${commonParams}
       ) {
           _id
@@ -305,6 +309,7 @@ describe('mutations', () => {
         $brandId: String!
         $accountId: String,
         $data: JSON
+        $channelIds: [String]
       ) {
         integrationsCreateExternalIntegration(
           kind: $kind
@@ -312,6 +317,7 @@ describe('mutations', () => {
           brandId: $brandId
           accountId: $accountId
           data: $data
+          channelIds: $channelIds
         ) {
           _id
           name
@@ -327,6 +333,7 @@ describe('mutations', () => {
       kind: 'nylas-gmail',
       name: 'Nyals gmail integration',
       brandId: brand._id,
+      channelIds: ['randomId'],
     };
 
     try {

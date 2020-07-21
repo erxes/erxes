@@ -16,6 +16,7 @@ export interface IMessengerIntegration {
   name: string;
   brandId: string;
   languageCode: string;
+  channelIds: string[];
 }
 
 export interface IExternalIntegrationParams {
@@ -23,6 +24,7 @@ export interface IExternalIntegrationParams {
   name: string;
   brandId: string;
   accountId: string;
+  channelIds: string[];
 }
 
 interface IIntegrationBasicInfo {
@@ -156,8 +158,8 @@ export const loadClass = () => {
       const prevLeadData: ILeadData = prevEntry.leadData || {};
 
       const doc = {
-        kind: KIND_CHOICES.LEAD,
         ...mainDoc,
+        kind: KIND_CHOICES.LEAD,
         leadData: {
           ...leadData,
           viewCount: prevLeadData.viewCount,

@@ -1,4 +1,4 @@
-import { Customers, EmailDeliveries, Integrations } from '../../../db/models';
+import { Channels, Customers, EmailDeliveries, Integrations } from '../../../db/models';
 import { IIntegration, IMessengerData, IUiOptions } from '../../../db/models/definitions/integrations';
 import { IExternalIntegrationParams } from '../../../db/models/Integrations';
 import { debugExternalApi } from '../../../debuggers';
@@ -20,6 +20,10 @@ const integrationMutations = {
   async integrationsCreateMessengerIntegration(_root, doc: IIntegration, { user }: IContext) {
     const integration = await Integrations.createMessengerIntegration(doc, user._id);
 
+    if (doc.channelIds) {
+      await Channels.updateMany({ _id: { $in: doc.channelIds } }, { $push: { integrationIds: integration._id } });
+    }
+
     await putCreateLog(
       {
         type: MODULE_NAMES.INTEGRATION,
@@ -40,6 +44,12 @@ const integrationMutations = {
   async integrationsEditMessengerIntegration(_root, { _id, ...fields }: IEditIntegration, { user }: IContext) {
     const integration = await Integrations.getIntegration(_id);
     const updated = await Integrations.updateMessengerIntegration(_id, fields);
+
+    await Channels.updateMany({ integrationIds: integration._id }, { $pull: { integrationIds: integration._id } });
+
+    if (fields.channelIds) {
+      await Channels.updateMany({ _id: { $in: fields.channelIds } }, { $push: { integrationIds: integration._id } });
+    }
 
     await putUpdateLog(
       {
@@ -104,6 +114,10 @@ const integrationMutations = {
     { user, dataSources }: IContext,
   ) {
     const integration = await Integrations.createExternalIntegration(doc, user._id);
+
+    if (doc.channelIds) {
+      await Channels.updateMany({ _id: { $in: doc.channelIds } }, { $push: { integrationIds: integration._id } });
+    }
 
     let kind = doc.kind;
 

@@ -109,6 +109,7 @@ export const mutations = `
     name: String!,
     brandId: String!,
     languageCode: String
+    channelIds: [String]
     ): Integration
 
   integrationsEditMessengerIntegration(
@@ -116,6 +117,7 @@ export const mutations = `
     name: String!,
     brandId: String!,
     languageCode: String
+    channelIds: [String]
   ): Integration
 
   integrationsSaveMessengerAppearanceData(
@@ -146,6 +148,7 @@ export const mutations = `
     name: String!,
     brandId: String!,
     accountId: String,
+    channelIds: [String]
     data: JSON): Integration
 
   integrationsEditCommonFields(_id: String!, name: String!, brandId: String!): Integration
