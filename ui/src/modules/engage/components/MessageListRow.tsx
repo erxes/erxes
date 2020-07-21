@@ -31,7 +31,11 @@ type Props = {
 class Row extends React.Component<Props> {
   renderLink(text, className, onClick) {
     return (
-      <Tip text={__(text)} key={`${text}-${this.props.message._id}`}>
+      <Tip
+        text={__(text)}
+        key={`${text}-${this.props.message._id}`}
+        placement="top"
+      >
         <Button btnStyle="link" onClick={onClick} icon={className} />
       </Tip>
     );
@@ -40,10 +44,14 @@ class Row extends React.Component<Props> {
   renderLinks() {
     const msg = this.props.message;
 
-    const edit = this.renderLink('Edit', 'edit', this.props.edit);
-    const pause = this.renderLink('Pause', 'pause', this.props.setPause);
-    const live = this.renderLink('Set live', 'play', this.props.setLive);
-    const liveM = this.renderLink('Set live', 'play', this.props.setLiveManual);
+    const edit = this.renderLink('Edit', 'edit-alt', this.props.edit);
+    const pause = this.renderLink('Pause', 'pause-circle', this.props.setPause);
+    const live = this.renderLink('Set live', 'play-circle', this.props.setLive);
+    const liveM = this.renderLink(
+      'Set live',
+      'play-circle',
+      this.props.setLiveManual
+    );
     const show = this.renderLink('Show statistics', 'eye', this.props.show);
 
     const links: React.ReactNode[] = [];
@@ -77,8 +85,8 @@ class Row extends React.Component<Props> {
     }
 
     return (
-      <Tip text={__('Delete')}>
-        <Button btnStyle="link" onClick={onClick} icon="cancel-1" />
+      <Tip text={__('Delete')} placement="top">
+        <Button btnStyle="link" onClick={onClick} icon="times-cirlce" />
       </Tip>
     );
   };
