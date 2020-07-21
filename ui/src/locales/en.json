@@ -1003,5 +1003,14 @@
   "Show Menu": "Show Menu",
   "Usage": "Usage",
   "article": "article",
-  "articles": "articles"
+  "articles": "articles",
+  "Background image": "Background image",
+  "Custom color": "Custom color",
+  "Reactions": "Reactions",
+  "English": "English",
+  "Dashboard": "Dashboard",
+  "Profile score": "Profile Score",
+  "Verify emails": "Verify emails",
+  "Verify phone numbers": "Verify phone numbers",
+  "Filter by Pop Ups": "Filter by Pop Ups"
 }
