@@ -176,6 +176,11 @@ const SubItem = styled.div`
   i:hover {
     cursor: pointer;
   }
+
+  label {
+    display: block;
+    margin-bottom: 10px;
+  }
 `;
 
 const BackgroundSelector = styled.div`

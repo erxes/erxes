@@ -2,9 +2,10 @@ import { IUser } from 'modules/auth/types';
 import Button from 'modules/common/components/Button';
 import { Step, Steps } from 'modules/common/components/step';
 import {
+  ControlWrapper,
+  Indicator,
   Preview,
-  StepWrapper,
-  TitleContainer
+  StepWrapper
 } from 'modules/common/components/step/styles';
 import { __, Alert } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
@@ -91,8 +92,6 @@ class CreateMessenger extends React.Component<Props, State> {
     const uiOptions = integration.uiOptions || {};
     const channels = integration.channels || [];
 
-    console.log(integration);
-
     this.state = {
       title: integration.name,
       brandId: integration.brandId || '',
@@ -149,9 +148,6 @@ class CreateMessenger extends React.Component<Props, State> {
 
   onChange = <T extends keyof State>(key: T, value: State[T]) => {
     this.setState({ [key]: value } as Pick<State, keyof State>);
-
-    console.log(value);
-    console.log('state', this.state);
   };
 
   save = e => {
@@ -295,19 +291,15 @@ class CreateMessenger extends React.Component<Props, State> {
           <LeftContent>
             <Steps active={activeStep}>
               <Step
-                img="/images/icons/erxes-06.svg"
-                title="Default Settings"
-                onClick={this.onStepClick.bind(null, 'default')}
+                img="/images/icons/erxes-04.svg"
+                title="Appearance"
+                onClick={this.onStepClick.bind(null, 'appearance')}
               >
-                <Options
+                <Appearance
                   onChange={this.onChange}
-                  notifyCustomer={notifyCustomer}
-                  languageCode={languageCode}
-                  requireAuth={requireAuth}
-                  showChat={showChat}
-                  showLauncher={showLauncher}
-                  forceLogoutWhenResolve={forceLogoutWhenResolve}
-                  showVideoCallRequest={showVideoCallRequest}
+                  color={color}
+                  logoPreviewUrl={logoPreviewUrl}
+                  wallpaper={wallpaper}
                 />
               </Step>
 
@@ -355,15 +347,19 @@ class CreateMessenger extends React.Component<Props, State> {
               </Step>
 
               <Step
-                img="/images/icons/erxes-04.svg"
-                title="Appearance"
-                onClick={this.onStepClick.bind(null, 'appearance')}
+                img="/images/icons/erxes-06.svg"
+                title="Default Settings"
+                onClick={this.onStepClick.bind(null, 'default')}
               >
-                <Appearance
+                <Options
                   onChange={this.onChange}
-                  color={color}
-                  logoPreviewUrl={logoPreviewUrl}
-                  wallpaper={wallpaper}
+                  notifyCustomer={notifyCustomer}
+                  languageCode={languageCode}
+                  requireAuth={requireAuth}
+                  showChat={showChat}
+                  showLauncher={showLauncher}
+                  forceLogoutWhenResolve={forceLogoutWhenResolve}
+                  showVideoCallRequest={showVideoCallRequest}
                 />
               </Step>
 
@@ -381,10 +377,13 @@ class CreateMessenger extends React.Component<Props, State> {
                 />
               </Step>
             </Steps>
-            <TitleContainer>
-              <div />
+            <ControlWrapper>
+              <Indicator>
+                You are {this.props.integration ? 'editing' : 'creating'}{' '}
+                <strong>{title}</strong> integration
+              </Indicator>
               {this.renderButtons()}
-            </TitleContainer>
+            </ControlWrapper>
           </LeftContent>
 
           <MessengerPreview>

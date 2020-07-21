@@ -73,7 +73,6 @@ const EditMessenger = (props: FinalProps) => {
       uiOptions
     } = doc;
 
-    console.log('doc', doc);
     editMessengerMutation({
       variables: { _id: integrationId, name, brandId, languageCode, channelIds }
     })

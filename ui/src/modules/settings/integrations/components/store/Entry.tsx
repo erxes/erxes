@@ -84,9 +84,9 @@ function renderCreate(createUrl, createModal) {
     return null;
   }
 
-  if (createModal === INTEGRATION_KINDS.FACEBOOK_MESSENGER) {
-    const trigger = <h6>+ {__('Add')}</h6>;
+  const trigger = <button>+ {__('Add')}</button>;
 
+  if (createModal === INTEGRATION_KINDS.FACEBOOK_MESSENGER) {
     const content = props => (
       <Facebook kind={INTEGRATION_KINDS.FACEBOOK_MESSENGER} {...props} />
     );
@@ -102,8 +102,6 @@ function renderCreate(createUrl, createModal) {
   }
 
   if (createModal === INTEGRATION_KINDS.FACEBOOK_POST) {
-    const trigger = <h6>+ {__('Add')}</h6>;
-
     const content = props => (
       <Facebook kind={INTEGRATION_KINDS.FACEBOOK_POST} {...props} />
     );
@@ -118,8 +116,6 @@ function renderCreate(createUrl, createModal) {
   }
 
   if (createModal === 'lead') {
-    const trigger = <h6>+ {__('Add')}</h6>;
-
     const content = props => <Lead {...props} />;
 
     return (
@@ -128,8 +124,6 @@ function renderCreate(createUrl, createModal) {
   }
 
   if (createModal === 'knowledgeBase') {
-    const trigger = <h6>+ {__('Add')}</h6>;
-
     const content = props => <KnowledgeBase {...props} />;
 
     return (
@@ -142,8 +136,6 @@ function renderCreate(createUrl, createModal) {
   }
 
   if (createModal === 'website') {
-    const trigger = <h6>+ {__('Add')}</h6>;
-
     const content = props => <Website {...props} />;
 
     return (
@@ -152,8 +144,6 @@ function renderCreate(createUrl, createModal) {
   }
 
   if (createModal === 'callpro') {
-    const trigger = <h6>+ {'Add'}</h6>;
-
     const content = props => <CallPro {...props} />;
 
     return (
@@ -162,8 +152,6 @@ function renderCreate(createUrl, createModal) {
   }
 
   if (createModal === 'chatfuel') {
-    const trigger = <h6>+ {'Add'}</h6>;
-
     const content = props => <Chatfuel {...props} />;
 
     return (
@@ -184,8 +172,6 @@ function renderCreate(createUrl, createModal) {
   }
 
   if (createModal === INTEGRATION_KINDS.NYLAS_IMAP) {
-    const trigger = <h6>+ {__('Add')}</h6>;
-
     const content = props => <NylasForm kind={createModal} {...props} />;
 
     return (
@@ -206,8 +192,6 @@ function renderCreate(createUrl, createModal) {
   }
 
   if (createModal === INTEGRATION_KINDS.NYLAS_EXCHANGE) {
-    const trigger = <h6>+ {__('Add')}</h6>;
-
     const content = props => <NylasForm kind={createModal} {...props} />;
 
     return (
@@ -216,8 +200,6 @@ function renderCreate(createUrl, createModal) {
   }
 
   if (createModal === INTEGRATION_KINDS.NYLAS_OUTLOOK) {
-    const trigger = <h6>+ {__('Add')}</h6>;
-
     const content = props => <NylasForm kind={createModal} {...props} />;
 
     return (
@@ -226,8 +208,6 @@ function renderCreate(createUrl, createModal) {
   }
 
   if (createModal === INTEGRATION_KINDS.NYLAS_YAHOO) {
-    const trigger = <h6>+ {__('Add')}</h6>;
-
     const content = props => <NylasForm kind={createModal} {...props} />;
 
     return (
@@ -236,8 +216,6 @@ function renderCreate(createUrl, createModal) {
   }
 
   if (createModal === INTEGRATION_KINDS.GMAIL) {
-    const trigger = <h6>+ {__('Add')}</h6>;
-
     const content = props => <Gmail {...props} />;
 
     return (
@@ -246,8 +224,6 @@ function renderCreate(createUrl, createModal) {
   }
 
   if (createModal === 'twitter') {
-    const trigger = <h6>+ {__('Add')}</h6>;
-
     const content = props => <Twitter {...props} />;
 
     return (
@@ -256,8 +232,6 @@ function renderCreate(createUrl, createModal) {
   }
 
   if (createModal === INTEGRATION_KINDS.SMOOCH_LINE) {
-    const trigger = <h6>+ {__('Add')}</h6>;
-
     const content = props => <LineForm {...props} />;
 
     return (
@@ -266,8 +240,6 @@ function renderCreate(createUrl, createModal) {
   }
 
   if (createModal === INTEGRATION_KINDS.SMOOCH_TELEGRAM) {
-    const trigger = <h6>+ {__('Add')}</h6>;
-
     const content = props => <TelegramForm {...props} />;
 
     return (
@@ -276,8 +248,6 @@ function renderCreate(createUrl, createModal) {
   }
 
   if (createModal === INTEGRATION_KINDS.SMOOCH_VIBER) {
-    const trigger = <h6>+ {__('Add')}</h6>;
-
     const content = props => <ViberForm {...props} />;
 
     return (
@@ -286,8 +256,6 @@ function renderCreate(createUrl, createModal) {
   }
 
   if (createModal === INTEGRATION_KINDS.SMOOCH_TWILIO) {
-    const trigger = <h6>+ {__('Add')}</h6>;
-
     const content = props => <TwilioForm {...props} />;
 
     return (
@@ -300,8 +268,6 @@ function renderCreate(createUrl, createModal) {
   }
 
   if (createModal === INTEGRATION_KINDS.WHATSAPP) {
-    const trigger = <h6>+ {__('Add')}</h6>;
-
     const content = props => <WhatsappForm {...props} />;
 
     return (
@@ -339,7 +305,7 @@ function Entry({
       return null;
     }
 
-    return <h6 onClick={handleLink}>+{__('Add')}</h6>;
+    return <button onClick={handleLink}>+{__('Add')}</button>;
   }
 
   return (
@@ -349,7 +315,6 @@ function Entry({
         <h5>
           {integration.name} {getCount(kind, totalCount, messengerAppsCount)}
         </h5>
-        {renderCustomLink()}
         <p>
           {integration.description}
           {renderType(integration.inMessenger)}
@@ -360,6 +325,7 @@ function Entry({
           </Ribbon>
         )}
       </Box>
+      {renderCustomLink()}
       {renderCreate(createUrl, createModal)}
     </IntegrationItem>
   );

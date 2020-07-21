@@ -54,12 +54,9 @@ class SelectChannels extends React.Component<Props, {}> {
   }
 
   onChangeChannel = values => {
-    console.log(values);
-
-    const ids = values.map(item => item.value) || [];
-
-    this.props.onChange(ids);
+    this.props.onChange(values.map(item => item.value) || []);
   };
+
   render() {
     const { channels, defaultValue, isRequired, description } = this.props;
 

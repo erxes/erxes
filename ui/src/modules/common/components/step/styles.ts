@@ -31,7 +31,7 @@ const StepItem = styledTS<{ show: boolean }>(styled.div)`
 const TitleContainer = styled.div`
   display: flex;
   align-items: center;
-  margin-top: ${dimensions.unitSpacing / 2}px;
+  margin-bottom: ${dimensions.unitSpacing / 2}px;
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   background: ${colors.bgLight};
   box-shadow: 0 0 4px ${colors.colorShadowGray};
@@ -39,6 +39,21 @@ const TitleContainer = styled.div`
 
   > *:nth-child(n + 2) {
     margin-left: ${dimensions.unitSpacing}px;
+  }
+`;
+
+const ControlWrapper = styled(TitleContainer)`
+  margin-bottom: 0;
+  margin-top: ${dimensions.unitSpacing / 2}px;
+`;
+
+const Indicator = styled.div`
+  color: ${colors.colorCoreGray};
+  font-size: 15px;
+  font-style: italic;
+
+  strong {
+    color: ${colors.textPrimary};
   }
 `;
 
@@ -92,11 +107,28 @@ const ShortStep = styledTS<{ show: boolean }>(styled.div)`
   width: 60px;
   height: 100%;
   background: ${colors.bgLight};
+  border: 1px solid ${colors.bgLight};
   cursor: pointer;
   display: ${props => (props.show ? 'flex' : 'none')};
   align-items: center;
   padding: ${dimensions.unitSpacing}px 0;
   flex-direction: column;
+  transition: all 0.3s ease;
+  
+  img {
+    filter: grayscale(100%);
+    opacity: 0.7;
+    transition: all 0.3s ease;
+  }
+
+  &:hover {
+    border-color: ${colors.colorCoreTeal};
+
+    img {
+      filter: grayscale(0);
+      opacity: 1;
+    }
+  }
 `;
 
 const InlineForm = styled.div`
@@ -200,6 +232,8 @@ export {
   ShortStep,
   StepWrapper,
   TitleContainer,
+  Indicator,
+  ControlWrapper,
   InlineForm,
   FlexItem,
   FlexPad,
