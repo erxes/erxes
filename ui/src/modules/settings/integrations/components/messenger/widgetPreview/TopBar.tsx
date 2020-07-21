@@ -36,7 +36,7 @@ class TopBar extends React.Component<Props> {
   renderIcons(icon: string, left?: boolean, size?: number) {
     return (
       <TopBarIcon isLeft={left || false}>
-        <Icon icon={icon} size={size} />
+        <Icon icon={icon} size={size || 24} />
       </TopBarIcon>
     );
   }
@@ -80,13 +80,13 @@ class TopBar extends React.Component<Props> {
 
     return (
       <>
-        {this.renderIcons('leftarrow-3', true)}
+        {this.renderIcons('angle-left', true)}
         <ErxesMiddleTitle>
           {currentBrand && <h3>{currentBrand.name}</h3>}
           {currentBrand && <span>{currentBrand.description}</span>}
           {this.renderSupporters()}
         </ErxesMiddleTitle>
-        {this.renderIcons('cancel', false, 11)}
+        {this.renderIcons('times', false)}
       </>
     );
   }

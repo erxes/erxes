@@ -65,10 +65,10 @@ class PropertyRow extends React.Component<Props, State> {
       <ActionButtons>
         <ModalTrigger
           title="Edit Property"
-          trigger={<Button btnStyle="link" icon="edit" />}
+          trigger={<Button btnStyle="link" icon="edit-alt" />}
           content={content}
         />
-        <Button btnStyle="link" icon="cancel-1" onClick={onClick} />
+        <Button btnStyle="link" icon="times-circle" onClick={onClick} />
       </ActionButtons>
     );
   };

@@ -39,7 +39,7 @@ class IntegrationListItem extends React.Component<Props> {
 
     return (
       <WithPermission action="integrationsArchive">
-        <Tip text={__('Archive')}>
+        <Tip text={__('Archive')} placement="top">
           <Button btnStyle="link" onClick={onClick} icon="archive-alt" />
         </Tip>
       </WithPermission>
@@ -55,8 +55,8 @@ class IntegrationListItem extends React.Component<Props> {
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text="Edit">
-          <Icon icon="edit" />
+        <Tip text="Edit" placement="top">
+          <Icon icon="pen-1" />
         </Tip>
       </Button>
     );
@@ -91,8 +91,8 @@ class IntegrationListItem extends React.Component<Props> {
     if (kind === INTEGRATION_KINDS.MESSENGER) {
       const editTrigger = (
         <Button btnStyle="link">
-          <Tip text="Install code">
-            <Icon icon="copy" />
+          <Tip text="Install code" placement="top">
+            <Icon icon="code" />
           </Tip>
         </Button>
       );
@@ -103,11 +103,11 @@ class IntegrationListItem extends React.Component<Props> {
 
       return (
         <ActionButtons>
-          <Tip text={__('Edit messenger integration')}>
+          <Tip text={__('Edit messenger integration')} placement="top">
             <Link
               to={`/settings/integrations/editMessenger/${integration._id}`}
             >
-              <Button btnStyle="link" icon="edit" />
+              <Button btnStyle="link" icon="pen-1" />
             </Link>
           </Tip>
 
@@ -136,8 +136,8 @@ class IntegrationListItem extends React.Component<Props> {
 
     return (
       <WithPermission action="integrationsRemove">
-        <Tip text={__('Delete')}>
-          <Button btnStyle="link" onClick={onClick} icon="cancel-1" />
+        <Tip text={__('Delete')} placement="top">
+          <Button btnStyle="link" onClick={onClick} icon="times-circle" />
         </Tip>
       </WithPermission>
     );
