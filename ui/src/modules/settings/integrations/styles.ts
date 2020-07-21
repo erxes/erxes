@@ -39,9 +39,14 @@ const FlexRow = styled.div`
   }
 `;
 
-const Row = styled.div`
+const Content = styled.div`
   display: flex;
   height: 100%;
+  overflow: hidden;
+`;
+
+const Row = styled.div`
+  display: flex;
 
   > button {
     flex-shrink: 0;
@@ -52,6 +57,12 @@ const Row = styled.div`
 
 const MessengerPreview = styled.div`
   width: 40%;
+`;
+
+const LeftContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 `;
 
 const IntegrationName = styled.div`
@@ -134,5 +145,7 @@ export {
   Description,
   Script,
   RefreshPermission,
-  GoogleButton
+  GoogleButton,
+  LeftContent,
+  Content
 };

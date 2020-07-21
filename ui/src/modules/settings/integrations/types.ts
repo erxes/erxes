@@ -207,6 +207,7 @@ export type SaveMessengerMutationVariables = {
   name: string;
   brandId: string;
   languageCode: string;
+  channelIds?: string[];
 };
 
 export type CreateGmailMutationVariables = {
@@ -258,6 +259,7 @@ export type EditMessengerMutationVariables = {
   name: string;
   brandId: string;
   languageCode: string;
+  channelIds?: string[];
 };
 
 export type EditMessengerMutationResponse = {

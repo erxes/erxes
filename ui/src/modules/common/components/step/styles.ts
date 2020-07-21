@@ -17,6 +17,7 @@ const StepContainer = styled.div`
 const StepWrapper = styled.div`
   margin: ${dimensions.unitSpacing}px;
   height: 100%;
+  height: calc(100% - ${dimensions.unitSpacing * 2}px);
   display: flex;
   flex-direction: column;
 `;
@@ -30,10 +31,11 @@ const StepItem = styledTS<{ show: boolean }>(styled.div)`
 const TitleContainer = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: ${dimensions.unitSpacing / 2}px;
+  margin-top: ${dimensions.unitSpacing / 2}px;
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
-  background: ${colors.colorWhite};
+  background: ${colors.bgLight};
   box-shadow: 0 0 4px ${colors.colorShadowGray};
+  justify-content: space-between;
 
   > *:nth-child(n + 2) {
     margin-left: ${dimensions.unitSpacing}px;
@@ -87,7 +89,7 @@ const StepContent = styled.div`
 `;
 
 const ShortStep = styledTS<{ show: boolean }>(styled.div)`
-  width: 70px;
+  width: 60px;
   height: 100%;
   background: ${colors.bgLight};
   cursor: pointer;
@@ -166,7 +168,7 @@ const LeftItem = styledTS<{ deactive?: boolean }>(styled.div)`
   overflow: auto;
   flex: 1;
   min-width: 43.33333%;
-  padding: ${dimensions.coreSpacing}px;
+  padding: ${dimensions.coreSpacing + 5}px;
   opacity: ${props => props.deactive && '0.3'};
   cursor: ${props => props.deactive && 'not-allowed'};
 
@@ -179,8 +181,8 @@ const Preview = styledTS<{ fullHeight?: boolean }>(styled.div)`
   flex: 1;
   border-left: 1px solid ${colors.borderPrimary};
   background: url('/images/previews/preview.png');
-  background-repeat: no-repeat;
-  background-position: right bottom;
+  background-repeat: repeat;
+  background-position: center 20px;
   background-size: cover;
   height: ${props => props.fullHeight && '100%'};
   overflow: hidden;
