@@ -1,10 +1,13 @@
+import { getEnv } from 'apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from 'modules/common/utils';
 import { queries } from 'modules/forms/graphql';
+import queryString from 'query-string';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import ManageColumns from '../components/ManageColumns';
+
 import {
   DefaultColumnsConfigQueryResponse,
   FieldsCombinedByTypeQueryResponse,
@@ -13,8 +16,9 @@ import {
 
 type Props = {
   contentType: string;
-  location: any;
-  history: any;
+  type: string;
+  location?: any;
+  history?: any;
   closeModal: () => void;
 };
 
@@ -23,13 +27,16 @@ type FinalProps = {
   fieldsQuery: FieldsCombinedByTypeQueryResponse;
 } & Props;
 
+const { REACT_APP_API_URL } = getEnv();
+
 const ManageColumnsContainer = (props: FinalProps) => {
   const {
     fieldsDefaultColumnsConfigQuery,
     fieldsQuery,
     contentType,
     location,
-    history
+    history,
+    type
   } = props;
 
   if (fieldsQuery.loading || fieldsDefaultColumnsConfigQuery.loading) {
@@ -39,7 +46,7 @@ const ManageColumnsContainer = (props: FinalProps) => {
   const storageKey = `erxes_${contentType}_columns_config`;
   const storageItem = localStorage.getItem(storageKey);
 
-  const save = config => {
+  let save = config => {
     localStorage.setItem(storageKey, JSON.stringify(config));
 
     Alert.success('Success');
@@ -75,6 +82,29 @@ const ManageColumnsContainer = (props: FinalProps) => {
         };
       })
       .sort((a, b) => a.order - b.order);
+  }
+
+  if (type && type === 'import') {
+    save = configs => {
+      const checkedConfigs: string[] = [];
+
+      configs
+        .filter(conf => conf.checked)
+        .forEach(checked => {
+          if (checked.name.startsWith('customFieldsData')) {
+            checkedConfigs.push(checked.label);
+          } else {
+            checkedConfigs.push(checked.name);
+          }
+        });
+
+      const stringified = queryString.stringify({ configs: checkedConfigs });
+
+      window.open(
+        `${REACT_APP_API_URL}/template-export?${stringified}`,
+        '_blank'
+      );
+    };
   }
 
   const updatedProps = {
