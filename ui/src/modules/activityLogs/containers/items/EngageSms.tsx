@@ -23,13 +23,14 @@ class EngageSmsContainer extends React.Component<FinalProps> {
   render() {
     const { engageMessageDetailQuery } = this.props;
 
+    if (!engageMessageDetailQuery.engageMessageDetail) {
+      return <EmptyState icon="comment-question" text="Sms not found" />;
+    }
+
     if (engageMessageDetailQuery && engageMessageDetailQuery.loading) {
       return <Spinner />;
     }
 
-    if (!engageMessageDetailQuery.engageMessageDetail) {
-      return <EmptyState icon="comment-question" text="Sms not found" />;
-    }
     return (
       <EngageSms
         {...this.props}
