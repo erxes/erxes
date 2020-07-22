@@ -13,6 +13,11 @@ interface IEditIntegration extends IIntegration {
   _id: string;
 }
 
+interface IArchiveParams {
+  _id: string;
+  status: boolean;
+}
+
 const integrationMutations = {
   /**
    * Creates a new messenger integration
@@ -267,17 +272,17 @@ const integrationMutations = {
     return;
   },
 
-  async integrationsArchive(_root, { _id }: { _id: string }, { user }: IContext) {
+  async integrationsArchive(_root, { _id, status }: IArchiveParams, { user }: IContext) {
     const integration = await Integrations.getIntegration(_id);
 
-    const updated = await Integrations.updateOne({ _id }, { $set: { isActive: false } });
+    const updated = await Integrations.updateOne({ _id }, { $set: { isActive: !status } });
 
     await putUpdateLog(
       {
         type: MODULE_NAMES.INTEGRATION,
         object: integration,
-        newData: { isActive: false },
-        description: `"${integration.name}" has been archived.`,
+        newData: { isActive: !status },
+        description: `"${integration.name}" has been ${status === true ? 'archived' : 'unarchived'}.`,
         updatedDocument: updated,
       },
       user,

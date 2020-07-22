@@ -44,6 +44,7 @@ export const isTimeInBetween = (date: Date, startTime: string, closeTime: string
 export interface IIntegrationModel extends Model<IIntegrationDocument> {
   getIntegration(_id: string): IIntegrationDocument;
   findIntegrations(query: any, options?: any): Query<IIntegrationDocument[]>;
+  findAllIntegrations(query: any, options?: any): Query<IIntegrationDocument[]>;
   createIntegration(doc: IIntegration, userId: string): Promise<IIntegrationDocument>;
   createMessengerIntegration(doc: IIntegration, userId: string): Promise<IIntegrationDocument>;
   updateMessengerIntegration(_id: string, doc: IIntegration): Promise<IIntegrationDocument>;
@@ -81,6 +82,10 @@ export const loadClass = () => {
      */
     public static findIntegrations(query, options) {
       return Integrations.find({ ...query, isActive: { $ne: false } }, options);
+    }
+
+    public static findAllIntegrations(query: any, options: any) {
+      return Integrations.find({ ...query }, options);
     }
 
     /**
