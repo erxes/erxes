@@ -16,7 +16,7 @@ export interface IMessengerIntegration {
   name: string;
   brandId: string;
   languageCode: string;
-  channelIds: string[];
+  channelIds?: string[];
 }
 
 export interface IExternalIntegrationParams {
@@ -24,7 +24,7 @@ export interface IExternalIntegrationParams {
   name: string;
   brandId: string;
   accountId: string;
-  channelIds: string[];
+  channelIds?: string[];
 }
 
 interface IIntegrationBasicInfo {
