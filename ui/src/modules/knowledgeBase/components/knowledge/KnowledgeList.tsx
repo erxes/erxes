@@ -59,7 +59,7 @@ class KnowledgeList extends React.Component<Props> {
         uppercase={false}
         icon="plus-circle"
       >
-        Add Knowledge base
+        Add Knowledge Base
       </Button>
     );
 
@@ -70,7 +70,7 @@ class KnowledgeList extends React.Component<Props> {
     return (
       <TopHeader>
         <ModalTrigger
-          title="Add Knowledge base"
+          title="Add Knowledge Base"
           autoOpenKey="showKBAddModal"
           trigger={trigger}
           content={content}
@@ -89,7 +89,7 @@ class KnowledgeList extends React.Component<Props> {
           data={this.renderTopics()}
           loading={loading}
           count={topics.length}
-          emptyText="There is no knowledge base"
+          emptyText="There is no knowledge Base"
           emptyImage="/images/actions/18.svg"
         />
       </Sidebar>

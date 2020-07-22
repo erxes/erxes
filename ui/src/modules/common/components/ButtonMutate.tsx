@@ -91,7 +91,7 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
 
       .then(({ data }) => {
         if (successMessage) {
-          Alert.success(successMessage);
+          Alert.success(__(successMessage));
         }
 
         if (callback) {

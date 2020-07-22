@@ -1,5 +1,5 @@
 {
-  "Homepage link": "https://www.erxes.io",
+  "Home page link": "https://www.erxes.io",
   "Are you sure?": "Are you sure? This cannot be undone.",
   "Yes, I am": "Yes, I am",
   "No, Cancel": "No, Cancel",
@@ -70,8 +70,7 @@
   "New company": "New company",
   "Choose which column you see": "Choose which column you see",
   "There is no engage message.": "There is no engage message.",
-  "Add Knowledge base": "Add Knowledge base",
-  "Add knowledge base.": "Add knowledge base.",
+  "Add Knowledge Base": "Add Knowledge Base",
   "New Channel": "New Channel",
   "Edit": "Edit",
   "Edit basic info": "Edit basic info",
@@ -343,7 +342,6 @@
   "Add another time": "Add another time",
   "Time zone": "Time zone",
   "Messenger": "Messenger",
-  "Knowledge base": "Knowledge base",
   "Notification": "Notification",
   "Notifications": "Notifications",
   "Show unread": "Show unread",
@@ -434,6 +432,7 @@
   "Choose channels": "Choose channels",
   "Select": "Select",
   "select": "select",
+  "Select...": "Select...",
   "Choose members": "Choose members",
   "Search": "Search",
   "your@email.com": "your@email.com",
@@ -1021,5 +1020,9 @@
   "Create a segment": "Create a segment",
   "Inactive": "Inactive",
   "days": "days",
-  "Segment name": "Segment name"
+  "Segment name": "Segment name",
+  "Feature": "Feature",
+  "Edit Knowledge Base": "Edit Knowledge Base",
+  "You successfully updated an article": "You successfully updated an article",
+  "You successfully added an article": "You successfully added an article"
 }
