@@ -22,7 +22,7 @@ class EngageSmsContainer extends React.Component<FinalProps> {
   render() {
     const { engageMessageDetailQuery } = this.props;
 
-    if (engageMessageDetailQuery && engageMessageDetailQuery.loading) {
+    if (engageMessageDetailQuery.loading) {
       return <Spinner />;
     }
 
