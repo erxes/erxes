@@ -2,7 +2,6 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import EngageSms from 'modules/activityLogs/components/items/EngageSms';
 import { IActivityLog } from 'modules/activityLogs/types';
-import EmptyState from 'modules/common/components/EmptyState';
 import Spinner from 'modules/common/components/Spinner';
 import { withProps } from 'modules/common/utils';
 import { queries as engageQueries } from 'modules/engage/graphql';
@@ -22,10 +21,6 @@ type FinalProps = {
 class EngageSmsContainer extends React.Component<FinalProps> {
   render() {
     const { engageMessageDetailQuery } = this.props;
-
-    if (!engageMessageDetailQuery.engageMessageDetail) {
-      return <EmptyState icon="comment-question" text="Sms not found" />;
-    }
 
     if (engageMessageDetailQuery && engageMessageDetailQuery.loading) {
       return <Spinner />;
