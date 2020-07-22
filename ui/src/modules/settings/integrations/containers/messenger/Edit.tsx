@@ -64,9 +64,17 @@ const EditMessenger = (props: FinalProps) => {
   const topics = knowledgeBaseTopicsQuery.knowledgeBaseTopics || [];
 
   const save = doc => {
-    const { name, brandId, languageCode, messengerData, uiOptions } = doc;
+    const {
+      name,
+      brandId,
+      channelIds,
+      languageCode,
+      messengerData,
+      uiOptions
+    } = doc;
+
     editMessengerMutation({
-      variables: { _id: integrationId, name, brandId, languageCode }
+      variables: { _id: integrationId, name, brandId, languageCode, channelIds }
     })
       .then(({ data }) => {
         const id = data.integrationsEditMessengerIntegration._id;

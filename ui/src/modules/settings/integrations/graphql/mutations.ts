@@ -1,13 +1,15 @@
 const commonParamsDef = `
   $name: String!,
   $brandId: String!,
-  $languageCode: String
+  $languageCode: String,
+  $channelIds: [String]
 `;
 
 const commonParams = `
   name: $name,
   brandId: $brandId,
-  languageCode: $languageCode
+  languageCode: $languageCode,
+  channelIds: $channelIds
 `;
 
 const mailParamsDef = `

@@ -30,8 +30,8 @@ class Row extends React.Component<Props> {
     return (
       <Link to={`/leads/edit/${integration._id}/${formId}`}>
         <Button btnStyle="link">
-          <Tip text={__('Manage')}>
-            <Icon icon="edit" />
+          <Tip text={__('Manage')} placement="top">
+            <Icon icon="edit-alt" />
           </Tip>
         </Button>
       </Link>
@@ -41,8 +41,8 @@ class Row extends React.Component<Props> {
   renderEditAction(integration) {
     const trigger = (
       <Button btnStyle="link">
-        <Tip text={__('Install code')}>
-          <Icon icon="copy" />
+        <Tip text={__('Install code')} placement="top">
+          <Icon icon="code" />
         </Tip>
       </Button>
     );
@@ -66,7 +66,7 @@ class Row extends React.Component<Props> {
 
     return (
       <WithPermission action="integrationsArchive">
-        <Tip text={__('Archive')}>
+        <Tip text={__('Archive')} placement="top">
           <Button btnStyle="link" onClick={onClick} icon="archive-alt" />
         </Tip>
       </WithPermission>
@@ -80,8 +80,8 @@ class Row extends React.Component<Props> {
 
     return (
       <WithPermission action="integrationsRemove">
-        <Tip text={__('Delete')}>
-          <Button btnStyle="link" onClick={onClick} icon="cancel-1" />
+        <Tip text={__('Delete')} placement="top">
+          <Button btnStyle="link" onClick={onClick} icon="times-circle" />
         </Tip>
       </WithPermission>
     );
