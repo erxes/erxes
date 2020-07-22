@@ -5,6 +5,7 @@ import React from 'react';
 import Task from '../containers/items/boardItems/Task';
 import Conversation from '../containers/items/Conversation';
 import Email from '../containers/items/Email';
+import EngageSms from '../containers/items/EngageSms';
 import InternalNote from '../containers/items/InternalNote';
 import { ActivityIcon, ActivityRow } from '../styles';
 import { IActivityLog } from '../types';
@@ -68,6 +69,11 @@ class ActivityItem extends React.Component<Props> {
         return this.renderDetail(
           'email',
           <Email emailType="engage" emailId={_id} activity={activity} />
+        );
+      case 'engage-sms':
+        return this.renderDetail(
+          'sms',
+          <EngageSms engageId={_id} activity={activity} />
         );
       case 'email':
         return this.renderDetail(
