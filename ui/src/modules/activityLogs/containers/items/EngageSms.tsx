@@ -28,7 +28,7 @@ class EngageSmsContainer extends React.Component<FinalProps> {
     }
 
     if (!engageMessageDetailQuery.engageMessageDetail) {
-      return <EmptyState icon="email-4" text="Email not found" />;
+      return <EmptyState icon="comment-question" text="Sms not found" />;
     }
     return (
       <EngageSms
