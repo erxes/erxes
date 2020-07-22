@@ -79,7 +79,7 @@ context("Login", () => {
     const customer = cy.get("#customers").get("tr");
 
     customer.within(() => {
-      cy.get("#checkBox")
+      cy.get("#customersCheckBox")
         .eq(0)
         .click();
     });
@@ -115,11 +115,11 @@ context("Login", () => {
     const customer = cy.get("#customers").get("tr");
 
     customer.within(() => {
-      cy.get("#checkBox")
+      cy.get("#customersCheckBox")
         .eq(0)
         .click();
 
-      cy.get("#checkBox")
+      cy.get("#customersCheckBox")
         .eq(1)
         .click();
     });
@@ -157,7 +157,7 @@ context("Login", () => {
       .eq(1)
       .click();
 
-    cy.get("#checkBox").click();
+    cy.get("#customersCheckBox").click();
 
     cy.get('button[icon="times-circle"]').click();
 
@@ -247,7 +247,7 @@ context("Login", () => {
 
     cy.wait(2000);
 
-    cy.get("#checkbox").click();
+    cy.get("#companiesCheckBox").click();
 
     cy.get('button[icon="tag-alt"]').click();
 
@@ -276,7 +276,7 @@ context("Login", () => {
       .eq(1)
       .click();
 
-    cy.get("#checkbox").click();
+    cy.get("#companiesCheckBox").click();
 
     cy.get('button[icon="cancel-1"]').click();
 

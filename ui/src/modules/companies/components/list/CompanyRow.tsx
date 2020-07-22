@@ -75,7 +75,7 @@ function CompanyRow({
 
   return (
     <tr onClick={onTrClick}>
-      <td id="checkbox" onClick={onClick}>
+      <td id="companiesCheckBox" onClick={onClick}>
         <FormControl
           checked={isChecked}
           componentClass="checkbox"
