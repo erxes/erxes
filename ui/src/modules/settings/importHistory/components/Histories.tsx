@@ -112,7 +112,7 @@ class Histories extends React.Component<Props & IRouterProps> {
 
       return (
         <ModalTrigger
-          title="Manage Columns"
+          title="Select Columns"
           trigger={editColumns}
           content={manageColumns}
         />
