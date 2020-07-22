@@ -87,16 +87,22 @@ class ListContainer extends React.Component<FinalProps> {
       });
     };
 
-    const archive = (integrationId: string) => {
-      const message = `If you archive a pop ups, then you won't be able to see customers & conversations related to this pop ups anymore. Are you sure?`;
+    const archive = (integrationId: string, status: boolean) => {
+      let message = `If you archive a pop ups, then you won't be able to see customers & conversations related to this pop ups anymore. Are you sure?`;
+      let action = 'archived';
+
+      if (!status) {
+        message = 'You are going to unarchive this pop ups. Are you sure?';
+        action = 'unarchived';
+      }
 
       confirm(message).then(() => {
-        archiveIntegration({ variables: { _id: integrationId } })
+        archiveIntegration({ variables: { _id: integrationId, status } })
           .then(({ data }) => {
             const integration = data.integrationsArchive;
 
             if (integration) {
-              Alert.success('Pop ups has been archived.');
+              Alert.success(`Pop ups has been ${action}.`);
             }
 
             this.refetch();

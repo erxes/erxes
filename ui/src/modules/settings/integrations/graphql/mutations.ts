@@ -192,8 +192,8 @@ const integrationsUpdateConfigs = `
 `;
 
 const integrationsArchive = `
-  mutation integrationsArchive($_id: String!) {
-    integrationsArchive(_id: $_id) {
+  mutation integrationsArchive($_id: String!, $status: Boolean!) {
+    integrationsArchive(_id: $_id, status: $status) {
       _id
     }
   }
