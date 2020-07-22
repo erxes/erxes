@@ -23,8 +23,8 @@ export const createWorkers = (workerPath: string, workerData: any, results: stri
     // tslint:disable-next-line
     const Worker = require('worker_threads').Worker;
 
-    if (workers.length > 0) {
-      return reject(new Error('Workers are busy'));
+    if (workers && workers.length > 0) {
+      return reject(new Error('Workers are busy or not working'));
     }
 
     const interval = setImmediate(() => {
