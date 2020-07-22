@@ -10,6 +10,7 @@ import * as request from 'request';
 import { filterXSS } from 'xss';
 import apolloServer from './apolloClient';
 import { buildFile } from './data/modules/fileExporter/exporter';
+import { templateExport } from './data/modules/fileExporter/templateExport';
 import insightExports from './data/modules/insights/insightExports';
 import {
   authCookieOptions,
@@ -195,6 +196,17 @@ app.get('/file-export', async (req: any, res) => {
     res.attachment(`${result.name}.xlsx`);
 
     return res.send(result.response);
+  } catch (e) {
+    return res.end(filterXSS(e.message));
+  }
+});
+
+app.get('/template-export', async (req: any, res) => {
+  try {
+    const { name, response } = await templateExport(req.query);
+
+    res.attachment(`${name}.xlsx`);
+    return res.send(response);
   } catch (e) {
     return res.end(filterXSS(e.message));
   }
