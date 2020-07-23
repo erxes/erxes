@@ -277,7 +277,7 @@ class KnowledgeForm extends React.Component<Props, State> {
           </ExpandWrapper>
 
           <FormGroup>
-            <ControlLabel>Custom color</ControlLabel>
+            <ControlLabel>Color</ControlLabel>
             <div>
               <OverlayTrigger
                 trigger="click"
