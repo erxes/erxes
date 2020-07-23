@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Alert, withProps } from 'modules/common/utils';
+import { __, Alert, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Tagger from '../components/Tagger';
@@ -44,14 +44,14 @@ const TaggerContainer = (props: FinalProps) => {
           message = `Selected ${type}s have been tagged!`;
         }
 
-        Alert.success(message);
+        Alert.success(__(message));
 
         if (successCallback) {
           successCallback();
         }
       })
       .catch(error => {
-        Alert.error(error.message);
+        Alert.error(__(error.message));
       });
   };
 

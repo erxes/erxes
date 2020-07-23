@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
-import { Alert, confirm, withProps } from 'modules/common/utils';
+import { __, Alert, confirm, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import List from '../components/List';
@@ -25,11 +25,11 @@ const ListContainer = (props: FinalProps) => {
     confirm().then(() => {
       removeMutation({ variables: { ids: [tag._id] } })
         .then(() => {
-          Alert.success('You successfully deleted a tag');
+          Alert.success(__('You successfully deleted a tag'));
           tagsQuery.refetch();
         })
         .catch(e => {
-          Alert.error(e.message);
+          Alert.error(__(e.message));
         });
     });
   };

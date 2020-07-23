@@ -1024,5 +1024,9 @@
   "Feature": "Feature",
   "Edit Knowledge Base": "Edit Knowledge Base",
   "You successfully updated an article": "You successfully updated an article",
-  "You successfully added an article": "You successfully added an article"
+  "You successfully added an article": "You successfully added an article",
+  "Tags type": "Tags type",
+  "tags": "tags",
+  "You successfully deleted a tag": "You successfully deleted a tag",
+  "Product": "Product"
 }
