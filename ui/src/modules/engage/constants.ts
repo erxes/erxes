@@ -44,7 +44,7 @@ export const EMAIL_TEMPLATE = {
 
 export const statusFilters = [
   { key: 'live', value: 'Live' },
-  { key: 'draft', value: 'Draft' },
+  { key: 'draft', value: 'draft' },
   { key: 'paused', value: 'Paused' },
   { key: 'yours', value: 'Your messages' }
 ];
