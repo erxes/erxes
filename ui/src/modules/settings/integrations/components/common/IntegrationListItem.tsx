@@ -18,7 +18,7 @@ import CommonFieldForm from './CommonFieldForm';
 type Props = {
   _id?: string;
   integration: IIntegration;
-  archive: (id: string) => void;
+  archive: (id: string, status: boolean) => void;
   removeIntegration: (integration: IIntegration) => void;
   disableAction?: boolean;
   editIntegration: (
@@ -31,16 +31,34 @@ class IntegrationListItem extends React.Component<Props> {
   renderArchiveAction() {
     const { archive, integration, disableAction } = this.props;
 
-    if (!archive || disableAction) {
+    if (!archive || disableAction || !integration.isActive) {
       return null;
     }
 
-    const onClick = () => archive(integration._id);
+    const onClick = () => archive(integration._id, true);
 
     return (
       <WithPermission action="integrationsArchive">
         <Tip text={__('Archive')} placement="top">
           <Button btnStyle="link" onClick={onClick} icon="archive-alt" />
+        </Tip>
+      </WithPermission>
+    );
+  }
+
+  renderUnarchiveAction() {
+    const { archive, integration, disableAction } = this.props;
+
+    if (!archive || disableAction || integration.isActive) {
+      return null;
+    }
+
+    const onClick = () => archive(integration._id, false);
+
+    return (
+      <WithPermission action="integrationsArchive">
+        <Tip text={__('Unarchive')} placement="top">
+          <Button btnStyle="link" onClick={onClick} icon="redo" />
         </Tip>
       </WithPermission>
     );
@@ -146,6 +164,8 @@ class IntegrationListItem extends React.Component<Props> {
   render() {
     const { integration } = this.props;
     const integrationKind = cleanIntegrationKind(integration.kind);
+    const labelStyle = integration.isActive ? 'success' : 'warning';
+    const status = integration.isActive ? __('Active') : __('Archived');
 
     return (
       <tr key={integration._id}>
@@ -157,10 +177,14 @@ class IntegrationListItem extends React.Component<Props> {
         </td>
         <td>{integration.brand ? integration.brand.name : ''}</td>
         <td>
+          <Label lblStyle={labelStyle}>{status}</Label>
+        </td>
+        <td>
           <ActionButtons>
             {this.renderMessengerActions(integration)}
             {this.renderEditAction()}
             {this.renderArchiveAction()}
+            {this.renderUnarchiveAction()}
             {this.renderRemoveAction()}
           </ActionButtons>
         </td>

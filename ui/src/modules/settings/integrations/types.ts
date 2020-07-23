@@ -346,7 +346,9 @@ export type MessengerAppsRemoveMutationResponse = {
 };
 
 export type ArchiveIntegrationResponse = {
-  archiveIntegration: (params: { variables: { _id: string } }) => Promise<any>;
+  archiveIntegration: (
+    params: { variables: { _id: string; status: boolean } }
+  ) => Promise<any>;
 };
 
 export type CommonFieldsEditResponse = {

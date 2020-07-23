@@ -61,17 +61,23 @@ const IntegrationListContainer = (props: FinalProps) => {
     });
   };
 
-  const archive = (id: string) => {
-    const message =
+  const archive = (id: string, status: boolean) => {
+    let message =
       "If you archive an integration, then you won't be able to see customers & conversations related to this integration anymore. Are you sure?";
+    let action = 'archived';
+
+    if (!status) {
+      message = 'You are going to unarchive this integration. Are you sure?';
+      action = 'unarchived';
+    }
 
     confirm(message).then(() => {
-      archiveIntegration({ variables: { _id: id } })
+      archiveIntegration({ variables: { _id: id, status } })
         .then(({ data }) => {
           const integration = data.integrationsArchive;
 
           if (integration && integration._id) {
-            Alert.success('Integration has been archived.');
+            Alert.success(`Integration has been ${action}.`);
           }
         })
         .catch((error: Error) => {

@@ -9,7 +9,7 @@ import IntegrationListItem from './IntegrationListItem';
 type Props = {
   integrations: IIntegration[];
   removeIntegration: (integration: IIntegration, callback?: any) => void;
-  archive: (id: string) => void;
+  archive: (id: string, status: boolean) => void;
   kind?: string | null;
   editIntegration: (
     id: string,
@@ -67,6 +67,7 @@ class IntegrationList extends React.Component<Props> {
               <th>{__('Name')}</th>
               <th>{__('Kind')}</th>
               <th>{__('Brand')}</th>
+              <th>{__('Status')}</th>
               <th>{__('Actions')}</th>
             </tr>
           </thead>
