@@ -514,8 +514,8 @@ describe('mutations', () => {
 
   test('Integrations archive', async () => {
     const mutation = `
-      mutation integrationsArchive($_id: String!) {
-        integrationsArchive(_id: $_id) {
+      mutation integrationsArchive($_id: String!, $status: Boolean!) {
+        integrationsArchive(_id: $_id, status: $status) {
           _id
           isActive
         }
@@ -523,11 +523,16 @@ describe('mutations', () => {
     `;
 
     const integration = await integrationFactory();
-    const response = await graphqlRequest(mutation, 'integrationsArchive', {
+    let response = await graphqlRequest(mutation, 'integrationsArchive', {
       _id: integration._id,
+      status: true,
     });
 
     expect(response.isActive).toBeFalsy();
+
+    response = await graphqlRequest(mutation, 'integrationsArchive', { _id: integration._id, status: false });
+
+    expect(response.isActive).toBeTruthy();
   });
 
   test('Integrations edit common fields', async () => {

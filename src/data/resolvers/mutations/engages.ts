@@ -28,7 +28,7 @@ const engageMutations = {
    */
   async engageMessageAdd(_root, doc: IEngageMessage, { user, docModifier }: IContext) {
     if (doc.kind !== MESSAGE_KINDS.MANUAL && doc.method === METHODS.SMS) {
-      throw new Error('Manual engage message of type SMS is not supported');
+      throw new Error(`SMS engage message of kind ${doc.kind} is not supported`);
     }
 
     const engageMessage = await EngageMessages.createEngageMessage(docModifier(doc));
