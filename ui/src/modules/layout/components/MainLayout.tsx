@@ -42,16 +42,9 @@ class MainLayout extends React.Component<IProps> {
 
       document.head.appendChild(wootricScript);
 
-      const initWootric = () => {
-        // tslint:disable
-        if ((window as any).wootric) {
-          (window as any).wootric('run');
-        } else {
-          setTimeout(() => initWootric(), 1000);
-        }
+      wootricScript.onload = () => {
+        (window as any).wootric('run');
       };
-
-      initWootric();
     }
   }
 
