@@ -198,6 +198,13 @@ const AccountItem = styled.div`
   margin-top: -1px;
   font-size: 15px;
   font-weight: 500;
+  white-space: nowrap;
+
+  > span {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
 `;
 
 const ImageWrapper = styled.div`

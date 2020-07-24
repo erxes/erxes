@@ -104,7 +104,7 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
 
     return accounts.map(account => (
       <AccountItem key={account._id}>
-        {account.name}
+        <span>{account.name}</span>
 
         <div>
           <Button
