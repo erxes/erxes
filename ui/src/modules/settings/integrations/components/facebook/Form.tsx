@@ -1,13 +1,37 @@
+import Button from 'modules/common/components/Button';
+import EmptyState from 'modules/common/components/EmptyState';
 import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Spinner from 'modules/common/components/Spinner';
-import { ModalFooter } from 'modules/common/styles/main';
+import { Step, Steps } from 'modules/common/components/step';
+import {
+  ControlWrapper,
+  FlexItem,
+  Indicator,
+  LeftItem,
+  Preview,
+  StepWrapper
+} from 'modules/common/components/step/styles';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
+import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { INTEGRATION_KINDS } from '../../constants';
 import Accounts from '../../containers/Accounts';
 import SelectBrand from '../../containers/SelectBrand';
+import SelectChannels from '../../containers/SelectChannels';
+import {
+  AccountBox,
+  AccountItem,
+  AccountTitle,
+  Content,
+  ImageWrapper,
+  MessengerPreview,
+  TextWrapper
+} from '../../styles';
 import { IPages } from '../../types';
 
 type Props = {
@@ -17,33 +41,41 @@ type Props = {
   pages: IPages[];
   accountId?: string;
   onRemoveAccount: (accountId: string) => void;
-  closeModal: () => void;
+  callBack: () => void;
+  loadingPages?: boolean;
 };
 
-class Facebook extends React.Component<Props, { loading: boolean }> {
-  constructor(props: Props) {
+type State = {
+  selectedPages: string[];
+  name: string;
+  brandId: string;
+  accountId: string;
+  channelIds: string[];
+};
+
+class Facebook extends React.Component<Props, State> {
+  constructor(props) {
     super(props);
 
     this.state = {
-      loading: false
+      selectedPages: [],
+      name: '',
+      brandId: '',
+      accountId: props.accountId || '',
+      channelIds: []
     };
   }
 
-  collectCheckboxValues(name: string): string[] {
-    const values: string[] = [];
-    const elements = document.getElementsByName(name);
-
-    // tslint:disable-next-line
-    for (let i = 0; i < elements.length; i++) {
-      const element = elements[i] as HTMLInputElement;
-
-      if (element.checked) {
-        values.push(element.value);
-      }
+  onSelectPages = (pageId: string) => {
+    const { selectedPages } = this.state;
+    if (selectedPages.includes(pageId)) {
+      return this.setState({
+        selectedPages: selectedPages.filter(item => item !== pageId)
+      });
     }
 
-    return values;
-  }
+    this.setState({ selectedPages: [...selectedPages, pageId] });
+  };
 
   generateDoc = (values: {
     messengerName: string;
@@ -57,77 +89,192 @@ class Facebook extends React.Component<Props, { loading: boolean }> {
       brandId: values.brandId,
       kind,
       accountId: accountId ? accountId : values.accountId,
+      channelIds: this.state.channelIds,
       data: {
-        pageIds: this.collectCheckboxValues('pages')
+        pageIds: this.state.selectedPages
       }
     };
   };
 
   renderPages() {
-    const { pages } = this.props;
+    const { pages, loadingPages } = this.props;
+
+    if (loadingPages) {
+      return <Spinner objective={true} />;
+    }
 
     if (pages.length === 0) {
-      return null;
+      return <EmptyState icon="folder-2" text={__('There is no pages')} />;
     }
 
     return (
-      <FormGroup>
-        <ControlLabel required={true}>Pages</ControlLabel>
+      <FlexItem>
+        <LeftItem>
+          <AccountBox>
+            <AccountTitle>{__('Facebook Pages')}</AccountTitle>
+            {pages.map(page => (
+              <AccountItem key={page.id}>
+                {page.name}
 
-        {pages.map(page => (
-          <div key={page.id}>
-            <FormControl
-              componentClass="checkbox"
-              name="pages"
-              key={page.id}
-              value={page.id}
-            >
-              {page.name}
-            </FormControl>
-          </div>
-        ))}
-      </FormGroup>
+                <Button
+                  uppercase={false}
+                  btnStyle={
+                    this.state.selectedPages.includes(page.id)
+                      ? 'primary'
+                      : 'simple'
+                  }
+                  onClick={this.onSelectPages.bind(this, page.id)}
+                >
+                  {this.state.selectedPages.includes(page.id)
+                    ? __('Selected')
+                    : __('Select')}
+                </Button>
+              </AccountItem>
+            ))}
+          </AccountBox>
+        </LeftItem>
+      </FlexItem>
     );
   }
 
+  onChange = <T extends keyof State>(key: T, value: State[T]) => {
+    this.setState({ [key]: value } as Pick<State, keyof State>);
+  };
+
+  channelOnChange = (values: string[]) => this.onChange('channelIds', values);
+
   renderContent = (formProps: IFormProps) => {
-    const { onRemoveAccount, onAccountSelect, renderButton } = this.props;
+    const { renderButton } = this.props;
     const { values, isSubmitted } = formProps;
+    const { onRemoveAccount, onAccountSelect } = this.props;
 
     return (
       <>
-        {this.state.loading && <Spinner />}
-        <FormGroup>
-          <ControlLabel required={true}>Name</ControlLabel>
-          <FormControl {...formProps} name="messengerName" required={true} />
-        </FormGroup>
+        <Steps active={1}>
+          <Step img="/images/icons/erxes-01.svg" title="Connect Account">
+            <FlexItem>
+              <LeftItem>
+                <Accounts
+                  kind="facebook"
+                  addLink="fblogin"
+                  onSelect={onAccountSelect}
+                  onRemove={onRemoveAccount}
+                />
+              </LeftItem>
+            </FlexItem>
+          </Step>
 
-        <SelectBrand isRequired={true} formProps={formProps} />
+          <Step img="/images/icons/erxes-04.svg" title="Connect Your Pages">
+            {this.renderPages()}
+          </Step>
 
-        <Accounts
-          kind="facebook"
-          addLink="fblogin"
-          onSelect={onAccountSelect}
-          onRemove={onRemoveAccount}
-          formProps={formProps}
-        />
+          <Step
+            img="/images/icons/erxes-16.svg"
+            title="Integration Setup"
+            noButton={true}
+          >
+            <FlexItem>
+              <LeftItem>
+                <FormGroup>
+                  <ControlLabel required={true}>Integration Name</ControlLabel>
+                  <p>
+                    {__('Name this integration to differentiate from the rest')}
+                  </p>
+                  <FormControl
+                    {...formProps}
+                    name="messengerName"
+                    required={true}
+                  />
+                </FormGroup>
 
-        {this.renderPages()}
+                <SelectBrand
+                  isRequired={true}
+                  description={__(
+                    'Which specific Brand does this integration belong to?'
+                  )}
+                  formProps={formProps}
+                />
 
-        <ModalFooter>
-          {renderButton({
-            name: 'integration',
-            values: this.generateDoc(values),
-            isSubmitted,
-            callback: this.props.closeModal
-          })}
-        </ModalFooter>
+                <SelectChannels
+                  defaultValue={this.state.channelIds}
+                  isRequired={true}
+                  description={__(
+                    'In which Channel(s) do you want to add this integration?'
+                  )}
+                  onChange={this.channelOnChange}
+                />
+              </LeftItem>
+            </FlexItem>
+          </Step>
+        </Steps>
+        <ControlWrapper>
+          <Indicator>
+            {__('You are creating')}
+            <strong> {this.props.kind}</strong> {__('integration')}
+          </Indicator>
+          <Button.Group>
+            <Link to="/settings/integrations">
+              <Button btnStyle="simple" icon="times-circle" uppercase={false}>
+                Cancel
+              </Button>
+            </Link>
+            {renderButton({
+              name: 'integration',
+              values: this.generateDoc(values),
+              isSubmitted,
+              callback: this.props.callBack
+            })}
+          </Button.Group>
+        </ControlWrapper>
       </>
     );
   };
 
-  render() {
+  renderForm = () => {
     return <Form renderContent={this.renderContent} />;
+  };
+
+  render() {
+    let title = __('Facebook Posts');
+    let description = __(
+      'Connect your Facebook Posts to start receiving Facebook post and comments in your team inbox.'
+    );
+
+    if (this.props.kind === INTEGRATION_KINDS.FACEBOOK_MESSENGER) {
+      title = __('Facebook Messenger');
+      description = __(
+        'Connect your Facebook Messenger to start receiving Facebook messages in your team inbox'
+      );
+    }
+
+    const breadcrumb = [
+      { title: __('Settings'), link: '/settings' },
+      { title: __('App store'), link: '/settings/integrations' },
+      { title }
+    ];
+
+    return (
+      <StepWrapper>
+        <Wrapper.Header title={title} breadcrumb={breadcrumb} />
+        <Content>
+          {this.renderForm()}
+
+          <MessengerPreview>
+            <Preview fullHeight={true}>
+              <ImageWrapper>
+                <TextWrapper>
+                  <h1>
+                    {__('Connect your')} {title}
+                  </h1>
+                  <p>{description}</p>
+                  <img alt={title} src="/images/previews/facebook.png" />
+                </TextWrapper>
+              </ImageWrapper>
+            </Preview>
+          </MessengerPreview>
+        </Content>
+      </StepWrapper>
+    );
   }
 }
 

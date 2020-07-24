@@ -8,7 +8,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { INTEGRATION_KINDS } from '../../constants';
 import Chatfuel from '../../containers/chatfuel/Form';
-import Facebook from '../../containers/facebook/Form';
 import KnowledgeBase from '../../containers/knowledgebase/Form';
 import Lead from '../../containers/lead/Form';
 import LineForm from '../../containers/line/Form';
@@ -74,7 +73,7 @@ function renderType(type: string) {
 
   return (
     <Type>
-      <Icon icon="chat" /> {__('Works with messenger')}
+      <Icon icon="comment-alt-lines" /> {__('Works with messenger')}
     </Type>
   );
 }
@@ -87,31 +86,26 @@ function renderCreate(createUrl, createModal) {
   const trigger = <button>+ {__('Add')}</button>;
 
   if (createModal === INTEGRATION_KINDS.FACEBOOK_MESSENGER) {
-    const content = props => (
-      <Facebook kind={INTEGRATION_KINDS.FACEBOOK_MESSENGER} {...props} />
-    );
-
     return (
-      <ModalTrigger
-        title="Add facebook page"
-        autoOpenKey="showFacebookMessengerModal"
-        trigger={trigger}
-        content={content}
-      />
+      <Link
+        to={`/settings/integrations/createFacebook?kind=${
+          INTEGRATION_KINDS.FACEBOOK_MESSENGER
+        }`}
+      >
+        + {__('Add')}
+      </Link>
     );
   }
 
   if (createModal === INTEGRATION_KINDS.FACEBOOK_POST) {
-    const content = props => (
-      <Facebook kind={INTEGRATION_KINDS.FACEBOOK_POST} {...props} />
-    );
-
     return (
-      <ModalTrigger
-        title="Add facebook page"
-        trigger={trigger}
-        content={content}
-      />
+      <Link
+        to={`/settings/integrations/createFacebook?kind=${
+          INTEGRATION_KINDS.FACEBOOK_POST
+        }`}
+      >
+        + {__('Add')}
+      </Link>
     );
   }
 

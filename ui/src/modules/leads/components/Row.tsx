@@ -32,7 +32,7 @@ class Row extends React.Component<Props> {
       <Link to={`/leads/edit/${integration._id}/${formId}`}>
         <Button btnStyle="link">
           <Tip text={__('Manage')} placement="top">
-            <Icon icon="edit-alt" />
+            <Icon icon="edit-3" />
           </Tip>
         </Button>
       </Link>

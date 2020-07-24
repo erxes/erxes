@@ -9,6 +9,7 @@ import { graphql } from 'react-apollo';
 import {
   ArchiveIntegrationResponse,
   CommonFieldsEditResponse,
+  IntegrationMutationVariables,
   IntegrationsQueryResponse,
   RemoveMutationResponse
 } from '../../types';
@@ -88,7 +89,7 @@ const IntegrationListContainer = (props: FinalProps) => {
 
   const editIntegration = (
     id: string,
-    { name, brandId }: { name: string; brandId: string }
+    { name, brandId, channelIds }: IntegrationMutationVariables
   ) => {
     if (!name && !brandId) {
       Alert.error('Name and brand must be chosen');
@@ -96,7 +97,7 @@ const IntegrationListContainer = (props: FinalProps) => {
       return;
     }
 
-    editCommonFields({ variables: { _id: id, name, brandId } })
+    editCommonFields({ variables: { _id: id, name, brandId, channelIds } })
       .then(({ data }) => {
         const result = data.integrationsEditCommonFields;
 
