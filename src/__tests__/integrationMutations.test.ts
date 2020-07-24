@@ -537,8 +537,8 @@ describe('mutations', () => {
 
   test('Integrations edit common fields', async () => {
     const mutation = `
-      mutation integrationsEditCommonFields($_id: String!, $name: String!, $brandId: String!) {
-        integrationsEditCommonFields(_id: $_id name: $name brandId: $brandId) {
+      mutation integrationsEditCommonFields($_id: String!, $name: String!, $brandId: String!, $channelIds: [String]) {
+        integrationsEditCommonFields(_id: $_id name: $name brandId: $brandId channelIds: $channelIds) {
           _id
           name
           brandId
@@ -552,6 +552,7 @@ describe('mutations', () => {
       _id: integration._id,
       name: 'updated',
       brandId: 'brandId',
+      channelIds: ['randomId'],
     };
 
     const response = await graphqlRequest(mutation, 'integrationsEditCommonFields', doc);

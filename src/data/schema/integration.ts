@@ -151,7 +151,7 @@ export const mutations = `
     channelIds: [String]
     data: JSON): Integration
 
-  integrationsEditCommonFields(_id: String!, name: String!, brandId: String!): Integration
+  integrationsEditCommonFields(_id: String!, name: String!, brandId: String!, channelIds: [String]): Integration
 
   integrationsRemove(_id: String!): JSON
   integrationsRemoveAccount(_id: String!): JSON

@@ -166,9 +166,15 @@ const integrationMutations = {
     return integration;
   },
 
-  async integrationsEditCommonFields(_root, { _id, name, brandId }, { user }) {
+  async integrationsEditCommonFields(_root, { _id, name, brandId, channelIds }, { user }) {
     const integration = await Integrations.getIntegration(_id);
     const updated = Integrations.updateBasicInfo(_id, { name, brandId });
+
+    await Channels.updateMany({ integrationIds: integration._id }, { $pull: { integrationIds: integration._id } });
+
+    if (channelIds) {
+      await Channels.updateMany({ _id: { $in: channelIds } }, { $push: { integrationIds: integration._id } });
+    }
 
     await putUpdateLog(
       {
