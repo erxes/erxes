@@ -4,6 +4,7 @@ import {
   ActivityRow,
   AvatarWrapper,
   EmailContent,
+  FlexCenterContent,
   Timeline
 } from 'modules/activityLogs/styles';
 import { colors, dimensions, typography } from 'modules/common/styles';
@@ -117,7 +118,7 @@ const ActivityLogContent = styled(ActivityContent)`
     }
   }
 
-  ${Meta} {
+  ${Meta}, ${FlexCenterContent} {
     flex-direction: column;
   }
 
