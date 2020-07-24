@@ -3,7 +3,7 @@ import Table from 'modules/common/components/table';
 import { Count } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import { IIntegration } from '../../types';
+import { IIntegration, IntegrationMutationVariables } from '../../types';
 import IntegrationListItem from './IntegrationListItem';
 
 type Props = {
@@ -13,7 +13,7 @@ type Props = {
   kind?: string | null;
   editIntegration: (
     id: string,
-    { name, brandId }: { name: string; brandId: string }
+    { name, brandId, channelIds }: IntegrationMutationVariables
   ) => void;
   queryParams: any;
   disableAction?: boolean;

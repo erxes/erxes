@@ -71,9 +71,11 @@ Following steps explain the Google Cloud Project. Which allows us to use Google 
 
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google/google-general-10.png)
 
-- Copy the service account file's content to google_cred.json in **erxes-api/google_cred.json.sample**, **erxes-integrations/google_cred.json.sample**, and rename them to **google_cred.json**
+- Copy the service account file's content to google_cred.json in **erxes-integrations/google_cred.json.sample**, and rename it to **google_cred.json**
 
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google/google-general-11.png)
+
+- export GOOGLE_APPLICATION_CREDENTIALS="/Path/to/your/[google_cred].json"
 
 - One last touch, we need to configure erxes, Go to Settings => System Config => General System config
   And configure **GOOGLE PROJECT ID**, **GOOGLE APPLICATION CREDENTIALS** fields as in the sceenshot
@@ -339,6 +341,8 @@ Read and send messages, manage drafts and attachments, search threads and messag
 
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google/google-gmail-16.png)
 
+- Restart the erxes-integrations and verify that corresponding topic, subscriptions created in pub/sub console [here](https://console.cloud.google.com/cloudpubsub/subscription).
+
 Now you are good to create your a Gmail integration
 
 ### Facebook
@@ -403,7 +407,7 @@ Grants an app permission to retrieve Page Access Tokens for the Pages and Apps t
 2. You need to send request to facebook and explain that how you will use this permission. In this step, you must provide
    - a. a detailed description of how your app uses the permission or feature requested, how it adds value for a person using your app, and why it's necessary for app functionality.
    - b. a step-by-step video walkthrough of below.
-   - c. [Here](https://bit.ly/2J6j5Oi) is a sample video.
+   - c. [k](https://bit.ly/2J6j5Oi) is a sample video.
 
 **publish_pages:**
 

@@ -12,7 +12,7 @@ import { LeftContent, Row } from '../styles';
 
 type Props = {
   channels: IChannel[];
-  onChange: (values: string[]) => any;
+  onChange?: (values: string[]) => any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   defaultValue?: string[];
   isRequired?: boolean;
@@ -54,7 +54,9 @@ class SelectChannels extends React.Component<Props, {}> {
   }
 
   onChangeChannel = values => {
-    this.props.onChange(values.map(item => item.value) || []);
+    if (this.props.onChange) {
+      this.props.onChange(values.map(item => item.value) || []);
+    }
   };
 
   render() {

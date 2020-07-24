@@ -43,7 +43,7 @@ class PipelineRow extends React.Component<Props, State> {
     return (
       <>
         <Tip text="Edit" placement="top">
-          <Button btnStyle="link" onClick={edit} icon="edit-alt" />
+          <Button btnStyle="link" onClick={edit} icon="edit-3" />
         </Tip>
         <Tip text="Delete">
           <Button btnStyle="link" onClick={onClick} icon="times-circle" />
