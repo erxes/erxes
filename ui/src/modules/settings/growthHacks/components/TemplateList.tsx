@@ -105,7 +105,7 @@ class TemplateList extends React.Component<Props> {
   renderButton = () => {
     return (
       <Link to="/settings/boards/growthHack">
-        <Button size="small" icon="award" btnStyle="primary">
+        <Button icon="award" btnStyle="primary" uppercase={false}>
           Go to Campaign
         </Button>
       </Link>

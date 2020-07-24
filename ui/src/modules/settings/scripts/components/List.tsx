@@ -30,8 +30,8 @@ class ScriptList extends React.Component<Props> {
         title="Install code"
         trigger={
           <Button btnStyle="link">
-            <Tip text="Install code">
-              <Icon icon="copy" />
+            <Tip text="Install code" placement="top">
+              <Icon icon="code" />
             </Tip>
           </Button>
         }
@@ -89,7 +89,7 @@ class ScriptList extends React.Component<Props> {
           <tr>
             <th>{__('Name')}</th>
             <th>{__('Integrations')}</th>
-            <th style={{ width: 100 }}>{__('Actions')}</th>
+            <th style={{ width: 120 }}>{__('Actions')}</th>
           </tr>
         </thead>
         <tbody>{this.renderRows(props)}</tbody>
