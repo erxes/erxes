@@ -26,7 +26,7 @@ function Row({ tag, type, count, renderButton, remove }: Props) {
   const editTrigger = (
     <Button btnStyle="link">
       <Tip text={__('Edit')} placement="top">
-        <Icon icon="edit-alt" />
+        <Icon icon="edit-3" />
       </Tip>
     </Button>
   );

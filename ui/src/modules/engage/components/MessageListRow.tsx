@@ -44,7 +44,7 @@ class Row extends React.Component<Props> {
   renderLinks() {
     const msg = this.props.message;
 
-    const edit = this.renderLink('Edit', 'edit-alt', this.props.edit);
+    const edit = this.renderLink('Edit', 'edit-3', this.props.edit);
     const pause = this.renderLink('Pause', 'pause-circle', this.props.setPause);
     const live = this.renderLink('Set live', 'play-circle', this.props.setLive);
     const liveM = this.renderLink(

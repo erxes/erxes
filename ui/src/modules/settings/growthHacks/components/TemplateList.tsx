@@ -46,7 +46,7 @@ class TemplateList extends React.Component<Props> {
         trigger={
           <div>
             <Tip text="Edit">
-              <Icon icon="edit-alt" />
+              <Icon icon="edit-3" />
             </Tip>
           </div>
         }

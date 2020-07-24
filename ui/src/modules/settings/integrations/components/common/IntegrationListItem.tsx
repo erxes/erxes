@@ -12,7 +12,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { cleanIntegrationKind } from '../../containers/utils';
 import { INTEGRATIONS_COLORS } from '../../integrationColors';
-import { IIntegration } from '../../types';
+import { IIntegration, IntegrationMutationVariables } from '../../types';
 import CommonFieldForm from './CommonFieldForm';
 
 type Props = {
@@ -23,7 +23,7 @@ type Props = {
   disableAction?: boolean;
   editIntegration: (
     id: string,
-    { name, brandId }: { name: string; brandId: string }
+    { name, brandId, channelIds }: IntegrationMutationVariables
   ) => void;
 };
 
@@ -74,7 +74,7 @@ class IntegrationListItem extends React.Component<Props> {
     const editTrigger = (
       <Button btnStyle="link">
         <Tip text="Edit" placement="top">
-          <Icon icon="pen-1" />
+          <Icon icon="edit-3" />
         </Tip>
       </Button>
     );
@@ -85,6 +85,7 @@ class IntegrationListItem extends React.Component<Props> {
         onSubmit={editIntegration}
         name={integration.name}
         brandId={integration.brandId}
+        channelIds={integration.channels.map(item => item._id) || []}
         integrationId={integration._id}
         integrationKind={integration.kind}
       />
@@ -125,7 +126,7 @@ class IntegrationListItem extends React.Component<Props> {
             <Link
               to={`/settings/integrations/editMessenger/${integration._id}`}
             >
-              <Button btnStyle="link" icon="pen-1" />
+              <Button btnStyle="link" icon="edit-3" />
             </Link>
           </Tip>
 

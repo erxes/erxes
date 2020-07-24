@@ -49,7 +49,6 @@ type State = {
   brandId: string;
   channelIds: string[];
   languageCode: string;
-  activeStep: number;
   color: string;
   wallpaper: string;
   notifyCustomer: boolean;
@@ -97,7 +96,6 @@ class CreateMessenger extends React.Component<Props, State> {
       brandId: integration.brandId || '',
       languageCode,
       channelIds: channels.map(item => item._id) || [],
-      activeStep: 1,
       color: uiOptions.color || '#6569DF',
       wallpaper: uiOptions.wallpaper || '1',
       notifyCustomer: configData.notifyCustomer || false,
@@ -249,7 +247,6 @@ class CreateMessenger extends React.Component<Props, State> {
 
   render() {
     const {
-      activeStep,
       title,
       supporterIds,
       isOnline,
@@ -289,7 +286,7 @@ class CreateMessenger extends React.Component<Props, State> {
         <Wrapper.Header title={__('Messenger')} breadcrumb={breadcrumb} />
         <Content>
           <LeftContent>
-            <Steps active={activeStep}>
+            <Steps>
               <Step
                 img="/images/icons/erxes-04.svg"
                 title="Appearance"
@@ -379,8 +376,9 @@ class CreateMessenger extends React.Component<Props, State> {
             </Steps>
             <ControlWrapper>
               <Indicator>
-                You are {this.props.integration ? 'editing' : 'creating'}{' '}
-                <strong>{title}</strong> integration
+                {__('You are')}{' '}
+                {this.props.integration ? 'editing' : 'creating'}{' '}
+                <strong>{title}</strong> {__('integration')}
               </Indicator>
               {this.renderButtons()}
             </ControlWrapper>

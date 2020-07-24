@@ -294,13 +294,17 @@ export type MessengerAppsAddKnowledgebaseMutationResponse = {
   ) => Promise<any>;
 };
 
-export type AddIntegrationMutationVariables = {
-  leadData: ILeadData;
+export type IntegrationMutationVariables = {
   brandId: string;
   name: string;
+  channelIds?: string[];
+};
+
+export type AddIntegrationMutationVariables = {
+  leadData: ILeadData;
   languageCode: string;
   formId: string;
-};
+} & IntegrationMutationVariables;
 
 export type AddIntegrationMutationResponse = {
   addIntegrationMutation: (
@@ -313,11 +317,9 @@ export type AddIntegrationMutationResponse = {
 export type EditIntegrationMutationVariables = {
   _id: string;
   leadData: ILeadData;
-  brandId: string;
-  name: string;
   languageCode: string;
   formId: string;
-};
+} & IntegrationMutationVariables;
 
 export type EditIntegrationMutationResponse = {
   editIntegrationMutation: (
@@ -353,7 +355,14 @@ export type ArchiveIntegrationResponse = {
 
 export type CommonFieldsEditResponse = {
   editCommonFields: (
-    params: { variables: { _id: string; name: string; brandId: string } }
+    params: {
+      variables: {
+        _id: string;
+        name: string;
+        brandId: string;
+        channelIds?: string[];
+      };
+    }
   ) => Promise<any>;
 };
 
