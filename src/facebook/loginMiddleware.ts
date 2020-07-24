@@ -79,7 +79,7 @@ const loginMiddleware = async (req, res) => {
       });
     }
 
-    const url = `${MAIN_APP_DOMAIN}/settings/integrations?fbAuthorized=true`;
+    const url = `${MAIN_APP_DOMAIN}/settings/authorization?fbAuthorized=true`;
 
     debugResponse(debugFacebook, req, url);
 
