@@ -1,7 +1,7 @@
 import { getEnv } from 'apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Alert, withProps } from 'modules/common/utils';
+import { __, Alert, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import queryString from 'query-string';
 import React from 'react';
@@ -82,7 +82,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       })
         .then(() => {
           emptyBulk();
-          Alert.success('You successfully deleted a customer');
+          Alert.success(__('You successfully deleted a customer'));
         })
         .catch(e => {
           Alert.error(e.message);
@@ -101,11 +101,11 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
         .then((result: any) => {
           callback();
           this.setState({ mergeCustomerLoading: false });
-          Alert.success('You successfully merged a customer');
+          Alert.success(__('You successfully merged a customer'));
           history.push(`/contacts/details/${result.data.customersMerge._id}`);
         })
         .catch(e => {
-          Alert.error(e.message);
+          Alert.error(__(e.message));
           this.setState({ mergeCustomerLoading: false });
         });
     };
@@ -120,11 +120,13 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       })
         .then(() => {
           Alert.success(
-            'Your request has been successfully sent. Your contacts will be verified after a while'
+            __(
+              'Your request has been successfully sent. Your contacts will be verified after a while'
+            )
           );
         })
         .catch(e => {
-          Alert.error(e.message);
+          Alert.error(__(e.message));
         });
     };
 

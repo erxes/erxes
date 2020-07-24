@@ -1,7 +1,7 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Alert, withProps } from 'modules/common/utils';
+import { __, Alert, withProps } from 'modules/common/utils';
 import ActionSection from 'modules/customers/components/common/ActionSection';
 import { mutations, queries } from 'modules/customers/graphql';
 import {
@@ -46,11 +46,11 @@ const ActionSectionContainer = (props: FinalProps) => {
       variables: { customerIds: [_id] }
     })
       .then(() => {
-        Alert.success('You successfully deleted a customer');
+        Alert.success(__('You successfully deleted a customer'));
         history.push('/contacts/customer');
       })
       .catch(e => {
-        Alert.error(e.message);
+        Alert.error(__(e.message));
       });
   };
 
@@ -62,10 +62,10 @@ const ActionSectionContainer = (props: FinalProps) => {
       }
     })
       .then(() => {
-        Alert.success('You successfully changed the state');
+        Alert.success(__('You successfully changed the state'));
       })
       .catch(e => {
-        Alert.error(e.message);
+        Alert.error(__(e.message));
       });
   };
 
@@ -77,11 +77,11 @@ const ActionSectionContainer = (props: FinalProps) => {
       }
     })
       .then(response => {
-        Alert.success('You successfully merged a customer');
+        Alert.success(__('You successfully merged a customer'));
         history.push(`/contacts/details/${response.data.customersMerge._id}`);
       })
       .catch(e => {
-        Alert.error(e.message);
+        Alert.error(__(e.message));
       });
   };
 
@@ -100,7 +100,7 @@ const ActionSectionContainer = (props: FinalProps) => {
         }
       })
       .catch(error => {
-        Alert.error(error.message);
+        Alert.error(__(error.message));
       });
   };
 

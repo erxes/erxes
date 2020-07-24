@@ -1,6 +1,7 @@
 import EmptyState from 'modules/common/components/EmptyState';
 import Spinner from 'modules/common/components/Spinner';
 import React from 'react';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   data: any;
@@ -39,7 +40,7 @@ class DataWithLoader extends React.Component<Props> {
     } else if (count === 0) {
       return (
         <EmptyState
-          text={emptyText || 'There is no data'}
+          text={emptyText || __('There is no data')}
           size={size}
           icon={emptyIcon}
           image={emptyImage}

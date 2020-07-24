@@ -170,7 +170,7 @@
   "No Activities": "No Activities",
   "There is no customer.": "There is no customer.",
   "Properties": "Properties",
-  "Customize ": "Customize ",
+  "Customize": "Customize",
   "Kind": "Kind",
   "All": "All",
   "Auto": "Auto",
@@ -1056,5 +1056,16 @@
   "WhatsApp Chat-API": "WhatsApp Chat-API",
   "Verify the email addresses that you send email from": "Verify the email addresses that you send email from",
   "Send your first testing email": "Send your first testing email",
-  "Marketing campaigns & Projects": "Marketing campaigns & Projects"
+  "Marketing campaigns & Projects": "Marketing campaigns & Projects",
+  "Create Pop Ups": "Create Pop Ups",
+  "Your request has been successfully sent. Your contacts will be verified after a while": "Your request has been successfully sent. Your contacts will be verified after a while",
+  "Are your sure you want to convert lead to customer?": "Are your sure you want to convert lead to customer?",
+  "You successfully converted to customer": "You successfully converted to customer",
+  "You successfully updated state": "You successfully updated state",
+  "You successfully merged a customer": "You successfully merged a customer",
+  "You successfully deleted a customer": "You successfully deleted a customer",
+  "You successfully changed the state": "You successfully changed the state",
+  "Visitor": "Visitor",
+  "Learn how to create a segment": "Learn how to create a segment",
+  "Primary Name": "Primary Name"
 }

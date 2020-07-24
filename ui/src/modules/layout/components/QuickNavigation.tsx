@@ -181,7 +181,7 @@ const QuickNavigation = ({
               title="Change Password"
               trigger={
                 <li>
-                  <a href="#change-password">{__('Change Password')}</a>
+                  <a href="#change-password">{__('Change password')}</a>
                 </li>
               }
               content={passContent}
