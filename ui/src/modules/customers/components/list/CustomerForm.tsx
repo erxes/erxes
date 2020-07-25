@@ -156,7 +156,7 @@ class CustomerForm extends React.Component<Props, State> {
     if (currentDate > birthDate) {
       this.setState({ birthDate });
     } else {
-      Alert.error('Please enter a valid "Date".');
+      Alert.error(__('Please enter a valid Date.'));
     }
   };
 

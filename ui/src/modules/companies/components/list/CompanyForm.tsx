@@ -285,6 +285,7 @@ class CompanyForm extends React.Component<Props, State> {
                     options={this.generateConstantParams(
                       COMPANY_BUSINESS_TYPES
                     )}
+                    placeholder={__('Select')}
                     clearable={false}
                   />
                 </FormGroup>

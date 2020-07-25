@@ -117,7 +117,7 @@
   "Status": "状態",
   "Online": "オンライン",
   "Offline": "オフライン",
-  "Twitter": "さえずり",
+  "Twitter": "ツイッター",
   "Twitter quote": "Twitterの引用",
   "Retweet": "リツイート",
   "Screen name": "ハンドルネーム",
@@ -680,5 +680,6 @@
   "Send a message": "メッセージを送る",
   "Volume Report By Customer": "お客様によるボリュームレポート",
   "Export Report": "レポートのエクスポート",
-  "We`re ready to help you.": "あなたを支援する準備ができWe`re。"
+  "We`re ready to help you.": "あなたを支援する準備ができWe`re。",
+  "Birthday": "お誕生日"
 }
