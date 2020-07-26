@@ -17,13 +17,14 @@ const StepContainer = styled.div`
 const StepWrapper = styled.div`
   margin: ${dimensions.unitSpacing}px;
   height: 100%;
+  height: calc(100% - ${dimensions.unitSpacing * 2}px);
   display: flex;
   flex-direction: column;
 `;
 
 const StepItem = styledTS<{ show: boolean }>(styled.div)`
   transition: all .3s ease;
-  width: ${props => (props.show ? '100%' : '70px')};
+  width: ${props => (props.show ? '100%' : '60px')};
   box-shadow: 0 0 4px ${colors.colorShadowGray};
 `;
 
@@ -32,11 +33,27 @@ const TitleContainer = styled.div`
   align-items: center;
   margin-bottom: ${dimensions.unitSpacing / 2}px;
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
-  background: ${colors.colorWhite};
+  background: ${colors.bgLight};
   box-shadow: 0 0 4px ${colors.colorShadowGray};
+  justify-content: space-between;
 
   > *:nth-child(n + 2) {
     margin-left: ${dimensions.unitSpacing}px;
+  }
+`;
+
+const ControlWrapper = styled(TitleContainer)`
+  margin-bottom: 0;
+  margin-top: ${dimensions.unitSpacing / 2}px;
+`;
+
+const Indicator = styled.div`
+  color: ${colors.colorCoreGray};
+  font-size: 15px;
+  font-style: italic;
+
+  strong {
+    color: ${colors.textPrimary};
   }
 `;
 
@@ -87,14 +104,31 @@ const StepContent = styled.div`
 `;
 
 const ShortStep = styledTS<{ show: boolean }>(styled.div)`
-  width: 70px;
+  width: 60px;
   height: 100%;
   background: ${colors.bgLight};
+  border: 1px solid ${colors.bgLight};
   cursor: pointer;
   display: ${props => (props.show ? 'flex' : 'none')};
   align-items: center;
   padding: ${dimensions.unitSpacing}px 0;
   flex-direction: column;
+  transition: all 0.3s ease;
+  
+  img {
+    filter: grayscale(100%);
+    opacity: 0.7;
+    transition: all 0.3s ease;
+  }
+
+  &:hover {
+    border-color: ${colors.colorCoreTeal};
+
+    img {
+      filter: grayscale(0);
+      opacity: 1;
+    }
+  }
 `;
 
 const InlineForm = styled.div`
@@ -166,7 +200,7 @@ const LeftItem = styledTS<{ deactive?: boolean }>(styled.div)`
   overflow: auto;
   flex: 1;
   min-width: 43.33333%;
-  padding: ${dimensions.coreSpacing}px;
+  padding: ${dimensions.coreSpacing + 5}px;
   opacity: ${props => props.deactive && '0.3'};
   cursor: ${props => props.deactive && 'not-allowed'};
 
@@ -179,8 +213,8 @@ const Preview = styledTS<{ fullHeight?: boolean }>(styled.div)`
   flex: 1;
   border-left: 1px solid ${colors.borderPrimary};
   background: url('/images/previews/preview.png');
-  background-repeat: no-repeat;
-  background-position: right bottom;
+  background-repeat: repeat;
+  background-position: center 20px;
   background-size: cover;
   height: ${props => props.fullHeight && '100%'};
   overflow: hidden;
@@ -198,6 +232,8 @@ export {
   ShortStep,
   StepWrapper,
   TitleContainer,
+  Indicator,
+  ControlWrapper,
   InlineForm,
   FlexItem,
   FlexPad,

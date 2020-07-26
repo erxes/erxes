@@ -75,7 +75,7 @@ const Square = styled(NavItem)`
 
 const Round = styled(NavItem)`
   > a {
-    padding: 2px 10px;
+    padding: 0 10px;
     background: ${lighten(colors.colorPrimary, 5)};
     color: ${colors.colorWhite};
     border-radius: 17px;
@@ -189,6 +189,7 @@ const QuickNavigation = ({
 
             <ModalTrigger
               title="Email signatures"
+              enforceFocus={false}
               trigger={
                 <li>
                   <a href="#email">{__('Email signatures')}</a>

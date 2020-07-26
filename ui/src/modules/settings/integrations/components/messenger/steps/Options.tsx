@@ -9,13 +9,11 @@ import { Alert } from 'modules/common/utils';
 import { LANGUAGES } from 'modules/settings/general/constants';
 import { queries } from 'modules/settings/integrations/graphql';
 import React from 'react';
-import SelectBrand from '../../../containers/SelectBrand';
 import { Description } from '../../../styles';
 
 type Props = {
   onChange: (
     name:
-      | 'brandId'
       | 'languageCode'
       | 'notifyCustomer'
       | 'requireAuth'
@@ -63,10 +61,8 @@ class Options extends React.Component<Props, State> {
   }) {
     return (
       <FormGroup>
-        <ControlLabel>
-          {label}
-          <Description>{description}</Description>
-        </ControlLabel>
+        <ControlLabel>{label}</ControlLabel>
+        <Description>{description}</Description>
         <div>
           <Toggle
             checked={checked}
@@ -87,8 +83,6 @@ class Options extends React.Component<Props, State> {
         'languageCode',
         (e.currentTarget as HTMLInputElement).value
       );
-
-    const brandOnChange = e => this.onChangeFunction('brandId', e.target.value);
 
     const notifyCustomerChange = e =>
       this.onChangeFunction('notifyCustomer', e.target.checked);
@@ -146,12 +140,6 @@ class Options extends React.Component<Props, State> {
               ))}
             </FormControl>
           </FormGroup>
-
-          <SelectBrand
-            defaultValue={this.props.brandId}
-            isRequired={true}
-            onChange={brandOnChange}
-          />
 
           {this.renderToggle({
             label: 'Require Authentication',

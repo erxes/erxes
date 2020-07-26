@@ -26,6 +26,7 @@ export interface IUserConversation {
 }
 
 export interface IUserDoc {
+  createdAt?: Date;
   username: string;
   email: string;
   isActive?: boolean;

@@ -16,7 +16,7 @@ type Props = {
   closeModal: () => void;
 };
 
-class Form extends React.Component<Props> {
+class CategoryForm extends React.Component<Props> {
   renderContent = (formProps: IFormProps) => {
     const { renderButton, closeModal, category, categories } = this.props;
     const { values, isSubmitted } = formProps;
@@ -62,7 +62,7 @@ class Form extends React.Component<Props> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Category</ControlLabel>
+          <ControlLabel>Parent Category</ControlLabel>
 
           <FormControl
             {...formProps}
@@ -76,7 +76,12 @@ class Form extends React.Component<Props> {
         </FormGroup>
 
         <ModalFooter>
-          <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
+          <Button
+            btnStyle="simple"
+            onClick={closeModal}
+            icon="times-circle"
+            uppercase={false}
+          >
             Close
           </Button>
 
@@ -97,4 +102,4 @@ class Form extends React.Component<Props> {
   }
 }
 
-export default Form;
+export default CategoryForm;

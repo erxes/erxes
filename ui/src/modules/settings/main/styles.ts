@@ -39,7 +39,7 @@ const RowTitle = styled.h3`
 `;
 
 const Box = styled(BoxRoot)`
-  width: ${boxSize}px;
+  width: ${boxSize + 10}px;
   height: ${boxSize}px;
   border-color: transparent;
 

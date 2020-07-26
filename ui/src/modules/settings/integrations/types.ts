@@ -207,6 +207,7 @@ export type SaveMessengerMutationVariables = {
   name: string;
   brandId: string;
   languageCode: string;
+  channelIds?: string[];
 };
 
 export type CreateGmailMutationVariables = {
@@ -258,6 +259,7 @@ export type EditMessengerMutationVariables = {
   name: string;
   brandId: string;
   languageCode: string;
+  channelIds?: string[];
 };
 
 export type EditMessengerMutationResponse = {
@@ -292,13 +294,17 @@ export type MessengerAppsAddKnowledgebaseMutationResponse = {
   ) => Promise<any>;
 };
 
-export type AddIntegrationMutationVariables = {
-  leadData: ILeadData;
+export type IntegrationMutationVariables = {
   brandId: string;
   name: string;
+  channelIds?: string[];
+};
+
+export type AddIntegrationMutationVariables = {
+  leadData: ILeadData;
   languageCode: string;
   formId: string;
-};
+} & IntegrationMutationVariables;
 
 export type AddIntegrationMutationResponse = {
   addIntegrationMutation: (
@@ -311,11 +317,9 @@ export type AddIntegrationMutationResponse = {
 export type EditIntegrationMutationVariables = {
   _id: string;
   leadData: ILeadData;
-  brandId: string;
-  name: string;
   languageCode: string;
   formId: string;
-};
+} & IntegrationMutationVariables;
 
 export type EditIntegrationMutationResponse = {
   editIntegrationMutation: (
@@ -344,12 +348,21 @@ export type MessengerAppsRemoveMutationResponse = {
 };
 
 export type ArchiveIntegrationResponse = {
-  archiveIntegration: (params: { variables: { _id: string } }) => Promise<any>;
+  archiveIntegration: (
+    params: { variables: { _id: string; status: boolean } }
+  ) => Promise<any>;
 };
 
 export type CommonFieldsEditResponse = {
   editCommonFields: (
-    params: { variables: { _id: string; name: string; brandId: string } }
+    params: {
+      variables: {
+        _id: string;
+        name: string;
+        brandId: string;
+        channelIds?: string[];
+      };
+    }
   ) => Promise<any>;
 };
 

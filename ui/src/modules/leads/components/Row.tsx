@@ -3,6 +3,7 @@ import ActionButtons from 'modules/common/components/ActionButtons';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import Icon from 'modules/common/components/Icon';
+import Label from 'modules/common/components/Label';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tags from 'modules/common/components/Tags';
 import Tip from 'modules/common/components/Tip';
@@ -20,7 +21,7 @@ type Props = {
   isChecked: boolean;
   toggleBulk: (integration: ILeadIntegration, checked: boolean) => void;
   remove: (integrationId: string) => void;
-  archive: (integrationId: string) => void;
+  archive: (integrationId: string, status: boolean) => void;
 };
 
 class Row extends React.Component<Props> {
@@ -30,8 +31,8 @@ class Row extends React.Component<Props> {
     return (
       <Link to={`/leads/edit/${integration._id}/${formId}`}>
         <Button btnStyle="link">
-          <Tip text={__('Manage')}>
-            <Icon icon="edit" />
+          <Tip text={__('Manage')} placement="top">
+            <Icon icon="edit-3" />
           </Tip>
         </Button>
       </Link>
@@ -41,8 +42,8 @@ class Row extends React.Component<Props> {
   renderEditAction(integration) {
     const trigger = (
       <Button btnStyle="link">
-        <Tip text={__('Install code')}>
-          <Icon icon="copy" />
+        <Tip text={__('Install code')} placement="top">
+          <Icon icon="code" />
         </Tip>
       </Button>
     );
@@ -62,12 +63,34 @@ class Row extends React.Component<Props> {
   renderArchiveAction() {
     const { integration, archive } = this.props;
 
-    const onClick = () => archive(integration._id);
+    const onClick = () => archive(integration._id, true);
+
+    if (!archive || !integration.isActive) {
+      return null;
+    }
 
     return (
       <WithPermission action="integrationsArchive">
-        <Tip text={__('Archive')}>
+        <Tip text={__('Archive')} placement="top">
           <Button btnStyle="link" onClick={onClick} icon="archive-alt" />
+        </Tip>
+      </WithPermission>
+    );
+  }
+
+  renderUnarchiveAction() {
+    const { integration, archive } = this.props;
+
+    const onClick = () => archive(integration._id, false);
+
+    if (!archive || integration.isActive) {
+      return null;
+    }
+
+    return (
+      <WithPermission action="integrationsArchive">
+        <Tip text={__('Unarchive')} placement="top">
+          <Button btnStyle="link" onClick={onClick} icon="redo" />
         </Tip>
       </WithPermission>
     );
@@ -80,8 +103,8 @@ class Row extends React.Component<Props> {
 
     return (
       <WithPermission action="integrationsRemove">
-        <Tip text={__('Delete')}>
-          <Button btnStyle="link" onClick={onClick} icon="cancel-1" />
+        <Tip text={__('Delete')} placement="top">
+          <Button btnStyle="link" onClick={onClick} icon="times-circle" />
         </Tip>
       </WithPermission>
     );
@@ -110,6 +133,9 @@ class Row extends React.Component<Props> {
         toggleBulk(integration, e.target.checked);
       }
     };
+
+    const labelStyle = integration.isActive ? 'success' : 'warning';
+    const status = integration.isActive ? __('Active') : __('Archived');
 
     return (
       <tr>
@@ -143,10 +169,14 @@ class Row extends React.Component<Props> {
           <Tags tags={tags} limit={2} />
         </td>
         <td>
+          <Label lblStyle={labelStyle}>{status}</Label>
+        </td>
+        <td>
           <ActionButtons>
             {this.manageAction(integration)}
             {this.renderEditAction(integration)}
             {this.renderArchiveAction()}
+            {this.renderUnarchiveAction()}
             {this.renderRemoveAction()}
           </ActionButtons>
         </td>

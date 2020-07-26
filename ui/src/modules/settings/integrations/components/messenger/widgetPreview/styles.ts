@@ -197,12 +197,12 @@ const WidgetPreviewStyled = styled.div`
   color: ${colors.colorWhite};
   border-radius: ${dimensions.unitSpacing}px;
   border-bottom-right-radius: 25px;
-  bottom: 70px;
+  bottom: 80px;
   box-shadow: 0 2px 16px 1px ${rgba(colors.colorBlack, 0.2)};
   display: flex;
   flex-direction: column;
   height: calc(100% - 95px);
-  max-height: 720px;
+  max-height: 660px;
   overflow: hidden;
   position: absolute;
   right: 8px;
@@ -222,9 +222,9 @@ const Links = styled.div`
 `;
 
 const Launcher = styled(LogoContainer)`
-  position: fixed;
-  right: ${coreSpace};
-  bottom: ${coreSpace};
+  position: absolute;
+  right: ${unitSpace};
+  bottom: ${unitSpace};
 `;
 
 const Socials = styled.div`

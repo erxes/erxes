@@ -20,16 +20,16 @@ You can import & export the following types of data:
 
 | Data type | Import | Export |
 | ------------- | :-----------: | :-----: |
-| Brands | No | Yes |
-| Channels | No | Yes |
-| Companies | Yes | Yes |
-| Customers | Yes | Yes |
-| Sales pipelines | Yes | Yes |
-| Permissions | No | Yes |
-| Product & service | Yes | No |
-| Tasks | Yes | Yes
-| Tickets | Yes | Yes |
-| Team members | No | Yes |
+| Brands | No | **Yes** |
+| Channels | No | **Yes** |
+| Companies | **Yes** | **Yes** |
+| Customers | **Yes** | **Yes** |
+| Sales pipelines | **Yes** | **Yes** |
+| Permissions | No | **Yes** |
+| Product & service | **Yes** | No |
+| Tasks | **Yes** | **Yes**
+| Tickets | **Yes** | **Yes** |
+| Team members | No | **Yes** |
 
 All data types that can be imported have spreadsheet template files available for download. You must download & fill the template accordingly before importing.
 
