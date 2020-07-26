@@ -3,7 +3,7 @@ import * as compose from 'lodash.flowright';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
-import { Alert, confirm, withProps } from 'modules/common/utils';
+import { Alert, confirm, withProps, __ } from 'modules/common/utils';
 import {
   mutations as engageMutations,
   queries as engageQueries
@@ -53,7 +53,7 @@ class SettingsContainer extends React.Component<Props> {
           refetchQueries={'engagesConfigDetail'}
           isSubmitted={isSubmitted}
           type="submit"
-          successMessage={`You successfully updated engages config`}
+          successMessage={__(`You successfully updated engages config`)}
         />
       );
     };
@@ -67,33 +67,33 @@ class SettingsContainer extends React.Component<Props> {
         .then(() => {
           engagesVerifiedEmailsQuery.refetch();
           Alert.success(
-            'Successfully sent verification email. Please check your inbox'
+            __('Successfully sent verification email. Please check your inbox')
           );
         })
 
         .catch(e => {
-          Alert.error(e.message);
+          Alert.error(__(e.message));
         });
     };
 
     const removeVerifiedEmail = (email: string) => {
-      confirm('You are about to remove verified email. Are your sure ?').then(
-        () => {
-          engagesRemoveVerifiedEmailMutation({
-            variables: {
-              email
-            }
+      confirm(
+        __('You are about to remove verified email. Are your sure?')
+      ).then(() => {
+        engagesRemoveVerifiedEmailMutation({
+          variables: {
+            email
+          }
+        })
+          .then(() => {
+            engagesVerifiedEmailsQuery.refetch();
+            Alert.success(__('Successfully removed'));
           })
-            .then(() => {
-              engagesVerifiedEmailsQuery.refetch();
-              Alert.success('Successfully removed');
-            })
 
-            .catch(e => {
-              Alert.error(e.message);
-            });
-        }
-      );
+          .catch(e => {
+            Alert.error(__(e.message));
+          });
+      });
     };
 
     const sendTestEmail = (from: string, to: string, content: string) => {
@@ -105,11 +105,11 @@ class SettingsContainer extends React.Component<Props> {
         }
       })
         .then(() => {
-          Alert.success('Successfully sent');
+          Alert.success(__('Successfully sent'));
         })
 
         .catch(e => {
-          Alert.error(e.message);
+          Alert.error(__(e.message));
         });
     };
 

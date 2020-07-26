@@ -4,7 +4,7 @@ import debounce from 'lodash/debounce';
 import withCurrentUser from 'modules/auth/containers/withCurrentUser';
 import { IUser } from 'modules/auth/types';
 import Spinner from 'modules/common/components/Spinner';
-import { Alert, withProps } from 'modules/common/utils';
+import { __, Alert, withProps } from 'modules/common/utils';
 import { queries as messageQueries } from 'modules/inbox/graphql';
 import { IMail } from 'modules/inbox/types';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
@@ -69,13 +69,15 @@ const MailFormContainer = (props: FinalProps) => {
   }) => {
     return sendMailMutation({ variables, optimisticResponse, update })
       .then(() => {
-        Alert.success('You have successfully sent a email');
+        Alert.success(__('You have successfully sent a email'));
 
         if (isReply && variables.shouldResolve) {
           debounce(
             () =>
               Alert.info(
-                'This email conversation will be automatically moved to a resolved state.'
+                __(
+                  'This email conversation will be automatically moved to a resolved state.'
+                )
               ),
             3300
           )();

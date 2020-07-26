@@ -82,7 +82,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
 
     return (
       <ContentBox>
-        <CollapseContent title="Facebook">
+        <CollapseContent title={__('Facebook')}>
           <Info>
             <a
               target="_blank"
@@ -102,7 +102,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
           )}
         </CollapseContent>
 
-        <CollapseContent title="Twitter">
+        <CollapseContent title={__('Twitter')}>
           <Info>
             <a
               target="_blank"
@@ -119,7 +119,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
           {this.renderItem('TWITTER_WEBHOOK_ENV')}
         </CollapseContent>
 
-        <CollapseContent title="Nylas">
+        <CollapseContent title={__('Nylas')}>
           <Info>
             <a
               target="_blank"
@@ -140,7 +140,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
           {this.renderItem('MICROSOFT_CLIENT_SECRET')}
         </CollapseContent>
 
-        <CollapseContent title="Video call">
+        <CollapseContent title={__('Video call')}>
           <Info>
             <a
               target="_blank"
@@ -167,7 +167,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
           {this.renderItem('DAILY_END_POINT')}
         </CollapseContent>
 
-        <CollapseContent title="Gmail">
+        <CollapseContent title={__('Gmail')}>
           <Info>
             <a
               target="_blank"
@@ -193,7 +193,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
           </ContentDisabler>
         </CollapseContent>
 
-        <CollapseContent title="Sunshine Conversations API">
+        <CollapseContent title={__('Sunshine Conversations API')}>
           <Info>
             <a
               target="_blank"
@@ -212,7 +212,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
           )}
         </CollapseContent>
 
-        <CollapseContent title="WhatsApp Chat-API">
+        <CollapseContent title={__('WhatsApp Chat-API')}>
           <Info>
             <a
               target="_blank"

@@ -233,14 +233,18 @@ class Histories extends React.Component<Props & IRouterProps> {
               <HeaderDescription
                 icon="/images/actions/27.svg"
                 title="Import & export"
-                description="Here you can find data of all your previous imports of companies and customers. Find out when they joined and their current status. Nothing goes missing around here."
+                description={
+                  __(
+                    'Here you can find data of all your previous imports of companies and customers. Find out when they joined and their current status. Nothing goes missing around here'
+                  ) + '.'
+                }
               />
             }
             right={this.renderImportButton()}
           />
         }
         leftSidebar={
-          <Sidebar title="Import & export" currentType={currentType} />
+          <Sidebar title={__('Import & export')} currentType={currentType} />
         }
         footer={<Pagination count={totalCount} />}
         content={

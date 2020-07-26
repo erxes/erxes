@@ -84,7 +84,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
       return this.props.verifyEmail(emailToVerify);
     }
 
-    return Alert.error('Write your email to verify!');
+    return Alert.error(__('Write your email to verify!'));
   };
 
   onSendTestEmail = () => {
@@ -131,8 +131,8 @@ class EngageSettingsContent extends React.Component<Props, State> {
         <Info>
           <p>
             {__(
-              'Amazon Simple Email Service enables you to send and receive email using a reliable and scalable email platform. Set up your custom amazon simple email service account.'
-            )}
+              'Amazon Simple Email Service enables you to send and receive email using a reliable and scalable email platform. Set up your custom amazon simple email service account'
+            ) + '.'}
           </p>
           <a
             target="_blank"
@@ -225,7 +225,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
           {
             <p>
               {__(
-                'Required to properly display "from" number when sending international SMS. If not set, telnyx replaces "from" number to the text "Sender"'
+                'Required to properly display from number when sending international SMS. If not set, telnyx replaces from number to the text Sender'
               )}
             </p>
           }
@@ -256,7 +256,9 @@ class EngageSettingsContent extends React.Component<Props, State> {
           <Form renderContent={this.renderContent} />
         </CollapseContent>
 
-        <CollapseContent title="Verify the email addresses that you send email from ">
+        <CollapseContent
+          title={__('Verify the email addresses that you send email from)')}
+        >
           {this.renderVerifiedEmails()}
 
           <Verify>
@@ -277,7 +279,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
             </Button>
           </Verify>
         </CollapseContent>
-        <CollapseContent title="Send your first testing email">
+        <CollapseContent title={__('Send your first testing email')}>
           <FormGroup>
             <ControlLabel>From</ControlLabel>
             <FormControl
@@ -297,7 +299,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Content</ControlLabel>
             <FormControl
-              placeholder="Write your content..."
+              placeholder={__('Write your content') + '...'}
               componentClass="textarea"
               onChange={this.onChangeCommon.bind(this, 'testContent')}
             />

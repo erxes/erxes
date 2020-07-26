@@ -6,6 +6,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import Resolver from '../components/Resolver';
 import { mutations } from '../graphql';
+import { __ } from 'modules/common/utils';
 import {
   ChangeStatusMutationResponse,
   ChangeStatusMutationVariables,
@@ -33,7 +34,7 @@ const ResolverContainer = (props: FinalProps) => {
         }
 
         if (status === CONVERSATION_STATUSES.CLOSED) {
-          Alert.success('The conversation has been resolved!');
+          Alert.success(__('The conversation has been resolved!'));
 
           // clear saved messages from storage
           conversationIds.forEach(c => {
@@ -41,7 +42,7 @@ const ResolverContainer = (props: FinalProps) => {
           });
         } else {
           Alert.info(
-            'The conversation has been reopened and restored to Inbox.'
+            __('The conversation has been reopened and restored to Inbox')
           );
         }
 

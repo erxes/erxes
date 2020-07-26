@@ -168,15 +168,15 @@ class CreateMessenger extends React.Component<Props, State> {
     } = this.state;
 
     if (!languageCode) {
-      return Alert.error('Set language');
+      return Alert.error(__('Set language'));
     }
 
     if (!title) {
-      return Alert.error('Write title');
+      return Alert.error(__('Write title'));
     }
 
     if (!brandId) {
-      return Alert.error('Choose a brand');
+      return Alert.error(__('Choose a brand'));
     }
 
     const links = { facebook, twitter, youtube };

@@ -3,7 +3,7 @@ import * as compose from 'lodash.flowright';
 import { IItemParams } from 'modules/boards/types';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
-import { Alert, confirm, withProps } from 'modules/common/utils';
+import { __, Alert, confirm, withProps } from 'modules/common/utils';
 import React, { useEffect } from 'react';
 import { graphql } from 'react-apollo';
 import List from '../components/List';
@@ -48,7 +48,7 @@ function ListContainer(props: FinalProps) {
     confirm().then(() => {
       removeMutation({ variables: { _id: checklistId } })
         .then(() => {
-          Alert.success('You successfully deleted a checklist');
+          Alert.success(__('You successfully deleted a checklist'));
           localStorage.removeItem(checklistId);
         })
         .catch(e => {
@@ -73,7 +73,7 @@ function ListContainer(props: FinalProps) {
 
     const afterConvert = () => {
       callback();
-      Alert.success('You successfully converted a card');
+      Alert.success(__('You successfully converted a card'));
     };
 
     props.addItem({ stageId, name }, afterConvert);

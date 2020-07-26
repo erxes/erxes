@@ -86,7 +86,7 @@ class Items extends React.Component<Props, { openItemId?: string }> {
 
     const relTrigger = (
       <ButtonRelated>
-        <span>{__('See related ' + data.options.title + '..')}</span>
+        <span>{__('See related') + ' ' + data.options.title + '..'}</span>
       </ButtonRelated>
     );
 
