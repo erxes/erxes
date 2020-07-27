@@ -48,7 +48,7 @@ const loginMiddleware = async (req, res) => {
     });
   }
 
-  const url = `${MAIN_APP_DOMAIN}/settings/integrations?gmailAuthorized=true`;
+  const url = `${MAIN_APP_DOMAIN}/settings/authorization?gmailAuthorized=true`;
 
   debugResponse(debugGmail, req, url);
 
