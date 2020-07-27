@@ -213,6 +213,8 @@ class Task extends React.Component<Props, State> {
   renderContent() {
     const { task } = this.props;
 
+    const assignedUserIds = (task.assignedUsers || []).map((user) => user._id);
+
     const onAssignedUserSelect = (usrs) => {
       this.saveItem('assignedUserIds', usrs);
     };
@@ -226,7 +228,7 @@ class Task extends React.Component<Props, State> {
               <SelectTeamMembers
                 label={__('Choose team member')}
                 name="assignedUserIds"
-                value={task.assignedUserIds}
+                value={assignedUserIds}
                 onSelect={onAssignedUserSelect}
               />
             </Row>
