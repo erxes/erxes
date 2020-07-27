@@ -28,8 +28,8 @@ class Home extends React.Component<Props, State> {
     this.state = {
       searchValue: '',
       integrations: INTEGRATIONS.filter(
-        integration => integration.category.indexOf('All integrations') !== -1
-      )
+        (integration) => integration.category.indexOf('All integrations') !== -1
+      ),
     };
   }
 
@@ -43,17 +43,17 @@ class Home extends React.Component<Props, State> {
     ) {
       this.setState({
         integrations: INTEGRATIONS.filter(
-          integration =>
+          (integration) =>
             integration.name.toLowerCase().indexOf(searchValue) !== -1 &&
             integration.category.indexOf(
               queryParams.type || 'All integrations'
             ) !== -1
-        )
+        ),
       });
     }
   }
 
-  onSearch = e => {
+  onSearch = (e) => {
     this.setState({ searchValue: e.target.value.toLowerCase() });
   };
 
@@ -110,7 +110,7 @@ class Home extends React.Component<Props, State> {
         <Icon icon="search-1" />
         <FormControl
           type="text"
-          placeholder={__('Type to search for an integration...')}
+          placeholder={__('Type to search for an integration') + '...'}
           onChange={this.onSearch}
         />
       </SearchInput>
@@ -121,7 +121,7 @@ class Home extends React.Component<Props, State> {
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('App store') },
-      { title: `${this.props.queryParams.type || 'All integrations'}` }
+      { title: `${this.props.queryParams.type || 'All integrations'}` },
     ];
 
     return (
@@ -135,7 +135,16 @@ class Home extends React.Component<Props, State> {
               <HeaderDescription
                 icon="/images/actions/33.svg"
                 title="App store"
-                description="Set up your integrations and start connecting with your customers. Now you can reach them on wherever platform they feel most comfortable."
+                description={
+                  __(
+                    'Set up your integrations and start connecting with your customers'
+                  ) +
+                  '. ' +
+                  __(
+                    'Now you can reach them on wherever platform they feel most comfortable'
+                  ) +
+                  '.'
+                }
               />
             }
             right={this.renderSearch()}

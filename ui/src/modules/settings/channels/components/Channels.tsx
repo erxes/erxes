@@ -26,13 +26,13 @@ class Channels extends React.Component<Props, {}> {
       integrationsCount,
       currentChannel,
       queryParams,
-      loading
+      loading,
     } = this.props;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('Channels'), link: '/settings/channels' },
-      { title: `${currentChannel.name || ''}` }
+      { title: `${currentChannel.name || ''}` },
     ];
 
     if (!currentChannel._id) {
@@ -51,7 +51,7 @@ class Channels extends React.Component<Props, {}> {
       </Button>
     );
 
-    const content = props => (
+    const content = (props) => (
       <ManageIntegrations
         {...props}
         queryParams={queryParams}
@@ -83,9 +83,14 @@ class Channels extends React.Component<Props, {}> {
           <HeaderDescription
             icon="/images/actions/31.svg"
             title={__('Channels')}
-            description={__(
-              'Channels are important to know how and where your team members are spread out. Manage your channels and stay at the top of your game.'
-            )}
+            description={
+              __(
+                'Channels are important to know how and where your team members are spread out'
+              ) +
+              '.' +
+              __('Manage your channels and stay at the top of your game') +
+              '.'
+            }
           />
         }
         leftSidebar={
