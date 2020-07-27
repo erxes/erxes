@@ -346,7 +346,7 @@ class RespondBox extends React.Component<Props, State> {
   renderMask() {
     if (this.state.isInactive) {
       return (
-        <Mask onClick={this.hideMask}>
+        <Mask id="mask" onClick={this.hideMask}>
           {__(
             'Customer is offline Click to hide and send messages and they will receive them the next time they are online'
           )}
@@ -399,6 +399,7 @@ class RespondBox extends React.Component<Props, State> {
 
     return (
       <FormControl
+        id="conversationInternalNote"
         className="toggle-message"
         componentClass="checkbox"
         checked={isInternal}

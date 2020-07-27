@@ -129,6 +129,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
 
     return (
       <Box
+        id="customerChangeStateBox"
         key={index}
         selected={this.state.customerState === type}
         onClick={onClick}
