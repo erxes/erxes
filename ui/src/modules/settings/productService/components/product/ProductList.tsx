@@ -46,14 +46,14 @@ class List extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue
+      searchValue: this.props.searchValue,
     };
   }
 
   renderRow = () => {
     const { products, history, toggleBulk, bulk } = this.props;
 
-    return products.map(product => (
+    return products.map((product) => (
       <Row
         history={history}
         key={product._id}
@@ -69,17 +69,17 @@ class List extends React.Component<IProps, State> {
     toggleAll(products, 'products');
   };
 
-  removeProducts = products => {
+  removeProducts = (products) => {
     const productIds: string[] = [];
 
-    products.forEach(product => {
+    products.forEach((product) => {
       productIds.push(product._id);
     });
 
     this.props.remove({ productIds }, this.props.emptyBulk);
   };
 
-  renderCount = productCount => {
+  renderCount = (productCount) => {
     return (
       <Count>
         {productCount} product{productCount > 1 && 's'}
@@ -87,7 +87,7 @@ class List extends React.Component<IProps, State> {
     );
   };
 
-  search = e => {
+  search = (e) => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -119,12 +119,12 @@ class List extends React.Component<IProps, State> {
       history,
       bulk,
       emptyBulk,
-      currentCategory
+      currentCategory,
     } = this.props;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Product & Service') }
+      { title: __('Product & Service') },
     ];
 
     const trigger = (
@@ -133,7 +133,7 @@ class List extends React.Component<IProps, State> {
       </Button>
     );
 
-    const modalContent = props => <Form {...props} />;
+    const modalContent = (props) => <Form {...props} />;
 
     let actionBarRight = (
       <BarItems>
@@ -207,7 +207,7 @@ class List extends React.Component<IProps, State> {
           .then(() => {
             this.removeProducts(bulk);
           })
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
           });
 
@@ -248,7 +248,16 @@ class List extends React.Component<IProps, State> {
           <HeaderDescription
             icon="/images/actions/30.svg"
             title={'Product & Service'}
-            description={`All information and know-how related to your business's products and services are found here. Create and add in unlimited products and servicess so that you and your team members can edit and share.`}
+            description={
+              __(
+                `All information and know-how related to your business's products and services are found here`
+              ) +
+              '.' +
+              __(
+                `Create and add in unlimited products and servicess so that you and your team members can edit and share`
+              ) +
+              '.'
+            }
           />
         }
         actionBar={

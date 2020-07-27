@@ -31,11 +31,11 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
     super(props);
 
     const {
-      queryParams: { searchValue }
+      queryParams: { searchValue },
     } = props;
 
     this.state = {
-      searchValue: searchValue || ''
+      searchValue: searchValue || '',
     };
   }
 
@@ -45,7 +45,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
     this.setState({ searchValue: value });
   };
 
-  renderForm = props => {
+  renderForm = (props) => {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };
 
@@ -89,7 +89,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
           <FlexItem>
             <ControlLabel>Search</ControlLabel>
             <FormControl
-              placeholder="Search"
+              placeholder={__('Search')}
               name="searchValue"
               onChange={this.onChange}
               value={this.state.searchValue}
@@ -113,7 +113,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
     );
   };
 
-  renderContent = props => {
+  renderContent = (props) => {
     return (
       <Table>
         <thead>
@@ -134,14 +134,23 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
         formTitle="New response template"
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },
-          { title: __('Response templates') }
+          { title: __('Response templates') },
         ]}
         title={__('Response templates')}
         leftActionBar={
           <HeaderDescription
             icon="/images/actions/24.svg"
             title="Response templates"
-            description={`Make things easy for your team members and add in ready made response templates. Manage and edit your response templates according to each situation and respond in a timely manner and without the hassle.`}
+            description={
+              __(
+                `Make things easy for your team members and add in ready made response templates`
+              ) +
+              '. ' +
+              __(
+                'Manage and edit your response templates according to each situation and respond in a timely manner and without the hassle'
+              ) +
+              '.'
+            }
           />
         }
         renderFilter={this.renderFilter}

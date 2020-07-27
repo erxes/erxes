@@ -28,10 +28,10 @@ class IntegrationList extends React.Component<Props> {
       archive,
       editIntegration,
       queryParams: { _id },
-      disableAction
+      disableAction,
     } = this.props;
 
-    return integrations.map(i => (
+    return integrations.map((i) => (
       <IntegrationListItem
         key={i._id}
         _id={_id}
@@ -50,7 +50,7 @@ class IntegrationList extends React.Component<Props> {
     if (!integrations || integrations.length < 1) {
       return (
         <EmptyState
-          text="Start adding integrations now!"
+          text={__('Start adding integrations now!')}
           image="/images/actions/2.svg"
         />
       );

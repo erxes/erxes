@@ -65,7 +65,7 @@ class PipelineForm extends React.Component<Props, State> {
       metric: pipeline ? pipeline.metric : '',
       startDate: pipeline ? pipeline.startDate : undefined,
       endDate: pipeline ? pipeline.endDate : undefined,
-      boardId: props.boardId || ''
+      boardId: props.boardId || '',
     };
   }
 
@@ -73,14 +73,14 @@ class PipelineForm extends React.Component<Props, State> {
     client
       .query({
         query: gql(queries.pipelineTemplates),
-        variables: { type: 'growthHack' }
+        variables: { type: 'growthHack' },
       })
       .then(({ data }: { data: any }) => {
         if (data && data.pipelineTemplates) {
           this.setState({ templates: data.pipelineTemplates });
         }
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error.message); // tslint:disable-line
       });
   }
@@ -91,7 +91,7 @@ class PipelineForm extends React.Component<Props, State> {
 
   onChangeVisibility = (e: React.FormEvent<HTMLElement>) => {
     this.setState({
-      visibility: (e.currentTarget as HTMLInputElement).value
+      visibility: (e.currentTarget as HTMLInputElement).value,
     });
   };
 
@@ -107,11 +107,11 @@ class PipelineForm extends React.Component<Props, State> {
     }
   };
 
-  collectValues = items => {
-    return items.map(item => item.value);
+  collectValues = (items) => {
+    return items.map((item) => item.value);
   };
 
-  onColorChange = e => {
+  onColorChange = (e) => {
     this.setState({ backgroundColor: e.hex });
   };
 
@@ -129,7 +129,7 @@ class PipelineForm extends React.Component<Props, State> {
       startDate,
       endDate,
       metric,
-      boardId
+      boardId,
     } = this.state;
     const finalValues = values;
 
@@ -147,7 +147,7 @@ class PipelineForm extends React.Component<Props, State> {
       hackScoringType,
       startDate,
       endDate,
-      metric
+      metric,
     };
   };
 
@@ -159,7 +159,7 @@ class PipelineForm extends React.Component<Props, State> {
     }
     const self = this;
 
-    const onChange = items => {
+    const onChange = (items) => {
       self.setState({ selectedMemberIds: items });
     };
 
@@ -182,12 +182,12 @@ class PipelineForm extends React.Component<Props, State> {
   renderTemplates() {
     const { templates, templateId } = this.state;
 
-    const templateOptions = templates.map(template => ({
+    const templateOptions = templates.map((template) => ({
       value: template._id,
-      label: template.name
+      label: template.name,
     }));
 
-    const onChange = item => this.onChangeValue('templateId', item.value);
+    const onChange = (item) => this.onChangeValue('templateId', item.value);
 
     return (
       <FormGroup>
@@ -207,12 +207,12 @@ class PipelineForm extends React.Component<Props, State> {
   renderBoards() {
     const { boards } = this.props;
 
-    const boardOptions = boards.map(board => ({
+    const boardOptions = boards.map((board) => ({
       value: board._id,
-      label: board.name
+      label: board.name,
     }));
 
-    const onChange = item => this.onChangeValue('boardId', item.value);
+    const onChange = (item) => this.onChangeValue('boardId', item.value);
 
     return (
       <FormGroup>
@@ -247,7 +247,7 @@ class PipelineForm extends React.Component<Props, State> {
     const object = pipeline || ({} as IPipeline);
     const { startDate, endDate, metric, visibility } = this.state;
 
-    const onChangeMetric = item => this.onChangeValue('metric', item.value);
+    const onChangeMetric = (item) => this.onChangeValue('metric', item.value);
 
     const popoverBottom = (
       <Popover id="color-picker">
@@ -288,19 +288,25 @@ class PipelineForm extends React.Component<Props, State> {
 
             <FlexContent>
               {this.renderBox(
-                'ice',
-                'Set the Impact, Confidence and Ease factors for your tasks. Final score is calculated by the formula:',
-                'Impact * Confidence * Ease'
+                __('ice'),
+                __(
+                  'Set the Impact, Confidence and Ease factors for your tasks. Final score is calculated by the formula:'
+                ),
+                __('Impact * Confidence * Ease')
               )}
               {this.renderBox(
-                'rice',
-                'Set the Reach, Impact, Confidence and Effort factors for your tasks. Final score is calculated by the formula:',
-                '(Reach * Impact * Confidence) / Effort'
+                __('rice'),
+                __(
+                  'Set the Reach, Impact, Confidence and Effort factors for your tasks. Final score is calculated by the formula:'
+                ),
+                __('(Reach * Impact * Confidence) / Effort')
               )}
               {this.renderBox(
-                'pie',
-                'Set the Potential, Importance and Ease factors for your tasks. Final score is calculated by the formula:',
-                '(Potential + Importance + Ease) / 3'
+                __('pie'),
+                __(
+                  'Set the Potential, Importance and Ease factors for your tasks. Final score is calculated by the formula:'
+                ),
+                __('(Potential + Importance + Ease) / 3')
               )}
             </FlexContent>
           </FormGroup>
@@ -374,7 +380,7 @@ class PipelineForm extends React.Component<Props, State> {
                       <ColorPick>
                         <ColorPicker
                           style={{
-                            backgroundColor: this.state.backgroundColor
+                            backgroundColor: this.state.backgroundColor,
                           }}
                         />
                       </ColorPick>
@@ -403,7 +409,7 @@ class PipelineForm extends React.Component<Props, State> {
               values: this.generateDoc(values),
               isSubmitted,
               callback: closeModal,
-              object: pipeline
+              object: pipeline,
             })}
           </Modal.Footer>
         </Modal.Body>

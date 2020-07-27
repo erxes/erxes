@@ -6,6 +6,7 @@ import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { IBreadCrumbItem } from '../../../common/types';
 import { ICommonListProps } from '../types';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   title: string;
@@ -38,7 +39,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       refetch,
       center,
       remove,
-      additionalButton
+      additionalButton,
     } = this.props;
 
     const trigger = (
@@ -47,7 +48,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       </Button>
     );
 
-    const content = props => {
+    const content = (props) => {
       return renderForm({ ...props, save });
     };
 
@@ -83,7 +84,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
             data={renderContent({ objects, save, refetch, remove })}
             loading={loading}
             count={totalCount}
-            emptyText="Oops! No data here"
+            emptyText={__('Oops! No data here')}
             emptyImage="/images/actions/5.svg"
           />
         }

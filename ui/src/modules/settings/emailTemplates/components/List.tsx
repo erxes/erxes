@@ -11,7 +11,7 @@ import {
   IframePreview,
   Template,
   TemplateBox,
-  Templates
+  Templates,
 } from '../styles';
 import Form from './Form';
 
@@ -20,18 +20,18 @@ type Props = {
 } & ICommonListProps;
 
 class EmailTemplateList extends React.Component<Props> {
-  renderForm = props => {
+  renderForm = (props) => {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };
 
-  removeTemplate = object => {
+  removeTemplate = (object) => {
     this.props.remove(object._id);
   };
 
-  renderEditAction = object => {
+  renderEditAction = (object) => {
     const { save } = this.props;
 
-    const content = props => {
+    const content = (props) => {
       return this.renderForm({ ...props, object, save });
     };
 
@@ -69,7 +69,7 @@ class EmailTemplateList extends React.Component<Props> {
     ));
   }
 
-  renderContent = props => {
+  renderContent = (props) => {
     return <Templates>{this.renderRow(props)}</Templates>;
   };
 
@@ -80,14 +80,25 @@ class EmailTemplateList extends React.Component<Props> {
         size="lg"
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },
-          { title: __('Email templates') }
+          { title: __('Email templates') },
         ]}
         title={__('Email templates')}
         leftActionBar={
           <HeaderDescription
             icon="/images/actions/22.svg"
             title="Email templates"
-            description={`It's all about thinking ahead for your customers. Team members will be able to choose from email templates and send out one message to multiple recipients. You can use the email templates to send out a Mass email for leads/customers or you can send to other team members.`}
+            description={
+              __(`It's all about thinking ahead for your customers`) +
+              '. ' +
+              __(
+                `Team members will be able to choose from email templates and send out one message to multiple recipients`
+              ) +
+              '. ' +
+              __(
+                `You can use the email templates to send out a Mass email for leads/customers or you can send to other team members`
+              ) +
+              '.'
+            }
           />
         }
         renderForm={this.renderForm}

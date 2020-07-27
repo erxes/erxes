@@ -18,12 +18,12 @@ type Props = {
 } & ICommonListProps;
 
 class ScriptList extends React.Component<Props> {
-  renderForm = props => {
+  renderForm = (props) => {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };
 
-  installCodeAction = object => {
-    const content = props => <InstallCode {...props} script={object} />;
+  installCodeAction = (object) => {
+    const content = (props) => <InstallCode {...props} script={object} />;
 
     return (
       <ModalTrigger
@@ -67,7 +67,7 @@ class ScriptList extends React.Component<Props> {
                 <Tip text="Pop ups" placement="top">
                   <Icon icon="window" />
                 </Tip>
-                {object.leads.map(lead => ` ${lead.name},`)}
+                {object.leads.map((lead) => ` ${lead.name},`)}
               </div>
             )}
           </td>
@@ -82,7 +82,7 @@ class ScriptList extends React.Component<Props> {
     });
   };
 
-  renderContent = props => {
+  renderContent = (props) => {
     return (
       <Table>
         <thead>
@@ -100,17 +100,26 @@ class ScriptList extends React.Component<Props> {
   render() {
     return (
       <List
-        formTitle="New script"
+        formTitle={__('New script')}
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },
-          { title: __('Scripts') }
+          { title: __('Scripts') },
         ]}
         title={__('Scripts')}
         leftActionBar={
           <HeaderDescription
             icon="/images/actions/23.svg"
             title="Scripts"
-            description={`Script manager allows erxes users to quickly and easily generate and update related scripts for any of their business websites. Set up once and your marketing team will be able to easily create forms, add in chats and list FAQs on any of their businesses websites.`}
+            description={
+              __(
+                `Script manager allows erxes users to quickly and easily generate and update related scripts for any of their business websites`
+              ) +
+              '. ' +
+              __(
+                `Set up once and your marketing team will be able to easily create forms, add in chats and list FAQs on any of their businesses websites`
+              ) +
+              '.'
+            }
           />
         }
         renderForm={this.renderForm}

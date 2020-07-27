@@ -22,7 +22,7 @@ class Home extends React.Component<Props, {}> {
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __(title), link: `/settings/boards/${type}` }
+      { title: __(title), link: `/settings/boards/${type}` },
     ];
 
     return (
@@ -33,8 +33,17 @@ class Home extends React.Component<Props, {}> {
         mainHead={
           <HeaderDescription
             icon="/images/actions/34.svg"
-            title={`${boardName} & ${pipelineName}`}
-            description="Manage your boards and pipelines so that its easy to manage incoming pop ups or requests that is adaptable to your team's needs. Add in or delete boards and pipelines to keep business development on track and in check."
+            title={__(`${boardName} & ${pipelineName}`)}
+            description={
+              __(
+                "Manage your boards and pipelines so that its easy to manage incoming pop ups or requests that is adaptable to your team's needs"
+              ) +
+              '. ' +
+              __(
+                'Add in or delete boards and pipelines to keep business development on track and in check'
+              ) +
+              '.'
+            }
           />
         }
         leftSidebar={

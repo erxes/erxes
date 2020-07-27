@@ -35,15 +35,15 @@ class Config extends React.Component<Props, State> {
 
     this.state = {
       template: template || props.defaultTemplate,
-      currentTab: type || 'simple'
+      currentTab: type || 'simple',
     };
   }
 
-  onTabClick = currentTab => {
+  onTabClick = (currentTab) => {
     this.setState({ currentTab });
   };
 
-  onEditorChange = e => {
+  onEditorChange = (e) => {
     this.setState({ template: e.editor.getData() });
   };
 
@@ -63,8 +63,8 @@ class Config extends React.Component<Props, State> {
       _id: finalValues._id,
       emailConfig: {
         type: this.state.currentTab,
-        template: this.state.template
-      }
+        template: this.state.template,
+      },
     };
   };
 
@@ -86,7 +86,9 @@ class Config extends React.Component<Props, State> {
 
     return (
       <ContentWrapper>
-        <Info>{__('Your email will be sent with Erxes email template.')}</Info>
+        <Info>
+          {__('Your email will be sent with Erxes email template') + '.'}
+        </Info>
       </ContentWrapper>
     );
   }
@@ -126,7 +128,7 @@ class Config extends React.Component<Props, State> {
             name: 'email appearance',
             values: this.generateDoc(values),
             isSubmitted,
-            callback: closeModal
+            callback: closeModal,
           })}
         </ModalFooter>
       </>

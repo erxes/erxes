@@ -51,7 +51,7 @@ class MessengerAppList extends React.Component<Props> {
     if (!messengerApps || messengerApps.length < 1) {
       return (
         <EmptyState
-          text="There aren’t any integrations at the moment."
+          text={__('There aren’t any integrations at the moment') + '.'}
           image="/images/actions/2.svg"
         />
       );
@@ -66,7 +66,7 @@ class MessengerAppList extends React.Component<Props> {
             <th>{__('Actions')}</th>
           </tr>
         </thead>
-        <tbody>{messengerApps.map(app => this.renderRow(app))}</tbody>
+        <tbody>{messengerApps.map((app) => this.renderRow(app))}</tbody>
       </Table>
     );
   }
