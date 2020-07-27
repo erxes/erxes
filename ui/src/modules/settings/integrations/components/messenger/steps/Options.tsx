@@ -5,7 +5,7 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
 import Toggle from 'modules/common/components/Toggle';
-import { Alert, __ } from 'modules/common/utils';
+import { __, Alert } from 'modules/common/utils';
 import { LANGUAGES } from 'modules/settings/general/constants';
 import { queries } from 'modules/settings/integrations/graphql';
 import React from 'react';
@@ -52,7 +52,7 @@ class Options extends React.Component<Props, State> {
     label,
     description,
     onChange,
-    checked
+    checked,
   }: {
     label: string;
     description?: string;
@@ -69,7 +69,7 @@ class Options extends React.Component<Props, State> {
             onChange={onChange}
             icons={{
               checked: <span>{__('Yes')}</span>,
-              unchecked: <span>{__('No')}</span>
+              unchecked: <span>{__('No')}</span>,
             }}
           />
         </div>
@@ -78,16 +78,16 @@ class Options extends React.Component<Props, State> {
   }
 
   render() {
-    const languageOnChange = e =>
+    const languageOnChange = (e) =>
       this.onInputChange(
         'languageCode',
         (e.currentTarget as HTMLInputElement).value
       );
 
-    const notifyCustomerChange = e =>
+    const notifyCustomerChange = (e) =>
       this.onChangeFunction('notifyCustomer', e.target.checked);
 
-    const showVideoCallRequestChange = e => {
+    const showVideoCallRequestChange = (e) => {
       const checked = e.target.checked;
 
       if (checked) {
@@ -95,7 +95,7 @@ class Options extends React.Component<Props, State> {
           .query({
             query: gql(queries.fetchApi),
             variables: { path: '/videoCall/usageStatus', params: {} },
-            fetchPolicy: 'network-only'
+            fetchPolicy: 'network-only',
           })
           .then(({ data: { integrationsFetchApi } }) => {
             if (integrationsFetchApi) {
@@ -109,16 +109,16 @@ class Options extends React.Component<Props, State> {
       }
     };
 
-    const requireAuthChange = e =>
+    const requireAuthChange = (e) =>
       this.onChangeFunction('requireAuth', e.target.checked);
 
-    const showChatChange = e =>
+    const showChatChange = (e) =>
       this.onChangeFunction('showChat', e.target.checked);
 
-    const showLauncherChange = e =>
+    const showLauncherChange = (e) =>
       this.onChangeFunction('showLauncher', e.target.checked);
 
-    const forceLogoutWhenResolveChange = e =>
+    const forceLogoutWhenResolveChange = (e) =>
       this.onChangeFunction('forceLogoutWhenResolve', e.target.checked);
 
     return (
@@ -145,7 +145,7 @@ class Options extends React.Component<Props, State> {
             label: __('Require Authentication'),
             description: 'It will require email and phone in widget',
             checked: this.props.requireAuth,
-            onChange: requireAuthChange
+            onChange: requireAuthChange,
           })}
 
           {this.renderToggle({
@@ -154,7 +154,7 @@ class Options extends React.Component<Props, State> {
               'Hide chat section and show only knowledgebase and form'
             ),
             checked: this.props.showChat,
-            onChange: showChatChange
+            onChange: showChatChange,
           })}
 
           {this.renderToggle({
@@ -163,7 +163,7 @@ class Options extends React.Component<Props, State> {
               'The widget section will invisible but you can still get messenger data'
             ),
             checked: this.props.showLauncher,
-            onChange: showLauncherChange
+            onChange: showLauncherChange,
           })}
 
           {this.renderToggle({
@@ -172,7 +172,7 @@ class Options extends React.Component<Props, State> {
               'If an operator resolve the conversation from inbox then client session will end automatically'
             ),
             checked: this.props.forceLogoutWhenResolve,
-            onChange: forceLogoutWhenResolveChange
+            onChange: forceLogoutWhenResolveChange,
           })}
 
           {this.renderToggle({
@@ -181,13 +181,13 @@ class Options extends React.Component<Props, State> {
               'If customer is offline and inserted email, it will send email when operator respond'
             ),
             checked: this.props.notifyCustomer,
-            onChange: notifyCustomerChange
+            onChange: notifyCustomerChange,
           })}
 
           {this.renderToggle({
             label: __('Show video call request'),
             checked: this.props.showVideoCallRequest,
-            onChange: showVideoCallRequestChange
+            onChange: showVideoCallRequestChange,
           })}
         </LeftItem>
       </FlexItem>

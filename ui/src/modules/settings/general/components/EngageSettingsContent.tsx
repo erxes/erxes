@@ -65,11 +65,11 @@ class EngageSettingsContent extends React.Component<Props, State> {
       trueMailApiKey: configsMap.trueMailApiKey || '',
       telnyxApiKey: configsMap.telnyxApiKey || '',
       telnyxPhone: configsMap.telnyxPhone || '',
-      telnyxProfileId: configsMap.telnyxProfileId || ''
+      telnyxProfileId: configsMap.telnyxProfileId || '',
     };
   }
 
-  generateDoc = values => {
+  generateDoc = (values) => {
     return { configsMap: values };
   };
 
@@ -242,7 +242,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
             name: 'configsMap',
             values: this.generateDoc(values),
             isSubmitted,
-            object: this.props.configsMap
+            object: this.props.configsMap,
           })}
         </ModalFooter>
       </>
@@ -257,7 +257,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
         </CollapseContent>
 
         <CollapseContent
-          title={__('Verify the email addresses that you send email from)')}
+          title={__('Verify the email addresses that you send email from')}
         >
           {this.renderVerifiedEmails()}
 

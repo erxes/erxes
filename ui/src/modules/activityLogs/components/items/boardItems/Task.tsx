@@ -13,7 +13,7 @@ import {
   JumpTo,
   LogWrapper,
   Row,
-  Title
+  Title,
 } from 'modules/activityLogs/styles';
 import { REMINDER_MINUTES } from 'modules/boards/constants';
 import { IItem } from 'modules/boards/types';
@@ -58,7 +58,7 @@ class Task extends React.Component<Props, State> {
       name: task.name || '',
       closeDate: task.closeDate || dayjs(),
       showDetail: false,
-      isComplete: task.isComplete || false
+      isComplete: task.isComplete || false,
     };
   }
 
@@ -75,7 +75,7 @@ class Task extends React.Component<Props, State> {
     this.setState({ [key]: !this.state[key] } as any);
   };
 
-  handleInputChange = e => {
+  handleInputChange = (e) => {
     e.preventDefault();
 
     this.setState({ name: e.target.value });
@@ -87,7 +87,7 @@ class Task extends React.Component<Props, State> {
     this.props.save(
       {
         _id: task._id,
-        [key]: value
+        [key]: value,
       },
       () => {
         this.setState({ editing: false });
@@ -165,7 +165,7 @@ class Task extends React.Component<Props, State> {
   renderCloseDate() {
     const { closeDate } = this.state;
 
-    const onDateChange = date => {
+    const onDateChange = (date) => {
       this.setState({ closeDate: date }, () => {
         this.saveItem('closeDate', closeDate);
       });
@@ -174,7 +174,7 @@ class Task extends React.Component<Props, State> {
     const content = (
       <Popover id="pipeline-popover">
         <Datetime
-          inputProps={{ placeholder: 'Click to select a date' }}
+          inputProps={{ placeholder: __('Click to select a date') }}
           dateFormat="YYYY/MM/DD"
           timeFormat="HH:mm"
           value={closeDate}
@@ -192,7 +192,7 @@ class Task extends React.Component<Props, State> {
 
     return (
       <OverlayTrigger
-        ref={overlayTrigger => {
+        ref={(overlayTrigger) => {
           this.overlayTrigger = overlayTrigger;
         }}
         trigger="click"
@@ -213,7 +213,7 @@ class Task extends React.Component<Props, State> {
   renderContent() {
     const { task } = this.props;
 
-    const onAssignedUserSelect = usrs => {
+    const onAssignedUserSelect = (usrs) => {
       this.saveItem('assignedUserIds', usrs);
     };
 
@@ -224,7 +224,7 @@ class Task extends React.Component<Props, State> {
             <Row>
               <ControlLabel>Assigned to</ControlLabel>
               <SelectTeamMembers
-                label="Choose team member"
+                label={__('Choose team member')}
                 name="assignedUserIds"
                 value={task.assignedUserIds}
                 onSelect={onAssignedUserSelect}
@@ -278,7 +278,11 @@ class Task extends React.Component<Props, State> {
           </Tip>
         </FlexCenterContent>
         <FlexContent>
-          <Tip text={isComplete ? 'Mark as incomplete' : 'Mark as complete'}>
+          <Tip
+            text={
+              isComplete ? __('Mark as incomplete') : __('Mark as complete')
+            }
+          >
             <IconWrapper onClick={onComplete} isComplete={isComplete}>
               <Icon icon="check-1" size={25} />
             </IconWrapper>

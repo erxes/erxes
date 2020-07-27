@@ -33,7 +33,7 @@ const DATA_IMPORT_TYPES = [
   'product',
   'deal',
   'task',
-  'ticket'
+  'ticket',
 ];
 
 class Histories extends React.Component<Props & IRouterProps> {
@@ -53,7 +53,7 @@ class Histories extends React.Component<Props & IRouterProps> {
           </tr>
         </thead>
         <tbody>
-          {histories.map(history => {
+          {histories.map((history) => {
             return (
               <HistoryRow
                 key={history._id}
@@ -98,7 +98,7 @@ class Histories extends React.Component<Props & IRouterProps> {
     }
 
     if (currentType === 'customer' || currentType === 'company') {
-      const manageColumns = props => {
+      const manageColumns = (props) => {
         return (
           <ManageColumns {...props} contentType={currentType} type="import" />
         );
@@ -207,7 +207,7 @@ class Histories extends React.Component<Props & IRouterProps> {
     );
   };
 
-  onClick = id => {
+  onClick = (id) => {
     const { history } = this.props;
 
     history.push(`/settings/importHistory/${id}`);
@@ -219,7 +219,7 @@ class Histories extends React.Component<Props & IRouterProps> {
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('Import & Export'), link: '/settings/importHistories' },
-      { title: __(currentType) }
+      { title: __(currentType) },
     ];
 
     return (
@@ -232,11 +232,16 @@ class Histories extends React.Component<Props & IRouterProps> {
             left={
               <HeaderDescription
                 icon="/images/actions/27.svg"
-                title="Import & export"
+                title={__('Import & export')}
                 description={
                   __(
-                    'Here you can find data of all your previous imports of companies and customers. Find out when they joined and their current status. Nothing goes missing around here'
-                  ) + '.'
+                    'Here you can find data of all your previous imports of companies and customers'
+                  ) +
+                  '. ' +
+                  __('Find out when they joined and their current status') +
+                  '. ' +
+                  __('Nothing goes missing around here') +
+                  '.'
                 }
               />
             }
@@ -252,7 +257,7 @@ class Histories extends React.Component<Props & IRouterProps> {
             data={this.renderHistories()}
             loading={loading}
             count={histories.length}
-            emptyText="Oh dear! You have no imports"
+            emptyText={__('Oh dear! You have no imports')}
             emptyImage="/images/actions/15.svg"
           />
         }

@@ -43,7 +43,7 @@ class Status extends React.PureComponent<{
   render() {
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('System status') }
+      { title: __('System status') },
     ];
 
     const { versions } = this.props;
@@ -52,11 +52,11 @@ class Status extends React.PureComponent<{
 
     const content = (
       <div>
-        {this.renderData('Erxes Status', erxesVersion)}
+        {this.renderData(__('Erxes Status'), erxesVersion)}
 
-        {this.renderData('Erxes API Status', apiVersion)}
+        {this.renderData(__('Erxes API Status'), apiVersion)}
 
-        {this.renderData('Erxes Widget Status', widgetVersion)}
+        {this.renderData(__('Erxes Widget Status'), widgetVersion)}
       </div>
     );
 
@@ -71,7 +71,16 @@ class Status extends React.PureComponent<{
               <HeaderDescription
                 icon="/images/actions/28.svg"
                 title="System status"
-                description={`This allows you to see erxes's real-time information on all system statuses. You'll find live and historical data on system performance.`}
+                description={
+                  __(
+                    `This allows you to see erxes's real-time information on all system statuses`
+                  ) +
+                  '.' +
+                  __(
+                    `You'll find live and historical data on system performance`
+                  ) +
+                  '.'
+                }
               />
             }
           />
