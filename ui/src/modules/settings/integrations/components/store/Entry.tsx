@@ -2,7 +2,6 @@ import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
 import CallPro from 'modules/settings/integrations/containers/callpro/Form';
-import Gmail from 'modules/settings/integrations/containers/gmail/Form';
 import NylasForm from 'modules/settings/integrations/containers/mail/Form';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -210,11 +209,7 @@ function renderCreate(createUrl, createModal) {
   }
 
   if (createModal === INTEGRATION_KINDS.GMAIL) {
-    const content = props => <Gmail {...props} />;
-
-    return (
-      <ModalTrigger title="Add gmail" trigger={trigger} content={content} />
-    );
+    return <Link to={'/settings/integrations/createGmail'}>+ {__('Add')}</Link>;
   }
 
   if (createModal === 'twitter') {

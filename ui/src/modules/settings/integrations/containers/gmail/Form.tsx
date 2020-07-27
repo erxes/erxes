@@ -10,8 +10,7 @@ import { withRouter } from 'react-router-dom';
 import { getRefetchQueries } from '../utils';
 
 type Props = {
-  type?: string;
-  closeModal: () => void;
+  callBack: () => void;
 };
 
 type FinalProps = {} & IRouterProps & Props;
@@ -78,11 +77,11 @@ class GmailContainer extends React.Component<FinalProps, State> {
   };
 
   render() {
-    const { closeModal } = this.props;
+    const { callBack } = this.props;
     const { accountId, email } = this.state;
 
     const updatedProps = {
-      closeModal,
+      callBack,
       accountId,
       email,
       onAccountSelect: this.onAccountSelect,
