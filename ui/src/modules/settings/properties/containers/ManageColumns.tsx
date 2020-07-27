@@ -132,6 +132,7 @@ export default withProps<Props>(
                 'ownerId',
                 'status',
                 'integrationId',
+                'categoryId',
                 'emailValidationStatus',
                 'phoneValidationStatus',
                 'location.countryCode'
