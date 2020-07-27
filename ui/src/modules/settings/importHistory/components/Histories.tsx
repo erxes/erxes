@@ -97,7 +97,11 @@ class Histories extends React.Component<Props & IRouterProps> {
       return null;
     }
 
-    if (currentType === 'customer' || currentType === 'company') {
+    if (
+      currentType === 'customer' ||
+      currentType === 'company' ||
+      currentType === 'product'
+    ) {
       const manageColumns = props => {
         return (
           <ManageColumns {...props} contentType={currentType} type="import" />
