@@ -7,6 +7,12 @@
     "object-literal-sort-keys": false,
     "interface-over-type-literal": false,
     "member-access": false, // start without having to write public, private modifier
-    "max-classes-per-file": false
+    "array-type": [true, "array-simple"],
+    "no-trailing-whitespace": [true, "always"],
+    "prefer-const": [true, {"destructuring": "any"}],
+    "semicolon": [true, "always"],
+    "space-before-function-paren": [true, "never"],
+    "quotemark": [true, "single"]
+ 
   }
 }
