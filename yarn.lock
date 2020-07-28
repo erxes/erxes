@@ -3519,10 +3519,10 @@ error-ex@^1.2.0, error-ex@^1.3.1:
   dependencies:
     is-arrayish "^0.2.1"
 
-erxes-telemetry@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/erxes-telemetry/-/erxes-telemetry-1.0.1.tgz#0b53bc33b51161d90a4eaee3caa45b2a79d99169"
-  integrity sha512-N16yH5rS1sDxSRNPmww2gc2iY+Us3dmH4xu4b3H5fw9cBBTh21Zinylf0n+3k9wpC9TUkWkrfbwco2PtL/EFhQ==
+erxes-telemetry@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/erxes-telemetry/-/erxes-telemetry-1.0.2.tgz#9993b0511f2165e2969837465aa7a1bf0a407c69"
+  integrity sha512-l/re2ixnFoIi1b3rBGjn9NM95358sCcjeo4kVWmkBanySqEIF+yiEO+BhO3F2BzGRQZXnTr2OfLOcJ/eKH4PRA==
   dependencies:
     "@babel/code-frame" "^7.10.3"
     "@babel/runtime" "^7.10.3"
