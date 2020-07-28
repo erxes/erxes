@@ -1,6 +1,6 @@
 import * as React from "react";
 import { iconAttach } from "../../../icons/Icons";
-import { readFile } from "../../../utils";
+import { __, readFile } from "../../../utils";
 import { IAttachment } from "../../types";
 
 function Attachment({ attachment }: { attachment: IAttachment }) {
@@ -15,7 +15,7 @@ function Attachment({ attachment }: { attachment: IAttachment }) {
     return (
       <div className="file-wrapper">
         {iconAttach}
-        <span>{attachment.name}</span>
+        <span>{__(attachment.name)}</span>
       </div>
     );
   }

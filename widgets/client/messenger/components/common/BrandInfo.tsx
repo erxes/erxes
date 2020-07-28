@@ -1,5 +1,6 @@
 import * as React from "react";
 import { IBrand } from "../../../types";
+import { __ } from "../../../utils";
 
 type Props = {
   brand: IBrand;
@@ -10,8 +11,8 @@ function BrandInfo(props: Props) {
 
   return (
     <div className="welcome-info">
-      <h3>{brand.name}</h3>
-      <div className="description">{brand.description}</div>
+      <h3>{__(brand.name)}</h3>
+      <div className="description">{__(brand.description)}</div>
     </div>
   );
 }

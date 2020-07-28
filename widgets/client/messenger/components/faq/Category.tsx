@@ -1,4 +1,5 @@
 import * as React from "react";
+import { __ } from "../../../utils";
 import { IFaqCategory } from "../../types";
 
 type Props = {
@@ -24,9 +25,9 @@ export default class Category extends React.Component<Props> {
         </div>
         <div className="erxes-right-side">
           <div className="erxes-name">
-            {category.title} <span>({category.numOfArticles})</span>
+            {__(category.title)} <span>({category.numOfArticles})</span>
           </div>
-          <div className="description">{category.description}</div>
+          <div className="description">{__(category.description)}</div>
         </div>
       </div>
     );

@@ -8,7 +8,7 @@ import {
   IIntegrationMessengerDataMessagesItem,
   IIntegrationUiOptions
 } from "../../types";
-import { makeClickableLink, scrollTo } from "../../utils";
+import { __, makeClickableLink, scrollTo } from "../../utils";
 import { MESSAGE_TYPES } from "../containers/AppContext";
 import { IMessage } from "../types";
 import { Message } from "./";
@@ -105,7 +105,7 @@ class MessagesList extends React.Component<Props, State> {
 
       return (
         <li className="erxes-spacial-message">
-          <span> {messages.thank || "Thank you. "}</span>
+          <span> {messages.thank || __("Thank you.")}</span>
         </li>
       );
     }
@@ -144,18 +144,30 @@ class MessagesList extends React.Component<Props, State> {
 
     const { uiOptions } = this.props;
     const { color } = uiOptions;
-  
 
     return (
-      <div className="app-message-box call-request" style={{borderColor: color}}>
-        <h5>Audio and video call</h5>
-        <p>You can contact the operator by voice or video!</p>
+      <div
+        className="app-message-box call-request"
+        style={{ borderColor: color }}
+      >
+        <h5>{__("Audio and video call")}</h5>
+        <p>{__("You can contact the operator by voice or video!")}</p>
         <div className="call-buttons">
-          <button className="erxes-button" style={{ background: color }} onClick={sendCallRequest}>
-            {iconCall}<span>Audio call</span>
+          <button
+            className="erxes-button"
+            style={{ background: color }}
+            onClick={sendCallRequest}
+          >
+            {iconCall}
+            <span>{__("Audio call")}</span>
           </button>
-          <button className="erxes-button" style={{ background: color }} onClick={sendCallRequest}>
-            {iconVideo}<span>Video call</span>
+          <button
+            className="erxes-button"
+            style={{ background: color }}
+            onClick={sendCallRequest}
+          >
+            {iconVideo}
+            <span>{__("Video call")}</span>
           </button>
         </div>
       </div>

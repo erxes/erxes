@@ -1,4 +1,5 @@
 import * as React from "react";
+import { __ } from "../../../utils";
 import { IFaqArticle } from "../../types";
 
 type Props = {
@@ -24,8 +25,8 @@ export default class Article extends React.PureComponent<Props> {
           <i className="erxes-icon-clipboard" />
         </div>
         <div className="erxes-right-side">
-          <div className="erxes-name">{article.title}</div>
-          <div className="description">{article.summary}</div>
+          <div className="erxes-name">{__(article.title)}</div>
+          <div className="description">{__(article.summary)}</div>
         </div>
       </div>
     );

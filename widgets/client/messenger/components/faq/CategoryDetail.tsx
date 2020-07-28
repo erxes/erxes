@@ -1,5 +1,6 @@
 import * as React from "react";
 import { iconLeft } from "../../../icons/Icons";
+import { __ } from "../../../utils";
 import { TopBar } from "../../containers";
 import { Articles } from "../../containers/faq";
 import { IFaqCategory } from "../../types";
@@ -39,9 +40,9 @@ class CategoryDetail extends React.Component<Props, IState> {
     return (
       <div className="erxes-topbar-title limited">
         <div>
-          {category.title} <span>({category.numOfArticles})</span>
+          {__(category.title)} <span>({category.numOfArticles})</span>
         </div>
-        <span>{category.description}</span>
+        <span>{__(category.description)}</span>
       </div>
     );
   };
