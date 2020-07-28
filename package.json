@@ -87,7 +87,6 @@
     "requestify": "^0.2.5",
     "sha256": "^0.2.0",
     "shelljs": "^0.8.3",
-    "snyk": "^1.277.1",
     "strip": "^3.0.0",
     "ts-node": "8.0.3",
     "twit": "^2.2.9",
@@ -134,7 +133,6 @@
     "tslint-config-standard": "^7.0.0",
     "typescript": "^3.6.4"
   },
-  "snyk": true,
   "engines": {
     "node": ">=10.x.x"
   }
