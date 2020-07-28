@@ -1,3 +1,4 @@
+import * as telemetry from 'erxes-telemetry';
 import { Channels, Customers, EmailDeliveries, Integrations } from '../../../db/models';
 import { IIntegration, IMessengerData, IUiOptions } from '../../../db/models/definitions/integrations';
 import { IExternalIntegrationParams } from '../../../db/models/Integrations';
@@ -37,6 +38,8 @@ const integrationMutations = {
       },
       user,
     );
+
+    telemetry.trackCli('integration_created', { type: 'messenger' });
 
     await registerOnboardHistory({ type: 'messengerIntegrationCreate', user });
 
@@ -98,6 +101,8 @@ const integrationMutations = {
       user,
     );
 
+    telemetry.trackCli('integration_created', { type: 'lead' });
+
     await registerOnboardHistory({ type: 'leadIntegrationCreate', user });
 
     return integration;
@@ -149,6 +154,8 @@ const integrationMutations = {
         integrationId: integration._id,
         data: data ? JSON.stringify(data) : '',
       });
+
+      telemetry.trackCli('integration_created', { type: kind });
 
       await putCreateLog(
         {

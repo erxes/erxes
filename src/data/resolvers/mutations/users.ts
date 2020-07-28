@@ -1,3 +1,4 @@
+import * as telemetry from 'erxes-telemetry';
 import { Channels, Users } from '../../../db/models';
 import { ILink } from '../../../db/models/definitions/common';
 import { IDetail, IEmailSignature, IUser } from '../../../db/models/definitions/users';
@@ -38,6 +39,8 @@ const userMutations = {
     const { token } = response;
 
     res.cookie('auth-token', token, authCookieOptions(requestInfo.secure));
+
+    telemetry.trackCli('logged_in');
 
     return 'loggedIn';
   },

@@ -1,6 +1,7 @@
 import * as cookieParser from 'cookie-parser';
 import * as cors from 'cors';
 import * as dotenv from 'dotenv';
+import * as telemetry from 'erxes-telemetry';
 import * as express from 'express';
 import * as fs from 'fs';
 import { createServer } from 'http';
@@ -356,6 +357,9 @@ httpServer.listen(PORT, () => {
 
     init()
       .then(() => {
+        telemetry.trackCli('server_started');
+        telemetry.startBackgroundUpdate();
+
         debugBase('Startup successfully started');
       })
       .catch(e => {
