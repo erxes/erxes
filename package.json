@@ -1,6 +1,6 @@
 {
   "name": "erxes-api",
-  "version": "0.15.2",
+  "version": "0.16.2",
   "description": "GraphQL API for erxes main project",
   "homepage": "https://erxes.io",
   "repository": "https://github.com/erxes/erxes-api",
@@ -60,7 +60,7 @@
     "debug": "^4.1.1",
     "dotenv": "^4.0.0",
     "elasticsearch": "^16.6.0",
-    "erxes-telemetry": "^1.0.2",
+    "erxes-telemetry": "^1.0.3",
     "express": "^4.17.1",
     "faker": "^4.1.0",
     "file-type": "^10.4.0",
