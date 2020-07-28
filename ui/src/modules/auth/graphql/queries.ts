@@ -24,6 +24,12 @@ const currentUser = `
       permissionActions
       configs
       configsConstants
+      onboardingHistory {
+        _id
+        userId
+        isCompleted
+        completedSteps
+      }
     }
   }
 `;
