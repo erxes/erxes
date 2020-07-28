@@ -1,4 +1,4 @@
-import { Brands, Configs } from '../../db/models';
+import { Brands, Configs, OnboardingHistories } from '../../db/models';
 import { DEFAULT_CONSTANT_VALUES } from '../../db/models/definitions/constants';
 import { IUserDocument } from '../../db/models/definitions/users';
 import { getUserActionsMap } from '../permissions/utils';
@@ -51,5 +51,9 @@ export default {
     }
 
     return results;
+  },
+
+  onboardingHistory(user: IUserDocument) {
+    return OnboardingHistories.findOne({ userId: user._id });
   },
 };

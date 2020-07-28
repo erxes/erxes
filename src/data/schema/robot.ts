@@ -16,6 +16,13 @@ export const types = `
     userId: String
     type: String
   }
+
+  type OnboardingHistory {
+    _id: String
+    userId: String
+    isCompleted: Boolean
+    completedSteps: [String]
+  }
 `;
 
 export const queries = `

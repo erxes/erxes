@@ -163,6 +163,9 @@ describe('userQueries', () => {
       query currentUser {
         currentUser {
           _id
+          onboardingHistory {
+            _id
+          }
         }
       }
     `;

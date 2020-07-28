@@ -50,6 +50,7 @@ export const types = `
     permissionActions: JSON
     configs: JSON
     configsConstants: [JSON]
+    onboardingHistory: OnboardingHistory
   }
 
   type UserConversationListResponse {
