@@ -58,11 +58,16 @@ class AssistantContent extends React.Component<Props, State> {
     }
 
     if (currentRoute === 'inComplete') {
+      const { onboardingHistory } = currentUser;
+
       if (!savedFeatures) {
         return onBoarding;
       }
 
-      if (!showContent) {
+      if (
+        !showContent ||
+        (onboardingHistory && onboardingHistory.isCompleted)
+      ) {
         return null;
       }
 
