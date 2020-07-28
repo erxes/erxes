@@ -282,7 +282,7 @@ class CustomersList extends React.Component<IProps, State> {
             </li>
           </Dropdown.Menu>
         </Dropdown>
-        <Link to="/settings/importHistories?type=customer">
+        <Link to={`/settings/importHistories?type=${type}`}>
           <Button btnStyle="primary" size="small" icon="arrow-from-right">
             {__('Go to import')}
           </Button>

@@ -98,7 +98,10 @@ const ManageColumnsContainer = (props: FinalProps) => {
           }
         });
 
-      const stringified = queryString.stringify({ configs: checkedConfigs });
+      const stringified = queryString.stringify({
+        configs: checkedConfigs,
+        contentType
+      });
 
       window.open(
         `${REACT_APP_API_URL}/template-export?${stringified}`,
@@ -125,7 +128,7 @@ export default withProps<Props>(
         options: ({ contentType }) => {
           return {
             variables: {
-              contentType,
+              contentType: contentType === 'lead' ? 'customer' : contentType,
               excludedNames: [
                 'state',
                 'avatar',
@@ -149,7 +152,7 @@ export default withProps<Props>(
         options: ({ contentType }) => {
           return {
             variables: {
-              contentType
+              contentType: contentType === 'lead' ? 'customer' : contentType
             }
           };
         }
