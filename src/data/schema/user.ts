@@ -32,6 +32,7 @@ export const types = `
 
   type User {
     _id: String!
+    createdAt: Date
     username: String
     email: String
     isActive: Boolean

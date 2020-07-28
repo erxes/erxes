@@ -698,7 +698,13 @@ export const moduleObjects = {
       {
         name: 'permissionsAll',
         description: 'All',
-        use: ['managePermissions', 'showPermissions', 'showPermissionModules', 'showPermissionActions'],
+        use: [
+          'managePermissions',
+          'showPermissions',
+          'showPermissionModules',
+          'showPermissionActions',
+          'exportPermissions',
+        ],
       },
       {
         name: 'managePermissions',
@@ -787,7 +793,7 @@ export const moduleObjects = {
       {
         name: 'usersAll',
         description: 'All',
-        use: ['showUsers', 'usersEdit', 'usersInvite', 'usersSetActiveStatus'],
+        use: ['showUsers', 'usersEdit', 'usersInvite', 'usersSetActiveStatus', 'exportUsers'],
       },
       {
         name: 'showUsers',

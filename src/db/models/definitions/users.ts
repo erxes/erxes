@@ -22,6 +22,7 @@ export interface IDetail {
 export interface IDetailDocument extends IDetail, Document {}
 
 export interface IUser {
+  createdAt?: Date;
   username?: string;
   password: string;
   resetPasswordToken?: string;
@@ -74,6 +75,10 @@ const detailSchema = new Schema(
 // User schema
 export const userSchema = new Schema({
   _id: field({ pkey: true }),
+  createdAt: field({
+    type: Date,
+    default: Date.now,
+  }),
   username: field({ type: String, label: 'Username' }),
   password: field({ type: String }),
   resetPasswordToken: field({ type: String }),

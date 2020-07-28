@@ -7,6 +7,11 @@ import { createTransporter, getConfigs, getEnv, replaceKeys } from './utils';
 
 dotenv.config();
 
+// alphanumeric sender id only works for countries outside north america
+const isNumberNorthAmerican = (phoneNumber: string) => {
+  return phoneNumber.substring(0, 2) === '+1';
+};
+
 export const start = async (data: any) => {
   const { user, email, engageMessageId, customers } = data;
   const { content, subject, attachments, sender, replyTo } = email;
@@ -35,7 +40,7 @@ export const start = async (data: any) => {
 
     const unSubscribeUrl = `${MAIN_API_DOMAIN}/unsubscribe/?cid=${customer._id}`;
 
-    replacedContent += `<div style="padding: 10px; color: #ccc; text-align: center; font-size:12px;">If you want to use service like this click <a style="text-decoration: underline; color: #ccc;" href="https://erxes.io" target="_blank">here</a> to read more. Also you can opt out from our email subscription <a style="text-decoration: underline;color: #ccc;" rel="noopener" target="_blank" href="${unSubscribeUrl}">here</a>.  <br>© 2019 erxes inc Growth Marketing Platform </div>`;
+    replacedContent += `<div style="padding: 10px; color: #ccc; text-align: center; font-size:12px;">If you want to use service like this click <a style="text-decoration: underline; color: #ccc;" href="https://erxes.io" target="_blank">here</a> to read more. Also you can opt out from our email subscription <a style="text-decoration: underline;color: #ccc;" rel="noopener" target="_blank" href="${unSubscribeUrl}">here</a>.  <br>© 2020 erxes inc Growth Marketing Platform </div>`;
 
     try {
       await transporter.sendMail({
@@ -144,6 +149,10 @@ export const sendSms = async (data: any) => {
     if (telnyxProfileId) {
       msg.messaging_profile_id = telnyxProfileId;
       msg.from = shortMessage.from;
+    }
+
+    if (isNumberNorthAmerican(msg.to)) {
+      msg.from = telnyxPhone;
     }
 
     try {

@@ -729,7 +729,7 @@ describe('engage message mutation tests', () => {
         brandIds: ['_id'],
       });
     } catch (e) {
-      expect(e[0].message).toBe('Manual engage message of type SMS is not supported');
+      expect(e[0].message).toBe(`SMS engage message of kind ${MESSAGE_KINDS.AUTO} is not supported`);
     }
   });
 });

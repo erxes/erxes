@@ -16,6 +16,7 @@ export interface IMessengerIntegration {
   name: string;
   brandId: string;
   languageCode: string;
+  channelIds?: string[];
 }
 
 export interface IExternalIntegrationParams {
@@ -23,6 +24,7 @@ export interface IExternalIntegrationParams {
   name: string;
   brandId: string;
   accountId: string;
+  channelIds?: string[];
 }
 
 interface IIntegrationBasicInfo {
@@ -42,6 +44,7 @@ export const isTimeInBetween = (date: Date, startTime: string, closeTime: string
 export interface IIntegrationModel extends Model<IIntegrationDocument> {
   getIntegration(_id: string): IIntegrationDocument;
   findIntegrations(query: any, options?: any): Query<IIntegrationDocument[]>;
+  findAllIntegrations(query: any, options?: any): Query<IIntegrationDocument[]>;
   createIntegration(doc: IIntegration, userId: string): Promise<IIntegrationDocument>;
   createMessengerIntegration(doc: IIntegration, userId: string): Promise<IIntegrationDocument>;
   updateMessengerIntegration(_id: string, doc: IIntegration): Promise<IIntegrationDocument>;
@@ -79,6 +82,10 @@ export const loadClass = () => {
      */
     public static findIntegrations(query, options) {
       return Integrations.find({ ...query, isActive: { $ne: false } }, options);
+    }
+
+    public static findAllIntegrations(query: any, options: any) {
+      return Integrations.find({ ...query }, options);
     }
 
     /**
@@ -156,8 +163,8 @@ export const loadClass = () => {
       const prevLeadData: ILeadData = prevEntry.leadData || {};
 
       const doc = {
-        kind: KIND_CHOICES.LEAD,
         ...mainDoc,
+        kind: KIND_CHOICES.LEAD,
         leadData: {
           ...leadData,
           viewCount: prevLeadData.viewCount,

@@ -1,6 +1,7 @@
 import * as cookieParser from 'cookie-parser';
 import * as cors from 'cors';
 import * as dotenv from 'dotenv';
+import * as telemetry from 'erxes-telemetry';
 import * as express from 'express';
 import * as fs from 'fs';
 import { createServer } from 'http';
@@ -10,6 +11,7 @@ import * as request from 'request';
 import { filterXSS } from 'xss';
 import apolloServer from './apolloClient';
 import { buildFile } from './data/modules/fileExporter/exporter';
+import { templateExport } from './data/modules/fileExporter/templateExport';
 import insightExports from './data/modules/insights/insightExports';
 import {
   authCookieOptions,
@@ -200,6 +202,17 @@ app.get('/file-export', async (req: any, res) => {
   }
 });
 
+app.get('/template-export', async (req: any, res) => {
+  try {
+    const { name, response } = await templateExport(req.query);
+
+    res.attachment(`${name}.xlsx`);
+    return res.send(response);
+  } catch (e) {
+    return res.end(filterXSS(e.message));
+  }
+});
+
 // read file
 app.get('/read-file', async (req: any, res) => {
   const key = req.query.key;
@@ -344,6 +357,9 @@ httpServer.listen(PORT, () => {
 
     init()
       .then(() => {
+        telemetry.trackCli('server_started');
+        telemetry.startBackgroundUpdate();
+
         debugBase('Startup successfully started');
       })
       .catch(e => {

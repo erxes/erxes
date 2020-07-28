@@ -102,6 +102,7 @@ export interface IIntegration {
   messengerData?: IMessengerData;
   uiOptions?: IUiOptions;
   isActive?: boolean;
+  channelIds?: string[];
 }
 
 export interface IIntegrationDocument extends IIntegration, Document {
