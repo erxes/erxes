@@ -260,20 +260,23 @@ connect().then(async () => {
       .catch(async (e: Error) => {
         const updatedDoc = clearEmptyValues(doc);
 
-        inc.failed++;
         // Increasing failed count and pushing into error message
 
         switch (e.message) {
           case 'Duplicated email':
+            inc.success++;
             await updateDuplicatedValue(model, 'primaryEmail', updatedDoc);
             break;
           case 'Duplicated phone':
+            inc.success++;
             await updateDuplicatedValue(model, 'primaryPhone', updatedDoc);
             break;
           case 'Duplicated name':
+            inc.success++;
             await updateDuplicatedValue(model, 'primaryName', updatedDoc);
             break;
           default:
+            inc.failed++;
             errorMsgs.push(e.message);
             break;
         }
