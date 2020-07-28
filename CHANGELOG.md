@@ -1,3 +1,17 @@
+## [0.16.2](https://github.com/erxes/erxes-api/compare/0.16.1...0.16.2) (2020-07-28)
+
+## [0.16.1](https://github.com/erxes/erxes-api/compare/0.16.0...0.16.1) (2020-07-28)
+
+# [0.16.0](https://github.com/erxes/erxes-api/compare/0.15.5...0.16.0) (2020-07-28)
+
+## [0.15.5](https://github.com/erxes/erxes-api/compare/0.15.4...0.15.5) (2020-07-15)
+
+## [0.15.4](https://github.com/erxes/erxes-api/compare/0.5.13...0.15.4) (2020-07-08)
+
+## [0.15.3](https://github.com/erxes/erxes-api/compare/0.5.13...0.15.3) (2020-07-08)
+
+## [0.5.13](https://github.com/erxes/erxes-api/compare/0.15.2...0.5.13) (2020-07-08)
+
 ## [0.15.2](https://github.com/erxes/erxes-api/compare/0.15.1...0.15.2) (2020-07-07)
 
 ## [0.15.1](https://github.com/erxes/erxes-api/compare/0.15.0...0.15.1) (2020-07-07)
