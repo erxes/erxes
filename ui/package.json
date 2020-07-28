@@ -53,7 +53,6 @@
     "react-transition-group": "^2.5.1",
     "request-idle-callback": "^1.0.2",
     "sanitize-html": "^1.20.1",
-    "snyk": "^1.338.0",
     "strip": "^3.0.0",
     "styled-components": "^3.2.6",
     "styled-components-ts": "^0.0.14",
@@ -116,7 +115,6 @@
     "not ie <= 11",
     "not op_mini all"
   ],
-  "snyk": true,
   "engines": {
     "node": ">=10.x.x"
   }
