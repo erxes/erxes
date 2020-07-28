@@ -109,7 +109,7 @@ class Histories extends React.Component<Props & IRouterProps> {
       };
 
       const editColumns = (
-        <Button btnStyle="simple" size="small" icon="folder-download">
+        <Button btnStyle="success" size="small" icon="folder-download">
           {__('Download template')}
         </Button>
       );
