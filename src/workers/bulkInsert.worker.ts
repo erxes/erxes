@@ -16,7 +16,7 @@ import {
 } from '../db/models';
 import { initRabbitMQ } from '../messageBroker';
 import { graphqlPubsub } from '../pubsub';
-import { connect } from './utils';
+import { clearEmptyValues, connect, updateDuplicatedValue } from './utils';
 
 // tslint:disable-next-line
 const { parentPort, workerData } = require('worker_threads');
@@ -41,18 +41,22 @@ connect().then(async () => {
 
   let percentage = '0';
   let create: any = null;
+  let model: any = null;
 
   const isBoardItem = (): boolean => contentType === 'deal' || contentType === 'task' || contentType === 'ticket';
 
   switch (contentType) {
     case 'company':
       create = Companies.createCompany;
+      model = Companies;
       break;
     case 'customer':
       create = Customers.createCustomer;
+      model = Customers;
       break;
     case 'product':
       create = Products.createProduct;
+      model = Products;
       break;
     case 'deal':
       create = Deals.createDeal;
@@ -253,19 +257,21 @@ connect().then(async () => {
         // Increasing success count
         inc.success++;
       })
-      .catch((e: Error) => {
+      .catch(async (e: Error) => {
+        const updatedDoc = clearEmptyValues(doc);
+
         inc.failed++;
         // Increasing failed count and pushing into error message
 
         switch (e.message) {
           case 'Duplicated email':
-            errorMsgs.push(`Duplicated email ${doc.primaryEmail}`);
+            await updateDuplicatedValue(model, 'primaryEmail', updatedDoc);
             break;
           case 'Duplicated phone':
-            errorMsgs.push(`Duplicated phone ${doc.primaryPhone}`);
+            await updateDuplicatedValue(model, 'primaryPhone', updatedDoc);
             break;
           case 'Duplicated name':
-            errorMsgs.push(`Duplicated name ${doc.primaryName}`);
+            await updateDuplicatedValue(model, 'primaryName', updatedDoc);
             break;
           default:
             errorMsgs.push(e.message);

@@ -105,6 +105,24 @@ export const clearIntervals = () => {
   intervals = [];
 };
 
+export const clearEmptyValues = (obj: any) => {
+  Object.keys(obj).forEach(key => {
+    if (obj[key] === '' || obj[key] === 'unknown') {
+      delete obj[key];
+    }
+
+    if (Array.isArray(obj[key]) && obj[key].length === 0) {
+      delete obj[key];
+    }
+  });
+
+  return obj;
+};
+
+export const updateDuplicatedValue = async (model: any, field: string, doc: any) => {
+  return model.updateOne({ [field]: doc[field] }, { $set: { ...doc, modifiedAt: new Date() } });
+};
+
 // xls file import, cancel, removal
 export const receiveImportRemove = async (content: any) => {
   const { contentType, importHistoryId } = content;

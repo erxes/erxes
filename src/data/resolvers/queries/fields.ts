@@ -1,5 +1,5 @@
-import { FIELD_CONTENT_TYPES, FIELDS_GROUPS_CONTENT_TYPES } from '../../../data/constants';
-import { Companies, Customers, Fields, FieldsGroups, Integrations } from '../../../db/models';
+import { EXTEND_FIELDS, FIELD_CONTENT_TYPES, FIELDS_GROUPS_CONTENT_TYPES } from '../../../data/constants';
+import { Companies, Customers, Fields, FieldsGroups, Integrations, Products } from '../../../db/models';
 import { fetchElk } from '../../../elasticsearch';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
@@ -43,8 +43,8 @@ const generateFieldsFromSchema = async (queSchema: any, namePrefix: string) => {
     const type = path.instance;
     const selectOptions = name === 'integrationId' ? integrations || [] : path.options.selectOptions;
 
-    // add to fields list
     if (['String', 'Number', 'Date', 'Boolean'].includes(type) && label) {
+      // add to fields list
       queFields.push({
         _id: Math.random(),
         name: `${namePrefix}${name}`,
@@ -79,11 +79,24 @@ const fieldQueries = {
     _root,
     { contentType, excludedNames }: { contentType: string; excludedNames?: string[] },
   ) {
-    let schema: any = Customers.schema;
+    let schema: any;
+    let extendFields: Array<{ name: string; label?: string }> = [];
     let fields: Array<{ _id: number; name: string; label?: string }> = [];
 
-    if (contentType === FIELD_CONTENT_TYPES.COMPANY) {
-      schema = Companies.schema;
+    switch (contentType) {
+      case FIELD_CONTENT_TYPES.COMPANY:
+        schema = Companies.schema;
+        break;
+
+      case FIELD_CONTENT_TYPES.PRODUCT:
+        schema = Products.schema;
+        extendFields = EXTEND_FIELDS.PRODUCT;
+
+        break;
+
+      case FIELD_CONTENT_TYPES.CUSTOMER:
+        schema = Customers.schema;
+        break;
     }
 
     // generate list using customer or company schema
@@ -99,7 +112,7 @@ const fieldQueries = {
     }
 
     const customFields = await Fields.find({
-      contentType: contentType === FIELD_CONTENT_TYPES.COMPANY ? 'company' : 'customer',
+      contentType,
     });
 
     // extend fields list using custom fields data
@@ -115,39 +128,48 @@ const fieldQueries = {
       }
     }
 
-    const aggre = await fetchElk(
-      'search',
-      contentType === 'company' ? 'companies' : 'customers',
-      {
-        size: 0,
-        _source: false,
-        aggs: {
-          trackedDataKeys: {
-            nested: {
-              path: 'trackedData',
-            },
-            aggs: {
-              fieldKeys: {
-                terms: {
-                  field: 'trackedData.field',
-                  size: 10000,
+    for (const extendFeild of extendFields) {
+      fields.push({
+        _id: Math.random(),
+        ...extendFeild,
+      });
+    }
+
+    if (contentType === 'company' || contentType === 'customer') {
+      const aggre = await fetchElk(
+        'search',
+        contentType === 'company' ? 'companies' : 'customers',
+        {
+          size: 0,
+          _source: false,
+          aggs: {
+            trackedDataKeys: {
+              nested: {
+                path: 'trackedData',
+              },
+              aggs: {
+                fieldKeys: {
+                  terms: {
+                    field: 'trackedData.field',
+                    size: 10000,
+                  },
                 },
               },
             },
           },
         },
-      },
-      { aggregations: { trackedDataKeys: {} } },
-    );
+        { aggregations: { trackedDataKeys: {} } },
+      );
 
-    const buckets = (aggre.aggregations.trackedDataKeys.fieldKeys || { buckets: [] }).buckets;
+      const buckets = (aggre.aggregations.trackedDataKeys.fieldKeys || { buckets: [] }).buckets;
 
-    for (const bucket of buckets) {
-      fields.push({
-        _id: Math.random(),
-        name: `trackedData.${bucket.key}`,
-        label: bucket.key,
-      });
+      for (const bucket of buckets) {
+        fields.push({
+          _id: Math.random(),
+          name: `trackedData.${bucket.key}`,
+          label: bucket.key,
+        });
+      }
     }
 
     return fields.filter(field => !(excludedNames || []).includes(field.name));
@@ -166,6 +188,14 @@ const fieldQueries = {
         { name: 'plan', label: 'Plan', order: 5 },
         { name: 'lastSeenAt', label: 'Last seen at', order: 6 },
         { name: 'sessionCount', label: 'Session count', order: 7 },
+      ];
+    }
+
+    if (contentType === FIELD_CONTENT_TYPES.PRODUCT) {
+      return [
+        { name: 'categoryCode', label: 'Category Code', order: 0 },
+        { name: 'code', label: 'Code', order: 1 },
+        { name: 'name', label: 'Name', order: 1 },
       ];
     }
 
