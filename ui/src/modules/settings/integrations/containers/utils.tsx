@@ -19,7 +19,13 @@ export const cleanHtml = (content: string) => {
 
     // remove some unusual tags
     exclusiveFilter: n => {
-      return n.tag === 'meta' || n.tag === 'head' || n.tag === 'style';
+      return (
+        n.tag === 'meta' ||
+        n.tag === 'head' ||
+        n.tag === 'style' ||
+        n.tag === 'base' ||
+        n.tag === 'script'
+      );
     }
   });
 };

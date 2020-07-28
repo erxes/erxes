@@ -3,17 +3,17 @@ import Table from 'modules/common/components/table';
 import { Count } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import React from 'react';
-import { IIntegration } from '../../types';
+import { IIntegration, IntegrationMutationVariables } from '../../types';
 import IntegrationListItem from './IntegrationListItem';
 
 type Props = {
   integrations: IIntegration[];
   removeIntegration: (integration: IIntegration, callback?: any) => void;
-  archive: (id: string) => void;
+  archive: (id: string, status: boolean) => void;
   kind?: string | null;
   editIntegration: (
     id: string,
-    { name, brandId }: { name: string; brandId: string }
+    { name, brandId, channelIds }: IntegrationMutationVariables
   ) => void;
   queryParams: any;
   disableAction?: boolean;
@@ -67,6 +67,7 @@ class IntegrationList extends React.Component<Props> {
               <th>{__('Name')}</th>
               <th>{__('Kind')}</th>
               <th>{__('Brand')}</th>
+              <th>{__('Status')}</th>
               <th>{__('Actions')}</th>
             </tr>
           </thead>

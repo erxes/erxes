@@ -14,6 +14,10 @@ const ActionButton = styled.div`
     }
   }
 
+  i {
+    font-size: 16px;
+  }
+
   a {
     color: ${colors.colorCoreGray};
   }

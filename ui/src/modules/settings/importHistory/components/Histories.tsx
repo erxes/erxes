@@ -2,6 +2,7 @@ import { getEnv } from 'apolloClient';
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
 import { IRouterProps } from 'modules/common/types';
@@ -9,6 +10,7 @@ import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
 import DataImporter from 'modules/settings/importHistory/containers/DataImporter';
+import ManageColumns from 'modules/settings/properties/containers/ManageColumns';
 import React from 'react';
 import ExportPopupsData from '../containers/ExportPopupsData';
 import { IImportHistory } from '../types';
@@ -95,12 +97,31 @@ class Histories extends React.Component<Props & IRouterProps> {
       return null;
     }
 
-    let name = 'company_template.xlsx';
+    if (currentType === 'customer' || currentType === 'company') {
+      const manageColumns = props => {
+        return (
+          <ManageColumns {...props} contentType={currentType} type="import" />
+        );
+      };
+
+      const editColumns = (
+        <Button btnStyle="simple" size="small" icon="folder-download">
+          {__('Download template')}
+        </Button>
+      );
+
+      return (
+        <ModalTrigger
+          title="Select Columns"
+          trigger={editColumns}
+          content={manageColumns}
+        />
+      );
+    }
+
+    let name = 'product_template.xlsx';
 
     switch (currentType) {
-      case 'customer':
-        name = 'customer_template.xlsx';
-        break;
       case 'product':
         name = 'product_template.xlsx';
         break;

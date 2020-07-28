@@ -1,13 +1,15 @@
 const commonParamsDef = `
   $name: String!,
   $brandId: String!,
-  $languageCode: String
+  $languageCode: String,
+  $channelIds: [String]
 `;
 
 const commonParams = `
   name: $name,
   brandId: $brandId,
-  languageCode: $languageCode
+  languageCode: $languageCode,
+  channelIds: $channelIds
 `;
 
 const mailParamsDef = `
@@ -66,8 +68,8 @@ const integrationsCreateMessenger = `
 `;
 
 const integrationsCreateExternalIntegration = `
-  mutation integrationsCreateExternalIntegration($name: String!, $brandId: String!, $accountId: String, $kind: String!, $data: JSON) {
-    integrationsCreateExternalIntegration(name: $name, brandId: $brandId, accountId: $accountId, kind: $kind, data: $data) {
+  mutation integrationsCreateExternalIntegration($name: String!, $brandId: String!, $accountId: String, $kind: String!,$channelIds: [String], $data: JSON) {
+    integrationsCreateExternalIntegration(name: $name, brandId: $brandId, accountId: $accountId, kind: $kind, channelIds: $channelIds, data: $data) {
       _id
       brand {
         _id
@@ -79,8 +81,8 @@ const integrationsCreateExternalIntegration = `
 `;
 
 const integrationsEditCommonFields = `
-  mutation integrationsEditCommonFields($_id: String!, $name: String!, $brandId: String!) {
-    integrationsEditCommonFields(_id: $_id, name: $name, brandId: $brandId) {
+  mutation integrationsEditCommonFields($_id: String!, $name: String!, $brandId: String!, $channelIds: [String]) {
+    integrationsEditCommonFields(_id: $_id, name: $name, brandId: $brandId, channelIds: $channelIds) {
       _id
     }
   }
@@ -190,8 +192,8 @@ const integrationsUpdateConfigs = `
 `;
 
 const integrationsArchive = `
-  mutation integrationsArchive($_id: String!) {
-    integrationsArchive(_id: $_id) {
+  mutation integrationsArchive($_id: String!, $status: Boolean!) {
+    integrationsArchive(_id: $_id, status: $status) {
       _id
     }
   }

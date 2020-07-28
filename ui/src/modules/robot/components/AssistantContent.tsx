@@ -32,7 +32,8 @@ class AssistantContent extends React.Component<Props, State> {
       currentUser,
       forceComplete,
       savedFeatures,
-      toggleContent
+      toggleContent,
+      showContent
     } = this.props;
 
     const commonProps = {
@@ -57,11 +58,15 @@ class AssistantContent extends React.Component<Props, State> {
     }
 
     if (currentRoute === 'inComplete') {
-      return !savedFeatures ? (
-        onBoarding
-      ) : (
-        <Suggestion {...commonProps} onClick={onClick} />
-      );
+      if (!savedFeatures) {
+        return onBoarding;
+      }
+
+      if (!showContent) {
+        return null;
+      }
+
+      return <Suggestion {...commonProps} onClick={onClick} />;
     }
 
     if (currentRoute === 'todoList' || currentRoute === 'todoDetail') {

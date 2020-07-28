@@ -59,9 +59,16 @@ const CreateMessenger = (props: FinalProps) => {
   const topics = knowledgeBaseTopicsQuery.knowledgeBaseTopics || [];
 
   const save = doc => {
-    const { name, brandId, languageCode, messengerData, uiOptions } = doc;
+    const {
+      name,
+      brandId,
+      languageCode,
+      messengerData,
+      uiOptions,
+      channelIds
+    } = doc;
     saveMessengerMutation({
-      variables: { name, brandId, languageCode }
+      variables: { name, brandId, languageCode, channelIds }
     })
       .then(({ data }) => {
         const integrationId = data.integrationsCreateMessengerIntegration._id;

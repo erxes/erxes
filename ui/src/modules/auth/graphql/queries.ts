@@ -2,6 +2,7 @@ const currentUser = `
   query currentUser {
     currentUser {
       _id
+      createdAt
       username
       email
       isOwner

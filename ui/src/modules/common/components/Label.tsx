@@ -47,6 +47,7 @@ const LabelStyled = styledTS<{
   color: ${props =>
     props.isLightColor ? darken(props.lblColor, 50) : props.lblColor};
   border: none;
+  font-weight: 600;
   animation: ${props =>
     props.shake ? `${animationShake} 3.5s ease infinite` : 'none'};
   
@@ -67,6 +68,7 @@ const LabelStyled = styledTS<{
     padding: 3px;
     line-height: 0.5;
     text-align: center;
+    font-weight: normal;
   }
 `;
 

@@ -19,7 +19,7 @@ type Props = {
   addLink: string;
   onSelect: (accountId?: string) => void;
   onRemove: (accountId: string) => void;
-  formProps: IFormProps;
+  formProps?: IFormProps;
   renderForm?: () => JSX.Element;
 };
 
@@ -29,13 +29,24 @@ type FinalProps = {
   RemoveAccountMutationResponse;
 
 class AccountContainer extends React.Component<FinalProps, {}> {
+  popupWindow(url, title, win, w, h) {
+    const y = win.top.outerHeight / 2 + win.top.screenY - h / 2;
+    const x = win.top.outerWidth / 2 + win.top.screenX - w / 2;
+
+    return win.open(
+      url,
+      title,
+      `toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=${w}, height=${h}, top=${y}, left=${x}`
+    );
+  }
+
   onAdd = () => {
     const { addLink, kind } = this.props;
 
     const { REACT_APP_API_URL } = getEnv();
     const url = `${REACT_APP_API_URL}/connect-integration?link=${addLink}&kind=${kind}`;
 
-    window.location.replace(url);
+    this.popupWindow(url, 'Integration', window, 660, 750);
   };
 
   removeAccount = (accountId: string) => {
