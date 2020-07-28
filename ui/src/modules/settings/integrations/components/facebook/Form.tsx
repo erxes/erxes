@@ -47,9 +47,6 @@ type Props = {
 
 type State = {
   selectedPages: string[];
-  name: string;
-  brandId: string;
-  accountId: string;
   channelIds: string[];
 };
 
@@ -59,9 +56,6 @@ class Facebook extends React.Component<Props, State> {
 
     this.state = {
       selectedPages: [],
-      name: '',
-      brandId: '',
-      accountId: props.accountId || '',
       channelIds: []
     };
   }

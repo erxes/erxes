@@ -144,18 +144,30 @@ class MessagesList extends React.Component<Props, State> {
 
     const { uiOptions } = this.props;
     const { color } = uiOptions;
-  
 
     return (
-      <div className="app-message-box call-request" style={{borderColor: color}}>
+      <div
+        className="app-message-box call-request"
+        style={{ borderColor: color }}
+      >
         <h5>Audio and video call</h5>
         <p>You can contact the operator by voice or video!</p>
         <div className="call-buttons">
-          <button className="erxes-button" style={{ background: color }} onClick={sendCallRequest}>
-            {iconCall}<span>Audio call</span>
+          <button
+            className="erxes-button"
+            style={{ background: color }}
+            onClick={sendCallRequest}
+          >
+            {iconCall}
+            <span>Audio call</span>
           </button>
-          <button className="erxes-button" style={{ background: color }} onClick={sendCallRequest}>
-            {iconVideo}<span>Video call</span>
+          <button
+            className="erxes-button"
+            style={{ background: color }}
+            onClick={sendCallRequest}
+          >
+            {iconVideo}
+            <span>Video call</span>
           </button>
         </div>
       </div>

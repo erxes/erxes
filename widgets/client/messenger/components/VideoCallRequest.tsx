@@ -1,6 +1,6 @@
-import * as React from 'react';
+import * as React from "react";
 import { iconVideo } from "../../icons/Icons";
-import { __ } from '../../utils';
+import { __ } from "../../utils";
 
 type Props = {
   color?: string;
@@ -8,12 +8,13 @@ type Props = {
 
 export default function VideoCallRequest({ color }: Props) {
   return (
-    <div className="app-message-box spaced flexible" style={{ borderColor: color }}>
+    <div
+      className="app-message-box spaced flexible"
+      style={{ borderColor: color }}
+    >
       <div className="user-info horizontal">
         {iconVideo}
-        <strong>
-          {__('Call request sent')}
-        </strong>
+        <strong>{__("Call request sent")}</strong>
       </div>
     </div>
   );
