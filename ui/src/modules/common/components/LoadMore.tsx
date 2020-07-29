@@ -29,7 +29,8 @@ function LoadMore({
       block={true}
       btnStyle="link"
       onClick={load}
-      icon="angle-double-down"
+      icon="redo"
+      uppercase={false}
     >
       {loading ? 'Loading...' : 'Load more'}
     </Button>

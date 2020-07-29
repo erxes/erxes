@@ -35,7 +35,7 @@ class CallProContainer extends React.Component<FinalProps> {
     const { closeModal } = this.props;
 
     const updatedProps = {
-      closeModal,
+      callback: closeModal,
       renderButton: this.renderButton
     };
 
