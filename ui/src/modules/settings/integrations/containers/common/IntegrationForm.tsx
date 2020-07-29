@@ -12,7 +12,7 @@ type Props = {
 
 type FinalProps = {} & IRouterProps & Props;
 
-class CallProContainer extends React.Component<FinalProps> {
+class IntegrationFormContainer extends React.Component<FinalProps> {
   renderButton = ({
     name,
     values,
@@ -32,15 +32,21 @@ class CallProContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const { closeModal } = this.props;
+    const { closeModal, type } = this.props;
 
     const updatedProps = {
       callBack: closeModal,
       renderButton: this.renderButton
     };
 
+    console.log(type);
+
+    if (type === 'callpro') {
+      console.log(type);
+    }
+
     return <CallPro {...updatedProps} />;
   }
 }
 
-export default withRouter<FinalProps>(CallProContainer);
+export default withRouter<FinalProps>(IntegrationFormContainer);

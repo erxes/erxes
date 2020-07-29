@@ -1,12 +1,12 @@
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
-import CallPro from 'modules/settings/integrations/containers/callpro/Form';
 import NylasForm from 'modules/settings/integrations/containers/mail/Form';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { INTEGRATION_KINDS } from '../../constants';
 import Chatfuel from '../../containers/chatfuel/Form';
+import IntegrationForm from '../../containers/common/IntegrationForm';
 import KnowledgeBase from '../../containers/knowledgebase/Form';
 import Lead from '../../containers/lead/Form';
 import LineForm from '../../containers/line/Form';
@@ -77,14 +77,14 @@ function renderType(type: string) {
   );
 }
 
-function renderCreate(createUrl, createModal) {
-  if (!createUrl && !createModal) {
+function renderCreate(createUrl, kind) {
+  if (!createUrl && !kind) {
     return null;
   }
 
   const trigger = <button>+ {__('Add')}</button>;
 
-  if (createModal === INTEGRATION_KINDS.FACEBOOK_MESSENGER) {
+  if (kind === INTEGRATION_KINDS.FACEBOOK_MESSENGER) {
     return (
       <Link
         to={`/settings/integrations/createFacebook?kind=${
@@ -96,7 +96,7 @@ function renderCreate(createUrl, createModal) {
     );
   }
 
-  if (createModal === INTEGRATION_KINDS.FACEBOOK_POST) {
+  if (kind === INTEGRATION_KINDS.FACEBOOK_POST) {
     return (
       <Link
         to={`/settings/integrations/createFacebook?kind=${
@@ -108,7 +108,11 @@ function renderCreate(createUrl, createModal) {
     );
   }
 
-  if (createModal === 'lead') {
+  if (kind === INTEGRATION_KINDS.MESSENGER || !kind) {
+    return <Link to={createUrl}>+ {__('Add')}</Link>;
+  }
+
+  if (kind === 'lead') {
     const content = props => <Lead {...props} />;
 
     return (
@@ -116,7 +120,7 @@ function renderCreate(createUrl, createModal) {
     );
   }
 
-  if (createModal === 'knowledgeBase') {
+  if (kind === 'knowledgeBase') {
     const content = props => <KnowledgeBase {...props} />;
 
     return (
@@ -128,7 +132,7 @@ function renderCreate(createUrl, createModal) {
     );
   }
 
-  if (createModal === 'website') {
+  if (kind === 'website') {
     const content = props => <Website {...props} />;
 
     return (
@@ -136,15 +140,15 @@ function renderCreate(createUrl, createModal) {
     );
   }
 
-  if (createModal === 'callpro') {
-    const content = props => <CallPro {...props} />;
+  // if (kind === 'callpro') {
+  //   const content = props => <CallPro {...props} />;
 
-    return (
-      <ModalTrigger title="Add call pro" trigger={trigger} content={content} />
-    );
-  }
+  //   return (
+  //     <ModalTrigger title="Add call pro" trigger={trigger} content={content} />
+  //   );
+  // }
 
-  if (createModal === 'chatfuel') {
+  if (kind === 'chatfuel') {
     const content = props => <Chatfuel {...props} />;
 
     return (
@@ -152,8 +156,8 @@ function renderCreate(createUrl, createModal) {
     );
   }
 
-  if (createModal === INTEGRATION_KINDS.NYLAS_OFFICE365) {
-    const content = props => <NylasForm kind={createModal} {...props} />;
+  if (kind === INTEGRATION_KINDS.NYLAS_OFFICE365) {
+    const content = props => <NylasForm kind={kind} {...props} />;
 
     return (
       <ModalTrigger
@@ -164,16 +168,16 @@ function renderCreate(createUrl, createModal) {
     );
   }
 
-  if (createModal === INTEGRATION_KINDS.NYLAS_IMAP) {
-    const content = props => <NylasForm kind={createModal} {...props} />;
+  if (kind === INTEGRATION_KINDS.NYLAS_IMAP) {
+    const content = props => <NylasForm kind={kind} {...props} />;
 
     return (
       <ModalTrigger title="Add IMAP" trigger={trigger} content={content} />
     );
   }
 
-  if (createModal === INTEGRATION_KINDS.NYLAS_GMAIL) {
-    const content = props => <NylasForm kind={createModal} {...props} />;
+  if (kind === INTEGRATION_KINDS.NYLAS_GMAIL) {
+    const content = props => <NylasForm kind={kind} {...props} />;
 
     return (
       <ModalTrigger
@@ -184,35 +188,35 @@ function renderCreate(createUrl, createModal) {
     );
   }
 
-  if (createModal === INTEGRATION_KINDS.NYLAS_EXCHANGE) {
-    const content = props => <NylasForm kind={createModal} {...props} />;
+  if (kind === INTEGRATION_KINDS.NYLAS_EXCHANGE) {
+    const content = props => <NylasForm kind={kind} {...props} />;
 
     return (
       <ModalTrigger title="Add Exchange" trigger={trigger} content={content} />
     );
   }
 
-  if (createModal === INTEGRATION_KINDS.NYLAS_OUTLOOK) {
-    const content = props => <NylasForm kind={createModal} {...props} />;
+  if (kind === INTEGRATION_KINDS.NYLAS_OUTLOOK) {
+    const content = props => <NylasForm kind={kind} {...props} />;
 
     return (
       <ModalTrigger title="Add Outlook" trigger={trigger} content={content} />
     );
   }
 
-  if (createModal === INTEGRATION_KINDS.NYLAS_YAHOO) {
-    const content = props => <NylasForm kind={createModal} {...props} />;
+  if (kind === INTEGRATION_KINDS.NYLAS_YAHOO) {
+    const content = props => <NylasForm kind={kind} {...props} />;
 
     return (
       <ModalTrigger title="Add Yahoo" trigger={trigger} content={content} />
     );
   }
 
-  if (createModal === INTEGRATION_KINDS.GMAIL) {
+  if (kind === INTEGRATION_KINDS.GMAIL) {
     return <Link to={'/settings/integrations/createGmail'}>+ {__('Add')}</Link>;
   }
 
-  if (createModal === 'twitter') {
+  if (kind === 'twitter') {
     const content = props => <Twitter {...props} />;
 
     return (
@@ -220,7 +224,7 @@ function renderCreate(createUrl, createModal) {
     );
   }
 
-  if (createModal === INTEGRATION_KINDS.SMOOCH_LINE) {
+  if (kind === INTEGRATION_KINDS.SMOOCH_LINE) {
     const content = props => <LineForm {...props} />;
 
     return (
@@ -228,7 +232,7 @@ function renderCreate(createUrl, createModal) {
     );
   }
 
-  if (createModal === INTEGRATION_KINDS.SMOOCH_TELEGRAM) {
+  if (kind === INTEGRATION_KINDS.SMOOCH_TELEGRAM) {
     const content = props => <TelegramForm {...props} />;
 
     return (
@@ -236,7 +240,7 @@ function renderCreate(createUrl, createModal) {
     );
   }
 
-  if (createModal === INTEGRATION_KINDS.SMOOCH_VIBER) {
+  if (kind === INTEGRATION_KINDS.SMOOCH_VIBER) {
     const content = props => <ViberForm {...props} />;
 
     return (
@@ -244,7 +248,7 @@ function renderCreate(createUrl, createModal) {
     );
   }
 
-  if (createModal === INTEGRATION_KINDS.SMOOCH_TWILIO) {
+  if (kind === INTEGRATION_KINDS.SMOOCH_TWILIO) {
     const content = props => <TwilioForm {...props} />;
 
     return (
@@ -256,7 +260,7 @@ function renderCreate(createUrl, createModal) {
     );
   }
 
-  if (createModal === INTEGRATION_KINDS.WHATSAPP) {
+  if (kind === INTEGRATION_KINDS.WHATSAPP) {
     const content = props => <WhatsappForm {...props} />;
 
     return (
@@ -264,7 +268,15 @@ function renderCreate(createUrl, createModal) {
     );
   }
 
-  return <Link to={createUrl}>+ {__('Add')}</Link>;
+  const formContent = props => <IntegrationForm {...props} />;
+
+  return (
+    <ModalTrigger
+      title={`Add ${kind}`}
+      trigger={trigger}
+      content={formContent}
+    />
+  );
 }
 
 function Entry({
