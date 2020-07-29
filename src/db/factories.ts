@@ -35,6 +35,7 @@ import {
   MessengerApps,
   NotificationConfigurations,
   Notifications,
+  OnboardingHistories,
   Permissions,
   PipelineLabels,
   Pipelines,
@@ -1121,7 +1122,7 @@ export const growthHackFactory = async (params: IGrowthHackFactoryInput = {}) =>
     impact: params.impact || 0,
     priority: params.priority,
     labelIds: params.labelIds || [],
-    order: params.order || Math.random()
+    order: params.order || Math.random(),
   });
 
   return growthHack.save();
@@ -1364,3 +1365,15 @@ export function engageDataFactory(params: IMessageEngageDataParams) {
     sentAs: params.sentAs || 'post',
   };
 }
+
+interface IOnboardHistoryParams {
+  userId: string;
+  isCompleted?: boolean;
+  completedSteps?: string[];
+}
+
+export const onboardHistoryFactory = async (params: IOnboardHistoryParams) => {
+  const onboard = new OnboardingHistories(params);
+
+  return onboard.save();
+};
