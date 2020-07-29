@@ -37,6 +37,10 @@ export const checkFieldNames = async (type: string, fields: string[]) => {
       schema = Customers.schema;
       break;
 
+    case 'lead':
+      schema = Customers.schema;
+      break;
+
     case 'product':
       schema = Products.schema;
       break;
