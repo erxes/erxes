@@ -132,19 +132,19 @@ describe('Test pipeline label model', () => {
 
     await PipelineLabels.removePipelineLabel(dealLabel._id);
 
-    expect(await Deals.find({ labelIds: [dealLabel._id] }).count()).toBe(0);
+    expect(await Deals.find({ labelIds: [dealLabel._id] }).countDocuments()).toBe(0);
 
     await PipelineLabels.removePipelineLabel(taskLabel._id);
 
-    expect(await Tasks.find({ labelIds: [taskLabel._id] }).count()).toBe(0);
+    expect(await Tasks.find({ labelIds: [taskLabel._id] }).countDocuments()).toBe(0);
 
     await PipelineLabels.removePipelineLabel(ticketLabel._id);
 
-    expect(await Tickets.find({ labelIds: [ticketLabel._id] }).count()).toBe(0);
+    expect(await Tickets.find({ labelIds: [ticketLabel._id] }).countDocuments()).toBe(0);
 
     await PipelineLabels.removePipelineLabel(growthHackLabel._id);
 
-    expect(await GrowthHacks.find({ labelIds: [growthHackLabel._id] }).count()).toBe(0);
+    expect(await GrowthHacks.find({ labelIds: [growthHackLabel._id] }).countDocuments()).toBe(0);
   });
 
   test('Remove pipeline label not found', async () => {

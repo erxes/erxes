@@ -629,10 +629,10 @@ describe('lead', () => {
 
     expect(response && response.status).toBe('ok');
 
-    expect(await Conversations.find().count()).toBe(1);
-    expect(await ConversationMessages.find().count()).toBe(1);
-    expect(await Customers.find().count()).toBe(1);
-    expect(await FormSubmissions.find().count()).toBe(1);
+    expect(await Conversations.find().countDocuments()).toBe(1);
+    expect(await ConversationMessages.find().countDocuments()).toBe(1);
+    expect(await Customers.find().countDocuments()).toBe(1);
+    expect(await FormSubmissions.find().countDocuments()).toBe(1);
 
     const message = await ConversationMessages.findOne();
     const formData = message ? message.formWidgetData : {};
