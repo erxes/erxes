@@ -11,28 +11,13 @@ export const templateExport = async (args: any) => {
     sheet.cell(1, index).value(value);
   };
 
-  switch (contentType) {
-    case 'lead':
-      addCell('state', rowIndex);
-      sheet.cell(2, rowIndex).value('lead');
-
-      rowIndex++;
-      break;
-    case 'customer':
-      addCell('state', rowIndex);
-      sheet.cell(2, rowIndex).value('customer');
-
-      rowIndex++;
-      break;
-  }
-
   for (const config of configs) {
     addCell(config, rowIndex);
     rowIndex++;
   }
 
   return {
-    name: `import-template`,
+    name: `${contentType}-import-template`,
     response: await generateXlsx(workbook),
   };
 };

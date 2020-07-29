@@ -17,6 +17,9 @@ connect()
       case 'customer':
         await Customers.removeCustomers(result);
         break;
+      case 'lead':
+        await Customers.removeCustomers(result);
+        break;
       case 'product':
         await Products.removeProducts(result);
         break;

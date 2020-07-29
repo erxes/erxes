@@ -54,6 +54,10 @@ connect().then(async () => {
       create = Customers.createCustomer;
       model = Customers;
       break;
+    case 'lead':
+      create = Customers.createCustomer;
+      model = Customers;
+      break;
     case 'product':
       create = Products.createProduct;
       model = Products;
@@ -104,6 +108,13 @@ connect().then(async () => {
     // Iterating through detailed properties
     for (const property of properties) {
       const value = (fieldValue[colIndex] || '').toString();
+
+      if (contentType === 'customer') {
+        doc.state = 'customer';
+      }
+      if (contentType === 'lead') {
+        doc.state = 'lead';
+      }
 
       switch (property.type) {
         case 'customProperty':
@@ -201,11 +212,11 @@ connect().then(async () => {
       colIndex++;
     } // end properties for loop
 
-    if (contentType === 'customer' && !doc.emailValidationStatus) {
+    if ((contentType === 'customer' || contentType === 'lead') && !doc.emailValidationStatus) {
       doc.emailValidationStatus = 'unknown';
     }
 
-    if (contentType === 'customer' && !doc.phoneValidationStatus) {
+    if ((contentType === 'customer' || contentType === 'lead') && !doc.phoneValidationStatus) {
       doc.phoneValidationStatus = 'unknown';
     }
 
@@ -230,7 +241,7 @@ connect().then(async () => {
 
           for (const _id of companyIds) {
             await Conformities.addConformity({
-              mainType: contentType,
+              mainType: contentType === 'lead' ? 'customer' : contentType,
               mainTypeId: cocObj._id,
               relType: 'company',
               relTypeId: _id,
@@ -244,7 +255,7 @@ connect().then(async () => {
 
           for (const _id of customerIds) {
             await Conformities.addConformity({
-              mainType: contentType,
+              mainType: contentType === 'lead' ? 'customer' : contentType,
               mainTypeId: cocObj._id,
               relType: 'customer',
               relTypeId: _id,
