@@ -173,13 +173,14 @@ export const loadOnboardingHistoryClass = () => {
     }
 
     public static async userStatus(userId: string): Promise<string> {
-      const entry = await OnboardingHistories.findOne({ userId });
+      const entries = await OnboardingHistories.find({ userId });
+      const completed = entries.find(item => item.isCompleted);
 
-      if (entry && entry.isCompleted) {
+      if (completed) {
         return 'completed';
       }
 
-      if (entry) {
+      if (entries.length > 0) {
         return 'inComplete';
       }
 
