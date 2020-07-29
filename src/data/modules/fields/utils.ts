@@ -74,7 +74,7 @@ export const checkFieldNames = async (type: string, fields: string[]) => {
 
     const property: { [key: string]: any } = {};
 
-    const fieldObj = await Fields.findOne({ text: fieldName, contentType: type });
+    const fieldObj = await Fields.findOne({ text: fieldName, contentType: type === 'lead' ? 'customer' : type });
 
     // Collecting basic fields
     if (basicInfos.includes(fieldName)) {
