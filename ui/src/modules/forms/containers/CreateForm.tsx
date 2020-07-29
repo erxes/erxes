@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Alert, withProps } from 'modules/common/utils';
+import { __, Alert, withProps } from 'modules/common/utils';
 import {
   AddFieldsMutationResponse,
   AddFieldsMutationVariables,
@@ -83,12 +83,12 @@ class CreateFormContainer extends React.Component<FinalProps, {}> {
 
         .then(() => {
           if (showMessage) {
-            Alert.success('You successfully added a form');
+            Alert.success(__('You successfully added a form'));
           }
         })
 
         .catch(error => {
-          Alert.error(error.message);
+          Alert.error(__(error.message));
         });
     };
 

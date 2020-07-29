@@ -115,7 +115,7 @@ class Appearance extends React.Component<Props, State> {
       <FlexItem>
         <LeftItem>
           <SubItem>
-            <ControlLabel>{__('Choose a custom color')}</ControlLabel>
+            <ControlLabel>{'Choose a custom color'}</ControlLabel>
             <OverlayTrigger
               trigger="click"
               rootClose={true}
@@ -129,7 +129,7 @@ class Appearance extends React.Component<Props, State> {
           </SubItem>
 
           <SubItem>
-            <ControlLabel>{__('Choose a wallpaper')}</ControlLabel>
+            <ControlLabel>{'Choose a wallpaper'}</ControlLabel>
 
             <WidgetBackgrounds>
               {this.renderWallpaperSelect('1')}

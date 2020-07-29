@@ -191,7 +191,7 @@ class FieldForm extends React.Component<Props, State> {
         {this.renderOptions()}
 
         <FlexRow>
-          <label>This field is required</label>
+          <label>{__('This field is required')}</label>
           <Toggle
             defaultChecked={field.isRequired || false}
             icons={{
