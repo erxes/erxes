@@ -231,7 +231,7 @@ class Facebook extends React.Component<Props, State> {
   render() {
     let title = __('Facebook Posts');
     let description = __(
-      'Connect your Facebook Posts to start receiving Facebook post and comments in your team inbox.'
+      'Connect your Facebook Posts to start receiving Facebook post and comments in your team inbox'
     );
 
     if (this.props.kind === INTEGRATION_KINDS.FACEBOOK_MESSENGER) {

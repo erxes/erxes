@@ -61,6 +61,7 @@ const Contents = styled.div`
   right: 0;
   bottom: 0;
   top: 0;
+  overflow-x: auto;
 
   @-moz-document url-prefix() {
     overflow: hidden;

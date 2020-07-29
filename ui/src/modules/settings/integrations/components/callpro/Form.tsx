@@ -10,7 +10,7 @@ import SelectBrand from '../../containers/SelectBrand';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  closeModal: () => void;
+  callBack: () => void;
 };
 
 class CallPro extends React.Component<Props, { loading: boolean }> {
@@ -73,7 +73,7 @@ class CallPro extends React.Component<Props, { loading: boolean }> {
             name: 'integration',
             values: this.generateDoc(values),
             isSubmitted,
-            callback: this.props.closeModal
+            callback: this.props.callBack
           })}
         </ModalFooter>
       </>

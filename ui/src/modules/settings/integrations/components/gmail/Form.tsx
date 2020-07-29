@@ -188,7 +188,7 @@ class Gmail extends React.Component<Props, State> {
                   </h1>
                   <p>
                     {__(
-                      'Connect your Gmail to start receiving emails in your team inbox.'
+                      'Connect your Gmail to start receiving emails in your team inbox'
                     )}
                   </p>
                   <img alt={title} src="/images/previews/facebook.png" />
