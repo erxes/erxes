@@ -36,8 +36,6 @@ context("Login", () => {
 
     const randomm = fakeName(5);
 
-    // mask
-
     sendMessage();
 
     cy.get("#btn-inbox-channel-visible").click();
@@ -67,29 +65,6 @@ context("Login", () => {
 
     cy.get('div[class="RichEditor-editor"]').click();
 
-    /*
-    cy.get('div[class="dropdown"]')
-      .eq(1)
-      .click();
-
-    cy.get('a[href="#title"]')
-      .eq(2)
-      .click();
-
-    cy.get('div[class="Select is-searchable Select--single"]')
-      .eq(1)
-      .click()
-      .children()
-      .eq(1).click();
-
-    cy.get("input")
-      .eq(7)
-      .type(randomm);
-
-    cy.get('button[icon="checked-1"]').click(); */
-
-    // assingTo();
-
     cy.get("#conversationAssignTrigger").click();
     cy.get('input[placeholder="Search"]').type("Admin");
 
@@ -106,36 +81,6 @@ context("Login", () => {
     cy.get("#conversationWrapper").scrollTo("top", { duration: 5000 });
 
     cy.get("#mask").click();
-
-    cy.get(".sc-bqjOQT > .sc-iQKALj > span").click();
-
-    cy.get('div[class="RichEditor-editor"]').type(randomm);
-    cy.get('button[icon="message"]').click();
-
-    /* cy.get('i[icon="angle-down"]')
-      .eq(6)
-      .click();
-
-    cy.get('a[href="#edit"]').click();
-    cy.get('button[icon="check-circle"]')
-      .eq(1)
-      .click();
-
-    cy.wait(500);
-
-    cy.get('i[icon="angle-down"]')
-      .eq(6)
-      .click();
-
-    cy.get('a[href="#changeState"]').click();
-
-    cy.get("#customerChangeStateBox")
-      .eq(0)
-      .click();
-
-    cy.get('i[icon="times"]').click(); */
-
-    //cy.get("#conversationInternalNote").click();
   });
 });
 
@@ -144,8 +89,6 @@ const sendMessage = () => {
   cy.get("#mask").click();
   cy.get('div[class="RichEditor-editor"]').type(randomm);
   cy.get('button[icon="message"]').click();
-
-  //cy.get('div[class="modal-body"]').get("div");
 };
 
 const tags = () => {
