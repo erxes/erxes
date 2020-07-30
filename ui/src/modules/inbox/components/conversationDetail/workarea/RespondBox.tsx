@@ -9,6 +9,7 @@ import { IAttachmentPreview } from 'modules/common/types';
 import { __, Alert, readFile, uploadHandler } from 'modules/common/utils';
 import { deleteHandler } from 'modules/common/utils/uploadHandler';
 import ResponseTemplate from 'modules/inbox/containers/conversationDetail/responseTemplate/ResponseTemplate';
+import ProductBoard from 'modules/inbox/containers/ProductBoard';
 import {
   Attachment,
   AttachmentIndicator,
@@ -431,12 +432,13 @@ class RespondBox extends React.Component<Props, State> {
   renderButtons() {
     const { conversation } = this.props;
     const integration = conversation.integration || ({} as IIntegration);
-    const disabled =
-      integration.kind.includes('nylas') || integration.kind === 'gmail';
+    const disabled = integration.kind.includes('nylas') || integration.kind === 'gmail';
 
     return (
       <EditorActions>
         {this.renderCheckbox(integration.kind)}
+
+        <ProductBoard conversation = {conversation}/>
 
         {this.renderVideoRoom()}
 
