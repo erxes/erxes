@@ -15,5 +15,8 @@ export const getIconAndColor = contentType => {
 
 // uppercase and clean text for tooltip
 export const formatText = text => {
-  return text.replace('nylas-', '').replace(/^\w/, c => c.toUpperCase());
+  return text
+    .replace('nylas-', '')
+    .replace('smooch-', '')
+    .replace(/^\w/, c => c.toUpperCase());
 };

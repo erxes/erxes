@@ -16,9 +16,23 @@ type Props = {
   closeModal: () => void;
 };
 
+type State = {
+  channelIds: string[];
+};
+
 type FinalProps = {} & IRouterProps & Props;
 
-class IntegrationFormContainer extends React.Component<FinalProps> {
+class IntegrationFormContainer extends React.Component<FinalProps, State> {
+  constructor(props: FinalProps) {
+    super(props);
+
+    this.state = { channelIds: [] };
+  }
+
+  onChannelChange = (values: string[]) => {
+    this.setState({ channelIds: values });
+  };
+
   renderButton = ({
     name,
     values,
@@ -26,13 +40,15 @@ class IntegrationFormContainer extends React.Component<FinalProps> {
     callback
   }: IButtonMutateProps) => {
     const { type } = this.props;
+
     return (
       <ButtonMutate
         mutation={mutations.integrationsCreateExternalIntegration}
-        variables={values}
+        variables={Object.assign(values, { channelIds: this.state.channelIds })}
         callback={callback}
         isSubmitted={isSubmitted}
         refetchQueries={getRefetchQueries(type)}
+        uppercase={false}
         type="submit"
         successMessage={`You successfully added a ${type} ${name}`}
       />
@@ -41,12 +57,15 @@ class IntegrationFormContainer extends React.Component<FinalProps> {
 
   render() {
     const { closeModal, type } = this.props;
+    const { channelIds } = this.state;
 
     let Component;
 
     const updatedProps = {
       callback: closeModal,
-      renderButton: this.renderButton
+      renderButton: this.renderButton,
+      channelIds,
+      onChannelChange: this.onChannelChange
     };
 
     if (type === INTEGRATION_KINDS.CALLPRO) {

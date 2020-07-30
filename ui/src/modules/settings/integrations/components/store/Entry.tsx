@@ -82,11 +82,7 @@ function renderCreate(createUrl, kind) {
 
   if (kind === INTEGRATION_KINDS.FACEBOOK_MESSENGER) {
     return (
-      <Link
-        to={`/settings/integrations/createFacebook?kind=${
-          INTEGRATION_KINDS.FACEBOOK_MESSENGER
-        }`}
-      >
+      <Link to={`${createUrl}?kind=${INTEGRATION_KINDS.FACEBOOK_MESSENGER}`}>
         + {__('Add')}
       </Link>
     );
@@ -94,21 +90,17 @@ function renderCreate(createUrl, kind) {
 
   if (kind === INTEGRATION_KINDS.FACEBOOK_POST) {
     return (
-      <Link
-        to={`/settings/integrations/createFacebook?kind=${
-          INTEGRATION_KINDS.FACEBOOK_POST
-        }`}
-      >
+      <Link to={`${createUrl}?kind=${INTEGRATION_KINDS.FACEBOOK_POST}`}>
         + {__('Add')}
       </Link>
     );
   }
 
-  if (kind === INTEGRATION_KINDS.MESSENGER || !kind) {
+  if (kind === INTEGRATION_KINDS.MESSENGER) {
     return <Link to={createUrl}>+ {__('Add')}</Link>;
   }
 
-  if (kind === 'lead') {
+  if (kind === INTEGRATION_KINDS.LEAD) {
     const content = props => <Lead {...props} />;
 
     return (
@@ -136,14 +128,17 @@ function renderCreate(createUrl, kind) {
     );
   }
 
-  if (kind === INTEGRATION_KINDS.NYLAS_OFFICE365) {
+  if (
+    kind === INTEGRATION_KINDS.NYLAS_OFFICE365 ||
+    kind === INTEGRATION_KINDS.NYLAS_GMAIL
+  ) {
     const content = props => <NylasForm kind={kind} {...props} />;
 
     return (
       <ModalTrigger
-        title="Add Office 365"
+        title={`Add ${formatText(kind)}`}
         content={content}
-        autoOpenKey="showoffice365Modal"
+        autoOpenKey={`show${formatText(kind)}Modal`}
       />
     );
   }
@@ -152,7 +147,7 @@ function renderCreate(createUrl, kind) {
     kind === INTEGRATION_KINDS.NYLAS_IMAP ||
     kind === INTEGRATION_KINDS.NYLAS_EXCHANGE ||
     kind === INTEGRATION_KINDS.NYLAS_OUTLOOK ||
-    INTEGRATION_KINDS.NYLAS_YAHOO
+    kind === INTEGRATION_KINDS.NYLAS_YAHOO
   ) {
     const content = props => <NylasForm kind={kind} {...props} />;
 
@@ -161,24 +156,13 @@ function renderCreate(createUrl, kind) {
         title={`Add ${formatText(kind)}`}
         trigger={trigger}
         content={content}
-      />
-    );
-  }
-
-  if (kind === INTEGRATION_KINDS.NYLAS_GMAIL) {
-    const content = props => <NylasForm kind={kind} {...props} />;
-
-    return (
-      <ModalTrigger
-        title="Add gmail"
-        content={content}
-        autoOpenKey="showgmailModal"
+        autoOpenKey={`show${formatText(kind)}Modal`}
       />
     );
   }
 
   if (kind === INTEGRATION_KINDS.GMAIL) {
-    return <Link to={'/settings/integrations/createGmail'}>+ {__('Add')}</Link>;
+    return <Link to={createUrl}>+ {__('Add')}</Link>;
   }
 
   if (kind === 'twitter') {
@@ -201,7 +185,7 @@ function renderCreate(createUrl, kind) {
 
   return (
     <ModalTrigger
-      title={`Add ${kind}`}
+      title={`Add ${formatText(kind)}`}
       trigger={trigger}
       content={formContent}
     />

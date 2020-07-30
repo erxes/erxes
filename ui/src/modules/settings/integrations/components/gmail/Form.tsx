@@ -128,9 +128,6 @@ class Gmail extends React.Component<Props, State> {
                 <SelectChannels
                   defaultValue={this.state.channelIds}
                   isRequired={true}
-                  description={__(
-                    'In which Channel(s) do you want to add this integration?'
-                  )}
                   onChange={this.channelOnChange}
                 />
               </LeftItem>

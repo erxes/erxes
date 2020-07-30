@@ -40,6 +40,7 @@ class LineContainer extends React.Component<FinalProps, State> {
         callback={callback}
         isSubmitted={isSubmitted}
         type="submit"
+        uppercase={false}
         successMessage={`You successfully added a ${name}`}
       />
     );
