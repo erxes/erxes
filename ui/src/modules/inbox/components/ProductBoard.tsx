@@ -8,7 +8,6 @@ import { IConversation } from '../types';
 type Props = {
     conversation: IConversation;
     createBoard: (conversationId: string) => void;
-
 };
 
 class ProductBoard extends React.Component<Props> {
@@ -19,7 +18,6 @@ class ProductBoard extends React.Component<Props> {
     };
 
     openBoard = () => {
-
         const { conversation } = this.props;
 
         window.open(
@@ -28,9 +26,7 @@ class ProductBoard extends React.Component<Props> {
         );
     }
 
-
     render() {
-
         const hasProductBoard = this.props.conversation.productBoardLink !== "" && this.props.conversation.productBoardLink !== null;
 
         const tipText = hasProductBoard ? 'Go to product board' : 'Create product board note';
@@ -38,7 +34,6 @@ class ProductBoard extends React.Component<Props> {
         return <Tip text={__(tipText)}>
             <label onClick={hasProductBoard
                 ? () => {
-
                     this.openBoard();
                 }
                 : () => {

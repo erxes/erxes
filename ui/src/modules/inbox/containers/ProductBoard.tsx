@@ -22,7 +22,7 @@ type FinalProps = Props & CreateProductBoardMutationResponse;
 const ResolverContainer = (props: FinalProps) => {
     const { createProductBoardMutation, conversation } = props;
 
-    // change conversation status
+    // create product board note from conversation
     const createBoard = notifyHandler => (conversationId: string) => {
         createProductBoardMutation({ variables: { _id: conversationId } })
             .then(() => {
@@ -32,11 +32,8 @@ const ResolverContainer = (props: FinalProps) => {
 
                 if (conversation.productBoardLink !== "") {
                     Alert.info('Already created product board');
-
                 } else {
-                    Alert.success(
-                        'Created product board'
-                    );
+                    Alert.success('Created product board note');
                 }
             })
             .catch(e => {
