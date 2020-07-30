@@ -11,6 +11,7 @@ import { initConsumer, rabbitMQStatus } from './messageBroker';
 import Accounts from './models/Accounts';
 import Configs from './models/Configs';
 import { initNylas } from './nylas/controller';
+import initProductBoard from './productBoard/controller';
 import { initRedis, redisStatus } from './redisClient';
 import initSmooch from './smooch/controller';
 import { init } from './startup';
@@ -148,6 +149,9 @@ initDaily(app);
 
 // init smooch
 initSmooch(app);
+
+// init product board
+initProductBoard(app);
 
 // Error handling middleware
 app.use((error, _req, res, _next) => {
