@@ -11,7 +11,7 @@ import SelectBrand from '../../containers/SelectBrand';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  closeModal: () => void;
+  callback: () => void;
 };
 
 class Telegram extends React.Component<Props, { loading: boolean }> {
@@ -36,7 +36,7 @@ class Telegram extends React.Component<Props, { loading: boolean }> {
   };
 
   renderContent = (formProps: IFormProps) => {
-    const { renderButton } = this.props;
+    const { renderButton, callback } = this.props;
     const { values, isSubmitted } = formProps;
 
     return (
@@ -72,7 +72,7 @@ class Telegram extends React.Component<Props, { loading: boolean }> {
             name: 'integration',
             values: this.generateDoc(values),
             isSubmitted,
-            callback: this.props.closeModal
+            callback
           })}
         </ModalFooter>
       </>

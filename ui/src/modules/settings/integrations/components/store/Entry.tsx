@@ -1,3 +1,4 @@
+import { formatText } from 'modules/activityLogs/utils';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { __ } from 'modules/common/utils';
@@ -5,17 +6,12 @@ import NylasForm from 'modules/settings/integrations/containers/mail/Form';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { INTEGRATION_KINDS } from '../../constants';
-import Chatfuel from '../../containers/chatfuel/Form';
 import IntegrationForm from '../../containers/common/IntegrationForm';
 import KnowledgeBase from '../../containers/knowledgebase/Form';
 import Lead from '../../containers/lead/Form';
 import LineForm from '../../containers/line/Form';
-import TelegramForm from '../../containers/telegram/Form';
-import TwilioForm from '../../containers/twilioSms/Form';
 import Twitter from '../../containers/twitter/Twitter';
-import ViberForm from '../../containers/viber/Form';
 import Website from '../../containers/website/Form';
-import WhatsappForm from '../../containers/whatsapp/Form';
 import { Box, IntegrationItem, Ribbon, Type } from './styles';
 
 type TotalCount = {
@@ -140,22 +136,6 @@ function renderCreate(createUrl, kind) {
     );
   }
 
-  // if (kind === 'callpro') {
-  //   const content = props => <CallPro {...props} />;
-
-  //   return (
-  //     <ModalTrigger title="Add call pro" trigger={trigger} content={content} />
-  //   );
-  // }
-
-  if (kind === 'chatfuel') {
-    const content = props => <Chatfuel {...props} />;
-
-    return (
-      <ModalTrigger title="Add chatfuel" trigger={trigger} content={content} />
-    );
-  }
-
   if (kind === INTEGRATION_KINDS.NYLAS_OFFICE365) {
     const content = props => <NylasForm kind={kind} {...props} />;
 
@@ -168,11 +148,20 @@ function renderCreate(createUrl, kind) {
     );
   }
 
-  if (kind === INTEGRATION_KINDS.NYLAS_IMAP) {
+  if (
+    kind === INTEGRATION_KINDS.NYLAS_IMAP ||
+    kind === INTEGRATION_KINDS.NYLAS_EXCHANGE ||
+    kind === INTEGRATION_KINDS.NYLAS_OUTLOOK ||
+    INTEGRATION_KINDS.NYLAS_YAHOO
+  ) {
     const content = props => <NylasForm kind={kind} {...props} />;
 
     return (
-      <ModalTrigger title="Add IMAP" trigger={trigger} content={content} />
+      <ModalTrigger
+        title={`Add ${formatText(kind)}`}
+        trigger={trigger}
+        content={content}
+      />
     );
   }
 
@@ -185,30 +174,6 @@ function renderCreate(createUrl, kind) {
         content={content}
         autoOpenKey="showgmailModal"
       />
-    );
-  }
-
-  if (kind === INTEGRATION_KINDS.NYLAS_EXCHANGE) {
-    const content = props => <NylasForm kind={kind} {...props} />;
-
-    return (
-      <ModalTrigger title="Add Exchange" trigger={trigger} content={content} />
-    );
-  }
-
-  if (kind === INTEGRATION_KINDS.NYLAS_OUTLOOK) {
-    const content = props => <NylasForm kind={kind} {...props} />;
-
-    return (
-      <ModalTrigger title="Add Outlook" trigger={trigger} content={content} />
-    );
-  }
-
-  if (kind === INTEGRATION_KINDS.NYLAS_YAHOO) {
-    const content = props => <NylasForm kind={kind} {...props} />;
-
-    return (
-      <ModalTrigger title="Add Yahoo" trigger={trigger} content={content} />
     );
   }
 
@@ -232,43 +197,7 @@ function renderCreate(createUrl, kind) {
     );
   }
 
-  if (kind === INTEGRATION_KINDS.SMOOCH_TELEGRAM) {
-    const content = props => <TelegramForm {...props} />;
-
-    return (
-      <ModalTrigger title="Add Telegram" trigger={trigger} content={content} />
-    );
-  }
-
-  if (kind === INTEGRATION_KINDS.SMOOCH_VIBER) {
-    const content = props => <ViberForm {...props} />;
-
-    return (
-      <ModalTrigger title="Add Viber" trigger={trigger} content={content} />
-    );
-  }
-
-  if (kind === INTEGRATION_KINDS.SMOOCH_TWILIO) {
-    const content = props => <TwilioForm {...props} />;
-
-    return (
-      <ModalTrigger
-        title="Add Twilio SMS"
-        trigger={trigger}
-        content={content}
-      />
-    );
-  }
-
-  if (kind === INTEGRATION_KINDS.WHATSAPP) {
-    const content = props => <WhatsappForm {...props} />;
-
-    return (
-      <ModalTrigger title="Add WhatsApp" trigger={trigger} content={content} />
-    );
-  }
-
-  const formContent = props => <IntegrationForm {...props} />;
+  const formContent = props => <IntegrationForm {...props} type={kind} />;
 
   return (
     <ModalTrigger
