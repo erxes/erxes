@@ -3,7 +3,7 @@ id: centos8
 title: CentOS 8
 ---
 
-This steps explain how to install Erxes on CentOS 8.
+These steps explain how to install Erxes on CentOS 8.
 
 ## Installing erxes on CentOS 8
 
@@ -17,38 +17,40 @@ To have erxes up and running quickly, you can follow the following steps.
 
    **Note**: you will be asked to provide a domain for nginx server to set up config for erxes
 
-3. Log in to your domain DNS and create A record based on your new server IP.
+3. Log in to your domain DNS and create A record with your new server IP.
 
 ## Create an admin user
 
-Switch to user `erxes` and run the following commands based on your needs.
+Switch to user `erxes` and run the following commands.
 
 ```sh
 su erxes
-cd ~/erxes-api
+cd ~/erxes.io/erxes-api/dist
 export MONGO_URL="API_MONGO_URL"
 ```
 
-- `API_MONGO_URL` - copy and paste the value of the `MONGO_URL` env var of erxes-api in the `/home/erxes/ecosystem.json`
+- `API_MONGO_URL` - copy and paste the value of the `MONGO_URL` env var from erxes-api in the `/home/erxes/erxes.io/ecosystem.json`
 
 The following will create an admin user admin@erxes.io with a random password. The password will be printed into your terminal.
 
 ```
-yarn initProject
+node commands/initProject
 ```
 
 ## Load initial data
 
-The below command will create initial permission groups, permissions, growth hack templates, email templates and some sample data and reset the admin password and it will be printed into terminal.
+The below command will create initial permission groups, permissions, growth hack templates, email templates.
 
 ```
-yarn loadInitialData
+node commands/loadPermissionData
 ```
 
-If do not want to load sample data then you can run following command just to load permissions.
+Finally, you will need to restart erxes by running the following command.
 
 ```
-yarn loadPermission
+cd ~/erxes.io/
+nvm use default
+pm2 restart ecosystem.json
 ```
 
 Now you have erxes up and running!
