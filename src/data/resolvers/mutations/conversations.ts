@@ -1,6 +1,6 @@
 import * as strip from 'strip';
 import * as _ from 'underscore';
-import { ConversationMessages, Conversations, Customers, Integrations } from '../../../db/models';
+import { ConversationMessages, Conversations, Customers, Integrations, Tags } from '../../../db/models';
 import Messages from '../../../db/models/ConversationMessages';
 import {
   KIND_CHOICES,
@@ -423,6 +423,31 @@ const conversationMutations = {
       debugExternalApi(e.message);
 
       await ConversationMessages.deleteOne({ _id: message._id });
+
+      throw new Error(e.message);
+    }
+  },
+
+  async conversationCreateProductBoardNote(_root, { _id }, { dataSources, user }: IContext) {
+    const conversation = await Conversations.findOne({ _id }).select('customerId userId tagIds');
+    const tags = await Tags.find({ _id: { $in: conversation?.tagIds } }).select('name');
+    const customer = await Customers.findOne({ _id: conversation?.customerId });
+    const messages = await ConversationMessages.find({ conversationId: _id }).sort({
+      createdAt: 1,
+    });
+
+    try {
+      const productBoardLink = await dataSources.IntegrationsAPI.createProductBoardNote({
+        erxesApiConversationId: _id,
+        tags,
+        customer,
+        messages,
+        user,
+      });
+
+      return productBoardLink;
+    } catch (e) {
+      debugExternalApi(e.message);
 
       throw new Error(e.message);
     }

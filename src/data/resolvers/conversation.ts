@@ -115,4 +115,16 @@ export default {
       return null;
     }
   },
+
+  async productBoardLink(conversation: IConversationDocument, _args, { dataSources }: IContext) {
+    try {
+      const response = await dataSources.IntegrationsAPI.fetchApi('/productBoard/note', {
+        erxesApiId: conversation._id,
+      });
+      return response;
+    } catch (e) {
+      debugExternalApi(e);
+      return null;
+    }
+  },
 };

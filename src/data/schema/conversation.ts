@@ -36,6 +36,7 @@ export const types = `
     participatedUsers: [User]
     participatorCount: Int
     videoCallData: VideoCallData
+    productBoardLink: String
   }
 
   type EngageData {
@@ -233,4 +234,5 @@ export const mutations = `
   conversationMarkAsRead(_id: String): Conversation
   conversationDeleteVideoChatRoom(name: String!): Boolean
   conversationCreateVideoChatRoom(_id: String!): VideoCallData
+  conversationCreateProductBoardNote(_id: String!): String
 `;
