@@ -26,7 +26,7 @@ Each hosting company has slightly different server configurations and set-ups. H
 To install and properly run your **erxes** installation, you must meet these minimum requirements:
 
 - Ubuntu 18.04 installed and running
-- 4 cpus
+- 4 CPUs
 - 8GB RAM
 - ability to to SSH into the server
 
@@ -38,7 +38,7 @@ You can use the [Digital Ocean Marketplace](https://marketplace.digitalocean.com
 
 You must have an account with your hosting provider prior to doing these steps.
 
-- Create a server with **Ubuntu 18.04** installed, a minimum of **4cpus** and **8GB RAM**.
+- Create a server with **Ubuntu 18.04** installed, a minimum of **4 CPUs** and **8GB RAM**.
 - If you're using a **subdomain**, then the **subdomain** must be created with your hosting provider hosting your main domain's website or app.
 
 ### Configure your DNS Records to point at your server
@@ -76,7 +76,7 @@ If your domain name is **erxes.example.com**, and the **ip address** assigned to
 Please select from the **Quickstart** or **Step by Step** instructions below and continue with your installation of **erxes**.
 
 <Tabs
-  defaultValue='step-by-step'
+  defaultValue='quickstart'
   values={[
     { label: 'Quickstart', value: 'quickstart' },
     { label: 'Step by Step', value: 'step-by-step' },
@@ -84,11 +84,85 @@ Please select from the **Quickstart** or **Step by Step** instructions below and
 
 <TabItem value='quickstart'>
 
-## Installing erxes on Ubuntu 18.04
+## Quickstart - Installing erxes on Ubuntu 18.04
 
-Look out for **Quickstart Installation** steps coming soon...
+## Log into server as root
 
-### DO NOT TRY THE STEPS BELOW. THEY WILL NOT WORK YET
+- Open the terminal or command prompt on your computer. You will need your **IP address**. (In this example, **44.123.32.12**). Type `yes`, when asked if you want to continue connecting.
+
+```bash
+# example ssh root@44.123.32.12
+ssh root@your-ip-address
+```
+
+- Run the **Quickstart Script** to
+
+```bash
+bash -c "$(wget -O - https://raw.githubusercontent.com/erxes/erxes/develop/scripts/install/debian10.sh)"
+```
+
+An **erxes** user was automatically created. Now we need a unique password. This
+
+- Create a password for the **erxes** user.
+
+```bash
+passwd erxes
+```
+
+## Install Let's Encrypt using Certbot
+
+**Let's Encrypt** enables you to use **HTTPS** on your website. It will issue you a certificate which shows that you control your domain. [Let's Encrypt additional information](https://www.nginx.com/resources/wiki/start/topics/tutorials/install/).
+
+You will follow the installation instructions as covered [here](https://certbot.eff.org/lets-encrypt/ubuntubionic-nginx), with [Certbot](https://certbot.eff.org/)
+
+- You will need to add a **Certbot** PPA to the list of repositories on the server.
+
+```bash
+sudo apt-get update
+sudo apt-get -y install software-properties-common
+sudo add-apt-repository universe
+sudo add-apt-repository -y ppa:certbot/certbot
+sudo apt-get update
+```
+
+- Install Certbot
+
+```bash
+sudo apt-get install -y certbot python3-certbot-nginx
+```
+
+Execute Certbot. You will asked several questions, you can answer as follows:
+
+- Enter your email address
+- Agree with the **Terms of Service**
+- Answer `Yes` or `No`, if you want to share your email address with the Electronic Frontier Foundation
+- Select the corresponding number associated with your domain name, usually `1`
+- Choose `2` to redirect all your traffic to a secure **HTTPS**
+
+```bash
+sudo certbot --nginx
+```
+
+- Now run the following to **test and set-up** automatic renewal of your 90 day certbot. This needs to succeed so that your renewals are automatic.
+
+```bash
+sudo certbot renew --dry-run
+```
+
+Check your website in the browser. You should see the **Secure Padlock** next to your URL.
+
+## Final MongoDB Configuration steps
+
+The script created a random password for your **MongoDB** database. We need to copy it from the `ecosystem.config.js` file and set it as an `env` variable.
+
+```bash
+cd ~
+sudo nano ecosystem.config.js
+```
+
+Locate the `"MONGO_URL": "mongodb://erxes:82e3e42ef31e51d51687b366118200e2@localhost/erxes?authSource=admin&replicaSet=rs0",` under the "erxes-api".
+
+- Copy the MONGO_URL and exit the nano editor
 
 </TabItem>
 <TabItem value='step-by-step'>
@@ -101,6 +175,8 @@ Look out for **Quickstart Installation** steps coming soon...
 # example ssh root@44.123.32.12
 ssh root@your-ip-address
 ```
+
+(**Note**: Some people get an error, **WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!**, please see the solution [here](/installation/ubuntu#known-issues-and-frequent-questions).)
 
 You don't want to use the **root** user to administer your server. So everything will be done by a user called, **erxes**. To accomplish this, run the following commands:
 
@@ -119,6 +195,8 @@ usermod -aG sudo erxes
 Your next step as **root** user, is to set-up a basic firewall for your server.
 
 ## Set-up a basic firewall for SSH, nginx 80 and port 443
+
+### Basic Firewall - Port 22
 
 - Allow OpenSSH with **ufw**. OpenSSH will use **port 22**.
 
@@ -149,6 +227,8 @@ OpenSSH                    ALLOW       Anywhere
 OpenSSH (v6)               ALLOW       Anywhere (v6)
 ```
 
+### HTTP & HTTPS - Port 80 & Port 443
+
 - Allow **HTTP** (port 80) and **HTTPS** (port 443) with **ufw**
 
 ```bash
@@ -166,14 +246,12 @@ You should have an output like below:
 ```bash
 Status: active
 
-To Action From
-
----
-
-OpenSSH ALLOW Anywhere
-80,443/tcp ALLOW Anywhere
-OpenSSH (v6) ALLOW Anywhere (v6)
-80,443/tcp (v6) ALLOW Anywhere (v6)
+To                         Action      From
+--                         ------      ----
+OpenSSH                    ALLOW       Anywhere
+80,443/tcp                 ALLOW       Anywhere
+OpenSSH (v6)               ALLOW       Anywhere (v6)
+80,443/tcp (v6)            ALLOW       Anywhere (v6)
 ```
 
 ## Allow the "erxes" user to **SSH** into server
@@ -184,7 +262,7 @@ OpenSSH (v6) ALLOW Anywhere (v6)
 nano /etc/ssh/ssh_config
 ```
 
-- Scroll down until you see `PasswordAuthentication`. Change it from `PasswordAuthentication no` to `PasswordAuthentication yes`.
+- Scroll down until you see `PasswordAuthentication`. Change it from `PasswordAuthentication no` to `PasswordAuthentication yes`. **NOTE**: Some servers have this line commented out with a `#`, like `# PasswordAuthentication no`. You will need to uncomment it by deleting the `#`.
 
 The line should look like this:
 
@@ -216,7 +294,7 @@ Before you can log into your new server, we need to **add the SSH key** to your 
 
 **NOTE:** You need to use the **IP address** of your server.
 
-- Run the following command and enter your password.
+- Run the following command and **create a new password**.
 
 ```bash
 #ssh-copy-id erxes@44.123.32.12 <--- This is an example. Use your ip address
@@ -225,7 +303,7 @@ ssh-copy-id erxes@your-IP-address
 
 Now you can log into your server as the **erxes** user.
 
-- Log back into the server as the **erxes** user and provide the password. You will need your IP address. (In this example, **44.123.32.12**). Enter your previously created password, if prompted.
+- Log back into the server as the **erxes** user. You will need your IP address. (In this example, **44.123.32.12**). Enter your previously created password, if prompted.
 
 ```bash
 # example ssh erxes@44.123.32.12 <--- This is an example. Use your ip address
@@ -279,7 +357,7 @@ node -v
 You should get a similar output as below:
 
 ```bash
-v12.18.2
+v12.18.3
 # your version of node.js may be different
 ```
 
@@ -315,6 +393,8 @@ As long as you received a version response to `yarn --version`, then you can con
 ## Install MongoDB
 
 **MongoDB** is a robust and general purpose document-based database. For additional [MongoDB installation instructions, read this](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/).
+
+Erxes supports MongoDB version 3.6+ is supported. Previous versions are not supported.
 
 - Install **MongoDB**
 
@@ -360,7 +440,7 @@ sudo nano /etc/mongod.conf
 
 ```bash
 replication:
-  replSetName: rs0
+  replSetName: "rs0"
 ```
 
 - Save and Exit with `ctrl + x` and then `y` to accept the changes.
@@ -890,19 +970,21 @@ mkdir -p ~/erxes.io/erxes \
 **NOTE:** COPY THE ENTIRE CODE BLOCK AS ONE COMMAND.
 
 ```bash
-curl -L https://github.com/erxes/erxes/releases/download/0.15.4/erxes-0.15.4.tar.gz | tar -xz -C ~/erxes.io/erxes/ \
-    && curl -L https://github.com/erxes/erxes/releases/download/0.15.4/erxes-widgets-0.15.4.tar.gz | tar -xz -C ~/erxes.io/erxes-widgets/ \
-    && curl -L https://github.com/erxes/erxes-api/releases/download/0.15.4/erxes-api-0.15.4.tar.gz | tar -xz -C ~/erxes.io/erxes-api/ \
-    && curl -L https://github.com/erxes/erxes-api/releases/download/0.15.4/erxes-email-verifier-0.15.4.tar.gz | tar -xz -C ~/erxes.io/erxes-email-verifier/ \
-    && curl -L https://github.com/erxes/erxes-api/releases/download/0.15.4/erxes-engages-email-sender-0.15.4.tar.gz | tar -xz -C ~/erxes.io/erxes-engages-email-sender/ \
-    && curl -L https://github.com/erxes/erxes-api/releases/download/0.15.4/erxes-logger-0.15.4.tar.gz | tar -xz -C ~/erxes.io/erxes-logger/ \
-    && curl -L https://github.com/erxes/erxes-integrations/releases/download/0.15.4/erxes-integrations-0.15.4.tar.gz | tar -xz -C ~/erxes.io/erxes-integrations/ \
-    && curl -L https://github.com/erxes/erxes-api/releases/download/0.15.4/erxes-elksyncer-0.15.4.tar.gz | tar -xz -C ~/erxes.io/erxes-elkSyncer/
+curl -L https://github.com/erxes/erxes/releases/download/0.16.0/erxes-0.16.0.tar.gz | tar -xz -C ~/erxes.io/erxes/ \
+    && curl -L https://github.com/erxes/erxes/releases/download/0.16.0/erxes-widgets-0.16.0.tar.gz | tar -xz -C ~/erxes.io/erxes-widgets/ \
+    && curl -L https://github.com/erxes/erxes-api/releases/download/0.15.5/erxes-api-0.15.5.tar.gz | tar -xz -C ~/erxes.io/erxes-api/ \
+    && curl -L https://github.com/erxes/erxes-api/releases/download/0.15.5/erxes-email-verifier-0.15.5.tar.gz | tar -xz -C ~/erxes.io/erxes-email-verifier/ \
+    && curl -L https://github.com/erxes/erxes-api/releases/download/0.15.5/erxes-engages-email-sender-0.15.5.tar.gz | tar -xz -C ~/erxes.io/erxes-engages-email-sender/ \
+    && curl -L https://github.com/erxes/erxes-api/releases/download/0.15.5/erxes-logger-0.15.5.tar.gz | tar -xz -C ~/erxes.io/erxes-logger/ \
+    && curl -L https://github.com/erxes/erxes-integrations/releases/download/0.15.5/erxes-integrations-0.15.5.tar.gz | tar -xz -C ~/erxes.io/erxes-integrations/ \
+    && curl -L https://github.com/erxes/erxes-api/releases/download/0.15.5/erxes-elksyncer-0.15.5.tar.gz | tar -xz -C ~/erxes.io/erxes-elkSyncer
 ```
 
 - Install package dependencies (using `yarn install`) required for the packages that make up **erxes**.
 
 **NOTE:** COPY THE ENTIRE CODE BLOCK AS ONE COMMAND.
+
+**NOTE:** This step can take a few minutes to complete.
 
 ```bash
 cd ~/erxes.io/erxes-widgets && yarn install \
@@ -910,9 +992,8 @@ cd ~/erxes.io/erxes-widgets && yarn install \
     && cd ~/erxes.io/erxes-email-verifier && yarn install \
     && cd ~/erxes.io/erxes-engages-email-sender && yarn install \
     && cd ~/erxes.io/erxes-logger && yarn install \
-    && cd ~/erxes.io/erxes-integrations && yarn install
-
-# this step can take a few minutes
+    && cd ~/erxes.io/erxes-integrations && yarn install \
+    && cd ~
 ```
 
 - Install and configure the **elkSyncer** package, following these commands.
@@ -1131,11 +1212,11 @@ module.exports = {
 
 The next step is to set **environment variables** so that we can easily populate the **ecosystem.config.js** file.
 
-- Run the following command, but replace `YOUR_DOMAIN_COM` with your actual domain name.
+- Run the following command, but replace `YOUR_ACTUAL_DOMAIN_COM` with your actual domain name.
 
 ```bash
 #export YOUR_DOMAIN_COM=erxes.example.com
-export YOUR_DOMAIN_COM=YOUR_DOMAIN_COM
+export YOUR_DOMAIN_COM=YOUR_ACTUAL_DOMAIN_COM
 ```
 
 - Run the following command to create a **secret token**.
@@ -1233,6 +1314,8 @@ You are now ready to **initialize** and **load the permissions** in **erxes**.
 </TabItem>
 </Tabs>
 
+## Initialize and Load permissions for erxes
+
 - initialize Erxes and generate **login password**.
 
 ```bash
@@ -1253,6 +1336,7 @@ Your new password: HcEjfBMxws
 - Run this final command to finish the installation of **erxes**.
 
 ```bash
+pm2 restart erxes-api
 node commands/loadPermissionData
 ```
 
@@ -1261,3 +1345,37 @@ node commands/loadPermissionData
 You have installed **erxes** and all the dependencies. You may now visit your url, and log in.
 
 The username is **admin@erxes.io**, and the password is the password generated above.
+
+## Known Issues and frequent Questions
+
+1. "Host key verification failed" Error Message
+
+Some users working on existing servers receive the following error message:
+
+```
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!
+Someone could be eavesdropping on you right now (man-in-the-middle attack)!
+It is also possible that a host key has just been changed.
+The fingerprint for the ECDSA key sent by the remote host is
+SHA256:JWhuzo4SNV8rJNp9-THIS-IS-AN-EXAMPLE-L3N1GIjdM6VENIE.
+Please contact your system administrator.
+Add correct host key in /Users/user/.ssh/known_hosts to get rid of this message.
+Offending ECDSA key in /Users/user/.ssh/known_hosts:30
+ECDSA host key for 55.XX.XXX.46 has changed and you have requested strict checking.
+Host key verification failed.
+
+```
+
+This simply indicates that the key on the server has been changed. One solution is to delete the offending key from your local computer so this error goes away.
+
+You will need your **IP address** and simply run this command using your **IP address**.
+
+```
+# example ssh-keygen -R 55.444.44.111
+ssh-keygen -R your-ip-address-here
+```
+
+Then you should be able to log in to the server correctly.
