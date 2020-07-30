@@ -9,7 +9,14 @@
 # 
 # * we expect you have configured your domain DNS settings already.
 
-set -e
+set -Eeuo pipefail
+
+trap notify ERR
+
+function notify() {
+  FAILED_COMMAND="Something went wrong on line $LINENO : Failed command: ${BASH_COMMAND}"
+  # send data via curl
+}
 
 #
 # Ask a domain name
@@ -454,6 +461,8 @@ echo 'y' | ufw enable
 ufw allow 22
 ufw allow 80
 ufw allow 443
+
+su $username -c "source ~/.nvm/nvm.sh && nvm use $NODE_VERSION && cd $erxes_api_dir && node ./dist/commands/trackTelemetry \"Installation completed successfully\""
 
 echo
 echo -e "\e[32mInstallation complete\e[0m"
