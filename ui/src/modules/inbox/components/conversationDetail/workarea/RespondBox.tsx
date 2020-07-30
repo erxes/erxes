@@ -432,13 +432,14 @@ class RespondBox extends React.Component<Props, State> {
   renderButtons() {
     const { conversation } = this.props;
     const integration = conversation.integration || ({} as IIntegration);
-    const disabled = integration.kind.includes('nylas') || integration.kind === 'gmail';
+    const disabled =
+      integration.kind.includes('nylas') || integration.kind === 'gmail';
 
     return (
       <EditorActions>
         {this.renderCheckbox(integration.kind)}
 
-        <ProductBoard conversation = {conversation}/>
+        <ProductBoard conversation={conversation} />
 
         {this.renderVideoRoom()}
 

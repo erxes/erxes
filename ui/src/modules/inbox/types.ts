@@ -203,14 +203,13 @@ export type ChangeStatusMutationResponse = {
   ) => Promise<any>;
 };
 
-
 export type CreateProductBoardMutationVariables = {
   _id: string;
 };
 
 export type CreateProductBoardMutationResponse = {
   createProductBoardMutation: (
-    doc: {variables: CreateProductBoardMutationVariables }
+    doc: { variables: CreateProductBoardMutationVariables }
   ) => Promise<any>;
 };
 
