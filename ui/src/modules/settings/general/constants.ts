@@ -133,7 +133,9 @@ export const KEY_LABELS = {
 
   sex_choices: 'Pronoun choices',
   company_industry_types: 'Company industry types',
-  social_links: 'Social links'
+  social_links: 'Social links',
+
+  PRODUCT_BOARD_TOKEN: 'Product Board Access token'
 };
 
 export const FILE_MIME_TYPES = [
