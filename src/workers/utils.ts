@@ -1,3 +1,4 @@
+import * as csv from 'csvtojson';
 import * as dotenv from 'dotenv';
 import * as mongoose from 'mongoose';
 import * as os from 'os';
@@ -215,11 +216,95 @@ const readXlsFile = async (fileName: string): Promise<{ fieldNames: string[]; da
   });
 };
 
-export const receiveImportXls = async (content: any) => {
-  try {
-    const { fileName, type, scopeBrandIds, user } = content;
+const readCsvFile = async (fileName: string): Promise<{ fieldNames: string[]; datas: any[] }> => {
+  return new Promise(async (resolve, reject) => {
+    const errorCallback = error => {
+      reject(new Error(error.code));
+    };
+    const mainDatas: any[] = [];
 
-    const { fieldNames, datas } = await readXlsFile(fileName);
+    try {
+      const stream = await s3Stream(fileName, errorCallback);
+
+      const results = await csv().fromStream(stream);
+
+      if (!results || results.length === 0) {
+        return reject(new Error('Please import at least one row of data'));
+      }
+
+      if (results && results.length > 100000) {
+        return reject(new Error('You can only import 100000 rows one at a time'));
+      }
+
+      const fieldNames = Object.keys(results[0]);
+
+      for (const [key, value] of Object.entries(results[0])) {
+        if (value && typeof value === 'object') {
+          const subFields = Object.keys(value || {});
+
+          const index = fieldNames.indexOf(key);
+
+          if (index > -1) {
+            fieldNames.splice(index, 1);
+          }
+
+          for (const subField of subFields) {
+            fieldNames.push(`${key}.${subField}`);
+          }
+        }
+      }
+
+      for (const result of results) {
+        let data: any[] = [];
+
+        for (const mainValue of Object.values(result)) {
+          if (typeof mainValue !== 'object') {
+            data.push(mainValue || '');
+          } else {
+            if (typeof mainValue === 'object') {
+              const subFieldValues = Object.values(mainValue || {});
+              subFieldValues.forEach(subFieldValue => {
+                data.push(subFieldValue || '');
+              });
+            }
+          }
+        }
+        mainDatas.push(data);
+
+        data = [];
+      }
+
+      return resolve({ fieldNames, datas: mainDatas });
+    } catch (e) {
+      return resolve();
+    }
+  });
+};
+
+export const receiveImportCreate = async (content: any) => {
+  try {
+    const { fileName, type, scopeBrandIds, user, fileType } = content;
+    let fieldNames: string[] = [];
+    let datas: string[] = [];
+    let result: any = {};
+
+    switch (fileType) {
+      case 'csv':
+        result = await readCsvFile(fileName);
+
+        fieldNames = result.fieldNames;
+        datas = result.datas;
+
+        break;
+
+      case 'xlsx':
+        result = await readXlsFile(fileName);
+
+        fieldNames = result.fieldNames;
+        datas = result.datas;
+
+        break;
+    }
 
     if (datas.length === 0) {
       throw new Error('Please import at least one row of data');

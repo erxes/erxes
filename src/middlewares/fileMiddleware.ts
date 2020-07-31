@@ -19,6 +19,7 @@ export const importer = async (req: any, res, next) => {
 
     form.parse(req, async (_err, fields: any, response) => {
       let status = '';
+      let fileType = 'xlsx';
 
       try {
         status = await checkFile(response.file);
@@ -34,9 +35,14 @@ export const importer = async (req: any, res, next) => {
       try {
         const fileName = await uploadFileAWS(response.file, true);
 
+        if (fileName.includes('.csv')) {
+          fileType = 'csv';
+        }
+
         const result = await sendRPCMessage(RABBITMQ_QUEUES.RPC_API_TO_WORKERS, {
           action: 'createImport',
           type: fields.type,
+          fileType,
           fileName,
           scopeBrandIds,
           user: req.user,

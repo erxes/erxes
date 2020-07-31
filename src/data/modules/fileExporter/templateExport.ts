@@ -1,7 +1,7 @@
 import { createXlsFile, generateXlsx } from '../../utils';
 
 export const templateExport = async (args: any) => {
-  const { configs, contentType } = args;
+  const { configs, type } = args;
 
   const { workbook, sheet } = await createXlsFile();
 
@@ -17,7 +17,7 @@ export const templateExport = async (args: any) => {
   }
 
   return {
-    name: `${contentType}-import-template`,
+    name: `${type}-import-template`,
     response: await generateXlsx(workbook),
   };
 };
