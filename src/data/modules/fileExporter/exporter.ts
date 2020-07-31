@@ -45,12 +45,12 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
 
     case 'lead':
       const leadParams: ICustomerListArgs = query;
-      const qb = new CustomerBuildQuery(leadParams, {});
-      await qb.buildAllQueries();
+      const leadQp = new CustomerBuildQuery(leadParams, {});
+      await leadQp.buildAllQueries();
 
-      const customerResponse = await qb.runQueries();
+      const leadResponse = await leadQp.runQueries();
 
-      data = customerResponse.list;
+      data = leadResponse.list;
       break;
     case MODULE_NAMES.CUSTOMER:
       if (!(await can('exportCustomers', user))) {
