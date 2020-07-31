@@ -48,6 +48,7 @@
   "dependencies": {
     "@google-cloud/pubsub": "^1.1.5",
     "@google-cloud/storage": "^4.0.0",
+    "@types/json2csv": "^5.0.1",
     "@types/mongoose": "^5.5.32",
     "amqplib": "0.5.3",
     "apollo-datasource-rest": "^0.5.1",
@@ -74,6 +75,7 @@
     "graphql-tools": "^4.0.3",
     "handlebars": "^4.7.3",
     "ioredis": "^3.2.2",
+    "json2csv": "^5.0.1",
     "jsonwebtoken": "^8.1.0",
     "meteor-random": "^0.0.3",
     "moment": "^2.18.1",

@@ -203,10 +203,12 @@ app.get('/file-export', async (req: any, res) => {
 });
 
 app.get('/template-export', async (req: any, res) => {
+  const { importType } = req.query;
+
   try {
     const { name, response } = await templateExport(req.query);
 
-    res.attachment(`${name}.xlsx`);
+    res.attachment(`${name}.${importType}`);
     return res.send(response);
   } catch (e) {
     return res.end(filterXSS(e.message));
