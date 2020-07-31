@@ -60,8 +60,12 @@ const Box = styled(BoxRoot)`
   }
 `;
 
-export const IntegrationModal = () => {
-  const trigger = (
+type Props = {
+  trigger?: React.ReactNode;
+};
+
+export const IntegrationModal = ({ trigger }: Props) => {
+  const defaultTrigger = (
     <Button block={true} btnStyle="link" icon="processor" uppercase={false}>
       {__('Connect Integration')}
     </Button>
@@ -124,7 +128,7 @@ export const IntegrationModal = () => {
   return (
     <ModalTrigger
       title="Reply"
-      trigger={trigger}
+      trigger={trigger ? trigger : defaultTrigger}
       content={content}
       size="lg"
       hideHeader={true}
