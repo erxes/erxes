@@ -57,6 +57,7 @@
     "cookie": "^0.4.1",
     "cookie-parser": "^1.4.3",
     "cors": "^2.8.1",
+    "csvtojson": "^2.0.10",
     "debug": "^4.1.1",
     "dotenv": "^4.0.0",
     "elasticsearch": "^16.6.0",

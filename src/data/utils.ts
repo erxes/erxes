@@ -46,7 +46,7 @@ export const checkFile = async (file, source?: string) => {
   // determine file type using magic numbers
   const ft = fileType(buffer);
 
-  const unsupportedMimeTypes = ['text/csv', 'image/svg+xml', 'text/plain'];
+  const unsupportedMimeTypes = ['text/csv', 'image/svg+xml', 'text/plain', 'application/vnd.ms-excel'];
 
   const oldMsOfficeDocs = ['application/msword', 'application/vnd.ms-excel', 'application/vnd.ms-powerpoint'];
 

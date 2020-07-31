@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv';
 import { RABBITMQ_QUEUES } from '../data/constants';
 import { debugWorkers } from '../debuggers';
 import { addToArray, getArray, removeFromArray } from '../redisClient';
-import { generateUid, receiveImportCancel, receiveImportRemove, receiveImportXls } from './utils';
+import { generateUid, receiveImportCancel, receiveImportCreate, receiveImportRemove } from './utils';
 
 dotenv.config();
 
@@ -60,7 +60,7 @@ export const initConsumer = async () => {
 
         try {
           response.data =
-            content.action === 'removeImport' ? await receiveImportRemove(content) : await receiveImportXls(content);
+            content.action === 'removeImport' ? await receiveImportRemove(content) : await receiveImportCreate(content);
         } catch (e) {
           response.status = 'error';
           response.errorMessage = e.message;
