@@ -84,29 +84,38 @@ const ManageColumnsContainer = (props: FinalProps) => {
       .sort((a, b) => a.order - b.order);
   }
 
-  if (type && type === 'import') {
+  if (type && (type === 'import' || type === 'export')) {
     save = configs => {
-      const checkedConfigs: string[] = [];
+      const checkedConfigsForImport: string[] = [];
+      const checkedConfigsForExport: any[] = [];
+
+      let reqUrl = '/template-export';
+
+      if (type === 'export') {
+        reqUrl = '/file-export';
+      }
 
       configs
         .filter(conf => conf.checked)
         .forEach(checked => {
           if (checked.name.startsWith('customFieldsData')) {
-            checkedConfigs.push(checked.label);
+            checkedConfigsForExport.push(checked);
+            checkedConfigsForImport.push(checked.label);
           } else {
-            checkedConfigs.push(checked.name);
+            checkedConfigsForExport.push(checked);
+            checkedConfigsForImport.push(checked.name);
           }
         });
 
       const stringified = queryString.stringify({
-        configs: checkedConfigs,
-        contentType
+        configs:
+          type === 'export'
+            ? JSON.stringify(checkedConfigsForExport)
+            : checkedConfigsForImport,
+        type: contentType
       });
 
-      window.open(
-        `${REACT_APP_API_URL}/template-export?${stringified}`,
-        '_blank'
-      );
+      window.open(`${REACT_APP_API_URL}${reqUrl}?${stringified}`, '_blank');
     };
   }
 

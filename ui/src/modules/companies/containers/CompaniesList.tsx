@@ -104,6 +104,7 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
     const exportCompanies = bulk => {
       const { REACT_APP_API_URL } = getEnv();
       const { queryParams } = this.props;
+      const checkedConfigs: any[] = [];
 
       // queryParams page parameter needs convert to int.
       if (queryParams.page) {
@@ -114,9 +115,14 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
         queryParams.ids = bulk.map(company => company._id);
       }
 
+      columnsConfig.forEach(checked => {
+        checkedConfigs.push(checked);
+      });
+
       const stringified = queryString.stringify({
         ...queryParams,
-        type: 'company'
+        type: 'company',
+        configs: JSON.stringify(columnsConfig)
       });
 
       window.open(`${REACT_APP_API_URL}/file-export?${stringified}`, '_blank');
