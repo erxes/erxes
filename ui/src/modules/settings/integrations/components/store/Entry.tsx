@@ -138,7 +138,7 @@ function renderCreate(createUrl, kind) {
       <ModalTrigger
         title={`Add ${formatText(kind)}`}
         content={content}
-        autoOpenKey={`show${formatText(kind)}Modal`}
+        autoOpenKey={`show${formatText(kind, true)}Modal`}
       />
     );
   }
