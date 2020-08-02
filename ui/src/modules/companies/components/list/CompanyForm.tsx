@@ -13,7 +13,7 @@ import {
   ScrollWrapper
 } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
+import { __, getConstantFromStore } from 'modules/common/utils';
 import SelectCompanies from 'modules/companies/containers/SelectCompanies';
 import { isValidPhone } from 'modules/customers/utils';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
@@ -85,20 +85,19 @@ class CompanyForm extends React.Component<Props, State> {
       finalValues._id = company._id;
     }
 
+    const links = {};
+
+    getConstantFromStore('social_links').forEach(link => {
+      links[link.value] = finalValues[link.value];
+    });
+
     return {
       _id: finalValues._id,
       ...this.state,
       size: Number(finalValues.size),
       description: finalValues.description,
       code: finalValues.code,
-      links: {
-        linkedIn: finalValues.linkedIn,
-        twitter: finalValues.twitter,
-        facebook: finalValues.facebook,
-        github: finalValues.github,
-        youtube: finalValues.youtube,
-        website: finalValues.website
-      }
+      links
     };
   };
 
@@ -144,13 +143,24 @@ class CompanyForm extends React.Component<Props, State> {
     this.setState({ [optionsName]: options, [optionName]: selectedOption });
   };
 
+  renderLink(formProps, link) {
+    const { company } = this.props;
+    const links = (company ? company.links : {}) || {};
+
+    return this.renderFormGroup(link.label, {
+      ...formProps,
+      name: link.value,
+      defaultValue: links[link.value] || '',
+      type: 'url'
+    });
+  }
+
   renderContent = (formProps: IFormProps) => {
     const company = this.props.company || ({} as ICompany);
     const { closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
 
     const {
-      links = {},
       primaryName,
       names,
       primaryPhone,
@@ -224,7 +234,7 @@ class CompanyForm extends React.Component<Props, State> {
                     value={this.state.industry}
                     onChange={this.onIndustryChange}
                     options={this.generateConstantParams(
-                      COMPANY_INDUSTRY_TYPES
+                      COMPANY_INDUSTRY_TYPES()
                     )}
                     clearable={false}
                   />
@@ -326,48 +336,9 @@ class CompanyForm extends React.Component<Props, State> {
           <CollapseContent title={__('Links')} compact={true} open={true}>
             <FormWrapper>
               <FormColumn>
-                {this.renderFormGroup('LinkedIn', {
-                  ...formProps,
-                  name: 'linkedIn',
-                  defaultValue: links.linkedIn || '',
-                  type: 'url'
-                })}
-
-                {this.renderFormGroup('Twitter', {
-                  ...formProps,
-                  name: 'twitter',
-                  defaultValue: links.twitter || '',
-                  type: 'url'
-                })}
-
-                {this.renderFormGroup('Facebook', {
-                  ...formProps,
-                  name: 'facebook',
-                  defaultValue: links.facebook || '',
-                  type: 'url'
-                })}
-              </FormColumn>
-              <FormColumn>
-                {this.renderFormGroup('Github', {
-                  ...formProps,
-                  name: 'github',
-                  defaultValue: links.github || '',
-                  type: 'url'
-                })}
-
-                {this.renderFormGroup('Youtube', {
-                  ...formProps,
-                  name: 'youtube',
-                  defaultValue: links.youtube || '',
-                  type: 'url'
-                })}
-
-                {this.renderFormGroup('Website', {
-                  ...formProps,
-                  name: 'website',
-                  defaultValue: links.website || '',
-                  type: 'url'
-                })}
+                {getConstantFromStore('social_links').map(link =>
+                  this.renderLink(formProps, link)
+                )}
               </FormColumn>
             </FormWrapper>
           </CollapseContent>

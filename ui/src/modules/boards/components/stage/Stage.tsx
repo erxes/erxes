@@ -97,7 +97,7 @@ export default class Stage extends React.Component<Props, {}> {
   onScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const target = e.currentTarget;
     const bottom =
-      target.scrollHeight - target.scrollTop === target.clientHeight;
+      Math.round(target.scrollHeight - target.scrollTop) <= target.clientHeight;
 
     if (bottom) {
       this.props.loadMore();

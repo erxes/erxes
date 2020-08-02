@@ -124,7 +124,7 @@ const IntegrationItem = styled.div`
   }
 
   > a,
-  h6 {
+  button {
     font-weight: 500;
     font-size: 15px;
     color: ${colors.linkPrimary};
@@ -132,6 +132,14 @@ const IntegrationItem = styled.div`
     right: 30px;
     top: 55px;
     cursor: pointer;
+    background: none;
+    outline: 0;
+    border: none;
+
+    :hover {
+      text-decoration: underline;
+      opacity: 0.9;
+    }
   }
 
   &.active {

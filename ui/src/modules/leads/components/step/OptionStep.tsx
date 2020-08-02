@@ -12,7 +12,7 @@ import { ColorPick, ColorPicker } from 'modules/settings/styles';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
-import ChromePicker from 'react-color/lib/Chrome';
+import TwitterPicker from 'react-color/lib/Twitter';
 import { IBrand } from '../../../settings/brands/types';
 import { FormPreview } from './preview';
 import { BackgroundSelector, ColorList, FlexItem } from './style';
@@ -64,7 +64,13 @@ class OptionStep extends React.Component<Props, {}> {
 
     const popoverTop = (
       <Popover id="color-picker">
-        <ChromePicker color={color} onChange={this.onColorChange} />
+        <TwitterPicker
+          width="266px"
+          triangle="hide"
+          colors={COLORS}
+          color={color}
+          onChange={this.onColorChange}
+        />
       </Popover>
     );
 

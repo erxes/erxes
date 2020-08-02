@@ -73,14 +73,7 @@ const customersEdit = `
       hasAuthority
       description
       doNotDisturb
-      links {
-        linkedIn
-        twitter
-        facebook
-        github
-        youtube
-        website
-      }
+      links
     }
   }
 `;
@@ -107,10 +100,17 @@ const customersChangeState = `
   }
 `;
 
+const customersVerify = `
+  mutation customersVerify($verificationType: String!) {
+    customersVerify(verificationType: $verificationType)
+  }
+`;
+
 export default {
   customersAdd,
   customersEdit,
   customersRemove,
   customersChangeState,
-  customersMerge
+  customersMerge,
+  customersVerify
 };

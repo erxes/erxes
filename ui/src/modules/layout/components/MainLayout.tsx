@@ -28,6 +28,30 @@ class MainLayout extends React.Component<IProps> {
     if (history.location.pathname !== '/reset-password' && !currentUser) {
       history.push('/sign-in');
     }
+
+    // if (currentUser && process.env.NODE_ENV === 'production') {
+    if (currentUser) {
+      // Wootric code
+      (window as any).wootricSettings = {
+        email: currentUser.email, // Required to uniquely identify a user. Email is recommended but this can be any unique identifier.
+        created_at: Math.floor(
+          (currentUser.createdAt
+            ? new Date(currentUser.createdAt)
+            : new Date()
+          ).getTime() / 1000
+        ),
+        account_token: 'NPS-477ee032' // This is your unique account token.
+      };
+
+      const wootricScript = document.createElement('script');
+      wootricScript.src = 'https://cdn.wootric.com/wootric-sdk.js';
+
+      document.head.appendChild(wootricScript);
+
+      wootricScript.onload = () => {
+        (window as any).wootric('run');
+      };
+    }
   }
 
   getLastImport = () => {

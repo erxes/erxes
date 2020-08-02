@@ -21,6 +21,7 @@ Before you can develop and test erxes, you must install and configure the follow
 - [Node.js](http://nodejs.org), v10.x LTS which is used to run a development web server, run tests, and generate distributable files.
 - [Yarn](https://yarnpkg.com) which is used to install dependencies.
 - [MongoDB](https://www.mongodb.com) version 3.6.x
+- [RabbitMQ](https://www.rabbitmq.com/download.html) version 3.8.x
 - [Redis](https://redis.io) version 3.x +
 
 ## Getting the Sources and running locally

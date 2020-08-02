@@ -7,6 +7,7 @@ import { Error } from './styles';
 type Props = {
   renderContent: (props: IFormProps) => React.ReactNode;
   onSubmit?: (values: any) => any;
+  autoComplete?: string;
 };
 
 type State = {
@@ -127,7 +128,12 @@ class Form extends React.Component<Props, State> {
 
   render() {
     return (
-      <form id={this.formId} onSubmit={this.onSubmit} noValidate={true}>
+      <form
+        id={this.formId}
+        onSubmit={this.onSubmit}
+        noValidate={true}
+        autoComplete={this.props.autoComplete}
+      >
         {this.props.renderContent({
           errors: this.state.errors,
           values: this.state.values,

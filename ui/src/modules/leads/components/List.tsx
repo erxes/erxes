@@ -26,7 +26,7 @@ type Props = {
   toggleAll: (bulk: ILeadIntegration[], name: string) => void;
   loading: boolean;
   remove: (integrationId: string) => void;
-  archive: (integrationId: string) => void;
+  archive: (integrationId: string, status: boolean) => void;
 };
 
 class List extends React.Component<Props, {}> {
@@ -125,6 +125,7 @@ class List extends React.Component<Props, {}> {
             <th>{__('Created at')}</th>
             <th>{__('Created by')}</th>
             <th>{__('Tags')}</th>
+            <th>{__('Status')}</th>
             <th>{__('Actions')}</th>
           </tr>
         </thead>

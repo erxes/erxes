@@ -36,6 +36,7 @@ const commonFields = `
   stats
   messenger
   email
+  smsStats
 
   totalCustomersCount
   validCustomersCount
@@ -121,6 +122,7 @@ const users = `
         avatar
         fullName
         position
+        operatorPhone
       }
     }
   }

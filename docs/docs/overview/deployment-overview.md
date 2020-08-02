@@ -28,3 +28,4 @@ We recommend to start with the [docker images](installation/docker.md) for the f
 
 - MongoDB 3.6+
 - Redis 3.x+
+- RabbitMQ 3.8.x+

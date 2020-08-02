@@ -17,6 +17,7 @@ export const checklistFields = `
   createdDate
   items {
     _id
+    checklistId
     isChecked
     content
   }
@@ -38,20 +39,8 @@ const checklists = `
 const checklistDetail = `
   query checklistDetail($_id: String!) {
     checklistDetail(_id: $_id) {
-      _id
-      contentType
-      contentTypeId
-      title
-      createdUserId
-      createdDate
-      items {
-        _id
-        checklistId
-        isChecked
-        content
-      }
-      percent
-        }
+      ${checklistFields}
+    }
   }
 `;
 

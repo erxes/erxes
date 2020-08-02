@@ -1,5 +1,5 @@
 import * as React from "react";
-import { iconAttach, iconFilm } from "../../icons/Icons";
+import { iconAttach, iconVideo } from "../../icons/Icons";
 import { __ } from "../../utils";
 import { MESSAGE_TYPES } from "../containers/AppContext";
 
@@ -179,7 +179,7 @@ class MessageSender extends React.Component<Props, State> {
         className="ctrl-item"
         onClick={this.sendVideoCallRequest}
       >
-        {iconFilm}
+        {iconVideo}
       </label>
     );
   }

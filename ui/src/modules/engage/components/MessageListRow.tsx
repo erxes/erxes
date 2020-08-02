@@ -31,7 +31,11 @@ type Props = {
 class Row extends React.Component<Props> {
   renderLink(text, className, onClick) {
     return (
-      <Tip text={__(text)} key={`${text}-${this.props.message._id}`}>
+      <Tip
+        text={__(text)}
+        key={`${text}-${this.props.message._id}`}
+        placement="top"
+      >
         <Button btnStyle="link" onClick={onClick} icon={className} />
       </Tip>
     );
@@ -40,15 +44,19 @@ class Row extends React.Component<Props> {
   renderLinks() {
     const msg = this.props.message;
 
-    const edit = this.renderLink('Edit', 'edit', this.props.edit);
-    const pause = this.renderLink('Pause', 'pause', this.props.setPause);
-    const live = this.renderLink('Set live', 'play', this.props.setLive);
-    const liveM = this.renderLink('Set live', 'play', this.props.setLiveManual);
+    const edit = this.renderLink('Edit', 'edit-3', this.props.edit);
+    const pause = this.renderLink('Pause', 'pause-circle', this.props.setPause);
+    const live = this.renderLink('Set live', 'play-circle', this.props.setLive);
+    const liveM = this.renderLink(
+      'Set live',
+      'play-circle',
+      this.props.setLiveManual
+    );
     const show = this.renderLink('Show statistics', 'eye', this.props.show);
 
     const links: React.ReactNode[] = [];
 
-    if (msg.method === 'email') {
+    if ([METHODS.EMAIL, METHODS.SMS].includes(msg.method)) {
       links.push(show);
     }
 
@@ -77,8 +85,8 @@ class Row extends React.Component<Props> {
     }
 
     return (
-      <Tip text={__('Delete')}>
-        <Button btnStyle="link" onClick={onClick} icon="cancel-1" />
+      <Tip text={__('Delete')} placement="top">
+        <Button btnStyle="link" onClick={onClick} icon="times-cirlce" />
       </Tip>
     );
   };
@@ -111,28 +119,34 @@ class Row extends React.Component<Props> {
   onClick = () => {
     const { message } = this.props;
 
-    if (message.method === 'email') {
+    if ([METHODS.EMAIL, METHODS.SMS].includes(message.method)) {
       return this.props.show();
     }
 
-    return this.props.edit();
+    if (message.kind !== MESSAGE_KINDS.MANUAL) {
+      return this.props.edit();
+    }
   };
 
   renderStatus() {
     const { message } = this.props;
-
-    const { stats = { send: '' }, kind, validCustomersCount } = message;
-
+    const {
+      stats = { send: '' },
+      kind,
+      validCustomersCount,
+      smsStats = { total: 0 }
+    } = message;
     const totalCount = stats.total || 0;
 
     if (!message.isLive) {
       return <Label>draft</Label>;
     }
 
-    if (kind === 'manual') {
+    if (kind === MESSAGE_KINDS.MANUAL) {
       if (
-        message.method === 'messenger' ||
-        validCustomersCount === totalCount
+        message.method === METHODS.MESSENGER ||
+        validCustomersCount === totalCount ||
+        validCustomersCount === smsStats.total
       ) {
         return <Label lblStyle="success">Sent</Label>;
       }

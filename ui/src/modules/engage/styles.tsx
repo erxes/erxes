@@ -453,6 +453,21 @@ const Shell = styled.div`
   }
 `;
 
+const DesktopPreviewContent = styledTS<{ templateId?: string }>(styled.div)`
+  width: 70%;
+  margin: 0 auto;
+  background: ${props => !props.templateId && colors.colorWhite}
+  padding: ${props => !props.templateId && `${dimensions.coreSpacing}px`}
+`;
+
+const MobilePreviewContent = styledTS<{ templateId?: string }>(styled.div)`
+  height: 100%;
+  overflow: auto;
+  background: ${props => !props.templateId && colors.colorWhite}
+  padding: ${props => !props.templateId && `${dimensions.coreSpacing}px`}
+  overflow-x: hidden;
+`;
+
 export {
   RowTitle,
   HelperText,
@@ -487,5 +502,7 @@ export {
   VerifyCancel,
   VerifyCheck,
   RightSection,
+  DesktopPreviewContent,
+  MobilePreviewContent,
   Shell
 };
