@@ -95,19 +95,91 @@ Please select from the **Quickstart** or **Step by Step** instructions below and
 ssh root@your-ip-address
 ```
 
+(**Note**: Some people get an error, **WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!**, please see the solution [here](/installation/ubuntu#known-issues-and-frequent-questions).)
+
 - Run the **Quickstart Script** to
 
 ```bash
 bash -c "$(wget -O - https://raw.githubusercontent.com/erxes/erxes/develop/scripts/install/debian10.sh)"
 ```
 
-An **erxes** user was automatically created. Now we need a unique password. This
+- You will be asked to enter the domain name you would like to use. If you are using a subdomain, enter in the complete subdomain. For example, `erxes.example.com`.
+
+See example below:
+
+```
+Please enter a domain name you wish to use: erxes.example.com
+```
+
+The installation process takes a few minutes to complete.
+
+You will know the installation was successful if no errors occurred and you see the following output at the end of the installation. All processes should have a status of `online`, and the final line should say, `Installation complete`.
+
+```
+┌────┬────────────────────┬──────────┬──────┬───────────┬──────────┬──────────┐
+│ id │ name               │ mode     │ ↺    │ status    │ cpu      │ memory   │
+├────┼────────────────────┼──────────┼──────┼───────────┼──────────┼──────────┤
+│ 0  │ erxes-api          │ fork     │ 0    │ online    │ 0%       │ 37.9mb   │
+│ 1  │ erxes-api-cronjob  │ fork     │ 0    │ online    │ 0%       │ 38.6mb   │
+│ 2  │ erxes-api-worker   │ fork     │ 0    │ online    │ 0%       │ 35.6mb   │
+│ 7  │ erxes-elkSyncer    │ fork     │ 0    │ online    │ 0%       │ 11.2mb   │
+│ 6  │ erxes-email-verif… │ fork     │ 0    │ online    │ 0%       │ 29.3mb   │
+│ 4  │ erxes-engages      │ fork     │ 0    │ online    │ 0%       │ 33.6mb   │
+│ 8  │ erxes-integrations │ fork     │ 0    │ online    │ 0%       │ 26.8mb   │
+│ 5  │ erxes-logger       │ fork     │ 0    │ online    │ 0%       │ 29.7mb   │
+│ 3  │ erxes-widgets      │ fork     │ 0    │ online    │ 0%       │ 34.4mb   │
+└────┴────────────────────┴──────────┴──────┴───────────┴──────────┴──────────┘
+[PM2] Saving current process list...
+[PM2] Successfully saved in /home/erxes/.pm2/dump.pm2
+Command may disrupt existing ssh connections. Proceed with operation (y|n)? Firewall is active and enabled on system startup
+Rule added
+Rule added (v6)
+Rule added
+Rule added (v6)
+Rule added
+Rule added (v6)
+Now using node v12.16.3 (npm v6.14.4)
+
+Installation complete
+```
+
+## Create a user password and log out of root user
+
+An **erxes** user was automatically created. Now we need a unique password.
 
 - Create a password for the **erxes** user.
 
 ```bash
 passwd erxes
 ```
+
+You will be prompted to enter and verify and password for the `erxes` user. It will look something like this after you finish entering a new password.
+
+```
+Enter new UNIX password:
+Retype new UNIX password:
+passwd: password updated successfully
+```
+
+- Log out of the `root` user.
+
+```
+exit
+```
+
+## Log in as the `erxes` user
+
+- Open the terminal or command prompt on your computer. You will need your **IP address**. (In this example, **44.123.32.12**). Use the following command to log in as the `erxes` user and use the password you created in the previous steps.
+
+```bash
+# example ssh erxes@44.123.32.12
+# erxes@44.123.32.12's password:
+
+ssh root@your-ip-address
+erxes@your-ip-address's password:
+```
+
+After successful logging back into the server as `erxes`, you are ready to continue and finish the installation process for **erxes**.
 
 ## Install Let's Encrypt using Certbot
 
@@ -153,16 +225,31 @@ Check your website in the browser. You should see the **Secure Padlock** next to
 
 ## Final MongoDB Configuration steps
 
-The script created a random password for your **MongoDB** database. We need to copy it from the `ecosystem.config.js` file and set it as an `env` variable.
+The script created a random password for your **MongoDB** database. We need to copy it from the `ecosystem.json` file and set it as an `env` variable. This will require several steps.
 
 ```bash
-cd ~
-sudo nano ecosystem.config.js
+cd ~/erxes.io/erxes-api/dist
+sudo nano ~/erxes.io/ecosystem.json
 ```
 
-Locate the `"MONGO_URL": "mongodb://erxes:82e3e42ef31e51d51687b366118200e2@localhost/erxes?authSource=admin&replicaSet=rs0",` under the "erxes-api".
+Locate the `"MONGO_URL": "mongodb://erxes:82e3e42ef31e51d51687b366118200e2@localhost/erxes?authSource=admin&replicaSet=rs0",` under the `erxes-api`.
 
-- Copy the MONGO_URL and exit the nano editor
+- Copy the MONGO_URL and exit the nano editor with `ctrl + x`.
+
+- Now you will need to `export` and set the variable `MONGO_URL`, with the copied URL. See below:
+
+**Example:**
+
+```
+# example
+# export MONGO_URL="mongodb://erxes:92c54fa1f0658xxxxc2d9ce618b008b4@localhost/erxes?authSource=admin&replicaSet=rs0"
+```
+
+**Use your copied MONGO_URL below:**
+
+```
+export MONGO_URL="YOUR_COPIED_MONGO_URL_HERE"
+```
 
 </TabItem>
 <TabItem value='step-by-step'>
@@ -972,11 +1059,11 @@ mkdir -p ~/erxes.io/erxes \
 ```bash
 curl -L https://github.com/erxes/erxes/releases/download/0.16.0/erxes-0.16.0.tar.gz | tar -xz -C ~/erxes.io/erxes/ \
     && curl -L https://github.com/erxes/erxes/releases/download/0.16.0/erxes-widgets-0.16.0.tar.gz | tar -xz -C ~/erxes.io/erxes-widgets/ \
-    && curl -L https://github.com/erxes/erxes-api/releases/download/0.15.5/erxes-api-0.15.5.tar.gz | tar -xz -C ~/erxes.io/erxes-api/ \
+    && curl -L https://github.com/erxes/erxes-api/releases/download/0.16.2/erxes-api-0.16.2.tar.gz | tar -xz -C ~/erxes.io/erxes-api/ \
     && curl -L https://github.com/erxes/erxes-api/releases/download/0.15.5/erxes-email-verifier-0.15.5.tar.gz | tar -xz -C ~/erxes.io/erxes-email-verifier/ \
     && curl -L https://github.com/erxes/erxes-api/releases/download/0.15.5/erxes-engages-email-sender-0.15.5.tar.gz | tar -xz -C ~/erxes.io/erxes-engages-email-sender/ \
     && curl -L https://github.com/erxes/erxes-api/releases/download/0.15.5/erxes-logger-0.15.5.tar.gz | tar -xz -C ~/erxes.io/erxes-logger/ \
-    && curl -L https://github.com/erxes/erxes-integrations/releases/download/0.15.5/erxes-integrations-0.15.5.tar.gz | tar -xz -C ~/erxes.io/erxes-integrations/ \
+    && curl -L https://github.com/erxes/erxes-integrations/releases/download/0.16.0/erxes-integrations-0.16.0.tar.gz | tar -xz -C ~/erxes.io/erxes-integrations/ \
     && curl -L https://github.com/erxes/erxes-api/releases/download/0.15.5/erxes-elksyncer-0.15.5.tar.gz | tar -xz -C ~/erxes.io/erxes-elkSyncer
 ```
 
@@ -1311,6 +1398,15 @@ window.env = {
 
 You are now ready to **initialize** and **load the permissions** in **erxes**.
 
+## export MongoDB URL
+
+- initialize Erxes and generate **login password**.
+
+```bash
+cd ~
+export MONGO_URL="mongodb://localhost/erxes"
+```
+
 </TabItem>
 </Tabs>
 
@@ -1319,8 +1415,6 @@ You are now ready to **initialize** and **load the permissions** in **erxes**.
 - initialize Erxes and generate **login password**.
 
 ```bash
-cd ~
-export MONGO_URL="mongodb://localhost/erxes"
 cd ~/erxes.io/erxes-api/dist
 node commands/initProject
 ```

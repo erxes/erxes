@@ -16,9 +16,6 @@ module.exports = {
       label: 'Installation Guide',
       items: [
         'installation/ubuntu',
-        'installation/debian10',
-        'installation/centos8',
-        'installation/redhat8',
         'installation/docker',
         'installation/heroku',
         'installation/aws',
