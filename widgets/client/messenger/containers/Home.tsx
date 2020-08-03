@@ -6,6 +6,7 @@ import { AppConsumer } from "./AppContext";
 type Props = {
   supporters: IUser[];
   color: string;
+  isOnline?: boolean;
 };
 
 const home = (props: Props) => (

@@ -100,7 +100,10 @@ const unreadCountQuery = `
 const messengerSupportersQuery = `
   query widgetsMessengerSupporters($integrationId: String!) {
     widgetsMessengerSupporters(integrationId: $integrationId) {
-      ${userFields}
+      supporters {
+        ${userFields}
+      }
+      isOnline
     }
   }
 `;

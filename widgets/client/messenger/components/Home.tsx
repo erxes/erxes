@@ -19,6 +19,7 @@ type Props = {
   loading?: boolean;
   color?: string;
   messengerData: IIntegrationMessengerData;
+  isOnline?: boolean;
 };
 
 type State = {
@@ -107,7 +108,7 @@ class Home extends React.Component<Props, State> {
   }
 
   renderHead() {
-    const { supporters, loading, messengerData } = this.props;
+    const { isOnline, supporters, loading, messengerData } = this.props;
 
     return (
       <div
@@ -120,7 +121,12 @@ class Home extends React.Component<Props, State> {
       >
         {this.renderAssistBar(messengerData)}
         {this.renderGreetings(messengerData)}
-        <Supporters users={supporters} isExpanded={false} loading={loading} />
+        <Supporters
+          users={supporters}
+          isExpanded={false}
+          loading={loading}
+          isOnline={isOnline}
+        />
         {this.renderTab()}
       </div>
     );
