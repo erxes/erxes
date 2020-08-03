@@ -62,13 +62,10 @@
     "xss": "^1.0.3"
   },
   "lint-staged": {
-    "gitDir": "../",
-    "linters": {
-      "src/**/*.{ts,tsx,json,css}": [
-        "prettier --single-quote --write",
-        "git add"
-      ]
-    }
+    "*.@(ts|tsx)": [
+      "prettier --single-quote --write",
+      "git add"
+    ]
   },
   "scripts": {
     "format": "prettier --single-quote --write 'src/**/*.@(ts|tsx)'",
