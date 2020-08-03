@@ -131,6 +131,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
     const exportData = (bulk: Array<{ _id: string }>) => {
       const { REACT_APP_API_URL } = getEnv();
       const { queryParams } = this.props;
+      const checkedConfigs: any[] = [];
 
       // queryParams page parameter needs convert to int.
       if (queryParams.page) {
@@ -141,9 +142,14 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
         queryParams.ids = bulk.map(customer => customer._id);
       }
 
+      columnsConfig.forEach(checked => {
+        checkedConfigs.push(checked);
+      });
+
       const exportQuery = {
         ...queryParams,
-        type: 'customer'
+        type: 'customer',
+        configs: JSON.stringify(columnsConfig)
       };
 
       const stringified = queryString.stringify(exportQuery);

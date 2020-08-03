@@ -60,9 +60,6 @@ class Connection extends React.Component<Props, State> {
             defaultValue={this.props.channelIds}
             isRequired={true}
             onChange={this.channelOnChange}
-            description={__(
-              'In which Channel(s) do you want to add this integration?'
-            )}
           />
         </LeftItem>
       </FlexItem>
