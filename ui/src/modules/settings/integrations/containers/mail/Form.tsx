@@ -52,6 +52,7 @@ class FormContainer extends React.Component<FinalProps, State> {
         refetchQueries={getRefetchQueries(this.props.kind)}
         isSubmitted={isSubmitted}
         type="submit"
+        uppercase={false}
         successMessage={`You successfully added a ${name}`}
       />
     );

@@ -37,24 +37,27 @@ const Child = styled.div`
 
 type Props = {
   columns: IConfigColumn[];
-  save: (columnsConfig: IConfigColumn[]) => void;
+  save: (columnsConfig: IConfigColumn[], importType?: string) => void;
   closeModal: () => void;
+  type: string;
 };
 
 type State = {
   columns: IConfigColumn[];
+  importType: string;
 };
 
 class ManageColumns extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { columns: props.columns };
+    this.state = { columns: props.columns, importType: 'xlsx' };
   }
 
   onSubmit = e => {
     e.preventDefault();
     const columnsConfig: IConfigColumn[] = [];
+    const { importType } = this.state;
 
     this.state.columns.forEach((col, index) => {
       const element = document.getElementById(col._id) as HTMLInputElement;
@@ -68,7 +71,7 @@ class ManageColumns extends React.Component<Props, State> {
       });
     });
 
-    this.props.save(columnsConfig);
+    this.props.save(columnsConfig, importType);
     this.props.closeModal();
   };
 
@@ -77,6 +80,8 @@ class ManageColumns extends React.Component<Props, State> {
   };
 
   render() {
+    const { type } = this.props;
+
     const child = col => {
       return (
         <Child>
@@ -88,6 +93,12 @@ class ManageColumns extends React.Component<Props, State> {
           />
         </Child>
       );
+    };
+
+    const onclickCsv = e => {
+      this.setState({ importType: 'csv' }, () => {
+        this.onSubmit(e);
+      });
     };
 
     return (
@@ -109,14 +120,19 @@ class ManageColumns extends React.Component<Props, State> {
             type="button"
             btnStyle="simple"
             onClick={this.props.closeModal}
-            icon="cancel-1"
           >
             Cancel
           </Button>
 
-          <Button type="submit" btnStyle="success" icon="checked-1">
-            Submit
+          <Button type="submit" btnStyle="success">
+            {type && type === 'import' ? 'Download xlsx' : 'Submit'}
           </Button>
+
+          {type && type === 'import' ? (
+            <Button type="submit" onClick={onclickCsv}>
+              Download csv
+            </Button>
+          ) : null}
         </Footer>
       </form>
     );

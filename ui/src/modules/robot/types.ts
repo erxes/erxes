@@ -49,3 +49,10 @@ export type CompleteShowStepMutationResponse = {
 export type ForceCompleteMutationResponse = {
   forceCompleteMutation: () => Promise<any>;
 };
+
+export interface IOnboardingHistory {
+  _id: string;
+  userId: string;
+  isCompleted?: boolean;
+  completedSteps: string[];
+}

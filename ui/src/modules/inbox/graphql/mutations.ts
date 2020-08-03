@@ -93,6 +93,12 @@ const conversationsUnassign = `
   }
 `;
 
+const createProductBoardNote = `
+  mutation conversationCreateProductBoardNote($_id: String!) {
+    conversationCreateProductBoardNote(_id: $_id)
+  }
+`;
+
 export default {
   conversationsReplyFacebookComment,
   conversationMessageAdd,
@@ -100,5 +106,6 @@ export default {
   conversationsAssign,
   conversationsUnassign,
   saveResponseTemplate,
-  markAsRead
+  markAsRead,
+  createProductBoardNote
 };

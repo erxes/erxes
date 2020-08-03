@@ -40,6 +40,8 @@ export interface IConversation {
   facebookPost?: IFacebookPost;
   callProAudio?: string;
   videoCallData?: IVideoCallData;
+
+  productBoardLink?: string;
 }
 
 interface IEngageDataRules {
@@ -198,6 +200,16 @@ export type ChangeStatusMutationVariables = {
 export type ChangeStatusMutationResponse = {
   changeStatusMutation: (
     doc: { variables: ChangeStatusMutationVariables }
+  ) => Promise<any>;
+};
+
+export type CreateProductBoardMutationVariables = {
+  _id: string;
+};
+
+export type CreateProductBoardMutationResponse = {
+  createProductBoardMutation: (
+    doc: { variables: CreateProductBoardMutationVariables }
   ) => Promise<any>;
 };
 

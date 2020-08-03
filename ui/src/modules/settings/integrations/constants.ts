@@ -150,6 +150,7 @@ export const INTEGRATIONS = [
     kind: 'facebook-post',
     logo: '/images/integrations/facebook.png',
     createModal: 'facebook-post',
+    createUrl: '/settings/integrations/createFacebook',
     category:
       'All integrations, For support teams, Marketing automation, Social media'
   },
@@ -162,6 +163,7 @@ export const INTEGRATIONS = [
     kind: 'facebook-messenger',
     logo: '/images/integrations/fb-messenger.png',
     createModal: 'facebook-messenger',
+    createUrl: '/settings/integrations/createFacebook',
     category:
       'All integrations, For support teams, Messaging, Social media, Conversation'
   },
@@ -172,6 +174,7 @@ export const INTEGRATIONS = [
     isAvailable: true,
     kind: 'messenger',
     logo: '/images/integrations/messenger.png',
+    createModal: 'messenger',
     createUrl: '/settings/integrations/createMessenger',
     category:
       'All integrations, For support teams, For marketing teams, Marketing automation, Conversation'
@@ -185,7 +188,7 @@ export const INTEGRATIONS = [
     kind: 'gmail',
     logo: '/images/integrations/gmail.png',
     createModal: 'gmail',
-    createUrl: '/settings/integrations/gmail',
+    createUrl: '/settings/integrations/createGmail',
     category:
       'All integrations, For support teams, Email marketing, Marketing automation, Conversation'
   },

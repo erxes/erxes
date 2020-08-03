@@ -3,7 +3,6 @@ import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { colors } from '../styles';
-import Button from './Button';
 import Icon from './Icon';
 
 const EmptyStateStyled = styledTS<{ hugeness: string; light?: boolean }>(
@@ -29,7 +28,7 @@ const EmptyStateStyled = styledTS<{ hugeness: string; light?: boolean }>(
 
   span {
     max-width: 600px;
-    color: ${props => props.light && colors.colorWhite}
+    color: ${props => props.light && colors.colorWhite};
   }
 
   ${props => {
@@ -50,15 +49,26 @@ const EmptyStateStyled = styledTS<{ hugeness: string; light?: boolean }>(
     }
   }};
 
-  i {
+  > i {
     font-size: ${props => (props.hugeness === 'small' ? '28px' : '12vh')};
     line-height: ${props => (props.hugeness === 'small' ? '40px' : '18vh')};
     color: ${colors.colorCoreLightGray};
   }
 
-  a {
-    margin-top: 10px;
+  a, button {
     align-self: center;
+  }
+`;
+
+const ExtraContent = styled.div`
+  margin-top: 15px;
+
+  > a {
+    margin-right: 10px;
+
+    &:last-child {
+      margin: 0;
+    }
   }
 `;
 
@@ -67,8 +77,7 @@ type Props = {
   icon?: string;
   image?: string;
   size?: string;
-  linkUrl?: string;
-  linkText?: string;
+  extra?: React.ReactNode;
   light?: boolean;
 };
 
@@ -77,8 +86,7 @@ function EmptyState({
   icon,
   image,
   size = 'small',
-  linkUrl,
-  linkText,
+  extra,
   light
 }: Props) {
   return (
@@ -86,12 +94,7 @@ function EmptyState({
       {icon ? <Icon icon={icon} /> : <img src={image} alt={text} />}
 
       <span>{__(text)}</span>
-
-      {linkUrl && linkText ? (
-        <Button btnStyle="simple" size="small" href={linkUrl}>
-          {linkText}
-        </Button>
-      ) : null}
+      {extra && <ExtraContent>{extra}</ExtraContent>}
     </EmptyStateStyled>
   );
 }

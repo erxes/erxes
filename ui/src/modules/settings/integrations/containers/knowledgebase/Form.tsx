@@ -50,6 +50,7 @@ class KnowledgeBaseContainer extends React.Component<FinalProps> {
           callback={callback}
           refetchQueries={getRefetchQueries()}
           isSubmitted={isSubmitted}
+          uppercase={false}
           type="submit"
           successMessage={`You successfully added a ${name}`}
         />
