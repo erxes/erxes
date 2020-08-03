@@ -119,7 +119,11 @@ describe('widgetQueries', () => {
     const qry = `
       query widgetsMessengerSupporters($integrationId: String!) {
         widgetsMessengerSupporters(integrationId: $integrationId) {
-          _id
+          supporters {
+            _id
+          }
+          isOnline
+          serverTime
         }
       }
     `;
@@ -127,12 +131,12 @@ describe('widgetQueries', () => {
     try {
       await graphqlRequest(qry, 'widgetsMessengerSupporters', { integrationId: '_id' });
     } catch (e) {
-      expect(e.message).toBe('Integration not found');
+      expect(e[0].message).toBe('Integration not found');
     }
 
     const response = await graphqlRequest(qry, 'widgetsMessengerSupporters', { integrationId: integration._id });
 
-    expect(response.length).toBe(1);
+    expect(response.supporters.length).toBe(1);
   });
 
   test('widgetsTotalUnreadCount', async () => {

@@ -147,12 +147,20 @@ export default {
     const integration = await Integrations.findOne({ _id: integrationId });
 
     if (!integration) {
-      return [];
+      return {
+        supporters: [],
+        isOnline: false,
+        serverTime: new Date(),
+      };
     }
 
     const messengerData = integration.messengerData || { supporterIds: [] };
 
-    return Users.find({ _id: { $in: messengerData.supporterIds || [] } });
+    return {
+      supporters: await Users.find({ _id: { $in: messengerData.supporterIds || [] } }),
+      isOnline: await isMessengerOnline(integration),
+      serverTime: new Date(),
+    };
   },
 
   /**
