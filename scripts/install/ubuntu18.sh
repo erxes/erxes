@@ -141,13 +141,13 @@ erxes_integrations_dir=/home/$username/erxes-integrations
 su $username -c "mkdir -p $erxes_dir $erxes_api_dir $erxes_integrations_dir"
 
 # download erxes
-su $username -c "curl -L https://github.com/erxes/erxes/archive/0.14.1.tar.gz | tar --strip-components=1 -xz -C $erxes_root_dir"
+su $username -c "curl -L https://github.com/erxes/erxes/archive/0.16.0.tar.gz | tar --strip-components=1 -xz -C $erxes_root_dir"
 
 # download erxes-api
-su $username -c "curl -L https://github.com/erxes/erxes-api/archive/0.14.3.tar.gz | tar --strip-components=1 -xz -C $erxes_api_dir"
+su $username -c "curl -L https://github.com/erxes/erxes-api/archive/0.16.2.tar.gz | tar --strip-components=1 -xz -C $erxes_api_dir"
 
 # download integrations
-su $username -c "curl -L https://github.com/erxes/erxes-integrations/archive/0.14.1.tar.gz | tar --strip-components=1 -xz -C $erxes_integrations_dir"
+su $username -c "curl -L https://github.com/erxes/erxes-integrations/archive/0.16.0.tar.gz | tar --strip-components=1 -xz -C $erxes_integrations_dir"
 
 # install packages and build erxes
 su $username -c "cd $erxes_dir && yarn install && yarn build"
@@ -171,7 +171,7 @@ su $username -c "cd $erxes_logger_dir && yarn install && yarn build"
 su $username -c "cd $erxes_integrations_dir && yarn install && yarn build"
 
 # install pm2 globally
-yarn global add  pm2
+yarn global add pm2
 
 JWT_TOKEN_SECRET=$(openssl rand -base64 24)
 MONGO_PASS=$(openssl rand -hex 16)
