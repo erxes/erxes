@@ -104,6 +104,7 @@ const messengerSupportersQuery = `
         ${userFields}
       }
       isOnline
+      serverTime
     }
   }
 `;

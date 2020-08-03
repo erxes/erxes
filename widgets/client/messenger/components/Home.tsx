@@ -20,6 +20,7 @@ type Props = {
   color?: string;
   messengerData: IIntegrationMessengerData;
   isOnline?: boolean;
+  serverTime?: string;
 };
 
 type State = {
@@ -107,8 +108,23 @@ class Home extends React.Component<Props, State> {
     );
   }
 
+  renderServerInfo(timezone?: string, serverTime?: string) {
+    return (
+      <div className="server-info">
+        <time>Server time: {dayjs(serverTime).format("lll")}</time>
+        <p>Timezone: {timezone || "not specified"}</p>
+      </div>
+    );
+  }
+
   renderHead() {
-    const { isOnline, supporters, loading, messengerData } = this.props;
+    const {
+      isOnline,
+      supporters,
+      loading,
+      messengerData,
+      serverTime
+    } = this.props;
 
     return (
       <div
@@ -127,6 +143,7 @@ class Home extends React.Component<Props, State> {
           loading={loading}
           isOnline={isOnline}
         />
+        {this.renderServerInfo(messengerData.timezone, serverTime)}
         {this.renderTab()}
       </div>
     );

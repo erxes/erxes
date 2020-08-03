@@ -9,6 +9,7 @@ type Props = {
   supporters: IUser[];
   loading?: boolean;
   isOnline?: boolean;
+  serverTime?: string;
 };
 
 function Messenger({
