@@ -19,7 +19,7 @@ echo "You need to configure erxes to work with your domain name. If you are usin
 
 while true; do
 
-    read -p -r "Please enter a domain name you wish to use: " erxes_domain
+    read -p "Please enter a domain name you wish to use: " erxes_domain
 
     if [ -z "$erxes_domain" ]; then
         continue
