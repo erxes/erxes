@@ -1,3 +1,20 @@
+# [0.16.0](https://github.com/erxes/erxes/compare/0.15.5...0.16.0) (2020-07-28)
+
+
+### Bug Fixes
+
+* **activityLog:** fix activity log in inbox sidebar ([bcc768d](https://github.com/erxes/erxes/commit/bcc768d8715d92c452ce8ded223f44af27c73de7))
+* **activityLog:** fix activity log in inbox sidebar (close [#2120](https://github.com/erxes/erxes/issues/2120)) ([48f153b](https://github.com/erxes/erxes/commit/48f153b097af987dfcab2847131ab30ba590eb2c))
+* **deal:** price input for "Create New Product" is not allowing non-whole numbers. ([d76c52d](https://github.com/erxes/erxes/commit/d76c52d10031dac419069eacf2e3198a8d0afeeb)), closes [#2134](https://github.com/erxes/erxes/issues/2134)
+* **integration:** fix broken account text ([f9334c5](https://github.com/erxes/erxes/commit/f9334c56efd7a11016ad8e63752d742052f49924))
+* **knowledgebase:** fix can not insert hex code ([8cf7817](https://github.com/erxes/erxes/commit/8cf781713f7fd3feccf465aeb22f9df046fc05ff))
+* **task:** can't assign a team member to a task from the Contact profile ([0f4f778](https://github.com/erxes/erxes/commit/0f4f7780e58cbc9db16d3b2d4102601505947883)), closes [#2155](https://github.com/erxes/erxes/issues/2155)
+
+
+### Features
+
+* **uploader:** added option to upload files locally ([9bf5855](https://github.com/erxes/erxes/commit/9bf5855a76e8567da920d7de17c61ec9d22237bc)), closes [#2122](https://github.com/erxes/erxes/issues/2122)
+
 ## [0.15.5](https://github.com/erxes/erxes/compare/0.15.4...0.15.5) (2020-07-15)
 
 ## [0.15.4](https://github.com/erxes/erxes/compare/0.15.3...0.15.4) (2020-07-08)
