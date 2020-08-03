@@ -1,11 +1,12 @@
-import ButtonMutate from 'modules/common/components/ButtonMutate';
-import { IButtonMutateProps } from 'modules/common/types';
-import React from 'react';
-import { IUser } from '../../auth/types';
-import { UsersQueryResponse } from '../../settings/team/types';
-import CompanyForm from '../components/list/CompanyForm';
-import { mutations } from '../graphql';
-import { ICompany } from '../types';
+import ButtonMutate from "modules/common/components/ButtonMutate";
+import { IButtonMutateProps } from "modules/common/types";
+import React from "react";
+import { IUser } from "../../auth/types";
+import { UsersQueryResponse } from "../../settings/team/types";
+import CompanyForm from "../components/list/CompanyForm";
+import { mutations } from "../graphql";
+import { ICompany } from "../types";
+import { AppConsumer } from "appContext";
 
 type Props = {
   company: ICompany;
@@ -23,11 +24,11 @@ const CompanyFromContainer = (props: FinalProps) => {
     name,
     values,
     isSubmitted,
-    object
+    object,
   }: IButtonMutateProps) => {
     const { closeModal, getAssociatedCompany } = props;
 
-    const afterSave = data => {
+    const afterSave = (data) => {
       closeModal();
 
       if (getAssociatedCompany) {
@@ -44,7 +45,7 @@ const CompanyFromContainer = (props: FinalProps) => {
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully ${
-          object ? 'updated' : 'added'
+          object ? "updated" : "added"
         } a ${name}`}
       />
     );
@@ -52,19 +53,28 @@ const CompanyFromContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-    renderButton
+    renderButton,
   };
 
-  return <CompanyForm {...updatedProps} />;
+  return (
+    <AppConsumer>
+      {({ currentUser }) => (
+        <CompanyForm
+          {...updatedProps}
+          currentUser={currentUser || ({} as IUser)}
+        />
+      )}
+    </AppConsumer>
+  );
 };
 
 const getRefetchQueries = () => {
   return [
-    'companiesMain',
-    'companyDetail',
+    "companiesMain",
+    "companyDetail",
     // companies for customer detail company associate
-    'companies',
-    'companyCounts'
+    "companies",
+    "companyCounts",
   ];
 };
 
