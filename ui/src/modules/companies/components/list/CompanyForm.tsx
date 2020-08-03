@@ -208,7 +208,7 @@ class CompanyForm extends React.Component<Props, State> {
                 <FormGroup>
                   <ControlLabel>Owner</ControlLabel>
                   <SelectTeamMembers
-                    label="Choose an owner"
+                    label="Choose an ownera"
                     name="ownerId"
                     value={ownerId}
                     onSelect={onSelectOwner}
