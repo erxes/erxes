@@ -4,7 +4,7 @@ import { IParticipator, IUser } from "../../types";
 import { __ } from "../../utils";
 import { MessageSender, MessagesList, TopBar } from "../containers";
 import { IMessage } from "../types";
-import ConversatioHeadContent from "./ConversatioHeadContent";
+import ConversationHeadContent from "./ConversationHeadContent";
 
 type Props = {
   messages: IMessage[];
@@ -96,7 +96,7 @@ class ConversationDetail extends React.Component<Props, State> {
       <div className="erxes-conversation-detail" onWheel={this.onWheel}>
         <TopBar
           middle={
-            <ConversatioHeadContent
+            <ConversationHeadContent
               supporters={supporters}
               participators={participators}
               isOnline={isOnline}
