@@ -26,9 +26,13 @@
 
   <body class="uk-margin">
     <script>
-      document.querySelector('#button').addEventListener('click', function() {
-        window.Erxes.updateCustomerProperty('testing', 'testing');
-      });
+      const button = document.querySelector('#button');
+
+      if (button) {
+        button.addEventListener('click', function() {
+          window.Erxes.updateCustomerProperty('testing', 'testing');
+        });
+      }
     </script>
 
     <script>
