@@ -18,9 +18,7 @@ set -e
 echo "You need to configure erxes to work with your domain name. If you are using a subdomain, please use the entire subdomain. For example, 'erxes.examples.com'."
 
 while true; do
-
     read -p "Please enter a domain name you wish to use: " erxes_domain
-
     if [ -z "$erxes_domain" ]; then
         continue
     else
