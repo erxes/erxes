@@ -228,8 +228,8 @@ Check your website in the browser. You should see the **Secure Padlock** next to
 The script created a random password for your **MongoDB** database. We need to copy it from the `ecosystem.json` file and set it as an `env` variable. This will require several steps.
 
 ```bash
-cd ~/erxes.io/erxes-api/dist
-sudo nano ~/erxes.io/ecosystem.json
+cd ~/erxes-api/dist
+sudo nano ~/ecosystem.json
 ```
 
 Locate the `"MONGO_URL": "mongodb://erxes:82e3e42ef31e51d51687b366118200e2@localhost/erxes?authSource=admin&replicaSet=rs0",` under the `erxes-api`.
@@ -1407,6 +1407,12 @@ cd ~
 export MONGO_URL="mongodb://localhost/erxes"
 ```
 
+- Switch directories
+
+```bash
+cd ~/erxes.io/erxes-api/dist
+```
+
 </TabItem>
 </Tabs>
 
@@ -1415,7 +1421,6 @@ export MONGO_URL="mongodb://localhost/erxes"
 - initialize Erxes and generate **login password**.
 
 ```bash
-cd ~/erxes.io/erxes-api/dist
 node commands/initProject
 ```
 
