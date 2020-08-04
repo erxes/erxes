@@ -1,7 +1,7 @@
 import { IFormProps } from 'modules/common/types';
 import React from 'react';
 import validator from 'validator';
-import { __, generateRandomString } from '../../utils';
+import { __, generateRandomString, isValidUsername } from '../../utils';
 import { Error } from './styles';
 
 type Props = {
@@ -119,6 +119,14 @@ class Form extends React.Component<Props, State> {
       return (
         <Error>
           {__('Invalid number format! Please enter a valid number')}
+        </Error>
+      );
+    }
+
+    if (value && props.name === 'username' && !isValidUsername(value)) {
+      return (
+        <Error>
+          {__('Invalid Username')}
         </Error>
       );
     }

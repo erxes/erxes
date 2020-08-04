@@ -13,7 +13,7 @@ export interface IWebsiteApp {
     buttonText: string;
     description: string;
     url: string;
-  }
+  };
 }
 
 export interface IEngageData {
@@ -109,4 +109,10 @@ export interface IUpdateCustomerMutationResponse {
     params: { variables: IUpdateCustomerMutationVariables }
   ) => Promise<any>;
   refetch: () => void;
+}
+
+export interface IMessengerSupporters {
+  supporters: [IUser];
+  isOnline: boolean;
+  serverTime: string;
 }

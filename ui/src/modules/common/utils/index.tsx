@@ -377,6 +377,13 @@ export function isEmptyContent(content: string) {
   return !/\S/.test(content);
 }
 
+export const isValidUsername = (username: string) => {
+  const reg = /^(?=[a-zA-Z0-9._]{4,20}$)(?!.*[_.]{2})[^_.].*[^_.]$/igm;
+
+  return reg.test(username);
+};
+
+
 export const storeConstantToStore = (key, values) => {
   localStorage.setItem(`config:${key}`, JSON.stringify(values));
 };
