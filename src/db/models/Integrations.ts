@@ -38,6 +38,8 @@ export const isTimeInBetween = (date: Date, startTime: string, closeTime: string
   const startDate = new Date(`${dateString} ${startTime}`);
   const closeDate = new Date(`${dateString} ${closeTime}`);
 
+  console.log(startDate, date, closeDate, 'isTimeInBetween');
+
   return startDate <= date && date <= closeDate;
 };
 
