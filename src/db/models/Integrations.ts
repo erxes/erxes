@@ -294,7 +294,7 @@ export const loadClass = () => {
 
         const between = isTimeInBetween(now, everydayConf.from || '', everydayConf.to || '');
 
-        console.log(between, now, '--------');
+        console.log(between, now, '--------between------');
 
         return between;
       }
