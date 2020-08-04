@@ -4,7 +4,7 @@ import ButtonMutate from 'modules/common/components/ButtonMutate';
 import {
   IButtonMutateProps,
   IQueryParams,
-  IRouterProps,
+  IRouterProps
 } from 'modules/common/types';
 import { ICustomer } from 'modules/customers/types';
 import React from 'react';
@@ -30,7 +30,7 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      redirectType: undefined,
+      redirectType: undefined
     };
   }
 
@@ -47,7 +47,7 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
       values,
       isSubmitted,
       object,
-      resetSubmit,
+      resetSubmit
     }: IButtonMutateProps) => {
       const afterSave = (data) => {
         closeModal();
@@ -95,7 +95,7 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
     const updatedProps = {
       ...this.props,
       changeRedirectType: this.changeRedirectType,
-      renderButton,
+      renderButton
     };
 
     return (

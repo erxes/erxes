@@ -10,7 +10,7 @@ import {
   FormColumn,
   FormWrapper,
   ModalFooter,
-  ScrollWrapper,
+  ScrollWrapper
 } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __, getConstantFromStore } from 'modules/common/utils';
@@ -23,7 +23,7 @@ import validator from 'validator';
 import { IUser } from '../../../auth/types';
 import {
   COMPANY_BUSINESS_TYPES,
-  COMPANY_INDUSTRY_TYPES,
+  COMPANY_INDUSTRY_TYPES
 } from '../../constants';
 import { ICompany, ICompanyDoc, ICompanyLinks } from '../../types';
 
@@ -72,7 +72,7 @@ class CompanyForm extends React.Component<Props, State> {
       users: [],
       avatar: company.avatar,
       industry: company.industry || '',
-      businessType: company.businessType || '',
+      businessType: company.businessType || ''
     };
   }
 
@@ -99,7 +99,7 @@ class CompanyForm extends React.Component<Props, State> {
       size: Number(finalValues.size),
       description: finalValues.description,
       code: finalValues.code,
-      links,
+      links
     };
   };
 
@@ -110,13 +110,13 @@ class CompanyForm extends React.Component<Props, State> {
   generateConstantParams(constants) {
     return constants.map((constant) => ({
       value: constant,
-      label: constant,
+      label: constant
     }));
   }
 
   handleSelect = <T extends keyof State>(selectedOption: string, name: T) => {
     this.setState({
-      [name]: selectedOption,
+      [name]: selectedOption
     } as Pick<State, keyof State>);
   };
 
@@ -153,7 +153,7 @@ class CompanyForm extends React.Component<Props, State> {
       ...formProps,
       name: link.value,
       defaultValue: links[link.value] || '',
-      type: 'url',
+      type: 'url'
     });
   }
 
@@ -168,7 +168,7 @@ class CompanyForm extends React.Component<Props, State> {
       primaryPhone,
       phones,
       primaryEmail,
-      emails,
+      emails
     } = company;
 
     const { parentCompanyId, ownerId } = this.state;
@@ -202,13 +202,13 @@ class CompanyForm extends React.Component<Props, State> {
                 {this.renderFormGroup('Code', {
                   ...formProps,
                   name: 'code',
-                  defaultValue: company.code || '',
+                  defaultValue: company.code || ''
                 })}
 
                 <FormGroup>
                   <ControlLabel>Owner</ControlLabel>
                   <SelectTeamMembers
-                    label='Choose an ownera'
+                    label='Choose an owner'
                     name='ownerId'
                     value={ownerId}
                     onSelect={onSelectOwner}
@@ -310,7 +310,7 @@ class CompanyForm extends React.Component<Props, State> {
                   ...formProps,
                   name: 'size',
                   type: 'number',
-                  defaultValue: company.size || 0,
+                  defaultValue: company.size || 0
                 })}
 
                 {this.renderFormGroup('Do not disturb', {
@@ -321,16 +321,16 @@ class CompanyForm extends React.Component<Props, State> {
                       value: 'Yes',
                       checked: this.state.doNotDisturb === 'Yes',
                       onChange: (e) =>
-                        this.setState({ doNotDisturb: e.target.value }),
+                        this.setState({ doNotDisturb: e.target.value })
                     },
                     {
                       childNode: 'No',
                       value: 'No',
                       checked: this.state.doNotDisturb === 'No',
                       onChange: (e) =>
-                        this.setState({ doNotDisturb: e.target.value }),
-                    },
-                  ],
+                        this.setState({ doNotDisturb: e.target.value })
+                    }
+                  ]
                 })}
               </FormColumn>
             </FormWrapper>
@@ -355,7 +355,7 @@ class CompanyForm extends React.Component<Props, State> {
             name: 'company',
             values: this.generateDoc(values),
             isSubmitted,
-            object: this.props.company,
+            object: this.props.company
           })}
         </ModalFooter>
       </>

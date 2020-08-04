@@ -13,12 +13,12 @@ import {
   FormColumn,
   FormWrapper,
   ModalFooter,
-  ScrollWrapper,
+  ScrollWrapper
 } from 'modules/common/styles/main';
 import {
   IButtonMutateProps,
   IFormProps,
-  IQueryParams,
+  IQueryParams
 } from 'modules/common/types';
 import { Alert, getConstantFromStore } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
@@ -63,7 +63,7 @@ class CustomerForm extends React.Component<Props, State> {
       hasAuthority: customer.hasAuthority || 'No',
       users: [],
       birthDate: customer.birthDate,
-      avatar: customer.avatar,
+      avatar: customer.avatar
     };
   }
 
@@ -92,7 +92,7 @@ class CustomerForm extends React.Component<Props, State> {
       leadStatus: finalValues.leadStatus,
       description: finalValues.description,
       code: finalValues.code,
-      links,
+      links
     };
   };
 
@@ -186,7 +186,7 @@ class CustomerForm extends React.Component<Props, State> {
       ...formProps,
       name: link.value,
       defaultValue: links[link.value] || '',
-      type: 'url',
+      type: 'url'
     });
   }
 
@@ -216,7 +216,7 @@ class CustomerForm extends React.Component<Props, State> {
                 {this.renderFormGroup('Code', {
                   ...formProps,
                   name: 'code',
-                  defaultValue: customer.code || '',
+                  defaultValue: customer.code || ''
                 })}
 
                 <FormGroup>
@@ -238,7 +238,7 @@ class CustomerForm extends React.Component<Props, State> {
                   defaultValue: customer.firstName || '',
                   autoFocus: true,
                   required: true,
-                  name: 'firstName',
+                  name: 'firstName'
                 })}
 
                 <FormGroup>
@@ -260,13 +260,13 @@ class CustomerForm extends React.Component<Props, State> {
                   name: 'sex',
                   componentClass: 'select',
                   defaultValue: customer.sex || 0,
-                  options: genderChoices(__),
+                  options: genderChoices(__)
                 })}
 
                 {this.renderFormGroup('Department', {
                   ...formProps,
                   name: 'department',
-                  defaultValue: customer.department || '',
+                  defaultValue: customer.department || ''
                 })}
 
                 <FormGroup>
@@ -284,7 +284,7 @@ class CustomerForm extends React.Component<Props, State> {
                 {this.renderFormGroup('Last Name', {
                   ...formProps,
                   name: 'lastName',
-                  defaultValue: customer.lastName || '',
+                  defaultValue: customer.lastName || ''
                 })}
 
                 <FormGroup>
@@ -315,7 +315,7 @@ class CustomerForm extends React.Component<Props, State> {
                 {this.renderFormGroup('Position', {
                   ...formProps,
                   name: 'position',
-                  defaultValue: customer.position || '',
+                  defaultValue: customer.position || ''
                 })}
 
                 {this.renderFormGroup('Has Authority', {
@@ -328,16 +328,16 @@ class CustomerForm extends React.Component<Props, State> {
                       value: 'Yes',
                       checked: this.state.hasAuthority === 'Yes',
                       onChange: (e) =>
-                        this.setState({ hasAuthority: e.target.value }),
+                        this.setState({ hasAuthority: e.target.value })
                     },
                     {
                       childNode: 'No',
                       value: 'No',
                       checked: this.state.hasAuthority === 'No',
                       onChange: (e) =>
-                        this.setState({ hasAuthority: e.target.value }),
-                    },
-                  ],
+                        this.setState({ hasAuthority: e.target.value })
+                    }
+                  ]
                 })}
 
                 {this.renderFormGroup('Do not disturb', {
@@ -350,16 +350,16 @@ class CustomerForm extends React.Component<Props, State> {
                       value: 'Yes',
                       checked: this.state.doNotDisturb === 'Yes',
                       onChange: (e) =>
-                        this.setState({ doNotDisturb: e.target.value }),
+                        this.setState({ doNotDisturb: e.target.value })
                     },
                     {
                       childNode: 'No',
                       value: 'No',
                       checked: this.state.doNotDisturb === 'No',
                       onChange: (e) =>
-                        this.setState({ doNotDisturb: e.target.value }),
-                    },
-                  ],
+                        this.setState({ doNotDisturb: e.target.value })
+                    }
+                  ]
                 })}
               </FormColumn>
             </FormWrapper>
@@ -389,7 +389,7 @@ class CustomerForm extends React.Component<Props, State> {
             values: this.generateDoc(values),
             isSubmitted,
             object: this.props.customer,
-            resetSubmit,
+            resetSubmit
           })}
 
           {!this.props.customer && (

@@ -24,7 +24,7 @@ const CompanyFromContainer = (props: FinalProps) => {
     name,
     values,
     isSubmitted,
-    object,
+    object
   }: IButtonMutateProps) => {
     const { closeModal, getAssociatedCompany } = props;
 
@@ -53,7 +53,7 @@ const CompanyFromContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-    renderButton,
+    renderButton
   };
 
   return (
@@ -74,7 +74,7 @@ const getRefetchQueries = () => {
     'companyDetail',
     // companies for customer detail company associate
     'companies',
-    'companyCounts',
+    'companyCounts'
   ];
 };
 
