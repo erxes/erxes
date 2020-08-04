@@ -13,6 +13,8 @@ import { IIntegrationDocument } from '../../../db/models/definitions/integration
 import { registerOnboardHistory } from '../../utils';
 
 export const isMessengerOnline = async (integration: IIntegrationDocument) => {
+  console.log(JSON.stringify(integration), '--------isMessengerOnline-----');
+
   if (!integration.messengerData) {
     return false;
   }

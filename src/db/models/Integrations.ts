@@ -290,6 +290,7 @@ export const loadClass = () => {
       const everydayConf = onlineHours.find(c => c.day === 'everyday');
 
       if (everydayConf) {
+        console.log(everydayConf, '----every day------');
         return isTimeInBetween(now, everydayConf.from || '', everydayConf.to || '');
       }
 
@@ -297,6 +298,7 @@ export const loadClass = () => {
       const weekdaysConf = onlineHours.find(c => c.day === 'weekdays');
 
       if (weekdaysConf && isWeekday(day)) {
+        console.log(everydayConf, '----weekday------');
         return isTimeInBetween(now, weekdaysConf.from || '', weekdaysConf.to || '');
       }
 
@@ -304,6 +306,7 @@ export const loadClass = () => {
       const weekendsConf = onlineHours.find(c => c.day === 'weekends');
 
       if (weekendsConf && isWeekend(day)) {
+        console.log(weekendsConf, '-------week end-------');
         return isTimeInBetween(now, weekendsConf.from || '', weekendsConf.to || '');
       }
 
@@ -311,6 +314,7 @@ export const loadClass = () => {
       const dayConf = onlineHours.find(c => c.day === day);
 
       if (dayConf) {
+        console.log(dayConf, '------day conf------');
         return isTimeInBetween(now, dayConf.from || '', dayConf.to || '');
       }
 
