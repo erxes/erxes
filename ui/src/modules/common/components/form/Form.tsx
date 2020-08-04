@@ -26,11 +26,11 @@ class Form extends React.Component<Props, State> {
     this.state = {
       errors: {},
       values: {},
-      isSubmitted: false,
+      isSubmitted: false
     };
   }
 
-  registerChild = (child) => {
+  registerChild = child => {
     this.children.push(child);
   };
 
@@ -48,7 +48,7 @@ class Form extends React.Component<Props, State> {
     }
 
     this.setState({ errors, values }, () => {
-      const hasErrors = Object.values(errors).some((error) => error !== null);
+      const hasErrors = Object.values(errors).some(error => error !== null);
 
       if (hasErrors) {
         return;
@@ -66,7 +66,7 @@ class Form extends React.Component<Props, State> {
     return document.querySelector(`#${this.formId} [name='${name}']`) as any;
   };
 
-  getValue = (child) => {
+  getValue = child => {
     const element = this.getSelector(child.props.name);
 
     if (element) {
@@ -76,14 +76,14 @@ class Form extends React.Component<Props, State> {
     return '';
   };
 
-  onSubmit = (e) => {
+  onSubmit = e => {
     e.preventDefault();
     e.stopPropagation();
 
     this.runValidations();
   };
 
-  validate = (child) => {
+  validate = child => {
     const { props } = child;
     const element = this.getSelector(props.name);
     const value = element ? element.value : '';
@@ -140,7 +140,7 @@ class Form extends React.Component<Props, State> {
           registerChild: this.registerChild,
           runValidations: this.runValidations,
           isSubmitted: this.state.isSubmitted,
-          resetSubmit: this.resetSubmit,
+          resetSubmit: this.resetSubmit
         })}
       </form>
     );
