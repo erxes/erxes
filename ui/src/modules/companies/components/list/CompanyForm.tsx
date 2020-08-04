@@ -5,7 +5,7 @@ import FormControl from "modules/common/components/form/Control";
 import Form from "modules/common/components/form/Form";
 import FormGroup from "modules/common/components/form/Group";
 import ControlLabel from "modules/common/components/form/Label";
-import ModifiableSelect from "modules/common/components/ModifiableSelect";
+import ModifiableSelect from 'modules/common/components/ModifiableSelect';
 import {
   FormColumn,
   FormWrapper,
@@ -194,7 +194,7 @@ class CompanyForm extends React.Component<Props, State> {
                 <AvatarUpload
                   avatar={company.avatar}
                   onAvatarUpload={this.onAvatarUpload}
-                  defaultAvatar="/images/integrations/company.png"
+                  defaultAvatar='/images/integrations/company.png'
                 />
               </FormColumn>
 
@@ -208,8 +208,8 @@ class CompanyForm extends React.Component<Props, State> {
                 <FormGroup>
                   <ControlLabel>Owner</ControlLabel>
                   <SelectTeamMembers
-                    label="Choose an ownera"
-                    name="ownerId"
+                    label='Choose an ownera'
+                    name='ownerId'
                     value={ownerId}
                     onSelect={onSelectOwner}
                     multi={false}
@@ -224,7 +224,7 @@ class CompanyForm extends React.Component<Props, State> {
                   <ModifiableSelect
                     value={primaryName}
                     options={names || []}
-                    name="Name"
+                    name='Name'
                     required={true}
                     onChange={this.onChange.bind(this, "names", "primaryName")}
                   />
@@ -247,7 +247,7 @@ class CompanyForm extends React.Component<Props, State> {
                   <ModifiableSelect
                     value={primaryEmail}
                     options={emails || []}
-                    name="Email"
+                    name='Email'
                     onChange={this.onChange.bind(
                       this,
                       "emails",
@@ -262,8 +262,8 @@ class CompanyForm extends React.Component<Props, State> {
                   <FormControl
                     {...formProps}
                     max={140}
-                    name="description"
-                    componentClass="textarea"
+                    name='description'
+                    componentClass='textarea'
                     defaultValue={company.description || ""}
                   />
                 </FormGroup>
@@ -272,8 +272,8 @@ class CompanyForm extends React.Component<Props, State> {
                 <FormGroup>
                   <ControlLabel>Parent Company</ControlLabel>
                   <SelectCompanies
-                    label="Choose parent company"
-                    name="parentCompanyId"
+                    label='Choose parent company'
+                    name='parentCompanyId'
                     value={parentCompanyId}
                     onSelect={onSelectParentCompany}
                     multi={false}
@@ -296,7 +296,7 @@ class CompanyForm extends React.Component<Props, State> {
                   <ModifiableSelect
                     value={primaryPhone}
                     options={phones || []}
-                    name="Phone"
+                    name='Phone'
                     onChange={this.onChange.bind(
                       this,
                       "phones",
@@ -347,7 +347,7 @@ class CompanyForm extends React.Component<Props, State> {
         </ScrollWrapper>
 
         <ModalFooter>
-          <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
+          <Button btnStyle='simple' onClick={closeModal} icon='cancel-1'>
             Close
           </Button>
 
