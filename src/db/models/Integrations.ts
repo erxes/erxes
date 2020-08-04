@@ -33,9 +33,13 @@ interface IIntegrationBasicInfo {
 }
 
 export const isTimeInBetween = (date: Date, startTime: string, closeTime: string): boolean => {
-  // concatnating time ranges with today's date
+  // concatenating time ranges with today's date
   const dateString = date.toLocaleDateString();
-  const now = new Date(`${dateString} ${date.getHours()}:${date.getMinutes()}`);
+  const now = new Date();
+
+  now.setHours(date.getHours());
+  now.setMinutes(date.getMinutes());
+
   const startDate = new Date(`${dateString} ${startTime}`);
   const closeDate = new Date(`${dateString} ${closeTime}`);
 
@@ -306,7 +310,6 @@ export const loadClass = () => {
       const weekdaysConf = onlineHours.find(c => c.day === 'weekdays');
 
       if (weekdaysConf && isWeekday(day)) {
-        console.log(everydayConf, '----weekday------');
         return isTimeInBetween(now, weekdaysConf.from || '', weekdaysConf.to || '');
       }
 
@@ -314,7 +317,6 @@ export const loadClass = () => {
       const weekendsConf = onlineHours.find(c => c.day === 'weekends');
 
       if (weekendsConf && isWeekend(day)) {
-        console.log(weekendsConf, '-------week end-------');
         return isTimeInBetween(now, weekendsConf.from || '', weekendsConf.to || '');
       }
 
@@ -322,7 +324,6 @@ export const loadClass = () => {
       const dayConf = onlineHours.find(c => c.day === day);
 
       if (dayConf) {
-        console.log(dayConf, '------day conf------');
         return isTimeInBetween(now, dayConf.from || '', dayConf.to || '');
       }
 
