@@ -86,7 +86,7 @@ class CompanyForm extends React.Component<Props, State> {
     if (company) {
       finalValues._id = company._id;
     }
-
+    console.log("sdkfjskdfj");
     const links = {};
 
     getConstantFromStore("social_links").forEach((link) => {
