@@ -10,7 +10,7 @@ import { paginate } from '../../utils';
  * Common helper for integrations & integrationsTotalCount
  */
 const generateFilterQuery = async ({ kind, channelId, brandId, searchValue, tag }) => {
-  const query: any = { isActive: true };
+  const query: any = {};
 
   if (kind) {
     query.kind = kind;
@@ -55,14 +55,16 @@ const integrationQueries = {
       page: number;
       perPage: number;
       kind: string;
+
       searchValue: string;
       channelId: string;
       brandId: string;
       tag: string;
     },
+    { singleBrandIdSelector }: IContext,
   ) {
-    const query = await generateFilterQuery(args);
-    const integrations = paginate(Integrations.findIntegrations(query), args);
+    const query = { ...singleBrandIdSelector, ...(await generateFilterQuery(args)) };
+    const integrations = paginate(Integrations.findAllIntegrations(query), args);
 
     return integrations.sort({ name: 1 });
   },
@@ -102,7 +104,7 @@ const integrationQueries = {
     };
 
     const count = query => {
-      return Integrations.findIntegrations(query).countDocuments();
+      return Integrations.findAllIntegrations(query).countDocuments();
     };
 
     // Counting integrations by tag

@@ -2,6 +2,7 @@ import * as debug from 'debug';
 import * as requestify from 'requestify';
 
 export const debugBase = debug('erxes-email-verifier:base');
+export const debugCrons = debug('erxes-email-verifier:crons');
 
 export const debugRequest = (debugInstance, req) =>
   debugInstance(`
@@ -17,25 +18,30 @@ interface IRequestParams {
   headers?: { [key: string]: string };
   params?: { [key: string]: string };
   body?: { [key: string]: any };
-  form?: { [key: string]: string };
+  form?: { [key: string]: any };
 }
 
 /**
  * Sends post request to specific url
  */
-export const sendRequest = async ({ url, method, form, body, params }: IRequestParams, errorMessage?: string) => {
+export const sendRequest = async (
+  { url, method, headers, form, body, params }: IRequestParams,
+  errorMessage?: string,
+) => {
   debugBase(`
     Sending request to
     url: ${url}
     method: ${method}
     body: ${JSON.stringify(body)}
     params: ${JSON.stringify(params)}
+    headers: ${JSON.stringify(headers)}
+    form: ${JSON.stringify(form)}
   `);
 
   try {
     const response = await requestify.request(url, {
       method,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...(headers || {}) },
       form,
       body,
       params,
@@ -57,4 +63,14 @@ export const sendRequest = async ({ url, method, form, body, params }: IRequestP
       throw new Error(message);
     }
   }
+};
+
+export const getEnv = ({ name, defaultValue }: { name: string; defaultValue?: string }): string => {
+  const value = process.env[name];
+
+  if (!value && typeof defaultValue !== 'undefined') {
+    return defaultValue;
+  }
+
+  return value || '';
 };

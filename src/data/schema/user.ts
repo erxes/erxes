@@ -9,15 +9,6 @@ export const types = `
     operatorPhone: String
   }
 
-  input UserLinks {
-    linkedIn: String
-    twitter: String
-    facebook: String
-    youtube: String
-    github: String
-    website: String
-  }
-
   input EmailSignature {
     brandId: String
     signature: String
@@ -39,22 +30,14 @@ export const types = `
     operatorPhone: String
   }
 
-  type UserLinksType {
-    linkedIn: String
-    twitter: String
-    facebook: String
-    github: String
-    youtube: String
-    website: String
-  }
-
   type User {
     _id: String!
+    createdAt: Date
     username: String
     email: String
     isActive: Boolean
     details: UserDetailsType
-    links: UserLinksType
+    links: JSON
     status: String
     emailSignatures: JSON
     getNotificationByEmail: Boolean
@@ -66,6 +49,8 @@ export const types = `
     isOwner: Boolean
     permissionActions: JSON
     configs: JSON
+    configsConstants: [JSON]
+    onboardingHistory: OnboardingHistory
   }
 
   type UserConversationListResponse {
@@ -78,7 +63,7 @@ const commonParams = `
   username: String!,	
   email: String!,	
   details: UserDetails,	
-  links: UserLinks,	
+  links: JSON,	
   channelIds: [String],	
   groupIds: [String]
   brandIds: [String]
@@ -111,7 +96,7 @@ export const mutations = `
     username: String!,
     email: String!,
     details: UserDetails,
-    links: UserLinks
+    links: JSON
     password: String!
   ): User
   usersEdit(_id: String!, ${commonParams}): User

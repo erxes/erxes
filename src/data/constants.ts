@@ -34,7 +34,13 @@ export const FIELD_CONTENT_TYPES = {
   FORM: 'form',
   CUSTOMER: 'customer',
   COMPANY: 'company',
-  ALL: ['form', 'customer', 'company'],
+  PRODUCT: 'product',
+  ALL: ['form', 'customer', 'company', 'product'],
+};
+
+export const EXTEND_FIELDS = {
+  CUSTOMER: [{ name: 'tag', label: 'tag' }],
+  PRODUCT: [{ name: 'categoryCode', label: 'Category Code' }],
 };
 
 export const COC_LEAD_STATUS_TYPES = [

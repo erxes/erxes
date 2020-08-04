@@ -38,7 +38,6 @@
     "@types/node": "^10.12.18",
     "@types/q": "^1.5.0",
     "migrate": "^1.6.2",
-    "snyk": "^1.239.5",
     "ts-node": "^7.0.0",
     "ts-node-dev": "^1.0.0-pre.32",
     "typescript": "^2.9.2"

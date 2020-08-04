@@ -13,6 +13,8 @@ import { IIntegrationDocument } from '../../../db/models/definitions/integration
 import { registerOnboardHistory } from '../../utils';
 
 export const isMessengerOnline = async (integration: IIntegrationDocument) => {
+  console.log(JSON.stringify(integration), '--------isMessengerOnline-----');
+
   if (!integration.messengerData) {
     return false;
   }
@@ -94,8 +96,17 @@ export default {
 
   async widgetsConversationDetail(_root, args: { _id: string; integrationId: string }) {
     const { _id, integrationId } = args;
+
     const conversation = await Conversations.findOne({ _id, integrationId });
     const integration = await Integrations.findOne({ _id: integrationId });
+
+    // When no one writes a message
+    if (!conversation && integration) {
+      return {
+        messages: [],
+        isOnline: await isMessengerOnline(integration),
+      };
+    }
 
     if (!conversation || !integration) {
       return null;
@@ -138,12 +149,20 @@ export default {
     const integration = await Integrations.findOne({ _id: integrationId });
 
     if (!integration) {
-      return [];
+      return {
+        supporters: [],
+        isOnline: false,
+        serverTime: new Date(),
+      };
     }
 
     const messengerData = integration.messengerData || { supporterIds: [] };
 
-    return Users.find({ _id: { $in: messengerData.supporterIds || [] } });
+    return {
+      supporters: await Users.find({ _id: { $in: messengerData.supporterIds || [] } }),
+      isOnline: await isMessengerOnline(integration),
+      serverTime: new Date(),
+    };
   },
 
   /**

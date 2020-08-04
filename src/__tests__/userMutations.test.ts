@@ -49,7 +49,7 @@ describe('User mutations', () => {
     $username: String!
     $email: String!
     $details: UserDetails
-    $links: UserLinks
+    $links: JSON
     $channelIds: [String]
   `;
 
@@ -203,7 +203,6 @@ describe('User mutations', () => {
           content: invitationUrl,
           domain: MAIN_APP_DOMAIN,
         },
-        isCustom: true,
       },
     });
 
@@ -238,7 +237,6 @@ describe('User mutations', () => {
           content: invitationUrl,
           domain: MAIN_APP_DOMAIN,
         },
-        isCustom: true,
       },
     });
 
@@ -296,14 +294,7 @@ describe('User mutations', () => {
             position
             description
           }
-          links {
-            linkedIn
-            twitter
-            facebook
-            github
-            youtube
-            website
-          }
+          links
         }
       }
     `;
@@ -345,7 +336,7 @@ describe('User mutations', () => {
         $username: String!
         $email: String!
         $details: UserDetails
-        $links: UserLinks
+        $links: JSON
         $password: String!
       ) {
         usersEditProfile(
@@ -364,14 +355,7 @@ describe('User mutations', () => {
             position
             description
           }
-          links {
-            linkedIn
-            twitter
-            facebook
-            github
-            youtube
-            website
-          }
+          links
         }
       }
     `;

@@ -33,6 +33,12 @@ export const types = `
     text: String
   }
 
+  type MessengerSupportersResponse {
+    supporters: [User]
+    isOnline: Boolean
+    serverTime: String
+  }
+
   input FieldValueInput {
     _id: String!
     type: String
@@ -49,7 +55,7 @@ export const queries = `
   widgetsMessages(conversationId: String): [ConversationMessage]
   widgetsUnreadCount(conversationId: String): Int
   widgetsTotalUnreadCount(integrationId: String!, customerId: String!): Int
-  widgetsMessengerSupporters(integrationId: String!): [User]
+  widgetsMessengerSupporters(integrationId: String!): MessengerSupportersResponse
   widgetsKnowledgeBaseArticles(topicId: String!, searchString: String) : [KnowledgeBaseArticle]
   widgetsKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
 `;

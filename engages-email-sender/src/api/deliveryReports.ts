@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { prepareSmsStats } from '../telnyxUtils';
 
 const router = Router();
 
@@ -17,6 +18,16 @@ router.get('/statsList/:engageMessageId', async (req, res) => {
   }
 
   return res.json(stats);
+});
+
+router.get('/smsStats/:engageMessageId', async (req, res) => {
+  debugRequest(debugEngages, req);
+
+  const { engageMessageId } = req.params;
+
+  const smsStats = await prepareSmsStats(engageMessageId);
+
+  return res.json(smsStats);
 });
 
 router.get(`/reportsList/:engageMessageId`, async (req, res) => {

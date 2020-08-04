@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
 
-import { customFieldSchema, ICustomField, ILink, linkSchema } from './common';
+import { customFieldSchema, ICustomField, ILink } from './common';
 import { CUSTOMER_SELECT_OPTIONS } from './constants';
 
 import { field, schemaWrapper } from './utils';
@@ -25,8 +25,6 @@ export interface IVisitorContact {
 
 export interface IVisitorContactDocument extends IVisitorContact, Document {}
 
-interface ILinkDocument extends ILink, Document {}
-
 export interface ICustomer {
   state?: 'visitor' | 'lead' | 'customer';
 
@@ -49,6 +47,7 @@ export interface ICustomer {
   description?: string;
   doNotDisturb?: string;
   emailValidationStatus?: string;
+  phoneValidationStatus?: string;
   links?: ILink;
   relatedIntegrationIds?: string[];
   integrationId?: string;
@@ -70,10 +69,15 @@ export interface ICustomer {
   sessionCount?: number;
 }
 
+export interface IValidationResponse {
+  email?: string;
+  phone?: string;
+  status: string;
+}
+
 export interface ICustomerDocument extends ICustomer, Document {
   _id: string;
   location?: ILocationDocument;
-  links?: ILinkDocument;
   visitorContactInfo?: IVisitorContactDocument;
   profileScore?: number;
   status?: string;
@@ -132,7 +136,7 @@ export const customerSchema = schemaWrapper(
     birthDate: field({ type: Date, label: 'Date of birth', optional: true }),
     sex: field({
       type: Number,
-      label: 'Sex',
+      label: 'Pronoun',
       optional: true,
       esType: 'keyword',
       default: 0,
@@ -153,6 +157,15 @@ export const customerSchema = schemaWrapper(
 
     primaryPhone: field({ type: String, label: 'Primary Phone', optional: true }),
     phones: field({ type: [String], optional: true, label: 'Phones' }),
+
+    phoneValidationStatus: field({
+      type: String,
+      enum: getEnum('PHONE_VALIDATION_STATUSES'),
+      default: 'unknown',
+      label: 'Phone validation status',
+      esType: 'keyword',
+      selectOptions: CUSTOMER_SELECT_OPTIONS.PHONE_VALIDATION_STATUSES,
+    }),
     profileScore: field({ type: Number, index: true, optional: true, label: 'Profile score' }),
 
     ownerId: field({ type: String, optional: true, label: 'Owner' }),
@@ -196,7 +209,7 @@ export const customerSchema = schemaWrapper(
       label: 'Do not disturb',
       selectOptions: CUSTOMER_SELECT_OPTIONS.DO_NOT_DISTURB,
     }),
-    links: field({ type: linkSchema, default: {}, label: 'Links' }),
+    links: field({ type: Object, default: {}, label: 'Links' }),
 
     relatedIntegrationIds: field({ type: [String], optional: true }),
     integrationId: field({ type: String, optional: true, label: 'Integration', esType: 'keyword' }),

@@ -1,21 +1,9 @@
 import * as EmailValidator from 'email-deep-validator';
-import { sendMessage } from './messageBroker';
 import { EMAIL_VALIDATION_STATUSES, Emails } from './models';
+import { getArray, setArray } from './redisClient';
 import { debugBase, sendRequest } from './utils';
 
 const { TRUE_MAIL_API_KEY, EMAIL_VERIFICATION_TYPE = 'truemail' } = process.env;
-
-const sendSingleMessage = async (doc: { email: string; status: string }, isRest: boolean, create?: boolean) => {
-  if (create) {
-    await Emails.createEmail(doc);
-  }
-
-  if (isRest) {
-    return doc.status;
-  }
-
-  return sendMessage('emailVerifierNotification', { action: 'emailVerify', data: [doc] });
-};
 
 const singleTrueMail = async (email: string) => {
   try {
@@ -26,93 +14,219 @@ const singleTrueMail = async (email: string) => {
       method: 'GET',
     });
 
-    return JSON.parse(response);
+    if (typeof response === 'string') {
+      return JSON.parse(response);
+    }
+
+    return response;
   } catch (e) {
     debugBase(`Error occured during single true mail validation ${e.message}`);
     throw e;
   }
 };
 
-const bulkTrueMail = async (unverifiedEmails: string[]) => {
+const bulkTrueMail = async (unverifiedEmails: string[], hostname: string) => {
   const url = `https://truemail.io/api/v1/tasks/bulk?access_token=${TRUE_MAIL_API_KEY}`;
 
   try {
     const result = await sendRequest({
       url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
       method: 'POST',
       body: {
-        file: unverifiedEmails,
+        file: unverifiedEmails.map(e => ({ email: e })),
       },
     });
 
-    sendMessage('emailVerifierBulkEmailNotification', { action: 'bulk', data: result });
+    let data;
+    let error;
+
+    if (typeof result === 'string') {
+      data = JSON.parse(result).data;
+      error = JSON.parse(result).error;
+    } else {
+      data = result.data;
+      error = result.error;
+    }
+
+    if (data) {
+      const taskIds = await getArray('erxes_email_verifier_task_ids');
+
+      taskIds.push({ taskId: data.task_id, hostname });
+
+      setArray('erxes_email_verifier_task_ids', taskIds);
+    } else if (error) {
+      throw new Error(error.message);
+    }
   } catch (e) {
-    sendMessage('emailVerifierBulkEmailNotification', { action: 'bulk', data: e.message });
+    // request may fail
+    throw e;
   }
 };
 
-export const single = async (email: string, isRest = false) => {
+export const single = async (email: string, hostname: string) => {
   const emailOnDb = await Emails.findOne({ email });
 
   if (emailOnDb) {
-    return sendSingleMessage({ email, status: emailOnDb.status }, isRest);
+    debugBase(`This email is already verified`);
+
+    return sendRequest({
+      url: `${hostname}/verifier/webhook`,
+      method: 'POST',
+      body: {
+        email: { email, status: emailOnDb.status },
+      },
+    });
   }
 
   const emailValidator = new EmailValidator();
   const { validDomain, validMailbox } = await emailValidator.verify(email);
 
   if (validDomain && validMailbox) {
-    return sendSingleMessage({ email, status: EMAIL_VALIDATION_STATUSES.VALID }, isRest, true);
+    await sendRequest({
+      url: `${hostname}/verifier/webhook`,
+      method: 'POST',
+      body: {
+        email: { email, status: EMAIL_VALIDATION_STATUSES.VALID },
+      },
+    });
   }
 
   let response: { status?: string; result?: string } = {};
 
   if (EMAIL_VERIFICATION_TYPE === 'truemail') {
     try {
+      debugBase(`Email is not found on verifier DB. Sending request to clearoutphone`);
       response = await singleTrueMail(email);
-    } catch (_e) {
-      return sendSingleMessage({ email, status: EMAIL_VALIDATION_STATUSES.UNKNOWN }, isRest);
+
+      debugBase(`Received single email validation status`);
+    } catch (e) {
+      // request may fail
+      throw e;
     }
   }
 
   if (response.status === 'success') {
-    return sendSingleMessage({ email, status: response.result }, isRest, true);
-  }
+    const doc = { email, status: response.result };
 
-  // if status is not success
-  return sendSingleMessage({ email, status: EMAIL_VALIDATION_STATUSES.INVALID }, isRest);
+    await Emails.createEmail(doc);
+
+    debugBase(`Sending single email validation status to erxes-api`);
+
+    await sendRequest({
+      url: `${hostname}/verifier/webhook`,
+      method: 'POST',
+      body: {
+        email: doc,
+      },
+    });
+  } else {
+    // if status is not success
+    await sendRequest({
+      url: `${hostname}/verifier/webhook`,
+      method: 'POST',
+      body: {
+        email: { email, status: EMAIL_VALIDATION_STATUSES.UNKNOWN },
+      },
+    });
+  }
 };
 
-export const bulk = async (emails: string[]) => {
-  const unverifiedEmails: any[] = [];
-  const verifiedEmails: any[] = [];
+export const bulk = async (emails: string[], hostname: string) => {
+  const emailsOnDb = await Emails.find({ email: { $in: emails } });
 
-  for (const email of emails) {
-    const found = await Emails.findOne({ email });
+  const emailsMap: Array<{ email: string; status: string }> = emailsOnDb.map(({ email, status }) => ({
+    email,
+    status,
+  }));
 
-    if (found) {
-      verifiedEmails.push({ email: found.email, status: found.status });
-    } else {
-      unverifiedEmails.push({ email });
-    }
-  }
+  const verifiedEmails = emailsMap.map(verified => ({ email: verified.email, status: verified.status }));
+
+  const unverifiedEmails = emails.filter(email => !verifiedEmails.some(e => e.email === email));
 
   if (verifiedEmails.length > 0) {
-    sendMessage('emailVerifierNotification', { action: 'emailVerify', data: verifiedEmails });
+    try {
+      debugBase(`Sending already verified emails to erxes-api`);
+
+      await sendRequest({
+        url: `${hostname}/verifier/webhook`,
+        method: 'POST',
+        body: {
+          emails: verifiedEmails,
+        },
+      });
+    } catch (e) {
+      // request may fail
+      throw e;
+    }
   }
 
   if (unverifiedEmails.length > 0) {
-    switch (EMAIL_VERIFICATION_TYPE) {
-      case 'truemail': {
-        await bulkTrueMail(unverifiedEmails);
+    debugBase(`Sending  unverified email to truemail`);
 
-        break;
+    return bulkTrueMail(unverifiedEmails, hostname);
+  }
+};
+
+export const checkTask = async (taskId: string) => {
+  const url = `https://truemail.io/api/v1/tasks/${taskId}/status?access_token=${TRUE_MAIL_API_KEY}`;
+
+  const response = await sendRequest({
+    url,
+    method: 'GET',
+  });
+
+  return JSON.parse(response).data;
+};
+
+export const getTrueMailBulk = async (taskId: string, hostname: string) => {
+  debugBase(`Downloading bulk email validation result`);
+
+  const url = `https://truemail.io/api/v1/tasks/${taskId}/download?access_token=${TRUE_MAIL_API_KEY}&timeout=30000`;
+
+  const response = await sendRequest({
+    url,
+    method: 'GET',
+  });
+
+  const rows = response.split('\n');
+  const emails: Array<{ email: string; status: string }> = [];
+
+  for (const row of rows) {
+    const rowArray = row.split(',');
+
+    if (rowArray.length > 2) {
+      const email = rowArray[0];
+      const status = rowArray[2];
+
+      emails.push({
+        email,
+        status,
+      });
+
+      const found = await Emails.findOne({ email });
+
+      if (!found) {
+        const doc = {
+          email,
+          status,
+          created: new Date(),
+        };
+
+        await Emails.create(doc);
       }
     }
-  } else {
-    sendMessage('emailVerifierBulkNotification', {
-      action: 'bulk',
-      data: 'There are no emails to verify on the email verification system',
-    });
   }
+
+  debugBase(`Sending bulk email validation result to erxes-api`);
+
+  await sendRequest({
+    url: `${hostname}/verifier/webhook`,
+    method: 'POST',
+    body: {
+      emails,
+    },
+  });
 };

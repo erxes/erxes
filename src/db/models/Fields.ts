@@ -182,7 +182,7 @@ export const loadFieldClass = () => {
       };
 
       // required
-      if (field.isRequired && !value) {
+      if (field.isRequired && (!value || !value.toString().trim())) {
         throwError('required');
       }
 

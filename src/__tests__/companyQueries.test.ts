@@ -134,14 +134,7 @@ describe('companyQueries', () => {
           businessType
           description
           doNotDisturb
-          links {
-            linkedIn
-            twitter
-            facebook
-            github
-            youtube
-            website
-          }
+          links
           customers { _id }
           owner { _id }
           parentCompany { _id }

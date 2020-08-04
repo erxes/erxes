@@ -4,13 +4,7 @@ import * as faker from 'faker';
 import * as sinon from 'sinon';
 import * as messageBroker from '../messageBroker';
 
-import {
-  conversationFactory,
-  conversationMessageFactory,
-  customerFactory,
-  integrationFactory,
-  userFactory,
-} from '../db/factories';
+import { conversationFactory, customerFactory, integrationFactory, userFactory } from '../db/factories';
 import { Conversations, Customers, Integrations, Users } from '../db/models';
 import { CONVERSATION_STATUSES, KIND_CHOICES } from '../db/models/definitions/constants';
 
@@ -90,6 +84,7 @@ describe('Conversation message mutations', () => {
       integrationId: leadIntegration._id,
       customerId: customer._id,
       assignedUserId: user._id,
+      participatedUserIds: [user._id],
       content: 'lead content',
     });
 
@@ -204,6 +199,7 @@ describe('Conversation message mutations', () => {
     }
 
     args.conversationId = facebookMessengerConversation._id;
+    args.content = '<img src="img">';
 
     try {
       await graphqlRequest(addMutation, 'conversationMessageAdd', args, { dataSources });
@@ -291,12 +287,11 @@ describe('Conversation message mutations', () => {
     let mock = sinon.stub(messageBroker, 'sendMessage').callsFake(() => {
       return Promise.resolve('success');
     });
-    const message = await conversationMessageFactory({ conversationId: facebookConversation._id });
     const comment = await integrationFactory({ kind: 'facebook-post' });
 
     const args = {
       conversationId: facebookConversation._id,
-      content: message.content,
+      content: 'content',
       commentId: comment._id,
     };
 
@@ -477,6 +472,37 @@ describe('Conversation message mutations', () => {
     );
 
     expect(response.status).toBe('ongoing');
+
+    mock.restore();
+  });
+
+  test('Create product board note', async () => {
+    const mutation = `
+      mutation conversationCreateProductBoardNote($_id: String!) {
+        conversationCreateProductBoardNote(_id: $_id) 
+      }
+    `;
+
+    const conversation = await conversationFactory();
+
+    try {
+      await graphqlRequest(mutation, 'conversationCreateProductBoardNote', { _id: conversation._id }, { dataSources });
+    } catch (e) {
+      expect(e[0].message).toBe('Integrations api is not running');
+    }
+
+    const mock = sinon.stub(dataSources.IntegrationsAPI, 'createProductBoardNote').callsFake(() => {
+      return Promise.resolve('productBoardLink');
+    });
+
+    const response = await graphqlRequest(
+      mutation,
+      'conversationCreateProductBoardNote',
+      { _id: conversation._id },
+      { dataSources },
+    );
+
+    expect(response).toBe('productBoardLink');
 
     mock.restore();
   });

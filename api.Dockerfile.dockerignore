@@ -1,5 +1,6 @@
 *.md
 *.yml
+*.yaml
 .env*
 .git*
 .prettierrc
@@ -14,4 +15,3 @@ email-verifier
 logger
 engages-email-sender
 dashboard
-dist/cronJobs

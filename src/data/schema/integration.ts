@@ -76,6 +76,7 @@ export const types = `
     showChat: Boolean
     showLauncher: Boolean
     forceLogoutWhenResolve: Boolean
+    showVideoCallRequest: Boolean
   }
 
   input MessengerUiOptions {
@@ -108,6 +109,7 @@ export const mutations = `
     name: String!,
     brandId: String!,
     languageCode: String
+    channelIds: [String]
     ): Integration
 
   integrationsEditMessengerIntegration(
@@ -115,6 +117,7 @@ export const mutations = `
     name: String!,
     brandId: String!,
     languageCode: String
+    channelIds: [String]
   ): Integration
 
   integrationsSaveMessengerAppearanceData(
@@ -145,14 +148,15 @@ export const mutations = `
     name: String!,
     brandId: String!,
     accountId: String,
+    channelIds: [String]
     data: JSON): Integration
 
-  integrationsEditCommonFields(_id: String!, name: String!, brandId: String!): Integration
+  integrationsEditCommonFields(_id: String!, name: String!, brandId: String!, channelIds: [String]): Integration
 
   integrationsRemove(_id: String!): JSON
   integrationsRemoveAccount(_id: String!): JSON
 
-  integrationsArchive(_id: String!): Integration
+  integrationsArchive(_id: String!, status: Boolean!): Integration
 
   integrationSendMail(
     erxesApiId: String!
@@ -170,30 +174,6 @@ export const mutations = `
     kind: String
     references: String
     attachments: [JSON]
-  ): JSON
-
-  integrationAddExchangeAccount(
-    email: String!
-    password: String!
-    host: String!
-    username: String
-    kind: String
-  ): JSON
-
-  integrationAddImapAccount(
-    email: String!
-    password: String!
-    imapHost: String!
-    imapPort: Int!
-    smtpHost: String!
-    smtpPort: Int!
-    kind: String!
-  ): JSON
-
-  integrationAddMailAccount(
-    email: String!
-    password: String!
-    kind: String!
   ): JSON
 
   integrationsUpdateConfigs(configsMap: JSON!): JSON

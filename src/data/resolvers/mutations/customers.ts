@@ -6,6 +6,7 @@ import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { registerOnboardHistory } from '../../utils';
+import { validateBulk } from '../../verifierUtils';
 
 interface ICustomersEdit extends ICustomer {
   _id: string;
@@ -15,10 +16,10 @@ const customerMutations = {
   /**
    * Create new customer also adds Customer registration log
    */
-  async customersAdd(_root, doc: ICustomer, { user, docModifier }: IContext) {
+  async customersAdd(_root, doc: ICustomer, { user, docModifier, requestInfo }: IContext) {
     const modifiedDoc = docModifier(doc);
 
-    const customer = await Customers.createCustomer(modifiedDoc, user);
+    const customer = await Customers.createCustomer(modifiedDoc, user, requestInfo.hostname);
 
     await putCreateLog(
       {
@@ -37,9 +38,9 @@ const customerMutations = {
   /**
    * Updates a customer
    */
-  async customersEdit(_root, { _id, ...doc }: ICustomersEdit, { user }: IContext) {
+  async customersEdit(_root, { _id, ...doc }: ICustomersEdit, { user, requestInfo }: IContext) {
     const customer = await Customers.getCustomer(_id);
-    const updated = await Customers.updateCustomer(_id, doc);
+    const updated = await Customers.updateCustomer(_id, doc, requestInfo.hostname);
 
     await putUpdateLog(
       {
@@ -99,6 +100,10 @@ const customerMutations = {
     }
 
     return customerIds;
+  },
+
+  async customersVerify(_root, { verificationType }: { verificationType: string }, { requestInfo }) {
+    await validateBulk(verificationType, requestInfo.hostname);
   },
 };
 

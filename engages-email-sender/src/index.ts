@@ -4,6 +4,7 @@ import * as express from 'express';
 import { filterXSS } from 'xss';
 import configs from './api/configs';
 import deliveryReports from './api/deliveryReports';
+import telnyx from './api/telnyx';
 import { initRedis } from './redisClient';
 
 // load environment variables
@@ -33,6 +34,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Insert routes below
 app.use('/configs', configs);
 app.use('/deliveryReports', deliveryReports);
+app.use('/telnyx', telnyx);
 
 trackEngages(app);
 

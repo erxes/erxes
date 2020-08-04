@@ -23,9 +23,9 @@ export interface IActivityLogDocument extends IActivityLog, Document {
 
 export const activityLogSchema = new Schema({
   _id: field({ pkey: true }),
-  contentId: field({ type: String }),
-  contentType: field({ type: String }),
-  action: field({ type: String }),
+  contentId: field({ type: String, index: true }),
+  contentType: field({ type: String, index: true }),
+  action: field({ type: String, index: true }),
   content: Schema.Types.Mixed,
   createdBy: field({ type: String }),
   createdAt: field({

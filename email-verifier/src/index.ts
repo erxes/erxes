@@ -2,10 +2,12 @@ import * as bodyParser from 'body-parser';
 import * as dotenv from 'dotenv';
 import * as express from 'express';
 import { filterXSS } from 'xss';
-import { single } from './api';
+import { bulk, single } from './api';
+import { validateBulkPhones, validateSinglePhone } from './apiPhoneVerifier';
 import { connect } from './connection';
-import { initConsumer } from './messageBroker';
-import { debugBase, debugRequest } from './utils';
+import './cronJobs/verifier';
+import { initRedis } from './redisClient';
+import { debugBase, debugCrons, debugRequest } from './utils';
 
 // load environment variables
 dotenv.config();
@@ -18,14 +20,47 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.post('/verify-single', async (req, res, next) => {
   debugRequest(debugBase, req);
 
-  const { email } = req.body;
+  const { email, phone, hostname } = req.body;
+
+  if (email) {
+    try {
+      const result = await single(email, hostname);
+
+      return res.json(result);
+    } catch (e) {
+      return next(new Error(e));
+    }
+  }
 
   try {
-    const status = await single(email, true);
+    const result = await validateSinglePhone(phone, hostname);
 
-    return res.json({ status });
+    return res.json(result);
   } catch (e) {
     return next(new Error(e));
+  }
+});
+
+app.post('/verify-bulk', async (req, res, next) => {
+  debugRequest(debugBase, req);
+
+  const { phones, emails, hostname } = req.body;
+
+  if (phones) {
+    try {
+      const result = await validateBulkPhones(phones, hostname);
+
+      return res.json({ phones: result });
+    } catch (e) {
+      return next(e);
+    }
+  }
+
+  try {
+    const result = await bulk(emails, hostname);
+    return res.json({ emails: result });
+  } catch (e) {
+    return next(e);
   }
 });
 
@@ -40,8 +75,13 @@ app.use((error, _req, res, _next) => {
 const { PORT } = process.env;
 
 app.listen(PORT, async () => {
-  await initConsumer();
   await connect();
-
+  initRedis();
   debugBase(`Email verifier server is running on port ${PORT}`);
+});
+
+const { PORT_CRONS = 4700 } = process.env;
+
+app.listen(PORT_CRONS, () => {
+  debugCrons(`Cron Server is now running on ${PORT_CRONS}`);
 });

@@ -51,13 +51,9 @@ describe('mutations', () => {
   };
 
   let dataSources;
-  let createAccountSpy;
 
   beforeEach(async () => {
     dataSources = { IntegrationsAPI: new IntegrationsAPI() };
-
-    createAccountSpy = jest.spyOn(dataSources.IntegrationsAPI, 'createAccount');
-    createAccountSpy.mockImplementation(() => Promise.resolve());
 
     // Creating test data
     _brand = await brandFactory({});
@@ -73,8 +69,6 @@ describe('mutations', () => {
     await Customers.deleteMany({});
     await EmailDeliveries.deleteMany({});
     await Integrations.deleteMany({});
-
-    createAccountSpy.mockRestore();
   });
 
   test('Create messenger integration', async () => {
@@ -82,11 +76,12 @@ describe('mutations', () => {
       name: _integration.name,
       brandId: _brand._id,
       languageCode: 'en',
+      channelIds: ['randomId'],
     };
 
     const mutation = `
-      mutation integrationsCreateMessengerIntegration(${commonParamDefs}) {
-        integrationsCreateMessengerIntegration(${commonParams}) {
+      mutation integrationsCreateMessengerIntegration($channelIds: [String] ${commonParamDefs}) {
+        integrationsCreateMessengerIntegration(channelIds: $channelIds ${commonParams}) {
           name
           brandId
           languageCode
@@ -109,15 +104,18 @@ describe('mutations', () => {
       name: _integration.name,
       brandId: secondBrand._id,
       languageCode: 'en',
+      channelIds: ['randomId'],
     };
 
     const mutation = `
       mutation integrationsEditMessengerIntegration(
         $_id: String!
+        $channelIds: [String]
         ${commonParamDefs}
       ) {
         integrationsEditMessengerIntegration(
         _id: $_id
+        channelIds: $channelIds
         ${commonParams}
       ) {
           _id
@@ -177,6 +175,7 @@ describe('mutations', () => {
       requireAuth: false,
       showChat: false,
       showLauncher: false,
+      showVideoCallRequest: false,
       forceLogoutWhenResolve: false,
       onlineHours: [
         {
@@ -310,6 +309,7 @@ describe('mutations', () => {
         $brandId: String!
         $accountId: String,
         $data: JSON
+        $channelIds: [String]
       ) {
         integrationsCreateExternalIntegration(
           kind: $kind
@@ -317,6 +317,7 @@ describe('mutations', () => {
           brandId: $brandId
           accountId: $accountId
           data: $data
+          channelIds: $channelIds
         ) {
           _id
           name
@@ -332,6 +333,7 @@ describe('mutations', () => {
       kind: 'nylas-gmail',
       name: 'Nyals gmail integration',
       brandId: brand._id,
+      channelIds: ['randomId'],
     };
 
     try {
@@ -362,96 +364,6 @@ describe('mutations', () => {
     expect(response).toBeDefined();
 
     createIntegrationSpy.mockRestore();
-  });
-
-  test('Add mail account', async () => {
-    const mutation = `
-      mutation integrationAddMailAccount(
-        $email: String!
-        $password: String!
-        $kind: String!
-      ) {
-        integrationAddMailAccount(
-          email: $email
-          password: $password
-          kind: $kind
-        )
-      }
-    `;
-
-    const args = {
-      email: 'email',
-      password: 'pass',
-      kind: 'facebook-post',
-    };
-
-    await graphqlRequest(mutation, 'integrationAddMailAccount', args, { dataSources });
-  });
-
-  test('Add exchange account', async () => {
-    const mutation = `
-      mutation integrationAddExchangeAccount(
-        $email: String!
-        $username: String
-        $password: String!
-        $kind: String!
-        $host: String!
-      ) {
-        integrationAddExchangeAccount(
-          email: $email
-          password: $password
-          username: $username
-          kind: $kind
-          host: $host
-        )
-      }
-    `;
-
-    const args = {
-      email: 'mail@exchange.com',
-      password: 'pass',
-      kind: 'exchange',
-      host: 'mail.exchange.com',
-      username: 'smtpHost',
-    };
-
-    await graphqlRequest(mutation, 'integrationAddExchangeAccount', args, { dataSources });
-  });
-
-  test('Add imap account', async () => {
-    const mutation = `
-      mutation integrationAddImapAccount(
-        $email: String!
-        $password: String!
-        $imapHost: String!
-        $imapPort: Int!
-        $smtpHost: String!
-        $smtpPort: Int!
-        $kind: String!
-      ) {
-        integrationAddImapAccount(
-          email: $email
-          password: $password
-          imapHost: $imapHost
-          imapPort: $imapPort
-          smtpHost: $smtpHost
-          smtpPort: $smtpPort
-          kind: $kind
-        )
-      }
-    `;
-
-    const args = {
-      email: 'email@yahoo.com',
-      password: 'pass',
-      imapHost: 'imapHost',
-      imapPort: 10,
-      smtpHost: 'smtpHost',
-      smtpPort: 10,
-      kind: 'facebook-post',
-    };
-
-    await graphqlRequest(mutation, 'integrationAddImapAccount', args, { dataSources });
   });
 
   test('Update config', async () => {
@@ -602,8 +514,8 @@ describe('mutations', () => {
 
   test('Integrations archive', async () => {
     const mutation = `
-      mutation integrationsArchive($_id: String!) {
-        integrationsArchive(_id: $_id) {
+      mutation integrationsArchive($_id: String!, $status: Boolean!) {
+        integrationsArchive(_id: $_id, status: $status) {
           _id
           isActive
         }
@@ -611,17 +523,22 @@ describe('mutations', () => {
     `;
 
     const integration = await integrationFactory();
-    const response = await graphqlRequest(mutation, 'integrationsArchive', {
+    let response = await graphqlRequest(mutation, 'integrationsArchive', {
       _id: integration._id,
+      status: true,
     });
 
     expect(response.isActive).toBeFalsy();
+
+    response = await graphqlRequest(mutation, 'integrationsArchive', { _id: integration._id, status: false });
+
+    expect(response.isActive).toBeTruthy();
   });
 
   test('Integrations edit common fields', async () => {
     const mutation = `
-      mutation integrationsEditCommonFields($_id: String!, $name: String!, $brandId: String!) {
-        integrationsEditCommonFields(_id: $_id name: $name brandId: $brandId) {
+      mutation integrationsEditCommonFields($_id: String!, $name: String!, $brandId: String!, $channelIds: [String]) {
+        integrationsEditCommonFields(_id: $_id name: $name brandId: $brandId channelIds: $channelIds) {
           _id
           name
           brandId
@@ -635,6 +552,7 @@ describe('mutations', () => {
       _id: integration._id,
       name: 'updated',
       brandId: 'brandId',
+      channelIds: ['randomId'],
     };
 
     const response = await graphqlRequest(mutation, 'integrationsEditCommonFields', doc);

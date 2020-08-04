@@ -1,4 +1,4 @@
-import { commonMutationParams, commonTypes, conformityQueryFields, copyParams } from './common';
+import { commonDragParams, commonMutationParams, commonTypes, conformityQueryFields, copyParams } from './common';
 
 export const types = `
   type Ticket {
@@ -41,9 +41,9 @@ const ticketMutationParams = `
 export const mutations = `
   ticketsAdd(name: String!, ${copyParams}, ${ticketMutationParams}, ${commonMutationParams}): Ticket
   ticketsEdit(_id: String!, name: String, ${ticketMutationParams}, ${commonMutationParams}): Ticket
-  ticketsChange( _id: String!, destinationStageId: String, order: Float): Ticket
+  ticketsChange(${commonDragParams}): Ticket
   ticketsRemove(_id: String!): Ticket
   ticketsWatch(_id: String, isAdd: Boolean): Ticket
-  ticketsCopy(_id: String!): Ticket
-  ticketsArchive(stageId: String!): String
+  ticketsCopy(_id: String!, proccessId: String): Ticket
+  ticketsArchive(stageId: String!, proccessId: String): String
 `;

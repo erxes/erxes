@@ -73,6 +73,24 @@ export const set = (key: string, value: any) => {
   client.set(key, value);
 };
 
+export const getArray = async (key: string, defaultValue = []): Promise<any> => {
+  try {
+    const response = await new Promise((resolve, reject) => {
+      client.smembers(key, (error, reply) => {
+        if (error) {
+          return reject(error);
+        }
+
+        return resolve(reply && reply !== 'nil' ? reply : defaultValue);
+      });
+    });
+
+    return response;
+  } catch (e) {
+    return false;
+  }
+};
+
 /*
  * Check if value exists in set
  */
@@ -126,6 +144,22 @@ export const removeFromArray = (setKey: string, setMember: string) => {
       }
 
       return resolve(reply);
+    });
+  });
+};
+
+/**
+ * Health check status
+ * retryStrategy - get response immediately
+ */
+export const redisStatus = () => {
+  return new Promise((resolve, reject) => {
+    client.ping((error, result) => {
+      if (error) {
+        return reject(error);
+      }
+
+      return resolve(result);
     });
   });
 };

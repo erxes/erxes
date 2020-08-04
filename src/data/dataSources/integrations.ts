@@ -39,10 +39,6 @@ export default class IntegrationsAPI extends RESTDataSource {
     return this.post('/integrations/remove', params);
   }
 
-  public async createAccount(params) {
-    return this.post('/nylas/auth/callback', params);
-  }
-
   public async removeAccount(params) {
     return this.post('/accounts/remove', params);
   }
@@ -81,5 +77,9 @@ export default class IntegrationsAPI extends RESTDataSource {
 
   public async updateConfigs(configsMap) {
     return this.post('/update-configs', { configsMap });
+  }
+
+  public async createProductBoardNote(params) {
+    return this.post('/productBoard/create-note', params);
   }
 }

@@ -1,5 +1,6 @@
 import { Model, model } from 'mongoose';
-import { validateEmail, validSearchText } from '../../data/utils';
+import { validSearchText } from '../../data/utils';
+import { validateSingle } from '../../data/verifierUtils';
 import { ActivityLogs, Conformities, Conversations, EngageMessages, Fields, InternalNotes } from './';
 import { ICustomField } from './definitions/common';
 import { customerSchema, ICustomer, ICustomerDocument } from './definitions/customers';
@@ -25,6 +26,7 @@ interface ICreateMessengerCustomerParams {
     email?: string;
     emailValidationStatus?: string;
     phone?: string;
+    phoneValidationStatus?: string;
     code?: string;
     isUser?: boolean;
     firstName?: string;
@@ -66,8 +68,8 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
   getCustomer(_id: string): Promise<ICustomerDocument>;
   getCustomerName(customer: ICustomer): string;
   createVisitor(): Promise<string>;
-  createCustomer(doc: ICustomer, user?: IUserDocument): Promise<ICustomerDocument>;
-  updateCustomer(_id: string, doc: ICustomer): Promise<ICustomerDocument>;
+  createCustomer(doc: ICustomer, user?: IUserDocument, hostname?: string): Promise<ICustomerDocument>;
+  updateCustomer(_id: string, doc: ICustomer, hostname: string): Promise<ICustomerDocument>;
   markCustomerAsActive(customerId: string): Promise<ICustomerDocument>;
   markCustomerAsNotActive(_id: string): Promise<ICustomerDocument>;
   removeCustomers(customerIds: string[]): Promise<{ n: number; ok: number }>;
@@ -205,7 +207,11 @@ export const loadClass = () => {
     /**
      * Create a customer
      */
-    public static async createCustomer(doc: ICustomer, user?: IUserDocument): Promise<ICustomerDocument> {
+    public static async createCustomer(
+      doc: ICustomer,
+      user?: IUserDocument,
+      hostname?: string,
+    ): Promise<ICustomerDocument> {
       // Checking duplicated fields of customer
       await Customers.checkDuplication(doc);
 
@@ -235,7 +241,11 @@ export const loadClass = () => {
       });
 
       if (doc.primaryEmail && !doc.emailValidationStatus) {
-        validateEmail(doc.primaryEmail);
+        validateSingle({ email: doc.primaryEmail }, hostname);
+      }
+
+      if (doc.primaryPhone && !doc.phoneValidationStatus) {
+        validateSingle({ phone: doc.primaryPhone }, hostname);
       }
 
       // calculateProfileScore
@@ -253,7 +263,7 @@ export const loadClass = () => {
     /*
      * Update customer
      */
-    public static async updateCustomer(_id: string, doc: ICustomer) {
+    public static async updateCustomer(_id: string, doc: ICustomer, hostname: string) {
       // Checking duplicated fields of customer
       await Customers.checkDuplication(doc, _id);
 
@@ -268,7 +278,17 @@ export const loadClass = () => {
         if (doc.primaryEmail !== oldCustomer.primaryEmail) {
           doc.emailValidationStatus = 'unknown';
 
-          validateEmail(doc.primaryEmail);
+          validateSingle({ email: doc.primaryEmail }, hostname);
+        }
+      }
+
+      if (doc.primaryPhone) {
+        const oldCustomer = await Customers.getCustomer(_id);
+
+        if (doc.primaryPhone !== oldCustomer.primaryPhone) {
+          doc.phoneValidationStatus = 'unknown';
+
+          validateSingle({ phone: doc.primaryPhone }, hostname);
         }
       }
 
@@ -468,6 +488,7 @@ export const loadClass = () => {
           phones,
         },
         user,
+        'hostname',
       );
 
       // Updating every modules associated with customers

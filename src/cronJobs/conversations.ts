@@ -1,9 +1,10 @@
 import * as moment from 'moment';
 import * as schedule from 'node-schedule';
 import * as _ from 'underscore';
-import utils from '../data/utils';
+import utils, { IEmailParams } from '../data/utils';
 import { Brands, ConversationMessages, Conversations, Customers, Integrations, Users } from '../db/models';
 import { IMessageDocument } from '../db/models/definitions/conversationMessages';
+import { debugCrons } from '../debuggers';
 
 /**
  * Send conversation messages to customer
@@ -12,51 +13,62 @@ export const sendMessageEmail = async () => {
   // new or open conversations
   const conversations = await Conversations.newOrOpenConversation();
 
+  debugCrons(`Found ${conversations.length} conversations`);
+
   for (const conversation of conversations) {
-    const customer = await Customers.findOne({ _id: conversation.customerId });
+    const customer = await Customers.findOne({ _id: conversation.customerId }).lean();
+
     const integration = await Integrations.findOne({
       _id: conversation.integrationId,
     });
 
     if (!integration) {
-      return;
+      continue;
     }
-
-    const brand = await Brands.findOne({ _id: integration.brandId });
 
     if (!customer || !customer.primaryEmail) {
-      return;
+      continue;
     }
 
+    const brand = await Brands.findOne({ _id: integration.brandId }).lean();
+
     if (!brand) {
-      return;
+      continue;
     }
 
     // user's last non answered question
-    const question: IMessageDocument | any = (await ConversationMessages.getNonAsnweredMessage(conversation._id)) || {};
+    const question: IMessageDocument = (await ConversationMessages.getNonAsnweredMessage(conversation._id)) || {};
+
+    const adminMessages = await ConversationMessages.getAdminMessages(conversation._id);
+
+    if (adminMessages.length < 1) {
+      continue;
+    }
 
     // generate admin unread answers
     const answers: any = [];
 
-    const adminMessages = await ConversationMessages.getAdminMessages(conversation._id);
-
     for (const message of adminMessages) {
-      const answer = message;
+      const answer = {
+        ...message.toJSON(),
+        createdAt: new Date(moment(message.createdAt).format('DD MMM YY, HH:mm')),
+      };
+
+      const usr = await Users.findOne({ _id: message.userId }).lean();
+
+      if (usr) {
+        answer.user = usr;
+        answer.user.avatar = usr.details.avatar;
+        answer.user.fullName = usr.details.fullName;
+      }
 
       // add user object to answer
-      answers.push({
-        ...answer.toJSON(),
-        user: await Users.findOne({ _id: message.userId }),
-        createdAt: new Date(moment(answer.createdAt).format('DD MMM YY, HH:mm')),
-      });
+      answers.push(answer);
     }
 
-    if (answers.length < 1) {
-      return;
-    }
+    customer.name = Customers.getCustomerName(customer);
 
-    // template data
-    const data: any = {
+    const data = {
       customer,
       question: {
         ...question.toJSON(),
@@ -66,30 +78,28 @@ export const sendMessageEmail = async () => {
       brand,
     };
 
-    // add user's signature
-    const user = await Users.findOne({ _id: answers[0].userId });
+    const emailOptions: IEmailParams = {
+      toEmails: [customer.primaryEmail],
+      title: `Reply from "${brand.name}"`,
+    };
 
-    if (user && user.emailSignatures) {
-      const signature = await _.find(user.emailSignatures, s => brand._id === s.brandId);
+    const emailConfig = brand.emailConfig;
 
-      if (signature) {
-        data.signature = signature.signature;
-      }
+    if (emailConfig && emailConfig.type === 'custom') {
+      emailOptions.customHtml = emailConfig.template;
+      emailOptions.customHtmlData = data;
+    } else {
+      emailOptions.template = {
+        name: 'conversationCron',
+        data,
+      };
     }
 
     // send email
-    utils.sendEmail({
-      toEmails: [customer.primaryEmail],
-      title: `Reply from "${brand.name}"`,
-      template: {
-        name: 'conversationCron',
-        isCustom: true,
-        data,
-      },
-    });
+    utils.sendEmail(emailOptions);
 
     // mark sent messages as read
-    ConversationMessages.markSentAsReadMessages(conversation._id);
+    await ConversationMessages.markSentAsReadMessages(conversation._id);
   }
 };
 
@@ -109,6 +119,8 @@ export default {
  * └───────────────────────── second (0 - 59, OPTIONAL)
  */
 // every 10 minutes
-schedule.scheduleJob('*/10 * * * *', () => {
-  sendMessageEmail();
+schedule.scheduleJob('*/10 * * * *', async () => {
+  debugCrons('Ran conversation crons');
+
+  await sendMessageEmail();
 });

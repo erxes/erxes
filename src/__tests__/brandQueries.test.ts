@@ -89,4 +89,16 @@ describe('brandQueries', () => {
 
     expect(lastBrand._id).toBe(brand._id);
   });
+
+  test('Default email template', async () => {
+    const qry = `
+      query brandsGetDefaultEmailConfig {
+        brandsGetDefaultEmailConfig
+      }
+    `;
+
+    const template = await graphqlRequest(qry, 'brandsGetDefaultEmailConfig');
+
+    expect(template).toBeDefined();
+  });
 });

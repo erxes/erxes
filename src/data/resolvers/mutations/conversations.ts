@@ -1,9 +1,8 @@
 import * as strip from 'strip';
 import * as _ from 'underscore';
-import { ConversationMessages, Conversations, Customers, Integrations } from '../../../db/models';
+import { ConversationMessages, Conversations, Customers, Integrations, Tags } from '../../../db/models';
 import Messages from '../../../db/models/ConversationMessages';
 import {
-  CONVERSATION_STATUSES,
   KIND_CHOICES,
   MESSAGE_TYPES,
   NOTIFICATION_CONTENT_TYPES,
@@ -11,7 +10,6 @@ import {
 } from '../../../db/models/definitions/constants';
 import { IMessageDocument } from '../../../db/models/definitions/conversationMessages';
 import { IConversationDocument } from '../../../db/models/definitions/conversations';
-import { IMessengerData } from '../../../db/models/definitions/integrations';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { debugExternalApi } from '../../../debuggers';
 import { sendMessage } from '../../../messageBroker';
@@ -48,6 +46,16 @@ const sendConversationToIntegrations = (
   action?: string,
 ) => {
   if (type === 'facebook') {
+    const regex = new RegExp('<img[^>]* src="([^"]*)"', 'g');
+
+    const images: string[] = (doc.content.match(regex) || []).map(m => m.replace(regex, '$1'));
+
+    const attachments = doc.attachments as any[];
+
+    images.forEach(img => {
+      attachments.push({ type: 'image', url: img });
+    });
+
     return sendMessage('erxes-api:integrations-notification', {
       action,
       type,
@@ -355,42 +363,10 @@ const conversationMutations = {
    * Change conversation status
    */
   async conversationsChangeStatus(_root, { _ids, status }: { _ids: string[]; status: string }, { user }: IContext) {
-    const { conversations } = await Conversations.checkExistanceConversations(_ids);
-
     await Conversations.changeStatusConversation(_ids, status, user._id);
 
     // notify graphl subscription
     publishConversationsChanged(_ids, status);
-
-    for (const conversation of conversations) {
-      if (status === CONVERSATION_STATUSES.CLOSED) {
-        const customer = await Customers.getCustomer(conversation.customerId);
-        const integration = await Integrations.getIntegration(conversation.integrationId);
-
-        const messengerData: IMessengerData = integration.messengerData || {};
-        const notifyCustomer = messengerData.notifyCustomer || false;
-
-        if (notifyCustomer && customer.primaryEmail) {
-          // send email to customer
-          utils.sendEmail({
-            toEmails: [customer.primaryEmail],
-            title: 'Conversation detail',
-            template: {
-              name: 'conversationDetail',
-              data: {
-                conversationDetail: {
-                  title: 'Conversation detail',
-                  messages: await ConversationMessages.find({
-                    conversationId: conversation._id,
-                  }),
-                  date: new Date(),
-                },
-              },
-            },
-          });
-        }
-      }
-    }
 
     const updatedConversations = await Conversations.find({ _id: { $in: _ids } });
 
@@ -437,16 +413,41 @@ const conversationMutations = {
         erxesApiMessageId: message._id,
       });
 
-      message.videoCallData = videoCallData;
+      const updatedMessage = { ...message._doc, videoCallData };
 
       // publish new message to conversation detail
-      publishMessage(message);
+      publishMessage(updatedMessage);
 
       return videoCallData;
     } catch (e) {
       debugExternalApi(e.message);
 
       await ConversationMessages.deleteOne({ _id: message._id });
+
+      throw new Error(e.message);
+    }
+  },
+
+  async conversationCreateProductBoardNote(_root, { _id }, { dataSources, user }: IContext) {
+    const conversation = await Conversations.findOne({ _id }).select('customerId userId tagIds');
+    const tags = await Tags.find({ _id: { $in: conversation?.tagIds } }).select('name');
+    const customer = await Customers.findOne({ _id: conversation?.customerId });
+    const messages = await ConversationMessages.find({ conversationId: _id }).sort({
+      createdAt: 1,
+    });
+
+    try {
+      const productBoardLink = await dataSources.IntegrationsAPI.createProductBoardNote({
+        erxesApiConversationId: _id,
+        tags,
+        customer,
+        messages,
+        user,
+      });
+
+      return productBoardLink;
+    } catch (e) {
+      debugExternalApi(e.message);
 
       throw new Error(e.message);
     }

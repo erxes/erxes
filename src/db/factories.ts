@@ -35,6 +35,7 @@ import {
   MessengerApps,
   NotificationConfigurations,
   Notifications,
+  OnboardingHistories,
   Permissions,
   PipelineLabels,
   Pipelines,
@@ -218,6 +219,7 @@ interface IEngageMessageFactoryInput {
   messenger?: IMessenger;
   title?: string;
   email?: IEmail;
+  smsContent?: string;
 }
 
 export const engageMessageFactory = (params: IEngageMessageFactoryInput = {}) => {
@@ -234,6 +236,7 @@ export const engageMessageFactory = (params: IEngageMessageFactoryInput = {}) =>
     isDraft: params.isDraft || false,
     messenger: params.messenger,
     email: params.email,
+    smsContent: params.smsContent || 'Sms content',
   });
 
   return engageMessage.save();
@@ -502,6 +505,7 @@ interface ICustomerFactoryInput {
   visitorContactInfo?: any;
   deviceTokens?: string[];
   emailValidationStatus?: string;
+  phoneValidationStatus?: string;
   mergedIds?: string[];
   relatedIntegrationIds?: string[];
 }
@@ -530,6 +534,7 @@ export const customerFactory = async (params: ICustomerFactoryInput = {}, useMod
     tagIds: params.tagIds || [Random.id()],
     ownerId: params.ownerId || Random.id(),
     emailValidationStatus: params.emailValidationStatus || 'unknown',
+    phoneValidationStatus: params.phoneValidationStatus || 'unknown',
     profileScore: params.profileScore || 0,
     code: await getUniqueValue(Customers, 'code', params.code),
     visitorContactInfo: params.visitorContactInfo,
@@ -1093,6 +1098,7 @@ interface IGrowthHackFactoryInput {
   votedUserIds?: string[];
   labelIds?: string[];
   initialStageId?: string;
+  order?: number;
 }
 
 export const growthHackFactory = async (params: IGrowthHackFactoryInput = {}) => {
@@ -1116,6 +1122,7 @@ export const growthHackFactory = async (params: IGrowthHackFactoryInput = {}) =>
     impact: params.impact || 0,
     priority: params.priority,
     labelIds: params.labelIds || [],
+    order: params.order || Math.random(),
   });
 
   return growthHack.save();
@@ -1358,3 +1365,15 @@ export function engageDataFactory(params: IMessageEngageDataParams) {
     sentAs: params.sentAs || 'post',
   };
 }
+
+interface IOnboardHistoryParams {
+  userId: string;
+  isCompleted?: boolean;
+  completedSteps?: string[];
+}
+
+export const onboardHistoryFactory = async (params: IOnboardHistoryParams) => {
+  const onboard = new OnboardingHistories(params);
+
+  return onboard.save();
+};

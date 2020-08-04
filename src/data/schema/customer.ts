@@ -8,15 +8,6 @@ export const types = `
     status: String!
   }
 
-  type CustomerLinks {
-    linkedIn: String
-    twitter: String
-    facebook: String
-    youtube: String
-    github: String
-    website: String
-  }
-
   type Customer {
     _id: String!
     state: String
@@ -52,14 +43,15 @@ export const types = `
     doNotDisturb: String
     code: String
     emailValidationStatus: String
-
+    phoneValidationStatus: String
+    
     isOnline: Boolean
     lastSeenAt: Date
     sessionCount: Int
     urlVisits: [JSON]
 
     integration: Integration
-    links: CustomerLinks
+    links: JSON
     companies: [Company]
     conversations: [Conversation]
     getTags: [Tag]
@@ -128,4 +120,5 @@ export const mutations = `
   customersMerge(customerIds: [String], customerFields: JSON): Customer
   customersRemove(customerIds: [String]): [String]
   customersChangeState(_id: String!, value: String!): Customer
+  customersVerify(verificationType:String!): String
 `;

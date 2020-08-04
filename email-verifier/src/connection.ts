@@ -26,8 +26,26 @@ mongoose.connection
     debugBase(`Database connection error: ${MONGO_URL}`, error);
   });
 
-export const connect = (URL?: string) => {
-  return mongoose.connect(URL || MONGO_URL, connectionOptions);
+export const connect = async (URL?: string, options?) => {
+  return mongoose.connect(URL || MONGO_URL, {
+    ...connectionOptions,
+    ...(options || { poolSize: 100 }),
+  });
+};
+
+/**
+ * Health check status
+ */
+export const mongoStatus = () => {
+  return new Promise((resolve, reject) => {
+    mongoose.connection.db.admin().ping((err, result) => {
+      if (err) {
+        return reject(err);
+      }
+
+      return resolve(result);
+    });
+  });
 };
 
 export function disconnect() {

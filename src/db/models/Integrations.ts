@@ -16,6 +16,7 @@ export interface IMessengerIntegration {
   name: string;
   brandId: string;
   languageCode: string;
+  channelIds?: string[];
 }
 
 export interface IExternalIntegrationParams {
@@ -23,6 +24,7 @@ export interface IExternalIntegrationParams {
   name: string;
   brandId: string;
   accountId: string;
+  channelIds?: string[];
 }
 
 interface IIntegrationBasicInfo {
@@ -42,6 +44,7 @@ export const isTimeInBetween = (date: Date, startTime: string, closeTime: string
 export interface IIntegrationModel extends Model<IIntegrationDocument> {
   getIntegration(_id: string): IIntegrationDocument;
   findIntegrations(query: any, options?: any): Query<IIntegrationDocument[]>;
+  findAllIntegrations(query: any, options?: any): Query<IIntegrationDocument[]>;
   createIntegration(doc: IIntegration, userId: string): Promise<IIntegrationDocument>;
   createMessengerIntegration(doc: IIntegration, userId: string): Promise<IIntegrationDocument>;
   updateMessengerIntegration(_id: string, doc: IIntegration): Promise<IIntegrationDocument>;
@@ -79,6 +82,10 @@ export const loadClass = () => {
      */
     public static findIntegrations(query, options) {
       return Integrations.find({ ...query, isActive: { $ne: false } }, options);
+    }
+
+    public static findAllIntegrations(query: any, options: any) {
+      return Integrations.find({ ...query }, options);
     }
 
     /**
@@ -156,8 +163,8 @@ export const loadClass = () => {
       const prevLeadData: ILeadData = prevEntry.leadData || {};
 
       const doc = {
-        kind: KIND_CHOICES.LEAD,
         ...mainDoc,
+        kind: KIND_CHOICES.LEAD,
         leadData: {
           ...leadData,
           viewCount: prevLeadData.viewCount,
@@ -283,6 +290,7 @@ export const loadClass = () => {
       const everydayConf = onlineHours.find(c => c.day === 'everyday');
 
       if (everydayConf) {
+        console.log(everydayConf, '----every day------');
         return isTimeInBetween(now, everydayConf.from || '', everydayConf.to || '');
       }
 
@@ -290,6 +298,7 @@ export const loadClass = () => {
       const weekdaysConf = onlineHours.find(c => c.day === 'weekdays');
 
       if (weekdaysConf && isWeekday(day)) {
+        console.log(everydayConf, '----weekday------');
         return isTimeInBetween(now, weekdaysConf.from || '', weekdaysConf.to || '');
       }
 
@@ -297,6 +306,7 @@ export const loadClass = () => {
       const weekendsConf = onlineHours.find(c => c.day === 'weekends');
 
       if (weekendsConf && isWeekend(day)) {
+        console.log(weekendsConf, '-------week end-------');
         return isTimeInBetween(now, weekendsConf.from || '', weekendsConf.to || '');
       }
 
@@ -304,6 +314,7 @@ export const loadClass = () => {
       const dayConf = onlineHours.find(c => c.day === day);
 
       if (dayConf) {
+        console.log(dayConf, '------day conf------');
         return isTimeInBetween(now, dayConf.from || '', dayConf.to || '');
       }
 

@@ -198,6 +198,7 @@ describe('engageQueries', () => {
 
           stats
           logs
+          smsStats
         }
       }
     `;

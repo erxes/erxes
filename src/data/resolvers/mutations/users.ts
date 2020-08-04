@@ -1,5 +1,7 @@
+import * as telemetry from 'erxes-telemetry';
 import { Channels, Users } from '../../../db/models';
-import { IDetail, IEmailSignature, ILink, IUser } from '../../../db/models/definitions/users';
+import { ILink } from '../../../db/models/definitions/common';
+import { IDetail, IEmailSignature, IUser } from '../../../db/models/definitions/users';
 import { resetPermissionsCache } from '../../permissions/utils';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
@@ -23,7 +25,6 @@ const sendInvitationEmail = ({ email, token }: { email: string; token: string })
         content: confirmationUrl,
         domain: MAIN_APP_DOMAIN,
       },
-      isCustom: true,
     },
   });
 };
@@ -38,6 +39,8 @@ const userMutations = {
     const { token } = response;
 
     res.cookie('auth-token', token, authCookieOptions(requestInfo.secure));
+
+    telemetry.trackCli('logged_in');
 
     return 'loggedIn';
   },
