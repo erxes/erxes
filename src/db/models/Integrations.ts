@@ -35,12 +35,13 @@ interface IIntegrationBasicInfo {
 export const isTimeInBetween = (date: Date, startTime: string, closeTime: string): boolean => {
   // concatnating time ranges with today's date
   const dateString = date.toLocaleDateString();
+  const now = new Date(`${dateString} ${date.getHours()}:${date.getMinutes()}`);
   const startDate = new Date(`${dateString} ${startTime}`);
   const closeDate = new Date(`${dateString} ${closeTime}`);
 
-  console.log(startDate, date, closeDate, 'isTimeInBetween');
+  console.log(startDate, date, closeDate, 'isTimeInBetween', now);
 
-  return startDate <= date && date <= closeDate;
+  return startDate <= now && now <= closeDate;
 };
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {
