@@ -32,20 +32,44 @@ interface IIntegrationBasicInfo {
   brandId: string;
 }
 
+/**
+ * Extracts hour & minute from time string formatted as "HH:mm am|pm".
+ * Time string is defined as constant in modules/settings/integrations/constants.
+ */
+const getHourAndMinute = (timeString: string) => {
+  const normalized = timeString.toLocaleLowerCase().trim();
+  const colon = timeString.indexOf(':');
+  let hour = parseInt(normalized.substring(0, colon), 10);
+  const minute = parseInt(normalized.substring(colon + 1, colon + 3), 10);
+
+  if (normalized.indexOf('pm')) {
+    hour += 12;
+  }
+
+  return { hour, minute };
+};
+
 export const isTimeInBetween = (date: Date, startTime: string, closeTime: string): boolean => {
-  // concatenating time ranges with today's date
-  const dateString = date.toLocaleDateString();
   const now = new Date();
 
   now.setHours(date.getHours());
   now.setMinutes(date.getMinutes());
 
-  const startDate = new Date(`${dateString} ${startTime}`);
-  const closeDate = new Date(`${dateString} ${closeTime}`);
+  const startDate = new Date();
+  const startHourMinute = getHourAndMinute(startTime);
 
-  console.log(startDate, date, closeDate, 'isTimeInBetween', now);
+  startDate.setHours(startHourMinute.hour);
+  startDate.setMinutes(startHourMinute.minute);
 
-  return startDate <= now && now <= closeDate;
+  const endDate = new Date();
+  const endHourMinute = getHourAndMinute(closeTime);
+
+  endDate.setHours(endHourMinute.hour);
+  endDate.setMinutes(endHourMinute.minute);
+
+  console.log(startDate, date, endDate, 'isTimeInBetween', now);
+
+  return startDate <= now && now <= endDate;
 };
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {
