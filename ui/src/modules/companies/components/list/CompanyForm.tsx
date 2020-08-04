@@ -1,31 +1,31 @@
-import AvatarUpload from "modules/common/components/AvatarUpload";
-import Button from "modules/common/components/Button";
-import CollapseContent from "modules/common/components/CollapseContent";
-import FormControl from "modules/common/components/form/Control";
-import Form from "modules/common/components/form/Form";
-import FormGroup from "modules/common/components/form/Group";
-import ControlLabel from "modules/common/components/form/Label";
-import ModifiableSelect from "modules/common/components/ModifiableSelect";
+import AvatarUpload from 'modules/common/components/AvatarUpload';
+import Button from 'modules/common/components/Button';
+import CollapseContent from 'modules/common/components/CollapseContent';
+import FormControl from 'modules/common/components/form/Control';
+import Form from 'modules/common/components/form/Form';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import ModifiableSelect from 'modules/common/components/ModifiableSelect';
 import {
   FormColumn,
   FormWrapper,
   ModalFooter,
   ScrollWrapper,
-} from "modules/common/styles/main";
-import { IButtonMutateProps, IFormProps } from "modules/common/types";
-import { __, getConstantFromStore } from "modules/common/utils";
-import SelectCompanies from "modules/companies/containers/SelectCompanies";
-import { isValidPhone } from "modules/customers/utils";
-import SelectTeamMembers from "modules/settings/team/containers/SelectTeamMembers";
-import React from "react";
-import Select from "react-select-plus";
-import validator from "validator";
-import { IUser } from "../../../auth/types";
+} from 'modules/common/styles/main';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import { __, getConstantFromStore } from 'modules/common/utils';
+import SelectCompanies from 'modules/companies/containers/SelectCompanies';
+import { isValidPhone } from 'modules/customers/utils';
+import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
+import React from 'react';
+import Select from 'react-select-plus';
+import validator from 'validator';
+import { IUser } from '../../../auth/types';
 import {
   COMPANY_BUSINESS_TYPES,
   COMPANY_INDUSTRY_TYPES,
-} from "../../constants";
-import { ICompany, ICompanyDoc, ICompanyLinks } from "../../types";
+} from '../../constants';
+import { ICompany, ICompanyDoc, ICompanyLinks } from '../../types';
 
 type Props = {
   currentUser: IUser;
@@ -58,21 +58,21 @@ class CompanyForm extends React.Component<Props, State> {
 
     const { company = {} } = props;
     const companies: ICompany[] = [];
-    const companyId = props.currentUser ? props.currentUser._id : "";
+    const companyId = props.currentUser ? props.currentUser._id : '';
 
     if (company.parentCompany) {
       companies.push(company.parentCompany);
     }
 
     this.state = {
-      parentCompanyId: company.parentCompanyId || "",
+      parentCompanyId: company.parentCompanyId || '',
       ownerId: company.ownerId ? company.ownerId : companyId,
       companies,
-      doNotDisturb: company.doNotDisturb || "No",
+      doNotDisturb: company.doNotDisturb || 'No',
       users: [],
       avatar: company.avatar,
-      industry: company.industry || "",
-      businessType: company.businessType || "",
+      industry: company.industry || '',
+      businessType: company.businessType || '',
     };
   }
 
@@ -86,10 +86,10 @@ class CompanyForm extends React.Component<Props, State> {
     if (company) {
       finalValues._id = company._id;
     }
-    console.log("sdkfjskdfj");
+
     const links = {};
 
-    getConstantFromStore("social_links").forEach((link) => {
+    getConstantFromStore('social_links').forEach((link) => {
       links[link.value] = finalValues[link.value];
     });
 
@@ -152,8 +152,8 @@ class CompanyForm extends React.Component<Props, State> {
     return this.renderFormGroup(link.label, {
       ...formProps,
       name: link.value,
-      defaultValue: links[link.value] || "",
-      type: "url",
+      defaultValue: links[link.value] || '',
+      type: 'url',
     });
   }
 
@@ -174,18 +174,18 @@ class CompanyForm extends React.Component<Props, State> {
     const { parentCompanyId, ownerId } = this.state;
 
     const onSelectOwner = (value) => {
-      return this.handleSelect(value, "ownerId");
+      return this.handleSelect(value, 'ownerId');
     };
 
     const onSelectParentCompany = (value) => {
-      return this.handleSelect(value, "parentCompanyId");
+      return this.handleSelect(value, 'parentCompanyId');
     };
 
     return (
       <>
         <ScrollWrapper>
           <CollapseContent
-            title={__("General information")}
+            title={__('General information')}
             compact={true}
             open={true}
           >
@@ -194,22 +194,22 @@ class CompanyForm extends React.Component<Props, State> {
                 <AvatarUpload
                   avatar={company.avatar}
                   onAvatarUpload={this.onAvatarUpload}
-                  defaultAvatar="/images/integrations/company.png"
+                  defaultAvatar='/images/integrations/company.png'
                 />
               </FormColumn>
 
               <FormColumn>
-                {this.renderFormGroup("Code", {
+                {this.renderFormGroup('Code', {
                   ...formProps,
-                  name: "code",
-                  defaultValue: company.code || "",
+                  name: 'code',
+                  defaultValue: company.code || '',
                 })}
 
                 <FormGroup>
                   <ControlLabel>Owner</ControlLabel>
                   <SelectTeamMembers
-                    label="Choose an ownera"
-                    name="ownerId"
+                    label='Choose an ownera'
+                    name='ownerId'
                     value={ownerId}
                     onSelect={onSelectOwner}
                     multi={false}
@@ -224,9 +224,9 @@ class CompanyForm extends React.Component<Props, State> {
                   <ModifiableSelect
                     value={primaryName}
                     options={names || []}
-                    name="Name"
+                    name='Name'
                     required={true}
-                    onChange={this.onChange.bind(this, "names", "primaryName")}
+                    onChange={this.onChange.bind(this, 'names', 'primaryName')}
                   />
                 </FormGroup>
 
@@ -247,11 +247,11 @@ class CompanyForm extends React.Component<Props, State> {
                   <ModifiableSelect
                     value={primaryEmail}
                     options={emails || []}
-                    name="Email"
+                    name='Email'
                     onChange={this.onChange.bind(
                       this,
-                      "emails",
-                      "primaryEmail"
+                      'emails',
+                      'primaryEmail'
                     )}
                     checkFormat={validator.isEmail}
                   />
@@ -262,9 +262,9 @@ class CompanyForm extends React.Component<Props, State> {
                   <FormControl
                     {...formProps}
                     max={140}
-                    name="description"
-                    componentClass="textarea"
-                    defaultValue={company.description || ""}
+                    name='description'
+                    componentClass='textarea'
+                    defaultValue={company.description || ''}
                   />
                 </FormGroup>
               </FormColumn>
@@ -272,8 +272,8 @@ class CompanyForm extends React.Component<Props, State> {
                 <FormGroup>
                   <ControlLabel>Parent Company</ControlLabel>
                   <SelectCompanies
-                    label="Choose parent company"
-                    name="parentCompanyId"
+                    label='Choose parent company'
+                    name='parentCompanyId'
                     value={parentCompanyId}
                     onSelect={onSelectParentCompany}
                     multi={false}
@@ -296,37 +296,37 @@ class CompanyForm extends React.Component<Props, State> {
                   <ModifiableSelect
                     value={primaryPhone}
                     options={phones || []}
-                    name="Phone"
+                    name='Phone'
                     onChange={this.onChange.bind(
                       this,
-                      "phones",
-                      "primaryPhone"
+                      'phones',
+                      'primaryPhone'
                     )}
                     checkFormat={isValidPhone}
                   />
                 </FormGroup>
 
-                {this.renderFormGroup("Size", {
+                {this.renderFormGroup('Size', {
                   ...formProps,
-                  name: "size",
-                  type: "number",
+                  name: 'size',
+                  type: 'number',
                   defaultValue: company.size || 0,
                 })}
 
-                {this.renderFormGroup("Do not disturb", {
-                  componentClass: "radio",
+                {this.renderFormGroup('Do not disturb', {
+                  componentClass: 'radio',
                   options: [
                     {
-                      childNode: "Yes",
-                      value: "Yes",
-                      checked: this.state.doNotDisturb === "Yes",
+                      childNode: 'Yes',
+                      value: 'Yes',
+                      checked: this.state.doNotDisturb === 'Yes',
                       onChange: (e) =>
                         this.setState({ doNotDisturb: e.target.value }),
                     },
                     {
-                      childNode: "No",
-                      value: "No",
-                      checked: this.state.doNotDisturb === "No",
+                      childNode: 'No',
+                      value: 'No',
+                      checked: this.state.doNotDisturb === 'No',
                       onChange: (e) =>
                         this.setState({ doNotDisturb: e.target.value }),
                     },
@@ -335,10 +335,10 @@ class CompanyForm extends React.Component<Props, State> {
               </FormColumn>
             </FormWrapper>
           </CollapseContent>
-          <CollapseContent title={__("Links")} compact={true} open={true}>
+          <CollapseContent title={__('Links')} compact={true} open={true}>
             <FormWrapper>
               <FormColumn>
-                {getConstantFromStore("social_links").map((link) =>
+                {getConstantFromStore('social_links').map((link) =>
                   this.renderLink(formProps, link)
                 )}
               </FormColumn>
@@ -347,12 +347,12 @@ class CompanyForm extends React.Component<Props, State> {
         </ScrollWrapper>
 
         <ModalFooter>
-          <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
+          <Button btnStyle='simple' onClick={closeModal} icon='cancel-1'>
             Close
           </Button>
 
           {renderButton({
-            name: "company",
+            name: 'company',
             values: this.generateDoc(values),
             isSubmitted,
             object: this.props.company,

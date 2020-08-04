@@ -1,12 +1,12 @@
-import ButtonMutate from "modules/common/components/ButtonMutate";
-import { IButtonMutateProps } from "modules/common/types";
-import React from "react";
-import { IUser } from "../../auth/types";
-import { UsersQueryResponse } from "../../settings/team/types";
-import CompanyForm from "../components/list/CompanyForm";
-import { mutations } from "../graphql";
-import { ICompany } from "../types";
-import { AppConsumer } from "appContext";
+import { AppConsumer } from 'appContext';
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import { IButtonMutateProps } from 'modules/common/types';
+import React from 'react';
+import { IUser } from '../../auth/types';
+import { UsersQueryResponse } from '../../settings/team/types';
+import CompanyForm from '../components/list/CompanyForm';
+import { mutations } from '../graphql';
+import { ICompany } from '../types';
 
 type Props = {
   company: ICompany;
@@ -43,9 +43,9 @@ const CompanyFromContainer = (props: FinalProps) => {
         callback={afterSave}
         refetchQueries={getRefetchQueries()}
         isSubmitted={isSubmitted}
-        type="submit"
+        type='submit'
         successMessage={`You successfully ${
-          object ? "updated" : "added"
+          object ? 'updated' : 'added'
         } a ${name}`}
       />
     );
@@ -70,11 +70,11 @@ const CompanyFromContainer = (props: FinalProps) => {
 
 const getRefetchQueries = () => {
   return [
-    "companiesMain",
-    "companyDetail",
+    'companiesMain',
+    'companyDetail',
     // companies for customer detail company associate
-    "companies",
-    "companyCounts",
+    'companies',
+    'companyCounts',
   ];
 };
 
