@@ -291,7 +291,12 @@ export const loadClass = () => {
 
       if (everydayConf) {
         console.log(everydayConf, '----every day------');
-        return isTimeInBetween(now, everydayConf.from || '', everydayConf.to || '');
+
+        const between = isTimeInBetween(now, everydayConf.from || '', everydayConf.to || '');
+
+        console.log(between, now, '--------');
+
+        return between;
       }
 
       // check by weekdays config
