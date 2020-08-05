@@ -9,7 +9,93 @@
 # 
 # * we expect you have configured your domain DNS settings already as per the instructions.
 
-set -e
+set -Eeuo pipefail
+
+trap notify ERR
+
+ERXES_VERSION=0.16.0
+ERXES_API_VERSION=0.16.2
+ERXES_INTEGRATIONS_VERSION=0.16.0
+
+NODE_VERSION=v12.16.3
+
+OS_NAME=notset
+DISTRO=notset
+RELEASE=notset
+ARCH=`uname -m`
+
+case "$OSTYPE" in
+  solaris*) OS_NAME="solaris" ;;
+  darwin*)  
+  	OS_NAME="darwin" 
+	  RELEASE=`uname -r`
+  ;; 
+  linux*)   
+  	OS_NAME="linux" 
+	
+    if [ -f /etc/redhat-release ] ; then
+      DistroBasedOn='RedHat'
+      DISTRO=`cat /etc/redhat-release |sed s/\ release.*//`
+      PSUEDONAME=`cat /etc/redhat-release | sed s/.*\(// | sed s/\)//`
+      RELEASE=`cat /etc/redhat-release | sed s/.*release\ // | sed s/\ .*//`
+    elif [ -f /etc/SuSE-release ] ; then
+      DistroBasedOn='SuSe'
+      PSUEDONAME=`cat /etc/SuSE-release | tr "\n" ' '| sed s/VERSION.*//`
+      RELEASE=`cat /etc/SuSE-release | tr "\n" ' ' | sed s/.*=\ //`
+    elif [ -f /etc/mandrake-release ] ; then
+      DistroBasedOn='Mandrake'
+      PSUEDONAME=`cat /etc/mandrake-release | sed s/.*\(// | sed s/\)//`
+      RELEASE=`cat /etc/mandrake-release | sed s/.*release\ // | sed s/\ .*//`
+    elif [ -f /etc/debian_version ] ; then
+      DistroBasedOn='Debian'
+      DISTRO=`lsb_release -is`
+      PSUEDONAME=`lsb_release -cs`
+      RELEASE=`lsb_release -rs`
+    fi
+  ;;
+  bsd*)     OS_NAME="bsd" ;;
+  msys*)    OS_NAME="windows" ;;
+  *)        OS_NAME="unknown: $OSTYPE" ;;
+esac
+
+CPU_DATA=""
+CPUs=`lscpu | awk '/^CPU\(s\)/{print $2}'`
+MODEL_NAME=`lscpu | awk -F ":" '/Model name:/{gsub(/^[ \t]+/,"",$2); print $2}'`
+CPU_SPEED=`lscpu | awk -F ":" '/CPU MHz:/{gsub(/^[ \t]+/,"",$2); print $2}'`
+
+for ((i=1;i<=$CPUs;i++)); 
+do 
+   CPU_DATA="$CPU_DATA {	\"model\": \"$MODEL_NAME\", \"speed\": \"$CPU_SPEED\"	},"
+done
+CPU_DATA=`echo $CPU_DATA | sed 's/,*$//g'`;
+
+POST_DATA="$(cat <<EOF
+  "osInformation": {
+    "nodeVersion" : "$NODE_VERSION",
+    "platform" : "$OS_NAME",
+    "distro": "$DISTRO",
+    "release" : "$RELEASE",
+    "arch": "$ARCH",
+    "cpus": [$CPU_DATA]
+  }
+EOF
+)"
+
+function notify() {
+  FAILED_COMMAND="Something went wrong on line $LINENO : Failed command: ${BASH_COMMAND}"
+  
+  curl -s -X POST https://telemetry.erxes.io/events/ \
+    -H 'content-type: application/json' \
+    -d "$(cat <<EOF
+      [{
+        "eventType": "CLI_COMMAND_installation_status",
+        "errorMessage": "$FAILED_COMMAND",
+        "message": "error",
+        $POST_DATA
+      }]
+EOF
+      )"
+}
 
 #
 # Ask a domain name
@@ -18,7 +104,9 @@ set -e
 echo "You need to configure erxes to work with your domain name. If you are using a subdomain, please use the entire subdomain. For example, 'erxes.examples.com'."
 
 while true; do
+
     read -p "Please enter a domain name you wish to use: " erxes_domain
+
     if [ -z "$erxes_domain" ]; then
         continue
     else
@@ -26,12 +114,27 @@ while true; do
     fi
 done
 
+# install curl for telemetry
+apt-get -qqy install -y curl 
+
+curl -s -X POST https://telemetry.erxes.io/events/ \
+  -H 'content-type: application/json' \
+  -d "$(cat <<EOF
+      [{
+        "eventType": "CLI_COMMAND_installation_status",
+        "message": "attempt",
+        $POST_DATA
+      }]
+EOF
+      )"
+
+
 # Dependencies
 
 echo "Installing Initial Dependencies"
 
 apt-get -qqy update
-apt-get -qqy install -y wget gnupg apt-transport-https software-properties-common python3-pip 
+apt-get -qqy install -y wget gnupg apt-transport-https software-properties-common python3-pip ufw
 
 # MongoDB
 echo "Installing MongoDB"
@@ -93,87 +196,58 @@ echo "Installing Nginx"
 apt-get -qqy install -y nginx
 echo "Installed Nginx successfully"
 
-# nodejs 12
-echo "Installing Node.js Verson 12 lts"
-curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
-apt -qqy install -y nodejs build-essential
-echo "Installed Node.js successfully"
-
-# Yarn package manager
-# https://classic.yarnpkg.com/en/docs/install/#debian-stable
-echo "Installing Yarn package manager"
-curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
-echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-apt-get -qqy update
-apt -qqy install -y --no-install-recommends yarn
-echo "Installed Yarn successfully"
-
-
 # username that erxes will be installed in
 echo "Creating a new user called 'erxes' for you to use with your server."
 username=erxes
 
-NODE_VERSION=v12.16.3
-ERXES_VERSION=0.16.0
-ERXES_API_VERSION=0.16.2
-ERXES_INTEGRATIONS_VERSION=0.16.0
-
 # create a new user erxes if it does not exist
 id -u erxes &>/dev/null || useradd -m -s /bin/bash -U -G sudo $username
 
-cd /home/$username
+# erxes user home directory
+erxes_root_dir=/home/$username/erxes.io
+
+su $username -c "mkdir -p $erxes_root_dir"
+cd $erxes_root_dir
 
 # erxes repo
-erxes_root_dir=/home/$username/erxes.io
-erxes_dir=$erxes_root_dir/ui
+erxes_ui_dir=$erxes_root_dir/ui
 erxes_widgets_dir=$erxes_root_dir/widgets
 
 # erxes-api repo
-erxes_api_dir=/home/$username/erxes-api
-erxes_engages_dir=$erxes_api_dir/engages-email-sender
-erxes_logger_dir=$erxes_api_dir/logger
-erxes_syncer_dir=$erxes_api_dir/elkSyncer
-#erxes_email_verifier_dir=$erxes_api_dir/email-verifier
+erxes_api_dir=$erxes_root_dir/erxes-api
+erxes_engages_dir=$erxes_root_dir/engages-email-sender
+erxes_logger_dir=$erxes_root_dir/logger
+erxes_syncer_dir=$erxes_root_dir/elkSyncer
+erxes_email_verifier_dir=$erxes_root_dir/email-verifier
 
 # erxes-integrations repo
-erxes_integrations_dir=/home/$username/erxes-integrations
+erxes_integrations_dir=$erxes_root_dir/erxes-integrations
 
-su $username -c "mkdir -p $erxes_dir $erxes_api_dir $erxes_integrations_dir"
+su $username -c "mkdir -p $erxes_ui_dir $erxes_widgets_dir $erxes_api_dir $erxes_engages_dir $erxes_logger_dir $erxes_syncer_dir $erxes_email_verifier_dir $erxes_integrations_dir"
 
-# download erxes
+# download erxes ui
+su $username -c "curl -L https://github.com/erxes/erxes/releases/download/$ERXES_VERSION/erxes-$ERXES_VERSION.tar.gz | tar --strip-components=1 -xz -C $erxes_ui_dir"
 
-su $username -c "curl -L https://github.com/erxes/erxes/archive/0.16.0.tar.gz | tar --strip-components=1 -xz -C $erxes_root_dir"
+# download erxes widgets
+su $username -c "curl -L https://github.com/erxes/erxes/releases/download/$ERXES_VERSION/erxes-widgets-$ERXES_VERSION.tar.gz | tar -xz -C $erxes_widgets_dir"
 
 # download erxes-api
-su $username -c "curl -L https://github.com/erxes/erxes-api/archive/0.16.2.tar.gz | tar --strip-components=1 -xz -C $erxes_api_dir"
+su $username -c "curl -L https://github.com/erxes/erxes-api/releases/download/$ERXES_API_VERSION/erxes-api-$ERXES_API_VERSION.tar.gz | tar -xz -C $erxes_api_dir"
+
+# download engages-email-sender
+su $username -c "curl -L https://github.com/erxes/erxes-api/releases/download/$ERXES_API_VERSION/erxes-engages-email-sender-$ERXES_API_VERSION.tar.gz | tar -xz -C $erxes_engages_dir"
+
+# download logger
+su $username -c "curl -L https://github.com/erxes/erxes-api/releases/download/$ERXES_API_VERSION/erxes-logger-$ERXES_API_VERSION.tar.gz | tar -xz -C $erxes_logger_dir"
+
+# download elkSyncer
+su $username -c "curl -L https://github.com/erxes/erxes-api/releases/download/$ERXES_API_VERSION/erxes-elkSyncer-$ERXES_API_VERSION.tar.gz | tar --strip-components=1 -xz -C $erxes_syncer_dir"
+
+# download email-verifier
+su $username -c "curl -L https://github.com/erxes/erxes-api/releases/download/$ERXES_API_VERSION/erxes-email-verifier-$ERXES_API_VERSION.tar.gz | tar -xz -C $erxes_email_verifier_dir"
 
 # download integrations
-su $username -c "curl -L https://github.com/erxes/erxes-integrations/archive/0.16.0.tar.gz | tar --strip-components=1 -xz -C $erxes_integrations_dir"
-
-# install packages and build erxes
-su $username -c "cd $erxes_dir && yarn install && yarn build"
-
-# install erxes widgets packages
-su $username -c "cd $erxes_widgets_dir && yarn install && yarn build"
-
-# install erxes api packages
-su $username -c "cd $erxes_api_dir && yarn install && yarn build"
-
-# install erxes engages packages
-su $username -c "cd $erxes_engages_dir && yarn install && yarn build"
-
-# install erxes logger packages
-su $username -c "cd $erxes_logger_dir && yarn install && yarn build"
-
-# install erxes email verifier packages
-# su $username -c "cd $erxes_email_verifier_dir && yarn install && yarn build"
-
-# install erxes integrations packages
-su $username -c "cd $erxes_integrations_dir && yarn install && yarn build"
-
-# install pm2 globally
-yarn global add pm2
-
+su $username -c "curl -L https://github.com/erxes/erxes-integrations/releases/download/$ERXES_INTEGRATIONS_VERSION/erxes-integrations-$ERXES_INTEGRATIONS_VERSION.tar.gz | tar -xz -C $erxes_integrations_dir"
 
 JWT_TOKEN_SECRET=$(openssl rand -base64 24)
 MONGO_PASS=$(openssl rand -hex 16)
@@ -182,12 +256,13 @@ API_MONGO_URL="mongodb://erxes:$MONGO_PASS@localhost/erxes?authSource=admin&repl
 
 ENGAGES_MONGO_URL="mongodb://erxes:$MONGO_PASS@localhost/erxes-engages?authSource=admin&replicaSet=rs0"
 
+EMAIL_VERIFIER_MONGO_URL="mongodb://erxes:$MONGO_PASS@localhost/erxes-email-verifier?authSource=admin&replicaSet=rs0"
 LOGGER_MONGO_URL="mongodb://erxes:$MONGO_PASS@localhost/erxes_logs?authSource=admin&replicaSet=rs0"
 
 INTEGRATIONS_MONGO_URL="mongodb://erxes:$MONGO_PASS@localhost/erxes_integrations?authSource=admin&replicaSet=rs0"
 
-# create an ecosystem.json in erxes home directory and change owner and permission
-cat <<EOF >/home/$username/ecosystem.json
+# create an ecosystem.json in $erxes_root_dir directory and change owner and permission
+cat > $erxes_root_dir/ecosystem.json << EOF
 {
   "apps": [
     {
@@ -290,6 +365,31 @@ cat <<EOF >/home/$username/ecosystem.json
       }
     },
     {
+      "name": "erxes-email-verifier",
+      "cwd": "$erxes_email_verifier_dir",
+      "script": "dist",
+      "log_date_format": "YYYY-MM-DD HH:mm Z",
+      "env": {
+        "PORT": 4100,
+        "NODE_ENV": "production",
+        "MONGO_URL": "$EMAIL_VERIFIER_MONGO_URL",
+        "RABBITMQ_HOST": "amqp://localhost",
+        "TRUE_MAIL_API_KEY": "",
+        "CLEAR_OUT_PHONE_API_KEY": ""
+      }
+    },
+    {
+      "name": "erxes-elkSyncer",
+      "cwd": "$erxes_syncer_dir",
+      "script": "main.py",
+      "log_date_format": "YYYY-MM-DD HH:mm Z",
+      "interpreter": "python3",
+      "env": {
+        "MONGO_URL": "$API_MONGO_URL",
+        "ELASTICSEARCH_URL": "http://localhost:9200"
+      }
+    },
+    {
       "name": "erxes-integrations",
       "cwd": "$erxes_integrations_dir",
       "script": "dist",
@@ -312,8 +412,8 @@ cat <<EOF >/home/$username/ecosystem.json
 }
 EOF
 
-chown $username:$username /home/$username/ecosystem.json
-chmod 644 /home/$username/ecosystem.json
+chown $username:$username $erxes_root_dir/ecosystem.json
+chmod 644 $erxes_root_dir/ecosystem.json
 
 # set mongod password
 result=$(mongo --eval "db=db.getSiblingDB('admin'); db.createUser({ user: 'erxes', pwd: \"$MONGO_PASS\", roles: [ 'root' ] })" )
@@ -356,7 +456,7 @@ echo "Started MongoDB ReplicaSet successfully"
 
 
 # generate env.js
-cat <<EOF >$erxes_dir/build/js/env.js
+cat <<EOF >$erxes_ui_dir/js/env.js
 window.env = {
   PORT: 3000,
   NODE_ENV: "production",
@@ -365,23 +465,11 @@ window.env = {
   REACT_APP_CDN_HOST: "https://$erxes_domain/widgets"
 };
 EOF
-chown $username:$username $erxes_dir/build/js/env.js
-chmod 664 $erxes_dir/build/js/env.js
-
-# make pm2 starts on boot
-pm2 startup -u $username --hp /home/$username
-systemctl enable pm2-$username
-
-# start erxes pm2 and save current processes
-su $username -c "cd /home/$username && pm2 start ecosystem.json && pm2 save"
+chown $username:$username $erxes_ui_dir/js/env.js
+chmod 664 $erxes_ui_dir/js/env.js
 
 # pip3 packages for elkSyncer
-pip3 install mongo-connector==3.1.1 \
-    && pip3 install elasticsearch==7.5.1 \
-    && pip3 install elastic2-doc-manager==1.0.0 \
-    && pip3 install python-dotenv==0.11.0
-
-mkdir -p /var/log/mongo-connector/
+pip3 install -r $erxes_syncer_dir/requirements.txt
 
 # elkSyncer env
 cat <<EOF >$erxes_syncer_dir/.env
@@ -389,28 +477,16 @@ MONGO_URL=$API_MONGO_URL
 ELASTICSEARCH_URL=http://localhost:9200
 EOF
 
-cat <<EOF >/lib/systemd/system/erxes-api-elk-syncer.service
-[Unit]
-Description=erxes-api-elk-syncer
-Documentation=https://docs.erxes.io
-After=network.target
+# install nvm and install node using nvm
+su $username -c "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash"
+su $username -c "source ~/.nvm/nvm.sh && nvm install $NODE_VERSION && nvm alias default $NODE_VERSION && npm install -g yarn pm2"
 
-[Service]
-WorkingDirectory=$erxes_syncer_dir
-ExecStart=/usr/bin/python3 $erxes_syncer_dir/main.py
-ExecStop=/bin/kill -INT $MAINPID
-ExecReload=/bin/kill -TERM $MAINPID
-Restart=on-failure
-Type=simple
+# make pm2 starts on boot
+env PATH=$PATH:/home/$username/.nvm/versions/node/$NODE_VERSION/bin pm2 startup -u $username --hp /home/$username
+systemctl enable pm2-$username
 
-[Install]
-WantedBy=multi-user.target
-EOF
-chmod 644 /lib/systemd/system/erxes-api-elk-syncer.service
-systemctl daemon-reload
-systemctl enable erxes-api-elk-syncer.service
-systemctl start erxes-api-elk-syncer.service
-
+# start erxes pm2 and save current processes
+su $username -c "source ~/.nvm/nvm.sh && nvm use $NODE_VERSION && cd $erxes_root_dir && pm2 start ecosystem.json && pm2 save"
 
 # Nginx erxes config
 cat <<EOF >/etc/nginx/sites-available/default
@@ -419,13 +495,13 @@ server {
         
         server_name $erxes_domain;
 
-        root /home/erxes/;
+        root $erxes_ui_dir;
         index index.html;
         
         error_log /var/log/nginx/erxes.error.log;
 
         location / {
-                root $erxes_dir/build;
+                root $erxes_ui_dir;
                 index index.html;
                 error_log /var/log/nginx/erxes.error.log;
 
@@ -475,6 +551,8 @@ echo 'y' | ufw enable
 ufw allow 22
 ufw allow 80
 ufw allow 443
+
+su $username -c "source ~/.nvm/nvm.sh && nvm use $NODE_VERSION && cd $erxes_api_dir && node ./dist/commands/trackTelemetry \"success\""
 
 echo
 echo -e "\e[32mInstallation complete\e[0m"
