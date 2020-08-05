@@ -26,13 +26,13 @@ class Brands extends React.Component<Props, {}> {
       integrationsCount,
       currentBrand,
       queryParams,
-      loading,
+      loading
     } = this.props;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('Brands'), link: '/settings/brands' },
-      { title: `${currentBrand.name || ''}` },
+      { title: `${currentBrand.name || ''}` }
     ];
 
     if (!currentBrand._id) {
@@ -61,7 +61,7 @@ class Brands extends React.Component<Props, {}> {
       );
     }
 
-    const content = (props) => (
+    const content = props => (
       <ManageIntegrations
         {...props}
         queryParams={queryParams}

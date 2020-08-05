@@ -28,10 +28,10 @@ class IntegrationList extends React.Component<Props> {
       archive,
       editIntegration,
       queryParams: { _id },
-      disableAction,
+      disableAction
     } = this.props;
 
-    return integrations.map((i) => (
+    return integrations.map(i => (
       <IntegrationListItem
         key={i._id}
         _id={_id}

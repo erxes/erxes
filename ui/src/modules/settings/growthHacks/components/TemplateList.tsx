@@ -20,22 +20,22 @@ type Props = {
 } & ICommonListProps;
 
 class TemplateList extends React.Component<Props> {
-  renderForm = (props) => {
+  renderForm = props => {
     return <TemplateForm {...props} renderButton={this.props.renderButton} />;
   };
 
-  removeTemplate = (object) => {
+  removeTemplate = object => {
     this.props.remove(object._id);
   };
 
-  duplicateTemplate = (id) => {
+  duplicateTemplate = id => {
     this.props.duplicate(id);
   };
 
-  renderEditAction = (object) => {
+  renderEditAction = object => {
     const { save } = this.props;
 
-    const content = (props) => {
+    const content = props => {
       return this.renderForm({ ...props, object, save });
     };
 
@@ -65,7 +65,7 @@ class TemplateList extends React.Component<Props> {
     );
   }
 
-  renderActions = (object) => {
+  renderActions = object => {
     if (object.isDefinedByErxes) {
       return <Actions>{this.renderDuplicateAction(object)}</Actions>;
     }
@@ -98,7 +98,7 @@ class TemplateList extends React.Component<Props> {
     ));
   }
 
-  renderContent = (props) => {
+  renderContent = props => {
     return <BoxContainer>{this.renderRow(props)}</BoxContainer>;
   };
 
@@ -118,7 +118,7 @@ class TemplateList extends React.Component<Props> {
         formTitle={__('New Growth Hacking Templates')}
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },
-          { title: __('Growth Hacking Templates') },
+          { title: __('Growth Hacking Templates') }
         ]}
         title={__('Growth Hacking Templates')}
         leftActionBar={

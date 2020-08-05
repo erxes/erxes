@@ -53,19 +53,19 @@ class UserList extends React.Component<FinalProps, States> {
     super(props);
 
     const {
-      queryParams: { searchValue },
+      queryParams: { searchValue }
     } = props;
 
     this.state = {
-      searchValue: searchValue || '',
+      searchValue: searchValue || ''
     };
   }
 
-  onAvatarClick = (object) => {
+  onAvatarClick = object => {
     return this.props.history.push(`team/details/${object._id}`);
   };
 
-  renderInvitationForm = (props) => {
+  renderInvitationForm = props => {
     const { usersGroups, refetchQueries, renderButton } = this.props;
 
     return (
@@ -78,7 +78,7 @@ class UserList extends React.Component<FinalProps, States> {
     );
   };
 
-  renderForm = (props) => {
+  renderForm = props => {
     return <UserForm {...props} renderButton={this.props.renderButton} />;
   };
 
@@ -103,7 +103,7 @@ class UserList extends React.Component<FinalProps, States> {
       </Button>
     );
 
-    const content = (props) => {
+    const content = props => {
       return this.renderForm({ ...props, object: user });
     };
 
@@ -117,7 +117,7 @@ class UserList extends React.Component<FinalProps, States> {
     );
   };
 
-  renderResetPasswordForm = (props) => {
+  renderResetPasswordForm = props => {
     return <UserResetPasswordForm {...props} />;
   };
 
@@ -130,7 +130,7 @@ class UserList extends React.Component<FinalProps, States> {
       </Button>
     );
 
-    const content = (props) => {
+    const content = props => {
       return this.renderResetPasswordForm({ ...props, object: user });
     };
 
@@ -163,7 +163,7 @@ class UserList extends React.Component<FinalProps, States> {
   }
 
   renderRows({ objects }: { objects: IUser[] }) {
-    return objects.map((object) => {
+    return objects.map(object => {
       const onClick = () => this.onAvatarClick(object);
       const onChange = () => this.props.changeStatus(object._id);
 
@@ -185,7 +185,7 @@ class UserList extends React.Component<FinalProps, States> {
               defaultChecked={object.isActive}
               icons={{
                 checked: <span>Yes</span>,
-                unchecked: <span>No</span>,
+                unchecked: <span>No</span>
               }}
               onChange={onChange}
             />
@@ -202,7 +202,7 @@ class UserList extends React.Component<FinalProps, States> {
     });
   }
 
-  search = (e) => {
+  search = e => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -235,7 +235,7 @@ class UserList extends React.Component<FinalProps, States> {
       return null;
     }
 
-    const onSelect = (brandIds) => {
+    const onSelect = brandIds => {
       router.setParams(history, { brandIds });
     };
 
@@ -279,11 +279,11 @@ class UserList extends React.Component<FinalProps, States> {
               options={[
                 {
                   value: true,
-                  label: 'Active',
+                  label: 'Active'
                 },
                 {
                   value: false,
-                  label: 'Deactivated',
+                  label: 'Deactivated'
                 },
               ]}
             />
@@ -293,7 +293,7 @@ class UserList extends React.Component<FinalProps, States> {
     );
   };
 
-  renderContent = (props) => {
+  renderContent = props => {
     return (
       <Table>
         <thead>
@@ -313,7 +313,7 @@ class UserList extends React.Component<FinalProps, States> {
   breadcrumb() {
     return [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Team members') },
+      { title: __('Team members') }
     ];
   }
 
@@ -324,7 +324,7 @@ class UserList extends React.Component<FinalProps, States> {
         size="lg"
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },
-          { title: __('Team members') },
+          { title: __('Team members') }
         ]}
         title={__('Team members')}
         leftActionBar={

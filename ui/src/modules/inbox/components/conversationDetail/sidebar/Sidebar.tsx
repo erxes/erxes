@@ -176,7 +176,7 @@ class Index extends React.Component<IndexProps, IndexState> {
     if (currentSubTab === 'activity') {
       return (
         <SidebarActivity
-          id={'AcitivityID'}
+          id={'ActivityID'}
           currentUser={currentUser}
           customer={customer}
           currentSubTab={currentSubTab}

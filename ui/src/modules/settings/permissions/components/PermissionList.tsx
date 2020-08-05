@@ -20,7 +20,7 @@ import {
   correctValue,
   filterActions,
   generatedList,
-  generateModuleParams,
+  generateModuleParams
 } from './utils';
 
 type Props = {
@@ -47,7 +47,7 @@ class PermissionList extends React.Component<Props> {
     router.setParams(history, {
       [name]: isObject(item) ? correctValue(item) : item,
       page: null,
-      perPage: null,
+      perPage: null
     });
   };
 
@@ -58,10 +58,10 @@ class PermissionList extends React.Component<Props> {
       permissions,
       actions,
       refetchQueries,
-      remove,
+      remove
     } = this.props;
 
-    return permissions.map((object) => {
+    return permissions.map(object => {
       return (
         <PermissionRow
           key={object._id}
@@ -79,13 +79,13 @@ class PermissionList extends React.Component<Props> {
   renderFilter() {
     const { queryParams, modules, actions } = this.props;
 
-    const usersOnChange = (users) => {
+    const usersOnChange = users => {
       this.setFilter('userId', users);
     };
 
-    const allowedOnChange = (e) => {
+    const allowedOnChange = e => {
       this.setFilter('allowed', {
-        value: e.target.checked ? 'allowed' : 'notAllowed',
+        value: e.target.checked ? 'allowed' : 'notAllowed'
       });
     };
 
@@ -150,7 +150,7 @@ class PermissionList extends React.Component<Props> {
     );
   }
 
-  renderForm = (props) => {
+  renderForm = props => {
     const { modules, actions, groups, refetchQueries } = this.props;
 
     const extendedProps = {
@@ -158,7 +158,7 @@ class PermissionList extends React.Component<Props> {
       modules,
       actions,
       groups,
-      refetchQueries,
+      refetchQueries
     };
 
     return <PermissionForm {...extendedProps} />;
@@ -217,7 +217,7 @@ class PermissionList extends React.Component<Props> {
 
     const breadcrumb = [
       { title: 'Settings', link: '/settings' },
-      { title: __('Permissions') },
+      { title: __('Permissions') }
     ];
 
     return (

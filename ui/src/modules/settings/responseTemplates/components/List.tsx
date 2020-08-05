@@ -31,11 +31,11 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
     super(props);
 
     const {
-      queryParams: { searchValue },
+      queryParams: { searchValue }
     } = props;
 
     this.state = {
-      searchValue: searchValue || '',
+      searchValue: searchValue || ''
     };
   }
 
@@ -45,7 +45,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
     this.setState({ searchValue: value });
   };
 
-  renderForm = (props) => {
+  renderForm = props => {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };
 
@@ -113,7 +113,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
     );
   };
 
-  renderContent = (props) => {
+  renderContent = props => {
     return (
       <Table>
         <thead>
@@ -134,7 +134,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
         formTitle="New response template"
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },
-          { title: __('Response templates') },
+          { title: __('Response templates') }
         ]}
         title={__('Response templates')}
         leftActionBar={

@@ -18,12 +18,12 @@ type Props = {
 } & ICommonListProps;
 
 class ScriptList extends React.Component<Props> {
-  renderForm = (props) => {
+  renderForm = props => {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };
 
-  installCodeAction = (object) => {
-    const content = (props) => <InstallCode {...props} script={object} />;
+  installCodeAction = object => {
+    const content = props => <InstallCode {...props} script={object} />;
 
     return (
       <ModalTrigger
@@ -67,7 +67,7 @@ class ScriptList extends React.Component<Props> {
                 <Tip text="Pop ups" placement="top">
                   <Icon icon="window" />
                 </Tip>
-                {object.leads.map((lead) => ` ${lead.name},`)}
+                {object.leads.map(lead => ` ${lead.name},`)}
               </div>
             )}
           </td>
@@ -82,7 +82,7 @@ class ScriptList extends React.Component<Props> {
     });
   };
 
-  renderContent = (props) => {
+  renderContent = props => {
     return (
       <Table>
         <thead>
@@ -103,7 +103,7 @@ class ScriptList extends React.Component<Props> {
         formTitle={__('New script')}
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },
-          { title: __('Scripts') },
+          { title: __('Scripts') }
         ]}
         title={__('Scripts')}
         leftActionBar={

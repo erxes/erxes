@@ -19,7 +19,6 @@ const Delete = styled.span`
   text-decoration: underline;
   transition: all 0.3s ease;
   color: ${colors.colorCoreGray};
-
   &:hover {
     color: ${colors.colorCoreBlack};
     cursor: pointer;
@@ -30,7 +29,6 @@ const ToggleButton = styled(Delete.withComponent('div'))`
   padding: 7px 15px;
   border-radius: 4px;
   margin-bottom: 15px;
-
   &:hover {
     background: ${rgba(colors.colorCoreDarkBlue, 0.07)};
   }
@@ -42,7 +40,6 @@ const LoadingContainer = styled(List)`
   display: flex;
   justify-content: center;
   align-items: center;
-
   > div {
     height: 80px;
     margin-right: 7px;
@@ -52,7 +49,6 @@ const LoadingContainer = styled(List)`
 const UploadBtn = styled.div`
   position: relative;
   margin-top: 10px;
-
   label {
     padding: 7px 15px;
     background: ${rgba(colors.colorCoreDarkBlue, 0.05)};
@@ -60,13 +56,11 @@ const UploadBtn = styled.div`
     font-weight: 500;
     transition: background 0.3s ease;
     display: inline-block;
-
     &:hover {
       background: ${rgba(colors.colorCoreDarkBlue, 0.1)};
       cursor: pointer;
     }
   }
-
   input[type='file'] {
     display: none;
   }

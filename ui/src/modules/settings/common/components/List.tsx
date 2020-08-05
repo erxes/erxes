@@ -39,7 +39,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       refetch,
       center,
       remove,
-      additionalButton,
+      additionalButton
     } = this.props;
 
     const trigger = (
@@ -48,7 +48,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       </Button>
     );
 
-    const content = (props) => {
+    const content = props => {
       return renderForm({ ...props, save });
     };
 

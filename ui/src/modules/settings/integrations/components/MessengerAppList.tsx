@@ -66,7 +66,7 @@ class MessengerAppList extends React.Component<Props> {
             <th>{__('Actions')}</th>
           </tr>
         </thead>
-        <tbody>{messengerApps.map((app) => this.renderRow(app))}</tbody>
+        <tbody>{messengerApps.map(app => this.renderRow(app))}</tbody>
       </Table>
     );
   }

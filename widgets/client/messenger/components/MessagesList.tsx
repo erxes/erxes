@@ -105,7 +105,7 @@ class MessagesList extends React.Component<Props, State> {
 
       return (
         <li className="erxes-spacial-message">
-          <span> {messages.thank || __("Thank you.")}</span>
+          <span> {messages.thank || __("Thank you") + "."}</span>
         </li>
       );
     }

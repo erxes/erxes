@@ -26,13 +26,13 @@ class Channels extends React.Component<Props, {}> {
       integrationsCount,
       currentChannel,
       queryParams,
-      loading,
+      loading
     } = this.props;
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('Channels'), link: '/settings/channels' },
-      { title: `${currentChannel.name || ''}` },
+      { title: `${currentChannel.name || ''}` }
     ];
 
     if (!currentChannel._id) {
@@ -51,7 +51,7 @@ class Channels extends React.Component<Props, {}> {
       </Button>
     );
 
-    const content = (props) => (
+    const content = props => (
       <ManageIntegrations
         {...props}
         queryParams={queryParams}

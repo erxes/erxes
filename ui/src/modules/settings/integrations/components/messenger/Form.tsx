@@ -362,7 +362,7 @@ class CreateMessenger extends React.Component<Props, State> {
 
               <Step
                 img="/images/icons/erxes-16.svg"
-                title={"Integration Setup"}
+                title={__("Integration Setup")}
                 onClick={this.onStepClick.bind(null, 'setup')}
                 noButton={true}
               >

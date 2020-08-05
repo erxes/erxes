@@ -88,7 +88,7 @@ class CreateFormContainer extends React.Component<FinalProps, {}> {
         })
 
         .catch(error => {
-          Alert.error(__(error.message));
+          Alert.error(error.message);
         });
     };
 

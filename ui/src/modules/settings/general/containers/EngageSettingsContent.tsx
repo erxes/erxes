@@ -6,11 +6,11 @@ import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { __, Alert, confirm, withProps } from 'modules/common/utils';
 import {
   mutations as engageMutations,
-  queries as engageQueries,
+  queries as engageQueries
 } from 'modules/engage/graphql';
 import {
   EngageConfigQueryResponse,
-  EngageVerifiedEmailsQueryResponse,
+  EngageVerifiedEmailsQueryResponse
 } from 'modules/engage/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
@@ -33,7 +33,7 @@ class SettingsContainer extends React.Component<Props> {
       engagesVerifiedEmailsQuery,
       engagesVerifyEmailMutation,
       engagesRemoveVerifiedEmailMutation,
-      engagesSendTestEmailMutation,
+      engagesSendTestEmailMutation
     } = this.props;
 
     if (engagesConfigDetailQuery.loading) {
@@ -61,8 +61,8 @@ class SettingsContainer extends React.Component<Props> {
     const verifyEmail = (email: string) => {
       engagesVerifyEmailMutation({
         variables: {
-          email,
-        },
+          email
+        }
       })
         .then(() => {
           engagesVerifiedEmailsQuery.refetch();
@@ -71,8 +71,8 @@ class SettingsContainer extends React.Component<Props> {
           );
         })
 
-        .catch((e) => {
-          Alert.error(__(e.message));
+        .catch(e => {
+          Alert.error(e.message);
         });
     };
 
@@ -91,7 +91,7 @@ class SettingsContainer extends React.Component<Props> {
           })
 
           .catch((e) => {
-            Alert.error(__(e.message));
+            Alert.error(e.message);
           });
       });
     };
@@ -101,7 +101,7 @@ class SettingsContainer extends React.Component<Props> {
         variables: {
           from,
           to,
-          content,
+          content
         },
       })
         .then(() => {
@@ -109,7 +109,7 @@ class SettingsContainer extends React.Component<Props> {
         })
 
         .catch((e) => {
-          Alert.error(__(e.message));
+          Alert.error(e.message);
         });
     };
 
@@ -139,23 +139,23 @@ export default withProps<{}>(
     graphql<{}, EngageVerifiedEmailsQueryResponse, {}>(
       gql(engageQueries.verifiedEmails),
       {
-        name: 'engagesVerifiedEmailsQuery',
+        name: 'engagesVerifiedEmailsQuery'
       }
     ),
     graphql<{}, EngageConfigQueryResponse, {}>(
       gql(queries.engagesConfigDetail),
       {
-        name: 'engagesConfigDetailQuery',
+        name: 'engagesConfigDetailQuery'
       }
     ),
     graphql(gql(engageMutations.verifyEmail), {
-      name: 'engagesVerifyEmailMutation',
+      name: 'engagesVerifyEmailMutation'
     }),
     graphql(gql(engageMutations.removeVerifiedEmail), {
-      name: 'engagesRemoveVerifiedEmailMutation',
+      name: 'engagesRemoveVerifiedEmailMutation'
     }),
     graphql(gql(engageMutations.sendTestEmail), {
-      name: 'engagesSendTestEmailMutation',
+      name: 'engagesSendTestEmailMutation'
     })
   )(withRouter<Props>(SettingsContainer))
 );

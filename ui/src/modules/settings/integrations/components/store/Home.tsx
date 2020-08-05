@@ -28,8 +28,8 @@ class Home extends React.Component<Props, State> {
     this.state = {
       searchValue: '',
       integrations: INTEGRATIONS.filter(
-        (integration) => integration.category.indexOf('All integrations') !== -1
-      ),
+        integration => integration.category.indexOf('All integrations') !== -1
+      )
     };
   }
 
@@ -43,17 +43,17 @@ class Home extends React.Component<Props, State> {
     ) {
       this.setState({
         integrations: INTEGRATIONS.filter(
-          (integration) =>
+          integration =>
             integration.name.toLowerCase().indexOf(searchValue) !== -1 &&
             integration.category.indexOf(
               queryParams.type || 'All integrations'
             ) !== -1
-        ),
+        )
       });
     }
   }
 
-  onSearch = (e) => {
+  onSearch = e => {
     this.setState({ searchValue: e.target.value.toLowerCase() });
   };
 
@@ -121,7 +121,7 @@ class Home extends React.Component<Props, State> {
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('App store') },
-      { title: `${this.props.queryParams.type || 'All integrations'}` },
+      { title: `${this.props.queryParams.type || 'All integrations'}` }
     ];
 
     return (

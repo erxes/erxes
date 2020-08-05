@@ -33,7 +33,7 @@ class List extends React.Component<Props, {}> {
 
     const title = `${name}'s email template`;
 
-    const content = (props) => (
+    const content = props => (
       <Config {...props} brandId={_id} refetch={refetch} />
     );
 
@@ -67,7 +67,7 @@ class List extends React.Component<Props, {}> {
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Email appearance') },
+      { title: __('Email appearance') }
     ];
 
     const content = (
@@ -79,7 +79,7 @@ class List extends React.Component<Props, {}> {
             <th>{__('Actions')}</th>
           </tr>
         </thead>
-        <tbody>{brands.map((brand) => this.renderRow(brand))}</tbody>
+        <tbody>{brands.map(brand => this.renderRow(brand))}</tbody>
       </Table>
     );
 

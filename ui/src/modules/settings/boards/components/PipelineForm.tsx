@@ -49,39 +49,39 @@ class PipelineForm extends React.Component<Props, State> {
     const { pipeline, stages } = this.props;
 
     this.state = {
-      stages: (stages || []).map((stage) => ({ ...stage })),
+      stages: (stages || []).map(stage => ({ ...stage })),
       visibility: pipeline ? pipeline.visibility || 'public' : 'public',
       selectedMemberIds: pipeline ? pipeline.memberIds || [] : [],
       backgroundColor:
         (pipeline && pipeline.bgColor) || colors.colorPrimaryDark,
       isCheckUser: pipeline ? pipeline.isCheckUser || false : false,
-      excludeCheckUserIds: pipeline ? pipeline.excludeCheckUserIds || [] : [],
+      excludeCheckUserIds: pipeline ? pipeline.excludeCheckUserIds || [] : []
     };
   }
 
-  onChangeStages = (stages) => {
+  onChangeStages = stages => {
     this.setState({ stages });
   };
 
   onChangeVisibility = (e: React.FormEvent<HTMLElement>) => {
     this.setState({
-      visibility: (e.currentTarget as HTMLInputElement).value,
+      visibility: (e.currentTarget as HTMLInputElement).value
     });
   };
 
-  onChangeMembers = (items) => {
+  onChangeMembers = items => {
     this.setState({ selectedMemberIds: items });
   };
 
-  onChangeDominantUsers = (items) => {
+  onChangeDominantUsers = items => {
     this.setState({ excludeCheckUserIds: items });
   };
 
-  collectValues = (items) => {
-    return items.map((item) => item.value);
+  collectValues = items => {
+    return items.map(item => item.value);
   };
 
-  onColorChange = (e) => {
+  onColorChange = e => {
     this.setState({ backgroundColor: e.hex });
   };
 
@@ -96,7 +96,7 @@ class PipelineForm extends React.Component<Props, State> {
       stages,
       backgroundColor,
       isCheckUser,
-      excludeCheckUserIds,
+      excludeCheckUserIds
     } = this.state;
     const finalValues = values;
 
@@ -109,11 +109,11 @@ class PipelineForm extends React.Component<Props, State> {
       ...extraFields,
       type,
       boardId: pipeline ? pipeline.boardId : boardId,
-      stages: stages.filter((el) => el.name),
+      stages: stages.filter(el => el.name),
       memberIds: selectedMemberIds,
       bgColor: backgroundColor,
       isCheckUser,
-      excludeCheckUserIds,
+      excludeCheckUserIds
     };
   };
 
@@ -140,7 +140,7 @@ class PipelineForm extends React.Component<Props, State> {
     );
   }
 
-  onChangeIsCheckUser = (e) => {
+  onChangeIsCheckUser = e => {
     const isChecked = (e.currentTarget as HTMLInputElement).checked;
     this.setState({ isCheckUser: isChecked });
   };
@@ -176,7 +176,7 @@ class PipelineForm extends React.Component<Props, State> {
       renderButton,
       closeModal,
       options,
-      renderExtraFields,
+      renderExtraFields
     } = this.props;
     const { values, isSubmitted } = formProps;
     const object = pipeline || ({} as IPipeline);
@@ -295,7 +295,7 @@ class PipelineForm extends React.Component<Props, State> {
               isSubmitted,
               callback: closeModal,
               object: pipeline,
-              confirmationUpdate: true,
+              confirmationUpdate: true
             })}
           </Modal.Footer>
         </Modal.Body>

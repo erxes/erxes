@@ -51,7 +51,7 @@ const TaggerContainer = (props: FinalProps) => {
         }
       })
       .catch(error => {
-        Alert.error(__(error.message));
+        Alert.error(error.message);
       });
   };
 

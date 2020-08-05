@@ -16,7 +16,7 @@ import {
   filterActions,
   generatedList,
   generateListParams,
-  generateModuleParams,
+  generateModuleParams
 } from './utils';
 
 type Props = {
@@ -43,7 +43,7 @@ class PermissionForm extends React.Component<Props, State> {
     selectedUserIds: [],
     selectedGroups: [],
     valueChanged: false,
-    isSubmitted: false,
+    isSubmitted: false
   };
 
   save = (e: React.FormEvent) => {
@@ -53,7 +53,7 @@ class PermissionForm extends React.Component<Props, State> {
       selectedModule,
       selectedActions,
       selectedUserIds,
-      selectedGroups,
+      selectedGroups
     } = this.state;
 
     if (!selectedModule) {
@@ -77,7 +77,7 @@ class PermissionForm extends React.Component<Props, State> {
       selectedActions,
       selectedUserIds,
       selectedGroups,
-      valueChanged,
+      valueChanged
     } = this.state;
 
     return {
@@ -85,7 +85,7 @@ class PermissionForm extends React.Component<Props, State> {
       actions: this.collectValues(selectedActions),
       userIds: selectedUserIds,
       groupIds: this.collectValues(selectedGroups),
-      allowed: valueChanged,
+      allowed: valueChanged
     };
   };
 
@@ -114,12 +114,12 @@ class PermissionForm extends React.Component<Props, State> {
 
     this.setState({
       selectedModule,
-      selectedActions: [],
+      selectedActions: []
     });
   };
 
   collectValues = (items: generatedList[]) => {
-    return items.map((item) => item.value);
+    return items.map(item => item.value);
   };
 
   renderContent() {
@@ -129,10 +129,10 @@ class PermissionForm extends React.Component<Props, State> {
       selectedActions,
       selectedUserIds,
       selectedGroups,
-      valueChanged,
+      valueChanged
     } = this.state;
 
-    const usersOnChange = (users) => this.select('selectedUserIds', users);
+    const usersOnChange = users => this.select('selectedUserIds', users);
 
     return (
       <>

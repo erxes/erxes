@@ -11,7 +11,7 @@ import {
   IframePreview,
   Template,
   TemplateBox,
-  Templates,
+  Templates
 } from '../styles';
 import Form from './Form';
 
@@ -20,18 +20,18 @@ type Props = {
 } & ICommonListProps;
 
 class EmailTemplateList extends React.Component<Props> {
-  renderForm = (props) => {
+  renderForm = props => {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };
 
-  removeTemplate = (object) => {
+  removeTemplate = object => {
     this.props.remove(object._id);
   };
 
-  renderEditAction = (object) => {
+  renderEditAction = object => {
     const { save } = this.props;
 
-    const content = (props) => {
+    const content = props => {
       return this.renderForm({ ...props, object, save });
     };
 
@@ -69,7 +69,7 @@ class EmailTemplateList extends React.Component<Props> {
     ));
   }
 
-  renderContent = (props) => {
+  renderContent = props => {
     return <Templates>{this.renderRow(props)}</Templates>;
   };
 
@@ -80,7 +80,7 @@ class EmailTemplateList extends React.Component<Props> {
         size="lg"
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },
-          { title: __('Email templates') },
+          { title: __('Email templates') }
         ]}
         title={__('Email templates')}
         leftActionBar={

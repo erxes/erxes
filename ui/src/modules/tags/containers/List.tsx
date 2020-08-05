@@ -29,7 +29,7 @@ const ListContainer = (props: FinalProps) => {
           tagsQuery.refetch();
         })
         .catch(e => {
-          Alert.error(__(e.message));
+          Alert.error(e.message);
         });
     });
   };
