@@ -210,15 +210,15 @@ su $username -c "mkdir -p $erxes_root_dir"
 cd $erxes_root_dir
 
 # erxes repo
-erxes_ui_dir=$erxes_root_dir/ui
-erxes_widgets_dir=$erxes_root_dir/widgets
+erxes_ui_dir=$erxes_root_dir/erxes
+erxes_widgets_dir=$erxes_root_dir/erxes-widgets
 
 # erxes-api repo
 erxes_api_dir=$erxes_root_dir/erxes-api
-erxes_engages_dir=$erxes_root_dir/engages-email-sender
-erxes_logger_dir=$erxes_root_dir/logger
-erxes_syncer_dir=$erxes_root_dir/elkSyncer
-erxes_email_verifier_dir=$erxes_root_dir/email-verifier
+erxes_engages_dir=$erxes_root_dir/erxes-engages-email-sender
+erxes_logger_dir=$erxes_root_dir/erxes-logger
+erxes_syncer_dir=$erxes_root_dir/erxes-elkSyncer
+erxes_email_verifier_dir=$erxes_root_dir/erxes-email-verifier
 
 # erxes-integrations repo
 erxes_integrations_dir=$erxes_root_dir/erxes-integrations
@@ -261,159 +261,168 @@ LOGGER_MONGO_URL="mongodb://erxes:$MONGO_PASS@localhost/erxes_logs?authSource=ad
 
 INTEGRATIONS_MONGO_URL="mongodb://erxes:$MONGO_PASS@localhost/erxes_integrations?authSource=admin&replicaSet=rs0"
 
-# create an ecosystem.json in $erxes_root_dir directory and change owner and permission
-cat > $erxes_root_dir/ecosystem.json << EOF
-{
-  "apps": [
+# create an ecosystem.config.js in $erxes_root_dir directory and change owner and permission
+cat > $erxes_root_dir/ecosystem.config.js << EOF
+module.exports = {
+  apps: [
     {
-      "name": "erxes-api",
-      "cwd": "$erxes_api_dir",
-      "script": "dist",
-      "log_date_format": "YYYY-MM-DD HH:mm Z",
-      "env": {
-        "PORT": 3300,
-        "NODE_ENV": "production",
-        "DEBUG": "erxes-api:*",
-        "MAIN_APP_DOMAIN": "https://$erxes_domain",
-        "LOGS_API_DOMAIN": "http://127.0.0.1:3800",
-        "ENGAGES_API_DOMAIN": "http://127.0.0.1:3900",
-        "MONGO_URL": "$API_MONGO_URL",
-        "REDIS_HOST": "localhost",
-        "REDIS_PORT": 6379,
-        "REDIS_PASSWORD": "",
-        "RABBITMQ_HOST": "amqp://localhost",
-        "JWT_TOKEN_SECRET": "$JWT_TOKEN_SECRET",
-        "ELASTICSEARCH_URL": "http://localhost:9200"
-      }
+      name: "erxes-api",
+      script: "dist",
+      cwd: "$erxes_api_dir",
+      log_date_format: "YYYY-MM-DD HH:mm Z",
+      node_args: "--max_old_space_size=4096",
+      env: {
+        PORT: 3300,
+        NODE_ENV: "production",
+        JWT_TOKEN_SECRET: "$JWT_TOKEN_SECRET",
+        DEBUG: "erxes-api:*",
+        MONGO_URL: "$API_MONGO_URL",
+        REDIS_HOST: "localhost",
+        REDIS_PORT: 6379,
+        REDIS_PASSWORD: "",
+        RABBITMQ_HOST: "amqp://localhost",
+        ELASTICSEARCH_URL: "http://localhost:9200",
+        MAIN_APP_DOMAIN: "https://$erxes_domain",
+        WIDGETS_DOMAIN: "https://$erxes_domain/widgets",
+        INTEGRATIONS_API_DOMAIN: "https://$erxes_domain/integrations",
+        LOGS_API_DOMAIN: "http://127.0.0.1:3800",
+        ENGAGES_API_DOMAIN: "http://127.0.0.1:3900",
+      },
     },
     {
-      "name": "erxes-api-cronjob",
-      "cwd": "$erxes_api_dir",
-      "script": "dist/cronJobs",
-      "log_date_format": "YYYY-MM-DD HH:mm Z",
-      "env": {
-        "PORT_CRONS": 3600,
-        "NODE_ENV": "production",
-        "PROCESS_NAME": "crons",
-        "DEBUG": "erxes-crons:*",
-        "MONGO_URL": "$API_MONGO_URL",
-        "REDIS_HOST": "localhost",
-        "REDIS_PORT": 6379,
-        "REDIS_PASSWORD": "",
-        "RABBITMQ_HOST": "amqp://localhost"
-      }
+      name: "erxes-cronjobs",
+      script: "dist/cronJobs",
+      cwd: "$erxes_api_dir",
+      log_date_format: "YYYY-MM-DD HH:mm Z",
+      node_args: "--max_old_space_size=4096",
+      env: {
+        PORT_CRONS: 3600,
+        NODE_ENV: "production",
+        PROCESS_NAME: "crons",
+        DEBUG: "erxes-crons:*",
+        MONGO_URL: "$API_MONGO_URL",
+        REDIS_HOST: "localhost",
+        REDIS_PORT: 6379,
+        REDIS_PASSWORD: "",
+        RABBITMQ_HOST: "amqp://localhost",
+      },
     },
     {
-      "name": "erxes-api-worker",
-      "cwd": "$erxes_api_dir",
-      "script": "dist/workers",
-      "log_date_format": "YYYY-MM-DD HH:mm Z",
-      "node_args": "--experimental-worker",
-      "env": {
-        "PORT_WORKERS": 3700,
-        "NODE_ENV": "production",
-        "DEBUG": "erxes-workers:*",
-        "MONGO_URL": "$API_MONGO_URL",
-        "REDIS_HOST": "localhost",
-        "REDIS_PORT": 6379,
-        "REDIS_PASSWORD": "",
-        "RABBITMQ_HOST": "amqp://localhost",
-        "JWT_TOKEN_SECRET": "$JWT_TOKEN_SECRET"
-      }
+      name: "erxes-workers",
+      script: "dist/workers",
+      cwd: "$erxes_api_dir",
+      log_date_format: "YYYY-MM-DD HH:mm Z",
+      node_args: "--experimental-worker",
+      env: {
+        PORT_WORKERS: 3700,
+        NODE_ENV: "production",
+        DEBUG: "erxes-workers:*",
+        MONGO_URL: "$API_MONGO_URL",
+        REDIS_HOST: "localhost",
+        REDIS_PORT: 6379,
+        REDIS_PASSWORD: "",
+        RABBITMQ_HOST: "amqp://localhost",
+        JWT_TOKEN_SECRET: "$JWT_TOKEN_SECRET",
+      },
     },
     {
-      "name": "erxes-widgets",
-      "cwd": "$erxes_widgets_dir",
-      "script": "dist",
-      "log_date_format": "YYYY-MM-DD HH:mm Z",
-      "env": {
-        "PORT": 3200,
-        "NODE_ENV": "production",
-        "ROOT_URL": "https://$erxes_domain/widgets",
-        "API_URL": "https://$erxes_domain/api",
-        "API_SUBSCRIPTIONS_URL": "wss://$erxes_domain/api/subscriptions"
-      }
+      name: "erxes-widgets",
+      script: "dist",
+      cwd: "$erxes_widgets_dir",
+      log_date_format: "YYYY-MM-DD HH:mm Z",
+      node_args: "--max_old_space_size=4096",
+      env: {
+        PORT: 3200,
+        NODE_ENV: "production",
+        ROOT_URL: "https://$erxes_domain/widgets",
+        API_URL: "https://$erxes_domain/api",
+        API_SUBSCRIPTIONS_URL: "wss://$erxes_domain/api/subscriptions",
+      },
     },
     {
-      "name": "erxes-engages",
-      "cwd": "$erxes_engages_dir",
-      "script": "dist",
-      "log_date_format": "YYYY-MM-DD HH:mm Z",
-      "env": {
-        "PORT": 3900,
-        "NODE_ENV": "production",
-        "DEBUG": "erxes-engages:*",
-        "MAIN_API_DOMAIN": "https://$erxes_domain/api",
-        "MONGO_URL": "$ENGAGES_MONGO_URL",
-        "RABBITMQ_HOST": "amqp://localhost",
-        "REDIS_HOST": "localhost",
-        "REDIS_PORT": 6379,
-        "REDIS_PASSWORD": ""
-      }
+      name: "erxes-engages",
+      script: "dist",
+      cwd: "$erxes_engages_dir",
+      log_date_format: "YYYY-MM-DD HH:mm Z",
+      node_args: "--max_old_space_size=4096",
+      env: {
+        PORT: 3900,
+        NODE_ENV: "production",
+        DEBUG: "erxes-engages:*",
+        MAIN_API_DOMAIN: "https://$erxes_domain/api",
+        MONGO_URL: "$ENGAGES_MONGO_URL",
+        RABBITMQ_HOST: "amqp://localhost",
+        REDIS_HOST: "localhost",
+        REDIS_PORT: 6379,
+        REDIS_PASSWORD: "",
+      },
     },
     {
-      "name": "erxes-logger",
-      "cwd": "$erxes_logger_dir",
-      "script": "dist",
-      "log_date_format": "YYYY-MM-DD HH:mm Z",
-      "env": {
-        "PORT": 3800,
-        "NODE_ENV": "production",
-        "DEBUG": "erxes-logs:*",
-        "MONGO_URL": "$LOGGER_MONGO_URL",
-        "RABBITMQ_HOST": "amqp://localhost"
-      }
+      name: "erxes-logger",
+      script: "dist",
+      cwd: "$erxes_logger_dir",
+      log_date_format: "YYYY-MM-DD HH:mm Z",
+      node_args: "--max_old_space_size=4096",
+      env: {
+        PORT: 3800,
+        NODE_ENV: "production",
+        DEBUG: "erxes-logs:*",
+        MONGO_URL: "$LOGGER_MONGO_URL",
+        RABBITMQ_HOST: "amqp://localhost",
+      },
     },
     {
-      "name": "erxes-email-verifier",
-      "cwd": "$erxes_email_verifier_dir",
-      "script": "dist",
-      "log_date_format": "YYYY-MM-DD HH:mm Z",
-      "env": {
-        "PORT": 4100,
-        "NODE_ENV": "production",
-        "MONGO_URL": "$EMAIL_VERIFIER_MONGO_URL",
-        "RABBITMQ_HOST": "amqp://localhost",
-        "TRUE_MAIL_API_KEY": "",
-        "CLEAR_OUT_PHONE_API_KEY": ""
-      }
+      name: "erxes-integrations",
+      script: "dist",
+      cwd: "$erxes_integrations_dir",
+      log_date_format: "YYYY-MM-DD HH:mm Z",
+      node_args: "--max_old_space_size=4096",
+      env: {
+        PORT: 3400,
+        NODE_ENV: "production",
+        DEBUG: "erxes-integrations:*",
+        DOMAIN: "https://$erxes_domain/integrations",
+        MAIN_APP_DOMAIN: "https://$erxes_domain",
+        MAIN_API_DOMAIN: "https://$erxes_domain/api",
+        MONGO_URL: "$INTEGRATIONS_MONGO_URL",
+        RABBITMQ_HOST: "amqp://localhost",
+        REDIS_HOST: "localhost",
+        REDIS_PORT: 6379,
+        REDIS_PASSWORD: "",
+      },
     },
     {
-      "name": "erxes-elkSyncer",
-      "cwd": "$erxes_syncer_dir",
-      "script": "main.py",
-      "log_date_format": "YYYY-MM-DD HH:mm Z",
-      "interpreter": "python3",
-      "env": {
-        "MONGO_URL": "$API_MONGO_URL",
-        "ELASTICSEARCH_URL": "http://localhost:9200"
-      }
+      name: "erxes-elkSyncer",
+      script: "main.py",
+      cwd: "$erxes_syncer_dir",
+      log_date_format: "YYYY-MM-DD HH:mm Z",
+      interpreter: "/usr/bin/python3",
+      env: {
+        MONGO_URL: "$API_MONGO_URL",
+        ELASTICSEARCH_URL: "http://localhost:9200",
+      },
     },
     {
-      "name": "erxes-integrations",
-      "cwd": "$erxes_integrations_dir",
-      "script": "dist",
-      "log_date_format": "YYYY-MM-DD HH:mm Z",
-      "env": {
-        "PORT": 3400,
-        "NODE_ENV": "production",
-        "DEBUG": "erxes-integrations:*",
-        "DOMAIN": "https://$erxes_domain/integrations",
-        "MAIN_APP_DOMAIN": "https://$erxes_domain",
-        "MAIN_API_DOMAIN": "https://$erxes_domain/api",
-        "MONGO_URL": "$INTEGRATIONS_MONGO_URL",
-        "RABBITMQ_HOST": "amqp://localhost",
-        "REDIS_HOST": "localhost",
-        "REDIS_PORT": 6379,
-        "REDIS_PASSWORD": ""
-      }
-    }
-  ]
-}
+      name: "erxes-email-verifier",
+      script: "dist",
+      cwd: "$erxes_email_verifier_dir",
+      log_date_format: "YYYY-MM-DD HH:mm Z",
+      node_args: "--max_old_space_size=4096",
+      env: {
+        PORT_WORKERS: 4100,
+        NODE_ENV: "production",
+        MONGO_URL: "$EMAIL_VERIFIER_MONGO_URL",
+        RABBITMQ_HOST: "amqp://localhost",
+        TRUE_MAIL_API_KEY: "",
+        CLEAR_OUT_PHONE_API_KEY: "",
+      },
+    },
+  ],
+};
 EOF
 
-chown $username:$username $erxes_root_dir/ecosystem.json
-chmod 644 $erxes_root_dir/ecosystem.json
+chown $username:$username $erxes_root_dir/ecosystem.config.js
+chmod 644 $erxes_root_dir/ecosystem.config.js
 
 # set mongod password
 result=$(mongo --eval "db=db.getSiblingDB('admin'); db.createUser({ user: 'erxes', pwd: \"$MONGO_PASS\", roles: [ 'root' ] })" )
@@ -486,7 +495,7 @@ env PATH=$PATH:/home/$username/.nvm/versions/node/$NODE_VERSION/bin pm2 startup 
 systemctl enable pm2-$username
 
 # start erxes pm2 and save current processes
-su $username -c "source ~/.nvm/nvm.sh && nvm use $NODE_VERSION && cd $erxes_root_dir && pm2 start ecosystem.json && pm2 save"
+su $username -c "source ~/.nvm/nvm.sh && nvm use $NODE_VERSION && cd $erxes_root_dir && pm2 start ecosystem.config.js && pm2 save"
 
 # Nginx erxes config
 cat <<EOF >/etc/nginx/sites-available/default
@@ -498,12 +507,12 @@ server {
         root $erxes_ui_dir;
         index index.html;
         
-        error_log /var/log/nginx/erxes.error.log;
+        error_log  /var/log/nginx/erxes.error.log;
+        access_log /var/log/nginx/erxes.access.log;
 
         location / {
                 root $erxes_ui_dir;
                 index index.html;
-                error_log /var/log/nginx/erxes.error.log;
 
                 location / {
                         try_files \$uri /index.html;
@@ -524,7 +533,7 @@ server {
         # api project is running on 3300 port.
         location /api/ {
                 proxy_pass http://127.0.0.1:3300/;
-                proxy_set_header Host \$http_host;
+                proxy_set_header Host \$host;
                 proxy_set_header X-Real-IP \$remote_addr;
                 proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
                 proxy_http_version 1.1;
