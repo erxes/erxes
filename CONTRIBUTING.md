@@ -59,7 +59,7 @@ Thank you to all our backers! [[Become a backer](https://opencollective.com/erxe
 
 ### Financial Contributors
 
-Thank you to all our sponsors! (please ask your company to also support this open source project by [becoming a sponsor](https://opencollective.com/erxes/contribute/))
+Thank you to all our sponsors! (Please ask your company to also support this open source project by [becoming a sponsor](https://opencollective.com/erxes/contribute/))
 
 <a href="https://opencollective.com/golomtbank" target="_blank"><img src="https://images.opencollective.com/golomtbank/avatar.png"></a>
 <a href="https://opencollective.com/mostmoneymn" target="_blank"><img src="https://images.opencollective.com/mostmoneymn/avatar.png"></a>
