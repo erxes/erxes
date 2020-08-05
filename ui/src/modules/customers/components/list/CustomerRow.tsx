@@ -4,7 +4,7 @@ import Icon from 'modules/common/components/Icon';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tags from 'modules/common/components/Tags';
 import TextInfo from 'modules/common/components/TextInfo';
-import { __, formatValue } from 'modules/common/utils';
+import { formatValue } from 'modules/common/utils';
 import { FlexItem } from 'modules/companies/styles';
 import { GENDER_TYPES, LEAD_STATUS_TYPES } from 'modules/customers/constants';
 import { BooleanStatus, ClickableRow } from 'modules/customers/styles';
@@ -166,7 +166,7 @@ function CustomerRow({
       {columnsConfig.map(({ name }, index) => (
         <td key={index}>
           <ClickableRow onClick={onTrClick}>
-            {displayValue(customer, __(name))}
+            {displayValue(customer, name)}
           </ClickableRow>
         </td>
       ))}
