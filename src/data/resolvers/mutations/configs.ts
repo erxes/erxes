@@ -27,7 +27,7 @@ const configMutations = {
       const updatedConfig = await Configs.getConfig(code);
 
       if (['GOOGLE_APPLICATION_CREDENTIALS_JSON'].includes(code)) {
-        initFirebase(configsMap[code]);
+        initFirebase(configsMap[code] || '');
       }
 
       if (
