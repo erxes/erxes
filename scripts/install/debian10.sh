@@ -244,9 +244,6 @@ su $username -c "curl -L https://github.com/erxes/erxes-api/releases/download/$E
 # download integrations
 su $username -c "curl -L https://github.com/erxes/erxes-integrations/releases/download/$ERXES_INTEGRATIONS_VERSION/erxes-integrations-$ERXES_INTEGRATIONS_VERSION.tar.gz | tar -xz -C $erxes_integrations_dir"
 
-# install pm2 globally
-# yarn global add  pm2
-
 JWT_TOKEN_SECRET=$(openssl rand -base64 24)
 MONGO_PASS=$(openssl rand -hex 16)
 
