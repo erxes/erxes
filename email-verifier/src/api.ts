@@ -1,5 +1,5 @@
 import * as EmailValidator from 'email-deep-validator';
-import { EMAIL_VALIDATION_STATUSES, Emails } from './models';
+import { EMAIL_VALIDATION_SOURCES, EMAIL_VALIDATION_STATUSES, Emails } from './models';
 import { getArray, setArray } from './redisClient';
 import { debugBase, sendRequest } from './utils';
 
@@ -77,6 +77,7 @@ export const single = async (email: string, hostname: string) => {
       method: 'POST',
       body: {
         email: { email, status: emailOnDb.status },
+        source: EMAIL_VALIDATION_SOURCES.ERXES,
       },
     });
   }
@@ -85,11 +86,12 @@ export const single = async (email: string, hostname: string) => {
   const { validDomain, validMailbox } = await emailValidator.verify(email);
 
   if (validDomain && validMailbox) {
-    await sendRequest({
+    return sendRequest({
       url: `${hostname}/verifier/webhook`,
       method: 'POST',
       body: {
         email: { email, status: EMAIL_VALIDATION_STATUSES.VALID },
+        source: EMAIL_VALIDATION_SOURCES.ERXES,
       },
     });
   }
@@ -115,23 +117,25 @@ export const single = async (email: string, hostname: string) => {
 
     debugBase(`Sending single email validation status to erxes-api`);
 
-    await sendRequest({
+    return sendRequest({
       url: `${hostname}/verifier/webhook`,
       method: 'POST',
       body: {
         email: doc,
-      },
-    });
-  } else {
-    // if status is not success
-    await sendRequest({
-      url: `${hostname}/verifier/webhook`,
-      method: 'POST',
-      body: {
-        email: { email, status: EMAIL_VALIDATION_STATUSES.UNKNOWN },
+        source: EMAIL_VALIDATION_SOURCES.TRUEMAIL,
       },
     });
   }
+
+  // if status is not success
+  return sendRequest({
+    url: `${hostname}/verifier/webhook`,
+    method: 'POST',
+    body: {
+      email: { email, status: EMAIL_VALIDATION_STATUSES.UNKNOWN },
+      source: EMAIL_VALIDATION_SOURCES.TRUEMAIL,
+    },
+  });
 };
 
 export const bulk = async (emails: string[], hostname: string) => {
@@ -155,6 +159,7 @@ export const bulk = async (emails: string[], hostname: string) => {
         method: 'POST',
         body: {
           emails: verifiedEmails,
+          source: EMAIL_VALIDATION_SOURCES.ERXES,
         },
       });
     } catch (e) {
@@ -227,6 +232,7 @@ export const getTrueMailBulk = async (taskId: string, hostname: string) => {
     method: 'POST',
     body: {
       emails,
+      source: EMAIL_VALIDATION_SOURCES.TRUEMAIL,
     },
   });
 };
