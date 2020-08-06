@@ -30,6 +30,12 @@ export const PHONE_VALIDATION_STATUSES = {
   ALL: ['valid', 'invalid', 'unknown', 'receives_sms', 'unverifiable'],
 };
 
+export const EMAIL_VALIDATION_SOURCES = {
+  ERXES: 'erxes',
+  TRUEMAIL: 'truemail',
+  ALL: ['erxes', 'truemail'],
+};
+
 interface IEmail {
   email: string;
   status: string;
