@@ -1,11 +1,12 @@
 import * as csv from 'csvtojson';
 import * as dotenv from 'dotenv';
+import * as fs from 'fs';
 import * as mongoose from 'mongoose';
 import * as os from 'os';
 import * as path from 'path';
 import * as XlsxStreamReader from 'xlsx-stream-reader';
 import { checkFieldNames } from '../data/modules/fields/utils';
-import { deleteFileAWS, s3Stream } from '../data/utils';
+import { deleteFileAWS, s3Stream, uploadsFolderPath } from '../data/utils';
 import { ImportHistory } from '../db/models';
 import ImportHistories from '../db/models/ImportHistory';
 import { debugImport, debugWorkers } from '../debuggers';
@@ -152,7 +153,7 @@ export const receiveImportCancel = () => {
   return { status: 'ok' };
 };
 
-const readXlsFile = async (fileName: string): Promise<{ fieldNames: string[]; datas: any[] }> => {
+const readXlsFile = async (fileName: string, uploadType: string): Promise<{ fieldNames: string[]; datas: any[] }> => {
   return new Promise(async (resolve, reject) => {
     let rowCount = 0;
 
@@ -165,7 +166,10 @@ const readXlsFile = async (fileName: string): Promise<{ fieldNames: string[]; da
     };
 
     try {
-      const stream = await s3Stream(fileName, errorCallback);
+      const stream =
+        uploadType === 'local'
+          ? fs.createReadStream(`${uploadsFolderPath}/${fileName}`)
+          : await s3Stream(fileName, errorCallback);
 
       stream.pipe(xlsxReader);
 
@@ -216,15 +220,19 @@ const readXlsFile = async (fileName: string): Promise<{ fieldNames: string[]; da
   });
 };
 
-const readCsvFile = async (fileName: string): Promise<{ fieldNames: string[]; datas: any[] }> => {
+const readCsvFile = async (fileName: string, uploadType: string): Promise<{ fieldNames: string[]; datas: any[] }> => {
   return new Promise(async (resolve, reject) => {
     const errorCallback = error => {
       reject(new Error(error.code));
     };
+
     const mainDatas: any[] = [];
 
     try {
-      const stream = await s3Stream(fileName, errorCallback);
+      const stream =
+        uploadType === 'local'
+          ? fs.createReadStream(`${uploadsFolderPath}/${fileName}`)
+          : await s3Stream(fileName, errorCallback);
 
       const results = await csv().fromStream(stream);
 
@@ -283,14 +291,14 @@ const readCsvFile = async (fileName: string): Promise<{ fieldNames: string[]; da
 
 export const receiveImportCreate = async (content: any) => {
   try {
-    const { fileName, type, scopeBrandIds, user, fileType } = content;
+    const { fileName, type, scopeBrandIds, user, uploadType, fileType } = content;
     let fieldNames: string[] = [];
     let datas: string[] = [];
     let result: any = {};
 
     switch (fileType) {
       case 'csv':
-        result = await readCsvFile(fileName);
+        result = await readCsvFile(fileName, uploadType);
 
         fieldNames = result.fieldNames;
         datas = result.datas;
@@ -298,7 +306,7 @@ export const receiveImportCreate = async (content: any) => {
         break;
 
       case 'xlsx':
-        result = await readXlsFile(fileName);
+        result = await readXlsFile(fileName, uploadType);
 
         fieldNames = result.fieldNames;
         datas = result.datas;
@@ -341,7 +349,9 @@ export const receiveImportCreate = async (content: any) => {
 
     await createWorkers(workerPath, workerData, results);
 
-    await deleteFileAWS(fileName);
+    if (uploadType === 'AWS') {
+      await deleteFileAWS(fileName);
+    }
 
     return { id: importHistory.id };
   } catch (e) {
