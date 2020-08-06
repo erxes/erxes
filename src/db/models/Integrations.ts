@@ -32,44 +32,13 @@ interface IIntegrationBasicInfo {
   brandId: string;
 }
 
-/**
- * Extracts hour & minute from time string formatted as "HH:mm am|pm".
- * Time string is defined as constant in modules/settings/integrations/constants.
- */
-const getHourAndMinute = (timeString: string) => {
-  const normalized = timeString.toLocaleLowerCase().trim();
-  const colon = timeString.indexOf(':');
-  let hour = parseInt(normalized.substring(0, colon), 10);
-  const minute = parseInt(normalized.substring(colon + 1, colon + 3), 10);
-
-  if (normalized.indexOf('pm')) {
-    hour += 12;
-  }
-
-  return { hour, minute };
-};
-
 export const isTimeInBetween = (date: Date, startTime: string, closeTime: string): boolean => {
-  const now = new Date();
+  // concatnating time ranges with today's date
+  const dateString = date.toLocaleDateString();
+  const startDate = new Date(`${dateString} ${startTime}`);
+  const closeDate = new Date(`${dateString} ${closeTime}`);
 
-  now.setHours(date.getHours());
-  now.setMinutes(date.getMinutes());
-
-  const startDate = new Date();
-  const startHourMinute = getHourAndMinute(startTime);
-
-  startDate.setHours(startHourMinute.hour);
-  startDate.setMinutes(startHourMinute.minute);
-
-  const endDate = new Date();
-  const endHourMinute = getHourAndMinute(closeTime);
-
-  endDate.setHours(endHourMinute.hour);
-  endDate.setMinutes(endHourMinute.minute);
-
-  console.log(startDate, date, endDate, 'isTimeInBetween', now);
-
-  return startDate <= now && now <= endDate;
+  return startDate <= date && date <= closeDate;
 };
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {
@@ -321,13 +290,7 @@ export const loadClass = () => {
       const everydayConf = onlineHours.find(c => c.day === 'everyday');
 
       if (everydayConf) {
-        console.log(everydayConf, '----every day------');
-
-        const between = isTimeInBetween(now, everydayConf.from || '', everydayConf.to || '');
-
-        console.log(between, now, '--------between------');
-
-        return between;
+        return isTimeInBetween(now, everydayConf.from || '', everydayConf.to || '');
       }
 
       // check by weekdays config
