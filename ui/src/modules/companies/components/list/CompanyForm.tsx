@@ -89,7 +89,7 @@ class CompanyForm extends React.Component<Props, State> {
 
     const links = {};
 
-    getConstantFromStore('social_links').forEach((link) => {
+    getConstantFromStore('social_links').forEach(link => {
       links[link.value] = finalValues[link.value];
     });
 
@@ -108,7 +108,7 @@ class CompanyForm extends React.Component<Props, State> {
   };
 
   generateConstantParams(constants) {
-    return constants.map((constant) => ({
+    return constants.map(constant => ({
       value: constant,
       label: constant
     }));
