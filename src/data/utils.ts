@@ -17,11 +17,19 @@ import { get, set } from '../redisClient';
 
 const uploadsFolderPath = path.join(__dirname, '../private/uploads');
 
-export const initFirebase = (value: string): void => {
-  const serviceAccount = JSON.parse(value);
+export const initFirebase = (code: string): void => {
+  if (code.length === 0) {
+    return;
+  }
 
-  if (serviceAccount.private_key) {
-    admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+  const codeString = code.trim();
+
+  if (codeString[0] === '{' && codeString[codeString.length - 1] === '}') {
+    const serviceAccount = JSON.parse(codeString);
+
+    if (serviceAccount.private_key) {
+      admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+    }
   }
 };
 
