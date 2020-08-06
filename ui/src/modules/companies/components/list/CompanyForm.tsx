@@ -129,11 +129,11 @@ class CompanyForm extends React.Component<Props, State> {
     );
   };
 
-  onIndustryChange = (option) => {
+  onIndustryChange = option => {
     this.setState({ industry: option.value });
   };
 
-  onBusinessChange = (option) => {
+  onBusinessChange = option => {
     this.setState({ businessType: option.value });
   };
 
@@ -173,11 +173,11 @@ class CompanyForm extends React.Component<Props, State> {
 
     const { parentCompanyId, ownerId } = this.state;
 
-    const onSelectOwner = (value) => {
+    const onSelectOwner = value => {
       return this.handleSelect(value, 'ownerId');
     };
 
-    const onSelectParentCompany = (value) => {
+    const onSelectParentCompany = value => {
       return this.handleSelect(value, 'parentCompanyId');
     };
 
@@ -194,7 +194,7 @@ class CompanyForm extends React.Component<Props, State> {
                 <AvatarUpload
                   avatar={company.avatar}
                   onAvatarUpload={this.onAvatarUpload}
-                  defaultAvatar='/images/integrations/company.png'
+                  defaultAvatar="/images/integrations/company.png"
                 />
               </FormColumn>
 
@@ -208,8 +208,8 @@ class CompanyForm extends React.Component<Props, State> {
                 <FormGroup>
                   <ControlLabel>Owner</ControlLabel>
                   <SelectTeamMembers
-                    label='Choose an owner'
-                    name='ownerId'
+                    label="Choose an owner"
+                    name="ownerId"
                     value={ownerId}
                     onSelect={onSelectOwner}
                     multi={false}
@@ -224,7 +224,7 @@ class CompanyForm extends React.Component<Props, State> {
                   <ModifiableSelect
                     value={primaryName}
                     options={names || []}
-                    name='Name'
+                    name="Name"
                     required={true}
                     onChange={this.onChange.bind(this, 'names', 'primaryName')}
                   />
@@ -247,7 +247,7 @@ class CompanyForm extends React.Component<Props, State> {
                   <ModifiableSelect
                     value={primaryEmail}
                     options={emails || []}
-                    name='Email'
+                    name="Email"
                     onChange={this.onChange.bind(
                       this,
                       'emails',
@@ -262,8 +262,8 @@ class CompanyForm extends React.Component<Props, State> {
                   <FormControl
                     {...formProps}
                     max={140}
-                    name='description'
-                    componentClass='textarea'
+                    name="description"
+                    componentClass="textarea"
                     defaultValue={company.description || ''}
                   />
                 </FormGroup>
@@ -272,8 +272,8 @@ class CompanyForm extends React.Component<Props, State> {
                 <FormGroup>
                   <ControlLabel>Parent Company</ControlLabel>
                   <SelectCompanies
-                    label='Choose parent company'
-                    name='parentCompanyId'
+                    label="Choose parent company"
+                    name="parentCompanyId"
                     value={parentCompanyId}
                     onSelect={onSelectParentCompany}
                     multi={false}
@@ -296,7 +296,7 @@ class CompanyForm extends React.Component<Props, State> {
                   <ModifiableSelect
                     value={primaryPhone}
                     options={phones || []}
-                    name='Phone'
+                    name="Phone"
                     onChange={this.onChange.bind(
                       this,
                       'phones',
@@ -320,14 +320,14 @@ class CompanyForm extends React.Component<Props, State> {
                       childNode: 'Yes',
                       value: 'Yes',
                       checked: this.state.doNotDisturb === 'Yes',
-                      onChange: (e) =>
+                      onChange: e =>
                         this.setState({ doNotDisturb: e.target.value })
                     },
                     {
                       childNode: 'No',
                       value: 'No',
                       checked: this.state.doNotDisturb === 'No',
-                      onChange: (e) =>
+                      onChange: e =>
                         this.setState({ doNotDisturb: e.target.value })
                     }
                   ]
@@ -338,7 +338,7 @@ class CompanyForm extends React.Component<Props, State> {
           <CollapseContent title={__('Links')} compact={true} open={true}>
             <FormWrapper>
               <FormColumn>
-                {getConstantFromStore('social_links').map((link) =>
+                {getConstantFromStore('social_links').map(link =>
                   this.renderLink(formProps, link)
                 )}
               </FormColumn>
@@ -347,7 +347,7 @@ class CompanyForm extends React.Component<Props, State> {
         </ScrollWrapper>
 
         <ModalFooter>
-          <Button btnStyle='simple' onClick={closeModal} icon='cancel-1'>
+          <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
             Close
           </Button>
 

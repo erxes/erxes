@@ -77,7 +77,7 @@ class CustomerForm extends React.Component<Props, State> {
 
     const links = {};
 
-    getConstantFromStore('social_links').forEach((link) => {
+    getConstantFromStore('social_links').forEach(link => {
       links[link.value] = finalValues[link.value];
     });
 
@@ -96,7 +96,7 @@ class CustomerForm extends React.Component<Props, State> {
     };
   };
 
-  onAvatarUpload = (url) => {
+  onAvatarUpload = url => {
     this.setState({ avatar: url });
   };
 
@@ -149,11 +149,11 @@ class CustomerForm extends React.Component<Props, State> {
     this.setState({ phones: options, primaryPhone: selectedOption });
   };
 
-  onOwnerChange = (ownerId) => {
+  onOwnerChange = ownerId => {
     this.setState({ ownerId });
   };
 
-  onDateChange = (birthDate) => {
+  onDateChange = birthDate => {
     const currentDate = new Date();
     if (currentDate > birthDate) {
       this.setState({ birthDate });
@@ -222,8 +222,8 @@ class CustomerForm extends React.Component<Props, State> {
                 <FormGroup>
                   <ControlLabel>Owner</ControlLabel>
                   <SelectTeamMembers
-                    label='Choose an owner'
-                    name='ownerId'
+                    label="Choose an owner"
+                    name="ownerId"
                     value={this.state.ownerId}
                     onSelect={this.onOwnerChange}
                     multi={false}
@@ -245,9 +245,9 @@ class CustomerForm extends React.Component<Props, State> {
                   <ControlLabel required={true}>Email</ControlLabel>
                   <ModifiableSelect
                     value={primaryEmail}
-                    type='email'
+                    type="email"
                     options={this.getEmailsOptions(customer)}
-                    name='Email'
+                    name="Email"
                     onChange={this.onEmailChange}
                     required={true}
                     checkFormat={validator.isEmail}
@@ -274,8 +274,8 @@ class CustomerForm extends React.Component<Props, State> {
                   <FormControl
                     {...formProps}
                     max={140}
-                    name='description'
-                    componentClass='textarea'
+                    name="description"
+                    componentClass="textarea"
                     defaultValue={customer.description || ''}
                   />
                 </FormGroup>
@@ -292,7 +292,7 @@ class CustomerForm extends React.Component<Props, State> {
                   <ModifiableSelect
                     value={primaryPhone}
                     options={this.getPhonesOptions(customer)}
-                    name='Phone'
+                    name="Phone"
                     onChange={this.onPhoneChange}
                     checkFormat={isValidPhone}
                   />
@@ -304,7 +304,7 @@ class CustomerForm extends React.Component<Props, State> {
                     <DateControl
                       {...formProps}
                       required={false}
-                      name='birthDate'
+                      name="birthDate"
                       placeholder={'Birthday'}
                       value={this.state.birthDate}
                       onChange={this.onDateChange}
@@ -327,14 +327,14 @@ class CustomerForm extends React.Component<Props, State> {
                       childNode: 'Yes',
                       value: 'Yes',
                       checked: this.state.hasAuthority === 'Yes',
-                      onChange: (e) =>
+                      onChange: e =>
                         this.setState({ hasAuthority: e.target.value })
                     },
                     {
                       childNode: 'No',
                       value: 'No',
                       checked: this.state.hasAuthority === 'No',
-                      onChange: (e) =>
+                      onChange: e =>
                         this.setState({ hasAuthority: e.target.value })
                     }
                   ]
@@ -349,14 +349,14 @@ class CustomerForm extends React.Component<Props, State> {
                       childNode: 'Yes',
                       value: 'Yes',
                       checked: this.state.doNotDisturb === 'Yes',
-                      onChange: (e) =>
+                      onChange: e =>
                         this.setState({ doNotDisturb: e.target.value })
                     },
                     {
                       childNode: 'No',
                       value: 'No',
                       checked: this.state.doNotDisturb === 'No',
-                      onChange: (e) =>
+                      onChange: e =>
                         this.setState({ doNotDisturb: e.target.value })
                     }
                   ]
@@ -367,7 +367,7 @@ class CustomerForm extends React.Component<Props, State> {
           <CollapseContent title={__('Links')} compact={true}>
             <FormWrapper>
               <FormColumn>
-                {getConstantFromStore('social_links').map((link) =>
+                {getConstantFromStore('social_links').map(link =>
                   this.renderLink(formProps, link)
                 )}
               </FormColumn>
@@ -376,10 +376,10 @@ class CustomerForm extends React.Component<Props, State> {
         </ScrollWrapper>
         <ModalFooter>
           <Button
-            btnStyle='simple'
+            btnStyle="simple"
             uppercase={false}
             onClick={closeModal}
-            icon='times-circle'
+            icon="times-circle"
           >
             Close
           </Button>
@@ -395,21 +395,21 @@ class CustomerForm extends React.Component<Props, State> {
           {!this.props.customer && (
             <>
               <Button
-                btnStyle='primary'
-                type='submit'
+                btnStyle="primary"
+                type="submit"
                 uppercase={false}
-                icon='user-square'
+                icon="user-square"
                 onClick={this.saveAndRedirect.bind(this, 'detail')}
                 disabled={isSubmitted}
               >
                 Save & View
               </Button>
               <Button
-                type='submit'
+                type="submit"
                 uppercase={false}
                 onClick={this.saveAndRedirect.bind(this, 'new')}
                 disabled={isSubmitted}
-                icon='user-plus'
+                icon="user-plus"
               >
                 Save & New
               </Button>

@@ -49,7 +49,7 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
       object,
       resetSubmit
     }: IButtonMutateProps) => {
-      const afterSave = (data) => {
+      const afterSave = data => {
         closeModal();
 
         if (redirectType === 'detail') {
@@ -58,7 +58,7 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
 
         const currentLocation = `${window.location.pathname}${
           window.location.search
-        }`;
+          }`;
 
         if (getAssociatedCustomer) {
           getAssociatedCustomer(data.customersAdd);
@@ -81,13 +81,13 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
           isSubmitted={isSubmitted}
           disableLoading={redirectType ? true : false}
           disabled={isSubmitted}
-          type='submit'
-          icon='check-circle'
+          type="submit"
+          icon="check-circle"
           resetSubmit={resetSubmit}
           uppercase={false}
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
-          } a ${name}`}
+            } a ${name}`}
         />
       );
     };
