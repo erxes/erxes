@@ -4,6 +4,7 @@ import * as dotenv from 'dotenv';
 import * as telemetry from 'erxes-telemetry';
 import * as express from 'express';
 import * as fs from 'fs';
+import * as helmet from 'helmet';
 import { createServer } from 'http';
 import * as mongoose from 'mongoose';
 import * as path from 'path';
@@ -83,6 +84,8 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+
+app.use(helmet({ frameguard: { action: 'deny' } }));
 
 app.get('/set-frontend-cookies', async (req: any, res) => {
   const envMaps = JSON.parse(req.query.envs || '{}');
