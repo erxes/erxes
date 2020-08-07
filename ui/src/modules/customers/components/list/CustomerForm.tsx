@@ -58,7 +58,7 @@ class CustomerForm extends React.Component<Props, State> {
     const userId = props.currentUser ? props.currentUser._id : '';
 
     this.state = {
-      ownerId: customer.ownerId ? customer.ownerId : userId,
+      ownerId: customer.ownerId || userId,
       doNotDisturb: customer.doNotDisturb || 'No',
       hasAuthority: customer.hasAuthority || 'No',
       users: [],
