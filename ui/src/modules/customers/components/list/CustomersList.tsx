@@ -70,7 +70,7 @@ class CustomersList extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue
+      searchValue: this.props.searchValue,
     };
   }
 
@@ -80,10 +80,10 @@ class CustomersList extends React.Component<IProps, State> {
     toggleAll(customers, 'customers');
   };
 
-  removeCustomers = customers => {
+  removeCustomers = (customers) => {
     const customerIds: string[] = [];
 
-    customers.forEach(customer => {
+    customers.forEach((customer) => {
       customerIds.push(customer._id);
     });
 
@@ -105,7 +105,7 @@ class CustomersList extends React.Component<IProps, State> {
       bulk,
       toggleBulk,
       history,
-      isAllSelected
+      isAllSelected,
     } = this.props;
 
     return (
@@ -128,7 +128,7 @@ class CustomersList extends React.Component<IProps, State> {
           </tr>
         </thead>
         <tbody id="customers">
-          {customers.map(customer => (
+          {customers.map((customer) => (
             <CustomerRow
               customer={customer}
               columnsConfig={columnsConfig}
@@ -143,7 +143,7 @@ class CustomersList extends React.Component<IProps, State> {
     );
   }
 
-  search = e => {
+  search = (e) => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -179,7 +179,7 @@ class CustomersList extends React.Component<IProps, State> {
       history,
       queryParams,
       exportData,
-      mergeCustomerLoading
+      mergeCustomerLoading,
     } = this.props;
 
     const addTrigger = (
@@ -194,7 +194,7 @@ class CustomersList extends React.Component<IProps, State> {
       <DateFilter queryParams={queryParams} history={history} />
     );
 
-    const manageColumns = props => {
+    const manageColumns = (props) => {
       return (
         <ManageColumns
           {...props}
@@ -205,7 +205,7 @@ class CustomersList extends React.Component<IProps, State> {
       );
     };
 
-    const customerForm = props => {
+    const customerForm = (props) => {
       return (
         <CustomerForm
           {...props}
@@ -216,7 +216,7 @@ class CustomersList extends React.Component<IProps, State> {
       );
     };
 
-    const customersMerge = props => {
+    const customersMerge = (props) => {
       return (
         <CustomersMerge
           {...props}
@@ -261,7 +261,7 @@ class CustomersList extends React.Component<IProps, State> {
             </li>
             <li>
               <a href="#export" onClick={exportData.bind(this, bulk)}>
-                {__('Export customers')}
+                {type === 'lead' ? __('Export leads') : __('Export customers')}
               </a>
             </li>
             <li>
@@ -321,13 +321,13 @@ class CustomersList extends React.Component<IProps, State> {
           .then(() => {
             this.removeCustomers(bulk);
           })
-          .catch(e => {
+          .catch((e) => {
             Alert.error(e.message);
           });
 
       const refetchQuery = {
         query: gql(queries.customerCounts),
-        variables: { only: 'byTag' }
+        variables: { only: 'byTag' },
       };
 
       actionBarLeft = (
