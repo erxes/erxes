@@ -500,7 +500,8 @@ DAILY_END_POINT="your daily application's end point"
 ```
 
 - `DAILY_API_KEY='######'` Get API key from Daily account Developers tab.
-- `DAILY_END_POINT ='example.daily.co'` is your subdomain name.
+- `DAILY_END_POINT ='https://example.daily.co'` is your subdomain name.
+  - **Note:** You must have `https://` before the url endpoint, and there is **no trailing slash**.
 
 Integrated video chat is used on the Erxes messenger widget. It is assumed that the one conversation can be activated one video call.
 
