@@ -868,7 +868,17 @@ export const INTEGRATIONS = [
     logo: '/images/integrations/zapier.png',
     category:
       'All integrations, For sales teams, For marketing teams, Contacts, CRM'
-  }
+  },
+  {
+    name: 'Rocketchat',
+    description:
+      'The Leading Communication Hub',
+    inMessenger: false,
+    isAvailable: false,
+    logo: '/images/integrations/rocketchat',
+    category:
+      'All integrations, For sales teams, For marketing teams, Social media'
+  },
 ];
 
 export const INTEGRATION_FILTERS = [
