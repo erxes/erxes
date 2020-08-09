@@ -26,8 +26,6 @@ export const createNylasIntegration = async (kind: string, integrationId: string
       }
     }
 
-    await Integrations.create({ kind, email: data.email, erxesApiId: integrationId });
-
     // Connect provider to nylas ===========
     switch (kind) {
       case 'exchange':
@@ -45,7 +43,6 @@ export const createNylasIntegration = async (kind: string, integrationId: string
         break;
     }
   } catch (e) {
-    await Integrations.deleteOne({ erxesApiId: integrationId });
     throw e;
   }
 };

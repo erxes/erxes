@@ -90,7 +90,7 @@ export const trackGmail = async () => {
     subscription = await pubsubClient.subscription(GOOGLE_GMAIL_SUBSCRIPTION_NAME);
   } catch (e) {
     debugGmail(`Pubsub: Failed to get subscription: ${e.message}`);
-    return e;
+    throw e;
   }
 
   let subscriptionExists;

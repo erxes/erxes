@@ -45,7 +45,8 @@ const connectProviderToNylas = async (kind: string, integrationId: string, uid: 
 
     await removeKey(crendentialKey);
 
-    await updateIntegration({
+    await createIntegration({
+      kind,
       email,
       integrationId,
       nylasToken: access_token,
@@ -73,7 +74,8 @@ const connectYahooAndOutlookToNylas = async (kind: string, integrationId: string
       settings: { username: email, password },
     });
 
-    await updateIntegration({
+    await createIntegration({
+      kind,
       integrationId,
       nylasToken: access_token,
       nylasAccountId: account_id,
@@ -103,7 +105,8 @@ const connectExchangeToNylas = async (integrationId: string, data: INylasIntegra
       },
     });
 
-    await updateIntegration({
+    await createIntegration({
+      kind: 'exchange',
       integrationId,
       nylasToken: access_token,
       nylasAccountId: account_id,
@@ -141,7 +144,8 @@ const connectImapToNylas = async (integrationId: string, data: INylasIntegration
       },
     });
 
-    await updateIntegration({
+    await createIntegration({
+      kind: 'imap',
       integrationId,
       nylasToken: access_token,
       nylasAccountId: account_id,
@@ -243,34 +247,33 @@ const removeExistingNylasWebhook = async (): Promise<void> => {
   }
 };
 
-const updateIntegration = async ({
+const createIntegration = async ({
   email,
   integrationId,
   nylasAccountId,
   nylasToken,
   status,
+  kind,
 }: {
   email?: string;
   integrationId: string;
   nylasAccountId: string;
   nylasToken: string;
   status: string;
+  kind: string;
 }) => {
   if (status === 'cancelled') {
     await enableOrDisableAccount(nylasAccountId, true);
   }
 
-  return Integrations.updateOne(
-    { erxesApiId: integrationId },
-    {
-      $set: {
-        ...(email ? { email } : {}),
-        nylasToken,
-        nylasAccountId,
-        nylasBillingState: 'paid',
-      },
-    },
-  );
+  return Integrations.create({
+    ...(email ? { email } : {}),
+    kind,
+    erxesApiId: integrationId,
+    nylasToken,
+    nylasAccountId,
+    nylasBillingState: 'paid',
+  });
 };
 
 export {
