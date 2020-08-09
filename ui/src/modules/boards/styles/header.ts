@@ -11,6 +11,11 @@ export const PageHeader = styled.div`
   background: ${colors.colorWhite};
   box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
   min-height: 50px;
+
+  @media (max-width: 768px) {
+    min-height: auto;
+    flex-direction: column;
+  }
 `;
 
 export const ButtonGroup = styled.div`
@@ -50,6 +55,10 @@ export const ButtonGroup = styled.div`
 export const HeaderItems = styled(BarItems)`
   display: flex;
   align-items: center;
+
+  @media (max-width: 768px) {
+    flex-wrap: wrap;
+  }
 `;
 
 export const HeaderButton = styledTS<{

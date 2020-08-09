@@ -10,6 +10,10 @@ const Items = styled.ul`
   margin: 0 ${dimensions.coreSpacing}px 0 0;
   list-style: none;
   font-size: 14px;
+
+  @media (max-width: 560px) {
+    display: none;
+  }
 `;
 
 class BreadCrumb extends React.Component<{
