@@ -202,33 +202,38 @@ const integrationMutations = {
   async integrationsRemove(_root, { _id }: { _id: string }, { user, dataSources }: IContext) {
     const integration = await Integrations.getIntegration(_id);
 
-    if (
-      [
-        'facebook-messenger',
-        'facebook-post',
-        'gmail',
-        'callpro',
-        'nylas-gmail',
-        'nylas-imap',
-        'nylas-office365',
-        'nylas-outlook',
-        'nylas-exchange',
-        'nylas-yahoo',
-        'chatfuel',
-        'twitter-dm',
-        'smooch-viber',
-        'smooch-telegram',
-        'smooch-line',
-        'smooch-twilio',
-        'whatsapp',
-      ].includes(integration.kind)
-    ) {
-      await dataSources.IntegrationsAPI.removeIntegration({ integrationId: _id });
+    try {
+      if (
+        [
+          'facebook-messenger',
+          'facebook-post',
+          'gmail',
+          'callpro',
+          'nylas-gmail',
+          'nylas-imap',
+          'nylas-office365',
+          'nylas-outlook',
+          'nylas-exchange',
+          'nylas-yahoo',
+          'chatfuel',
+          'twitter-dm',
+          'smooch-viber',
+          'smooch-telegram',
+          'smooch-line',
+          'smooch-twilio',
+          'whatsapp',
+        ].includes(integration.kind)
+      ) {
+        await dataSources.IntegrationsAPI.removeIntegration({ integrationId: _id });
+      }
+
+      await putDeleteLog({ type: MODULE_NAMES.INTEGRATION, object: integration }, user);
+
+      return Integrations.removeIntegration(_id);
+    } catch (e) {
+      debugExternalApi(e);
+      throw e;
     }
-
-    await putDeleteLog({ type: MODULE_NAMES.INTEGRATION, object: integration }, user);
-
-    return Integrations.removeIntegration(_id);
   },
 
   /**
