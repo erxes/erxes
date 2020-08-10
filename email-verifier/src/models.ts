@@ -9,6 +9,7 @@ export const EMAIL_VALIDATION_STATUSES = {
   CATCHALL: 'catchall',
   BAD_SYNTAX: 'badsyntax',
   UNVERIFIABLE: 'unverifiable',
+  NOT_CHECKED: 'Not checked',
   ALL: [
     'valid',
     'invalid',
@@ -18,6 +19,7 @@ export const EMAIL_VALIDATION_STATUSES = {
     'catchall',
     'badsyntax',
     'unverifiable',
+    'Not checked',
   ],
 };
 
