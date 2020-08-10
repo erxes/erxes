@@ -244,21 +244,17 @@ const readCsvFile = async (fileName: string, uploadType: string): Promise<{ fiel
         return reject(new Error('You can only import 100000 rows one at a time'));
       }
 
-      const fieldNames = Object.keys(results[0]);
+      const fieldNames: string[] = [];
 
       for (const [key, value] of Object.entries(results[0])) {
         if (value && typeof value === 'object') {
           const subFields = Object.keys(value || {});
 
-          const index = fieldNames.indexOf(key);
-
-          if (index > -1) {
-            fieldNames.splice(index, 1);
-          }
-
           for (const subField of subFields) {
             fieldNames.push(`${key}.${subField}`);
           }
+        } else {
+          fieldNames.push(key);
         }
       }
 
@@ -266,10 +262,10 @@ const readCsvFile = async (fileName: string, uploadType: string): Promise<{ fiel
         let data: any[] = [];
 
         for (const mainValue of Object.values(result)) {
-          if (typeof mainValue !== 'object') {
-            data.push(mainValue || '');
-          } else {
-            if (typeof mainValue === 'object') {
+          if (mainValue) {
+            if (typeof mainValue !== 'object') {
+              data.push(mainValue || '');
+            } else if (typeof mainValue === 'object') {
               const subFieldValues = Object.values(mainValue || {});
               subFieldValues.forEach(subFieldValue => {
                 data.push(subFieldValue || '');
@@ -277,7 +273,10 @@ const readCsvFile = async (fileName: string, uploadType: string): Promise<{ fiel
             }
           }
         }
-        mainDatas.push(data);
+
+        if (data.length > 1) {
+          mainDatas.push(data);
+        }
 
         data = [];
       }
