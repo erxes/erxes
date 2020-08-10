@@ -13,7 +13,7 @@ export default function VideoCallRequest({ color }: Props) {
       style={{ borderColor: color }}
     >
       <div className="user-info horizontal">
-        {iconVideo}
+        {iconVideo({ color: ''})}
         <strong>{__("Call request sent")}</strong>
       </div>
     </div>

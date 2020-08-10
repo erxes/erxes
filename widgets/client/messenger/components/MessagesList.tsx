@@ -143,7 +143,7 @@ class MessagesList extends React.Component<Props, State> {
     };
 
     const { uiOptions } = this.props;
-    const { color } = uiOptions;
+    const { color, textColor = '#fff' } = uiOptions;
 
     return (
       <div
@@ -158,16 +158,16 @@ class MessagesList extends React.Component<Props, State> {
             style={{ background: color }}
             onClick={sendCallRequest}
           >
-            {iconCall}
-            <span>Audio call</span>
+            {iconCall({ color: textColor })}
+            <span style={{ background: color, color: textColor }}>Audio call</span>
           </button>
           <button
             className="erxes-button"
             style={{ background: color }}
             onClick={sendCallRequest}
           >
-            {iconVideo}
-            <span>Video call</span>
+            {iconVideo({ color: textColor })}
+            <span style={{ color: textColor }}>Video call</span>
           </button>
         </div>
       </div>
@@ -175,8 +175,8 @@ class MessagesList extends React.Component<Props, State> {
   }
 
   render() {
-    const { uiOptions, messengerData, messages } = this.props;
-    const { color, wallpaper } = uiOptions;
+    const { uiOptions, messengerData, messages, } = this.props;
+    const { color, wallpaper, textColor = '#fff' } = uiOptions;
     const backgroundClass = classNames("erxes-messages-background", {
       [`bg-${wallpaper}`]: wallpaper
     });
@@ -200,6 +200,7 @@ class MessagesList extends React.Component<Props, State> {
                     <Message
                       toggleVideo={this.props.toggleVideoCall}
                       color={color}
+                      textColor={textColor}
                       {...message}
                     />
                   </RTG.CSSTransition>
@@ -210,6 +211,7 @@ class MessagesList extends React.Component<Props, State> {
                     key={message._id}
                     toggleVideo={this.props.toggleVideoCall}
                     color={color}
+                    textColor={textColor}
                     {...message}
                   />
                 );

@@ -6,6 +6,8 @@
   overflow: auto;
   position: relative;
   max-height: 50%;
+  border-bottom-right-radius: 25px;
+  border-bottom-left-radius: 10px;
 
   textarea {
     @include prefix(

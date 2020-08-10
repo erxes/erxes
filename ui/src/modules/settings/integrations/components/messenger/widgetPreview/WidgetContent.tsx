@@ -14,6 +14,7 @@ import {
 
 type Props = {
   color: string;
+  textColor: string;
   wallpaper: string;
   isOnline?: boolean;
   message?: IMessagesItem;
@@ -29,7 +30,7 @@ class WidgetContent extends React.Component<Props> {
   };
 
   render() {
-    const { color, wallpaper, message, isOnline } = this.props;
+    const { color, wallpaper, message, isOnline, textColor } = this.props;
 
     const backgroundClasses = `background-${wallpaper}`;
 
@@ -45,7 +46,7 @@ class WidgetContent extends React.Component<Props> {
             <ErxesDate>{__('1 hour ago')}</ErxesDate>
           </li>
           <ErxesFromCustomer>
-            <FromCustomer style={{ backgroundColor: color }}>
+            <FromCustomer style={{ backgroundColor: color, color: textColor }}>
               {__('We need your help!')}
             </FromCustomer>
             <ErxesDate>{__('6 minutes ago')}</ErxesDate>

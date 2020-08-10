@@ -79,6 +79,7 @@ export interface IMessengerData {
 
 export interface IUiOptions {
   color?: string;
+  textColor?: string;
   wallpaper?: string;
   logo?: string;
   logoPreviewUrl?: string;

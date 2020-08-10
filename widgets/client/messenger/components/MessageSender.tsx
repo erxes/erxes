@@ -179,7 +179,7 @@ class MessageSender extends React.Component<Props, State> {
         className="ctrl-item"
         onClick={this.sendVideoCallRequest}
       >
-        {iconVideo}
+        {iconVideo({ color: ''})}
       </label>
     );
   }
