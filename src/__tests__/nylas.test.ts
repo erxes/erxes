@@ -33,8 +33,9 @@ import { cleanHtml } from '../utils';
 import './setup.ts';
 
 describe('Nylas gmail test', () => {
+  const erxesApiId = 'erxesApiId';
+
   let integrationId: string;
-  let erxesApiId: string;
 
   const attachmentDoc = {
     name: 'test',
@@ -57,7 +58,6 @@ describe('Nylas gmail test', () => {
     });
 
     integrationId = integration._id;
-    erxesApiId = integration.erxesApiId;
   });
 
   afterEach(async () => {
@@ -108,7 +108,7 @@ describe('Nylas gmail test', () => {
     const mock = sinon.stub(utils, 'sendRequest');
 
     mock.onCall(0).returns('code');
-    mock.onCall(1).returns({ access_token: 'ajdalsj', account_id: 'account_id' });
+    mock.onCall(1).returns({ access_token: 'access_token', account_id: 'account_id' });
 
     const doc = {
       imapHost: 'imaphost',
@@ -122,9 +122,9 @@ describe('Nylas gmail test', () => {
 
     await auth.connectImapToNylas(erxesApiId, doc);
 
-    const updatedIntegration = await Integrations.findOne({ _id: integrationId });
+    const updatedIntegration = await Integrations.findOne({ erxesApiId });
 
-    expect(updatedIntegration.nylasToken).toEqual('ajdalsj');
+    expect(updatedIntegration.nylasToken).toEqual('access_token');
     expect(updatedIntegration.nylasAccountId).toEqual('account_id');
 
     mock.restore();
@@ -161,7 +161,7 @@ describe('Nylas gmail test', () => {
 
     await auth.connectYahooAndOutlookToNylas('gmail', erxesApiId, doc);
 
-    const updatedIntegration = await Integrations.findOne({ _id: integrationId }).lean();
+    const updatedIntegration = await Integrations.findOne({ erxesApiId }).lean();
 
     expect(updatedIntegration.nylasToken).toEqual('access_token123');
     expect(updatedIntegration.nylasAccountId).toEqual('account_id');
@@ -196,7 +196,7 @@ describe('Nylas gmail test', () => {
 
     await auth.connectExchangeToNylas(erxesApiId, doc);
 
-    const updatedIntegration = await Integrations.findOne({ _id: integrationId });
+    const updatedIntegration = await Integrations.findOne({ erxesApiId });
 
     expect(updatedIntegration.nylasToken).toEqual('access_token123');
     expect(updatedIntegration.nylasAccountId).toEqual('account_id');
@@ -538,7 +538,7 @@ describe('Nylas gmail test', () => {
 
     await auth.connectProviderToNylas('gmail', erxesApiId, 'uid');
 
-    const updatedIntegration = await Integrations.findOne({ _id: integrationId });
+    const updatedIntegration = await Integrations.findOne({ erxesApiId });
 
     expect(updatedIntegration.nylasToken).toEqual('access_token123');
     expect(updatedIntegration.nylasAccountId).toEqual('account_id');

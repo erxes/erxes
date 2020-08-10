@@ -337,11 +337,9 @@ describe('Test nylas controller', () => {
       return Promise.resolve('success');
     });
 
-    const integration = await Integrations.create({ kind: 'gmail', erxesApiId: 'erxesApiId44' });
+    await createNylasIntegration('gmail', 'erxesApiId', {});
 
-    await createNylasIntegration('gmail', integration.erxesApiId, {});
-
-    const updatedIntegration = await Integrations.findOne({ erxesApiId: integration.erxesApiId });
+    const updatedIntegration = await Integrations.findOne({ erxesApiId: 'erxesApiId' });
 
     expect(updatedIntegration.email).toEqual('email321@gmail.com');
     expect(updatedIntegration.nylasToken).toEqual('access_token');

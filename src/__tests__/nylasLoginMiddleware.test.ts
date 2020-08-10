@@ -144,7 +144,7 @@ describe('Login middleware test', () => {
 
     const response = await getOAuthCredentials(req, res, next);
 
-    expect(response).toBe(`${AUTHORIZED_REDIRECT_URL}&uid=123#showgmailModal=true`);
+    expect(response).toBe(`${AUTHORIZED_REDIRECT_URL}?uid=123#showgmailModal=true`);
 
     sendRequestMock.restore();
   });
@@ -168,7 +168,7 @@ describe('Login middleware test', () => {
 
     const response = await getOAuthCredentials(req, res, next);
 
-    expect(response).toEqual(`${AUTHORIZED_REDIRECT_URL}&uid=123#showoffice365Modal=true`);
+    expect(response).toEqual(`${AUTHORIZED_REDIRECT_URL}?uid=123#showoffice365Modal=true`);
 
     sendRequestMock.restore();
   });

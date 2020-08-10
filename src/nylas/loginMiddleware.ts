@@ -20,10 +20,6 @@ const getOAuthCredential = async (req, res, next) => {
 
   let { kind } = req.query;
 
-  if (req.query.error) {
-    return res.redirect(`${AUTHORIZED_REDIRECT_URL}?error=${req.query.error}`);
-  }
-
   if (kind) {
     // for redirect
     globals.kind = kind;
