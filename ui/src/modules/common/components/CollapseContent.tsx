@@ -106,6 +106,7 @@ type Props = {
   beforeTitle?: React.ReactNode;
   onClick?: () => void;
   imageBackground?: string;
+  id?: string;
 };
 
 function CollapseContent(props: Props) {
@@ -120,7 +121,7 @@ function CollapseContent(props: Props) {
   const hasImage = props.image ? true : false;
 
   return (
-    <Container open={open}>
+    <Container open={open} id={props.id}>
       <Title
         href={props.contendId && `#${props.contendId}`}
         id={props.contendId}

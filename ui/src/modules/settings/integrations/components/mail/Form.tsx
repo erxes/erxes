@@ -1,9 +1,9 @@
+import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import CommonForm from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Info from 'modules/common/components/Info';
-import Spinner from 'modules/common/components/Spinner';
 import { ModalFooter } from 'modules/common/styles/main';
 import {
   IButtonMutateProps,
@@ -15,6 +15,7 @@ import routerUtils from 'modules/common/utils/router';
 import * as React from 'react';
 import { withRouter } from 'react-router-dom';
 import SelectBrand from '../../containers/SelectBrand';
+import SelectChannels from '../../containers/SelectChannels';
 import { IExchangeForm, IImapForm, IntegrationTypes } from '../../types';
 import ExchangeForm from './ExchangeForm';
 import ImapForm from './ImapForm';
@@ -28,13 +29,7 @@ type Props = {
 } & IRouterProps;
 
 type State = {
-  email?: string;
-  password?: string;
-  imapHost?: string;
-  imapPort?: number;
-  smtpHost?: string;
-  smtpPort?: number;
-  loading: boolean;
+  channelIds: string[];
 };
 
 class Form extends React.Component<Props, State> {
@@ -42,9 +37,13 @@ class Form extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      loading: false
+      channelIds: []
     };
   }
+
+  onChannelChange = (values: string[]) => {
+    this.setState({ channelIds: values });
+  };
 
   generateDoc = (
     values: { name: string; brandId: string } & IImapForm & IExchangeForm
@@ -58,6 +57,7 @@ class Form extends React.Component<Props, State> {
       kind,
       name,
       brandId,
+      channelIds: this.state.channelIds,
       data: {
         id: 'requestId',
         uid,
@@ -89,33 +89,59 @@ class Form extends React.Component<Props, State> {
 
     return (
       <>
-        {this.state.loading && <Spinner />}
         <FormGroup>
           <Info>
             <strong>{__('Email add account description question')}</strong>
             <br />
-            {__('Email add account description')}
-            <br />
-            <a
-              target="_blank"
-              href="https://www.erxes.org/administrator/system-config/#gmail-imap"
-              rel="noopener noreferrer"
-            >
-              {__('Learn how to connect a Gmail using IMAP')}
-            </a>
+            <p>{__('Email add account description')}</p>
+            <p>
+              <a
+                target="_blank"
+                href="https://www.erxes.org/administrator/system-config/#gmail-imap"
+                rel="noopener noreferrer"
+              >
+                {__('Learn how to connect a Gmail using IMAP')}
+              </a>
+            </p>
           </Info>
         </FormGroup>
 
         <FormGroup>
           <ControlLabel required={true}>Name</ControlLabel>
-          <FormControl {...formProps} name="name" required={true} />
+          <FormControl
+            {...formProps}
+            name="name"
+            required={true}
+            autoFocus={true}
+          />
         </FormGroup>
 
-        <SelectBrand isRequired={true} formProps={formProps} />
+        <SelectBrand
+          isRequired={true}
+          formProps={formProps}
+          description={__(
+            'Which specific Brand does this integration belong to?'
+          )}
+        />
+
+        <SelectChannels
+          defaultValue={this.state.channelIds}
+          isRequired={true}
+          onChange={this.onChannelChange}
+        />
 
         {this.renderProvideForm(formProps)}
 
         <ModalFooter>
+          <Button
+            btnStyle="simple"
+            type="button"
+            onClick={this.props.closeModal}
+            icon="times-circle"
+            uppercase={false}
+          >
+            Cancel
+          </Button>
           {this.props.renderButton({
             name: 'integration',
             values: this.generateDoc(values),

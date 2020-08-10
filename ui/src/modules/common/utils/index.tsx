@@ -377,6 +377,12 @@ export function isEmptyContent(content: string) {
   return !/\S/.test(content);
 }
 
+export const isValidUsername = (username: string) => {
+  const reg = /^(?=[a-zA-Z0-9._]{4,20}$)(?!.*[_.]{2})[^_.].*[^_.]$/gim;
+
+  return reg.test(username);
+};
+
 export const storeConstantToStore = (key, values) => {
   localStorage.setItem(`config:${key}`, JSON.stringify(values));
 };
@@ -403,4 +409,17 @@ export const getConstantFromStore = (
   });
 
   return map;
+};
+
+// Most basic frontend solution for click-jack defense
+export const bustIframe = () => {
+  if (window.self === window.top) {
+    const antiClickjack = document.getElementById('anti-clickjack');
+
+    if (antiClickjack && antiClickjack.parentNode) {
+      antiClickjack.parentNode.removeChild(antiClickjack);
+    }
+  } else {
+    window.top.location = window.self.location;
+  }
 };

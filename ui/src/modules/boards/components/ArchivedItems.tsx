@@ -1,4 +1,5 @@
 import EmptyState from 'modules/common/components/EmptyState';
+import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import { IDeal } from 'modules/deals/types';
 import { ITicket } from 'modules/tickets/types';
@@ -121,7 +122,7 @@ class ArchivedItems extends React.Component<Props, State> {
           />
         ))}
         {hasMore ? (
-          <LoadMore onClick={loadMore}>{__('Load More')}</LoadMore>
+          <LoadMore onClick={loadMore}><Icon icon="redo" />{__('Load More')}</LoadMore>
         ) : null}
       </>
     );

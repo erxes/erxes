@@ -14,6 +14,12 @@ export const getIconAndColor = contentType => {
 };
 
 // uppercase and clean text for tooltip
-export const formatText = text => {
-  return text.replace('nylas-', '').replace(/^\w/, c => c.toUpperCase());
+export const formatText = (text: string, noCaseChange?: boolean) => {
+  const cleanText = text.replace('nylas-', '').replace('smooch-', '');
+
+  if (noCaseChange) {
+    return cleanText;
+  }
+
+  return cleanText.replace(/^\w/, c => c.toUpperCase());
 };

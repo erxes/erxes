@@ -46,7 +46,7 @@ widgetConnect({
     connection.data = messengerData;
 
     // set language
-    setLocale(messengerData.languageCode);
+    setLocale(connection.setting.language ||  messengerData.languageCode);
 
     // save customer id to identify visitor next time
     setLocalStorageItem("customerId", messengerData.customerId);

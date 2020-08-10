@@ -36,7 +36,7 @@ type FinalProps = {
 class SegmentsFormContainer extends React.Component<
   FinalProps,
   { loading: boolean; count: number }
-> {
+  > {
   constructor(props) {
     super(props);
 
@@ -80,7 +80,7 @@ class SegmentsFormContainer extends React.Component<
         type="submit"
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
-        } a ${name}`}
+          } a ${name}`}
       />
     );
   };
@@ -168,7 +168,11 @@ export default withProps<Props>(
     graphql<Props>(gql(queries.combinedFields), {
       name: 'combinedFieldsQuery',
       options: ({ contentType }) => ({
-        variables: { contentType }
+        variables: {
+          contentType: ['visitor', 'lead', 'customer'].includes(contentType)
+            ? 'customer'
+            : contentType
+        }
       })
     })
   )(SegmentsFormContainer)
