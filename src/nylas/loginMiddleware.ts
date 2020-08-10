@@ -20,6 +20,10 @@ const getOAuthCredential = async (req, res, next) => {
 
   let { kind } = req.query;
 
+  if (req.query.error) {
+    return res.redirect(`${AUTHORIZED_REDIRECT_URL}?error=${req.query.error}`);
+  }
+
   if (kind) {
     // for redirect
     globals.kind = kind;
@@ -111,7 +115,7 @@ const getOAuthCredential = async (req, res, next) => {
   // when user create the Gmail or O365 integration
   await set(`${uid}-credential`, `${email},${refresh_token}`);
 
-  return res.redirect(`${AUTHORIZED_REDIRECT_URL}&uid=${uid}#show${kind}Modal=true`);
+  return res.redirect(`${AUTHORIZED_REDIRECT_URL}?uid=${uid}#show${kind}Modal=true`);
 };
 
 export default getOAuthCredential;
