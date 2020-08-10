@@ -114,10 +114,10 @@ export const loadClass = () => {
     /**
      * Save messenger appearance data
      */
-    public static async saveMessengerAppearanceData(_id: string, { color, wallpaper, logo }: IUiOptions) {
+    public static async saveMessengerAppearanceData(_id: string, { color, wallpaper, logo, textColor }: IUiOptions) {
       await Integrations.updateOne(
         { _id },
-        { $set: { uiOptions: { color, wallpaper, logo } } },
+        { $set: { uiOptions: { color, wallpaper, logo, textColor } } },
         { runValdatiors: true },
       );
 
