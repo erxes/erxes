@@ -143,6 +143,12 @@ const BarItems = styled.div`
     width: auto;
     display: inline-block;
   }
+
+  @media (max-width: 768px) {
+    > * + * {
+      margin: 0 ${dimensions.unitSpacing}px 0 0;
+    }
+  }
 `;
 
 const HeaderItems = styledTS<{ rightAligned?: boolean }>(styled.div)`

@@ -1,3 +1,4 @@
+import { AppConsumer } from 'appContext';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
 import React from 'react';
@@ -45,7 +46,7 @@ const CompanyFromContainer = (props: FinalProps) => {
         type="submit"
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
-        } a ${name}`}
+          } a ${name}`}
       />
     );
   };
@@ -55,7 +56,16 @@ const CompanyFromContainer = (props: FinalProps) => {
     renderButton
   };
 
-  return <CompanyForm {...updatedProps} />;
+  return (
+    <AppConsumer>
+      {({ currentUser }) => (
+        <CompanyForm
+          {...updatedProps}
+          currentUser={currentUser || ({} as IUser)}
+        />
+      )}
+    </AppConsumer>
+  );
 };
 
 const getRefetchQueries = () => {

@@ -1,5 +1,5 @@
 import Button from 'modules/common/components/Button';
-import { __ } from 'modules/common/utils';
+import { __, bustIframe } from 'modules/common/utils';
 import React from 'react';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
@@ -45,6 +45,11 @@ class AuthLayout extends React.Component<Props, {}> {
     }
 
     return null;
+  }
+
+  componentDidMount() {
+    // click-jack attack defense
+    bustIframe();
   }
 
   render() {
