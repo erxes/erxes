@@ -16,7 +16,7 @@ erxes is a free and open fair-code licensed all-in-one growth marketing & manage
 
 ## Features
 
-<img src="https://s3.amazonaws.com/erxes/github/features-transparent.png" width="400" align="right" style="max-width: 50%">
+<img src="https://s3.amazonaws.com/erxes/github/features-transparent.png" width="390" align="right" style="max-width: 50%">
 
 erxes helps you attract and engage more customers while giving you high lead conversion. With erxes, all your marketing, sales and customer service tools are merged into one platform for greater output.
 
