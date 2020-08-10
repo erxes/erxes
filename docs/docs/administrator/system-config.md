@@ -615,9 +615,17 @@ In Erxes you can also integrate your Gmail as IMAP.
 
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/gmail_imap_4.png)
 
-- Last thing you should do is enable Less secure app access in [Google settings](https://myaccount.google.com/lesssecureapps) because Google automatically blocks third party access.
+- Enable Less secure app access in [Google settings](https://myaccount.google.com/lesssecureapps) because Google automatically blocks third party access.
 
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/gmail_imap_5.png)
+
+- Allow access to your Google account 
+
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-imap.png)
+
+> Please make sure that you selected the correct account in the right sidebar of your browser.
+  if you have a multiple accounts https://accounts.google.com/b/0/DisplayUnlockCaptcha - in this URL **/0/** is your first account
+  **/1/** is second account and so on.
 
 ### Yahoo
 
