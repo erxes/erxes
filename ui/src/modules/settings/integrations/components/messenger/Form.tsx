@@ -98,7 +98,7 @@ class CreateMessenger extends React.Component<Props, State> {
       languageCode,
       channelIds: channels.map(item => item._id) || [],
       color: uiOptions.color || '#6569DF',
-      textColor: uiOptions.textColor || '#444',
+      textColor: uiOptions.textColor || '#fff',
       wallpaper: uiOptions.wallpaper || '1',
       notifyCustomer: configData.notifyCustomer || false,
       requireAuth: configData.requireAuth,
