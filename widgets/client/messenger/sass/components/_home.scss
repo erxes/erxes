@@ -1,0 +1,183 @@
+$shadow-black: rgba(0, 0, 0, .1);
+
+.erxes-home-container {
+  flex: 1;
+  overflow-y: auto;
+  background: $white;
+
+  .integration-box {
+    animation-delay: .4s;
+    background: $white;
+    border-radius: $border-radius;
+    box-shadow: 0 4px 15px 0 $shadow-black, 0 1px 2px 0 $shadow-black;
+    margin: 15px;
+    min-height: 100px;
+    padding-top: 15px;
+    position: relative;
+    overflow: hidden;
+    z-index: 3;
+
+    h4 {
+      font-weight: 500;
+      margin: 0 20px 15px;
+    }
+  }
+
+  .empty-list {
+    padding: 0 20px 20px;
+
+    p {
+      color: $text-color-light;
+      margin-top: 0;
+    }
+  }
+
+  .head-wrapper {
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+
+    .erxes-middle {
+      justify-content: flex-start;
+    }
+  }
+
+  .erxes-home-content {
+    height: 100%;
+    margin-top: -40px;
+    position: relative;
+    z-index: 11;
+
+    .erxes-home-item {
+      bottom: 0;
+      left: 0;
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
+
+    &.tabbed {
+      margin-top: 0;
+    }
+
+    .scroll-wrapper {
+      height: calc(100% - 60px);
+      overflow: auto;
+    }
+  }
+}
+
+.erxes-welcome {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  overflow-wrap: break-word;
+  padding: 25px 40px 45px;
+  text-align: left;
+  word-wrap: break-word;
+
+  .erxes-supporters {
+    padding-top: 10px;
+
+    .erxes-supporter {
+      display: inline-block;
+      flex: none;
+      margin-right: 10px;
+    }
+
+    img {
+      border: 0;
+    }
+  }
+
+  .erxes-topbar-title {
+    display: none;
+  }
+
+  .erxes-tooltip::before {
+    top: -100%;
+  }
+
+  .loader-wrapper {
+    margin-left: -50px;
+  }
+
+  &.tabbed {
+    padding-bottom: 60px;
+  }
+
+  .assist-bar {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+
+    time {
+      opacity: 0.7;
+      font-size: 11px;
+    }
+
+    .socials {
+      margin-right: 30px;
+    }
+  }
+
+  .server-info {
+    padding: 10px 0;
+    font-size: 12px;
+
+    p {
+      margin: 0;
+    }
+  }
+} // end .erxes-welcome
+
+// tab bar
+.erxes-tab {
+  border-bottom: 1px solid $border-color;
+  bottom: 0;
+  color: $black;
+  cursor: pointer;
+  display: flex;
+  height: 36px;
+  left: 0;
+  position: absolute;
+  right: 0;
+  z-index: 1;
+
+  .indicator {
+    background: $main-color;
+    bottom: -1px;
+    height: 2px;
+    left: 50%;
+    position: absolute;
+    transition: left .3s ease;
+    width: 50%;
+
+    &.left {
+      left: 0;
+    }
+  }
+
+  > span {
+    align-items: center;
+    background: $white;
+    display: flex;
+    flex: 1;
+    font-size: 11px;
+    justify-content: center;
+    text-align: center;
+    text-transform: uppercase;
+    transition: all .3s ease;
+
+    &:last-of-type {
+      border-left: 1px solid $border-color;
+    }
+  }
+}
+
+.loader-wrapper {
+  height: 70px;
+  position: relative;
+}

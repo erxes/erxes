@@ -1,0 +1,113 @@
+/* stylelint-disable docusaurus/copyright-header */
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+
+/* You can override the default Infima variables here. */
+
+:root {
+  --white: #fff;
+  --black: #000;
+  --nebula-blue: #5468ff;
+  --moon-grey: #f5f5fa;
+  --proton-grey: #c5c9e0;
+  --nova-grey: #848ab8;
+  --telluric-blue: #5d6494;
+  --solstice-blue: #3a416f;
+  --cosmos-black: #21243d;
+
+  /* heading */
+  --ifm-h1-font-size: 2.8rem;
+  --ifm-h2-font-size: 25px;
+}
+
+:root {
+  --ifm-font-size-base: 16px;
+  --ifm-code-font-size: 90%;
+  --ifm-footer-background-color: var(--moon-grey);
+  --ifm-menu-color-background-active: var(--ifm-color-emphasis-200);
+  --ifm-color-primary: var(--nebula-blue);
+  --ifm-heading-color:  var(--cosmos-black);
+  --ifm-menu-color-active: #5629B6;
+  --ifm-color-primary-dark: #4d25a4;
+  --ifm-color-primary-darker: #49239b;
+  --ifm-color-primary-darkest: #3c1d7f;
+  --ifm-color-primary-light: #5f2dc8;
+  --ifm-color-primary-lighter: #6330d0;
+  --ifm-color-primary-lightest: #784bd7;
+}
+
+html[data-theme='dark'] {
+  --ifm-font-base-color: #dee0f2;
+  --ifm-navbar-link-hover-color: #8b9dff;
+  --ifm-link-color: #8b9dff;
+  --ifm-menu-color-active: #8b9dff;
+  --ifm-background-color: #0a141c;
+  --ifm-heading-color: #dee0f2;
+  --ifm-footer-background-color: #0a141c;
+  --ifm-navbar-background-color: #21243d;
+  --ifm-menu-color-background-active: #21243d;
+}
+
+#hero {
+  background-image: linear-gradient(
+    var(--ifm-navbar-background-color),
+    var(--ifm-footer-background-color)
+  );
+}
+
+html[data-theme='dark'] .react-toggle-track {
+  background-color: var(--ifm-footer-background-color);
+}
+
+.blogPostTitle_node_modules-\@docusaurus-theme-classic-src-theme-BlogPostItem- {
+  font-size: 2.5rem !important;
+}
+
+.footer .footer__logo {
+  max-width: 5rem;
+}
+
+.docusaurus-highlight-code-line {
+  background-color: rgb(72, 77, 91);
+  display: block;
+  margin: 0 calc(-1 * var(--ifm-pre-padding));
+  padding: 0 var(--ifm-pre-padding);
+}
+
+.navbar__items > span {
+  margin-top: 7px;
+  display: none;
+}
+
+.menu__list-item > span {
+  margin-left: 8px;
+}
+
+.footer {
+  padding-top: 60px;
+}
+
+.center {
+  text-align: center;
+}
+
+.container.container-sm {
+  max-width: 720px;
+}
+
+.even-column {
+  background: rgba(180,180,180, 0.08);
+}
+
+@media (min-width: 600px) {
+	.center-desktop {
+		text-align: center;
+  }
+  
+  .navbar__items > span {
+    display: block;
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "sourceMap": true,
+    "module": "commonjs",
+      "lib": [
+      "es5",
+      "es6",
+      "dom",
+      "esnext.asynciterable"
+    ],
+    "target": "es5",
+    "jsx": "react",
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true
+  },
+  "include": ["client"],
+  "exclude": ["node_modules", "dist"]
+}

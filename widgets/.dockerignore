@@ -1,0 +1,13 @@
+client
+scripts
+server
+*.yml
+.env*
+.git*
+*.md
+.snyk
+Dockerfile*
+*.tar.gz
+webpack*.js
+package*.json
+tsconfig*.json
