@@ -1,5 +1,3 @@
-import { __ } from 'modules/common/utils';
-
 export const days = [
   { value: 'everyday', label: 'Everyday' },
   { value: 'weekdays', label: 'Weekdays' },
