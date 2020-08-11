@@ -103,7 +103,7 @@ export default class ArticleDetail extends React.PureComponent<
         />
 
         <div className="erxes-kb-item detail">
-          <h1>{__(title)}</h1>
+          <h1>{title}</h1>
           <div className="item-meta flex-item">
             <div className="avatars">
               <img

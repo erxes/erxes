@@ -10,7 +10,7 @@ import {
   youtube
 } from "../../../icons/Icons";
 import { IParticipator, IUserDetails, IUserLinks } from "../../../types";
-import { __, readFile } from "../../../utils";
+import { readFile } from "../../../utils";
 import { SocialLink } from "./";
 
 type Props = {
@@ -60,8 +60,8 @@ function Profile(props: Props) {
           <span className={stateClass} />
         </div>
         <div className="user-name">
-          <h5>{__(userDetail.fullName)}</h5>
-          <span>{__(userDetail.position)}</span>
+          <h5>{userDetail.fullName}</h5>
+          <span>{userDetail.position}</span>
         </div>
       </div>
       {isExpanded && bottomContent()}

@@ -1,5 +1,4 @@
 import * as React from "react";
-import { __ } from "../../utils";
 
 type Props = {
   color: string;
@@ -11,7 +10,7 @@ function TopBar({ title, color }: Props) {
     <div className="erxes-topbar thiner" style={{ backgroundColor: color }}>
       <div className="erxes-middle">
         <div className="erxes-topbar-title">
-          <div>{__(title)}</div>
+          <div>{title}</div>
         </div>
       </div>
     </div>
