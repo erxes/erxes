@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { rgba } from '../styles/color';
 import colors from '../styles/colors';
 import { IAttachment } from '../types';
-import { readFile } from '../utils';
+import { __, readFile } from '../utils';
 
 export const AttachmentWrapper = styled.div`
   border-radius: 4px;
@@ -13,9 +13,11 @@ export const AttachmentWrapper = styled.div`
   display: flex;
   color: ${colors.textPrimary};
   position: relative;
-
   img {
     max-width: 100%;
+  }
+  &:hover {
+    background: ${rgba(colors.colorCoreDarkBlue, 0.08)};
   }
 `;
 
@@ -23,12 +25,10 @@ const ItemInfo = styled.div`
   flex: 1;
   padding: 10px 15px;
   word-wrap: break-word;
-
   h5 {
     margin: 0 0 5px;
     font-weight: bold;
   }
-
   video {
     width: 100%;
   }
@@ -37,7 +37,6 @@ const ItemInfo = styled.div`
 const Download = styled.a`
   color: ${colors.colorCoreGray};
   margin-left: 10px;
-
   &:hover {
     color: ${colors.colorCoreBlack};
   }
@@ -46,15 +45,13 @@ const Download = styled.a`
 const PreviewWrapper = styled.div`
   height: 80px;
   width: 110px;
-  display: inline-block;
   background: ${rgba(colors.colorCoreDarkBlue, 0.08)};
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 7px;
+  border-radius: 4px;
   overflow: hidden;
   align-self: center;
-
   i {
     font-size: 36px;
     color: ${colors.colorSecondary};
@@ -65,7 +62,6 @@ export const Meta = styled.div`
   position: relative;
   font-weight: 500;
   color: ${colors.colorCoreGray};
-
   > * + * {
     margin-left: 10px;
   }
@@ -104,6 +100,7 @@ class Attachment extends React.Component<Props> {
           {attachment.size && (
             <span>Size: {Math.round(attachment.size / 1000)}kB</span>
           )}
+          {this.props.additionalItem}
         </Meta>
       </>
     );
@@ -126,7 +123,7 @@ class Attachment extends React.Component<Props> {
         <ItemInfo>
           <video controls={true} loop={true}>
             <source src={attachment.url} type="video/mp4" />
-            Your browser does not support the video tag.
+            {__('Your browser does not support the video tag')}.
           </video>
         </ItemInfo>
       </AttachmentWrapper>
