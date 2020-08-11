@@ -93,7 +93,7 @@ class MessagesList extends React.Component<Props, State> {
   }
 
   renderNotifyInput(messengerData: IIntegrationMessengerData) {
-    const { isLoggedIn, getColor } = this.props;
+    const { isLoggedIn, getColor, uiOptions } = this.props;
 
     if (isLoggedIn()) {
       return null;
@@ -116,6 +116,7 @@ class MessagesList extends React.Component<Props, State> {
           save={this.onNotify}
           color={getColor}
           loading={false}
+          textColor={uiOptions.textColor || '#fff'}
         />
       </li>
     );
@@ -158,7 +159,7 @@ class MessagesList extends React.Component<Props, State> {
             style={{ background: color }}
             onClick={sendCallRequest}
           >
-            {iconCall({ color: textColor })}
+            {iconCall(textColor)}
             <span style={{ background: color, color: textColor }}>Audio call</span>
           </button>
           <button
@@ -166,7 +167,7 @@ class MessagesList extends React.Component<Props, State> {
             style={{ background: color }}
             onClick={sendCallRequest}
           >
-            {iconVideo({ color: textColor })}
+            {iconVideo(textColor)}
             <span style={{ color: textColor }}>Video call</span>
           </button>
         </div>

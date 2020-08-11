@@ -12,26 +12,26 @@ const attrs = {
   strokeLinejoin: 'round',
 };
 
-const iconPlus = ({ color }) => (
-  <svg {...attrs} width="20" className="icon" style={{ stroke: color }}>
+const iconPlus = (
+  <svg {...attrs} width="20" className="icon">
     <line x1="12" y1="5" x2="12" y2="19" />
     <line x1="5" y1="12" x2="19" y2="12" />
   </svg>
 );
 
-const iconLeft = ({ color }) => (
+const iconLeft = (color) => (
   <svg {...attrs} style={{ stroke: color }}>
     <polyline points="15 18 9 12 15 6" />
   </svg>
 );
 
-const iconRight = ({ color }) => (
-  <svg {...attrs} height="20">
+const iconRight = (color) => (
+  <svg {...attrs} height="20" style={{ stroke: color }}>
     <polyline points="9 18 15 12 9 6" />
   </svg>
 );
 
-const iconExit = ({ color }) => (
+const iconExit = (color) => (
   <svg {...attrs} width="18" style={{ stroke: color }}>
     <path d="M10 22H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h5" />
     <polyline points="17 16 21 12 17 8" />
@@ -48,7 +48,7 @@ const iconAttach = (
   </svg>
 );
 
-const iconMore = ({ color }) => (
+const iconMore = (color) => (
   <svg {...attrs} style={{ fill: color }} width="9" height="33" fill="#ffffff" strokeWidth="0">
     <circle cx="10" cy="4.5" r="4.5" />
     <circle cx="10" cy="20.5" r="4.5" />
@@ -56,14 +56,14 @@ const iconMore = ({ color }) => (
   </svg>
 );
 
-const iconClose = ({ color }) => (
+const iconClose = (color) => (
   <svg {...attrs} style={{ stroke: color }} width="18">
     <line x1="18" y1="6" x2="6" y2="18" />
     <line x1="6" y1="6" x2="18" y2="18" />
   </svg>
 );
 
-const iconCall = ({ color }) => (
+const iconCall = (color) => (
   <svg data-v-ffab46c4="" style={{ fill: color }} version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="18px" height="18px" viewBox="0 244.8 595.3 597.1" enableBackground="new 0 244.8 595.3 597.1"><path d="M470.7,632.3c-20.2-20-45.5-20-65.6,0c-15.3,15.2-30.7,30.4-45.7,45.9c-4.1,4.2-7.6,5.2-12.6,2.3c-9.9-5.4-20.5-9.8-30-15.7 c-44.4-28-81.7-63.9-114.7-104.4c-16.4-20.1-30.9-41.6-41.1-65.8c-2.1-4.9-1.7-8.1,2.3-12.1c15.3-14.8,30.3-30,45.3-45.2 c21-21.1,21-45.9-0.1-67.1c-12-12.1-24-24-35.9-36.1c-12.4-12.4-24.6-24.9-37.1-37.1c-20.2-19.7-45.5-19.7-65.6,0.1 c-15.5,15.2-30.3,30.8-46,45.7C9.3,356.6,2,373.5,0.4,393.2c-2.5,32.1,5.4,62.4,16.5,91.9c22.7,61.1,57.2,115.3,99.1,165 c56.6,67.3,124.1,120.5,203,158.9c35.6,17.3,72.4,30.5,112.5,32.7c27.6,1.5,51.5-5.4,70.7-26.9c13.1-14.7,28-28.1,41.9-42.1 c20.6-20.9,20.7-46.1,0.3-66.7C519.9,681.3,495.3,656.8,470.7,632.3z"></path><g><path d="M435.9,528.9l45.5-7.4c-7.1-39.8-26.9-75.9-56.8-104.5c-31.7-30.2-71.7-49.2-115.8-55.1l-6.4,43.6 c34.1,4.6,65.2,19.3,89.7,42.6C415.2,470.2,430.4,498.2,435.9,528.9z"></path><path d="M500.9,336.2c-52.5-50-118.9-81.6-192.1-91.4l-6.4,43.6c63.3,8.5,120.7,35.8,166,78.9c43,41,71.2,92.8,81.4,149.7l45.5-7.4 C583.3,443.7,550.7,383.8,500.9,336.2z"></path></g></svg>
 );
 
@@ -79,7 +79,7 @@ const iconSearch = (
   </svg>
 );
 
-const iconVideo = ({ color }) => (
+const iconVideo = (color) => (
   <svg data-v-ffab46c4="" style={{ fill: color }} version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="18px" height="18px" viewBox="-120 388.89 90.721 67.045" enableBackground="new -120 388.89 90.721 67.045"><path d="M-31.105,402.54c-1.136-0.682-2.553-0.744-3.748-0.164l-18.101,8.412v24.652l18.101,7.017 c0.544,0.264,1.134,0.396,1.722,0.396c0.704,0,1.406-0.188,2.025-0.559c1.136-0.681,1.827-1.885,1.827-3.182v-33.39 C-29.279,404.425-29.97,403.221-31.105,402.54z"></path><path d="M-58.968,388.89h-55.019c-3.321,0-6.013,2.692-6.013,6.013v55.019c0,3.321,2.692,6.013,6.013,6.013h55.019 c3.321,0,6.013-2.692,6.013-6.013v-55.019C-52.955,391.582-55.647,388.89-58.968,388.89z M-97.75,414.89 c-2.623,0-4.75-2.127-4.75-4.75s2.127-4.75,4.75-4.75s4.75,2.127,4.75,4.75S-95.127,414.89-97.75,414.89z"></path><circle fill="#ffffff" opacity="0" cx="-97" cy="411" r="8"></circle></svg>
 );
 

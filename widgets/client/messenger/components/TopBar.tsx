@@ -77,14 +77,14 @@ class TopBar extends React.Component<Props, State> {
           onClick={this.toggleLauncher}
           title="Close"
         >
-          {iconClose({color: this.props.textColor})}
+          {iconClose(this.props.textColor)}
         </a>
       );
     }
 
     return (
       <button className={topBarClassNames} onClick={this.toggleDropdown}>
-        {iconMore({color: this.props.textColor})}
+        {iconMore(this.props.textColor)}
         <ul>
           <li>
             <a href="#" onClick={this.endConversation}>
@@ -113,7 +113,7 @@ class TopBar extends React.Component<Props, State> {
         className="topbar-button left fade-in"
         onClick={onLeftButtonClick}
       >
-        {iconLeft({color: textColor})}
+        {iconLeft(textColor)}
       </button>
     );
   }

@@ -20,7 +20,7 @@ class App extends React.Component<Props> {
 
     return (
       <a className="close" onClick={closePopup} title="Close">
-        {iconClose}
+        {iconClose()}
       </a>
     );
   }
