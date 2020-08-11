@@ -44,6 +44,7 @@ const Download = styled.a`
 `;
 
 const PreviewWrapper = styled.div`
+  height: 80px;
   width: 110px;
   display: inline-block;
   background: ${rgba(colors.colorCoreDarkBlue, 0.08)};

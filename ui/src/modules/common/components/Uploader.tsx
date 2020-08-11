@@ -7,6 +7,7 @@ import { IAttachment } from '../types';
 import Attachment from './Attachment';
 import Spinner from './Spinner';
 import Icon from 'modules/common/components/Icon';
+import ImageWithPreview from 'modules/common/components/ImageWithPreview';
 
 const List = styled.div`
   margin: 10px 0;
@@ -162,7 +163,10 @@ class Uploader extends React.Component<Props, State> {
     this.props.onChange(attachments);
   };
 
-  imageWithPreview = () => {};
+  imageWithPreview(attachment) {
+    console.log('hello');
+    return <ImageWithPreview alt={attachment.url} src={attachment.url} />;
+  }
 
   renderItem = (item: IAttachment, index: number) => {
     const removeAttachment = () => {
