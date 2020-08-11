@@ -155,7 +155,7 @@ const integrationMutations = {
         data: data ? JSON.stringify(data) : '',
       });
 
-      telemetry.trackCli('integration_created', { type: kind });
+      telemetry.trackCli('integration_created', { type: doc.kind });
 
       await putCreateLog(
         {
