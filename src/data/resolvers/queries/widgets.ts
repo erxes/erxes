@@ -1,3 +1,4 @@
+import * as momentTz from 'moment-timezone';
 import {
   ConversationMessages,
   Conversations,
@@ -146,21 +147,26 @@ export default {
 
   async widgetsMessengerSupporters(_root, { integrationId }: { integrationId: string }) {
     const integration = await Integrations.findOne({ _id: integrationId });
+    let timezone = '';
 
     if (!integration) {
       return {
         supporters: [],
         isOnline: false,
-        serverTime: new Date(),
+        serverTime: momentTz().tz(),
       };
     }
 
     const messengerData = integration.messengerData || { supporterIds: [] };
 
+    if (integration.messengerData && integration.messengerData.timezone) {
+      timezone = integration.messengerData.timezone;
+    }
+
     return {
       supporters: await Users.find({ _id: { $in: messengerData.supporterIds || [] } }),
       isOnline: await isMessengerOnline(integration),
-      serverTime: new Date(),
+      serverTime: momentTz().tz(timezone),
     };
   },
 
