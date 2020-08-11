@@ -52,31 +52,23 @@ const getHourAndMinute = (timeString: string) => {
 
 export const isTimeInBetween = (timezone: string, date: Date, startTime: string, closeTime: string): boolean => {
   // date of given timezone
-  const now = momentTz(date)
-    .tz(timezone)
-    .toDate();
+  const now = momentTz(date).tz(timezone);
 
   const start = getHourAndMinute(startTime);
-  const startDate = momentTz(date)
-    .tz(timezone)
-    .toDate();
+  const startDate: any = momentTz(now);
 
-  startDate.setHours(start.hour);
-  startDate.setMinutes(start.minute);
+  startDate.hours(start.hour);
+  startDate.minutes(start.minute);
 
   const end = getHourAndMinute(closeTime);
-  const closeDate = momentTz(date)
-    .tz(timezone)
-    .toDate();
+  const closeDate: any = momentTz(date);
 
-  closeDate.setHours(end.hour);
-  closeDate.setMinutes(end.minute);
+  closeDate.hours(end.hour);
+  closeDate.minutes(end.minute);
 
-  console.log(startTime, closeTime, timezone);
-  console.log('----------------', date);
-  console.log(startDate, now, closeDate);
+  console.log(startDate.toDate(), now.toDate(), closeDate.toDate());
 
-  return startDate <= now && now <= closeDate;
+  return now.isBetween(startDate, closeDate);
 };
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {
