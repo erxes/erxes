@@ -512,6 +512,22 @@ describe('mutations', () => {
     removeSpy.mockRestore();
   });
 
+  test('test integrationsRemove() to catch error', async () => {
+    const mutation = `
+      mutation integrationsRemove($_id: String!) {
+        integrationsRemove(_id: $_id)
+      }
+    `;
+
+    const fbPostIntegration = await integrationFactory({ kind: 'facebook-post' });
+
+    try {
+      await graphqlRequest(mutation, 'integrationsRemove', { _id: fbPostIntegration._id });
+    } catch (e) {
+      expect(e[0].message).toBeDefined();
+    }
+  });
+
   test('Integrations archive', async () => {
     const mutation = `
       mutation integrationsArchive($_id: String!, $status: Boolean!) {
