@@ -81,6 +81,8 @@ POST_DATA="$(cat <<EOF
 EOF
 )"
 
+NOW="$(date +'%Y-%m-%d %H:%M:%S')"
+
 function notify() {
   FAILED_COMMAND="Something went wrong on line $LINENO : Failed command: ${BASH_COMMAND}"
   
@@ -91,7 +93,8 @@ function notify() {
         "eventType": "CLI_COMMAND_installation_status",
         "errorMessage": "$FAILED_COMMAND",
         "message": "error",
-        $POST_DATA
+        "time": "$NOW",
+        $POST_DATA,
       }]
 EOF
       )"
@@ -118,6 +121,7 @@ curl -s -X POST https://telemetry.erxes.io/events/ \
       [{
         "eventType": "CLI_COMMAND_installation_status",
         "message": "attempt",
+        "time": "$NOW",
         $POST_DATA
       }]
 EOF
