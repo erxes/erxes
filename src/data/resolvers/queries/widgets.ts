@@ -17,7 +17,7 @@ export const isMessengerOnline = async (integration: IIntegrationDocument) => {
     return false;
   }
 
-  const { availabilityMethod, isOnline, onlineHours } = integration.messengerData;
+  const { availabilityMethod, isOnline, onlineHours, timezone } = integration.messengerData;
 
   const modifiedIntegration = {
     ...integration.toJSON(),
@@ -25,6 +25,7 @@ export const isMessengerOnline = async (integration: IIntegrationDocument) => {
       availabilityMethod,
       isOnline,
       onlineHours,
+      timezone,
     },
   };
 
