@@ -33,7 +33,7 @@ class Home extends React.Component<Props, {}> {
         mainHead={
           <HeaderDescription
             icon="/images/actions/34.svg"
-            title={__(`${boardName} & ${pipelineName}`)}
+            title={`${boardName} & ${pipelineName}`}
             description={
               __(
                 "Manage your boards and pipelines so that its easy to manage incoming pop ups or requests that is adaptable to your team's needs"

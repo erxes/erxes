@@ -40,7 +40,7 @@ class DataWithLoader extends React.Component<Props> {
     } else if (count === 0) {
       return (
         <EmptyState
-          text={emptyText || __('There is no data')}
+          text={emptyText || 'There is no data'}
           size={size}
           icon={emptyIcon}
           image={emptyImage}
