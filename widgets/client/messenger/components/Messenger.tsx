@@ -8,11 +8,24 @@ type Props = {
   activeRoute: string | "";
   supporters: IUser[];
   loading?: boolean;
+  isOnline?: boolean;
+  serverTime?: string;
 };
 
-function Messenger({ activeRoute, supporters, loading }: Props) {
+function Messenger({
+  activeRoute,
+  isOnline = false,
+  supporters,
+  loading
+}: Props) {
   const WithSupporters = (Component: any) => {
-    return <Component supporters={supporters} loading={loading} />;
+    return (
+      <Component
+        supporters={supporters}
+        loading={loading}
+        isOnline={isOnline}
+      />
+    );
   };
 
   switch (activeRoute) {

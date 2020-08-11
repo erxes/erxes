@@ -2,6 +2,7 @@ import { IUser } from 'modules/auth/types';
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
+import { ScrollContent } from 'modules/growthHacks/styles';
 import FilterToggler from 'modules/inbox/containers/leftSidebar/FilterToggler';
 import Resolver from 'modules/inbox/containers/Resolver';
 import Tagger from 'modules/inbox/containers/Tagger';
@@ -14,12 +15,14 @@ import RTG from 'react-transition-group';
 import { InboxManagementActionConsumer } from '../../containers/Inbox';
 import { StatusFilterPopover } from '../../containers/leftSidebar';
 import { IConversation } from '../../types';
+import { IntegrationModal } from './IntegrationModal';
 import {
   AdditionalSidebar,
   DropdownWrapper,
   LeftContent,
   RightItems,
   SidebarActions,
+  SidebarContent,
   ToggleButton
 } from './styles';
 
@@ -141,61 +144,80 @@ class LeftSidebar extends React.Component<Props, State> {
         classNames="fade-in"
         unmountOnExit={true}
       >
-        <div>
-          <FilterToggler groupText="Channels" toggleName="showChannels">
-            <FilterList
-              query={{
-                queryName: 'channelList',
-                variables: { memberIds: [currentUser._id] },
-                dataName: 'channels'
-              }}
-              counts="byChannels"
-              paramKey="channelId"
-              queryParams={queryParams}
-              refetchRequired={refetchRequired}
-            />
-          </FilterToggler>
+        <SidebarContent>
+          <ScrollContent>
+            <FilterToggler
+              groupText="Channels"
+              toggleName="showChannels"
+              manageUrl="/settings/channels"
+            >
+              <FilterList
+                query={{
+                  queryName: 'channelList',
+                  variables: { memberIds: [currentUser._id] },
+                  dataName: 'channels'
+                }}
+                counts="byChannels"
+                paramKey="channelId"
+                queryParams={queryParams}
+                refetchRequired={refetchRequired}
+              />
+            </FilterToggler>
 
-          <FilterToggler groupText="Brands" toggleName="showBrands">
-            <FilterList
-              query={{ queryName: 'brandList', dataName: 'brands' }}
-              counts="byBrands"
-              queryParams={queryParams}
-              paramKey="brandId"
-              refetchRequired={refetchRequired}
-            />
-          </FilterToggler>
+            <FilterToggler
+              groupText="Brands"
+              toggleName="showBrands"
+              manageUrl="/settings/brands"
+            >
+              <FilterList
+                query={{ queryName: 'brandList', dataName: 'brands' }}
+                counts="byBrands"
+                queryParams={queryParams}
+                paramKey="brandId"
+                refetchRequired={refetchRequired}
+              />
+            </FilterToggler>
 
-          <FilterToggler groupText="Integrations" toggleName="showIntegrations">
-            <FilterList
-              query={{
-                queryName: 'integrationsGetUsedTypes',
-                dataName: 'integrationsGetUsedTypes'
-              }}
-              queryParams={queryParams}
-              counts="byIntegrationTypes"
-              paramKey="integrationType"
-              refetchRequired={refetchRequired}
-            />
-          </FilterToggler>
+            <FilterToggler
+              groupText="Integrations"
+              toggleName="showIntegrations"
+              manageUrl="/settings/integrations"
+            >
+              <FilterList
+                query={{
+                  queryName: 'integrationsGetUsedTypes',
+                  dataName: 'integrationsGetUsedTypes'
+                }}
+                queryParams={queryParams}
+                counts="byIntegrationTypes"
+                paramKey="integrationType"
+                refetchRequired={refetchRequired}
+              />
+            </FilterToggler>
 
-          <FilterToggler groupText="Tags" toggleName="showTags">
-            <FilterList
-              query={{
-                queryName: 'tagList',
-                dataName: 'tags',
-                variables: {
-                  type: TAG_TYPES.CONVERSATION
-                }
-              }}
-              queryParams={queryParams}
-              counts="byTags"
-              paramKey="tag"
-              icon="tag-alt"
-              refetchRequired={refetchRequired}
-            />
-          </FilterToggler>
-        </div>
+            <FilterToggler
+              groupText="Tags"
+              toggleName="showTags"
+              manageUrl="/tags/conversation"
+            >
+              <FilterList
+                query={{
+                  queryName: 'tagList',
+                  dataName: 'tags',
+                  variables: {
+                    type: TAG_TYPES.CONVERSATION
+                  }
+                }}
+                queryParams={queryParams}
+                counts="byTags"
+                paramKey="tag"
+                icon="tag-alt"
+                refetchRequired={refetchRequired}
+              />
+            </FilterToggler>
+          </ScrollContent>
+          <IntegrationModal />
+        </SidebarContent>
       </RTG.CSSTransition>
     );
   }

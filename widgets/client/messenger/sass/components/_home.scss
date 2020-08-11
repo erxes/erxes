@@ -92,8 +92,7 @@ $shadow-black: rgba(0, 0, 0, .1);
     }
   }
 
-  .erxes-topbar-title,
-  .erxes-state {
+  .erxes-topbar-title {
     display: none;
   }
 
@@ -123,7 +122,16 @@ $shadow-black: rgba(0, 0, 0, .1);
       margin-right: 30px;
     }
   }
-}
+
+  .server-info {
+    padding: 10px 0;
+    font-size: 12px;
+
+    p {
+      margin: 0;
+    }
+  }
+} // end .erxes-welcome
 
 // tab bar
 .erxes-tab {

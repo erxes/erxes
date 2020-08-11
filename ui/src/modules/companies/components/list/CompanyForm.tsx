@@ -28,6 +28,7 @@ import {
 import { ICompany, ICompanyDoc, ICompanyLinks } from '../../types';
 
 type Props = {
+  currentUser: IUser;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   company: ICompany;
   closeModal: () => void;
@@ -57,6 +58,7 @@ class CompanyForm extends React.Component<Props, State> {
 
     const { company = {} } = props;
     const companies: ICompany[] = [];
+    const userId = props.currentUser ? props.currentUser._id : '';
 
     if (company.parentCompany) {
       companies.push(company.parentCompany);
@@ -64,7 +66,7 @@ class CompanyForm extends React.Component<Props, State> {
 
     this.state = {
       parentCompanyId: company.parentCompanyId || '',
-      ownerId: company.ownerId || '',
+      ownerId: company.ownerId || userId,
       companies,
       doNotDisturb: company.doNotDisturb || 'No',
       users: [],

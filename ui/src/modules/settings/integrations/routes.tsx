@@ -20,6 +20,10 @@ const CreateFacebook = asyncComponent(() =>
   import(/* webpackChunkName: "Settings CreateFacebook" */ './containers/facebook/Form')
 );
 
+const CreateGmail = asyncComponent(() =>
+  import(/* webpackChunkName: "Settings CreateGmail" */ './containers/gmail/Form')
+);
+
 const createMessenger = ({ location }) => {
   return <CreateMessenger queryParams={queryString.parse(location.search)} />;
 };
@@ -32,6 +36,14 @@ const createFacebook = ({ location, history }) => {
   };
 
   return <CreateFacebook callBack={callBack} kind={queryParams.kind} />;
+};
+
+const createGmail = ({ history }) => {
+  const callBack = () => {
+    history.push('/settings/integrations/');
+  };
+
+  return <CreateGmail callBack={callBack} />;
 };
 
 const editMessenger = ({ match }) => {
@@ -73,6 +85,13 @@ const routes = () => (
       exact={true}
       path="/settings/integrations/createFacebook"
       component={createFacebook}
+    />
+
+    <Route
+      key="/settings/integrations/createGmail"
+      exact={true}
+      path="/settings/integrations/createGmail"
+      component={createGmail}
     />
 
     <Route

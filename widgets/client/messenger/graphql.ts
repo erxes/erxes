@@ -1,4 +1,4 @@
-import { connection } from './connection';
+import { connection } from "./connection";
 
 const messageFields = `
   _id
@@ -100,7 +100,11 @@ const unreadCountQuery = `
 const messengerSupportersQuery = `
   query widgetsMessengerSupporters($integrationId: String!) {
     widgetsMessengerSupporters(integrationId: $integrationId) {
-      ${userFields}
+      supporters {
+        ${userFields}
+      }
+      isOnline
+      serverTime
     }
   }
 `;

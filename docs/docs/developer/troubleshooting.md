@@ -49,7 +49,7 @@ If you don't know how to configure these, please go ahead to Gmail IMAP doc sect
 
 * If you are not receiving any emails, please check you add Grant Publish Topic right to **gmail-api-push@system.gserviceaccount.com** in IAM & Admin -> IAM -> Add.
 
-* When the Integration repository starts it will automatically create a topic and subscription for syncing, receiving emails. But if you have not configured your system environment you might see the following error - [ Google Cloud Getting started ]( ttps://cloud.google.com/docs/authentication/getting-started)
+* When the Integration repository starts it will automatically create a topic and subscription for syncing, receiving emails. But if you have not configured your system environment you might see the following error - [ Google Cloud Getting started ](https://cloud.google.com/docs/authentication/getting-started)
 ```
 7 PERMISSION_DENIED: User not authorized to perform this action.
 ```
@@ -57,3 +57,9 @@ To fix the above error set the following variable to your environment.
 ```
 export GOOGLE_APPLICATION_CREDENTIALS="/Path/to/your/[google_cred].json"
 ```
+
+* When your Gmail's topic and subscription is not created automatically and got the following error:
+
+**Error Sending test Message to Cloud PubSub projects topics/gmail_topic: Resource not found (resource=topic)**
+
+Please make sure that you added an **absolute** path in **GOOGLE_APPLICATION_CREDENTIALS**.

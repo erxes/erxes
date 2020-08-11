@@ -1,3 +1,5 @@
+import { AppConsumer } from 'appContext';
+import { IUser } from 'modules/auth/types';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import {
   IButtonMutateProps,
@@ -56,7 +58,7 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
 
         const currentLocation = `${window.location.pathname}${
           window.location.search
-        }`;
+          }`;
 
         if (getAssociatedCustomer) {
           getAssociatedCustomer(data.customersAdd);
@@ -85,7 +87,7 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
           uppercase={false}
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
-          } a ${name}`}
+            } a ${name}`}
         />
       );
     };
@@ -96,7 +98,16 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
       renderButton
     };
 
-    return <CustomerForm {...updatedProps} />;
+    return (
+      <AppConsumer>
+        {({ currentUser }) => (
+          <CustomerForm
+            {...updatedProps}
+            currentUser={currentUser || ({} as IUser)}
+          />
+        )}
+      </AppConsumer>
+    );
   }
 }
 

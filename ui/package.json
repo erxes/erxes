@@ -53,7 +53,6 @@
     "react-transition-group": "^2.5.1",
     "request-idle-callback": "^1.0.2",
     "sanitize-html": "^1.20.1",
-    "snyk": "^1.338.0",
     "strip": "^3.0.0",
     "styled-components": "^3.2.6",
     "styled-components-ts": "^0.0.14",
@@ -63,9 +62,8 @@
     "xss": "^1.0.3"
   },
   "lint-staged": {
-    "gitDir": "../",
     "linters": {
-      "ui/src/**/*.{ts,tsx,json,css}": [
+      "src/**/*.{ts,tsx,json,css}": [
         "prettier --single-quote --write",
         "git add"
       ]
@@ -98,8 +96,8 @@
     "enzyme-to-json": "^3.3.4",
     "git-repo-info": "^2.1.0",
     "husky": "^0.14.3",
-    "lint-staged": "^4.3.0",
-    "prettier": "^2.0.5",
+    "lint-staged": "^5.0.0",
+    "prettier": "^1.8.2",
     "react-scripts": "^3.0.1",
     "react-test-renderer": "^16.3.2",
     "release-it": "^12.4.3",
@@ -116,7 +114,6 @@
     "not ie <= 11",
     "not op_mini all"
   ],
-  "snyk": true,
   "engines": {
     "node": ">=10.x.x"
   }

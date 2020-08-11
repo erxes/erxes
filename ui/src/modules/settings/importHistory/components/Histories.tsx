@@ -33,8 +33,11 @@ const DATA_IMPORT_TYPES = [
   'product',
   'deal',
   'task',
-  'ticket'
+  'ticket',
+  'lead'
 ];
+
+const DYNAMICLY_TEMPLATE_TYPES = ['customer', 'company', 'product', 'lead'];
 
 class Histories extends React.Component<Props & IRouterProps> {
   renderHistories = () => {
@@ -89,6 +92,45 @@ class Histories extends React.Component<Props & IRouterProps> {
     return buttonText;
   }
 
+  renderColumnChooser = (type: string) => {
+    const { currentType } = this.props;
+
+    let icon = '';
+    let btnStyle = '';
+    let text = '';
+
+    switch (type) {
+      case 'import':
+        icon = 'folder-download';
+        btnStyle = 'success';
+        text = 'Download template';
+        break;
+      case 'export':
+        icon = 'export';
+        btnStyle = 'primary';
+        text = `Export ${this.getButtonText()}`;
+        break;
+    }
+
+    const manageColumns = props => {
+      return <ManageColumns {...props} contentType={currentType} type={type} />;
+    };
+
+    const editColumns = (
+      <Button btnStyle={btnStyle} size="small" icon={icon}>
+        {__(`${text}`)}
+      </Button>
+    );
+
+    return (
+      <ModalTrigger
+        title="Select Columns"
+        trigger={editColumns}
+        content={manageColumns}
+      />
+    );
+  };
+
   renderTemplateButton() {
     const { REACT_APP_API_URL } = getEnv();
     const { currentType } = this.props;
@@ -97,26 +139,8 @@ class Histories extends React.Component<Props & IRouterProps> {
       return null;
     }
 
-    if (currentType === 'customer' || currentType === 'company') {
-      const manageColumns = props => {
-        return (
-          <ManageColumns {...props} contentType={currentType} type="import" />
-        );
-      };
-
-      const editColumns = (
-        <Button btnStyle="simple" size="small" icon="folder-download">
-          {__('Download template')}
-        </Button>
-      );
-
-      return (
-        <ModalTrigger
-          title="Select Columns"
-          trigger={editColumns}
-          content={manageColumns}
-        />
-      );
+    if (DYNAMICLY_TEMPLATE_TYPES.includes(currentType)) {
+      return this.renderColumnChooser('import');
     }
 
     let name = 'product_template.xlsx';
@@ -175,6 +199,10 @@ class Histories extends React.Component<Props & IRouterProps> {
         '_blank'
       );
     };
+
+    if (DYNAMICLY_TEMPLATE_TYPES.includes(currentType)) {
+      return this.renderColumnChooser('export');
+    }
 
     return (
       <Button

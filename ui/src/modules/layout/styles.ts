@@ -61,6 +61,7 @@ const Contents = styled.div`
   right: 0;
   bottom: 0;
   top: 0;
+  overflow-x: auto;
 
   @-moz-document url-prefix() {
     overflow: hidden;
@@ -141,6 +142,12 @@ const BarItems = styled.div`
   input[type='text'] {
     width: auto;
     display: inline-block;
+  }
+
+  @media (max-width: 768px) {
+    > * + * {
+      margin: 0 ${dimensions.unitSpacing}px 0 0;
+    }
   }
 `;
 
