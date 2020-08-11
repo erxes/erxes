@@ -1535,5 +1535,14 @@
   "Go to product board": "Go to product board",
   "Create product board note": "Create product board note",
   "Invalid Username": "Invalid username. Usernames must start with a letter. Allowed characters are a-z, 0-9, _, - (dash), and .(dot)",
-  "You successfully added a": "You successfully added a"
+  "You successfully added a": "You successfully added a",
+  "For support teams": "For support teams",
+  "For sales teams": "For sales teams",
+  "For marketing teams": "For marketing teams",
+  "Email marketing": "Email marketing",
+  "Messaging": "Messaging",
+  "Marketing automation": "Marketing automation",
+  "Phone and video": "Phone and video",
+  "Social media": "Social media",
+  "Surveys and Feedback": "Surveys and Feedback"
 }

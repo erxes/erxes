@@ -87,8 +87,8 @@ class TemplateList extends React.Component<Props> {
     return objects.map((object, index) => (
       <BoxItem key={index}>
         <div>
-          <h5>{__(object.name)}</h5>
-          <p>{__(object.description)}</p>
+          <h5>{object.name}</h5>
+          <p>{object.description}</p>
         </div>
         <Bottom>
           <Created>{dayjs(object.createdAt).format('DD MMM YYYY')}</Created>
