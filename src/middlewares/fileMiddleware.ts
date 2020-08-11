@@ -4,7 +4,15 @@ import * as _ from 'underscore';
 import { filterXSS } from 'xss';
 import { RABBITMQ_QUEUES } from '../data/constants';
 import { can } from '../data/permissions/utils';
-import { checkFile, frontendEnv, getSubServiceDomain, uploadFile, uploadFileAWS } from '../data/utils';
+import {
+  checkFile,
+  frontendEnv,
+  getConfig,
+  getSubServiceDomain,
+  uploadFile,
+  uploadFileAWS,
+  uploadFileLocal,
+} from '../data/utils';
 import { debugExternalApi } from '../debuggers';
 import { sendRPCMessage } from '../messageBroker';
 
@@ -14,6 +22,8 @@ export const importer = async (req: any, res, next) => {
   }
 
   try {
+    const UPLOAD_SERVICE_TYPE = await getConfig('UPLOAD_SERVICE_TYPE', 'AWS');
+
     const scopeBrandIds = JSON.parse(req.cookies.scopeBrandIds || '[]');
     const form = new formidable.IncomingForm();
 
@@ -33,7 +43,10 @@ export const importer = async (req: any, res, next) => {
       }
 
       try {
-        const fileName = await uploadFileAWS(response.file, true);
+        const fileName =
+          UPLOAD_SERVICE_TYPE === 'local'
+            ? await uploadFileLocal(response.file)
+            : await uploadFileAWS(response.file, true);
 
         if (fileName.includes('.csv')) {
           fileType = 'csv';
@@ -44,6 +57,7 @@ export const importer = async (req: any, res, next) => {
           type: fields.type,
           fileType,
           fileName,
+          uploadType: UPLOAD_SERVICE_TYPE,
           scopeBrandIds,
           user: req.user,
         });

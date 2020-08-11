@@ -1,3 +1,4 @@
+import * as momentTz from 'moment-timezone';
 import { Model, model, Query } from 'mongoose';
 import 'mongoose-type-email';
 import { Brands, ConversationMessages, Conversations, Customers, Forms } from '.';
@@ -32,13 +33,46 @@ interface IIntegrationBasicInfo {
   brandId: string;
 }
 
-export const isTimeInBetween = (date: Date, startTime: string, closeTime: string): boolean => {
-  // concatnating time ranges with today's date
-  const dateString = date.toLocaleDateString();
-  const startDate = new Date(`${dateString} ${startTime}`);
-  const closeDate = new Date(`${dateString} ${closeTime}`);
+/**
+ * Extracts hour & minute from time string formatted as "HH:mm am|pm".
+ * Time string is defined as constant in modules/settings/integrations/constants.
+ */
+const getHourAndMinute = (timeString: string) => {
+  const normalized = timeString.toLowerCase().trim();
+  const colon = timeString.indexOf(':');
+  let hour = parseInt(normalized.substring(0, colon), 10);
+  const minute = parseInt(normalized.substring(colon + 1, colon + 3), 10);
 
-  return startDate <= date && date <= closeDate;
+  if (normalized.indexOf('pm') !== -1) {
+    hour += 12;
+  }
+
+  return { hour, minute };
+};
+
+export const isTimeInBetween = (timezone: string, date: Date, startTime: string, closeTime: string): boolean => {
+  // date of given timezone
+  const now = momentTz(date)
+    .tz(timezone)
+    .toDate();
+
+  const start = getHourAndMinute(startTime);
+  const startDate = momentTz()
+    .tz(timezone)
+    .toDate();
+
+  startDate.setHours(start.hour);
+  startDate.setMinutes(start.minute);
+
+  const end = getHourAndMinute(closeTime);
+  const closeDate = momentTz()
+    .tz(timezone)
+    .toDate();
+
+  closeDate.setHours(end.hour);
+  closeDate.setMinutes(end.minute);
+
+  return startDate <= now && now <= closeDate;
 };
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {
@@ -114,10 +148,10 @@ export const loadClass = () => {
     /**
      * Save messenger appearance data
      */
-    public static async saveMessengerAppearanceData(_id: string, { color, wallpaper, logo }: IUiOptions) {
+    public static async saveMessengerAppearanceData(_id: string, { color, wallpaper, logo, textColor }: IUiOptions) {
       await Integrations.updateOne(
         { _id },
-        { $set: { uiOptions: { color, wallpaper, logo } } },
+        { $set: { uiOptions: { color, wallpaper, logo, textColor } } },
         { runValdatiors: true },
       );
 
@@ -272,7 +306,8 @@ export const loadClass = () => {
       }
 
       const { messengerData } = integration;
-      const { availabilityMethod, onlineHours = [] } = messengerData;
+      const { availabilityMethod, onlineHours = [], timezone } = messengerData;
+      const timezoneString = timezone || '';
 
       /*
        * Manual: We can determine state from isOnline field value when method is manual
@@ -290,28 +325,28 @@ export const loadClass = () => {
       const everydayConf = onlineHours.find(c => c.day === 'everyday');
 
       if (everydayConf) {
-        return isTimeInBetween(now, everydayConf.from || '', everydayConf.to || '');
+        return isTimeInBetween(timezoneString, now, everydayConf.from || '', everydayConf.to || '');
       }
 
       // check by weekdays config
       const weekdaysConf = onlineHours.find(c => c.day === 'weekdays');
 
       if (weekdaysConf && isWeekday(day)) {
-        return isTimeInBetween(now, weekdaysConf.from || '', weekdaysConf.to || '');
+        return isTimeInBetween(timezoneString, now, weekdaysConf.from || '', weekdaysConf.to || '');
       }
 
       // check by weekends config
       const weekendsConf = onlineHours.find(c => c.day === 'weekends');
 
       if (weekendsConf && isWeekend(day)) {
-        return isTimeInBetween(now, weekendsConf.from || '', weekendsConf.to || '');
+        return isTimeInBetween(timezoneString, now, weekendsConf.from || '', weekendsConf.to || '');
       }
 
       // check by regular day config
       const dayConf = onlineHours.find(c => c.day === day);
 
       if (dayConf) {
-        return isTimeInBetween(now, dayConf.from || '', dayConf.to || '');
+        return isTimeInBetween(timezoneString, now, dayConf.from || '', dayConf.to || '');
       }
 
       return false;

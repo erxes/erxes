@@ -15,7 +15,7 @@ import { debugBase, debugEmail, debugExternalApi } from '../debuggers';
 import { graphqlPubsub } from '../pubsub';
 import { get, set } from '../redisClient';
 
-const uploadsFolderPath = path.join(__dirname, '../private/uploads');
+export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
 
 export const initFirebase = (code: string): void => {
   if (code.length === 0) {

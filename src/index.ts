@@ -85,7 +85,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-app.use(helmet({ frameguard: { action: 'deny' } }));
+app.use(helmet({ frameguard: { action: 'sameorigin' } }));
 
 app.get('/set-frontend-cookies', async (req: any, res) => {
   const envMaps = JSON.parse(req.query.envs || '{}');

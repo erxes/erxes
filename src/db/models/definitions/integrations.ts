@@ -86,6 +86,7 @@ export interface IUiOptions {
   color?: string;
   wallpaper?: string;
   logo?: string;
+  textColor?: string;
 }
 
 // subdocument schema for messenger UiOptions
@@ -266,6 +267,7 @@ export const leadDataSchema = new Schema(
 const uiOptionsSchema = new Schema(
   {
     color: field({ type: String }),
+    textColor: field({ type: String }),
     wallpaper: field({ type: String }),
     logo: field({ type: String }),
   },
