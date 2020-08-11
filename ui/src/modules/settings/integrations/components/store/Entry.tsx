@@ -198,7 +198,7 @@ function Entry({
   toggleBox,
   messengerAppsCount,
   totalCount,
-  customLink,
+  customLink
 }: Props) {
   const { kind } = integration;
   const { createUrl, createModal } = integration;
@@ -227,10 +227,11 @@ function Entry({
       <Box onClick={boxOnClick} isInMessenger={integration.inMessenger}>
         <img alt="logo" src={integration.logo} />
         <h5>
-          {integration.name} {getCount(kind, totalCount, messengerAppsCount)}
+          {__(integration.name)}{' '}
+          {getCount(kind, totalCount, messengerAppsCount)}
         </h5>
         <p>
-          {integration.description}
+          {__(integration.description)}
           {renderType(integration.inMessenger)}
         </p>
         {!integration.isAvailable && (
