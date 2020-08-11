@@ -4,10 +4,67 @@ import styled from 'styled-components';
 import { rgba } from '../styles/color';
 import colors from '../styles/colors';
 import { IAttachment } from '../types';
-import Attachment from './Attachment';
 import Spinner from './Spinner';
 import Icon from 'modules/common/components/Icon';
-import ImageWithPreview from 'modules/common/components/ImageWithPreview';
+import { readFile } from '../utils';
+
+// const ItemInfo = styled.div`
+//   flex: 1;
+//   padding: 10px 15px;
+//   word-wrap: break-word;
+
+//   h5 {
+//     margin: 0 0 5px;
+//     font-weight: bold;
+//   }
+
+//   video {
+//     width: 100%;
+//   }
+// `;
+
+const Download = styled.a`
+  color: ${colors.colorCoreGray};
+  margin-left: 10px;
+
+  &:hover {
+    color: ${colors.colorCoreBlack};
+  }
+`;
+
+// const PreviewWrapper = styled.div`
+//   height: 80px;
+//   width: 110px;
+//   display: inline-block;
+//   background: ${rgba(colors.colorCoreDarkBlue, 0.08)};
+//   display: flex;
+//   justify-content: center;
+//   align-items: center;
+//   border-radius: 7px;
+//   overflow: hidden;
+//   align-self: center;
+
+//   i {
+//     font-size: 36px;
+//     color: ${colors.colorSecondary};
+//   }
+// `;
+
+export const Meta = styled.div`
+  position: relative;
+  font-weight: 500;
+  color: ${colors.colorCoreGray};
+
+  > * + * {
+    margin-left: 10px;
+  }
+`;
+
+const AttachmentName = styled.span`
+  word-wrap: break-word;
+  word-break: break-word;
+  line-height: 20px;
+`;
 
 const List = styled.div`
   margin: 10px 0;
@@ -86,12 +143,17 @@ const UploadBtn = styled.div`
   }
 `;
 
+// const KEYCODES = {
+//   ESCAPE: 27
+// };
+
 type Props = {
   defaultFileList: IAttachment[];
   onChange: (attachments: IAttachment[]) => void;
   single?: boolean;
   limit?: number;
   multiple?: boolean;
+  onLoad?: () => void;
 };
 
 type State = {
@@ -165,7 +227,6 @@ class Uploader extends React.Component<Props, State> {
 
   imageWithPreview(attachment) {
     console.log('hello');
-    return <ImageWithPreview alt={attachment.url} src={attachment.url} />;
   }
 
   renderItem = (item: IAttachment, index: number) => {
@@ -175,11 +236,35 @@ class Uploader extends React.Component<Props, State> {
 
     return (
       <Item key={item.url} onClick={this.imageWithPreview}>
-        <Attachment attachment={item} />
+        {this.renderOtherInfo(item)}
         <Delete onClick={removeAttachment}>
           <Icon icon="trash-alt" />
         </Delete>
       </Item>
+    );
+  };
+
+  renderOtherInfo = attachment => {
+    const name = attachment.name || attachment.url || '';
+
+    return (
+      <>
+        <h5>
+          <AttachmentName>{name}</AttachmentName>
+          <Download
+            rel="noopener noreferrer"
+            href={readFile(attachment.url)}
+            target="_blank"
+          >
+            <Icon icon="external-link-alt" />
+          </Download>
+        </h5>
+        <Meta>
+          {attachment.size && (
+            <span>Size: {Math.round(attachment.size / 1000)}kB</span>
+          )}
+        </Meta>
+      </>
     );
   };
 
