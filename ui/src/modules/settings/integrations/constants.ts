@@ -10,7 +10,7 @@ export const days = [
   { value: 'thursday', label: 'Thursday' },
   { value: 'friday', label: 'Friday' },
   { value: 'saturday', label: 'Saturday' },
-  { value: 'sunday', label: 'Sunday' },
+  { value: 'sunday', label: 'Sunday' }
 ];
 
 export const hours = [
@@ -62,7 +62,7 @@ export const hours = [
   { value: '10:30 PM', label: '10:30 PM' },
   { value: '11:00 PM', label: '11:00 PM' },
   { value: '11:30 PM', label: '11:30 PM' },
-  { value: '11:59 PM', label: '11:59 PM' },
+  { value: '11:59 PM', label: '11:59 PM' }
 ];
 
 export const INTEGRATION_KINDS = {
@@ -90,7 +90,7 @@ export const INTEGRATION_KINDS = {
     { text: 'Facebook post', value: 'facebook-post' },
     {
       text: 'Facebook messenger',
-      value: 'facebook-messenger',
+      value: 'facebook-messenger'
     },
     { text: 'Gmail', value: 'gmail' },
     { text: 'Nylas gmail', value: 'nylas-gmail' },
@@ -107,22 +107,22 @@ export const INTEGRATION_KINDS = {
     { text: 'Viber', value: 'smooch-viber' },
     { text: 'Line', value: 'smooch-line' },
     { text: 'Twilio', value: 'smooch-twilio' },
-    { text: 'WhatsApp', value: 'whatsapp' },
-  ],
+    { text: 'WhatsApp', value: 'whatsapp' }
+  ]
 };
 
 export const FORM_LOAD_TYPES = {
   SHOUTBOX: 'shoutbox',
   POPUP: 'popup',
   EMBEDDED: 'embedded',
-  ALL_LIST: ['', 'shoutbox', 'popup', 'embedded'],
+  ALL_LIST: ['', 'shoutbox', 'popup', 'embedded']
 };
 
 export const FORM_SUCCESS_ACTIONS = {
   EMAIL: 'email',
   REDIRECT: 'redirect',
   ONPAGE: 'onPage',
-  ALL_LIST: ['', 'email', 'redirect', 'onPage'],
+  ALL_LIST: ['', 'email', 'redirect', 'onPage']
 };
 
 export const MAIL_TOOLBARS_CONFIG = [
@@ -137,16 +137,16 @@ export const MAIL_TOOLBARS_CONFIG = [
       'Underline',
       'NumberedList',
       'BulletedList',
-      'Link',
-    ],
+      'Link'
+    ]
   },
-  { name: 'clear', items: ['RemoveFormat'] },
+  { name: 'clear', items: ['RemoveFormat'] }
 ];
 
 export const INTEGRATIONS = [
   {
-    name: __('Facebook post'),
-    description: __('Connect to Facebook posts right from your Team Inbox'),
+    name: 'Facebook post',
+    description: 'Connect to Facebook posts right from your Team Inbox',
     inMessenger: false,
     isAvailable: true,
     kind: 'facebook-post',
@@ -154,13 +154,12 @@ export const INTEGRATIONS = [
     createModal: 'facebook-post',
     createUrl: '/settings/integrations/createFacebook',
     category:
-      'All integrations, For support teams, Marketing automation, Social media',
+      'All integrations, For support teams, Marketing automation, Social media'
   },
   {
-    name: __('Facebook messenger'),
-    description: __(
-      'Connect and manage Facebook Messages right from your Team Inbox'
-    ),
+    name: 'Facebook messenger',
+    description:
+      'Connect and manage Facebook Messages right from your Team Inbox',
     inMessenger: false,
     isAvailable: true,
     kind: 'facebook-messenger',
@@ -168,11 +167,11 @@ export const INTEGRATIONS = [
     createModal: 'facebook-messenger',
     createUrl: '/settings/integrations/createFacebook',
     category:
-      'All integrations, For support teams, Messaging, Social media, Conversation',
+      'All integrations, For support teams, Messaging, Social media, Conversation'
   },
   {
-    name: __('Messenger'),
-    description: __('See and reply to Messenger messages in your Team Inbox'),
+    name: 'Messenger',
+    description: 'See and reply to Messenger messages in your Team Inbox',
     inMessenger: false,
     isAvailable: true,
     kind: 'messenger',
@@ -180,13 +179,12 @@ export const INTEGRATIONS = [
     createModal: 'messenger',
     createUrl: '/settings/integrations/createMessenger',
     category:
-      'All integrations, For support teams, For marketing teams, Marketing automation, Conversation',
+      'All integrations, For support teams, For marketing teams, Marketing automation, Conversation'
   },
   {
-    name: __('Gmail'),
-    description: __(
-      'Connect a company email address such as sales@mycompany.com or info@mycompany.com'
-    ),
+    name: 'Gmail',
+    description:
+      'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
     inMessenger: false,
     isAvailable: true,
     kind: 'gmail',
@@ -194,13 +192,12 @@ export const INTEGRATIONS = [
     createModal: 'gmail',
     createUrl: '/settings/integrations/createGmail',
     category:
-      'All integrations, For support teams, Email marketing, Marketing automation, Conversation',
+      'All integrations, For support teams, Email marketing, Marketing automation, Conversation'
   },
   {
-    name: __('IMAP by Nylas'),
-    description: __(
-      'Connect a company email address such as sales@mycompany.com or info@mycompany.com'
-    ),
+    name: 'IMAP by Nylas',
+    description:
+      'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
     inMessenger: false,
     isAvailable: true,
     kind: 'nylas-imap',
@@ -208,13 +205,12 @@ export const INTEGRATIONS = [
     createModal: 'nylas-imap',
     createUrl: '/settings/integrations/nylas-imap',
     category:
-      'All integrations, For support teams, Marketing automation, Email marketing',
+      'All integrations, For support teams, Marketing automation, Email marketing'
   },
   {
-    name: __('Office 365 by Nylas'),
-    description: __(
-      'Connect a company email address such as sales@mycompany.com or info@mycompany.com'
-    ),
+    name: 'Office 365 by Nylas',
+    description:
+      'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
     inMessenger: false,
     isAvailable: true,
     kind: 'nylas-office365',
@@ -222,13 +218,12 @@ export const INTEGRATIONS = [
     createModal: 'nylas-office365',
     createUrl: 'nylas/oauth2/callback',
     category:
-      'All integrations, For support teams, Marketing automation, Email marketing, Conversation',
+      'All integrations, For support teams, Marketing automation, Email marketing, Conversation'
   },
   {
-    name: __('Gmail by Nylas'),
-    description: __(
-      'Connect a company email address such as sales@mycompany.com or info@mycompany.com'
-    ),
+    name: 'Gmail by Nylas',
+    description:
+      'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
     inMessenger: false,
     isAvailable: true,
     kind: 'nylas-gmail',
@@ -236,13 +231,12 @@ export const INTEGRATIONS = [
     createModal: 'nylas-gmail',
     createUrl: 'nylas/oauth2/callback',
     category:
-      'All integrations, For support teams, Email marketing, Marketing automation, Conversation',
+      'All integrations, For support teams, Email marketing, Marketing automation, Conversation'
   },
   {
-    name: __('Microsoft Exchange by Nylas'),
-    description: __(
-      'Connect a company email address such as sales@mycompany.com or info@mycompany.com'
-    ),
+    name: 'Microsoft Exchange by Nylas',
+    description:
+      'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
     inMessenger: false,
     isAvailable: true,
     kind: 'nylas-exchange',
@@ -250,11 +244,11 @@ export const INTEGRATIONS = [
     createModal: 'nylas-exchange',
     createUrl: '/settings/integrations/nylas-exchange',
     category:
-      'All integrations, For support teams, Email marketing, Marketing automation, Conversation',
+      'All integrations, For support teams, Email marketing, Marketing automation, Conversation'
   },
   {
-    name: __('Pop Ups'),
-    description: __('Find your lead forms right here in your Widget'),
+    name: 'Pop Ups',
+    description: 'Find your lead forms right here in your Widget',
     inMessenger: true,
     isAvailable: true,
     kind: 'lead',
@@ -262,13 +256,12 @@ export const INTEGRATIONS = [
     createModal: 'lead',
     createUrl: '/settings/integrations/lead',
     category:
-      'All integrations, For support teams, For marketing teams, Marketing automation, Surveys and Feedback, Pop ups',
+      'All integrations, For support teams, For marketing teams, Marketing automation, Surveys and Feedback, Pop ups'
   },
   {
-    name: __('Outlook by Nylas'),
-    description: __(
-      'Connect a company email address such as sales@mycompany.com or info@mycompany.com'
-    ),
+    name: 'Outlook by Nylas',
+    description:
+      'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
     inMessenger: false,
     isAvailable: true,
     kind: 'nylas-outlook',
@@ -276,13 +269,12 @@ export const INTEGRATIONS = [
     createModal: 'nylas-outlook',
     createUrl: '/settings/integrations/nylas-outlook',
     category:
-      'All integrations, For support teams, Marketing automation, Email marketing',
+      'All integrations, For support teams, Marketing automation, Email marketing'
   },
   {
-    name: __('Yahoo by Nylas'),
-    description: __(
-      'Connect a company email address such as sales@mycompany.com or info@mycompany.com'
-    ),
+    name: 'Yahoo by Nylas',
+    description:
+      'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
     inMessenger: false,
     isAvailable: true,
     kind: 'nylas-yahoo',
@@ -290,11 +282,11 @@ export const INTEGRATIONS = [
     createModal: 'nylas-yahoo',
     createUrl: '/settings/integrations/nylas-yahoo',
     category:
-      'All integrations, For support teams, Marketing automation, Email marketing, Conversation',
+      'All integrations, For support teams, Marketing automation, Email marketing, Conversation'
   },
   {
-    name: __('Knowledge Base'),
-    description: __('Get access to your Knowledge Base right in your Widget'),
+    name: 'Knowledge Base',
+    description: 'Get access to your Knowledge Base right in your Widget',
     inMessenger: true,
     isAvailable: true,
     kind: 'knowledgebase',
@@ -302,79 +294,76 @@ export const INTEGRATIONS = [
     createModal: 'knowledgeBase',
     createUrl: '/settings/integrations/knowledgeBase',
     category:
-      'All integrations, For support teams, For marketing teams, Surveys and Feedback',
+      'All integrations, For support teams, For marketing teams, Surveys and Feedback'
   },
   {
-    name: __('Call Pro'),
-    description: __('Connect your call pro phone number'),
+    name: 'Call Pro',
+    description: 'Connect your call pro phone number',
     inMessenger: false,
     isAvailable: true,
     kind: 'callpro',
     logo: '/images/integrations/callpro.png',
     createModal: 'callpro',
     category:
-      'All integrations, For support teams, Marketing automation, Phone and video, Conversation',
+      'All integrations, For support teams, Marketing automation, Phone and video, Conversation'
   },
   {
-    name: __('Chatfuel'),
-    description: __('Connect your chatfuel account'),
+    name: 'Chatfuel',
+    description: 'Connect your chatfuel account',
     inMessenger: false,
     isAvailable: true,
     kind: 'chatfuel',
     logo: '/images/integrations/chatfuel.png',
     createModal: 'chatfuel',
     category:
-      'All integrations, For support teams, Marketing automation, Messaging, Conversation',
+      'All integrations, For support teams, Marketing automation, Messaging, Conversation'
   },
   {
-    name: __('Website'),
-    description: __('Show your responsive website right in your Widget'),
+    name: 'Website',
+    description: 'Show your responsive website right in your Widget',
     inMessenger: true,
     isAvailable: true,
     kind: 'website',
     logo: '/images/integrations/website.png',
     createModal: 'website',
     createUrl: '/settings/integrations/website',
-    category: 'All integrations, For support teams, Marketing automation',
+    category: 'All integrations, For support teams, Marketing automation'
   },
   {
-    name: __('WhatsApp'),
-    description: __(
-      'Get a hold of your Whatsapp messages through your Team Inbox'
-    ),
+    name: 'WhatsApp',
+    description: 'Get a hold of your Whatsapp messages through your Team Inbox',
     inMessenger: false,
     isAvailable: true,
     kind: 'whatsapp',
     logo: '/images/integrations/whatsapp.png',
     createModal: 'whatsapp',
-    category: 'All integrations, For support teams, Messaging, Conversation',
+    category: 'All integrations, For support teams, Messaging, Conversation'
   },
   {
-    name: __('Telegram'),
-    description: __(
-      'Connect to your Telegram, a cloud-based mobile and desktop messaging app'
-    ),
+    name: 'Telegram',
+    description:
+      'Connect to your Telegram, a cloud-based mobile and desktop messaging app',
     inMessenger: false,
     isAvailable: true,
     kind: 'smooch-telegram',
     logo: '/images/integrations/telegram.png',
     createModal: 'smooch-telegram',
-    category: 'All integrations, For support teams, Messaging, Conversation',
+    category: 'All integrations, For support teams, Messaging, Conversation'
   },
   {
-    name: __('Viber'),
-    description: __('Connect Viber to your Team Inbox'),
+    name: 'Viber',
+    description: 'Connect Viber to your Team Inbox',
     inMessenger: false,
     isAvailable: true,
     kind: 'smooch-viber',
     logo: '/images/integrations/viber.png',
     createModal: 'smooch-viber',
     category:
-      'All integrations, For support teams, Marketing automation, Messaging, Conversation',
+      'All integrations, For support teams, Marketing automation, Messaging, Conversation'
   },
   {
-    name: __('Line'),
-    description: __('See and reply to Line messages in your Team Inbox'),
+    name: 'Line',
+    description: 'See and reply to Line messages in your Team Inbox',
     inMessenger: false,
     isAvailable: true,
     kind: 'smooch-line',
@@ -392,8 +381,8 @@ export const INTEGRATION_FILTERS = [
       'All integrations',
       'For support teams',
       'For sales teams',
-      'For marketing teams',
-    ],
+      'For marketing teams'
+    ]
   },
 
   {
