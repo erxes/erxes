@@ -416,14 +416,14 @@ describe('save integration messenger configurations test', () => {
       isOnline: false,
       onlineHours: [
         {
-          day: 'Monday',
-          from: '8am',
-          to: '12pm',
+          day: 'monday',
+          from: '8:00 am',
+          to: '12:00 pm',
         },
         {
-          day: 'Monday',
-          from: '2pm',
-          to: '6pm',
+          day: 'monday',
+          from: '2:00 pm',
+          to: '6:00 pm',
         },
       ],
       timezone: 'CET',
@@ -559,11 +559,12 @@ describe('save integration messenger configurations test', () => {
 
   describe('Auto mode', () => {
     test('isTimeInBetween()', () => {
-      const time1 = '09:00 AM';
+      const time1 = '9:00 AM';
       const time2 = '6:00 PM';
+      const timezone = 'Asia/Ulaanbaatar';
 
-      expect(isTimeInBetween(new Date('2017/05/08 11:10 AM'), time1, time2)).toBeTruthy();
-      expect(isTimeInBetween(new Date('2017/05/08 7:00 PM'), time1, time2)).toBeFalsy();
+      expect(isTimeInBetween(timezone, new Date('2017/05/08 11:10 AM'), time1, time2)).toBeTruthy();
+      expect(isTimeInBetween(timezone, new Date('2017/05/08 7:00 PM'), time1, time2)).toBeFalsy();
     });
 
     test('isOnline() must return false if there is no config for current day', async () => {
@@ -573,8 +574,8 @@ describe('save integration messenger configurations test', () => {
           onlineHours: [
             {
               day: 'tuesday',
-              from: '09:00 AM',
-              to: '05:00 PM',
+              from: '9:00 AM',
+              to: '5:00 PM',
             },
           ],
         },
@@ -591,8 +592,8 @@ describe('save integration messenger configurations test', () => {
           onlineHours: [
             {
               day: 'tuesday',
-              from: '09:00 AM',
-              to: '05:00 PM',
+              from: '9:00 AM',
+              to: '5:00 PM',
             },
           ],
         },
@@ -610,8 +611,8 @@ describe('save integration messenger configurations test', () => {
           onlineHours: [
             {
               day: 'everyday',
-              from: '09:00 AM',
-              to: '05:00 PM',
+              from: '9:00 AM',
+              to: '5:00 PM',
             },
           ],
         },
@@ -643,8 +644,8 @@ describe('save integration messenger configurations test', () => {
           onlineHours: [
             {
               day: 'weekdays',
-              from: '09:00 AM',
-              to: '05:00 PM',
+              from: '9:00 AM',
+              to: '5:00 PM',
             },
           ],
         },
@@ -671,8 +672,8 @@ describe('save integration messenger configurations test', () => {
           onlineHours: [
             {
               day: 'weekends',
-              from: '09:00 AM',
-              to: '05:00 PM',
+              from: '9:00 AM',
+              to: '5:00 PM',
             },
           ],
         },

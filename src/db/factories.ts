@@ -672,7 +672,7 @@ interface IIntegrationFactoryInput {
   leadData?: any;
   tagIds?: string[];
   isActive?: boolean;
-  messengerData?: object;
+  messengerData?: any;
   languageCode?: string;
 }
 
@@ -690,6 +690,10 @@ export const integrationFactory = async (params: IIntegrationFactoryInput = {}) 
     tagIds: params.tagIds,
     isActive: params.isActive === undefined || params.isActive === null ? true : params.isActive,
   };
+
+  if (params.messengerData && !params.messengerData.timezone) {
+    doc.messengerData.timezone = 'Asia/Ulaanbaatar';
+  }
 
   const user = await userFactory({});
 

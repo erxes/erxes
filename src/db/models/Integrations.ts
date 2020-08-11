@@ -57,7 +57,7 @@ export const isTimeInBetween = (timezone: string, date: Date, startTime: string,
     .toDate();
 
   const start = getHourAndMinute(startTime);
-  const startDate = momentTz()
+  const startDate = momentTz(date)
     .tz(timezone)
     .toDate();
 
@@ -65,7 +65,7 @@ export const isTimeInBetween = (timezone: string, date: Date, startTime: string,
   startDate.setMinutes(start.minute);
 
   const end = getHourAndMinute(closeTime);
-  const closeDate = momentTz()
+  const closeDate = momentTz(date)
     .tz(timezone)
     .toDate();
 
