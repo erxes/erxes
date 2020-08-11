@@ -17,10 +17,6 @@ export const AttachmentWrapper = styled.div`
   img {
     max-width: 100%;
   }
-
-  &:hover {
-    background: ${rgba(colors.colorCoreDarkBlue, 0.08)};
-  }
 `;
 
 const ItemInfo = styled.div`
@@ -54,7 +50,7 @@ const PreviewWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 4px;
+  border-radius: 7px;
   overflow: hidden;
   align-self: center;
 
@@ -107,7 +103,6 @@ class Attachment extends React.Component<Props> {
           {attachment.size && (
             <span>Size: {Math.round(attachment.size / 1000)}kB</span>
           )}
-          {this.props.additionalItem}
         </Meta>
       </>
     );

@@ -6,20 +6,33 @@ import colors from '../styles/colors';
 import { IAttachment } from '../types';
 import Attachment from './Attachment';
 import Spinner from './Spinner';
+import Icon from 'modules/common/components/Icon';
 
 const List = styled.div`
   margin: 10px 0;
 `;
 
 const Item = styled.div`
+  justify-content: space-between;
   margin-bottom: 10px;
+  display: flex;
+  border-radius: 7px;
+  flex: 1;
+  cursor: pointer;
+  &:hover {
+    background: ${rgba(colors.colorCoreDarkBlue, 0.08)};
+  }
 `;
 
 const Delete = styled.span`
-  text-decoration: underline;
   transition: all 0.3s ease;
   color: ${colors.colorCoreGray};
+  align-self: center;
+  margin-right: 15px;
 
+  .icon-trash-alt {
+    font-size: 20px;
+  }
   &:hover {
     color: ${colors.colorCoreBlack};
     cursor: pointer;
@@ -149,16 +162,19 @@ class Uploader extends React.Component<Props, State> {
     this.props.onChange(attachments);
   };
 
+  imageWithPreview = () => {};
+
   renderItem = (item: IAttachment, index: number) => {
     const removeAttachment = () => {
       confirm().then(() => this.removeAttachment(index));
     };
 
-    const remove = <Delete onClick={removeAttachment}>{__('Delete')}</Delete>;
-
     return (
-      <Item key={item.url}>
-        <Attachment attachment={item} additionalItem={remove} />
+      <Item key={item.url} onClick={this.imageWithPreview}>
+        <Attachment attachment={item} />
+        <Delete onClick={removeAttachment}>
+          <Icon icon="trash-alt" />
+        </Delete>
       </Item>
     );
   };

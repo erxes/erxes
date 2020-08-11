@@ -20,7 +20,6 @@ const PreviewWrapper = styled.div`
   animation-name: ${fadeIn};
   animation-duration: 0.3s;
   animation-timing-function: ease;
-  cursor: zoom-out;
 
   img {
     width: auto;
@@ -36,8 +35,8 @@ const PreviewWrapper = styled.div`
 `;
 
 const Image = styled.img`
-  cursor: zoom-in;
   transition: all 0.3s;
+  border-radius: 4px;
 
   &:hover {
     opacity: 0.8;
