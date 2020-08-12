@@ -101,7 +101,7 @@ class Options extends React.Component<Props, State> {
             if (integrationsFetchApi) {
               this.onChangeFunction('showVideoCallRequest', true);
             } else {
-              Alert.error(__('Please configure a video call settings'));
+              Alert.error('Please configure a video call settings');
             }
           });
       } else {

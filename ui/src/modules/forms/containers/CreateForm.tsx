@@ -83,7 +83,7 @@ class CreateFormContainer extends React.Component<FinalProps, {}> {
 
         .then(() => {
           if (showMessage) {
-            Alert.success(__('You successfully added a form'));
+            Alert.success('You successfully added a form');
           }
         })
 

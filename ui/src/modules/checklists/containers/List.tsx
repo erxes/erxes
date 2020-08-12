@@ -48,7 +48,7 @@ function ListContainer(props: FinalProps) {
     confirm().then(() => {
       removeMutation({ variables: { _id: checklistId } })
         .then(() => {
-          Alert.success(__('You successfully deleted a checklist'));
+          Alert.success('You successfully deleted a checklist');
           localStorage.removeItem(checklistId);
         })
         .catch(e => {
@@ -73,7 +73,7 @@ function ListContainer(props: FinalProps) {
 
     const afterConvert = () => {
       callback();
-      Alert.success(__('You successfully converted a card'));
+      Alert.success('You successfully converted a card');
     };
 
     props.addItem({ stageId, name }, afterConvert);

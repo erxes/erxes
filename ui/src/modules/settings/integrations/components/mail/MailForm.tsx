@@ -53,9 +53,13 @@ type Props = {
   toggleReply?: () => void;
   emailSignatures: IEmailSignature[];
   createdAt?: Date;
-  sendMail: (
-    { variables, callback }: { variables: any; callback: () => void }
-  ) => void;
+  sendMail: ({
+    variables,
+    callback
+  }: {
+    variables: any;
+    callback: () => void;
+  }) => void;
 };
 
 type State = {
@@ -181,7 +185,7 @@ class MailForm extends React.Component<Props, State> {
     } = this.state;
 
     if (!to) {
-      return Alert.error(__('This message must have at least one recipient.'));
+      return Alert.error('This message must have at least one recipient.');
     }
 
     const { references, headerId, threadId, messageId } = mailData;
@@ -420,7 +424,7 @@ class MailForm extends React.Component<Props, State> {
         if (totalFileSize > 5184000) {
           this.setState({ isUploading: false });
 
-          return Alert.error(__('It`s size exceeds the limit 5mb'));
+          return Alert.error('It`s size exceeds the limit 5mb');
         }
 
         const result = uploadReader.result;

@@ -57,15 +57,15 @@ class PermissionForm extends React.Component<Props, State> {
     } = this.state;
 
     if (!selectedModule) {
-      return Alert.error(__('Please select the module!'));
+      return Alert.error('Please select the module!');
     }
 
     if (!this.hasItems(selectedActions)) {
-      return Alert.error(__('Please select at least one action!'));
+      return Alert.error('Please select at least one action!');
     }
 
     if (!this.hasItems(selectedGroups) && !this.hasItems(selectedUserIds)) {
-      return Alert.error(__('Please select at least one group or user!'));
+      return Alert.error('Please select at least one group or user!');
     }
 
     return this.setState({ isSubmitted: true });

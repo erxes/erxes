@@ -67,7 +67,7 @@ class SettingsContainer extends React.Component<Props> {
         .then(() => {
           engagesVerifiedEmailsQuery.refetch();
           Alert.success(
-            __('Successfully sent verification email. Please check your inbox')
+            'Successfully sent verification email. Please check your inbox'
           );
         })
 
@@ -87,7 +87,7 @@ class SettingsContainer extends React.Component<Props> {
         })
           .then(() => {
             engagesVerifiedEmailsQuery.refetch();
-            Alert.success(__('Successfully removed'));
+            Alert.success('Successfully removed');
           })
 
           .catch(e => {
@@ -105,7 +105,7 @@ class SettingsContainer extends React.Component<Props> {
         }
       })
         .then(() => {
-          Alert.success(__('Successfully sent'));
+          Alert.success('Successfully sent');
         })
 
         .catch(e => {

@@ -46,11 +46,11 @@ const ActionSectionContainer = (props: FinalProps) => {
       variables: { customerIds: [_id] }
     })
       .then(() => {
-        Alert.success(__('You successfully deleted a customer'));
+        Alert.success('You successfully deleted a customer');
         history.push('/contacts/customer');
       })
       .catch(e => {
-        Alert.error(__(e.message));
+        Alert.error(e.message);
       });
   };
 
@@ -62,10 +62,10 @@ const ActionSectionContainer = (props: FinalProps) => {
       }
     })
       .then(() => {
-        Alert.success(__('You successfully changed the state'));
+        Alert.success('You successfully changed the state');
       })
       .catch(e => {
-        Alert.error(__(e.message));
+        Alert.error(e.message);
       });
   };
 
@@ -77,11 +77,11 @@ const ActionSectionContainer = (props: FinalProps) => {
       }
     })
       .then(response => {
-        Alert.success(__('You successfully merged a customer'));
+        Alert.success('You successfully merged a customer');
         history.push(`/contacts/details/${response.data.customersMerge._id}`);
       })
       .catch(e => {
-        Alert.error(__(e.message));
+        Alert.error(e.message);
       });
   };
 
@@ -100,7 +100,7 @@ const ActionSectionContainer = (props: FinalProps) => {
         }
       })
       .catch(error => {
-        Alert.error(__(error.message));
+        Alert.error(error.message);
       });
   };
 

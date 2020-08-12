@@ -34,7 +34,7 @@ const ResolverContainer = (props: FinalProps) => {
         }
 
         if (status === CONVERSATION_STATUSES.CLOSED) {
-          Alert.success(__('The conversation has been resolved!'));
+          Alert.success('The conversation has been resolved!');
 
           // clear saved messages from storage
           conversationIds.forEach(c => {
@@ -42,7 +42,7 @@ const ResolverContainer = (props: FinalProps) => {
           });
         } else {
           Alert.info(
-            __('The conversation has been reopened and restored to Inbox')
+            'The conversation has been reopened and restored to Inbox'
           );
         }
 

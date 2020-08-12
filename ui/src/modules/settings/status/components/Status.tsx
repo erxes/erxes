@@ -21,19 +21,16 @@ class Status extends React.PureComponent<{
             <Icon icon="info-circle" /> {__('Info')}
           </span>
           <div>
-            <b>{'Package version'}</b> - {ver.packageVersion}
+            <b>Package version</b> - {ver.packageVersion}
           </div>
           <div>
-            <b>{'Branch name'}</b> - {ver.branch}
+            <b>Branch name</b> - {ver.branch}
           </div>
           <div>
-            <b>{'Sha'}</b> - {ver.sha}
+            <b>Sha</b> - {ver.sha}
           </div>
           <div>
-            <b>
-              {'Abbreviated'} {'Sha'}
-            </b>{' '}
-            - {ver.abbreviatedSha}{' '}
+            <b>Abbreviated Sha</b> - {ver.abbreviatedSha}{' '}
           </div>
         </Group>
       </Box>

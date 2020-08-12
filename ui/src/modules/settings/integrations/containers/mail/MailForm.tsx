@@ -69,15 +69,13 @@ const MailFormContainer = (props: FinalProps) => {
   }) => {
     return sendMailMutation({ variables, optimisticResponse, update })
       .then(() => {
-        Alert.success(__('You have successfully sent a email'));
+        Alert.success('You have successfully sent a email');
 
         if (isReply && variables.shouldResolve) {
           debounce(
             () =>
               Alert.info(
-                __(
-                  'This email conversation will be automatically moved to a resolved state.'
-                )
+                'This email conversation will be automatically moved to a resolved state.'
               ),
             3300
           )();

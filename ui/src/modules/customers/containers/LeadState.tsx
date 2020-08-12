@@ -39,10 +39,10 @@ class CustomerChooser extends React.Component<FinalProps> {
             }
           })
             .then(() => {
-              Alert.success(__('You successfully converted to customer'));
+              Alert.success('You successfully converted to customer');
             })
             .catch(e => {
-              Alert.error(__(e.message));
+              Alert.error(e.message);
             })
       );
     };
@@ -52,10 +52,10 @@ class CustomerChooser extends React.Component<FinalProps> {
         variables: { _id: customer._id, leadStatus: state }
       })
         .then(() => {
-          Alert.success(__('You successfully updated state'));
+          Alert.success('You successfully updated state');
         })
         .catch(e => {
-          Alert.error(__(e.message));
+          Alert.error(e.message);
         });
     };
 

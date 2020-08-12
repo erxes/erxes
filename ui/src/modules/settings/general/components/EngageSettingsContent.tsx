@@ -84,7 +84,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
       return this.props.verifyEmail(emailToVerify);
     }
 
-    return Alert.error(__('Write your email to verify!'));
+    return Alert.error('Write your email to verify!');
   };
 
   onSendTestEmail = () => {

@@ -44,7 +44,7 @@ const TaggerContainer = (props: FinalProps) => {
           message = `Selected ${type}s have been tagged!`;
         }
 
-        Alert.success(__(message));
+        Alert.success(message);
 
         if (successCallback) {
           successCallback();
