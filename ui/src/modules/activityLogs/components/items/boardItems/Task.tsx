@@ -13,7 +13,7 @@ import {
   JumpTo,
   LogWrapper,
   Row,
-  Title,
+  Title
 } from 'modules/activityLogs/styles';
 import { REMINDER_MINUTES } from 'modules/boards/constants';
 import { IItem } from 'modules/boards/types';
