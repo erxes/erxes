@@ -1,22 +1,25 @@
-import React from 'react';
-import { __, Alert, uploadHandler } from 'modules/common/utils';
-import { IAttachment } from '../types';
-import Icon from 'modules/common/components/Icon';
-import Spinner from './Spinner';
+import React from "react";
+import { __, Alert, uploadHandler, readFile } from "modules/common/utils";
+import { IAttachment } from "../types";
+import Icon from "modules/common/components/Icon";
+import Spinner from "./Spinner";
+import PreviewWithBig from "./PreviewWithBig";
+
 import {
   AttachmentWrapper,
-  // ItemInfo,
   UploadBtn,
   LoadingContainer,
   PreviewWrapper,
-  // Download,
   ToggleButton,
   Delete,
   Item,
   List,
-  BiggerPreviewWrapper
-  // AttachmentName,
-} from '../styles/attachmentcss';
+  AttachmentName,
+  Download,
+  ItemInfo,
+  Meta,
+  BiggerPreviewWrapper,
+} from "../styles/attachmentcss";
 
 type Props = {
   defaultFileList?: IAttachment[];
@@ -24,16 +27,22 @@ type Props = {
   single?: boolean;
   multiple?: boolean;
   limit?: number;
+  scrollBottom?: () => void;
 };
 
 type State = {
   attachments: IAttachment[];
   loading: boolean;
   hideOthers: boolean;
-  bigPreview: boolean;
+  visible: boolean;
+  currentIndex: number;
 };
 
 class AttachmentPreview extends React.Component<Props, State> {
+  static defaultProps = {
+    multiple: true,
+    limit: 4,
+  };
   constructor(props: Props) {
     super(props);
 
@@ -41,7 +50,8 @@ class AttachmentPreview extends React.Component<Props, State> {
       attachments: props.defaultFileList || [],
       loading: false,
       hideOthers: true,
-      bigPreview: false
+      visible: false,
+      currentIndex: 0,
     };
   }
 
@@ -49,11 +59,29 @@ class AttachmentPreview extends React.Component<Props, State> {
     this.setState({ hideOthers: !this.state.hideOthers });
   };
 
+  toggleFile = () => {
+    this.setState({ visible: !this.state.visible });
+  };
+
+  handleClose = () => {
+    this.setState({
+      visible: false,
+    });
+  };
+
+  handleOpen = (index, item) => {
+    this.setState({
+      visible: true,
+      currentIndex: index,
+    });
+    console.log(item);
+  };
+
   renderToggleButton = (hiddenCount: number) => {
     if (hiddenCount > 0) {
       const buttonText = this.state.hideOthers
-        ? `${__('View all attachments')} (${hiddenCount} ${__('hidden')})`
-        : `${__('Show fewer attachments')}`;
+        ? `${__("View all attachments")} (${hiddenCount} ${__("hidden")})`
+        : `${__("Show fewer attachments")}`;
 
       return (
         <ToggleButton onClick={this.toggleAttachments}>
@@ -65,10 +93,6 @@ class AttachmentPreview extends React.Component<Props, State> {
     return null;
   };
 
-  toggleImage = () => {
-    this.setState({ bigPreview: !this.state.bigPreview });
-  };
-
   handleFileInput = ({ target }) => {
     const files = target.files;
 
@@ -77,17 +101,17 @@ class AttachmentPreview extends React.Component<Props, State> {
 
       beforeUpload: () => {
         this.setState({
-          loading: true
+          loading: true,
         });
       },
 
       afterUpload: ({ status, response, fileInfo }) => {
-        if (status !== 'ok') {
+        if (status !== "ok") {
           Alert.error(response);
           return this.setState({ loading: false });
         }
 
-        Alert.info('Success');
+        Alert.info("Success");
 
         // set attachments
         const attachment = { url: response, ...fileInfo };
@@ -98,16 +122,12 @@ class AttachmentPreview extends React.Component<Props, State> {
 
         this.setState({
           loading: false,
-          attachments
+          attachments,
         });
-      }
+      },
     });
 
-    target.value = '';
-  };
-
-  handlePreview = item => {
-    console.log(item);
+    target.value = "";
   };
 
   renderUploadButton() {
@@ -120,7 +140,7 @@ class AttachmentPreview extends React.Component<Props, State> {
     return (
       <UploadBtn>
         <label>
-          {__('Upload an attachment')}
+          {__("Upload an attachment")}
           <input
             type="file"
             multiple={multiple}
@@ -131,25 +151,99 @@ class AttachmentPreview extends React.Component<Props, State> {
     );
   }
 
+  removeAttachment = (index: number) => {
+    const attachments = [...this.state.attachments];
+
+    attachments.splice(index, 1);
+
+    this.setState({ attachments });
+
+    this.props.onChange(attachments);
+  };
+
+  renderOtherInfo = (attachment) => {
+    const name = attachment.name || attachment.url || "";
+
+    return (
+      <>
+        <h5>
+          <AttachmentName>{name}</AttachmentName>
+          <Download
+            rel="noopener noreferrer"
+            href={readFile(attachment.url)}
+            target="_blank"
+          >
+            <Icon icon="external-link-alt" />
+          </Download>
+        </h5>
+        <Meta>
+          {attachment.size && (
+            <span>Size: {Math.round(attachment.size / 1000)}kB</span>
+          )}
+        </Meta>
+      </>
+    );
+  };
+
   renderAttachments(item, index) {
     return (
-      <Item key={item.url} onClick={() => this.handlePreview(item)}>
+      <Item key={item.url} onClick={() => this.handleOpen(index, item)}>
         <AttachmentWrapper>
           <PreviewWrapper>
             <img
+              style={{ borderRadius: "5px" }}
               alt={this.state.attachments[index].url}
               src={this.state.attachments[index].url}
             />
           </PreviewWrapper>
-          {/* <ItemInfo>{this.renderOtherInfo(item)}</ItemInfo> */}
+          <ItemInfo>{this.renderOtherInfo(item)}</ItemInfo>
         </AttachmentWrapper>
-        {/* <Attachment attachment={item}/> */}
-        <Delete>
+        <Delete onClick={() => this.removeAttachment(index)}>
           <Icon icon="trash-alt" />
         </Delete>
       </Item>
     );
   }
+
+  onLoadImage = () => {
+    const { scrollBottom } = this.props;
+
+    if (scrollBottom) {
+      scrollBottom();
+    }
+  };
+
+  handleNext = (currentIndex) => {
+    let nextIndex = currentIndex + 1;
+    if (nextIndex > this.state.attachments.length - 1) {
+      this.setState({ currentIndex: 0 });
+    } else {
+      this.setState({ currentIndex: currentIndex + 1 });
+    }
+  };
+
+  handlePrevious = (currentIndex) => {
+    if (currentIndex > 0)
+      this.setState({
+        currentIndex: currentIndex - 1,
+      });
+    else
+      this.setState({
+        currentIndex: this.state.attachments.length - 1,
+      });
+  };
+
+  // renderFiles = () => {
+  //   this.state.attachments.map((attachment) => {
+  //     if(attachment.type.startsWith('image')){
+  //       <img style={{ width: 100 }} src={attachment.url}/> 
+  //     } else {
+  //       <Icon style={{ width: 100 }} icon={'trash-alt'}/> 
+  //     }
+  //   }
+       
+  //   );
+  // };
 
   render() {
     const { loading, hideOthers, attachments } = this.state;
@@ -161,7 +255,7 @@ class AttachmentPreview extends React.Component<Props, State> {
         {loading && (
           <LoadingContainer>
             <Spinner objective={true} size={18} />
-            {'Uploading'}...
+            {"Uploading"}...
           </LoadingContainer>
         )}
         <List>
@@ -169,54 +263,34 @@ class AttachmentPreview extends React.Component<Props, State> {
             .slice(0, limit && hideOthers ? limit : length)
             .map((item, index) => this.renderAttachments(item, index))}
         </List>
-        <PreviewWithBig item={this.state.attachments} />
         {this.renderToggleButton(length - limit)}
         {this.renderUploadButton()}
+
+        <PreviewWithBig
+          show={this.state.visible}
+          handleClose={() => this.handleClose()}
+        >
+          <BiggerPreviewWrapper>
+            <button
+              onClick={() => this.handlePrevious(this.state.currentIndex)}
+            >
+              next
+            </button>
+            {/* {this.renderFiles()} */}
+            
+            <img
+              style={{ width: 100 }}
+              src={this.state.attachments[this.state.currentIndex].url}
+            />
+            <button onClick={() => this.handleNext(this.state.currentIndex)}>
+              next
+            </button>
+            <button onClick={() => this.handleClose()}>close</button>
+          </BiggerPreviewWrapper>
+        </PreviewWithBig>
       </>
     );
   }
 }
 
 export default AttachmentPreview;
-
-export class PreviewWithBig extends React.Component<any, any> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      currentIndex: 0,
-      visible: false
-    };
-  }
-
-  left() {
-    this.setState({ currentIndex: this.state.currentIndex - 1 });
-  }
-
-  right() {
-    const { currentIndex } = this.state;
-    let nextIndex = currentIndex - 1;
-
-    if (nextIndex > this.props.attachment.length) {
-      nextIndex = 0;
-    }
-  }
-
-  renderData = this.props.item.map((data, index) => (
-    <img style={{ width: 100 }} key={index} src={data.url} />
-  ));
-
-  render() {
-    return (
-      <>
-        {this.state.visible && (
-          <BiggerPreviewWrapper>
-            <button>Left</button>
-            {this.renderData}
-            <button>Right</button>
-          </BiggerPreviewWrapper>
-        )}
-      </>
-    );
-  }
-}
