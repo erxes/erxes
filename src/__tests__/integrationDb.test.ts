@@ -1,4 +1,5 @@
 import * as faker from 'faker';
+import * as momentTz from 'moment-timezone';
 import {
   brandFactory,
   conversationFactory,
@@ -417,16 +418,16 @@ describe('save integration messenger configurations test', () => {
       onlineHours: [
         {
           day: 'monday',
-          from: '8:00 am',
-          to: '12:00 pm',
+          from: '8:00 AM',
+          to: '12:00 PM',
         },
         {
           day: 'monday',
-          from: '2:00 pm',
-          to: '6:00 pm',
+          from: '2:00 PM',
+          to: '6:00 PM',
         },
       ],
-      timezone: 'CET',
+      timezone: momentTz.tz.guess(true),
       messages: {
         en: {
           welcome: 'Welcome user',
@@ -467,14 +468,14 @@ describe('save integration messenger configurations test', () => {
       isOnline: true,
       onlineHours: [
         {
-          day: 'Tuesday',
-          from: '9am',
-          to: '1pm',
+          day: 'tuesday',
+          from: '9:00 AM',
+          to: '1:00 PM',
         },
         {
-          day: 'Tuesday',
-          from: '3pm',
-          to: '7pm',
+          day: 'tuesday',
+          from: '3:00 PM',
+          to: '7:00 PM',
         },
       ],
       timezone: 'EET',
@@ -615,6 +616,7 @@ describe('save integration messenger configurations test', () => {
               to: '5:00 PM',
             },
           ],
+          timezone: momentTz.tz.guess(true),
         },
       });
 
@@ -625,10 +627,10 @@ describe('save integration messenger configurations test', () => {
       expect(Integrations.isOnline(integration, new Date('2017/05/11 1:00 PM'))).toBeTruthy();
       expect(Integrations.isOnline(integration, new Date('2017/05/12 2:00 PM'))).toBeTruthy();
       expect(Integrations.isOnline(integration, new Date('2017/05/13 3:00 PM'))).toBeTruthy();
-      expect(Integrations.isOnline(integration, new Date('2017/05/14 4:00 PM'))).toBeTruthy();
+      expect(Integrations.isOnline(integration, new Date('2017/05/14 3:30 PM'))).toBeTruthy();
 
       // monday -> sunday
-      expect(Integrations.isOnline(integration, new Date('2017/05/08 3:00 AM'))).toBeFalsy();
+      expect(Integrations.isOnline(integration, new Date('2017/05/08 1:00 AM'))).toBeFalsy();
       expect(Integrations.isOnline(integration, new Date('2017/05/09 4:00 AM'))).toBeFalsy();
       expect(Integrations.isOnline(integration, new Date('2017/05/10 5:00 AM'))).toBeFalsy();
       expect(Integrations.isOnline(integration, new Date('2017/05/11 6:00 AM'))).toBeFalsy();
@@ -648,6 +650,7 @@ describe('save integration messenger configurations test', () => {
               to: '5:00 PM',
             },
           ],
+          timezone: momentTz.tz.guess(true),
         },
       });
 
@@ -658,7 +661,7 @@ describe('save integration messenger configurations test', () => {
       expect(Integrations.isOnline(integration, new Date('2017/05/11 1:00 PM'))).toBeTruthy();
       expect(Integrations.isOnline(integration, new Date('2017/05/12 2:00 PM'))).toBeTruthy();
       expect(Integrations.isOnline(integration, new Date('2017/05/11 11:00 PM'))).toBeFalsy();
-      expect(Integrations.isOnline(integration, new Date('2017/05/12 07:00 AM'))).toBeFalsy();
+      expect(Integrations.isOnline(integration, new Date('2017/05/12 8:00 AM'))).toBeFalsy();
 
       // weekend
       expect(Integrations.isOnline(integration, new Date('2017/05/13 10:00 AM'))).toBeFalsy();
@@ -676,6 +679,7 @@ describe('save integration messenger configurations test', () => {
               to: '5:00 PM',
             },
           ],
+          timezone: momentTz.tz.guess(true),
         },
       });
 

@@ -1,6 +1,7 @@
 import { dateType } from 'aws-sdk/clients/sts'; // tslint:disable-line
 import * as faker from 'faker';
 import * as Random from 'meteor-random';
+import * as momentTz from 'moment-timezone';
 import { FIELDS_GROUPS_CONTENT_TYPES } from '../data/constants';
 import {
   ActivityLogs,
@@ -692,7 +693,7 @@ export const integrationFactory = async (params: IIntegrationFactoryInput = {}) 
   };
 
   if (params.messengerData && !params.messengerData.timezone) {
-    doc.messengerData.timezone = 'Asia/Ulaanbaatar';
+    doc.messengerData.timezone = momentTz.tz.guess(true);
   }
 
   const user = await userFactory({});
