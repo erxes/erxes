@@ -503,7 +503,8 @@ export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
       await createNylasWebhook();
     }
   } catch (e) {
-    debugNylas(e);
+    debugNylas(e.message);
+    throw e;
   }
 
   try {
