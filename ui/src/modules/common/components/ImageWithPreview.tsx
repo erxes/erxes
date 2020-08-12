@@ -102,4 +102,5 @@ class ImageWithPreview extends React.Component<Props, State> {
     );
   }
 }
+
 export default ImageWithPreview;

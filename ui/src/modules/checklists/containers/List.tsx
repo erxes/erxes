@@ -3,7 +3,7 @@ import * as compose from 'lodash.flowright';
 import { IItemParams } from 'modules/boards/types';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps } from 'modules/common/types';
-import { __, Alert, confirm, withProps } from 'modules/common/utils';
+import { Alert, confirm, withProps } from 'modules/common/utils';
 import React, { useEffect } from 'react';
 import { graphql } from 'react-apollo';
 import List from '../components/List';

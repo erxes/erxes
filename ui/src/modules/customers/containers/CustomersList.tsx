@@ -82,10 +82,10 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       })
         .then(() => {
           emptyBulk();
-          Alert.success(__('You successfully deleted a customer'));
+          Alert.success('You successfully deleted a customer');
         })
         .catch(e => {
-          Alert.error(__(e.message));
+          Alert.error(e.message);
         });
     };
 
@@ -101,7 +101,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
         .then((result: any) => {
           callback();
           this.setState({ mergeCustomerLoading: false });
-          Alert.success(__('You successfully merged a customer'));
+          Alert.success('You successfully merged a customer');
           history.push(`/contacts/details/${result.data.customersMerge._id}`);
         })
         .catch(e => {

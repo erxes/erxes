@@ -131,7 +131,7 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
       this.setState({ inputValue: '' });
     });
 
-    Alert.success(__('Successfully added'));
+    Alert.success('Successfully added');
   }
 
   handleSave = () => {
@@ -149,7 +149,7 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
         return this.saveValue();
       }
 
-      return Alert.error(__('Invalid format'));
+      return Alert.error('Invalid format');
     }
 
     return this.saveValue();
@@ -180,7 +180,7 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
       }
     );
 
-    Alert.success(__('Successfully removed'));
+    Alert.success('Successfully removed');
   };
 
   setItem = option => {

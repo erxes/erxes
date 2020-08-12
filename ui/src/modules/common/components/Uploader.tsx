@@ -120,7 +120,7 @@ class Uploader extends React.Component<Props, State> {
           return this.setState({ loading: false });
         }
 
-        Alert.info(__('Success'));
+        Alert.info('Success');
 
         // set attachments
         const attachment = { url: response, ...fileInfo };
