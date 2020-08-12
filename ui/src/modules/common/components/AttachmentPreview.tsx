@@ -10,10 +10,11 @@ import {
   LoadingContainer,
   PreviewWrapper,
   // Download,
-  // ToggleButton,
+  ToggleButton,
   Delete,
   Item,
-  List
+  List,
+  BiggerPreviewWrapper
   // AttachmentName,
 } from '../styles/attachmentcss';
 
@@ -43,6 +44,30 @@ class AttachmentPreview extends React.Component<Props, State> {
       bigPreview: false
     };
   }
+
+  toggleAttachments = () => {
+    this.setState({ hideOthers: !this.state.hideOthers });
+  };
+
+  renderToggleButton = (hiddenCount: number) => {
+    if (hiddenCount > 0) {
+      const buttonText = this.state.hideOthers
+        ? `${__('View all attachments')} (${hiddenCount} ${__('hidden')})`
+        : `${__('Show fewer attachments')}`;
+
+      return (
+        <ToggleButton onClick={this.toggleAttachments}>
+          {buttonText}
+        </ToggleButton>
+      );
+    }
+
+    return null;
+  };
+
+  toggleImage = () => {
+    this.setState({ bigPreview: !this.state.bigPreview });
+  };
 
   handleFileInput = ({ target }) => {
     const files = target.files;
@@ -116,8 +141,6 @@ class AttachmentPreview extends React.Component<Props, State> {
               src={this.state.attachments[index].url}
             />
           </PreviewWrapper>
-          {this.state.bigPreview}
-
           {/* <ItemInfo>{this.renderOtherInfo(item)}</ItemInfo> */}
         </AttachmentWrapper>
         {/* <Attachment attachment={item}/> */}
@@ -147,6 +170,7 @@ class AttachmentPreview extends React.Component<Props, State> {
             .map((item, index) => this.renderAttachments(item, index))}
         </List>
         <PreviewWithBig item={this.state.attachments} />
+        {this.renderToggleButton(length - limit)}
         {this.renderUploadButton()}
       </>
     );
@@ -155,15 +179,44 @@ class AttachmentPreview extends React.Component<Props, State> {
 
 export default AttachmentPreview;
 
-export class PreviewWithBig extends React.Component<any> {
+export class PreviewWithBig extends React.Component<any, any> {
   constructor(props) {
     super(props);
+
+    this.state = {
+      currentIndex: 0,
+      visible: false
+    };
   }
+
+  left() {
+    this.setState({ currentIndex: this.state.currentIndex - 1 });
+  }
+
+  right() {
+    const { currentIndex } = this.state;
+    let nextIndex = currentIndex - 1;
+
+    if (nextIndex > this.props.attachment.length) {
+      nextIndex = 0;
+    }
+  }
+
   renderData = this.props.item.map((data, index) => (
     <img style={{ width: 100 }} key={index} src={data.url} />
   ));
 
   render() {
-    return <>{this.renderData}</>;
+    return (
+      <>
+        {this.state.visible && (
+          <BiggerPreviewWrapper>
+            <button>Left</button>
+            {this.renderData}
+            <button>Right</button>
+          </BiggerPreviewWrapper>
+        )}
+      </>
+    );
   }
 }

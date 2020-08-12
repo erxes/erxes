@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import colors from './colors';
 import { rgba } from '../styles/color';
+import { fadeIn, slideDown } from 'modules/common/utils/animations';
 
 const AttachmentWrapper = styled.div`
   border-radius: 4px;
@@ -133,6 +134,45 @@ const UploadBtn = styled.div`
   }
 `;
 
+const BiggerPreviewWrapper = styled.div`
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  background: rgba(48, 67, 92, 0.8);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s;
+  z-index: 50000;
+  animation-name: ${fadeIn};
+  animation-duration: 0.3s;
+  animation-timing-function: ease;
+
+  img {
+    width: auto;
+    max-width: 80%;
+    max-height: 80%;
+    max-height: 80vh;
+    box-shadow: 0 2px 10px -3px rgba(0, 0, 0, 0.5);
+    transition: max-width 0.1s ease, max-height 0.1s ease;
+    animation-name: ${slideDown};
+    animation-duration: 0.3s;
+    animation-timing-function: ease;
+  }
+`;
+
+const Image = styled.img`
+  transition: all 0.3s;
+  border-radius: 4px;
+
+  &:hover {
+    opacity: 0.8;
+  }
+`;
+
 export {
   AttachmentWrapper,
   ItemInfo,
@@ -145,5 +185,7 @@ export {
   Item,
   List,
   AttachmentName,
-  Meta
+  Meta,
+  BiggerPreviewWrapper,
+  Image
 };
