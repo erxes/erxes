@@ -236,7 +236,7 @@ class InstallCode extends React.PureComponent<Props, State> {
       return (
         <>
           <h4>
-            <b>{'Swift'}</b>
+            <b>Swift</b>
           </h4>
           <ol>
             <li>
@@ -296,7 +296,7 @@ class InstallCode extends React.PureComponent<Props, State> {
           </ol>
           <br />
           <h4>
-            <b>{'Objective-C'}</b>
+            <b>Objective-C</b>
           </h4>
           <ol>
             <li>

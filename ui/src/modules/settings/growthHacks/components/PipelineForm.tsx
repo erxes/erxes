@@ -299,7 +299,7 @@ class PipelineForm extends React.Component<Props, State> {
                 __(
                   'Set the Reach, Impact, Confidence and Effort factors for your tasks. Final score is calculated by the formula:'
                 ),
-                '(' +
+                '( ' +
                   __('Reach') +
                   ' * ' +
                   __('Impact') +
@@ -308,19 +308,23 @@ class PipelineForm extends React.Component<Props, State> {
                   ')' +
                   ' / ' +
                   __('Effort') +
-                  ')'
+                  ' )'
               )}
               {this.renderBox(
                 __('pie'),
                 __(
-                  'Set the Potential, Importance and Ease factors for your tasks. Final score is calculated by the formula:'
-                ),
+                  'Set the Potential, Importance and Ease factors for your tasks'
+                ) +
+                  '.' +
+                  __('Final score is calculated by the formula:   '),
                 '(' +
                   __('Potential') +
+                  ' + ' +
                   __('Importance') +
+                  ' + ' +
                   __('Ease') +
-                  ')' +
-                  '/' +
+                  ' )' +
+                  ' / ' +
                   '3'
               )}
             </FlexContent>
