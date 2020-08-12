@@ -212,7 +212,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
           )}
         </CollapseContent>
 
-        <CollapseContent title={'WhatsApp Chat-API'}>
+        <CollapseContent title="WhatsApp Chat-API">
           <Info>
             <a
               target="_blank"
