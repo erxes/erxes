@@ -2,6 +2,7 @@ import { getEnv } from 'apolloClient';
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
 import { IRouterProps } from 'modules/common/types';
@@ -9,6 +10,7 @@ import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
 import DataImporter from 'modules/settings/importHistory/containers/DataImporter';
+import ManageColumns from 'modules/settings/properties/containers/ManageColumns';
 import React from 'react';
 import ExportPopupsData from '../containers/ExportPopupsData';
 import { IImportHistory } from '../types';
@@ -25,7 +27,14 @@ type Props = {
 };
 
 // currently support import data types
-const DATA_IMPORT_TYPES = ['customer', 'company', 'product'];
+const DATA_IMPORT_TYPES = [
+  'customer',
+  'company',
+  'product',
+  'deal',
+  'task',
+  'ticket'
+];
 
 class Histories extends React.Component<Props & IRouterProps> {
   renderHistories = () => {
@@ -59,6 +68,27 @@ class Histories extends React.Component<Props & IRouterProps> {
     );
   };
 
+  getButtonText() {
+    const { currentType } = this.props;
+    let buttonText = `${currentType}s`;
+
+    switch (currentType) {
+      case 'company':
+        buttonText = 'companies';
+        break;
+      case 'deal':
+        buttonText = 'sales pipelines';
+        break;
+      case 'user':
+        buttonText = 'team members';
+        break;
+      default:
+        break;
+    }
+
+    return buttonText;
+  }
+
   renderTemplateButton() {
     const { REACT_APP_API_URL } = getEnv();
     const { currentType } = this.props;
@@ -67,14 +97,41 @@ class Histories extends React.Component<Props & IRouterProps> {
       return null;
     }
 
-    let name = 'company_template.xlsx';
+    if (currentType === 'customer' || currentType === 'company') {
+      const manageColumns = props => {
+        return (
+          <ManageColumns {...props} contentType={currentType} type="import" />
+        );
+      };
 
-    if (currentType === 'customer') {
-      name = 'customer_template.xlsx';
+      const editColumns = (
+        <Button btnStyle="simple" size="small" icon="folder-download">
+          {__('Download template')}
+        </Button>
+      );
+
+      return (
+        <ModalTrigger
+          title="Select Columns"
+          trigger={editColumns}
+          content={manageColumns}
+        />
+      );
     }
 
-    if (currentType === 'product') {
-      name = 'product_template.xlsx';
+    let name = 'product_template.xlsx';
+
+    switch (currentType) {
+      case 'product':
+        name = 'product_template.xlsx';
+        break;
+      case 'deal':
+      case 'task':
+      case 'ticket':
+        name = 'board_item_template.xlsx';
+        break;
+      default:
+        break;
     }
 
     return (
@@ -99,7 +156,7 @@ class Histories extends React.Component<Props & IRouterProps> {
     return (
       <DataImporter
         type={currentType}
-        text={`${__('Import')} ${currentType}`}
+        text={`${__('Import')} ${this.getButtonText()}`}
       />
     );
   }
@@ -107,7 +164,6 @@ class Histories extends React.Component<Props & IRouterProps> {
   renderExportButton = () => {
     const { currentType } = this.props;
     const { REACT_APP_API_URL } = getEnv();
-    let buttonText = `${currentType}s`;
 
     if (currentType === 'product') {
       return null;
@@ -120,20 +176,6 @@ class Histories extends React.Component<Props & IRouterProps> {
       );
     };
 
-    switch (currentType) {
-      case 'company':
-        buttonText = 'companies';
-        break;
-      case 'deal':
-        buttonText = 'Sales pipelines';
-        break;
-      case 'user':
-        buttonText = 'Team members';
-        break;
-      default:
-        break;
-    }
-
     return (
       <Button
         icon="export"
@@ -141,7 +183,7 @@ class Histories extends React.Component<Props & IRouterProps> {
         size="small"
         onClick={exportData}
       >
-        {__(`Export ${buttonText}`)}
+        {__(`Export ${this.getButtonText()}`)}
       </Button>
     );
   };

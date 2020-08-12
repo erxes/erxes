@@ -1,7 +1,7 @@
-import * as React from 'react';
-import { iconAttach, iconFilm } from '../../icons/Icons';
-import { __ } from '../../utils';
-import { MESSAGE_TYPES } from '../containers/AppContext';
+import * as React from "react";
+import { iconAttach, iconVideo } from "../../icons/Icons";
+import { __ } from "../../utils";
+import { MESSAGE_TYPES } from "../containers/AppContext";
 
 type Props = {
   placeholder?: string;
@@ -14,7 +14,7 @@ type Props = {
   readMessages: (conversationId: string) => void;
   onTextInputBlur: () => void;
   collapseHead: () => void;
-  videoCallUsageStatus: boolean;
+  showVideoCallRequest: boolean;
 };
 
 type State = {
@@ -30,7 +30,7 @@ class MessageSender extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { message: '' };
+    this.state = { message: "" };
 
     this.onSubmit = this.onSubmit.bind(this);
     this.handleMessageChange = this.handleMessageChange.bind(this);
@@ -84,7 +84,7 @@ class MessageSender extends React.Component<Props, State> {
   sendMessage() {
     this.clearTimeout();
     this.props.sendMessage(MESSAGE_TYPES.TEXT, this.state.message);
-    this.setState({ message: '' });
+    this.setState({ message: "" });
     this.setHeight(60);
   }
 
@@ -124,7 +124,7 @@ class MessageSender extends React.Component<Props, State> {
     const { onTextInputBlur, sendTypingInfo, conversationId } = this.props;
 
     if (conversationId) {
-      sendTypingInfo(conversationId, '');
+      sendTypingInfo(conversationId, "");
     }
 
     onTextInputBlur();
@@ -135,7 +135,7 @@ class MessageSender extends React.Component<Props, State> {
   }
 
   handleKeyPress(e: React.KeyboardEvent) {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       this.sendMessage();
     }
@@ -152,7 +152,7 @@ class MessageSender extends React.Component<Props, State> {
   }
 
   sendVideoCallRequest = () => {
-    this.props.sendMessage(MESSAGE_TYPES.VIDEO_CALL_REQUEST, '');
+    this.props.sendMessage(MESSAGE_TYPES.VIDEO_CALL_REQUEST, "");
   };
 
   renderFileUploader() {
@@ -169,7 +169,7 @@ class MessageSender extends React.Component<Props, State> {
   }
 
   renderVideoCallRequest() {
-    if (!this.props.videoCallUsageStatus) {
+    if (!this.props.showVideoCallRequest) {
       return null;
     }
 
@@ -179,7 +179,7 @@ class MessageSender extends React.Component<Props, State> {
         className="ctrl-item"
         onClick={this.sendVideoCallRequest}
       >
-        {iconFilm}
+        {iconVideo}
       </label>
     );
   }

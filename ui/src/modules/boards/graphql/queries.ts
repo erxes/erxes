@@ -1,12 +1,16 @@
+const pipelineLabelFields = `
+  _id
+  name
+  colorCode
+  pipelineId
+  createdBy
+  createdAt
+`;
+
 const pipelineLabels = `
   query pipelineLabels($pipelineId: String!) {
     pipelineLabels(pipelineId: $pipelineId) {
-      _id
-      name
-      colorCode
-      pipelineId
-      createdBy
-      createdAt
+      ${pipelineLabelFields}
     }
   }
 `;
@@ -14,12 +18,7 @@ const pipelineLabels = `
 const pipelineLabelDetail = `
   query pipelineLabelDetail($_id: String!) {
     pipelineLabelDetail(_id: $_id) {
-      _id
-      name
-      colorCode
-      pipelineId
-      createdBy
-      createdAt
+      ${pipelineLabelFields}
     }
   }
 `;

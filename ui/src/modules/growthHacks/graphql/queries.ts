@@ -16,20 +16,12 @@ const commonParamDefs = `
   userIds: $userIds,
 `;
 
-export const growthHackFields = `
+const commonFields = `
   _id
   name
   stageId
   closeDate
   description
-  assignedUsers {
-    _id
-    email
-    details {
-      fullName
-      avatar
-    }
-  }
   voteCount
   priority
   hackStages
@@ -39,34 +31,15 @@ export const growthHackFields = `
   ease
   scoringType
   modifiedAt
+  status
+  labelIds
+
   labels {
     _id
     name
     colorCode
   }
-  status
-  labelIds
-  order
-`;
 
-const growthHackDetailFields = `
-  _id
-  name
-  stageId
-  pipeline {
-    _id
-    name
-  }
-  boardId
-  closeDate
-  description
-  hackStages
-  priority
-  reach
-  impact
-  confidence
-  ease
-  scoringType
   assignedUsers {
     _id
     email
@@ -75,6 +48,25 @@ const growthHackDetailFields = `
       avatar
     }
   }
+`;
+
+export const growthHackFields = `
+  ${commonFields}
+  order
+
+  stage {
+    name
+  }
+`;
+
+const growthHackDetailFields = `
+  ${commonFields}
+  pipeline {
+    _id
+    name
+  }
+  boardId
+
   stage {
     probability
     name
@@ -98,13 +90,7 @@ const growthHackDetailFields = `
     order
   }
   formId
-  labels {
-    _id
-    name
-    colorCode
-  }
-  labelIds
-  voteCount
+
   votedUsers {
     _id
     details {
@@ -112,9 +98,7 @@ const growthHackDetailFields = `
       fullName
     }
   }
-  status
   isVoted
-  modifiedAt
   modifiedBy
 `;
 
@@ -162,10 +146,15 @@ const growthHacksTotalCount = `
 
 const growthHacksPriorityMatrix = `
   query growthHacksPriorityMatrix(
-    ${commonParams}
-  ) {
+    $pipelineId: String,
+    $search: String,
+    $assignedUserIds: [String],
+    $closeDateType: String) {
     growthHacksPriorityMatrix(
-      ${commonParamDefs}
+      pipelineId: $pipelineId,
+      search: $search,
+      assignedUserIds: $assignedUserIds,
+      closeDateType: $closeDateType
     )
   }
 `;

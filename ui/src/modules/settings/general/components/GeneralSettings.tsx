@@ -28,6 +28,7 @@ type Props = {
   changeLanguage: (language: string) => void;
   save: (configsMap: IConfigsMap) => void;
   configsMap: IConfigsMap;
+  constants;
 };
 
 type State = {
@@ -99,6 +100,34 @@ class GeneralSettings extends React.Component<Props, State> {
       </FormGroup>
     );
   };
+
+  renderConstant(kind: string) {
+    const { constants } = this.props;
+    const { configsMap } = this.state;
+    const allValues = constants.allValues || {};
+    const defaultValues = constants.defaultValues || {};
+
+    const constant = allValues[kind] || [];
+
+    let value = configsMap[kind];
+
+    if (!value || value.length === 0) {
+      value = defaultValues[kind] || '';
+    }
+
+    return (
+      <FormGroup>
+        <ControlLabel>{KEY_LABELS[kind]}</ControlLabel>
+
+        <Select
+          options={constant}
+          value={value}
+          onChange={this.onChangeMultiCombo.bind(this, kind)}
+          multi={true}
+        />
+      </FormGroup>
+    );
+  }
 
   render() {
     const { configsMap, language } = this.state;
@@ -202,7 +231,7 @@ class GeneralSettings extends React.Component<Props, State> {
             <ControlLabel>{KEY_LABELS.UPLOAD_SERVICE_TYPE}</ControlLabel>
             <Select
               options={SERVICE_TYPES}
-              value={configsMap.UPLOAD_SERVICE_TYPE}
+              value={configsMap.UPLOAD_SERVICE_TYPE || 'AWS'}
               clearable={false}
               onChange={this.onChangeSingleCombo.bind(
                 this,
@@ -233,7 +262,9 @@ class GeneralSettings extends React.Component<Props, State> {
               href="https://docs.erxes.io/administrator/system-config#google-cloud-storage"
               rel="noopener noreferrer"
             >
-              {__('Learn how to create or find your Google Cloud Storage bucket')}
+              {__(
+                'Learn how to create or find your Google Cloud Storage bucket'
+              )}
             </a>
           </Info>
           <FormGroup>
@@ -265,13 +296,17 @@ class GeneralSettings extends React.Component<Props, State> {
 
         <CollapseContent title="AWS SES">
           <Info>
-            <p>{__('In this field, the AWS SES configuration is dedicated to providing transaction emails.')}</p>
+            <p>
+              {__(
+                'In this field, the AWS SES configuration is dedicated to providing transaction emails.'
+              )}
+            </p>
             <a
               target="_blank"
               href="https://docs.erxes.io/administrator/system-config#aws-ses"
               rel="noopener noreferrer"
             >
-              {__("Learn how to set Amazon SES variables")}
+              {__('Learn how to set Amazon SES variables')}
             </a>
           </Info>
           {this.renderItem('AWS_SES_ACCESS_KEY_ID')}
@@ -281,13 +316,13 @@ class GeneralSettings extends React.Component<Props, State> {
         </CollapseContent>
 
         <CollapseContent title="Google">
-        <Info>
+          <Info>
             <a
               target="_blank"
               href="https://docs.erxes.io/administrator/system-config#google"
               rel="noopener noreferrer"
-                  >
-              {__("Learn how to set Google variables")}
+            >
+              {__('Learn how to set Google variables')}
             </a>
           </Info>
           {this.renderItem('GOOGLE_PROJECT_ID')}
@@ -317,20 +352,25 @@ class GeneralSettings extends React.Component<Props, State> {
 
         <CollapseContent title={__('Custom mail service')}>
           <Info>
-          <a
+            <a
               target="_blank"
               href="https://docs.erxes.io/administrator/system-config#custom-mail-service"
               rel="noopener noreferrer"
             >
               {__('Learn the case of custom email service')}
             </a>
-            
           </Info>
           {this.renderItem('MAIL_SERVICE')}
           {this.renderItem('MAIL_PORT')}
           {this.renderItem('MAIL_USER')}
           {this.renderItem('MAIL_PASS')}
           {this.renderItem('MAIL_HOST')}
+        </CollapseContent>
+
+        <CollapseContent title={__('Constants')}>
+          {this.renderConstant('sex_choices')}
+          {this.renderConstant('company_industry_types')}
+          {this.renderConstant('social_links')}
         </CollapseContent>
       </ContentBox>
     );

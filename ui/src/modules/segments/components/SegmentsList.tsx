@@ -27,13 +27,13 @@ class SegmentsList extends React.Component<Props> {
 
     return (
       <ActionButtons>
-        <Tip text={__('Edit')}>
+        <Tip text={__('Edit')} placement="top">
           <Link to={`/segments/edit/${contentType}/${segment._id}`}>
-            <Button btnStyle="link" icon="edit" />
+            <Button btnStyle="link" icon="edit-3" />
           </Link>
         </Tip>
-        <Tip text={__('Delete')}>
-          <Button btnStyle="link" onClick={onClick} icon="cancel-1" />
+        <Tip text={__('Delete')} placement="top">
+          <Button btnStyle="link" onClick={onClick} icon="times-circle" />
         </Tip>
       </ActionButtons>
     );

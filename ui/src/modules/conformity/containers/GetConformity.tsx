@@ -1,6 +1,11 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import { IItem } from 'modules/boards/types';
 import { renderWithProps } from 'modules/common/utils';
+import { ICompany } from 'modules/companies/types';
+import { ICustomer } from 'modules/customers/types';
+import { IDeal } from 'modules/deals/types';
+import { ITicket } from 'modules/tickets/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { ConformityQueryResponse, ISavedConformity } from '../types';
@@ -14,6 +19,7 @@ type IProps = {
   itemsQuery: string;
   data?: any;
   collapseCallback?: () => void;
+  alreadyItems?: ICompany[] | ICustomer[] | IDeal[] | IItem[] | ITicket[];
 };
 
 type FinalProps = {
@@ -28,13 +34,17 @@ class PortableItemsContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const { itemsQuery, component, queryName } = this.props;
+    const { itemsQuery, component, queryName, alreadyItems } = this.props;
 
-    if (!itemsQuery) {
-      return null;
+    let items = alreadyItems;
+
+    if (!alreadyItems) {
+      if (!itemsQuery) {
+        return null;
+      }
+
+      items = itemsQuery[queryName] || [];
     }
-
-    const items = itemsQuery[queryName] || [];
 
     const extendedProps = {
       ...this.props,
@@ -55,8 +65,9 @@ export default (props: IProps) =>
         gql(props.itemsQuery),
         {
           name: 'itemsQuery',
-          skip: ({ mainType, mainTypeId, relType }) =>
-            !mainType && !mainTypeId && !relType,
+          skip: ({ mainType, mainTypeId, relType, alreadyItems }) =>
+            (!mainType && !mainTypeId && !relType) ||
+            alreadyItems !== undefined,
           options: ({ mainType, mainTypeId, relType }) => ({
             variables: {
               mainType,

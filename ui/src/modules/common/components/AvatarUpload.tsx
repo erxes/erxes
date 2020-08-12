@@ -94,7 +94,7 @@ class AvatarUpload extends React.Component<Props, State> {
         this.setState({ avatarPreviewStyle: { opacity: '0.2' } });
       },
 
-      afterUpload: ({ response }) => {
+      afterUpload: ({ response, status }) => {
         this.setState({
           avatarPreviewStyle: { opacity: '1' }
         });
@@ -107,7 +107,11 @@ class AvatarUpload extends React.Component<Props, State> {
           this.setUploadPreview(null);
         }
 
-        Alert.info('Looking good!');
+        if (status === 'ok') {
+          Alert.info('Looking good!');
+        } else {
+          Alert.error(response);
+        }
       },
 
       afterRead: ({ result, fileInfo }) => {

@@ -8,15 +8,22 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { mutations } from '../graphql';
 
-const Control = styledTS<{ disabled?: boolean }>(styled(SimpleButton))`
-  width: auto;
-  height: auto;
+const Control = styled('div')`
   position: absolute;
   right: 3px;
+  top: 3px;
+`;
+
+const ControlBtn = styledTS<{ disabled?: boolean }>(styled(SimpleButton))`
+  float: left;
+  
+  width: auto;
+  height: auto;
+  
   padding: 0 10px;
+  margin: 0 20px;
   font-size: 13px;
   background: #fafafa;
-  top: 3px;
   pointer-events: ${props => props.disabled && 'none'};
   opacity: ${props => props.disabled && '0.9'};
 `;
@@ -85,10 +92,20 @@ class VideoCall extends React.Component<
       });
   };
 
+  startRecording = () => {
+    this.callFrame.startRecording();
+  };
+
+  stopRecording = () => {
+    this.callFrame.stopRecording();
+  };
+
   renderControls() {
     return (
-      <Control onClick={this.onDelete} disabled={this.state.loading}>
-        {this.state.loading ? __('Please wait...') : __('End call')}
+      <Control>
+        <ControlBtn onClick={this.onDelete} disabled={this.state.loading}>
+          {this.state.loading ? __('Please wait...') : __('End call')}
+        </ControlBtn>
       </Control>
     );
   }

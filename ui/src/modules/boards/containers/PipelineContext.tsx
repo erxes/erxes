@@ -1,9 +1,13 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
-import { Alert } from 'modules/common/utils';
+import * as compose from 'lodash.flowright';
+import { Alert, withProps } from 'modules/common/utils';
+import { UserDetailQueryResponse } from 'modules/settings/team/types';
 import React from 'react';
+import { graphql } from 'react-apollo';
 import { requestIdleCallback } from 'request-idle-callback';
-import { mutations, queries } from '../graphql';
+import { mutations, queries, subscriptions } from '../graphql';
+import { DragDisabler } from '../styles/common';
 import {
   IDragResult,
   IFilterParams,
@@ -11,12 +15,14 @@ import {
   IItemMap,
   INonFilterParams,
   IOptions,
-  IPipeline
+  IPipeline,
+  PipelineDetailQueryResponse
 } from '../types';
-import { invalidateCache, orderHelper } from '../utils';
+import { invalidateCache } from '../utils';
 import { reorder, reorderItemMap } from '../utils';
+import InvisibleItemInUrl from './InvisibleItemInUrl';
 
-type Props = {
+type WrapperProps = {
   pipeline: IPipeline;
   initialItemMap?: IItemMap;
   options: IOptions;
@@ -25,7 +31,11 @@ type Props = {
     queryParams: IFilterParams,
     nextQueryParams: IFilterParams
   ) => boolean;
-  afterFinish: () => void;
+};
+
+type Props = WrapperProps & {
+  currentUserQuery: UserDetailQueryResponse;
+  pipelineDetailQuery: any;
 };
 
 type StageLoadMap = {
@@ -33,11 +43,12 @@ type StageLoadMap = {
 };
 
 type State = {
+  itemIds: string[];
   itemMap: IItemMap;
   stageLoadMap: StageLoadMap;
   stageIds: string[];
   isShowLabel: boolean;
-  realTimeStageIds: string[];
+  isDragEnabled?: boolean;
 };
 
 interface IStore {
@@ -48,12 +59,11 @@ interface IStore {
   onLoadStage: (stageId: string, items: IItem[]) => void;
   scheduleStage: (stageId: string) => void;
   onDragEnd: (result: IDragResult) => void;
-  onAddItem: (stageId: string, item: IItem) => void;
+  onAddItem: (stageId: string, item: IItem, aboveItemId?: string) => void;
   onRemoveItem: (itemId: string, stageId: string) => void;
   onUpdateItem: (item: IItem, prevStageId?: string) => void;
   isShowLabel: boolean;
   toggleLabels: () => void;
-  onChangeRealTimeStageIds: (stageId: string) => void;
 }
 
 const PipelineContext = React.createContext({} as IStore);
@@ -66,95 +76,183 @@ type Task = {
   isComplete: boolean;
 };
 
-export class PipelineProvider extends React.Component<Props, State> {
+class PipelineProviderInner extends React.Component<Props, State> {
   static tasks: Task[] = [];
   static currentTask: Task | null;
 
   constructor(props: Props) {
     super(props);
 
-    const { initialItemMap } = props;
+    const { pipeline, pipelineDetailQuery, initialItemMap } = props;
 
     const stageIds = Object.keys(initialItemMap || {});
 
     this.state = {
+      itemIds: [],
       itemMap: initialItemMap || {},
       stageLoadMap: {},
       stageIds,
-      isShowLabel: false,
-      realTimeStageIds: []
+      isShowLabel: false
     };
 
-    PipelineProvider.tasks = [];
-    PipelineProvider.currentTask = null;
+    PipelineProviderInner.tasks = [];
+    PipelineProviderInner.currentTask = null;
+
+    pipelineDetailQuery.subscribeToMore({
+      document: gql(subscriptions.pipelinesChanged),
+      variables: { _id: pipeline._id },
+      updateQuery: (
+        prev,
+        {
+          subscriptionData: {
+            data: { pipelinesChanged }
+          }
+        }
+      ) => {
+        if (!pipelinesChanged || !pipelinesChanged.data) {
+          return;
+        }
+
+        const {
+          data: { item, aboveItemId, destinationStageId, oldStageId },
+          action,
+          proccessId
+        } = pipelinesChanged;
+
+        if (proccessId !== localStorage.getItem('proccessId')) {
+          if (action === 'orderUpdated') {
+            let destIndex = aboveItemId
+              ? this.findItemIndex(destinationStageId, aboveItemId)
+              : 0;
+
+            const srcIndex = this.findItemIndex(oldStageId, item._id);
+
+            if (
+              destIndex !== undefined &&
+              aboveItemId &&
+              ((destinationStageId === oldStageId && destIndex < srcIndex) ||
+                destinationStageId !== oldStageId)
+            ) {
+              destIndex = destIndex + 1;
+            }
+
+            this.onDragEnd(
+              {
+                destination: {
+                  droppableId: destinationStageId,
+                  index: destIndex
+                },
+                draggableId: item._id,
+                combine: null,
+                mode: 'FLUID',
+                reason: 'DROP',
+                source: {
+                  item,
+                  droppableId: oldStageId,
+                  index: srcIndex
+                },
+                type: 'DEFAULT'
+              },
+              false
+            );
+          }
+
+          if (action === 'itemAdd') {
+            this.onAddItem(destinationStageId, item, aboveItemId);
+          }
+
+          if (action === 'itemRemove') {
+            this.onRemoveItem(item._id, oldStageId);
+          }
+
+          if (action === 'itemsRemove') {
+            const { itemMap } = this.state;
+
+            this.setState({
+              itemMap: {
+                ...itemMap,
+                [destinationStageId]: []
+              }
+            });
+          }
+
+          if (action === 'itemUpdate') {
+            const { itemMap } = this.state;
+            const items = [...itemMap[item.stageId]];
+            const index = items.findIndex(d => d._id === item._id);
+
+            items[index] = item;
+
+            this.setState({
+              itemMap: { ...itemMap, [item.stageId]: items }
+            });
+          }
+
+          // refetch stages info ===
+          const changedStageIds: string[] = [item.stageId];
+
+          if (
+            destinationStageId &&
+            !changedStageIds.includes(destinationStageId)
+          ) {
+            changedStageIds.push(destinationStageId);
+          }
+
+          if (oldStageId && !changedStageIds.includes(oldStageId)) {
+            changedStageIds.push(oldStageId);
+          }
+
+          for (const id of changedStageIds) {
+            client.query({
+              query: gql(queries.stageDetail),
+              fetchPolicy: 'network-only',
+              variables: { _id: id }
+            });
+          }
+        }
+      }
+    });
   }
 
+  findItemIndex = (stageId: string, aboveItemId: string) => {
+    const { itemMap } = this.state;
+
+    if (!aboveItemId) {
+      return;
+    }
+
+    let index;
+
+    const items = itemMap[stageId] || [];
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+
+      if (item._id === aboveItemId) {
+        index = i;
+        break;
+      }
+    }
+
+    return index;
+  };
+
   componentWillReceiveProps(nextProps: Props) {
-    const { queryParams, queryParamsChanged, initialItemMap } = this.props;
+    const { queryParams, queryParamsChanged } = this.props;
 
     if (queryParamsChanged(queryParams, nextProps.queryParams)) {
       const { stageIds } = this.state;
 
-      PipelineProvider.tasks = [];
-      PipelineProvider.currentTask = null;
+      PipelineProviderInner.tasks = [];
+      PipelineProviderInner.currentTask = null;
 
       stageIds.forEach((stageId: string) => {
         this.scheduleStage(stageId);
       });
     }
-
-    // when adding or removing stage
-    const nextStageIds = Object.keys(nextProps.initialItemMap || {});
-    const nowStageIds = Object.keys(initialItemMap || {});
-
-    if (nextStageIds.length !== nowStageIds.length) {
-      let stageIds = [...this.state.stageIds];
-      const itemMap = { ...this.state.itemMap };
-
-      const newStageId = nextStageIds.find(
-        stageId => !stageIds.includes(stageId)
-      );
-
-      if (newStageId) {
-        stageIds.push(newStageId);
-
-        itemMap[newStageId] = [];
-      } else {
-        const deletedStageId = stageIds.find(
-          stageId => !nextStageIds.includes(stageId)
-        );
-
-        stageIds = stageIds.filter(stageId => deletedStageId !== stageId);
-
-        delete itemMap[deletedStageId || ''];
-      }
-
-      this.setState({
-        stageIds,
-        itemMap
-      });
-    }
   }
 
-  componentDidUpdate() {
-    const { realTimeStageIds } = this.state;
-
-    if (realTimeStageIds.length >= 2) {
-      this.setState({ realTimeStageIds: [] });
-
-      this.props.afterFinish();
-    }
-  }
-
-  onChangeRealTimeStageIds = (stageId: string) => {
-    this.setState(prevState => {
-      return {
-        realTimeStageIds: [...prevState.realTimeStageIds, stageId]
-      };
-    });
-  };
-
-  onDragEnd = result => {
+  onDragEnd = (result, saveToDb = true) => {
     // dropped nowhere
     if (!result.destination) {
       return;
@@ -182,13 +280,12 @@ export class PipelineProvider extends React.Component<Props, State> {
       this.setState({ stageIds });
 
       // save orders to database
-      return this.saveStageOrders(stageIds);
+      if (saveToDb) {
+        return this.saveStageOrders(stageIds);
+      }
     }
 
-    // to avoid to refetch current tab
-    sessionStorage.setItem('currentTab', 'true');
-
-    const { itemMap, target } = reorderItemMap({
+    const { itemMap, target, aboveItem } = reorderItemMap({
       itemMap: this.state.itemMap,
       source,
       destination
@@ -201,12 +298,14 @@ export class PipelineProvider extends React.Component<Props, State> {
     invalidateCache();
 
     // saving to database
-    this.itemChange(
-      target._id,
-      destination.droppableId,
-      target.order,
-      source.droppableId
-    );
+    if (saveToDb) {
+      this.itemChange({
+        itemId: target._id,
+        aboveItemId: aboveItem ? aboveItem._id : '',
+        destinationStageId: destination.droppableId,
+        sourceStageId: source.droppableId
+      });
+    }
   };
 
   refetchQueryVariables = () => {
@@ -243,12 +342,14 @@ export class PipelineProvider extends React.Component<Props, State> {
     };
   };
 
-  itemChange = (
-    itemId: string,
-    destinationStageId: string,
-    order: number,
-    sourceStageId: string = ''
-  ) => {
+  itemChange = (args: {
+    itemId: string;
+    aboveItemId?: string;
+    destinationStageId: string;
+    sourceStageId: string;
+  }) => {
+    const { itemId, aboveItemId, destinationStageId, sourceStageId } = args;
+
     const { options } = this.props;
     const refetchQueries = [this.refetchQueryBuild(destinationStageId)];
 
@@ -256,13 +357,18 @@ export class PipelineProvider extends React.Component<Props, State> {
       refetchQueries.unshift(this.refetchQueryBuild(sourceStageId));
     }
 
+    const proccessId = Math.random().toString();
+    localStorage.setItem('proccessId', proccessId);
+
     client
       .mutate({
         mutation: gql(options.mutations.changeMutation),
         variables: {
-          _id: itemId,
+          itemId,
+          aboveItemId,
           destinationStageId,
-          order
+          sourceStageId,
+          proccessId
         },
         refetchQueries
       })
@@ -297,14 +403,15 @@ export class PipelineProvider extends React.Component<Props, State> {
    * - Mark stage's loading state as loaded
    */
   onLoadStage = (stageId: string, items: IItem[]) => {
-    const { itemMap, stageLoadMap } = this.state;
-    const task = PipelineProvider.tasks.find(t => t.stageId === stageId);
+    const { itemMap, stageLoadMap, itemIds } = this.state;
+    const task = PipelineProviderInner.tasks.find(t => t.stageId === stageId);
 
     if (task) {
       task.isComplete = true;
     }
 
     this.setState({
+      itemIds: [...itemIds, ...items.map(item => item._id)],
       itemMap: { ...itemMap, [stageId]: items },
       stageLoadMap: { ...stageLoadMap, [stageId]: 'loaded' }
     });
@@ -314,9 +421,9 @@ export class PipelineProvider extends React.Component<Props, State> {
    * Register given stage to tasks queue
    */
   scheduleStage = (stageId: string) => {
-    let currentTask = PipelineProvider.currentTask;
+    let currentTask = PipelineProviderInner.currentTask;
 
-    PipelineProvider.tasks.push({
+    PipelineProviderInner.tasks.push({
       handler: (id: string) => {
         const { stageLoadMap } = this.state;
         const states = Object.values(stageLoadMap);
@@ -343,7 +450,7 @@ export class PipelineProvider extends React.Component<Props, State> {
     didTimeout: boolean;
     timeRemaining: () => number;
   }) => {
-    const inCompleteTask = PipelineProvider.tasks.find(
+    const inCompleteTask = PipelineProviderInner.tasks.find(
       (task: Task) => !task.isComplete
     );
 
@@ -355,20 +462,55 @@ export class PipelineProvider extends React.Component<Props, State> {
       handler(stageId);
     }
 
-    PipelineProvider.currentTask = null;
+    PipelineProviderInner.currentTask = null;
 
     if (inCompleteTask) {
-      PipelineProvider.currentTask = requestIdleCallback(this.runTaskQueue);
+      PipelineProviderInner.currentTask = requestIdleCallback(
+        this.runTaskQueue
+      );
+    }
+
+    if (PipelineProviderInner.currentTask === null) {
+      this.setState({ isDragEnabled: true });
     }
   };
 
-  onAddItem = (stageId: string, item: IItem) => {
-    const { itemMap } = this.state;
-    const items = itemMap[stageId];
+  onAddItem = (stageId: string, item: IItem, aboveItemId?: string) => {
+    const { itemMap, itemIds } = this.state;
+    const items = itemMap[stageId] || [];
 
-    this.setState({
-      itemMap: { ...itemMap, [stageId]: [...items, item] }
-    });
+    if (aboveItemId === undefined) {
+      this.setState({
+        itemMap: { ...itemMap, [stageId]: [...items, item] },
+        itemIds: [...itemIds, item._id]
+      });
+
+      return;
+    }
+
+    // archive recovery to stages begin
+    if (!aboveItemId) {
+      this.setState({
+        itemMap: { ...itemMap, [stageId]: [item, ...items] },
+        itemIds: [...itemIds, item._id]
+      });
+
+      return;
+    }
+
+    const aboveIndex = this.findItemIndex(stageId, aboveItemId);
+
+    if (aboveIndex !== undefined) {
+      items.splice(aboveIndex + 1, 0, { ...item });
+
+      this.setState({
+        itemMap: {
+          ...itemMap,
+          [stageId]: [...items]
+        },
+        itemIds: [...itemIds, item._id]
+      });
+    }
   };
 
   onRemoveItem = (itemId: string, stageId: string) => {
@@ -384,9 +526,6 @@ export class PipelineProvider extends React.Component<Props, State> {
   onUpdateItem = (item: IItem, prevStageId?: string) => {
     const { stageId } = item;
     const { itemMap } = this.state;
-
-    // to avoid to refetch current tab
-    sessionStorage.setItem('currentTab', 'true');
 
     // Moved to anothor board or pipeline
     if (!itemMap[stageId] && prevStageId) {
@@ -408,19 +547,18 @@ export class PipelineProvider extends React.Component<Props, State> {
       const items = [...itemMap[stageId]];
       items.unshift(item);
 
-      const newitemMap = {
+      const newItemMap = {
         ...itemMap,
         [stageId]: items,
         [prevStageId]: prevStageItems
       };
 
-      this.setState({ itemMap: newitemMap }, () => {
-        const afterItem = itemMap[stageId][0];
-        item.order = orderHelper({
-          prevOrder: 0,
-          afterOrder: afterItem ? afterItem.order : 0
+      this.setState({ itemMap: newItemMap }, () => {
+        this.itemChange({
+          itemId: item._id,
+          destinationStageId: stageId,
+          sourceStageId: prevStageId
         });
-        this.itemChange(item._id, stageId, item.order, prevStageId);
       });
     } else {
       const items = [...itemMap[stageId]];
@@ -438,29 +576,72 @@ export class PipelineProvider extends React.Component<Props, State> {
     this.setState({ isShowLabel: !this.state.isShowLabel });
   };
 
+  renderInvisibleItemInUrl = () => {
+    const { queryParams, options } = this.props;
+    const { itemId } = queryParams;
+    const { isDragEnabled } = this.state;
+
+    if (!isDragEnabled || !itemId) {
+      return null;
+    }
+
+    const { itemIds } = this.state;
+
+    if (itemIds.includes(itemId)) {
+      return null;
+    }
+
+    return <InvisibleItemInUrl itemId={itemId} options={options} />;
+  };
+
   render() {
-    const { itemMap, stageLoadMap, stageIds, isShowLabel } = this.state;
+    const {
+      itemMap,
+      stageLoadMap,
+      stageIds,
+      isShowLabel,
+      isDragEnabled
+    } = this.state;
 
     return (
-      <PipelineContext.Provider
-        value={{
-          options: this.props.options,
-          onDragEnd: this.onDragEnd,
-          onLoadStage: this.onLoadStage,
-          scheduleStage: this.scheduleStage,
-          onAddItem: this.onAddItem,
-          onRemoveItem: this.onRemoveItem,
-          onUpdateItem: this.onUpdateItem,
-          itemMap,
-          stageLoadMap,
-          stageIds,
-          isShowLabel,
-          toggleLabels: this.toggleLabels,
-          onChangeRealTimeStageIds: this.onChangeRealTimeStageIds
-        }}
-      >
-        {this.props.children}
-      </PipelineContext.Provider>
+      <>
+        {!isDragEnabled && (
+          <DragDisabler
+            style={{ width: `${this.state.stageIds.length * 290 - 5}px` }}
+          />
+        )}
+
+        <PipelineContext.Provider
+          value={{
+            options: this.props.options,
+            onDragEnd: this.onDragEnd,
+            onLoadStage: this.onLoadStage,
+            scheduleStage: this.scheduleStage,
+            onAddItem: this.onAddItem,
+            onRemoveItem: this.onRemoveItem,
+            onUpdateItem: this.onUpdateItem,
+            itemMap,
+            stageLoadMap,
+            stageIds,
+            isShowLabel,
+            toggleLabels: this.toggleLabels
+          }}
+        >
+          {this.props.children}
+          {this.renderInvisibleItemInUrl()}
+        </PipelineContext.Provider>
+      </>
     );
   }
 }
+
+export const PipelineProvider = withProps<WrapperProps>(
+  compose(
+    graphql<Props, PipelineDetailQueryResponse>(gql(queries.pipelineDetail), {
+      name: 'pipelineDetailQuery',
+      options: ({ pipeline }) => ({
+        variables: { _id: pipeline._id }
+      })
+    })
+  )(PipelineProviderInner)
+);

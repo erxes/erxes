@@ -3,30 +3,28 @@ name: Publish documentation
 on:
   push:
     branches:
-      - develop
+      - erxes-docs-blog
     paths:
       - 'docs/**'
       - '.github/workflows/documentation.yaml'
   pull_request:
     branches:
+      - erxes-docs-blog
       - develop
+      - master
     paths:
       - 'docs/**'
 
 jobs:
-  docs:
+  checks:
+    if: github.event_name != 'push'
     runs-on: ubuntu-18.04
 
-    # name: Node ${{ matrix.node-version }}
-
     steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
-
-    - name: Use Node.js 10.x
-      uses: actions/setup-node@v1
+    - uses: actions/setup-node@v1
       with:
-        node-version: 10.x
+        node-version: 12.16.x
 
     # https://github.com/actions/cache/blob/master/examples.md#node---yarn
     - name: Get yarn cache directory path
@@ -44,28 +42,62 @@ jobs:
           ${{ runner.os }}-yarn-docs-
           ${{ runner.os }}-yarn-
 
-    - name: Install
-      run: |
-        cd docs/website
-        yarn install
-
     - name: Build
-      if: github.event_name == 'pull_request'
       run: |
-        cd docs/website
+        cd docs
+        yarn install
         yarn run build
-      env:
-        CI: true
 
-    - name: Publish
-      if: github.event_name == 'push'
-      run: |
-        cd docs/website
-        git config --global user.email "$DOC_USERNAME@users.noreply.github.com"
-        git config --global user.name "$DOC_USERNAME"
-        echo "machine github.com login $DOC_USERNAME password $DOC_TOKEN" > ~/.netrc
-        GIT_USER=$DOC_USERNAME CURRENT_BRANCH=develop yarn run publish-gh-pages
+  gh-release:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-18.04
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - uses: actions/setup-node@v1
+      with:
+        node-version: 12.16.x
+
+    # https://github.com/actions/cache/blob/master/examples.md#node---yarn
+    - name: Get yarn cache directory path
+      id: yarn-cache-dir-path
+      run: echo "::set-output name=dir::$(yarn cache dir)"
+
+    - name: Cache Node.js modules
+      id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+      uses: actions/cache@v1
+      with:
+        path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+        key: ${{ runner.os }}-yarn-docs-${{ hashFiles('docs/**/yarn.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-yarn-docs-${{ hashFiles('docs/**/yarn.lock') }}
+          ${{ runner.os }}-yarn-docs-
+          ${{ runner.os }}-yarn-
+
+    - name: Add key to allow access to repository
       env:
-        CI: true
-        DOC_USERNAME: ${{ secrets.DOC_USERNAME }}
-        DOC_TOKEN: ${{ secrets.DOC_TOKEN }}
+        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+      run: |
+        mkdir -p ~/.ssh
+        ssh-keyscan github.com >> ~/.ssh/known_hosts
+        echo "${{ secrets.GH_PAGES_DEPLOY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        cat <<EOT >> ~/.ssh/config
+        Host github.com
+        HostName github.com
+        IdentityFile ~/.ssh/id_rsa
+        EOT
+
+    - name: Release to GitHub Pages
+      env:
+        USE_SSH: true
+        GIT_USER: git
+      run: |
+        cd docs
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git config --global user.name "github-actions[bot]"
+        yarn install
+        yarn deploy

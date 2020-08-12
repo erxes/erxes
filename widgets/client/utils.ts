@@ -1,6 +1,5 @@
+import * as dayjs from "dayjs";
 import T from "i18n-react";
-import * as moment from "moment";
-import "moment/locale/mn";
 import { ENV, IBrowserInfo, IRule } from "./types";
 
 export const getEnv = (): ENV => {
@@ -109,15 +108,17 @@ export const requestBrowserInfo = ({
   });
 };
 
-export const setMomentLocale = (code: string) => {
-  moment.locale(code);
+const setDayjsLocale = (code: string) => {
+  import(`dayjs/locale/${code}`)
+    .then(() => dayjs.locale(code))
+    .catch(() => dayjs.locale("en"));
 };
 
 export const setLocale = (code?: string) => {
   import(`../locales/${code}.json`)
     .then(translations => {
       T.setTexts(translations);
-      setMomentLocale(code || "en");
+      setDayjsLocale(code || "en");
     })
     .catch(e => console.log(e)); // tslint:disable-line
 };
@@ -310,4 +311,8 @@ export const setErxesProperty = (name: string, value: any) => {
   erxes[name] = value;
 
   window.Erxes = erxes;
+};
+
+export const newLineToBr = (content: string) => {
+  return content.replace(/\r\n|\r|\n/g,"<br />");
 };

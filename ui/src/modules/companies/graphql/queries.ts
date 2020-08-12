@@ -24,14 +24,7 @@ const companyFields = `
   description
   doNotDisturb
   code
-  links {
-    linkedIn
-    twitter
-    facebook
-    github
-    youtube
-    website
-  }
+  links
   owner {
     _id
     details {

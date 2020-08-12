@@ -4,12 +4,21 @@ import {
   ActivityRow,
   AvatarWrapper,
   EmailContent,
+  FlexCenterContent,
   Timeline
 } from 'modules/activityLogs/styles';
 import { colors, dimensions, typography } from 'modules/common/styles';
 import { ActivityContent, DateContainer } from 'modules/common/styles/main';
 import { SidebarBox, SidebarTitle } from 'modules/layout/styles';
 import styled from 'styled-components';
+import {
+  FormTable,
+  MessageBody,
+  MessageContent,
+  MessageItem,
+  UserInfo
+} from '../workarea/conversation/styles';
+import { Meta } from '../workarea/mail/style';
 
 const iconWrapperWidth = '60px';
 
@@ -92,8 +101,33 @@ const ActivityLogContent = styled(ActivityContent)`
     font-size: ${typography.fontSizeUppercase}px;
   }
 
-  ${EmailContent} {
+  ${EmailContent}, ${MessageItem} {
     padding: 0;
+  }
+
+  ${MessageContent}, ${UserInfo} {
+    padding: 5px 10px;
+  }
+
+  ${MessageBody} {
+    margin: 0;
+    flex-direction: column;
+
+    footer {
+      margin: 5px 10px 0;
+    }
+  }
+
+  ${Meta}, ${FlexCenterContent} {
+    flex-direction: column;
+  }
+
+  ${FormTable} {
+    overflow: auto;
+
+    td {
+      white-space: nowrap;
+    }
   }
 `;
 

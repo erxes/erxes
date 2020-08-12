@@ -2,7 +2,7 @@
   "name": "erxes",
   "private": true,
   "dependencies": {
-    "@daily-co/daily-js": "^0.9.97",
+    "@daily-co/daily-js": "^0.9.991",
     "@nateradebaugh/react-datetime": "^4.0.0-rc.10",
     "@nivo/line": "0.35.0",
     "@nivo/pie": "0.35.0",
@@ -36,6 +36,7 @@
     "graphql-tag": "^2.6.1",
     "i18n-react": "^0.6.4",
     "juice": "^5.2.0",
+    "lodash": "^4.17.15",
     "lodash.flowright": "^3.5.0",
     "query-string": "^5.0.0",
     "react": "^16.11.0",
@@ -52,7 +53,6 @@
     "react-transition-group": "^2.5.1",
     "request-idle-callback": "^1.0.2",
     "sanitize-html": "^1.20.1",
-    "snyk": "^1.258.1",
     "strip": "^3.0.0",
     "styled-components": "^3.2.6",
     "styled-components-ts": "^0.0.14",
@@ -80,9 +80,7 @@
     "eject": "react-scripts eject",
     "lint": "tslint 'src/**/*.@(ts|tsx)'",
     "generateVersion": "node commands/generateVersion.js",
-    "componentTest": "jest --runInBand --forceExit --detectOpenHandles --coverage",
-    "snyk-protect": "snyk protect",
-    "prepare": "yarn run snyk-protect"
+    "componentTest": "jest --runInBand --forceExit --detectOpenHandles --coverage"
   },
   "devDependencies": {
     "@types/draft-js": "^0.10.24",
@@ -117,7 +115,6 @@
     "not ie <= 11",
     "not op_mini all"
   ],
-  "snyk": true,
   "engines": {
     "node": ">=10.x.x"
   }

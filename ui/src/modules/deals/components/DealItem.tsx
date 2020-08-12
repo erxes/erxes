@@ -86,7 +86,15 @@ class DealItem extends React.PureComponent<Props> {
 
   renderContent() {
     const { item } = this.props;
-    const products = (item.products || []).map(p => p.product);
+
+    const products = (item.products || [])
+      .filter(p => p.tickUsed)
+      .map(p => p.product);
+
+    const exProducts = (item.products || [])
+      .filter(p => !p.tickUsed)
+      .map(p => p.product);
+
     const { customers, companies, closeDate, isComplete } = item;
 
     return (
@@ -97,6 +105,7 @@ class DealItem extends React.PureComponent<Props> {
         </h5>
 
         <Details color="#63D2D6" items={products} />
+        <Details color="#b49cf1" items={exProducts} />
         <Details color="#F7CE53" items={customers || []} />
         <Details color="#EA475D" items={companies || []} />
 

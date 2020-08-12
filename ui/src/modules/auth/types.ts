@@ -26,6 +26,7 @@ export interface IUserConversation {
 }
 
 export interface IUserDoc {
+  createdAt?: Date;
   username: string;
   email: string;
   isActive?: boolean;
@@ -37,6 +38,7 @@ export interface IUserDoc {
   participatedConversations?: IUserConversation[];
   permissionActions?: string[];
   configs?: any;
+  configsConstants?: any;
 }
 
 export interface IUser extends IUserDoc {

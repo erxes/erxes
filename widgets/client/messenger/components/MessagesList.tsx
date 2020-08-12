@@ -2,12 +2,14 @@ import * as classNames from "classnames";
 import * as React from "react";
 import * as RTG from "react-transition-group";
 import { setLocalStorageItem } from "../../common";
+import { iconCall, iconVideo } from "../../icons/Icons";
 import {
   IIntegrationMessengerData,
   IIntegrationMessengerDataMessagesItem,
   IIntegrationUiOptions
 } from "../../types";
 import { makeClickableLink, scrollTo } from "../../utils";
+import { MESSAGE_TYPES } from "../containers/AppContext";
 import { IMessage } from "../types";
 import { Message } from "./";
 import AccquireInformation from "./AccquireInformation";
@@ -25,6 +27,9 @@ type Props = {
   ) => void;
   isLoggedIn: () => boolean;
   getColor?: string;
+  toggleVideoCall: () => void;
+  sendMessage: (contentType: string, message: string) => void;
+  showVideoCallRequest: boolean;
 };
 
 type State = {
@@ -128,6 +133,47 @@ class MessagesList extends React.Component<Props, State> {
     return <li className="erxes-spacial-message">{messages.welcome}</li>;
   }
 
+  renderCallRequest() {
+    if (!this.props.showVideoCallRequest) {
+      return null;
+    }
+
+    const sendCallRequest = () => {
+      this.props.sendMessage(MESSAGE_TYPES.VIDEO_CALL_REQUEST, "");
+    };
+
+    const { uiOptions } = this.props;
+    const { color } = uiOptions;
+
+    return (
+      <div
+        className="app-message-box call-request"
+        style={{ borderColor: color }}
+      >
+        <h5>Audio and video call</h5>
+        <p>You can contact the operator by voice or video!</p>
+        <div className="call-buttons">
+          <button
+            className="erxes-button"
+            style={{ background: color }}
+            onClick={sendCallRequest}
+          >
+            {iconCall}
+            <span>Audio call</span>
+          </button>
+          <button
+            className="erxes-button"
+            style={{ background: color }}
+            onClick={sendCallRequest}
+          >
+            {iconVideo}
+            <span>Video call</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   render() {
     const { uiOptions, messengerData, messages } = this.props;
     const { color, wallpaper } = uiOptions;
@@ -139,7 +185,7 @@ class MessagesList extends React.Component<Props, State> {
       <div className={backgroundClass} ref={node => (this.node = node)}>
         <ul id="erxes-messages" className="erxes-messages-list slide-in">
           {this.renderWelcomeMessage(messengerData)}
-
+          {this.renderCallRequest()}
           <RTG.TransitionGroup component={null}>
             {messages.map(message => {
               const _id: any = message._id;
@@ -151,11 +197,22 @@ class MessagesList extends React.Component<Props, State> {
                     timeout={500}
                     classNames="slide-in"
                   >
-                    <Message color={color} {...message} />
+                    <Message
+                      toggleVideo={this.props.toggleVideoCall}
+                      color={color}
+                      {...message}
+                    />
                   </RTG.CSSTransition>
                 );
               } else {
-                return <Message key={message._id} color={color} {...message} />;
+                return (
+                  <Message
+                    key={message._id}
+                    toggleVideo={this.props.toggleVideoCall}
+                    color={color}
+                    {...message}
+                  />
+                );
               }
             })}
           </RTG.TransitionGroup>

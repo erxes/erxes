@@ -1,24 +1,30 @@
+const integrationFields = `
+  _id
+  name
+  brandId
+  languageCode
+  leadData
+  tagIds
+
+  brand {
+    _id
+    name
+    code
+  }
+  tags {
+    _id
+    name
+    colorCode
+  }
+`;
+
 const integrations = `
   query formIntegrations($perPage: Int, $page: Int, $kind: String, $tag: String) {
     integrations(perPage: $perPage, page: $page, kind: $kind, tag: $tag) {
-      _id
-      brandId
-      name
+      ${integrationFields}
       kind
-      brand {
-        _id
-        name
-        code
-      }
-      languageCode
-      leadData
       leadId
-      tags {
-        _id
-        name
-        colorCode
-      }
-      tagIds
+
       lead {
         _id
         formId
@@ -75,24 +81,10 @@ const integrations = `
 const integrationDetail = `
   query integrationDetail($_id: String!) {
     integrationDetail(_id: $_id) {
-      _id
-      name
-      brand {
-        _id
-        name
-        code
-      }
-      languageCode
-      brandId
+      ${integrationFields}
       code
       formId
-      leadData
-      tagIds
-      tags {
-        _id
-        name
-        colorCode
-      }
+
       form {
         _id
         title

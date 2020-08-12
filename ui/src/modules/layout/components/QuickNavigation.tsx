@@ -6,15 +6,14 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tip from 'modules/common/components/Tip';
 import { colors } from 'modules/common/styles';
-import { rgba } from 'modules/common/styles/color';
+import { lighten, rgba } from 'modules/common/styles/color';
 import { __ } from 'modules/common/utils';
 import Widget from 'modules/notifications/containers/Widget';
 import NotificationSettings from 'modules/settings/profile/containers/NotificationSettings';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
-import { Link } from 'react-router-dom';
-import styled, { css } from 'styled-components';
-import styledTS from 'styled-components-ts';
+import { Link, NavLink } from 'react-router-dom';
+import styled from 'styled-components';
 import { UserHelper } from '../styles';
 import BrandChooser from './BrandChooser';
 
@@ -41,37 +40,54 @@ const NameCardWrapper = styled.div`
   padding: 10px 20px;
 `;
 
-const NavItem = styledTS<{ odd?: boolean }>(styled.div)`
+const NavItem = styled.div`
   padding-left: 18px;
-  padding-right: ${props => props.odd && '15px'};
   display: table-cell;
   vertical-align: middle;
 
   > a {
     color: ${colors.textPrimary};
+    display: flex;
+    align-items: center;
   }
-
-  ${props =>
-    props.odd &&
-    css`
-      padding: 0;
-      background: ${rgba(colors.colorSecondary, 0.1)};
-      transition: background 0.3s ease;
-
-      &:hover {
-        background: ${rgba(colors.colorSecondary, 0.18)};
-      }
-
-      > a {
-        padding: 0 14px 0 17px;
-        color: ${colors.colorSecondary};
-        display: block;
-        line-height: 48px;
-      }
-    `}
 
   .dropdown-menu {
     min-width: 240px;
+  }
+`;
+
+const Square = styled(NavItem)`
+  padding: 0;
+  background: ${rgba(colors.colorSecondary, 0.1)};
+  transition: background 0.3s ease;
+
+  &:hover {
+    background: ${rgba(colors.colorSecondary, 0.18)};
+  }
+
+  > a {
+    padding: 0 14px 0 17px;
+    color: ${colors.colorSecondary};
+    display: block;
+    line-height: 48px;
+  }
+`;
+
+const Round = styled(NavItem)`
+  > a {
+    padding: 0 10px;
+    background: ${lighten(colors.colorPrimary, 5)};
+    color: ${colors.colorWhite};
+    border-radius: 17px;
+
+    > span {
+      margin-left: 5px;
+    }
+
+    &.active,
+    &:hover {
+      background: ${lighten(colors.colorPrimary, 15)};
+    }
   }
 `;
 
@@ -121,19 +137,18 @@ const QuickNavigation = ({
       {brandsCombo}
 
       <Tip text={__('Task')} placement="bottom">
-        <NavItem odd={true}>
+        <Square>
           <Link to="/task">
             <Icon icon="file-check-alt" size={19} />
           </Link>
-        </NavItem>
+        </Square>
       </Tip>
-      <NavItem>
-        <Tip text={__('Help')} placement="bottom">
-          <Link to="/tutorial#defaultStage">
-            <Icon icon="question-circle" size={20} />
-          </Link>
-        </Tip>
-      </NavItem>
+      <Round>
+        <NavLink to="/tutorial#defaultStage">
+          <Icon icon="question-circle" size={20} />{' '}
+          <span>{__('Tutorial')}</span>
+        </NavLink>
+      </Round>
       <NavItem>
         <Widget />
       </NavItem>
@@ -174,6 +189,7 @@ const QuickNavigation = ({
 
             <ModalTrigger
               title="Email signatures"
+              enforceFocus={false}
               trigger={
                 <li>
                   <a href="#email">{__('Email signatures')}</a>

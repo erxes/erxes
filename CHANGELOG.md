@@ -1,3 +1,80 @@
+# [0.16.0](https://github.com/erxes/erxes/compare/0.15.5...0.16.0) (2020-07-28)
+
+
+### Bug Fixes
+
+* **activityLog:** fix activity log in inbox sidebar ([bcc768d](https://github.com/erxes/erxes/commit/bcc768d8715d92c452ce8ded223f44af27c73de7))
+* **activityLog:** fix activity log in inbox sidebar (close [#2120](https://github.com/erxes/erxes/issues/2120)) ([48f153b](https://github.com/erxes/erxes/commit/48f153b097af987dfcab2847131ab30ba590eb2c))
+* **deal:** price input for "Create New Product" is not allowing non-whole numbers. ([d76c52d](https://github.com/erxes/erxes/commit/d76c52d10031dac419069eacf2e3198a8d0afeeb)), closes [#2134](https://github.com/erxes/erxes/issues/2134)
+* **integration:** fix broken account text ([f9334c5](https://github.com/erxes/erxes/commit/f9334c56efd7a11016ad8e63752d742052f49924))
+* **knowledgebase:** fix can not insert hex code ([8cf7817](https://github.com/erxes/erxes/commit/8cf781713f7fd3feccf465aeb22f9df046fc05ff))
+* **task:** can't assign a team member to a task from the Contact profile ([0f4f778](https://github.com/erxes/erxes/commit/0f4f7780e58cbc9db16d3b2d4102601505947883)), closes [#2155](https://github.com/erxes/erxes/issues/2155)
+
+
+### Features
+
+* **uploader:** added option to upload files locally ([9bf5855](https://github.com/erxes/erxes/commit/9bf5855a76e8567da920d7de17c61ec9d22237bc)), closes [#2122](https://github.com/erxes/erxes/issues/2122)
+
+## [0.15.5](https://github.com/erxes/erxes/compare/0.15.4...0.15.5) (2020-07-15)
+
+## [0.15.4](https://github.com/erxes/erxes/compare/0.15.3...0.15.4) (2020-07-08)
+
+## [0.15.3](https://github.com/erxes/erxes/compare/0.15.2...0.15.3) (2020-07-08)
+
+## [0.15.2](https://github.com/erxes/erxes/compare/0.15.1...0.15.2) (2020-07-07)
+
+
+### Features
+
+* **language:** add dutch language ([ba0e88f](https://github.com/erxes/erxes/commit/ba0e88f6de7d1659808f2bdd475eb0c2e991b980)), closes [#2088](https://github.com/erxes/erxes/issues/2088)
+
+## [0.15.1](https://github.com/erxes/erxes/compare/0.15.0...0.15.1) (2020-07-07)
+
+
+### Features
+
+* **constants:** ability to configure constant choices ([b27024d](https://github.com/erxes/erxes/commit/b27024db062fa3f34bc5ccc6b1a751b9d8c663c9)), closes [#2096](https://github.com/erxes/erxes/issues/2096)
+
+# [0.15.0](https://github.com/erxes/erxes/compare/0.14.2...0.15.0) (2020-07-07)
+
+
+### Performance Improvements
+
+* **ci:** upload compiled version to github release assets ([07019a1](https://github.com/erxes/erxes/commit/07019a1bf1202ed6edfe37abde15bb2bb8745394))
+
+## [0.14.2](https://github.com/erxes/erxes/compare/0.14.1...0.14.2) (2020-07-06)
+
+
+### Bug Fixes
+
+* **activity-log:** activity log tab in inbox right sidebar ([b7600bf](https://github.com/erxes/erxes/commit/b7600bf62775c9c10b71974f7fa147fc8127e578)), closes [#2068](https://github.com/erxes/erxes/issues/2068)
+* **common:** fix colorpicker bug, change some text ([a4fd856](https://github.com/erxes/erxes/commit/a4fd856ad0a4cd6c35fd42105a32654d2141ef3c))
+* **contacts:** customize columns in customer, company list is saving orders correctly ([48de2c3](https://github.com/erxes/erxes/commit/48de2c34cca38c42d5eda5deaae52df1d33f485f)), closes [#2028](https://github.com/erxes/erxes/issues/2028)
+* **customer:** fix not working email in activity log ([56a4866](https://github.com/erxes/erxes/commit/56a4866295ce97389af98ba6af217d2e7ebb7798))
+* **deal/ticket/task:** first stage has recursive refresh on pipeline, click notification but couldn't open deal item ([9855f26](https://github.com/erxes/erxes/commit/9855f26236371e47fb4e684ec68a86ad96ba10be)), closes [#2062](https://github.com/erxes/erxes/issues/2062) [#2061](https://github.com/erxes/erxes/issues/2061) [#2060](https://github.com/erxes/erxes/issues/2060) [#2059](https://github.com/erxes/erxes/issues/2059)
+* **deal/ticket/task/growthHack:** Showing all pipelines when there is no board ([6642b53](https://github.com/erxes/erxes/commit/6642b5344723f8c7c285cae5cc02735f9f459709)), closes [#2023](https://github.com/erxes/erxes/issues/2023)
+* **docs:** fix some text, spacing ([53276cb](https://github.com/erxes/erxes/commit/53276cbd159514c824135b8f51071324ebefe4da))
+* **engages:** save & draft button is not working ([d00a97a](https://github.com/erxes/erxes/commit/d00a97ac3cd8c690932ba58de032cd853254e59e)), closes [#2038](https://github.com/erxes/erxes/issues/2038)
+* **growthhack:** show stage name in growth name funnel ([95a9aa8](https://github.com/erxes/erxes/commit/95a9aa81566d4d0246f8be7b1ca0f737c9c9ed04)), closes [#2042](https://github.com/erxes/erxes/issues/2042)
+* **inbox:** fix properties visibility, add urlVisits on inbox sidebar ([106eba3](https://github.com/erxes/erxes/commit/106eba3ae2e949b90fd28e0b298f7102c88f57ad))
+* **locale:** use dayjs instead of moment and show correct locale ([5868c77](https://github.com/erxes/erxes/commit/5868c7758a123af0854e8c2f504b46c5d79971a1)), closes [#1854](https://github.com/erxes/erxes/issues/1854)
+* **permission:** fix dropdown height ([ee8bb7d](https://github.com/erxes/erxes/commit/ee8bb7dbb9446dd9c432b0bd7c7ed4b226298901))
+* **settings:** fix dropdown content being cut off ([c0b8767](https://github.com/erxes/erxes/commit/c0b87678f91444c16bff44d6650cd988bd6452c3))
+* **users:** confirmation link is not working for logged in users ([6cb66fe](https://github.com/erxes/erxes/commit/6cb66fe7af78c6b5b0e3929bc0b4788ddde66bde)), closes [#2069](https://github.com/erxes/erxes/issues/2069)
+* **widgets:** creating multiple messenger iframes on static sites ([1b06f89](https://github.com/erxes/erxes/commit/1b06f8918faaa5525eaeaf28ddfd1a385c4911c4)), closes [#2080](https://github.com/erxes/erxes/issues/2080)
+
+
+### Features
+
+* **bulk-validation:** bulk email, phone validation ([d0b7112](https://github.com/erxes/erxes/commit/d0b7112c4b1c3626d92e731296da21e29268d538)), closes [#2077](https://github.com/erxes/erxes/issues/2077)
+* **dashboard:** add dashboard feature ([3080ef4](https://github.com/erxes/erxes/commit/3080ef4003b84fc86b4e155fbbce6d2ef2d58fa5)), closes [#2006](https://github.com/erxes/erxes/issues/2006)
+* **widget:** can minimize and expand daylyco video call ([fbb0757](https://github.com/erxes/erxes/commit/fbb07573d8e20776a6e38b61e28cd72f9e13476e))
+
+
+### Performance Improvements
+
+* **confirm:** ask delete and update confirm in pipeline board stage ([09984ee](https://github.com/erxes/erxes/commit/09984ee43df9e726458ddbf671e9f5df0adedeea)), closes [#2005](https://github.com/erxes/erxes/issues/2005)
+
 ## [0.14.1](https://github.com/erxes/erxes/compare/0.14.0...%s) (2020-05-19)
 
 

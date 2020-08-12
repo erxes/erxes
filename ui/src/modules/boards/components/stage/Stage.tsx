@@ -1,4 +1,3 @@
-import { PIPELINE_UPDATE_STATUSES } from 'modules/boards/constants';
 import {
   ActionButton,
   ActionList,
@@ -28,6 +27,7 @@ import ItemList from '../stage/ItemList';
 
 type Props = {
   loadingItems: () => boolean;
+  removeStage: (stageId: string) => void;
   index: number;
   stage: IStage;
   length: number;
@@ -38,7 +38,6 @@ type Props = {
   options: IOptions;
   archiveItems: () => void;
   archiveList: () => void;
-  onChangeRealTimeStageIds: (stageId: string) => void;
 };
 export default class Stage extends React.Component<Props, {}> {
   private bodyRef;
@@ -79,25 +78,6 @@ export default class Stage extends React.Component<Props, {}> {
     }, 1000);
   }
 
-  componentDidUpdate(prevProps) {
-    const { current } = this.bodyRef;
-
-    if (!current) {
-      return;
-    }
-
-    const { stage, onChangeRealTimeStageIds } = this.props;
-    const pipelineUpdate = sessionStorage.getItem('pipelineUpdate');
-
-    if (
-      (pipelineUpdate === PIPELINE_UPDATE_STATUSES.START ||
-        pipelineUpdate === PIPELINE_UPDATE_STATUSES.NEW_REQUEST) &&
-      stage.itemsTotalCount !== prevProps.stage.itemsTotalCount
-    ) {
-      onChangeRealTimeStageIds(stage._id);
-    }
-  }
-
   shouldComponentUpdate(nextProps: Props) {
     const { stage, index, length, items, loadingItems } = this.props;
 
@@ -117,7 +97,7 @@ export default class Stage extends React.Component<Props, {}> {
   onScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const target = e.currentTarget;
     const bottom =
-      target.scrollHeight - target.scrollTop === target.clientHeight;
+      Math.round(target.scrollHeight - target.scrollTop) <= target.clientHeight;
 
     if (bottom) {
       this.props.loadMore();
@@ -125,7 +105,7 @@ export default class Stage extends React.Component<Props, {}> {
   };
 
   renderAddItemTrigger() {
-    const { options, stage, onAddItem } = this.props;
+    const { options, stage, onAddItem, items } = this.props;
     const addText = options.texts.addText;
 
     const trigger = (
@@ -141,7 +121,8 @@ export default class Stage extends React.Component<Props, {}> {
       options,
       showSelect: false,
       callback: (item: IItem) => onAddItem(stage._id, item),
-      stageId: stage._id
+      stageId: stage._id,
+      aboveItemId: items.length > 0 ? items[items.length - 1]._id : ''
     };
 
     const content = props => <AddForm {...props} {...formProps} />;
@@ -189,6 +170,8 @@ export default class Stage extends React.Component<Props, {}> {
   }
 
   renderPopover() {
+    const { stage } = this.props;
+
     const archiveList = () => {
       this.props.archiveList();
       this.onClosePopover();
@@ -196,6 +179,11 @@ export default class Stage extends React.Component<Props, {}> {
 
     const archiveItems = () => {
       this.props.archiveItems();
+      this.onClosePopover();
+    };
+
+    const removeStage = () => {
+      this.props.removeStage(stage._id);
       this.onClosePopover();
     };
 
@@ -207,6 +195,9 @@ export default class Stage extends React.Component<Props, {}> {
           </li>
           <li onClick={archiveList} key="archive-list">
             Archive This List
+          </li>
+          <li onClick={removeStage} key="remove-stage">
+            Remove stage
           </li>
         </ActionList>
       </Popover>

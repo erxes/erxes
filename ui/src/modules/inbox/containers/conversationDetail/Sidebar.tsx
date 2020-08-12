@@ -1,6 +1,8 @@
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import withCurrentUser from 'modules/auth/containers/withCurrentUser';
+import { IUser } from 'modules/auth/types';
 import DumbSidebar from 'modules/inbox/components/conversationDetail/sidebar/Sidebar';
 import { queries } from 'modules/inbox/graphql';
 import React from 'react';
@@ -17,7 +19,10 @@ type Props = {
   conversation: IConversation;
 };
 
-type FinalProps = { customerDetailQuery: CustomerDetailQueryResponse } & Props;
+type FinalProps = {
+  customerDetailQuery: CustomerDetailQueryResponse;
+  currentUser: IUser;
+} & Props;
 
 type State = {
   customer: ICustomer;
@@ -117,5 +122,5 @@ export default withProps<Props>(
         })
       }
     )
-  )(Sidebar)
+  )(withCurrentUser(Sidebar))
 );

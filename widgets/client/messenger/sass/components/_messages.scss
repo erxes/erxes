@@ -127,6 +127,7 @@ $darker-blue: #3b85f4;
   p {
     margin-top: 0;
     word-break: break-word;
+    margin-bottom: 10px;
 
     &:last-child {
       margin-bottom: 0;
@@ -270,12 +271,56 @@ $darker-blue: #3b85f4;
 
 .app-message-box {
   background: $white;
-  border-radius: 5px;
+  border-radius: 10px;
   border-top: 3px solid $darker-blue;
   box-shadow: 0 0 10px 2px $shadow-black;
   color: $box-black;
   margin-bottom: 8px;
   padding: 0;
+
+  &.call-request {
+    margin-bottom: 20px;
+    padding: 16px;
+  
+    h5 {
+      margin: 0 0 5px 0;
+      font-size: 15px;
+      font-weight: 700;
+    }
+  
+    .call-buttons {
+      display: flex;
+  
+      button {
+        flex: 1;
+        padding: 8px 16px;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+  
+        &:last-child {
+          margin-left: 10px;
+        }
+  
+        &:hover {
+          opacity: 0.9;
+        }
+  
+        span {
+          margin-left: 5px;
+        }
+
+        svg {
+          fill: #fff;
+        }
+      }
+    }
+  
+    p {
+      margin: 0 0 15px;
+    }
+  }
 
   &.spaced {
     margin-left: 50px;
@@ -322,6 +367,14 @@ $darker-blue: #3b85f4;
     strong {
       font-weight: 500;
     }
+
+    &.horizontal {
+      flex-direction: row;
+
+      strong {
+        margin-left: 5px;
+      }
+    }
   }
 
   .call-button {
@@ -338,6 +391,7 @@ $darker-blue: #3b85f4;
     button,
     > a {
       background: $darker-blue;
+      border: 1px solid transparent;
       border-color: $darker-blue;
       border-radius: 5px;
       box-shadow: none;

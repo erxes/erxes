@@ -2,10 +2,43 @@
   #erxes-video-container {
     background: #fff;
     position: absolute;
-    left: 0;
     right: 0;
-    bottom: 0;
     top: -30px;
+    bottom: 0;
+    width: 100%;
+    transition: all ease 0.2s;
+
+    .erxes-toggle-video {
+      width: 42px;
+      height: 28px;
+      position: absolute;
+      bottom: 76px;
+      right: 5px;
+      background-size: 100%;
+      cursor: pointer;
+      background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IiB2aWV3Qm94PSIwIDAgNjEyIDQ1NCIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNjEyIDQ1NDsiIHhtbDpzcGFjZT0icHJlc2VydmUiPjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+LnN0MHtmaWxsOiNGRkZGRkY7fTwvc3R5bGU+PHBhdGggaWQ9Inl0cC1pZC0yMyIgY2xhc3M9InN0MCIgZD0iTTI4MiwyNDJoMTM2VjE0MEgyODJWMjQyTDI4MiwyNDJ6IE0xMTksMTA2djIzOC4zYzAsMTguNywxNS4zLDMzLjcsMzQsMzMuN2gzMDZjMTguNywwLDM0LTE1LDM0LTMzLjdWMTA2YzAtMTguNy0xNS4zLTM0LTM0LTM0SDE1M0MxMzQuMyw3MiwxMTksODcuMywxMTksMTA2TDExOSwxMDZ6IE0xNTMsMTA1LjdoMzA2djIzOC45SDE1M1YxMDUuN0wxNTMsMTA1Ljd6Ii8+PC9zdmc+);
+    }
+  }
+
+  &.mini-video #erxes-video-container {   
+    width: 290px;
+    height: 220px;
+    right: 8px;
+    overflow: hidden;
+    box-shadow: 0 0 6px 1px $shadow-black;
+    border-radius: 5px;
+
+    .erxes-toggle-video {
+      width: 26px;
+      height: 26px;
+      right: 8px;
+      bottom: 10px;
+      background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDI0IDI0OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+PHN0eWxlIHR5cGU9InRleHQvY3NzIj4uc3Qwe2ZpbGw6I0ZGRkZGRjt9PC9zdHlsZT48Zz48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMi4wMDAwMDAsIDEyLjAwMDAwMCkgc2NhbGUoLTEsIDEpIHRyYW5zbGF0ZSgtMTIuMDAwMDAwLCAtMTIuMDAwMDAwKSAiPjxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik01LDE5VjVoMTR2N2gyVjVjMC0xLjEtMC45LTItMi0ySDVDMy45LDMsMywzLjksMyw1djE0YzAsMS4xLDAuOSwyLDIsMmg3di0ySDV6IE0yMSwxNGgtMnYzLjZMOS4yLDcuOEw3LjgsOS4ybDkuOCw5LjhIMTR2Mmg3VjE0eiIvPjwvZz48L2c+PC9zdmc+);
+    }
+
+    iframe {
+      height: 286px;
+    }
   }
 
   iframe#erxes-video-iframe {

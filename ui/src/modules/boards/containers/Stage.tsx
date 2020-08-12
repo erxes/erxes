@@ -13,6 +13,7 @@ import {
   IOptions,
   IStage,
   ItemsQueryResponse,
+  RemoveStageMutation,
   SaveItemMutation
 } from '../types';
 
@@ -27,14 +28,14 @@ type StageProps = {
   refetchStages: ({ pipelineId }: { pipelineId?: string }) => Promise<any>;
   onLoad: (stageId: string, items: IItem[]) => void;
   scheduleStage: (stageId: string) => void;
-  onAddItem: (stageId: string, item: IItem) => void;
+  onAddItem: (stageId: string, item: IItem, aboveItemId?: string) => void;
   onRemoveItem: (itemId: string, stageId: string) => void;
-  onChangeRealTimeStageIds: (stageId: string) => void;
 };
 
 type FinalStageProps = {
   addMutation: SaveItemMutation;
   itemsQuery?: ItemsQueryResponse;
+  removeStageMutation: RemoveStageMutation;
 } & StageProps;
 
 class StageContainer extends React.PureComponent<FinalStageProps> {
@@ -84,6 +85,25 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
       });
   };
 
+  removeStage = (id: string) => {
+    const { removeStageMutation, refetchStages, stage } = this.props;
+
+    const message =
+      'This will permanently delete any items related to this stage. Are you absolutely sure?';
+
+    confirm(message, { hasDeleteConfirm: true })
+      .then(() => {
+        removeStageMutation({ variables: { _id: id } }).then(() => {
+          Alert.success('You have successfully removed a stage');
+
+          refetchStages({ pipelineId: stage.pipelineId });
+        });
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+  };
+
   archiveItems = () => {
     const { options, stage, onLoad } = this.props;
 
@@ -95,6 +115,9 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
     const stageId = stage._id;
 
     confirm(message).then(() => {
+      const proccessId = Math.random().toString();
+      localStorage.setItem('proccessId', proccessId);
+
       client
         .mutate({
           mutation: gql(options.mutations.archiveMutation),
@@ -102,7 +125,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
           refetchQueries: [
             {
               query: gql(queries.stageDetail),
-              variables: { _id: stageId }
+              variables: { _id: stageId, proccessId }
             }
           ]
         })
@@ -121,7 +144,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
     const { stage, refetchStages, options } = this.props;
 
     const message = `
-    This will remove list from the board. To view archived list and bring them back to the board, click “Menu” > “Archived Items”. 
+    This will remove list from the board. To view archived list and bring them back to the board, click “Menu” > “Archived Items”.
     Are you sure?
     `;
 
@@ -156,8 +179,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
       options,
       onAddItem,
       onRemoveItem,
-      loadingState,
-      onChangeRealTimeStageIds
+      loadingState
     } = this.props;
 
     const loadingItems = () => {
@@ -177,11 +199,11 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
         items={items}
         archiveItems={this.archiveItems}
         archiveList={this.archiveList}
+        removeStage={this.removeStage}
         loadingItems={loadingItems}
         loadMore={this.loadMore}
         onAddItem={onAddItem}
         onRemoveItem={onRemoveItem}
-        onChangeRealTimeStageIds={onChangeRealTimeStageIds}
       />
     );
   }
@@ -223,6 +245,9 @@ const withQuery = ({ options }) => {
             loadingState === 'readyToLoad' ? 'network-only' : 'cache-only',
           notifyOnNetworkStatusChange: loadingState === 'readyToLoad'
         })
+      }),
+      graphql<StageProps>(gql(mutations.stagesRemove), {
+        name: 'removeStageMutation'
       })
     )(StageContainer)
   );

@@ -7,6 +7,10 @@ on:
     paths:
       - 'ui/**'
       - '.github/workflows/ui.yaml'
+      - '!ui/nginx/**'
+      - '!ui/docker-entrypoint.sh'
+      - '!ui/base.Dockerfile'
+      - '!ui/base.Dockerfile.dockerignore'
     tags:
       - '*'
   pull_request:
@@ -17,6 +21,10 @@ on:
       - automations
     paths:
       - 'ui/**'
+      - '!ui/nginx/**'
+      - '!ui/docker-entrypoint.sh'
+      - '!ui/base.Dockerfile'
+      - '!ui/base.Dockerfile.dockerignore'
 
 jobs:
   ui:
@@ -28,10 +36,10 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
 
-    - name: Use Node.js 10.x
+    - name: Use Node.js 12.16.x
       uses: actions/setup-node@v1
       with:
-        node-version: 10.x
+        node-version: 12.16.x
 
     # https://github.com/actions/cache/blob/master/examples.md#node---yarn
     - name: Get yarn cache directory path
@@ -69,18 +77,42 @@ jobs:
         cd ui
         yarn build
 
+    - name: Prepare release assets [tag]
+      if: startsWith(github.ref, 'refs/tags/')
+      run: |
+        cd ui
+        tar -zcf erxes-${GITHUB_REF#refs/tags/}.tar.gz build
+
+    - name: Get release version [tag]
+      id: get_release_version
+      if: startsWith(github.ref, 'refs/tags/')
+      run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+
+    - name: Upload release assets [tag]
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+          files: ./ui/erxes-${{ steps.get_release_version.outputs.VERSION }}.tar.gz
+          name: Release ${{ steps.get_release_version.outputs.VERSION }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Build docker image [push]
       if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/apm' || github.ref == 'refs/heads/automations')
+      env:
+        BASE_IMAGE: erxes/erxes:base-1.18-alpine
       run: |
         cd ui
         echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-        docker build -t erxes/erxes:${GITHUB_REF#refs/heads/} -f Dockerfile .
+        DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes:${GITHUB_REF#refs/heads/} -f ui.Dockerfile .
         docker push erxes/erxes:${GITHUB_REF#refs/heads/}
 
     - name: Build docker image [tag]
       if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+      env:
+        BASE_IMAGE: erxes/erxes:base-1.18-alpine
       run: |
         cd ui
         echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-        docker build -t erxes/erxes:${GITHUB_REF#refs/tags/} -f Dockerfile .
+        DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes:${GITHUB_REF#refs/tags/} -f ui.Dockerfile .
         docker push erxes/erxes:${GITHUB_REF#refs/tags/}

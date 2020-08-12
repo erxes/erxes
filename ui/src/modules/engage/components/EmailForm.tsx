@@ -116,7 +116,7 @@ class EmailForm extends React.Component<Props, State> {
       users.map(user =>
         options.push({
           value: user._id,
-          label: (user.details && user.details.fullName) || user.username,
+          label: user.email || user.username,
           disabled: !verifiedEmails.includes(user.email)
         })
       );
@@ -157,8 +157,14 @@ class EmailForm extends React.Component<Props, State> {
   render() {
     const { attachments } = this.state.email;
 
-    const onChangeContent = e =>
+    const onChangeSubject = e =>
       this.changeContent('subject', (e.target as HTMLInputElement).value);
+
+    const onChangeReplyTo = e =>
+      this.changeContent('replyTo', (e.target as HTMLInputElement).value);
+
+    const onChangeSender = e =>
+      this.changeContent('sender', (e.target as HTMLInputElement).value);
 
     const onChangeAttachment = attachmentsArr =>
       this.changeContent('attachments', attachmentsArr);
@@ -198,9 +204,26 @@ class EmailForm extends React.Component<Props, State> {
           </FormGroup>
 
           <FormGroup>
+            <ControlLabel>Sender:</ControlLabel>
+            <FormControl
+              onChange={onChangeSender}
+              defaultValue={this.state.email.sender}
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>Reply to:</ControlLabel>
+            <HelpPopover>Emails must be space separated</HelpPopover>
+            <FormControl
+              onChange={onChangeReplyTo}
+              defaultValue={this.state.email.replyTo}
+            />
+          </FormGroup>
+
+          <FormGroup>
             <ControlLabel>Email subject:</ControlLabel>
             <FormControl
-              onChange={onChangeContent}
+              onChange={onChangeSubject}
               defaultValue={this.state.email.subject}
             />
           </FormGroup>

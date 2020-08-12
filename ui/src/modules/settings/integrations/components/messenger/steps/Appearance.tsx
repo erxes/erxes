@@ -1,18 +1,18 @@
 import classnames from 'classnames';
+import { ControlLabel } from 'modules/common/components/form';
 import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
 import { __, uploadHandler } from 'modules/common/utils';
 import {
   BackgroundSelector,
   ColorPick,
   ColorPicker,
-  SubHeading,
   SubItem,
   WidgetBackgrounds
 } from 'modules/settings/styles';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
-import ChromePicker from 'react-color/lib/Chrome';
+import TwitterPicker from 'react-color/lib/Twitter';
 
 type Props = {
   onChange: (
@@ -96,7 +96,7 @@ class Appearance extends React.Component<Props, State> {
   renderUploadImage(title) {
     return (
       <SubItem>
-        <SubHeading>{title}</SubHeading>
+        <ControlLabel>{title}</ControlLabel>
         <input type="file" onChange={this.handleLogoChange} />
       </SubItem>
     );
@@ -107,7 +107,7 @@ class Appearance extends React.Component<Props, State> {
 
     const popoverContent = (
       <Popover id="color-picker">
-        <ChromePicker color={this.state.color} onChange={onChange} />
+        <TwitterPicker color={this.state.color} onChange={onChange} />
       </Popover>
     );
 
@@ -115,7 +115,7 @@ class Appearance extends React.Component<Props, State> {
       <FlexItem>
         <LeftItem>
           <SubItem>
-            <SubHeading>{__('Choose a custom color')}</SubHeading>
+            <ControlLabel>{__('Choose a custom color')}</ControlLabel>
             <OverlayTrigger
               trigger="click"
               rootClose={true}
@@ -129,7 +129,7 @@ class Appearance extends React.Component<Props, State> {
           </SubItem>
 
           <SubItem>
-            <SubHeading>{__('Choose a wallpaper')}</SubHeading>
+            <ControlLabel>{__('Choose a wallpaper')}</ControlLabel>
 
             <WidgetBackgrounds>
               {this.renderWallpaperSelect('1')}

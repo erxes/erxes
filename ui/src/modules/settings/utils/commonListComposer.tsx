@@ -100,6 +100,7 @@ function commonListComposer<ComponentProps>(options) {
       values,
       isSubmitted,
       callback,
+      confirmationUpdate,
       object
     }: IButtonMutateProps) => {
       const afterMutate = () => {
@@ -132,6 +133,7 @@ function commonListComposer<ComponentProps>(options) {
           isSubmitted={isSubmitted}
           type="submit"
           uppercase={false}
+          confirmationUpdate={confirmationUpdate}
           successMessage={`You successfully ${successAction} a ${name}`}
         />
       );

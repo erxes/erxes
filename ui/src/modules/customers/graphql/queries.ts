@@ -28,19 +28,13 @@ const basicFields = `
   doNotDisturb
   code
   emailValidationStatus
+  phoneValidationStatus
 
   isOnline
   lastSeenAt
   sessionCount
 
-  links {
-    linkedIn
-    twitter
-    facebook
-    github
-    youtube
-    website
-  }
+  links
   ownerId
   owner {
     _id
@@ -142,6 +136,7 @@ const customerDetail = `
   query customerDetail($_id: String!) {
     customerDetail(_id: $_id) {
       ${customerFields}
+      urlVisits
       integration {
         kind
         name

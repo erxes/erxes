@@ -66,7 +66,6 @@ const Container = styledTS<{ open: boolean }>(styled.div)`
   margin-bottom: 10px;
   box-shadow: 0 0 6px 1px rgba(0,0,0,0.08);
   border-radius: 4px;
-  overflow: hidden;
   background: ${props => (props.open ? colors.bgLight : colors.colorWhite)};
 
   &:last-child {

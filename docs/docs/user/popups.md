@@ -4,20 +4,16 @@ title: Pop ups
 sidebar_label: Popups
 ---
 
-<!--Content-->
-
 ## Convert visitors into qualified pop ups
 
 Turn regular visitors into qualified pop ups by capturing them with a customizable landing page, forms, pop-up or embed placements.
 
 ---
 
-<!--Content-->
-
 Turn regular visitors into qualified pop ups by capturing them with a customizable landing page, forms, pop-up or embed placements. Filter your pop ups by tags
 
 - Please follow the next steps for setup: **Pop ups**
-  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-1.png"/>
+  ![](https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-1.png)
 
 1. **Filter** your pop ups by **tags**
 2. List of **Created pop ups**
@@ -25,16 +21,12 @@ Turn regular visitors into qualified pop ups by capturing them with a customizab
 
 ---
 
-<!--Content-->
-
 ## Create Pop ups
 
 - Please follow the steps for setup: **Pop ups->Create Pop ups->Type**
-  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-3.png"/>
+  ![](https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-3.png)
 
-<aside class="notice">
 * Created pop ups will be seen at widget section of the website
-</aside>
 
 1. Insert **Title** for the Pop ups
 2. Choose the **Type**
@@ -42,14 +34,10 @@ Turn regular visitors into qualified pop ups by capturing them with a customizab
 
 ---
 
-<!--Content-->
-
 - Please follow the next steps for setup: **Pop ups->Create Pop ups->Type->Callout**
-  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-4.png"/>
+  ![](https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-4.png)
 
-<aside class="notice">
 * Created pop ups will be seen at widget section of the website
-</aside>
 
 1. **CallOut section**
 2. Insert **CallOut Title**
@@ -62,11 +50,9 @@ Turn regular visitors into qualified pop ups by capturing them with a customizab
 
 ---
 
-<!--Content-->
-
 - Please follow the steps for setup: **Pop ups->Create Pop ups->Type->Callout->Form**
 
-  <img src="https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-5.png"/>
+  ![](https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-5.png)
 
 1. **Form**
 2. Insert Form **Title**
@@ -80,21 +66,17 @@ Turn regular visitors into qualified pop ups by capturing them with a customizab
 10. **Appearance** of Created Form
 11. Click **Next**
 
-<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-6.png"/>
+![](https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-6.png)
 
-<aside class="notice">
-* Created pop ups will be seen at widget section of the website
-</aside>
+- Created pop ups will be seen at widget section of the website
 
 13. Click on the form section to change the order
 
 ---
 
-<!--Content-->
-
 - Please follow the next steps for setup: **Pop ups->Create Pop ups->Type->Callout->Form->Options**
 
-<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-7.png"/>
+![](https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-7.png)
 
 1. **Options**
 2. Choose **Brand**
@@ -104,11 +86,9 @@ Turn regular visitors into qualified pop ups by capturing them with a customizab
 
 ---
 
-<!--Content-->
-
 - Please follow the next steps for setup: **Pop ups->Create Pop ups->Type->Callout->Form->Options->Thank**
 
-<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-8.png"/>
+![](https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-8.png)
 
 1. **Thank Content**
 2. Choose **on Success**
@@ -117,23 +97,16 @@ Turn regular visitors into qualified pop ups by capturing them with a customizab
 
 ---
 
-<!--Content-->
-
 ## Pop up Full Preview
 
 - Please follow the next steps for setup: **Pop ups->Create Pop ups->Type->Callout->Form->Options->Thank Content-> Full Preview**
 
-<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-9.png"/>
-<div>
-<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-10.png" class="hw"/>
-<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-11.png" class="hw"/>
-</div>
+![](https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-9.png)
 
-<aside class="notice">
+![](https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-10.png)
+![](https://s3-us-west-2.amazonaws.com/erxes-docs/leads/leads-11.png)
 
-Full Preview of Created Pop up in Desktop, Tablet and Mobile. 
-You can use Pop-Ups script to install on your webpage or inside the messenger or both. There are different installation case of Pop-Up form. 
+Full Preview of Created Pop up in Desktop, Tablet and Mobile.
+You can use Pop-Ups script to install on your webpage or inside the messenger or both. There are different installation case of Pop-Up form.
 
-Go to [instruction](https://docs.erxes.io/user/script-install). 
-
-</aside>
+Go to [instruction](https://docs.erxes.io/user/script-install).

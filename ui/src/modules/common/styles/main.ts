@@ -220,16 +220,21 @@ const TabContent = styled.div`
 
 const ButtonRelated = styled.div`
   text-align: center;
+  padding: 10px 0 16px;
+  font-size: 12px;
 
-  button {
-    background: rgba(0, 0, 0, 0.04);
-    margin: 10px auto;
-    color: #888;
-    border: 0;
+  span {
+    background: rgba(0, 0, 0, 0.06);
+    padding: 4px 16px;
+    color: ${colors.colorCoreGray};
     border-radius: 25px;
-    outline: none;
-    cursor: pointer;
-    font-size: 12px;
+    transition: all 0.3s ease;
+
+    &:hover {
+      cursor: pointer;
+      background: rgba(0, 0, 0, 0.1);
+      color: ${colors.textSecondary};
+    }
   }
 `;
 
@@ -275,6 +280,12 @@ const Count = styled.div`
   color: #666;
 `;
 
+const Limited = styled.div`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+`;
+
 export {
   BoxRoot,
   FullContent,
@@ -297,5 +308,6 @@ export {
   SimpleButton,
   TopHeader,
   Title,
-  Count
+  Count,
+  Limited
 };

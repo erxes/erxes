@@ -3,10 +3,12 @@ import Sidebar from 'modules/layout/components/Sidebar';
 import React from 'react';
 import { BasicInfo, TabContent } from './styles';
 
+import { IUser } from 'modules/auth/types';
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import Box from 'modules/common/components/Box';
 import { __ } from 'modules/common/utils';
 import CompanySection from 'modules/companies/components/common/CompanySection';
+import WebsiteActivity from 'modules/customers/components/common/WebsiteActivity';
 import { ICustomer } from 'modules/customers/types';
 import { IConversation } from '../../../types';
 
@@ -73,6 +75,7 @@ const ConversationDetails = asyncComponent(
 );
 
 type IndexProps = {
+  currentUser: IUser;
   conversation: IConversation;
   customer: ICustomer;
   loading: boolean;
@@ -135,6 +138,7 @@ class Index extends React.Component<IndexProps, IndexState> {
     const { currentSubTab } = this.state;
 
     const {
+      currentUser,
       taggerRefetchQueries,
       conversation,
       customer,
@@ -161,22 +165,21 @@ class Index extends React.Component<IndexProps, IndexState> {
             refetchQueries={taggerRefetchQueries}
             collapseCallback={toggleSection}
           />
-          <Box
-            title={__('Contact information')}
-            name="showCustomFields"
-            callback={toggleSection}
-          >
-            <CustomFieldsSection loading={loading} customer={customer} />
-          </Box>
+          <CustomFieldsSection loading={loading} customer={customer} />
           {this.renderTrackedData({ customer, kind, toggleSection })}
           {this.renderDeviceProperties({ customer, kind, toggleSection })}
+          <WebsiteActivity urlVisits={customer.urlVisits || []} />
         </TabContent>
       );
     }
 
     if (currentSubTab === 'activity') {
       return (
-        <SidebarActivity customer={customer} currentSubTab={currentSubTab} />
+        <SidebarActivity
+          currentUser={currentUser}
+          customer={customer}
+          currentSubTab={currentSubTab}
+        />
       );
     }
 

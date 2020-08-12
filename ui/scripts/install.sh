@@ -12,6 +12,7 @@ else
   yarn install
 fi
 
+cd ui/
 echo 'Create `.env.sample` from default settings file and configure it on your own:'
 cp .env.sample .env
 
