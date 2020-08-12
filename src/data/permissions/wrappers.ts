@@ -68,11 +68,7 @@ export const checkPermission = async (cls: any, methodName: string, actionName: 
 
     checkLogin(user);
 
-    let allowed = await can(actionName, user);
-
-    if (user.isOwner) {
-      allowed = true;
-    }
+    const allowed = await can(actionName, user);
 
     if (!allowed) {
       if (defaultValue) {

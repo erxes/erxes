@@ -99,7 +99,15 @@ export const moduleObjects = {
       {
         name: 'customersAll',
         description: 'All',
-        use: ['showCustomers', 'customersAdd', 'customersEdit', 'customersMerge', 'customersRemove', 'exportCustomers'],
+        use: [
+          'showCustomers',
+          'customersAdd',
+          'customersEdit',
+          'customersMerge',
+          'customersRemove',
+          'exportCustomers',
+          'customersChangeState',
+        ],
       },
       {
         name: 'exportCustomers',
@@ -124,6 +132,10 @@ export const moduleObjects = {
       {
         name: 'customersRemove',
         description: 'Remove customers',
+      },
+      {
+        name: 'customersChangeState',
+        description: 'Change customer state',
       },
     ],
   },
