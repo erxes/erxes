@@ -66,8 +66,6 @@ export const isTimeInBetween = (timezone: string, date: Date, startTime: string,
   closeDate.hours(end.hour);
   closeDate.minutes(end.minute);
 
-  console.log(startDate.toDate(), now.toDate(), closeDate.toDate());
-
   return now.isBetween(startDate, closeDate);
 };
 
