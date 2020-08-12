@@ -20,7 +20,7 @@ import {
   RemoveMutationResponse,
   RemoveMutationVariables,
   VerifyMutationResponse,
-  VerifyMutationVariables,
+  VerifyMutationVariables
 } from '../types';
 
 type Props = {
