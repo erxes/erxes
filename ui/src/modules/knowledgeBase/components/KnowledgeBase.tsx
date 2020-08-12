@@ -28,14 +28,14 @@ class KnowledgeBase extends React.Component<Props> {
 
     if (currentKnowledgeBase.title) {
       list.push({
-        title: __(currentKnowledgeBase.title),
+        title: currentKnowledgeBase.title,
         link: currentCategory ? categoryLink : ''
       });
     }
 
     if (currentCategory.title) {
       list.push({
-        title: __(currentCategory.title),
+        title: currentCategory.title,
         link: categoryLink
       });
     }

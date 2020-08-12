@@ -21,6 +21,7 @@ const PreviewWrapper = styled.div`
   animation-duration: 0.3s;
   animation-timing-function: ease;
   cursor: zoom-out;
+
   img {
     width: auto;
     max-width: 80%;
@@ -37,6 +38,7 @@ const PreviewWrapper = styled.div`
 const Image = styled.img`
   cursor: zoom-in;
   transition: all 0.3s;
+
   &:hover {
     opacity: 0.8;
   }
@@ -100,5 +102,4 @@ class ImageWithPreview extends React.Component<Props, State> {
     );
   }
 }
-
 export default ImageWithPreview;
