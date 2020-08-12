@@ -102,7 +102,7 @@
     "react-test-renderer": "^16.3.2",
     "release-it": "^12.4.3",
     "ts-jest": "^23.0.1",
-    "tslint": "^6.1.2",
+    "tslint": "^5.18.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-plugin-prettier": "^2.0.1",
     "tslint-react": "^4.0.0",
