@@ -18,6 +18,7 @@
     "allowJs": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "allowTrailingCommas": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
