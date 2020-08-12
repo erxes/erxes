@@ -44,7 +44,7 @@ erxes helps you attract and engage more customers while giving you high lead con
 * **Email & SMS Marketing:** Reach your customer with personalized messaging. Keeping your customers hooked is definitely a challenge. Start converting your prospects into potential customers through email, SMS, Live chat, and In-app-messaging or more interactions to drive them to a successful close. You can connect to your customers in a whole new way with Erxes!
 * **Pop-ups & Forms:** Create Stylish Pop-ups and Forms that Bring Leads. Turn regular visitors into qualified leads by capturing them with a customizable pop-ups, forms, and embedded placements. Erxes helps you to create stylish and contextual pop-ups, banners and bars fit all your marketing needs.
 * **Sales Pipeline:** Track your entire sales pipeline from one dashboard. All your customer information and sales process in one board to follow up flawlessly. Have your sales managers to know everything needed to deliver increased levels of personalization before they contact customers.
-* **Contact Management:** Manage Visitors, Customers, and Companies. Access our all-in-one CRM system in one go so that it’s easier to coordinate and manage your contacts and interactions with your customers. Erxes Contacts provides whole segmentation tools for you to work more effiecently.
+* **Contact Management:** Manage Visitors, Customers, and Companies. Access our all-in-one CRM system in one go so that it’s easier to coordinate and manage your contacts and interactions with your customers. Erxes Contacts provides whole segmentation tools for you to work more efficiently.
 * **Lead Scoring:** Identify and Target Sales-Ready Leads.
 * **Shared Team Inbox:** Communicate faster and easier with your customers via one truly omnichannel platform. Combine real-time client and team communication with in-app messaging, live chat, email and form, so your customers can reach you however and wherever they want. 
 * **Messenger:** Talk to Your Customers in Continuous Omnichannel Conversations. Enable businesses to capture every single customer feedback and communicate in real time. You can educate your customers through knowledge-base from the erxes Messenger.
@@ -100,7 +100,7 @@ This project exists thanks to all the people who contribute. [[Contribute]](CONT
 
 ## Backers
 
-Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/erxes#backer)]
+Thank you to all our backers! 🙝 [[Become a backer](https://opencollective.com/erxes#backer)]
 
 <a href="https://opencollective.com/erxes#backers" target="_blank"><img src="https://opencollective.com/erxes/backers.svg?width=890"></a>
 
