@@ -30,7 +30,9 @@
   </a>
 </p>
 
-<a href="https://erxes.io" target="_blank"><img src="https://erxes-os.s3-us-west-2.amazonaws.com/github/git-erxes.gif" alt="Open Source Growth Marketing Platform "></a>
+<p align="center">
+ <a href="https://erxes.io" target="_blank"><img src="https://erxes-os.s3-us-west-2.amazonaws.com/github/git-erxes.gif" alt="Open Source Growth Marketing Platform "></a>
+</p>
 
 ## Features
 
