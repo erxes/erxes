@@ -1,7 +1,6 @@
 import EmptyState from 'modules/common/components/EmptyState';
 import Spinner from 'modules/common/components/Spinner';
 import React from 'react';
-import { __ } from 'modules/common/utils';
 
 type Props = {
   data: any;

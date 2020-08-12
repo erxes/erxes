@@ -13,9 +13,11 @@ export const AttachmentWrapper = styled.div`
   display: flex;
   color: ${colors.textPrimary};
   position: relative;
+
   img {
     max-width: 100%;
   }
+
   &:hover {
     background: ${rgba(colors.colorCoreDarkBlue, 0.08)};
   }
@@ -25,10 +27,12 @@ const ItemInfo = styled.div`
   flex: 1;
   padding: 10px 15px;
   word-wrap: break-word;
+
   h5 {
     margin: 0 0 5px;
     font-weight: bold;
   }
+
   video {
     width: 100%;
   }
@@ -37,6 +41,7 @@ const ItemInfo = styled.div`
 const Download = styled.a`
   color: ${colors.colorCoreGray};
   margin-left: 10px;
+
   &:hover {
     color: ${colors.colorCoreBlack};
   }
@@ -52,6 +57,7 @@ const PreviewWrapper = styled.div`
   border-radius: 4px;
   overflow: hidden;
   align-self: center;
+
   i {
     font-size: 36px;
     color: ${colors.colorSecondary};
@@ -62,6 +68,7 @@ export const Meta = styled.div`
   position: relative;
   font-weight: 500;
   color: ${colors.colorCoreGray};
+
   > * + * {
     margin-left: 10px;
   }
