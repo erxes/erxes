@@ -229,4 +229,5 @@ class Uploader extends React.Component<Props, State> {
     );
   }
 }
+
 export default Uploader;
