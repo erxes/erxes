@@ -18,6 +18,7 @@ type Props = {
   attachments: IAttachment[];
   user?: IUser;
   color?: string;
+  textColor?: string;
   contentType?: string;
   videoCallData?: IVideoCallData;
   toggleVideo: () => void;
@@ -70,7 +71,8 @@ class Message extends React.Component<Props> {
       user,
       content,
       contentType,
-      videoCallData
+      videoCallData,
+      textColor
     } = this.props;
     const messageClasses = classNames("erxes-message", {
       attachment: attachments && attachments.length > 0,
@@ -78,7 +80,8 @@ class Message extends React.Component<Props> {
     });
 
     const messageBackground = {
-      backgroundColor: !user ? color : ""
+      backgroundColor: !user ? color : "",
+      color: !user ? textColor : ''
     };
 
     if (contentType === MESSAGE_TYPES.VIDEO_CALL) {

@@ -289,7 +289,7 @@
   "Sub segment of": "Sub segment of",
   "Color": "Color",
   "Filters": "Filters",
-  "User(s) will recieve this message": "User(s) will recieve this message",
+  "User(s) will receive this message": "User(s) will receive this message",
   "Color code": "Color code",
   "Engage Message": "Engage Message",
   "Item counts": "Item counts",
@@ -962,5 +962,11 @@
   "Google Cloud Storage": "Google Cloud Storage",
   "Script manager": "Script manager",
   "Growth Hacking Templates": "Growth Hacking Templates",
-  "Import & Export": "Import & Export"
+  "Import & Export": "Import & Export",
+  "Learn how to set Product Board Integration Variables": "Learn how to set Product Board Integration Variables",
+  "Go to product board": "Go to product board",
+  "Create product board note": "Create product board note",
+  "Invalid Username": "Invalid username. Usernames must start with a letter. Allowed characters are a-z, 0-9, _, - (dash), and .(dot)",
+  "Reselect features": "Reselect features",
+  "You have received a video call request": "You have received a video call request"
 }

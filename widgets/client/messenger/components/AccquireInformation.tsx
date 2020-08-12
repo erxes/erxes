@@ -7,6 +7,7 @@ import { TopBar } from "../containers";
 type Props = {
   save: (doc: State) => void;
   color?: string;
+  textColor?: string;
   loading: boolean;
   showTitle?: boolean;
 };
@@ -90,7 +91,7 @@ class AccquireInformation extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { color } = this.props;
+    const { color, textColor } = this.props;
     const { type, isValidated, isLoading } = this.state;
     const formClasses = classNames("form", { invalid: !isValidated });
 
@@ -132,7 +133,7 @@ class AccquireInformation extends React.PureComponent<Props, State> {
               type="submit"
               style={{ backgroundColor: color }}
             >
-              {isLoading ? <div className="loader" /> : iconRight}
+              {isLoading ? <div className="loader" /> : iconRight(textColor)}
             </button>
           </form>
         </div>

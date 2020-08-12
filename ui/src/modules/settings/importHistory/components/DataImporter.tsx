@@ -57,7 +57,7 @@ function DataImporter({ uploadXls, uploading, text }: Props) {
       <input
         type="file"
         onChange={uploadXls}
-        accept=".xlsx, .xls"
+        accept=".xlsx, .xls, .csv"
         disabled={uploading}
       />
     </ImportButton>

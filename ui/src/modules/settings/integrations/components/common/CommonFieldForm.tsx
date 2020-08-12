@@ -121,14 +121,20 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
         <SelectChannels
           defaultValue={channelIds}
           isRequired={true}
-          description={__(
-            'In which Channel(s) do you want to add this integration?'
-          )}
           onChange={onChannelChange}
         />
 
         {this.renderSpecificContent()}
         <ModalFooter>
+          <Button
+            btnStyle="simple"
+            type="button"
+            onClick={closeModal}
+            icon="times-circle"
+            uppercase={false}
+          >
+            Cancel
+          </Button>
           <Button
             onClick={saveIntegration}
             type="submit"

@@ -1,8 +1,11 @@
+import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
 import LoadMore from 'modules/common/components/LoadMore';
+import { __ } from 'modules/common/utils';
 import ConversationItem from 'modules/inbox/containers/leftSidebar/ConversationItem';
 import React from 'react';
 import { IConversation } from '../../types';
+import { IntegrationModal } from './IntegrationModal';
 import { ConversationItems } from './styles';
 
 type Props = {
@@ -27,6 +30,12 @@ export default class ConversationList extends React.Component<Props> {
       totalCount
     } = this.props;
 
+    const popupTrigger = (
+      <Button uppercase={false} icon="processor">
+        {__('Connect Integration')}
+      </Button>
+    );
+
     return (
       <React.Fragment>
         <ConversationItems id="conversations">
@@ -48,6 +57,7 @@ export default class ConversationList extends React.Component<Props> {
             text="Let's get you messaging away!"
             size="full"
             image="/images/actions/6.svg"
+            extra={<IntegrationModal trigger={popupTrigger} />}
           />
         )}
 

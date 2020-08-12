@@ -128,9 +128,6 @@ class Gmail extends React.Component<Props, State> {
                 <SelectChannels
                   defaultValue={this.state.channelIds}
                   isRequired={true}
-                  description={__(
-                    'In which Channel(s) do you want to add this integration?'
-                  )}
                   onChange={this.channelOnChange}
                 />
               </LeftItem>
@@ -188,7 +185,7 @@ class Gmail extends React.Component<Props, State> {
                   </h1>
                   <p>
                     {__(
-                      'Connect your Gmail to start receiving emails in your team inbox.'
+                      'Connect your Gmail to start receiving emails in your team inbox'
                     )}
                   </p>
                   <img alt={title} src="/images/previews/facebook.png" />

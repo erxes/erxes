@@ -4,13 +4,13 @@ import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
 import Participators from 'modules/inbox/components/conversationDetail/workarea/Participators';
+import { BarItems } from 'modules/layout/styles';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { Link } from 'react-router-dom';
 import PipelineWatch from '../containers/PipelineWatch';
 import {
   HeaderButton,
-  HeaderItems,
   HeaderLabel,
   HeaderLink,
   PageHeader
@@ -177,7 +177,7 @@ class MainActionBar extends React.Component<Props> {
     const type = options.type;
 
     const actionBarLeft = (
-      <HeaderItems>
+      <BarItems>
         <HeaderLabel>
           <Icon icon="web-grid-alt" /> {__(boardText || '')}:{' '}
         </HeaderLabel>
@@ -220,17 +220,17 @@ class MainActionBar extends React.Component<Props> {
         ) : null}
 
         {this.renderVisibility()}
-      </HeaderItems>
+      </BarItems>
     );
 
     const actionBarRight = (
-      <HeaderItems>
+      <BarItems>
         {middleContent && middleContent()}
 
         {rightContent && rightContent()}
 
         {this.renderFilter()}
-      </HeaderItems>
+      </BarItems>
     );
 
     return (

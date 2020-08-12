@@ -39,7 +39,7 @@ const SegmentsForm = (props: Props) => {
                 <span>{count}</span>
               )}
             </ResultCount>
-            {__('User(s) will recieve this message')}
+            {__('User(s) will receive this message')}
           </SegmentResult>
         </FlexContent>
       </Sidebar>

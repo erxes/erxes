@@ -108,7 +108,7 @@ const SubHeader = styled.a`
 
 const CompletedTaskWrapper = styled.div`
   padding: 0 16px;
-  margin-top: 8px;
+  margin-top: 16px;
 `;
 
 const CompletedTaskName = styled.div`
@@ -120,6 +120,13 @@ const CompletedTaskName = styled.div`
   &:hover {
     cursor: pointer;
     color: ${colors.textSecondary};
+  }
+`;
+
+const RestartButton = styled.a`
+  &:hover {
+    text-decoration: underline;
+    cursor: pointer;
   }
 `;
 
@@ -156,5 +163,6 @@ export {
   BackDrop,
   CompletedTaskWrapper,
   CompletedTaskName,
-  ProgressText
+  ProgressText,
+  RestartButton
 };

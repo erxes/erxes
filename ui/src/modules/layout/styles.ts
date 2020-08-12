@@ -61,6 +61,7 @@ const Contents = styled.div`
   right: 0;
   bottom: 0;
   top: 0;
+  overflow-x: auto;
 
   @-moz-document url-prefix() {
     overflow: hidden;
@@ -129,6 +130,10 @@ const ContenFooter = styled.div`
 
 const BarItems = styled.div`
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
 
   .dropdown-menu {
     min-width: 200px;
@@ -141,6 +146,12 @@ const BarItems = styled.div`
   input[type='text'] {
     width: auto;
     display: inline-block;
+  }
+
+  @media (max-width: 768px) {
+    > * + * {
+      margin: 0 ${dimensions.unitSpacing}px 0 0;
+    }
   }
 `;
 

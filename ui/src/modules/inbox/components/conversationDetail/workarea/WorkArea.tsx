@@ -38,7 +38,7 @@ const Participators = asyncComponent(
 const ConvertTo = asyncComponent(
   () =>
     import(/* webpackChunkName:"Inbox-ConvertTo" */ '../../../containers/conversationDetail/workarea/ConvertTo'),
-  { height: '22px', width: '100px', marginRight: '10px' }
+  { height: '22px', width: '71px' }
 );
 
 type Props = {

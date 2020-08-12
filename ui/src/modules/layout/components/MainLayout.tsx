@@ -1,6 +1,7 @@
 import { IUser } from 'modules/auth/types';
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import { IRouterProps } from 'modules/common/types';
+import { bustIframe } from 'modules/common/utils';
 import { NotifProvider } from 'modules/notifications/context';
 import Robot from 'modules/robot/containers/Robot';
 import ImportIndicator from 'modules/settings/importHistory/containers/ImportIndicator';
@@ -51,7 +52,10 @@ class MainLayout extends React.Component<IProps> {
       wootricScript.onload = () => {
         (window as any).wootric('run');
       };
-    }
+    } // end currentUser checking
+
+    // click-jack attack defense
+    bustIframe();
   }
 
   getLastImport = () => {
@@ -79,6 +83,7 @@ class MainLayout extends React.Component<IProps> {
 
     return (
       <>
+        <div id="anti-clickjack" style={{ display: 'none' }} />
         {this.renderBackgroundProccess()}
         <Layout isSqueezed={isShownIndicator}>
           {currentUser && <Navigation currentUser={currentUser} />}
