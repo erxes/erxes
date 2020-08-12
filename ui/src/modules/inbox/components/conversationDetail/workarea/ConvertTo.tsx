@@ -18,8 +18,8 @@ const Container = styled.div`
   }
 
   button {
-    padding: 3px 12px;
-    font-size: 9px;
+    padding: 3px 7px 3px 12px;
+    font-size: 10px;
   }
 `;
 
@@ -54,7 +54,7 @@ export default (props: Props) => {
     <Container>
       <Dropdown>
         <Dropdown.Toggle as={DropdownToggle} id="dropdown-convert-to">
-          <Button size="small">
+          <Button uppercase={false}>
             {__('Convert')} <Icon icon="angle-down" />
           </Button>
         </Dropdown.Toggle>

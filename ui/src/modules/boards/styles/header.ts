@@ -1,5 +1,4 @@
 import { colors, dimensions } from 'modules/common/styles';
-import { BarItems } from 'modules/layout/styles';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -49,15 +48,6 @@ export const ButtonGroup = styled.div`
     &:hover {
       color: ${colors.colorCoreDarkGray};
     }
-  }
-`;
-
-export const HeaderItems = styled(BarItems)`
-  display: flex;
-  align-items: center;
-
-  @media (max-width: 768px) {
-    flex-wrap: wrap;
   }
 `;
 

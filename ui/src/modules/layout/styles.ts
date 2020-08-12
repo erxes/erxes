@@ -130,6 +130,10 @@ const ContenFooter = styled.div`
 
 const BarItems = styled.div`
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
 
   .dropdown-menu {
     min-width: 200px;
