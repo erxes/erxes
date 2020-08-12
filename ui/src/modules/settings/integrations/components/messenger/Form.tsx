@@ -32,16 +32,14 @@ type Props = {
   teamMembers: IUser[];
   integration?: IIntegration;
   brands: IBrand[];
-  save: (
-    params: {
-      name: string;
-      brandId: string;
-      languageCode: string;
-      channelIds?: string[];
-      messengerData: IMessengerData;
-      uiOptions: IUiOptions;
-    }
-  ) => void;
+  save: (params: {
+    name: string;
+    brandId: string;
+    languageCode: string;
+    channelIds?: string[];
+    messengerData: IMessengerData;
+    uiOptions: IUiOptions;
+  }) => void;
 };
 
 type State = {
@@ -168,15 +166,15 @@ class CreateMessenger extends React.Component<Props, State> {
     } = this.state;
 
     if (!languageCode) {
-      return Alert.error(__('Set language'));
+      return Alert.error('Set language');
     }
 
     if (!title) {
-      return Alert.error(__('Write title'));
+      return Alert.error('Write title');
     }
 
     if (!brandId) {
-      return Alert.error(__('Choose a brand'));
+      return Alert.error('Choose a brand');
     }
 
     const links = { facebook, twitter, youtube };
@@ -331,7 +329,7 @@ class CreateMessenger extends React.Component<Props, State> {
 
               <Step
                 img="/images/icons/erxes-03.svg"
-                title={__("Hours & Availability")}
+                title={__('Hours & Availability')}
                 onClick={this.onStepClick.bind(null, 'hours')}
               >
                 <Availability
@@ -362,7 +360,7 @@ class CreateMessenger extends React.Component<Props, State> {
 
               <Step
                 img="/images/icons/erxes-16.svg"
-                title={__("Integration Setup")}
+                title={__('Integration Setup')}
                 onClick={this.onStepClick.bind(null, 'setup')}
                 noButton={true}
               >

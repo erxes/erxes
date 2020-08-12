@@ -6,7 +6,6 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import Resolver from '../components/Resolver';
 import { mutations } from '../graphql';
-import { __ } from 'modules/common/utils';
 import {
   ChangeStatusMutationResponse,
   ChangeStatusMutationVariables,
