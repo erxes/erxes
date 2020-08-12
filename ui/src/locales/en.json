@@ -966,5 +966,6 @@
   "Learn how to set Product Board Integration Variables": "Learn how to set Product Board Integration Variables",
   "Go to product board": "Go to product board",
   "Create product board note": "Create product board note",
-  "Invalid Username": "Invalid username. Usernames must start with a letter. Allowed characters are a-z, 0-9, _, - (dash), and .(dot)"
+  "Invalid Username": "Invalid username. Usernames must start with a letter. Allowed characters are a-z, 0-9, _, - (dash), and .(dot)",
+  "Reselect available features": "Reselect available features"
 }
