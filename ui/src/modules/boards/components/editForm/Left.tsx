@@ -8,7 +8,8 @@ import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
-import Uploader from 'modules/common/components/Uploader';
+// import Uploader from 'modules/common/components/Uploader';
+import AttachmentPreview from 'modules/common/components/AttachmentPreview';
 import { IAttachment } from 'modules/common/types';
 import { __, extractAttachment } from 'modules/common/utils';
 import { LeftContainer, TitleRow } from '../../styles/item';
@@ -24,12 +25,9 @@ const Description = (props: DescProps) => {
   const { item, saveItem } = props;
   const [description, setDescription] = useState(item.description);
 
-  useEffect(
-    () => {
-      setDescription(item.description);
-    },
-    [item.description]
-  );
+  useEffect(() => {
+    setDescription(item.description);
+  }, [item.description]);
 
   const onBlurDescription = () => {
     if (description !== item.description) {
@@ -125,7 +123,11 @@ const Left = (props: Props) => {
           </ControlLabel>
         </TitleRow>
 
-        <Uploader defaultFileList={attachments} onChange={onChangeAttachment} />
+        {/* <Uploader defaultFileList={attachments} onChange={onChangeAttachment} /> */}
+        <AttachmentPreview
+          defaultFileList={attachments}
+          onChange={onChangeAttachment}
+        />
       </FormGroup>
 
       <Description item={item} saveItem={saveItem} />
