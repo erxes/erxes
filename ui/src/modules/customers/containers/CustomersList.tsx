@@ -105,7 +105,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
           history.push(`/contacts/details/${result.data.customersMerge._id}`);
         })
         .catch(e => {
-          Alert.error(__(e.message));
+          Alert.error(e.message);
           this.setState({ mergeCustomerLoading: false });
         });
     };
@@ -120,13 +120,11 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       })
         .then(() => {
           Alert.success(
-            __(
-              'Your request has been successfully sent. Your contacts will be verified after a while'
-            )
+            'Your request has been successfully sent. Your contacts will be verified after a while'
           );
         })
         .catch(e => {
-          Alert.error(__(e.message));
+          Alert.error(e.message);
         });
     };
 
