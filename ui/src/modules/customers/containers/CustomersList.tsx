@@ -124,7 +124,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
           );
         })
         .catch(e => {
-          Alert.error(e.message);
+          Alert.error(__(e.message));
         });
     };
 
