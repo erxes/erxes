@@ -182,12 +182,12 @@ class PipelineForm extends React.Component<Props, State> {
   renderTemplates() {
     const { templates, templateId } = this.state;
 
-    const templateOptions = templates.map((template) => ({
+    const templateOptions = templates.map(template => ({
       value: template._id,
-      label: template.name,
+      label: template.name
     }));
 
-    const onChange = (item) => this.onChangeValue('templateId', item.value);
+    const onChange = item => this.onChangeValue('templateId', item.value);
 
     return (
       <FormGroup>
@@ -292,21 +292,36 @@ class PipelineForm extends React.Component<Props, State> {
                 __(
                   'Set the Impact, Confidence and Ease factors for your tasks. Final score is calculated by the formula:'
                 ),
-                __('Impact * Confidence * Ease')
+                __('Impact') + ' * ' + __('Confidence') + ' * ' + __('Ease')
               )}
               {this.renderBox(
                 __('rice'),
                 __(
                   'Set the Reach, Impact, Confidence and Effort factors for your tasks. Final score is calculated by the formula:'
                 ),
-                __('(Reach * Impact * Confidence) / Effort')
+                '(' +
+                  __('Reach') +
+                  ' * ' +
+                  __('Impact') +
+                  ' * ' +
+                  __('Confidence') +
+                  ')' +
+                  ' / ' +
+                  __('Effort') +
+                  ')'
               )}
               {this.renderBox(
                 __('pie'),
                 __(
                   'Set the Potential, Importance and Ease factors for your tasks. Final score is calculated by the formula:'
                 ),
-                __('(Potential + Importance + Ease) / 3')
+                '(' +
+                  __('Potential') +
+                  __('Importance') +
+                  __('Ease') +
+                  ')' +
+                  '/' +
+                  '3'
               )}
             </FlexContent>
           </FormGroup>

@@ -236,7 +236,7 @@ class InstallCode extends React.PureComponent<Props, State> {
       return (
         <>
           <h4>
-            <b>{__('Swift')}</b>
+            <b>{'Swift'}</b>
           </h4>
           <ol>
             <li>
@@ -244,10 +244,13 @@ class InstallCode extends React.PureComponent<Props, State> {
               <MarkdownWrapper>
                 <pre>{iosSDK}</pre>
               </MarkdownWrapper>
-              {__('then run')} <b>{__(' pod install ')}</b>{__('in terminal')}
+              {__('then run')} <b>{__(' pod install ')}</b>
+              {__('in terminal')}
             </li>
             <li>
-              {__(`Add a 'Privacy - Photo Library Usage Description' entry to your`) + ' Info.plist.'}
+              {__(
+                `Add a 'Privacy - Photo Library Usage Description' entry to your`
+              ) + ' Info.plist.'}
               <a href="https://developer.apple.com/library/content/qa/qa1937/_index.html">
                 {' '}
                 {__('This is required by Apple')}{' '}
@@ -255,7 +258,10 @@ class InstallCode extends React.PureComponent<Props, State> {
               {__('and gives your users permission to upload images')}.
             </li>
             <li>
-              {__('Import ErxesSDK into AppDelegate.swift then paste the following code into')} {<b>didFinishLaunchingWithOptions {__('method:')}</b>}
+              {__(
+                'Import ErxesSDK into AppDelegate.swift then paste the following code into'
+              )}{' '}
+              {<b>didFinishLaunchingWithOptions {__('method:')}</b>}
               <br />
               <br />
               <ControlLabel>Open source:</ControlLabel>
@@ -268,7 +274,10 @@ class InstallCode extends React.PureComponent<Props, State> {
               </MarkdownWrapper>
             </li>
             <li>
-              {__('Import ErxesSDK into your UIViewController class and you can start Erxes with following options:')} <br />
+              {__(
+                'Import ErxesSDK into your UIViewController class and you can start Erxes with following options:'
+              )}{' '}
+              <br />
               <ol type="a">
                 <li>
                   <b>{__('Without user data')}</b>
@@ -287,7 +296,7 @@ class InstallCode extends React.PureComponent<Props, State> {
           </ol>
           <br />
           <h4>
-            <b>{__('Objective-C')}</b>
+            <b>{'Objective-C'}</b>
           </h4>
           <ol>
             <li>
@@ -297,7 +306,9 @@ class InstallCode extends React.PureComponent<Props, State> {
               </MarkdownWrapper>
             </li>
             <li>
-            {__(`Add a 'Privacy - Photo Library Usage Description' entry to your`) + ' Info.plist.'} 
+              {__(
+                `Add a 'Privacy - Photo Library Usage Description' entry to your`
+              ) + ' Info.plist.'}
               <a href="https://developer.apple.com/library/content/qa/qa1937/_index.html">
                 {' '}
                 {__('This is required by Apple')}{' '}
@@ -321,7 +332,9 @@ class InstallCode extends React.PureComponent<Props, State> {
             </li>
             <li>
               {`#import <ErxesSDK/ErxesSDK-Swift.h>`} {__('into your')}
-              UIViewController.m {__('class and you can start Erxes with following options:')} <br />
+              UIViewController.m{' '}
+              {__('class and you can start Erxes with following options:')}{' '}
+              <br />
               <ol type="a">
                 <li>
                   <b>{__('Without user data')}</b>
@@ -346,8 +359,10 @@ class InstallCode extends React.PureComponent<Props, State> {
       return (
         <ol>
           <li>
-            <b> {__('Add the JitPack repository to your build file')} </b> <br />
-            {__('Add it in your root')} {'build.gradle'} {__('at the end of repositories:')}
+            <b> {__('Add the JitPack repository to your build file')} </b>{' '}
+            <br />
+            {__('Add it in your root')} {'build.gradle'}{' '}
+            {__('at the end of repositories:')}
             <MarkdownWrapper>
               <pre>{buildgradle}</pre>
             </MarkdownWrapper>
@@ -360,7 +375,8 @@ class InstallCode extends React.PureComponent<Props, State> {
           </li>
           <li>
             <b>{__('Default configuration')}</b> <br />
-            <b>* brandCode</b> - {__('generated unique code of your brand')} <br />
+            <b>* brandCode</b> - {__('generated unique code of your brand')}{' '}
+            <br />
             <b>* apiHost</b> - {__('erxes-widgets-api server url')} <br />
             <b>* subsHost</b> - {__('erxes-api subscription url')} <br />
             <b>* uploadUrl</b> - {__('erxes-api server url')}
@@ -377,7 +393,10 @@ class InstallCode extends React.PureComponent<Props, State> {
           </li>
           <li>
             <b>{__('Start chat')}</b> <br />
-            {__('If your application has already registered with user , give user’s information with this way')} <br />
+            {__(
+              'If your application has already registered with user , give user’s information with this way'
+            )}{' '}
+            <br />
             <MarkdownWrapper>
               <pre>{startChat}</pre>
             </MarkdownWrapper>
@@ -452,14 +471,22 @@ class InstallCode extends React.PureComponent<Props, State> {
     switch (currentTab) {
       case 'basic':
         description = __(
-          __('For websites and web apps with full-page refreshes') + '. ' +  __('Paste the code below before the body tag on every page you want erxes chat to appear')
+          __('For websites and web apps with full-page refreshes') +
+            '. ' +
+            __(
+              'Paste the code below before the body tag on every page you want erxes chat to appear'
+            )
         );
         script = basicCode;
         action = copied;
         break;
       case 'single':
         description =
-          __('For web apps built with asynchronous JavaScript') + '. ' + __('Paste the code below in main layout you want erxes chat to appear');
+          __('For web apps built with asynchronous JavaScript') +
+          '. ' +
+          __(
+            'Paste the code below in main layout you want erxes chat to appear'
+          );
         script = singlePageCode;
         action = singleCopied;
         break;

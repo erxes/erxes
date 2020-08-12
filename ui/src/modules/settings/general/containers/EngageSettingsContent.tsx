@@ -82,15 +82,15 @@ class SettingsContainer extends React.Component<Props> {
       ).then(() => {
         engagesRemoveVerifiedEmailMutation({
           variables: {
-            email,
-          },
+            email
+          }
         })
           .then(() => {
             engagesVerifiedEmailsQuery.refetch();
             Alert.success(__('Successfully removed'));
           })
 
-          .catch((e) => {
+          .catch(e => {
             Alert.error(e.message);
           });
       });
@@ -102,13 +102,13 @@ class SettingsContainer extends React.Component<Props> {
           from,
           to,
           content
-        },
+        }
       })
         .then(() => {
           Alert.success(__('Successfully sent'));
         })
 
-        .catch((e) => {
+        .catch(e => {
           Alert.error(e.message);
         });
     };

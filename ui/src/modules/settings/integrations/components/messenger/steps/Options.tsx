@@ -69,7 +69,7 @@ class Options extends React.Component<Props, State> {
             onChange={onChange}
             icons={{
               checked: <span>{__('Yes')}</span>,
-              unchecked: <span>{__('No')}</span>,
+              unchecked: <span>{__('No')}</span>
             }}
           />
         </div>
@@ -95,7 +95,7 @@ class Options extends React.Component<Props, State> {
           .query({
             query: gql(queries.fetchApi),
             variables: { path: '/videoCall/usageStatus', params: {} },
-            fetchPolicy: 'network-only',
+            fetchPolicy: 'network-only'
           })
           .then(({ data: { integrationsFetchApi } }) => {
             if (integrationsFetchApi) {

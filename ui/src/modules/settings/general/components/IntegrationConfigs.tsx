@@ -82,7 +82,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
 
     return (
       <ContentBox>
-        <CollapseContent title={__('Facebook')}>
+        <CollapseContent title={'Facebook'}>
           <Info>
             <a
               target="_blank"
@@ -102,7 +102,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
           )}
         </CollapseContent>
 
-        <CollapseContent title={__('Twitter')}>
+        <CollapseContent title={'Twitter'}>
           <Info>
             <a
               target="_blank"
@@ -119,7 +119,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
           {this.renderItem('TWITTER_WEBHOOK_ENV')}
         </CollapseContent>
 
-        <CollapseContent title={__('Nylas')}>
+        <CollapseContent title={'Nylas'}>
           <Info>
             <a
               target="_blank"
@@ -167,7 +167,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
           {this.renderItem('DAILY_END_POINT')}
         </CollapseContent>
 
-        <CollapseContent title={__('Gmail')}>
+        <CollapseContent title={'Gmail'}>
           <Info>
             <a
               target="_blank"
@@ -193,7 +193,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
           </ContentDisabler>
         </CollapseContent>
 
-        <CollapseContent title={__('Sunshine Conversations API')}>
+        <CollapseContent title={'Sunshine Conversations API'}>
           <Info>
             <a
               target="_blank"
@@ -212,7 +212,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
           )}
         </CollapseContent>
 
-        <CollapseContent title={__('WhatsApp Chat-API')}>
+        <CollapseContent title={'WhatsApp Chat-API'}>
           <Info>
             <a
               target="_blank"

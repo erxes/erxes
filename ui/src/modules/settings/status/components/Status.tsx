@@ -21,17 +21,17 @@ class Status extends React.PureComponent<{
             <Icon icon="info-circle" /> {__('Info')}
           </span>
           <div>
-            <b>{__('Package version')}</b> - {ver.packageVersion}
+            <b>{'Package version'}</b> - {ver.packageVersion}
           </div>
           <div>
-            <b>{__('Branch name')}</b> - {ver.branch}
+            <b>{'Branch name'}</b> - {ver.branch}
           </div>
           <div>
-            <b>{__('Sha')}</b> - {ver.sha}
+            <b>{'Sha'}</b> - {ver.sha}
           </div>
           <div>
             <b>
-              {__('Abbreviated')} {__('Sha')}
+              {'Abbreviated'} {'Sha'}
             </b>{' '}
             - {ver.abbreviatedSha}{' '}
           </div>
@@ -43,7 +43,7 @@ class Status extends React.PureComponent<{
   render() {
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('System status') },
+      { title: __('System status') }
     ];
 
     const { versions } = this.props;
@@ -52,11 +52,11 @@ class Status extends React.PureComponent<{
 
     const content = (
       <div>
-        {this.renderData(__('Erxes Status'), erxesVersion)}
+        {this.renderData('Erxes Status', erxesVersion)}
 
-        {this.renderData(__('Erxes API Status'), apiVersion)}
+        {this.renderData('Erxes API Status', apiVersion)}
 
-        {this.renderData(__('Erxes Widget Status'), widgetVersion)}
+        {this.renderData('Erxes Widget Status', widgetVersion)}
       </div>
     );
 

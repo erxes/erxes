@@ -284,7 +284,7 @@ class UserList extends React.Component<FinalProps, States> {
                 {
                   value: false,
                   label: 'Deactivated'
-                },
+                }
               ]}
             />
           </FlexItem>
