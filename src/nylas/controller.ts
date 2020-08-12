@@ -135,7 +135,7 @@ export const initNylas = async app => {
 
       return res.json({ status: 'ok' });
     } catch (e) {
-      next(e);
+      return next(e);
     }
   });
 };

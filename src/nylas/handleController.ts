@@ -145,7 +145,7 @@ export const nylasSendEmail = async (erxesApiId: string, params: any) => {
 
     return 'success';
   } catch (e) {
-    debugNylas(`Failed to send message: ${e}`);
+    debugNylas(`Failed to send message: ${e.message}`);
 
     throw e;
   }
