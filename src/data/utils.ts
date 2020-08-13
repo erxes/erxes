@@ -959,8 +959,6 @@ export const frontendEnv = ({ name, req, requestInfo }: { name: string; req?: an
     envs[key.replace('REACT_APP_', '')] = cookies[key];
   }
 
-  console.log('req cookies: ', req.cookies);
-
   return envs[name];
 };
 
