@@ -61,7 +61,7 @@ export const isTimeInBetween = (timezone: string, date: Date, startTime: string,
   startDate.minutes(start.minute);
 
   const end = getHourAndMinute(closeTime);
-  const closeDate: any = momentTz(date);
+  const closeDate: any = momentTz(now);
 
   closeDate.hours(end.hour);
   closeDate.minutes(end.minute);

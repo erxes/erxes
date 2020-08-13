@@ -562,7 +562,7 @@ describe('save integration messenger configurations test', () => {
     test('isTimeInBetween()', () => {
       const time1 = '9:00 AM';
       const time2 = '6:00 PM';
-      const timezone = 'Asia/Ulaanbaatar';
+      const timezone = momentTz.tz.guess(true);
 
       expect(isTimeInBetween(timezone, new Date('2017/05/08 11:10 AM'), time1, time2)).toBeTruthy();
       expect(isTimeInBetween(timezone, new Date('2017/05/08 7:00 PM'), time1, time2)).toBeFalsy();
