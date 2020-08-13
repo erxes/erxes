@@ -1,6 +1,7 @@
 module.exports = {
   title: 'erxes',
-  tagline: 'erxes is a free and open fair-code licensed all-in-one growth marketing and management tool for a smoother customer journey',
+  tagline:
+    'erxes is a free and open fair-code licensed all-in-one growth marketing and management tool for a smoother customer journey',
   url: 'https://www.erxes.org',
   baseUrl: '/',
   favicon: 'img/favicon.png',
@@ -23,38 +24,38 @@ module.exports = {
         src: 'img/logo_dark.svg',
         srcDark: 'img/logo.svg',
       },
-      links: [
+      items: [
         {
           to: 'overview/getting-started/',
-          activeBasePath: '',
+          // activeBasePath: '',
           label: 'Documentation',
           position: 'left',
         },
         {
           to: '/user/subscription-getting-started',
-          activeBasePath: '',
+          // activeBasePath: '',
           label: 'Tutorial',
           position: 'left',
         },
         {
           href: 'https://github.com/erxes/erxes',
           prependBaseUrlToHref: true,
-          position: 'right', 
+          position: 'right',
           label: 'Star',
           className: 'github-button hide-mobile',
           'data-show-count': 'true',
           'data-size': 'large',
-          'aria-label': 'Star erxes/erxes on GitHub'
+          'aria-label': 'Star erxes/erxes on GitHub',
         },
         {
           href: 'https://github.com/erxes/erxes',
           label: 'GitHub',
-          position: 'right'
+          position: 'right',
         },
         {
           to: 'blog/',
           label: 'Blog',
-          position: 'right'
+          position: 'right',
         },
       ],
     },
@@ -112,7 +113,7 @@ module.exports = {
             },
           ],
         },
-       
+
         {
           title: 'Support The erxes',
           items: [
@@ -141,12 +142,12 @@ module.exports = {
       {
         docs: {
           // It is recommended to set document id as docs home page (`docs/` path).
-          homePageId: '',
+          // homePageId: '',
           sidebarPath: require.resolve('./sidebars.js'),
           routeBasePath: '',
           editUrl: 'https://github.com/erxes/erxes/edit/develop/docs',
           showLastUpdateAuthor: true,
-          showLastUpdateTime: true
+          showLastUpdateTime: true,
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
