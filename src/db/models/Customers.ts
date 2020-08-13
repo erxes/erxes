@@ -35,6 +35,7 @@ interface ICreateMessengerCustomerParams {
     deviceToken?: string;
   };
   customData?: any;
+  hostname: string;
 }
 
 export interface IUpdateMessengerCustomerParams {
@@ -48,6 +49,7 @@ export interface IUpdateMessengerCustomerParams {
     deviceToken?: string;
   };
   customData?: any;
+  hostname?: string;
 }
 
 export interface IVisitorContactInfoParams {
@@ -608,21 +610,27 @@ export const loadClass = () => {
       doc.emails = emails;
       doc.phones = phones;
       doc.deviceTokens = deviceTokens;
+
+      return doc;
     }
 
     /*
      * Create a new messenger customer
      */
-    public static async createMessengerCustomer({ doc, customData }: ICreateMessengerCustomerParams) {
+    public static async createMessengerCustomer({ doc, customData, hostname }: ICreateMessengerCustomerParams) {
       this.fixListFields(doc, customData);
 
-      return this.createCustomer({
-        ...doc,
-        trackedData: Fields.generateTypedListFromMap(customData),
-        lastSeenAt: new Date(),
-        isOnline: true,
-        sessionCount: 1,
-      });
+      return this.createCustomer(
+        {
+          ...doc,
+          trackedData: Fields.generateTypedListFromMap(customData),
+          lastSeenAt: new Date(),
+          isOnline: true,
+          sessionCount: 1,
+        },
+        undefined,
+        hostname,
+      );
     }
 
     /*
