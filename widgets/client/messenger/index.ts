@@ -1,68 +1,74 @@
-import gql from "graphql-tag";
-import client, { wsLink } from "../apollo-client";
-import { getLocalStorageItem, setLocalStorageItem } from "../common";
-import { setLocale } from "../utils";
-import widgetConnect from "../widgetConnect";
-import { connection } from "./connection";
-import { App } from "./containers";
-import graphqTypes from "./graphql";
-import "./sass/style.scss";
-import { IConnectResponse } from "./types";
+import gql from 'graphql-tag';
+import client, { wsLink } from '../apollo-client';
+import { getLocalStorageItem, setLocalStorageItem } from '../common';
+import { getEnv, setLocale } from '../utils';
+import widgetConnect from '../widgetConnect';
+import { connection } from './connection';
+import { App } from './containers';
+import graphqTypes from './graphql';
+import './sass/style.scss';
+import { IConnectResponse } from './types';
 
-widgetConnect({
-  connectMutation: (event: MessageEvent) => {
-    const setting = event.data.setting;
+const envs = getEnv();
 
-    connection.setting = setting;
+fetch(`${envs.API_URL}/set-frontend-cookies?envs=${JSON.stringify(envs)}`, {
+  credentials: 'include'
+}).then(() => {
+  widgetConnect({
+    connectMutation: (event: MessageEvent) => {
+      const setting = event.data.setting;
 
-    return client.mutate({
-      mutation: gql(graphqTypes.connect),
-      variables: {
-        brandCode: setting.brand_id,
-        email: setting.email,
-        phone: setting.phone,
-        code: setting.code,
+      connection.setting = setting;
 
-        cachedCustomerId: getLocalStorageItem("customerId"),
+      return client.mutate({
+        mutation: gql(graphqTypes.connect),
+        variables: {
+          brandCode: setting.brand_id,
+          email: setting.email,
+          phone: setting.phone,
+          code: setting.code,
 
-        // if client passed email automatically then consider this as user
-        isUser: Boolean(setting.email),
+          cachedCustomerId: getLocalStorageItem('customerId'),
 
-        name: setting.name,
-        data: setting.data,
-        companyData: setting.companyData
+          // if client passed email automatically then consider this as user
+          isUser: Boolean(setting.email),
+
+          name: setting.name,
+          data: setting.data,
+          companyData: setting.companyData
+        }
+      });
+    },
+
+    connectCallback: (data: { widgetsMessengerConnect: IConnectResponse }) => {
+      const messengerData = data.widgetsMessengerConnect;
+
+      if (!messengerData.integrationId) {
+        throw new Error('Integration not found');
       }
-    });
-  },
 
-  connectCallback: (data: { widgetsMessengerConnect: IConnectResponse }) => {
-    const messengerData = data.widgetsMessengerConnect;
+      // save connection info
+      connection.data = messengerData;
 
-    if (!messengerData.integrationId) {
-      throw new Error("Integration not found");
-    }
+      // set language
+      setLocale(connection.setting.language || messengerData.languageCode);
 
-    // save connection info
-    connection.data = messengerData;
+      // save customer id to identify visitor next time
+      setLocalStorageItem('customerId', messengerData.customerId);
 
-    // set language
-    setLocale(connection.setting.language ||  messengerData.languageCode);
+      // send connected message to ws server and server will save given
+      // data to connection. So when connection closed, we will use
+      // customerId to mark customer as not active
 
-    // save customer id to identify visitor next time
-    setLocalStorageItem("customerId", messengerData.customerId);
+      // TODO: temporarily disabling typescript checker
+      const wsLinkFaker: any = wsLink;
 
-    // send connected message to ws server and server will save given
-    // data to connection. So when connection closed, we will use
-    // customerId to mark customer as not active
+      wsLinkFaker.subscriptionClient.sendMessage({
+        type: 'messengerConnected',
+        value: messengerData
+      });
+    },
 
-    // TODO: temporarily disabling typescript checker
-    const wsLinkFaker: any = wsLink;
-
-    wsLinkFaker.subscriptionClient.sendMessage({
-      type: "messengerConnected",
-      value: messengerData
-    });
-  },
-
-  AppContainer: App
+    AppContainer: App
+  });
 });
