@@ -2,7 +2,7 @@
   border-top: 1px solid lighten($grey-light, 1%);
   box-shadow: 0 0 15px 0 rgba($black, 0.1);
   font-size: 12px;
-  min-height: 60px;
+  min-height: 61px;
   overflow: auto;
   position: relative;
   max-height: 50%;
@@ -20,6 +20,7 @@
     color: $text-color;
     font-size: $font-size;
     height: 100%;
+    height: calc(100% - 1px);
     left: 0;
     line-height: 20px;
     max-width: 100%;
@@ -30,6 +31,7 @@
     resize: none;
     top: 0;
     width: 100%;
+    overflow: hidden;
 
     &:focus {
       @include prefix(
