@@ -951,15 +951,13 @@ export const resetConfigsCache = () => {
 
 export const frontendEnv = ({ name, req, requestInfo }: { name: string; req?: any; requestInfo?: any }): string => {
   const cookies = req ? req.cookies : requestInfo.cookies;
-  const keys = Object.keys(cookies).filter(key => key.startsWith('REACT_APP'));
+  const keys = Object.keys(cookies);
 
   const envs: { [key: string]: string } = {};
 
   for (const key of keys) {
     envs[key.replace('REACT_APP_', '')] = cookies[key];
   }
-
-  console.log('req cookies: ', req.cookies);
 
   return envs[name];
 };
