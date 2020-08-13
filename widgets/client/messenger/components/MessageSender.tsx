@@ -70,7 +70,8 @@ class MessageSender extends React.Component<Props, State> {
       return (form.style.height = textarea.style.height = `${height}px`);
     }
 
-    form.style.height = textarea.style.height = `${textarea.scrollHeight}px`;
+    form.style.height = `${textarea.scrollHeight}px`;
+    textarea.style.height = `${textarea.scrollHeight - 1}px`;
   }
 
   setArea = (textarea: HTMLTextAreaElement) => {
