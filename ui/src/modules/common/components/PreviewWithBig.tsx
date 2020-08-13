@@ -1,5 +1,4 @@
 import React from "react";
-import { __ } from "modules/common/utils";
 
 class PreviewWithBig extends React.Component<any, any> {
   

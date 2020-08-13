@@ -4,7 +4,6 @@ import { IAttachment } from "../types";
 import Icon from "modules/common/components/Icon";
 import Spinner from "./Spinner";
 import PreviewWithBig from "./PreviewWithBig";
-
 import {
   AttachmentWrapper,
   UploadBtn,
@@ -19,6 +18,9 @@ import {
   ItemInfo,
   Meta,
   BiggerPreviewWrapper,
+    Next,
+    Previous,
+    Close
 } from "../styles/attachmentcss";
 
 type Props = {
@@ -38,6 +40,14 @@ type State = {
   currentIndex: number;
 };
 
+const KEYCODES = {
+  ESCAPE: 27,
+  left : 37,
+  up : 38,
+  right : 39,
+  down : 40
+};
+
 class AttachmentPreview extends React.Component<Props, State> {
   static defaultProps = {
     multiple: true,
@@ -55,6 +65,27 @@ class AttachmentPreview extends React.Component<Props, State> {
     };
   }
 
+
+
+  componentDidMount() {
+    document.addEventListener('keydown', this.handleNextPreviousDown );
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleNextPreviousDown );
+  }
+
+
+  handleNextPreviousDown = e => {
+    if(e.keyCode === KEYCODES.right){
+      this.handleNext(this.state.currentIndex)
+    } else if(e.keyCode === KEYCODES.left) {
+      this.handlePrevious(this.state.currentIndex)
+    } else if(e.keyCode === KEYCODES.ESCAPE){
+      this.handleClose()
+    }
+  }
+
   toggleAttachments = () => {
     this.setState({ hideOthers: !this.state.hideOthers });
   };
@@ -65,16 +96,8 @@ class AttachmentPreview extends React.Component<Props, State> {
 
   handleClose = () => {
     this.setState({
-      visible: false,
+      visible: false
     });
-  };
-
-  handleOpen = (index, item) => {
-    this.setState({
-      visible: true,
-      currentIndex: index,
-    });
-    console.log(item);
   };
 
   renderToggleButton = (hiddenCount: number) => {
@@ -187,34 +210,22 @@ class AttachmentPreview extends React.Component<Props, State> {
 
   renderAttachments(item, index) {
     return (
-      <Item key={item.url} onClick={() => this.handleOpen(index, item)}>
+      <Item key={item.url} onClick={this.handleOpen.bind(this,item,index)}>
         <AttachmentWrapper>
           <PreviewWrapper>
-            <img
-              style={{ borderRadius: "5px" }}
-              alt={this.state.attachments[index].url}
-              src={this.state.attachments[index].url}
-            />
+            {this.renderFiles(item)}
           </PreviewWrapper>
           <ItemInfo>{this.renderOtherInfo(item)}</ItemInfo>
         </AttachmentWrapper>
-        <Delete onClick={() => this.removeAttachment(index)}>
+        <Delete onClick={this.removeAttachment.bind(this,index)}>
           <Icon icon="trash-alt" />
         </Delete>
       </Item>
     );
   }
 
-  onLoadImage = () => {
-    const { scrollBottom } = this.props;
-
-    if (scrollBottom) {
-      scrollBottom();
-    }
-  };
-
   handleNext = (currentIndex) => {
-    let nextIndex = currentIndex + 1;
+    const nextIndex = currentIndex + 1;
     if (nextIndex > this.state.attachments.length - 1) {
       this.setState({ currentIndex: 0 });
     } else {
@@ -223,27 +234,49 @@ class AttachmentPreview extends React.Component<Props, State> {
   };
 
   handlePrevious = (currentIndex) => {
-    if (currentIndex > 0)
+    if (currentIndex > 0) {
       this.setState({
         currentIndex: currentIndex - 1,
       });
-    else
+    }
+    else {
       this.setState({
         currentIndex: this.state.attachments.length - 1,
       });
+    }
   };
 
-  // renderFiles = () => {
-  //   this.state.attachments.map((attachment) => {
-  //     if(attachment.type.startsWith('image')){
-  //       <img style={{ width: 100 }} src={attachment.url}/> 
-  //     } else {
-  //       <Icon style={{ width: 100 }} icon={'trash-alt'}/> 
-  //     }
-  //   }
-       
-  //   );
-  // };
+  handleOpen = (item: IAttachment, index) => {
+    this.setState({
+      visible: true,
+      currentIndex: index,
+    });
+  };
+
+  renderFiles = (item: IAttachment) => {
+    if (item.type.startsWith('image')) {
+      return <img key={item.url}  src={item.url} alt={item.url}/>
+    }
+      return <Icon key={item.url} style={{width: 100, marginLeft:40}} icon='trash-alt'/>;
+
+  };
+
+  checkingMimeType = (url: string) => {
+    if(url === null){
+      return null
+    }
+
+    const fileExtension = url.split('.').pop() || '';
+    const embeddedURL = `https://docs.google.com/viewer?url=${url}&embedded=true`
+
+    if(fileExtension.startsWith('docx')){
+      return  <iframe key={url}  src={embeddedURL} style={{width: '800px', height:'900px'}} />
+    } else if(fileExtension.startsWith('pdf')){
+      return  <iframe key={url}  src={embeddedURL} style={{width: '800px', height:'900px'}} />
+    }
+    return <img src={url} alt={url} />
+
+  }
 
   render() {
     const { loading, hideOthers, attachments } = this.state;
@@ -268,24 +301,23 @@ class AttachmentPreview extends React.Component<Props, State> {
 
         <PreviewWithBig
           show={this.state.visible}
-          handleClose={() => this.handleClose()}
+          handleClose={this.handleClose}
         >
           <BiggerPreviewWrapper>
-            <button
-              onClick={() => this.handlePrevious(this.state.currentIndex)}
-            >
-              next
-            </button>
-            {/* {this.renderFiles()} */}
-            
-            <img
-              style={{ width: 100 }}
-              src={this.state.attachments[this.state.currentIndex].url}
-            />
-            <button onClick={() => this.handleNext(this.state.currentIndex)}>
-              next
-            </button>
-            <button onClick={() => this.handleClose()}>close</button>
+            <Previous onClick={this.handlePrevious.bind(this, this.state.currentIndex)}>
+              <Icon icon={'arrow-left'}/>
+            </Previous>
+
+            {this.state.attachments[this.state.currentIndex].url ? this.checkingMimeType(this.state.attachments[this.state.currentIndex].url) : null}
+            {/*<img*/}
+            {/*  src={this.state.attachments[this.state.currentIndex].url} alt={this.state.attachments[this.state.currentIndex].url}*/}
+            {/*/>*/}
+            <Next onClick={this.handleNext.bind(this, this.state.currentIndex)}>
+              <Icon icon={'arrow-right'}/>
+            </Next>
+            <Close onClick={this.handleClose}>
+              <Icon icon={'cancel'}/>
+            </Close>
           </BiggerPreviewWrapper>
         </PreviewWithBig>
       </>

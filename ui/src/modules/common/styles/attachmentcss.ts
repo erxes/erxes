@@ -9,6 +9,7 @@ const AttachmentWrapper = styled.div`
   display: flex;
   color: ${colors.textPrimary};
   position: relative;
+  width: 550px
   img {
     max-width: 100%;
   }
@@ -173,6 +174,43 @@ const Image = styled.img`
   }
 `;
 
+const Next = styled.div`
+  right:0
+  border-radius: 45px
+  position: absolute
+  color: black;
+  display: inline-block
+  
+  .icon-arrow-right{
+    font-size: 50px
+  }
+`;
+
+const Previous = styled.div`
+  left:0
+  border-radius: 45px
+  position: absolute
+  color: black;
+  display: inline-block
+  
+  .icon-arrow-left{
+    font-size: 50px
+  }
+`
+
+const Close = styled.div`
+  right: 0
+  top:0
+  color: black
+  display: inline-block
+  position: absolute
+  margin: 10px 20px
+  
+  .icon-cancel{
+    font-size: 25px
+  }
+`
+
 export {
   AttachmentWrapper,
   ItemInfo,
@@ -187,5 +225,8 @@ export {
   AttachmentName,
   Meta,
   BiggerPreviewWrapper,
-  Image
+  Image,
+    Next,
+    Previous,
+    Close
 };
