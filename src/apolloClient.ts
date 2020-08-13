@@ -58,6 +58,8 @@ const apolloServer = new ApolloServer({
       };
     }
 
+    console.log('res: ', res.cookies);
+
     const requestInfo = {
       secure: req.secure,
       cookies: req.cookies,

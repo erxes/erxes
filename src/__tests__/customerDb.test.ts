@@ -564,6 +564,7 @@ describe('Customers model tests', () => {
       customData: {
         firstName: 'firstName',
       },
+      hostname: '',
     });
 
     expect(customer).toBeDefined();
