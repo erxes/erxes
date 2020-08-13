@@ -277,6 +277,8 @@ const widgetMutations = {
   ) {
     const { brandCode, email, phone, code, isUser, companyData, data, cachedCustomerId, deviceToken } = args;
 
+    console.log('requestInfo: ', requestInfo);
+
     const customData = data;
 
     // find brand

@@ -113,7 +113,9 @@ export const single = async (email: string, hostname: string) => {
   if (response.status === 'success') {
     const doc = { email, status: response.result };
 
-    await Emails.createEmail(doc);
+    if (doc.status === EMAIL_VALIDATION_STATUSES.VALID || doc.status === EMAIL_VALIDATION_STATUSES.INVALID) {
+      await Emails.createEmail(doc);
+    }
 
     debugBase(`Sending single email validation status to erxes-api`);
 
@@ -211,16 +213,18 @@ export const getTrueMailBulk = async (taskId: string, hostname: string) => {
         status,
       });
 
-      const found = await Emails.findOne({ email });
+      if (status === EMAIL_VALIDATION_STATUSES.VALID || status === EMAIL_VALIDATION_STATUSES.INVALID) {
+        const found = await Emails.findOne({ email });
 
-      if (!found) {
-        const doc = {
-          email,
-          status,
-          created: new Date(),
-        };
+        if (!found) {
+          const doc = {
+            email,
+            status,
+            created: new Date(),
+          };
 
-        await Emails.create(doc);
+          await Emails.createEmail(doc);
+        }
       }
     }
   }
