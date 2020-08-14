@@ -58,7 +58,7 @@ export const validateBulk = async (verificationType: string, hostname: string) =
     const customersEmailStream = (Customers.find(
       {
         primaryEmail: { $exists: true, $ne: null },
-        emailValidationStatus: 'unknown',
+        $or: [{ emailValidationStatus: 'unknown' }, { emailValidationStatus: { $exists: false } }],
       },
       { primaryEmail: 1, _id: 0 },
     ).limit(1000) as any).stream();
@@ -105,7 +105,7 @@ export const validateBulk = async (verificationType: string, hostname: string) =
   const customersStream = (Customers.find(
     {
       primaryPhone: { $exists: true, $ne: null },
-      phoneValidationStatus: 'unknown',
+      $or: [{ phoneValidationStatus: 'unknown' }, { phoneValidationStatus: { $exists: false } }],
     },
     { primaryPhone: 1, _id: 0 },
   ).limit(1000) as any).stream();
