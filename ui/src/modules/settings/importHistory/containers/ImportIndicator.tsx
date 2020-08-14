@@ -5,13 +5,11 @@ import { Alert, confirm, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import ImportIndicator from '../components/ImportIndicator';
-import { mutations, queries, subscriptions } from '../graphql';
+import { mutations, queries } from '../graphql';
 import {
   CancelMutationResponse,
-  ImportHistoryDetailQueryResponse
+  ImportHistoryDetailQueryResponse,
 } from '../types';
-
-const subscription = gql(subscriptions.importSubscription);
 
 type Props = {
   id: string;
@@ -35,7 +33,7 @@ class ImportIndicatorContainer extends React.Component<
     super(props);
 
     this.state = {
-      percentage: 0
+      percentage: 0,
     };
   }
 
@@ -45,39 +43,32 @@ class ImportIndicatorContainer extends React.Component<
     localStorage.setItem('erxes_import_data_type', '');
   }
 
-  componentWillMount() {
-    const { importHistoryDetailQuery, id } = this.props;
-    importHistoryDetailQuery.subscribeToMore({
-      document: subscription,
-      variables: { _id: id },
-      updateQuery: (prev, { subscriptionData: { data } }) => {
-        const { importHistoryChanged } = data;
-        const { percentage, status, errorMsgs } = importHistoryChanged;
+  componentWillReceiveProps() {
+    const { importHistoryDetailQuery } = this.props;
 
-        if (status === 'Error') {
-          this.clearStorage();
+    const importHistory = importHistoryDetailQuery.importHistoryDetail || {};
+    const queryError = importHistoryDetailQuery.error;
+    const queryErrorMessage =
+      queryError && queryError.message ? queryError.message : '';
+    const { status, errorMsgs } = importHistory;
 
-          return this.setState({ errors: errorMsgs });
-        }
+    if (status === 'Error') {
+      this.clearStorage();
 
-        if (status === 'Removed') {
-          this.clearStorage();
+      this.setState({ errors: errorMsgs });
+    }
 
-          // for refetch list
-          this.props.doneIndicatorAction();
-        }
+    if (queryErrorMessage.includes('not found')) {
+      this.clearStorage();
 
-        if (status === 'Done') {
-          this.clearStorage();
+      return this.props.doneIndicatorAction();
+    }
 
-          return importHistoryDetailQuery.refetch();
-        }
+    if (status === 'Done') {
+      this.clearStorage();
 
-        if (percentage.toFixed(0) !== this.state.percentage) {
-          this.setState({ percentage: percentage.toFixed(0) });
-        }
-      }
-    });
+      importHistoryDetailQuery.refetch();
+    }
   }
 
   render() {
@@ -85,7 +76,7 @@ class ImportIndicatorContainer extends React.Component<
       importHistoryDetailQuery,
       importCancel,
       closeLoadingBar,
-      isRemovingImport
+      isRemovingImport,
     } = this.props;
 
     const importHistory = importHistoryDetailQuery.importHistoryDetail || {};
@@ -93,16 +84,16 @@ class ImportIndicatorContainer extends React.Component<
     const percentage =
       Math.trunc(importHistory.percentage) || this.state.percentage;
 
-    const cancelImport = id => {
+    const cancelImport = (id) => {
       confirm().then(() => {
         importCancel({
-          variables: { _id: id }
+          variables: { _id: id },
         })
           .then(() => {
             Alert.success('You canceled importing action.');
             closeLoadingBar();
           })
-          .catch(e => {
+          .catch((e) => {
             Alert.error(e.message);
             closeLoadingBar();
           });
@@ -131,22 +122,22 @@ const ImportIndicatorWithProps = withProps<{ id: string; close?: () => void }>(
         options: ({ id }) => ({
           fetchPolicy: 'network-only',
           variables: {
-            _id: id
+            _id: id,
           },
-          pollInterval: 20000
-        })
+          pollInterval: 3000,
+        }),
       }
     ),
     graphql<Props, CancelMutationResponse, { _id: string }>(
       gql(mutations.importCancel),
       {
-        name: 'importCancel'
+        name: 'importCancel',
       }
     )
   )(ImportIndicatorContainer)
 );
 
-const WithConsumer = props => {
+const WithConsumer = (props) => {
   return (
     <AppConsumer>
       {({ closeLoadingBar, isRemovingImport, doneIndicatorAction }) => (
