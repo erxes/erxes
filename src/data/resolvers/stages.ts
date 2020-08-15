@@ -35,7 +35,7 @@ export default {
           },
         },
         {
-          $match: { tickUsed: true }
+          $match: { tickUsed: true },
         },
         {
           $group: {
@@ -180,16 +180,32 @@ export default {
       {
         $lookup: {
           from: 'deals',
-          localField: '_id',
-          foreignField: 'stageId',
+          let: { stageId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [{ $eq: ['$stageId', '$$stageId'] }, { $ne: ['$status', 'archived'] }],
+                },
+              },
+            },
+          ],
           as: 'currentDeals',
         },
       },
       {
         $lookup: {
           from: 'deals',
-          localField: '_id',
-          foreignField: 'initialStageId',
+          let: { stageId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [{ $eq: ['$initialStageId', '$$stageId'] }, { $ne: ['$status', 'archived'] }],
+                },
+              },
+            },
+          ],
           as: 'initialDeals',
         },
       },
