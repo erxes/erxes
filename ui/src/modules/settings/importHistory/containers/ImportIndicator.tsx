@@ -8,7 +8,7 @@ import ImportIndicator from '../components/ImportIndicator';
 import { mutations, queries } from '../graphql';
 import {
   CancelMutationResponse,
-  ImportHistoryDetailQueryResponse,
+  ImportHistoryDetailQueryResponse
 } from '../types';
 
 type Props = {
@@ -33,7 +33,7 @@ class ImportIndicatorContainer extends React.Component<
     super(props);
 
     this.state = {
-      percentage: 0,
+      percentage: 0
     };
   }
 
@@ -43,40 +43,12 @@ class ImportIndicatorContainer extends React.Component<
     localStorage.setItem('erxes_import_data_type', '');
   }
 
-  componentWillReceiveProps() {
-    const { importHistoryDetailQuery } = this.props;
-
-    const importHistory = importHistoryDetailQuery.importHistoryDetail || {};
-    const queryError = importHistoryDetailQuery.error;
-    const queryErrorMessage =
-      queryError && queryError.message ? queryError.message : '';
-    const { status, errorMsgs } = importHistory;
-
-    if (status === 'Error') {
-      this.clearStorage();
-
-      this.setState({ errors: errorMsgs });
-    }
-
-    if (queryErrorMessage.includes('not found')) {
-      this.clearStorage();
-
-      return this.props.doneIndicatorAction();
-    }
-
-    if (status === 'Done') {
-      this.clearStorage();
-
-      importHistoryDetailQuery.refetch();
-    }
-  }
-
   render() {
     const {
       importHistoryDetailQuery,
       importCancel,
       closeLoadingBar,
-      isRemovingImport,
+      isRemovingImport
     } = this.props;
 
     const importHistory = importHistoryDetailQuery.importHistoryDetail || {};
@@ -84,16 +56,16 @@ class ImportIndicatorContainer extends React.Component<
     const percentage =
       Math.trunc(importHistory.percentage) || this.state.percentage;
 
-    const cancelImport = (id) => {
+    const cancelImport = id => {
       confirm().then(() => {
         importCancel({
-          variables: { _id: id },
+          variables: { _id: id }
         })
           .then(() => {
             Alert.success('You canceled importing action.');
             closeLoadingBar();
           })
-          .catch((e) => {
+          .catch(e => {
             Alert.error(e.message);
             closeLoadingBar();
           });
@@ -122,22 +94,22 @@ const ImportIndicatorWithProps = withProps<{ id: string; close?: () => void }>(
         options: ({ id }) => ({
           fetchPolicy: 'network-only',
           variables: {
-            _id: id,
+            _id: id
           },
-          pollInterval: 3000,
-        }),
+          pollInterval: 3000
+        })
       }
     ),
     graphql<Props, CancelMutationResponse, { _id: string }>(
       gql(mutations.importCancel),
       {
-        name: 'importCancel',
+        name: 'importCancel'
       }
     )
   )(ImportIndicatorContainer)
 );
 
-const WithConsumer = (props) => {
+const WithConsumer = props => {
   return (
     <AppConsumer>
       {({ closeLoadingBar, isRemovingImport, doneIndicatorAction }) => (
