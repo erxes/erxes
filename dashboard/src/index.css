@@ -1,5 +1,5 @@
 body {
-  background-color: #f0f2f5;
+  background: linear-gradient(to right, #aa4b6b, #6b6b83, #3b8d99);
 }
 
 #root {
