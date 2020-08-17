@@ -1,9 +1,6 @@
-import { frontendEnv } from '../data/utils';
 import { Scripts } from '../db/models';
 
 const widgetsMiddleware = async (req, res) => {
-  const domain = frontendEnv({ name: 'CDN_HOST', req });
-
   const script = await Scripts.findOne({ _id: req.query.id });
 
   if (!script) {
@@ -14,7 +11,7 @@ const widgetsMiddleware = async (req, res) => {
     return `
       (function() {
         var script = document.createElement('script');
-        script.src = "${domain}/build/${type}Widget.bundle.js";
+        script.src = "${req.headers.origin}/build/${type}Widget.bundle.js";
         script.async = true;
         
         var entry = document.getElementsByTagName('script')[0];

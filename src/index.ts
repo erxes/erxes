@@ -97,7 +97,7 @@ app.get('/set-frontend-cookies', async (req: any, res) => {
   return res.send('success');
 });
 
-app.get('/script-manager', widgetsMiddleware);
+app.get('/script-manager', cors({ origin: '*' }), widgetsMiddleware);
 
 // events
 app.post('/events-receive', async (req, res) => {
