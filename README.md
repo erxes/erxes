@@ -13,6 +13,11 @@
   <a href="https://codeclimate.com/github/erxes/erxes/maintainability">
       <img alt="Codeclimate Badge" src="https://api.codeclimate.com/v1/badges/693e2ffc40bc2601630d/maintainability">
   </a>
+ 
+   <a href="https://github.com/erxes/erxes/blob/master/LICENSE.md">
+      <img alt="License Badge" src="https://img.shields.io/badge/license-GNU%20GPL%20v3.0-brightgreen">
+  </a>
+ 
   <a href="https://bettercodehub.com/results/erxes/erxes">
       <img alt="Bettercode" src="https://bettercodehub.com/edge/badge/erxes/erxes?branch=master">
   </a>
