@@ -1,10 +1,13 @@
 import * as sinon from 'sinon';
 import { accountFactory, integrationFactory } from '../factories';
+import { initMemoryStorage } from '../inmemoryStorage';
 import * as message from '../messageBroker';
 import { ConversationMessages, Conversations, Customers } from '../twitter/models';
 import receiveDms from '../twitter/receiveDms';
 import { createConverstaionMessage, getOrCreateConversation, getOrCreateCustomer } from '../twitter/store';
 import './setup.ts';
+
+initMemoryStorage();
 
 describe('Twitter test test', () => {
   const users = {

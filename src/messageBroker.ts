@@ -1,27 +1,15 @@
-import * as amqplib from 'amqplib';
 import * as dotenv from 'dotenv';
-import { v4 as uuid } from 'uuid';
 
-import { debugBase, debugGmail } from './debuggers';
+import { debugGmail } from './debuggers';
 import { removeAccount, removeCustomers } from './helpers';
 
+import messageBroker from 'erxes-message-broker';
 import { handleFacebookMessage } from './facebook/handleFacebookMessage';
 import { watchPushNotification } from './gmail/watch';
 import { Integrations } from './models';
 import { getLineWebhookUrl } from './smooch/api';
 
-dotenv.config();
-
-const { NODE_ENV, RABBITMQ_HOST = 'amqp://localhost' } = process.env;
-
-let conn;
-let channel;
-
 const handleRunCronMessage = async () => {
-  if (NODE_ENV === 'test') {
-    return;
-  }
-
   const integrations = await Integrations.aggregate([
     {
       $match: { email: { $exists: true } }, // email field indicates the gmail
@@ -63,143 +51,79 @@ const handleRunCronMessage = async () => {
   }
 };
 
-export const sendRPCMessage = async (message): Promise<any> => {
-  const response = await new Promise((resolve, reject) => {
-    const correlationId = uuid();
+dotenv.config();
 
-    return channel.assertQueue('', { exclusive: true }).then(q => {
-      channel.consume(
-        q.queue,
-        msg => {
-          if (!msg) {
-            return reject(new Error('consumer cancelled by rabbitmq'));
-          }
+let client;
 
-          if (msg.properties.correlationId === correlationId) {
-            const res = JSON.parse(msg.content.toString());
-
-            if (res.status === 'success') {
-              resolve(res.data);
-            } else {
-              reject(new Error(res.errorMessage));
-            }
-
-            channel.deleteQueue(q.queue);
-          }
-        },
-        { noAck: true },
-      );
-
-      channel.sendToQueue('rpc_queue:integrations_to_api', Buffer.from(JSON.stringify(message)), {
-        correlationId,
-        replyTo: q.queue,
-      });
-    });
+export const initBroker = async () => {
+  client = await messageBroker({
+    name: 'integrations',
+    RABBITMQ_HOST: process.env.RABBITMQ_HOST,
   });
 
-  return response;
+  const { consumeQueue, consumeRPCQueue } = client;
+
+  // listen for rpc queue =========
+  consumeRPCQueue('rpc_queue:api_to_integrations', async parsedObject => {
+    const { action, data } = parsedObject;
+
+    let response = null;
+
+    if (action === 'remove-account') {
+      try {
+        response = {
+          status: 'success',
+          data: await removeAccount(data._id),
+        };
+      } catch (e) {
+        response = {
+          status: 'error',
+          errorMessage: e.message,
+        };
+      }
+    } else if (action === 'line-webhook') {
+      try {
+        response = {
+          status: 'success',
+          data: await getLineWebhookUrl(data._id),
+        };
+      } catch (e) {
+        response = {
+          status: 'error',
+          errorMessage: e.message,
+        };
+      }
+    }
+
+    return response;
+  });
+
+  consumeQueue('erxes-api:integrations-notification', async content => {
+    if (content.type === 'cancelImport') {
+      const { type } = content;
+
+      switch (type) {
+        case 'facebook':
+          await handleFacebookMessage(content);
+          break;
+        case 'cronjob':
+          await handleRunCronMessage();
+          break;
+        case 'removeCustomers':
+          await removeCustomers(content);
+      }
+    }
+  });
+};
+
+export default function() {
+  return client;
+}
+
+export const sendRPCMessage = async (message): Promise<any> => {
+  return client.sendRPCMessage('rpc_queue:integrations_to_api', message);
 };
 
 export const sendMessage = async (data?: any) => {
-  await channel.assertQueue('integrationsNotification');
-  await channel.sendToQueue('integrationsNotification', Buffer.from(JSON.stringify(data || {})));
-};
-
-export const initConsumer = async () => {
-  // Consumer
-  try {
-    conn = await amqplib.connect(RABBITMQ_HOST);
-    channel = await conn.createChannel();
-
-    await channel.assertQueue('erxes-api:integrations-notification');
-
-    channel.consume('erxes-api:integrations-notification', async msg => {
-      if (msg) {
-        const content = JSON.parse(msg.content.toString());
-        const { type } = content;
-
-        debugBase(`Received message from api ${msg.content.toString()}`);
-
-        switch (type) {
-          case 'facebook':
-            await handleFacebookMessage(content);
-          case 'cronjob':
-            await handleRunCronMessage();
-          case 'removeCustomers':
-            await removeCustomers(content);
-        }
-
-        channel.ack(msg);
-      }
-    });
-
-    // listen for rpc queue from api =========
-    await channel.assertQueue('rpc_queue:api_to_integrations');
-
-    channel.consume('rpc_queue:api_to_integrations', async msg => {
-      if (msg !== null) {
-        debugBase(`Received rpc queue message ${msg.content.toString()}`);
-
-        const parsedObject = JSON.parse(msg.content.toString());
-
-        const { action, data } = parsedObject;
-
-        let response = null;
-
-        if (action === 'remove-account') {
-          try {
-            response = {
-              status: 'success',
-              data: await removeAccount(data._id),
-            };
-          } catch (e) {
-            response = {
-              status: 'error',
-              errorMessage: e.message,
-            };
-          }
-        } else if (action === 'line-webhook') {
-          try {
-            response = {
-              status: 'success',
-              data: await getLineWebhookUrl(data._id),
-            };
-          } catch (e) {
-            response = {
-              status: 'error',
-              errorMessage: e.message,
-            };
-          }
-        }
-
-        channel.sendToQueue(msg.properties.replyTo, Buffer.from(JSON.stringify(response)), {
-          correlationId: msg.properties.correlationId,
-        });
-
-        channel.ack(msg);
-      }
-    });
-  } catch (e) {
-    debugBase(e.message);
-  }
-};
-
-/**
- * Health check rabbitMQ
- */
-export const rabbitMQStatus = async () => {
-  return new Promise((resolve, reject) => {
-    // tslint:disable-next-line:no-submodule-imports
-    import('amqplib/callback_api')
-      .then(amqp => {
-        amqp.connect(RABBITMQ_HOST, error => {
-          if (error) {
-            return reject(error);
-          }
-
-          return resolve('ok');
-        });
-      })
-      .catch(e => reject(e));
-  });
+  return client.sendMessage('integrationsNotification', data);
 };

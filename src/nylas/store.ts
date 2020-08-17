@@ -1,6 +1,6 @@
 import { debugNylas } from '../debuggers';
+import memoryStorage from '../inmemoryStorage';
 import { sendRPCMessage } from '../messageBroker';
-import { inArray } from '../redisClient';
 import { cleanHtml } from '../utils';
 import {
   NylasExchangeConversationMessages,
@@ -229,7 +229,7 @@ const createOrGetNylasConversationMessage = async ({
     createdAt,
   };
 
-  const isUnreadMessage = await inArray('nylas_unread_messageId', message.id);
+  const isUnreadMessage = await memoryStorage().inArray('nylas_unread_messageId', message.id);
 
   // fields to save on api
   const api = {

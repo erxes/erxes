@@ -84,6 +84,7 @@ const init = async app => {
             phones: [numberFrom],
           }),
         });
+
         customer.erxesApiId = apiCustomerResponse._id;
         await customer.save();
       } catch (e) {

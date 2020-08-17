@@ -2,6 +2,7 @@ import * as request from 'request-promise';
 import * as sinon from 'sinon';
 import { integrationFactory } from '../factories';
 import { updateIntegrationConfigs } from '../helpers';
+import { initMemoryStorage } from '../inmemoryStorage';
 import * as messageBroker from '../messageBroker';
 import * as whatsappUtils from '../whatsapp/api';
 import { IAttachment } from '../whatsapp/api';
@@ -9,6 +10,8 @@ import { ConversationMessages, Conversations, Customers } from '../whatsapp/mode
 import receiveMessage from '../whatsapp/receiveMessage';
 import { createMessage, createOrUpdateConversation, getOrCreateCustomer } from '../whatsapp/store';
 import './setup.ts';
+
+initMemoryStorage();
 
 describe('WhatsApp test', () => {
   const uid = 'alksjdlkasjdlkajsldkjakld';

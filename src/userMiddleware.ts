@@ -1,4 +1,4 @@
-import { inArray } from './redisClient';
+import { sendRPCMessage } from './messageBroker';
 
 const EXCLUDE_PATH = [
   '/nylas/webhook',
@@ -8,11 +8,18 @@ const EXCLUDE_PATH = [
   '/gmaillogin',
 ];
 
+let userIds = [];
+
 const userMiddleware = async (req, _res, next) => {
   const { path, headers, query } = req;
 
   if (EXCLUDE_PATH.includes(path)) {
     return next();
+  }
+
+  if (userIds.length === 0) {
+    const response = await sendRPCMessage({ action: 'getUserIds' });
+    userIds = response.userIds;
   }
 
   if (
@@ -24,7 +31,7 @@ const userMiddleware = async (req, _res, next) => {
     try {
       const userId = headers.userid || query.userId;
 
-      if (await inArray('userIds', userId)) {
+      if (userIds.includes(userId)) {
         return next();
       }
 

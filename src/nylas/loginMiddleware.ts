@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 import * as querystring from 'querystring';
 import { debugNylas, debugRequest } from '../debuggers';
-import { set } from '../redisClient';
+import memoryStorage from '../inmemoryStorage';
 import { generateUid, sendRequest } from '../utils';
 import { checkCredentials } from './api';
 import { AUTHORIZED_REDIRECT_URL, GOOGLE_OAUTH_TOKEN_VALIDATION_URL, MICROSOFT_GRAPH_URL } from './constants';
@@ -109,7 +109,7 @@ const getOAuthCredential = async (req, res, next) => {
   const uid = generateUid();
   // We will use email and refresh_token
   // when user create the Gmail or O365 integration
-  await set(`${uid}-credential`, `${email},${refresh_token}`);
+  await memoryStorage().set(`${uid}-credential`, `${email},${refresh_token}`);
 
   return res.redirect(`${AUTHORIZED_REDIRECT_URL}?uid=${uid}#show${kind}Modal=true`);
 };

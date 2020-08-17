@@ -1,6 +1,6 @@
 import { debugNylas } from '../debuggers';
+import memoryStorage from '../inmemoryStorage';
 import { Integrations } from '../models';
-import { addToArray, removeFromArray } from '../redisClient';
 import { sendRequest } from '../utils';
 import { getAttachment, sendMessage, uploadFile } from './api';
 import {
@@ -126,7 +126,7 @@ export const nylasSendEmail = async (erxesApiId: string, params: any) => {
     const message = await sendMessage(integration.nylasToken, doc);
 
     if (!shouldResolve) {
-      await addToArray('nylas_unread_messageId', message.id);
+      await memoryStorage().addToArray('nylas_unread_messageId', message.id);
 
       // Set mail to inbox
       await sendRequest({
@@ -138,7 +138,7 @@ export const nylasSendEmail = async (erxesApiId: string, params: any) => {
         body: { unread: true },
       });
 
-      await removeFromArray('nylas_unread_messageId', message.id);
+      await memoryStorage().removeFromArray('nylas_unread_messageId', message.id);
     }
 
     debugNylas('Successfully sent message');

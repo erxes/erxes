@@ -2,10 +2,10 @@ import * as dotenv from 'dotenv';
 import * as request from 'request-promise';
 import * as sanitizeHtml from 'sanitize-html';
 import { debugBase, debugExternalRequests } from './debuggers';
+import memoryStorage from './inmemoryStorage';
 import { sendRPCMessage } from './messageBroker';
 import Configs from './models/Configs';
 import { IProviderSettings } from './nylas/types';
-import { get, set } from './redisClient';
 
 dotenv.config();
 
@@ -151,7 +151,7 @@ export const downloadAttachment = urlOrName => {
 };
 
 export const getConfigs = async () => {
-  const configsCache = await get('configs_erxes_integrations');
+  const configsCache = await memoryStorage().get('configs_erxes_integrations');
 
   if (configsCache && configsCache !== '{}') {
     return JSON.parse(configsCache);
@@ -164,7 +164,7 @@ export const getConfigs = async () => {
     configsMap[config.code] = config.value;
   }
 
-  set('configs_erxes_integrations', JSON.stringify(configsMap));
+  memoryStorage().set('configs_erxes_integrations', JSON.stringify(configsMap));
 
   return configsMap;
 };
@@ -193,7 +193,7 @@ export const getCommonGoogleConfigs = async () => {
 };
 
 export const resetConfigsCache = () => {
-  set('configs_erxes_integrations', '');
+  memoryStorage().set('configs_erxes_integrations', '');
 };
 
 export const generateUid = () => {
