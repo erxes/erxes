@@ -312,7 +312,7 @@ const widgetMutations = {
 
     customer = customer
       ? await Customers.updateMessengerCustomer({ _id: customer._id, doc, customData })
-      : await Customers.createMessengerCustomer({ doc, customData, hostname: requestInfo.hostname });
+      : await Customers.createMessengerCustomer({ doc, customData });
 
     // get or create company
     if (companyData && companyData.name) {

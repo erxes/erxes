@@ -35,7 +35,6 @@ interface ICreateMessengerCustomerParams {
     deviceToken?: string;
   };
   customData?: any;
-  hostname: string;
 }
 
 export interface IUpdateMessengerCustomerParams {
@@ -49,7 +48,6 @@ export interface IUpdateMessengerCustomerParams {
     deviceToken?: string;
   };
   customData?: any;
-  hostname?: string;
 }
 
 export interface IVisitorContactInfoParams {
@@ -70,8 +68,8 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
   getCustomer(_id: string): Promise<ICustomerDocument>;
   getCustomerName(customer: ICustomer): string;
   createVisitor(): Promise<string>;
-  createCustomer(doc: ICustomer, user?: IUserDocument, hostname?: string): Promise<ICustomerDocument>;
-  updateCustomer(_id: string, doc: ICustomer, hostname: string): Promise<ICustomerDocument>;
+  createCustomer(doc: ICustomer, user?: IUserDocument): Promise<ICustomerDocument>;
+  updateCustomer(_id: string, doc: ICustomer): Promise<ICustomerDocument>;
   markCustomerAsActive(customerId: string): Promise<ICustomerDocument>;
   markCustomerAsNotActive(_id: string): Promise<ICustomerDocument>;
   removeCustomers(customerIds: string[]): Promise<{ n: number; ok: number }>;
@@ -209,11 +207,7 @@ export const loadClass = () => {
     /**
      * Create a customer
      */
-    public static async createCustomer(
-      doc: ICustomer,
-      user?: IUserDocument,
-      hostname?: string,
-    ): Promise<ICustomerDocument> {
+    public static async createCustomer(doc: ICustomer, user?: IUserDocument): Promise<ICustomerDocument> {
       // Checking duplicated fields of customer
       await Customers.checkDuplication(doc);
 
@@ -243,11 +237,11 @@ export const loadClass = () => {
       });
 
       if (doc.primaryEmail && !doc.emailValidationStatus) {
-        validateSingle({ email: doc.primaryEmail }, hostname);
+        validateSingle({ email: doc.primaryEmail });
       }
 
       if (doc.primaryPhone && !doc.phoneValidationStatus) {
-        validateSingle({ phone: doc.primaryPhone }, hostname);
+        validateSingle({ phone: doc.primaryPhone });
       }
 
       // calculateProfileScore
@@ -265,7 +259,7 @@ export const loadClass = () => {
     /*
      * Update customer
      */
-    public static async updateCustomer(_id: string, doc: ICustomer, hostname: string) {
+    public static async updateCustomer(_id: string, doc: ICustomer) {
       // Checking duplicated fields of customer
       await Customers.checkDuplication(doc, _id);
 
@@ -280,7 +274,7 @@ export const loadClass = () => {
         if (doc.primaryEmail !== oldCustomer.primaryEmail) {
           doc.emailValidationStatus = 'unknown';
 
-          validateSingle({ email: doc.primaryEmail }, hostname);
+          validateSingle({ email: doc.primaryEmail });
         }
       }
 
@@ -290,7 +284,7 @@ export const loadClass = () => {
         if (doc.primaryPhone !== oldCustomer.primaryPhone) {
           doc.phoneValidationStatus = 'unknown';
 
-          validateSingle({ phone: doc.primaryPhone }, hostname);
+          validateSingle({ phone: doc.primaryPhone });
         }
       }
 
@@ -479,19 +473,15 @@ export const loadClass = () => {
       phones = Array.from(new Set(phones));
 
       // Creating customer with properties
-      const customer = await this.createCustomer(
-        {
-          ...customerFields,
-          scopeBrandIds,
-          customFieldsData,
-          tagIds,
-          mergedIds: customerIds,
-          emails,
-          phones,
-        },
-        user,
-        'hostname',
-      );
+      const customer = await this.createCustomer({
+        ...customerFields,
+        scopeBrandIds,
+        customFieldsData,
+        tagIds,
+        mergedIds: customerIds,
+        emails,
+        phones,
+      });
 
       // Updating every modules associated with customers
       await Conformities.changeConformity({ type: 'customer', newTypeId: customer._id, oldTypeIds: customerIds });
@@ -617,20 +607,16 @@ export const loadClass = () => {
     /*
      * Create a new messenger customer
      */
-    public static async createMessengerCustomer({ doc, customData, hostname }: ICreateMessengerCustomerParams) {
+    public static async createMessengerCustomer({ doc, customData }: ICreateMessengerCustomerParams) {
       this.fixListFields(doc, customData);
 
-      return this.createCustomer(
-        {
-          ...doc,
-          trackedData: Fields.generateTypedListFromMap(customData),
-          lastSeenAt: new Date(),
-          isOnline: true,
-          sessionCount: 1,
-        },
-        undefined,
-        hostname,
-      );
+      return this.createCustomer({
+        ...doc,
+        trackedData: Fields.generateTypedListFromMap(customData),
+        lastSeenAt: new Date(),
+        isOnline: true,
+        sessionCount: 1,
+      });
     }
 
     /*

@@ -100,7 +100,7 @@ export const single = async (email: string, hostname: string) => {
 
   if (EMAIL_VERIFICATION_TYPE === 'truemail') {
     try {
-      debugBase(`Email is not found on verifier DB. Sending request to clearoutphone`);
+      debugBase(`Email is not found on verifier DB. Sending request to truemail`);
       response = await singleTrueMail(email);
 
       debugBase(`Received single email validation status`);

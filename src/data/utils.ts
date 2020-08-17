@@ -966,6 +966,7 @@ export const getSubServiceDomain = ({ name }: { name: string }): string => {
   const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
 
   const defaultMappings = {
+    API_DOMAIN: `${MAIN_APP_DOMAIN}/api`,
     WIDGETS_DOMAIN: `${MAIN_APP_DOMAIN}/widgets`,
     INTEGRATIONS_API_DOMAIN: `${MAIN_APP_DOMAIN}/integrations`,
     LOGS_API_DOMAIN: `${MAIN_APP_DOMAIN}/logs`,
