@@ -6,7 +6,7 @@ import * as os from 'os';
 import * as path from 'path';
 import * as XlsxStreamReader from 'xlsx-stream-reader';
 import { checkFieldNames } from '../data/modules/fields/utils';
-import { deleteFileAWS, s3Stream, uploadsFolderPath } from '../data/utils';
+import { deleteFile, s3Stream, uploadsFolderPath } from '../data/utils';
 import { ImportHistory } from '../db/models';
 import ImportHistories from '../db/models/ImportHistory';
 import { debugImport, debugWorkers } from '../debuggers';
@@ -348,9 +348,7 @@ export const receiveImportCreate = async (content: any) => {
 
     await createWorkers(workerPath, workerData, results);
 
-    if (uploadType === 'AWS') {
-      await deleteFileAWS(fileName);
-    }
+    await deleteFile(fileName);
 
     return { id: importHistory.id };
   } catch (e) {

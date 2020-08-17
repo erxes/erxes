@@ -1,6 +1,6 @@
 import { ActivityLogs, Customers } from '../../../db/models';
 import { ICustomer } from '../../../db/models/definitions/customers';
-import { sendMessage } from '../../../messageBroker';
+import messageBroker from '../../../messageBroker';
 import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
@@ -81,7 +81,7 @@ const customerMutations = {
 
     await Customers.removeCustomers(customerIds);
 
-    await sendMessage('erxes-api:integrations-notification', {
+    await messageBroker().sendMessage('erxes-api:integrations-notification', {
       type: 'removeCustomers',
       customerIds,
     });
@@ -92,7 +92,7 @@ const customerMutations = {
       await putDeleteLog({ type: MODULE_NAMES.CUSTOMER, object: customer }, user);
 
       if (customer.mergedIds) {
-        await sendMessage('erxes-api:integrations-notification', {
+        await messageBroker().sendMessage('erxes-api:integrations-notification', {
           type: 'removeCustomers',
           customerIds: customer.mergedIds,
         });

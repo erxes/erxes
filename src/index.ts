@@ -28,11 +28,11 @@ import { updateContactsValidationStatus, updateContactValidationStatus } from '.
 import { connect, mongoStatus } from './db/connection';
 import { debugBase, debugExternalApi, debugInit } from './debuggers';
 import { identifyCustomer, trackCustomEvent, trackViewPageEvent, updateCustomerProperty } from './events';
-import { initConsumer, rabbitMQStatus } from './messageBroker';
+import { initMemoryStorage } from './inmemoryStorage';
+import { initBroker } from './messageBroker';
 import { importer, uploader } from './middlewares/fileMiddleware';
 import userMiddleware from './middlewares/userMiddleware';
 import widgetsMiddleware from './middlewares/widgetsMiddleware';
-import { initRedis, redisStatus } from './redisClient';
 import init from './startup';
 
 // load environment variables
@@ -155,20 +155,6 @@ app.get('/status', async (_req, res, next) => {
     await mongoStatus();
   } catch (e) {
     debugBase('MongoDB is not running');
-    return next(e);
-  }
-
-  try {
-    await redisStatus();
-  } catch (e) {
-    debugBase('Redis is not running');
-    return next(e);
-  }
-
-  try {
-    await rabbitMQStatus();
-  } catch (e) {
-    debugBase('RabbitMQ is not running');
     return next(e);
   }
 
@@ -354,11 +340,11 @@ apolloServer.installSubscriptionHandlers(httpServer);
 httpServer.listen(PORT, () => {
   // connect to mongo database
   connect().then(async () => {
-    initConsumer().catch(e => {
-      debugBase(`Error ocurred during rabbitmq init ${e.message}`);
+    initBroker().catch(e => {
+      debugBase(`Error ocurred during message broker init ${e.message}`);
     });
 
-    initRedis();
+    initMemoryStorage();
 
     init()
       .then(() => {

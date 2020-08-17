@@ -3,7 +3,7 @@ import { Channels, Customers, EmailDeliveries, Integrations } from '../../../db/
 import { IIntegration, IMessengerData, IUiOptions } from '../../../db/models/definitions/integrations';
 import { IExternalIntegrationParams } from '../../../db/models/Integrations';
 import { debugExternalApi } from '../../../debuggers';
-import { sendRPCMessage } from '../../../messageBroker';
+import messageBroker from '../../../messageBroker';
 import { MODULE_NAMES, RABBITMQ_QUEUES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
@@ -241,7 +241,7 @@ const integrationMutations = {
    */
   async integrationsRemoveAccount(_root, { _id }: { _id: string }) {
     try {
-      const { erxesApiIds } = await sendRPCMessage(RABBITMQ_QUEUES.RPC_API_TO_INTEGRATIONS, {
+      const { erxesApiIds } = await messageBroker().sendRPCMessage(RABBITMQ_QUEUES.RPC_API_TO_INTEGRATIONS, {
         action: 'remove-account',
         data: { _id },
       });

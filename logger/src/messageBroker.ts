@@ -1,35 +1,19 @@
-import * as amqplib from 'amqplib';
 import * as dotenv from 'dotenv';
-import { debugBase } from './debuggers';
+import messageBroker from 'erxes-message-broker';
 import { receivePutLogCommand } from './utils';
 
 dotenv.config();
 
-const { RABBITMQ_HOST = 'amqp://localhost' } = process.env;
+let client;
 
-let connection;
-let channel;
+export const initBroker = async () => {
+  client = await messageBroker({ name: 'logger', RABBITMQ_HOST: process.env.RABBITMQ_HOST });
 
-const init = async () => {
-  try {
-    connection = await amqplib.connect(RABBITMQ_HOST);
-    channel = await connection.createChannel();
+  const { consumeQueue } = client;
 
-    // main api =========
-    await channel.assertQueue('putLog');
-
-    channel.consume('putLog', async msg => {
-      if (msg !== null) {
-        const content = msg.content.toString();
-
-        await receivePutLogCommand(JSON.parse(content));
-
-        channel.ack(msg);
-      }
-    });
-  } catch (e) {
-    debugBase(e.message);
-  }
+  consumeQueue('putLog', async data => {
+    await receivePutLogCommand(data);
+  });
 };
 
-init();
+export default client;

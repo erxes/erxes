@@ -12,7 +12,7 @@ import { IMessageDocument } from '../../../db/models/definitions/conversationMes
 import { IConversationDocument } from '../../../db/models/definitions/conversations';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { debugExternalApi } from '../../../debuggers';
-import { sendMessage } from '../../../messageBroker';
+import messageBroker from '../../../messageBroker';
 import { graphqlPubsub } from '../../../pubsub';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
@@ -56,7 +56,7 @@ const sendConversationToIntegrations = (
       attachments.push({ type: 'image', url: img });
     });
 
-    return sendMessage('erxes-api:integrations-notification', {
+    return messageBroker().sendMessage('erxes-api:integrations-notification', {
       action,
       type,
       payload: JSON.stringify({

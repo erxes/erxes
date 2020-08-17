@@ -993,7 +993,6 @@ describe('conversationQueries', () => {
 
   test('Conversation detail product board', async () => {
     const messengerConversation = await conversationFactory();
-    console.log('response = ', messengerConversation);
     await conversationMessageFactory({
       conversationId: messengerConversation._id,
       contentType: MESSAGE_TYPES.VIDEO_CALL,

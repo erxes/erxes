@@ -14,8 +14,6 @@ import {
   Tickets,
   Users,
 } from '../db/models';
-import { initRabbitMQ } from '../messageBroker';
-import { graphqlPubsub } from '../pubsub';
 import { clearEmptyValues, connect, updateDuplicatedValue } from './utils';
 
 // tslint:disable-next-line
@@ -35,11 +33,8 @@ connect().then(async () => {
     return;
   }
 
-  await initRabbitMQ();
-
   const { user, scopeBrandIds, result, contentType, properties, importHistoryId, percentagePerData } = workerData;
 
-  let percentage = '0';
   let create: any = null;
   let model: any = null;
 
@@ -309,20 +304,6 @@ connect().then(async () => {
 
     if (!importHistory) {
       throw new Error('Could not find import history');
-    }
-
-    const fixedPercentage = (importHistory.percentage || 0).toFixed(0);
-
-    if (fixedPercentage !== percentage) {
-      percentage = fixedPercentage;
-
-      graphqlPubsub.publish('importHistoryChanged', {
-        importHistoryChanged: {
-          _id: importHistory._id,
-          status: importHistory.status,
-          percentage,
-        },
-      });
     }
   }
 

@@ -6,8 +6,8 @@ import * as express from 'express';
 dotenv.config();
 
 import { connect } from './connection';
-import { debugInit } from './debuggers';
-import './messageBroker';
+import { debugBase, debugInit } from './debuggers';
+import { initBroker } from './messageBroker';
 import Logs from './models/Logs';
 
 connect();
@@ -101,5 +101,9 @@ app.use((error, _req, res, _next) => {
 const { PORT } = process.env;
 
 app.listen(PORT, () => {
+  initBroker().catch(e => {
+    debugBase(`Error ocurred during message broker init ${e.message}`);
+  });
+
   debugInit(`Logger server is running on port ${PORT}`);
 });
