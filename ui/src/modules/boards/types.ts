@@ -115,14 +115,17 @@ export interface IStage {
   itemId?: string;
   amount?: any;
   itemsTotalCount: number;
-  initialDealsTotalCount: number;
-  inProcessDealsTotalCount: number;
-  stayedDealsTotalCount: number;
-  compareNextStage: IStageComparisonInfo;
   formId: string;
   pipelineId: string;
   status: string;
   order: number;
+}
+
+export interface IConversionStage extends IStage {
+  initialDealsTotalCount: number;
+  inProcessDealsTotalCount: number;
+  stayedDealsTotalCount: number;
+  compareNextStage: IStageComparisonInfo;
 }
 
 export interface IPipelineLabel {
@@ -223,6 +226,12 @@ export type PipelinesQueryResponse = {
 
 export type StagesQueryResponse = {
   stages: IStage[];
+  loading: boolean;
+  refetch: ({ pipelineId }: { pipelineId?: string }) => Promise<any>;
+};
+
+export type ConversionStagesQueryResponse = {
+  stages: IConversionStage[];
   loading: boolean;
   refetch: ({ pipelineId }: { pipelineId?: string }) => Promise<any>;
 };
