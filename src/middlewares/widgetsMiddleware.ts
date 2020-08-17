@@ -1,6 +1,9 @@
+import { getSubServiceDomain } from '../data/utils';
 import { Scripts } from '../db/models';
 
 const widgetsMiddleware = async (req, res) => {
+  const domain = getSubServiceDomain({ name: 'WIDGETS_DOMAIN' });
+
   const script = await Scripts.findOne({ _id: req.query.id });
 
   if (!script) {
@@ -11,7 +14,7 @@ const widgetsMiddleware = async (req, res) => {
     return `
       (function() {
         var script = document.createElement('script');
-        script.src = "${req.headers.origin}/build/${type}Widget.bundle.js";
+        script.src = "${domain}/build/${type}Widget.bundle.js";
         script.async = true;
         
         var entry = document.getElementsByTagName('script')[0];
