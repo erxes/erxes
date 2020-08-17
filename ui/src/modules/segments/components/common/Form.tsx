@@ -69,6 +69,15 @@ class Form extends React.Component<Props, State> {
     this.state = segment;
   }
 
+  componentDidMount() {
+    const { previewCount } = this.props;
+    const { conditions, subOf } = this.state;
+    
+    if (previewCount) {
+      previewCount(conditions, subOf);
+    }
+  }
+
   addCondition = (condition: ISegmentCondition) => {
     this.setState({
       conditions: [...this.state.conditions, condition]
