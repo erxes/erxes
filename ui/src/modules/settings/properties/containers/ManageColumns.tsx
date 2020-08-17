@@ -46,7 +46,7 @@ const ManageColumnsContainer = (props: FinalProps) => {
   const storageKey = `erxes_${contentType}_columns_config`;
   const storageItem = localStorage.getItem(storageKey);
 
-  let save = config => {
+  let save = (config: any, importType?: string) => {
     localStorage.setItem(storageKey, JSON.stringify(config));
 
     Alert.success('Success');
@@ -55,6 +55,42 @@ const ManageColumnsContainer = (props: FinalProps) => {
       history.push(location.pathname);
     }
   };
+
+  if (type && (type === 'import' || type === 'export')) {
+    save = (configs, importType) => {
+      const checkedConfigsForImport: string[] = [];
+      const checkedConfigsForExport: any[] = [];
+
+      let reqUrl = '/template-export';
+
+      if (type === 'export') {
+        reqUrl = '/file-export';
+      }
+
+      configs
+        .filter(conf => conf.checked)
+        .forEach(checked => {
+          if (checked.name.startsWith('customFieldsData')) {
+            checkedConfigsForExport.push(checked);
+            checkedConfigsForImport.push(checked.label);
+          } else {
+            checkedConfigsForExport.push(checked);
+            checkedConfigsForImport.push(checked.name);
+          }
+        });
+
+      const stringified = queryString.stringify({
+        configs:
+          type === 'export'
+            ? JSON.stringify(checkedConfigsForExport)
+            : checkedConfigsForImport,
+        type: contentType,
+        importType
+      });
+
+      window.open(`${REACT_APP_API_URL}${reqUrl}?${stringified}`, '_blank');
+    };
+  }
 
   const defaultColumns =
     fieldsDefaultColumnsConfigQuery.fieldsDefaultColumnsConfig;
@@ -84,29 +120,6 @@ const ManageColumnsContainer = (props: FinalProps) => {
       .sort((a, b) => a.order - b.order);
   }
 
-  if (type && type === 'import') {
-    save = configs => {
-      const checkedConfigs: string[] = [];
-
-      configs
-        .filter(conf => conf.checked)
-        .forEach(checked => {
-          if (checked.name.startsWith('customFieldsData')) {
-            checkedConfigs.push(checked.label);
-          } else {
-            checkedConfigs.push(checked.name);
-          }
-        });
-
-      const stringified = queryString.stringify({ configs: checkedConfigs });
-
-      window.open(
-        `${REACT_APP_API_URL}/template-export?${stringified}`,
-        '_blank'
-      );
-    };
-  }
-
   const updatedProps = {
     ...props,
     save,
@@ -125,13 +138,14 @@ export default withProps<Props>(
         options: ({ contentType }) => {
           return {
             variables: {
-              contentType,
+              contentType: contentType === 'lead' ? 'customer' : contentType,
               excludedNames: [
                 'state',
                 'avatar',
                 'ownerId',
                 'status',
                 'integrationId',
+                'categoryId',
                 'emailValidationStatus',
                 'phoneValidationStatus',
                 'location.countryCode'
@@ -148,7 +162,7 @@ export default withProps<Props>(
         options: ({ contentType }) => {
           return {
             variables: {
-              contentType
+              contentType: contentType === 'lead' ? 'customer' : contentType
             }
           };
         }

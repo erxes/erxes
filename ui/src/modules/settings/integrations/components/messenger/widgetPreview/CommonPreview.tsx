@@ -11,6 +11,7 @@ import WidgetContent from './WidgetContent';
 type Props = {
   teamMembers: IUser[];
   color: string;
+  textColor: string;
   logoPreviewStyle?: any;
   message?: IMessagesItem;
   wallpaper: string;
@@ -27,7 +28,7 @@ type Props = {
 
 class CommonPreview extends React.Component<Props> {
   renderContent() {
-    const { isGreeting, isOnline, color, wallpaper, message } = this.props;
+    const { isGreeting, isOnline, color, textColor, wallpaper, message } = this.props;
 
     if (isGreeting) {
       return <GreetingContent />;
@@ -35,6 +36,7 @@ class CommonPreview extends React.Component<Props> {
 
     return (
       <WidgetContent
+        textColor={textColor}
         color={color}
         message={message}
         isOnline={isOnline}

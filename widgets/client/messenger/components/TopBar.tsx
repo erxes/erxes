@@ -1,12 +1,13 @@
 import * as classNames from "classnames";
 import * as React from "react";
-import { iconClose, iconExit, iconLeft, iconMore } from "../../icons/Icons";
+import { iconClose, iconLeft, iconMore } from "../../icons/Icons";
 import { __ } from "../../utils";
 
 type Props = {
   middle: React.ReactNode;
   isChat: boolean;
   color?: string;
+  textColor?: string;
   isExpanded?: boolean;
   prevHeight?: number;
   toggleHead?: () => void;
@@ -76,14 +77,14 @@ class TopBar extends React.Component<Props, State> {
           onClick={this.toggleLauncher}
           title="Close"
         >
-          {iconClose}
+          {iconClose(this.props.textColor)}
         </a>
       );
     }
 
     return (
       <button className={topBarClassNames} onClick={this.toggleDropdown}>
-        {iconMore}
+        {iconMore(this.props.textColor)}
         <ul>
           <li>
             <a href="#" onClick={this.endConversation}>
@@ -101,7 +102,7 @@ class TopBar extends React.Component<Props, State> {
   }
 
   renderLeftButton() {
-    const { onLeftButtonClick } = this.props;
+    const { onLeftButtonClick, textColor } = this.props;
 
     if (!onLeftButtonClick) {
       return null;
@@ -112,13 +113,13 @@ class TopBar extends React.Component<Props, State> {
         className="topbar-button left fade-in"
         onClick={onLeftButtonClick}
       >
-        {iconLeft}
+        {iconLeft(textColor)}
       </button>
     );
   }
 
   render() {
-    const { color, isExpanded, isChat, middle, toggleHead } = this.props;
+    const { color, isExpanded, middle, toggleHead, textColor } = this.props;
 
     const topBarClassNames = classNames("erxes-topbar", {
       expanded: isExpanded
@@ -135,6 +136,7 @@ class TopBar extends React.Component<Props, State> {
       >
         <div
           className={topBarClassNames}
+          style={{ color: textColor }}
           ref={node => {
             this.node = node;
           }}

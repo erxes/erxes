@@ -29,7 +29,6 @@ import {
   Attachments,
   Column,
   ControlWrapper,
-  // LeftSection,
   EditorFooter,
   FileSize,
   MailEditorWrapper,

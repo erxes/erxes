@@ -71,13 +71,16 @@ class Manage extends React.Component<Props, State> {
     let embedCode = '';
     let buttonCode = '';
     const integration = props.integration;
-
+    
     // showed install code automatically in edit mode
     if (integration._id) {
       const brand = integration.brand;
       const form = integration.form || {};
 
-      code = getInstallCode(brand.code, form.code || '');
+      if(brand) {
+        code = getInstallCode(brand.code, form.code || '')
+      }
+
       embedCode = getEmbedCode(form.code || '');
       buttonCode = getButtonCode(form.code || '');
     }
@@ -106,7 +109,7 @@ class Manage extends React.Component<Props, State> {
               </Button>
             </CopyToClipboard>
           ) : (
-            <EmptyState icon="copy" text="No copyable code" size="small" />
+            <EmptyState icon="copy" text="No copyable code. You should connect Popup to brand first" size="small" />
           )}
         </MarkdownWrapper>
         <br />

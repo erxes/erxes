@@ -19,7 +19,7 @@ export default class WebsiteAppDetail extends React.PureComponent<Props> {
       <>
         <TopBar
           middle={websiteApp.credentials.description}
-          buttonIcon={iconLeft}
+          buttonIcon={iconLeft()}
           onLeftButtonClick={onClick}
         />
         <div className="erxes-content">

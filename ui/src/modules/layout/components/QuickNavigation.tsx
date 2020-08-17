@@ -89,6 +89,10 @@ const Round = styled(NavItem)`
       background: ${lighten(colors.colorPrimary, 15)};
     }
   }
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const QuickNavigation = ({

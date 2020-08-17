@@ -9,7 +9,96 @@
 # 
 # * we expect you have configured your domain DNS settings already.
 
-set -e
+set -Eeuo pipefail
+
+trap notify ERR
+
+ERXES_VERSION=0.16.0
+ERXES_API_VERSION=0.16.2
+ERXES_INTEGRATIONS_VERSION=0.16.0
+
+NODE_VERSION=v12.16.3
+
+OS_NAME=notset
+DISTRO=notset
+RELEASE=notset
+ARCH=`uname -m`
+
+case "$OSTYPE" in
+  solaris*) OS_NAME="solaris" ;;
+  darwin*)  
+  	OS_NAME="darwin" 
+	  RELEASE=`uname -r`
+  ;; 
+  linux*)   
+  	OS_NAME="linux" 
+	
+    if [ -f /etc/redhat-release ] ; then
+      DistroBasedOn='RedHat'
+      DISTRO=`cat /etc/redhat-release |sed s/\ release.*//`
+      PSUEDONAME=`cat /etc/redhat-release | sed s/.*\(// | sed s/\)//`
+      RELEASE=`cat /etc/redhat-release | sed s/.*release\ // | sed s/\ .*//`
+    elif [ -f /etc/SuSE-release ] ; then
+      DistroBasedOn='SuSe'
+      PSUEDONAME=`cat /etc/SuSE-release | tr "\n" ' '| sed s/VERSION.*//`
+      RELEASE=`cat /etc/SuSE-release | tr "\n" ' ' | sed s/.*=\ //`
+    elif [ -f /etc/mandrake-release ] ; then
+      DistroBasedOn='Mandrake'
+      PSUEDONAME=`cat /etc/mandrake-release | sed s/.*\(// | sed s/\)//`
+      RELEASE=`cat /etc/mandrake-release | sed s/.*release\ // | sed s/\ .*//`
+    elif [ -f /etc/debian_version ] ; then
+      DistroBasedOn='Debian'
+      DISTRO=`lsb_release -is`
+      PSUEDONAME=`lsb_release -cs`
+      RELEASE=`lsb_release -rs`
+    fi
+  ;;
+  bsd*)     OS_NAME="bsd" ;;
+  msys*)    OS_NAME="windows" ;;
+  *)        OS_NAME="unknown: $OSTYPE" ;;
+esac
+
+CPU_DATA=""
+CPUs=`lscpu | awk '/^CPU\(s\)/{print $2}'`
+MODEL_NAME=`lscpu | awk -F ":" '/Model name:/{gsub(/^[ \t]+/,"",$2); print $2}'`
+CPU_SPEED=`lscpu | awk -F ":" '/CPU MHz:/{gsub(/^[ \t]+/,"",$2); print $2}'`
+
+for ((i=1;i<=$CPUs;i++)); 
+do 
+   CPU_DATA="$CPU_DATA {	\"model\": \"$MODEL_NAME\", \"speed\": \"$CPU_SPEED\"	},"
+done
+CPU_DATA=`echo $CPU_DATA | sed 's/,*$//g'`;
+
+POST_DATA="$(cat <<EOF
+  "osInformation": {
+    "nodeVersion" : "$NODE_VERSION",
+    "platform" : "$OS_NAME",
+    "distro": "$DISTRO",
+    "release" : "$RELEASE",
+    "arch": "$ARCH",
+    "cpus": [$CPU_DATA]
+  }
+EOF
+)"
+
+NOW="$(date +'%Y-%m-%d %H:%M:%S')"
+
+function notify() {
+  FAILED_COMMAND="Something went wrong on line $LINENO : Failed command: ${BASH_COMMAND}"
+  
+  curl -s -X POST https://telemetry.erxes.io/events/ \
+    -H 'content-type: application/json' \
+    -d "$(cat <<EOF
+      [{
+        "eventType": "CLI_COMMAND_installation_status",
+        "errorMessage": "$FAILED_COMMAND",
+        "message": "error",
+        "time": "$NOW",
+        $POST_DATA,
+      }]
+EOF
+      )"
+}
 
 #
 # Ask a domain name
@@ -23,11 +112,26 @@ while true; do
     fi
 done
 
+# install curl for telemetry
+apt-get -qqy install -y curl 
+
+curl -s -X POST https://telemetry.erxes.io/events/ \
+  -H 'content-type: application/json' \
+  -d "$(cat <<EOF
+      [{
+        "eventType": "CLI_COMMAND_installation_status",
+        "message": "attempt",
+        "time": "$NOW",
+        $POST_DATA
+      }]
+EOF
+      )"
+
 #
 # Dependencies
 #
 apt-get -qqy update
-apt-get -qqy install -y curl wget gnupg apt-transport-https software-properties-common python3-pip ufw
+apt-get -qqy install -y wget gnupg apt-transport-https software-properties-common python3-pip ufw
 
 # MongoDB
 echo "Installing MongoDB"
@@ -83,19 +187,17 @@ echo "Installing Nginx"
 apt-get -qqy install -y nginx
 echo "Installed Nginx successfully"
 
-# Yarn package manager
-echo "Installing Yarn package manager"
-curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
-echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-apt-get -qqy update
-apt -qqy install -y yarn
-echo "Installed Yarn successfully"
+# # Yarn package manager
+# echo "Installing Yarn package manager"
+# curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+# echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+# apt-get -qqy update
+# apt -qqy install -y yarn
+# echo "Installed Yarn successfully"
 
 
 # username that erxes will be installed in
 username=erxes
-
-NODE_VERSION=v12.16.3
 
 # create a new user erxes if it does not exist
 id -u erxes &>/dev/null || useradd -m -s /bin/bash -U -G sudo $username
@@ -123,31 +225,28 @@ erxes_integrations_dir=$erxes_root_dir/erxes-integrations
 su $username -c "mkdir -p $erxes_ui_dir $erxes_widgets_dir $erxes_api_dir $erxes_engages_dir $erxes_logger_dir $erxes_syncer_dir $erxes_email_verifier_dir $erxes_integrations_dir"
 
 # download erxes ui
-su $username -c "curl -L https://github.com/erxes/erxes/releases/download/0.15.5/erxes-0.15.5.tar.gz | tar --strip-components=1 -xz -C $erxes_ui_dir"
+su $username -c "curl -L https://github.com/erxes/erxes/releases/download/$ERXES_VERSION/erxes-$ERXES_VERSION.tar.gz | tar --strip-components=1 -xz -C $erxes_ui_dir"
 
 # download erxes widgets
-su $username -c "curl -L https://github.com/erxes/erxes/releases/download/0.15.5/erxes-widgets-0.15.5.tar.gz | tar -xz -C $erxes_widgets_dir"
+su $username -c "curl -L https://github.com/erxes/erxes/releases/download/$ERXES_VERSION/erxes-widgets-$ERXES_VERSION.tar.gz | tar -xz -C $erxes_widgets_dir"
 
 # download erxes-api
-su $username -c "curl -L https://github.com/erxes/erxes-api/releases/download/0.15.5/erxes-api-0.15.5.tar.gz | tar -xz -C $erxes_api_dir"
+su $username -c "curl -L https://github.com/erxes/erxes-api/releases/download/$ERXES_API_VERSION/erxes-api-$ERXES_API_VERSION.tar.gz | tar -xz -C $erxes_api_dir"
 
 # download engages-email-sender
-su $username -c "curl -L https://github.com/erxes/erxes-api/releases/download/0.15.5/erxes-engages-email-sender-0.15.5.tar.gz | tar -xz -C $erxes_engages_dir"
+su $username -c "curl -L https://github.com/erxes/erxes-api/releases/download/$ERXES_API_VERSION/erxes-engages-email-sender-$ERXES_API_VERSION.tar.gz | tar -xz -C $erxes_engages_dir"
 
 # download logger
-su $username -c "curl -L https://github.com/erxes/erxes-api/releases/download/0.15.5/erxes-logger-0.15.5.tar.gz | tar -xz -C $erxes_logger_dir"
+su $username -c "curl -L https://github.com/erxes/erxes-api/releases/download/$ERXES_API_VERSION/erxes-logger-$ERXES_API_VERSION.tar.gz | tar -xz -C $erxes_logger_dir"
 
 # download elkSyncer
-su $username -c "curl -L https://github.com/erxes/erxes-api/releases/download/0.15.5/erxes-elkSyncer-0.15.5.tar.gz | tar --strip-components=1 -xz -C $erxes_syncer_dir"
+su $username -c "curl -L https://github.com/erxes/erxes-api/releases/download/$ERXES_API_VERSION/erxes-elkSyncer-$ERXES_API_VERSION.tar.gz | tar --strip-components=1 -xz -C $erxes_syncer_dir"
 
 # download email-verifier
-su $username -c "curl -L https://github.com/erxes/erxes-api/releases/download/0.15.5/erxes-email-verifier-0.15.5.tar.gz | tar -xz -C $erxes_email_verifier_dir"
+su $username -c "curl -L https://github.com/erxes/erxes-api/releases/download/$ERXES_API_VERSION/erxes-email-verifier-$ERXES_API_VERSION.tar.gz | tar -xz -C $erxes_email_verifier_dir"
 
 # download integrations
-su $username -c "curl -L https://github.com/erxes/erxes-integrations/releases/download/0.15.5/erxes-integrations-0.15.5.tar.gz | tar -xz -C $erxes_integrations_dir"
-
-# install pm2 globally
-# yarn global add  pm2
+su $username -c "curl -L https://github.com/erxes/erxes-integrations/releases/download/$ERXES_INTEGRATIONS_VERSION/erxes-integrations-$ERXES_INTEGRATIONS_VERSION.tar.gz | tar -xz -C $erxes_integrations_dir"
 
 JWT_TOKEN_SECRET=$(openssl rand -base64 24)
 MONGO_PASS=$(openssl rand -hex 16)
@@ -450,6 +549,8 @@ echo 'y' | ufw enable
 ufw allow 22
 ufw allow 80
 ufw allow 443
+
+su $username -c "source ~/.nvm/nvm.sh && nvm use $NODE_VERSION && cd $erxes_api_dir && node ./dist/commands/trackTelemetry \"success\""
 
 echo
 echo -e "\e[32mInstallation complete\e[0m"

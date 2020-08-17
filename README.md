@@ -1,34 +1,54 @@
-# erxes
+<p align="center">
+ <img src="docs/static/img/logo_dark.svg" alt="erxes logo" width="20%" />
+</p>
 
-erxes is a free and open fair-code licensed all-in-one growth marketing & management software. We offer an all-in-one solution for sales, marketing, and customer service teams, with a focus on the entire customer experience. Replace Hubspot with the mission and community-driven ecosystem.
+<p align="center">erxes is a free and open fair-code licensed all-in-one growth marketing & management software. We offer an all-in-one solution for sales, marketing, and customer service teams, with a focus on the entire customer experience. Replace Hubspot with the mission and community-driven ecosystem.</p>
 
-<a href="https://demo.erxes.io/">Live demo</a> <b>| </b> <a href="https://community.erxes.io/register/Gw4WRJnk9fSbyAXTq">Join our community</a>
+<p align="center"><a href="https://demo.erxes.io/">Live demo</a> <b>| </b> <a href="https://community.erxes.io/register/Gw4WRJnk9fSbyAXTq">Join our community</a></p>
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ed8c207f4351446b8ace7a323630889f)](https://www.codacy.com/app/erxes/erxes)
-[![Codeclimate Badge](https://api.codeclimate.com/v1/badges/693e2ffc40bc2601630d/maintainability)](https://codeclimate.com/github/erxes/erxes/maintainability)
-[![Bettercode](https://bettercodehub.com/edge/badge/erxes/erxes?branch=master)](https://bettercodehub.com/results/erxes/erxes)
-[![codebeat badge](https://codebeat.co/badges/33270439-27de-42e9-b48a-da76192b3b22)](https://codebeat.co/projects/github-com-erxes-erxes-master)
-![Docker Pulls](https://img.shields.io/docker/pulls/erxes/erxes)
-[![Known Vulnerabilities](https://snyk.io/test/github/erxes/erxes/badge.svg)](https://snyk.io/test/github/erxes/erxes)
-[![All financial contributors badge](https://bit.ly/3bCSG6i)](https://opencollective.com/erxes/)
+<p align="center">
+  <a href="https://www.codacy.com/app/erxes/erxes">
+      <img alt="Codacy Badge" src="https://api.codacy.com/project/badge/Grade/ed8c207f4351446b8ace7a323630889f">
+  </a>
+  <a href="https://codeclimate.com/github/erxes/erxes/maintainability">
+      <img alt="Codeclimate Badge" src="https://api.codeclimate.com/v1/badges/693e2ffc40bc2601630d/maintainability">
+  </a>
+  <a href="https://bettercodehub.com/results/erxes/erxes">
+      <img alt="Bettercode" src="https://bettercodehub.com/edge/badge/erxes/erxes?branch=master">
+  </a>
+  <a href="https://codebeat.co/projects/github-com-erxes-erxes-master">
+      <img alt="Codebeat badge" src="https://codebeat.co/badges/33270439-27de-42e9-b48a-da76192b3b22">
+  </a>
+  <a href="#">
+      <img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/erxes/erxes">
+  </a>
+  <a href="https://snyk.io/test/github/erxes/erxes">
+      <img alt="Known Vulnerabilities" src="https://snyk.io/test/github/erxes/erxes/badge.svg">
+  </a>
+  <a href="https://opencollective.com/erxes/">
+      <img alt="All financial contributors badge" src="https://bit.ly/3bCSG6i">
+  </a>
+</p>
 
-<a href="https://erxes.io" target="_blank"><img src="https://erxes-os.s3-us-west-2.amazonaws.com/github/git-erxes.gif" alt="Open Source Growth Marketing Platform "></a>
+<p align="center">
+ <a href="https://erxes.io" target="_blank"><img src="https://erxes-os.s3-us-west-2.amazonaws.com/github/git-erxes.gif" alt="Open Source Growth Marketing Platform "></a>
+</p>
 
 ## Features
 
 <img src="https://s3.amazonaws.com/erxes/github/features-transparent.png" width="400" align="right" style="max-width: 50%">
 
-erxes helps you attract and engage more customers while giving you high lead conversion. With erxes, all your marketing, sales and customer service tools are merged into one platform for greater output.
+erxes helps you attract and engage more customers while giving you high lead conversion. With erxes, all your marketing, sales, and customer service tools are merged into one platform for greater output.
 
-* **Growth Hacking:** Managing your entire growth operation made easy. From ideas to actual performance, making sure everything recorded, prioritized and centralized in the single platform to get tested with pool of analysis and learnings, which made the growing as pleasure.
-* **Email & SMS Marketing:** Reach your customer with personalized messaging. Keeping your customers hooked is definitely a challenge. Start converting your prospects into potential customers through email, SMS, Live chat, and In-app-messaging or more interactions to drive them to a successful close. You can connect to your customers in a whole new way with Erxes!
+* **Growth Hacking:** Managing your entire growth operation made easy. From ideas to actual performance, making sure everything recorded, prioritized, and centralized in the single platform to get tested with a pool of analysis and learnings, which made the growing as pleasure.
+* **Email & SMS Marketing:** Reach your customer with personalized messaging. Keeping your customers hooked is a challenge. Start converting your prospects into potential customers through email, SMS, Live chat, and In-app-messaging or more interactions to drive them to a successful close. You can connect to your customers in a whole new way with Erxes!
 * **Pop-ups & Forms:** Create Stylish Pop-ups and Forms that Bring Leads. Turn regular visitors into qualified leads by capturing them with a customizable pop-ups, forms, and embedded placements. Erxes helps you to create stylish and contextual pop-ups, banners and bars fit all your marketing needs.
 * **Sales Pipeline:** Track your entire sales pipeline from one dashboard. All your customer information and sales process in one board to follow up flawlessly. Have your sales managers to know everything needed to deliver increased levels of personalization before they contact customers.
-* **Contact Management:** Manage Visitors, Customers, and Companies. Access our all-in-one CRM system in one go so that it’s easier to coordinate and manage your contacts and interactions with your customers. Erxes Contacts provides whole segmentation tools for you to work more effiecently.
+* **Contact Management:** Manage Visitors, Customers, and Companies. Access our all-in-one CRM system in one go so that it’s easier to coordinate and manage your contacts and interactions with your customers. Erxes Contacts provides whole segmentation tools for you to work more efficiently.
 * **Lead Scoring:** Identify and Target Sales-Ready Leads.
 * **Shared Team Inbox:** Communicate faster and easier with your customers via one truly omnichannel platform. Combine real-time client and team communication with in-app messaging, live chat, email and form, so your customers can reach you however and wherever they want. 
-* **Messenger:** Talk to Your Customers in Continuous Omnichannel Conversations. Enable businesses to capture every single customer feedback and communicate in real time. You can educate your customers through knowledge-base from the erxes Messenger.
-* **Knowledge base:** Create Help Articles for Customer Self-service. Educate both your customers and staff by creating a help center related to your brands, products and services to reach higher level of satisfactions.
+* **Messenger:** Talk to Your Customers in Continuous Omnichannel Conversations. Enable businesses to capture every single customer feedback and communicate in real-time. You can educate your customers through knowledge-base from the erxes Messenger.
+* **Knowledge base:** Create Help Articles for Customer Self-service. Educate both your customers, and staff by creating a help center related to your brands, products and services to reach a higher level of satisfaction.
 * **Task Management:** Work More Collaboratively and Get More Done. Save time, manage your projects, monitor your team and increase your productivity in just a few clicks. Erxes helps to turn chaos into clarity and make everything perfect. 
 ## Documentation
   * <a href="https://docs.erxes.io/installation/docker">Install erxes</a> <br>

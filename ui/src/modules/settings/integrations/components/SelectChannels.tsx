@@ -60,12 +60,19 @@ class SelectChannels extends React.Component<Props, {}> {
   };
 
   render() {
-    const { channels, defaultValue, isRequired, description } = this.props;
+    const {
+      channels,
+      defaultValue,
+      isRequired,
+      description = __(
+        'In which Channel(s) do you want to add this integration?'
+      )
+    } = this.props;
 
     return (
       <FormGroup>
         <ControlLabel required={isRequired}>Channel</ControlLabel>
-        {description && <p>{description}</p>}
+        <p>{description}</p>
         <Row>
           <LeftContent>
             <Select

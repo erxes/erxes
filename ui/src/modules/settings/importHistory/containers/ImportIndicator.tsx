@@ -5,13 +5,11 @@ import { Alert, confirm, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import ImportIndicator from '../components/ImportIndicator';
-import { mutations, queries, subscriptions } from '../graphql';
+import { mutations, queries } from '../graphql';
 import {
   CancelMutationResponse,
   ImportHistoryDetailQueryResponse
 } from '../types';
-
-const subscription = gql(subscriptions.importSubscription);
 
 type Props = {
   id: string;
@@ -43,41 +41,6 @@ class ImportIndicatorContainer extends React.Component<
     // clear local storage
     localStorage.setItem('erxes_import_data', '');
     localStorage.setItem('erxes_import_data_type', '');
-  }
-
-  componentWillMount() {
-    const { importHistoryDetailQuery, id } = this.props;
-    importHistoryDetailQuery.subscribeToMore({
-      document: subscription,
-      variables: { _id: id },
-      updateQuery: (prev, { subscriptionData: { data } }) => {
-        const { importHistoryChanged } = data;
-        const { percentage, status, errorMsgs } = importHistoryChanged;
-
-        if (status === 'Error') {
-          this.clearStorage();
-
-          return this.setState({ errors: errorMsgs });
-        }
-
-        if (status === 'Removed') {
-          this.clearStorage();
-
-          // for refetch list
-          this.props.doneIndicatorAction();
-        }
-
-        if (status === 'Done') {
-          this.clearStorage();
-
-          return importHistoryDetailQuery.refetch();
-        }
-
-        if (percentage.toFixed(0) !== this.state.percentage) {
-          this.setState({ percentage: percentage.toFixed(0) });
-        }
-      }
-    });
   }
 
   render() {
@@ -133,7 +96,7 @@ const ImportIndicatorWithProps = withProps<{ id: string; close?: () => void }>(
           variables: {
             _id: id
           },
-          pollInterval: 20000
+          pollInterval: 3000
         })
       }
     ),

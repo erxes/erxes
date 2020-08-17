@@ -14,7 +14,8 @@ const ITEM_TYPES = {
   PERMISSION: 'permission',
   TASK: 'task',
   TICKET: 'ticket',
-  TEAM_MEMBER: 'user'
+  TEAM_MEMBER: 'user',
+  LEAD: 'lead'
 };
 
 type Props = {
@@ -57,6 +58,7 @@ class Sidebar extends React.Component<Props> {
           <List>
             {this.renderListItem(ITEM_TYPES.BRAND, 'Brands')}
             {this.renderListItem(ITEM_TYPES.CHANNEL, 'Channels')}
+            {this.renderListItem(ITEM_TYPES.LEAD, 'Leads')}
             {this.renderListItem(ITEM_TYPES.CUSTOMER, 'Customers')}
             {this.renderListItem(ITEM_TYPES.COMPANY, 'Companies')}
             {this.renderListItem(ITEM_TYPES.PERMISSION, 'Permissions')}
