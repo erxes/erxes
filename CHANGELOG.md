@@ -1,3 +1,20 @@
+# [0.17.0](https://github.com/erxes/erxes-api/compare/0.16.2...0.17.0) (2020-08-17)
+
+
+### Bug Fixes
+
+* **script-manager:** fix cors issue in script-manager url ([c18e5a9](https://github.com/erxes/erxes-api/commit/c18e5a9b1ce6d38df0ce5a0b2221aeba230013d3)), closes [erxes/erxes#2223](https://github.com/erxes/erxes/issues/2223)
+
+
+### Features
+
+* **widget:** show server time & online status ([5d04366](https://github.com/erxes/erxes-api/commit/5d043662de6852761205866adbba43f2d2f5dd8c)), closes [erxes/erxes#2191](https://github.com/erxes/erxes/issues/2191)
+
+
+### Performance Improvements
+
+* **dependencies:** made rabbitmq, redis optional ([1aa671f](https://github.com/erxes/erxes-api/commit/1aa671f2ba2c1c5ddca9d519bb0e911d6a41fd67))
+
 ## [0.16.2](https://github.com/erxes/erxes-api/compare/0.16.1...0.16.2) (2020-07-28)
 
 ## [0.16.1](https://github.com/erxes/erxes-api/compare/0.16.0...0.16.1) (2020-07-28)
