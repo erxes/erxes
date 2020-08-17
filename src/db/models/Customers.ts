@@ -74,7 +74,7 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
   markCustomerAsNotActive(_id: string): Promise<ICustomerDocument>;
   removeCustomers(customerIds: string[]): Promise<{ n: number; ok: number }>;
   changeState(_id: string, value: string): Promise<ICustomerDocument>;
-  mergeCustomers(customerIds: string[], customerFields: ICustomer): Promise<ICustomerDocument>;
+  mergeCustomers(customerIds: string[], customerFields: ICustomer, user?: IUserDocument): Promise<ICustomerDocument>;
   bulkInsert(fieldNames: string[], fieldValues: string[][], user: IUserDocument): Promise<string[]>;
   updateProfileScore(customerId: string, save: boolean): never;
 
@@ -419,7 +419,7 @@ export const loadClass = () => {
     /**
      * Merge customers
      */
-    public static async mergeCustomers(customerIds: string[], customerFields: ICustomer) {
+    public static async mergeCustomers(customerIds: string[], customerFields: ICustomer, user?: IUserDocument) {
       // Checking duplicated fields of customer
       await Customers.checkDuplication(customerFields, customerIds);
 
@@ -473,15 +473,18 @@ export const loadClass = () => {
       phones = Array.from(new Set(phones));
 
       // Creating customer with properties
-      const customer = await this.createCustomer({
-        ...customerFields,
-        scopeBrandIds,
-        customFieldsData,
-        tagIds,
-        mergedIds: customerIds,
-        emails,
-        phones,
-      });
+      const customer = await this.createCustomer(
+        {
+          ...customerFields,
+          scopeBrandIds,
+          customFieldsData,
+          tagIds,
+          mergedIds: customerIds,
+          emails,
+          phones,
+        },
+        user,
+      );
 
       // Updating every modules associated with customers
       await Conformities.changeConformity({ type: 'customer', newTypeId: customer._id, oldTypeIds: customerIds });
