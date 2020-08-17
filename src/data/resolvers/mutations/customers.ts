@@ -65,12 +65,8 @@ const customerMutations = {
   /**
    * Merge customers
    */
-  async customersMerge(
-    _root,
-    { customerIds, customerFields }: { customerIds: string[]; customerFields: ICustomer },
-    { user }: IContext,
-  ) {
-    return Customers.mergeCustomers(customerIds, customerFields, user);
+  async customersMerge(_root, { customerIds, customerFields }: { customerIds: string[]; customerFields: ICustomer }) {
+    return Customers.mergeCustomers(customerIds, customerFields);
   },
 
   /**

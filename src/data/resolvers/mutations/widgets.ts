@@ -22,7 +22,6 @@ import { debugBase } from '../../../debuggers';
 import { trackViewPageEvent } from '../../../events';
 import { graphqlPubsub } from '../../../pubsub';
 import { get, set } from '../../../redisClient';
-import { IContext } from '../../types';
 import { registerOnboardHistory, sendEmail, sendMobileNotification } from '../../utils';
 import { conversationNotifReceivers } from './conversations';
 
@@ -273,7 +272,6 @@ const widgetMutations = {
       cachedCustomerId?: string;
       deviceToken?: string;
     },
-    { requestInfo }: IContext,
   ) {
     const { brandCode, email, phone, code, isUser, companyData, data, cachedCustomerId, deviceToken } = args;
 

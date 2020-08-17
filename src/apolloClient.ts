@@ -5,7 +5,6 @@ import * as jwt from 'jsonwebtoken';
 import { EngagesAPI, IntegrationsAPI } from './data/dataSources';
 import resolvers from './data/resolvers';
 import typeDefs from './data/schema';
-import { frontendEnv, getEnv, getSubServiceDomain } from './data/utils';
 import { Conversations, Customers, Users } from './db/models';
 import { graphqlPubsub } from './pubsub';
 import { addToArray, get, inArray, removeFromArray, set } from './redisClient';
