@@ -26,7 +26,7 @@ import {
   Tags,
   Users,
 } from '../db/models';
-import * as messageBroker from '../messageBroker';
+import messageBroker from '../messageBroker';
 
 import { EngagesAPI } from '../data/dataSources';
 import { handleUnsubscription } from '../data/utils';
@@ -352,7 +352,7 @@ describe('engage message mutation tests', () => {
   });
 
   test('Engage utils send via email & sms', async () => {
-    const mock = sinon.stub(messageBroker, 'sendMessage').callsFake(() => {
+    const mock = sinon.stub(messageBroker(), 'sendMessage').callsFake(() => {
       return Promise.resolve('success');
     });
 
@@ -453,7 +453,7 @@ describe('engage message mutation tests', () => {
   `;
 
   test('Add engage message', async () => {
-    const mock = sinon.stub(messageBroker, 'sendMessage').callsFake(() => {
+    const mock = sinon.stub(messageBroker(), 'sendMessage').callsFake(() => {
       return Promise.resolve('success');
     });
 

@@ -1,22 +1,29 @@
-import resolvers from "..";
-import { ActivityLogs, Boards, Checklists, Conformities, Notifications, Pipelines, Stages } from "../../../db/models";
-import { getCollection, getCompanies, getCustomers, getItem, getNewOrder } from "../../../db/models/boardUtils";
-import { IItemCommonFields, IItemDragCommonFields, IStageDocument } from "../../../db/models/definitions/boards";
-import { BOARD_STATUSES, NOTIFICATION_TYPES } from "../../../db/models/definitions/constants";
-import { IDeal, IDealDocument } from "../../../db/models/definitions/deals";
-import { IGrowthHack, IGrowthHackDocument } from "../../../db/models/definitions/growthHacks";
-import { ITaskDocument } from "../../../db/models/definitions/tasks";
-import { ITicket, ITicketDocument } from "../../../db/models/definitions/tickets";
-import { IUserDocument } from "../../../db/models/definitions/users";
-import { graphqlPubsub } from "../../../pubsub";
-import { putCreateLog, putDeleteLog, putUpdateLog } from "../../logUtils";
-import { checkUserIds } from "../../utils";
-import { copyChecklists, copyPipelineLabels, createConformity, IBoardNotificationParams, prepareBoardItemDoc, sendNotifications } from "../boardUtils";
+import resolvers from '..';
+import { ActivityLogs, Boards, Checklists, Conformities, Notifications, Pipelines, Stages } from '../../../db/models';
+import { getCollection, getCompanies, getCustomers, getItem, getNewOrder } from '../../../db/models/boardUtils';
+import { IItemCommonFields, IItemDragCommonFields, IStageDocument } from '../../../db/models/definitions/boards';
+import { BOARD_STATUSES, NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
+import { IDeal, IDealDocument } from '../../../db/models/definitions/deals';
+import { IGrowthHack, IGrowthHackDocument } from '../../../db/models/definitions/growthHacks';
+import { ITaskDocument } from '../../../db/models/definitions/tasks';
+import { ITicket, ITicketDocument } from '../../../db/models/definitions/tickets';
+import { IUserDocument } from '../../../db/models/definitions/users';
+import { graphqlPubsub } from '../../../pubsub';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
+import { checkUserIds } from '../../utils';
+import {
+  copyChecklists,
+  copyPipelineLabels,
+  createConformity,
+  IBoardNotificationParams,
+  prepareBoardItemDoc,
+  sendNotifications,
+} from '../boardUtils';
 
 const itemResolver = async (type: string, item: IItemCommonFields) => {
   let resolverType = '';
 
-  switch( type ) {
+  switch (type) {
     case 'deal':
       resolverType = 'Deal';
       break;
@@ -38,20 +45,22 @@ const itemResolver = async (type: string, item: IItemCommonFields) => {
   const resolver = resolvers[resolverType] || {};
 
   for (const subResolver of Object.keys(resolver)) {
-    try{
+    try {
       additionInfo[subResolver] = await resolver[subResolver](item);
-    } catch (unused) { continue };
+    } catch (unused) {
+      continue;
+    }
   }
 
   return additionInfo;
-}
+};
 
 export const itemsAdd = async (
   doc: (IDeal | IItemCommonFields | ITicket | IGrowthHack) & { proccessId: string; aboveItemId: string },
   type: string,
   user: IUserDocument,
   docModifier: any,
-  createModel: any
+  createModel: any,
 ) => {
   const collection = getCollection(type);
 
@@ -108,9 +117,21 @@ export const itemsAdd = async (
   });
 
   return item;
-}
+};
 
-export const changeItemStatus = async ({ type, item, status, proccessId, stage }: { type: string, item: any, status: string, proccessId: string, stage: IStageDocument }) => {
+export const changeItemStatus = async ({
+  type,
+  item,
+  status,
+  proccessId,
+  stage,
+}: {
+  type: string;
+  item: any;
+  status: string;
+  proccessId: string;
+  stage: IStageDocument;
+}) => {
   if (status === 'archived') {
     graphqlPubsub.publish('pipelinesChanged', {
       pipelinesChanged: {
@@ -119,7 +140,7 @@ export const changeItemStatus = async ({ type, item, status, proccessId, stage }
         action: 'itemRemove',
         data: {
           item,
-          oldStageId: item.stageId
+          oldStageId: item.stageId,
         },
       },
     });
@@ -127,24 +148,32 @@ export const changeItemStatus = async ({ type, item, status, proccessId, stage }
     return;
   }
 
-  const collection = getCollection(type)
+  const collection = getCollection(type);
 
-  const aboveItems = await collection.find({
-    stageId: item.stageId,
-    status: { $ne: BOARD_STATUSES.ARCHIVED },
-    order: { $lt: item.order } }
-  ).sort({ order: -1 }).limit(1)
+  const aboveItems = await collection
+    .find({
+      stageId: item.stageId,
+      status: { $ne: BOARD_STATUSES.ARCHIVED },
+      order: { $lt: item.order },
+    })
+    .sort({ order: -1 })
+    .limit(1);
 
   const aboveItemId = aboveItems[0]?._id || '';
 
   // maybe, recovered order includes to oldOrders
-  await collection.updateOne({
-    _id: item._id
-  }, {
-    order: await getNewOrder({
-      collection, stageId: item.stageId, aboveItemId
-    })
-  });
+  await collection.updateOne(
+    {
+      _id: item._id,
+    },
+    {
+      order: await getNewOrder({
+        collection,
+        stageId: item.stageId,
+        aboveItemId,
+      }),
+    },
+  );
 
   graphqlPubsub.publish('pipelinesChanged', {
     pipelinesChanged: {
@@ -152,7 +181,7 @@ export const changeItemStatus = async ({ type, item, status, proccessId, stage }
       proccessId,
       action: 'itemAdd',
       data: {
-        item: { ...item._doc, ...(await itemResolver(type, item))},
+        item: { ...item._doc, ...(await itemResolver(type, item)) },
         aboveItemId,
         destinationStageId: item.stageId,
       },
@@ -160,7 +189,15 @@ export const changeItemStatus = async ({ type, item, status, proccessId, stage }
   });
 };
 
-export const itemsEdit = async (_id: string, type: string, oldItem: any, doc: any, proccessId: string, user: IUserDocument, modelUpate) => {
+export const itemsEdit = async (
+  _id: string,
+  type: string,
+  oldItem: any,
+  doc: any,
+  proccessId: string,
+  user: IUserDocument,
+  modelUpate,
+) => {
   const extendedDoc = {
     ...doc,
     modifiedAt: new Date(),
@@ -226,14 +263,14 @@ export const itemsEdit = async (_id: string, type: string, oldItem: any, doc: an
 
   const pipelinesChangedIds = [updatedItem._id, stage.pipelineId];
 
-  for (const pipelinesChangedId of pipelinesChangedIds){
+  for (const pipelinesChangedId of pipelinesChangedIds) {
     graphqlPubsub.publish('pipelinesChanged', {
       pipelinesChanged: {
         _id: pipelinesChangedId,
         proccessId,
         action: 'itemUpdate',
         data: {
-          item: { ...updatedItem._doc, ...(await itemResolver(type, updatedItem))},
+          item: { ...updatedItem._doc, ...(await itemResolver(type, updatedItem)) },
         },
       },
     });
@@ -256,13 +293,13 @@ export const itemsEdit = async (_id: string, type: string, oldItem: any, doc: an
   });
 
   return updatedItem;
-}
+};
 
 export const itemMover = async (
   userId: string,
   item: IDealDocument | ITaskDocument | ITicketDocument | IGrowthHackDocument,
   contentType: string,
-  destinationStageId: string
+  destinationStageId: string,
 ) => {
   const oldStageId = item.stageId;
 
@@ -301,9 +338,9 @@ export const itemMover = async (
 
 export const itemsChange = async (doc: IItemDragCommonFields, type: string, user: IUserDocument, modelUpdate: any) => {
   const collection = getCollection(type);
-  const { proccessId, itemId, aboveItemId, destinationStageId, sourceStageId } = doc
+  const { proccessId, itemId, aboveItemId, destinationStageId, sourceStageId } = doc;
 
-  const item = await getItem(type,  itemId );
+  const item = await getItem(type, itemId);
 
   const extendedDoc = {
     modifiedAt: new Date(),
@@ -344,7 +381,7 @@ export const itemsChange = async (doc: IItemDragCommonFields, type: string, user
       proccessId,
       action: 'orderUpdated',
       data: {
-        item: { ...item._doc, ...(await itemResolver(type, item))},
+        item: { ...item._doc, ...(await itemResolver(type, item)) },
         aboveItemId,
         destinationStageId,
         oldStageId: sourceStageId,
@@ -353,10 +390,10 @@ export const itemsChange = async (doc: IItemDragCommonFields, type: string, user
   });
 
   return item;
-}
+};
 
 export const itemsRemove = async (_id: string, type: string, user: IUserDocument) => {
-  const item = await getItem(type,  _id );
+  const item = await getItem(type, _id);
 
   await sendNotifications({
     item,
@@ -376,7 +413,7 @@ export const itemsRemove = async (_id: string, type: string, user: IUserDocument
   await putDeleteLog({ type, object: item }, user);
 
   return removed;
-}
+};
 
 export const itemsCopy = async (
   _id: string,
@@ -384,9 +421,9 @@ export const itemsCopy = async (
   type: string,
   user: IUserDocument,
   extraDocParam: string[],
-  modelCreate: any
+  modelCreate: any,
 ) => {
-  const item = await getItem(type,  _id );
+  const item = await getItem(type, _id);
 
   const doc = await prepareBoardItemDoc(_id, type, user._id);
 
@@ -422,7 +459,7 @@ export const itemsCopy = async (
       proccessId,
       action: 'itemAdd',
       data: {
-        item: { ...clone._doc, ...(await itemResolver(type, clone))},
+        item: { ...clone._doc, ...(await itemResolver(type, clone)) },
         aboveItemId: _id,
         destinationStageId: stage._id,
       },
@@ -430,14 +467,12 @@ export const itemsCopy = async (
   });
 
   return clone;
-}
+};
 
-export const itemsArchive = async (
-  stageId: string, type: string, proccessId: string, user: IUserDocument
-) => {
+export const itemsArchive = async (stageId: string, type: string, proccessId: string, user: IUserDocument) => {
   const collection = getCollection(type);
 
-  const items = await collection.find({stageId, status: {$ne: BOARD_STATUSES.ARCHIVED}});
+  const items = await collection.find({ stageId, status: { $ne: BOARD_STATUSES.ARCHIVED } });
 
   await collection.updateMany({ stageId }, { $set: { status: BOARD_STATUSES.ARCHIVED } });
 
@@ -465,4 +500,4 @@ export const itemsArchive = async (
   });
 
   return 'ok';
-}
+};

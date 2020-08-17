@@ -4,6 +4,7 @@ import * as dotenv from 'dotenv';
 import * as telemetry from 'erxes-telemetry';
 import * as express from 'express';
 import * as fs from 'fs';
+import * as helmet from 'helmet';
 import { createServer } from 'http';
 import * as mongoose from 'mongoose';
 import * as path from 'path';
@@ -27,11 +28,11 @@ import { updateContactsValidationStatus, updateContactValidationStatus } from '.
 import { connect, mongoStatus } from './db/connection';
 import { debugBase, debugExternalApi, debugInit } from './debuggers';
 import { identifyCustomer, trackCustomEvent, trackViewPageEvent, updateCustomerProperty } from './events';
-import { initConsumer, rabbitMQStatus } from './messageBroker';
+import { initMemoryStorage } from './inmemoryStorage';
+import { initBroker } from './messageBroker';
 import { importer, uploader } from './middlewares/fileMiddleware';
 import userMiddleware from './middlewares/userMiddleware';
 import widgetsMiddleware from './middlewares/widgetsMiddleware';
-import { initRedis, redisStatus } from './redisClient';
 import init from './startup';
 
 // load environment variables
@@ -84,6 +85,8 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+app.use(helmet({ frameguard: { action: 'sameorigin' } }));
+
 app.get('/set-frontend-cookies', async (req: any, res) => {
   const envMaps = JSON.parse(req.query.envs || '{}');
 
@@ -94,7 +97,7 @@ app.get('/set-frontend-cookies', async (req: any, res) => {
   return res.send('success');
 });
 
-app.get('/script-manager', widgetsMiddleware);
+app.get('/script-manager', cors({ origin: '*' }), widgetsMiddleware);
 
 // events
 app.post('/events-receive', async (req, res) => {
@@ -155,20 +158,6 @@ app.get('/status', async (_req, res, next) => {
     return next(e);
   }
 
-  try {
-    await redisStatus();
-  } catch (e) {
-    debugBase('Redis is not running');
-    return next(e);
-  }
-
-  try {
-    await rabbitMQStatus();
-  } catch (e) {
-    debugBase('RabbitMQ is not running');
-    return next(e);
-  }
-
   res.end('ok');
 });
 
@@ -203,10 +192,12 @@ app.get('/file-export', async (req: any, res) => {
 });
 
 app.get('/template-export', async (req: any, res) => {
+  const { importType } = req.query;
+
   try {
     const { name, response } = await templateExport(req.query);
 
-    res.attachment(`${name}.xlsx`);
+    res.attachment(`${name}.${importType}`);
     return res.send(response);
   } catch (e) {
     return res.end(filterXSS(e.message));
@@ -349,11 +340,11 @@ apolloServer.installSubscriptionHandlers(httpServer);
 httpServer.listen(PORT, () => {
   // connect to mongo database
   connect().then(async () => {
-    initConsumer().catch(e => {
-      debugBase(`Error ocurred during rabbitmq init ${e.message}`);
+    initBroker().catch(e => {
+      debugBase(`Error ocurred during message broker init ${e.message}`);
     });
 
-    initRedis();
+    initMemoryStorage();
 
     init()
       .then(() => {

@@ -23,10 +23,13 @@
   "dependencies": {
     "amqplib": "^0.5.5",
     "body-parser": "^1.17.1",
+    "cote": "^1.0.0",
     "debug": "^4.1.1",
     "dotenv": "^4.0.0",
+    "erxes-message-broker": "^1.0.3",
     "express": "^4.16.4",
-    "mongoose": "5.7.10"
+    "mongoose": "5.7.10",
+    "uuid": "^8.3.0"
   },
   "devDependencies": {
     "@types/body-parser": "^1.17.0",

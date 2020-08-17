@@ -3,7 +3,7 @@ import { Channels, Customers, EmailDeliveries, Integrations } from '../../../db/
 import { IIntegration, IMessengerData, IUiOptions } from '../../../db/models/definitions/integrations';
 import { IExternalIntegrationParams } from '../../../db/models/Integrations';
 import { debugExternalApi } from '../../../debuggers';
-import { sendRPCMessage } from '../../../messageBroker';
+import messageBroker from '../../../messageBroker';
 import { MODULE_NAMES, RABBITMQ_QUEUES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
@@ -155,7 +155,7 @@ const integrationMutations = {
         data: data ? JSON.stringify(data) : '',
       });
 
-      telemetry.trackCli('integration_created', { type: kind });
+      telemetry.trackCli('integration_created', { type: doc.kind });
 
       await putCreateLog(
         {
@@ -202,33 +202,38 @@ const integrationMutations = {
   async integrationsRemove(_root, { _id }: { _id: string }, { user, dataSources }: IContext) {
     const integration = await Integrations.getIntegration(_id);
 
-    if (
-      [
-        'facebook-messenger',
-        'facebook-post',
-        'gmail',
-        'callpro',
-        'nylas-gmail',
-        'nylas-imap',
-        'nylas-office365',
-        'nylas-outlook',
-        'nylas-exchange',
-        'nylas-yahoo',
-        'chatfuel',
-        'twitter-dm',
-        'smooch-viber',
-        'smooch-telegram',
-        'smooch-line',
-        'smooch-twilio',
-        'whatsapp',
-      ].includes(integration.kind)
-    ) {
-      await dataSources.IntegrationsAPI.removeIntegration({ integrationId: _id });
+    try {
+      if (
+        [
+          'facebook-messenger',
+          'facebook-post',
+          'gmail',
+          'callpro',
+          'nylas-gmail',
+          'nylas-imap',
+          'nylas-office365',
+          'nylas-outlook',
+          'nylas-exchange',
+          'nylas-yahoo',
+          'chatfuel',
+          'twitter-dm',
+          'smooch-viber',
+          'smooch-telegram',
+          'smooch-line',
+          'smooch-twilio',
+          'whatsapp',
+        ].includes(integration.kind)
+      ) {
+        await dataSources.IntegrationsAPI.removeIntegration({ integrationId: _id });
+      }
+
+      await putDeleteLog({ type: MODULE_NAMES.INTEGRATION, object: integration }, user);
+
+      return Integrations.removeIntegration(_id);
+    } catch (e) {
+      debugExternalApi(e);
+      throw e;
     }
-
-    await putDeleteLog({ type: MODULE_NAMES.INTEGRATION, object: integration }, user);
-
-    return Integrations.removeIntegration(_id);
   },
 
   /**
@@ -236,7 +241,7 @@ const integrationMutations = {
    */
   async integrationsRemoveAccount(_root, { _id }: { _id: string }) {
     try {
-      const { erxesApiIds } = await sendRPCMessage(RABBITMQ_QUEUES.RPC_API_TO_INTEGRATIONS, {
+      const { erxesApiIds } = await messageBroker().sendRPCMessage(RABBITMQ_QUEUES.RPC_API_TO_INTEGRATIONS, {
         action: 'remove-account',
         data: { _id },
       });

@@ -3,20 +3,20 @@ name: Api CI
 on:
   push:
     branches:
-      - "**"
+      - '**'
     paths:
-      - "**"
-      - "!.github/**"
-      - ".github/workflows/api.yaml"
-      - "!elkSyncer/**"
-      - "!email-verifier/**"
-      - "!engages-email-sender/**"
-      - "!logger/**"
-      - "!**.md"
-      - "!base.Dockerfile"
-      - "!base.Dockerfile.dockerignore"
+      - '**'
+      - '!.github/**'
+      - '.github/workflows/api.yaml'
+      - '!elkSyncer/**'
+      - '!email-verifier/**'
+      - '!engages-email-sender/**'
+      - '!logger/**'
+      - '!**.md'
+      - '!base.Dockerfile'
+      - '!base.Dockerfile.dockerignore'
     tags:
-      - "*"
+      - '*'
   pull_request:
     branches:
       - master
@@ -24,16 +24,16 @@ on:
       - crons
       - workers
     paths:
-      - "**"
-      - "!.github/**"
-      - ".github/workflows/api.yaml"
-      - "!elkSyncer/**"
-      - "!email-verifier/**"
-      - "!engages-email-sender/**"
-      - "!logger/**"
-      - "!**.md"
-      - "!base.Dockerfile"
-      - "!base.Dockerfile.dockerignore"
+      - '**'
+      - '!.github/**'
+      - '.github/workflows/api.yaml'
+      - '!elkSyncer/**'
+      - '!email-verifier/**'
+      - '!engages-email-sender/**'
+      - '!logger/**'
+      - '!**.md'
+      - '!base.Dockerfile'
+      - '!base.Dockerfile.dockerignore'
 
 jobs:
   api:
@@ -81,7 +81,6 @@ jobs:
           yarn lint
 
       - name: Tsc
-        if: github.event_name == 'pull_request'
         run: |
           yarn tsc -p tsconfig.prod.json
 

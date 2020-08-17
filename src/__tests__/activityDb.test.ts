@@ -99,13 +99,16 @@ describe('Test activity model', () => {
     const activity1 = await ActivityLogs.createSegmentLog(segment1, [customer._id], 'customer');
     const activity2 = await ActivityLogs.createSegmentLog(segment2, [customer._id], 'customer');
     const activity3 = await ActivityLogs.createSegmentLog(
-      segment3, [
+      segment3,
+      [
         customer._id,
         (await customerFactory({}))._id,
         (await customerFactory({}))._id,
         (await customerFactory({}))._id,
         (await customerFactory({}))._id,
-      ], 'customer', 3
+      ],
+      'customer',
+      3,
     );
 
     expect(activity1).toBe(undefined);

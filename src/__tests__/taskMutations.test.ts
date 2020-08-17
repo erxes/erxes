@@ -194,7 +194,7 @@ describe('Test tasks mutations', () => {
       itemId: task._id,
       aboveItemId: '',
       destinationStageId: task.stageId,
-      sourceStageId: task.stageId
+      sourceStageId: task.stageId,
     };
 
     const mutation = `
@@ -220,9 +220,8 @@ describe('Test tasks mutations', () => {
       itemId: task._id,
       aboveItemId: '',
       destinationStageId: anotherStage._id,
-      sourceStageId: task.stageId
+      sourceStageId: task.stageId,
     };
-
 
     const mutation = `
       mutation tasksChange(${commonDragParamDefs}) {

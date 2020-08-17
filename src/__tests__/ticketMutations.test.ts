@@ -143,7 +143,7 @@ describe('Test tickets mutations', () => {
       itemId: ticket._id,
       aboveItemId: '',
       destinationStageId: ticket.stageId,
-      sourceStageId: ticket.stageId
+      sourceStageId: ticket.stageId,
     };
 
     const mutation = `
@@ -170,9 +170,8 @@ describe('Test tickets mutations', () => {
       itemId: ticket._id,
       aboveItemId: '',
       destinationStageId: anotherStage._id,
-      sourceStageId: ticket.stageId
+      sourceStageId: ticket.stageId,
     };
-
 
     const mutation = `
       mutation ticketsChange(${commonDragParamDefs}) {

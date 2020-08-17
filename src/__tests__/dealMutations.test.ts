@@ -188,7 +188,7 @@ describe('Test deals mutations', () => {
       itemId: deal._id,
       aboveItemId: '',
       destinationStageId: deal.stageId,
-      sourceStageId: deal.stageId
+      sourceStageId: deal.stageId,
     };
 
     const mutation = `
@@ -215,9 +215,8 @@ describe('Test deals mutations', () => {
       itemId: deal._id,
       aboveItemId: '',
       destinationStageId: anotherStage._id,
-      sourceStageId: deal.stageId
+      sourceStageId: deal.stageId,
     };
-
 
     const mutation = `
       mutation dealsChange(${commonDragParamDefs}) {

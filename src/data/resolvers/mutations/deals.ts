@@ -84,7 +84,7 @@ const dealMutations = {
     return itemsCopy(_id, proccessId, 'deal', user, ['productsData', 'paymentsData'], Deals.createDeal);
   },
 
-  async dealsArchive(_root, { stageId, proccessId }: { stageId: string, proccessId: string }, { user }: IContext) {
+  async dealsArchive(_root, { stageId, proccessId }: { stageId: string; proccessId: string }, { user }: IContext) {
     return itemsArchive(stageId, 'deal', proccessId, user);
   },
 };

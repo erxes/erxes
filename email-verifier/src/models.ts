@@ -9,6 +9,7 @@ export const EMAIL_VALIDATION_STATUSES = {
   CATCHALL: 'catchall',
   BAD_SYNTAX: 'badsyntax',
   UNVERIFIABLE: 'unverifiable',
+  NOT_CHECKED: 'Not checked',
   ALL: [
     'valid',
     'invalid',
@@ -18,6 +19,7 @@ export const EMAIL_VALIDATION_STATUSES = {
     'catchall',
     'badsyntax',
     'unverifiable',
+    'Not checked',
   ],
 };
 
@@ -28,6 +30,12 @@ export const PHONE_VALIDATION_STATUSES = {
   RECEIVES_SMS: 'receives_sms',
   UNVERIFIABLE: 'unverifiable',
   ALL: ['valid', 'invalid', 'unknown', 'receives_sms', 'unverifiable'],
+};
+
+export const EMAIL_VALIDATION_SOURCES = {
+  ERXES: 'erxes',
+  TRUEMAIL: 'truemail',
+  ALL: ['erxes', 'truemail'],
 };
 
 interface IEmail {

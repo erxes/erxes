@@ -1,5 +1,5 @@
 import * as schedule from 'node-schedule';
-import { sendMessage } from '../messageBroker';
+import messageBroker from '../messageBroker';
 
 /**
  * *    *    *    *    *    *
@@ -13,5 +13,5 @@ import { sendMessage } from '../messageBroker';
  * └───────────────────────── second (0 - 59, OPTIONAL)
  */
 schedule.scheduleJob('0 0 * * *', () => {
-  return sendMessage('erxes-api:integrations-notification', { type: 'cronjob' });
+  return messageBroker().sendMessage('erxes-api:integrations-notification', { type: 'cronjob' });
 });

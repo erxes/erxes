@@ -12,16 +12,24 @@ import { Configs, Customers, Notifications, Users } from '../db/models';
 import { IUser, IUserDocument } from '../db/models/definitions/users';
 import { OnboardingHistories } from '../db/models/Robot';
 import { debugBase, debugEmail, debugExternalApi } from '../debuggers';
+import memoryStorage from '../inmemoryStorage';
 import { graphqlPubsub } from '../pubsub';
-import { get, set } from '../redisClient';
 
-const uploadsFolderPath = path.join(__dirname, '../private/uploads');
+export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
 
-export const initFirebase = (value: string): void => {
-  const serviceAccount = JSON.parse(value);
+export const initFirebase = (code: string): void => {
+  if (code.length === 0) {
+    return;
+  }
 
-  if (serviceAccount.private_key) {
-    admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+  const codeString = code.trim();
+
+  if (codeString[0] === '{' && codeString[codeString.length - 1] === '}') {
+    const serviceAccount = JSON.parse(codeString);
+
+    if (serviceAccount.private_key) {
+      admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+    }
   }
 };
 
@@ -46,7 +54,7 @@ export const checkFile = async (file, source?: string) => {
   // determine file type using magic numbers
   const ft = fileType(buffer);
 
-  const unsupportedMimeTypes = ['text/csv', 'image/svg+xml', 'text/plain'];
+  const unsupportedMimeTypes = ['text/csv', 'image/svg+xml', 'text/plain', 'application/vnd.ms-excel'];
 
   const oldMsOfficeDocs = ['application/msword', 'application/vnd.ms-excel', 'application/vnd.ms-powerpoint'];
 
@@ -909,7 +917,7 @@ export const handleUnsubscription = async (query: { cid: string; uid: string }) 
 };
 
 export const getConfigs = async () => {
-  const configsCache = await get('configs_erxes_api');
+  const configsCache = await memoryStorage().get('configs_erxes_api');
 
   if (configsCache && configsCache !== '{}') {
     return JSON.parse(configsCache);
@@ -922,7 +930,7 @@ export const getConfigs = async () => {
     configsMap[config.code] = config.value;
   }
 
-  set('configs_erxes_api', JSON.stringify(configsMap));
+  memoryStorage().set('configs_erxes_api', JSON.stringify(configsMap));
 
   return configsMap;
 };
@@ -938,12 +946,12 @@ export const getConfig = async (code, defaultValue?) => {
 };
 
 export const resetConfigsCache = () => {
-  set('configs_erxes_api', '');
+  memoryStorage().set('configs_erxes_api', '');
 };
 
 export const frontendEnv = ({ name, req, requestInfo }: { name: string; req?: any; requestInfo?: any }): string => {
   const cookies = req ? req.cookies : requestInfo.cookies;
-  const keys = Object.keys(cookies).filter(key => key.startsWith('REACT_APP'));
+  const keys = Object.keys(cookies);
 
   const envs: { [key: string]: string } = {};
 
@@ -958,6 +966,7 @@ export const getSubServiceDomain = ({ name }: { name: string }): string => {
   const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
 
   const defaultMappings = {
+    API_DOMAIN: `${MAIN_APP_DOMAIN}/api`,
     WIDGETS_DOMAIN: `${MAIN_APP_DOMAIN}/widgets`,
     INTEGRATIONS_API_DOMAIN: `${MAIN_APP_DOMAIN}/integrations`,
     LOGS_API_DOMAIN: `${MAIN_APP_DOMAIN}/logs`,

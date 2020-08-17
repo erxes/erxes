@@ -373,25 +373,24 @@ describe('Test board model', () => {
     expect(response.length).toBe(0);
   });
 
-  test('itemOrder test', async() => {
+  test('itemOrder test', async () => {
     let aboveItemId = '';
     const newStage = await stageFactory();
     expect(await getNewOrder({ aboveItemId, stageId: newStage._id, collection: Deals })).toBe(100);
 
-    const firstDeal = await dealFactory({stageId: newStage._id, order: 100});
+    const firstDeal = await dealFactory({ stageId: newStage._id, order: 100 });
     expect(await getNewOrder({ aboveItemId, stageId: newStage._id, collection: Deals })).toBeGreaterThan(0);
     expect(await getNewOrder({ aboveItemId, stageId: newStage._id, collection: Deals })).toBeLessThan(100);
 
-    aboveItemId = (await dealFactory({stageId: newStage._id, order: 99}))._id;
+    aboveItemId = (await dealFactory({ stageId: newStage._id, order: 99 }))._id;
     expect(await getNewOrder({ aboveItemId, stageId: newStage._id, collection: Deals })).toBeGreaterThan(99);
     expect(await getNewOrder({ aboveItemId, stageId: newStage._id, collection: Deals })).toBeLessThan(100);
 
     expect(await getNewOrder({ aboveItemId: firstDeal._id, stageId: newStage._id, collection: Deals })).toBe(110);
 
     // duplicated then recall getNewOrder
-    aboveItemId = (await dealFactory({stageId: newStage._id, order: 99.99999999999999}))._id;
+    aboveItemId = (await dealFactory({ stageId: newStage._id, order: 99.99999999999999 }))._id;
     expect(await getNewOrder({ aboveItemId, stageId: newStage._id, collection: Deals })).toBeGreaterThan(110);
     expect(await getNewOrder({ aboveItemId, stageId: newStage._id, collection: Deals })).toBeLessThan(120);
-
-  })
+  });
 });

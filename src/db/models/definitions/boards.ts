@@ -39,11 +39,11 @@ export interface IItemCommonFieldsDocument extends IItemCommonFields, Document {
 }
 
 export interface IItemDragCommonFields {
-  proccessId: string,
-  itemId: string,
-  aboveItemId?: string,
-  destinationStageId: string,
-  sourceStageId: string
+  proccessId: string;
+  itemId: string;
+  aboveItemId?: string;
+  destinationStageId: string;
+  sourceStageId: string;
 }
 
 export interface IBoard extends ICommonFields {

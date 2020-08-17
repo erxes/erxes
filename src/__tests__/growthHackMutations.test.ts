@@ -141,7 +141,7 @@ describe('Test growthHacks mutations', () => {
       name: 'changed-name',
       stageId: stage2._id,
       status: 'active',
-    }
+    };
 
     updatedGrowthHack = await graphqlRequest(mutation, 'growthHacksEdit', args, context);
     expect(updatedGrowthHack.stageId).toBe(args.stageId);
@@ -153,7 +153,7 @@ describe('Test growthHacks mutations', () => {
       itemId: growthHack._id,
       aboveItemId: '',
       destinationStageId: growthHack.stageId,
-      sourceStageId: growthHack.stageId
+      sourceStageId: growthHack.stageId,
     };
 
     const mutation = `
@@ -180,7 +180,7 @@ describe('Test growthHacks mutations', () => {
       itemId: growthHack._id,
       aboveItemId: '',
       destinationStageId: anotherStage._id,
-      sourceStageId: growthHack.stageId
+      sourceStageId: growthHack.stageId,
     };
 
     const mutation = `

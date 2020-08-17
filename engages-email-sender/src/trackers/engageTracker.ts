@@ -1,6 +1,6 @@
 import * as AWS from 'aws-sdk';
 import { debugBase } from '../debuggers';
-import { sendMessage } from '../messageQueue';
+import messageBroker from '../messageBroker';
 import { Configs, DeliveryReports, Stats } from '../models';
 import { ISESConfig } from '../models/Configs';
 
@@ -55,7 +55,7 @@ const handleMessage = async message => {
   const rejected = await DeliveryReports.updateOrCreateReport(mailHeaders, type);
 
   if (rejected === 'reject') {
-    await sendMessage('engagesNotification', {
+    await messageBroker().sendMessage('engagesNotification', {
       action: 'setDoNotDisturb',
       data: { customerId: mail.customerId },
     });

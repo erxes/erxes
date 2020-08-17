@@ -16,10 +16,10 @@ export const createActivityLogsFromSegments = async () => {
   for (const segment of segments) {
     const ids = await fetchBySegments(segment);
 
-    const customers = await Customers.find({ _id: { $in: ids } }, {_id: 1});
+    const customers = await Customers.find({ _id: { $in: ids } }, { _id: 1 });
     const customerIds = customers.map(c => c._id);
 
-    const companies = await Companies.find({ _id: { $in: ids } }, {_id: 1});
+    const companies = await Companies.find({ _id: { $in: ids } }, { _id: 1 });
     const companyIds = companies.map(c => c._id);
 
     await ActivityLogs.createSegmentLog(segment, customerIds, 'customer');

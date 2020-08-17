@@ -1,5 +1,5 @@
 import * as EmailValidator from 'email-deep-validator';
-import { EMAIL_VALIDATION_STATUSES, Emails } from './models';
+import { EMAIL_VALIDATION_SOURCES, EMAIL_VALIDATION_STATUSES, Emails } from './models';
 import { getArray, setArray } from './redisClient';
 import { debugBase, sendRequest } from './utils';
 
@@ -77,6 +77,7 @@ export const single = async (email: string, hostname: string) => {
       method: 'POST',
       body: {
         email: { email, status: emailOnDb.status },
+        source: EMAIL_VALIDATION_SOURCES.ERXES,
       },
     });
   }
@@ -85,11 +86,12 @@ export const single = async (email: string, hostname: string) => {
   const { validDomain, validMailbox } = await emailValidator.verify(email);
 
   if (validDomain && validMailbox) {
-    await sendRequest({
+    return sendRequest({
       url: `${hostname}/verifier/webhook`,
       method: 'POST',
       body: {
         email: { email, status: EMAIL_VALIDATION_STATUSES.VALID },
+        source: EMAIL_VALIDATION_SOURCES.ERXES,
       },
     });
   }
@@ -98,7 +100,7 @@ export const single = async (email: string, hostname: string) => {
 
   if (EMAIL_VERIFICATION_TYPE === 'truemail') {
     try {
-      debugBase(`Email is not found on verifier DB. Sending request to clearoutphone`);
+      debugBase(`Email is not found on verifier DB. Sending request to truemail`);
       response = await singleTrueMail(email);
 
       debugBase(`Received single email validation status`);
@@ -111,27 +113,31 @@ export const single = async (email: string, hostname: string) => {
   if (response.status === 'success') {
     const doc = { email, status: response.result };
 
-    await Emails.createEmail(doc);
+    if (doc.status === EMAIL_VALIDATION_STATUSES.VALID || doc.status === EMAIL_VALIDATION_STATUSES.INVALID) {
+      await Emails.createEmail(doc);
+    }
 
     debugBase(`Sending single email validation status to erxes-api`);
 
-    await sendRequest({
+    return sendRequest({
       url: `${hostname}/verifier/webhook`,
       method: 'POST',
       body: {
         email: doc,
-      },
-    });
-  } else {
-    // if status is not success
-    await sendRequest({
-      url: `${hostname}/verifier/webhook`,
-      method: 'POST',
-      body: {
-        email: { email, status: EMAIL_VALIDATION_STATUSES.UNKNOWN },
+        source: EMAIL_VALIDATION_SOURCES.TRUEMAIL,
       },
     });
   }
+
+  // if status is not success
+  return sendRequest({
+    url: `${hostname}/verifier/webhook`,
+    method: 'POST',
+    body: {
+      email: { email, status: EMAIL_VALIDATION_STATUSES.UNKNOWN },
+      source: EMAIL_VALIDATION_SOURCES.TRUEMAIL,
+    },
+  });
 };
 
 export const bulk = async (emails: string[], hostname: string) => {
@@ -155,6 +161,7 @@ export const bulk = async (emails: string[], hostname: string) => {
         method: 'POST',
         body: {
           emails: verifiedEmails,
+          source: EMAIL_VALIDATION_SOURCES.ERXES,
         },
       });
     } catch (e) {
@@ -206,16 +213,18 @@ export const getTrueMailBulk = async (taskId: string, hostname: string) => {
         status,
       });
 
-      const found = await Emails.findOne({ email });
+      if (status === EMAIL_VALIDATION_STATUSES.VALID || status === EMAIL_VALIDATION_STATUSES.INVALID) {
+        const found = await Emails.findOne({ email });
 
-      if (!found) {
-        const doc = {
-          email,
-          status,
-          created: new Date(),
-        };
+        if (!found) {
+          const doc = {
+            email,
+            status,
+            created: new Date(),
+          };
 
-        await Emails.create(doc);
+          await Emails.createEmail(doc);
+        }
       }
     }
   }
@@ -227,6 +236,7 @@ export const getTrueMailBulk = async (taskId: string, hostname: string) => {
     method: 'POST',
     body: {
       emails,
+      source: EMAIL_VALIDATION_SOURCES.TRUEMAIL,
     },
   });
 };

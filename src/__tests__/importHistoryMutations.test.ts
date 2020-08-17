@@ -1,7 +1,7 @@
 import { graphqlRequest } from '../db/connection';
 import { customerFactory, importHistoryFactory } from '../db/factories';
 import { ImportHistory } from '../db/models';
-import * as messageBroker from '../messageBroker';
+import messageBroker from '../messageBroker';
 
 import './setup.ts';
 
@@ -18,7 +18,7 @@ describe('Import history mutations', () => {
       }
     `;
 
-    const spy = jest.spyOn(messageBroker, 'sendRPCMessage');
+    const spy = jest.spyOn(messageBroker(), 'sendRPCMessage');
     spy.mockImplementation(() => Promise.resolve({ status: 'ok' }));
 
     const customer = await customerFactory({});
@@ -40,7 +40,7 @@ describe('Import history mutations', () => {
       }
     `;
 
-    const spy = jest.spyOn(messageBroker, 'sendRPCMessage');
+    const spy = jest.spyOn(messageBroker(), 'sendRPCMessage');
     spy.mockImplementation(() => Promise.resolve({ status: 'error', message: 'Workers are busy' }));
 
     const customer = await customerFactory({});

@@ -14,7 +14,7 @@ const ticketMutations = {
    * Create new ticket
    */
   async ticketsAdd(_root, doc: ITicket & { proccessId: string; aboveItemId: string }, { user, docModifier }: IContext) {
-    return itemsAdd(doc, 'ticket', user, docModifier, Tickets.createTicket)
+    return itemsAdd(doc, 'ticket', user, docModifier, Tickets.createTicket);
   },
 
   /**
@@ -51,7 +51,7 @@ const ticketMutations = {
     return itemsCopy(_id, proccessId, 'ticket', user, ['source'], Tickets.createTicket);
   },
 
-  async ticketsArchive(_root, { stageId, proccessId }: { stageId: string, proccessId: string }, { user }: IContext) {
+  async ticketsArchive(_root, { stageId, proccessId }: { stageId: string; proccessId: string }, { user }: IContext) {
     return itemsArchive(stageId, 'ticket', proccessId, user);
   },
 };

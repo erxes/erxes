@@ -1,8 +1,8 @@
-import { frontendEnv } from '../data/utils';
+import { getSubServiceDomain } from '../data/utils';
 import { Scripts } from '../db/models';
 
 const widgetsMiddleware = async (req, res) => {
-  const domain = frontendEnv({ name: 'CDN_HOST', req });
+  const domain = getSubServiceDomain({ name: 'WIDGETS_DOMAIN' });
 
   const script = await Scripts.findOne({ _id: req.query.id });
 

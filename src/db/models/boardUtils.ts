@@ -24,7 +24,7 @@ interface ISetOrderParam {
 
 const randomBetween = (min: number, max: number) => {
   return Math.random() * (max - min) + min;
-}
+};
 
 const orderHeler = (aboveOrder, belowOrder) => {
   // empty stage
@@ -39,12 +39,12 @@ const orderHeler = (aboveOrder, belowOrder) => {
 
   // begin of stage
   if (!aboveOrder) {
-    return randomBetween(0, belowOrder)
+    return randomBetween(0, belowOrder);
   }
 
   // between items on stage
   return randomBetween(aboveOrder, belowOrder);
-}
+};
 
 export const getNewOrder = async ({ collection, stageId, aboveItemId }: ISetOrderParam) => {
   const aboveItem = await collection.findOne({ _id: aboveItemId });
@@ -52,32 +52,36 @@ export const getNewOrder = async ({ collection, stageId, aboveItemId }: ISetOrde
   const aboveOrder = aboveItem?.order || 0;
 
   const belowItems = await collection
-    .find({ stageId, order: { $gt: aboveOrder },  status: { $ne: BOARD_STATUSES.ARCHIVED }  })
+    .find({ stageId, order: { $gt: aboveOrder }, status: { $ne: BOARD_STATUSES.ARCHIVED } })
     .sort({ order: 1 })
     .limit(1);
 
   const belowOrder = belowItems[0]?.order;
 
-  const order = orderHeler(aboveOrder, belowOrder)
+  const order = orderHeler(aboveOrder, belowOrder);
 
   // if duplicated order, then in stages items bulkUpdate 100, 110, 120, 130
   if ([aboveOrder, belowOrder].includes(order)) {
     const bulkOps: Array<{
       updateOne: {
         filter: { _id: string };
-        update: { order: number }
-      }
-    }> = []
+        update: { order: number };
+      };
+    }> = [];
 
     let ord = 100;
 
-    const allItems = await collection.find({
-      stageId,
-      status: {$ne: BOARD_STATUSES.ARCHIVED }
-    }, {_id: 1, order: 1})
-      .sort({order: 1});
+    const allItems = await collection
+      .find(
+        {
+          stageId,
+          status: { $ne: BOARD_STATUSES.ARCHIVED },
+        },
+        { _id: 1, order: 1 },
+      )
+      .sort({ order: 1 });
 
-    for (const item of allItems ) {
+    for (const item of allItems) {
       bulkOps.push({
         updateOne: {
           filter: { _id: item._id },
@@ -89,10 +93,10 @@ export const getNewOrder = async ({ collection, stageId, aboveItemId }: ISetOrde
     }
 
     await collection.bulkWrite(bulkOps);
-    return getNewOrder({collection, stageId, aboveItemId})
+    return getNewOrder({ collection, stageId, aboveItemId });
   }
 
-  return order
+  return order;
 };
 
 export const updateOrder = async (collection: any, orders: IOrderInput[]) => {
@@ -187,8 +191,8 @@ export const getItem = async (type: string, _id: string) => {
     throw new Error(`${type} not found`);
   }
 
-  return item
-}
+  return item;
+};
 
 export const getCompanies = async (mainType: string, mainTypeId: string): Promise<ICompanyDocument[]> => {
   const conformities = await Conformities.find({ mainType, mainTypeId, relType: 'company' });

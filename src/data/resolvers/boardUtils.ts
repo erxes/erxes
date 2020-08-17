@@ -1,12 +1,4 @@
-import {
-  Boards,
-  ChecklistItems,
-  Checklists,
-  Conformities,
-  PipelineLabels,
-  Pipelines,
-  Stages,
-} from '../../db/models';
+import { Boards, ChecklistItems, Checklists, Conformities, PipelineLabels, Pipelines, Stages } from '../../db/models';
 import { getCollection, getNewOrder } from '../../db/models/boardUtils';
 import { NOTIFICATION_TYPES } from '../../db/models/definitions/constants';
 import { IDealDocument } from '../../db/models/definitions/deals';

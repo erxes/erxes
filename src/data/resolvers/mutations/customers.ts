@@ -1,6 +1,6 @@
 import { ActivityLogs, Customers } from '../../../db/models';
 import { ICustomer } from '../../../db/models/definitions/customers';
-import { sendMessage } from '../../../messageBroker';
+import messageBroker from '../../../messageBroker';
 import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
@@ -16,10 +16,10 @@ const customerMutations = {
   /**
    * Create new customer also adds Customer registration log
    */
-  async customersAdd(_root, doc: ICustomer, { user, docModifier, requestInfo }: IContext) {
+  async customersAdd(_root, doc: ICustomer, { user, docModifier }: IContext) {
     const modifiedDoc = docModifier(doc);
 
-    const customer = await Customers.createCustomer(modifiedDoc, user, requestInfo.hostname);
+    const customer = await Customers.createCustomer(modifiedDoc, user);
 
     await putCreateLog(
       {
@@ -38,9 +38,9 @@ const customerMutations = {
   /**
    * Updates a customer
    */
-  async customersEdit(_root, { _id, ...doc }: ICustomersEdit, { user, requestInfo }: IContext) {
+  async customersEdit(_root, { _id, ...doc }: ICustomersEdit, { user }: IContext) {
     const customer = await Customers.getCustomer(_id);
-    const updated = await Customers.updateCustomer(_id, doc, requestInfo.hostname);
+    const updated = await Customers.updateCustomer(_id, doc);
 
     await putUpdateLog(
       {
@@ -81,7 +81,7 @@ const customerMutations = {
 
     await Customers.removeCustomers(customerIds);
 
-    await sendMessage('erxes-api:integrations-notification', {
+    await messageBroker().sendMessage('erxes-api:integrations-notification', {
       type: 'removeCustomers',
       customerIds,
     });
@@ -92,7 +92,7 @@ const customerMutations = {
       await putDeleteLog({ type: MODULE_NAMES.CUSTOMER, object: customer }, user);
 
       if (customer.mergedIds) {
-        await sendMessage('erxes-api:integrations-notification', {
+        await messageBroker().sendMessage('erxes-api:integrations-notification', {
           type: 'removeCustomers',
           customerIds: customer.mergedIds,
         });
@@ -102,8 +102,8 @@ const customerMutations = {
     return customerIds;
   },
 
-  async customersVerify(_root, { verificationType }: { verificationType: string }, { requestInfo }) {
-    await validateBulk(verificationType, requestInfo.hostname);
+  async customersVerify(_root, { verificationType }: { verificationType: string }) {
+    await validateBulk(verificationType);
   },
 };
 
@@ -111,6 +111,6 @@ checkPermission(customerMutations, 'customersAdd', 'customersAdd');
 checkPermission(customerMutations, 'customersEdit', 'customersEdit');
 checkPermission(customerMutations, 'customersMerge', 'customersMerge');
 checkPermission(customerMutations, 'customersRemove', 'customersRemove');
-checkPermission(customerMutations, 'customersChangeState', 'customersRemove');
+checkPermission(customerMutations, 'customersChangeState', 'customersChangeState');
 
 export default customerMutations;

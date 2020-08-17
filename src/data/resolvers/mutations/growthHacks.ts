@@ -14,7 +14,11 @@ const growthHackMutations = {
   /**
    * Create new growth hack
    */
-  async growthHacksAdd(_root, doc: IGrowthHack & { proccessId: string; aboveItemId: string }, { user, docModifier }: IContext) {
+  async growthHacksAdd(
+    _root,
+    doc: IGrowthHack & { proccessId: string; aboveItemId: string },
+    { user, docModifier }: IContext,
+  ) {
     return itemsAdd(doc, 'growthHack', user, docModifier, GrowthHacks.createGrowthHack);
   },
 
@@ -56,20 +60,16 @@ const growthHackMutations = {
   },
 
   async growthHacksCopy(_root, { _id, proccessId }: { _id: string; proccessId: string }, { user }: IContext) {
-    const extraDocs = [
-      'votedUserIds',
-      'voteCount',
-      'hackStages',
-      'reach',
-      'impact',
-      'confidence',
-      'ease'
-    ]
+    const extraDocs = ['votedUserIds', 'voteCount', 'hackStages', 'reach', 'impact', 'confidence', 'ease'];
 
     return itemsCopy(_id, proccessId, 'growthHack', user, extraDocs, GrowthHacks.createGrowthHack);
   },
 
-  async growthHacksArchive(_root, { stageId, proccessId }: { stageId: string, proccessId: string }, { user }: IContext) {
+  async growthHacksArchive(
+    _root,
+    { stageId, proccessId }: { stageId: string; proccessId: string },
+    { user }: IContext,
+  ) {
     return itemsArchive(stageId, 'growthHack', proccessId, user);
   },
 };

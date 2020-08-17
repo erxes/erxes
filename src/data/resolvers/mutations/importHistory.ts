@@ -1,5 +1,5 @@
 import { ImportHistory } from '../../../db/models';
-import { sendMessage, sendRPCMessage } from '../../../messageBroker';
+import messageBroker from '../../../messageBroker';
 import { MODULE_NAMES, RABBITMQ_QUEUES } from '../../constants';
 import { putDeleteLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
@@ -15,7 +15,7 @@ const importHistoryMutations = {
 
     await ImportHistory.updateOne({ _id: importHistory._id }, { $set: { status: 'Removing' } });
 
-    const response = await sendRPCMessage(RABBITMQ_QUEUES.RPC_API_TO_WORKERS, {
+    const response = await messageBroker().sendRPCMessage(RABBITMQ_QUEUES.RPC_API_TO_WORKERS, {
       action: 'removeImport',
       contentType: importHistory.contentType,
       importHistoryId: importHistory._id,
@@ -34,7 +34,7 @@ const importHistoryMutations = {
    * Cancel uploading process
    */
   async importHistoriesCancel(_root) {
-    await sendMessage(RABBITMQ_QUEUES.WORKERS, {
+    await messageBroker().sendMessage(RABBITMQ_QUEUES.WORKERS, {
       type: 'cancelImport',
     });
 

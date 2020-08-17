@@ -35,7 +35,7 @@ export default {
           },
         },
         {
-          $match: { tickUsed: true }
+          $match: { tickUsed: true },
         },
         {
           $group: {

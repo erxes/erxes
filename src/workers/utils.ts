@@ -1,10 +1,12 @@
+import * as csv from 'csvtojson';
 import * as dotenv from 'dotenv';
+import * as fs from 'fs';
 import * as mongoose from 'mongoose';
 import * as os from 'os';
 import * as path from 'path';
 import * as XlsxStreamReader from 'xlsx-stream-reader';
 import { checkFieldNames } from '../data/modules/fields/utils';
-import { deleteFileAWS, s3Stream } from '../data/utils';
+import { deleteFile, s3Stream, uploadsFolderPath } from '../data/utils';
 import { ImportHistory } from '../db/models';
 import ImportHistories from '../db/models/ImportHistory';
 import { debugImport, debugWorkers } from '../debuggers';
@@ -105,6 +107,24 @@ export const clearIntervals = () => {
   intervals = [];
 };
 
+export const clearEmptyValues = (obj: any) => {
+  Object.keys(obj).forEach(key => {
+    if (obj[key] === '' || obj[key] === 'unknown') {
+      delete obj[key];
+    }
+
+    if (Array.isArray(obj[key]) && obj[key].length === 0) {
+      delete obj[key];
+    }
+  });
+
+  return obj;
+};
+
+export const updateDuplicatedValue = async (model: any, field: string, doc: any) => {
+  return model.updateOne({ [field]: doc[field] }, { $set: { ...doc, modifiedAt: new Date() } });
+};
+
 // xls file import, cancel, removal
 export const receiveImportRemove = async (content: any) => {
   const { contentType, importHistoryId } = content;
@@ -133,7 +153,7 @@ export const receiveImportCancel = () => {
   return { status: 'ok' };
 };
 
-const readXlsFile = async (fileName: string): Promise<{ fieldNames: string[]; datas: any[] }> => {
+const readXlsFile = async (fileName: string, uploadType: string): Promise<{ fieldNames: string[]; datas: any[] }> => {
   return new Promise(async (resolve, reject) => {
     let rowCount = 0;
 
@@ -146,7 +166,10 @@ const readXlsFile = async (fileName: string): Promise<{ fieldNames: string[]; da
     };
 
     try {
-      const stream = await s3Stream(fileName, errorCallback);
+      const stream =
+        uploadType === 'local'
+          ? fs.createReadStream(`${uploadsFolderPath}/${fileName}`)
+          : await s3Stream(fileName, errorCallback);
 
       stream.pipe(xlsxReader);
 
@@ -197,11 +220,98 @@ const readXlsFile = async (fileName: string): Promise<{ fieldNames: string[]; da
   });
 };
 
-export const receiveImportXls = async (content: any) => {
-  try {
-    const { fileName, type, scopeBrandIds, user } = content;
+const readCsvFile = async (fileName: string, uploadType: string): Promise<{ fieldNames: string[]; datas: any[] }> => {
+  return new Promise(async (resolve, reject) => {
+    const errorCallback = error => {
+      reject(new Error(error.code));
+    };
 
-    const { fieldNames, datas } = await readXlsFile(fileName);
+    const mainDatas: any[] = [];
+
+    try {
+      const stream =
+        uploadType === 'local'
+          ? fs.createReadStream(`${uploadsFolderPath}/${fileName}`)
+          : await s3Stream(fileName, errorCallback);
+
+      const results = await csv().fromStream(stream);
+
+      if (!results || results.length === 0) {
+        return reject(new Error('Please import at least one row of data'));
+      }
+
+      if (results && results.length > 100000) {
+        return reject(new Error('You can only import 100000 rows one at a time'));
+      }
+
+      const fieldNames: string[] = [];
+
+      for (const [key, value] of Object.entries(results[0])) {
+        if (value && typeof value === 'object') {
+          const subFields = Object.keys(value || {});
+
+          for (const subField of subFields) {
+            fieldNames.push(`${key}.${subField}`);
+          }
+        } else {
+          fieldNames.push(key);
+        }
+      }
+
+      for (const result of results) {
+        let data: any[] = [];
+
+        for (const mainValue of Object.values(result)) {
+          if (mainValue) {
+            if (typeof mainValue !== 'object') {
+              data.push(mainValue || '');
+            } else if (typeof mainValue === 'object') {
+              const subFieldValues = Object.values(mainValue || {});
+              subFieldValues.forEach(subFieldValue => {
+                data.push(subFieldValue || '');
+              });
+            }
+          }
+        }
+
+        if (data.length > 1) {
+          mainDatas.push(data);
+        }
+
+        data = [];
+      }
+
+      return resolve({ fieldNames, datas: mainDatas });
+    } catch (e) {
+      return resolve();
+    }
+  });
+};
+
+export const receiveImportCreate = async (content: any) => {
+  try {
+    const { fileName, type, scopeBrandIds, user, uploadType, fileType } = content;
+    let fieldNames: string[] = [];
+    let datas: string[] = [];
+    let result: any = {};
+
+    switch (fileType) {
+      case 'csv':
+        result = await readCsvFile(fileName, uploadType);
+
+        fieldNames = result.fieldNames;
+        datas = result.datas;
+
+        break;
+
+      case 'xlsx':
+        result = await readXlsFile(fileName, uploadType);
+
+        fieldNames = result.fieldNames;
+        datas = result.datas;
+
+        break;
+    }
 
     if (datas.length === 0) {
       throw new Error('Please import at least one row of data');
@@ -238,7 +348,7 @@ export const receiveImportXls = async (content: any) => {
 
     await createWorkers(workerPath, workerData, results);
 
-    await deleteFileAWS(fileName);
+    await deleteFile(fileName);
 
     return { id: importHistory.id };
   } catch (e) {

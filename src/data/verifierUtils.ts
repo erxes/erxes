@@ -2,14 +2,16 @@ import { Transform } from 'stream';
 import { Customers } from '../db/models';
 import { IValidationResponse, IVisitorContact } from '../db/models/definitions/customers';
 import { debugBase, debugExternalApi } from '../debuggers';
-import { getEnv, sendRequest } from './utils';
+import { getEnv, getSubServiceDomain, sendRequest } from './utils';
 
-export const validateSingle = async (contact: IVisitorContact, hostname?: string) => {
+export const validateSingle = async (contact: IVisitorContact) => {
   const EMAIL_VERIFIER_ENDPOINT = getEnv({ name: 'EMAIL_VERIFIER_ENDPOINT', defaultValue: '' });
 
   const { email, phone } = contact;
 
   let body = {};
+
+  const hostname = getSubServiceDomain({ name: 'API_DOMAIN' });
 
   phone ? (body = { phone, hostname }) : (body = { email, hostname });
 
@@ -39,7 +41,9 @@ export const updateContactValidationStatus = async (data: IValidationResponse) =
   }
 };
 
-export const validateBulk = async (verificationType: string, hostname: string) => {
+export const validateBulk = async (verificationType: string) => {
+  const hostname = getSubServiceDomain({ name: 'API_DOMAIN' });
+
   const EMAIL_VERIFIER_ENDPOINT = getEnv({ name: 'EMAIL_VERIFIER_ENDPOINT', defaultValue: '' });
 
   if (verificationType === 'email') {
@@ -58,7 +62,7 @@ export const validateBulk = async (verificationType: string, hostname: string) =
     const customersEmailStream = (Customers.find(
       {
         primaryEmail: { $exists: true, $ne: null },
-        emailValidationStatus: 'unknown',
+        $or: [{ emailValidationStatus: 'unknown' }, { emailValidationStatus: { $exists: false } }],
       },
       { primaryEmail: 1, _id: 0 },
     ).limit(1000) as any).stream();
@@ -105,7 +109,7 @@ export const validateBulk = async (verificationType: string, hostname: string) =
   const customersStream = (Customers.find(
     {
       primaryPhone: { $exists: true, $ne: null },
-      phoneValidationStatus: 'unknown',
+      $or: [{ phoneValidationStatus: 'unknown' }, { phoneValidationStatus: { $exists: false } }],
     },
     { primaryPhone: 1, _id: 0 },
   ).limit(1000) as any).stream();

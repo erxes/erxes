@@ -1,4 +1,4 @@
-import { Brands, Configs } from '../../db/models';
+import { Brands, Configs, OnboardingHistories } from '../../db/models';
 import { DEFAULT_CONSTANT_VALUES } from '../../db/models/definitions/constants';
 import { IUserDocument } from '../../db/models/definitions/users';
 import { getUserActionsMap } from '../permissions/utils';
@@ -51,5 +51,20 @@ export default {
     }
 
     return results;
+  },
+
+  async onboardingHistory(user: IUserDocument) {
+    const entries = await OnboardingHistories.find({ userId: user._id });
+    const completed = entries.find(item => item.isCompleted);
+
+    /**
+     * When multiple entries are recorded, using findOne() gave wrong result.
+     * Therefore return the first completed one if exists
+     */
+    if (completed) {
+      return completed;
+    }
+
+    return entries[0];
   },
 };

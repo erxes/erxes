@@ -6,9 +6,8 @@ import { EngagesAPI, IntegrationsAPI } from './data/dataSources';
 import resolvers from './data/resolvers';
 import typeDefs from './data/schema';
 import { Conversations, Customers, Users } from './db/models';
+import memoryStorage from './inmemoryStorage';
 import { graphqlPubsub } from './pubsub';
-import { addToArray, get, inArray, removeFromArray, set } from './redisClient';
-import { frontendEnv } from './data/utils';
 
 // load environment variables
 dotenv.config();
@@ -61,7 +60,6 @@ const apolloServer = new ApolloServer({
     const requestInfo = {
       secure: req.secure,
       cookies: req.cookies,
-      hostname: frontendEnv({ name: 'API_URL', req }),
     };
 
     if (USE_BRAND_RESTRICTIONS !== 'true') {
@@ -126,19 +124,19 @@ const apolloServer = new ApolloServer({
 
           const customerId = webSocket.messengerData.customerId;
 
-          // get status from redis
-          const inConnectedClients = await inArray('connectedClients', customerId);
-          const inClients = await inArray('clients', customerId);
+          // get status from inmemory storage
+          const inConnectedClients = await memoryStorage().inArray('connectedClients', customerId);
+          const inClients = await memoryStorage().inArray('clients', customerId);
 
           if (!inConnectedClients) {
-            await addToArray('connectedClients', customerId);
+            await memoryStorage().addToArray('connectedClients', customerId);
           }
 
           // Waited for 1 minute to reconnect in disconnect hook and disconnect hook
           // removed this customer from connected clients list. So it means this customer
           // is back online
           if (!inClients) {
-            await addToArray('clients', customerId);
+            await memoryStorage().addToArray('clients', customerId);
 
             // mark as online
             await Customers.markCustomerAsActive(customerId);
@@ -182,24 +180,24 @@ const apolloServer = new ApolloServer({
         // If client refreshes his browser, It will trigger disconnect, connect hooks.
         // So to determine this issue. We are marking as disconnected here and waiting
         // for 1 minute to reconnect.
-        await removeFromArray('connectedClients', customerId);
+        await memoryStorage().removeFromArray('connectedClients', customerId);
 
         setTimeout(async () => {
-          // get status from redis
-          const inNewConnectedClients = await inArray('connectedClients', customerId);
-          const customerLastStatus = await get(`customer_last_status_${customerId}`);
+          // get status from inmemory storage
+          const inNewConnectedClients = await memoryStorage().inArray('connectedClients', customerId);
+          const customerLastStatus = await memoryStorage().get(`customer_last_status_${customerId}`);
 
           if (inNewConnectedClients) {
             return;
           }
 
-          await removeFromArray('clients', customerId);
+          await memoryStorage().removeFromArray('clients', customerId);
 
           // mark as offline
           await Customers.markCustomerAsNotActive(customerId);
 
           if (customerLastStatus !== 'left') {
-            set(`customer_last_status_${customerId}`, 'left');
+            memoryStorage().set(`customer_last_status_${customerId}`, 'left');
 
             // customer has left + time
             const conversationMessages = await Conversations.changeCustomerStatus('left', customerId, integrationId);

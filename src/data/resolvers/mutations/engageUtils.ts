@@ -14,7 +14,7 @@ import { ICustomerDocument } from '../../../db/models/definitions/customers';
 import { IEngageMessageDocument } from '../../../db/models/definitions/engages';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { debugBase } from '../../../debuggers';
-import { sendMessage } from '../../../messageBroker';
+import messageBroker from '../../../messageBroker';
 import { MESSAGE_KINDS } from '../../constants';
 import { fetchBySegments } from '../../modules/segments/queryBuilder';
 import { chunkArray } from '../../utils';
@@ -77,7 +77,7 @@ export const generateCustomerSelector = async ({
 };
 
 const sendQueueMessage = (args: any) => {
-  return sendMessage('erxes-api:engages-notification', args);
+  return messageBroker().sendMessage('erxes-api:engages-notification', args);
 };
 
 export const send = async (engageMessage: IEngageMessageDocument) => {

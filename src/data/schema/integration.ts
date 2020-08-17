@@ -83,6 +83,7 @@ export const types = `
     color: String
     wallpaper: String
     logo: String
+    textColor: String
   }
 `;
 

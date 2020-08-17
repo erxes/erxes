@@ -12,7 +12,7 @@ const main = async () => {
   const connection = await connect();
 
   const dbName = connection.connection.db.databaseName;
-  console.log(`drop and create database: ${dbName}`)
+  console.log(`drop and create database: ${dbName}`);
 
   await connection.connection.dropDatabase();
 
@@ -23,7 +23,7 @@ const main = async () => {
 
   console.log(output);
 
-  console.log(`success, imported initial data to: ${dbName}`)
+  console.log(`success, imported initial data to: ${dbName}`);
 
   const generator = require('generate-password');
   const newPwd = generator.generate({

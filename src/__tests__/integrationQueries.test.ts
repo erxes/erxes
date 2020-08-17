@@ -1,7 +1,7 @@
 import './setup.ts';
 
 import * as faker from 'faker';
-import * as messageBroker from '../messageBroker';
+import messageBroker from '../messageBroker';
 
 import { brandFactory, channelFactory, integrationFactory, tagsFactory } from '../db/factories';
 import { Brands, Channels, Integrations, Tags } from '../db/models';
@@ -292,7 +292,7 @@ describe('integrationQueries', () => {
     }
     `;
 
-    const spy = jest.spyOn(messageBroker, 'sendRPCMessage');
+    const spy = jest.spyOn(messageBroker(), 'sendRPCMessage');
 
     spy.mockImplementation(() => Promise.resolve('https://webhookurl'));
 
@@ -308,7 +308,7 @@ describe('integrationQueries', () => {
 
     spy.mockRestore();
 
-    const spy1 = jest.spyOn(messageBroker, 'sendRPCMessage');
+    const spy1 = jest.spyOn(messageBroker(), 'sendRPCMessage');
 
     spy1.mockImplementation(() => Promise.resolve('https://webhookurl'));
 

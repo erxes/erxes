@@ -4,7 +4,7 @@ import { ProductCategories, Products } from '../db/models';
 module.exports.up = async () => {
   await connect();
 
-  const count = await ProductCategories.find({}).count();
+  const count = await ProductCategories.find({}).countDocuments();
 
   if (count > 0) {
     return;
