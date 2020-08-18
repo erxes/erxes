@@ -5,6 +5,38 @@ title: DigitalOcean Marketplace
 
 Launch a Droplet using [erxes](https://marketplace.digitalocean.com/apps/erxes) in the DigitalOcean Marketplace.
 
+## Configure your DNS Records
+
+Your new Droplet server will have an **ip address**. You will need to point your domain name to your new server.
+
+- If you are using a **subdomain**, you will need to follow the instructions of updating the `A Records' of the hosting company for your website.
+- If you are NOT using a **subdomain**, then you will need to follow the instructions of your domain name registrar.
+
+:::note Example with a domain called, example.com
+
+If your domain name is **example.com**, and the **ip address** assigned to your server is **44.123.32.12**, then you will have two `A records` that look like this:
+
+| Type | Name            | Value                  |
+| ---- | --------------- | ---------------------- |
+| A    | www.example.com | points to 44.123.32.12 |
+| A    | example.com     | points to 44.123.32.12 |
+
+:::
+
+:::note Example with a subdomain called, erxes.example.com
+
+You first need to create a subdomain. For example, "erxes.example.com". Then you need to edit the **DNS**.
+
+If your domain name is **erxes.example.com**, and the **ip address** assigned to your server is **44.123.32.12**, then you will have a two `A records` that look like this:
+
+| Type | Name                  | Value                  |
+| ---- | --------------------- | ---------------------- |
+| A    | erxes.example.com     | points to 44.123.32.12 |
+| A    | www.erxes.example.com | points to 44.123.32.12 |
+
+**Note:** You do not need to create a subdomain called "erxes.example.com", you can use another name of your choice such as "admin.example.com".
+:::
+
 ## Connect to your droplet
 
 Connect to your droplet via ssh.
