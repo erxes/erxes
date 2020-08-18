@@ -68,6 +68,7 @@ class WorkArea extends React.Component<FinalProps, State> {
       }
 
       if (this.prevTypingInfoSubscription) {
+        this.setState({typingInfo: ''});
         this.prevTypingInfoSubscription();
       }
 
