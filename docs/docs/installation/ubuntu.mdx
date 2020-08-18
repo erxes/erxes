@@ -985,7 +985,13 @@ nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
 ```
 
-If you got no errors, you are ready to install the SSL Certificates using **Let's Encrypt** and **Certbot**.
+If you got no errors, reload nginx service.
+
+```bash
+sudo systemctl reload nginx
+```
+
+Now you are ready to install the SSL Certificates using **Let's Encrypt** and **Certbot**.
 
 ## Install Let's Encrypt using Certbot
 
@@ -1413,10 +1419,11 @@ export MONGO_URL="mongodb://localhost/erxes"
 ## Initialize and Load permissions for erxes
 
 - initialize Erxes and generate **login password**.
-
+cd ~/erxes.io/erxes-api/dist
 ```bash
 nvm use default
-node erxes-api/dist/commands/initProject
+cd ~/erxes.io/erxes-api/dist
+node commands/initProject
 ```
 
 You should have a generated **password**. The output will be similar to this:
@@ -1431,7 +1438,7 @@ Your new password: HcEjfBMxws
 
 ```bash
 pm2 restart erxes-api
-node erxes-api/dist/commands/loadPermissionData
+node commands/loadPermissionData
 ```
 
 ## Congratulations, time to log in
