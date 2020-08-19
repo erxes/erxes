@@ -82,7 +82,7 @@ class AssistantContent extends React.Component<Props, State> {
         return null;
       }
 
-      return <Suggestion {...commonProps} onClick={onClick} />;
+      return <Suggestion {...commonProps} onResumeClick={onClick} />;
     }
 
     if (currentRoute === 'todoList' || currentRoute === 'todoDetail') {

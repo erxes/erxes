@@ -172,7 +172,7 @@ const IntegrationItem = styled.div`
 
 const CollapsibleContent = styled.div`
   margin: ${dimensions.coreSpacing}px 0 0 ${dimensions.coreSpacing}px;
-  padding: 10px 0 20px 10px;
+  padding: 10px 40px 20px 10px;
   background: ${collapsibleBackground};
   box-shadow: inset 0px 11px 5px -10px ${colors.colorShadowGray},
     inset 0px -11px 5px -10px ${colors.colorShadowGray};
