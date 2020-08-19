@@ -14,6 +14,7 @@
 
 .header {
 	padding: 0 5rem;
+	background: linear-gradient(to right, #ffefba, #ffffff);
 }
 
 .headingOne {
