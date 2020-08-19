@@ -112,11 +112,28 @@ const init = async app => {
 
     const post = await Posts.getPost({ erxesApiId }, true);
 
-    const commentCount = await Comments.countDocuments({ postId: post.postId });
-
     return res.json({
       ...post,
+    });
+  });
+
+  app.get('/facebook/get-comments-count', async (req, res) => {
+    debugFacebook(`Request to get post data with: ${JSON.stringify(req.query)}`);
+
+    const { postId, isResolved = false } = req.query;
+
+    const post = await Posts.getPost({ erxesApiId: postId }, true);
+
+    const commentCount = await Comments.countDocuments({ postId: post.postId, isResolved });
+    const commentCountWithoutReplies = await Comments.countDocuments({
+      postId: post.postId,
+      isResolved,
+      parentId: null,
+    });
+
+    return res.json({
       commentCount,
+      commentCountWithoutReplies,
     });
   });
 
@@ -158,11 +175,15 @@ const init = async app => {
   app.get('/facebook/get-comments', async (req, res) => {
     debugFacebook(`Request to get comments with: ${JSON.stringify(req.query)}`);
 
-    const { postId, commentId, senderId } = req.query;
+    const { postId, commentId, senderId, isResolved } = req.query;
 
     const post = await Posts.getPost({ erxesApiId: postId });
 
-    const query: { postId: string; parentId?: string; senderId?: string } = { postId: post.postId };
+    const query: { postId: string; isResolved?: boolean; parentId?: string; senderId?: string } = {
+      postId: post.postId,
+    };
+
+    query.isResolved = isResolved === 'false' ? false : true;
 
     let { limit } = req.query;
 

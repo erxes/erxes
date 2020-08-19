@@ -19,6 +19,17 @@ export const handleFacebookMessage = async msg => {
   const { action, payload } = msg;
   const doc = JSON.parse(payload || '{}');
 
+  if (action === 'change-status-comment') {
+    const { conversationId } = doc;
+
+    const comment = await Comments.findOne({ commentId: conversationId });
+
+    return Comments.updateOne(
+      { commentId: conversationId },
+      { $set: { isResolved: comment.isResolved ? false : true } },
+    );
+  }
+
   if (action === 'reply-post') {
     const { integrationId, conversationId, content, attachments } = doc;
 

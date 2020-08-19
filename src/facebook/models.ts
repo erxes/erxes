@@ -168,6 +168,7 @@ export const loadPostClass = () => {
 
 export interface IComment {
   commentId: string;
+  isResolved: boolean;
   postId: string;
   recipientId: string;
   parentId: string;
@@ -191,6 +192,7 @@ export const commentSchema = new Schema({
   content: String,
   erxesApiId: String,
   timestamp: Date,
+  isResolved: { type: Boolean, default: false },
 });
 
 commentSchema.index({ postId: 1, commentId: 1 }, { unique: true });
