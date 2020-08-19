@@ -6,7 +6,6 @@ import * as relativeTime from 'dayjs/plugin/relativeTime';
 import * as ReactDOM from 'react-dom';
 import { ApolloProvider } from 'react-apollo';
 import client from './apollo-client';
-import { getEnv } from './utils';
 
 dayjs.extend(localizedFormat);
 dayjs.extend(relativeTime);
@@ -20,55 +19,48 @@ const widgetConnect = params => {
     if (!(event.data.fromPublisher && event.data.setting)) {
       return;
     }
+    // call connect mutation
+    connectMutation(event)
+      .then(({ data }) => {
+        // check connection and save connection info
+        connectCallback(data);
 
-    const envs = getEnv();
+        // notify parent window that connected
+        window.parent.postMessage(
+          {
+            fromErxes: true,
+            ...postParams,
+            message: 'connected',
+            connectionInfo: data,
+            setting: event.data.setting
+          },
+          '*'
+        );
 
-    fetch(`${envs.API_URL}/set-frontend-cookies?envs=${JSON.stringify(envs)}`, {
-      credentials: 'include'
-    }).then(() => {
-      // call connect mutation
-      connectMutation(event)
-        .then(({ data }) => {
-          // check connection and save connection info
-          connectCallback(data);
+        const style = document.createElement('style');
 
-          // notify parent window that connected
-          window.parent.postMessage(
-            {
-              fromErxes: true,
-              ...postParams,
-              message: 'connected',
-              connectionInfo: data,
-              setting: event.data.setting
-            },
-            '*'
-          );
+        style.appendChild(
+          document.createTextNode(event.data.setting.css || '')
+        );
 
-          const style = document.createElement('style');
+        const head = document.querySelector('head');
 
-          style.appendChild(
-            document.createTextNode(event.data.setting.css || '')
-          );
+        if (head) {
+          head.appendChild(style);
+        }
 
-          const head = document.querySelector('head');
+        // render root react component
+        ReactDOM.render(
+          <ApolloProvider client={client}>
+            <AppContainer />
+          </ApolloProvider>,
+          document.getElementById('root')
+        );
+      })
 
-          if (head) {
-            head.appendChild(style);
-          }
-
-          // render root react component
-          ReactDOM.render(
-            <ApolloProvider client={client}>
-              <AppContainer />
-            </ApolloProvider>,
-            document.getElementById('root')
-          );
-        })
-
-        .catch(error => {
-          console.log(error); // eslint-disable-line
-        });
-    });
+      .catch(error => {
+        console.log(error); // eslint-disable-line
+      });
   });
 };
 
