@@ -21,6 +21,7 @@ type Props = {
   isAllSelected: boolean;
   emptyBulk: () => void;
   totalCount: number;
+  queryParams: any;
   tagsCount: { [key: string]: number };
   toggleBulk: (target: ILeadIntegration, toAdd: boolean) => void;
   toggleAll: (bulk: ILeadIntegration[], name: string) => void;
@@ -36,7 +37,7 @@ class List extends React.Component<Props, {}> {
   };
 
   renderRow() {
-    const { integrations, remove, bulk, toggleBulk, archive } = this.props;
+    const { integrations, remove, bulk, toggleBulk, archive, queryParams } = this.props;
 
     return integrations.map(integration => (
       <Row
@@ -46,6 +47,7 @@ class List extends React.Component<Props, {}> {
         integration={integration}
         remove={remove}
         archive={archive}
+        showCode={integration._id === queryParams.showInstallCode}
       />
     ));
   }
