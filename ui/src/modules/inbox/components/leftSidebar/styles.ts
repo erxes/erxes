@@ -124,17 +124,19 @@ const RowItem = styledTS<{
   display: flex;
   position: relative;
   flex-direction: row;
-  border-bottom: 1px solid ${colors.borderPrimary};
+  border-bottom: 1px solid rgba(0,0,0,0.05);
   transition: all ease 0.3s;
-  background: ${props => (props.isActive ? colors.bgActive : null)};
+  background: ${props => (props.isActive ? 'rgba(242,245,245,0.8)' : null)};
 
   ${props =>
     !props.isRead &&
     css`
       background: ${colors.bgUnread};
+      border-top: 1px solid rgba(0,0,0,0.05);
+      margin-top: -1px;
 
       ${MessageContent} {
-        font-weight: bold;
+        font-weight: 700;
       }
     `};
   &:hover {
