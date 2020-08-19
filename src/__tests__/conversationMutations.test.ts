@@ -346,8 +346,6 @@ describe('Conversation message mutations', () => {
       dataSources: {},
     });
 
-    console.log(response);
-
     expect(response).toBeDefined();
 
     mock.restore();

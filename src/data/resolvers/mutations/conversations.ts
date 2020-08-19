@@ -325,7 +325,6 @@ const conversationMutations = {
     const action = 'change-status-comment';
     const conversationId = doc.commentId;
     doc.content = '';
-    console.log('xaxaxa', doc);
 
     try {
       await sendConversationToIntegrations(type, '', conversationId, requestName, doc, dataSources, action);
