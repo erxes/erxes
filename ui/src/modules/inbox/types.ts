@@ -59,7 +59,6 @@ export interface IFacebookPost {
   erxesApiId?: string;
   attachments: string[];
   timestamp: Date;
-  commentCount: number;
 }
 
 export interface IFacebookComment {
@@ -72,6 +71,7 @@ export interface IFacebookComment {
   commentCount: number;
   timestamp: Date;
   customer: ICustomer;
+  isResolved: boolean;
 }
 
 export interface IEmail {
@@ -280,6 +280,13 @@ export type FacebookCommentsQueryResponse = {
   fetchMore: (variables) => void;
 };
 
+export type FacebookCommentsCountQueryResponse = {
+  converstationFacebookCommentsCount: any;
+  loading: boolean;
+  refetch: () => void;
+  fetchMore: (variables) => void;
+};
+
 export type ReplyFaceBookCommentMutationVariables = {
   conversationId: string;
   commentId: string;
@@ -290,6 +297,18 @@ export type ReplyFacebookCommentMutationResponse = {
   replyMutation: (
     doc: {
       variables: ReplyFaceBookCommentMutationVariables;
+    }
+  ) => Promise<any>;
+};
+
+export type ResolveFacebookCommentMutationVariables = {
+  commentId: string;
+};
+
+export type ResolveFacebookCommentResponse = {
+  resolveMutation: (
+    doc: {
+      variables: ResolveFacebookCommentMutationVariables;
     }
   ) => Promise<any>;
 };

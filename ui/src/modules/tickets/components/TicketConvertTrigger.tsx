@@ -9,6 +9,9 @@ type Props = {
   sourceConversationId?: string;
   url?: string;
   refetch: () => void;
+  type?: string;
+  description?: string;
+  attachments?: any[];
 };
 
 export default (props: Props) => {
