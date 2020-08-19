@@ -1116,4 +1116,25 @@ describe('conversationQueries', () => {
 
     spy.mockRestore();
   });
+
+  test('Facebook comments', async () => {
+    const qry = `
+      query converstationFacebookCommentsCount($postId: String!, $isResolved: Boolean) {
+        converstationFacebookCommentsCount(postId: $postId, isResolved:$isResolved) 
+      }
+    `;
+
+    try {
+      await graphqlRequest(qry, 'converstationFacebookComments', { postId: 'postId' }, { dataSources });
+    } catch (e) {
+      expect(e[0].message).toBe('Integrations api is not running');
+    }
+
+    const spy = jest.spyOn(dataSources.IntegrationsAPI, 'fetchApi');
+    spy.mockImplementation(() => Promise.resolve([]));
+
+    await graphqlRequest(qry, 'converstationFacebookComments', { postId: 'postId' }, { dataSources });
+
+    spy.mockRestore();
+  });
 });

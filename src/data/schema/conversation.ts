@@ -86,7 +86,6 @@ export const types = `
     erxesApiId: String
     attachments: [String]
     timestamp: Date
-    commentCount: Int
   }
 
   type FacebookComment {
@@ -102,6 +101,7 @@ export const types = `
     timestamp: Date
     customer: Customer
     commentCount: Int
+    isResolved: Boolean
   }
 
   type Email {
@@ -204,11 +204,17 @@ export const queries = `
 
   converstationFacebookComments(
     postId: String!
+    isResolved: Boolean
     commentId: String
     senderId: String
     skip: Int
     limit: Int
   ): [FacebookComment]
+
+  converstationFacebookCommentsCount(
+    postId: String!
+    isResolved: Boolean
+  ): JSON
 
   conversationMessagesTotalCount(conversationId: String!): Int
   conversationCounts(${filterParams}, only: String): JSON
@@ -228,6 +234,7 @@ export const mutations = `
     contentType: String
   ): ConversationMessage
   conversationsReplyFacebookComment(conversationId: String, commentId: String, content: String): FacebookComment
+  conversationsChangeStatusFacebookComment(commentId: String): FacebookComment
   conversationsAssign(conversationIds: [String]!, assignedUserId: String): [Conversation]
   conversationsUnassign(_ids: [String]!): [Conversation]
   conversationsChangeStatus(_ids: [String]!, status: String!): [Conversation]
