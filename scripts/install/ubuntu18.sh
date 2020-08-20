@@ -13,9 +13,9 @@ set -Eeuo pipefail
 
 trap notify ERR
 
-ERXES_VERSION=0.17.0
-ERXES_API_VERSION=0.17.0
-ERXES_INTEGRATIONS_VERSION=0.17.0
+ERXES_VERSION=0.17.6
+ERXES_API_VERSION=0.17.6
+ERXES_INTEGRATIONS_VERSION=0.17.6
 
 NODE_VERSION=v12.16.3
 
@@ -155,31 +155,6 @@ systemctl enable mongod
 systemctl start mongod
 echo "MongoDB enabled and started successfully"
 
-# Redis server
-echo "Installing Redis"
-apt -qqy install -y redis-server
-systemctl enable redis-server
-systemctl start redis-server
-echo "Installed Redis successfully"
-
-# RabbitMQ
-echo "Installing RabbitMQ"
-curl -fsSL https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc | apt-key add -
-tee /etc/apt/sources.list.d/bintray.rabbitmq.list <<EOF
-## Installs the latest Erlang 22.x release.
-## Change component to "erlang-21.x" to install the latest 21.x version.
-## "bionic" as distribution name should work for any later Ubuntu or Debian release.
-## See the release to distribution mapping table in RabbitMQ doc guides to learn more.
-deb https://dl.bintray.com/rabbitmq-erlang/debian bionic erlang
-deb https://dl.bintray.com/rabbitmq/debian bionic main
-EOF
-apt-get -qqy update
-apt-get -qqy install rabbitmq-server -y --fix-missing
-systemctl enable rabbitmq-server
-rabbitmq-plugins enable rabbitmq_management
-systemctl start rabbitmq-server
-echo "Installed RabbitMQ successfully"
-
 # Java , elasticsearch dependency
 echo "Installing Java"
 apt-get -qqy install default-jre -y
@@ -222,12 +197,11 @@ erxes_api_dir=$erxes_root_dir/erxes-api
 erxes_engages_dir=$erxes_root_dir/erxes-engages-email-sender
 erxes_logger_dir=$erxes_root_dir/erxes-logger
 erxes_syncer_dir=$erxes_root_dir/erxes-elkSyncer
-erxes_email_verifier_dir=$erxes_root_dir/erxes-email-verifier
 
 # erxes-integrations repo
 erxes_integrations_dir=$erxes_root_dir/erxes-integrations
 
-su $username -c "mkdir -p $erxes_ui_dir $erxes_widgets_dir $erxes_api_dir $erxes_engages_dir $erxes_logger_dir $erxes_syncer_dir $erxes_email_verifier_dir $erxes_integrations_dir"
+su $username -c "mkdir -p $erxes_ui_dir $erxes_widgets_dir $erxes_api_dir $erxes_engages_dir $erxes_logger_dir $erxes_syncer_dir $erxes_integrations_dir"
 
 # download erxes ui
 su $username -c "curl -L https://github.com/erxes/erxes/releases/download/$ERXES_VERSION/erxes-$ERXES_VERSION.tar.gz | tar --strip-components=1 -xz -C $erxes_ui_dir"
@@ -247,9 +221,6 @@ su $username -c "curl -L https://github.com/erxes/erxes-api/releases/download/$E
 # download elkSyncer
 su $username -c "curl -L https://github.com/erxes/erxes-api/releases/download/$ERXES_API_VERSION/erxes-elkSyncer-$ERXES_API_VERSION.tar.gz | tar --strip-components=1 -xz -C $erxes_syncer_dir"
 
-# download email-verifier
-su $username -c "curl -L https://github.com/erxes/erxes-api/releases/download/$ERXES_API_VERSION/erxes-email-verifier-$ERXES_API_VERSION.tar.gz | tar -xz -C $erxes_email_verifier_dir"
-
 # download integrations
 su $username -c "curl -L https://github.com/erxes/erxes-integrations/releases/download/$ERXES_INTEGRATIONS_VERSION/erxes-integrations-$ERXES_INTEGRATIONS_VERSION.tar.gz | tar -xz -C $erxes_integrations_dir"
 
@@ -257,12 +228,8 @@ JWT_TOKEN_SECRET=$(openssl rand -base64 24)
 MONGO_PASS=$(openssl rand -hex 16)
 
 API_MONGO_URL="mongodb://erxes:$MONGO_PASS@localhost/erxes?authSource=admin&replicaSet=rs0"
-
 ENGAGES_MONGO_URL="mongodb://erxes:$MONGO_PASS@localhost/erxes-engages?authSource=admin&replicaSet=rs0"
-
-EMAIL_VERIFIER_MONGO_URL="mongodb://erxes:$MONGO_PASS@localhost/erxes-email-verifier?authSource=admin&replicaSet=rs0"
 LOGGER_MONGO_URL="mongodb://erxes:$MONGO_PASS@localhost/erxes_logs?authSource=admin&replicaSet=rs0"
-
 INTEGRATIONS_MONGO_URL="mongodb://erxes:$MONGO_PASS@localhost/erxes_integrations?authSource=admin&replicaSet=rs0"
 
 # create an ecosystem.config.js in $erxes_root_dir directory and change owner and permission
@@ -281,10 +248,6 @@ module.exports = {
         JWT_TOKEN_SECRET: "$JWT_TOKEN_SECRET",
         DEBUG: "erxes-api:*",
         MONGO_URL: "$API_MONGO_URL",
-        REDIS_HOST: "localhost",
-        REDIS_PORT: 6379,
-        REDIS_PASSWORD: "",
-        RABBITMQ_HOST: "amqp://localhost",
         ELASTICSEARCH_URL: "http://localhost:9200",
         MAIN_APP_DOMAIN: "https://$erxes_domain",
         WIDGETS_DOMAIN: "https://$erxes_domain/widgets",
@@ -305,10 +268,6 @@ module.exports = {
         PROCESS_NAME: "crons",
         DEBUG: "erxes-crons:*",
         MONGO_URL: "$API_MONGO_URL",
-        REDIS_HOST: "localhost",
-        REDIS_PORT: 6379,
-        REDIS_PASSWORD: "",
-        RABBITMQ_HOST: "amqp://localhost",
       },
     },
     {
@@ -322,10 +281,6 @@ module.exports = {
         NODE_ENV: "production",
         DEBUG: "erxes-workers:*",
         MONGO_URL: "$API_MONGO_URL",
-        REDIS_HOST: "localhost",
-        REDIS_PORT: 6379,
-        REDIS_PASSWORD: "",
-        RABBITMQ_HOST: "amqp://localhost",
         JWT_TOKEN_SECRET: "$JWT_TOKEN_SECRET",
       },
     },
@@ -355,10 +310,6 @@ module.exports = {
         DEBUG: "erxes-engages:*",
         MAIN_API_DOMAIN: "https://$erxes_domain/api",
         MONGO_URL: "$ENGAGES_MONGO_URL",
-        RABBITMQ_HOST: "amqp://localhost",
-        REDIS_HOST: "localhost",
-        REDIS_PORT: 6379,
-        REDIS_PASSWORD: "",
       },
     },
     {
@@ -372,7 +323,6 @@ module.exports = {
         NODE_ENV: "production",
         DEBUG: "erxes-logs:*",
         MONGO_URL: "$LOGGER_MONGO_URL",
-        RABBITMQ_HOST: "amqp://localhost",
       },
     },
     {
@@ -389,10 +339,6 @@ module.exports = {
         MAIN_APP_DOMAIN: "https://$erxes_domain",
         MAIN_API_DOMAIN: "https://$erxes_domain/api",
         MONGO_URL: "$INTEGRATIONS_MONGO_URL",
-        RABBITMQ_HOST: "amqp://localhost",
-        REDIS_HOST: "localhost",
-        REDIS_PORT: 6379,
-        REDIS_PASSWORD: "",
       },
     },
     {
@@ -404,21 +350,6 @@ module.exports = {
       env: {
         MONGO_URL: "$API_MONGO_URL",
         ELASTICSEARCH_URL: "http://localhost:9200",
-      },
-    },
-    {
-      name: "erxes-email-verifier",
-      script: "dist",
-      cwd: "$erxes_email_verifier_dir",
-      log_date_format: "YYYY-MM-DD HH:mm Z",
-      node_args: "--max_old_space_size=4096",
-      env: {
-        PORT_WORKERS: 4100,
-        NODE_ENV: "production",
-        MONGO_URL: "$EMAIL_VERIFIER_MONGO_URL",
-        RABBITMQ_HOST: "amqp://localhost",
-        TRUE_MAIL_API_KEY: "",
-        CLEAR_OUT_PHONE_API_KEY: "",
       },
     },
   ],
