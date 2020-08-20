@@ -1,3 +1,10 @@
+## [0.17.3](https://github.com/erxes/erxes-api/compare/0.17.2...0.17.3) (2020-08-20)
+
+
+### Performance Improvements
+
+* **message-broker:** added http client ([957b2d9](https://github.com/erxes/erxes-api/commit/957b2d9a578170f0f678626d7cf15d8826e24c72))
+
 ## [0.17.2](https://github.com/erxes/erxes-api/compare/0.17.1...0.17.2) (2020-08-20)
 
 ## [0.17.1](https://github.com/erxes/erxes-api/compare/0.17.0...0.17.1) (2020-08-20)
