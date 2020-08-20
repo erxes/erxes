@@ -147,7 +147,7 @@ const ScrollContent = styled.div`
 
   .weighted-score-table-body {
     .with-input:last-child {
-      background-color: ${colors.bgUnread};
+      background-color: ${colors.bgLightPurple};
       border-left: 1px solid ${colors.borderPrimary};
     }
   }
@@ -185,7 +185,7 @@ const TableHead = styled.th`
   width: 50px;
 
   &:last-child {
-    background-color: ${colors.bgUnread};
+    background-color: ${colors.bgLightPurple};
     border-left: 1px solid ${colors.borderPrimary};
   }
 `;

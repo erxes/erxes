@@ -9,6 +9,7 @@ import FacebookPost from './FacebookPost';
 import { ShowMore } from './styles';
 
 type Props = {
+  commentCount: number;
   post?: IFacebookPost;
   customer: ICustomer;
   comments: IFacebookComment[];
@@ -23,6 +24,8 @@ type Props = {
       limit
     }: { commentId?: string; postId?: string; limit?: number }
   ) => void;
+  onToggleClick: () => void;
+  isResolved: boolean;
 };
 
 const getAttr = (comment: IFacebookComment, attr: string) => {
@@ -49,7 +52,7 @@ export default class FacebookConversation extends React.Component<Props> {
   };
 
   renderReplies(comment: IFacebookComment) {
-    const { comments } = this.props;
+    const { comments, fetchFacebook } = this.props;
 
     const replies = comments.filter(msg => {
       const parentId = getAttr(msg, 'parentId');
@@ -62,7 +65,7 @@ export default class FacebookConversation extends React.Component<Props> {
         <FacebookComment
           isReply={true}
           comment={reply}
-          fetchFacebook={this.props.fetchFacebook}
+          fetchFacebook={fetchFacebook}
         />
       </React.Fragment>
     ));
@@ -113,7 +116,13 @@ export default class FacebookConversation extends React.Component<Props> {
   }
 
   render() {
-    const { post, customer, internalNotes, scrollBottom } = this.props;
+    const {
+      post,
+      customer,
+      internalNotes,
+      scrollBottom,
+      commentCount
+    } = this.props;
 
     if (!post) {
       return null;
@@ -123,8 +132,11 @@ export default class FacebookConversation extends React.Component<Props> {
       <React.Fragment>
         <FacebookPost
           post={post}
+          commentCount={commentCount}
           customer={customer}
           scrollBottom={scrollBottom}
+          onToggleClick={this.props.onToggleClick}
+          isResolved={this.props.isResolved}
         />
         {this.renderViewMore()}
         {this.renderComments()}

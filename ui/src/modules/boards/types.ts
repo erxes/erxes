@@ -74,6 +74,7 @@ export interface IItemParams {
   labelIds?: string[];
   proccessId?: string;
   aboveItemId?: string;
+  attachments?: string[];
 }
 
 export type SaveItemMutation = ({ variables: IItemParams }) => Promise<any>;

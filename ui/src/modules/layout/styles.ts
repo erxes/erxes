@@ -140,7 +140,7 @@ const BarItems = styled.div`
   }
 
   > * + * {
-    margin-left: ${dimensions.unitSpacing}px;
+    margin: 5px 0 5px ${dimensions.unitSpacing}px;
   }
 
   input[type='text'] {
@@ -150,7 +150,7 @@ const BarItems = styled.div`
 
   @media (max-width: 768px) {
     > * + * {
-      margin: 0 ${dimensions.unitSpacing}px 0 0;
+      margin: 3px 0 3px ${dimensions.unitSpacing / 2}px;
     }
   }
 `;

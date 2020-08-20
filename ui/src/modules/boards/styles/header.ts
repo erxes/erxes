@@ -6,7 +6,7 @@ import styledTS from 'styled-components-ts';
 export const PageHeader = styled.div`
   display: flex;
   justify-content: space-between;
-  padding: 10px ${dimensions.coreSpacing}px 6px;
+  padding: 5px ${dimensions.coreSpacing}px 2px;
   background: ${colors.colorWhite};
   box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
   min-height: 50px;

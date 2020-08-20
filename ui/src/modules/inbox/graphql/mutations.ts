@@ -38,6 +38,18 @@ const conversationsReplyFacebookComment = `
 }
 `;
 
+const conversationsChangeStatusFacebookComment = `
+  mutation conversationsChangeStatusFacebookComment(
+    $commentId: String,
+  ) {
+    conversationsChangeStatusFacebookComment(
+    commentId: $commentId,
+  ) {
+    commentId
+  }
+}
+`;
+
 const markAsRead = `
   mutation conversationMarkAsRead(
     $_id: String
@@ -107,5 +119,6 @@ export default {
   conversationsUnassign,
   saveResponseTemplate,
   markAsRead,
-  createProductBoardNote
+  createProductBoardNote,
+  conversationsChangeStatusFacebookComment
 };
