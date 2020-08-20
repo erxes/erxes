@@ -149,7 +149,7 @@ const { PORT } = process.env;
 
 app.listen(PORT, () => {
   connect().then(async () => {
-    await initBroker();
+    await initBroker(app);
 
     initMemoryStorage();
 

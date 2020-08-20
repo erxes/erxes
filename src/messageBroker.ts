@@ -55,10 +55,11 @@ dotenv.config();
 
 let client;
 
-export const initBroker = async () => {
+export const initBroker = async server => {
   client = await messageBroker({
     name: 'integrations',
-    RABBITMQ_HOST: process.env.RABBITMQ_HOST,
+    server,
+    envs: process.env,
   });
 
   const { consumeQueue, consumeRPCQueue } = client;

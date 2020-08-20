@@ -2416,16 +2416,17 @@ erxes-inmemory-storage@^1.0.16:
     "@babel/runtime" "^7.11.2"
     redis "^3.0.2"
 
-erxes-message-broker@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/erxes-message-broker/-/erxes-message-broker-1.0.3.tgz#ac6336de6ad9c5caf260b84c9afacc79b8771a42"
-  integrity sha512-UN5uEuSJHPKTOXYsGgtt0ZGYvabGTJPFw+WCHCCqUJ2fczvpVTOnSXiLaGvLGD6pfOhs5YpoAjoUqAfWWFsO1A==
+erxes-message-broker@^1.0.13:
+  version "1.0.13"
+  resolved "https://registry.yarnpkg.com/erxes-message-broker/-/erxes-message-broker-1.0.13.tgz#6cc3df52d88877f1e66565374c5e7e960053567c"
+  integrity sha512-kz1fpn5+gD1kONHofuECLdFiwZPtOd04/ymzn4MF0adkzVWiyplHtRkXZOsZJviZEXpzr7UdC/JnkvShL9UJ/w==
   dependencies:
     "@babel/runtime" "^7.11.2"
     amqplib "^0.6.0"
     cote "^1.0.0"
     cross-env "^7.0.2"
     debug "^4.1.1"
+    requestify "^0.2.5"
     uuid "^8.3.0"
 
 es-abstract@^1.5.1:
@@ -4266,6 +4267,11 @@ jest@22.0.4:
   dependencies:
     jest-cli "^22.0.4"
 
+jquery@^3.1.0:
+  version "3.5.1"
+  resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.5.1.tgz#d7b4d08e1bfdb86ad2f1a3d039ea17304717abb5"
+  integrity sha512-XwIBPqcMn57FxfT+Go5pzySnm4KWkT1Tv7gjrpT1srtf8Weynl6R273VJ5GjkRb51IzMp5nbaPjJXMWeju2MKg==
+
 "js-tokens@^3.0.0 || ^4.0.0", js-tokens@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-4.0.0.tgz#19203fb59991df98e3a287050d4647cdeaf32499"
@@ -5928,6 +5934,11 @@ punycode@^2.1.0, punycode@^2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.1.1.tgz#b58b010ac40c22c5657616c8d2c2c02c7bf479ec"
 
+q@^0.9.7:
+  version "0.9.7"
+  resolved "https://registry.yarnpkg.com/q/-/q-0.9.7.tgz#4de2e6cb3b29088c9e4cbc03bf9d42fb96ce2f75"
+  integrity sha1-TeLmyzspCIyeTLwDv51C+5bOL3U=
+
 q@^1.5.1:
   version "1.5.1"
   resolved "https://registry.yarnpkg.com/q/-/q-1.5.1.tgz#7e32f75b41381291d04611f1bf14109ac00651d7"
@@ -6287,6 +6298,15 @@ request@^2.79.0, request@^2.87.0, request@^2.88.0:
     tough-cookie "~2.4.3"
     tunnel-agent "^0.6.0"
     uuid "^3.3.2"
+
+requestify@^0.2.5:
+  version "0.2.5"
+  resolved "https://registry.yarnpkg.com/requestify/-/requestify-0.2.5.tgz#80249f1ca7dfdf79fa2a6048aeac37d43e23c905"
+  integrity sha1-gCSfHKff33n6KmBIrqw31D4jyQU=
+  dependencies:
+    jquery "^3.1.0"
+    q "^0.9.7"
+    underscore "^1.8.3"
 
 require-directory@^2.1.1:
   version "2.1.1"
@@ -7356,6 +7376,11 @@ uglify-js@^3.1.4:
   dependencies:
     commander "2.20.0"
     source-map "~0.6.1"
+
+underscore@^1.8.3:
+  version "1.10.2"
+  resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.10.2.tgz#73d6aa3668f3188e4adb0f1943bd12cfd7efaaaf"
+  integrity sha512-N4P+Q/BuyuEKFJ43B9gYuOj4TQUHXX+j2FqguVOpjkssLUUrnJofCcBccJSCoeturDoZU6GorDTHSvUDlSQbTg==
 
 "unicode@>= 0.3.1":
   version "12.1.0"
