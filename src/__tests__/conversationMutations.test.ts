@@ -287,6 +287,7 @@ describe('Conversation message mutations', () => {
     let mock = sinon.stub(messageBroker(), 'sendMessage').callsFake(() => {
       return Promise.resolve('success');
     });
+
     const comment = await integrationFactory({ kind: 'facebook-post' });
 
     const args = {
@@ -309,6 +310,52 @@ describe('Conversation message mutations', () => {
 
     try {
       await graphqlRequest(commentMutation, 'conversationsReplyFacebookComment', args, {
+        dataSources: {},
+      });
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
+
+    mock.restore();
+  });
+
+  test('Change status facebook comment', async () => {
+    const mutation = `
+        mutation conversationsChangeStatusFacebookComment(
+          $commentId: String,
+        ) {
+          conversationsChangeStatusFacebookComment(
+          commentId: $commentId,
+        ) {
+          commentId
+        }
+      }
+    `;
+
+    let mock = sinon.stub(messageBroker(), 'sendMessage').callsFake(() => {
+      return Promise.resolve('success');
+    });
+
+    const comment = await integrationFactory({ kind: 'facebook-post' });
+
+    const args = {
+      commentId: comment._id,
+    };
+
+    const response = await graphqlRequest(mutation, 'conversationsChangeStatusFacebookComment', args, {
+      dataSources: {},
+    });
+
+    expect(response).toBeDefined();
+
+    mock.restore();
+
+    mock = sinon.stub(messageBroker(), 'sendMessage').callsFake(() => {
+      throw new Error();
+    });
+
+    try {
+      await graphqlRequest(mutation, 'conversationsChangeStatusFacebookComment', args, {
         dataSources: {},
       });
     } catch (e) {
