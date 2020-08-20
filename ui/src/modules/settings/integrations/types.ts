@@ -312,7 +312,7 @@ export type AddIntegrationMutationResponse = {
     params: {
       variables: AddIntegrationMutationVariables;
     }
-  ) => Promise<void>;
+  ) => Promise<any>;
 };
 
 export type EditIntegrationMutationVariables = {
