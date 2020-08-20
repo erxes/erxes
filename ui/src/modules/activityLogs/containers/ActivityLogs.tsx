@@ -35,7 +35,7 @@ class Container extends React.Component<FinalProps, {}> {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.profileImage !== this.props.activityType) {
+    if (nextProps.activityType !== this.props.activityType) {
       this.props.activityLogQuery.refetch();
     }
   }
