@@ -127,7 +127,7 @@ curl -s -X POST https://telemetry.erxes.io/events/ \
         "eventType": "CLI_COMMAND_installation_status",
         "message": "attempt",
         "time": "$NOW",
-        $POST_DATA,
+        $POST_DATA
       }]
 EOF
       )"
