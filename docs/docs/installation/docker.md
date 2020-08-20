@@ -110,17 +110,54 @@ Official Docker compose documentation: https://docs.docker.com/compose/install/
 
 ## Install erxes
 
-1. Create a new directory somewhere on your machine
-2. Save the following code as `docker-compose.yml` file.
-3. Run this command in your shell: `mkdir elasticsearch-data && chown 1000:1000 elasticsearch-data`
-4. Run `docker-compose up -d` (To stop: `docker-compose down`)
-5. Run `docker exec -it erxes-api yarn initProject` command to create default admin account for you.
-6. Run `docker exec -it erxes-api yarn loadPermissionData` command to finish the installation.
-7. Go to `localhost:3000` on your browser, and you're ready to login.
+1. Go to your desired location
+
+```bash
+  cd 'path_to'
+```
+
+2. Save the `docker-compose.yml` file.
+3. Run the following command in your shell:
+
+```bash
+mkdir elasticsearch-data && chown 1000:1000 elasticsearch-data
+```
+
+- elasticsearch container migth fail to start due to permission
+
+4. Run the following to start containers
+
+```bash
+docker-compose up -d
+```
+
+- To stop the containers:
+
+```bash
+docker-compose down
+```
+
+5. Run the following
+
+```bash
+docker exec -it erxes-api yarn initProject
+```
+
+- this will create default admin account with a random password.
 
 ```
+
 (username: admin@erxes.io , password: auto generated password)
+
 ```
+
+6. Finish up by running
+
+```bash
+docker exec -it erxes-api yarn loadPermissionData
+```
+
+7. Now you may visit `localhost:3000` and log in with your admin account.
 
 ### Default ports
 
