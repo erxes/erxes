@@ -100,19 +100,17 @@ export const initBroker = async server => {
   });
 
   consumeQueue('erxes-api:integrations-notification', async content => {
-    if (content.type === 'cancelImport') {
-      const { type } = content;
+    const { type } = content;
 
-      switch (type) {
-        case 'facebook':
-          await handleFacebookMessage(content);
-          break;
-        case 'cronjob':
-          await handleRunCronMessage();
-          break;
-        case 'removeCustomers':
-          await removeCustomers(content);
-      }
+    switch (type) {
+      case 'facebook':
+        await handleFacebookMessage(content);
+        break;
+      case 'cronjob':
+        await handleRunCronMessage();
+        break;
+      case 'removeCustomers':
+        await removeCustomers(content);
     }
   });
 };
