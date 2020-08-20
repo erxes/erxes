@@ -238,6 +238,10 @@ class IntegrationConfigs extends React.Component<Props, State> {
           </Info>
           {this.renderItem('PRODUCT_BOARD_TOKEN')}
         </CollapseContent>
+
+        <CollapseContent title="Telnyx SMS">
+          {this.renderItem('TELNYX_API_KEY')}
+        </CollapseContent>
       </ContentBox>
     );
   };
