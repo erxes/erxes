@@ -15,7 +15,7 @@
   ],
   "scripts": {
     "start": "node dist",
-    "dev": "DEBUG=erxes-logger:* node_modules/.bin/ts-node-dev --respawn src",
+    "dev": "DEBUG=erxes-logger:*,erxes-message-broker:* node_modules/.bin/ts-node-dev --respawn src",
     "test": "NODE_ENV=test jest --runInBand --forceExit",
     "build": "tsc -p tsconfig.prod.json",
     "migrate": "NODE_ENV=command migrate --migrations-dir='./dist/migrations' --store='./db-migrate-store.js' up"
@@ -26,7 +26,7 @@
     "cote": "^1.0.0",
     "debug": "^4.1.1",
     "dotenv": "^4.0.0",
-    "erxes-message-broker": "^1.0.3",
+    "erxes-message-broker": "^1.0.13",
     "express": "^4.16.4",
     "mongoose": "5.7.10",
     "uuid": "^8.3.0"

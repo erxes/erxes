@@ -31,6 +31,7 @@ app.use(userMiddleware);
 // Error handling middleware
 app.use((error, _req, res, _next) => {
   console.error(error.stack);
+
   res.status(500).send(filterXSS(error.message));
 });
 
@@ -39,7 +40,7 @@ const { PORT_WORKERS = 3700 } = process.env;
 app.listen(PORT_WORKERS, () => {
   initMemoryStorage();
 
-  initBroker().catch(e => {
+  initBroker(app).catch(e => {
     debugWorkers(`Error ocurred during message broker init ${e.message}`);
   });
 

@@ -5,18 +5,17 @@ import {
   receiveIntegrationsNotification,
   receiveRpcMessage,
 } from './data/modules/integrations/receiveMessage';
-import { RobotEntries } from './db/models';
-import { debugBase } from './debuggers';
 import { graphqlPubsub } from './pubsub';
 
 dotenv.config();
 
 let client;
 
-export const initBroker = async () => {
+export const initBroker = async (server?) => {
   client = await messageBroker({
     name: 'api',
-    RABBITMQ_HOST: process.env.RABBITMQ_HOST,
+    server,
+    envs: process.env,
   });
 
   const { consumeQueue, consumeRPCQueue } = client;
@@ -35,14 +34,6 @@ export const initBroker = async () => {
 
   consumeQueue('engagesNotification', async data => {
     await receiveEngagesNotification(data);
-  });
-
-  consumeQueue('sparkNotification', async data => {
-    delete data.subdomain;
-
-    RobotEntries.createEntry(data)
-      .then(() => debugBase('success'))
-      .catch(e => debugBase(e.message));
   });
 };
 

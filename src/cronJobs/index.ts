@@ -29,7 +29,7 @@ app.listen(PORT_CRONS, () => {
   connect().then(async () => {
     initMemoryStorage();
 
-    initBroker().catch(e => {
+    initBroker(app).catch(e => {
       debugCrons(`Error ocurred during broker init ${e.message}`);
     });
   });

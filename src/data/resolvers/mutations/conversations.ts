@@ -319,6 +319,21 @@ const conversationMutations = {
     }
   },
 
+  async conversationsChangeStatusFacebookComment(_root, doc: IReplyFacebookComment, { dataSources }: IContext) {
+    const requestName = 'replyFacebookPost';
+    const type = 'facebook';
+    const action = 'change-status-comment';
+    const conversationId = doc.commentId;
+    doc.content = '';
+
+    try {
+      await sendConversationToIntegrations(type, '', conversationId, requestName, doc, dataSources, action);
+    } catch (e) {
+      debugExternalApi(e.message);
+      throw new Error(e.message);
+    }
+  },
+
   /**
    * Assign employee to conversation
    */

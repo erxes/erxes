@@ -340,7 +340,7 @@ apolloServer.installSubscriptionHandlers(httpServer);
 httpServer.listen(PORT, () => {
   // connect to mongo database
   connect().then(async () => {
-    initBroker().catch(e => {
+    initBroker(app).catch(e => {
       debugBase(`Error ocurred during message broker init ${e.message}`);
     });
 
