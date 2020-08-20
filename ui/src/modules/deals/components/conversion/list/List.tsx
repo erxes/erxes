@@ -1,10 +1,10 @@
-import { IStage } from 'modules/boards/types';
+import { IConversionStage } from 'modules/boards/types';
 import * as React from 'react';
 import { Result } from '../style';
 import Stage from './Stage';
 
 type Props = {
-  stages: IStage[];
+  stages: IConversionStage[];
 };
 
 class List extends React.Component<Props, {}> {
@@ -19,8 +19,8 @@ class List extends React.Component<Props, {}> {
       return;
     }
 
-    const firstStage: IStage = stages[0] || {};
-    const lastStage: IStage = stages.slice(-1)[0] || {};
+    const firstStage: IConversionStage = stages[0] || {};
+    const lastStage: IConversionStage = stages.slice(-1)[0] || {};
 
     const firstStageInitialDealsTotalCount =
       firstStage.initialDealsTotalCount || 1;
@@ -36,7 +36,7 @@ class List extends React.Component<Props, {}> {
   render() {
     const { stages } = this.props;
 
-    const contents = stages.map((stage: IStage, index: number) => (
+    const contents = stages.map((stage: IConversionStage, index: number) => (
       <Stage
         spacing={this.calcSpace(stages.length, index)}
         key={index}
