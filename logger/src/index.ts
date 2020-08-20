@@ -101,7 +101,7 @@ app.use((error, _req, res, _next) => {
 const { PORT } = process.env;
 
 app.listen(PORT, () => {
-  initBroker().catch(e => {
+  initBroker(app).catch(e => {
     debugBase(`Error ocurred during message broker init ${e.message}`);
   });
 

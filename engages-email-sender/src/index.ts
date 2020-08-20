@@ -50,7 +50,7 @@ const { PORT } = process.env;
 app.listen(PORT, () => {
   // connect to mongo database
   connect().then(async () => {
-    initBroker().catch(e => {
+    initBroker(app).catch(e => {
       debugBase(`Error ocurred during message broker init ${e.message}`);
     });
   });

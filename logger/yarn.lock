@@ -622,16 +622,17 @@ error-ex@^1.2.0:
   dependencies:
     is-arrayish "^0.2.1"
 
-erxes-message-broker@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/erxes-message-broker/-/erxes-message-broker-1.0.3.tgz#ac6336de6ad9c5caf260b84c9afacc79b8771a42"
-  integrity sha512-UN5uEuSJHPKTOXYsGgtt0ZGYvabGTJPFw+WCHCCqUJ2fczvpVTOnSXiLaGvLGD6pfOhs5YpoAjoUqAfWWFsO1A==
+erxes-message-broker@^1.0.13:
+  version "1.0.13"
+  resolved "https://registry.yarnpkg.com/erxes-message-broker/-/erxes-message-broker-1.0.13.tgz#6cc3df52d88877f1e66565374c5e7e960053567c"
+  integrity sha512-kz1fpn5+gD1kONHofuECLdFiwZPtOd04/ymzn4MF0adkzVWiyplHtRkXZOsZJviZEXpzr7UdC/JnkvShL9UJ/w==
   dependencies:
     "@babel/runtime" "^7.11.2"
     amqplib "^0.6.0"
     cote "^1.0.0"
     cross-env "^7.0.2"
     debug "^4.1.1"
+    requestify "^0.2.5"
     uuid "^8.3.0"
 
 escape-html@~1.0.3:
@@ -889,6 +890,11 @@ isexe@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/isexe/-/isexe-2.0.0.tgz#e8fbf374dc556ff8947a10dcb0572d633f2cfa10"
   integrity sha1-6PvzdNxVb/iUehDcsFctYz8s+hA=
+
+jquery@^3.1.0:
+  version "3.5.1"
+  resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.5.1.tgz#d7b4d08e1bfdb86ad2f1a3d039ea17304717abb5"
+  integrity sha512-XwIBPqcMn57FxfT+Go5pzySnm4KWkT1Tv7gjrpT1srtf8Weynl6R273VJ5GjkRb51IzMp5nbaPjJXMWeju2MKg==
 
 kareem@2.3.1:
   version "2.3.1"
@@ -1235,6 +1241,11 @@ proxy-addr@~2.0.5:
     forwarded "~0.1.2"
     ipaddr.js "1.9.0"
 
+q@^0.9.7:
+  version "0.9.7"
+  resolved "https://registry.yarnpkg.com/q/-/q-0.9.7.tgz#4de2e6cb3b29088c9e4cbc03bf9d42fb96ce2f75"
+  integrity sha1-TeLmyzspCIyeTLwDv51C+5bOL3U=
+
 qs@6.7.0:
   version "6.7.0"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.7.0.tgz#41dc1a015e3d581f1621776be31afb2876a9b1bc"
@@ -1330,6 +1341,15 @@ repeating@^2.0.0:
   integrity sha1-UhTFOpJtNVJwdSf7q0FdvAjQbdo=
   dependencies:
     is-finite "^1.0.0"
+
+requestify@^0.2.5:
+  version "0.2.5"
+  resolved "https://registry.yarnpkg.com/requestify/-/requestify-0.2.5.tgz#80249f1ca7dfdf79fa2a6048aeac37d43e23c905"
+  integrity sha1-gCSfHKff33n6KmBIrqw31D4jyQU=
+  dependencies:
+    jquery "^3.1.0"
+    q "^0.9.7"
+    underscore "^1.8.3"
 
 require_optional@^1.0.1:
   version "1.0.1"
@@ -1695,6 +1715,11 @@ typescript@^2.9.2:
   version "2.9.2"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.9.2.tgz#1cbf61d05d6b96269244eb6a3bce4bd914e0f00c"
   integrity sha512-Gr4p6nFNaoufRIY4NMdpQRNmgxVIGMs4Fcu/ujdYk3nAZqk7supzBE9idmvfZIlH/Cuj//dvi+019qEue9lV0w==
+
+underscore@^1.8.3:
+  version "1.10.2"
+  resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.10.2.tgz#73d6aa3668f3188e4adb0f1943bd12cfd7efaaaf"
+  integrity sha512-N4P+Q/BuyuEKFJ43B9gYuOj4TQUHXX+j2FqguVOpjkssLUUrnJofCcBccJSCoeturDoZU6GorDTHSvUDlSQbTg==
 
 "unicode@>= 0.3.1":
   version "12.1.0"
