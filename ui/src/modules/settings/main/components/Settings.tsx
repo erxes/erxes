@@ -298,7 +298,7 @@ class Settings extends React.PureComponent {
           <RowTitle>{__('Ticket Settings')}</RowTitle>
           <div>
             {this.renderBox(
-              'Ticket Sales board & Pipelines',
+              'Ticket board & Pipelines',
               '/images/icons/erxes-19.svg',
               '/settings/boards/ticket',
               'ticketsAll',
@@ -311,7 +311,7 @@ class Settings extends React.PureComponent {
           <RowTitle>{__('Task Settings')}</RowTitle>
           <div>
             {this.renderBox(
-              'Task Sales board & Pipelines',
+              'Task board & Pipelines',
               '/images/icons/erxes-19.svg',
               '/settings/boards/task',
               'tasksAll',
