@@ -1,6 +1,7 @@
 import { getEnv } from 'apolloClient';
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
+import EmptyContent from 'modules/common/components/EmptyContent';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
@@ -278,6 +279,7 @@ class Histories extends React.Component<Props & IRouterProps> {
             count={histories.length}
             emptyText="Oh dear! You have no imports"
             emptyImage="/images/actions/15.svg"
+            emptyContent={<EmptyContent />}
           />
         }
       />
