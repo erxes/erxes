@@ -1,3 +1,33 @@
+
+
+## [0.17.6](https://github.com/erxes/erxes/compare/0.17.4...0.17.6) (2020-08-20)
+
+## [0.17.4](https://github.com/erxes/erxes/compare/0.17.3...0.17.4) (2020-08-20)
+
+
+### Bug Fixes
+
+* **bug:** edit internal note ([579b0bc](https://github.com/erxes/erxes/commit/579b0bca36a9fb4ec24ec54a2e7a1c064a97621d)), closes [Close#2131](https://github.com/Close/issues/2131)
+* **user:** fixed avatar image when local file upload ([352ea74](https://github.com/erxes/erxes/commit/352ea74df78b402c7b4520322ed62f995fd3549b))
+
+## [0.17.3](https://github.com/erxes/erxes/compare/0.17.2...0.17.3) (2020-08-20)
+
+
+### Bug Fixes
+
+* **popup:** fix Popup alert message. close [#2219](https://github.com/erxes/erxes/issues/2219) ([09867a1](https://github.com/erxes/erxes/commit/09867a164784d5a066a6558a2e884599647a98ed))
+* **teamInbox:** fix Chat preview shows the same for all conversations. close [#2228](https://github.com/erxes/erxes/issues/2228) ([349712d](https://github.com/erxes/erxes/commit/349712d5d20abdafd47ad2fb177913adefde2d2c))
+
+
+### Features
+
+* **popup:** Display install code after popup creation ([7045e54](https://github.com/erxes/erxes/commit/7045e546f59fdc70cf84dfb24df725798abbb8f9))
+* **teamInbox:** Increase Visibility of Unread Messages ([fff9273](https://github.com/erxes/erxes/commit/fff92738aea18b5b486779c8ac868103140fe76c))
+
+## [0.17.2](https://github.com/erxes/erxes/compare/0.17.1...0.17.2) (2020-08-20)
+
+## [0.17.1](https://github.com/erxes/erxes/compare/0.17.0...0.17.1) (2020-08-20)
+
 # [0.17.0](https://github.com/erxes/erxes/compare/0.16.0...0.17.0) (2020-08-17)
 
 
