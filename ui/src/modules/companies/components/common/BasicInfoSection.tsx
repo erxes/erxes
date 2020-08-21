@@ -14,7 +14,7 @@ class BasicInfoSection extends React.Component<Props> {
 
     return (
       <Section>
-        <DetailInfo company={company} />
+        <DetailInfo company={company}  />
       </Section>
     );
   }
