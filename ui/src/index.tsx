@@ -27,7 +27,7 @@ fetch(
   .then(() => {
     render(
       <ApolloProvider client={apolloClient}>
-        <Routes />
+        <Routes/>
       </ApolloProvider>,
       target
     );
