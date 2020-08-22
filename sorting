@@ -1,0 +1,39 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+stack <int> s;
+int n;
+
+
+void SortStack()
+{
+    if(s.size()==1)
+        return ;
+    int num1=s.top();
+    s.pop();
+    int num2=s.top();
+    s.pop();
+    s.push(max(num1,num2));
+    SortStack();
+    s.push(min(num1,num2));
+}
+
+int main()
+{
+    cin>>n;
+    for(int i=0;i<n;i++)
+    {
+        int num;
+        cin>>num;
+        s.push(num);
+    }
+    cout<<"sorting stack............."<<endl;
+    for(int i=0;i<n;i++)
+        SortStack();
+    while(!s.empty())
+    {
+        cout<<s.top()<<" ";
+        s.pop();
+    }
+    return 0;
+}
