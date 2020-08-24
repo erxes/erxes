@@ -130,6 +130,8 @@ export const KEY_LABELS = {
   TELNYX_API_KEY: 'Telnyx API key',
   TELNYX_PHONE: 'Telnyx phone number',
   TELNYX_PROFILE_ID: 'Telnyx messaging profile id',
+  TELNYX_WEBHOOK_URL: 'Telnyx webhook url',
+  TELNYX_WEBHOOK_FAIL_URL: 'Secondary Telnyx webhook url',
 
   sex_choices: 'Pronoun choices',
   company_industry_types: 'Company industry types',

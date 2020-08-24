@@ -241,6 +241,11 @@ class IntegrationConfigs extends React.Component<Props, State> {
 
         <CollapseContent title="Telnyx SMS">
           {this.renderItem('TELNYX_API_KEY')}
+          {this.renderItem('TELNYX_WEBHOOK_URL', 'https://your-domain/webhook')}
+          {this.renderItem(
+            'TELNYX_WEBHOOK_FAIL_URL',
+            'https://your-domain/webhook-fail'
+          )}
         </CollapseContent>
       </ContentBox>
     );
