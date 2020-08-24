@@ -298,25 +298,13 @@ describe('activityLogQueries', () => {
   });
 
   test('Activity log action convert', async () => {
-    const stage1 = await stageFactory();
-    const stage2 = await stageFactory();
-
-    const types = [
-      { type: 'deal', content: deal },
-      { type: 'ticket', content: ticket },
-      { type: 'task', content: task },
-      { type: 'growthHack', content: growtHack },
-    ];
+    const types = [{ type: 'task', content: task }];
 
     for (const type of types) {
       const doc = {
         contentId: type.content._id,
         contentType: type.type,
         action: 'convert',
-        content: {
-          oldStageId: stage1._id,
-          destinationStageId: stage2._id,
-        },
       };
 
       await activityLogFactory(doc);
@@ -325,7 +313,7 @@ describe('activityLogQueries', () => {
 
       const response = await graphqlRequest(qryActivityLogs, 'activityLogs', args);
 
-      expect(response.length).toBe(2);
+      expect(response.length).toBe(1);
     }
   });
 
