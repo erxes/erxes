@@ -1,6 +1,7 @@
 import { Comments, Customers, Posts } from './models';
 import { ICommentParams, IPostParams } from './types';
 
+import { debugFacebook } from '../debuggers';
 import { sendMessage, sendRPCMessage } from '../messageBroker';
 import { Accounts, Integrations } from '../models';
 import { getFacebookUser, getFacebookUserProfilePic } from './utils';
@@ -152,10 +153,17 @@ export const getOrCreateCustomer = async (pageId: string, userId: string, kind: 
   if (customer) {
     return customer;
   }
-  // create customer
-  const fbUser = (await getFacebookUser(pageId, facebookPageTokensMap, userId)) || {};
-  const fbUserProfilePic =
-    fbUser.profile_pic || (await getFacebookUserProfilePic(pageId, facebookPageTokensMap, userId));
+
+  let fbUser = {} as any;
+  let fbUserProfilePic = {} as any;
+
+  try {
+    // create customer
+    fbUser = (await getFacebookUser(pageId, facebookPageTokensMap, userId)) || {};
+    fbUserProfilePic = fbUser.profile_pic || (await getFacebookUserProfilePic(pageId, facebookPageTokensMap, userId));
+  } catch (e) {
+    debugFacebook(`Error occurred while getting page customer: ${e.message}`);
+  }
 
   // save on integrations db
   try {

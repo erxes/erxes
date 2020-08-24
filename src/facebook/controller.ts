@@ -297,13 +297,13 @@ const init = async app => {
       return;
     }
 
-    debugFacebook(`Received webhook data ${JSON.stringify(data)}`);
-
     const adapter = await getAdapter();
 
     for (const entry of data.entry) {
       // receive chat
       if (entry.messaging) {
+        debugFacebook(`Received messenger data ${JSON.stringify(data)}`);
+
         adapter
           .processActivity(req, res, async context => {
             const { activity } = await context;
@@ -343,9 +343,12 @@ const init = async app => {
       // receive post and comment
       if (entry.changes) {
         for (const event of entry.changes) {
+          debugFacebook(`Received post data ${JSON.stringify(event.value)}`);
+
           if (event.value.item === 'comment') {
             try {
               await receiveComment(event.value, entry.id);
+              debugFacebook(`Successfully saved  ${JSON.stringify(event.value)}`);
               res.end('success');
             } catch (e) {
               debugFacebook(`Error processing comment: ${e.message}`);
@@ -356,6 +359,7 @@ const init = async app => {
           if (FACEBOOK_POST_TYPES.includes(event.value.item)) {
             try {
               await receivePost(event.value, entry.id);
+              debugFacebook(`Successfully saved  ${JSON.stringify(event.value)}`);
               res.end('success');
             } catch (e) {
               debugFacebook(`Error processing comment: ${e.message}`);
@@ -364,8 +368,6 @@ const init = async app => {
           } else {
             res.end('success');
           }
-
-          debugFacebook(`Successfully saved  ${JSON.stringify(event.value)}`);
         }
       }
     }
