@@ -108,6 +108,10 @@ const activityLogQueries = {
           'taskDetail',
         );
       }
+
+      const contentIds = activities.map(activity => activity.content);
+
+      collectItems(await Conversations.find({ _id: { $in: contentIds } }).limit(25), 'conversation');
     };
 
     switch (activityType) {
