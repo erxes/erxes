@@ -83,6 +83,7 @@ export const INTEGRATION_KINDS = {
   SMOOCH_LINE: 'smooch-line',
   SMOOCH_TWILIO: 'smooch-twilio',
   WHATSAPP: 'whatsapp',
+  TELNYX: 'telnyx',
   ALL: [
     { text: 'Messenger', value: 'messenger' },
     { text: 'Facebook post', value: 'facebook-post' },
@@ -105,7 +106,8 @@ export const INTEGRATION_KINDS = {
     { text: 'Viber', value: 'smooch-viber' },
     { text: 'Line', value: 'smooch-line' },
     { text: 'Twilio', value: 'smooch-twilio' },
-    { text: 'WhatsApp', value: 'whatsapp' }
+    { text: 'WhatsApp', value: 'whatsapp' },
+    { text: 'Telnyx', value: 'telnyx' }
   ]
 };
 
@@ -369,6 +371,17 @@ export const INTEGRATIONS = [
     createModal: 'smooch-line',
     category:
       'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Phone and video, Conversation'
+  },
+  {
+    name: 'Telnyx',
+    description: 'Connect your Telnyx account to send & receive SMS',
+    inMessenger: false,
+    isAvailable: true,
+    kind: 'telnyx',
+    logo: '/images/integrations/telnyx.png',
+    createModal: 'telnyx',
+    category:
+      'All integrations, For support teams, For marketing teams, Conversation'
   }
 ];
 

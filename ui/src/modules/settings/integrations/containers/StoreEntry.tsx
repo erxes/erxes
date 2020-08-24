@@ -31,6 +31,7 @@ type Props = {
     line: number;
     twilio: number;
     whatsapp: number;
+    telnyx: number;
   };
 };
 
