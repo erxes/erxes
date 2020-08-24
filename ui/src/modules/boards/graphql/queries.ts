@@ -144,10 +144,6 @@ const stages = `
       order
       amount
       itemsTotalCount
-      compareNextStage
-      initialDealsTotalCount
-      stayedDealsTotalCount
-      inProcessDealsTotalCount
       pipelineId
     }
   }
