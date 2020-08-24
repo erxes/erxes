@@ -109,9 +109,11 @@ const activityLogQueries = {
         );
       }
 
-      const contentIds = activities.map(activity => activity.content);
+      const contentIds = activities.filter(activity => activity.action === 'convert').map(activity => activity.content);
 
-      collectItems(await Conversations.find({ _id: { $in: contentIds } }).limit(25), 'conversation');
+      if (contentIds) {
+        collectItems(await Conversations.find({ _id: { $in: contentIds } }).limit(25), 'conversation');
+      }
     };
 
     switch (activityType) {
