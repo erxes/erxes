@@ -107,7 +107,7 @@ export const getFacebookUserProfilePic = async (
     return response.image ? response.location : '';
   } catch (e) {
     debugFacebook(`Error occurred while getting facebook user profile pic: ${e.message}`);
-    throw new Error();
+    return null;
   }
 };
 
