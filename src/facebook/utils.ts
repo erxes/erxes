@@ -74,7 +74,7 @@ export const getFacebookUser = async (pageId: string, pageTokens: { [key: string
     pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
   } catch (e) {
     debugFacebook(`Error occurred while getting page access token: ${e.message}`);
-    throw new Error();
+    return null;
   }
 
   const pageToken = pageAccessToken;
@@ -84,7 +84,7 @@ export const getFacebookUser = async (pageId: string, pageTokens: { [key: string
     return response;
   } catch (e) {
     debugFacebook(`Error occurred while getting facebook user: ${e.message}`);
-    throw new Error();
+    return null;
   }
 };
 
@@ -159,7 +159,7 @@ export const sendReply = async (url: string, data: any, recipientId: string, int
 
       facebookPageTokensMap[recipientId] = newPageAccessToken;
 
-      await integration.updateOne({ facebookPageTokensMap });
+      await Integrations.updateOne({ _id: integration._id }, { $set: { facebookPageTokensMap } });
     }
 
     if (e.message.includes('does not exist')) {

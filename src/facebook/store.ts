@@ -155,7 +155,7 @@ export const getOrCreateCustomer = async (pageId: string, userId: string, kind: 
   }
 
   let fbUser = {} as any;
-  let fbUserProfilePic = {} as any;
+  let fbUserProfilePic;
 
   try {
     // create customer
@@ -166,7 +166,7 @@ export const getOrCreateCustomer = async (pageId: string, userId: string, kind: 
 
     facebookPageTokensMap[pageId] = newPageAccessToken;
 
-    await integration.updateOne({ facebookPageTokensMap });
+    await Integrations.updateOne({ _id: integration._id }, { $set: { facebookPageTokensMap } });
   }
 
   // save on integrations db

@@ -3,6 +3,7 @@ import { Comments, ConversationMessages, Conversations, Customers, Posts } from 
 import receiveMessage from '../facebook/receiveMessage';
 import receivePost from '../facebook/receivePost';
 import * as store from '../facebook/store';
+import * as utils from '../facebook/utils';
 import {
   accountFactory,
   facebookCommentFactory,
@@ -105,13 +106,13 @@ describe('Facebook test', () => {
   });
 
   afterEach(async () => {
-    await Comments.remove({});
-    await Posts.remove({});
-    await Accounts.remove({});
-    await Integrations.remove({});
-    await Customers.remove({});
-    await Conversations.remove({});
-    await ConversationMessages.remove({});
+    await Comments.deleteMany({});
+    await Posts.deleteMany({});
+    await Accounts.deleteMany({});
+    await Integrations.deleteMany({});
+    await Customers.deleteMany({});
+    await Conversations.deleteMany({});
+    await ConversationMessages.deleteMany({});
   });
 
   // store test
@@ -119,6 +120,15 @@ describe('Facebook test', () => {
   test('Create or get customer', async () => {
     const mock = sinon.stub(message, 'sendRPCMessage').callsFake(() => {
       return Promise.resolve({ _id: '123456789' });
+    });
+
+    const getFacebookUser = sinon.stub(utils, 'getFacebookUser').callsFake(() => Promise.resolve({}));
+    const getFacebookUserProfilePic = sinon
+      .stub(utils, 'getFacebookUserProfilePic')
+      .callsFake(() => Promise.resolve('picture'));
+
+    const getPageAccessToken = sinon.stub(utils, 'getPageAccessToken').callsFake(() => {
+      return Promise.resolve('token');
     });
 
     try {
@@ -131,12 +141,50 @@ describe('Facebook test', () => {
       expect(await Customers.find({}).countDocuments()).toBe(2);
     }
 
-    mock.restore();
+    await mock.restore();
+    await getFacebookUser.restore();
+    await getFacebookUserProfilePic.restore();
+    await getPageAccessToken.restore();
+  });
+
+  test('Create or get customer with get user error', async () => {
+    const mock = sinon.stub(message, 'sendRPCMessage').callsFake(() => {
+      return Promise.resolve({ _id: '12345678910' });
+    });
+
+    const getFacebookUser = sinon.stub(utils, 'getFacebookUser').callsFake(() => {
+      throw new Error();
+    });
+
+    const getFacebookUserProfilePic = sinon
+      .stub(utils, 'getFacebookUserProfilePic')
+      .callsFake(() => Promise.resolve('picture'));
+
+    const getPageAccessToken = sinon.stub(utils, 'getPageAccessToken').callsFake(() => {
+      return Promise.resolve('token');
+    });
+
+    const customer = await store.getOrCreateCustomer(pageId, '12345', 'facebook-messenger');
+
+    expect(customer.userId).toBe('12345');
+
+    await getFacebookUser.restore();
+    await mock.restore();
+    await getPageAccessToken.restore();
+    await getFacebookUserProfilePic.restore();
   });
 
   test('Create or get customer with rabbitmq error', async () => {
     const mock = sinon.stub(message, 'sendRPCMessage').callsFake(() => {
       throw new Error();
+    });
+
+    const getFacebookUserProfilePic = sinon
+      .stub(utils, 'getFacebookUserProfilePic')
+      .callsFake(() => Promise.resolve('picture'));
+
+    const getPageAccessToken = sinon.stub(utils, 'getPageAccessToken').callsFake(() => {
+      return Promise.resolve('token');
     });
 
     try {
@@ -145,7 +193,9 @@ describe('Facebook test', () => {
       expect(await Customers.find({}).countDocuments()).toBe(1);
     }
 
-    mock.restore();
+    await mock.restore();
+    await getPageAccessToken.restore();
+    await getFacebookUserProfilePic.restore();
   });
 
   test('Create or get post', async () => {
@@ -162,7 +212,7 @@ describe('Facebook test', () => {
 
     expect(await Posts.countDocuments()).toEqual(1);
 
-    mock.restore();
+    await mock.restore();
   });
 
   test('Create or get post with rabbitmq error', async () => {
@@ -176,7 +226,7 @@ describe('Facebook test', () => {
       expect(await Posts.find({}).countDocuments()).toBe(0);
     }
 
-    mock.restore();
+    await mock.restore();
   });
 
   test('Create or get comment', async () => {
@@ -194,7 +244,7 @@ describe('Facebook test', () => {
 
     expect(await Comments.countDocuments()).toEqual(1);
 
-    mock.restore();
+    await mock.restore();
   });
 
   // receiveMessage function test
@@ -213,7 +263,7 @@ describe('Facebook test', () => {
       expect(conversation.content).toEqual(activity.channelData.text);
     }
 
-    mock.restore();
+    await mock.restore();
   });
 
   test('Receive message conversation rabbitmq error', async () => {
@@ -227,7 +277,7 @@ describe('Facebook test', () => {
       expect(await Conversations.find({}).countDocuments()).toBe(0);
     }
 
-    mock.restore();
+    await mock.restore();
   });
 
   test('Receive message conversationMessage with mongo error', async () => {
@@ -246,7 +296,7 @@ describe('Facebook test', () => {
       expect(conversationMessage.content).toEqual(activity.channelData.text);
     }
 
-    mock.restore();
+    await mock.restore();
   });
 
   test('Receive message conversationMessage rabbitmq error', async () => {
@@ -270,7 +320,7 @@ describe('Facebook test', () => {
 
     expect(conversationMessage.mid).toEqual('mid');
 
-    mock.restore();
+    await mock.restore();
   });
 
   // recivePost
