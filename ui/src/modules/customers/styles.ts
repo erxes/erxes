@@ -41,7 +41,7 @@ const Actions = styledTS<{ isSmall?: boolean }>(styled.div)`
   }
 
   .dropdown {
-    display: ${props => props.isSmall ? 'inline-block' : 'black'} ;
+    display: ${props => props.isSmall ? 'inline-block' : 'block'};
   }
 `;
 
