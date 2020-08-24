@@ -7,7 +7,7 @@ import { graphql } from 'react-apollo';
 import Select from 'react-select-plus';
 import styled from 'styled-components';
 import { IOption } from '../types';
-import { __, confirm, withProps } from '../utils';
+import { __, confirm, readFile, withProps } from '../utils';
 import Icon from './Icon';
 
 const SelectWrapper = styled.div`
@@ -44,7 +44,7 @@ type Props = {
 
 const content = (option: IOption): React.ReactNode => (
   <>
-    <Avatar src={option.avatar || '/images/avatar-colored.svg'} />
+    <Avatar src={option.avatar ? readFile(option.avatar) : '/images/avatar-colored.svg'} />
     {option.label}
   </>
 );

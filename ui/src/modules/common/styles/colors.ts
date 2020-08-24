@@ -29,7 +29,8 @@ const bgDark = rgba(colorBlack, 0.95);
 const bgLight = '#FAFAFA';
 const bgActive = '#F0F0F0';
 const bgGray = '#e6e6e6';
-const bgUnread = '#F7F8FC';
+const bgLightPurple = '#F7F8FC';
+const bgUnread = '#ededfb';
 const bgInternal = '#FFFCCC';
 
 // Link colors
@@ -86,6 +87,7 @@ export default {
   bgLight,
   bgActive,
   bgUnread,
+  bgLightPurple,
   bgInternal,
   bgGray,
 

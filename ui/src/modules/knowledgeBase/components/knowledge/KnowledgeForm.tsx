@@ -141,7 +141,7 @@ class KnowledgeForm extends React.Component<Props, State> {
         <ReactMarkdown source={code} />
         {code ? (
           <CopyToClipboard text={code} onCopy={this.onCopy.bind(this, name)}>
-            <Button size="small" btnStyle="primary" icon="copy">
+            <Button btnStyle="primary" size="small" icon="copy-1" uppercase={false}>
               {copied ? 'Copied' : 'Copy to clipboard'}
             </Button>
           </CopyToClipboard>
@@ -238,6 +238,7 @@ class KnowledgeForm extends React.Component<Props, State> {
             name="title"
             defaultValue={topic.title}
             required={true}
+            autoFocus={true}
           />
         </FormGroup>
 

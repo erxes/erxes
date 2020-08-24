@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { IStage } from 'modules/boards/types';
+import { IConversionStage } from 'modules/boards/types';
 import EmptyState from 'modules/common/components/EmptyState';
 import Spinner from 'modules/common/components/Spinner';
 import { withProps } from 'modules/common/utils';
@@ -12,7 +12,7 @@ import * as React from 'react';
 import { graphql } from 'react-apollo';
 
 type Props = {
-  stage: IStage;
+  stage: IConversionStage;
   queryParams: IQueryParams;
   pipelineId: string;
 };
