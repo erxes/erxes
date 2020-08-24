@@ -3,7 +3,7 @@ import { ICommentParams, IPostParams } from './types';
 
 import { sendMessage, sendRPCMessage } from '../messageBroker';
 import { Accounts, Integrations } from '../models';
-import { getFacebookUser, getFacebookUserProfilePic } from './utils';
+import { getFacebookUser, getFacebookUserProfilePic, getPageAccessToken } from './utils';
 
 export const generatePostDoc = (postParams: IPostParams, pageId: string, userId: string) => {
   const { post_id, id, link, photos, created_time, message } = postParams;
@@ -144,6 +144,7 @@ export const getOrCreateCustomer = async (pageId: string, userId: string, kind: 
   const integration = await Integrations.getIntegration({
     $and: [{ facebookPageIds: { $in: pageId } }, { kind }],
   });
+  const account = await Accounts.findOne({ _id: integration.accountId });
 
   const { facebookPageTokensMap } = integration;
 
@@ -152,10 +153,21 @@ export const getOrCreateCustomer = async (pageId: string, userId: string, kind: 
   if (customer) {
     return customer;
   }
-  // create customer
-  const fbUser = (await getFacebookUser(pageId, facebookPageTokensMap, userId)) || {};
-  const fbUserProfilePic =
-    fbUser.profile_pic || (await getFacebookUserProfilePic(pageId, facebookPageTokensMap, userId));
+
+  let fbUser = {} as any;
+  let fbUserProfilePic = {} as any;
+
+  try {
+    // create customer
+    fbUser = (await getFacebookUser(pageId, facebookPageTokensMap, userId)) || {};
+    fbUserProfilePic = fbUser.profile_pic || (await getFacebookUserProfilePic(pageId, facebookPageTokensMap, userId));
+  } catch (e) {
+    const newPageAccessToken = await getPageAccessToken(pageId, account.token);
+
+    facebookPageTokensMap[pageId] = newPageAccessToken;
+
+    await integration.updateOne({ facebookPageTokensMap });
+  }
 
   // save on integrations db
   try {

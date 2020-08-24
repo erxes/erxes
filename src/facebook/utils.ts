@@ -84,7 +84,7 @@ export const getFacebookUser = async (pageId: string, pageTokens: { [key: string
     return response;
   } catch (e) {
     debugFacebook(`Error occurred while getting facebook user: ${e.message}`);
-    return null;
+    throw new Error();
   }
 };
 
@@ -107,7 +107,7 @@ export const getFacebookUserProfilePic = async (
     return response.image ? response.location : '';
   } catch (e) {
     debugFacebook(`Error occurred while getting facebook user profile pic: ${e.message}`);
-    return null;
+    throw new Error();
   }
 };
 
