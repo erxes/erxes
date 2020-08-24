@@ -8,6 +8,7 @@ const conversationMessageAdd = `
     $mentionedUserIds: [String],
     $internal: Boolean,
     $attachments: [AttachmentInput],
+    $sendSms: Boolean
   ) {
     conversationMessageAdd(
       conversationId: $conversationId,
@@ -16,6 +17,7 @@ const conversationMessageAdd = `
       mentionedUserIds: $mentionedUserIds,
       internal: $internal,
       attachments: $attachments,
+      sendSms: $sendSms
     ) {
       ${messageFields}
     }

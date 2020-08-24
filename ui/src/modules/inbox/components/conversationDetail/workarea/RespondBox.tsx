@@ -65,6 +65,7 @@ type State = {
   mentionedUserIds: string[];
   editorKey: string;
   loading: object;
+  sendSms: boolean;
 };
 
 class RespondBox extends React.Component<Props, State> {
@@ -80,7 +81,8 @@ class RespondBox extends React.Component<Props, State> {
       responseTemplate: '',
       content: '',
       mentionedUserIds: [],
-      loading: {}
+      loading: {},
+      sendSms: false
     };
   }
 
@@ -180,7 +182,7 @@ class RespondBox extends React.Component<Props, State> {
     this.addMessage();
 
     // redrawing editor after send button, so editor content will be reseted
-    this.setState({ editorKey: `${this.state.editorKey}Key` });
+    this.setState({ editorKey: `${this.state.editorKey}Key`, sendSms: false });
   };
 
   onSelectTemplate = (responseTemplate?: IResponseTemplate) => {
@@ -269,7 +271,13 @@ class RespondBox extends React.Component<Props, State> {
 
   addMessage = () => {
     const { conversation, sendMessage } = this.props;
-    const { isInternal, attachments, content, mentionedUserIds } = this.state;
+    const {
+      isInternal,
+      attachments,
+      content,
+      mentionedUserIds,
+      sendSms
+    } = this.state;
 
     const message = {
       conversationId: conversation._id,
@@ -277,7 +285,8 @@ class RespondBox extends React.Component<Props, State> {
       contentType: 'text',
       internal: isInternal,
       attachments,
-      mentionedUserIds
+      mentionedUserIds,
+      sendSms
     };
 
     if (this.state.content && !this.state.sending) {
@@ -305,7 +314,7 @@ class RespondBox extends React.Component<Props, State> {
     });
   };
 
-  renderIncicator() {
+  renderIndicator() {
     const { attachments, loading } = this.state;
 
     if (attachments.length > 0) {
@@ -411,6 +420,20 @@ class RespondBox extends React.Component<Props, State> {
     );
   }
 
+  renderSmsCheckbox() {
+    const onChange = () => this.setState({ sendSms: !this.state.sendSms });
+
+    return (
+      <FormControl
+        componentClass="checkbox"
+        onChange={onChange}
+        checked={this.state.sendSms}
+      >
+        {__('Send SMS')}
+      </FormControl>
+    );
+  }
+
   renderVideoRoom() {
     const { conversation, refetchMessages, refetchDetail } = this.props;
     const integration = conversation.integration || ({} as IIntegration);
@@ -438,6 +461,7 @@ class RespondBox extends React.Component<Props, State> {
     return (
       <EditorActions>
         {this.renderCheckbox(integration.kind)}
+        {this.renderSmsCheckbox()}
 
         <ProductBoard conversation={conversation} />
 
@@ -477,7 +501,7 @@ class RespondBox extends React.Component<Props, State> {
     return (
       <>
         {this.renderEditor()}
-        {this.renderIncicator()}
+        {this.renderIndicator()}
         {this.renderButtons()}
       </>
     );
