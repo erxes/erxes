@@ -9,7 +9,7 @@ const loginMiddleware = async (req, res) => {
   const FACEBOOK_APP_SECRET = await getConfig('FACEBOOK_APP_SECRET');
   const FACEBOOK_PERMISSIONS = await getConfig(
     'FACEBOOK_PERMISSIONS',
-    'manage_pages, pages_show_list, publish_pages, pages_messaging,pages_messaging_subscriptions',
+    'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content',
   );
 
   const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
