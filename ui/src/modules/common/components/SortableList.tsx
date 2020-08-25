@@ -8,11 +8,7 @@ import EmptyState from './EmptyState';
 type Props = {
   fields: any[];
   child: (field: any) => void;
-  onChangeFields: (
-    reorderedFields: any,
-    sourceIndex?: number,
-    destinationIndex?: number
-  ) => void;
+  onChangeFields: (reorderedFields: any, destinationIndex?: number) => void;
   isModal?: boolean;
   showDragHandler?: boolean | true;
   isDragDisabled?: boolean;
