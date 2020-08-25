@@ -3,6 +3,7 @@ import Button from 'modules/common/components/Button';
 import { Form, FormControl } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
 import ProgressBar from 'modules/common/components/ProgressBar';
+import SortableList from 'modules/common/components/SortableList';
 import colors from 'modules/common/styles/colors';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __, isEmptyContent } from 'modules/common/utils';
@@ -16,7 +17,7 @@ import {
   FormWrapper,
   Progress
 } from '../styles';
-import { IChecklist } from '../types';
+import { IChecklist, IChecklistItem } from '../types';
 
 type Props = {
   item: IChecklist;
@@ -24,11 +25,13 @@ type Props = {
   convertToCard: (name: string, callback: () => void) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (checklistId: string) => void;
+  updateOrderItems: (item: IChecklistItem, destinationIndex: number) => void;
 };
 
 function List(props: Props) {
   const { item } = props;
 
+  const [items, setItems] = React.useState(item.items);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isAddingItem, setIsAddingItem] = useState(
     item.items.length === 0 ? true : false
@@ -39,6 +42,13 @@ function List(props: Props) {
   );
   const [title, setTitle] = useState(item.title);
   const [beforeTitle, setBeforeTitle] = useState(item.title);
+
+  useEffect(
+    () => {
+      setItems(item.items);
+    },
+    [item.items]
+  );
 
   useEffect(
     () => {
@@ -90,6 +100,11 @@ function List(props: Props) {
     e.preventDefault();
 
     saveAddItem();
+  }
+
+  function onChangeItems(updatedItems, destinationIndex) {
+    setItems(updatedItems);
+    props.updateOrderItems(updatedItems[destinationIndex], destinationIndex);
   }
 
   function onKeyPressAddItem(e) {
@@ -239,9 +254,23 @@ function List(props: Props) {
         ));
     }
 
-    return item.items.map(data => (
-      <Item key={data._id} item={data} convertToCard={props.convertToCard} />
-    ));
+    const child = childItem => (
+      <Item
+        key={childItem._id}
+        item={childItem}
+        convertToCard={props.convertToCard}
+      />
+    );
+
+    return (
+      <SortableList
+        fields={items}
+        child={child}
+        isModal={false}
+        onChangeFields={onChangeItems}
+        isDragDisabled={false}
+      />
+    );
   }
 
   function renderAddInput() {

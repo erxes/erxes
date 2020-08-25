@@ -8,7 +8,11 @@ import EmptyState from './EmptyState';
 type Props = {
   fields: any[];
   child: (field: any) => void;
-  onChangeFields: (reorderedFields: any) => void;
+  onChangeFields: (
+    reorderedFields: any,
+    sourceIndex?: number,
+    destinationIndex?: number
+  ) => void;
   isModal?: boolean;
   showDragHandler?: boolean | true;
   isDragDisabled?: boolean;
@@ -35,7 +39,7 @@ class SortableList extends React.Component<Props> {
     const { fields, onChangeFields } = this.props;
     const reorderedFields = reorder(fields, source.index, destination.index);
 
-    onChangeFields(reorderedFields);
+    onChangeFields(reorderedFields, destination.index);
   };
 
   renderDragHandler() {
