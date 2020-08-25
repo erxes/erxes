@@ -297,6 +297,26 @@ describe('activityLogQueries', () => {
     }
   });
 
+  test('Activity log action convert', async () => {
+    const types = [{ type: 'task', content: task }];
+
+    for (const type of types) {
+      const doc = {
+        contentId: type.content._id,
+        contentType: type.type,
+        action: 'convert',
+      };
+
+      await activityLogFactory(doc);
+
+      const args = { contentId: type.content._id, contentType: type.type };
+
+      const response = await graphqlRequest(qryActivityLogs, 'activityLogs', args);
+
+      expect(response.length).toBe(1);
+    }
+  });
+
   test('Activity log action assignee', async () => {
     const deal1 = await dealFactory();
 
