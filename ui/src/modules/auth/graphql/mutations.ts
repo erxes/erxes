@@ -16,8 +16,15 @@ const resetPassword = `
   }
 `;
 
+const createOwner = `
+  mutation usersCreateOwner($email: String!, $password: String!, $passwordConfirmation: String!) {
+    usersCreateOwner(email: $email, password: $password, passwordConfirmation: $passwordConfirmation)
+  }
+`;
+
 export default {
   login,
   forgotPassword,
-  resetPassword
+  resetPassword,
+  createOwner
 };
