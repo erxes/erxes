@@ -3,9 +3,10 @@ import { FormControl, FormGroup } from 'modules/common/components/form';
 import React from 'react';
 import { useState } from 'react';
 import { AuthBox } from '../styles';
+import { IOwner } from '../types';
 
 type Props = {
-  createOwner: (arg: any) => void;
+  createOwner: (arg: IOwner) => void;
 };
 
 const OwnerSetup = (props: Props) => {

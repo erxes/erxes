@@ -5,15 +5,20 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import OwnerSetup from '../components/OwnerSetup';
 import { mutations } from '../graphql';
+import {
+  CreateOwnerMutationResponse,
+  CreateOwnerMutationVariables,
+  IOwner
+} from '../types';
 
-type Props = {
-  createOwnerMutation: any;
-};
+type Props = {};
 
-const OwnerSetupContainer = (props: Props) => {
+type FinalProps = Props & CreateOwnerMutationResponse;
+
+const OwnerSetupContainer = (props: FinalProps) => {
   const { createOwnerMutation } = props;
 
-  const createOwner = doc => {
+  const createOwner = (doc: IOwner) => {
     createOwnerMutation({
       variables: doc
     })
@@ -29,7 +34,10 @@ const OwnerSetupContainer = (props: Props) => {
 };
 
 export default compose(
-  graphql(gql(mutations.createOwner), {
-    name: 'createOwnerMutation'
-  })
+  graphql<Props, CreateOwnerMutationResponse, CreateOwnerMutationVariables>(
+    gql(mutations.createOwner),
+    {
+      name: 'createOwnerMutation'
+    }
+  )
 )(OwnerSetupContainer);
