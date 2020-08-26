@@ -7,10 +7,10 @@ import 'erxes-icon/css/erxes.min.css';
 import OwnerSetup from 'modules/auth/containers/OwnerSetup';
 // global style
 import 'modules/common/styles/global-styles.ts';
+import AuthLayout from 'modules/layout/components/AuthLayout';
 import React from 'react';
 import { ApolloProvider } from 'react-apollo';
 import { render } from 'react-dom';
-import { BrowserRouter as Router } from 'react-router-dom';
 import apolloClient, { getEnv } from './apolloClient';
 import Routes from './routes';
 
@@ -32,11 +32,7 @@ fetch(
     let body = <Routes />;
 
     if (res === 'no owner') {
-      body = (
-        <Router>
-          <OwnerSetup />
-        </Router>
-      );
+      body = <AuthLayout content={<OwnerSetup />} />;
     }
 
     return render(

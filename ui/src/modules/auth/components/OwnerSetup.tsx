@@ -14,6 +14,7 @@ const OwnerSetup = (props: Props) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
+  const [subscribeEmail, setSubscribeEmail] = useState(false);
 
   const handleSubmit = e => {
     e.preventDefault();
@@ -21,7 +22,8 @@ const OwnerSetup = (props: Props) => {
     createOwner({
       email,
       password,
-      passwordConfirmation
+      passwordConfirmation,
+      subscribeEmail
     });
   };
 
@@ -43,6 +45,10 @@ const OwnerSetup = (props: Props) => {
     setPasswordConfirmation(e.target.value);
   };
 
+  const toggleSubscribeEmail = e => {
+    setSubscribeEmail(e.target.checked);
+  };
+
   return (
     <AuthBox>
       <h2>Owner setup</h2>
@@ -55,7 +61,8 @@ const OwnerSetup = (props: Props) => {
             name="email"
             onChange={handleEmail}
           />
-
+        </FormGroup>
+        <FormGroup>
           <FormControl
             placeholder="Password"
             type="password"
@@ -63,7 +70,8 @@ const OwnerSetup = (props: Props) => {
             name="password"
             onChange={handlePassword}
           />
-
+        </FormGroup>
+        <FormGroup>
           <FormControl
             placeholder="Password confirmation"
             type="password"
@@ -71,6 +79,16 @@ const OwnerSetup = (props: Props) => {
             name="passwordConfirmation"
             onChange={handlePasswordConfirmation}
           />
+        </FormGroup>
+        <FormGroup>
+          <FormControl
+            className="toggle-message"
+            componentClass="checkbox"
+            checked={subscribeEmail}
+            onChange={toggleSubscribeEmail}
+          >
+            Subscribe an email
+          </FormControl>
         </FormGroup>
         <Button btnStyle="success" type="submit" block={true}>
           Save
