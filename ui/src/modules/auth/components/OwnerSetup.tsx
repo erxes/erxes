@@ -51,7 +51,7 @@ const OwnerSetup = (props: Props) => {
 
   return (
     <AuthBox>
-      <h2>Owner setup</h2>
+      <h2>Initial setup</h2>
       <form onSubmit={handleSubmit}>
         <FormGroup>
           <FormControl
@@ -87,7 +87,7 @@ const OwnerSetup = (props: Props) => {
             checked={subscribeEmail}
             onChange={toggleSubscribeEmail}
           >
-            Subscribe an email
+            Subscribe to receive updates
           </FormControl>
         </FormGroup>
         <Button btnStyle="success" type="submit" block={true}>

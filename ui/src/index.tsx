@@ -21,12 +21,9 @@ const target = document.querySelector('#root');
 
 const envs = getEnv();
 
-fetch(
-  `${
-    envs.REACT_APP_API_URL
-  }/check-owner-and-set-frontend-cookies?envs=${JSON.stringify(envs)}`,
-  { credentials: 'include' }
-)
+fetch(`${envs.REACT_APP_API_URL}/initial-setup?envs=${JSON.stringify(envs)}`, {
+  credentials: 'include'
+})
   .then(response => response.text())
   .then(res => {
     let body = <Routes />;
