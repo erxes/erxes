@@ -9,6 +9,7 @@ import GetConformity from 'modules/conformity/containers/GetConformity';
 import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import ActionSection from '../../containers/common/ActionSection';
 import CustomerChooser from '../../containers/CustomerChooser';
 import { queries } from '../../graphql';
 import { ICustomer } from '../../types';
@@ -28,17 +29,6 @@ function Component({
   mainTypeId = '',
   onSelect
 }: Props) {
-  const mailTo = email => {
-    if (email) {
-      return (
-        <a target="_parent" href={`mailto:${email}`} rel="noopener noreferrer">
-          {email}
-        </a>
-      );
-    }
-    return null;
-  };
-
   const renderRelatedCustomerChooser = props => {
     return (
       <CustomerChooser
@@ -77,8 +67,10 @@ function Component({
               <Icon icon="arrow-to-right" />
             </Link>
             <span>{renderFullName(customer)}</span>
-            {mailTo(customer.primaryEmail)}
-            <span>{customer.primaryPhone}</span>
+            <ActionSection
+              customer={customer}
+              isSmall={true}
+            />
           </SectionBodyItem>
         ))}
         {customersObj.length === 0 && (
