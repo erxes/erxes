@@ -5,6 +5,7 @@ import React from 'react';
 import { RightContent } from '../../styles/item';
 import { IItem, IOptions } from '../../types';
 import SidebarConformity from './SidebarConformity';
+import Timer from 'modules/common/components/Timer';
 
 type Props = {
   item: IItem;
@@ -36,6 +37,7 @@ class Sidebar extends React.Component<Props> {
         </FormGroup>
 
         {sidebar && sidebar(saveItem)}
+        <Timer />
 
         <SidebarConformity {...this.props} />
       </RightContent>
