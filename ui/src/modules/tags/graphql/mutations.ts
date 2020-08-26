@@ -1,19 +1,17 @@
+const commonParamDefs = `$name: String!, $type: String!, $colorCode: String`;
+const commonParams = `name: $name, type: $type, colorCode: $colorCode`;
+
 const add = `
-  mutation tagsAdd($name: String!, $type: String!, $colorCode: String) {
-    tagsAdd(name: $name, type: $type, colorCode: $colorCode) {
+  mutation tagsAdd(${commonParamDefs}) {
+    tagsAdd(${commonParams}) {
       _id
     }
   }
 `;
 
 const edit = `
-  mutation tagsEdit(
-    $_id: String!
-    $name: String!
-    $type: String!
-    $colorCode: String
-  ) {
-    tagsEdit(_id: $_id, name: $name, type: $type, colorCode: $colorCode) {
+  mutation tagsEdit($_id: String!, ${commonParamDefs}) {
+    tagsEdit(_id: $_id, ${commonParams}) {
       _id
     }
   }

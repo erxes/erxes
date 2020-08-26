@@ -1,3 +1,4 @@
+import { IOnboardingHistory } from 'modules/robot/types';
 import { IBrand } from 'modules/settings/brands/types';
 import { IEmailSignature } from 'modules/settings/email/types';
 
@@ -26,6 +27,7 @@ export interface IUserConversation {
 }
 
 export interface IUserDoc {
+  createdAt?: Date;
   username: string;
   email: string;
   isActive?: boolean;
@@ -44,6 +46,7 @@ export interface IUser extends IUserDoc {
   _id: string;
   brands?: IBrand[];
   emailSignatures?: IEmailSignature[];
+  onboardingHistory?: IOnboardingHistory;
 }
 
 export type ForgotPasswordMutationVariables = {

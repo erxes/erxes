@@ -110,3 +110,9 @@ export interface IUpdateCustomerMutationResponse {
   ) => Promise<any>;
   refetch: () => void;
 }
+
+export interface IMessengerSupporters {
+  supporters: [IUser];
+  isOnline: boolean;
+  serverTime: string;
+}

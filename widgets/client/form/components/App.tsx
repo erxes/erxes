@@ -20,7 +20,7 @@ class App extends React.Component<Props> {
 
     return (
       <a className="close" onClick={closePopup} title="Close">
-        {iconClose}
+        {iconClose()}
       </a>
     );
   }
@@ -59,7 +59,7 @@ class App extends React.Component<Props> {
     const { containerClass } = this.props;
 
     return (
-      <div id="erxes-container">
+      <div id="erxes-container" className="erxes-content">
         <div className={containerClass}>
           {this.renderCloseButton()}
           {this.renderCallout()}

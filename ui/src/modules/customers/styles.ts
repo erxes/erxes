@@ -26,7 +26,7 @@ const InfoDetail = styled.p`
   color: ${colors.colorCoreGray};
 `;
 
-const Actions = styled.div`
+const Actions = styledTS<{ isSmall?: boolean }>(styled.div)`
   display: flex;
   justify-content: space-between;
   padding: 0 ${dimensions.coreSpacing}px ${dimensions.unitSpacing}px;
@@ -38,6 +38,10 @@ const Actions = styled.div`
 
   > div {
     margin-left: 10px;
+  }
+
+  .dropdown {
+    display: ${props => props.isSmall ? 'inline-block' : 'block'};
   }
 `;
 
@@ -179,6 +183,10 @@ export const LeadStateWrapper = styled.div`
   margin-bottom: ${dimensions.unitSpacing}px;
   align-items: center;
 
+  @media (max-width: 768px) {
+   flex-wrap: wrap;
+  }
+
   > button {
     margin-left: 10px;
   }
@@ -293,7 +301,11 @@ export const StateItem = styledTS<{ active?: boolean; past?: boolean }>(
 		font-weight: normal;
 		font-size: 90%;
 		margin-left: 5px;
-	}
+  }
+  
+  @media (max-width: 768px) {
+    margin-bottom: 5px;
+  }
 `;
 
 export {

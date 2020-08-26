@@ -68,7 +68,7 @@ class Robot extends React.Component<Props, State> {
           classNames="robot"
         >
           <Bot onClick={this.changeContent}>
-            <img src="/images/erxes-bot.svg" alt="assitant robot" />
+            <img src="/images/erxes-bot.svg" alt="assistant robot" />
           </Bot>
         </RTG.CSSTransition>
       </>

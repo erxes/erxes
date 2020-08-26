@@ -26,7 +26,15 @@ const Wrapper = styled.div`
   }
 `;
 
-class Conversation extends React.Component<Props, {}> {
+class Conversation extends React.Component<Props, { isResolved: boolean }> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isResolved: false
+    };
+  }
+
   renderMessages(messages: IMessage[], conversationFirstMessage: IMessage) {
     const rows: React.ReactNode[] = [];
 
@@ -52,6 +60,12 @@ class Conversation extends React.Component<Props, {}> {
     return rows;
   }
 
+  onPostToggleClick = () => {
+    const { isResolved } = this.state;
+
+    this.setState({ isResolved: isResolved ? false : true });
+  };
+
   renderConversation() {
     const { conversation, conversationMessages, scrollBottom } = this.props;
 
@@ -74,7 +88,12 @@ class Conversation extends React.Component<Props, {}> {
 
     if (kind === 'facebook-post') {
       return (
-        <FacebookPost scrollBottom={scrollBottom} conversation={conversation} />
+        <FacebookPost
+          scrollBottom={scrollBottom}
+          conversation={conversation}
+          isResolved={this.state.isResolved}
+          onToggleClick={this.onPostToggleClick}
+        />
       );
     }
 

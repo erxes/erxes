@@ -14,6 +14,7 @@ const ErxesTopbar = styled.div`
   box-shadow: 0 4px 6px 0 ${rgba(colors.colorBlack, 0.1)};
   min-height: 70px;
   display: inline-table;
+  color: ${colors.colorWhite};
 `;
 
 const TopBarIcon = styledTS<{ isLeft: boolean }>(styled.div)`
@@ -24,7 +25,6 @@ const TopBarIcon = styledTS<{ isLeft: boolean }>(styled.div)`
   height: 40px;
   line-height: 40px;
   text-align: center;
-  color: ${colors.colorWhite};
   position: absolute;
   top: 15px;
   left: ${props => props.isLeft && '15px'};
@@ -47,7 +47,7 @@ const ErxesMiddleTitle = styled.div`
   }
 
   span {
-    color: ${rgba(colors.colorWhite, 0.8)};
+    opacity: 0.8;
     font-size: 13px;
   }
 `;
@@ -197,12 +197,12 @@ const WidgetPreviewStyled = styled.div`
   color: ${colors.colorWhite};
   border-radius: ${dimensions.unitSpacing}px;
   border-bottom-right-radius: 25px;
-  bottom: 70px;
+  bottom: 80px;
   box-shadow: 0 2px 16px 1px ${rgba(colors.colorBlack, 0.2)};
   display: flex;
   flex-direction: column;
   height: calc(100% - 95px);
-  max-height: 720px;
+  max-height: 660px;
   overflow: hidden;
   position: absolute;
   right: 8px;
@@ -216,15 +216,15 @@ const Links = styled.div`
   margin-bottom: ${unitSpace};
 
   span {
-    color: ${rgba(colors.colorWhite, 0.7)};
+    opacity: 0.7;
     font-size: 11px;
   }
 `;
 
 const Launcher = styled(LogoContainer)`
-  position: fixed;
-  right: ${coreSpace};
-  bottom: ${coreSpace};
+  position: absolute;
+  right: ${unitSpace};
+  bottom: ${unitSpace};
 `;
 
 const Socials = styled.div`
@@ -258,7 +258,7 @@ const GreetingInfo = styled.div`
   }
 
   p {
-    color: ${rgba(colors.colorWhite, 0.8)};
+    opacity: 0.8;
     font-size: 13px;
     margin: 0;
   }

@@ -32,11 +32,11 @@ class IntegrationConfigs extends React.Component<Props, State> {
 
     this.state = {
       configsMap: props.configsMap,
-      useNativeGmail: props.configsMap.USE_NATIVE_GMAIL === 'true' || false
+      useNativeGmail: props.configsMap.USE_NATIVE_GMAIL === 'true' || false,
     };
   }
 
-  save = e => {
+  save = (e) => {
     e.preventDefault();
 
     const { configsMap } = this.state;
@@ -98,7 +98,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
           {this.renderItem(
             'FACEBOOK_PERMISSIONS',
             '',
-            'manage_pages, pages_show_list, publish_pages, pages_messaging,pages_messaging_subscriptions'
+            'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content'
           )}
         </CollapseContent>
 
@@ -158,7 +158,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
               componentClass="select"
               options={[
                 { value: '', label: '' },
-                { value: 'daily', label: 'Daily' }
+                { value: 'daily', label: 'Daily' },
               ]}
               onChange={this.onChangeInput.bind(this, 'VIDEO_CALL_TYPE')}
             />
@@ -225,6 +225,19 @@ class IntegrationConfigs extends React.Component<Props, State> {
           {this.renderItem('CHAT_API_UID')}
           {this.renderItem('CHAT_API_WEBHOOK_CALLBACK_URL')}
         </CollapseContent>
+
+        <CollapseContent title="Product Board">
+          <Info>
+            <a
+              target="_blank"
+              href="https://docs.erxes.io/administrator/system-config#productBoard"
+              rel="noopener noreferrer"
+            >
+              {__('Learn how to set Product Board Integration Variables')}
+            </a>
+          </Info>
+          {this.renderItem('PRODUCT_BOARD_TOKEN')}
+        </CollapseContent>
       </ContentBox>
     );
   };
@@ -243,7 +256,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Integrations config') }
+      { title: __('Integrations config') },
     ];
 
     return (

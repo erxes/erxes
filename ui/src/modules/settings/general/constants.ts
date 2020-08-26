@@ -18,6 +18,7 @@ export const LANGUAGES = [
 ];
 
 export const SERVICE_TYPES = [
+  { label: 'Local', value: 'local' },
   { label: 'Amazon Web Service', value: 'AWS' },
   { label: 'Google Cloud Service', value: 'GCS' }
 ];
@@ -132,7 +133,9 @@ export const KEY_LABELS = {
 
   sex_choices: 'Pronoun choices',
   company_industry_types: 'Company industry types',
-  social_links: 'Social links'
+  social_links: 'Social links',
+
+  PRODUCT_BOARD_TOKEN: 'Product Board Access token'
 };
 
 export const FILE_MIME_TYPES = [

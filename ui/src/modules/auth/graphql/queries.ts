@@ -2,6 +2,7 @@ const currentUser = `
   query currentUser {
     currentUser {
       _id
+      createdAt
       username
       email
       isOwner
@@ -23,6 +24,12 @@ const currentUser = `
       permissionActions
       configs
       configsConstants
+      onboardingHistory {
+        _id
+        userId
+        isCompleted
+        completedSteps
+      }
     }
   }
 `;

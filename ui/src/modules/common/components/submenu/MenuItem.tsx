@@ -27,6 +27,10 @@ const Item = styled.li`
       bottom: 0;
     }
   }
+
+  @media (max-width: 768px) {
+    padding-right: 10px;
+  }
 `;
 
 type Props = {

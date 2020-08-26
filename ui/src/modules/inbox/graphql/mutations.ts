@@ -38,6 +38,18 @@ const conversationsReplyFacebookComment = `
 }
 `;
 
+const conversationsChangeStatusFacebookComment = `
+  mutation conversationsChangeStatusFacebookComment(
+    $commentId: String,
+  ) {
+    conversationsChangeStatusFacebookComment(
+    commentId: $commentId,
+  ) {
+    commentId
+  }
+}
+`;
+
 const markAsRead = `
   mutation conversationMarkAsRead(
     $_id: String
@@ -93,6 +105,12 @@ const conversationsUnassign = `
   }
 `;
 
+const createProductBoardNote = `
+  mutation conversationCreateProductBoardNote($_id: String!) {
+    conversationCreateProductBoardNote(_id: $_id)
+  }
+`;
+
 export default {
   conversationsReplyFacebookComment,
   conversationMessageAdd,
@@ -100,5 +118,7 @@ export default {
   conversationsAssign,
   conversationsUnassign,
   saveResponseTemplate,
-  markAsRead
+  markAsRead,
+  createProductBoardNote,
+  conversationsChangeStatusFacebookComment
 };

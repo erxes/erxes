@@ -14,7 +14,7 @@ type Props = {
   toggleExpand: () => void;
 };
 
-class ConversatioHeadContent extends React.Component<Props> {
+class ConversationHeadContent extends React.Component<Props> {
   withTransition(children: any, visible: boolean) {
     return (
       <RTG.CSSTransition
@@ -76,4 +76,4 @@ class ConversatioHeadContent extends React.Component<Props> {
   }
 }
 
-export default ConversatioHeadContent;
+export default ConversationHeadContent;

@@ -9,6 +9,7 @@ import { graphql } from 'react-apollo';
 import {
   ArchiveIntegrationResponse,
   CommonFieldsEditResponse,
+  IntegrationMutationVariables,
   IntegrationsQueryResponse,
   RemoveMutationResponse
 } from '../../types';
@@ -61,17 +62,23 @@ const IntegrationListContainer = (props: FinalProps) => {
     });
   };
 
-  const archive = (id: string) => {
-    const message =
+  const archive = (id: string, status: boolean) => {
+    let message =
       "If you archive an integration, then you won't be able to see customers & conversations related to this integration anymore. Are you sure?";
+    let action = 'archived';
+
+    if (!status) {
+      message = 'You are going to unarchive this integration. Are you sure?';
+      action = 'unarchived';
+    }
 
     confirm(message).then(() => {
-      archiveIntegration({ variables: { _id: id } })
+      archiveIntegration({ variables: { _id: id, status } })
         .then(({ data }) => {
           const integration = data.integrationsArchive;
 
           if (integration && integration._id) {
-            Alert.success('Integration has been archived.');
+            Alert.success(`Integration has been ${action}.`);
           }
         })
         .catch((error: Error) => {
@@ -82,7 +89,7 @@ const IntegrationListContainer = (props: FinalProps) => {
 
   const editIntegration = (
     id: string,
-    { name, brandId }: { name: string; brandId: string }
+    { name, brandId, channelIds }: IntegrationMutationVariables
   ) => {
     if (!name && !brandId) {
       Alert.error('Name and brand must be chosen');
@@ -90,7 +97,7 @@ const IntegrationListContainer = (props: FinalProps) => {
       return;
     }
 
-    editCommonFields({ variables: { _id: id, name, brandId } })
+    editCommonFields({ variables: { _id: id, name, brandId, channelIds } })
       .then(({ data }) => {
         const result = data.integrationsEditCommonFields;
 

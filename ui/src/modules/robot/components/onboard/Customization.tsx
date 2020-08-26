@@ -95,7 +95,7 @@ function Customization(props: Props) {
       <SubContent>
         <h3>{__('Where do you want to start')}?</h3>
         <p>
-          There are a tons of you can do with <strong>erxes</strong>.
+          There are a ton of things you can do with <strong>erxes</strong>.
           {__(
             "Let's pick the place to start, and we'll help you to get the most out of it"
           )}

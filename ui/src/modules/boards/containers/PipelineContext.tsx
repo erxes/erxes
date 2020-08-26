@@ -6,8 +6,8 @@ import { UserDetailQueryResponse } from 'modules/settings/team/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { requestIdleCallback } from 'request-idle-callback';
-import DragDisabler from '../components/DragDisabler';
 import { mutations, queries, subscriptions } from '../graphql';
+import { DragDisabler } from '../styles/common';
 import {
   IDragResult,
   IFilterParams,
@@ -480,7 +480,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
 
     if (aboveItemId === undefined) {
       this.setState({
-        itemMap: { ...itemMap, [stageId]: [...items, item] },
+        itemMap: { ...itemMap, [stageId]: [item, ...items] },
         itemIds: [...itemIds, item._id]
       });
 
@@ -605,7 +605,9 @@ class PipelineProviderInner extends React.Component<Props, State> {
     return (
       <>
         {!isDragEnabled && (
-          <DragDisabler width={`${this.state.stageIds.length * 290 - 5}px`} />
+          <DragDisabler
+            style={{ width: `${this.state.stageIds.length * 290 - 5}px` }}
+          />
         )}
 
         <PipelineContext.Provider

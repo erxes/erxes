@@ -31,6 +31,7 @@ const LeftNavigation = styled.aside`
     img {
       max-height: 28px;
       transition: all 0.3s ease;
+      max-width: 80%;
 
       &:hover {
         transform: scale(1.1);

@@ -1,4 +1,4 @@
-import { IStage } from 'modules/boards/types';
+import { IConversionStage } from 'modules/boards/types';
 import Icon from 'modules/common/components/Icon';
 import Spinner from 'modules/common/components/Spinner';
 import * as React from 'react';
@@ -8,7 +8,7 @@ import { BodyRow, StageName } from '../style';
 import DealList from './DealList';
 
 type Props = {
-  stage: IStage;
+  stage: IConversionStage;
   deals: IDeal[];
   loadMore: () => void;
   hasMore: boolean;

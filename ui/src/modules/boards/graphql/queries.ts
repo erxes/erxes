@@ -1,12 +1,16 @@
+const pipelineLabelFields = `
+  _id
+  name
+  colorCode
+  pipelineId
+  createdBy
+  createdAt
+`;
+
 const pipelineLabels = `
   query pipelineLabels($pipelineId: String!) {
     pipelineLabels(pipelineId: $pipelineId) {
-      _id
-      name
-      colorCode
-      pipelineId
-      createdBy
-      createdAt
+      ${pipelineLabelFields}
     }
   }
 `;
@@ -14,12 +18,7 @@ const pipelineLabels = `
 const pipelineLabelDetail = `
   query pipelineLabelDetail($_id: String!) {
     pipelineLabelDetail(_id: $_id) {
-      _id
-      name
-      colorCode
-      pipelineId
-      createdBy
-      createdAt
+      ${pipelineLabelFields}
     }
   }
 `;
@@ -128,23 +127,51 @@ const commonParamDefs = `
   closeDateType: $closeDateType
 `;
 
+const stageParams = `
+  $isNotLost: Boolean,
+  $pipelineId: String!,
+  ${commonParams}
+`;
+
+const stageParamDefs = `
+  isNotLost: $isNotLost,
+  pipelineId: $pipelineId,
+  ${commonParamDefs}
+`;
+
+const stageCommon = `
+  _id
+  name
+  order
+  amount
+  itemsTotalCount
+  pipelineId
+`;
+
 const stages = `
   query stages(
-    $isNotLost: Boolean,
-    $pipelineId: String!,
-    ${commonParams}
+    ${stageParams}
   ) {
     stages(
-      isNotLost: $isNotLost,
-      pipelineId: $pipelineId,
-      ${commonParamDefs}
+      ${stageParamDefs}
     ) {
-      _id
-      name
-      order
-      amount
-      itemsTotalCount
-      pipelineId
+      ${stageCommon}
+    }
+  }
+`;
+
+const conversionStages = `
+  query stages(
+    ${stageParams}
+  ) {
+    stages(
+      ${stageParamDefs}
+    ) {
+      ${stageCommon}
+      compareNextStage
+      initialDealsTotalCount
+      stayedDealsTotalCount
+      inProcessDealsTotalCount
     }
   }
 `;
@@ -218,6 +245,7 @@ export default {
   pipelines,
   pipelineDetail,
   stages,
+  conversionStages,
   stageDetail,
   pipelineLabels,
   pipelineLabelDetail
