@@ -95,7 +95,7 @@ const dealQueries = {
         },
       },
       {
-        $match: { tickUsed: true }
+        $match: { tickUsed: true },
       },
       {
         $group: {

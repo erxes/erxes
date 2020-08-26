@@ -1,6 +1,7 @@
 import { dateType } from 'aws-sdk/clients/sts'; // tslint:disable-line
 import * as faker from 'faker';
 import * as Random from 'meteor-random';
+import * as momentTz from 'moment-timezone';
 import { FIELDS_GROUPS_CONTENT_TYPES } from '../data/constants';
 import {
   ActivityLogs,
@@ -35,6 +36,7 @@ import {
   MessengerApps,
   NotificationConfigurations,
   Notifications,
+  OnboardingHistories,
   Permissions,
   PipelineLabels,
   Pipelines,
@@ -671,7 +673,7 @@ interface IIntegrationFactoryInput {
   leadData?: any;
   tagIds?: string[];
   isActive?: boolean;
-  messengerData?: object;
+  messengerData?: any;
   languageCode?: string;
 }
 
@@ -689,6 +691,10 @@ export const integrationFactory = async (params: IIntegrationFactoryInput = {}) 
     tagIds: params.tagIds,
     isActive: params.isActive === undefined || params.isActive === null ? true : params.isActive,
   };
+
+  if (params.messengerData && !params.messengerData.timezone) {
+    doc.messengerData.timezone = momentTz.tz.guess(true);
+  }
 
   const user = await userFactory({});
 
@@ -1364,3 +1370,15 @@ export function engageDataFactory(params: IMessageEngageDataParams) {
     sentAs: params.sentAs || 'post',
   };
 }
+
+interface IOnboardHistoryParams {
+  userId: string;
+  isCompleted?: boolean;
+  completedSteps?: string[];
+}
+
+export const onboardHistoryFactory = async (params: IOnboardHistoryParams) => {
+  const onboard = new OnboardingHistories(params);
+
+  return onboard.save();
+};

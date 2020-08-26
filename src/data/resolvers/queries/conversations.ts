@@ -151,14 +151,32 @@ const conversationQueries = {
 
   async converstationFacebookComments(
     _root,
-    { postId, commentId, limit, senderId }: { commentId: string; postId: string; senderId: string; limit: number },
+    {
+      postId,
+      isResolved,
+      commentId,
+      limit,
+      senderId,
+    }: { commentId: string; isResolved: string; postId: string; senderId: string; limit: number },
     { dataSources }: IContext,
   ) {
     return dataSources.IntegrationsAPI.fetchApi('/facebook/get-comments', {
       postId,
+      isResolved,
       commentId,
       senderId,
       limit: limit || 10,
+    });
+  },
+
+  async converstationFacebookCommentsCount(
+    _root,
+    { postId, isResolved }: { postId: string; isResolved: string },
+    { dataSources }: IContext,
+  ) {
+    return dataSources.IntegrationsAPI.fetchApi('/facebook/get-comments-count', {
+      postId,
+      isResolved,
     });
   },
   /**

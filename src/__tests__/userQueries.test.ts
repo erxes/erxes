@@ -1,6 +1,6 @@
 import { graphqlRequest } from '../db/connection';
-import { brandFactory, conversationFactory, userFactory } from '../db/factories';
-import { Conversations, Users } from '../db/models';
+import { brandFactory, conversationFactory, onboardHistoryFactory, userFactory } from '../db/factories';
+import { Conversations, OnboardingHistories, Users } from '../db/models';
 
 import './setup.ts';
 
@@ -9,6 +9,7 @@ describe('userQueries', () => {
     // Clearing test data
     await Users.deleteMany({});
     await Conversations.deleteMany({});
+    await OnboardingHistories.deleteMany({});
   });
 
   test('Test users()', async () => {
@@ -117,12 +118,16 @@ describe('userQueries', () => {
           permissionActions
           configs
           configsConstants
+          onboardingHistory { _id }
         }
       }
     `;
 
     // checking not verified
     let user = await userFactory({ isOwner: true, registrationToken: 'registrationToken' });
+    // to improve test coverage
+    await onboardHistoryFactory({ userId: user._id, isCompleted: false });
+
     let response = await graphqlRequest(qry, 'userDetail', { _id: user._id }, { user });
 
     expect(response._id).toBe(user._id);
@@ -159,10 +164,16 @@ describe('userQueries', () => {
   test('Current user', async () => {
     const user = await userFactory({});
 
+    // to improve test coverage
+    await onboardHistoryFactory({ userId: user._id, isCompleted: true });
+
     const qry = `
       query currentUser {
         currentUser {
           _id
+          onboardingHistory {
+            _id
+          }
         }
       }
     `;

@@ -4,9 +4,17 @@ import * as _ from 'underscore';
 import { filterXSS } from 'xss';
 import { RABBITMQ_QUEUES } from '../data/constants';
 import { can } from '../data/permissions/utils';
-import { checkFile, frontendEnv, getSubServiceDomain, uploadFile, uploadFileAWS } from '../data/utils';
+import {
+  checkFile,
+  frontendEnv,
+  getConfig,
+  getSubServiceDomain,
+  uploadFile,
+  uploadFileAWS,
+  uploadFileLocal,
+} from '../data/utils';
 import { debugExternalApi } from '../debuggers';
-import { sendRPCMessage } from '../messageBroker';
+import messageBroker from '../messageBroker';
 
 export const importer = async (req: any, res, next) => {
   if (!(await can('importXlsFile', req.user))) {
@@ -14,11 +22,14 @@ export const importer = async (req: any, res, next) => {
   }
 
   try {
+    const UPLOAD_SERVICE_TYPE = await getConfig('UPLOAD_SERVICE_TYPE', 'AWS');
+
     const scopeBrandIds = JSON.parse(req.cookies.scopeBrandIds || '[]');
     const form = new formidable.IncomingForm();
 
     form.parse(req, async (_err, fields: any, response) => {
       let status = '';
+      let fileType = 'xlsx';
 
       try {
         status = await checkFile(response.file);
@@ -32,12 +43,21 @@ export const importer = async (req: any, res, next) => {
       }
 
       try {
-        const fileName = await uploadFileAWS(response.file, true);
+        const fileName =
+          UPLOAD_SERVICE_TYPE === 'local'
+            ? await uploadFileLocal(response.file)
+            : await uploadFileAWS(response.file, true);
 
-        const result = await sendRPCMessage(RABBITMQ_QUEUES.RPC_API_TO_WORKERS, {
+        if (fileName.includes('.csv')) {
+          fileType = 'csv';
+        }
+
+        const result = await messageBroker().sendRPCMessage(RABBITMQ_QUEUES.RPC_API_TO_WORKERS, {
           action: 'createImport',
           type: fields.type,
+          fileType,
           fileName,
+          uploadType: UPLOAD_SERVICE_TYPE,
           scopeBrandIds,
           user: req.user,
         });

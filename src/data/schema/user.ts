@@ -32,6 +32,7 @@ export const types = `
 
   type User {
     _id: String!
+    createdAt: Date
     username: String
     email: String
     isActive: Boolean
@@ -49,6 +50,7 @@ export const types = `
     permissionActions: JSON
     configs: JSON
     configsConstants: [JSON]
+    onboardingHistory: OnboardingHistory
   }
 
   type UserConversationListResponse {

@@ -1,6 +1,6 @@
 import { Deals, GrowthHacks, Stages, Tasks, Tickets } from '../../db/models';
 import { IStageDocument } from '../../db/models/definitions/boards';
-import { BOARD_TYPES } from '../../db/models/definitions/constants';
+import { BOARD_STATUSES, BOARD_TYPES } from '../../db/models/definitions/constants';
 import { IContext } from '../types';
 import {
   generateDealCommonFilters,
@@ -124,8 +124,19 @@ export default {
       {
         $lookup: {
           from: 'deals',
-          localField: '_id',
-          foreignField: 'stageId',
+          let: { stageId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$stageId', '$$stageId']},
+                    { $ne: [ '$status', BOARD_STATUSES.ARCHIVED ] }
+                  ]
+                }
+              }
+            }
+          ],
           as: 'deals',
         },
       },
@@ -185,10 +196,13 @@ export default {
             {
               $match: {
                 $expr: {
-                  $and: [{ $eq: ['$stageId', '$$stageId'] }, { $ne: ['$status', 'archived'] }],
-                },
-              },
-            },
+                  $and: [
+                    { $eq: ['$stageId', '$$stageId']},
+                    { $ne: [ '$status', BOARD_STATUSES.ARCHIVED ] }
+                  ]
+                }
+              }
+            }
           ],
           as: 'currentDeals',
         },
@@ -201,10 +215,13 @@ export default {
             {
               $match: {
                 $expr: {
-                  $and: [{ $eq: ['$initialStageId', '$$stageId'] }, { $ne: ['$status', 'archived'] }],
-                },
-              },
-            },
+                  $and: [
+                    { $eq: ['$initialStageId', '$$stageId' ] },
+                    { $ne: [ '$status', BOARD_STATUSES.ARCHIVED ] }
+                  ]
+                }
+              }
+            }
           ],
           as: 'initialDeals',
         },

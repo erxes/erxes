@@ -157,7 +157,6 @@ const robotQueries = {
 
       if (showModule) {
         let steps: string[] = [];
-        // let steps = [`${feature}Show`];
 
         if (showSettings) {
           steps = [...steps, ...settings];

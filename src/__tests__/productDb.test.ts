@@ -191,7 +191,7 @@ describe('Test products model', () => {
   test('Remove product category', async () => {
     await ProductCategories.removeProductCategory(productCategory._id);
 
-    expect(await ProductCategories.find().count()).toBe(0);
+    expect(await ProductCategories.find().countDocuments()).toBe(0);
   });
 
   test('Remove product category (Error: Can`t remove a product category)', async () => {

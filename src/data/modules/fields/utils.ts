@@ -1,25 +1,50 @@
-import { Fields } from '../../../db/models';
-import {
-  BOARD_BASIC_INFOS,
-  COMPANY_BASIC_INFOS,
-  CUSTOMER_BASIC_INFOS,
-  PRODUCT_BASIC_INFOS,
-} from '../fileExporter/constants';
+import { Companies, Customers, Fields, Products } from '../../../db/models';
+import { BOARD_BASIC_INFOS } from '../fileExporter/constants';
+
+const generateBasicInfosFromSchema = async (queSchema: any, namePrefix: string) => {
+  const queFields: string[] = [];
+
+  // field definations
+  const paths = queSchema.paths;
+
+  for (const name of Object.keys(paths)) {
+    const path = paths[name];
+
+    const label = path.options.label;
+    const type = path.instance;
+
+    if (['String', 'Number', 'Date', 'Boolean'].includes(type) && label) {
+      // add to fields list
+      queFields.push(`${namePrefix}${name}`);
+    }
+  }
+
+  return queFields;
+};
 
 // Checking field names, all field names must be configured correctly
 export const checkFieldNames = async (type: string, fields: string[]) => {
+  const properties: any[] = [];
+  let schema: any;
   let basicInfos: string[] = [];
 
   switch (type) {
     case 'company':
-      basicInfos = COMPANY_BASIC_INFOS;
+      schema = Companies.schema;
       break;
+
     case 'customer':
-      basicInfos = CUSTOMER_BASIC_INFOS;
+      schema = Customers.schema;
       break;
+
+    case 'lead':
+      schema = Customers.schema;
+      break;
+
     case 'product':
-      basicInfos = PRODUCT_BASIC_INFOS;
+      schema = Products.schema;
       break;
+
     case 'deal':
     case 'task':
     case 'ticket':
@@ -27,7 +52,18 @@ export const checkFieldNames = async (type: string, fields: string[]) => {
       break;
   }
 
-  const properties: any[] = [];
+  if (schema) {
+    basicInfos = [...basicInfos, ...(await generateBasicInfosFromSchema(schema, ''))];
+
+    for (const name of Object.keys(schema.paths)) {
+      const path = schema.paths[name];
+
+      // extend fields list using sub schema fields
+      if (path.schema) {
+        basicInfos = [...basicInfos, ...(await generateBasicInfosFromSchema(path.schema, `${name}.`))];
+      }
+    }
+  }
 
   for (let fieldName of fields) {
     if (!fieldName) {
@@ -38,7 +74,7 @@ export const checkFieldNames = async (type: string, fields: string[]) => {
 
     const property: { [key: string]: any } = {};
 
-    const fieldObj = await Fields.findOne({ text: fieldName, contentType: type });
+    const fieldObj = await Fields.findOne({ text: fieldName, contentType: type === 'lead' ? 'customer' : type });
 
     // Collecting basic fields
     if (basicInfos.includes(fieldName)) {

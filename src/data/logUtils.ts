@@ -39,8 +39,8 @@ import {
   Users,
   UsersGroups,
 } from '../db/models/index';
-import { sendMessage } from '../messageBroker';
 import { automationHelper } from './automationUtils';
+import messageBroker from '../messageBroker';
 import { MODULE_NAMES, RABBITMQ_QUEUES } from './constants';
 import { getSubServiceDomain, registerOnboardHistory, sendRequest } from './utils';
 
@@ -1315,7 +1315,7 @@ const putLog = async (params: IFinalLogParams, user: IUserDocument) => {
     // mutation wrapper automation
     await automationHelper({ params, user });
 
-    return sendMessage(RABBITMQ_QUEUES.PUT_LOG, {
+    return messageBroker().sendMessage(RABBITMQ_QUEUES.PUT_LOG, {
       ...params,
       createdBy: user._id,
       unicode: user.username || user.email || user._id,

@@ -2,7 +2,7 @@ import { Brands, Channels, Integrations, Tags } from '../../../db/models';
 import { INTEGRATION_NAMES_MAP, KIND_CHOICES, TAG_TYPES } from '../../../db/models/definitions/constants';
 import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
 
-import { sendRPCMessage } from '../../../messageBroker';
+import messageBroker from '../../../messageBroker';
 import { RABBITMQ_QUEUES } from '../../constants';
 import { IContext } from '../../types';
 import { paginate } from '../../utils';
@@ -10,7 +10,7 @@ import { paginate } from '../../utils';
  * Common helper for integrations & integrationsTotalCount
  */
 const generateFilterQuery = async ({ kind, channelId, brandId, searchValue, tag }) => {
-  const query: any = { isActive: true };
+  const query: any = {};
 
   if (kind) {
     query.kind = kind;
@@ -64,7 +64,7 @@ const integrationQueries = {
     { singleBrandIdSelector }: IContext,
   ) {
     const query = { ...singleBrandIdSelector, ...(await generateFilterQuery(args)) };
-    const integrations = paginate(Integrations.findIntegrations(query), args);
+    const integrations = paginate(Integrations.findAllIntegrations(query), args);
 
     return integrations.sort({ name: 1 });
   },
@@ -104,7 +104,7 @@ const integrationQueries = {
     };
 
     const count = query => {
-      return Integrations.findIntegrations(query).countDocuments();
+      return Integrations.findAllIntegrations(query).countDocuments();
     };
 
     // Counting integrations by tag
@@ -153,7 +153,10 @@ const integrationQueries = {
   },
 
   async integrationGetLineWebhookUrl(_root, { _id }: { _id: string }) {
-    return sendRPCMessage(RABBITMQ_QUEUES.RPC_API_TO_INTEGRATIONS, { action: 'line-webhook', data: { _id } });
+    return messageBroker().sendRPCMessage(RABBITMQ_QUEUES.RPC_API_TO_INTEGRATIONS, {
+      action: 'line-webhook',
+      data: { _id },
+    });
   },
 };
 

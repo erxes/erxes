@@ -1,3 +1,51 @@
+## [0.17.6](https://github.com/erxes/erxes-api/compare/0.17.5...0.17.6) (2020-08-20)
+
+## [0.17.5](https://github.com/erxes/erxes-api/compare/0.17.4...0.17.5) (2020-08-20)
+
+## [0.17.4](https://github.com/erxes/erxes-api/compare/0.17.3...0.17.4) (2020-08-20)
+
+## [0.17.3](https://github.com/erxes/erxes-api/compare/0.17.2...0.17.3) (2020-08-20)
+
+
+### Performance Improvements
+
+* **message-broker:** added http client ([957b2d9](https://github.com/erxes/erxes-api/commit/957b2d9a578170f0f678626d7cf15d8826e24c72))
+
+## [0.17.2](https://github.com/erxes/erxes-api/compare/0.17.1...0.17.2) (2020-08-20)
+
+## [0.17.1](https://github.com/erxes/erxes-api/compare/0.17.0...0.17.1) (2020-08-20)
+
+# [0.17.0](https://github.com/erxes/erxes-api/compare/0.16.2...0.17.0) (2020-08-17)
+
+
+### Bug Fixes
+
+* **script-manager:** fix cors issue in script-manager url ([c18e5a9](https://github.com/erxes/erxes-api/commit/c18e5a9b1ce6d38df0ce5a0b2221aeba230013d3)), closes [erxes/erxes#2223](https://github.com/erxes/erxes/issues/2223)
+
+
+### Features
+
+* **widget:** show server time & online status ([5d04366](https://github.com/erxes/erxes-api/commit/5d043662de6852761205866adbba43f2d2f5dd8c)), closes [erxes/erxes#2191](https://github.com/erxes/erxes/issues/2191)
+
+
+### Performance Improvements
+
+* **dependencies:** made rabbitmq, redis optional ([1aa671f](https://github.com/erxes/erxes-api/commit/1aa671f2ba2c1c5ddca9d519bb0e911d6a41fd67))
+
+## [0.16.2](https://github.com/erxes/erxes-api/compare/0.16.1...0.16.2) (2020-07-28)
+
+## [0.16.1](https://github.com/erxes/erxes-api/compare/0.16.0...0.16.1) (2020-07-28)
+
+# [0.16.0](https://github.com/erxes/erxes-api/compare/0.15.5...0.16.0) (2020-07-28)
+
+## [0.15.5](https://github.com/erxes/erxes-api/compare/0.15.4...0.15.5) (2020-07-15)
+
+## [0.15.4](https://github.com/erxes/erxes-api/compare/0.5.13...0.15.4) (2020-07-08)
+
+## [0.15.3](https://github.com/erxes/erxes-api/compare/0.5.13...0.15.3) (2020-07-08)
+
+## [0.5.13](https://github.com/erxes/erxes-api/compare/0.15.2...0.5.13) (2020-07-08)
+
 ## [0.15.2](https://github.com/erxes/erxes-api/compare/0.15.1...0.15.2) (2020-07-07)
 
 ## [0.15.1](https://github.com/erxes/erxes-api/compare/0.15.0...0.15.1) (2020-07-07)

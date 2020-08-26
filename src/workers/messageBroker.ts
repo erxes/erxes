@@ -1,81 +1,43 @@
-import * as amqplib from 'amqplib';
 import * as dotenv from 'dotenv';
+import messageBroker from 'erxes-message-broker';
 import { RABBITMQ_QUEUES } from '../data/constants';
-import { debugWorkers } from '../debuggers';
-import { addToArray, getArray, removeFromArray } from '../redisClient';
-import { generateUid, receiveImportCancel, receiveImportRemove, receiveImportXls } from './utils';
+import { receiveImportCancel, receiveImportCreate, receiveImportRemove } from './utils';
 
 dotenv.config();
 
-const { RABBITMQ_HOST = 'amqp://localhost' } = process.env;
+let client;
 
-let connection;
-let channel;
+export const initBroker = async server => {
+  client = await messageBroker({
+    name: 'workers',
+    server,
+    envs: process.env,
+  });
 
-export const initConsumer = async () => {
-  try {
-    connection = await amqplib.connect(RABBITMQ_HOST);
-    channel = await connection.createChannel();
+  const { consumeQueue, consumeRPCQueue } = client;
 
-    await channel.assertQueue(RABBITMQ_QUEUES.WORKERS);
+  // listen for rpc queue =========
+  consumeRPCQueue(RABBITMQ_QUEUES.RPC_API_TO_WORKERS, async content => {
+    const response = { status: 'success', data: {}, errorMessage: '' };
 
-    channel.consume(RABBITMQ_QUEUES.WORKERS, async msg => {
-      if (msg !== null) {
-        debugWorkers(`Received queue message ${msg.content.toString()}`);
+    try {
+      response.data =
+        content.action === 'removeImport' ? await receiveImportRemove(content) : await receiveImportCreate(content);
+    } catch (e) {
+      response.status = 'error';
+      response.errorMessage = e.message;
+    }
 
-        const content = JSON.parse(msg.content.toString());
+    return response;
+  });
 
-        if (content.type === 'cancelImport') {
-          receiveImportCancel();
-        }
-
-        channel.ack(msg);
-      }
-    });
-
-    await channel.assertQueue(RABBITMQ_QUEUES.RPC_API_TO_WORKERS);
-
-    channel.consume(RABBITMQ_QUEUES.RPC_API_TO_WORKERS, async msg => {
-      if (msg !== null) {
-        const response = { status: 'success', data: {}, errorMessage: '' };
-
-        const activeWorkers = await getArray('active_workers');
-
-        if (activeWorkers.length > 3) {
-          response.status = 'error';
-          response.errorMessage = 'Please white for a while';
-
-          return channel.sendToQueue(msg.properties.replyTo, Buffer.from(JSON.stringify(response)), {
-            correlationId: msg.properties.correlationId,
-          });
-        }
-
-        const uid = generateUid();
-
-        await addToArray('active_workers', uid);
-
-        debugWorkers(`Received rpc queue message ${msg.content.toString()}`);
-
-        const content = JSON.parse(msg.content.toString());
-
-        try {
-          response.data =
-            content.action === 'removeImport' ? await receiveImportRemove(content) : await receiveImportXls(content);
-        } catch (e) {
-          response.status = 'error';
-          response.errorMessage = e.message;
-        }
-
-        await removeFromArray('active_workers', uid);
-
-        channel.sendToQueue(msg.properties.replyTo, Buffer.from(JSON.stringify(response)), {
-          correlationId: msg.properties.correlationId,
-        });
-
-        channel.ack(msg);
-      }
-    });
-  } catch (e) {
-    console.log(e.message);
-  }
+  consumeQueue(RABBITMQ_QUEUES.WORKERS, async content => {
+    if (content.type === 'cancelImport') {
+      receiveImportCancel();
+    }
+  });
 };
+
+export default function() {
+  return client;
+}

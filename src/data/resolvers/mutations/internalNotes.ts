@@ -44,7 +44,7 @@ const sendNotificationOfItems = async (
 
   utils.sendNotification(notifDocItems);
 
-  graphqlPubsub.publish('activityLogsChanged');
+  graphqlPubsub.publish('activityLogsChanged', {});
 };
 
 const internalNoteMutations = {
@@ -183,7 +183,7 @@ const internalNoteMutations = {
     );
 
     if (BOARD_TYPES.ALL.includes(updated.contentType)) {
-      graphqlPubsub.publish('activityLogsChanged');
+      graphqlPubsub.publish('activityLogsChanged', {});
     }
 
     return updated;
@@ -199,7 +199,7 @@ const internalNoteMutations = {
     await putDeleteLog({ type: MODULE_NAMES.INTERNAL_NOTE, object: internalNote }, user);
 
     if (BOARD_TYPES.ALL.includes(internalNote.contentType)) {
-      graphqlPubsub.publish('activityLogsChanged');
+      graphqlPubsub.publish('activityLogsChanged', {});
     }
 
     return removed;

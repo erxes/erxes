@@ -1,7 +1,7 @@
 import './setup.ts';
 
 import * as faker from 'faker';
-import * as messageBroker from '../messageBroker';
+import messageBroker from '../messageBroker';
 
 import {
   brandFactory,
@@ -76,11 +76,12 @@ describe('mutations', () => {
       name: _integration.name,
       brandId: _brand._id,
       languageCode: 'en',
+      channelIds: ['randomId'],
     };
 
     const mutation = `
-      mutation integrationsCreateMessengerIntegration(${commonParamDefs}) {
-        integrationsCreateMessengerIntegration(${commonParams}) {
+      mutation integrationsCreateMessengerIntegration($channelIds: [String] ${commonParamDefs}) {
+        integrationsCreateMessengerIntegration(channelIds: $channelIds ${commonParams}) {
           name
           brandId
           languageCode
@@ -103,15 +104,18 @@ describe('mutations', () => {
       name: _integration.name,
       brandId: secondBrand._id,
       languageCode: 'en',
+      channelIds: ['randomId'],
     };
 
     const mutation = `
       mutation integrationsEditMessengerIntegration(
         $_id: String!
+        $channelIds: [String]
         ${commonParamDefs}
       ) {
         integrationsEditMessengerIntegration(
         _id: $_id
+        channelIds: $channelIds
         ${commonParams}
       ) {
           _id
@@ -305,6 +309,7 @@ describe('mutations', () => {
         $brandId: String!
         $accountId: String,
         $data: JSON
+        $channelIds: [String]
       ) {
         integrationsCreateExternalIntegration(
           kind: $kind
@@ -312,6 +317,7 @@ describe('mutations', () => {
           brandId: $brandId
           accountId: $accountId
           data: $data
+          channelIds: $channelIds
         ) {
           _id
           name
@@ -327,6 +333,7 @@ describe('mutations', () => {
       kind: 'nylas-gmail',
       name: 'Nyals gmail integration',
       brandId: brand._id,
+      channelIds: ['randomId'],
     };
 
     try {
@@ -388,7 +395,7 @@ describe('mutations', () => {
 
     const integration1 = await integrationFactory();
 
-    const spy = jest.spyOn(messageBroker, 'sendRPCMessage');
+    const spy = jest.spyOn(messageBroker(), 'sendRPCMessage');
     spy.mockImplementation(() => Promise.resolve({ erxesApiIds: [integration1._id] }));
 
     const response = await graphqlRequest(mutation, 'integrationsRemoveAccount', { _id: 'accountId' });
@@ -403,7 +410,7 @@ describe('mutations', () => {
 
     spy.mockRestore();
 
-    const spy1 = jest.spyOn(messageBroker, 'sendRPCMessage');
+    const spy1 = jest.spyOn(messageBroker(), 'sendRPCMessage');
 
     spy1.mockImplementation(() => Promise.resolve({ erxesApiIds: [] }));
 
@@ -505,10 +512,26 @@ describe('mutations', () => {
     removeSpy.mockRestore();
   });
 
+  test('test integrationsRemove() to catch error', async () => {
+    const mutation = `
+      mutation integrationsRemove($_id: String!) {
+        integrationsRemove(_id: $_id)
+      }
+    `;
+
+    const fbPostIntegration = await integrationFactory({ kind: 'facebook-post' });
+
+    try {
+      await graphqlRequest(mutation, 'integrationsRemove', { _id: fbPostIntegration._id });
+    } catch (e) {
+      expect(e[0].message).toBeDefined();
+    }
+  });
+
   test('Integrations archive', async () => {
     const mutation = `
-      mutation integrationsArchive($_id: String!) {
-        integrationsArchive(_id: $_id) {
+      mutation integrationsArchive($_id: String!, $status: Boolean!) {
+        integrationsArchive(_id: $_id, status: $status) {
           _id
           isActive
         }
@@ -516,17 +539,22 @@ describe('mutations', () => {
     `;
 
     const integration = await integrationFactory();
-    const response = await graphqlRequest(mutation, 'integrationsArchive', {
+    let response = await graphqlRequest(mutation, 'integrationsArchive', {
       _id: integration._id,
+      status: true,
     });
 
     expect(response.isActive).toBeFalsy();
+
+    response = await graphqlRequest(mutation, 'integrationsArchive', { _id: integration._id, status: false });
+
+    expect(response.isActive).toBeTruthy();
   });
 
   test('Integrations edit common fields', async () => {
     const mutation = `
-      mutation integrationsEditCommonFields($_id: String!, $name: String!, $brandId: String!) {
-        integrationsEditCommonFields(_id: $_id name: $name brandId: $brandId) {
+      mutation integrationsEditCommonFields($_id: String!, $name: String!, $brandId: String!, $channelIds: [String]) {
+        integrationsEditCommonFields(_id: $_id name: $name brandId: $brandId channelIds: $channelIds) {
           _id
           name
           brandId
@@ -540,6 +568,7 @@ describe('mutations', () => {
       _id: integration._id,
       name: 'updated',
       brandId: 'brandId',
+      channelIds: ['randomId'],
     };
 
     const response = await graphqlRequest(mutation, 'integrationsEditCommonFields', doc);

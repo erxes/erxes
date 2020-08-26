@@ -2,7 +2,7 @@ import * as schedule from 'node-schedule';
 import { Users } from '../db/models';
 import { OnboardingHistories } from '../db/models/Robot';
 import { debugCrons } from '../debuggers';
-import { sendMessage } from '../messageBroker';
+import messageBroker from '../messageBroker';
 
 const checkOnboarding = async () => {
   const users = await Users.find({}).lean();
@@ -14,7 +14,7 @@ const checkOnboarding = async () => {
       continue;
     }
 
-    sendMessage('callPublish', {
+    messageBroker().sendMessage('callPublish', {
       name: 'onboardingChanged',
       data: {
         onboardingChanged: {

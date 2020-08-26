@@ -1,8 +1,9 @@
-import { Customers, EmailDeliveries, Integrations } from '../../../db/models';
+import * as telemetry from 'erxes-telemetry';
+import { Channels, Customers, EmailDeliveries, Integrations } from '../../../db/models';
 import { IIntegration, IMessengerData, IUiOptions } from '../../../db/models/definitions/integrations';
 import { IExternalIntegrationParams } from '../../../db/models/Integrations';
 import { debugExternalApi } from '../../../debuggers';
-import { sendRPCMessage } from '../../../messageBroker';
+import messageBroker from '../../../messageBroker';
 import { MODULE_NAMES, RABBITMQ_QUEUES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
@@ -13,12 +14,21 @@ interface IEditIntegration extends IIntegration {
   _id: string;
 }
 
+interface IArchiveParams {
+  _id: string;
+  status: boolean;
+}
+
 const integrationMutations = {
   /**
    * Creates a new messenger integration
    */
   async integrationsCreateMessengerIntegration(_root, doc: IIntegration, { user }: IContext) {
     const integration = await Integrations.createMessengerIntegration(doc, user._id);
+
+    if (doc.channelIds) {
+      await Channels.updateMany({ _id: { $in: doc.channelIds } }, { $push: { integrationIds: integration._id } });
+    }
 
     await putCreateLog(
       {
@@ -28,6 +38,8 @@ const integrationMutations = {
       },
       user,
     );
+
+    telemetry.trackCli('integration_created', { type: 'messenger' });
 
     await registerOnboardHistory({ type: 'messengerIntegrationCreate', user });
 
@@ -40,6 +52,12 @@ const integrationMutations = {
   async integrationsEditMessengerIntegration(_root, { _id, ...fields }: IEditIntegration, { user }: IContext) {
     const integration = await Integrations.getIntegration(_id);
     const updated = await Integrations.updateMessengerIntegration(_id, fields);
+
+    await Channels.updateMany({ integrationIds: integration._id }, { $pull: { integrationIds: integration._id } });
+
+    if (fields.channelIds) {
+      await Channels.updateMany({ _id: { $in: fields.channelIds } }, { $push: { integrationIds: integration._id } });
+    }
 
     await putUpdateLog(
       {
@@ -83,6 +101,8 @@ const integrationMutations = {
       user,
     );
 
+    telemetry.trackCli('integration_created', { type: 'lead' });
+
     await registerOnboardHistory({ type: 'leadIntegrationCreate', user });
 
     return integration;
@@ -104,6 +124,10 @@ const integrationMutations = {
     { user, dataSources }: IContext,
   ) {
     const integration = await Integrations.createExternalIntegration(doc, user._id);
+
+    if (doc.channelIds) {
+      await Channels.updateMany({ _id: { $in: doc.channelIds } }, { $push: { integrationIds: integration._id } });
+    }
 
     let kind = doc.kind;
 
@@ -131,6 +155,8 @@ const integrationMutations = {
         data: data ? JSON.stringify(data) : '',
       });
 
+      telemetry.trackCli('integration_created', { type: doc.kind });
+
       await putCreateLog(
         {
           type: MODULE_NAMES.INTEGRATION,
@@ -147,9 +173,15 @@ const integrationMutations = {
     return integration;
   },
 
-  async integrationsEditCommonFields(_root, { _id, name, brandId }, { user }) {
+  async integrationsEditCommonFields(_root, { _id, name, brandId, channelIds }, { user }) {
     const integration = await Integrations.getIntegration(_id);
     const updated = Integrations.updateBasicInfo(_id, { name, brandId });
+
+    await Channels.updateMany({ integrationIds: integration._id }, { $pull: { integrationIds: integration._id } });
+
+    if (channelIds) {
+      await Channels.updateMany({ _id: { $in: channelIds } }, { $push: { integrationIds: integration._id } });
+    }
 
     await putUpdateLog(
       {
@@ -170,33 +202,38 @@ const integrationMutations = {
   async integrationsRemove(_root, { _id }: { _id: string }, { user, dataSources }: IContext) {
     const integration = await Integrations.getIntegration(_id);
 
-    if (
-      [
-        'facebook-messenger',
-        'facebook-post',
-        'gmail',
-        'callpro',
-        'nylas-gmail',
-        'nylas-imap',
-        'nylas-office365',
-        'nylas-outlook',
-        'nylas-exchange',
-        'nylas-yahoo',
-        'chatfuel',
-        'twitter-dm',
-        'smooch-viber',
-        'smooch-telegram',
-        'smooch-line',
-        'smooch-twilio',
-        'whatsapp',
-      ].includes(integration.kind)
-    ) {
-      await dataSources.IntegrationsAPI.removeIntegration({ integrationId: _id });
+    try {
+      if (
+        [
+          'facebook-messenger',
+          'facebook-post',
+          'gmail',
+          'callpro',
+          'nylas-gmail',
+          'nylas-imap',
+          'nylas-office365',
+          'nylas-outlook',
+          'nylas-exchange',
+          'nylas-yahoo',
+          'chatfuel',
+          'twitter-dm',
+          'smooch-viber',
+          'smooch-telegram',
+          'smooch-line',
+          'smooch-twilio',
+          'whatsapp',
+        ].includes(integration.kind)
+      ) {
+        await dataSources.IntegrationsAPI.removeIntegration({ integrationId: _id });
+      }
+
+      await putDeleteLog({ type: MODULE_NAMES.INTEGRATION, object: integration }, user);
+
+      return Integrations.removeIntegration(_id);
+    } catch (e) {
+      debugExternalApi(e);
+      throw e;
     }
-
-    await putDeleteLog({ type: MODULE_NAMES.INTEGRATION, object: integration }, user);
-
-    return Integrations.removeIntegration(_id);
   },
 
   /**
@@ -204,7 +241,7 @@ const integrationMutations = {
    */
   async integrationsRemoveAccount(_root, { _id }: { _id: string }) {
     try {
-      const { erxesApiIds } = await sendRPCMessage(RABBITMQ_QUEUES.RPC_API_TO_INTEGRATIONS, {
+      const { erxesApiIds } = await messageBroker().sendRPCMessage(RABBITMQ_QUEUES.RPC_API_TO_INTEGRATIONS, {
         action: 'remove-account',
         data: { _id },
       });
@@ -253,17 +290,17 @@ const integrationMutations = {
     return;
   },
 
-  async integrationsArchive(_root, { _id }: { _id: string }, { user }: IContext) {
+  async integrationsArchive(_root, { _id, status }: IArchiveParams, { user }: IContext) {
     const integration = await Integrations.getIntegration(_id);
 
-    const updated = await Integrations.updateOne({ _id }, { $set: { isActive: false } });
+    const updated = await Integrations.updateOne({ _id }, { $set: { isActive: !status } });
 
     await putUpdateLog(
       {
         type: MODULE_NAMES.INTEGRATION,
         object: integration,
-        newData: { isActive: false },
-        description: `"${integration.name}" has been archived.`,
+        newData: { isActive: !status },
+        description: `"${integration.name}" has been ${status === true ? 'archived' : 'unarchived'}.`,
         updatedDocument: updated,
       },
       user,

@@ -4,14 +4,12 @@ import * as express from 'express';
 import { filterXSS } from 'xss';
 import { connect } from '../db/connection';
 import { debugWorkers } from '../debuggers';
+import { initMemoryStorage } from '../inmemoryStorage';
 import userMiddleware from '../middlewares/userMiddleware';
-import { initRedis } from '../redisClient';
-import { initConsumer } from './messageBroker';
+import { initBroker } from './messageBroker';
 
 // load environment variables
 dotenv.config();
-
-initRedis();
 
 // connect to mongo database
 connect();
@@ -33,14 +31,17 @@ app.use(userMiddleware);
 // Error handling middleware
 app.use((error, _req, res, _next) => {
   console.error(error.stack);
+
   res.status(500).send(filterXSS(error.message));
 });
 
 const { PORT_WORKERS = 3700 } = process.env;
 
 app.listen(PORT_WORKERS, () => {
-  initConsumer().catch(e => {
-    debugWorkers(`Error ocurred during rabbitmq init ${e.message}`);
+  initMemoryStorage();
+
+  initBroker(app).catch(e => {
+    debugWorkers(`Error ocurred during message broker init ${e.message}`);
   });
 
   debugWorkers(`Workers server is now running on ${PORT_WORKERS}`);

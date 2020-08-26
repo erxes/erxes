@@ -99,7 +99,15 @@ export const moduleObjects = {
       {
         name: 'customersAll',
         description: 'All',
-        use: ['showCustomers', 'customersAdd', 'customersEdit', 'customersMerge', 'customersRemove', 'exportCustomers'],
+        use: [
+          'showCustomers',
+          'customersAdd',
+          'customersEdit',
+          'customersMerge',
+          'customersRemove',
+          'exportCustomers',
+          'customersChangeState',
+        ],
       },
       {
         name: 'exportCustomers',
@@ -124,6 +132,10 @@ export const moduleObjects = {
       {
         name: 'customersRemove',
         description: 'Remove customers',
+      },
+      {
+        name: 'customersChangeState',
+        description: 'Change customer state',
       },
     ],
   },
@@ -698,7 +710,13 @@ export const moduleObjects = {
       {
         name: 'permissionsAll',
         description: 'All',
-        use: ['managePermissions', 'showPermissions', 'showPermissionModules', 'showPermissionActions'],
+        use: [
+          'managePermissions',
+          'showPermissions',
+          'showPermissionModules',
+          'showPermissionActions',
+          'exportPermissions',
+        ],
       },
       {
         name: 'managePermissions',
@@ -787,7 +805,7 @@ export const moduleObjects = {
       {
         name: 'usersAll',
         description: 'All',
-        use: ['showUsers', 'usersEdit', 'usersInvite', 'usersSetActiveStatus'],
+        use: ['showUsers', 'usersEdit', 'usersInvite', 'usersSetActiveStatus', 'exportUsers'],
       },
       {
         name: 'showUsers',

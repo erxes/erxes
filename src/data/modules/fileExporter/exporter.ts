@@ -42,6 +42,16 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
       data = companyResponse.list;
 
       break;
+
+    case 'lead':
+      const leadParams: ICustomerListArgs = query;
+      const leadQp = new CustomerBuildQuery(leadParams, {});
+      await leadQp.buildAllQueries();
+
+      const leadResponse = await leadQp.runQueries();
+
+      data = leadResponse.list;
+      break;
     case MODULE_NAMES.CUSTOMER:
       if (!(await can('exportCustomers', user))) {
         throw new Error('Permission denied');
@@ -251,6 +261,7 @@ const buildLeadFile = async (datas: any, formId: string, sheet: any, columnNames
 };
 
 export const buildFile = async (query: any, user: IUserDocument): Promise<{ name: string; response: string }> => {
+  const { configs } = query;
   let type = query.type;
 
   const data = await prepareData(query, user);
@@ -266,41 +277,47 @@ export const buildFile = async (query: any, user: IUserDocument): Promise<{ name
 
     type = 'Pop-Ups';
   } else {
-    const headers: IColumnLabel[] = fillHeaders(type);
+    let headers: IColumnLabel[] = fillHeaders(type);
+
+    if (configs) {
+      headers = JSON.parse(configs);
+    }
 
     for (const item of data) {
       rowIndex++;
       // Iterating through basic info columns
       for (const column of headers) {
-        const cellValue = await fillCellValue(column.name, item);
+        if (column.name.startsWith('customFieldsData')) {
+          if (item.customFieldsData && item.customFieldsData.length > 0) {
+            for (const customFeild of item.customFieldsData) {
+              const field = await Fields.findOne({
+                text: column.label.trim(),
+                contentType: type === 'lead' ? 'customer' : type,
+              });
 
-        addCell(column, cellValue, sheet, columnNames, rowIndex);
-      }
+              if (field && field.text) {
+                let value = customFeild.value;
 
-      if (type === MODULE_NAMES.CUSTOMER || type === MODULE_NAMES.COMPANY) {
-        // Iterating through coc custom properties
-        if (item.customFieldsData) {
-          const keys = Object.getOwnPropertyNames(item.customFieldsData) || [];
+                if (Array.isArray(value)) {
+                  value = value.join(', ');
+                }
 
-          for (const fieldId of keys) {
-            const field = await Fields.findOne({ _id: fieldId });
+                if (field.validation === 'date') {
+                  value = moment(value).format('YYYY-MM-DD HH:mm');
+                }
 
-            if (field && field.text) {
-              let value = item.customFieldsData[fieldId];
-
-              if (Array.isArray(value)) {
-                value = value.join(', ');
+                addCell({ name: field.text, label: field.text }, value, sheet, columnNames, rowIndex);
               }
-
-              if (field.validation === 'date') {
-                value = moment(value).format('YYYY-MM-DD HH:mm');
-              }
-
-              addCell({ name: field.text, label: field.text }, value, sheet, columnNames, rowIndex);
             }
           }
+        } else {
+          const cellValue = await fillCellValue(column.name, item);
+
+          addCell(column, cellValue, sheet, columnNames, rowIndex);
         }
-      } // customer or company checking
+      }
+
+      // customer or company checking
     } // end items for loop
   }
 

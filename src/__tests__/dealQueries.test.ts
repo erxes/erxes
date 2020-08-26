@@ -184,7 +184,7 @@ describe('dealQueries', () => {
         productId: product._id,
         currency: 'USD',
         amount: 200,
-        tickUsed: true
+        tickUsed: true,
       },
       {
         productId: product._id,
