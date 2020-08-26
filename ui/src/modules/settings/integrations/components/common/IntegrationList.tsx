@@ -1,8 +1,11 @@
+import EmptyContent from 'modules/common/components/empty/EmptyContent';
 import EmptyState from 'modules/common/components/EmptyState';
 import Table from 'modules/common/components/table';
 import { Count } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
+import { EMPTY_CONTENT_MESSENGER } from 'modules/settings/constants';
 import React from 'react';
+import { INTEGRATION_KINDS } from '../../constants';
 import { IIntegration, IntegrationMutationVariables } from '../../types';
 import IntegrationListItem from './IntegrationListItem';
 
@@ -48,6 +51,10 @@ class IntegrationList extends React.Component<Props> {
     const { integrations, kind, integrationsCount } = this.props;
 
     if (!integrations || integrations.length < 1) {
+      if(kind === INTEGRATION_KINDS.MESSENGER) {
+        return <EmptyContent content={EMPTY_CONTENT_MESSENGER} />;
+      }
+
       return (
         <EmptyState
           text="Start adding integrations now!"

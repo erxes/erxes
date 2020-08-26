@@ -1,4 +1,5 @@
 import Button from 'modules/common/components/Button';
+import EmptyContent from 'modules/common/components/empty/EmptyContent';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
@@ -6,6 +7,7 @@ import Table from 'modules/common/components/table';
 import Tip from 'modules/common/components/Tip';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import { EMPTY_CONTENT_SCRIPT } from 'modules/settings/constants';
 import React from 'react';
 import List from '../../common/components/List';
 import RowActions from '../../common/components/RowActions';
@@ -116,6 +118,7 @@ class ScriptList extends React.Component<Props> {
         renderForm={this.renderForm}
         renderContent={this.renderContent}
         center={true}
+        emptyContent={<EmptyContent content={EMPTY_CONTENT_SCRIPT} />}
         {...this.props}
       />
     );
