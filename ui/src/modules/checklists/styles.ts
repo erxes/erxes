@@ -62,7 +62,6 @@ const ChecklistWrapper = styled.div`
 const ChecklistText = styledTS<{ isChecked?: boolean }>(styled.div)`
   display: inline-flex;
   flex: 1;
-  zIndex: 10001;
   justify-content: space-between;
   margin-left: ${dimensions.unitSpacing}px;
   text-decoration: ${props => props.isChecked && 'line-through'};
