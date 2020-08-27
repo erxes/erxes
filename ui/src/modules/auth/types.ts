@@ -2,6 +2,13 @@ import { IOnboardingHistory } from 'modules/robot/types';
 import { IBrand } from 'modules/settings/brands/types';
 import { IEmailSignature } from 'modules/settings/email/types';
 
+export interface IOwner {
+  email: string;
+  password: string;
+  passwordConfirmation: string;
+  subscribeEmail: boolean;
+}
+
 export interface IUserDetails {
   avatar?: string;
   fullName?: string;
@@ -89,4 +96,17 @@ export type LoginMutationResponse = {
 export type CurrentUserQueryResponse = {
   currentUser: IUser;
   loading: boolean;
+};
+
+export type CreateOwnerMutationVariables = {
+  email: string;
+  password: string;
+  passwordConfirmation: string;
+  subscribeEmail: boolean;
+};
+
+export type CreateOwnerMutationResponse = {
+  createOwnerMutation: (
+    params: { variables: CreateOwnerMutationVariables }
+  ) => Promise<any>;
 };
