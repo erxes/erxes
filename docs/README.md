@@ -32,4 +32,6 @@ $ GIT_USER=<Your GitHub username> USE_SSH=true yarn deploy
 
 If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
 
-my name Azwan Nurfadhillah
+UPDATE
+
+erxes is a free and open fair-code licensed all-in-one growth marketing & management software. We offer an all-in-one solution for sales, marketing, and customer service teams, with a focus on the entire customer experience. Replace Hubspot with the mission and community-driven ecosystem.
