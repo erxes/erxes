@@ -54,6 +54,7 @@ class List extends React.Component<Props, {}> {
               trigger={editTrigger}
               content={content}
               ignoreTrans={true}
+              enforceFocus={false}
               size="lg"
             />
           </ActionButtons>

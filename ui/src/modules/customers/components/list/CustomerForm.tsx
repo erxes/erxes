@@ -29,6 +29,7 @@ import { ICustomer, ICustomerDoc } from '../../types';
 import { genderChoices, isValidPhone } from '../../utils';
 
 type Props = {
+  currentUser: IUser;
   customer?: ICustomer;
   closeModal: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -54,9 +55,10 @@ class CustomerForm extends React.Component<Props, State> {
     super(props);
 
     const customer = props.customer || ({} as ICustomer);
+    const userId = props.currentUser ? props.currentUser._id : '';
 
     this.state = {
-      ownerId: customer.ownerId || '',
+      ownerId: customer.ownerId || userId,
       doNotDisturb: customer.doNotDisturb || 'No',
       hasAuthority: customer.hasAuthority || 'No',
       users: [],

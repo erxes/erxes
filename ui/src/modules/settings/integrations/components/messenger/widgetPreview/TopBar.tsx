@@ -18,6 +18,7 @@ import SupporterComponent from './Supporters';
 
 type Props = {
   color: string;
+  textColor: string;
   message?: IMessagesItem;
   wallpaper: string;
   supporterIds?: string[];
@@ -154,8 +155,10 @@ class TopBar extends React.Component<Props> {
   }
 
   render() {
+    const { color, textColor } = this.props;
+    
     return (
-      <ErxesTopbar style={{ backgroundColor: this.props.color }}>
+      <ErxesTopbar style={{ backgroundColor: color, color: textColor  }}>
         {this.renderContent()}
       </ErxesTopbar>
     );

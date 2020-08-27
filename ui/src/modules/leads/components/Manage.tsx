@@ -71,13 +71,16 @@ class Manage extends React.Component<Props, State> {
     let embedCode = '';
     let buttonCode = '';
     const integration = props.integration;
-
+    
     // showed install code automatically in edit mode
     if (integration._id) {
       const brand = integration.brand;
       const form = integration.form || {};
 
-      code = getInstallCode(brand.code, form.code || '');
+      if(brand) {
+        code = getInstallCode(brand.code, form.code || '')
+      }
+
       embedCode = getEmbedCode(form.code || '');
       buttonCode = getButtonCode(form.code || '');
     }
@@ -101,12 +104,12 @@ class Manage extends React.Component<Props, State> {
           <ReactMarkdown source={code || ''} />
           {code ? (
             <CopyToClipboard text={code} onCopy={onCopy}>
-              <Button size="small" btnStyle="primary" icon="copy">
+              <Button btnStyle="primary" icon="copy-1" uppercase={false}>
                 {copied ? 'Copied' : 'Copy to clipboard'}
               </Button>
             </CopyToClipboard>
           ) : (
-            <EmptyState icon="copy" text="No copyable code" size="small" />
+            <EmptyState icon="copy" text="No copyable code. You should connect Popup to brand first" size="small" />
           )}
         </MarkdownWrapper>
         <br />
@@ -145,10 +148,11 @@ class Manage extends React.Component<Props, State> {
         <ModalFooter>
           <Button
             btnStyle="simple"
-            icon="cancel-1"
+            icon="times-circle"
+            uppercase={false}
             onClick={this.props.closeModal}
           >
-            Cancel
+            Close
           </Button>
         </ModalFooter>
       </>

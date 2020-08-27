@@ -1,5 +1,6 @@
 import { colors, dimensions } from 'modules/common/styles';
 import { SimpleButton } from 'modules/common/styles/main';
+import { ScrollContent } from 'modules/growthHacks/styles';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -123,17 +124,19 @@ const RowItem = styledTS<{
   display: flex;
   position: relative;
   flex-direction: row;
-  border-bottom: 1px solid ${colors.borderPrimary};
+  border-bottom: 1px solid rgba(0,0,0,0.05);
   transition: all ease 0.3s;
-  background: ${props => (props.isActive ? colors.bgActive : null)};
+  background: ${props => (props.isActive ? 'rgba(242,245,245,0.8)' : null)};
 
   ${props =>
     !props.isRead &&
     css`
       background: ${colors.bgUnread};
+      border-top: 1px solid rgba(0,0,0,0.05);
+      margin-top: -1px;
 
       ${MessageContent} {
-        font-weight: bold;
+        font-weight: 700;
       }
     `};
   &:hover {
@@ -207,13 +210,11 @@ const LeftContent = styledTS<{ isOpen?: boolean }>(styled.div)`
 
 const shadowColor = 'rgba(0,0,0,0.15)';
 
-const AdditionalSidebar = styled.div`
+const AdditionalSidebar = styled.aside`
   width: 200px;
   background: ${colors.bgLight};
   flex-shrink: 0;
-  padding: 10px 0;
   box-shadow: inset -40px 0px 40px -40px ${shadowColor};
-  overflow: auto;
   position: absolute;
   left: 0;
   top: 0;
@@ -221,6 +222,27 @@ const AdditionalSidebar = styled.div`
 
   ul > li > a {
     padding: 5px 22px;
+  }
+`;
+
+const SidebarContent = styled.div`
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  ${ScrollContent} {
+    padding: 10px 0;
+  }
+
+  > button {
+    text-align: left;
+    border-top: 1px solid #eee;
+    border-radius: 0;
+
+    i {
+      color: ${colors.colorCoreOrange};
+    }
   }
 `;
 
@@ -239,8 +261,18 @@ const GroupTitle = styledTS<{ isOpen?: boolean }>(styled.div)`
   color: ${props => props.isOpen && colors.colorSecondary};
   user-select: none;
   transition: color ease 0.3s;
+  display: flex;
+  justify-content: space-between;
 
-  i {
+  a {
+    color: ${colors.colorCoreGray};
+
+    &:hover {
+      color: ${colors.colorCoreBlack};
+    }
+  }
+
+  span i {
     margin-left: 5px;
     margin-right: 0;
     display: inline-block;
@@ -274,6 +306,7 @@ export {
   AssigneeImg,
   SidebarActions,
   AdditionalSidebar,
+  SidebarContent,
   GroupTitle,
   LeftContent,
   DropdownWrapper,

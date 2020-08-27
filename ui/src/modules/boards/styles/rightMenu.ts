@@ -110,8 +110,15 @@ const ItemContainer = styled.div`
 
 const LoadMore = styled.span`
   text-decoration: underline;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   color: ${colors.colorCoreGray};
+  display: block;
+  text-align: center;
+
+  > i {
+    margin-right: 5px;
+  }
+
   &:hover {
     cursor: pointer;
     color: ${colors.textSecondary};

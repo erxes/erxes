@@ -16,6 +16,19 @@ export const COLORS = [
   '#63D2D6',
   '#F7CE53'
 ];
+
+export const TEXT_COLORS = [
+  '#fff',
+  '#fefefe',
+  '#fafafa',
+  '#ccc',
+  '#ddd',
+  '#888',
+  '#444',
+  '#333',
+  '#222',
+  '#000'
+];
 export const REMINDER_MINUTES = [
   { _id: '0', name: 'At Time of Due Date' },
   { _id: '5', name: '5 Minutes Before' },

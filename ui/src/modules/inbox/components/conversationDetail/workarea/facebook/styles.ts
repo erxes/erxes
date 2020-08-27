@@ -111,14 +111,24 @@ const ShowMore = styledTS<{ isReply?: boolean }>(styled.a)`
   }
 `;
 
-const Reply = styled.div`
+const Reply = styledTS<{ type: string }>(styled.div)`
   display: inline-block;
   margin-right: 5px;
   padding-left: ${coreSize};
-
   > span {
     font-size: 11px;
-    color: ${colors.socialFacebook};
+    color: ${props => {
+      switch (props.type) {
+        case 'convert':
+          return colors.colorPrimary;
+        case 'Resolve':
+          return colors.colorCoreGreen;
+        case 'Open':
+          return colors.colorCoreYellow;
+        default:
+          return colors.socialFacebook;
+      }
+    }};
     transition: all ease 0.9s;
     cursor: pointer;
   }
@@ -131,7 +141,6 @@ const Reply = styled.div`
 
 const ChildPost = styledTS<{ isReply?: string }>(styled.div)`
   padding: 0 ${coreSize};
-  overflow: hidden;
   position: relative;
   margin-bottom: 15px;
   margin-left: ${props => props.isReply && '45px'};

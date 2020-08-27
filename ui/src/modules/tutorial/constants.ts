@@ -129,6 +129,7 @@ export const TUTORIALS = [
     videos: [
       {
         name: 'Team inbox',
+        key: 'teamInbox',
         url: 'https://www.youtube-nocookie.com/embed/eVcqpG0zsiY'
       },
       {

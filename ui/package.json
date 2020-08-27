@@ -62,9 +62,8 @@
     "xss": "^1.0.3"
   },
   "lint-staged": {
-    "gitDir": "../",
     "linters": {
-      "ui/src/**/*.{ts,tsx,json,css}": [
+      "src/**/*.{ts,tsx,json,css}": [
         "prettier --single-quote --write",
         "git add"
       ]
@@ -97,7 +96,7 @@
     "enzyme-to-json": "^3.3.4",
     "git-repo-info": "^2.1.0",
     "husky": "^0.14.3",
-    "lint-staged": "^4.3.0",
+    "lint-staged": "^5.0.0",
     "prettier": "^1.8.2",
     "react-scripts": "^3.0.1",
     "react-test-renderer": "^16.3.2",

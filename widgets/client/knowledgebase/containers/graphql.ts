@@ -80,8 +80,8 @@ const getKbTopicQuery = `
 `;
 
 const incReactionCount = `
-  mutation knowledgebaseIncReactionCount($articleId: String! $reactionChoice: String!) {
-    knowledgebaseIncReactionCount(articleId: $articleId, reactionChoice: $reactionChoice)
+  mutation widgetsKnowledgebaseIncReactionCount($articleId: String! $reactionChoice: String!) {
+    widgetsKnowledgebaseIncReactionCount(articleId: $articleId, reactionChoice: $reactionChoice)
   }
 `;
 

@@ -14,6 +14,7 @@ const ErxesTopbar = styled.div`
   box-shadow: 0 4px 6px 0 ${rgba(colors.colorBlack, 0.1)};
   min-height: 70px;
   display: inline-table;
+  color: ${colors.colorWhite};
 `;
 
 const TopBarIcon = styledTS<{ isLeft: boolean }>(styled.div)`
@@ -24,7 +25,6 @@ const TopBarIcon = styledTS<{ isLeft: boolean }>(styled.div)`
   height: 40px;
   line-height: 40px;
   text-align: center;
-  color: ${colors.colorWhite};
   position: absolute;
   top: 15px;
   left: ${props => props.isLeft && '15px'};
@@ -47,7 +47,7 @@ const ErxesMiddleTitle = styled.div`
   }
 
   span {
-    color: ${rgba(colors.colorWhite, 0.8)};
+    opacity: 0.8;
     font-size: 13px;
   }
 `;
@@ -216,7 +216,7 @@ const Links = styled.div`
   margin-bottom: ${unitSpace};
 
   span {
-    color: ${rgba(colors.colorWhite, 0.7)};
+    opacity: 0.7;
     font-size: 11px;
   }
 `;
@@ -258,7 +258,7 @@ const GreetingInfo = styled.div`
   }
 
   p {
-    color: ${rgba(colors.colorWhite, 0.8)};
+    opacity: 0.8;
     font-size: 13px;
     margin: 0;
   }

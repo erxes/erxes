@@ -1,5 +1,5 @@
 import Button from 'modules/common/components/Button';
-import { __ } from 'modules/common/utils';
+import { __, bustIframe } from 'modules/common/utils';
 import React from 'react';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
@@ -36,13 +36,6 @@ class AuthLayout extends React.Component<Props, {}> {
     const { userAgent } = navigator;
 
     if (userAgent.indexOf('Mobile') !== -1) {
-      if (userAgent.match(/iPhone|iPad|iPod/i)) {
-        return this.renderContent(
-          'Download ios app for free on the App Store',
-          'https://itunes.apple.com/zw/app/erxes-inc/id1454657885?mt=8&fbclid=IwAR1_A-3dPkw4oUh3r-4lpAvs_Ie5FWOTy1dduFy7eJZbpWKJJ9ukzu9ZNUc'
-        );
-      }
-
       if (userAgent.match(/Android/i)) {
         return this.renderContent(
           'Download android app for free on the Google play',
@@ -52,6 +45,11 @@ class AuthLayout extends React.Component<Props, {}> {
     }
 
     return null;
+  }
+
+  componentDidMount() {
+    // click-jack attack defense
+    bustIframe();
   }
 
   render() {

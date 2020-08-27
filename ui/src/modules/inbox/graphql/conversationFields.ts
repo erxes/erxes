@@ -70,6 +70,6 @@ export default `
     erxesApiId
     attachments
     timestamp
-    commentCount
   }
+  productBoardLink
 `;

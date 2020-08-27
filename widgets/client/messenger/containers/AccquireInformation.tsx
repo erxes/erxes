@@ -6,10 +6,11 @@ export default class extends React.Component {
   render() {
     return (
       <AppConsumer>
-        {({ saveGetNotified, getColor, isSavingNotified }) => {
+        {({ saveGetNotified, getColor, isSavingNotified, getUiOptions }) => {
           return (
             <AccquireInformation
               color={getColor()}
+              textColor={getUiOptions().textColor || '#fff'}
               save={saveGetNotified}
               loading={isSavingNotified}
               showTitle={true}

@@ -58,7 +58,7 @@ const StyledTable = styledTS<{
       : null
   } ${
     props.striped
-      ? `tr:nth-of-type(odd) td { background-color: ${colors.bgUnread}; }`
+      ? `tr:nth-of-type(odd) td { background-color: ${colors.bgLightPurple}; }`
       : null
   } th {
       border-top: none;

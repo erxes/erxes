@@ -60,6 +60,7 @@ class WebsiteContainer extends React.Component<FinalProps> {
           refetchQueries={getRefetchQueries()}
           isSubmitted={isSubmitted}
           type="submit"
+          uppercase={false}
           successMessage={`You successfully added a ${name}`}
         />
       );

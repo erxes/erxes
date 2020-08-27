@@ -133,6 +133,7 @@ export interface IIntegrationLeadData {
 
 export interface IIntegrationUiOptions {
   color: string;
+  textColor?: string;
   wallpaper: string;
   logo: string;
   showVideoCallRequest: boolean;

@@ -94,7 +94,7 @@ class Notifier extends React.PureComponent<Props, State> {
               this.close();
             }}
           >
-            {iconClose}
+            {iconClose()}
           </a>
         </div>
       </RTG.CSSTransition>

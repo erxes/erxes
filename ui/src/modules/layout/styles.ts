@@ -61,6 +61,7 @@ const Contents = styled.div`
   right: 0;
   bottom: 0;
   top: 0;
+  overflow-x: auto;
 
   @-moz-document url-prefix() {
     overflow: hidden;
@@ -129,18 +130,28 @@ const ContenFooter = styled.div`
 
 const BarItems = styled.div`
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
 
   .dropdown-menu {
     min-width: 200px;
   }
 
   > * + * {
-    margin-left: ${dimensions.unitSpacing}px;
+    margin: 5px 0 5px ${dimensions.unitSpacing}px;
   }
 
   input[type='text'] {
     width: auto;
     display: inline-block;
+  }
+
+  @media (max-width: 768px) {
+    > * + * {
+      margin: 3px 0 3px ${dimensions.unitSpacing / 2}px;
+    }
   }
 `;
 
@@ -523,23 +534,26 @@ const SectionBody = styled.div`
 
 const SectionBodyItem = styled.div`
   border-top: 1px solid ${colors.borderPrimary};
-  padding: 10px 20px;
   word-break: break-word;
 
   span {
+    padding: 10px 20px;
     display: inline-block;
     width: 100%;
     padding-right: ${dimensions.coreSpacing}px;
   }
 
-  i {
-    color: ${colors.colorCoreGray};
-    position: absolute;
-    font-size: 13px;
-    right: ${dimensions.coreSpacing}px;
+  a {
+    i {
+      padding: 10px 10px;
+      color: ${colors.colorCoreGray};
+      position: absolute;
+      font-size: 13px;
+      right: ${dimensions.coreSpacing}px;
 
-    &:hover {
-      cursor: pointer;
+      &:hover {
+        cursor: pointer;
+      }
     }
   }
 
