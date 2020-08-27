@@ -59,6 +59,7 @@ erxes helps you attract and engage more customers while giving you high lead con
   * <a href="https://docs.erxes.io/installation/docker">Install erxes</a> <br>
   * <a href="https://docs.erxes.io">erxes documentation</a> <br>
   * <a href="https://docs.erxes.io/developer/contributing">Contributing to erxes</a> <br>
+  * <a href="https://erxes.io/hubspot-alternative-erxes-swag">Winning Cool Swags!</a> <br>
   
 ## Deployment
 
