@@ -11,8 +11,9 @@ export const EMPTY_IMPORT_CONTENT = {
     {
       title: "Create Custom Properties",
       description: "If you wish to import any properties that are not available on erxes, you need to create custom properties",
-      url: "/settings/properties?type=customer",
-      isOutside: false
+      url: "https://www.erxes.org/user/general-settings/#how-to-setup-properties",
+      isOutside: true,
+      target: "_blank"
     },
     {
       title: "Choose the data type",
@@ -96,6 +97,33 @@ export const EMPTY_CONTENT_SCRIPT = {
   ]
 };
 
+export const EMPTY_CONTENT_ENGAGE = {
+  title: "Getting Started with Engage",
+  description: "Learn how to use this feature to engage your contacts and drive conversations.",
+  steps: [
+    {
+      title: "Email",
+      description: "<ul><li><strong><a href='/settings/engage-configs'>Verify</a> your email address</strong> <br/> Make sure it is the same as one of your team members</li><li><strong>Integrate that email address with <a href='/settings/integrations#showImapModal=true'>IMAP</a></strong> <br/> Connect your existing emails address as an integration</li><li><strong>Prepare your contacts by Segment / Tag / Brand</strong> <br/> For more targeted marketing, create a <a href='/segments/new/customer'>Segment</a></li></ul>",
+      html: true,
+      icon: "envelope-edit"
+    },
+    {
+      title: "Messenger",
+      description: "<strong>Prepare your contacts by Segment / Tag / Brand</strong><br/> For more targeted marketing, create a Segment",
+      html: true,
+      url: "/segments/new/customer",
+      urlText: "Create a Segment",
+      icon: "comment-edit"
+    },
+    {
+      title: "SMS",
+      description: "<ul><li><strong><a href='/settings/engage-configs'>Claim</a> your phone number</strong> <br/> Make sure you assigned it to a team member</li><li><strong>Prepare your contacts</strong> <br/> Check the <a href='https://en.wikipedia.org/wiki/E.164' target='_blank'>format</a>, verification status, and primary phone state</li><li><strong><a href='/segments/new/customer'>Create</a> a segment</strong> <br/> Filter all contacts with valid phone numbers and other properties</li></ul>",
+      html: true,
+      icon: "comment-alt-message"
+    }
+  ]
+};
+
 export const EMPTY_CONTENT_MESSENGER = {
   title: "Getting Started with erxes Messenger",
   description: "Learn how the erxes Messenger works and it is set up. It is used in the Team Inbox and Knowledgebase and Engage features uses Messenger.",
@@ -103,14 +131,20 @@ export const EMPTY_CONTENT_MESSENGER = {
     {
       title: "Create a new messenger",
       description: "Click on “Add” and complete all the steps.",
+      url: "/settings/integrations/createMessenger",
+      urlText: "Add Messenger"
     },
     {
       title: "Display your Knowledgebase",
-      description: "Click on “Add” of the Knowledgebase integration, if any, and complete the steps. [Add Knowledgebase]"
+      description: "Click on “Add” of the Knowledgebase integration, if any, and complete the steps.",
+      url: "/settings/integrations#showKBAddModal=true",
+      urlText: "Add Knowledgebase"
     },
     {
       title: "Display your form",
-      description: "Click on “Add” of the Popup integration,if any, and complete the steps. [Add Popup]"
+      description: "Click on “Add” of the Popup integration,if any, and complete the steps.",
+      url: "/settings/integrations#showPopupAddModal=true",
+      urlText: "Add Popup"
     },
     {
       title: "Install the script",
@@ -118,8 +152,10 @@ export const EMPTY_CONTENT_MESSENGER = {
     },
     {
       title: "Avoid duplication of erxes widget scripts",
-      description: "If you wish to display erxes messenger and any other erxes widgets on the same webpage, use the Script Manager to combine scripts and avoid any duplication errors. [Manage Scripts]",
-      icon: "exclamation-circle"
+      description: "If you wish to display erxes messenger and any other erxes widgets on the same webpage, use the Script Manager to combine scripts and avoid any duplication errors.",
+      icon: "exclamation-circle",
+      url: "/settings/scripts",
+      urlText: "Manange Scripts"
     },
   ]
 };

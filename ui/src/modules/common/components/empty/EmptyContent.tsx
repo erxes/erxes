@@ -20,7 +20,7 @@ function EmptyContent({ content, vertical, maxItemWidth }: Props) {
 			return null;
 		}
 
-		const buttonText = text || __('Learn More');
+		const buttonText = __(text) || __('Learn More');
 
 		if(isOutside) {
 			return (
@@ -50,8 +50,8 @@ function EmptyContent({ content, vertical, maxItemWidth }: Props) {
 						max={maxItemWidth}
 					>
 						{step.icon ? <Icon size={16} icon={step.icon} /> : <i>{index + 1}</i>}
-						<h4>{step.title}</h4>
-						<p>{step.description}</p>
+						<h4>{__(step.title)}</h4>
+						{step.html ? <p dangerouslySetInnerHTML={{ __html: step.description }}/> : <p>{__(step.description)}</p>}
 						<Action>
 							{renderButton(step.url, step.urlText, step.isOutside, step.target)}
 						</Action>

@@ -1,7 +1,7 @@
 import { darken, rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { colors } from '../../styles';
+import { colors, dimensions } from '../../styles';
 
 const Container = styled.div`
   display: flex;
@@ -9,12 +9,12 @@ const Container = styled.div`
   flex: 1;
   justify-content: center;
   align-items: center;
-  padding: 20px 40px;
+  padding: ${dimensions.coreSpacing}px ${dimensions.coreSpacing * 2}px;
 	background: ${colors.bgLight};
 	flex-direction: column;
 
 	h2 {
-		margin: 0px 0 10px;
+		margin: 0px 0 ${dimensions.unitSpacing}px;
 		font-weight: 700;
 		text-align: center;
 	}
@@ -47,13 +47,12 @@ const Action = styled.div`
 	}
 `;
 
-
 const ItemContent = styledTS<{ color: string, vertical?: boolean; max?:string }>(styled.div)`
 	background: ${props => rgba(props.color, 0.2)};
 	padding: 25px 30px;
 	border-radius: 5px;
 	margin: 10px;
-	min-width: 220px;
+	min-width: 240px;
 	max-width: ${props => props.vertical ? '420px' : props.max};
 	flex: 1;
 	display: flex;
@@ -64,7 +63,7 @@ const ItemContent = styledTS<{ color: string, vertical?: boolean; max?:string }>
 	transition: background 0.3s ease;
 
 	h4 {
-		margin: 20px 0 10px;
+		margin: ${dimensions.coreSpacing}px 0 ${dimensions.unitSpacing}px;
 		font-size: 16px;
 		font-weight: 700;
 		line-height: 20px;
@@ -82,9 +81,21 @@ const ItemContent = styledTS<{ color: string, vertical?: boolean; max?:string }>
 		margin: 0 0 20px;
 	}
 
-	&:hover {
-		background: ${props => rgba(props.color, 0.3)};
-		border-color: ${props => props.color};
+	strong {
+		font-weight: 600;
+	}
+
+	ul {
+		padding-left: ${dimensions.coreSpacing}px;
+		margin: 0;
+
+		li {
+			margin-bottom: 5px;
+
+			&:last-child {
+				margin: 0;
+			}
+		}
 	}
 	
 	> i {
@@ -97,6 +108,11 @@ const ItemContent = styledTS<{ color: string, vertical?: boolean; max?:string }>
 		font-weight: 800;
 		display: block;
 		font-style: normal;
+	}
+
+	&:hover {
+		background: ${props => rgba(props.color, 0.3)};
+		border-color: ${props => props.color};
 	}
 `;
 
