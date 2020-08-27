@@ -1,8 +1,9 @@
 import { IUserDocument } from '../db/models/definitions/users';
-import { sendRPCMessage } from '../messageBroker';
+import messageBroker from '../messageBroker';
 import { graphqlPubsub } from '../pubsub';
 import { IFinalLogParams } from './logUtils';
 import { getEnv } from './utils';
+import { RABBITMQ_QUEUES } from './constants';
 
 const checkAutomation = async (kind: string, body: any, user: IUserDocument) => {
   const data = {
@@ -17,10 +18,13 @@ const checkAutomation = async (kind: string, body: any, user: IUserDocument) => 
     return;
   }
 
-  const apiAutomationResponse = await sendRPCMessage('rpc_queue:erxes-api_erxes-automations', {
-    action: 'get-response-check-automation',
-    data,
-  });
+  const apiAutomationResponse = await messageBroker().sendRPCMessage(
+    RABBITMQ_QUEUES.RPC_API_TO_AUTOMATIONS,
+    {
+      action: 'get-response-check-automation',
+      data,
+    }
+  );
 
   if (apiAutomationResponse.response.length === 0) {
     return;

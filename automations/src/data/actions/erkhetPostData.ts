@@ -1,18 +1,18 @@
-import { sendRPCMessage } from '../../messageBroker';
 import { IShapeDocument } from '../../models/definitions/Automations';
 import { sendRequest } from '../actions/utils';
+import messageBroker from '../../messageBroker';
 
 const erkhetPostData = async (shape: IShapeDocument, data: any) => {
   let billType = 1;
   let customerCode = '';
 
-  const companyIds = await sendRPCMessage('rpc_queue:erxes-automations', {
+  const companyIds = await messageBroker().sendRPCMessage('rpc_queue:erxes-automations', {
     action: 'get-saved-conformities',
     payload: JSON.stringify({ mainType: 'deal', mainTypeId: data.deal._id, relTypes: ['company'] }),
   });
 
   if (companyIds.length > 0) {
-    const companies = await sendRPCMessage('rpc_queue:erxes-automations', {
+    const companies = await messageBroker().sendRPCMessage('rpc_queue:erxes-automations', {
       action: 'get-companies',
       payload: JSON.stringify({ _id: { $in: companyIds } }),
     });
@@ -35,13 +35,13 @@ const erkhetPostData = async (shape: IShapeDocument, data: any) => {
   }
 
   if (billType === 1) {
-    const customerIds = await sendRPCMessage('rpc_queue:erxes-automations', {
+    const customerIds = await messageBroker().sendRPCMessage('rpc_queue:erxes-automations', {
       action: 'get-saved-conformities',
       payload: JSON.stringify({ mainType: 'deal', mainTypeId: data.deal._id, relTypes: ['customer'] }),
     });
 
     if (customerIds.length > 0) {
-      const customers = await sendRPCMessage('rpc_queue:erxes-automations', {
+      const customers = await messageBroker().sendRPCMessage('rpc_queue:erxes-automations', {
         action: 'get-customers',
         payload: JSON.stringify({ _id: { $in: customerIds } }),
       });
@@ -50,7 +50,7 @@ const erkhetPostData = async (shape: IShapeDocument, data: any) => {
   }
 
   const productsIds = data.deal.productsData.map(item => item.productId);
-  const products = await sendRPCMessage('rpc_queue:erxes-automations', {
+  const products = await messageBroker().sendRPCMessage('rpc_queue:erxes-automations', {
     action: 'get-products',
     payload: JSON.stringify({ _id: { $in: productsIds } }),
   });
@@ -61,7 +61,7 @@ const erkhetPostData = async (shape: IShapeDocument, data: any) => {
   }
 
   const assignUserIds = data.deal.productsData.filter(item => item.assignUserId).map(item => item.assignUserId);
-  const assignUsers = await sendRPCMessage('rpc_queue:erxes-automations', {
+  const assignUsers = await messageBroker().sendRPCMessage('rpc_queue:erxes-automations', {
     action: 'get-users',
     payload: JSON.stringify({ _id: { $in: assignUserIds } }),
   });
@@ -142,7 +142,7 @@ const erkhetPostData = async (shape: IShapeDocument, data: any) => {
     orderInfos: JSON.stringify(orderInfos),
   };
 
-  return sendRPCMessage('rpc_queue:erxes-automation-erkhet', {
+  return messageBroker().sendRPCMessage('rpc_queue:erxes-automation-erkhet', {
     action: 'get-response-send-order-info',
     payload: JSON.stringify(postData),
   });

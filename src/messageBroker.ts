@@ -37,9 +37,7 @@ export const initBroker = async (server?) => {
     await receiveEngagesNotification(data);
   });
 
-  consumeQueue('rpc_queue:erxes-automations', async data => {
-    await automationsRecRpcMsg(data);
-  })
+  consumeRPCQueue('rpc_queue:erxes-automations', async data => automationsRecRpcMsg(data));
 
 };
 

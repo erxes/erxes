@@ -1,12 +1,12 @@
-import { sendRPCMessage } from '../../messageBroker';
 import { IShapeDocument } from '../../models/definitions/Automations';
+import messageBroker from '../../messageBroker';
 
 const productToErkhet = async (shape: IShapeDocument, data: any) => {
   const objectData = data.doc;
   let sendData = {};
 
   if (data.action.includes('Category')) {
-    const productCategory = await sendRPCMessage('rpc_queue:erxes-automations', {
+    const productCategory = await messageBroker().sendRPCMessage('rpc_queue:erxes-automations', {
       action: 'get-or-error-product-category',
       payload: JSON.stringify({ _id: objectData.parentId }),
     });
@@ -21,7 +21,7 @@ const productToErkhet = async (shape: IShapeDocument, data: any) => {
       },
     };
   } else {
-    const productCategory = await sendRPCMessage('rpc_queue:erxes-automations', {
+    const productCategory = await messageBroker().sendRPCMessage('rpc_queue:erxes-automations', {
       action: 'get-or-error-product-category',
       payload: JSON.stringify({ _id: objectData.categoryId }),
     });
@@ -50,7 +50,7 @@ const productToErkhet = async (shape: IShapeDocument, data: any) => {
     orderInfos: JSON.stringify(sendData),
   };
 
-  return sendRPCMessage('rpc_queue:erxes-automation-erkhet', {
+  return messageBroker().sendRPCMessage('rpc_queue:erxes-automation-erkhet', {
     action: 'product-change',
     payload: JSON.stringify(postData),
   });

@@ -1,5 +1,5 @@
-import { sendRPCMessage } from '../../messageBroker';
 import { IShapeDocument } from '../../models/definitions/Automations';
+import messageBroker from '../../messageBroker';
 
 const workerToErxes = async (shape: IShapeDocument, data: any) => {
   let sendData = {};
@@ -9,7 +9,7 @@ const workerToErxes = async (shape: IShapeDocument, data: any) => {
 
   switch (kind) {
     case 'salary.worker':
-      const teamMember = await sendRPCMessage('rpc_queue:erxes-automations', {
+      const teamMember = await messageBroker().sendRPCMessage('rpc_queue:erxes-automations', {
         action: 'get-or-error-user',
         payload: JSON.stringify({ email: data.old_code }),
       });
@@ -52,7 +52,7 @@ const workerToErxes = async (shape: IShapeDocument, data: any) => {
       sendData = {};
   }
 
-  return sendRPCMessage('rpc_queue:erxes-automations', {
+  return messageBroker().sendRPCMessage('rpc_queue:erxes-automations', {
     action: 'method-from-kind',
     payload: JSON.stringify(sendData),
   });

@@ -12,7 +12,8 @@ const sendSuccess = data => ({
 });
 
 const sendNotFound = () => ({
-  status: 'notFound',
+  status: 'success',
+  message: 'notFound'
 });
 
 /*

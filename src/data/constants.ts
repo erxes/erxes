@@ -292,4 +292,5 @@ export const RABBITMQ_QUEUES = {
   RPC_API_TO_INTEGRATIONS: 'rpc_queue:api_to_integrations',
   RPC_API_TO_WORKERS: 'rpc_queue:api_to_workers',
   WORKERS: 'workers',
+  RPC_API_TO_AUTOMATIONS: 'rpc_queue:erxes-api_erxes-automations',
 };

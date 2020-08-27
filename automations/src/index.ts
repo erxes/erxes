@@ -2,7 +2,9 @@ import * as bodyParser from 'body-parser';
 import * as dotenv from 'dotenv';
 import * as express from 'express';
 import { connect } from './connection';
-import './messageBroker';
+import { initBroker } from './messageBroker';
+import { debugInit, debugBase } from './debuggers';
+import { createServer } from 'http';
 
 // load environment variables
 dotenv.config();
@@ -19,6 +21,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 const { PORT } = process.env;
 
-app.listen(PORT, () => {
-  console.log(`Automations server is running on port ${PORT}`);
+const httpServer = createServer(app);
+httpServer.listen(PORT, () => {
+  connect().then(async () => {
+    initBroker(app).catch(e => {
+      debugBase(`Error ocurred during message broker init ${e.message}`);
+    });
+  })
+
+  debugInit(`Automations server is running on port ${PORT}`);
 });

@@ -1,11 +1,11 @@
-import { sendRPCMessage } from '../../messageBroker';
+import messageBroker from "../../messageBroker";
 
 const customerToErxes = async (data: any) => {
   let sendData = {};
   const objectData = JSON.parse(data.object)[0];
   const doc = objectData.fields;
 
-  const customer = await sendRPCMessage('rpc_queue:erxes-automations', {
+  const customer = await messageBroker().sendRPCMessage('rpc_queue:erxes-automations', {
     action: 'get-or-error-customer',
     payload: JSON.stringify({ code: data.old_code }),
   });
@@ -50,7 +50,7 @@ const customerToErxes = async (data: any) => {
     };
   }
 
-  return sendRPCMessage('rpc_queue:erxes-automations', {
+  return messageBroker().sendRPCMessage('rpc_queue:erxes-automations', {
     action: 'method-from-kind',
     payload: JSON.stringify(sendData),
   });

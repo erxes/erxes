@@ -1,4 +1,4 @@
-import { sendRPCMessage } from '../../messageBroker';
+import messageBroker from "../../messageBroker";
 
 const inventoryToErxes = async (data: any) => {
   let sendData = {};
@@ -10,13 +10,13 @@ const inventoryToErxes = async (data: any) => {
 
   switch (kind) {
     case 'inventories.inventory':
-      const product = await sendRPCMessage('rpc_queue:erxes-automations', {
+      const product = await messageBroker().sendRPCMessage('rpc_queue:erxes-automations', {
         action: 'get-or-error-product',
         payload: JSON.stringify({ code: data.old_code }),
       });
 
       if ((data.action === 'update' && data.old_code) || data.action === 'create') {
-        productCategory = await sendRPCMessage('rpc_queue:erxes-automations', {
+        productCategory = await messageBroker().sendRPCMessage('rpc_queue:erxes-automations', {
           action: 'get-or-error-product-category',
           payload: JSON.stringify({ code: doc.category_code }),
         });
@@ -66,13 +66,13 @@ const inventoryToErxes = async (data: any) => {
 
       break;
     case 'inventories.category':
-      productCategory = await sendRPCMessage('rpc_queue:erxes-automations', {
+      productCategory = await messageBroker().sendRPCMessage('rpc_queue:erxes-automations', {
         action: 'get-or-error-product-category',
         payload: JSON.stringify({ code: data.old_code }),
       });
 
       if ((data.action === 'update' && data.old_code) || data.action === 'create') {
-        const parentCategory = await sendRPCMessage('rpc_queue:erxes-automations', {
+        const parentCategory = await messageBroker().sendRPCMessage('rpc_queue:erxes-automations', {
           action: 'get-or-error-product-category',
           payload: JSON.stringify({ code: doc.parent_code }),
         });
@@ -119,7 +119,7 @@ const inventoryToErxes = async (data: any) => {
       sendData = {};
   }
 
-  return sendRPCMessage('rpc_queue:erxes-automations', {
+  return messageBroker().sendRPCMessage('rpc_queue:erxes-automations', {
     action: 'method-from-kind',
     payload: JSON.stringify(sendData),
   });

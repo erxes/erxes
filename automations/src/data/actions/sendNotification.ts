@@ -1,6 +1,5 @@
-// import * as mongoose from 'mongoose';
-import { sendRPCMessage } from '../../messageBroker';
 import { IShapeDocument } from '../../models/definitions/Automations';
+import messageBroker from '../../messageBroker';
 
 const sendNotification = async (shape: IShapeDocument, data: any) => {
   const objectData = data.doc;
@@ -17,7 +16,7 @@ const sendNotification = async (shape: IShapeDocument, data: any) => {
     contentTypeId: objectData._id,
   };
 
-  return sendRPCMessage('rpc_queue:erxes-automations', { action: 'send-notifications', payload: JSON.stringify(doc) });
+  return messageBroker().sendRPCMessage('rpc_queue:erxes-automations', { action: 'send-notifications', payload: JSON.stringify(doc) });
 };
 
 export default sendNotification;
