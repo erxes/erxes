@@ -1,6 +1,5 @@
-import dayjs from 'dayjs';
 import Box from 'modules/common/components/Box';
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { Alert } from '../utils';
 import Button from './Button';
@@ -11,10 +10,15 @@ const Container = styled.div`
   padding: 10px;
 `;
 
-const Time = styled.div`
-  padding: 10px;
+const TimeWrapper = styled.div`
+  text-align: center;
+  padding: 5px;
   justify-content: center;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
+
+  h1 {
+    margin: 0;
+  }
 `;
 
 const ButtonWrapper = styled.div`
@@ -23,48 +27,211 @@ const ButtonWrapper = styled.div`
   margin-bottom: 10px;
 `;
 
-function getTime(date) {
-  const now = dayjs(date).toNow();
+const Time = styled.h1`
+  text-align: center;
+`;
 
-  return now;
+export const STATUS_TYPES = {
+  COMPLETED: 'completed',
+  STOPPED: 'stopped',
+  STARTED: 'started',
+  PAUSED: 'paused'
+};
+
+function getSpentTime(seconds: number): string {
+  const days = Math.floor(seconds / (3600 * 24));
+
+  seconds -= days * 3600 * 24;
+
+  const hours = Math.floor(seconds / 3600);
+
+  seconds -= hours * 3600;
+
+  const minutes = Math.floor(seconds / 60);
+
+  seconds -= minutes * 60;
+
+  return `
+    ${days}.
+    ${hours}.
+    ${minutes}.
+    ${seconds}
+  `;
 }
 
-function buttonSuccess(handleClick) {
-  return (
-    <Button btnStyle="success" size="large" icon="play" onClick={handleClick}>
-      Play
-    </Button>
-  );
-}
+type Props = {
+  taskId: string;
+  status: string;
+  timeSpent: number;
+  startDate?: string;
+  update: (
+    {
+      _id,
+      status,
+      timeSpent,
+      startDate
+    }: { _id: string; status: string; timeSpent: number; startDate?: string },
+    callback?: () => void
+  ) => void;
+};
 
-function buttonPause(handleClick) {
-  return (
-    <Button btnStyle="danger" size="large" icon="pause-1" onClick={handleClick}>
-      Pause
-    </Button>
-  );
-}
+type State = {
+  status: string;
+  timeSpent: number;
+};
 
-function Timer(props) {
-  const [status, setStatus] = React.useState('pause');
+class TaskTimer extends React.Component<Props, State> {
+  timer: NodeJS.Timeout;
 
-  function renderActions() {
-    const handleClick = () => {
-      setStatus(['stop', 'pause'].includes(status) ? 'play' : 'pause');
+  constructor(props) {
+    super(props);
+
+    this.timer = {} as NodeJS.Timeout;
+
+    const { status, startDate, timeSpent } = props;
+
+    const absentTime =
+      status === STATUS_TYPES.STARTED &&
+      Math.floor((new Date().getTime() - new Date(startDate).getTime()) / 1000);
+
+    this.state = {
+      status,
+      timeSpent: absentTime ? timeSpent + absentTime : timeSpent
+    };
+  }
+
+  componentDidMount() {
+    const { status } = this.props;
+
+    if (status === STATUS_TYPES.STARTED) {
+      this.startTimer();
+    }
+  }
+
+  onSubmit = () => {
+    const { taskId, update } = this.props;
+    const { status, timeSpent } = this.state;
+
+    const doc: any = {
+      _id: taskId,
+      status,
+      timeSpent
     };
 
-    const handleReset = () => Alert.info('Task reset!');
+    if (status === STATUS_TYPES.STARTED && timeSpent === 0) {
+      doc.startDate = new Date();
+    }
+
+    return update(doc);
+  };
+
+  onChangeStatus = (status: string, callback) => {
+    this.setState({ status }, callback);
+  };
+
+  handleReset = () => {
+    Alert.info('Task reset!');
+
+    this.stopTimer();
+
+    return this.setState({ status: STATUS_TYPES.STOPPED, timeSpent: 0 }, () => {
+      return this.onSubmit();
+    });
+  };
+
+  startTimer() {
+    this.timer = setInterval(() => {
+      this.setState(prevState => ({
+        timeSpent: prevState.timeSpent + 1
+      }));
+    }, 1000);
+  }
+
+  stopTimer() {
+    clearInterval(this.timer);
+  }
+
+  renderButton() {
+    const { status } = this.state;
+
+    const isComplete = status === STATUS_TYPES.COMPLETED;
+
+    const handleComplete = () => {
+      Alert.info('Task completed!');
+
+      this.stopTimer();
+
+      return this.onChangeStatus(STATUS_TYPES.COMPLETED, () => {
+        return this.onSubmit();
+      });
+    };
+
+    return (
+      <Button
+        block={true}
+        disabled={isComplete}
+        btnStyle={isComplete ? 'success' : 'simple'}
+        onClick={handleComplete}
+        size="small"
+      >
+        {isComplete ? 'Completed' : 'Complete'}
+      </Button>
+    );
+  }
+
+  renderActions() {
+    const { status } = this.state;
+
+    const isComplete = status === STATUS_TYPES.COMPLETED;
+
+    const handleClick = () => {
+      if ([STATUS_TYPES.STOPPED, STATUS_TYPES.PAUSED].includes(status)) {
+        this.startTimer();
+
+        return this.onChangeStatus(STATUS_TYPES.STARTED, () => {
+          return this.onSubmit();
+        });
+      }
+
+      this.stopTimer();
+
+      return this.onChangeStatus(STATUS_TYPES.PAUSED, () => {
+        return this.onSubmit();
+      });
+    };
 
     return (
       <ButtonWrapper>
-        {status === 'pause'
-          ? buttonSuccess(handleClick)
-          : buttonPause(handleClick)}
+        {[
+          STATUS_TYPES.COMPLETED,
+          STATUS_TYPES.PAUSED,
+          STATUS_TYPES.STOPPED
+        ].includes(status) ? (
+          <Button
+            disabled={isComplete}
+            btnStyle="success"
+            size="large"
+            icon="play"
+            onClick={handleClick}
+          >
+            Play
+          </Button>
+        ) : (
+          <Button
+            btnStyle="danger"
+            size="large"
+            icon="pause-1"
+            onClick={handleClick}
+          >
+            Pause
+          </Button>
+        )}
+
         <Button
           btnStyle="warning"
           icon="checked-1"
           size="large"
-          onClick={handleReset}
+          onClick={this.handleReset}
         >
           Reset
         </Button>
@@ -72,42 +239,28 @@ function Timer(props) {
     );
   }
 
-  function renderTime() {
-    const time = getTime('2020-08-25T06:30:49.293Z');
+  renderTime() {
+    const { timeSpent } = this.state;
 
     return (
-      <Time>
-        <ControlLabel>Time spent: {time}</ControlLabel>
-      </Time>
+      <TimeWrapper>
+        <ControlLabel>Time spent on this task</ControlLabel>
+        <Time>{getSpentTime(timeSpent)}</Time>
+      </TimeWrapper>
     );
   }
 
-  function renderButton() {
-    const handleComplete = () => {
-      Alert.info('Task completed!');
-    };
-
+  render() {
     return (
-      <Button
-        block={true}
-        btnStyle="simple"
-        onClick={handleComplete}
-        size="small"
-      >
-        Complete
-      </Button>
+      <Box title="Time tracking" isOpen={true} name="showCustomers">
+        <Container>
+          {this.renderTime()}
+          {this.renderActions()}
+          {this.renderButton()}
+        </Container>
+      </Box>
     );
   }
-
-  return (
-    <Box title="Time tracking" isOpen={true} name="showCustomers">
-      <Container>
-        {renderTime()}
-        {renderActions()}
-        {renderButton()}
-      </Container>
-    </Box>
-  );
 }
 
-export default Timer;
+export default TaskTimer;

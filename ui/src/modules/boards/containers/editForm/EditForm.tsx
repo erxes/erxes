@@ -15,7 +15,9 @@ import {
   IItemParams,
   IOptions,
   RemoveMutation,
-  SaveMutation
+  SaveMutation,
+  UpdateTimeTrackMutation,
+  UpdateTimeVariables
 } from '../../types';
 import { invalidateCache } from '../../utils';
 import { PipelineConsumer } from '../PipelineContext';
@@ -47,6 +49,7 @@ type FinalProps = {
   editMutation: SaveMutation;
   removeMutation: RemoveMutation;
   copyMutation: CopyMutation;
+  updateTimeTrackMutation: UpdateTimeTrackMutation;
 } & ContainerProps;
 
 class EditFormContainer extends React.Component<FinalProps> {
@@ -179,6 +182,25 @@ class EditFormContainer extends React.Component<FinalProps> {
     );
   };
 
+  updateTimeTrack = (
+    doc: { _id: string; status: string; timeSpent: number },
+    callback?
+  ) => {
+    const { updateTimeTrackMutation } = this.props;
+
+    updateTimeTrackMutation({
+      variables: doc
+    })
+      .then(() => {
+        if (callback) {
+          callback();
+        }
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
+  };
+
   render() {
     const { usersQuery, detailQuery, options } = this.props;
 
@@ -204,6 +226,7 @@ class EditFormContainer extends React.Component<FinalProps> {
       removeItem: this.removeItem,
       saveItem: this.saveItem,
       copyItem: this.copyItem,
+      updateTimeTrack: this.updateTimeTrack,
       users
     };
 
@@ -272,6 +295,12 @@ const withQuery = (props: ContainerProps) => {
         {
           name: 'removeMutation',
           options: refetchOptions
+        }
+      ),
+      graphql<ContainerProps, UpdateTimeTrackMutation, UpdateTimeVariables>(
+        gql(options.mutations.updateTimeTrackMutation),
+        {
+          name: 'updateTimeTrackMutation'
         }
       )
     )(EditFormContainer)
