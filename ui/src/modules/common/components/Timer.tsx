@@ -92,6 +92,7 @@ class TaskTimer extends React.Component<Props, State> {
 
     const absentTime =
       status === STATUS_TYPES.STARTED &&
+      startDate &&
       Math.floor((new Date().getTime() - new Date(startDate).getTime()) / 1000);
 
     this.state = {

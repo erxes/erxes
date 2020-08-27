@@ -1,3 +1,4 @@
+import client from 'apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import Spinner from 'modules/common/components/Spinner';
@@ -15,9 +16,7 @@ import {
   IItemParams,
   IOptions,
   RemoveMutation,
-  SaveMutation,
-  UpdateTimeTrackMutation,
-  UpdateTimeVariables
+  SaveMutation
 } from '../../types';
 import { invalidateCache } from '../../utils';
 import { PipelineConsumer } from '../PipelineContext';
@@ -49,7 +48,6 @@ type FinalProps = {
   editMutation: SaveMutation;
   removeMutation: RemoveMutation;
   copyMutation: CopyMutation;
-  updateTimeTrackMutation: UpdateTimeTrackMutation;
 } & ContainerProps;
 
 class EditFormContainer extends React.Component<FinalProps> {
@@ -186,11 +184,13 @@ class EditFormContainer extends React.Component<FinalProps> {
     doc: { _id: string; status: string; timeSpent: number },
     callback?
   ) => {
-    const { updateTimeTrackMutation } = this.props;
+    const { options } = this.props;
 
-    updateTimeTrackMutation({
-      variables: doc
-    })
+    client
+      .mutate({
+        variables: doc,
+        mutation: gql(options.mutations.updateTimeTrackMutation)
+      })
       .then(() => {
         if (callback) {
           callback();
@@ -295,12 +295,6 @@ const withQuery = (props: ContainerProps) => {
         {
           name: 'removeMutation',
           options: refetchOptions
-        }
-      ),
-      graphql<ContainerProps, UpdateTimeTrackMutation, UpdateTimeVariables>(
-        gql(options.mutations.updateTimeTrackMutation),
-        {
-          name: 'updateTimeTrackMutation'
         }
       )
     )(EditFormContainer)
