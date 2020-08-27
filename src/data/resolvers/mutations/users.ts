@@ -1,15 +1,22 @@
 import * as telemetry from 'erxes-telemetry';
+import * as express from 'express';
 import { Channels, Users } from '../../../db/models';
 import { ILink } from '../../../db/models/definitions/common';
 import { IDetail, IEmailSignature, IUser } from '../../../db/models/definitions/users';
 import { resetPermissionsCache } from '../../permissions/utils';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import utils, { authCookieOptions, getEnv } from '../../utils';
+import utils, { authCookieOptions, getEnv, sendRequest } from '../../utils';
 
 interface IUsersEdit extends IUser {
   channelIds?: string[];
   _id: string;
+}
+
+interface ILogin {
+  email: string;
+  password: string;
+  deviceToken?: string;
 }
 
 const sendInvitationEmail = ({ email, token }: { email: string; token: string }) => {
@@ -29,20 +36,64 @@ const sendInvitationEmail = ({ email, token }: { email: string; token: string })
   });
 };
 
+const login = async (args: ILogin, res: express.Response, secure: boolean) => {
+  const response = await Users.login(args);
+
+  const { token } = response;
+
+  res.cookie('auth-token', token, authCookieOptions(secure));
+
+  telemetry.trackCli('logged_in');
+
+  return 'loggedIn';
+};
+
 const userMutations = {
+  async usersCreateOwner(
+    _root,
+    {
+      email,
+      password,
+      passwordConfirmation,
+      subscribeEmail,
+    }: { email: string; password: string; passwordConfirmation: string; subscribeEmail: boolean },
+    { res, requestInfo }: IContext,
+  ) {
+    const userCount = await Users.countDocuments();
+
+    if (userCount > 0) {
+      throw new Error('Access denied');
+    }
+
+    if (password !== passwordConfirmation) {
+      throw new Error('Passwords do not match');
+    }
+
+    const doc: IUser = {
+      isOwner: true,
+      email,
+      password,
+    };
+
+    await Users.createUser(doc);
+
+    if (subscribeEmail) {
+      await sendRequest({
+        url: 'https://erxes.io/subscribe',
+        method: 'POST',
+        body: {
+          email,
+        },
+      });
+    }
+
+    return login({ email, password }, res, requestInfo.secure);
+  },
   /*
    * Login
    */
-  async login(_root, args: { email: string; password: string; deviceToken?: string }, { res, requestInfo }: IContext) {
-    const response = await Users.login(args);
-
-    const { token } = response;
-
-    res.cookie('auth-token', token, authCookieOptions(requestInfo.secure));
-
-    telemetry.trackCli('logged_in');
-
-    return 'loggedIn';
+  async login(_root, args: ILogin, { res, requestInfo }: IContext) {
+    return login(args, res, requestInfo.secure);
   },
 
   async logout(_root, _args, { res }) {

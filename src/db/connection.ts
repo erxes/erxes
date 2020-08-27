@@ -67,8 +67,6 @@ const schema = makeExecutableSchema({
 });
 
 export const graphqlRequest = async (source: string = '', name: string = '', args?: any, context: any = {}) => {
-  const user = await userFactory({});
-
   const res = {
     cookie: () => {
       return 'cookie';
@@ -79,7 +77,7 @@ export const graphqlRequest = async (source: string = '', name: string = '', arg
 
   finalContext.requestInfo = { secure: false, cookies: [] };
   finalContext.dataSources = context.dataSources;
-  finalContext.user = context.user || user;
+  finalContext.user = context.user || (await userFactory({}));
   finalContext.res = context.res || res;
   finalContext.commonQuerySelector = {};
   finalContext.userBrandIdsSelector = {};

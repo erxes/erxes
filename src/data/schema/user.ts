@@ -87,6 +87,7 @@ export const queries = `
 `;
 
 export const mutations = `
+  usersCreateOwner(email: String!, password: String!, passwordConfirmation: String!, subscribeEmail: Boolean!): String 
   login(email: String!, password: String! deviceToken: String): String 
   logout: String
   forgotPassword(email: String!): String!
