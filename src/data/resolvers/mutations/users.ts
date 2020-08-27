@@ -77,7 +77,7 @@ const userMutations = {
 
     await Users.createUser(doc);
 
-    if (subscribeEmail) {
+    if (subscribeEmail && process.env.NODE_ENV === 'production') {
       await sendRequest({
         url: 'https://erxes.io/subscribe',
         method: 'POST',
