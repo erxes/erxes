@@ -1,6 +1,7 @@
 # Contribute
 
-My name is Azwan Nurfadhillah
+My name is Azwan Nurfadhillah and i have done pull request
+
 
 ## Introduction
 
