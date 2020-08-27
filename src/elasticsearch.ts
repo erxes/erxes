@@ -1,5 +1,6 @@
 import * as dotenv from 'dotenv';
 import * as elasticsearch from 'elasticsearch';
+import * as telemetry from 'erxes-telemetry';
 import * as mongoUri from 'mongo-uri';
 import { debugBase } from './debuggers';
 
@@ -17,13 +18,17 @@ export const getMappings = async (index: string) => {
 };
 
 export const getIndexPrefix = () => {
+  if (ELASTICSEARCH_URL === 'https://elasticsearch.erxes.io') {
+    return `${telemetry.getMachineId().toString()}__`;
+  }
+
   const uriObject = mongoUri.parse(MONGO_URL);
   const dbName = uriObject.database;
 
   return `${dbName}__`;
 };
 
-export const fetchElk = async (action, index: string, body: any, defaultValue?: any) => {
+export const fetchElk = async (action, index: string, body: any, id?: string, defaultValue?: any) => {
   if (NODE_ENV === 'test') {
     return action === 'search' ? { hits: { total: { value: 0 }, hits: [] } } : 0;
   }
@@ -32,6 +37,7 @@ export const fetchElk = async (action, index: string, body: any, defaultValue?: 
     const response = await client[action]({
       index: `${getIndexPrefix()}${index}`,
       body,
+      id,
     });
 
     return response;

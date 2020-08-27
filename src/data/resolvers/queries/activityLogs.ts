@@ -72,6 +72,7 @@ const activityLogQueries = {
         await Conversations.find({ $or: [{ customerId: contentId }, { participatedUserIds: contentId }] }).limit(25),
         'conversation',
       );
+
       if (contentType === 'customer') {
         let conversationIds;
 

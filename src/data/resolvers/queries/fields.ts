@@ -158,6 +158,7 @@ const fieldQueries = {
             },
           },
         },
+        '',
         { aggregations: { trackedDataKeys: {} } },
       );
 

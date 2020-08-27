@@ -3786,10 +3786,10 @@ erxes-message-broker@^1.0.16:
     requestify "^0.2.5"
     uuid "^8.3.0"
 
-erxes-telemetry@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/erxes-telemetry/-/erxes-telemetry-1.0.3.tgz#dc4b447a4490d979e3f091c953e2dc7a5f627852"
-  integrity sha512-7RxuoP+rsDHj7K0LPxQqzngHgrorweJYkbOhYh9nscG7eY3BFXlSO5jLw/54ciVMpqds2P4BI/YMML9UbvcU8Q==
+erxes-telemetry@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/erxes-telemetry/-/erxes-telemetry-1.0.4.tgz#0a703f971414684ffe30f8720b7a069896b9a170"
+  integrity sha512-TKrpK7pmmAb05Xf7mcV0vxuAAYdKBYJZlLSuUYQo8wfQ8mvr0M4hqxvzteJGV/qmGbOTUmNDKCC60RDbCUZmEw==
   dependencies:
     "@babel/code-frame" "^7.10.3"
     "@babel/runtime" "^7.10.3"
