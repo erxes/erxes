@@ -104,7 +104,7 @@ function renderCreate(createUrl, kind) {
     const content = props => <Lead {...props} />;
 
     return (
-      <ModalTrigger title="Add Pop Ups" trigger={trigger} content={content} />
+      <ModalTrigger title="Add Pop Ups" trigger={trigger} content={content} autoOpenKey="showPopupAddModal" />
     );
   }
 
@@ -116,6 +116,7 @@ function renderCreate(createUrl, kind) {
         title="Add knowledge base"
         trigger={trigger}
         content={content}
+        autoOpenKey="showKBAddModal"
       />
     );
   }
