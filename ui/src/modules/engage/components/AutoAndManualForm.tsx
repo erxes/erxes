@@ -7,6 +7,7 @@ import {
   StepWrapper,
   TitleContainer
 } from 'modules/common/components/step/styles';
+import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { IBrand } from 'modules/settings/brands/types';
@@ -44,6 +45,7 @@ type Props = {
   ) => { status: string; doc?: IEngageMessageDoc };
   renderTitle: () => string;
   breadcrumbs: IBreadCrumbItem[];
+  smsConfig: any;
 };
 
 type State = {
@@ -150,6 +152,12 @@ class AutoAndManualForm extends React.Component<Props, State> {
 
     const response = this.props.validateDoc(type, doc);
 
+    if (this.state.method === METHODS.SMS && !this.props.smsConfig) {
+      return Alert.warning(
+        'SMS integration is not configured. It must be configured to send SMS engage message.'
+      );
+    }
+
     if (response.status === 'ok' && response.doc) {
       return this.props.save(response.doc);
     }
@@ -215,7 +223,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
   };
 
   renderMessageContent() {
-    const { message, brands, users, kind, templates } = this.props;
+    const { message, brands, users, kind, templates, smsConfig } = this.props;
 
     const {
       messenger,
@@ -239,6 +247,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
             shortMessage={shortMessage}
             users={users}
             fromUserId={fromUserId}
+            smsConfig={smsConfig}
           />
         </Step>
       );

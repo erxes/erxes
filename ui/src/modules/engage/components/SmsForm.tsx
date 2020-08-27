@@ -1,4 +1,5 @@
 import { IUser } from 'modules/auth/types';
+import EmptyState from 'modules/common/components/EmptyState';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
@@ -38,6 +39,7 @@ type Props = {
   shortMessage?: IEngageSms;
   users: IUser[];
   fromUserId: string;
+  smsConfig: any;
 };
 
 type State = {
@@ -125,7 +127,7 @@ class MessengerForm extends React.Component<Props, State> {
   );
 
   render() {
-    const { fromUserId, onChange, shortMessage } = this.props;
+    const { fromUserId, onChange, shortMessage, smsConfig } = this.props;
     const { message, title, titleCount, characterCount } = this.state;
 
     const onChangeTitle = e =>
@@ -154,6 +156,15 @@ class MessengerForm extends React.Component<Props, State> {
         characterCount: this.calcCharacterCount(160, content)
       });
     };
+
+    if (!smsConfig) {
+      return (
+        <EmptyState
+          text="SMS integration is not configured. It must be configured to send SMS engage message."
+          image="/images/actions/21.svg"
+        />
+      );
+    }
 
     return (
       <FlexItem>

@@ -5,6 +5,7 @@ import { withProps } from 'modules/common/utils';
 import { AddMutationResponse } from 'modules/segments/types';
 import { IBrand } from 'modules/settings/brands/types';
 import { queries } from 'modules/settings/emailTemplates/graphql';
+import { queries as integrationQueries } from 'modules/settings/integrations/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { EmailTemplatesQueryResponse } from '../../settings/emailTemplates/containers/List';
@@ -22,14 +23,17 @@ type Props = {
 
 type FinalProps = {
   emailTemplatesQuery: EmailTemplatesQueryResponse;
+  integrationConfigsQuery: any;
   users: IUser[];
   isActionLoading: boolean;
   save: (doc: IEngageMessageDoc) => Promise<any>;
+  smsConfig: any;
 } & Props &
   AddMutationResponse;
 
 const AutoAndManualFormContainer = (props: FinalProps) => {
-  const { emailTemplatesQuery } = props;
+  const { emailTemplatesQuery, integrationConfigsQuery } = props;
+  const integrations = integrationConfigsQuery.integrationsFetchApi || [];
 
   if (emailTemplatesQuery.loading) {
     return null;
@@ -37,7 +41,8 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-    templates: emailTemplatesQuery.emailTemplates || []
+    templates: emailTemplatesQuery.emailTemplates || [],
+    smsConfig: integrations.find(i => i.code === 'TELNYX_API_KEY') && null
   };
 
   const content = formProps => (
@@ -66,6 +71,15 @@ export default withProps<Props>(
   compose(
     graphql(gql(queries.totalCount), {
       name: 'totalCountQuery'
+    }),
+    graphql(gql(integrationQueries.fetchApi), {
+      name: 'integrationConfigsQuery',
+      options: () => ({
+        variables: {
+          path: '/configs',
+          params: {}
+        }
+      })
     })
   )(withTemplatesQuery)
 );
