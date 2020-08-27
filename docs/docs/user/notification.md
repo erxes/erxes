@@ -3,21 +3,22 @@ id: notification
 title: Notifications
 ---
 
-Notifications in Erxes alert you to channels and conversations events.
+Notifications in erxes alert you to channels and conversations events.
 
-- Please follow the steps for : Click on the top right corner of the page
+To view your notifications:
 
-![](https://s3-us-west-2.amazonaws.com/erxes-docs/notification-1.png)
-![](https://s3-us-west-2.amazonaws.com/erxes-docs/notification-2.png)
-
-1. Click on the **Bell** icon
+1. Click on the **Bell** icon at the top right corner of the page
 2. List of **Notifications**
 3. Click on **See All** sent to the email address
 4. Click on **Mark page read/Mark all read**
 
+To edit which notifications you receive, whether in your dashboard or through emails, please go to Profile Settings and click on Notification Settings.
+
+![](https://s3.ap-southeast-1.amazonaws.com/office.erxes.io/undefined0.06674397211390848tasksnotifications.gif)
+
 ## Inbox sidebar notifications
 
-It will inform you of unread messages and mentions across inbox.
+It will inform you of unread messages and mentions across your shared team inbox.
 
 ![](https://s3-us-west-2.amazonaws.com/erxes-docs/notification3.png)
 

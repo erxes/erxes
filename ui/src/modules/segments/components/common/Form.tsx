@@ -1,5 +1,5 @@
 import Button from 'modules/common/components/Button';
-import EmptyState from 'modules/common/components/EmptyState';
+import EmptyContent from 'modules/common/components/empty/EmptyContent';
 import FormControl from 'modules/common/components/form/Control';
 import CommonForm from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
@@ -17,6 +17,7 @@ import {
   ISegmentCondition,
   ISegmentWithConditionDoc
 } from 'modules/segments/types';
+import { EMPTY_NEW_SEGMENT_CONTENT } from 'modules/settings/constants';
 import { ColorPick, ColorPicker, ExpandWrapper } from 'modules/settings/styles';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -225,10 +226,7 @@ class Form extends React.Component<Props, State> {
 
     if (conditions.length === 0) {
       return (
-        <EmptyState
-          text="There aren’t any filters at the moment."
-          image="/images/actions/14.svg"
-        />
+        <EmptyContent content={EMPTY_NEW_SEGMENT_CONTENT} />
       );
     }
 
