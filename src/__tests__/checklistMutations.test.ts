@@ -21,7 +21,9 @@ describe('Checklists mutations', () => {
     // Creating test data
     _user = await userFactory({});
     _checklist = await checklistFactory({ createdUserId: _user._d });
-    _checklistItem = await checklistItemFactory({ checklistId: _checklist._id });
+    _checklistItem = await checklistItemFactory({ checklistId: _checklist._id, order: 0 });
+
+    await checklistItemFactory({ checklistId: _checklist._id, order: 1 });
 
     context = { user: _user };
   });
@@ -205,5 +207,22 @@ describe('Checklists mutations', () => {
     await graphqlRequest(mutation, 'checklistItemsRemove', { _id: _checklistItem._id }, context);
 
     expect(await ChecklistItems.findOne({ _id: _checklistItem._id })).toBe(null);
+  });
+
+  test('Order checklist items', async () => {
+    const mutation = `
+      mutation checklistItemsOrder($_id: String!, $destinationIndex: Int) {
+        checklistItemsOrder(_id: $_id, destinationIndex: $destinationIndex) {
+          _id
+          order
+        }
+      }
+    `;
+
+    await graphqlRequest(mutation, 'checklistItemsOrder', { _id: _checklistItem._id, destinationIndex: 1 }, context);
+
+    const item = await ChecklistItems.findOne({ _id: _checklistItem._id }).lean();
+
+    expect(item.order).toBe(1);
   });
 });
