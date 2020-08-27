@@ -1,6 +1,7 @@
 import { getEnv } from 'apolloClient';
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
+import EmptyContent from 'modules/common/components/empty/EmptyContent';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
@@ -9,6 +10,7 @@ import { IRouterProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
+import { EMPTY_IMPORT_CONTENT } from 'modules/settings/constants';
 import DataImporter from 'modules/settings/importHistory/containers/DataImporter';
 import ManageColumns from 'modules/settings/properties/containers/ManageColumns';
 import React from 'react';
@@ -127,6 +129,7 @@ class Histories extends React.Component<Props & IRouterProps> {
         title="Select Columns"
         trigger={editColumns}
         content={manageColumns}
+        autoOpenKey="showManageColumnsModal"
       />
     );
   };
@@ -276,8 +279,7 @@ class Histories extends React.Component<Props & IRouterProps> {
             data={this.renderHistories()}
             loading={loading}
             count={histories.length}
-            emptyText="Oh dear! You have no imports"
-            emptyImage="/images/actions/15.svg"
+            emptyContent={<EmptyContent content={EMPTY_IMPORT_CONTENT} />}
           />
         }
       />
