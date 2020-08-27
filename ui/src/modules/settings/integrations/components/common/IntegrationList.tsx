@@ -75,7 +75,7 @@ class IntegrationList extends React.Component<Props> {
               <th>{__('Kind')}</th>
               <th>{__('Brand')}</th>
               <th>{__('Status')}</th>
-              <th>{__('Actions')}</th>
+              <th style={{ width: 130 }}>{__('Actions')}</th>
             </tr>
           </thead>
           <tbody>{this.renderRows()}</tbody>

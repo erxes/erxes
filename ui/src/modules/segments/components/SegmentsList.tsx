@@ -51,7 +51,7 @@ class SegmentsList extends React.Component<Props> {
             <th>{__('Name')}</th>
             <th>{__('Description')}</th>
             <th>{__('Color')}</th>
-            <th />
+            <th style={{ width: 80 }} />
           </tr>
         </thead>
         <tbody>
