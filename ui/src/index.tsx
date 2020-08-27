@@ -4,8 +4,10 @@ import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import 'erxes-icon/css/erxes.min.css';
+import OwnerSetup from 'modules/auth/containers/OwnerSetup';
 // global style
 import 'modules/common/styles/global-styles.ts';
+import AuthLayout from 'modules/layout/components/AuthLayout';
 import React from 'react';
 import { ApolloProvider } from 'react-apollo';
 import { render } from 'react-dom';
@@ -19,16 +21,19 @@ const target = document.querySelector('#root');
 
 const envs = getEnv();
 
-fetch(
-  `${envs.REACT_APP_API_URL}/set-frontend-cookies?envs=${JSON.stringify(envs)}`,
-  { credentials: 'include' }
-)
+fetch(`${envs.REACT_APP_API_URL}/initial-setup?envs=${JSON.stringify(envs)}`, {
+  credentials: 'include'
+})
   .then(response => response.text())
-  .then(() => {
-    render(
-      <ApolloProvider client={apolloClient}>
-        <Routes />
-      </ApolloProvider>,
+  .then(res => {
+    let body = <Routes />;
+
+    if (res === 'no owner') {
+      body = <AuthLayout content={<OwnerSetup />} />;
+    }
+
+    return render(
+      <ApolloProvider client={apolloClient}>{body}</ApolloProvider>,
       target
     );
   });
