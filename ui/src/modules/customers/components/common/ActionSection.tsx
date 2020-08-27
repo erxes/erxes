@@ -1,3 +1,4 @@
+import { ButtonGroup } from 'modules/boards/styles/header';
 import Button from 'modules/common/components/Button';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
 import { ControlLabel } from 'modules/common/components/form';
@@ -38,7 +39,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
   }
 
   renderActions() {
-    const { coc, cocType } = this.props;
+    const { coc, cocType, isSmall } = this.props;
     const { primaryPhone, primaryEmail } = coc;
 
     const content = props => (
@@ -66,7 +67,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
             <Button
               disabled={primaryEmail ? false : true}
               size="small"
-              btnStyle="primary"
+              btnStyle={isSmall ? 'link' : 'primary'}
             >
               <Tip text="Send e-mail" placement="top-end">
                 <Icon icon="envelope" />
@@ -97,7 +98,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
         <Button
           href={primaryPhone && `tel:${primaryPhone}`}
           size="small"
-          btnStyle="primary"
+          btnStyle={isSmall ? 'link' : 'primary'}
           disabled={primaryPhone ? false : true}
         >
           <Tip text="Call" placement="top-end">
@@ -109,8 +110,10 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
   }
 
   renderButton() {
+    const { isSmall } = this.props;
+
     return (
-      <Button size="small" btnStyle="primary">
+      <Button size="small" btnStyle={isSmall ? 'link' : 'primary'}>
         {__('Action')} <Icon icon="angle-down" />
       </Button>
     );
@@ -199,8 +202,8 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
     );
   }
 
-  render() {
-    const { coc, cocType, merge, remove, search } = this.props;
+  renderDropdown() {
+    const { remove, merge, cocType, search, coc } = this.props;
 
     const onClick = () =>
       confirm()
@@ -231,37 +234,55 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
     };
 
     return (
-      <Actions>
-        {this.renderActions()}
-        <Dropdown>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-action">
-            {this.renderButton()}
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            {this.renderEditButton()}
-            <li>
-              <TargetMerge
-                onSave={merge}
-                object={coc}
-                searchObject={search}
-                mergeForm={
-                  cocType === 'customer' ? CustomersMerge : CompaniesMerge
-                }
-                generateOptions={
-                  cocType === 'customer' ? generateOptions : targetMergeOptions
-                }
-              />
-            </li>
-            <li>
-              <a href="#delete" onClick={onClick}>
-                {__('Delete')}
-              </a>
-            </li>
-            <li>{this.renderChangeStateForm()}</li>
-          </Dropdown.Menu>
-        </Dropdown>
-      </Actions>
+      <Dropdown>
+        <Dropdown.Toggle as={DropdownToggle} id="dropdown-action">
+          {this.renderButton()}
+        </Dropdown.Toggle>
+        <Dropdown.Menu>
+          {this.renderEditButton()}
+          <li>
+            <TargetMerge
+              onSave={merge}
+              object={coc}
+              searchObject={search}
+              mergeForm={
+                cocType === 'customer' ? CustomersMerge : CompaniesMerge
+              }
+              generateOptions={
+                cocType === 'customer' ? generateOptions : targetMergeOptions
+              }
+            />
+          </li>
+          <li>
+            <a href="#delete" onClick={onClick}>
+              {__('Delete')}
+            </a>
+          </li>
+          <li>{this.renderChangeStateForm()}</li>
+        </Dropdown.Menu>
+      </Dropdown>
     );
+  }
+
+  render() {
+    const { isSmall } = this.props;
+
+    const content = (
+      <>
+        {this.renderActions()}
+        {this.renderDropdown()}
+      </>
+    );
+
+    if (isSmall) {
+      return (
+        <Actions isSmall={true}>
+          <ButtonGroup>{content}</ButtonGroup>
+        </Actions>
+      );
+    }
+
+    return <Actions>{content}</Actions>;
   }
 }
 

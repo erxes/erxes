@@ -534,23 +534,26 @@ const SectionBody = styled.div`
 
 const SectionBodyItem = styled.div`
   border-top: 1px solid ${colors.borderPrimary};
-  padding: 10px 20px;
   word-break: break-word;
 
   span {
+    padding: 10px 20px;
     display: inline-block;
     width: 100%;
     padding-right: ${dimensions.coreSpacing}px;
   }
 
-  i {
-    color: ${colors.colorCoreGray};
-    position: absolute;
-    font-size: 13px;
-    right: ${dimensions.coreSpacing}px;
+  a {
+    i {
+      padding: 10px 10px;
+      color: ${colors.colorCoreGray};
+      position: absolute;
+      font-size: 13px;
+      right: ${dimensions.coreSpacing}px;
 
-    &:hover {
-      cursor: pointer;
+      &:hover {
+        cursor: pointer;
+      }
     }
   }
 
