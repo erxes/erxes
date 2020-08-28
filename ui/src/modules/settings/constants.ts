@@ -148,21 +148,17 @@ export const EMPTY_CONTENT_KNOWLEDGEBASE = {
   description: "Educate your customers and staff by creating help articles to reach higher levels of satisfaction.",
   steps: [
     {
-      title: "Create Brand",
-      description: "Make sure you’ve created your Brands",
-      url: "/settings/brands#showBrandAddModal=true",
-      urlText: "Create Brand"
+      title: "Create your knowledgebase",
+      description: "<ul><li>Make sure you’ve created your Brands</li><li>Click on “Add Knowledgebase” to create one for a specific Brand</li><li>Click on the “Settings” button and “Add Categories”. A good one to get started with would be “General, Pricing, etc.”</li><li>Click on “Add Articles” to start adding help articles</li></ul>",
+      html: true,
     },
     {
-      title: "Add Knowledge base",
-      description: "Click on “Add Knowledgebase” to create one for a specific Brand",
-      url: "/knowledgeBase#showKBAddModal=true",
-      urlText: "Add Knowledge base"
+      title: "Install the script",
+      description: "<ul><li>Copy the individual script by clicking on the Settings button.</li><li>Use <a href='/settings/scripts'>Script Manager</a> to avoid script duplication errors if you’re planning to display this popup along with any other erxes widgets</li></ul>",
+      html: true,
+      url: "/settings/scripts",
+      urlText: "Go to Script Manager"
     },
-    {
-      title: "Add Category",
-      description: "Click on the settings button next to the knowledgebase you’ve just created. Click “Add Categories”. A good one to get started with would be “General"
-    }
   ]
 };
 
@@ -199,5 +195,42 @@ export const EMPTY_CONTENT_MESSENGER = {
       url: "/settings/scripts",
       urlText: "Manange Scripts"
     },
+  ]
+};
+
+export const EMPTY_CONTENT_CONTACTS = {
+  title: "Getting Started with Contacts",
+  description: "Coordinate and manage all your customer interactions",
+  steps: [
+    {
+      title: "Import your previous contacts",
+      description: "Use Import feature to bulk import all your previous Customers or Leads",
+      url: "/settings/importHistories?type=customer",
+      urlText: "Go to Customer Import"
+    },
+    {
+      title: "Collect visitor information",
+      description: "Create your erxes Messenger to start capturing Visitors",
+      url: "/settings/integrations/createMessenger",
+      urlText: "Create Messenger"
+    },
+    {
+      title: "Sync email contacts",
+      description: "Integrate your email address to sync previous email Leads",
+      url: "/settings/integrations",
+      urlText: "Visit AppStore"
+    },
+    {
+      title: "Start capturing social media contacts",
+      description: "Integrate social media website to start capturing Leads",
+      url: "/settings/integrations",
+      urlText: "Visit AppStore"
+    },
+    {
+      title: "Generate contacts through Popups",
+      description: "Create your popups and start collecting Leads",
+      url: "/leads/create",
+      urlText: "Create a Popup"
+    }
   ]
 };
