@@ -38,6 +38,7 @@ export interface IOptions {
     watchMutation: string;
     archiveMutation: string;
     copyMutation: string;
+    updateTimeTrackMutation?: string;
   };
   texts: {
     addText: string;
@@ -170,6 +171,11 @@ export interface IItem {
   labelIds: string[];
   status?: string;
   createdAt: Date;
+  timeTrack: {
+    status: string;
+    timeSpent: number;
+    startDate?: string;
+  };
 }
 
 export interface IDraggableLocation {
@@ -267,7 +273,18 @@ export type RemoveVariables = {
   _id: string;
 };
 
+export type UpdateTimeVariables = {
+  _id: string;
+  status: string;
+  timeSpent: number;
+  startDate?: string;
+};
+
 export type RemoveMutation = ({ variables: RemoveVariables }) => Promise<any>;
+
+export type UpdateTimeTrackMutation = (
+  { variables: UpdateTimeVariables }
+) => Promise<any>;
 
 export type CopyVariables = {
   _id: string;
