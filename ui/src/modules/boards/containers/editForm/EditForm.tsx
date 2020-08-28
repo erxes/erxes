@@ -144,6 +144,7 @@ class EditFormContainer extends React.Component<FinalProps> {
     editMutation({ variables: { _id: itemId, ...doc } })
       .then(({ data }) => {
         if (callback) {
+          console.log('aklsdjaklsdj');
           callback(data[options.mutationsName.editMutation]);
         }
 
