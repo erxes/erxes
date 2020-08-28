@@ -124,6 +124,29 @@ export const EMPTY_CONTENT_ENGAGE = {
   ]
 };
 
+export const EMPTY_CONTENT_KNOWLEDGEBASE = {
+  title: "Getting Started with erxes Knowledgebase",
+  description: "Educate your customers and staff by creating help articles to reach higher levels of satisfaction.",
+  steps: [
+    {
+      title: "Create Brand",
+      description: "Make sure you’ve created your Brands",
+      url: "/settings/brands#showBrandAddModal=true",
+      urlText: "Create Brand"
+    },
+    {
+      title: "Add Knowledge base",
+      description: "Click on “Add Knowledgebase” to create one for a specific Brand",
+      url: "/knowledgeBase#showKBAddModal=true",
+      urlText: "Add Knowledge base"
+    },
+    {
+      title: "Add Category",
+      description: "Click on the settings button next to the knowledgebase you’ve just created. Click “Add Categories”. A good one to get started with would be “General"
+    }
+  ]
+};
+
 export const EMPTY_CONTENT_MESSENGER = {
   title: "Getting Started with erxes Messenger",
   description: "Learn how the erxes Messenger works and it is set up. It is used in the Team Inbox and Knowledgebase and Engage features uses Messenger.",
