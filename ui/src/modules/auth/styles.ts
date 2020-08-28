@@ -1,7 +1,8 @@
 import { colors, dimensions, typography } from 'modules/common/styles';
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
-const AuthBox = styled.div`
+const AuthBox = styledTS<{ type?: string }>(styled.div)`
   background-color: ${colors.colorWhite};
   padding: 70px 60px;
   box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 20px 3px;
@@ -9,15 +10,24 @@ const AuthBox = styled.div`
 
   h2 {
     color: ${colors.colorPrimary};
-    font-size: 30px;
+    font-size: ${props => (props.type === 'setup' ? '27px' : '30px')};
     font-weight: 400;
-    margin: 0 0 50px;
+    margin: ${props => (props.type === 'setup' ? '0 0 15px' : '0 0 50px')};
+  }
+
+  p {
+    margin: 0 0 10px;
+    font-size: 13px;
+  }
+
+  form>div {
+    margin-bottom: ${props => (props.type === 'setup' ? '15px' : '20px')};
   }
 
   input {
     padding: 0 0 6px;
     color: ${colors.colorCoreBlack};
-    font-size: 16px;
+    font-size: ${props => (props.type === 'setup' ? '14px' : '16px')};
     outline: 0;
 
     &:focus {

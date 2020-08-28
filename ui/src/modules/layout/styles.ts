@@ -498,6 +498,11 @@ const AuthDescription = styled.div`
     margin-bottom: 30px;
     color: ${colors.colorWhite};
   }
+  h2 {
+    font-size: 18px;
+    margin: -15px 0 40px 0;
+    color: ${colors.colorWhite};
+  }
   p {
     color: rgba(255, 255, 255, 0.7);
     margin-bottom: 50px;
@@ -594,6 +599,24 @@ const CenterContent = styled.div`
   }
 `;
 
+const PasswordWithEye = styled.div`
+  span {
+    line-height: 34px;
+
+    &:first-child {
+      float: left;
+      width: 92%;
+    }
+  }
+
+  .showPassword {
+    float: left;
+    width: 8%;
+    text-align: center;
+    font-size: 16px;
+  }
+`;
+
 export {
   Layout,
   PageHeader,
@@ -635,5 +658,6 @@ export {
   SectionBody,
   SectionBodyItem,
   MobileRecommend,
-  FieldStyle
+  FieldStyle,
+  PasswordWithEye
 };
