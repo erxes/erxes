@@ -1,5 +1,12 @@
 import { Document, Schema } from 'mongoose';
-import { BOARD_STATUSES, BOARD_TYPES, HACK_SCORING_TYPES, PIPELINE_VISIBLITIES, PROBABILITY } from './constants';
+import {
+  BOARD_STATUSES,
+  BOARD_TYPES,
+  HACK_SCORING_TYPES,
+  PIPELINE_VISIBLITIES,
+  PROBABILITY,
+  TIME_TRACK_TYPES,
+} from './constants';
 import { field, schemaWrapper } from './utils';
 
 interface ICommonFields {
@@ -32,6 +39,11 @@ export interface IItemCommonFields {
   priority?: string;
   sourceConversationId?: string;
   status?: string;
+  timeTrack?: {
+    status: string;
+    timeSpent: number;
+    startDate?: string;
+  };
 }
 
 export interface IItemCommonFieldsDocument extends IItemCommonFields, Document {
@@ -122,6 +134,19 @@ const commonFieldsSchema = {
   }),
 };
 
+const timeTrackSchema = new Schema(
+  {
+    startDate: field({ type: String }),
+    timeSpent: field({ type: Number }),
+    status: field({
+      type: String,
+      enum: TIME_TRACK_TYPES.ALL,
+      default: TIME_TRACK_TYPES.STOPPED,
+    }),
+  },
+  { _id: false },
+);
+
 export const commonItemFieldsSchema = {
   _id: field({ pkey: true }),
   userId: field({ type: String, label: 'Created by' }),
@@ -147,6 +172,9 @@ export const commonItemFieldsSchema = {
   searchText: field({ type: String, optional: true, index: true }),
   priority: field({ type: String, optional: true, label: 'Priority' }),
   sourceConversationId: field({ type: String, optional: true }),
+  timeTrack: field({
+    type: timeTrackSchema,
+  }),
   status: field({
     type: String,
     enum: BOARD_STATUSES.ALL,
