@@ -97,6 +97,25 @@ export const EMPTY_CONTENT_SCRIPT = {
   ]
 };
 
+export const EMPTY_CONTENT_POPUPS = {
+  title: "Getting Started with erxes Popups",
+  description: "Never miss a potential lead by capturing them with a customizable Popups & Forms",
+  steps: [
+    {
+      title: "Create Popup",
+      description: "Fill out the details and create your popup message or form",
+      url: "/leads/create",
+      urlText: "Create Popup"
+    },
+    {
+      title: "Install the script",
+      description: "Copy the individual script or use Script Manager to avoid script duplication errors if you’re planning to display this popup along with any other erxes widgets",
+      url: "/settings/scripts",
+      urlText: "Go to Script Manager"
+    }
+  ]
+};
+
 export const EMPTY_CONTENT_ENGAGE = {
   title: "Getting Started with Engage",
   description: "Learn how to use this feature to engage your contacts and drive conversations.",

@@ -1,12 +1,14 @@
 import Button from 'modules/common/components/Button';
 import CountsByTag from 'modules/common/components/CountsByTag';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
+import EmptyContent from 'modules/common/components/empty/EmptyContent';
 import FormControl from 'modules/common/components/form/Control';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
+import { EMPTY_CONTENT_POPUPS } from 'modules/settings/constants';
 import TaggerPopover from 'modules/tags/components/TaggerPopover';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -151,8 +153,7 @@ class List extends React.Component<Props, {}> {
             data={content}
             loading={loading}
             count={integrations.length}
-            emptyText="There is always a pop ups!"
-            emptyImage="/images/actions/12.svg"
+            emptyContent={<EmptyContent content={EMPTY_CONTENT_POPUPS} maxItemWidth="360px" />}
           />
         }
       />
