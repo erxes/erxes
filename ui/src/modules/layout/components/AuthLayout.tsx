@@ -88,10 +88,10 @@ class AuthLayout extends React.Component<Props, {}> {
       <Authlayout>
         <AuthContent>
           <Container>
-            <Col md={{ span: 8, offset: 2 }}>
+            <Col md={5}>
               <AuthDescription>{this.renderDesciption()}</AuthDescription>
             </Col>
-            <Col md={{ span: 8, offset: 2 }}>{content}</Col>
+            <Col md={{ span: 6, offset: 1 }}>{content}</Col>
           </Container>
         </AuthContent>
         {this.renderRecommendMobileVersion()}
