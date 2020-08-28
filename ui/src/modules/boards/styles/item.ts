@@ -11,6 +11,17 @@ export const FlexContent = styled.div`
   display: flex;
 `;
 
+export const ContentWrapper = styled.div``;
+
+export const Content = styled.div`
+  padding: 15px 20px;
+  min-height: 150px;
+
+  p {
+    color: ${colors.colorBlack};
+  }
+`;
+
 export const PriceContainer = styled.div`
   overflow: hidden;
 
