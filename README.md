@@ -2,7 +2,7 @@
  <img src="docs/static/img/logo_dark.svg" alt="erxes logo" width="20%" />
 </p>
 
-<p align="center">Erxes is a **free and open fair-code licensed** all-in-one growth Marketing & Management Software. We offer an all-in-one solution for sales, marketing, and customer service teams, with a focus on the entire customer experience. Replace Hubspot with the mission and community-driven ecosystem.</p>
+<p align="center">Erxes is a ** free and open fair-code licensed ** all-in-one growth Marketing & Management Software. We offer an all-in-one solution for sales, marketing, and customer service teams, with a focus on the entire customer experience. Replace Hubspot with the mission and community-driven ecosystem.</p>
 
 <p align="center"><a href="https://demo.erxes.io/">Live demo</a> <b>| </b> <a href="https://community.erxes.io/register/Gw4WRJnk9fSbyAXTq">Join our community</a></p>
 
