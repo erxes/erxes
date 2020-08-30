@@ -1,27 +1,40 @@
 import ActivityInputs from 'modules/activityLogs/components/ActivityInputs';
 import ActivityLogs from 'modules/activityLogs/containers/ActivityLogs';
-import React, { useEffect, useState } from 'react';
-
 import { IItem, IItemParams, IOptions } from 'modules/boards/types';
 import Checklists from 'modules/checklists/containers/Checklists';
-import FormControl from 'modules/common/components/form/Control';
+import Button from 'modules/common/components/Button';
+import EditorCK from 'modules/common/components/EditorCK';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
+import { TabTitle } from 'modules/common/components/tabs';
 import Uploader from 'modules/common/components/Uploader';
 import { IAttachment } from 'modules/common/types';
 import { __, extractAttachment } from 'modules/common/utils';
-import { LeftContainer, TitleRow } from '../../styles/item';
+import {
+  EditorActions,
+  EditorWrapper
+} from 'modules/internalNotes/components/Form';
+import { WhiteBoxRoot } from 'modules/layout/styles';
+import React, { useEffect, useState } from 'react';
+import xss from 'xss';
+import {
+  Content,
+  ContentWrapper,
+  LeftContainer,
+  TitleRow
+} from '../../styles/item';
 import Labels from '../label/Labels';
 import Actions from './Actions';
 
 type DescProps = {
   item: IItem;
-  saveItem: (doc: { [key: string]: any }) => void;
+  saveItem: (doc: { [key: string]: any }, callback?: (item) => void) => void;
 };
 
 const Description = (props: DescProps) => {
   const { item, saveItem } = props;
+  const [edit, setEdit] = useState(false);
   const [description, setDescription] = useState(item.description);
 
   useEffect(
@@ -31,31 +44,88 @@ const Description = (props: DescProps) => {
     [item.description]
   );
 
-  const onBlurDescription = () => {
-    if (description !== item.description) {
-      saveItem({ description });
-    }
+  const onSend = () => {
+    saveItem({ description });
+    setEdit(false);
   };
 
+  const toggleEdit = () => setEdit(currentValue => !currentValue);
+
   const onChangeDescription = e => {
-    setDescription(e.target.value);
+    setDescription(e.editor.getData());
   };
+
+  const renderFooter = () => {
+    return (
+      <EditorActions>
+        <Button
+          icon="cancel-1"
+          btnStyle="simple"
+          size="small"
+          onClick={toggleEdit}
+        >
+          Cancel
+        </Button>
+        {item.description !== description && (
+          <Button
+            onClick={onSend}
+            btnStyle="success"
+            size="small"
+            icon="message"
+          >
+            Save
+          </Button>
+        )}
+      </EditorActions>
+    );
+  };
+
+  const Wrapper = edit ? WhiteBoxRoot : ContentWrapper;
 
   return (
     <FormGroup>
-      <TitleRow>
-        <ControlLabel>
-          <Icon icon="align-left-justify" />
-          {__('Description')}
-        </ControlLabel>
-      </TitleRow>
+      <Wrapper>
+        <TabTitle>
+          <ControlLabel>
+            <Icon icon="align-left-justify" />
+            {__('Description')}
+          </ControlLabel>
+        </TabTitle>
 
-      <FormControl
-        componentClass="textarea"
-        value={description || ''}
-        onBlur={onBlurDescription}
-        onChange={onChangeDescription}
-      />
+        {!edit ? (
+          <Content
+            onClick={toggleEdit}
+            dangerouslySetInnerHTML={{ __html: xss(description) }}
+          />
+        ) : (
+          <EditorWrapper>
+            <EditorCK
+              onCtrlEnter={onSend}
+              content={description}
+              onChange={onChangeDescription}
+              height={150}
+              toolbar={[
+                {
+                  name: 'basicstyles',
+                  items: [
+                    'Bold',
+                    'Italic',
+                    'NumberedList',
+                    'BulletedList',
+                    'Link',
+                    'Unlink',
+                    '-',
+                    'Image',
+                    'EmojiPanel'
+                  ]
+                }
+              ]}
+            />
+
+            {renderFooter()}
+          </EditorWrapper>
+        )}
+      </Wrapper>
     </FormGroup>
   );
 };
@@ -65,7 +135,7 @@ type Props = {
   options: IOptions;
   copyItem: () => void;
   removeItem: (itemId: string) => void;
-  saveItem: (doc: { [key: string]: any }) => void;
+  saveItem: (doc: { [key: string]: any }, callback?: (item) => void) => void;
   onUpdate: (item: IItem, prevStageId?: string) => void;
   addItem: (doc: IItemParams, callback: () => void) => void;
   sendToBoard?: (item: any) => void;

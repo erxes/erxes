@@ -1,3 +1,4 @@
+import client from 'apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import Spinner from 'modules/common/components/Spinner';
@@ -179,6 +180,27 @@ class EditFormContainer extends React.Component<FinalProps> {
     );
   };
 
+  updateTimeTrack = (
+    doc: { _id: string; status: string; timeSpent: number },
+    callback?
+  ) => {
+    const { options } = this.props;
+
+    client
+      .mutate({
+        variables: doc,
+        mutation: gql(options.mutations.updateTimeTrackMutation)
+      })
+      .then(() => {
+        if (callback) {
+          callback();
+        }
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
+  };
+
   render() {
     const { usersQuery, detailQuery, options } = this.props;
 
@@ -204,6 +226,7 @@ class EditFormContainer extends React.Component<FinalProps> {
       removeItem: this.removeItem,
       saveItem: this.saveItem,
       copyItem: this.copyItem,
+      updateTimeTrack: this.updateTimeTrack,
       users
     };
 
