@@ -46,7 +46,7 @@ jobs:
       - name: Install
         run: |
           cd widgets
-          yarn install --production
+          yarn install
 
       - name: Lint
         run: |
@@ -56,6 +56,8 @@ jobs:
       - name: Build
         run: |
           cd widgets
+          rm -rf node_modules
+          yarn install --production
           yarn build
 
       - name: Build docker image

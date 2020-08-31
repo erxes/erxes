@@ -53,7 +53,7 @@ jobs:
     - name: Install
       run: |
         cd ui
-        yarn install --production
+        yarn install
 
     - name: Lint
       run: |
@@ -68,6 +68,8 @@ jobs:
     - name: Build
       run: |
         cd ui
+        rm -rf node_modules
+        yarn install --production
         yarn build
 
     - name: Build docker image
