@@ -23,7 +23,7 @@ import {
   Tasks,
 } from '../db/models';
 import { IBoardDocument, IPipelineDocument, IStageDocument } from '../db/models/definitions/boards';
-import { BOARD_STATUSES, BOARD_TYPES } from '../db/models/definitions/constants';
+import { BOARD_STATUSES, BOARD_TYPES, TIME_TRACK_TYPES } from '../db/models/definitions/constants';
 import { IPipelineLabelDocument } from '../db/models/definitions/pipelineLabels';
 import { ITaskDocument } from '../db/models/definitions/tasks';
 
@@ -380,5 +380,33 @@ describe('Test tasks mutations', () => {
     const tasks = await Tasks.find({ stageId: taskStage._id, status: BOARD_STATUSES.ARCHIVED });
 
     expect(tasks.length).toBe(3);
+  });
+
+  test('Task update time track', async () => {
+    const mutation = `
+      mutation taskUpdateTimeTracking($_id: String!, $status: String!, $timeSpent: Int!, $startDate: String) {
+        taskUpdateTimeTracking(_id: $_id, status: $status, timeSpent: $timeSpent, startDate: $startDate)
+      }
+    `;
+
+    const taskStage = await stageFactory({ type: BOARD_TYPES.TASK });
+
+    await taskFactory({ stageId: taskStage._id });
+    await taskFactory({ stageId: taskStage._id });
+    await taskFactory({ stageId: taskStage._id });
+
+    await graphqlRequest(mutation, 'taskUpdateTimeTracking', {
+      _id: task._id,
+      status: TIME_TRACK_TYPES.STARTED,
+      timeSpent: 10,
+      startDate: new Date().toISOString(),
+    });
+
+    const updatedTask = await Tasks.findOne({ _id: task._id });
+
+    if (updatedTask && updatedTask.timeTrack) {
+      expect(updatedTask.timeTrack.status).toBe(TIME_TRACK_TYPES.STARTED);
+      expect(updatedTask.timeTrack.timeSpent).toBe(10);
+    }
   });
 });
