@@ -84,9 +84,9 @@ jobs:
         docker push erxes/erxes-elksyncer:${GITHUB_REF#refs/tags/}
 
     - name: Email Verifier - Install dependencies
-        run: |
-          cd email-verifier
-          yarn install --production
+      run: |
+        cd email-verifier
+        yarn install --production
 
     - name: Email Verifier - Build
       run: |
