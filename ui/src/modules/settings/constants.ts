@@ -234,3 +234,41 @@ export const EMPTY_CONTENT_CONTACTS = {
     }
   ]
 };
+
+export const EMPTY_CONTENT_DEAL_PIPELINE = {
+  title: "Getting Started with Sales Pipeline",
+  description: "Drive leads to a successful close with our Kanban-style boards",
+  steps: [
+    {
+      title: "Create your first Sales Board",
+      description: "Tip: This could be equivalent to your brands and/or you can organize by year/project/etc.",
+      url: "/settings/boards/deal#showBoardModal=true",
+      urlText: "Create a Board"
+    },
+    {
+      title: "Start adding Pipelines to the Board",
+      description: "Tip: This could be a bit more granular than the Board and/or you can organize by period/project/etc.",
+      urlText: "Create a Pipeline",
+      url: "/settings/boards/deal#showPipelineModal=true"
+    }
+  ]
+};
+
+export const EMPTY_CONTENT_TASK_PIPELINE = {
+  title: "Getting Started with Sales Pipeline",
+  description: "Drive leads to a successful close with our Kanban-style boards",
+  steps: [
+    {
+      title: "Create your first Task Board",
+      description: "Tip: This could be equivalent to your departments and/or you can organize by year/project/etc.",
+      url: "/settings/boards/task#showBoardModal=true",
+      urlText: "Create a Board"
+    },
+    {
+      title: "Start adding Pipelines to the Board",
+      description: "Tip: This could be a bit more granular than the Board and/or you can organize by period/project/etc.",
+      urlText: "Create a Pipeline",
+      url: "/settings/boards/task#showPipelineModal=true"
+    }
+  ]
+};
