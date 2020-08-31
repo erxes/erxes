@@ -16,8 +16,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: Build base docker image
       env:
-        BASE_IMAGE: node:12.16.3-slim
-        TAG_VERSION: base-12.16.3-slim
+        BASE_IMAGE: node:12.18.3-slim
+        TAG_VERSION: base-12.18.3-slim
       run: |
         echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
         DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes-api:$TAG_VERSION -f base.Dockerfile .
