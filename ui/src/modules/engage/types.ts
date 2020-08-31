@@ -30,8 +30,9 @@ export interface IEngageEmail {
 }
 
 export interface IEngageSms {
-  from: string;
+  from?: string;
   content: string;
+  fromIntegrationId: string;
 }
 
 export interface IEngageStats {

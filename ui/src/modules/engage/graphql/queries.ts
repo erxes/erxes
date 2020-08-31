@@ -53,6 +53,7 @@ const commonFields = `
   shortMessage {
     from
     content
+    fromIntegrationId
   }
 `;
 

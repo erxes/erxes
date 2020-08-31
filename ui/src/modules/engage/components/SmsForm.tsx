@@ -1,4 +1,3 @@
-import { IUser } from 'modules/auth/types';
 import EmptyState from 'modules/common/components/EmptyState';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
@@ -37,9 +36,9 @@ type Props = {
   messageKind: string;
   scheduleDate: IEngageScheduleDate;
   shortMessage?: IEngageSms;
-  users: IUser[];
   fromUserId: string;
   smsConfig: any;
+  integrations: any;
 };
 
 type State = {
@@ -48,6 +47,7 @@ type State = {
   titleCount: number;
   message: string;
   title: string;
+  fromIntegrationId: string;
 };
 
 class MessengerForm extends React.Component<Props, State> {
@@ -59,7 +59,8 @@ class MessengerForm extends React.Component<Props, State> {
       characterCount: this.calcCharacterCount(160, this.getContent('content')),
       titleCount: this.calcCharacterCount(15, this.getContent('from')),
       message: this.getContent('content'),
-      title: this.getContent('from')
+      title: this.getContent('from'),
+      fromIntegrationId: this.getContent('fromIntegrationId')
     };
   }
 
@@ -105,15 +106,15 @@ class MessengerForm extends React.Component<Props, State> {
   }
 
   fromSelectOptions = () => {
-    const { users } = this.props;
+    const { integrations } = this.props;
     const options: any[] = [];
 
-    users.map(user =>
+    integrations.map(i =>
       options.push({
-        value: user._id,
-        label: user.details && user.details.operatorPhone,
-        name: (user.details && user.details.fullName) || user.username,
-        disabled: !(user.details && user.details.operatorPhone)
+        value: i._id,
+        label: i.name,
+        phoneNumber: i.phoneNumber,
+        disabled: !i.isActive
       })
     );
 
@@ -122,13 +123,19 @@ class MessengerForm extends React.Component<Props, State> {
 
   fromOptionRenderer = option => (
     <div>
-      <strong>{option.name}</strong> <i>{option.label}</i>
+      <strong>{option.label}</strong> (<i>{option.phoneNumber}</i>)
     </div>
   );
 
   render() {
-    const { fromUserId, onChange, shortMessage, smsConfig } = this.props;
-    const { message, title, titleCount, characterCount } = this.state;
+    const { shortMessage, smsConfig } = this.props;
+    const {
+      message,
+      title,
+      titleCount,
+      characterCount,
+      fromIntegrationId
+    } = this.state;
 
     const onChangeTitle = e =>
       this.onChangeSms('from', (e.target as HTMLInputElement).value);
@@ -137,12 +144,15 @@ class MessengerForm extends React.Component<Props, State> {
       this.onChangeSms('content', (e.target as HTMLInputElement).value);
 
     const onChangeFrom = (value: ISelectedOption) => {
-      const userId = value ? value.value : '';
-      onChange('fromUserId', userId);
+      const integrationId = value ? value.value : '';
+
+      this.setState({ fromIntegrationId: integrationId });
+      this.onChangeSms('fromIntegrationId', integrationId);
     };
 
     const onChangeFromContent = e => {
       const from = (e.target as HTMLInputElement).value;
+
       this.setState({
         title: from,
         titleCount: this.calcCharacterCount(15, from)
@@ -160,7 +170,7 @@ class MessengerForm extends React.Component<Props, State> {
     if (!smsConfig) {
       return (
         <EmptyState
-          text="SMS integration is not configured. It must be configured to send SMS engage message."
+          text="SMS integration is not configured. Go to Settings > System config > Integrations config and set Telnyx SMS API key."
           image="/images/actions/21.svg"
         />
       );
@@ -172,8 +182,8 @@ class MessengerForm extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>From:</ControlLabel>
             <Select
-              placeholder={__('Choose user')}
-              value={fromUserId}
+              placeholder={__('Choose phone number')}
+              value={fromIntegrationId}
               onChange={onChangeFrom}
               options={this.fromSelectOptions()}
               optionRenderer={this.fromOptionRenderer}

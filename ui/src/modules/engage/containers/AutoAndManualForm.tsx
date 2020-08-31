@@ -4,11 +4,12 @@ import { IUser } from 'modules/auth/types';
 import { withProps } from 'modules/common/utils';
 import { AddMutationResponse } from 'modules/segments/types';
 import { IBrand } from 'modules/settings/brands/types';
+import { EmailTemplatesQueryResponse } from 'modules/settings/emailTemplates/containers/List';
 import { queries } from 'modules/settings/emailTemplates/graphql';
 import { queries as integrationQueries } from 'modules/settings/integrations/graphql';
+import { IntegrationsQueryResponse } from 'modules/settings/integrations/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { EmailTemplatesQueryResponse } from '../../settings/emailTemplates/containers/List';
 import AutoAndManualForm from '../components/AutoAndManualForm';
 import FormBase from '../components/FormBase';
 import { IEngageMessageDoc, IEngageScheduleDate } from '../types';
@@ -24,6 +25,8 @@ type Props = {
 type FinalProps = {
   emailTemplatesQuery: EmailTemplatesQueryResponse;
   integrationConfigsQuery: any;
+  externalIntegrationsQuery: any;
+  integrationsQuery: any;
   users: IUser[];
   isActionLoading: boolean;
   save: (doc: IEngageMessageDoc) => Promise<any>;
@@ -32,17 +35,47 @@ type FinalProps = {
   AddMutationResponse;
 
 const AutoAndManualFormContainer = (props: FinalProps) => {
-  const { emailTemplatesQuery, integrationConfigsQuery } = props;
-  const integrations = integrationConfigsQuery.integrationsFetchApi || [];
+  const {
+    emailTemplatesQuery,
+    integrationConfigsQuery,
+    externalIntegrationsQuery,
+    integrationsQuery
+  } = props;
 
-  if (emailTemplatesQuery.loading) {
+  if (
+    emailTemplatesQuery.loading ||
+    integrationConfigsQuery.loading ||
+    externalIntegrationsQuery.loading ||
+    integrationsQuery.loading
+  ) {
     return null;
+  }
+
+  const configs = integrationConfigsQuery.integrationsFetchApi || [];
+  const externalIntegrations =
+    externalIntegrationsQuery.integrationsFetchApi || [];
+  const integrations = integrationsQuery.integrations || [];
+
+  const mappedIntegrations: any[] = [];
+
+  for (const ext of externalIntegrations) {
+    const locals = integrations.filter(i => i._id === ext.erxesApiId);
+
+    for (const local of locals) {
+      mappedIntegrations.push({
+        _id: local._id,
+        name: local.name,
+        phoneNumber: ext.telnyxPhoneNumber,
+        isActive: local.isActive
+      });
+    }
   }
 
   const updatedProps = {
     ...props,
     templates: emailTemplatesQuery.emailTemplates || [],
-    smsConfig: integrations.find(i => i.code === 'TELNYX_API_KEY') && null
+    smsConfig: configs.find(i => i.code === 'TELNYX_API_KEY'),
+    integrations: mappedIntegrations
   };
 
   const content = formProps => (
@@ -80,6 +113,25 @@ export default withProps<Props>(
           params: {}
         }
       })
-    })
+    }),
+    graphql(gql(integrationQueries.fetchApi), {
+      name: 'externalIntegrationsQuery',
+      options: () => ({
+        variables: { path: '/integrations', params: { kind: 'telnyx' } },
+        fetchPolicy: 'network-only'
+      })
+    }),
+    graphql<Props, IntegrationsQueryResponse>(
+      gql(integrationQueries.integrations),
+      {
+        name: 'integrationsQuery',
+        options: () => {
+          return {
+            variables: { kind: 'telnyx' },
+            fetchPolicy: 'network-only'
+          };
+        }
+      }
+    )
   )(withTemplatesQuery)
 );
