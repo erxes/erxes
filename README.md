@@ -43,7 +43,7 @@
 
 <img src="https://s3.amazonaws.com/erxes/github/features-transparent.png" width="400" align="right" style="max-width: 50%">
 
-erxes helps you attract and engage more customers while giving you high lead conversion. With erxes, all your marketing, sales, and customer service tools are merged into one platform for greater output.
+Erxes helps you attract and engage more customers while giving you high lead conversion. With erxes, all your marketing, sales, and customer service tools are merged into one platform for greater output.
 
 * **Growth Hacking:** Managing your entire growth operation made easy. From ideas to actual performance, making sure everything is recorded, prioritized, and centralized in the single platform to get tested with a pool of analysis and learnings, which made the growing as pleasure.
 * **Email & SMS Marketing:** Reach your customer with personalized messaging. Keeping your customers hooked is a challenge. Start converting your prospects into potential customers through email, SMS, Live chat, and In-app-messaging or more interactions to drive them to a successful close. You can connect to your customers in a whole new way with Erxes!
@@ -57,7 +57,7 @@ erxes helps you attract and engage more customers while giving you high lead con
 * **Task Management:** Work More Collaboratively and Get More Done. Save time, manage your projects, monitor your team and increase your productivity in just a few clicks. Erxes helps to turn chaos into clarity and make everything perfect. 
 ## Documentation
   * <a href="https://docs.erxes.io/installation/docker">Install erxes</a> <br>
-  * <a href="https://docs.erxes.io">erxes documentation</a> <br>
+  * <a href="https://docs.erxes.io">Erxes documentation</a> <br>
   * <a href="https://docs.erxes.io/developer/contributing">Contributing to erxes</a> <br>
   
 ## Deployment
