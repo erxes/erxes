@@ -1,4 +1,4 @@
-FROM node:12.16-slim
+FROM node:12.18-slim
 WORKDIR /erxes-logger/
 RUN chown -R node:node /erxes-logger
 COPY --chown=node:node . /erxes-logger
