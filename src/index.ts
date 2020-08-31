@@ -68,6 +68,7 @@ const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
 const WIDGETS_DOMAIN = getSubServiceDomain({ name: 'WIDGETS_DOMAIN' });
 const DASHBOARD_DOMAIN = getSubServiceDomain({ name: 'DASHBOARD_DOMAIN' });
 const INTEGRATIONS_API_DOMAIN = getSubServiceDomain({ name: 'INTEGRATIONS_API_DOMAIN' });
+const CLIENT_PORTAL_DOMAIN = getSubServiceDomain({ name: 'CLIENT_PORTAL_DOMAIN' });
 
 const app = express();
 
@@ -82,7 +83,7 @@ app.use(cookieParser());
 
 const corsOptions = {
   credentials: true,
-  origin: [MAIN_APP_DOMAIN, WIDGETS_DOMAIN, DASHBOARD_DOMAIN],
+  origin: [MAIN_APP_DOMAIN, WIDGETS_DOMAIN, DASHBOARD_DOMAIN, CLIENT_PORTAL_DOMAIN],
 };
 
 app.use(cors(corsOptions));
