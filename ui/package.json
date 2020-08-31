@@ -18,6 +18,7 @@
     "ckeditor4-react": "^1.0.0",
     "classnames": "^2.2.5",
     "color": "^3.1.2",
+    "date-fns": "1.29.0",
     "dayjs": "^1.8.15",
     "draft-js": "^0.10.5",
     "draft-js-anchor-plugin": "^2.0.2",
@@ -44,6 +45,7 @@
     "react-dom": "^16.11.0",
     "react-markdown": "^3.3.0",
     "react-router-dom": "^5.1.2",
+    "react-scripts": "^3.0.1",
     "react-select-plus": "^1.0.0-rc.5",
     "react-toggle": "^4.1.1",
     "react-transition-group": "^2.5.1",
@@ -55,7 +57,6 @@
     "subscriptions-transport-ws": "^0.9.16",
     "ua-parser-js": "^0.7.17",
     "validator": "^12.1.0",
-    "react-scripts": "^3.0.1",
     "xss": "^1.0.3"
   },
   "lint-staged": {
