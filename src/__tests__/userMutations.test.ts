@@ -161,6 +161,7 @@ describe('User mutations', () => {
 
   test('Create owner (Subscribe email)', async () => {
     process.env.HTTPS = 'false';
+    process.env.NODE_ENV = 'production';
 
     await Users.deleteMany({});
 
@@ -187,6 +188,7 @@ describe('User mutations', () => {
     );
 
     mock.restore();
+    process.env.NODE_ENV = 'test';
 
     expect(response).toBe('loggedIn');
   });

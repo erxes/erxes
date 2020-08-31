@@ -26,13 +26,15 @@ const sendElkRequest = (data, index: string) => {
 };
 
 const init = () => {
-  Customers.watch().on('change', data => {
-    sendElkRequest(data, 'customers');
-  });
+  if ((process.env.MONGO_URL || '').includes('replicaSet')) {
+    Customers.watch().on('change', data => {
+      sendElkRequest(data, 'customers');
+    });
 
-  Companies.watch().on('change', data => {
-    sendElkRequest(data, 'companies');
-  });
+    Companies.watch().on('change', data => {
+      sendElkRequest(data, 'companies');
+    });
+  }
 };
 
 export default init;

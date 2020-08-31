@@ -541,6 +541,7 @@ export const moduleObjects = {
           'tasksRemove',
           'tasksWatch',
           'tasksArchive',
+          'taskUpdateTimeTracking',
           'exportTasks',
         ],
       },
@@ -611,6 +612,10 @@ export const moduleObjects = {
       {
         name: 'tasksArchive',
         description: 'Archive all tasks in a specific stage',
+      },
+      {
+        name: 'taskUpdateTimeTracking',
+        description: 'Update time tracking for a task',
       },
       {
         name: 'exportTasks',
