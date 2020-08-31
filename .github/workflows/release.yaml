@@ -6,7 +6,7 @@ on:
       - '*'
 
 jobs:
-  ui:
+  release:
     runs-on: ubuntu-18.04
 
     steps:
@@ -38,7 +38,7 @@ jobs:
     - name: UI - Install dependencies
       run: |
         cd ui
-        yarn install --production
+        yarn install
 
     - name: UI - Lint
       run: |
@@ -53,6 +53,8 @@ jobs:
     - name: UI - Build
       run: |
         cd ui
+        rm -rf node_modules
+        yarn install --production
         yarn build
 
     - name: UI - Build docker image
@@ -68,7 +70,7 @@ jobs:
     - name: Widgets - Install dependencies
       run: |
         cd widgets
-        yarn install --production
+        yarn install
 
     - name: Widgets - Lint
       run: |
@@ -78,6 +80,8 @@ jobs:
     - name: Widgets - Build
       run: |
         cd widgets
+        rm -rf node_modules
+        yarn install --production
         yarn build
 
     - name: Widgets - Build docker image

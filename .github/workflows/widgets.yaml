@@ -7,8 +7,6 @@ on:
     paths:
       - "widgets/**"
       - ".github/workflows/widgets.yaml"
-    tags:
-      - "*"
   pull_request:
     branches:
       - master
@@ -43,10 +41,10 @@ jobs:
             ${{ runner.os }}-yarn-widgets-
             ${{ runner.os }}-yarn-
 
-      - name: Install
+      - name: Install dependencies
         run: |
           cd widgets
-          yarn install --production
+          yarn install
 
       - name: Lint
         run: |
@@ -56,6 +54,8 @@ jobs:
       - name: Build
         run: |
           cd widgets
+          rm -rf node_modules
+          yarn install --production
           yarn build
 
       - name: Build docker image
