@@ -10,6 +10,7 @@ export const PageHeader = styled.div`
   background: ${colors.colorWhite};
   box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
   min-height: 50px;
+  z-index: 2;
 
   @media (max-width: 768px) {
     min-height: auto;
