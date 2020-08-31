@@ -101,6 +101,10 @@ const engageMessageStats = `
       ${engageDetailFields}
       stats
       logs
+
+      fromIntegration {
+        name
+      }
     }
   }
 `;
