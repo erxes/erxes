@@ -190,7 +190,7 @@ class CustomersList extends React.Component<IProps, State> {
       </Button>
     );
 
-    const editColumns = <a href="#edit">{__('Edit columns')}</a>;
+    const editColumns = <a href="#edit">{__('Choose Properties/View')}</a>;
 
     const dateFilter = queryParams.form && (
       <DateFilter queryParams={queryParams} history={history} />
@@ -258,12 +258,12 @@ class CustomersList extends React.Component<IProps, State> {
             </li>
             <li>
               <Link to="/settings/properties?type=customer">
-                {__('Properties')}
+                {__('Manage properties')}
               </Link>
             </li>
             <li>
               <a href="#export" onClick={exportData.bind(this, bulk)}>
-                {type === 'lead' ? __('Export leads') : __('Export customers')}
+                {type === 'lead' ? __('Export leads') : __('Export contacts')}
               </a>
             </li>
             <li>
