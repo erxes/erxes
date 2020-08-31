@@ -50,7 +50,7 @@ jobs:
           ${{ runner.os }}-yarn-ui-
           ${{ runner.os }}-yarn-
 
-    - name: Install
+    - name: Install dependencies
       run: |
         cd ui
         yarn install
