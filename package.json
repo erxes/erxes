@@ -102,14 +102,6 @@
     "xlsx-populate": "^1.20.1",
     "xlsx-stream-reader": "^1.1.0",
     "xss": "^1.0.6",
-    "yarn": "^1.22.4"
-  },
-  "peerOptionalDependencies": {
-    "kerberos": "^1.0.0"
-  },
-  "devDependencies": {
-    "@types/json2csv": "^5.0.1",
-    "@types/mongoose": "^5.5.32",
     "@types/cors": "^2.8.4",
     "@types/dotenv": "^4.0.3",
     "@types/express": "^4.17.6",
@@ -117,9 +109,16 @@
     "@types/graphql": "^14.0.3",
     "@types/ioredis": "^3.2.15",
     "@types/jest": "^24.0.21",
+    "@types/json2csv": "^5.0.1",
     "@types/mongodb": "^3.1.2",
+    "@types/mongoose": "^5.5.32",
     "@types/request": "^2.47.1",
-    "@types/underscore": "^1.8.9",
+    "@types/underscore": "^1.8.9"
+  },
+  "peerOptionalDependencies": {
+    "kerberos": "^1.0.0"
+  },
+  "devDependencies": {
     "husky": "^0.13.4",
     "jest": "^24.9",
     "jest-tobetype": "^1.1.0",
