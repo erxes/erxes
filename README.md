@@ -2,7 +2,7 @@
  <img src="docs/static/img/logo_dark.svg" alt="erxes logo" width="20%" />
 </p>
 
-<p align="center">erxes is a free and open fair-code licensed all-in-one growth marketing & management software. We offer an all-in-one solution for sales, marketing, and customer service teams, with a focus on the entire customer experience. Replace Hubspot with the mission and community-driven ecosystem.</p>
+<p align="center">Erxes is a free and open fair-code licensed all-in-one growth marketing & management software. We offer an all-in-one solution for sales, marketing, and customer service teams, with a focus on the entire customer experience. Replace Hubspot with the mission and community-driven ecosystem.</p>
 
 <p align="center"><a href="https://demo.erxes.io/">Live demo</a> <b>| </b> <a href="https://community.erxes.io/register/Gw4WRJnk9fSbyAXTq">Join our community</a></p>
 
@@ -43,18 +43,27 @@
 
 <img src="https://s3.amazonaws.com/erxes/github/features-transparent.png" width="400" align="right" style="max-width: 50%">
 
-erxes helps you attract and engage more customers while giving you high lead conversion. With erxes, all your marketing, sales, and customer service tools are merged into one platform for greater output.
+erxes helps you attract and engage more customers while giving you high lead conversions. With erxes, all your marketing, sales, and customer service tools are merged into one platform for greater output.
 
-* **Growth Hacking:** Managing your entire growth operation made easy. From ideas to actual performance, making sure everything recorded, prioritized, and centralized in the single platform to get tested with a pool of analysis and learnings, which made the growing as pleasure.
-* **Email & SMS Marketing:** Reach your customer with personalized messaging. Keeping your customers hooked is a challenge. Start converting your prospects into potential customers through email, SMS, Live chat, and In-app-messaging or more interactions to drive them to a successful close. You can connect to your customers in a whole new way with Erxes!
-* **Pop-ups & Forms:** Create Stylish Pop-ups and Forms that Bring Leads. Turn regular visitors into qualified leads by capturing them with a customizable pop-ups, forms, and embedded placements. Erxes helps you to create stylish and contextual pop-ups, banners and bars fit all your marketing needs.
-* **Sales Pipeline:** Track your entire sales pipeline from one dashboard. All your customer information and sales process in one board to follow up flawlessly. Have your sales managers to know everything needed to deliver increased levels of personalization before they contact customers.
+* **Growth Hacking:** Managing your entire growth operation made easy. From ideas to actual performance, making sure everything is recorded, prioritized, and centralized in the single platform to get tested with a pool of analysis and learnings, which makes the growing as pleasure.
+
+* **Email & SMS Marketing:** Reach your customer with personalized messaging. Keeping your customers hooked to you is a challenge. Start converting your prospects into potential customers through email, SMS, Live chat, and In-app-messaging or more interactions to drive them to you. You can connect to your customers in a whole new way with Erxes!
+
+* **Pop-ups & Forms:** Create Stylish Pop-ups and Forms that Bring Leads. Turn regular visitors into qualified leads by capturing them with customizable pop-ups, forms, and embedded placements. Erxes helps you to create stylish and contextual pop-ups, banners and bars to fit all your marketing needs.
+
+* **Sales Pipeline:** Track your entire sales pipeline from one dashboard. All your customer information and sales process in on board to follow up flawlessly. Have your sales managers to know everything needed to deliver increased levels of personalization before they contact customers.
+
 * **Contact Management:** Manage Visitors, Customers, and Companies. Access our all-in-one CRM system in one go so that it’s easier to coordinate and manage your contacts and interactions with your customers. Erxes Contacts provides whole segmentation tools for you to work more efficiently.
+
 * **Lead Scoring:** Identify and Target Sales-Ready Leads.
-* **Shared Team Inbox:** Communicate faster and easier with your customers via one truly omnichannel platform. Combine real-time client and team communication with in-app messaging, live chat, email and form, so your customers can reach you however and wherever they want. 
+
+* **Shared Team Inbox:** Communicate faster with your customers via one truly omnichannel platform. Combine real-time client and team communication with in-app messaging, live chat, email and form, so your customers can reach you whenever and wherever they want. 
+
 * **Messenger:** Talk to Your Customers in Continuous Omnichannel Conversations. Enable businesses to capture every single customer feedback and communicate in real-time. You can educate your customers through knowledge-base from the erxes Messenger.
+
 * **Knowledge base:** Create Help Articles for Customer Self-service. Educate both your customers, and staff by creating a help center related to your brands, products and services to reach a higher level of satisfaction.
-* **Task Management:** Work More Collaboratively and Get More Done. Save time, manage your projects, monitor your team and increase your productivity in just a few clicks. Erxes helps to turn chaos into clarity and make everything perfect. 
+
+* **Task Management:** Work More Collaboratively and Get More Done. Save time, manage your projects, monitor your team and increase your productivity in just a few clicks. Erxes helps to turn chaos into clarity and make your projects perfect. 
 ## Documentation
   * <a href="https://docs.erxes.io/installation/docker">Install erxes</a> <br>
   * <a href="https://docs.erxes.io">erxes documentation</a> <br>
