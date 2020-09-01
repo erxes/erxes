@@ -38,6 +38,6 @@ body {
 }
 
 .recharts-default-tooltip {
-  border-radius: 4px;
+  border-radius: 5px;
   text-transform: capitalize;
 }
