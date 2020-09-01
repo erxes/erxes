@@ -5,6 +5,7 @@ import ControlLabel from 'modules/common/components/form/Label';
 import colors from 'modules/common/styles/colors';
 import { ISelectedOption } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import { IIntegrationWithPhone } from 'modules/engage/types';
 import React from 'react';
 import Select from 'react-select-plus';
 import styled from 'styled-components';
@@ -30,7 +31,7 @@ const ButtonWrapper = styled(SMSInfo)`
 
 type Props = {
   sendSms: (integrationId: string, message: string, to: string) => any;
-  integrations: any;
+  integrations: IIntegrationWithPhone[];
   primaryPhone: string;
 };
 

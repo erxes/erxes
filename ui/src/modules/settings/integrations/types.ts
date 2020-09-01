@@ -380,3 +380,13 @@ export type ProviderFormInput = (
     | string,
   value: string | number
 ) => void;
+
+export type SendSmsMutationVariables = {
+  integrationId: string;
+  content: string;
+  to: string;
+};
+
+export type SendSmsMutationResponse = (
+  { variables: SendSmsMutationVariables }
+) => Promise<any>;

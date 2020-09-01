@@ -3,7 +3,10 @@ import * as compose from 'lodash.flowright';
 import Spinner from 'modules/common/components/Spinner';
 import { Alert, withProps } from 'modules/common/utils';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
-import { IntegrationsQueryResponse } from 'modules/settings/integrations/types';
+import {
+  IntegrationsQueryResponse,
+  SendSmsMutationResponse
+} from 'modules/settings/integrations/types';
 import * as React from 'react';
 import { graphql } from 'react-apollo';
 import SmsForm from '../../components/telnyx/SmsForm';
@@ -14,7 +17,7 @@ type Props = {
 };
 
 type FinalProps = {
-  sendSmsMutation: any;
+  sendSmsMutation: SendSmsMutationResponse;
   integrationsFetchApiQuery: any;
   integrationsQuery: IntegrationsQueryResponse;
 } & Props;
@@ -27,7 +30,7 @@ const SmsFormContainer = (props: FinalProps) => {
     sendSmsMutation
   } = props;
 
-  if (integrationsFetchApiQuery.loading || integrationsFetchApiQuery.loading) {
+  if (integrationsFetchApiQuery.loading || integrationsQuery.loading) {
     return <Spinner objective={true} />;
   }
 
