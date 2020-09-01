@@ -13,7 +13,7 @@ import {
 
 type Props = {
   content: React.ReactNode;
-  type?: string;
+  description?: React.ReactNode;
 };
 
 class AuthLayout extends React.Component<Props, {}> {
@@ -49,29 +49,28 @@ class AuthLayout extends React.Component<Props, {}> {
   }
 
   renderDesciption() {
-    const { type } = this.props;
+    const { description } = this.props;
+    console.log(description);
+
+    if (description) {
+      return (
+        <>
+          <img src="/images/logo.png" alt="erxes" />
+          {description}
+        </>
+      );
+    }
 
     return (
       <>
         <img src="/images/logo.png" alt="erxes" />
-        <h1>
-          {type === 'setup'
-            ? __('Welcome to erxes')
-            : __('Open Source Growth Marketing Platform')}
-        </h1>
-        {type === 'setup' && (
-          <h2>Erxes is the partner your website needs for success</h2>
-        )}
+        <h1>{__('Open Source Growth Marketing Platform')}</h1>
         <p>
-          {type === 'setup'
-            ? __(
-                'You will configure several settings on this page. You will be able to change these settings in the erxes settings tab. You will be creating the top level administrator account profile. Please complete all the data in Initial Configuration Steps.'
-              )
-            : __(
-                'Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot with the mission and community-driven ecosystem.'
-              )}
+          {__(
+            'Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot with the mission and community-driven ecosystem.'
+          )}
         </p>
-        {type !== 'setup' && <a href="/">« {__('Go to home page')}</a>}
+        <a href={__('Homepage link')}>« {__('Go to home page')}</a>
       </>
     );
   }

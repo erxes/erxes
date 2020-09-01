@@ -1,6 +1,7 @@
 import Button from 'modules/common/components/Button';
 import { FormControl, FormGroup } from 'modules/common/components/form';
-import { Alert } from 'modules/common/utils';
+import Icon from 'modules/common/components/Icon';
+import { __, Alert } from 'modules/common/utils';
 import { PasswordWithEye } from 'modules/layout/styles';
 import React from 'react';
 import { useState } from 'react';
@@ -10,6 +11,20 @@ import { IOwner } from '../types';
 type Props = {
   createOwner: (arg: IOwner) => void;
 };
+
+export const OwnerDescription = () => {
+  return (
+    <>
+      <h1>{__('Welcome to erxes')}</h1>
+      <h2>{__('Erxes is the partner your website needs for success')}</h2>
+      <p>
+        {__(
+          'You will configure several settings on this page. You will be able to change these settings in the erxes settings tab. You will be creating the top level administrator account profile. Please complete all the data in Initial Configuration Steps.'
+        )}
+      </p>
+    </>
+  )
+}
 
 const OwnerSetup = (props: Props) => {
   const { createOwner } = props;
@@ -82,9 +97,9 @@ const OwnerSetup = (props: Props) => {
   };
 
   return (
-    <AuthBox type="setup">
-      <h2 className="initialConfig">Initial Configuration Steps</h2>
-      <p>Please fill out the following form to complete your installation.</p>
+    <AuthBox>
+      <h2>{__('Initial Configuration Steps')}</h2>
+      <p>{__('Please fill out the following form to complete your installation')}.</p>
       <form onSubmit={handleSubmit}>
         <FormGroup>
           <FormControl
@@ -102,10 +117,9 @@ const OwnerSetup = (props: Props) => {
             onChange={handleLastName}
           />
         </FormGroup>
+        <br/>
         <p>
-          Please input the best email address to use as your login and to
-          receive emails from your installation such as notifications, alerts
-          and other messages.
+          {__('Please input the best email address to use as your login and to receive emails from your installation such as notifications, alerts and other messages')}.
         </p>
         <FormGroup>
           <FormControl
@@ -124,22 +138,16 @@ const OwnerSetup = (props: Props) => {
               onChange={handlePassword}
             />
 
-            <i
-              onClick={toggleShowPassword}
-              className={
-                showPassword
-                  ? 'icon-eye-slash showPassword'
-                  : 'icon-eye showPassword'
-              }
+            <Icon 
+              onClick={toggleShowPassword} 
+              size={16}
+              icon={showPassword ? 'eye-slash' : 'eye'}
             />
-
-            <div className="clearfix" />
           </PasswordWithEye>
         </FormGroup>
+        <br/>
         <p>
-          You must check below to receive information about upgrades and
-          upgrading instructions, new tutorials, occasional requests for
-          feedback and the monthly newsletter.{' '}
+          {__('You must check below to receive information about upgrades and upgrading instructions, new tutorials, occasional requests for feedback and the monthly newsletter')}.
         </p>
 
         <FormGroup>
@@ -149,7 +157,7 @@ const OwnerSetup = (props: Props) => {
             checked={subscribeEmail}
             onChange={toggleSubscribeEmail}
           >
-            Yes, I want in. I know I can unsubscribe easily at any time.
+            {__('Yes, I want in. I know I can unsubscribe easily at any time')}.
           </FormControl>
         </FormGroup>
         <Button btnStyle="success" type="submit" block={true}>
