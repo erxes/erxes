@@ -40,12 +40,6 @@ class ReplyingMessage extends React.Component<Props, State> {
     });
   };
 
-  getContent = () => {
-    const { currentUserName } = this.props;
-
-    return `@${currentUserName} `;
-  };
-
   doAction = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -78,7 +72,6 @@ class ReplyingMessage extends React.Component<Props, State> {
             autoFocus={true}
             componentClass="textarea"
             onChange={this.onContentChange}
-            defaultValue={this.getContent()}
             required={true}
             onFocus={this.moveCursorAtTheEnd}
           />
