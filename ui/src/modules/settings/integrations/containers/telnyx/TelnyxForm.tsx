@@ -1,10 +1,11 @@
-import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
-import { mutations } from 'modules/settings/integrations/graphql';
-
 import ButtonMutate from 'modules/common/components/ButtonMutate';
+import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import TelnyxForm from 'modules/settings/integrations/components/telnyx/TelnyxForm';
+import { mutations } from 'modules/settings/integrations/graphql';
 import React from 'react';
 import { withRouter } from 'react-router';
+import { INTEGRATION_KINDS } from '../../constants';
+import { getRefetchQueries } from '../utils';
 
 type Props = {
   type?: string;
@@ -29,6 +30,7 @@ class TelnyxContainer extends React.Component<FinalProps> {
         type="submit"
         uppercase={false}
         successMessage={`You successfully added a ${name}`}
+        refetchQueries={getRefetchQueries(INTEGRATION_KINDS.TELNYX)}
       />
     );
   };
