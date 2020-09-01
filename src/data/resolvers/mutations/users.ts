@@ -113,7 +113,7 @@ const userMutations = {
 
     const link = `${MAIN_APP_DOMAIN}/reset-password?token=${token}`;
 
-    utils.sendEmail({
+    await utils.sendEmail({
       toEmails: [email],
       title: 'Reset password',
       template: {
