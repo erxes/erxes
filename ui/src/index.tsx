@@ -5,6 +5,7 @@ import localizedFormat from 'dayjs/plugin/localizedFormat';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import utc from 'dayjs/plugin/utc';
 import 'erxes-icon/css/erxes.min.css';
+import { OwnerDescription } from 'modules/auth/components/OwnerSetup';
 import OwnerSetup from 'modules/auth/containers/OwnerSetup';
 // global style
 import 'modules/common/styles/global-styles.ts';
@@ -31,7 +32,7 @@ fetch(`${envs.REACT_APP_API_URL}/initial-setup?envs=${JSON.stringify(envs)}`, {
     let body = <Routes />;
 
     if (res === 'no owner') {
-      body = <AuthLayout content={<OwnerSetup />} />;
+      body = <AuthLayout content={<OwnerSetup />} description={<OwnerDescription />} />;
     }
 
     return render(

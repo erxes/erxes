@@ -5,8 +5,9 @@ import { IEmailSignature } from 'modules/settings/email/types';
 export interface IOwner {
   email: string;
   password: string;
-  passwordConfirmation: string;
-  subscribeEmail: boolean;
+  firstName: string;
+  lastName?: string;
+  subscribeEmail?: boolean;
 }
 
 export interface IUserDetails {
@@ -98,15 +99,6 @@ export type CurrentUserQueryResponse = {
   loading: boolean;
 };
 
-export type CreateOwnerMutationVariables = {
-  email: string;
-  password: string;
-  passwordConfirmation: string;
-  subscribeEmail: boolean;
-};
-
 export type CreateOwnerMutationResponse = {
-  createOwnerMutation: (
-    params: { variables: CreateOwnerMutationVariables }
-  ) => Promise<any>;
+  createOwnerMutation: (params: { variables: IOwner }) => Promise<any>;
 };
