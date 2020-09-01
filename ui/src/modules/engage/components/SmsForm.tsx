@@ -6,11 +6,16 @@ import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import colors from 'modules/common/styles/colors';
 import { ISelectedOption } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import { IConfig } from 'modules/settings/general/types';
 import React from 'react';
 import Select from 'react-select-plus';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { IEngageScheduleDate, IEngageSms } from '../types';
+import {
+  IEngageScheduleDate,
+  IEngageSms,
+  IIntegrationWithPhone
+} from '../types';
 import Scheduler from './Scheduler';
 import SmsPreview from './SmsPreview';
 
@@ -37,8 +42,8 @@ type Props = {
   scheduleDate: IEngageScheduleDate;
   shortMessage?: IEngageSms;
   fromUserId: string;
-  smsConfig: any;
-  integrations: any;
+  smsConfig: IConfig;
+  integrations: IIntegrationWithPhone[];
 };
 
 type State = {
@@ -48,6 +53,13 @@ type State = {
   message: string;
   title: string;
   fromIntegrationId: string;
+};
+
+type IOption = {
+  value: string;
+  label: string;
+  phoneNumber: string;
+  disabled: boolean;
 };
 
 class MessengerForm extends React.Component<Props, State> {
@@ -107,7 +119,7 @@ class MessengerForm extends React.Component<Props, State> {
 
   fromSelectOptions = () => {
     const { integrations } = this.props;
-    const options: any[] = [];
+    const options: IOption[] = [];
 
     integrations.map(i =>
       options.push({

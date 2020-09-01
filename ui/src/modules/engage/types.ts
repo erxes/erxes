@@ -248,3 +248,10 @@ export type EngageConfigQueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
+
+export interface IIntegrationWithPhone {
+  _id: string;
+  name: string;
+  phoneNumber: string;
+  isActive: boolean;
+}

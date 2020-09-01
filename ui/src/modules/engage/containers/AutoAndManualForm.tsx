@@ -6,13 +6,18 @@ import { AddMutationResponse } from 'modules/segments/types';
 import { IBrand } from 'modules/settings/brands/types';
 import { EmailTemplatesQueryResponse } from 'modules/settings/emailTemplates/containers/List';
 import { queries } from 'modules/settings/emailTemplates/graphql';
+import { IConfig } from 'modules/settings/general/types';
 import { queries as integrationQueries } from 'modules/settings/integrations/graphql';
 import { IntegrationsQueryResponse } from 'modules/settings/integrations/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import AutoAndManualForm from '../components/AutoAndManualForm';
 import FormBase from '../components/FormBase';
-import { IEngageMessageDoc, IEngageScheduleDate } from '../types';
+import {
+  IEngageMessageDoc,
+  IEngageScheduleDate,
+  IIntegrationWithPhone
+} from '../types';
 import withFormMutations from './withFormMutations';
 
 type Props = {
@@ -30,7 +35,7 @@ type FinalProps = {
   users: IUser[];
   isActionLoading: boolean;
   save: (doc: IEngageMessageDoc) => Promise<any>;
-  smsConfig: any;
+  smsConfig: IConfig;
 } & Props &
   AddMutationResponse;
 
@@ -56,10 +61,12 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
     externalIntegrationsQuery.integrationsFetchApi || [];
   const integrations = integrationsQuery.integrations || [];
 
-  const mappedIntegrations: any[] = [];
+  const mappedIntegrations: IIntegrationWithPhone[] = [];
 
   for (const ext of externalIntegrations) {
-    const locals = integrations.filter(i => i._id === ext.erxesApiId);
+    const locals = integrations.filter(
+      i => i._id === ext.erxesApiId && i.isActive
+    );
 
     for (const local of locals) {
       mappedIntegrations.push({

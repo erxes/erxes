@@ -12,6 +12,7 @@ import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { IBrand } from 'modules/settings/brands/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
+import { IConfig } from 'modules/settings/general/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { IBreadCrumbItem } from '../../common/types';
@@ -22,7 +23,8 @@ import {
   IEngageMessageDoc,
   IEngageMessenger,
   IEngageScheduleDate,
-  IEngageSms
+  IEngageSms,
+  IIntegrationWithPhone
 } from '../types';
 import SmsForm from './SmsForm';
 import ChannelStep from './step/ChannelStep';
@@ -45,8 +47,8 @@ type Props = {
   ) => { status: string; doc?: IEngageMessageDoc };
   renderTitle: () => string;
   breadcrumbs: IBreadCrumbItem[];
-  smsConfig: any;
-  integrations: any;
+  smsConfig: IConfig;
+  integrations: IIntegrationWithPhone[];
 };
 
 type State = {
