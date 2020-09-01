@@ -14,6 +14,10 @@ const AuthBox = styled.div`
     margin: 0 0 50px;
   }
 
+  p {
+    color: #666;
+  }
+
   input {
     padding: 0 0 6px;
     color: ${colors.colorCoreBlack};
