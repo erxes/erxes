@@ -32,11 +32,11 @@ class IntegrationConfigs extends React.Component<Props, State> {
 
     this.state = {
       configsMap: props.configsMap,
-      useNativeGmail: props.configsMap.USE_NATIVE_GMAIL === 'true' || false,
+      useNativeGmail: props.configsMap.USE_NATIVE_GMAIL === 'true' || false
     };
   }
 
-  save = (e) => {
+  save = e => {
     e.preventDefault();
 
     const { configsMap } = this.state;
@@ -158,7 +158,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
               componentClass="select"
               options={[
                 { value: '', label: '' },
-                { value: 'daily', label: 'Daily' },
+                { value: 'daily', label: 'Daily' }
               ]}
               onChange={this.onChangeInput.bind(this, 'VIDEO_CALL_TYPE')}
             />
@@ -238,6 +238,10 @@ class IntegrationConfigs extends React.Component<Props, State> {
           </Info>
           {this.renderItem('PRODUCT_BOARD_TOKEN')}
         </CollapseContent>
+
+        <CollapseContent title="Telnyx SMS">
+          {this.renderItem('TELNYX_API_KEY')}
+        </CollapseContent>
       </ContentBox>
     );
   };
@@ -256,7 +260,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Integrations config') },
+      { title: __('Integrations config') }
     ];
 
     return (

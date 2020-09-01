@@ -67,10 +67,7 @@ function Component({
               <Icon icon="arrow-to-right" />
             </Link>
             <span>{renderFullName(customer)}</span>
-            <ActionSection
-              customer={customer}
-              isSmall={true}
-            />
+            <ActionSection customer={customer} isSmall={true} />
           </SectionBodyItem>
         ))}
         {customersObj.length === 0 && (

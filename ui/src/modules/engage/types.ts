@@ -1,5 +1,6 @@
 import { IConditionsRule } from 'modules/common/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
+import { IIntegration } from 'modules/settings/integrations/types';
 import { IUser } from '../auth/types';
 import { IAttachment } from '../common/types';
 import { ISegment, ISegmentCondition, ISegmentDoc } from '../segments/types';
@@ -30,8 +31,9 @@ export interface IEngageEmail {
 }
 
 export interface IEngageSms {
-  from: string;
+  from?: string;
   content: string;
+  fromIntegrationId: string;
 }
 
 export interface IEngageStats {
@@ -108,6 +110,7 @@ export interface IEngageMessage extends IEngageMessageDoc {
   stats?: IEngageStats;
   logs?: Array<{ message: string }>;
   smsStats?: IEngageSmsStats;
+  fromIntegration?: IIntegration;
 }
 
 // mutation types
@@ -245,3 +248,10 @@ export type EngageConfigQueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
+
+export interface IIntegrationWithPhone {
+  _id: string;
+  name: string;
+  phoneNumber: string;
+  isActive: boolean;
+}

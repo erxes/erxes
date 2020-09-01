@@ -12,7 +12,6 @@ import { __, Alert } from 'modules/common/utils';
 import { Recipient, Recipients } from 'modules/engage/styles';
 import { ContentBox } from 'modules/settings/styles';
 import React from 'react';
-import { KEY_LABELS } from '../constants';
 import { IConfigsMap } from '../types';
 import { Verify } from './styles';
 
@@ -189,51 +188,6 @@ class EngageSettingsContent extends React.Component<Props, State> {
             max={140}
             name="unverifiedEmailsLimit"
             defaultValue={configsMap.unverifiedEmailsLimit || 100}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>{KEY_LABELS.TELNYX_API_KEY}</ControlLabel>
-          {<p>{__('Required for sending SMS messages')}</p>}
-          <FormControl
-            {...formProps}
-            name="telnyxApiKey"
-            defaultValue={configsMap.telnyxApiKey}
-            onChange={this.onChangeCommon.bind(this, 'telnyxApiKey')}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>{KEY_LABELS.TELNYX_PHONE}</ControlLabel>
-          {
-            <p>
-              {__(
-                'SMS sender number (The phone number you have purchased from telnyx)'
-              )}
-            </p>
-          }
-          <FormControl
-            {...formProps}
-            name="telnyxPhone"
-            defaultValue={configsMap.telnyxPhone}
-            onChange={this.onChangeCommon.bind(this, 'telnyxPhone')}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>{KEY_LABELS.TELNYX_PROFILE_ID}</ControlLabel>
-          {
-            <p>
-              {__(
-                'Required to properly display "from" number when sending international SMS. If not set, telnyx replaces "from" number to the text "Sender"'
-              )}
-            </p>
-          }
-          <FormControl
-            {...formProps}
-            name="telnyxProfileId"
-            defaultValue={configsMap.telnyxProfileId}
-            onChange={this.onChangeCommon.bind(this, 'telnyxProfileId')}
           />
         </FormGroup>
 

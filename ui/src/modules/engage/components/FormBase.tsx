@@ -1,6 +1,7 @@
 import { IBreadCrumbItem } from 'modules/common/types';
 import { __, Alert } from 'modules/common/utils';
 import React from 'react';
+import { METHODS } from '../constants';
 import { IEngageMessageDoc } from '../types';
 
 type Props = {
@@ -29,7 +30,7 @@ class FormBase extends React.Component<Props> {
       return this.sendError(__('Write a title'));
     }
 
-    if (!doc.fromUserId) {
+    if (!doc.fromUserId && doc.method !== METHODS.SMS) {
       return this.sendError(__('Choose a sender'));
     }
 

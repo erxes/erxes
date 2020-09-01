@@ -150,6 +150,10 @@ class Row extends React.Component<Props> {
       ) {
         return <Label lblStyle="success">Sent</Label>;
       }
+
+      if (message.method === METHODS.SMS && smsStats.total === 0) {
+        return <Label lblStyle="warning">Not sent</Label>;
+      }
     }
 
     return <Label>Sending</Label>;

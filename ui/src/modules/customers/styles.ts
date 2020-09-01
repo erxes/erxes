@@ -41,7 +41,7 @@ const Actions = styledTS<{ isSmall?: boolean }>(styled.div)`
   }
 
   .dropdown {
-    display: ${props => props.isSmall ? 'inline-block' : 'block'};
+    display: ${props => (props.isSmall ? 'inline-block' : 'block')};
   }
 `;
 
@@ -184,7 +184,7 @@ export const LeadStateWrapper = styled.div`
   align-items: center;
 
   @media (max-width: 768px) {
-   flex-wrap: wrap;
+    flex-wrap: wrap;
   }
 
   > button {

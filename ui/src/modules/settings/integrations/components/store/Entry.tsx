@@ -10,6 +10,7 @@ import IntegrationForm from '../../containers/common/IntegrationForm';
 import KnowledgeBase from '../../containers/knowledgebase/Form';
 import Lead from '../../containers/lead/Form';
 import LineForm from '../../containers/line/Form';
+import TelnyxForm from '../../containers/telnyx/TelnyxForm';
 import Twitter from '../../containers/twitter/Twitter';
 import Website from '../../containers/website/Form';
 import { Box, IntegrationItem, Ribbon, Type } from './styles';
@@ -31,6 +32,7 @@ type TotalCount = {
   twilio: number;
   whatsapp: number;
   exchange: number;
+  telnyx: number;
 };
 
 type Props = {
@@ -179,6 +181,14 @@ function renderCreate(createUrl, kind) {
 
     return (
       <ModalTrigger title="Add Line" trigger={trigger} content={content} />
+    );
+  }
+
+  if (kind === INTEGRATION_KINDS.TELNYX) {
+    const content = props => <TelnyxForm {...props} />;
+
+    return (
+      <ModalTrigger title="Add telnyx" trigger={trigger} content={content} />
     );
   }
 

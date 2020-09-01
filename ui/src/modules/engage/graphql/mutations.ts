@@ -40,7 +40,7 @@ const commonVariables = `
   $title: String!,
   $kind: String!,
   $method: String!,
-  $fromUserId: String!,
+  $fromUserId: String,
   $isDraft: Boolean,
   $isLive: Boolean,
   $stopDate: Date,
