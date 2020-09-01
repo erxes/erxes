@@ -8,6 +8,8 @@ import { handleFacebookMessage } from './facebook/handleFacebookMessage';
 import { watchPushNotification } from './gmail/watch';
 import { Integrations } from './models';
 import { getLineWebhookUrl } from './smooch/api';
+import { sendSms } from './telnyx/api';
+import { getConfig } from './utils';
 
 const handleRunCronMessage = async () => {
   const integrations = await Integrations.aggregate([
@@ -96,11 +98,21 @@ export const initBroker = async server => {
       }
     }
 
+    if (action === 'getTelnyxInfo') {
+      response = {
+        status: 'success',
+        data: {
+          telnyxApiKey: await getConfig('TELNYX_API_KEY'),
+          integrations: await Integrations.find({ kind: 'telnyx' }),
+        },
+      };
+    }
+
     return response;
   });
 
   consumeQueue('erxes-api:integrations-notification', async content => {
-    const { type } = content;
+    const { action, payload, type } = content;
 
     switch (type) {
       case 'facebook':
@@ -111,6 +123,13 @@ export const initBroker = async server => {
         break;
       case 'removeCustomers':
         await removeCustomers(content);
+        break;
+      default:
+        break;
+    }
+
+    if (action === 'sendConversationSms') {
+      await sendSms(payload);
     }
   });
 };

@@ -28,6 +28,8 @@ export interface IIntegration {
   smoochIntegrationId?: string;
   whatsappinstanceId?: string;
   whatsappToken?: string;
+  telnyxPhoneNumber?: string;
+  telnyxProfileId?: string;
 }
 
 export interface IIntegrationDocument extends IIntegration, Document {}
@@ -67,6 +69,8 @@ export const integrationSchema = new Schema({
   smoochIntegrationId: String,
   whatsappinstanceId: String,
   whatsappToken: String,
+  telnyxPhoneNumber: field({ type: String, label: 'Telnyx phone number' }),
+  telnyxProfileId: field({ type: String, label: 'Telnyx messaging profile id' }),
 });
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {
