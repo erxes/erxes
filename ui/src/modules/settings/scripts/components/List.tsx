@@ -1,4 +1,5 @@
 import Button from 'modules/common/components/Button';
+import EmptyContent from 'modules/common/components/empty/EmptyContent';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
@@ -6,6 +7,7 @@ import Table from 'modules/common/components/table';
 import Tip from 'modules/common/components/Tip';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import { EMPTY_CONTENT_SCRIPT } from 'modules/settings/constants';
 import React from 'react';
 import List from '../../common/components/List';
 import RowActions from '../../common/components/RowActions';
@@ -30,8 +32,8 @@ class ScriptList extends React.Component<Props> {
         title="Install code"
         trigger={
           <Button btnStyle="link">
-            <Tip text="Install code">
-              <Icon icon="copy" />
+            <Tip text="Install code" placement="top">
+              <Icon icon="code" />
             </Tip>
           </Button>
         }
@@ -89,7 +91,7 @@ class ScriptList extends React.Component<Props> {
           <tr>
             <th>{__('Name')}</th>
             <th>{__('Integrations')}</th>
-            <th style={{ width: 100 }}>{__('Actions')}</th>
+            <th style={{ width: 120 }}>{__('Actions')}</th>
           </tr>
         </thead>
         <tbody>{this.renderRows(props)}</tbody>
@@ -110,12 +112,13 @@ class ScriptList extends React.Component<Props> {
           <HeaderDescription
             icon="/images/actions/23.svg"
             title="Scripts"
-            description={`Script manager allows erxes users to quickly and easily generate and update related scripts for any of their business websites. Set up once and your marketing team will be able to easily create forms, add in chats and list FAQs on any of their businesses websites.`}
+            description={`Script manager allows erxes users to quickly and easily generate and update related scripts for any of their business websites. Set up once and your team will be able to easily display multiple erxes widgets on any of their businesses websites`}
           />
         }
         renderForm={this.renderForm}
         renderContent={this.renderContent}
         center={true}
+        emptyContent={<EmptyContent content={EMPTY_CONTENT_SCRIPT} />}
         {...this.props}
       />
     );

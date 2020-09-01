@@ -16,7 +16,13 @@ const configsGetEnv = `
   }
 `;
 
+const configsConstants = `
+  query configsConstants {
+    configsConstants
+  }
+`;
 export default {
   configs,
+  configsConstants,
   configsGetEnv
 };

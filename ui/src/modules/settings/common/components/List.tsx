@@ -18,6 +18,7 @@ type Props = {
   center?: boolean;
   renderFilter?: () => any;
   additionalButton?: React.ReactNode;
+  emptyContent?: React.ReactNode;
 };
 
 class List extends React.Component<Props & ICommonListProps, {}> {
@@ -38,11 +39,12 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       refetch,
       center,
       remove,
-      additionalButton
+      additionalButton,
+      emptyContent
     } = this.props;
 
     const trigger = (
-      <Button btnStyle="success" size="small" icon="plus-circle">
+      <Button btnStyle="success" icon="plus-circle" uppercase={false}>
         {formTitle}
       </Button>
     );
@@ -85,6 +87,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
             count={totalCount}
             emptyText="Oops! No data here"
             emptyImage="/images/actions/5.svg"
+            emptyContent={emptyContent}
           />
         }
       />

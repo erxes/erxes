@@ -20,6 +20,7 @@ import {
 import React from 'react';
 import Select from 'react-select-plus';
 import { IEmailFormProps, IEngageEmail, IEngageScheduleDate } from '../types';
+import { generateEmailTemplateParams } from '../utils';
 import Scheduler from './Scheduler';
 
 type Props = IEmailFormProps & { verifiedEmails: string[]; error?: string };
@@ -115,7 +116,7 @@ class EmailForm extends React.Component<Props, State> {
       users.map(user =>
         options.push({
           value: user._id,
-          label: (user.details && user.details.fullName) || user.username,
+          label: user.email || user.username,
           disabled: !verifiedEmails.includes(user.email)
         })
       );
@@ -156,12 +157,21 @@ class EmailForm extends React.Component<Props, State> {
   render() {
     const { attachments } = this.state.email;
 
-    const onChangeContent = e =>
+    const onChangeSubject = e =>
       this.changeContent('subject', (e.target as HTMLInputElement).value);
-    const onChangeTemplate = e =>
-      this.templateChange((e.target as HTMLInputElement).value);
+
+    const onChangeReplyTo = e =>
+      this.changeContent('replyTo', (e.target as HTMLInputElement).value);
+
+    const onChangeSender = e =>
+      this.changeContent('sender', (e.target as HTMLInputElement).value);
+
     const onChangeAttachment = attachmentsArr =>
       this.changeContent('attachments', attachmentsArr);
+
+    const onChangeTemplate = e => {
+      this.templateChange(e.value);
+    };
 
     return (
       <FlexItem>
@@ -194,9 +204,26 @@ class EmailForm extends React.Component<Props, State> {
           </FormGroup>
 
           <FormGroup>
+            <ControlLabel>Sender:</ControlLabel>
+            <FormControl
+              onChange={onChangeSender}
+              defaultValue={this.state.email.sender}
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>Reply to:</ControlLabel>
+            <HelpPopover>Emails must be space separated</HelpPopover>
+            <FormControl
+              onChange={onChangeReplyTo}
+              defaultValue={this.state.email.replyTo}
+            />
+          </FormGroup>
+
+          <FormGroup>
             <ControlLabel>Email subject:</ControlLabel>
             <FormControl
-              onChange={onChangeContent}
+              onChange={onChangeSubject}
               defaultValue={this.state.email.subject}
             />
           </FormGroup>
@@ -204,18 +231,13 @@ class EmailForm extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Email template:</ControlLabel>
             <p>{__('Insert email template to content')}</p>
-            <FormControl
-              componentClass="select"
+
+            <Select
               onChange={onChangeTemplate}
               value={this.state.email.templateId}
-            >
-              <option />{' '}
-              {this.props.templates.map(t => (
-                <option key={t._id} value={t._id}>
-                  {t.name}
-                </option>
-              ))}
-            </FormControl>
+              options={generateEmailTemplateParams(this.props.templates)}
+              clearable={false}
+            />
           </FormGroup>
           <FormGroup>
             <ControlLabel>Attachments: </ControlLabel>

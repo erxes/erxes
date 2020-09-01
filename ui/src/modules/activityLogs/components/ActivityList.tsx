@@ -16,7 +16,7 @@ type Props = {
 class ActivityList extends React.Component<Props> {
   renderItem(data) {
     return data.map((item, index) => (
-      <ActivityItem key={index} activity={item} currenUser={this.props.user} />
+      <ActivityItem key={index} activity={item} currentUser={this.props.user} />
     ));
   }
 

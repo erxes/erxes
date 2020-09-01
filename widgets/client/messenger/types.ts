@@ -6,6 +6,16 @@ import {
   IUser
 } from "../types";
 
+export interface IWebsiteApp {
+  kind: string;
+  name: string;
+  credentials: {
+    buttonText: string;
+    description: string;
+    url: string;
+  };
+}
+
 export interface IEngageData {
   content: string;
   kind: string;
@@ -99,4 +109,10 @@ export interface IUpdateCustomerMutationResponse {
     params: { variables: IUpdateCustomerMutationVariables }
   ) => Promise<any>;
   refetch: () => void;
+}
+
+export interface IMessengerSupporters {
+  supporters: [IUser];
+  isOnline: boolean;
+  serverTime: string;
 }

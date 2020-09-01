@@ -1,4 +1,4 @@
-import { connection } from './connection';
+import { connection } from "./connection";
 
 const messageFields = `
   _id
@@ -69,14 +69,7 @@ const conversationDetailQuery = `
           description
           position
         }
-        links {
-          facebook
-          twitter
-          youtube
-          linkedIn
-          github
-          website
-        }
+        links
       }
     }
   }
@@ -107,7 +100,11 @@ const unreadCountQuery = `
 const messengerSupportersQuery = `
   query widgetsMessengerSupporters($integrationId: String!) {
     widgetsMessengerSupporters(integrationId: $integrationId) {
-      ${userFields}
+      supporters {
+        ${userFields}
+      }
+      isOnline
+      serverTime
     }
   }
 `;

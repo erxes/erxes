@@ -35,7 +35,7 @@ const Content = styledTS<{ type?: string }>(styled.div)`
 
   h5 {
     ${props => css`
-      margin: ${props.type === 'growthHack' ? '0 20px 10px 0' : '0 0 8px 0'};
+      margin: ${props.type === 'growthHack' ? '0 20px 10px 0' : '0 20px 8px 0'};
     `};
     word-break: break-word;
     line-height: 18px;

@@ -7,21 +7,28 @@ import {
   StepWrapper,
   TitleContainer
 } from 'modules/common/components/step/styles';
+import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { IBrand } from 'modules/settings/brands/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
+import { IConfig } from 'modules/settings/general/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { IBreadCrumbItem } from '../../common/types';
+import { METHODS } from '../constants';
 import {
   IEngageEmail,
   IEngageMessage,
   IEngageMessageDoc,
   IEngageMessenger,
-  IEngageScheduleDate
+  IEngageScheduleDate,
+  IEngageSms,
+  IIntegrationWithPhone
 } from '../types';
+import SmsForm from './SmsForm';
 import ChannelStep from './step/ChannelStep';
+import FullPreviewStep from './step/FullPreviewStep';
 import MessageStep from './step/MessageStep';
 import MessageTypeStep from './step/MessageTypeStep';
 
@@ -40,6 +47,8 @@ type Props = {
   ) => { status: string; doc?: IEngageMessageDoc };
   renderTitle: () => string;
   breadcrumbs: IBreadCrumbItem[];
+  smsConfig: IConfig;
+  integrations: IIntegrationWithPhone[];
 };
 
 type State = {
@@ -55,6 +64,7 @@ type State = {
   messenger?: IEngageMessenger;
   email?: IEngageEmail;
   scheduleDate: IEngageScheduleDate;
+  shortMessage?: IEngageSms;
 };
 
 class AutoAndManualForm extends React.Component<Props, State> {
@@ -74,7 +84,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     this.state = {
       activeStep: 1,
       maxStep: 3,
-      method: message.method || 'email',
+      method: message.method || METHODS.EMAIL,
       title: message.title || '',
       segmentIds: message.segmentIds || [],
       brandIds: message.brandIds || [],
@@ -83,7 +93,8 @@ class AutoAndManualForm extends React.Component<Props, State> {
       fromUserId: message.fromUserId,
       messenger: message.messenger,
       email: message.email,
-      scheduleDate: message.scheduleDate
+      scheduleDate: message.scheduleDate,
+      shortMessage: message.shortMessage
     };
   }
 
@@ -107,19 +118,23 @@ class AutoAndManualForm extends React.Component<Props, State> {
       title: this.state.title,
       fromUserId: this.state.fromUserId,
       method: this.state.method,
-      scheduleDate: this.state.scheduleDate
+      scheduleDate: this.state.scheduleDate,
+      shortMessage: this.state.shortMessage
     } as IEngageMessageDoc;
 
-    if (this.state.method === 'email') {
+    if (this.state.method === METHODS.EMAIL) {
       const email = this.state.email || ({} as IEngageEmail);
 
       doc.email = {
         subject: email.subject || '',
+        sender: email.sender || '',
+        replyTo: (email.replyTo || '').split(' ').toString(),
         content: this.state.content,
         attachments: email.attachments,
         templateId: email.templateId || ''
       };
-    } else if (this.state.method === 'messenger') {
+    }
+    if (this.state.method === METHODS.MESSENGER) {
       const messenger = this.state.messenger || ({} as IEngageMessenger);
 
       doc.messenger = {
@@ -129,8 +144,27 @@ class AutoAndManualForm extends React.Component<Props, State> {
         content: this.state.content
       };
     }
+    if (this.state.method === METHODS.SMS) {
+      const shortMessage = this.state.shortMessage || {
+        from: '',
+        content: '',
+        fromIntegrationId: ''
+      };
+
+      doc.shortMessage = {
+        from: shortMessage.from,
+        content: shortMessage.content,
+        fromIntegrationId: shortMessage.fromIntegrationId
+      };
+    }
 
     const response = this.props.validateDoc(type, doc);
+
+    if (this.state.method === METHODS.SMS && !this.props.smsConfig) {
+      return Alert.warning(
+        'SMS integration is not configured. Go to Settings > System config > Integrations config and set Telnyx SMS API key.'
+      );
+    }
 
     if (response.status === 'ok' && response.doc) {
       return this.props.save(response.doc);
@@ -168,11 +202,12 @@ class AutoAndManualForm extends React.Component<Props, State> {
               icon={isActionLoading ? undefined : 'checked-1'}
               onClick={this.handleSubmit.bind(this, 'live')}
             >
-              Save & Live
+              Send & Live
             </Button>
           </>
         );
       }
+
       return (
         <Button
           disabled={isActionLoading}
@@ -182,7 +217,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
           onClick={this.handleSubmit.bind(this, 'live')}
         >
           {isActionLoading && <SmallLoader />}
-          Save
+          Send
         </Button>
       );
     };
@@ -195,17 +230,96 @@ class AutoAndManualForm extends React.Component<Props, State> {
     );
   };
 
+  renderMessageContent() {
+    const {
+      message,
+      brands,
+      users,
+      kind,
+      templates,
+      smsConfig,
+      integrations
+    } = this.props;
+
+    const {
+      messenger,
+      email,
+      fromUserId,
+      content,
+      scheduleDate,
+      method,
+      shortMessage
+    } = this.state;
+
+    const imagePath = '/images/icons/erxes-08.svg';
+
+    if (method === METHODS.SMS) {
+      return (
+        <Step noButton={true} title="Compose your SMS" img={imagePath}>
+          <SmsForm
+            onChange={this.changeState}
+            messageKind={kind}
+            scheduleDate={scheduleDate}
+            shortMessage={shortMessage}
+            fromUserId={fromUserId}
+            smsConfig={smsConfig}
+            integrations={integrations}
+          />
+        </Step>
+      );
+    }
+
+    return (
+      <Step
+        img={imagePath}
+        title="Compose your message"
+        message={message}
+        noButton={method !== METHODS.EMAIL && true}
+      >
+        <MessageStep
+          brands={brands}
+          onChange={this.changeState}
+          users={users}
+          method={this.state.method}
+          templates={templates}
+          kind={kind}
+          messenger={messenger}
+          email={email}
+          fromUserId={fromUserId}
+          content={content}
+          scheduleDate={scheduleDate}
+        />
+      </Step>
+    );
+  }
+
+  renderPreviewContent() {
+    const { content, email, method } = this.state;
+
+    if (method !== METHODS.EMAIL) {
+      return <div />;
+    }
+
+    return (
+      <Step
+        img="/images/icons/erxes-19.svg"
+        title="Full Preview"
+        noButton={true}
+      >
+        <FullPreviewStep
+          content={content}
+          templateId={email && email.templateId}
+        />
+      </Step>
+    );
+  }
+
   render() {
     const { renderTitle, breadcrumbs } = this.props;
 
     const {
       activeStep,
       maxStep,
-      messenger,
-      email,
-      fromUserId,
-      content,
-      scheduleDate,
       segmentIds,
       brandIds,
       title,
@@ -249,26 +363,8 @@ class AutoAndManualForm extends React.Component<Props, State> {
             />
           </Step>
 
-          <Step
-            img="/images/icons/erxes-08.svg"
-            title="Compose your message"
-            noButton={true}
-            message={this.props.message}
-          >
-            <MessageStep
-              brands={this.props.brands}
-              onChange={this.changeState}
-              users={this.props.users}
-              method={this.state.method}
-              templates={this.props.templates}
-              kind={this.props.kind}
-              messenger={messenger}
-              email={email}
-              fromUserId={fromUserId}
-              content={content}
-              scheduleDate={scheduleDate}
-            />
-          </Step>
+          {this.renderMessageContent()}
+          {this.renderPreviewContent()}
         </Steps>
       </StepWrapper>
     );

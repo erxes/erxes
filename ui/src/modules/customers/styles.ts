@@ -26,7 +26,7 @@ const InfoDetail = styled.p`
   color: ${colors.colorCoreGray};
 `;
 
-const Actions = styled.div`
+const Actions = styledTS<{ isSmall?: boolean }>(styled.div)`
   display: flex;
   justify-content: space-between;
   padding: 0 ${dimensions.coreSpacing}px ${dimensions.unitSpacing}px;
@@ -38,6 +38,10 @@ const Actions = styled.div`
 
   > div {
     margin-left: 10px;
+  }
+
+  .dropdown {
+    display: ${props => (props.isSmall ? 'inline-block' : 'block')};
   }
 `;
 
@@ -154,8 +158,6 @@ const ClickableRow = styled.span`
 `;
 
 const BooleanStatus = styledTS<{ isTrue?: boolean }>(styled.div)`
-  text-align: center;
-
   i {
     font-size: 16px;
     color: ${props =>
@@ -175,24 +177,15 @@ const MailBox = styled.div`
   transition: all ease 0.3s;
 `;
 
-const Status = styledTS<{ verified: boolean }>(styled.span)`
-  background: ${props =>
-    props.verified ? colors.colorCoreGreen : colors.bgGray};
-  color: ${props =>
-    props.verified ? colors.colorWhite : colors.textSecondary};
-  width: 18px;
-  height: 18px;
-  text-align: center;
-  border-radius: 9px;
-  font-size: 11px;
-  line-height: 18px;
-`;
-
 export const LeadStateWrapper = styled.div`
   display: flex;
   padding: 0 ${dimensions.coreSpacing}px;
   margin-bottom: ${dimensions.unitSpacing}px;
   align-items: center;
+
+  @media (max-width: 768px) {
+    flex-wrap: wrap;
+  }
 
   > button {
     margin-left: 10px;
@@ -308,7 +301,11 @@ export const StateItem = styledTS<{ active?: boolean; past?: boolean }>(
 		font-weight: normal;
 		font-size: 90%;
 		margin-left: 5px;
-	}
+  }
+  
+  @media (max-width: 768px) {
+    margin-bottom: 5px;
+  }
 `;
 
 export {
@@ -328,6 +325,5 @@ export {
   CustomerState,
   UserHeader,
   MailBox,
-  Status,
   States
 };

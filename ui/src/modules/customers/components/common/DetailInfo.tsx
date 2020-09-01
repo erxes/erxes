@@ -1,9 +1,6 @@
 import dayjs from 'dayjs';
-import Icon from 'modules/common/components/Icon';
-import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
 import { GENDER_TYPES } from 'modules/customers/constants';
-import { Status } from 'modules/customers/styles';
 import { ICustomer } from 'modules/customers/types';
 import {
   FieldStyle,
@@ -12,6 +9,8 @@ import {
   SidebarList
 } from 'modules/layout/styles';
 import React from 'react';
+import PrimaryEmail from './PrimaryEmail';
+import PrimaryPhone from './PrimaryPhone';
 
 type Props = {
   customer: ICustomer;
@@ -31,33 +30,22 @@ class DetailInfo extends React.PureComponent<Props> {
   }
 
   renderEmail(status?: string, email?: string) {
-    const renderStatus = () => {
-      if (status) {
-        return (
-          <Tip text={`Status: ${status}`} placement="top">
-            <Status verified={status === 'valid'}>
-              <Icon
-                icon={status === 'valid' ? 'shield-check' : 'shield-slash'}
-              />
-            </Status>
-          </Tip>
-        );
-      }
-      return null;
-    };
-
     return (
       <li>
         <FieldStyle>{__('Primary email')}:</FieldStyle>
         <SidebarCounter>
-          {email ? (
-            <a href={`mailto:${email}`}>
-              {email}
-              {renderStatus()}
-            </a>
-          ) : (
-            '-'
-          )}
+          <PrimaryEmail email={email} status={status} />
+        </SidebarCounter>
+      </li>
+    );
+  }
+
+  renderPhone(status?: string, phone?: string) {
+    return (
+      <li>
+        <FieldStyle>{__('Primary phone')}:</FieldStyle>
+        <SidebarCounter>
+          <PrimaryPhone phone={phone} status={status} />
         </SidebarCounter>
       </li>
     );
@@ -81,7 +69,10 @@ class DetailInfo extends React.PureComponent<Props> {
           customer.emailValidationStatus,
           customer.primaryEmail
         )}
-        {this.renderRow('Primary phone', customer.primaryPhone)}
+        {this.renderPhone(
+          customer.phoneValidationStatus,
+          customer.primaryPhone
+        )}
         {this.renderPosition(customer)}
         {this.renderRow(
           'Owner',
@@ -90,7 +81,7 @@ class DetailInfo extends React.PureComponent<Props> {
             : ''
         )}
         {this.renderRow('Department', customer.department)}
-        {this.renderRow('Gender', GENDER_TYPES[customer.sex || 0])}
+        {this.renderRow('Pronoun', GENDER_TYPES()[customer.sex || 0])}
         {this.renderRow(
           'Birthday',
           customer.birthDate && dayjs(customer.birthDate).format('MMM,DD YYYY')

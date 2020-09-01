@@ -1,4 +1,6 @@
 import {
+  commonDragParams,
+  commonDragVariables,
   commonFields,
   commonMutationParams,
   commonMutationVariables
@@ -43,16 +45,8 @@ const ticketsRemove = `
 `;
 
 const ticketsChange = `
-  mutation ticketsChange($_id: String!, $destinationStageId: String!, $order: Float) {
-    ticketsChange(_id: $_id, destinationStageId: $destinationStageId, order: $order) {
-      _id
-    }
-  }
-`;
-
-const ticketsUpdateOrder = `
-  mutation ticketsUpdateOrder($stageId: String!, $orders: [OrderItem]) {
-    ticketsUpdateOrder(stageId: $stageId, orders: $orders) {
+  mutation ticketsChange(${commonDragVariables}) {
+    ticketsChange(${commonDragParams}) {
       _id
     }
   }
@@ -68,14 +62,14 @@ const ticketsWatch = `
 `;
 
 const ticketsArchive = `
-  mutation ticketsArchive($stageId: String!) {
-    ticketsArchive(stageId: $stageId)
+  mutation ticketsArchive($stageId: String!, $proccessId: String) {
+    ticketsArchive(stageId: $stageId, proccessId: $proccessId)
   }
 `;
 
 const ticketsCopy = `
-  mutation ticketsCopy($_id: String!) {
-    ticketsCopy(_id: $_id) {
+  mutation ticketsCopy($_id: String!, $proccessId: String) {
+    ticketsCopy(_id: $_id, proccessId: $proccessId) {
       ${commonFields}
       ${ticketFields}
     }
@@ -87,7 +81,6 @@ export default {
   ticketsEdit,
   ticketsRemove,
   ticketsChange,
-  ticketsUpdateOrder,
   ticketsWatch,
   ticketsArchive,
   ticketsCopy

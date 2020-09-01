@@ -12,13 +12,11 @@ type Props = {
   boardId?: string;
   pipelineId?: string;
   stageId?: string;
-  showSelect?: boolean;
   filterStageId?: (
     stageId?: string,
     boardId?: string,
     pipelineId?: string
   ) => void;
-  onSelect: (datas: any[]) => void;
 } & CommonProps;
 
 type State = {
@@ -34,13 +32,18 @@ class ItemChooser extends React.Component<Props, State> {
     super(props);
 
     this.ref = React.createRef();
+    const { stageId, boardId, pipelineId } = props;
 
     this.state = {
-      stageId: this.props.stageId || '',
-      boardId: this.props.boardId || '',
-      pipelineId: this.props.pipelineId || ''
+      stageId: stageId || '',
+      boardId: boardId || '',
+      pipelineId: pipelineId || ''
     };
   }
+
+  onOverlayClose = () => {
+    this.ref.hide();
+  };
 
   clearFilter = e => {
     e.stopPropagation();
@@ -49,22 +52,15 @@ class ItemChooser extends React.Component<Props, State> {
     this.onChangeField('boardId', '');
   };
 
-  renderSelectChooser = () => {
-    const { showSelect, data } = this.props;
-
-    if (!showSelect) {
-      return null;
-    }
-
+  renderBoardSelect() {
+    const { data } = this.props;
     const { stageId, pipelineId, boardId } = this.state;
-
-    const filtered = stageId || pipelineId || boardId;
 
     const stgIdOnChange = stgId => this.onChangeField('stageId', stgId);
     const plIdOnChange = plId => this.onChangeField('pipelineId', plId);
     const brIdOnChange = brId => this.onChangeField('boardId', brId);
 
-    const content = (
+    return (
       <Popover id="board-popover">
         <PipelinePopoverContent>
           <BoardSelect
@@ -79,15 +75,24 @@ class ItemChooser extends React.Component<Props, State> {
         </PipelinePopoverContent>
       </Popover>
     );
+  }
+
+  renderSelectChooser = () => {
+    const { stageId, pipelineId, boardId } = this.state;
+
+    const filtered = stageId || pipelineId || boardId;
 
     return (
-      <div ref={this.ref}>
+      <div>
         <OverlayTrigger
+          ref={overlayTrigger => {
+            this.ref = overlayTrigger;
+          }}
           trigger="click"
           placement="bottom-start"
-          overlay={content}
+          overlay={this.renderBoardSelect()}
           rootClose={true}
-          container={this.ref.current}
+          container={this}
         >
           <Select>
             {__('Filter')}

@@ -5,14 +5,14 @@ import { AppConsumer } from "../AppContext";
 const WebsiteAppDetailContainer = () => {
   return (
     <AppConsumer>
-      {({ changeRoute, getMessengerData }) => {
-        const config = getMessengerData().websiteAppData;
+      {({ changeRoute, getMessengerData, currentWebsiteApp }) => {
+        const websiteApp = (getMessengerData().websiteApps || []).find(app => app.name === currentWebsiteApp);
 
-        if (!config) {
+        if (!websiteApp) {
           return null;
         }
 
-        return <WebsiteAppDetail changeRoute={changeRoute} config={config} />;
+        return <WebsiteAppDetail changeRoute={changeRoute} websiteApp={websiteApp} />;
       }}
     </AppConsumer>
   );

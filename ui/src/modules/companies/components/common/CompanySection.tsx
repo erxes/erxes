@@ -61,7 +61,7 @@ function Component(
 
   const relCompanyTrigger = (
     <ButtonRelated>
-      <button>{__('See related companies..')}</button>
+      <span>{__('See related companies..')}</span>
     </ButtonRelated>
   );
 
@@ -120,6 +120,7 @@ type IProps = {
   mainType?: string;
   mainTypeId?: string;
   isOpen?: boolean;
+  companies?: ICompany[];
   onSelect?: (datas: ICompany[]) => void;
   collapseCallback?: () => void;
 };
@@ -132,6 +133,7 @@ export default (props: IProps) => {
       component={Component}
       queryName="companies"
       itemsQuery={queries.companies}
+      alreadyItems={props.companies}
     />
   );
 };

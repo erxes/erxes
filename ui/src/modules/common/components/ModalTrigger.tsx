@@ -10,7 +10,7 @@ import Icon from './Icon';
 
 type Props = {
   title: string;
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
   autoOpenKey?: string;
   content: ({ closeModal }: { closeModal: () => void }) => void;
   size?: 'sm' | 'lg' | 'xl';
@@ -24,6 +24,7 @@ type Props = {
   paddingContent?: 'no-padding';
   centered?: boolean;
   onExit?: () => void;
+  isAnimate?: boolean;
 } & IRouterProps;
 
 type State = {
@@ -90,18 +91,18 @@ class ModalTrigger extends React.Component<Props, State> {
       enforceFocus,
       onExit,
       paddingContent,
-      centered
+      centered,
+      isAnimate = false
     } = this.props;
 
     const { isOpen } = this.state;
 
     // add onclick event to the trigger component
-    const triggerComponent = React.cloneElement(
-      trigger as React.ReactElement<any>,
-      {
-        onClick: this.openModal
-      }
-    );
+    const triggerComponent = trigger
+      ? React.cloneElement(trigger as React.ReactElement<any>, {
+          onClick: this.openModal
+        })
+      : null;
 
     return (
       <>
@@ -115,7 +116,7 @@ class ModalTrigger extends React.Component<Props, State> {
           backdrop={backDrop}
           enforceFocus={enforceFocus}
           onExit={onExit}
-          animation={false}
+          animation={isAnimate}
           centered={centered}
         >
           {this.renderHeader()}

@@ -45,7 +45,7 @@ const AvatarStyled = styledTS<{ state?: string }>(styled.span)`
 
 const AvatarImage = styledTS<{ image?: string }>(styled.div)`
   background: url(${props =>
-    props.image ? props.image : '/images/avatar.svg'})
+    props.image ? `"${props.image}"` : '/images/avatar.svg'})
     center no-repeat;
   background-size: cover;
 `;

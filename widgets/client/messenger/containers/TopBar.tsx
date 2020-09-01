@@ -14,11 +14,12 @@ type Props = {
 const container = (props: Props) => {
   return (
     <AppConsumer>
-      {({ endConversation, getColor, toggle, setHeadHeight, headHeight }) => {
+      {({ endConversation, getColor, toggle, setHeadHeight, headHeight, getUiOptions }) => {
         return (
           <TopBar
             {...props}
-            color={getColor()}
+            color={getUiOptions().color}
+            textColor={getUiOptions().textColor || '#fff'}
             toggleLauncher={toggle}
             isChat={Boolean(!connection.setting.email)}
             endConversation={endConversation}

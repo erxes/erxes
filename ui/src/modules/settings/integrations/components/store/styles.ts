@@ -9,6 +9,9 @@ const collapsibleBackground = '#f8f8f8';
 const IntegrationWrapper = styled.div`
   padding-bottom: ${dimensions.coreSpacing * 1.5}px;
   flex: 1;
+  min-width: 1000px;
+  background: ${colors.colorWhite};
+  z-index: 1;
 
   h3 {
     margin: 30px 0 0 ${dimensions.coreSpacing}px;
@@ -19,6 +22,7 @@ const IntegrationRow = styled.div`
   padding-right: ${dimensions.coreSpacing}px;
   display: flex;
   flex-wrap: wrap;
+  background: ${colors.colorWhite};
 `;
 
 const Box = styledTS<{ isInMessenger: boolean }>(styled.div)`
@@ -124,7 +128,7 @@ const IntegrationItem = styled.div`
   }
 
   > a,
-  h6 {
+  button {
     font-weight: 500;
     font-size: 15px;
     color: ${colors.linkPrimary};
@@ -132,6 +136,14 @@ const IntegrationItem = styled.div`
     right: 30px;
     top: 55px;
     cursor: pointer;
+    background: none;
+    outline: 0;
+    border: none;
+
+    :hover {
+      text-decoration: underline;
+      opacity: 0.9;
+    }
   }
 
   &.active {
@@ -160,10 +172,10 @@ const IntegrationItem = styled.div`
 
 const CollapsibleContent = styled.div`
   margin: ${dimensions.coreSpacing}px 0 0 ${dimensions.coreSpacing}px;
-  padding: 10px 0 20px 10px;
+  padding: 10px 40px 20px 10px;
   background: ${collapsibleBackground};
-  box-shadow: inset 0px 11px 5px -10px ${colors.colorShadowGray},
-    inset 0px -11px 5px -10px ${colors.colorShadowGray};
+  box-shadow: inset 10px 11px 5px -10px ${colors.colorShadowGray},
+    inset 11px -11px 5px -10px ${colors.colorShadowGray};
 
   img {
     width: 300px;
@@ -215,6 +227,7 @@ const LeftSidebar = styled.div`
   width: 200px;
   position: relative;
   margin: 10px;
+  flex-shrink: 0;
 `;
 
 const FixedSection = styled.div`
@@ -249,7 +262,7 @@ const SearchInput = styled.div`
     background: ${colors.colorWhite};
 
     @media (max-width: 1300px) {
-      min-width: 300px;
+      min-width: 260px;
     }
   }
 

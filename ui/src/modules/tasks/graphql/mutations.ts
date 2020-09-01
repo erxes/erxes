@@ -1,4 +1,6 @@
 import {
+  commonDragParams,
+  commonDragVariables,
   commonFields,
   commonMutationParams,
   commonMutationVariables
@@ -32,16 +34,8 @@ const tasksRemove = `
 `;
 
 const tasksChange = `
-  mutation tasksChange($_id: String!, $destinationStageId: String!, $order: Float) {
-    tasksChange(_id: $_id, destinationStageId: $destinationStageId, order: $order) {
-      _id
-    }
-  }
-`;
-
-const tasksUpdateOrder = `
-  mutation tasksUpdateOrder($stageId: String!, $orders: [OrderItem]) {
-    tasksUpdateOrder(stageId: $stageId, orders: $orders) {
+  mutation tasksChange(${commonDragVariables}) {
+    tasksChange(${commonDragParams}) {
       _id
     }
   }
@@ -57,16 +51,22 @@ const tasksWatch = `
 `;
 
 const tasksArchive = `
-  mutation tasksArchive($stageId: String!) {
-    tasksArchive(stageId: $stageId)
+  mutation tasksArchive($stageId: String!, $proccessId: String) {
+    tasksArchive(stageId: $stageId, proccessId: $proccessId)
   }
 `;
 
 const tasksCopy = `
-  mutation tasksCopy($_id: String!) {
-    tasksCopy(_id: $_id) {
+  mutation tasksCopy($_id: String!, $proccessId: String) {
+    tasksCopy(_id: $_id, proccessId: $proccessId) {
       ${commonFields}
     }
+  }
+`;
+
+const taskUpdateTimeTracking = `
+  mutation taskUpdateTimeTracking($_id: String!, $status: String!, $timeSpent: Int! $startDate: String) {
+    taskUpdateTimeTracking(_id: $_id, status: $status, timeSpent: $timeSpent, startDate: $startDate)
   }
 `;
 
@@ -75,8 +75,8 @@ export default {
   tasksEdit,
   tasksRemove,
   tasksChange,
-  tasksUpdateOrder,
   tasksWatch,
   tasksArchive,
-  tasksCopy
+  tasksCopy,
+  taskUpdateTimeTracking
 };

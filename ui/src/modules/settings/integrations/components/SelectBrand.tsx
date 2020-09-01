@@ -18,6 +18,7 @@ type Props = {
   creatable?: boolean;
   isRequired?: boolean;
   formProps?: IFormProps;
+  description?: string;
 };
 
 class SelectBrand extends React.Component<Props, {}> {
@@ -49,12 +50,14 @@ class SelectBrand extends React.Component<Props, {}> {
       onChange,
       defaultValue,
       formProps,
-      isRequired
+      isRequired,
+      description
     } = this.props;
 
     return (
       <FormGroup>
         <ControlLabel required={isRequired}>Brand</ControlLabel>
+        {description && <p>{description}</p>}
         <Row>
           <FormControl
             {...formProps}

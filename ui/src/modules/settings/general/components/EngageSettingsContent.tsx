@@ -35,7 +35,19 @@ type State = {
   configSet?: string;
   emailVerificationType?: string;
   trueMailApiKey?: string;
+  telnyxApiKey?: string;
+  telnyxPhone?: string;
+  telnyxProfileId?: string;
 };
+
+type CommonFields =
+  | 'emailToVerify'
+  | 'testFrom'
+  | 'testTo'
+  | 'testContent'
+  | 'telnyxApiKey'
+  | 'telnyxPhone'
+  | 'telnyxProfileId';
 
 class EngageSettingsContent extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -49,7 +61,10 @@ class EngageSettingsContent extends React.Component<Props, State> {
       region: configsMap.region || '',
       configSet: configsMap.configSet || '',
       emailVerificationType: configsMap.emailVerificationType || '',
-      trueMailApiKey: configsMap.trueMailApiKey || ''
+      trueMailApiKey: configsMap.trueMailApiKey || '',
+      telnyxApiKey: configsMap.telnyxApiKey || '',
+      telnyxPhone: configsMap.telnyxPhone || '',
+      telnyxProfileId: configsMap.telnyxProfileId || ''
     };
   }
 
@@ -57,10 +72,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
     return { configsMap: values };
   };
 
-  onChangeCommon = (
-    name: 'emailToVerify' | 'testFrom' | 'testTo' | 'testContent',
-    e
-  ) => {
+  onChangeCommon = (name: CommonFields, e) => {
     this.setState({ [name]: e.currentTarget.value });
   };
 
@@ -111,7 +123,6 @@ class EngageSettingsContent extends React.Component<Props, State> {
 
   renderContent = (formProps: IFormProps) => {
     const { configsMap, renderButton } = this.props;
-
     const { values, isSubmitted } = formProps;
 
     return (
@@ -170,6 +181,16 @@ class EngageSettingsContent extends React.Component<Props, State> {
           />
         </FormGroup>
 
+        <FormGroup>
+          <ControlLabel>Unverified emails limit</ControlLabel>
+          <FormControl
+            {...formProps}
+            max={140}
+            name="unverifiedEmailsLimit"
+            defaultValue={configsMap.unverifiedEmailsLimit || 100}
+          />
+        </FormGroup>
+
         <ModalFooter>
           {renderButton({
             name: 'configsMap',
@@ -189,7 +210,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
           <Form renderContent={this.renderContent} />
         </CollapseContent>
 
-        <CollapseContent title="Verify Email">
+        <CollapseContent title="Verify the email addresses that you send email from ">
           {this.renderVerifiedEmails()}
 
           <Verify>
@@ -210,7 +231,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
             </Button>
           </Verify>
         </CollapseContent>
-        <CollapseContent title="Send test email">
+        <CollapseContent title="Send your first testing email">
           <FormGroup>
             <ControlLabel>From</ControlLabel>
             <FormControl

@@ -13,7 +13,7 @@ import { getRefetchQueries } from '../utils';
 type Props = {
   kind: string;
   type?: string;
-  closeModal: () => void;
+  callBack: () => void;
 };
 
 type FinalProps = {} & IRouterProps & Props;
@@ -21,19 +21,22 @@ type FinalProps = {} & IRouterProps & Props;
 type State = {
   pages: IPages[];
   accountId?: string;
+  loadingPages?: boolean;
 };
 
 class FacebookContainer extends React.Component<FinalProps, State> {
   constructor(props: FinalProps) {
     super(props);
 
-    this.state = { pages: [] };
+    this.state = { pages: [], loadingPages: false };
   }
 
   onAccountSelect = (accountId?: string) => {
     if (!accountId) {
       return this.setState({ pages: [], accountId: '' });
     }
+
+    this.setState({ loadingPages: true });
 
     client
       .query({
@@ -47,12 +50,14 @@ class FacebookContainer extends React.Component<FinalProps, State> {
         if (!loading) {
           this.setState({
             pages: data.integrationsFetchApi,
-            accountId
+            accountId,
+            loadingPages: false
           });
         }
       })
       .catch(error => {
         Alert.error(error.message);
+        this.setState({ loadingPages: false });
       });
   };
 
@@ -76,19 +81,22 @@ class FacebookContainer extends React.Component<FinalProps, State> {
         refetchQueries={getRefetchQueries(kind)}
         isSubmitted={isSubmitted}
         type="submit"
+        uppercase={false}
         successMessage={`You successfully added a ${name}`}
       />
     );
   };
 
   render() {
-    const { closeModal, kind } = this.props;
+    const { callBack, kind } = this.props;
+    const { accountId, pages, loadingPages } = this.state;
 
     const updatedProps = {
       kind,
-      closeModal,
-      accountId: this.state.accountId,
-      pages: this.state.pages,
+      callBack,
+      accountId,
+      pages,
+      loadingPages,
       onAccountSelect: this.onAccountSelect,
       onRemoveAccount: this.onRemoveAccount,
       renderButton: this.renderButton

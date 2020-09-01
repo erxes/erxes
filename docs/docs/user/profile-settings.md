@@ -7,10 +7,8 @@ title: Profile settings
 
 ### Create your profile
 
-<div>
-<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/getting-started-6.png">
-<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/getting-started-5.png">
-</div>
+![](https://s3-us-west-2.amazonaws.com/erxes-docs/getting-started-6.png)
+![](https://s3-us-west-2.amazonaws.com/erxes-docs/getting-started-5.png)
 
 1. Click on the right top corner of the page
 2. Select **View Profile**
@@ -18,7 +16,7 @@ title: Profile settings
 
 ---
 
-<img src="https://s3-us-west-2.amazonaws.com/erxes-docs/getting-started-4.png">
+![](https://s3-us-west-2.amazonaws.com/erxes-docs/getting-started-4.png)
 
 1. Upload your **Profile Photo**
 2. Insert your **Full Name**
@@ -31,4 +29,4 @@ title: Profile settings
 9. Link your **Social Accounts**
 10. **Save** your profile information
 
-<aside class="notice">By filling out your information accurately, it will appear on the widget section on the website</aside>
+By filling out your information accurately, it will appear on the widget section on the website

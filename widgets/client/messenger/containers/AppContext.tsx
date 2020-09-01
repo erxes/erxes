@@ -9,7 +9,7 @@ import {
   IIntegrationUiOptions
 } from '../../types';
 import uploadHandler from '../../uploadHandler';
-import { postMessage, requestBrowserInfo } from '../../utils';
+import { newLineToBr, postMessage, requestBrowserInfo } from '../../utils';
 import { connection } from '../connection';
 import graphqlTypes from '../graphql';
 import { IAttachment, IFaqArticle, IFaqCategory, IMessage } from '../types';
@@ -22,6 +22,7 @@ interface IState {
   isMessengerVisible: boolean;
   isSavingNotified: boolean;
   activeRoute: string | '';
+  currentWebsiteApp?: string;
   activeConversation: string | null;
   activeFaqCategory: IFaqCategory | null;
   activeFaqArticle: IFaqArticle | null;
@@ -42,6 +43,7 @@ interface IStore extends IState {
   changeRoute: (route: string) => void;
   changeConversation: (converstionId: string) => void;
   goToConversation: (conversationId: string) => void;
+  goToWebsiteApp: (name: string) => void;
   goToFaqCategory: (category?: IFaqCategory) => void;
   goToFaqArticle: (article: IFaqArticle) => void;
   goToConversationList: () => void;
@@ -238,6 +240,12 @@ export class AppProvider extends React.Component<{}, IState> {
 
     this.setState(options);
   };
+
+  goToWebsiteApp = (name: string) => {
+    this.setState({ currentWebsiteApp: name });
+
+    this.changeRoute("websiteApp");
+  }
 
   goToConversation = (conversationId: string) => {
     this.changeConversation(conversationId);
@@ -438,7 +446,7 @@ export class AppProvider extends React.Component<{}, IState> {
           conversationId: activeConversation,
           customerId: connection.data.customerId,
           user: null,
-          content: message,
+          content: newLineToBr(message),
           createdAt: Number(new Date()),
           attachments: attachments || [],
           internal: false,
@@ -511,7 +519,7 @@ export class AppProvider extends React.Component<{}, IState> {
             customerId: connection.data.customerId,
             conversationId: activeConversation,
             contentType,
-            message,
+            message: newLineToBr(message),
             attachments
           },
           optimisticResponse,
@@ -583,6 +591,7 @@ export class AppProvider extends React.Component<{}, IState> {
           toggleNotifierFull: this.toggleNotifierFull,
           changeRoute: this.changeRoute,
           changeConversation: this.changeConversation,
+          goToWebsiteApp: this.goToWebsiteApp,
           goToConversation: this.goToConversation,
           goToFaqCategory: this.goToFaqCategory,
           goToFaqArticle: this.goToFaqArticle,

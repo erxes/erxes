@@ -181,6 +181,7 @@ type ButtonProps = {
   style?: any;
   id?: string;
   uppercase?: boolean;
+  target?: string;
 };
 
 export default class Button extends React.Component<ButtonProps> {

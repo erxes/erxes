@@ -8,6 +8,7 @@ type Props = {
   isOnline: boolean;
   color?: string;
   inputFocus: () => void;
+  toggleVideoCall: () => void;
 };
 
 export default class extends React.Component<Props> {
@@ -19,7 +20,8 @@ export default class extends React.Component<Props> {
           getMessengerData,
           saveGetNotified,
           getColor,
-          isLoggedIn
+          isLoggedIn,
+          sendMessage
         }) => {
           return (
             <MessagesList
@@ -29,6 +31,10 @@ export default class extends React.Component<Props> {
               saveGetNotified={saveGetNotified}
               getColor={getColor()}
               isLoggedIn={isLoggedIn}
+              sendMessage={sendMessage}
+              showVideoCallRequest={
+                this.props.isOnline && getMessengerData().showVideoCallRequest
+              }
             />
           );
         }}

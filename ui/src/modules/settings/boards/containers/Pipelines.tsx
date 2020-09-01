@@ -11,6 +11,7 @@ import { __, Alert, confirm, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Pipelines from '../components/Pipelines';
+import { getWarningMessage } from '../constants';
 import { mutations, queries } from '../graphql';
 import {
   IOption,
@@ -51,23 +52,25 @@ class PipelinesContainer extends React.Component<FinalProps> {
 
     // remove action
     const remove = pipelineId => {
-      confirm().then(() => {
-        removePipelineMutation({
-          variables: { _id: pipelineId }
-        })
-          .then(() => {
-            pipelinesQuery.refetch({ boardId });
-
-            const msg = `${__(`You successfully deleted a`)} ${__(
-              'pipeline'
-            )}.`;
-
-            Alert.success(msg);
+      confirm(getWarningMessage('Pipeline'), { hasDeleteConfirm: true }).then(
+        () => {
+          removePipelineMutation({
+            variables: { _id: pipelineId }
           })
-          .catch(error => {
-            Alert.error(error.message);
-          });
-      });
+            .then(() => {
+              pipelinesQuery.refetch({ boardId });
+
+              const msg = `${__(`You successfully deleted a`)} ${__(
+                'pipeline'
+              )}.`;
+
+              Alert.success(msg);
+            })
+            .catch(error => {
+              Alert.error(error.message);
+            });
+        }
+      );
     };
 
     const renderButton = ({
@@ -75,14 +78,24 @@ class PipelinesContainer extends React.Component<FinalProps> {
       values,
       isSubmitted,
       callback,
-      object
+      object,
+      confirmationUpdate
     }: IButtonMutateProps) => {
+      const callBackResponse = () => {
+        pipelinesQuery.refetch({ boardId });
+
+        if (callback) {
+          return callback();
+        }
+      };
+
       return (
         <ButtonMutate
           mutation={object ? mutations.pipelineEdit : mutations.pipelineAdd}
           variables={values}
-          callback={callback}
-          refetchQueries={getRefetchQueries(boardId)}
+          callback={callBackResponse}
+          confirmationUpdate={object ? confirmationUpdate : false}
+          refetchQueries={getRefetchQueries()}
           isSubmitted={isSubmitted}
           type="submit"
           successMessage={`You successfully ${
@@ -115,10 +128,8 @@ class PipelinesContainer extends React.Component<FinalProps> {
   }
 }
 
-const getRefetchQueries = (boardId: string) => {
-  return [
-    { query: gql(queries.pipelines), variables: { boardId: boardId || '' } }
-  ];
+const getRefetchQueries = () => {
+  return ['pipelinesQuery'];
 };
 
 export default withProps<Props>(
@@ -127,8 +138,14 @@ export default withProps<Props>(
       gql(queries.pipelines),
       {
         name: 'pipelinesQuery',
-        options: ({ boardId = '' }: { boardId: string }) => ({
-          variables: { boardId },
+        options: ({
+          boardId = '',
+          type
+        }: {
+          boardId: string;
+          type: string;
+        }) => ({
+          variables: { boardId, type },
           fetchPolicy: 'network-only'
         })
       }

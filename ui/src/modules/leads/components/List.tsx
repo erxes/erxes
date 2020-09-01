@@ -1,12 +1,14 @@
 import Button from 'modules/common/components/Button';
 import CountsByTag from 'modules/common/components/CountsByTag';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
+import EmptyContent from 'modules/common/components/empty/EmptyContent';
 import FormControl from 'modules/common/components/form/Control';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
+import { EMPTY_CONTENT_POPUPS } from 'modules/settings/constants';
 import TaggerPopover from 'modules/tags/components/TaggerPopover';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -21,12 +23,13 @@ type Props = {
   isAllSelected: boolean;
   emptyBulk: () => void;
   totalCount: number;
+  queryParams: any;
   tagsCount: { [key: string]: number };
   toggleBulk: (target: ILeadIntegration, toAdd: boolean) => void;
   toggleAll: (bulk: ILeadIntegration[], name: string) => void;
   loading: boolean;
   remove: (integrationId: string) => void;
-  archive: (integrationId: string) => void;
+  archive: (integrationId: string, status: boolean) => void;
 };
 
 class List extends React.Component<Props, {}> {
@@ -36,7 +39,7 @@ class List extends React.Component<Props, {}> {
   };
 
   renderRow() {
-    const { integrations, remove, bulk, toggleBulk, archive } = this.props;
+    const { integrations, remove, bulk, toggleBulk, archive, queryParams } = this.props;
 
     return integrations.map(integration => (
       <Row
@@ -46,6 +49,7 @@ class List extends React.Component<Props, {}> {
         integration={integration}
         remove={remove}
         archive={archive}
+        showCode={integration._id === queryParams.showInstallCode}
       />
     ));
   }
@@ -125,6 +129,7 @@ class List extends React.Component<Props, {}> {
             <th>{__('Created at')}</th>
             <th>{__('Created by')}</th>
             <th>{__('Tags')}</th>
+            <th>{__('Status')}</th>
             <th>{__('Actions')}</th>
           </tr>
         </thead>
@@ -148,8 +153,7 @@ class List extends React.Component<Props, {}> {
             data={content}
             loading={loading}
             count={integrations.length}
-            emptyText="There is always a pop ups!"
-            emptyImage="/images/actions/12.svg"
+            emptyContent={<EmptyContent content={EMPTY_CONTENT_POPUPS} maxItemWidth="360px" />}
           />
         }
       />

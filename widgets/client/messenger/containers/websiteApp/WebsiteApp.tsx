@@ -1,17 +1,18 @@
 import * as React from "react";
 import { WebsiteApp } from "../../components";
+import { IWebsiteApp } from "../../types";
 import { AppConsumer } from "../AppContext";
 
 type Props = {
-  config: { [key: string]: string };
+  websiteApp: IWebsiteApp;
 };
 
 const container = (props: Props) => {
   return (
     <AppConsumer>
-      {({ changeRoute, getColor }) => {
+      {({ goToWebsiteApp, getColor }) => {
         return (
-          <WebsiteApp {...props} changeRoute={changeRoute} color={getColor()} />
+          <WebsiteApp {...props} goToWebsiteApp={goToWebsiteApp} color={getColor()} />
         );
       }}
     </AppConsumer>

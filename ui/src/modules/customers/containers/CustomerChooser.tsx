@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Alert, renderFullName, withProps } from 'modules/common/utils';
+import { renderFullName, withProps } from 'modules/common/utils';
 import ConformityChooser from 'modules/conformity/containers/ConformityChooser';
 import React from 'react';
 import { graphql } from 'react-apollo';
@@ -40,24 +40,7 @@ class CustomerChooser extends React.Component<
   };
 
   render() {
-    const { data, customersQuery, customersAdd, search } = this.props;
-
-    // add customer
-    const addCustomer = ({ doc, callback }) => {
-      customersAdd({
-        variables: doc
-      })
-        .then(() => {
-          customersQuery.refetch();
-
-          Alert.success('You successfully added a customer');
-
-          callback();
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    };
+    const { data, customersQuery, search } = this.props;
 
     const getAssociatedCustomer = (newCustomer: ICustomer) => {
       this.setState({ newCustomer });
@@ -83,7 +66,6 @@ class CustomerChooser extends React.Component<
           getAssociatedCustomer={getAssociatedCustomer}
         />
       ),
-      add: addCustomer,
       newItem: this.state.newCustomer,
       resetAssociatedItem: this.resetAssociatedItem,
       datas: customersQuery.customers || [],

@@ -1,7 +1,3 @@
-/*
- * Messenger message's embeddable script
- */
-
 // css
 import "./index.css";
 
@@ -12,6 +8,10 @@ import {
 } from "../../utils";
 
 declare const window: any;
+
+/*
+ * Messenger message's embeddable script
+ */
 
 // check is mobile
 const isMobile =

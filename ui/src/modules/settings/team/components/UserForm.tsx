@@ -4,7 +4,7 @@ import CollapseContent from 'modules/common/components/CollapseContent';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
-import { __ } from 'modules/common/utils';
+import { __, getConstantFromStore } from 'modules/common/utils';
 import SelectBrands from 'modules/settings/brands/containers/SelectBrands';
 import { IUserGroup } from 'modules/settings/permissions/types';
 import React from 'react';
@@ -144,6 +144,12 @@ class UserForm extends React.Component<Props, State> {
       finalValues._id = object._id;
     }
 
+    const links = {};
+
+    getConstantFromStore('social_links').forEach(link => {
+      links[link.value] = finalValues[link.value];
+    });
+
     return {
       _id: finalValues._id,
       username: finalValues.username,
@@ -158,14 +164,7 @@ class UserForm extends React.Component<Props, State> {
         operatorPhone: finalValues.operatorPhone
       },
       channelIds: this.collectValues(selectedChannels),
-      links: {
-        linkedIn: finalValues.linkedIn,
-        twitter: finalValues.twitter,
-        facebook: finalValues.facebook,
-        youtube: finalValues.youtube,
-        github: finalValues.github,
-        website: finalValues.website
-      },
+      links,
       groupIds: this.collectValues(selectedGroups),
       brandIds: selectedBrands
     };

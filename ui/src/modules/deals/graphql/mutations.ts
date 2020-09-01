@@ -1,4 +1,6 @@
 import {
+  commonDragParams,
+  commonDragVariables,
   commonFields,
   commonMutationParams,
   commonMutationVariables
@@ -45,16 +47,8 @@ const dealsRemove = `
 `;
 
 const dealsChange = `
-  mutation dealsChange($_id: String!, $destinationStageId: String!, $order: Float) {
-    dealsChange(_id: $_id, destinationStageId: $destinationStageId, order: $order) {
-      _id
-    }
-  }
-`;
-
-const dealsUpdateOrder = `
-  mutation dealsUpdateOrder($stageId: String!, $orders: [OrderItem]) {
-    dealsUpdateOrder(stageId: $stageId, orders: $orders) {
+  mutation dealsChange(${commonDragVariables}) {
+    dealsChange(${commonDragParams}) {
       _id
     }
   }
@@ -70,14 +64,14 @@ const dealsWatch = `
 `;
 
 const dealsArchive = `
-  mutation dealsArchive($stageId: String!) {
-    dealsArchive(stageId: $stageId)
+  mutation dealsArchive($stageId: String!, $proccessId: String) {
+    dealsArchive(stageId: $stageId, proccessId: $proccessId)
   }
 `;
 
 const dealsCopy = `
-  mutation dealsCopy($_id: String!) {
-    dealsCopy(_id: $_id) {
+  mutation dealsCopy($_id: String!, $proccessId: String) {
+    dealsCopy(_id: $_id, proccessId: $proccessId) {
       ${commonFields}
       ${dealFields}
     }
@@ -89,7 +83,6 @@ export default {
   dealsEdit,
   dealsRemove,
   dealsChange,
-  dealsUpdateOrder,
   dealsWatch,
   dealsArchive,
   dealsCopy

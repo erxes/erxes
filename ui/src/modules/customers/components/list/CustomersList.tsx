@@ -3,6 +3,7 @@ import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import DateFilter from 'modules/common/components/DateFilter';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
+import EmptyContent from 'modules/common/components/empty/EmptyContent';
 import FormControl from 'modules/common/components/form/Control';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
@@ -11,6 +12,7 @@ import SortHandler from 'modules/common/components/SortHandler';
 import Table from 'modules/common/components/table';
 import { menuContacts } from 'modules/common/utils/menus';
 import { queries } from 'modules/customers/graphql';
+import { EMPTY_CONTENT_CONTACTS } from 'modules/settings/constants';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { withRouter } from 'react-router-dom';
@@ -53,6 +55,7 @@ interface IProps extends IRouterProps {
       callback: () => void;
     }
   ) => Promise<void>;
+  verifyCustomers: (doc: { verificationType: string }) => void;
   queryParams: any;
   exportData: (bulk: Array<{ _id: string }>) => void;
   responseId: string;
@@ -69,7 +72,7 @@ class CustomersList extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue
+      searchValue: this.props.searchValue,
     };
   }
 
@@ -79,16 +82,22 @@ class CustomersList extends React.Component<IProps, State> {
     toggleAll(customers, 'customers');
   };
 
-  removeCustomers = customers => {
+  removeCustomers = (customers) => {
     const customerIds: string[] = [];
 
-    customers.forEach(customer => {
+    customers.forEach((customer) => {
       customerIds.push(customer._id);
     });
 
     const { removeCustomers, emptyBulk } = this.props;
 
     removeCustomers({ customerIds }, emptyBulk);
+  };
+
+  verifyCustomers = (verificationType: string) => {
+    const { verifyCustomers } = this.props;
+
+    verifyCustomers({ verificationType });
   };
 
   renderContent() {
@@ -98,7 +107,7 @@ class CustomersList extends React.Component<IProps, State> {
       bulk,
       toggleBulk,
       history,
-      isAllSelected
+      isAllSelected,
     } = this.props;
 
     return (
@@ -121,7 +130,7 @@ class CustomersList extends React.Component<IProps, State> {
           </tr>
         </thead>
         <tbody id="customers">
-          {customers.map(customer => (
+          {customers.map((customer) => (
             <CustomerRow
               customer={customer}
               columnsConfig={columnsConfig}
@@ -136,7 +145,7 @@ class CustomersList extends React.Component<IProps, State> {
     );
   }
 
-  search = e => {
+  search = (e) => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -172,7 +181,7 @@ class CustomersList extends React.Component<IProps, State> {
       history,
       queryParams,
       exportData,
-      mergeCustomerLoading
+      mergeCustomerLoading,
     } = this.props;
 
     const addTrigger = (
@@ -181,24 +190,24 @@ class CustomersList extends React.Component<IProps, State> {
       </Button>
     );
 
-    const editColumns = <a href="#edit">{__('Edit columns')}</a>;
+    const editColumns = <a href="#edit">{__('Choose Properties/View')}</a>;
 
     const dateFilter = queryParams.form && (
       <DateFilter queryParams={queryParams} history={history} />
     );
 
-    const manageColumns = props => {
+    const manageColumns = (props) => {
       return (
         <ManageColumns
           {...props}
-          contentType="customer"
+          contentType={type}
           location={location}
           history={history}
         />
       );
     };
 
-    const customerForm = props => {
+    const customerForm = (props) => {
       return (
         <CustomerForm
           {...props}
@@ -209,7 +218,7 @@ class CustomersList extends React.Component<IProps, State> {
       );
     };
 
-    const customersMerge = props => {
+    const customersMerge = (props) => {
       return (
         <CustomersMerge
           {...props}
@@ -249,17 +258,33 @@ class CustomersList extends React.Component<IProps, State> {
             </li>
             <li>
               <Link to="/settings/properties?type=customer">
-                {__('Properties')}
+                {__('Manage properties')}
               </Link>
             </li>
             <li>
               <a href="#export" onClick={exportData.bind(this, bulk)}>
-                {__('Export customers')}
+                {type === 'lead' ? __('Export leads') : __('Export contacts')}
+              </a>
+            </li>
+            <li>
+              <a
+                href="#verifyEmail"
+                onClick={this.verifyCustomers.bind(this, 'email')}
+              >
+                {__('Verify emails')}
+              </a>
+            </li>
+            <li>
+              <a
+                href="#verifyPhone"
+                onClick={this.verifyCustomers.bind(this, 'phone')}
+              >
+                {__('Verify phone numbers')}
               </a>
             </li>
           </Dropdown.Menu>
         </Dropdown>
-        <Link to="/settings/importHistories?type=customer">
+        <Link to={`/settings/importHistories?type=${type}`}>
           <Button btnStyle="primary" size="small" icon="arrow-from-right">
             {__('Go to import')}
           </Button>
@@ -298,13 +323,13 @@ class CustomersList extends React.Component<IProps, State> {
           .then(() => {
             this.removeCustomers(bulk);
           })
-          .catch(e => {
+          .catch((e) => {
             Alert.error(e.message);
           });
 
       const refetchQuery = {
         query: gql(queries.customerCounts),
-        variables: { only: 'byTag' }
+        variables: { only: 'byTag' },
       };
 
       actionBarLeft = (
@@ -329,7 +354,7 @@ class CustomersList extends React.Component<IProps, State> {
           <Button
             btnStyle="danger"
             size="small"
-            icon="cancel-1"
+            icon="times-circle"
             onClick={onClick}
           >
             Remove
@@ -359,8 +384,7 @@ class CustomersList extends React.Component<IProps, State> {
             data={this.renderContent()}
             loading={loading}
             count={customers.length}
-            emptyText="Let's start taking care of your customers"
-            emptyImage="/images/actions/11.svg"
+            emptyContent={<EmptyContent content={EMPTY_CONTENT_CONTACTS} />}
           />
         }
       />

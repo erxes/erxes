@@ -5,6 +5,7 @@ import { IUser } from 'modules/auth/types';
 import { Alert, withProps } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
 import { AddMutationResponse, IEngageMessageDoc } from 'modules/engage/types';
+import { queries as templatesQuery } from 'modules/settings/emailTemplates/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { BrandsQueryResponse } from '../../settings/brands/types';
@@ -24,6 +25,7 @@ type Props = {
   emptyBulk?: () => void;
   modalTrigger?: React.ReactNode;
   channelType?: string;
+  totalCountQuery?: any;
 };
 
 type FinalProps = {
@@ -92,11 +94,19 @@ const WidgetContainer = (props: FinalProps) => {
   return <Widget {...updatedProps} />;
 };
 
-export default withProps<Props>(
+const withQueries = withProps<Props>(
   compose(
-    graphql<Props, EmailTemplatesQueryResponse>(gql(queries.emailTemplates), {
-      name: 'emailTemplatesQuery'
-    }),
+    graphql<Props, EmailTemplatesQueryResponse>(
+      gql(templatesQuery.emailTemplates),
+      {
+        name: 'emailTemplatesQuery',
+        options: ({ totalCountQuery }) => ({
+          variables: {
+            perPage: totalCountQuery.emailTemplatesTotalCount
+          }
+        })
+      }
+    ),
     graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
       name: 'brandsQuery'
     }),
@@ -108,4 +118,12 @@ export default withProps<Props>(
       }
     )
   )(withCurrentUser(WidgetContainer))
+);
+
+export default withProps<Props>(
+  compose(
+    graphql(gql(templatesQuery.totalCount), {
+      name: 'totalCountQuery'
+    })
+  )(withQueries)
 );

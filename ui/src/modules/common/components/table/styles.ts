@@ -23,7 +23,7 @@ const StyledTable = styledTS<{
     td {
       border-top: 1px solid ${colors.borderPrimary};
       color: ${colors.textPrimary};
-      padding: ${dimensions.unitSpacing}px;
+      padding: ${dimensions.unitSpacing - 2}px;
       display: table-cell;
       vertical-align: ${props.alignTop && 'top'};
 
@@ -54,11 +54,11 @@ const StyledTable = styledTS<{
         : null
     } ${
     props.bordered
-      ? `th, td { border: 1px solid ${colors.borderPrimary}; }`
+      ? `th, td { border-bottom: 1px solid ${colors.borderPrimary}; }`
       : null
   } ${
     props.striped
-      ? `tr:nth-of-type(odd) td { background-color: ${colors.bgUnread}; }`
+      ? `tr:nth-of-type(odd) td { background-color: ${colors.bgLightPurple}; }`
       : null
   } th {
       border-top: none;
@@ -92,7 +92,16 @@ const StyledTable = styledTS<{
     @media (min-width: 1170px) {
       th,
       td {
-        padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+        padding: ${dimensions.unitSpacing - 2}px ${dimensions.coreSpacing -
+    2}px;
+
+        &:first-child {
+          padding-left: ${dimensions.coreSpacing}px;
+        }
+
+        &:last-child {
+          padding-right: ${dimensions.coreSpacing}px;
+        }
       }
     }
   `};

@@ -1,5 +1,5 @@
 import * as classNames from "classnames";
-import * as moment from "moment";
+import * as dayjs from "dayjs";
 import * as React from "react";
 import * as RTG from "react-transition-group";
 import { facebook, twitter, youtube } from "../../icons/Icons";
@@ -19,6 +19,8 @@ type Props = {
   loading?: boolean;
   color?: string;
   messengerData: IIntegrationMessengerData;
+  isOnline?: boolean;
+  serverTime?: string;
 };
 
 type State = {
@@ -96,7 +98,7 @@ class Home extends React.Component<Props, State> {
 
     return (
       <div className="assist-bar">
-        <time>{moment(new Date()).format("lll")}</time>
+        <time>{dayjs(new Date()).format("lll")}</time>
         <div className="socials">
           <SocialLink url={links.facebook} icon={facebook} />
           <SocialLink url={links.twitter} icon={twitter} />
@@ -106,8 +108,23 @@ class Home extends React.Component<Props, State> {
     );
   }
 
+  renderServerInfo(timezone?: string, serverTime?: string) {
+    return (
+      <div className="server-info">
+        <time>Server time: {dayjs(serverTime).format("lll")}</time>
+        <p>Timezone: {timezone || "not specified"}</p>
+      </div>
+    );
+  }
+
   renderHead() {
-    const { supporters, loading, messengerData } = this.props;
+    const {
+      isOnline,
+      supporters,
+      loading,
+      messengerData,
+      serverTime
+    } = this.props;
 
     return (
       <div
@@ -120,7 +137,13 @@ class Home extends React.Component<Props, State> {
       >
         {this.renderAssistBar(messengerData)}
         {this.renderGreetings(messengerData)}
-        <Supporters users={supporters} isExpanded={false} loading={loading} />
+        <Supporters
+          users={supporters}
+          isExpanded={false}
+          loading={loading}
+          isOnline={isOnline}
+        />
+        {this.renderServerInfo(messengerData.timezone, serverTime)}
         {this.renderTab()}
       </div>
     );

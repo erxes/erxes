@@ -16,7 +16,7 @@ import { graphql } from 'react-apollo';
 type Props = {
   activity: any;
   noteId: string;
-  currenUser: IUser;
+  currentUser: IUser;
 };
 
 type FinalProps = {

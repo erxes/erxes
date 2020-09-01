@@ -1,12 +1,13 @@
 import { IFormProps } from 'modules/common/types';
 import React from 'react';
 import validator from 'validator';
-import { __, generateRandomString } from '../../utils';
+import { __, generateRandomString, isValidUsername } from '../../utils';
 import { Error } from './styles';
 
 type Props = {
   renderContent: (props: IFormProps) => React.ReactNode;
   onSubmit?: (values: any) => any;
+  autoComplete?: string;
 };
 
 type State = {
@@ -114,10 +115,18 @@ class Form extends React.Component<Props, State> {
       return <Error>{__('Invalid link')}</Error>;
     }
 
-    if (value && props.type === 'number' && !validator.isInt(value)) {
+    if (value && props.type === 'number' && !validator.isFloat(value)) {
       return (
         <Error>
           {__('Invalid number format! Please enter a valid number')}
+        </Error>
+      );
+    }
+
+    if (value && props.name === 'username' && !isValidUsername(value)) {
+      return (
+        <Error>
+          {__('Invalid Username')}
         </Error>
       );
     }
@@ -127,7 +136,12 @@ class Form extends React.Component<Props, State> {
 
   render() {
     return (
-      <form id={this.formId} onSubmit={this.onSubmit} noValidate={true}>
+      <form
+        id={this.formId}
+        onSubmit={this.onSubmit}
+        noValidate={true}
+        autoComplete={this.props.autoComplete}
+      >
         {this.props.renderContent({
           errors: this.state.errors,
           values: this.state.values,

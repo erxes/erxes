@@ -20,7 +20,7 @@ import {
   IFormProps,
   IQueryParams
 } from 'modules/common/types';
-import { Alert } from 'modules/common/utils';
+import { Alert, getConstantFromStore } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
@@ -29,6 +29,7 @@ import { ICustomer, ICustomerDoc } from '../../types';
 import { genderChoices, isValidPhone } from '../../utils';
 
 type Props = {
+  currentUser: IUser;
   customer?: ICustomer;
   closeModal: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -54,9 +55,10 @@ class CustomerForm extends React.Component<Props, State> {
     super(props);
 
     const customer = props.customer || ({} as ICustomer);
+    const userId = props.currentUser ? props.currentUser._id : '';
 
     this.state = {
-      ownerId: customer.ownerId || '',
+      ownerId: customer.ownerId || userId,
       doNotDisturb: customer.doNotDisturb || 'No',
       hasAuthority: customer.hasAuthority || 'No',
       users: [],
@@ -73,6 +75,12 @@ class CustomerForm extends React.Component<Props, State> {
       finalValues._id = customer._id;
     }
 
+    const links = {};
+
+    getConstantFromStore('social_links').forEach(link => {
+      links[link.value] = finalValues[link.value];
+    });
+
     return {
       _id: finalValues._id,
       ...this.state,
@@ -84,15 +92,7 @@ class CustomerForm extends React.Component<Props, State> {
       leadStatus: finalValues.leadStatus,
       description: finalValues.description,
       code: finalValues.code,
-
-      links: {
-        linkedIn: finalValues.linkedIn,
-        twitter: finalValues.twitter,
-        facebook: finalValues.facebook,
-        github: finalValues.github,
-        youtube: finalValues.youtube,
-        website: finalValues.website
-      }
+      links
     };
   };
 
@@ -178,12 +178,24 @@ class CustomerForm extends React.Component<Props, State> {
     return this.getVisitorInfo(customer, 'email') || emails.length > 0;
   };
 
+  renderLink(formProps, link) {
+    const { customer } = this.props;
+    const links = (customer ? customer.links : {}) || {};
+
+    return this.renderFormGroup(link.label, {
+      ...formProps,
+      name: link.value,
+      defaultValue: links[link.value] || '',
+      type: 'url'
+    });
+  }
+
   renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton } = this.props;
     const { values, isSubmitted, resetSubmit } = formProps;
 
     const customer = this.props.customer || ({} as ICustomer);
-    const { links = {}, primaryEmail, primaryPhone } = customer;
+    const { primaryEmail, primaryPhone } = customer;
 
     return (
       <>
@@ -243,7 +255,7 @@ class CustomerForm extends React.Component<Props, State> {
                   />
                 </FormGroup>
 
-                {this.renderFormGroup('Gender', {
+                {this.renderFormGroup('Pronoun', {
                   ...formProps,
                   name: 'sex',
                   componentClass: 'select',
@@ -355,48 +367,9 @@ class CustomerForm extends React.Component<Props, State> {
           <CollapseContent title={__('Links')} compact={true}>
             <FormWrapper>
               <FormColumn>
-                {this.renderFormGroup('LinkedIn', {
-                  ...formProps,
-                  name: 'linkedIn',
-                  defaultValue: links.linkedIn || '',
-                  type: 'url'
-                })}
-
-                {this.renderFormGroup('Twitter', {
-                  ...formProps,
-                  name: 'twitter',
-                  defaultValue: links.twitter || '',
-                  type: 'url'
-                })}
-
-                {this.renderFormGroup('Facebook', {
-                  ...formProps,
-                  name: 'facebook',
-                  defaultValue: links.facebook || '',
-                  type: 'url'
-                })}
-              </FormColumn>
-              <FormColumn>
-                {this.renderFormGroup('Github', {
-                  ...formProps,
-                  name: 'github',
-                  defaultValue: links.github || '',
-                  type: 'url'
-                })}
-
-                {this.renderFormGroup('Youtube', {
-                  ...formProps,
-                  name: 'youtube',
-                  defaultValue: links.youtube || '',
-                  type: 'url'
-                })}
-
-                {this.renderFormGroup('Website', {
-                  ...formProps,
-                  name: 'website',
-                  defaultValue: links.website || '',
-                  type: 'url'
-                })}
+                {getConstantFromStore('social_links').map(link =>
+                  this.renderLink(formProps, link)
+                )}
               </FormColumn>
             </FormWrapper>
           </CollapseContent>
@@ -412,7 +385,7 @@ class CustomerForm extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: 'customer',
+            name: customer.state || 'customer',
             values: this.generateDoc(values),
             isSubmitted,
             object: this.props.customer,

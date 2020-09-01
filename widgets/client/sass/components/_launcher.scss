@@ -4,7 +4,7 @@
   background-image: url($widget-logo);
   background-position: center;
   background-repeat: no-repeat;
-  background-size: $core-spacing !important;
+  background-size: $core-spacing;
   border-radius: 28px;
   bottom: 8px;
   box-shadow: 0 0 10px 0 rgba($black, .2);
@@ -43,7 +43,6 @@
   &.close-launcher {
     background-image: url($close) !important;
     background-position: 50%;
-    background-size: inherit;
     transition: box-shadow .3s ease-in-out, background-image .3s ease-in;
 
     &::before {

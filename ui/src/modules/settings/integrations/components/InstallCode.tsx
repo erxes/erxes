@@ -63,16 +63,10 @@ const singlePageInstall = brandCode => {
   const { REACT_APP_CDN_HOST } = getEnv();
 
   return `
-    (window as any).erxesSettings = {
-      email: "<email>",
+    window.erxesSettings = {
       messenger: {
         brand_id: "${brandCode}",
       },
-      phone: "<phone>",
-      data: {
-         domain: "<website>",
-         ...
-      }
     };
     
     (() => {
@@ -80,7 +74,7 @@ const singlePageInstall = brandCode => {
       script.src = "${REACT_APP_CDN_HOST}/build/messengerWidget.bundle.js";
       script.async = true;
 
-      const entry = document.getElementsByTagName('script')[0] as any;
+      const entry = document.getElementsByTagName('script')[0];
       entry.parentNode.insertBefore(script, entry);
     })();
   `;
@@ -415,9 +409,9 @@ class InstallCode extends React.PureComponent<Props, State> {
             onCopy={this.onCopy.bind(this, currentTab)}
           >
             <Button
-              size="small"
+              uppercase={false}
               btnStyle={action ? 'primary' : 'success'}
-              icon="copy"
+              icon="copy-1"
             >
               {action ? 'Copied' : 'Copy to clipboard'}
             </Button>
@@ -542,7 +536,8 @@ class InstallCode extends React.PureComponent<Props, State> {
         <ModalFooter>
           <Button
             btnStyle="simple"
-            icon="cancel-1"
+            icon="times-circle"
+            uppercase={false}
             onClick={this.props.closeModal}
           >
             Close

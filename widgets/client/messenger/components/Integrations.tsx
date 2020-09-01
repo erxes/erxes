@@ -1,12 +1,13 @@
 import * as React from "react";
 import { __ } from "../../utils";
 import { ConversationList, LeadConnect, WebsiteApp } from "../containers";
+import { IWebsiteApp } from "../types";
 import { IntegrationItem } from "./";
 
 type Props = {
   formCode: string;
   brandCode: string;
-  websiteAppData?: { [key: string]: string };
+  websiteApps?: IWebsiteApp[];
   hideConversations: boolean;
 };
 
@@ -25,18 +26,20 @@ export default class Integrations extends React.PureComponent<Props> {
     );
   }
 
-  renderWebsiteApp() {
-    const { websiteAppData } = this.props;
+  renderWebsiteApps() {
+    const { websiteApps } = this.props;
 
-    if (!websiteAppData) {
+    if (!websiteApps) {
       return null;
     }
 
-    return (
-      <IntegrationItem>
-        <WebsiteApp config={websiteAppData} />
-      </IntegrationItem>
-    );
+    return websiteApps.map(((websiteApp, index) => {
+      return (
+        <IntegrationItem key={index}>
+          <WebsiteApp websiteApp={websiteApp} />
+        </IntegrationItem>
+      )
+    }))
   }
 
   renderConversations() {
@@ -56,7 +59,7 @@ export default class Integrations extends React.PureComponent<Props> {
       <>
         {this.renderConversations()}
         {this.renderLead()}
-        {this.renderWebsiteApp()}
+        {this.renderWebsiteApps()}
       </>
     );
   }

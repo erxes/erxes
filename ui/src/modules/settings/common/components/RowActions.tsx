@@ -32,8 +32,8 @@ export default class RowActions extends React.Component<Props, {}> {
     }
 
     return (
-      <Tip text={__('Delete')}>
-        <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
+      <Tip text={__('Delete')} placement="top">
+        <Button btnStyle="link" onClick={this.remove} icon="times-circle" />
       </Tip>
     );
   };
@@ -43,8 +43,8 @@ export default class RowActions extends React.Component<Props, {}> {
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text={__('Edit')}>
-          <Icon icon="edit" />
+        <Tip text={__('Edit')} placement="top">
+          <Icon icon="edit-3" />
         </Tip>
       </Button>
     );

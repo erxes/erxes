@@ -49,9 +49,15 @@ class AssistantContentContainer extends React.Component<FinalProps> {
   componentDidMount() {
     if (window.location.href.includes('signedIn=true')) {
       setTimeout(() => {
-        apolloClient.mutate({
-          mutation: gql(mutations.checkStatus)
-        });
+        apolloClient
+          .mutate({
+            mutation: gql(mutations.checkStatus)
+          })
+          .then(({ data }) => {
+            if (data.onboardingCheckStatus === 'completed') {
+              this.props.toggleContent(false);
+            }
+          });
       }, 3000);
     }
   }

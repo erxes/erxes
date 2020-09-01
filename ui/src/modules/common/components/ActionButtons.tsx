@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import colors from '../styles/colors';
 
 const ActionButton = styled.div`
   display: inline-block;
@@ -11,6 +12,14 @@ const ActionButton = styled.div`
     &:first-child {
       margin-left: 0;
     }
+  }
+
+  i {
+    font-size: 16px;
+  }
+
+  a {
+    color: ${colors.colorCoreGray};
   }
 `;
 

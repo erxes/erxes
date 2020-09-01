@@ -1,10 +1,11 @@
-import * as React from 'react';
-import { MessageSender } from '../components';
-import { AppConsumer, MESSAGE_TYPES } from './AppContext';
+import * as React from "react";
+import { MessageSender } from "../components";
+import { AppConsumer, MESSAGE_TYPES } from "./AppContext";
 
 type Props = {
   placeholder?: string;
   isParentFocused: boolean;
+  isOnline: boolean;
   onTextInputBlur: () => void;
   collapseHead: () => void;
 };
@@ -19,7 +20,7 @@ const Container = (props: Props) => {
         sendTypingInfo,
         sendFile,
         readMessages,
-        getUiOptions
+        getMessengerData
       }) => {
         return (
           <MessageSender
@@ -36,7 +37,9 @@ const Container = (props: Props) => {
             }}
             readMessages={readMessages}
             sendFile={sendFile}
-            videoCallUsageStatus={getUiOptions().videoCallUsageStatus}
+            showVideoCallRequest={
+              props.isOnline && getMessengerData().showVideoCallRequest
+            }
           />
         );
       }}

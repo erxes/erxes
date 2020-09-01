@@ -7,6 +7,7 @@ const colorSecondary = '#6569DF';
 const colorCoreRed = '#EA475D';
 const colorCoreTeal = '#63D2D6';
 const colorCoreYellow = '#F7CE53';
+const colorCoreOrange = '#FF6600';
 const colorCoreGreen = '#3CCC38';
 const colorCoreBlue = '#3B85F4';
 const colorCoreDarkBlue = '#0a1e41';
@@ -28,7 +29,8 @@ const bgDark = rgba(colorBlack, 0.95);
 const bgLight = '#FAFAFA';
 const bgActive = '#F0F0F0';
 const bgGray = '#e6e6e6';
-const bgUnread = '#F7F8FC';
+const bgLightPurple = '#F7F8FC';
+const bgUnread = '#ededfb';
 const bgInternal = '#FFFCCC';
 
 // Link colors
@@ -66,6 +68,7 @@ export default {
   colorCoreRed,
   colorCoreTeal,
   colorCoreYellow,
+  colorCoreOrange,
   colorCoreBlue,
   colorCoreGreen,
   colorCoreBlack,
@@ -84,6 +87,7 @@ export default {
   bgLight,
   bgActive,
   bgUnread,
+  bgLightPurple,
   bgInternal,
   bgGray,
 

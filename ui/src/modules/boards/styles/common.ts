@@ -108,6 +108,13 @@ export const NotifiedContainer = styled.div`
   line-height: 22px;
 `;
 
+export const DragDisabler = styled.div`
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  cursor: progress;
+`;
+
 export const ItemContainer = styledTS<{
   isDragging?: boolean;
 }>(styled.div)`

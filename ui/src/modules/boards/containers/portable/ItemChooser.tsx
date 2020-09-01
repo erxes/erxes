@@ -1,7 +1,5 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import EmptyState from 'modules/common/components/EmptyState';
-import Spinner from 'modules/common/components/Spinner';
 import { withProps } from 'modules/common/utils';
 import ConformityChooser from 'modules/conformity/containers/ConformityChooser';
 import React from 'react';
@@ -73,10 +71,11 @@ class ItemChooserContainer extends React.Component<
         relType: data.options.type,
         options: data.options
       },
+      search,
+      clearState: () => search(''),
       perPage: 0,
       title: data.options.title,
       renderName,
-      datas: itemsQuery[data.options.queriesName.itemsQuery] || [],
       renderForm: formProps => (
         <AddForm
           {...formProps}
@@ -89,20 +88,11 @@ class ItemChooserContainer extends React.Component<
           getAssociatedItem={getAssociatedItem}
         />
       ),
-      hasBoardChooser: true,
       newItem: this.state.newItem,
       resetAssociatedItem: this.resetAssociatedItem,
-      clearState: () => search(''),
+      datas: itemsQuery[data.options.queriesName.itemsQuery] || [],
       refetchQuery: data.options.queries.itemsQuery
     };
-
-    if (itemsQuery.loading) {
-      return <Spinner />;
-    }
-
-    if (updatedProps.datas.length === 0) {
-      return <EmptyState text="No matching items found" icon="list-ul" />;
-    }
 
     return <ConformityChooser {...updatedProps} />;
   }
@@ -146,6 +136,7 @@ type WrapperProps = {
     mainType?: string;
     isRelated?: boolean;
   };
+  onSelect: (datas: IItem[]) => void;
   showSelect?: boolean;
   closeModal: () => void;
 };

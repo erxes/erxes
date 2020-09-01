@@ -27,7 +27,7 @@ import {
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
-import ChromePicker from 'react-color/lib/Chrome';
+import TwitterPicker from 'react-color/lib/Twitter';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import ReactMarkdown from 'react-markdown';
 import { ITopic } from '../../types';
@@ -141,7 +141,7 @@ class KnowledgeForm extends React.Component<Props, State> {
         <ReactMarkdown source={code} />
         {code ? (
           <CopyToClipboard text={code} onCopy={this.onCopy.bind(this, name)}>
-            <Button size="small" btnStyle="primary" icon="copy">
+            <Button btnStyle="primary" size="small" icon="copy-1" uppercase={false}>
               {copied ? 'Copied' : 'Copy to clipboard'}
             </Button>
           </CopyToClipboard>
@@ -219,8 +219,13 @@ class KnowledgeForm extends React.Component<Props, State> {
     const brandId = brand != null ? brand._id : '';
 
     const popoverTop = (
-      <Popover id="color-picker">
-        <ChromePicker color={color} onChange={this.onColorChange} />
+      <Popover id="kb-color-picker">
+        <TwitterPicker
+          width="205px"
+          triangle="hide"
+          color={color}
+          onChange={this.onColorChange}
+        />
       </Popover>
     );
 
@@ -233,6 +238,7 @@ class KnowledgeForm extends React.Component<Props, State> {
             name="title"
             defaultValue={topic.title}
             required={true}
+            autoFocus={true}
           />
         </FormGroup>
 

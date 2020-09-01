@@ -27,6 +27,10 @@ const commonFields = `
   brandId
   languageCode
   isActive
+  channels {
+    _id
+    name
+  }
 `;
 
 const integrationDetail = `
@@ -90,10 +94,6 @@ const integrations = `
         _id
         title
         code
-      }
-      channels {
-        _id
-        name
       }
     }
   }

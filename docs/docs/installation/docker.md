@@ -118,13 +118,12 @@ Official Docker compose documentation: https://docs.docker.com/compose/install/
 5. Go to `localhost:3000` on your browser, and you're ready to login.
 
 ```
-(username: admin@erxes.io , password: erxes)
+(username: admin@erxes.io , password: auto generated password)
 ```
 
 ### Default ports
 _Must be published to host machine network_
 * erxes main frontend app will run on port 3000
-* erxes-widgets-api will run on port 3100
 * erxes-widgets will run on port 3200
 * erxes-api will run on port 3300
 * erxes-integrations will run on port 3400
@@ -154,13 +153,12 @@ The latest version [**release**](https://github.com/erxes/erxes/releases) source
 version: "2.1"
 services:
   erxes:
-    image: erxes/erxes:0.10.1
+    image: erxes/erxes:0.14.1
     container_name: erxes
     restart: unless-stopped
     environment:
       # erxes
       REACT_APP_CDN_HOST: http://localhost:3200
-      REACT_APP_CDN_HOST_API: http://localhost:3100
       REACT_APP_API_URL: http://localhost:3300
       REACT_APP_API_SUBSCRIPTION_URL: ws://localhost:3300/subscriptions
       NGINX_HOST: localhost
@@ -170,29 +168,19 @@ services:
       - erxes-net
 
   erxes-api:
-    image: erxes/erxes-api:0.10.1
+    image: erxes/erxes-api:0.14.1
     container_name: erxes-api
     restart: unless-stopped
     environment:
       # erxes-api
       PORT: "3300"
       NODE_ENV: production
-      HTTPS: "false"
       DEBUG: "erxes-api:*"
-      PUBSUB_TYPE: REDIS
-      UPLOAD_SERVICE_TYPE: "AWS"
-      FILE_SYSTEM_PUBLIC: "false"
+      JWT_TOKEN_SECRET: token
       # public urls
-      DOMAIN: http://localhost:3300
       MAIN_APP_DOMAIN: http://localhost:3000
       WIDGETS_DOMAIN: http://localhost:3200
       INTEGRATIONS_API_DOMAIN: http://localhost:3400
-      # non public urls
-      WIDGETS_API_DOMAIN: http://erxes-widgets-api:3100
-      CRONS_API_DOMAIN: http://erxes-crons:3600
-      WORKERS_API_DOMAIN: http://erxes-workers:3700
-      LOGS_API_DOMAIN: http://erxes-logger:3800
-      ENGAGES_API_DOMAIN: http://erxes-engages:3900
       # MongoDB
       MONGO_URL: mongodb://mongo/erxes
       # Redis
@@ -201,28 +189,6 @@ services:
       REDIS_PASSWORD: ""
       # RabbitMQ
       RABBITMQ_HOST: "amqp://guest:guest@rabbitmq:5672/erxes"
-      # Email
-      COMPANY_EMAIL_FROM: ""
-      # Aws S3
-      AWS_ACCESS_KEY_ID: ""
-      AWS_SECRET_ACCESS_KEY: ""
-      AWS_BUCKET: ""
-      AWS_PREFIX: ""
-      # Used when using s3 compatible service
-      AWS_COMPATIBLE_SERVICE_ENDPOINT: ""
-      AWS_FORCE_PATH_STYLE: "false"
-      # Used when using SES for transaction emails
-      AWS_SES_ACCESS_KEY_ID: ""
-      AWS_SES_SECRET_ACCESS_KEY: ""
-      AWS_REGION: ""
-      # Google Cloud Storage
-      GOOGLE_CLIENT_ID: ""
-      GOOGLE_CLIENT_SECRET: ""
-      GOOGLE_APPLICATION_CREDENTIALS: ""
-      GOOGLE_TOPIC: ""
-      GOOGLE_SUBSCRIPTION_NAME: ""
-      GOOGLE_PROJECT_ID: ""
-      GOOGLE_CLOUD_STORAGE_BUCKET: ""
     ports:
       - "3300:3300"
     depends_on:
@@ -236,7 +202,7 @@ services:
       - erxes-net
 
   erxes-crons:
-    image: erxes/erxes-api:0.10.1
+    image: erxes/erxes-api:0.14.1
     container_name: erxes-crons
     entrypoint: ["node", "--max_old_space_size=8192", "dist/cronJobs"]
     restart: unless-stopped
@@ -248,6 +214,12 @@ services:
       DEBUG: "erxes-crons:*"
       # MongoDB
       MONGO_URL: mongodb://mongo/erxes
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: ""
+      # RabbitMQ
+      RABBITMQ_HOST: "amqp://guest:guest@rabbitmq:5672/erxes"
     depends_on:
       mongo:
         condition: service_healthy
@@ -257,13 +229,14 @@ services:
       - erxes-net
 
   erxes-workers:
-    image: erxes/erxes-api:0.10.1
+    image: erxes/erxes-api:0.14.1
     container_name: erxes-workers
     entrypoint: ["node", "--max_old_space_size=8192", "--experimental-worker", "dist/workers"]
     restart: unless-stopped
     environment:
       # erxes-workers
       PORT_WORKERS: "3700"
+      JWT_TOKEN_SECRET: token
       NODE_ENV: production
       DEBUG: "erxes-workers:*"
       # MongoDB
@@ -272,6 +245,8 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: "6379"
       REDIS_PASSWORD: ""
+      # RabbitMQ
+      RABBITMQ_HOST: "amqp://guest:guest@rabbitmq:5672/erxes"
     depends_on:
       mongo:
         condition: service_healthy
@@ -283,48 +258,17 @@ services:
       - erxes-net
 
   erxes-widgets:
-    image: erxes/erxes-widgets:0.10.1
+    image: erxes/erxes-widgets:0.14.1
     container_name: erxes-widgets
     restart: unless-stopped
     environment:
       # erxes-widgets
       PORT: "3200"
       ROOT_URL: http://localhost:3200
-      MAIN_API_URL: http://localhost:3300
-      API_GRAPHQL_URL: http://localhost:3100/graphql
+      API_URL: http://localhost:3300
       API_SUBSCRIPTIONS_URL: ws://localhost:3300/subscriptions
     ports:
       - "3200:3200"
-    networks:
-      - erxes-net
-
-  erxes-widgets-api:
-    image: erxes/erxes-widgets-api:0.10.1
-    container_name: erxes-widgets-api
-    restart: unless-stopped
-    environment:
-      # erxes-widgets-api
-      PORT: "3100"
-      NODE_ENV: production
-      PUBSUB_TYPE: REDIS
-      WIDGET_URL: http://localhost:3200
-      # MongoDB
-      MONGO_URL: mongodb://mongo/erxes
-      # Redis
-      REDIS_HOST: redis
-      REDIS_PORT: "6379"
-      REDIS_PASSWORD: ""
-      # RabbitMQ
-      RABBITMQ_HOST: "amqp://guest:guest@rabbitmq:5672/erxes"
-    ports:
-      - "3100:3100"
-    depends_on:
-      mongo:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
     networks:
       - erxes-net
 
@@ -345,17 +289,10 @@ services:
       MONGO_URL: mongodb://mongo/erxes_integrations
       # RabbitMQ
       RABBITMQ_HOST: "amqp://guest:guest@rabbitmq:5672/erxes"
-      # Facebook
-      FACEBOOK_APP_ID: ""
-      FACEBOOK_APP_SECRET: ""
-      FACEBOOK_VERIFY_TOKEN: ""
-      # Gmail
-      GOOGLE_PROJECT_ID: ""
-      GOOGLE_GMAIL_TOPIC: ""
-      GOOGLE_APPLICATION_CREDENTIALS: ""  # path to .json file
-      GOOGLE_GMAIL_SUBSCRIPTION_NAME: ""
-      GOOGLE_CLIENT_ID: ""
-      GOOGLE_CLIENT_SECRET: ""
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: ""
     ports:
       - "3400:3400"
     depends_on:
@@ -375,6 +312,8 @@ services:
       DEBUG: "erxes-logs:*"
       # MongoDB
       MONGO_URL: mongodb://mongo/erxes_logs
+      # RabbitMQ
+      RABBITMQ_HOST: "amqp://guest:guest@rabbitmq:5672/erxes"
     depends_on:
       mongo:
         condition: service_healthy
@@ -395,6 +334,10 @@ services:
       MONGO_URL: mongodb://mongo/erxes_engages
       # RabbitMQ
       RABBITMQ_HOST: "amqp://guest:guest@rabbitmq:5672/erxes"
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: ""
     depends_on:
       mongo:
         condition: service_healthy

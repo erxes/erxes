@@ -11,6 +11,17 @@ export const FlexContent = styled.div`
   display: flex;
 `;
 
+export const ContentWrapper = styled.div``;
+
+export const Content = styled.div`
+  padding: 15px 20px;
+  min-height: 150px;
+
+  p {
+    color: ${colors.colorBlack};
+  }
+`;
+
 export const PriceContainer = styled.div`
   overflow: hidden;
 
@@ -226,6 +237,15 @@ export const MoveFormContainer = styled.div`
   position: relative;
   z-index: 100;
   will-change: transform;
+`;
+
+export const ItemsWrapper = styled.div`
+  padding: 12px 12px 0 12px;
+
+  > div {
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 4px 0px;
+    background: ${colors.bgLight};
+  }
 `;
 
 export const PipelineName = styled.div`

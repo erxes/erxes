@@ -1,7 +1,7 @@
 import { toArray } from 'modules/boards/utils';
 import TaskEditForm from 'modules/tasks/components/TaskEditForm';
 import TaskItem from './components/TaskItem';
-import { mutations, queries, subscriptions } from './graphql';
+import { mutations, queries } from './graphql';
 
 const options = {
   EditForm: TaskEditForm,
@@ -19,13 +19,10 @@ const options = {
     editMutation: 'tasksEdit',
     removeMutation: 'tasksRemove',
     changeMutation: 'tasksChange',
-    updateOrderMutation: 'tasksUpdateOrder',
     watchMutation: 'tasksWatch',
     archiveMutation: 'tasksArchive',
-    copyMutation: 'tasksCopy'
-  },
-  subscriptionName: {
-    changeSubscription: 'tasksChanged'
+    copyMutation: 'tasksCopy',
+    updateTimeTrackMutation: 'updateTimeTrack'
   },
   queries: {
     itemsQuery: queries.tasks,
@@ -38,13 +35,10 @@ const options = {
     editMutation: mutations.tasksEdit,
     removeMutation: mutations.tasksRemove,
     changeMutation: mutations.tasksChange,
-    updateOrderMutation: mutations.tasksUpdateOrder,
     watchMutation: mutations.tasksWatch,
     archiveMutation: mutations.tasksArchive,
-    copyMutation: mutations.tasksCopy
-  },
-  subscriptions: {
-    changeSubscription: subscriptions.tasksChanged
+    copyMutation: mutations.tasksCopy,
+    updateTimeTrackMutation: mutations.taskUpdateTimeTracking
   },
   texts: {
     addText: 'Add a task',

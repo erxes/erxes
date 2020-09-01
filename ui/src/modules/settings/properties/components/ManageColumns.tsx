@@ -6,7 +6,7 @@ import { ScrollWrapper } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import styled from 'styled-components';
-import { FieldsCombinedByType, IConfigColumn } from '../types';
+import { IConfigColumn } from '../types';
 
 const Header = styled.div`
   display: flex;
@@ -36,69 +36,69 @@ const Child = styled.div`
 `;
 
 type Props = {
-  fields: FieldsCombinedByType[];
-  config: IConfigColumn[];
-  save: (columnsConfig: IConfigColumn[]) => void;
+  columns: IConfigColumn[];
+  save: (columnsConfig: IConfigColumn[], importType?: string) => void;
   closeModal: () => void;
+  type: string;
 };
 
 type State = {
-  fields: FieldsCombinedByType[];
+  columns: IConfigColumn[];
+  importType: string;
 };
 
 class ManageColumns extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = {
-      fields: props.fields
-    };
+    this.state = { columns: props.columns, importType: 'xlsx' };
   }
 
   onSubmit = e => {
     e.preventDefault();
     const columnsConfig: IConfigColumn[] = [];
+    const { importType } = this.state;
 
-    this.state.fields.forEach((field, index) => {
-      const element = document.getElementById(field._id) as HTMLInputElement;
+    this.state.columns.forEach((col, index) => {
+      const element = document.getElementById(col._id) as HTMLInputElement;
 
-      if (element.checked) {
-        columnsConfig.push({
-          order: index,
-          name: field.name,
-          label: field.label
-        });
-      }
+      columnsConfig.push({
+        _id: col._id,
+        order: index,
+        checked: element.checked,
+        name: col.name,
+        label: col.label
+      });
     });
 
-    this.props.save(columnsConfig);
+    this.props.save(columnsConfig, importType);
     this.props.closeModal();
   };
 
-  onChangeFields = fields => {
-    this.setState({ fields });
+  onChangeColumns = columns => {
+    this.setState({ columns });
   };
 
   render() {
-    const { config: configArr } = this.props;
+    const { type } = this.props;
 
-    const configMap = {};
-
-    configArr.forEach(config => {
-      configMap[config.name] = true;
-    });
-
-    const child = field => {
+    const child = col => {
       return (
         <Child>
-          <span>{field.label}</span>
+          <span>{col.label}</span>
           <FormControl
-            id={String(field._id)}
-            defaultChecked={configMap[field.name]}
+            id={String(col._id)}
+            defaultChecked={col.checked}
             componentClass="checkbox"
           />
         </Child>
       );
+    };
+
+    const onclickCsv = e => {
+      this.setState({ importType: 'csv' }, () => {
+        this.onSubmit(e);
+      });
     };
 
     return (
@@ -109,9 +109,9 @@ class ManageColumns extends React.Component<Props, State> {
         </Header>
         <ScrollWrapper calcHeight="320">
           <SortableList
-            fields={this.state.fields}
+            fields={this.state.columns}
             child={child}
-            onChangeFields={this.onChangeFields}
+            onChangeFields={this.onChangeColumns}
             isModal={true}
           />
         </ScrollWrapper>
@@ -120,14 +120,19 @@ class ManageColumns extends React.Component<Props, State> {
             type="button"
             btnStyle="simple"
             onClick={this.props.closeModal}
-            icon="cancel-1"
           >
             Cancel
           </Button>
 
-          <Button type="submit" btnStyle="success" icon="checked-1">
-            Submit
+          <Button type="submit" btnStyle="success">
+            {type && type === 'import' ? 'Download xlsx' : 'Submit'}
           </Button>
+
+          {type && type === 'import' ? (
+            <Button type="submit" onClick={onclickCsv}>
+              Download csv
+            </Button>
+          ) : null}
         </Footer>
       </form>
     );

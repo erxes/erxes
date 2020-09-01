@@ -3,7 +3,8 @@ import dayjs from 'dayjs';
 import T from 'i18n-react';
 import { IUser, IUserDoc } from 'modules/auth/types';
 import React from 'react';
-import { DateWrapper } from '../styles/main';
+import Tip from '../components/Tip';
+import { Limited } from '../styles/main';
 import { IAttachment } from '../types';
 import Alert from './Alert';
 import confirm from './confirmation/confirm';
@@ -163,6 +164,10 @@ export const readFile = (value: string): string => {
 };
 
 export const getUserAvatar = (user: IUserDoc) => {
+  if (!user) {
+    return '';
+  }
+
   const { details = {} } = user;
 
   if (!details.avatar) {
@@ -350,10 +355,14 @@ export function formatValue(value) {
       dayjs(value).isValid() &&
       (value.includes('/') || value.includes('-'))
     ) {
-      return <DateWrapper>{dayjs(value).format('lll')}</DateWrapper>;
+      return (
+        <Tip text={dayjs(value).format('D MMM YYYY, HH:mm')} placement="top">
+          <time>{dayjs(value).format('L')}</time>
+        </Tip>
+      );
     }
 
-    return value;
+    return <Limited>{value}</Limited>;
   }
 
   if (value && typeof value === 'object') {
@@ -367,3 +376,50 @@ export function isEmptyContent(content: string) {
   // check if a string contains whitespace or empty
   return !/\S/.test(content);
 }
+
+export const isValidUsername = (username: string) => {
+  const reg = /^(?=[a-zA-Z0-9._]{4,20}$)(?!.*[_.]{2})[^_.].*[^_.]$/gim;
+
+  return reg.test(username);
+};
+
+export const storeConstantToStore = (key, values) => {
+  localStorage.setItem(`config:${key}`, JSON.stringify(values));
+};
+
+export const getConstantFromStore = (
+  key,
+  isMap?: boolean,
+  isFlat?: boolean
+) => {
+  const constant = JSON.parse(localStorage.getItem(`config:${key}`) || '[]');
+
+  if (isFlat) {
+    return constant.map(element => element.value);
+  }
+
+  if (!isMap) {
+    return constant;
+  }
+
+  const map = {};
+
+  constant.forEach(element => {
+    map[element.value] = element.label;
+  });
+
+  return map;
+};
+
+// Most basic frontend solution for click-jack defense
+export const bustIframe = () => {
+  if (window.self === window.top) {
+    const antiClickjack = document.getElementById('anti-clickjack');
+
+    if (antiClickjack && antiClickjack.parentNode) {
+      antiClickjack.parentNode.removeChild(antiClickjack);
+    }
+  } else {
+    window.top.location = window.self.location;
+  }
+};

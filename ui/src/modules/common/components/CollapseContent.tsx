@@ -66,7 +66,6 @@ const Container = styledTS<{ open: boolean }>(styled.div)`
   margin-bottom: 10px;
   box-shadow: 0 0 6px 1px rgba(0,0,0,0.08);
   border-radius: 4px;
-  overflow: hidden;
   background: ${props => (props.open ? colors.bgLight : colors.colorWhite)};
 
   &:last-child {
@@ -107,6 +106,7 @@ type Props = {
   beforeTitle?: React.ReactNode;
   onClick?: () => void;
   imageBackground?: string;
+  id?: string;
 };
 
 function CollapseContent(props: Props) {
@@ -121,7 +121,7 @@ function CollapseContent(props: Props) {
   const hasImage = props.image ? true : false;
 
   return (
-    <Container open={open}>
+    <Container open={open} id={props.id}>
       <Title
         href={props.contendId && `#${props.contendId}`}
         id={props.contendId}

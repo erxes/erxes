@@ -25,8 +25,8 @@ class List extends React.Component<Props, {}> {
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text="Edit">
-          <Icon icon="edit" />
+        <Tip text="Edit" placement="top">
+          <Icon icon="edit-3" />
         </Tip>
       </Button>
     );
@@ -54,6 +54,7 @@ class List extends React.Component<Props, {}> {
               trigger={editTrigger}
               content={content}
               ignoreTrans={true}
+              enforceFocus={false}
               size="lg"
             />
           </ActionButtons>
