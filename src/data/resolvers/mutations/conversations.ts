@@ -444,12 +444,15 @@ const conversationMutations = {
   },
 
   async conversationCreateProductBoardNote(_root, { _id }, { dataSources, user }: IContext) {
-    const conversation = await Conversations.findOne({ _id }).select('customerId userId tagIds');
-    const tags = await Tags.find({ _id: { $in: conversation?.tagIds } }).select('name');
-    const customer = await Customers.findOne({ _id: conversation?.customerId });
+    const conversation = await Conversations.findOne({ _id })
+      .select('customerId userId tagIds, integrationId')
+      .lean();
+    const tags = await Tags.find({ _id: { $in: conversation.tagIds } }).select('name');
+    const customer = await Customers.findOne({ _id: conversation.customerId });
     const messages = await ConversationMessages.find({ conversationId: _id }).sort({
       createdAt: 1,
     });
+    const integrationId = conversation.integrationId;
 
     try {
       const productBoardLink = await dataSources.IntegrationsAPI.createProductBoardNote({
@@ -458,6 +461,7 @@ const conversationMutations = {
         customer,
         messages,
         user,
+        integrationId,
       });
 
       return productBoardLink;
