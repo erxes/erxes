@@ -50,7 +50,6 @@ class AuthLayout extends React.Component<Props, {}> {
 
   renderDesciption() {
     const { description } = this.props;
-    console.log(description);
 
     if (description) {
       return (
