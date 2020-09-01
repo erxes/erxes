@@ -34,6 +34,7 @@ describe('Conversation message mutations', () => {
   let telegramConversation: IConversationDocument;
   let lineConversation: IConversationDocument;
   let twilioConversation: IConversationDocument;
+  let telnyxConversation: IConversationDocument;
 
   let user: IUserDocument;
   let customer: ICustomerDocument;
@@ -73,7 +74,11 @@ describe('Conversation message mutations', () => {
     dataSources = { IntegrationsAPI: new IntegrationsAPI() };
 
     user = await userFactory({});
-    customer = await customerFactory({ primaryEmail: faker.internet.email() });
+    customer = await customerFactory({
+      primaryEmail: faker.internet.email(),
+      primaryPhone: faker.phone.phoneNumber(),
+      phoneValidationStatus: 'valid',
+    });
 
     const leadIntegration = await integrationFactory({
       kind: KIND_CHOICES.LEAD,
@@ -114,6 +119,9 @@ describe('Conversation message mutations', () => {
 
     const twilioIntegration = await integrationFactory({ kind: KIND_CHOICES.SMOOCH_TWILIO });
     twilioConversation = await conversationFactory({ integrationId: twilioIntegration._id });
+
+    const telnyxIntegration = await integrationFactory({ kind: KIND_CHOICES.TELNYX });
+    telnyxConversation = await conversationFactory({ integrationId: telnyxIntegration._id, customerId: customer._id });
 
     const messengerIntegration = await integrationFactory({ kind: 'messenger' });
     messengerConversation = await conversationFactory({
@@ -256,6 +264,15 @@ describe('Conversation message mutations', () => {
     }
 
     args.conversationId = twilioConversation._id;
+
+    try {
+      await graphqlRequest(addMutation, 'conversationMessageAdd', args, { dataSources });
+    } catch (e) {
+      expect(e).toBeDefined();
+    }
+
+    // telnyx
+    args.conversationId = telnyxConversation._id;
 
     try {
       await graphqlRequest(addMutation, 'conversationMessageAdd', args, { dataSources });

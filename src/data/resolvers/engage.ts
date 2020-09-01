@@ -1,4 +1,4 @@
-import { Brands, Segments, Tags, Users } from '../../db/models';
+import { Brands, Integrations, Segments, Tags, Users } from '../../db/models';
 import { IEngageMessageDocument } from '../../db/models/definitions/engages';
 import { IContext } from '../types';
 
@@ -41,5 +41,13 @@ export default {
 
   smsStats(engageMessage: IEngageMessageDocument, _args, { dataSources }: IContext) {
     return dataSources.EngagesAPI.engagesSmsStats(engageMessage._id);
+  },
+
+  fromIntegration(engageMessage: IEngageMessageDocument) {
+    if (engageMessage.shortMessage && engageMessage.shortMessage.fromIntegrationId) {
+      return Integrations.getIntegration(engageMessage.shortMessage.fromIntegrationId);
+    }
+
+    return null;
   },
 };

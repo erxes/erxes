@@ -72,23 +72,25 @@ describe('engage message mutation tests', () => {
     $email: EngageMessageEmail,
     $scheduleDate: EngageScheduleDateInput,
     $messenger: EngageMessageMessenger,
+    $shortMessage: EngageMessageSmsInput
   `;
 
   const commonParams = `
-    title: $title
-    kind: $kind
-    method: $method
-    fromUserId: $fromUserId
-    isDraft: $isDraft
-    isLive: $isLive
-    stopDate: $stopDate
-    segmentIds: $segmentIds
-    brandIds: $brandIds
-    tagIds: $tagIds
-    customerIds: $customerIds
-    email: $email
-    scheduleDate: $scheduleDate
-    messenger: $messenger
+    title: $title,
+    kind: $kind,
+    method: $method,
+    fromUserId: $fromUserId,
+    isDraft: $isDraft,
+    isLive: $isLive,
+    stopDate: $stopDate,
+    segmentIds: $segmentIds,
+    brandIds: $brandIds,
+    tagIds: $tagIds,
+    customerIds: $customerIds,
+    email: $email,
+    scheduleDate: $scheduleDate,
+    messenger: $messenger,
+    shortMessage: $shortMessage
   `;
 
   const commonFields = `
@@ -106,6 +108,11 @@ describe('engage message mutation tests', () => {
     messengerReceivedCustomerIds
     email
     messenger
+    shortMessage {
+      from
+      fromIntegrationId
+      content
+    }
 
     segments {
       _id
@@ -114,6 +121,9 @@ describe('engage message mutation tests', () => {
       _id
     }
     getTags {
+      _id
+    }
+    fromIntegration {
       _id
     }
   `;
@@ -731,5 +741,23 @@ describe('engage message mutation tests', () => {
     } catch (e) {
       expect(e[0].message).toBe(`SMS engage message of kind ${MESSAGE_KINDS.AUTO} is not supported`);
     }
+  });
+
+  test('Test sms engage message with integration chosen', async () => {
+    const integration = await integrationFactory({ kind: 'telnyx' });
+
+    const response = await graphqlRequest(engageMessageAddMutation, 'engageMessageAdd', {
+      ..._doc,
+      fromUserId: '',
+      kind: MESSAGE_KINDS.MANUAL,
+      method: METHODS.SMS,
+      shortMessage: {
+        content: 'sms test',
+        fromIntegrationId: integration._id,
+      },
+      title: 'Message test',
+    });
+
+    expect(response.fromIntegration._id).toBe(integration._id);
   });
 });

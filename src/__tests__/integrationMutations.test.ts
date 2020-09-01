@@ -577,4 +577,36 @@ describe('mutations', () => {
     expect(response.name).toBe(doc.name);
     expect(response.brandId).toBe(doc.brandId);
   });
+
+  test('test integrationsSendSms()', async () => {
+    const mutation = `
+      mutation integrationsSendSms(
+        $integrationId: String!
+        $content: String!
+        $to: String!
+      ) {
+        integrationsSendSms(
+          integrationId: $integrationId
+          content: $content
+          to: $to
+        )
+      }
+    `;
+
+    const args = {
+      integrationId: 'integrationId',
+      content: 'Hello',
+      to: '+976123456789',
+    };
+
+    const spy = jest.spyOn(dataSources.IntegrationsAPI, 'sendSms');
+
+    spy.mockImplementation(() => Promise.resolve({ status: 'ok' }));
+
+    const response = await graphqlRequest(mutation, 'integrationsSendSms', args, { dataSources });
+
+    expect(response.status).toBe('ok');
+
+    spy.mockRestore();
+  });
 });

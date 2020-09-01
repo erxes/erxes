@@ -1,7 +1,8 @@
 export const types = `
   type EngageMessageSms {
-    from: String!,
+    from: String,
     content: String!
+    fromIntegrationId: String
   }
 
   type EngageMessage {
@@ -35,6 +36,7 @@ export const types = `
     brands: [Brand]
     fromUser: User
     getTags: [Tag]
+    fromIntegration: Integration
 
     stats: JSON
     logs: JSON
@@ -71,8 +73,9 @@ export const types = `
   }
 
   input EngageMessageSmsInput {
-    from: String!,
+    from: String,
     content: String!
+    fromIntegrationId: String!
   }
 `;
 
@@ -101,7 +104,7 @@ const commonParams = `
   title: String!,
   kind: String!,
   method: String!,
-  fromUserId: String!,
+  fromUserId: String,
   isDraft: Boolean,
   isLive: Boolean,
   stopDate: Date,

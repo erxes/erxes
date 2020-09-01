@@ -1,15 +1,119 @@
 import * as dotenv from 'dotenv';
 import * as Random from 'meteor-random';
-import * as Telnyx from 'telnyx';
 import { debugEngages } from './debuggers';
 import { Logs, SmsRequests, Stats } from './models';
+import { getTelnyxInfo } from './telnyxUtils';
 import { createTransporter, getConfigs, getEnv, replaceKeys } from './utils';
 
 dotenv.config();
 
+interface IShortMessage {
+  content: string;
+  from?: string;
+  fromIntegrationId: string;
+}
+
+interface IIntegration {
+  _id: string;
+  kind: string;
+  erxesApiId: string;
+  telnyxProfileId?: string;
+  telnyxPhoneNumber: string;
+}
+
+interface IMessageParams {
+  shortMessage: IShortMessage;
+  to: string;
+  integrations: IIntegration[];
+}
+
+interface ITelnyxMessageParams {
+  from: string;
+  to: string;
+  text: string;
+  messaging_profile_id?: string;
+  webhook_url?: string;
+  webhook_failover_url?: string;
+}
+
+interface ICallbackParams {
+  engageMessageId?: string;
+  msg: ITelnyxMessageParams;
+}
+
 // alphanumeric sender id only works for countries outside north america
 const isNumberNorthAmerican = (phoneNumber: string) => {
   return phoneNumber.substring(0, 2) === '+1';
+};
+
+// prepares sms object matching telnyx requirements
+const prepareMessage = async ({ shortMessage, to, integrations }: IMessageParams): Promise<ITelnyxMessageParams> => {
+  const MAIN_API_DOMAIN = getEnv({ name: 'MAIN_API_DOMAIN' });
+  const { content, from, fromIntegrationId } = shortMessage;
+
+  const integration = integrations.find(i => i.erxesApiId === fromIntegrationId);
+
+  if (!integration.telnyxPhoneNumber) {
+    throw new Error('Telnyx phone is not configured');
+  }
+
+  const msg = {
+    from: integration.telnyxPhoneNumber,
+    to,
+    text: content,
+    messaging_profile_id: '',
+    webhook_url: `${MAIN_API_DOMAIN}/telnyx/webhook`,
+    webhook_failover_url: `${MAIN_API_DOMAIN}/telnyx/webhook-failover`,
+  };
+
+  // telnyx sets from text properly when making international sms
+  if (integration.telnyxProfileId) {
+    msg.messaging_profile_id = integration.telnyxProfileId;
+  }
+
+  if (from) {
+    msg.from = from;
+  }
+
+  if (isNumberNorthAmerican(msg.to)) {
+    msg.from = integration.telnyxPhoneNumber;
+  }
+
+  return msg;
+};
+
+const handleMessageCallback = async (err: any, res: any, data: ICallbackParams) => {
+  const { engageMessageId, msg } = data;
+
+  const request = await SmsRequests.createRequest({
+    engageMessageId,
+    to: msg.to,
+    requestData: JSON.stringify(msg),
+  });
+
+  if (err) {
+    if (engageMessageId) {
+      await Logs.createLog(engageMessageId, 'failure', `${err.message} "${msg.to}"`);
+    }
+
+    await SmsRequests.updateRequest(request._id, {
+      errorMessages: [err.message],
+    });
+  }
+
+  if (res && res.data && res.data.to) {
+    const receiver = res.data.to.find(item => item.phone_number === msg.to);
+
+    if (engageMessageId) {
+      await Logs.createLog(engageMessageId, 'success', `Message successfully sent to "${msg.to}"`);
+    }
+
+    await SmsRequests.updateRequest(request._id, {
+      status: receiver && receiver.status,
+      responseData: JSON.stringify(res.data),
+      telnyxId: res.data.id,
+    });
+  }
 };
 
 export const start = async (data: any) => {
@@ -112,79 +216,29 @@ export const start = async (data: any) => {
   return true;
 };
 
-export const sendSms = async (data: any) => {
+// sends bulk sms via engage message
+export const sendBulkSms = async (data: any) => {
   const { customers, engageMessageId, shortMessage } = data;
 
-  const configs = await getConfigs();
-
-  const { telnyxApiKey, telnyxPhone, telnyxProfileId } = configs;
-
-  const MAIN_API_DOMAIN = getEnv({ name: 'MAIN_API_DOMAIN' });
-
-  if (!(telnyxApiKey && telnyxPhone)) {
-    throw new Error('Telnyx API key & phone numbers are missing');
-  }
-
-  await Logs.createLog(engageMessageId, 'regular', `Preparing to send SMS to ${customers.length} customers`);
-
-  const telnyx = new Telnyx(telnyxApiKey);
+  const telnyxInfo = await getTelnyxInfo();
 
   const filteredCustomers = customers.filter(c => c.phone && c.phoneValidationStatus === 'valid');
+
+  await Logs.createLog(engageMessageId, 'regular', `Preparing to send SMS to "${filteredCustomers.length}" customers`);
 
   for (const customer of filteredCustomers) {
     await new Promise(resolve => {
       setTimeout(resolve, 1000);
     });
 
-    const msg = {
-      from: telnyxPhone,
-      to: customer.phone,
-      text: shortMessage.content,
-      messaging_profile_id: '',
-      webhook_url: `${MAIN_API_DOMAIN}/telnyx/webhook`,
-      webhook_failover_url: `${MAIN_API_DOMAIN}/telnyx/webhook-failover`,
-    };
-
-    // telnyx sets from text properly when making international sms
-    if (telnyxProfileId) {
-      msg.messaging_profile_id = telnyxProfileId;
-      msg.from = shortMessage.from;
-    }
-
-    if (isNumberNorthAmerican(msg.to)) {
-      msg.from = telnyxPhone;
-    }
+    const msg = await prepareMessage({ shortMessage, to: customer.phone, integrations: telnyxInfo.integrations });
 
     try {
-      await telnyx.messages.create(msg, async (err, res) => {
-        const request = await SmsRequests.createRequest({
-          engageMessageId,
-          to: msg.to,
-          requestData: JSON.stringify(msg),
-        });
-
-        if (err) {
-          await Logs.createLog(engageMessageId, 'failure', `${err.message} "${msg.to}"`);
-
-          await SmsRequests.updateRequest(request._id, {
-            errorMessages: [err.message],
-          });
-        }
-
-        if (res && res.data && res.data.to) {
-          const receiver = res.data.to.find(item => item.phone_number === msg.to);
-
-          await Logs.createLog(engageMessageId, 'success', `Message successfully sent to "${msg.to}"`);
-
-          await SmsRequests.updateRequest(request._id, {
-            status: receiver && receiver.status,
-            responseData: JSON.stringify(res.data),
-            telnyxId: res.data.id,
-          });
-        }
+      await telnyxInfo.instance.messages.create(msg, async (err: any, res: any) => {
+        await handleMessageCallback(err, res, { engageMessageId, msg });
       }); // end sms creation
     } catch (e) {
       await Logs.createLog(engageMessageId, 'failure', `${e.message} while sending to "${msg.to}"`);
     }
   } // end customers loop
-};
+}; // end sendBuklSms()

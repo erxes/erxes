@@ -265,6 +265,17 @@ describe('integrationQueries', () => {
     } catch (e) {
       expect(e[0].message).toBe('Integrations api is not running');
     }
+
+    try {
+      await graphqlRequest(
+        qry,
+        'integrationsFetchApi',
+        { path: '/integrations', params: { type: 'facebook' } },
+        { dataSources },
+      );
+    } catch (e) {
+      expect(e[0].message).toBe('Integrations api is not running');
+    }
   });
 
   test('Get used types', async () => {

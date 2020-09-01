@@ -178,4 +178,6 @@ export const mutations = `
   ): JSON
 
   integrationsUpdateConfigs(configsMap: JSON!): JSON
+
+  integrationsSendSms(integrationId: String!, content: String!, to: String!): JSON
 `;
