@@ -524,13 +524,11 @@ describe('Customers model tests', () => {
   });
 
   test('Update profile score', async () => {
-    const response = await Customers.updateProfileScore('fakeId', true);
-
-    expect(response).toBe(0);
-
     const customer = await customerFactory({});
 
-    Customers.updateProfileScore(customer._id, false);
+    const response = await Customers.calcPSS({ ...customer });
+
+    expect(response.profileScore).toBe(0);
   });
 
   test('Mark as active', async () => {

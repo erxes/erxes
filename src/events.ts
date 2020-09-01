@@ -48,10 +48,7 @@ export const saveEvent = async (args: ISaveEventArgs) => {
       // generate unique id based on searchQuery
       id: getUuid(JSON.stringify(searchQuery)),
       body: {
-        script: {
-          source: 'ctx._source["count"] += 1',
-          lang: 'painless',
-        },
+        script: { source: 'ctx._source["count"] += 1', lang: 'painless' },
         upsert: {
           type,
           name,

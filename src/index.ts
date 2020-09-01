@@ -27,6 +27,7 @@ import {
 import { updateContactsValidationStatus, updateContactValidationStatus } from './data/verifierUtils';
 import { connect, mongoStatus } from './db/connection';
 import { Users } from './db/models';
+import initWatchers from './db/watchers';
 import { debugBase, debugExternalApi, debugInit } from './debuggers';
 import { identifyCustomer, trackCustomEvent, trackViewPageEvent, updateCustomerProperty } from './events';
 import { initMemoryStorage } from './inmemoryStorage';
@@ -67,6 +68,7 @@ const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
 const WIDGETS_DOMAIN = getSubServiceDomain({ name: 'WIDGETS_DOMAIN' });
 const DASHBOARD_DOMAIN = getSubServiceDomain({ name: 'DASHBOARD_DOMAIN' });
 const INTEGRATIONS_API_DOMAIN = getSubServiceDomain({ name: 'INTEGRATIONS_API_DOMAIN' });
+const CLIENT_PORTAL_DOMAIN = getSubServiceDomain({ name: 'CLIENT_PORTAL_DOMAIN' });
 
 const app = express();
 
@@ -81,7 +83,7 @@ app.use(cookieParser());
 
 const corsOptions = {
   credentials: true,
-  origin: [MAIN_APP_DOMAIN, WIDGETS_DOMAIN, DASHBOARD_DOMAIN],
+  origin: [MAIN_APP_DOMAIN, WIDGETS_DOMAIN, DASHBOARD_DOMAIN, CLIENT_PORTAL_DOMAIN],
 };
 
 app.use(cors(corsOptions));
@@ -339,9 +341,10 @@ app.use((error, _req, res, _next) => {
 // Wrap the Express server
 const httpServer = createServer(app);
 
-// subscriptions server
 const PORT = getEnv({ name: 'PORT' });
+const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
 
+// subscriptions server
 apolloServer.installSubscriptionHandlers(httpServer);
 
 httpServer.listen(PORT, () => {
@@ -352,6 +355,10 @@ httpServer.listen(PORT, () => {
     });
 
     initMemoryStorage();
+
+    if (ELK_SYNCER === 'false') {
+      initWatchers();
+    }
 
     init()
       .then(() => {

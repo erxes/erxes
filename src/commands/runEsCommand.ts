@@ -1,4 +1,5 @@
 import { client, getMappings } from '../elasticsearch';
+
 const argv = process.argv;
 
 /*

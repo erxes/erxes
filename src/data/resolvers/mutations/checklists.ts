@@ -144,6 +144,10 @@ const checklistMutations = {
 
     return removed;
   },
+
+  async checklistItemsOrder(_root, { _id, destinationIndex }: { _id: string; destinationIndex: number }) {
+    return ChecklistItems.updateItemOrder(_id, destinationIndex);
+  },
 };
 
 moduleRequireLogin(checklistMutations);

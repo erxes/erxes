@@ -147,7 +147,6 @@ const knowledgeBaseQueries = {
   },
 };
 
-requireLogin(knowledgeBaseQueries, 'knowledgeBaseArticleDetail');
 requireLogin(knowledgeBaseQueries, 'knowledgeBaseArticlesTotalCount');
 requireLogin(knowledgeBaseQueries, 'knowledgeBaseTopicsTotalCount');
 requireLogin(knowledgeBaseQueries, 'knowledgeBaseCategoriesGetLast');

@@ -129,13 +129,10 @@ export default {
             {
               $match: {
                 $expr: {
-                  $and: [
-                    { $eq: ['$stageId', '$$stageId']},
-                    { $ne: [ '$status', BOARD_STATUSES.ARCHIVED ] }
-                  ]
-                }
-              }
-            }
+                  $and: [{ $eq: ['$stageId', '$$stageId'] }, { $ne: ['$status', BOARD_STATUSES.ARCHIVED] }],
+                },
+              },
+            },
           ],
           as: 'deals',
         },
@@ -196,13 +193,10 @@ export default {
             {
               $match: {
                 $expr: {
-                  $and: [
-                    { $eq: ['$stageId', '$$stageId']},
-                    { $ne: [ '$status', BOARD_STATUSES.ARCHIVED ] }
-                  ]
-                }
-              }
-            }
+                  $and: [{ $eq: ['$stageId', '$$stageId'] }, { $ne: ['$status', BOARD_STATUSES.ARCHIVED] }],
+                },
+              },
+            },
           ],
           as: 'currentDeals',
         },
@@ -215,13 +209,10 @@ export default {
             {
               $match: {
                 $expr: {
-                  $and: [
-                    { $eq: ['$initialStageId', '$$stageId' ] },
-                    { $ne: [ '$status', BOARD_STATUSES.ARCHIVED ] }
-                  ]
-                }
-              }
-            }
+                  $and: [{ $eq: ['$initialStageId', '$$stageId'] }, { $ne: ['$status', BOARD_STATUSES.ARCHIVED] }],
+                },
+              },
+            },
           ],
           as: 'initialDeals',
         },
