@@ -259,6 +259,32 @@ const conversationMutations = {
 
     const message = await ConversationMessages.addMessage(doc, user._id);
 
+    /**
+     * Send SMS only when:
+     * - integration is of kind telnyx
+     * - customer has primary phone filled
+     * - customer's primary phone is valid
+     * - content length within 160 characters
+     */
+    if (
+      kind === KIND_CHOICES.TELNYX &&
+      customer &&
+      customer.primaryPhone &&
+      customer.phoneValidationStatus === 'valid' &&
+      doc.content.length <= 160
+    ) {
+      await messageBroker().sendMessage('erxes-api:integrations-notification', {
+        action: 'sendConversationSms',
+        payload: JSON.stringify({
+          conversationMessageId: message._id,
+          conversationId,
+          integrationId,
+          toPhone: customer.primaryPhone,
+          content: strip(doc.content),
+        }),
+      });
+    }
+
     // send reply to facebook
     if (kind === KIND_CHOICES.FACEBOOK_MESSENGER) {
       type = 'facebook';

@@ -31,6 +31,11 @@ const engageMutations = {
       throw new Error(`SMS engage message of kind ${doc.kind} is not supported`);
     }
 
+    // fromUserId is not required in sms engage, so set it here
+    if (!doc.fromUserId) {
+      doc.fromUserId = user._id;
+    }
+
     const engageMessage = await EngageMessages.createEngageMessage(docModifier(doc));
 
     await send(engageMessage);

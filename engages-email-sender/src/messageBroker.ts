@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv';
 import messageBroker from 'erxes-message-broker';
 import { debugBase } from './debuggers';
 import { Logs } from './models';
-import { sendSms, start } from './sender';
+import { sendBulkSms, start } from './sender';
 
 dotenv.config();
 
@@ -30,9 +30,13 @@ export const initBroker = async server => {
     }
 
     if (action === 'sendEngageSms') {
-      await sendSms(data);
+      await sendBulkSms(data);
     }
   });
+};
+
+export const sendRPCMessage = async (message): Promise<any> => {
+  return client.sendRPCMessage('rpc_queue:api_to_integrations', message);
 };
 
 export default function() {

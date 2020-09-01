@@ -76,9 +76,9 @@ const userMutations = {
 
     await Users.createUser(doc);
 
-    if (subscribeEmail) {
+    if (subscribeEmail && process.env.NODE_ENV === 'production') {
       await sendRequest({
-        url: 'http://localhost:3500/subscribe',
+        url: 'https://erxes.io/subscribe',
         method: 'POST',
         body: {
           email,
@@ -113,7 +113,7 @@ const userMutations = {
 
     const link = `${MAIN_APP_DOMAIN}/reset-password?token=${token}`;
 
-    utils.sendEmail({
+    await utils.sendEmail({
       toEmails: [email],
       title: 'Reset password',
       template: {
