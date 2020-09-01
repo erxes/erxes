@@ -14,6 +14,7 @@ import {
 type Props = {
   content: React.ReactNode;
   description?: React.ReactNode;
+  col?: {first: number; second: number};
 };
 
 class AuthLayout extends React.Component<Props, {}> {
@@ -80,16 +81,16 @@ class AuthLayout extends React.Component<Props, {}> {
   }
 
   render() {
-    const { content } = this.props;
+    const { content, col = {first: 6, second: 5} } = this.props;
 
     return (
       <Authlayout>
         <AuthContent>
           <Container>
-            <Col md={5}>
+            <Col md={col.first}>
               <AuthDescription>{this.renderDesciption()}</AuthDescription>
             </Col>
-            <Col md={{ span: 6, offset: 1 }}>{content}</Col>
+            <Col md={{ span: col.second, offset: 1 }}>{content}</Col>
           </Container>
         </AuthContent>
         {this.renderRecommendMobileVersion()}
