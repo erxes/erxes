@@ -1,4 +1,4 @@
-import { IUser } from 'modules/auth/types';
+import EmptyState from 'modules/common/components/EmptyState';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
@@ -6,11 +6,16 @@ import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import colors from 'modules/common/styles/colors';
 import { ISelectedOption } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import { IConfig } from 'modules/settings/general/types';
 import React from 'react';
 import Select from 'react-select-plus';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { IEngageScheduleDate, IEngageSms } from '../types';
+import {
+  IEngageScheduleDate,
+  IEngageSms,
+  IIntegrationWithPhone
+} from '../types';
 import Scheduler from './Scheduler';
 import SmsPreview from './SmsPreview';
 
@@ -36,8 +41,9 @@ type Props = {
   messageKind: string;
   scheduleDate: IEngageScheduleDate;
   shortMessage?: IEngageSms;
-  users: IUser[];
   fromUserId: string;
+  smsConfig: IConfig;
+  integrations: IIntegrationWithPhone[];
 };
 
 type State = {
@@ -46,6 +52,14 @@ type State = {
   titleCount: number;
   message: string;
   title: string;
+  fromIntegrationId: string;
+};
+
+type IOption = {
+  value: string;
+  label: string;
+  phoneNumber: string;
+  disabled: boolean;
 };
 
 class MessengerForm extends React.Component<Props, State> {
@@ -57,7 +71,8 @@ class MessengerForm extends React.Component<Props, State> {
       characterCount: this.calcCharacterCount(160, this.getContent('content')),
       titleCount: this.calcCharacterCount(15, this.getContent('from')),
       message: this.getContent('content'),
-      title: this.getContent('from')
+      title: this.getContent('from'),
+      fromIntegrationId: this.getContent('fromIntegrationId')
     };
   }
 
@@ -103,15 +118,15 @@ class MessengerForm extends React.Component<Props, State> {
   }
 
   fromSelectOptions = () => {
-    const { users } = this.props;
-    const options: any[] = [];
+    const { integrations } = this.props;
+    const options: IOption[] = [];
 
-    users.map(user =>
+    integrations.map(i =>
       options.push({
-        value: user._id,
-        label: user.details && user.details.operatorPhone,
-        name: (user.details && user.details.fullName) || user.username,
-        disabled: !(user.details && user.details.operatorPhone)
+        value: i._id,
+        label: i.name,
+        phoneNumber: i.phoneNumber,
+        disabled: !i.isActive
       })
     );
 
@@ -120,13 +135,19 @@ class MessengerForm extends React.Component<Props, State> {
 
   fromOptionRenderer = option => (
     <div>
-      <strong>{option.name}</strong> <i>{option.label}</i>
+      <strong>{option.label}</strong> (<i>{option.phoneNumber}</i>)
     </div>
   );
 
   render() {
-    const { fromUserId, onChange, shortMessage } = this.props;
-    const { message, title, titleCount, characterCount } = this.state;
+    const { shortMessage, smsConfig } = this.props;
+    const {
+      message,
+      title,
+      titleCount,
+      characterCount,
+      fromIntegrationId
+    } = this.state;
 
     const onChangeTitle = e =>
       this.onChangeSms('from', (e.target as HTMLInputElement).value);
@@ -135,12 +156,15 @@ class MessengerForm extends React.Component<Props, State> {
       this.onChangeSms('content', (e.target as HTMLInputElement).value);
 
     const onChangeFrom = (value: ISelectedOption) => {
-      const userId = value ? value.value : '';
-      onChange('fromUserId', userId);
+      const integrationId = value ? value.value : '';
+
+      this.setState({ fromIntegrationId: integrationId });
+      this.onChangeSms('fromIntegrationId', integrationId);
     };
 
     const onChangeFromContent = e => {
       const from = (e.target as HTMLInputElement).value;
+
       this.setState({
         title: from,
         titleCount: this.calcCharacterCount(15, from)
@@ -155,14 +179,23 @@ class MessengerForm extends React.Component<Props, State> {
       });
     };
 
+    if (!smsConfig) {
+      return (
+        <EmptyState
+          text="SMS integration is not configured. Go to Settings > System config > Integrations config and set Telnyx SMS API key."
+          image="/images/actions/21.svg"
+        />
+      );
+    }
+
     return (
       <FlexItem>
         <FlexPad overflow="auto" direction="column" count="3">
           <FormGroup>
             <ControlLabel>From:</ControlLabel>
             <Select
-              placeholder={__('Choose user')}
-              value={fromUserId}
+              placeholder={__('Choose phone number')}
+              value={fromIntegrationId}
               onChange={onChangeFrom}
               options={this.fromSelectOptions()}
               optionRenderer={this.fromOptionRenderer}

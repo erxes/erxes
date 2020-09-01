@@ -42,7 +42,7 @@ const ActivityRow = styledTS<{ isConversation?: boolean }>(styled(WhiteBox))`
   }
 
   &:hover {
-    background: ${props => props.isConversation && colors.bgUnread};
+    background: ${props => props.isConversation && colors.bgLightPurple};
   }
 `;
 

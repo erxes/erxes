@@ -37,7 +37,7 @@ const ArticleRow = (props: Props) => {
 
   const renderReactions = () => {
     const reactions = Object.entries(props.article.reactionCounts || {});
-
+    
     return reactions.map(([key, value]) => (
       <ReactionCount key={key}>
         <img src={key} alt="reaction" /> {value}

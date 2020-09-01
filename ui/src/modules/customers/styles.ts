@@ -26,7 +26,7 @@ const InfoDetail = styled.p`
   color: ${colors.colorCoreGray};
 `;
 
-const Actions = styled.div`
+const Actions = styledTS<{ isSmall?: boolean }>(styled.div)`
   display: flex;
   justify-content: space-between;
   padding: 0 ${dimensions.coreSpacing}px ${dimensions.unitSpacing}px;
@@ -38,6 +38,10 @@ const Actions = styled.div`
 
   > div {
     margin-left: 10px;
+  }
+
+  .dropdown {
+    display: ${props => (props.isSmall ? 'inline-block' : 'block')};
   }
 `;
 
@@ -180,7 +184,7 @@ export const LeadStateWrapper = styled.div`
   align-items: center;
 
   @media (max-width: 768px) {
-   flex-wrap: wrap;
+    flex-wrap: wrap;
   }
 
   > button {

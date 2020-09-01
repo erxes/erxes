@@ -98,7 +98,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
           {this.renderItem(
             'FACEBOOK_PERMISSIONS',
             '',
-            'manage_pages, pages_show_list, publish_pages, pages_messaging,pages_messaging_subscriptions'
+            'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content'
           )}
         </CollapseContent>
 
@@ -237,6 +237,10 @@ class IntegrationConfigs extends React.Component<Props, State> {
             </a>
           </Info>
           {this.renderItem('PRODUCT_BOARD_TOKEN')}
+        </CollapseContent>
+
+        <CollapseContent title="Telnyx SMS">
+          {this.renderItem('TELNYX_API_KEY')}
         </CollapseContent>
       </ContentBox>
     );

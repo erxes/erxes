@@ -29,6 +29,7 @@ export type ImportHistoryDetailQueryResponse = {
   importHistoryDetail: IImportHistory;
   loading: boolean;
   subscribeToMore: any;
+  error: any;
   refetch: () => void;
 };
 

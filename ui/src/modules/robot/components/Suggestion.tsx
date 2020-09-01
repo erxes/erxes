@@ -25,14 +25,14 @@ const Wrapper = styled.div`
 `;
 
 type Props = {
-  onClick: () => void;
+  onResumeClick: () => void;
   currentUserName: string;
   forceComplete: () => void;
   toggleContent: (isShow: boolean) => void;
 };
 
 export default function Suggestion({
-  onClick,
+  onResumeClick,
   currentUserName,
   forceComplete,
   toggleContent
@@ -58,7 +58,7 @@ export default function Suggestion({
             {__("You haven't fully configured. Would you like to configure")}
           </p>
 
-          <Button btnStyle="success" size="small" onClick={onClick}>
+          <Button btnStyle="success" size="small" onClick={onResumeClick}>
             Resume
           </Button>
           <Button btnStyle="link" size="small" onClick={forceComplete}>

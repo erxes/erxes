@@ -14,8 +14,6 @@ document.body.appendChild(iframe);
 
 // after iframe load send connection info
 iframe.onload = async () => {
-  iframe.style.display = "block";
-
   const contentWindow = iframe.contentWindow;
 
   if (!contentWindow) {

@@ -83,6 +83,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
         .then(() => {
           emptyBulk();
           Alert.success('You successfully deleted a customer');
+          customersMainQuery.refetch();
         })
         .catch((e) => {
           Alert.error(e.message);

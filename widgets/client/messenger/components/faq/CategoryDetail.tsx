@@ -75,7 +75,7 @@ class CategoryDetail extends React.Component<Props, IState> {
       <>
         <TopBar
           middle={this.renderHead()}
-          buttonIcon={iconLeft}
+          buttonIcon={iconLeft()}
           onLeftButtonClick={goToCategories}
         />
         <div className="erxes-content">{this.renderContent()}</div>

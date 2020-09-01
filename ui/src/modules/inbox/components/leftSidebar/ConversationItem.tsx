@@ -5,7 +5,7 @@ import IntegrationIcon from 'modules/common/components/IntegrationIcon';
 import NameCard from 'modules/common/components/nameCard/NameCard';
 import Tags from 'modules/common/components/Tags';
 import Tip from 'modules/common/components/Tip';
-import { renderFullName } from 'modules/common/utils';
+import { readFile, renderFullName } from 'modules/common/utils';
 import { CallLabel } from 'modules/inbox/styles';
 import { cleanIntegrationKind } from 'modules/settings/integrations/containers/utils';
 import React from 'react';
@@ -164,7 +164,7 @@ class ConversationItem extends React.Component<Props> {
                       src={
                         assignedUser.details &&
                         (assignedUser.details.avatar
-                          ? assignedUser.details.avatar
+                          ? readFile(assignedUser.details.avatar)
                           : '/images/avatar-colored.svg')
                       }
                     />

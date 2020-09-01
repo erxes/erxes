@@ -28,36 +28,41 @@ const Status = styledTS<{ verified: boolean }>(styled.span)`
 `;
 
 const statuses = {
-    valid: {
-        icon: 'shield-check',
-        label: 'Valid',
-        verified: true
-    },
-    invalid: {
-        icon: 'shield-slash',
-        label: 'Invalid',
-        verified: false
-    },
-    receives_sms: {
-        icon: 'mobile-android',
-        label: 'Can receive sms',
-        verified: true
-    },
-    unknown: {
-        icon: 'question-circle',
-        label: 'Unknown',
-        verified: false
-    },
-    unverifiable: {
-        icon: 'shield-slash',
-        label: 'Unverifiable',
-        verified: false
-    }
+  valid: {
+    icon: 'shield-check',
+    label: 'Valid',
+    verified: true
+  },
+  invalid: {
+    icon: 'shield-slash',
+    label: 'Invalid',
+    verified: false
+  },
+  receives_sms: {
+    icon: 'comment-alt-message',
+    label: 'Can receive sms',
+    verified: true
+  },
+  unknown: {
+    icon: 'lock',
+    label: 'Unknown',
+    verified: false
+  },
+  unverifiable: {
+    icon: 'ban',
+    label: 'Unverifiable',
+    verified: false
+  },
+  accept_all_unverifiable: {
+    icon: 'ban',
+    label: 'Unverifiable',
+    verified: false
+  }
 }
 
 function PrimaryPhone({ phone, status }: { phone?: string; status?: string }) {
   const renderStatus = () => {
-    if (status) {
+    if (status && statuses[status]) {
       return (
         <Tip text={`Status: ${statuses[status].label}`} placement="top">
           <Status verified={statuses[status].verified}>

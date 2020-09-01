@@ -1,10 +1,10 @@
-import { InMemoryCache } from "apollo-cache-inmemory";
-import { ApolloClient } from "apollo-client";
-import { split } from "apollo-link";
-import { createHttpLink } from "apollo-link-http";
-import { WebSocketLink } from "apollo-link-ws";
-import { getMainDefinition } from "apollo-utilities";
-import { getEnv } from "./utils";
+import { InMemoryCache } from 'apollo-cache-inmemory';
+import { ApolloClient } from 'apollo-client';
+import { split } from 'apollo-link';
+import { createHttpLink } from 'apollo-link-http';
+import { WebSocketLink } from 'apollo-link-ws';
+import { getMainDefinition } from 'apollo-utilities';
+import { getEnv } from './utils';
 
 const { API_URL, API_SUBSCRIPTIONS_URL } = getEnv();
 
@@ -32,7 +32,7 @@ const link = split(
   // split based on operation type
   ({ query }) => {
     const { kind, operation }: Definintion = getMainDefinition(query);
-    return kind === "OperationDefinition" && operation === "subscription";
+    return kind === 'OperationDefinition' && operation === 'subscription';
   },
   wsLink,
   httpLink

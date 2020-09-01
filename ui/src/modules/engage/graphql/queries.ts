@@ -53,6 +53,7 @@ const commonFields = `
   shortMessage {
     from
     content
+    fromIntegrationId
   }
 `;
 
@@ -100,6 +101,10 @@ const engageMessageStats = `
       ${engageDetailFields}
       stats
       logs
+
+      fromIntegration {
+        name
+      }
     }
   }
 `;

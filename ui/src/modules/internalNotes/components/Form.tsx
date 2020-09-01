@@ -5,12 +5,12 @@ import EditorCK from 'modules/common/containers/EditorCK';
 import React from 'react';
 import styled from 'styled-components';
 
-const EditorActions = styled.div`
+export const EditorActions = styled.div`
   padding: 0px 15px 37px 15px;
   text-align: right;
 `;
 
-const EditorWrapper = styled.div`
+export const EditorWrapper = styled.div`
   position: relative;
 
   > .cke_chrome {
