@@ -13,6 +13,7 @@ import {
   debugGmail,
   debugNylas,
   debugSmooch,
+  debugTelnyx,
   debugTwitter,
   debugWhatsapp,
 } from './debuggers';
@@ -65,6 +66,11 @@ import {
   SmoochViberConversations,
   SmoochViberCustomers,
 } from './smooch/models';
+import {
+  ConversationMessages as TelnyxConversationMessages,
+  Conversations as TelnyxConversations,
+  Customers as TelnyxCustomers,
+} from './telnyx/models';
 import { getTwitterConfig, unsubscribe } from './twitter/api';
 import {
   ConversationMessages as TwitterConversationMessages,
@@ -394,6 +400,20 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
     await SmoochTwilioCustomers.deleteMany(selector);
     await SmoochTwilioConversations.deleteMany(selector);
     await SmoochTwilioConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+  }
+
+  if (kind === 'telnyx') {
+    debugTelnyx('Removing telnyx entries');
+
+    const conversationIds = await TelnyxConversations.find(selector).distinct('_id');
+
+    try {
+      await TelnyxCustomers.deleteMany(selector);
+      await TelnyxConversations.deleteMany(selector);
+      await TelnyxConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+    } catch (e) {
+      throw new Error(e.message);
+    }
   }
 
   await Integrations.deleteOne({ _id });

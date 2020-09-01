@@ -52,12 +52,19 @@ export const handleFacebookMessage = async msg => {
       };
     }
 
-    const data = {
+    let data = {
       message: content,
       attachment_url: attachment.url,
     };
 
     const id = comment ? comment.commentId : post.postId;
+
+    if (comment && comment.commentId) {
+      data = {
+        message: ` @[${comment.senderId}] ${content}`,
+        attachment_url: attachment.url,
+      };
+    }
 
     try {
       const response = await sendReply(`${id}/comments`, data, recipientId, integrationId);

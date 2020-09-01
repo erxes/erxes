@@ -5593,6 +5593,11 @@ qs@^6.5.0, qs@^6.5.1, qs@^6.7.0:
   version "6.9.0"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.9.0.tgz#d1297e2a049c53119cb49cca366adbbacc80b409"
 
+qs@^6.6.0:
+  version "6.9.4"
+  resolved "https://registry.yarnpkg.com/qs/-/qs-6.9.4.tgz#9090b290d1f91728d3c22e54843ca44aea5ab687"
+  integrity sha512-A1kFqHekCTM7cz0udomYUoYNWjBebHm/5wzU/XqrBRBNWectVH0QIiN+NEcZ0Dte5hvzHwbr8+XQmguPhJ6WdQ==
+
 qs@~6.5.2:
   version "6.5.2"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.5.2.tgz#cb3ae806e8740444584ef154ce8ee98d403f3e36"
@@ -6649,6 +6654,17 @@ tar@^4:
     safe-buffer "^5.1.2"
     yallist "^3.0.3"
 
+telnyx@^1.7.2:
+  version "1.10.0"
+  resolved "https://registry.yarnpkg.com/telnyx/-/telnyx-1.10.0.tgz#0f4eb22f6344a7ed8e2b51146b6f54a8bf8bfc40"
+  integrity sha512-jJOC0gtWz4cRUtV1knp7jgalEHd2crwGb8yNDoMk/+riLYboPBAHOsu7Tn7IXkN52x4eiFppOt4TRFCXoDgjMw==
+  dependencies:
+    lodash.isplainobject "^4.0.6"
+    qs "^6.6.0"
+    safe-buffer "^5.1.1"
+    tweetnacl "^1.0.1"
+    uuid "^3.3.2"
+
 term-size@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/term-size/-/term-size-1.2.0.tgz#458b83887f288fc56d6fffbfad262e26638efa69"
@@ -6905,6 +6921,11 @@ tunnel-agent@^0.6.0:
 tweetnacl@^0.14.3, tweetnacl@~0.14.0:
   version "0.14.5"
   resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-0.14.5.tgz#5ae68177f192d4456269d108afa93ff8743f4f64"
+
+tweetnacl@^1.0.1:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-1.0.3.tgz#ac0af71680458d8a6378d0d0d050ab1407d35596"
+  integrity sha512-6rt+RN7aOi1nGMyC4Xa5DdYiukl2UWCbcJft7YhxReBGQD7OAM8Pbxw6YMo4r2diNEA8FEmu32YOn9rhaiE5yw==
 
 type-check@~0.3.2:
   version "0.3.2"
