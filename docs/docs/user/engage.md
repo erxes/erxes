@@ -118,20 +118,17 @@ Main function of "Manual message" is to send mass message only once.
 To send message through SMS channel, you must have your phone numbers configured.
 
 First, follow [this guide](/user/engage-phone-settings) to setup your phone number.
-Once your phone number is validated, you must assign that number to team members whom the engage message will be sent on behalf.
-
-![](https://erxes-docs.s3-us-west-2.amazonaws.com/engage/edit-team-member-phone.png)
+Once your phone number is validated, you must [setup an integration](/administrator/system-config#telnyx-sms) for your number.
 
 The final step of SMS engage message is as the following.
 
-![](https://erxes-docs.s3-us-west-2.amazonaws.com/engage/engage-sms.png)
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/engage/engage-sms-final-step.png)
 
-1. Choose sender. Only team members who has phone numbers configured will be available & others will be greyed out, unavailable to choose.
+**1. Choose an integration.** Active telnyx integrations with phone numbers will be shown in the options.
 
-2. Write SMS title. When sending SMS to phone numbers outside of USA, this title text will be shown as the sender.
-Within USA, the original number will be shown.
+**2. Write SMS title.** When sending SMS to phone numbers outside of USA, this title text can be shown as the sender instead of a phone number. Within USA, the original number will be shown.
 
-3. Write SMS body. It has 160 characters limit.
+**3. Write SMS body.** It has 160 characters limit.
 
 ---
 
