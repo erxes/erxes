@@ -38,6 +38,7 @@ const SegmentListContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
+    loading: segmentsQuery.loading,
     segments: segmentsQuery.segments || [],
     removeSegment
   };

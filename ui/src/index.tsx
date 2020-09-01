@@ -3,6 +3,7 @@ import 'abortcontroller-polyfill/dist/polyfill-patch-fetch';
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import utc from 'dayjs/plugin/utc';
 import 'erxes-icon/css/erxes.min.css';
 import OwnerSetup from 'modules/auth/containers/OwnerSetup';
 // global style
@@ -16,6 +17,7 @@ import Routes from './routes';
 
 dayjs.extend(localizedFormat);
 dayjs.extend(relativeTime);
+dayjs.extend(utc, { parseLocal: true });
 
 const target = document.querySelector('#root');
 

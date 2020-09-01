@@ -12,7 +12,9 @@ import {
   AddItemMutationResponse,
   EditMutationResponse,
   IChecklistItemDoc,
-  RemoveMutationResponse
+  IChecklistItemsUpdateOrderDoc,
+  RemoveMutationResponse,
+  UpdateItemsOrderMutationResponse
 } from '../types';
 
 type Props = {
@@ -24,6 +26,7 @@ type Props = {
 type FinalProps = {
   checklistDetailQuery: any;
   addItemMutation: AddItemMutationResponse;
+  checklistItemsOrderMutation: UpdateItemsOrderMutationResponse;
   convertToCardMutations;
   editMutation: EditMutationResponse;
   removeMutation: RemoveMutationResponse;
@@ -41,6 +44,17 @@ function ListContainer(props: FinalProps) {
       }
     });
   });
+
+  function updateOrderItems(sourceItem, destinationIndex) {
+    const { checklistItemsOrderMutation } = props;
+
+    checklistItemsOrderMutation({
+      variables: {
+        _id: sourceItem._id,
+        destinationIndex
+      }
+    });
+  }
 
   function remove(checklistId: string) {
     const { removeMutation } = props;
@@ -111,7 +125,8 @@ function ListContainer(props: FinalProps) {
     addItem,
     renderButton,
     remove,
-    convertToCard
+    convertToCard,
+    updateOrderItems
   };
 
   return <List {...listProps} />;
@@ -143,6 +158,14 @@ export default withProps<Props>(
         options
       }
     ),
+    graphql<
+      Props,
+      UpdateItemsOrderMutationResponse,
+      IChecklistItemsUpdateOrderDoc
+    >(gql(mutations.checklistItemsOrder), {
+      name: 'checklistItemsOrderMutation',
+      options
+    }),
     graphql<Props, RemoveMutationResponse, { _id: string }>(
       gql(mutations.checklistsRemove),
       {

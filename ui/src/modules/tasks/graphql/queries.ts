@@ -56,6 +56,11 @@ const taskDetail = `
   query taskDetail($_id: String!) {
     taskDetail(_id: $_id) {
       ${commonFields}
+      timeTrack {
+        status
+        timeSpent
+        startDate
+      }
     }
   }
 `;

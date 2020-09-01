@@ -65,6 +65,10 @@ const FlexContent = styled.div`
   .tags {
     margin-top: 5px;
     line-height: 1;
+
+    > span {
+      margin-bottom: 3px;
+    }
   }
 `;
 
@@ -133,6 +137,7 @@ const RowItem = styledTS<{
     css`
       background: ${colors.bgUnread};
       border-top: 1px solid rgba(0,0,0,0.05);
+      border-left: 1px solid ${colors.colorSecondary};
       margin-top: -1px;
 
       ${MessageContent} {

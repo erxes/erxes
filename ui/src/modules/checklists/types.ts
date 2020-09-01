@@ -53,12 +53,21 @@ export interface IChecklistItemDoc {
   content: string;
 }
 
+export interface IChecklistItemsUpdateOrderDoc {
+  _id: string;
+  destinationIndex: number;
+}
+
 export interface IChecklistItem extends IChecklistItemDoc {
   _id: string;
 }
 
 export type AddItemMutationResponse = (
   { variables: IChecklistItemDoc }
+) => Promise<any>;
+
+export type UpdateItemsOrderMutationResponse = (
+  { variables: IChecklistItemsUpdateOrderDoc }
 ) => Promise<any>;
 
 export type EditItemMutationVariables = {
