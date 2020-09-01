@@ -54,10 +54,10 @@ const userMutations = {
     {
       email,
       password,
-      passwordConfirmation,
+      firstName,
+      lastName,
       subscribeEmail,
-    }: { email: string; password: string; passwordConfirmation: string; subscribeEmail: boolean },
-    { res, requestInfo }: IContext,
+    }: { email: string; password: string; firstName: string; lastName?: string; subscribeEmail?: boolean },
   ) {
     const userCount = await Users.countDocuments();
 
@@ -65,29 +65,30 @@ const userMutations = {
       throw new Error('Access denied');
     }
 
-    if (password !== passwordConfirmation) {
-      throw new Error('Passwords do not match');
-    }
-
     const doc: IUser = {
       isOwner: true,
       email,
       password,
+      details: {
+        fullName: `${firstName} ${lastName || ''}`,
+      },
     };
 
     await Users.createUser(doc);
 
-    if (subscribeEmail && process.env.NODE_ENV === 'production') {
+    if (subscribeEmail) {
       await sendRequest({
-        url: 'https://erxes.io/subscribe',
+        url: 'http://localhost:3500/subscribe',
         method: 'POST',
         body: {
           email,
+          firstName,
+          lastName,
         },
       });
     }
 
-    return login({ email, password }, res, requestInfo.secure);
+    return 'success';
   },
   /*
    * Login

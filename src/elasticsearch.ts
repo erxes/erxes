@@ -18,7 +18,7 @@ export const getMappings = async (index: string) => {
 };
 
 export const getIndexPrefix = () => {
-  if (ELASTICSEARCH_URL === 'https://elasticsearch.erxes.io' && NODE_ENV === 'production') {
+  if (ELASTICSEARCH_URL === 'https://elasticsearch.erxes.io') {
     return `${telemetry.getMachineId().toString()}__`;
   }
 
