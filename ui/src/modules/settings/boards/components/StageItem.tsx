@@ -1,8 +1,8 @@
 import { IStage } from 'modules/boards/types';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
-import React from 'react';
 import { __ } from 'modules/common/utils';
+import React from 'react';
 import { PROBABILITY } from '../constants';
 import { StageItemContainer } from '../styles';
 
@@ -31,7 +31,7 @@ class StageItem extends React.Component<Props, {}> {
         <FormControl
           defaultValue={stage.name}
           type="text"
-          placeholder={__('Stage name')}
+          placeholder={__("Stage name")}
           onKeyPress={onKeyPress}
           autoFocus={true}
           name="name"
