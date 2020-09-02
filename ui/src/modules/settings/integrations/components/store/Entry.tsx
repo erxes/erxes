@@ -238,8 +238,7 @@ function Entry({
       <Box onClick={boxOnClick} isInMessenger={integration.inMessenger}>
         <img alt="logo" src={integration.logo} />
         <h5>
-          {__(integration.name)}{' '}
-          {getCount(kind, totalCount, messengerAppsCount)}
+        {integration.name} {getCount(kind, totalCount, messengerAppsCount)}
         </h5>
         <p>
           {__(integration.description)}

@@ -161,7 +161,7 @@ class MessagesList extends React.Component<Props, State> {
           >
             {iconCall(textColor)}
             <span style={{ background: color, color: textColor }}>
-              Audio call
+              {__("Audio call")}
             </span>
           </button>
           <button
