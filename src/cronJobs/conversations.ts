@@ -98,7 +98,7 @@ export const sendMessageEmail = async () => {
     }
 
     // send email
-    utils.sendEmail(emailOptions);
+    await utils.sendEmail(emailOptions);
 
     // mark sent messages as read
     await ConversationMessages.markSentAsReadMessages(conversation._id);
