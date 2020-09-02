@@ -79,6 +79,7 @@ export interface IMessengerData {
 
 export interface IUiOptions {
   color?: string;
+  textColor?: string;
   wallpaper?: string;
   logo?: string;
   logoPreviewUrl?: string;
@@ -311,7 +312,7 @@ export type AddIntegrationMutationResponse = {
     params: {
       variables: AddIntegrationMutationVariables;
     }
-  ) => Promise<void>;
+  ) => Promise<any>;
 };
 
 export type EditIntegrationMutationVariables = {
@@ -379,3 +380,13 @@ export type ProviderFormInput = (
     | string,
   value: string | number
 ) => void;
+
+export type SendSmsMutationVariables = {
+  integrationId: string;
+  content: string;
+  to: string;
+};
+
+export type SendSmsMutationResponse = (
+  { variables: SendSmsMutationVariables }
+) => Promise<any>;

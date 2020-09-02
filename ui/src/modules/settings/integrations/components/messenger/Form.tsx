@@ -48,6 +48,7 @@ type State = {
   channelIds: string[];
   languageCode: string;
   color: string;
+  textColor: string;
   wallpaper: string;
   notifyCustomer: boolean;
   supporterIds: string[];
@@ -95,6 +96,7 @@ class CreateMessenger extends React.Component<Props, State> {
       languageCode,
       channelIds: channels.map(item => item._id) || [],
       color: uiOptions.color || '#6569DF',
+      textColor: uiOptions.textColor || '#fff',
       wallpaper: uiOptions.wallpaper || '1',
       notifyCustomer: configData.notifyCustomer || false,
       requireAuth: configData.requireAuth,
@@ -205,6 +207,7 @@ class CreateMessenger extends React.Component<Props, State> {
       },
       uiOptions: {
         color: this.state.color,
+        textColor: this.state.textColor,
         wallpaper: this.state.wallpaper,
         logo: this.state.logo
       }
@@ -252,6 +255,7 @@ class CreateMessenger extends React.Component<Props, State> {
       onlineHours,
       timezone,
       color,
+      textColor,
       logoPreviewUrl,
       wallpaper,
       brandId,
@@ -293,6 +297,7 @@ class CreateMessenger extends React.Component<Props, State> {
                 <Appearance
                   onChange={this.onChange}
                   color={color}
+                  textColor={textColor}
                   logoPreviewUrl={logoPreviewUrl}
                   wallpaper={wallpaper}
                 />
@@ -391,6 +396,7 @@ class CreateMessenger extends React.Component<Props, State> {
                 isOnline={isOnline}
                 wallpaper={wallpaper}
                 color={color}
+                textColor={textColor}
                 brands={this.props.brands}
                 brandId={brandId}
                 logoPreviewStyle={logoPreviewStyle}

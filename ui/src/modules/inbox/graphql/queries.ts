@@ -116,8 +116,8 @@ const conversationMessages = `
 `;
 
 const converstationFacebookComments = `
-  query converstationFacebookComments($postId: String!, $commentId: String, $senderId: String, $skip: Int, $limit: Int) {
-    converstationFacebookComments(postId: $postId, limit: $limit, commentId: $commentId, senderId: $senderId, skip: $skip) {
+  query converstationFacebookComments($postId: String!,$isResolved: Boolean, $commentId: String, $senderId: String, $skip: Int, $limit: Int) {
+    converstationFacebookComments(postId: $postId,isResolved:$isResolved, limit: $limit, commentId: $commentId, senderId: $senderId, skip: $skip) {
       conversationId
       commentId
       postId
@@ -129,6 +129,7 @@ const converstationFacebookComments = `
       timestamp
       parentId
       commentCount
+      isResolved
       customer {
         _id
         visitorContactInfo
@@ -137,6 +138,12 @@ const converstationFacebookComments = `
         lastName
       }
     }
+  }
+`;
+
+const converstationFacebookCommentsCount = `
+  query converstationFacebookCommentsCount($postId: String!, $isResolved: Boolean) {
+    converstationFacebookCommentsCount(postId: $postId, isResolved:$isResolved) 
   }
 `;
 
@@ -330,6 +337,7 @@ export default {
   conversationDetailMarkAsRead,
   conversationMessages,
   converstationFacebookComments,
+  converstationFacebookCommentsCount,
   conversationMessagesTotalCount,
   userList,
   channelList,

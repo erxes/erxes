@@ -36,9 +36,9 @@ When you create the IMAP account, it should look like as follows:
 If you encounter **Invalid authentication or incorrect username password** when you create Gmail IMAP integration, Please check the following
 - Ensure that you entered the correct password
 - Ensure that you enabled the IMAP Access in [Gmail config](https://mail.google.com/mail/u/0/#settings/general)
-- Ensure that you turned on the [Less secure app](https://myaccount.google.com/lesssecureapps)
+- Ensure that you turned on the [Less secure app](https://myaccount.google.com/lesssecureapps) on your personal email address. If you're using GSuite, click [here](https://admin.google.com/u/5/ac/security/lsa) to go to your Google Admin console and allow users to manage their access to less secure apps.
 
-If you don't know how to configure these, please go ahead to Gmail IMAP doc section [here](http://localhost:3000/administrator/system-config#gmail-imap)
+If you don't know how to configure these, please go ahead to Gmail IMAP doc section [here](https://www.erxes.org/administrator/system-config/#gmail-imap)
 
 ## Gmail
 * Before you use Gmail integration please make sure that you enter correct GOOGLE TOPIC, GOOGLE GMAIL SUBSCRIPTION NAME it should be single string otherwise you will get invalid_format error.

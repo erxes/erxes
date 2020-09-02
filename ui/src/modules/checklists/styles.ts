@@ -86,10 +86,11 @@ const ChecklistText = styledTS<{ isChecked?: boolean }>(styled.div)`
 `;
 
 const ChecklistItem = styled.div`
+  display: flex;
+  flex: 1;
   padding: ${dimensions.unitSpacing / 2}px;
   border-radius: 2px;
   margin-left: -5px;
-  display: flex;
   transition: all ease 0.3s;
 
   &:hover {
@@ -110,7 +111,7 @@ const FormControlWrapper = styled.div`
   textarea {
     border-bottom: 1px solid ${colors.colorShadowGray};
     padding: ${dimensions.unitSpacing / 2}px 0;
-    margin-bottom: ${dimensions.unitSpacing}px;
+    margin: ${dimensions.unitSpacing}px 0;
     overflow-y: hidden;
     min-height: auto;
   }
