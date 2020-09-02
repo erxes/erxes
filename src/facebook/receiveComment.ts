@@ -8,6 +8,7 @@ const receiveComment = async (params: ICommentParams, pageId: string) => {
   const userId = params.from.id;
   const postId = params.post_id;
   const kind = 'facebook-post';
+  const verb = params.verb;
 
   const integration = await Integrations.getIntegration({
     $and: [{ facebookPageIds: { $in: pageId } }, { kind }],
@@ -38,7 +39,7 @@ const receiveComment = async (params: ICommentParams, pageId: string) => {
       const restoredUserId = comment.from.id;
 
       await getOrCreateCustomer(pageId, restoredUserId, kind);
-      await getOrCreateComment(comment, pageId, restoredUserId);
+      await getOrCreateComment(comment, pageId, restoredUserId, verb);
     }
 
     const customer = await getOrCreateCustomer(pageId, restoredPostId, kind);
@@ -46,7 +47,7 @@ const receiveComment = async (params: ICommentParams, pageId: string) => {
     return await getOrCreatePost(postResponse, pageId, userId, customer.erxesApiId);
   }
 
-  return await getOrCreateComment(params, pageId, userId);
+  return getOrCreateComment(params, pageId, userId, verb);
 };
 
 export default receiveComment;

@@ -120,7 +120,12 @@ export const getOrCreatePost = async (
   return post;
 };
 
-export const getOrCreateComment = async (commentParams: ICommentParams, pageId: string, userId: string) => {
+export const getOrCreateComment = async (
+  commentParams: ICommentParams,
+  pageId: string,
+  userId: string,
+  verb: string,
+) => {
   const comment = await Comments.findOne({ commentId: commentParams.comment_id });
 
   const integration = await Integrations.getIntegration({
@@ -129,11 +134,17 @@ export const getOrCreateComment = async (commentParams: ICommentParams, pageId: 
 
   Accounts.getAccount({ _id: integration.accountId });
 
+  const doc = generateCommentDoc(commentParams, pageId, userId);
+
+  if (verb && verb === 'edited') {
+    await Comments.updateOne({ commentId: doc.commentId }, { $set: { ...doc } });
+
+    return sendMessage({ action: 'external-integration-entry-added' });
+  }
+
   if (comment) {
     return comment;
   }
-
-  const doc = generateCommentDoc(commentParams, pageId, userId);
 
   await Comments.create(doc);
 
