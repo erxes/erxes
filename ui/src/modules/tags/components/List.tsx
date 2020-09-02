@@ -41,11 +41,9 @@ function List({ tags, type, remove, loading, renderButton }: Props) {
     />
   );
 
-  const translatedType = __(type);
-
   const title = (
-    <Title>
-      {translatedType} {__('tags')}
+    <Title capitalize={true}>
+      {type} {__('tags')}
     </Title>
   );
   const actionBar = (

@@ -53,13 +53,9 @@ type Props = {
   toggleReply?: () => void;
   emailSignatures: IEmailSignature[];
   createdAt?: Date;
-  sendMail: ({
-    variables,
-    callback
-  }: {
-    variables: any;
-    callback: () => void;
-  }) => void;
+  sendMail: (
+    { variables, callback }: { variables: any; callback: () => void }
+  ) => void;
 };
 
 type State = {

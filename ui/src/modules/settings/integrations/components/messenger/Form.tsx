@@ -32,14 +32,16 @@ type Props = {
   teamMembers: IUser[];
   integration?: IIntegration;
   brands: IBrand[];
-  save: (params: {
-    name: string;
-    brandId: string;
-    languageCode: string;
-    channelIds?: string[];
-    messengerData: IMessengerData;
-    uiOptions: IUiOptions;
-  }) => void;
+  save: (
+    params: {
+      name: string;
+      brandId: string;
+      languageCode: string;
+      channelIds?: string[];
+      messengerData: IMessengerData;
+      uiOptions: IUiOptions;
+    }
+  ) => void;
 };
 
 type State = {

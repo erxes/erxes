@@ -99,12 +99,7 @@ class List extends React.Component<Props, {}> {
                 icon="/images/actions/29.svg"
                 title="Email appearance"
                 description={
-                  __('Appearances matter, especially for your business') +
-                  '. ' +
-                  __(
-                    'Edit and manage your email appearance so that your business can operate in one voice'
-                  ) +
-                  '.'
+                  __('Appearances matter, especially for your business. Edit and manage your email appearance so that your business can operate in one voice')
                 }
               />
             }

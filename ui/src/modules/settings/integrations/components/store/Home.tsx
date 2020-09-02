@@ -135,16 +135,7 @@ class Home extends React.Component<Props, State> {
               <HeaderDescription
                 icon="/images/actions/33.svg"
                 title="App store"
-                description={
-                  __(
-                    'Set up your integrations and start connecting with your customers'
-                  ) +
-                  '. ' +
-                  __(
-                    'Now you can reach them on wherever platform they feel most comfortable'
-                  ) +
-                  '.'
-                }
+                description="Set up your integrations and start connecting with your customers. Now you can reach them on wherever platform they feel most comfortable."
               />
             }
             right={this.renderSearch()}

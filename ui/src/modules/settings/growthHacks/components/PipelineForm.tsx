@@ -288,44 +288,19 @@ class PipelineForm extends React.Component<Props, State> {
 
             <FlexContent>
               {this.renderBox(
-                __('ice'),
-                __(
-                  'Set the Impact, Confidence and Ease factors for your tasks. Final score is calculated by the formula:'
-                ),
-                __('Impact') + ' * ' + __('Confidence') + ' * ' + __('Ease')
+                'ice',
+                'Set the Impact, Confidence and Ease factors for your tasks. Final score is calculated by the formula:',
+                'Impact * Confidence * Ease'
               )}
               {this.renderBox(
-                __('rice'),
-                __(
-                  'Set the Reach, Impact, Confidence and Effort factors for your tasks. Final score is calculated by the formula:'
-                ),
-                '( ' +
-                  __('Reach') +
-                  ' * ' +
-                  __('Impact') +
-                  ' * ' +
-                  __('Confidence') +
-                  ')' +
-                  ' / ' +
-                  __('Effort') +
-                  ' )'
+                'rice',
+                'Set the Reach, Impact, Confidence and Effort factors for your tasks. Final score is calculated by the formula:',
+                '(Reach * Impact * Confidence) / Effort'
               )}
               {this.renderBox(
-                __('pie'),
-                __(
-                  'Set the Potential, Importance and Ease factors for your tasks'
-                ) +
-                  '.' +
-                  __('Final score is calculated by the formula:   '),
-                '(' +
-                  __('Potential') +
-                  ' + ' +
-                  __('Importance') +
-                  ' + ' +
-                  __('Ease') +
-                  ' )' +
-                  ' / ' +
-                  '3'
+                'pie',
+                'Set the Potential, Importance and Ease factors for your tasks. Final score is calculated by the formula:',
+                '(Potential + Importance + Ease) / 3'
               )}
             </FlexContent>
           </FormGroup>
