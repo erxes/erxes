@@ -14,7 +14,8 @@ export const LANGUAGES = [
   { label: 'Vietnam', value: 'vi' },
   { label: 'Indonesian', value: 'yi' },
   { label: 'Republic of Serbia', value: 'en_RS' },
-  { label: 'Dutch', value: 'nl' }
+  { label: 'Dutch', value: 'nl' },
+  { label: 'Turkish', value: 'tr_TR' },
 ];
 
 export const SERVICE_TYPES = [
