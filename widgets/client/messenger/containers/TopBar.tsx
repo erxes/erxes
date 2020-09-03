@@ -1,7 +1,7 @@
-import * as React from "react";
-import { TopBar } from "../components";
-import { connection } from "../connection";
-import { AppConsumer } from "./AppContext";
+import * as React from 'react';
+import { TopBar } from '../components';
+import { connection } from '../connection';
+import { AppConsumer } from './AppContext';
 
 type Props = {
   middle: React.ReactNode;
@@ -26,7 +26,7 @@ const container = (props: Props) => {
           <TopBar
             {...props}
             color={getUiOptions().color}
-            textColor={getUiOptions().textColor || "#fff"}
+            textColor={getUiOptions().textColor || '#fff'}
             toggleLauncher={toggle}
             isChat={Boolean(!connection.setting.email)}
             endConversation={endConversation}

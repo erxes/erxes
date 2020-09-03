@@ -1,6 +1,6 @@
-import * as React from "react";
-import { AccquireInformation } from "../components";
-import { AppConsumer } from "./AppContext";
+import * as React from 'react';
+import { AccquireInformation } from '../components';
+import { AppConsumer } from './AppContext';
 
 export default class extends React.Component {
   render() {
@@ -10,7 +10,7 @@ export default class extends React.Component {
           return (
             <AccquireInformation
               color={getColor()}
-              textColor={getUiOptions().textColor || "#fff"}
+              textColor={getUiOptions().textColor || '#fff'}
               save={saveGetNotified}
               loading={isSavingNotified}
               showTitle={true}
