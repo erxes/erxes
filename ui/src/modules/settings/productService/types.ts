@@ -1,3 +1,4 @@
+import { QueryResponse } from 'modules/common/types';
 import { ITag } from 'modules/tags/types';
 
 export interface IProductDoc {
@@ -49,27 +50,19 @@ export interface IProductCategory {
 
 export type ProductsQueryResponse = {
   products: IProduct[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type ProductsCountQueryResponse = {
   productsTotalCount: number;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type ProductCategoriesQueryResponse = {
   productCategories: IProductCategory[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type ProductCategoriesCountQueryResponse = {
   productCategoriesTotalCount: number;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type MutationVariables = {
   _id?: string;
