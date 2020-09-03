@@ -1,3 +1,4 @@
+import { QueryResponse } from 'modules/common/types';
 import { IIntegration } from 'modules/settings/integrations/types';
 
 export interface IBrand {
@@ -24,11 +25,6 @@ export interface IBrandsCount {
 }
 
 // queries
-type QueryResponse = {
-  loading: boolean;
-  refetch: () => void;
-};
-
 export type BrandsQueryResponse = {
   brands: IBrand[];
 } & QueryResponse;
