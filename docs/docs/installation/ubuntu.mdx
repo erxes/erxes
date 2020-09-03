@@ -3,8 +3,8 @@ id: ubuntu
 title: Ubuntu 18.04
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
 
 ## Server Installation Requirements
 
@@ -26,8 +26,8 @@ Each hosting company has slightly different server configurations and set-ups. H
 To install and properly run your **erxes** installation, you must meet these minimum requirements:
 
 - Ubuntu 18.04 installed and running
-- 4 CPUs
-- 8GB RAM
+- 2 CPUs
+- 4GB RAM
 - ability to to SSH into the server
 
 :::tip Use one-click installs
@@ -38,7 +38,7 @@ You can use the [Digital Ocean Marketplace](https://marketplace.digitalocean.com
 
 You must have an account with your hosting provider prior to doing these steps.
 
-- Create a server with **Ubuntu 18.04** installed, a minimum of **4 CPUs** and **8GB RAM**.
+- Create a server with **Ubuntu 18.04** installed, a minimum of **2 CPUs** and **4GB RAM**.
 - If you're using a **subdomain**, then the **subdomain** must be created with your hosting provider hosting your main domain's website or app.
 
 ### Configure your DNS Records to point at your server
@@ -82,7 +82,9 @@ Please select from the **Quickstart** or **Step by Step** instructions below and
     { label: 'Step by Step', value: 'step-by-step' },
 ]}>
 
+
 <TabItem value='quickstart'>
+
 
 ## Quickstart - Installing erxes on Ubuntu 18.04
 
@@ -185,24 +187,6 @@ After successful logging back into the server as `erxes`, you are ready to conti
 
 **Let's Encrypt** enables you to use **HTTPS** on your website. It will issue you a certificate which shows that you control your domain. [Let's Encrypt additional information](https://www.nginx.com/resources/wiki/start/topics/tutorials/install/).
 
-You will follow the installation instructions as covered [here](https://certbot.eff.org/lets-encrypt/ubuntubionic-nginx), with [Certbot](https://certbot.eff.org/)
-
-- You will need to add a **Certbot** PPA to the list of repositories on the server.
-
-```bash
-sudo apt-get update
-sudo apt-get -y install software-properties-common
-sudo add-apt-repository universe
-sudo add-apt-repository -y ppa:certbot/certbot
-sudo apt-get update
-```
-
-- Install Certbot
-
-```bash
-sudo apt-get install -y certbot python3-certbot-nginx
-```
-
 Execute Certbot. You will asked several questions, you can answer as follows:
 
 - Enter your email address
@@ -253,6 +237,7 @@ export MONGO_URL="YOUR_COPIED_MONGO_URL_HERE"
 
 </TabItem>
 <TabItem value='step-by-step'>
+
 
 ## Log into server as root and create erxes user
 
@@ -1147,156 +1132,156 @@ nano ecosystem.config.js
 module.exports = {
   apps: [
     {
-      name: 'erxes-api',
-      script: 'dist',
-      cwd: '/home/erxes/erxes.io/erxes-api',
-      log_date_format: 'YYYY-MM-DD HH:mm Z',
-      node_args: '--max_old_space_size=4096',
+      name: "erxes-api",
+      script: "dist",
+      cwd: "/home/erxes/erxes.io/erxes-api",
+      log_date_format: "YYYY-MM-DD HH:mm Z",
+      node_args: "--max_old_space_size=4096",
       env: {
         PORT: 3300,
-        NODE_ENV: 'production',
-        JWT_TOKEN_SECRET: 'YOUR_SECRET_TOKEN',
-        DEBUG: 'erxes-api:*',
-        MONGO_URL: 'mongodb://localhost/erxes',
-        REDIS_HOST: 'localhost',
+        NODE_ENV: "production",
+        JWT_TOKEN_SECRET: "YOUR_SECRET_TOKEN",
+        DEBUG: "erxes-api:*",
+        MONGO_URL: "mongodb://localhost/erxes",
+        REDIS_HOST: "localhost",
         REDIS_PORT: 6379,
-        REDIS_PASSWORD: '',
-        RABBITMQ_HOST: 'amqp://localhost',
-        ELASTICSEARCH_URL: 'http://localhost:9200',
-        MAIN_APP_DOMAIN: 'https://YOUR_DOMAIN_COM',
-        WIDGETS_DOMAIN: 'https://YOUR_DOMAIN_COM/widgets',
-        INTEGRATIONS_API_DOMAIN: 'https://YOUR_DOMAIN_COM/integrations',
+        REDIS_PASSWORD: "",
+        RABBITMQ_HOST: "amqp://localhost",
+        ELASTICSEARCH_URL: "http://localhost:9200",
+        MAIN_APP_DOMAIN: "https://YOUR_DOMAIN_COM",
+        WIDGETS_DOMAIN: "https://YOUR_DOMAIN_COM/widgets",
+        INTEGRATIONS_API_DOMAIN: "https://YOUR_DOMAIN_COM/integrations",
       },
     },
     {
-      name: 'erxes-cronjobs',
-      script: 'dist/cronJobs',
-      cwd: '/home/erxes/erxes.io/erxes-api',
-      log_date_format: 'YYYY-MM-DD HH:mm Z',
-      node_args: '--max_old_space_size=4096',
+      name: "erxes-cronjobs",
+      script: "dist/cronJobs",
+      cwd: "/home/erxes/erxes.io/erxes-api",
+      log_date_format: "YYYY-MM-DD HH:mm Z",
+      node_args: "--max_old_space_size=4096",
       env: {
         PORT_CRONS: 3600,
-        NODE_ENV: 'production',
-        PROCESS_NAME: 'crons',
-        DEBUG: 'erxes-crons:*',
-        MONGO_URL: 'mongodb://localhost/erxes',
-        REDIS_HOST: 'localhost',
+        NODE_ENV: "production",
+        PROCESS_NAME: "crons",
+        DEBUG: "erxes-crons:*",
+        MONGO_URL: "mongodb://localhost/erxes",
+        REDIS_HOST: "localhost",
         REDIS_PORT: 6379,
-        REDIS_PASSWORD: '',
-        RABBITMQ_HOST: 'amqp://localhost',
+        REDIS_PASSWORD: "",
+        RABBITMQ_HOST: "amqp://localhost",
       },
     },
     {
-      name: 'erxes-workers',
-      script: 'dist/workers',
-      cwd: '/home/erxes/erxes.io/erxes-api',
-      log_date_format: 'YYYY-MM-DD HH:mm Z',
-      node_args: '--max_old_space_size=4096',
+      name: "erxes-workers",
+      script: "dist/workers",
+      cwd: "/home/erxes/erxes.io/erxes-api",
+      log_date_format: "YYYY-MM-DD HH:mm Z",
+      node_args: "--max_old_space_size=4096",
       env: {
         PORT_WORKERS: 3700,
-        NODE_ENV: 'production',
-        DEBUG: 'erxes-workers:*',
-        MONGO_URL: 'mongodb://localhost/erxes',
-        REDIS_HOST: 'localhost',
+        NODE_ENV: "production",
+        DEBUG: "erxes-workers:*",
+        MONGO_URL: "mongodb://localhost/erxes",
+        REDIS_HOST: "localhost",
         REDIS_PORT: 6379,
-        REDIS_PASSWORD: '',
-        RABBITMQ_HOST: 'amqp://localhost',
-        JWT_TOKEN_SECRET: 'YOUR_SECRET_TOKEN',
+        REDIS_PASSWORD: "",
+        RABBITMQ_HOST: "amqp://localhost",
+        JWT_TOKEN_SECRET: "YOUR_SECRET_TOKEN",
       },
     },
     {
-      name: 'erxes-widgets',
-      script: 'dist',
-      cwd: '/home/erxes/erxes.io/erxes-widgets',
-      log_date_format: 'YYYY-MM-DD HH:mm Z',
-      node_args: '--max_old_space_size=4096',
+      name: "erxes-widgets",
+      script: "dist",
+      cwd: "/home/erxes/erxes.io/erxes-widgets",
+      log_date_format: "YYYY-MM-DD HH:mm Z",
+      node_args: "--max_old_space_size=4096",
       env: {
         PORT: 3200,
-        NODE_ENV: 'production',
-        ROOT_URL: 'https://YOUR_DOMAIN_COM/widgets',
-        API_URL: 'https://YOUR_DOMAIN_COM/api',
-        API_SUBSCRIPTIONS_URL: 'wss://YOUR_DOMAIN_COM/api/subscriptions',
+        NODE_ENV: "production",
+        ROOT_URL: "https://YOUR_DOMAIN_COM/widgets",
+        API_URL: "https://YOUR_DOMAIN_COM/api",
+        API_SUBSCRIPTIONS_URL: "wss://YOUR_DOMAIN_COM/api/subscriptions",
       },
     },
     {
-      name: 'erxes-engages',
-      script: 'dist',
-      cwd: '/home/erxes/erxes.io/erxes-engages-email-sender',
-      log_date_format: 'YYYY-MM-DD HH:mm Z',
-      node_args: '--max_old_space_size=4096',
+      name: "erxes-engages",
+      script: "dist",
+      cwd: "/home/erxes/erxes.io/erxes-engages-email-sender",
+      log_date_format: "YYYY-MM-DD HH:mm Z",
+      node_args: "--max_old_space_size=4096",
       env: {
         PORT: 3900,
-        NODE_ENV: 'production',
-        DEBUG: 'erxes-engages:*',
-        MAIN_API_DOMAIN: 'https://YOUR_DOMAIN_COM/api',
-        MONGO_URL: 'mongodb://localhost/erxes_engages',
-        RABBITMQ_HOST: 'amqp://localhost',
-        REDIS_HOST: 'localhost',
+        NODE_ENV: "production",
+        DEBUG: "erxes-engages:*",
+        MAIN_API_DOMAIN: "https://YOUR_DOMAIN_COM/api",
+        MONGO_URL: "mongodb://localhost/erxes_engages",
+        RABBITMQ_HOST: "amqp://localhost",
+        REDIS_HOST: "localhost",
         REDIS_PORT: 6379,
-        REDIS_PASSWORD: '',
+        REDIS_PASSWORD: "",
       },
     },
     {
-      name: 'erxes-logger',
-      script: 'dist',
-      cwd: '/home/erxes/erxes.io/erxes-logger',
-      log_date_format: 'YYYY-MM-DD HH:mm Z',
-      node_args: '--max_old_space_size=4096',
+      name: "erxes-logger",
+      script: "dist",
+      cwd: "/home/erxes/erxes.io/erxes-logger",
+      log_date_format: "YYYY-MM-DD HH:mm Z",
+      node_args: "--max_old_space_size=4096",
       env: {
         PORT: 3800,
-        NODE_ENV: 'production',
-        DEBUG: 'erxes-logs:*',
-        MONGO_URL: 'mongodb://localhost/erxes_logger',
-        RABBITMQ_HOST: 'amqp://localhost',
+        NODE_ENV: "production",
+        DEBUG: "erxes-logs:*",
+        MONGO_URL: "mongodb://localhost/erxes_logger",
+        RABBITMQ_HOST: "amqp://localhost",
       },
     },
     {
-      name: 'erxes-integrations',
-      script: 'dist',
-      cwd: '/home/erxes/erxes.io/erxes-integrations',
-      log_date_format: 'YYYY-MM-DD HH:mm Z',
-      node_args: '--max_old_space_size=4096',
+      name: "erxes-integrations",
+      script: "dist",
+      cwd: "/home/erxes/erxes.io/erxes-integrations",
+      log_date_format: "YYYY-MM-DD HH:mm Z",
+      node_args: "--max_old_space_size=4096",
       env: {
         PORT: 3400,
-        NODE_ENV: 'production',
-        DEBUG: 'erxes-integrations:*',
-        DOMAIN: 'https://YOUR_DOMAIN_COM/integrations',
-        MAIN_APP_DOMAIN: 'https://YOUR_DOMAIN_COM',
-        MAIN_API_DOMAIN: 'https://YOUR_DOMAIN_COM/api',
-        MONGO_URL: 'mongodb://localhost/erxes_integrations',
-        RABBITMQ_HOST: 'amqp://localhost',
-        REDIS_HOST: 'localhost',
+        NODE_ENV: "production",
+        DEBUG: "erxes-integrations:*",
+        DOMAIN: "https://YOUR_DOMAIN_COM/integrations",
+        MAIN_APP_DOMAIN: "https://YOUR_DOMAIN_COM",
+        MAIN_API_DOMAIN: "https://YOUR_DOMAIN_COM/api",
+        MONGO_URL: "mongodb://localhost/erxes_integrations",
+        RABBITMQ_HOST: "amqp://localhost",
+        REDIS_HOST: "localhost",
         REDIS_PORT: 6379,
-        REDIS_PASSWORD: '',
+        REDIS_PASSWORD: "",
       },
     },
     {
-      name: 'erxes-elkSyncer',
-      script: 'main.py',
-      cwd: '/home/erxes/erxes.io/erxes-elkSyncer/elkSyncer',
-      log_date_format: 'YYYY-MM-DD HH:mm Z',
-      interpreter: '/usr/bin/python3',
+      name: "erxes-elkSyncer",
+      script: "main.py",
+      cwd: "/home/erxes/erxes.io/erxes-elkSyncer/elkSyncer",
+      log_date_format: "YYYY-MM-DD HH:mm Z",
+      interpreter: "/usr/bin/python3",
       env: {
-        MONGO_URL: 'mongodb://localhost/erxes',
-        ELASTICSEARCH_URL: 'http://localhost:9200',
+        MONGO_URL: "mongodb://localhost/erxes",
+        ELASTICSEARCH_URL: "http://localhost:9200",
       },
     },
     {
-      name: 'erxes-email-verifier',
-      script: 'dist',
-      cwd: '/home/erxes/erxes.io/erxes-email-verifier',
-      log_date_format: 'YYYY-MM-DD HH:mm Z',
-      node_args: '--max_old_space_size=4096',
+      name: "erxes-email-verifier",
+      script: "dist",
+      cwd: "/home/erxes/erxes.io/erxes-email-verifier",
+      log_date_format: "YYYY-MM-DD HH:mm Z",
+      node_args: "--max_old_space_size=4096",
       env: {
         PORT_WORKERS: 3700,
-        NODE_ENV: 'production',
-        DEBUG: 'erxes-workers:*',
-        MONGO_URL: 'mongodb://localhost/erxes',
-        REDIS_HOST: 'localhost',
+        NODE_ENV: "production",
+        DEBUG: "erxes-workers:*",
+        MONGO_URL: "mongodb://localhost/erxes",
+        REDIS_HOST: "localhost",
         REDIS_PORT: 6379,
-        REDIS_PASSWORD: '',
-        RABBITMQ_HOST: 'amqp://localhost',
-        JWT_TOKEN_SECRET: 'YOUR_SECRET_TOKEN',
+        REDIS_PASSWORD: "",
+        RABBITMQ_HOST: "amqp://localhost",
+        JWT_TOKEN_SECRET: "YOUR_SECRET_TOKEN",
       },
     },
   ],
@@ -1416,10 +1401,12 @@ export MONGO_URL="mongodb://localhost/erxes"
 </TabItem>
 </Tabs>
 
+
 ## Initialize and Load permissions for erxes
 
 - initialize Erxes and generate **login password**.
-cd ~/erxes.io/erxes-api/dist
+  cd ~/erxes.io/erxes-api/dist
+
 ```bash
 nvm use default
 cd ~/erxes.io/erxes-api/dist

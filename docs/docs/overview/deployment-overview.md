@@ -16,10 +16,10 @@ We recommend to start with the [docker images](installation/docker.md) for the f
 ### Choose an installation method
 
 - [Ubuntu 18.04](installation/ubuntu.mdx)
-- [Docker](installation/docker.md)
-- [Heroku](installation/heroku.md)
 - [AWS Marketplace](installation/aws.md)
 - [DigitalOcean Marketplace](installation/digitalocean.md)
+- [Docker](installation/docker.md)
+- [Heroku](installation/heroku.md)
 
 ## Prerequisites
 
