@@ -1,18 +1,18 @@
-import * as classNames from "classnames";
-import * as React from "react";
-import * as RTG from "react-transition-group";
-import { setLocalStorageItem } from "../../common";
-import { iconCall, iconVideo } from "../../icons/Icons";
+import * as classNames from 'classnames';
+import * as React from 'react';
+import * as RTG from 'react-transition-group';
+import { setLocalStorageItem } from '../../common';
+import { iconCall, iconVideo } from '../../icons/Icons';
 import {
   IIntegrationMessengerData,
   IIntegrationMessengerDataMessagesItem,
   IIntegrationUiOptions
-} from "../../types";
-import { __, makeClickableLink, scrollTo } from "../../utils";
-import { MESSAGE_TYPES } from "../containers/AppContext";
-import { IMessage } from "../types";
-import { Message } from "./";
-import AccquireInformation from "./AccquireInformation";
+} from '../../types';
+import { __, makeClickableLink, scrollTo } from '../../utils';
+import { MESSAGE_TYPES } from '../containers/AppContext';
+import { IMessage } from '../types';
+import { Message } from './';
+import AccquireInformation from './AccquireInformation';
 
 type Props = {
   messages: IMessage[];
@@ -50,7 +50,7 @@ class MessagesList extends React.Component<Props, State> {
   componentDidMount() {
     if (this.node) {
       this.node.scrollTop = this.node.scrollHeight;
-      makeClickableLink("#erxes-messages a");
+      makeClickableLink('#erxes-messages a');
     }
   }
 
@@ -68,14 +68,14 @@ class MessagesList extends React.Component<Props, State> {
       if (this.node && this.shouldScrollBottom) {
         scrollTo(this.node, this.node.scrollHeight, 500);
       }
-      makeClickableLink("#erxes-messages a");
+      makeClickableLink('#erxes-messages a');
     }
   }
 
   onNotify = ({ type, value }: { type: string; value: string }) => {
     this.props.saveGetNotified({ type, value }, () => {
       this.setState({ hideNotifyInput: true }, () =>
-        setLocalStorageItem("hasNotified", "true")
+        setLocalStorageItem('hasNotified', 'true')
       );
     });
   };
@@ -105,7 +105,7 @@ class MessagesList extends React.Component<Props, State> {
 
       return (
         <li className="erxes-spacial-message">
-          <span> {messages.thank || __("Thank you") + "."}</span>
+          <span> {messages.thank || __('Thank you') + '.'}</span>
         </li>
       );
     }
@@ -116,7 +116,7 @@ class MessagesList extends React.Component<Props, State> {
           save={this.onNotify}
           color={getColor}
           loading={false}
-          textColor={uiOptions.textColor || "#fff"}
+          textColor={uiOptions.textColor || '#fff'}
         />
       </li>
     );
@@ -140,19 +140,19 @@ class MessagesList extends React.Component<Props, State> {
     }
 
     const sendCallRequest = () => {
-      this.props.sendMessage(MESSAGE_TYPES.VIDEO_CALL_REQUEST, "");
+      this.props.sendMessage(MESSAGE_TYPES.VIDEO_CALL_REQUEST, '');
     };
 
     const { uiOptions } = this.props;
-    const { color, textColor = "#fff" } = uiOptions;
+    const { color, textColor = '#fff' } = uiOptions;
 
     return (
       <div
         className="app-message-box call-request"
         style={{ borderColor: color }}
       >
-        <h5>{__("Audio and video call")}</h5>
-        <p>{__("You can contact the operator by voice or video!")}</p>
+        <h5>{__('Audio and video call')}</h5>
+        <p>{__('You can contact the operator by voice or video!')}</p>
         <div className="call-buttons">
           <button
             className="erxes-button"
@@ -161,7 +161,7 @@ class MessagesList extends React.Component<Props, State> {
           >
             {iconCall(textColor)}
             <span style={{ background: color, color: textColor }}>
-              {__("Audio call")}
+              {__('Audio call')}
             </span>
           </button>
           <button
@@ -179,8 +179,8 @@ class MessagesList extends React.Component<Props, State> {
 
   render() {
     const { uiOptions, messengerData, messages } = this.props;
-    const { color, wallpaper, textColor = "#fff" } = uiOptions;
-    const backgroundClass = classNames("erxes-messages-background", {
+    const { color, wallpaper, textColor = '#fff' } = uiOptions;
+    const backgroundClass = classNames('erxes-messages-background', {
       [`bg-${wallpaper}`]: wallpaper
     });
 
