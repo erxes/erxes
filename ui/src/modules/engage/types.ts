@@ -1,4 +1,4 @@
-import { IConditionsRule } from 'modules/common/types';
+import { IConditionsRule, QueryResponse } from 'modules/common/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import { IIntegration } from 'modules/settings/integrations/types';
 import { IUser } from '../auth/types';
@@ -163,7 +163,6 @@ export type WithFormEditMutationResponse = {
 };
 
 // query types
-
 export type EngageMessageDetailQueryResponse = {
   engageMessageDetail: IEngageMessage;
   error: Error;
@@ -173,9 +172,7 @@ export type EngageMessageDetailQueryResponse = {
 export type EngageVerifiedEmailsQueryResponse = {
   engageVerifiedEmails: string[];
   error: Error;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type ListQueryVariables = {
   page?: number;
@@ -188,15 +185,11 @@ export type ListQueryVariables = {
 
 export type EngageMessagesQueryResponse = {
   engageMessages: IEngageMessage[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type EngageMessagesTotalCountQueryResponse = {
   engageMessagesTotalCount: number;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type EngageMessageCounts = {
   all: number;
@@ -245,9 +238,7 @@ export type IEmailFormProps = {
 
 export type EngageConfigQueryResponse = {
   engagesConfigDetail: Array<{ code: string; value: string }>;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export interface IIntegrationWithPhone {
   _id: string;
