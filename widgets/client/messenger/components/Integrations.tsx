@@ -33,13 +33,13 @@ export default class Integrations extends React.PureComponent<Props> {
       return null;
     }
 
-    return websiteApps.map((websiteApp, index) => {
+    return websiteApps.map(((websiteApp, index) => {
       return (
         <IntegrationItem key={index}>
           <WebsiteApp websiteApp={websiteApp} />
         </IntegrationItem>
-      );
-    });
+      )
+    }))
   }
 
   renderConversations() {

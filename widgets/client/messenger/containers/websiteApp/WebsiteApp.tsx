@@ -12,11 +12,7 @@ const container = (props: Props) => {
     <AppConsumer>
       {({ goToWebsiteApp, getColor }) => {
         return (
-          <WebsiteApp
-            {...props}
-            goToWebsiteApp={goToWebsiteApp}
-            color={getColor()}
-          />
+          <WebsiteApp {...props} goToWebsiteApp={goToWebsiteApp} color={getColor()} />
         );
       }}
     </AppConsumer>

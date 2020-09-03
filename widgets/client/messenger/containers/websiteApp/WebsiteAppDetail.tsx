@@ -6,17 +6,13 @@ const WebsiteAppDetailContainer = () => {
   return (
     <AppConsumer>
       {({ changeRoute, getMessengerData, currentWebsiteApp }) => {
-        const websiteApp = (getMessengerData().websiteApps || []).find(
-          app => app.name === currentWebsiteApp
-        );
+        const websiteApp = (getMessengerData().websiteApps || []).find(app => app.name === currentWebsiteApp);
 
         if (!websiteApp) {
           return null;
         }
 
-        return (
-          <WebsiteAppDetail changeRoute={changeRoute} websiteApp={websiteApp} />
-        );
+        return <WebsiteAppDetail changeRoute={changeRoute} websiteApp={websiteApp} />;
       }}
     </AppConsumer>
   );
