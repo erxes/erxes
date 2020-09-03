@@ -699,12 +699,19 @@ export const loadClass = () => {
           { _id: customerId },
           {
             $set: { 'visitorContactInfo.email': value },
+            $push: { emails: value },
           },
         );
       }
 
       if (type === 'phone') {
-        await Customers.updateOne({ _id: customerId }, { $set: { 'visitorContactInfo.phone': value } });
+        await Customers.updateOne(
+          { _id: customerId },
+          {
+            $set: { 'visitorContactInfo.phone': value },
+            $push: { phones: value },
+          },
+        );
       }
 
       const customer = await Customers.getCustomer(customerId);

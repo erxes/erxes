@@ -26,7 +26,7 @@ export const sendMessageEmail = async () => {
       continue;
     }
 
-    if (!customer || !customer.primaryEmail) {
+    if (!customer || !(customer.emails && customer.emails.length > 0)) {
       continue;
     }
 
@@ -78,8 +78,10 @@ export const sendMessageEmail = async () => {
       brand,
     };
 
+    const email = customer.primaryEmail || customer.emails[0];
+
     const emailOptions: IEmailParams = {
-      toEmails: [customer.primaryEmail],
+      toEmails: [email],
       title: `Reply from "${brand.name}"`,
     };
 
@@ -96,7 +98,7 @@ export const sendMessageEmail = async () => {
     }
 
     // send email
-    utils.sendEmail(emailOptions);
+    await utils.sendEmail(emailOptions);
 
     // mark sent messages as read
     await ConversationMessages.markSentAsReadMessages(conversation._id);
