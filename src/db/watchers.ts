@@ -1,3 +1,4 @@
+import { getEnv } from '../data/utils';
 import { fetchElk } from '../elasticsearch';
 import { Companies, Customers } from './models';
 
@@ -26,15 +27,23 @@ const sendElkRequest = (data, index: string) => {
 };
 
 const init = () => {
-  if ((process.env.MONGO_URL || '').includes('replicaSet')) {
-    Customers.watch().on('change', data => {
-      sendElkRequest(data, 'customers');
-    });
-
-    Companies.watch().on('change', data => {
-      sendElkRequest(data, 'companies');
-    });
+  if (!(process.env.MONGO_URL || '').includes('replicaSet')) {
+    return;
   }
+
+  const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
+
+  if (ELK_SYNCER === 'true') {
+    return;
+  }
+
+  Customers.watch().on('change', data => {
+    sendElkRequest(data, 'customers');
+  });
+
+  Companies.watch().on('change', data => {
+    sendElkRequest(data, 'companies');
+  });
 };
 
 export default init;

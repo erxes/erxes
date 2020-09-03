@@ -342,7 +342,6 @@ app.use((error, _req, res, _next) => {
 const httpServer = createServer(app);
 
 const PORT = getEnv({ name: 'PORT' });
-const ELK_SYNCER = getEnv({ name: 'ELK_SYNCER', defaultValue: 'true' });
 
 // subscriptions server
 apolloServer.installSubscriptionHandlers(httpServer);
@@ -356,9 +355,7 @@ httpServer.listen(PORT, () => {
 
     initMemoryStorage();
 
-    if (ELK_SYNCER === 'false') {
-      initWatchers();
-    }
+    initWatchers();
 
     init()
       .then(() => {
