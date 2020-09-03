@@ -1,24 +1,43 @@
-const commonFields = `
-  packageVersion
-  branch
-  sha
-  abbreviatedSha
+const osInfo = `
+  type
+  platform
+  arch
+  release
+  uptime
+  loadavg
+  totalmem
+  freemem
+  cpuCount
+`;
+
+const processInfo = `
+  nodeVersion
+  pid
+  uptime
+`;
+
+const mongoInfo = `
+  version
+  storageEngine
 `;
 
 const configsVersions = `
   query configsVersions {
     configsVersions {
-      erxesVersion {
-        ${commonFields}
-      }
-
-      apiVersion {
-        ${commonFields}
-      }
-
-      widgetVersion {
+      generalInfo {
         packageVersion
-       ${commonFields}
+      }
+
+      osInfo {
+        ${osInfo}
+      }
+
+      processInfo {
+        ${processInfo}
+      }
+
+      mongoInfo {
+        ${mongoInfo}
       }
     }
   }
