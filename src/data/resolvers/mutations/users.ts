@@ -1,6 +1,6 @@
 import * as telemetry from 'erxes-telemetry';
 import * as express from 'express';
-import { Channels, Users } from '../../../db/models';
+import { Channels, Configs, Users } from '../../../db/models';
 import { ILink } from '../../../db/models/definitions/common';
 import { IDetail, IEmailSignature, IUser } from '../../../db/models/definitions/users';
 import { resetPermissionsCache } from '../../permissions/utils';
@@ -87,6 +87,8 @@ const userMutations = {
         },
       });
     }
+
+    await Configs.createOrUpdateConfig({ code: 'UPLOAD_SERVICE_TYPE', value: 'local' });
 
     return 'success';
   },
