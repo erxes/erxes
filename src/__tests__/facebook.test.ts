@@ -184,13 +184,17 @@ describe('Facebook test', () => {
       return Promise.resolve({ _id: '123456789' });
     });
 
-    await store.getOrCreateComment(commentParams, 'pageId123', 'facebook-post');
+    await store.getOrCreateComment(commentParams, 'pageId123', 'facebook-post', '');
 
     const comment = await Comments.findOne({ commentId: commentParams.comment_id });
 
     expect(comment.commentId).toEqual(commentParams.comment_id);
 
-    await store.getOrCreateComment(commentParams, 'pageId123', 'facebook-post');
+    await store.getOrCreateComment(commentParams, 'pageId123', 'facebook-post', 'edited');
+
+    expect(await Comments.countDocuments()).toEqual(1);
+
+    await store.getOrCreateComment(commentParams, 'pageId123', 'facebook-post', '');
 
     expect(await Comments.countDocuments()).toEqual(1);
 
