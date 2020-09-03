@@ -1,5 +1,7 @@
 import { graphqlRequest } from '../db/connection';
 
+import * as sinon from 'sinon';
+import * as utils from '../data/utils';
 import { configFactory } from '../db/factories';
 import './setup.ts';
 
@@ -36,30 +38,38 @@ describe('configQueries', () => {
     expect(response.USE_BRAND_RESTRICTIONS).toBe('true');
   });
 
-  test('configsVersions', async () => {
-    process.env.NODE_ENV = 'dev';
-
+  test('configsStatus', async () => {
     const qry = `
-      query configsVersions {
-        configsVersions {
-          erxesVersion {
+      query configsStatus {
+        configsStatus {
+          erxes {
             packageVersion
           }
-          apiVersion {
+          erxesApi {
             packageVersion
           }
-          widgetVersion {
+          erxesIntegration {
             packageVersion
           }
         }
       }
     `;
 
-    const config = await graphqlRequest(qry, 'configsVersions');
+    let config = await graphqlRequest(qry, 'configsStatus');
 
-    expect(config.erxesVersion.packageVersion).toBe(null);
-    expect(config.apiVersion.packageVersion).toBe(null);
-    expect(config.widgetVersion.packageVersion).toBe(null);
+    expect(config.erxes.packageVersion).toBe('-');
+    expect(config.erxesIntegration.packageVersion).toBeDefined();
+
+    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+      return Promise.resolve({ packageVersion: '-' });
+    });
+
+    config = await graphqlRequest(qry, 'configsStatus');
+
+    expect(config.erxes.packageVersion).toBe('-');
+    expect(config.erxesIntegration.packageVersion).toBe('-');
+
+    mock.restore();
   });
 
   test('configsConstants', async () => {
