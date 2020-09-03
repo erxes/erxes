@@ -314,5 +314,5 @@ export const setErxesProperty = (name: string, value: any) => {
 };
 
 export const newLineToBr = (content: string) => {
-  return content.replace(/\r\n|\r|\n/g,"<br />");
+  return content.replace(/\r\n|\r|\n/g, "<br />");
 };
