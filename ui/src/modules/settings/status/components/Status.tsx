@@ -4,67 +4,60 @@ import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { Box, Group, Title } from '../styles';
-import { ProjectVersions } from '../types';
+import { ProjectStatistics } from '../types';
 import { formatDuration, formatMemorySize } from '../utils';
 
 class Status extends React.PureComponent<{
-  versions: ProjectVersions;
+  statistics: ProjectStatistics;
 }> {
-  renderGeneral() {
-    const { generalInfo, processInfo } = this.props.versions;
+  renderStatistic(type) {
+    const statistic = this.props.statistics[type] || {};
+
+    const { os, process, mongo, packageVersion } = statistic;
 
     return (
       <>
         <div>
-          <b>{__('Package version')}</b> - {generalInfo.packageVersion}
+          <b>{__('Package version')}</b> - {packageVersion}
         </div>
         <div>
-          <b>{__('Uptime')}</b> - {formatDuration(processInfo.uptime)}
+          <b>{__('Uptime')}</b> - {formatDuration(process.uptime)}
         </div>
         <div>
-          <b>{__('PID')}</b> - {processInfo.pid}
-        </div>
-      </>
-    );
-  }
-
-  renderRunTime() {
-    const { osInfo, processInfo, mongoInfo } = this.props.versions;
-
-    return (
-      <>
-        <div>
-          <b>{__('OS Type')}</b> - {osInfo.type}
+          <b>{__('PID')}</b> - {process.pid}
         </div>
         <div>
-          <b>{__('OS Platform')}</b> - {osInfo.platform}
+          <b>{__('OS Type')}</b> - {os.type}
         </div>
         <div>
-          <b>{__('OS Arch')}</b> - {osInfo.arch}
+          <b>{__('OS Platform')}</b> - {os.platform}
         </div>
         <div>
-          <b>{__('OS Release')}</b> - {osInfo.release}
+          <b>{__('OS Arch')}</b> - {os.arch}
         </div>
         <div>
-          <b>{__('Node Version')}</b> - {processInfo.nodeVersion}
+          <b>{__('OS Release')}</b> - {os.release}
         </div>
         <div>
-          <b>{__('Mongo Version')}</b> - {mongoInfo.version}
+          <b>{__('Node Version')}</b> - {process.nodeVersion}
         </div>
         <div>
-          <b>{__('NMongo Storage Engine')}</b> - {mongoInfo.storageEngine}
+          <b>{__('Mongo Version')}</b> - {mongo.version}
         </div>
         <div>
-          <b>{__('OS Uptime')}</b> - {formatDuration(osInfo.uptime)}
+          <b>{__('Mongo Storage Engine')}</b> - {mongo.storageEngine}
         </div>
         <div>
-          <b>{__('OS Total Memory')}</b> - {formatMemorySize(osInfo.totalmem)}
+          <b>{__('OS Uptime')}</b> - {formatDuration(os.uptime)}
         </div>
         <div>
-          <b>{__('OS Free Memory')}</b> - {formatMemorySize(osInfo.freemem)}
+          <b>{__('OS Total Memory')}</b> - {formatMemorySize(os.totalmem)}
         </div>
         <div>
-          <b>{__('OS CPU Count')}</b> - {osInfo.cpuCount}
+          <b>{__('OS Free Memory')}</b> - {formatMemorySize(os.freemem)}
+        </div>
+        <div>
+          <b>{__('OS CPU Count')}</b> - {os.cpuCount}
         </div>
       </>
     );
@@ -72,11 +65,17 @@ class Status extends React.PureComponent<{
 
   renderBody(type: string) {
     switch (type) {
-      case 'runTime': {
-        return this.renderRunTime();
+      case 'erxes': {
+        return (
+          <div>
+            <b>{__('Package version')}</b> -{' '}
+            {this.props.statistics.erxes.packageVersion}
+          </div>
+        );
       }
-      case 'general': {
-        return this.renderGeneral();
+      case 'erxesIntegration':
+      case 'erxesApi': {
+        return this.renderStatistic(type);
       }
       default: {
         return null;
@@ -107,9 +106,11 @@ class Status extends React.PureComponent<{
 
     const content = (
       <div>
-        {this.renderData('General', 'general')}
+        {this.renderData('Erxes ui status', 'erxes')}
 
-        {this.renderData('Runtime Environment', 'runTime')}
+        {this.renderData('Erxes api status', 'erxesApi')}
+
+        {this.renderData('Erxes integration status', 'erxesIntegration')}
       </div>
     );
 

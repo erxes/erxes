@@ -21,28 +21,48 @@ const mongoInfo = `
   storageEngine
 `;
 
-const configsVersions = `
-  query configsVersions {
-    configsVersions {
-      generalInfo {
+const configsStatus = `
+  query configsStatus {
+    configsStatus {
+      erxes {
         packageVersion
       }
 
-      osInfo {
-        ${osInfo}
+      erxesApi {
+        packageVersion
+
+        os {
+          ${osInfo}
+        }
+  
+        process {
+          ${processInfo}
+        }
+  
+        mongo {
+          ${mongoInfo}
+        }
       }
 
-      processInfo {
-        ${processInfo}
-      }
+      erxesIntegration {
+        packageVersion
 
-      mongoInfo {
-        ${mongoInfo}
+        os {
+          ${osInfo}
+        }
+  
+        process {
+          ${processInfo}
+        }
+  
+        mongo {
+          ${mongoInfo}
+        }
       }
     }
   }
 `;
 
 export default {
-  configsVersions
+  configsStatus
 };

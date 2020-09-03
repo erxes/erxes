@@ -25,15 +25,19 @@ export type MongoInfo = {
   storageEngine: string;
 };
 
-export type ProjectVersions = {
-  generalInfo: GeneralInfo;
-  osInfo: OSInfo;
-  processInfo: ProcessInfo;
-  mongoInfo: MongoInfo;
+type Statistic = {
+  os: OSInfo;
+  process: ProcessInfo;
+  mongo: MongoInfo;
+};
+
+export type ProjectStatistics = {
+  erxes: { packageVersion: string };
+  erxesApi: Statistic;
 };
 
 export type VersionsQueryResponse = {
-  configsVersions: ProjectVersions;
+  configsStatus: ProjectStatistics;
   loading: boolean;
   refetch: () => void;
 };
