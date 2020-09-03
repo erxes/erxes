@@ -24,36 +24,26 @@ export interface IBrandsCount {
 }
 
 // queries
+type QueryResponse = {
+  loading: boolean;
+  refetch: () => void;
+};
 
 export type BrandsQueryResponse = {
   brands: IBrand[];
-  loading: boolean;
-  refetch: () => void;
-};
-
-export type AllBrandsQueryResponse = {
-  brands: IBrand[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type BrandDetailQueryResponse = {
   brandDetail: IBrand;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type BrandsGetLastQueryResponse = {
   brandsGetLast: IBrand;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type BrandsCountQueryResponse = {
   brandsTotalCount: number;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 // mutation
 
