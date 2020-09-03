@@ -13,7 +13,7 @@ export const LANGUAGES = [
   { label: 'Hindi', value: 'hi' },
   { label: 'Vietnam', value: 'vi' },
   { label: 'Indonesian', value: 'yi' },
-  { label: 'Republic of Serbia', value: 'en_RS' },
+  { label: 'Serbian', value: 'en_RS' },
   { label: 'Dutch', value: 'nl' },
   { label: 'Turkish', value: 'tr_TR' },
   { label: 'Arabic', value: 'ar' },
