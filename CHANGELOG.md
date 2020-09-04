@@ -1,3 +1,5 @@
+## [0.18.1](https://github.com/erxes/erxes/compare/0.18.0...0.18.1) (2020-09-04)
+
 # [0.18.0](https://github.com/erxes/erxes/compare/0.17.6...0.18.0) (2020-09-04)
 
 
