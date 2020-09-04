@@ -1,4 +1,4 @@
-import { IStage } from 'modules/boards/types';
+import { IConversionStage } from 'modules/boards/types';
 import Icon from 'modules/common/components/Icon';
 import * as React from 'react';
 import {
@@ -12,7 +12,7 @@ import {
 } from '../style';
 
 type Props = {
-  stage: IStage;
+  stage: IConversionStage;
   spacing: number;
 };
 

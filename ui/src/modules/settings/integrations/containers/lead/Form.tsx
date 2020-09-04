@@ -12,6 +12,7 @@ import Lead from '../../components/lead/Lead';
 import { mutations } from '../../graphql';
 import { IntegrationsQueryResponse } from '../../types';
 import { integrationsListParams } from '../utils';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   queryParams: any;
@@ -50,7 +51,7 @@ class LeadContainer extends React.Component<FinalProps> {
           isSubmitted={isSubmitted}
           uppercase={false}
           type="submit"
-          successMessage={`You successfully added a ${name}`}
+          successMessage={__(`You successfully added a`) + `${name}`}
         />
       );
     };

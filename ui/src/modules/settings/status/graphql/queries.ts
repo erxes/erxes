@@ -1,29 +1,68 @@
-const commonFields = `
-  packageVersion
-  branch
-  sha
-  abbreviatedSha
+const osInfo = `
+  type
+  platform
+  arch
+  release
+  uptime
+  loadavg
+  totalmem
+  freemem
+  cpuCount
 `;
 
-const configsVersions = `
-  query configsVersions {
-    configsVersions {
-      erxesVersion {
-        ${commonFields}
-      }
+const processInfo = `
+  nodeVersion
+  pid
+  uptime
+`;
 
-      apiVersion {
-        ${commonFields}
-      }
+const mongoInfo = `
+  version
+  storageEngine
+`;
 
-      widgetVersion {
+const configsStatus = `
+  query configsStatus {
+    configsStatus {
+      erxes {
         packageVersion
-       ${commonFields}
+      }
+
+      erxesApi {
+        packageVersion
+
+        os {
+          ${osInfo}
+        }
+  
+        process {
+          ${processInfo}
+        }
+  
+        mongo {
+          ${mongoInfo}
+        }
+      }
+
+      erxesIntegration {
+        packageVersion
+
+        os {
+          ${osInfo}
+        }
+  
+        process {
+          ${processInfo}
+        }
+  
+        mongo {
+          ${mongoInfo}
+        }
       }
     }
   }
 `;
 
 export default {
-  configsVersions
+  configsStatus
 };

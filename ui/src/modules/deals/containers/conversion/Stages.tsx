@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { queries } from 'modules/boards/graphql';
-import { StagesQueryResponse } from 'modules/boards/types';
+import { ConversionStagesQueryResponse } from 'modules/boards/types';
 import EmptyState from 'modules/common/components/EmptyState';
 import Spinner from 'modules/common/components/Spinner';
 import { withProps } from 'modules/common/utils';
@@ -17,7 +17,7 @@ type Props = {
 };
 
 type FinalProps = {
-  stagesQuery: StagesQueryResponse;
+  stagesQuery: ConversionStagesQueryResponse;
 } & Props;
 
 class DealStagesContainer extends React.Component<FinalProps> {
@@ -54,7 +54,7 @@ class DealStagesContainer extends React.Component<FinalProps> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, StagesQueryResponse>(gql(queries.stages), {
+    graphql<Props, ConversionStagesQueryResponse>(gql(queries.conversionStages), {
       name: 'stagesQuery',
       skip: ({ pipelineId }) => !pipelineId,
       options: ({ pipelineId, queryParams }) => ({

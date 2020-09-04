@@ -10,6 +10,7 @@ import IntegrationForm from '../../containers/common/IntegrationForm';
 import KnowledgeBase from '../../containers/knowledgebase/Form';
 import Lead from '../../containers/lead/Form';
 import LineForm from '../../containers/line/Form';
+import TelnyxForm from '../../containers/telnyx/TelnyxForm';
 import Twitter from '../../containers/twitter/Twitter';
 import Website from '../../containers/website/Form';
 import { Box, IntegrationItem, Ribbon, Type } from './styles';
@@ -31,6 +32,7 @@ type TotalCount = {
   twilio: number;
   whatsapp: number;
   exchange: number;
+  telnyx: number;
 };
 
 type Props = {
@@ -104,7 +106,7 @@ function renderCreate(createUrl, kind) {
     const content = props => <Lead {...props} />;
 
     return (
-      <ModalTrigger title="Add Pop Ups" trigger={trigger} content={content} />
+      <ModalTrigger title="Add Pop Ups" trigger={trigger} content={content} autoOpenKey="showPopupAddModal" />
     );
   }
 
@@ -116,6 +118,7 @@ function renderCreate(createUrl, kind) {
         title="Add knowledge base"
         trigger={trigger}
         content={content}
+        autoOpenKey="showKBAddModal"
       />
     );
   }
@@ -181,6 +184,14 @@ function renderCreate(createUrl, kind) {
     );
   }
 
+  if (kind === INTEGRATION_KINDS.TELNYX) {
+    const content = props => <TelnyxForm {...props} />;
+
+    return (
+      <ModalTrigger title="Add telnyx" trigger={trigger} content={content} />
+    );
+  }
+
   const formContent = props => <IntegrationForm {...props} type={kind} />;
 
   return (
@@ -227,15 +238,15 @@ function Entry({
       <Box onClick={boxOnClick} isInMessenger={integration.inMessenger}>
         <img alt="logo" src={integration.logo} />
         <h5>
-          {integration.name} {getCount(kind, totalCount, messengerAppsCount)}
+        {integration.name} {getCount(kind, totalCount, messengerAppsCount)}
         </h5>
         <p>
-          {integration.description}
+          {__(integration.description)}
           {renderType(integration.inMessenger)}
         </p>
         {!integration.isAvailable && (
           <Ribbon>
-            <span>Coming soon</span>
+            <span>{__('Coming soon')}</span>
           </Ribbon>
         )}
       </Box>

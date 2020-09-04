@@ -64,6 +64,12 @@ const tasksCopy = `
   }
 `;
 
+const taskUpdateTimeTracking = `
+  mutation taskUpdateTimeTracking($_id: String!, $status: String!, $timeSpent: Int! $startDate: String) {
+    taskUpdateTimeTracking(_id: $_id, status: $status, timeSpent: $timeSpent, startDate: $startDate)
+  }
+`;
+
 export default {
   tasksAdd,
   tasksEdit,
@@ -71,5 +77,6 @@ export default {
   tasksChange,
   tasksWatch,
   tasksArchive,
-  tasksCopy
+  tasksCopy,
+  taskUpdateTimeTracking
 };

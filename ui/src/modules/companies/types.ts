@@ -1,3 +1,4 @@
+import { QueryResponse } from 'modules/common/types';
 import { ITag } from 'modules/tags/types';
 import { IActivityLog, IActivityLogForMonth } from '../activityLogs/types';
 import { IUser } from '../auth/types';
@@ -94,7 +95,6 @@ export type AddMutationResponse = {
 };
 
 // query types
-
 export type ListQueryVariables = {
   page?: number;
   perPage?: number;
@@ -115,15 +115,11 @@ type ListConfig = {
 
 export type MainQueryResponse = {
   companiesMain: { list: ICompany[]; totalCount: number };
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type CompaniesQueryResponse = {
   companies: ICompany[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type ListConfigQueryResponse = {
   fieldsDefaultColumnsConfig: ListConfig[];
@@ -153,6 +149,4 @@ type CompanyCounts = {
 
 export type CountQueryResponse = {
   companyCounts: CompanyCounts;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;

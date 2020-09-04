@@ -55,7 +55,7 @@ class TopBar extends React.Component<Props, State> {
     const { endConversation } = this.props;
 
     if (
-      confirm((__("Do you want to end this conversation ?") || {}).toString())
+      confirm((__("Do you want to end this conversation?") || {}).toString())
     ) {
       endConversation();
     }

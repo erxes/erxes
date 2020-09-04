@@ -4,7 +4,7 @@ import { withProps } from 'modules/common/utils';
 import ResponseTemplate from 'modules/inbox/components/conversationDetail/workarea/responseTemplate/ResponseTemplate';
 import { queries } from 'modules/inbox/graphql';
 import { queries as brandQuery } from 'modules/settings/brands/graphql';
-import { AllBrandsQueryResponse } from 'modules/settings/brands/types';
+import { BrandsQueryResponse } from 'modules/settings/brands/types';
 import {
   IResponseTemplate,
   ResponseTemplatesQueryResponse,
@@ -21,7 +21,7 @@ type Props = {
 };
 
 type FinalProps = {
-  brandsQuery: AllBrandsQueryResponse;
+  brandsQuery: BrandsQueryResponse;
   responseTemplatesQuery: ResponseTemplatesQueryResponse;
 } & Props &
   SaveResponseTemplateMutationResponse;
@@ -43,7 +43,7 @@ const ResponseTemplateContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, AllBrandsQueryResponse>(gql(brandQuery.brands), {
+    graphql<Props, BrandsQueryResponse>(gql(brandQuery.brands), {
       name: 'brandsQuery'
     }),
     graphql(gql(queries.responseTemplateList), {

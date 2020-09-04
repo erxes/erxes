@@ -5,6 +5,7 @@ import { ISegment } from 'modules/segments/types';
 import React from 'react';
 import Common from './Common';
 import SegmentsForm from './forms/SegmentsForm';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   messageType: string;
@@ -69,7 +70,7 @@ const SegmentStep = (props: Props) => {
   return (
     <Common<ISegment, IButtonMutateProps>
       name="segmentIds"
-      label="Create a segment"
+      label={__('Create a segment')}
       targetIds={segmentIds}
       messageType={messageType}
       targets={orderedSegments}

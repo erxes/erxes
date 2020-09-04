@@ -3,6 +3,7 @@ import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import DateFilter from 'modules/common/components/DateFilter';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
+import EmptyContent from 'modules/common/components/empty/EmptyContent';
 import FormControl from 'modules/common/components/form/Control';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
@@ -11,6 +12,7 @@ import SortHandler from 'modules/common/components/SortHandler';
 import Table from 'modules/common/components/table';
 import { menuContacts } from 'modules/common/utils/menus';
 import { queries } from 'modules/customers/graphql';
+import { EMPTY_CONTENT_CONTACTS } from 'modules/settings/constants';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { withRouter } from 'react-router-dom';
@@ -188,7 +190,7 @@ class CustomersList extends React.Component<IProps, State> {
       </Button>
     );
 
-    const editColumns = <a href="#edit">{__('Edit columns')}</a>;
+    const editColumns = <a href="#edit">{__('Choose Properties/View')}</a>;
 
     const dateFilter = queryParams.form && (
       <DateFilter queryParams={queryParams} history={history} />
@@ -256,12 +258,12 @@ class CustomersList extends React.Component<IProps, State> {
             </li>
             <li>
               <Link to="/settings/properties?type=customer">
-                {__('Properties')}
+                {__('Manage properties')}
               </Link>
             </li>
             <li>
               <a href="#export" onClick={exportData.bind(this, bulk)}>
-                {type === 'lead' ? __('Export leads') : __('Export customers')}
+                {type === 'lead' ? __('Export leads') : __('Export contacts')}
               </a>
             </li>
             <li>
@@ -382,8 +384,7 @@ class CustomersList extends React.Component<IProps, State> {
             data={this.renderContent()}
             loading={loading}
             count={customers.length}
-            emptyText="Let's start taking care of your customers"
-            emptyImage="/images/actions/11.svg"
+            emptyContent={<EmptyContent content={EMPTY_CONTENT_CONTACTS} />}
           />
         }
       />

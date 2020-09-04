@@ -199,6 +199,12 @@ const integrationsArchive = `
   }
 `;
 
+const integrationsSendSms = `
+  mutation integrationsSendSms($integrationId: String!, $content: String!, $to: String!) {
+    integrationsSendSms(integrationId: $integrationId, content: $content, to: $to)
+  }
+`;
+
 export default {
   integrationsArchive,
   integrationsUpdateConfigs,
@@ -214,5 +220,6 @@ export default {
   messengerAppsAddWebsite,
   messengerAppsRemove,
   removeAccount,
-  integrationSendMail
+  integrationSendMail,
+  integrationsSendSms
 };

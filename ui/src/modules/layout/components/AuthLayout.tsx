@@ -13,6 +13,8 @@ import {
 
 type Props = {
   content: React.ReactNode;
+  description?: React.ReactNode;
+  col?: {first: number; second: number};
 };
 
 class AuthLayout extends React.Component<Props, {}> {
@@ -47,31 +49,48 @@ class AuthLayout extends React.Component<Props, {}> {
     return null;
   }
 
+  renderDesciption() {
+    const { description } = this.props;
+
+    if (description) {
+      return (
+        <>
+          <img src="/images/logo.png" alt="erxes" />
+          {description}
+        </>
+      );
+    }
+
+    return (
+      <>
+        <img src="/images/logo.png" alt="erxes" />
+        <h1>{__('Open Source Growth Marketing Platform')}</h1>
+        <p>
+          {__(
+            'Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot with the mission and community-driven ecosystem.'
+          )}
+        </p>
+        <a href={__('Homepage link')}>« {__('Go to home page')}</a>
+      </>
+    );
+  }
+
   componentDidMount() {
     // click-jack attack defense
     bustIframe();
   }
 
   render() {
-    const { content } = this.props;
+    const { content, col = {first: 6, second: 5} } = this.props;
 
     return (
       <Authlayout>
         <AuthContent>
           <Container>
-            <Col md={6}>
-              <AuthDescription>
-                <img src="/images/logo.png" alt="erxes" />
-                <h1>{__('Open Source Growth Marketing Platform')}</h1>
-                <p>
-                  {__(
-                    'Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot with the mission and community-driven ecosystem.'
-                  )}
-                </p>
-                <a href={__('Homepage link')}>« {__('Go to home page')}</a>
-              </AuthDescription>
+            <Col md={col.first}>
+              <AuthDescription>{this.renderDesciption()}</AuthDescription>
             </Col>
-            <Col md={{ span: 5, offset: 1 }}>{content}</Col>
+            <Col md={{ span: col.second, offset: 1 }}>{content}</Col>
           </Container>
         </AuthContent>
         {this.renderRecommendMobileVersion()}

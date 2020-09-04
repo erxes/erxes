@@ -110,7 +110,7 @@ class Home extends React.Component<Props, State> {
         <Icon icon="search-1" />
         <FormControl
           type="text"
-          placeholder={__('Type to search for an integration...')}
+          placeholder={__('Type to search for an integration') + '...'}
           onChange={this.onSearch}
         />
       </SearchInput>

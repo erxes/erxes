@@ -1,4 +1,4 @@
-import { IAttachment } from 'modules/common/types';
+import { IAttachment, QueryResponse } from 'modules/common/types';
 import { ISavedConformity } from 'modules/conformity/types';
 import { IUser } from '../auth/types';
 import { ICompany } from '../companies/types';
@@ -38,6 +38,7 @@ export interface IOptions {
     watchMutation: string;
     archiveMutation: string;
     copyMutation: string;
+    updateTimeTrackMutation?: string;
   };
   texts: {
     addText: string;
@@ -116,14 +117,17 @@ export interface IStage {
   itemId?: string;
   amount?: any;
   itemsTotalCount: number;
-  initialDealsTotalCount: number;
-  inProcessDealsTotalCount: number;
-  stayedDealsTotalCount: number;
-  compareNextStage: IStageComparisonInfo;
   formId: string;
   pipelineId: string;
   status: string;
   order: number;
+}
+
+export interface IConversionStage extends IStage {
+  initialDealsTotalCount: number;
+  inProcessDealsTotalCount: number;
+  stayedDealsTotalCount: number;
+  compareNextStage: IStageComparisonInfo;
 }
 
 export interface IPipelineLabel {
@@ -167,6 +171,11 @@ export interface IItem {
   labelIds: string[];
   status?: string;
   createdAt: Date;
+  timeTrack: {
+    status: string;
+    timeSpent: number;
+    startDate?: string;
+  };
 }
 
 export interface IDraggableLocation {
@@ -198,9 +207,7 @@ export interface IItemMap {
 
 export type BoardsQueryResponse = {
   boards: IBoard[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export interface IBoardCount {
   _id: string;
@@ -210,9 +217,7 @@ export interface IBoardCount {
 
 export type BoardCountsQueryResponse = {
   boardCounts: IBoardCount[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type PipelinesQueryResponse = {
   pipelines: IPipeline[];
@@ -224,6 +229,12 @@ export type PipelinesQueryResponse = {
 
 export type StagesQueryResponse = {
   stages: IStage[];
+  loading: boolean;
+  refetch: ({ pipelineId }: { pipelineId?: string }) => Promise<any>;
+};
+
+export type ConversionStagesQueryResponse = {
+  stages: IConversionStage[];
   loading: boolean;
   refetch: ({ pipelineId }: { pipelineId?: string }) => Promise<any>;
 };
@@ -258,7 +269,18 @@ export type RemoveVariables = {
   _id: string;
 };
 
+export type UpdateTimeVariables = {
+  _id: string;
+  status: string;
+  timeSpent: number;
+  startDate?: string;
+};
+
 export type RemoveMutation = ({ variables: RemoveVariables }) => Promise<any>;
+
+export type UpdateTimeTrackMutation = (
+  { variables: UpdateTimeVariables }
+) => Promise<any>;
 
 export type CopyVariables = {
   _id: string;
@@ -268,36 +290,26 @@ export type CopyVariables = {
 export type CopyMutation = ({ variables: CopyVariables }) => Promise<any>;
 
 export type ItemsQueryResponse = {
-  loading: boolean;
-  refetch: () => void;
   fetchMore: any;
-};
+} & QueryResponse;
 
 export type RelatedItemsQueryResponse = {
-  loading: boolean;
-  refetch: () => void;
   fetchMore: any;
-};
+} & QueryResponse;
 
 export type DetailQueryResponse = {
-  loading: boolean;
   error?: Error;
   subscribeToMore: any;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 // query response
 export type PipelineLabelsQueryResponse = {
   pipelineLabels: IPipelineLabel[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type PipelineLabelDetailQueryResponse = {
   pipelineLabelDetail: IPipelineLabel;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 // mutation response
 export type AddPipelineLabelMutationResponse = (

@@ -1,4 +1,5 @@
 import Button from 'modules/common/components/Button';
+import EmptyContent from 'modules/common/components/empty/EmptyContent';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
@@ -6,6 +7,7 @@ import Table from 'modules/common/components/table';
 import Tip from 'modules/common/components/Tip';
 import { IButtonMutateProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import { EMPTY_CONTENT_SCRIPT } from 'modules/settings/constants';
 import React from 'react';
 import List from '../../common/components/List';
 import RowActions from '../../common/components/RowActions';
@@ -100,7 +102,7 @@ class ScriptList extends React.Component<Props> {
   render() {
     return (
       <List
-        formTitle="New script"
+        formTitle={__('New script')}
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },
           { title: __('Scripts') }
@@ -110,12 +112,13 @@ class ScriptList extends React.Component<Props> {
           <HeaderDescription
             icon="/images/actions/23.svg"
             title="Scripts"
-            description={`Script manager allows erxes users to quickly and easily generate and update related scripts for any of their business websites. Set up once and your marketing team will be able to easily create forms, add in chats and list FAQs on any of their businesses websites.`}
+            description={`Script manager allows erxes users to quickly and easily generate and update related scripts for any of their business websites. Set up once and your team will be able to easily display multiple erxes widgets on any of their businesses websites`}
           />
         }
         renderForm={this.renderForm}
         renderContent={this.renderContent}
         center={true}
+        emptyContent={<EmptyContent content={EMPTY_CONTENT_SCRIPT} />}
         {...this.props}
       />
     );

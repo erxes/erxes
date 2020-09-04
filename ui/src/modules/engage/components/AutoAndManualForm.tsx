@@ -7,10 +7,12 @@ import {
   StepWrapper,
   TitleContainer
 } from 'modules/common/components/step/styles';
+import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { IBrand } from 'modules/settings/brands/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
+import { IConfig } from 'modules/settings/general/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { IBreadCrumbItem } from '../../common/types';
@@ -21,7 +23,8 @@ import {
   IEngageMessageDoc,
   IEngageMessenger,
   IEngageScheduleDate,
-  IEngageSms
+  IEngageSms,
+  IIntegrationWithPhone
 } from '../types';
 import SmsForm from './SmsForm';
 import ChannelStep from './step/ChannelStep';
@@ -44,6 +47,8 @@ type Props = {
   ) => { status: string; doc?: IEngageMessageDoc };
   renderTitle: () => string;
   breadcrumbs: IBreadCrumbItem[];
+  smsConfig: IConfig;
+  integrations: IIntegrationWithPhone[];
 };
 
 type State = {
@@ -140,15 +145,26 @@ class AutoAndManualForm extends React.Component<Props, State> {
       };
     }
     if (this.state.method === METHODS.SMS) {
-      const shortMessage = this.state.shortMessage || { from: '', content: '' };
+      const shortMessage = this.state.shortMessage || {
+        from: '',
+        content: '',
+        fromIntegrationId: ''
+      };
 
       doc.shortMessage = {
         from: shortMessage.from,
-        content: shortMessage.content
+        content: shortMessage.content,
+        fromIntegrationId: shortMessage.fromIntegrationId
       };
     }
 
     const response = this.props.validateDoc(type, doc);
+
+    if (this.state.method === METHODS.SMS && !this.props.smsConfig) {
+      return Alert.warning(
+        'SMS integration is not configured. Go to Settings > System config > Integrations config and set Telnyx SMS API key.'
+      );
+    }
 
     if (response.status === 'ok' && response.doc) {
       return this.props.save(response.doc);
@@ -215,7 +231,15 @@ class AutoAndManualForm extends React.Component<Props, State> {
   };
 
   renderMessageContent() {
-    const { message, brands, users, kind, templates } = this.props;
+    const {
+      message,
+      brands,
+      users,
+      kind,
+      templates,
+      smsConfig,
+      integrations
+    } = this.props;
 
     const {
       messenger,
@@ -237,8 +261,9 @@ class AutoAndManualForm extends React.Component<Props, State> {
             messageKind={kind}
             scheduleDate={scheduleDate}
             shortMessage={shortMessage}
-            users={users}
             fromUserId={fromUserId}
+            smsConfig={smsConfig}
+            integrations={integrations}
           />
         </Step>
       );

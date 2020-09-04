@@ -1,6 +1,8 @@
 #erxes-container {
   overflow: hidden;
+}
 
+.erxes-content {
   .close {
     outline: 0;
     position: absolute;
@@ -13,7 +15,7 @@
     top: 15px;
 
     @include prefix((
-      transition: all .3s ease-in-out
+      transition: background .3s ease-in-out
     ), webkit moz ms o);
 
     @include prefix((
@@ -24,6 +26,10 @@
       background-color: rgba($black, .2);
       cursor: pointer;
     }
+  }
+
+  .container-embedded .close {
+    display: none;
   }
 }
 
@@ -73,14 +79,14 @@
   }
 
   .close {
-    right: 50% !important;
-    top: 65px !important;
-    margin-right: -240px;
+    right: 50%;
+    top: 56px;
+    margin-right: -243px;
   
     @media screen and (max-width: $break-medium) {
       margin-right: auto;
       right: 10px;
-      top: 8px;
+      top: 5px;
     }
   }
 }

@@ -602,6 +602,13 @@ In Erxes you can also integrate your Gmail as IMAP.
 
 - Click on the Add account and fill out the form as follows:
 
+```
+IMAP HOST: imap.gmail.com
+IMAP PORT: 993
+SMTP HOST : smtp.gmail.com
+SMTP PORT: 465
+```
+
 > You can also read Google IMAP Settings in [Google Help Center](https://support.google.com/mail/answer/7126229?hl=en)
 
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/gmail_imap_2.png)
@@ -618,6 +625,7 @@ In Erxes you can also integrate your Gmail as IMAP.
 - Enable Less secure app access in [Google settings](https://myaccount.google.com/lesssecureapps) because Google automatically blocks third party access.
 
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/gmail_imap_5.png)
+- If you're using GSuite account, please the admin should go to the [Google Admin console](https://admin.google.com/u/5/ac/security/lsa) and allow users to manage their access to less secure apps.
 
 - Allow access to your Google account 
 

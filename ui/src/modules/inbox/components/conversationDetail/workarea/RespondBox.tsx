@@ -305,7 +305,7 @@ class RespondBox extends React.Component<Props, State> {
     });
   };
 
-  renderIncicator() {
+  renderIndicator() {
     const { attachments, loading } = this.state;
 
     if (attachments.length > 0) {
@@ -477,7 +477,7 @@ class RespondBox extends React.Component<Props, State> {
     return (
       <>
         {this.renderEditor()}
-        {this.renderIncicator()}
+        {this.renderIndicator()}
         {this.renderButtons()}
       </>
     );
