@@ -9,28 +9,25 @@ import { queries } from '../graphql';
 import { VersionsQueryResponse } from '../types';
 
 type Props = {
-  versionsQuery: VersionsQueryResponse;
+  statisticsQuery: VersionsQueryResponse;
 };
 
 const StatusContainer = (props: Props) => {
-  const { versionsQuery } = props;
+  const { statisticsQuery } = props;
 
-  if (versionsQuery.loading) {
+  if (statisticsQuery.loading) {
     return <Spinner objective={true} />;
   }
 
-  const updatedProps = {
-    ...props,
-    versions: versionsQuery.configsVersions || {}
-  };
+  const statistics = statisticsQuery.configsStatus || {};
 
-  return <Status {...updatedProps} />;
+  return <Status statistics={statistics} />;
 };
 
 export default withProps<{}>(
   compose(
-    graphql<{}, VersionsQueryResponse>(gql(queries.configsVersions), {
-      name: 'versionsQuery'
+    graphql<{}, VersionsQueryResponse>(gql(queries.configsStatus), {
+      name: 'statisticsQuery'
     })
   )(StatusContainer)
 );

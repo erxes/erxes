@@ -1,3 +1,4 @@
+import { QueryResponse } from 'modules/common/types';
 import { IBrand } from '../brands/types';
 
 export interface IResponseTemplate {
@@ -10,17 +11,13 @@ export interface IResponseTemplate {
 }
 
 export type ResponseTemplatesQueryResponse = {
-  loading: boolean;
   responseTemplates: IResponseTemplate[];
   fetchMore: (variables) => void;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type ResponseTemplatesTotalCountQueryResponse = {
-  loading: boolean;
   responseTemplatesTotalCount: number;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type SaveResponseTemplateMutationVariables = {
   brandId: string;
