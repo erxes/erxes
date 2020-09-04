@@ -354,7 +354,7 @@ class KnowledgeForm extends React.Component<Props, State> {
             </Button>
           )}
           {renderButton({
-            name: 'knowledge base',
+            name: 'Knowledge Base',
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,

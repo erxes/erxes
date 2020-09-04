@@ -51,7 +51,7 @@ class MessengerAppList extends React.Component<Props> {
     if (!messengerApps || messengerApps.length < 1) {
       return (
         <EmptyState
-          text="There aren’t any integrations at the moment."
+          text="There aren’t any integrations at the moment"
           image="/images/actions/2.svg"
         />
       );

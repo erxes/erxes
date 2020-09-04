@@ -83,7 +83,10 @@ class AccquireInformation extends React.PureComponent<Props, State> {
     const title = (
       <div className="erxes-topbar-title">
         <div>{__("Contact")}</div>
-        <span>{__("Please leave your contact details to start a conversation")}.</span>
+        <span>
+          {__("Please leave your contact details to start a conversation") +
+            "."}
+        </span>
       </div>
     );
 

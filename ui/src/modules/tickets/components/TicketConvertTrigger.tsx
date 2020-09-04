@@ -1,5 +1,6 @@
 import ConvertTrigger from 'modules/boards/components/portable/ConvertTrigger';
 import React from 'react';
+import { __ } from 'modules/common/utils';
 import options from '../options';
 
 type Props = {
@@ -15,7 +16,7 @@ type Props = {
 };
 
 export default (props: Props) => {
-  const title = props.url ? 'Go to a ticket' : 'Convert to a ticket';
+  const title = props.url ? __('Go to a ticket') : __('Convert to a ticket');
 
   const extendedProps = {
     ...props,

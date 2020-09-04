@@ -115,7 +115,7 @@ class TemplateList extends React.Component<Props> {
   render() {
     return (
       <List
-        formTitle="New Growth Hacking Templates"
+        formTitle={__('New Growth Hacking Templates')}
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },
           { title: __('Growth Hacking Templates') }

@@ -6,6 +6,7 @@ import * as React from 'react';
 import { withRouter } from 'react-router-dom';
 import { IntegrationTypes } from '../../types';
 import { getRefetchQueries } from '../utils';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   type?: string;
@@ -53,7 +54,7 @@ class FormContainer extends React.Component<FinalProps, State> {
         isSubmitted={isSubmitted}
         type="submit"
         uppercase={false}
-        successMessage={`You successfully added a ${name}`}
+        successMessage={__(`You successfully added a`) + `${name}`}
       />
     );
   };

@@ -89,7 +89,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
           <FlexItem>
             <ControlLabel>Search</ControlLabel>
             <FormControl
-              placeholder="Search"
+              placeholder={__('Search')}
               name="searchValue"
               onChange={this.onChange}
               value={this.state.searchValue}

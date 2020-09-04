@@ -64,7 +64,7 @@ class Intro extends React.Component<Props, State> {
 
             <FormControl
               componentClass="textarea"
-              placeholder={__('Write here Welcome message.')}
+              placeholder={__('Write here Welcome message') + '.'}
               rows={3}
               value={message.welcome}
               onChange={welcomeOnChange}
@@ -78,7 +78,7 @@ class Intro extends React.Component<Props, State> {
 
             <FormControl
               componentClass="textarea"
-              placeholder={__('Write here Away message.')}
+              placeholder={__('Write here Away message') + '.'}
               rows={3}
               value={message.away}
               onChange={awayMessage}
@@ -90,7 +90,7 @@ class Intro extends React.Component<Props, State> {
 
             <FormControl
               componentClass="textarea"
-              placeholder={__('Write here Thank you message.')}
+              placeholder={__('Write here Thank you message') + '.'}
               rows={3}
               value={message.thank}
               onChange={thankMessage}
