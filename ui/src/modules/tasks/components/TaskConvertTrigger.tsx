@@ -1,6 +1,6 @@
 import ConvertTrigger from 'modules/boards/components/portable/ConvertTrigger';
-import React from 'react';
 import { __ } from 'modules/common/utils';
+import React from 'react';
 import options from '../options';
 
 type Props = {

@@ -1,8 +1,8 @@
+import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { INTEGRATION_FILTERS } from '../../constants';
 import { Category, FixedSection, LeftSidebar, SidebarList } from './styles';
-import { __ } from 'modules/common/utils';
 
 type Props = {
   currentType: string;
