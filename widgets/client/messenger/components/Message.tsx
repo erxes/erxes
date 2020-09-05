@@ -4,7 +4,7 @@ import * as React from "react";
 import * as xss from "xss";
 import { defaultAvatar } from "../../icons/Icons";
 import { IUser } from "../../types";
-import { readFile } from "../../utils";
+import { __, readFile } from "../../utils";
 import { Attachment, User } from "../components/common";
 import { MESSAGE_TYPES } from "../containers/AppContext";
 import { IAttachment, IMessengerAppData, IVideoCallData } from "../types";
@@ -34,10 +34,12 @@ class Message extends React.Component<Props> {
       <div className="app-message-box">
         <div className="user-info">
           <img src={readFile(image)} />
-          <h2>Meet with {name}</h2>
+          <h2>
+            {__("Meet with")} {name}
+          </h2>
         </div>
         <div className="call-button">
-          <h3>Meeting Ready</h3>
+          <h3>{__("Meeting Ready")}</h3>
           <a href={messengerAppData.hangoutLink} target="_blank">
             <button>Join Call</button>
           </a>
@@ -81,7 +83,7 @@ class Message extends React.Component<Props> {
 
     const messageBackground = {
       backgroundColor: !user ? color : "",
-      color: !user ? textColor : ''
+      color: !user ? textColor : ""
     };
 
     if (contentType === MESSAGE_TYPES.VIDEO_CALL) {

@@ -32,7 +32,7 @@ class DetailInfo extends React.PureComponent<Props> {
   renderEmail(status?: string, email?: string) {
     return (
       <li>
-        <FieldStyle>{__('Primary email')}:</FieldStyle>
+        <FieldStyle>{__('Primary Email')}:</FieldStyle>
         <SidebarCounter>
           <PrimaryEmail email={email} status={status} />
         </SidebarCounter>

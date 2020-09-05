@@ -41,7 +41,7 @@ const ResolverContainer = (props: FinalProps) => {
           });
         } else {
           Alert.info(
-            'The conversation has been reopened and restored to Inbox.'
+            'The conversation has been reopened and restored to Inbox'
           );
         }
 

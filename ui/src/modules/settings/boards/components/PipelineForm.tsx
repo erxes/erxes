@@ -258,7 +258,7 @@ class PipelineForm extends React.Component<Props, State> {
 
           <FormGroup>
             <ControlLabel>
-              Show only the user's assigned(created) {this.props.type}s
+              {__(`Show only the user's assigned(created)`)} {this.props.type}s
             </ControlLabel>
             <FormControl
               componentClass="checkbox"

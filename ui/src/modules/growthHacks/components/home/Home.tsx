@@ -72,21 +72,21 @@ class Home extends React.Component<Props> {
       <FilterWrapper>
         <Tabs grayBorder={true}>
           <Link to={`/growthHack/home?id=${id}`}>
-            <TabTitle className={!state ? 'active' : ''}>All</TabTitle>
+            <TabTitle className={!state ? 'active' : ''}>{__('All')}</TabTitle>
           </Link>
           <Link to={`/growthHack/home?id=${id}&state=In progress`}>
             <TabTitle className={state === 'In progress' ? 'active' : ''}>
-              In progress
+              {__('In progress')}
             </TabTitle>
           </Link>
           <Link to={`/growthHack/home?id=${id}&state=Not started`}>
             <TabTitle className={state === 'Not started' ? 'active' : ''}>
-              Not started
+              {__('Not started')}
             </TabTitle>
           </Link>
           <Link to={`/growthHack/home?id=${id}&state=Completed`}>
             <TabTitle className={state === 'Completed' ? 'active' : ''}>
-              Completed
+              {__('Completed')}
             </TabTitle>
           </Link>
         </Tabs>

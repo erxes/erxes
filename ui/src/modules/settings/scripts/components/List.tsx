@@ -102,7 +102,7 @@ class ScriptList extends React.Component<Props> {
   render() {
     return (
       <List
-        formTitle="New script"
+        formTitle={__('New script')}
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },
           { title: __('Scripts') }

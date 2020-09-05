@@ -4,14 +4,86 @@ import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { Box, Group, Title } from '../styles';
-import { ProjectVersions, Version } from '../types';
+import { ProjectStatistics } from '../types';
+import { formatDuration, formatMemorySize } from '../utils';
 
 class Status extends React.PureComponent<{
-  versions: ProjectVersions;
+  statistics: ProjectStatistics;
 }> {
-  renderData(title: string, version?: Version) {
-    const ver = version || ({} as Version);
+  renderStatistic(type) {
+    const statistic = this.props.statistics[type] || {};
 
+    const { os, process, mongo, packageVersion } = statistic;
+
+    return (
+      <>
+        <div>
+          <b>{__('Package version')}</b> - {packageVersion}
+        </div>
+        <div>
+          <b>{__('Uptime')}</b> - {formatDuration(process.uptime)}
+        </div>
+        <div>
+          <b>{__('PID')}</b> - {process.pid}
+        </div>
+        <div>
+          <b>{__('OS Type')}</b> - {os.type}
+        </div>
+        <div>
+          <b>{__('OS Platform')}</b> - {os.platform}
+        </div>
+        <div>
+          <b>{__('OS Arch')}</b> - {os.arch}
+        </div>
+        <div>
+          <b>{__('OS Release')}</b> - {os.release}
+        </div>
+        <div>
+          <b>{__('Node Version')}</b> - {process.nodeVersion}
+        </div>
+        <div>
+          <b>{__('Mongo Version')}</b> - {mongo.version}
+        </div>
+        <div>
+          <b>{__('Mongo Storage Engine')}</b> - {mongo.storageEngine}
+        </div>
+        <div>
+          <b>{__('OS Uptime')}</b> - {formatDuration(os.uptime)}
+        </div>
+        <div>
+          <b>{__('OS Total Memory')}</b> - {formatMemorySize(os.totalmem)}
+        </div>
+        <div>
+          <b>{__('OS Free Memory')}</b> - {formatMemorySize(os.freemem)}
+        </div>
+        <div>
+          <b>{__('OS CPU Count')}</b> - {os.cpuCount}
+        </div>
+      </>
+    );
+  }
+
+  renderBody(type: string) {
+    switch (type) {
+      case 'erxes': {
+        return (
+          <div>
+            <b>{__('Package version')}</b> -{' '}
+            {this.props.statistics.erxes.packageVersion}
+          </div>
+        );
+      }
+      case 'erxesIntegration':
+      case 'erxesApi': {
+        return this.renderStatistic(type);
+      }
+      default: {
+        return null;
+      }
+    }
+  }
+
+  renderData(title: string, type: string) {
     return (
       <Box>
         <Title>{__(title)}</Title>
@@ -20,21 +92,7 @@ class Status extends React.PureComponent<{
           <span>
             <Icon icon="info-circle" /> {__('Info')}
           </span>
-          <div>
-            <b>{__('Package version')}</b> - {ver.packageVersion}
-          </div>
-          <div>
-            <b>{__('Branch name')}</b> - {ver.branch}
-          </div>
-          <div>
-            <b>{__('Sha')}</b> - {ver.sha}
-          </div>
-          <div>
-            <b>
-              {__('Abbreviated')} {__('Sha')}
-            </b>{' '}
-            - {ver.abbreviatedSha}{' '}
-          </div>
+          <div>{this.renderBody(type)}</div>
         </Group>
       </Box>
     );
@@ -46,17 +104,13 @@ class Status extends React.PureComponent<{
       { title: __('System status') }
     ];
 
-    const { versions } = this.props;
-
-    const { erxesVersion, apiVersion, widgetVersion } = versions;
-
     const content = (
       <div>
-        {this.renderData('Erxes Status', erxesVersion)}
+        {this.renderData('Erxes ui status', 'erxes')}
 
-        {this.renderData('Erxes API Status', apiVersion)}
+        {this.renderData('Erxes api status', 'erxesApi')}
 
-        {this.renderData('Erxes Widget Status', widgetVersion)}
+        {this.renderData('Erxes integration status', 'erxesIntegration')}
       </div>
     );
 

@@ -53,7 +53,7 @@ class Appearance extends React.Component<Props, State> {
 
   onChange = <T extends keyof State>(name: T, value: State[T]) => {
     this.props.onChange(name, value);
-    this.setState({ [name]: value } as Pick<State, keyof State>);
+    this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
   };
 
   handleLogoChange = e => {
@@ -150,7 +150,7 @@ class Appearance extends React.Component<Props, State> {
           </SubItem>
 
           <SubItem>
-            <ControlLabel>{__('Choose a wallpaper')}</ControlLabel>
+            <ControlLabel>Choose a wallpaper</ControlLabel>
 
             <WidgetBackgrounds>
               {this.renderWallpaperSelect('1')}

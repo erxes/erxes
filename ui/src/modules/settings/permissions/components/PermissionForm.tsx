@@ -147,7 +147,7 @@ class PermissionForm extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel required={true}>Choose the module</ControlLabel>
               <Select
-                placeholder="Choose module"
+                placeholder={__('Choose module')}
                 options={generateModuleParams(modules)}
                 value={selectedModule}
                 onChange={this.changeModule}
@@ -157,7 +157,7 @@ class PermissionForm extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel required={true}>Choose the actions</ControlLabel>
               <Select
-                placeholder="Choose actions"
+                placeholder={__('Choose actions')}
                 options={filterActions(actions, selectedModule)}
                 value={selectedActions}
                 disabled={!this.isModuleSelected()}
@@ -181,7 +181,7 @@ class PermissionForm extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel required={true}>Choose the groups</ControlLabel>
               <Select
-                placeholder="Choose groups"
+                placeholder={__('Choose groups')}
                 options={generateListParams(groups)}
                 value={selectedGroups}
                 onChange={this.select.bind(this, 'selectedGroups')}
@@ -247,7 +247,7 @@ class PermissionForm extends React.Component<Props, State> {
             refetchQueries={refetchQueries}
             isSubmitted={this.state.isSubmitted}
             type="submit"
-            successMessage={`You successfully added a permission.`}
+            successMessage={__(`You successfully added a permission`) + '.'}
           />
         </ModalFooter>
       </form>
