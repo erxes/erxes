@@ -73,11 +73,9 @@ jobs:
 
     - name: Prepare release assets
       run: |
-        mkdir -p integrations
-        mv dist integrations/dist
-        mv node_modules integrations/node_modules
-        mv package.json integrations/package.json
-        tar -zcf erxes-integrations-${GITHUB_REF#refs/tags/}.tar.gz integrations/dist integrations/node_modules integrations/package.json
+        mkdir -p erxes-integrations
+        mv dist node_modules package.json erxes-integrations
+        tar -zcf erxes-integrations-${GITHUB_REF#refs/tags/}.tar.gz erxes-integrations
 
     - name: Upload release assets
       uses: softprops/action-gh-release@v1
