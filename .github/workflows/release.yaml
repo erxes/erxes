@@ -91,7 +91,6 @@ jobs:
 
     - name: Prepare release assets
       run: |
-        mkdir -p erxes
         mv ui/build erxes
         mkdir -p erxes-widgets
         mv widgets/dist widgets/node_modules widgets/locales widgets/static widgets/package.json erxes-widgets
