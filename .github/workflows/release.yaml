@@ -144,7 +144,6 @@ jobs:
         mv engages-email-sender/dist engages-email-sender/node_modules engages-email-sender/package.json erxes-engages-email-sender
         mkdir -p erxes-logger
         mv logger/dist logger/node_modules logger/package.json erxes-logger
-        mkdir -p erxes-elkSyncer
         mv elkSyncer erxes-elkSyncer
         tar -zcf erxes-api-${GITHUB_REF#refs/tags/}.tar.gz erxes-api erxes-email-verifier erxes-engages-email-sender erxes-logger erxes-elkSyncer
 
