@@ -1,3 +1,4 @@
+import { QueryResponse } from 'modules/common/types';
 import { IForm } from 'modules/forms/types';
 import { ILeadData, ILeadIntegration } from 'modules/leads/types';
 import { IBrand } from '../brands/types';
@@ -141,9 +142,7 @@ export type IntegrationsQueryResponse = {
 
 export type IntegrationDetailQueryResponse = {
   integrationDetail: IIntegration;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 type By = { [key: string]: number };
 
@@ -192,16 +191,12 @@ export type MessengerAppsCountQueryResponse = {
 
 export type LeadIntegrationDetailQueryResponse = {
   integrationDetail: ILeadIntegration;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type AccountsQueryResponse = {
   integrationsFetchApi: IAccount[];
-  loading: boolean;
-  refetch: () => void;
   error?: Error;
-};
+} & QueryResponse;
 
 // mutation types
 export type SaveMessengerMutationVariables = {
@@ -340,9 +335,7 @@ export type RemoveAccountMutationResponse = {
 
 export type MessengerAppsQueryResponse = {
   messengerApps: IMessengerApp[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type MessengerAppsRemoveMutationResponse = {
   removeMutation: (params: { variables: { _id: string } }) => Promise<any>;

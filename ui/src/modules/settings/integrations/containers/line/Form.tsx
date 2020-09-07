@@ -1,11 +1,11 @@
-import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
-import { mutations, queries } from 'modules/settings/integrations/graphql';
-
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
+import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
 import { Alert } from 'modules/common/utils';
 import Line from 'modules/settings/integrations/components/line/Line';
+import { mutations, queries } from 'modules/settings/integrations/graphql';
 import React from 'react';
 import { withRouter } from 'react-router';
 
@@ -41,7 +41,7 @@ class LineContainer extends React.Component<FinalProps, State> {
         isSubmitted={isSubmitted}
         type="submit"
         uppercase={false}
-        successMessage={`You successfully added a ${name}`}
+        successMessage={__(`You successfully added a`) + `${name}`}
       />
     );
   };

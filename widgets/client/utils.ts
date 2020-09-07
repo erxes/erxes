@@ -1,6 +1,6 @@
-import * as dayjs from "dayjs";
-import T from "i18n-react";
-import { ENV, IBrowserInfo, IRule } from "./types";
+import * as dayjs from 'dayjs';
+import T from 'i18n-react';
+import { ENV, IBrowserInfo, IRule } from './types';
 
 export const getEnv = (): ENV => {
   return (window as any).erxesEnv;
@@ -15,7 +15,7 @@ export const generateIntegrationUrl = (integrationKind: string): string => {
   const script =
     document.currentScript ||
     (() => {
-      const scripts = document.getElementsByTagName("script");
+      const scripts = document.getElementsByTagName('script');
 
       return scripts[scripts.length - 1];
     })();
@@ -27,11 +27,11 @@ export const generateIntegrationUrl = (integrationKind: string): string => {
     );
   }
 
-  return "";
+  return '';
 };
 
 export const getBrowserInfo = async () => {
-  if (window.location.hostname === "localhost") {
+  if (window.location.hostname === 'localhost') {
     return {
       url: window.location.pathname,
       hostname: window.location.origin,
@@ -43,16 +43,16 @@ export const getBrowserInfo = async () => {
   let location;
 
   try {
-    const response = await fetch("https://geo.erxes.io");
+    const response = await fetch('https://geo.erxes.io');
 
     location = await response.json();
   } catch (e) {
     location = {
-      city: "",
-      remoteAddress: "",
-      region: "",
-      country: "",
-      countryCode: ""
+      city: '',
+      remoteAddress: '',
+      region: '',
+      country: '',
+      countryCode: ''
     };
   }
 
@@ -77,7 +77,7 @@ export const postMessage = (source: string, message: string, postData = {}) => {
       message,
       ...postData
     },
-    "*"
+    '*'
   );
 };
 
@@ -92,16 +92,16 @@ export const requestBrowserInfo = ({
   postData = {},
   callback
 }: RequestBrowserInfoParams) => {
-  postMessage(source, "requestingBrowserInfo", postData);
+  postMessage(source, 'requestingBrowserInfo', postData);
 
-  window.addEventListener("message", (event: any) => {
+  window.addEventListener('message', (event: any) => {
     const data = event.data || {};
     const { fromPublisher, message, browserInfo } = data;
 
     if (
       fromPublisher &&
       source === data.source &&
-      message === "sendingBrowserInfo"
+      message === 'sendingBrowserInfo'
     ) {
       callback(browserInfo);
     }
@@ -111,14 +111,14 @@ export const requestBrowserInfo = ({
 const setDayjsLocale = (code: string) => {
   import(`dayjs/locale/${code}`)
     .then(() => dayjs.locale(code))
-    .catch(() => dayjs.locale("en"));
+    .catch(() => dayjs.locale('en'));
 };
 
 export const setLocale = (code?: string) => {
   import(`../locales/${code}.json`)
     .then(translations => {
       T.setTexts(translations);
-      setDayjsLocale(code || "en");
+      setDayjsLocale(code || 'en');
     })
     .catch(e => console.log(e)); // tslint:disable-line
 };
@@ -161,7 +161,7 @@ export const makeClickableLink = (selector: string) => {
   const nodes = Array.from(document.querySelectorAll(selector));
 
   nodes.forEach(node => {
-    node.setAttribute("target", "__blank");
+    node.setAttribute('target', '__blank');
   });
 };
 
@@ -182,7 +182,7 @@ const isValidURL = (url: string) => {
 export const readFile = (value: string): string => {
   const { API_URL } = getEnv();
 
-  if (!value || isValidURL(value) || value.includes("/")) {
+  if (!value || isValidURL(value) || value.includes('/')) {
     return value;
   }
 
@@ -196,45 +196,45 @@ export const checkRule = async (rule: IRule, browserInfo: IBrowserInfo) => {
 
   let valueToTest: any;
 
-  if (kind === "browserLanguage") {
+  if (kind === 'browserLanguage') {
     valueToTest = language;
   }
 
-  if (kind === "currentPageUrl") {
+  if (kind === 'currentPageUrl') {
     valueToTest = url;
   }
 
-  if (kind === "city") {
+  if (kind === 'city') {
     valueToTest = city;
   }
 
-  if (kind === "country") {
+  if (kind === 'country') {
     valueToTest = country;
   }
 
   // is
-  if (condition === "is" && valueToTest !== ruleValue) {
+  if (condition === 'is' && valueToTest !== ruleValue) {
     return false;
   }
 
   // isNot
-  if (condition === "isNot" && valueToTest === ruleValue) {
+  if (condition === 'isNot' && valueToTest === ruleValue) {
     return false;
   }
 
   // isUnknown
-  if (condition === "isUnknown" && valueToTest) {
+  if (condition === 'isUnknown' && valueToTest) {
     return false;
   }
 
   // hasAnyValue
-  if (condition === "hasAnyValue" && !valueToTest) {
+  if (condition === 'hasAnyValue' && !valueToTest) {
     return false;
   }
 
   // startsWith
   if (
-    condition === "startsWith" &&
+    condition === 'startsWith' &&
     valueToTest &&
     !valueToTest.startsWith(ruleValue)
   ) {
@@ -243,7 +243,7 @@ export const checkRule = async (rule: IRule, browserInfo: IBrowserInfo) => {
 
   // endsWith
   if (
-    condition === "endsWith" &&
+    condition === 'endsWith' &&
     valueToTest &&
     !valueToTest.endsWith(ruleValue)
   ) {
@@ -252,7 +252,7 @@ export const checkRule = async (rule: IRule, browserInfo: IBrowserInfo) => {
 
   // contains
   if (
-    condition === "contains" &&
+    condition === 'contains' &&
     valueToTest &&
     !valueToTest.includes(ruleValue)
   ) {
@@ -260,15 +260,15 @@ export const checkRule = async (rule: IRule, browserInfo: IBrowserInfo) => {
   }
 
   // greaterThan
-  if (condition === "greaterThan" && valueToTest < parseInt(ruleValue, 10)) {
+  if (condition === 'greaterThan' && valueToTest < parseInt(ruleValue, 10)) {
     return false;
   }
 
-  if (condition === "lessThan" && valueToTest > parseInt(ruleValue, 10)) {
+  if (condition === 'lessThan' && valueToTest > parseInt(ruleValue, 10)) {
     return false;
   }
 
-  if (condition === "doesNotContain" && valueToTest.includes(ruleValue)) {
+  if (condition === 'doesNotContain' && valueToTest.includes(ruleValue)) {
     return false;
   }
 
@@ -293,17 +293,17 @@ export const checkRules = async (
 };
 
 export const striptags = (htmlString: string) => {
-  const _div = document.createElement("div");
-  let _text = "";
+  const _div = document.createElement('div');
+  let _text = '';
 
   _div.innerHTML = htmlString;
-  _text = _div.textContent ? _div.textContent.trim() : "";
-  _text = _text.replace(/\</g, "&lt;").replace(/\>/g, "&gt;");
+  _text = _div.textContent ? _div.textContent.trim() : '';
+  _text = _text.replace(/\</g, '&lt;').replace(/\>/g, '&gt;');
   return _text;
 };
 
 export const fixErrorMessage = (msg: string) =>
-  msg.replace("GraphQL error: ", "");
+  msg.replace('GraphQL error: ', '');
 
 export const setErxesProperty = (name: string, value: any) => {
   const erxes = window.Erxes || {};
@@ -314,5 +314,5 @@ export const setErxesProperty = (name: string, value: any) => {
 };
 
 export const newLineToBr = (content: string) => {
-  return content.replace(/\r\n|\r|\n/g,"<br />");
+  return content.replace(/\r\n|\r|\n/g, '<br />');
 };

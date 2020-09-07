@@ -86,7 +86,9 @@ class Config extends React.Component<Props, State> {
 
     return (
       <ContentWrapper>
-        <Info>{__('Your email will be sent with Erxes email template.')}</Info>
+        <Info>
+          {__('Your email will be sent with Erxes email template') + '.'}
+        </Info>
       </ContentWrapper>
     );
   }

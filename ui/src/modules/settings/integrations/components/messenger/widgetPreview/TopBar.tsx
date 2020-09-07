@@ -107,7 +107,7 @@ class TopBar extends React.Component<Props> {
 
     return (
       <p>
-        {__('Hi, any questions?')} <br /> {__('We`re ready to help you.')}
+        {__('Hi, any questions?')} <br /> {__('We are ready to help you') + '.'}
       </p>
     );
   }

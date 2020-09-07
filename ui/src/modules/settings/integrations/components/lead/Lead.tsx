@@ -82,8 +82,8 @@ class Lead extends React.Component<Props, State> {
       <>
         <Info>
           {__(
-            'Add a Lead here and see it on your Messenger Widget! In order to see Leads in your inbox, please make sure it is added in your channel.'
-          )}
+            'Add a Lead here and see it on your Messenger Widget! In order to see Leads in your inbox, please make sure it is added in your channel'
+          ) + '.'}
         </Info>
         <FormGroup>
           <ControlLabel required={true}>Name</ControlLabel>

@@ -238,15 +238,15 @@ function Entry({
       <Box onClick={boxOnClick} isInMessenger={integration.inMessenger}>
         <img alt="logo" src={integration.logo} />
         <h5>
-          {integration.name} {getCount(kind, totalCount, messengerAppsCount)}
+        {integration.name} {getCount(kind, totalCount, messengerAppsCount)}
         </h5>
         <p>
-          {integration.description}
+          {__(integration.description)}
           {renderType(integration.inMessenger)}
         </p>
         {!integration.isAvailable && (
           <Ribbon>
-            <span>Coming soon</span>
+            <span>{__('Coming soon')}</span>
           </Ribbon>
         )}
       </Box>

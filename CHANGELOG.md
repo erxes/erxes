@@ -1,3 +1,39 @@
+## [0.18.2](https://github.com/erxes/erxes/compare/0.18.1...0.18.2) (2020-09-07)
+
+## [0.18.1](https://github.com/erxes/erxes/compare/0.18.0...0.18.1) (2020-09-04)
+
+# [0.18.0](https://github.com/erxes/erxes/compare/0.17.6...0.18.0) (2020-09-04)
+
+
+### Bug Fixes
+
+* **avatar:** fixed avatar in inbox left sidebar ([e3e61cb](https://github.com/erxes/erxes/commit/e3e61cbc0d3c0114995f1fc47f646e70b629f98c))
+* **system-status:** fixed system status ([7049489](https://github.com/erxes/erxes/commit/70494899ed04c793bb748b0cedb6baf7ee54c0f9))
+* **teamInbox:** fix showing unverified phone status ([dbb06d1](https://github.com/erxes/erxes/commit/dbb06d13099a67ae88bb4242185fba72d54ef313))
+* **widget:** fix not working reaction button ([957d862](https://github.com/erxes/erxes/commit/957d862c4bf3b4f91346fce6ddb724469f5760dc))
+* **widget:** fix position of popup s close button ([0caebf6](https://github.com/erxes/erxes/commit/0caebf61f42ae19d100677ee415c92b5022ed642))
+
+
+### Features
+
+* **board:** add guide content when there is no board/pipeline ([5b1f2f5](https://github.com/erxes/erxes/commit/5b1f2f548f0728b7811a9b785485a806d3602219))
+* **common:** add empty content to engage, messenger, scriptManager ([1661efa](https://github.com/erxes/erxes/commit/1661efa630884cacd3f2456622c5e655d7580b62))
+* **common:** add some step content when empty ([ff27a8b](https://github.com/erxes/erxes/commit/ff27a8b547e34549f80dc9778d4584d3d693e902))
+* **contacts:** add step content when empty ([ecc2e49](https://github.com/erxes/erxes/commit/ecc2e49fdd853e54081ca66ddc73421b733dd828))
+* **deal/task/ticket:** add editor on note textarea ([ce60a75](https://github.com/erxes/erxes/commit/ce60a7534919d6cb731da5a88289cd9636075439))
+* **deal/task/ticket:** made check list items sortable ([116bf26](https://github.com/erxes/erxes/commit/116bf264200e02016d28ad677fabeea9b27a2a8c))
+* **integration:** two way sms ([74435f1](https://github.com/erxes/erxes/commit/74435f189728af61b65753efddc1f8a3e062fe04))
+* **knowledgeBase:** add step content when empty ([6380a3d](https://github.com/erxes/erxes/commit/6380a3decde8207d35c86910d64887bd8d6476c0))
+* **language:** added turkish language ([67e22cc](https://github.com/erxes/erxes/commit/67e22cc96958a7305800f1f523ca9e8d004caae5))
+* **popup:** add step content when empty ([0939533](https://github.com/erxes/erxes/commit/093953347ea8a99405e170a3209fc3252fe8be6d))
+* **setup:** added initial admin user creation step ([276f5e9](https://github.com/erxes/erxes/commit/276f5e90b133fe4a4c0c60f75fb2c569411424a4))
+* **tasks:** added timer ([f7d80a4](https://github.com/erxes/erxes/commit/f7d80a47444698a25a1d718314fc0e6fb43f8c2e))
+
+
+### Performance Improvements
+
+* **customer:** show actions in editform of task and deal ([852e707](https://github.com/erxes/erxes/commit/852e707c0443472ceca5825bfcc7f4c38f2618c7)), closes [close#2247](https://github.com/close/issues/2247)
+
 
 
 ## [0.17.6](https://github.com/erxes/erxes/compare/0.17.4...0.17.6) (2020-08-20)

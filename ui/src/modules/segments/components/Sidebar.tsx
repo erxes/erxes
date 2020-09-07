@@ -42,7 +42,7 @@ function TagsSidebar() {
               href="https://docs.erxes.io/user/segments"
               rel="noopener noreferrer"
             >
-              <u> {'Learn how to create a segment'}</u>
+              <u> {__('Learn how to create a segment')}</u>
             </a>
           </li>
         </SidebarList>
