@@ -141,7 +141,7 @@ jobs:
         mkdir -p erxes-email-verifier
         mv email-verifier/dist email-verifier/node_modules email-verifier/package.json erxes-email-verifier
         mkdir -p erxes-engages-email-sender
-        engages-email-sender/dist engages-email-sender/node_modules engages-email-sender/package.json erxes-engages-email-sender
+        erxes-engages-email-sender/dist erxes-engages-email-sender/node_modules erxes-engages-email-sender/package.json erxes-engages-email-sender
         mkdir -p erxes-logger
         mv logger/dist logger/node_modules logger/package.json erxes-logger
         mkdir -p erxes-elkSyncer
