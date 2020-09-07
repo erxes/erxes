@@ -128,13 +128,6 @@ curl -s -X POST https://telemetry.erxes.io/events/ \
 EOF
       )"
 
-
-# Dependencies
-
-echo "Installing Initial Dependencies"
-
-apt-get -qqy update
-
 #
 # Ask ES option
 #
@@ -153,6 +146,7 @@ then
   echo "ElasticSearch will be installed"
   # Java , elasticsearch dependency
   echo "Installing Java"
+  apt-get -qqy update
   apt-get -qqy install default-jre -y
   echo "Installed Java successfully"
 
@@ -170,6 +164,9 @@ else
   echo "Using elasticsearch.erxes.io"
 fi
 
+# Dependencies
+echo "Installing Initial Dependencies"
+apt-get -qqy update
 apt-get -qqy install -y wget gnupg apt-transport-https software-properties-common python3-pip ufw
 
 # MongoDB
@@ -238,29 +235,19 @@ ERXES_RELEASE_URL="https://releases.erxes.io/erxes/latest/download"
 ERXES_API_RELEASE_URL="https://releases.erxes.io/erxes-api/latest/download"
 ERXES_INTEGRATIONS_RELEASE_URL="https://releases.erxes.io/erxes-integrations/latest/download"
 
-# TODO: update renaming folders, once CI updated/corrected!!!
 # download erxes
 su $username -c "curl -L $ERXES_RELEASE_URL | tar -xz"
-# rename ui/build to erxes
-su $username -c "mv $erxes_root_dir/ui/build/ $erxes_ui_dir && rmdir $erxes_root_dir/ui"
-# rename widgets to erxes-widgets
-su $username -c "mv $erxes_root_dir/widgets/ $erxes_widgets_dir"
+# TODO: delete renaming erxes/build to erxes after next release
+su $username -c "mv $erxes_ui_dir/build/* $erxes_ui_dir/"
+su $username -c "rmdir $erxes_ui_dir/build"
 
 # download erxes-api
 su $username -c "curl -L $ERXES_API_RELEASE_URL | tar -xz"
-# rename api to erxes-api
-su $username -c "mv $erxes_root_dir/api/ $erxes_api_dir"
-# rename engages-email-sender to erxes-engages-email-sender
-su $username -c "mv $erxes_root_dir/engages-email-sender/ $erxes_engages_dir"
-# rename logger to erxes-logger
-su $username -c "mv $erxes_root_dir/logger/ $erxes_logger_dir"
-# rename elkSyncer to erxes-elkSyncer
-su $username -c "mv $erxes_root_dir/elkSyncer/ $erxes_syncer_dir"
+# TODO: delete renaming erxes-elkSyncer/elkSyncer to erxes-elkSyncer after next release
+su $username -c "mv $erxes_syncer_dir/elkSyncer/* $erxes_syncer_dir/"
 
 # download integrations
 su $username -c "curl -L $ERXES_INTEGRATIONS_RELEASE_URL | tar -xz"
-# rename integrations to erxes-integrations
-su $username -c "mv $erxes_root_dir/integrations/ $erxes_integrations_dir"
 
 JWT_TOKEN_SECRET=$(openssl rand -base64 24)
 MONGO_PASS=$(openssl rand -hex 16)
