@@ -118,8 +118,8 @@ describe('fieldQueries', () => {
     await fieldFactory({ contentType: 'customer', groupId: invisibleGroup._id });
 
     const qry = `
-      query fieldsCombinedByContentType($contentType: String!) {
-        fieldsCombinedByContentType(contentType: $contentType)
+      query fieldsCombinedByContentType($contentType: String!, $usageType: String) {
+        fieldsCombinedByContentType(contentType: $contentType, usageType: $usageType)
       }
     `;
 
@@ -156,6 +156,7 @@ describe('fieldQueries', () => {
 
     responses = await graphqlRequest(qry, 'fieldsCombinedByContentType', {
       contentType: 'customer',
+      usageType: 'import',
     });
 
     responses = await graphqlRequest(qry, 'fieldsCombinedByContentType', { contentType: 'customer' });

@@ -128,6 +128,10 @@ const fieldQueries = {
       }
     }
 
+    if (contentType === 'customer' && usageType) {
+      extendFields = EXTEND_FIELDS.CUSTOMER;
+    }
+
     for (const extendFeild of extendFields) {
       fields.push({
         _id: Math.random(),
