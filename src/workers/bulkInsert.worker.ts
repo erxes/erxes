@@ -231,8 +231,19 @@ connect().then(async () => {
     await create(doc, user)
       .then(async cocObj => {
         if (doc.companiesPrimaryNames && doc.companiesPrimaryNames.length > 0 && contentType !== 'company') {
-          const companies = await Companies.find({ primaryName: { $in: doc.companiesPrimaryNames } }, { _id: 1 });
-          const companyIds = companies.map(company => company._id);
+          const companyIds: string[] = [];
+
+          for (const primaryName of doc.companiesPrimaryNames) {
+            let company = await Companies.findOne({ primaryName }).lean();
+
+            if (company) {
+              companyIds.push(company._id);
+            } else {
+              company = await Companies.createCompany({ primaryName });
+
+              companyIds.push(company._id);
+            }
+          }
 
           for (const _id of companyIds) {
             await Conformities.addConformity({
