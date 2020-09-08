@@ -263,7 +263,9 @@ class CustomersList extends React.Component<IProps, State> {
             </li>
             <li>
               <a href="#export" onClick={exportData.bind(this, bulk)}>
-                {type === 'lead' ? __('Export leads') : __('Export contacts')}
+                {type === 'lead'
+                  ? __('Export this leads')
+                  : __('Export this contacts')}
               </a>
             </li>
             <li>

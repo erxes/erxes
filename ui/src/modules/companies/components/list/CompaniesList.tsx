@@ -58,7 +58,7 @@ class CompaniesList extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue
+      searchValue: this.props.searchValue,
     };
   }
 
@@ -67,7 +67,7 @@ class CompaniesList extends React.Component<IProps, State> {
     toggleAll(companies, 'companies');
   };
 
-  search = e => {
+  search = (e) => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -82,17 +82,17 @@ class CompaniesList extends React.Component<IProps, State> {
     }, 500);
   };
 
-  removeCompanies = companies => {
+  removeCompanies = (companies) => {
     const companyIds: string[] = [];
 
-    companies.forEach(company => {
+    companies.forEach((company) => {
       companyIds.push(company._id);
     });
 
     this.props.removeCompanies({ companyIds }, this.props.emptyBulk);
   };
 
-  moveCursorAtTheEnd = e => {
+  moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
@@ -112,7 +112,7 @@ class CompaniesList extends React.Component<IProps, State> {
       totalCount,
       mergeCompanies,
       queryParams,
-      exportCompanies
+      exportCompanies,
     } = this.props;
 
     const mainContent = (
@@ -136,7 +136,7 @@ class CompaniesList extends React.Component<IProps, State> {
             </tr>
           </thead>
           <tbody id="companies">
-            {companies.map(company => (
+            {companies.map((company) => (
               <CompanyRow
                 company={company}
                 columnsConfig={columnsConfig}
@@ -167,7 +167,7 @@ class CompaniesList extends React.Component<IProps, State> {
 
     let actionBarLeft: React.ReactNode;
 
-    const companiesMerge = props => {
+    const companiesMerge = (props) => {
       return <CompaniesMerge {...props} objects={bulk} save={mergeCompanies} />;
     };
 
@@ -183,7 +183,7 @@ class CompaniesList extends React.Component<IProps, State> {
           .then(() => {
             this.removeCompanies(bulk);
           })
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
           });
 
@@ -217,7 +217,7 @@ class CompaniesList extends React.Component<IProps, State> {
       );
     }
 
-    const manageColumns = props => {
+    const manageColumns = (props) => {
       return (
         <ManageColumns
           {...props}
@@ -228,7 +228,7 @@ class CompaniesList extends React.Component<IProps, State> {
       );
     };
 
-    const companyForm = props => {
+    const companyForm = (props) => {
       return <CompanyForm {...props} queryParams={queryParams} />;
     };
 
@@ -264,7 +264,7 @@ class CompaniesList extends React.Component<IProps, State> {
             </li>
             <li>
               <a href="#export" onClick={exportCompanies.bind(this, bulk)}>
-                {__('Export companies')}
+                {__('Export this companies')}
               </a>
             </li>
           </Dropdown.Menu>
