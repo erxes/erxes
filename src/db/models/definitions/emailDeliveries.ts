@@ -32,7 +32,7 @@ export const emailDeliverySchema = new Schema({
   to: field({ type: [String] }),
   cc: field({ type: [String], optional: true }),
   bcc: field({ type: [String], optional: true }),
-  attachments: field({ type: [String] }),
+  attachments: field({ type: [Object] }),
   from: field({ type: String }),
   kind: field({ type: String }),
   customerId: field({ type: String }),
