@@ -35,5 +35,5 @@ const fieldsGroups = `
 `;
 
 export default {
-  fieldsGroups
+  fieldsGroups,
 };
