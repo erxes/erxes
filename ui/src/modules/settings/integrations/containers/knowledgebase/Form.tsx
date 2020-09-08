@@ -3,7 +3,7 @@ import * as compose from 'lodash.flowright';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
-import { withProps, __ } from 'modules/common/utils';
+import { __, withProps } from 'modules/common/utils';
 import { queries as kbQueries } from 'modules/knowledgeBase/graphql';
 import { TopicsQueryResponse } from 'modules/knowledgeBase/types';
 import { queries } from 'modules/settings/integrations/graphql';
@@ -41,7 +41,7 @@ class KnowledgeBaseContainer extends React.Component<FinalProps> {
       name,
       values,
       isSubmitted,
-      callback
+      callback,
     }: IButtonMutateProps) => {
       return (
         <ButtonMutate
@@ -61,7 +61,7 @@ class KnowledgeBaseContainer extends React.Component<FinalProps> {
       ...this.props,
       integrations,
       topics,
-      renderButton
+      renderButton,
     };
 
     return <KnowledgeBase {...updatedProps} />;
@@ -72,12 +72,12 @@ const getRefetchQueries = () => {
   return [
     {
       query: gql(queries.messengerApps),
-      variables: { kind: 'knowledgebase' }
+      variables: { kind: 'knowledgebase' },
     },
     {
       query: gql(queries.messengerAppsCount),
-      variables: { kind: 'knowledgebase' }
-    }
+      variables: { kind: 'knowledgebase' },
+    },
   ];
 };
 
@@ -90,14 +90,14 @@ export default withProps<Props>(
           notifyOnNetworkStatusChange: true,
           variables: {
             ...integrationsListParams(queryParams || {}),
-            kind: 'messenger'
+            kind: 'messenger',
           },
-          fetchPolicy: 'network-only'
+          fetchPolicy: 'network-only',
         };
-      }
+      },
     }),
     graphql<Props, TopicsQueryResponse>(gql(kbQueries.knowledgeBaseTopics), {
-      name: 'knowledgeBaseTopicsQuery'
+      name: 'knowledgeBaseTopicsQuery',
     }),
     withApollo
   )(withRouter<FinalProps>(KnowledgeBaseContainer))
