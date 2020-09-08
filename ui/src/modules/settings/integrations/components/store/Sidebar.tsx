@@ -1,8 +1,8 @@
+import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { INTEGRATION_FILTERS } from '../../constants';
 import { Category, FixedSection, LeftSidebar, SidebarList } from './styles';
-import { __ } from 'modules/common/utils';
 
 type Props = {
   currentType: string;
@@ -29,7 +29,7 @@ class SideBar extends React.Component<Props> {
           {INTEGRATION_FILTERS.map((data, index) => (
             <SidebarList key={index}>
               <h4>{__(data.name)}</h4>
-              {data.items.map(item => this.renderCategory(__(item)))}
+              {data.items.map((item) => this.renderCategory(__(item)))}
             </SidebarList>
           ))}
         </FixedSection>

@@ -1,11 +1,11 @@
 import Icon from 'modules/common/components/Icon';
 import { IButtonMutateProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
 import { TargetCount } from 'modules/engage/types';
 import { ISegment } from 'modules/segments/types';
 import React from 'react';
 import Common from './Common';
 import SegmentsForm from './forms/SegmentsForm';
-import { __ } from 'modules/common/utils';
 
 type Props = {
   messageType: string;
@@ -21,7 +21,7 @@ type Props = {
     {
       actionSelector,
       selectedComponent,
-      customerCounts
+      customerCounts,
     }: {
       actionSelector: React.ReactNode;
       selectedComponent: React.ReactNode;
@@ -41,24 +41,24 @@ const SegmentStep = (props: Props) => {
     messageType,
     renderContent,
     segmentFields,
-    headSegments
+    headSegments,
   } = props;
 
   const formProps = {
     fields: segmentFields,
-    headSegments
+    headSegments,
   };
 
   const orderedSegments: ISegment[] = [];
   const icons: React.ReactNode[] = [];
 
-  segments.forEach(segment => {
+  segments.forEach((segment) => {
     if (!segment.subOf) {
       orderedSegments.push(segment, ...segment.getSubSegments);
     }
   });
 
-  orderedSegments.forEach(segment => {
+  orderedSegments.forEach((segment) => {
     icons.push(
       <>
         {segment.subOf ? '\u00a0\u00a0\u00a0\u00a0\u00a0' : null}

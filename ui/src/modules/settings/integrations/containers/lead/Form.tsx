@@ -4,6 +4,7 @@ import ButtonMutate from 'modules/common/components/ButtonMutate';
 import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
 import { queries } from 'modules/settings/integrations/graphql';
 import React from 'react';
 import { graphql, withApollo } from 'react-apollo';
@@ -12,7 +13,6 @@ import Lead from '../../components/lead/Lead';
 import { mutations } from '../../graphql';
 import { IntegrationsQueryResponse } from '../../types';
 import { integrationsListParams } from '../utils';
-import { __ } from 'modules/common/utils';
 
 type Props = {
   queryParams: any;
@@ -40,7 +40,7 @@ class LeadContainer extends React.Component<FinalProps> {
       name,
       values,
       isSubmitted,
-      callback
+      callback,
     }: IButtonMutateProps) => {
       return (
         <ButtonMutate
@@ -60,7 +60,7 @@ class LeadContainer extends React.Component<FinalProps> {
       ...this.props,
       integrations,
       leads,
-      renderButton
+      renderButton,
     };
 
     return <Lead {...updatedProps} />;
@@ -71,12 +71,12 @@ const getRefetchQueries = () => {
   return [
     {
       query: gql(queries.messengerApps),
-      variables: { kind: 'lead' }
+      variables: { kind: 'lead' },
     },
     {
       query: gql(queries.messengerAppsCount),
-      variables: { kind: 'lead' }
-    }
+      variables: { kind: 'lead' },
+    },
   ];
 };
 
@@ -89,11 +89,11 @@ export default withProps<Props>(
           notifyOnNetworkStatusChange: true,
           variables: {
             ...integrationsListParams(queryParams || {}),
-            kind: 'messenger'
+            kind: 'messenger',
           },
-          fetchPolicy: 'network-only'
+          fetchPolicy: 'network-only',
         };
-      }
+      },
     }),
     graphql<Props, IntegrationsQueryResponse>(gql(queries.integrations), {
       name: 'leadIntegrationsQuery',
@@ -102,11 +102,11 @@ export default withProps<Props>(
           notifyOnNetworkStatusChange: true,
           variables: {
             ...integrationsListParams(queryParams || {}),
-            kind: 'lead'
+            kind: 'lead',
           },
-          fetchPolicy: 'network-only'
+          fetchPolicy: 'network-only',
         };
-      }
+      },
     }),
     withApollo
   )(withRouter<FinalProps>(LeadContainer))

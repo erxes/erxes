@@ -15,7 +15,7 @@ import { IntegrationsQueryResponse } from '../../types';
 import {
   defaultCustomerFields,
   defaultMailFields,
-  defaultMessageFields
+  defaultMessageFields,
 } from './constants';
 
 type Props = {
@@ -49,7 +49,7 @@ const MailFormContainer = (props: FinalProps) => {
     closeModal,
     closeReply,
     sendMailMutation,
-    currentUser
+    currentUser,
   } = props;
 
   if (integrationsQuery.loading) {
@@ -61,7 +61,7 @@ const MailFormContainer = (props: FinalProps) => {
   const save = ({
     variables,
     optimisticResponse,
-    update
+    update,
   }: {
     variables: any;
     optimisticResponse?: any;
@@ -85,7 +85,7 @@ const MailFormContainer = (props: FinalProps) => {
           closeModal();
         }
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
 
         if (closeModal) {
@@ -111,7 +111,7 @@ const MailFormContainer = (props: FinalProps) => {
       customer: {
         ...defaultCustomerFields,
         firstName: email,
-        primaryEmail: email
+        primaryEmail: email,
       },
       mailData: {
         ...defaultMailFields,
@@ -122,16 +122,16 @@ const MailFormContainer = (props: FinalProps) => {
         body: variables.body,
         subject: variables.subject,
         attachments: variables.attachments,
-        integrationEmail: variables.from
-      }
+        integrationEmail: variables.from,
+      },
     };
 
     const optimisticResponse = { __typename: 'Mutation', integrationSendMail };
 
-    const update = store => {
+    const update = (store) => {
       const selector = {
         query: gql(messageQueries.conversationMessages),
-        variables: { conversationId, limit: 10, skip: 0 }
+        variables: { conversationId, limit: 10, skip: 0 },
       };
 
       // Read the data from our cache for this query.
@@ -162,7 +162,7 @@ const MailFormContainer = (props: FinalProps) => {
     sendMail,
     integrations,
     currentUser,
-    emailSignatures: currentUser.emailSignatures || []
+    emailSignatures: currentUser.emailSignatures || [],
   };
 
   return <MailForm {...updatedProps} />;
@@ -175,15 +175,15 @@ export default withProps<Props>(
       options: () => {
         return {
           variables: { kind: 'mail' },
-          fetchPolicy: 'network-only'
+          fetchPolicy: 'network-only',
         };
-      }
+      },
     }),
     graphql<Props>(gql(mutations.integrationSendMail), {
       name: 'sendMailMutation',
       options: () => ({
-        refetchQueries: ['activityLogs']
-      })
+        refetchQueries: ['activityLogs'],
+      }),
     })
   )(withCurrentUser(MailFormContainer))
 );

@@ -1,12 +1,12 @@
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
 import Form from 'modules/settings/integrations/components/mail/Form';
 import { mutations } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
 import { withRouter } from 'react-router-dom';
 import { IntegrationTypes } from '../../types';
 import { getRefetchQueries } from '../utils';
-import { __ } from 'modules/common/utils';
 
 type Props = {
   type?: string;
@@ -43,7 +43,7 @@ class FormContainer extends React.Component<FinalProps, State> {
     name,
     values,
     isSubmitted,
-    callback
+    callback,
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
@@ -69,7 +69,7 @@ class FormContainer extends React.Component<FinalProps, State> {
       accountId,
       onAccountSelect: this.onAccountSelect,
       onRemoveAccount: this.onRemoveAccount,
-      renderButton: this.renderButton
+      renderButton: this.renderButton,
     };
 
     return <Form {...updatedProps} />;
