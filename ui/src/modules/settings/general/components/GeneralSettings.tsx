@@ -326,10 +326,13 @@ class GeneralSettings extends React.Component<Props, State> {
             </a>
           </Info>
           {this.renderItem('GOOGLE_PROJECT_ID')}
-          {this.renderItem('GOOGLE_APPLICATION_CREDENTIALS')}
-          {this.renderItem('GOOGLE_APPLICATION_CREDENTIALS_JSON')}
           {this.renderItem('GOOGLE_CLIENT_ID')}
           {this.renderItem('GOOGLE_CLIENT_SECRET')}
+
+          {this.renderItem(
+            'GOOGLE_APPLICATION_CREDENTIALS_JSON',
+            'Firebase config for Notifications'
+          )}
         </CollapseContent>
 
         <CollapseContent title={__('Common mail config')}>
