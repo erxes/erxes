@@ -30,11 +30,13 @@ class EmailTemplate extends React.Component<Props> {
   };
 
   renderContent() {
-    const { targets } = this.props;
+    const { targets = [] } = this.props;
 
     if (!targets || targets.length === 0) {
       return <EmptyState icon="clipboard-1" text="No templates" />;
     }
+
+    targets.unshift({ value: '', label: 'Clear' });
 
     return targets.map(item => {
       const onClick = () => this.handleClick(item.value);
