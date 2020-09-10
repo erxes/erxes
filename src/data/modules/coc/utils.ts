@@ -153,8 +153,8 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   // filter by search value
   public searchFilter(value: string): void {
     this.positiveList.push({
-      match_phrase: {
-        searchText: value,
+      wildcard: {
+        searchText: `*${value.toLowerCase()}*`,
       },
     });
   }
