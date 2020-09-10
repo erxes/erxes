@@ -264,7 +264,9 @@ class PipelineForm extends React.Component<Props, State> {
     return (
       <>
         <Modal.Header closeButton={true}>
-          <Modal.Title>{pipeline ? 'Edit project' : 'Add project'}</Modal.Title>
+          <Modal.Title>
+            {pipeline ? `${__('Edit project')}` : `${__('Add project')}`}
+          </Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
@@ -311,7 +313,7 @@ class PipelineForm extends React.Component<Props, State> {
                   {...formProps}
                   required={true}
                   name="startDate"
-                  placeholder={'Start date'}
+                  placeholder={__('Start date')}
                   value={startDate}
                   onChange={this.onDateInputChange.bind(this, 'startDate')}
                 />
@@ -322,7 +324,7 @@ class PipelineForm extends React.Component<Props, State> {
                   {...formProps}
                   required={true}
                   name="endDate"
-                  placeholder={'End date'}
+                  placeholder={__('End date')}
                   value={endDate}
                   onChange={this.onDateInputChange.bind(this, 'endDate')}
                 />

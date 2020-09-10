@@ -244,8 +244,8 @@ export class AppProvider extends React.Component<{}, IState> {
   goToWebsiteApp = (name: string) => {
     this.setState({ currentWebsiteApp: name });
 
-    this.changeRoute("websiteApp");
-  }
+    this.changeRoute('websiteApp');
+  };
 
   goToConversation = (conversationId: string) => {
     this.changeConversation(conversationId);

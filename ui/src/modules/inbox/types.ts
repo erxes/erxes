@@ -1,3 +1,4 @@
+import { QueryResponse } from 'modules/common/types';
 import { IUser } from '../auth/types';
 import { ICustomer } from '../customers/types';
 import { IIntegration } from '../settings/integrations/types';
@@ -231,29 +232,21 @@ export type ConvesationsQueryVariables = {
 
 export type LastConversationQueryResponse = {
   conversationsGetLast: IConversation;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type ConversationsQueryResponse = {
   conversations: IConversation[];
-  loading: boolean;
-  refetch: () => void;
   subscribeToMore: (variables) => void;
-};
+} & QueryResponse;
 
 export type ConversationDetailQueryResponse = {
   conversationDetail: IConversation;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type MessagesQueryResponse = {
   conversationMessages: IMessage[];
-  loading: boolean;
-  refetch: () => void;
   fetchMore: (variables) => void;
-};
+} & QueryResponse;
 
 export type MessagesTotalCountQuery = {
   loading: boolean;
@@ -262,30 +255,22 @@ export type MessagesTotalCountQuery = {
 
 export type ConversationsTotalCountQueryResponse = {
   conversationsTotalCount: number;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type UnreadConversationsTotalCountQueryResponse = {
   conversationsTotalUnreadCount: number;
-  loading: boolean;
-  refetch: () => void;
   subscribeToMore: (variables) => void;
-};
+} & QueryResponse;
 
 export type FacebookCommentsQueryResponse = {
   converstationFacebookComments: IFacebookComment[];
-  loading: boolean;
-  refetch: () => void;
   fetchMore: (variables) => void;
-};
+} & QueryResponse;
 
 export type FacebookCommentsCountQueryResponse = {
   converstationFacebookCommentsCount: any;
-  loading: boolean;
-  refetch: () => void;
   fetchMore: (variables) => void;
-};
+} & QueryResponse;
 
 export type ReplyFaceBookCommentMutationVariables = {
   conversationId: string;

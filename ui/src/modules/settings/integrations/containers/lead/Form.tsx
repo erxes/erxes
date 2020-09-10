@@ -4,6 +4,7 @@ import ButtonMutate from 'modules/common/components/ButtonMutate';
 import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
+import { __ } from 'modules/common/utils';
 import { queries } from 'modules/settings/integrations/graphql';
 import React from 'react';
 import { graphql, withApollo } from 'react-apollo';
@@ -50,7 +51,7 @@ class LeadContainer extends React.Component<FinalProps> {
           isSubmitted={isSubmitted}
           uppercase={false}
           type="submit"
-          successMessage={`You successfully added a ${name}`}
+          successMessage={__(`You successfully added a`) + `${name}`}
         />
       );
     };

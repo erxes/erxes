@@ -163,8 +163,8 @@ const fields = `
 `;
 
 const fieldsCombinedByContentType = `
-  query fieldsCombinedByContentType($contentType: String!, $excludedNames: [String]) {
-    fieldsCombinedByContentType(contentType: $contentType, excludedNames: $excludedNames)
+  query fieldsCombinedByContentType($contentType: String!,$usageType: String, $excludedNames: [String]) {
+    fieldsCombinedByContentType(contentType: $contentType,usageType: $usageType, excludedNames: $excludedNames)
   }
 `;
 

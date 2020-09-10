@@ -106,7 +106,12 @@ function renderCreate(createUrl, kind) {
     const content = props => <Lead {...props} />;
 
     return (
-      <ModalTrigger title="Add Pop Ups" trigger={trigger} content={content} autoOpenKey="showPopupAddModal" />
+      <ModalTrigger
+        title="Add Pop Ups"
+        trigger={trigger}
+        content={content}
+        autoOpenKey="showPopupAddModal"
+      />
     );
   }
 
@@ -241,12 +246,12 @@ function Entry({
           {integration.name} {getCount(kind, totalCount, messengerAppsCount)}
         </h5>
         <p>
-          {integration.description}
+          {__(integration.description)}
           {renderType(integration.inMessenger)}
         </p>
         {!integration.isAvailable && (
           <Ribbon>
-            <span>Coming soon</span>
+            <span>{__('Coming soon')}</span>
           </Ribbon>
         )}
       </Box>

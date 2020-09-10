@@ -7,7 +7,7 @@ import { mutations as brandMutations } from 'modules/settings/brands/graphql';
 import { queries as brandQueries } from 'modules/settings/brands/graphql';
 import React from 'react';
 import { ChildProps, graphql } from 'react-apollo';
-import { AllBrandsQueryResponse } from '../../brands/types';
+import { BrandsQueryResponse } from '../../brands/types';
 import SelectBrand from '../components/SelectBrand';
 
 type Props = {
@@ -19,7 +19,7 @@ type Props = {
 };
 
 type FinalProps = {
-  brandsQuery: AllBrandsQueryResponse;
+  brandsQuery: BrandsQueryResponse;
 } & Props;
 
 const SelectBrandContainer = (props: ChildProps<FinalProps>) => {
@@ -77,7 +77,7 @@ const getRefetchQueries = () => {
 };
 
 export default compose(
-  graphql<AllBrandsQueryResponse>(gql(brandQueries.brands), {
+  graphql<BrandsQueryResponse>(gql(brandQueries.brands), {
     name: 'brandsQuery',
     options: () => ({
       refetchQueries: getRefetchQueries

@@ -1,5 +1,6 @@
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
 import Form from 'modules/settings/integrations/components/mail/Form';
 import { mutations } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
@@ -53,7 +54,7 @@ class FormContainer extends React.Component<FinalProps, State> {
         isSubmitted={isSubmitted}
         type="submit"
         uppercase={false}
-        successMessage={`You successfully added a ${name}`}
+        successMessage={__(`You successfully added a`) + `${name}`}
       />
     );
   };
