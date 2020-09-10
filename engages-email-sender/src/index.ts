@@ -17,6 +17,12 @@ import { trackEngages } from './trackers/engageTracker';
 const app = express();
 
 app.disable('x-powered-by');
+
+// for health checking
+app.get('/status', async (_req, res) => {
+  res.end('ok');
+});
+
 app.use((req: any, _res, next) => {
   req.rawBody = '';
 
