@@ -337,8 +337,12 @@ class MailForm extends React.Component<Props, State> {
     }
 
     // reply
-    if (!integrationEmail || !fromEmail) {
+    if (!integrationEmail && !fromEmail) {
       return '';
+    }
+
+    if (!integrationEmail && to !== fromEmail) {
+      return fromEmail;
     }
 
     let receiver;
