@@ -330,10 +330,14 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderItem('GOOGLE_PROJECT_ID')}
           {this.renderItem('GOOGLE_CLIENT_ID')}
           {this.renderItem('GOOGLE_CLIENT_SECRET')}
+          {this.renderItem(
+            'GOOGLE_GMAIL_TOPIC',
+            'The topic value created in Gmail setup'
+          )}
 
           {this.renderItem(
             'GOOGLE_APPLICATION_CREDENTIALS_JSON',
-            'Firebase config for Notifications'
+            'Firebase config for notifications'
           )}
         </CollapseContent>
 
