@@ -212,10 +212,10 @@ class TaskTimer extends React.Component<Props, State> {
             disabled={isComplete}
             btnStyle="success"
             size="large"
-            icon="play"
+            icon="play-1"
             onClick={handleClick}
           >
-            Play
+            Start
           </Button>
         ) : (
           <Button
