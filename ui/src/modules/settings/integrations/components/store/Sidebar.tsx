@@ -1,3 +1,4 @@
+import { __ } from 'modules/common/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { INTEGRATION_FILTERS } from '../../constants';
@@ -27,8 +28,8 @@ class SideBar extends React.Component<Props> {
         <FixedSection>
           {INTEGRATION_FILTERS.map((data, index) => (
             <SidebarList key={index}>
-              <h4>{data.name}</h4>
-              {data.items.map(item => this.renderCategory(item))}
+              <h4>{__(data.name)}</h4>
+              {data.items.map(item => this.renderCategory(__(item)))}
             </SidebarList>
           ))}
         </FixedSection>

@@ -1,7 +1,7 @@
-import * as React from "react";
-import { TopBar } from "../components";
-import { connection } from "../connection";
-import { AppConsumer } from "./AppContext";
+import * as React from 'react';
+import { TopBar } from '../components';
+import { connection } from '../connection';
+import { AppConsumer } from './AppContext';
 
 type Props = {
   middle: React.ReactNode;
@@ -14,7 +14,14 @@ type Props = {
 const container = (props: Props) => {
   return (
     <AppConsumer>
-      {({ endConversation, getColor, toggle, setHeadHeight, headHeight, getUiOptions }) => {
+      {({
+        endConversation,
+        getColor,
+        toggle,
+        setHeadHeight,
+        headHeight,
+        getUiOptions
+      }) => {
         return (
           <TopBar
             {...props}

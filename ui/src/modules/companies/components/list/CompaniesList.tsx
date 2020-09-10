@@ -264,7 +264,7 @@ class CompaniesList extends React.Component<IProps, State> {
             </li>
             <li>
               <a href="#export" onClick={exportCompanies.bind(this, bulk)}>
-                {__('Export companies')}
+                {__('Export this companies')}
               </a>
             </li>
           </Dropdown.Menu>

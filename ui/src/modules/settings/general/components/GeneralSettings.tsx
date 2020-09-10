@@ -152,8 +152,9 @@ class GeneralSettings extends React.Component<Props, State> {
       value: item.value,
       label: `${item.label} (${item.extension})`
     }));
-    const mimeTypeDesc =
-      'Comma-separated list of media types. Leave it blank for accepting all media types';
+    const mimeTypeDesc = __(
+      'Comma-separated list of media types. Leave it blank for accepting all media types'
+    );
 
     const content = (
       <ContentBox>
@@ -166,6 +167,7 @@ class GeneralSettings extends React.Component<Props, State> {
               onChange={this.onLanguageChange}
               searchable={false}
               clearable={false}
+              placeholder={__('Select')}
             />
           </FormGroup>
 
@@ -197,7 +199,7 @@ class GeneralSettings extends React.Component<Props, State> {
               href="https://docs.erxes.io/administrator/system-config#file-upload"
               rel="noopener noreferrer"
             >
-              {__('Learn how to set file uploading.')}
+              {__('Learn how to set file uploading') + '.'}
             </a>
           </Info>
           <FormGroup>
@@ -289,7 +291,7 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderItem('AWS_PREFIX')}
           {this.renderItem(
             'AWS_COMPATIBLE_SERVICE_ENDPOINT',
-            'Used when using s3 compatible service'
+            __('Used when using s3 compatible service')
           )}
           {this.renderItem('AWS_FORCE_PATH_STYLE')}
         </CollapseContent>
@@ -298,8 +300,8 @@ class GeneralSettings extends React.Component<Props, State> {
           <Info>
             <p>
               {__(
-                'In this field, the AWS SES configuration is dedicated to providing transaction emails.'
-              )}
+                'In this field, the AWS SES configuration is dedicated to providing transaction emails'
+              ) + '.'}
             </p>
             <a
               target="_blank"

@@ -124,6 +124,7 @@ class ArticleForm extends React.Component<Props, State> {
                 onChange={this.onChangeReactions}
                 optionRenderer={this.renderOption}
                 valueRenderer={this.renderOption}
+                placeholder={__('Select')}
               />
             </FormGroup>
           </FlexItem>
@@ -134,7 +135,7 @@ class ArticleForm extends React.Component<Props, State> {
                 {...formProps}
                 name="status"
                 componentClass="select"
-                placeholder={__('select')}
+                placeholder={__('Select')}
                 defaultValue={object.status || 'draft'}
                 required={true}
               >

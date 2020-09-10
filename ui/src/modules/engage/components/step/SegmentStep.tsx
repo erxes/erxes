@@ -1,5 +1,6 @@
 import Icon from 'modules/common/components/Icon';
 import { IButtonMutateProps } from 'modules/common/types';
+import { __ } from 'modules/common/utils';
 import { TargetCount } from 'modules/engage/types';
 import { ISegment } from 'modules/segments/types';
 import React from 'react';
@@ -69,7 +70,7 @@ const SegmentStep = (props: Props) => {
   return (
     <Common<ISegment, IButtonMutateProps>
       name="segmentIds"
-      label="Create a segment"
+      label={__('Create a segment')}
       targetIds={segmentIds}
       messageType={messageType}
       targets={orderedSegments}
