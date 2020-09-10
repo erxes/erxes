@@ -135,10 +135,11 @@ export default withProps<Props>(
       gql(queries.fieldsCombinedByContentType),
       {
         name: 'fieldsQuery',
-        options: ({ contentType }) => {
+        options: ({ contentType, type }) => {
           return {
             variables: {
               contentType: contentType === 'lead' ? 'customer' : contentType,
+              usageType: type,
               excludedNames: [
                 'state',
                 'avatar',

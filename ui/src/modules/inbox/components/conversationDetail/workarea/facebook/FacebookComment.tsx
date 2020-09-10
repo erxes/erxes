@@ -107,7 +107,7 @@ export default class FacebookComment extends React.Component<
         if (link.includes('fna.fbcdn.net')) {
           result.push({
             url: link,
-            name: 'attachemt',
+            name: 'attachment',
             type: 'image / jpeg,'
           });
         }

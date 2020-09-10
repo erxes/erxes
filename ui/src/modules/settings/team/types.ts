@@ -1,3 +1,4 @@
+import { QueryResponse } from 'modules/common/types';
 import { IActivityLogForMonth } from '../../activityLogs/types';
 import { IUser, IUserDetails, IUserDoc, IUserLinks } from '../../auth/types';
 import { IConversation } from '../../inbox/types';
@@ -20,21 +21,15 @@ export type UserMutationVariables = {
 
 export type UsersQueryResponse = {
   users: IUser[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type AllUsersQueryResponse = {
   allUsers: IUser[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type UserDetailQueryResponse = {
   userDetail: IUser;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type EditMutationResponse = {
   usersEdit: (
@@ -52,9 +47,7 @@ export type UserConverationsQueryResponse = {
     list: IConversation[];
     totalCount: number;
   };
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type ConfirmMutationVariables = {
   token: string;

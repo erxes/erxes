@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Alert } from 'modules/common/utils';
+import { __, Alert } from 'modules/common/utils';
 import { confirm } from 'modules/common/utils';
 import LeadState from 'modules/customers/components/detail/LeadState';
 import React from 'react';
@@ -30,19 +30,20 @@ class CustomerChooser extends React.Component<FinalProps> {
     const { customersEdit, customer, customersChangeState } = this.props;
 
     const changeState = (value: string) => {
-      confirm('Are your sure you want to convert lead to customer?').then(() =>
-        customersChangeState({
-          variables: {
-            _id: customer._id,
-            value
-          }
-        })
-          .then(() => {
-            Alert.success('You successfully converted to customer');
+      confirm(__('Are your sure you want to convert lead to customer?')).then(
+        () =>
+          customersChangeState({
+            variables: {
+              _id: customer._id,
+              value
+            }
           })
-          .catch(e => {
-            Alert.error(e.message);
-          })
+            .then(() => {
+              Alert.success('You successfully converted to customer');
+            })
+            .catch(e => {
+              Alert.error(e.message);
+            })
       );
     };
 

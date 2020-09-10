@@ -19,7 +19,6 @@ jobs:
 
     - name: Get release version
       id: get_release_version
-      if: startsWith(github.ref, 'refs/tags/')
       run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
 
     # https://github.com/actions/cache/blob/master/examples.md#node---yarn
@@ -58,7 +57,6 @@ jobs:
         yarn build
 
     - name: UI - Build docker image
-      if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
       env:
         BASE_IMAGE: erxes/erxes:base-1.18-alpine
       run: |
@@ -85,7 +83,6 @@ jobs:
         yarn build
 
     - name: Widgets - Build docker image
-      if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
       run: |
         cd widgets
         echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
@@ -93,13 +90,14 @@ jobs:
         docker push erxes/erxes-widgets:${GITHUB_REF#refs/tags/}
 
     - name: Prepare release assets
-      if: startsWith(github.ref, 'refs/tags/')
       run: |
-        tar -zcf erxes-${GITHUB_REF#refs/tags/}.tar.gz ui/build widgets/dist widgets/node_modules widgets/locales widgets/static widgets/package.json
+        mv ui/build erxes
+        mkdir -p erxes-widgets
+        mv widgets/dist widgets/node_modules widgets/locales widgets/static widgets/package.json erxes-widgets
+        tar -zcf erxes-${GITHUB_REF#refs/tags/}.tar.gz erxes erxes-widgets
 
     - name: Upload release assets
       uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
       with:
           files: |
             erxes-${{ steps.get_release_version.outputs.VERSION }}.tar.gz

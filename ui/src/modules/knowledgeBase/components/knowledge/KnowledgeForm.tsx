@@ -141,7 +141,12 @@ class KnowledgeForm extends React.Component<Props, State> {
         <ReactMarkdown source={code} />
         {code ? (
           <CopyToClipboard text={code} onCopy={this.onCopy.bind(this, name)}>
-            <Button btnStyle="primary" size="small" icon="copy-1" uppercase={false}>
+            <Button
+              btnStyle="primary"
+              size="small"
+              icon="copy-1"
+              uppercase={false}
+            >
               {copied ? 'Copied' : 'Copy to clipboard'}
             </Button>
           </CopyToClipboard>
@@ -354,7 +359,7 @@ class KnowledgeForm extends React.Component<Props, State> {
             </Button>
           )}
           {renderButton({
-            name: 'knowledge base',
+            name: 'Knowledge Base',
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,

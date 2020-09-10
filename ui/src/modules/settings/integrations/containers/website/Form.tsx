@@ -3,7 +3,7 @@ import * as compose from 'lodash.flowright';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
-import { withProps } from 'modules/common/utils';
+import { __, withProps } from 'modules/common/utils';
 import { queries } from 'modules/settings/integrations/graphql';
 import React from 'react';
 import { graphql, withApollo } from 'react-apollo';
@@ -61,7 +61,7 @@ class WebsiteContainer extends React.Component<FinalProps> {
           isSubmitted={isSubmitted}
           type="submit"
           uppercase={false}
-          successMessage={`You successfully added a ${name}`}
+          successMessage={__(`You successfully added a`) + `${name}`}
         />
       );
     };
