@@ -76,6 +76,7 @@ const connectYahooAndOutlookToNylas = async (kind: string, integrationId: string
 
     await createIntegration({
       kind,
+      email,
       integrationId,
       nylasToken: access_token,
       nylasAccountId: account_id,
@@ -106,6 +107,7 @@ const connectExchangeToNylas = async (integrationId: string, data: INylasIntegra
     });
 
     await createIntegration({
+      email,
       kind: 'exchange',
       integrationId,
       nylasToken: access_token,
@@ -145,6 +147,7 @@ const connectImapToNylas = async (integrationId: string, data: INylasIntegration
     });
 
     await createIntegration({
+      email,
       kind: 'imap',
       integrationId,
       nylasToken: access_token,
