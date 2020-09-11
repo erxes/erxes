@@ -21,7 +21,7 @@ export const templateExport = async (args: any) => {
   let rowIndex: number = 1;
 
   const addCell = (value: string, index: number): void => {
-    sheet.cell(1, index).value(value);
+    sheet.cell(1, index).value(value === 'sex' ? 'pronoun' : value);
   };
 
   for (const config of configs) {

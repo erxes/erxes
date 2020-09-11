@@ -123,6 +123,11 @@ export const checkFieldNames = async (type: string, fields: string[]) => {
       property.type = 'stageName';
     }
 
+    if (fieldName === 'pronoun') {
+      property.name = 'pronoun';
+      property.type = 'pronoun';
+    }
+
     if (!property.type) {
       throw new Error(`Bad column name ${fieldName}`);
     }

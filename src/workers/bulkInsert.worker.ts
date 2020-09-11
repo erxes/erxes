@@ -14,7 +14,7 @@ import {
   Tickets,
   Users,
 } from '../db/models';
-import { clearEmptyValues, connect, updateDuplicatedValue } from './utils';
+import { clearEmptyValues, connect, generatePronoun, updateDuplicatedValue } from './utils';
 
 // tslint:disable-next-line
 const { parentPort, workerData } = require('worker_threads');
@@ -134,6 +134,12 @@ connect().then(async () => {
             const owner = await Users.findOne({ email: userEmail }).lean();
 
             doc[property.name] = owner ? owner._id : '';
+          }
+          break;
+
+        case 'pronoun':
+          {
+            doc.sex = generatePronoun(value);
           }
           break;
 
