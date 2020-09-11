@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 import { debugNylas } from '../debuggers';
-import { getGoogleConfigs } from '../gmail/util';
+import { getGoogleConfigs } from '../gmail/utils';
 import { Integrations } from '../models';
 import { compose, getConfig, getEnv } from '../utils';
 import { getMessageById } from './api';

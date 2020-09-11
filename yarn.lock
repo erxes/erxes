@@ -1250,6 +1250,11 @@ balanced-match@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
 
+base-64@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/base-64/-/base-64-0.1.0.tgz#780a99c84e7d600260361511c4877613bf24f6bb"
+  integrity sha1-eAqZyE59YAJgNhURxId2E78k9rs=
+
 base64-arraybuffer@0.1.5:
   version "0.1.5"
   resolved "https://registry.yarnpkg.com/base64-arraybuffer/-/base64-arraybuffer-0.1.5.tgz#73926771923b5a19747ad666aa5cd4bf9c6e9ce8"
@@ -3398,13 +3403,6 @@ gaxios@^2.1.0:
     is-stream "^2.0.0"
     node-fetch "^2.3.0"
 
-gcp-metadata@^2.0.0:
-  version "2.0.4"
-  resolved "https://registry.yarnpkg.com/gcp-metadata/-/gcp-metadata-2.0.4.tgz#ed5e11b1ab463a111f904b777bc6fd65acd0d1c5"
-  dependencies:
-    gaxios "^2.0.1"
-    json-bigint "^0.3.0"
-
 gcp-metadata@^3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/gcp-metadata/-/gcp-metadata-3.2.0.tgz#27d59660f11de411d35b1edb8a41e81389cab5f6"
@@ -3605,18 +3603,12 @@ globby@11.0.1:
     merge2 "^1.3.0"
     slash "^3.0.0"
 
-google-auth-library@^4.0.0, google-auth-library@^4.2.5:
-  version "4.2.6"
-  resolved "https://registry.yarnpkg.com/google-auth-library/-/google-auth-library-4.2.6.tgz#3b1a73abe23b174d03e443e57f42d5f15a81ef1d"
+gmail-api-parse-message@^2.1.2:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/gmail-api-parse-message/-/gmail-api-parse-message-2.1.2.tgz#ad5d380152efb869e6bfb2eaf4307f668245cd81"
+  integrity sha512-d0JlbAAwnH2btAVQClS70dTmzvTk4wrPey+mQsTcRb7YpynOC2ACn8jOELe7GkiMyMY3Ymk9aw/CpdUlmvUofg==
   dependencies:
-    arrify "^2.0.0"
-    base64-js "^1.3.0"
-    fast-text-encoding "^1.0.0"
-    gaxios "^2.0.0"
-    gcp-metadata "^2.0.0"
-    gtoken "^3.0.0"
-    jws "^3.1.5"
-    lru-cache "^5.0.0"
+    base-64 "^0.1.0"
 
 google-auth-library@^5.0.0, google-auth-library@^5.5.0:
   version "5.5.1"
@@ -3654,24 +3646,6 @@ google-p12-pem@^2.0.0:
   resolved "https://registry.yarnpkg.com/google-p12-pem/-/google-p12-pem-2.0.2.tgz#39cae8f6fcbe66a01f00be4ddf2d56b95926fa7b"
   dependencies:
     node-forge "^0.9.0"
-
-googleapis-common@^2.0.2:
-  version "2.0.4"
-  resolved "https://registry.yarnpkg.com/googleapis-common/-/googleapis-common-2.0.4.tgz#bd28eba24578d632b28dfa140838dee4d37ba2f3"
-  dependencies:
-    extend "^3.0.2"
-    gaxios "^2.0.1"
-    google-auth-library "^4.2.5"
-    qs "^6.7.0"
-    url-template "^2.0.8"
-    uuid "^3.3.2"
-
-googleapis@^40.0.0:
-  version "40.0.1"
-  resolved "https://registry.yarnpkg.com/googleapis/-/googleapis-40.0.1.tgz#a5cdd2c6257e04fa9d4848526a2799c309b97d56"
-  dependencies:
-    google-auth-library "^4.0.0"
-    googleapis-common "^2.0.2"
 
 got@11.6.0:
   version "11.6.0"
@@ -3717,15 +3691,6 @@ grapheme-splitter@^1.0.2:
 growly@^1.3.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/growly/-/growly-1.3.0.tgz#f10748cbe76af964b7c96c93c6bcc28af120c081"
-
-gtoken@^3.0.0:
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/gtoken/-/gtoken-3.0.2.tgz#09b3c2998a785f81d7d020b9221d65d27e0e8e62"
-  dependencies:
-    gaxios "^2.0.0"
-    google-p12-pem "^2.0.0"
-    jws "^3.1.5"
-    mime "^2.2.0"
 
 gtoken@^4.1.0:
   version "4.1.0"
@@ -6688,7 +6653,7 @@ qs@6.7.0:
   version "6.7.0"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.7.0.tgz#41dc1a015e3d581f1621776be31afb2876a9b1bc"
 
-qs@^6.5.0, qs@^6.5.1, qs@^6.7.0:
+qs@^6.5.0, qs@^6.5.1:
   version "6.9.0"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.9.0.tgz#d1297e2a049c53119cb49cca366adbbacc80b409"
 
@@ -8345,6 +8310,11 @@ uglify-js@^3.1.4:
     commander "2.20.0"
     source-map "~0.6.1"
 
+underscore@^1.10.2:
+  version "1.11.0"
+  resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.11.0.tgz#dd7c23a195db34267186044649870ff1bab5929e"
+  integrity sha512-xY96SsN3NA461qIRKZ/+qox37YXPtSBswMGfiNptr+wrt6ds4HaMw23TP612fEyGekRE6LNRiLYr/aqbHXNedw==
+
 underscore@^1.8.3:
   version "1.10.2"
   resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.10.2.tgz#73d6aa3668f3188e4adb0f1943bd12cfd7efaaaf"
@@ -8464,10 +8434,6 @@ url-parse@~1.4.3:
   dependencies:
     querystringify "^2.1.1"
     requires-port "^1.0.0"
-
-url-template@^2.0.8:
-  version "2.0.8"
-  resolved "https://registry.yarnpkg.com/url-template/-/url-template-2.0.8.tgz#fc565a3cccbff7730c775f5641f9555791439f21"
 
 use@^3.1.0:
   version "3.1.1"

@@ -19,7 +19,6 @@ module.exports = {
     '!src/nylas/api.ts',
     '!src/nylas/controller.ts',
     '!src/gmail/api.ts',
-    '!src/gmail/watch.ts',
     '!src/gmail/controller.ts',
     '!src/twitter/api.ts',
     '!src/facebook/utils.ts',

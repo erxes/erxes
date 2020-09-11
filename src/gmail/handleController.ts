@@ -1,12 +1,11 @@
 import { debugGmail } from '../debuggers';
 import { Accounts, Integrations } from '../models';
-import { getAttachment } from './api';
+import { compose } from '../utils';
+import { collectMessagesIds, getAttachment, getHistoryChanges, getMessageById, send, subscribeUser } from './api';
 import { ConversationMessages } from './models';
-import { sendGmail } from './send';
-import { getCredentialsByEmailAccountId } from './util';
-import { watchPushNotification } from './watch';
+import { storeConversation, storeConversationMessage, storeCustomer, updateLastChangesHistoryId } from './store';
 
-export const createGmailIntegration = async (accountId: string, email: string, integrationId: string) => {
+export const createIntegration = async (accountId: string, email: string, integrationId: string) => {
   const account = await Accounts.findOne({ _id: accountId });
 
   if (!account) {
@@ -16,65 +15,53 @@ export const createGmailIntegration = async (accountId: string, email: string, i
   debugGmail(`Creating gmail integration for ${email}`);
 
   // Check exsting Integration
-  const dummyIntegration = await Integrations.findOne({ kind: 'gmail', accountId, email }).lean();
+  const prevIntegration = await Integrations.findOne({ accountId }).lean();
 
-  if (dummyIntegration) {
+  if (prevIntegration) {
     throw new Error(`Integration already exist with this email: ${email}`);
   }
 
-  const integration = await Integrations.create({
-    kind: 'gmail',
-    accountId,
-    erxesApiId: integrationId,
-    email,
-  });
-
-  debugGmail(`Watch push notification for this ${email} user`);
-
-  let historyId;
-  let expiration;
-
   try {
-    const response = await watchPushNotification(email);
+    const response = await subscribeUser(email);
 
-    historyId = response.data.historyId;
-    expiration = response.data.expiration;
+    await Integrations.create({
+      kind: 'gmail',
+      email,
+      accountId,
+      gmailHistoryId: response.historyId,
+      expiration: response.expiration,
+      erxesApiId: integrationId,
+    });
   } catch (e) {
-    debugGmail(`Error Google: Could not subscribe user ${email} to topic`);
+    debugGmail(`Error Google: Could not subscribe user ${email} to a topic`);
     throw e;
   }
-
-  integration.gmailHistoryId = historyId;
-  integration.expiration = expiration;
-
-  return integration.save();
 };
 
 export const sendEmail = async (erxesApiId: string, mailParams: any) => {
-  const integration = await Integrations.findOne({ erxesApiId });
+  const integration = await Integrations.findOne({ erxesApiId }).lean();
 
   if (!integration) {
     throw new Error('Integration not found');
   }
 
-  const account = await Accounts.findOne({ _id: integration.accountId });
+  const account = await Accounts.findOne({ _id: integration.accountId }).lean();
 
   if (!account) {
     throw new Error('Account not found');
   }
 
-  try {
-    const { uid, _id } = account;
-    const doc = { from: uid, ...mailParams };
+  const { email } = account;
 
-    return sendGmail(_id, uid, doc);
+  try {
+    return send(email, { from: email, ...mailParams });
   } catch (e) {
     debugGmail('Error Google: Failed to send email');
     throw e;
   }
 };
 
-export const getGmailMessage = async (erxesApiMessageId: string, integrationId: string) => {
+export const getMessage = async (erxesApiMessageId: string, integrationId: string) => {
   debugGmail(`Request to get gmailData with: ${erxesApiMessageId}`);
 
   if (!erxesApiMessageId) {
@@ -113,13 +100,48 @@ export const getGmailAttachment = async (messageId: string, attachmentId: string
     throw new Error('Account not found!');
   }
 
-  const credentials = await getCredentialsByEmailAccountId({ accountId: account._id });
+  return getAttachment(account.email, messageId, attachmentId);
+};
+
+export const handleMessage = async ({ email, historyId }: { email: string; historyId: string }) => {
+  debugGmail(`Executing: handleMessage email: ${email}`);
 
   try {
-    const attachment = await getAttachment(credentials, messageId, attachmentId);
+    const integration = await Integrations.findOne({ email }).lean();
 
-    return attachment;
+    if (!integration) {
+      throw new Error('Integration not found');
+    }
+
+    const parsedEmails = await compose(
+      getMessageById,
+      collectMessagesIds,
+      getHistoryChanges,
+    )({ email, historyId: integration.gmailHistoryId });
+
+    // No changes made with recent historyId nothing to sync
+    if (!parsedEmails) {
+      return;
+    }
+
+    const { _id, erxesApiId } = integration;
+
+    for (const emailObj of parsedEmails) {
+      // Skip emails that sent from itself
+      if (!emailObj.inReplyTo && emailObj.labelIds.indexOf('SENT') > -1) {
+        continue;
+      }
+
+      await compose(
+        storeConversationMessage,
+        storeConversation,
+        storeCustomer,
+      )({ email: emailObj, integrationIds: { id: _id, erxesApiId } });
+    }
+
+    return updateLastChangesHistoryId(email, historyId);
   } catch (e) {
+    debugGmail(`Failed: handleMessage email ${email}`);
     throw e;
   }
 };
