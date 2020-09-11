@@ -111,6 +111,8 @@ export const types = `
   type MailData {
     messageId: String,
     threadId: String,
+    replyTo: [String],
+    inReplyTo: String,
     subject: String,
     body: String,
     integrationEmail: String,
@@ -120,9 +122,7 @@ export const types = `
     bcc: [Email],
     accountId: String,
     replyToMessageId: [String],
-    replyTo: [String],
-    reply: [String],
-    references: String,
+    references: [String],
     headerId: String,
     attachments: [MailAttachment]
   }

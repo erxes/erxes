@@ -169,11 +169,13 @@ export const mutations = `
     from: String!
     shouldResolve: Boolean
     headerId: String
+    replyTo: [String]
+    inReplyTo: String
     threadId: String
     messageId: String
     replyToMessageId: String
     kind: String
-    references: String
+    references: [String]
     attachments: [JSON]
   ): JSON
 
