@@ -408,6 +408,7 @@ export const loadClass = () => {
       let scopeBrandIds: string[] = [];
       let tagIds: string[] = [];
       let customFieldsData: ICustomField[] = [];
+      let state: any = '';
 
       let emails: string[] = [];
       let phones: string[] = [];
@@ -442,6 +443,9 @@ export const loadClass = () => {
           emails = [...emails, ...(customerObj.emails || [])];
           phones = [...phones, ...(customerObj.phones || [])];
 
+          // Merging customer`s state for new customer
+          state = customerObj.state;
+
           await Customers.findByIdAndUpdate(customerId, { $set: { status: 'deleted' } });
         }
       }
@@ -464,6 +468,7 @@ export const loadClass = () => {
           mergedIds: customerIds,
           emails,
           phones,
+          state,
         },
         user,
       );
