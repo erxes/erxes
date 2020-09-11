@@ -86,6 +86,7 @@ export const types = `
     erxesApiId: String
     attachments: [String]
     timestamp: Date
+    permalink_url: String
   }
 
   type FacebookComment {
@@ -95,6 +96,7 @@ export const types = `
     parentId: String
     recipientId:String
     senderId: String
+    permalink_url: String
     attachments: [String]
     content: String
     erxesApiId: String
