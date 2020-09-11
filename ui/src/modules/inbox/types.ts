@@ -60,6 +60,7 @@ export interface IFacebookPost {
   erxesApiId?: string;
   attachments: string[];
   timestamp: Date;
+  permalink_url: string;
 }
 
 export interface IFacebookComment {
@@ -73,6 +74,7 @@ export interface IFacebookComment {
   timestamp: Date;
   customer: ICustomer;
   isResolved: boolean;
+  permalink_url: string;
 }
 
 export interface IEmail {

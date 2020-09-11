@@ -130,6 +130,7 @@ const converstationFacebookComments = `
       parentId
       commentCount
       isResolved
+      permalink_url
       customer {
         _id
         visitorContactInfo
@@ -252,13 +253,13 @@ const convertToInfo = `
   }
 `;
 
-const generateCustomerDetailQuery = params => {
+const generateCustomerDetailQuery = (params) => {
   const {
     showDeviceProperties = false,
     showTrackedData = false,
     showCustomFields = false,
     showCompanies = false,
-    showTags = false
+    showTags = false,
   } = params || {};
 
   let fields = `
@@ -350,5 +351,5 @@ export default {
   unreadConversationsCount,
   lastConversation,
   generateCustomerDetailQuery,
-  convertToInfo
+  convertToInfo,
 };
