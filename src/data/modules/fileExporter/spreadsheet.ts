@@ -1,5 +1,4 @@
 import * as moment from 'moment';
-import * as _ from 'underscore';
 import { commonItemFieldsSchema, IStageDocument } from '../../../db/models/definitions/boards';
 import { brandSchema, IBrandDocument } from '../../../db/models/definitions/brands';
 import { channelSchema } from '../../../db/models/definitions/channels';
