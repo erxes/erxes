@@ -179,6 +179,7 @@ export interface IComment {
   content: string;
   erxesApiId: string;
   timestamp: Date;
+  permalink_url: string;
 }
 
 export interface ICommentDocument extends IComment, Document {}
