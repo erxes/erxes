@@ -1,10 +1,31 @@
-import { debugGmail, debugRequest, debugResponse } from '../debuggers';
+import { debugGmail, debugRequest } from '../debuggers';
 import { Accounts } from '../models';
-import { createGmailIntegration, getGmailAttachment, getGmailMessage, sendEmail } from './handleController';
+import { createIntegration, getGmailAttachment, getMessage, handleMessage, sendEmail } from './handleController';
 import loginMiddleware from './loginMiddleware';
 
 const init = async app => {
-  app.get('/gmaillogin', loginMiddleware);
+  app.get('/gmail/login', loginMiddleware);
+
+  app.post('/gmail/webhook', async (req, res, next) => {
+    debugGmail('Webhook received a message');
+
+    const {
+      message: { data },
+    } = req.body;
+
+    try {
+      const message = Buffer.from(data, 'base64').toString('utf-8');
+
+      const { emailAddress, historyId } = JSON.parse(message);
+
+      await handleMessage({ email: emailAddress, historyId });
+
+      return res.status(200).send();
+    } catch (e) {
+      debugGmail('Failed: Webhook request could not acknowledge');
+      return next(e);
+    }
+  });
 
   app.post('/gmail/create-integration', async (req, res, next) => {
     debugRequest(debugGmail, req);
@@ -13,14 +34,13 @@ const init = async app => {
     const { email } = JSON.parse(data);
 
     try {
-      await createGmailIntegration(accountId, email, integrationId);
+      await createIntegration(accountId, email, integrationId);
 
       debugGmail(`Successfully created the gmail integration`);
-      debugResponse(debugGmail, req);
 
       return res.json({ status: 'ok' });
     } catch (e) {
-      next(e);
+      return next(e);
     }
   });
 
@@ -54,11 +74,11 @@ const init = async app => {
     const { erxesApiMessageId, integrationId } = req.query;
 
     try {
-      const conversationMessage = await getGmailMessage(erxesApiMessageId, integrationId);
+      const conversationMessage = await getMessage(erxesApiMessageId, integrationId);
 
       return res.json(conversationMessage);
     } catch (e) {
-      next(e);
+      return next(e);
     }
   });
 
@@ -84,7 +104,7 @@ const init = async app => {
 
       res.end();
     } catch (e) {
-      next(e);
+      return next(e);
     }
   });
 };

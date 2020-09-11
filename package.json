@@ -55,7 +55,7 @@
     "express": "^4.16.4",
     "fbgraph": "^1.4.4",
     "formidable": "^1.2.1",
-    "googleapis": "^40.0.0",
+    "gmail-api-parse-message": "^2.1.2",
     "meteor-random": "^0.0.3",
     "migrate": "^1.6.2",
     "mongodb-memory-server": "^6.6.0",
@@ -68,7 +68,9 @@
     "sinon": "^7.5.0",
     "smooch-core": "^8.8.0",
     "telnyx": "^1.7.2",
-    "ts-node": "8.0.3"
+    "ts-node": "8.0.3",
+    "underscore": "^1.10.2",
+    "uuid": "^3.3.3"
   },
   "peerOptionalDependencies": {
     "kerberos": "^1.0.0"

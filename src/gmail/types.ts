@@ -1,10 +1,3 @@
-export interface IAccountCredentials {
-  token: string;
-  tokenSecret: string;
-  expireDate: string;
-  scope: string;
-}
-
 export interface ICredentials {
   refresh_token?: string | null;
   expiry_date?: number | null;
@@ -29,8 +22,11 @@ interface IGmail {
 
 export interface IMailParams {
   conversationId: string;
+  shouldResolve?: boolean;
   erxesApiMessageId: string;
+  unread?: boolean;
   messageId: string;
+  headerId: string;
   threadId: string;
   subject: string;
   body: string;
@@ -38,8 +34,9 @@ export interface IMailParams {
   cc: IGmail[];
   bcc: IGmail[];
   from: IGmail[];
-  references?: string;
-  headerId?: string;
+  references?: string[];
+  inReplyTo?: string;
+  replyTo?: string;
   labelIds?: string[];
   reply?: string[];
   attachments?: IAttachmentParams[];
@@ -84,7 +81,12 @@ export interface IHistroy {
   messagesAdded?: IMessageAdded;
 }
 
-export interface IPubsubMessage {
-  data: Buffer;
-  ack: () => void;
+export interface IGmailRequest {
+  url?: string;
+  email?: string;
+  accessToken?: string;
+  type?: string;
+  method: string;
+  params?: { [key: string]: string };
+  body?: any;
 }

@@ -5,6 +5,7 @@ const EXCLUDE_PATH = [
   '/nylas/get-message',
   '/nylas/auth/callback',
   '/nylas/oauth2/callback',
+  '/gmail/webhook',
   '/gmaillogin',
 ];
 

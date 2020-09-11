@@ -1,7 +1,23 @@
+import * as qs from 'querystring';
 import { debugGmail, debugRequest, debugResponse } from '../debuggers';
 import Accounts from '../models/Accounts';
 import { getEnv } from '../utils';
-import { getAccessToken, getAuthorizeUrl, getProfile } from './api';
+import { getAccessToken, getUserInfo } from './api';
+import { GOOGLE_AUTH_CODE, SCOPE } from './constant';
+import { getGoogleConfigs } from './utils';
+
+export const getAuthCode = async (): Promise<string> => {
+  const { GOOGLE_CLIENT_ID } = await getGoogleConfigs();
+  const GMAIL_REDIRECT_URL = `${getEnv({ name: 'DOMAIN' })}/gmail/login`;
+
+  return `${GOOGLE_AUTH_CODE}?${qs.stringify({
+    redirect_uri: GMAIL_REDIRECT_URL,
+    client_id: GOOGLE_CLIENT_ID,
+    response_type: 'code',
+    access_type: 'offline',
+    scope: SCOPE,
+  })}`;
+};
 
 const loginMiddleware = async (req, res) => {
   const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
@@ -11,11 +27,10 @@ const loginMiddleware = async (req, res) => {
   // we don't have a code yet
   // so we'll redirect to the oauth dialog
   if (!req.query.code) {
-    const authUrl = await getAuthorizeUrl();
+    const authCodeUrl = await getAuthCode();
 
     if (!req.query.error) {
-      debugResponse(debugGmail, req, authUrl);
-      return res.redirect(authUrl);
+      return res.redirect(authCodeUrl);
     } else {
       debugResponse(debugGmail, req, 'access denied');
       return res.send('access denied');
@@ -27,19 +42,18 @@ const loginMiddleware = async (req, res) => {
   const credentials = await getAccessToken(req.query.code);
 
   // get email address connected with
-  const { data } = await getProfile(credentials);
-  const email = data.emailAddress || '';
+  const { emailAddress } = await getUserInfo(credentials.access_token);
 
-  const account = await Accounts.findOne({ uid: data.emailAddress });
+  const account = await Accounts.findOne({ uid: emailAddress });
   const { access_token } = credentials;
 
   if (account) {
     await Accounts.updateOne({ _id: account._id }, { $set: { token: access_token } });
   } else {
     await Accounts.create({
-      name: email,
-      uid: email,
-      email,
+      name: emailAddress,
+      uid: emailAddress,
+      email: emailAddress,
       kind: 'gmail',
       token: access_token,
       tokenSecret: credentials.refresh_token,

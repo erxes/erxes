@@ -123,6 +123,7 @@ export interface IPost {
   erxesApiId?: string;
   attachments: string[];
   timestamp: Date;
+  permalink_url: string;
 }
 
 export interface IPostDocument extends IPost, Document {}
@@ -135,6 +136,7 @@ export const postSchema = new Schema({
   content: String,
   attachments: [String],
   erxesApiId: String,
+  permalink_url: String,
   timestamp: Date,
 });
 
@@ -188,6 +190,7 @@ export const commentSchema = new Schema({
   recipientId: String,
   senderId: String,
   parentId: String,
+  permalink_url: String,
   attachments: [String],
   content: String,
   erxesApiId: String,

@@ -3,7 +3,7 @@ import { ICommentParams, IPostParams } from './types';
 
 import { sendMessage, sendRPCMessage } from '../messageBroker';
 import { Accounts, Integrations } from '../models';
-import { getFacebookUser, getFacebookUserProfilePic } from './utils';
+import { getFacebookUser, getFacebookUserProfilePic, getPostLink } from './utils';
 
 export const generatePostDoc = (postParams: IPostParams, pageId: string, userId: string) => {
   const { post_id, id, link, photos, created_time, message } = postParams;
@@ -15,6 +15,7 @@ export const generatePostDoc = (postParams: IPostParams, pageId: string, userId:
     senderId: userId,
     attachments: null,
     timestamp: null,
+    permalink_url: '',
   };
 
   if (link) {
@@ -43,6 +44,7 @@ export const generateCommentDoc = (commentParams: ICommentParams, pageId: string
     created_time,
     message,
     restoredCommentCreatedAt,
+    post,
   } = commentParams;
 
   const doc = {
@@ -54,6 +56,7 @@ export const generateCommentDoc = (commentParams: ICommentParams, pageId: string
     parentId: null,
     attachments: null,
     timestamp: null,
+    permalink_url: '',
   };
 
   if (post_id !== parent_id) {
@@ -76,6 +79,10 @@ export const generateCommentDoc = (commentParams: ICommentParams, pageId: string
     doc.timestamp = restoredCommentCreatedAt;
   }
 
+  if (post && post.permalink_url) {
+    doc.permalink_url = post.permalink_url;
+  }
+
   return doc;
 };
 
@@ -91,11 +98,17 @@ export const getOrCreatePost = async (
     $and: [{ facebookPageIds: { $in: pageId } }, { kind: 'facebook-post' }],
   });
 
+  const { facebookPageTokensMap } = integration;
+
   if (post) {
     return post;
   }
 
+  const postUrl = await getPostLink(pageId, facebookPageTokensMap, postParams.post_id);
+
   const doc = generatePostDoc(postParams, pageId, userId);
+
+  doc.permalink_url = postUrl;
 
   post = await Posts.create(doc);
 

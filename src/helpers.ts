@@ -85,7 +85,7 @@ import {
   Customers as WhatsappCustomers,
 } from './whatsapp/models';
 
-import { stopPushNotification } from './gmail/watch';
+import { revokeToken, unsubscribeUser } from './gmail/api';
 import Configs from './models/Configs';
 import { enableOrDisableAccount } from './nylas/api';
 import { setupNylas } from './nylas/controller';
@@ -148,16 +148,17 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
 
     integrationRemoveBy = { email: integration.email };
 
-    try {
-      await stopPushNotification(integration.email);
-    } catch (e) {
-      debugGmail('Failed to stop push notification of gmail account');
-      throw e;
-    }
-
     await GmailCustomers.deleteMany(selector);
     await GmailConversations.deleteMany(selector);
     await GmailConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+
+    try {
+      await unsubscribeUser(integration.email);
+      await revokeToken(integration.email);
+    } catch (e) {
+      debugGmail('Failed to unsubscribe gmail account');
+      throw e;
+    }
   }
 
   if (kind === 'gmail' && integration.nylasToken) {

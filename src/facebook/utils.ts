@@ -57,6 +57,25 @@ export const subscribePage = async (pageId, pageToken): Promise<{ success: true 
   });
 };
 
+export const getPostLink = async (pageId: string, pageTokens: { [key: string]: string }, postId: string) => {
+  let pageAccessToken;
+
+  try {
+    pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
+  } catch (e) {
+    debugFacebook(`Error occurred while getting page access token: ${e.message}`);
+    throw new Error();
+  }
+
+  try {
+    const response: any = await graphRequest.get(`/${postId}?fields=permalink_url`, pageAccessToken);
+    return response.permalink_url ? response.permalink_url : '';
+  } catch (e) {
+    debugFacebook(`Error occurred while getting facebook post: ${e.message}`);
+    return null;
+  }
+};
+
 export const unsubscribePage = async (pageId, pageToken): Promise<{ success: true } | any> => {
   return graphRequest
     .delete(`${pageId}/subscribed_apps`, pageToken)

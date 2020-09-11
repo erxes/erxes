@@ -47,6 +47,7 @@ describe('Facebook test', () => {
     photo: 'photo',
     video: 'video',
     restoredCommentCreatedAt: '1577927844',
+    post: { permalink_url: 'link' },
   };
 
   beforeEach(async () => {

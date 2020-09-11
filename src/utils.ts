@@ -186,7 +186,6 @@ export const getCommonGoogleConfigs = async () => {
 
   return {
     GOOGLE_PROJECT_ID: configs.GOOGLE_PROJECT_ID,
-    GOOGLE_APPLICATION_CREDENTIALS: configs.GOOGLE_APPLICATION_CREDENTIALS,
     GOOGLE_CLIENT_ID: configs.GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET: configs.GOOGLE_CLIENT_SECRET,
   };

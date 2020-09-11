@@ -7,8 +7,8 @@ import {
   nylasGmailConversationMessageFactory,
   nylasGmailCustomerFactory,
 } from '../factories';
-import { buildEmail } from '../gmail/util';
-import * as gmailUtils from '../gmail/util';
+import * as gmailUtils from '../gmail/utils';
+import { extractEmailFromString } from '../gmail/utils';
 import memoryStorage, { initMemoryStorage } from '../inmemoryStorage';
 import * as messageBroker from '../messageBroker';
 import { Integrations } from '../models';
@@ -939,14 +939,14 @@ describe('Utils test', () => {
     expect(emailObj).toEqual([{ email: 'user1@mail.com' }, { email: 'user2@mail.com' }]);
   });
 
-  test('Exctract and build email obj from string', () => {
+  test('Extract and build email obj from string', () => {
     const rawString = 'TestUser1 <user1@mail.com>, TestUser2 <user2@mail.com>';
 
-    const emailObj = buildEmail(rawString);
-    const isUndefined = buildEmail('');
+    const emailObj = extractEmailFromString(rawString);
+    const isEmpty = extractEmailFromString('');
 
-    expect(isUndefined).toBe(undefined);
-    expect(emailObj).toEqual([{ email: 'user1@mail.com' }, { email: 'user2@mail.com' }]);
+    expect(isEmpty).toBe('');
+    expect(emailObj).toBe('user1@mail.com user2@mail.com');
   });
 
   test('Clean html and css', () => {
