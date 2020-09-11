@@ -272,7 +272,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     }
 
     if (
-      isExport &&
+      !isExport &&
       page === 1 &&
       perPage === 20 &&
       (paramKeys === 'page,perPage' || paramKeys === 'page,perPage,type')
