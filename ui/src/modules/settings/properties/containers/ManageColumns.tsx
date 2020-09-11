@@ -11,7 +11,7 @@ import ManageColumns from '../components/ManageColumns';
 import {
   DefaultColumnsConfigQueryResponse,
   FieldsCombinedByTypeQueryResponse,
-  IConfigColumn
+  IConfigColumn,
 } from '../types';
 
 type Props = {
@@ -36,7 +36,7 @@ const ManageColumnsContainer = (props: FinalProps) => {
     contentType,
     location,
     history,
-    type
+    type,
   } = props;
 
   if (fieldsQuery.loading || fieldsDefaultColumnsConfigQuery.loading) {
@@ -68,8 +68,8 @@ const ManageColumnsContainer = (props: FinalProps) => {
       }
 
       configs
-        .filter(conf => conf.checked)
-        .forEach(checked => {
+        .filter((conf) => conf.checked)
+        .forEach((checked) => {
           if (checked.name.startsWith('customFieldsData')) {
             checkedConfigsForExport.push(checked);
             checkedConfigsForImport.push(checked.label);
@@ -85,7 +85,8 @@ const ManageColumnsContainer = (props: FinalProps) => {
             ? JSON.stringify(checkedConfigsForExport)
             : checkedConfigsForImport,
         type: contentType,
-        importType
+        importType,
+        fromHistory: true,
       });
 
       window.open(`${REACT_APP_API_URL}${reqUrl}?${stringified}`, '_blank');
@@ -102,19 +103,19 @@ const ManageColumnsContainer = (props: FinalProps) => {
   } else {
     const defaultColumnsMap = {};
 
-    defaultColumns.forEach(col => {
+    defaultColumns.forEach((col) => {
       defaultColumnsMap[col.name] = col;
     });
 
     columns = (fieldsQuery.fieldsCombinedByContentType || [])
-      .map(field => {
+      .map((field) => {
         const conf = defaultColumnsMap[field.name];
 
         return {
           ...field,
           _id: Math.random().toString(),
           order: conf ? conf.order : 0,
-          checked: conf
+          checked: conf,
         };
       })
       .sort((a, b) => a.order - b.order);
@@ -123,7 +124,7 @@ const ManageColumnsContainer = (props: FinalProps) => {
   const updatedProps = {
     ...props,
     save,
-    columns
+    columns,
   };
 
   return <ManageColumns {...updatedProps} />;
@@ -149,11 +150,11 @@ export default withProps<Props>(
                 'categoryId',
                 'emailValidationStatus',
                 'phoneValidationStatus',
-                'location.countryCode'
-              ]
-            }
+                'location.countryCode',
+              ],
+            },
           };
-        }
+        },
       }
     ),
     graphql<Props, DefaultColumnsConfigQueryResponse, { contentType: string }>(
@@ -163,10 +164,10 @@ export default withProps<Props>(
         options: ({ contentType }) => {
           return {
             variables: {
-              contentType: contentType === 'lead' ? 'customer' : contentType
-            }
+              contentType: contentType === 'lead' ? 'customer' : contentType,
+            },
           };
-        }
+        },
       }
     )
   )(ManageColumnsContainer)
