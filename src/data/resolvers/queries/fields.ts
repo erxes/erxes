@@ -139,7 +139,7 @@ const fieldQueries = {
       });
     }
 
-    if ((contentType === 'company' || contentType === 'customer') && !usageType) {
+    if ((contentType === 'company' || contentType === 'customer') && (!usageType || usageType === 'export')) {
       const aggre = await fetchElk(
         'search',
         contentType === 'company' ? 'companies' : 'customers',
