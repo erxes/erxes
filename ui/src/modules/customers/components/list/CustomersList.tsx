@@ -11,6 +11,7 @@ import Pagination from 'modules/common/components/pagination/Pagination';
 import SortHandler from 'modules/common/components/SortHandler';
 import Table from 'modules/common/components/table';
 import { menuContacts } from 'modules/common/utils/menus';
+import routerUtils from 'modules/common/utils/router';
 import { queries } from 'modules/customers/graphql';
 import { EMPTY_CONTENT_CONTACTS } from 'modules/settings/constants';
 import React from 'react';
@@ -63,6 +64,7 @@ interface IProps extends IRouterProps {
 
 type State = {
   searchValue?: string;
+  searchType?: string;
 };
 
 class CustomersList extends React.Component<IProps, State> {
@@ -74,6 +76,19 @@ class CustomersList extends React.Component<IProps, State> {
     this.state = {
       searchValue: this.props.searchValue
     };
+  }
+
+  componentDidUpdate() {
+    const { queryParams, history, type } = this.props;
+    const { searchValue, searchType } = this.state;
+
+    if (searchValue && !queryParams.searchValue) {
+      if (searchType === type) {
+        routerUtils.setParams(history, { searchValue });
+      } else {
+        this.setState({ searchValue: '' });
+      }
+    }
   }
 
   onChange = () => {
@@ -150,10 +165,10 @@ class CustomersList extends React.Component<IProps, State> {
       clearTimeout(this.timer);
     }
 
-    const { history } = this.props;
+    const { history, type } = this.props;
     const searchValue = e.target.value;
 
-    this.setState({ searchValue });
+    this.setState({ searchValue, searchType: type });
 
     this.timer = setTimeout(() => {
       router.removeParams(history, 'page');
