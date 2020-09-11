@@ -4,7 +4,6 @@ import { FormControl } from 'modules/common/components/form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Info from 'modules/common/components/Info';
-import Toggle from 'modules/common/components/Toggle';
 import { Title } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
@@ -14,7 +13,6 @@ import { KEY_LABELS } from '../constants';
 import { IConfigsMap } from '../types';
 import Header from './Header';
 import Sidebar from './Sidebar';
-import { ContentDisabler } from './styles';
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
@@ -23,7 +21,6 @@ type Props = {
 
 type State = {
   configsMap: IConfigsMap;
-  useNativeGmail: boolean;
 };
 
 class IntegrationConfigs extends React.Component<Props, State> {
@@ -31,8 +28,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      configsMap: props.configsMap,
-      useNativeGmail: props.configsMap.USE_NATIVE_GMAIL === 'true' || false
+      configsMap: props.configsMap
     };
   }
 
@@ -71,14 +67,8 @@ class IntegrationConfigs extends React.Component<Props, State> {
     );
   }
 
-  onTypeChange = (code: string, e) => {
-    this.setState({ useNativeGmail: e.target.checked }, () => {
-      this.onChangeConfig(code, this.state.useNativeGmail.toString());
-    });
-  };
-
   renderContent = () => {
-    const { configsMap, useNativeGmail } = this.state;
+    const { configsMap } = this.state;
 
     return (
       <ContentBox>
@@ -165,32 +155,6 @@ class IntegrationConfigs extends React.Component<Props, State> {
           </FormGroup>
           {this.renderItem('DAILY_API_KEY')}
           {this.renderItem('DAILY_END_POINT')}
-        </CollapseContent>
-
-        <CollapseContent title="Gmail">
-          <Info>
-            <a
-              target="_blank"
-              href="https://docs.erxes.io/administrator/system-config#gmail"
-              rel="noopener noreferrer"
-            >
-              {__('Learn how to set Gmail Integration Variables')}
-            </a>
-          </Info>
-          <FormGroup horizontal={true}>
-            <Toggle
-              value={configsMap.USE_NATIVE_GMAIL}
-              checked={useNativeGmail}
-              onChange={this.onTypeChange.bind(this, 'USE_NATIVE_GMAIL')}
-              icons={false}
-            />
-            <ControlLabel>{KEY_LABELS.USE_NATIVE_GMAIL}</ControlLabel>
-          </FormGroup>
-          <br />
-          <ContentDisabler disable={!useNativeGmail}>
-            {this.renderItem('GOOGLE_GMAIL_TOPIC')}
-            {this.renderItem('GOOGLE_GMAIL_SUBSCRIPTION_NAME')}
-          </ContentDisabler>
         </CollapseContent>
 
         <CollapseContent title="Sunshine Conversations API">

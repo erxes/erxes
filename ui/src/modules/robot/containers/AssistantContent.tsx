@@ -63,11 +63,13 @@ class AssistantContentContainer extends React.Component<FinalProps> {
               this.props.toggleContent(true);
               this.props.changeRoute(onboardStatus);
             }
-            
-            if (onboardStatus === 'initial' && localStorage.getItem('erxes_customization_features')) {
+
+            if (
+              onboardStatus === 'initial' &&
+              localStorage.getItem('erxes_customization_features')
+            ) {
               this.props.changeRoute('todoList');
             }
-
           });
       }, 3000);
     }
