@@ -75,8 +75,8 @@ export default `
     accountId
     replyToMessageId
     replyTo
-    reply
     references
+    inReplyTo
     headerId
     attachments {
       id

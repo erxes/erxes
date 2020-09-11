@@ -83,6 +83,8 @@ export interface IEmail {
 export interface IMail {
   integrationEmail: string;
   messageId?: string;
+  replyTo?: string;
+  inReplyTo?: string;
   headerId?: string;
   accountId?: string;
   replyToMessageId?: string;

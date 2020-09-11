@@ -14,10 +14,12 @@ const commonParams = `
 
 const mailParamsDef = `
   $erxesApiId: String!,
+  $replyTo: [String],
+  $inReplyTo: String,
   $headerId: String,
   $threadId: String,
   $messageId: String,
-  $references: String
+  $references: [String]
   $replyToMessageId: String,
   $subject: String!,
   $kind: String,
@@ -32,6 +34,8 @@ const mailParamsDef = `
 
 const mailParams = `
   erxesApiId: $erxesApiId,
+  replyTo: $replyTo,
+  inReplyTo: $inReplyTo,
   headerId: $headerId,
   threadId: $threadId,
   messageId: $messageId,

@@ -191,7 +191,14 @@ class MailForm extends React.Component<Props, State> {
       return Alert.error('This message must have at least one recipient.');
     }
 
-    const { references, headerId, threadId, messageId } = mailData;
+    const {
+      references,
+      headerId,
+      inReplyTo,
+      replyTo,
+      threadId,
+      messageId
+    } = mailData;
 
     this.setState({ isLoading: true });
 
@@ -199,6 +206,8 @@ class MailForm extends React.Component<Props, State> {
 
     const variables = {
       headerId,
+      replyTo,
+      inReplyTo,
       references,
       threadId,
       attachments,
