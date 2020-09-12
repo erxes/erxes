@@ -8,7 +8,7 @@ erxes helps you attract and engage more customers while giving you high lead con
 
 1) Follow, Star, Fork <a href="https://github.com/erxes/erxes">erxes</a> repo on Github.
 2) Create 1 Pull Request on <a href="https://github.com/erxes/erxes">erxes</a>.
-3) Submit the Free Swag request form <a href="https://github.com/erxes/erxes">here</a>.
+3) Submit the Free Swag request form <a href="https://erxes.io/hubspot-alternative-erxes-swag">here</a>.
 4) If your submission is successful, receive your T-Shirt and stickers!  
 
 ## Terms:
