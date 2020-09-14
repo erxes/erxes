@@ -1,7 +1,7 @@
 import Button from 'modules/common/components/Button';
 import { colors, dimensions } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { borderRadius } from './common';
 
@@ -11,14 +11,23 @@ export const FlexContent = styled.div`
   display: flex;
 `;
 
-export const ContentWrapper = styled.div``;
-
 export const Content = styled.div`
-  padding: 15px 20px;
-  min-height: 150px;
+  padding: 12px 22px;
+  word-break: break-word;
+  background: rgba(10,30,65,.05);
+  margin-top: 10px;
+  transition: background 0.3s ease;
+  border-radius: 3px; 
+  min-height: 50px;
 
   p {
-    color: ${colors.colorBlack};
+    color: ${colors.textPrimary};
+    font-size: 13px;
+  }
+
+  &:hover {
+    background: rgba(10,30,65,.09);
+    cursor: pointer;
   }
 `;
 
@@ -100,6 +109,21 @@ export const TitleRow = styled.div`
     }
   }
 `;
+
+export const ContentWrapper = styledTS<{ isEditing: boolean }>(styled.div)`
+
+  ${props => props.isEditing &&
+    css`
+      margin-bottom: ${dimensions.coreSpacing}px;
+      background-color: ${colors.colorWhite};
+      box-shadow: 0 0 6px 1px ${colors.shadowPrimary};
+
+      ${TitleRow} {
+        padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+      }
+    `};
+`;
+
 
 export const MetaInfo = styled.div`
   display: flex;
