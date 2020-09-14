@@ -111,6 +111,15 @@ const getCellValue = (item, colName) => {
 
   if (names.length === 1) {
     return item[colName];
+  } else if (names[0] === 'trackedData') {
+    const trackedDatas = item.trackedData || [];
+
+    if (trackedDatas[0]) {
+      const foundedData = trackedDatas.find(data => data.field === names[1]);
+      return foundedData ? foundedData.value : '';
+    }
+
+    return '';
   } else {
     const value = item[names[0]];
 
