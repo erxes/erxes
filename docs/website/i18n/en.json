@@ -69,7 +69,7 @@
         "title": "REHL 8"
       },
       "installation/ubuntu": {
-        "title": "Ubuntu 16.04/18.04 LTS"
+        "title": "Ubuntu 16.04/18.04/19.04 LTS"
       },
       "installation/upgrade": {
         "title": "Upgrade",
@@ -140,7 +140,7 @@
       },
       "user/team-inbox": {
         "title": "Team Inbox",
-        "sidebar_label": "Team inbox"
+        "sidebar_label": "Team Inbox"
       }
     },
     "links": {
