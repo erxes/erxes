@@ -3,8 +3,7 @@ import classnames from 'classnames';
 import Link from '@docusaurus/Link';
 import styles from './styles.module.css';
 
-export const Dedication = () => {
-  return (
+export const Dedication = () => (
 		<main>
 			<section className={styles.dedicationWrapper}>
 				<div className="container">
@@ -34,4 +33,3 @@ export const Dedication = () => {
 			</section>
 		</main>
   );
-};
