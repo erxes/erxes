@@ -91,6 +91,9 @@ export const subscribeEngage = () => {
         Endpoint: `${MAIN_API_DOMAIN}/service/engage/tracker`,
       })
       .promise()
+      .then(response => {
+        debugBase(response);
+      })
       .catch(e => {
         return reject(e.message);
       });
