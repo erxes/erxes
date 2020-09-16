@@ -24,9 +24,8 @@ export const ButtonGroup = styled.div`
   background: rgba(0, 0, 0, 0.04);
   border: 1px solid ${colors.bgActive};
 
-  a {
+  > a {
     padding: 7px ${dimensions.coreSpacing}px;
-    padding: 6px 20px;
     display: inline-block;
     color: ${colors.colorCoreGray};
     font-weight: 500;

@@ -224,7 +224,7 @@ const TabContent = styled.div`
 
 const ButtonRelated = styled.div`
   text-align: center;
-  padding: 10px 0 16px;
+  padding: 16px 0;
   font-size: 12px;
 
   span {
