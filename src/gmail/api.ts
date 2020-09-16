@@ -89,8 +89,6 @@ export const getHistoryChanges = async ({ email, historyId }: { email: string; h
   } catch (e) {
     debugGmail(`Failed: getHistoryChanges email: ${email} ${e.message}`);
 
-    console.log('askdjalksdjd');
-
     await checkAccessTokenExpired(e.message, email);
 
     throw e;
