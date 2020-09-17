@@ -196,6 +196,12 @@ class Settings extends React.PureComponent {
               '/settings/logs',
               'viewLogs'
             )}
+            {this.renderBox(
+              'Email Deliveries',
+              '/images/icons/erxes-14.svg',
+              '/settings/emailDelivery',
+              ''
+            )}
           </div>
         </Row>
         <Divider />

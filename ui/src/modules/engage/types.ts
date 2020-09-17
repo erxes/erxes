@@ -72,6 +72,9 @@ export interface IEmailDelivery {
   userId: string;
   customerId: string;
 
+  status?: string;
+  createdAt?: string;
+
   fromUser: IUser;
   fromEmail: string;
 }
