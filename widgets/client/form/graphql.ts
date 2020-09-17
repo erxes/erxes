@@ -21,8 +21,8 @@ export const formDetailQuery = `
 `;
 
 export const formConnectMutation = `
-  mutation widgetsLeadConnect($brandCode: String!, $formCode: String!) {
-    widgetsLeadConnect(brandCode: $brandCode, formCode: $formCode) {
+  mutation widgetsLeadConnect($brandCode: String!, $formCode: String!, $cachedCustomerId: String) {
+    widgetsLeadConnect(brandCode: $brandCode, formCode: $formCode, cachedCustomerId:$cachedCustomerId) {
       form {
         _id
         title

@@ -3,6 +3,7 @@ import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { LeftItem, Preview } from 'modules/common/components/step/styles';
+import Toggle from 'modules/common/components/Toggle';
 import { __ } from 'modules/common/utils';
 import FieldsPreview from 'modules/forms/components/FieldsPreview';
 import { IFormData } from 'modules/forms/types';
@@ -23,8 +24,9 @@ type Props = {
   color: string;
   theme: string;
   language?: string;
+  isHide?: boolean;
   onChange: (
-    name: 'brand' | 'color' | 'theme' | 'language',
+    name: 'brand' | 'color' | 'theme' | 'language' | 'isHide',
     value: string
   ) => void;
   fields?: IField[];
@@ -59,7 +61,7 @@ class OptionStep extends React.Component<Props, {}> {
   }
 
   render() {
-    const { language, brand, formData, color, theme } = this.props;
+    const { language, brand, formData, color, theme, isHide } = this.props;
     const { fields, desc } = formData;
 
     const popoverTop = (
@@ -90,6 +92,10 @@ class OptionStep extends React.Component<Props, {}> {
       <FieldsPreview fields={fields || []} formDesc={desc} />
     );
 
+    const onSwitchHandler = e => {
+      this.onChangeFunction('isHide', e.target.checked);
+    };
+
     return (
       <FlexItem>
         <LeftItem>
@@ -112,6 +118,20 @@ class OptionStep extends React.Component<Props, {}> {
               <option value="mn">Монгол</option>
               <option value="en">English</option>
             </FormControl>
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>Do not show again if already filled out</ControlLabel>
+            <div>
+              <Toggle
+                checked={isHide || false}
+                onChange={onSwitchHandler}
+                icons={{
+                  checked: <span>Yes</span>,
+                  unchecked: <span>No</span>
+                }}
+              />
+            </div>
           </FormGroup>
 
           <FormGroup>
