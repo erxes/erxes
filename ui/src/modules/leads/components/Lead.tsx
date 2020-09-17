@@ -53,6 +53,7 @@ type State = {
   bodyValue?: string;
   calloutBtnText?: string;
   theme: string;
+  isRequireOnce?: boolean;
   logoPreviewUrl?: string;
   isSkip?: boolean;
   color: string;
@@ -117,6 +118,7 @@ class Lead extends React.Component<Props, State> {
         type: form.type || ''
       },
       theme: leadData.themeColor || '#6569DF',
+      isRequireOnce: leadData.isRequireOnce,
       logoPreviewUrl: callout.featuredImage,
       isSkip: callout.skip && true
     };
@@ -164,7 +166,8 @@ class Lead extends React.Component<Props, State> {
         },
         rules: (rules || []).filter(rule => (
           rule.condition && rule.value
-        ))
+        )),
+        isRequireOnce: this.state.isRequireOnce
       }
     };
     
@@ -232,7 +235,8 @@ class Lead extends React.Component<Props, State> {
       successAction,
       isSkip,
       rules,
-      formData
+      formData,
+      isRequireOnce
     } = this.state;
 
     const { integration } = this.props;
@@ -240,7 +244,7 @@ class Lead extends React.Component<Props, State> {
     const brand = integration && integration.brand;
     const breadcrumb = [{ title: __('Pop Ups'), link: '/leads' }];
     const constant = isSkip ? 'form' : 'callout';
-
+   
     const onChange = e =>
       this.onChange('title', (e.currentTarget as HTMLInputElement).value);
 
@@ -305,6 +309,7 @@ class Lead extends React.Component<Props, State> {
                 color={color}
                 brand={brand}
                 theme={theme}
+                isRequireOnce={isRequireOnce}
                 language={language}
                 formData={formData}
               />

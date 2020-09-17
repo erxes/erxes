@@ -35,6 +35,7 @@ export interface ILeadData {
   tagIds?: string[];
   getTags?: ITag[];
   form?: IForm;
+  isRequireOnce?: boolean;
 }
 
 export interface ILeadIntegration extends IIntegration {
