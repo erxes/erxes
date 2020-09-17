@@ -53,7 +53,7 @@ type State = {
   bodyValue?: string;
   calloutBtnText?: string;
   theme: string;
-  isHide?: boolean;
+  isRequireOnce?: boolean;
   logoPreviewUrl?: string;
   isSkip?: boolean;
   color: string;
@@ -118,7 +118,7 @@ class Lead extends React.Component<Props, State> {
         type: form.type || ''
       },
       theme: leadData.themeColor || '#6569DF',
-      isHide: leadData.isHide,
+      isRequireOnce: leadData.isRequireOnce,
       logoPreviewUrl: callout.featuredImage,
       isSkip: callout.skip && true
     };
@@ -167,7 +167,7 @@ class Lead extends React.Component<Props, State> {
         rules: (rules || []).filter(rule => (
           rule.condition && rule.value
         )),
-        isHide: this.state.isHide
+        isRequireOnce: this.state.isRequireOnce
       }
     };
     
@@ -236,7 +236,7 @@ class Lead extends React.Component<Props, State> {
       isSkip,
       rules,
       formData,
-      isHide
+      isRequireOnce
     } = this.state;
 
     const { integration } = this.props;
@@ -309,7 +309,7 @@ class Lead extends React.Component<Props, State> {
                 color={color}
                 brand={brand}
                 theme={theme}
-                isHide={isHide}
+                isRequireOnce={isRequireOnce}
                 language={language}
                 formData={formData}
               />

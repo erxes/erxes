@@ -129,7 +129,7 @@ export interface IIntegrationLeadData {
   themeColor?: string;
   callout?: ICallout;
   rules?: IRule;
-  isHide?: boolean;
+  isRequireOnce?: boolean;
 }
 
 export interface IIntegrationUiOptions {
