@@ -84,7 +84,7 @@ export const getMessengerData = async (integration: IIntegrationDocument) => {
 
 const widgetMutations = {
   // Find integrationId by brandCode
-  async widgetsLeadConnect(_root, args: { brandCode: string; formCode: string }) {
+  async widgetsLeadConnect(_root, args: { brandCode: string; formCode: string; cachedCustomerId?: string }) {
     const brand = await Brands.findOne({ code: args.brandCode });
     const form = await Forms.findOne({ code: args.formCode });
 
@@ -110,6 +110,13 @@ const widgetMutations = {
       const user = await Users.getUser(integ.createdUserId);
 
       registerOnboardHistory({ type: 'leadIntegrationInstalled', user });
+    }
+
+    if (integ.leadData?.isRequireOnce && args.cachedCustomerId) {
+      const conversation = await Conversations.findOne({ customerId: args.cachedCustomerId, integrationId: integ.id });
+      if (conversation) {
+        return null;
+      }
     }
 
     // return integration details

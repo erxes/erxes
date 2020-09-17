@@ -75,6 +75,7 @@ export interface ILeadData {
   rules?: IRule;
   viewCount?: number;
   contactsGathered?: number;
+  isRequireOnce?: boolean;
 }
 
 export interface ILeadDataDocument extends ILeadData, Document {
@@ -258,6 +259,11 @@ export const leadDataSchema = new Schema(
       type: [ruleSchema],
       optional: true,
       label: 'Rules',
+    }),
+    isRequireOnce: field({
+      type: Boolean,
+      optional: true,
+      label: 'Do now show again if already filled out',
     }),
   },
   { _id: false },

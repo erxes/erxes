@@ -517,6 +517,38 @@ describe('lead', () => {
     mock.restore();
   });
 
+  test('leadConnect: Already filled', async () => {
+    const mock = sinon.stub(utils, 'sendRequest').callsFake(() => {
+      return Promise.resolve('success');
+    });
+
+    const brand = await brandFactory({});
+    const form = await formFactory({});
+
+    const integration = await integrationFactory({
+      brandId: brand._id,
+      formId: form._id,
+      leadData: {
+        loadType: 'embedded',
+        isRequireOnce: true,
+      },
+    });
+
+    const conversation = await conversationFactory({ customerId: '123123', integrationId: integration._id });
+
+    const response = await widgetMutations.widgetsLeadConnect(
+      {},
+      {
+        brandCode: brand.code || '',
+        formCode: form.code || '',
+        cachedCustomerId: '123123',
+      },
+    );
+    expect(conversation).toBeDefined();
+    expect(response).toBeNull();
+    mock.restore();
+  });
+
   test('saveLead: form not found', async () => {
     try {
       await widgetMutations.widgetsSaveLead(

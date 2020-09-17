@@ -94,7 +94,8 @@ export const mutations = `
 
   widgetsLeadConnect(
     brandCode: String!,
-    formCode: String!
+    formCode: String!,
+    cachedCustomerId: String
   ): FormConnectResponse
 
   widgetsSaveLead(

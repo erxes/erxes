@@ -25,8 +25,9 @@ export const FORM_FIELDS = {
     BLANK: '',
     NUMBER: 'number',
     DATE: 'date',
+    DATETIME: 'datetime',
     EMAIL: 'email',
-    ALL: ['', 'number', 'date', 'email'],
+    ALL: ['', 'number', 'date', 'datetime', 'email'],
   },
 };
 
