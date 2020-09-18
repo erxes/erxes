@@ -187,7 +187,6 @@ describe('engageQueries', () => {
             status
             createdAt
             customerId
-            engageMessageId
           }
         }
       }
