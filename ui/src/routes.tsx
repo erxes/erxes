@@ -7,7 +7,6 @@ import AuthRoutes from './modules/auth/routes';
 import { IUser } from './modules/auth/types';
 import CompaniesRoutes from './modules/companies/routes';
 import CustomersRoutes from './modules/customers/routes';
-import DashboardRoutes from './modules/dashboard/routes';
 import DealsRoutes from './modules/deals/routes';
 import EngageRoutes from './modules/engage/routes';
 import GrowthHackRoutes from './modules/growthHacks/routes';
@@ -42,7 +41,7 @@ export const unsubscribe = ({ location }) => {
   return <Unsubscribe queryParams={queryParams} />;
 };
 
-const renderRoutes = currentUser => {
+const renderRoutes = (currentUser) => {
   const userConfirmation = ({ location }) => {
     const queryParams = queryString.parse(location.search);
 
@@ -72,7 +71,6 @@ const renderRoutes = currentUser => {
           <GrowthHackRoutes />
           <VideoCallRoutes />
           <TutorialRoutes />
-          <DashboardRoutes />
 
           <Route
             key="/confirmation"
