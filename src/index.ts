@@ -298,6 +298,8 @@ apolloServer.applyMiddleware({ app, path: '/graphql', cors: corsOptions });
 app.post(`/service/engage/tracker`, async (req, res, next) => {
   const ENGAGES_API_DOMAIN = getSubServiceDomain({ name: 'ENGAGES_API_DOMAIN' });
 
+  debugBase('SES notification received ======');
+
   return pipeRequest(req, res, next, `${ENGAGES_API_DOMAIN}/service/engage/tracker`);
 });
 
