@@ -4,6 +4,7 @@ import BoardRoutes from './boards/routes';
 import BrandsRoutes from './brands/routes';
 import ChannelsRoutes from './channels/routes';
 import EmailRoutes from './email/routes';
+import EmailDeliveryRoutes from './emailDelivery/routes';
 import EmailTemplatesRoutes from './emailTemplates/routes';
 import General from './general/routes';
 import GrowthHackRoutes from './growthHacks/routes';
@@ -40,6 +41,7 @@ const routes = () => (
     <StatusRoutes key="StatusRoutes" />
     <PermissionRoutes key="PermissionRoutes" />
     <LogRoutes key="LogRoutes" />
+    <EmailDeliveryRoutes key="EmailDeliveryRoutes" />
     <GrowthHackRoutes key="GrowthHackRoutes" />
   </React.Fragment>
 );
