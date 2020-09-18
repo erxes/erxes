@@ -7,7 +7,6 @@ import configs from './configs';
 import conformity from './conformities';
 import conversations from './conversations';
 import customers from './customers';
-import dashboards from './dashboards';
 import deals from './deals';
 import emailTemplates from './emailTemplates';
 import engages from './engages';
@@ -35,7 +34,6 @@ import users from './users';
 import widgets from './widgets';
 
 export default {
-  ...dashboards,
   ...users,
   ...conversations,
   ...tags,
