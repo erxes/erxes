@@ -11,7 +11,7 @@ import Customer from './customer';
 import customScalars from './customScalars';
 import Deal from './deals';
 import EmailDelivery from './emailDeliveries';
-import EngageMessage from './engage';
+import { deliveryReport as DeliveryReport, message as EngageMessage } from './engage';
 import { field, fieldsGroup } from './field';
 import Form from './forms';
 import GrowthHack from './growthHacks';
@@ -53,6 +53,7 @@ const resolvers: any = {
   Company,
   Segment,
   EngageMessage,
+  DeliveryReport,
   EmailDelivery,
   Conversation,
   ConversationMessage,

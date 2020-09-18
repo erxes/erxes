@@ -549,7 +549,7 @@ export const sendEmail = async (params: IEmailParams) => {
         kind: 'transaction',
         to: toEmail,
         from: fromEmail || COMPANY_EMAIL_FROM,
-        subjet: title,
+        subject: title,
         body: html,
         status: EMAIL_DELIVERY_STATUS.PENDING,
       });

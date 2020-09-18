@@ -54,7 +54,7 @@ export const types = `
     customerId: String,
     mailId: String,
     status: String,
-    engageMessageId: String,
+    engage: EngageMessage,
     createdAt: Date
   }
 

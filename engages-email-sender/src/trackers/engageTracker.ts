@@ -56,17 +56,17 @@ const handleMessage = async message => {
 
   const rejected = await DeliveryReports.updateOrCreateReport(mailHeaders, type);
 
-  if (rejected === 'reject') {
-    await messageBroker().sendMessage('engagesNotification', {
-      action: 'setDoNotDisturb',
-      data: { customerId: mail.customerId },
-    });
-  }
-
   if (emailDeliveryId) {
     await messageBroker().sendMessage('engagesNotification', {
       action: 'transactionEmail',
       data: { emailDeliveryId, status: 'received' },
+    });
+  }
+
+  if (rejected === 'reject') {
+    await messageBroker().sendMessage('engagesNotification', {
+      action: 'setDoNotDisturb',
+      data: { customerId: mail.customerId },
     });
   }
 
