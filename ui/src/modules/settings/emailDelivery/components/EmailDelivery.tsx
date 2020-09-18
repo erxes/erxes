@@ -23,13 +23,13 @@ const breadcrumb = [
 ];
 
 const emailTypeOptions = [
-  { value: 'transaction', label: __('SES Transaction') },
+  { value: 'transaction', label: __('Transaction') },
   { value: 'engage', label: __('SES Engage') }
 ];
 
 const tableHeaders = {
   transaction: ['Subject', 'To', 'Cc', 'Bcc', 'From', 'Status', 'Created at'],
-  engage: ['Customer id', 'Engage message id', 'Status', 'Created at']
+  engage: ['Customer id', 'Title', 'Status', 'Created at']
 };
 
 function EmailDelivery({
@@ -44,6 +44,10 @@ function EmailDelivery({
   };
 
   function renderItems() {
+    if (!emailType) {
+      return null;
+    }
+
     if (emailType === EMAIL_TYPES.TRANSACTION) {
       return list.map(item => (
         <tr key={item._id}>
@@ -61,7 +65,7 @@ function EmailDelivery({
     return list.map(item => (
       <tr key={item._id}>
         <td>{item.customerId || '-'}</td>
-        <td>{item.engageMessageId || '-'}</td>
+        <td>{item.engage ? item.engage.title : '-'}</td>
         <td>{item.status || '-'}</td>
         <td>{dayjs(item.createdAt).format('LLL') || '-'}</td>
       </tr>
@@ -73,7 +77,7 @@ function EmailDelivery({
       <Table whiteSpace="wrap" hover={true} bordered={true} condensed={true}>
         <thead>
           <tr>
-            {tableHeaders[emailType].map((item, idx) => (
+            {(tableHeaders[emailType] || []).map((item, idx) => (
               <th key={idx}>{__(item)}</th>
             ))}
           </tr>
@@ -92,7 +96,7 @@ function EmailDelivery({
             value={emailType}
             options={emailTypeOptions}
             onChange={handleEmailtype}
-            resetValue=""
+            resetValue={[]}
           />
         </FilterItem>
       </FilterWrapper>

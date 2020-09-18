@@ -24,7 +24,9 @@ const engageReportsList = `
         status
         createdAt
         customerId
-        engageMessageId
+        engage {
+          title
+        }
       }
     }
   }
