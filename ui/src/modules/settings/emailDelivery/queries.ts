@@ -1,10 +1,13 @@
 const transactionEmailDeliveries = `
-  query transactionEmailDeliveries($status: String, $page: Int, $perPage: Int) {
-    transactionEmailDeliveries(status: $status, page: $page, perPage: $perPage) {
+  query transactionEmailDeliveries($page: Int, $perPage: Int) {
+    transactionEmailDeliveries(page: $page, perPage: $perPage) {
       totalCount
       list {
         _id
         subject
+        to
+        cc
+        from
         status
         createdAt
       }
@@ -12,6 +15,22 @@ const transactionEmailDeliveries = `
   }
 `;
 
+const engageReportsList = `
+  query engageReportsList($page: Int, $perPage: Int) {
+    engageReportsList(page: $page, perPage: $perPage) {
+      totalCount
+      list {
+        _id
+        status
+        createdAt
+        customerId
+        engageMessageId
+      }
+    }
+  }
+`;
+
 export default {
+  engageReportsList,
   transactionEmailDeliveries
 };

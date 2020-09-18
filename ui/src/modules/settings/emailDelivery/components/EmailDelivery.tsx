@@ -1,18 +1,20 @@
+import dayjs from 'dayjs';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
-import { __, router } from 'modules/common/utils';
-import { IEmailDelivery } from 'modules/engage/types';
+import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { FilterItem, FilterWrapper } from 'modules/settings/permissions/styles';
 import * as React from 'react';
 import Select from 'react-select-plus';
+import { EMAIL_TYPES } from '../containers/EmailDelivery';
 
 type Props = {
+  list: any;
   loading: boolean;
   count: number;
-  history: any;
-  transactionDeliveries: IEmailDelivery[];
+  emailType: string;
+  handleSelectEmailType: (type: string) => void;
 };
 
 const breadcrumb = [
@@ -20,28 +22,48 @@ const breadcrumb = [
   { title: __('Email deliveries') }
 ];
 
-const statusOptions = [
-  { value: 'pending', label: __('Pending') },
-  { value: 'received', label: __('Received') }
+const emailTypeOptions = [
+  { value: 'transaction', label: __('SES Transaction') },
+  { value: 'engage', label: __('SES Engage') }
 ];
 
-function EmailDelivery(props: Props) {
-  const { history, loading, count, transactionDeliveries } = props;
+const tableHeaders = {
+  transaction: ['Subject', 'To', 'Cc', 'Bcc', 'From', 'Status', 'Created at'],
+  engage: ['Customer id', 'Engage message id', 'Status', 'Created at']
+};
 
-  const [statusType, setStatusType] = React.useState('');
-
-  const handleChangeStatus = ({ value }: { value: string }) => {
-    setStatusType(value);
-
-    return router.setParams(history, { status: value });
+function EmailDelivery({
+  emailType,
+  loading,
+  count,
+  list = [],
+  handleSelectEmailType
+}: Props) {
+  const handleEmailtype = ({ value }: { value: string }) => {
+    return handleSelectEmailType(value);
   };
 
   function renderItems() {
-    return transactionDeliveries.map(item => (
+    if (emailType === EMAIL_TYPES.TRANSACTION) {
+      return list.map(item => (
+        <tr key={item._id}>
+          <td>{item.subject || '-'}</td>
+          <td>{item.to || '-'}</td>
+          <td>{item.cc || '-'}</td>
+          <td>{item.bcc || '-'}</td>
+          <td>{item.from || '-'}</td>
+          <td>{(item.status || '-').toUpperCase()}</td>
+          <td>{dayjs(item.createdAt).format('LLL') || '-'}</td>
+        </tr>
+      ));
+    }
+
+    return list.map(item => (
       <tr key={item._id}>
-        <td>{item.subject || '-'}</td>
-        <td>{(item.status || '').toUpperCase()}</td>
-        <td>{item.createdAt}</td>
+        <td>{item.customerId || '-'}</td>
+        <td>{item.engageMessageId || '-'}</td>
+        <td>{item.status || '-'}</td>
+        <td>{dayjs(item.createdAt).format('LLL') || '-'}</td>
       </tr>
     ));
   }
@@ -51,9 +73,9 @@ function EmailDelivery(props: Props) {
       <Table whiteSpace="wrap" hover={true} bordered={true} condensed={true}>
         <thead>
           <tr>
-            <th>{__('Subject')}</th>
-            <th>{__('Status')}</th>
-            <th>{__('Created at')}</th>
+            {tableHeaders[emailType].map((item, idx) => (
+              <th key={idx}>{__(item)}</th>
+            ))}
           </tr>
         </thead>
         <tbody>{renderItems()}</tbody>
@@ -66,10 +88,10 @@ function EmailDelivery(props: Props) {
       <FilterWrapper>
         <FilterItem>
           <Select
-            placeholder={__('Choose status')}
-            value={statusType}
-            options={statusOptions}
-            onChange={handleChangeStatus}
+            placeholder={__('Choose Email type')}
+            value={emailType}
+            options={emailTypeOptions}
+            onChange={handleEmailtype}
             resetValue=""
           />
         </FilterItem>
@@ -83,7 +105,7 @@ function EmailDelivery(props: Props) {
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Email deliveries')}
+          title={__('Email Deliveries')}
           breadcrumb={breadcrumb}
         />
       }
@@ -94,7 +116,7 @@ function EmailDelivery(props: Props) {
           data={renderContent()}
           loading={loading}
           count={count}
-          emptyText={__('There are no email delivery logs')}
+          emptyText={__('There are no logs')}
           emptyImage="/images/actions/21.svg"
         />
       }

@@ -1,58 +1,73 @@
 import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
 import { IRouterProps } from 'modules/common/types';
+import { router } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
-import { IEmailDelivery } from 'modules/engage/types';
 import * as React from 'react';
-import { graphql } from 'react-apollo';
+import { useQuery } from 'react-apollo';
 import EmailDelivery from '../components/EmailDelivery';
 import queries from '../queries';
-
-type transactionDeliveriesQueryResponse = {
-  transactionEmailDeliveries: {
-    list: IEmailDelivery[];
-    totalCount: number;
-    loading: boolean;
-  };
-};
 
 type Props = {
   queryParams: any;
 } & IRouterProps;
 
-type FinalProps = {
-  transactionDeliveriesQuery: transactionDeliveriesQueryResponse;
-} & Props;
+export const EMAIL_TYPES = {
+  TRANSACTION: 'transaction',
+  ENGAGE: 'engage'
+};
 
-function EmailDeliveryContainer(props: FinalProps) {
-  const {
-    transactionDeliveriesQuery: { transactionEmailDeliveries = {} }
-  }: any = props;
+function EmailDeliveryContainer(props: Props) {
+  const [emailType, setEmailType] = React.useState(EMAIL_TYPES.TRANSACTION);
 
-  const transactionDeliveries = transactionEmailDeliveries.list || [];
-  const totalCount = transactionEmailDeliveries.totalCount || 0;
+  const transactionResponse = useQuery(
+    gql(queries.transactionEmailDeliveries),
+    {
+      variables: generatePaginationParams(props.queryParams)
+    }
+  );
+
+  const engageReportsListResponse = useQuery(gql(queries.engageReportsList), {
+    variables: generatePaginationParams(props.queryParams)
+  });
+
+  const handleSelectEmailType = (type: string) => {
+    setEmailType(type);
+
+    return router.removeParams(props.history, 'page', 'perPage');
+  };
+
+  const transactionData = transactionResponse.data || {};
+  const emailDeliveries = transactionData.transactionEmailDeliveries || {};
+  const emailDeliveriesLoading = transactionResponse.loading;
+
+  const engageReportsListData = engageReportsListResponse.data || {};
+  const reportsList = engageReportsListData.engageReportsList || {};
+  const reportsListLoading = engageReportsListResponse.loading;
+
+  let list;
+  let count;
+  let loading;
+
+  if (emailType === EMAIL_TYPES.TRANSACTION) {
+    list = emailDeliveries.list;
+    count = emailDeliveries.totalCount;
+    loading = emailDeliveriesLoading;
+  } else {
+    list = reportsList.list;
+    count = reportsList.totalCount;
+    loading = reportsListLoading;
+  }
 
   const updatedProps = {
     ...props,
-    count: totalCount,
-    transactionDeliveries,
-    loading: transactionEmailDeliveries.loading
+    count,
+    list,
+    loading,
+    emailType,
+    handleSelectEmailType
   };
 
   return <EmailDelivery {...updatedProps} />;
 }
 
-export default compose(
-  graphql<Props, transactionDeliveriesQueryResponse>(
-    gql(queries.transactionEmailDeliveries),
-    {
-      name: 'transactionDeliveriesQuery',
-      options: ({ queryParams }) => ({
-        variables: {
-          status: queryParams.status,
-          ...generatePaginationParams(queryParams)
-        }
-      })
-    }
-  )
-)(EmailDeliveryContainer);
+export default EmailDeliveryContainer;
