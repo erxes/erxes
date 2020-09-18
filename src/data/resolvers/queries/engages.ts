@@ -206,6 +206,10 @@ const engageQueries = {
     return dataSources.EngagesAPI.engagesConfigDetail();
   },
 
+  engageReportsList(_root, params, { dataSources }: IContext) {
+    return dataSources.EngagesAPI.engageReportsList(params);
+  },
+
   /**
    * Get all messages count. We will use it in pager
    */

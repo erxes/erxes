@@ -42,6 +42,8 @@ const handleMessage = async message => {
 
   const customerId = headers.find(header => header.name === 'Customerid');
 
+  const emailDeliveryId = headers.find(header => header.name === 'EmailDeliveryId');
+
   const mailHeaders = {
     engageMessageId: engageMessageId.value,
     mailId: mailId.value,
@@ -58,6 +60,13 @@ const handleMessage = async message => {
     await messageBroker().sendMessage('engagesNotification', {
       action: 'setDoNotDisturb',
       data: { customerId: mail.customerId },
+    });
+  }
+
+  if (emailDeliveryId) {
+    await messageBroker().sendMessage('engagesNotification', {
+      action: 'transactionEmail',
+      data: { emailDeliveryId, status: 'received' },
     });
   }
 

@@ -43,6 +43,7 @@ export const deliveryReportsSchema = new Schema({
   mailId: { type: String, optional: true },
   status: { type: String, optional: true },
   engageMessageId: { type: String, optional: true },
+  createdAt: { type: Date, default: Date.now },
 });
 
 export interface IStatsModel extends Model<IStatsDocument> {

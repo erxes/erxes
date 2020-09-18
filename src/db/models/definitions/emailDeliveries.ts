@@ -17,13 +17,20 @@ export interface IEmailDeliveries {
   attachments?: IAttachmentParams[];
   from: string;
   kind: string;
-  userId: string;
-  customerId: string;
+  userId?: string;
+  customerId?: string;
+  status?: string;
 }
 
 export interface IEmailDeliveriesDocument extends IEmailDeliveries, Document {
   id: string;
 }
+
+export const EMAIL_DELIVERY_STATUS = {
+  PENDING: 'pending',
+  RECEIVED: 'received',
+  ALL: ['pending', 'received'],
+};
 
 export const emailDeliverySchema = new Schema({
   _id: field({ pkey: true }),
@@ -38,4 +45,8 @@ export const emailDeliverySchema = new Schema({
   customerId: field({ type: String }),
   userId: field({ type: String }),
   createdAt: field({ type: Date, default: Date.now }),
+  status: field({
+    type: String,
+    enum: EMAIL_DELIVERY_STATUS.ALL,
+  }),
 });

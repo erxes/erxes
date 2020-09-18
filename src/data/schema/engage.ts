@@ -49,6 +49,20 @@ export const types = `
     day: String,
   }
 
+  type DeliveryReport {
+    _id: String!,
+    customerId: String,
+    mailId: String,
+    status: String,
+    engageMessageId: String,
+    createdAt: Date
+  }
+
+  type EngageDeliveryReport {
+    list: [DeliveryReport]
+    totalCount: Int
+  }
+
   input EngageScheduleDateInput {
     type: String,
     month: String,
@@ -98,6 +112,7 @@ export const queries = `
   engageMessageCounts(name: String!, kind: String, status: String): JSON
   engagesConfigDetail: JSON
   engageVerifiedEmails: [String]
+  engageReportsList(page: Int, perPage: Int): EngageDeliveryReport 
 `;
 
 const commonParams = `
