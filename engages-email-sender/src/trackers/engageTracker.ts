@@ -44,6 +44,13 @@ const handleMessage = async message => {
 
   const emailDeliveryId = headers.find(header => header.name === 'Emaildeliveryid');
 
+  if (emailDeliveryId) {
+    await messageBroker().sendMessage('engagesNotification', {
+      action: 'transactionEmail',
+      data: { emailDeliveryId: emailDeliveryId.value, status: 'received' },
+    });
+  }
+
   const mailHeaders = {
     engageMessageId: engageMessageId.value,
     mailId: mailId.value,
@@ -55,13 +62,6 @@ const handleMessage = async message => {
   await Stats.updateStats(mailHeaders.engageMessageId, type);
 
   const rejected = await DeliveryReports.updateOrCreateReport(mailHeaders, type);
-
-  if (emailDeliveryId) {
-    await messageBroker().sendMessage('engagesNotification', {
-      action: 'transactionEmail',
-      data: { emailDeliveryId: emailDeliveryId.value, status: 'received' },
-    });
-  }
 
   if (rejected === 'reject') {
     await messageBroker().sendMessage('engagesNotification', {
