@@ -22,7 +22,10 @@ function EmailDeliveryContainer(props: Props) {
   const transactionResponse = useQuery(
     gql(queries.transactionEmailDeliveries),
     {
-      variables: generatePaginationParams(props.queryParams)
+      variables: {
+        searchValue: props.queryParams.searchValue,
+        ...generatePaginationParams(props.queryParams)
+      }
     }
   );
 
@@ -33,7 +36,7 @@ function EmailDeliveryContainer(props: Props) {
   const handleSelectEmailType = (type: string) => {
     setEmailType(type);
 
-    return router.removeParams(props.history, 'page', 'perPage');
+    return router.removeParams(props.history, 'page', 'perPage', 'searchValue');
   };
 
   const transactionData = transactionResponse.data || {};
@@ -64,7 +67,9 @@ function EmailDeliveryContainer(props: Props) {
     list,
     loading,
     emailType,
-    handleSelectEmailType
+    handleSelectEmailType,
+    history: props.history,
+    searchValue: props.queryParams.searchValue || ''
   };
 
   return <EmailDelivery {...updatedProps} />;

@@ -1,8 +1,9 @@
 import dayjs from 'dayjs';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
+import { FormControl } from 'modules/common/components/form';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
-import { __ } from 'modules/common/utils';
+import { __, router } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { FilterItem, FilterWrapper } from 'modules/settings/permissions/styles';
 import * as React from 'react';
@@ -11,6 +12,8 @@ import { EMAIL_TYPES } from '../containers/EmailDelivery';
 
 type Props = {
   list: any;
+  history: any;
+  searchValue?: string;
   loading: boolean;
   count: number;
   emailType: string;
@@ -37,9 +40,23 @@ function EmailDelivery({
   loading,
   count,
   list = [],
-  handleSelectEmailType
+  handleSelectEmailType,
+  searchValue,
+  history
 }: Props) {
+  const [search, setSearch] = React.useState(searchValue);
+
+  const handleSearch = e => {
+    const value = e.target.value;
+
+    setSearch(value);
+
+    router.removeParams(history, 'page');
+    router.setParams(history, { searchValue: value });
+  };
+
   const handleEmailtype = ({ value }: { value: string }) => {
+    setSearch('');
     return handleSelectEmailType(value);
   };
 
@@ -90,6 +107,13 @@ function EmailDelivery({
   function renderActionBar() {
     const content = (
       <FilterWrapper>
+        <FormControl
+          type="text"
+          placeholder={__('Type to search')}
+          onChange={handleSearch}
+          value={search}
+        />
+
         <FilterItem>
           <Select
             placeholder={__('Choose Email type')}
