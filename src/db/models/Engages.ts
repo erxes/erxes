@@ -338,7 +338,7 @@ export const loadClass = () => {
 
     public static checkRule(params: ICheckRuleParams) {
       const { rule, browserInfo, numberOfVisits } = params;
-      const { language, url, city, country } = browserInfo;
+      const { language, url, city, countryCode } = browserInfo;
       const { value, kind, condition } = rule;
       const ruleValue: any = value;
 
@@ -357,7 +357,7 @@ export const loadClass = () => {
       }
 
       if (kind === 'country') {
-        valueToTest = country;
+        valueToTest = countryCode;
       }
 
       if (kind === 'numberOfVisits') {

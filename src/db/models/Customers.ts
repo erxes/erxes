@@ -60,7 +60,7 @@ export interface IBrowserInfo {
   language?: string;
   url?: string;
   city?: string;
-  country?: string;
+  countryCode?: string;
 }
 
 interface IPSS {

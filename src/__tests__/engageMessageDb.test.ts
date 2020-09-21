@@ -604,7 +604,7 @@ describe('createVisitorMessages', () => {
     test('hasAnyValue: matching', () => {
       const response = EngageMessages.checkRule({
         rule: hasAnyValueRule,
-        browserInfo: { country: 'MN' },
+        browserInfo: { countryCode: 'MN' },
       });
 
       expect(response).toBe(true);
