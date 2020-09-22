@@ -41,7 +41,7 @@ router.get('/reportsList', async (req, res) => {
   const deliveryReports = await DeliveryReports.find()
     .limit(_limit)
     .skip((_page - 1) * _limit)
-    .sort({ createdDate: -1 });
+    .sort({ createdAt: -1 });
 
   if (!deliveryReports) {
     return res.json({ list: [], totalCount: 0 });
