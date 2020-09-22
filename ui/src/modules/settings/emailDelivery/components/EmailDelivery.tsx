@@ -107,12 +107,16 @@ function EmailDelivery({
   function renderActionBar() {
     const content = (
       <FilterWrapper>
-        <FormControl
-          type="text"
-          placeholder={__('Type to search')}
-          onChange={handleSearch}
-          value={search}
-        />
+        {emailType === EMAIL_TYPES.TRANSACTION ? (
+          <FilterItem>
+            <FormControl
+              type="text"
+              placeholder={__('Type to search')}
+              onChange={handleSearch}
+              value={search}
+            />
+          </FilterItem>
+        ) : null}
 
         <FilterItem>
           <Select
@@ -126,7 +130,7 @@ function EmailDelivery({
       </FilterWrapper>
     );
 
-    return <Wrapper.ActionBar background="colorWhite" left={content} />;
+    return <Wrapper.ActionBar background="colorWhite" right={content} />;
   }
 
   return (
