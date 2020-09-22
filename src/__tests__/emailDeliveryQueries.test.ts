@@ -6,12 +6,13 @@ import './setup.ts';
 describe('Email delivery queries', () => {
   test('Transaction email deliveries', async () => {
     await emailDeliveryFactory({
+      subject: 'subject',
       kind: 'transaction',
     });
 
     const query = `
-      query transactionEmailDeliveries($page: Int, $perPage: Int) {
-        transactionEmailDeliveries(page: $page, perPage: $perPage) {
+      query transactionEmailDeliveries($searchValue: String, $page: Int, $perPage: Int) {
+        transactionEmailDeliveries(searchValue: $searchValue, page: $page, perPage: $perPage) {
           list {
             _id
           }
@@ -19,7 +20,7 @@ describe('Email delivery queries', () => {
       }
     `;
 
-    const response = await graphqlRequest(query, 'transactionEmailDeliveries', {});
+    const response = await graphqlRequest(query, 'transactionEmailDeliveries', { searchValue: 'subject' });
 
     expect(response.list.length).toBe(1);
   });
