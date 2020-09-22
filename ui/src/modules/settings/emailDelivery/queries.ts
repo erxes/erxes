@@ -1,6 +1,6 @@
 const transactionEmailDeliveries = `
-  query transactionEmailDeliveries($page: Int, $perPage: Int) {
-    transactionEmailDeliveries(page: $page, perPage: $perPage) {
+  query transactionEmailDeliveries($searchValue: String, $page: Int, $perPage: Int) {
+    transactionEmailDeliveries(searchValue: $searchValue, page: $page, perPage: $perPage) {
       totalCount
       list {
         _id
