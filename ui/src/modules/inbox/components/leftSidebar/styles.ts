@@ -285,7 +285,7 @@ const GroupTitle = styledTS<{ isOpen?: boolean }>(styled.div)`
     transform: ${props => props.isOpen && 'rotate(180deg)'};
   }
 
-  &:hover {
+  > span:hover {
     cursor: pointer;
   }
 `;
