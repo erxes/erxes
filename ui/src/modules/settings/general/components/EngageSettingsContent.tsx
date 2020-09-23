@@ -12,7 +12,6 @@ import { __, Alert } from 'modules/common/utils';
 import { Recipient, Recipients } from 'modules/engage/styles';
 import { ContentBox } from 'modules/settings/styles';
 import React from 'react';
-import { KEY_LABELS } from '../constants';
 import { IConfigsMap } from '../types';
 import { Verify } from './styles';
 
@@ -131,8 +130,8 @@ class EngageSettingsContent extends React.Component<Props, State> {
         <Info>
           <p>
             {__(
-              'Amazon Simple Email Service enables you to send and receive email using a reliable and scalable email platform. Set up your custom amazon simple email service account.'
-            )}
+              'Amazon Simple Email Service enables you to send and receive email using a reliable and scalable email platform. Set up your custom amazon simple email service account'
+            ) + '.'}
           </p>
           <a
             target="_blank"
@@ -192,51 +191,6 @@ class EngageSettingsContent extends React.Component<Props, State> {
           />
         </FormGroup>
 
-        <FormGroup>
-          <ControlLabel>{KEY_LABELS.TELNYX_API_KEY}</ControlLabel>
-          {<p>{__('Required for sending SMS messages')}</p>}
-          <FormControl
-            {...formProps}
-            name="telnyxApiKey"
-            defaultValue={configsMap.telnyxApiKey}
-            onChange={this.onChangeCommon.bind(this, 'telnyxApiKey')}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>{KEY_LABELS.TELNYX_PHONE}</ControlLabel>
-          {
-            <p>
-              {__(
-                'SMS sender number (The phone number you have purchased from telnyx)'
-              )}
-            </p>
-          }
-          <FormControl
-            {...formProps}
-            name="telnyxPhone"
-            defaultValue={configsMap.telnyxPhone}
-            onChange={this.onChangeCommon.bind(this, 'telnyxPhone')}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>{KEY_LABELS.TELNYX_PROFILE_ID}</ControlLabel>
-          {
-            <p>
-              {__(
-                'Required to properly display "from" number when sending international SMS. If not set, telnyx replaces "from" number to the text "Sender"'
-              )}
-            </p>
-          }
-          <FormControl
-            {...formProps}
-            name="telnyxProfileId"
-            defaultValue={configsMap.telnyxProfileId}
-            onChange={this.onChangeCommon.bind(this, 'telnyxProfileId')}
-          />
-        </FormGroup>
-
         <ModalFooter>
           {renderButton({
             name: 'configsMap',
@@ -256,7 +210,9 @@ class EngageSettingsContent extends React.Component<Props, State> {
           <Form renderContent={this.renderContent} />
         </CollapseContent>
 
-        <CollapseContent title="Verify the email addresses that you send email from ">
+        <CollapseContent
+          title={__('Verify the email addresses that you send email from')}
+        >
           {this.renderVerifiedEmails()}
 
           <Verify>
@@ -277,7 +233,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
             </Button>
           </Verify>
         </CollapseContent>
-        <CollapseContent title="Send your first testing email">
+        <CollapseContent title={__('Send your first testing email')}>
           <FormGroup>
             <ControlLabel>From</ControlLabel>
             <FormControl
@@ -297,7 +253,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Content</ControlLabel>
             <FormControl
-              placeholder="Write your content..."
+              placeholder={__('Write your content') + '...'}
               componentClass="textarea"
               onChange={this.onChangeCommon.bind(this, 'testContent')}
             />

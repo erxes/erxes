@@ -41,7 +41,7 @@ class StageItem extends React.Component<Props, {}> {
         <Button btnStyle="link" onClick={onBuildClick}>
           <Tip text="Build a form">
             <Icon
-              icon={stage.formId ? 'file-edit-alt' : 'file-plus-alt'}
+              icon={stage.formId ? 'file-edit-3' : 'file-plus-alt'}
               color={
                 stage.formId ? colors.colorSecondary : colors.colorCoreGreen
               }

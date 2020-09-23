@@ -1,5 +1,4 @@
 import { colors, dimensions } from 'modules/common/styles';
-import { BarItems } from 'modules/layout/styles';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -7,10 +6,16 @@ import styledTS from 'styled-components-ts';
 export const PageHeader = styled.div`
   display: flex;
   justify-content: space-between;
-  padding: 10px ${dimensions.coreSpacing}px 6px;
+  padding: 5px ${dimensions.coreSpacing}px 2px;
   background: ${colors.colorWhite};
   box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
   min-height: 50px;
+  z-index: 2;
+
+  @media (max-width: 768px) {
+    min-height: auto;
+    flex-direction: column;
+  }
 `;
 
 export const ButtonGroup = styled.div`
@@ -19,9 +24,8 @@ export const ButtonGroup = styled.div`
   background: rgba(0, 0, 0, 0.04);
   border: 1px solid ${colors.bgActive};
 
-  a {
+  > a {
     padding: 7px ${dimensions.coreSpacing}px;
-    padding: 6px 20px;
     display: inline-block;
     color: ${colors.colorCoreGray};
     font-weight: 500;
@@ -45,11 +49,6 @@ export const ButtonGroup = styled.div`
       color: ${colors.colorCoreDarkGray};
     }
   }
-`;
-
-export const HeaderItems = styled(BarItems)`
-  display: flex;
-  align-items: center;
 `;
 
 export const HeaderButton = styledTS<{

@@ -40,7 +40,7 @@ export default class ArticleDetail extends React.PureComponent<Props> {
       <>
         <TopBar
           middle={this.renderHead(title)}
-          buttonIcon={iconLeft}
+          buttonIcon={iconLeft()}
           onLeftButtonClick={onClick}
         />
         <div className="erxes-content">

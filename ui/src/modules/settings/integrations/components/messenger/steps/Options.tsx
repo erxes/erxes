@@ -5,17 +5,15 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
 import Toggle from 'modules/common/components/Toggle';
-import { Alert } from 'modules/common/utils';
+import { __, Alert } from 'modules/common/utils';
 import { LANGUAGES } from 'modules/settings/general/constants';
 import { queries } from 'modules/settings/integrations/graphql';
 import React from 'react';
-import SelectBrand from '../../../containers/SelectBrand';
 import { Description } from '../../../styles';
 
 type Props = {
   onChange: (
     name:
-      | 'brandId'
       | 'languageCode'
       | 'notifyCustomer'
       | 'requireAuth'
@@ -63,17 +61,15 @@ class Options extends React.Component<Props, State> {
   }) {
     return (
       <FormGroup>
-        <ControlLabel>
-          {label}
-          <Description>{description}</Description>
-        </ControlLabel>
+        <ControlLabel>{label}</ControlLabel>
+        <Description>{description}</Description>
         <div>
           <Toggle
             checked={checked}
             onChange={onChange}
             icons={{
-              checked: <span>Yes</span>,
-              unchecked: <span>No</span>
+              checked: <span>{__('Yes')}</span>,
+              unchecked: <span>{__('No')}</span>
             }}
           />
         </div>
@@ -87,8 +83,6 @@ class Options extends React.Component<Props, State> {
         'languageCode',
         (e.currentTarget as HTMLInputElement).value
       );
-
-    const brandOnChange = e => this.onChangeFunction('brandId', e.target.value);
 
     const notifyCustomerChange = e =>
       this.onChangeFunction('notifyCustomer', e.target.checked);
@@ -147,53 +141,51 @@ class Options extends React.Component<Props, State> {
             </FormControl>
           </FormGroup>
 
-          <SelectBrand
-            defaultValue={this.props.brandId}
-            isRequired={true}
-            onChange={brandOnChange}
-          />
-
           {this.renderToggle({
-            label: 'Require Authentication',
+            label: __('Require Authentication'),
             description: 'It will require email and phone in widget',
             checked: this.props.requireAuth,
             onChange: requireAuthChange
           })}
 
           {this.renderToggle({
-            label: 'Show chat',
-            description:
-              'Hide chat section and show only knowledgebase and form',
+            label: __('Show chat'),
+            description: __(
+              'Hide chat section and show only knowledgebase and form'
+            ),
             checked: this.props.showChat,
             onChange: showChatChange
           })}
 
           {this.renderToggle({
-            label: 'Show launcher',
-            description:
-              'The widget section will invisible but you can still get messenger data',
+            label: __('Show launcher'),
+            description: __(
+              'The widget section will invisible but you can still get messenger data'
+            ),
             checked: this.props.showLauncher,
             onChange: showLauncherChange
           })}
 
           {this.renderToggle({
-            label: 'Force logout when resolve',
-            description:
-              'If an operator resolve the conversation from inbox then client session will end automatically',
+            label: __('Force logout when resolve'),
+            description: __(
+              'If an operator resolve the conversation from inbox then client session will end automatically'
+            ),
             checked: this.props.forceLogoutWhenResolve,
             onChange: forceLogoutWhenResolveChange
           })}
 
           {this.renderToggle({
-            label: 'Notify customer',
-            description:
-              'If customer is offline and inserted email, it will send email when operator respond',
+            label: __('Notify customer'),
+            description: __(
+              'If customer is offline and inserted email, it will send email when operator respond'
+            ),
             checked: this.props.notifyCustomer,
             onChange: notifyCustomerChange
           })}
 
           {this.renderToggle({
-            label: 'Show video call request',
+            label: __('Show video call request'),
             checked: this.props.showVideoCallRequest,
             onChange: showVideoCallRequestChange
           })}

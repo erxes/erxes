@@ -1,7 +1,7 @@
-import * as React from "react";
-import { WebsiteApp } from "../../components";
-import { IWebsiteApp } from "../../types";
-import { AppConsumer } from "../AppContext";
+import * as React from 'react';
+import { WebsiteApp } from '../../components';
+import { IWebsiteApp } from '../../types';
+import { AppConsumer } from '../AppContext';
 
 type Props = {
   websiteApp: IWebsiteApp;
@@ -12,7 +12,11 @@ const container = (props: Props) => {
     <AppConsumer>
       {({ goToWebsiteApp, getColor }) => {
         return (
-          <WebsiteApp {...props} goToWebsiteApp={goToWebsiteApp} color={getColor()} />
+          <WebsiteApp
+            {...props}
+            goToWebsiteApp={goToWebsiteApp}
+            color={getColor()}
+          />
         );
       }}
     </AppConsumer>

@@ -3,6 +3,7 @@ import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import DateFilter from 'modules/common/components/DateFilter';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
+import EmptyContent from 'modules/common/components/empty/EmptyContent';
 import FormControl from 'modules/common/components/form/Control';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
@@ -10,7 +11,9 @@ import Pagination from 'modules/common/components/pagination/Pagination';
 import SortHandler from 'modules/common/components/SortHandler';
 import Table from 'modules/common/components/table';
 import { menuContacts } from 'modules/common/utils/menus';
+import routerUtils from 'modules/common/utils/router';
 import { queries } from 'modules/customers/graphql';
+import { EMPTY_CONTENT_CONTACTS } from 'modules/settings/constants';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { withRouter } from 'react-router-dom';
@@ -61,6 +64,7 @@ interface IProps extends IRouterProps {
 
 type State = {
   searchValue?: string;
+  searchType?: string;
 };
 
 class CustomersList extends React.Component<IProps, State> {
@@ -72,6 +76,19 @@ class CustomersList extends React.Component<IProps, State> {
     this.state = {
       searchValue: this.props.searchValue
     };
+  }
+
+  componentDidUpdate() {
+    const { queryParams, history, type } = this.props;
+    const { searchValue, searchType } = this.state;
+
+    if (searchValue && !queryParams.searchValue) {
+      if (searchType === type) {
+        routerUtils.setParams(history, { searchValue });
+      } else {
+        this.setState({ searchValue: '' });
+      }
+    }
   }
 
   onChange = () => {
@@ -148,10 +165,10 @@ class CustomersList extends React.Component<IProps, State> {
       clearTimeout(this.timer);
     }
 
-    const { history } = this.props;
+    const { history, type } = this.props;
     const searchValue = e.target.value;
 
-    this.setState({ searchValue });
+    this.setState({ searchValue, searchType: type });
 
     this.timer = setTimeout(() => {
       router.removeParams(history, 'page');
@@ -188,7 +205,7 @@ class CustomersList extends React.Component<IProps, State> {
       </Button>
     );
 
-    const editColumns = <a href="#edit">{__('Edit columns')}</a>;
+    const editColumns = <a href="#edit">{__('Choose Properties/View')}</a>;
 
     const dateFilter = queryParams.form && (
       <DateFilter queryParams={queryParams} history={history} />
@@ -256,12 +273,14 @@ class CustomersList extends React.Component<IProps, State> {
             </li>
             <li>
               <Link to="/settings/properties?type=customer">
-                {__('Properties')}
+                {__('Manage properties')}
               </Link>
             </li>
             <li>
               <a href="#export" onClick={exportData.bind(this, bulk)}>
-                {__('Export customers')}
+                {type === 'lead'
+                  ? __('Export this leads')
+                  : __('Export this contacts')}
               </a>
             </li>
             <li>
@@ -282,7 +301,7 @@ class CustomersList extends React.Component<IProps, State> {
             </li>
           </Dropdown.Menu>
         </Dropdown>
-        <Link to="/settings/importHistories?type=customer">
+        <Link to={`/settings/importHistories?type=${type}`}>
           <Button btnStyle="primary" size="small" icon="arrow-from-right">
             {__('Go to import')}
           </Button>
@@ -382,8 +401,7 @@ class CustomersList extends React.Component<IProps, State> {
             data={this.renderContent()}
             loading={loading}
             count={customers.length}
-            emptyText="Let's start taking care of your customers"
-            emptyImage="/images/actions/11.svg"
+            emptyContent={<EmptyContent content={EMPTY_CONTENT_CONTACTS} />}
           />
         }
       />

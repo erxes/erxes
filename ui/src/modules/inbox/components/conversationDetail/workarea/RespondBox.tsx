@@ -9,6 +9,7 @@ import { IAttachmentPreview } from 'modules/common/types';
 import { __, Alert, readFile, uploadHandler } from 'modules/common/utils';
 import { deleteHandler } from 'modules/common/utils/uploadHandler';
 import ResponseTemplate from 'modules/inbox/containers/conversationDetail/responseTemplate/ResponseTemplate';
+import ProductBoard from 'modules/inbox/containers/ProductBoard';
 import {
   Attachment,
   AttachmentIndicator,
@@ -304,7 +305,7 @@ class RespondBox extends React.Component<Props, State> {
     });
   };
 
-  renderIncicator() {
+  renderIndicator() {
     const { attachments, loading } = this.state;
 
     if (attachments.length > 0) {
@@ -439,6 +440,8 @@ class RespondBox extends React.Component<Props, State> {
       <EditorActions>
         {this.renderCheckbox(integration.kind)}
 
+        <ProductBoard conversation={conversation} />
+
         {this.renderVideoRoom()}
 
         <Tip text={__('Attach file')}>
@@ -475,7 +478,7 @@ class RespondBox extends React.Component<Props, State> {
     return (
       <>
         {this.renderEditor()}
-        {this.renderIncicator()}
+        {this.renderIndicator()}
         {this.renderButtons()}
       </>
     );

@@ -113,6 +113,10 @@ $darker-blue: #3b85f4;
     color: $white;
     margin: 0 0 5px $core-spacing;
     text-align: right;
+
+    a {
+      color: $white;
+    }
   }
 
   &.attachment {

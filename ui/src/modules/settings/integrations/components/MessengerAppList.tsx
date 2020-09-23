@@ -25,8 +25,8 @@ class MessengerAppList extends React.Component<Props> {
     const onClick = () => remove(app);
 
     return (
-      <Tip text={__('Delete')}>
-        <Button btnStyle="link" onClick={onClick} icon="cancel-1" />
+      <Tip text={__('Delete')} placement="top">
+        <Button btnStyle="link" onClick={onClick} icon="times-circle" />
       </Tip>
     );
   }
@@ -51,7 +51,7 @@ class MessengerAppList extends React.Component<Props> {
     if (!messengerApps || messengerApps.length < 1) {
       return (
         <EmptyState
-          text="There aren’t any integrations at the moment."
+          text="There aren’t any integrations at the moment"
           image="/images/actions/2.svg"
         />
       );

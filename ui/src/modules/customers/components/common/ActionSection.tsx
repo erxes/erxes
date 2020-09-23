@@ -3,6 +3,7 @@ import DropdownToggle from 'modules/common/components/DropdownToggle';
 import { ControlLabel } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Tip from 'modules/common/components/Tip';
 import { __, Alert, confirm } from 'modules/common/utils';
 import CompaniesMerge from 'modules/companies/components/detail/CompaniesMerge';
 import CompanyForm from 'modules/companies/containers/CompanyForm';
@@ -14,6 +15,7 @@ import { Actions, MailBox, States } from 'modules/customers/styles';
 import { ICustomer } from 'modules/customers/types';
 import { Box } from 'modules/settings/growthHacks/styles';
 import MailForm from 'modules/settings/integrations/containers/mail/MailForm';
+import SmsForm from 'modules/settings/integrations/containers/telnyx/SmsForm';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 
@@ -53,6 +55,8 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
       </MailBox>
     );
 
+    const smsForm = props => <SmsForm {...props} primaryPhone={primaryPhone} />;
+
     return (
       <>
         <ModalTrigger
@@ -62,9 +66,11 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
             <Button
               disabled={primaryEmail ? false : true}
               size="small"
-              btnStyle="primary"
+              btnStyle={primaryEmail ? "primary" : "simple"}
             >
-              {__('Email')}
+              <Tip text="Send e-mail" placement="top-end">
+                <Icon icon="envelope" />
+              </Tip>
             </Button>
           }
           size="lg"
@@ -72,22 +78,42 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
           paddingContent="no-padding"
           enforceFocus={false}
         />
+        <ModalTrigger
+          dialogClassName="middle"
+          title={`Send SMS to (${primaryPhone})`}
+          trigger={
+            <Button
+              disabled={primaryPhone ? false : true}
+              size="small"
+              btnStyle={primaryPhone ? "primary" : "simple"}
+            >
+              <Tip text="Send SMS" placement="top-end">
+                <Icon icon="message" />
+              </Tip>
+            </Button>
+          }
+          content={smsForm}
+        />
         <Button
           href={primaryPhone && `tel:${primaryPhone}`}
           size="small"
-          btnStyle="primary"
+          btnStyle={primaryPhone ? "primary" : "simple"}
           disabled={primaryPhone ? false : true}
         >
-          {__('Call')}
+          <Tip text="Call" placement="top-end">
+            <Icon icon="phone" />
+          </Tip>
         </Button>
       </>
     );
   }
 
   renderButton() {
+    const { isSmall } = this.props;
+
     return (
-      <Button size="small" btnStyle="primary">
-        {__('Action')} <Icon icon="angle-down" />
+      <Button size="small" btnStyle="default">
+        {isSmall ? <Icon icon="ellipsis-h"/> : <>{__('Action')} <Icon icon="angle-down" /></>}
       </Button>
     );
   }
@@ -143,12 +169,12 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
   renderChangeStateForm() {
     const options = [
       {
-        value: 'lead',
-        desc: 'A person who preparing to buy some service or product.'
+        value: __('lead'),
+        desc: __('A person who preparing to buy some service or product')
       },
       {
-        value: 'customer',
-        desc: 'A person who already bought some service or product.'
+        value: __('customer'),
+        desc: __('A person who already bought some service or product')
       }
     ];
 
@@ -176,8 +202,8 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
     );
   }
 
-  render() {
-    const { coc, cocType, merge, remove, search } = this.props;
+  renderDropdown() {
+    const { remove, merge, cocType, search, coc } = this.props;
 
     const onClick = () =>
       confirm()
@@ -208,35 +234,41 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
     };
 
     return (
+      <Dropdown>
+        <Dropdown.Toggle as={DropdownToggle} id="dropdown-action">
+          {this.renderButton()}
+        </Dropdown.Toggle>
+        <Dropdown.Menu>
+          {this.renderEditButton()}
+          <li>
+            <TargetMerge
+              onSave={merge}
+              object={coc}
+              searchObject={search}
+              mergeForm={
+                cocType === 'customer' ? CustomersMerge : CompaniesMerge
+              }
+              generateOptions={
+                cocType === 'customer' ? generateOptions : targetMergeOptions
+              }
+            />
+          </li>
+          <li>
+            <a href="#delete" onClick={onClick}>
+              {__('Delete')}
+            </a>
+          </li>
+          <li>{this.renderChangeStateForm()}</li>
+        </Dropdown.Menu>
+      </Dropdown>
+    );
+  }
+
+  render() {
+    return (
       <Actions>
         {this.renderActions()}
-        <Dropdown>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-action">
-            {this.renderButton()}
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            {this.renderEditButton()}
-            <li>
-              <TargetMerge
-                onSave={merge}
-                object={coc}
-                searchObject={search}
-                mergeForm={
-                  cocType === 'customer' ? CustomersMerge : CompaniesMerge
-                }
-                generateOptions={
-                  cocType === 'customer' ? generateOptions : targetMergeOptions
-                }
-              />
-            </li>
-            <li>
-              <a href="#delete" onClick={onClick}>
-                {__('Delete')}
-              </a>
-            </li>
-            <li>{this.renderChangeStateForm()}</li>
-          </Dropdown.Menu>
-        </Dropdown>
+        {this.renderDropdown()}
       </Actions>
     );
   }

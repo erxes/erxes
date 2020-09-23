@@ -60,6 +60,7 @@ module.exports = {
         'user/subscription-getting-started',
         'user/initial-setup',
         'user/general-settings',
+        'user/engage-phone-settings',
         'user/team-inbox',
         'user/knowledge-base',
         'user/popups',

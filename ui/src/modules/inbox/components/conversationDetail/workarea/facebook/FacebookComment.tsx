@@ -1,19 +1,42 @@
-import * as React from 'react';
-
+import DropdownToggle from 'modules/common/components/DropdownToggle';
+import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import NameCard from 'modules/common/components/nameCard/NameCard';
+import DealConvertTrigger from 'modules/deals/components/DealConvertTrigger';
 import { IFacebookComment } from 'modules/inbox/types';
+import TaskConvertTrigger from 'modules/tasks/components/TaskConvertTrigger';
+import TicketConvertTrigger from 'modules/tickets/components/TicketConvertTrigger';
+import * as React from 'react';
+import Dropdown from 'react-bootstrap/Dropdown';
+import styled from 'styled-components';
 import Date from './Date';
 import FacebookContent from './FacebookContent';
+import ReplyingMessage from './ReplyingMessage';
 import { ChildPost, Comment, FlexItem, Reply, ShowMore, User } from './styles';
 import UserName from './UserName';
 
-import Icon from 'modules/common/components/Icon';
-import ReplyingMessage from './ReplyingMessage';
+const Container = styled.div`
+  display: inline-block;
+
+  .dropdown-menu {
+    min-width: auto;
+  }
+
+  button {
+    padding: 3px 7px 3px 12px;
+    font-size: 10px;
+  }
+`;
 
 type Props = {
   comment: IFacebookComment;
   isReply?: boolean;
+  convertToInfo: {
+    ticketUrl?: string;
+    dealUrl?: string;
+    taskUrl?: string;
+  };
+  changeStatusComment: () => void;
   replyComment: (
     data: {
       conversationId: string;
@@ -26,14 +49,15 @@ type Props = {
     {
       commentId,
       postId,
-      limit
+      limit,
     }: { commentId?: string; postId?: string; limit?: number }
   ) => void;
+  refetch: () => void;
 };
 
 export default class FacebookComment extends React.Component<
   Props,
-  { hasReplies: boolean }
+  { hasReplies: boolean; isResolved: boolean }
 > {
   constructor(props) {
     super(props);
@@ -46,11 +70,12 @@ export default class FacebookComment extends React.Component<
     }
 
     this.state = {
-      hasReplies
+      hasReplies,
+      isResolved: data.isResolved ? true : false,
     };
   }
 
-  fetchReplies = commentId => {
+  fetchReplies = (commentId) => {
     const { fetchFacebook } = this.props;
 
     fetchFacebook({ commentId });
@@ -62,8 +87,46 @@ export default class FacebookComment extends React.Component<
     this.setState({ hasReplies: true });
   };
 
+  changeStatusComment = () => {
+    const { isResolved } = this.state;
+    const { changeStatusComment } = this.props;
+
+    this.setState({ isResolved: isResolved ? false : true });
+
+    return changeStatusComment();
+  };
+
+  collectAttachments = () => {
+    const { comment } = this.props;
+    const result = [] as any;
+
+    if (comment.attachments && comment.attachments.length > 0) {
+      const { attachments } = comment;
+
+      attachments.forEach((link, index) => {
+        if (link.includes('fna.fbcdn.net')) {
+          result.push({
+            url: link,
+            name: 'attachment',
+            type: 'image / jpeg,',
+          });
+        }
+      });
+    }
+
+    return result;
+  };
+
   render() {
-    const { comment, replyComment, isReply } = this.props;
+    const {
+      comment,
+      replyComment,
+      isReply,
+      convertToInfo,
+      refetch,
+    } = this.props;
+    const { isResolved } = this.state;
+
     const customer = comment.customer || {};
 
     if (!comment) {
@@ -71,8 +134,9 @@ export default class FacebookComment extends React.Component<
     }
 
     const size = comment && comment.parentId ? 20 : 32;
+    const statusText = isResolved ? 'Open' : 'Resolve';
 
-    const content = props => (
+    const content = (props) => (
       <ReplyingMessage
         changeHasReply={this.changeHasReply}
         conversationId={comment.conversationId}
@@ -82,6 +146,15 @@ export default class FacebookComment extends React.Component<
         {...props}
       />
     );
+
+    const triggerProps = {
+      relTypeIds: [customer._id],
+      relType: 'customer',
+      sourceConversationId: comment.commentId,
+      refetch,
+      description: comment.content,
+      attachments: this.collectAttachments(),
+    };
 
     return (
       <>
@@ -102,16 +175,54 @@ export default class FacebookComment extends React.Component<
             </FlexItem>
 
             {!isReply ? (
-              <Reply>
+              <Reply type="reply">
                 <ModalTrigger
                   title="Reply"
-                  trigger={<span> Reply •</span>}
+                  trigger={<span>Reply</span>}
                   content={content}
                 />
               </Reply>
             ) : null}
+            <Container>
+              <Dropdown>
+                <Dropdown.Toggle as={DropdownToggle} id="dropdown-convert-to">
+                  <Reply type="convert">
+                    <span>Convert</span>
+                  </Reply>
+                </Dropdown.Toggle>
+                <Dropdown.Menu>
+                  <li key="ticket">
+                    <TicketConvertTrigger
+                      {...triggerProps}
+                      url={convertToInfo.ticketUrl}
+                    />
+                  </li>
+                  <li key="deal">
+                    <DealConvertTrigger
+                      {...triggerProps}
+                      url={convertToInfo.dealUrl}
+                    />
+                  </li>
+                  <li key="task">
+                    <TaskConvertTrigger
+                      {...triggerProps}
+                      url={convertToInfo.taskUrl}
+                    />
+                  </li>
+                </Dropdown.Menu>
+              </Dropdown>
+            </Container>
 
-            <Date type="comment" timestamp={comment.timestamp} />
+            <Reply type={statusText}>
+              <span onClick={this.changeStatusComment}>{statusText}</span>
+            </Reply>
+            <span>
+              <Date
+                type="comment"
+                timestamp={comment.timestamp}
+                permalink_url={comment.permalink_url}
+              />
+            </span>
           </User>
         </ChildPost>
         {this.state.hasReplies && (

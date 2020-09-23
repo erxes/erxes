@@ -157,7 +157,7 @@ class CompaniesList extends React.Component<IProps, State> {
       </Button>
     );
 
-    const editColumns = <a href="#edit">{__('Edit columns')}</a>;
+    const editColumns = <a href="#edit">{__('Choose Properties/View')}</a>;
 
     const mergeButton = (
       <Button btnStyle="primary" size="small" icon="merge">
@@ -223,7 +223,7 @@ class CompaniesList extends React.Component<IProps, State> {
           {...props}
           location={location}
           history={history}
-          contentType="companies"
+          contentType="company"
         />
       );
     };
@@ -259,12 +259,12 @@ class CompaniesList extends React.Component<IProps, State> {
             </li>
             <li>
               <Link to="/settings/properties?type=company">
-                {__('Properties')}
+                {__('Manage properties')}
               </Link>
             </li>
             <li>
               <a href="#export" onClick={exportCompanies.bind(this, bulk)}>
-                {__('Export companies')}
+                {__('Export this companies')}
               </a>
             </li>
           </Dropdown.Menu>

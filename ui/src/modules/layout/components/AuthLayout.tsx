@@ -1,5 +1,5 @@
 import Button from 'modules/common/components/Button';
-import { __ } from 'modules/common/utils';
+import { __, bustIframe } from 'modules/common/utils';
 import React from 'react';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
@@ -13,6 +13,8 @@ import {
 
 type Props = {
   content: React.ReactNode;
+  description?: React.ReactNode;
+  col?: {first: number; second: number};
 };
 
 class AuthLayout extends React.Component<Props, {}> {
@@ -36,13 +38,6 @@ class AuthLayout extends React.Component<Props, {}> {
     const { userAgent } = navigator;
 
     if (userAgent.indexOf('Mobile') !== -1) {
-      if (userAgent.match(/iPhone|iPad|iPod/i)) {
-        return this.renderContent(
-          'Download ios app for free on the App Store',
-          'https://itunes.apple.com/zw/app/erxes-inc/id1454657885?mt=8&fbclid=IwAR1_A-3dPkw4oUh3r-4lpAvs_Ie5FWOTy1dduFy7eJZbpWKJJ9ukzu9ZNUc'
-        );
-      }
-
       if (userAgent.match(/Android/i)) {
         return this.renderContent(
           'Download android app for free on the Google play',
@@ -54,26 +49,48 @@ class AuthLayout extends React.Component<Props, {}> {
     return null;
   }
 
+  renderDesciption() {
+    const { description } = this.props;
+
+    if (description) {
+      return (
+        <>
+          <img src="/images/logo.png" alt="erxes" />
+          {description}
+        </>
+      );
+    }
+
+    return (
+      <>
+        <img src="/images/logo.png" alt="erxes" />
+        <h1>{__('Open Source Growth Marketing Platform')}</h1>
+        <p>
+          {__(
+            'Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot with the mission and community-driven ecosystem.'
+          )}
+        </p>
+        <a href={__('Homepage link')}>« {__('Go to home page')}</a>
+      </>
+    );
+  }
+
+  componentDidMount() {
+    // click-jack attack defense
+    bustIframe();
+  }
+
   render() {
-    const { content } = this.props;
+    const { content, col = {first: 6, second: 5} } = this.props;
 
     return (
       <Authlayout>
         <AuthContent>
           <Container>
-            <Col md={6}>
-              <AuthDescription>
-                <img src="/images/logo.png" alt="erxes" />
-                <h1>{__('Open Source Growth Marketing Platform')}</h1>
-                <p>
-                  {__(
-                    'Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot with the mission and community-driven ecosystem.'
-                  )}
-                </p>
-                <a href={__('Homepage link')}>« {__('Go to home page')}</a>
-              </AuthDescription>
+            <Col md={col.first}>
+              <AuthDescription>{this.renderDesciption()}</AuthDescription>
             </Col>
-            <Col md={{ span: 5, offset: 1 }}>{content}</Col>
+            <Col md={{ span: col.second, offset: 1 }}>{content}</Col>
           </Container>
         </AuthContent>
         {this.renderRecommendMobileVersion()}

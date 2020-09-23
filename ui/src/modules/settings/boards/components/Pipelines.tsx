@@ -1,12 +1,14 @@
 import { IBoard, IPipeline } from 'modules/boards/types';
 import { collectOrders } from 'modules/boards/utils';
 import Button from 'modules/common/components/Button';
+import EmptyContent from 'modules/common/components/empty/EmptyContent';
 import EmptyState from 'modules/common/components/EmptyState';
 import Table from 'modules/common/components/table';
 import { Count, Title } from 'modules/common/styles/main';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
+import { EMPTY_CONTENT_DEAL_PIPELINE, EMPTY_CONTENT_TASK_PIPELINE } from 'modules/settings/constants';
 import React from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import PipelineForm from '../containers/PipelineForm';
@@ -105,10 +107,19 @@ class Pipelines extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { pipelines, options } = this.props;
+    const { pipelines, options, type } = this.props;
     const pipelineName = options ? options.pipelineName : 'pipeline';
 
     if (pipelines.length === 0) {
+      if(type === 'deal' || type === 'task') {
+        return (
+          <EmptyContent 
+            content={type === 'deal' ? EMPTY_CONTENT_DEAL_PIPELINE : EMPTY_CONTENT_TASK_PIPELINE} 
+            maxItemWidth="420px" 
+          />
+        );
+      }
+
       return (
         <EmptyState
           text={`Get started on your ${pipelineName.toLowerCase()}`}

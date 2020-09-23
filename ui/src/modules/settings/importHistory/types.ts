@@ -1,4 +1,5 @@
 import { IUser } from 'modules/auth/types';
+import { QueryResponse } from 'modules/common/types';
 
 export interface IImportHistory {
   _id: string;
@@ -21,16 +22,13 @@ export interface IImportHistoryItem {
 
 export type ImportHistoriesQueryResponse = {
   importHistories: IImportHistoryItem;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type ImportHistoryDetailQueryResponse = {
   importHistoryDetail: IImportHistory;
-  loading: boolean;
   subscribeToMore: any;
-  refetch: () => void;
-};
+  error: any;
+} & QueryResponse;
 
 // mutation types
 

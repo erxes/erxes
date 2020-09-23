@@ -8,7 +8,7 @@ import { graphql } from 'react-apollo';
 import { withProps } from '../../common/utils';
 import AssistantContent from '../components/AssistantContent';
 import { FEATURE_DETAILS } from '../constants';
-import { mutations, queries, subscriptions } from '../graphql';
+import { mutations, queries } from '../graphql';
 import {
   ForceCompleteMutationResponse,
   GetAvailableFeaturesQueryResponse,
@@ -49,43 +49,30 @@ class AssistantContentContainer extends React.Component<FinalProps> {
   componentDidMount() {
     if (window.location.href.includes('signedIn=true')) {
       setTimeout(() => {
-        apolloClient.mutate({
-          mutation: gql(mutations.checkStatus)
-        });
+        apolloClient
+          .mutate({
+            mutation: gql(mutations.checkStatus)
+          })
+          .then(({ data }) => {
+            const onboardStatus = data.onboardingCheckStatus;
+            if (onboardStatus === 'completed') {
+              return this.props.toggleContent(false);
+            }
+
+            if (onboardStatus === 'inComplete' || onboardStatus === 'initial') {
+              this.props.toggleContent(true);
+              this.props.changeRoute(onboardStatus);
+            }
+
+            if (
+              onboardStatus === 'initial' &&
+              localStorage.getItem('erxes_customization_features')
+            ) {
+              this.props.changeRoute('todoList');
+            }
+          });
       }, 3000);
     }
-  }
-
-  componentWillMount() {
-    const { getAvailableFeaturesQuery, currentUser } = this.props;
-
-    if (!getAvailableFeaturesQuery) {
-      return;
-    }
-
-    getAvailableFeaturesQuery.subscribeToMore({
-      document: gql(subscriptions.onboardingChanged),
-      variables: { userId: currentUser._id },
-      updateQuery: (prev, { subscriptionData: { data } }) => {
-        const { onboardingChanged } = data;
-
-        if (onboardingChanged) {
-          const { type } = onboardingChanged;
-
-          if (['initial', 'inComplete'].includes(type)) {
-            this.props.changeRoute(type);
-            this.props.toggleContent(true);
-          }
-
-          if (
-            type === 'initial' &&
-            localStorage.getItem('erxes_customization_features')
-          ) {
-            this.props.changeRoute('todoList');
-          }
-        }
-      }
-    });
   }
 
   render() {

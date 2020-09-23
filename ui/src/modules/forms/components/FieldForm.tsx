@@ -89,6 +89,7 @@ class FieldForm extends React.Component<Props, State> {
           <option />
           <option value="email">{__('Email')}</option>
           <option value="number">{__('Number')}</option>
+          <option value="datetime">{__('Date Time')}</option>
           <option value="date">{__('Date')}</option>
           <option value="phone">{__('Phone')}</option>
         </FormControl>
@@ -193,7 +194,7 @@ class FieldForm extends React.Component<Props, State> {
         {this.renderOptions()}
 
         <FlexRow>
-          <label>This field is required</label>
+          <label>{__('This field is required')}</label>
           <Toggle
             defaultChecked={field.isRequired || false}
             icons={{

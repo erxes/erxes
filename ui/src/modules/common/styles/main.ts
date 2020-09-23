@@ -18,6 +18,10 @@ const MiddleContent = styledTS<{ transparent?: boolean }>(styled.div)`
   height: calc(100% - 20px);
   background: ${props => !props.transparent && colors.colorWhite};
   margin: 10px 0;
+
+  @media (max-width: 900px) {
+    width: 100%;
+  }
 `;
 
 const BoxRoot = styledTS<{ selected?: boolean }>(styled.div)`
@@ -220,7 +224,7 @@ const TabContent = styled.div`
 
 const ButtonRelated = styled.div`
   text-align: center;
-  padding: 10px 0 16px;
+  padding: 16px 0;
   font-size: 12px;
 
   span {

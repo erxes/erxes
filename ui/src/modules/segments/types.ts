@@ -1,3 +1,5 @@
+import { QueryResponse } from 'modules/common/types';
+
 export interface IEvent {
   name: string;
   attributeNames: string[];
@@ -11,7 +13,6 @@ export interface IConditionFilter {
 }
 export interface ISegmentCondition {
   key?: string;
-
   type: string;
 
   propertyName?: string;
@@ -48,22 +49,17 @@ export interface ISegment extends ISegmentDoc {
 }
 
 // query types
-
 export type Counts = {
   [key: string]: number;
 };
 
 export type SegmentsQueryResponse = {
   segments: ISegment[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type HeadSegmentsQueryResponse = {
   segmentsGetHeads: ISegment[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type EventsQueryResponse = {
   segmentsEvents: Array<{ name: string; attributeNames: string[] }>;
@@ -72,12 +68,9 @@ export type EventsQueryResponse = {
 
 export type SegmentDetailQueryResponse = {
   segmentDetail: ISegment;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 // mutation types
-
 export type AddMutationVariables = {
   name: string;
   description: string;

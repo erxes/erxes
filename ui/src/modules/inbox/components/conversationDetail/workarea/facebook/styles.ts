@@ -41,7 +41,7 @@ const PostContainer = styled.div`
   }
 `;
 
-const DateTime = styled.span`
+const DateTime = styled.a`
   color: ${colors.colorCoreGray};
   font-size: ${typography.fontSizeHeading8}px;
   font-weight: normal;
@@ -56,8 +56,8 @@ const DateTime = styled.span`
 const User = styledTS<{ isPost?: boolean; isReply?: string }>(styled.div)`
   color: ${colors.colorCoreGray};
   padding-right: ${mainSize};
-  padding-left: ${props => (props.isPost ? '50px' : '40px')};
-  padding-left: ${props => props.isReply && '30px'};
+  padding-left: ${(props) => (props.isPost ? '50px' : '40px')};
+  padding-left: ${(props) => props.isReply && '30px'};
 
   > a {
     display: block;
@@ -74,7 +74,7 @@ const User = styledTS<{ isPost?: boolean; isReply?: string }>(styled.div)`
 
   span {
     color: #616770;
-    font-size: ${props => (props.isPost ? '12px' : '11px')};
+    font-size: ${(props) => (props.isPost ? '12px' : '11px')};
     cursor: pointer;
   }
 
@@ -86,7 +86,7 @@ const User = styledTS<{ isPost?: boolean; isReply?: string }>(styled.div)`
 const ShowMore = styledTS<{ isReply?: boolean }>(styled.a)`
   color: ${colors.socialFacebook};
   font-size: 12px;
-  padding: ${props => (props.isReply ? '0 0 10px 60px' : '0 0 5px 10px')};
+  padding: ${(props) => (props.isReply ? '0 0 10px 60px' : '0 0 5px 10px')};
   display: block;
   position: relative;
   cursor: pointer;
@@ -111,14 +111,24 @@ const ShowMore = styledTS<{ isReply?: boolean }>(styled.a)`
   }
 `;
 
-const Reply = styled.div`
+const Reply = styledTS<{ type: string }>(styled.div)`
   display: inline-block;
   margin-right: 5px;
   padding-left: ${coreSize};
-
   > span {
     font-size: 11px;
-    color: ${colors.socialFacebook};
+    color: ${(props) => {
+      switch (props.type) {
+        case 'convert':
+          return colors.colorPrimary;
+        case 'Resolve':
+          return colors.colorCoreGreen;
+        case 'Open':
+          return colors.colorCoreYellow;
+        default:
+          return colors.socialFacebook;
+      }
+    }};
     transition: all ease 0.9s;
     cursor: pointer;
   }
@@ -131,13 +141,12 @@ const Reply = styled.div`
 
 const ChildPost = styledTS<{ isReply?: string }>(styled.div)`
   padding: 0 ${coreSize};
-  overflow: hidden;
   position: relative;
   margin-bottom: 15px;
-  margin-left: ${props => props.isReply && '45px'};
+  margin-left: ${(props) => props.isReply && '45px'};
 
   > span {
-    margin-top: ${props => props.isReply && '7px'};
+    margin-top: ${(props) => props.isReply && '7px'};
   }
 `;
 
@@ -156,11 +165,11 @@ const Counts = styled.div`
 `;
 
 const Comment = styledTS<{ isInternal?: boolean }>(styled.div)`
-  background: ${props => (props.isInternal ? colors.bgInternal : '#eff1f3')};
-  box-shadow: ${props =>
+  background: ${(props) => (props.isInternal ? colors.bgInternal : '#eff1f3')};
+  box-shadow: ${(props) =>
     props.isInternal && `0 1px 1px 0 ${colors.darkShadow}`};
   border: 1px solid
-    ${props => (props.isInternal ? colors.bgInternal : '#ebebeb')};
+    ${(props) => (props.isInternal ? colors.bgInternal : '#ebebeb')};
   padding: 8px ${coreSize};
   border-radius: 18px;
   line-height: 16px;
@@ -206,12 +215,12 @@ const ContentContainer = styledTS<{ full?: boolean; isComment?: boolean }>(
   padding: ${coreSize};
 
   img {
-    width: ${props => props.full && '70px'};
-    height: ${props => props.full && '70px'};
+    width: ${(props) => props.full && '70px'};
+    height: ${(props) => props.full && '70px'};
     border: 1px solid ${colors.borderPrimary};
     margin-right: 5px;
     padding: ${coreSize};
-    max-width: ${props => props.isComment && '400px'};
+    max-width: ${(props) => props.isComment && '400px'};
   }
 
   > div {
@@ -236,5 +245,5 @@ export {
   ContentContainer,
   LeftAlign,
   DateTime,
-  ShowMore
+  ShowMore,
 };

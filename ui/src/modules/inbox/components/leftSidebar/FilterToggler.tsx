@@ -1,12 +1,14 @@
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { GroupTitle } from './styles';
 
 type Props = {
   groupText: string;
   isOpen: boolean;
   toggle: (params: { isOpen: boolean }) => void;
+  manageUrl?: string;
 };
 
 type State = {
@@ -20,7 +22,7 @@ export default class FilterToggler extends React.PureComponent<Props, State> {
     this.state = { isOpen: props.isOpen };
   }
 
-  onClick = () => {
+  onClick = (e) => {
     const { isOpen } = this.state;
 
     this.setState({ isOpen: !isOpen });
@@ -28,14 +30,21 @@ export default class FilterToggler extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { groupText, children } = this.props;
+    const { groupText, children, manageUrl } = this.props;
     const { isOpen } = this.state;
 
     return (
       <>
-        <GroupTitle onClick={this.onClick} isOpen={isOpen}>
-          {__(groupText)}
-          <Icon icon="angle-down" />
+        <GroupTitle isOpen={isOpen}>
+          <span onClick={this.onClick}>
+            {__(groupText)}
+            <Icon icon="angle-down" />
+          </span>
+          {manageUrl && (
+            <Link to={manageUrl}>
+              <Icon icon="cog" size={14} />
+            </Link>
+          )}
         </GroupTitle>
         {this.state.isOpen && children}
       </>

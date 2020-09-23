@@ -20,10 +20,14 @@ const AssignTrigger = styled.div`
 
   i {
     margin-left: 5px;
-    margin-right: -3px;
+    margin-right: -6px;
     transition: all ease 0.3s;
     color: ${colors.colorCoreGray};
     display: inline-block;
+
+    @media (max-width: 768px) {
+      display: none;
+    }
   }
 
   &:hover {

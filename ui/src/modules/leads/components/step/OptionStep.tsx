@@ -3,12 +3,13 @@ import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { LeftItem, Preview } from 'modules/common/components/step/styles';
+import Toggle from 'modules/common/components/Toggle';
 import { __ } from 'modules/common/utils';
 import FieldsPreview from 'modules/forms/components/FieldsPreview';
 import { IFormData } from 'modules/forms/types';
 import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
 import { IField } from 'modules/settings/properties/types';
-import { ColorPick, ColorPicker } from 'modules/settings/styles';
+import { ColorPick, ColorPicker, Description } from 'modules/settings/styles';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
@@ -23,8 +24,9 @@ type Props = {
   color: string;
   theme: string;
   language?: string;
+  isRequireOnce?: boolean;
   onChange: (
-    name: 'brand' | 'color' | 'theme' | 'language',
+    name: 'brand' | 'color' | 'theme' | 'language' | 'isRequireOnce',
     value: string
   ) => void;
   fields?: IField[];
@@ -59,7 +61,7 @@ class OptionStep extends React.Component<Props, {}> {
   }
 
   render() {
-    const { language, brand, formData, color, theme } = this.props;
+    const { language, brand, formData, color, theme, isRequireOnce } = this.props;
     const { fields, desc } = formData;
 
     const popoverTop = (
@@ -90,6 +92,10 @@ class OptionStep extends React.Component<Props, {}> {
       <FieldsPreview fields={fields || []} formDesc={desc} />
     );
 
+    const onSwitchHandler = e => {
+      this.onChangeFunction('isRequireOnce', e.target.checked);
+    };
+
     return (
       <FlexItem>
         <LeftItem>
@@ -112,6 +118,21 @@ class OptionStep extends React.Component<Props, {}> {
               <option value="mn">Монгол</option>
               <option value="en">English</option>
             </FormControl>
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>Submit once</ControlLabel>
+            <Description>Turn on to receive a submission from the visitor only once. Once a submission is received, the popup will not show.</Description>
+            <div>
+              <Toggle
+                checked={isRequireOnce || false}
+                onChange={onSwitchHandler}
+                icons={{
+                  checked: <span>Yes</span>,
+                  unchecked: <span>No</span>
+                }}
+              />
+            </div>
           </FormGroup>
 
           <FormGroup>

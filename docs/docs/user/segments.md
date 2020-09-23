@@ -165,7 +165,7 @@ You can arrange the event occurs (such as when a user clicks a button). The exam
 
 <script>
   if(document.addEventListener){
-    document.querySelector('#get-start).addEventListener('click', function() {
+    document.querySelector('#get-start').addEventListener('click', function() {
       window.Erxes.sendEvent({ name: 'get-start', attributes: { price: 100, view: '80%' } })
     })
   }

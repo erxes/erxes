@@ -1,3 +1,4 @@
+import { QueryResponse } from 'modules/common/types';
 import { IUser } from '../auth/types';
 import { ICustomer } from '../customers/types';
 import { IIntegration } from '../settings/integrations/types';
@@ -40,6 +41,8 @@ export interface IConversation {
   facebookPost?: IFacebookPost;
   callProAudio?: string;
   videoCallData?: IVideoCallData;
+
+  productBoardLink?: string;
 }
 
 interface IEngageDataRules {
@@ -57,7 +60,7 @@ export interface IFacebookPost {
   erxesApiId?: string;
   attachments: string[];
   timestamp: Date;
-  commentCount: number;
+  permalink_url: string;
 }
 
 export interface IFacebookComment {
@@ -70,6 +73,8 @@ export interface IFacebookComment {
   commentCount: number;
   timestamp: Date;
   customer: ICustomer;
+  isResolved: boolean;
+  permalink_url: string;
 }
 
 export interface IEmail {
@@ -80,6 +85,8 @@ export interface IEmail {
 export interface IMail {
   integrationEmail: string;
   messageId?: string;
+  replyTo?: string;
+  inReplyTo?: string;
   headerId?: string;
   accountId?: string;
   replyToMessageId?: string;
@@ -201,6 +208,16 @@ export type ChangeStatusMutationResponse = {
   ) => Promise<any>;
 };
 
+export type CreateProductBoardMutationVariables = {
+  _id: string;
+};
+
+export type CreateProductBoardMutationResponse = {
+  createProductBoardMutation: (
+    doc: { variables: CreateProductBoardMutationVariables }
+  ) => Promise<any>;
+};
+
 // query types
 
 export type ConvesationsQueryVariables = {
@@ -219,29 +236,21 @@ export type ConvesationsQueryVariables = {
 
 export type LastConversationQueryResponse = {
   conversationsGetLast: IConversation;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type ConversationsQueryResponse = {
   conversations: IConversation[];
-  loading: boolean;
-  refetch: () => void;
   subscribeToMore: (variables) => void;
-};
+} & QueryResponse;
 
 export type ConversationDetailQueryResponse = {
   conversationDetail: IConversation;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type MessagesQueryResponse = {
   conversationMessages: IMessage[];
-  loading: boolean;
-  refetch: () => void;
   fetchMore: (variables) => void;
-};
+} & QueryResponse;
 
 export type MessagesTotalCountQuery = {
   loading: boolean;
@@ -250,23 +259,22 @@ export type MessagesTotalCountQuery = {
 
 export type ConversationsTotalCountQueryResponse = {
   conversationsTotalCount: number;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type UnreadConversationsTotalCountQueryResponse = {
   conversationsTotalUnreadCount: number;
-  loading: boolean;
-  refetch: () => void;
   subscribeToMore: (variables) => void;
-};
+} & QueryResponse;
 
 export type FacebookCommentsQueryResponse = {
   converstationFacebookComments: IFacebookComment[];
-  loading: boolean;
-  refetch: () => void;
   fetchMore: (variables) => void;
-};
+} & QueryResponse;
+
+export type FacebookCommentsCountQueryResponse = {
+  converstationFacebookCommentsCount: any;
+  fetchMore: (variables) => void;
+} & QueryResponse;
 
 export type ReplyFaceBookCommentMutationVariables = {
   conversationId: string;
@@ -278,6 +286,18 @@ export type ReplyFacebookCommentMutationResponse = {
   replyMutation: (
     doc: {
       variables: ReplyFaceBookCommentMutationVariables;
+    }
+  ) => Promise<any>;
+};
+
+export type ResolveFacebookCommentMutationVariables = {
+  commentId: string;
+};
+
+export type ResolveFacebookCommentResponse = {
+  resolveMutation: (
+    doc: {
+      variables: ResolveFacebookCommentMutationVariables;
     }
   ) => Promise<any>;
 };

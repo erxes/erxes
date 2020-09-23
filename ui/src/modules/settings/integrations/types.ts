@@ -1,3 +1,4 @@
+import { QueryResponse } from 'modules/common/types';
 import { IForm } from 'modules/forms/types';
 import { ILeadData, ILeadIntegration } from 'modules/leads/types';
 import { IBrand } from '../brands/types';
@@ -79,6 +80,7 @@ export interface IMessengerData {
 
 export interface IUiOptions {
   color?: string;
+  textColor?: string;
   wallpaper?: string;
   logo?: string;
   logoPreviewUrl?: string;
@@ -140,9 +142,7 @@ export type IntegrationsQueryResponse = {
 
 export type IntegrationDetailQueryResponse = {
   integrationDetail: IIntegration;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 type By = { [key: string]: number };
 
@@ -191,22 +191,19 @@ export type MessengerAppsCountQueryResponse = {
 
 export type LeadIntegrationDetailQueryResponse = {
   integrationDetail: ILeadIntegration;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type AccountsQueryResponse = {
   integrationsFetchApi: IAccount[];
-  loading: boolean;
-  refetch: () => void;
   error?: Error;
-};
+} & QueryResponse;
 
 // mutation types
 export type SaveMessengerMutationVariables = {
   name: string;
   brandId: string;
   languageCode: string;
+  channelIds?: string[];
 };
 
 export type CreateGmailMutationVariables = {
@@ -258,6 +255,7 @@ export type EditMessengerMutationVariables = {
   name: string;
   brandId: string;
   languageCode: string;
+  channelIds?: string[];
 };
 
 export type EditMessengerMutationResponse = {
@@ -292,30 +290,32 @@ export type MessengerAppsAddKnowledgebaseMutationResponse = {
   ) => Promise<any>;
 };
 
-export type AddIntegrationMutationVariables = {
-  leadData: ILeadData;
+export type IntegrationMutationVariables = {
   brandId: string;
   name: string;
+  channelIds?: string[];
+};
+
+export type AddIntegrationMutationVariables = {
+  leadData: ILeadData;
   languageCode: string;
   formId: string;
-};
+} & IntegrationMutationVariables;
 
 export type AddIntegrationMutationResponse = {
   addIntegrationMutation: (
     params: {
       variables: AddIntegrationMutationVariables;
     }
-  ) => Promise<void>;
+  ) => Promise<any>;
 };
 
 export type EditIntegrationMutationVariables = {
   _id: string;
   leadData: ILeadData;
-  brandId: string;
-  name: string;
   languageCode: string;
   formId: string;
-};
+} & IntegrationMutationVariables;
 
 export type EditIntegrationMutationResponse = {
   editIntegrationMutation: (
@@ -335,21 +335,28 @@ export type RemoveAccountMutationResponse = {
 
 export type MessengerAppsQueryResponse = {
   messengerApps: IMessengerApp[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type MessengerAppsRemoveMutationResponse = {
   removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
 };
 
 export type ArchiveIntegrationResponse = {
-  archiveIntegration: (params: { variables: { _id: string } }) => Promise<any>;
+  archiveIntegration: (
+    params: { variables: { _id: string; status: boolean } }
+  ) => Promise<any>;
 };
 
 export type CommonFieldsEditResponse = {
   editCommonFields: (
-    params: { variables: { _id: string; name: string; brandId: string } }
+    params: {
+      variables: {
+        _id: string;
+        name: string;
+        brandId: string;
+        channelIds?: string[];
+      };
+    }
   ) => Promise<any>;
 };
 
@@ -366,3 +373,13 @@ export type ProviderFormInput = (
     | string,
   value: string | number
 ) => void;
+
+export type SendSmsMutationVariables = {
+  integrationId: string;
+  content: string;
+  to: string;
+};
+
+export type SendSmsMutationResponse = (
+  { variables: SendSmsMutationVariables }
+) => Promise<any>;

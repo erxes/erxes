@@ -40,6 +40,7 @@ type Props = {
   onClick?: () => void;
   currentUserName: string;
   changeRoute: (route: string) => void;
+  activeStep?: number;
 };
 
 type State = {
@@ -50,7 +51,7 @@ class Onboarding extends React.PureComponent<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = { activeStep: 0 };
+    this.state = { activeStep: props.activeStep || 0 };
   }
 
   changeStep = () => {

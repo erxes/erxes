@@ -26,6 +26,9 @@ type IProps = {
   closeModal: () => void;
   refetch?: () => void;
   aboveItemId?: string;
+  type?: string;
+  description?: string;
+  attachments?: any[];
 };
 
 type FinalProps = {
@@ -45,7 +48,9 @@ class AddFormContainer extends React.Component<FinalProps> {
       assignedUserIds,
       sourceConversationId,
       getAssociatedItem,
-      aboveItemId
+      aboveItemId,
+      description,
+      attachments
     } = this.props;
 
     doc.assignedUserIds = assignedUserIds;
@@ -57,6 +62,8 @@ class AddFormContainer extends React.Component<FinalProps> {
 
     doc.proccessId = proccessId;
     doc.aboveItemId = aboveItemId;
+    doc.description = description;
+    doc.attachments = attachments;
 
     addMutation({ variables: doc })
       .then(({ data }) => {

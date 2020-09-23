@@ -12,18 +12,18 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { cleanIntegrationKind } from '../../containers/utils';
 import { INTEGRATIONS_COLORS } from '../../integrationColors';
-import { IIntegration } from '../../types';
+import { IIntegration, IntegrationMutationVariables } from '../../types';
 import CommonFieldForm from './CommonFieldForm';
 
 type Props = {
   _id?: string;
   integration: IIntegration;
-  archive: (id: string) => void;
+  archive: (id: string, status: boolean) => void;
   removeIntegration: (integration: IIntegration) => void;
   disableAction?: boolean;
   editIntegration: (
     id: string,
-    { name, brandId }: { name: string; brandId: string }
+    { name, brandId, channelIds }: IntegrationMutationVariables
   ) => void;
 };
 
@@ -31,16 +31,34 @@ class IntegrationListItem extends React.Component<Props> {
   renderArchiveAction() {
     const { archive, integration, disableAction } = this.props;
 
-    if (!archive || disableAction) {
+    if (!archive || disableAction || !integration.isActive) {
       return null;
     }
 
-    const onClick = () => archive(integration._id);
+    const onClick = () => archive(integration._id, true);
 
     return (
       <WithPermission action="integrationsArchive">
-        <Tip text={__('Archive')}>
+        <Tip text={__('Archive')} placement="top">
           <Button btnStyle="link" onClick={onClick} icon="archive-alt" />
+        </Tip>
+      </WithPermission>
+    );
+  }
+
+  renderUnarchiveAction() {
+    const { archive, integration, disableAction } = this.props;
+
+    if (!archive || disableAction || integration.isActive) {
+      return null;
+    }
+
+    const onClick = () => archive(integration._id, false);
+
+    return (
+      <WithPermission action="integrationsArchive">
+        <Tip text={__('Unarchive')} placement="top">
+          <Button btnStyle="link" onClick={onClick} icon="redo" />
         </Tip>
       </WithPermission>
     );
@@ -55,8 +73,8 @@ class IntegrationListItem extends React.Component<Props> {
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text="Edit">
-          <Icon icon="edit" />
+        <Tip text="Edit" placement="top">
+          <Icon icon="edit-3" />
         </Tip>
       </Button>
     );
@@ -67,6 +85,7 @@ class IntegrationListItem extends React.Component<Props> {
         onSubmit={editIntegration}
         name={integration.name}
         brandId={integration.brandId}
+        channelIds={integration.channels.map(item => item._id) || []}
         integrationId={integration._id}
         integrationKind={integration.kind}
       />
@@ -91,8 +110,8 @@ class IntegrationListItem extends React.Component<Props> {
     if (kind === INTEGRATION_KINDS.MESSENGER) {
       const editTrigger = (
         <Button btnStyle="link">
-          <Tip text="Install code">
-            <Icon icon="copy" />
+          <Tip text="Install code" placement="top">
+            <Icon icon="code" />
           </Tip>
         </Button>
       );
@@ -103,11 +122,11 @@ class IntegrationListItem extends React.Component<Props> {
 
       return (
         <ActionButtons>
-          <Tip text={__('Edit messenger integration')}>
+          <Tip text={__('Edit messenger integration')} placement="top">
             <Link
               to={`/settings/integrations/editMessenger/${integration._id}`}
             >
-              <Button btnStyle="link" icon="edit" />
+              <Button btnStyle="link" icon="edit-3" />
             </Link>
           </Tip>
 
@@ -136,8 +155,8 @@ class IntegrationListItem extends React.Component<Props> {
 
     return (
       <WithPermission action="integrationsRemove">
-        <Tip text={__('Delete')}>
-          <Button btnStyle="link" onClick={onClick} icon="cancel-1" />
+        <Tip text={__('Delete')} placement="top">
+          <Button btnStyle="link" onClick={onClick} icon="times-circle" />
         </Tip>
       </WithPermission>
     );
@@ -146,6 +165,8 @@ class IntegrationListItem extends React.Component<Props> {
   render() {
     const { integration } = this.props;
     const integrationKind = cleanIntegrationKind(integration.kind);
+    const labelStyle = integration.isActive ? 'success' : 'warning';
+    const status = integration.isActive ? __('Active') : __('Archived');
 
     return (
       <tr key={integration._id}>
@@ -157,10 +178,14 @@ class IntegrationListItem extends React.Component<Props> {
         </td>
         <td>{integration.brand ? integration.brand.name : ''}</td>
         <td>
+          <Label lblStyle={labelStyle}>{status}</Label>
+        </td>
+        <td>
           <ActionButtons>
             {this.renderMessengerActions(integration)}
             {this.renderEditAction()}
             {this.renderArchiveAction()}
+            {this.renderUnarchiveAction()}
             {this.renderRemoveAction()}
           </ActionButtons>
         </td>

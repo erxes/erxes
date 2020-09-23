@@ -3,8 +3,9 @@ import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import styled from 'styled-components';
 import { colors, dimensions } from '../styles';
+import { rgba } from '../styles/color';
 import Button from './Button';
-import { ControlLabel, FormControl, FormGroup } from './form';
+import { ControlLabel, FormControl } from './form';
 import Icon from './Icon';
 
 const ModalBody = styled.div`
@@ -12,20 +13,40 @@ const ModalBody = styled.div`
   padding: ${dimensions.coreSpacing}px;
   font-size: 15px;
   font-weight: 500;
+
+  label {
+    margin-top: ${dimensions.coreSpacing}px;
+    font-size: 12px;
+    color: #777;
+
+    strong {
+      color: ${colors.textPrimary};
+    }
+  }
 `;
 
 const ModalFooter = styled.div`
-  padding: 11px ${dimensions.coreSpacing}px;
+  padding: 10px ${dimensions.coreSpacing}px;
   background: ${colors.colorWhite};
   border-top: 1px solid ${colors.borderPrimary};
-  border-radius: 4px;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
   display: flex;
-  justify-content: space-evenly;
+  justify-content: center;
 `;
 
 const IconWrapper = styled.div`
   font-size: 40px;
   color: ${colors.colorSecondary};
+`;
+
+const Error = styled.span`
+  font-size: 12px;
+  color: ${rgba(colors.colorCoreRed, 0.8)};
+  
+  strong {
+    color: ${colors.colorCoreRed};
+  }
 `;
 
 type Props = {
@@ -44,7 +65,7 @@ type Props = {
 type State = {
   show: boolean;
   confirm: string;
-  errors: { [key: string]: string };
+  errors: { [key: string]: React.ReactNode };
 };
 
 class ConfirmDialog extends React.Component<Props, State> {
@@ -79,7 +100,7 @@ class ConfirmDialog extends React.Component<Props, State> {
         return this.invokeProceed();
       }
 
-      return this.setState({ errors: { confirm: 'Enter delete to confirm' } });
+      return this.setState({ errors: { confirm: <Error>Enter <strong>delete</strong> to confirm</Error> } });
     }
 
     if (hasUpdateConfirm) {
@@ -87,7 +108,7 @@ class ConfirmDialog extends React.Component<Props, State> {
         return this.invokeProceed();
       }
 
-      return this.setState({ errors: { confirm: 'Enter update to confirm' } });
+      return this.setState({ errors: { confirm: <Error>Enter <strong>update</strong> to confirm</Error> } });
     }
 
     return this.invokeProceed();
@@ -121,11 +142,11 @@ class ConfirmDialog extends React.Component<Props, State> {
     }
 
     const label = hasDeleteConfirm
-      ? 'Type delete in the filed below to confirm.'
-      : 'Type update in the filed below to confirm.';
+      ? <>Type <strong>delete</strong> in the filed below to confirm.</>
+      : <>Type <strong>update</strong> in the filed below to confirm.</>;
 
     return (
-      <FormGroup>
+      <>
         <ControlLabel required={true} uppercase={false}>
           {label}
         </ControlLabel>
@@ -134,14 +155,16 @@ class ConfirmDialog extends React.Component<Props, State> {
           required={true}
           value={confirm}
           errors={errors}
+          autoFocus={true}
           onChange={this.handleChange}
         />
-      </FormGroup>
+      </>
     );
   }
 
   render() {
     const { confirmation = 'Are you sure?', options = {} } = this.props;
+    const { hasDeleteConfirm, hasUpdateConfirm } = options;
 
     const {
       okLabel = 'Yes, I am',
@@ -157,6 +180,7 @@ class ConfirmDialog extends React.Component<Props, State> {
         keyboard={enableEscape}
         size="sm"
         centered={true}
+        animation={(hasDeleteConfirm || hasUpdateConfirm) ? false : true}
       >
         <ModalBody>
           <IconWrapper>
@@ -167,18 +191,18 @@ class ConfirmDialog extends React.Component<Props, State> {
         </ModalBody>
         <ModalFooter>
           <Button
-            size="small"
             btnStyle="simple"
             onClick={this.dismiss}
-            icon="cancel-1"
+            icon="times-circle"
+            uppercase={false}
           >
             {cancelLabel}
           </Button>
           <Button
-            size="small"
             btnStyle="success"
             onClick={this.proceed}
-            icon="checked-1"
+            icon="check-circle"
+            uppercase={false}
           >
             {okLabel}
           </Button>

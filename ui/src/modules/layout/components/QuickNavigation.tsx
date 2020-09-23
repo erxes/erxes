@@ -89,6 +89,10 @@ const Round = styled(NavItem)`
       background: ${lighten(colors.colorPrimary, 15)};
     }
   }
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const QuickNavigation = ({
@@ -181,7 +185,7 @@ const QuickNavigation = ({
               title="Change Password"
               trigger={
                 <li>
-                  <a href="#change-password">{__('Change Password')}</a>
+                  <a href="#change-password">{__('Change password')}</a>
                 </li>
               }
               content={passContent}

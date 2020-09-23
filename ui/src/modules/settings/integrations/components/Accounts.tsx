@@ -1,17 +1,23 @@
+import { CenterText } from 'modules/activityLogs/styles';
 import Button from 'modules/common/components/Button';
-import FormControl from 'modules/common/components/form/Control';
-import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
+import EmptyState from 'modules/common/components/EmptyState';
+import Icon from 'modules/common/components/Icon';
 import { IFormProps } from 'modules/common/types';
 import { __, confirm } from 'modules/common/utils';
 import React from 'react';
-import { GoogleButton, Row } from '../styles';
+import {
+  AccountBox,
+  AccountItem,
+  AccountTitle,
+  FacebookButton,
+  GoogleButton
+} from '../styles';
 import { IAccount, IntegrationTypes } from '../types';
 
 type Props = {
   onSelect: (accountId?: string) => void;
   accounts: IAccount[];
-  formProps: IFormProps;
+  formProps?: IFormProps;
   onAdd: () => void;
   kind: IntegrationTypes;
   renderForm?: () => JSX.Element;
@@ -25,9 +31,15 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
     this.state = {};
   }
 
-  onChange = (e: React.FormEvent<HTMLElement>) => {
-    const accountId = (e.currentTarget as HTMLInputElement).value;
+  componentDidMount = () => {
+    const accounts = this.props.accounts;
 
+    if (accounts && accounts.length > 0) {
+      this.onSelectAccount(accounts[0]._id);
+    }
+  };
+
+  onSelectAccount = (accountId: string) => {
     this.props.onSelect(accountId);
 
     this.setState({ accountId: accountId || '' });
@@ -49,6 +61,15 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
       return <GoogleButton href="#add" onClick={onAdd} />;
     }
 
+    if (kind === 'facebook') {
+      return (
+        <FacebookButton onClick={onAdd}>
+          <Icon icon="facebook-official" />
+          {__('Continue with Facebook')}
+        </FacebookButton>
+      );
+    }
+
     return (
       <Button
         uppercase={false}
@@ -65,51 +86,60 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
     const { accountId } = this.state;
     const { renderForm } = this.props;
 
-    if (!accountId) {
-      if (renderForm) {
-        return renderForm();
-      }
-
-      return this.renderButton();
+    if (!accountId && renderForm) {
+      return renderForm();
     }
 
-    return (
-      <Button
-        onClick={this.onRemove.bind(this, accountId)}
-        btnStyle="danger"
-        size="small"
-      >
-        Remove Account
-      </Button>
-    );
+    return this.renderButton();
   }
 
-  render() {
-    const { accounts, formProps } = this.props;
+  renderAccounts() {
+    const { accounts } = this.props;
 
-    return (
-      <FormGroup>
-        <ControlLabel required={true}>Linked Accounts</ControlLabel>
-        <Row>
-          <FormControl
-            {...formProps}
-            name="accountId"
-            componentClass="select"
-            placeholder={__('Select account')}
-            onChange={this.onChange}
-            required={true}
+    if (accounts.length === 0) {
+      return (
+        <EmptyState icon="user-6" text={__('There is no linked accounts')} />
+      );
+    }
+
+    return accounts.map(account => (
+      <AccountItem key={account._id}>
+        <span>{account.name}</span>
+
+        <div>
+          <Button
+            onClick={this.onSelectAccount.bind(this, account._id)}
+            uppercase={false}
+            btnStyle={
+              this.state.accountId === account._id ? 'primary' : 'simple'
+            }
           >
-            <option value="">{__('Select account ...')}</option>
+            {this.state.accountId === account._id
+              ? __('Selected')
+              : __('Select This Account')}
+          </Button>
 
-            {accounts.map((account, index) => (
-              <option key={index} value={account._id}>
-                {account.name}
-              </option>
-            ))}
-          </FormControl>
-          {this.renderAccountAction()}
-        </Row>
-      </FormGroup>
+          <Button
+            onClick={this.onRemove.bind(this, account._id)}
+            btnStyle="danger"
+            uppercase={false}
+          >
+            {__('Remove')}
+          </Button>
+        </div>
+      </AccountItem>
+    ));
+  }
+  render() {
+    return (
+      <>
+        <AccountBox>
+          <AccountTitle>{__('Linked Accounts')}</AccountTitle>
+          {this.renderAccounts()}
+        </AccountBox>
+        <CenterText>{__('OR')}</CenterText>
+        <CenterText>{this.renderAccountAction()}</CenterText>
+      </>
     );
   }
 }

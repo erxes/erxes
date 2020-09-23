@@ -40,6 +40,7 @@ const defaultMailFields = {
   threadId: '',
   messageId,
   reply: null,
+  inReplyTo: null,
   replyToMessageId: null,
   replyTo: null,
   references: null,

@@ -21,7 +21,7 @@ export default class extends React.Component<Props> {
           saveGetNotified,
           getColor,
           isLoggedIn,
-          sendMessage,
+          sendMessage
         }) => {
           return (
             <MessagesList

@@ -21,7 +21,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import { TopicsQueryResponse } from '../../../../knowledgeBase/types';
-import { AllBrandsQueryResponse } from '../../../brands/types';
+import { BrandsQueryResponse } from '../../../brands/types';
 import { UsersQueryResponse } from '../../../team/types';
 
 type Props = {
@@ -31,7 +31,7 @@ type Props = {
 
 type FinalProps = {
   usersQuery: UsersQueryResponse;
-  brandsQuery: AllBrandsQueryResponse;
+  brandsQuery: BrandsQueryResponse;
   knowledgeBaseTopicsQuery: TopicsQueryResponse;
 } & Props &
   IRouterProps &
@@ -59,9 +59,16 @@ const CreateMessenger = (props: FinalProps) => {
   const topics = knowledgeBaseTopicsQuery.knowledgeBaseTopics || [];
 
   const save = doc => {
-    const { name, brandId, languageCode, messengerData, uiOptions } = doc;
+    const {
+      name,
+      brandId,
+      languageCode,
+      messengerData,
+      uiOptions,
+      channelIds
+    } = doc;
     saveMessengerMutation({
-      variables: { name, brandId, languageCode }
+      variables: { name, brandId, languageCode, channelIds }
     })
       .then(({ data }) => {
         const integrationId = data.integrationsCreateMessengerIntegration._id;
@@ -122,7 +129,7 @@ export default withProps<Props>(
     graphql<Props, UsersQueryResponse>(gql(queries.users), {
       name: 'usersQuery'
     }),
-    graphql<Props, AllBrandsQueryResponse>(gql(brandQueries.brands), {
+    graphql<Props, BrandsQueryResponse>(gql(brandQueries.brands), {
       name: 'brandsQuery',
       options: () => ({
         fetchPolicy: 'network-only'

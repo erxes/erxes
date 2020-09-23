@@ -79,7 +79,7 @@ export default class GenerateField extends React.Component<Props, State> {
       attrs.checked = checkBoxValues.includes(attrs.option);
     }
 
-    if (validation === 'date') {
+    if (validation === 'datetime') {
       attrs.max = '9999-12-31';
 
       // redefine onChange since date chooser returns the value, not event
@@ -94,6 +94,26 @@ export default class GenerateField extends React.Component<Props, State> {
           value={value}
           dateFormat="YYYY/MM/DD"
           timeFormat="HH:mm"
+          closeOnSelect={true}
+        />
+      );
+    }
+
+    if (validation === 'date') {
+      attrs.max = '9999-12-31';
+
+      // redefine onChange since date chooser returns the value, not event
+      attrs.onChange = val => {
+        this.setState({ value: val });
+        this.onChange(val, val);
+      };
+
+      return (
+        <Datetime
+          {...attrs}
+          value={value}
+          dateFormat="YYYY/MM/DD"
+          timeFormat={false}
           closeOnSelect={true}
         />
       );

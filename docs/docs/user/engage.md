@@ -79,11 +79,11 @@ Send mass emails to your target customers automatically at scheduled time. The c
 
 ## Manual Message
 
-Main function of Manual message is to send mass emails only once
+Main function of "Manual message" is to send mass message only once.
 
 - Please follow the steps for setup: **Engage->New Message->Manual message->Choose Channel**
 
-![](https://s3-us-west-2.amazonaws.com/erxes-docs/engage/engage3.jpg)
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/engage/engage-channels.png)
 
 1. **Insert Title** for Manual Message
 2. **Choose Channel**
@@ -112,6 +112,26 @@ Main function of Manual message is to send mass emails only once
 5. **Attach Files**
 6. **Appearance** of email
 7. Click **Save**
+
+### Sms message
+
+To send message through SMS channel, you must have your phone numbers configured.
+
+First, follow [this guide](/user/engage-phone-settings) to setup your phone number.
+Once your phone number is validated, you must assign that number to team members whom the engage message will be sent on behalf.
+
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/engage/edit-team-member-phone.png)
+
+The final step of SMS engage message is as the following.
+
+![](https://erxes-docs.s3-us-west-2.amazonaws.com/engage/engage-sms.png)
+
+1. Choose sender. Only team members who has phone numbers configured will be available & others will be greyed out, unavailable to choose.
+
+2. Write SMS title. When sending SMS to phone numbers outside of USA, this title text will be shown as the sender.
+Within USA, the original number will be shown.
+
+3. Write SMS body. It has 160 characters limit.
 
 ---
 

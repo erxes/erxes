@@ -1,8 +1,8 @@
-import * as React from "react";
-import { __ } from "../../utils";
-import { ConversationList, LeadConnect, WebsiteApp } from "../containers";
-import { IWebsiteApp } from "../types";
-import { IntegrationItem } from "./";
+import * as React from 'react';
+import { __ } from '../../utils';
+import { ConversationList, LeadConnect, WebsiteApp } from '../containers';
+import { IWebsiteApp } from '../types';
+import { IntegrationItem } from './';
 
 type Props = {
   formCode: string;
@@ -33,13 +33,13 @@ export default class Integrations extends React.PureComponent<Props> {
       return null;
     }
 
-    return websiteApps.map(((websiteApp, index) => {
+    return websiteApps.map((websiteApp, index) => {
       return (
         <IntegrationItem key={index}>
           <WebsiteApp websiteApp={websiteApp} />
         </IntegrationItem>
-      )
-    }))
+      );
+    });
   }
 
   renderConversations() {

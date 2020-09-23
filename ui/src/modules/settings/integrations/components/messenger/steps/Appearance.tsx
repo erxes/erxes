@@ -1,11 +1,12 @@
 import classnames from 'classnames';
+import { TEXT_COLORS } from 'modules/boards/constants';
+import { ControlLabel } from 'modules/common/components/form';
 import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
 import { __, uploadHandler } from 'modules/common/utils';
 import {
   BackgroundSelector,
   ColorPick,
   ColorPicker,
-  SubHeading,
   SubItem,
   WidgetBackgrounds
 } from 'modules/settings/styles';
@@ -21,16 +22,17 @@ type Props = {
       | 'logo'
       | 'logoPreviewUrl'
       | 'wallpaper'
-      | 'color',
+      | 'color'
+      | 'textColor',
     value: string
   ) => void;
   color: string;
+  textColor: string;
   logoPreviewUrl?: string;
   wallpaper: string;
 };
 
 type State = {
-  color: string;
   wallpaper: string;
   logoPreviewStyle: any;
   logo: object;
@@ -42,7 +44,6 @@ class Appearance extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      color: props.color,
       wallpaper: props.wallpaper,
       logoPreviewStyle: {},
       logo: {},
@@ -52,7 +53,7 @@ class Appearance extends React.Component<Props, State> {
 
   onChange = <T extends keyof State>(name: T, value: State[T]) => {
     this.props.onChange(name, value);
-    this.setState({ [name]: value } as Pick<State, keyof State>);
+    this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
   };
 
   handleLogoChange = e => {
@@ -86,7 +87,7 @@ class Appearance extends React.Component<Props, State> {
       <BackgroundSelector
         className={selectorClass}
         onClick={onClick}
-        style={{ borderColor: isSelected ? this.state.color : 'transparent' }}
+        style={{ borderColor: isSelected ? this.props.color : 'transparent' }}
       >
         <div className={`background-${value}`} />
       </BackgroundSelector>
@@ -96,18 +97,34 @@ class Appearance extends React.Component<Props, State> {
   renderUploadImage(title) {
     return (
       <SubItem>
-        <SubHeading>{title}</SubHeading>
+        <ControlLabel>{title}</ControlLabel>
         <input type="file" onChange={this.handleLogoChange} />
       </SubItem>
     );
   }
 
   render() {
-    const onChange = e => this.onChange('color', e.hex);
+    const { color, textColor, onChange } = this.props;
+    const onChangeColor = (key, e) => onChange(key, e.hex);
 
     const popoverContent = (
       <Popover id="color-picker">
-        <TwitterPicker color={this.state.color} onChange={onChange} />
+        <TwitterPicker
+          color={color}
+          onChange={onChangeColor.bind(this, 'color')}
+          triangle="hide"
+        />
+      </Popover>
+    );
+
+    const textColorContent = (
+      <Popover id="text-color-picker">
+        <TwitterPicker
+          color={textColor}
+          onChange={onChangeColor.bind(this, 'textColor')}
+          colors={TEXT_COLORS}
+          triangle="hide"
+        />
       </Popover>
     );
 
@@ -115,7 +132,7 @@ class Appearance extends React.Component<Props, State> {
       <FlexItem>
         <LeftItem>
           <SubItem>
-            <SubHeading>{__('Choose a custom color')}</SubHeading>
+            <ControlLabel>{__('Choose a background color')}</ControlLabel>
             <OverlayTrigger
               trigger="click"
               rootClose={true}
@@ -123,13 +140,26 @@ class Appearance extends React.Component<Props, State> {
               overlay={popoverContent}
             >
               <ColorPick>
-                <ColorPicker style={{ backgroundColor: this.state.color }} />
+                <ColorPicker style={{ backgroundColor: color }} />
+              </ColorPick>
+            </OverlayTrigger>
+          </SubItem>
+          <SubItem>
+            <ControlLabel>{__('Choose a text color')}</ControlLabel>
+            <OverlayTrigger
+              trigger="click"
+              rootClose={true}
+              placement="bottom-start"
+              overlay={textColorContent}
+            >
+              <ColorPick>
+                <ColorPicker style={{ backgroundColor: textColor }} />
               </ColorPick>
             </OverlayTrigger>
           </SubItem>
 
           <SubItem>
-            <SubHeading>{__('Choose a wallpaper')}</SubHeading>
+            <ControlLabel>Choose a wallpaper</ControlLabel>
 
             <WidgetBackgrounds>
               {this.renderWallpaperSelect('1')}

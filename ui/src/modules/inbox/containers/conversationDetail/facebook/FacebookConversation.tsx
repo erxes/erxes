@@ -6,6 +6,7 @@ import { withProps } from 'modules/common/utils';
 import FacebookConversation from 'modules/inbox/components/conversationDetail/workarea/facebook/FacebookConversation';
 import { queries, subscriptions } from 'modules/inbox/graphql';
 import {
+  FacebookCommentsCountQueryResponse,
   FacebookCommentsQueryResponse,
   IConversation,
   IFacebookComment,
@@ -17,12 +18,15 @@ import { graphql } from 'react-apollo';
 
 type Props = {
   conversation: IConversation;
+  isResolved: boolean;
+  onToggleClick: () => void;
   scrollBottom: () => void;
 };
 
 type FinalProps = {
   currentUser: IUser;
   commentsQuery: FacebookCommentsQueryResponse;
+  commentsCountQuery: FacebookCommentsCountQueryResponse;
   internalNotesQuery: MessagesQueryResponse;
 } & Props;
 
@@ -126,19 +130,32 @@ class FacebookPostContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const { commentsQuery, conversation, internalNotesQuery } = this.props;
+    const {
+      commentsQuery,
+      conversation,
+      internalNotesQuery,
+      commentsCountQuery
+    } = this.props;
 
-    if (commentsQuery.loading || internalNotesQuery.loading) {
+    if (
+      commentsQuery.loading ||
+      internalNotesQuery.loading ||
+      commentsCountQuery.loading
+    ) {
       return null;
     }
 
     const post = conversation.facebookPost || ({} as IFacebookPost);
     const comments = commentsQuery.converstationFacebookComments || [];
+    const commentCounts =
+      commentsCountQuery.converstationFacebookCommentsCount || {};
 
-    const hasMore = post.commentCount > comments.length;
+    const hasMore = commentCounts.commentCountWithoutReplies > comments.length;
+    const commentCount = commentCounts.commentCount;
 
     const updatedProps = {
       ...this.props,
+      commentCount,
       post,
       customer: conversation.customer || {},
       comments,
@@ -153,20 +170,50 @@ class FacebookPostContainer extends React.Component<FinalProps> {
 
 const WithQuery = withProps<Props & { currentUser: IUser }>(
   compose(
-    graphql<Props, FacebookCommentsQueryResponse, { postId: string }>(
-      gql(queries.converstationFacebookComments),
-      {
-        name: 'commentsQuery',
-        options: ({ conversation }: { conversation: IConversation }) => {
-          return {
-            variables: {
-              postId: conversation._id
-            },
-            fetchPolicy: 'network-only'
-          };
-        }
+    graphql<
+      Props,
+      FacebookCommentsQueryResponse,
+      { postId: string; isResolved: boolean }
+    >(gql(queries.converstationFacebookComments), {
+      name: 'commentsQuery',
+      options: ({
+        conversation,
+        isResolved
+      }: {
+        conversation: IConversation;
+        isResolved: boolean;
+      }) => {
+        return {
+          variables: {
+            postId: conversation._id,
+            isResolved
+          },
+          fetchPolicy: 'network-only'
+        };
       }
-    ),
+    }),
+    graphql<
+      Props,
+      FacebookCommentsCountQueryResponse,
+      { postId: string; isResolved: boolean }
+    >(gql(queries.converstationFacebookCommentsCount), {
+      name: 'commentsCountQuery',
+      options: ({
+        conversation,
+        isResolved
+      }: {
+        conversation: IConversation;
+        isResolved: boolean;
+      }) => {
+        return {
+          variables: {
+            postId: conversation._id,
+            isResolved
+          },
+          fetchPolicy: 'network-only'
+        };
+      }
+    }),
     graphql<Props, MessagesQueryResponse, { conversationId: string }>(
       gql(queries.conversationMessages),
       {
@@ -195,5 +242,3 @@ const WithConsumer = (props: Props) => {
 };
 
 export default WithConsumer;
-
-// conversationMessages

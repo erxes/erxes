@@ -21,7 +21,7 @@ const PopoverButton = styled.div`
 
   > i {
     margin-left: 3px;
-    margin-right: -3px;
+    margin-right: -4px;
     transition: all ease 0.3s;
     color: ${colors.colorCoreGray};
   }

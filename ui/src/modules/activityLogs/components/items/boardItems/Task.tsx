@@ -174,7 +174,7 @@ class Task extends React.Component<Props, State> {
     const content = (
       <Popover id="pipeline-popover">
         <Datetime
-          inputProps={{ placeholder: 'Click to select a date' }}
+          inputProps={{ placeholder: __('Click to select a date') }}
           dateFormat="YYYY/MM/DD"
           timeFormat="HH:mm"
           value={closeDate}
@@ -213,6 +213,8 @@ class Task extends React.Component<Props, State> {
   renderContent() {
     const { task } = this.props;
 
+    const assignedUserIds = (task.assignedUsers || []).map(user => user._id);
+
     const onAssignedUserSelect = usrs => {
       this.saveItem('assignedUserIds', usrs);
     };
@@ -224,9 +226,9 @@ class Task extends React.Component<Props, State> {
             <Row>
               <ControlLabel>Assigned to</ControlLabel>
               <SelectTeamMembers
-                label="Choose team member"
+                label={__('Choose team member')}
                 name="assignedUserIds"
-                value={task.assignedUserIds}
+                value={assignedUserIds}
                 onSelect={onAssignedUserSelect}
               />
             </Row>
@@ -278,7 +280,11 @@ class Task extends React.Component<Props, State> {
           </Tip>
         </FlexCenterContent>
         <FlexContent>
-          <Tip text={isComplete ? 'Mark as incomplete' : 'Mark as complete'}>
+          <Tip
+            text={
+              isComplete ? __('Mark as incomplete') : __('Mark as complete')
+            }
+          >
             <IconWrapper onClick={onComplete} isComplete={isComplete}>
               <Icon icon="check-1" size={25} />
             </IconWrapper>

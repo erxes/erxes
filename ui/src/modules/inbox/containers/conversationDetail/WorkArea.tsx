@@ -68,6 +68,7 @@ class WorkArea extends React.Component<FinalProps, State> {
       }
 
       if (this.prevTypingInfoSubscription) {
+        this.setState({ typingInfo: '' });
         this.prevTypingInfoSubscription();
       }
 
@@ -161,7 +162,7 @@ class WorkArea extends React.Component<FinalProps, State> {
   }) => {
     const { addMessageMutation, currentId } = this.props;
 
-    // immidiate ui update =======
+    // immediate ui update =======
     let update;
 
     if (optimisticResponse) {

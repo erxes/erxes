@@ -1,11 +1,11 @@
-import { IStage } from 'modules/boards/types';
+import { IConversionStage } from 'modules/boards/types';
 import { __ } from 'modules/common/utils';
 import Stage from 'modules/deals/containers/conversion/Stage';
 import * as React from 'react';
 import { HeadRow, TableView } from '../style';
 
 type Props = {
-  stages: IStage[];
+  stages: IConversionStage[];
   pipelineId: string;
   queryParams: any;
 };

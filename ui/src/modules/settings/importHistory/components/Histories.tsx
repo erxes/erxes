@@ -1,14 +1,18 @@
 import { getEnv } from 'apolloClient';
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
+import EmptyContent from 'modules/common/components/empty/EmptyContent';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
 import { IRouterProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
+import { EMPTY_IMPORT_CONTENT } from 'modules/settings/constants';
 import DataImporter from 'modules/settings/importHistory/containers/DataImporter';
+import ManageColumns from 'modules/settings/properties/containers/ManageColumns';
 import React from 'react';
 import ExportPopupsData from '../containers/ExportPopupsData';
 import { IImportHistory } from '../types';
@@ -31,8 +35,11 @@ const DATA_IMPORT_TYPES = [
   'product',
   'deal',
   'task',
-  'ticket'
+  'ticket',
+  'lead'
 ];
+
+const DYNAMICLY_TEMPLATE_TYPES = ['customer', 'company', 'product', 'lead'];
 
 class Histories extends React.Component<Props & IRouterProps> {
   renderHistories = () => {
@@ -87,6 +94,46 @@ class Histories extends React.Component<Props & IRouterProps> {
     return buttonText;
   }
 
+  renderColumnChooser = (type: string) => {
+    const { currentType } = this.props;
+
+    let icon = '';
+    let btnStyle = '';
+    let text = '';
+
+    switch (type) {
+      case 'import':
+        icon = 'folder-download';
+        btnStyle = 'success';
+        text = 'Download template';
+        break;
+      case 'export':
+        icon = 'export';
+        btnStyle = 'primary';
+        text = `Export ${this.getButtonText()}`;
+        break;
+    }
+
+    const manageColumns = props => {
+      return <ManageColumns {...props} contentType={currentType} type={type} />;
+    };
+
+    const editColumns = (
+      <Button btnStyle={btnStyle} size="small" icon={icon}>
+        {__(`${text}`)}
+      </Button>
+    );
+
+    return (
+      <ModalTrigger
+        title="Select Columns"
+        trigger={editColumns}
+        content={manageColumns}
+        autoOpenKey="showManageColumnsModal"
+      />
+    );
+  };
+
   renderTemplateButton() {
     const { REACT_APP_API_URL } = getEnv();
     const { currentType } = this.props;
@@ -95,12 +142,13 @@ class Histories extends React.Component<Props & IRouterProps> {
       return null;
     }
 
-    let name = 'company_template.xlsx';
+    if (DYNAMICLY_TEMPLATE_TYPES.includes(currentType)) {
+      return this.renderColumnChooser('import');
+    }
+
+    let name = 'product_template.xlsx';
 
     switch (currentType) {
-      case 'customer':
-        name = 'customer_template.xlsx';
-        break;
       case 'product':
         name = 'product_template.xlsx';
         break;
@@ -154,6 +202,10 @@ class Histories extends React.Component<Props & IRouterProps> {
         '_blank'
       );
     };
+
+    if (DYNAMICLY_TEMPLATE_TYPES.includes(currentType)) {
+      return this.renderColumnChooser('export');
+    }
 
     return (
       <Button
@@ -211,15 +263,20 @@ class Histories extends React.Component<Props & IRouterProps> {
             left={
               <HeaderDescription
                 icon="/images/actions/27.svg"
-                title="Import & export"
-                description="Here you can find data of all your previous imports of companies and customers. Find out when they joined and their current status. Nothing goes missing around here."
+                title={__('Import & export')}
+                description={__(
+                  'Here you can find data of all your previous imports of companies and customers. Find out when they joined and their current status. Nothing goes missing around here.'
+                )}
               />
             }
             right={this.renderImportButton()}
           />
         }
         leftSidebar={
-          <Sidebar title="Import & export" currentType={currentType} />
+          <Sidebar
+            title={__('Import & export')}
+            currentType={__(currentType)}
+          />
         }
         footer={<Pagination count={totalCount} />}
         content={
@@ -227,8 +284,7 @@ class Histories extends React.Component<Props & IRouterProps> {
             data={this.renderHistories()}
             loading={loading}
             count={histories.length}
-            emptyText="Oh dear! You have no imports"
-            emptyImage="/images/actions/15.svg"
+            emptyContent={<EmptyContent content={EMPTY_IMPORT_CONTENT} />}
           />
         }
       />

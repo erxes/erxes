@@ -113,3 +113,8 @@ export type IEditorProps = {
   autoGrowMinHeight?: number;
   autoGrowMaxHeight?: number;
 };
+
+export type QueryResponse = {
+  loading: boolean;
+  refetch: () => void;
+};

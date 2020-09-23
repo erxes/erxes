@@ -2,6 +2,7 @@ import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
+import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { IBreadCrumbItem } from '../../../common/types';
@@ -18,6 +19,7 @@ type Props = {
   center?: boolean;
   renderFilter?: () => any;
   additionalButton?: React.ReactNode;
+  emptyContent?: React.ReactNode;
 };
 
 class List extends React.Component<Props & ICommonListProps, {}> {
@@ -38,11 +40,12 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       refetch,
       center,
       remove,
-      additionalButton
+      additionalButton,
+      emptyContent
     } = this.props;
 
     const trigger = (
-      <Button btnStyle="success" size="small" icon="plus-circle">
+      <Button btnStyle="success" icon="plus-circle" uppercase={false}>
         {formTitle}
       </Button>
     );
@@ -83,8 +86,9 @@ class List extends React.Component<Props & ICommonListProps, {}> {
             data={renderContent({ objects, save, refetch, remove })}
             loading={loading}
             count={totalCount}
-            emptyText="Oops! No data here"
+            emptyText={__('Oops! No data here')}
             emptyImage="/images/actions/5.svg"
+            emptyContent={emptyContent}
           />
         }
       />

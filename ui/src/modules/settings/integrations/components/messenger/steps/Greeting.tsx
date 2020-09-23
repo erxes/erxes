@@ -96,7 +96,7 @@ class Greeting extends React.Component<Props, State> {
             <ControlLabel>Greeting title</ControlLabel>
 
             <FormControl
-              placeholder={__('Write here Greeting title.')}
+              placeholder={__('Write here Greeting title') + '.'}
               rows={3}
               value={message.greetings.title}
               onChange={greetingTitle}
@@ -108,7 +108,7 @@ class Greeting extends React.Component<Props, State> {
 
             <FormControl
               componentClass="textarea"
-              placeholder={__('Write here Greeting message.')}
+              placeholder={__('Write here Greeting message') + '.'}
               rows={3}
               value={message.greetings.message}
               onChange={greetingMessage}

@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { rgba } from '../styles/color';
 import colors from '../styles/colors';
 import { IAttachment } from '../types';
-import { readFile } from '../utils';
+import { __, readFile } from '../utils';
 
 export const AttachmentWrapper = styled.div`
   border-radius: 4px;
@@ -130,7 +130,7 @@ class Attachment extends React.Component<Props> {
         <ItemInfo>
           <video controls={true} loop={true}>
             <source src={attachment.url} type="video/mp4" />
-            Your browser does not support the video tag.
+            {__('Your browser does not support the video tag')}.
           </video>
         </ItemInfo>
       </AttachmentWrapper>

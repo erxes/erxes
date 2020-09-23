@@ -1,4 +1,5 @@
 import { IUser } from 'modules/auth/types';
+import { QueryResponse } from 'modules/common/types';
 
 export interface IField {
   _id: string;
@@ -50,9 +51,7 @@ export interface IConfigColumn {
 
 export type DefaultColumnsConfigQueryResponse = {
   fieldsDefaultColumnsConfig: IConfigColumn[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type FieldsQueryResponse = {
   fields: IField[];
@@ -75,9 +74,7 @@ export type FieldsCombinedByType = {
 
 export type FieldsCombinedByTypeQueryResponse = {
   fieldsCombinedByContentType: FieldsCombinedByType[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type AddFieldsMutationVariables = {
   contentType: string;

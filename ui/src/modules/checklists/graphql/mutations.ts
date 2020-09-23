@@ -98,11 +98,20 @@ const checklistItemsRemove = `
   }
 `;
 
+const checklistItemsOrder = `
+  mutation checklistItemsOrder($_id: String!, $destinationIndex: Int) {
+    checklistItemsOrder(_id: $_id destinationIndex: $destinationIndex) {
+      _id
+    }
+  }
+`;
+
 export default {
   checklistsAdd,
   checklistsEdit,
   checklistsRemove,
   checklistItemsAdd,
   checklistItemsEdit,
+  checklistItemsOrder,
   checklistItemsRemove
 };

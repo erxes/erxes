@@ -71,7 +71,12 @@ class Website extends React.Component<Props, State> {
       <>
         <FormGroup>
           <ControlLabel required={true}>Name</ControlLabel>
-          <FormControl {...formProps} name="name" required={true} />
+          <FormControl
+            {...formProps}
+            name="name"
+            required={true}
+            autoFocus={true}
+          />
         </FormGroup>
 
         <FormGroup>
@@ -109,7 +114,8 @@ class Website extends React.Component<Props, State> {
             btnStyle="simple"
             type="button"
             onClick={closeModal}
-            icon="cancel-1"
+            icon="times-circle"
+            uppercase={false}
           >
             Cancel
           </Button>

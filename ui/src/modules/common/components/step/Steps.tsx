@@ -3,7 +3,7 @@ import { StepContainer } from './styles';
 
 type Props = {
   children: any;
-  active: number;
+  active?: number;
   maxStep?: number;
 };
 
@@ -17,7 +17,7 @@ class Steps extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      activeStep: 1,
+      activeStep: props.active || 1,
       maxStep: 6
     };
   }

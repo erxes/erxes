@@ -46,7 +46,7 @@ class TemplateList extends React.Component<Props> {
         trigger={
           <div>
             <Tip text="Edit">
-              <Icon icon="edit-alt" />
+              <Icon icon="edit-3" />
             </Tip>
           </div>
         }
@@ -105,7 +105,7 @@ class TemplateList extends React.Component<Props> {
   renderButton = () => {
     return (
       <Link to="/settings/boards/growthHack">
-        <Button size="small" icon="award" btnStyle="primary">
+        <Button icon="award" btnStyle="primary" uppercase={false}>
           Go to Campaign
         </Button>
       </Link>
@@ -115,7 +115,7 @@ class TemplateList extends React.Component<Props> {
   render() {
     return (
       <List
-        formTitle="New Growth Hacking Templates"
+        formTitle={__('New Growth Hacking Templates')}
         breadcrumb={[
           { title: __('Settings'), link: '/settings' },
           { title: __('Growth Hacking Templates') }

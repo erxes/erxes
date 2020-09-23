@@ -116,8 +116,8 @@ const conversationMessages = `
 `;
 
 const converstationFacebookComments = `
-  query converstationFacebookComments($postId: String!, $commentId: String, $senderId: String, $skip: Int, $limit: Int) {
-    converstationFacebookComments(postId: $postId, limit: $limit, commentId: $commentId, senderId: $senderId, skip: $skip) {
+  query converstationFacebookComments($postId: String!,$isResolved: Boolean, $commentId: String, $senderId: String, $skip: Int, $limit: Int) {
+    converstationFacebookComments(postId: $postId,isResolved:$isResolved, limit: $limit, commentId: $commentId, senderId: $senderId, skip: $skip) {
       conversationId
       commentId
       postId
@@ -129,6 +129,8 @@ const converstationFacebookComments = `
       timestamp
       parentId
       commentCount
+      isResolved
+      permalink_url
       customer {
         _id
         visitorContactInfo
@@ -137,6 +139,12 @@ const converstationFacebookComments = `
         lastName
       }
     }
+  }
+`;
+
+const converstationFacebookCommentsCount = `
+  query converstationFacebookCommentsCount($postId: String!, $isResolved: Boolean) {
+    converstationFacebookCommentsCount(postId: $postId, isResolved:$isResolved) 
   }
 `;
 
@@ -245,13 +253,13 @@ const convertToInfo = `
   }
 `;
 
-const generateCustomerDetailQuery = params => {
+const generateCustomerDetailQuery = (params) => {
   const {
     showDeviceProperties = false,
     showTrackedData = false,
     showCustomFields = false,
     showCompanies = false,
-    showTags = false
+    showTags = false,
   } = params || {};
 
   let fields = `
@@ -330,6 +338,7 @@ export default {
   conversationDetailMarkAsRead,
   conversationMessages,
   converstationFacebookComments,
+  converstationFacebookCommentsCount,
   conversationMessagesTotalCount,
   userList,
   channelList,
@@ -342,5 +351,5 @@ export default {
   unreadConversationsCount,
   lastConversation,
   generateCustomerDetailQuery,
-  convertToInfo
+  convertToInfo,
 };

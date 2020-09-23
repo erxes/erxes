@@ -171,7 +171,7 @@ class ArchivedItemsContainer extends React.Component<IFinalProps> {
 
           return {
             ...prev,
-            [itemName]: [...fetchedItems, ...prevItems]
+            [itemName]: [...prevItems, ...fetchedItems]
           };
         }
       });

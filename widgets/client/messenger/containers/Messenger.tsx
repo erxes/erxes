@@ -1,14 +1,14 @@
 import gql from "graphql-tag";
 import * as React from "react";
 import { ChildProps, graphql } from "react-apollo";
-import { IUser } from "../../types";
 import { Messenger as DumbMessenger } from "../components";
 import { connection } from "../connection";
 import graphqTypes from "../graphql";
+import { IMessengerSupporters } from "../types";
 import { AppConsumer } from "./AppContext";
 
 type QueryResponse = {
-  widgetsMessengerSupporters: IUser[];
+  widgetsMessengerSupporters: IMessengerSupporters;
 };
 
 class MessengerContainer extends React.Component<
@@ -16,9 +16,19 @@ class MessengerContainer extends React.Component<
   {}
 > {
   render() {
-    const {
-      data = { widgetsMessengerSupporters: [], loading: true }
-    } = this.props;
+    const { data } = this.props;
+    const info = data && data.widgetsMessengerSupporters;
+    let supporters: any = [];
+    let isOnline = false;
+
+    if (info) {
+      if (info.supporters) {
+        supporters = info.supporters;
+      }
+      if (info.isOnline) {
+        isOnline = info.isOnline;
+      }
+    }
 
     return (
       <AppConsumer>
@@ -26,8 +36,9 @@ class MessengerContainer extends React.Component<
           return (
             <DumbMessenger
               activeRoute={activeRoute}
-              loading={data.loading}
-              supporters={data.widgetsMessengerSupporters || []}
+              loading={false}
+              supporters={supporters}
+              isOnline={isOnline}
             />
           );
         }}
