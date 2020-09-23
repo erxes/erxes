@@ -18,18 +18,57 @@ export const getMentionedUserIds = (content: string) => {
   });
 };
 
-class EditorCK extends React.Component<IEditorProps> {
+class EditorCK extends React.Component<IEditorProps, { content: string }> {
   constructor(props: IEditorProps) {
     super(props);
 
+    const { content, name } = props;
+    const data = name && localStorage.getItem(name);
+
+    this.state = {
+      content: data && data !== content ? data : content
+    };
+
     CKEditor.editorUrl = '/ckeditor/ckeditor.js';
+    this.onChange = this.onChange.bind(this);
+    this.onEnter = this.onEnter.bind(this);
+  }
+
+  componentWillUnmount() {
+    const name = this.props.name;
+
+    if (name) {
+      localStorage.removeItem(name);
+    }
+  }
+
+  onChange(event: any) {
+    const name = this.props.name;
+    this.props.onChange(event);
+
+    if (name) {
+      const content = event.editor.getData();
+
+      this.setState({ content });
+      localStorage.setItem(name, content);
+    }
+  }
+
+  onEnter(event: any) {
+    const { name, onCtrlEnter } = this.props;
+
+    if (name) {
+      localStorage.removeItem(name);
+      this.setState({ content: '' });
+    }
+
+    if (onCtrlEnter) {
+      onCtrlEnter(event);
+    }
   }
 
   render() {
     const {
-      onCtrlEnter,
-      content,
-      onChange,
       height,
       insertItems,
       removeButtons,
@@ -61,8 +100,8 @@ class EditorCK extends React.Component<IEditorProps> {
 
     return (
       <CKEditor
-        data={content}
-        onChange={onChange}
+        data={this.state.content}
+        onChange={this.onChange}
         config={{
           height,
           startupFocus: autoFocus,
@@ -140,7 +179,7 @@ class EditorCK extends React.Component<IEditorProps> {
             showUncommentButton: false,
             showFormatButton: false
           },
-          onCtrlEnter,
+          onCtrlEnter: this.onEnter,
           toolbarCanCollapse,
           filebrowserImageUploadUrl: `${REACT_APP_API_URL}/upload-file`
         }}

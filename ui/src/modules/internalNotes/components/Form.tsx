@@ -37,6 +37,8 @@ type Prop = {
   isActionLoading: boolean;
   content?: string;
   callback?: () => void;
+  contentType: string;
+  contentTypeId: string;
 };
 
 type State = {
@@ -116,6 +118,8 @@ class Form extends React.PureComponent<Prop, State> {
   };
 
   render() {
+    const { contentType, contentTypeId } = this.props;
+
     return (
       <EditorWrapper>
         <EditorCK
@@ -124,6 +128,7 @@ class Form extends React.PureComponent<Prop, State> {
           content={this.state.content}
           onChange={this.onEditorChange}
           height={150}
+          name={`${contentType}_note_${contentTypeId}`}
           toolbar={[
             {
               name: 'basicstyles',

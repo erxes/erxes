@@ -144,6 +144,8 @@ class RespondBox extends React.Component<Props, State> {
   // save editor current content to state
   onEditorContentChange = (content: string) => {
     this.setState({ content });
+
+    localStorage.setItem(this.props.conversation._id, content);
   };
 
   // save mentioned user to state

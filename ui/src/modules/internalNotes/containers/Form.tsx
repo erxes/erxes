@@ -46,7 +46,14 @@ class FormContainer extends React.Component<
       });
     };
 
-    return <Form save={create} isActionLoading={this.state.isLoading} />;
+    return (
+      <Form
+        save={create}
+        isActionLoading={this.state.isLoading}
+        contentType={contentType}
+        contentTypeId={contentTypeId}
+      />
+    );
   }
 }
 
