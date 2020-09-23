@@ -28,7 +28,6 @@
     "ckeditor4-react": "^1.0.0",
     "classnames": "^2.2.5",
     "color": "^3.1.2",
-    "crypto": "^1.0.1",
     "cypress-file-upload": "^4.0.7",
     "date-fns": "1.29.0",
     "dayjs": "^1.8.15",
@@ -91,8 +90,6 @@
     "eject": "react-scripts eject",
     "lint": "tslint 'src/**/*.@(ts|tsx)'",
     "componentTest": "jest --runInBand --forceExit --detectOpenHandles --coverage",
-    "snyk-protect": "snyk protect",
-    "prepare": "yarn run snyk-protect",
     "open-cypress": "yarn run cypress open",
     "record-cypress": "cypress run --record --key fd048d49-6b4c-4e6b-885f-819a533c2fc4"
   },
