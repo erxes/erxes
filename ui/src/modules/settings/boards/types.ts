@@ -45,6 +45,7 @@ export type RemovePipelineMutationResponse = {
   removePipelineMutation: (
     params: {
       variables: RemovePipelineMutationVariables;
+      refetchQueries: any[];
     }
   ) => Promise<void>;
 };
