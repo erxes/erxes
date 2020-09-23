@@ -20,7 +20,7 @@ import {
 type Props = {
   queryParams: any;
   currentChannelId?: string;
-  currentUserId: string;
+  currentUserId?: string;
 };
 
 type FinalProps = {
