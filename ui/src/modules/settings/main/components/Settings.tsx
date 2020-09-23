@@ -179,7 +179,7 @@ class Settings extends React.PureComponent {
             )}
             {this.renderBox(
               'Import & Export',
-              '/images/icons/erxes-07.svg',
+              '/images/icons/erxes-22.svg',
               '/settings/importHistories',
               'importHistoriesAll',
               ['importHistories', 'removeImportHistories', 'importXlsFile']
@@ -192,13 +192,13 @@ class Settings extends React.PureComponent {
             )}
             {this.renderBox(
               'Logs',
-              '/images/icons/erxes-14.svg',
+              '/images/icons/erxes-07.svg',
               '/settings/logs',
               'viewLogs'
             )}
             {this.renderBox(
               'Email Deliveries',
-              '/images/icons/erxes-14.svg',
+              '/images/icons/erxes-13.svg',
               '/settings/emailDelivery',
               ''
             )}
@@ -272,7 +272,7 @@ class Settings extends React.PureComponent {
             )}
             {this.renderBox(
               'Growth Hacking Templates',
-              '/images/icons/erxes-22.svg',
+              '/images/icons/erxes-21.svg',
               '/settings/boards/growthHackTemplate',
               'growthHacksAll',
               growthHackTemplatePermissions
@@ -292,7 +292,7 @@ class Settings extends React.PureComponent {
             )}
             {this.renderBox(
               'Product & Service',
-              '/images/icons/erxes-13.svg',
+              '/images/icons/deal-insight-volume.svg',
               '/settings/product-service',
               'productsAll',
               productPermissions
