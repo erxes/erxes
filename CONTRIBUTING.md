@@ -57,7 +57,7 @@ Thank you to all our backers! [[Become a backer](https://opencollective.com/erxe
 <a href="https://opencollective.com/erxes#backers" target="_blank"><img src="https://opencollective.com/erxes/backers.svg?width=890"></a>
 
 
-### Financial Contributors
+### ``Financial Contributors``
 
 Thank you to all our sponsors! (please ask your company to also support this open source project by [becoming a sponsor](https://opencollective.com/erxes/contribute/))
 
