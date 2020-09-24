@@ -22,16 +22,31 @@ class EditorCK extends React.Component<IEditorProps, { content: string }> {
   constructor(props: IEditorProps) {
     super(props);
 
-    const { content, name } = props;
-    const data = name && localStorage.getItem(name);
-
     this.state = {
-      content: data && data !== content ? data : content
+      content: props.content
     };
 
     CKEditor.editorUrl = '/ckeditor/ckeditor.js';
     this.onChange = this.onChange.bind(this);
     this.onEnter = this.onEnter.bind(this);
+  }
+
+  componentDidMount() {
+    const name = this.props.name;
+
+    if (name) {
+      const content = localStorage.getItem(name);
+
+      if (content && content !== this.props.content) {
+        this.setState({ content });
+
+        this.props.onChange({
+          editor: {
+            getData: () => content
+          }
+        });
+      }
+    }
   }
 
   componentWillUnmount() {
@@ -40,6 +55,21 @@ class EditorCK extends React.Component<IEditorProps, { content: string }> {
     if (name) {
       localStorage.removeItem(name);
     }
+  }
+
+  shouldComponentUpdate(nextProps: IEditorProps) {
+    const { content, name } = nextProps;
+
+    if (
+      (!content || content === '') &&
+      this.state.content &&
+      !(name && localStorage.getItem(name))
+    ) {
+      // clear previous content
+      this.setState({ content: '' });
+    }
+
+    return true;
   }
 
   onChange(event: any) {

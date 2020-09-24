@@ -28,6 +28,7 @@ type Props = {
   successAction?: string;
   onChange: (name: Name, value: string) => void;
   leadData?: ILeadData;
+  formId?: string;
 };
 
 type State = {
@@ -61,9 +62,9 @@ class SuccessStep extends React.Component<Props, State> {
   };
 
   onEditorChange = e => {
-    let propName: Name = 'adminEmailContent'
+    let propName: Name = 'adminEmailContent';
 
-    if (e.editor.id === "cke_1") {
+    if (e.editor.id === 'cke_1') {
       propName = 'userEmailContent';
     }
     this.props.onChange(propName, e.editor.getData());
@@ -98,6 +99,9 @@ class SuccessStep extends React.Component<Props, State> {
         (e.currentTarget as HTMLInputElement).value
       );
 
+    const { type, formId } = this.props;
+    const editorSubName = `${type}_${formId || 'create'}`;
+
     return (
       <div>
         <FormGroup>
@@ -123,10 +127,11 @@ class SuccessStep extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>User email content</ControlLabel>
           <EditorCK
-            content={leadData.userEmailContent || ""}
+            content={leadData.userEmailContent || ''}
             onChange={this.onEditorChange}
             insertItems={EMAIL_CONTENT}
             height={500}
+            name={`lead_user_email_${editorSubName}`}
           />
         </FormGroup>
 
@@ -155,10 +160,11 @@ class SuccessStep extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Admin email content</ControlLabel>
           <EditorCK
-            content={leadData.adminEmailContent || ""}
+            content={leadData.adminEmailContent || ''}
             onChange={this.onEditorChange}
             insertItems={EMAIL_CONTENT}
             height={500}
+            name={`lead_admin_email_${editorSubName}`}
           />
         </FormGroup>
       </div>

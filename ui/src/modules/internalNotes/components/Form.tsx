@@ -56,6 +56,11 @@ class Form extends React.PureComponent<Prop, State> {
 
   clearContent = () => {
     this.setState({ content: '' });
+
+    const { contentType, contentTypeId } = this.props;
+    const editorName = `${contentType}_note_${contentTypeId}`;
+
+    localStorage.removeItem(editorName);
   };
 
   onSend = () => {
