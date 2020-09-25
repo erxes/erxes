@@ -6,6 +6,7 @@ import { IConversation } from '../types';
 type Props = {
   conversations: IConversation[];
   changeStatus: (conversationIds: string[], status: string) => void;
+  resolveAll: () => void;
 };
 
 class Resolver extends React.Component<Props> {
@@ -44,9 +45,16 @@ class Resolver extends React.Component<Props> {
     };
 
     return (
-      <Button {...btnAttrs}>
-        {buttonText}
-      </Button>
+      <>
+        <Button {...btnAttrs}>{buttonText}</Button>
+        <Button
+          size="small"
+          uppercase={false}
+          btnStyle="success"
+          icon="check-circle"
+          onClick={this.props.resolveAll}
+        />
+      </>
     );
   }
 }

@@ -91,7 +91,11 @@ class LeftSidebar extends React.Component<Props, State> {
     if (bulk.length > 0) {
       return (
         <Sidebar.Header>
-          <Resolver conversations={bulk} emptyBulk={emptyBulk} />
+          <Resolver
+            conversations={bulk}
+            emptyBulk={emptyBulk}
+            queryParams={queryParams}
+          />
           <RightItems>
             <AssignBoxPopover
               targets={bulk}
