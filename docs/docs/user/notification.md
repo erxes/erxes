@@ -18,7 +18,7 @@ To edit which notifications you receive, whether in your dashboard or through em
 
 ## Inbox sidebar notifications
 
-It will inform you of unread messages and mentions across your shared team inbox.
+It will inform you of unread messages and mentions across your shared Team Inbox.
 
 ![](https://s3-us-west-2.amazonaws.com/erxes-docs/notification3.png)
 
