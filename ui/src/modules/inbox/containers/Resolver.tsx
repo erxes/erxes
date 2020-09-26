@@ -9,9 +9,7 @@ import { mutations } from '../graphql';
 import {
   ChangeStatusMutationResponse,
   ChangeStatusMutationVariables,
-  IConversation,
-  ResolveAllMutationResponse,
-  ResolveAllMutationVariables
+  IConversation
 } from '../types';
 import { refetchSidebarConversationsOptions } from '../utils';
 import { InboxManagementActionConsumer } from './Inbox';
@@ -19,20 +17,12 @@ import { InboxManagementActionConsumer } from './Inbox';
 type Props = {
   conversations: IConversation[];
   emptyBulk?: () => void;
-  queryParams: any;
 };
 
-type FinalProps = Props &
-  ChangeStatusMutationResponse &
-  ResolveAllMutationResponse;
+type FinalProps = Props & ChangeStatusMutationResponse;
 
 const ResolverContainer = (props: FinalProps) => {
-  const {
-    changeStatusMutation,
-    emptyBulk,
-    resolveAllMutation,
-    queryParams
-  } = props;
+  const { changeStatusMutation, emptyBulk } = props;
 
   // change conversation status
   const changeStatus = notifyHandler => (conversationIds: string[], status) => {
@@ -64,17 +54,6 @@ const ResolverContainer = (props: FinalProps) => {
       });
   };
 
-  // resolve all conversation
-  const resolveAll = () => {
-    resolveAllMutation({ variables: queryParams })
-      .then(() => {
-        Alert.success('The conversation has been resolved!');
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
-  };
-
   const updatedProps = {
     ...props
   };
@@ -85,7 +64,6 @@ const ResolverContainer = (props: FinalProps) => {
         <Resolver
           {...updatedProps}
           changeStatus={changeStatus(notifyConsumersOfManagementAction)}
-          resolveAll={resolveAll}
         />
       )}
     </InboxManagementActionConsumer>
@@ -98,13 +76,6 @@ export default withProps<Props>(
       gql(mutations.conversationsChangeStatus),
       {
         name: 'changeStatusMutation',
-        options: () => refetchSidebarConversationsOptions()
-      }
-    ),
-    graphql<Props, ResolveAllMutationResponse, ResolveAllMutationVariables>(
-      gql(mutations.resolveAll),
-      {
-        name: 'resolveAllMutation',
         options: () => refetchSidebarConversationsOptions()
       }
     )
