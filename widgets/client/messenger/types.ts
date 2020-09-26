@@ -5,6 +5,7 @@ import {
   IParticipator,
   IUser
 } from "../types";
+import { ICarouselItem } from "./components/botpress/Carousel";
 
 export interface IWebsiteApp {
   kind: string;
@@ -50,6 +51,7 @@ export interface IMessage {
   createdAt: Date;
   internal?: boolean;
   engageData: IEngageData;
+  botData: any;
   messengerAppData: IMessengerAppData;
   attachments: IAttachment[];
 }
@@ -116,3 +118,23 @@ export interface IMessengerSupporters {
   isOnline: boolean;
   serverTime: string;
 }
+
+export interface IBotData {
+  type: string;
+  text?: string;
+  title?: string;
+  url?: string;
+  fromCustomer?: boolean;
+  module?: string;
+  component: string;
+  elements?: ICarouselItem[];
+  quick_replies?: [{
+    title: string;
+    payload: string;
+  }];
+  wrapped?: {
+    type: string;
+    text: string;
+    typing: boolean;
+  }
+};

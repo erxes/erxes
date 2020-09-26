@@ -54,6 +54,7 @@ interface IStore extends IState {
   endConversation: () => void;
   readConversation: (conversationId: string) => void;
   readMessages: (conversationId: string) => void;
+  replyAutoAnswer: (message: string, payload: string) => void;
   sendMessage: (
     contentType: string,
     message: string,
@@ -424,6 +425,44 @@ export class AppProvider extends React.Component<{}, IState> {
     });
   };
 
+  replyAutoAnswer = (message: string, payload: string) => {
+    this.setState({ sendingMessage: true });
+
+    return client
+      .mutate({
+        mutation: gql`
+          mutation widgetPostRequest(
+            $message: String!
+            $payload: String!
+            $conversationId: String!
+            $customerId: String!
+            $integrationId: String!
+          ) {
+            widgetPostRequest(
+              message: $message
+              payload: $payload
+              conversationId: $conversationId
+              customerId: $customerId
+              integrationId: $integrationId
+            )
+          }
+        `,
+        variables: {
+          conversationId: this.state.activeConversation,
+          integrationId: connection.data.integrationId,
+          customerId: connection.data.customerId,
+          message: newLineToBr(message),
+          payload
+        }
+      })
+      .then(() => {
+        this.setState({ sendingMessage: false });
+      })
+      .catch(() => {
+        this.setState({ sendingMessage: false });
+      });
+  };
+
   sendMessage = (
     contentType: string,
     message: string,
@@ -444,6 +483,7 @@ export class AppProvider extends React.Component<{}, IState> {
           _id: Math.round(Math.random() * -1000000),
           contentType: MESSAGE_TYPES.TEXT,
           conversationId: activeConversation,
+          isBot: false,
           customerId: connection.data.customerId,
           user: null,
           content: newLineToBr(message),
@@ -501,6 +541,7 @@ export class AppProvider extends React.Component<{}, IState> {
               $contentType: String
               $conversationId: String
               $attachments: [AttachmentInput]
+              $isBot: Boolean
             ) {
 
             widgetsInsertMessage(
@@ -509,6 +550,7 @@ export class AppProvider extends React.Component<{}, IState> {
               message: $message
               conversationId: $conversationId
               attachments: $attachments
+              isBot: $isBot
             ) {
               ${graphqlTypes.messageFields}
             }
@@ -520,7 +562,8 @@ export class AppProvider extends React.Component<{}, IState> {
             conversationId: activeConversation,
             contentType,
             message: newLineToBr(message),
-            attachments
+            attachments,
+            isBot: ((connection.data.messengerData || {}).botEndpointUrl || '').length > 0
           },
           optimisticResponse,
           update
@@ -600,6 +643,7 @@ export class AppProvider extends React.Component<{}, IState> {
           endConversation: this.endConversation,
           readConversation: this.readConversation,
           readMessages: this.readMessages,
+          replyAutoAnswer: this.replyAutoAnswer,
           sendMessage: this.sendMessage,
           sendTypingInfo: this.sendTypingInfo,
           sendFile: this.sendFile,

@@ -21,7 +21,9 @@ export default class extends React.Component<Props> {
           saveGetNotified,
           getColor,
           isLoggedIn,
-          sendMessage
+          sendMessage,
+          sendTypingInfo,
+          replyAutoAnswer,
         }) => {
           return (
             <MessagesList
@@ -31,6 +33,8 @@ export default class extends React.Component<Props> {
               saveGetNotified={saveGetNotified}
               getColor={getColor()}
               isLoggedIn={isLoggedIn}
+              sendTypingInfo={sendTypingInfo}
+              replyAutoAnswer={replyAutoAnswer}
               sendMessage={sendMessage}
               showVideoCallRequest={
                 this.props.isOnline && getMessengerData().showVideoCallRequest

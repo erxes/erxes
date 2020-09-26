@@ -12,6 +12,7 @@ import { __, makeClickableLink, scrollTo } from '../../utils';
 import { MESSAGE_TYPES } from '../containers/AppContext';
 import { IMessage } from '../types';
 import { Message } from './';
+import { MessageBot } from './';
 import AccquireInformation from './AccquireInformation';
 
 type Props = {
@@ -28,6 +29,8 @@ type Props = {
   isLoggedIn: () => boolean;
   getColor?: string;
   toggleVideoCall: () => void;
+  replyAutoAnswer: (message: string, payload: string) => void;
+  sendTypingInfo: (conversationId: string, text: string) => void;
   sendMessage: (contentType: string, message: string) => void;
   showVideoCallRequest: boolean;
 };
@@ -79,6 +82,17 @@ class MessagesList extends React.Component<Props, State> {
       );
     });
   };
+
+  getMessageComponent() {
+    const { messengerData } = this.props;
+    const { botEndpointUrl } = messengerData
+
+    if (botEndpointUrl) {
+      return MessageBot;
+    }
+
+    return Message;
+  }
 
   renderAwayMessage(messengerData: IIntegrationMessengerData) {
     const { isOnline } = this.props;
@@ -177,11 +191,50 @@ class MessagesList extends React.Component<Props, State> {
     );
   }
 
+  renderMessages() {
+    const { messages, replyAutoAnswer, sendTypingInfo, uiOptions } = this.props;
+    const { color, textColor = '#fff' } = uiOptions;
+
+    const MessageComponent = this.getMessageComponent();
+
+    return (
+      <RTG.TransitionGroup component={null}>
+        {messages.map(message => {
+          const _id: any = message._id;
+
+          const messageProps = {
+            color,
+            textColor,
+            toggleVideo: this.props.toggleVideoCall,
+            sendTypingInfo,
+            replyAutoAnswer,
+            ...message
+          };
+
+          if (_id < 0) {
+            return (
+              <RTG.CSSTransition
+                key={message._id}
+                timeout={500}
+                classNames="slide-in"
+              >
+                <MessageComponent {...messageProps}/>
+              </RTG.CSSTransition>
+            );
+          } else {
+            return (
+              <MessageComponent key={message._id} {...messageProps}/>
+            );
+          }
+        })}
+      </RTG.TransitionGroup>
+    );
+  }
+
   render() {
-    const { uiOptions, messengerData, messages } = this.props;
-    const { color, wallpaper, textColor = '#fff' } = uiOptions;
+    const { uiOptions, messengerData } = this.props;
     const backgroundClass = classNames('erxes-messages-background', {
-      [`bg-${wallpaper}`]: wallpaper
+      [`bg-${uiOptions.wallpaper}`]: uiOptions.wallpaper
     });
 
     return (
@@ -189,38 +242,7 @@ class MessagesList extends React.Component<Props, State> {
         <ul id="erxes-messages" className="erxes-messages-list slide-in">
           {this.renderWelcomeMessage(messengerData)}
           {this.renderCallRequest()}
-          <RTG.TransitionGroup component={null}>
-            {messages.map(message => {
-              const _id: any = message._id;
-
-              if (_id < 0) {
-                return (
-                  <RTG.CSSTransition
-                    key={message._id}
-                    timeout={500}
-                    classNames="slide-in"
-                  >
-                    <Message
-                      toggleVideo={this.props.toggleVideoCall}
-                      color={color}
-                      textColor={textColor}
-                      {...message}
-                    />
-                  </RTG.CSSTransition>
-                );
-              } else {
-                return (
-                  <Message
-                    key={message._id}
-                    toggleVideo={this.props.toggleVideoCall}
-                    color={color}
-                    textColor={textColor}
-                    {...message}
-                  />
-                );
-              }
-            })}
-          </RTG.TransitionGroup>
+          {this.renderMessages()}
           {this.renderAwayMessage(messengerData)}
           {this.renderNotifyInput(messengerData)}
         </ul>

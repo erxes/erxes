@@ -26,6 +26,7 @@ const messageFields = `
     messageId
     brandId
   }
+  botData
   messengerAppData
   attachments {
     url
