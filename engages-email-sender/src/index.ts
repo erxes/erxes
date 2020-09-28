@@ -18,6 +18,8 @@ const app = express();
 
 app.disable('x-powered-by');
 
+trackEngages(app);
+
 // for health checking
 app.get('/status', async (_req, res) => {
   res.end('ok');
@@ -40,8 +42,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/configs', configs);
 app.use('/deliveryReports', deliveryReports);
 app.use('/telnyx', telnyx);
-
-trackEngages(app);
 
 // Error handling middleware
 app.use((error, _req, res, _next) => {
