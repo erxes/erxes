@@ -179,8 +179,7 @@ export const types = `
   }
 `;
 
-const filterParams = `
-  limit: Int,
+const mutationFilterParams = `
   channelId: String
   status: String
   unassigned: String
@@ -189,9 +188,14 @@ const filterParams = `
   integrationType: String
   participating: String
   starred: String
-  ids: [String]
   startDate: String
   endDate: String
+`;
+
+const filterParams = `
+  limit: Int,
+  ids: [String]
+  ${mutationFilterParams}
 `;
 
 export const queries = `
@@ -244,4 +248,5 @@ export const mutations = `
   conversationDeleteVideoChatRoom(name: String!): Boolean
   conversationCreateVideoChatRoom(_id: String!): VideoCallData
   conversationCreateProductBoardNote(_id: String!): String
+  conversationResolveAll(${mutationFilterParams}): Int
 `;

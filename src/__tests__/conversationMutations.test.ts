@@ -4,7 +4,7 @@ import * as faker from 'faker';
 import * as sinon from 'sinon';
 import messageBroker from '../messageBroker';
 
-import { conversationFactory, customerFactory, integrationFactory, userFactory } from '../db/factories';
+import { channelFactory, conversationFactory, customerFactory, integrationFactory, userFactory } from '../db/factories';
 import { Conversations, Customers, Integrations, Users } from '../db/models';
 import { CONVERSATION_STATUSES, KIND_CHOICES } from '../db/models/definitions/constants';
 
@@ -13,6 +13,7 @@ import utils from '../data/utils';
 import { graphqlRequest } from '../db/connection';
 import { IConversationDocument } from '../db/models/definitions/conversations';
 import { ICustomerDocument } from '../db/models/definitions/customers';
+import { IIntegrationDocument } from '../db/models/definitions/integrations';
 import { IUserDocument } from '../db/models/definitions/users';
 
 const toJSON = value => {
@@ -35,6 +36,7 @@ describe('Conversation message mutations', () => {
   let lineConversation: IConversationDocument;
   let twilioConversation: IConversationDocument;
   let telnyxConversation: IConversationDocument;
+  let leadIntegration: IIntegrationDocument;
 
   let user: IUserDocument;
   let customer: ICustomerDocument;
@@ -80,7 +82,7 @@ describe('Conversation message mutations', () => {
       phoneValidationStatus: 'valid',
     });
 
-    const leadIntegration = await integrationFactory({
+    leadIntegration = await integrationFactory({
       kind: KIND_CHOICES.LEAD,
       messengerData: { welcomeMessage: 'welcome', notifyCustomer: true },
     });
@@ -460,6 +462,47 @@ describe('Conversation message mutations', () => {
     const [openConversation] = await graphqlRequest(mutation, 'conversationsChangeStatus', args);
 
     expect(openConversation.status).toEqual(args.status);
+  });
+
+  test('Resolve all conversation', async () => {
+    const mutation = `
+      mutation conversationResolveAll(
+        $channelId: String
+        $status: String
+        $unassigned: String
+        $brandId: String
+        $tag: String
+        $integrationType: String
+        $participating: String
+        $starred: String
+        $startDate: String
+        $endDate: String
+      ) {
+        conversationResolveAll(
+          channelId:$channelId
+          status:$status
+          unassigned:$unassigned
+          brandId:$brandId
+          tag:$tag
+          integrationType:$integrationType
+          participating:$participating
+          starred:$starred
+          startDate:$startDate
+          endDate:$endDate
+        )
+      }
+    `;
+
+    await channelFactory({ integrationIds: [leadIntegration._id], userId: user._id });
+
+    const updatedConversationCount = await graphqlRequest(
+      mutation,
+      'conversationResolveAll',
+      { integrationType: leadIntegration.kind },
+      { user },
+    );
+
+    expect(updatedConversationCount).toEqual(1);
   });
 
   test('Mark conversation as read', async () => {

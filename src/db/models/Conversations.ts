@@ -31,6 +31,8 @@ export interface IConversationModel extends Model<IConversationDocument> {
 
   removeCustomersConversations(customerId: string[]): Promise<{ n: number; ok: number }>;
   widgetsUnreadMessagesQuery(conversations: IConversationDocument[]): any;
+
+  resolveAllConversation(query: any, userId: string): Promise<{ n: number; nModified: number; ok: number }>;
 }
 
 export const loadClass = () => {
@@ -284,6 +286,17 @@ export const loadClass = () => {
       const conversationIds = conversations.map(c => c._id);
 
       return { conversationId: { $in: conversationIds }, ...unreadMessagesSelector };
+    }
+
+    /**
+     * Resolve all conversation
+     */
+    public static resolveAllConversation(query: any, userId: string) {
+      const closedAt = new Date();
+      const closedUserId = userId;
+      const status = CONVERSATION_STATUSES.CLOSED;
+
+      return Conversations.updateMany(query, { $set: { status, closedAt, closedUserId } }, { multi: true });
     }
   }
 

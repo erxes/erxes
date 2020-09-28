@@ -275,6 +275,25 @@ describe('Conversation db', () => {
     expect(conversationObj.status).toBe('open');
   });
 
+  test('Resolve all conversation', async () => {
+    // try closing ========================
+    const updated = await Conversations.resolveAllConversation({}, _user._id);
+
+    const conversationObj = await Conversations.findOne({
+      _id: _conversation._id,
+    });
+
+    if (!conversationObj) {
+      throw new Error('Conversation not found');
+    }
+
+    const conversationCount = await Conversations.find().count();
+
+    expect(conversationObj.closedAt).toEqual(expect.any(Date));
+    expect(conversationObj.status).toBe('closed');
+    expect(updated.nModified).toBe(conversationCount);
+  });
+
   test('Conversation mark as read', async () => {
     // first user read this conversation
     _conversation.readUserIds = [];
