@@ -26,29 +26,31 @@ class FormContainer extends React.Component<
     this.state = { isLoading: false };
   }
 
-  render() {
+  // create internalNote
+  create = (variables, callback: () => void) => {
     const { contentType, contentTypeId, internalNotesAdd } = this.props;
 
-    // create internalNote
-    const add = (variables, callback: () => void) => {
-      this.setState({ isLoading: true });
+    this.setState({ isLoading: true });
 
-      internalNotesAdd({
-        variables: {
-          contentType,
-          contentTypeId,
-          ...variables
-        }
-      }).then(() => {
-        callback();
+    internalNotesAdd({
+      variables: {
+        contentType,
+        contentTypeId,
+        ...variables
+      }
+    }).then(() => {
+      callback();
 
-        this.setState({ isLoading: false });
-      });
-    };
+      this.setState({ isLoading: false });
+    });
+  };
+
+  render() {
+    const { contentType, contentTypeId } = this.props;
 
     return (
       <Form
-        save={add}
+        save={this.create}
         isActionLoading={this.state.isLoading}
         contentType={contentType}
         contentTypeId={contentTypeId}
