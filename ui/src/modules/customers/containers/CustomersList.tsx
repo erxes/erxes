@@ -158,6 +158,10 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       window.open(`${REACT_APP_API_URL}/file-export?${stringified}`, '_blank');
     };
 
+    const refetch = () => {
+      this.props.customersMainQuery.refetch();
+    };
+
     const searchValue = this.props.queryParams.searchValue || '';
 
     const { list = [], totalCount = 0 } =
@@ -176,14 +180,11 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       removeCustomers,
       verifyCustomers,
       mergeCustomerLoading: this.state.mergeCustomerLoading,
+      refetch
     };
 
     const content = (props) => {
       return <CustomersList {...updatedProps} {...props} />;
-    };
-
-    const refetch = () => {
-      this.props.customersMainQuery.refetch();
     };
 
     return <Bulk content={content} refetch={refetch} />;
@@ -211,6 +212,39 @@ const generateParams = ({ queryParams, type }) => {
   };
 };
 
+const getRefetchQueries = (queryParams?: any, type?: string) => {
+  return [
+    {
+      query: gql(queries.customersMain),
+      variables: { ...generateParams({ queryParams, type })}
+    },
+    {
+      query: gql(queries.customerCounts),
+      variables: { type, only: 'byTag' }
+    },
+    {
+      query: gql(queries.customerCounts),
+      variables: { type, only: 'byForm' }
+    },
+    {
+      query: gql(queries.customerCounts),
+      variables: { type, only: 'byIntegrationType' }
+    },
+    {
+      query: gql(queries.customerCounts),
+      variables: { type, only: 'byLeadStatus' }
+    },
+    {
+      query: gql(queries.customerCounts),
+      variables: { type, only: 'bySegment' }
+    },
+    {
+      query: gql(queries.customerCounts),
+      variables: { type, only: 'byBrand' }
+    }
+  ];
+};
+
 export default withProps<Props>(
   compose(
     graphql<Props, MainQueryResponse, ListQueryVariables>(
@@ -233,15 +267,18 @@ export default withProps<Props>(
       gql(mutations.customersRemove),
       {
         name: 'customersRemove',
+        options: ({ queryParams, type }) => ({
+          refetchQueries: getRefetchQueries(queryParams, type)
+        })
       }
     ),
     graphql<Props, MergeMutationResponse, MergeMutationVariables>(
       gql(mutations.customersMerge),
       {
         name: 'customersMerge',
-        options: {
-          refetchQueries: ['customersMain', 'customerCounts'],
-        },
+        options: ({ queryParams, type }) => ({
+          refetchQueries: getRefetchQueries(queryParams, type)
+        })
       }
     ),
     graphql<Props, VerifyMutationResponse, VerifyMutationVariables>(

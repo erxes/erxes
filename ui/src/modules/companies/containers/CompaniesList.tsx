@@ -152,8 +152,8 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
   }
 }
 
-const generateParams = ({ queryParams }) => ({
-  variables: {
+const generateParams = ({ queryParams }) => {
+  return {
     ...generatePaginationParams(queryParams),
     segment: queryParams.segment,
     tag: queryParams.tag,
@@ -165,34 +165,60 @@ const generateParams = ({ queryParams }) => ({
       ? parseInt(queryParams.sortDirection, 10)
       : undefined
   }
-});
+};
+
+const getRefetchQueries = (queryParams?: any) => {
+  return [
+    {
+      query: gql(queries.companiesMain),
+      variables: { ...generateParams({ queryParams })}
+    },
+    {
+      query: gql(queries.companyCounts),
+      variables: { only: 'byTag' }
+    },
+    {
+      query: gql(queries.companyCounts),
+      variables: { only: 'bySegment' }
+    },
+    {
+      query: gql(queries.companyCounts),
+      variables: { only: 'byBrand' }
+    }
+  ];
+};
 
 export default withProps<Props>(
   compose(
-    graphql<{ queryParams: any }, MainQueryResponse, ListQueryVariables>(
+    graphql<Props, MainQueryResponse, ListQueryVariables>(
       gql(queries.companiesMain),
       {
         name: 'companiesMainQuery',
-        options: generateParams
+        options: ({ queryParams }) => ({
+          variables: generateParams({ queryParams }),
+        }),
       }
     ),
-    graphql<{}, ListConfigQueryResponse, {}>(gql(queries.companiesListConfig), {
+    graphql<Props, ListConfigQueryResponse, {}>(gql(queries.companiesListConfig), {
       name: 'companiesListConfigQuery'
     }),
     // mutations
-    graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
+    graphql<Props, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.companiesRemove),
       {
-        name: 'companiesRemove'
+        name: 'companiesRemove',
+        options: ({ queryParams }) => ({
+          refetchQueries: getRefetchQueries(queryParams)
+        })
       }
     ),
-    graphql<{}, MergeMutationResponse, MergeMutationVariables>(
+    graphql<Props, MergeMutationResponse, MergeMutationVariables>(
       gql(mutations.companiesMerge),
       {
         name: 'companiesMerge',
-        options: {
-          refetchQueries: ['companiesMain', 'companyCounts']
-        }
+        options: ({ queryParams }) => ({
+          refetchQueries: getRefetchQueries(queryParams)
+        })
       }
     )
   )(withRouter<IRouterProps>(CompanyListContainer))
