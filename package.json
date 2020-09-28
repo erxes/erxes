@@ -28,6 +28,7 @@
     "loadInitialData": "ts-node ./src/commands/loadInitialData.ts",
     "loadPermission": "ts-node ./src/commands/loadPermissionData.ts",
     "loadGrowthHackData": "ts-node ./src/commands/loadGrowthHackData.ts",
+    "loadTestData":"ts-node ./src/commands/loadTestData.ts",
     "initProject": "ts-node ./src/commands/initProject.ts",
     "createGooglePubsubTopics": "ts-node ./src/commands/createGooglePubsubTopics.ts",
     "customCommand": "ts-node ./src/commands/customCommand.ts",
