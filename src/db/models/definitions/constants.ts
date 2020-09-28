@@ -340,6 +340,19 @@ export const DEFAULT_COMPANY_INDUSTRY_TYPES = [
   'Transportation Infrastructure',
   'Water Utilities',
   'Wireless Telecommunication Services',
+  'Transportation',
+  'Mining',
+  'Finance',
+  'Group company',
+  'Government',
+  'Utility',
+  'Education',
+  'Manufacturing',
+  'Communication',
+  'Retail',
+  'Health',
+  'Construction',
+  'Management',
 ];
 
 export const COMPANY_INDUSTRY_TYPES = [...DEFAULT_COMPANY_INDUSTRY_TYPES];

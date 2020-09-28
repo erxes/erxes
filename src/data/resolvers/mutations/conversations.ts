@@ -17,6 +17,7 @@ import { graphqlPubsub } from '../../../pubsub';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import utils from '../../utils';
+import QueryBuilder, { IListArgs } from '../queries/conversationQueryBuilder';
 
 export interface IConversationMessageAdd {
   conversationId: string;
@@ -421,6 +422,21 @@ const conversationMutations = {
   },
 
   /**
+   * Resolve all conversations
+   */
+  async conversationResolveAll(_root, params: IListArgs, { user }: IContext) {
+    // initiate query builder
+    const qb = new QueryBuilder(params, { _id: user._id });
+
+    await qb.buildAllQueries();
+    const query = qb.mainQuery();
+
+    const updated = await Conversations.resolveAllConversation(query, user._id);
+
+    return updated.nModified || 0;
+  },
+
+  /**
    * Conversation mark as read
    */
   async conversationMarkAsRead(_root, { _id }: { _id: string }, { user }: IContext) {
@@ -505,5 +521,6 @@ checkPermission(conversationMutations, 'conversationMessageAdd', 'conversationMe
 checkPermission(conversationMutations, 'conversationsAssign', 'assignConversation');
 checkPermission(conversationMutations, 'conversationsUnassign', 'assignConversation');
 checkPermission(conversationMutations, 'conversationsChangeStatus', 'changeConversationStatus');
+checkPermission(conversationMutations, 'conversationResolveAll', 'conversationResolveAll');
 
 export default conversationMutations;

@@ -512,8 +512,9 @@ describe('lead', () => {
       },
     );
 
-    expect(response.integration._id).toBe(integration._id);
-    expect(response.form._id).toBe(form._id);
+    expect(response && response.integration._id).toBe(integration._id);
+    expect(response && response.form._id).toBe(form._id);
+
     mock.restore();
   });
 
