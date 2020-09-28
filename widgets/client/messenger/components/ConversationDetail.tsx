@@ -85,7 +85,7 @@ class ConversationDetail extends React.Component<Props, State> {
       operatorStatus,
       isOnline,
       color,
-      loading
+      loading,
     } = this.props;
 
     const rootClasses = classNames("erxes-content-wrapper", {

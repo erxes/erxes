@@ -24,10 +24,12 @@ export default class extends React.Component<Props> {
           sendMessage,
           sendTypingInfo,
           replyAutoAnswer,
+          botTyping
         }) => {
           return (
             <MessagesList
               {...this.props}
+              botTyping={botTyping}
               uiOptions={getUiOptions()}
               messengerData={getMessengerData()}
               saveGetNotified={saveGetNotified}

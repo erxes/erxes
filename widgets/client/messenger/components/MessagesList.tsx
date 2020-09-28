@@ -33,6 +33,7 @@ type Props = {
   sendTypingInfo: (conversationId: string, text: string) => void;
   sendMessage: (contentType: string, message: string) => void;
   showVideoCallRequest: boolean;
+  botTyping?: boolean;
 };
 
 type State = {
@@ -204,9 +205,9 @@ class MessagesList extends React.Component<Props, State> {
     const showBotMessage = botEndpointUrl && message.botData !== null;
 
     const content = showBotMessage ? (
-      <MessageBot {...messageProps} />
+      <MessageBot key={message._id} {...messageProps} />
     ) : (
-      <Message {...messageProps} />
+      <Message key={message._id} {...messageProps} />
     );
 
     if (_id < 0) {
@@ -232,6 +233,16 @@ class MessagesList extends React.Component<Props, State> {
     );
   }
 
+  renderTyping() {
+    const { botTyping } = this.props;
+
+    if (!botTyping) {
+      return null;
+    }
+
+    return <div>Typing...</div>;
+  }
+
   render() {
     const { uiOptions, messengerData } = this.props;
     const backgroundClass = classNames("erxes-messages-background", {
@@ -244,6 +255,7 @@ class MessagesList extends React.Component<Props, State> {
           {this.renderWelcomeMessage(messengerData)}
           {this.renderCallRequest()}
           {this.renderMessages()}
+          {this.renderTyping()}
           {this.renderAwayMessage(messengerData)}
           {this.renderNotifyInput(messengerData)}
         </ul>

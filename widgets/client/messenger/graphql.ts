@@ -86,6 +86,12 @@ const conversationMessageInserted = `
   }
 `;
 
+const conversationBotTypingStatus = `
+  subscription conversationBotTypingStatus($_id: String!) {
+    conversationBotTypingStatus(_id: $_id)
+  }
+`;
+
 const adminMessageInserted = `
   subscription conversationAdminMessageInserted($customerId: String!) {
     conversationAdminMessageInserted(customerId: $customerId) {
@@ -255,5 +261,6 @@ export default {
   getFaqCategoryQuery,
   getFaqTopicQuery,
   faqSearchArticlesQuery,
-  integrationsFetchApi
+  integrationsFetchApi,
+  conversationBotTypingStatus
 };

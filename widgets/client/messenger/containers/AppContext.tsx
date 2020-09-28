@@ -29,6 +29,7 @@ interface IState {
   isAttachingFile: boolean;
   isBrowserInfoSaved: boolean;
   headHeight: number;
+  botTyping: boolean;
 }
 
 interface IStore extends IState {
@@ -66,6 +67,8 @@ interface IStore extends IState {
   setHeadHeight: (headHeight: number) => void;
   setUnreadCount: (count: number) => void;
   isLoggedIn: () => boolean;
+  setBotTyping: (typing: boolean) => void;
+  botTyping: boolean;
 }
 
 export const MESSAGE_TYPES = {
@@ -113,7 +116,8 @@ export class AppProvider extends React.Component<{}, IState> {
       activeFaqArticle: null,
       isAttachingFile: false,
       isBrowserInfoSaved: false,
-      headHeight: 200
+      headHeight: 200,
+      botTyping: false
     };
   }
 
@@ -411,6 +415,10 @@ export class AppProvider extends React.Component<{}, IState> {
       });
   };
 
+  setBotTyping = (typing: boolean) => {
+    this.setState({ botTyping: typing });
+  };
+
   sendTypingInfo = (conversationId: string, text: string) => {
     const { lastSentTypingInfo } = this.state;
 
@@ -677,6 +685,7 @@ export class AppProvider extends React.Component<{}, IState> {
           changeOperatorStatus: this.changeOperatorStatus,
           sendMessage: this.sendMessage,
           sendTypingInfo: this.sendTypingInfo,
+          setBotTyping: this.setBotTyping,
           sendFile: this.sendFile,
           setHeadHeight: this.setHeadHeight,
           setUnreadCount: this.setUnreadCount,

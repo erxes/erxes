@@ -23,7 +23,7 @@ const Container = (props: Props) => {
         sendFile,
         readMessages,
         changeOperatorStatus,
-        getMessengerData
+        getMessengerData,
       }) => {
         return (
           <MessageSender
