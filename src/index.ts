@@ -72,12 +72,38 @@ const CLIENT_PORTAL_DOMAIN = getSubServiceDomain({ name: 'CLIENT_PORTAL_DOMAIN' 
 const app = express();
 
 app.disable('x-powered-by');
+
+// handle engage trackers
+app.post(`/service/engage/tracker`, async (req, res, next) => {
+  const ENGAGES_API_DOMAIN = getSubServiceDomain({ name: 'ENGAGES_API_DOMAIN' });
+
+  debugBase('SES notification received ======');
+
+  return pipeRequest(req, res, next, `${ENGAGES_API_DOMAIN}/service/engage/tracker`);
+});
+
+// relay telnyx sms web hook
+app.post(`/telnyx/webhook`, async (req, res, next) => {
+  const ENGAGES_API_DOMAIN = getSubServiceDomain({ name: 'ENGAGES_API_DOMAIN' });
+
+  return pipeRequest(req, res, next, `${ENGAGES_API_DOMAIN}/telnyx/webhook`);
+});
+
+// relay telnyx sms web hook fail over url
+app.post(`/telnyx/webhook-failover`, async (req, res, next) => {
+  const ENGAGES_API_DOMAIN = getSubServiceDomain({ name: 'ENGAGES_API_DOMAIN' });
+
+  return pipeRequest(req, res, next, `${ENGAGES_API_DOMAIN}/telnyx/webhook-failover`);
+});
+
 app.use(express.urlencoded({ extended: true }));
+
 app.use(
   express.json({
     limit: '15mb',
   }),
 );
+
 app.use(cookieParser());
 
 const corsOptions = {
@@ -292,29 +318,6 @@ app.get('/unsubscribe', async (req: any, res) => {
 });
 
 apolloServer.applyMiddleware({ app, path: '/graphql', cors: corsOptions });
-
-// handle engage trackers
-app.post(`/service/engage/tracker`, async (req, res, next) => {
-  const ENGAGES_API_DOMAIN = getSubServiceDomain({ name: 'ENGAGES_API_DOMAIN' });
-
-  debugBase('SES notification received ======');
-
-  return pipeRequest(req, res, next, `${ENGAGES_API_DOMAIN}/service/engage/tracker`);
-});
-
-// relay telnyx sms web hook
-app.post(`/telnyx/webhook`, async (req, res, next) => {
-  const ENGAGES_API_DOMAIN = getSubServiceDomain({ name: 'ENGAGES_API_DOMAIN' });
-
-  return pipeRequest(req, res, next, `${ENGAGES_API_DOMAIN}/telnyx/webhook`);
-});
-
-// relay telnyx sms web hook fail over url
-app.post(`/telnyx/webhook-failover`, async (req, res, next) => {
-  const ENGAGES_API_DOMAIN = getSubServiceDomain({ name: 'ENGAGES_API_DOMAIN' });
-
-  return pipeRequest(req, res, next, `${ENGAGES_API_DOMAIN}/telnyx/webhook-failover`);
-});
 
 // verifier web hook
 app.post(`/verifier/webhook`, async (req, res) => {
