@@ -21,7 +21,7 @@ const AlertWrapper = styled.div.attrs({
 let alertcount = 0;
 let timeout;
 
-const createAlert = (type: string, text: string) => {
+const createAlert = (type: string, text: string, time?: number) => {
   alertcount++;
 
   if (timeout) {
@@ -38,7 +38,7 @@ const createAlert = (type: string, text: string) => {
         document.body.removeChild(container);
       }
     }
-  }, 3500);
+  }, time || 3500);
 
   if (!document.getElementById('alert-container')) {
     const popup = document.createElement('div');
@@ -58,11 +58,11 @@ const createAlert = (type: string, text: string) => {
   );
 };
 
-const success = (text: string) => createAlert('success', text);
-const error = (text: string) =>
-  createAlert('error', text.replace('GraphQL error:', ''));
-const warning = (text: string) => createAlert('warning', text);
-const info = (text: string) => createAlert('info', text);
+const success = (text: string, time?: number) => createAlert('success', text, time);
+const error = (text: string, time?: number) =>
+  createAlert('error', text.replace('GraphQL error:', ''), time);
+const warning = (text: string, time?: number) => createAlert('warning', text, time);
+const info = (text: string, time?: number) => createAlert('info', text, time);
 
 const Alert = {
   success,

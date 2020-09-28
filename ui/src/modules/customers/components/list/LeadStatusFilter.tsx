@@ -23,6 +23,7 @@ class LeadStatusFilter extends React.Component<IProps> {
 
     const onClick = (key, value) => {
       router.setParams(history, { [key]: value });
+      router.removeParams(history, 'page');
     };
 
     return (

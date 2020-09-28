@@ -45,6 +45,8 @@ type State = {
 };
 
 class CustomerListContainer extends React.Component<FinalProps, State> {
+  private timer?: NodeJS.Timer;
+
   constructor(props) {
     super(props);
 
@@ -53,6 +55,24 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       mergeCustomerLoading: false,
       responseId: '',
     };
+  }
+
+  componentWillUnmount() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.queryParams.page !== prevProps.queryParams.page) {
+      this.props.customersMainQuery.refetch();
+    }
+  }
+
+  refetchWithDelay = () => {
+    this.timer = setTimeout(() => {
+      this.props.customersMainQuery.refetch();
+    }, 5500);
   }
 
   render() {
@@ -82,8 +102,9 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       })
         .then(() => {
           emptyBulk();
-          Alert.success('You successfully deleted a customer');
-          customersMainQuery.refetch();
+          Alert.success('You successfully deleted a customer. The changes will take a few seconds', 4500);
+
+          this.refetchWithDelay();
         })
         .catch((e) => {
           Alert.error(e.message);
@@ -104,6 +125,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
           this.setState({ mergeCustomerLoading: false });
           Alert.success('You successfully merged a customer');
           history.push(`/contacts/details/${result.data.customersMerge._id}`);
+          customersMainQuery.refetch();
         })
         .catch((e) => {
           Alert.error(e.message);
@@ -158,10 +180,6 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       window.open(`${REACT_APP_API_URL}/file-export?${stringified}`, '_blank');
     };
 
-    const refetch = () => {
-      this.props.customersMainQuery.refetch();
-    };
-
     const searchValue = this.props.queryParams.searchValue || '';
 
     const { list = [], totalCount = 0 } =
@@ -180,14 +198,14 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       removeCustomers,
       verifyCustomers,
       mergeCustomerLoading: this.state.mergeCustomerLoading,
-      refetch
+      refetch: this.refetchWithDelay
     };
 
     const content = (props) => {
       return <CustomersList {...updatedProps} {...props} />;
     };
 
-    return <Bulk content={content} refetch={refetch} />;
+    return <Bulk content={content} refetch={this.props.customersMainQuery.refetch} />;
   }
 }
 

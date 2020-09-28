@@ -26,6 +26,7 @@ const FilterContainer = (props: FinalProps) => {
 
   const setSegment = segment => {
     router.setParams(history, { segment });
+    router.removeParams(history, 'page');
   };
 
   const removeSegment = () => {

@@ -39,12 +39,26 @@ type State = {
 };
 
 class CompanyListContainer extends React.Component<FinalProps, State> {
+  private timer?: NodeJS.Timer;
+
   constructor(props) {
     super(props);
 
     this.state = {
       loading: false
     };
+  }
+
+  componentWillUnmount() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+  }
+
+  refetchWithDelay = () => {
+    this.timer = setTimeout(() => {
+      this.props.companiesMainQuery.refetch();
+    }, 5500);
   }
 
   render() {
@@ -71,7 +85,9 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
       })
         .then(() => {
           emptyBulk();
-          Alert.success('You successfully deleted a company');
+          Alert.success('You successfully deleted a company. The changes will take a few seconds', 4500);
+
+          this.refetchWithDelay();
         })
         .catch(e => {
           Alert.error(e.message);
@@ -137,18 +153,15 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
       loading: companiesMainQuery.loading || this.state.loading,
       exportCompanies,
       removeCompanies,
-      mergeCompanies
+      mergeCompanies,
+      refetch: this.refetchWithDelay
     };
 
     const companiesList = props => {
       return <CompaniesList {...updatedProps} {...props} />;
     };
 
-    const refetch = () => {
-      this.props.companiesMainQuery.refetch();
-    };
-
-    return <Bulk content={companiesList} refetch={refetch} />;
+    return <Bulk content={companiesList} refetch={this.props.companiesMainQuery.refetch} />;
   }
 }
 
