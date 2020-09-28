@@ -44,9 +44,9 @@ class Resolver extends React.Component<Props> {
     };
 
     return (
-      <Button {...btnAttrs}>
-        {buttonText}
-      </Button>
+      <>
+        <Button {...btnAttrs}>{buttonText}</Button>
+      </>
     );
   }
 }

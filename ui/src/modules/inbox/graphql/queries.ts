@@ -2,8 +2,7 @@ import { queries as customerQueries } from 'modules/customers/graphql';
 import conversationFields from './conversationFields';
 import messageFields from './messageFields';
 
-const listParamsDef = `
-  $limit: Int
+export const paramsDef = `
   $channelId: String
   $status: String
   $unassigned: String
@@ -12,13 +11,16 @@ const listParamsDef = `
   $integrationType: String
   $participating: String
   $starred: String
-  $ids: [String]
   $startDate: String
   $endDate: String
 `;
+const listParamsDef = `
+  $limit: Int
+  $ids: [String]
+  ${paramsDef}
+`;
 
-const listParamsValue = `
-  limit: $limit
+export const paramsValue = `
   channelId: $channelId
   status: $status
   unassigned: $unassigned
@@ -27,9 +29,14 @@ const listParamsValue = `
   integrationType: $integrationType
   participating: $participating
   starred: $starred
-  ids: $ids
   startDate: $startDate
   endDate: $endDate
+`;
+
+const listParamsValue = `
+  limit: $limit
+  ids: $ids
+  ${paramsValue}
 `;
 
 const conversationList = `
@@ -253,13 +260,13 @@ const convertToInfo = `
   }
 `;
 
-const generateCustomerDetailQuery = (params) => {
+const generateCustomerDetailQuery = params => {
   const {
     showDeviceProperties = false,
     showTrackedData = false,
     showCustomFields = false,
     showCompanies = false,
-    showTags = false,
+    showTags = false
   } = params || {};
 
   let fields = `
@@ -351,5 +358,5 @@ export default {
   unreadConversationsCount,
   lastConversation,
   generateCustomerDetailQuery,
-  convertToInfo,
+  convertToInfo
 };

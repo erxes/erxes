@@ -1,4 +1,5 @@
 import messageFields from './messageFields';
+import { paramsDef, paramsValue } from './queries';
 
 const conversationMessageAdd = `
   mutation conversationMessageAdd(
@@ -111,6 +112,12 @@ const createProductBoardNote = `
   }
 `;
 
+const resolveAll = `
+  mutation conversationResolveAll(${paramsDef}) {
+    conversationResolveAll(${paramsValue})
+  }
+`;
+
 export default {
   conversationsReplyFacebookComment,
   conversationMessageAdd,
@@ -120,5 +127,6 @@ export default {
   saveResponseTemplate,
   markAsRead,
   createProductBoardNote,
-  conversationsChangeStatusFacebookComment
+  conversationsChangeStatusFacebookComment,
+  resolveAll
 };
