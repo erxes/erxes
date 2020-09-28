@@ -85,6 +85,7 @@ const RespondBoxContainer = (props: FinalProps) => {
           internal,
           mentionedUserIds: [],
           conversationId,
+          isBotMessage: false,
           customerId: Math.random(),
           userId: currentUser._id,
           createdAt: new Date(),

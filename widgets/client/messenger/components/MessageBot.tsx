@@ -11,6 +11,7 @@ import CustomMessage from "./botpress/CustomMessage";
 
 type Props = {
   botData: IBotData;
+  isBotMessage?: boolean;
   createdAt: Date;
   user?: IUser;
   color?: string;
@@ -28,6 +29,7 @@ function MessengeBot(props: Props) {
     textColor,
     createdAt,
     botData,
+    isBotMessage,
     replyAutoAnswer,
     sendTypingInfo,
   } = props;
@@ -59,7 +61,7 @@ function MessengeBot(props: Props) {
 
   function renderContent() {
     const messageClasses = classNames("erxes-message", {
-      "from-customer": botData.fromCustomer,
+      "from-customer": !isBotMessage,
     });
 
     const messageBackground = {
@@ -88,8 +90,8 @@ function MessengeBot(props: Props) {
   }
 
   return (
-    <li className={classNames({ "from-customer": botData.fromCustomer })}>
-      {!botData.fromCustomer ? <Bot /> : null}
+    <li className={classNames({ "from-customer": !isBotMessage })}>
+      {isBotMessage ? <Bot /> : null}
       {renderContent()}
       {renderDate()}
     </li>

@@ -25,12 +25,12 @@ export default class SimpleMessage extends React.Component<Props, {}> {
   renderContent() {
     const { message } = this.props;
     const { botData } = message;
-    const { type, text, elements, url, fromCustomer } = botData;
+    const { type, text, elements, url } = botData;
 
     switch (type) {
       case 'text':
         return (
-          <MessageContent staff={!fromCustomer}>
+          <MessageContent staff={false}>
             <span
               dangerouslySetInnerHTML={{ __html: xss(urlify(text || '')) }}
             />
@@ -51,14 +51,14 @@ export default class SimpleMessage extends React.Component<Props, {}> {
 
   render() {
     const {
-      message: { createdAt, botData }
+      message: { createdAt }
     } = this.props;
 
     return (
-      <MessageItem staff={!botData.fromCustomer}>
+      <MessageItem staff={false}>
         {this.renderAvatar()}
 
-        <MessageBody staff={!botData.fromCustomer}>
+        <MessageBody staff={false}>
           {this.renderContent()}
           <Tip text={dayjs(createdAt).format('lll')}>
             <footer>{dayjs(createdAt).format('LT')}</footer>

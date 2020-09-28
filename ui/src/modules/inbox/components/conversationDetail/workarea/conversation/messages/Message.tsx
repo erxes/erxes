@@ -29,7 +29,7 @@ function Message(props: Props) {
   return (
     <SimpleMessage
       message={message}
-      isStaff={message.userId ? true : false}
+      isStaff={message.userId || message.isBotMessage ? true : false}
       isSameUser={isSameUser}
     />
   );

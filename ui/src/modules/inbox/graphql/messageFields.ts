@@ -15,6 +15,7 @@ export default `
   }
   internal
   fromBot
+  isBotMessage
   contentType
   customerId
   userId
