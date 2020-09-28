@@ -30,7 +30,7 @@ class FormContainer extends React.Component<
     const { contentType, contentTypeId, internalNotesAdd } = this.props;
 
     // create internalNote
-    const create = (variables, callback: () => void) => {
+    const add = (variables, callback: () => void) => {
       this.setState({ isLoading: true });
 
       internalNotesAdd({
@@ -48,7 +48,7 @@ class FormContainer extends React.Component<
 
     return (
       <Form
-        save={create}
+        save={add}
         isActionLoading={this.state.isLoading}
         contentType={contentType}
         contentTypeId={contentTypeId}

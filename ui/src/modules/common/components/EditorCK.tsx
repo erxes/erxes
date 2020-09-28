@@ -67,6 +67,8 @@ class EditorCK extends React.Component<IEditorProps, { content: string }> {
     ) {
       // clear previous content
       this.setState({ content: '' });
+
+      return false;
     }
 
     return true;
