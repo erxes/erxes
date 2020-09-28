@@ -451,8 +451,7 @@ export class AppProvider extends React.Component<{}, IState> {
         variables: {
           _id,
           operatorStatus
-        },
-        refetchQueries: ['widgetsConversationDetail']
+        }
       })
       .then(() => {
         if (callback) {
