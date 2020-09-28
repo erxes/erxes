@@ -22,7 +22,7 @@ export default class FilterToggler extends React.PureComponent<Props, State> {
     this.state = { isOpen: props.isOpen };
   }
 
-  onClick = (e) => {
+  onClick = e => {
     const { isOpen } = this.state;
 
     this.setState({ isOpen: !isOpen });

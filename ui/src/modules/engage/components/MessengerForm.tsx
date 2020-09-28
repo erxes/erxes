@@ -116,14 +116,18 @@ class MessengerForm extends React.Component<Props, State> {
   render() {
     const onChangeFrom = e =>
       this.changeFromUserId((e.target as HTMLInputElement).value);
+
     const onChangeContent = e => {
       Alert.warning(
         'Please carefully select the brand, it will appear in the selected brand messenger.'
       );
       this.changeContent('brandId', (e.target as HTMLInputElement).value);
     };
+
     const onChangeSentAs = e =>
       this.changeContent('sentAs', (e.target as HTMLInputElement).value);
+
+    const { messenger, messageKind } = this.props;
 
     return (
       <FlexItem>
@@ -140,6 +144,7 @@ class MessengerForm extends React.Component<Props, State> {
               ]}
               insertItems={EMAIL_CONTENT}
               height={300}
+              name={`engage_${messageKind}_${messenger.brandId || 'create'}`}
             />
           </FormGroup>
 
