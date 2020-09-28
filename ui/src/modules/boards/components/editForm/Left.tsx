@@ -28,10 +28,11 @@ import Actions from './Actions';
 type DescProps = {
   item: IItem;
   saveItem: (doc: { [key: string]: any }, callback?: (item) => void) => void;
+  contentType: string;
 };
 
 const Description = (props: DescProps) => {
-  const { item, saveItem } = props;
+  const { item, saveItem, contentType } = props;
   const [edit, setEdit] = useState(false);
   const [description, setDescription] = useState(item.description);
 
@@ -81,7 +82,6 @@ const Description = (props: DescProps) => {
   };
 
   return (
-    
     <FormGroup>
       <ContentWrapper isEditing={edit}>
         <TitleRow>
@@ -92,7 +92,14 @@ const Description = (props: DescProps) => {
         </TitleRow>
 
         {!edit ? (
-          <Content onClick={toggleEdit} dangerouslySetInnerHTML={{ __html: description ? xss(description) : `${__('Add a more detailed description')}...` }} />
+          <Content
+            onClick={toggleEdit}
+            dangerouslySetInnerHTML={{
+              __html: description
+                ? xss(description)
+                : `${__('Add a more detailed description')}...`
+            }}
+          />
         ) : (
           <EditorWrapper>
             <EditorCK
@@ -101,6 +108,7 @@ const Description = (props: DescProps) => {
               onChange={onChangeDescription}
               height={120}
               autoFocus={true}
+              name={`${contentType}_description_${item._id}`}
               toolbar={[
                 {
                   name: 'basicstyles',
@@ -195,7 +203,7 @@ const Left = (props: Props) => {
         <Uploader defaultFileList={attachments} onChange={onChangeAttachment} />
       </FormGroup>
 
-      <Description item={item} saveItem={saveItem} />
+      <Description item={item} saveItem={saveItem} contentType={options.type} />
 
       <Checklists
         contentType={options.type}

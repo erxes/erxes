@@ -95,22 +95,6 @@ class RespondBox extends React.Component<Props, State> {
     return true;
   }
 
-  shouldComponentUpdate(nextProps: Props) {
-    if (this.props.conversation._id !== nextProps.conversation._id) {
-      if (this.isContentWritten()) {
-        localStorage.setItem(this.props.conversation._id, this.state.content);
-      } else {
-        // if clear content
-        localStorage.removeItem(this.props.conversation._id);
-      }
-
-      // clear previous content
-      this.setState({ content: '' });
-    }
-
-    return true;
-  }
-
   componentDidUpdate(prevProps, prevState) {
     const { sending, content, responseTemplate } = this.state;
 
@@ -144,6 +128,10 @@ class RespondBox extends React.Component<Props, State> {
   // save editor current content to state
   onEditorContentChange = (content: string) => {
     this.setState({ content });
+
+    if (this.isContentWritten()) {
+      localStorage.setItem(this.props.conversation._id, content);
+    }
   };
 
   // save mentioned user to state
@@ -287,6 +275,8 @@ class RespondBox extends React.Component<Props, State> {
         if (error) {
           return Alert.error(error.message);
         }
+
+        localStorage.removeItem(this.props.conversation._id);
 
         // clear attachments, content, mentioned user ids
         return this.setState({
