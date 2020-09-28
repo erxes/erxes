@@ -153,7 +153,7 @@ const main = async () => {
       createdAt: faker.date.recent(),
       username: faker.internet.userName(),
       password: newPwd,
-      isOwner: true,
+      isOwner: false,
       email: faker.internet.email(),
       getNotificationByEmail: true,
       details: {
