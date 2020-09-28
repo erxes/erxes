@@ -55,6 +55,7 @@ interface IStore extends IState {
   readConversation: (conversationId: string) => void;
   readMessages: (conversationId: string) => void;
   replyAutoAnswer: (message: string, payload: string) => void;
+  changeOperatorStatus: (_id: string, operatorStatus: string, callback: () => void) => void;
   sendMessage: (
     contentType: string,
     message: string,
@@ -425,6 +426,33 @@ export class AppProvider extends React.Component<{}, IState> {
     });
   };
 
+  changeOperatorStatus = (_id: string, operatorStatus: string, callback: () => void) => {
+    return client
+      .mutate({
+        mutation: gql`
+          mutation changeConversationOperator(
+            $_id: String!
+            $operatorStatus: String!
+          ) {
+            changeConversationOperator(
+              _id: $_id
+              operatorStatus:$ operatorStatus
+            )
+          }
+        `,
+        variables: {
+          _id,
+          operatorStatus
+        },
+        refetchQueries: ['widgetsConversationDetail']
+      })
+      .then(() => {
+        if (callback) {
+          callback();
+        }
+      });
+  };
+
   replyAutoAnswer = (message: string, payload: string) => {
     this.setState({ sendingMessage: true });
 
@@ -490,6 +518,7 @@ export class AppProvider extends React.Component<{}, IState> {
           createdAt: Number(new Date()),
           attachments: attachments || [],
           internal: false,
+          botData: null,
           fromBot: false,
           messengerAppData: null,
           videoCallData: null,
@@ -644,6 +673,7 @@ export class AppProvider extends React.Component<{}, IState> {
           readConversation: this.readConversation,
           readMessages: this.readMessages,
           replyAutoAnswer: this.replyAutoAnswer,
+          changeOperatorStatus: this.changeOperatorStatus,
           sendMessage: this.sendMessage,
           sendTypingInfo: this.sendTypingInfo,
           sendFile: this.sendFile,

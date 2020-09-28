@@ -11,9 +11,11 @@ type Props = {
   goToConversationList: () => void;
   supporters: IUser[];
   participators: IParticipator[];
+  operatorStatus?: string;
   isOnline: boolean;
   color?: string;
   loading?: boolean;
+  refetchConversationDetail?: () => void;
 };
 
 type State = {
@@ -79,6 +81,8 @@ class ConversationDetail extends React.Component<Props, State> {
       participators,
       supporters,
       goToConversationList,
+      refetchConversationDetail,
+      operatorStatus,
       isOnline,
       color,
       loading
@@ -133,6 +137,8 @@ class ConversationDetail extends React.Component<Props, State> {
 
             <MessageSender
               placeholder={placeholder ? placeholder.toString() : ""}
+              refetchConversationDetail={refetchConversationDetail}
+              operatorStatus={operatorStatus}
               isParentFocused={this.state.isFocused}
               onTextInputBlur={this.onTextInputBlur}
               collapseHead={this.inputFocus}

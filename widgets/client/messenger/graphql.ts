@@ -53,6 +53,7 @@ const conversationDetailQuery = `
         ${messageFields}
       }
 
+      operatorStatus
       isOnline
       supporters {
         _id

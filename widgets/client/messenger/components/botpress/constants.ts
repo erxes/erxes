@@ -7,3 +7,8 @@ export const BUTTON_TYPES = {
   openUrl: "open_url",
   postBack: "postback",
 };
+
+export const OPERATOR_STATUS = {
+  OPERATOR: 'operator',
+  BOT: 'bot',
+};

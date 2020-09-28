@@ -95,20 +95,27 @@ class ConversationDetail extends React.Component<
     let messages: IMessage[] = [];
     let participators: IParticipator[] = [];
     let state: boolean = isOnline || false;
+    let operatorStatus;
+    let refetchConversationDetail;
 
     if (data && data.widgetsConversationDetail) {
       const conversationDetail = data.widgetsConversationDetail;
       messages = conversationDetail.messages;
       participators = conversationDetail.participatedUsers || [];
       state = conversationDetail.isOnline;
+      operatorStatus = conversationDetail.operatorStatus;
+      refetchConversationDetail = data.refetch;
     }
+
 
     return (
       <DumbComponent
         {...this.props}
+        operatorStatus={operatorStatus}
         messages={messages}
         isOnline={state}
         participators={participators}
+        refetchConversationDetail={refetchConversationDetail}
       />
     );
   }
@@ -144,7 +151,7 @@ const WithConsumer = (props: PropsWithConsumer) => {
         goToConversationList,
         endConversation,
         getColor,
-        getMessengerData
+        getMessengerData,
       }) => {
         const key = activeConversation || 'create';
         const { isOnline, forceLogoutWhenResolve } = getMessengerData();

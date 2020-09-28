@@ -60,6 +60,7 @@ export interface IConversation {
   _id: string;
   content: string;
   createdAt: Date;
+  operatorStatus?: string;
   participatedUsers?: IParticipator[];
   messages: IMessage[];
   isOnline: boolean;
