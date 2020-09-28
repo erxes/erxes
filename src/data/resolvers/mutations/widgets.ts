@@ -207,8 +207,6 @@ const widgetMutations = {
           }),
     };
 
-    console.log('customerDoc: ', customerDoc);
-
     // update location info and missing fields
     await Customers.updateCustomer(customer._id, customerDoc);
 
