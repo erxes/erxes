@@ -16,6 +16,7 @@ import {
 } from '../../types';
 import { getConfig, setConfig } from '../../utils';
 import { refetchSidebarConversationsOptions } from '../../utils';
+import { InboxManagementActionConsumer } from '../Inbox';
 
 type Props = {
   queryParams: any;
@@ -36,10 +37,14 @@ class Sidebar extends React.Component<FinalProps> {
   };
 
   // resolve all conversation
-  resolveAll = () => {
+  resolveAll = notifyHandler => () => {
     this.props
       .resolveAllMutation({ variables: this.props.queryParams })
       .then(() => {
+        if (notifyHandler) {
+          notifyHandler();
+        }
+
         Alert.success('The conversation has been resolved!');
       })
       .catch(e => {
@@ -59,23 +64,28 @@ class Sidebar extends React.Component<FinalProps> {
     }
 
     const { currentConversationId, queryParams, history } = this.props;
-
     const content = ({ bulk, toggleBulk, emptyBulk }: IBulkContentProps) => {
       return (
         <AppConsumer>
           {({ currentUser }) => (
-            <DumbSidebar
-              currentUser={currentUser}
-              currentConversationId={currentConversationId}
-              queryParams={queryParams}
-              history={history}
-              bulk={bulk}
-              emptyBulk={emptyBulk}
-              toggleBulk={toggleBulk}
-              config={getConfig(STORAGE_KEY)}
-              toggleSidebar={this.toggle}
-              resolveAll={this.resolveAll}
-            />
+            <InboxManagementActionConsumer>
+              {({ notifyConsumersOfManagementAction }) => (
+                <DumbSidebar
+                  currentUser={currentUser}
+                  currentConversationId={currentConversationId}
+                  queryParams={queryParams}
+                  history={history}
+                  bulk={bulk}
+                  emptyBulk={emptyBulk}
+                  toggleBulk={toggleBulk}
+                  config={getConfig(STORAGE_KEY)}
+                  toggleSidebar={this.toggle}
+                  resolveAll={this.resolveAll(
+                    notifyConsumersOfManagementAction
+                  )}
+                />
+              )}
+            </InboxManagementActionConsumer>
           )}
         </AppConsumer>
       );
