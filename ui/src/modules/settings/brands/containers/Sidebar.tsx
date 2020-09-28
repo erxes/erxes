@@ -3,6 +3,7 @@ import * as compose from 'lodash.flowright';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { Alert, confirm, withProps } from 'modules/common/utils';
+import { queries as queriesInbox } from 'modules/inbox/graphql';
 import React from 'react';
 import { ChildProps, graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
@@ -108,7 +109,8 @@ const getRefetchQueries = (queryParams, currentBrandId?: string) => {
       query: gql(queries.brandDetail),
       variables: { _id: currentBrandId || '' }
     },
-    { query: gql(queries.brandsCount) }
+    { query: gql(queries.brandsCount) },
+    { query: gql(queriesInbox.brandList) }
   ];
 };
 

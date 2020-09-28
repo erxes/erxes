@@ -60,6 +60,7 @@ interface IProps extends IRouterProps {
   queryParams: any;
   exportData: (bulk: Array<{ _id: string }>) => void;
   responseId: string;
+  refetch?: () => void;
 }
 
 type State = {
@@ -181,6 +182,14 @@ class CustomersList extends React.Component<IProps, State> {
 
     e.target.value = '';
     e.target.value = tmpValue;
+  }
+
+  afterTag = () => {
+    this.props.emptyBulk();
+    
+    if(this.props.refetch) {
+      this.props.refetch();
+    }
   }
 
   render() {
@@ -343,10 +352,10 @@ class CustomersList extends React.Component<IProps, State> {
           .catch(e => {
             Alert.error(e.message);
           });
-
+      
       const refetchQuery = {
         query: gql(queries.customerCounts),
-        variables: { only: 'byTag' }
+        variables: { type, only: 'byTag' }
       };
 
       actionBarLeft = (
@@ -355,7 +364,7 @@ class CustomersList extends React.Component<IProps, State> {
 
           <TaggerPopover
             type="customer"
-            successCallback={emptyBulk}
+            successCallback={this.afterTag}
             targets={bulk}
             trigger={tagButton}
             refetchQueries={[refetchQuery]}

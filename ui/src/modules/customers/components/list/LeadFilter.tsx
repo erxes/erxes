@@ -26,6 +26,7 @@ function Leads({
 }: IProps) {
   const onClick = formId => {
     router.setParams(history, { form: formId });
+    router.removeParams(history, 'page');
   };
 
   const data = (

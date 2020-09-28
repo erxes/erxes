@@ -150,7 +150,12 @@ class ArticleForm extends React.Component<Props, State> {
         </FlexContent>
         <FormGroup>
           <ControlLabel required={true}>{__('Content')}</ControlLabel>
-          <EditorCK content={content} onChange={this.onChange} height={300} />
+          <EditorCK
+            content={content}
+            onChange={this.onChange}
+            height={300}
+            name={`knowledgeBase_${article ? article._id : 'create'}`}
+          />
         </FormGroup>
 
         <ModalFooter>

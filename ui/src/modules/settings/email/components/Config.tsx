@@ -79,6 +79,7 @@ class Config extends React.Component<Props, State> {
             onChange={this.onEditorChange}
             insertItems={EMAIL_TEMPLATE}
             autoGrow={true}
+            name={`email_config_${this.props.brand._id}`}
           />
         </ContentWrapper>
       );
