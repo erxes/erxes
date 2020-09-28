@@ -43,7 +43,7 @@ const IconWrapper = styled.div`
 const Error = styled.span`
   font-size: 12px;
   color: ${rgba(colors.colorCoreRed, 0.8)};
-  
+
   strong {
     color: ${colors.colorCoreRed};
   }
@@ -100,7 +100,15 @@ class ConfirmDialog extends React.Component<Props, State> {
         return this.invokeProceed();
       }
 
-      return this.setState({ errors: { confirm: <Error>Enter <strong>delete</strong> to confirm</Error> } });
+      return this.setState({
+        errors: {
+          confirm: (
+            <Error>
+              Enter <strong>delete</strong> to confirm
+            </Error>
+          )
+        }
+      });
     }
 
     if (hasUpdateConfirm) {
@@ -108,7 +116,15 @@ class ConfirmDialog extends React.Component<Props, State> {
         return this.invokeProceed();
       }
 
-      return this.setState({ errors: { confirm: <Error>Enter <strong>update</strong> to confirm</Error> } });
+      return this.setState({
+        errors: {
+          confirm: (
+            <Error>
+              Enter <strong>update</strong> to confirm
+            </Error>
+          )
+        }
+      });
     }
 
     return this.invokeProceed();
@@ -141,9 +157,15 @@ class ConfirmDialog extends React.Component<Props, State> {
       return null;
     }
 
-    const label = hasDeleteConfirm
-      ? <>Type <strong>delete</strong> in the filed below to confirm.</>
-      : <>Type <strong>update</strong> in the filed below to confirm.</>;
+    const label = hasDeleteConfirm ? (
+      <>
+        Type <strong>delete</strong> in the filed below to confirm.
+      </>
+    ) : (
+      <>
+        Type <strong>update</strong> in the filed below to confirm.
+      </>
+    );
 
     return (
       <>
@@ -180,7 +202,7 @@ class ConfirmDialog extends React.Component<Props, State> {
         keyboard={enableEscape}
         size="sm"
         centered={true}
-        animation={(hasDeleteConfirm || hasUpdateConfirm) ? false : true}
+        animation={hasDeleteConfirm || hasUpdateConfirm ? false : true}
       >
         <ModalBody>
           <IconWrapper>

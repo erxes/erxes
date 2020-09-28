@@ -736,6 +736,7 @@ class MailForm extends React.Component<Props, State> {
           autoFocus={!this.props.isForward}
           autoGrow={true}
           autoGrowMinHeight={120}
+          name={`mail_${this.state.to || this.props.currentUser._id}`}
         />
       </MailEditorWrapper>
     );

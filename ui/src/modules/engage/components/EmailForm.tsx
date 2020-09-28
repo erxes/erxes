@@ -258,6 +258,7 @@ class EmailForm extends React.Component<Props, State> {
               onChange={this.onEditorChange}
               insertItems={EMAIL_CONTENT}
               height={500}
+              name={`engage_email_${this.props.kind}_${this.props.fromUserId}`}
             />
           </EditorContainer>
         </FlexItem>

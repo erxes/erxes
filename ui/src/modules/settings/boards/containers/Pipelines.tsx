@@ -140,15 +140,15 @@ const getRefetchQueries = (boardId, pipelineId?: string) => {
     },
     {
       query: gql(boardQueries.stages),
-      variables: { 
+      variables: {
         pipelineId,
-        search: undefined, 
-        customerIds: undefined, 
-        companyIds: undefined, 
-        assignedUserIds: undefined, 
-        labelIds: undefined, 
-        extraParams: {}, 
-        closeDateType: undefined, 
+        search: undefined,
+        customerIds: undefined,
+        companyIds: undefined,
+        assignedUserIds: undefined,
+        labelIds: undefined,
+        extraParams: {},
+        closeDateType: undefined,
         userIds: undefined
       }
     }
