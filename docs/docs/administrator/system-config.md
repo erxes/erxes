@@ -780,8 +780,6 @@ When you start erxes-integration repo webhook will automatically created accordi
 
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-telegram-4.png)
 
-![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-telegram-5">
-
 - You can share the link with your customers and partners and they can connect with you.
 
 4. Then copy your bot token and paste it into Telegram Bot Token field on the add Telegram page from erxes App Store. Then click on “Save”
@@ -849,8 +847,6 @@ When you start erxes-integration repo webhook will automatically created accordi
 - You can select a number from any country available on Twilio. The only prerequisite for Erxes integration to work is SMS capability. Bear in mind that Twilio does offer numbers without SMS functionality, those won't work.
 
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-twilio-1.png)
-
-![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-twilio-4">
 
 3. Copy and paste your ACCOUNT SID and AUTH TOKEN to corresponding fields on the add Twilio SMS page from erxes App Store.
 
