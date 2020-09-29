@@ -37,7 +37,7 @@ export const sendMessageEmail = async () => {
     }
 
     // user's last non answered question
-    const question: IMessageDocument = (await ConversationMessages.getNonAsnweredMessage(conversation._id)) || {};
+    const question: IMessageDocument = await ConversationMessages.getNonAsnweredMessage(conversation._id);
 
     const adminMessages = await ConversationMessages.getAdminMessages(conversation._id);
 
@@ -70,13 +70,17 @@ export const sendMessageEmail = async () => {
 
     const data = {
       customer,
-      question: {
-        ...question.toJSON(),
-        createdAt: new Date(moment(question.createdAt).format('DD MMM YY, HH:mm')),
-      },
+      question: {},
       answers,
       brand,
     };
+
+    if (question) {
+      data.question = {
+        ...question.toJSON(),
+        createdAt: new Date(moment(question.createdAt).format('DD MMM YY, HH:mm')),
+      };
+    }
 
     const email = customer.primaryEmail || customer.emails[0];
 
