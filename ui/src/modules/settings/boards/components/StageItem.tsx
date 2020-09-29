@@ -31,7 +31,7 @@ class StageItem extends React.Component<Props, {}> {
         <FormControl
           defaultValue={stage.name}
           type="text"
-          placeholder={__("Stage name")}
+          placeholder={__('Stage name')}
           onKeyPress={onKeyPress}
           autoFocus={true}
           name="name"

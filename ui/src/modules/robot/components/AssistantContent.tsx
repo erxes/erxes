@@ -33,7 +33,7 @@ class AssistantContent extends React.Component<Props, State> {
   restartOnboard = () => {
     this.setState({ welcomeStep: 1 });
     this.props.changeRoute('initial');
-  }
+  };
 
   renderContent() {
     const {

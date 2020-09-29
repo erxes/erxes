@@ -23,14 +23,13 @@ class Board extends React.Component<Props> {
     const { pipelineDetailQuery, queryParams, options } = this.props;
 
     if (!pipelineDetailQuery || !pipelineDetailQuery.pipelineDetail) {
-      
       const type = options.type;
 
-      if (type === "deal" || type === "task") {
+      if (type === 'deal' || type === 'task') {
         return (
-          <EmptyContent 
-            content={type === "deal" ? EMPTY_CONTENT_DEAL : EMPTY_CONTENT_TASK} 
-            maxItemWidth="400px" 
+          <EmptyContent
+            content={type === 'deal' ? EMPTY_CONTENT_DEAL : EMPTY_CONTENT_TASK}
+            maxItemWidth="400px"
           />
         );
       }

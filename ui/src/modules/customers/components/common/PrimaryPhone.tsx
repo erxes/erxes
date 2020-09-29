@@ -58,7 +58,7 @@ const statuses = {
     label: 'Unverifiable',
     verified: false
   }
-}
+};
 
 function PrimaryPhone({ phone, status }: { phone?: string; status?: string }) {
   const renderStatus = () => {

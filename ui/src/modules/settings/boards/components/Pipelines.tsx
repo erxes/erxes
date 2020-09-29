@@ -8,7 +8,10 @@ import { Count, Title } from 'modules/common/styles/main';
 import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
-import { EMPTY_CONTENT_DEAL_PIPELINE, EMPTY_CONTENT_TASK_PIPELINE } from 'modules/settings/constants';
+import {
+  EMPTY_CONTENT_DEAL_PIPELINE,
+  EMPTY_CONTENT_TASK_PIPELINE
+} from 'modules/settings/constants';
 import React from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import PipelineForm from '../containers/PipelineForm';
@@ -111,11 +114,15 @@ class Pipelines extends React.Component<Props, State> {
     const pipelineName = options ? options.pipelineName : 'pipeline';
 
     if (pipelines.length === 0) {
-      if(type === 'deal' || type === 'task') {
+      if (type === 'deal' || type === 'task') {
         return (
-          <EmptyContent 
-            content={type === 'deal' ? EMPTY_CONTENT_DEAL_PIPELINE : EMPTY_CONTENT_TASK_PIPELINE} 
-            maxItemWidth="420px" 
+          <EmptyContent
+            content={
+              type === 'deal'
+                ? EMPTY_CONTENT_DEAL_PIPELINE
+                : EMPTY_CONTENT_TASK_PIPELINE
+            }
+            maxItemWidth="420px"
           />
         );
       }

@@ -54,22 +54,25 @@ class DealStagesContainer extends React.Component<FinalProps> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, ConversionStagesQueryResponse>(gql(queries.conversionStages), {
-      name: 'stagesQuery',
-      skip: ({ pipelineId }) => !pipelineId,
-      options: ({ pipelineId, queryParams }) => ({
-        variables: {
-          isNotLost: true,
-          pipelineId,
-          search: queryParams.search,
-          customerIds: queryParams.customerIds,
-          companyIds: queryParams.companyIds,
-          assignedUserIds: queryParams.assignedUserIds,
-          productIds: queryParams.productIds,
-          closeDateType: queryParams.closeDateType,
-          userIds: queryParams.userIds
-        }
-      })
-    })
+    graphql<Props, ConversionStagesQueryResponse>(
+      gql(queries.conversionStages),
+      {
+        name: 'stagesQuery',
+        skip: ({ pipelineId }) => !pipelineId,
+        options: ({ pipelineId, queryParams }) => ({
+          variables: {
+            isNotLost: true,
+            pipelineId,
+            search: queryParams.search,
+            customerIds: queryParams.customerIds,
+            companyIds: queryParams.companyIds,
+            assignedUserIds: queryParams.assignedUserIds,
+            productIds: queryParams.productIds,
+            closeDateType: queryParams.closeDateType,
+            userIds: queryParams.userIds
+          }
+        })
+      }
+    )
   )(DealStagesContainer)
 );

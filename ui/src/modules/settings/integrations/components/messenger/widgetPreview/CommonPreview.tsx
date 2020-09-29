@@ -28,7 +28,14 @@ type Props = {
 
 class CommonPreview extends React.Component<Props> {
   renderContent() {
-    const { isGreeting, isOnline, color, textColor, wallpaper, message } = this.props;
+    const {
+      isGreeting,
+      isOnline,
+      color,
+      textColor,
+      wallpaper,
+      message
+    } = this.props;
 
     if (isGreeting) {
       return <GreetingContent />;

@@ -32,7 +32,13 @@ fetch(`${envs.REACT_APP_API_URL}/initial-setup?envs=${JSON.stringify(envs)}`, {
     let body = <Routes />;
 
     if (res === 'no owner') {
-      body = <AuthLayout col={{first: 5, second: 6}} content={<OwnerSetup />} description={<OwnerDescription />} />;
+      body = (
+        <AuthLayout
+          col={{ first: 5, second: 6 }}
+          content={<OwnerSetup />}
+          description={<OwnerDescription />}
+        />
+      );
     }
 
     return render(

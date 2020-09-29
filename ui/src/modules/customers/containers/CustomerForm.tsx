@@ -58,7 +58,7 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
 
         const currentLocation = `${window.location.pathname}${
           window.location.search
-          }`;
+        }`;
 
         if (getAssociatedCustomer) {
           getAssociatedCustomer(data.customersAdd);
@@ -87,7 +87,7 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
           uppercase={false}
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
-            } a ${name}`}
+          } a ${name}`}
         />
       );
     };

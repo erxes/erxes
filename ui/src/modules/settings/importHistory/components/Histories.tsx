@@ -264,9 +264,9 @@ class Histories extends React.Component<Props & IRouterProps> {
               <HeaderDescription
                 icon="/images/actions/27.svg"
                 title={__('Import & export')}
-                description={
-                  __("Here you can find data of all your previous imports of companies and customers. Find out when they joined and their current status. Nothing goes missing around here.")
-                }
+                description={__(
+                  'Here you can find data of all your previous imports of companies and customers. Find out when they joined and their current status. Nothing goes missing around here.'
+                )}
               />
             }
             right={this.renderImportButton()}

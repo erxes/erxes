@@ -73,7 +73,7 @@ class Form extends React.Component<Props, State> {
   componentDidMount() {
     const { previewCount } = this.props;
     const { conditions, subOf } = this.state;
-    
+
     if (previewCount) {
       previewCount(conditions, subOf);
     }
@@ -225,9 +225,7 @@ class Form extends React.Component<Props, State> {
     const { conditions } = this.state;
 
     if (conditions.length === 0) {
-      return (
-        <EmptyContent content={EMPTY_NEW_SEGMENT_CONTENT} />
-      );
+      return <EmptyContent content={EMPTY_NEW_SEGMENT_CONTENT} />;
     }
 
     return (

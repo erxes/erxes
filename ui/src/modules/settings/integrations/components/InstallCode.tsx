@@ -470,14 +470,16 @@ class InstallCode extends React.PureComponent<Props, State> {
     let action;
     switch (currentTab) {
       case 'basic':
-        description = __('For websites and web apps with full-page refreshes. Paste the code below before the body tag on every page you want erxes chat to appear'
+        description = __(
+          'For websites and web apps with full-page refreshes. Paste the code below before the body tag on every page you want erxes chat to appear'
         );
         script = basicCode;
         action = copied;
         break;
       case 'single':
-        description =
-          __('For web apps built with asynchronous JavaScript. Paste the code below in main layout you want erxes chat to appear');
+        description = __(
+          'For web apps built with asynchronous JavaScript. Paste the code below in main layout you want erxes chat to appear'
+        );
         script = singlePageCode;
         action = singleCopied;
         break;

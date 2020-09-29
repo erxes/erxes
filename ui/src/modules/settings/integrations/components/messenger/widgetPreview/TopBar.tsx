@@ -156,9 +156,9 @@ class TopBar extends React.Component<Props> {
 
   render() {
     const { color, textColor } = this.props;
-    
+
     return (
-      <ErxesTopbar style={{ backgroundColor: color, color: textColor  }}>
+      <ErxesTopbar style={{ backgroundColor: color, color: textColor }}>
         {this.renderContent()}
       </ErxesTopbar>
     );

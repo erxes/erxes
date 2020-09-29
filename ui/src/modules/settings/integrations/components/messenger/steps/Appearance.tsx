@@ -109,13 +109,22 @@ class Appearance extends React.Component<Props, State> {
 
     const popoverContent = (
       <Popover id="color-picker">
-        <TwitterPicker color={color} onChange={onChangeColor.bind(this, 'color')} triangle="hide" />
+        <TwitterPicker
+          color={color}
+          onChange={onChangeColor.bind(this, 'color')}
+          triangle="hide"
+        />
       </Popover>
     );
 
     const textColorContent = (
       <Popover id="text-color-picker">
-        <TwitterPicker color={textColor} onChange={onChangeColor.bind(this, 'textColor')} colors={TEXT_COLORS} triangle="hide" />
+        <TwitterPicker
+          color={textColor}
+          onChange={onChangeColor.bind(this, 'textColor')}
+          colors={TEXT_COLORS}
+          triangle="hide"
+        />
       </Popover>
     );
 

@@ -124,11 +124,7 @@ class Form extends React.Component<Props, State> {
     }
 
     if (value && props.name === 'username' && !isValidUsername(value)) {
-      return (
-        <Error>
-          {__('Invalid Username')}
-        </Error>
-      );
+      return <Error>{__('Invalid Username')}</Error>;
     }
 
     return null;
