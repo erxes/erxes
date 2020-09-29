@@ -225,6 +225,7 @@ export type ConvesationsQueryVariables = {
   tag: string;
   integrationType: string;
   participating: string;
+  awaitingResponse: string;
   starred: string;
   startDate: string;
   endDate: string;

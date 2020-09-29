@@ -162,12 +162,10 @@ class Lead extends React.Component<Props, State> {
           featuredImage: this.state.logoPreviewUrl,
           skip: this.state.isSkip
         },
-        rules: (rules || []).filter(rule => (
-          rule.condition && rule.value
-        ))
+        rules: (rules || []).filter(rule => rule.condition && rule.value)
       }
     };
-    
+
     this.props.save(doc);
   };
 

@@ -122,7 +122,10 @@ class ArchivedItems extends React.Component<Props, State> {
           />
         ))}
         {hasMore ? (
-          <LoadMore onClick={loadMore}><Icon icon="redo" />{__('Load More')}</LoadMore>
+          <LoadMore onClick={loadMore}>
+            <Icon icon="redo" />
+            {__('Load More')}
+          </LoadMore>
         ) : null}
       </>
     );

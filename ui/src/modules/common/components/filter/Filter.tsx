@@ -84,6 +84,7 @@ function Filter({ queryParams = {}, history }: IProps) {
       {renderFilterWithData('channelId', 'channel')}
       {renderFilterParam('status', false)}
       {renderFilterParam('participating', true)}
+      {renderFilterParam('awaitingResponse', true)}
       {renderFilterParam('unassigned', true)}
       {renderFilterWithData('brandId', 'brand')}
       {renderFilterParam('integrationType', false)}

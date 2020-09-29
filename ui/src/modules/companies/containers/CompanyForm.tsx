@@ -46,7 +46,7 @@ const CompanyFromContainer = (props: FinalProps) => {
         type="submit"
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
-          } a ${name}`}
+        } a ${name}`}
       />
     );
   };

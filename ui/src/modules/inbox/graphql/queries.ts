@@ -11,6 +11,7 @@ const listParamsDef = `
   $tag: String
   $integrationType: String
   $participating: String
+  $awaitingResponse: String
   $starred: String
   $ids: [String]
   $startDate: String
@@ -26,6 +27,7 @@ const listParamsValue = `
   tag: $tag
   integrationType: $integrationType
   participating: $participating
+  awaitingResponse: $awaitingResponse
   starred: $starred
   ids: $ids
   startDate: $startDate

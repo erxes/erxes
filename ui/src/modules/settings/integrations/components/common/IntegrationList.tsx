@@ -51,7 +51,7 @@ class IntegrationList extends React.Component<Props> {
     const { integrations, kind, integrationsCount } = this.props;
 
     if (!integrations || integrations.length < 1) {
-      if(kind === INTEGRATION_KINDS.MESSENGER) {
+      if (kind === INTEGRATION_KINDS.MESSENGER) {
         return <EmptyContent content={EMPTY_CONTENT_MESSENGER} />;
       }
 

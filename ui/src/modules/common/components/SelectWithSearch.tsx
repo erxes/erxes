@@ -44,7 +44,11 @@ type Props = {
 
 const content = (option: IOption): React.ReactNode => (
   <>
-    <Avatar src={option.avatar ? readFile(option.avatar) : '/images/avatar-colored.svg'} />
+    <Avatar
+      src={
+        option.avatar ? readFile(option.avatar) : '/images/avatar-colored.svg'
+      }
+    />
     {option.label}
   </>
 );

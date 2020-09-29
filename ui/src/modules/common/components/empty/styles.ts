@@ -10,50 +10,56 @@ const Container = styled.div`
   justify-content: center;
   align-items: center;
   padding: ${dimensions.coreSpacing}px ${dimensions.coreSpacing * 2}px;
-	background: ${colors.bgLight};
-	flex-direction: column;
+  background: ${colors.bgLight};
+  flex-direction: column;
 
-	h2 {
-		margin: 0px 0 ${dimensions.unitSpacing}px;
-		font-weight: 700;
-		text-align: center;
-	}
+  h2 {
+    margin: 0px 0 ${dimensions.unitSpacing}px;
+    font-weight: 700;
+    text-align: center;
+  }
 
-	> p {
-		font-size: 16px;
-		text-align: center;
-		color: ${colors.colorCoreGray};
-		max-width: 65%;
+  > p {
+    font-size: 16px;
+    text-align: center;
+    color: ${colors.colorCoreGray};
+    max-width: 65%;
 
-		@media (max-width: 1170px) {
-			max-width: 100%;
-		}
-	}
+    @media (max-width: 1170px) {
+      max-width: 100%;
+    }
+  }
 `;
 
 const Items = styledTS<{ vertical?: boolean }>(styled.div)`
 	display: flex;
 	flex-wrap: wrap;
-	flex-direction: ${props => props.vertical ? 'column' : 'row'};
+	flex-direction: ${props => (props.vertical ? 'column' : 'row')};
 `;
 
 const Action = styled.div`
-	margin-top: auto;
+  margin-top: auto;
 
-	button, a {
-		&:active, &:focus {
-			box-shadow: none;
-		}
-	}
+  button,
+  a {
+    &:active,
+    &:focus {
+      box-shadow: none;
+    }
+  }
 `;
 
-const ItemContent = styledTS<{ color: string, vertical?: boolean; max?:string }>(styled.div)`
+const ItemContent = styledTS<{
+  color: string;
+  vertical?: boolean;
+  max?: string;
+}>(styled.div)`
 	background: ${props => rgba(props.color, 0.2)};
 	padding: 25px 30px;
 	border-radius: 5px;
 	margin: 10px;
 	min-width: 240px;
-	max-width: ${props => props.vertical ? '420px' : props.max};
+	max-width: ${props => (props.vertical ? '420px' : props.max)};
 	flex: 1;
 	display: flex;
 	flex-direction: column;
@@ -117,4 +123,3 @@ const ItemContent = styledTS<{ color: string, vertical?: boolean; max?:string }>
 `;
 
 export { Container, Items, Action, ItemContent };
-
