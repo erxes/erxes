@@ -25,6 +25,14 @@ export const getApi = async (type: string): Promise<any> => {
  * And updates engage message status and stats
  */
 const handleMessage = async message => {
+  let parsedMessage;
+
+  try {
+    parsedMessage = JSON.parse(message);
+  } catch (e) {
+    parsedMessage = message;
+  }
+
   const { eventType, mail } = message;
   const { headers } = mail;
 
@@ -92,7 +100,7 @@ export const trackEngages = expressApp => {
         res.end('success');
       }
 
-      await handleMessage(JSON.parse(Message));
+      await handleMessage(Message);
 
       return res.end('success');
     });
