@@ -713,7 +713,7 @@ When you start erxes-integration repo webhook will automatically created accordi
 
 - If your account is registered less than a month ago, you need to pass a secure authorization to reduce the likelihood of blocking or authorization failure.
 
-  ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/chat-api-whatsapp-1.gif">
+  ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/chat-api-whatsapp-1.gif)
 
 4. Click on **Add Integrations** and select WhatsApp.
 
@@ -757,7 +757,6 @@ When you start erxes-integration repo webhook will automatically created accordi
 
 - You can create an account for testing and development purpose by registering on the [Viber admin panel](https://partners.viber.com/).
 - Fill out all required fields and create your Bot account.
-  ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-viber-3">
 - You can share the QR code with your customers and partners.
 
 2. Once you have your Public Account token, copy and paste it into Viber token field on the Add Viber page from erxes App Store. Then click on “Save”.
@@ -831,8 +830,6 @@ When you start erxes-integration repo webhook will automatically created accordi
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-line-8.png)
 
 9. Get your QR Code from Messaging API tab and share the QR Code with your customers and partners. This code will allow them to connect with you using LINE chat.
-
-![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-line-9">
 
 10. Go to Setting=> Channel=> Add new channel=> Connect LINE integration.
 
