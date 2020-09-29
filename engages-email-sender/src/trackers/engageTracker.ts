@@ -44,10 +44,12 @@ const handleMessage = async message => {
 
   const emailDeliveryId = headers.find(header => header.name === 'Emaildeliveryid');
 
+  const type = eventType.toLowerCase();
+
   if (emailDeliveryId) {
     await messageBroker().sendMessage('engagesNotification', {
       action: 'transactionEmail',
-      data: { emailDeliveryId: emailDeliveryId.value, status: 'received' },
+      data: { emailDeliveryId: emailDeliveryId.value, status: type },
     });
   }
 
@@ -56,8 +58,6 @@ const handleMessage = async message => {
     mailId: mailId.value,
     customerId: customerId.value,
   };
-
-  const type = eventType.toLowerCase();
 
   await Stats.updateStats(mailHeaders.engageMessageId, type);
 
