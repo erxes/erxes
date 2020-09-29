@@ -203,9 +203,9 @@ export default class Builder {
   }
 
   // filter by tag
-  public tagFilter(tagId: string): { tagIds: string[] } {
+  public tagFilter(tagId: string): { tagIds: IIn } {
     return {
-      tagIds: [tagId],
+      tagIds: { $in: [tagId] },
     };
   }
 
