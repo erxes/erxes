@@ -131,10 +131,6 @@ export const loadOnboardingHistoryClass = () => {
         return { status: 'created', entry };
       }
 
-      if (prevEntry.isCompleted) {
-        return { status: 'completed', entry: prevEntry };
-      }
-
       if (prevEntry.completedSteps.includes(type)) {
         return { status: 'prev', entry: prevEntry };
       }
