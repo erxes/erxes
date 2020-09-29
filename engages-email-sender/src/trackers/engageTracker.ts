@@ -92,7 +92,7 @@ export const trackEngages = expressApp => {
         res.end('success');
       }
 
-      await handleMessage(Message);
+      await handleMessage(JSON.parse(Message));
 
       return res.end('success');
     });
