@@ -33,7 +33,7 @@ const handleMessage = async message => {
     parsedMessage = message;
   }
 
-  const { eventType, mail } = message;
+  const { eventType, mail } = parsedMessage;
   const { headers } = mail;
 
   const engageMessageId = headers.find(header => header.name === 'Engagemessageid');
