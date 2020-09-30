@@ -15,6 +15,14 @@ We welcome any type of contribution, not only code. You can help with
 
 Working on your first Pull Request? You can learn how from this *free* series, [How to Contribute to an Open Source Project on GitHub](https://egghead.io/series/how-to-contribute-to-an-open-source-project-on-github).
 
+Important git command for make a pull request:
+ git clone(to make a local copy of the project)
+ code (to open the code)
+ git status (to check the status wheater it is saved or not)
+ git commit(to commit or save your changes in your local system)
+ git push(to save the change in your github account)
+ 
+
 ## Submitting code
 
 Any code change should be submitted as a pull request. The description should explain what the code does and give steps to execute it. The pull request should also contain tests.
