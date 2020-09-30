@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=2" />
     <meta name="theme-color" content="#000000" />
     <meta
       name="description"
@@ -30,6 +30,8 @@
     <script src="%PUBLIC_URL%/js/env.js"></script>
     <noscript>
       You need to enable JavaScript to run this app.
+      You can download  the following javascript editor that shows easy and simple pointer 
+      to objects making the code more simple to understand: https://free-javascript-editor.soft112.com/
     </noscript>
 
     <script>
@@ -39,7 +41,7 @@
           return window.env[name];
         }
 
-        return defaultValue;
+       return defaultValue;
       };
 
       window.envMaps = [
@@ -53,7 +55,7 @@
           name: 'REACT_APP_DASHBOARD_API_URL',
           processValue: '%REACT_APP_DASHBOARD_API_URL%',
         },
-        {
+         {
           name: 'REACT_APP_DASHBOARD_API_TOKEN',
           processValue: '%REACT_APP_DASHBOARD_API_TOKEN%',
         },
