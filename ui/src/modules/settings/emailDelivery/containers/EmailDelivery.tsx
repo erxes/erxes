@@ -17,26 +17,37 @@ export const EMAIL_TYPES = {
 };
 
 function EmailDeliveryContainer(props: Props) {
-  const [emailType, setEmailType] = React.useState(EMAIL_TYPES.TRANSACTION);
+  const { history, queryParams } = props;
+
+  const [emailType, setEmailType] = React.useState(
+    queryParams.emailType || EMAIL_TYPES.TRANSACTION
+  );
+
+  React.useEffect(
+    () => {
+      router.setParams(history, { emailType });
+    },
+    [history, emailType]
+  );
 
   const transactionResponse = useQuery(
     gql(queries.transactionEmailDeliveries),
     {
       variables: {
-        searchValue: props.queryParams.searchValue,
-        ...generatePaginationParams(props.queryParams)
+        searchValue: queryParams.searchValue,
+        ...generatePaginationParams(queryParams)
       }
     }
   );
 
   const engageReportsListResponse = useQuery(gql(queries.engageReportsList), {
-    variables: generatePaginationParams(props.queryParams)
+    variables: generatePaginationParams(queryParams)
   });
 
   const handleSelectEmailType = (type: string) => {
     setEmailType(type);
 
-    return router.removeParams(props.history, 'page', 'perPage', 'searchValue');
+    return router.removeParams(history, 'page', 'perPage', 'searchValue');
   };
 
   const transactionData = transactionResponse.data || {};
@@ -68,8 +79,8 @@ function EmailDeliveryContainer(props: Props) {
     loading,
     emailType,
     handleSelectEmailType,
-    history: props.history,
-    searchValue: props.queryParams.searchValue || ''
+    history,
+    searchValue: queryParams.searchValue || ''
   };
 
   return <EmailDelivery {...updatedProps} />;

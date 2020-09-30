@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import Bulk from 'modules/common/components/Bulk';
 import { IBulkContentProps } from 'modules/common/components/Bulk';
-import { Alert, withProps } from 'modules/common/utils';
+import { Alert, confirm, withProps } from 'modules/common/utils';
 import DumbSidebar from 'modules/inbox/components/leftSidebar/Sidebar';
 import React from 'react';
 import { graphql } from 'react-apollo';
@@ -38,18 +38,22 @@ class Sidebar extends React.Component<FinalProps> {
 
   // resolve all conversation
   resolveAll = notifyHandler => () => {
-    this.props
-      .resolveAllMutation({ variables: this.props.queryParams })
-      .then(() => {
-        if (notifyHandler) {
-          notifyHandler();
-        }
+    const message = 'Are you sure you want to resolve all conversations?';
 
-        Alert.success('The conversation has been resolved!');
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
+    confirm(message).then(() => {
+      this.props
+        .resolveAllMutation({ variables: this.props.queryParams })
+        .then(() => {
+          if (notifyHandler) {
+            notifyHandler();
+          }
+
+          Alert.success('The conversation has been resolved!');
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    });
   };
 
   render() {

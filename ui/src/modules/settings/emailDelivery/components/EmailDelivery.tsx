@@ -84,7 +84,7 @@ function EmailDelivery({
         <td>{item.customerId || '-'}</td>
         <td>{item.engage ? item.engage.title : '-'}</td>
         <td>{item.status || '-'}</td>
-        <td>{dayjs(item.createdAt).format('LLL') || '-'}</td>
+        <td>{item.createdAt ? dayjs(item.createdAt).format('LLL') : '-'}</td>
       </tr>
     ));
   }

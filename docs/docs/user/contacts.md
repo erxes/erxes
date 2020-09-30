@@ -11,8 +11,6 @@ Coordinate and manage your companies and customers in one go from company databa
 
 - Please follow the steps for setup: **Customers**
 
-![](https://s3.us-west-2.amazonaws.com/erxes-docs/contact-1.png)
-
 1. Filter customers by **Segments, Tags, Brands, Integrations, Form, Lead Status, and Lifecycle States**
 2. List of **Customers detailss**
 3. Type **Customer’s name** to search
@@ -22,8 +20,6 @@ Coordinate and manage your companies and customers in one go from company databa
 ### Add New Customer
 
 - Please follow the steps for setup: **Contacts** -> **Customers** -> **Add Customer**
-
-![](https://s3.us-west-2.amazonaws.com/erxes-docs/contact-2.png)
 
 1. Upload customer’s **Profile Photo**
 2. Insert customer’s **First Name**
@@ -46,9 +42,6 @@ _By filling out customer’s information accurately, it will be seen in customer
 
 - Please follow the steps for setup: **Contacts** -> **Customers** -> **Select Customer**
 
-![](https://s3.us-west-2.amazonaws.com/erxes-docs/contact-3.png)
-![](https://s3.us-west-2.amazonaws.com/erxes-docs/contact-4.png)
-
 1. **Select customer** to create Tag
 2. You may send **direct email/message** to the selected customers
 3. **Choose Tags** for the customer
@@ -61,15 +54,11 @@ You can view full contact details by clicking on the customer from customers fea
 
 - Please follow the steps for setup: **Contacts** -> **Customers** -> **Select Customer**
 
-![](https://s3.us-west-2.amazonaws.com/erxes-docs/contact-5.png)
-
 ---
 
 ## Companies
 
 - Please follow the steps for setup: **Companies**
-
-![](https://s3-us-west-2.amazonaws.com/erxes-docs/marketing-11.png)
 
 1. Filter Companies by **Segments, Tags, Lead Status, Lifecycle States, and Brand**
 2. List of **Companies details**
@@ -80,8 +69,6 @@ You can view full contact details by clicking on the customer from customers fea
 ### Add New Company
 
 - Please follow the steps for setup: **Contacts** -> **Companies** -> **New Company**
-
-![](https://s3.us-west-2.amazonaws.com/erxes-docs/contact-6.png)
 
 1. Upload **Company’s logo**
 2. Insert **Company name**
@@ -107,9 +94,6 @@ Categorize companies in to one abstract group
 
 - Please follow the steps for setup: **Contacts** -> **Companies** -> **Select Company**
 
-![](https://s3.us-west-2.amazonaws.com/erxes-docs/contact-8.png)
-![](https://s3.us-west-2.amazonaws.com/erxes-docs/contact-4.png)
-
 1. Upload **Select Company**
 2. Insert **Choose your tags**
 
@@ -120,5 +104,3 @@ _You may tag conversations in Team Inbox section_
 You can view full contact details by clicking on the company from company’s feature
 
 - Please follow the steps for setup: **Contacts** -> **Companies** -> **Select Company**
-
-![](https://s3.us-west-2.amazonaws.com/erxes-docs/contact-10.png)
