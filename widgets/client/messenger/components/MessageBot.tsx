@@ -1,5 +1,3 @@
-import classNames = require('classnames');
-import * as dayjs from 'dayjs';
 import * as React from 'react';
 import * as xss from 'xss';
 import { IUser } from '../../types';
@@ -19,6 +17,7 @@ type Props = {
   replyAutoAnswer: (message: string, payload: string) => void;
   sendTypingInfo: (conversationId: string, text: string) => void;
   conversationId: string;
+  scrollBottom: () => void;
 };
 
 function MessageBot(props: Props) {
@@ -31,7 +30,8 @@ function MessageBot(props: Props) {
     botData,
     isBotMessage,
     replyAutoAnswer,
-    sendTypingInfo
+    sendTypingInfo,
+    scrollBottom
   } = props;
 
   function renderBotMessage() {
@@ -54,11 +54,17 @@ function MessageBot(props: Props) {
       case 'file':
         return (
           <div className="bot-message">
-            <img src={url} />
+            <img onLoad={scrollBottom} src={url} />
           </div>
         );
       case 'carousel':
-        return <Carousel items={elements} {...commonProps} />;
+        return (
+          <Carousel
+            scrollBottom={scrollBottom}
+            items={elements}
+            {...commonProps}
+          />
+        );
       case 'custom':
         return <CustomMessage message={botData} {...commonProps} />;
       default:

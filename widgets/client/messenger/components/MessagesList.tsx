@@ -1,19 +1,19 @@
-import * as classNames from "classnames";
-import * as React from "react";
-import * as RTG from "react-transition-group";
-import { setLocalStorageItem } from "../../common";
-import { iconCall, iconVideo } from "../../icons/Icons";
+import * as classNames from 'classnames';
+import * as React from 'react';
+import * as RTG from 'react-transition-group';
+import { setLocalStorageItem } from '../../common';
+import { iconCall, iconVideo } from '../../icons/Icons';
 import {
   IIntegrationMessengerData,
   IIntegrationMessengerDataMessagesItem,
-  IIntegrationUiOptions,
-} from "../../types";
-import { __, makeClickableLink, scrollTo } from "../../utils";
-import { MESSAGE_TYPES } from "../containers/AppContext";
-import { IMessage } from "../types";
-import { Message } from "./";
-import { MessageBot } from "./";
-import AccquireInformation from "./AccquireInformation";
+  IIntegrationUiOptions
+} from '../../types';
+import { __, makeClickableLink, scrollTo } from '../../utils';
+import { MESSAGE_TYPES } from '../containers/AppContext';
+import { IMessage } from '../types';
+import { Message } from './';
+import { MessageBot } from './';
+import AccquireInformation from './AccquireInformation';
 
 type Props = {
   messages: IMessage[];
@@ -54,7 +54,7 @@ class MessagesList extends React.Component<Props, State> {
   componentDidMount() {
     if (this.node) {
       this.node.scrollTop = this.node.scrollHeight;
-      makeClickableLink("#erxes-messages a");
+      makeClickableLink('#erxes-messages a');
     }
   }
 
@@ -67,19 +67,28 @@ class MessagesList extends React.Component<Props, State> {
     }
   }
 
+  scrollBottom = () => {
+    if (this.node) {
+      console.log(this.node.scrollHeight);
+      scrollTo(this.node, this.node.scrollHeight, 500);
+    }
+  };
+
   componentDidUpdate(prevProps: any) {
     if (prevProps.messages !== this.props.messages) {
       if (this.node && this.shouldScrollBottom) {
         scrollTo(this.node, this.node.scrollHeight, 500);
+        console.log(this.node.scrollTop);
+        console.log(this.node.offsetHeight);
       }
-      makeClickableLink("#erxes-messages a");
+      makeClickableLink('#erxes-messages a');
     }
   }
 
   onNotify = ({ type, value }: { type: string; value: string }) => {
     this.props.saveGetNotified({ type, value }, () => {
       this.setState({ hideNotifyInput: true }, () =>
-        setLocalStorageItem("hasNotified", "true")
+        setLocalStorageItem('hasNotified', 'true')
       );
     });
   };
@@ -109,7 +118,7 @@ class MessagesList extends React.Component<Props, State> {
 
       return (
         <li className="erxes-spacial-message">
-          <span> {messages.thank || __("Thank you") + "."}</span>
+          <span> {messages.thank || __('Thank you') + '.'}</span>
         </li>
       );
     }
@@ -120,7 +129,7 @@ class MessagesList extends React.Component<Props, State> {
           save={this.onNotify}
           color={getColor}
           loading={false}
-          textColor={uiOptions.textColor || "#fff"}
+          textColor={uiOptions.textColor || '#fff'}
         />
       </li>
     );
@@ -144,19 +153,19 @@ class MessagesList extends React.Component<Props, State> {
     }
 
     const sendCallRequest = () => {
-      this.props.sendMessage(MESSAGE_TYPES.VIDEO_CALL_REQUEST, "");
+      this.props.sendMessage(MESSAGE_TYPES.VIDEO_CALL_REQUEST, '');
     };
 
     const { uiOptions } = this.props;
-    const { color, textColor = "#fff" } = uiOptions;
+    const { color, textColor = '#fff' } = uiOptions;
 
     return (
       <div
         className="app-message-box call-request"
         style={{ borderColor: color }}
       >
-        <h5>{__("Audio and video call")}</h5>
-        <p>{__("You can contact the operator by voice or video!")}</p>
+        <h5>{__('Audio and video call')}</h5>
+        <p>{__('You can contact the operator by voice or video!')}</p>
         <div className="call-buttons">
           <button
             className="erxes-button"
@@ -165,7 +174,7 @@ class MessagesList extends React.Component<Props, State> {
           >
             {iconCall(textColor)}
             <span style={{ background: color, color: textColor }}>
-              {__("Audio call")}
+              {__('Audio call')}
             </span>
           </button>
           <button
@@ -186,10 +195,10 @@ class MessagesList extends React.Component<Props, State> {
       replyAutoAnswer,
       sendTypingInfo,
       uiOptions,
-      messengerData,
+      messengerData
     } = this.props;
 
-    const { color, textColor = "#fff" } = uiOptions;
+    const { color, textColor = '#fff' } = uiOptions;
     const { botEndpointUrl } = messengerData;
     const _id: any = message._id;
 
@@ -199,13 +208,17 @@ class MessagesList extends React.Component<Props, State> {
       toggleVideo: this.props.toggleVideoCall,
       sendTypingInfo,
       replyAutoAnswer,
-      ...message,
+      ...message
     };
 
     const showBotMessage = botEndpointUrl && message.botData !== null;
 
     const content = showBotMessage ? (
-      <MessageBot key={message._id} {...messageProps} />
+      <MessageBot
+        key={message._id}
+        {...messageProps}
+        scrollBottom={this.scrollBottom}
+      />
     ) : (
       <Message key={message._id} {...messageProps} />
     );
@@ -245,12 +258,12 @@ class MessagesList extends React.Component<Props, State> {
 
   render() {
     const { uiOptions, messengerData } = this.props;
-    const backgroundClass = classNames("erxes-messages-background", {
-      [`bg-${uiOptions.wallpaper}`]: uiOptions.wallpaper,
+    const backgroundClass = classNames('erxes-messages-background', {
+      [`bg-${uiOptions.wallpaper}`]: uiOptions.wallpaper
     });
 
     return (
-      <div className={backgroundClass} ref={(node) => (this.node = node)}>
+      <div className={backgroundClass} ref={node => (this.node = node)}>
         <ul id="erxes-messages" className="erxes-messages-list slide-in">
           {this.renderWelcomeMessage(messengerData)}
           {this.renderCallRequest()}

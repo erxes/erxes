@@ -9,12 +9,53 @@
 	}
 } 
 
-.carousel {
-	display: flex;
-	align-items: flex-start;
+.cards-wrapper {
+	position: relative;
+
+	.cards-navigation {
+		position: absolute;
+		width: 100%;
+    height: 100%;
+    left: 0;
+    right: 0;
+		display: flex;
+		align-items: center;
+		pointer-events: none;
+
+		.arrow {
+			margin-bottom: 50px;
+			width: 36px;
+			height: 36px;
+			display: flex;
+			border-radius: 100%;
+			box-shadow: 0 0 15px 0 rgba(0,0,0,.34);
+			align-items: center;
+			justify-content: center;
+			transition: all .3s;
+			cursor: pointer;
+			background: $white;
+			pointer-events: all;
+			z-index: 2;
+			
+			&.next {
+				margin-left: auto;
+				margin-right: 8px;
+			}
+
+			&.prev {
+				margin-left: -18px;
+			}
+		}
+	}
 }
 
-.carousel-item {
+.cards {
+	display: flex;
+	align-items: flex-start;
+	transition: transform .3s;
+}
+
+.card-item {
 	flex-shrink: 0;
 	margin-right: 15px;
 	width: 240px;
@@ -22,8 +63,15 @@
 	border-radius: 8px;
 	border: 1px solid rgb(219, 225, 232);
 	overflow: hidden;
+	opacity: 0.6;
+	transition: opacity .3s;
+	-webkit-tap-highlight-color: transparent;
 
-	.carousel-content {
+	&.active {
+		opacity: 1;
+	}
+
+	.card-content {
 		padding: 8px 16px 16px 16px; 
 	}
 
@@ -32,10 +80,10 @@
 		margin-bottom: 0;
 	}
 
-	.bot-actions {
+	.card-actions {
 		margin-bottom: 1px;
-		
-		.bot-action {
+
+		.card-action {
 			padding: 8px 16px;
 			border-top: 1px solid rgb(219, 225, 232);
 			display: block;
