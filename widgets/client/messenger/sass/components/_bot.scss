@@ -1,0 +1,50 @@
+.bot-message {
+	margin: 0 20px 5px 50px;
+	max-width: 100%;
+	border-radius: 4px;
+	
+  img {
+		max-width: 100%;
+		display: inherit;
+	}
+} 
+
+.carousel {
+	display: flex;
+	align-items: flex-start;
+}
+
+.carousel-item {
+	flex-shrink: 0;
+	margin-right: 15px;
+	width: 240px;
+	background: $white;
+	border-radius: 8px;
+	border: 1px solid rgb(219, 225, 232);
+	overflow: hidden;
+
+	.carousel-content {
+		padding: 8px 16px 16px 16px; 
+	}
+
+	h4, p {
+		margin-top: 8px;
+		margin-bottom: 0;
+	}
+
+	.bot-actions {
+		margin-bottom: 1px;
+		
+		.bot-action {
+			padding: 8px 16px;
+			border-top: 1px solid rgb(219, 225, 232);
+			display: block;
+			text-align: center;
+	
+			&:hover {
+				background: #fafafa;
+				cursor: pointer;
+			}
+		}
+	}
+}

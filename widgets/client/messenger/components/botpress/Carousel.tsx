@@ -1,5 +1,5 @@
-import * as React from "react";
-import { BUTTON_TYPES } from "./constants";
+import * as React from 'react';
+import { BUTTON_TYPES } from './constants';
 
 type CarouselButton = {
   type: string;
@@ -35,31 +35,26 @@ export default function Carousel({ items, replyAutoAnswer }: Props) {
       const handleClick = () => replyAutoAnswer(title, text);
 
       return (
-        <div>
-          <p>{title}</p>
-          <button
-            onClick={handleClick}
-            style={{ padding: 10, backgroundColor: "teal" }}
-          >
-            {text}
-          </button>
+        <div onClick={handleClick} className="bot-action">
+          {title}
         </div>
       );
     }
 
     if (type === BUTTON_TYPES.openUrl) {
-      return <a href={url}>{title}</a>;
+      return (
+        <a className="bot-action" target="_blank" href={url}>
+          {title}
+        </a>
+      );
     }
 
     const handlePostBack = () => replyAutoAnswer(title, payload);
 
     return (
-      <button
-        onClick={handlePostBack}
-        style={{ padding: 10, backgroundColor: "teal" }}
-      >
-        {button.title}
-      </button>
+      <div onClick={handlePostBack} className="bot-action">
+        {title}
+      </div>
     );
   }
 
@@ -69,7 +64,7 @@ export default function Carousel({ items, replyAutoAnswer }: Props) {
     }
 
     return (
-      <div style={{ display: "inline-block" }}>
+      <div className="bot-actions">
         {buttons.map((button, idx) => (
           <div key={idx}>{renderButton(button)}</div>
         ))}
@@ -79,14 +74,22 @@ export default function Carousel({ items, replyAutoAnswer }: Props) {
 
   const renderItem = (item: ICarouselItem, index: number) => {
     return (
-      <div key={index}>
-        <img src={item.picture} style={{ width: 200, height: 200 }} />
-        <h4>{item.title || ""}</h4>
-        <h6>{item.subtitle || ""}</h6>
+      <div className="carousel-item" key={index}>
+        {item.picture && <img src={item.picture} />}
+        <div className="carousel-content">
+          <h4>{item.title || ''}</h4>
+          <p>{item.subtitle || ''}</p>
+        </div>
         {renderActions(item.buttons)}
       </div>
     );
   };
 
-  return <div>{items.map(renderItem)}</div>;
+  console.log(items);
+
+  return (
+    <div className="bot-message">
+      <div className="carousel">{items.map(renderItem)}</div>
+    </div>
+  );
 }

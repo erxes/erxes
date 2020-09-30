@@ -1,6 +1,6 @@
-import * as React from "react";
-import { IBotData } from "../../types";
-import { BOT_CUSTOM_TYPES } from "./constants";
+import * as React from 'react';
+import { IBotData } from '../../types';
+import { BOT_CUSTOM_TYPES } from './constants';
 
 type Props = {
   conversationId: string;
@@ -17,10 +17,7 @@ const btnStyle = {
   color: 'black'
 };
 
-export default function CustomMessage({
-  message,
-  replyAutoAnswer,
-}: Props) {
+export default function CustomMessage({ message, replyAutoAnswer }: Props) {
   if (!message) {
     return null;
   }
@@ -37,7 +34,10 @@ export default function CustomMessage({
     return replyAutoAnswer(title, payload);
   };
 
-  const renderButton = (item: { title: string, payload: string }, index: number) => {
+  const renderButton = (
+    item: { title: string; payload: string },
+    index: number
+  ) => {
     const handleClick = () => onSelectReply(item.title, item.payload);
 
     return (
@@ -45,12 +45,12 @@ export default function CustomMessage({
         {item.title}
       </button>
     );
-  }
+  };
 
   return (
-    <div>
+    <div className="bot-message">
       {wrapped ? <b>{wrapped.text}</b> : null}
-      <div style={{ display: "inline-block" }}>
+      <div style={{ display: 'inline-block' }}>
         <div style={{ padding: 8 }}>
           {quick_replies ? quick_replies.map(renderButton) : null}
         </div>
