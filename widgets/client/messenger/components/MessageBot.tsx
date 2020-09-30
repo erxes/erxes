@@ -28,6 +28,7 @@ type CommonProps = {
 function MessageBot(props: Props) {
   const {
     conversationId,
+    color,
     botData,
     replyAutoAnswer,
     sendTypingInfo,
@@ -46,13 +47,18 @@ function MessageBot(props: Props) {
   const renderFileMessage = (message: IBotData) => {
     return (
       <div className="bot-message">
-        <img onLoad={scrollBottom} src={message.url} />
+        <img
+          className="image-message"
+          onLoad={scrollBottom}
+          src={message.url}
+          alt={message.title || ''}
+        />
       </div>
     );
   };
 
   const renderCustomMessage = (message: IBotData, commonProps: CommonProps) => {
-    return <CustomMessage message={message} {...commonProps} />;
+    return <CustomMessage color={color} message={message} {...commonProps} />;
   };
 
   const renderCarouselMessage = (elements: any, commonProps: CommonProps) => {
@@ -60,6 +66,7 @@ function MessageBot(props: Props) {
       <Carousel
         scrollBottom={scrollBottom}
         items={elements}
+        color={color}
         {...commonProps}
       />
     );

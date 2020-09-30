@@ -106,7 +106,9 @@ class Message extends React.Component<Props> {
     return (
       <div style={messageBackground} className={messageClasses}>
         {this.renderAttachments()}
-        <span dangerouslySetInnerHTML={{ __html: xss(urlify(content)) }} />
+        <span
+          dangerouslySetInnerHTML={{ __html: xss(urlify(content || '')) }}
+        />
       </div>
     );
   }

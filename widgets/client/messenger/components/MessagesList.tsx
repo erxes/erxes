@@ -14,6 +14,7 @@ import { IMessage } from '../types';
 import { Message } from './';
 import { MessageBot } from './';
 import AccquireInformation from './AccquireInformation';
+import { OPERATOR_STATUS } from './bot/constants';
 
 type Props = {
   messages: IMessage[];
@@ -31,6 +32,9 @@ type Props = {
   toggleVideoCall: () => void;
   replyAutoAnswer: (message: string, payload: string) => void;
   sendTypingInfo: (conversationId: string, text: string) => void;
+  conversationId: string | null;
+  changeOperatorStatus: (_id: string, operatorStatus: string) => void;
+  operatorStatus?: string;
   sendMessage: (contentType: string, message: string) => void;
   showVideoCallRequest: boolean;
   botTyping?: boolean;
@@ -69,8 +73,7 @@ class MessagesList extends React.Component<Props, State> {
 
   scrollBottom = () => {
     if (this.node) {
-      console.log(this.node.scrollHeight);
-      scrollTo(this.node, this.node.scrollHeight, 500);
+      scrollTo(this.node, this.node.scrollHeight, 300);
     }
   };
 
@@ -78,8 +81,6 @@ class MessagesList extends React.Component<Props, State> {
     if (prevProps.messages !== this.props.messages) {
       if (this.node && this.shouldScrollBottom) {
         scrollTo(this.node, this.node.scrollHeight, 500);
-        console.log(this.node.scrollTop);
-        console.log(this.node.offsetHeight);
       }
       makeClickableLink('#erxes-messages a');
     }
@@ -215,6 +216,7 @@ class MessagesList extends React.Component<Props, State> {
 
     const content = showBotMessage ? (
       <MessageBot
+        color={color}
         key={message._id}
         {...messageProps}
         scrollBottom={this.scrollBottom}
@@ -246,6 +248,32 @@ class MessagesList extends React.Component<Props, State> {
     );
   }
 
+  renderBotOperator() {
+    const { operatorStatus, conversationId, getColor } = this.props;
+
+    if (
+      !operatorStatus ||
+      !conversationId ||
+      operatorStatus === OPERATOR_STATUS.OPERATOR
+    ) {
+      return null;
+    }
+
+    return (
+      <div className="bot-message">
+        <div className="quick-replies">
+          <div
+            className="reply-button"
+            onClick={this.handleOperatorStatus}
+            style={{ borderColor: getColor }}
+          >
+            {__('Contact with Operator')}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   renderTyping() {
     const { botTyping } = this.props;
 
@@ -253,8 +281,18 @@ class MessagesList extends React.Component<Props, State> {
       return null;
     }
 
-    return <div>Typing...</div>;
+    return <div className="bot-message">Typing...</div>;
   }
+
+  handleOperatorStatus = () => {
+    const { conversationId, changeOperatorStatus } = this.props;
+
+    if (!conversationId) {
+      return;
+    }
+
+    return changeOperatorStatus(conversationId, OPERATOR_STATUS.OPERATOR);
+  };
 
   render() {
     const { uiOptions, messengerData } = this.props;
@@ -268,9 +306,10 @@ class MessagesList extends React.Component<Props, State> {
           {this.renderWelcomeMessage(messengerData)}
           {this.renderCallRequest()}
           {this.renderMessages()}
-          {this.renderTyping()}
           {this.renderAwayMessage(messengerData)}
           {this.renderNotifyInput(messengerData)}
+          {this.renderBotOperator()}
+          {this.renderTyping()}
         </ul>
       </div>
     );

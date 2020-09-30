@@ -1,11 +1,15 @@
 .bot-message {
 	margin: 0 20px 5px 50px;
 	max-width: 100%;
-	border-radius: 4px;
 	
   img {
 		max-width: 100%;
 		display: inherit;
+	}
+
+	.image-message {
+		border-radius: 8px;
+		box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.2);
 	}
 } 
 
@@ -23,12 +27,12 @@
 		pointer-events: none;
 
 		.arrow {
-			margin-bottom: 50px;
+			margin-bottom: 60px;
 			width: 36px;
 			height: 36px;
 			display: flex;
 			border-radius: 100%;
-			box-shadow: 0 0 15px 0 rgba(0,0,0,.34);
+			box-shadow: 0 0 15px 0 rgba(0,0,0,.35);
 			align-items: center;
 			justify-content: center;
 			transition: all .3s;
@@ -63,9 +67,10 @@
 	border-radius: 8px;
 	border: 1px solid rgb(219, 225, 232);
 	overflow: hidden;
-	opacity: 0.6;
+	opacity: 0.7;
 	transition: opacity .3s;
-	-webkit-tap-highlight-color: transparent;
+	box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.1);
+	user-select: none;
 
 	&.active {
 		opacity: 1;
@@ -73,6 +78,10 @@
 
 	.card-content {
 		padding: 8px 16px 16px 16px; 
+
+		p {
+			color: $text-color;
+		}
 	}
 
 	h4, p {
@@ -88,11 +97,32 @@
 			border-top: 1px solid rgb(219, 225, 232);
 			display: block;
 			text-align: center;
+			font-weight: 500;
 	
 			&:hover {
-				background: #fafafa;
+				background: $bg-color;
 				cursor: pointer;
 			}
+		}
+	}
+}
+
+.quick-replies {
+	display: flex;
+	flex-wrap: wrap;
+	margin-left: -4px;
+
+	.reply-button {
+		padding: 5px 15px;
+		border: 1px solid #673fbd;
+		margin: 4px;
+		border-radius: 20px;
+		font-weight: 500;
+		color: #333;
+
+		&:hover {
+			opacity: 0.8;
+			cursor: pointer;
 		}
 	}
 }

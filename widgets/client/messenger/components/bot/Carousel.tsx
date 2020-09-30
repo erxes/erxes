@@ -23,6 +23,7 @@ type Props = {
   replyAutoAnswer: (message: string, payload: string) => void;
   sendTypingInfo: (conversationId: string, text: string) => void;
   scrollBottom: () => void;
+  color?: string;
 };
 
 type State = {
@@ -85,10 +86,12 @@ export default class Carousel extends React.Component<Props, State> {
 
     return (
       <div className={itemClasses} key={index} onClick={onClick}>
-        {item.picture && <img src={item.picture} />}
+        {item.picture && (
+          <img src={item.picture} onLoad={this.props.scrollBottom} />
+        )}
         <div className="card-content">
-          <h4>{item.title || ''}</h4>
-          <p>{item.subtitle || ''}</p>
+          {item.title && <h4>{item.title}</h4>}
+          {item.subtitle && <p>{item.subtitle}</p>}
         </div>
         {this.renderActions(item.buttons)}
       </div>
@@ -99,7 +102,7 @@ export default class Carousel extends React.Component<Props, State> {
     this.setState({ active });
   };
 
-  renderNext = (hide: boolean) => {
+  renderNext = (hide: boolean, color: string) => {
     if (hide) {
       return;
     }
@@ -115,7 +118,7 @@ export default class Carousel extends React.Component<Props, State> {
           xmlns="http://www.w3.org/2000/svg"
         >
           <path
-            fill="#673fbd"
+            fill={color}
             d="M0 10.59L4.94467 6L0 1.41L1.52227 0L8 6L1.52227 12L0 10.59Z"
           />
         </svg>
@@ -123,7 +126,7 @@ export default class Carousel extends React.Component<Props, State> {
     );
   };
 
-  renderPrev = (hide: boolean) => {
+  renderPrev = (hide: boolean, color: string) => {
     if (hide) {
       return;
     }
@@ -139,7 +142,7 @@ export default class Carousel extends React.Component<Props, State> {
           xmlns="http://www.w3.org/2000/svg"
         >
           <path
-            fill="#673fbd"
+            fill={color}
             d="M8 1.41L3.05533 6L8 10.59L6.47773 12L0 6L6.47773 0L8 1.41Z"
           />
         </svg>
@@ -148,7 +151,7 @@ export default class Carousel extends React.Component<Props, State> {
   };
 
   render() {
-    const { items } = this.props;
+    const { items, color = '#673fbd' } = this.props;
 
     if (!items || items.length === 0) {
       return null;
@@ -156,17 +159,25 @@ export default class Carousel extends React.Component<Props, State> {
 
     const { active } = this.state;
 
+    /**
+     * 240 - card width
+     * active - active page index
+     * 15 - card gap
+     * 2 - border-width
+     */
+    const width = active * 240 + active * 17;
+
     return (
       <div className="bot-message">
         <div className="cards-wrapper">
           <div className="cards-navigation">
-            {this.renderPrev(active === 0)}
-            {this.renderNext(active === items.length - 1)}
+            {this.renderPrev(active === 0, color)}
+            {this.renderNext(active === items.length - 1, color)}
           </div>
           <div
             className="cards"
             style={{
-              transform: `translateX(-${active * 240 + active * 17}px)`
+              transform: `translateX(-${width}px)`
             }}
           >
             {items.map(this.renderItem)}

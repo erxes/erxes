@@ -7,17 +7,14 @@ type Props = {
   message: IBotData;
   replyAutoAnswer: (message: string, payload: string) => void;
   sendTypingInfo: (conversationId: string, text: string) => void;
+  color?: string;
 };
 
-const btnStyle = {
-  marginRight: 8,
-  borderWidth: 1,
-  borderColor: 'blue',
-  backgroundColor: 'white',
-  color: 'black'
-};
-
-export default function CustomMessage({ message, replyAutoAnswer }: Props) {
+export default function CustomMessage({
+  message,
+  replyAutoAnswer,
+  color
+}: Props) {
   if (!message) {
     return null;
   }
@@ -41,20 +38,25 @@ export default function CustomMessage({ message, replyAutoAnswer }: Props) {
     const handleClick = () => onSelectReply(item.title, item.payload);
 
     return (
-      <button key={index} style={btnStyle} onClick={handleClick}>
+      <div
+        key={index}
+        className="reply-button"
+        onClick={handleClick}
+        style={{ borderColor: color }}
+      >
         {item.title}
-      </button>
+      </div>
     );
   };
 
   return (
-    <div className="bot-message">
-      {wrapped ? <b>{wrapped.text}</b> : null}
-      <div style={{ display: 'inline-block' }}>
-        <div style={{ padding: 8 }}>
+    <>
+      {wrapped ? <div className="erxes-message top">{wrapped.text}</div> : null}
+      <div className="bot-message">
+        <div className="quick-replies">
           {quick_replies ? quick_replies.map(renderButton) : null}
         </div>
       </div>
-    </div>
+    </>
   );
 }

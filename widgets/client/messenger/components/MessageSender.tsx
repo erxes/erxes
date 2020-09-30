@@ -1,18 +1,15 @@
-import * as React from "react";
-import { iconAttach,  iconVideo } from "../../icons/Icons";
-import { __ } from "../../utils";
-import { MESSAGE_TYPES } from "../containers/AppContext";
-import { OPERATOR_STATUS } from "./bot/constants";
+import * as React from 'react';
+import { iconAttach, iconVideo } from '../../icons/Icons';
+import { __ } from '../../utils';
+import { MESSAGE_TYPES } from '../containers/AppContext';
 
 type Props = {
   placeholder?: string;
   conversationId: string | null;
   isAttachingFile: boolean;
   isParentFocused: boolean;
-  operatorStatus?: string;
   sendMessage: (contentType: string, message: string) => void;
   sendTypingInfo: (conversationId: string, text: string) => void;
-  changeOperatorStatus: (_id: string, operatorStatus: string) => void;
   sendFile: (file: File) => void;
   readMessages: (conversationId: string) => void;
   onTextInputBlur: () => void;
@@ -33,7 +30,7 @@ class MessageSender extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { message: "" };
+    this.state = { message: '' };
 
     this.onSubmit = this.onSubmit.bind(this);
     this.handleMessageChange = this.handleMessageChange.bind(this);
@@ -88,7 +85,7 @@ class MessageSender extends React.Component<Props, State> {
   sendMessage() {
     this.clearTimeout();
     this.props.sendMessage(MESSAGE_TYPES.TEXT, this.state.message);
-    this.setState({ message: "" });
+    this.setState({ message: '' });
     this.setHeight(60);
   }
 
@@ -128,7 +125,7 @@ class MessageSender extends React.Component<Props, State> {
     const { onTextInputBlur, sendTypingInfo, conversationId } = this.props;
 
     if (conversationId) {
-      sendTypingInfo(conversationId, "");
+      sendTypingInfo(conversationId, '');
     }
 
     onTextInputBlur();
@@ -139,7 +136,7 @@ class MessageSender extends React.Component<Props, State> {
   }
 
   handleKeyPress(e: React.KeyboardEvent) {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       this.sendMessage();
     }
@@ -156,17 +153,7 @@ class MessageSender extends React.Component<Props, State> {
   }
 
   sendVideoCallRequest = () => {
-    this.props.sendMessage(MESSAGE_TYPES.VIDEO_CALL_REQUEST, "");
-  };
-
-  handleOperatorStatus = () => {
-    const { conversationId, changeOperatorStatus } = this.props;
-
-    if (!conversationId) {
-      return;
-    }
-
-    return changeOperatorStatus(conversationId, OPERATOR_STATUS.OPERATOR);
+    this.props.sendMessage(MESSAGE_TYPES.VIDEO_CALL_REQUEST, '');
   };
 
   renderFileUploader() {
@@ -178,28 +165,6 @@ class MessageSender extends React.Component<Props, State> {
       <label title="File upload" htmlFor="file-upload" className="ctrl-item">
         {iconAttach}
         <input id="file-upload" type="file" onChange={this.handleFileInput} />
-      </label>
-    );
-  }
-
-  renderBotOperator() {
-    const { operatorStatus, conversationId } = this.props;
-
-    if (
-      !operatorStatus ||
-      !conversationId ||
-       operatorStatus === OPERATOR_STATUS.OPERATOR
-      ) {
-      return null;
-    }
-
-    return (
-      <label
-        title="Change to Operator"
-        className="ctrl-item"
-        onClick={this.handleOperatorStatus}
-      >
-        {iconVideo()}
       </label>
     );
   }
@@ -240,7 +205,6 @@ class MessageSender extends React.Component<Props, State> {
         />
         <div className="ctrl">
           {this.renderVideoCallRequest()}
-          {this.renderBotOperator()}
           {this.renderFileUploader()}
         </div>
       </form>
