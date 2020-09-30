@@ -30,7 +30,7 @@ customer_mapping = {
         'type': 'keyword',
     },
     'primaryEmail': {
-        'type': 'text',
+        'type': 'keyword',
         'analyzer': 'uax_url_email_analyzer',
     },
     'integrationId': {
@@ -72,7 +72,7 @@ customer_mapping = {
 
 company_mapping = {
     'primaryEmail': {
-        'type': 'text',
+        'type': 'keyword',
         'analyzer': 'uax_url_email_analyzer',
     },
     'scopeBrandIds': {
