@@ -22,12 +22,12 @@ class NavigationContainer extends React.Component<{
       variables: { userId: currentUser._id },
       updateQuery: (prev, { subscriptionData: { data } }) => {
         const { conversationClientMessageInserted } = data;
-        const { content, isBotMessage } = conversationClientMessageInserted;
+        const { content, botData } = conversationClientMessageInserted;
 
         this.props.unreadConversationsCountQuery.refetch();
 
         // no need to send notification for bot message
-        if (isBotMessage) {
+        if (botData) {
           return;
         }
 

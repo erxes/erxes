@@ -52,7 +52,6 @@ export interface IMessage {
   internal?: boolean;
   engageData: IEngageData;
   botData: any;
-  isBotMessage?: boolean;
   messengerAppData: IMessengerAppData;
   attachments: IAttachment[];
 }

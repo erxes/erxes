@@ -14,7 +14,6 @@ const messageFields = `
   createdAt
   internal
   fromBot
-  isBotMessage
   contentType
   videoCallData {
     url

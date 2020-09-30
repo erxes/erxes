@@ -9,7 +9,6 @@ import CustomMessage from './botpress/CustomMessage';
 
 type Props = {
   botData: IBotData;
-  isBotMessage?: boolean;
   createdAt: Date;
   user?: IUser;
   color?: string;
@@ -28,7 +27,6 @@ function MessageBot(props: Props) {
     textColor,
     createdAt,
     botData,
-    isBotMessage,
     replyAutoAnswer,
     sendTypingInfo,
     scrollBottom

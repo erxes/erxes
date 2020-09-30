@@ -166,7 +166,6 @@ export interface IMessage {
   conversationId: string;
   internal?: boolean;
   fromBot?: boolean;
-  isBotMessage?: boolean;
   contentType?: string;
   customerId?: string;
   userId?: string;

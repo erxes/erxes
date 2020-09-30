@@ -518,14 +518,12 @@ export class AppProvider extends React.Component<{}, IState> {
           _id: Math.round(Math.random() * -1000000),
           contentType: MESSAGE_TYPES.TEXT,
           conversationId: activeConversation,
-          isBot: false,
           customerId: connection.data.customerId,
           user: null,
           content: newLineToBr(message),
           createdAt: Number(new Date()),
           attachments: attachments || [],
           internal: false,
-          isBotMessage: false,
           botData: null,
           fromBot: false,
           messengerAppData: null,
@@ -578,7 +576,6 @@ export class AppProvider extends React.Component<{}, IState> {
               $contentType: String
               $conversationId: String
               $attachments: [AttachmentInput]
-              $isBot: Boolean
             ) {
 
             widgetsInsertMessage(
@@ -587,7 +584,6 @@ export class AppProvider extends React.Component<{}, IState> {
               message: $message
               conversationId: $conversationId
               attachments: $attachments
-              isBot: $isBot
             ) {
               ${graphqlTypes.messageFields}
             }
@@ -600,7 +596,6 @@ export class AppProvider extends React.Component<{}, IState> {
             contentType,
             message: newLineToBr(message),
             attachments,
-            isBot: ((connection.data.messengerData || {}).botEndpointUrl || '').length > 0
           },
           optimisticResponse,
           update
