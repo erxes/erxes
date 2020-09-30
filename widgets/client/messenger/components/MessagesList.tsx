@@ -211,6 +211,8 @@ class MessagesList extends React.Component<Props, State> {
       ...message
     };
 
+    console.log(message, 'alsdjalksjdlkaj')
+
     const showBotMessage = botEndpointUrl && message.botData !== null;
 
     const content = showBotMessage ? (
