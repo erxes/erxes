@@ -2,7 +2,7 @@ import * as React from "react";
 import { iconAttach,  iconVideo } from "../../icons/Icons";
 import { __ } from "../../utils";
 import { MESSAGE_TYPES } from "../containers/AppContext";
-import { OPERATOR_STATUS } from "./botpress/constants";
+import { OPERATOR_STATUS } from "./bot/constants";
 
 type Props = {
   placeholder?: string;

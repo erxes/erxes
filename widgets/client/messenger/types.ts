@@ -5,7 +5,7 @@ import {
   IParticipator,
   IUser
 } from "../types";
-import { ICarouselItem } from "./components/botpress/Carousel";
+import { ICarouselItem } from "./components/bot/Carousel";
 
 export interface IWebsiteApp {
   kind: string;

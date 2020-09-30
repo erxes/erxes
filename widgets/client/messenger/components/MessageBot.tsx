@@ -3,9 +3,9 @@ import * as xss from 'xss';
 import { IUser } from '../../types';
 import { __, urlify } from '../../utils';
 import { IBotData } from '../types';
-import Bot from './botpress/Bot';
-import Carousel from './botpress/Carousel';
-import CustomMessage from './botpress/CustomMessage';
+import Bot from './bot/Bot';
+import Carousel from './bot/Carousel';
+import CustomMessage from './bot/CustomMessage';
 
 type Props = {
   botData: IBotData;
