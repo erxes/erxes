@@ -127,13 +127,13 @@ export const customerSchema = schemaWrapper(
       selectOptions: CUSTOMER_SELECT_OPTIONS.STATE,
     }),
 
-    createdAt: field({ type: Date, label: 'Created at' }),
-    modifiedAt: field({ type: Date, label: 'Modified at' }),
+    createdAt: field({ type: Date, label: 'Created at', esType: 'date' }),
+    modifiedAt: field({ type: Date, label: 'Modified at', esType: 'date' }),
     avatar: field({ type: String, optional: true, label: 'Avatar' }),
 
     firstName: field({ type: String, label: 'First name', optional: true }),
     lastName: field({ type: String, label: 'Last name', optional: true }),
-    birthDate: field({ type: Date, label: 'Date of birth', optional: true }),
+    birthDate: field({ type: Date, label: 'Date of birth', optional: true, esType: 'date' }),
     sex: field({
       type: Number,
       label: 'Pronoun',
@@ -166,7 +166,7 @@ export const customerSchema = schemaWrapper(
       esType: 'keyword',
       selectOptions: CUSTOMER_SELECT_OPTIONS.PHONE_VALIDATION_STATUSES,
     }),
-    profileScore: field({ type: Number, index: true, optional: true, label: 'Profile score' }),
+    profileScore: field({ type: Number, index: true, optional: true, label: 'Profile score', esType: 'number' }),
 
     ownerId: field({ type: String, optional: true, label: 'Owner' }),
     position: field({ type: String, optional: true, label: 'Position', esType: 'keyword' }),
@@ -240,7 +240,7 @@ export const customerSchema = schemaWrapper(
       label: 'Is online',
       optional: true,
     }),
-    lastSeenAt: field({ type: Date, label: 'Last seen at', optional: true }),
-    sessionCount: field({ type: Number, label: 'Session count', optional: true }),
+    lastSeenAt: field({ type: Date, label: 'Last seen at', optional: true, esType: 'date' }),
+    sessionCount: field({ type: Number, label: 'Session count', optional: true, esType: 'number' }),
   }),
 );
