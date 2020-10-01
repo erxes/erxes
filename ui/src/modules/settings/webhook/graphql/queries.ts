@@ -1,12 +1,12 @@
 const webhookResponse = `
-_id
-isOutgoing
-actions {
-  type
-  action
-  label
-}
-url
+      _id
+      actions {
+        type
+        action
+        label
+      }
+      url
+      token
 `;
 
 const webhookDetail = `
@@ -17,22 +17,19 @@ const webhookDetail = `
   }
 `;
 
-
 const webhooks = `
-  query webhooks($isOutgoing: Boolean) {
-    webhooks(isOutgoing: $isOutgoing) {
+  query webhooks {
+    webhooks {
       ${webhookResponse}
     }
   }
 `;
 
-
 const webhooksTotalCount = `
-  query webhooksTotalCount($isOutgoing: Boolean) {
-    webhooksTotalCount(isOutgoing: $isOutgoing)
+  query webhooksTotalCount {
+    webhooksTotalCount
   }
 `;
-
 
 export default {
   webhooks,

@@ -1,40 +1,34 @@
 import { AppConsumer } from 'appContext';
 import { IUser } from 'modules/auth/types';
-import ActionButtons from 'modules/common/components/ActionButtons';
 import Button from 'modules/common/components/Button';
 import ControlLabel from 'modules/common/components/form/Label';
 import HeaderDescription from 'modules/common/components/HeaderDescription';
 import Icon from 'modules/common/components/Icon';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Table from 'modules/common/components/table';
 import Tip from 'modules/common/components/Tip';
-import WithPermission from 'modules/common/components/WithPermission';
 import { IButtonMutateProps } from 'modules/common/types';
 import { router } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
+import { Alert } from 'modules/common/utils';
 import { FlexItem, FlexRow } from 'modules/insights/styles';
 import SelectBrands from 'modules/settings/brands/containers/SelectBrands';
 import React from 'react';
-import Select from 'react-select-plus';
+import CopyToClipboard from 'react-copy-to-clipboard';
 import List from '../../common/components/List';
+import RowActions from '../../common/components/RowActions';
 import { ICommonFormProps, ICommonListProps } from '../../common/types';
 import { FilterContainer } from '../styles';
 import { IWebhook } from '../types';
-import WebhookAddForm from './WebhookAddForm';
-
+import WebhookAddForm from './WebhookForm';
 
 type IProps = {
-  removeWebhook: (webhook: IWebhook) => void;
   refetchQueries: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   queryParams?: any;
   configsEnvQuery?: any;
-  editWebhook: (webhook: IWebhook) => void;
-};
+} & ICommonListProps;
 
-type FinalProps = ICommonListProps &
-  ICommonFormProps &
-  IProps & { currentUser: IUser };
+type FinalProps = IProps & { currentUser: IUser };
 
 type States = {
   searchValue: string;
@@ -55,99 +49,42 @@ class WebhookList extends React.Component<FinalProps, States> {
     };
   }
 
-
-  renderAddForm = props => {
-    const { refetchQueries, renderButton } = this.props;
-
-    return (
-      <WebhookAddForm
-        closeModal={props.closeModal}
-        webhookActions={[]}
-        refetchQueries={refetchQueries}
-        renderButton={renderButton}
-      />
-    );
-  };
-
-  renderRemoveAction(webhook) {
-    const { removeWebhook } = this.props;
-
-    if (!removeWebhook) {
-      return null;
-    }
-
-    const onClick = () => removeWebhook(webhook);
-
-    return (
-      <WithPermission action="webhooksRemove">
-        <Tip text={__('Delete')} placement="top">
-          <Button btnStyle="link" onClick={onClick} icon="times-circle" />
-        </Tip>
-      </WithPermission>
-    );
-  }
-
   renderForm = props => {
-
-    const { refetchQueries, renderButton } = this.props;
-    
-
-
-    return (
-      <WebhookAddForm
-      renderButton={renderButton}
-        closeModal={props.closeModal}
-        webhookActions={props.object.actions}
-        endpointUrl={props.object.url}
-        refetchQueries={refetchQueries}
-      />
-    );
+    return <WebhookAddForm {...props} renderButton={this.props.renderButton} />;
   };
-
-  renderEditAction = (webhook) => {
-
-    const editTrigger = (
-      <Button btnStyle="link">
-        <Tip text={__('Edit Webhook')} placement="top">
-          <Icon icon="pen-1" size={15} />
-        </Tip>
-      </Button>
-    );
-
-    const content = props => {
-      return this.renderForm({ ...props, object: webhook });
-    };
-
-    return (
-      <ModalTrigger
-        size="lg"
-        title="Edit"
-        trigger={editTrigger}
-        content={content}
-      />
-    );
-  };
-
-
-
 
   renderRows({ objects }: { objects: IWebhook[] }) {
-
     return objects.map(object => {
-
       return (
         <tr key={object._id}>
           <td>{object.url}</td>
-          <td>
-            <ActionButtons>
-              {this.renderEditAction(object)}
-              {this.renderRemoveAction(object)}
-            </ActionButtons>
-          </td>
+          <RowActions
+            {...this.props}
+            object={object}
+            size="lg"
+            renderForm={this.renderForm}
+            additionalActions={this.renderResetPassword}
+          />
         </tr>
       );
     });
   }
+
+  renderResetPassword = object => {
+    const onCopy = () => {
+      Alert.success('Copied');
+    };
+
+    return (
+      <CopyToClipboard text={object.token} onCopy={onCopy}>
+        <Button btnStyle="link">
+          <Tip text={__('Copy token')} placement="top">
+            <Icon icon="copy" size={15} />
+          </Tip>
+        </Button>
+      </CopyToClipboard>
+    );
+  };
 
   search = e => {
     if (this.timer) {
@@ -161,16 +98,6 @@ class WebhookList extends React.Component<FinalProps, States> {
     this.timer = setTimeout(() => {
       router.setParams(this.props.history, { searchValue });
     }, 500);
-  };
-
-  moveCursorAtTheEnd(e) {
-    const tmpValue = e.target.value;
-    e.target.value = '';
-    e.target.value = tmpValue;
-  }
-
-  onStatusChange = (status: { label: string; value: boolean }) => {
-    router.setParams(this.props.history, { isActive: status.value });
   };
 
   renderBrandChooser() {
@@ -202,29 +129,7 @@ class WebhookList extends React.Component<FinalProps, States> {
   renderFilter = () => {
     return (
       <FilterContainer>
-        <FlexRow>
-          {this.renderBrandChooser()}
-
-          <FlexItem>
-            <ControlLabel>{__('Type')}</ControlLabel>
-            <Select
-              placeholder={__('Choose webhook type')}
-              value={this.props.queryParams.isActive || true}
-              onChange={this.onStatusChange}
-              clearable={false}
-              options={[
-                {
-                  value: true,
-                  label: 'Outgoing'
-                },
-                {
-                  value: false,
-                  label: 'Incoming'
-                }
-              ]}
-            />
-          </FlexItem>
-        </FlexRow>
+        <FlexRow>{this.renderBrandChooser()}</FlexRow>
       </FilterContainer>
     );
   };
@@ -251,7 +156,6 @@ class WebhookList extends React.Component<FinalProps, States> {
   }
 
   render() {
-
     return (
       <List
         formTitle={__('Add Webhook')}
@@ -269,7 +173,7 @@ class WebhookList extends React.Component<FinalProps, States> {
           />
         }
         renderFilter={this.renderFilter}
-        renderForm={this.renderAddForm}
+        renderForm={this.renderForm}
         renderContent={this.renderContent}
         center={true}
         {...this.props}
@@ -279,8 +183,6 @@ class WebhookList extends React.Component<FinalProps, States> {
 }
 
 const WithConsumer = (props: IProps & ICommonListProps & ICommonFormProps) => {
-  // tslint:disable-next-line:no-console
-  console.log(props)
   return (
     <AppConsumer>
       {({ currentUser }) => (

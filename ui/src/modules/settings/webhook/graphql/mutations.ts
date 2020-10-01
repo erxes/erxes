@@ -17,19 +17,18 @@ const webhooksEdit = `
 `;
 
 const webhooksAdd = `
-  mutation webhooksAdd($isOutgoing: Boolean!, ${commonParamsDef}) {
-    webhooksAdd(isOutgoing: $isOutgoing, ${commonParams}){
+  mutation webhooksAdd(${commonParamsDef}) {
+    webhooksAdd(${commonParams}){
       _id
     }
   }
 `;
 
 const webhooksRemove = `
-  mutation webhooksRemove($ids: [String!]!) {
-    webhooksRemove(ids: $ids)
+  mutation webhooksRemove($_id: String!) {
+    webhooksRemove(_id: $_id)
   }
 `;
-
 
 export default {
   webhooksEdit,
