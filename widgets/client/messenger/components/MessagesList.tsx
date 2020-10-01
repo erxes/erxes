@@ -14,6 +14,7 @@ import { IMessage } from '../types';
 import { Message } from './';
 import { MessageBot } from './';
 import AccquireInformation from './AccquireInformation';
+import Bot from './bot/Bot';
 import { OPERATOR_STATUS } from './bot/constants';
 
 type Props = {
@@ -281,7 +282,18 @@ class MessagesList extends React.Component<Props, State> {
       return null;
     }
 
-    return <div className="bot-message">Typing...</div>;
+    return (
+      <li>
+        <Bot />
+        <div className="erxes-message top">
+          <div className="bot-indicator">
+            <span />
+            <span />
+            <span />
+          </div>
+        </div>
+      </li>
+    );
   }
 
   handleOperatorStatus = () => {

@@ -126,3 +126,46 @@
 		}
 	}
 }
+
+.bot-indicator {
+	display: inline-block;
+  margin-bottom: 1px;
+
+  span {
+    height: 6px;
+    width: 6px;
+    float: left;
+    margin: 0 2px;
+    background-color: #555;
+    display: block;
+    border-radius: 50%;
+    animation-name: wave;
+    animation-duration: 1.3s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+  }
+
+  span:nth-of-type(1) {
+    animation-delay: 0.2s;
+  }
+
+  span:nth-of-type(2) {
+    animation-delay: 0.3s;
+  }
+
+  span:nth-of-type(3) {
+    animation-delay: 0.4s;
+  }
+}
+
+@keyframes wave {
+  0%{
+    transform:translateY(0px)
+  }
+  28%{
+    transform:translateY(-5px)
+  }
+  44%{
+    transform:translateY(0px)
+  }
+}
