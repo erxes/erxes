@@ -66,7 +66,7 @@
         "title": "Kubernetes"
       },
       "installation/redhat8": {
-        "title": "REHL 8"
+        "title": "Redhat 8"
       },
       "installation/ubuntu": {
         "title": "Ubuntu 16.04/18.04 LTS"
@@ -83,7 +83,7 @@
         "title": "Deployment Overview"
       },
       "overview/getting-started": {
-        "title": "Getting  Started"
+        "title": "Getting Started"
       },
       "overview/integrations-overview": {
         "title": "Integrations Overview"
@@ -129,14 +129,14 @@
         "title": "Sales pipeline"
       },
       "user/script-install": {
-        "title": "Script installation",
+        "title": "Script Installation",
         "sidebar_label": "Script installation"
       },
       "user/segments": {
         "title": "Segments"
       },
       "user/subscription-getting-started": {
-        "title": "Subscription getting started"
+        "title": "Subscription Getting Started"
       },
       "user/team-inbox": {
         "title": "Team Inbox",
@@ -145,7 +145,7 @@
     },
     "links": {
       "Sign in": "Sign in",
-      "Get started": "Get started"
+      "Get started": "Let start"
     },
     "categories": {
       "Overview": "Overview",
