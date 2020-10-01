@@ -17,7 +17,7 @@ context("Login", () => {
       .eq(3)
       .click();
 
-    const random = fakeName(6);
+    let random = fakeName(6);
 
     cy.get('a[href="/contacts/lead"]').click();
 
@@ -36,7 +36,7 @@ context("Login", () => {
 
     cy.wait(3000);
 
-    const random = fakeName(5);
+    random = fakeName(5);
 
     cy.get('button[icon="plus-circle"]').click();
 
@@ -83,11 +83,6 @@ context("Login", () => {
       .click();
 
     cy.wait(3000);
-
-    // cy.get('i[icon="tag-alt"]')
-    //   .eq(1)
-    //   .click();
-    // cy.wait(3000);
 
     const customer = cy.get("#customers").get("tr");
 

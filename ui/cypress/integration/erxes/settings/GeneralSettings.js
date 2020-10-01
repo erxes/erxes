@@ -164,7 +164,7 @@ context('Settings', () => {
     cy.get('#SettingsSidebar').children().eq(2).click()
 
     //general settings
-    const gensettings = cy.get('#EngageSettingsMenu').children().eq(0).click()
+    let gensettings = cy.get('#EngageSettingsMenu').children().eq(0).click()
 
     gensettings.within(() => {
       for( let i=0; i<=4; i++){
@@ -191,7 +191,7 @@ context('Settings', () => {
 
     //send your first testing email
 
-    const gensettings = cy.get('#EngageSettingsMenu').children().eq(2).click()
+    gensettings = cy.get('#EngageSettingsMenu').children().eq(2).click();
 
     gensettings.within(() => {
       for( let i=0; i<=2; i++){

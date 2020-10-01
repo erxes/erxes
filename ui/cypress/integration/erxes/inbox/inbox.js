@@ -1,5 +1,4 @@
 import { SignIn, fakeName } from "../utils";
-import { eq } from "lodash";
 
 SignIn;
 
@@ -72,16 +71,4 @@ const tags = () => {
 
   cy.get('input[placeholder="Search"]').type("Angry");
   cy.get('i[class="icon icon-tag-alt"]').click();
-};
-
-const internalNote = () => {
-  cy.get("#conversationInternalNote").click();
-  cy.get('div[class="RichEditor-editor"]').type(randomm);
-};
-
-const assingTo = () => {
-  cy.get("#conversationAssignTo").click();
-  cy.get('input[placeholder="Search"]').type("Admin");
-
-  cy.get('li[class="none"]').click();
 };
