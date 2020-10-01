@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as xss from 'xss';
 import { IUser } from '../../types';
-import { __, urlify } from '../../utils';
+import { urlify } from '../../utils';
 import { IBotData } from '../types';
 import Bot from './bot/Bot';
 import Carousel from './bot/Carousel';
