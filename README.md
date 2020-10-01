@@ -1,4 +1,4 @@
-<p align="center">
+
  <img src="docs/static/img/logo_dark.svg" alt="erxes logo" width="20%" />
 </p>
 
