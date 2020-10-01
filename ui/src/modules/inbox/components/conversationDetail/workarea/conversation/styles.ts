@@ -68,7 +68,29 @@ const MessageContent = styledTS<{ internal?: boolean; staff?: boolean }>(
   }
 `;
 
-const MessageItem = styledTS<{ isSame?: boolean; staff?: boolean }>(styled.div)`
+const MessageBody = styledTS<{ staff?: boolean }>(styled.div)`
+  margin: ${props => (props.staff ? '0 55px 0 0' : '0 0 0 55px')};
+  display: flex;
+  flex-direction: ${props => (props.staff ? 'row-reverse' : 'row')};
+  align-items: center;
+
+  footer {
+    flex-shrink: 0;
+    font-size: 11px;
+    display: inline-block;
+    color: ${colors.colorCoreLightGray};
+    margin: 0 10px;
+    cursor: pointer;
+  }
+
+  > img {
+    box-shadow: 0 1px 1px 0 ${colors.darkShadow};
+    max-width: 100%;
+  }
+`;
+
+
+const MessageItem = styledTS<{ isSame?: boolean; staff?: boolean; isBot?: boolean }>(styled.div)`
   margin-top: ${props => (props.isSame ? dimensions.unitSpacing - 5 : 20)}px;
   padding-right: 17%;
   display: flex;
@@ -81,6 +103,21 @@ const MessageItem = styledTS<{ isSame?: boolean; staff?: boolean }>(styled.div)`
     right: ${props => props.staff && '0'};
     bottom: 0;
   }
+
+  ${props =>
+    props.isBot &&
+    css`
+      padding-right: 0;
+
+      ${MessageBody} {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      ${MessageContent} {
+        border-radius: 20px;
+      }
+    `};
 
   ${props => {
     if (!props.staff) {
@@ -132,26 +169,6 @@ const MessageItem = styledTS<{ isSame?: boolean; staff?: boolean }>(styled.div)`
   }
 `;
 
-const MessageBody = styledTS<{ staff?: boolean }>(styled.div)`
-  margin: ${props => (props.staff ? '0 55px 0 0' : '0 0 0 55px')};
-  display: flex;
-  flex-direction: ${props => (props.staff ? 'row-reverse' : 'row')};
-  align-items: center;
-
-  footer {
-    flex-shrink: 0;
-    font-size: 11px;
-    display: inline-block;
-    color: ${colors.colorCoreLightGray};
-    margin: 0 10px;
-    cursor: pointer;
-  }
-
-  > img {
-    box-shadow: 0 1px 1px 0 ${colors.darkShadow};
-    max-width: 100%;
-  }
-`;
 
 const FormTable = styled.div`
   border: 1px solid ${colors.borderPrimary};

@@ -35,18 +35,19 @@ function MessageBot(props: Props) {
     scrollBottom
   } = props;
 
-  const renderTextMessage = (message: IBotData) => {
+  const renderTextMessage = (message: IBotData, idx: number) => {
     return (
       <div
+        key={idx}
         className="erxes-message top"
         dangerouslySetInnerHTML={{ __html: xss(urlify(message.text || '')) }}
       />
     );
   };
 
-  const renderFileMessage = (message: IBotData) => {
+  const renderFileMessage = (message: IBotData, idx: number) => {
     return (
-      <div className="bot-message">
+      <div key={idx} className="bot-message">
         <img
           className="image-message"
           onLoad={scrollBottom}
@@ -57,13 +58,29 @@ function MessageBot(props: Props) {
     );
   };
 
-  const renderCustomMessage = (message: IBotData, commonProps: CommonProps) => {
-    return <CustomMessage color={color} message={message} {...commonProps} />;
+  const renderCustomMessage = (
+    message: IBotData,
+    commonProps: CommonProps,
+    idx: number
+  ) => {
+    return (
+      <CustomMessage
+        key={idx}
+        color={color}
+        message={message}
+        {...commonProps}
+      />
+    );
   };
 
-  const renderCarouselMessage = (elements: any, commonProps: CommonProps) => {
+  const renderCarouselMessage = (
+    elements: any,
+    commonProps: CommonProps,
+    idx: number
+  ) => {
     return (
       <Carousel
+        key={idx}
         scrollBottom={scrollBottom}
         items={elements}
         color={color}
@@ -79,16 +96,16 @@ function MessageBot(props: Props) {
       sendTypingInfo
     };
 
-    return botData.map(item => {
+    return botData.map((item, idx) => {
       switch (item.type) {
         case 'text':
-          return renderTextMessage(item);
+          return renderTextMessage(item, idx);
         case 'file':
-          return renderFileMessage(item);
+          return renderFileMessage(item, idx);
         case 'carousel':
-          return renderCarouselMessage(item.elements, commonProps);
+          return renderCarouselMessage(item.elements, commonProps, idx);
         case 'custom':
-          return renderCustomMessage(item, commonProps);
+          return renderCustomMessage(item, commonProps, idx);
         default:
           return null;
       }

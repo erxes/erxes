@@ -1,16 +1,10 @@
 import { IBotData } from 'modules/inbox/types';
 import * as React from 'react';
+import { MessageContent } from '../../styles';
+import { QuickReplies, ReplyButton } from './styles';
 
 type Props = {
   botData: IBotData;
-};
-
-const btnStyle = {
-  marginRight: 8,
-  borderWidth: 1,
-  borderColor: 'blue',
-  backgroundColor: 'white',
-  color: 'black'
 };
 
 export default function CustomMessage({ botData }: Props) {
@@ -31,20 +25,21 @@ export default function CustomMessage({ botData }: Props) {
     index: number
   ) => {
     return (
-      <button key={index} style={btnStyle}>
+      <ReplyButton key={index}>
         {item.title}
-      </button>
+      </ReplyButton>
     );
   };
 
   return (
-    <div>
-      {wrapped ? <b>{wrapped.text}</b> : null}
-      <div style={{ display: 'inline-block' }}>
-        <div style={{ padding: 8 }}>
-          {quick_replies ? quick_replies.map(renderButton) : null}
-        </div>
-      </div>
-    </div>
+    <>
+      {wrapped ? 
+      <MessageContent staff={true}>
+        {wrapped.text}
+      </MessageContent> : null}
+      <QuickReplies>
+        {quick_replies ? quick_replies.map(renderButton) : null}
+      </QuickReplies>
+    </>
   );
 }

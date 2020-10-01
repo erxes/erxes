@@ -1,5 +1,6 @@
 import { ICarouselButton, ICarouselItem } from 'modules/inbox/types';
 import * as React from 'react';
+import { CardAction, CardContent, CardItem, CardsWrapper, CardUrl } from './styles';
 
 type Props = {
   items?: ICarouselItem[];
@@ -11,37 +12,26 @@ export default function Carousel({ items }: Props) {
   }
 
   function renderButton(button: ICarouselButton) {
-    const { type, title, text, url } = button;
+    const { type, title, url } = button;
 
-    if (type === 'saySomething') {
+    if (type === 'openUrl') {
       return (
-        <div>
-          <p>{title}</p>
-          <button style={{ padding: 10, backgroundColor: 'teal' }}>
-            {text}
-          </button>
-        </div>
+        <CardUrl target="_blank" href={url}>
+          {title}
+        </CardUrl>
       );
     }
 
-    if (type === 'openUrl') {
-      return <a href={url}>{title}</a>;
-    }
-
-    return (
-      <button style={{ padding: 10, backgroundColor: 'teal' }}>
-        {button.title}
-      </button>
-    );
+    return <CardAction>{title}</CardAction>;
   }
 
-  function renderActions(buttons?: ICarouselButton[]) {
+  const renderActions = (buttons?: ICarouselButton[]) => {
     if (!buttons || buttons.length === 0) {
       return null;
     }
 
     return (
-      <div style={{ display: 'inline-block' }}>
+      <div>
         {buttons.map((button, idx) => (
           <div key={idx}>{renderButton(button)}</div>
         ))}
@@ -51,18 +41,20 @@ export default function Carousel({ items }: Props) {
 
   const renderItem = (item: ICarouselItem, index: number) => {
     return (
-      <div key={index}>
-        <img
-          src={item.picture}
-          alt={item.title}
-          style={{ width: 200, height: 200 }}
-        />
-        <h4>{item.title || ''}</h4>
-        <h6>{item.subtitle || ''}</h6>
+      <CardItem key={index} >
+        {item.picture && <img alt={item.title|| ''} src={item.picture} />}
+        <CardContent>
+          {item.title && <h4>{item.title}</h4>}
+          {item.subtitle && <p>{item.subtitle}</p>}
+        </CardContent>
         {renderActions(item.buttons)}
-      </div>
+      </CardItem>
     );
   };
 
-  return <div>{items.map(renderItem)}</div>;
+  return (
+    <CardsWrapper>
+      {items.map(renderItem)}
+    </CardsWrapper>
+  );
 }
