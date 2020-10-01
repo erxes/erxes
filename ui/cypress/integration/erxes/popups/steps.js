@@ -1,7 +1,6 @@
 import { SignIn, fakeName } from "../utils";
 
 SignIn;
-const { eq } = require("lodash");
 
 context("Login", () => {
   beforeEach(() => {
@@ -126,9 +125,5 @@ function addField() {
   cy.get("#validation").select("Email");
   cy.get("#FieldLabel").type(randomm);
   cy.get("#FieldDescription").type(randomm);
-  // cy.get('div[class="react-toggle-track"]').click();
-  // cy.get("input")
-  //   .eq(7)
-  //   .type(randomm);
   cy.get('button[icon="add"]').click();
 }

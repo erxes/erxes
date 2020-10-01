@@ -91,7 +91,7 @@ context('Settings', () => {
 
     //Integrations config
     cy.get('#SettingsSidebar').children().eq(1).click()
-    facebook
+    // facebook
     const facebook = cy.get('#IntegrationSettingsMenu').children().eq(0).click();
     facebook.within(() => {
       for( let i=0; i<=3; i++){

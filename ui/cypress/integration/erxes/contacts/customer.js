@@ -1,7 +1,5 @@
 import { SignIn, fakeName } from '../utils';
 
-const { eq, random, get } = require("lodash");
-
 SignIn;
 
 context("Login", () => {
@@ -53,7 +51,7 @@ context("Login", () => {
 
     cy.wait(3000);
 
-    const customer = cy.get("#customers").get("tr");
+    let customer = cy.get("#customers").get("tr");
 
     customer.within(() => {
       cy.get("#customersCheckBox")
@@ -84,7 +82,7 @@ context("Login", () => {
 
     cy.wait(3000);
 
-    const customer = cy.get("#customers").get("tr");
+    customer = cy.get("#customers").get("tr");
 
     customer.within(() => {
       cy.get("#customersCheckBox")
