@@ -73,7 +73,11 @@ const SidebarContainer = (props: FinalProps) => {
         mutation={object ? mutations.channelEdit : mutations.channelAdd}
         variables={values}
         callback={callback}
-        refetchQueries={getRefetchQueries(queryParams, currentChannelId, currentUserId)}
+        refetchQueries={getRefetchQueries(
+          queryParams,
+          currentChannelId,
+          currentUserId
+        )}
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully ${
@@ -95,7 +99,11 @@ const SidebarContainer = (props: FinalProps) => {
   return <Sidebar {...updatedProps} />;
 };
 
-const getRefetchQueries = (queryParams, currentChannelId?: string, currentUserId?: string) => {
+const getRefetchQueries = (
+  queryParams,
+  currentChannelId?: string,
+  currentUserId?: string
+) => {
   return [
     {
       query: gql(queries.channels),
@@ -115,11 +123,11 @@ const getRefetchQueries = (queryParams, currentChannelId?: string, currentUserId
       query: gql(queries.channelDetail),
       variables: { _id: currentChannelId || '' }
     },
-    { query: gql(queries.channelsCount)},
-    { 
+    { query: gql(queries.channelsCount) },
+    {
       query: gql(inboxQueries.channelList),
       variables: { memberIds: [currentUserId] }
-    },
+    }
   ];
 };
 
@@ -147,15 +155,23 @@ const WithProps = withProps<Props>(
     >(gql(mutations.channelRemove), {
       name: 'removeMutation',
       options: ({ queryParams, currentChannelId, currentUserId }: Props) => ({
-        refetchQueries: getRefetchQueries(queryParams, currentChannelId, currentUserId)
+        refetchQueries: getRefetchQueries(
+          queryParams,
+          currentChannelId,
+          currentUserId
+        )
       })
     })
   )(withRouter<FinalProps>(SidebarContainer))
 );
 
-export default (props: Props) =>  
+export default (props: Props) => (
   <AppConsumer>
     {({ currentUser }) => (
-      <WithProps {...props} currentUserId={(currentUser && currentUser._id) || ''} />
+      <WithProps
+        {...props}
+        currentUserId={(currentUser && currentUser._id) || ''}
+      />
     )}
-  </AppConsumer>;
+  </AppConsumer>
+);

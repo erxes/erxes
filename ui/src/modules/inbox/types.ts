@@ -218,10 +218,7 @@ export type CreateProductBoardMutationResponse = {
   ) => Promise<any>;
 };
 
-// query types
-
-export type ConvesationsQueryVariables = {
-  limit: number;
+export type ResolveAllMutationVariables = {
   channelId: string;
   status: string;
   unassigned: string;
@@ -233,6 +230,17 @@ export type ConvesationsQueryVariables = {
   startDate: string;
   endDate: string;
 };
+
+export type ResolveAllMutationResponse = {
+  resolveAllMutation: (
+    doc: { variables: ResolveAllMutationVariables }
+  ) => Promise<any>;
+};
+
+// query types
+export type ConvesationsQueryVariables = {
+  limit: number;
+} & ResolveAllMutationVariables;
 
 export type LastConversationQueryResponse = {
   conversationsGetLast: IConversation;

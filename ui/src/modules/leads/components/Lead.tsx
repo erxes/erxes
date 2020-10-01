@@ -164,13 +164,11 @@ class Lead extends React.Component<Props, State> {
           featuredImage: this.state.logoPreviewUrl,
           skip: this.state.isSkip
         },
-        rules: (rules || []).filter(rule => (
-          rule.condition && rule.value
-        )),
+        rules: (rules || []).filter(rule => rule.condition && rule.value),
         isRequireOnce: this.state.isRequireOnce
       }
     };
-    
+
     this.props.save(doc);
   };
 
@@ -244,7 +242,7 @@ class Lead extends React.Component<Props, State> {
     const brand = integration && integration.brand;
     const breadcrumb = [{ title: __('Pop Ups'), link: '/leads' }];
     const constant = isSkip ? 'form' : 'callout';
-   
+
     const onChange = e =>
       this.onChange('title', (e.currentTarget as HTMLInputElement).value);
 
@@ -323,6 +321,7 @@ class Lead extends React.Component<Props, State> {
                 theme={theme}
                 successAction={successAction}
                 leadData={leadData}
+                formId={integration && integration.formId}
               />
             </Step>
             <Step
