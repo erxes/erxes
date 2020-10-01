@@ -137,7 +137,7 @@ context("Login", () => {
 
     cy.get('button[icon="check-circle"]').click();
 
-    const random = fakeName(9);
+    random = fakeName(9);
 
     cy.get('a[href="/contacts/customer"]').click();
 
