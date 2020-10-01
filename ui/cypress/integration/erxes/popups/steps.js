@@ -1,39 +1,15 @@
-import { fakeName } from "../utils";
+import { SignIn, fakeName } from "../utils";
 
+SignIn;
 const { eq } = require("lodash");
 
 context("Login", () => {
   beforeEach(() => {
-    Cypress.Cookies.debug(true);
     cy.visit("/");
-    cy.clearCookies();
   });
 
   it("Sign In", () => {
-    const email = Cypress.env("userEmail");
-    const password = Cypress.env("userPassword");
-
-    cy.get("input[name=email]").type(email);
-    cy.get("input[name=password]").type(`${password}{enter}`);
-
-    cy.url().should("include", "/inbox");
-    cy.getCookie("auth-token").should("exist");
-
-    cy.get("title").should("contain", "Conversation");
-
-    cy.get('button[id="robot-get-started"]').click();
-
-    cy.get('div[id="robot-features"]')
-      .children()
-      .should("have.length", 9);
-    cy.get('button[id="robot-get-started"]').should("be.disabled");
-
-    cy.get('div[id="robot-item-inbox"]').click();
-    cy.get('div[id="robot-item-contacts"]').click();
-    cy.get('div[id="robot-item-integrations"]').click();
-
-    cy.get('button[id="robot-get-started"]').click();
-    cy.get('div[id="robot-feature-close"]').click();
+    cy.signIn();
 
     const randomm = fakeName(3);
 
@@ -55,6 +31,7 @@ context("Login", () => {
       .children()
       .eq(1)
       .type(randomm);
+    const title = randomm;
 
     cy.get("button[icon=arrow-right]")
       .eq(0)
@@ -129,22 +106,29 @@ context("Login", () => {
     cy.get('button[icon="checked-1"]').click();
 
     cy.wait(1000);
+    cy.get('.close > [aria-hidden="true"]').click();
 
-    cy.get("#integrationDelete").click();
+    cy.get('table').get('tbody').get('tr').contains(title);
+    cy.get('table')
+      .get('tbody')
+      .find('tr')
+      .contains(title)
+      .parent().parent().parent()
+      .find('#integrationDelete').click();
 
-    cy.get('button[icon="checked-1"]').click();
+    cy.get('button[icon="check-circle"]').click();
   });
 });
 
-const randomm = fakeName(3);
+const randomm = fakeName(5);
 
 function addField() {
   cy.get("#validation").select("Email");
   cy.get("#FieldLabel").type(randomm);
   cy.get("#FieldDescription").type(randomm);
-  cy.get('div[class="react-toggle-track"]').click();
-  cy.get("input")
-    .eq(7)
-    .type(randomm);
+  // cy.get('div[class="react-toggle-track"]').click();
+  // cy.get("input")
+  //   .eq(7)
+  //   .type(randomm);
   cy.get('button[icon="add"]').click();
 }

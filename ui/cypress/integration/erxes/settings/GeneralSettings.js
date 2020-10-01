@@ -1,27 +1,21 @@
-import {fakeNameCustomer} from '../utils';
+import { SignIn, fakeNameCustomer } from '../utils';
+
+SignIn;
 
 context('Settings', () => {
   beforeEach(() => {
-    Cypress.Cookies.debug(true);
     cy.visit('/');
-    cy.clearCookies();
   });
 
   it('Sign In', () => {
-    const email = Cypress.env('userEmail');
-    const password = Cypress.env('userPassword');
+    cy.signIn();
 
-    cy.get('input[name=email]').type(email);
-    cy.get('input[name=password]').type(`${password}{enter}`);
-
-    cy.url().should('include', '/inbox');
-    cy.getCookie('auth-token').should('exist');
     cy.get('#Settings').click();
     cy.url().should('include', '/settings');
 
     // General Settings Main
     cy.get('#SettingsGeneralSettingsFather').children().eq(0).click();
-  
+
     //General System config
     cy.get('#SettingsSidebar').children().eq(0).click();
     cy.get('#GeneralSettingsMenu').children().eq(0).click()
@@ -43,7 +37,7 @@ context('Settings', () => {
     blah.find('input').type('amra');
     cy.get('#GeneralSettingsMenu').children().eq(2).children().eq(0).click()
 
-   
+
     //AWS S3
     const awss3 =  cy.get('#GeneralSettingsMenu').children().eq(3).click();
     awss3.within(() => {
@@ -53,7 +47,7 @@ context('Settings', () => {
     })
     cy.get('#GeneralSettingsMenu').children().eq(3).children().eq(0).click();
 
-    //AWSSES  
+    //AWSSES
     const awsses = cy.get('#GeneralSettingsMenu').children().eq(4).click();
     awsses.within(() => {
       for( let i=0; i<=3; i++){
@@ -62,7 +56,7 @@ context('Settings', () => {
     })
     cy.get('#GeneralSettingsMenu').children().eq(4).children().eq(0).click();
 
-    //Google 
+    //Google
     const google = cy.get('#GeneralSettingsMenu').children().eq(5).click();
     google.within(() => {
       for( let i=0; i<=4; i++){
@@ -73,9 +67,6 @@ context('Settings', () => {
     })
     cy.get('#GeneralSettingsMenu').children().eq(5).children().eq(0).click();
 
-
-
-
     //Common mail config
     const mailconfig = cy.get('#GeneralSettingsMenu').children().eq(6).click();
     mailconfig.within(() => {
@@ -84,7 +75,6 @@ context('Settings', () => {
       }
     })
     cy.get('#GeneralSettingsMenu').children().eq(6).children().eq(0).click();
-
 
     //Custom mail service
     const mailservice = cy.get('#GeneralSettingsMenu').children().eq(7).click();
@@ -98,9 +88,6 @@ context('Settings', () => {
     cy.get('#GeneralSettingsMenu').children().eq(7).children().eq(0).click();
 
     cy.get('button[icon=check-circle]').click()
-
-
-
 
     //Integrations config
     cy.get('#SettingsSidebar').children().eq(1).click()
@@ -132,7 +119,7 @@ context('Settings', () => {
       }
     })
     cy.get('#IntegrationSettingsMenu').children().eq(2).children().eq(0).click();
-    
+
     //video call
     const videocall = cy.get('#IntegrationSettingsMenu').children().eq(3).click();
     videocall.within(() => {
@@ -142,19 +129,19 @@ context('Settings', () => {
       cy.get('select[name=VIDEO_CALL_TYPE]').select('Daily')
     })
     cy.get('#IntegrationSettingsMenu').children().eq(3).children().eq(0).click();
-    
-    gmail
-    const gmail = cy.get('#IntegrationSettingsMenu').children().eq(4).click();
-    gmail.within(() => {
-      cy.get('.react-toggle-track').click()
-      for( let i=1; i<=2; i++){
-        cy.get('input').eq(i).type('ssss' + i)
-      }
-    })
-    cy.get('#IntegrationSettingsMenu').children().eq(4).children().eq(0).click();
+
+    // // gmail
+    // const gmail = cy.get('#IntegrationSettingsMenu').children().eq(4).click();
+    // gmail.within(() => {
+    //   cy.get('.react-toggle-track').click()
+    //   for( let i=1; i<=2; i++){
+    //     cy.get('input').eq(i).type('ssss' + i)
+    //   }
+    // })
+    // cy.get('#IntegrationSettingsMenu').children().eq(4).children().eq(0).click();
 
     //conversation api
-    const conversationapi = cy.get('#IntegrationSettingsMenu').children().eq(5).click();
+    const conversationapi = cy.get('#IntegrationSettingsMenu').children().eq(4).click();
     conversationapi.within(() => {
       for( let i=0; i<=3; i++){
         cy.get('input').eq(i).type('ssss' + i)
@@ -163,7 +150,7 @@ context('Settings', () => {
     cy.get('#IntegrationSettingsMenu').children().eq(5).children().eq(0).click();
 
     //chat api
-    const gmail = cy.get('#IntegrationSettingsMenu').children().eq(6).click();
+    const gmail = cy.get('#IntegrationSettingsMenu').children().eq(5).click();
     gmail.within(() => {
       for( let i=0; i<=1; i++){
         cy.get('input').eq(i).type('ssss' + i)
@@ -172,7 +159,6 @@ context('Settings', () => {
     cy.get('#IntegrationSettingsMenu').children().eq(6).children().eq(0).click();
 
     cy.get('button[icon=check-circle]').click()
-    
 
     // Engage config
     cy.get('#SettingsSidebar').children().eq(2).click()
@@ -190,8 +176,6 @@ context('Settings', () => {
     })
     cy.get('#EngageSettingsMenu').children().eq(0).children().eq(0).click();
 
-
-
     //verify the email address that you send mail from
     const verifyEmail = cy.get('#EngageSettingsMenu').children().eq(1).click()
 
@@ -208,7 +192,7 @@ context('Settings', () => {
     //send your first testing email
 
     const gensettings = cy.get('#EngageSettingsMenu').children().eq(2).click()
-    
+
     gensettings.within(() => {
       for( let i=0; i<=2; i++){
         if(i != 2){

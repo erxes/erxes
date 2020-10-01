@@ -166,7 +166,7 @@ class Navigation extends React.Component<{
         <NavLink to="/">
           <img src="/images/erxes.png" alt="erxes" />
         </NavLink>
-        <Nav>
+        <Nav id="navigation">
           {this.renderNavItem(
             'showConversations',
             __('Conversation'),

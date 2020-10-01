@@ -1,39 +1,16 @@
-import { fakeName } from "../utils";
+import { SignIn, fakeName } from '../utils';
 
 const { eq, random, get } = require("lodash");
 
+SignIn;
+
 context("Login", () => {
   beforeEach(() => {
-    Cypress.Cookies.debug(true);
     cy.visit("/");
-    cy.clearCookies();
   });
 
   it("Sign In", () => {
-    const email = Cypress.env("userEmail");
-    const password = Cypress.env("userPassword");
-
-    cy.get("input[name=email]").type(email);
-    cy.get("input[name=password]").type(`${password}{enter}`);
-
-    cy.url().should("include", "/inbox");
-    cy.getCookie("auth-token").should("exist");
-
-    cy.get("title").should("contain", "Conversation");
-
-    cy.get('button[id="robot-get-started"]').click();
-
-    cy.get('div[id="robot-features"]')
-      .children()
-      .should("have.length", 9);
-    cy.get('button[id="robot-get-started"]').should("be.disabled");
-
-    cy.get('div[id="robot-item-inbox"]').click();
-    cy.get('div[id="robot-item-contacts"]').click();
-    cy.get('div[id="robot-item-integrations"]').click();
-
-    cy.get('button[id="robot-get-started"]').click();
-    cy.get('div[id="robot-feature-close"]').click();
+    cy.signIn();
 
     cy.get("#navigation")
       .children()
@@ -57,7 +34,7 @@ context("Login", () => {
 
     cy.get('button[icon="check-circle"]').click();
 
-    cy.wait(500);
+    cy.wait(3000);
 
     const random = fakeName(5);
 
@@ -74,7 +51,7 @@ context("Login", () => {
 
     cy.get('button[icon="check-circle"]').click();
 
-    cy.wait(500);
+    cy.wait(3000);
 
     const customer = cy.get("#customers").get("tr");
 
@@ -105,12 +82,12 @@ context("Login", () => {
       .eq(0)
       .click();
 
-    cy.wait(500);
+    cy.wait(3000);
 
-    cy.get('i[icon="tag-alt"]')
-      .eq(1)
-      .click();
-    cy.wait(500);
+    // cy.get('i[icon="tag-alt"]')
+    //   .eq(1)
+    //   .click();
+    // cy.wait(3000);
 
     const customer = cy.get("#customers").get("tr");
 
@@ -151,17 +128,21 @@ context("Login", () => {
 
     cy.get('button[icon="checked-1"]').click();
 
-    cy.wait(1000);
+    cy.wait(5000);
 
     cy.get('a[href="/contacts"]')
       .eq(1)
       .click();
 
+    cy.wait(2000);
+
     cy.get("#customersCheckBox").click();
 
     cy.get('button[icon="times-circle"]').click();
 
-    cy.get('button[icon="checked-1"]').click();
+    cy.wait(4000);
+
+    cy.get('button[icon="check-circle"]').click();
 
     const random = fakeName(9);
 
@@ -280,7 +261,7 @@ context("Login", () => {
 
     cy.get('button[icon="cancel-1"]').click();
 
-    cy.get('button[icon="checked-1"]').click();
+    cy.get('button[icon="check-circle"]').click();
 
     cy.wait(1000);
   });

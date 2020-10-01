@@ -1,13 +1,10 @@
-import { fakeName } from '../utils';
-import { SignIn } from '../utils';
+import { SignIn, fakeName } from '../utils';
 
 SignIn;
 
 context('Check Deals', () => {
   beforeEach(() => {
-    Cypress.Cookies.debug(true);
     cy.visit('/');
-    cy.clearCookies();
   });
 
   it('Deals', () => {
@@ -19,10 +16,9 @@ context('Check Deals', () => {
       .find('a[href="/settings/brands"]')
       .click();
 
-    const createdBoardsCount = 0;
     const newBrandName = fakeName(10);
 
-    cy.pause();
+    cy.wait(5000);
 
     cy.get('button')
       .contains('Add New')

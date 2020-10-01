@@ -1,40 +1,15 @@
-import { fakeName } from "../utils";
+import { SignIn, fakeName } from "../utils";
 import { eq } from "lodash";
+
+SignIn;
 
 context("Login", () => {
   beforeEach(() => {
-    Cypress.Cookies.debug(true);
     cy.visit("/");
-    cy.clearCookies();
   });
 
   it("Sign In", () => {
-    const email = Cypress.env("userEmail");
-    const password = Cypress.env("userPassword");
-
-    cy.get("input[name=email]").type(email);
-    cy.get("input[name=password]").type(`${password}{enter}`);
-
-    cy.url().should("include", "/inbox");
-    cy.getCookie("auth-token").should("exist");
-
-    cy.get("title").should("contain", "Conversation");
-
-    cy.get('button[id="robot-get-started"]').click();
-
-    cy.get('div[id="robot-features"]')
-      .children()
-      .should("have.length", 9);
-    cy.get('button[id="robot-get-started"]').should("be.disabled");
-
-    cy.get('div[id="robot-item-inbox"]').click();
-    cy.get('div[id="robot-item-contacts"]').click();
-    cy.get('div[id="robot-item-integrations"]').click();
-
-    cy.get('button[id="robot-get-started"]').click();
-    cy.get('div[id="robot-feature-close"]').click();
-
-    const randomm = fakeName(5);
+    cy.signIn();
 
     sendMessage();
 
@@ -76,15 +51,16 @@ context("Login", () => {
 
     cy.get('a[href="/inbox/index"]')
       .eq(1)
-      .click();
-
-    cy.get("#conversationWrapper").scrollTo("top", { duration: 5000 });
+      .click()
+      .then(() => {
+        cy.get("#conversationWrapper").scrollTo("top", { duration: 5000 });
+      });
 
     cy.get("#mask").click();
   });
 });
 
-const randomm = fakeName(5);
+const randomm = fakeName();
 const sendMessage = () => {
   cy.get("#mask").click();
   cy.get('div[class="RichEditor-editor"]').type(randomm);

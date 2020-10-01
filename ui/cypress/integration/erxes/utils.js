@@ -1,4 +1,4 @@
-export const fakeName = (length) => {
+export const fakeName = (length=10) => {
   let result = '';
   const characters =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -26,19 +26,29 @@ export const SignIn = Cypress.Commands.add('signIn', () => {
   cy.url().should('include', '/inbox');
   cy.getCookie('auth-token').should('exist');
 
-  //cy.get('title').should('contain', 'Conversation');
+  cy.get('title').should('contain', 'Conversation');
 
-  // cy.get('button[id="robot-get-started"]').click();
+  cy.get('button[id="robot-get-started"]').click();
 
-  // cy.get('div[id="robot-features"]')
-  //   .children()
-  //   .should('have.length', 9);
-  // cy.get('button[id="robot-get-started"]').should('be.disabled');
+  cy.get('div[id="robot-features"]')
+    .children()
+    .should('have.length', 9);
+  cy.get('button[id="robot-get-started"]').should('be.disabled');
 
-  // cy.get('div[id="robot-item-inbox"]').click();
-  // cy.get('div[id="robot-item-contacts"]').click();
-  // cy.get('div[id="robot-item-integrations"]').click();
+  cy.get('div[id="robot-item-inbox"]').click();
+  cy.get('div[id="robot-item-contacts"]').click();
+  cy.get('div[id="robot-item-integrations"]').click();
 
-  // cy.get('button[id="robot-get-started"]').click();
-  // cy.get('div[id="robot-feature-close"]').click();
+  cy.get('button[id="robot-get-started"]').click();
+  cy.get('div[id="robot-feature-close"]').click();
+});
+
+export const IsExistElement = Cypress.Commands.add('isExistElement', selector => {
+  cy.get('body').then(($el) => {
+    if ($el.has(selector)) {
+      return true
+    } else {
+      return false
+    }
+  })
 });
