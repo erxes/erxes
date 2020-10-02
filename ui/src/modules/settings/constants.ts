@@ -320,7 +320,8 @@ export const WEBHOOK_ACTIONS = [
   { label: 'Knowledge Base created', action: 'create', type: 'knowledgeBaseArticle' },
   { label: 'Knowledge Base updated', action: 'update', type: 'knowledgeBaseArticle' },
   { label: 'Knowledge Base deleted', action: 'delete', type: 'knowledgeBaseArticle' },
-  { label: 'User messages', action: 'create', type: 'userMessages' },
+  { label: 'Admin messages', action: 'create', type: 'userMessages' },
+  { label: 'Customer create conversation', action: 'create', type: 'conversation' },
   { label: 'Customer messages', action: 'create', type: 'customerMessages' },
   { label: 'Engage messages', action: 'create', type: 'engageMessages' },
 ];
