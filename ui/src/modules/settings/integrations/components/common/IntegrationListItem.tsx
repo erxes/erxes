@@ -1,3 +1,4 @@
+import { getEnv } from 'apolloClient';
 import ActionButtons from 'modules/common/components/ActionButtons';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
@@ -64,6 +65,47 @@ class IntegrationListItem extends React.Component<Props> {
     );
   }
 
+  renderGetAction() {
+    const { integration } = this.props;
+
+    const showTrigger = (
+      <Button btnStyle="link">
+        <Tip text="Show" placement="top">
+          <Icon icon="eye" />
+        </Tip>
+      </Button>
+    );
+
+    const content = () => {
+      const webhookData = integration.webhookData;
+      const { REACT_APP_API_URL } = getEnv();
+
+      return (
+        <div>
+          <b>Name</b>: {integration.name} <br />
+          {webhookData && (
+            <div>
+              <b>URL</b>: {REACT_APP_API_URL}/webhooks/{integration._id} <br />
+              <b>Token</b>: {webhookData.token}
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    return (
+      <WithPermission action="showIntegrations">
+        <ActionButtons>
+          <ModalTrigger
+            title="Integration detail"
+            trigger={showTrigger}
+            content={content}
+          />
+        </ActionButtons>
+      </WithPermission>
+    );
+  }
+
   renderEditAction() {
     const { integration, editIntegration } = this.props;
 
@@ -88,6 +130,7 @@ class IntegrationListItem extends React.Component<Props> {
         channelIds={integration.channels.map(item => item._id) || []}
         integrationId={integration._id}
         integrationKind={integration.kind}
+        webhookData={integration.webhookData}
       />
     );
 
@@ -183,6 +226,7 @@ class IntegrationListItem extends React.Component<Props> {
         <td>
           <ActionButtons>
             {this.renderMessengerActions(integration)}
+            {this.renderGetAction()}
             {this.renderEditAction()}
             {this.renderArchiveAction()}
             {this.renderUnarchiveAction()}

@@ -202,6 +202,12 @@ class Settings extends React.PureComponent {
               '/settings/emailDelivery',
               ''
             )}
+              {this.renderBox(
+              'Outgoing webhooks',
+              '/images/icons/erxes-11.svg',
+              '/settings/webhooks',
+              ''
+            )}
           </div>
         </Row>
         <Divider />

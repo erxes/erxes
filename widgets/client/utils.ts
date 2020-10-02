@@ -322,7 +322,7 @@ export const urlify = (text: string) => {
   const urlRegex = /(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w-]+)+[\w\-_~:/?#[\]@!&',;=.]+(?![^<>]*>|[^"]*?<\/a)/g;
 
   return text.replace(urlRegex, url => {
-    if(url.startsWith('http')) {
+    if (url.startsWith('http')) {
       return `<a href="${url}" target="_blank">${url}</a>`;
     }
 
