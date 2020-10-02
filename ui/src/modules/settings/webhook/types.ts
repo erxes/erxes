@@ -17,6 +17,7 @@ export type IWebhook = {
   _id: string;
   url: string;
   actions: IWebhookAction[];
+  status: string;
 };
 
 export type IWebhookDoc = {

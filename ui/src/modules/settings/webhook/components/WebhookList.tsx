@@ -58,6 +58,7 @@ class WebhookList extends React.Component<FinalProps, States> {
       return (
         <tr key={object._id}>
           <td>{object.url}</td>
+          <td>{object.status}</td>
           <RowActions
             {...this.props}
             object={object}
@@ -140,6 +141,7 @@ class WebhookList extends React.Component<FinalProps, States> {
         <thead>
           <tr>
             <th>{__('Enpoint')}</th>
+            <th>{__('Status')}</th>
             <th>{__('Actions')}</th>
           </tr>
         </thead>

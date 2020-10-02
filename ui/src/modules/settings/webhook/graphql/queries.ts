@@ -7,6 +7,7 @@ const webhookResponse = `
       }
       url
       token
+      status
 `;
 
 const webhookDetail = `
