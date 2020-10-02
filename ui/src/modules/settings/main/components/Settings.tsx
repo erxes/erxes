@@ -203,7 +203,7 @@ class Settings extends React.PureComponent {
               ''
             )}
               {this.renderBox(
-              'Webhooks',
+              'Outgoing webhooks',
               '/images/icons/erxes-11.svg',
               '/settings/webhooks',
               ''
