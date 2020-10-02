@@ -20,6 +20,7 @@ import ResponseTemplatesRoutes from './responseTemplates/routes';
 import ScriptsRoutes from './scripts/routes';
 import StatusRoutes from './status/routes';
 import TeamRoutes from './team/routes';
+import WebhookRoutes from './webhook/routes';
 
 const routes = () => (
   <React.Fragment>
@@ -43,6 +44,7 @@ const routes = () => (
     <LogRoutes key="LogRoutes" />
     <EmailDeliveryRoutes key="EmailDeliveryRoutes" />
     <GrowthHackRoutes key="GrowthHackRoutes" />
+    <WebhookRoutes key="WebhookRoutes"/>
   </React.Fragment>
 );
 

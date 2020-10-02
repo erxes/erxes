@@ -7,9 +7,11 @@ import Info from 'modules/common/components/Info';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import React from 'react';
+import { INTEGRATION_KINDS } from '../../constants';
 import SelectBrand from '../../containers/SelectBrand';
 import SelectChannels from '../../containers/SelectChannels';
 import { RefreshPermission } from '../../styles';
+import { IntegrationMutationVariables } from '../../types';
 
 const { REACT_APP_API_URL } = getEnv();
 
@@ -17,6 +19,7 @@ type CommonTypes = {
   name: string;
   brandId: string;
   channelIds: string[];
+  webhookData: any;
 };
 
 type Props = {
@@ -25,7 +28,11 @@ type Props = {
   name: string;
   brandId: string;
   channelIds: string[];
-  onSubmit: (id: string, { name, brandId, channelIds }: CommonTypes) => void;
+  webhookData: any;
+  onSubmit: (
+    id: string,
+    { name, brandId, channelIds, data }: IntegrationMutationVariables
+  ) => void;
   closeModal: () => void;
 };
 
@@ -36,7 +43,8 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
     this.state = {
       name: props.name || '',
       brandId: props.brandId || '',
-      channelIds: props.channelIds || []
+      channelIds: props.channelIds || [],
+      webhookData: props.webhookData || {}
     };
   }
 
@@ -74,9 +82,37 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
     return;
   };
 
+  renderScript = () => {
+    const { integrationKind } = this.props;
+
+    if (integrationKind !== INTEGRATION_KINDS.WEBHOOK) {
+      return null;
+    }
+
+    const { webhookData } = this.state;
+
+    const onScriptChange = e => {
+      this.setState({
+        webhookData: { ...webhookData, script: e.target.value }
+      });
+    };
+
+    return (
+      <FormGroup>
+        <ControlLabel required={true}>{__('Script')}</ControlLabel>
+        <FormControl
+          componentClass="textarea"
+          required={true}
+          defaultValue={webhookData.script}
+          onChange={onScriptChange}
+        />
+      </FormGroup>
+    );
+  };
+
   render() {
     const { integrationId, onSubmit, closeModal } = this.props;
-    const { name, brandId, channelIds } = this.state;
+    const { name, brandId, channelIds, webhookData } = this.state;
 
     const onBrandChange = e => {
       this.setState({ brandId: e.target.value });
@@ -93,7 +129,17 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
     const saveIntegration = e => {
       e.preventDefault();
 
-      onSubmit(integrationId, { name, brandId, channelIds });
+      let data;
+
+      switch (this.props.integrationKind) {
+        case 'webhook': {
+          data = webhookData;
+
+          break;
+        }
+      }
+
+      onSubmit(integrationId, { name, brandId, channelIds, data });
       closeModal();
     };
 
@@ -108,6 +154,8 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
             autoFocus={true}
           />
         </FormGroup>
+
+        {this.renderScript()}
 
         <SelectBrand
           isRequired={true}
