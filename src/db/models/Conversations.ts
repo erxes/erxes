@@ -1,6 +1,6 @@
 import { Model, model } from 'mongoose';
 import { ConversationMessages, Users } from '.';
-import { cleanHtml } from '../../data/utils';
+import { cleanHtml, sendToWebhook } from '../../data/utils';
 import { CONVERSATION_STATUSES } from './definitions/constants';
 import { IMessageDocument } from './definitions/conversationMessages';
 import { conversationSchema, IConversation, IConversationDocument } from './definitions/conversations';
@@ -70,7 +70,7 @@ export const loadClass = () => {
     public static async createConversation(doc: IConversation) {
       const now = new Date();
 
-      return Conversations.create({
+      const result = await Conversations.create({
         status: CONVERSATION_STATUSES.NEW,
         ...doc,
         content: cleanHtml(doc.content),
@@ -79,6 +79,10 @@ export const loadClass = () => {
         number: (await Conversations.find().countDocuments()) + 1,
         messageCount: 0,
       });
+
+      await sendToWebhook('create', 'conversation', result);
+
+      return result;
     }
 
     /**

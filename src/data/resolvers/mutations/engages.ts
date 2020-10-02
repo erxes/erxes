@@ -6,7 +6,7 @@ import { MESSAGE_KINDS, MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { registerOnboardHistory } from '../../utils';
+import { registerOnboardHistory, sendToWebhook } from '../../utils';
 import { send } from './engageUtils';
 
 interface IEngageMessageEdit extends IEngageMessage {
@@ -37,6 +37,8 @@ const engageMutations = {
     }
 
     const engageMessage = await EngageMessages.createEngageMessage(docModifier(doc));
+
+    await sendToWebhook('create', 'engageMessages', engageMessage);
 
     await send(engageMessage);
 

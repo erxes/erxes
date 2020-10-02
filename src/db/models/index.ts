@@ -34,6 +34,7 @@ import Tags from './Tags';
 import Tasks from './Tasks';
 import Tickets from './Tickets';
 import Users from './Users';
+import Webhooks from './Webhook';
 
 export {
   EmailDeliveries,
@@ -83,4 +84,5 @@ export {
   Checklists,
   ChecklistItems,
   OnboardingHistories,
+  Webhooks,
 };

@@ -1,5 +1,7 @@
 import * as telemetry from 'erxes-telemetry';
+import { getUniqueValue } from '../../../db/factories';
 import { Channels, Customers, EmailDeliveries, Integrations } from '../../../db/models';
+import { KIND_CHOICES } from '../../../db/models/definitions/constants';
 import { IIntegration, IMessengerData, IUiOptions } from '../../../db/models/definitions/integrations';
 import { IExternalIntegrationParams } from '../../../db/models/Integrations';
 import { debugExternalApi } from '../../../debuggers';
@@ -129,7 +131,14 @@ const integrationMutations = {
     { data, ...doc }: IExternalIntegrationParams & { data: object },
     { user, dataSources }: IContext,
   ) {
-    const integration = await Integrations.createExternalIntegration(doc, user._id);
+    const modifiedDoc: any = { ...doc };
+
+    if (modifiedDoc.kind === KIND_CHOICES.WEBHOOK) {
+      modifiedDoc.webhookData = { ...data };
+      modifiedDoc.webhookData.token = await getUniqueValue(Integrations, 'token');
+    }
+
+    const integration = await Integrations.createExternalIntegration(modifiedDoc, user._id);
 
     if (doc.channelIds) {
       await Channels.updateMany({ _id: { $in: doc.channelIds } }, { $push: { integrationIds: integration._id } });
@@ -154,12 +163,14 @@ const integrationMutations = {
     }
 
     try {
-      await dataSources.IntegrationsAPI.createIntegration(kind, {
-        accountId: doc.accountId,
-        kind: doc.kind,
-        integrationId: integration._id,
-        data: data ? JSON.stringify(data) : '',
-      });
+      if (KIND_CHOICES.WEBHOOK !== kind) {
+        await dataSources.IntegrationsAPI.createIntegration(kind, {
+          accountId: doc.accountId,
+          kind: doc.kind,
+          integrationId: integration._id,
+          data: data ? JSON.stringify(data) : '',
+        });
+      }
 
       telemetry.trackCli('integration_created', { type: doc.kind });
 
@@ -179,9 +190,21 @@ const integrationMutations = {
     return integration;
   },
 
-  async integrationsEditCommonFields(_root, { _id, name, brandId, channelIds }, { user }) {
+  async integrationsEditCommonFields(_root, { _id, name, brandId, channelIds, data }, { user }) {
     const integration = await Integrations.getIntegration(_id);
-    const updated = Integrations.updateBasicInfo(_id, { name, brandId });
+
+    const doc: any = { name, brandId, data };
+
+    switch (integration.kind) {
+      case KIND_CHOICES.WEBHOOK: {
+        doc.webhookData = data;
+
+        break;
+      }
+    }
+
+    await Integrations.update({ _id }, { $set: doc });
+    const updated = await Integrations.getIntegration(_id);
 
     await Channels.updateMany({ integrationIds: integration._id }, { $pull: { integrationIds: integration._id } });
 

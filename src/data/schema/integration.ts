@@ -13,6 +13,7 @@ export const types = `
     messengerData: JSON
     uiOptions: JSON
     isActive: Boolean
+    webhookData: JSON
 
     brand: Brand
     form: Form
@@ -153,7 +154,7 @@ export const mutations = `
     channelIds: [String]
     data: JSON): Integration
 
-  integrationsEditCommonFields(_id: String!, name: String!, brandId: String!, channelIds: [String]): Integration
+  integrationsEditCommonFields(_id: String!, name: String!, brandId: String!, channelIds: [String], data: JSON): Integration
 
   integrationsRemove(_id: String!): JSON
   integrationsRemoveAccount(_id: String!): JSON

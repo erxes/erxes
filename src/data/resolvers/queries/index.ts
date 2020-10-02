@@ -35,6 +35,7 @@ import tags from './tags';
 import tasks from './tasks';
 import tickets from './tickets';
 import users from './users';
+import webhooks from './webhooks';
 import widgets from './widgets';
 
 export default {
@@ -78,4 +79,5 @@ export default {
   ...robot,
   ...pipelineLabels,
   ...widgets,
+  ...webhooks,
 };

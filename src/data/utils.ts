@@ -8,7 +8,8 @@ import * as path from 'path';
 import * as requestify from 'requestify';
 import * as strip from 'strip';
 import * as xlsxPopulate from 'xlsx-populate';
-import { Configs, Customers, EmailDeliveries, Notifications, Users } from '../db/models';
+import { Configs, Customers, EmailDeliveries, Notifications, Users, Webhooks } from '../db/models';
+import { WEBHOOK_STATUS } from '../db/models/definitions/constants';
 import { EMAIL_DELIVERY_STATUS } from '../db/models/definitions/emailDeliveries';
 import { IUser, IUserDocument } from '../db/models/definitions/users';
 import { OnboardingHistories } from '../db/models/Robot';
@@ -868,12 +869,51 @@ export const getNextMonth = (date: Date): { start: number; end: number } => {
   return { start, end };
 };
 
+/**
+ * Send to webhook
+ */
+
+export const sendToWebhook = async (action: string, type: string, params: any) => {
+  const webhooks = await Webhooks.find({ 'actions.action': action, 'actions.type': type });
+
+  if (!webhooks) {
+    return;
+  }
+
+  let data = params;
+  for (const webhook of webhooks) {
+    if (!webhook.url || webhook.url.length === 0) {
+      continue;
+    }
+
+    if (action === 'delete') {
+      data = { type, object: { _id: params.object._id } };
+    }
+
+    sendRequest({
+      url: webhook.url,
+      headers: {
+        'Erxes-token': webhook.token || '',
+      },
+      method: 'post',
+      body: { data: JSON.stringify(data), action, type },
+    })
+      .then(async () => {
+        await Webhooks.updateStatus(webhook._id, WEBHOOK_STATUS.AVAILABLE);
+      })
+      .catch(async () => {
+        await Webhooks.updateStatus(webhook._id, WEBHOOK_STATUS.UNAVAILABLE);
+      });
+  }
+};
+
 export default {
   sendEmail,
   sendNotification,
   sendMobileNotification,
   readFile,
   createTransporter,
+  sendToWebhook,
 };
 
 export const cleanHtml = (content?: string) => strip(content || '').substring(0, 100);

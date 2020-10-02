@@ -53,7 +53,7 @@ const configQueries = {
       const erxesDomain = getEnv({ name: 'MAIN_APP_DOMAIN' });
       const erxesVersion = await sendRequest({ url: `${erxesDomain}/version.json`, method: 'GET' });
 
-      status.erxes.packageVersion = erxesVersion.packageVersion;
+      status.erxes.packageVersion = erxesVersion.packageVersion || '-';
     } catch (e) {
       status.erxes.packageVersion = '-';
     }
@@ -65,7 +65,7 @@ const configQueries = {
         method: 'GET',
       });
 
-      status.erxesIntegration = erxesIntegration;
+      status.erxesIntegration = erxesIntegration || '-';
     } catch (e) {
       status.erxesIntegration = {
         packageVersion: '-',

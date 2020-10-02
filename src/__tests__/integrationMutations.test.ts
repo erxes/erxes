@@ -15,6 +15,7 @@ import { Brands, Customers, EmailDeliveries, Integrations, Users } from '../db/m
 
 import { IntegrationsAPI } from '../data/dataSources';
 import { graphqlRequest } from '../db/connection';
+import { KIND_CHOICES } from '../db/models/definitions/constants';
 
 describe('mutations', () => {
   let _integration;
@@ -363,6 +364,17 @@ describe('mutations', () => {
 
     expect(response).toBeDefined();
 
+    args.kind = 'webhook';
+    args.data = { data: 'data' };
+
+    await graphqlRequest(mutation, 'integrationsCreateExternalIntegration', args, { dataSources });
+
+    const webhookResponse = await graphqlRequest(mutation, 'integrationsCreateExternalIntegration', args, {
+      dataSources,
+    });
+
+    expect(webhookResponse).toBeDefined();
+
     createIntegrationSpy.mockRestore();
   });
 
@@ -553,18 +565,19 @@ describe('mutations', () => {
 
   test('Integrations edit common fields', async () => {
     const mutation = `
-      mutation integrationsEditCommonFields($_id: String!, $name: String!, $brandId: String!, $channelIds: [String]) {
-        integrationsEditCommonFields(_id: $_id name: $name brandId: $brandId channelIds: $channelIds) {
+      mutation integrationsEditCommonFields($_id: String!, $name: String!, $brandId: String!, $channelIds: [String], $data: JSON) {
+        integrationsEditCommonFields(_id: $_id name: $name brandId: $brandId channelIds: $channelIds data: $data) {
           _id
           name
           brandId
+          webhookData
         }
       }
     `;
 
     const integration = await integrationFactory();
 
-    const doc = {
+    const doc: any = {
       _id: integration._id,
       name: 'updated',
       brandId: 'brandId',
@@ -576,6 +589,17 @@ describe('mutations', () => {
     expect(response._id).toBe(doc._id);
     expect(response.name).toBe(doc.name);
     expect(response.brandId).toBe(doc.brandId);
+
+    const webhookIntegration = await integrationFactory({ kind: KIND_CHOICES.WEBHOOK });
+
+    doc._id = webhookIntegration._id;
+    doc.data = {
+      script: 'script',
+    };
+
+    const webhookResponse = await graphqlRequest(mutation, 'integrationsEditCommonFields', doc);
+
+    expect(webhookResponse).toBeDefined();
   });
 
   test('test integrationsSendSms()', async () => {
