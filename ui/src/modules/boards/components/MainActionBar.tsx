@@ -234,7 +234,7 @@ class MainActionBar extends React.Component<Props> {
     );
 
     return (
-      <PageHeader>
+      <PageHeader id="board-pipeline-header">
         {actionBarLeft}
         {actionBarRight}
       </PageHeader>

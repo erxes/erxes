@@ -157,7 +157,7 @@ class GeneralSettings extends React.Component<Props, State> {
     );
 
     const content = (
-      <ContentBox>
+      <ContentBox id={'GeneralSettingsMenu'}>
         <CollapseContent title={__('General settings')}>
           <FormGroup>
             <ControlLabel>Language</ControlLabel>

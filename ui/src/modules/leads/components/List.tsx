@@ -133,7 +133,7 @@ class List extends React.Component<Props, {}> {
             <th>{__('Actions')}</th>
           </tr>
         </thead>
-        <tbody id="integrations">{this.renderRow()}</tbody>
+        <tbody>{this.renderRow()}</tbody>
       </Table>
     );
 

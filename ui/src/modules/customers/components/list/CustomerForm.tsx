@@ -244,6 +244,7 @@ class CustomerForm extends React.Component<Props, State> {
                 <FormGroup>
                   <ControlLabel required={true}>Email</ControlLabel>
                   <ModifiableSelect
+                    id="customerPrimaryEmailSave"
                     value={primaryEmail}
                     type="email"
                     options={this.getEmailsOptions(customer)}
