@@ -6,6 +6,7 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import { MarkdownWrapper } from 'modules/settings/styles';
 import React from 'react';
 import SelectBrand from '../../containers/SelectBrand';
 import SelectChannels from '../../containers/SelectChannels';
@@ -17,25 +18,31 @@ type Props = {
   channelIds: string[];
 };
 
-const typeOptions = [
-  {
-    label: 'Customer',
-    value: 'customer'
-  },
-  {
-    label: 'Conversation',
-    value: 'conversation'
-  }
-];
+const examplePayload = `{
+    "customerPrimaryEmail": "example@gmail.com",
+    "customerPrimaryPhone": 99999999,
+    "customerCode": 99999,
+    "customerFirstName": "David",
+    "customerLastName": "Anna",
+    "content": "Content"
+    "attachments": [
+      {
+        "url": "/images/example.png",
+        "text": "Example",
+        "size": 1048576, // 1mb
+        "type": "image/png"
+      }
+    ]
+}`;
 
 class Webhook extends React.Component<Props> {
-  generateDoc = (values: { name: string; type: string; brandId: string }) => {
+  generateDoc = (values: { name: string; script: string; brandId: string }) => {
     return {
       name: values.name,
       brandId: values.brandId,
       kind: 'webhook',
       data: {
-        type: values.type
+        script: values.script
       }
     };
   };
@@ -57,13 +64,15 @@ class Webhook extends React.Component<Props> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Type</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="type"
-            componentClass="select"
-            options={typeOptions}
-          />
+          <ControlLabel>Script</ControlLabel>
+          <FormControl {...formProps} name="script" componentClass="textarea" />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Example payload</ControlLabel>
+          <MarkdownWrapper>
+            <pre>{examplePayload}</pre>
+          </MarkdownWrapper>
         </FormGroup>
 
         <SelectBrand

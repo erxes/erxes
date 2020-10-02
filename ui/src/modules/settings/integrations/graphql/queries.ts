@@ -82,6 +82,7 @@ const integrations = `
         name
         code
       }
+      webhookData
       leadData
       formId
       tagIds

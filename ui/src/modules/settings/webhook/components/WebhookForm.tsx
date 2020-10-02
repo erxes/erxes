@@ -61,17 +61,12 @@ class WebhookForm extends React.Component<Props & ICommonFormProps, State> {
     this.setState({ selectedActions });
   };
 
-  collectValues = actions => {
-    const result = [] as any;
-    actions.map(action => {
-      const webhook =
-        WEBHOOK_ACTIONS.find(xxa => xxa.label === action.label) || {};
-
-      result.push(webhook);
-    });
-
-    return result;
-  };
+  collectValues = selectedActions =>
+    selectedActions.map(
+      selectedAction =>
+        WEBHOOK_ACTIONS.find(action => action.label === selectedAction.label) ||
+        {}
+    );
 
   generateDoc = (values: { _id?: string; url: string }) => {
     const { object } = this.props;

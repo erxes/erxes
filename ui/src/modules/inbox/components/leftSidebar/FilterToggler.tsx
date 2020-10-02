@@ -25,8 +25,9 @@ export default class FilterToggler extends React.PureComponent<Props, State> {
   onClick = e => {
     const { isOpen } = this.state;
 
-    this.setState({ isOpen: !isOpen });
-    this.props.toggle({ isOpen: !isOpen });
+    this.setState({ isOpen: !isOpen }, () => {
+      this.props.toggle({ isOpen: !isOpen });
+    });
   };
 
   render() {
