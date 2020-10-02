@@ -59,7 +59,7 @@ class Todo extends React.Component<Props, State> {
           </NavButton>
         )}
 
-        <NavButton onClick={onHide} right={true}>
+        <NavButton id="robot-feature-close" onClick={onHide} right={true}>
           <Icon icon="times" size={17} />
         </NavButton>
         {content}

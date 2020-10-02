@@ -173,7 +173,7 @@ export default class WorkArea extends React.Component<Props, State> {
     const showInternal = this.isMailConversation(kind) || kind === 'lead';
 
     const tagTrigger = (
-      <PopoverButton>
+      <PopoverButton id="conversationTags">
         {tags.length ? (
           <Tags tags={tags} limit={1} />
         ) : (
@@ -184,11 +184,11 @@ export default class WorkArea extends React.Component<Props, State> {
     );
 
     const assignTrigger = (
-      <AssignTrigger>
+      <AssignTrigger id="conversationAssignTrigger">
         {assignedUser && assignedUser._id ? (
           <AvatarImg src={getUserAvatar(assignedUser)} />
         ) : (
-          <Button btnStyle="simple" size="small">
+          <Button id="conversationAssignTo" btnStyle="simple" size="small">
             {__('Member')}
             <Icon icon="angle-down" />
           </Button>
@@ -233,7 +233,11 @@ export default class WorkArea extends React.Component<Props, State> {
     ) : null;
 
     const content = (
-      <ConversationWrapper innerRef={this.node} onScroll={this.onScroll}>
+      <ConversationWrapper
+        id="conversationWrapper"
+        innerRef={this.node}
+        onScroll={this.onScroll}
+      >
         <Conversation
           conversation={currentConversation}
           scrollBottom={this.scrollBottom}

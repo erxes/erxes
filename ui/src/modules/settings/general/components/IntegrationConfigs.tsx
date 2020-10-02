@@ -71,7 +71,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
     const { configsMap } = this.state;
 
     return (
-      <ContentBox>
+      <ContentBox id={'IntegrationSettingsMenu'}>
         <CollapseContent title="Facebook">
           <Info>
             <a

@@ -110,6 +110,7 @@ class LeftSidebar extends React.Component<Props, State> {
     return (
       <Sidebar.Header>
         <ToggleButton
+          id="btn-inbox-channel-visible"
           isActive={this.state.isOpen}
           onClick={this.onToggleSidebar}
         >
