@@ -38,6 +38,12 @@ export interface ILeadData {
   isRequireOnce?: boolean;
 }
 
+export interface IWebhookData {
+  script: string;
+  scriptEnabled: boolean;
+  token: string;
+}
+
 export interface ILeadIntegration extends IIntegration {
   brand: IBrand;
   tags: ITag[];

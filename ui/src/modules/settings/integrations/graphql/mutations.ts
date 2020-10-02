@@ -85,8 +85,8 @@ const integrationsCreateExternalIntegration = `
 `;
 
 const integrationsEditCommonFields = `
-  mutation integrationsEditCommonFields($_id: String!, $name: String!, $brandId: String!, $channelIds: [String]) {
-    integrationsEditCommonFields(_id: $_id, name: $name, brandId: $brandId, channelIds: $channelIds) {
+  mutation integrationsEditCommonFields($_id: String!, $name: String!, $brandId: String!, $channelIds: [String], $data: JSON) {
+    integrationsEditCommonFields(_id: $_id, name: $name, brandId: $brandId, channelIds: $channelIds, data: $data) {
       _id
     }
   }
