@@ -30,9 +30,14 @@ function Filter({ queryParams = {}, history }: IProps) {
 
     const onClick = () => onClickClose([paramKey]);
 
+    let text = paramKey;
+    if (paramKey === 'awaitingResponse') {
+      text = 'Awaiting Response';
+    }
+
     return (
       <Chip capitalize={true} onClick={onClick}>
-        {bool ? paramKey : __(cleanIntegrationKind(queryParams[paramKey]))}
+        {bool ? text : __(cleanIntegrationKind(queryParams[paramKey]))}
       </Chip>
     );
   };
@@ -85,6 +90,7 @@ function Filter({ queryParams = {}, history }: IProps) {
       {renderFilterParam('status', false)}
       {renderFilterParam('participating', true)}
       {renderFilterParam('unassigned', true)}
+      {renderFilterParam('awaitingResponse', true)}
       {renderFilterWithData('brandId', 'brand')}
       {renderFilterParam('integrationType', false)}
       {renderFilterWithData('tag', 'tag')}
