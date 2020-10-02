@@ -23,3 +23,7 @@ CURRENT_FOLDER=${PWD##*/}
 if [ $CURRENT_FOLDER = 'erxes' ]; then
   cd ..
 fi
+
+cd ui/
+echo 'Create `.env.sample` from default settings file and configure it on your own:'	echo 'Create `.env.sample` from default settings file and configure it on your own:'
+cp .env.sample .env	cp .env.sample .env
