@@ -129,6 +129,7 @@ class GroupList extends React.Component<IProps> {
   renderSidebarHeader() {
     const trigger = (
       <Button
+        id="permission-create-user-group"
         btnStyle="success"
         uppercase={false}
         icon="plus-circle"

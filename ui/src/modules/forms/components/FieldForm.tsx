@@ -173,6 +173,7 @@ class FieldForm extends React.Component<Props, State> {
           </ControlLabel>
 
           <FormControl
+            id="FieldLabel"
             type="text"
             value={field.text || ''}
             onChange={text}
@@ -183,6 +184,7 @@ class FieldForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel htmlFor="description">Field description</ControlLabel>
           <FormControl
+            id="FieldDescription"
             componentClass="textarea"
             value={field.description || ''}
             onChange={desc}
@@ -259,7 +261,7 @@ class FieldForm extends React.Component<Props, State> {
             {mode === 'create' ? 'Add' : 'Edit'} {field.type} field
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body>{this.renderContent()}</Modal.Body>
+        <Modal.Body id="ModalBody">{this.renderContent()}</Modal.Body>
       </Modal>
     );
   }

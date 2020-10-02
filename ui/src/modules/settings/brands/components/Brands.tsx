@@ -46,7 +46,12 @@ class Brands extends React.Component<Props, {}> {
     }
 
     const trigger = (
-      <Button btnStyle="simple" uppercase={false} icon="web-grid-alt">
+      <Button
+        id={'ManageIntegration'}
+        btnStyle="simple"
+        uppercase={false}
+        icon="web-grid-alt"
+      >
         Manage integration
       </Button>
     );

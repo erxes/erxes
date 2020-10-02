@@ -92,7 +92,7 @@ class PermissionList extends React.Component<Props> {
     return (
       <FilterWrapper>
         <strong>{__('Filters')}:</strong>
-        <FilterItem>
+        <FilterItem id="permission-choose-module">
           <Select
             placeholder={__('Choose module')}
             value={queryParams.module}
@@ -101,7 +101,7 @@ class PermissionList extends React.Component<Props> {
           />
         </FilterItem>
 
-        <FilterItem>
+        <FilterItem id="permission-choose-action">
           <Select
             placeholder={__('Choose action')}
             value={queryParams.action}
@@ -109,7 +109,7 @@ class PermissionList extends React.Component<Props> {
             onChange={this.setFilter.bind(this, 'action')}
           />
         </FilterItem>
-        <FilterItem>
+        <FilterItem id="permission-choose-users">
           <SelectTeamMembers
             label={__('Choose users')}
             name="userId"
@@ -166,7 +166,12 @@ class PermissionList extends React.Component<Props> {
 
   renderActionBar() {
     const trigger = (
-      <Button btnStyle="primary" icon="plus-circle" uppercase={false}>
+      <Button
+        id="permission-new-permission"
+        btnStyle="primary"
+        icon="plus-circle"
+        uppercase={false}
+      >
         New permission
       </Button>
     );
