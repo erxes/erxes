@@ -12,7 +12,7 @@ context('Check Deals', () => {
 
     cy.get('a[href="/settings"]').click();
 
-    cy.get('#SettingsSalesPipelineSettingsFather > :nth-child(1) > a').click();
+    cy.get('#SettingsSalesPipelineSettings > :nth-child(1) > a').click();
 
     cy.url().should('include', '/settings/boards/deal');
 

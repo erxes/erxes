@@ -12,7 +12,7 @@ context('Check Deals', () => {
 
     cy.get('a[href="/settings"]').click();
 
-    cy.get('#SettingsIntegrationSettingsFather')
+    cy.get('#SettingsIntegrationSettings')
       .find('a[href="/settings/brands"]')
       .click();
 

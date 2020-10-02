@@ -14,7 +14,7 @@ context('Settings', () => {
     cy.url().should('include', '/settings');
 
     // General Settings Main
-    cy.get('#SettingsGeneralSettingsFather').children().eq(0).click();
+    cy.get('#SettingsGeneralSettings').children().eq(0).click();
 
     //General System config
     cy.get('#SettingsSidebar').children().eq(0).click();

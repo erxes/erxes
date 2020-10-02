@@ -17,10 +17,10 @@ context('Send Email Verification', () => {
     cy.url().should('include', '/settings');
 
     // General Settings Main
-    cy.get('#SettingsGeneralSettingsFather').children().should('have.length', 10);
+    cy.get('#SettingsGeneralSettings').children().should('have.length', 10);
 
     //Segment
-    cy.get('#SettingsGeneralSettingsFather').children().eq(5).click();
+    cy.get('#SettingsGeneralSettings').children().eq(5).click();
     var segmentsSidebar = ["customer", "lead", "visitor","company"];
     for(let i=0; i<segmentsSidebar.length; i++){
       cy.get('#SegmentSidebar').children().eq(i).click()
@@ -64,7 +64,7 @@ context('Send Email Verification', () => {
 
     // Tags
     cy.get('#Settings').click();
-    cy.get('#SettingsGeneralSettingsFather').children().eq(4).click();
+    cy.get('#SettingsGeneralSettings').children().eq(4).click();
     cy.url().should('include', '/tags/conversation');
 
     for(let i=0; i<=4; i++){
@@ -83,7 +83,7 @@ context('Send Email Verification', () => {
 
     // Brand
     cy.get('#Settings').click();
-    cy.get('#SettingsIntegrationSettingsFather').children().eq(1).click();
+    cy.get('#SettingsIntegrationSettings').children().eq(1).click();
     cy.url().should('include', '/settings/brands');
     cy.wait(1500)
     cy.get('#BrandSidebar').find('li').then(li => {
@@ -108,7 +108,7 @@ context('Send Email Verification', () => {
 
     // Import & Export
     cy.get('#Settings').click();
-    cy.get('#SettingsGeneralSettingsFather').children().eq(6).click();
+    cy.get('#SettingsGeneralSettings').children().eq(6).click();
 
     const hasDownloadsIndexs = [2, 3, 4, 6];
     for(let i=0; i<11; i++){
@@ -128,7 +128,7 @@ context('Send Email Verification', () => {
         //already created segment count
         const trCount = Cypress.$(tr).length;
         cy.get('#Settings').click()
-        cy.get('#SettingsGeneralSettingsFather').children().eq(6).click();
+        cy.get('#SettingsGeneralSettings').children().eq(6).click();
 
         //file upload
         cy.fixture('customer.xlsx', 'binary')
