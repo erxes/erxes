@@ -82,7 +82,7 @@ function Component(
     />
   );
 
-  const renderExternaleWebsite = (links) => {
+  const renderExternaleWebsite = links => {
     if (!links || !links.website) {
       return null;
     }
@@ -90,11 +90,11 @@ function Component(
     return (
       <span>
         <a href={links.website} target="_blank" rel="noopener noreferrer">
-          {urlParser.extractRootDomain(links.website || '')}
+          {urlParser.extractRootDomain(links.website)}
         </a>
       </span>
-    )
-  }
+    );
+  };
 
   const content = (
     <div>

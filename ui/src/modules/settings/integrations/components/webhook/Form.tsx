@@ -8,7 +8,6 @@ import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import { MarkdownWrapper } from 'modules/settings/styles';
 import React from 'react';
-import ReactMarkdown from 'react-markdown';
 import SelectBrand from '../../containers/SelectBrand';
 import SelectChannels from '../../containers/SelectChannels';
 
@@ -19,14 +18,22 @@ type Props = {
   channelIds: string[];
 };
 
-const examplePayload = `{  
-        "customerPrimaryEmail": "example@gmail.com",  
-        "customerPrimaryPhone": 99999999,  
-        "customerCode": 99999,  
-        "customerFirstName": "David",  
-        "customerLastName": "Anna",  
-        "content": "Content"  
-  }`;
+const examplePayload = `{
+    "customerPrimaryEmail": "example@gmail.com",
+    "customerPrimaryPhone": 99999999,
+    "customerCode": 99999,
+    "customerFirstName": "David",
+    "customerLastName": "Anna",
+    "content": "Content"
+    "attachments": [
+      {
+        "url": "/images/example.png",
+        "text": "Example",
+        "size": 1048576, // 1mb
+        "type": "image/png"
+      }
+    ]
+}`;
 
 class Webhook extends React.Component<Props> {
   generateDoc = (values: { name: string; script: string; brandId: string }) => {
@@ -64,7 +71,7 @@ class Webhook extends React.Component<Props> {
         <FormGroup>
           <ControlLabel>Example payload</ControlLabel>
           <MarkdownWrapper>
-            <ReactMarkdown source={examplePayload} />
+            <pre>{examplePayload}</pre>
           </MarkdownWrapper>
         </FormGroup>
 

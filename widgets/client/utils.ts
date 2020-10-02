@@ -321,7 +321,7 @@ export const urlify = (text: string) => {
   // validate url except html a tag
   const urlRegex = /(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w-]+)+[\w\-_~:/?#[\]@!&',;=.]+(?![^<>]*>|[^"]*?<\/a)/g;
 
-  let content = '';
+  let content;
 
   if (text.includes('<a href="')) {
     content = text.replace('<a href="', '<a target="_blank" href="');
