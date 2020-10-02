@@ -10,7 +10,9 @@ context("Login", () => {
   it("Sign In", () => {
     cy.signIn();
 
-    sendMessage();
+    for(let i = 0; i < 13; i++){
+      sendMessage();
+    }
 
     cy.get("#btn-inbox-channel-visible").click();
     cy.get('i[icon="angle-down"]')
@@ -22,7 +24,7 @@ context("Login", () => {
 
     cy.get("#btn-inbox-channel-visible").click();
 
-    cy.get('button[icon="check-circle"]').click();
+    cy.get('button[icon="check-circle"]').eq(1).click();
 
     cy.get(":nth-child(2) > .icon-angle-down").click();
     cy.get('a[href="#link"]')
@@ -35,14 +37,12 @@ context("Login", () => {
 
     tags();
 
-    cy.get("#mask").click();
-
     cy.get('div[class="RichEditor-editor"]').click();
 
     cy.get("#conversationAssignTrigger").click();
     cy.get('input[placeholder="Search"]').type("Admin");
 
-    cy.get('li[class="none"]').click();
+    cy.get('li[class="none"]').eq(0).click();
 
     cy.wait(1000);
 
@@ -55,13 +55,14 @@ context("Login", () => {
         cy.get("#conversationWrapper").scrollTo("top", { duration: 5000 });
       });
 
-    cy.get("#mask").click();
   });
 });
 
-const randomm = fakeName();
+let randomm = fakeName();
 const sendMessage = () => {
-  cy.get("#mask").click();
+  randomm = fakeName(15);
+  cy.get('div[class="RichEditor-editor"]').click();
+  cy.get('div[class="RichEditor-editor"]').focused().clear();
   cy.get('div[class="RichEditor-editor"]').type(randomm);
   cy.get('button[icon="message"]').click();
 };

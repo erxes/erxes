@@ -71,14 +71,13 @@ context("Login", () => {
       .eq(3)
       .click();
 
-    cy.get('select[name="brandId"]').select("Tesla");
-
     cy.get('i[icon="plus-circle"]').click();
-
     cy.get('input[name="name"]').type(randomm);
-
     cy.get('textarea[name="description"]').type(randomm);
     cy.get('button[icon="check-circle"]').click();
+    cy.wait(1000);
+    cy.get('select[name="brandId"]').select(randomm);
+
     cy.get('select[id="languageCode"]').select("English");
 
     cy.get('div[style="background-color: rgb(244, 115, 115);"]').click();
