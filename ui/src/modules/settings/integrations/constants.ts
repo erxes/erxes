@@ -387,6 +387,7 @@ export const INTEGRATIONS = [
   },
   {
     name: 'Webhook',
+    description: 'Configure incoming webhooks',
     inMessenger: false,
     isAvailable: true,
     kind: 'webhook',
