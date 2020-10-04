@@ -15,7 +15,6 @@ trap notify ERR
 
 NODE_VERSION=v12.16.3
 
-ELASTICSEARCH_URL="http://localhost:9200"
 
 OS_NAME=notset
 DISTRO=notset
