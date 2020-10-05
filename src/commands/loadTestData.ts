@@ -37,9 +37,10 @@ import {
   Tickets,
   Users,
   UsersGroups,
+  Configs,
 } from '../db/models';
 import { IPipelineStage } from '../db/models/definitions/boards';
-import { LEAD_LOAD_TYPES, MESSAGE_TYPES } from '../db/models/definitions/constants';
+import { LEAD_LOAD_TYPES, MESSAGE_TYPES, TAG_TYPES } from '../db/models/definitions/constants';
 import { debugWorkers } from '../debuggers';
 import { initMemoryStorage } from '../inmemoryStorage';
 import { clearEmptyValues, generatePronoun, updateDuplicatedValue } from '../workers/utils';
@@ -212,6 +213,16 @@ const main = async () => {
   if (loadType.length === 0) {
     loadType = LEAD_LOAD_TYPES.DROPDOWN;
   }
+
+  await Tags.createTag({name: 'happy', type: TAG_TYPES.CUSTOMER, colorCode: '#4BBF6B'});
+  await Tags.createTag({name: 'angry', type: TAG_TYPES.CUSTOMER, colorCode: '#CD5A91'});
+  await Tags.createTag({name: 'other', type: TAG_TYPES.CUSTOMER, colorCode: '#F7CE53'});
+
+  await Tags.createTag({name: 'happy', type: TAG_TYPES.CONVERSATION, colorCode: '#4BBF6B'});
+  await Tags.createTag({name: 'angry', type: TAG_TYPES.CONVERSATION, colorCode: '#CD5A91'});
+  await Tags.createTag({name: 'other', type: TAG_TYPES.CONVERSATION, colorCode: '#F7CE53'});
+
+  await Configs.createOrUpdateConfig({ code: 'UPLOAD_SERVICE_TYPE', value: ['local']});
 
   await Integrations.createLeadIntegration(
     {
