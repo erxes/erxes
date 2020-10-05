@@ -34,6 +34,7 @@ describe('conversationQueries', () => {
     $ids: [String]
     $startDate: String
     $endDate: String
+    $awaitingResponse: String
   `;
 
   const commonParams = `
@@ -49,6 +50,7 @@ describe('conversationQueries', () => {
     ids: $ids
     startDate: $startDate
     endDate: $endDate
+    awaitingResponse: $awaitingResponse
   `;
 
   const qryConversations = `
@@ -436,6 +438,15 @@ describe('conversationQueries', () => {
     await conversationFactory({ integrationId: integration._id });
 
     const responses = await graphqlRequest(qryConversations, 'conversations', { participating: 'true' }, { user });
+
+    expect(responses.length).toBe(1);
+  });
+
+  test('Conversations filtered by awaiting response', async () => {
+    const conv = await conversationFactory({ integrationId: integration._id });
+    await conversationMessageFactory({ conversationId: conv._id, customerId: 'customerId' });
+
+    const responses = await graphqlRequest(qryConversations, 'conversations', { awaitingResponse: 'true' }, { user });
 
     expect(responses.length).toBe(1);
   });

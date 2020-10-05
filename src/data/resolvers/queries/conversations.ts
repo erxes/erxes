@@ -214,36 +214,40 @@ const conversationQueries = {
         break;
     }
 
-    // unassigned count
-    response.unassigned = await count({
+    const mainQuery = {
       ...qb.mainQuery(),
       ...queries.integrations,
       ...queries.integrationType,
+    };
+
+    // unassigned count
+    response.unassigned = await count({
+      ...mainQuery,
       ...qb.unassignedFilter(),
     });
 
     // participating count
     response.participating = await count({
-      ...qb.mainQuery(),
-      ...queries.integrations,
-      ...queries.integrationType,
+      ...mainQuery,
       ...qb.participatingFilter(),
     });
 
     // starred count
     response.starred = await count({
-      ...qb.mainQuery(),
-      ...queries.integrations,
-      ...queries.integrationType,
+      ...mainQuery,
       ...qb.starredFilter(),
     });
 
     // resolved count
     response.resolved = await count({
-      ...qb.mainQuery(),
-      ...queries.integrations,
-      ...queries.integrationType,
+      ...mainQuery,
       ...qb.statusFilter(['closed']),
+    });
+
+    // awaiting response count
+    response.awaitingResponse = await count({
+      ...mainQuery,
+      ...qb.awaitingResponse(),
     });
 
     return response;

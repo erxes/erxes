@@ -582,6 +582,7 @@ interface IConversationFactoryInput {
   number?: number;
   firstRespondedUserId?: string;
   firstRespondedDate?: dateType;
+  isCustomerRespondedLast?: boolean;
 }
 
 export const conversationFactory = (params: IConversationFactoryInput = {}) => {
