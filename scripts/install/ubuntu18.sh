@@ -231,20 +231,15 @@ erxes_integrations_dir=$erxes_root_dir/erxes-integrations
 
 # su $username -c "mkdir -p $erxes_ui_dir $erxes_widgets_dir $erxes_api_dir $erxes_engages_dir $erxes_logger_dir $erxes_syncer_dir $erxes_integrations_dir"
 
-ERXES_RELEASE_URL="https://releases.erxes.io/erxes/latest/download"
-ERXES_API_RELEASE_URL="https://releases.erxes.io/erxes-api/latest/download"
-ERXES_INTEGRATIONS_RELEASE_URL="https://releases.erxes.io/erxes-integrations/latest/download"
+ERXES_RELEASE_URL="https://github.com/erxes/erxes/releases/download/0.19.2/erxes-0.19.2.tar.gz"
+ERXES_API_RELEASE_URL="https://github.com/erxes/erxes-api/releases/download/0.19.2/erxes-api-0.19.2.tar.gz"
+ERXES_INTEGRATIONS_RELEASE_URL="https://github.com/erxes/erxes-integrations/releases/download/0.19.2/erxes-integrations-0.19.2.tar.gz"
 
 # download erxes
 su $username -c "curl -L $ERXES_RELEASE_URL | tar -xz"
-# TODO: delete renaming erxes/build to erxes after next release
-su $username -c "mv $erxes_ui_dir/build/* $erxes_ui_dir/"
-su $username -c "rmdir $erxes_ui_dir/build"
 
 # download erxes-api
 su $username -c "curl -L $ERXES_API_RELEASE_URL | tar -xz"
-# TODO: delete renaming erxes-elkSyncer/elkSyncer to erxes-elkSyncer after next release
-su $username -c "mv $erxes_syncer_dir/elkSyncer/* $erxes_syncer_dir/"
 
 # download integrations
 su $username -c "curl -L $ERXES_INTEGRATIONS_RELEASE_URL | tar -xz"
