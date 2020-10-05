@@ -1,15 +1,15 @@
-import * as classNames from "classnames";
-import * as dayjs from "dayjs";
-import * as React from "react";
-import * as xss from "xss";
-import { defaultAvatar } from "../../icons/Icons";
-import { IUser } from "../../types";
-import { __, readFile } from "../../utils";
-import { Attachment, User } from "../components/common";
-import { MESSAGE_TYPES } from "../containers/AppContext";
-import { IAttachment, IMessengerAppData, IVideoCallData } from "../types";
-import VideoCallMessage from "./VideoCallMessage";
-import VideoCallRequest from "./VideoCallRequest";
+import * as classNames from 'classnames';
+import * as dayjs from 'dayjs';
+import * as React from 'react';
+import * as xss from 'xss';
+import { defaultAvatar } from '../../icons/Icons';
+import { IUser } from '../../types';
+import { __, readFile, urlify } from '../../utils';
+import { Attachment, User } from '../components/common';
+import { MESSAGE_TYPES } from '../containers/AppContext';
+import { IAttachment, IMessengerAppData, IVideoCallData } from '../types';
+import VideoCallMessage from './VideoCallMessage';
+import VideoCallRequest from './VideoCallRequest';
 
 type Props = {
   content: string;
@@ -28,18 +28,18 @@ class Message extends React.Component<Props> {
   renderMessengerAppMessage() {
     const { messengerAppData } = this.props;
     const image = messengerAppData.customer.avatar || defaultAvatar;
-    const name = messengerAppData.customer.firstName || "N/A";
+    const name = messengerAppData.customer.firstName || 'N/A';
 
     return (
       <div className="app-message-box">
         <div className="user-info">
           <img src={readFile(image)} />
           <h2>
-            {__("Meet with")} {name}
+            {__('Meet with')} {name}
           </h2>
         </div>
         <div className="call-button">
-          <h3>{__("Meeting Ready")}</h3>
+          <h3>{__('Meeting Ready')}</h3>
           <a href={messengerAppData.hangoutLink} target="_blank">
             <button>Join Call</button>
           </a>
@@ -76,21 +76,21 @@ class Message extends React.Component<Props> {
       videoCallData,
       textColor
     } = this.props;
-    const messageClasses = classNames("erxes-message", {
+    const messageClasses = classNames('erxes-message', {
       attachment: attachments && attachments.length > 0,
-      "from-customer": !user
+      'from-customer': !user
     });
 
     const messageBackground = {
-      backgroundColor: !user ? color : "",
-      color: !user ? textColor : ""
+      backgroundColor: !user ? color : '',
+      color: !user ? textColor : ''
     };
 
     if (contentType === MESSAGE_TYPES.VIDEO_CALL) {
       return (
         <VideoCallMessage
           toggleVideo={this.props.toggleVideo}
-          videoCallData={videoCallData || { status: "end", url: "" }}
+          videoCallData={videoCallData || { status: 'end', url: '' }}
         />
       );
     }
@@ -106,14 +106,14 @@ class Message extends React.Component<Props> {
     return (
       <div style={messageBackground} className={messageClasses}>
         {this.renderAttachments()}
-        <span dangerouslySetInnerHTML={{ __html: xss(content) }} />
+        <span dangerouslySetInnerHTML={{ __html: xss(urlify(content)) }} />
       </div>
     );
   }
 
   render() {
     const { user, createdAt } = this.props;
-    const itemClasses = classNames({ "from-customer": !user });
+    const itemClasses = classNames({ 'from-customer': !user });
 
     return (
       <li className={itemClasses}>
@@ -122,9 +122,9 @@ class Message extends React.Component<Props> {
         <div className="date">
           <span
             className="erxes-tooltip"
-            data-tooltip={dayjs(createdAt).format("YYYY-MM-DD, HH:mm:ss")}
+            data-tooltip={dayjs(createdAt).format('YYYY-MM-DD, HH:mm:ss')}
           >
-            {dayjs(createdAt).format("LT")}
+            {dayjs(createdAt).format('LT')}
           </span>
         </div>
       </li>

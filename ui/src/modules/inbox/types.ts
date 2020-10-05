@@ -60,6 +60,7 @@ export interface IFacebookPost {
   erxesApiId?: string;
   attachments: string[];
   timestamp: Date;
+  permalink_url: string;
 }
 
 export interface IFacebookComment {
@@ -73,6 +74,7 @@ export interface IFacebookComment {
   timestamp: Date;
   customer: ICustomer;
   isResolved: boolean;
+  permalink_url: string;
 }
 
 export interface IEmail {
@@ -83,6 +85,8 @@ export interface IEmail {
 export interface IMail {
   integrationEmail: string;
   messageId?: string;
+  replyTo?: string;
+  inReplyTo?: string;
   headerId?: string;
   accountId?: string;
   replyToMessageId?: string;
@@ -214,13 +218,11 @@ export type CreateProductBoardMutationResponse = {
   ) => Promise<any>;
 };
 
-// query types
-
-export type ConvesationsQueryVariables = {
-  limit: number;
+export type ResolveAllMutationVariables = {
   channelId: string;
   status: string;
   unassigned: string;
+  awaitingResponse: string;
   brandId: string;
   tag: string;
   integrationType: string;
@@ -229,6 +231,17 @@ export type ConvesationsQueryVariables = {
   startDate: string;
   endDate: string;
 };
+
+export type ResolveAllMutationResponse = {
+  resolveAllMutation: (
+    doc: { variables: ResolveAllMutationVariables }
+  ) => Promise<any>;
+};
+
+// query types
+export type ConvesationsQueryVariables = {
+  limit: number;
+} & ResolveAllMutationVariables;
 
 export type LastConversationQueryResponse = {
   conversationsGetLast: IConversation;

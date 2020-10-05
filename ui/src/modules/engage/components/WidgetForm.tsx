@@ -159,6 +159,8 @@ class WidgetForm extends React.Component<Props, State> {
   }
 
   renderFormContent() {
+    const currentUser = this.props.currentUser;
+
     const editor = (options?) => (
       <EditorCK
         {...options}
@@ -169,6 +171,7 @@ class WidgetForm extends React.Component<Props, State> {
           { name: 'insert', items: ['strinsert'] },
           ...MAIL_TOOLBARS_CONFIG
         ]}
+        name={`engage_widget_${this.state.channel}_${currentUser._id}`}
       />
     );
 

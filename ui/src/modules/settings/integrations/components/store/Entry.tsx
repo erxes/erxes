@@ -106,7 +106,12 @@ function renderCreate(createUrl, kind) {
     const content = props => <Lead {...props} />;
 
     return (
-      <ModalTrigger title="Add Pop Ups" trigger={trigger} content={content} autoOpenKey="showPopupAddModal" />
+      <ModalTrigger
+        title="Add Pop Ups"
+        trigger={trigger}
+        content={content}
+        autoOpenKey="showPopupAddModal"
+      />
     );
   }
 
@@ -238,7 +243,7 @@ function Entry({
       <Box onClick={boxOnClick} isInMessenger={integration.inMessenger}>
         <img alt="logo" src={integration.logo} />
         <h5>
-        {integration.name} {getCount(kind, totalCount, messengerAppsCount)}
+          {integration.name} {getCount(kind, totalCount, messengerAppsCount)}
         </h5>
         <p>
           {__(integration.description)}

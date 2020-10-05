@@ -84,6 +84,7 @@ export const INTEGRATION_KINDS = {
   SMOOCH_TWILIO: 'smooch-twilio',
   WHATSAPP: 'whatsapp',
   TELNYX: 'telnyx',
+  WEBHOOK: 'webhook',
   ALL: [
     { text: 'Messenger', value: 'messenger' },
     { text: 'Facebook post', value: 'facebook-post' },
@@ -107,7 +108,8 @@ export const INTEGRATION_KINDS = {
     { text: 'Line', value: 'smooch-line' },
     { text: 'Twilio', value: 'smooch-twilio' },
     { text: 'WhatsApp', value: 'whatsapp' },
-    { text: 'Telnyx', value: 'telnyx' }
+    { text: 'Telnyx', value: 'telnyx' },
+    { text: 'Webhook', value: 'webhook' }
   ]
 };
 
@@ -382,6 +384,16 @@ export const INTEGRATIONS = [
     createModal: 'telnyx',
     category:
       'All integrations, For support teams, For marketing teams, Conversation'
+  },
+  {
+    name: 'Webhook',
+    description: 'Configure incoming webhooks',
+    inMessenger: false,
+    isAvailable: true,
+    kind: 'webhook',
+    logo: '/images/integrations/webhook.png',
+    createModal: 'webhook',
+    category: 'All integrations, For support teams, Conversation'
   }
 ];
 

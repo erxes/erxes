@@ -7,6 +7,8 @@ import Spinner from 'modules/common/components/Spinner';
 import { Alert, withProps } from 'modules/common/utils';
 import { queries as messageQueries } from 'modules/inbox/graphql';
 import { IMail } from 'modules/inbox/types';
+import { EmailTemplatesQueryResponse } from 'modules/settings/emailTemplates/containers/List';
+import { queries as templatesQuery } from 'modules/settings/emailTemplates/graphql';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
 import { graphql } from 'react-apollo';
@@ -37,6 +39,7 @@ type Props = {
 type FinalProps = {
   currentUser: IUser;
   sendMailMutation: any;
+  emailTemplatesQuery: EmailTemplatesQueryResponse;
   integrationsQuery: IntegrationsQueryResponse;
 } & Props;
 
@@ -48,6 +51,7 @@ const MailFormContainer = (props: FinalProps) => {
     isReply,
     closeModal,
     closeReply,
+    emailTemplatesQuery,
     sendMailMutation,
     currentUser
   } = props;
@@ -162,6 +166,7 @@ const MailFormContainer = (props: FinalProps) => {
     sendMail,
     integrations,
     currentUser,
+    emailTemplates: emailTemplatesQuery.emailTemplates,
     emailSignatures: currentUser.emailSignatures || []
   };
 
@@ -179,6 +184,12 @@ export default withProps<Props>(
         };
       }
     }),
+    graphql<Props, EmailTemplatesQueryResponse>(
+      gql(templatesQuery.emailTemplates),
+      {
+        name: 'emailTemplatesQuery'
+      }
+    ),
     graphql<Props>(gql(mutations.integrationSendMail), {
       name: 'sendMailMutation',
       options: () => ({

@@ -92,7 +92,7 @@ const BasicInfoContainer = (props: FinalProps) => {
 };
 
 const generateOptions = () => ({
-  refetchQueries: ['companieMain', 'companyCounts']
+  refetchQueries: ['companiesMain', 'companyCounts']
 });
 
 export default withProps<Props>(

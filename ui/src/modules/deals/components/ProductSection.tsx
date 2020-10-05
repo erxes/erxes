@@ -4,7 +4,7 @@ import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
-import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
+import { SectionBodyItem } from 'modules/layout/styles';
 import { IProduct } from 'modules/settings/productService/types';
 import React from 'react';
 import ProductForm from '../containers/product/ProductForm';
@@ -109,14 +109,14 @@ function ProductSection({
       )}
       name="showProductAndService"
     >
-      <SectionBody>
+      <div>
         {products.map((product, index) => (
           <SectionBodyItem key={index}>
             {renderProduct(product)}
           </SectionBodyItem>
         ))}
         {products.length === 0 && <EmptyState icon="list-ul" text="No items" />}
-      </SectionBody>
+      </div>
     </Box>
   );
 }

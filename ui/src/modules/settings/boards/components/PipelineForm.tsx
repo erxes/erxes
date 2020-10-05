@@ -1,6 +1,6 @@
 import { COLORS } from 'modules/boards/constants';
 import { FlexContent } from 'modules/boards/styles/item';
-import { IPipeline, IStage } from 'modules/boards/types';
+import { IBoard, IPipeline, IStage } from 'modules/boards/types';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
@@ -16,6 +16,7 @@ import Modal from 'react-bootstrap/Modal';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
+import Select from 'react-select-plus';
 import { SelectMemberStyled } from '../styles';
 import { IOption } from '../types';
 import Stages from './Stages';
@@ -26,6 +27,7 @@ type Props = {
   boardId: string;
   pipeline?: IPipeline;
   stages?: IStage[];
+  boards: IBoard[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
   options?: IOption;
@@ -40,6 +42,7 @@ type State = {
   backgroundColor: string;
   isCheckUser: boolean;
   excludeCheckUserIds: string[];
+  boardId: string;
 };
 
 class PipelineForm extends React.Component<Props, State> {
@@ -55,7 +58,8 @@ class PipelineForm extends React.Component<Props, State> {
       backgroundColor:
         (pipeline && pipeline.bgColor) || colors.colorPrimaryDark,
       isCheckUser: pipeline ? pipeline.isCheckUser || false : false,
-      excludeCheckUserIds: pipeline ? pipeline.excludeCheckUserIds || [] : []
+      excludeCheckUserIds: pipeline ? pipeline.excludeCheckUserIds || [] : [],
+      boardId: props.boardId || ''
     };
   }
 
@@ -90,13 +94,14 @@ class PipelineForm extends React.Component<Props, State> {
     name: string;
     visibility: string;
   }) => {
-    const { pipeline, type, boardId, extraFields } = this.props;
+    const { pipeline, type, extraFields } = this.props;
     const {
       selectedMemberIds,
       stages,
       backgroundColor,
       isCheckUser,
-      excludeCheckUserIds
+      excludeCheckUserIds,
+      boardId
     } = this.state;
     const finalValues = values;
 
@@ -108,7 +113,7 @@ class PipelineForm extends React.Component<Props, State> {
       ...finalValues,
       ...extraFields,
       type,
-      boardId: pipeline ? pipeline.boardId : boardId,
+      boardId,
       stages: stages.filter(el => el.name),
       memberIds: selectedMemberIds,
       bgColor: backgroundColor,
@@ -170,6 +175,30 @@ class PipelineForm extends React.Component<Props, State> {
     );
   }
 
+  renderBoards() {
+   const { boards } = this.props;
+
+    const boardOptions = boards.map(board => ({
+      value: board._id,
+      label: board.name
+    }));
+
+    const onChange = item => this.setState({boardId: item.value});
+
+    return (
+      <FormGroup>
+        <ControlLabel required={true}>Board</ControlLabel>
+        <Select
+          placeholder={__('Choose a board')}
+          value={this.state.boardId}
+          options={boardOptions}
+          onChange={onChange}
+          clearable={false}
+        />
+      </FormGroup>
+    );
+  }
+
   renderContent = (formProps: IFormProps) => {
     const {
       pipeline,
@@ -198,7 +227,7 @@ class PipelineForm extends React.Component<Props, State> {
     );
 
     return (
-      <>
+      <div id="manage-pipeline-modal">
         <Modal.Header closeButton={true}>
           <Modal.Title>
             {pipeline ? `Edit ${pipelineName}` : `Add ${pipelineName}`}
@@ -254,6 +283,8 @@ class PipelineForm extends React.Component<Props, State> {
             </FormGroup>
           </FlexContent>
 
+          {this.renderBoards()}
+
           {this.renderSelectMembers()}
 
           <FormGroup>
@@ -271,20 +302,23 @@ class PipelineForm extends React.Component<Props, State> {
 
           <FormGroup>
             <ControlLabel>Stages</ControlLabel>
-            <Stages
-              options={options}
-              type={this.props.type}
-              stages={this.state.stages}
-              onChangeStages={this.onChangeStages}
-            />
+            <div id="stages-in-pipeline-form">
+              <Stages
+                options={options}
+                type={this.props.type}
+                stages={this.state.stages}
+                onChangeStages={this.onChangeStages}
+              />
+            </div>
           </FormGroup>
 
           <Modal.Footer>
             <Button
               btnStyle="simple"
               type="button"
-              icon="cancel-1"
+              icon="times-circle"
               onClick={closeModal}
+              uppercase={false}
             >
               Cancel
             </Button>
@@ -299,7 +333,7 @@ class PipelineForm extends React.Component<Props, State> {
             })}
           </Modal.Footer>
         </Modal.Body>
-      </>
+      </div>
     );
   };
 

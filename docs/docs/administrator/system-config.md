@@ -713,7 +713,7 @@ When you start erxes-integration repo webhook will automatically created accordi
 
 - If your account is registered less than a month ago, you need to pass a secure authorization to reduce the likelihood of blocking or authorization failure.
 
-  ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/chat-api-whatsapp-1.gif">
+  ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/chat-api-whatsapp-1.gif)
 
 4. Click on **Add Integrations** and select WhatsApp.
 
@@ -757,7 +757,6 @@ When you start erxes-integration repo webhook will automatically created accordi
 
 - You can create an account for testing and development purpose by registering on the [Viber admin panel](https://partners.viber.com/).
 - Fill out all required fields and create your Bot account.
-  ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-viber-3">
 - You can share the QR code with your customers and partners.
 
 2. Once you have your Public Account token, copy and paste it into Viber token field on the Add Viber page from erxes App Store. Then click on “Save”.
@@ -779,8 +778,6 @@ When you start erxes-integration repo webhook will automatically created accordi
 3. Type /newbot and send it to BotFather. Then follow the instructions from BotFather to create a bot.
 
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-telegram-4.png)
-
-![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-telegram-5">
 
 - You can share the link with your customers and partners and they can connect with you.
 
@@ -834,8 +831,6 @@ When you start erxes-integration repo webhook will automatically created accordi
 
 9. Get your QR Code from Messaging API tab and share the QR Code with your customers and partners. This code will allow them to connect with you using LINE chat.
 
-![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-line-9">
-
 10. Go to Setting=> Channel=> Add new channel=> Connect LINE integration.
 
 ### Twilio SMS
@@ -849,8 +844,6 @@ When you start erxes-integration repo webhook will automatically created accordi
 - You can select a number from any country available on Twilio. The only prerequisite for Erxes integration to work is SMS capability. Bear in mind that Twilio does offer numbers without SMS functionality, those won't work.
 
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-twilio-1.png)
-
-![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/smooch-twilio-4">
 
 3. Copy and paste your ACCOUNT SID and AUTH TOKEN to corresponding fields on the add Twilio SMS page from erxes App Store.
 

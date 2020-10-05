@@ -2,11 +2,10 @@ import Box from 'modules/common/components/Box';
 import EmptyState from 'modules/common/components/EmptyState';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
-import Tip from 'modules/common/components/Tip';
 import { ButtonRelated } from 'modules/common/styles/main';
 import { __, urlParser } from 'modules/common/utils';
 import GetConformity from 'modules/conformity/containers/GetConformity';
-import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
+import { SectionBodyItem } from 'modules/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import CompanyChooser from '../../containers/CompanyChooser';
@@ -83,24 +82,33 @@ function Component(
     />
   );
 
+  const renderExternaleWebsite = links => {
+    if (!links || !links.website) {
+      return null;
+    }
+
+    return (
+      <span>
+        <a href={links.website} target="_blank" rel="noopener noreferrer">
+          {urlParser.extractRootDomain(links.website)}
+        </a>
+      </span>
+    );
+  };
+
   const content = (
-    <SectionBody>
+    <div>
       {items.map((company, index) => (
         <SectionBodyItem key={index}>
           <Link to={`/companies/details/${company._id}`}>
-            <Icon icon="arrow-to-right" />
+            {company.primaryName || 'Unknown'}
           </Link>
-          <span>{company.primaryName || 'Unknown'}</span>
-          <Tip text={company.website || ''}>
-            <a href={`//${company.website}`}>
-              {urlParser.extractRootDomain(company.website || '')}
-            </a>
-          </Tip>
+          {renderExternaleWebsite(company.links)}
         </SectionBodyItem>
       ))}
       {items.length === 0 && <EmptyState icon="building" text="No company" />}
       {mainTypeId && mainType && relQuickButtons}
-    </SectionBody>
+    </div>
   );
 
   return (

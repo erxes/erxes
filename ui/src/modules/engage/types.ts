@@ -59,6 +59,14 @@ export interface IEngageSmsStats {
   delivery_unconfirmed: number;
 }
 
+export interface IDeliveryReport {
+  _id: string;
+  engageMessageId: string;
+  customerId: string;
+  status: string;
+  createdAt: string;
+}
+
 export interface IEmailDelivery {
   _id: string;
   subject: string;
@@ -71,6 +79,9 @@ export interface IEmailDelivery {
   kind: string;
   userId: string;
   customerId: string;
+
+  status?: string;
+  createdAt?: string;
 
   fromUser: IUser;
   fromEmail: string;

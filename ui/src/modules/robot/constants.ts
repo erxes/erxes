@@ -259,11 +259,12 @@ export const FEATURE_DETAILS = {
 
 export const FEATURES = [
   {
-    name: '<b>Scale your business</b> with Growth Hacking',
+    name: '<b id="first-feature">Scale your business</b> with Growth Hacking',
     key: 'growthHacks'
   },
   {
-    name: '<b>Drive leads to a successful close</b> with Sales Pipeline',
+    name:
+      '<b id="second-feature">Drive leads to a successful close</b> with Sales Pipeline',
     key: 'deals'
   },
   {

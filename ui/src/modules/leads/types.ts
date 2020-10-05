@@ -35,6 +35,13 @@ export interface ILeadData {
   tagIds?: string[];
   getTags?: ITag[];
   form?: IForm;
+  isRequireOnce?: boolean;
+}
+
+export interface IWebhookData {
+  script: string;
+  scriptEnabled: boolean;
+  token: string;
 }
 
 export interface ILeadIntegration extends IIntegration {

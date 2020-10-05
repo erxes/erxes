@@ -23,6 +23,9 @@ import {
 } from '../../containers/utils';
 
 import { IUser } from 'modules/auth/types';
+import { generateEmailTemplateParams } from 'modules/engage/utils';
+import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
+import EmailTemplate from './emailTemplate/EmailTemplate';
 import MailChooser from './MailChooser';
 import {
   AttachmentContainer,
@@ -40,6 +43,7 @@ import {
 import { FlexRow, Subject } from './styles';
 
 type Props = {
+  emailTemplates: IEmailTemplate[];
   currentUser: IUser;
   integrationId?: string;
   integrations: IIntegration[];
@@ -60,6 +64,7 @@ type Props = {
 
 type State = {
   status?: string;
+  templateId: string;
   cc?: string;
   bcc?: string;
   to?: string;
@@ -103,6 +108,8 @@ class MailForm extends React.Component<Props, State> {
       cc,
       bcc,
       to: props.isForward ? '' : sender,
+
+      templateId: '',
 
       hasCc: cc ? cc.length > 0 : false,
       hasBcc: bcc ? bcc.length > 0 : false,
@@ -184,7 +191,14 @@ class MailForm extends React.Component<Props, State> {
       return Alert.error('This message must have at least one recipient.');
     }
 
-    const { references, headerId, threadId, messageId } = mailData;
+    const {
+      references,
+      headerId,
+      inReplyTo,
+      replyTo,
+      threadId,
+      messageId
+    } = mailData;
 
     this.setState({ isLoading: true });
 
@@ -192,6 +206,8 @@ class MailForm extends React.Component<Props, State> {
 
     const variables = {
       headerId,
+      replyTo,
+      inReplyTo,
       references,
       threadId,
       attachments,
@@ -337,8 +353,12 @@ class MailForm extends React.Component<Props, State> {
     }
 
     // reply
-    if (!integrationEmail || !fromEmail) {
+    if (!integrationEmail && !fromEmail) {
       return '';
+    }
+
+    if (!integrationEmail && to !== fromEmail) {
+      return fromEmail;
     }
 
     let receiver;
@@ -360,6 +380,20 @@ class MailForm extends React.Component<Props, State> {
     }
 
     return receiver;
+  };
+
+  findTemplate = id => {
+    const template = this.props.emailTemplates.find(t => t._id === id);
+
+    if (template) {
+      return template.content;
+    }
+
+    return '';
+  };
+
+  templateChange = value => {
+    this.setState({ content: this.findTemplate(value), templateId: value });
   };
 
   onAttachment = (e: React.FormEvent<HTMLInputElement>) => {
@@ -635,7 +669,7 @@ class MailForm extends React.Component<Props, State> {
 
   renderButtons() {
     const { kind } = this.state;
-    const { isReply, toggleReply } = this.props;
+    const { isReply, emailTemplates, toggleReply } = this.props;
 
     const inputProps = {
       type: 'file',
@@ -661,6 +695,11 @@ class MailForm extends React.Component<Props, State> {
               icon: 'trash-alt',
               onClick: toggleReply
             })}
+
+            <EmailTemplate
+              onSelect={this.templateChange}
+              targets={generateEmailTemplateParams(emailTemplates || [])}
+            />
           </ToolBar>
           {this.state.isUploading ? (
             <Uploading>
@@ -697,6 +736,7 @@ class MailForm extends React.Component<Props, State> {
           autoFocus={!this.props.isForward}
           autoGrow={true}
           autoGrowMinHeight={120}
+          name={`mail_${this.state.to || this.props.currentUser._id}`}
         />
       </MailEditorWrapper>
     );

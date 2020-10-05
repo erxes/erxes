@@ -31,9 +31,14 @@ const Actions = styledTS<{ isSmall?: boolean }>(styled.div)`
   justify-content: space-between;
   padding: 0 ${dimensions.coreSpacing}px ${dimensions.unitSpacing}px;
 
-  > a,
-  button {
+  > a, button {
     flex: 1;
+    padding: 4px 15px;
+
+    i {
+      font-size: 12px;
+      line-height: 16px;
+    }
   }
 
   > div {

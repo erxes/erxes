@@ -22,11 +22,12 @@ export default class FilterToggler extends React.PureComponent<Props, State> {
     this.state = { isOpen: props.isOpen };
   }
 
-  onClick = () => {
+  onClick = e => {
     const { isOpen } = this.state;
 
-    this.setState({ isOpen: !isOpen });
-    this.props.toggle({ isOpen: !isOpen });
+    this.setState({ isOpen: !isOpen }, () => {
+      this.props.toggle({ isOpen: !isOpen });
+    });
   };
 
   render() {
@@ -35,8 +36,8 @@ export default class FilterToggler extends React.PureComponent<Props, State> {
 
     return (
       <>
-        <GroupTitle onClick={this.onClick} isOpen={isOpen}>
-          <span>
+        <GroupTitle isOpen={isOpen}>
+          <span onClick={this.onClick}>
             {__(groupText)}
             <Icon icon="angle-down" />
           </span>

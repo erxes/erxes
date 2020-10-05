@@ -316,3 +316,16 @@ export const setErxesProperty = (name: string, value: any) => {
 export const newLineToBr = (content: string) => {
   return content.replace(/\r\n|\r|\n/g, '<br />');
 };
+
+export const urlify = (text: string) => {
+  // validate url except html a tag
+  const urlRegex = /(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w-]+)+[\w\-_~:/?#[\]@!&',;=.]+(?![^<>]*>|[^"]*?<\/a)/g;
+
+  return text.replace(urlRegex, url => {
+    if (url.startsWith('http')) {
+      return `<a href="${url}" target="_blank">${url}</a>`;
+    }
+
+    return `<a href="http://${url}" target="_blank">${url}</a>`;
+  });
+};

@@ -1,16 +1,16 @@
-import * as React from "react";
-import { AppConsumer } from "../../messenger/containers/AppContext";
-import { IEmailParams, IIntegration } from "../../types";
-import { __, fixErrorMessage } from "../../utils";
+import * as React from 'react';
+import { AppConsumer } from '../../messenger/containers/AppContext';
+import { IEmailParams, IIntegration } from '../../types';
+import { __, fixErrorMessage } from '../../utils';
 import {
   FieldValue,
   ICurrentStatus,
   IFieldError,
   IForm,
   IFormDoc
-} from "../types";
-import { TopBar } from "./";
-import Field from "./Field";
+} from '../types';
+import { TopBar } from './';
+import Field from './Field';
 
 type Props = {
   form: IForm;
@@ -55,7 +55,7 @@ class Form extends React.Component<Props, State> {
     const nextStatus = nextProps.currentStatus.status;
 
     // after successfull save and create new button, reset doc state
-    if (currentStatus !== nextStatus && nextStatus === "INITIAL") {
+    if (currentStatus !== nextStatus && nextStatus === 'INITIAL') {
       this.setState({ doc: this.resetDocState() });
     }
 
@@ -92,7 +92,7 @@ class Form extends React.Component<Props, State> {
         text: field.text,
         type: field.type,
         validation: field.validation,
-        value: ""
+        value: ''
       };
     });
 
@@ -100,7 +100,7 @@ class Form extends React.Component<Props, State> {
   }
 
   renderHead(title: string) {
-    const { hasTopBar, color = "" } = this.props;
+    const { hasTopBar, color = '' } = this.props;
 
     if (hasTopBar) {
       return <TopBar title={title} color={color} />;
@@ -134,7 +134,7 @@ class Form extends React.Component<Props, State> {
     return (
       <>
         {nonFieldError ? (
-          <p style={{ color: "red" }}>{fixErrorMessage(nonFieldError.text)}</p>
+          <p style={{ color: 'red' }}>{fixErrorMessage(nonFieldError.text)}</p>
         ) : null}
         {renderedFields}
       </>
@@ -160,11 +160,11 @@ class Form extends React.Component<Props, State> {
             type="button"
             onClick={this.onSubmit}
             className={`erxes-button btn-block ${
-              isSubmitting ? "disabled" : ""
+              isSubmitting ? 'disabled' : ''
             }`}
             disabled={isSubmitting}
           >
-            {isSubmitting ? __("Loading ...") : form.buttonText || __("Send")}
+            {isSubmitting ? __('Loading ...') : form.buttonText || __('Send')}
           </button>
         </div>
       </div>
@@ -182,7 +182,7 @@ class Form extends React.Component<Props, State> {
             <p>
               {thankContent ||
                 __(
-                  "Thanks for your message. We will respond as soon as we can."
+                  'Thanks for your message. We will respond as soon as we can.'
                 )}
             </p>
           </div>
@@ -194,7 +194,7 @@ class Form extends React.Component<Props, State> {
   render() {
     const { form, currentStatus, sendEmail, integration } = this.props;
 
-    if (currentStatus.status === "SUCCESS") {
+    if (currentStatus.status === 'SUCCESS') {
       const {
         successAction,
         redirectUrl,
@@ -208,13 +208,15 @@ class Form extends React.Component<Props, State> {
       } = integration.leadData;
 
       // redirect to some url
-      if (successAction === "redirect") {
+      if (successAction === 'redirect') {
         window.open(redirectUrl);
       }
 
       // send email to user and admins
-      if (successAction === "email") {
-        const emailField = form.fields.find(f => f.validation === "email");
+      if (successAction === 'email') {
+        const emailField = form.fields.find(
+          f => f.validation === 'email' || f.type === 'email'
+        );
 
         if (emailField) {
           const email = this.state.doc[emailField._id].value as string;
@@ -257,7 +259,7 @@ export default (props: Props) => (
           // if lead is in a messenger, return messenger theme color (getColor())
           // else return lead theme color
           color={
-            getColor ? getColor() : props.integration.leadData.themeColor || ""
+            getColor ? getColor() : props.integration.leadData.themeColor || ''
           }
         />
       );

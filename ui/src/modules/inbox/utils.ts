@@ -14,7 +14,8 @@ export const generateParams = queryParams => ({
   participating: queryParams.participating,
   starred: queryParams.starred,
   startDate: queryParams.startDate,
-  endDate: queryParams.endDate
+  endDate: queryParams.endDate,
+  awaitingResponse: queryParams.awaitingResponse
 });
 
 export const refetchSidebarConversationsOptions = () => {
@@ -71,19 +72,14 @@ export const extractEmail = (str?: string) => {
 };
 
 export const urlify = (text: string) => {
-  const urlRegex = /(\b((https?|ftp|file):\/\/)?(www\.)[-A-Z0-9+&@#%?=~_|!:,.;]*[-A-Z0-9+&@#%=~_|])/gi;
+  // validate url except html a tag
+  const urlRegex = /(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w-]+)+[\w\-_~:/?#[\]@!&',;=.]+(?![^<>]*>|[^"]*?<\/a)/g;
 
-  let content = text.replace(urlRegex, url => {
-    if (url.includes('http://') || url.includes('https://')) {
-      return '<a href="' + url + '" target="_blank">' + url + '</a>';
+  return text.replace(urlRegex, url => {
+    if (url.startsWith('http')) {
+      return `<a href="${url}" target="_blank">${url}</a>`;
     }
 
-    return '<a href="https://' + url + '" target="_blank">' + url + '</a>';
+    return `<a href="http://${url}" target="_blank">${url}</a>`;
   });
-
-  if (text.includes('<a href="')) {
-    content = text.replace('<a href="', '<a target="_blank" href="');
-  }
-
-  return content;
 };

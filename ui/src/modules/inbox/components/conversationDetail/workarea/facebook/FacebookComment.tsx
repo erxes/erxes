@@ -216,8 +216,13 @@ export default class FacebookComment extends React.Component<
             <Reply type={statusText}>
               <span onClick={this.changeStatusComment}>{statusText}</span>
             </Reply>
-
-            <Date type="comment" timestamp={comment.timestamp} />
+            <span>
+              <Date
+                type="comment"
+                timestamp={comment.timestamp}
+                permalink_url={comment.permalink_url}
+              />
+            </span>
           </User>
         </ChildPost>
         {this.state.hasReplies && (

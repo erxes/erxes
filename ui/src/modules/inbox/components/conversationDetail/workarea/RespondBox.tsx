@@ -95,22 +95,6 @@ class RespondBox extends React.Component<Props, State> {
     return true;
   }
 
-  shouldComponentUpdate(nextProps: Props) {
-    if (this.props.conversation._id !== nextProps.conversation._id) {
-      if (this.isContentWritten()) {
-        localStorage.setItem(this.props.conversation._id, this.state.content);
-      } else {
-        // if clear content
-        localStorage.removeItem(this.props.conversation._id);
-      }
-
-      // clear previous content
-      this.setState({ content: '' });
-    }
-
-    return true;
-  }
-
   componentDidUpdate(prevProps, prevState) {
     const { sending, content, responseTemplate } = this.state;
 
@@ -144,6 +128,10 @@ class RespondBox extends React.Component<Props, State> {
   // save editor current content to state
   onEditorContentChange = (content: string) => {
     this.setState({ content });
+
+    if (this.isContentWritten()) {
+      localStorage.setItem(this.props.conversation._id, content);
+    }
   };
 
   // save mentioned user to state
@@ -288,6 +276,8 @@ class RespondBox extends React.Component<Props, State> {
           return Alert.error(error.message);
         }
 
+        localStorage.removeItem(this.props.conversation._id);
+
         // clear attachments, content, mentioned user ids
         return this.setState({
           attachments: [],
@@ -347,7 +337,7 @@ class RespondBox extends React.Component<Props, State> {
   renderMask() {
     if (this.state.isInactive) {
       return (
-        <Mask onClick={this.hideMask}>
+        <Mask id="mask" onClick={this.hideMask}>
           {__(
             'Customer is offline Click to hide and send messages and they will receive them the next time they are online'
           )}
@@ -400,6 +390,7 @@ class RespondBox extends React.Component<Props, State> {
 
     return (
       <FormControl
+        id="conversationInternalNote"
         className="toggle-message"
         componentClass="checkbox"
         checked={isInternal}

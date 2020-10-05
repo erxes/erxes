@@ -1,6 +1,6 @@
 import { QueryResponse } from 'modules/common/types';
 import { IForm } from 'modules/forms/types';
-import { ILeadData, ILeadIntegration } from 'modules/leads/types';
+import { ILeadData, ILeadIntegration, IWebhookData } from 'modules/leads/types';
 import { IBrand } from '../brands/types';
 import { IChannel } from '../channels/types';
 
@@ -103,6 +103,7 @@ export interface IIntegration {
   brand: IBrand;
   channels: IChannel[];
   isActive?: boolean;
+  webhookData?: IWebhookData;
 }
 
 export interface IAccount {
@@ -294,6 +295,7 @@ export type IntegrationMutationVariables = {
   brandId: string;
   name: string;
   channelIds?: string[];
+  data?: any;
 };
 
 export type AddIntegrationMutationVariables = {
@@ -355,6 +357,7 @@ export type CommonFieldsEditResponse = {
         name: string;
         brandId: string;
         channelIds?: string[];
+        data: any;
       };
     }
   ) => Promise<any>;
