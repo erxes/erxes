@@ -14,7 +14,8 @@ export const generateParams = queryParams => ({
   participating: queryParams.participating,
   starred: queryParams.starred,
   startDate: queryParams.startDate,
-  endDate: queryParams.endDate
+  endDate: queryParams.endDate,
+  awaitingResponse: queryParams.awaitingResponse
 });
 
 export const refetchSidebarConversationsOptions = () => {
