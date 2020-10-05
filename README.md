@@ -65,7 +65,7 @@ erxes helps you attract and engage more customers while giving you high lead con
 ### Ubuntu 16.04/18.04 LTS
 Follow these deployment instructions.
 
-[![ubuntu](https://erxes-os.s3-us-west-2.amazonaws.com/github/ubuntu-logo.png)](https://docs.erxes.io/installation/ubuntu)
+[![ubuntu](https://erxes-os.s3-us-west-2.amazonaws.com/github/ubuntu-logo.png)](https://www.erxes.org/installation/ubuntu)
 
 ### Debian 10
 Follow these deployment instructions.
@@ -80,22 +80,22 @@ Follow these deployment instructions.
 ### Docker
 Follow these deployment instructions.
 
-[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/docker-logo.png)](https://docs.erxes.io/installation/docker)
+[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/docker-logo.png)](https://www.erxes.org/installation/docker)
 
 ### Heroku
 Host your own erxes server with One-Click Deploy.
 
-[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/heroku.png)](https://heroku.com/deploy?template=https://github.com/erxes/erxes/tree/develop)
+[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/heroku.png)](https://www.erxes.org/installation/heroku)
 
 ### AWS Marketplace
 Launch an EC2 instance using erxes in the AWS Marketplace.
 
-[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/aws-logo.png)](https://aws.amazon.com/marketplace/pp/B086MZ9FVS/)
+[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/aws-logo.png)](https://www.erxes.org/installation/aws)
 
 ### DigitalOcean Droplet
 Deploy to a DigitalOcean droplet with our one-click install listing from the DigitalOcean Marketplace.
 
-[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/droplet.png)](https://marketplace.digitalocean.com/apps/erxes)
+[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/droplet.png)](https://www.erxes.org/installation/digitalocean)
 
 ## Contributors
 
