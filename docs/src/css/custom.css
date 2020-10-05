@@ -6,7 +6,11 @@
  */
 
 /* You can override the default Infima variables here. */
-
+body {
+  background-color: #f0f2f5;
+  border-style:hidden;
+  
+}
 :root {
   --white: #fff;
   --black: #000;
