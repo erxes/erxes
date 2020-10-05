@@ -113,7 +113,7 @@ export const messengerSchema = new Schema(
 
 export const smsSchema = new Schema(
   {
-    from: field({ type: String, label: 'From text' }),
+    from: field({ type: String, label: 'From text', optional: true }),
     content: field({ type: String, label: 'SMS content' }),
     fromIntegrationId: field({ type: String, label: 'Configured integration' }),
   },
