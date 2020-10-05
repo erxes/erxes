@@ -26,8 +26,6 @@ export const SignIn = Cypress.Commands.add('signIn', () => {
   cy.url().should('include', '/inbox');
   cy.getCookie('auth-token').should('exist');
 
-  cy.get('title').should('contain', 'Conversation');
-
   cy.get('button[id="robot-get-started"]').click();
 
   cy.get('div[id="robot-features"]')
