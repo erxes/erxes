@@ -88,7 +88,7 @@ class Gmail extends React.Component<Props, State> {
 
                 <Accounts
                   kind="gmail"
-                  addLink="gmaillogin"
+                  addLink="gmail/login"
                   onSelect={onAccountSelect}
                   onRemove={onRemoveAccount}
                   formProps={formProps}
