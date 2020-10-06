@@ -217,14 +217,14 @@ export const getGoogleConfigs = async () => {
 
 export const gmailRequest = async ({ url, accessToken, email, type, method, params = {}, body }: IGmailRequest) => {
   try {
-    const { token } = await Accounts.findOne({ email }).lean();
+    const account = await Accounts.findOne({ email }).lean();
 
     const response = await sendRequest({
       url: url || `${BASE_URL}/me/${type}/${params.id ? params.id : ''}`,
       body,
       method,
       params,
-      headerParams: { Authorization: `Bearer ${accessToken || token}` },
+      headerParams: { Authorization: `Bearer ${accessToken || account.token}` },
     });
 
     return response;

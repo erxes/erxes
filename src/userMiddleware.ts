@@ -6,7 +6,7 @@ const EXCLUDE_PATH = [
   '/nylas/auth/callback',
   '/nylas/oauth2/callback',
   '/gmail/webhook',
-  '/gmaillogin',
+  '/gmail/login',
 ];
 
 let userIds = [];
