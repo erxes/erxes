@@ -219,6 +219,7 @@ class CustomersList extends React.Component<IProps, State> {
 
   afterTag = () => {
     this.props.emptyBulk();
+    
     if(this.props.refetch) {
       this.props.refetch();
     }
