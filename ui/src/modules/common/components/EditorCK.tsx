@@ -71,10 +71,6 @@ class EditorCK extends React.Component<IEditorProps, { content: string }> {
       return false;
     }
 
-    if (content !== this.state.content) {
-      this.setState({ content });
-    }
-
     return true;
   }
 
