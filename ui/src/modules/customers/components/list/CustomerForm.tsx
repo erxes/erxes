@@ -176,8 +176,6 @@ class CustomerForm extends React.Component<Props, State> {
   };
 
   onEmailVerificationStatusChange = (e) => {
-    // tslint:disable-next-line:no-console
-    console.log('isValid = ', e.target.checked);
     const { changeVerificationStatus } = this.props;
 
     if (changeVerificationStatus) {
@@ -186,8 +184,6 @@ class CustomerForm extends React.Component<Props, State> {
   };
 
   onPhoneVerificationStatusChange = (e) => {
-    // tslint:disable-next-line:no-console
-    console.log('isValid = ', e.target.checked);
     const { changeVerificationStatus } = this.props;
 
     if (changeVerificationStatus) {
