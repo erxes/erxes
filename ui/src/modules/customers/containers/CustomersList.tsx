@@ -13,6 +13,8 @@ import { ListConfigQueryResponse } from '../../companies/types';
 import CustomersList from '../components/list/CustomersList';
 import { mutations, queries } from '../graphql';
 import {
+  ChangeStatusMutationResponse,
+  ChangeStatusMutationVariables,
   ListQueryVariables,
   MainQueryResponse,
   MergeMutationResponse,
@@ -20,7 +22,7 @@ import {
   RemoveMutationResponse,
   RemoveMutationVariables,
   VerifyMutationResponse,
-  VerifyMutationVariables,
+  VerifyMutationVariables
 } from '../types';
 
 type Props = {
@@ -36,6 +38,7 @@ type FinalProps = {
   RemoveMutationResponse &
   MergeMutationResponse &
   VerifyMutationResponse &
+  ChangeStatusMutationResponse &
   IRouterProps;
 
 type State = {
@@ -82,6 +85,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       customersRemove,
       customersMerge,
       customersVerify,
+      customersChangeVerificationStatus,
       type,
       history,
     } = this.props;
@@ -151,6 +155,27 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
         });
     };
 
+    const changeVerificationStatus = ({ customerIds, verificationType, status }) => {
+
+
+      customersChangeVerificationStatus({
+        variables: {
+          customerIds,
+          type: verificationType,
+          status
+        }
+      })
+        .then((result: any) => {
+          Alert.success('You successfully changed a status');
+
+          customersMainQuery.refetch();
+        })
+        .catch((e) => {
+          Alert.error(e.message);
+
+        });
+    }
+
     const exportData = (bulk: Array<{ _id: string }>) => {
       const { REACT_APP_API_URL } = getEnv();
       const { queryParams } = this.props;
@@ -197,6 +222,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       responseId: this.state.responseId,
       removeCustomers,
       verifyCustomers,
+      changeVerificationStatus,
       mergeCustomerLoading: this.state.mergeCustomerLoading,
       refetch: this.refetchWithDelay
     };
@@ -234,7 +260,7 @@ const getRefetchQueries = (queryParams?: any, type?: string) => {
   return [
     {
       query: gql(queries.customersMain),
-      variables: { ...generateParams({ queryParams, type })}
+      variables: { ...generateParams({ queryParams, type }) }
     },
     {
       query: gql(queries.customerCounts),
@@ -303,6 +329,12 @@ export default withProps<Props>(
       gql(mutations.customersVerify),
       {
         name: 'customersVerify',
+      }
+    ),
+    graphql<Props, ChangeStatusMutationResponse, ChangeStatusMutationVariables>(
+      gql(mutations.customersChangeVerificationStatus),
+      {
+        name: 'customersChangeVerificationStatus',
       }
     )
   )(withRouter<IRouterProps>(CustomerListContainer))
