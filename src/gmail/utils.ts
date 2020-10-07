@@ -1,7 +1,7 @@
 import * as parseMessage from 'gmail-api-parse-message';
 import { debugGmail } from '../debuggers';
 import { Accounts } from '../models';
-import { getCommonGoogleConfigs, getConfig, sendRequest } from '../utils';
+import { getCommonGoogleConfigs, sendRequest } from '../utils';
 import { BASE_URL } from './constant';
 import { IGmailRequest, IMailParams } from './types';
 
@@ -205,13 +205,18 @@ export const createMimeMessage = (mailParams: IMailParams): string => {
 };
 
 export const getGoogleConfigs = async () => {
-  const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_PROJECT_ID } = await getCommonGoogleConfigs();
+  const {
+    GOOGLE_CLIENT_ID,
+    GOOGLE_CLIENT_SECRET,
+    GOOGLE_PROJECT_ID,
+    GOOGLE_GMAIL_TOPIC,
+  } = await getCommonGoogleConfigs();
 
   return {
     GOOGLE_PROJECT_ID,
     GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET,
-    GOOGLE_GMAIL_TOPIC: await getConfig('GOOGLE_GMAIL_TOPIC', 'gmail_topic'),
+    GOOGLE_GMAIL_TOPIC,
   };
 };
 

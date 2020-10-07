@@ -81,6 +81,7 @@ describe('Gmail utils', async () => {
         GOOGLE_PROJECT_ID: 'GOOGLE_PROJECT_ID',
         GOOGLE_CLIENT_ID: 'GOOGLE_CLIENT_ID',
         GOOGLE_CLIENT_SECRET: 'GOOGLE_CLIENT_SECRET',
+        GOOGLE_GMAIL_TOPIC: 'GOOGLE_GMAIL_TOPIC',
       });
     });
 
