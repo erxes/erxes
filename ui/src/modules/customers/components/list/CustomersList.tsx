@@ -461,7 +461,7 @@ class CustomersList extends React.Component<IProps, State> {
           <Dropdown className="dropdown-btn" alignRight={true} onClick={this.onTargetSelect}>
             <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
               <Button btnStyle="simple" size="small">
-                {__('Change email verification status ')} <Icon icon="angle-down" />
+                {__('Change email status ')} <Icon icon="angle-down" />
               </Button>
             </Dropdown.Toggle>
             <Dropdown.Menu>
@@ -474,7 +474,7 @@ class CustomersList extends React.Component<IProps, State> {
           <Dropdown className="dropdown-btn" alignRight={true}>
             <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
               <Button btnStyle="simple" size="small">
-                {__('Change phone verification status ')} <Icon icon="angle-down" />
+                {__('Change phone status ')} <Icon icon="angle-down" />
               </Button>
             </Dropdown.Toggle>
             <Dropdown.Menu>
