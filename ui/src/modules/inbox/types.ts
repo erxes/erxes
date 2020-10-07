@@ -259,6 +259,7 @@ export type ResolveAllMutationVariables = {
   channelId: string;
   status: string;
   unassigned: string;
+  awaitingResponse: string;
   brandId: string;
   tag: string;
   integrationType: string;

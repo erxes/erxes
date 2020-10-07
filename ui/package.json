@@ -6,6 +6,7 @@
     "@nateradebaugh/react-datetime": "^4.0.0-rc.10",
     "@nivo/line": "0.35.0",
     "@nivo/pie": "0.35.0",
+    "@types/bunyan": "^1.8.6",
     "@types/draft-js": "^0.10.24",
     "@types/enzyme": "^3.1.12",
     "@types/enzyme-adapter-react-16": "^1.0.2",
@@ -27,6 +28,7 @@
     "ckeditor4-react": "^1.0.0",
     "classnames": "^2.2.5",
     "color": "^3.1.2",
+    "cypress-file-upload": "^4.0.7",
     "date-fns": "1.29.0",
     "dayjs": "^1.8.15",
     "draft-js": "^0.10.5",
@@ -87,7 +89,9 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "lint": "tslint 'src/**/*.@(ts|tsx)'",
-    "componentTest": "jest --runInBand --forceExit --detectOpenHandles --coverage"
+    "componentTest": "jest --runInBand --forceExit --detectOpenHandles --coverage",
+    "open-cypress": "yarn run cypress open",
+    "record-cypress": "cypress run --record --key fd048d49-6b4c-4e6b-885f-819a533c2fc4"
   },
   "devDependencies": {
     "enzyme": "^3.3.0",
@@ -98,7 +102,8 @@
     "tslint": "^5.18.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-react": "^4.0.0",
-    "typescript": "^3.0.3"
+    "typescript": "^3.0.3",
+    "cypress": "^4.9.0"
   },
   "browserslist": [
     ">0.2%",

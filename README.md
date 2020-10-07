@@ -56,9 +56,9 @@ erxes helps you attract and engage more customers while giving you high lead con
 * **Knowledge base:** Create Help Articles for Customer Self-service. Educate both your customers, and staff by creating a help center related to your brands, products and services to reach a higher level of satisfaction.
 * **Task Management:** Work More Collaboratively and Get More Done. Save time, manage your projects, monitor your team and increase your productivity in just a few clicks. Erxes helps to turn chaos into clarity and make everything perfect. 
 ## Documentation
-  * <a href="https://docs.erxes.io/installation/docker">Install erxes</a> <br>
-  * <a href="https://docs.erxes.io">erxes documentation</a> <br>
-  * <a href="https://docs.erxes.io/developer/contributing">Contributing to erxes</a> <br>
+  * <a href="https://www.erxes.org/installation/docker">Install erxes</a> <br>
+  * <a href="https://www.erxes.org/overview/getting-started/">erxes documentation</a> <br>
+  * <a href="https://www.erxes.org/developer/developer">Contributing to erxes</a> <br>
   
 ## Deployment
 

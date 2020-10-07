@@ -22,14 +22,17 @@ class EditorCK extends React.Component<IEditorProps, { content: string }> {
   constructor(props: IEditorProps) {
     super(props);
 
-    this.state = {
-      content: props.content
-    };
-
     CKEditor.editorUrl = '/ckeditor/ckeditor.js';
-    this.onChange = this.onChange.bind(this);
     this.onEnter = this.onEnter.bind(this);
   }
+
+  componentDidUpdate = (prevProps: IEditorProps) => {
+    const { name, content } = this.props;
+
+    if (name && prevProps.content !== this.props.content) {
+      localStorage.setItem(name, content);
+    }
+  };
 
   componentDidMount() {
     const name = this.props.name;
@@ -57,35 +60,6 @@ class EditorCK extends React.Component<IEditorProps, { content: string }> {
     }
   }
 
-  shouldComponentUpdate(nextProps: IEditorProps) {
-    const { content, name } = nextProps;
-
-    if (
-      (!content || content === '') &&
-      this.state.content &&
-      !(name && localStorage.getItem(name))
-    ) {
-      // clear previous content
-      this.setState({ content: '' });
-
-      return false;
-    }
-
-    return true;
-  }
-
-  onChange(event: any) {
-    const name = this.props.name;
-    this.props.onChange(event);
-
-    if (name) {
-      const content = event.editor.getData();
-
-      this.setState({ content });
-      localStorage.setItem(name, content);
-    }
-  }
-
   onEnter(event: any) {
     const { name, onCtrlEnter } = this.props;
 
@@ -101,6 +75,7 @@ class EditorCK extends React.Component<IEditorProps, { content: string }> {
 
   render() {
     const {
+      content,
       height,
       insertItems,
       removeButtons,
@@ -112,7 +87,8 @@ class EditorCK extends React.Component<IEditorProps, { content: string }> {
       autoGrow,
       autoGrowMinHeight = 180,
       autoGrowMaxHeight,
-      toolbarLocation = 'top'
+      toolbarLocation = 'top',
+      onChange
     } = this.props;
 
     const mentionDataFeed = (opts, callback) => {
@@ -132,8 +108,8 @@ class EditorCK extends React.Component<IEditorProps, { content: string }> {
 
     return (
       <CKEditor
-        data={this.state.content}
-        onChange={this.onChange}
+        data={content}
+        onChange={onChange}
         config={{
           height,
           startupFocus: autoFocus,

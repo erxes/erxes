@@ -11,7 +11,7 @@ function TagsSidebar() {
     <Sidebar>
       <Sidebar.Section>
         <Title>{__('Tags type')}</Title>
-        <SidebarList>
+        <SidebarList id={'TagsSidebar'}>
           <li>
             <NavLink activeClassName="active" to="/tags/engageMessage">
               {__('Engage Message')}

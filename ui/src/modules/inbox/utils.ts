@@ -14,7 +14,8 @@ export const generateParams = queryParams => ({
   participating: queryParams.participating,
   starred: queryParams.starred,
   startDate: queryParams.startDate,
-  endDate: queryParams.endDate
+  endDate: queryParams.endDate,
+  awaitingResponse: queryParams.awaitingResponse
 });
 
 export const refetchSidebarConversationsOptions = () => {
@@ -43,9 +44,13 @@ export const setConfig = (key, params) => {
 };
 
 export const isConversationMailKind = (conversation: IConversation) => {
-  const {
-    integration: { kind }
-  } = conversation;
+  // const integration = conversation.integration ? conversation.integration || {};
+  const integration = conversation.integration || {};
+  const { kind } = integration;
+
+  if (!kind) {
+    return false;
+  }
 
   return kind === 'gmail' || kind.includes('nylas');
 };

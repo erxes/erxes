@@ -24,8 +24,16 @@ const CreateGmail = asyncComponent(() =>
   import(/* webpackChunkName: "Settings CreateGmail" */ './containers/gmail/Form')
 );
 
+const SendEmail = asyncComponent(() =>
+  import(/* webpackChunkName: "Settings SendEmail" */ './components/mail/SendEmail')
+);
+
 const createMessenger = ({ location }) => {
   return <CreateMessenger queryParams={queryString.parse(location.search)} />;
+};
+
+const sendEmail = ({ location }) => {
+  return <SendEmail queryParams={queryString.parse(location.search)} />;
 };
 
 const createFacebook = ({ location, history }) => {
@@ -112,6 +120,13 @@ const routes = () => (
       exact={true}
       path="/settings/integrations"
       component={store}
+    />
+
+    <Route
+      key="/settings/send-email"
+      exact={true}
+      path="/settings/send-email"
+      component={sendEmail}
     />
   </React.Fragment>
 );

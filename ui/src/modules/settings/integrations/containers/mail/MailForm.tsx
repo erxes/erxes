@@ -21,6 +21,7 @@ import {
 } from './constants';
 
 type Props = {
+  clearOnSubmit?: boolean;
   integrationId?: string;
   brandId?: string;
   conversationId?: string;
@@ -34,6 +35,7 @@ type Props = {
   toggleReply?: (toAll?: boolean) => void;
   closeModal?: () => void;
   closeReply?: () => void;
+  callback?: () => void;
 };
 
 type FinalProps = {
@@ -65,10 +67,12 @@ const MailFormContainer = (props: FinalProps) => {
   const save = ({
     variables,
     optimisticResponse,
-    update
+    update,
+    callback
   }: {
     variables: any;
     optimisticResponse?: any;
+    callback?: () => void;
     update?: any;
   }) => {
     return sendMailMutation({ variables, optimisticResponse, update })
@@ -88,6 +92,10 @@ const MailFormContainer = (props: FinalProps) => {
         if (closeModal) {
           closeModal();
         }
+
+        if (callback) {
+          callback();
+        }
       })
       .catch(e => {
         Alert.error(e.message);
@@ -98,9 +106,15 @@ const MailFormContainer = (props: FinalProps) => {
       });
   };
 
-  const sendMail = ({ variables }: { variables: any }) => {
+  const sendMail = ({
+    variables,
+    callback
+  }: {
+    variables: any;
+    callback: () => void;
+  }) => {
     if (!isReply) {
-      return save({ variables });
+      return save({ variables, callback });
     }
 
     const email = mailData ? mailData.integrationEmail : '';

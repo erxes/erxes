@@ -6,6 +6,7 @@ export const paramsDef = `
   $channelId: String
   $status: String
   $unassigned: String
+  $awaitingResponse: String
   $brandId: String
   $tag: String
   $integrationType: String
@@ -24,6 +25,7 @@ export const paramsValue = `
   channelId: $channelId
   status: $status
   unassigned: $unassigned
+  awaitingResponse: $awaitingResponse
   brandId: $brandId
   tag: $tag
   integrationType: $integrationType

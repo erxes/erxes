@@ -46,7 +46,11 @@ class BrandRow extends React.Component<Props> {
     const { brand, isActive } = this.props;
 
     return (
-      <SidebarListItem key={brand._id} isActive={isActive}>
+      <SidebarListItem
+        id={'ManageIntegrationUL'}
+        key={brand._id}
+        isActive={isActive}
+      >
         <Link to={`?_id=${brand._id}`}>{brand.name}</Link>
         <ActionButtons>
           {this.renderEditAction()}

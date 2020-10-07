@@ -156,7 +156,7 @@ function CustomerRow({
 
   return (
     <tr>
-      <td style={{ width: '50px' }} onClick={onClick}>
+      <td id="customersCheckBox" style={{ width: '50px' }} onClick={onClick}>
         <FormControl
           checked={isChecked}
           componentClass="checkbox"
