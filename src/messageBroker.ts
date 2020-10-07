@@ -6,6 +6,7 @@ import { handleFacebookMessage } from './facebook/handleFacebookMessage';
 import { Integrations } from './models';
 import { getLineWebhookUrl } from './smooch/api';
 import { sendSms } from './telnyx/api';
+import { userIds } from './userMiddleware';
 import { getConfig } from './utils';
 
 dotenv.config();
@@ -27,39 +28,29 @@ export const initBroker = async server => {
 
     let response = null;
 
-    if (action === 'remove-account') {
-      try {
-        response = {
-          status: 'success',
-          data: await removeAccount(data._id),
-        };
-      } catch (e) {
-        response = {
-          status: 'error',
-          errorMessage: e.message,
-        };
+    try {
+      if (action === 'remove-account') {
+        response = { data: await removeAccount(data._id) };
       }
-    } else if (action === 'line-webhook') {
-      try {
-        response = {
-          status: 'success',
-          data: await getLineWebhookUrl(data._id),
-        };
-      } catch (e) {
-        response = {
-          status: 'error',
-          errorMessage: e.message,
-        };
-      }
-    }
 
-    if (action === 'getTelnyxInfo') {
+      if (action === 'line-webhook') {
+        response = { data: await getLineWebhookUrl(data._id) };
+      }
+
+      if (action === 'getTelnyxInfo') {
+        response = {
+          data: {
+            telnyxApiKey: await getConfig('TELNYX_API_KEY'),
+            integrations: await Integrations.find({ kind: 'telnyx' }),
+          },
+        };
+      }
+
+      response.status = 'success';
+    } catch (e) {
       response = {
-        status: 'success',
-        data: {
-          telnyxApiKey: await getConfig('TELNYX_API_KEY'),
-          integrations: await Integrations.find({ kind: 'telnyx' }),
-        },
+        status: 'error',
+        errorMessage: e.message,
       };
     }
 
@@ -75,6 +66,9 @@ export const initBroker = async server => {
         break;
       case 'removeCustomers':
         await removeCustomers(content);
+        break;
+      case 'addUserId':
+        userIds.push(payload._id);
         break;
       default:
         break;
