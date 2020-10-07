@@ -231,9 +231,9 @@ erxes_integrations_dir=$erxes_root_dir/erxes-integrations
 
 # su $username -c "mkdir -p $erxes_ui_dir $erxes_widgets_dir $erxes_api_dir $erxes_engages_dir $erxes_logger_dir $erxes_syncer_dir $erxes_integrations_dir"
 
-ERXES_RELEASE_URL="https://github.com/erxes/erxes/releases/download/0.19.2/erxes-0.19.2.tar.gz"
-ERXES_API_RELEASE_URL="https://github.com/erxes/erxes-api/releases/download/0.19.2/erxes-api-0.19.2.tar.gz"
-ERXES_INTEGRATIONS_RELEASE_URL="https://github.com/erxes/erxes-integrations/releases/download/0.19.2/erxes-integrations-0.19.2.tar.gz"
+ERXES_RELEASE_URL="https://github.com/erxes/erxes/releases/download/0.19.3/erxes-0.19.3.tar.gz"
+ERXES_API_RELEASE_URL="https://github.com/erxes/erxes-api/releases/download/0.19.3/erxes-api-0.19.3.tar.gz"
+ERXES_INTEGRATIONS_RELEASE_URL="https://github.com/erxes/erxes-integrations/releases/download/0.19.3/erxes-integrations-0.19.3.tar.gz"
 
 # download erxes
 su $username -c "curl -L $ERXES_RELEASE_URL | tar -xz"

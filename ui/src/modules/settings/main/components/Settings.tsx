@@ -12,6 +12,96 @@ import {
   RowTitle
 } from '../styles';
 
+const breadcrumb = [{ title: __('Settings'), link: '/settings' }];
+
+const integrationSettingsActions = [
+  'showIntegrations',
+  'integrationsCreateMessengerIntegration',
+  'integrationsEditMessengerIntegration',
+  'integrationsSaveMessengerAppearanceData',
+  'integrationsSaveMessengerConfigs',
+  'integrationsCreateLeadIntegration',
+  'integrationsEditLeadIntegration',
+  'integrationsRemove',
+  'integrationsArchive',
+  'integrationsEdit'
+];
+const taskPermissions = [
+  'taskBoardsAdd',
+  'taskBoardsEdit',
+  'taskBoardsRemove',
+  'taskPipelinesAdd',
+  'taskPipelinesEdit',
+  'taskPipelinesUpdateOrder',
+  'taskPipelinesRemove',
+  'taskStagesAdd',
+  'taskStagesEdit',
+  'taskStagesUpdateOrder',
+  'taskStagesRemove',
+  'tasksAll'
+];
+const ticketPermissions = [
+  'ticketBoardsAdd',
+  'ticketBoardsEdit',
+  'ticketBoardsRemove',
+  'ticketPipelinesAdd',
+  'ticketPipelinesEdit',
+  'ticketPipelinesUpdateOrder',
+  'ticketPipelinesRemove',
+  'ticketStagesAdd',
+  'ticketStagesEdit',
+  'ticketStagesUpdateOrder',
+  'ticketStagesRemove'
+];
+const dealPermissions = [
+  'dealBoardsAdd',
+  'dealBoardsEdit',
+  'dealBoardsRemove',
+  'dealPipelinesAdd',
+  'dealPipelinesEdit',
+  'dealPipelinesUpdateOrder',
+  'dealPipelinesRemove',
+  'dealStagesAdd',
+  'dealStagesEdit',
+  'dealStagesUpdateOrder',
+  'dealStagesRemove'
+];
+const productPermissions = ['showProducts', 'manageProducts'];
+const growthHackPermissions = [
+  'growthHackBoardsAdd',
+  'growthHackBoardsEdit',
+  'growthHackBoardsRemove',
+  'growthHackPipelinesAdd',
+  'growthHackPipelinesEdit',
+  'growthHackPipelinesUpdateOrder',
+  'growthHackPipelinesRemove',
+  'growthHackStagesAdd',
+  'growthHackStagesEdit',
+  'growthHackStagesUpdateOrder',
+  'growthHackStagesRemove'
+];
+const growthHackTemplatePermissions = [
+  'growthHackTemplatesAdd',
+  'growthHackTemplatesEdit',
+  'growthHackTemplatesRemove',
+  'growthHackTemplatesDuplicate',
+  'showGrowthHackTemplates'
+];
+const teamPermissions = [
+  'showUsers',
+  'usersEdit',
+  'usersInvite',
+  'usersSetActiveStatus',
+  'exportUsers'
+];
+const permissionActions = [
+  'managePermissions',
+  'showPermissions',
+  'showPermissionModules',
+  'showPermissionActions',
+  'exportPermissions'
+];
+
 class Settings extends React.PureComponent {
   renderBox(
     name: string,
@@ -41,96 +131,6 @@ class Settings extends React.PureComponent {
   }
 
   render() {
-    const breadcrumb = [{ title: __('Settings'), link: '/settings' }];
-
-    const integrationSettingsActions = [
-      'showIntegrations',
-      'integrationsCreateMessengerIntegration',
-      'integrationsEditMessengerIntegration',
-      'integrationsSaveMessengerAppearanceData',
-      'integrationsSaveMessengerConfigs',
-      'integrationsCreateLeadIntegration',
-      'integrationsEditLeadIntegration',
-      'integrationsRemove',
-      'integrationsArchive',
-      'integrationsEdit'
-    ];
-    const taskPermissions = [
-      'taskBoardsAdd',
-      'taskBoardsEdit',
-      'taskBoardsRemove',
-      'taskPipelinesAdd',
-      'taskPipelinesEdit',
-      'taskPipelinesUpdateOrder',
-      'taskPipelinesRemove',
-      'taskStagesAdd',
-      'taskStagesEdit',
-      'taskStagesUpdateOrder',
-      'taskStagesRemove',
-      'tasksAll'
-    ];
-    const ticketPermissions = [
-      'ticketBoardsAdd',
-      'ticketBoardsEdit',
-      'ticketBoardsRemove',
-      'ticketPipelinesAdd',
-      'ticketPipelinesEdit',
-      'ticketPipelinesUpdateOrder',
-      'ticketPipelinesRemove',
-      'ticketStagesAdd',
-      'ticketStagesEdit',
-      'ticketStagesUpdateOrder',
-      'ticketStagesRemove'
-    ];
-    const dealPermissions = [
-      'dealBoardsAdd',
-      'dealBoardsEdit',
-      'dealBoardsRemove',
-      'dealPipelinesAdd',
-      'dealPipelinesEdit',
-      'dealPipelinesUpdateOrder',
-      'dealPipelinesRemove',
-      'dealStagesAdd',
-      'dealStagesEdit',
-      'dealStagesUpdateOrder',
-      'dealStagesRemove'
-    ];
-    const productPermissions = ['showProducts', 'manageProducts'];
-    const growthHackPermissions = [
-      'growthHackBoardsAdd',
-      'growthHackBoardsEdit',
-      'growthHackBoardsRemove',
-      'growthHackPipelinesAdd',
-      'growthHackPipelinesEdit',
-      'growthHackPipelinesUpdateOrder',
-      'growthHackPipelinesRemove',
-      'growthHackStagesAdd',
-      'growthHackStagesEdit',
-      'growthHackStagesUpdateOrder',
-      'growthHackStagesRemove'
-    ];
-    const growthHackTemplatePermissions = [
-      'growthHackTemplatesAdd',
-      'growthHackTemplatesEdit',
-      'growthHackTemplatesRemove',
-      'growthHackTemplatesDuplicate',
-      'showGrowthHackTemplates'
-    ];
-    const teamPermissions = [
-      'showUsers',
-      'usersEdit',
-      'usersInvite',
-      'usersSetActiveStatus',
-      'exportUsers'
-    ];
-    const permissionActions = [
-      'managePermissions',
-      'showPermissions',
-      'showPermissionModules',
-      'showPermissionActions',
-      'exportPermissions'
-    ];
-
     const content = (
       <MenusContainer id={'SettingsMain'}>
         <Row>
@@ -202,10 +202,16 @@ class Settings extends React.PureComponent {
               '/settings/emailDelivery',
               ''
             )}
-              {this.renderBox(
+            {this.renderBox(
               'Outgoing webhooks',
               '/images/icons/erxes-11.svg',
               '/settings/webhooks',
+              ''
+            )}
+            {this.renderBox(
+              'Send an email',
+              '/images/icons/erxes-09.svg',
+              '/settings/send-email',
               ''
             )}
           </div>
