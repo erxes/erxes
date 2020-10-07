@@ -1,8 +1,10 @@
+import Attachment from 'modules/common/components/Attachment';
 import Button from 'modules/common/components/Button';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { InfoWrapper } from 'modules/common/styles/main';
+import { IAttachment } from 'modules/common/types';
 import { __, Alert, confirm } from 'modules/common/utils';
 
 import { Action, Name } from 'modules/customers/styles';
@@ -62,6 +64,14 @@ class BasicInfo extends React.Component<Props> {
     );
   }
 
+  renderImage = (item?: IAttachment) => {
+    if (!item) {
+      return;
+    }
+
+    return <Attachment attachment={item} />;
+  };
+
   renderInfo() {
     const { product } = this.props;
 
@@ -80,6 +90,8 @@ class BasicInfo extends React.Component<Props> {
         </InfoWrapper>
 
         {this.renderAction()}
+
+        {this.renderImage(product.attachment)}
 
         <SidebarList className="no-link">
           {this.renderRow('Code', product.code)}

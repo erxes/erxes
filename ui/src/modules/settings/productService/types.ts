@@ -31,6 +31,7 @@ export interface IProduct {
   customFieldsData?: any;
   createdAt: Date;
 
+  attachment?: any;
   category: IProductCategory;
 }
 
