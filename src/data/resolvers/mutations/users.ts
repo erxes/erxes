@@ -3,6 +3,7 @@ import * as express from 'express';
 import { Channels, Configs, Users } from '../../../db/models';
 import { ILink } from '../../../db/models/definitions/common';
 import { IDetail, IEmailSignature, IUser } from '../../../db/models/definitions/users';
+import messageBroker from '../../../messageBroker';
 import { resetPermissionsCache } from '../../permissions/utils';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
@@ -74,7 +75,7 @@ const userMutations = {
       },
     };
 
-    await Users.createUser(doc);
+    const user = await Users.createUser(doc);
 
     if (subscribeEmail && process.env.NODE_ENV === 'production') {
       await sendRequest({
@@ -89,6 +90,13 @@ const userMutations = {
     }
 
     await Configs.createOrUpdateConfig({ code: 'UPLOAD_SERVICE_TYPE', value: 'local' });
+
+    await messageBroker().sendMessage('erxes-api:integrations-notification', {
+      type: 'addUserId',
+      payload: {
+        _id: user._id,
+      },
+    });
 
     return 'success';
   },
@@ -256,7 +264,16 @@ const userMutations = {
       username?: string;
     },
   ) {
-    return Users.confirmInvitation({ token, password, passwordConfirmation, fullName, username });
+    const user = await Users.confirmInvitation({ token, password, passwordConfirmation, fullName, username });
+
+    await messageBroker().sendMessage('erxes-api:integrations-notification', {
+      type: 'addUserId',
+      payload: {
+        _id: user._id,
+      },
+    });
+
+    return user;
   },
 
   usersConfigEmailSignatures(_root, { signatures }: { signatures: IEmailSignature[] }, { user }: IContext) {
