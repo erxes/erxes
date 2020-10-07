@@ -31,7 +31,7 @@ type Props = {
   isLoggedIn: () => boolean;
   getColor?: string;
   toggleVideoCall: () => void;
-  replyAutoAnswer: (message: string, payload: string) => void;
+  replyAutoAnswer: (message: string, payload: string, type: string) => void;
   sendTypingInfo: (conversationId: string, text: string) => void;
   conversationId: string | null;
   changeOperatorStatus: (_id: string, operatorStatus: string) => void;

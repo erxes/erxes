@@ -5,7 +5,7 @@ import { BOT_CUSTOM_TYPES } from './constants';
 type Props = {
   conversationId: string;
   message: IBotData;
-  replyAutoAnswer: (message: string, payload: string) => void;
+  replyAutoAnswer: (message: string, payload: string, type: string) => void;
   sendTypingInfo: (conversationId: string, text: string) => void;
   color?: string;
 };
@@ -19,7 +19,7 @@ export default function CustomMessage({
     return null;
   }
 
-  const { wrapped, component } = message;
+  const { wrapped, component, type } = message;
 
   if (component !== BOT_CUSTOM_TYPES.QUICK_REPLY) {
     return null;
@@ -28,7 +28,7 @@ export default function CustomMessage({
   const { quick_replies } = message;
 
   const onSelectReply = (title: string, payload: string) => {
-    return replyAutoAnswer(title, payload);
+    return replyAutoAnswer(title, payload, type);
   };
 
   const renderButton = (

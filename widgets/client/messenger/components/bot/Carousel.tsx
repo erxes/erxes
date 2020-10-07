@@ -20,7 +20,7 @@ export interface ICarouselItem {
 type Props = {
   conversationId: string;
   items?: ICarouselItem[];
-  replyAutoAnswer: (message: string, payload: string) => void;
+  replyAutoAnswer: (message: string, payload: string, type: string) => void;
   sendTypingInfo: (conversationId: string, text: string) => void;
   scrollBottom: () => void;
   color?: string;
@@ -52,7 +52,8 @@ export default class Carousel extends React.Component<Props, State> {
     const handleClick = () => {
       replyAutoAnswer(
         title,
-        type === BUTTON_TYPES.saySomething ? text : payload
+        type === BUTTON_TYPES.saySomething ? text : payload,
+        type
       );
       scrollBottom();
     };

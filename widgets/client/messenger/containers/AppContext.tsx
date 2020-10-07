@@ -55,8 +55,12 @@ interface IStore extends IState {
   endConversation: () => void;
   readConversation: (conversationId: string) => void;
   readMessages: (conversationId: string) => void;
-  replyAutoAnswer: (message: string, payload: string) => void;
-  changeOperatorStatus: (_id: string, operatorStatus: string, callback: () => void) => void;
+  replyAutoAnswer: (message: string, payload: string, type: string) => void;
+  changeOperatorStatus: (
+    _id: string,
+    operatorStatus: string,
+    callback: () => void
+  ) => void;
   sendMessage: (
     contentType: string,
     message: string,
@@ -434,7 +438,11 @@ export class AppProvider extends React.Component<{}, IState> {
     });
   };
 
-  changeOperatorStatus = (_id: string, operatorStatus: string, callback: () => void) => {
+  changeOperatorStatus = (
+    _id: string,
+    operatorStatus: string,
+    callback: () => void
+  ) => {
     return client
       .mutate({
         mutation: gql`
@@ -444,7 +452,7 @@ export class AppProvider extends React.Component<{}, IState> {
           ) {
             changeConversationOperator(
               _id: $_id
-              operatorStatus:$ operatorStatus
+              operatorStatus: $operatorStatus
             )
           }
         `,
@@ -460,7 +468,7 @@ export class AppProvider extends React.Component<{}, IState> {
       });
   };
 
-  replyAutoAnswer = (message: string, payload: string) => {
+  replyAutoAnswer = (message: string, payload: string, type: string) => {
     this.setState({ sendingMessage: true });
 
     return client
@@ -469,6 +477,7 @@ export class AppProvider extends React.Component<{}, IState> {
           mutation widgetPostRequest(
             $message: String!
             $payload: String!
+            $type: String!
             $conversationId: String!
             $customerId: String!
             $integrationId: String!
@@ -476,6 +485,7 @@ export class AppProvider extends React.Component<{}, IState> {
             widgetPostRequest(
               message: $message
               payload: $payload
+              type: $type
               conversationId: $conversationId
               customerId: $customerId
               integrationId: $integrationId
@@ -487,6 +497,7 @@ export class AppProvider extends React.Component<{}, IState> {
           integrationId: connection.data.integrationId,
           customerId: connection.data.customerId,
           message: newLineToBr(message),
+          type,
           payload
         }
       })
@@ -595,7 +606,7 @@ export class AppProvider extends React.Component<{}, IState> {
             conversationId: activeConversation,
             contentType,
             message: newLineToBr(message),
-            attachments,
+            attachments
           },
           optimisticResponse,
           update

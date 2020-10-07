@@ -13,7 +13,7 @@ type Props = {
   user?: IUser;
   color?: string;
   textColor?: string;
-  replyAutoAnswer: (message: string, payload: string) => void;
+  replyAutoAnswer: (message: string, payload: string, type: string) => void;
   sendTypingInfo: (conversationId: string, text: string) => void;
   conversationId: string;
   scrollBottom: () => void;
@@ -21,7 +21,7 @@ type Props = {
 
 type CommonProps = {
   conversationId: string;
-  replyAutoAnswer: (message: string, payload: string) => void;
+  replyAutoAnswer: (message: string, payload: string, type: string) => void;
   sendTypingInfo: (conversationId: string, text: string) => void;
 };
 
@@ -76,7 +76,8 @@ function MessageBot(props: Props) {
   const renderCarouselMessage = (
     elements: any,
     commonProps: CommonProps,
-    idx: number
+    idx: number,
+    type: string
   ) => {
     return (
       <Carousel
@@ -103,7 +104,12 @@ function MessageBot(props: Props) {
         case 'file':
           return renderFileMessage(item, idx);
         case 'carousel':
-          return renderCarouselMessage(item.elements, commonProps, idx);
+          return renderCarouselMessage(
+            item.elements,
+            commonProps,
+            idx,
+            item.type
+          );
         case 'custom':
           return renderCustomMessage(item, commonProps, idx);
         default:
