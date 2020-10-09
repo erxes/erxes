@@ -105,6 +105,10 @@ const customerMutations = {
   async customersVerify(_root, { verificationType }: { verificationType: string }) {
     await validateBulk(verificationType);
   },
+
+  async customersChangeVerificationStatus(_root, args: { customerIds: [string]; type: string; status: string }) {
+    return Customers.updateVerificationStatus(args.customerIds, args.type, args.status);
+  },
 };
 
 checkPermission(customerMutations, 'customersAdd', 'customersAdd');

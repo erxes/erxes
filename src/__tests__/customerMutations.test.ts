@@ -250,4 +250,29 @@ describe('Customers mutations', () => {
 
     mock.restore();
   });
+
+  test('Change verification status', async () => {
+    const mutation = `
+      mutation customersChangeVerificationStatus($customerIds: [String], $type: String!, $status: String!) {
+        customersChangeVerificationStatus(customerIds: $customerIds, type: $type, status: $status) {
+          _id
+          state
+          emailValidationStatus
+          phoneValidationStatus
+        }
+      }
+    `;
+
+    await graphqlRequest(
+      mutation,
+      'customersChangeVerificationStatus',
+      { customerIds: [_customer._id], type: 'email', status: 'valid' },
+      context,
+    );
+
+    const updatedCustomers = await Customers.find({ _id: { $in: [_customer._id] } });
+    updatedCustomers.forEach(c => {
+      expect(c.emailValidationStatus).toBe('valid');
+    });
+  });
 });

@@ -743,4 +743,18 @@ describe('Customers model tests', () => {
 
     expect(updated.state).toBe('state');
   });
+
+  test('changeVerificationStatus()', async () => {
+    const phoneResult = await Customers.updateVerificationStatus([_customer._id], 'phone', 'valid');
+
+    phoneResult.forEach(c => {
+      expect(c.phoneValidationStatus).toBe('valid');
+    });
+
+    const emailResult = await Customers.updateVerificationStatus([_customer._id], 'email', 'valid');
+
+    emailResult.forEach(c => {
+      expect(c.emailValidationStatus).toBe('valid');
+    });
+  });
 });
