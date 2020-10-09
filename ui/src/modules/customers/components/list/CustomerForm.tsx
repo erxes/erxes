@@ -22,6 +22,7 @@ import {
 } from 'modules/common/types';
 import { Alert, getConstantFromStore } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
+import { EMAIL_VALIDATION_STATUSES, PHONE_VALIDATION_STATUSES } from 'modules/customers/constants';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
 import validator from 'validator';
@@ -35,6 +36,7 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   queryParams: IQueryParams;
   changeRedirectType?: (type: string) => void;
+  changeVerificationStatus?: (isEmail: boolean) => void;
 };
 
 type State = {
@@ -92,6 +94,8 @@ class CustomerForm extends React.Component<Props, State> {
       leadStatus: finalValues.leadStatus,
       description: finalValues.description,
       code: finalValues.code,
+      emailValidationStatus: finalValues.emailValidationStatus,
+      phoneValidationStatus: finalValues.phoneValidationStatus,
       links
     };
   };
@@ -145,6 +149,7 @@ class CustomerForm extends React.Component<Props, State> {
     this.setState({ emails: options, primaryEmail: selectedOption });
   };
 
+
   onPhoneChange = ({ options, selectedOption }) => {
     this.setState({ phones: options, primaryPhone: selectedOption });
   };
@@ -167,6 +172,22 @@ class CustomerForm extends React.Component<Props, State> {
 
     if (changeRedirectType) {
       changeRedirectType(type);
+    }
+  };
+
+  onEmailVerificationStatusChange = (e) => {
+    const { changeVerificationStatus } = this.props;
+
+    if (changeVerificationStatus) {
+      changeVerificationStatus(true);
+    }
+  };
+
+  onPhoneVerificationStatusChange = (e) => {
+    const { changeVerificationStatus } = this.props;
+
+    if (changeVerificationStatus) {
+      changeVerificationStatus(true);
     }
   };
 
@@ -256,6 +277,14 @@ class CustomerForm extends React.Component<Props, State> {
                   />
                 </FormGroup>
 
+                {this.renderFormGroup('Primary email verification status', {
+                  ...formProps,
+                  name: 'emailValidationStatus',
+                  componentClass: 'select',
+                  defaultValue: customer.emailValidationStatus || "unknown",
+                  options: EMAIL_VALIDATION_STATUSES,
+                })}
+
                 {this.renderFormGroup('Pronoun', {
                   ...formProps,
                   name: 'sex',
@@ -298,6 +327,14 @@ class CustomerForm extends React.Component<Props, State> {
                     checkFormat={isValidPhone}
                   />
                 </FormGroup>
+
+                {this.renderFormGroup('Primary phone verification status', {
+                  ...formProps,
+                  name: 'phoneValidationStatus',
+                  componentClass: 'select',
+                  defaultValue: customer.phoneValidationStatus || "unknown",
+                  options: PHONE_VALIDATION_STATUSES,
+                })}
 
                 <FormGroup>
                   <ControlLabel required={false}>Birthday</ControlLabel>
