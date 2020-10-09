@@ -135,9 +135,9 @@ export interface IIntegration {
   channels: IChannel[];
   isActive?: boolean;
   webhookData?: IWebhookData;
-  leadMessengerApps?: ILeadMessengerApp;
-  websiteMessengerApps?: IWebsiteMessengerApp;
-  knowledgeBaseMessengerApps?: ITopicMessengerApp;
+  leadMessengerApps?: ILeadMessengerApp[];
+  websiteMessengerApps?: IWebsiteMessengerApp[];
+  knowledgeBaseMessengerApps?: ITopicMessengerApp[];
 }
 
 
@@ -308,30 +308,6 @@ export type EditMessengerMutationResponse = {
   ) => any;
 };
 
-export type MessengerAppsAddLeadMutationVariables = {
-  name: string;
-  integrationId: string;
-  formId: string;
-};
-
-export type MessengerAppsAddLeadMutationResponse = {
-  saveMutation: (
-    params: { variables: MessengerAppsAddLeadMutationVariables }
-  ) => Promise<any>;
-};
-
-export type messengerAppsAddKnowledgebaseVariables = {
-  name: string;
-  integrationId: string;
-  topicId: string;
-};
-
-export type MessengerAppsAddKnowledgebaseMutationResponse = {
-  saveMutation: (
-    params: { variables: messengerAppsAddKnowledgebaseVariables }
-  ) => Promise<any>;
-};
-
 export type IntegrationMutationVariables = {
   brandId: string;
   name: string;
@@ -374,14 +350,6 @@ export type RemoveMutationResponse = {
 
 export type RemoveAccountMutationResponse = {
   removeAccount: (params: { variables: { _id: string } }) => Promise<any>;
-};
-
-export type MessengerAppsQueryResponse = {
-  messengerApps: IMessengerApp[];
-} & QueryResponse;
-
-export type MessengerAppsRemoveMutationResponse = {
-  removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
 };
 
 export type ArchiveIntegrationResponse = {

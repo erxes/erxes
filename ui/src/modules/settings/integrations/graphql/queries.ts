@@ -109,23 +109,6 @@ const integrations = `
   }
 `;
 
-const messengerApps = `
-  query messengerApps($kind: String) {
-    messengerApps(kind: $kind) {
-      _id
-      kind
-      name
-      showInInbox
-    }
-  }
-`;
-
-const messengerAppsCount = `
-  query messengerAppsCount($kind: String) {
-    messengerAppsCount(kind: $kind)
-  }
-`;
-
 const engagesConfigDetail = `
   query engagesConfigDetail {
     engagesConfigDetail
@@ -152,7 +135,5 @@ export default {
   integrationTotalCount,
   integrations,
   engagesConfigDetail,
-  messengerApps,
-  messengerAppsCount,
   integrationGetLineWebhookUrl
 };

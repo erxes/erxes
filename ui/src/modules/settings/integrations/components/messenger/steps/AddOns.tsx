@@ -43,9 +43,9 @@ type Props = {
 	topics: ITopic[];
 	leads: IIntegration[];
 	selectedBrand?: string;
-	leadMessengerApps: ILeadMessengerApp[];
-	knowledgeBaseMessengerApps: ITopicMessengerApp[];
-	websiteMessengerApps: IWebsiteMessengerApp[];
+	leadMessengerApps?: ILeadMessengerApp[];
+	knowledgeBaseMessengerApps?: ITopicMessengerApp[];
+	websiteMessengerApps?: IWebsiteMessengerApp[];
 	handleMessengerApps: (messengerApps: IMessengerApps) => void
 };
 
@@ -56,7 +56,7 @@ const AddOns = (props: Props) => {
 		{url: item.credentials.url, buttonText: item.credentials.buttonText, description: item.credentials.description}
 	));
 	const initialLeads = leadMessengerApps.map(item => item.credentials.formCode);
-	const initialKb = knowledgeBaseMessengerApps.length > 0 && props.knowledgeBaseMessengerApps[0].credentials.topicId;
+	const initialKb = knowledgeBaseMessengerApps.length > 0 && knowledgeBaseMessengerApps[0].credentials.topicId;
 
 	const [knowledgeBase, setKnowledgeBase] = useState(initialKb || '');
 	const [popups, setPopups] = useState(initialLeads || []);

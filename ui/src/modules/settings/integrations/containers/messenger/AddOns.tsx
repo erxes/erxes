@@ -15,9 +15,9 @@ import { ILeadMessengerApp, IMessengerApps, IntegrationsQueryResponse, ITopicMes
 type Props = {
   selectedBrand?: string;
   handleMessengerApps: (messengerApps: IMessengerApps) => void;
-  leadMessengerApps: ILeadMessengerApp[];
-  knowledgeBaseMessengerApps: ITopicMessengerApp[];
-  websiteMessengerApps: IWebsiteMessengerApp[];
+  leadMessengerApps?: ILeadMessengerApp[];
+  knowledgeBaseMessengerApps?: ITopicMessengerApp[];
+  websiteMessengerApps?: IWebsiteMessengerApp[];
 };
 
 type FinalProps = {

@@ -125,22 +125,6 @@ const integrationsRemove = `
   }
 `;
 
-const messengerAppsAddLead = `
-  mutation messengerAppsAddLead(
-    $name: String!
-    $integrationId: String!
-    $formId: String!
-  ) {
-    messengerAppsAddLead(
-      name: $name
-      integrationId: $integrationId
-      formId: $formId
-    ) {
-      _id
-    }
-  }
-`;
-
 const messengerAppSave = `
   mutation messengerAppSave(
     $integrationId: String!
@@ -150,48 +134,6 @@ const messengerAppSave = `
       integrationId: $integrationId
       messengerApps: $messengerApps
     )
-  }
-`;
-
-const messengerAppsAddKnowledgebase = `
-  mutation messengerAppsAddKnowledgebase(
-    $name: String!
-    $integrationId: String!
-    $topicId: String!
-  ) {
-    messengerAppsAddKnowledgebase(
-      name: $name
-      integrationId: $integrationId
-      topicId: $topicId
-    ) {
-      _id
-    }
-  }
-`;
-
-const messengerAppsAddWebsite = `
-  mutation messengerAppsAddWebsite(
-    $name: String!
-    $integrationId: String!
-    $description: String!
-    $buttonText: String!
-    $url: String!
-  ) {
-    messengerAppsAddWebsite(
-      name: $name
-      integrationId: $integrationId
-      description: $description
-      buttonText: $buttonText
-      url: $url
-    ) {
-      _id
-    }
-  }
-`;
-
-const messengerAppsRemove = `
-  mutation messengerAppsRemove($_id: String!) {
-    messengerAppsRemove(_id: $_id)
   }
 `;
 
@@ -231,10 +173,6 @@ export default {
   integrationsSaveMessengerConfigs,
   integrationsSaveMessengerAppearance,
   integrationsRemove,
-  messengerAppsAddLead,
-  messengerAppsAddKnowledgebase,
-  messengerAppsAddWebsite,
-  messengerAppsRemove,
   removeAccount,
   integrationSendMail,
   integrationsSendSms,
