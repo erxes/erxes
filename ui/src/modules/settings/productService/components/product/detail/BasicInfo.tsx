@@ -1,3 +1,4 @@
+import { Content } from 'modules/boards/styles/item';
 import Attachment from 'modules/common/components/Attachment';
 import Button from 'modules/common/components/Button';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
@@ -18,6 +19,7 @@ import ProductForm from 'modules/settings/productService/containers/product/Prod
 import { IProduct } from 'modules/settings/productService/types';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
+import xss from 'xss';
 
 type Props = {
   product: IProduct;
@@ -66,7 +68,7 @@ class BasicInfo extends React.Component<Props> {
 
   renderImage = (item?: IAttachment) => {
     if (!item) {
-      return;
+      return <></>;
     }
 
     return <Attachment attachment={item} />;
@@ -102,10 +104,13 @@ class BasicInfo extends React.Component<Props> {
           )}
           {this.renderRow('Unit price', product.unitPrice)}
           {this.renderRow('Sku', product.sku)}
-          <SidebarFlexRow>
-            {__(`Description`)}:<span>{product.description || '-'}</span>
-          </SidebarFlexRow>
+          <SidebarFlexRow>{__(`Description`)}</SidebarFlexRow>
         </SidebarList>
+        <Content
+          dangerouslySetInnerHTML={{
+            __html: xss(product.description)
+          }}
+        />
       </Sidebar.Section>
     );
   }
