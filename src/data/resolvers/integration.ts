@@ -1,4 +1,5 @@
-import { Brands, Channels, Forms, Tags } from '../../db/models';
+import { Brands, Channels, Forms, MessengerApps, Tags } from '../../db/models';
+import { KIND_CHOICES } from '../../db/models/definitions/constants';
 import { IIntegrationDocument } from '../../db/models/definitions/integrations';
 
 export default {
@@ -16,5 +17,26 @@ export default {
 
   tags(integration: IIntegrationDocument) {
     return Tags.find({ _id: { $in: integration.tagIds || [] } });
+  },
+
+  websiteMessengerApps(integration: IIntegrationDocument) {
+    if (integration.kind === KIND_CHOICES.MESSENGER) {
+      return MessengerApps.find({ kind: 'website', 'credentials.integrationId': integration._id });
+    }
+    return [];
+  },
+
+  knowledgeBaseMessengerApps(integration: IIntegrationDocument) {
+    if (integration.kind === KIND_CHOICES.MESSENGER) {
+      return MessengerApps.find({ kind: 'knowledgebase', 'credentials.integrationId': integration._id });
+    }
+    return [];
+  },
+
+  leadMessengerApps(integration: IIntegrationDocument) {
+    if (integration.kind === KIND_CHOICES.MESSENGER) {
+      return MessengerApps.find({ kind: 'lead', 'credentials.integrationId': integration._id });
+    }
+    return [];
   },
 };

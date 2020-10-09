@@ -21,7 +21,6 @@ import integrations from './integrations';
 import internalNotes from './internalNotes';
 import knowledgeBase from './knowledgeBase';
 import logs from './logs';
-import messengerApps from './messengerApps';
 import notifications from './notifications';
 import { permissionQueries as permissions, usersGroupQueries as usersGroups } from './permissions';
 import pipelineLabels from './pipelineLabels';
@@ -67,7 +66,6 @@ export default {
   ...configs,
   ...fieldsgroups,
   ...importHistory,
-  ...messengerApps,
   ...permissions,
   ...usersGroups,
   ...tickets,

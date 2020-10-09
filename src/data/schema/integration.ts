@@ -18,6 +18,10 @@ export const types = `
     brand: Brand
     form: Form
     channels: [Channel]
+
+    websiteMessengerApps: [MessengerApp]
+    knowledgeBaseMessengerApps: [MessengerApp]
+    leadMessengerApps: [MessengerApp]
   }
 
   type integrationsTotalCount {
