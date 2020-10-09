@@ -47,14 +47,14 @@ erxes helps you attract and engage more customers while giving you high lead con
 
 * **Growth Hacking:** Managing your entire growth operation made easy. From ideas to actual performance, making sure everything recorded, prioritized, and centralized in the single platform to get tested with a pool of analysis and learnings, which made the growing as pleasure.
 * **Email & SMS Marketing:** Reach your customer with personalized messaging. Keeping your customers hooked is a challenge. Start converting your prospects into potential customers through email, SMS, Live chat, and In-app-messaging or more interactions to drive them to a successful close. You can connect to your customers in a whole new way with erxes!
-* **Pop-ups & Forms:** Create Stylish Pop-ups and Forms that Bring Leads. Turn regular visitors into qualified leads by capturing them with a customizable pop-ups, forms, and embedded placements. erxes helps you to create stylish and contextual pop-ups, banners and bars fit all your marketing needs.
+* **Pop-ups & Forms:** Create Stylish Pop-ups and Forms that Bring Leads. Turn regular visitors into qualified leads by capturing them with a customizable pop-up, forms, and embedded placements. erxes help you to create stylish and contextual pop-ups, banners and bars fit all your marketing needs.
 * **Sales Pipeline:** Track your entire sales pipeline from one dashboard. All your customer information and sales process in one board to follow up flawlessly. Have your sales managers to know everything needed to deliver increased levels of personalization before they contact customers.
 * **Contact Management:** Manage Visitors, Customers, and Companies. Access our all-in-one CRM system in one go so that it’s easier to coordinate and manage your contacts and interactions with your customers. erxes Contacts provides whole segmentation tools for you to work more efficiently.
 * **Lead Scoring:** Identify and Target Sales-Ready Leads.
-* **Shared Team Inbox:** Communicate faster and easier with your customers via one truly omnichannel platform. Combine real-time client and team communication with in-app messaging, live chat, email and form, so your customers can reach you however and wherever they want. 
+* **Shared Team Inbox:** Communicate faster and easier with your customers via one truly omnichannel platform. Combine real-time client and team communication with in-app messaging, live chat, email, and form, so your customers can reach you however and wherever they want. 
 * **Messenger:** Talk to Your Customers in Continuous Omnichannel Conversations. Enable businesses to capture every single customer feedback and communicate in real-time. You can educate your customers through knowledge-base from the erxes Messenger.
-* **Knowledge base:** Create Help Articles for Customer Self-service. Educate both your customers, and staff by creating a help center related to your brands, products and services to reach a higher level of satisfaction.
-* **Task Management:** Work More Collaboratively and Get More Done. Save time, manage your projects, monitor your team and increase your productivity in just a few clicks. Erxes helps to turn chaos into clarity and make everything perfect. 
+* **Knowledgebase:** Create Help Articles for Customer Self-service. Educate both your customers, and staff by creating a help center related to your brands, products, and services to reach a higher level of satisfaction.
+* **Task Management:** Work More Collaboratively and Get More Done. Save time, manage your projects, monitor your team, and increase your productivity in just a few clicks. Erxes helps to turn chaos into clarity and make everything perfect. 
 ## Documentation
   * <a href="https://www.erxes.org/installation/docker">Install erxes</a> <br>
   * <a href="https://www.erxes.org/overview/getting-started/">erxes documentation</a> <br>
@@ -106,7 +106,6 @@ This project exists thanks to all the people who contribute. [[Contribute]](CONT
 ## Backers
 
 Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/erxes#backer)]
-
 <a href="https://opencollective.com/erxes#backers" target="_blank"><img src="https://opencollective.com/erxes/backers.svg?width=890"></a>
 
 ## In-kind sponsors
