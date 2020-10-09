@@ -86,6 +86,37 @@ export interface IUiOptions {
   logoPreviewUrl?: string;
 }
 
+export interface ITopic {
+  topicId: string;
+}
+
+export interface IWebsite {
+  url: string;
+  buttonText: string;
+  description: string;
+}
+
+export interface ILead {
+  formCode: string;
+}
+
+export interface ITopicMessengerApp {
+  credentials: ITopic;
+}
+
+export interface IWebsiteMessengerApp {
+  credentials: IWebsite;
+}
+
+export interface ILeadMessengerApp {
+  credentials: ILead;
+}
+export interface IMessengerApps {
+  knowledgebases?: ITopic[];
+  websites?: IWebsite[];
+  leads?: ILead[];
+}
+
 export interface IIntegration {
   _id: string;
   kind: string;
@@ -104,7 +135,11 @@ export interface IIntegration {
   channels: IChannel[];
   isActive?: boolean;
   webhookData?: IWebhookData;
+  leadMessengerApps?: ILeadMessengerApp;
+  websiteMessengerApps?: IWebsiteMessengerApp;
+  knowledgeBaseMessengerApps?: ITopicMessengerApp;
 }
+
 
 export interface IAccount {
   _id: string;
@@ -242,6 +277,12 @@ export type SaveMessengerMutationResponse = {
 export type SaveMessengerAppearanceMutationResponse = {
   saveAppearanceMutation: (
     params: { variables: { _id: string; uiOptions: IUiOptions } }
+  ) => Promise<any>;
+};
+
+export type SaveMessengerAppsMutationResponse = {
+  messengerAppSaveMutation: (
+    params: { variables: { integrationId: string; messengerApps: IMessengerApps } }
   ) => Promise<any>;
 };
 

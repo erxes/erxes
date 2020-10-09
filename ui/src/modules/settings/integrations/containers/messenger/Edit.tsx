@@ -9,10 +9,12 @@ import { mutations, queries } from 'modules/settings/integrations/graphql';
 import {
   EditMessengerMutationResponse,
   EditMessengerMutationVariables,
+  IMessengerApps,
   IMessengerData,
   IntegrationDetailQueryResponse,
   IUiOptions,
   SaveMessengerAppearanceMutationResponse,
+  SaveMessengerAppsMutationResponse,
   SaveMessengerConfigsMutationResponse
 } from 'modules/settings/integrations/types';
 import React from 'react';
@@ -34,6 +36,7 @@ type FinalProps = {
 } & Props &
   SaveMessengerConfigsMutationResponse &
   SaveMessengerAppearanceMutationResponse &
+  SaveMessengerAppsMutationResponse &
   EditMessengerMutationResponse &
   IRouterProps;
 
@@ -47,6 +50,7 @@ const EditMessenger = (props: FinalProps) => {
     editMessengerMutation,
     saveConfigsMutation,
     saveAppearanceMutation,
+    messengerAppSaveMutation,
     knowledgeBaseTopicsQuery
   } = props;
 
@@ -70,7 +74,8 @@ const EditMessenger = (props: FinalProps) => {
       channelIds,
       languageCode,
       messengerData,
-      uiOptions
+      uiOptions,
+      messengerApps
     } = doc;
 
     editMessengerMutation({
@@ -83,7 +88,6 @@ const EditMessenger = (props: FinalProps) => {
           variables: { _id: id, messengerData }
         });
       })
-
       .then(({ data }) => {
         const id = data.integrationsSaveMessengerConfigs._id;
 
@@ -91,7 +95,11 @@ const EditMessenger = (props: FinalProps) => {
           variables: { _id: id, uiOptions }
         });
       })
-
+      .then(() => {
+        return messengerAppSaveMutation({
+          variables: { integrationId, messengerApps }
+        });
+      })
       .then(() => {
         Alert.success('You successfully updated a messenger');
 
@@ -166,6 +174,14 @@ export default withProps<Props>(
       { _id: string; messengerData: IMessengerData }
     >(gql(mutations.integrationsSaveMessengerConfigs), {
       name: 'saveConfigsMutation',
+      options: commonOptions
+    }),
+    graphql<
+      Props,
+      SaveMessengerAppsMutationResponse,
+      { _id: string; messengerApps: IMessengerApps }
+    >(gql(mutations.messengerAppSave), {
+      name: 'messengerAppSaveMutation',
       options: commonOptions
     }),
     graphql<

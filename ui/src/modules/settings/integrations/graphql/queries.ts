@@ -40,6 +40,15 @@ const integrationDetail = `
       
       messengerData
       uiOptions
+      websiteMessengerApps {
+        credentials
+      }
+      knowledgeBaseMessengerApps {
+        credentials
+      }
+      leadMessengerApps {
+        credentials
+      }
     }
   }
 `;

@@ -141,6 +141,18 @@ const messengerAppsAddLead = `
   }
 `;
 
+const messengerAppSave = `
+  mutation messengerAppSave(
+    $integrationId: String!
+    $messengerApps: MessengerAppsInput
+  ) {
+    messengerAppSave(
+      integrationId: $integrationId
+      messengerApps: $messengerApps
+    )
+  }
+`;
+
 const messengerAppsAddKnowledgebase = `
   mutation messengerAppsAddKnowledgebase(
     $name: String!
@@ -225,5 +237,6 @@ export default {
   messengerAppsRemove,
   removeAccount,
   integrationSendMail,
-  integrationsSendSms
+  integrationsSendSms,
+  messengerAppSave
 };

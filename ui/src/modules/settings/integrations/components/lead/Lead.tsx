@@ -62,7 +62,7 @@ class Lead extends React.Component<Props, State> {
 
   onChangeLead = obj => {
     this.setState({ selectedLead: obj });
-    this.setState({ selectedFormId: obj && obj.form ? obj.form._id : '' });
+    this.setState({ selectedFormId: obj && obj.form ? obj.form.code : '' });
   };
 
   renderOption = option => {
