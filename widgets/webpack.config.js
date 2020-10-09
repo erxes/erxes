@@ -1,5 +1,5 @@
-const path = require('path');
-const Dotenv = require('dotenv-webpack');
+const path = require('path');    //making a constant variable named as path
+const Dotenv = require('dotenv-webpack');    //making a constant variable named as Dotenv
 
 module.exports = {
   entry: {
@@ -19,7 +19,7 @@ module.exports = {
     filename: '[name].bundle.js',
   },
 
-  plugins: [
+  plugins: [                  //plugins
     new Dotenv()
   ],
 
