@@ -108,7 +108,7 @@ const AddOns = (props: Props) => {
       value: object.form ? object.form.code : object._id,
       label: object.name || object.title,
       brand: object.brand,
-      disabled: props.selectedBrand
+      disabled: (object.brand && props.selectedBrand)
         ? props.selectedBrand !== object.brand._id
         : false
     }));
