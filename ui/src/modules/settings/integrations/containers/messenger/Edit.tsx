@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import Spinner from 'modules/common/components/Spinner';
 import { IRouterProps } from 'modules/common/types';
-import { Alert, withProps } from 'modules/common/utils';
+import { __, Alert, withProps } from 'modules/common/utils';
 import { queries as kbQueries } from 'modules/knowledgeBase/graphql';
 import Form from 'modules/settings/integrations/components/messenger/Form';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
@@ -106,6 +106,10 @@ const EditMessenger = (props: FinalProps) => {
         history.push('/settings/integrations?refetch=true');
       })
       .catch(error => {
+        if(error.message.includes('Duplicated messenger for single brand')) {
+          return Alert.warning(__("You've already created a messenger for the brand you've selected. Please choose a different brand or edit the previously created messenger"), 6000);
+        }
+        
         Alert.error(error.message);
       });
   };
