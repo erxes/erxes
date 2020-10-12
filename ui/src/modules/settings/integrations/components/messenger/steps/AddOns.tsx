@@ -15,9 +15,10 @@ import {
   ILeadMessengerApp,
   IMessengerApps,
   ITopicMessengerApp,
+  IWebsite,
   IWebsiteMessengerApp
 } from 'modules/settings/integrations/types';
-import React, { useState } from 'react';
+import React from 'react';
 import Select from 'react-select-plus';
 import styled from 'styled-components';
 
@@ -59,30 +60,41 @@ type Props = {
   handleMessengerApps: (messengerApps: IMessengerApps) => void;
 };
 
-const AddOns = (props: Props) => {
-  const {
-    websiteMessengerApps = [],
-    leadMessengerApps = [],
-    knowledgeBaseMessengerApps = []
-  } = props;
+type State = {
+  knowledgeBase: string;
+  popups: string[];
+  websites: IWebsite[];
+};
 
-  const initialWebsites = websiteMessengerApps.map(item => ({
-    url: item.credentials.url,
-    buttonText: item.credentials.buttonText,
-    description: item.credentials.description
-  }));
-  const initialLeads = leadMessengerApps.map(item => item.credentials.formCode);
-  const initialKb =
-    knowledgeBaseMessengerApps.length > 0 &&
-    knowledgeBaseMessengerApps[0].credentials.topicId;
+class AddOns extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
 
-  const [knowledgeBase, setKnowledgeBase] = useState(initialKb || '');
-  const [popups, setPopups] = useState(initialLeads || []);
-  const [websites, setWebsites] = useState(
-    initialWebsites || [{ url: '', buttonText: '', description: '' }]
-  );
+    const {
+      websiteMessengerApps = [],
+      leadMessengerApps = [],
+      knowledgeBaseMessengerApps = []
+    } = props;
+  
+    const initialWebsites = websiteMessengerApps.map(item => ({
+      url: item.credentials.url,
+      buttonText: item.credentials.buttonText,
+      description: item.credentials.description
+    }));
+    const initialLeads = leadMessengerApps.map(item => item.credentials.formCode);
+    const initialKb =
+      knowledgeBaseMessengerApps.length > 0 &&
+      knowledgeBaseMessengerApps[0].credentials.topicId;
 
-  const generateMessengerApps = () => {
+    this.state = {
+      knowledgeBase: initialKb || '',
+      popups: initialLeads || [],
+      websites: initialWebsites || [{ url: '', buttonText: '', description: '' }]
+    };
+  }
+
+  generateMessengerApps = () => {
+    const { knowledgeBase, popups, websites } = this.state;
     return {
       knowledgebases: [{ topicId: knowledgeBase }],
       leads: popups.map(el => ({ formCode: el })),
@@ -90,11 +102,11 @@ const AddOns = (props: Props) => {
     };
   };
 
-  const updateMessengerValues = () => {
-    props.handleMessengerApps(generateMessengerApps());
+  updateMessengerValues = () => {
+    this.props.handleMessengerApps(this.generateMessengerApps());
   };
 
-  const renderOption = option => {
+  renderOption = option => {
     return (
       <Options>
         {option.label}
@@ -103,149 +115,148 @@ const AddOns = (props: Props) => {
     );
   };
 
-  const generateObjectsParams = objects => {
+  generateObjectsParams = objects => {
     return objects.map(object => ({
       value: object.form ? object.form.code : object._id,
       label: object.name || object.title,
       brand: object.brand,
-      disabled: (object.brand && props.selectedBrand)
-        ? props.selectedBrand !== object.brand._id
+      disabled: (object.brand && this.props.selectedBrand)
+        ? this.props.selectedBrand !== object.brand._id
         : false
     }));
   };
 
-  const onChangeKb = obj => {
-    setKnowledgeBase(obj.value);
-
-    updateMessengerValues();
+  onChangeKb = obj => {
+    this.setState({ knowledgeBase: obj.value }, () => this.updateMessengerValues());
   };
 
-  const onChangePopups = objects => {
-    setPopups(objects.map(el => el.value));
-
-    updateMessengerValues();
+  onChangePopups = objects => {
+    this.setState({ popups: objects.map(el => el.value)}, () => this.updateMessengerValues())
   };
 
-  const onChangeInput = (
+  onChangeInput = (
     i: number,
     type: 'url' | 'description' | 'buttonText',
     e: React.FormEvent
   ) => {
     const { value } = e.target as HTMLInputElement;
 
-    const entries = [...websites];
+    const entries = [...this.state.websites];
 
     entries[i] = { ...entries[i], [type]: value };
 
-    setWebsites(entries);
-    updateMessengerValues();
+    this.setState({ websites: entries}, () => this.updateMessengerValues());
   };
 
-  const handleRemoveWebsite = (i: number) => {
-    setWebsites(websites.filter((item, index) => index !== i));
-    updateMessengerValues();
+  handleRemoveWebsite = (i: number) => {
+    this.setState({ websites: this.state.websites.filter((item, index) => index !== i)}, () => this.updateMessengerValues())
   };
 
-  const renderRemoveInput = (i: number) => {
-    if (websites.length <= 1) {
+  renderRemoveInput = (i: number) => {
+    if (this.state.websites.length <= 1) {
       return null;
     }
 
     return (
       <Tip text={__('Remove')} placement="top">
-        <RemoveButton onClick={handleRemoveWebsite.bind(null, i)}>
+        <RemoveButton onClick={this.handleRemoveWebsite.bind(null, i)}>
           <Icon icon="times" />
         </RemoveButton>
       </Tip>
     );
   };
 
-  const onAddMoreInput = () => {
-    setWebsites([...websites, { url: '', buttonText: '', description: '' }]);
+  onAddMoreInput = () => {
+    this.setState({ websites: [...this.state.websites, { url: '', buttonText: '', description: '' }]})
   };
 
-  return (
-    <FlexItem>
-      <LeftItem>
-        <FormGroup>
-          <ControlLabel>Knowledge Base</ControlLabel>
-          <p>
-            {__(
-              'Which specific knowledgebase do you want to display in a separate tab in this messenger'
-            )}
-            ?
-          </p>
-          <Select
-            value={knowledgeBase}
-            options={generateObjectsParams(props.topics)}
-            onChange={onChangeKb}
-            optionRenderer={renderOption}
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>Pop Ups</ControlLabel>
-          <p>
-            {__('Which popup(s) do you want to display in this messenger')}?
-          </p>
-          <Select
-            value={popups}
-            options={generateObjectsParams(props.leads)}
-            onChange={onChangePopups}
-            optionRenderer={renderOption}
-            multi={true}
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>Websites</ControlLabel>
-          <p>
-            {__('Which website(s) do you want to display in this messenger')}?
-          </p>
-        </FormGroup>
-        {websites.map((website, index) => (
-          <FormGroup key={index}>
-            <WebsiteItem>
-              <FormGroup>
-                <ControlLabel required={true}>Website Title</ControlLabel>
-                <FormControl
-                  name="description"
-                  onChange={onChangeInput.bind(null, index, 'description')}
-                  required={true}
-                  value={website.description}
-                />
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel required={true}>Website Url</ControlLabel>
-                <FormControl
-                  value={website.url}
-                  onChange={onChangeInput.bind(null, index, 'url')}
-                  name="url"
-                  required={true}
-                />
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel required={true}>Button text</ControlLabel>
-                <FormControl
-                  onChange={onChangeInput.bind(null, index, 'buttonText')}
-                  value={website.buttonText}
-                  name="buttonText"
-                  required={true}
-                />
-              </FormGroup>
-            </WebsiteItem>
-            {renderRemoveInput(index)}
+  render () {
+    const { knowledgeBase, popups, websites } = this.state;
+    const { leads, topics } = this.props;
+
+    return (
+      <FlexItem>
+        <LeftItem>
+          <FormGroup>
+            <ControlLabel>Knowledge Base</ControlLabel>
+            <p>
+              {__(
+                'Which specific knowledgebase do you want to display in a separate tab in this messenger'
+              )}
+              ?
+            </p>
+            <Select
+              value={knowledgeBase}
+              options={this.generateObjectsParams(topics)}
+              onChange={this.onChangeKb}
+              optionRenderer={this.renderOption}
+            />
           </FormGroup>
-        ))}
-        <Button
-          uppercase={false}
-          onClick={onAddMoreInput}
-          icon="plus-circle"
-          btnStyle="primary"
-        >
-          {__('Add a Website')}
-        </Button>
-      </LeftItem>
-    </FlexItem>
-  );
-};
+          <FormGroup>
+            <ControlLabel>Pop Ups</ControlLabel>
+            <p>
+              {__('Which popup(s) do you want to display in this messenger')}?
+            </p>
+            <Select
+              value={popups}
+              options={this.generateObjectsParams(leads)}
+              onChange={this.onChangePopups}
+              optionRenderer={this.renderOption}
+              multi={true}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Websites</ControlLabel>
+            <p>
+              {__('Which website(s) do you want to display in this messenger')}?
+            </p>
+          </FormGroup>
+          {websites.map((website, index) => (
+            <FormGroup key={index}>
+              <WebsiteItem>
+                <FormGroup>
+                  <ControlLabel required={true}>Website Title</ControlLabel>
+                  <FormControl
+                    name="description"
+                    onChange={this.onChangeInput.bind(null, index, 'description')}
+                    required={true}
+                    value={website.description}
+                  />
+                </FormGroup>
+                <FormGroup>
+                  <ControlLabel required={true}>Website Url</ControlLabel>
+                  <FormControl
+                    value={website.url}
+                    onChange={this.onChangeInput.bind(null, index, 'url')}
+                    name="url"
+                    required={true}
+                  />
+                </FormGroup>
+                <FormGroup>
+                  <ControlLabel required={true}>Button text</ControlLabel>
+                  <FormControl
+                    onChange={this.onChangeInput.bind(null, index, 'buttonText')}
+                    value={website.buttonText}
+                    name="buttonText"
+                    required={true}
+                  />
+                </FormGroup>
+              </WebsiteItem>
+              {this.renderRemoveInput(index)}
+            </FormGroup>
+          ))}
+          <Button
+            uppercase={false}
+            onClick={this.onAddMoreInput}
+            icon="plus-circle"
+            btnStyle="primary"
+          >
+            {__('Add a Website')}
+          </Button>
+        </LeftItem>
+      </FlexItem>
+    );
+  }
+}
 
 export default AddOns;
