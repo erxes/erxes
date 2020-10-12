@@ -67,16 +67,6 @@ Follow these deployment instructions.
 
 [![ubuntu](https://erxes-os.s3-us-west-2.amazonaws.com/github/ubuntu-logo.png)](https://www.erxes.org/installation/ubuntu)
 
-### Debian 10
-Follow these deployment instructions.
-
-[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/debian-logo.png)](https://docs.erxes.io/installation/debian10)
-
-### CentOS 8
-Follow these deployment instructions.
-
-[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/centos-logo.png)](https://docs.erxes.io/installation/centos8)
-
 ### Docker
 Follow these deployment instructions.
 
