@@ -67,6 +67,11 @@ class IntegrationListItem extends React.Component<Props> {
 
   renderGetAction() {
     const { integration } = this.props;
+    const webhookData = integration.webhookData;
+
+    if(!webhookData) {
+      return;
+    }
 
     const showTrigger = (
       <Button btnStyle="link">
@@ -77,18 +82,15 @@ class IntegrationListItem extends React.Component<Props> {
     );
 
     const content = () => {
-      const webhookData = integration.webhookData;
       const { REACT_APP_API_URL } = getEnv();
 
       return (
         <div>
           <b>Name</b>: {integration.name} <br />
-          {webhookData && (
-            <div>
-              <b>URL</b>: {REACT_APP_API_URL}/webhooks/{integration._id} <br />
-              <b>Token</b>: {webhookData.token}
-            </div>
-          )}
+          <div>
+            <b>URL</b>: {REACT_APP_API_URL}/webhooks/{integration._id} <br />
+            <b>Token</b>: {webhookData.token}
+          </div>
         </div>
       );
     };
