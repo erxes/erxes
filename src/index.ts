@@ -128,6 +128,16 @@ app.get('/integrations', async (req, res) => {
   return res.json(integrations);
 });
 
+app.get('/integrationDetail', async (req, res) => {
+  const { erxesApiId } = req.query;
+
+  const integration = await Integrations.findOne({ erxesApiId });
+
+  debugResponse(debugIntegrations, req, JSON.stringify(integration));
+
+  return res.json(integration);
+});
+
 // init bots
 initFacebook(app);
 
