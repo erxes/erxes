@@ -205,6 +205,43 @@ class IntegrationListItem extends React.Component<Props> {
     );
   }
 
+  renderExternalData(integration) {
+    const { externalData, kind } = integration;
+    let value = '';
+
+    if (!externalData) {
+      return <td />;
+    }
+
+    switch (kind) {
+      case INTEGRATION_KINDS.CALLPRO:
+        value = externalData.phoneNumber;
+        break;
+      case INTEGRATION_KINDS.CHATFUEL:
+        value = (externalData.chatfuelConfigs || {}).toString();
+        break;
+      case INTEGRATION_KINDS.WHATSAPP:
+        value = externalData.whatsappToken;
+        break;
+      case INTEGRATION_KINDS.SMOOCH_TELEGRAM:
+        value = externalData.telegramBotToken;
+        break;
+      case INTEGRATION_KINDS.SMOOCH_VIBER:
+        value = externalData.viberBotToken;
+        break;
+      case INTEGRATION_KINDS.SMOOCH_LINE:
+        value = externalData.lineChannelId;
+        break;
+      case INTEGRATION_KINDS.TELNYX:
+        value = externalData.telnyxPhoneNumber;
+        break;
+      default:
+        break;
+    }
+
+    return <td>{value}</td>;
+  }
+
   render() {
     const { integration } = this.props;
     const integrationKind = cleanIntegrationKind(integration.kind);
@@ -223,6 +260,7 @@ class IntegrationListItem extends React.Component<Props> {
         <td>
           <Label lblStyle={labelStyle}>{status}</Label>
         </td>
+        {this.renderExternalData(integration)}
         <td>
           <ActionButtons>
             {this.renderMessengerActions(integration)}
