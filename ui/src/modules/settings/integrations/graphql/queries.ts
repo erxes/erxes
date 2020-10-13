@@ -105,7 +105,6 @@ const integrations = `
         title
         code
       }
-      externalData
     }
   }
 `;
