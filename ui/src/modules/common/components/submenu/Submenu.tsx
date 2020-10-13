@@ -12,7 +12,7 @@ const Items = styled.ul`
   font-size: 14px;
 `;
 
-function Submenu({ items }: { items?: ISubMenuItem[] }) {
+function Submenu({ items, additionalMenuItem }: { items?: ISubMenuItem[]; additionalMenuItem?: React.ReactNode }) {
   if (items) {
     return (
       <Items>
@@ -21,6 +21,7 @@ function Submenu({ items }: { items?: ISubMenuItem[] }) {
             {__(b.title)}
           </MenuItem>
         ))}
+        {additionalMenuItem}
       </Items>
     );
   }

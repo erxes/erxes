@@ -208,12 +208,6 @@ class Settings extends React.PureComponent {
               '/settings/webhooks',
               ''
             )}
-            {this.renderBox(
-              'Send an email',
-              '/images/icons/erxes-09.svg',
-              '/settings/send-email',
-              ''
-            )}
           </div>
         </Row>
         <Divider />
