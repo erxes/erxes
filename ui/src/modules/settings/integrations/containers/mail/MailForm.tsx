@@ -7,7 +7,7 @@ import Spinner from 'modules/common/components/Spinner';
 import { Alert, withProps } from 'modules/common/utils';
 import { queries as messageQueries } from 'modules/inbox/graphql';
 import { IMail } from 'modules/inbox/types';
-import { EmailTemplatesQueryResponse } from 'modules/settings/emailTemplates/containers/List';
+import { EmailTemplatesQueryResponse, EmailTemplatesTotalCountQueryResponse } from 'modules/settings/emailTemplates/containers/List';
 import { queries as templatesQuery } from 'modules/settings/emailTemplates/graphql';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
@@ -42,6 +42,7 @@ type FinalProps = {
   currentUser: IUser;
   sendMailMutation: any;
   emailTemplatesQuery: EmailTemplatesQueryResponse;
+  emailTemplatesTotalCountQuery: EmailTemplatesTotalCountQueryResponse,
   integrationsQuery: IntegrationsQueryResponse;
 } & Props;
 
@@ -54,6 +55,7 @@ const MailFormContainer = (props: FinalProps) => {
     closeModal,
     closeReply,
     emailTemplatesQuery,
+    emailTemplatesTotalCountQuery,
     sendMailMutation,
     currentUser
   } = props;
@@ -61,6 +63,28 @@ const MailFormContainer = (props: FinalProps) => {
   if (integrationsQuery.loading) {
     return <Spinner objective={true} />;
   }
+
+  const fetchMoreEmailTemplates = () => {
+    const { fetchMore, emailTemplates, variables } = emailTemplatesQuery;
+    const { emailTemplatesTotalCount } = emailTemplatesTotalCountQuery;
+
+    if (emailTemplatesTotalCount === emailTemplates.length) {
+      return;
+    }
+
+    return fetchMore({
+      variables: { page: Number(variables.page) + 1 },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        if (!fetchMoreResult) {
+          return prev;
+        }
+
+        return Object.assign({}, prev, {
+          emailTemplates: [...prev.emailTemplates, ...fetchMoreResult.emailTemplates]
+        });
+      }
+    })
+  };
 
   const integrations = integrationsQuery.integrations || [];
 
@@ -180,6 +204,7 @@ const MailFormContainer = (props: FinalProps) => {
     sendMail,
     integrations,
     currentUser,
+    fetchMoreEmailTemplates,
     emailTemplates: emailTemplatesQuery.emailTemplates,
     emailSignatures: currentUser.emailSignatures || []
   };
@@ -201,7 +226,16 @@ export default withProps<Props>(
     graphql<Props, EmailTemplatesQueryResponse>(
       gql(templatesQuery.emailTemplates),
       {
-        name: 'emailTemplatesQuery'
+        name: 'emailTemplatesQuery',
+        options: () => ({
+          variables: { page: 1 }
+        })
+      }
+    ),
+    graphql<Props, any>(
+      gql(templatesQuery.totalCount),
+      {
+        name: 'emailTemplatesTotalCountQuery'
       }
     ),
     graphql<Props>(gql(mutations.integrationSendMail), {

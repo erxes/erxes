@@ -4,11 +4,12 @@ import {
   IIntegrationUiOptions,
   IParticipator,
   IUser
-} from "../types";
+} from '../types';
 
 export interface IWebsiteApp {
   kind: string;
   name: string;
+  _id: string;
   credentials: {
     buttonText: string;
     description: string;

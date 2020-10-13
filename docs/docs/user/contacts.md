@@ -12,7 +12,7 @@ Coordinate and manage your companies and customers in one go from company databa
 - Please follow the steps for setup: **Customers**
 
 1. Filter customers by **Segments, Tags, Brands, Integrations, Form, Lead Status, and Lifecycle States**
-2. List of **Customers detailss**
+2. List of **Customers details**
 3. Type **Customer’s name** to search
 4. Change the **Customize**
 5. Click **Add Customer**
