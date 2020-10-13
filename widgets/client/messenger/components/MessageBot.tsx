@@ -76,8 +76,7 @@ function MessageBot(props: Props) {
   const renderCarouselMessage = (
     elements: any,
     commonProps: CommonProps,
-    idx: number,
-    type: string
+    idx: number
   ) => {
     return (
       <Carousel
@@ -104,12 +103,7 @@ function MessageBot(props: Props) {
         case 'file':
           return renderFileMessage(item, idx);
         case 'carousel':
-          return renderCarouselMessage(
-            item.elements,
-            commonProps,
-            idx,
-            item.type
-          );
+          return renderCarouselMessage(item.elements, commonProps, idx);
         case 'custom':
           return renderCustomMessage(item, commonProps, idx);
         default:
