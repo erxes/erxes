@@ -73,8 +73,10 @@ describe('mutations', () => {
   });
 
   test('Create messenger integration', async () => {
+    await Integrations.remove({});
+
     const args = {
-      name: _integration.name,
+      name: 'Integration Name',
       brandId: _brand._id,
       languageCode: 'en',
       channelIds: ['randomId'],

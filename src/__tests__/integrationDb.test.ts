@@ -80,6 +80,8 @@ describe('messenger integration model add method', () => {
   });
 
   test('check if messenger integration create method is running successfully', async () => {
+    expect.assertions(4);
+
     const doc = {
       name: 'Integration test',
       brandId: _brand._id,
@@ -91,6 +93,12 @@ describe('messenger integration model add method', () => {
     expect(integration.name).toBe(doc.name);
     expect(integration.brandId).toBe(doc.brandId);
     expect(integration.kind).toBe(KIND_CHOICES.MESSENGER);
+
+    try {
+      await Integrations.createMessengerIntegration(doc, _user._id);
+    } catch (e) {
+      expect(e.message).toBe('Duplicated messenger for single brand');
+    }
   });
 });
 
@@ -128,6 +136,37 @@ describe('messenger integration model edit method', () => {
   });
 });
 
+describe('messenger integration model edit with duplicated brand method', () => {
+  test('check if messenger integration update method is throwing exception', async () => {
+    const _brand = await brandFactory({});
+    const _brand2 = await brandFactory({});
+    const _integration = await integrationFactory({
+      kind: KIND_CHOICES.MESSENGER,
+      brandId: _brand._id,
+    });
+
+    await integrationFactory({
+      kind: KIND_CHOICES.MESSENGER,
+      brandId: _brand2._id,
+    });
+
+    const doc = {
+      name: 'Integration test 2',
+      brandId: _brand2._id,
+      kind: KIND_CHOICES.MESSENGER,
+    };
+
+    try {
+      await Integrations.updateMessengerIntegration(_integration._id, doc);
+    } catch (e) {
+      expect(e.message).toBe('Duplicated messenger for single brand');
+    }
+
+    await Brands.deleteMany({});
+    await Integrations.deleteMany({});
+  });
+});
+
 describe('lead integration create model test without leadData', () => {
   let _user;
   let _brand;
@@ -146,7 +185,7 @@ describe('lead integration create model test without leadData', () => {
     await Forms.deleteMany({});
   });
 
-  test('check if create lead integration test wihtout leadData is throwing exception', async () => {
+  test('check if create lead integration test without leadData is throwing exception', async () => {
     expect.assertions(1);
 
     const mainDoc = {

@@ -974,8 +974,6 @@ export const handleUnsubscription = async (query: { cid: string; uid: string }) 
   if (uid) {
     await Users.updateOne({ _id: uid }, { $set: { doNotDisturb: 'Yes' } });
   }
-
-  return true;
 };
 
 export const getConfigs = async () => {
