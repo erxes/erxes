@@ -52,7 +52,7 @@ app.use((req, _res, next) => {
 });
 
 // for health check
-app.get('/status', async (_req, res, next) => {
+app.get('/health', async (_req, res, next) => {
   try {
     await mongoStatus();
   } catch (e) {
