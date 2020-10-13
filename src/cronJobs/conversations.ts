@@ -62,6 +62,12 @@ export const sendMessageEmail = async () => {
         answer.user.fullName = usr.details.fullName;
       }
 
+      if (message.attachments.length !== 0) {
+        for (const attachment of message.attachments) {
+          answer.content = answer.content.concat(`<p><img src="${attachment.url}" alt="${attachment.name}"></p>`);
+        }
+      }
+
       // add user object to answer
       answers.push(answer);
     }
@@ -76,10 +82,20 @@ export const sendMessageEmail = async () => {
     };
 
     if (question) {
-      data.question = {
+      const questionData = {
         ...question.toJSON(),
         createdAt: new Date(moment(question.createdAt).format('DD MMM YY, HH:mm')),
       };
+
+      if (question.attachments.length !== 0) {
+        for (const attachment of question.attachments) {
+          questionData.content = questionData.content.concat(
+            `<p><img src="${attachment.url}" alt="${attachment.name}"></p>`,
+          );
+        }
+      }
+
+      data.question = questionData;
     }
 
     const email = customer.primaryEmail || customer.emails[0];
@@ -102,6 +118,7 @@ export const sendMessageEmail = async () => {
     }
 
     // send email
+
     await utils.sendEmail(emailOptions);
 
     // mark sent messages as read
