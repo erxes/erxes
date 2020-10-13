@@ -31,8 +31,8 @@ describe('HTTP endpoint tests', () => {
     expect(response.text).toBe('success');
   });
 
-  test('Test /status', async () => {
-    const response = await request(app).get('/status');
+  test('Test /health', async () => {
+    const response = await request(app).get('/health');
 
     expect(response.text).toBe('ok');
   });

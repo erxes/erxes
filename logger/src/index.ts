@@ -88,7 +88,7 @@ app.get('/logs', async (req, res) => {
 });
 
 // for health checking
-app.get('/status', async (_req, res) => {
+app.get('/health', async (_req, res) => {
   res.end('ok');
 });
 
