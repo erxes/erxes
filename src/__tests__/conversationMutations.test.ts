@@ -5,9 +5,10 @@ import * as sinon from 'sinon';
 import messageBroker from '../messageBroker';
 
 import { channelFactory, conversationFactory, customerFactory, integrationFactory, userFactory } from '../db/factories';
-import { Conversations, Customers, Integrations, Users } from '../db/models';
-import { CONVERSATION_STATUSES, KIND_CHOICES } from '../db/models/definitions/constants';
+import { ConversationMessages, Conversations, Customers, Integrations, Users } from '../db/models';
+import { CONVERSATION_OPERATOR_STATUS, CONVERSATION_STATUSES, KIND_CHOICES } from '../db/models/definitions/constants';
 
+import { AUTO_BOT_MESSAGES } from '../data/constants';
 import { IntegrationsAPI } from '../data/dataSources';
 import utils from '../data/utils';
 import { graphqlRequest } from '../db/connection';
@@ -612,5 +613,43 @@ describe('Conversation message mutations', () => {
     expect(response).toBe('productBoardLink');
 
     mock.restore();
+  });
+
+  test('Change conversation operator status', async () => {
+    const conversation = await conversationFactory({ operatorStatus: CONVERSATION_OPERATOR_STATUS.BOT });
+
+    const mutation = `
+      mutation changeConversationOperator($_id: String!, $operatorStatus: String!) {
+        changeConversationOperator(_id: $_id, operatorStatus: $operatorStatus)
+      }
+    `;
+
+    await graphqlRequest(
+      mutation,
+      'changeConversationOperator',
+      { _id: conversation._id, operatorStatus: CONVERSATION_OPERATOR_STATUS.OPERATOR },
+      { dataSources },
+    );
+
+    const message = await ConversationMessages.findOne({ conversationId: conversation._id });
+
+    if (message) {
+      expect(message.botData).toEqual([
+        {
+          type: 'text',
+          text: AUTO_BOT_MESSAGES.CHANGE_OPERATOR,
+        },
+      ]);
+    } else {
+      fail('Auto message not found');
+    }
+
+    const updatedConversation = await Conversations.findOne({ _id: conversation._id });
+
+    if (updatedConversation) {
+      expect(updatedConversation.operatorStatus).toBe(CONVERSATION_OPERATOR_STATUS.OPERATOR);
+    } else {
+      fail('Conversation not found to update operator status');
+    }
   });
 });

@@ -5,6 +5,12 @@ export const CONVERSATION_STATUSES = {
   ALL: ['new', 'open', 'closed'],
 };
 
+export const CONVERSATION_OPERATOR_STATUS = {
+  BOT: 'bot',
+  OPERATOR: 'operator',
+  ALL: ['bot', 'operator'],
+};
+
 export const TAG_TYPES = {
   CONVERSATION: 'conversation',
   CUSTOMER: 'customer',

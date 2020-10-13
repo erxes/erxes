@@ -317,10 +317,10 @@ app.get('/unsubscribe', async (req: any, res) => {
   await handleUnsubscription(req.query);
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  const template = fs.readFileSync(__dirname + '/private/emailTemplates/unsubscribe.html');
-  res.send(template);
 
-  res.end();
+  const template = fs.readFileSync(__dirname + '/private/emailTemplates/unsubscribe.html');
+
+  return res.send(template);
 });
 
 apolloServer.applyMiddleware({ app, path: '/graphql', cors: corsOptions });

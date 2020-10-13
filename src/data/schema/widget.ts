@@ -11,6 +11,7 @@ export const types = `
   type ConversationDetailResponse {
     _id: String
     messages: [ConversationMessage]
+    operatorStatus: String
     participatedUsers: [User]
     isOnline: Boolean
     supporters: [User]
@@ -88,6 +89,15 @@ export const mutations = `
     attachments: [AttachmentInput],
     contentType: String
   ): ConversationMessage
+
+  widgetBotRequest(
+    customerId: String!
+    conversationId: String!
+    integrationId: String!,
+    message: String!
+    payload: String!
+    type: String!
+    ): JSON
 
   widgetsReadConversationMessages(conversationId: String): JSON
   widgetsSaveCustomerGetNotified(customerId: String!, type: String!, value: String!): JSON

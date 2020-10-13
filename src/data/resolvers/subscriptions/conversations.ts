@@ -30,6 +30,18 @@ export default {
   },
 
   /*
+   * Show typing while waiting Bot response
+   */
+  conversationBotTypingStatus: {
+    subscribe: withFilter(
+      () => graphqlPubsub.asyncIterator('conversationBotTypingStatus'),
+      async (payload, variables) => {
+        return payload.conversationBotTypingStatus.conversationId === variables._id;
+      },
+    ),
+  },
+
+  /*
    * Admin is listening for this subscription to show typing notification
    */
   conversationClientTypingStatusChanged: {

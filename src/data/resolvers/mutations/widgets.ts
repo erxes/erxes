@@ -15,14 +15,15 @@ import {
 } from '../../../db/models';
 import Messages from '../../../db/models/ConversationMessages';
 import { IBrowserInfo, IVisitorContactInfoParams } from '../../../db/models/Customers';
-import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
+import { CONVERSATION_OPERATOR_STATUS, CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
 import { IIntegrationDocument, IMessengerDataMessagesItem } from '../../../db/models/definitions/integrations';
 import { IKnowledgebaseCredentials, ILeadCredentials } from '../../../db/models/definitions/messengerApps';
 import { debugBase } from '../../../debuggers';
 import { trackViewPageEvent } from '../../../events';
 import memoryStorage from '../../../inmemoryStorage';
 import { graphqlPubsub } from '../../../pubsub';
-import { registerOnboardHistory, sendEmail, sendMobileNotification, sendToWebhook } from '../../utils';
+import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
+import { registerOnboardHistory, sendEmail, sendMobileNotification, sendRequest, sendToWebhook } from '../../utils';
 import { conversationNotifReceivers } from './conversations';
 
 interface ISubmission {
@@ -384,7 +385,27 @@ const widgetMutations = {
     // to the closed conversation even if it's closed
     let conversation;
 
+    const integration = await Integrations.findOne({ _id: integrationId }).lean();
+
+    const messengerData = integration.messengerData || {};
+
+    const { botEndpointUrl } = messengerData;
+
+    let HAS_BOTENDPOINT_URL = (botEndpointUrl || '').length > 0;
+
+    const getConversationStatus = (IS_CONVERSATION_OPERATOR?: boolean) => {
+      const { OPEN, CLOSED } = CONVERSATION_STATUSES;
+
+      if (IS_CONVERSATION_OPERATOR) {
+        HAS_BOTENDPOINT_URL = false;
+      }
+
+      return !HAS_BOTENDPOINT_URL || IS_CONVERSATION_OPERATOR ? OPEN : CLOSED;
+    };
+
     if (conversationId) {
+      conversation = await Conversations.findOne({ _id: conversationId }).lean();
+
       conversation = await Conversations.findByIdAndUpdate(
         conversationId,
         {
@@ -392,7 +413,7 @@ const widgetMutations = {
           readUserIds: [],
 
           // reopen this conversation if it's closed
-          status: CONVERSATION_STATUSES.OPEN,
+          status: getConversationStatus(conversation.operatorStatus !== CONVERSATION_OPERATOR_STATUS.BOT),
         },
         { new: true },
       );
@@ -401,6 +422,8 @@ const widgetMutations = {
       conversation = await Conversations.createConversation({
         customerId,
         integrationId,
+        operatorStatus: HAS_BOTENDPOINT_URL ? CONVERSATION_OPERATOR_STATUS.BOT : CONVERSATION_OPERATOR_STATUS.OPERATOR,
+        status: getConversationStatus(),
         content: conversationContent,
       });
     }
@@ -409,9 +432,9 @@ const widgetMutations = {
     const msg = await Messages.createMessage({
       conversationId: conversation._id,
       customerId,
-      content: message,
       attachments,
       contentType,
+      content: message,
     });
 
     await Conversations.updateOne(
@@ -419,7 +442,7 @@ const widgetMutations = {
       {
         $set: {
           // Reopen its conversation if it's closed
-          status: CONVERSATION_STATUSES.OPEN,
+          status: getConversationStatus(),
 
           // setting conversation's content to last message
           content: conversationContent,
@@ -435,9 +458,48 @@ const widgetMutations = {
 
     graphqlPubsub.publish('conversationClientMessageInserted', { conversationClientMessageInserted: msg });
     graphqlPubsub.publish('conversationMessageInserted', { conversationMessageInserted: msg });
-    graphqlPubsub.publish('conversationClientTypingStatusChanged', {
-      conversationClientTypingStatusChanged: { conversationId, text: '' },
-    });
+
+    // bot message ================
+    if (HAS_BOTENDPOINT_URL) {
+      graphqlPubsub.publish('conversationBotTypingStatus', {
+        conversationBotTypingStatus: { conversationId: msg.conversationId, typing: true },
+      });
+
+      const botRequest = await sendRequest({
+        method: 'POST',
+        url: botEndpointUrl,
+        body: {
+          type: 'text',
+          text: message,
+        },
+      });
+
+      const { responses } = botRequest;
+
+      const botData =
+        responses.length !== 0
+          ? responses
+          : [
+              {
+                type: 'text',
+                text: AUTO_BOT_MESSAGES.NO_RESPONSE,
+              },
+            ];
+
+      const botMessage = await Messages.createMessage({
+        conversationId: conversation._id,
+        customerId,
+        contentType,
+        botData,
+      });
+
+      graphqlPubsub.publish('conversationBotTypingStatus', {
+        conversationBotTypingStatus: { conversationId: msg.conversationId, typing: false },
+      });
+
+      graphqlPubsub.publish('conversationClientMessageInserted', { conversationClientMessageInserted: botMessage });
+      graphqlPubsub.publish('conversationMessageInserted', { conversationMessageInserted: botMessage });
+    }
 
     const customerLastStatus = await memoryStorage().get(`customer_last_status_${customerId}`, 'left');
 
@@ -466,13 +528,15 @@ const widgetMutations = {
       });
     }
 
-    sendMobileNotification({
-      title: 'You have a new message',
-      body: conversationContent,
-      customerId,
-      conversationId: conversation._id,
-      receivers: conversationNotifReceivers(conversation, customerId),
-    });
+    if (!HAS_BOTENDPOINT_URL) {
+      sendMobileNotification({
+        title: 'You have a new message',
+        body: conversationContent,
+        customerId,
+        conversationId: conversation._id,
+        receivers: conversationNotifReceivers(conversation, customerId),
+      });
+    }
 
     await sendToWebhook('create', 'customerMessages', msg);
 
@@ -570,6 +634,84 @@ const widgetMutations = {
       title,
       template: { data: { content } },
     });
+  },
+
+  async widgetBotRequest(
+    _root,
+    {
+      integrationId,
+      conversationId,
+      customerId,
+      message,
+      payload,
+      type,
+    }: {
+      conversationId: string;
+      customerId: string;
+      integrationId: string;
+      message: string;
+      payload: string;
+      type: string;
+    },
+  ) {
+    const integration = await Integrations.findOne({ _id: integrationId }).lean();
+
+    const { botEndpointUrl } = integration.messengerData;
+
+    // create customer message
+    const msg = await Messages.createMessage({
+      conversationId,
+      customerId,
+      content: message,
+    });
+
+    graphqlPubsub.publish('conversationClientMessageInserted', { conversationClientMessageInserted: msg });
+    graphqlPubsub.publish('conversationMessageInserted', { conversationMessageInserted: msg });
+
+    let botMessage;
+    let botData;
+
+    if (type !== BOT_MESSAGE_TYPES.SAY_SOMETHING) {
+      const botRequest = await sendRequest({
+        method: 'POST',
+        url: botEndpointUrl,
+        body: {
+          type: 'text',
+          text: payload,
+        },
+      });
+
+      const { responses } = botRequest;
+
+      botData =
+        responses.length !== 0
+          ? responses
+          : [
+              {
+                type: 'text',
+                text: AUTO_BOT_MESSAGES.NO_RESPONSE,
+              },
+            ];
+    } else {
+      botData = [
+        {
+          type: 'text',
+          text: payload,
+        },
+      ];
+    }
+
+    // create bot message
+    botMessage = await Messages.createMessage({
+      conversationId,
+      customerId,
+      botData,
+    });
+
+    graphqlPubsub.publish('conversationClientMessageInserted', { conversationClientMessageInserted: botMessage });
+    graphqlPubsub.publish('conversationMessageInserted', { conversationMessageInserted: botMessage });
+
+    return botMessage;
   },
 };
 

@@ -56,6 +56,7 @@ import {
   ACTIVITY_CONTENT_TYPES,
   BOARD_STATUSES,
   BOARD_TYPES,
+  CONVERSATION_OPERATOR_STATUS,
   CONVERSATION_STATUSES,
   FORM_TYPES,
   MESSAGE_TYPES,
@@ -570,6 +571,7 @@ interface IConversationFactoryInput {
   customerId?: string;
   assignedUserId?: string;
   integrationId?: string;
+  operatorStatus?: string;
   userId?: string;
   content?: string;
   participatedUserIds?: string[];
@@ -591,6 +593,7 @@ export const conversationFactory = (params: IConversationFactoryInput = {}) => {
     customerId: params.customerId || Random.id(),
     integrationId: params.integrationId || Random.id(),
     status: params.status || CONVERSATION_STATUSES.NEW,
+    operatorStatus: params.operatorStatus || CONVERSATION_OPERATOR_STATUS.OPERATOR,
   };
 
   return Conversations.createConversation({
