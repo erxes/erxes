@@ -143,6 +143,10 @@ const BarItems = styled.div`
     margin: 5px 0 5px ${dimensions.unitSpacing}px;
   }
 
+  .Select {
+    min-width: 200px;
+  }
+
   input[type='text'] {
     width: auto;
     display: inline-block;

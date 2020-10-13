@@ -4,12 +4,13 @@ import {
   IIntegrationUiOptions,
   IParticipator,
   IUser
-} from "../types";
-import { ICarouselItem } from "./components/bot/Carousel";
+} from '../types';
+import { ICarouselItem } from './components/bot/Carousel';
 
 export interface IWebsiteApp {
   kind: string;
   name: string;
+  _id: string;
   credentials: {
     buttonText: string;
     description: string;
@@ -129,13 +130,15 @@ export interface IBotData {
   module?: string;
   component: string;
   elements?: ICarouselItem[];
-  quick_replies?: [{
-    title: string;
-    payload: string;
-  }];
+  quick_replies?: [
+    {
+      title: string;
+      payload: string;
+    }
+  ];
   wrapped?: {
     type: string;
     text: string;
     typing: boolean;
-  }
-};
+  };
+}

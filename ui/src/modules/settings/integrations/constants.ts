@@ -249,18 +249,6 @@ export const INTEGRATIONS = [
       'All integrations, For support teams, Email marketing, Marketing automation, Conversation'
   },
   {
-    name: 'Pop Ups',
-    description: 'Find your lead forms right here in your Widget',
-    inMessenger: true,
-    isAvailable: true,
-    kind: 'lead',
-    logo: '/images/integrations/lead.png',
-    createModal: 'lead',
-    createUrl: '/settings/integrations/lead',
-    category:
-      'All integrations, For support teams, For marketing teams, Marketing automation, Surveys and Feedback, Pop ups'
-  },
-  {
     name: 'Outlook by Nylas',
     description:
       'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
@@ -287,18 +275,6 @@ export const INTEGRATIONS = [
       'All integrations, For support teams, Marketing automation, Email marketing, Conversation'
   },
   {
-    name: 'Knowledge Base',
-    description: 'Get access to your Knowledge Base right in your Widget',
-    inMessenger: true,
-    isAvailable: true,
-    kind: 'knowledgebase',
-    logo: '/images/integrations/knowledge-base.png',
-    createModal: 'knowledgeBase',
-    createUrl: '/settings/integrations/knowledgeBase',
-    category:
-      'All integrations, For support teams, For marketing teams, Surveys and Feedback'
-  },
-  {
     name: 'Call Pro',
     description: 'Connect your call pro phone number',
     inMessenger: false,
@@ -319,17 +295,6 @@ export const INTEGRATIONS = [
     createModal: 'chatfuel',
     category:
       'All integrations, For support teams, Marketing automation, Messaging, Conversation'
-  },
-  {
-    name: 'Website',
-    description: 'Show your responsive website right in your Widget',
-    inMessenger: true,
-    isAvailable: true,
-    kind: 'website',
-    logo: '/images/integrations/website.png',
-    createModal: 'website',
-    createUrl: '/settings/integrations/website',
-    category: 'All integrations, For support teams, Marketing automation'
   },
   {
     name: 'WhatsApp',
