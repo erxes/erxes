@@ -61,17 +61,13 @@ const prepareMessage = async ({ shortMessage, to, integrations }: IMessageParams
     from: integration.telnyxPhoneNumber,
     to,
     text: content,
-    messaging_profile_id: '',
+    messaging_profile_id: integration.telnyxProfileId || '',
     webhook_url: `${MAIN_API_DOMAIN}/telnyx/webhook`,
     webhook_failover_url: `${MAIN_API_DOMAIN}/telnyx/webhook-failover`,
   };
 
-  // telnyx sets from text properly when making international sms
-  if (integration.telnyxProfileId) {
-    msg.messaging_profile_id = integration.telnyxProfileId;
-  }
-
-  if (from) {
+  // to use alphanumeric sender id, messaging profile id must be set
+  if (msg.messaging_profile_id && from) {
     msg.from = from;
   }
 
