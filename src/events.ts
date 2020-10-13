@@ -11,6 +11,13 @@ interface ISaveEventArgs {
   additionalQuery?: any;
 }
 
+interface ICustomerIdentifyParams {
+  email?: string;
+  phone?: string;
+  code?: string;
+  integrationId?: string;
+}
+
 export const saveEvent = async (args: ISaveEventArgs) => {
   const { type, name, attributes, additionalQuery } = args;
 
@@ -135,7 +142,7 @@ export const trackCustomEvent = (args: { name: string; customerId: string; attri
   });
 };
 
-export const identifyCustomer = async (args: { email?: string; phone?: string; code?: string }) => {
+export const identifyCustomer = async (args: ICustomerIdentifyParams) => {
   // get or create customer
   let customer = await Customers.getWidgetCustomer(args);
 

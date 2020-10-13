@@ -3,7 +3,7 @@ import { WEBHOOK_STATUS } from '../../../db/models/definitions/constants';
 import { IWebhook } from '../../../db/models/definitions/webhook';
 import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
-import { checkPermission } from '../../permissions/wrappers';
+import { moduleCheckPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { sendRequest } from '../../utils';
 
@@ -85,8 +85,6 @@ const webhookMutations = {
   },
 };
 
-checkPermission(webhookMutations, 'webhooksAdd', 'manageWebhooks');
-checkPermission(webhookMutations, 'webhooksEdit', 'manageWebhooks');
-checkPermission(webhookMutations, 'webhooksRemove', 'manageWebhooks');
+moduleCheckPermission(webhookMutations, 'manageWebhooks');
 
 export default webhookMutations;

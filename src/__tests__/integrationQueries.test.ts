@@ -48,6 +48,7 @@ describe('integrationQueries', () => {
   `;
 
   const name = faker && faker.random ? faker.random.word() : 'anonymous';
+  const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
 
   afterEach(async () => {
     // Clearing test data
@@ -192,9 +193,14 @@ describe('integrationQueries', () => {
     const tag = await tagsFactory();
     const messengerIntegration = await integrationFactory({ tagIds: [tag._id], brandId: 'fakeId' });
 
-    let response = await graphqlRequest(qry, 'integrationDetail', {
-      _id: messengerIntegration._id,
-    });
+    let response = await graphqlRequest(
+      qry,
+      'integrationDetail',
+      {
+        _id: messengerIntegration._id,
+      },
+      { dataSources },
+    );
 
     expect(response._id).toBe(messengerIntegration._id);
     expect(response.tags.length).toBe(1);
@@ -276,8 +282,6 @@ describe('integrationQueries', () => {
         integrationsFetchApi(path: $path, params: $params)
       }
     `;
-
-    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
 
     try {
       await graphqlRequest(qry, 'integrationsFetchApi', { path: '/', params: { type: 'facebook' } }, { dataSources });
