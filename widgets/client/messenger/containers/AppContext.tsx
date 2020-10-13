@@ -474,7 +474,7 @@ export class AppProvider extends React.Component<{}, IState> {
     return client
       .mutate({
         mutation: gql`
-          mutation widgetPostRequest(
+          mutation widgetBotRequest(
             $message: String!
             $payload: String!
             $type: String!
@@ -482,7 +482,7 @@ export class AppProvider extends React.Component<{}, IState> {
             $customerId: String!
             $integrationId: String!
           ) {
-            widgetPostRequest(
+            widgetBotRequest(
               message: $message
               payload: $payload
               type: $type
