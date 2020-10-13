@@ -53,7 +53,6 @@ function List({ tags, type, remove, loading, renderButton }: Props) {
   );
   const actionBar = (
     <Wrapper.ActionBar
-      background="colorWhite"
       left={title}
       right={actionBarRight}
     />

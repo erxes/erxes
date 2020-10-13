@@ -135,8 +135,6 @@ class CustomersList extends React.Component<IProps, State> {
     }
   }
 
-
-
   changeVerificationStatus = (type: string, status: string, customers) => {
     const customerIds: string[] = [];
 
@@ -259,8 +257,6 @@ class CustomersList extends React.Component<IProps, State> {
 
       this.changeVerificationStatus("phone", e.target.id, bulk)
     }
-
-
 
     const emailVerificationStatusList = [] as any;
 
