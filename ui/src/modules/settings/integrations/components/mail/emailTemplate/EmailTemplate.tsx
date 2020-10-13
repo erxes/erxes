@@ -2,6 +2,7 @@ import Button from 'modules/common/components/Button';
 import EmptyState from 'modules/common/components/EmptyState';
 import {
   PopoverBody,
+  PopoverFooter,
   PopoverList
 } from 'modules/common/components/filterableList/styles';
 import Icon from 'modules/common/components/Icon';
@@ -13,12 +14,17 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 
 type Props = {
+  fetchMoreEmailTemplates: () => void;
   targets: Array<{ value: string; label: string }>;
   onSelect: (id: string) => void;
 };
 
 class EmailTemplate extends React.Component<Props> {
   private overlayRef;
+
+  handleFetch = () => {
+    this.props.fetchMoreEmailTemplates();
+  }
 
   handleClick(value: string) {
     this.props.onSelect(value);
@@ -57,6 +63,9 @@ class EmailTemplate extends React.Component<Props> {
           <PopoverBody>
             <PopoverList>{this.renderContent()}</PopoverList>
           </PopoverBody>
+          <PopoverFooter>
+            <Button btnStyle="link" block={true} onClick={this.handleFetch}>{__('Load more')}</Button>
+          </PopoverFooter>
         </Popover.Content>
       </Popover>
     );

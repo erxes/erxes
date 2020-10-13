@@ -57,6 +57,7 @@ type Props = {
   closeModal?: () => void;
   toggleReply?: () => void;
   emailSignatures: IEmailSignature[];
+  fetchMoreEmailTemplates: () => void;
   createdAt?: Date;
   sendMail: (
     { variables, callback }: { variables: any; callback: () => void }
@@ -686,7 +687,7 @@ class MailForm extends React.Component<Props, State> {
 
   renderButtons() {
     const { kind } = this.state;
-    const { isReply, emailTemplates, toggleReply } = this.props;
+    const { isReply, emailTemplates, toggleReply, fetchMoreEmailTemplates } = this.props;
 
     const inputProps = {
       type: 'file',
@@ -715,6 +716,7 @@ class MailForm extends React.Component<Props, State> {
 
             <EmailTemplate
               onSelect={this.templateChange}
+              fetchMoreEmailTemplates={fetchMoreEmailTemplates}
               targets={generateEmailTemplateParams(emailTemplates || [])}
             />
           </ToolBar>
