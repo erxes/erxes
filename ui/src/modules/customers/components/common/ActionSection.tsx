@@ -75,7 +75,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
           }
           size="lg"
           content={content}
-          paddingContent="no-padding"
+          paddingContent="less-padding"
           enforceFocus={false}
         />
         <ModalTrigger

@@ -21,6 +21,7 @@ import { IntegrationModal } from './IntegrationModal';
 import {
   AdditionalSidebar,
   DropdownWrapper,
+  FlexRoot,
   LeftContent,
   RightItems,
   SidebarActions,
@@ -109,24 +110,25 @@ class LeftSidebar extends React.Component<Props, State> {
 
     return (
       <Sidebar.Header>
-        <ToggleButton
-          id="btn-inbox-channel-visible"
-          isActive={this.state.isOpen}
-          onClick={this.onToggleSidebar}
-        >
-          <Icon icon="subject" />
-        </ToggleButton>
-        {queryParams.status !== CONVERSATION_STATUSES.CLOSED && (
-          <Button
-            size="small"
-            uppercase={false}
-            btnStyle="success"
-            icon="check-circle"
-            onClick={this.props.resolveAll}
+        <FlexRoot>
+          <ToggleButton
+            id="btn-inbox-channel-visible"
+            isActive={this.state.isOpen}
+            onClick={this.onToggleSidebar}
           >
-            Resolve all
-          </Button>
-        )}
+            <Icon icon="subject" />
+          </ToggleButton>
+          {queryParams.status !== CONVERSATION_STATUSES.CLOSED && (
+            <Button
+              size="small"
+              uppercase={false}
+              btnStyle="simple"
+              onClick={this.props.resolveAll}
+            >
+              Resolve all
+            </Button>
+          )}
+        </FlexRoot>
         <DropdownWrapper>
           <DateFilter
             queryParams={queryParams}
