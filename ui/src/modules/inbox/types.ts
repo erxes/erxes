@@ -122,6 +122,42 @@ export interface IEngageData {
   rules?: IEngageDataRules[];
 }
 
+export interface ICarouselButton {
+  type: string;
+  title: string;
+  text: string;
+  payload: string;
+  url?: string;
+}
+export interface ICarouselItem {
+  title: string;
+  picture?: string;
+  subtitle?: string;
+  buttons?: ICarouselButton[];
+}
+
+export interface IBotData {
+  type: string;
+  text?: string;
+  title?: string;
+  url?: string;
+  fromCustomer?: boolean;
+  module?: string;
+  component: string;
+  elements?: ICarouselItem[];
+  quick_replies?: [
+    {
+      title: string;
+      payload: string;
+    }
+  ];
+  wrapped?: {
+    type: string;
+    text: string;
+    typing: boolean;
+  };
+}
+
 export interface IMessage {
   content: string;
   videoCallData?: IVideoCallData;
@@ -136,6 +172,7 @@ export interface IMessage {
   isCustomerRead?: boolean;
   formWidgetData?: any;
   messengerAppData?: any;
+  botData?: any;
   engageData?: IEngageData;
   mailData?: IMail;
 

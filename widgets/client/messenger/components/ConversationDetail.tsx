@@ -1,19 +1,21 @@
-import * as classNames from "classnames";
-import * as React from "react";
-import { IParticipator, IUser } from "../../types";
-import { __ } from "../../utils";
-import { MessageSender, MessagesList, TopBar } from "../containers";
-import { IMessage } from "../types";
-import ConversationHeadContent from "./ConversationHeadContent";
+import * as classNames from 'classnames';
+import * as React from 'react';
+import { IParticipator, IUser } from '../../types';
+import { __ } from '../../utils';
+import { MessageSender, MessagesList, TopBar } from '../containers';
+import { IMessage } from '../types';
+import ConversationHeadContent from './ConversationHeadContent';
 
 type Props = {
   messages: IMessage[];
   goToConversationList: () => void;
   supporters: IUser[];
   participators: IParticipator[];
+  operatorStatus?: string;
   isOnline: boolean;
   color?: string;
   loading?: boolean;
+  refetchConversationDetail?: () => void;
 };
 
 type State = {
@@ -79,18 +81,20 @@ class ConversationDetail extends React.Component<Props, State> {
       participators,
       supporters,
       goToConversationList,
+      refetchConversationDetail,
+      operatorStatus,
       isOnline,
       color,
       loading
     } = this.props;
 
-    const rootClasses = classNames("erxes-content-wrapper", {
-      "mini-video": this.state.isMinimizeVideoCall
+    const rootClasses = classNames('erxes-content-wrapper', {
+      'mini-video': this.state.isMinimizeVideoCall
     });
 
     const placeholder = !messages.length
-      ? __("Send a message")
-      : __("Write a reply");
+      ? __('Send a message')
+      : __('Write a reply');
 
     return (
       <div className="erxes-conversation-detail" onWheel={this.onWheel}>
@@ -113,7 +117,7 @@ class ConversationDetail extends React.Component<Props, State> {
             goToConversationList();
 
             // leave video call if you are in
-            const videoIframe = document.getElementById("erxes-video-iframe");
+            const videoIframe = document.getElementById('erxes-video-iframe');
 
             if (videoIframe) {
               videoIframe.remove();
@@ -129,10 +133,12 @@ class ConversationDetail extends React.Component<Props, State> {
               color={color}
               inputFocus={this.inputFocus}
               toggleVideoCall={this.toggleVideoCall}
+              refetchConversationDetail={refetchConversationDetail}
+              operatorStatus={operatorStatus}
             />
 
             <MessageSender
-              placeholder={placeholder ? placeholder.toString() : ""}
+              placeholder={placeholder ? placeholder.toString() : ''}
               isParentFocused={this.state.isFocused}
               onTextInputBlur={this.onTextInputBlur}
               collapseHead={this.inputFocus}

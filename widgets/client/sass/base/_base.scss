@@ -148,8 +148,6 @@ a {
   }
 }
 
-
-
 // form control
 .form-control {
   @include prefix((
@@ -256,5 +254,5 @@ a {
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: rgba(0,0,0, 0.05);
 }
