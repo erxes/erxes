@@ -305,6 +305,7 @@ const sendViaMessenger = async ({ engageMessage, customersSelector, user }: IEng
         fromUserId,
         ...(messenger ? messenger.toJSON() : {}),
       },
+      internal: false,
       conversationId,
       userId: fromUserId,
       customerId: customer._id,
