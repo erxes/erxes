@@ -23,6 +23,7 @@
     "dotenv": "^4.0.0",
     "erxes-message-broker": "^1.0.17",
     "express": "^4.16.4",
+    "faker": "^4.1.0",
     "meteor-random": "^0.0.3",
     "mongoose": "5.7.5",
     "nodemailer": "^6.2.1",
@@ -37,8 +38,8 @@
   },
   "devDependencies": {
     "@types/q": "^1.5.0",
-    "faker": "^4.1.0",
     "jest": "^24.9.0",
+    "supertest": "^5.0.0",
     "ts-jest": "^24.2.0",
     "ts-node-dev": "^1.0.0-pre.32",
     "typescript": "^3.7.2"

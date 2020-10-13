@@ -65,12 +65,22 @@ const pipeRequest = (req: any, res: any, next: any, url: string) => {
   );
 };
 
+const handleTelnyxWebhook = (req, res, next, hookName: string) => {
+  const ENGAGES_API_DOMAIN = getSubServiceDomain({ name: 'ENGAGES_API_DOMAIN' });
+
+  if (NODE_ENV === 'test') {
+    return res.json(req.body);
+  }
+
+  return pipeRequest(req, res, next, `${ENGAGES_API_DOMAIN}/telnyx/${hookName}`);
+};
+
 const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
 const WIDGETS_DOMAIN = getSubServiceDomain({ name: 'WIDGETS_DOMAIN' });
 const INTEGRATIONS_API_DOMAIN = getSubServiceDomain({ name: 'INTEGRATIONS_API_DOMAIN' });
 const CLIENT_PORTAL_DOMAIN = getSubServiceDomain({ name: 'CLIENT_PORTAL_DOMAIN' });
 
-const app = express();
+export const app = express();
 
 app.disable('x-powered-by');
 
@@ -83,20 +93,6 @@ app.post(`/service/engage/tracker`, async (req, res, next) => {
   return pipeRequest(req, res, next, `${ENGAGES_API_DOMAIN}/service/engage/tracker`);
 });
 
-// relay telnyx sms web hook
-app.post(`/telnyx/webhook`, async (req, res, next) => {
-  const ENGAGES_API_DOMAIN = getSubServiceDomain({ name: 'ENGAGES_API_DOMAIN' });
-
-  return pipeRequest(req, res, next, `${ENGAGES_API_DOMAIN}/telnyx/webhook`);
-});
-
-// relay telnyx sms web hook fail over url
-app.post(`/telnyx/webhook-failover`, async (req, res, next) => {
-  const ENGAGES_API_DOMAIN = getSubServiceDomain({ name: 'ENGAGES_API_DOMAIN' });
-
-  return pipeRequest(req, res, next, `${ENGAGES_API_DOMAIN}/telnyx/webhook-failover`);
-});
-
 app.use(express.urlencoded({ extended: true }));
 
 app.use(
@@ -104,6 +100,16 @@ app.use(
     limit: '15mb',
   }),
 );
+
+// relay telnyx sms web hook
+app.post(`/telnyx/webhook`, (req, res, next) => {
+  return handleTelnyxWebhook(req, res, next, 'webhook');
+});
+
+// relay telnyx sms web hook fail over url
+app.post(`/telnyx/webhook-failover`, (req, res, next) => {
+  return handleTelnyxWebhook(req, res, next, 'webhook-failover');
+});
 
 app.use(cookieParser());
 
@@ -348,13 +354,21 @@ app.use((error, _req, res, _next) => {
 const httpServer = createServer(app);
 
 const PORT = getEnv({ name: 'PORT' });
+const MONGO_URL = getEnv({ name: 'MONGO_URL' });
+const TEST_MONGO_URL = getEnv({ name: 'TEST_MONGO_URL' });
 
 // subscriptions server
 apolloServer.installSubscriptionHandlers(httpServer);
 
 httpServer.listen(PORT, () => {
+  let mongoUrl = MONGO_URL;
+
+  if (NODE_ENV === 'test') {
+    mongoUrl = TEST_MONGO_URL;
+  }
+
   // connect to mongo database
-  connect().then(async () => {
+  connect(mongoUrl).then(async () => {
     initBroker(app).catch(e => {
       debugBase(`Error ocurred during message broker init ${e.message}`);
     });
