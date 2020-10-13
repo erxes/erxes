@@ -186,16 +186,12 @@ describe('integrationQueries', () => {
           websiteMessengerApps { _id }
           knowledgeBaseMessengerApps { _id }
           leadMessengerApps { _id }
-          externalData
         }
       }
     `;
 
     const tag = await tagsFactory();
     const messengerIntegration = await integrationFactory({ tagIds: [tag._id], brandId: 'fakeId' });
-
-    const spy = jest.spyOn(dataSources.IntegrationsAPI, 'fetchApi');
-    spy.mockImplementation(() => Promise.resolve());
 
     let response = await graphqlRequest(
       qry,

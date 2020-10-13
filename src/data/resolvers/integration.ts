@@ -1,8 +1,6 @@
 import { Brands, Channels, Forms, MessengerApps, Tags } from '../../db/models';
 import { KIND_CHOICES } from '../../db/models/definitions/constants';
 import { IIntegrationDocument } from '../../db/models/definitions/integrations';
-import { debugExternalApi } from '../../debuggers';
-import { IContext } from '../types';
 
 export default {
   brand(integration: IIntegrationDocument) {
@@ -40,14 +38,5 @@ export default {
       return MessengerApps.find({ kind: 'lead', 'credentials.integrationId': integration._id });
     }
     return [];
-  },
-
-  externalData(integration: IIntegrationDocument, _args, { dataSources }: IContext) {
-    try {
-      return dataSources.IntegrationsAPI.fetchApi('/integrationDetail', { erxesApiId: integration._id });
-    } catch (e) {
-      debugExternalApi(e);
-      return null;
-    }
   },
 };
