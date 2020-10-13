@@ -3,14 +3,14 @@ id: ubuntu
 title: Ubuntu 18.04
 ---
 
-import Tabs from "@theme/Tabs";
-import TabItem from "@theme/TabItem";
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 ## Server Installation Requirements
 
 erxes gives you several options for installing the erxes platform. Below you will find two guides:
 
-The first guide is the **Quick Start** guide where we provide a script that automates most of the installation process. The second guide is a comprehensive, **Step by Step** guide where advanced developers can see exactly what is being installed and how.
+The first guide is the **Quick Start** installation guide where we provide a script that automates most of the installation process. The second guide is a comprehensive, **Step by Step** guide where advanced developers can see exactly what is being installed and how.
 
 :::info Ubuntu 18.04
 These instructions are for installing erxes on **Ubuntu 18.04**. They should work on any hosting provider that allows you to install Ubuntu 18.04.
@@ -25,6 +25,15 @@ Each hosting company has slightly different server configurations and set-ups. H
 
 To install and properly run your **erxes** installation, you must meet these minimum requirements:
 
+#### Installing with Quickstart
+
+- Ubuntu 18.04 installed and running
+- 1 CPU
+- 1GB RAM
+- ability to to SSH into the server
+
+#### Installing with Step by Step
+
 - Ubuntu 18.04 installed and running
 - 2 CPUs
 - 4GB RAM
@@ -38,7 +47,8 @@ You can use the [Digital Ocean Marketplace](https://marketplace.digitalocean.com
 
 You must have an account with your hosting provider prior to doing these steps.
 
-- Create a server with **Ubuntu 18.04** installed, a minimum of **2 CPUs** and **4GB RAM**.
+- Choose a server size that corresponds with the requirements for installing with **Quickstart** or **Step by Step** instructions.
+- The server should install with **Ubuntu 18.04**.
 - If you're using a **subdomain**, then the **subdomain** must be created with your hosting provider hosting your main domain's website or app.
 
 ### Configure your DNS Records to point at your server
@@ -187,17 +197,19 @@ After successful logging back into the server as `erxes`, you are ready to conti
 
 **Let's Encrypt** enables you to use **HTTPS** on your website. It will issue you a certificate which shows that you control your domain. [Let's Encrypt additional information](https://www.nginx.com/resources/wiki/start/topics/tutorials/install/).
 
-Execute Certbot. You will asked several questions, you can answer as follows:
+Execute Certbot.
+
+```bash
+sudo certbot --nginx
+```
+
+You will asked several questions, you can answer as follows:
 
 - Enter your email address
 - Agree with the **Terms of Service**
 - Answer `Yes` or `No`, if you want to share your email address with the Electronic Frontier Foundation
 - Select the corresponding number associated with your domain name, usually `1`
 - Choose `2` to redirect all your traffic to a secure **HTTPS**
-
-```bash
-sudo certbot --nginx
-```
 
 - Now run the following to **test and set-up** automatic renewal of your 90 day certbot. This needs to succeed so that your renewals are automatic.
 
@@ -206,34 +218,6 @@ sudo certbot renew --dry-run
 ```
 
 Check your website in the browser. You should see the **Secure Padlock** next to your URL.
-
-## Final MongoDB Configuration steps
-
-The script created a random password for your **MongoDB** database. We need to copy it from the `ecosystem.json` file and set it as an `env` variable. This will require several steps.
-
-```bash
-cd ~/erxes.io
-nano ecosystem.config.js
-```
-
-Locate the `"MONGO_URL": "mongodb://erxes:82e3e42ef31e51d51687b366118200e2@localhost/erxes?authSource=admin&replicaSet=rs0",` under the `erxes-api`.
-
-- Copy the MONGO_URL and exit the nano editor with `ctrl + x`.
-
-- Now you will need to `export` and set the variable `MONGO_URL`, with the copied URL. See below:
-
-**Example:**
-
-```
-# example
-# export MONGO_URL="mongodb://erxes:92c54fa1f0658xxxxc2d9ce618b008b4@localhost/erxes?authSource=admin&replicaSet=rs0"
-```
-
-**Use your copied MONGO_URL below:**
-
-```
-export MONGO_URL="YOUR_COPIED_MONGO_URL_HERE"
-```
 
 </TabItem>
 <TabItem value='step-by-step'>
@@ -1132,156 +1116,156 @@ nano ecosystem.config.js
 module.exports = {
   apps: [
     {
-      name: "erxes-api",
-      script: "dist",
-      cwd: "/home/erxes/erxes.io/erxes-api",
-      log_date_format: "YYYY-MM-DD HH:mm Z",
-      node_args: "--max_old_space_size=4096",
+      name: 'erxes-api',
+      script: 'dist',
+      cwd: '/home/erxes/erxes.io/erxes-api',
+      log_date_format: 'YYYY-MM-DD HH:mm Z',
+      node_args: '--max_old_space_size=4096',
       env: {
         PORT: 3300,
-        NODE_ENV: "production",
-        JWT_TOKEN_SECRET: "YOUR_SECRET_TOKEN",
-        DEBUG: "erxes-api:*",
-        MONGO_URL: "mongodb://localhost/erxes",
-        REDIS_HOST: "localhost",
+        NODE_ENV: 'production',
+        JWT_TOKEN_SECRET: 'YOUR_SECRET_TOKEN',
+        DEBUG: 'erxes-api:*',
+        MONGO_URL: 'mongodb://localhost/erxes',
+        REDIS_HOST: 'localhost',
         REDIS_PORT: 6379,
-        REDIS_PASSWORD: "",
-        RABBITMQ_HOST: "amqp://localhost",
-        ELASTICSEARCH_URL: "http://localhost:9200",
-        MAIN_APP_DOMAIN: "https://YOUR_DOMAIN_COM",
-        WIDGETS_DOMAIN: "https://YOUR_DOMAIN_COM/widgets",
-        INTEGRATIONS_API_DOMAIN: "https://YOUR_DOMAIN_COM/integrations",
+        REDIS_PASSWORD: '',
+        RABBITMQ_HOST: 'amqp://localhost',
+        ELASTICSEARCH_URL: 'http://localhost:9200',
+        MAIN_APP_DOMAIN: 'https://YOUR_DOMAIN_COM',
+        WIDGETS_DOMAIN: 'https://YOUR_DOMAIN_COM/widgets',
+        INTEGRATIONS_API_DOMAIN: 'https://YOUR_DOMAIN_COM/integrations',
       },
     },
     {
-      name: "erxes-cronjobs",
-      script: "dist/cronJobs",
-      cwd: "/home/erxes/erxes.io/erxes-api",
-      log_date_format: "YYYY-MM-DD HH:mm Z",
-      node_args: "--max_old_space_size=4096",
+      name: 'erxes-cronjobs',
+      script: 'dist/cronJobs',
+      cwd: '/home/erxes/erxes.io/erxes-api',
+      log_date_format: 'YYYY-MM-DD HH:mm Z',
+      node_args: '--max_old_space_size=4096',
       env: {
         PORT_CRONS: 3600,
-        NODE_ENV: "production",
-        PROCESS_NAME: "crons",
-        DEBUG: "erxes-crons:*",
-        MONGO_URL: "mongodb://localhost/erxes",
-        REDIS_HOST: "localhost",
+        NODE_ENV: 'production',
+        PROCESS_NAME: 'crons',
+        DEBUG: 'erxes-crons:*',
+        MONGO_URL: 'mongodb://localhost/erxes',
+        REDIS_HOST: 'localhost',
         REDIS_PORT: 6379,
-        REDIS_PASSWORD: "",
-        RABBITMQ_HOST: "amqp://localhost",
+        REDIS_PASSWORD: '',
+        RABBITMQ_HOST: 'amqp://localhost',
       },
     },
     {
-      name: "erxes-workers",
-      script: "dist/workers",
-      cwd: "/home/erxes/erxes.io/erxes-api",
-      log_date_format: "YYYY-MM-DD HH:mm Z",
-      node_args: "--max_old_space_size=4096",
+      name: 'erxes-workers',
+      script: 'dist/workers',
+      cwd: '/home/erxes/erxes.io/erxes-api',
+      log_date_format: 'YYYY-MM-DD HH:mm Z',
+      node_args: '--max_old_space_size=4096',
       env: {
         PORT_WORKERS: 3700,
-        NODE_ENV: "production",
-        DEBUG: "erxes-workers:*",
-        MONGO_URL: "mongodb://localhost/erxes",
-        REDIS_HOST: "localhost",
+        NODE_ENV: 'production',
+        DEBUG: 'erxes-workers:*',
+        MONGO_URL: 'mongodb://localhost/erxes',
+        REDIS_HOST: 'localhost',
         REDIS_PORT: 6379,
-        REDIS_PASSWORD: "",
-        RABBITMQ_HOST: "amqp://localhost",
-        JWT_TOKEN_SECRET: "YOUR_SECRET_TOKEN",
+        REDIS_PASSWORD: '',
+        RABBITMQ_HOST: 'amqp://localhost',
+        JWT_TOKEN_SECRET: 'YOUR_SECRET_TOKEN',
       },
     },
     {
-      name: "erxes-widgets",
-      script: "dist",
-      cwd: "/home/erxes/erxes.io/erxes-widgets",
-      log_date_format: "YYYY-MM-DD HH:mm Z",
-      node_args: "--max_old_space_size=4096",
+      name: 'erxes-widgets',
+      script: 'dist',
+      cwd: '/home/erxes/erxes.io/erxes-widgets',
+      log_date_format: 'YYYY-MM-DD HH:mm Z',
+      node_args: '--max_old_space_size=4096',
       env: {
         PORT: 3200,
-        NODE_ENV: "production",
-        ROOT_URL: "https://YOUR_DOMAIN_COM/widgets",
-        API_URL: "https://YOUR_DOMAIN_COM/api",
-        API_SUBSCRIPTIONS_URL: "wss://YOUR_DOMAIN_COM/api/subscriptions",
+        NODE_ENV: 'production',
+        ROOT_URL: 'https://YOUR_DOMAIN_COM/widgets',
+        API_URL: 'https://YOUR_DOMAIN_COM/api',
+        API_SUBSCRIPTIONS_URL: 'wss://YOUR_DOMAIN_COM/api/subscriptions',
       },
     },
     {
-      name: "erxes-engages",
-      script: "dist",
-      cwd: "/home/erxes/erxes.io/erxes-engages-email-sender",
-      log_date_format: "YYYY-MM-DD HH:mm Z",
-      node_args: "--max_old_space_size=4096",
+      name: 'erxes-engages',
+      script: 'dist',
+      cwd: '/home/erxes/erxes.io/erxes-engages-email-sender',
+      log_date_format: 'YYYY-MM-DD HH:mm Z',
+      node_args: '--max_old_space_size=4096',
       env: {
         PORT: 3900,
-        NODE_ENV: "production",
-        DEBUG: "erxes-engages:*",
-        MAIN_API_DOMAIN: "https://YOUR_DOMAIN_COM/api",
-        MONGO_URL: "mongodb://localhost/erxes_engages",
-        RABBITMQ_HOST: "amqp://localhost",
-        REDIS_HOST: "localhost",
+        NODE_ENV: 'production',
+        DEBUG: 'erxes-engages:*',
+        MAIN_API_DOMAIN: 'https://YOUR_DOMAIN_COM/api',
+        MONGO_URL: 'mongodb://localhost/erxes_engages',
+        RABBITMQ_HOST: 'amqp://localhost',
+        REDIS_HOST: 'localhost',
         REDIS_PORT: 6379,
-        REDIS_PASSWORD: "",
+        REDIS_PASSWORD: '',
       },
     },
     {
-      name: "erxes-logger",
-      script: "dist",
-      cwd: "/home/erxes/erxes.io/erxes-logger",
-      log_date_format: "YYYY-MM-DD HH:mm Z",
-      node_args: "--max_old_space_size=4096",
+      name: 'erxes-logger',
+      script: 'dist',
+      cwd: '/home/erxes/erxes.io/erxes-logger',
+      log_date_format: 'YYYY-MM-DD HH:mm Z',
+      node_args: '--max_old_space_size=4096',
       env: {
         PORT: 3800,
-        NODE_ENV: "production",
-        DEBUG: "erxes-logs:*",
-        MONGO_URL: "mongodb://localhost/erxes_logger",
-        RABBITMQ_HOST: "amqp://localhost",
+        NODE_ENV: 'production',
+        DEBUG: 'erxes-logs:*',
+        MONGO_URL: 'mongodb://localhost/erxes_logger',
+        RABBITMQ_HOST: 'amqp://localhost',
       },
     },
     {
-      name: "erxes-integrations",
-      script: "dist",
-      cwd: "/home/erxes/erxes.io/erxes-integrations",
-      log_date_format: "YYYY-MM-DD HH:mm Z",
-      node_args: "--max_old_space_size=4096",
+      name: 'erxes-integrations',
+      script: 'dist',
+      cwd: '/home/erxes/erxes.io/erxes-integrations',
+      log_date_format: 'YYYY-MM-DD HH:mm Z',
+      node_args: '--max_old_space_size=4096',
       env: {
         PORT: 3400,
-        NODE_ENV: "production",
-        DEBUG: "erxes-integrations:*",
-        DOMAIN: "https://YOUR_DOMAIN_COM/integrations",
-        MAIN_APP_DOMAIN: "https://YOUR_DOMAIN_COM",
-        MAIN_API_DOMAIN: "https://YOUR_DOMAIN_COM/api",
-        MONGO_URL: "mongodb://localhost/erxes_integrations",
-        RABBITMQ_HOST: "amqp://localhost",
-        REDIS_HOST: "localhost",
+        NODE_ENV: 'production',
+        DEBUG: 'erxes-integrations:*',
+        DOMAIN: 'https://YOUR_DOMAIN_COM/integrations',
+        MAIN_APP_DOMAIN: 'https://YOUR_DOMAIN_COM',
+        MAIN_API_DOMAIN: 'https://YOUR_DOMAIN_COM/api',
+        MONGO_URL: 'mongodb://localhost/erxes_integrations',
+        RABBITMQ_HOST: 'amqp://localhost',
+        REDIS_HOST: 'localhost',
         REDIS_PORT: 6379,
-        REDIS_PASSWORD: "",
+        REDIS_PASSWORD: '',
       },
     },
     {
-      name: "erxes-elkSyncer",
-      script: "main.py",
-      cwd: "/home/erxes/erxes.io/erxes-elkSyncer/elkSyncer",
-      log_date_format: "YYYY-MM-DD HH:mm Z",
-      interpreter: "/usr/bin/python3",
+      name: 'erxes-elkSyncer',
+      script: 'main.py',
+      cwd: '/home/erxes/erxes.io/erxes-elkSyncer/elkSyncer',
+      log_date_format: 'YYYY-MM-DD HH:mm Z',
+      interpreter: '/usr/bin/python3',
       env: {
-        MONGO_URL: "mongodb://localhost/erxes",
-        ELASTICSEARCH_URL: "http://localhost:9200",
+        MONGO_URL: 'mongodb://localhost/erxes',
+        ELASTICSEARCH_URL: 'http://localhost:9200',
       },
     },
     {
-      name: "erxes-email-verifier",
-      script: "dist",
-      cwd: "/home/erxes/erxes.io/erxes-email-verifier",
-      log_date_format: "YYYY-MM-DD HH:mm Z",
-      node_args: "--max_old_space_size=4096",
+      name: 'erxes-email-verifier',
+      script: 'dist',
+      cwd: '/home/erxes/erxes.io/erxes-email-verifier',
+      log_date_format: 'YYYY-MM-DD HH:mm Z',
+      node_args: '--max_old_space_size=4096',
       env: {
         PORT_WORKERS: 3700,
-        NODE_ENV: "production",
-        DEBUG: "erxes-workers:*",
-        MONGO_URL: "mongodb://localhost/erxes",
-        REDIS_HOST: "localhost",
+        NODE_ENV: 'production',
+        DEBUG: 'erxes-workers:*',
+        MONGO_URL: 'mongodb://localhost/erxes',
+        REDIS_HOST: 'localhost',
         REDIS_PORT: 6379,
-        REDIS_PASSWORD: "",
-        RABBITMQ_HOST: "amqp://localhost",
-        JWT_TOKEN_SECRET: "YOUR_SECRET_TOKEN",
+        REDIS_PASSWORD: '',
+        RABBITMQ_HOST: 'amqp://localhost',
+        JWT_TOKEN_SECRET: 'YOUR_SECRET_TOKEN',
       },
     },
   ],
@@ -1402,37 +1386,9 @@ export MONGO_URL="mongodb://localhost/erxes"
 </Tabs>
 
 
-## Initialize and Load permissions for erxes
-
-- initialize Erxes and generate **login password**.
-  cd ~/erxes.io/erxes-api/dist
-
-```bash
-nvm use default
-cd ~/erxes.io/erxes-api/dist
-node commands/initProject
-```
-
-You should have a generated **password**. The output will be similar to this:
-
-```bash
-Your new password: HcEjfBMxws
-
-# note this down
-```
-
-- Run this final command to finish the installation of **erxes**.
-
-```bash
-pm2 restart erxes-api
-node commands/loadPermissionData
-```
-
 ## Congratulations, time to log in
 
 You have installed **erxes** and all the dependencies. You may now visit your url, and log in.
-
-The username is **admin@erxes.io**, and the password is the password generated above.
 
 ## Known Issues and frequent Questions
 
