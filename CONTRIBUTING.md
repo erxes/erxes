@@ -47,7 +47,7 @@ As of March 2020, we have started **Swag for Contributions** program. To show ou
 ### Contributors
 
 Thank you to all the people who have already contributed to erxes!
-<a href="graphs/contributors"><img src="https://opencollective.com/erxes/contributors.svg?width=890" /></a>
+<a href="https://opencollective.com/erxes#section-contributors"><img src="https://opencollective.com/erxes/contributors.svg?width=890" /></a>
 
 
 ### Backers
