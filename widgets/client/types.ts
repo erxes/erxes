@@ -97,6 +97,7 @@ export interface IIntegrationMessengerDataMessagesItem {
 }
 
 export interface IIntegrationMessengerData {
+  botEndpointUrl?: string;
   supporterIds: string[];
   notifyCustomer: boolean;
   knowledgeBaseTopicId: string;

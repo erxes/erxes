@@ -49,6 +49,7 @@ type Props = {
 
 type State = {
   title: string;
+  botEndpointUrl?: string;
   brandId: string;
   channelIds: string[];
   languageCode: string;
@@ -89,7 +90,8 @@ class CreateMessenger extends React.Component<Props, State> {
       showChat: true,
       showLauncher: true,
       forceLogoutWhenResolve: false,
-      showVideoCallRequest: false
+      showVideoCallRequest: false,
+      botEndpointUrl: ''
     };
     const links = configData.links || {};
     const messages = configData.messages || {};
@@ -99,6 +101,7 @@ class CreateMessenger extends React.Component<Props, State> {
 
     this.state = {
       title: integration.name,
+      botEndpointUrl: configData.botEndpointUrl,
       brandId: integration.brandId || '',
       languageCode,
       channelIds: channels.map(item => item._id) || [],
@@ -165,6 +168,7 @@ class CreateMessenger extends React.Component<Props, State> {
 
     const {
       title,
+      botEndpointUrl,
       brandId,
       languageCode,
       channelIds,
@@ -200,6 +204,7 @@ class CreateMessenger extends React.Component<Props, State> {
       channelIds,
       languageCode: this.state.languageCode,
       messengerData: {
+        botEndpointUrl,
         notifyCustomer: this.state.notifyCustomer,
         availabilityMethod: this.state.availabilityMethod,
         isOnline: this.state.isOnline,
@@ -263,6 +268,7 @@ class CreateMessenger extends React.Component<Props, State> {
   render() {
     const {
       title,
+      botEndpointUrl,
       supporterIds,
       isOnline,
       availabilityMethod,
@@ -385,6 +391,7 @@ class CreateMessenger extends React.Component<Props, State> {
               >
                 <Connection
                   title={title}
+                  botEndpointUrl={botEndpointUrl}
                   channelIds={channelIds}
                   brandId={brandId}
                   onChange={this.onChange}

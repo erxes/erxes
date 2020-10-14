@@ -11,6 +11,7 @@ import React from 'react';
 type Props = {
   onChange: (name: any, value: any) => void;
   title?: string;
+  botEndpointUrl?: string;
   brandId?: string;
   channelIds?: string[];
 };
@@ -28,6 +29,13 @@ class Connection extends React.Component<Props, State> {
 
   channelOnChange = (values: string[]) =>
     this.onChangeFunction('channelIds', values);
+
+  changeBotEndpointUrl = e => {
+    this.props.onChange(
+      'botEndpointUrl',
+      (e.currentTarget as HTMLInputElement).value
+    );
+  };
 
   onChangeTitle = e =>
     this.props.onChange('title', (e.currentTarget as HTMLInputElement).value);
@@ -61,6 +69,17 @@ class Connection extends React.Component<Props, State> {
             isRequired={true}
             onChange={this.channelOnChange}
           />
+
+          <FormGroup>
+            <ControlLabel>Bot Press Endpoint URL</ControlLabel>
+            <p>{__('Please enter your Bot Press endpoint URL')}</p>
+
+            <FormControl
+              required={false}
+              onChange={this.changeBotEndpointUrl}
+              defaultValue={this.props.botEndpointUrl}
+            />
+          </FormGroup>
         </LeftItem>
       </FlexItem>
     );
