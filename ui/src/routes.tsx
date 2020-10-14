@@ -5,6 +5,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import AuthRoutes from './modules/auth/routes';
 import { IUser } from './modules/auth/types';
+import CalendarRoutes from './modules/calendar/routes';
 import CompaniesRoutes from './modules/companies/routes';
 import CustomersRoutes from './modules/customers/routes';
 import DealsRoutes from './modules/deals/routes';
@@ -41,7 +42,7 @@ export const unsubscribe = ({ location }) => {
   return <Unsubscribe queryParams={queryParams} />;
 };
 
-const renderRoutes = (currentUser) => {
+const renderRoutes = currentUser => {
   const userConfirmation = ({ location }) => {
     const queryParams = queryString.parse(location.search);
 
@@ -71,6 +72,7 @@ const renderRoutes = (currentUser) => {
           <GrowthHackRoutes />
           <VideoCallRoutes />
           <TutorialRoutes />
+          <CalendarRoutes />
 
           <Route
             key="/confirmation"
