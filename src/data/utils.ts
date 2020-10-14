@@ -9,13 +9,16 @@ import * as requestify from 'requestify';
 import * as strip from 'strip';
 import * as xlsxPopulate from 'xlsx-populate';
 import { Configs, Customers, EmailDeliveries, Notifications, Users, Webhooks } from '../db/models';
+import { IBrandDocument } from '../db/models/definitions/brands';
 import { WEBHOOK_STATUS } from '../db/models/definitions/constants';
+import { ICustomer } from '../db/models/definitions/customers';
 import { EMAIL_DELIVERY_STATUS } from '../db/models/definitions/emailDeliveries';
 import { IUser, IUserDocument } from '../db/models/definitions/users';
 import { OnboardingHistories } from '../db/models/Robot';
 import { debugBase, debugEmail, debugExternalApi } from '../debuggers';
 import memoryStorage from '../inmemoryStorage';
 import { graphqlPubsub } from '../pubsub';
+import { fieldsCombinedByContentType } from './modules/fields/utils';
 
 export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
 
@@ -490,6 +493,104 @@ export interface IEmailParams {
   template?: { name?: string; data?: any };
   modifier?: (data: any, email: string) => void;
 }
+
+interface IReplacer {
+  key: string;
+  value: string;
+}
+
+/**
+ * Replace editor dynamic content tags
+ */
+export const replaceEditorAttributes = async (args: {
+  content: string;
+  customer?: ICustomer;
+  user?: IUser;
+  customerFields?: string[];
+  brand?: IBrandDocument;
+}): Promise<{ replacers: IReplacer[]; replacedContent?: string; customerFields?: string[] }> => {
+  const { content, customer, user, brand } = args;
+
+  const replacers: IReplacer[] = [];
+
+  let replacedContent = content || '';
+  let customerFields = args.customerFields;
+
+  if (!customerFields || customerFields.length === 0) {
+    const possibleCustomerFields = await fieldsCombinedByContentType({
+      contentType: 'customer',
+    });
+
+    customerFields = ['firstName', 'lastName'];
+
+    for (const field of possibleCustomerFields) {
+      if (content.includes(`{{ customer.${field.name} }}`)) {
+        if (field.name.includes('trackedData')) {
+          customerFields.push('trackedData');
+          continue;
+        }
+
+        if (field.name.includes('customFieldsData')) {
+          customerFields.push('customFieldsData');
+          continue;
+        }
+
+        customerFields.push(field.name);
+      }
+    }
+  }
+
+  // replace customer fields
+  if (customer) {
+    replacers.push({
+      key: '{{ customer.name }}',
+      value: Customers.getCustomerName(customer),
+    });
+
+    for (const field of customerFields) {
+      if (field.includes('trackedData') || field.includes('customFieldsData')) {
+        const dbFieldName = field.includes('trackedData') ? 'trackedData' : 'customFieldsData';
+
+        for (const subField of customer[dbFieldName] || []) {
+          replacers.push({
+            key: `{{ customer.${dbFieldName}.${subField.field} }}`,
+            value: subField.value || '',
+          });
+        }
+
+        continue;
+      }
+
+      replacers.push({
+        key: `{{ customer.${field} }}`,
+        value: customer[field] || '',
+      });
+    }
+  }
+
+  // replace user fields
+  if (user) {
+    replacers.push({ key: '{{ user.email }}', value: user.email || '' });
+
+    if (user.details) {
+      replacers.push({ key: '{{ user.fullName }}', value: user.details.fullName || '' });
+      replacers.push({ key: '{{ user.position }}', value: user.details.position || '' });
+    }
+  }
+
+  // replace brand fields
+  if (brand) {
+    replacers.push({ key: '{{ brandName }}', value: brand.name || '' });
+  }
+
+  for (const replacer of replacers) {
+    const regex = new RegExp(replacer.key, 'gi');
+
+    replacedContent = replacedContent.replace(regex, replacer.value);
+  }
+
+  return { replacedContent, replacers, customerFields };
+};
 
 /**
  * Send email

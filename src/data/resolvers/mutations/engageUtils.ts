@@ -17,7 +17,7 @@ import { debugBase } from '../../../debuggers';
 import messageBroker from '../../../messageBroker';
 import { MESSAGE_KINDS } from '../../constants';
 import { fetchBySegments } from '../../modules/segments/queryBuilder';
-import { chunkArray } from '../../utils';
+import { chunkArray, replaceEditorAttributes } from '../../utils';
 
 interface IEngageParams {
   engageMessage: IEngageMessageDocument;
@@ -125,12 +125,18 @@ const sendEmailOrSms = async (
 
   const customerInfos: Array<{
     _id: string;
-    name: string;
-    email: string;
-    emailValidationStatus: string;
-    phoneValidationStatus: string;
-    phone: string;
+    primaryEmail?: string;
+    emailValidationStatus?: string;
+    phoneValidationStatus?: string;
+    primaryPhone?: string;
+    replacers: Array<{ key: string; value: string }>;
   }> = [];
+  const emailConf = engageMessage.email ? engageMessage.email : { content: '' };
+  const emailContent = emailConf.content || '';
+
+  const { customerFields } = await replaceEditorAttributes({
+    content: emailContent,
+  });
 
   const onFinishPiping = async () => {
     if (engageMessage.kind === MESSAGE_KINDS.MANUAL && customerInfos.length === 0) {
@@ -151,15 +157,19 @@ const sendEmailOrSms = async (
 
     await EngageMessages.setCustomersCount(engageMessage._id, 'validCustomersCount', customerInfos.length);
 
-    if (customerInfos.length > 0) {
+    if (customerInfos.length > 0 && engageMessage.email) {
+      const { replacedContent } = await replaceEditorAttributes({
+        customerFields,
+        content: emailContent,
+        user,
+      });
+
+      engageMessage.email.content = replacedContent;
+
       const data: any = {
         email: engageMessage.email,
         customers: [],
-        user: {
-          email: user.email,
-          name: user.details && user.details.fullName,
-          position: user.details && user.details.position,
-        },
+        fromEmail: user.email,
         engageMessageId,
         shortMessage: engageMessage.shortMessage || {},
       };
@@ -177,14 +187,20 @@ const sendEmailOrSms = async (
   const customerTransformerStream = new Transform({
     objectMode: true,
 
-    transform(customer, _encoding, callback) {
+    async transform(customer: ICustomerDocument, _encoding, callback) {
+      const { replacers } = await replaceEditorAttributes({
+        content: emailContent,
+        customer,
+        customerFields,
+      });
+
       customerInfos.push({
         _id: customer._id,
-        name: Customers.getCustomerName(customer),
-        email: customer.primaryEmail,
+        primaryEmail: customer.primaryEmail,
         emailValidationStatus: customer.emailValidationStatus,
         phoneValidationStatus: customer.phoneValidationStatus,
-        phone: customer.primaryPhone,
+        primaryPhone: customer.primaryPhone,
+        replacers,
       });
 
       // signal upstream that we are ready to take more data
@@ -192,15 +208,19 @@ const sendEmailOrSms = async (
     },
   });
 
-  const customerFields = {
-    firstName: 1,
-    lastName: 1,
+  // generate fields option =======
+  const fieldsOption = {
     primaryEmail: 1,
     emailValidationStatus: 1,
     phoneValidationStatus: 1,
     primaryPhone: 1,
   };
-  const customersStream = (Customers.find(customersSelector, customerFields) as any).stream();
+
+  for (const field of customerFields || []) {
+    fieldsOption[field] = 1;
+  }
+
+  const customersStream = (Customers.find(customersSelector, fieldsOption) as any).stream();
 
   return new Promise((resolve, reject) => {
     const pipe = customersStream.pipe(customerTransformerStream);
@@ -279,7 +299,7 @@ const sendViaMessenger = async ({ engageMessage, customersSelector, user }: IEng
     iteratorCounter++;
 
     // replace keys in content
-    const replacedContent = EngageMessages.replaceKeys({ content, customer, user });
+    const { replacedContent } = await replaceEditorAttributes({ content, customer, user });
 
     const now = new Date();
     const conversationId = Random.id();

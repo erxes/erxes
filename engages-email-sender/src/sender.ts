@@ -3,7 +3,7 @@ import * as Random from 'meteor-random';
 import { debugEngages } from './debuggers';
 import { Logs, SmsRequests, Stats } from './models';
 import { getTelnyxInfo } from './telnyxUtils';
-import { createTransporter, getConfigs, getEnv, replaceKeys } from './utils';
+import { createTransporter, getConfigs, getEnv, ICustomer } from './utils';
 
 dotenv.config();
 
@@ -112,15 +112,20 @@ const handleMessageCallback = async (err: any, res: any, data: ICallbackParams) 
   }
 };
 
-export const start = async (data: any) => {
-  const { user, email, engageMessageId, customers } = data;
+export const start = async (data: {
+  fromEmail: string;
+  email: any;
+  engageMessageId: string;
+  customers: ICustomer[];
+}) => {
+  const { fromEmail, email, engageMessageId, customers } = data;
   const { content, subject, attachments, sender, replyTo } = email;
 
   await Stats.findOneAndUpdate({ engageMessageId }, { engageMessageId }, { upsert: true });
 
   const transporter = await createTransporter();
 
-  const sendEmail = async customer => {
+  const sendEmail = async (customer: ICustomer) => {
     const mailMessageId = Random.id();
 
     let mailAttachment = [];
@@ -134,18 +139,26 @@ export const start = async (data: any) => {
       });
     }
 
-    let replacedContent = replaceKeys({ content, customer, user });
-
     const MAIN_API_DOMAIN = getEnv({ name: 'MAIN_API_DOMAIN' });
 
     const unSubscribeUrl = `${MAIN_API_DOMAIN}/unsubscribe/?cid=${customer._id}`;
+
+    // replace customer attributes =====
+    let replacedContent = content;
+
+    if (customer.replacers) {
+      for (const replacer of customer.replacers) {
+        const regex = new RegExp(replacer.key, 'gi');
+        replacedContent = replacedContent.replace(regex, replacer.value);
+      }
+    }
 
     replacedContent += `<div style="padding: 10px; color: #ccc; text-align: center; font-size:12px;">If you want to use service like this click <a style="text-decoration: underline; color: #ccc;" href="https://erxes.io" target="_blank">here</a> to read more. Also you can opt out from our email subscription <a style="text-decoration: underline;color: #ccc;" rel="noopener" target="_blank" href="${unSubscribeUrl}">here</a>.  <br>© 2020 erxes inc Growth Marketing Platform </div>`;
 
     try {
       await transporter.sendMail({
-        from: `${sender || ''} <${user.email}>`,
-        to: customer.email,
+        from: `${sender || ''} <${fromEmail}>`,
+        to: customer.primaryEmail,
         replyTo,
         subject,
         attachments: mailAttachment,
@@ -157,7 +170,7 @@ export const start = async (data: any) => {
           MailMessageId: mailMessageId,
         },
       });
-      const msg = `Sent email to: ${customer.email}`;
+      const msg = `Sent email to: ${customer.primaryEmail}`;
       debugEngages(msg);
       await Logs.createLog(engageMessageId, 'success', msg);
     } catch (e) {
@@ -165,7 +178,7 @@ export const start = async (data: any) => {
       await Logs.createLog(
         engageMessageId,
         'failure',
-        `Error occurred while sending email to ${customer.email}: ${e.message}`,
+        `Error occurred while sending email to ${customer.primaryEmail}: ${e.message}`,
       );
     }
 
@@ -189,12 +202,12 @@ export const start = async (data: any) => {
       if (customer.emailValidationStatus === 'valid') {
         filteredCustomers.push(customer);
 
-        emails.push(customer.email);
+        emails.push(customer.primaryEmail);
       }
     }
   } else {
     filteredCustomers = customers;
-    emails = customers.map(customer => customer.email);
+    emails = customers.map(customer => customer.primaryEmail);
   }
 
   if (emails.length > 0) {
@@ -213,12 +226,16 @@ export const start = async (data: any) => {
 };
 
 // sends bulk sms via engage message
-export const sendBulkSms = async (data: any) => {
+export const sendBulkSms = async (data: {
+  engageMessageId: string;
+  shortMessage: IShortMessage;
+  customers: ICustomer[];
+}) => {
   const { customers, engageMessageId, shortMessage } = data;
 
   const telnyxInfo = await getTelnyxInfo();
 
-  const filteredCustomers = customers.filter(c => c.phone && c.phoneValidationStatus === 'valid');
+  const filteredCustomers = customers.filter(c => c.primaryPhone && c.phoneValidationStatus === 'valid');
 
   await Logs.createLog(engageMessageId, 'regular', `Preparing to send SMS to "${filteredCustomers.length}" customers`);
 
@@ -227,7 +244,11 @@ export const sendBulkSms = async (data: any) => {
       setTimeout(resolve, 1000);
     });
 
-    const msg = await prepareMessage({ shortMessage, to: customer.phone, integrations: telnyxInfo.integrations });
+    const msg = await prepareMessage({
+      shortMessage,
+      to: customer.primaryPhone,
+      integrations: telnyxInfo.integrations,
+    });
 
     try {
       await telnyxInfo.instance.messages.create(msg, async (err: any, res: any) => {
