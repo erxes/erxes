@@ -7,7 +7,6 @@ import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import EditorCK from 'modules/common/containers/EditorCK';
 import { __, Alert, uploadHandler } from 'modules/common/utils';
-import { EMAIL_CONTENT } from 'modules/engage/constants';
 import { Meta } from 'modules/inbox/components/conversationDetail/workarea/mail/style';
 import { FileName } from 'modules/inbox/styles';
 import { IMail } from 'modules/inbox/types';
@@ -746,7 +745,6 @@ class MailForm extends React.Component<Props, State> {
     return (
       <MailEditorWrapper>
         <EditorCK
-          insertItems={EMAIL_CONTENT}
           toolbar={MAIL_TOOLBARS_CONFIG}
           removePlugins="elementspath"
           content={this.state.content}
