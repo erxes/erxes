@@ -50,6 +50,10 @@ type FinalProps = {
 const EditorContainer = (props: FinalProps) => {
   const { usersQuery, combinedFieldsQuery } = props;
 
+  if (usersQuery.loading || combinedFieldsQuery.loading) {
+    return null;
+  }
+
   const combinedFields = combinedFieldsQuery.fieldsCombinedByContentType || [];
   const users = usersQuery.allUsers || [];
   const mentionUsers: IMentionUser[] = [];
