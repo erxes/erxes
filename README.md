@@ -70,7 +70,7 @@ Follow these deployment instructions.
 ### Docker
 Follow these deployment instructions.
 
-[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/docker-logo.png)](https://www.erxes.org/installation/docker)
+[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/docker-logo.png)](https://www.erxes.org/installation/docker/)
 
 ### Heroku
 Host your own erxes server with One-Click Deploy.
@@ -87,11 +87,16 @@ Deploy to a DigitalOcean droplet with our one-click install listing from the Dig
 
 [![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/droplet.png)](https://www.erxes.org/installation/digitalocean)
 
+## Upgrade
+
+Following the steps in this document you can upgrade the system version.
+
+<a href="https://www.erxes.org/installation/upgrade">Live demo</a>
+
 ## Contributors
 
 This project exists thanks to all the people who contribute. [[Contributors]](CONTRIBUTING.md).
 <a href="graphs/contributors"><img src="https://opencollective.com/erxes/contributors.svg?width=890" /></a>
-
 
 ## Backers
 
