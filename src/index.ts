@@ -298,6 +298,8 @@ app.post('/delete-file', async (req: any, res) => {
 
 app.post('/upload-file', uploader);
 
+app.post('/upload-file&responseType=json', uploader);
+
 // redirect to integration
 app.get('/connect-integration', async (req: any, res, _next) => {
   if (!req.user) {
