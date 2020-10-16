@@ -12,6 +12,7 @@ import SortHandler from 'modules/common/components/SortHandler';
 import Table from 'modules/common/components/table';
 import { menuContacts } from 'modules/common/utils/menus';
 import routerUtils from 'modules/common/utils/router';
+import { EMAIL_VALIDATION_STATUSES, PHONE_VALIDATION_STATUSES } from 'modules/customers/constants';
 import { queries } from 'modules/customers/graphql';
 import { EMPTY_CONTENT_CONTACTS } from 'modules/settings/constants';
 import React from 'react';
@@ -57,6 +58,13 @@ interface IProps extends IRouterProps {
     }
   ) => Promise<void>;
   verifyCustomers: (doc: { verificationType: string }) => void;
+  changeVerificationStatus: (
+    doc: {
+      verificationType: string;
+      status: string;
+      customerIds: string[];
+    }
+  ) => Promise<void>;
   queryParams: any;
   exportData: (bulk: Array<{ _id: string }>) => void;
   responseId: string;
@@ -66,6 +74,7 @@ interface IProps extends IRouterProps {
 type State = {
   searchValue?: string;
   searchType?: string;
+  showDropDown?: boolean;
 };
 
 class CustomersList extends React.Component<IProps, State> {
@@ -75,7 +84,7 @@ class CustomersList extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue
+      searchValue: this.props.searchValue,
     };
   }
 
@@ -110,11 +119,33 @@ class CustomersList extends React.Component<IProps, State> {
     removeCustomers({ customerIds }, emptyBulk);
   };
 
+
+
   verifyCustomers = (verificationType: string) => {
     const { verifyCustomers } = this.props;
 
     verifyCustomers({ verificationType });
   };
+
+  onTargetSelect = () => {
+    if (this.state.showDropDown) {
+      this.setState({ showDropDown: false });
+    } else {
+      this.setState({ showDropDown: true });
+    }
+  }
+
+  changeVerificationStatus = (type: string, status: string, customers) => {
+    const customerIds: string[] = [];
+
+    customers.forEach(customer => {
+      customerIds.push(customer._id);
+    });
+
+    const { changeVerificationStatus } = this.props;
+
+    changeVerificationStatus({ verificationType: type, status, customerIds });
+  }
 
   renderContent() {
     const {
@@ -192,6 +223,8 @@ class CustomersList extends React.Component<IProps, State> {
     }
   }
 
+
+
   render() {
     const {
       type,
@@ -213,6 +246,47 @@ class CustomersList extends React.Component<IProps, State> {
         Add {type || 'customer'}
       </Button>
     );
+
+
+    const onEmailStatusClick = (e) => {
+
+      this.changeVerificationStatus("email", e.target.id, bulk)
+    }
+
+    const onPhoneStatusClick = (e) => {
+
+      this.changeVerificationStatus("phone", e.target.id, bulk)
+    }
+
+    const emailVerificationStatusList = [] as any;
+
+    for (const status of EMAIL_VALIDATION_STATUSES) {
+
+      emailVerificationStatusList.push(<li key={status.value}>
+        <a
+          id={status.value}
+          href="#changeStatus"
+          onClick={onEmailStatusClick}
+        >
+          {status.label}
+        </a>
+      </li>)
+    }
+
+    const phoneVerificationStatusList = [] as any;
+
+    for (const status of PHONE_VALIDATION_STATUSES) {
+
+      phoneVerificationStatusList.push(<li key={status.value}>
+        <a
+          id={status.value}
+          href="#changeStatus"
+          onClick={onPhoneStatusClick}
+        >
+          {status.label}
+        </a>
+      </li>)
+    }
 
     const editColumns = <a href="#edit">{__('Choose Properties/View')}</a>;
 
@@ -344,6 +418,7 @@ class CustomersList extends React.Component<IProps, State> {
         </Button>
       );
 
+
       const onClick = () =>
         confirm()
           .then(() => {
@@ -352,7 +427,7 @@ class CustomersList extends React.Component<IProps, State> {
           .catch(e => {
             Alert.error(e.message);
           });
-      
+
       const refetchQuery = {
         query: gql(queries.customerCounts),
         variables: { type, only: 'byTag' }
@@ -377,6 +452,34 @@ class CustomersList extends React.Component<IProps, State> {
               content={customersMerge}
             />
           )}
+
+
+          <Dropdown className="dropdown-btn" alignRight={true} onClick={this.onTargetSelect}>
+            <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
+              <Button btnStyle="simple" size="small">
+                {__('Change email status ')} <Icon icon="angle-down" />
+              </Button>
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <div>
+                {emailVerificationStatusList}
+              </div>
+            </Dropdown.Menu>
+          </Dropdown>
+
+          <Dropdown className="dropdown-btn" alignRight={true}>
+            <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
+              <Button btnStyle="simple" size="small">
+                {__('Change phone status ')} <Icon icon="angle-down" />
+              </Button>
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <div>
+                {phoneVerificationStatusList}
+              </div>
+            </Dropdown.Menu>
+          </Dropdown>
+
           <Button
             btnStyle="danger"
             size="small"

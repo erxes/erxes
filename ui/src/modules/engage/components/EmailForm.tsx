@@ -1,4 +1,3 @@
-import EditorCK from 'modules/common/components/EditorCK';
 import ErrorMsg from 'modules/common/components/ErrorMsg';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
@@ -8,9 +7,9 @@ import Icon from 'modules/common/components/Icon';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import Tip from 'modules/common/components/Tip';
 import Uploader from 'modules/common/components/Uploader';
+import EditorCK from 'modules/common/containers/EditorCK';
 import { ISelectedOption } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { EMAIL_CONTENT } from 'modules/engage/constants';
 import {
   EditorContainer,
   VerifyCancel,
@@ -256,7 +255,6 @@ class EmailForm extends React.Component<Props, State> {
             <EditorCK
               content={this.state.content}
               onChange={this.onEditorChange}
-              insertItems={EMAIL_CONTENT}
               height={500}
               name={`engage_email_${this.props.kind}_${this.props.fromUserId}`}
             />

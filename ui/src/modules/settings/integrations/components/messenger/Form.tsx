@@ -19,11 +19,13 @@ import {
 import {
   IIntegration,
   IMessages,
+  IMessengerApps,
   IMessengerData,
   IUiOptions
 } from 'modules/settings/integrations/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import AddOns from '../../containers/messenger/AddOns';
 import { Appearance, Availability, Greeting, Intro, Options } from './steps';
 import Connection from './steps/Connection';
 import CommonPreview from './widgetPreview/CommonPreview';
@@ -40,12 +42,14 @@ type Props = {
       channelIds?: string[];
       messengerData: IMessengerData;
       uiOptions: IUiOptions;
+      messengerApps: IMessengerApps;
     }
   ) => void;
 };
 
 type State = {
   title: string;
+  botEndpointUrl?: string;
   brandId: string;
   channelIds: string[];
   languageCode: string;
@@ -71,6 +75,7 @@ type State = {
   showLauncher?: boolean;
   forceLogoutWhenResolve?: boolean;
   showVideoCallRequest?: boolean;
+  messengerApps: IMessengerApps;
 };
 
 class CreateMessenger extends React.Component<Props, State> {
@@ -85,15 +90,18 @@ class CreateMessenger extends React.Component<Props, State> {
       showChat: true,
       showLauncher: true,
       forceLogoutWhenResolve: false,
-      showVideoCallRequest: false
+      showVideoCallRequest: false,
+      botEndpointUrl: ''
     };
     const links = configData.links || {};
     const messages = configData.messages || {};
     const uiOptions = integration.uiOptions || {};
     const channels = integration.channels || [];
+    const messengerApps = {};
 
     this.state = {
       title: integration.name,
+      botEndpointUrl: configData.botEndpointUrl,
       brandId: integration.brandId || '',
       languageCode,
       channelIds: channels.map(item => item._id) || [],
@@ -120,7 +128,8 @@ class CreateMessenger extends React.Component<Props, State> {
       facebook: links.facebook || '',
       twitter: links.twitter || '',
       youtube: links.youtube || '',
-      messages: { ...this.generateMessages(messages) }
+      messages: { ...this.generateMessages(messages) },
+      messengerApps
     };
   }
 
@@ -150,11 +159,16 @@ class CreateMessenger extends React.Component<Props, State> {
     this.setState(({ [key]: value } as unknown) as Pick<State, keyof State>);
   };
 
+  handleMessengerApps = (messengerApps: IMessengerApps) => {
+    this.setState({messengerApps});
+  }
+
   save = e => {
     e.preventDefault();
 
     const {
       title,
+      botEndpointUrl,
       brandId,
       languageCode,
       channelIds,
@@ -166,7 +180,8 @@ class CreateMessenger extends React.Component<Props, State> {
       showChat,
       showLauncher,
       forceLogoutWhenResolve,
-      showVideoCallRequest
+      showVideoCallRequest,
+      messengerApps
     } = this.state;
 
     if (!languageCode) {
@@ -189,6 +204,7 @@ class CreateMessenger extends React.Component<Props, State> {
       channelIds,
       languageCode: this.state.languageCode,
       messengerData: {
+        botEndpointUrl,
         notifyCustomer: this.state.notifyCustomer,
         availabilityMethod: this.state.availabilityMethod,
         isOnline: this.state.isOnline,
@@ -212,7 +228,8 @@ class CreateMessenger extends React.Component<Props, State> {
         textColor: this.state.textColor,
         wallpaper: this.state.wallpaper,
         logo: this.state.logo
-      }
+      },
+      messengerApps
     });
   };
 
@@ -251,6 +268,7 @@ class CreateMessenger extends React.Component<Props, State> {
   render() {
     const {
       title,
+      botEndpointUrl,
       supporterIds,
       isOnline,
       availabilityMethod,
@@ -277,6 +295,7 @@ class CreateMessenger extends React.Component<Props, State> {
       channelIds
     } = this.state;
 
+    const { integration } = this.props;
     const message = messages[languageCode];
 
     const breadcrumb = [
@@ -369,13 +388,27 @@ class CreateMessenger extends React.Component<Props, State> {
                 img="/images/icons/erxes-16.svg"
                 title={__('Integration Setup')}
                 onClick={this.onStepClick.bind(null, 'setup')}
-                noButton={true}
               >
                 <Connection
                   title={title}
+                  botEndpointUrl={botEndpointUrl}
                   channelIds={channelIds}
                   brandId={brandId}
                   onChange={this.onChange}
+                />
+              </Step>
+              <Step
+                img="/images/icons/erxes-15.svg"
+                title={__('Add Ons')}
+                onClick={this.onStepClick.bind(null, 'addon')}
+                noButton={true}
+              >
+                <AddOns 
+                  selectedBrand={brandId} 
+                  websiteMessengerApps={integration && integration.websiteMessengerApps}
+                  leadMessengerApps={integration && integration.leadMessengerApps}
+                  knowledgeBaseMessengerApps={integration && integration.knowledgeBaseMessengerApps}
+                  handleMessengerApps={this.handleMessengerApps} 
                 />
               </Step>
             </Steps>

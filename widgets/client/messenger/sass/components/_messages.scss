@@ -41,6 +41,7 @@ $darker-blue: #3b85f4;
   flex: 1;
   flex-direction: column;
   overflow: auto;
+  overflow-x: hidden;
 
   &.bg-1 {
     @include bg-option;
@@ -106,10 +107,15 @@ $darker-blue: #3b85f4;
   text-align: left;
   word-break: break-word;
 
+  &.top {
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: $core-spacing;
+  }
+
   &.from-customer {
     background-color: $main-color;
     border-bottom-left-radius: $core-spacing;
-    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
     color: $white;
     margin: 0 0 5px $core-spacing;
     text-align: right;
@@ -254,6 +260,10 @@ $darker-blue: #3b85f4;
   img {
     height: 100%;
     width: 100%;
+  }
+
+  &.top {
+    top: 0;
   }
 }
 

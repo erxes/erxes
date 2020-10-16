@@ -11,6 +11,7 @@ type Props = {
   submenu?: ISubMenuItem[];
   queryParams?: any;
   title: string;
+  additionalMenuItem?: React.ReactNode;
 };
 
 class Header extends React.Component<Props> {
@@ -32,12 +33,12 @@ class Header extends React.Component<Props> {
   }
 
   render() {
-    const { breadcrumb, submenu, queryParams } = this.props;
+    const { breadcrumb, submenu, queryParams, additionalMenuItem } = this.props;
 
     return (
       <PageHeader>
         {breadcrumb && <BreadCrumb breadcrumbs={breadcrumb} />}
-        {submenu && <Submenu items={submenu} />}
+        {submenu && <Submenu items={submenu} additionalMenuItem={additionalMenuItem}/>}
         {queryParams && <Filter queryParams={queryParams} />}
       </PageHeader>
     );

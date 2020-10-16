@@ -324,4 +324,5 @@ export const WEBHOOK_ACTIONS = [
   { label: 'Customer create conversation', action: 'create', type: 'conversation' },
   { label: 'Customer messages', action: 'create', type: 'customerMessages' },
   { label: 'Engage messages', action: 'create', type: 'engageMessages' },
+  { label: 'Popup submitted', action: 'create', type: 'popupSubmitted'}
 ];

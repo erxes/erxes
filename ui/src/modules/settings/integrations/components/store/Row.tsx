@@ -1,9 +1,7 @@
 import Pagination from 'modules/common/components/pagination/Pagination';
 import IntegrationList from 'modules/settings/integrations/containers/common/IntegrationList';
-import MessengerAppList from 'modules/settings/integrations/containers/MessengerAppList';
 import React from 'react';
 import Collapse from 'react-bootstrap/Collapse';
-import StoreEntry from '../../containers/StoreEntry';
 import { ByKindTotalCount } from '../../types';
 import Entry from './Entry';
 import { CollapsibleContent, IntegrationRow } from './styles';
@@ -81,17 +79,7 @@ class Row extends React.Component<Props, State> {
     return <Pagination count={totalCount} />;
   }
 
-  isMessengerApp(kind: string | null) {
-    if (kind === 'lead' || kind === 'knowledgebase' || kind === 'website') {
-      return true;
-    }
-
-    return false;
-  }
-
   renderEntry(integration, totalCount, queryParams) {
-    const kind = integration.kind;
-
     const commonProp = {
       key: integration.name,
       integration,
@@ -101,20 +89,12 @@ class Row extends React.Component<Props, State> {
       queryParams
     };
 
-    if (this.isMessengerApp(kind)) {
-      return <StoreEntry {...commonProp} kind={kind} />;
-    }
-
     return <Entry {...commonProp} customLink={this.props.customLink} />;
   }
 
   renderList() {
     const { queryParams, totalCount } = this.props;
     const { kind } = this.state;
-
-    if (this.isMessengerApp(kind)) {
-      return <MessengerAppList kind={kind} queryParams={queryParams} />;
-    }
 
     return (
       <>

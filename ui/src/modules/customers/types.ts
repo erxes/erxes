@@ -133,6 +133,20 @@ export type ChangeStateMutationResponse = {
   ) => Promise<any>;
 };
 
+export type ChangeStatusMutationVariables = {
+  customerIds: string[];
+  type: string;
+  status: string;
+};
+
+export type ChangeStatusMutationResponse = {
+  customersChangeVerificationStatus: (
+    doc: {
+      variables: ChangeStatusMutationVariables;
+    }
+  ) => Promise<any>;
+};
+
 // query types
 export type ListQueryVariables = {
   page?: number;

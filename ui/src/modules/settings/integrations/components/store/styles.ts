@@ -23,6 +23,10 @@ const IntegrationRow = styled.div`
   display: flex;
   flex-wrap: wrap;
   background: ${colors.colorWhite};
+
+  &:last-of-type {
+    margin-bottom: 20px;
+  }
 `;
 
 const Box = styledTS<{ isInMessenger: boolean }>(styled.div)`
@@ -190,6 +194,10 @@ const CollapsibleContent = styled.div`
 
   table td {
     background: none;
+  }
+
+  &:last-of-type {
+    margin-bottom: 20px;
   }
 `;
 

@@ -47,7 +47,7 @@ erxes helps you attract and engage more customers while giving you high lead con
 
 * **Growth Hacking:** Managing your entire growth operation made easy. From ideas to actual performance, making sure everything recorded, prioritized, and centralized in the single platform to get tested with a pool of analysis and learnings, which made the growing as pleasure.
 * **Email & SMS Marketing:** Reach your customer with personalized messaging. Keeping your customers hooked is a challenge. Start converting your prospects into potential customers through email, SMS, Live chat, and In-app-messaging or more interactions to drive them to a successful close. You can connect to your customers in a whole new way with erxes!
-* **Pop-ups & Forms:** Create Stylish Pop-ups and Forms that Bring Leads. Turn regular visitors into qualified leads by capturing them with a customizable pop-ups, forms, and embedded placements. erxes helps you to create stylish and contextual pop-ups, banners and bars fit all your marketing needs.
+* **Pop-ups & Forms:** Create Stylish Pop-ups and Forms that Bring Leads. Turn regular visitors into qualified leads by capturing them with customizable pop-ups, forms, and embedded placements. erxes helps you to create stylish and contextual pop-ups, banners and bars fit all your marketing needs.
 * **Sales Pipeline:** Track your entire sales pipeline from one dashboard. All your customer information and sales process in one board to follow up flawlessly. Have your sales managers to know everything needed to deliver increased levels of personalization before they contact customers.
 * **Contact Management:** Manage Visitors, Customers, and Companies. Access our all-in-one CRM system in one go so that it’s easier to coordinate and manage your contacts and interactions with your customers. erxes Contacts provides whole segmentation tools for you to work more efficiently.
 * **Lead Scoring:** Identify and Target Sales-Ready Leads.
@@ -65,43 +65,33 @@ erxes helps you attract and engage more customers while giving you high lead con
 ### Ubuntu 16.04/18.04 LTS
 Follow these deployment instructions.
 
-[![ubuntu](https://erxes-os.s3-us-west-2.amazonaws.com/github/ubuntu-logo.png)](https://docs.erxes.io/installation/ubuntu)
-
-### Debian 10
-Follow these deployment instructions.
-
-[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/debian-logo.png)](https://docs.erxes.io/installation/debian10)
-
-### CentOS 8
-Follow these deployment instructions.
-
-[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/centos-logo.png)](https://docs.erxes.io/installation/centos8)
+[![ubuntu](https://erxes-os.s3-us-west-2.amazonaws.com/github/ubuntu-logo.png)](https://www.erxes.org/installation/ubuntu)
 
 ### Docker
 Follow these deployment instructions.
 
-[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/docker-logo.png)](https://docs.erxes.io/installation/docker)
+[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/docker-logo.png)](https://www.erxes.org/installation/docker)
 
 ### Heroku
 Host your own erxes server with One-Click Deploy.
 
-[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/heroku.png)](https://heroku.com/deploy?template=https://github.com/erxes/erxes/tree/develop)
+[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/heroku.png)](https://www.erxes.org/installation/heroku)
 
 ### AWS Marketplace
 Launch an EC2 instance using erxes in the AWS Marketplace.
 
-[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/aws-logo.png)](https://aws.amazon.com/marketplace/pp/B086MZ9FVS/)
+[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/aws-logo.png)](https://www.erxes.org/installation/aws)
 
 ### DigitalOcean Droplet
 Deploy to a DigitalOcean droplet with our one-click install listing from the DigitalOcean Marketplace.
 
-[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/droplet.png)](https://marketplace.digitalocean.com/apps/erxes)
+[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/droplet.png)](https://www.erxes.org/installation/digitalocean)
 
 ## Contributors
 
+
 This project exists thanks to all the people who contribute. [[Contribute]](CONTRIBUTING.md).
 <a href="https://opencollective.com/erxes#section-contributors"><img src="https://opencollective.com/erxes/contributors.svg?width=890" /></a>
-
 
 ## Backers
 

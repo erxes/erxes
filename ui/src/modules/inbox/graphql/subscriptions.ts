@@ -21,6 +21,7 @@ const conversationClientMessageInserted = `
     conversationClientMessageInserted(userId: $userId) {
       _id
       content
+      botData
     }
   }
 `;
