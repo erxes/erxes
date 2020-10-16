@@ -157,22 +157,25 @@ const sendEmailOrSms = async (
 
     await EngageMessages.setCustomersCount(engageMessage._id, 'validCustomersCount', customerInfos.length);
 
-    if (customerInfos.length > 0 && engageMessage.email) {
-      const { replacedContent } = await replaceEditorAttributes({
-        customerFields,
-        content: emailContent,
-        user,
-      });
-
-      engageMessage.email.content = replacedContent;
-
+    if (customerInfos.length > 0) {
       const data: any = {
-        email: engageMessage.email,
         customers: [],
         fromEmail: user.email,
         engageMessageId,
         shortMessage: engageMessage.shortMessage || {},
       };
+
+      if (engageMessage.method === METHODS.EMAIL && engageMessage.email) {
+        const { replacedContent } = await replaceEditorAttributes({
+          customerFields,
+          content: emailContent,
+          user,
+        });
+
+        engageMessage.email.content = replacedContent;
+
+        data.email = engageMessage.email;
+      }
 
       const chunks = chunkArray(customerInfos, 3000);
 
