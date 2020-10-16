@@ -10,7 +10,7 @@ import { MODULE_NAMES, RABBITMQ_QUEUES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { registerOnboardHistory } from '../../utils';
+import { registerOnboardHistory, replaceEditorAttributes } from '../../utils';
 
 interface IEditIntegration extends IIntegration {
   _id: string;
@@ -291,13 +291,18 @@ const integrationMutations = {
    * Send mail
    */
   async integrationSendMail(_root, args: any, { dataSources, user }: IContext) {
-    const { erxesApiId, ...doc } = args;
+    const { erxesApiId, body, customerId, ...doc } = args;
 
     let kind = doc.kind;
 
     if (kind.includes('nylas')) {
       kind = 'nylas';
     }
+
+    const customer = customerId ? await Customers.findOne({ _id: customerId }) : undefined;
+    const { replacedContent } = await replaceEditorAttributes({ content: body, user, customer: customer || undefined });
+
+    doc.body = replacedContent || '';
 
     try {
       await dataSources.IntegrationsAPI.sendEmail(kind, {

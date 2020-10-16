@@ -3,6 +3,7 @@ import './setup.ts';
 import * as faker from 'faker';
 import messageBroker from '../messageBroker';
 
+import * as utils from '../data/utils';
 import {
   brandFactory,
   customerFactory,
@@ -445,6 +446,7 @@ describe('mutations', () => {
         $bcc: [String]
         $from: String!
         $kind: String
+        $customerId: String
       ) {
         integrationSendMail(
           erxesApiId: $erxesApiId
@@ -454,9 +456,12 @@ describe('mutations', () => {
           bcc: $bcc
           from: $from
           kind: $kind
+          customerId: $customerId
         )
       }
     `;
+
+    const customer = await customerFactory({ primaryEmail: 'user@mail.com' });
 
     const args = {
       erxesApiId: 'erxesApiId',
@@ -466,21 +471,28 @@ describe('mutations', () => {
       bcc: ['bcc'],
       from: 'from',
       kind: 'nylas-gmail',
+      body: 'body',
     };
 
-    const customer = await customerFactory({ primaryEmail: args.to[0] });
-
     const spy = jest.spyOn(dataSources.IntegrationsAPI, 'sendEmail');
+    const mockReplaceEditorAttribute = jest.spyOn(utils, 'replaceEditorAttributes');
+
+    mockReplaceEditorAttribute.mockImplementation(() =>
+      Promise.resolve({
+        replacedContent: 'replacedContent',
+        replacers: [{ key: 'key', value: 'value' }],
+      }),
+    );
 
     spy.mockImplementation(() => Promise.resolve());
 
     await graphqlRequest(mutation, 'integrationSendMail', args, { dataSources });
 
-    const emailDeliverie = await EmailDeliveries.findOne({ customerId: customer._id });
+    const emailDelivery = await EmailDeliveries.findOne({ customerId: customer._id });
 
-    if (emailDeliverie) {
-      expect(JSON.stringify(emailDeliverie.to)).toEqual(JSON.stringify(args.to));
-      expect(customer._id).toEqual(emailDeliverie.customerId);
+    if (emailDelivery) {
+      expect(JSON.stringify(emailDelivery.to)).toEqual(JSON.stringify(args.to));
+      expect(customer._id).toEqual(emailDelivery.customerId);
     }
 
     spy.mockRestore();
@@ -490,6 +502,8 @@ describe('mutations', () => {
     } catch (e) {
       expect(e[0].message).toBeDefined();
     }
+
+    mockReplaceEditorAttribute.mockRestore();
   });
 
   test('Integrations remove', async () => {

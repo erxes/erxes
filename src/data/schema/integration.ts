@@ -184,6 +184,7 @@ export const mutations = `
     kind: String
     references: [String]
     attachments: [JSON]
+    customerId: String
   ): JSON
 
   integrationsUpdateConfigs(configsMap: JSON!): JSON
