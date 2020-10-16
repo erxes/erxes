@@ -1,11 +1,10 @@
-import client from 'apolloClient';
-import gql from 'graphql-tag';
 import React from 'react';
 import Select from 'react-select-plus';
 import styled from 'styled-components';
 import { IFormProps } from '../types';
 import { __, Alert } from '../utils';
 import Button from './Button';
+import FormControl from './form/Control';
 import Icon from './Icon';
 
 const Wrapper = styled.div`
@@ -71,8 +70,6 @@ type Props = {
   id?: string;
   options: any[];
   onChange: (params: { options: any[]; selectedOption: any }) => void;
-  queryName?: string;
-  customQuery?: string;
   value?: string;
   name: string;
   checkFormat?: (value) => boolean;
@@ -85,7 +82,6 @@ type Props = {
 type State = {
   adding: boolean;
   options: any[];
-  searchResults?: any;
   selectedOption: string;
   inputValue: string;
 };
@@ -98,7 +94,6 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
       adding: props.adding || false,
       options: props.options || [],
       selectedOption: props.value,
-      searchResults: [],
       inputValue: ''
     };
   }
@@ -202,32 +197,13 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
     });
   };
 
-  generateSearchResultOptions(options) {
-    return options.map(item => ({
-      label: item.primaryName,
-      value: item._id
-    }))
-  }
-
-  handleInputChange = (inputValue: string) => {
-    const { customQuery, queryName } = this.props;
-
-    client.query({
-      query: gql(customQuery),
-      variables: { searchValue: inputValue }
-    })
-      .then(({ data }) => {
-        const response = data[queryName || ''];
-
-        this.setState({
-          inputValue,
-          searchResults: this.generateSearchResultOptions(response)
-        });
-      })
+  handleInputChange = e => {
+    e.preventDefault();
+    this.setState({ inputValue: e.target.value });
   };
 
   render() {
-    const { id, name } = this.props;
+    const { id, name, type, required } = this.props;
 
     if (this.state.adding) {
       const onPress = e => {
@@ -240,12 +216,13 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
       return (
         <Wrapper id={id}>
           <FillContent>
-            <Select
-              value={this.state.inputValue}
-              options={this.state.searchResults}
-              onInputKeyDown={onPress}
+            <FormControl
+              type={type}
+              autoFocus={true}
+              onKeyPress={onPress}
               placeholder={`${__('Add')} ${__(name)}`}
-              onInputChange={this.handleInputChange}
+              onChange={this.handleInputChange}
+              required={required}
             />
           </FillContent>
 
