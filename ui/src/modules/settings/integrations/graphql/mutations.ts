@@ -30,6 +30,7 @@ const mailParamsDef = `
   $from: String!,
   $shouldResolve: Boolean,
   $attachments: [JSON],
+  $customerId: String
 `;
 
 const mailParams = `
@@ -50,6 +51,7 @@ const mailParams = `
   from: $from,
   shouldResolve: $shouldResolve,
   attachments: $attachments,
+  customerId: $customerId
 `;
 
 const integrationSendMail = ` 

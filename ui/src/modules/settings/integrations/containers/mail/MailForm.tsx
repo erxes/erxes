@@ -27,6 +27,7 @@ type Props = {
   conversationId?: string;
   refetchQueries?: string[];
   fromEmail?: string;
+  customerId?: string;
   mailData?: IMail;
   isReply?: boolean;
   isForward?: boolean;
@@ -49,6 +50,7 @@ type FinalProps = {
 const MailFormContainer = (props: FinalProps) => {
   const {
     mailData,
+    customerId,
     conversationId,
     integrationsQuery,
     isReply,
@@ -99,7 +101,7 @@ const MailFormContainer = (props: FinalProps) => {
     callback?: () => void;
     update?: any;
   }) => {
-    return sendMailMutation({ variables, optimisticResponse, update })
+    return sendMailMutation({ variables: { ...variables, customerId } , optimisticResponse, update })
       .then(() => {
         Alert.success('You have successfully sent a email');
 
