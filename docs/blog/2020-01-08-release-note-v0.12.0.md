@@ -27,15 +27,15 @@ Erxes 0.12.0 release contains the number of new features, resolved issues and im
 
 #### Improvements:
 
-*   **Improved permission filter.** Currently, even user has legal rights on user group, when filtering by email, it seems, they did not have right. Now it is updated to shown granted users. Added new selection for "Granted ". When unselect "Granted " and filter the users, it can be shown the forced deleted permission.
-*   **Using rabbitmq for communicating erxes-integrations.** Sending post request to erxes-api from integrations to save conversation, messages and customes is too risky. If erxes-api is temporarily unavailable when sending request from erxes-integrations those requests will be lost. Rabbitmq will create queue for not consumed messages until erxes-api is available.
+*   **Improved permission filter.** Currently, even the user has legal rights on the user group, when filtering by email, it seems, they did not have right. Now it is updated to shown granted users. Added new selection for "Granted ". When unselect "Granted " and filter the users, it can be shown the forced deleted permission.
+*   **Using rabbitmq for communicating erxes-integrations.** Sending post requests to erxes-API from integrations to save the conversation, messages and customers is too risky. If erxes-API is temporarily unavailable when sending the request from erxes-integrations those requests will be lost. Rabbitmq will create a queue for not consumed messages until erxes-API is available.
 *   **Fixed issue that could not add checklist items sometimes.**
-*   **Improved attachment view in inbox.** When you show the images in the inbox, it shown clear with larger scaling.
-*   Shown all campaign in growthHack without any filtering.
-*   While uploading large file, it shows a warning.
-*   **Fixed move card labels bug in Deal, Ticket, Task card**. When a deal/task/ticket is moved between pipelines, labels inside of card does not move alongside. Now labels inside the deal/task/ticket card should also be available in the new pipeline.
-*   Able to add cc bcc in reply on email integration.
-*   **Mail: not receiving updates in realtime.** Before it was not clear to get email into inbox in a timely manner. Now while receive the new email, it is shown on bold email in inbox list without refreshing.
+*   **Improved attachment view in inbox.** When you show the images in the inbox, it has shown clear with larger scaling.
+*   Shown all campaigns in growthHack without any filtering.
+*   While uploading a large file, it shows a warning.
+*   **Fixed move card labels bug in Deal, Ticket, Task card**. When a deal/task/ticket is moved between pipelines, labels inside of the card does not move alongside. Now labels inside the deal/task/ticket card should also be available in the new pipeline.
+*   Able to add cc bcc in reply to email integration.
+*   **Mail: not receiving updates in realtime.** Before it was not clear to get email into the inbox on time. Now while receiving the new email, it is shown on bold email in the inbox list without refreshing.
 *   Fixed checkbox field error and multiple submit bug in the form.  
 
 #### Breaking changes:
