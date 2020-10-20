@@ -1,9 +1,7 @@
 ---
-id: ubuntu-step-by-step
-title: CE Step by Step Installation
+id: enterprise-ubuntu-step-by-step
+title: Enterprise Step by Step Installation
 ---
-
-## Installing the Community Edition
 
 ## First steps: Setting up a server with Ubuntu 18.04
 
@@ -11,8 +9,8 @@ You must have an account with your hosting provider prior to doing these steps.
 
 - Choose a server size that corresponds with the **minimum** requirements for these **Step by Step** instructions:
   - **Ubuntu 18.04** installed and running
-  - **1 CPUs**
-  - **1 GB RAM**
+  - 2 CPUs
+  - 4GB RAM
   - ability to to SSH into the server
   - If you're using a **subdomain**, then the **subdomain** must be created with your hosting provider hosting your main domain's website or app. The DNS needs to be pointed to your server. (See below)
 
@@ -61,13 +59,11 @@ ssh root@your-ip-address
 
 You don't want to use the **root** user to administer your server. So everything will be done by a user called, **erxes**. To accomplish this, run the following commands:
 
-- Add a user called "erxes". When prompted, enter in a **unique** password. You will need to keep this password available, as later operations will require using it.
+- Add a user called "erxes". When prompted, enter in a **unique** password. You will need to keep this password available, as later operations will require using it. (Finish adding the user simply by pressing the `enter` or `return` key through the questions.)
 
 ```bash
 adduser erxes
 ```
-
-(Finish adding the user simply by pressing the `enter` or `return` key through the questions.)
 
 - Grant the **erxes** user adminstrative rights.
 
@@ -87,13 +83,11 @@ Your next step as **root** user, is to set-up a basic firewall for your server.
 ufw allow OpenSSH
 ```
 
-- Enable **ufw** and allow the "disrupt existing ssh connections".
+- Enable **ufw** and allow the "disrupt existing ssh connections". Type `y` when asked, "**Command may disrupt existing ssh connections. Proceed with operation (y|n)?**"
 
 ```bash
 ufw enable
 ```
-
-Type `y` when asked, "**Command may disrupt existing ssh connections. Proceed with operation (y|n)?**"
 
 - Check the **ufw** status
 
@@ -169,7 +163,7 @@ sudo service sshd reload
 exit
 ```
 
-You have created a new user called, "**erxes**" and you set-up a basic firewall to protect your server against malicious attacks.
+You have created a new user called, "erxes" and you set-up a basic firewall to protect your server against malicious attacks.
 
 Please continue with the following steps to log in to your server as the **erxes** user.
 

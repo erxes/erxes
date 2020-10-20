@@ -27,7 +27,7 @@ module.exports = {
       },
       items: [
         {
-          to: 'overview/getting-started/',
+          to: 'overview/overview/',
           // activeBasePath: '',
           label: 'Documentation',
           position: 'left',
@@ -68,7 +68,7 @@ module.exports = {
           items: [
             {
               label: 'Getting Started',
-              to: '/overview/getting-started/',
+              to: '/overview/overview/',
             },
             {
               label: 'Installation Guide',

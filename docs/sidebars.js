@@ -1,30 +1,14 @@
 module.exports = {
   docs: [
-    // {
-    //   Installation: [
-    //     `overview/getting-started`,
-    //     {
-    //       type: 'category',
-    //       label: 'NewOverview',
-    //       items: [
-    //         'overview/getting-started',
-    //         'overview/overview',
-    //         'overview/architecture-overview',
-    //         'overview/deployment-overview',
-    //         'overview/integrations-overview',
-    //       ],
-    //     },
-    //   ],
-    // },
     {
       type: 'category',
       label: 'Overview',
       items: [
-        'overview/getting-started',
         'overview/overview',
         'overview/architecture-overview',
         'overview/deployment-overview',
         'overview/integrations-overview',
+        'overview/table-of-contents',
       ],
     },
     {
@@ -36,12 +20,12 @@ module.exports = {
           Ubuntu: [
             'installation/ubuntu',
             {
-              Installation: [
+              'Community Edition Installation': [
                 'installation/ubuntu-quickstart',
                 'installation/ubuntu-step-by-step',
-                `installation/ubuntu-troubleshooting`,
               ],
             },
+            `installation/ubuntu-troubleshooting`,
           ],
         },
         'installation/aws',

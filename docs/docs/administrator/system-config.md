@@ -901,7 +901,7 @@ Configure the telnyx API at **"settings > system config > integration config".**
 ### AWS SES
 
 Amazon SES service enables on Erxes Engage system. Another custom mail service is not allowed on Engage system.
-AWS SES configuration is similar with Integration AWS SES. [Go to settings here](https://docs.erxes.io/administrator/system-config#aws-ses)
+AWS SES configuration is similar with Integration AWS SES. [Go to settings here](https://www.erxes.org/administrator/system-config#aws-ses-1)
 
 ### Verify email
 
