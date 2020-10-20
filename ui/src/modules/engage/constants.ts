@@ -14,34 +14,6 @@ export const MESSAGE_KINDS = {
   ALL_LIST: ['auto', 'visitorAuto', 'manual']
 };
 
-export const EMAIL_CONTENT_KEYS_FOR_SELECT = [
-  { name: 'Customer' },
-  { value: 'customer.name', name: 'Name' },
-  { value: 'customer.email', name: 'Email' },
-  { name: 'User' },
-  { value: 'user.fullName', name: 'Fullname' },
-  { value: 'user.position', name: 'Position' },
-  { value: 'user.email', name: 'Email' }
-];
-
-export const EMAIL_CONTENT = {
-  items: EMAIL_CONTENT_KEYS_FOR_SELECT,
-  title: 'Attributes',
-  label: 'Attributes'
-};
-
-export const EMAIL_TEMPLATE_KEYS_FOR_SELECT = [
-  { value: 'fullName', name: 'Fullname' },
-  { value: 'brandName', name: 'BrandName' },
-  { value: 'domain', name: 'Domain' }
-];
-
-export const EMAIL_TEMPLATE = {
-  items: EMAIL_TEMPLATE_KEYS_FOR_SELECT,
-  title: 'Attributes',
-  label: 'Attributes'
-};
-
 export const statusFilters = [
   { key: 'live', value: 'Live' },
   { key: 'draft', value: 'draft' },

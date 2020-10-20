@@ -1,12 +1,11 @@
 import Button from 'modules/common/components/Button';
-import EditorCK from 'modules/common/components/EditorCK';
 import Form from 'modules/common/components/form/Form';
 import Info from 'modules/common/components/Info';
 import { Tabs, TabTitle } from 'modules/common/components/tabs';
+import EditorCK from 'modules/common/containers/EditorCK';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
-import { EMAIL_TEMPLATE } from 'modules/engage/constants';
 import React from 'react';
 import styled from 'styled-components';
 import { IBrand } from '../../brands/types';
@@ -77,7 +76,6 @@ class Config extends React.Component<Props, State> {
           <EditorCK
             content={this.state.template}
             onChange={this.onEditorChange}
-            insertItems={EMAIL_TEMPLATE}
             autoGrow={true}
             name={`email_config_${this.props.brand._id}`}
           />

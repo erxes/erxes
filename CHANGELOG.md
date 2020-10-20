@@ -1,5 +1,5 @@
-## [0.19.2](https://github.com/erxes/erxes/compare/0.18.2...0.19.2) (2020-10-05)
 
+## [0.19.3](https://github.com/erxes/erxes/compare/0.19.2...0.19.3) (2020-10-06)
 
 ### Bug Fixes
 

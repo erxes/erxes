@@ -1,9 +1,8 @@
-import EditorCK from 'modules/common/components/EditorCK';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
+import EditorCK from 'modules/common/containers/EditorCK';
 import { IFormProps } from 'modules/common/types';
-import { EMAIL_CONTENT } from 'modules/engage/constants';
 import React from 'react';
 import CommonForm from '../../common/components/Form';
 import { ICommonFormProps } from '../../common/types';
@@ -67,7 +66,6 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
           <EditorCK
             content={this.state.content}
             onChange={this.onEditorChange}
-            insertItems={EMAIL_CONTENT}
             autoGrow={true}
             name={`emailTemplates_${object._id || 'create'}`}
           />

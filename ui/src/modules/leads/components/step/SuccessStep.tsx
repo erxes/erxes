@@ -1,9 +1,8 @@
-import EditorCK from 'modules/common/components/EditorCK';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { LeftItem, Preview } from 'modules/common/components/step/styles';
-import { EMAIL_CONTENT } from 'modules/engage/constants';
+import EditorCK from 'modules/common/containers/EditorCK';
 import { ILeadData } from 'modules/leads/types';
 import React from 'react';
 import SuccessPreview from './preview/SuccessPreview';
@@ -129,7 +128,6 @@ class SuccessStep extends React.Component<Props, State> {
           <EditorCK
             content={leadData.userEmailContent || ''}
             onChange={this.onEditorChange}
-            insertItems={EMAIL_CONTENT}
             height={500}
             name={`lead_user_email_${editorSubName}`}
           />
@@ -162,7 +160,6 @@ class SuccessStep extends React.Component<Props, State> {
           <EditorCK
             content={leadData.adminEmailContent || ''}
             onChange={this.onEditorChange}
-            insertItems={EMAIL_CONTENT}
             height={500}
             name={`lead_admin_email_${editorSubName}`}
           />

@@ -45,6 +45,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
       <MailBox>
         <MailForm
           fromEmail={primaryEmail}
+          customerId={cocType === 'customer' ? coc._id : undefined}
           refetchQueries={
             cocType === 'customer'
               ? ['activityLogsCustomer']

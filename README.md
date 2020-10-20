@@ -89,9 +89,9 @@ Deploy to a DigitalOcean droplet with our one-click install listing from the Dig
 
 ## Contributors
 
-This project exists thanks to all the people who contribute. [[Contributors]](CONTRIBUTING.md).
-<a href="graphs/contributors"><img src="https://opencollective.com/erxes/contributors.svg?width=890" /></a>
 
+This project exists thanks to all the people who contribute. [[Contribute]](CONTRIBUTING.md).
+<a href="https://opencollective.com/erxes#section-contributors"><img src="https://opencollective.com/erxes/contributors.svg?width=890" /></a>
 
 ## Backers
 
