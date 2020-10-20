@@ -9,14 +9,14 @@
 
 :root {
   --white: #fff;
-  --black: #000;
+  --cosmos-black: #21243d;
   --nebula-blue: #5468ff;
   --moon-grey: #f5f5fa;
   --proton-grey: #c5c9e0;
   --nova-grey: #848ab8;
   --telluric-blue: #5d6494;
   --solstice-blue: #3a416f;
-  --cosmos-black: #21243d;
+  --black: #000;
 
   /* heading */
   --ifm-h1-font-size: 2.8rem;
