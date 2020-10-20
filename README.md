@@ -121,6 +121,7 @@ Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com
 erxes is a free and open <a href="https://faircode.io/">fair-code</a> licensed under GNU General Public License v3.0 with Commons Clause.
 
 ## Is erxes open-source?
+<img alt="Open Source" src="https://images.app.goo.gl/phB71XRv5ujET1fP7"></img>
 No. The <a href="https://commonsclause.com/">Commons Clause</a> that is attached to the GNU General Public License v3.0 license takes away some rights. Hence, according to the definition of the <a href="https://bit.ly/2WJ5uTh">Open Source Initiative (OSI)</a>, erxes is not open-source. Nonetheless, the source code is open and everyone (individuals and companies) can use it for free. However, it is not allowed to make money directly with erxes.
 
 
