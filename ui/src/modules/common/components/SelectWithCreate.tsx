@@ -1,12 +1,12 @@
-import client from 'apolloClient';
-import gql from 'graphql-tag';
-import debounce from 'lodash/debounce';
-import React, { useEffect, useState } from 'react';
-import Select from 'react-select-plus';
-import styled from 'styled-components';
-import { __, Alert } from '../utils';
-import Button from './Button';
-import Icon from './Icon';
+import client from "apolloClient";
+import gql from "graphql-tag";
+import debounce from "lodash/debounce";
+import React, { useEffect, useState } from "react";
+import Select from "react-select-plus";
+import styled from "styled-components";
+import { __ } from "../utils";
+import Button from "./Button";
+import Icon from "./Icon";
 
 const Wrapper = styled.div`
   display: flex;
@@ -48,110 +48,153 @@ type OptionProps = {
 
 function Option({ option, onSelect }: OptionProps) {
   const { onRemove } = option;
-  const onClick = e => onSelect(option, e);
+  const onClick = (e) => onSelect(option, e);
   const onRemoveClick = () => onRemove(option.value);
 
+  if (onRemove) {
+    return (
+      <OptionWrapper onClick={onClick}>
+        <FillContent>{option.label}</FillContent>
+        <Icon
+          style={{ float: "right" }}
+          onClick={onRemoveClick}
+          icon="times-circle"
+        />
+      </OptionWrapper>
+    );
+  }
+
   return (
-    <OptionWrapper onClick={onClick}>
+    <OptionWrapper>
       <FillContent>{option.label}</FillContent>
-      <Icon
-        style={{ float: 'right' }}
-        onClick={onRemoveClick}
-        icon="times-circle"
-      />
+      <small>(Already exist)</small>
     </OptionWrapper>
   );
 }
 
 type Option = {
-  label: string;
-  value: string;
+  label?: string;
+  value?: string;
   onRemove?: (value: string) => void;
 };
 
 type Props = {
-  name: string;
   placeholder?: string;
+  defaultValue?: string;
+  options: string[];
   queryName: string;
   customQuery: string;
   selector: Option;
+  onChange: (params: { options: any[]; selectedOption: any }) => void;
 };
 
 type Field = {
-  search: { label: string, options: Option[] };
-  added: { label: string, options: Option[] };
+  search: { label: string; options: Option[] };
+  added: { label: string; options: Option[] };
 };
 
-type SelectOptions = Array<{ label: string, options: Option[] }>;
+type SelectOptions = Array<{ label: string; options: Option[] }>;
 
-function generateOptions(options: any = [], selector: Option) {
+function generateOptions(options: any = [], selector: any) {
   if (options.length === 0) {
     return [];
   }
 
-  return options.map(option => ({
+  return options.map((option) => ({
     label: option[selector.label],
-    value: option[selector.value]
+    value: option[selector.value],
   }));
-};
-
-const defaultFieldValues = {
-  search: {
-    label: 'Search',
-    options: []
-  },
-  added: {
-    label: 'Added',
-    options: []
-  }
-};
+}
 
 function SelectWithCreate({
- placeholder,
- queryName,
- customQuery,
- name,
- selector 
+  placeholder,
+  queryName,
+  customQuery,
+  selector,
+  options,
+  defaultValue,
+  onChange,
 }: Props) {
-  const [fields, setFields] = useState<Field>(defaultFieldValues);
+  const [fields, setFields] = useState<Field>({
+    added: {
+      label: "Possible names",
+      options: [],
+    },
+    search: {
+      label: "Search result",
+      options: [],
+    },
+  });
+
   const [selectOptions, setSelectOptions] = useState<SelectOptions>([]);
-  const [selectedValue, setSelectedValue] = useState<Option | null>(null);
-  const [searchValue, setSearchValue] = useState<string>('');
+  const [selectedValue, setSelectedValue] = useState<Option | null>(
+    defaultValue ? { label: defaultValue, value: defaultValue } : null
+  );
+  const [searchValue, setSearchValue] = useState<string>("");
 
   useEffect(() => {
-    const updatedOptions = [fields.search, fields.added];
+    if (options.length > 0) {
+      fields.added.options = options.map((item) => ({
+        label: item,
+        value: item,
+        onRemove: handleRemove,
+      }));
+    }
+
+    const updatedOptions = [fields.added, fields.search];
 
     setSelectOptions(updatedOptions);
-  }, [fields]);
+  }, []);
 
-  useEffect(() => {
-    const fetch = () => {
-      if (searchValue.length === 0) {
-        return;
-      }
+  useEffect(
+    () => {
+      const updatedOptions = [fields.added, fields.search];
 
-      return client.query({
-        query: gql(customQuery),
-        variables: { searchValue },
-      })
-        .then(({ data }) => {
-          const list = data[queryName];
+      setSelectOptions(updatedOptions);
+    },
+    [fields]
+  );
 
-          const currentFields = {...fields};
+  useEffect(
+    () => {
+      const fetch = () => {
+        if (searchValue.length === 0) {
+          return;
+        }
 
-          currentFields.search.options = generateOptions(list, selector);
+        return client
+          .query({
+            query: gql(customQuery),
+            variables: { searchValue, autoCompletion: true },
+          })
+          .then(({ data }) => {
+            const list = data[queryName];
 
-          setFields(currentFields);
-        });
-    };
+            const currentFields = { ...fields };
 
-    debounce(() => fetch())();
+            currentFields.search.options = generateOptions(list, selector);
 
-  }, [searchValue]);
+            setFields(currentFields);
+          });
+      };
+
+      debounce(() => fetch(), 400)();
+    },
+    [searchValue]
+  );
 
   const handleChange = (option) => {
-    setSearchValue('');
+    setSearchValue("");
     setSelectedValue(option);
+
+    if (option) {
+      const values = fields.added.options.map((item) => item.label);
+
+      onChange({
+        options: values,
+        selectedOption: option.value,
+      });
+    }
   };
 
   const handleInput = (input: string) => {
@@ -159,39 +202,80 @@ function SelectWithCreate({
   };
 
   const handleAdd = () => {
-    const currentFields = {...fields};
-    const { options } = currentFields.added;
+    const currentFields = { ...fields };
+    const addedOptions = currentFields.added.options;
 
-    const foundIndex = options.findIndex(option => option.label === searchValue);
-
-    if (foundIndex !== -1) {
-      return Alert.error('Already exist');
-    }
-
-    Alert.success('Name added');
-
-    options.push({
+    addedOptions.push({
       label: searchValue,
       value: searchValue,
-      onRemove: handleRemove
-    })
+      onRemove: handleRemove,
+    });
 
-    setSearchValue('');
     setFields(currentFields);
+
+    onChange({
+      options: addedOptions.map((item) => item.label),
+      selectedOption: searchValue,
+    });
+
+    setSearchValue("");
+    setSelectedValue(null);
   };
 
   const handleRemove = (value: string) => {
-    const currentFields = {...fields};
-    const { options } = currentFields.added;
+    const currentFields = { ...fields };
+    const addedOptions = currentFields.added.options;
 
-    const filteredOptions = options.filter(option => option.value !== value);
+    const filteredOptions = addedOptions.filter(
+      (option) => option.value !== value
+    );
 
     currentFields.added.options = filteredOptions;
 
-    setSearchValue('');
+    setSearchValue("");
     setSelectedValue(null);
     setFields(currentFields);
+
+    onChange({
+      options: currentFields.added.options.map((item) => item.label),
+      selectedOption: null,
+    });
   };
+
+  const handleOnBlur = () => {
+    const currentFields = { ...fields };
+
+    currentFields.search.options = [];
+
+    setFields(currentFields);
+  };
+
+  const handleKeyDown = (event) => {
+    // Enter key
+    if (event.keyCode === 13) {
+      event.preventDefault();
+
+      handleAdd();
+    }
+  };
+
+  function renderNoResult() {
+    if (searchValue.length === 0) {
+      return "No results found";
+    }
+
+    return (
+      <Button
+        btnStyle="link"
+        uppercase={false}
+        onClick={handleAdd}
+        block={true}
+        icon="plus-circle"
+      >
+        Add name
+      </Button>
+    );
+  }
 
   return (
     <Wrapper>
@@ -200,27 +284,17 @@ function SelectWithCreate({
           placeholder={placeholder}
           value={selectedValue}
           options={selectOptions}
-          clearable={true}
-          onChange={handleChange}
-          onBlurResetsInput={false}
           onSelectResetsInput={true}
+          onBlur={handleOnBlur}
+          onChange={handleChange}
+          onInputKeyDown={handleKeyDown}
           onInputChange={handleInput}
           optionComponent={Option}
+          noResultsText={renderNoResult()}
         />
       </FillContent>
-      {(
-        <Button
-          size="small"
-          btnStyle="primary"
-          uppercase={false}
-          onClick={handleAdd}
-          icon="plus-circle"
-        >
-          {`${__('Add')} ${__(name)}`}
-        </Button>
-      )}
     </Wrapper>
   );
 }
 
-export default SelectWithCreate
+export default SelectWithCreate;

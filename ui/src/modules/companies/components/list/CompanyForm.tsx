@@ -124,7 +124,7 @@ class CompanyForm extends React.Component<Props, State> {
 
   renderFormGroup = (label, props) => {
     return (
-      <FormGroup>
+      <FormGroup key={label}>
         <ControlLabel>{label}</ControlLabel>
         <FormControl {...props} />
       </FormGroup>
@@ -226,8 +226,6 @@ class CompanyForm extends React.Component<Props, State> {
                   <ModifiableSelect
                     value={primaryName}
                     options={names || []}
-                    queryName="companies"
-                    customQuery={queries.companies}
                     name="Name"
                     required={true}
                     onChange={this.onChange.bind(this, 'names', 'primaryName')}
@@ -237,9 +235,11 @@ class CompanyForm extends React.Component<Props, State> {
                 <FormGroup>
                   <ControlLabel required={true}>Name</ControlLabel>
                   <SelectWithCreate
+                    defaultValue={primaryName}
+                    options={names || []}
                     placeholder="Enter company name"
                     queryName="companies"
-                    name="Name"
+                    onChange={this.onChange.bind(this, 'names', 'primaryName')}
                     customQuery={queries.companies}
                     selector={{
                       label: 'primaryName',

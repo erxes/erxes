@@ -52,6 +52,7 @@ const listParamsDef = `
   $tag: String
   $ids: [String]
   $searchValue: String
+  $autoCompletion: Boolean
   $brand: String
   $sortField: String
   $sortDirection: Int
@@ -65,6 +66,7 @@ const listParamsValue = `
   tag: $tag
   ids: $ids
   searchValue: $searchValue
+  autoCompletion: $autoCompletion
   brand: $brand
   sortField: $sortField
   sortDirection: $sortDirection
