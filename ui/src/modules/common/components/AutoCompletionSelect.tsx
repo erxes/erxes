@@ -4,7 +4,7 @@ import debounce from "lodash/debounce";
 import React, { useEffect, useState } from "react";
 import Select from "react-select-plus";
 import styled from "styled-components";
-import { __ } from "../utils";
+import { __, Alert } from "../utils";
 import Button from "./Button";
 import Icon from "./Icon";
 
@@ -42,8 +42,8 @@ const FillContent = styled.div`
 `;
 
 type OptionProps = {
-  option: any;
-  onSelect: (option: any[], e: any) => void;
+  option: { label: string, value: string, onRemove: (value: string) => void };
+  onSelect: (option: Option, e: any) => void;
 };
 
 function Option({ option, onSelect }: OptionProps) {
@@ -51,41 +51,43 @@ function Option({ option, onSelect }: OptionProps) {
   const onClick = (e) => onSelect(option, e);
   const onRemoveClick = () => onRemove(option.value);
 
-  if (onRemove) {
+  if (!onRemove) {
     return (
-      <OptionWrapper onClick={onClick}>
+      <OptionWrapper>
         <FillContent>{option.label}</FillContent>
-        <Icon
-          style={{ float: "right" }}
-          onClick={onRemoveClick}
-          icon="times-circle"
-        />
+        <small>({__("Already exist")})</small>
       </OptionWrapper>
     );
   }
 
   return (
-    <OptionWrapper>
+    <OptionWrapper onClick={onClick}>
       <FillContent>{option.label}</FillContent>
-      <small>(Already exist)</small>
+      <Icon
+        style={{ float: "right" }}
+        onClick={onRemoveClick}
+        icon="times-circle"
+      />
     </OptionWrapper>
   );
 }
 
 type Option = {
-  label?: string;
+  label: string;
   value?: string;
   onRemove?: (value: string) => void;
 };
 
 type Props = {
+  required?: boolean;
   placeholder?: string;
   defaultValue?: string;
   options: string[];
+  autoCompletionType: string;
   queryName: string;
-  customQuery: string;
-  selector: Option;
-  onChange: (params: { options: any[]; selectedOption: any }) => void;
+  query: string;
+  checkFormat?: (value) => boolean;
+  onChange: (params: { options: string[]; selectedOption: string | null }) => void;
 };
 
 type Field = {
@@ -95,33 +97,35 @@ type Field = {
 
 type SelectOptions = Array<{ label: string; options: Option[] }>;
 
-function generateOptions(options: any = [], selector: any) {
+function generateOptions(options: object[], type: string) {
   if (options.length === 0) {
     return [];
   }
 
   return options.map((option) => ({
-    label: option[selector.label],
-    value: option[selector.value],
+    label: option[type],
+    value: option[type],
   }));
 }
 
-function SelectWithCreate({
+function AutoCompletionSelect({
   placeholder,
   queryName,
-  customQuery,
-  selector,
-  options,
+  query,
+  options = [],
+  autoCompletionType,
   defaultValue,
+  required,
+  checkFormat,
   onChange,
 }: Props) {
   const [fields, setFields] = useState<Field>({
     added: {
-      label: "Possible names",
+      label: __("Possible names"),
       options: [],
     },
     search: {
-      label: "Search result",
+      label: __("Search result"),
       options: [],
     },
   });
@@ -164,15 +168,21 @@ function SelectWithCreate({
 
         return client
           .query({
-            query: gql(customQuery),
-            variables: { searchValue, autoCompletion: true },
+            query: gql(query),
+            variables: {
+              searchValue,
+              autoCompletionType,
+              autoCompletion: true,
+            },
           })
           .then(({ data }) => {
             const list = data[queryName];
 
             const currentFields = { ...fields };
 
-            currentFields.search.options = generateOptions(list, selector);
+            currentFields.search.options = (
+              generateOptions(list, autoCompletionType) || []
+            ).filter((item) => item.label !== defaultValue);
 
             setFields(currentFields);
           });
@@ -198,10 +208,10 @@ function SelectWithCreate({
   };
 
   const handleInput = (input: string) => {
-    return setSearchValue(input);
+    setSearchValue(input);
   };
 
-  const handleAdd = () => {
+  const handleSave = () => {
     const currentFields = { ...fields };
     const addedOptions = currentFields.added.options;
 
@@ -220,6 +230,18 @@ function SelectWithCreate({
 
     setSearchValue("");
     setSelectedValue(null);
+  };
+
+  const handleAdd = () => {
+    if (checkFormat) {
+      if (checkFormat(searchValue)) {
+        return handleSave();
+      }
+
+      return Alert.error("Invalid format");
+    }
+
+    return handleSave();
   };
 
   const handleRemove = (value: string) => {
@@ -251,7 +273,7 @@ function SelectWithCreate({
   };
 
   const handleKeyDown = (event) => {
-    // Enter key
+    // enter key
     if (event.keyCode === 13) {
       event.preventDefault();
 
@@ -261,7 +283,7 @@ function SelectWithCreate({
 
   function renderNoResult() {
     if (searchValue.length === 0) {
-      return "No results found";
+      return "Type to search";
     }
 
     return (
@@ -281,10 +303,13 @@ function SelectWithCreate({
     <Wrapper>
       <FillContent>
         <Select
+          required={required}
           placeholder={placeholder}
           value={selectedValue}
           options={selectOptions}
-          onSelectResetsInput={true}
+          onSelectResetsInput={false}
+          onBlurResetsInput={false}
+          onCloseResetsInput={false}
           onBlur={handleOnBlur}
           onChange={handleChange}
           onInputKeyDown={handleKeyDown}
@@ -297,4 +322,4 @@ function SelectWithCreate({
   );
 }
 
-export default SelectWithCreate;
+export default AutoCompletionSelect;

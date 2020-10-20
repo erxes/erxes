@@ -1,3 +1,4 @@
+import AutoCompletionSelect from 'modules/common/components/AutoCompletionSelect';
 import AvatarUpload from 'modules/common/components/AvatarUpload';
 import Button from 'modules/common/components/Button';
 import CollapseContent from 'modules/common/components/CollapseContent';
@@ -5,8 +6,6 @@ import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
-import ModifiableSelect from 'modules/common/components/ModifiableSelect';
-import SelectWithCreate from 'modules/common/components/SelectWithCreate';
 import {
   FormColumn,
   FormWrapper,
@@ -26,11 +25,11 @@ import {
   COMPANY_BUSINESS_TYPES,
   COMPANY_INDUSTRY_TYPES
 } from '../../constants';
-import { queries } from '../../graphql';
 import { ICompany, ICompanyDoc, ICompanyLinks } from '../../types';
 
 type Props = {
   currentUser: IUser;
+  autoCompletionQuery: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   company: ICompany;
   closeModal: () => void;
@@ -161,7 +160,7 @@ class CompanyForm extends React.Component<Props, State> {
 
   renderContent = (formProps: IFormProps) => {
     const company = this.props.company || ({} as ICompany);
-    const { closeModal, renderButton } = this.props;
+    const { closeModal, renderButton, autoCompletionQuery } = this.props;
     const { values, isSubmitted } = formProps;
 
     const {
@@ -223,28 +222,15 @@ class CompanyForm extends React.Component<Props, State> {
               <FormColumn>
                 <FormGroup>
                   <ControlLabel required={true}>Name</ControlLabel>
-                  <ModifiableSelect
-                    value={primaryName}
-                    options={names || []}
-                    name="Name"
+                  <AutoCompletionSelect
                     required={true}
-                    onChange={this.onChange.bind(this, 'names', 'primaryName')}
-                  />
-                </FormGroup>
-
-                <FormGroup>
-                  <ControlLabel required={true}>Name</ControlLabel>
-                  <SelectWithCreate
                     defaultValue={primaryName}
                     options={names || []}
+                    autoCompletionType="primaryName"
                     placeholder="Enter company name"
                     queryName="companies"
+                    query={autoCompletionQuery}
                     onChange={this.onChange.bind(this, 'names', 'primaryName')}
-                    customQuery={queries.companies}
-                    selector={{
-                      label: 'primaryName',
-                      value: '_id'
-                    }}
                   />
                 </FormGroup>
 
@@ -262,15 +248,14 @@ class CompanyForm extends React.Component<Props, State> {
 
                 <FormGroup>
                   <ControlLabel>Email</ControlLabel>
-                  <ModifiableSelect
-                    value={primaryEmail}
+                  <AutoCompletionSelect
+                    defaultValue={primaryEmail}
                     options={emails || []}
-                    name="Email"
-                    onChange={this.onChange.bind(
-                      this,
-                      'emails',
-                      'primaryEmail'
-                    )}
+                    autoCompletionType="primaryEmail"
+                    placeholder="Enter company email"
+                    queryName="companies"
+                    query={autoCompletionQuery}
+                    onChange={this.onChange.bind(this, 'emails', 'primaryEmail')}
                     checkFormat={validator.isEmail}
                   />
                 </FormGroup>
@@ -312,15 +297,14 @@ class CompanyForm extends React.Component<Props, State> {
 
                 <FormGroup>
                   <ControlLabel>Phone</ControlLabel>
-                  <ModifiableSelect
-                    value={primaryPhone}
+                  <AutoCompletionSelect
+                    defaultValue={primaryPhone}
                     options={phones || []}
-                    name="Phone"
-                    onChange={this.onChange.bind(
-                      this,
-                      'phones',
-                      'primaryPhone'
-                    )}
+                    autoCompletionType="primaryPhone"
+                    placeholder="Enter company phone"
+                    queryName="companies"
+                    query={autoCompletionQuery}
+                    onChange={this.onChange.bind(this, 'phones', 'primaryPhone')}
                     checkFormat={isValidPhone}
                   />
                 </FormGroup>
