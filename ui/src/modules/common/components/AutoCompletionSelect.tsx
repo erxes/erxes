@@ -11,6 +11,12 @@ import Icon from "./Icon";
 const Wrapper = styled.div`
   display: flex;
   align-items: center;
+
+  input {
+    display: block;
+    width: 100%;
+    border: none;
+  }
 `;
 
 const OptionWrapper = styled(Wrapper)`
@@ -46,10 +52,19 @@ type OptionProps = {
   onSelect: (option: Option, e: any) => void;
 };
 
-function Option({ option, onSelect }: OptionProps) {
+function Option(props: OptionProps) {
+  const { option, onSelect } = props;
   const { onRemove } = option;
-  const onClick = (e) => onSelect(option, e);
-  const onRemoveClick = () => onRemove(option.value);
+
+  const onClick = (e) => {
+    onSelect(option, e)
+  };
+
+  const onRemoveClick = (e) => {
+    e.stopPropagation();
+
+    onRemove(option.value);
+}
 
   if (!onRemove) {
     return (
@@ -212,24 +227,26 @@ function AutoCompletionSelect({
   };
 
   const handleSave = () => {
+    setSearchValue("");
+
+    const newItem = {
+      label: searchValue,
+      value: searchValue,
+      onRemove: handleRemove
+    };
+
     const currentFields = { ...fields };
     const addedOptions = currentFields.added.options;
 
-    addedOptions.push({
-      label: searchValue,
-      value: searchValue,
-      onRemove: handleRemove,
-    });
+    addedOptions.push(newItem);
 
+    setSelectedValue(newItem);
     setFields(currentFields);
 
     onChange({
       options: addedOptions.map((item) => item.label),
       selectedOption: searchValue,
     });
-
-    setSearchValue("");
-    setSelectedValue(null);
   };
 
   const handleAdd = () => {
@@ -299,17 +316,21 @@ function AutoCompletionSelect({
     );
   }
 
+  const inputRenderer = (props) => {
+    return <input {...props} value={searchValue} />;
+  }
+
   return (
     <Wrapper>
       <FillContent>
         <Select
           required={required}
           placeholder={placeholder}
+          inputRenderer={inputRenderer}
           value={selectedValue}
           options={selectOptions}
-          onSelectResetsInput={false}
-          onBlurResetsInput={false}
-          onCloseResetsInput={false}
+          onSelectResetsInput={true}
+          onBlurResetsInput={true}
           onBlur={handleOnBlur}
           onChange={handleChange}
           onInputKeyDown={handleKeyDown}
