@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2003-2019, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2020, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
 */
 
@@ -8,7 +8,7 @@ body
 	/* Font */
 	/* Emoji fonts are added to visualise them nicely in Internet Explorer. */
 	font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",sans-serif;
-	font-size: 12px;
+	font-size: 14px;
 
 	/* Text color */
 	color: #333;
@@ -21,7 +21,7 @@ body
 
 .cke_editable
 {
-	font-size: 13px;
+	font-size: 12px;
 	line-height: 1.6;
 
 	/* Fix for missing scrollbars with RTL texts. (#10488) */
@@ -65,7 +65,7 @@ ol,ul,dl
 	padding: 0 40px;
 }
 
-h1,h2,h3,h4,h5,h6
+h1 , h2 , h3 , h4 , h5 , h6
 {
 	font-weight: normal;
 	line-height: 1.2;
@@ -87,9 +87,9 @@ img.right
 
 img.left
 {
-	border: 1px solid #ccc;
+	border: 2px solid #ccc;
 	float: left;
-	margin-right: 15px;
+	margin-right: 16px;
 	padding: 5px;
 }
 
@@ -103,7 +103,7 @@ pre
 
 .marker
 {
-	background-color: Yellow;
+	background-color: #fff44f;
 }
 
 span[lang]
@@ -124,14 +124,14 @@ figure
 figure > figcaption
 {
 	text-align: center;
-	display: block; /* For IE8 */
+	display: block; 
 }
 
 a > img {
 	padding: 1px;
 	margin: 1px;
 	border: none;
-	outline: 1px solid #0782C1;
+	outline: 2px solid #0782C1;
 }
 
 /* Widget Styles */
@@ -202,7 +202,7 @@ a > img {
 
 .embed-1080p
 {
-	max-width: 1920px;
-	max-height: 1080px;
+	max-width: 1925px;
+	max-height: 1085px;
 	margin:0 auto;
 }
