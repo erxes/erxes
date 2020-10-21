@@ -82,8 +82,8 @@
       "overview/deployment-overview": {
         "title": "Deployment Overview"
       },
-      "overview/overview": {
-        "title": "Start here"
+      "overview/getting-started": {
+        "title": "Getting  Started"
       },
       "overview/integrations-overview": {
         "title": "Integrations Overview"

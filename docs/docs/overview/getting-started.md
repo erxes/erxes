@@ -1,6 +1,6 @@
 ---
-id: table-of-contents
-title: Table of Contents
+id: getting-started
+title: Getting  Started
 ---
 
 ### Overview

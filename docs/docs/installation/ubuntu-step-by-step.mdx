@@ -1,9 +1,7 @@
 ---
 id: ubuntu-step-by-step
-title: CE Step by Step Installation
+title: Step by Step Installation
 ---
-
-## Installing the Community Edition
 
 ## First steps: Setting up a server with Ubuntu 18.04
 
@@ -11,8 +9,8 @@ You must have an account with your hosting provider prior to doing these steps.
 
 - Choose a server size that corresponds with the **minimum** requirements for these **Step by Step** instructions:
   - **Ubuntu 18.04** installed and running
-  - **1 CPUs**
-  - **1 GB RAM**
+  - 2 CPUs
+  - 4GB RAM
   - ability to to SSH into the server
   - If you're using a **subdomain**, then the **subdomain** must be created with your hosting provider hosting your main domain's website or app. The DNS needs to be pointed to your server. (See below)
 
@@ -61,13 +59,11 @@ ssh root@your-ip-address
 
 You don't want to use the **root** user to administer your server. So everything will be done by a user called, **erxes**. To accomplish this, run the following commands:
 
-- Add a user called "erxes". When prompted, enter in a **unique** password. You will need to keep this password available, as later operations will require using it.
+- Add a user called "erxes". When prompted, enter in a **unique** password. You will need to keep this password available, as later operations will require using it. (Finish adding the user simply by pressing the `enter` or `return` key through the questions.)
 
 ```bash
 adduser erxes
 ```
-
-(Finish adding the user simply by pressing the `enter` or `return` key through the questions.)
 
 - Grant the **erxes** user adminstrative rights.
 
@@ -87,13 +83,11 @@ Your next step as **root** user, is to set-up a basic firewall for your server.
 ufw allow OpenSSH
 ```
 
-- Enable **ufw** and allow the "disrupt existing ssh connections".
+- Enable **ufw** and allow the "disrupt existing ssh connections". Type `y` when asked, "**Command may disrupt existing ssh connections. Proceed with operation (y|n)?**"
 
 ```bash
 ufw enable
 ```
-
-Type `y` when asked, "**Command may disrupt existing ssh connections. Proceed with operation (y|n)?**"
 
 - Check the **ufw** status
 
@@ -169,7 +163,7 @@ sudo service sshd reload
 exit
 ```
 
-You have created a new user called, "**erxes**" and you set-up a basic firewall to protect your server against malicious attacks.
+You have created a new user called, "erxes" and you set-up a basic firewall to protect your server against malicious attacks.
 
 Please continue with the following steps to log in to your server as the **erxes** user.
 
@@ -378,8 +372,6 @@ bye
 
 If you were able to return to the command line prompt. Then you may continue with the installation of **Redis**.
 
-# OPTIONAL CAN SKIP AND IT WILL WORK JUST FINE. Scalable If you use docker or kubernetes then will need a centralized solution like Redis. This is true for rabbitMQ if docker or kubernetes is used.
-
 ## Install Redis
 
 **Redis** is an in memory quick-response database. For additional [Redis installation instructions, read this](https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-redis-on-ubuntu-18-04).
@@ -413,8 +405,6 @@ You should get an output similar to this
 - Type `ctrl + c` to quit
 
 Providing you got **Active: active (running)** output for **Redis** you may now continue with the next steps.
-
-# OPTIONAL CAN SKIP AND IT WILL WORK JUST FINE
 
 ## Install RabbitMQ and dependencies
 
@@ -547,8 +537,6 @@ You should see similar output to the following:
 - You can exit with `ctrl + c`
 
 If you see output similar to the above, then you are ready to continue and go onto installing **Elasticsearch**.
-
-# OPTIONAL CAN SKIP AND IT WILL WORK JUST FINE. Your data is stored on our server for the search feature. Add to quickstart.
 
 ## Install Elasticsearch
 
@@ -847,10 +835,6 @@ All the dependencies for **erxes** are now installed. You have also configured y
 
 - Create the empty folder directories for the installation of erxes.
 
-# NOTE: elksyncer is not needed if Elasticsearch is hosted on erxes.io
-
-# erxes-logger and erxes-email-verifier OPTIONAL. email-verifier occurs to send mass emails. Requires more memory.
-
 **NOTE:** COPY THE ENTIRE CODE BLOCK AS ONE COMMAND.
 
 ```bash
@@ -869,8 +853,6 @@ mkdir -p ~/erxes.io/erxes \
 - Individually download and extract each of these 8 packages. (These commands place them in the proper installation directories.)
 
 **NOTE:** COPY THE ENTIRE CODE BLOCK AS ONE COMMAND.
-
-# Only three tar files to download.
 
 ```bash
 curl -L https://github.com/erxes/erxes/releases/download/0.16.0/erxes-0.16.0.tar.gz | tar -xz -C ~/erxes.io/erxes/ \
@@ -898,8 +880,6 @@ cd ~/erxes.io/erxes-widgets && yarn install \
     && cd ~/erxes.io/erxes-integrations && yarn install \
     && cd ~
 ```
-
-# only if necessary - include making folder structure
 
 - Install and configure the **elkSyncer** package, following these commands.
 
@@ -952,8 +932,6 @@ In the following steps, you will **copy** and **create** an `ecosystem.config.js
 cd ~/erxes.io
 nano ecosystem.config.js
 ```
-
-# look at the latest ecosystem file in bash script
 
 - Copy the following content into the file. **SAVE THE FILE AS-IS WITHOUT ANY CHANGES\***.
 
@@ -1217,6 +1195,15 @@ window.env = {
 - save the file with `ctrl + x` and then `y` to accept all changes.
 
 You are now ready to **initialize** and **load the permissions** in **erxes**.
+
+## export MongoDB URL
+
+- initialize Erxes and generate **login password**.
+
+```bash
+cd ~
+export MONGO_URL="mongodb://localhost/erxes"
+```
 
 ## Congratulations, time to log in
 

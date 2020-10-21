@@ -11,7 +11,7 @@ Today, we’re delighted to announce that erxes is available on Heroku. It will 
 
 <!--truncate-->
 
-[Find out how you can deploy erxes on Heroku in less than 60 seconds](https://www.erxes.org/installation/heroku).
+[Find out how you can deploy erxes on Heroku in less than 60 seconds](https://docs.erxes.io/installation/heroku).
 
 ## **erxes on Heroku**
 
@@ -19,7 +19,7 @@ Merge all your marketing, sales and customer service tools with erxes for greate
 
 ## **How to install**
 
-1.  Please head to [https://www.erxes.org/installation/heroku](https://www.erxes.org/installation/heroku) and follow the guide.
+1.  Please head to [https://docs.erxes.io/installation/heroku](https://docs.erxes.io/installation/heroku) and follow the guide.
 2.  Make sure you have your Heroku account details ready. If not, [create a Heroku account](https://id.heroku.com/login) to get started.
 3.  Once you have created erxes apps on Heroku, you will just need to update all the config vars.
 
