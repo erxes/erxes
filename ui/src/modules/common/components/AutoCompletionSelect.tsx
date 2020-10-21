@@ -117,6 +117,8 @@ function AutoCompletionSelect({
   checkFormat,
   onChange,
 }: Props) {
+  const selectRef = React.useRef<{ handleInputBlur: () => void }>(null);
+
   const [fields, setFields] = useState<Field>({
     added: {
       label: __(`Possible ${autoCompletionType}`),
@@ -278,6 +280,10 @@ function AutoCompletionSelect({
     setSelectedValue(newItem);
     setFields(currentFields);
 
+    if (selectRef && selectRef.current) {
+      selectRef.current.handleInputBlur();
+    }
+
     onChange({
       options: addedOptions.map((item) => item.label),
       selectedOption: searchValue,
@@ -350,6 +356,7 @@ function AutoCompletionSelect({
     <Wrapper>
       <FillContent>
         <Select
+          ref={selectRef}
           required={required}
           placeholder={placeholder}
           inputRenderer={inputRenderer}
