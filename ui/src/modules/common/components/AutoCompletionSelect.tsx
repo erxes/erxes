@@ -102,7 +102,7 @@ type Props = {
   queryName: string;
   query: string;
   checkFormat?: (value) => boolean;
-  onChange: (params: { options: string[]; selectedOption: string | null }) => void;
+  onChange: (params: { options: string[]; selectedOption: any  }) => void;
 };
 
 type Field = {
@@ -208,7 +208,7 @@ function AutoCompletionSelect({
     [searchValue]
   );
 
-  const handleChange = (option) => {
+  const handleChange = option => {
     setSearchValue("");
     setSelectedValue(option);
 
