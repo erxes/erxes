@@ -268,8 +268,8 @@ class CustomerForm extends React.Component<Props, State> {
                   <AutoCompletionSelect
                     required={true}
                     defaultValue={primaryEmail}
-                    options={this.getEmailsOptions(customer)}
-                    autoCompletionType="primaryEmail"
+                    defaultOptions={this.getEmailsOptions(customer)}
+                    autoCompletionType="emails"
                     placeholder="Enter an email"
                     queryName="customers"
                     query={autoCompletionQuery}
@@ -322,8 +322,8 @@ class CustomerForm extends React.Component<Props, State> {
                   <ControlLabel>Phone</ControlLabel>
                   <AutoCompletionSelect
                     defaultValue={primaryPhone}
-                    options={this.getPhonesOptions(customer)}
-                    autoCompletionType="primaryPhone"
+                    defaultOptions={this.getPhonesOptions(customer)}
+                    autoCompletionType="phones"
                     placeholder="Enter an phone"
                     queryName="customers"
                     query={autoCompletionQuery}

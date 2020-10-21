@@ -225,8 +225,8 @@ class CompanyForm extends React.Component<Props, State> {
                   <AutoCompletionSelect
                     required={true}
                     defaultValue={primaryName}
-                    options={names || []}
-                    autoCompletionType="primaryName"
+                    defaultOptions={names || []}
+                    autoCompletionType="names"
                     placeholder="Enter company name"
                     queryName="companies"
                     query={autoCompletionQuery}
@@ -250,8 +250,8 @@ class CompanyForm extends React.Component<Props, State> {
                   <ControlLabel>Email</ControlLabel>
                   <AutoCompletionSelect
                     defaultValue={primaryEmail}
-                    options={emails || []}
-                    autoCompletionType="primaryEmail"
+                    defaultOptions={emails || []}
+                    autoCompletionType="emails"
                     placeholder="Enter company email"
                     queryName="companies"
                     query={autoCompletionQuery}
@@ -299,8 +299,8 @@ class CompanyForm extends React.Component<Props, State> {
                   <ControlLabel>Phone</ControlLabel>
                   <AutoCompletionSelect
                     defaultValue={primaryPhone}
-                    options={phones || []}
-                    autoCompletionType="primaryPhone"
+                    defaultOptions={phones || []}
+                    autoCompletionType="phones"
                     placeholder="Enter company phone"
                     queryName="companies"
                     query={autoCompletionQuery}

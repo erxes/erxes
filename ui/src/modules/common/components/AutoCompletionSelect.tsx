@@ -1,7 +1,8 @@
 import client from "apolloClient";
 import gql from "graphql-tag";
+import * as _ from "lodash";
 import debounce from "lodash/debounce";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Select from "react-select-plus";
 import styled from "styled-components";
 import { __, Alert } from "../utils";
@@ -11,7 +12,6 @@ import Icon from "./Icon";
 const Wrapper = styled.div`
   display: flex;
   align-items: center;
-
   input {
     display: block;
     width: 100%;
@@ -23,19 +23,15 @@ const OptionWrapper = styled(Wrapper)`
   padding: 8px 16px;
   font-weight: 500;
   border-bottom: 1px solid #eee;
-
   &:last-child {
     border: none;
   }
-
   &:hover {
     background: #fafafa;
     cursor: default;
   }
-
   i {
     color: #ea475d;
-
     &:hover {
       cursor: pointer;
     }
@@ -47,12 +43,10 @@ const FillContent = styled.div`
   margin-right: 5px;
 `;
 
-type OptionProps = {
+function Option(props: {
   option: { label: string; value: string; onRemove: (value: string) => void };
   onSelect: (option: Option, e: any) => void;
-};
-
-function Option(props: OptionProps) {
+}) {
   const { option, onSelect } = props;
   const { onRemove } = option;
 
@@ -80,8 +74,8 @@ function Option(props: OptionProps) {
       <FillContent>{option.label}</FillContent>
       <Icon
         style={{ float: "right" }}
-        onClick={onRemoveClick}
         icon="times-circle"
+        onClick={onRemoveClick}
       />
     </OptionWrapper>
   );
@@ -97,7 +91,7 @@ type Props = {
   required?: boolean;
   placeholder?: string;
   defaultValue?: string;
-  options: string[];
+  defaultOptions: string[];
   autoCompletionType: string;
   queryName: string;
   query: string;
@@ -112,22 +106,11 @@ type Field = {
 
 type SelectOptions = Array<{ label: string; options: Option[] }>;
 
-function generateOptions(options: object[], type: string) {
-  if (options.length === 0) {
-    return [];
-  }
-
-  return options.map((option) => ({
-    label: option[type],
-    value: option[type],
-  }));
-}
-
 function AutoCompletionSelect({
   placeholder,
   queryName,
   query,
-  options = [],
+  defaultOptions,
   autoCompletionType,
   defaultValue,
   required,
@@ -136,7 +119,7 @@ function AutoCompletionSelect({
 }: Props) {
   const [fields, setFields] = useState<Field>({
     added: {
-      label: __("Possible names"),
+      label: __(`Possible ${autoCompletionType}`),
       options: [],
     },
     search: {
@@ -151,62 +134,113 @@ function AutoCompletionSelect({
   );
   const [searchValue, setSearchValue] = useState<string>("");
 
-  useEffect(() => {
-    if (options.length > 0) {
-      fields.added.options = options.map((item) => ({
+  const generateOptions = useCallback(
+    (list) => {
+      if (list.length === 0) {
+        return [];
+      }
+
+      const options: string[] = [];
+
+      list.map((item) => options.push(...item[autoCompletionType]));
+
+      return options.map((item) => ({
         label: item,
         value: item,
-        onRemove: handleRemove,
       }));
-    }
-
-    const updatedOptions = [fields.added, fields.search];
-
-    setSelectOptions(updatedOptions);
-  }, []);
-
-  useEffect(
-    () => {
-      const updatedOptions = [fields.added, fields.search];
-
-      setSelectOptions(updatedOptions);
     },
-    [fields]
+    [autoCompletionType]
+  );
+
+  const handleRemove = useCallback(
+    (value: string) => {
+      const currentFields = { ...fields };
+      const addedOptions = currentFields.added.options;
+
+      const filteredOptions = addedOptions.filter(
+        (option) => option.value !== value
+      );
+
+      currentFields.added.options = filteredOptions;
+
+      setSearchValue("");
+      setSelectedValue(null);
+      setFields(currentFields);
+
+      onChange({
+        options: currentFields.added.options.map((item) => item.label),
+        selectedOption: null,
+      });
+    },
+    [fields, onChange]
   );
 
   useEffect(
     () => {
-      const fetch = () => {
-        if (searchValue.length === 0) {
-          return;
-        }
+      if (defaultOptions.length > 0) {
+        const options = defaultOptions.map((item) => ({
+          label: item,
+          value: item,
+          onRemove: handleRemove,
+        }));
 
-        return client
-          .query({
-            query: gql(query),
-            variables: {
-              searchValue,
-              autoCompletionType,
-              autoCompletion: true,
-            },
-          })
-          .then(({ data }) => {
-            const list = data[queryName];
+        const currentOptions = fields.added.options;
 
-            const currentFields = { ...fields };
+        fields.added.options = _.uniqBy(
+          [...currentOptions, ...options],
+          "label"
+        );
+      }
 
-            currentFields.search.options = generateOptions(
-              list,
-              autoCompletionType
-            ).filter((item) => item.label !== defaultValue);
+      const updatedOptions = [fields.added, fields.search];
 
-            setFields(currentFields);
-          });
-      };
+      setSelectOptions(updatedOptions);
+    },
+    [defaultOptions, fields, handleRemove]
+  );
+
+  const setFetchResult = useCallback(
+    (list) => {
+      const options = generateOptions(list).filter(
+        (item) => item.label !== defaultValue
+      );
+
+      const currentFields = { ...fields };
+
+      currentFields.search.options = options;
+
+      setFields(currentFields);
+    },
+    [defaultValue]
+  );
+
+  const fetch = useCallback(
+    () => {
+      return client
+        .query({
+          query: gql(query),
+          variables: {
+            searchValue,
+            autoCompletionType,
+            autoCompletion: true,
+          },
+        })
+        .then(({ data }) => {
+          setFetchResult(data[queryName]);
+        });
+    },
+    [searchValue, autoCompletionType, query, queryName, setFetchResult]
+  );
+
+  useEffect(
+    () => {
+      if (searchValue.length === 0) {
+        return;
+      }
 
       debounce(() => fetch(), 400)();
     },
-    [searchValue]
+    [searchValue, fetch]
   );
 
   const handleChange = (option) => {
@@ -251,6 +285,17 @@ function AutoCompletionSelect({
   };
 
   const handleAdd = () => {
+    const { added, search } = fields;
+
+    const hasSearchResult = search.options.length > 0;
+    const currentPossibleValues = added.options.map(item => item.label);
+
+    const isDuplicated = currentPossibleValues.includes(searchValue);
+
+    if (hasSearchResult || isDuplicated) {
+      return;
+    }
+
     if (checkFormat) {
       if (checkFormat(searchValue)) {
         return handleSave();
@@ -260,26 +305,6 @@ function AutoCompletionSelect({
     }
 
     return handleSave();
-  };
-
-  const handleRemove = (value: string) => {
-    const currentFields = { ...fields };
-    const addedOptions = currentFields.added.options;
-
-    const filteredOptions = addedOptions.filter(
-      (option) => option.value !== value
-    );
-
-    currentFields.added.options = filteredOptions;
-
-    setSearchValue("");
-    setSelectedValue(null);
-    setFields(currentFields);
-
-    onChange({
-      options: currentFields.added.options.map((item) => item.label),
-      selectedOption: null,
-    });
   };
 
   const handleOnBlur = () => {
@@ -292,7 +317,7 @@ function AutoCompletionSelect({
 
   const handleKeyDown = (event) => {
     // enter key
-    if (event.keyCode === 13) {
+    if (event.keyCode === 13 && searchValue.length !== 0) {
       event.preventDefault();
 
       handleAdd();
@@ -312,7 +337,7 @@ function AutoCompletionSelect({
         block={true}
         icon="plus-circle"
       >
-        Add name
+        Add {autoCompletionType}
       </Button>
     );
   }
