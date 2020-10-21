@@ -57,7 +57,7 @@ erxes helps you attract and engage more customers while giving you high lead con
 * **Task Management:** Work More Collaboratively and Get More Done. Save time, manage your projects, monitor your team and increase your productivity in just a few clicks. Erxes helps to turn chaos into clarity and make everything perfect. 
 ## Documentation
   * <a href="https://www.erxes.org/installation/docker">Install erxes</a> <br>
-  * <a href="https://www.erxes.org/overview/getting-started/">erxes documentation</a> <br>
+  * <a href="https://www.erxes.org/overview/overview/">erxes documentation</a> <br>
   * <a href="https://www.erxes.org/developer/developer">Contributing to erxes</a> <br>
   
 ## Deployment
@@ -65,22 +65,12 @@ erxes helps you attract and engage more customers while giving you high lead con
 ### Ubuntu 16.04/18.04 LTS
 Follow these deployment instructions.
 
-[![ubuntu](https://erxes-os.s3-us-west-2.amazonaws.com/github/ubuntu-logo.png)](https://docs.erxes.io/installation/ubuntu)
-
-### Debian 10
-Follow these deployment instructions.
-
-[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/debian-logo.png)](https://docs.erxes.io/installation/debian10)
-
-### CentOS 8
-Follow these deployment instructions.
-
-[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/centos-logo.png)](https://docs.erxes.io/installation/centos8)
+[![ubuntu](https://erxes-os.s3-us-west-2.amazonaws.com/github/ubuntu-logo.png)](https://www.erxes.org/installation/ubuntu)
 
 ### Docker
 Follow these deployment instructions.
 
-[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/docker-logo.png)](https://docs.erxes.io/installation/docker)
+[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/docker-logo.png)](https://www.erxes.org/installation/docker)
 
 ### Heroku
 Host your own erxes server with One-Click Deploy.
