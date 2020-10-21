@@ -52,6 +52,8 @@ const queryParams = `
   tag: String
   ids: [String]
   searchValue: String
+  autoCompletion: Boolean
+  autoCompletionType: String
   sortField: String
   sortDirection: Int
   brand: String
