@@ -211,7 +211,7 @@ function AutoCompletionSelect({
 
       setFields(currentFields);
     },
-    [defaultValue]
+    [defaultValue, fields, generateOptions]
   );
 
   const fetch = useCallback(
