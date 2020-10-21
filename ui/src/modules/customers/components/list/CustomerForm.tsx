@@ -1,4 +1,5 @@
 import { IUser, IUserLinks } from 'modules/auth/types';
+import AutoCompletionSelect from 'modules/common/components/AutoCompletionSelect';
 import AvatarUpload from 'modules/common/components/AvatarUpload';
 import Button from 'modules/common/components/Button';
 import CollapseContent from 'modules/common/components/CollapseContent';
@@ -7,7 +8,6 @@ import DateControl from 'modules/common/components/form/DateControl';
 import Form from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
-import ModifiableSelect from 'modules/common/components/ModifiableSelect';
 import {
   DateContainer,
   FormColumn,
@@ -31,6 +31,7 @@ import { genderChoices, isValidPhone } from '../../utils';
 
 type Props = {
   currentUser: IUser;
+  autoCompletionQuery: string;
   customer?: ICustomer;
   closeModal: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -212,7 +213,7 @@ class CustomerForm extends React.Component<Props, State> {
   }
 
   renderContent = (formProps: IFormProps) => {
-    const { closeModal, renderButton } = this.props;
+    const { closeModal, renderButton, autoCompletionQuery } = this.props;
     const { values, isSubmitted, resetSubmit } = formProps;
 
     const customer = this.props.customer || ({} as ICustomer);
@@ -264,16 +265,16 @@ class CustomerForm extends React.Component<Props, State> {
 
                 <FormGroup>
                   <ControlLabel required={true}>Email</ControlLabel>
-                  <ModifiableSelect
-                    id="customerPrimaryEmailSave"
-                    value={primaryEmail}
-                    type="email"
-                    options={this.getEmailsOptions(customer)}
-                    name="Email"
-                    onChange={this.onEmailChange}
+                  <AutoCompletionSelect
                     required={true}
+                    defaultValue={primaryEmail}
+                    defaultOptions={this.getEmailsOptions(customer)}
+                    autoCompletionType="emails"
+                    placeholder="Enter an email"
+                    queryName="customers"
+                    query={autoCompletionQuery}
                     checkFormat={validator.isEmail}
-                    adding={!this.hasEmail()}
+                    onChange={this.onEmailChange}
                   />
                 </FormGroup>
 
@@ -319,12 +320,15 @@ class CustomerForm extends React.Component<Props, State> {
 
                 <FormGroup>
                   <ControlLabel>Phone</ControlLabel>
-                  <ModifiableSelect
-                    value={primaryPhone}
-                    options={this.getPhonesOptions(customer)}
-                    name="Phone"
-                    onChange={this.onPhoneChange}
+                  <AutoCompletionSelect
+                    defaultValue={primaryPhone}
+                    defaultOptions={this.getPhonesOptions(customer)}
+                    autoCompletionType="phones"
+                    placeholder="Enter an phone"
+                    queryName="customers"
+                    query={autoCompletionQuery}
                     checkFormat={isValidPhone}
+                    onChange={this.onPhoneChange}
                   />
                 </FormGroup>
 

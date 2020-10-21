@@ -10,7 +10,7 @@ import { ICustomer } from 'modules/customers/types';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import CustomerForm from '../components/list/CustomerForm';
-import { mutations } from '../graphql';
+import { mutations, queries } from '../graphql';
 
 type Props = {
   type?: string;
@@ -104,6 +104,7 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
           <CustomerForm
             {...updatedProps}
             currentUser={currentUser || ({} as IUser)}
+            autoCompletionQuery={queries.customers}
           />
         )}
       </AppConsumer>
