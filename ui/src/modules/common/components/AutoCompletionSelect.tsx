@@ -48,7 +48,7 @@ const FillContent = styled.div`
 `;
 
 type OptionProps = {
-  option: { label: string, value: string, onRemove: (value: string) => void };
+  option: { label: string; value: string; onRemove: (value: string) => void };
   onSelect: (option: Option, e: any) => void;
 };
 
@@ -57,14 +57,14 @@ function Option(props: OptionProps) {
   const { onRemove } = option;
 
   const onClick = (e) => {
-    onSelect(option, e)
+    onSelect(option, e);
   };
 
   const onRemoveClick = (e) => {
     e.stopPropagation();
 
     onRemove(option.value);
-}
+  };
 
   if (!onRemove) {
     return (
@@ -102,7 +102,7 @@ type Props = {
   queryName: string;
   query: string;
   checkFormat?: (value) => boolean;
-  onChange: (params: { options: string[]; selectedOption: any  }) => void;
+  onChange: (params: { options: string[]; selectedOption: any }) => void;
 };
 
 type Field = {
@@ -195,8 +195,9 @@ function AutoCompletionSelect({
 
             const currentFields = { ...fields };
 
-            currentFields.search.options = (
-              generateOptions(list, autoCompletionType) || []
+            currentFields.search.options = generateOptions(
+              list,
+              autoCompletionType
             ).filter((item) => item.label !== defaultValue);
 
             setFields(currentFields);
@@ -208,7 +209,7 @@ function AutoCompletionSelect({
     [searchValue]
   );
 
-  const handleChange = option => {
+  const handleChange = (option) => {
     setSearchValue("");
     setSelectedValue(option);
 
@@ -232,7 +233,7 @@ function AutoCompletionSelect({
     const newItem = {
       label: searchValue,
       value: searchValue,
-      onRemove: handleRemove
+      onRemove: handleRemove,
     };
 
     const currentFields = { ...fields };
@@ -318,7 +319,7 @@ function AutoCompletionSelect({
 
   const inputRenderer = (props) => {
     return <input {...props} value={searchValue} />;
-  }
+  };
 
   return (
     <Wrapper>
