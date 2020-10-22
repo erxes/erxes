@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "allowJs": true,
+    "target": "es6",
+    "moduleResolution": "node",
+    "module": "commonjs",
+    "lib": ["es2015", "es6", "es7", "esnext.asynciterable"],
+    "sourceMap": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "strict": true
+  },
+  "include": ["./src/**/*.ts", "typings.d.ts"],
+  "exclude": ["node_modules", "dist"]
+}

@@ -1,0 +1,92 @@
+{
+  "name": "Erxes API on Heroku",
+  "description": "GraphQL API for erxes main project",
+  "keywords": [
+    "Marketing",
+    "sales",
+    "customer engagement",
+    "customer support",
+    "CRM",
+    "node",
+    "express",
+    "graphql",
+    "apollo"
+  ],
+  "website": "https://erxes.io",
+  "repository": "https://github.com/batnasan/erxes-api",
+  "logo": "https://raw.githubusercontent.com/erxes/erxes/master/ui/public/images/logo-dark.png",
+  "success_url": "/",
+  "env": {
+    "PORT": {
+      "description": "A port number that erxes api will be running on",
+      "value": "3300"
+    },
+    "PORT_CRONS": {
+      "description": "A port number that erxes api crons will be running on",
+      "value": "3600"
+    },
+    "PORT_WORKERS": {
+      "description": "A port number that erxes api workers will be running on",
+      "value": "3700"
+    },
+    "MAIN_APP_DOMAIN": {
+      "description": "Erxes URL",
+      "value": "https://erxes.herokuapp.com"
+    },
+    "MONGO_URL": {
+      "description": "MONGO_URL",
+      "value": "MONGO_URL"
+    },
+    "REDIS_HOST": {
+      "description": "REDIS_HOST",
+      "value": "REDIS_HOST"
+    },
+    "REDIS_PORT": {
+      "description": "REDIS_PORT",
+      "value": "28229"
+    },
+    "REDIS_PASSWORD": {
+      "description": "REDIS_PASSWORD",
+      "value": "REDIS_PASSWORD"
+    },
+    "RABBITMQ_HOST": {
+      "description": "RABBITMQ_HOST",
+      "value": "amqp://localhost"
+    },
+    "JWT_TOKEN_SECRET": {
+      "description": "JWT TOKEN SECRET",
+      "value": "replace it with your token"
+    },
+    "LOGS_API_DOMAIN": {
+      "description": "LOGS_API_DOMAIN",
+      "value": "https://LOGS_API_DOMAIN.herokuapp.com"
+    },
+    "INTEGRATIONS_API_DOMAIN": {
+      "description": "INTEGRATIONS_API_DOMAIN",
+      "value": "https://INTEGRATIONS_API_DOMAIN.herokuapp.com"
+    }
+  },
+  "addons": [
+    {
+      "plan": "mongolab:sandbox",
+      "as": "MONGO"
+    },
+    {
+      "plan": "heroku-redis:hobby-dev",
+      "as": "REDIS"
+    },
+    {
+      "plan": "cloudamqp:lemur",
+      "as": "RABBITMQ"
+    },
+    {
+      "plan": "bonsai:sandbox-6",
+      "as": "ELASTICSEARCH"
+    }
+  ],
+  "buildpacks": [
+    {
+      "url": "https://github.com/batnasan/heroku-buildpack-subdir"
+    }
+  ]
+}
