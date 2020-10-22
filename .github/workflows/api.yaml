@@ -5,16 +5,12 @@ on:
     branches:
       - "**"
     paths:
-      - "**"
+      - "api/**"
       - "!.github/**"
       - ".github/workflows/api.yaml"
-      - "!elkSyncer/**"
-      - "!email-verifier/**"
-      - "!engages-email-sender/**"
-      - "!logger/**"
       - "!**.md"
-      - "!base.Dockerfile"
-      - "!base.Dockerfile.dockerignore"
+      - "!api/base.Dockerfile"
+      - "!api/base.Dockerfile.dockerignore"
   pull_request:
     branches:
       - master
@@ -22,16 +18,12 @@ on:
       - crons
       - workers
     paths:
-      - "**"
+      - "api/**"
       - "!.github/**"
       - ".github/workflows/api.yaml"
-      - "!elkSyncer/**"
-      - "!email-verifier/**"
-      - "!engages-email-sender/**"
-      - "!logger/**"
-      - "!**.md"
-      - "!base.Dockerfile"
-      - "!base.Dockerfile.dockerignore"
+      - "!api/**.md"
+      - "!api/base.Dockerfile"
+      - "!api/base.Dockerfile.dockerignore"
 
 jobs:
   api:

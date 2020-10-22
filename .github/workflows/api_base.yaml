@@ -6,8 +6,8 @@ on:
       - develop
     paths:
       - '.github/workflows/api_base.yaml'
-      - 'base.Dockerfile'
-      - 'base.Dockerfile.dockerignore'
+      - 'api/base.Dockerfile'
+      - 'api/base.Dockerfile.dockerignore'
 
 jobs:
   build_base_docker_image:
