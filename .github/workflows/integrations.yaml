@@ -7,6 +7,8 @@ on:
     paths:
       - "integrations/**"
       - "!integrations/**.md"
+      - "!.github/**"
+      - ".github/workflows/integrations.yaml"
   pull_request:
     branches:
       - master
@@ -14,6 +16,8 @@ on:
     paths:
       - "integrations/**"
       - "!integrations/**.md"
+      - "!.github/**"
+      - ".github/workflows/integrations.yaml"
 
 jobs:
   integrations:
