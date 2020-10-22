@@ -102,7 +102,7 @@ export default class TaskEditForm extends React.Component<Props> {
       formContent: this.renderFormContent,
       extraFields: this.state
     };
-    console.log('qqqqqqqqq')
+
     return <EditForm {...extendedProps} />;
   }
 }
