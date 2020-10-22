@@ -59,18 +59,22 @@ jobs:
 
       - name: Install dependencies
         run: |
+          cd api
           yarn install
 
       - name: Lint
         run: |
+          cd ui
           yarn lint
 
       - name: Tsc
         run: |
+          cd api
           yarn tsc -p tsconfig.prod.json
 
       - name: Test
         run: |
+          cd api
           yarn test
         env:
           MONGO_URL: mongodb://localhost/erxes
@@ -83,6 +87,7 @@ jobs:
       - name: Build
         if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'push'
         run: |
+          cd api
           rm -rf node_modules
           yarn install --production
           yarn build
@@ -92,6 +97,7 @@ jobs:
         env:
           BASE_IMAGE: erxes/erxes-api:base-12.18.3-slim
         run: |
+          cd api
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
           DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes-api:${GITHUB_REF#refs/heads/} -f api.Dockerfile .
           docker push erxes/erxes-api:${GITHUB_REF#refs/heads/}
