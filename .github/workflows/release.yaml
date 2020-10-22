@@ -140,6 +140,42 @@ jobs:
         docker build -t erxes/erxes-logger:${GITHUB_REF#refs/tags/} -f Dockerfile .
         docker push erxes/erxes-logger:${GITHUB_REF#refs/tags/}
 
+    - name: Integrations - Install dependencies
+      run: |
+        cd integrations
+        yarn install
+
+    - name: Integrations - Lint
+      run: |
+        cd integrations
+        yarn lint
+
+    - name: Integrations - Test
+      run: |
+        cd integrations
+        yarn test
+      env:
+        TEST_MONGO_URL: mongodb://localhost/test
+        GOOGLE_CLIENT_ID: GOOGLE_CLIENT_ID
+        GOOGLE_CLIENT_SECRET: GOOGLE_CLIENT_SECRET
+        ENCRYPTION_KEY: aksljdklwjdaklsjdkwljaslkdjwkljd
+        DOMAIN: http://localhost:3400
+        MAIN_APP_DOMAIN: http://localhost:3400
+
+    - name: Integrations - Build
+      run: |
+        cd integrations
+        rm -rf node_modules
+        yarn install --production
+        yarn build
+
+    - name: Integrations - Build docker image
+      run: |
+        cd integrations
+        echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+        docker build -t erxes/erxes-integrations:${GITHUB_REF#refs/tags/} -f Dockerfile .
+        docker push erxes/erxes-integrations:${GITHUB_REF#refs/tags/}
+
     - name: UI - Install dependencies
       run: |
         cd ui
@@ -211,6 +247,9 @@ jobs:
         mv logger/dist logger/node_modules logger/package.json erxes-logger
         mv elkSyncer erxes-elkSyncer
         tar -zcf erxes-api-${GITHUB_REF#refs/tags/}.tar.gz erxes-api erxes-email-verifier erxes-engages-email-sender erxes-logger erxes-elkSyncer
+        mkdir -p erxes-integrations
+        mv dist node_modules package.json erxes-integrations
+        tar -zcf erxes-integrations-${GITHUB_REF#refs/tags/}.tar.gz erxes-integrations
 
     - name: Upload release assets
       uses: softprops/action-gh-release@v1
