@@ -5,15 +5,15 @@ on:
     branches:
       - "**"
     paths:
-      - "**"
-      - "!**.md"
+      - "integrations/**"
+      - "!integrations/**.md"
   pull_request:
     branches:
       - master
       - develop
     paths:
-      - "**"
-      - "!**.md"
+      - "integrations/**"
+      - "!integrations/**.md"
 
 jobs:
   integrations:
@@ -49,14 +49,17 @@ jobs:
 
       - name: Install dependencies
         run: |
+          cd integrations
           yarn install
 
       - name: Lint
         run: |
+          cd integrations
           yarn lint
 
       - name: Test
         run: |
+          cd integrations
           yarn test
         env:
           TEST_MONGO_URL: mongodb://localhost/test
@@ -69,6 +72,7 @@ jobs:
       - name: Build
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' )
         run: |
+          cd integrations
           rm -rf node_modules
           yarn install --production
           yarn build
@@ -76,6 +80,7 @@ jobs:
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' )
         run: |
+          cd integrations
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
           docker build -t erxes/erxes-integrations:${GITHUB_REF#refs/heads/} -f Dockerfile .
           docker push erxes/erxes-integrations:${GITHUB_REF#refs/heads/}
