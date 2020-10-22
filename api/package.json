@@ -40,7 +40,7 @@
     "release": "release-it"
   },
   "lint-staged": {
-    "*.ts": [
+    "src/**/*.ts": [
       "prettier --write",
       "git add"
     ]
