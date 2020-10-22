@@ -72,6 +72,8 @@ const queryParams = `
   tag: String
   ids: [String]
   searchValue: String
+  autoCompletion: Boolean
+  autoCompletionType: String
   brand: String
   integration: String
   form: String
