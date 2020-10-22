@@ -9,6 +9,12 @@ jobs:
   release:
     runs-on: ubuntu-18.04
 
+    services:
+      mongodb:
+        image: mongo:3.6
+        ports:
+          - 27017:27017
+
     steps:
     - uses: actions/checkout@v2
 
@@ -33,6 +39,106 @@ jobs:
         key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
         restore-keys: |
           ${{ runner.os }}-yarn-
+
+    - name: Api - Install dependencies
+      run: |
+        cd api
+        yarn install
+
+    - name: Api - Lint
+      run: |
+        cd api
+        yarn lint
+
+    - name: Api - Tsc
+      run: |
+        cd api
+        yarn tsc -p tsconfig.prod.json
+
+    - name: Api - Test
+      run: |
+        cd api
+        yarn test
+      env:
+        MONGO_URL: mongodb://localhost/erxes
+        TEST_MONGO_URL: mongodb://localhost/test
+        JWT_TOKEN_SECRET: token
+        MAIN_APP_DOMAIN: http://localhost:3000
+        RABBITMQ_HOST: amqp://localhost
+
+    - name: Api - Build
+      run: |
+        cd api
+        rm -rf node_modules
+        yarn install --production
+        yarn build
+
+    - name: Api - Build docker image
+      env:
+        BASE_IMAGE: erxes/erxes:base-12.18.3-slim
+      run: |
+        cd api
+        echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+        DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes-api:${GITHUB_REF#refs/tags/} -f api.Dockerfile .
+        docker push erxes/erxes-api:${GITHUB_REF#refs/tags/}
+
+    - name: elkSyncer - Build docker image
+      run: |
+        cd elkSyncer
+        echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+        docker build -t erxes/erxes-elksyncer:${GITHUB_REF#refs/tags/} -f Dockerfile .
+        docker push erxes/erxes-elksyncer:${GITHUB_REF#refs/tags/}
+
+    - name: Email Verifier - Install dependencies
+      run: |
+        cd email-verifier
+        yarn install --production
+
+    - name: Email Verifier - Build
+      run: |
+        cd email-verifier
+        yarn build
+
+    - name: Email Verifier - Build docker image
+      run: |
+        cd email-verifier
+        echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+        docker build -t erxes/erxes-email-verifier:${GITHUB_REF#refs/tags/} -f Dockerfile .
+        docker push erxes/erxes-email-verifier:${GITHUB_REF#refs/tags/}
+
+    - name: Engages - Install dependencies
+      run: |
+        cd engages-email-sender
+        yarn install --production
+
+    - name: Engages - Build
+      run: |
+        cd engages-email-sender
+        yarn build
+
+    - name: Engages - Build docker image
+      run: |
+        cd engages-email-sender
+        echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+        docker build -t erxes/erxes-engages-email-sender:${GITHUB_REF#refs/tags/} -f Dockerfile .
+        docker push erxes/erxes-engages-email-sender:${GITHUB_REF#refs/tags/}
+
+    - name: Logger - Install dependencies
+      run: |
+        cd logger
+        yarn install --production
+
+    - name: Logger - Build
+      run: |
+        cd logger
+        yarn build
+
+    - name: Logger - Build docker image
+      run: |
+        cd logger
+        echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+        docker build -t erxes/erxes-logger:${GITHUB_REF#refs/tags/} -f Dockerfile .
+        docker push erxes/erxes-logger:${GITHUB_REF#refs/tags/}
 
     - name: UI - Install dependencies
       run: |
@@ -95,6 +201,16 @@ jobs:
         mkdir -p erxes-widgets
         mv widgets/dist widgets/node_modules widgets/locales widgets/static widgets/package.json erxes-widgets
         tar -zcf erxes-${GITHUB_REF#refs/tags/}.tar.gz erxes erxes-widgets
+        mkdir -p erxes-api
+        mv dist node_modules db-migrate-store.js package.json erxes-api
+        mkdir -p erxes-email-verifier
+        mv email-verifier/dist email-verifier/node_modules email-verifier/package.json erxes-email-verifier
+        mkdir -p erxes-engages-email-sender
+        mv engages-email-sender/dist engages-email-sender/node_modules engages-email-sender/package.json erxes-engages-email-sender
+        mkdir -p erxes-logger
+        mv logger/dist logger/node_modules logger/package.json erxes-logger
+        mv elkSyncer erxes-elkSyncer
+        tar -zcf erxes-api-${GITHUB_REF#refs/tags/}.tar.gz erxes-api erxes-email-verifier erxes-engages-email-sender erxes-logger erxes-elkSyncer
 
     - name: Upload release assets
       uses: softprops/action-gh-release@v1

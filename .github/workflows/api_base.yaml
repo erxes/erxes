@@ -19,6 +19,7 @@ jobs:
         BASE_IMAGE: node:12.18.3-slim
         TAG_VERSION: base-12.18.3-slim
       run: |
+        cd api
         echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
         DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes-api:$TAG_VERSION -f base.Dockerfile .
         docker push erxes/erxes-api:$TAG_VERSION
