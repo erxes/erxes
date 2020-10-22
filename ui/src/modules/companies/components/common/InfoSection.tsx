@@ -33,6 +33,10 @@ class InfoSection extends React.Component<Props> {
   }
 
   renderLinks(links) {
+    if (!links) {
+      return null;
+    }
+
     return (
       <Links>
         {this.renderLink(links.facebook, 'facebook')}
