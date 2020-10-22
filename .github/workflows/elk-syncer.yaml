@@ -9,6 +9,14 @@ on:
       - 'elkSyncer/**'
       - '.github/workflows/elk-syncer.yaml'
 
+  pull_request:
+    branches:
+      - master
+      - develop
+    paths:
+      - 'elkSyncer/**'
+      - '.github/workflows/elk-syncer.yaml'
+
 jobs:
   elkSyncer:
     runs-on: ubuntu-18.04

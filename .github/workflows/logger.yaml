@@ -9,6 +9,14 @@ on:
       - "logger/**"
       - ".github/workflows/logger.yaml"
 
+  pull_request:
+    branches:
+      - master
+      - develop
+    paths:
+      - "logger/**"
+      - ".github/workflows/logger.yaml"
+
 jobs:
   logger:
     runs-on: ubuntu-18.04

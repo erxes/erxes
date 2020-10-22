@@ -9,6 +9,14 @@ on:
       - "email-verifier/**"
       - ".github/workflows/email-verifier.yaml"
 
+  pull_request:
+    branches:
+      - master
+      - develop
+    paths:
+      - "email-verifier/**"
+      - ".github/workflows/email-verifier.yaml"
+
 jobs:
   email-verifier:
     runs-on: ubuntu-18.04
