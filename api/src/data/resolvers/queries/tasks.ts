@@ -1,5 +1,4 @@
 import { Tasks } from '../../../db/models';
-import { debugBase } from '../../../debuggers';
 import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { IListParams } from './boards';
@@ -38,7 +37,7 @@ const taskQueries = {
    */
   async taskDetail(_root, { _id }: { _id: string }, { user }: IContext) {
     const task = await Tasks.getTask(_id);
-    debugBase('ssssssssssssssssssssss')
+
     return checkItemPermByUser(user._id, task);
   },
 };
