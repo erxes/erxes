@@ -135,6 +135,7 @@ function AutoCompletionSelect({
     defaultValue ? { label: defaultValue, value: defaultValue } : null
   );
   const [searchValue, setSearchValue] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   const generateOptions = useCallback(
     (list) => {
@@ -211,6 +212,7 @@ function AutoCompletionSelect({
 
       currentFields.search.options = options;
 
+      setLoading(false);
       setFields(currentFields);
     },
     [defaultValue, fields, generateOptions]
@@ -218,6 +220,8 @@ function AutoCompletionSelect({
 
   const fetch = useCallback(
     () => {
+      setLoading(true);
+
       return client
         .query({
           query: gql(query),
@@ -229,7 +233,7 @@ function AutoCompletionSelect({
         })
         .then(({ data }) => {
           setFetchResult(data[queryName]);
-        });
+        })
     },
     [searchValue, autoCompletionType, query, queryName, setFetchResult]
   );
@@ -357,6 +361,7 @@ function AutoCompletionSelect({
       <FillContent>
         <Select
           ref={selectRef}
+          isLoading={loading}
           required={required}
           placeholder={placeholder}
           inputRenderer={inputRenderer}
