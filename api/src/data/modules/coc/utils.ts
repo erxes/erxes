@@ -182,7 +182,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   public searchByAutoCompletionType(value: string, type: string): void {
     this.positiveList.push({
       wildcard: {
-        [type]: `*${value}*`,
+        [type]: `*${(value || '').toLowerCase()}*`,
       },
     });
   }
