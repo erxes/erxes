@@ -1,16 +1,7 @@
-node_modules
-dist
-static
 src/private/xlsTemplateOutputs
 src/private/uploads
-.DS_Store
 npm-debug.log*
-.env
 coverage
-dump.rdb
-*.un~
-*.swp
-*.swo
 .migrate
 
 oplog.timestamp
