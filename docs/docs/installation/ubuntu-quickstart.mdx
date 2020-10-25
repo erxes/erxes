@@ -9,8 +9,8 @@ You must have an account with your hosting provider prior to doing these steps.
 
 - Choose a server size that corresponds with the **minimum** requirements for installing with **Quickstart**:
   - **Ubuntu 18.04** installed and running
-  - 1 CPU
-  - 1GB RAM
+  - **1 CPU**
+  - **minimum 1GB RAM**
   - ability to to SSH into the server
   - If you're using a **subdomain**, then the **subdomain** must be created with your hosting provider hosting your main domain's website or app. The DNS needs to be pointed to your server. (See below)
 
@@ -73,9 +73,14 @@ See example below:
 Please enter a domain name you wish to use: erxes.example.com
 ```
 
-- You will next be asked: **Would you like to install ElasticSearch on your server or use our free ElasticSearch service https://elasticsearch.erxes.io?**
+- You will next be asked: **Would you like to install ElasticSearch on your server or use our free ElasticSearch service https:// elasticsearch.erxes.io?**
 
-You will have two options, **1 Install ElasticSearch** or **2 Use elasticsearch.erxes.io**. We recommend the first option, and install it on your own server but if you encounter difficulties, to choose the second option of using the erxes hosted version.
+You will have two options,
+
+- **1 Install ElasticSearch** or
+- **2 Use elasticsearch.erxes.io**.
+
+Unless you are using a server with 4GB RAM or higher, you **must use** Option **2 Use elasticsearch.erxes.io** which is the second option of using the erxes hosted version. If you do not, your installation will fail.
 
 The installation process takes a few minutes to complete.
 
@@ -97,14 +102,7 @@ The installation process takes a few minutes to complete.
 └────┴────────────────────┴──────────┴──────┴───────────┴──────────┴──────────┘
 [PM2] Saving current process list...
 [PM2] Successfully saved in /home/erxes/.pm2/dump.pm2
-Command may disrupt existing ssh connections. Proceed with operation (y|n)? Firewall is active and enabled on system startup
-Rule added
-Rule added (v6)
-Rule added
-Rule added (v6)
-Rule added
-Rule added (v6)
-Now using node v12.16.3 (npm v6.14.4)
+Now using node v12.19.0 (npm v6.14.8)
 
 Installation complete
 ```
@@ -141,7 +139,7 @@ exit
 # example ssh erxes@44.123.32.12
 # erxes@44.123.32.12's password:
 
-ssh root@your-ip-address
+ssh erxes@your-ip-address
 erxes@your-ip-address's password:
 ```
 
@@ -175,4 +173,4 @@ Check your website in the browser. You should see the **Secure Padlock** next to
 
 ## Congratulations, time to log in
 
-You have installed **erxes**. You may now visit your url, and log in.
+You have installed **erxes**. You may now visit your url and complete the sign-up process. We recommend opting-in to the newsletter and email update notifications to receive immediate notifications of important updates, instructions, and new tutorials.
