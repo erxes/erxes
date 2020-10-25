@@ -40,7 +40,7 @@ module.exports = {
         },
         {
           href: 'https://github.com/erxes/erxes',
-          prependBaseUrlToHref: true,
+          prependBaseUrlToHref: 'true',
           position: 'right',
           label: 'Star',
           className: 'github-button hide-mobile',
