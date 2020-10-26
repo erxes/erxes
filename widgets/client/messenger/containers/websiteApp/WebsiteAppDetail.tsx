@@ -1,4 +1,4 @@
-
+import * as React from 'react';
 
 import WebsiteAppDetail from '../../components/websiteApp/WebsiteAppDetail';
 import { AppConsumer } from '../AppContext';
