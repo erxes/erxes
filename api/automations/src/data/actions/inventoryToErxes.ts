@@ -1,4 +1,4 @@
-import messageBroker from "../../messageBroker";
+import messageBroker from '../../messageBroker';
 
 const inventoryToErxes = async (data: any) => {
   let sendData = {};

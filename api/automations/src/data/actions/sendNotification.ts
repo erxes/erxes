@@ -1,5 +1,5 @@
-import { IShapeDocument } from '../../models/definitions/Automations';
 import messageBroker from '../../messageBroker';
+import { IShapeDocument } from '../../models/definitions/Automations';
 
 const sendNotification = async (shape: IShapeDocument, data: any) => {
   const objectData = data.doc;

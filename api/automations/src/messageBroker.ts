@@ -1,7 +1,8 @@
 import * as dotenv from 'dotenv';
+import messageBroker from 'erxes-message-broker';
+
 import { checkTrigger } from './data/utils';
 import { debugBase } from './debuggers';
-import messageBroker from 'erxes-message-broker';
 
 dotenv.config();
 
@@ -43,6 +44,6 @@ export const initBroker = async server => {
   }
 };
 
-export default function() {
+export default function () {
   return client;
 }

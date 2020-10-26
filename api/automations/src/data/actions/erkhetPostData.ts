@@ -1,6 +1,6 @@
+import messageBroker from '../../messageBroker';
 import { IShapeDocument } from '../../models/definitions/Automations';
 import { sendRequest } from '../actions/utils';
-import messageBroker from '../../messageBroker';
 
 const erkhetPostData = async (shape: IShapeDocument, data: any) => {
   let billType = 1;

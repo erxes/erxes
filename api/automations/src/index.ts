@@ -1,10 +1,11 @@
 import * as bodyParser from 'body-parser';
 import * as dotenv from 'dotenv';
 import * as express from 'express';
-import { connect } from './connection';
-import { initBroker } from './messageBroker';
-import { debugInit, debugBase } from './debuggers';
 import { createServer } from 'http';
+
+import { connect } from './connection';
+import { debugBase, debugInit } from './debuggers';
+import { initBroker } from './messageBroker';
 
 // load environment variables
 dotenv.config();

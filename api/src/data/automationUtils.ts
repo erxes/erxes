@@ -1,9 +1,9 @@
 import { IUserDocument } from '../db/models/definitions/users';
 import messageBroker from '../messageBroker';
 import { graphqlPubsub } from '../pubsub';
+import { RABBITMQ_QUEUES } from './constants';
 import { IFinalLogParams } from './logUtils';
 import { getEnv } from './utils';
-import { RABBITMQ_QUEUES } from './constants';
 
 const checkAutomation = async (kind: string, body: any, user: IUserDocument) => {
   const data = {
