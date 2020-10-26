@@ -21,6 +21,7 @@
     "apollo-cache-inmemory": "^1.1.5",
     "apollo-client": "^2.6.4",
     "apollo-link": "^1.0.7",
+    "apollo-link-context": "^1.0.3",
     "apollo-link-error": "^1.0.9",
     "apollo-link-http": "^1.5.16",
     "apollo-link-ws": "^1.0.8",

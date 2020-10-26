@@ -6,8 +6,7 @@ import { onError } from 'apollo-link-error';
 import { createHttpLink } from 'apollo-link-http';
 import { WebSocketLink } from 'apollo-link-ws';
 import { getMainDefinition } from 'apollo-utilities';
-import { Alert } from 'modules/common/utils';
-import { __ } from 'modules/common/utils';
+import { __, Alert } from 'modules/common/utils';
 
 // get env config from process.env or window.env
 export const getEnv = (): any => {
