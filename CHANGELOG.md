@@ -1,4 +1,72 @@
 
+## [0.19.3](https://github.com/erxes/erxes/compare/0.19.2...0.19.3) (2020-10-06)
+
+### Bug Fixes
+
+* **board:** fix overlapping description text and improve appearance. close [#2295](https://github.com/erxes/erxes/issues/2295) ([4e3c7cf](https://github.com/erxes/erxes/commit/4e3c7cfc662d199f8a7baff8f46601b783b34132))
+* **board:** fix realtime changes when adding and deleting board piplenes and stages close [#2312](https://github.com/erxes/erxes/issues/2312) ([99346cb](https://github.com/erxes/erxes/commit/99346cb817e1051f1271c4c385bc970858f2a27f))
+* **channel:** new created channel and brand does not show up in inbox filter  close [#2311](https://github.com/erxes/erxes/issues/2311) ([13b5515](https://github.com/erxes/erxes/commit/13b5515cda1ef712d53e915175236a6722f20ead))
+* **contacts:** fix reactive changes when delete, tag ([3352ef8](https://github.com/erxes/erxes/commit/3352ef86dad4f2c507190dacd5864a7d07802b71))
+* **contacts:** fix reactive changes when delete, tag company, customer ([7cdea63](https://github.com/erxes/erxes/commit/7cdea63e785d0192fc776405a168fc70ef1623ef))
+* **editor:** fix overlaping editor tools over inbox editor close [#2318](https://github.com/erxes/erxes/issues/2318) ([a6a30c5](https://github.com/erxes/erxes/commit/a6a30c5075038178e89bce65ca49b849dbca7a1c))
+* **onboard:** fix appearing empty white box prompt close [#2261](https://github.com/erxes/erxes/issues/2261) ([734fad6](https://github.com/erxes/erxes/commit/734fad6669a8ec1889a14bd680c54d29f8b7a7ce))
+
+
+### Features
+
+* **board:** possible to change board from pipeline form ([0c9be7b](https://github.com/erxes/erxes/commit/0c9be7bdeaf2ba6a59c692a154d6213139e5aaf9))
+* **conversation:** added resolve all button ([2e289bd](https://github.com/erxes/erxes/commit/2e289bd5acfcbc4cc4c811b8d29b30d33e353954))
+* **editor:** added auto save ability ([16e0066](https://github.com/erxes/erxes/commit/16e006636ae8b7935158398ebfe50d4bd962b872))
+* **email-deliveries:**  adeed dashboard for email deliveries ([a79db45](https://github.com/erxes/erxes/commit/a79db45ea2873126df22493447215ff31151c640))
+* **inbox:** added awaiting response filter ([22d5c75](https://github.com/erxes/erxes/commit/22d5c75a11c552a6ff4d1c2c3bf225df6f8aa646))
+* **integration:** refactored gmail integration ([ddab6bb](https://github.com/erxes/erxes/commit/ddab6bb5db2c4e0f6110a2ae7bf7255250af0b80)), closes [#2291](https://github.com/erxes/erxes/issues/2291)
+* **popups:** added submit once option ([97480da](https://github.com/erxes/erxes/commit/97480dad2b19c6b561b2cf5cad61832fa070c789)), closes [#2303](https://github.com/erxes/erxes/issues/2303)
+* **teamInbox:** convert typed or pasted url text to clickable link. close [#2302](https://github.com/erxes/erxes/issues/2302) ([a57672f](https://github.com/erxes/erxes/commit/a57672f0ba69c7b26b0ae118556a1ce5740dacf4))
+* **webhooks:** added incoming and outgoing webhooks ([398e35b](https://github.com/erxes/erxes/commit/398e35bbc1d6904b76cbcd35478674ec0c759d94))
+
+
+### Performance Improvements
+
+* **email:** add email template ([751fa5e](https://github.com/erxes/erxes/commit/751fa5e3ad3b85b4760c8a0536a5a1fbc2c4d387)), closes [#2287](https://github.com/erxes/erxes/issues/2287)
+* **test:** added cypress tests ([97364ac](https://github.com/erxes/erxes/commit/97364ac3dc992b4f08fa30c69b8e6f2264556b74))
+
+## [0.18.2](https://github.com/erxes/erxes/compare/0.18.1...0.18.2) (2020-09-07)
+
+## [0.18.1](https://github.com/erxes/erxes/compare/0.18.0...0.18.1) (2020-09-04)
+
+# [0.18.0](https://github.com/erxes/erxes/compare/0.17.6...0.18.0) (2020-09-04)
+
+
+### Bug Fixes
+
+* **avatar:** fixed avatar in inbox left sidebar ([e3e61cb](https://github.com/erxes/erxes/commit/e3e61cbc0d3c0114995f1fc47f646e70b629f98c))
+* **system-status:** fixed system status ([7049489](https://github.com/erxes/erxes/commit/70494899ed04c793bb748b0cedb6baf7ee54c0f9))
+* **teamInbox:** fix showing unverified phone status ([dbb06d1](https://github.com/erxes/erxes/commit/dbb06d13099a67ae88bb4242185fba72d54ef313))
+* **widget:** fix not working reaction button ([957d862](https://github.com/erxes/erxes/commit/957d862c4bf3b4f91346fce6ddb724469f5760dc))
+* **widget:** fix position of popup s close button ([0caebf6](https://github.com/erxes/erxes/commit/0caebf61f42ae19d100677ee415c92b5022ed642))
+
+
+### Features
+
+* **board:** add guide content when there is no board/pipeline ([5b1f2f5](https://github.com/erxes/erxes/commit/5b1f2f548f0728b7811a9b785485a806d3602219))
+* **common:** add empty content to engage, messenger, scriptManager ([1661efa](https://github.com/erxes/erxes/commit/1661efa630884cacd3f2456622c5e655d7580b62))
+* **common:** add some step content when empty ([ff27a8b](https://github.com/erxes/erxes/commit/ff27a8b547e34549f80dc9778d4584d3d693e902))
+* **contacts:** add step content when empty ([ecc2e49](https://github.com/erxes/erxes/commit/ecc2e49fdd853e54081ca66ddc73421b733dd828))
+* **deal/task/ticket:** add editor on note textarea ([ce60a75](https://github.com/erxes/erxes/commit/ce60a7534919d6cb731da5a88289cd9636075439))
+* **deal/task/ticket:** made check list items sortable ([116bf26](https://github.com/erxes/erxes/commit/116bf264200e02016d28ad677fabeea9b27a2a8c))
+* **integration:** two way sms ([74435f1](https://github.com/erxes/erxes/commit/74435f189728af61b65753efddc1f8a3e062fe04))
+* **knowledgeBase:** add step content when empty ([6380a3d](https://github.com/erxes/erxes/commit/6380a3decde8207d35c86910d64887bd8d6476c0))
+* **language:** added turkish language ([67e22cc](https://github.com/erxes/erxes/commit/67e22cc96958a7305800f1f523ca9e8d004caae5))
+* **popup:** add step content when empty ([0939533](https://github.com/erxes/erxes/commit/093953347ea8a99405e170a3209fc3252fe8be6d))
+* **setup:** added initial admin user creation step ([276f5e9](https://github.com/erxes/erxes/commit/276f5e90b133fe4a4c0c60f75fb2c569411424a4))
+* **tasks:** added timer ([f7d80a4](https://github.com/erxes/erxes/commit/f7d80a47444698a25a1d718314fc0e6fb43f8c2e))
+
+
+### Performance Improvements
+
+* **customer:** show actions in editform of task and deal ([852e707](https://github.com/erxes/erxes/commit/852e707c0443472ceca5825bfcc7f4c38f2618c7)), closes [close#2247](https://github.com/close/issues/2247)
+
+
 
 ## [0.17.6](https://github.com/erxes/erxes/compare/0.17.4...0.17.6) (2020-08-20)
 

@@ -107,7 +107,12 @@ class Row extends React.Component<Props> {
     return (
       <WithPermission action="integrationsRemove">
         <Tip text={__('Delete')} placement="top">
-          <Button btnStyle="link" onClick={onClick} icon="times-circle" />
+          <Button
+            id="integrationDelete"
+            btnStyle="link"
+            onClick={onClick}
+            icon="times-circle"
+          />
         </Tip>
       </WithPermission>
     );

@@ -161,5 +161,22 @@ export const TUTORIALS = [
         url: 'https://www.youtube-nocookie.com/embed/4rbO5I_Ezq0'
       }
     ]
+  },
+  {
+    title: 'Use Cases',
+    key: 'useCases',
+    image: '/images/actions/17.svg',
+    color: colors.colorCoreRed,
+    description: {
+      step: 'Please refer to the following playlist on the most up to date use case video guides',
+      duration: ' '
+    },
+    videos: [
+      {
+        name: 'These videos will help you accomplish tasks by combining multiple erxes features',
+        key: 'tutorial',
+        url: 'https://www.youtube.com/embed/videoseries?list=PLwRYODuwm31um-syg-C2j6QhCDByopXNQ'
+      },
+    ]
   }
 ];

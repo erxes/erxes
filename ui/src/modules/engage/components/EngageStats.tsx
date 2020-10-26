@@ -93,17 +93,24 @@ class EmailStatistics extends React.Component<Props> {
 
   renderLeft() {
     const { message } = this.props;
+    const { fromIntegration, fromUser } = message;
+
+    let from;
+
+    if (fromUser) {
+      from = fromUser.details ? fromUser.details.fullName : fromUser.email;
+    }
+
+    if (fromIntegration) {
+      from = fromIntegration.name;
+    }
 
     return (
       <Half>
         <Subject>
           <FlexRow>
             <label>{__('From')}:</label>
-            <strong>
-              {message.fromUser.details
-                ? message.fromUser.details.fullName
-                : message.fromUser.email}
-            </strong>
+            <strong>{from}</strong>
           </FlexRow>
         </Subject>
         <Subject>

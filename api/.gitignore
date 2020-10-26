@@ -1,0 +1,10 @@
+src/private/xlsTemplateOutputs
+src/private/uploads
+npm-debug.log*
+coverage
+.migrate
+
+oplog.timestamp
+
+# Google config file
+google_cred.json

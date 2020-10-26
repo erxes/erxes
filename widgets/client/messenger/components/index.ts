@@ -9,6 +9,7 @@ import IntegrationItem from "./IntegrationItem";
 import Integrations from "./Integrations";
 import Launcher from "./Launcher";
 import Message from "./Message";
+import MessageBot from "./MessageBot";
 import MessageSender from "./MessageSender";
 import MessagesList from "./MessagesList";
 import Messenger from "./Messenger";
@@ -26,6 +27,7 @@ export {
   Launcher,
   Notifier,
   Message,
+  MessageBot,
   MessageSender,
   MessagesList,
   EngageMessage,

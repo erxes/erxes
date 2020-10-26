@@ -1,3 +1,4 @@
+import { QueryResponse } from 'modules/common/types';
 import { ICompany } from 'modules/companies/types';
 import { ITag } from 'modules/tags/types';
 import { IActivityLog } from '../activityLogs/types';
@@ -132,8 +133,21 @@ export type ChangeStateMutationResponse = {
   ) => Promise<any>;
 };
 
-// query types
+export type ChangeStatusMutationVariables = {
+  customerIds: string[];
+  type: string;
+  status: string;
+};
 
+export type ChangeStatusMutationResponse = {
+  customersChangeVerificationStatus: (
+    doc: {
+      variables: ChangeStatusMutationVariables;
+    }
+  ) => Promise<any>;
+};
+
+// query types
 export type ListQueryVariables = {
   page?: number;
   perPage?: number;
@@ -153,9 +167,7 @@ export type ListQueryVariables = {
 
 export type MainQueryResponse = {
   customersMain: { list: ICustomer[]; totalCount: number };
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 type CountResponse = {
   [key: string]: number;
@@ -172,15 +184,11 @@ type CustomerCounts = {
 
 export type CustomersQueryResponse = {
   customers: ICustomer[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type CountQueryResponse = {
   customerCounts: CustomerCounts;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type CustomerDetailQueryResponse = {
   customerDetail: ICustomer;
@@ -189,7 +197,5 @@ export type CustomerDetailQueryResponse = {
 
 export type ActivityLogQueryResponse = {
   activityLogs: IActivityLog[];
-  loading: boolean;
-  refetch: () => void;
   subscribeToMore: any;
-};
+} & QueryResponse;

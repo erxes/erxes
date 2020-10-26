@@ -1,5 +1,6 @@
 import { IUser } from 'modules/auth/types';
 import { IItem, IItemParams } from 'modules/boards/types';
+import { QueryResponse } from 'modules/common/types';
 import { IField } from 'modules/settings/properties/types';
 import { IActivityLogForMonth } from '../activityLogs/types';
 
@@ -42,22 +43,16 @@ export interface IFormField {
 // query types
 export type GrowthHacksQueryResponse = {
   growthHacks: IGrowthHack[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 // query types
 export type GrowthHacksPriorityQueryResponse = {
   growthHacksPriorityMatrix: any[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type StateCountsQueryResponse = {
   pipelineStateCount: any;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type GrowthHacksCountQueryResponse = {
   growthHacksTotalCount: number;

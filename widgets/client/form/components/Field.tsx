@@ -1,7 +1,7 @@
-import Datetime from "@nateradebaugh/react-datetime";
-import * as React from "react";
-import uploadHandler from "../../uploadHandler";
-import { FieldValue, IField, IFieldError } from "../types";
+import Datetime from '@nateradebaugh/react-datetime';
+import * as React from 'react';
+import uploadHandler from '../../uploadHandler';
+import { FieldValue, IField, IFieldError } from '../types';
 
 type Props = {
   field: IField;
@@ -11,6 +11,7 @@ type Props = {
 
 type State = {
   dateValue: Date | string;
+  dateTimeValue: Date | string;
   isAttachingFile?: boolean;
 };
 
@@ -48,8 +49,8 @@ export default class Field extends React.Component<Props, State> {
           <div key={index}>
             <label>
               {Field.renderInput({
-                type: "checkbox",
-                "data-option": option,
+                type: 'checkbox',
+                'data-option': option,
                 name,
                 onChange
               })}
@@ -71,8 +72,8 @@ export default class Field extends React.Component<Props, State> {
         {options.map((option, index) => (
           <div key={index}>
             {Field.renderInput({
-              type: "radio",
-              "data-option": option,
+              type: 'radio',
+              'data-option': option,
               name,
               onChange
             })}
@@ -87,7 +88,8 @@ export default class Field extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      dateValue: ""
+      dateValue: '',
+      dateTimeValue: ''
     };
   }
 
@@ -129,12 +131,17 @@ export default class Field extends React.Component<Props, State> {
   };
 
   onDateChange = (date?: Date | string) => {
-    this.setState({ dateValue: date || "" });
-    this.onChange(date || "");
+    this.setState({ dateValue: date || '' });
+    this.onChange(date || '');
+  };
+
+  onDateTimeChange = (date?: Date | string) => {
+    this.setState({ dateTimeValue: date || '' });
+    this.onChange(date || '');
   };
 
   onRadioButtonsChange = (e: React.FormEvent<HTMLInputElement>) => {
-    this.onChange(e.currentTarget.getAttribute("data-option") || "");
+    this.onChange(e.currentTarget.getAttribute('data-option') || '');
   };
 
   onCheckboxesChange = () => {
@@ -152,7 +159,7 @@ export default class Field extends React.Component<Props, State> {
       }
     }
 
-    this.onChange(values.join(","));
+    this.onChange(values.join(','));
   };
 
   onTextAreaChange = (e: React.FormEvent<HTMLTextAreaElement>) => {
@@ -170,42 +177,59 @@ export default class Field extends React.Component<Props, State> {
         defaultValue={new Date()}
         viewDate={new Date()}
         onChange={this.onDateChange}
+        dateFormat="YYYY/MM/DD"
+        timeFormat={false}
+      />
+    );
+  }
+
+  renderDateTimepicker() {
+    return (
+      <Datetime
+        value={this.state.dateTimeValue}
+        defaultValue={new Date()}
+        viewDate={new Date()}
+        onChange={this.onDateTimeChange}
         timeFormat="HH:mm"
-        dateFormat="YYYY/MM/DD HH:mm"
+        dateFormat="YYYY/MM/DD"
       />
     );
   }
 
   renderControl() {
     const { field } = this.props;
-    const { options = [], validation = "text" } = field;
+    const { options = [], validation = 'text' } = field;
     const name = field._id;
 
-    if (validation === "date") {
+    if (validation === 'date') {
       return this.renderDatepicker();
     }
 
+    if (validation === 'datetime') {
+      return this.renderDateTimepicker();
+    }
+
     switch (field.type) {
-      case "select":
+      case 'select':
         return Field.renderSelect(options, { onChange: this.onSelectChange });
 
-      case "check":
+      case 'check':
         return Field.renderCheckboxes(name, options, this.onCheckboxesChange);
 
-      case "radio":
+      case 'radio':
         return Field.renderRadioButtons(
           name,
           options,
           this.onRadioButtonsChange
         );
 
-      case "file":
+      case 'file':
         return Field.renderInput({
           onChange: this.handleFileInput,
-          type: "file"
+          type: 'file'
         });
 
-      case "textarea":
+      case 'textarea':
         return Field.renderTextarea({ onChange: this.onTextAreaChange });
 
       default:

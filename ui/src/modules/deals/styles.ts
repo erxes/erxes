@@ -126,8 +126,9 @@ const CustomField = styled.div`
 const ProductName = styled.a`
   cursor: pointer;
   color: ${colors.textSecondary};
-  display: block;
-
+  display: flex;
+  justify-content: space-between;
+  
   > i {
     visibility: hidden;
   }

@@ -1,0 +1,12 @@
+{
+  "extends": ["tslint:recommended", "tslint-config-prettier"],
+  "rules": {
+    "object-literal-sort-keys": false,
+    "no-console": false,
+    "no-implicit-dependencies": [true, "dev"],
+    "member-access": false,
+    "no-angle-bracket-type-assertion": false,
+    "variable-name": [true, "ban-keywords", "check-format", "allow-leading-underscore"],
+    "max-classes-per-file": [true, 5]
+  }
+}

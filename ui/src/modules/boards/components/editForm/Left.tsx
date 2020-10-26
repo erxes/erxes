@@ -7,7 +7,6 @@ import EditorCK from 'modules/common/components/EditorCK';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Icon from 'modules/common/components/Icon';
-import { TabTitle } from 'modules/common/components/tabs';
 import Uploader from 'modules/common/components/Uploader';
 import { IAttachment } from 'modules/common/types';
 import { __, extractAttachment } from 'modules/common/utils';
@@ -15,7 +14,6 @@ import {
   EditorActions,
   EditorWrapper
 } from 'modules/internalNotes/components/Form';
-import { WhiteBoxRoot } from 'modules/layout/styles';
 import React, { useEffect, useState } from 'react';
 import xss from 'xss';
 import {
@@ -30,10 +28,11 @@ import Actions from './Actions';
 type DescProps = {
   item: IItem;
   saveItem: (doc: { [key: string]: any }, callback?: (item) => void) => void;
+  contentType: string;
 };
 
 const Description = (props: DescProps) => {
-  const { item, saveItem } = props;
+  const { item, saveItem, contentType } = props;
   const [edit, setEdit] = useState(false);
   const [description, setDescription] = useState(item.description);
 
@@ -59,9 +58,10 @@ const Description = (props: DescProps) => {
     return (
       <EditorActions>
         <Button
-          icon="cancel-1"
+          icon="times-circle"
           btnStyle="simple"
           size="small"
+          uppercase={false}
           onClick={toggleEdit}
         >
           Cancel
@@ -71,7 +71,8 @@ const Description = (props: DescProps) => {
             onClick={onSend}
             btnStyle="success"
             size="small"
-            icon="message"
+            uppercase={false}
+            icon="check-circle"
           >
             Save
           </Button>
@@ -80,22 +81,24 @@ const Description = (props: DescProps) => {
     );
   };
 
-  const Wrapper = edit ? WhiteBoxRoot : ContentWrapper;
-
   return (
     <FormGroup>
-      <Wrapper>
-        <TabTitle>
+      <ContentWrapper isEditing={edit}>
+        <TitleRow>
           <ControlLabel>
             <Icon icon="align-left-justify" />
             {__('Description')}
           </ControlLabel>
-        </TabTitle>
+        </TitleRow>
 
         {!edit ? (
           <Content
             onClick={toggleEdit}
-            dangerouslySetInnerHTML={{ __html: xss(description) }}
+            dangerouslySetInnerHTML={{
+              __html: description
+                ? xss(description)
+                : `${__('Add a more detailed description')}...`
+            }}
           />
         ) : (
           <EditorWrapper>
@@ -103,7 +106,9 @@ const Description = (props: DescProps) => {
               onCtrlEnter={onSend}
               content={description}
               onChange={onChangeDescription}
-              height={150}
+              height={120}
+              autoFocus={true}
+              name={`${contentType}_description_${item._id}`}
               toolbar={[
                 {
                   name: 'basicstyles',
@@ -125,7 +130,7 @@ const Description = (props: DescProps) => {
             {renderFooter()}
           </EditorWrapper>
         )}
-      </Wrapper>
+      </ContentWrapper>
     </FormGroup>
   );
 };
@@ -198,7 +203,7 @@ const Left = (props: Props) => {
         <Uploader defaultFileList={attachments} onChange={onChangeAttachment} />
       </FormGroup>
 
-      <Description item={item} saveItem={saveItem} />
+      <Description item={item} saveItem={saveItem} contentType={options.type} />
 
       <Checklists
         contentType={options.type}

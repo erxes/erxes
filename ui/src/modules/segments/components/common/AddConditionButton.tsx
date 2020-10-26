@@ -31,6 +31,7 @@ function AddConditionButton(props: Props) {
     <CenterContent>
       <Button.Group hasGap={false}>
         <Button
+          id="segment-add-properties"
           btnStyle="primary"
           icon="subject"
           uppercase={false}
@@ -40,6 +41,7 @@ function AddConditionButton(props: Props) {
         </Button>
 
         <Button
+          id="segment-add-events"
           btnStyle="primary"
           icon="computer-mouse"
           uppercase={false}

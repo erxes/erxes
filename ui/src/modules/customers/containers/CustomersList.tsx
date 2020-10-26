@@ -13,6 +13,8 @@ import { ListConfigQueryResponse } from '../../companies/types';
 import CustomersList from '../components/list/CustomersList';
 import { mutations, queries } from '../graphql';
 import {
+  ChangeStatusMutationResponse,
+  ChangeStatusMutationVariables,
   ListQueryVariables,
   MainQueryResponse,
   MergeMutationResponse,
@@ -20,7 +22,7 @@ import {
   RemoveMutationResponse,
   RemoveMutationVariables,
   VerifyMutationResponse,
-  VerifyMutationVariables,
+  VerifyMutationVariables
 } from '../types';
 
 type Props = {
@@ -36,6 +38,7 @@ type FinalProps = {
   RemoveMutationResponse &
   MergeMutationResponse &
   VerifyMutationResponse &
+  ChangeStatusMutationResponse &
   IRouterProps;
 
 type State = {
@@ -45,6 +48,8 @@ type State = {
 };
 
 class CustomerListContainer extends React.Component<FinalProps, State> {
+  private timer?: NodeJS.Timer;
+
   constructor(props) {
     super(props);
 
@@ -55,6 +60,24 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
     };
   }
 
+  componentWillUnmount() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.queryParams.page !== prevProps.queryParams.page) {
+      this.props.customersMainQuery.refetch();
+    }
+  }
+
+  refetchWithDelay = () => {
+    this.timer = setTimeout(() => {
+      this.props.customersMainQuery.refetch();
+    }, 5500);
+  }
+
   render() {
     const {
       customersMainQuery,
@@ -62,6 +85,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       customersRemove,
       customersMerge,
       customersVerify,
+      customersChangeVerificationStatus,
       type,
       history,
     } = this.props;
@@ -82,8 +106,9 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       })
         .then(() => {
           emptyBulk();
-          Alert.success('You successfully deleted a customer');
-          customersMainQuery.refetch();
+          Alert.success('You successfully deleted a customer. The changes will take a few seconds', 4500);
+
+          this.refetchWithDelay();
         })
         .catch((e) => {
           Alert.error(e.message);
@@ -104,6 +129,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
           this.setState({ mergeCustomerLoading: false });
           Alert.success('You successfully merged a customer');
           history.push(`/contacts/details/${result.data.customersMerge._id}`);
+          customersMainQuery.refetch();
         })
         .catch((e) => {
           Alert.error(e.message);
@@ -128,6 +154,27 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
           Alert.error(e.message);
         });
     };
+
+    const changeVerificationStatus = ({ customerIds, verificationType, status }) => {
+
+
+      customersChangeVerificationStatus({
+        variables: {
+          customerIds,
+          type: verificationType,
+          status
+        }
+      })
+        .then((result: any) => {
+          Alert.success('You successfully changed a status');
+
+          customersMainQuery.refetch();
+        })
+        .catch((e) => {
+          Alert.error(e.message);
+
+        });
+    }
 
     const exportData = (bulk: Array<{ _id: string }>) => {
       const { REACT_APP_API_URL } = getEnv();
@@ -175,18 +222,16 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       responseId: this.state.responseId,
       removeCustomers,
       verifyCustomers,
+      changeVerificationStatus,
       mergeCustomerLoading: this.state.mergeCustomerLoading,
+      refetch: this.refetchWithDelay
     };
 
     const content = (props) => {
       return <CustomersList {...updatedProps} {...props} />;
     };
 
-    const refetch = () => {
-      this.props.customersMainQuery.refetch();
-    };
-
-    return <Bulk content={content} refetch={refetch} />;
+    return <Bulk content={content} refetch={this.props.customersMainQuery.refetch} />;
   }
 }
 
@@ -211,6 +256,39 @@ const generateParams = ({ queryParams, type }) => {
   };
 };
 
+const getRefetchQueries = (queryParams?: any, type?: string) => {
+  return [
+    {
+      query: gql(queries.customersMain),
+      variables: { ...generateParams({ queryParams, type }) }
+    },
+    {
+      query: gql(queries.customerCounts),
+      variables: { type, only: 'byTag' }
+    },
+    {
+      query: gql(queries.customerCounts),
+      variables: { type, only: 'byForm' }
+    },
+    {
+      query: gql(queries.customerCounts),
+      variables: { type, only: 'byIntegrationType' }
+    },
+    {
+      query: gql(queries.customerCounts),
+      variables: { type, only: 'byLeadStatus' }
+    },
+    {
+      query: gql(queries.customerCounts),
+      variables: { type, only: 'bySegment' }
+    },
+    {
+      query: gql(queries.customerCounts),
+      variables: { type, only: 'byBrand' }
+    }
+  ];
+};
+
 export default withProps<Props>(
   compose(
     graphql<Props, MainQueryResponse, ListQueryVariables>(
@@ -233,21 +311,30 @@ export default withProps<Props>(
       gql(mutations.customersRemove),
       {
         name: 'customersRemove',
+        options: ({ queryParams, type }) => ({
+          refetchQueries: getRefetchQueries(queryParams, type)
+        })
       }
     ),
     graphql<Props, MergeMutationResponse, MergeMutationVariables>(
       gql(mutations.customersMerge),
       {
         name: 'customersMerge',
-        options: {
-          refetchQueries: ['customersMain', 'customerCounts'],
-        },
+        options: ({ queryParams, type }) => ({
+          refetchQueries: getRefetchQueries(queryParams, type)
+        })
       }
     ),
     graphql<Props, VerifyMutationResponse, VerifyMutationVariables>(
       gql(mutations.customersVerify),
       {
         name: 'customersVerify',
+      }
+    ),
+    graphql<Props, ChangeStatusMutationResponse, ChangeStatusMutationVariables>(
+      gql(mutations.customersChangeVerificationStatus),
+      {
+        name: 'customersChangeVerificationStatus',
       }
     )
   )(withRouter<IRouterProps>(CustomerListContainer))

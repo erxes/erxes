@@ -1,5 +1,6 @@
+import { QueryResponse } from 'modules/common/types';
 import { IForm } from 'modules/forms/types';
-import { ILeadData, ILeadIntegration } from 'modules/leads/types';
+import { ILeadData, ILeadIntegration, IWebhookData } from 'modules/leads/types';
 import { IBrand } from '../brands/types';
 import { IChannel } from '../channels/types';
 
@@ -62,6 +63,7 @@ export interface IMessages {
 }
 
 export interface IMessengerData {
+  botEndpointUrl?: string;
   messages?: IMessages;
   notifyCustomer?: boolean;
   supporterIds?: string[];
@@ -85,6 +87,37 @@ export interface IUiOptions {
   logoPreviewUrl?: string;
 }
 
+export interface ITopic {
+  topicId: string;
+}
+
+export interface IWebsite {
+  url: string;
+  buttonText: string;
+  description: string;
+}
+
+export interface ILead {
+  formCode: string;
+}
+
+export interface ITopicMessengerApp {
+  credentials: ITopic;
+}
+
+export interface IWebsiteMessengerApp {
+  credentials: IWebsite;
+}
+
+export interface ILeadMessengerApp {
+  credentials: ILead;
+}
+export interface IMessengerApps {
+  knowledgebases?: ITopic[];
+  websites?: IWebsite[];
+  leads?: ILead[];
+}
+
 export interface IIntegration {
   _id: string;
   kind: string;
@@ -102,7 +135,12 @@ export interface IIntegration {
   brand: IBrand;
   channels: IChannel[];
   isActive?: boolean;
+  webhookData?: IWebhookData;
+  leadMessengerApps?: ILeadMessengerApp[];
+  websiteMessengerApps?: IWebsiteMessengerApp[];
+  knowledgeBaseMessengerApps?: ITopicMessengerApp[];
 }
+
 
 export interface IAccount {
   _id: string;
@@ -141,9 +179,7 @@ export type IntegrationsQueryResponse = {
 
 export type IntegrationDetailQueryResponse = {
   integrationDetail: IIntegration;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 type By = { [key: string]: number };
 
@@ -192,16 +228,12 @@ export type MessengerAppsCountQueryResponse = {
 
 export type LeadIntegrationDetailQueryResponse = {
   integrationDetail: ILeadIntegration;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type AccountsQueryResponse = {
   integrationsFetchApi: IAccount[];
-  loading: boolean;
-  refetch: () => void;
   error?: Error;
-};
+} & QueryResponse;
 
 // mutation types
 export type SaveMessengerMutationVariables = {
@@ -249,6 +281,12 @@ export type SaveMessengerAppearanceMutationResponse = {
   ) => Promise<any>;
 };
 
+export type SaveMessengerAppsMutationResponse = {
+  messengerAppSaveMutation: (
+    params: { variables: { integrationId: string; messengerApps: IMessengerApps } }
+  ) => Promise<any>;
+};
+
 export type SaveMessengerConfigsMutationResponse = {
   saveConfigsMutation: (
     params: { variables: { _id: string; messengerData: IMessengerData } }
@@ -271,34 +309,11 @@ export type EditMessengerMutationResponse = {
   ) => any;
 };
 
-export type MessengerAppsAddLeadMutationVariables = {
-  name: string;
-  integrationId: string;
-  formId: string;
-};
-
-export type MessengerAppsAddLeadMutationResponse = {
-  saveMutation: (
-    params: { variables: MessengerAppsAddLeadMutationVariables }
-  ) => Promise<any>;
-};
-
-export type messengerAppsAddKnowledgebaseVariables = {
-  name: string;
-  integrationId: string;
-  topicId: string;
-};
-
-export type MessengerAppsAddKnowledgebaseMutationResponse = {
-  saveMutation: (
-    params: { variables: messengerAppsAddKnowledgebaseVariables }
-  ) => Promise<any>;
-};
-
 export type IntegrationMutationVariables = {
   brandId: string;
   name: string;
   channelIds?: string[];
+  data?: any;
 };
 
 export type AddIntegrationMutationVariables = {
@@ -338,16 +353,6 @@ export type RemoveAccountMutationResponse = {
   removeAccount: (params: { variables: { _id: string } }) => Promise<any>;
 };
 
-export type MessengerAppsQueryResponse = {
-  messengerApps: IMessengerApp[];
-  loading: boolean;
-  refetch: () => void;
-};
-
-export type MessengerAppsRemoveMutationResponse = {
-  removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
-};
-
 export type ArchiveIntegrationResponse = {
   archiveIntegration: (
     params: { variables: { _id: string; status: boolean } }
@@ -362,6 +367,7 @@ export type CommonFieldsEditResponse = {
         name: string;
         brandId: string;
         channelIds?: string[];
+        data: any;
       };
     }
   ) => Promise<any>;
@@ -380,3 +386,13 @@ export type ProviderFormInput = (
     | string,
   value: string | number
 ) => void;
+
+export type SendSmsMutationVariables = {
+  integrationId: string;
+  content: string;
+  to: string;
+};
+
+export type SendSmsMutationResponse = (
+  { variables: SendSmsMutationVariables }
+) => Promise<any>;

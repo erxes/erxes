@@ -83,6 +83,8 @@ export const INTEGRATION_KINDS = {
   SMOOCH_LINE: 'smooch-line',
   SMOOCH_TWILIO: 'smooch-twilio',
   WHATSAPP: 'whatsapp',
+  TELNYX: 'telnyx',
+  WEBHOOK: 'webhook',
   ALL: [
     { text: 'Messenger', value: 'messenger' },
     { text: 'Facebook post', value: 'facebook-post' },
@@ -105,7 +107,9 @@ export const INTEGRATION_KINDS = {
     { text: 'Viber', value: 'smooch-viber' },
     { text: 'Line', value: 'smooch-line' },
     { text: 'Twilio', value: 'smooch-twilio' },
-    { text: 'WhatsApp', value: 'whatsapp' }
+    { text: 'WhatsApp', value: 'whatsapp' },
+    { text: 'Telnyx', value: 'telnyx' },
+    { text: 'Webhook', value: 'webhook' }
   ]
 };
 
@@ -245,18 +249,6 @@ export const INTEGRATIONS = [
       'All integrations, For support teams, Email marketing, Marketing automation, Conversation'
   },
   {
-    name: 'Pop Ups',
-    description: 'Find your lead forms right here in your Widget',
-    inMessenger: true,
-    isAvailable: true,
-    kind: 'lead',
-    logo: '/images/integrations/lead.png',
-    createModal: 'lead',
-    createUrl: '/settings/integrations/lead',
-    category:
-      'All integrations, For support teams, For marketing teams, Marketing automation, Surveys and Feedback, Pop ups'
-  },
-  {
     name: 'Outlook by Nylas',
     description:
       'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
@@ -283,18 +275,6 @@ export const INTEGRATIONS = [
       'All integrations, For support teams, Marketing automation, Email marketing, Conversation'
   },
   {
-    name: 'Knowledge Base',
-    description: 'Get access to your Knowledge Base right in your Widget',
-    inMessenger: true,
-    isAvailable: true,
-    kind: 'knowledgebase',
-    logo: '/images/integrations/knowledge-base.png',
-    createModal: 'knowledgeBase',
-    createUrl: '/settings/integrations/knowledgeBase',
-    category:
-      'All integrations, For support teams, For marketing teams, Surveys and Feedback'
-  },
-  {
     name: 'Call Pro',
     description: 'Connect your call pro phone number',
     inMessenger: false,
@@ -315,17 +295,6 @@ export const INTEGRATIONS = [
     createModal: 'chatfuel',
     category:
       'All integrations, For support teams, Marketing automation, Messaging, Conversation'
-  },
-  {
-    name: 'Website',
-    description: 'Show your responsive website right in your Widget',
-    inMessenger: true,
-    isAvailable: true,
-    kind: 'website',
-    logo: '/images/integrations/website.png',
-    createModal: 'website',
-    createUrl: '/settings/integrations/website',
-    category: 'All integrations, For support teams, Marketing automation'
   },
   {
     name: 'WhatsApp',
@@ -369,6 +338,27 @@ export const INTEGRATIONS = [
     createModal: 'smooch-line',
     category:
       'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Phone and video, Conversation'
+  },
+  {
+    name: 'Telnyx',
+    description: 'Connect your Telnyx account to send & receive SMS',
+    inMessenger: false,
+    isAvailable: true,
+    kind: 'telnyx',
+    logo: '/images/integrations/telnyx.png',
+    createModal: 'telnyx',
+    category:
+      'All integrations, For support teams, For marketing teams, Conversation'
+  },
+  {
+    name: 'Webhook',
+    description: 'Configure incoming webhooks',
+    inMessenger: false,
+    isAvailable: true,
+    kind: 'webhook',
+    logo: '/images/integrations/webhook.png',
+    createModal: 'webhook',
+    category: 'All integrations, For support teams, Conversation'
   }
 ];
 

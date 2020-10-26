@@ -143,6 +143,10 @@ const BarItems = styled.div`
     margin: 5px 0 5px ${dimensions.unitSpacing}px;
   }
 
+  .Select {
+    min-width: 200px;
+  }
+
   input[type='text'] {
     width: auto;
     display: inline-block;
@@ -453,11 +457,12 @@ const WhiteBox = styled(WhiteBoxRoot)`
 
 const Authlayout = styled.div`
   height: 100%;
-  overflow: hidden;
+  overflow: auto;
   position: relative;
   background: ${colors.colorPrimaryDark} url('/images/stars.png') repeat top
     center;
   flex: 1;
+  display: flex;
 
   &:before {
     content: '';
@@ -476,34 +481,38 @@ const Authlayout = styled.div`
 
 const AuthContent = styled.div`
   position: relative;
-  top: 50%;
-  transform: translateY(-50%);
-
-  @media (max-width: 768px) {
-    top: 0;
-    transform: translateY(0);
-  }
+  margin: auto;
 `;
 
 const AuthDescription = styled.div`
-  margin: 40px 0;
+  margin: 20px 0;
 
   img {
     width: 100px;
     margin-bottom: 50px;
   }
+
   h1 {
     font-weight: bold;
-    font-size: 32px;
-    margin-bottom: 30px;
+    font-size: 34px;
+    margin: 10px 0 30px;
     color: ${colors.colorWhite};
   }
+
+  h2 {
+    font-size: 24px;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.4em;
+    font-weight: 500;
+  }
+  
   p {
     color: rgba(255, 255, 255, 0.7);
     margin-bottom: 50px;
-    font-size: 16px;
+    font-size: 18px;
     line-height: 1.8em;
   }
+
   a {
     color: rgba(255, 255, 255, 0.7);
     &:hover {
@@ -522,43 +531,25 @@ const SectionContainer = styled.div`
   word-break: break-word;
 `;
 
-const SectionBody = styled.div`
-  i {
-    color: ${colors.colorCoreLightGray};
-
-    &:hover {
-      cursor: pointer;
-    }
-  }
-`;
-
 const SectionBodyItem = styled.div`
-  border-top: 1px solid ${colors.borderPrimary};
+  border-bottom: 1px solid ${colors.borderPrimary};
   word-break: break-word;
 
-  span {
+  > a {
     padding: 10px 20px;
-    display: inline-block;
+    display: flex;
     width: 100%;
-    padding-right: ${dimensions.coreSpacing}px;
-  }
+    color: ${colors.textSecondary};
 
-  a {
-    i {
-      padding: 10px 10px;
-      color: ${colors.colorCoreGray};
-      position: absolute;
-      font-size: 13px;
-      right: ${dimensions.coreSpacing}px;
-
-      &:hover {
-        cursor: pointer;
-      }
+    &:hover {
+      text-decoration: underline;
     }
   }
 
-  a {
-    font-size: 12px;
+  > span {
+    display: block;
+    padding: 0px 20px 10px 20px;
+    margin-top: -10px;
   }
 
   ul li {
@@ -591,6 +582,21 @@ const CenterContent = styled.div`
   > a {
     border: 1px solid ${colors.colorWhite};
     color: ${colors.colorWhite};
+  }
+`;
+
+const PasswordWithEye = styled.div`
+  display: flex;
+  align-items: center;
+
+  > i {
+    margin-left: 10px;
+    margin-top: 3px;
+
+    &:hover {
+      color: ${colors.textPrimary};
+      cursor: pointer;
+    }
   }
 `;
 
@@ -632,8 +638,8 @@ export {
   AuthContent,
   AuthDescription,
   SectionContainer,
-  SectionBody,
   SectionBodyItem,
   MobileRecommend,
-  FieldStyle
+  FieldStyle,
+  PasswordWithEye
 };

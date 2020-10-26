@@ -15,7 +15,7 @@ import {
 import { formatText, getIconAndColor } from 'modules/activityLogs/utils';
 import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
-import { renderFullName } from 'modules/common/utils';
+import { __, renderFullName } from 'modules/common/utils';
 import Message from 'modules/inbox/components/conversationDetail/workarea/conversation/messages/Message';
 import {
   Comment,
@@ -123,7 +123,7 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
         {rows}
         <CenterText>
           <Link to={`/inbox/index?_id=${conversation._id}`}>
-            See full conversation <Icon icon="angle-double-right" />
+            {__('See full conversation')} <Icon icon="angle-double-right" />
           </Link>
         </CenterText>
       </>
@@ -203,13 +203,14 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
 
     const { customer, content, createdAt, integration } = conversation;
 
-    if (!this.state.toggleMessage) {
+    if (!this.state.toggleMessage && integration) {
       return (
         <>
           <Header onClick={this.onCollapse}>
             {integration.kind.includes('messenger') ? (
               <span>
-                Conversation with <b>{renderFullName(customer)}</b>
+                {__('Conversation with')}
+                <b>{renderFullName(customer)}</b>
               </span>
             ) : (
               <span>{this.renderAction()}</span>

@@ -1,34 +1,47 @@
 import Box from 'modules/common/components/Box';
 import React from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
+import styledTS from 'styled-components-ts';
 import { Alert } from '../utils';
 import Button from './Button';
-import { ControlLabel } from './form';
+import Tip from './Tip';
 
-const Container = styled.div`
-  align-items: center;
-  padding: 10px;
-`;
+const Container = styledTS<{ isComplete: boolean }>(styled.div)`
+  padding: 15px 20px 20px 20px;
+  color: #243B53;
 
-const TimeWrapper = styled.div`
-  text-align: center;
-  padding: 5px;
-  justify-content: center;
-  margin-bottom: 5px;
+  ${props => props.isComplete &&
+    css`
+      background-color: #E3F9E5;
+      background-image: linear-gradient( to bottom right, rgba(0,0,0,0.03) 25%, transparent 0, transparent 50%, rgba(0,0,0,0.03) 0, rgba(0,0,0,0.03) 75%, transparent 0, transparent );
+    `};
+  
 
-  h1 {
-    margin: 0;
+  button {
+    width: 39px;
+    height: 39px;
+    padding: 8px 12px;
+    font-size: 15px;
   }
 `;
 
-const ButtonWrapper = styled.div`
-  display: flex;
-  justify-content: center;
-  margin-bottom: 10px;
+const TimeWrapper = styled.div`
+  margin-bottom: 15px;
+
+  label span {
+    opacity: 0.6;
+    text-transform: capitalize;
+  }
 `;
 
-const Time = styled.h1`
-  text-align: center;
+const Time = styled.h4`
+  margin-bottom: 0;
+  font-size: 28px;
+  
+  span {
+    font-size: 14px;
+    opacity: 0.6;
+  }
 `;
 
 export const STATUS_TYPES = {
@@ -38,7 +51,11 @@ export const STATUS_TYPES = {
   PAUSED: 'paused'
 };
 
-function getSpentTime(seconds: number): string {
+function formatNumber(n: number) {
+  return n.toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
+}
+
+function getSpentTime(seconds: number): React.ReactNode {
   const days = Math.floor(seconds / (3600 * 24));
 
   seconds -= days * 3600 * 24;
@@ -51,12 +68,14 @@ function getSpentTime(seconds: number): string {
 
   seconds -= minutes * 60;
 
-  return `
-    ${days}.
-    ${hours}.
-    ${minutes}.
-    ${seconds}
-  `;
+  return (
+    <Time>
+      {days !== 0 && <>{formatNumber(days)} <span>d</span></>}
+      {formatNumber(hours)}<span>h</span>
+      {formatNumber(minutes)}<span>m</span>
+      {formatNumber(seconds)}<span>s</span>
+    </Time>
+  );
 }
 
 type Props = {
@@ -168,15 +187,14 @@ class TaskTimer extends React.Component<Props, State> {
     };
 
     return (
-      <Button
-        block={true}
-        disabled={isComplete}
-        btnStyle={isComplete ? 'success' : 'simple'}
-        onClick={handleComplete}
-        size="small"
-      >
-        {isComplete ? 'Completed' : 'Complete'}
-      </Button>
+      <Tip text={isComplete ? 'Completed' : 'Complete'} placement="top">
+        <Button
+          disabled={isComplete}
+          btnStyle={isComplete ? 'success' : 'default'}
+          onClick={handleComplete}
+          icon="check-1"
+        />
+      </Tip>
     );
   }
 
@@ -202,62 +220,64 @@ class TaskTimer extends React.Component<Props, State> {
     };
 
     return (
-      <ButtonWrapper>
+      <>
         {[
           STATUS_TYPES.COMPLETED,
           STATUS_TYPES.PAUSED,
           STATUS_TYPES.STOPPED
         ].includes(status) ? (
-          <Button
-            disabled={isComplete}
-            btnStyle="success"
-            size="large"
-            icon="play"
-            onClick={handleClick}
-          >
-            Play
-          </Button>
+          <Tip text="Start" placement="top">
+            <Button
+              disabled={isComplete}
+              icon="play-1"
+              btnStyle="primary"
+              onClick={handleClick}
+            />
+          </Tip>
+          
         ) : (
-          <Button
-            btnStyle="danger"
-            size="large"
-            icon="pause-1"
-            onClick={handleClick}
-          >
-            Pause
-          </Button>
+          <Tip text="Pause" placement="top">
+            <Button
+              btnStyle="danger"
+              icon="pause-1"
+              onClick={handleClick}
+            />
+          </Tip>
+          
         )}
 
-        <Button
-          btnStyle="warning"
-          icon="checked-1"
-          size="large"
-          onClick={this.handleReset}
-        >
-          Reset
-        </Button>
-      </ButtonWrapper>
+        <Tip text="Reset" placement="top">
+          <Button
+            btnStyle="warning"
+            icon="redo"
+            onClick={this.handleReset}
+          />
+        </Tip>
+        {this.renderButton()}
+      </>
     );
   }
 
   renderTime() {
-    const { timeSpent } = this.state;
+    const { timeSpent, status } = this.state;
 
     return (
       <TimeWrapper>
-        <ControlLabel>Time spent on this task</ControlLabel>
-        <Time>{getSpentTime(timeSpent)}</Time>
+        <label>Time spent on this task <span>({status})</span></label>
+        {getSpentTime(timeSpent)}
       </TimeWrapper>
     );
   }
 
   render() {
+    const { status } = this.state;
+    const isComplete = status === STATUS_TYPES.COMPLETED;
+
     return (
       <Box title="Time tracking" isOpen={true} name="showCustomers">
-        <Container>
+        <Container isComplete={isComplete}>
           {this.renderTime()}
           {this.renderActions()}
-          {this.renderButton()}
         </Container>
       </Box>
     );

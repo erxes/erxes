@@ -17,8 +17,8 @@ const resetPassword = `
 `;
 
 const createOwner = `
-  mutation usersCreateOwner($email: String!, $password: String!, $passwordConfirmation: String!, $subscribeEmail: Boolean!) {
-    usersCreateOwner(email: $email, password: $password, passwordConfirmation: $passwordConfirmation, subscribeEmail: $subscribeEmail)
+  mutation usersCreateOwner($email: String!, $password: String!, $firstName: String!, $lastName: String, $subscribeEmail: Boolean) {
+    usersCreateOwner(email: $email, password: $password, firstName: $firstName, lastName: $lastName, subscribeEmail: $subscribeEmail)
   }
 `;
 

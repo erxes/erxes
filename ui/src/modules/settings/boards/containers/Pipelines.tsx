@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import { queries as boardQueries } from 'modules/boards/graphql';
 import {
   BoardDetailQueryResponse,
   PipelinesQueryResponse
@@ -55,7 +56,8 @@ class PipelinesContainer extends React.Component<FinalProps> {
       confirm(getWarningMessage('Pipeline'), { hasDeleteConfirm: true }).then(
         () => {
           removePipelineMutation({
-            variables: { _id: pipelineId }
+            variables: { _id: pipelineId },
+            refetchQueries: getRefetchQueries(boardId, pipelineId)
           })
             .then(() => {
               pipelinesQuery.refetch({ boardId });
@@ -95,9 +97,10 @@ class PipelinesContainer extends React.Component<FinalProps> {
           variables={values}
           callback={callBackResponse}
           confirmationUpdate={object ? confirmationUpdate : false}
-          refetchQueries={getRefetchQueries()}
+          refetchQueries={getRefetchQueries(boardId, object ? object._id : '')}
           isSubmitted={isSubmitted}
           type="submit"
+          uppercase={false}
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
           } a ${name}`}
@@ -128,8 +131,28 @@ class PipelinesContainer extends React.Component<FinalProps> {
   }
 }
 
-const getRefetchQueries = () => {
-  return ['pipelinesQuery'];
+const getRefetchQueries = (boardId, pipelineId?: string) => {
+  return [
+    'pipelinesQuery',
+    {
+      query: gql(boardQueries.boardDetail),
+      variables: { _id: boardId }
+    },
+    {
+      query: gql(boardQueries.stages),
+      variables: {
+        pipelineId,
+        search: undefined,
+        customerIds: undefined,
+        companyIds: undefined,
+        assignedUserIds: undefined,
+        labelIds: undefined,
+        extraParams: {},
+        closeDateType: undefined,
+        userIds: undefined
+      }
+    }
+  ];
 };
 
 export default withProps<Props>(

@@ -22,7 +22,12 @@ type Props = {
 
 function List({ tags, type, remove, loading, renderButton }: Props) {
   const trigger = (
-    <Button btnStyle="primary" uppercase={false} icon="plus-circle">
+    <Button
+      id={'AddTagButton'}
+      btnStyle="primary"
+      uppercase={false}
+      icon="plus-circle"
+    >
       Add tag
     </Button>
   );
@@ -48,7 +53,6 @@ function List({ tags, type, remove, loading, renderButton }: Props) {
   );
   const actionBar = (
     <Wrapper.ActionBar
-      background="colorWhite"
       left={title}
       right={actionBarRight}
     />
@@ -63,7 +67,7 @@ function List({ tags, type, remove, loading, renderButton }: Props) {
           <th>{__('Actions')}</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id={'TagsShowing'}>
         {tags.map(tag => (
           <Row
             key={tag._id}

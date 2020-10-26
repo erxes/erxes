@@ -1,4 +1,5 @@
 import { IUser } from 'modules/auth/types';
+import { QueryResponse } from 'modules/common/types';
 import { IIntegration } from 'modules/settings/integrations/types';
 
 export interface IChannel {
@@ -17,27 +18,19 @@ export interface IChannelDoc extends IChannel {
 // query types
 export type ChannelsQueryResponse = {
   channels: IChannel[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type ChannelDetailQueryResponse = {
   channelDetail: IChannel;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type ChannelsGetLastQueryResponse = {
   channelsGetLast: IChannel;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type ChannelsCountQueryResponse = {
   channelsTotalCount: number;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 // mutation types
 export type ChannelMutationVariables = {

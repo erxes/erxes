@@ -116,7 +116,7 @@ class FormComponent extends React.Component<Props, State> {
           </OverlayTrigger>
         </FormGroup>
 
-        <ModalFooter>
+        <ModalFooter id={'AddTagButtons'}>
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
             Cancel
           </Button>

@@ -10,7 +10,11 @@ export const getCurrentUserName = (user: IUser) => {
 };
 
 export const calculatePercentage = (total: number, done: number) => {
-  return roundToTwo((done * 100) / total);
+  if (total > 0) {
+    return roundToTwo((done * 100) / total);
+  }
+
+  return 0;
 };
 
 export const orderArray = (array, order) => {

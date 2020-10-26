@@ -1,5 +1,6 @@
-import { IConditionsRule } from 'modules/common/types';
+import { IConditionsRule, QueryResponse } from 'modules/common/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
+import { IIntegration } from 'modules/settings/integrations/types';
 import { IUser } from '../auth/types';
 import { IAttachment } from '../common/types';
 import { ISegment, ISegmentCondition, ISegmentDoc } from '../segments/types';
@@ -30,8 +31,9 @@ export interface IEngageEmail {
 }
 
 export interface IEngageSms {
-  from: string;
+  from?: string;
   content: string;
+  fromIntegrationId: string;
 }
 
 export interface IEngageStats {
@@ -57,6 +59,14 @@ export interface IEngageSmsStats {
   delivery_unconfirmed: number;
 }
 
+export interface IDeliveryReport {
+  _id: string;
+  engageMessageId: string;
+  customerId: string;
+  status: string;
+  createdAt: string;
+}
+
 export interface IEmailDelivery {
   _id: string;
   subject: string;
@@ -69,6 +79,9 @@ export interface IEmailDelivery {
   kind: string;
   userId: string;
   customerId: string;
+
+  status?: string;
+  createdAt?: string;
 
   fromUser: IUser;
   fromEmail: string;
@@ -108,6 +121,7 @@ export interface IEngageMessage extends IEngageMessageDoc {
   stats?: IEngageStats;
   logs?: Array<{ message: string }>;
   smsStats?: IEngageSmsStats;
+  fromIntegration?: IIntegration;
 }
 
 // mutation types
@@ -160,7 +174,6 @@ export type WithFormEditMutationResponse = {
 };
 
 // query types
-
 export type EngageMessageDetailQueryResponse = {
   engageMessageDetail: IEngageMessage;
   error: Error;
@@ -170,9 +183,7 @@ export type EngageMessageDetailQueryResponse = {
 export type EngageVerifiedEmailsQueryResponse = {
   engageVerifiedEmails: string[];
   error: Error;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type ListQueryVariables = {
   page?: number;
@@ -185,15 +196,11 @@ export type ListQueryVariables = {
 
 export type EngageMessagesQueryResponse = {
   engageMessages: IEngageMessage[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type EngageMessagesTotalCountQueryResponse = {
   engageMessagesTotalCount: number;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type EngageMessageCounts = {
   all: number;
@@ -242,6 +249,11 @@ export type IEmailFormProps = {
 
 export type EngageConfigQueryResponse = {
   engagesConfigDetail: Array<{ code: string; value: string }>;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
+
+export interface IIntegrationWithPhone {
+  _id: string;
+  name: string;
+  phoneNumber: string;
+  isActive: boolean;
+}

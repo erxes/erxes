@@ -4,7 +4,6 @@ import { __ } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
 import {
   FieldStyle,
-  SectionBody,
   SidebarCounter,
   SidebarList
 } from 'modules/layout/styles';
@@ -50,7 +49,7 @@ class ConversationDetails extends React.Component<Props> {
 
     return (
       <Section>
-        <SectionBody>
+        <div>
           <SidebarList className="no-link">
             {this.renderVisitorContactInfo(customer)}
             <li>
@@ -83,7 +82,7 @@ class ConversationDetails extends React.Component<Props> {
               <SidebarCounter>{conversation.messageCount}</SidebarCounter>
             </li>
           </SidebarList>
-        </SectionBody>
+        </div>
       </Section>
     );
   }

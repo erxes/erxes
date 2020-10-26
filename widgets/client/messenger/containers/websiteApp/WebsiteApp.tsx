@@ -1,7 +1,7 @@
-import * as React from "react";
-import { WebsiteApp } from "../../components";
-import { IWebsiteApp } from "../../types";
-import { AppConsumer } from "../AppContext";
+import * as React from 'react';
+import { WebsiteApp } from '../../components';
+import { IWebsiteApp } from '../../types';
+import { AppConsumer } from '../AppContext';
 
 type Props = {
   websiteApp: IWebsiteApp;

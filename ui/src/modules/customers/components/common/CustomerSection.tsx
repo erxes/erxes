@@ -6,7 +6,7 @@ import Spinner from 'modules/common/components/Spinner';
 import { ButtonRelated } from 'modules/common/styles/main';
 import { __, renderFullName } from 'modules/common/utils';
 import GetConformity from 'modules/conformity/containers/GetConformity';
-import { SectionBody, SectionBodyItem } from 'modules/layout/styles';
+import { SectionBodyItem } from 'modules/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import ActionSection from '../../containers/common/ActionSection';
@@ -60,24 +60,20 @@ function Component({
     }
 
     return (
-      <SectionBody>
+      <div>
         {customersObj.map((customer, index) => (
           <SectionBodyItem key={index}>
             <Link to={`/contacts/details/${customer._id}`}>
-              <Icon icon="arrow-to-right" />
+              {renderFullName(customer)}
             </Link>
-            <span>{renderFullName(customer)}</span>
-            <ActionSection
-              customer={customer}
-              isSmall={true}
-            />
+            <ActionSection customer={customer} isSmall={true} />
           </SectionBodyItem>
         ))}
         {customersObj.length === 0 && (
           <EmptyState icon="user-6" text="No customer" />
         )}
         {mainTypeId && mainType && relQuickButtons}
-      </SectionBody>
+      </div>
     );
   };
 

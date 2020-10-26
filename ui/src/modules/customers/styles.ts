@@ -31,9 +31,14 @@ const Actions = styledTS<{ isSmall?: boolean }>(styled.div)`
   justify-content: space-between;
   padding: 0 ${dimensions.coreSpacing}px ${dimensions.unitSpacing}px;
 
-  > a,
-  button {
+  > a, button {
     flex: 1;
+    padding: 4px 15px;
+
+    i {
+      font-size: 12px;
+      line-height: 16px;
+    }
   }
 
   > div {
@@ -41,7 +46,7 @@ const Actions = styledTS<{ isSmall?: boolean }>(styled.div)`
   }
 
   .dropdown {
-    display: ${props => props.isSmall ? 'inline-block' : 'block'};
+    display: ${props => (props.isSmall ? 'inline-block' : 'block')};
   }
 `;
 
@@ -184,7 +189,7 @@ export const LeadStateWrapper = styled.div`
   align-items: center;
 
   @media (max-width: 768px) {
-   flex-wrap: wrap;
+    flex-wrap: wrap;
   }
 
   > button {
