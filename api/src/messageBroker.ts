@@ -1,9 +1,8 @@
 import * as dotenv from 'dotenv';
 import messageBroker from 'erxes-message-broker';
+
 import {
-  receiveEngagesNotification,
-  receiveIntegrationsNotification,
-  receiveRpcMessage,
+    receiveEngagesNotification, receiveIntegrationsNotification, receiveRpcMessage
 } from './data/modules/integrations/receiveMessage';
 import { graphqlPubsub } from './pubsub';
 
@@ -35,8 +34,11 @@ export const initBroker = async (server?) => {
   consumeQueue('engagesNotification', async data => {
     await receiveEngagesNotification(data);
   });
+
+  consumeRPCQueue('rpc_queue:erxes-automations', async data => automationsRecRpcMsg(data));
+
 };
 
-export default function() {
+export default function () {
   return client;
 }

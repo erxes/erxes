@@ -1,7 +1,9 @@
 import * as telemetry from 'erxes-telemetry';
 import * as jwt from 'jsonwebtoken';
+
 import { Users } from '../db/models';
 import memoryStorage from '../inmemoryStorage';
+
 /*
  * Finds user object by passed tokens
  * @param {Object} req - Request object
@@ -16,9 +18,12 @@ const userMiddleware = async (req, _res, next) => {
       // verify user token and retrieve stored user information
       const { user } = jwt.verify(token, Users.getSecret());
 
+      const sessionCode = req.headers.sessioncode || '';
+
       // save user in request
       req.user = user;
       req.user.loginToken = token;
+      req.user.sessionCode = sessionCode;
 
       const currentDate = new Date();
       const machineId = telemetry.getMachineId();

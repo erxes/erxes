@@ -1,4 +1,5 @@
 import * as _ from 'underscore';
+
 import { IPipelineDocument } from '../db/models/definitions/boards';
 import { IChannelDocument } from '../db/models/definitions/channels';
 import { ICompanyDocument } from '../db/models/definitions/companies';
@@ -15,29 +16,9 @@ import { ITaskDocument } from '../db/models/definitions/tasks';
 import { ITicketDocument } from '../db/models/definitions/tickets';
 import { IUserDocument } from '../db/models/definitions/users';
 import {
-  Boards,
-  Brands,
-  Checklists,
-  Companies,
-  Customers,
-  Deals,
-  Forms,
-  GrowthHacks,
-  Integrations,
-  KnowledgeBaseArticles,
-  KnowledgeBaseCategories,
-  KnowledgeBaseTopics,
-  PipelineLabels,
-  Pipelines,
-  ProductCategories,
-  Products,
-  Segments,
-  Stages,
-  Tags,
-  Tasks,
-  Tickets,
-  Users,
-  UsersGroups,
+    Boards, Brands, Checklists, Companies, Customers, Deals, Forms, GrowthHacks, Integrations,
+    KnowledgeBaseArticles, KnowledgeBaseCategories, KnowledgeBaseTopics, PipelineLabels, Pipelines,
+    ProductCategories, Products, Segments, Stages, Tags, Tasks, Tickets, Users, UsersGroups
 } from '../db/models/index';
 import messageBroker from '../messageBroker';
 import { MODULE_NAMES, RABBITMQ_QUEUES } from './constants';
@@ -77,7 +58,7 @@ export interface ILogDataParams {
   updatedDocument?: any;
 }
 
-interface IFinalLogParams extends ILogDataParams {
+export interface IFinalLogParams extends ILogDataParams {
   action: string;
 }
 
@@ -1317,6 +1298,9 @@ export const putDeleteLog = async (params: ILogDataParams, user: IUserDocument) 
 
 const putLog = async (params: IFinalLogParams, user: IUserDocument) => {
   try {
+    // mutation wrapper automation
+    await automationHelper({ params, user });
+
     return messageBroker().sendMessage(RABBITMQ_QUEUES.PUT_LOG, {
       ...params,
       createdBy: user._id,

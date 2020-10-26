@@ -1,4 +1,5 @@
 import { Document, Schema } from 'mongoose';
+
 import { ILink } from './common';
 import { field } from './utils';
 
@@ -7,7 +8,7 @@ export interface IEmailSignature {
   signature?: string;
 }
 
-export interface IEmailSignatureDocument extends IEmailSignature, Document {}
+export interface IEmailSignatureDocument extends IEmailSignature, Document { }
 
 export interface IDetail {
   avatar?: string;
@@ -19,7 +20,7 @@ export interface IDetail {
   operatorPhone?: string;
 }
 
-export interface IDetailDocument extends IDetail, Document {}
+export interface IDetailDocument extends IDetail, Document { }
 
 export interface IUser {
   createdAt?: Date;
@@ -41,6 +42,7 @@ export interface IUser {
   groupIds?: string[];
   deviceTokens?: string[];
   doNotDisturb?: string;
+  sessionCode?: string;
 }
 
 export interface IUserDocument extends IUser, Document {

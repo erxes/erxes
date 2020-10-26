@@ -1,14 +1,6 @@
 import {
-  Companies,
-  Conformities,
-  Customers,
-  Fields,
-  Notifications,
-  PipelineLabels,
-  Pipelines,
-  Products,
-  Stages,
-  Users,
+    Companies, Conformities, Customers, Fields, Notifications, PipelineLabels, Pipelines, Products,
+    Stages, Users
 } from '../../db/models';
 import { IDealDocument } from '../../db/models/definitions/deals';
 import { IContext } from '../types';
