@@ -2,6 +2,9 @@ import * as dotenv from 'dotenv';
 import messageBroker from 'erxes-message-broker';
 
 import {
+    receiveRpcMessage as automationsRecRpcMsg
+} from './data/modules/automations/receiveMessage';
+import {
     receiveEngagesNotification, receiveIntegrationsNotification, receiveRpcMessage
 } from './data/modules/integrations/receiveMessage';
 import { graphqlPubsub } from './pubsub';

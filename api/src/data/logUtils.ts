@@ -21,6 +21,7 @@ import {
     ProductCategories, Products, Segments, Stages, Tags, Tasks, Tickets, Users, UsersGroups
 } from '../db/models/index';
 import messageBroker from '../messageBroker';
+import { automationHelper } from './automationUtils';
 import { MODULE_NAMES, RABBITMQ_QUEUES } from './constants';
 import { getSubServiceDomain, registerOnboardHistory, sendRequest, sendToWebhook } from './utils';
 
