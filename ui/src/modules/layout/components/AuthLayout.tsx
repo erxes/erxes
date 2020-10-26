@@ -84,7 +84,7 @@ class AuthLayout extends React.Component<Props, {}> {
     const { content, col = {first: 6, second: 5} } = this.props;
 
     return (
-      <Authlayout>
+      <Authlayout className="auth-container">
         <AuthContent>
           <Container>
             <Col md={col.first}>
