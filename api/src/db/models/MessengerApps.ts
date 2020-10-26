@@ -4,6 +4,7 @@ import { IMessengerApp, IMessengerAppDocument, messengerAppSchema } from './defi
 export interface IMessengerAppModel extends Model<IMessengerAppDocument> {
   getApp(_id: string): Promise<IMessengerAppDocument>;
   createApp(doc: IMessengerApp): Promise<IMessengerAppDocument>;
+  updateApp(_id: string, doc: IMessengerApp): Promise<IMessengerAppDocument>;
 }
 
 export const loadClass = () => {
@@ -20,6 +21,12 @@ export const loadClass = () => {
 
     public static async createApp(doc: IMessengerApp) {
       return MessengerApps.create(doc);
+    }
+
+    public static async updateApp(_id: string, doc: IMessengerApp) {
+      await MessengerApps.updateOne({ _id }, { $set: doc }, { runValidators: true });
+
+      return MessengerApps.findOne({ _id });
     }
   }
 

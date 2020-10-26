@@ -165,6 +165,43 @@ describe('engageQueries', () => {
     expect(response.length).toBe(2);
   });
 
+  test('Enage email delivery report list', async () => {
+    const dataSourceMock = sinon.stub(dataSources.EngagesAPI, 'engageReportsList').callsFake(() => {
+      return Promise.resolve({
+        list: [
+          {
+            _id: '123',
+            status: 'pending',
+          },
+        ],
+        totalCount: 1,
+      });
+    });
+
+    const query = `
+      query engageReportsList($page: Int, $perPage: Int) {
+        engageReportsList(page: $page, perPage: $perPage) {
+          totalCount
+          list {
+            _id
+            status
+            createdAt
+            customerId
+            engage {
+              title
+            }
+          }
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(query, 'engageReportsList', {}, { dataSources });
+
+    expect(response.list.length).toBe(1);
+
+    dataSourceMock.restore();
+  });
+
   test('Engage message detail', async () => {
     const engageMessage = await engageMessageFactory();
 

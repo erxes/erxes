@@ -8,25 +8,6 @@
     "test": "jest --coverage --forceExit --runInBand"
   },
   "dependencies": {
-    "amqplib": "^0.5.5",
-    "aws-sdk": "^2.493.0",
-    "body-parser": "^1.17.1",
-    "debug": "^4.1.1",
-    "dotenv": "^4.0.0",
-    "erxes-message-broker": "^1.0.13",
-    "express": "^4.16.4",
-    "meteor-random": "^0.0.3",
-    "mongoose": "5.7.5",
-    "nodemailer": "^6.2.1",
-    "redis": "^2.8.0",
-    "requestify": "^0.2.5",
-    "telnyx": "^1.7.2",
-    "xss": "^1.0.6"
-  },
-  "peerOptionalDependencies": {
-    "kerberos": "^1.0.0"
-  },
-  "devDependencies": {
     "@types/body-parser": "^1.17.0",
     "@types/cors": "^2.8.4",
     "@types/dotenv": "^4.0.3",
@@ -35,11 +16,31 @@
     "@types/mongodb": "^3.1.2",
     "@types/mongoose": "^5.2.1",
     "@types/node": "^10.12.18",
-    "@types/q": "^1.5.0",
+    "amqplib": "^0.5.5",
+    "aws-sdk": "^2.493.0",
+    "body-parser": "^1.17.1",
+    "debug": "^4.1.1",
+    "dotenv": "^4.0.0",
+    "erxes-message-broker": "^1.0.17",
+    "express": "^4.16.4",
     "faker": "^4.1.0",
-    "jest": "^24.9.0",
-    "ts-jest": "^24.2.0",
+    "meteor-random": "^0.0.3",
+    "mongoose": "5.7.5",
+    "nodemailer": "^6.2.1",
+    "redis": "^2.8.0",
+    "requestify": "^0.2.5",
+    "telnyx": "^1.7.2",
     "ts-node": "8.0.3",
+    "xss": "^1.0.6"
+  },
+  "peerOptionalDependencies": {
+    "kerberos": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/q": "^1.5.0",
+    "jest": "^24.9.0",
+    "supertest": "^5.0.0",
+    "ts-jest": "^24.2.0",
     "ts-node-dev": "^1.0.0-pre.32",
     "typescript": "^3.7.2"
   }

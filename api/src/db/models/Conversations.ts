@@ -1,6 +1,6 @@
 import { Model, model } from 'mongoose';
 import { ConversationMessages, Users } from '.';
-import { cleanHtml } from '../../data/utils';
+import { cleanHtml, sendToWebhook } from '../../data/utils';
 import { CONVERSATION_STATUSES } from './definitions/constants';
 import { IMessageDocument } from './definitions/conversationMessages';
 import { conversationSchema, IConversation, IConversationDocument } from './definitions/conversations';
@@ -31,6 +31,8 @@ export interface IConversationModel extends Model<IConversationDocument> {
 
   removeCustomersConversations(customerId: string[]): Promise<{ n: number; ok: number }>;
   widgetsUnreadMessagesQuery(conversations: IConversationDocument[]): any;
+
+  resolveAllConversation(query: any, userId: string): Promise<{ n: number; nModified: number; ok: number }>;
 }
 
 export const loadClass = () => {
@@ -68,7 +70,7 @@ export const loadClass = () => {
     public static async createConversation(doc: IConversation) {
       const now = new Date();
 
-      return Conversations.create({
+      const result = await Conversations.create({
         status: CONVERSATION_STATUSES.NEW,
         ...doc,
         content: cleanHtml(doc.content),
@@ -77,6 +79,10 @@ export const loadClass = () => {
         number: (await Conversations.find().countDocuments()) + 1,
         messageCount: 0,
       });
+
+      await sendToWebhook('create', 'conversation', result);
+
+      return result;
     }
 
     /**
@@ -284,6 +290,17 @@ export const loadClass = () => {
       const conversationIds = conversations.map(c => c._id);
 
       return { conversationId: { $in: conversationIds }, ...unreadMessagesSelector };
+    }
+
+    /**
+     * Resolve all conversation
+     */
+    public static resolveAllConversation(query: any, userId: string) {
+      const closedAt = new Date();
+      const closedUserId = userId;
+      const status = CONVERSATION_STATUSES.CLOSED;
+
+      return Conversations.updateMany(query, { $set: { status, closedAt, closedUserId } }, { multi: true });
     }
   }
 

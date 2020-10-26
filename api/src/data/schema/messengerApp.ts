@@ -7,16 +7,28 @@ export const types = `
     credentials: JSON
     accountId: String
   }
-`;
 
-export const queries = `
-  messengerApps(kind: String): [MessengerApp]
-  messengerAppsCount(kind: String): Int
+  input WebSiteMessengerAppInput {
+    description: String
+    buttonText: String
+    url: String
+  }
+
+  input KnowledgeBaseMessengerAppInput {
+    topicId: String
+  }
+
+  input LeadMessengerAppInput {
+    formCode: String
+  }
+
+  input MessengerAppsInput {
+    websites: [WebSiteMessengerAppInput]
+    knowledgebases: [KnowledgeBaseMessengerAppInput]
+    leads: [LeadMessengerAppInput]
+  }
 `;
 
 export const mutations = `
-  messengerAppsAddKnowledgebase(name: String!, integrationId: String!, topicId: String!): MessengerApp
-  messengerAppsAddWebsite(name: String!, integrationId: String!, description: String!, buttonText: String!, url: String!): MessengerApp
-  messengerAppsAddLead(name: String!, integrationId: String!, formId: String!): MessengerApp
-  messengerAppsRemove(_id: String!): JSON
+  messengerAppSave(integrationId: String!, messengerApps: MessengerAppsInput): String
 `;

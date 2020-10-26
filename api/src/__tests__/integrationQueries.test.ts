@@ -48,6 +48,7 @@ describe('integrationQueries', () => {
   `;
 
   const name = faker && faker.random ? faker.random.word() : 'anonymous';
+  const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
 
   afterEach(async () => {
     // Clearing test data
@@ -181,19 +182,43 @@ describe('integrationQueries', () => {
           form { _id }
           channels { _id }
           tags { _id }
+
+          websiteMessengerApps { _id }
+          knowledgeBaseMessengerApps { _id }
+          leadMessengerApps { _id }
         }
       }
     `;
 
     const tag = await tagsFactory();
-    const integration = await integrationFactory({ tagIds: [tag._id], brandId: 'fakeId' });
+    const messengerIntegration = await integrationFactory({ tagIds: [tag._id], brandId: 'fakeId' });
 
-    const response = await graphqlRequest(qry, 'integrationDetail', {
-      _id: integration._id,
+    let response = await graphqlRequest(
+      qry,
+      'integrationDetail',
+      {
+        _id: messengerIntegration._id,
+      },
+      { dataSources },
+    );
+
+    expect(response._id).toBe(messengerIntegration._id);
+    expect(response.tags.length).toBe(1);
+    expect(response.websiteMessengerApps.length).toBe(0);
+    expect(response.knowledgeBaseMessengerApps.length).toBe(0);
+    expect(response.leadMessengerApps.length).toBe(0);
+
+    const leadIntegration = await integrationFactory({ kind: 'lead' });
+
+    response = await graphqlRequest(qry, 'integrationDetail', {
+      _id: leadIntegration._id,
     });
 
-    expect(response._id).toBe(integration._id);
-    expect(response.tags.length).toBe(1);
+    expect(response._id).toBe(leadIntegration._id);
+    expect(response.tags.length).toBe(0);
+    expect(response.websiteMessengerApps.length).toBe(0);
+    expect(response.knowledgeBaseMessengerApps.length).toBe(0);
+    expect(response.leadMessengerApps.length).toBe(0);
   });
 
   test('Get total count of integrations by kind', async () => {
@@ -258,10 +283,19 @@ describe('integrationQueries', () => {
       }
     `;
 
-    const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
-
     try {
       await graphqlRequest(qry, 'integrationsFetchApi', { path: '/', params: { type: 'facebook' } }, { dataSources });
+    } catch (e) {
+      expect(e[0].message).toBe('Integrations api is not running');
+    }
+
+    try {
+      await graphqlRequest(
+        qry,
+        'integrationsFetchApi',
+        { path: '/integrations', params: { type: 'facebook' } },
+        { dataSources },
+      );
     } catch (e) {
       expect(e[0].message).toBe('Integrations api is not running');
     }

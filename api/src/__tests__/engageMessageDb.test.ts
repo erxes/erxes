@@ -215,24 +215,6 @@ describe('engage messages model tests', () => {
   });
 });
 
-describe('replace keys', () => {
-  test('must replace customer, user placeholders', async () => {
-    const customer = await customerFactory({
-      firstName: 'firstName',
-      lastName: 'lastName',
-    });
-    const user = await userFactory({ fullName: 'fullName' });
-
-    const response = EngageMessages.replaceKeys({
-      content: 'hi {{ customer.name }} - {{ user.fullName }}',
-      customer,
-      user,
-    });
-
-    expect(response).toBe('hi firstName lastName - fullName');
-  });
-});
-
 describe('createConversation', () => {
   let _customer: ICustomerDocument;
   let _integration: IIntegrationDocument;
@@ -352,7 +334,7 @@ describe('createVisitorMessages', () => {
 
   beforeEach(async () => {
     // Creating test data
-    _customer = await customerFactory({});
+    _customer = await customerFactory({ firstName: 'firstName', lastName: 'lastName' });
 
     mock = sinon.stub(events, 'getNumberOfVisits').callsFake(() => {
       return Promise.resolve(11);
@@ -449,7 +431,7 @@ describe('createVisitorMessages', () => {
     const content = `hi,${_customer.firstName || ''} ${_customer.lastName || ''}`;
 
     expect(conversation._id).toBeDefined();
-    expect(conversation.content).toBe('hi,');
+    expect(conversation.content).toBe(content);
     expect(conversation.customerId).toBe(_customer._id);
     expect(conversation.integrationId).toBe(_integration._id);
 
@@ -604,7 +586,7 @@ describe('createVisitorMessages', () => {
     test('hasAnyValue: matching', () => {
       const response = EngageMessages.checkRule({
         rule: hasAnyValueRule,
-        browserInfo: { country: 'MN' },
+        browserInfo: { countryCode: 'MN' },
       });
 
       expect(response).toBe(true);

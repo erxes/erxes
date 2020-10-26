@@ -62,6 +62,12 @@ describe('User mutations', () => {
     channelIds: $channelIds
   `;
 
+  const usersCreateOwnerMutation = `
+    mutation usersCreateOwner($email: String! $password: String! $firstName: String! $subscribeEmail: Boolean!) {
+      usersCreateOwner(email: $email password: $password firstName: $firstName subscribeEmail: $subscribeEmail)
+    }
+  `;
+
   beforeEach(async () => {
     // Creating test data
     _user = await userFactory({});
@@ -82,20 +88,14 @@ describe('User mutations', () => {
   test('Create owner (Access denied)', async () => {
     process.env.HTTPS = 'false';
 
-    const mutation = `
-      mutation usersCreateOwner($email: String! $password: String! $passwordConfirmation: String! $subscribeEmail: Boolean!) {
-        usersCreateOwner(email: $email password: $password passwordConfirmation: $passwordConfirmation, subscribeEmail: $subscribeEmail)
-      }
-    `;
-
     try {
       await graphqlRequest(
-        mutation,
+        usersCreateOwnerMutation,
         'usersCreateOwner',
         {
           email: 'owner1@gmail.com',
           password: 'pass',
-          passwordConfirmation: '111',
+          firstName: 'Firstname',
           subscribeEmail: false,
         },
         { user: {} },
@@ -105,58 +105,24 @@ describe('User mutations', () => {
     }
   });
 
-  test('Create owner (Passwords do not match)', async () => {
-    process.env.HTTPS = 'false';
-
-    await Users.deleteMany({});
-
-    const mutation = `
-      mutation usersCreateOwner($email: String! $password: String! $passwordConfirmation: String! $subscribeEmail: Boolean!) {
-        usersCreateOwner(email: $email password: $password passwordConfirmation: $passwordConfirmation, subscribeEmail: $subscribeEmail)
-      }
-    `;
-
-    try {
-      await graphqlRequest(
-        mutation,
-        'usersCreateOwner',
-        {
-          email: 'owner1@gmail.com',
-          password: 'pass',
-          passwordConfirmation: '111',
-          subscribeEmail: false,
-        },
-        { user: {} },
-      );
-    } catch (e) {
-      expect(e[0].message).toBe('Passwords do not match');
-    }
-  });
-
   test('Create owner', async () => {
     process.env.HTTPS = 'false';
 
     await Users.deleteMany({});
 
-    const mutation = `
-      mutation usersCreateOwner($email: String! $password: String! $passwordConfirmation: String! $subscribeEmail: Boolean!) {
-        usersCreateOwner(email: $email password: $password passwordConfirmation: $passwordConfirmation, subscribeEmail: $subscribeEmail)
-      }
-    `;
-
     const response = await graphqlRequest(
-      mutation,
+      usersCreateOwnerMutation,
       'usersCreateOwner',
       {
         email: 'owner2@gmail.com',
         password: 'Pass@123',
-        passwordConfirmation: 'Pass@123',
+        firstName: 'Firstname',
         subscribeEmail: false,
       },
       { user: {} },
     );
 
-    expect(response).toBe('loggedIn');
+    expect(response).toBe('success');
   });
 
   test('Create owner (Subscribe email)', async () => {
@@ -165,23 +131,17 @@ describe('User mutations', () => {
 
     await Users.deleteMany({});
 
-    const mutation = `
-      mutation usersCreateOwner($email: String! $password: String! $passwordConfirmation: String! $subscribeEmail: Boolean!) {
-        usersCreateOwner(email: $email password: $password passwordConfirmation: $passwordConfirmation, subscribeEmail: $subscribeEmail)
-      }
-    `;
-
     const mock = sinon.stub(allUtils, 'sendRequest').callsFake(() => {
       return Promise.resolve('success');
     });
 
     const response = await graphqlRequest(
-      mutation,
+      usersCreateOwnerMutation,
       'usersCreateOwner',
       {
         email: 'owner3@gmail.com',
         password: 'Pass@123',
-        passwordConfirmation: 'Pass@123',
+        firstName: 'Firstname',
         subscribeEmail: true,
       },
       { user: {} },
@@ -190,7 +150,7 @@ describe('User mutations', () => {
     mock.restore();
     process.env.NODE_ENV = 'test';
 
-    expect(response).toBe('loggedIn');
+    expect(response).toBe('success');
   });
 
   test('Login', async () => {

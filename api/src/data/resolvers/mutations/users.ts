@@ -1,8 +1,9 @@
 import * as telemetry from 'erxes-telemetry';
 import * as express from 'express';
-import { Channels, Users } from '../../../db/models';
+import { Channels, Configs, Users } from '../../../db/models';
 import { ILink } from '../../../db/models/definitions/common';
 import { IDetail, IEmailSignature, IUser } from '../../../db/models/definitions/users';
+import messageBroker from '../../../messageBroker';
 import { resetPermissionsCache } from '../../permissions/utils';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
@@ -54,10 +55,10 @@ const userMutations = {
     {
       email,
       password,
-      passwordConfirmation,
+      firstName,
+      lastName,
       subscribeEmail,
-    }: { email: string; password: string; passwordConfirmation: string; subscribeEmail: boolean },
-    { res, requestInfo }: IContext,
+    }: { email: string; password: string; firstName: string; lastName?: string; subscribeEmail?: boolean },
   ) {
     const userCount = await Users.countDocuments();
 
@@ -65,17 +66,16 @@ const userMutations = {
       throw new Error('Access denied');
     }
 
-    if (password !== passwordConfirmation) {
-      throw new Error('Passwords do not match');
-    }
-
     const doc: IUser = {
       isOwner: true,
       email,
       password,
+      details: {
+        fullName: `${firstName} ${lastName || ''}`,
+      },
     };
 
-    await Users.createUser(doc);
+    const user = await Users.createUser(doc);
 
     if (subscribeEmail && process.env.NODE_ENV === 'production') {
       await sendRequest({
@@ -83,11 +83,22 @@ const userMutations = {
         method: 'POST',
         body: {
           email,
+          firstName,
+          lastName,
         },
       });
     }
 
-    return login({ email, password }, res, requestInfo.secure);
+    await Configs.createOrUpdateConfig({ code: 'UPLOAD_SERVICE_TYPE', value: 'local' });
+
+    await messageBroker().sendMessage('erxes-api:integrations-notification', {
+      type: 'addUserId',
+      payload: {
+        _id: user._id,
+      },
+    });
+
+    return 'success';
   },
   /*
    * Login
@@ -112,7 +123,7 @@ const userMutations = {
 
     const link = `${MAIN_APP_DOMAIN}/reset-password?token=${token}`;
 
-    utils.sendEmail({
+    await utils.sendEmail({
       toEmails: [email],
       title: 'Reset password',
       template: {
@@ -253,7 +264,16 @@ const userMutations = {
       username?: string;
     },
   ) {
-    return Users.confirmInvitation({ token, password, passwordConfirmation, fullName, username });
+    const user = await Users.confirmInvitation({ token, password, passwordConfirmation, fullName, username });
+
+    await messageBroker().sendMessage('erxes-api:integrations-notification', {
+      type: 'addUserId',
+      payload: {
+        _id: user._id,
+      },
+    });
+
+    return user;
   },
 
   usersConfigEmailSignatures(_root, { signatures }: { signatures: IEmailSignature[] }, { user }: IContext) {

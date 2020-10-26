@@ -16,6 +16,7 @@ export interface IListArgs {
   channelId?: string;
   status?: string;
   unassigned?: string;
+  awaitingResponse?: string;
   brandId?: string;
   tag?: string;
   integrationType?: string;
@@ -187,6 +188,13 @@ export default class Builder {
     };
   }
 
+  // filter by awaiting Response
+  public awaitingResponse(): { isCustomerRespondedLast: boolean } {
+    return {
+      isCustomerRespondedLast: true,
+    };
+  }
+
   // filter by integration type
   public async integrationTypeFilter(integrationType: string): Promise<{ $and: IIntersectIntegrationIds[] }> {
     const integrations = await Integrations.findIntegrations({ kind: integrationType });
@@ -203,9 +211,9 @@ export default class Builder {
   }
 
   // filter by tag
-  public tagFilter(tagId: string): { tagIds: string[] } {
+  public tagFilter(tagId: string): { tagIds: IIn } {
     return {
-      tagIds: [tagId],
+      tagIds: { $in: [tagId] },
     };
   }
 
@@ -261,6 +269,11 @@ export default class Builder {
       this.queries.starred = this.starredFilter();
     }
 
+    // awaiting response
+    if (this.params.awaitingResponse) {
+      this.queries.awaitingResponse = this.awaitingResponse();
+    }
+
     // filter by status
     if (this.params.status) {
       this.queries.status = this.statusFilter([this.params.status]);
@@ -292,6 +305,7 @@ export default class Builder {
       ...this.queries.starred,
       ...this.queries.tag,
       ...this.queries.createdAt,
+      ...this.queries.awaitingResponse,
     };
   }
 }

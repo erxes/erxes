@@ -4,6 +4,27 @@ import { emailDeliveryFactory } from '../db/factories';
 import './setup.ts';
 
 describe('Email delivery queries', () => {
+  test('Transaction email deliveries', async () => {
+    await emailDeliveryFactory({
+      subject: 'subject',
+      kind: 'transaction',
+    });
+
+    const query = `
+      query transactionEmailDeliveries($searchValue: String, $page: Int, $perPage: Int) {
+        transactionEmailDeliveries(searchValue: $searchValue, page: $page, perPage: $perPage) {
+          list {
+            _id
+          }
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(query, 'transactionEmailDeliveries', { searchValue: 'subject' });
+
+    expect(response.list.length).toBe(1);
+  });
+
   test('Email delivery detail', async () => {
     const emailDelivery = await emailDeliveryFactory({});
 

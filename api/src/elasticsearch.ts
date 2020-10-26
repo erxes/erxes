@@ -34,19 +34,25 @@ export const fetchElk = async (action, index: string, body: any, id?: string, de
   }
 
   try {
-    const response = await client[action]({
+    const params: { index: string; body: any; id?: string } = {
       index: `${getIndexPrefix()}${index}`,
       body,
-      id,
-    });
+    };
+
+    if (id) {
+      params.id = id;
+    }
+
+    const response = await client[action](params);
 
     return response;
   } catch (e) {
+    debugBase(`Error during elk query ${e}`);
+
     if (defaultValue) {
       return defaultValue;
     }
 
-    debugBase(`Error during elk query ${e}`);
     throw new Error(e);
   }
 };

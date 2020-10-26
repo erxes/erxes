@@ -1,4 +1,11 @@
-import { ConversationMessages, Conversations, Customers, Integrations, Users } from '../../../db/models';
+import {
+  ConversationMessages,
+  Conversations,
+  Customers,
+  EmailDeliveries,
+  Integrations,
+  Users,
+} from '../../../db/models';
 import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
 import { graphqlPubsub } from '../../../pubsub';
 import { getConfigs } from '../../utils';
@@ -146,5 +153,9 @@ export const receiveEngagesNotification = async msg => {
 
   if (action === 'setDoNotDisturb') {
     await Customers.updateOne({ _id: data.customerId }, { $set: { doNotDisturb: 'Yes' } });
+  }
+
+  if (action === 'transactionEmail') {
+    await EmailDeliveries.updateEmailDeliveryStatus(data.emailDeliveryId, data.status);
   }
 };

@@ -33,4 +33,17 @@ describe('Messenger apps', () => {
     expect(app.kind).toBe('googleMeet');
     expect(app.name).toBe('name');
   });
+
+  test('Update messenger app', async () => {
+    const messengerApp = await messengerAppFactory({});
+
+    const updatedApp = await MessengerApps.updateApp(messengerApp._id, {
+      kind: 'googleMeet',
+      name: 'name',
+    });
+
+    expect(updatedApp._id).toBeDefined();
+    expect(updatedApp.kind).toBe('googleMeet');
+    expect(updatedApp.name).toBe('name');
+  });
 });

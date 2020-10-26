@@ -22,9 +22,11 @@ import { fillCellValue, fillHeaders, IColumnLabel } from './spreadsheet';
 
 // Prepares data depending on module type
 const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
-  const { type } = query;
+  const { type, fromHistory } = query;
 
   let data: any[] = [];
+
+  const isExport = fromHistory ? true : false;
 
   switch (type) {
     case MODULE_NAMES.COMPANY:
@@ -37,7 +39,7 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
       const companyQb = new CompanyBuildQuery(companyParams, {});
       await companyQb.buildAllQueries();
 
-      const companyResponse = await companyQb.runQueries();
+      const companyResponse = await companyQb.runQueries('search', isExport);
 
       data = companyResponse.list;
 
@@ -48,7 +50,7 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
       const leadQp = new CustomerBuildQuery(leadParams, {});
       await leadQp.buildAllQueries();
 
-      const leadResponse = await leadQp.runQueries();
+      const leadResponse = await leadQp.runQueries('search', isExport);
 
       data = leadResponse.list;
       break;
@@ -130,7 +132,7 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
         const qb = new CustomerBuildQuery(customerParams, {});
         await qb.buildAllQueries();
 
-        const customerResponse = await qb.runQueries();
+        const customerResponse = await qb.runQueries('search', isExport);
 
         data = customerResponse.list;
       }

@@ -116,6 +116,7 @@ export default {
       _id,
       messages: await getWidgetMessages(conversation._id),
       isOnline: await isMessengerOnline(integration),
+      operatorStatus: conversation.operatorStatus,
       participatedUsers: await Users.find({
         _id: { $in: conversation.participatedUserIds },
       }),

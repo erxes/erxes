@@ -52,8 +52,8 @@ export const companySchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
 
-    createdAt: field({ type: Date, label: 'Created at' }),
-    modifiedAt: field({ type: Date, label: 'Modified at' }),
+    createdAt: field({ type: Date, label: 'Created at', esType: 'date' }),
+    modifiedAt: field({ type: Date, label: 'Modified at', esType: 'date' }),
 
     primaryName: field({
       type: String,
@@ -77,6 +77,7 @@ export const companySchema = schemaWrapper(
       type: Number,
       label: 'Size',
       optional: true,
+      esType: 'number',
     }),
 
     industry: field({

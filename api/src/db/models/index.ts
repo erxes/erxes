@@ -9,7 +9,6 @@ import Conformities from './Conformities';
 import ConversationMessages from './ConversationMessages';
 import Conversations from './Conversations';
 import Customers from './Customers';
-import { DashboardItems, Dashboards } from './Dashboard';
 import Deals from './Deals';
 import EmailDeliveries from './EmailDeliveries';
 import EmailTemplates from './EmailTemplates';
@@ -35,6 +34,7 @@ import Tags from './Tags';
 import Tasks from './Tasks';
 import Tickets from './Tickets';
 import Users from './Users';
+import Webhooks from './Webhook';
 
 export {
   EmailDeliveries,
@@ -83,7 +83,6 @@ export {
   PipelineLabels,
   Checklists,
   ChecklistItems,
-  DashboardItems,
-  Dashboards,
   OnboardingHistories,
+  Webhooks,
 };

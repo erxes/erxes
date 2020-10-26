@@ -1,5 +1,6 @@
 import { Model, model } from 'mongoose';
 import { ConversationMessages, Conversations, Users } from '.';
+import { replaceEditorAttributes } from '../../data/utils';
 import { getNumberOfVisits } from '../../events';
 import { IBrowserInfo } from './Customers';
 import { IBrandDocument } from './definitions/brands';
@@ -43,7 +44,6 @@ export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
   changeCustomer(newCustomerId: string, customerIds: string[]): Promise<IEngageMessageDocument>;
   removeCustomersEngages(customerIds: string[]): Promise<{ n: number; ok: number }>;
 
-  replaceKeys(params: { content: string; customer: ICustomerDocument; user: IUserDocument }): string;
   checkRule(params: ICheckRuleParams): boolean;
   checkRules(params: ICheckRulesParams): Promise<boolean>;
   createOrUpdateConversationAndMessages(args: {
@@ -231,7 +231,7 @@ export const loadClass = () => {
         // conversations
         if (isPassedAllRules) {
           // replace keys in content
-          const replacedContent = this.replaceKeys({
+          const { replacedContent } = await replaceEditorAttributes({
             content: messenger.content,
             customer,
             user,
@@ -241,7 +241,7 @@ export const loadClass = () => {
             customer,
             integration,
             user,
-            replacedContent,
+            replacedContent: replacedContent || '',
             engageData: {
               ...messenger,
               content: replacedContent,
@@ -338,7 +338,7 @@ export const loadClass = () => {
 
     public static checkRule(params: ICheckRuleParams) {
       const { rule, browserInfo, numberOfVisits } = params;
-      const { language, url, city, country } = browserInfo;
+      const { language, url, city, countryCode } = browserInfo;
       const { value, kind, condition } = rule;
       const ruleValue: any = value;
 
@@ -357,7 +357,7 @@ export const loadClass = () => {
       }
 
       if (kind === 'country') {
-        valueToTest = country;
+        valueToTest = countryCode;
       }
 
       if (kind === 'numberOfVisits') {
@@ -413,30 +413,6 @@ export const loadClass = () => {
       }
 
       return true;
-    }
-
-    /*
-     * Replaces customer & user infos in given content
-     */
-    public static replaceKeys(params: { content: string; customer: ICustomerDocument; user: IUserDocument }) {
-      const { content, customer, user } = params;
-
-      let result = content;
-
-      // replace customer fields
-      result = result.replace(/{{\s?customer.firstName\s?}}/gi, customer.firstName || '');
-      result = result.replace(/{{\s?customer.lastName\s?}}/gi, customer.lastName || '');
-      result = result.replace(/{{\s?customer.name\s?}}/gi, `${customer.firstName || ''} ${customer.lastName || ''}`);
-      result = result.replace(/{{\s?customer.email\s?}}/gi, customer.primaryEmail || '');
-
-      // replace user fields
-      if (user.details) {
-        result = result.replace(/{{\s?user.fullName\s?}}/gi, user.details.fullName || '');
-        result = result.replace(/{{\s?user.position\s?}}/gi, user.details.position || '');
-        result = result.replace(/{{\s?user.email\s?}}/gi, user.email || '');
-      }
-
-      return result;
     }
   }
 

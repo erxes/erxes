@@ -1,6 +1,8 @@
 import * as _ from 'underscore';
 import { Brands, Conformities, Segments, Tags } from '../../../db/models';
+import { companySchema } from '../../../db/models/definitions/companies';
 import { KIND_CHOICES } from '../../../db/models/definitions/constants';
+import { customerSchema } from '../../../db/models/definitions/customers';
 import { debugBase } from '../../../debuggers';
 import { fetchElk } from '../../../elasticsearch';
 import { COC_LEAD_STATUS_TYPES } from '../../constants';
@@ -9,6 +11,19 @@ import { fetchBySegments } from '../segments/queryBuilder';
 export interface ICountBy {
   [index: string]: number;
 }
+
+export const getEsTypes = (contentType: string) => {
+  const schema = ['company', 'companies'].includes(contentType) ? companySchema : customerSchema;
+
+  const typesMap: { [key: string]: any } = {};
+
+  schema.eachPath(name => {
+    const path = schema.paths[name];
+    typesMap[name] = path.options.esType;
+  });
+
+  return typesMap;
+};
 
 export const countBySegment = async (contentType: string, qb): Promise<ICountBy> => {
   const counts: ICountBy = {};
@@ -92,10 +107,14 @@ export const countByIntegrationType = async (qb): Promise<ICountBy> => {
 interface ICommonListArgs {
   page?: number;
   perPage?: number;
+  sortField?: string;
+  sortDirection?: number;
   segment?: string;
   tag?: string;
   ids?: string[];
   searchValue?: string;
+  autoCompletion?: boolean;
+  autoCompletionType?: string;
   brand?: string;
   leadStatus?: string;
   conformityMainType?: string;
@@ -153,8 +172,17 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   // filter by search value
   public searchFilter(value: string): void {
     this.positiveList.push({
-      match_phrase: {
-        searchText: value,
+      wildcard: {
+        searchText: `*${value.toLowerCase()}*`,
+      },
+    });
+  }
+
+  // filter by auto-completion type
+  public searchByAutoCompletionType(value: string, type: string): void {
+    this.positiveList.push({
+      wildcard: {
+        [type]: `*${value}*`,
       },
     });
   }
@@ -244,7 +272,9 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
 
     // filter by search value
     if (this.params.searchValue) {
-      this.searchFilter(this.params.searchValue);
+      this.params.autoCompletion
+        ? this.searchByAutoCompletionType(this.params.searchValue, this.params.autoCompletionType || '')
+        : this.searchFilter(this.params.searchValue);
     }
 
     await this.conformityFilter();
@@ -260,14 +290,23 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   /*
    * Run queries
    */
-  public async runQueries(action = 'search'): Promise<any> {
-    const { page = 0, perPage = 0 } = this.params;
+  public async runQueries(action = 'search', isExport?: boolean): Promise<any> {
+    const { page = 0, perPage = 0, sortField, sortDirection } = this.params;
     const paramKeys = Object.keys(this.params).join(',');
 
     const _page = Number(page || 1);
-    const _limit = Number(perPage || 20);
+    let _limit = Number(perPage || 20);
 
-    if (page === 1 && perPage === 20 && (paramKeys === 'page,perPage' || paramKeys === 'page,perPage,type')) {
+    if (isExport) {
+      _limit = 10000;
+    }
+
+    if (
+      !isExport &&
+      page === 1 &&
+      perPage === 20 &&
+      (paramKeys === 'page,perPage' || paramKeys === 'page,perPage,type')
+    ) {
       return this.findAllMongo(_limit);
     }
 
@@ -283,9 +322,18 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     if (action === 'search') {
       queryOptions.from = (_page - 1) * _limit;
       queryOptions.size = _limit;
+
+      const esTypes = getEsTypes(this.contentType);
+
+      let fieldToSort = sortField || 'createdAt';
+
+      if (!esTypes[fieldToSort] || esTypes[fieldToSort] === 'email') {
+        fieldToSort = `${fieldToSort}.keyword`;
+      }
+
       queryOptions.sort = {
-        createdAt: {
-          order: 'desc',
+        [fieldToSort]: {
+          order: sortDirection ? (sortDirection === -1 ? 'desc' : 'asc') : 'desc',
         },
       };
     }

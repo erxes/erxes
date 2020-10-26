@@ -136,12 +136,16 @@ jobs:
 
     - name: Prepare release assets
       run: |
-        mkdir -p api
-        mv dist api/dist
-        mv node_modules api/node_modules
-        mv db-migrate-store.js api/db-migrate-store.js
-        mv package.json api/package.json
-        tar -zcf erxes-api-${GITHUB_REF#refs/tags/}.tar.gz api/dist api/node_modules api/db-migrate-store.js api/package.json elkSyncer email-verifier/dist email-verifier/node_modules email-verifier/package.json engages-email-sender/dist engages-email-sender/node_modules engages-email-sender/package.json logger/dist logger/node_modules logger/package.json
+        mkdir -p erxes-api
+        mv dist node_modules db-migrate-store.js package.json erxes-api
+        mkdir -p erxes-email-verifier
+        mv email-verifier/dist email-verifier/node_modules email-verifier/package.json erxes-email-verifier
+        mkdir -p erxes-engages-email-sender
+        mv engages-email-sender/dist engages-email-sender/node_modules engages-email-sender/package.json erxes-engages-email-sender
+        mkdir -p erxes-logger
+        mv logger/dist logger/node_modules logger/package.json erxes-logger
+        mv elkSyncer erxes-elkSyncer
+        tar -zcf erxes-api-${GITHUB_REF#refs/tags/}.tar.gz erxes-api erxes-email-verifier erxes-engages-email-sender erxes-logger erxes-elkSyncer
 
     - name: Upload release assets
       uses: softprops/action-gh-release@v1

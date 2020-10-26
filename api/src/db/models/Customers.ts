@@ -60,7 +60,7 @@ export interface IBrowserInfo {
   language?: string;
   url?: string;
   city?: string;
-  country?: string;
+  countryCode?: string;
 }
 
 interface IPSS {
@@ -83,6 +83,7 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
   mergeCustomers(customerIds: string[], customerFields: ICustomer, user?: IUserDocument): Promise<ICustomerDocument>;
   bulkInsert(fieldNames: string[], fieldValues: string[][], user: IUserDocument): Promise<string[]>;
   calcPSS(doc: any): IPSS;
+  updateVerificationStatus(customerIds: string[], type: string, status: string): Promise<ICustomerDocument[]>;
 
   // widgets ===
   getWidgetCustomer(doc: IGetCustomerParams): Promise<ICustomerDocument | null>;
@@ -408,6 +409,7 @@ export const loadClass = () => {
       let scopeBrandIds: string[] = [];
       let tagIds: string[] = [];
       let customFieldsData: ICustomField[] = [];
+      let state: any = '';
 
       let emails: string[] = [];
       let phones: string[] = [];
@@ -442,6 +444,9 @@ export const loadClass = () => {
           emails = [...emails, ...(customerObj.emails || [])];
           phones = [...phones, ...(customerObj.phones || [])];
 
+          // Merging customer`s state for new customer
+          state = customerObj.state;
+
           await Customers.findByIdAndUpdate(customerId, { $set: { status: 'deleted' } });
         }
       }
@@ -464,6 +469,7 @@ export const loadClass = () => {
           mergedIds: customerIds,
           emails,
           phones,
+          state,
         },
         user,
       );
@@ -699,12 +705,19 @@ export const loadClass = () => {
           { _id: customerId },
           {
             $set: { 'visitorContactInfo.email': value },
+            $push: { emails: value },
           },
         );
       }
 
       if (type === 'phone') {
-        await Customers.updateOne({ _id: customerId }, { $set: { 'visitorContactInfo.phone': value } });
+        await Customers.updateOne(
+          { _id: customerId },
+          {
+            $set: { 'visitorContactInfo.phone': value },
+            $push: { phones: value },
+          },
+        );
       }
 
       const customer = await Customers.getCustomer(customerId);
@@ -714,6 +727,14 @@ export const loadClass = () => {
       await Customers.updateOne({ _id: customerId }, { $set: pssDoc });
 
       return Customers.getCustomer(customerId);
+    }
+
+    public static async updateVerificationStatus(customerIds: string, type: string, status: string) {
+      const set: any = type !== 'email' ? { phoneValidationStatus: status } : { emailValidationStatus: status };
+
+      await Customers.updateMany({ _id: { $in: customerIds } }, { $set: set });
+
+      return Customers.find({ _id: { $in: customerIds } });
     }
   }
 

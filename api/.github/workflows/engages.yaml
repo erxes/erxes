@@ -44,11 +44,13 @@ jobs:
       - name: Install dependencies
         run: |
           cd engages-email-sender
-          yarn install --production
+          yarn install
 
       - name: Build
         run: |
           cd engages-email-sender
+          rm -rf node_modules
+          yarn install --production
           yarn build
 
       - name: Build docker image

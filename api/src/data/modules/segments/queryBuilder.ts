@@ -1,10 +1,9 @@
 import * as _ from 'underscore';
 import { Segments } from '../../../db/models';
-import { companySchema } from '../../../db/models/definitions/companies';
 import { SEGMENT_DATE_OPERATORS, SEGMENT_NUMBER_OPERATORS } from '../../../db/models/definitions/constants';
-import { customerSchema } from '../../../db/models/definitions/customers';
 import { ICondition, ISegment } from '../../../db/models/definitions/segments';
 import { fetchElk } from '../../../elasticsearch';
+import { getEsTypes } from '../coc/utils';
 
 export const fetchBySegments = async (segment: ISegment, action: 'search' | 'count' = 'search'): Promise<any> => {
   if (!segment || !segment.conditions) {
@@ -14,13 +13,7 @@ export const fetchBySegments = async (segment: ISegment, action: 'search' | 'cou
   const { contentType } = segment;
   const index = contentType === 'company' ? 'companies' : 'customers';
   const idField = contentType === 'company' ? 'companyId' : 'customerId';
-  const schema = contentType === 'company' ? companySchema : customerSchema;
-  const typesMap: { [key: string]: any } = {};
-
-  schema.eachPath(name => {
-    const path = schema.paths[name];
-    typesMap[name] = path.options.esType;
-  });
+  const typesMap = getEsTypes(contentType);
 
   const propertyPositive: any[] = [];
   const propertyNegative: any[] = [];

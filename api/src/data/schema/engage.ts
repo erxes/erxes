@@ -1,7 +1,8 @@
 export const types = `
   type EngageMessageSms {
-    from: String!,
+    from: String,
     content: String!
+    fromIntegrationId: String
   }
 
   type EngageMessage {
@@ -35,6 +36,7 @@ export const types = `
     brands: [Brand]
     fromUser: User
     getTags: [Tag]
+    fromIntegration: Integration
 
     stats: JSON
     logs: JSON
@@ -45,6 +47,20 @@ export const types = `
     type: String,
     month: String,
     day: String,
+  }
+
+  type DeliveryReport {
+    _id: String!,
+    customerId: String,
+    mailId: String,
+    status: String,
+    engage: EngageMessage,
+    createdAt: Date
+  }
+
+  type EngageDeliveryReport {
+    list: [DeliveryReport]
+    totalCount: Int
   }
 
   input EngageScheduleDateInput {
@@ -71,8 +87,9 @@ export const types = `
   }
 
   input EngageMessageSmsInput {
-    from: String!,
+    from: String,
     content: String!
+    fromIntegrationId: String!
   }
 `;
 
@@ -95,13 +112,14 @@ export const queries = `
   engageMessageCounts(name: String!, kind: String, status: String): JSON
   engagesConfigDetail: JSON
   engageVerifiedEmails: [String]
+  engageReportsList(page: Int, perPage: Int): EngageDeliveryReport 
 `;
 
 const commonParams = `
   title: String!,
   kind: String!,
   method: String!,
-  fromUserId: String!,
+  fromUserId: String,
   isDraft: Boolean,
   isLive: Boolean,
   stopDate: Date,

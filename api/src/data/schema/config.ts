@@ -5,17 +5,44 @@ export const types = `
     value: JSON
   }
 
-  type GitInfos {
+  type GeneralInfo {
     packageVersion: String
-    branch: String
-    sha: String
-    abbreviatedSha: String
   }
 
-  type ProjectInfos {
-    erxesVersion: GitInfos
-    apiVersion: GitInfos
-    widgetVersion: GitInfos
+  type OSInfo {
+    type: String
+    platform: String
+    arch: String
+    release: String
+    uptime: Int
+    loadavg: [Float]
+    totalmem: Float
+    freemem: Float
+    cpuCount: Int
+  }
+
+  type ProcessInfo {
+    nodeVersion: String
+    pid: String
+    uptime: String
+  }
+
+  type MongoInfo {
+    version: String
+    storageEngine: String
+  }
+
+  type Statistic {
+    packageVersion: String
+    os: OSInfo
+    process: ProcessInfo
+    mongo: MongoInfo
+  }
+
+  type ProjectStatistics {
+    erxesApi: Statistic
+    erxesIntegration: Statistic
+    erxes: GeneralInfo
   }
 
   type ENV {
@@ -25,7 +52,7 @@ export const types = `
 
 export const queries = `
   configs: [Config]
-  configsVersions: ProjectInfos
+  configsStatus: ProjectStatistics
   configsGetEnv: ENV
   configsConstants: JSON
 `;

@@ -14,9 +14,17 @@ import { debugBase, debugInit } from './debuggers';
 import { initBroker } from './messageBroker';
 import { trackEngages } from './trackers/engageTracker';
 
-const app = express();
+export const app = express();
 
 app.disable('x-powered-by');
+
+trackEngages(app);
+
+// for health checking
+app.get('/health', async (_req, res) => {
+  res.end('ok');
+});
+
 app.use((req: any, _res, next) => {
   req.rawBody = '';
 
@@ -35,8 +43,6 @@ app.use('/configs', configs);
 app.use('/deliveryReports', deliveryReports);
 app.use('/telnyx', telnyx);
 
-trackEngages(app);
-
 // Error handling middleware
 app.use((error, _req, res, _next) => {
   const msg = filterXSS(error.message);
@@ -45,11 +51,17 @@ app.use((error, _req, res, _next) => {
   res.status(500).send(msg);
 });
 
-const { PORT } = process.env;
+const { MONGO_URL, NODE_ENV, PORT, TEST_MONGO_URL } = process.env;
 
 app.listen(PORT, () => {
+  let mongoUrl = MONGO_URL;
+
+  if (NODE_ENV === 'test') {
+    mongoUrl = TEST_MONGO_URL;
+  }
+
   // connect to mongo database
-  connect().then(async () => {
+  connect(mongoUrl).then(async () => {
     initBroker(app).catch(e => {
       debugBase(`Error ocurred during message broker init ${e.message}`);
     });

@@ -25,8 +25,9 @@ export const FORM_FIELDS = {
     BLANK: '',
     NUMBER: 'number',
     DATE: 'date',
+    DATETIME: 'datetime',
     EMAIL: 'email',
-    ALL: ['', 'number', 'date', 'email'],
+    ALL: ['', 'number', 'date', 'datetime', 'email'],
   },
 };
 
@@ -39,7 +40,11 @@ export const FIELD_CONTENT_TYPES = {
 };
 
 export const EXTEND_FIELDS = {
-  CUSTOMER: [{ name: 'tag', label: 'tag' }],
+  CUSTOMER: [
+    { name: 'tag', label: 'Tag' },
+    { name: 'ownerEmail', label: 'Owner' },
+    { name: 'companiesPrimaryNames', label: 'Companies' },
+  ],
   PRODUCT: [{ name: 'categoryCode', label: 'Category Code' }],
 };
 
@@ -285,6 +290,7 @@ export const MODULE_NAMES = {
   ENGAGE: 'engage',
   SCRIPT: 'script',
   FIELD: 'field',
+  WEBHOOK: 'webhook',
 };
 
 export const RABBITMQ_QUEUES = {
@@ -293,4 +299,13 @@ export const RABBITMQ_QUEUES = {
   RPC_API_TO_WORKERS: 'rpc_queue:api_to_workers',
   WORKERS: 'workers',
   RPC_API_TO_AUTOMATIONS: 'rpc_queue:erxes-api_erxes-automations',
+};
+
+export const AUTO_BOT_MESSAGES = {
+  NO_RESPONSE: 'No reply',
+  CHANGE_OPERATOR: 'The team will reply in message',
+};
+
+export const BOT_MESSAGE_TYPES = {
+  SAY_SOMETHING: 'say_something',
 };

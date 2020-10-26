@@ -33,8 +33,9 @@ export interface IMessenger {
 interface IMessengerDocument extends IMessenger, Document {}
 
 interface IShortMessage {
-  from: string;
+  from?: string;
   content: string;
+  fromIntegrationId: string;
 }
 
 export interface IEngageMessage {
@@ -112,8 +113,9 @@ export const messengerSchema = new Schema(
 
 export const smsSchema = new Schema(
   {
-    from: field({ type: String, label: 'From text' }),
+    from: field({ type: String, label: 'From text', optional: true }),
     content: field({ type: String, label: 'SMS content' }),
+    fromIntegrationId: field({ type: String, label: 'Configured integration' }),
   },
   { _id: false },
 );

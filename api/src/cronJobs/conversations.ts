@@ -26,7 +26,7 @@ export const sendMessageEmail = async () => {
       continue;
     }
 
-    if (!customer || !customer.primaryEmail) {
+    if (!customer || !(customer.emails && customer.emails.length > 0)) {
       continue;
     }
 
@@ -37,7 +37,7 @@ export const sendMessageEmail = async () => {
     }
 
     // user's last non answered question
-    const question: IMessageDocument = (await ConversationMessages.getNonAsnweredMessage(conversation._id)) || {};
+    const question: IMessageDocument = await ConversationMessages.getNonAsnweredMessage(conversation._id);
 
     const adminMessages = await ConversationMessages.getAdminMessages(conversation._id);
 
@@ -62,6 +62,12 @@ export const sendMessageEmail = async () => {
         answer.user.fullName = usr.details.fullName;
       }
 
+      if (message.attachments.length !== 0) {
+        for (const attachment of message.attachments) {
+          answer.content = answer.content.concat(`<p><img src="${attachment.url}" alt="${attachment.name}"></p>`);
+        }
+      }
+
       // add user object to answer
       answers.push(answer);
     }
@@ -70,16 +76,32 @@ export const sendMessageEmail = async () => {
 
     const data = {
       customer,
-      question: {
-        ...question.toJSON(),
-        createdAt: new Date(moment(question.createdAt).format('DD MMM YY, HH:mm')),
-      },
+      question: {},
       answers,
       brand,
     };
 
+    if (question) {
+      const questionData = {
+        ...question.toJSON(),
+        createdAt: new Date(moment(question.createdAt).format('DD MMM YY, HH:mm')),
+      };
+
+      if (question.attachments.length !== 0) {
+        for (const attachment of question.attachments) {
+          questionData.content = questionData.content.concat(
+            `<p><img src="${attachment.url}" alt="${attachment.name}"></p>`,
+          );
+        }
+      }
+
+      data.question = questionData;
+    }
+
+    const email = customer.primaryEmail || customer.emails[0];
+
     const emailOptions: IEmailParams = {
-      toEmails: [customer.primaryEmail],
+      toEmails: [email],
       title: `Reply from "${brand.name}"`,
     };
 
@@ -96,7 +118,8 @@ export const sendMessageEmail = async () => {
     }
 
     // send email
-    utils.sendEmail(emailOptions);
+
+    await utils.sendEmail(emailOptions);
 
     // mark sent messages as read
     await ConversationMessages.markSentAsReadMessages(conversation._id);

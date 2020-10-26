@@ -8,6 +8,7 @@ import * as XlsxStreamReader from 'xlsx-stream-reader';
 import { checkFieldNames } from '../data/modules/fields/utils';
 import { deleteFile, s3Stream, uploadsFolderPath } from '../data/utils';
 import { ImportHistory } from '../db/models';
+import { CUSTOMER_SELECT_OPTIONS } from '../db/models/definitions/constants';
 import ImportHistories from '../db/models/ImportHistory';
 import { debugImport, debugWorkers } from '../debuggers';
 
@@ -364,4 +365,9 @@ export const generateUid = () => {
       .toString(36)
       .substr(2, 9)
   );
+};
+export const generatePronoun = value => {
+  const pronoun = CUSTOMER_SELECT_OPTIONS.SEX.find(sex => sex.label.toUpperCase() === value.toUpperCase());
+
+  return pronoun ? pronoun.value : '';
 };

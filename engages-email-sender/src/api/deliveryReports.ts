@@ -30,6 +30,31 @@ router.get('/smsStats/:engageMessageId', async (req, res) => {
   return res.json(smsStats);
 });
 
+router.get('/reportsList', async (req, res) => {
+  debugRequest(debugEngages, req);
+
+  const { page, perPage } = req.query;
+
+  const _page = Number(page || '1');
+  const _limit = Number(perPage || '20');
+
+  const deliveryReports = await DeliveryReports.find()
+    .limit(_limit)
+    .skip((_page - 1) * _limit)
+    .sort({ createdAt: -1 });
+
+  if (!deliveryReports) {
+    return res.json({ list: [], totalCount: 0 });
+  }
+
+  const totalCount = await DeliveryReports.countDocuments();
+
+  return res.json({
+    list: deliveryReports,
+    totalCount,
+  });
+});
+
 router.get(`/reportsList/:engageMessageId`, async (req, res) => {
   debugRequest(debugEngages, req);
 

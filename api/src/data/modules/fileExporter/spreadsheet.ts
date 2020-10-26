@@ -7,15 +7,18 @@ import { customerSchema, ICustomerDocument } from '../../../db/models/definition
 import { IIntegrationDocument } from '../../../db/models/definitions/integrations';
 import { IUserGroupDocument, permissionSchema } from '../../../db/models/definitions/permissions';
 import { IPipelineLabelDocument } from '../../../db/models/definitions/pipelineLabels';
+import { ITagDocument } from '../../../db/models/definitions/tags';
 import { ticketSchema } from '../../../db/models/definitions/tickets';
 import { IUserDocument, userSchema } from '../../../db/models/definitions/users';
 import {
   Brands,
   Companies,
+  Conformities,
   Customers,
   Integrations,
   PipelineLabels,
   Stages,
+  Tags,
   Users,
   UsersGroups,
 } from '../../../db/models/index';
@@ -88,6 +91,41 @@ export const fillHeaders = (itemType: string): IColumnLabel[] => {
   return columnNames;
 };
 
+const getCompanyNames = async _id => {
+  const conformities = await Conformities.find({ mainTypeId: _id });
+  const companyNames = [] as any;
+
+  for (const conf of conformities) {
+    const company: ICompanyDocument | null = await Companies.findOne({ _id: conf.relTypeId });
+
+    if (company) {
+      companyNames.push(company.primaryName ? company.primaryName : 'unknown');
+    }
+  }
+
+  return companyNames;
+};
+
+const getCellValue = (item, colName) => {
+  const names = colName.split('.');
+
+  if (names.length === 1) {
+    return item[colName];
+  } else if (names[0] === 'trackedData') {
+    const trackedDatas = item.trackedData || [];
+
+    if (trackedDatas[0]) {
+      const foundedData = trackedDatas.find(data => data.field === names[1]);
+      return foundedData ? foundedData.value : '';
+    }
+
+    return '';
+  } else {
+    const value = item[names[0]];
+
+    return value ? value[names[1]] : '';
+  }
+};
 /**
  * Finds given field of database collection row and format it in a human-friendly way.
  * @param {string} colName Database field name
@@ -103,7 +141,7 @@ export const fillCellValue = async (colName: string, item: any): Promise<string>
     return emptyMsg;
   }
 
-  let cellValue: any = item[colName] || emptyMsg;
+  let cellValue: any = getCellValue(item, colName);
 
   if (typeof item[colName] === 'boolean') {
     cellValue = item[colName] ? 'Yes' : 'No';
@@ -229,6 +267,28 @@ export const fillCellValue = async (colName: string, item: any): Promise<string>
       cellValue = parent ? parent.primaryName : '';
 
       break;
+
+    case 'tag':
+      const tag: ITagDocument | null = await Tags.findOne({ _id: item.tagId });
+
+      cellValue = tag ? tag.name : '';
+
+      break;
+
+    case 'companiesPrimaryNames':
+      const companyNames = await getCompanyNames(item._id);
+
+      cellValue = companyNames.join(', ');
+
+      break;
+
+    case 'ownerEmail':
+      const owner: IUserDocument | null = await Users.findOne({ _id: item.ownerId });
+
+      cellValue = owner ? owner.email : '';
+
+      break;
+
     default:
       break;
   }

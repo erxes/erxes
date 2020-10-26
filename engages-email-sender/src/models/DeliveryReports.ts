@@ -43,6 +43,7 @@ export const deliveryReportsSchema = new Schema({
   mailId: { type: String, optional: true },
   status: { type: String, optional: true },
   engageMessageId: { type: String, optional: true },
+  createdAt: { type: Date },
 });
 
 export interface IStatsModel extends Model<IStatsDocument> {
@@ -81,10 +82,10 @@ export const loadDeliveryReportsClass = () => {
     public static async updateOrCreateReport(headers: any, status: string) {
       const { engageMessageId, mailId, customerId } = headers;
 
-      const deliveryReports = await DeliveryReports.findOne({ customerId });
+      const deliveryReports = await DeliveryReports.findOne({ engageMessageId });
 
       if (deliveryReports) {
-        await DeliveryReports.update({ customerId }, { $set: { engageMessageId, mailId, status } });
+        await DeliveryReports.updateOne({ engageMessageId }, { $set: { mailId, status } });
       } else {
         await DeliveryReports.create({ customerId, mailId, engageMessageId, status });
       }

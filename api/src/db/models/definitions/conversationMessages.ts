@@ -37,6 +37,7 @@ export interface IMessage {
   fromBot?: boolean;
   isCustomerRead?: boolean;
   formWidgetData?: any;
+  botData?: any;
   messengerAppData?: any;
   engageData?: IEngageData;
   contentType?: string;
@@ -94,6 +95,7 @@ export const messageSchema = new Schema({
   userId: field({ type: String, index: true }),
   createdAt: field({ type: Date, index: true }),
   isCustomerRead: field({ type: Boolean }),
+  botData: field({ type: Object }),
   formWidgetData: field({ type: Object }),
   messengerAppData: field({ type: Object }),
   engageData: field({ type: engageDataSchema }),

@@ -16,8 +16,6 @@ import {
   ConversationMessages,
   Conversations,
   Customers,
-  DashboardItems,
-  Dashboards,
   Deals,
   EmailDeliveries,
   EmailTemplates,
@@ -51,26 +49,29 @@ import {
   Tickets,
   Users,
   UsersGroups,
+  Webhooks,
 } from './models';
 import { ICustomField } from './models/definitions/common';
 import {
   ACTIVITY_CONTENT_TYPES,
   BOARD_STATUSES,
   BOARD_TYPES,
+  CONVERSATION_OPERATOR_STATUS,
   CONVERSATION_STATUSES,
   FORM_TYPES,
   MESSAGE_TYPES,
   NOTIFICATION_TYPES,
   PROBABILITY,
   PRODUCT_TYPES,
+  WEBHOOK_ACTIONS,
 } from './models/definitions/constants';
 import { IEmail, IMessenger } from './models/definitions/engages';
 import { IMessengerAppCrendentials } from './models/definitions/messengerApps';
 import { IUserDocument } from './models/definitions/users';
 import PipelineTemplates from './models/PipelineTemplates';
 
-const getUniqueValue = async (collection: any, fieldName: string = 'code', defaultValue?: string) => {
-  const getRandomValue = (type: string) => (type === 'email' ? faker.internet.email() : faker.random.word());
+export const getUniqueValue = async (collection: any, fieldName: string = 'code', defaultValue?: string) => {
+  const getRandomValue = (type: string) => (type === 'email' ? faker.internet.email() : Random.id());
 
   let uniqueValue = defaultValue || getRandomValue(fieldName);
 
@@ -103,38 +104,6 @@ export const activityLogFactory = async (params: IActivityLogFactoryInput = {}) 
   });
 
   return activity.save();
-};
-
-interface IDashboardFactoryInput {
-  name?: string;
-}
-
-export const dashboardFactory = async (params: IDashboardFactoryInput) => {
-  const dashboard = new Dashboards({
-    name: params.name || 'name',
-  });
-
-  return dashboard.save();
-};
-
-interface IDashboardFactoryInput {
-  dashboardId?: string;
-  layout?: string;
-  vizState?: string;
-  name?: string;
-  type?: string;
-}
-
-export const dashboardItemsFactory = async (params: IDashboardFactoryInput) => {
-  const dashboardItem = new DashboardItems({
-    name: params.name || 'name',
-    dashboardId: params.dashboardId || 'dashboardId',
-    layout: params.layout || 'layout',
-    vizState: params.vizState || 'vizState',
-    type: params.type || 'type',
-  });
-
-  return dashboardItem.save();
 };
 
 interface IUserFactoryInput {
@@ -221,6 +190,8 @@ interface IEngageMessageFactoryInput {
   title?: string;
   email?: IEmail;
   smsContent?: string;
+  fromUserId?: string;
+  fromIntegrationId?: string;
 }
 
 export const engageMessageFactory = (params: IEngageMessageFactoryInput = {}) => {
@@ -237,7 +208,10 @@ export const engageMessageFactory = (params: IEngageMessageFactoryInput = {}) =>
     isDraft: params.isDraft || false,
     messenger: params.messenger,
     email: params.email,
-    smsContent: params.smsContent || 'Sms content',
+    smsContent: {
+      content: params.smsContent || 'Sms content',
+      fromIntegrationId: params.fromIntegrationId,
+    },
   });
 
   return engageMessage.save();
@@ -597,6 +571,7 @@ interface IConversationFactoryInput {
   customerId?: string;
   assignedUserId?: string;
   integrationId?: string;
+  operatorStatus?: string;
   userId?: string;
   content?: string;
   participatedUserIds?: string[];
@@ -609,6 +584,7 @@ interface IConversationFactoryInput {
   number?: number;
   firstRespondedUserId?: string;
   firstRespondedDate?: dateType;
+  isCustomerRespondedLast?: boolean;
 }
 
 export const conversationFactory = (params: IConversationFactoryInput = {}) => {
@@ -617,6 +593,7 @@ export const conversationFactory = (params: IConversationFactoryInput = {}) => {
     customerId: params.customerId || Random.id(),
     integrationId: params.integrationId || Random.id(),
     status: params.status || CONVERSATION_STATUSES.NEW,
+    operatorStatus: params.operatorStatus || CONVERSATION_OPERATOR_STATUS.OPERATOR,
   };
 
   return Conversations.createConversation({
@@ -1326,6 +1303,7 @@ export const conformityFactory = (params: IConformityFactoryInput) => {
 interface IEmailDeliveryFactoryInput {
   attachments?: string[];
   subject?: string;
+  status?: string;
   body?: string;
   to?: string[];
   cc?: string[];
@@ -1340,6 +1318,7 @@ export const emailDeliveryFactory = async (params: IEmailDeliveryFactoryInput = 
   const emailDelviry = new EmailDeliveries({
     attachments: params.attachments || [],
     subject: params.subject || 'subject',
+    status: params.status || 'pending',
     body: params.body || 'body',
     to: params.to || ['to'],
     cc: params.cc || ['cc'],
@@ -1371,6 +1350,28 @@ export function engageDataFactory(params: IMessageEngageDataParams) {
     kind: params.kind || 'popup',
     sentAs: params.sentAs || 'post',
   };
+}
+
+interface IWebhookActionInput {
+  label?: string;
+  type?: string;
+  action?: any;
+}
+
+interface IWebhookParams {
+  url?: string;
+  actions?: IWebhookActionInput[];
+  token?: string;
+}
+
+export function webhookFactory(params: IWebhookParams) {
+  const webhook = new Webhooks({
+    url: params.url || `https://${faker.random.word()}.com`,
+    actions: params.actions || WEBHOOK_ACTIONS,
+    token: params.token || faker.unique,
+  });
+
+  return webhook.save();
 }
 
 interface IOnboardHistoryParams {

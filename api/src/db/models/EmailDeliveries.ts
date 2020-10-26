@@ -3,6 +3,7 @@ import { emailDeliverySchema, IEmailDeliveries, IEmailDeliveriesDocument } from 
 
 export interface IEmailDeliveryModel extends Model<IEmailDeliveriesDocument> {
   createEmailDelivery(doc: IEmailDeliveries): Promise<IEmailDeliveriesDocument>;
+  updateEmailDeliveryStatus(_id: string, status: string): Promise<void>;
 }
 
 export const loadClass = () => {
@@ -14,6 +15,10 @@ export const loadClass = () => {
       return EmailDeliveries.create({
         ...doc,
       });
+    }
+
+    public static async updateEmailDeliveryStatus(_id: string, status: string) {
+      return EmailDeliveries.updateOne({ _id }, { $set: { status } });
     }
   }
 

@@ -7,7 +7,6 @@ import configs from './configs';
 import conformity from './conformities';
 import conversations from './conversations';
 import customers from './customers';
-import dashboards from './dashboards';
 import deals from './deals';
 import emailTemplates from './emailTemplates';
 import engages from './engages';
@@ -32,10 +31,10 @@ import tags from './tags';
 import tasks from './tasks';
 import tickets from './tickets';
 import users from './users';
+import webhooks from './webhooks';
 import widgets from './widgets';
 
 export default {
-  ...dashboards,
   ...users,
   ...conversations,
   ...tags,
@@ -72,4 +71,5 @@ export default {
   ...checklists,
   ...robot,
   ...widgets,
+  ...webhooks,
 };

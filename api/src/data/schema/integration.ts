@@ -13,10 +13,15 @@ export const types = `
     messengerData: JSON
     uiOptions: JSON
     isActive: Boolean
+    webhookData: JSON
 
     brand: Brand
     form: Form
     channels: [Channel]
+
+    websiteMessengerApps: [MessengerApp]
+    knowledgeBaseMessengerApps: [MessengerApp]
+    leadMessengerApps: [MessengerApp]
   }
 
   type integrationsTotalCount {
@@ -46,6 +51,7 @@ export const types = `
     themeColor: String
     callout: JSON,
     rules: [InputRule]
+    isRequireOnce: Boolean
   }
 
   input MessengerOnlineHoursSchema {
@@ -64,6 +70,7 @@ export const types = `
   input IntegrationMessengerData {
     _id: String
     notifyCustomer: Boolean
+    botEndpointUrl: String
     availabilityMethod: String
     isOnline: Boolean,
     onlineHours: [MessengerOnlineHoursSchema]
@@ -152,7 +159,7 @@ export const mutations = `
     channelIds: [String]
     data: JSON): Integration
 
-  integrationsEditCommonFields(_id: String!, name: String!, brandId: String!, channelIds: [String]): Integration
+  integrationsEditCommonFields(_id: String!, name: String!, brandId: String!, channelIds: [String], data: JSON): Integration
 
   integrationsRemove(_id: String!): JSON
   integrationsRemoveAccount(_id: String!): JSON
@@ -169,13 +176,18 @@ export const mutations = `
     from: String!
     shouldResolve: Boolean
     headerId: String
+    replyTo: [String]
+    inReplyTo: String
     threadId: String
     messageId: String
     replyToMessageId: String
     kind: String
-    references: String
+    references: [String]
     attachments: [JSON]
+    customerId: String
   ): JSON
 
   integrationsUpdateConfigs(configsMap: JSON!): JSON
+
+  integrationsSendSms(integrationId: String!, content: String!, to: String!): JSON
 `;
