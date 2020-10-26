@@ -4,47 +4,24 @@ import * as fs from 'fs';
 import { disconnect } from 'mongoose';
 import * as shelljs from 'shelljs';
 import * as XlsxStreamReader from 'xlsx-stream-reader';
+
 import { checkFieldNames } from '../data/modules/fields/utils';
 import widgetMutations from '../data/resolvers/mutations/widgets';
 import { getEnv } from '../data/utils';
 import { connect } from '../db/connection';
 import {
-  Boards,
-  Brands,
-  Channels,
-  Companies,
-  Conformities,
-  Conversations,
-  Customers,
-  Deals,
-  EmailTemplates,
-  EngageMessages,
-  Fields,
-  Forms,
-  ImportHistory,
-  Integrations,
-  KnowledgeBaseArticles,
-  KnowledgeBaseCategories,
-  KnowledgeBaseTopics,
-  Pipelines,
-  PipelineTemplates,
-  ProductCategories,
-  Products,
-  Segments,
-  Stages,
-  Tags,
-  Tasks,
-  Tickets,
-  Users,
-  UsersGroups,
-  Configs,
+    Boards, Brands, Channels, Companies, Configs, Conformities, Conversations, Customers, Deals,
+    EmailTemplates, EngageMessages, Fields, Forms, ImportHistory, Integrations,
+    KnowledgeBaseArticles, KnowledgeBaseCategories, KnowledgeBaseTopics, Pipelines,
+    PipelineTemplates, ProductCategories, Products, Segments, Stages, Tags, Tasks, Tickets, Users,
+    UsersGroups
 } from '../db/models';
 import { IPipelineStage } from '../db/models/definitions/boards';
 import { LEAD_LOAD_TYPES, MESSAGE_TYPES, TAG_TYPES } from '../db/models/definitions/constants';
 import { debugWorkers } from '../debuggers';
-import { initMemoryStorage } from '../inmemoryStorage';
+import memoryStorage, { initMemoryStorage } from '../inmemoryStorage';
 import { clearEmptyValues, generatePronoun, updateDuplicatedValue } from '../workers/utils';
-import memoryStorage from './../inmemoryStorage';
+
 dotenv.config();
 
 export const icons = [

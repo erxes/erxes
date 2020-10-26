@@ -1,8 +1,11 @@
 import * as telemetry from 'erxes-telemetry';
+
 import { getUniqueValue } from '../../../db/factories';
 import { Channels, Customers, EmailDeliveries, Integrations } from '../../../db/models';
 import { KIND_CHOICES } from '../../../db/models/definitions/constants';
-import { IIntegration, IMessengerData, IUiOptions } from '../../../db/models/definitions/integrations';
+import {
+    IIntegration, IMessengerData, IUiOptions
+} from '../../../db/models/definitions/integrations';
 import { IExternalIntegrationParams } from '../../../db/models/Integrations';
 import { debugExternalApi } from '../../../debuggers';
 import messageBroker from '../../../messageBroker';
@@ -318,8 +321,8 @@ const integrationMutations = {
 
     doc.userId = user._id;
 
-    for (const customerId of customerIds) {
-      await EmailDeliveries.createEmailDelivery({ ...doc, customerId });
+    for (const cusId of customerIds) {
+      await EmailDeliveries.createEmailDelivery({ ...doc, cusId });
     }
 
     return;
