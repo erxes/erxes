@@ -1,8 +1,6 @@
 {
   "name": "erxes",
-
   "version": "0.19.3",
-
   "description": "Free and open fair-code licensed all-in-one growth marketing & management software",
   "homepage": "https://erxes.io",
   "repository": "https://github.com/erxes/erxes",
@@ -20,6 +18,18 @@
     "url": "https://opencollective.com/erxes",
     "logo": "https://opencollective.com/opencollective/logo.txt"
   },
+  "lint-staged": {
+    "linters": {
+      "ui/src/**/*.{ts,tsx,json,css}": [
+        "prettier --single-quote --write",
+        "git add"
+      ],
+      "api/src/**/*.ts": [
+        "prettier --write",
+        "git add"
+      ]
+    }
+  },
   "scripts": {
     "format": "prettier --single-quote --write 'src/**/*.@(ts|tsx)'",
     "precommit": "lint-staged",
@@ -30,7 +40,8 @@
   },
   "devDependencies": {
     "@release-it/conventional-changelog": "^1.1.0",
-    "opencollective": "^1.0.3"
+    "opencollective": "^1.0.3",
+    "lint-staged": "^3.6.0"
   },
   "dependencies": {}
 }
