@@ -20,16 +20,8 @@
   },
   "lint-staged": {
     "linters": {
-      "ui/src/**/*.{ts,tsx,json,css}": [
+      "@(api|integrations|ui|widgets)/src/**/*.{ts?(x),json,css}": [
         "prettier --single-quote --write",
-        "git add"
-      ],
-      "api/src/**/*.ts": [
-        "prettier --write",
-        "git add"
-      ],
-      "integrations/src/**/*.ts": [
-        "prettier --write",
         "git add"
       ]
     }
