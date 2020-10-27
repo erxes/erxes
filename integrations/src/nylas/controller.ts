@@ -3,16 +3,21 @@ import * as dotenv from 'dotenv';
 import * as formidable from 'formidable';
 import * as Nylas from 'nylas';
 import { debugNylas, debugRequest } from '../debuggers';
+import { Integrations } from '../models';
 import {
   // createNylasIntegration,
   createNylasIntegration,
   getMessage,
+  nylasCheckCalendarAvailability,
+  nylasCreateCalenderEvent,
   nylasFileUpload,
   nylasGetAttachment,
+  nylasGetCalendarOrEvent,
   nylasSendEmail,
 } from './handleController';
 import loginMiddleware from './loginMiddleware';
-import { getNylasConfig, syncMessages } from './utils';
+import { NylasCalendars, NylasEvent } from './models';
+import { getNylasConfig, syncCalendars, syncEvents, syncMessages } from './utils';
 
 // load config
 dotenv.config();
@@ -38,8 +43,23 @@ export const initNylas = async app => {
 
     for (const delta of deltas) {
       const data = delta.object_data || {};
-      if (delta.type === 'message.created') {
-        await syncMessages(data.account_id, data.id);
+      const { id, account_id } = data;
+
+      switch (delta.type) {
+        case 'message.created':
+        case 'thread.replied':
+          await syncMessages(account_id, id);
+          break;
+        case 'event.created':
+        case 'event.updated':
+        case 'event.deleted':
+          await syncEvents(delta.type, account_id, id);
+          break;
+        case 'calendar.created':
+        case 'calendar.updated':
+        case 'calendar.deleted':
+          await syncCalendars(delta.type, account_id, id);
+          break;
       }
     }
 
@@ -136,6 +156,126 @@ export const initNylas = async app => {
       return res.json({ status: 'ok' });
     } catch (e) {
       return next(e);
+    }
+  });
+
+  app.get('/nylas/get-accounts-calendars', async (req, _, next) => {
+    try {
+      let { kind } = req.query;
+
+      if (kind.includes('nylas')) {
+        kind = kind.split('-')[1];
+      }
+
+      const integrations = await Integrations.find({ kind });
+
+      if (!integrations) {
+        throw new Error('Integratoin not found');
+      }
+
+      const uids = integrations.map(integration => integration.nylasAccountId);
+
+      const calendars = await NylasCalendars.find({ accountUid: { $in: uids } });
+      console.log(calendars);
+    } catch (e) {
+      next(e);
+    }
+  });
+
+  app.get('/nylas/get-calendars', async (req, res, next) => {
+    const { accountUid } = req.query;
+
+    try {
+      debugNylas(`Get calendars with accountUid: $${accountUid}`);
+
+      const calendars = await NylasCalendars.find({ accountUid });
+
+      if (!calendars) {
+        throw new Error('Calendars not found');
+      }
+
+      return res.json(calendars);
+    } catch (e) {
+      next(e);
+    }
+  });
+
+  app.get('/nylas/get-events', async (req, res, next) => {
+    const { calendarId, startTime, endTime } = req.query;
+
+    const getTime = (date: string) => {
+      return new Date(date).getTime() / 1000;
+    };
+
+    try {
+      debugNylas(`Get events with calendarId: ${calendarId}`);
+
+      const events = await NylasEvent.find({
+        providerCalendarId: calendarId,
+        $and: [{ 'when.start_time': { $gte: getTime(startTime) } }, { 'when.end_time': { $lte: getTime(endTime) } }],
+      });
+
+      if (!events) {
+        throw new Error('Events not found');
+      }
+
+      return res.json(events);
+    } catch (e) {
+      next(e);
+    }
+  });
+
+  app.get('/nylas/get-calendar-event', async (req, res, next) => {
+    const { id, type, erxesApiId } = req.query;
+
+    try {
+      const response = await nylasGetCalendarOrEvent(id, type, erxesApiId);
+
+      return res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  });
+
+  app.get('/nylas/check-calendar-availability', async (req, res, next) => {
+    const { erxesApiId, dates } = req.query;
+
+    try {
+      const response = await nylasCheckCalendarAvailability(erxesApiId, dates);
+
+      return res.json(response);
+    } catch (e) {
+      next(e);
+    }
+  });
+
+  app.post('/nylas/create-calendar-event', async (req, res, next) => {
+    debugRequest(debugNylas, req);
+
+    const { erxesApiId, ...doc } = req.body;
+
+    try {
+      const response = await nylasCreateCalenderEvent({ erxesApiId, doc });
+
+      const { title, location, description, busy, participants, when, id, object, owner, status } = response;
+
+      await NylasEvent.create({
+        title,
+        location,
+        description,
+        busy,
+        participants,
+        when,
+        providerEventId: id,
+        object,
+        owner,
+        status,
+        providerCalendarId: doc.calendarId,
+      });
+
+      return res.json(response);
+    } catch (e) {
+      next(e);
     }
   });
 };

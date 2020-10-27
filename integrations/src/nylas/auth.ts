@@ -40,7 +40,7 @@ const connectProviderToNylas = async (kind: string, integrationId: string, uid: 
       email,
       kind,
       settings,
-      ...(kind === 'gmail' ? { scopes: 'email.read_only,email.drafts,email.send,email.modify' } : {}),
+      ...(kind === 'gmail' ? { scopes: 'contacts,calendar,email.read_only,email.drafts,email.send,email.modify' } : {}),
     });
 
     await memoryStorage().removeKey(crendentialKey);

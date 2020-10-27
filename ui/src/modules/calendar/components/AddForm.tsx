@@ -1,11 +1,19 @@
+import dayjs from 'dayjs';
+import FormControl from 'modules/common/components/form/Control';
+import Form from 'modules/common/components/form/Form';
+import FormGroup from 'modules/common/components/form/Group';
+import ControlLabel from 'modules/common/components/form/Label';
+import { ModalFooter } from 'modules/common/styles/main';
+import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 
 type Props = {
   isPopupVisible: boolean;
-  add: (doc) => void;
-  onHideModal: () => void;
+  onHideModal: (date?: Date) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
+  selectedDate?: Date;
 };
 
 class EditForm extends React.Component<Props, {}> {
@@ -17,6 +25,72 @@ class EditForm extends React.Component<Props, {}> {
     );
   }
 
+  renderContent = (formProps: IFormProps) => {
+    const { values, isSubmitted } = formProps;
+    const { renderButton, onHideModal, selectedDate } = this.props;
+
+    return (
+      <>
+        <FormGroup>
+          <ControlLabel required={true}>Title</ControlLabel>
+
+          <FormControl
+            {...formProps}
+            name="title"
+            autoFocus={true}
+            required={true}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Description</ControlLabel>
+
+          <FormControl
+            {...formProps}
+            name="description"
+            componentClass="textarea"
+            rows={5}
+            defaultValue={''}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Start Date</ControlLabel>
+
+          <FormControl
+            {...formProps}
+            name="start"
+            componentClass="datetime-local"
+            defaultValue={dayjs(selectedDate || new Date())
+              .set('hour', 13)
+              .format('YYYY-MM-DD HH:mm')}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>End Date</ControlLabel>
+
+          <FormControl
+            {...formProps}
+            name="end"
+            componentClass="datetime-local"
+            defaultValue={dayjs(selectedDate || new Date())
+              .set('hour', 14)
+              .format('YYYY-MM-DD HH:mm')}
+          />
+        </FormGroup>
+
+        <ModalFooter>
+          {renderButton({
+            values,
+            isSubmitted,
+            callback: onHideModal
+          })}
+        </ModalFooter>
+      </>
+    );
+  };
+
   render() {
     return (
       <Modal
@@ -26,7 +100,9 @@ class EditForm extends React.Component<Props, {}> {
         animation={false}
       >
         {this.renderHeader()}
-        <Modal.Body>add</Modal.Body>
+        <Modal.Body>
+          <Form renderContent={this.renderContent} />
+        </Modal.Body>
       </Modal>
     );
   }

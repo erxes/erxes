@@ -129,6 +129,12 @@ const Day = styledTS<{ isSelectedDate?: boolean }>(styled.h2)`
     background-color: ${colors.colorPrimary};
     color: #fff;
   `}
+
+  cursor: pointer;
+  &:hover {
+    background-color: ${colors.colorPrimary};
+    color: #fff;
+  }
 `;
 
 const DayRow = styled.div`

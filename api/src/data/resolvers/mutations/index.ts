@@ -1,5 +1,6 @@
 import boards from './boards';
 import brands from './brands';
+import calendar from './calendar';
 import channels from './channels';
 import checklists from './checklists';
 import companies from './companies';
@@ -72,4 +73,5 @@ export default {
   ...robot,
   ...widgets,
   ...webhooks,
+  ...calendar,
 };

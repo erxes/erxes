@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
+import { IButtonMutateProps } from 'modules/common/types';
 import React from 'react';
 import {
   CalendarContainer,
@@ -25,29 +26,27 @@ type Props = {
   currentDate: Date;
   type: string;
   events: any[];
-  add: (
-    {
-      title,
-      end,
-      start,
-      description
-    }: { title: string; end: string; start: string; description: string }
-  ) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 const oneDay = 24 * 60 * 60;
+type State = { isPopupVisible: boolean; selectedDate?: Date };
 
-class Event extends React.Component<Props, { isPopupVisible: boolean }> {
+class Event extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
     this.state = {
-      isPopupVisible: false
+      isPopupVisible: false,
+      selectedDate: new Date()
     };
   }
 
-  onHideModal = () => {
-    this.setState({ isPopupVisible: !this.state.isPopupVisible });
+  onHideModal = (date?: Date) => {
+    this.setState({
+      isPopupVisible: !this.state.isPopupVisible,
+      selectedDate: date
+    });
   };
 
   getDaysInMonth = (month: number, year: number) => {
@@ -101,6 +100,7 @@ class Event extends React.Component<Props, { isPopupVisible: boolean }> {
 
   renderContent = (day: Date) => {
     const second = day.getTime() / 1000;
+
     const events = this.props.events.filter(
       event =>
         event.when &&
@@ -112,13 +112,24 @@ class Event extends React.Component<Props, { isPopupVisible: boolean }> {
       return sec * 1000;
     };
 
+    const currentDate = this.props.currentDate;
+    const isSelectedDate =
+      dayjs(currentDate).diff(day, 'day') === 0 &&
+      new Date(currentDate).getDate() === day.getDate();
+
     return (
       <>
-        <Day onClick={this.onHideModal}>{day.getDate()}</Day>
+        <Day
+          isSelectedDate={isSelectedDate}
+          onClick={this.onHideModal.bind(this, day)}
+        >
+          {day.getDate()}
+        </Day>
 
         {events.map((event, index) => {
           const startTime = milliseconds(event.when.start_time);
           const endTime = milliseconds(event.when.end_time);
+
           const content = () => {
             return (
               <EventContent>
@@ -164,7 +175,7 @@ class Event extends React.Component<Props, { isPopupVisible: boolean }> {
   };
 
   render() {
-    const { currentDate, type } = this.props;
+    const { currentDate, type, renderButton } = this.props;
 
     const rows = this.getDaysInMonth(
       currentDate.getMonth(),
@@ -219,8 +230,9 @@ class Event extends React.Component<Props, { isPopupVisible: boolean }> {
         </CalendarWrapper>
         <AddForm
           isPopupVisible={this.state.isPopupVisible}
-          add={this.props.add}
           onHideModal={this.onHideModal}
+          renderButton={renderButton}
+          selectedDate={this.state.selectedDate}
         />
       </CalendarContainer>
     );
