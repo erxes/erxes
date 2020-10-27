@@ -71,14 +71,6 @@
     "validator": "^12.1.0",
     "xss": "^1.0.3"
   },
-  "lint-staged": {
-    "linters": {
-      "src/**/*.{ts,tsx,json,css}": [
-        "prettier --single-quote --write",
-        "git add"
-      ]
-    }
-  },
   "scripts": {
     "format": "prettier --single-quote --write 'src/**/*.@(ts|tsx)'",
     "precommit": "lint-staged",
@@ -96,8 +88,6 @@
   "devDependencies": {
     "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",
-    "lint-staged": "^5.0.0",
-    "prettier": "^1.8.2",
     "ts-jest": "^23.0.1",
     "tslint": "^5.18.0",
     "tslint-config-prettier": "^1.18.0",

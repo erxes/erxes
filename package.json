@@ -27,6 +27,10 @@
       "api/src/**/*.ts": [
         "prettier --write",
         "git add"
+      ],
+      "integrations/src/**/*.ts": [
+        "prettier --write",
+        "git add"
       ]
     }
   },
@@ -39,9 +43,11 @@
     "release": "release-it"
   },
   "devDependencies": {
+    "husky": "^0.13.4",
     "@release-it/conventional-changelog": "^1.1.0",
     "opencollective": "^1.0.3",
-    "lint-staged": "^3.6.0"
+    "lint-staged": "^3.6.0",
+    "prettier": "^1.14.2"
   },
   "dependencies": {}
 }

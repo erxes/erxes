@@ -39,12 +39,6 @@
     "migrate": "NODE_ENV=command migrate --migrations-dir='./dist/migrations' --store='./db-migrate-store.js' up",
     "release": "release-it"
   },
-  "lint-staged": {
-    "src/**/*.ts": [
-      "prettier --write",
-      "git add"
-    ]
-  },
   "dependencies": {
     "@google-cloud/pubsub": "^1.1.5",
     "@google-cloud/storage": "^4.0.0",
@@ -121,13 +115,10 @@
     "kerberos": "^1.0.0"
   },
   "devDependencies": {
-    "husky": "^0.13.4",
     "jest": "^24.9",
     "jest-tobetype": "^1.1.0",
-    "lint-staged": "^3.6.0",
     "mongodb-memory-server": "^6.0.2",
     "ora": "^3.4.0",
-    "prettier": "^1.14.2",
     "release-it": "^12.4.3",
     "sinon": "^7.2.2",
     "supertest": "^5.0.0",

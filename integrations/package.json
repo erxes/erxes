@@ -29,12 +29,6 @@
     "resetMigrations": "ts-node ./src/commands/resetMigrations.ts",
     "release": "release-it"
   },
-  "lint-staged": {
-    "src/**/*.ts": [
-      "prettier --write",
-      "git add"
-    ]
-  },
   "dependencies": {
     "@google-cloud/pubsub": "^1.1.5",
     "@types/body-parser": "^1.17.0",
@@ -77,10 +71,7 @@
   },
   "devDependencies": {
     "@release-it/conventional-changelog": "^1.1.4",
-    "husky": "^0.13.4",
     "jest": "22.0.4",
-    "lint-staged": "^3.6.0",
-    "prettier": "^1.19.1",
     "release-it": "^12.4.3",
     "ts-jest": "22.0.4",
     "ts-node-dev": "^1.0.0-pre.32",
