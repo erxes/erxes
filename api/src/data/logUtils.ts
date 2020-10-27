@@ -16,9 +16,29 @@ import { ITaskDocument } from '../db/models/definitions/tasks';
 import { ITicketDocument } from '../db/models/definitions/tickets';
 import { IUserDocument } from '../db/models/definitions/users';
 import {
-    Boards, Brands, Checklists, Companies, Customers, Deals, Forms, GrowthHacks, Integrations,
-    KnowledgeBaseArticles, KnowledgeBaseCategories, KnowledgeBaseTopics, PipelineLabels, Pipelines,
-    ProductCategories, Products, Segments, Stages, Tags, Tasks, Tickets, Users, UsersGroups
+  Boards,
+  Brands,
+  Checklists,
+  Companies,
+  Customers,
+  Deals,
+  Forms,
+  GrowthHacks,
+  Integrations,
+  KnowledgeBaseArticles,
+  KnowledgeBaseCategories,
+  KnowledgeBaseTopics,
+  PipelineLabels,
+  Pipelines,
+  ProductCategories,
+  Products,
+  Segments,
+  Stages,
+  Tags,
+  Tasks,
+  Tickets,
+  Users,
+  UsersGroups,
 } from '../db/models/index';
 import messageBroker from '../messageBroker';
 import { automationHelper } from './automationUtils';
@@ -320,6 +340,7 @@ const gatherCustomerFieldNames = async (doc: ICustomerDocument, prevList?: LogDe
   if (prevList) {
     options = prevList;
   }
+  a;
 
   if (doc.ownerId) {
     options = await gatherUsernames({ idFields: [doc.ownerId], foreignKey: 'ownerId', prevList: options });
