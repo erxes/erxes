@@ -20,12 +20,6 @@
     "customCommand": "ts-node ./src/commands/customCommand.ts",
     "resetMigrations": "ts-node ./src/commands/resetMigrations.ts"
   },
-  "lint-staged": {
-    "src/**/*.ts": [
-      "prettier --write",
-      "git add"
-    ]
-  },
   "dependencies": {
     "@google-cloud/pubsub": "^1.1.5",
     "@types/body-parser": "^1.17.0",
@@ -67,10 +61,7 @@
     "kerberos": "^1.0.0"
   },
   "devDependencies": {
-    "husky": "^0.13.4",
     "jest": "22.0.4",
-    "lint-staged": "^3.6.0",
-    "prettier": "^1.19.1",
     "ts-jest": "22.0.4",
     "ts-node-dev": "^1.0.0-pre.32",
     "tslint": "^5.8.0",
