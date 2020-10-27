@@ -37,7 +37,7 @@
   "scripts": {
     "format": "prettier --single-quote --write 'src/**/*.@(ts|tsx)'",
     "precommit": "lint-staged",
-    "lint": "tslint '@(ui|widgets)/**/*.@(ts|tsx)'",
+    "lint": "tslint '@(api|integrations|ui|widgets)/src/**/*.ts?(x)'",
     "postinstall": "opencollective postinstall",
     "generateVersion": "node commands/generateVersion.js",
     "release": "release-it"
@@ -47,6 +47,10 @@
     "@release-it/conventional-changelog": "^1.1.0",
     "opencollective": "^1.0.3",
     "lint-staged": "^3.6.0",
+    "tslint": "^5.8.0",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-react": "^4.0.0",
+    "typescript": "^3.0.3",
     "prettier": "^1.14.2"
   },
   "dependencies": {}
