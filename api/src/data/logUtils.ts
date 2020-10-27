@@ -340,7 +340,6 @@ const gatherCustomerFieldNames = async (doc: ICustomerDocument, prevList?: LogDe
   if (prevList) {
     options = prevList;
   }
-  a;
 
   if (doc.ownerId) {
     options = await gatherUsernames({ idFields: [doc.ownerId], foreignKey: 'ownerId', prevList: options });
