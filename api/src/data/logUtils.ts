@@ -333,7 +333,7 @@ const gatherCompanyFieldNames = async (doc: ICompanyDocument, prevList?: LogDesc
 
   return options;
 };
-
+a;
 const gatherCustomerFieldNames = async (doc: ICustomerDocument, prevList?: LogDesc[]): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
