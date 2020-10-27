@@ -2,16 +2,12 @@
   "name": "erxes-api",
   "version": "0.17.6",
   "description": "GraphQL API for erxes main project",
-  "homepage": "https://erxes.io",
-  "repository": "https://github.com/erxes/erxes-api",
-  "bugs": "https://github.com/erxes/erxes-api/issues",
   "keywords": [
     "node",
     "express",
     "graphql",
     "apollo"
   ],
-  "license": "GNU General Public License v3.0 with Commons Clause",
   "private": true,
   "scripts": {
     "start": "node dist",
@@ -36,8 +32,7 @@
     "verifyCustomerEmails": "DEBUG=erxes-api:* ts-node ./src/commands/verifyCustomerEmails.ts",
     "runEsCommand": "ts-node ./src/commands/runEsCommand.ts",
     "trackTelemetry": "node ./dist/commands/trackTelemetry.js",
-    "migrate": "NODE_ENV=command migrate --migrations-dir='./dist/migrations' --store='./db-migrate-store.js' up",
-    "release": "release-it"
+    "migrate": "NODE_ENV=command migrate --migrations-dir='./dist/migrations' --store='./db-migrate-store.js' up"
   },
   "dependencies": {
     "@google-cloud/pubsub": "^1.1.5",
@@ -87,6 +82,7 @@
     "json2csv": "^5.0.1",
     "jsonwebtoken": "^8.1.0",
     "meteor-random": "^0.0.3",
+    "migrate": "^1.6.2",
     "moment": "^2.18.1",
     "moment-timezone": "^0.5.31",
     "mongo-uri": "^0.1.2",
@@ -108,8 +104,7 @@
     "vm2": "^3.9.2",
     "xlsx-populate": "^1.20.1",
     "xlsx-stream-reader": "^1.1.0",
-    "xss": "^1.0.6",
-    "migrate": "^1.6.2"
+    "xss": "^1.0.6"
   },
   "peerOptionalDependencies": {
     "kerberos": "^1.0.0"
@@ -119,7 +114,6 @@
     "jest-tobetype": "^1.1.0",
     "mongodb-memory-server": "^6.0.2",
     "ora": "^3.4.0",
-    "release-it": "^12.4.3",
     "sinon": "^7.2.2",
     "supertest": "^5.0.0",
     "ts-jest": "^22.0.0",
