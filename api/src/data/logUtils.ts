@@ -16,29 +16,9 @@ import { ITaskDocument } from '../db/models/definitions/tasks';
 import { ITicketDocument } from '../db/models/definitions/tickets';
 import { IUserDocument } from '../db/models/definitions/users';
 import {
-  Boards,
-  Brands,
-  Checklists,
-  Companies,
-  Customers,
-  Deals,
-  Forms,
-  GrowthHacks,
-  Integrations,
-  KnowledgeBaseArticles,
-  KnowledgeBaseCategories,
-  KnowledgeBaseTopics,
-  PipelineLabels,
-  Pipelines,
-  ProductCategories,
-  Products,
-  Segments,
-  Stages,
-  Tags,
-  Tasks,
-  Tickets,
-  Users,
-  UsersGroups,
+    Boards, Brands, Checklists, Companies, Customers, Deals, Forms, GrowthHacks, Integrations,
+    KnowledgeBaseArticles, KnowledgeBaseCategories, KnowledgeBaseTopics, PipelineLabels, Pipelines,
+    ProductCategories, Products, Segments, Stages, Tags, Tasks, Tickets, Users, UsersGroups
 } from '../db/models/index';
 import messageBroker from '../messageBroker';
 import { automationHelper } from './automationUtils';
@@ -333,7 +313,7 @@ const gatherCompanyFieldNames = async (doc: ICompanyDocument, prevList?: LogDesc
 
   return options;
 };
-a;
+
 const gatherCustomerFieldNames = async (doc: ICustomerDocument, prevList?: LogDesc[]): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
