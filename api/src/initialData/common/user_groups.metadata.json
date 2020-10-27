@@ -1,0 +1,1 @@
+{"options":{},"indexes":[{"v":2,"key":{"_id":1},"name":"_id_","ns":"erxes_aaa.user_groups"},{"v":2,"unique":true,"key":{"name":1},"name":"name_1","background":true,"ns":"erxes_aaa.user_groups"}],"uuid":"38c1b9c8903543848d901d455ca6a6c5"}

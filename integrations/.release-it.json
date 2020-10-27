@@ -1,0 +1,22 @@
+{
+  "git": {
+    "tagName": "%s",
+    "tagAnnotation": "Release ${version}",
+    "commitMessage": "Release ${version}",
+    "requireCleanWorkingDir": false
+  },
+  "github": {
+    "release": true,
+    "releaseName": "Release ${version}",
+    "draft": false
+  },
+  "npm": {
+    "publish": false
+  },
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "preset": "angular",
+      "infile": "CHANGELOG.md"
+    }
+  }
+}
