@@ -1,20 +1,12 @@
 {
   "name": "erxes-integrations",
-  "version": "0.15.2",
   "description": "erxes integrations",
-  "homepage": "https://erxes.io",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/erxes/erxes-integrations"
-  },
-  "bugs": "https://github.com/erxes/erxes-integrations/issues",
   "keywords": [
     "node",
     "express",
     "graphql",
     "apollo"
   ],
-  "license": "GNU General Public License v3.0 with Commons Clause",
   "private": true,
   "scripts": {
     "start": "node dist",
@@ -26,8 +18,7 @@
     "precommit": "lint-staged",
     "migrate": "NODE_ENV=command migrate --migrations-dir='./dist/migrations' --store='./db-migrate-store.js' up",
     "customCommand": "ts-node ./src/commands/customCommand.ts",
-    "resetMigrations": "ts-node ./src/commands/resetMigrations.ts",
-    "release": "release-it"
+    "resetMigrations": "ts-node ./src/commands/resetMigrations.ts"
   },
   "lint-staged": {
     "src/**/*.ts": [
@@ -76,12 +67,10 @@
     "kerberos": "^1.0.0"
   },
   "devDependencies": {
-    "@release-it/conventional-changelog": "^1.1.4",
     "husky": "^0.13.4",
     "jest": "22.0.4",
     "lint-staged": "^3.6.0",
     "prettier": "^1.19.1",
-    "release-it": "^12.4.3",
     "ts-jest": "22.0.4",
     "ts-node-dev": "^1.0.0-pre.32",
     "tslint": "^5.8.0",
