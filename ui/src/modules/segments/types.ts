@@ -87,17 +87,13 @@ export type IField = {
 };
 
 export type AddMutationResponse = {
-  segmentsAdd: (
-    params: {
-      variables: AddMutationVariables;
-    }
-  ) => Promise<any>;
+  segmentsAdd: (params: { variables: AddMutationVariables }) => Promise<any>;
 };
 
 export type EditMutationResponse = {
-  segmentsEdit: (
-    params: { variables: { _id: string; doc: AddMutationVariables } }
-  ) => Promise<any>;
+  segmentsEdit: (params: {
+    variables: { _id: string; doc: AddMutationVariables };
+  }) => Promise<any>;
 };
 
 export type RemoveMutationResponse = {

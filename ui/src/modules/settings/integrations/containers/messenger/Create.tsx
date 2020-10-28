@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import Spinner from 'modules/common/components/Spinner';
 import { IRouterProps } from 'modules/common/types';
-import { Alert, withProps } from 'modules/common/utils';
+import { __, Alert, withProps } from 'modules/common/utils';
 import { queries as kbQueries } from 'modules/knowledgeBase/graphql';
 import { queries as brandQueries } from 'modules/settings/brands/graphql';
 import Form from 'modules/settings/integrations/components/messenger/Form';
@@ -93,19 +93,27 @@ const CreateMessenger = (props: FinalProps) => {
       })
       .then(({ data }) => {
         const integrationId = data.integrationsSaveMessengerAppearanceData._id;
-        
+
         return messengerAppSaveMutation({
           variables: { integrationId, messengerApps }
         });
       })
       .then(() => {
-          Alert.success('You successfully added an integration');
-          history.push(
-            `/settings/integrations?refetch=true&_id=${id}&kind=messenger`
+        Alert.success('You successfully added an integration');
+        history.push(
+          `/settings/integrations?refetch=true&_id=${id}&kind=messenger`
+        );
+      })
+      .catch(error => {
+        if (error.message.includes('Duplicated messenger for single brand')) {
+          return Alert.warning(
+            __(
+              "You've already created a messenger for the brand you've selected. Please choose a different brand or edit the previously created messenger"
+            ),
+            6000
           );
         }
-      )
-      .catch(error => {
+
         Alert.error(error.message);
       });
   };

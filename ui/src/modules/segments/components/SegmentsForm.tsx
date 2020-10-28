@@ -56,7 +56,9 @@ const SegmentsForm = (props: Props) => {
     previewCount
   } = props;
 
-  const title = props.segment ? __(`Editing ${contentType} segment`) : __(`Creating ${contentType} segment`);
+  const title = props.segment
+    ? __(`Editing ${contentType} segment`)
+    : __(`Creating ${contentType} segment`);
 
   const pageTitle = <Title>{title}</Title>;
   const breadcrumb = [

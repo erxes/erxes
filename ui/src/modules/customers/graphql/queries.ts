@@ -70,6 +70,8 @@ const listParamsDef = `
   $type: String,
   $ids: [String],
   $searchValue: String,
+  $autoCompletionType: String,
+  $autoCompletion: Boolean,
   $brand: String,
   $integration: String,
   $form: String,
@@ -88,6 +90,8 @@ const listParamsValue = `
   tag: $tag,
   type: $type,
   ids: $ids,
+  autoCompletionType: $autoCompletionType,
+  autoCompletion: $autoCompletion,
   searchValue: $searchValue,
   brand: $brand,
   integration: $integration

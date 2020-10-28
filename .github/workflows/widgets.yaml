@@ -43,13 +43,13 @@ jobs:
 
       - name: Install dependencies
         run: |
+          yarn install
           cd widgets
           yarn install
 
       - name: Lint
         run: |
-          cd widgets
-          yarn lint
+          yarn lint widgets
 
       - name: Build
         run: |

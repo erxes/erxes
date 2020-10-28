@@ -1,0 +1,41 @@
+{
+  "name": "erxes-logger",
+  "keywords": [
+    "node",
+    "express",
+    "graphql",
+    "apollo"
+  ],
+  "scripts": {
+    "start": "node dist",
+    "dev": "DEBUG=erxes-logger:*,erxes-message-broker:* node_modules/.bin/ts-node-dev --respawn src",
+    "test": "NODE_ENV=test jest --runInBand --forceExit",
+    "build": "tsc -p tsconfig.prod.json",
+    "migrate": "NODE_ENV=command migrate --migrations-dir='./dist/migrations' --store='./db-migrate-store.js' up"
+  },
+  "dependencies": {
+    "@types/body-parser": "^1.17.0",
+    "@types/cors": "^2.8.4",
+    "@types/dotenv": "^4.0.3",
+    "@types/express": "^4.16.0",
+    "@types/mongodb": "^3.1.2",
+    "@types/mongoose": "^5.2.1",
+    "@types/node": "^10.12.18",
+    "@types/q": "^1.5.0",
+    "amqplib": "^0.5.5",
+    "body-parser": "^1.17.1",
+    "cote": "^1.0.0",
+    "debug": "^4.1.1",
+    "dotenv": "^4.0.0",
+    "erxes-message-broker": "^1.0.17",
+    "express": "^4.16.4",
+    "migrate": "^1.6.2",
+    "mongoose": "5.7.10",
+    "ts-node": "8.0.3",
+    "uuid": "^8.3.0"
+  },
+  "devDependencies": {
+    "ts-node-dev": "^1.0.0-pre.32",
+    "typescript": "^2.9.2"
+  }
+}

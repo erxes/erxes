@@ -14,7 +14,7 @@ import {
 type Props = {
   content: React.ReactNode;
   description?: React.ReactNode;
-  col?: {first: number; second: number};
+  col?: { first: number; second: number };
 };
 
 class AuthLayout extends React.Component<Props, {}> {
@@ -81,10 +81,10 @@ class AuthLayout extends React.Component<Props, {}> {
   }
 
   render() {
-    const { content, col = {first: 6, second: 5} } = this.props;
+    const { content, col = { first: 6, second: 5 } } = this.props;
 
     return (
-      <Authlayout>
+      <Authlayout className="auth-container">
         <AuthContent>
           <Container>
             <Col md={col.first}>

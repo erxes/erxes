@@ -13,7 +13,7 @@ set -Eeuo pipefail
 
 trap notify ERR
 
-NODE_VERSION=v12.16.3
+NODE_VERSION=v12.19.0
 
 ELASTICSEARCH_URL="http://localhost:9200"
 

@@ -35,6 +35,6 @@ export type EditConformityVariables = {
 // mutation types
 export type AddConformityMutation = ({ variables: IConformityDoc }) => void;
 
-export type EditConformityMutation = (
-  { variables: EditConformityVariables }
-) => Promise<any>;
+export type EditConformityMutation = ({
+  variables: EditConformityVariables
+}) => Promise<any>;

@@ -21,7 +21,7 @@ type Props = {
   hideHeader?: boolean;
   isOpen?: boolean;
   history: any;
-  paddingContent?: 'no-padding';
+  paddingContent?: 'less-padding';
   centered?: boolean;
   onExit?: () => void;
   isAnimate?: boolean;
@@ -72,10 +72,10 @@ class ModalTrigger extends React.Component<Props, State> {
       );
     }
 
-    const { title, ignoreTrans } = this.props;
+    const { title, ignoreTrans, paddingContent } = this.props;
 
     return (
-      <Modal.Header closeButton={true}>
+      <Modal.Header closeButton={true} className={paddingContent}>
         <Modal.Title>{ignoreTrans ? title : __(title)}</Modal.Title>
       </Modal.Header>
     );

@@ -18,9 +18,13 @@ type Props = {
   comment: IFacebookComment;
   isReply?: boolean;
 
-  fetchFacebook: (
-    { commentId, postId }: { commentId?: string; postId?: string }
-  ) => void;
+  fetchFacebook: ({
+    commentId,
+    postId
+  }: {
+    commentId?: string;
+    postId?: string;
+  }) => void;
 };
 
 type FinalProps = { convertToInfoQuery: any } & Props &

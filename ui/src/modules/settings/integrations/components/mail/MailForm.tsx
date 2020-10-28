@@ -7,7 +7,6 @@ import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import EditorCK from 'modules/common/containers/EditorCK';
 import { __, Alert, uploadHandler } from 'modules/common/utils';
-import { EMAIL_CONTENT } from 'modules/engage/constants';
 import { Meta } from 'modules/inbox/components/conversationDetail/workarea/mail/style';
 import { FileName } from 'modules/inbox/styles';
 import { IMail } from 'modules/inbox/types';
@@ -57,10 +56,15 @@ type Props = {
   closeModal?: () => void;
   toggleReply?: () => void;
   emailSignatures: IEmailSignature[];
+  fetchMoreEmailTemplates: () => void;
   createdAt?: Date;
-  sendMail: (
-    { variables, callback }: { variables: any; callback: () => void }
-  ) => void;
+  sendMail: ({
+    variables,
+    callback
+  }: {
+    variables: any;
+    callback: () => void;
+  }) => void;
 };
 
 type State = {
@@ -686,7 +690,12 @@ class MailForm extends React.Component<Props, State> {
 
   renderButtons() {
     const { kind } = this.state;
-    const { isReply, emailTemplates, toggleReply } = this.props;
+    const {
+      isReply,
+      emailTemplates,
+      toggleReply,
+      fetchMoreEmailTemplates
+    } = this.props;
 
     const inputProps = {
       type: 'file',
@@ -715,6 +724,7 @@ class MailForm extends React.Component<Props, State> {
 
             <EmailTemplate
               onSelect={this.templateChange}
+              fetchMoreEmailTemplates={fetchMoreEmailTemplates}
               targets={generateEmailTemplateParams(emailTemplates || [])}
             />
           </ToolBar>
@@ -744,7 +754,6 @@ class MailForm extends React.Component<Props, State> {
     return (
       <MailEditorWrapper>
         <EditorCK
-          insertItems={EMAIL_CONTENT}
           toolbar={MAIL_TOOLBARS_CONFIG}
           removePlugins="elementspath"
           content={this.state.content}

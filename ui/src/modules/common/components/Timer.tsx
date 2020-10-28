@@ -10,10 +10,20 @@ const Container = styledTS<{ isComplete: boolean }>(styled.div)`
   padding: 15px 20px 20px 20px;
   color: #243B53;
 
-  ${props => props.isComplete &&
+  ${props =>
+    props.isComplete &&
     css`
-      background-color: #E3F9E5;
-      background-image: linear-gradient( to bottom right, rgba(0,0,0,0.03) 25%, transparent 0, transparent 50%, rgba(0,0,0,0.03) 0, rgba(0,0,0,0.03) 75%, transparent 0, transparent );
+      background-color: #e3f9e5;
+      background-image: linear-gradient(
+        to bottom right,
+        rgba(0, 0, 0, 0.03) 25%,
+        transparent 0,
+        transparent 50%,
+        rgba(0, 0, 0, 0.03) 0,
+        rgba(0, 0, 0, 0.03) 75%,
+        transparent 0,
+        transparent
+      );
     `};
   
 
@@ -37,7 +47,7 @@ const TimeWrapper = styled.div`
 const Time = styled.h4`
   margin-bottom: 0;
   font-size: 28px;
-  
+
   span {
     font-size: 14px;
     opacity: 0.6;
@@ -52,7 +62,10 @@ export const STATUS_TYPES = {
 };
 
 function formatNumber(n: number) {
-  return n.toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
+  return n.toLocaleString('en-US', {
+    minimumIntegerDigits: 2,
+    useGrouping: false
+  });
 }
 
 function getSpentTime(seconds: number): React.ReactNode {
@@ -70,10 +83,17 @@ function getSpentTime(seconds: number): React.ReactNode {
 
   return (
     <Time>
-      {days !== 0 && <>{formatNumber(days)} <span>d</span></>}
-      {formatNumber(hours)}<span>h</span>
-      {formatNumber(minutes)}<span>m</span>
-      {formatNumber(seconds)}<span>s</span>
+      {days !== 0 && (
+        <>
+          {formatNumber(days)} <span>d</span>
+        </>
+      )}
+      {formatNumber(hours)}
+      <span>h</span>
+      {formatNumber(minutes)}
+      <span>m</span>
+      {formatNumber(seconds)}
+      <span>s</span>
     </Time>
   );
 }
@@ -234,24 +254,14 @@ class TaskTimer extends React.Component<Props, State> {
               onClick={handleClick}
             />
           </Tip>
-          
         ) : (
           <Tip text="Pause" placement="top">
-            <Button
-              btnStyle="danger"
-              icon="pause-1"
-              onClick={handleClick}
-            />
+            <Button btnStyle="danger" icon="pause-1" onClick={handleClick} />
           </Tip>
-          
         )}
 
         <Tip text="Reset" placement="top">
-          <Button
-            btnStyle="warning"
-            icon="redo"
-            onClick={this.handleReset}
-          />
+          <Button btnStyle="warning" icon="redo" onClick={this.handleReset} />
         </Tip>
         {this.renderButton()}
       </>
@@ -263,7 +273,9 @@ class TaskTimer extends React.Component<Props, State> {
 
     return (
       <TimeWrapper>
-        <label>Time spent on this task <span>({status})</span></label>
+        <label>
+          Time spent on this task <span>({status})</span>
+        </label>
         {getSpentTime(timeSpent)}
       </TimeWrapper>
     );

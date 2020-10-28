@@ -50,8 +50,6 @@ const RemoveRow = styled.a`
   }
 `;
 
-
-
 const InviteOption = styled.div`
   margin-top: ${dimensions.coreSpacing}px;
 `;

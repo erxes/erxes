@@ -32,9 +32,9 @@ export type UserDetailQueryResponse = {
 } & QueryResponse;
 
 export type EditMutationResponse = {
-  usersEdit: (
-    params: { variables: { _id: string } & IUserDoc }
-  ) => Promise<any>;
+  usersEdit: (params: {
+    variables: { _id: string } & IUserDoc;
+  }) => Promise<any>;
 };
 
 export type ActivityLogQueryResponse = {
@@ -58,13 +58,13 @@ export type ConfirmMutationVariables = {
 };
 
 export type ConfirmMutationResponse = {
-  usersConfirmInvitation: (
-    params: { variables: ConfirmMutationVariables }
-  ) => Promise<any>;
+  usersConfirmInvitation: (params: {
+    variables: ConfirmMutationVariables;
+  }) => Promise<any>;
 };
 
 export type ResetMemberPasswordResponse = {
-  usersResetMemberPassword: (
-    params: { variables: { _id: string; newPassword: string } }
-  ) => Promise<any>;
+  usersResetMemberPassword: (params: {
+    variables: { _id: string; newPassword: string };
+  }) => Promise<any>;
 };

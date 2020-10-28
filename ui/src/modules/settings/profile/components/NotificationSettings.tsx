@@ -18,9 +18,10 @@ type Props = {
   modules: NotificationModule[];
   configs: NotificationConfig[];
   // save notification configurations
-  saveNotificationConfigurations: (
-    notify: { notifType: string; isAllowed: boolean }
-  ) => void;
+  saveNotificationConfigurations: (notify: {
+    notifType: string;
+    isAllowed: boolean;
+  }) => void;
   // save get notification by email action
   configGetNotificationByEmail: (byEmail: { isAllowed: boolean }) => void;
   // previously configured value

@@ -83,13 +83,13 @@ export const EMAIL_VALIDATION_STATUSES = [
   { label: 'Catchall', value: 'catchall' },
   { label: 'Bad syntax', value: 'badsyntax' },
   { label: 'Unverifiable', value: 'unverifiable' },
-  { label: 'Not checked', value: 'Not checked' },
-]
+  { label: 'Not checked', value: 'Not checked' }
+];
 
 export const PHONE_VALIDATION_STATUSES = [
   { label: 'Valid', value: 'valid' },
   { label: 'Invalid', value: 'invalid' },
   { label: 'Unknown', value: 'unknown' },
   { label: 'Unverifiable', value: 'unverifiable' },
-  { label: 'Mobile phone', value: 'receives_sms' },
-]
+  { label: 'Mobile phone', value: 'receives_sms' }
+];

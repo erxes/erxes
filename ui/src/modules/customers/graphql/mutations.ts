@@ -118,7 +118,7 @@ mutation customersChangeVerificationStatus($customerIds: [String],$type: String!
     _id
   }
 }
-`
+`;
 
 export default {
   customersAdd,

@@ -103,11 +103,11 @@ class CompaniesList extends React.Component<IProps, State> {
 
   afterTag = () => {
     this.props.emptyBulk();
-    
-    if(this.props.refetch) {
+
+    if (this.props.refetch) {
       this.props.refetch();
     }
-  }
+  };
 
   render() {
     const {

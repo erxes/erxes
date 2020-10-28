@@ -13,9 +13,13 @@ type Props = {
   channels: IChannel[];
   participatedConversations: IConversation[];
   totalConversationCount: number;
-  renderEditForm: (
-    { closeModal, user }: { closeModal: () => void; user: IUser }
-  ) => React.ReactNode;
+  renderEditForm: ({
+    closeModal,
+    user
+  }: {
+    closeModal: () => void;
+    user: IUser;
+  }) => React.ReactNode;
 };
 
 class UserDetails extends React.Component<Props> {

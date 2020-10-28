@@ -128,7 +128,7 @@ const ProductName = styled.a`
   color: ${colors.textSecondary};
   display: flex;
   justify-content: space-between;
-  
+
   > i {
     visibility: hidden;
   }

@@ -5,7 +5,7 @@ import React from 'react';
 import { IUser } from '../../auth/types';
 import { UsersQueryResponse } from '../../settings/team/types';
 import CompanyForm from '../components/list/CompanyForm';
-import { mutations } from '../graphql';
+import { mutations, queries } from '../graphql';
 import { ICompany } from '../types';
 
 type Props = {
@@ -46,7 +46,7 @@ const CompanyFromContainer = (props: FinalProps) => {
         type="submit"
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
-          } a ${name}`}
+        } a ${name}`}
       />
     );
   };
@@ -62,6 +62,7 @@ const CompanyFromContainer = (props: FinalProps) => {
         <CompanyForm
           {...updatedProps}
           currentUser={currentUser || ({} as IUser)}
+          autoCompletionQuery={queries.companies}
         />
       )}
     </AppConsumer>

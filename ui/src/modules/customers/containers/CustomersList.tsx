@@ -56,7 +56,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
     this.state = {
       loading: false,
       mergeCustomerLoading: false,
-      responseId: '',
+      responseId: ''
     };
   }
 
@@ -76,7 +76,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
     this.timer = setTimeout(() => {
       this.props.customersMainQuery.refetch();
     }, 5500);
-  }
+  };
 
   render() {
     const {
@@ -87,7 +87,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       customersVerify,
       customersChangeVerificationStatus,
       type,
-      history,
+      history
     } = this.props;
 
     let columnsConfig =
@@ -97,20 +97,23 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
     const localConfig = localStorage.getItem(`erxes_${type}_columns_config`);
 
     if (localConfig) {
-      columnsConfig = JSON.parse(localConfig).filter((conf) => conf.checked);
+      columnsConfig = JSON.parse(localConfig).filter(conf => conf.checked);
     }
 
     const removeCustomers = ({ customerIds }, emptyBulk) => {
       customersRemove({
-        variables: { customerIds },
+        variables: { customerIds }
       })
         .then(() => {
           emptyBulk();
-          Alert.success('You successfully deleted a customer. The changes will take a few seconds', 4500);
+          Alert.success(
+            'You successfully deleted a customer. The changes will take a few seconds',
+            4500
+          );
 
           this.refetchWithDelay();
         })
-        .catch((e) => {
+        .catch(e => {
           Alert.error(e.message);
         });
     };
@@ -121,8 +124,8 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       customersMerge({
         variables: {
           customerIds: ids,
-          customerFields: data,
-        },
+          customerFields: data
+        }
       })
         .then((result: any) => {
           callback();
@@ -131,7 +134,7 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
           history.push(`/contacts/details/${result.data.customersMerge._id}`);
           customersMainQuery.refetch();
         })
-        .catch((e) => {
+        .catch(e => {
           Alert.error(e.message);
           this.setState({ mergeCustomerLoading: false });
         });
@@ -142,22 +145,24 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
 
       customersVerify({
         variables: {
-          verificationType,
-        },
+          verificationType
+        }
       })
         .then(() => {
           Alert.success(
             'Your request has been successfully sent. Your contacts will be verified after a while'
           );
         })
-        .catch((e) => {
+        .catch(e => {
           Alert.error(e.message);
         });
     };
 
-    const changeVerificationStatus = ({ customerIds, verificationType, status }) => {
-
-
+    const changeVerificationStatus = ({
+      customerIds,
+      verificationType,
+      status
+    }) => {
       customersChangeVerificationStatus({
         variables: {
           customerIds,
@@ -170,11 +175,10 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
 
           customersMainQuery.refetch();
         })
-        .catch((e) => {
+        .catch(e => {
           Alert.error(e.message);
-
         });
-    }
+    };
 
     const exportData = (bulk: Array<{ _id: string }>) => {
       const { REACT_APP_API_URL } = getEnv();
@@ -187,17 +191,17 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       }
 
       if (bulk.length > 0) {
-        queryParams.ids = bulk.map((customer) => customer._id);
+        queryParams.ids = bulk.map(customer => customer._id);
       }
 
-      columnsConfig.forEach((checked) => {
+      columnsConfig.forEach(checked => {
         checkedConfigs.push(checked);
       });
 
       const exportQuery = {
         ...queryParams,
         type,
-        configs: JSON.stringify(columnsConfig),
+        configs: JSON.stringify(columnsConfig)
       };
 
       const stringified = queryString.stringify(exportQuery);
@@ -227,11 +231,13 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       refetch: this.refetchWithDelay
     };
 
-    const content = (props) => {
+    const content = props => {
       return <CustomersList {...updatedProps} {...props} />;
     };
 
-    return <Bulk content={content} refetch={this.props.customersMainQuery.refetch} />;
+    return (
+      <Bulk content={content} refetch={this.props.customersMainQuery.refetch} />
+    );
   }
 }
 
@@ -252,7 +258,7 @@ const generateParams = ({ queryParams, type }) => {
     type,
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)
-      : undefined,
+      : undefined
   };
 };
 
@@ -296,14 +302,14 @@ export default withProps<Props>(
       {
         name: 'customersMainQuery',
         options: ({ queryParams, type }) => ({
-          variables: generateParams({ queryParams, type }),
-        }),
+          variables: generateParams({ queryParams, type })
+        })
       }
     ),
     graphql<Props, ListConfigQueryResponse, {}>(
       gql(queries.customersListConfig),
       {
-        name: 'customersListConfigQuery',
+        name: 'customersListConfigQuery'
       }
     ),
     // mutations
@@ -328,13 +334,13 @@ export default withProps<Props>(
     graphql<Props, VerifyMutationResponse, VerifyMutationVariables>(
       gql(mutations.customersVerify),
       {
-        name: 'customersVerify',
+        name: 'customersVerify'
       }
     ),
     graphql<Props, ChangeStatusMutationResponse, ChangeStatusMutationVariables>(
       gql(mutations.customersChangeVerificationStatus),
       {
-        name: 'customersChangeVerificationStatus',
+        name: 'customersChangeVerificationStatus'
       }
     )
   )(withRouter<IRouterProps>(CustomerListContainer))

@@ -4,11 +4,9 @@ export type AddBoardMutationVariables = {
 };
 
 export type AddBoardMutationResponse = {
-  addMutation: (
-    params: {
-      variables: AddBoardMutationVariables;
-    }
-  ) => Promise<void>;
+  addMutation: (params: {
+    variables: AddBoardMutationVariables;
+  }) => Promise<void>;
 };
 
 export type EditBoardMutationVariables = {
@@ -17,11 +15,9 @@ export type EditBoardMutationVariables = {
 };
 
 export type EditBoardMutationResponse = {
-  editMutation: (
-    params: {
-      variables: EditBoardMutationVariables;
-    }
-  ) => Promise<void>;
+  editMutation: (params: {
+    variables: EditBoardMutationVariables;
+  }) => Promise<void>;
 };
 
 export type RemoveBoardMutationVariables = {
@@ -29,12 +25,10 @@ export type RemoveBoardMutationVariables = {
 };
 
 export type RemoveBoardMutationResponse = {
-  removeMutation: (
-    params: {
-      variables: RemoveBoardMutationVariables;
-      refetchQueries: string[];
-    }
-  ) => Promise<void>;
+  removeMutation: (params: {
+    variables: RemoveBoardMutationVariables;
+    refetchQueries: string[];
+  }) => Promise<void>;
 };
 
 export type RemovePipelineMutationVariables = {
@@ -42,12 +36,10 @@ export type RemovePipelineMutationVariables = {
 };
 
 export type RemovePipelineMutationResponse = {
-  removePipelineMutation: (
-    params: {
-      variables: RemovePipelineMutationVariables;
-      refetchQueries: any[];
-    }
-  ) => Promise<void>;
+  removePipelineMutation: (params: {
+    variables: RemovePipelineMutationVariables;
+    refetchQueries: any[];
+  }) => Promise<void>;
 };
 
 export type UpdateOrderPipelineMutationVariables = {
@@ -58,11 +50,9 @@ export type UpdateOrderPipelineMutationVariables = {
 };
 
 export type UpdateOrderPipelineMutationResponse = {
-  pipelinesUpdateOrderMutation: (
-    params: {
-      variables: UpdateOrderPipelineMutationVariables;
-    }
-  ) => Promise<void>;
+  pipelinesUpdateOrderMutation: (params: {
+    variables: UpdateOrderPipelineMutationVariables;
+  }) => Promise<void>;
 };
 
 export type PipelineCopyMutationVariables = {
@@ -72,16 +62,14 @@ export type PipelineCopyMutationVariables = {
 };
 
 export type PipelineCopyMutationResponse = {
-  pipelinesCopyMutation: (
-    params: {
-      variables: PipelineCopyMutationVariables;
-    }
-  ) => Promise<void>;
+  pipelinesCopyMutation: (params: {
+    variables: PipelineCopyMutationVariables;
+  }) => Promise<void>;
 };
 
-export type PipelineCopyMutation = (
-  { variables: PipelineCopyMutationVariables }
-) => Promise<any>;
+export type PipelineCopyMutation = ({
+  variables: PipelineCopyMutationVariables
+}) => Promise<any>;
 
 export type IOption = {
   boardName: string;

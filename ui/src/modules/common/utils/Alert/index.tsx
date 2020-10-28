@@ -58,10 +58,12 @@ const createAlert = (type: string, text: string, time?: number) => {
   );
 };
 
-const success = (text: string, time?: number) => createAlert('success', text, time);
+const success = (text: string, time?: number) =>
+  createAlert('success', text, time);
 const error = (text: string, time?: number) =>
   createAlert('error', text.replace('GraphQL error:', ''), time);
-const warning = (text: string, time?: number) => createAlert('warning', text, time);
+const warning = (text: string, time?: number) =>
+  createAlert('warning', text, time);
 const info = (text: string, time?: number) => createAlert('info', text, time);
 
 const Alert = {

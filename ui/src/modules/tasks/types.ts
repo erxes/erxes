@@ -11,16 +11,12 @@ export type EditMutationVariables = {
   isComplete: boolean;
 };
 
-export type EditMutationResponse = (
-  { variables: EditMutationVariables }
-) => Promise<any>;
+export type EditMutationResponse = ({
+  variables: EditMutationVariables
+}) => Promise<any>;
 
 export type RemoveMutationResponse = {
-  removeMutation: (
-    params: {
-      variables: { _id: string };
-    }
-  ) => Promise<void>;
+  removeMutation: (params: { variables: { _id: string } }) => Promise<void>;
 };
 
 export type ActivityLogQueryResponse = {

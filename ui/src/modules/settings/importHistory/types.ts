@@ -33,9 +33,9 @@ export type ImportHistoryDetailQueryResponse = {
 // mutation types
 
 export type RemoveMutationResponse = {
-  importHistoriesRemove: (
-    params: { variables: { _id: string } }
-  ) => Promise<any>;
+  importHistoriesRemove: (params: {
+    variables: { _id: string };
+  }) => Promise<any>;
 };
 
 export type CancelMutationResponse = {

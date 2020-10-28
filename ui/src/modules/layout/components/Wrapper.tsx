@@ -20,6 +20,7 @@ type Props = {
   footer?: React.ReactNode;
   transparent?: boolean;
   center?: boolean;
+  shrink?: boolean;
   mainHead?: React.ReactNode;
 };
 
@@ -29,12 +30,19 @@ class Wrapper extends React.Component<Props> {
   static ActionBar = ActionBar;
 
   renderContent() {
-    const { actionBar, content, footer, transparent, center } = this.props;
+    const {
+      actionBar,
+      content,
+      footer,
+      transparent,
+      center,
+      shrink
+    } = this.props;
 
     if (center) {
       return (
         <FullContent center={true} align={true}>
-          <MiddleContent transparent={transparent}>
+          <MiddleContent shrink={shrink} transparent={transparent}>
             <PageContent
               actionBar={actionBar}
               footer={footer}

@@ -18,14 +18,12 @@ type Props = {
   conversation: IConversation;
   showInternal: boolean;
   setAttachmentPreview: (attachmentPreview: IAttachmentPreview) => void;
-  addMessage: (
-    doc: {
-      variables: AddMessageMutationVariables;
-      optimisticResponse: any;
-      kind: string;
-      callback: (error: Error) => void;
-    }
-  ) => void;
+  addMessage: (doc: {
+    variables: AddMessageMutationVariables;
+    optimisticResponse: any;
+    kind: string;
+    callback: (error: Error) => void;
+  }) => void;
   refetchMessages: () => void;
   refetchDetail: () => void;
 };
@@ -92,6 +90,7 @@ const RespondBoxContainer = (props: FinalProps) => {
           isCustomerRead: false,
           fromBot: false,
           formWidgetData: null,
+          botData: null,
           mailData: null,
           user: null,
           customer: null,

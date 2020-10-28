@@ -9,19 +9,17 @@ import AuthLayout from 'modules/layout/components/AuthLayout';
 import React from 'react';
 
 class Confirmation extends React.Component<{
-  confirmUser: (
-    {
-      password,
-      passwordConfirmation,
-      fullName,
-      username
-    }: {
-      password: string;
-      passwordConfirmation: string;
-      fullName: string;
-      username: string;
-    }
-  ) => void;
+  confirmUser: ({
+    password,
+    passwordConfirmation,
+    fullName,
+    username
+  }: {
+    password: string;
+    passwordConfirmation: string;
+    fullName: string;
+    username: string;
+  }) => void;
   currentUser?: IUser;
 }> {
   onSubmit = e => {

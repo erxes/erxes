@@ -9,17 +9,15 @@ import React from 'react';
 
 type Props = {
   object: IUser;
-  save: (
-    {
-      _id,
-      newPassword,
-      repeatPassword
-    }: {
-      _id: string;
-      newPassword: string;
-      repeatPassword: string;
-    }
-  ) => void;
+  save: ({
+    _id,
+    newPassword,
+    repeatPassword
+  }: {
+    _id: string;
+    newPassword: string;
+    repeatPassword: string;
+  }) => void;
   closeModal: () => void;
 };
 

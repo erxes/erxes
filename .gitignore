@@ -16,5 +16,4 @@ static
 .env.production.local
 package-lock.json
 dump.rdb
-/ui/cypress/videos
-/ui/cypress/screenshots
+oplog.timestamp

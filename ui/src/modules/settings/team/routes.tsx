@@ -4,7 +4,9 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 
 const UserDetail = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings - UserDetail" */ './containers/UserDetailForm')
+  import(
+    /* webpackChunkName: "Settings - UserDetail" */ './containers/UserDetailForm'
+  )
 );
 
 const UserList = asyncComponent(() =>
