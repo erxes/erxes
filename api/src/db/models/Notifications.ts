@@ -4,14 +4,20 @@ import {
   IConfigDocument,
   INotification,
   INotificationDocument,
-  notificationSchema,
+  notificationSchema
 } from './definitions/notifications';
 import { IUserDocument } from './definitions/users';
 
 export interface INotificationModel extends Model<INotificationDocument> {
   markAsRead(ids: string[], userId?: string): void;
-  createNotification(doc: INotification, createdUser?: IUserDocument | string): Promise<INotificationDocument>;
-  updateNotification(_id: string, doc: INotification): Promise<INotificationDocument>;
+  createNotification(
+    doc: INotification,
+    createdUser?: IUserDocument | string
+  ): Promise<INotificationDocument>;
+  updateNotification(
+    _id: string,
+    doc: INotification
+  ): Promise<INotificationDocument>;
   checkIfRead(userId: string, contentTypeId: string): Promise<boolean>;
   removeNotification(_id: string): void;
 }
@@ -28,14 +34,22 @@ export const loadNotificationClass = () => {
         selector = { _id: { $in: ids } };
       }
 
-      return Notifications.updateMany(selector, { $set: { isRead: true } }, { multi: true });
+      return Notifications.updateMany(
+        selector,
+        { $set: { isRead: true } },
+        { multi: true }
+      );
     }
 
     /**
      * Check if user has read notification
      */
     public static async checkIfRead(userId, contentTypeId) {
-      const notification = await Notifications.findOne({ isRead: false, receiver: userId, contentTypeId });
+      const notification = await Notifications.findOne({
+        isRead: false,
+        receiver: userId,
+        contentTypeId
+      });
 
       return notification ? false : true;
     }
@@ -43,11 +57,14 @@ export const loadNotificationClass = () => {
     /**
      * Create a notification
      */
-    public static async createNotification(doc: INotification, createdUserId: string) {
+    public static async createNotification(
+      doc: INotification,
+      createdUserId: string
+    ) {
       // if receiver is configured to get this notification
       const config = await NotificationConfigurations.findOne({
         user: doc.receiver,
-        notifType: doc.notifType,
+        notifType: doc.notifType
       });
 
       // receiver disabled this notification
@@ -83,7 +100,7 @@ export const loadNotificationClass = () => {
 export interface IConfigModel extends Model<IConfigDocument> {
   createOrUpdateConfiguration(
     { notifType, isAllowed }: { notifType?: string; isAllowed?: boolean },
-    user?: IUserDocument | string,
+    user?: IUserDocument | string
   ): Promise<IConfigDocument>;
 }
 
@@ -94,7 +111,7 @@ export const loadNotificationConfigClass = () => {
      */
     public static async createOrUpdateConfiguration(
       { notifType, isAllowed }: { notifType?: string; isAllowed?: boolean },
-      user?: IUserDocument | string,
+      user?: IUserDocument | string
     ) {
       const selector: any = { user, notifType };
 
@@ -102,7 +119,10 @@ export const loadNotificationConfigClass = () => {
 
       // If already inserted then raise error
       if (oldOne) {
-        await NotificationConfigurations.updateOne({ _id: oldOne._id }, { $set: { isAllowed } });
+        await NotificationConfigurations.updateOne(
+          { _id: oldOne._id },
+          { $set: { isAllowed } }
+        );
 
         return NotificationConfigurations.findOne({ _id: oldOne._id });
       }
@@ -123,7 +143,13 @@ loadNotificationClass();
 loadNotificationConfigClass();
 
 // tslint:disable-next-line
-export const NotificationConfigurations = model<IConfigDocument, IConfigModel>('notification_configs', configSchema);
+export const NotificationConfigurations = model<IConfigDocument, IConfigModel>(
+  'notification_configs',
+  configSchema
+);
 
 // tslint:disable-next-line
-export const Notifications = model<INotificationDocument, INotificationModel>('notifications', notificationSchema);
+export const Notifications = model<INotificationDocument, INotificationModel>(
+  'notifications',
+  notificationSchema
+);

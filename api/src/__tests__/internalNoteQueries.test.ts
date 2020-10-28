@@ -13,7 +13,10 @@ describe('internalNoteQueries', () => {
 
   test('Internal notes', async () => {
     // Creating test data
-    const contentTypeId = (faker && faker.random ? faker.random.number() : 999).toString();
+    const contentTypeId = (faker && faker.random
+      ? faker.random.number()
+      : 999
+    ).toString();
 
     await internalNoteFactory({ contentType: 'company', contentTypeId });
     await internalNoteFactory({ contentType: 'customer', contentTypeId });
@@ -36,7 +39,7 @@ describe('internalNoteQueries', () => {
     // customer ===========================
     let responses = await graphqlRequest(qry, 'internalNotes', {
       contentType: 'company',
-      contentTypeId,
+      contentTypeId
     });
 
     expect(responses.length).toBe(1);
@@ -44,7 +47,7 @@ describe('internalNoteQueries', () => {
     // company ============================
     responses = await graphqlRequest(qry, 'internalNotes', {
       contentType: 'company',
-      contentTypeId,
+      contentTypeId
     });
 
     expect(responses.length).toBe(1);
@@ -69,7 +72,7 @@ describe('internalNoteQueries', () => {
     `;
 
     const response = await graphqlRequest(qry, 'internalNoteDetail', {
-      _id: internalNote._id,
+      _id: internalNote._id
     });
 
     expect(response._id).toBe(internalNote._id);

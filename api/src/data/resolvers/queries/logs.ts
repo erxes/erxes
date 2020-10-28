@@ -1,34 +1,65 @@
-import { attachmentSchema, boardSchema, pipelineSchema } from '../../../db/models/definitions/boards';
-import { brandEmailConfigSchema, brandSchema } from '../../../db/models/definitions/brands';
+import {
+  attachmentSchema,
+  boardSchema,
+  pipelineSchema
+} from '../../../db/models/definitions/boards';
+import {
+  brandEmailConfigSchema,
+  brandSchema
+} from '../../../db/models/definitions/brands';
 import { channelSchema } from '../../../db/models/definitions/channels';
-import { checklistItemSchema, checklistSchema } from '../../../db/models/definitions/checklists';
+import {
+  checklistItemSchema,
+  checklistSchema
+} from '../../../db/models/definitions/checklists';
 import { ruleSchema } from '../../../db/models/definitions/common';
 import { companySchema } from '../../../db/models/definitions/companies';
-import { customerSchema, locationSchema, visitorContactSchema } from '../../../db/models/definitions/customers';
+import {
+  customerSchema,
+  locationSchema,
+  visitorContactSchema
+} from '../../../db/models/definitions/customers';
 import {
   dealSchema,
   productCategorySchema,
   productDataSchema,
-  productSchema,
+  productSchema
 } from '../../../db/models/definitions/deals';
 import { emailTemplateSchema } from '../../../db/models/definitions/emailTemplates';
 import {
   emailSchema,
   engageMessageSchema,
   messengerSchema,
-  scheduleDateSchema,
+  scheduleDateSchema
 } from '../../../db/models/definitions/engages';
 import { growthHackSchema } from '../../../db/models/definitions/growthHacks';
 import { importHistorySchema } from '../../../db/models/definitions/importHistory';
-import { calloutSchema, integrationSchema, leadDataSchema } from '../../../db/models/definitions/integrations';
+import {
+  calloutSchema,
+  integrationSchema,
+  leadDataSchema
+} from '../../../db/models/definitions/integrations';
 import { internalNoteSchema } from '../../../db/models/definitions/internalNotes';
-import { articleSchema, categorySchema, topicSchema } from '../../../db/models/definitions/knowledgebase';
-import { permissionSchema, userGroupSchema } from '../../../db/models/definitions/permissions';
+import {
+  articleSchema,
+  categorySchema,
+  topicSchema
+} from '../../../db/models/definitions/knowledgebase';
+import {
+  permissionSchema,
+  userGroupSchema
+} from '../../../db/models/definitions/permissions';
 import { pipelineLabelSchema } from '../../../db/models/definitions/pipelineLabels';
-import { pipelineTemplateSchema, stageSchema } from '../../../db/models/definitions/pipelineTemplates';
+import {
+  pipelineTemplateSchema,
+  stageSchema
+} from '../../../db/models/definitions/pipelineTemplates';
 import { responseTemplateSchema } from '../../../db/models/definitions/responseTemplates';
 import { scriptSchema } from '../../../db/models/definitions/scripts';
-import { conditionSchema, segmentSchema } from '../../../db/models/definitions/segments';
+import {
+  conditionSchema,
+  segmentSchema
+} from '../../../db/models/definitions/segments';
 import { tagSchema } from '../../../db/models/definitions/tags';
 import { taskSchema } from '../../../db/models/definitions/tasks';
 import { ticketSchema } from '../../../db/models/definitions/tickets';
@@ -50,144 +81,149 @@ interface ISchemaMap {
 const LOG_MAPPINGS: ISchemaMap[] = [
   {
     name: MODULE_NAMES.BOARD_DEAL,
-    schemas: [attachmentSchema, boardSchema],
+    schemas: [attachmentSchema, boardSchema]
   },
   {
     name: MODULE_NAMES.BOARD_TASK,
-    schemas: [attachmentSchema, boardSchema],
+    schemas: [attachmentSchema, boardSchema]
   },
   {
     name: MODULE_NAMES.BOARD_TICKET,
-    schemas: [attachmentSchema, boardSchema],
+    schemas: [attachmentSchema, boardSchema]
   },
   {
     name: MODULE_NAMES.PIPELINE_DEAL,
-    schemas: [pipelineSchema],
+    schemas: [pipelineSchema]
   },
   {
     name: MODULE_NAMES.PIPELINE_TASK,
-    schemas: [pipelineSchema],
+    schemas: [pipelineSchema]
   },
   {
     name: MODULE_NAMES.PIPELINE_TICKET,
-    schemas: [pipelineSchema],
+    schemas: [pipelineSchema]
   },
   {
     name: MODULE_NAMES.BRAND,
-    schemas: [brandEmailConfigSchema, brandSchema],
+    schemas: [brandEmailConfigSchema, brandSchema]
   },
   {
     name: MODULE_NAMES.CHANNEL,
-    schemas: [channelSchema],
+    schemas: [channelSchema]
   },
   {
     name: MODULE_NAMES.CHECKLIST,
-    schemas: [checklistSchema],
+    schemas: [checklistSchema]
   },
   {
     name: MODULE_NAMES.CHECKLIST_ITEM,
-    schemas: [checklistItemSchema],
+    schemas: [checklistItemSchema]
   },
   {
     name: MODULE_NAMES.COMPANY,
-    schemas: [companySchema],
+    schemas: [companySchema]
   },
   {
     name: MODULE_NAMES.CUSTOMER,
-    schemas: [customerSchema, locationSchema, visitorContactSchema],
+    schemas: [customerSchema, locationSchema, visitorContactSchema]
   },
   {
     name: MODULE_NAMES.DEAL,
-    schemas: [dealSchema, productDataSchema],
+    schemas: [dealSchema, productDataSchema]
   },
   {
     name: MODULE_NAMES.EMAIL_TEMPLATE,
-    schemas: [emailTemplateSchema],
+    schemas: [emailTemplateSchema]
   },
   {
     name: MODULE_NAMES.IMPORT_HISTORY,
-    schemas: [importHistorySchema],
+    schemas: [importHistorySchema]
   },
   {
     name: MODULE_NAMES.TAG,
-    schemas: [tagSchema],
+    schemas: [tagSchema]
   },
   {
     name: MODULE_NAMES.RESPONSE_TEMPLATE,
-    schemas: [responseTemplateSchema],
+    schemas: [responseTemplateSchema]
   },
   {
     name: MODULE_NAMES.PRODUCT,
-    schemas: [productSchema, tagSchema],
+    schemas: [productSchema, tagSchema]
   },
   {
     name: MODULE_NAMES.PRODUCT_CATEGORY,
-    schemas: [productCategorySchema],
+    schemas: [productCategorySchema]
   },
   {
     name: MODULE_NAMES.KB_TOPIC,
-    schemas: [topicSchema],
+    schemas: [topicSchema]
   },
   {
     name: MODULE_NAMES.KB_CATEGORY,
-    schemas: [categorySchema],
+    schemas: [categorySchema]
   },
   {
     name: MODULE_NAMES.KB_ARTICLE,
-    schemas: [articleSchema],
+    schemas: [articleSchema]
   },
   {
     name: MODULE_NAMES.PERMISSION,
-    schemas: [permissionSchema],
+    schemas: [permissionSchema]
   },
   {
     name: MODULE_NAMES.USER_GROUP,
-    schemas: [userGroupSchema],
+    schemas: [userGroupSchema]
   },
   {
     name: MODULE_NAMES.INTERNAL_NOTE,
-    schemas: [internalNoteSchema],
+    schemas: [internalNoteSchema]
   },
   {
     name: MODULE_NAMES.PIPELINE_LABEL,
-    schemas: [pipelineLabelSchema],
+    schemas: [pipelineLabelSchema]
   },
   {
     name: MODULE_NAMES.PIPELINE_TEMPLATE,
-    schemas: [pipelineTemplateSchema, stageSchema],
+    schemas: [pipelineTemplateSchema, stageSchema]
   },
   {
     name: MODULE_NAMES.TASK,
-    schemas: [taskSchema, attachmentSchema],
+    schemas: [taskSchema, attachmentSchema]
   },
   {
     name: MODULE_NAMES.GROWTH_HACK,
-    schemas: [growthHackSchema, attachmentSchema],
+    schemas: [growthHackSchema, attachmentSchema]
   },
   {
     name: MODULE_NAMES.INTEGRATION,
-    schemas: [calloutSchema, integrationSchema, leadDataSchema, ruleSchema],
+    schemas: [calloutSchema, integrationSchema, leadDataSchema, ruleSchema]
   },
   {
     name: MODULE_NAMES.TICKET,
-    schemas: [ticketSchema, attachmentSchema],
+    schemas: [ticketSchema, attachmentSchema]
   },
   {
     name: MODULE_NAMES.SEGMENT,
-    schemas: [conditionSchema, segmentSchema],
+    schemas: [conditionSchema, segmentSchema]
   },
   {
     name: MODULE_NAMES.ENGAGE,
-    schemas: [engageMessageSchema, emailSchema, messengerSchema, scheduleDateSchema],
+    schemas: [
+      engageMessageSchema,
+      emailSchema,
+      messengerSchema,
+      scheduleDateSchema
+    ]
   },
   {
     name: MODULE_NAMES.SCRIPT,
-    schemas: [scriptSchema],
+    schemas: [scriptSchema]
   },
   {
     name: MODULE_NAMES.USER,
-    schemas: [userSchema],
-  },
+    schemas: [userSchema]
+  }
 ];
 
 /**
@@ -218,14 +254,18 @@ const logQueries = {
   async getDbSchemaLabels(_root, params: { type: string }) {
     let fieldNames: INameLabel[] = [];
 
-    const found: ISchemaMap | undefined = LOG_MAPPINGS.find(m => m.name === params.type);
+    const found: ISchemaMap | undefined = LOG_MAPPINGS.find(
+      m => m.name === params.type
+    );
 
     if (found) {
       const schemas: any = found.schemas || [];
 
       for (const schema of schemas) {
         // schema comes as either mongoose schema or plain object
-        const names: string[] = Object.getOwnPropertyNames(schema.obj || schema);
+        const names: string[] = Object.getOwnPropertyNames(
+          schema.obj || schema
+        );
 
         for (const name of names) {
           const field: any = schema.obj ? schema.obj[name] : schema[name];
@@ -243,7 +283,7 @@ const logQueries = {
     } // end schema name mapping
 
     return fieldNames;
-  },
+  }
 };
 
 checkPermission(logQueries, 'logs', 'viewLogs');

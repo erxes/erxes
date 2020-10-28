@@ -1,5 +1,11 @@
 import * as sinon from 'sinon';
-import { Comments, ConversationMessages, Conversations, Customers, Posts } from '../facebook/models';
+import {
+  Comments,
+  ConversationMessages,
+  Conversations,
+  Customers,
+  Posts
+} from '../facebook/models';
 import receiveMessage from '../facebook/receiveMessage';
 import receivePost from '../facebook/receivePost';
 import * as store from '../facebook/store';
@@ -10,7 +16,7 @@ import {
   facebookConversationMessagFactory,
   facebookCustomerFactory,
   facebookPostFactory,
-  integrationFactory,
+  integrationFactory
 } from '../factories';
 import { initMemoryStorage } from '../inmemoryStorage';
 import * as message from '../messageBroker';
@@ -33,7 +39,7 @@ describe('Facebook test', () => {
     item: 'status',
     published: 1,
     link: 'link',
-    photos: ['photos'],
+    photos: ['photos']
   };
 
   const commentParams = {
@@ -47,7 +53,7 @@ describe('Facebook test', () => {
     photo: 'photo',
     video: 'video',
     restoredCommentCreatedAt: '1577927844',
-    post: { permalink_url: 'link' },
+    post: { permalink_url: 'link' }
   };
 
   beforeEach(async () => {
@@ -55,7 +61,7 @@ describe('Facebook test', () => {
       kind: 'facebook',
       name: 'FacebookAccount',
       uid: '123456789',
-      token: '123456789',
+      token: '123456789'
     });
 
     accountId = account._id;
@@ -65,18 +71,18 @@ describe('Facebook test', () => {
       erxesApiId: 'messenger1234',
       accountId,
       facebookPageIds: ['pageId123'],
-      facebookPageTokensMap: { pageId123: 'token123' },
+      facebookPageTokensMap: { pageId123: 'token123' }
     });
 
     await integrationFactory({
       kind: 'facebook-post',
       erxesApiId: 'messenger1234',
       accountId,
-      facebookPageIds: ['pageId123'],
+      facebookPageIds: ['pageId123']
     });
 
     const customer = await facebookCustomerFactory({
-      userId: 'facebookCustomerUserId',
+      userId: 'facebookCustomerUserId'
     });
 
     customerUserId = customer.userId;
@@ -89,19 +95,19 @@ describe('Facebook test', () => {
         timestamp: 1577929803244,
         message: {
           mid: 'mid',
-          text: 'message',
+          text: 'message'
         },
         attachments: [
           {
             type: 'image',
             payload: {
-              url: 'url',
-            },
-          },
+              url: 'url'
+            }
+          }
         ],
         mid: 'mid',
-        text: 'message',
-      },
+        text: 'message'
+      }
     };
   });
 
@@ -126,7 +132,7 @@ describe('Facebook test', () => {
       await Promise.all([
         store.getOrCreateCustomer(pageId, '123', 'facebook-messenger'),
         store.getOrCreateCustomer(pageId, '123', 'facebook-messenger'),
-        store.getOrCreateCustomer(pageId, '123', 'facebook-messenger'),
+        store.getOrCreateCustomer(pageId, '123', 'facebook-messenger')
       ]);
     } catch (e) {
       expect(await Customers.find({}).countDocuments()).toBe(2);
@@ -154,12 +160,22 @@ describe('Facebook test', () => {
       return Promise.resolve({ _id: '123456789' });
     });
 
-    const post = await store.getOrCreatePost(postParams, 'pageId123', postParams.from.id, 'customerErxesApiId');
+    const post = await store.getOrCreatePost(
+      postParams,
+      'pageId123',
+      postParams.from.id,
+      'customerErxesApiId'
+    );
 
     expect(post.erxesApiId).toEqual('123456789');
     expect(post.postId).toEqual(postParams.post_id);
 
-    await store.getOrCreatePost(postParams, 'pageId123', postParams.from.id, 'customerErxesApiId');
+    await store.getOrCreatePost(
+      postParams,
+      'pageId123',
+      postParams.from.id,
+      'customerErxesApiId'
+    );
 
     expect(await Posts.countDocuments()).toEqual(1);
 
@@ -172,7 +188,12 @@ describe('Facebook test', () => {
     });
 
     try {
-      await store.getOrCreatePost(postParams, 'pageId123', postParams.from.id, 'customerErxesApiId');
+      await store.getOrCreatePost(
+        postParams,
+        'pageId123',
+        postParams.from.id,
+        'customerErxesApiId'
+      );
     } catch (e) {
       expect(await Posts.find({}).countDocuments()).toBe(0);
     }
@@ -185,17 +206,34 @@ describe('Facebook test', () => {
       return Promise.resolve({ _id: '123456789' });
     });
 
-    await store.getOrCreateComment(commentParams, 'pageId123', 'facebook-post', '');
+    await store.getOrCreateComment(
+      commentParams,
+      'pageId123',
+      'facebook-post',
+      ''
+    );
 
-    const comment = await Comments.findOne({ commentId: commentParams.comment_id });
+    const comment = await Comments.findOne({
+      commentId: commentParams.comment_id
+    });
 
     expect(comment.commentId).toEqual(commentParams.comment_id);
 
-    await store.getOrCreateComment(commentParams, 'pageId123', 'facebook-post', 'edited');
+    await store.getOrCreateComment(
+      commentParams,
+      'pageId123',
+      'facebook-post',
+      'edited'
+    );
 
     expect(await Comments.countDocuments()).toEqual(1);
 
-    await store.getOrCreateComment(commentParams, 'pageId123', 'facebook-post', '');
+    await store.getOrCreateComment(
+      commentParams,
+      'pageId123',
+      'facebook-post',
+      ''
+    );
 
     expect(await Comments.countDocuments()).toEqual(1);
 
@@ -210,7 +248,11 @@ describe('Facebook test', () => {
     });
 
     try {
-      await Promise.all([receiveMessage(activity), receiveMessage(activity), receiveMessage(activity)]);
+      await Promise.all([
+        receiveMessage(activity),
+        receiveMessage(activity),
+        receiveMessage(activity)
+      ]);
     } catch (e) {
       const conversation = await Conversations.findOne({});
 
@@ -240,10 +282,17 @@ describe('Facebook test', () => {
       return Promise.resolve({ _id: '123456789' });
     });
 
-    await facebookConversationFactory({ senderId: customerUserId, recipientId: 'pageId123' });
+    await facebookConversationFactory({
+      senderId: customerUserId,
+      recipientId: 'pageId123'
+    });
 
     try {
-      await Promise.all([receiveMessage(activity), receiveMessage(activity), receiveMessage(activity)]);
+      await Promise.all([
+        receiveMessage(activity),
+        receiveMessage(activity),
+        receiveMessage(activity)
+      ]);
     } catch (e) {
       const conversationMessage = await ConversationMessages.findOne({});
 
@@ -259,7 +308,10 @@ describe('Facebook test', () => {
       throw new Error();
     });
 
-    await facebookConversationFactory({ senderId: customerUserId, recipientId: 'pageId123' });
+    await facebookConversationFactory({
+      senderId: customerUserId,
+      recipientId: 'pageId123'
+    });
 
     try {
       await receiveMessage(activity);
@@ -323,7 +375,9 @@ describe('Facebook test', () => {
 
     await facebookConversationFactory({ senderId: '123', recipientId: '123' });
 
-    const conversation = await Conversations.getConversation({ senderId: '123' });
+    const conversation = await Conversations.getConversation({
+      senderId: '123'
+    });
 
     expect(conversation.senderId).toEqual('123');
   });

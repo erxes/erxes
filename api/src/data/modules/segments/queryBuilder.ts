@@ -1,11 +1,17 @@
 import * as _ from 'underscore';
 import { Segments } from '../../../db/models';
-import { SEGMENT_DATE_OPERATORS, SEGMENT_NUMBER_OPERATORS } from '../../../db/models/definitions/constants';
+import {
+  SEGMENT_DATE_OPERATORS,
+  SEGMENT_NUMBER_OPERATORS
+} from '../../../db/models/definitions/constants';
 import { ICondition, ISegment } from '../../../db/models/definitions/segments';
 import { fetchElk } from '../../../elasticsearch';
 import { getEsTypes } from '../coc/utils';
 
-export const fetchBySegments = async (segment: ISegment, action: 'search' | 'count' = 'search'): Promise<any> => {
+export const fetchBySegments = async (
+  segment: ISegment,
+  action: 'search' | 'count' = 'search'
+): Promise<any> => {
   if (!segment || !segment.conditions) {
     return [];
   }
@@ -21,15 +27,22 @@ export const fetchBySegments = async (segment: ISegment, action: 'search' | 'cou
   if (contentType !== 'company') {
     propertyNegative.push({
       term: {
-        status: 'Deleted',
-      },
+        status: 'Deleted'
+      }
     });
   }
 
   const eventPositive = [];
   const eventNegative = [];
 
-  await generateQueryBySegment({ segment, typesMap, propertyPositive, propertyNegative, eventNegative, eventPositive });
+  await generateQueryBySegment({
+    segment,
+    typesMap,
+    propertyPositive,
+    propertyNegative,
+    eventNegative,
+    eventPositive
+  });
 
   let idsByEvents = [];
 
@@ -40,24 +53,24 @@ export const fetchBySegments = async (segment: ISegment, action: 'search' | 'cou
       query: {
         bool: {
           must: eventPositive,
-          must_not: eventNegative,
-        },
-      },
+          must_not: eventNegative
+        }
+      }
     });
 
     idsByEvents = eventsResponse.hits.hits.map(hit => hit._source[idField]);
 
     propertyPositive.push({
       terms: {
-        _id: idsByEvents,
-      },
+        _id: idsByEvents
+      }
     });
   }
 
   if (action === 'count') {
     return {
       positiveList: propertyPositive,
-      negativeList: propertyNegative,
+      negativeList: propertyNegative
     };
   }
 
@@ -67,9 +80,9 @@ export const fetchBySegments = async (segment: ISegment, action: 'search' | 'cou
     query: {
       bool: {
         must: propertyPositive,
-        must_not: propertyNegative,
-      },
-    },
+        must_not: propertyNegative
+      }
+    }
   });
 
   const idsByContentType = response.hits.hits.map(hit => hit._id);
@@ -91,7 +104,14 @@ const generateQueryBySegment = async (args: {
   segment: ISegment;
   typesMap: { [key: string]: any };
 }) => {
-  const { segment, typesMap, propertyNegative, propertyPositive, eventNegative, eventPositive } = args;
+  const {
+    segment,
+    typesMap,
+    propertyNegative,
+    propertyPositive,
+    eventNegative,
+    eventPositive
+  } = args;
 
   // Fetching parent segment
   const embeddedParentSegment = await Segments.findOne({ _id: segment.subOf });
@@ -123,12 +143,17 @@ const generateQueryBySegment = async (args: {
       operator: condition.propertyOperator || '',
       value: condition.propertyValue || '',
       positive: propertyPositive,
-      negative: propertyNegative,
+      negative: propertyNegative
     });
   }
 
   for (const condition of eventConditions) {
-    const { eventOccurence, eventName, eventOccurenceValue, eventAttributeFilters = [] } = condition;
+    const {
+      eventOccurence,
+      eventName,
+      eventOccurenceValue,
+      eventAttributeFilters = []
+    } = condition;
 
     if (!eventOccurence || !eventOccurenceValue) {
       continue;
@@ -136,15 +161,15 @@ const generateQueryBySegment = async (args: {
 
     eventPositive.push({
       term: {
-        name: eventName,
-      },
+        name: eventName
+      }
     });
 
     if (eventOccurence === 'exactly') {
       eventPositive.push({
         term: {
-          count: eventOccurenceValue,
-        },
+          count: eventOccurenceValue
+        }
       });
     }
 
@@ -152,9 +177,9 @@ const generateQueryBySegment = async (args: {
       eventPositive.push({
         range: {
           count: {
-            gte: eventOccurenceValue,
-          },
-        },
+            gte: eventOccurenceValue
+          }
+        }
       });
     }
 
@@ -162,9 +187,9 @@ const generateQueryBySegment = async (args: {
       eventPositive.push({
         range: {
           count: {
-            lte: eventOccurenceValue,
-          },
-        },
+            lte: eventOccurenceValue
+          }
+        }
       });
     }
 
@@ -174,13 +199,18 @@ const generateQueryBySegment = async (args: {
         operator: filter.operator,
         value: filter.value,
         positive: eventPositive,
-        negative: eventNegative,
+        negative: eventNegative
       });
     }
   }
 };
 
-const generateNestedQuery = (kind: string, field: string, operator: string, query: any) => {
+const generateNestedQuery = (
+  kind: string,
+  field: string,
+  operator: string,
+  query: any
+) => {
   const fieldKey = field.replace(`${kind}.`, '');
 
   let fieldValue = 'value';
@@ -195,7 +225,10 @@ const generateNestedQuery = (kind: string, field: string, operator: string, quer
 
   let updatedQuery = query;
 
-  updatedQuery = JSON.stringify(updatedQuery).replace(`${kind}.${fieldKey}`, `${kind}.${fieldValue}`);
+  updatedQuery = JSON.stringify(updatedQuery).replace(
+    `${kind}.${fieldKey}`,
+    `${kind}.${fieldValue}`
+  );
   updatedQuery = JSON.parse(updatedQuery);
 
   return {
@@ -206,14 +239,14 @@ const generateNestedQuery = (kind: string, field: string, operator: string, quer
           must: [
             {
               term: {
-                [`${kind}.field`]: fieldKey,
-              },
+                [`${kind}.field`]: fieldKey
+              }
             },
-            updatedQuery,
-          ],
-        },
-      },
-    },
+            updatedQuery
+          ]
+        }
+      }
+    }
   };
 };
 
@@ -236,11 +269,11 @@ function elkConvertConditionToQuery(args: {
   if (['e', 'numbere'].includes(operator)) {
     if (['keyword', 'email'].includes(type) || operator === 'numbere') {
       positiveQuery = {
-        term: { [field]: value },
+        term: { [field]: value }
       };
     } else {
       positiveQuery = {
-        match_phrase: { [field]: value },
+        match_phrase: { [field]: value }
       };
     }
   }
@@ -249,11 +282,11 @@ function elkConvertConditionToQuery(args: {
   if (['dne', 'numberdne'].includes(operator)) {
     if (['keyword', 'email'].includes(type) || operator === 'numberdne') {
       negativeQuery = {
-        term: { [field]: value },
+        term: { [field]: value }
       };
     } else {
       negativeQuery = {
-        match_phrase: { [field]: value },
+        match_phrase: { [field]: value }
       };
     }
   }
@@ -262,8 +295,8 @@ function elkConvertConditionToQuery(args: {
   if (operator === 'c') {
     positiveQuery = {
       wildcard: {
-        [field]: `*${fixedValue}*`,
-      },
+        [field]: `*${fixedValue}*`
+      }
     };
   }
 
@@ -271,8 +304,8 @@ function elkConvertConditionToQuery(args: {
   if (operator === 'dnc') {
     negativeQuery = {
       wildcard: {
-        [field]: `*${fixedValue}*`,
-      },
+        [field]: `*${fixedValue}*`
+      }
     };
   }
 
@@ -281,9 +314,9 @@ function elkConvertConditionToQuery(args: {
     positiveQuery = {
       range: {
         [field]: {
-          gte: fixedValue,
-        },
-      },
+          gte: fixedValue
+        }
+      }
     };
   }
 
@@ -292,9 +325,9 @@ function elkConvertConditionToQuery(args: {
     positiveQuery = {
       range: {
         [field]: {
-          lte: fixedValue,
-        },
-      },
+          lte: fixedValue
+        }
+      }
     };
   }
 
@@ -302,8 +335,8 @@ function elkConvertConditionToQuery(args: {
   if (operator === 'it') {
     positiveQuery = {
       term: {
-        [field]: true,
-      },
+        [field]: true
+      }
     };
   }
 
@@ -311,8 +344,8 @@ function elkConvertConditionToQuery(args: {
   if (operator === 'if') {
     positiveQuery = {
       term: {
-        [field]: false,
-      },
+        [field]: false
+      }
     };
   }
 
@@ -320,8 +353,8 @@ function elkConvertConditionToQuery(args: {
   if (operator === 'is') {
     positiveQuery = {
       exists: {
-        field,
-      },
+        field
+      }
     };
   }
 
@@ -329,8 +362,8 @@ function elkConvertConditionToQuery(args: {
   if (operator === 'ins') {
     negativeQuery = {
       exists: {
-        field,
-      },
+        field
+      }
     };
   }
 
@@ -378,11 +411,21 @@ function elkConvertConditionToQuery(args: {
   for (const nestedType of ['customFieldsData', 'trackedData', 'attributes']) {
     if (field.includes(nestedType)) {
       if (positiveQuery) {
-        positiveQuery = generateNestedQuery(nestedType, field, operator, positiveQuery);
+        positiveQuery = generateNestedQuery(
+          nestedType,
+          field,
+          operator,
+          positiveQuery
+        );
       }
 
       if (negativeQuery) {
-        negativeQuery = generateNestedQuery(nestedType, field, operator, negativeQuery);
+        negativeQuery = generateNestedQuery(
+          nestedType,
+          field,
+          operator,
+          negativeQuery
+        );
       }
     }
   }

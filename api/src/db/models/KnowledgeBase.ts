@@ -8,7 +8,7 @@ import {
   ICategoryDocument,
   ITopic,
   ITopicDocument,
-  topicSchema,
+  topicSchema
 } from './definitions/knowledgebase';
 
 export interface IArticleCreate extends IArticle {
@@ -19,8 +19,15 @@ export interface IArticleCreate extends IArticle {
 
 export interface IArticleModel extends Model<IArticleDocument> {
   getArticle(_id: string): Promise<IArticleDocument>;
-  createDoc({ categoryIds, ...docFields }: IArticleCreate, userId?: string): Promise<IArticleDocument>;
-  updateDoc(_id: string, { categoryIds, ...docFields }: IArticleCreate, userId?: string): Promise<IArticleDocument>;
+  createDoc(
+    { categoryIds, ...docFields }: IArticleCreate,
+    userId?: string
+  ): Promise<IArticleDocument>;
+  updateDoc(
+    _id: string,
+    { categoryIds, ...docFields }: IArticleCreate,
+    userId?: string
+  ): Promise<IArticleDocument>;
   removeDoc(_id: string): void;
   incReactionCount(articleId: string, reactionChoice): void;
 }
@@ -40,7 +47,10 @@ export const loadArticleClass = () => {
     /**
      * Create KnowledgeBaseArticle document
      */
-    public static async createDoc({ categoryIds, ...docFields }: IArticleCreate, userId?: string) {
+    public static async createDoc(
+      { categoryIds, ...docFields }: IArticleCreate,
+      userId?: string
+    ) {
       if (!userId) {
         throw new Error('userId must be supplied');
       }
@@ -49,13 +59,13 @@ export const loadArticleClass = () => {
         ...docFields,
         createdDate: new Date(),
         createdBy: userId,
-        modifiedDate: new Date(),
+        modifiedDate: new Date()
       });
 
       // add new article id to categories's articleIds field
       if ((categoryIds || []).length > 0) {
         const categories = await KnowledgeBaseCategories.find({
-          _id: { $in: categoryIds },
+          _id: { $in: categoryIds }
         });
 
         for (const category of categories) {
@@ -75,7 +85,11 @@ export const loadArticleClass = () => {
     /**
      * Update KnowledgeBaseArticle document
      */
-    public static async updateDoc(_id: string, { categoryIds, ...docFields }: IArticleCreate, userId?: string) {
+    public static async updateDoc(
+      _id: string,
+      { categoryIds, ...docFields }: IArticleCreate,
+      userId?: string
+    ) {
       if (!userId) {
         throw new Error('userId must be supplied');
       }
@@ -86,9 +100,9 @@ export const loadArticleClass = () => {
           $set: {
             ...docFields,
             modifiedBy: userId,
-            modifiedDate: new Date(),
-          },
-        },
+            modifiedDate: new Date()
+          }
+        }
       );
 
       const article = await KnowledgeBaseArticles.getArticle(_id);
@@ -96,7 +110,7 @@ export const loadArticleClass = () => {
       // add new article id to categories's articleIds field
       if ((categoryIds || []).length > 0) {
         const categories = await KnowledgeBaseCategories.find({
-          _id: { $in: categoryIds },
+          _id: { $in: categoryIds }
         });
 
         for (const category of categories) {
@@ -126,7 +140,10 @@ export const loadArticleClass = () => {
     /*
      * Increase form view count
      */
-    public static async incReactionCount(articleId: string, reactionChoice: string) {
+    public static async incReactionCount(
+      articleId: string,
+      reactionChoice: string
+    ) {
       const article = await KnowledgeBaseArticles.findOne({ _id: articleId });
 
       if (!article) {
@@ -135,9 +152,13 @@ export const loadArticleClass = () => {
 
       const reactionCounts = article.reactionCounts || {};
 
-      reactionCounts[reactionChoice] = (reactionCounts[reactionChoice] || 0) + 1;
+      reactionCounts[reactionChoice] =
+        (reactionCounts[reactionChoice] || 0) + 1;
 
-      await KnowledgeBaseArticles.updateOne({ _id: articleId }, { $set: { reactionCounts } });
+      await KnowledgeBaseArticles.updateOne(
+        { _id: articleId },
+        { $set: { reactionCounts } }
+      );
     }
   }
 
@@ -153,8 +174,15 @@ export interface ICategoryCreate extends ICategory {
 
 export interface ICategoryModel extends Model<ICategoryDocument> {
   getCategory(_id: string): Promise<ICategoryDocument>;
-  createDoc({ topicIds, ...docFields }: ICategoryCreate, userId?: string): Promise<ICategoryDocument>;
-  updateDoc(_id: string, { topicIds, ...docFields }: ICategoryCreate, userId?: string): Promise<ICategoryDocument>;
+  createDoc(
+    { topicIds, ...docFields }: ICategoryCreate,
+    userId?: string
+  ): Promise<ICategoryDocument>;
+  updateDoc(
+    _id: string,
+    { topicIds, ...docFields }: ICategoryCreate,
+    userId?: string
+  ): Promise<ICategoryDocument>;
   removeDoc(categoryId: string): void;
 }
 
@@ -173,7 +201,10 @@ export const loadCategoryClass = () => {
     /**
      * Create KnowledgeBaseCategory document
      */
-    public static async createDoc({ topicIds, ...docFields }: ICategoryCreate, userId?: string) {
+    public static async createDoc(
+      { topicIds, ...docFields }: ICategoryCreate,
+      userId?: string
+    ) {
       if (!userId) {
         throw new Error('userId must be supplied');
       }
@@ -182,11 +213,13 @@ export const loadCategoryClass = () => {
         ...docFields,
         createdDate: new Date(),
         createdBy: userId,
-        modifiedDate: new Date(),
+        modifiedDate: new Date()
       });
 
       if ((topicIds || []).length > 0) {
-        const topics = await KnowledgeBaseTopics.find({ _id: { $in: topicIds } });
+        const topics = await KnowledgeBaseTopics.find({
+          _id: { $in: topicIds }
+        });
 
         // add new category to topics's categoryIds field
         for (const topic of topics) {
@@ -206,7 +239,11 @@ export const loadCategoryClass = () => {
     /**
      * Update KnowledgeBaseCategory document
      */
-    public static async updateDoc(_id: string, { topicIds, ...docFields }: ICategoryCreate, userId?: string) {
+    public static async updateDoc(
+      _id: string,
+      { topicIds, ...docFields }: ICategoryCreate,
+      userId?: string
+    ) {
       if (!userId) {
         throw new Error('userId must be supplied');
       }
@@ -217,15 +254,17 @@ export const loadCategoryClass = () => {
           $set: {
             ...docFields,
             modifiedBy: userId,
-            modifiedDate: new Date(),
-          },
-        },
+            modifiedDate: new Date()
+          }
+        }
       );
 
       const category = await KnowledgeBaseCategories.getCategory(_id);
 
       if ((topicIds || []).length > 0) {
-        const topics = await KnowledgeBaseTopics.find({ _id: { $in: topicIds } });
+        const topics = await KnowledgeBaseTopics.find({
+          _id: { $in: topicIds }
+        });
 
         for (const topic of topics) {
           const categoryIds = topic.categoryIds || [];
@@ -254,7 +293,9 @@ export const loadCategoryClass = () => {
         throw new Error('Category not found');
       }
 
-      await KnowledgeBaseArticles.deleteMany({ _id: { $in: category.articleIds || [] } });
+      await KnowledgeBaseArticles.deleteMany({
+        _id: { $in: category.articleIds || [] }
+      });
 
       return KnowledgeBaseCategories.deleteOne({ _id });
     }
@@ -268,7 +309,11 @@ export const loadCategoryClass = () => {
 export interface ITopicModel extends Model<ITopicDocument> {
   getTopic(_id: string): Promise<ITopicDocument>;
   createDoc(docFields: ITopic, userId?: string): Promise<ITopicDocument>;
-  updateDoc(_id: string, docFields: ITopic, userId?: string): Promise<ITopicDocument>;
+  updateDoc(
+    _id: string,
+    docFields: ITopic,
+    userId?: string
+  ): Promise<ITopicDocument>;
   removeDoc(_id: string): void;
 }
 
@@ -295,14 +340,18 @@ export const loadTopicClass = () => {
         ...docFields,
         createdDate: new Date(),
         createdBy: userId,
-        modifiedDate: new Date(),
+        modifiedDate: new Date()
       });
     }
 
     /**
      * Update KnowledgeBaseTopic document
      */
-    public static async updateDoc(_id: string, docFields: ITopic, userId?: string) {
+    public static async updateDoc(
+      _id: string,
+      docFields: ITopic,
+      userId?: string
+    ) {
       if (!userId) {
         throw new Error('userId must be supplied');
       }
@@ -313,9 +362,9 @@ export const loadTopicClass = () => {
           $set: {
             ...docFields,
             modifiedBy: userId,
-            modifiedDate: new Date(),
-          },
-        },
+            modifiedDate: new Date()
+          }
+        }
       );
 
       return KnowledgeBaseTopics.findOne({ _id });
@@ -333,7 +382,7 @@ export const loadTopicClass = () => {
 
       // remove child items ===========
       const categories = await KnowledgeBaseCategories.find({
-        _id: { $in: topic.categoryIds },
+        _id: { $in: topic.categoryIds }
       });
       for (const category of categories) {
         await KnowledgeBaseCategories.removeDoc(category._id);
@@ -353,13 +402,19 @@ loadCategoryClass();
 loadTopicClass();
 
 // tslint:disable-next-line
-export const KnowledgeBaseArticles = model<IArticleDocument, IArticleModel>('knowledgebase_articles', articleSchema);
+export const KnowledgeBaseArticles = model<IArticleDocument, IArticleModel>(
+  'knowledgebase_articles',
+  articleSchema
+);
 
 // tslint:disable-next-line
 export const KnowledgeBaseCategories = model<ICategoryDocument, ICategoryModel>(
   'knowledgebase_categories',
-  categorySchema,
+  categorySchema
 );
 
 // tslint:disable-next-line
-export const KnowledgeBaseTopics = model<ITopicDocument, ITopicModel>('knowledgebase_topics', topicSchema);
+export const KnowledgeBaseTopics = model<ITopicDocument, ITopicModel>(
+  'knowledgebase_topics',
+  topicSchema
+);

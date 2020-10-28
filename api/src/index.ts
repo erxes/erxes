@@ -22,14 +22,22 @@ import {
   getSubServiceDomain,
   handleUnsubscription,
   readFileRequest,
-  registerOnboardHistory,
+  registerOnboardHistory
 } from './data/utils';
-import { updateContactsValidationStatus, updateContactValidationStatus } from './data/verifierUtils';
+import {
+  updateContactsValidationStatus,
+  updateContactValidationStatus
+} from './data/verifierUtils';
 import { connect, mongoStatus } from './db/connection';
 import { Users } from './db/models';
 import initWatchers from './db/watchers';
 import { debugBase, debugExternalApi, debugInit } from './debuggers';
-import { identifyCustomer, trackCustomEvent, trackViewPageEvent, updateCustomerProperty } from './events';
+import {
+  identifyCustomer,
+  trackCustomEvent,
+  trackViewPageEvent,
+  updateCustomerProperty
+} from './events';
 import { initMemoryStorage } from './inmemoryStorage';
 import { initBroker } from './messageBroker';
 import { importer, uploader } from './middlewares/fileMiddleware';
@@ -61,24 +69,35 @@ const pipeRequest = (req: any, res: any, next: any, url: string) => {
       .on('error', e => {
         debugExternalApi(`Error from pipe ${e.message}`);
         next(e);
-      }),
+      })
   );
 };
 
 const handleTelnyxWebhook = (req, res, next, hookName: string) => {
-  const ENGAGES_API_DOMAIN = getSubServiceDomain({ name: 'ENGAGES_API_DOMAIN' });
+  const ENGAGES_API_DOMAIN = getSubServiceDomain({
+    name: 'ENGAGES_API_DOMAIN'
+  });
 
   if (NODE_ENV === 'test') {
     return res.json(req.body);
   }
 
-  return pipeRequest(req, res, next, `${ENGAGES_API_DOMAIN}/telnyx/${hookName}`);
+  return pipeRequest(
+    req,
+    res,
+    next,
+    `${ENGAGES_API_DOMAIN}/telnyx/${hookName}`
+  );
 };
 
 const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
 const WIDGETS_DOMAIN = getSubServiceDomain({ name: 'WIDGETS_DOMAIN' });
-const INTEGRATIONS_API_DOMAIN = getSubServiceDomain({ name: 'INTEGRATIONS_API_DOMAIN' });
-const CLIENT_PORTAL_DOMAIN = getSubServiceDomain({ name: 'CLIENT_PORTAL_DOMAIN' });
+const INTEGRATIONS_API_DOMAIN = getSubServiceDomain({
+  name: 'INTEGRATIONS_API_DOMAIN'
+});
+const CLIENT_PORTAL_DOMAIN = getSubServiceDomain({
+  name: 'CLIENT_PORTAL_DOMAIN'
+});
 
 export const app = express();
 
@@ -86,19 +105,26 @@ app.disable('x-powered-by');
 
 // handle engage trackers
 app.post(`/service/engage/tracker`, async (req, res, next) => {
-  const ENGAGES_API_DOMAIN = getSubServiceDomain({ name: 'ENGAGES_API_DOMAIN' });
+  const ENGAGES_API_DOMAIN = getSubServiceDomain({
+    name: 'ENGAGES_API_DOMAIN'
+  });
 
   debugBase('SES notification received ======');
 
-  return pipeRequest(req, res, next, `${ENGAGES_API_DOMAIN}/service/engage/tracker`);
+  return pipeRequest(
+    req,
+    res,
+    next,
+    `${ENGAGES_API_DOMAIN}/service/engage/tracker`
+  );
 });
 
 app.use(express.urlencoded({ extended: true }));
 
 app.use(
   express.json({
-    limit: '15mb',
-  }),
+    limit: '15mb'
+  })
 );
 
 // relay telnyx sms web hook
@@ -115,7 +141,7 @@ app.use(cookieParser());
 
 const corsOptions = {
   credentials: true,
-  origin: [MAIN_APP_DOMAIN, WIDGETS_DOMAIN, CLIENT_PORTAL_DOMAIN],
+  origin: [MAIN_APP_DOMAIN, WIDGETS_DOMAIN, CLIENT_PORTAL_DOMAIN]
 };
 
 app.use(cors(corsOptions));
@@ -188,7 +214,9 @@ app.get('/download-template', async (req: any, res) => {
 
   registerOnboardHistory({ type: `${name}Download`, user: req.user });
 
-  return res.redirect(`${frontendEnv({ name: 'API_URL', req })}/static/importTemplates/${name}`);
+  return res.redirect(
+    `${frontendEnv({ name: 'API_URL', req })}/static/importTemplates/${name}`
+  );
 });
 
 // for health check
@@ -267,7 +295,14 @@ app.get('/read-file', async (req: any, res) => {
 
 // get mail attachment file
 app.get('/read-mail-attachment', async (req: any, res) => {
-  const { messageId, attachmentId, kind, integrationId, filename, contentType } = req.query;
+  const {
+    messageId,
+    attachmentId,
+    kind,
+    integrationId,
+    filename,
+    contentType
+  } = req.query;
 
   if (!messageId || !attachmentId || !integrationId || !contentType) {
     return res.status(404).send('Attachment not found');
@@ -276,7 +311,7 @@ app.get('/read-mail-attachment', async (req: any, res) => {
   const integrationPath = kind.includes('nylas') ? 'nylas' : kind;
 
   res.redirect(
-    `${INTEGRATIONS_API_DOMAIN}/${integrationPath}/get-attachment?messageId=${messageId}&attachmentId=${attachmentId}&integrationId=${integrationId}&filename=${filename}&contentType=${contentType}&userId=${req.user._id}`,
+    `${INTEGRATIONS_API_DOMAIN}/${integrationPath}/get-attachment?messageId=${messageId}&attachmentId=${attachmentId}&integrationId=${integrationId}&filename=${filename}&contentType=${contentType}&userId=${req.user._id}`
   );
 });
 
@@ -308,7 +343,9 @@ app.get('/connect-integration', async (req: any, res, _next) => {
 
   const { link, kind } = req.query;
 
-  return res.redirect(`${INTEGRATIONS_API_DOMAIN}/${link}?kind=${kind}&userId=${req.user._id}`);
+  return res.redirect(
+    `${INTEGRATIONS_API_DOMAIN}/${link}?kind=${kind}&userId=${req.user._id}`
+  );
 });
 
 // file import
@@ -320,7 +357,9 @@ app.get('/unsubscribe', async (req: any, res) => {
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
 
-  const template = fs.readFileSync(__dirname + '/private/emailTemplates/unsubscribe.html');
+  const template = fs.readFileSync(
+    __dirname + '/private/emailTemplates/unsubscribe.html'
+  );
 
   return res.send(template);
 });

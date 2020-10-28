@@ -11,7 +11,7 @@ import {
   pipelineLabelFactory,
   productFactory,
   stageFactory,
-  userFactory,
+  userFactory
 } from '../db/factories';
 import {
   Boards,
@@ -22,11 +22,21 @@ import {
   PipelineLabels,
   Pipelines,
   Products,
-  Stages,
+  Stages
 } from '../db/models';
-import { IBoardDocument, IPipelineDocument, IStageDocument } from '../db/models/definitions/boards';
-import { BOARD_STATUSES, BOARD_TYPES } from '../db/models/definitions/constants';
-import { IDealDocument, IProductDocument } from '../db/models/definitions/deals';
+import {
+  IBoardDocument,
+  IPipelineDocument,
+  IStageDocument
+} from '../db/models/definitions/boards';
+import {
+  BOARD_STATUSES,
+  BOARD_TYPES
+} from '../db/models/definitions/constants';
+import {
+  IDealDocument,
+  IProductDocument
+} from '../db/models/definitions/deals';
 import { IPipelineLabelDocument } from '../db/models/definitions/pipelineLabels';
 import { IUserDocument } from '../db/models/definitions/users';
 
@@ -78,7 +88,10 @@ describe('Test deals mutations', () => {
     user = await userFactory();
 
     board = await boardFactory({ type: BOARD_TYPES.DEAL });
-    pipeline = await pipelineFactory({ boardId: board._id, watchedUserIds: [user._id] });
+    pipeline = await pipelineFactory({
+      boardId: board._id,
+      watchedUserIds: [user._id]
+    });
     stage = await stageFactory({ pipelineId: pipeline._id });
     label = await pipelineLabelFactory({ pipelineId: pipeline._id });
     product = await productFactory();
@@ -86,7 +99,7 @@ describe('Test deals mutations', () => {
       initialStageId: stage._id,
       stageId: stage._id,
       labelIds: [label._id],
-      productsData: [{ productId: product._id }],
+      productsData: [{ productId: product._id }]
     });
   });
 
@@ -105,7 +118,7 @@ describe('Test deals mutations', () => {
       name: deal.name,
       stageId: stage._id,
       customerIds: ['fakeCustomerId'],
-      companyIds: ['fakeCompanyId'],
+      companyIds: ['fakeCompanyId']
     };
 
     const mutation = `
@@ -141,7 +154,7 @@ describe('Test deals mutations', () => {
       _id: deal._id,
       name: deal.name,
       stageId: stage._id,
-      productsData: [{ productId: product2._id }, { productId: product._id }],
+      productsData: [{ productId: product2._id }, { productId: product._id }]
     };
 
     let response = await graphqlRequest(mutation, 'dealsEdit', args);
@@ -158,7 +171,10 @@ describe('Test deals mutations', () => {
 
     // if assigned productsData
     const user2 = await userFactory();
-    args.productsData.push({ productId: product2._id, assignUserId: user2._id });
+    args.productsData.push({
+      productId: product2._id,
+      assignUserId: user2._id
+    });
 
     response = await graphqlRequest(mutation, 'dealsEdit', args);
 
@@ -188,7 +204,7 @@ describe('Test deals mutations', () => {
       itemId: deal._id,
       aboveItemId: '',
       destinationStageId: deal.stageId,
-      sourceStageId: deal.stageId,
+      sourceStageId: deal.stageId
     };
 
     const mutation = `
@@ -215,7 +231,7 @@ describe('Test deals mutations', () => {
       itemId: deal._id,
       aboveItemId: '',
       destinationStageId: anotherStage._id,
-      sourceStageId: deal.stageId,
+      sourceStageId: deal.stageId
     };
 
     const mutation = `
@@ -247,12 +263,14 @@ describe('Test deals mutations', () => {
     `;
 
     const anotherPipeline = await pipelineFactory({ boardId: board._id });
-    const anotherStage = await stageFactory({ pipelineId: anotherPipeline._id });
+    const anotherStage = await stageFactory({
+      pipelineId: anotherPipeline._id
+    });
 
     const args = {
       _id: deal._id,
       stageId: anotherStage._id,
-      name: deal.name || '',
+      name: deal.name || ''
     };
 
     const updatedDeal = await graphqlRequest(mutation, 'dealsEdit', args);
@@ -285,11 +303,17 @@ describe('Test deals mutations', () => {
       }
     `;
 
-    const watchAddDeal = await graphqlRequest(mutation, 'dealsWatch', { _id: deal._id, isAdd: true });
+    const watchAddDeal = await graphqlRequest(mutation, 'dealsWatch', {
+      _id: deal._id,
+      isAdd: true
+    });
 
     expect(watchAddDeal.isWatched).toBe(true);
 
-    const watchRemoveDeal = await graphqlRequest(mutation, 'dealsWatch', { _id: deal._id, isAdd: false });
+    const watchRemoveDeal = await graphqlRequest(mutation, 'dealsWatch', {
+      _id: deal._id,
+      isAdd: false
+    });
 
     expect(watchRemoveDeal.isWatched).toBe(false);
   });
@@ -309,13 +333,13 @@ describe('Test deals mutations', () => {
     const checklist = await checklistFactory({
       contentType: 'deal',
       contentTypeId: deal._id,
-      title: 'deal-checklist',
+      title: 'deal-checklist'
     });
 
     await checklistItemFactory({
       checklistId: checklist._id,
       content: 'Improve deal mutation test coverage',
-      isChecked: true,
+      isChecked: true
     });
 
     const company = await companyFactory();
@@ -325,24 +349,39 @@ describe('Test deals mutations', () => {
       mainType: 'deal',
       mainTypeId: deal._id,
       relType: 'company',
-      relTypeId: company._id,
+      relTypeId: company._id
     });
 
     await conformityFactory({
       mainType: 'deal',
       mainTypeId: deal._id,
       relType: 'customer',
-      relTypeId: customer._id,
+      relTypeId: customer._id
     });
 
-    const result = await graphqlRequest(mutation, 'dealsCopy', { _id: deal._id }, { user });
+    const result = await graphqlRequest(
+      mutation,
+      'dealsCopy',
+      { _id: deal._id },
+      { user }
+    );
 
-    const clonedDealCompanies = await Conformities.find({ mainTypeId: result._id, relTypeId: company._id });
-    const clonedDealCustomers = await Conformities.find({ mainTypeId: result._id, relTypeId: company._id });
-    const clonedDealChecklist = await Checklists.findOne({ contentTypeId: result._id });
+    const clonedDealCompanies = await Conformities.find({
+      mainTypeId: result._id,
+      relTypeId: company._id
+    });
+    const clonedDealCustomers = await Conformities.find({
+      mainTypeId: result._id,
+      relTypeId: company._id
+    });
+    const clonedDealChecklist = await Checklists.findOne({
+      contentTypeId: result._id
+    });
 
     if (clonedDealChecklist) {
-      const clonedDealChecklistItems = await ChecklistItems.find({ checklistId: clonedDealChecklist._id });
+      const clonedDealChecklistItems = await ChecklistItems.find({
+        checklistId: clonedDealChecklist._id
+      });
 
       expect(clonedDealChecklist.contentTypeId).toBe(result._id);
       expect(clonedDealChecklistItems.length).toBe(1);
@@ -371,7 +410,10 @@ describe('Test deals mutations', () => {
 
     await graphqlRequest(mutation, 'dealsArchive', { stageId: dealStage._id });
 
-    const deals = await Deals.find({ stageId: dealStage._id, status: BOARD_STATUSES.ARCHIVED });
+    const deals = await Deals.find({
+      stageId: dealStage._id,
+      status: BOARD_STATUSES.ARCHIVED
+    });
 
     expect(deals.length).toBe(3);
   });

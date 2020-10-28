@@ -73,7 +73,7 @@ router.post('/send-test-email', async (req, res, next) => {
       from,
       to,
       subject: content,
-      html: content,
+      html: content
     });
 
     return res.json(JSON.stringify(response));

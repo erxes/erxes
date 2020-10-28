@@ -11,7 +11,7 @@ import {
   getSubServiceDomain,
   uploadFile,
   uploadFileAWS,
-  uploadFileLocal,
+  uploadFileLocal
 } from '../data/utils';
 import { debugExternalApi } from '../debuggers';
 import messageBroker from '../messageBroker';
@@ -52,15 +52,18 @@ export const importer = async (req: any, res, next) => {
           fileType = 'csv';
         }
 
-        const result = await messageBroker().sendRPCMessage(RABBITMQ_QUEUES.RPC_API_TO_WORKERS, {
-          action: 'createImport',
-          type: fields.type,
-          fileType,
-          fileName,
-          uploadType: UPLOAD_SERVICE_TYPE,
-          scopeBrandIds,
-          user: req.user,
-        });
+        const result = await messageBroker().sendRPCMessage(
+          RABBITMQ_QUEUES.RPC_API_TO_WORKERS,
+          {
+            action: 'createImport',
+            type: fields.type,
+            fileType,
+            fileName,
+            uploadType: UPLOAD_SERVICE_TYPE,
+            scopeBrandIds,
+            user: req.user
+          }
+        );
 
         return res.json(result);
       } catch (e) {
@@ -73,7 +76,9 @@ export const importer = async (req: any, res, next) => {
 };
 
 export const uploader = async (req: any, res, next) => {
-  const INTEGRATIONS_API_DOMAIN = getSubServiceDomain({ name: 'INTEGRATIONS_API_DOMAIN' });
+  const INTEGRATIONS_API_DOMAIN = getSubServiceDomain({
+    name: 'INTEGRATIONS_API_DOMAIN'
+  });
 
   if (req.query.kind === 'nylas') {
     debugExternalApi(`Pipeing request to ${INTEGRATIONS_API_DOMAIN}`);
@@ -91,7 +96,7 @@ export const uploader = async (req: any, res, next) => {
         .on('error', e => {
           debugExternalApi(`Error from pipe ${e.message}`);
           next(e);
-        }),
+        })
     );
   }
 
@@ -105,7 +110,11 @@ export const uploader = async (req: any, res, next) => {
 
     if (status === 'ok') {
       try {
-        const result = await uploadFile(frontendEnv({ name: 'API_URL', req }), file, response.upload ? true : false);
+        const result = await uploadFile(
+          frontendEnv({ name: 'API_URL', req }),
+          file,
+          response.upload ? true : false
+        );
 
         return res.send(result);
       } catch (e) {

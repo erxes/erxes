@@ -6,16 +6,14 @@ import { IEngageMessageDoc } from '../types';
 
 type Props = {
   kind: string;
-  content: (
-    params: {
-      renderTitle: () => string;
-      breadcrumbs: IBreadCrumbItem[];
-      validateDoc: (
-        type: string,
-        doc: IEngageMessageDoc
-      ) => { status: string; doc?: IEngageMessageDoc };
-    }
-  ) => any;
+  content: (params: {
+    renderTitle: () => string;
+    breadcrumbs: IBreadCrumbItem[];
+    validateDoc: (
+      type: string,
+      doc: IEngageMessageDoc
+    ) => { status: string; doc?: IEngageMessageDoc };
+  }) => any;
 };
 
 class FormBase extends React.Component<Props> {

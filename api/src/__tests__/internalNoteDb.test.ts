@@ -1,5 +1,10 @@
 import * as faker from 'faker';
-import { companyFactory, customerFactory, internalNoteFactory, userFactory } from '../db/factories';
+import {
+  companyFactory,
+  customerFactory,
+  internalNoteFactory,
+  userFactory
+} from '../db/factories';
 import { InternalNotes, Users } from '../db/models';
 import { ACTIVITY_CONTENT_TYPES } from '../db/models/definitions/constants';
 
@@ -11,7 +16,7 @@ import './setup.ts';
 const generateData = () => ({
   contentType: 'customer',
   contentTypeId: 'DFDFAFSFSDDSF',
-  content: faker.random.word(),
+  content: faker.random.word()
 });
 
 /*
@@ -64,7 +69,10 @@ describe('InternalNotes model test', () => {
   test('Edit internalNote valid', async () => {
     const doc = generateData();
 
-    const internalNoteObj = await InternalNotes.updateInternalNote(_internalNote._id, doc);
+    const internalNoteObj = await InternalNotes.updateInternalNote(
+      _internalNote._id,
+      doc
+    );
 
     checkValues(internalNoteObj, doc);
   });
@@ -76,12 +84,16 @@ describe('InternalNotes model test', () => {
       expect(e.message).toBe('InternalNote not found with id DFFFDSFD');
     }
 
-    let count = await InternalNotes.find({ _id: _internalNote._id }).countDocuments();
+    let count = await InternalNotes.find({
+      _id: _internalNote._id
+    }).countDocuments();
     expect(count).toBe(1);
 
     await InternalNotes.removeInternalNote(_internalNote._id);
 
-    count = await InternalNotes.find({ _id: _internalNote._id }).countDocuments();
+    count = await InternalNotes.find({
+      _id: _internalNote._id
+    }).countDocuments();
     expect(count).toBe(0);
   });
 
@@ -91,10 +103,13 @@ describe('InternalNotes model test', () => {
 
     await internalNoteFactory({
       contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
-      contentTypeId: customer._id,
+      contentTypeId: customer._id
     });
 
-    const updatedInternalNotes = await InternalNotes.changeCustomer(newCustomer._id, [customer._id]);
+    const updatedInternalNotes = await InternalNotes.changeCustomer(
+      newCustomer._id,
+      [customer._id]
+    );
 
     for (const internalNote of updatedInternalNotes) {
       expect(internalNote.contentTypeId).toEqual(newCustomer._id);
@@ -107,10 +122,13 @@ describe('InternalNotes model test', () => {
 
     await internalNoteFactory({
       contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
-      contentTypeId: company._id,
+      contentTypeId: company._id
     });
 
-    const updatedInternalNotes = await InternalNotes.changeCompany(newCompany._id, [company._id]);
+    const updatedInternalNotes = await InternalNotes.changeCompany(
+      newCompany._id,
+      [company._id]
+    );
 
     for (const internalNote of updatedInternalNotes) {
       expect(internalNote.contentTypeId).toEqual(newCompany._id);
@@ -122,19 +140,19 @@ describe('InternalNotes model test', () => {
 
     await internalNoteFactory({
       contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
-      contentTypeId: customer._id,
+      contentTypeId: customer._id
     });
 
     await internalNoteFactory({
       contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
-      contentTypeId: customer._id,
+      contentTypeId: customer._id
     });
 
     await InternalNotes.removeCustomersInternalNotes([customer._id]);
 
     const internalNote = await InternalNotes.find({
       contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
-      contentTypeId: customer._id,
+      contentTypeId: customer._id
     });
 
     expect(internalNote).toHaveLength(0);
@@ -145,19 +163,19 @@ describe('InternalNotes model test', () => {
 
     await internalNoteFactory({
       contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
-      contentTypeId: company._id,
+      contentTypeId: company._id
     });
 
     await internalNoteFactory({
       contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
-      contentTypeId: company._id,
+      contentTypeId: company._id
     });
 
     await InternalNotes.removeCompaniesInternalNotes([company._id]);
 
     const internalNotes = await InternalNotes.find({
       contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
-      contentTypeId: company._id,
+      contentTypeId: company._id
     });
 
     expect(internalNotes).toHaveLength(0);

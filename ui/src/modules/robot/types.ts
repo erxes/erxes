@@ -39,9 +39,9 @@ export type EntriesQueryResponse = {
 };
 
 export type CompleteShowStepMutationResponse = {
-  completeShowStepMutation: (
-    params: { variables: { step: string } }
-  ) => Promise<any>;
+  completeShowStepMutation: (params: {
+    variables: { step: string };
+  }) => Promise<any>;
 };
 
 export type ForceCompleteMutationResponse = {

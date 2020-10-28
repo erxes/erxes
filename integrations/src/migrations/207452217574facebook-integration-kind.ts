@@ -8,15 +8,21 @@ dotenv.config();
  *
  */
 module.exports.up = async () => {
-  const mongoClient = await mongoose.createConnection(process.env.MONGO_URL || '', {
-    useNewUrlParser: true,
-    useCreateIndex: true,
-  });
+  const mongoClient = await mongoose.createConnection(
+    process.env.MONGO_URL || '',
+    {
+      useNewUrlParser: true,
+      useCreateIndex: true
+    }
+  );
 
   try {
     await mongoClient.db
       .collection('integrations')
-      .updateMany({ kind: 'facebook' }, { $set: { kind: 'facebook-messenger' } });
+      .updateMany(
+        { kind: 'facebook' },
+        { $set: { kind: 'facebook-messenger' } }
+      );
   } catch (e) {
     console.log('Integration migration ', e.message);
   }

@@ -14,13 +14,25 @@ describe('checklistQueries', () => {
 
   test('checklists', async () => {
     // Creating test data
-    const contentTypeId = (faker && faker.random ? faker.random.number() : 999).toString();
+    const contentTypeId = (faker && faker.random
+      ? faker.random.number()
+      : 999
+    ).toString();
 
-    const checklist1 = await checklistFactory({ contentType: 'deal', contentTypeId });
+    const checklist1 = await checklistFactory({
+      contentType: 'deal',
+      contentTypeId
+    });
     await checklistFactory({ contentType: 'task', contentTypeId });
 
-    await checklistItemFactory({ checklistId: checklist1._id, isChecked: true });
-    await checklistItemFactory({ checklistId: checklist1._id, isChecked: true });
+    await checklistItemFactory({
+      checklistId: checklist1._id,
+      isChecked: true
+    });
+    await checklistItemFactory({
+      checklistId: checklist1._id,
+      isChecked: true
+    });
     await checklistItemFactory({ checklistId: checklist1._id });
     await checklistItemFactory({ checklistId: checklist1._id });
 
@@ -46,7 +58,7 @@ describe('checklistQueries', () => {
     // deal ===========================
     let responses = await graphqlRequest(qry, 'checklists', {
       contentType: 'deal',
-      contentTypeId,
+      contentTypeId
     });
 
     expect(responses.length).toBe(1);
@@ -56,7 +68,7 @@ describe('checklistQueries', () => {
     // task ============================
     responses = await graphqlRequest(qry, 'checklists', {
       contentType: 'task',
-      contentTypeId,
+      contentTypeId
     });
 
     expect(responses.length).toBe(1);
@@ -74,7 +86,9 @@ describe('checklistQueries', () => {
 
     const checklist = await checklistFactory({});
 
-    const response = await graphqlRequest(qry, 'checklistDetail', { _id: checklist._id });
+    const response = await graphqlRequest(qry, 'checklistDetail', {
+      _id: checklist._id
+    });
 
     expect(response._id).toBe(checklist._id);
   });

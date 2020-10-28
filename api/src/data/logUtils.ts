@@ -5,11 +5,20 @@ import { IChannelDocument } from '../db/models/definitions/channels';
 import { ICompanyDocument } from '../db/models/definitions/companies';
 import { ACTIVITY_CONTENT_TYPES } from '../db/models/definitions/constants';
 import { ICustomerDocument } from '../db/models/definitions/customers';
-import { IDealDocument, IProductDocument } from '../db/models/definitions/deals';
-import { IEngageMessage, IEngageMessageDocument } from '../db/models/definitions/engages';
+import {
+  IDealDocument,
+  IProductDocument
+} from '../db/models/definitions/deals';
+import {
+  IEngageMessage,
+  IEngageMessageDocument
+} from '../db/models/definitions/engages';
 import { IGrowthHackDocument } from '../db/models/definitions/growthHacks';
 import { IIntegrationDocument } from '../db/models/definitions/integrations';
-import { ICategoryDocument, ITopicDocument } from '../db/models/definitions/knowledgebase';
+import {
+  ICategoryDocument,
+  ITopicDocument
+} from '../db/models/definitions/knowledgebase';
 import { IPipelineTemplateDocument } from '../db/models/definitions/pipelineTemplates';
 import { IScriptDocument } from '../db/models/definitions/scripts';
 import { ITaskDocument } from '../db/models/definitions/tasks';
@@ -38,11 +47,16 @@ import {
   Tasks,
   Tickets,
   Users,
-  UsersGroups,
+  UsersGroups
 } from '../db/models/index';
 import messageBroker from '../messageBroker';
 import { MODULE_NAMES, RABBITMQ_QUEUES } from './constants';
-import { getSubServiceDomain, registerOnboardHistory, sendRequest, sendToWebhook } from './utils';
+import {
+  getSubServiceDomain,
+  registerOnboardHistory,
+  sendRequest,
+  sendToWebhook
+} from './utils';
 
 export type LogDesc = {
   [key: string]: any;
@@ -104,16 +118,23 @@ interface IDescriptionParams {
   updatedDocument?: any;
 }
 
-type BoardItemDocument = IDealDocument | ITaskDocument | ITicketDocument | IGrowthHackDocument;
+type BoardItemDocument =
+  | IDealDocument
+  | ITaskDocument
+  | ITicketDocument
+  | IGrowthHackDocument;
 
 const LOG_ACTIONS = {
   CREATE: 'create',
   UPDATE: 'update',
-  DELETE: 'delete',
+  DELETE: 'delete'
 };
 
 // used in internalNotes mutations
-const findContentItemName = async (contentType: string, contentTypeId: string): Promise<string> => {
+const findContentItemName = async (
+  contentType: string,
+  contentTypeId: string
+): Promise<string> => {
   let name: string = '';
 
   if (contentType === MODULE_NAMES.DEAL) {
@@ -184,11 +205,13 @@ const gatherUsernames = async (params: ILogNameParams): Promise<LogDesc[]> => {
     idFields,
     foreignKey,
     prevList,
-    nameFields: ['email', 'username'],
+    nameFields: ['email', 'username']
   });
 };
 
-const gatherIntegrationNames = async (params: ILogNameParams): Promise<LogDesc[]> => {
+const gatherIntegrationNames = async (
+  params: ILogNameParams
+): Promise<LogDesc[]> => {
   const { idFields, foreignKey, prevList } = params;
 
   return gatherNames({
@@ -196,11 +219,13 @@ const gatherIntegrationNames = async (params: ILogNameParams): Promise<LogDesc[]
     idFields,
     foreignKey,
     prevList,
-    nameFields: ['name'],
+    nameFields: ['name']
   });
 };
 
-export const gatherTagNames = async (params: ILogNameParams): Promise<LogDesc[]> => {
+export const gatherTagNames = async (
+  params: ILogNameParams
+): Promise<LogDesc[]> => {
   const { idFields, foreignKey, prevList } = params;
 
   return gatherNames({
@@ -208,7 +233,7 @@ export const gatherTagNames = async (params: ILogNameParams): Promise<LogDesc[]>
     idFields,
     foreignKey,
     prevList,
-    nameFields: ['name'],
+    nameFields: ['name']
   });
 };
 
@@ -220,7 +245,7 @@ const gatherBrandNames = async (params: ILogNameParams): Promise<LogDesc[]> => {
     idFields,
     foreignKey,
     prevList,
-    nameFields: ['name'],
+    nameFields: ['name']
   });
 };
 
@@ -233,7 +258,13 @@ const gatherBrandNames = async (params: ILogNameParams): Promise<LogDesc[]> => {
  * @param params.nameFields List of values to be mapped to id field
  */
 const gatherNames = async (params: ILogParams): Promise<LogDesc[]> => {
-  const { collection, idFields, foreignKey, prevList, nameFields = [] } = params;
+  const {
+    collection,
+    idFields,
+    foreignKey,
+    prevList,
+    nameFields = []
+  } = params;
   let options: LogDesc[] = [];
 
   if (prevList && prevList.length > 0) {
@@ -260,7 +291,10 @@ const gatherNames = async (params: ILogParams): Promise<LogDesc[]> => {
   return options;
 };
 
-const findItemName = async ({ contentType, contentTypeId }: IContentTypeParams): Promise<string> => {
+const findItemName = async ({
+  contentType,
+  contentTypeId
+}: IContentTypeParams): Promise<string> => {
   let item: any;
   let name: string = '';
 
@@ -287,7 +321,10 @@ const findItemName = async ({ contentType, contentTypeId }: IContentTypeParams):
   return name;
 };
 
-const gatherCompanyFieldNames = async (doc: ICompanyDocument, prevList?: LogDesc[]): Promise<LogDesc[]> => {
+const gatherCompanyFieldNames = async (
+  doc: ICompanyDocument,
+  prevList?: LogDesc[]
+): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
   if (prevList) {
@@ -300,7 +337,7 @@ const gatherCompanyFieldNames = async (doc: ICompanyDocument, prevList?: LogDesc
       idFields: [doc.parentCompanyId],
       foreignKey: 'parentCompanyId',
       prevList: options,
-      nameFields: ['primaryName'],
+      nameFields: ['primaryName']
     });
   }
 
@@ -308,7 +345,7 @@ const gatherCompanyFieldNames = async (doc: ICompanyDocument, prevList?: LogDesc
     options = await gatherUsernames({
       idFields: [doc.ownerId],
       foreignKey: 'ownerId',
-      prevList: options,
+      prevList: options
     });
   }
 
@@ -318,7 +355,7 @@ const gatherCompanyFieldNames = async (doc: ICompanyDocument, prevList?: LogDesc
       idFields: doc.mergedIds,
       foreignKey: 'mergedIds',
       prevList: options,
-      nameFields: ['primaryName'],
+      nameFields: ['primaryName']
     });
   }
 
@@ -326,14 +363,17 @@ const gatherCompanyFieldNames = async (doc: ICompanyDocument, prevList?: LogDesc
     options = await gatherTagNames({
       idFields: doc.tagIds,
       foreignKey: 'tagIds',
-      prevList: options,
+      prevList: options
     });
   }
 
   return options;
 };
 
-const gatherCustomerFieldNames = async (doc: ICustomerDocument, prevList?: LogDesc[]): Promise<LogDesc[]> => {
+const gatherCustomerFieldNames = async (
+  doc: ICustomerDocument,
+  prevList?: LogDesc[]
+): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
   if (prevList) {
@@ -341,14 +381,18 @@ const gatherCustomerFieldNames = async (doc: ICustomerDocument, prevList?: LogDe
   }
 
   if (doc.ownerId) {
-    options = await gatherUsernames({ idFields: [doc.ownerId], foreignKey: 'ownerId', prevList: options });
+    options = await gatherUsernames({
+      idFields: [doc.ownerId],
+      foreignKey: 'ownerId',
+      prevList: options
+    });
   }
 
   if (doc.integrationId) {
     options = await gatherIntegrationNames({
       idFields: [doc.integrationId],
       foreignKey: 'integrationId',
-      prevList: options,
+      prevList: options
     });
   }
 
@@ -356,7 +400,7 @@ const gatherCustomerFieldNames = async (doc: ICustomerDocument, prevList?: LogDe
     options = await gatherTagNames({
       idFields: doc.tagIds,
       foreignKey: 'tagIds',
-      prevList: options,
+      prevList: options
     });
   }
 
@@ -366,14 +410,17 @@ const gatherCustomerFieldNames = async (doc: ICustomerDocument, prevList?: LogDe
       idFields: doc.mergedIds,
       foreignKey: 'mergedIds',
       prevList: options,
-      nameFields: ['firstName'],
+      nameFields: ['firstName']
     });
   }
 
   return options;
 };
 
-const gatherBoardItemFieldNames = async (doc: BoardItemDocument, prevList?: LogDesc[]): Promise<LogDesc[]> => {
+const gatherBoardItemFieldNames = async (
+  doc: BoardItemDocument,
+  prevList?: LogDesc[]
+): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
   if (prevList) {
@@ -384,7 +431,7 @@ const gatherBoardItemFieldNames = async (doc: BoardItemDocument, prevList?: LogD
     options = await gatherUsernames({
       idFields: [doc.userId],
       foreignKey: 'userId',
-      prevList: options,
+      prevList: options
     });
   }
 
@@ -392,7 +439,7 @@ const gatherBoardItemFieldNames = async (doc: BoardItemDocument, prevList?: LogD
     options = await gatherUsernames({
       idFields: doc.assignedUserIds,
       foreignKey: 'assignedUserIds',
-      prevList: options,
+      prevList: options
     });
   }
 
@@ -400,7 +447,7 @@ const gatherBoardItemFieldNames = async (doc: BoardItemDocument, prevList?: LogD
     options = await gatherUsernames({
       idFields: doc.watchedUserIds,
       foreignKey: 'watchedUserIds',
-      prevList: options,
+      prevList: options
     });
   }
 
@@ -410,7 +457,7 @@ const gatherBoardItemFieldNames = async (doc: BoardItemDocument, prevList?: LogD
       idFields: doc.labelIds,
       foreignKey: 'labelIds',
       prevList: options,
-      nameFields: ['name'],
+      nameFields: ['name']
     });
   }
 
@@ -419,7 +466,7 @@ const gatherBoardItemFieldNames = async (doc: BoardItemDocument, prevList?: LogD
     idFields: [doc.stageId],
     foreignKey: 'stageId',
     prevList: options,
-    nameFields: ['name'],
+    nameFields: ['name']
   });
 
   if (doc.initialStageId) {
@@ -428,7 +475,7 @@ const gatherBoardItemFieldNames = async (doc: BoardItemDocument, prevList?: LogD
       idFields: [doc.initialStageId],
       foreignKey: 'initialStageId',
       prevList: options,
-      nameFields: ['name'],
+      nameFields: ['name']
     });
   }
 
@@ -436,14 +483,17 @@ const gatherBoardItemFieldNames = async (doc: BoardItemDocument, prevList?: LogD
     options = await gatherUsernames({
       idFields: [doc.modifiedBy],
       foreignKey: 'modifiedBy',
-      prevList: options,
+      prevList: options
     });
   }
 
   return options;
 };
 
-const gatherDealFieldNames = async (doc: IDealDocument, prevList?: LogDesc[]): Promise<LogDesc[]> => {
+const gatherDealFieldNames = async (
+  doc: IDealDocument,
+  prevList?: LogDesc[]
+): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
   if (prevList) {
@@ -458,7 +508,7 @@ const gatherDealFieldNames = async (doc: IDealDocument, prevList?: LogDesc[]): P
       idFields: doc.productsData.map(p => p.productId),
       foreignKey: 'productId',
       prevList: options,
-      nameFields: ['name'],
+      nameFields: ['name']
     });
   }
 
@@ -467,7 +517,7 @@ const gatherDealFieldNames = async (doc: IDealDocument, prevList?: LogDesc[]): P
 
 const gatherEngageFieldNames = async (
   doc: IEngageMessageDocument | IEngageMessage,
-  prevList?: LogDesc[],
+  prevList?: LogDesc[]
 ): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
@@ -481,7 +531,7 @@ const gatherEngageFieldNames = async (
       idFields: doc.segmentIds,
       foreignKey: 'segmentIds',
       prevList: options,
-      nameFields: ['name'],
+      nameFields: ['name']
     });
   }
 
@@ -489,7 +539,7 @@ const gatherEngageFieldNames = async (
     options = await gatherBrandNames({
       idFields: doc.brandIds,
       foreignKey: 'brandIds',
-      prevList: options,
+      prevList: options
     });
   }
 
@@ -497,7 +547,7 @@ const gatherEngageFieldNames = async (
     options = await gatherTagNames({
       idFields: doc.tagIds,
       foreignKey: 'tagIds',
-      prevList: options,
+      prevList: options
     });
   }
 
@@ -505,7 +555,7 @@ const gatherEngageFieldNames = async (
     options = await gatherUsernames({
       idFields: [doc.fromUserId],
       foreignKey: 'fromUserId',
-      prevList: options,
+      prevList: options
     });
   }
 
@@ -513,14 +563,17 @@ const gatherEngageFieldNames = async (
     options = await gatherBrandNames({
       idFields: [doc.messenger.brandId],
       foreignKey: 'brandId',
-      prevList: options,
+      prevList: options
     });
   }
 
   return options;
 };
 
-const gatherChannelFieldNames = async (doc: IChannelDocument, prevList?: LogDesc[]): Promise<LogDesc[]> => {
+const gatherChannelFieldNames = async (
+  doc: IChannelDocument,
+  prevList?: LogDesc[]
+): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
   if (prevList) {
@@ -531,7 +584,7 @@ const gatherChannelFieldNames = async (doc: IChannelDocument, prevList?: LogDesc
     options = await gatherUsernames({
       idFields: [doc.userId],
       foreignKey: 'userId',
-      prevList: options,
+      prevList: options
     });
   }
 
@@ -539,7 +592,7 @@ const gatherChannelFieldNames = async (doc: IChannelDocument, prevList?: LogDesc
     options = await gatherUsernames({
       idFields: doc.memberIds,
       foreignKey: 'memberIds',
-      prevList: options,
+      prevList: options
     });
   }
 
@@ -547,14 +600,17 @@ const gatherChannelFieldNames = async (doc: IChannelDocument, prevList?: LogDesc
     options = await gatherIntegrationNames({
       idFields: doc.integrationIds,
       foreignKey: 'integrationIds',
-      prevList: options,
+      prevList: options
     });
   }
 
   return options;
 };
 
-const gatherGHFieldNames = async (doc: IGrowthHackDocument, prevList?: LogDesc[]): Promise<LogDesc[]> => {
+const gatherGHFieldNames = async (
+  doc: IGrowthHackDocument,
+  prevList?: LogDesc[]
+): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
   if (prevList) {
@@ -567,14 +623,17 @@ const gatherGHFieldNames = async (doc: IGrowthHackDocument, prevList?: LogDesc[]
     options = await gatherUsernames({
       idFields: doc.votedUserIds,
       foreignKey: 'votedUserIds',
-      prevList: options,
+      prevList: options
     });
   }
 
   return options;
 };
 
-const gatherIntegrationFieldNames = async (doc: IIntegrationDocument, prevList?: LogDesc[]) => {
+const gatherIntegrationFieldNames = async (
+  doc: IIntegrationDocument,
+  prevList?: LogDesc[]
+) => {
   let options: LogDesc[] = [];
 
   if (prevList) {
@@ -585,7 +644,7 @@ const gatherIntegrationFieldNames = async (doc: IIntegrationDocument, prevList?:
     options = await gatherUsernames({
       idFields: [doc.createdUserId],
       foreignKey: 'createdUserId',
-      prevList: options,
+      prevList: options
     });
   }
 
@@ -593,7 +652,7 @@ const gatherIntegrationFieldNames = async (doc: IIntegrationDocument, prevList?:
     options = await gatherBrandNames({
       idFields: [doc.brandId],
       foreignKey: 'brandId',
-      prevList: options,
+      prevList: options
     });
   }
 
@@ -601,7 +660,7 @@ const gatherIntegrationFieldNames = async (doc: IIntegrationDocument, prevList?:
     options = await gatherTagNames({
       idFields: doc.tagIds,
       foreignKey: 'tagIds',
-      prevList: options,
+      prevList: options
     });
   }
 
@@ -611,14 +670,17 @@ const gatherIntegrationFieldNames = async (doc: IIntegrationDocument, prevList?:
       idFields: [doc.formId],
       foreignKey: 'formId',
       prevList: options,
-      nameFields: ['title'],
+      nameFields: ['title']
     });
   }
 
   return options;
 };
 
-const gatherKbTopicFieldNames = async (doc: ITopicDocument, prevList?: LogDesc[]): Promise<LogDesc[]> => {
+const gatherKbTopicFieldNames = async (
+  doc: ITopicDocument,
+  prevList?: LogDesc[]
+): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
   if (prevList) {
@@ -628,31 +690,34 @@ const gatherKbTopicFieldNames = async (doc: ITopicDocument, prevList?: LogDesc[]
   options = await gatherUsernames({
     idFields: [doc.createdBy],
     foreignKey: 'createdBy',
-    prevList: options,
+    prevList: options
   });
 
   options = await gatherUsernames({
     idFields: [doc.modifiedBy],
     foreignKey: 'modifiedBy',
-    prevList: options,
+    prevList: options
   });
 
   if (doc.brandId) {
     options = await gatherBrandNames({
       idFields: [doc.brandId],
       foreignKey: 'brandId',
-      prevList: options,
+      prevList: options
     });
   }
 
   if (doc.categoryIds && doc.categoryIds.length > 0) {
     // categories are removed alongside
-    const categories = await KnowledgeBaseCategories.find({ _id: { $in: doc.categoryIds } }, { title: 1 });
+    const categories = await KnowledgeBaseCategories.find(
+      { _id: { $in: doc.categoryIds } },
+      { title: 1 }
+    );
 
     for (const cat of categories) {
       options.push({
         categoryIds: cat._id,
-        name: cat.title,
+        name: cat.title
       });
     }
   }
@@ -660,25 +725,31 @@ const gatherKbTopicFieldNames = async (doc: ITopicDocument, prevList?: LogDesc[]
   return options;
 };
 
-const gatherKbCategoryFieldNames = async (doc: ICategoryDocument, prevList?: LogDesc[]): Promise<LogDesc[]> => {
+const gatherKbCategoryFieldNames = async (
+  doc: ICategoryDocument,
+  prevList?: LogDesc[]
+): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
   if (prevList) {
     options = prevList;
   }
 
-  const articles = await KnowledgeBaseArticles.find({ _id: { $in: doc.articleIds } }, { title: 1 });
+  const articles = await KnowledgeBaseArticles.find(
+    { _id: { $in: doc.articleIds } },
+    { title: 1 }
+  );
 
   options = await gatherUsernames({
     idFields: [doc.createdBy],
     foreignKey: 'createdBy',
-    prevList: options,
+    prevList: options
   });
 
   options = await gatherUsernames({
     idFields: [doc.modifiedBy],
     foreignKey: 'modifiedBy',
-    prevList: options,
+    prevList: options
   });
 
   if (articles.length > 0) {
@@ -690,7 +761,10 @@ const gatherKbCategoryFieldNames = async (doc: ICategoryDocument, prevList?: Log
   return options;
 };
 
-const gatherProductFieldNames = async (doc: IProductDocument, prevList?: LogDesc[]): Promise<LogDesc[]> => {
+const gatherProductFieldNames = async (
+  doc: IProductDocument,
+  prevList?: LogDesc[]
+): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
   if (prevList) {
@@ -701,7 +775,7 @@ const gatherProductFieldNames = async (doc: IProductDocument, prevList?: LogDesc
     options = await gatherTagNames({
       idFields: doc.tagIds,
       foreignKey: 'tagIds',
-      prevList: options,
+      prevList: options
     });
   }
 
@@ -711,14 +785,17 @@ const gatherProductFieldNames = async (doc: IProductDocument, prevList?: LogDesc
       idFields: [doc.categoryId],
       foreignKey: 'categoryId',
       prevList: options,
-      nameFields: ['name'],
+      nameFields: ['name']
     });
   }
 
   return options;
 };
 
-const gatherScriptFieldNames = async (doc: IScriptDocument, prevList?: LogDesc[]): Promise<LogDesc[]> => {
+const gatherScriptFieldNames = async (
+  doc: IScriptDocument,
+  prevList?: LogDesc[]
+): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
   if (prevList) {
@@ -729,7 +806,7 @@ const gatherScriptFieldNames = async (doc: IScriptDocument, prevList?: LogDesc[]
     options = await gatherIntegrationNames({
       idFields: [doc.messengerId],
       foreignKey: 'messengerId',
-      prevList: options,
+      prevList: options
     });
   }
 
@@ -739,7 +816,7 @@ const gatherScriptFieldNames = async (doc: IScriptDocument, prevList?: LogDesc[]
       idFields: [doc.kbTopicId],
       foreignKey: 'kbTopicId',
       prevList: options,
-      nameFields: ['title'],
+      nameFields: ['title']
     });
   }
 
@@ -747,14 +824,17 @@ const gatherScriptFieldNames = async (doc: IScriptDocument, prevList?: LogDesc[]
     options = await gatherIntegrationNames({
       idFields: doc.leadIds,
       foreignKey: 'leadIds',
-      prevList: options,
+      prevList: options
     });
   }
 
   return options;
 };
 
-const gatherPipelineFieldNames = async (doc: IPipelineDocument, prevList?: LogDesc[]): Promise<LogDesc[]> => {
+const gatherPipelineFieldNames = async (
+  doc: IPipelineDocument,
+  prevList?: LogDesc[]
+): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
   if (prevList) {
@@ -766,14 +846,14 @@ const gatherPipelineFieldNames = async (doc: IPipelineDocument, prevList?: LogDe
     idFields: [doc.boardId],
     foreignKey: 'boardId',
     nameFields: ['name'],
-    prevList: options,
+    prevList: options
   });
 
   if (doc.userId) {
     options = await gatherUsernames({
       idFields: [doc.userId],
       foreignKey: 'userId',
-      prevList: options,
+      prevList: options
     });
   }
 
@@ -781,7 +861,7 @@ const gatherPipelineFieldNames = async (doc: IPipelineDocument, prevList?: LogDe
     options = await gatherUsernames({
       idFields: doc.excludeCheckUserIds,
       foreignKey: 'excludeCheckUserIds',
-      prevList: options,
+      prevList: options
     });
   }
 
@@ -789,7 +869,7 @@ const gatherPipelineFieldNames = async (doc: IPipelineDocument, prevList?: LogDe
     options = await gatherUsernames({
       idFields: doc.memberIds,
       foreignKey: 'memberIds',
-      prevList: options,
+      prevList: options
     });
   }
 
@@ -797,7 +877,7 @@ const gatherPipelineFieldNames = async (doc: IPipelineDocument, prevList?: LogDe
     options = await gatherUsernames({
       idFields: doc.watchedUserIds,
       foreignKey: 'watchedUserIds',
-      prevList: options,
+      prevList: options
     });
   }
 
@@ -806,7 +886,7 @@ const gatherPipelineFieldNames = async (doc: IPipelineDocument, prevList?: LogDe
 
 const gatherPipelineTemplateFieldNames = async (
   doc: IPipelineTemplateDocument,
-  prevList?: LogDesc[],
+  prevList?: LogDesc[]
 ): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
@@ -817,7 +897,7 @@ const gatherPipelineTemplateFieldNames = async (
   options = await gatherUsernames({
     idFields: [doc.createdBy],
     foreignKey: 'createdBy',
-    prevList: options,
+    prevList: options
   });
 
   if (doc.stages && doc.stages.length > 0) {
@@ -826,14 +906,17 @@ const gatherPipelineTemplateFieldNames = async (
       idFields: doc.stages.map(s => s.formId),
       foreignKey: 'formId',
       prevList: options,
-      nameFields: ['title'],
+      nameFields: ['title']
     });
   }
 
   return options;
 };
 
-const gatherUserFieldNames = async (doc: IUserDocument, prevList?: LogDesc[]): Promise<LogDesc[]> => {
+const gatherUserFieldNames = async (
+  doc: IUserDocument,
+  prevList?: LogDesc[]
+): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
   if (prevList) {
@@ -846,13 +929,15 @@ const gatherUserFieldNames = async (doc: IUserDocument, prevList?: LogDesc[]): P
     idFields: doc.groupIds || [],
     foreignKey: 'groupIds',
     nameFields: ['name'],
-    prevList: options,
+    prevList: options
   });
 
   return options;
 };
 
-const gatherDescriptions = async (params: IDescriptionParams): Promise<IDescriptions> => {
+const gatherDescriptions = async (
+  params: IDescriptionParams
+): Promise<IDescriptions> => {
   const { action, type, obj, updatedDocument } = params;
 
   let extraDesc: LogDesc[] = [];
@@ -865,7 +950,10 @@ const gatherDescriptions = async (params: IDescriptionParams): Promise<IDescript
     case MODULE_NAMES.BOARD_TASK:
     case MODULE_NAMES.BOARD_TICKET:
       if (obj.userId) {
-        extraDesc = await gatherUsernames({ idFields: [obj.userId], foreignKey: 'userId' });
+        extraDesc = await gatherUsernames({
+          idFields: [obj.userId],
+          foreignKey: 'userId'
+        });
       }
 
       description = `"${obj.name}" has been ${action}d`;
@@ -894,27 +982,42 @@ const gatherDescriptions = async (params: IDescriptionParams): Promise<IDescript
 
       break;
     case MODULE_NAMES.CHECKLIST:
-      const itemName = await findItemName({ contentType: obj.contentType, contentTypeId: obj.contentTypeId });
+      const itemName = await findItemName({
+        contentType: obj.contentType,
+        contentTypeId: obj.contentTypeId
+      });
 
-      extraDesc = await gatherUsernames({ idFields: [obj.createdUserId], foreignKey: 'createdUserId' });
+      extraDesc = await gatherUsernames({
+        idFields: [obj.createdUserId],
+        foreignKey: 'createdUserId'
+      });
 
       extraDesc.push({ contentTypeId: obj.contentTypeId, name: itemName });
 
       if (action === LOG_ACTIONS.CREATE) {
-        description = `"${obj.title}" has been created in ${obj.contentType.toUpperCase()} "${itemName}"`;
+        description = `"${
+          obj.title
+        }" has been created in ${obj.contentType.toUpperCase()} "${itemName}"`;
       }
       if (action === LOG_ACTIONS.UPDATE) {
-        description = `"${obj.title}" saved in ${obj.contentType.toUpperCase()} "${itemName}" has been edited`;
+        description = `"${
+          obj.title
+        }" saved in ${obj.contentType.toUpperCase()} "${itemName}" has been edited`;
       }
       if (action === LOG_ACTIONS.DELETE) {
-        description = `"${obj.title}" from ${obj.contentType.toUpperCase()} "${itemName}" has been removed`;
+        description = `"${
+          obj.title
+        }" from ${obj.contentType.toUpperCase()} "${itemName}" has been removed`;
       }
 
       break;
     case MODULE_NAMES.CHECKLIST_ITEM:
       const checklist = await Checklists.getChecklist(obj.checklistId);
 
-      extraDesc = await gatherUsernames({ idFields: [obj.createdUserId], foreignKey: 'createdUserid' });
+      extraDesc = await gatherUsernames({
+        idFields: [obj.createdUserId],
+        foreignKey: 'createdUserid'
+      });
 
       extraDesc.push({ checklistId: checklist._id, name: checklist.title });
 
@@ -986,24 +1089,36 @@ const gatherDescriptions = async (params: IDescriptionParams): Promise<IDescript
       extraDesc = await gatherUsernames({
         idFields: [obj.userId],
         foreignKey: 'userId',
-        prevList: extraDesc,
+        prevList: extraDesc
       });
 
       const param = {
         idFields: obj.ids,
         foreignKey: 'ids',
-        prevList: extraDesc,
+        prevList: extraDesc
       };
 
       switch (obj.contentType) {
         case MODULE_NAMES.COMPANY:
-          extraDesc = await gatherNames({ ...param, collection: Companies, nameFields: ['primaryName'] });
+          extraDesc = await gatherNames({
+            ...param,
+            collection: Companies,
+            nameFields: ['primaryName']
+          });
           break;
         case MODULE_NAMES.CUSTOMER:
-          extraDesc = await gatherNames({ ...param, collection: Customers, nameFields: ['firstName'] });
+          extraDesc = await gatherNames({
+            ...param,
+            collection: Customers,
+            nameFields: ['firstName']
+          });
           break;
         case MODULE_NAMES.PRODUCT:
-          extraDesc = await gatherNames({ ...param, collection: Products, nameFields: ['name'] });
+          extraDesc = await gatherNames({
+            ...param,
+            collection: Products,
+            nameFields: ['name']
+          });
           break;
         default:
           break;
@@ -1016,7 +1131,10 @@ const gatherDescriptions = async (params: IDescriptionParams): Promise<IDescript
       extraDesc = await gatherIntegrationFieldNames(obj);
 
       if (updatedDocument) {
-        extraDesc = await gatherIntegrationFieldNames(updatedDocument, extraDesc);
+        extraDesc = await gatherIntegrationFieldNames(
+          updatedDocument,
+          extraDesc
+        );
       }
 
       break;
@@ -1026,14 +1144,14 @@ const gatherDescriptions = async (params: IDescriptionParams): Promise<IDescript
       extraDesc = [
         {
           contentTypeId: obj.contentTypeId,
-          name: await findContentItemName(obj.contentType, obj.contentTypeId),
-        },
+          name: await findContentItemName(obj.contentType, obj.contentTypeId)
+        }
       ];
 
       extraDesc = await gatherUsernames({
         idFields: [obj.createdUserId],
         foreignKey: 'createdUserId',
-        prevList: extraDesc,
+        prevList: extraDesc
       });
 
       break;
@@ -1053,20 +1171,26 @@ const gatherDescriptions = async (params: IDescriptionParams): Promise<IDescript
       extraDesc = await gatherKbCategoryFieldNames(obj);
 
       if (updatedDocument) {
-        extraDesc = await gatherKbCategoryFieldNames(updatedDocument, extraDesc);
+        extraDesc = await gatherKbCategoryFieldNames(
+          updatedDocument,
+          extraDesc
+        );
       }
 
       break;
     case MODULE_NAMES.KB_ARTICLE:
       description = `"${obj.title}" has been ${action}d`;
 
-      extraDesc = await gatherUsernames({ idFields: [obj.createdBy], foreignKey: 'createdBy' });
+      extraDesc = await gatherUsernames({
+        idFields: [obj.createdBy],
+        foreignKey: 'createdBy'
+      });
 
       if (obj.modifiedBy) {
         extraDesc = await gatherUsernames({
           idFields: [obj.modifiedBy],
           foreignKey: 'modifiedBy',
-          prevList: extraDesc,
+          prevList: extraDesc
         });
       }
 
@@ -1074,7 +1198,7 @@ const gatherDescriptions = async (params: IDescriptionParams): Promise<IDescript
         extraDesc = await gatherUsernames({
           idFields: [updatedDocument.modifiedBy],
           foreignKey: 'modifiedBy',
-          prevList: extraDesc,
+          prevList: extraDesc
         });
       }
 
@@ -1095,7 +1219,10 @@ const gatherDescriptions = async (params: IDescriptionParams): Promise<IDescript
 
         description = `${description} user "${permUser.email}" has been ${action}d`;
 
-        extraDesc.push({ userId: obj.userId, name: permUser.username || permUser.email });
+        extraDesc.push({
+          userId: obj.userId,
+          name: permUser.username || permUser.email
+        });
       }
 
       break;
@@ -1104,7 +1231,10 @@ const gatherDescriptions = async (params: IDescriptionParams): Promise<IDescript
 
       const pipeline = await Pipelines.findOne({ _id: obj.pipelineId });
 
-      extraDesc = await gatherUsernames({ idFields: [obj.createdBy], foreignKey: 'createdBy' });
+      extraDesc = await gatherUsernames({
+        idFields: [obj.createdBy],
+        foreignKey: 'createdBy'
+      });
 
       if (pipeline) {
         extraDesc.push({ pipelineId: pipeline._id, name: pipeline.name });
@@ -1117,7 +1247,10 @@ const gatherDescriptions = async (params: IDescriptionParams): Promise<IDescript
       description = `"${obj.name}" has been created`;
 
       if (updatedDocument) {
-        extraDesc = await gatherPipelineTemplateFieldNames(updatedDocument, extraDesc);
+        extraDesc = await gatherPipelineTemplateFieldNames(
+          updatedDocument,
+          extraDesc
+        );
       }
 
       break;
@@ -1149,7 +1282,7 @@ const gatherDescriptions = async (params: IDescriptionParams): Promise<IDescript
           collection: ProductCategories,
           idFields: parentIds,
           foreignKey: 'parentId',
-          nameFields: ['name'],
+          nameFields: ['name']
         });
       }
 
@@ -1163,12 +1296,19 @@ const gatherDescriptions = async (params: IDescriptionParams): Promise<IDescript
         brandIds.push(obj.brandId);
       }
 
-      if (updatedDocument && updatedDocument.brandId && updatedDocument.brandId !== obj.brandId) {
+      if (
+        updatedDocument &&
+        updatedDocument.brandId &&
+        updatedDocument.brandId !== obj.brandId
+      ) {
         brandIds.push(updatedDocument.brandId);
       }
 
       if (brandIds.length > 0) {
-        extraDesc = await gatherBrandNames({ idFields: brandIds, foreignKey: 'brandId' });
+        extraDesc = await gatherBrandNames({
+          idFields: brandIds,
+          foreignKey: 'brandId'
+        });
       }
 
       break;
@@ -1189,7 +1329,11 @@ const gatherDescriptions = async (params: IDescriptionParams): Promise<IDescript
         parents.push(obj.subOf);
       }
 
-      if (updatedDocument && updatedDocument.subOf && updatedDocument.subOf !== obj.subOf) {
+      if (
+        updatedDocument &&
+        updatedDocument.subOf &&
+        updatedDocument.subOf !== obj.subOf
+      ) {
         parents.push(updatedDocument.subOf);
       }
 
@@ -1198,7 +1342,7 @@ const gatherDescriptions = async (params: IDescriptionParams): Promise<IDescript
           collection: Segments,
           idFields: parents,
           foreignKey: 'subOf',
-          nameFields: ['name'],
+          nameFields: ['name']
         });
       }
 
@@ -1247,10 +1391,17 @@ const gatherDescriptions = async (params: IDescriptionParams): Promise<IDescript
  * @param params Log document params
  * @param user User information from mutation context
  */
-export const putCreateLog = async (params: ILogDataParams, user: IUserDocument) => {
+export const putCreateLog = async (
+  params: ILogDataParams,
+  user: IUserDocument
+) => {
   await registerOnboardHistory({ type: `${params.type}Create`, user });
 
-  const descriptions = await gatherDescriptions({ action: LOG_ACTIONS.CREATE, type: params.type, obj: params.object });
+  const descriptions = await gatherDescriptions({
+    action: LOG_ACTIONS.CREATE,
+    type: params.type,
+    obj: params.object
+  });
 
   await sendToWebhook(LOG_ACTIONS.CREATE, params.type, params);
 
@@ -1259,9 +1410,9 @@ export const putCreateLog = async (params: ILogDataParams, user: IUserDocument) 
       ...params,
       action: LOG_ACTIONS.CREATE,
       extraDesc: descriptions.extraDesc,
-      description: params.description || descriptions.description,
+      description: params.description || descriptions.description
     },
-    user,
+    user
   );
 };
 
@@ -1270,12 +1421,15 @@ export const putCreateLog = async (params: ILogDataParams, user: IUserDocument) 
  * @param params Log document params
  * @param user User information from mutation context
  */
-export const putUpdateLog = async (params: ILogDataParams, user: IUserDocument) => {
+export const putUpdateLog = async (
+  params: ILogDataParams,
+  user: IUserDocument
+) => {
   const descriptions = await gatherDescriptions({
     action: LOG_ACTIONS.UPDATE,
     type: params.type,
     obj: params.object,
-    updatedDocument: params.updatedDocument,
+    updatedDocument: params.updatedDocument
   });
 
   await sendToWebhook(LOG_ACTIONS.UPDATE, params.type, params);
@@ -1285,9 +1439,9 @@ export const putUpdateLog = async (params: ILogDataParams, user: IUserDocument) 
       ...params,
       action: LOG_ACTIONS.UPDATE,
       description: params.description || descriptions.description,
-      extraDesc: descriptions.extraDesc,
+      extraDesc: descriptions.extraDesc
     },
-    user,
+    user
   );
 };
 
@@ -1296,11 +1450,14 @@ export const putUpdateLog = async (params: ILogDataParams, user: IUserDocument) 
  * @param params Log document params
  * @param user User information from mutation context
  */
-export const putDeleteLog = async (params: ILogDataParams, user: IUserDocument) => {
+export const putDeleteLog = async (
+  params: ILogDataParams,
+  user: IUserDocument
+) => {
   const descriptions = await gatherDescriptions({
     action: LOG_ACTIONS.DELETE,
     type: params.type,
-    obj: params.object,
+    obj: params.object
   });
 
   await sendToWebhook(LOG_ACTIONS.DELETE, params.type, params);
@@ -1310,9 +1467,9 @@ export const putDeleteLog = async (params: ILogDataParams, user: IUserDocument) 
       ...params,
       action: LOG_ACTIONS.DELETE,
       extraDesc: descriptions.extraDesc,
-      description: params.description || descriptions.description,
+      description: params.description || descriptions.description
     },
-    user,
+    user
   );
 };
 
@@ -1324,7 +1481,7 @@ const putLog = async (params: IFinalLogParams, user: IUserDocument) => {
       unicode: user.username || user.email || user._id,
       object: JSON.stringify(params.object),
       newData: JSON.stringify(params.newData),
-      extraDesc: JSON.stringify(params.extraDesc),
+      extraDesc: JSON.stringify(params.extraDesc)
     });
   } catch (e) {
     return e.message;
@@ -1339,7 +1496,11 @@ export const fetchLogs = (params: ILogQueryParams) => {
   const LOGS_DOMAIN = getSubServiceDomain({ name: 'LOGS_API_DOMAIN' });
 
   return sendRequest(
-    { url: `${LOGS_DOMAIN}/logs`, method: 'get', body: { params: JSON.stringify(params) } },
-    'Failed to connect to logs api. Check whether LOGS_API_DOMAIN env is missing or logs api is not running',
+    {
+      url: `${LOGS_DOMAIN}/logs`,
+      method: 'get',
+      body: { params: JSON.stringify(params) }
+    },
+    'Failed to connect to logs api. Check whether LOGS_API_DOMAIN env is missing or logs api is not running'
   );
 };

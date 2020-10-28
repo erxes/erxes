@@ -2,7 +2,11 @@ import { Model, model } from 'mongoose';
 import { validSearchText } from '../../data/utils';
 import { ActivityLogs, Conformities, Fields, InternalNotes } from './';
 import { ICustomField } from './definitions/common';
-import { companySchema, ICompany, ICompanyDocument } from './definitions/companies';
+import {
+  companySchema,
+  ICompany,
+  ICompanyDocument
+} from './definitions/companies';
 import { IUserDocument } from './definitions/users';
 
 export interface ICompanyModel extends Model<ICompanyDocument> {
@@ -13,7 +17,7 @@ export interface ICompanyModel extends Model<ICompanyDocument> {
       primaryName?: string;
       code?: string;
     },
-    idsToExclude?: string[] | string,
+    idsToExclude?: string[] | string
   ): never;
 
   fillSearchText(doc: ICompany): string;
@@ -26,9 +30,16 @@ export interface ICompanyModel extends Model<ICompanyDocument> {
 
   removeCompanies(_ids: string[]): Promise<{ n: number; ok: number }>;
 
-  mergeCompanies(companyIds: string[], companyFields: ICompany): Promise<ICompanyDocument>;
+  mergeCompanies(
+    companyIds: string[],
+    companyFields: ICompany
+  ): Promise<ICompanyDocument>;
 
-  bulkInsert(fieldNames: string[], fieldValues: string[][], user: IUserDocument): Promise<string[]>;
+  bulkInsert(
+    fieldNames: string[],
+    fieldValues: string[][],
+    user: IUserDocument
+  ): Promise<string[]>;
 }
 
 export const loadClass = () => {
@@ -41,9 +52,11 @@ export const loadClass = () => {
         primaryName?: string;
         code?: string;
       },
-      idsToExclude?: string[] | string,
+      idsToExclude?: string[] | string
     ) {
-      const query: { status: {}; [key: string]: any } = { status: { $ne: 'deleted' } };
+      const query: { status: {}; [key: string]: any } = {
+        status: { $ne: 'deleted' }
+      };
       let previousEntry;
 
       // Adding exclude operator to the query
@@ -55,7 +68,7 @@ export const loadClass = () => {
         // check duplication from primaryName
         previousEntry = await Companies.find({
           ...query,
-          primaryName: companyFields.primaryName,
+          primaryName: companyFields.primaryName
         });
 
         if (previousEntry.length > 0) {
@@ -65,7 +78,7 @@ export const loadClass = () => {
         // check duplication from names
         previousEntry = await Companies.find({
           ...query,
-          names: { $in: [companyFields.primaryName] },
+          names: { $in: [companyFields.primaryName] }
         });
 
         if (previousEntry.length > 0) {
@@ -76,7 +89,7 @@ export const loadClass = () => {
         // check duplication from code
         previousEntry = await Companies.find({
           ...query,
-          code: companyFields.code,
+          code: companyFields.code
         });
 
         if (previousEntry.length > 0) {
@@ -94,12 +107,17 @@ export const loadClass = () => {
         doc.industry || '',
         doc.plan || '',
         doc.description || '',
-        doc.code || '',
+        doc.code || ''
       ]);
     }
 
     public static getCompanyName(company: ICompany) {
-      return company.primaryName || company.primaryEmail || company.primaryPhone || 'Unknown';
+      return (
+        company.primaryName ||
+        company.primaryEmail ||
+        company.primaryPhone ||
+        'Unknown'
+      );
     }
 
     /**
@@ -127,13 +145,15 @@ export const loadClass = () => {
       }
 
       // clean custom field values
-      doc.customFieldsData = await Fields.prepareCustomFieldsData(doc.customFieldsData);
+      doc.customFieldsData = await Fields.prepareCustomFieldsData(
+        doc.customFieldsData
+      );
 
       const company = await Companies.create({
         ...doc,
         createdAt: new Date(),
         modifiedAt: new Date(),
-        searchText: Companies.fillSearchText(doc),
+        searchText: Companies.fillSearchText(doc)
       });
 
       // create log
@@ -151,12 +171,19 @@ export const loadClass = () => {
 
       // clean custom field values
       if (doc.customFieldsData) {
-        doc.customFieldsData = await Fields.prepareCustomFieldsData(doc.customFieldsData);
+        doc.customFieldsData = await Fields.prepareCustomFieldsData(
+          doc.customFieldsData
+        );
       }
 
-      const searchText = Companies.fillSearchText(Object.assign(await Companies.getCompany(_id), doc) as ICompany);
+      const searchText = Companies.fillSearchText(
+        Object.assign(await Companies.getCompany(_id), doc) as ICompany
+      );
 
-      await Companies.updateOne({ _id }, { $set: { ...doc, searchText, modifiedAt: new Date() } });
+      await Companies.updateOne(
+        { _id },
+        { $set: { ...doc, searchText, modifiedAt: new Date() } }
+      );
 
       return Companies.findOne({ _id });
     }
@@ -169,7 +196,10 @@ export const loadClass = () => {
       await InternalNotes.removeCompaniesInternalNotes(companyIds);
 
       for (const companyId of companyIds) {
-        await Conformities.removeConformity({ mainType: 'company', mainTypeId: companyId });
+        await Conformities.removeConformity({
+          mainType: 'company',
+          mainTypeId: companyId
+        });
       }
 
       return Companies.deleteMany({ _id: { $in: companyIds } });
@@ -178,7 +208,10 @@ export const loadClass = () => {
     /**
      * Merge companies
      */
-    public static async mergeCompanies(companyIds: string[], companyFields: ICompany) {
+    public static async mergeCompanies(
+      companyIds: string[],
+      companyFields: ICompany
+    ) {
       // Checking duplicated fields of company
       await this.checkDuplication(companyFields, companyIds);
 
@@ -203,7 +236,10 @@ export const loadClass = () => {
         scopeBrandIds = scopeBrandIds.concat(companyScopeBrandIds);
 
         // merge custom fields data
-        customFieldsData = [...customFieldsData, ...(companyObj.customFieldsData || [])];
+        customFieldsData = [
+          ...customFieldsData,
+          ...(companyObj.customFieldsData || [])
+        ];
 
         // Merging company's tag into 1 array
         tagIds = tagIds.concat(companyTags);
@@ -219,7 +255,9 @@ export const loadClass = () => {
 
         companyObj.status = 'deleted';
 
-        await Companies.findByIdAndUpdate(companyId, { $set: { status: 'deleted' } });
+        await Companies.findByIdAndUpdate(companyId, {
+          $set: { status: 'deleted' }
+        });
       }
 
       // Removing Duplicates
@@ -237,11 +275,15 @@ export const loadClass = () => {
         mergedIds: companyIds,
         names,
         emails,
-        phones,
+        phones
       });
 
       // Updating customer companies, deals, tasks, tickets
-      await Conformities.changeConformity({ type: 'company', newTypeId: company._id, oldTypeIds: companyIds });
+      await Conformities.changeConformity({
+        type: 'company',
+        newTypeId: company._id,
+        oldTypeIds: companyIds
+      });
 
       // Removing modules associated with current companies
       await InternalNotes.changeCompany(company._id, companyIds);
@@ -258,6 +300,9 @@ export const loadClass = () => {
 loadClass();
 
 // tslint:disable-next-line
-const Companies = model<ICompanyDocument, ICompanyModel>('companies', companySchema);
+const Companies = model<ICompanyDocument, ICompanyModel>(
+  'companies',
+  companySchema
+);
 
 export default Companies;

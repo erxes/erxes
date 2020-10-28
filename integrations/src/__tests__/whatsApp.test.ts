@@ -6,9 +6,17 @@ import { initMemoryStorage } from '../inmemoryStorage';
 import * as messageBroker from '../messageBroker';
 import * as whatsappUtils from '../whatsapp/api';
 import { IAttachment } from '../whatsapp/api';
-import { ConversationMessages, Conversations, Customers } from '../whatsapp/models';
+import {
+  ConversationMessages,
+  Conversations,
+  Customers
+} from '../whatsapp/models';
 import receiveMessage from '../whatsapp/receiveMessage';
-import { createMessage, createOrUpdateConversation, getOrCreateCustomer } from '../whatsapp/store';
+import {
+  createMessage,
+  createOrUpdateConversation,
+  getOrCreateCustomer
+} from '../whatsapp/store';
 import './setup.ts';
 
 initMemoryStorage();
@@ -37,10 +45,10 @@ describe('WhatsApp test', () => {
         caption: 'caption',
         quotedMsgBody: 'quote',
         quotedMsgId: '123',
-        chatName: 'contact name',
-      },
+        chatName: 'contact name'
+      }
     ],
-    instanceId: '123456',
+    instanceId: '123456'
   };
 
   const requestBodyAck = {
@@ -49,10 +57,10 @@ describe('WhatsApp test', () => {
         id: 'true_1234567890@c.us_3EB03AD0E0B3A52AA371',
         queueNumber: 6,
         chatId: '1234567890@c.us',
-        status: 'viewed',
-      },
+        status: 'viewed'
+      }
     ],
-    instanceId: '123456',
+    instanceId: '123456'
   };
 
   const requestBodyFromMe = {
@@ -60,10 +68,10 @@ describe('WhatsApp test', () => {
       {
         id: 'false_0987654321@c.us_9E43B8690D2754F6507A528FFF6D8690',
         body: 'http://placehold.it/120x120',
-        fromMe: true,
-      },
+        fromMe: true
+      }
     ],
-    instanceId: '123456',
+    instanceId: '123456'
   };
 
   afterEach(async () => {
@@ -77,7 +85,10 @@ describe('WhatsApp test', () => {
       return Promise.resolve({ _id: '123456789' });
     });
 
-    await integrationFactory({ kind: 'whatsapp', whatsappinstanceId: requestBody.instanceId });
+    await integrationFactory({
+      kind: 'whatsapp',
+      whatsappinstanceId: requestBody.instanceId
+    });
 
     await receiveMessage(requestBody);
 
@@ -106,7 +117,7 @@ describe('WhatsApp test', () => {
       receiverId: '1111',
       body: 'http://placehold.it/120x120',
       filename: 'placeholder',
-      caption: 'caption',
+      caption: 'caption'
     };
 
     try {
@@ -117,7 +128,10 @@ describe('WhatsApp test', () => {
   });
 
   test('save instance', async () => {
-    const configsMap = { CHAT_API_UID: uid, CHAT_API_WEBHOOK_CALLBACK_URL: webhookUrl };
+    const configsMap = {
+      CHAT_API_UID: uid,
+      CHAT_API_WEBHOOK_CALLBACK_URL: webhookUrl
+    };
     await updateIntegrationConfigs(configsMap);
     try {
       await whatsappUtils.saveInstance('123', '654321', instance.token);
@@ -127,7 +141,10 @@ describe('WhatsApp test', () => {
   });
 
   test('save instance when webhook not set', async () => {
-    const configsMap = { CHAT_API_UID: uid, CHAT_API_WEBHOOK_CALLBACK_URL: null };
+    const configsMap = {
+      CHAT_API_UID: uid,
+      CHAT_API_WEBHOOK_CALLBACK_URL: null
+    };
     await updateIntegrationConfigs(configsMap);
     try {
       await whatsappUtils.saveInstance('123', '098765', instance.token);
@@ -137,10 +154,17 @@ describe('WhatsApp test', () => {
   });
 
   test('save instance with error', async () => {
-    const configsMap = { CHAT_API_UID: uid, CHAT_API_WEBHOOK_CALLBACK_URL: webhookUrl };
+    const configsMap = {
+      CHAT_API_UID: uid,
+      CHAT_API_WEBHOOK_CALLBACK_URL: webhookUrl
+    };
     await updateIntegrationConfigs(configsMap);
     try {
-      await whatsappUtils.saveInstance('111', instance.instanceId, instance.token);
+      await whatsappUtils.saveInstance(
+        '111',
+        instance.instanceId,
+        instance.token
+      );
     } catch (e) {
       expect(e).toBeDefined();
     }
@@ -150,10 +174,14 @@ describe('WhatsApp test', () => {
     await integrationFactory({
       kind: 'whatsapp',
       whatsappinstanceId: instance.instanceId,
-      whatsappToken: instance.token,
+      whatsappToken: instance.token
     });
     try {
-      await whatsappUtils.saveInstance('123', instance.instanceId, instance.token);
+      await whatsappUtils.saveInstance(
+        '123',
+        instance.instanceId,
+        instance.token
+      );
     } catch (e) {
       expect(e).toBeDefined();
     }
@@ -163,7 +191,7 @@ describe('WhatsApp test', () => {
     await integrationFactory({
       kind: 'whatsapp',
       whatsappinstanceId: instance.instanceId,
-      whatsappToken: instance.token,
+      whatsappToken: instance.token
     });
     try {
       await whatsappUtils.logout(instance.instanceId, instance.token);
@@ -174,7 +202,7 @@ describe('WhatsApp test', () => {
     await integrationFactory({
       kind: 'whatsapp',
       whatsappinstanceId: instance.instanceId,
-      whatsappToken: instance.token,
+      whatsappToken: instance.token
     });
     try {
       await whatsappUtils.logout(instance.instanceId, instance.token);
@@ -188,14 +216,23 @@ describe('WhatsApp test', () => {
       return Promise.resolve({ result: [{ id: '1234567' }, { id: '1234' }] });
     });
 
-    const webhookMock = sinon.stub(whatsappUtils, 'setWebhook').callsFake(() => {
-      return Promise.resolve({});
-    });
+    const webhookMock = sinon
+      .stub(whatsappUtils, 'setWebhook')
+      .callsFake(() => {
+        return Promise.resolve({});
+      });
 
-    const configsMap = { CHAT_API_UID: 'qwe123', CHAT_API_WEBHOOK_CALLBACK_URL: webhookUrl };
+    const configsMap = {
+      CHAT_API_UID: 'qwe123',
+      CHAT_API_WEBHOOK_CALLBACK_URL: webhookUrl
+    };
     await updateIntegrationConfigs(configsMap);
 
-    await integrationFactory({ kind: 'whatsapp', whatsappinstanceId: '1234567', whatsappToken: 'p24x1e0xwyo8udrt' });
+    await integrationFactory({
+      kind: 'whatsapp',
+      whatsappinstanceId: '1234567',
+      whatsappToken: 'p24x1e0xwyo8udrt'
+    });
 
     try {
       await whatsappUtils.setupChatApi();
@@ -224,16 +261,19 @@ describe('WhatsApp test', () => {
         guaranteedHooks: null,
         ignoreOldMessages: null,
         processArchive: null,
-        disableDialogsArchive: null,
+        disableDialogsArchive: null
       });
     });
-    const configsMap = { CHAT_API_UID: uid, CHAT_API_WEBHOOK_CALLBACK_URL: webhookUrl };
+    const configsMap = {
+      CHAT_API_UID: uid,
+      CHAT_API_WEBHOOK_CALLBACK_URL: webhookUrl
+    };
     await updateIntegrationConfigs(configsMap);
 
     await integrationFactory({
       kind: 'whatsapp',
       whatsappinstanceId: instance.instanceId,
-      whatsappToken: instance.token,
+      whatsappToken: instance.token
     });
     try {
       await whatsappUtils.setWebhook(instance.instanceId, instance.token);
@@ -251,7 +291,7 @@ describe('WhatsApp test', () => {
     await integrationFactory({
       kind: 'whatsapp',
       whatsappinstanceId: instance.instanceId,
-      whatsappToken: instance.token,
+      whatsappToken: instance.token
     });
     try {
       await whatsappUtils.setWebhook(instance.instanceId, instance.token);
@@ -297,7 +337,9 @@ describe('WhatsApp test', () => {
 
     await ConversationMessages.create({ _id: '123' });
 
-    const conversationMessage = await ConversationMessages.findOne({ _id: '123' });
+    const conversationMessage = await ConversationMessages.findOne({
+      _id: '123'
+    });
 
     expect(conversationMessage._id).toEqual('123');
   });
@@ -322,16 +364,19 @@ describe('WhatsApp test', () => {
       caption: null,
       quotedMsgBody: null,
       quotedMsgId: null,
-      chatName: 'contact name',
+      chatName: 'contact name'
     };
 
-    const conversation = await Conversations.create({ _id: '123', erxesApiId: '1234' });
+    const conversation = await Conversations.create({
+      _id: '123',
+      erxesApiId: '1234'
+    });
     const customer = await Customers.create({ _id: '123', erxesApiId: '1234' });
 
     const conversationIds = {
       conversationId: conversation.id,
       conversationErxesApiId: conversation.erxesApiId,
-      customerErxesApiId: customer.erxesApiId,
+      customerErxesApiId: customer.erxesApiId
     };
 
     await createMessage(message, conversationIds);
@@ -362,16 +407,19 @@ describe('WhatsApp test', () => {
       caption: null,
       quotedMsgBody: null,
       quotedMsgId: null,
-      chatName: 'contact name',
+      chatName: 'contact name'
     };
 
-    const conversation = await Conversations.create({ _id: '123', erxesApiId: '1234' });
+    const conversation = await Conversations.create({
+      _id: '123',
+      erxesApiId: '1234'
+    });
     const customer = await Customers.create({ _id: '123', erxesApiId: '1234' });
 
     const conversationIds = {
       conversationId: conversation.id,
       conversationErxesApiId: conversation.erxesApiId,
-      customerErxesApiId: customer.erxesApiId,
+      customerErxesApiId: customer.erxesApiId
     };
 
     await createMessage(message, conversationIds);
@@ -384,13 +432,16 @@ describe('WhatsApp test', () => {
       throw new Error();
     });
 
-    const conversation = await Conversations.create({ _id: '123', erxesApiId: '1234' });
+    const conversation = await Conversations.create({
+      _id: '123',
+      erxesApiId: '1234'
+    });
     const customer = await Customers.create({ _id: '123', erxesApiId: '1234' });
 
     const conversationIds = {
       conversationId: conversation.id,
       conversationErxesApiId: conversation.erxesApiId,
-      customerErxesApiId: customer.erxesApiId,
+      customerErxesApiId: customer.erxesApiId
     };
 
     const message = {
@@ -408,7 +459,7 @@ describe('WhatsApp test', () => {
       caption: null,
       quotedMsgBody: null,
       quotedMsgId: null,
-      chatName: 'contact name',
+      chatName: 'contact name'
     };
 
     try {
@@ -425,7 +476,10 @@ describe('WhatsApp test', () => {
       throw new Error();
     });
 
-    await Conversations.create({ senderId: '123', instanceId: requestBody.instanceId });
+    await Conversations.create({
+      senderId: '123',
+      instanceId: requestBody.instanceId
+    });
 
     const messages = [
       {
@@ -443,15 +497,15 @@ describe('WhatsApp test', () => {
         caption: null,
         quotedMsgBody: null,
         quotedMsgId: null,
-        chatName: 'contact name',
-      },
+        chatName: 'contact name'
+      }
     ];
 
     await createOrUpdateConversation(
       messages,
       requestBody.instanceId,
       { customerId: '123', customerErxesApiID: '1234' },
-      { integrationId: '123', integrationErxesApiId: '1234' },
+      { integrationId: '123', integrationErxesApiId: '1234' }
     );
 
     try {
@@ -459,7 +513,7 @@ describe('WhatsApp test', () => {
         messages,
         requestBody.instanceId,
         { customerId: '456', customerErxesApiID: '4567' },
-        { integrationId: '456', integrationErxesApiId: '4567' },
+        { integrationId: '456', integrationErxesApiId: '4567' }
       );
     } catch (e) {
       expect(await Conversations.find({}).countDocuments()).toBe(1);
@@ -475,9 +529,24 @@ describe('WhatsApp test', () => {
 
     try {
       await Promise.all([
-        createOrUpdateConversation('messages', 'instanceId', 'customerId', 'integrationId'),
-        createOrUpdateConversation('messages', 'instanceId', 'customerId', 'integrationId'),
-        createOrUpdateConversation('messages', 'instanceId', 'customerId', 'integrationId'),
+        createOrUpdateConversation(
+          'messages',
+          'instanceId',
+          'customerId',
+          'integrationId'
+        ),
+        createOrUpdateConversation(
+          'messages',
+          'instanceId',
+          'customerId',
+          'integrationId'
+        ),
+        createOrUpdateConversation(
+          'messages',
+          'instanceId',
+          'customerId',
+          'integrationId'
+        )
       ]);
     } catch (e) {
       expect(await Conversations.find({}).countDocuments()).toBe(1);
@@ -509,7 +578,11 @@ describe('WhatsApp test', () => {
     await getOrCreateCustomer('1234567890', 'name', requestBody.instanceId);
 
     try {
-      await getOrCreateCustomer('123456789', 'user name', requestBody.instanceId);
+      await getOrCreateCustomer(
+        '123456789',
+        'user name',
+        requestBody.instanceId
+      );
     } catch (e) {
       expect(await Customers.find({}).countDocuments()).toBe(1);
     }
@@ -526,7 +599,7 @@ describe('WhatsApp test', () => {
       await Promise.all([
         getOrCreateCustomer('123456789', '123', requestBody.instanceId),
         getOrCreateCustomer('123456789', '123', requestBody.instanceId),
-        getOrCreateCustomer('123456789', '123', requestBody.instanceId),
+        getOrCreateCustomer('123456789', '123', requestBody.instanceId)
       ]);
     } catch (e) {
       expect(await Customers.find({}).countDocuments()).toBe(1);

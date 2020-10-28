@@ -10,17 +10,49 @@ import widgetMutations from '../data/resolvers/mutations/widgets';
 import { getEnv } from '../data/utils';
 import { connect } from '../db/connection';
 import {
-    Boards, Brands, Channels, Companies, Configs, Conformities, Conversations, Customers, Deals,
-    EmailTemplates, EngageMessages, Fields, Forms, ImportHistory, Integrations,
-    KnowledgeBaseArticles, KnowledgeBaseCategories, KnowledgeBaseTopics, Pipelines,
-    PipelineTemplates, ProductCategories, Products, Segments, Stages, Tags, Tasks, Tickets, Users,
-    UsersGroups
+  Boards,
+  Brands,
+  Channels,
+  Companies,
+  Configs,
+  Conformities,
+  Conversations,
+  Customers,
+  Deals,
+  EmailTemplates,
+  EngageMessages,
+  Fields,
+  Forms,
+  ImportHistory,
+  Integrations,
+  KnowledgeBaseArticles,
+  KnowledgeBaseCategories,
+  KnowledgeBaseTopics,
+  Pipelines,
+  PipelineTemplates,
+  ProductCategories,
+  Products,
+  Segments,
+  Stages,
+  Tags,
+  Tasks,
+  Tickets,
+  Users,
+  UsersGroups
 } from '../db/models';
 import { IPipelineStage } from '../db/models/definitions/boards';
-import { LEAD_LOAD_TYPES, MESSAGE_TYPES, TAG_TYPES } from '../db/models/definitions/constants';
+import {
+  LEAD_LOAD_TYPES,
+  MESSAGE_TYPES,
+  TAG_TYPES
+} from '../db/models/definitions/constants';
 import { debugWorkers } from '../debuggers';
 import memoryStorage, { initMemoryStorage } from '../inmemoryStorage';
-import { clearEmptyValues, generatePronoun, updateDuplicatedValue } from '../workers/utils';
+import {
+  clearEmptyValues,
+  generatePronoun,
+  updateDuplicatedValue
+} from '../workers/utils';
 
 dotenv.config();
 
@@ -54,14 +86,14 @@ export const icons = [
   { value: 'clipboard', label: 'clipboard' },
   { value: 'computer', label: 'computer' },
   { value: 'paste', label: 'paste' },
-  { value: 'folder-1', label: 'folder' },
+  { value: 'folder-1', label: 'folder' }
 ];
 
 const main = async () => {
   const MONGO_URL = getEnv({ name: 'MONGO_URL' });
 
   await shelljs.exec(`mongo "${MONGO_URL}" --eval 'db.killOp()'`, {
-    silent: true,
+    silent: true
   });
 
   const connection = await connect();
@@ -85,7 +117,10 @@ const main = async () => {
 
   console.log('Finished: UserGroups');
 
-  const brand = await Brands.create({ name: faker.random.word(), description: faker.lorem.lines() });
+  const brand = await Brands.create({
+    name: faker.random.word(),
+    description: faker.lorem.lines()
+  });
 
   const generator = require('generate-password');
 
@@ -94,7 +129,7 @@ const main = async () => {
     numbers: true,
     lowercase: true,
     uppercase: true,
-    strict: true,
+    strict: true
   });
 
   const userDoc = {
@@ -111,14 +146,14 @@ const main = async () => {
       position: faker.name.jobTitle(),
       location: faker.address.streetAddress(),
       description: faker.name.title(),
-      operatorPhone: faker.phone.phoneNumber(),
+      operatorPhone: faker.phone.phoneNumber()
     },
     links: {
-      link: faker.internet.url(),
+      link: faker.internet.url()
     },
     brandIds: [brand.id],
     groupIds: [userGroup.id],
-    isActive: true,
+    isActive: true
   };
 
   console.log('Creating: Users');
@@ -141,14 +176,14 @@ const main = async () => {
         position: faker.name.jobTitle(),
         location: faker.address.streetAddress(),
         description: faker.name.title(),
-        operatorPhone: faker.phone.phoneNumber(),
+        operatorPhone: faker.phone.phoneNumber()
       },
       links: {
-        link: faker.internet.url(),
+        link: faker.internet.url()
       },
       brandIds: [brand.id],
       groupIds: [randomGroup[0].id],
-      isActive: true,
+      isActive: true
     };
     await Users.createUser(fakeUserDoc);
   }
@@ -156,8 +191,12 @@ const main = async () => {
 
   console.log('Creating: Channels');
   const channel = await Channels.createChannel(
-    { name: faker.random.word(), description: faker.lorem.sentence(), memberIds: [admin._id] },
-    admin._id,
+    {
+      name: faker.random.word(),
+      description: faker.lorem.sentence(),
+      memberIds: [admin._id]
+    },
+    admin._id
   );
 
   console.log('Finished: Channels');
@@ -170,12 +209,15 @@ const main = async () => {
       languageCode: 'en',
       channelIds: [channel._id],
       name: faker.random.word(),
-      brandId: brand._id,
+      brandId: brand._id
     },
-    admin._id,
+    admin._id
   );
 
-  await Channels.updateMany({ _id: { $in: [channel._id] } }, { $push: { integrationIds: integration._id } });
+  await Channels.updateMany(
+    { _id: { $in: [channel._id] } },
+    { $push: { integrationIds: integration._id } }
+  );
 
   console.log('Finished: Messenger Integration');
 
@@ -185,21 +227,49 @@ const main = async () => {
 
   const form = await createForms('lead', admin);
 
-  let loadType = LEAD_LOAD_TYPES.ALL[Math.floor(Math.random() * LEAD_LOAD_TYPES.ALL.length)];
+  let loadType =
+    LEAD_LOAD_TYPES.ALL[Math.floor(Math.random() * LEAD_LOAD_TYPES.ALL.length)];
 
   if (loadType.length === 0) {
     loadType = LEAD_LOAD_TYPES.DROPDOWN;
   }
 
-  await Tags.createTag({ name: 'happy', type: TAG_TYPES.CUSTOMER, colorCode: '#4BBF6B' });
-  await Tags.createTag({ name: 'angry', type: TAG_TYPES.CUSTOMER, colorCode: '#CD5A91' });
-  await Tags.createTag({ name: 'other', type: TAG_TYPES.CUSTOMER, colorCode: '#F7CE53' });
+  await Tags.createTag({
+    name: 'happy',
+    type: TAG_TYPES.CUSTOMER,
+    colorCode: '#4BBF6B'
+  });
+  await Tags.createTag({
+    name: 'angry',
+    type: TAG_TYPES.CUSTOMER,
+    colorCode: '#CD5A91'
+  });
+  await Tags.createTag({
+    name: 'other',
+    type: TAG_TYPES.CUSTOMER,
+    colorCode: '#F7CE53'
+  });
 
-  await Tags.createTag({ name: 'happy', type: TAG_TYPES.CONVERSATION, colorCode: '#4BBF6B' });
-  await Tags.createTag({ name: 'angry', type: TAG_TYPES.CONVERSATION, colorCode: '#CD5A91' });
-  await Tags.createTag({ name: 'other', type: TAG_TYPES.CONVERSATION, colorCode: '#F7CE53' });
+  await Tags.createTag({
+    name: 'happy',
+    type: TAG_TYPES.CONVERSATION,
+    colorCode: '#4BBF6B'
+  });
+  await Tags.createTag({
+    name: 'angry',
+    type: TAG_TYPES.CONVERSATION,
+    colorCode: '#CD5A91'
+  });
+  await Tags.createTag({
+    name: 'other',
+    type: TAG_TYPES.CONVERSATION,
+    colorCode: '#F7CE53'
+  });
 
-  await Configs.createOrUpdateConfig({ code: 'UPLOAD_SERVICE_TYPE', value: ['local'] });
+  await Configs.createOrUpdateConfig({
+    code: 'UPLOAD_SERVICE_TYPE',
+    value: ['local']
+  });
 
   await Integrations.createLeadIntegration(
     {
@@ -212,10 +282,10 @@ const main = async () => {
         loadType,
         successAction: 'redirect',
         redirectUrl: faker.internet.url(),
-        thankContent: faker.lorem.sentence(),
-      },
+        thankContent: faker.lorem.sentence()
+      }
     },
-    admin._id,
+    admin._id
   );
 
   console.log('Finished: Popups');
@@ -230,9 +300,9 @@ const main = async () => {
       description: faker.lorem.sentence(),
       languageCode: 'en',
       color: faker.internet.color(),
-      backgroundImage: faker.image.abstract(),
+      backgroundImage: faker.image.abstract()
     },
-    admin._id,
+    admin._id
   );
 
   for (let i = 0; i < 3; i++) {
@@ -244,12 +314,12 @@ const main = async () => {
           icons[
             faker.random.number({
               min: 0,
-              max: 29,
+              max: 29
             })
           ].value,
-        topicIds: [kbTopic._id],
+        topicIds: [kbTopic._id]
       },
-      admin._id,
+      admin._id
     );
 
     for (let j = 0; j < 4; j++) {
@@ -263,12 +333,12 @@ const main = async () => {
             'https://erxes.s3.amazonaws.com/icons/neutral.svg',
             'https://erxes.s3.amazonaws.com/icons/grinning.svg',
             'https://erxes.s3.amazonaws.com/icons/like.svg',
-            'https://erxes.s3.amazonaws.com/icons/dislike.svg',
+            'https://erxes.s3.amazonaws.com/icons/dislike.svg'
           ],
           status: 'publish',
-          categoryIds: [kbCategory._id],
+          categoryIds: [kbCategory._id]
         },
-        admin._id,
+        admin._id
       );
     }
   }
@@ -284,11 +354,15 @@ const main = async () => {
 
   const xlsDatas = [
     { fileName: 'fakeCompanies.xlsx', type: 'company' },
-    { fileName: 'fakeCustomers.xlsx', type: 'customer' },
+    { fileName: 'fakeCustomers.xlsx', type: 'customer' }
   ];
 
   for (const data of xlsDatas) {
-    const { properties, result, type, importHistoryId } = await readXlsFile(data.fileName, data.type, admin);
+    const { properties, result, type, importHistoryId } = await readXlsFile(
+      data.fileName,
+      data.type,
+      admin
+    );
 
     await insertToDB({
       user: admin,
@@ -296,7 +370,7 @@ const main = async () => {
       result,
       contentType: type,
       properties,
-      importHistoryId,
+      importHistoryId
     });
   }
 
@@ -309,7 +383,7 @@ const main = async () => {
     name: 'Vehicles',
     code: 'code001',
     description: faker.lorem.sentence(),
-    order: '0',
+    order: '0'
   });
 
   for (let i = 0; i < 10; i++) {
@@ -320,16 +394,23 @@ const main = async () => {
       type: 'product',
       description: faker.lorem.sentence(),
       sku: faker.random.number(),
-      code: faker.random.number(),
+      code: faker.random.number()
     });
   }
 
   const dealStages = await populateStages('deal');
   for (let i = 0; i < 3; i++) {
-    const board = await Boards.createBoard({ name: faker.random.word(), type: 'deal', userId: admin._id });
+    const board = await Boards.createBoard({
+      name: faker.random.word(),
+      type: 'deal',
+      userId: admin._id
+    });
 
     for (let j = 0; j < 2; j++) {
-      await Pipelines.createPipeline({ name: faker.random.word(), type: 'deal', boardId: board._id }, dealStages);
+      await Pipelines.createPipeline(
+        { name: faker.random.word(), type: 'deal', boardId: board._id },
+        dealStages
+      );
     }
   }
 
@@ -340,18 +421,23 @@ const main = async () => {
   console.log('Creating: Conversations');
 
   for (let i = 0; i < 5; i++) {
-    const randomCustomer = await Customers.aggregate([{ $sample: { size: 1 } }]);
+    const randomCustomer = await Customers.aggregate([
+      { $sample: { size: 1 } }
+    ]);
 
     if (randomCustomer[0]) {
-      memoryStorage().set(`customer_last_status_${randomCustomer[0]._id}`, 'left');
+      memoryStorage().set(
+        `customer_last_status_${randomCustomer[0]._id}`,
+        'left'
+      );
       await widgetMutations.widgetsInsertMessage(
         {},
         {
           contentType: MESSAGE_TYPES.TEXT,
           integrationId: integration._id,
           customerId: randomCustomer[0]._id || '',
-          message: faker.lorem.sentence(),
-        },
+          message: faker.lorem.sentence()
+        }
       );
     }
   }
@@ -363,13 +449,17 @@ const main = async () => {
   console.log('Creating: Tickets');
 
   const randomConversation = await Conversations.findOne();
-  const ticketBoard = await Boards.createBoard({ name: faker.random.word(), type: 'ticket', userId: admin._id });
+  const ticketBoard = await Boards.createBoard({
+    name: faker.random.word(),
+    type: 'ticket',
+    userId: admin._id
+  });
   const ticketStages = await populateStages('ticket');
 
   for (let j = 0; j < 2; j++) {
     await Pipelines.createPipeline(
       { name: faker.random.word(), type: 'ticket', boardId: ticketBoard._id },
-      ticketStages,
+      ticketStages
     );
   }
 
@@ -380,7 +470,7 @@ const main = async () => {
     userId: admin._id,
     initialStageId: selectedTicketStage?._id,
     sourceConversationId: randomConversation?._id,
-    stageId: selectedTicketStage?._id || '',
+    stageId: selectedTicketStage?._id || ''
   });
 
   console.log('Finished: Tickets');
@@ -390,11 +480,18 @@ const main = async () => {
   console.log('Created: Tasks');
 
   const randomUser = await Users.aggregate([{ $sample: { size: 1 } }]);
-  const taskBoard = await Boards.createBoard({ name: faker.random.word(), type: 'task', userId: admin._id });
+  const taskBoard = await Boards.createBoard({
+    name: faker.random.word(),
+    type: 'task',
+    userId: admin._id
+  });
   const taskStages = await populateStages('task');
 
   for (let j = 0; j < 2; j++) {
-    await Pipelines.createPipeline({ name: faker.random.word(), type: 'task', boardId: taskBoard._id }, taskStages);
+    await Pipelines.createPipeline(
+      { name: faker.random.word(), type: 'task', boardId: taskBoard._id },
+      taskStages
+    );
   }
 
   const selectedTaskStage = await Stages.findOne({ type: 'task' });
@@ -404,7 +501,7 @@ const main = async () => {
     userId: admin._id,
     initialStageId: selectedTaskStage?._id,
     assignedUserIds: [randomUser[0]._id || admin._id],
-    stageId: selectedTicketStage?._id || '',
+    stageId: selectedTicketStage?._id || ''
   });
 
   console.log('Finished: Tasks');
@@ -414,7 +511,7 @@ const main = async () => {
 
   const template = await EmailTemplates.create({
     name: faker.random.word(),
-    content: `<p>${faker.lorem.sentences()}</p>\n`,
+    content: `<p>${faker.lorem.sentences()}</p>\n`
   });
 
   const segment = await Segments.createSegment({
@@ -423,7 +520,7 @@ const main = async () => {
     contentType: 'customer',
     color: faker.internet.color(),
     subOf: '',
-    conditions: [],
+    conditions: []
   });
 
   const docAutoMessage = {
@@ -434,7 +531,7 @@ const main = async () => {
     brandIds: [brand._id],
     tagIds: [],
     isLive: false,
-    isDraft: true,
+    isDraft: true
   };
 
   const docAutoEmail = {
@@ -452,14 +549,14 @@ const main = async () => {
       replyTo: faker.internet.email(),
       content: faker.lorem.paragraphs(),
       attachments: [],
-      templateId: template._id,
+      templateId: template._id
     },
     scheduleDate: {
       type: '5',
       month: '',
-      day: '',
+      day: ''
     },
-    method: 'email',
+    method: 'email'
   };
 
   await EngageMessages.createEngageMessage(docAutoMessage);
@@ -472,21 +569,25 @@ const main = async () => {
   console.log('Creating: Growth Hack');
 
   const growthForm = await createForms('growthHack', admin);
-  const growthBoard = await Boards.createBoard({ name: faker.random.word(), type: 'growthHack', userId: admin._id });
+  const growthBoard = await Boards.createBoard({
+    name: faker.random.word(),
+    type: 'growthHack',
+    userId: admin._id
+  });
 
   const pipelineTemplate = await PipelineTemplates.createPipelineTemplate(
     {
       name: faker.random.word(),
       description: faker.lorem.sentence(),
-      type: 'growthHack',
+      type: 'growthHack'
     },
     [
       {
         _id: faker.unique,
         name: faker.random.word(),
-        formId: growthForm._id,
-      },
-    ],
+        formId: growthForm._id
+      }
+    ]
   );
 
   const growthHackDock = {
@@ -500,7 +601,7 @@ const main = async () => {
     bgColor: faker.internet.color(),
     templateId: pipelineTemplate._id,
     hackScoringType: 'rice',
-    metric: 'monthly-active-users',
+    metric: 'monthly-active-users'
   };
   await Pipelines.createPipeline(growthHackDock);
 
@@ -514,7 +615,9 @@ const main = async () => {
   process.exit();
 };
 
-const createXlsStream = async (fileName: string): Promise<{ fieldNames: string[]; datas: any[] }> => {
+const createXlsStream = async (
+  fileName: string
+): Promise<{ fieldNames: string[]; datas: any[] }> => {
   return new Promise(async (resolve, reject) => {
     let rowCount = 0;
 
@@ -534,7 +637,9 @@ const createXlsStream = async (fileName: string): Promise<{ fieldNames: string[]
 
         workSheetReader.on('row', row => {
           if (rowCount > 100000) {
-            return reject(new Error('You can only import 100000 rows one at a time'));
+            return reject(
+              new Error('You can only import 100000 rows one at a time')
+            );
           }
 
           if (row.values.length > 0) {
@@ -595,7 +700,7 @@ const readXlsFile = async (fileName: string, type: string, user: any) => {
       contentType: type,
       total: datas.length,
       userId: user._id,
-      date: Date.now(),
+      date: Date.now()
     });
 
     return { properties, result: datas, type, importHistoryId };
@@ -606,11 +711,21 @@ const readXlsFile = async (fileName: string, type: string, user: any) => {
 };
 
 const insertToDB = async xlsData => {
-  const { user, scopeBrandIds, result, contentType, properties, importHistoryId } = xlsData;
+  const {
+    user,
+    scopeBrandIds,
+    result,
+    contentType,
+    properties,
+    importHistoryId
+  } = xlsData;
   let create: any = null;
   let model: any = null;
 
-  const isBoardItem = (): boolean => contentType === 'deal' || contentType === 'task' || contentType === 'ticket';
+  const isBoardItem = (): boolean =>
+    contentType === 'deal' ||
+    contentType === 'task' ||
+    contentType === 'ticket';
 
   switch (contentType) {
     case 'company':
@@ -647,7 +762,7 @@ const insertToDB = async xlsData => {
     const inc: { success: number; failed: number; percentage: number } = {
       success: 0,
       failed: 0,
-      percentage: 100,
+      percentage: 100
     };
 
     // Collecting errors
@@ -655,7 +770,7 @@ const insertToDB = async xlsData => {
 
     const doc: any = {
       scopeBrandIds,
-      customFieldsData: [],
+      customFieldsData: []
     };
 
     let colIndex: number = 0;
@@ -672,7 +787,7 @@ const insertToDB = async xlsData => {
           {
             doc.customFieldsData.push({
               field: property.id,
-              value: fieldValue[colIndex],
+              value: fieldValue[colIndex]
             });
           }
           break;
@@ -729,7 +844,9 @@ const insertToDB = async xlsData => {
           {
             const tagName = value;
 
-            const tag = await Tags.findOne({ name: new RegExp(`.*${tagName}.*`, 'i') }).lean();
+            const tag = await Tags.findOne({
+              name: new RegExp(`.*${tagName}.*`, 'i')
+            }).lean();
 
             doc[property.name] = tag ? [tag._id] : [];
           }
@@ -773,11 +890,17 @@ const insertToDB = async xlsData => {
       colIndex++;
     } // end properties for loop
 
-    if ((contentType === 'customer' || contentType === 'lead') && !doc.emailValidationStatus) {
+    if (
+      (contentType === 'customer' || contentType === 'lead') &&
+      !doc.emailValidationStatus
+    ) {
       doc.emailValidationStatus = 'unknown';
     }
 
-    if ((contentType === 'customer' || contentType === 'lead') && !doc.phoneValidationStatus) {
+    if (
+      (contentType === 'customer' || contentType === 'lead') &&
+      !doc.phoneValidationStatus
+    ) {
       doc.phoneValidationStatus = 'unknown';
     }
 
@@ -786,9 +909,18 @@ const insertToDB = async xlsData => {
       doc.userId = user._id;
 
       if (boardName && pipelineName && stageName) {
-        const board = await Boards.findOne({ name: boardName, type: contentType });
-        const pipeline = await Pipelines.findOne({ boardId: board && board._id, name: pipelineName });
-        const stage = await Stages.findOne({ pipelineId: pipeline && pipeline._id, name: stageName });
+        const board = await Boards.findOne({
+          name: boardName,
+          type: contentType
+        });
+        const pipeline = await Pipelines.findOne({
+          boardId: board && board._id,
+          name: pipelineName
+        });
+        const stage = await Stages.findOne({
+          pipelineId: pipeline && pipeline._id,
+          name: stageName
+        });
 
         doc.stageId = stage && stage._id;
       }
@@ -796,7 +928,11 @@ const insertToDB = async xlsData => {
 
     await create(doc, user)
       .then(async cocObj => {
-        if (doc.companiesPrimaryNames && doc.companiesPrimaryNames.length > 0 && contentType !== 'company') {
+        if (
+          doc.companiesPrimaryNames &&
+          doc.companiesPrimaryNames.length > 0 &&
+          contentType !== 'company'
+        ) {
           const companyIds: string[] = [];
 
           for (const primaryName of doc.companiesPrimaryNames) {
@@ -815,13 +951,20 @@ const insertToDB = async xlsData => {
               mainType: contentType === 'lead' ? 'customer' : contentType,
               mainTypeId: cocObj._id,
               relType: 'company',
-              relTypeId: _id,
+              relTypeId: _id
             });
           }
         }
 
-        if (doc.customersPrimaryEmails && doc.customersPrimaryEmails.length > 0 && contentType !== 'customer') {
-          const customers = await Customers.find({ primaryEmail: { $in: doc.customersPrimaryEmails } }, { _id: 1 });
+        if (
+          doc.customersPrimaryEmails &&
+          doc.customersPrimaryEmails.length > 0 &&
+          contentType !== 'customer'
+        ) {
+          const customers = await Customers.find(
+            { primaryEmail: { $in: doc.customersPrimaryEmails } },
+            { _id: 1 }
+          );
           const customerIds = customers.map(customer => customer._id);
 
           for (const _id of customerIds) {
@@ -829,12 +972,15 @@ const insertToDB = async xlsData => {
               mainType: contentType === 'lead' ? 'customer' : contentType,
               mainTypeId: cocObj._id,
               relType: 'customer',
-              relTypeId: _id,
+              relTypeId: _id
             });
           }
         }
 
-        await ImportHistory.updateOne({ _id: importHistoryId }, { $push: { ids: [cocObj._id] } });
+        await ImportHistory.updateOne(
+          { _id: importHistoryId },
+          { $push: { ids: [cocObj._id] } }
+        );
 
         // Increasing success count
         inc.success++;
@@ -864,7 +1010,10 @@ const insertToDB = async xlsData => {
         }
       });
 
-    await ImportHistory.updateOne({ _id: importHistoryId }, { $inc: inc, $push: { errorMsgs } });
+    await ImportHistory.updateOne(
+      { _id: importHistoryId },
+      { $inc: inc, $push: { errorMsgs } }
+    );
 
     let importHistory = await ImportHistory.findOne({ _id: importHistoryId });
 
@@ -873,7 +1022,10 @@ const insertToDB = async xlsData => {
     }
 
     if (importHistory.failed + importHistory.success === importHistory.total) {
-      await ImportHistory.updateOne({ _id: importHistoryId }, { $set: { status: 'Done', percentage: 100 } });
+      await ImportHistory.updateOne(
+        { _id: importHistoryId },
+        { $set: { status: 'Done', percentage: 100 } }
+      );
 
       importHistory = await ImportHistory.findOne({ _id: importHistoryId });
     }
@@ -888,7 +1040,12 @@ const populateStages = async type => {
   const stages: IPipelineStage[] = [];
 
   for (let i = 0; i < 5; i++) {
-    const stage: IPipelineStage = { _id: faker.unique, name: faker.random.word(), type, pipelineId: '' };
+    const stage: IPipelineStage = {
+      _id: faker.unique,
+      name: faker.random.word(),
+      type,
+      pipelineId: ''
+    };
     stages.push(stage);
   }
   return stages;
@@ -900,9 +1057,9 @@ const createForms = async (type: string, user: any) => {
       title: faker.random.word(),
       description: faker.lorem.sentence(),
       buttonText: faker.random.word(),
-      type,
+      type
     },
-    user._id,
+    user._id
   );
 
   const validations = ['datetime', 'date', 'email', 'number', 'phone'];
@@ -925,7 +1082,7 @@ const createForms = async (type: string, user: any) => {
       validation,
       text,
       description: faker.random.word(),
-      order,
+      order
     });
     order++;
   }

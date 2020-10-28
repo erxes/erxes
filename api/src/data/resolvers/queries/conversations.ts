@@ -1,7 +1,19 @@
-import { Brands, Channels, ConversationMessages, Conversations, Tags } from '../../../db/models';
-import { CONVERSATION_STATUSES, KIND_CHOICES } from '../../../db/models/definitions/constants';
+import {
+  Brands,
+  Channels,
+  ConversationMessages,
+  Conversations,
+  Tags
+} from '../../../db/models';
+import {
+  CONVERSATION_STATUSES,
+  KIND_CHOICES
+} from '../../../db/models/definitions/constants';
 import { IMessageDocument } from '../../../db/models/definitions/conversationMessages';
-import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
+import {
+  checkPermission,
+  moduleRequireLogin
+} from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import QueryBuilder, { IListArgs } from './conversationQueryBuilder';
 
@@ -27,7 +39,7 @@ const countByChannels = async (qb: any): Promise<ICountBy> => {
   for (const channel of channels) {
     byChannels[channel._id] = await count({
       ...qb.mainQuery(),
-      ...(await qb.channelFilter(channel._id)),
+      ...(await qb.channelFilter(channel._id))
     });
   }
 
@@ -40,7 +52,7 @@ const countByIntegrationTypes = async (qb: any): Promise<ICountBy> => {
   for (const intT of KIND_CHOICES.ALL) {
     byIntegrationTypes[intT] = await count({
       ...qb.mainQuery(),
-      ...(await qb.integrationTypeFilter(intT)),
+      ...(await qb.integrationTypeFilter(intT))
     });
   }
 
@@ -57,7 +69,7 @@ const countByTags = async (qb: any): Promise<ICountBy> => {
       ...qb.mainQuery(),
       ...queries.integrations,
       ...queries.integrationType,
-      ...qb.tagFilter(tag._id),
+      ...qb.tagFilter(tag._id)
     });
   }
 
@@ -71,7 +83,10 @@ const countByBrands = async (qb: any): Promise<ICountBy> => {
   for (const brand of brands) {
     byBrands[brand._id] = await count({
       ...qb.mainQuery(),
-      ...(await qb.intersectIntegrationIds(qb.queries.channel, await qb.brandFilter(brand._id))),
+      ...(await qb.intersectIntegrationIds(
+        qb.queries.channel,
+        await qb.brandFilter(brand._id)
+      ))
     });
   }
 
@@ -86,14 +101,14 @@ const conversationQueries = {
     // filter by ids of conversations
     if (params && params.ids) {
       return Conversations.find({ _id: { $in: params.ids } }).sort({
-        createdAt: -1,
+        createdAt: -1
       });
     }
 
     // initiate query builder
     const qb = new QueryBuilder(params, {
       _id: user._id,
-      starredConversationIds: user.starredConversationIds,
+      starredConversationIds: user.starredConversationIds
     });
 
     await qb.buildAllQueries();
@@ -112,13 +127,13 @@ const conversationQueries = {
       conversationId,
       skip,
       limit,
-      getFirst,
+      getFirst
     }: {
       conversationId: string;
       skip: number;
       limit: number;
       getFirst: boolean;
-    },
+    }
   ) {
     const query = { conversationId };
 
@@ -145,7 +160,10 @@ const conversationQueries = {
   /**
    *  Get all conversation messages count. We will use it in pager
    */
-  async conversationMessagesTotalCount(_root, { conversationId }: { conversationId: string }) {
+  async conversationMessagesTotalCount(
+    _root,
+    { conversationId }: { conversationId: string }
+  ) {
     return ConversationMessages.countDocuments({ conversationId });
   },
 
@@ -156,28 +174,37 @@ const conversationQueries = {
       isResolved,
       commentId,
       limit,
-      senderId,
-    }: { commentId: string; isResolved: string; postId: string; senderId: string; limit: number },
-    { dataSources }: IContext,
+      senderId
+    }: {
+      commentId: string;
+      isResolved: string;
+      postId: string;
+      senderId: string;
+      limit: number;
+    },
+    { dataSources }: IContext
   ) {
     return dataSources.IntegrationsAPI.fetchApi('/facebook/get-comments', {
       postId,
       isResolved,
       commentId,
       senderId,
-      limit: limit || 10,
+      limit: limit || 10
     });
   },
 
   async converstationFacebookCommentsCount(
     _root,
     { postId, isResolved }: { postId: string; isResolved: string },
-    { dataSources }: IContext,
+    { dataSources }: IContext
   ) {
-    return dataSources.IntegrationsAPI.fetchApi('/facebook/get-comments-count', {
-      postId,
-      isResolved,
-    });
+    return dataSources.IntegrationsAPI.fetchApi(
+      '/facebook/get-comments-count',
+      {
+        postId,
+        isResolved
+      }
+    );
   },
   /**
    * Group conversation counts by brands, channels, integrations, status
@@ -189,7 +216,7 @@ const conversationQueries = {
 
     const qb = new QueryBuilder(params, {
       _id: user._id,
-      starredConversationIds: user.starredConversationIds,
+      starredConversationIds: user.starredConversationIds
     });
 
     await qb.buildAllQueries();
@@ -217,37 +244,37 @@ const conversationQueries = {
     const mainQuery = {
       ...qb.mainQuery(),
       ...queries.integrations,
-      ...queries.integrationType,
+      ...queries.integrationType
     };
 
     // unassigned count
     response.unassigned = await count({
       ...mainQuery,
-      ...qb.unassignedFilter(),
+      ...qb.unassignedFilter()
     });
 
     // participating count
     response.participating = await count({
       ...mainQuery,
-      ...qb.participatingFilter(),
+      ...qb.participatingFilter()
     });
 
     // starred count
     response.starred = await count({
       ...mainQuery,
-      ...qb.starredFilter(),
+      ...qb.starredFilter()
     });
 
     // resolved count
     response.resolved = await count({
       ...mainQuery,
-      ...qb.statusFilter(['closed']),
+      ...qb.statusFilter(['closed'])
     });
 
     // awaiting response count
     response.awaitingResponse = await count({
       ...mainQuery,
-      ...qb.awaitingResponse(),
+      ...qb.awaitingResponse()
     });
 
     return response;
@@ -267,7 +294,7 @@ const conversationQueries = {
     // initiate query builder
     const qb = new QueryBuilder(params, {
       _id: user._id,
-      starredConversationIds: user.starredConversationIds,
+      starredConversationIds: user.starredConversationIds
     });
 
     await qb.buildAllQueries();
@@ -282,7 +309,7 @@ const conversationQueries = {
     // initiate query builder
     const qb = new QueryBuilder(params, {
       _id: user._id,
-      starredConversationIds: user.starredConversationIds,
+      starredConversationIds: user.starredConversationIds
     });
 
     await qb.buildAllQueries();
@@ -310,14 +337,14 @@ const conversationQueries = {
       $or: [
         {
           userId: { $exists: true },
-          messageCount: { $gt: 1 },
+          messageCount: { $gt: 1 }
         },
         {
-          userId: { $exists: false },
-        },
-      ],
+          userId: { $exists: false }
+        }
+      ]
     }).countDocuments();
-  },
+  }
 };
 
 moduleRequireLogin(conversationQueries);

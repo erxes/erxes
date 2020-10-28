@@ -13,10 +13,12 @@ const command = async () => {
   const selector = {
     relatedIntegrationIds: { $exists: false },
     integrationId: { $exists: true, $ne: null },
-    profileScore: { $gt: 0 },
+    profileScore: { $gt: 0 }
   };
 
-  const customers = await Customers.find(selector).limit(limit ? parseInt(limit, 10) : 10000);
+  const customers = await Customers.find(selector).limit(
+    limit ? parseInt(limit, 10) : 10000
+  );
 
   console.log(`Limit: ${limit}, length: ${customers.length}`);
 
@@ -30,14 +32,14 @@ const command = async () => {
     bulkOptions.push({
       updateOne: {
         filter: {
-          _id: customer._id,
+          _id: customer._id
         },
         update: {
           $set: {
-            relatedIntegrationIds: [customer.integrationId],
-          },
-        },
-      },
+            relatedIntegrationIds: [customer.integrationId]
+          }
+        }
+      }
     });
   }
 

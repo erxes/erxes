@@ -11,7 +11,7 @@ export default {
         }
 
         return payload.onboardingChanged.userId === variables.userId;
-      },
-    ),
-  },
+      }
+    )
+  }
 };

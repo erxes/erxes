@@ -60,9 +60,9 @@ describe('Segments mutations', () => {
           propertyName: faker.random.word(),
           propertyOperator: faker.random.word(),
           propertyValue: faker.random.word(),
-          type: 'property',
-        },
-      ],
+          type: 'property'
+        }
+      ]
     };
 
     const mutation = `
@@ -78,7 +78,12 @@ describe('Segments mutations', () => {
       }
     `;
 
-    const segment = await graphqlRequest(mutation, 'segmentsAdd', args, context);
+    const segment = await graphqlRequest(
+      mutation,
+      'segmentsAdd',
+      args,
+      context
+    );
 
     expect(segment.contentType).toBe(args.contentType);
     expect(segment.name).toBe(args.name);
@@ -103,9 +108,9 @@ describe('Segments mutations', () => {
           type: 'property',
           propertyValue: faker.random.word(),
           propertyOperator: faker.random.word(),
-          propertyName: faker.random.word(),
-        },
-      ],
+          propertyName: faker.random.word()
+        }
+      ]
     };
 
     const mutation = `
@@ -121,7 +126,12 @@ describe('Segments mutations', () => {
       }
     `;
 
-    const segment = await graphqlRequest(mutation, 'segmentsEdit', args, context);
+    const segment = await graphqlRequest(
+      mutation,
+      'segmentsEdit',
+      args,
+      context
+    );
 
     expect(segment._id).toBe(args._id);
     expect(segment.name).toBe(args.name);
@@ -138,7 +148,12 @@ describe('Segments mutations', () => {
       }
     `;
 
-    await graphqlRequest(mutation, 'segmentsRemove', { _id: _segment._id }, context);
+    await graphqlRequest(
+      mutation,
+      'segmentsRemove',
+      { _id: _segment._id },
+      context
+    );
 
     expect(await Segments.findOne({ _id: _segment._id })).toBe(null);
   });

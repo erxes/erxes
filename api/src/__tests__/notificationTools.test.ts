@@ -1,9 +1,16 @@
 import { sendChannelNotifications } from '../data/resolvers/mutations/channels';
 import utils from '../data/utils';
-import { channelFactory, notificationConfigurationFactory, userFactory } from '../db/factories';
+import {
+  channelFactory,
+  notificationConfigurationFactory,
+  userFactory
+} from '../db/factories';
 import { NotificationConfigurations, Notifications, Users } from '../db/models';
 
-import { NOTIFICATION_CONTENT_TYPES, NOTIFICATION_TYPES } from '../db/models/definitions/constants';
+import {
+  NOTIFICATION_CONTENT_TYPES,
+  NOTIFICATION_TYPES
+} from '../db/models/definitions/constants';
 import './setup.ts';
 
 describe('testings helper methods', () => {
@@ -29,19 +36,19 @@ describe('testings helper methods', () => {
     await notificationConfigurationFactory({
       notifType: NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
       isAllowed: false,
-      user: _user._id,
+      user: _user._id
     });
 
     await notificationConfigurationFactory({
       notifType: NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
       isAllowed: false,
-      user: _user2._id,
+      user: _user2._id
     });
 
     await notificationConfigurationFactory({
       notifType: NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
       isAllowed: false,
-      user: _user3._id,
+      user: _user3._id
     });
 
     const doc = {
@@ -53,7 +60,7 @@ describe('testings helper methods', () => {
       action: 'action',
       receivers: [_user._id, _user2._id, _user3._id],
       contentType: NOTIFICATION_CONTENT_TYPES.CHANNEL,
-      contentTypeId: 'channelId',
+      contentTypeId: 'channelId'
     };
 
     await utils.sendNotification(doc);
@@ -62,7 +69,11 @@ describe('testings helper methods', () => {
     expect(notifications.length).toEqual(0);
 
     // Send notifications when there is config allowing it ====================
-    await NotificationConfigurations.updateMany({}, { $set: { isAllowed: true } }, { multi: true });
+    await NotificationConfigurations.updateMany(
+      {},
+      { $set: { isAllowed: true } },
+      { multi: true }
+    );
 
     await utils.sendNotification(doc);
 
@@ -91,7 +102,9 @@ describe('testings helper methods', () => {
 
     const content = `${channel.name} channel`;
 
-    const spySendNotification = jest.spyOn(utils, 'sendNotification').mockImplementation(() => Promise.resolve(true));
+    const spySendNotification = jest
+      .spyOn(utils, 'sendNotification')
+      .mockImplementation(() => Promise.resolve(true));
 
     await sendChannelNotifications(channel, 'invited', _user);
 
@@ -104,7 +117,10 @@ describe('testings helper methods', () => {
       link: `/inbox/index?channelId=${channel._id}`,
       contentType: NOTIFICATION_CONTENT_TYPES.CHANNEL,
       contentTypeId: channel._id,
-      receivers: channel && channel.memberIds ? channel.memberIds.filter(id => id !== channel.userId) : null,
+      receivers:
+        channel && channel.memberIds
+          ? channel.memberIds.filter(id => id !== channel.userId)
+          : null
     });
 
     expect(spySendNotification.mock.calls.length).toBe(1);

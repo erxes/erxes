@@ -9,19 +9,27 @@ const Store = asyncComponent(() =>
 );
 
 const CreateMessenger = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings CreateMessenger" */ './containers/messenger/Create')
+  import(
+    /* webpackChunkName: "Settings CreateMessenger" */ './containers/messenger/Create'
+  )
 );
 
 const EditMessenger = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings EditMessenger" */ './containers/messenger/Edit')
+  import(
+    /* webpackChunkName: "Settings EditMessenger" */ './containers/messenger/Edit'
+  )
 );
 
 const CreateFacebook = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings CreateFacebook" */ './containers/facebook/Form')
+  import(
+    /* webpackChunkName: "Settings CreateFacebook" */ './containers/facebook/Form'
+  )
 );
 
 const CreateGmail = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings CreateGmail" */ './containers/gmail/Form')
+  import(
+    /* webpackChunkName: "Settings CreateGmail" */ './containers/gmail/Form'
+  )
 );
 
 const createMessenger = ({ location }) => {

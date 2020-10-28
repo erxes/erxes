@@ -3,9 +3,13 @@ import {
   knowledgeBaseArticleFactory,
   knowledgeBaseCategoryFactory,
   knowledgeBaseTopicFactory,
-  userFactory,
+  userFactory
 } from '../db/factories';
-import { KnowledgeBaseArticles, KnowledgeBaseCategories, KnowledgeBaseTopics } from '../db/models';
+import {
+  KnowledgeBaseArticles,
+  KnowledgeBaseCategories,
+  KnowledgeBaseTopics
+} from '../db/models';
 
 import './setup.ts';
 
@@ -33,7 +37,7 @@ describe('knowledgeBaseQueries', () => {
 
     const response = await graphqlRequest(qry, 'knowledgeBaseTopics', {
       page: 1,
-      perPage: 2,
+      perPage: 2
     });
 
     expect(response.length).toBe(2);
@@ -60,14 +64,16 @@ describe('knowledgeBaseQueries', () => {
 
     const knowledgeBaseTopic = await knowledgeBaseTopicFactory();
     let response = await graphqlRequest(qry, 'knowledgeBaseTopicDetail', {
-      _id: knowledgeBaseTopic._id,
+      _id: knowledgeBaseTopic._id
     });
 
     expect(response._id).toBe(knowledgeBaseTopic._id);
 
-    const knowledgeBaseTopicWithColor = await knowledgeBaseTopicFactory({ color: '#fff' });
+    const knowledgeBaseTopicWithColor = await knowledgeBaseTopicFactory({
+      color: '#fff'
+    });
     response = await graphqlRequest(qry, 'knowledgeBaseTopicDetail', {
-      _id: knowledgeBaseTopicWithColor._id,
+      _id: knowledgeBaseTopicWithColor._id
     });
 
     expect(response._id).toBe(knowledgeBaseTopicWithColor._id);
@@ -95,16 +101,22 @@ describe('knowledgeBaseQueries', () => {
     const topic = await knowledgeBaseTopicFactory();
 
     // Creating test data
-    const category = await knowledgeBaseCategoryFactory({ topicIds: [topic._id] });
+    const category = await knowledgeBaseCategoryFactory({
+      topicIds: [topic._id]
+    });
     await knowledgeBaseCategoryFactory({ topicIds: [topic._id] });
     await knowledgeBaseCategoryFactory({});
 
-    await knowledgeBaseArticleFactory({ categoryIds: [category._id], status: 'publish', userId: user._id });
+    await knowledgeBaseArticleFactory({
+      categoryIds: [category._id],
+      status: 'publish',
+      userId: user._id
+    });
 
     const args = {
       page: 1,
       perPage: 5,
-      topicIds: topic._id,
+      topicIds: topic._id
     };
 
     const qry = `
@@ -162,7 +174,9 @@ describe('knowledgeBaseQueries', () => {
       }
     `;
 
-    let responses = await graphqlRequest(qry, 'knowledgeBaseCategories', args, { user });
+    let responses = await graphqlRequest(qry, 'knowledgeBaseCategories', args, {
+      user
+    });
 
     expect(responses.length).toBe(2);
 
@@ -176,7 +190,7 @@ describe('knowledgeBaseQueries', () => {
     const topic = await knowledgeBaseTopicFactory();
 
     const category = await knowledgeBaseCategoryFactory({
-      topicIds: [topic._id],
+      topicIds: [topic._id]
     });
 
     const qry = `
@@ -188,7 +202,7 @@ describe('knowledgeBaseQueries', () => {
     `;
 
     const response = await graphqlRequest(qry, 'knowledgeBaseCategoryDetail', {
-      _id: category._id,
+      _id: category._id
     });
 
     expect(response._id).toBe(category._id);
@@ -208,9 +222,13 @@ describe('knowledgeBaseQueries', () => {
       }
     `;
 
-    let response = await graphqlRequest(qry, 'knowledgeBaseCategoriesTotalCount', {
-      topicIds: topic._id,
-    });
+    let response = await graphqlRequest(
+      qry,
+      'knowledgeBaseCategoriesTotalCount',
+      {
+        topicIds: topic._id
+      }
+    );
 
     expect(response).toBe(2);
 
@@ -223,7 +241,7 @@ describe('knowledgeBaseQueries', () => {
     const topic = await knowledgeBaseTopicFactory();
 
     const lastCategory = await knowledgeBaseCategoryFactory({
-      topicIds: [topic._id],
+      topicIds: [topic._id]
     });
 
     const qry = `
@@ -234,7 +252,10 @@ describe('knowledgeBaseQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, 'knowledgeBaseCategoriesGetLast');
+    const response = await graphqlRequest(
+      qry,
+      'knowledgeBaseCategoriesGetLast'
+    );
 
     expect(response._id).toBe(lastCategory._id);
   });
@@ -250,7 +271,7 @@ describe('knowledgeBaseQueries', () => {
     const args = {
       page: 1,
       perPage: 5,
-      categoryIds: [category._id],
+      categoryIds: [category._id]
     };
 
     const qry = `
@@ -292,7 +313,7 @@ describe('knowledgeBaseQueries', () => {
     const category = await knowledgeBaseCategoryFactory();
 
     const article = await knowledgeBaseArticleFactory({
-      categoryIds: [category._id],
+      categoryIds: [category._id]
     });
 
     const qry = `
@@ -304,7 +325,7 @@ describe('knowledgeBaseQueries', () => {
     `;
 
     const response = await graphqlRequest(qry, 'knowledgeBaseArticleDetail', {
-      _id: article._id,
+      _id: article._id
     });
 
     expect(response._id).toBe(article._id);
@@ -324,9 +345,13 @@ describe('knowledgeBaseQueries', () => {
       }
     `;
 
-    let response = await graphqlRequest(qry, 'knowledgeBaseArticlesTotalCount', {
-      categoryIds: [category._id],
-    });
+    let response = await graphqlRequest(
+      qry,
+      'knowledgeBaseArticlesTotalCount',
+      {
+        categoryIds: [category._id]
+      }
+    );
 
     expect(response).toBe(2);
 

@@ -23,7 +23,7 @@ describe('testing mutations', () => {
   test('Save notification config', async () => {
     const args = {
       notifType: 'conversationAddMessage',
-      isAllowed: true,
+      isAllowed: true
     };
 
     const mutation = `
@@ -35,7 +35,11 @@ describe('testing mutations', () => {
       }
     `;
 
-    const notification = await graphqlRequest(mutation, 'notificationsSaveConfig', args);
+    const notification = await graphqlRequest(
+      mutation,
+      'notificationsSaveConfig',
+      args
+    );
 
     expect(notification.notifType).toBe(args.notifType);
     expect(notification.isAllowed).toBe(args.isAllowed);
@@ -48,7 +52,9 @@ describe('testing mutations', () => {
       }
     `;
 
-    await graphqlRequest(mutation, 'notificationsMarkAsRead', { _ids: [_notification._id] });
+    await graphqlRequest(mutation, 'notificationsMarkAsRead', {
+      _ids: [_notification._id]
+    });
 
     const [notification] = await Notifications.find({ _id: _notification._id });
 
@@ -58,13 +64,17 @@ describe('testing mutations', () => {
     const _dealNotification = await notificationFactory({
       contentType: 'deal',
       contentTypeId: deal._id,
-      createdUser: _user,
+      createdUser: _user
     });
 
     // filter by contentTypeId
-    await graphqlRequest(mutation, 'notificationsMarkAsRead', { contentTypeId: deal._id });
+    await graphqlRequest(mutation, 'notificationsMarkAsRead', {
+      contentTypeId: deal._id
+    });
 
-    const [dealNotification] = await Notifications.find({ _id: _dealNotification._id });
+    const [dealNotification] = await Notifications.find({
+      _id: _dealNotification._id
+    });
 
     expect(dealNotification.isRead).toBe(true);
   });

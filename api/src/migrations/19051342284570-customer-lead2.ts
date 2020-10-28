@@ -7,11 +7,14 @@ module.exports.up = async () => {
   const response = await Customers.updateMany(
     {
       state: { $nin: ['customer', 'lead'] },
-      $or: [{ firstName: { $exists: true, $ne: '' } }, { lastName: { $exists: true, $ne: '' } }],
+      $or: [
+        { firstName: { $exists: true, $ne: '' } },
+        { lastName: { $exists: true, $ne: '' } }
+      ]
     },
     {
-      $set: { state: 'lead' },
-    },
+      $set: { state: 'lead' }
+    }
   );
 
   console.log(response);

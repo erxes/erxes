@@ -1,12 +1,15 @@
 import { Deals, GrowthHacks, Tasks, Tickets, Users } from '../../db/models';
 import { IPipelineDocument } from '../../db/models/definitions/boards';
-import { BOARD_TYPES, PIPELINE_VISIBLITIES } from '../../db/models/definitions/constants';
+import {
+  BOARD_TYPES,
+  PIPELINE_VISIBLITIES
+} from '../../db/models/definitions/constants';
 import { IContext } from '../types';
 import {
   generateDealCommonFilters,
   generateGrowthHackCommonFilters,
   generateTaskCommonFilters,
-  generateTicketCommonFilters,
+  generateTicketCommonFilters
 } from './queries/boardUtils';
 
 export default {
@@ -47,28 +50,40 @@ export default {
     return '';
   },
 
-  async itemsTotalCount(pipeline: IPipelineDocument, _args, { user }: IContext) {
+  async itemsTotalCount(
+    pipeline: IPipelineDocument,
+    _args,
+    { user }: IContext
+  ) {
     switch (pipeline.type) {
       case BOARD_TYPES.DEAL: {
-        const filter = await generateDealCommonFilters(user._id, { pipelineId: pipeline._id });
+        const filter = await generateDealCommonFilters(user._id, {
+          pipelineId: pipeline._id
+        });
 
         return Deals.find(filter).countDocuments();
       }
       case BOARD_TYPES.TICKET: {
-        const filter = await generateTicketCommonFilters(user._id, { pipelineId: pipeline._id });
+        const filter = await generateTicketCommonFilters(user._id, {
+          pipelineId: pipeline._id
+        });
 
         return Tickets.find(filter).countDocuments();
       }
       case BOARD_TYPES.TASK: {
-        const filter = await generateTaskCommonFilters(user._id, { pipelineId: pipeline._id });
+        const filter = await generateTaskCommonFilters(user._id, {
+          pipelineId: pipeline._id
+        });
 
         return Tasks.find(filter).countDocuments();
       }
       case BOARD_TYPES.GROWTH_HACK: {
-        const filter = await generateGrowthHackCommonFilters(user._id, { pipelineId: pipeline._id });
+        const filter = await generateGrowthHackCommonFilters(user._id, {
+          pipelineId: pipeline._id
+        });
 
         return GrowthHacks.find(filter).countDocuments();
       }
     }
-  },
+  }
 };

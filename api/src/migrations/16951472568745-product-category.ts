@@ -10,7 +10,11 @@ module.exports.up = async () => {
     return;
   }
 
-  const category = await ProductCategories.createProductCategory({ name: 'General', code: '0', order: 'General0' });
+  const category = await ProductCategories.createProductCategory({
+    name: 'General',
+    code: '0',
+    order: 'General0'
+  });
 
   await Products.updateMany({}, { $set: { categoryId: category._id } });
 

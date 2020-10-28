@@ -23,10 +23,17 @@ describe('Import history mutations', () => {
 
     const customer = await customerFactory({});
 
-    const customerHistory = await importHistoryFactory({ ids: [customer._id], contentType: 'customer' });
+    const customerHistory = await importHistoryFactory({
+      ids: [customer._id],
+      contentType: 'customer'
+    });
 
-    await graphqlRequest(mutation, 'importHistoriesRemove', { _id: customerHistory._id });
-    const historyObj = await ImportHistory.getImportHistory(customerHistory._id);
+    await graphqlRequest(mutation, 'importHistoriesRemove', {
+      _id: customerHistory._id
+    });
+    const historyObj = await ImportHistory.getImportHistory(
+      customerHistory._id
+    );
 
     expect(historyObj.status).toBe('Removing');
 
@@ -41,13 +48,17 @@ describe('Import history mutations', () => {
     `;
 
     const spy = jest.spyOn(messageBroker(), 'sendRPCMessage');
-    spy.mockImplementation(() => Promise.resolve({ status: 'error', message: 'Workers are busy' }));
+    spy.mockImplementation(() =>
+      Promise.resolve({ status: 'error', message: 'Workers are busy' })
+    );
 
     const customer = await customerFactory({});
     const importHistory = await importHistoryFactory({ ids: [customer._id] });
 
     try {
-      await graphqlRequest(mutation, 'importHistoriesRemove', { _id: importHistory._id });
+      await graphqlRequest(mutation, 'importHistoriesRemove', {
+        _id: importHistory._id
+      });
     } catch (e) {
       expect(e[0].message).toBe('Workers are busy');
     }
@@ -64,7 +75,9 @@ describe('Import history mutations', () => {
 
     const importHistory = await importHistoryFactory({});
 
-    const response = await graphqlRequest(mutation, 'importHistoriesCancel', { _id: importHistory._id });
+    const response = await graphqlRequest(mutation, 'importHistoriesCancel', {
+      _id: importHistory._id
+    });
 
     expect(response).toBe(true);
   });

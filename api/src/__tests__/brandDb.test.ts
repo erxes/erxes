@@ -46,7 +46,7 @@ describe('Brands db', () => {
     const brandObj = await Brands.createBrand({
       name: _brand.name,
       description: _brand.description,
-      userId: _user._id,
+      userId: _user._id
     });
 
     expect(brandObj).toBeDefined();
@@ -62,7 +62,7 @@ describe('Brands db', () => {
     const brandObj = await Brands.updateBrand(_brand.id, {
       name: _brandUpdateObj.name,
       description: _brandUpdateObj.description,
-      code: _brandUpdateObj.code,
+      code: _brandUpdateObj.code
     });
 
     expect(brandObj.code).toBe(_brandUpdateObj.code);
@@ -83,7 +83,10 @@ describe('Brands db', () => {
   });
 
   test('Update brand email config', async () => {
-    const brandObj = await Brands.updateEmailConfig(_brand.id, _brand.emailConfig);
+    const brandObj = await Brands.updateEmailConfig(
+      _brand.id,
+      _brand.emailConfig
+    );
 
     if (!brandObj || !brandObj.emailConfig) {
       throw new Error('Brand not found');
@@ -101,11 +104,11 @@ describe('Brands db', () => {
 
     await Brands.manageIntegrations({
       _id: brand._id,
-      integrationIds: [integration1._id, integration2._id],
+      integrationIds: [integration1._id, integration2._id]
     });
 
     const integrationObj1 = await Integrations.findOne({
-      _id: integration1._id,
+      _id: integration1._id
     });
 
     if (!integrationObj1) {
@@ -113,7 +116,7 @@ describe('Brands db', () => {
     }
 
     const integrationObj2 = await Integrations.findOne({
-      _id: integration2._id,
+      _id: integration2._id
     });
 
     if (!integrationObj2) {

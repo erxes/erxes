@@ -12,7 +12,10 @@ beforeAll(async () => {
 
   const mongoUri = await mongoServer.getConnectionString();
 
-  await mongoose.connect(mongoUri, { ...connectionOptions, useUnifiedTopology: true });
+  await mongoose.connect(mongoUri, {
+    ...connectionOptions,
+    useUnifiedTopology: true
+  });
 });
 
 afterAll(async () => {

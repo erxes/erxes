@@ -10,7 +10,7 @@ import {
   pipelineLabelFactory,
   stageFactory,
   taskFactory,
-  userFactory,
+  userFactory
 } from '../db/factories';
 import {
   Boards,
@@ -20,10 +20,18 @@ import {
   PipelineLabels,
   Pipelines,
   Stages,
-  Tasks,
+  Tasks
 } from '../db/models';
-import { IBoardDocument, IPipelineDocument, IStageDocument } from '../db/models/definitions/boards';
-import { BOARD_STATUSES, BOARD_TYPES, TIME_TRACK_TYPES } from '../db/models/definitions/constants';
+import {
+  IBoardDocument,
+  IPipelineDocument,
+  IStageDocument
+} from '../db/models/definitions/boards';
+import {
+  BOARD_STATUSES,
+  BOARD_TYPES,
+  TIME_TRACK_TYPES
+} from '../db/models/definitions/constants';
 import { IPipelineLabelDocument } from '../db/models/definitions/pipelineLabels';
 import { ITaskDocument } from '../db/models/definitions/tasks';
 
@@ -73,8 +81,15 @@ describe('Test tasks mutations', () => {
     pipeline = await pipelineFactory({ boardId: board._id });
     stage = await stageFactory({ pipelineId: pipeline._id });
     label = await pipelineLabelFactory({ pipelineId: pipeline._id });
-    label2 = await pipelineLabelFactory({ pipelineId: pipeline._id, name: 'new label' });
-    task = await taskFactory({ initialStageId: stage._id, stageId: stage._id, labelIds: [label._id, label2._id] });
+    label2 = await pipelineLabelFactory({
+      pipelineId: pipeline._id,
+      name: 'new label'
+    });
+    task = await taskFactory({
+      initialStageId: stage._id,
+      stageId: stage._id,
+      labelIds: [label._id, label2._id]
+    });
   });
 
   afterEach(async () => {
@@ -89,7 +104,7 @@ describe('Test tasks mutations', () => {
   test('Create task', async () => {
     const args = {
       name: task.name,
-      stageId: stage._id,
+      stageId: stage._id
     };
 
     const mutation = `
@@ -111,7 +126,7 @@ describe('Test tasks mutations', () => {
     const args: any = {
       _id: task._id,
       name: task.name,
-      stageId: stage._id,
+      stageId: stage._id
     };
 
     const mutation = `
@@ -148,13 +163,13 @@ describe('Test tasks mutations', () => {
     await pipelineLabelFactory({
       pipelineId: pipeline2._id,
       name: label.name,
-      colorCode: label.colorCode,
+      colorCode: label.colorCode
     });
 
     const args: any = {
       _id: task._id,
       name: 'Edited task',
-      stageId: stage2._id,
+      stageId: stage2._id
     };
 
     const mutation = `
@@ -173,7 +188,9 @@ describe('Test tasks mutations', () => {
     expect(updatedTask.stageId).toBe(stage2._id);
 
     if (task.labelIds) {
-      const copiedLabels = await PipelineLabels.find({ pipelineId: pipeline2._id });
+      const copiedLabels = await PipelineLabels.find({
+        pipelineId: pipeline2._id
+      });
 
       expect(copiedLabels.length).toBe(2);
     }
@@ -194,7 +211,7 @@ describe('Test tasks mutations', () => {
       itemId: task._id,
       aboveItemId: '',
       destinationStageId: task.stageId,
-      sourceStageId: task.stageId,
+      sourceStageId: task.stageId
     };
 
     const mutation = `
@@ -220,7 +237,7 @@ describe('Test tasks mutations', () => {
       itemId: task._id,
       aboveItemId: '',
       destinationStageId: anotherStage._id,
-      sourceStageId: task.stageId,
+      sourceStageId: task.stageId
     };
 
     const mutation = `
@@ -252,12 +269,14 @@ describe('Test tasks mutations', () => {
     `;
 
     const anotherPipeline = await pipelineFactory({ boardId: board._id });
-    const anotherStage = await stageFactory({ pipelineId: anotherPipeline._id });
+    const anotherStage = await stageFactory({
+      pipelineId: anotherPipeline._id
+    });
 
     const args = {
       _id: task._id,
       stageId: anotherStage._id,
-      name: task.name || '',
+      name: task.name || ''
     };
 
     const updatedTask = await graphqlRequest(mutation, 'tasksEdit', args);
@@ -290,11 +309,17 @@ describe('Test tasks mutations', () => {
       }
     `;
 
-    const watchAddTask = await graphqlRequest(mutation, 'tasksWatch', { _id: task._id, isAdd: true });
+    const watchAddTask = await graphqlRequest(mutation, 'tasksWatch', {
+      _id: task._id,
+      isAdd: true
+    });
 
     expect(watchAddTask.isWatched).toBe(true);
 
-    const watchRemoveTask = await graphqlRequest(mutation, 'tasksWatch', { _id: task._id, isAdd: false });
+    const watchRemoveTask = await graphqlRequest(mutation, 'tasksWatch', {
+      _id: task._id,
+      isAdd: false
+    });
 
     expect(watchRemoveTask.isWatched).toBe(false);
   });
@@ -314,13 +339,13 @@ describe('Test tasks mutations', () => {
     const checklist = await checklistFactory({
       contentType: 'task',
       contentTypeId: task._id,
-      title: 'task-checklist',
+      title: 'task-checklist'
     });
 
     await checklistItemFactory({
       checklistId: checklist._id,
       content: 'Improve task mutation test coverage',
-      isChecked: true,
+      isChecked: true
     });
 
     const company = await companyFactory();
@@ -331,24 +356,39 @@ describe('Test tasks mutations', () => {
       mainType: 'task',
       mainTypeId: task._id,
       relType: 'company',
-      relTypeId: company._id,
+      relTypeId: company._id
     });
 
     await conformityFactory({
       mainType: 'task',
       mainTypeId: task._id,
       relType: 'customer',
-      relTypeId: customer._id,
+      relTypeId: customer._id
     });
 
-    const result = await graphqlRequest(mutation, 'tasksCopy', { _id: task._id }, { user });
+    const result = await graphqlRequest(
+      mutation,
+      'tasksCopy',
+      { _id: task._id },
+      { user }
+    );
 
-    const clonedTaskCompanies = await Conformities.find({ mainTypeId: result._id, relTypeId: company._id });
-    const clonedTaskCustomers = await Conformities.find({ mainTypeId: result._id, relTypeId: company._id });
-    const clonedTaskChecklist = await Checklists.findOne({ contentTypeId: result._id });
+    const clonedTaskCompanies = await Conformities.find({
+      mainTypeId: result._id,
+      relTypeId: company._id
+    });
+    const clonedTaskCustomers = await Conformities.find({
+      mainTypeId: result._id,
+      relTypeId: company._id
+    });
+    const clonedTaskChecklist = await Checklists.findOne({
+      contentTypeId: result._id
+    });
 
     if (clonedTaskChecklist) {
-      const clonedTaskChecklistItems = await ChecklistItems.find({ checklistId: clonedTaskChecklist._id });
+      const clonedTaskChecklistItems = await ChecklistItems.find({
+        checklistId: clonedTaskChecklist._id
+      });
 
       expect(clonedTaskChecklist.contentTypeId).toBe(result._id);
       expect(clonedTaskChecklistItems.length).toBe(1);
@@ -377,7 +417,10 @@ describe('Test tasks mutations', () => {
 
     await graphqlRequest(mutation, 'tasksArchive', { stageId: taskStage._id });
 
-    const tasks = await Tasks.find({ stageId: taskStage._id, status: BOARD_STATUSES.ARCHIVED });
+    const tasks = await Tasks.find({
+      stageId: taskStage._id,
+      status: BOARD_STATUSES.ARCHIVED
+    });
 
     expect(tasks.length).toBe(3);
   });
@@ -399,7 +442,7 @@ describe('Test tasks mutations', () => {
       _id: task._id,
       status: TIME_TRACK_TYPES.STARTED,
       timeSpent: 10,
-      startDate: new Date().toISOString(),
+      startDate: new Date().toISOString()
     });
 
     const updatedTask = await Tasks.findOne({ _id: task._id });

@@ -13,16 +13,20 @@ const emailTemplateMutations = {
   /**
    * Creates a new email template
    */
-  async emailTemplatesAdd(_root, doc: IEmailTemplate, { user, docModifier }: IContext) {
+  async emailTemplatesAdd(
+    _root,
+    doc: IEmailTemplate,
+    { user, docModifier }: IContext
+  ) {
     const template = await EmailTemplates.create(docModifier(doc));
 
     await putCreateLog(
       {
         type: MODULE_NAMES.EMAIL_TEMPLATE,
         newData: doc,
-        object: template,
+        object: template
       },
-      user,
+      user
     );
 
     return template;
@@ -31,7 +35,11 @@ const emailTemplateMutations = {
   /**
    * Update email template
    */
-  async emailTemplatesEdit(_root, { _id, ...fields }: IEmailTemplatesEdit, { user }: IContext) {
+  async emailTemplatesEdit(
+    _root,
+    { _id, ...fields }: IEmailTemplatesEdit,
+    { user }: IContext
+  ) {
     const template = await EmailTemplates.getEmailTemplate(_id);
     const updated = await EmailTemplates.updateEmailTemplate(_id, fields);
 
@@ -39,9 +47,9 @@ const emailTemplateMutations = {
       {
         type: MODULE_NAMES.EMAIL_TEMPLATE,
         object: template,
-        newData: fields,
+        newData: fields
       },
-      user,
+      user
     );
 
     return updated;
@@ -50,14 +58,21 @@ const emailTemplateMutations = {
   /**
    * Delete email template
    */
-  async emailTemplatesRemove(_root, { _id }: { _id: string }, { user }: IContext) {
+  async emailTemplatesRemove(
+    _root,
+    { _id }: { _id: string },
+    { user }: IContext
+  ) {
     const template = await EmailTemplates.getEmailTemplate(_id);
     const removed = await EmailTemplates.removeEmailTemplate(_id);
 
-    await putDeleteLog({ type: MODULE_NAMES.EMAIL_TEMPLATE, object: template }, user);
+    await putDeleteLog(
+      { type: MODULE_NAMES.EMAIL_TEMPLATE, object: template },
+      user
+    );
 
     return removed;
-  },
+  }
 };
 
 moduleCheckPermission(emailTemplateMutations, 'manageEmailTemplate');

@@ -19,10 +19,22 @@ export const scriptSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
     name: field({ type: String, label: 'Name' }),
-    messengerId: field({ type: String, optional: true, label: 'Messenger integration' }),
-    messengerBrandCode: field({ type: String, optional: true, label: 'Messenger brand code' }),
-    kbTopicId: field({ type: String, optional: true, label: 'Knowledgebase topic' }),
+    messengerId: field({
+      type: String,
+      optional: true,
+      label: 'Messenger integration'
+    }),
+    messengerBrandCode: field({
+      type: String,
+      optional: true,
+      label: 'Messenger brand code'
+    }),
+    kbTopicId: field({
+      type: String,
+      optional: true,
+      label: 'Knowledgebase topic'
+    }),
     leadIds: field({ type: [String], optional: true, label: 'Leads' }),
-    leadMaps: field({ type: [Object], optional: true }),
-  }),
+    leadMaps: field({ type: [Object], optional: true })
+  })
 );

@@ -6,7 +6,7 @@ import {
   IProductCategoryDocument,
   IProductDocument,
   productCategorySchema,
-  productSchema,
+  productSchema
 } from './definitions/deals';
 
 export interface IProductModel extends Model<IProductDocument> {
@@ -38,11 +38,15 @@ export const loadProductClass = () => {
      */
     public static async createProduct(doc: IProduct) {
       if (doc.categoryCode) {
-        const category = await ProductCategories.getProductCatogery({ code: doc.categoryCode });
+        const category = await ProductCategories.getProductCatogery({
+          code: doc.categoryCode
+        });
         doc.categoryId = category._id;
       }
 
-      doc.customFieldsData = await Fields.prepareCustomFieldsData(doc.customFieldsData);
+      doc.customFieldsData = await Fields.prepareCustomFieldsData(
+        doc.customFieldsData
+      );
 
       return Products.create(doc);
     }
@@ -53,7 +57,9 @@ export const loadProductClass = () => {
     public static async updateProduct(_id: string, doc: IProduct) {
       if (doc.customFieldsData) {
         // clean custom field values
-        doc.customFieldsData = await Fields.prepareCustomFieldsData(doc.customFieldsData);
+        doc.customFieldsData = await Fields.prepareCustomFieldsData(
+          doc.customFieldsData
+        );
       }
 
       await Products.updateOne({ _id }, { $set: doc });
@@ -67,15 +73,17 @@ export const loadProductClass = () => {
     public static async removeProducts(_ids: string[]) {
       const deals = await Deals.find(
         {
-          'productsData.productId': { $in: _ids },
+          'productsData.productId': { $in: _ids }
         },
-        { name: 1 },
+        { name: 1 }
       ).lean();
 
       if (deals.length > 0) {
         const names = deals.map(deal => deal.name);
 
-        throw new Error(`Can not remove products. Following deals are used ${names.join(',')}`);
+        throw new Error(
+          `Can not remove products. Following deals are used ${names.join(',')}`
+        );
       }
 
       return Products.deleteMany({ _id: { $in: _ids } });
@@ -89,8 +97,13 @@ export const loadProductClass = () => {
 
 export interface IProductCategoryModel extends Model<IProductCategoryDocument> {
   getProductCatogery(selector: any): Promise<IProductCategoryDocument>;
-  createProductCategory(doc: IProductCategory): Promise<IProductCategoryDocument>;
-  updateProductCategory(_id: string, doc: IProductCategory): Promise<IProductCategoryDocument>;
+  createProductCategory(
+    doc: IProductCategory
+  ): Promise<IProductCategoryDocument>;
+  updateProductCategory(
+    _id: string,
+    doc: IProductCategory
+  ): Promise<IProductCategoryDocument>;
   removeProductCategory(_id: string): void;
 }
 
@@ -115,7 +128,9 @@ export const loadProductCategoryClass = () => {
      * Create a product categorys
      */
     public static async createProductCategory(doc: IProductCategory) {
-      const parentCategory = await ProductCategories.findOne({ _id: doc.parentId }).lean();
+      const parentCategory = await ProductCategories.findOne({
+        _id: doc.parentId
+      }).lean();
 
       // Generatingg order
       doc.order = await this.generateOrder(parentCategory, doc);
@@ -126,8 +141,13 @@ export const loadProductCategoryClass = () => {
     /**
      * Update Product category
      */
-    public static async updateProductCategory(_id: string, doc: IProductCategory) {
-      const parentCategory = await ProductCategories.findOne({ _id: doc.parentId }).lean();
+    public static async updateProductCategory(
+      _id: string,
+      doc: IProductCategory
+    ) {
+      const parentCategory = await ProductCategories.findOne({
+        _id: doc.parentId
+      }).lean();
 
       if (parentCategory && parentCategory.parentId === _id) {
         throw new Error('Cannot change category');
@@ -136,10 +156,15 @@ export const loadProductCategoryClass = () => {
       // Generatingg  order
       doc.order = await this.generateOrder(parentCategory, doc);
 
-      const productCategory = await ProductCategories.getProductCatogery({ _id });
+      const productCategory = await ProductCategories.getProductCatogery({
+        _id
+      });
 
       const childCategories = await ProductCategories.find({
-        $and: [{ order: { $regex: new RegExp(productCategory.order, 'i') } }, { _id: { $ne: _id } }],
+        $and: [
+          { order: { $regex: new RegExp(productCategory.order, 'i') } },
+          { _id: { $ne: _id } }
+        ]
       });
 
       await ProductCategories.updateOne({ _id }, { $set: doc });
@@ -150,7 +175,10 @@ export const loadProductCategoryClass = () => {
 
         order = order.replace(productCategory.order, doc.order);
 
-        await ProductCategories.updateOne({ _id: category._id }, { $set: { order } });
+        await ProductCategories.updateOne(
+          { _id: category._id },
+          { $set: { order } }
+        );
       });
 
       return ProductCategories.findOne({ _id });
@@ -175,8 +203,13 @@ export const loadProductCategoryClass = () => {
     /**
      * Generating order
      */
-    public static async generateOrder(parentCategory: IProductCategory, doc: IProductCategory) {
-      const order = parentCategory ? `${parentCategory.order}/${doc.name}${doc.code}` : `${doc.name}${doc.code}`;
+    public static async generateOrder(
+      parentCategory: IProductCategory,
+      doc: IProductCategory
+    ) {
+      const order = parentCategory
+        ? `${parentCategory.order}/${doc.name}${doc.code}`
+        : `${doc.name}${doc.code}`;
 
       return order;
     }
@@ -191,10 +224,13 @@ loadProductClass();
 loadProductCategoryClass();
 
 // tslint:disable-next-line
-export const Products = model<IProductDocument, IProductModel>('products', productSchema);
+export const Products = model<IProductDocument, IProductModel>(
+  'products',
+  productSchema
+);
 
 // tslint:disable-next-line
-export const ProductCategories = model<IProductCategoryDocument, IProductCategoryModel>(
-  'product_categories',
-  productCategorySchema,
-);
+export const ProductCategories = model<
+  IProductCategoryDocument,
+  IProductCategoryModel
+>('product_categories', productCategorySchema);

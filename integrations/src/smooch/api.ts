@@ -7,7 +7,7 @@ import { TELEGRAM_API_URL } from './constants';
 import {
   createOrGetSmoochConversation as storeConversation,
   createOrGetSmoochConversationMessage as storeMessage,
-  createOrGetSmoochCustomer as storeCustomer,
+  createOrGetSmoochCustomer as storeCustomer
 } from './store';
 import { SMOOCH_MODELS } from './store';
 import {
@@ -16,7 +16,7 @@ import {
   ISmoochConversationMessageArguments,
   ISmoochCustomerArguments,
   ISmoochCustomerInput,
-  ISmoochProps,
+  ISmoochProps
 } from './types';
 
 interface IMessage {
@@ -31,16 +31,27 @@ export const getSmoochConfig = async () => {
     SMOOCH_APP_ID: await getConfig('SMOOCH_APP_ID'),
     SMOOCH_APP_KEY_ID: await getConfig('SMOOCH_APP_KEY_ID'),
     SMOOCH_SMOOCH_APP_KEY_SECRET: await getConfig('SMOOCH_APP_KEY_SECRET'),
-    SMOOCH_WEBHOOK_CALLBACK_URL: await getConfig('SMOOCH_WEBHOOK_CALLBACK_URL'),
+    SMOOCH_WEBHOOK_CALLBACK_URL: await getConfig('SMOOCH_WEBHOOK_CALLBACK_URL')
   };
 };
 
 const saveCustomer = async (customer: ISmoochCustomerInput) => {
-  const { smoochIntegrationId, smoochUserId, surname, givenName, email, phone, avatarUrl } = customer;
+  const {
+    smoochIntegrationId,
+    smoochUserId,
+    surname,
+    givenName,
+    email,
+    phone,
+    avatarUrl
+  } = customer;
   const integration = await Integrations.findOne({ smoochIntegrationId });
 
   if (!integration) {
-    return debugSmooch('Integration not found with smoochIntegrationId: ', smoochIntegrationId);
+    return debugSmooch(
+      'Integration not found with smoochIntegrationId: ',
+      smoochIntegrationId
+    );
   }
 
   const doc = <ISmoochCustomerArguments>{
@@ -48,13 +59,13 @@ const saveCustomer = async (customer: ISmoochCustomerInput) => {
     smoochUserId,
     integrationIds: {
       id: integration._id,
-      erxesApiId: integration.erxesApiId,
+      erxesApiId: integration.erxesApiId
     },
     surname,
     givenName,
     email,
     phone,
-    avatarUrl,
+    avatarUrl
   };
 
   return storeCustomer(doc);
@@ -65,12 +76,15 @@ const saveConversation = async (
   smoochConversationId: string,
   customerId: string,
   content: string,
-  received: number,
+  received: number
 ) => {
   const integration = await Integrations.findOne({ smoochIntegrationId });
 
   if (!integration) {
-    return debugSmooch('Integration not found with smoochIntegrationId: ', smoochIntegrationId);
+    return debugSmooch(
+      'Integration not found with smoochIntegrationId: ',
+      smoochIntegrationId
+    );
   }
 
   const createdAt = received * 1000;
@@ -82,9 +96,9 @@ const saveConversation = async (
     content,
     integrationIds: {
       id: integration._id,
-      erxesApiId: integration.erxesApiId,
+      erxesApiId: integration.erxesApiId
     },
-    createdAt,
+    createdAt
   };
 
   return storeConversation(doc);
@@ -96,12 +110,15 @@ const saveMessage = async (
   conversationIds: any,
   content: string,
   messageId: string,
-  attachment?: IAttachment,
+  attachment?: IAttachment
 ) => {
   const integration = await Integrations.findOne({ smoochIntegrationId });
 
   if (!integration) {
-    return debugSmooch('Integration not found with smoochIntegrationId: ', smoochIntegrationId);
+    return debugSmooch(
+      'Integration not found with smoochIntegrationId: ',
+      smoochIntegrationId
+    );
   }
 
   const doc = <ISmoochConversationMessageArguments>{
@@ -109,7 +126,7 @@ const saveMessage = async (
     customerId,
     conversationIds,
     content,
-    messageId,
+    messageId
   };
 
   if (attachment) {
@@ -127,7 +144,7 @@ const removeIntegration = async (integrationId: string) => {
   try {
     await smooch.integrations.delete({
       appId: SMOOCH_APP_ID,
-      integrationId,
+      integrationId
     });
   } catch (e) {
     debugSmooch(e.message);
@@ -156,7 +173,7 @@ const setupSmoochWebhook = async () => {
 
             await smooch.webhooks.update(webhook._id, {
               target: SMOOCH_WEBHOOK_CALLBACK_URL.replace(/\s/g, ''),
-              includeClient: true,
+              includeClient: true
             });
           } catch (e) {
             throw e;
@@ -168,15 +185,19 @@ const setupSmoochWebhook = async () => {
         await smooch.webhooks.create({
           target: SMOOCH_WEBHOOK_CALLBACK_URL,
           triggers: ['message:appUser'],
-          includeClient: true,
+          includeClient: true
         });
       } catch (e) {
-        debugSmooch(`An error occurred while setting up smooch webhook: ${e.message}`);
+        debugSmooch(
+          `An error occurred while setting up smooch webhook: ${e.message}`
+        );
         throw e;
       }
     }
   } catch (error) {
-    debugSmooch(`An error occurred while setting up smooch webhook: ${error.message}`);
+    debugSmooch(
+      `An error occurred while setting up smooch webhook: ${error.message}`
+    );
     throw error;
   }
 };
@@ -186,7 +207,7 @@ const getTelegramFile = async (token: string, fileId: string) => {
     const { result } = await request({
       uri: `${TELEGRAM_API_URL}/bot${token}/getFile?file_id=${fileId}`,
       method: 'GET',
-      json: true,
+      json: true
     });
     return `${TELEGRAM_API_URL}/file/bot${token}/${result.file_path}`;
   } catch (e) {
@@ -221,13 +242,19 @@ const reply = async requestBody => {
 
   const customerModel = SMOOCH_MODELS[integration.kind].customers;
 
-  const conversation = await conversationModel.findOne({ erxesApiId: conversationId });
+  const conversation = await conversationModel.findOne({
+    erxesApiId: conversationId
+  });
 
   const customerId = conversation.customerId;
 
   const user = await customerModel.findOne({ erxesApiId: customerId });
 
-  const messageInput: IMessage = { text: content, role: 'appMaker', type: 'text' };
+  const messageInput: IMessage = {
+    text: content,
+    role: 'appMaker',
+    type: 'text'
+  };
 
   if (attachments.length !== 0) {
     messageInput.type = 'file';
@@ -240,7 +267,7 @@ const reply = async requestBody => {
     const { message } = await smooch.appUsers.sendMessage({
       appId: SMOOCH_APP_ID,
       userId: user.smoochUserId,
-      message: messageInput,
+      message: messageInput
     });
 
     const messageModel = SMOOCH_MODELS[integration.kind].conversationMessages;
@@ -248,7 +275,7 @@ const reply = async requestBody => {
     await messageModel.create({
       conversationId: conversation.id,
       messageId: message._id,
-      content,
+      content
     });
   } catch (e) {
     debugSmooch(`Failed to send smooch message: ${e.message}`);
@@ -270,7 +297,7 @@ const createIntegration = async requestBody => {
 
   const smoochProps = <ISmoochProps>{
     kind,
-    erxesApiId: integrationId,
+    erxesApiId: integrationId
   };
 
   switch (kind) {
@@ -298,9 +325,15 @@ const createIntegration = async requestBody => {
   const smooch = await setupSmooch();
 
   try {
-    const result = await smooch.integrations.create({ appId: SMOOCH_APP_ID, props });
+    const result = await smooch.integrations.create({
+      appId: SMOOCH_APP_ID,
+      props
+    });
 
-    await Integrations.updateOne({ _id: integration.id }, { $set: { smoochIntegrationId: result.integration._id } });
+    await Integrations.updateOne(
+      { _id: integration.id },
+      { $set: { smoochIntegrationId: result.integration._id } }
+    );
   } catch (e) {
     debugSmooch(`Failed to create smooch integration: ${e.message}`);
 
@@ -315,10 +348,15 @@ export const setupSmooch = async () => {
     SMOOCH_APP_KEY_ID,
     SMOOCH_SMOOCH_APP_KEY_SECRET,
     SMOOCH_WEBHOOK_CALLBACK_URL,
-    SMOOCH_APP_ID,
+    SMOOCH_APP_ID
   } = await getSmoochConfig();
 
-  if (!SMOOCH_APP_KEY_ID || !SMOOCH_SMOOCH_APP_KEY_SECRET || !SMOOCH_WEBHOOK_CALLBACK_URL || !SMOOCH_APP_ID) {
+  if (
+    !SMOOCH_APP_KEY_ID ||
+    !SMOOCH_SMOOCH_APP_KEY_SECRET ||
+    !SMOOCH_WEBHOOK_CALLBACK_URL ||
+    !SMOOCH_APP_ID
+  ) {
     debugSmooch(`
       Missing following config
       SMOOCH_APP_KEY_ID: ${SMOOCH_APP_KEY_ID}
@@ -339,7 +377,7 @@ export const setupSmooch = async () => {
   return new Smooch({
     keyId: SMOOCH_APP_KEY_ID,
     secret: SMOOCH_SMOOCH_APP_KEY_SECRET,
-    scope: 'app',
+    scope: 'app'
   });
 };
 
@@ -352,5 +390,5 @@ export {
   getTelegramFile,
   getLineWebhookUrl,
   reply,
-  createIntegration,
+  createIntegration
 };

@@ -1,7 +1,10 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import segmentQueries from 'modules/segments/graphql/queries';
-import { FieldsCombinedByType, FieldsCombinedByTypeQueryResponse } from 'modules/settings/properties/types';
+import {
+  FieldsCombinedByType,
+  FieldsCombinedByTypeQueryResponse
+} from 'modules/settings/properties/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '../../common/utils';
@@ -12,31 +15,33 @@ import { IEditorProps, IMentionUser } from '../types';
 import { isValidURL } from '../utils/urlParser';
 
 const generateAttributes = (combinedFields?: FieldsCombinedByType[]) => {
-    let items: Array<{ name: string, value?: string }> = [
-      { name: 'Customer' },
-      { value: 'customer.name', name: 'Name' },
-    ];
+  let items: Array<{ name: string; value?: string }> = [
+    { name: 'Customer' },
+    { value: 'customer.name', name: 'Name' }
+  ];
 
-    (combinedFields || []).forEach(field => items.push({ value: `customer.${field.name}`, name: field.label }));
+  (combinedFields || []).forEach(field =>
+    items.push({ value: `customer.${field.name}`, name: field.label })
+  );
 
-    items = [
-        ...items,
-        { name: 'User' },
-        { value: 'user.fullName', name: 'Fullname' },
-        { value: 'user.position', name: 'Position' },
-        { value: 'user.email', name: 'Email' },
+  items = [
+    ...items,
+    { name: 'User' },
+    { value: 'user.fullName', name: 'Fullname' },
+    { value: 'user.position', name: 'Position' },
+    { value: 'user.email', name: 'Email' },
 
-        { name: 'Organization' },
-        { value: 'brandName', name: 'BrandName' },
-        { value: 'domain', name: 'Domain' }
-    ];
+    { name: 'Organization' },
+    { value: 'brandName', name: 'BrandName' },
+    { value: 'domain', name: 'Domain' }
+  ];
 
-    return {
-        items,
-        title: 'Attributes',
-        label: 'Attributes'
-    };
-}
+  return {
+    items,
+    title: 'Attributes',
+    label: 'Attributes'
+  };
+};
 
 type Props = {
   showMentions?: boolean;
@@ -72,7 +77,13 @@ const EditorContainer = (props: FinalProps) => {
 
   const insertItems = props.insertItems || generateAttributes(combinedFields);
 
-  return <EditorCK {...props} mentionUsers={mentionUsers} insertItems={insertItems} />;
+  return (
+    <EditorCK
+      {...props}
+      mentionUsers={mentionUsers}
+      insertItems={insertItems}
+    />
+  );
 };
 
 export default withProps<Props>(

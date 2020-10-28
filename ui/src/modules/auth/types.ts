@@ -63,11 +63,9 @@ export type ForgotPasswordMutationVariables = {
 };
 
 export type ForgotPasswordMutationResponse = {
-  forgotPasswordMutation: (
-    params: {
-      variables: ForgotPasswordMutationVariables;
-    }
-  ) => Promise<any>;
+  forgotPasswordMutation: (params: {
+    variables: ForgotPasswordMutationVariables;
+  }) => Promise<any>;
 };
 
 export type ResetPasswordMutationVariables = {
@@ -76,9 +74,9 @@ export type ResetPasswordMutationVariables = {
 };
 
 export type ResetPasswordMutationResponse = {
-  resetPasswordMutation: (
-    params: { variables: ResetPasswordMutationVariables }
-  ) => Promise<any>;
+  resetPasswordMutation: (params: {
+    variables: ResetPasswordMutationVariables;
+  }) => Promise<any>;
 };
 
 export type LoginMutationVariables = {
@@ -87,11 +85,9 @@ export type LoginMutationVariables = {
 };
 
 export type LoginMutationResponse = {
-  loginMutation: (
-    params: {
-      variables: LoginMutationVariables;
-    }
-  ) => Promise<any>;
+  loginMutation: (params: {
+    variables: LoginMutationVariables;
+  }) => Promise<any>;
 };
 
 export type CurrentUserQueryResponse = {

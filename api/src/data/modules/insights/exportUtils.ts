@@ -30,7 +30,9 @@ export const convertTime = (duration: number) => {
     return num.toString();
   };
 
-  return timeFormat(hours) + ':' + timeFormat(minutes) + ':' + timeFormat(seconds);
+  return (
+    timeFormat(hours) + ':' + timeFormat(minutes) + ':' + timeFormat(seconds)
+  );
 };
 
 /**
@@ -39,9 +41,15 @@ export const convertTime = (duration: number) => {
  * @param args
  * @param excel
  */
-export const addHeader = async (title: string, args: IListArgs, excel: any): Promise<any> => {
+export const addHeader = async (
+  title: string,
+  args: IListArgs,
+  excel: any
+): Promise<any> => {
   const { integrationIds = '', brandIds = '', startDate, endDate } = args;
-  const selectedBrands = await Brands.find({ _id: { $in: brandIds.split(',') } }).select('name');
+  const selectedBrands = await Brands.find({
+    _id: { $in: brandIds.split(',') }
+  }).select('name');
   const brandNames = selectedBrands.map(row => row.name).join(',');
   const { start, end } = fixDates(startDate, endDate);
   excel.cell(1, 1).value(title);
@@ -82,7 +90,7 @@ export const nextTime = (start: Date, type?: string) => {
   return new Date(
     moment(start)
       .add(1, type === 'volumeByTime' ? 'hours' : 'days')
-      .toString(),
+      .toString()
   );
 };
 

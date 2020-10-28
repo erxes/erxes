@@ -23,12 +23,9 @@ function EmailDeliveryContainer(props: Props) {
     queryParams.emailType || EMAIL_TYPES.TRANSACTION
   );
 
-  React.useEffect(
-    () => {
-      router.setParams(history, { emailType });
-    },
-    [history, emailType]
-  );
+  React.useEffect(() => {
+    router.setParams(history, { emailType });
+  }, [history, emailType]);
 
   const transactionResponse = useQuery(
     gql(queries.transactionEmailDeliveries),

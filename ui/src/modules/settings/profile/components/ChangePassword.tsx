@@ -7,17 +7,15 @@ import { __ } from 'modules/common/utils';
 import React from 'react';
 
 type Props = {
-  save: (
-    {
-      currentPassword,
-      newPassword,
-      confirmation
-    }: {
-      currentPassword: string;
-      newPassword: string;
-      confirmation: string;
-    }
-  ) => void;
+  save: ({
+    currentPassword,
+    newPassword,
+    confirmation
+  }: {
+    currentPassword: string;
+    newPassword: string;
+    confirmation: string;
+  }) => void;
   closeModal: () => void;
 };
 

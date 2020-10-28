@@ -28,14 +28,20 @@ const init = async app => {
       const messageDate = new Date(message.createdAt).toUTCString();
 
       if (message.customerId) {
-        content = content.concat(`<b>${customer.primaryEmail}</b> <i>${messageDate}</i><p>${message.content}</p><hr>`);
+        content = content.concat(
+          `<b>${customer.primaryEmail}</b> <i>${messageDate}</i><p>${message.content}</p><hr>`
+        );
       } else {
-        content = content.concat(`<b>${user.details.fullName}</b> <i>${messageDate}</i><p>${message.content}</p><hr>`);
+        content = content.concat(
+          `<b>${user.details.fullName}</b> <i>${messageDate}</i><p>${message.content}</p><hr>`
+        );
       }
 
       if (message.attachments) {
         for (const attachment of message.attachments) {
-          content = content.concat(`<a href="${attachment.url}">${attachment.name}</a><hr>`);
+          content = content.concat(
+            `<a href="${attachment.url}">${attachment.name}</a><hr>`
+          );
         }
       }
     }
@@ -47,7 +53,7 @@ const init = async app => {
         url: 'https://api.productboard.com/notes',
         method: 'POST',
         headerParams: {
-          authorization: `Bearer ${PRODUCT_BOARD_TOKEN}`,
+          authorization: `Bearer ${PRODUCT_BOARD_TOKEN}`
         },
         body: {
           title: messages[0].content,
@@ -56,16 +62,16 @@ const init = async app => {
           display_url: `${MAIN_APP_DOMAIN}/inbox/?_id=${erxesApiConversationId}`,
           source: {
             origin,
-            record_id: erxesApiConversationId,
+            record_id: erxesApiConversationId
           },
-          tags: tags.map(tag => tag.name),
-        },
+          tags: tags.map(tag => tag.name)
+        }
       });
 
       await Conversations.create({
         timestamp: new Date(),
         erxesApiId: erxesApiConversationId,
-        productBoardLink: result.links.html,
+        productBoardLink: result.links.html
       });
 
       return res.send(result.links.html);
@@ -73,7 +79,11 @@ const init = async app => {
       if (e.statusCode === 422) {
         next(new Error('already exists'));
       } else if (e.statusCode === 401) {
-        next(new Error('Please enter the product board access token in system config.'));
+        next(
+          new Error(
+            'Please enter the product board access token in system config.'
+          )
+        );
       }
       next(e);
     }

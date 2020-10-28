@@ -13,7 +13,9 @@ export interface ICountBy {
 }
 
 export const getEsTypes = (contentType: string) => {
-  const schema = ['company', 'companies'].includes(contentType) ? companySchema : customerSchema;
+  const schema = ['company', 'companies'].includes(contentType)
+    ? companySchema
+    : customerSchema;
 
   const typesMap: { [key: string]: any } = {};
 
@@ -25,7 +27,10 @@ export const getEsTypes = (contentType: string) => {
   return typesMap;
 };
 
-export const countBySegment = async (contentType: string, qb): Promise<ICountBy> => {
+export const countBySegment = async (
+  contentType: string,
+  qb
+): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
   // Count customers by segments
@@ -131,7 +136,11 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
 
   private contentType: 'customers' | 'companies';
 
-  constructor(contentType: 'customers' | 'companies', params: IListArgs, context) {
+  constructor(
+    contentType: 'customers' | 'companies',
+    params: IListArgs,
+    context
+  ) {
     this.contentType = contentType;
     this.context = context;
     this.params = params;
@@ -154,7 +163,10 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   public async segmentFilter(segmentId: string) {
     const segment = await Segments.getSegment(segmentId);
 
-    const { positiveList, negativeList } = await fetchBySegments(segment, 'count');
+    const { positiveList, negativeList } = await fetchBySegments(
+      segment,
+      'count'
+    );
 
     this.positiveList = [...this.positiveList, ...positiveList];
     this.negativeList = [...this.negativeList, ...negativeList];
@@ -164,8 +176,8 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   public tagFilter(tagId: string) {
     this.positiveList.push({
       terms: {
-        tagIds: [tagId],
-      },
+        tagIds: [tagId]
+      }
     });
   }
 
@@ -173,8 +185,8 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   public searchFilter(value: string): void {
     this.positiveList.push({
       wildcard: {
-        searchText: `*${value.toLowerCase()}*`,
-      },
+        searchText: `*${value.toLowerCase()}*`
+      }
     });
   }
 
@@ -182,8 +194,8 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   public searchByAutoCompletionType(value: string, type: string): void {
     this.positiveList.push({
       wildcard: {
-        [type]: `*${(value || '').toLowerCase()}*`,
-      },
+        [type]: `*${(value || '').toLowerCase()}*`
+      }
     });
   }
 
@@ -191,8 +203,8 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   public idsFilter(ids: string[]): void {
     this.positiveList.push({
       terms: {
-        _id: ids,
-      },
+        _id: ids
+      }
     });
   }
 
@@ -200,13 +212,18 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   public leadStatusFilter(leadStatus: string): void {
     this.positiveList.push({
       term: {
-        leadStatus,
-      },
+        leadStatus
+      }
     });
   }
 
   public async conformityFilter() {
-    const { conformityMainType, conformityMainTypeId, conformityIsRelated, conformityIsSaved } = this.params;
+    const {
+      conformityMainType,
+      conformityMainTypeId,
+      conformityIsRelated,
+      conformityIsSaved
+    } = this.params;
 
     if (!conformityMainType && !conformityMainTypeId) {
       return;
@@ -218,13 +235,13 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       const relTypeIds = await Conformities.relatedConformity({
         mainType: conformityMainType || '',
         mainTypeId: conformityMainTypeId || '',
-        relType,
+        relType
       });
 
       this.positiveList.push({
         terms: {
-          _id: relTypeIds || [],
-        },
+          _id: relTypeIds || []
+        }
       });
     }
 
@@ -232,13 +249,13 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       const relTypeIds = await Conformities.savedConformity({
         mainType: conformityMainType || '',
         mainTypeId: conformityMainTypeId || '',
-        relTypes: [relType],
+        relTypes: [relType]
       });
 
       this.positiveList.push({
         terms: {
-          _id: relTypeIds || [],
-        },
+          _id: relTypeIds || []
+        }
       });
     }
   }
@@ -273,7 +290,10 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     // filter by search value
     if (this.params.searchValue) {
       this.params.autoCompletion
-        ? this.searchByAutoCompletionType(this.params.searchValue, this.params.autoCompletionType || '')
+        ? this.searchByAutoCompletionType(
+            this.params.searchValue,
+            this.params.autoCompletionType || ''
+          )
         : this.searchFilter(this.params.searchValue);
     }
 
@@ -283,7 +303,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   public async findAllMongo(_limit: number): Promise<any> {
     return Promise.resolve({
       list: [],
-      totalCount: 0,
+      totalCount: 0
     });
   }
 
@@ -314,9 +334,9 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       query: {
         bool: {
           must: this.positiveList,
-          must_not: this.negativeList,
-        },
-      },
+          must_not: this.negativeList
+        }
+      }
     };
 
     if (action === 'search') {
@@ -333,8 +353,12 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
 
       queryOptions.sort = {
         [fieldToSort]: {
-          order: sortDirection ? (sortDirection === -1 ? 'desc' : 'asc') : 'desc',
-        },
+          order: sortDirection
+            ? sortDirection === -1
+              ? 'desc'
+              : 'asc'
+            : 'desc'
+        }
       };
     }
 
@@ -347,13 +371,13 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     const list = response.hits.hits.map(hit => {
       return {
         _id: hit._id,
-        ...hit._source,
+        ...hit._source
       };
     });
 
     return {
       list,
-      totalCount: response.hits.total.value,
+      totalCount: response.hits.total.value
     };
   }
 }

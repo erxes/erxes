@@ -4,9 +4,15 @@ import {
   knowledgeBaseArticleFactory,
   knowledgeBaseCategoryFactory,
   knowledgeBaseTopicFactory,
-  userFactory,
+  userFactory
 } from '../db/factories';
-import { Brands, KnowledgeBaseArticles, KnowledgeBaseCategories, KnowledgeBaseTopics, Users } from '../db/models';
+import {
+  Brands,
+  KnowledgeBaseArticles,
+  KnowledgeBaseCategories,
+  KnowledgeBaseTopics,
+  Users
+} from '../db/models';
 import { PUBLISH_STATUSES } from '../db/models/definitions/constants';
 
 import './setup.ts';
@@ -76,7 +82,7 @@ describe('test knowledge base models', () => {
         title: 'Test topic title',
         description: 'Test topic description',
         categoryIds: [categoryA._id, categoryB._id],
-        brandId: brand._id,
+        brandId: brand._id
       };
 
       const topic = await KnowledgeBaseTopics.createDoc(doc, _user._id);
@@ -98,7 +104,7 @@ describe('test knowledge base models', () => {
         title: 'Test topic title',
         description: 'Test topic description',
         categoryIds: [categoryA._id, categoryB._id],
-        brandId: brandA._id,
+        brandId: brandA._id
       };
 
       const topic = await KnowledgeBaseTopics.createDoc(doc, _user._id);
@@ -108,7 +114,11 @@ describe('test knowledge base models', () => {
       topic.categoryIds = [categoryA._id, categoryB._id];
       topic.brandId = brandB._id;
 
-      const newTopic = await KnowledgeBaseTopics.updateDoc(topic._id, topic.toObject(), _user._id);
+      const newTopic = await KnowledgeBaseTopics.updateDoc(
+        topic._id,
+        topic.toObject(),
+        _user._id
+      );
 
       expect(newTopic._id).toBe(topic._id);
       expect(newTopic.title).toBe(topic.title);
@@ -127,7 +137,7 @@ describe('test knowledge base models', () => {
         title: 'Test topic title',
         description: 'Test topic description',
         brandId: brand._id,
-        categoryIds: [categoryA._id, categoryB._id],
+        categoryIds: [categoryA._id, categoryB._id]
       };
 
       const topic = await KnowledgeBaseTopics.createDoc(doc, _user._id);
@@ -180,8 +190,12 @@ describe('test knowledge base models', () => {
     test('Create category', async () => {
       const article = await knowledgeBaseArticleFactory({});
 
-      const topicCategory = await knowledgeBaseCategoryFactory({ articleIds: [article._id] });
-      const topicA = await knowledgeBaseTopicFactory({ categoryIds: [topicCategory._id] });
+      const topicCategory = await knowledgeBaseCategoryFactory({
+        articleIds: [article._id]
+      });
+      const topicA = await knowledgeBaseTopicFactory({
+        categoryIds: [topicCategory._id]
+      });
       const topicB = await knowledgeBaseTopicFactory({});
 
       const doc = {
@@ -189,7 +203,7 @@ describe('test knowledge base models', () => {
         description: 'Test category description',
         articleIds: [article._id],
         icon: 'test category icon',
-        topicIds: [topicA._id.toString(), topicB._id.toString()],
+        topicIds: [topicA._id.toString(), topicB._id.toString()]
       };
 
       const category = await KnowledgeBaseCategories.createDoc(doc, _user._id);
@@ -203,13 +217,18 @@ describe('test knowledge base models', () => {
       expect(category.createdDate).toBeDefined();
 
       const topicAObj = await KnowledgeBaseTopics.findOne({
-        _id: topicA._id.toString(),
+        _id: topicA._id.toString()
       });
       const topicBObj = await KnowledgeBaseTopics.findOne({
-        _id: topicB._id.toString(),
+        _id: topicB._id.toString()
       });
 
-      if (!topicAObj || !topicAObj.categoryIds || (!topicBObj || !topicBObj.categoryIds)) {
+      if (
+        !topicAObj ||
+        !topicAObj.categoryIds ||
+        !topicBObj ||
+        !topicBObj.categoryIds
+      ) {
         throw new Error('Topic not found');
       }
 
@@ -237,7 +256,7 @@ describe('test knowledge base models', () => {
         title: 'Test category title',
         description: 'Test category description',
         articleIds: [article._id],
-        icon: 'test icon',
+        icon: 'test icon'
       };
 
       const category = await KnowledgeBaseCategories.createDoc(doc, _user._id);
@@ -247,16 +266,18 @@ describe('test knowledge base models', () => {
       category.articleIds = [article._id, articleB._id];
       category.icon = 'test icon 2';
 
-      const topicA = await knowledgeBaseTopicFactory({ categoryIds: [category._id] });
+      const topicA = await knowledgeBaseTopicFactory({
+        categoryIds: [category._id]
+      });
       const topicB = await knowledgeBaseTopicFactory({});
 
       const updatedCategory = await KnowledgeBaseCategories.updateDoc(
         category._id,
         {
           ...category.toObject(),
-          topicIds: [topicA._id.toString(), topicB._id.toString()],
+          topicIds: [topicA._id.toString(), topicB._id.toString()]
         },
-        _user._id,
+        _user._id
       );
 
       expect(updatedCategory._id).toBe(category._id);
@@ -271,13 +292,18 @@ describe('test knowledge base models', () => {
       expect(updatedCategory.modifiedDate).toBeDefined();
 
       const topicAObj = await KnowledgeBaseTopics.findOne({
-        _id: topicA._id.toString(),
+        _id: topicA._id.toString()
       });
       const topicBObj = await KnowledgeBaseTopics.findOne({
-        _id: topicB._id.toString(),
+        _id: topicB._id.toString()
       });
 
-      if (!topicAObj || !topicAObj.categoryIds || (!topicBObj || !topicBObj.categoryIds)) {
+      if (
+        !topicAObj ||
+        !topicAObj.categoryIds ||
+        !topicBObj ||
+        !topicBObj.categoryIds
+      ) {
         throw new Error('Topic not found');
       }
 
@@ -290,9 +316,15 @@ describe('test knowledge base models', () => {
 
     test('update', async () => {
       const category = await KnowledgeBaseCategories.createDoc({}, _user._id);
-      const updatedCategoryNoTopic = await KnowledgeBaseCategories.updateDoc(category._id, {}, _user._id);
+      const updatedCategoryNoTopic = await KnowledgeBaseCategories.updateDoc(
+        category._id,
+        {},
+        _user._id
+      );
 
-      const topics = await KnowledgeBaseTopics.find({ categoryIds: [updatedCategoryNoTopic._id] });
+      const topics = await KnowledgeBaseTopics.find({
+        categoryIds: [updatedCategoryNoTopic._id]
+      });
       expect(topics).toHaveLength(0);
     });
 
@@ -300,7 +332,7 @@ describe('test knowledge base models', () => {
       const doc = {
         title: 'Test category title',
         description: 'Test category description',
-        icon: 'test icon',
+        icon: 'test icon'
       };
 
       const category = await KnowledgeBaseCategories.createDoc(doc, _user._id);
@@ -325,7 +357,7 @@ describe('test knowledge base models', () => {
         title: 'Test category title',
         description: 'Test category description',
         icon: 'test icon',
-        articleIds: [article._id],
+        articleIds: [article._id]
       };
 
       const category = await KnowledgeBaseCategories.createDoc(doc, _user._id);
@@ -378,7 +410,7 @@ describe('test knowledge base models', () => {
         summary: 'Test article description',
         content: 'Test article content',
         categoryIds: [categoryA._id.toString(), categoryB._id.toString()],
-        status: PUBLISH_STATUSES.DRAFT,
+        status: PUBLISH_STATUSES.DRAFT
       };
 
       const article = await KnowledgeBaseArticles.createDoc(doc, _user._id);
@@ -389,13 +421,18 @@ describe('test knowledge base models', () => {
       expect(article.status).toBe(PUBLISH_STATUSES.DRAFT);
 
       const categoryAObj = await KnowledgeBaseCategories.findOne({
-        _id: categoryA._id.toString(),
+        _id: categoryA._id.toString()
       });
       const categoryBObj = await KnowledgeBaseCategories.findOne({
-        _id: categoryB._id.toString(),
+        _id: categoryB._id.toString()
       });
 
-      if (!categoryAObj || !categoryAObj.articleIds || (!categoryBObj || !categoryBObj.articleIds)) {
+      if (
+        !categoryAObj ||
+        !categoryAObj.articleIds ||
+        !categoryBObj ||
+        !categoryBObj.articleIds
+      ) {
         throw new Error('Topic not found');
       }
 
@@ -420,7 +457,7 @@ describe('test knowledge base models', () => {
         title: 'Test article title',
         summary: 'Test article description',
         content: 'Test article content',
-        status: PUBLISH_STATUSES.DRAFT,
+        status: PUBLISH_STATUSES.DRAFT
       };
 
       const article = await KnowledgeBaseArticles.createDoc(doc, _user._id);
@@ -430,26 +467,33 @@ describe('test knowledge base models', () => {
       article.content = 'Test article content 2';
       article.status = PUBLISH_STATUSES.PUBLISH;
 
-      const categoryA = await knowledgeBaseCategoryFactory({ articleIds: [article._id] });
+      const categoryA = await knowledgeBaseCategoryFactory({
+        articleIds: [article._id]
+      });
       const categoryB = await knowledgeBaseCategoryFactory({});
 
       let updatedArticle = await KnowledgeBaseArticles.updateDoc(
         article._id,
         {
           ...article.toObject(),
-          categoryIds: [categoryA._id.toString(), categoryB._id.toString()],
+          categoryIds: [categoryA._id.toString(), categoryB._id.toString()]
         },
-        _user._id,
+        _user._id
       );
 
       const categoryAObj = await KnowledgeBaseCategories.findOne({
-        _id: categoryA._id.toString(),
+        _id: categoryA._id.toString()
       });
       const categoryBObj = await KnowledgeBaseCategories.findOne({
-        _id: categoryB._id.toString(),
+        _id: categoryB._id.toString()
       });
 
-      if (!categoryAObj || !categoryAObj.articleIds || (!categoryBObj || !categoryBObj.articleIds)) {
+      if (
+        !categoryAObj ||
+        !categoryAObj.articleIds ||
+        !categoryBObj ||
+        !categoryBObj.articleIds
+      ) {
         throw new Error('Topic not found');
       }
 
@@ -465,9 +509,15 @@ describe('test knowledge base models', () => {
       expect(categoryBObj.articleIds[0]).toBe(article._id.toString());
 
       const articleNoCategory = await knowledgeBaseArticleFactory();
-      updatedArticle = await KnowledgeBaseArticles.updateDoc(articleNoCategory._id, {}, _user._id);
+      updatedArticle = await KnowledgeBaseArticles.updateDoc(
+        articleNoCategory._id,
+        {},
+        _user._id
+      );
 
-      const cats = await KnowledgeBaseCategories.find({ articleIds: { $in: [articleNoCategory._id] } });
+      const cats = await KnowledgeBaseCategories.find({
+        articleIds: { $in: [articleNoCategory._id] }
+      });
 
       expect(cats).toHaveLength(0);
     });
@@ -477,7 +527,7 @@ describe('test knowledge base models', () => {
         title: 'Test article title',
         summary: 'Test article description',
         content: 'Test article content',
-        status: PUBLISH_STATUSES.DRAFT,
+        status: PUBLISH_STATUSES.DRAFT
       };
 
       const article = await KnowledgeBaseArticles.createDoc(doc, _user._id);
@@ -497,12 +547,14 @@ describe('test knowledge base models', () => {
       }
 
       const article = await knowledgeBaseArticleFactory({
-        reactionChoices: ['wow'],
+        reactionChoices: ['wow']
       });
 
       await KnowledgeBaseArticles.incReactionCount(article._id, 'wow');
 
-      const updated = (await KnowledgeBaseArticles.findOne({ _id: article._id })) || ({ reactionCounts: {} } as any);
+      const updated =
+        (await KnowledgeBaseArticles.findOne({ _id: article._id })) ||
+        ({ reactionCounts: {} } as any);
 
       expect(updated.reactionCounts.wow).toBe(1);
     });

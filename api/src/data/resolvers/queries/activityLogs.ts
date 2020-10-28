@@ -5,7 +5,7 @@ import {
   EmailDeliveries,
   EngageMessages,
   InternalNotes,
-  Tasks,
+  Tasks
 } from '../../../db/models';
 import { IActivityLogDocument } from '../../../db/models/definitions/activityLogs';
 import { debugExternalApi } from '../../../debuggers';
@@ -30,13 +30,14 @@ const activityLogQueries = {
     const relatedItemIds = await Conformities.savedConformity({
       mainType: contentType,
       mainTypeId: contentId,
-      relTypes: contentType !== 'task' ? ['deal', 'ticket'] : ['deal', 'ticket', 'task'],
+      relTypes:
+        contentType !== 'task' ? ['deal', 'ticket'] : ['deal', 'ticket', 'task']
     });
 
     const relatedTaskIds = await Conformities.savedConformity({
       mainType: contentType,
       mainTypeId: contentId,
-      relTypes: ['task'],
+      relTypes: ['task']
     });
 
     const collectItems = (items: any, type?: string) => {
@@ -69,18 +70,26 @@ const activityLogQueries = {
 
     const collectConversations = async () => {
       collectItems(
-        await Conversations.find({ $or: [{ customerId: contentId }, { participatedUserIds: contentId }] }).limit(25),
-        'conversation',
+        await Conversations.find({
+          $or: [{ customerId: contentId }, { participatedUserIds: contentId }]
+        }).limit(25),
+        'conversation'
       );
 
       if (contentType === 'customer') {
         let conversationIds;
 
         try {
-          conversationIds = await dataSources.IntegrationsAPI.fetchApi('/facebook/get-customer-posts', {
-            customerId: contentId,
-          });
-          collectItems(await Conversations.find({ _id: { $in: conversationIds } }), 'comment');
+          conversationIds = await dataSources.IntegrationsAPI.fetchApi(
+            '/facebook/get-customer-posts',
+            {
+              customerId: contentId
+            }
+          );
+          collectItems(
+            await Conversations.find({ _id: { $in: conversationIds } }),
+            'comment'
+          );
         } catch (e) {
           debugExternalApi(e);
         }
@@ -88,32 +97,57 @@ const activityLogQueries = {
     };
 
     const collectActivityLogs = async () => {
-      collectItems(await ActivityLogs.find({ contentId: { $in: [...relatedItemIds, contentId] } }));
+      collectItems(
+        await ActivityLogs.find({
+          contentId: { $in: [...relatedItemIds, contentId] }
+        })
+      );
     };
 
     const collectInternalNotes = async () => {
-      collectItems(await InternalNotes.find({ contentTypeId: contentId }).sort({ createdAt: -1 }), 'note');
+      collectItems(
+        await InternalNotes.find({ contentTypeId: contentId }).sort({
+          createdAt: -1
+        }),
+        'note'
+      );
     };
 
     const collectEngageMessages = async () => {
-      collectItems(await EngageMessages.find({ customerIds: contentId, method: 'email' }), 'engage-email');
-      collectItems(await EmailDeliveries.find({ customerId: contentId }), 'email');
+      collectItems(
+        await EngageMessages.find({ customerIds: contentId, method: 'email' }),
+        'engage-email'
+      );
+      collectItems(
+        await EmailDeliveries.find({ customerId: contentId }),
+        'email'
+      );
     };
 
     const collectTasks = async () => {
       if (contentType !== 'task') {
         collectItems(
-          await Tasks.find({ $and: [{ _id: { $in: relatedTaskIds } }, { status: { $ne: 'archived' } }] }).sort({
-            closeDate: 1,
+          await Tasks.find({
+            $and: [
+              { _id: { $in: relatedTaskIds } },
+              { status: { $ne: 'archived' } }
+            ]
+          }).sort({
+            closeDate: 1
           }),
-          'taskDetail',
+          'taskDetail'
         );
       }
 
-      const contentIds = activities.filter(activity => activity.action === 'convert').map(activity => activity.content);
+      const contentIds = activities
+        .filter(activity => activity.action === 'convert')
+        .map(activity => activity.content);
 
       if (Array.isArray(contentIds)) {
-        collectItems(await Conversations.find({ _id: { $in: contentIds } }).limit(25), 'conversation');
+        collectItems(
+          await Conversations.find({ _id: { $in: contentIds } }).limit(25),
+          'conversation'
+        );
       }
     };
 
@@ -149,7 +183,7 @@ const activityLogQueries = {
     });
 
     return activities;
-  },
+  }
 };
 
 moduleRequireLogin(activityLogQueries);

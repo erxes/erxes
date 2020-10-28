@@ -1,4 +1,8 @@
-import { createMessage, createOrUpdateConversation, getOrCreateCustomer } from './store';
+import {
+  createMessage,
+  createOrUpdateConversation,
+  getOrCreateCustomer
+} from './store';
 
 import Integrations from '../models/Integrations';
 import { ConversationMessages } from './models';
@@ -7,12 +11,15 @@ const receiveMessage = async requestBody => {
   const { instanceId, ack, messages } = requestBody;
 
   const integration = await Integrations.getIntegration({
-    $and: [{ whatsappinstanceId: instanceId }, { kind: 'whatsapp' }],
+    $and: [{ whatsappinstanceId: instanceId }, { kind: 'whatsapp' }]
   });
 
   if (ack) {
     for (const acknowledge of ack) {
-      await ConversationMessages.updateOne({ mid: acknowledge.id }, { $set: { status: acknowledge.status } });
+      await ConversationMessages.updateOne(
+        { mid: acknowledge.id },
+        { $set: { status: acknowledge.status } }
+      );
     }
   }
 
@@ -24,24 +31,33 @@ const receiveMessage = async requestBody => {
 
       const phoneNumber = message.chatId.split('@', 2)[0];
 
-      const customer = await getOrCreateCustomer(phoneNumber, message.senderName, instanceId);
+      const customer = await getOrCreateCustomer(
+        phoneNumber,
+        message.senderName,
+        instanceId
+      );
 
       const customerIds = {
         customerId: customer.id,
-        customerErxesApiID: customer.erxesApiId,
+        customerErxesApiID: customer.erxesApiId
       };
 
       const integrationIds = {
         integrationId: integration.id,
-        integrationErxesApiId: integration.erxesApiId,
+        integrationErxesApiId: integration.erxesApiId
       };
 
-      const conversation = await createOrUpdateConversation(message, instanceId, customerIds, integrationIds);
+      const conversation = await createOrUpdateConversation(
+        message,
+        instanceId,
+        customerIds,
+        integrationIds
+      );
 
       const conversationIds = {
         conversationId: conversation._id,
         conversationErxesApiId: conversation.erxesApiId,
-        customerErxesApiId: customer.erxesApiId,
+        customerErxesApiId: customer.erxesApiId
       };
 
       await createMessage(message, conversationIds);

@@ -1,9 +1,20 @@
 import { debugGmail } from '../debuggers';
 import { Accounts } from '../models';
 import { getEnv, sendRequest } from '../utils';
-import { BASE_URL, ERROR_CODES, GMAIL_API_URL, GOOGLE_AUTH_URL, HISTORY_TYPES } from './constant';
+import {
+  BASE_URL,
+  ERROR_CODES,
+  GMAIL_API_URL,
+  GOOGLE_AUTH_URL,
+  HISTORY_TYPES
+} from './constant';
 import { ICredentials, IMailParams } from './types';
-import { createMimeMessage, getGoogleConfigs, gmailRequest, parseMail } from './utils';
+import {
+  createMimeMessage,
+  getGoogleConfigs,
+  gmailRequest,
+  parseMail
+} from './utils';
 
 export const subscribeUser = async (email: string) => {
   debugGmail(`Executing subscribeUser with ${email}`);
@@ -13,7 +24,7 @@ export const subscribeUser = async (email: string) => {
 
     if (!GOOGLE_PROJECT_ID || !GOOGLE_GMAIL_TOPIC) {
       throw new Error(
-        `Missing following config: GOOGLE_PROJECT_ID: ${GOOGLE_PROJECT_ID} GOOGLE_GMAIL_TOPIC: ${GOOGLE_GMAIL_TOPIC}`,
+        `Missing following config: GOOGLE_PROJECT_ID: ${GOOGLE_PROJECT_ID} GOOGLE_GMAIL_TOPIC: ${GOOGLE_GMAIL_TOPIC}`
       );
     }
 
@@ -25,9 +36,9 @@ export const subscribeUser = async (email: string) => {
       body: {
         labelIds: ['INBOX', 'CATEGORY_PERSONAL'],
         labelFilterAction: 'include',
-        topicName: `projects/${GOOGLE_PROJECT_ID}/topics/${GOOGLE_GMAIL_TOPIC}`,
+        topicName: `projects/${GOOGLE_PROJECT_ID}/topics/${GOOGLE_GMAIL_TOPIC}`
       },
-      headerParams: { Authorization: `Bearer ${token}` },
+      headerParams: { Authorization: `Bearer ${token}` }
     });
 
     return response;
@@ -54,7 +65,7 @@ export const unsubscribeUser = async (email: string) => {
       url: `${BASE_URL}/me/stop`,
       method: 'POST',
       body: { userId: email },
-      headerParams: { Authorization: `Bearer ${account.token}` },
+      headerParams: { Authorization: `Bearer ${account.token}` }
     });
 
     return response;
@@ -71,8 +82,16 @@ export const unsubscribeUser = async (email: string) => {
   }
 };
 
-export const getHistoryChanges = async ({ email, historyId }: { email: string; historyId: string }) => {
-  debugGmail(`Executing: getHistoryChanges email: ${email} historyId: ${historyId}`);
+export const getHistoryChanges = async ({
+  email,
+  historyId
+}: {
+  email: string;
+  historyId: string;
+}) => {
+  debugGmail(
+    `Executing: getHistoryChanges email: ${email} historyId: ${historyId}`
+  );
 
   try {
     const historyResponse = await gmailRequest({
@@ -81,8 +100,8 @@ export const getHistoryChanges = async ({ email, historyId }: { email: string; h
       type: 'history',
       params: {
         historyTypes: HISTORY_TYPES.MESSAGE_ADDED,
-        startHistoryId: historyId,
-      },
+        startHistoryId: historyId
+      }
     });
 
     return { email, historyResponse };
@@ -95,14 +114,22 @@ export const getHistoryChanges = async ({ email, historyId }: { email: string; h
   }
 };
 
-export const collectMessagesIds = async ({ email, historyResponse }: { email: string; historyResponse: any }) => {
+export const collectMessagesIds = async ({
+  email,
+  historyResponse
+}: {
+  email: string;
+  historyResponse: any;
+}) => {
   debugGmail(`Executing: collectMessagesIds`);
 
   try {
     const histories = historyResponse.history || [];
 
     if (histories.length === 0) {
-      return debugGmail(`No changes made with historyId: ${historyResponse.historyId}`);
+      return debugGmail(
+        `No changes made with historyId: ${historyResponse.historyId}`
+      );
     }
 
     const messageIds = [];
@@ -120,7 +147,9 @@ export const collectMessagesIds = async ({ email, historyResponse }: { email: st
   }
 };
 
-export const getMessageById = async (args: { email?: string; messageIds?: string[] } = {}) => {
+export const getMessageById = async (
+  args: { email?: string; messageIds?: string[] } = {}
+) => {
   const { email, messageIds } = args;
 
   debugGmail(`Executing: getMessageById messageIds: ${messageIds}`);
@@ -139,8 +168,8 @@ export const getMessageById = async (args: { email?: string; messageIds?: string
         type: 'messages',
         params: {
           id: messageId,
-          format: 'full',
-        },
+          format: 'full'
+        }
       });
 
       mails.push(response);
@@ -164,7 +193,7 @@ export const getUserInfo = async (accessToken: string): Promise<any> => {
       method: 'GET',
       accessToken,
       type: 'profile',
-      params: {},
+      params: {}
     });
 
     return response;
@@ -189,8 +218,8 @@ export const getAccessToken = async (code: string): Promise<ICredentials> => {
         client_id: GOOGLE_CLIENT_ID,
         client_secret: GOOGLE_CLIENT_SECRET,
         redirect_uri: GMAIL_REDIRECT_URL,
-        grant_type: 'authorization_code',
-      },
+        grant_type: 'authorization_code'
+      }
     });
 
     return response;
@@ -221,11 +250,14 @@ export const refreshAccessToken = async (email: string) => {
         grant_type: 'refresh_token',
         client_id: GOOGLE_CLIENT_ID,
         client_secret: GOOGLE_CLIENT_SECRET,
-        refresh_token: account.tokenSecret,
-      },
+        refresh_token: account.tokenSecret
+      }
     });
 
-    return Accounts.updateOne({ _id: account._id }, { $set: { token: response.access_token } });
+    return Accounts.updateOne(
+      { _id: account._id },
+      { $set: { token: response.access_token } }
+    );
   } catch (e) {
     debugGmail('Failed to refresh access token');
     throw e;
@@ -244,8 +276,8 @@ export const send = async (email: string, mailOptions: IMailParams) => {
       type: 'messages/send',
       body: {
         threadId: mailOptions.threadId,
-        raw: new Buffer(message).toString('base64'),
-      },
+        raw: new Buffer(message).toString('base64')
+      }
     });
   } catch (e) {
     debugGmail('Failed to send email');
@@ -272,8 +304,8 @@ export const revokeToken = async (email: string) => {
       url: `${GOOGLE_AUTH_URL}/revoke`,
       headerType: 'Content-type:application/x-www-form-urlencoded',
       params: {
-        token: account.token,
-      },
+        token: account.token
+      }
     });
   } catch (e) {
     debugGmail('Failed to revoke token: ', email);
@@ -281,19 +313,25 @@ export const revokeToken = async (email: string) => {
   }
 };
 
-export const getAttachment = async (email: string, messageId: string, attachmentId: string) => {
+export const getAttachment = async (
+  email: string,
+  messageId: string,
+  attachmentId: string
+) => {
   debugGmail('Executing getAttachment');
 
   try {
     const response = await gmailRequest({
       method: 'GET',
       email,
-      url: `${GMAIL_API_URL}/me/messages/${messageId}/attachments/${attachmentId}`,
+      url: `${GMAIL_API_URL}/me/messages/${messageId}/attachments/${attachmentId}`
     });
 
     return response;
   } catch (e) {
-    debugGmail(`Failed to get attachment with attachmentId: ${attachmentId} messageId: ${messageId}`);
+    debugGmail(
+      `Failed to get attachment with attachmentId: ${attachmentId} messageId: ${messageId}`
+    );
 
     if (e.message.includes(ERROR_CODES.ACCESS_TOKEN_EXPIRED)) {
       await refreshAccessToken(email);

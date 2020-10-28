@@ -10,5 +10,5 @@ export default {
     const integration = await Integrations.findOne({ _id: emailDelivery.from });
 
     return integration ? integration.name : '';
-  },
+  }
 };

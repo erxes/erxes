@@ -6,13 +6,19 @@ module.exports.up = async () => {
 
   await Integrations.updateMany({}, { $set: { isActive: true } });
 
-  const permissions = await Permissions.find({ action: 'integrationsAll', module: 'integrations' });
+  const permissions = await Permissions.find({
+    action: 'integrationsAll',
+    module: 'integrations'
+  });
 
   for (const perm of permissions) {
     const requiredActions = perm.requiredActions;
 
     requiredActions.push('integrationsArchive');
 
-    await Permissions.updateOne({ _id: perm._id }, { $set: { requiredActions } });
+    await Permissions.updateOne(
+      { _id: perm._id },
+      { $set: { requiredActions } }
+    );
   }
 };

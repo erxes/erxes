@@ -3,16 +3,26 @@ import * as mongoose from 'mongoose';
 
 dotenv.config();
 
-const nylasKinds = ['office365', 'gmail', 'outlook', 'yahoo', 'exchange', 'imap'];
+const nylasKinds = [
+  'office365',
+  'gmail',
+  'outlook',
+  'yahoo',
+  'exchange',
+  'imap'
+];
 
 /**
  * Copy nylas accessToken, refreshToken accountId, billingState to Integrations
  */
 module.exports.up = async () => {
-  const mongoClient = await mongoose.createConnection(process.env.MONGO_URL || '', {
-    useNewUrlParser: true,
-    useCreateIndex: true,
-  });
+  const mongoClient = await mongoose.createConnection(
+    process.env.MONGO_URL || '',
+    {
+      useNewUrlParser: true,
+      useCreateIndex: true
+    }
+  );
 
   try {
     const accounts = await mongoClient.db
@@ -28,9 +38,9 @@ module.exports.up = async () => {
             nylasToken: account.nylasToken,
             nylasBillingState: account.billingState,
             nylasAccountId: account.uid,
-            emailScope: account.scope,
-          },
-        },
+            emailScope: account.scope
+          }
+        }
       );
     }
   } catch (e) {

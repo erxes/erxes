@@ -1,4 +1,8 @@
-import { KnowledgeBaseArticles, KnowledgeBaseCategories, KnowledgeBaseTopics } from '../../../db/models';
+import {
+  KnowledgeBaseArticles,
+  KnowledgeBaseCategories,
+  KnowledgeBaseTopics
+} from '../../../db/models';
 
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
@@ -12,8 +16,8 @@ const articlesQuery = async ({ categoryIds }: { categoryIds: string[] }) => {
   if (categoryIds) {
     const categories = await KnowledgeBaseCategories.find({
       _id: {
-        $in: categoryIds,
-      },
+        $in: categoryIds
+      }
     });
 
     let articleIds: any = [];
@@ -23,7 +27,7 @@ const articlesQuery = async ({ categoryIds }: { categoryIds: string[] }) => {
     }
 
     query._id = {
-      $in: articleIds,
+      $in: articleIds
     };
   }
 
@@ -40,8 +44,8 @@ const categoriesQuery = async ({ topicIds }: { topicIds: string[] }) => {
 
     const topics = await KnowledgeBaseTopics.find({
       _id: {
-        $in: topicIds,
-      },
+        $in: topicIds
+      }
     });
 
     for (const topic of topics) {
@@ -49,7 +53,7 @@ const categoriesQuery = async ({ topicIds }: { topicIds: string[] }) => {
     }
 
     query._id = {
-      $in: categoryIds,
+      $in: categoryIds
     };
   }
 
@@ -60,11 +64,14 @@ const knowledgeBaseQueries = {
   /**
    * Article list
    */
-  async knowledgeBaseArticles(_root, args: { page: number; perPage: number; categoryIds: string[] }) {
+  async knowledgeBaseArticles(
+    _root,
+    args: { page: number; perPage: number; categoryIds: string[] }
+  ) {
     const query = await articlesQuery(args);
 
     const articles = KnowledgeBaseArticles.find(query).sort({
-      createdData: -1,
+      createdData: -1
     });
 
     return paginate(articles, args);
@@ -80,7 +87,10 @@ const knowledgeBaseQueries = {
   /**
    * Total article count
    */
-  async knowledgeBaseArticlesTotalCount(_root, args: { categoryIds: string[] }) {
+  async knowledgeBaseArticlesTotalCount(
+    _root,
+    args: { categoryIds: string[] }
+  ) {
     const query = await articlesQuery(args);
 
     return KnowledgeBaseArticles.find(query).countDocuments();
@@ -89,11 +99,14 @@ const knowledgeBaseQueries = {
   /**
    * Category list
    */
-  async knowledgeBaseCategories(_root, args: { page: number; perPage: number; topicIds: string[] }) {
+  async knowledgeBaseCategories(
+    _root,
+    args: { page: number; perPage: number; topicIds: string[] }
+  ) {
     const query = await categoriesQuery(args);
 
     const categories = KnowledgeBaseCategories.find(query).sort({
-      modifiedDate: -1,
+      modifiedDate: -1
     });
 
     return paginate(categories, args);
@@ -120,15 +133,28 @@ const knowledgeBaseQueries = {
   /**
    * Get last category
    */
-  knowledgeBaseCategoriesGetLast(_root, _args, { commonQuerySelector }: IContext) {
-    return KnowledgeBaseCategories.findOne(commonQuerySelector).sort({ createdDate: -1 });
+  knowledgeBaseCategoriesGetLast(
+    _root,
+    _args,
+    { commonQuerySelector }: IContext
+  ) {
+    return KnowledgeBaseCategories.findOne(commonQuerySelector).sort({
+      createdDate: -1
+    });
   },
 
   /**
    * Topic list
    */
-  knowledgeBaseTopics(_root, args: { page: number; perPage: number }, { commonQuerySelector }: IContext) {
-    const topics = paginate(KnowledgeBaseTopics.find(commonQuerySelector), args);
+  knowledgeBaseTopics(
+    _root,
+    args: { page: number; perPage: number },
+    { commonQuerySelector }: IContext
+  ) {
+    const topics = paginate(
+      KnowledgeBaseTopics.find(commonQuerySelector),
+      args
+    );
     return topics.sort({ modifiedDate: -1 });
   },
 
@@ -142,9 +168,13 @@ const knowledgeBaseQueries = {
   /**
    * Total topic count
    */
-  knowledgeBaseTopicsTotalCount(_root, _args, { commonQuerySelector }: IContext) {
+  knowledgeBaseTopicsTotalCount(
+    _root,
+    _args,
+    { commonQuerySelector }: IContext
+  ) {
     return KnowledgeBaseTopics.find(commonQuerySelector).countDocuments();
-  },
+  }
 };
 
 requireLogin(knowledgeBaseQueries, 'knowledgeBaseArticlesTotalCount');
@@ -152,8 +182,23 @@ requireLogin(knowledgeBaseQueries, 'knowledgeBaseTopicsTotalCount');
 requireLogin(knowledgeBaseQueries, 'knowledgeBaseCategoriesGetLast');
 requireLogin(knowledgeBaseQueries, 'knowledgeBaseCategoriesTotalCount');
 
-checkPermission(knowledgeBaseQueries, 'knowledgeBaseArticles', 'showKnowledgeBase', []);
-checkPermission(knowledgeBaseQueries, 'knowledgeBaseTopics', 'showKnowledgeBase', []);
-checkPermission(knowledgeBaseQueries, 'knowledgeBaseCategories', 'showKnowledgeBase', []);
+checkPermission(
+  knowledgeBaseQueries,
+  'knowledgeBaseArticles',
+  'showKnowledgeBase',
+  []
+);
+checkPermission(
+  knowledgeBaseQueries,
+  'knowledgeBaseTopics',
+  'showKnowledgeBase',
+  []
+);
+checkPermission(
+  knowledgeBaseQueries,
+  'knowledgeBaseCategories',
+  'showKnowledgeBase',
+  []
+);
 
 export default knowledgeBaseQueries;

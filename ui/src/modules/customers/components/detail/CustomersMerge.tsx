@@ -22,13 +22,11 @@ import {
 type Props = {
   objects: ICustomer[];
   mergeCustomerLoading: boolean;
-  save: (
-    doc: {
-      ids: string[];
-      data: ICustomerDoc;
-      callback: () => void;
-    }
-  ) => void;
+  save: (doc: {
+    ids: string[];
+    data: ICustomerDoc;
+    callback: () => void;
+  }) => void;
   closeModal: () => void;
 };
 

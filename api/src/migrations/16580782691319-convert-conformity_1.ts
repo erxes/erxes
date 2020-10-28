@@ -21,7 +21,7 @@ module.exports.up = async () => {
             mainType,
             mainTypeId: entry._id,
             relType,
-            relTypeId: subEntryId,
+            relTypeId: subEntryId
           });
         }
       }
@@ -38,11 +38,17 @@ module.exports.up = async () => {
           $project: {
             _id: 1,
             companyIds: 1,
-            idsLength: { $cond: { if: { $isArray: '$companyIds' }, then: { $size: '$companyIds' }, else: 0 } },
-          },
+            idsLength: {
+              $cond: {
+                if: { $isArray: '$companyIds' },
+                then: { $size: '$companyIds' },
+                else: 0
+              }
+            }
+          }
         },
-        { $match: { companyIds: { $exists: true }, idsLength: { $gt: 0 } } },
-      ]),
+        { $match: { companyIds: { $exists: true }, idsLength: { $gt: 0 } } }
+      ])
     );
 
     await executer(
@@ -54,11 +60,17 @@ module.exports.up = async () => {
           $project: {
             _id: 1,
             customerIds: 1,
-            idsLength: { $cond: { if: { $isArray: '$customerIds' }, then: { $size: '$customerIds' }, else: 0 } },
-          },
+            idsLength: {
+              $cond: {
+                if: { $isArray: '$customerIds' },
+                then: { $size: '$customerIds' },
+                else: 0
+              }
+            }
+          }
         },
-        { $match: { customerIds: { $exists: true }, idsLength: { $gt: 0 } } },
-      ]),
+        { $match: { customerIds: { $exists: true }, idsLength: { $gt: 0 } } }
+      ])
     );
     await executer(
       'deal',
@@ -69,11 +81,17 @@ module.exports.up = async () => {
           $project: {
             _id: 1,
             companyIds: 1,
-            idsLength: { $cond: { if: { $isArray: '$companyIds' }, then: { $size: '$companyIds' }, else: 0 } },
-          },
+            idsLength: {
+              $cond: {
+                if: { $isArray: '$companyIds' },
+                then: { $size: '$companyIds' },
+                else: 0
+              }
+            }
+          }
         },
-        { $match: { companyIds: { $exists: true }, idsLength: { $gt: 0 } } },
-      ]),
+        { $match: { companyIds: { $exists: true }, idsLength: { $gt: 0 } } }
+      ])
     );
 
     await executer(
@@ -85,11 +103,17 @@ module.exports.up = async () => {
           $project: {
             _id: 1,
             customerIds: 1,
-            idsLength: { $cond: { if: { $isArray: '$customerIds' }, then: { $size: '$customerIds' }, else: 0 } },
-          },
+            idsLength: {
+              $cond: {
+                if: { $isArray: '$customerIds' },
+                then: { $size: '$customerIds' },
+                else: 0
+              }
+            }
+          }
         },
-        { $match: { customerIds: { $exists: true }, idsLength: { $gt: 0 } } },
-      ]),
+        { $match: { customerIds: { $exists: true }, idsLength: { $gt: 0 } } }
+      ])
     );
     await executer(
       'ticket',
@@ -100,11 +124,17 @@ module.exports.up = async () => {
           $project: {
             _id: 1,
             companyIds: 1,
-            idsLength: { $cond: { if: { $isArray: '$companyIds' }, then: { $size: '$companyIds' }, else: 0 } },
-          },
+            idsLength: {
+              $cond: {
+                if: { $isArray: '$companyIds' },
+                then: { $size: '$companyIds' },
+                else: 0
+              }
+            }
+          }
         },
-        { $match: { companyIds: { $exists: true }, idsLength: { $gt: 0 } } },
-      ]),
+        { $match: { companyIds: { $exists: true }, idsLength: { $gt: 0 } } }
+      ])
     );
 
     await executer(
@@ -116,11 +146,17 @@ module.exports.up = async () => {
           $project: {
             _id: 1,
             customerIds: 1,
-            idsLength: { $cond: { if: { $isArray: '$customerIds' }, then: { $size: '$customerIds' }, else: 0 } },
-          },
+            idsLength: {
+              $cond: {
+                if: { $isArray: '$customerIds' },
+                then: { $size: '$customerIds' },
+                else: 0
+              }
+            }
+          }
         },
-        { $match: { customerIds: { $exists: true }, idsLength: { $gt: 0 } } },
-      ]),
+        { $match: { customerIds: { $exists: true }, idsLength: { $gt: 0 } } }
+      ])
     );
     await executer(
       'task',
@@ -131,11 +167,17 @@ module.exports.up = async () => {
           $project: {
             _id: 1,
             companyIds: 1,
-            idsLength: { $cond: { if: { $isArray: '$companyIds' }, then: { $size: '$companyIds' }, else: 0 } },
-          },
+            idsLength: {
+              $cond: {
+                if: { $isArray: '$companyIds' },
+                then: { $size: '$companyIds' },
+                else: 0
+              }
+            }
+          }
         },
-        { $match: { companyIds: { $exists: true }, idsLength: { $gt: 0 } } },
-      ]),
+        { $match: { companyIds: { $exists: true }, idsLength: { $gt: 0 } } }
+      ])
     );
   } catch (e) {
     console.log('conformity migration ', e.message);

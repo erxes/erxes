@@ -15,14 +15,21 @@ describe('scriptMutations', () => {
     const form = await formFactory();
 
     brand = await brandFactory();
-    lead = await integrationFactory({ formId: form._id, kind: 'lead', brandId: brand._id });
-    messenger = await integrationFactory({ kind: 'messenger', brandId: brand._id });
+    lead = await integrationFactory({
+      formId: form._id,
+      kind: 'lead',
+      brandId: brand._id
+    });
+    messenger = await integrationFactory({
+      kind: 'messenger',
+      brandId: brand._id
+    });
 
     doc = {
       name: 'name',
       messengerId: messenger._id,
       leadIds: [lead._id],
-      kbTopicId: 'kbTopicId',
+      kbTopicId: 'kbTopicId'
     };
   });
 
@@ -83,16 +90,22 @@ describe('scriptMutations', () => {
     `;
 
     const newScript = await Scripts.create(doc);
-    const integration = (messenger = await integrationFactory({ kind: 'messenger', brandId: brand._id }));
+    const integration = (messenger = await integrationFactory({
+      kind: 'messenger',
+      brandId: brand._id
+    }));
 
     const updateDoc = {
       name: 'name_updated',
       messengerId: integration._id,
       leadIds: [lead._id],
-      kbTopicId: 'kbTopicId_updated',
+      kbTopicId: 'kbTopicId_updated'
     };
 
-    const script = await graphqlRequest(mutation, 'scriptsEdit', { _id: newScript._id, ...updateDoc });
+    const script = await graphqlRequest(mutation, 'scriptsEdit', {
+      _id: newScript._id,
+      ...updateDoc
+    });
 
     expect(script.name).toBe(updateDoc.name);
     expect(script.messengerId).toBe(updateDoc.messengerId);

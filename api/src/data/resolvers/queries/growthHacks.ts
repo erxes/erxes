@@ -1,5 +1,8 @@
 import { GrowthHacks } from '../../../db/models';
-import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
+import {
+  checkPermission,
+  moduleRequireLogin
+} from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { IListParams } from './boards';
 import {
@@ -7,7 +10,7 @@ import {
   archivedItemsCount,
   checkItemPermByUser,
   generateGrowthHackCommonFilters,
-  IArchiveArgs,
+  IArchiveArgs
 } from './boardUtils';
 
 interface IGrowthHackListParams extends IListParams {
@@ -19,8 +22,15 @@ const growthHackQueries = {
   /**
    * Growth hack list
    */
-  async growthHacks(_root, args: IGrowthHackListParams, { user, commonQuerySelector }: IContext) {
-    const filter = { ...commonQuerySelector, ...(await generateGrowthHackCommonFilters(user._id, args)) };
+  async growthHacks(
+    _root,
+    args: IGrowthHackListParams,
+    { user, commonQuerySelector }: IContext
+  ) {
+    const filter = {
+      ...commonQuerySelector,
+      ...(await generateGrowthHackCommonFilters(user._id, args))
+    };
     const { sortField, sortDirection, skip = 0, limit = 10 } = args;
 
     const sort: { [key: string]: any } = {};
@@ -52,13 +62,21 @@ const growthHackQueries = {
   /**
    * Get all growth hacks count. We will use it in pager
    */
-  async growthHacksTotalCount(_root, args: IGrowthHackListParams, { user }: IContext) {
+  async growthHacksTotalCount(
+    _root,
+    args: IGrowthHackListParams,
+    { user }: IContext
+  ) {
     const filter = await generateGrowthHackCommonFilters(user._id, args);
 
     return GrowthHacks.find(filter).countDocuments();
   },
 
-  async growthHacksPriorityMatrix(_root, args: IListParams, { user }: IContext) {
+  async growthHacksPriorityMatrix(
+    _root,
+    args: IListParams,
+    { user }: IContext
+  ) {
     const filter = await generateGrowthHackCommonFilters(user._id, args);
 
     filter.ease = { $exists: true, $gt: 0 };
@@ -66,17 +84,17 @@ const growthHackQueries = {
 
     return GrowthHacks.aggregate([
       {
-        $match: filter,
+        $match: filter
       },
       {
         $group: {
           _id: {
             impact: '$impact',
-            ease: '$ease',
+            ease: '$ease'
           },
           names: { $push: '$name' },
-          count: { $sum: 1 },
-        },
+          count: { $sum: 1 }
+        }
       },
       {
         $project: {
@@ -84,9 +102,9 @@ const growthHackQueries = {
           x: '$_id.ease',
           y: '$_id.impact',
           names: 1,
-          count: 1,
-        },
-      },
+          count: 1
+        }
+      }
     ]);
   },
 
@@ -97,7 +115,7 @@ const growthHackQueries = {
     const growthHack = await GrowthHacks.getGrowthHack(_id);
 
     return checkItemPermByUser(user._id, growthHack);
-  },
+  }
 };
 
 moduleRequireLogin(growthHackQueries);

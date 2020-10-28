@@ -1,5 +1,9 @@
 import { Model, model } from 'mongoose';
-import { emailDeliverySchema, IEmailDeliveries, IEmailDeliveriesDocument } from './definitions/emailDeliveries';
+import {
+  emailDeliverySchema,
+  IEmailDeliveries,
+  IEmailDeliveriesDocument
+} from './definitions/emailDeliveries';
 
 export interface IEmailDeliveryModel extends Model<IEmailDeliveriesDocument> {
   createEmailDelivery(doc: IEmailDeliveries): Promise<IEmailDeliveriesDocument>;
@@ -13,7 +17,7 @@ export const loadClass = () => {
      */
     public static async createEmailDelivery(doc: IEmailDeliveries) {
       return EmailDeliveries.create({
-        ...doc,
+        ...doc
       });
     }
 
@@ -30,6 +34,9 @@ export const loadClass = () => {
 loadClass();
 
 // tslint:disable-next-line
-const EmailDeliveries = model<IEmailDeliveriesDocument, IEmailDeliveryModel>('email_deliveries', emailDeliverySchema);
+const EmailDeliveries = model<IEmailDeliveriesDocument, IEmailDeliveryModel>(
+  'email_deliveries',
+  emailDeliverySchema
+);
 
 export default EmailDeliveries;

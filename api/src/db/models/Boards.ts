@@ -10,7 +10,7 @@ import {
   IStage,
   IStageDocument,
   pipelineSchema,
-  stageSchema,
+  stageSchema
 } from './definitions/boards';
 import { getDuplicatedStages } from './PipelineTemplates';
 
@@ -22,7 +22,11 @@ export interface IOrderInput {
 // Not mongoose document, just stage shaped plain object
 type IPipelineStage = IStage & { _id: string };
 
-const removeStageWithItems = async (type: string, pipelineId: string, prevItemIds: string[] = []) => {
+const removeStageWithItems = async (
+  type: string,
+  pipelineId: string,
+  prevItemIds: string[] = []
+) => {
   const selector = { pipelineId, _id: { $nin: prevItemIds } };
 
   const stageIds = await Stages.find(selector).distinct('_id');
@@ -34,7 +38,10 @@ const removeStageWithItems = async (type: string, pipelineId: string, prevItemId
   return Stages.deleteMany(selector);
 };
 
-const removePipelineStagesWithItems = async (type: string, pipelineId: string) => {
+const removePipelineStagesWithItems = async (
+  type: string,
+  pipelineId: string
+) => {
   const stageIds = await Stages.find({ pipelineId }).distinct('_id');
 
   const collection = getCollection(type);
@@ -50,7 +57,11 @@ const removeStageItems = async (type: string, stageId: string) => {
   return collection.deleteMany({ stageId });
 };
 
-const createOrUpdatePipelineStages = async (stages: IPipelineStage[], pipelineId: string, type: string) => {
+const createOrUpdatePipelineStages = async (
+  stages: IPipelineStage[],
+  pipelineId: string,
+  type: string
+) => {
   let order = 0;
 
   const validStageIds: string[] = [];
@@ -83,12 +94,12 @@ const createOrUpdatePipelineStages = async (stages: IPipelineStage[], pipelineId
       bulkOpsPrevEntry.push({
         updateOne: {
           filter: {
-            _id,
+            _id
           },
           update: {
-            $set: doc,
-          },
-        },
+            $set: doc
+          }
+        }
       });
       // create
     } else {
@@ -174,8 +185,15 @@ export const loadBoardClass = () => {
 
 export interface IPipelineModel extends Model<IPipelineDocument> {
   getPipeline(_id: string): Promise<IPipelineDocument>;
-  createPipeline(doc: IPipeline, stages?: IPipelineStage[]): Promise<IPipelineDocument>;
-  updatePipeline(_id: string, doc: IPipeline, stages?: IPipelineStage[]): Promise<IPipelineDocument>;
+  createPipeline(
+    doc: IPipeline,
+    stages?: IPipelineStage[]
+  ): Promise<IPipelineDocument>;
+  updatePipeline(
+    _id: string,
+    doc: IPipeline,
+    stages?: IPipelineStage[]
+  ): Promise<IPipelineDocument>;
   updateOrder(orders: IOrderInput[]): Promise<IPipelineDocument[]>;
   watchPipeline(_id: string, isAdd: boolean, userId: string): void;
   removePipeline(_id: string, checked?: boolean): object;
@@ -199,17 +217,24 @@ export const loadPipelineClass = () => {
     /**
      * Create a pipeline
      */
-    public static async createPipeline(doc: IPipeline, stages?: IPipelineStage[]) {
+    public static async createPipeline(
+      doc: IPipeline,
+      stages?: IPipelineStage[]
+    ) {
       const pipeline = await Pipelines.create(doc);
 
       if (doc.templateId) {
         const duplicatedStages = await getDuplicatedStages({
           templateId: doc.templateId,
           pipelineId: pipeline._id,
-          type: doc.type,
+          type: doc.type
         });
 
-        await createOrUpdatePipelineStages(duplicatedStages, pipeline._id, pipeline.type);
+        await createOrUpdatePipelineStages(
+          duplicatedStages,
+          pipeline._id,
+          pipeline.type
+        );
       } else if (stages) {
         await createOrUpdatePipelineStages(stages, pipeline._id, pipeline.type);
       }
@@ -220,7 +245,11 @@ export const loadPipelineClass = () => {
     /**
      * Update a pipeline
      */
-    public static async updatePipeline(_id: string, doc: IPipeline, stages?: IPipelineStage[]) {
+    public static async updatePipeline(
+      _id: string,
+      doc: IPipeline,
+      stages?: IPipelineStage[]
+    ) {
       if (doc.templateId) {
         const pipeline = await Pipelines.getPipeline(_id);
 
@@ -228,7 +257,7 @@ export const loadPipelineClass = () => {
           const duplicatedStages = await getDuplicatedStages({
             templateId: doc.templateId,
             pipelineId: _id,
-            type: doc.type,
+            type: doc.type
           });
 
           await createOrUpdatePipelineStages(duplicatedStages, _id, doc.type);
@@ -351,7 +380,10 @@ loadStageClass();
 const Boards = model<IBoardDocument, IBoardModel>('boards', boardSchema);
 
 // tslint:disable-next-line
-const Pipelines = model<IPipelineDocument, IPipelineModel>('pipelines', pipelineSchema);
+const Pipelines = model<IPipelineDocument, IPipelineModel>(
+  'pipelines',
+  pipelineSchema
+);
 
 // tslint:disable-next-line
 const Stages = model<IStageDocument, IStageModel>('stages', stageSchema);

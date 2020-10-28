@@ -27,9 +27,7 @@ export type SaveResponseTemplateMutationVariables = {
 };
 
 export type SaveResponseTemplateMutationResponse = {
-  saveResponseTemplateMutation: (
-    doc: {
-      variables: SaveResponseTemplateMutationVariables;
-    }
-  ) => Promise<any>;
+  saveResponseTemplateMutation: (doc: {
+    variables: SaveResponseTemplateMutationVariables;
+  }) => Promise<any>;
 };

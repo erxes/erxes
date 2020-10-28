@@ -24,7 +24,7 @@ class EmailTemplate extends React.Component<Props> {
 
   handleFetch = () => {
     this.props.fetchMoreEmailTemplates();
-  }
+  };
 
   handleClick(value: string) {
     this.props.onSelect(value);
@@ -64,7 +64,9 @@ class EmailTemplate extends React.Component<Props> {
             <PopoverList>{this.renderContent()}</PopoverList>
           </PopoverBody>
           <PopoverFooter>
-            <Button btnStyle="link" block={true} onClick={this.handleFetch}>{__('Load more')}</Button>
+            <Button btnStyle="link" block={true} onClick={this.handleFetch}>
+              {__('Load more')}
+            </Button>
           </PopoverFooter>
         </Popover.Content>
       </Popover>

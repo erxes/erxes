@@ -7,7 +7,7 @@ const findMessages = (selector = {}) => {
   return EngageMessages.find({
     kind: { $in: ['auto', 'visitorAuto'] },
     isLive: true,
-    ...selector,
+    ...selector
   });
 };
 
@@ -47,7 +47,9 @@ const checkDayJobs = async () => {
   const year = now.getFullYear();
 
   // every nth day messages =======
-  const everyNthDayMessages = await findMessages({ 'scheduleDate.type': day.toString() });
+  const everyNthDayMessages = await findMessages({
+    'scheduleDate.type': day.toString()
+  });
   await runJobs(everyNthDayMessages);
 
   debugCrons(`Found every nth day messages ${everyNthDayMessages.length}`);
@@ -76,7 +78,7 @@ const checkDayJobs = async () => {
 
   await EngageMessages.updateMany(
     { _id: { $in: everyMonthMessages.map(m => m._id) } },
-    { $set: { lastRunAt: new Date() } },
+    { $set: { lastRunAt: new Date() } }
   );
 
   // every year messages ========
@@ -107,7 +109,7 @@ const checkDayJobs = async () => {
 
   await EngageMessages.updateMany(
     { _id: { $in: everyYearMessages.map(m => m._id) } },
-    { $set: { lastRunAt: new Date() } },
+    { $set: { lastRunAt: new Date() } }
   );
 };
 

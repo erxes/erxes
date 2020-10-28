@@ -19,16 +19,22 @@ interface IEngageMessageEdit extends IEngageMessage {
  */
 const emptyCustomers = {
   customerIds: [],
-  messengerReceivedCustomerIds: [],
+  messengerReceivedCustomerIds: []
 };
 
 const engageMutations = {
   /**
    * Create new message
    */
-  async engageMessageAdd(_root, doc: IEngageMessage, { user, docModifier }: IContext) {
+  async engageMessageAdd(
+    _root,
+    doc: IEngageMessage,
+    { user, docModifier }: IContext
+  ) {
     if (doc.kind !== MESSAGE_KINDS.MANUAL && doc.method === METHODS.SMS) {
-      throw new Error(`SMS engage message of kind ${doc.kind} is not supported`);
+      throw new Error(
+        `SMS engage message of kind ${doc.kind} is not supported`
+      );
     }
 
     // fromUserId is not required in sms engage, so set it here
@@ -36,7 +42,9 @@ const engageMutations = {
       doc.fromUserId = user._id;
     }
 
-    const engageMessage = await EngageMessages.createEngageMessage(docModifier(doc));
+    const engageMessage = await EngageMessages.createEngageMessage(
+      docModifier(doc)
+    );
 
     await sendToWebhook('create', 'engageMessages', engageMessage);
 
@@ -47,14 +55,14 @@ const engageMutations = {
         type: MODULE_NAMES.ENGAGE,
         newData: {
           ...doc,
-          ...emptyCustomers,
+          ...emptyCustomers
         },
         object: {
           ...engageMessage.toObject(),
-          ...emptyCustomers,
-        },
+          ...emptyCustomers
+        }
       },
-      user,
+      user
     );
 
     return engageMessage;
@@ -63,7 +71,11 @@ const engageMutations = {
   /**
    * Edit message
    */
-  async engageMessageEdit(_root, { _id, ...doc }: IEngageMessageEdit, { user }: IContext) {
+  async engageMessageEdit(
+    _root,
+    { _id, ...doc }: IEngageMessageEdit,
+    { user }: IContext
+  ) {
     const engageMessage = await EngageMessages.getEngageMessage(_id);
     const updated = await EngageMessages.updateEngageMessage(_id, doc);
 
@@ -72,9 +84,9 @@ const engageMutations = {
         type: MODULE_NAMES.ENGAGE,
         object: { ...engageMessage.toObject(), ...emptyCustomers },
         newData: { ...updated.toObject(), ...emptyCustomers },
-        updatedDocument: updated,
+        updatedDocument: updated
       },
-      user,
+      user
     );
 
     return EngageMessages.findOne({ _id });
@@ -83,7 +95,11 @@ const engageMutations = {
   /**
    * Remove message
    */
-  async engageMessageRemove(_root, { _id }: { _id: string }, { user }: IContext) {
+  async engageMessageRemove(
+    _root,
+    { _id }: { _id: string },
+    { user }: IContext
+  ) {
     const engageMessage = await EngageMessages.getEngageMessage(_id);
 
     const removed = await EngageMessages.removeEngageMessage(_id);
@@ -91,9 +107,9 @@ const engageMutations = {
     await putDeleteLog(
       {
         type: MODULE_NAMES.ENGAGE,
-        object: { ...engageMessage.toObject(), ...emptyCustomers },
+        object: { ...engageMessage.toObject(), ...emptyCustomers }
       },
-      user,
+      user
     );
 
     return removed;
@@ -127,7 +143,11 @@ const engageMutations = {
   /**
    * Engage message verify email
    */
-  async engageMessageVerifyEmail(_root, { email }: { email: string }, { dataSources, user }: IContext) {
+  async engageMessageVerifyEmail(
+    _root,
+    { email }: { email: string },
+    { dataSources, user }: IContext
+  ) {
     await registerOnboardHistory({ type: 'engageVerifyEmail', user });
 
     return dataSources.EngagesAPI.engagesVerifyEmail({ email });
@@ -136,25 +156,57 @@ const engageMutations = {
   /**
    * Engage message remove verified email
    */
-  engageMessageRemoveVerifiedEmail(_root, { email }: { email: string }, { dataSources }: IContext) {
+  engageMessageRemoveVerifiedEmail(
+    _root,
+    { email }: { email: string },
+    { dataSources }: IContext
+  ) {
     return dataSources.EngagesAPI.engagesRemoveVerifiedEmail({ email });
   },
 
-  async engageMessageSendTestEmail(_root, args, { dataSources, user }: IContext) {
+  async engageMessageSendTestEmail(
+    _root,
+    args,
+    { dataSources, user }: IContext
+  ) {
     await registerOnboardHistory({ type: 'engageSendTestEmail', user });
 
     return dataSources.EngagesAPI.engagesSendTestEmail(args);
-  },
+  }
 };
 
 checkPermission(engageMutations, 'engageMessageAdd', 'engageMessageAdd');
 checkPermission(engageMutations, 'engageMessageEdit', 'engageMessageEdit');
 checkPermission(engageMutations, 'engageMessageRemove', 'engageMessageRemove');
-checkPermission(engageMutations, 'engageMessageSetLive', 'engageMessageSetLive');
-checkPermission(engageMutations, 'engageMessageSetPause', 'engageMessageSetPause');
-checkPermission(engageMutations, 'engageMessageSetLiveManual', 'engageMessageSetLiveManual');
-checkPermission(engageMutations, 'engageMessageVerifyEmail', 'engageMessageRemove');
-checkPermission(engageMutations, 'engageMessageRemoveVerifiedEmail', 'engageMessageRemove');
-checkPermission(engageMutations, 'engageMessageSendTestEmail', 'engageMessageRemove');
+checkPermission(
+  engageMutations,
+  'engageMessageSetLive',
+  'engageMessageSetLive'
+);
+checkPermission(
+  engageMutations,
+  'engageMessageSetPause',
+  'engageMessageSetPause'
+);
+checkPermission(
+  engageMutations,
+  'engageMessageSetLiveManual',
+  'engageMessageSetLiveManual'
+);
+checkPermission(
+  engageMutations,
+  'engageMessageVerifyEmail',
+  'engageMessageRemove'
+);
+checkPermission(
+  engageMutations,
+  'engageMessageRemoveVerifiedEmail',
+  'engageMessageRemove'
+);
+checkPermission(
+  engageMutations,
+  'engageMessageSendTestEmail',
+  'engageMessageRemove'
+);
 
 export default engageMutations;

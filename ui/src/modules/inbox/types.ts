@@ -189,11 +189,9 @@ export type MarkAsReadMutationResponse = {
 };
 
 export type ReplyMutationResponse = {
-  replyMutation: (
-    doc: {
-      variables: AddMessageMutationVariables;
-    }
-  ) => Promise<any>;
+  replyMutation: (doc: {
+    variables: AddMessageMutationVariables;
+  }) => Promise<any>;
 };
 
 export type AddMessageMutationVariables = {
@@ -206,13 +204,11 @@ export type AddMessageMutationVariables = {
 };
 
 export type AddMessageMutationResponse = {
-  addMessageMutation: (
-    doc: {
-      variables: AddMessageMutationVariables;
-      optimisticResponse: any;
-      update: any;
-    }
-  ) => Promise<any>;
+  addMessageMutation: (doc: {
+    variables: AddMessageMutationVariables;
+    optimisticResponse: any;
+    update: any;
+  }) => Promise<any>;
 };
 
 export type AssignMutationVariables = {
@@ -229,9 +225,9 @@ export type UnAssignMutationVariables = {
 };
 
 export type UnAssignMutationResponse = {
-  conversationsUnassign: (
-    doc: { variables: UnAssignMutationVariables }
-  ) => Promise<any>;
+  conversationsUnassign: (doc: {
+    variables: UnAssignMutationVariables;
+  }) => Promise<any>;
 };
 
 export type ChangeStatusMutationVariables = {
@@ -240,9 +236,9 @@ export type ChangeStatusMutationVariables = {
 };
 
 export type ChangeStatusMutationResponse = {
-  changeStatusMutation: (
-    doc: { variables: ChangeStatusMutationVariables }
-  ) => Promise<any>;
+  changeStatusMutation: (doc: {
+    variables: ChangeStatusMutationVariables;
+  }) => Promise<any>;
 };
 
 export type CreateProductBoardMutationVariables = {
@@ -250,9 +246,9 @@ export type CreateProductBoardMutationVariables = {
 };
 
 export type CreateProductBoardMutationResponse = {
-  createProductBoardMutation: (
-    doc: { variables: CreateProductBoardMutationVariables }
-  ) => Promise<any>;
+  createProductBoardMutation: (doc: {
+    variables: CreateProductBoardMutationVariables;
+  }) => Promise<any>;
 };
 
 export type ResolveAllMutationVariables = {
@@ -270,9 +266,9 @@ export type ResolveAllMutationVariables = {
 };
 
 export type ResolveAllMutationResponse = {
-  resolveAllMutation: (
-    doc: { variables: ResolveAllMutationVariables }
-  ) => Promise<any>;
+  resolveAllMutation: (doc: {
+    variables: ResolveAllMutationVariables;
+  }) => Promise<any>;
 };
 
 // query types
@@ -329,11 +325,9 @@ export type ReplyFaceBookCommentMutationVariables = {
 };
 
 export type ReplyFacebookCommentMutationResponse = {
-  replyMutation: (
-    doc: {
-      variables: ReplyFaceBookCommentMutationVariables;
-    }
-  ) => Promise<any>;
+  replyMutation: (doc: {
+    variables: ReplyFaceBookCommentMutationVariables;
+  }) => Promise<any>;
 };
 
 export type ResolveFacebookCommentMutationVariables = {
@@ -341,9 +335,7 @@ export type ResolveFacebookCommentMutationVariables = {
 };
 
 export type ResolveFacebookCommentResponse = {
-  resolveMutation: (
-    doc: {
-      variables: ResolveFacebookCommentMutationVariables;
-    }
-  ) => Promise<any>;
+  resolveMutation: (doc: {
+    variables: ResolveFacebookCommentMutationVariables;
+  }) => Promise<any>;
 };

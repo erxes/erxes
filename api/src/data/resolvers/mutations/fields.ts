@@ -19,15 +19,18 @@ const fieldMutations = {
    * Adds field object
    */
   async fieldsAdd(_root, args: IField, { user }: IContext) {
-    const field = await Fields.createField({ ...args, lastUpdatedUserId: user._id });
+    const field = await Fields.createField({
+      ...args,
+      lastUpdatedUserId: user._id
+    });
 
     await putCreateLog(
       {
         type: MODULE_NAMES.FIELD,
         newData: args,
-        object: field,
+        object: field
       },
-      user,
+      user
     );
 
     return field;
@@ -57,9 +60,13 @@ const fieldMutations = {
   /**
    * Update field's visible
    */
-  fieldsUpdateVisible(_root, { _id, isVisible }: { _id: string; isVisible: boolean }, { user }: IContext) {
+  fieldsUpdateVisible(
+    _root,
+    { _id, isVisible }: { _id: string; isVisible: boolean },
+    { user }: IContext
+  ) {
     return Fields.updateFieldsVisible(_id, isVisible, user._id);
-  },
+  }
 };
 
 const fieldsGroupsMutations = {
@@ -67,16 +74,22 @@ const fieldsGroupsMutations = {
    * Create a new group for fields
    */
   fieldsGroupsAdd(_root, doc: IFieldGroup, { user, docModifier }: IContext) {
-    return FieldsGroups.createGroup(docModifier({ ...doc, lastUpdatedUserId: user._id }));
+    return FieldsGroups.createGroup(
+      docModifier({ ...doc, lastUpdatedUserId: user._id })
+    );
   },
 
   /**
    * Update group for fields
    */
-  fieldsGroupsEdit(_root, { _id, ...doc }: IFieldsGroupsEdit, { user }: IContext) {
+  fieldsGroupsEdit(
+    _root,
+    { _id, ...doc }: IFieldsGroupsEdit,
+    { user }: IContext
+  ) {
     return FieldsGroups.updateGroup(_id, {
       ...doc,
-      lastUpdatedUserId: user._id,
+      lastUpdatedUserId: user._id
     });
   },
 
@@ -90,9 +103,13 @@ const fieldsGroupsMutations = {
   /**
    * Update field group's visible
    */
-  fieldsGroupsUpdateVisible(_root, { _id, isVisible }: { _id: string; isVisible: boolean }, { user }: IContext) {
+  fieldsGroupsUpdateVisible(
+    _root,
+    { _id, isVisible }: { _id: string; isVisible: boolean },
+    { user }: IContext
+  ) {
     return FieldsGroups.updateGroupVisible(_id, isVisible, user._id);
-  },
+  }
 };
 
 moduleCheckPermission(fieldMutations, 'manageForms');

@@ -73,7 +73,7 @@ const compareArrays = (oldArray: any[] = [], newArray: any[] = []) => {
     unchanged: unchangedItems,
     changed: changedItems,
     added: addedItems,
-    removed: removedItems,
+    removed: removedItems
   };
 };
 
@@ -88,7 +88,12 @@ const isNull = val => val === null || val === undefined || val === '';
  * @param obj Object to check
  */
 const isObjectEmpty = obj => {
-  return typeof obj === 'object' && obj && Object.keys(obj).length === 0 && obj.constructor === Object;
+  return (
+    typeof obj === 'object' &&
+    obj &&
+    Object.keys(obj).length === 0 &&
+    obj.constructor === Object
+  );
 };
 
 /**
@@ -232,14 +237,23 @@ export const compareObjects = (oldData: object = {}, newData: object = {}) => {
     changed: changedFields,
     unchanged: unchangedFields,
     added: addedFields,
-    removed: removedFields,
+    removed: removedFields
   };
 };
 
 export const receivePutLogCommand = async params => {
   debugBase(params);
 
-  const { createdBy, type, action, unicode, description, object, newData, extraDesc } = params;
+  const {
+    createdBy,
+    type,
+    action,
+    unicode,
+    description,
+    object,
+    newData,
+    extraDesc
+  } = params;
 
   return Logs.createLog({
     createdBy,
@@ -250,6 +264,6 @@ export const receivePutLogCommand = async params => {
     unicode,
     createdAt: new Date(),
     description,
-    extraDesc,
+    extraDesc
   });
 };

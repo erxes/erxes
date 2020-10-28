@@ -69,7 +69,7 @@ class IntegrationListItem extends React.Component<Props> {
     const { integration } = this.props;
     const webhookData = integration.webhookData;
 
-    if(!webhookData) {
+    if (!webhookData) {
       return;
     }
 

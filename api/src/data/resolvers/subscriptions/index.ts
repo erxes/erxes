@@ -15,7 +15,7 @@ let subscriptions: any = {
   ...notifications,
   ...robot,
   ...checklists,
-  ...pipelines,
+  ...pipelines
 };
 
 const { NODE_ENV } = process.env;

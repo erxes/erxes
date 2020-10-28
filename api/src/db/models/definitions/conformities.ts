@@ -60,5 +60,5 @@ export const conformitySchema = new Schema({
   mainType: field({ type: String, index: true }),
   mainTypeId: field({ type: String, index: true }),
   relType: field({ type: String, index: true }),
-  relTypeId: field({ type: String, index: true }),
+  relTypeId: field({ type: String, index: true })
 });

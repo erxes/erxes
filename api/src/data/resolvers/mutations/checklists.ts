@@ -1,5 +1,8 @@
 import { ChecklistItems, Checklists } from '../../../db/models';
-import { IChecklist, IChecklistItem } from '../../../db/models/definitions/checklists';
+import {
+  IChecklist,
+  IChecklistItem
+} from '../../../db/models/definitions/checklists';
 import { graphqlPubsub } from '../../../pubsub';
 import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
@@ -19,16 +22,16 @@ const checklistsChanged = (checklist: IChecklistsEdit) => {
     checklistsChanged: {
       _id: checklist._id,
       contentType: checklist.contentType,
-      contentTypeId: checklist.contentTypeId,
-    },
+      contentTypeId: checklist.contentTypeId
+    }
   });
 };
 
 const checklistDetailChanged = (_id: string) => {
   graphqlPubsub.publish('checklistDetailChanged', {
     checklistDetailChanged: {
-      _id,
-    },
+      _id
+    }
   });
 };
 
@@ -43,9 +46,9 @@ const checklistMutations = {
       {
         type: MODULE_NAMES.CHECKLIST,
         newData: args,
-        object: checklist,
+        object: checklist
       },
-      user,
+      user
     );
 
     checklistsChanged(checklist);
@@ -56,7 +59,11 @@ const checklistMutations = {
   /**
    * Updates checklist object
    */
-  async checklistsEdit(_root, { _id, ...doc }: IChecklistsEdit, { user }: IContext) {
+  async checklistsEdit(
+    _root,
+    { _id, ...doc }: IChecklistsEdit,
+    { user }: IContext
+  ) {
     const checklist = await Checklists.getChecklist(_id);
     const updated = await Checklists.updateChecklist(_id, doc);
 
@@ -65,9 +72,9 @@ const checklistMutations = {
         type: MODULE_NAMES.CHECKLIST,
         object: checklist,
         newData: doc,
-        updatedDocument: updated,
+        updatedDocument: updated
       },
-      user,
+      user
     );
 
     checklistDetailChanged(_id);
@@ -82,7 +89,10 @@ const checklistMutations = {
     const checklist = await Checklists.getChecklist(_id);
     const removed = await Checklists.removeChecklist(_id);
 
-    await putDeleteLog({ type: MODULE_NAMES.CHECKLIST, object: checklist }, user);
+    await putDeleteLog(
+      { type: MODULE_NAMES.CHECKLIST, object: checklist },
+      user
+    );
 
     checklistsChanged(checklist);
 
@@ -99,9 +109,9 @@ const checklistMutations = {
       {
         type: MODULE_NAMES.CHECKLIST_ITEM,
         newData: args,
-        object: checklistItem,
+        object: checklistItem
       },
-      user,
+      user
     );
 
     checklistDetailChanged(checklistItem.checklistId);
@@ -112,7 +122,11 @@ const checklistMutations = {
   /**
    * Updates a checklist item
    */
-  async checklistItemsEdit(_root, { _id, ...doc }: IChecklistItemsEdit, { user }: IContext) {
+  async checklistItemsEdit(
+    _root,
+    { _id, ...doc }: IChecklistItemsEdit,
+    { user }: IContext
+  ) {
     const checklistItem = await ChecklistItems.getChecklistItem(_id);
     const updated = await ChecklistItems.updateChecklistItem(_id, doc);
 
@@ -121,9 +135,9 @@ const checklistMutations = {
         type: MODULE_NAMES.CHECKLIST_ITEM,
         object: checklistItem,
         newData: doc,
-        updatedDocument: updated,
+        updatedDocument: updated
       },
-      user,
+      user
     );
 
     checklistDetailChanged(updated.checklistId);
@@ -134,20 +148,30 @@ const checklistMutations = {
   /**
    * Removes a checklist item
    */
-  async checklistItemsRemove(_root, { _id }: { _id: string }, { user }: IContext) {
+  async checklistItemsRemove(
+    _root,
+    { _id }: { _id: string },
+    { user }: IContext
+  ) {
     const checklistItem = await ChecklistItems.getChecklistItem(_id);
     const removed = await ChecklistItems.removeChecklistItem(_id);
 
-    await putDeleteLog({ type: MODULE_NAMES.CHECKLIST_ITEM, object: checklistItem }, user);
+    await putDeleteLog(
+      { type: MODULE_NAMES.CHECKLIST_ITEM, object: checklistItem },
+      user
+    );
 
     checklistDetailChanged(checklistItem.checklistId);
 
     return removed;
   },
 
-  async checklistItemsOrder(_root, { _id, destinationIndex }: { _id: string; destinationIndex: number }) {
+  async checklistItemsOrder(
+    _root,
+    { _id, destinationIndex }: { _id: string; destinationIndex: number }
+  ) {
     return ChecklistItems.updateItemOrder(_id, destinationIndex);
-  },
+  }
 };
 
 moduleRequireLogin(checklistMutations);

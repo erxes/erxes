@@ -4,7 +4,9 @@ import { Permissions } from '../db/models';
 module.exports.up = async () => {
   await connect();
 
-  const integrationPermissions = await Permissions.find({ module: 'integrations' });
+  const integrationPermissions = await Permissions.find({
+    module: 'integrations'
+  });
 
   for (const permission of integrationPermissions) {
     const requiredActions = permission.requiredActions || [];

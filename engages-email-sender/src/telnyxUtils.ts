@@ -20,7 +20,7 @@ export const getTelnyxInfo = async () => {
   return {
     telnyxApiKey,
     instance: new Telnyx(telnyxApiKey),
-    integrations,
+    integrations
   };
 };
 
@@ -42,7 +42,7 @@ export const saveTelnyxHookData = async (data: any) => {
         await SmsRequests.updateRequest(initialRequest._id, {
           status: receiver.status,
           responseData: JSON.stringify(data.payload),
-          statusUpdates: statuses,
+          statusUpdates: statuses
         });
       }
     }
@@ -52,7 +52,7 @@ export const saveTelnyxHookData = async (data: any) => {
 export const prepareSmsStats = async (engageMessageId: string) => {
   const stats = await SmsRequests.aggregate([
     { $match: { engageMessageId } },
-    { $group: { _id: '$status', count: { $sum: 1 } } },
+    { $group: { _id: '$status', count: { $sum: 1 } } }
   ]);
 
   const result: any = { total: 0 };

@@ -505,7 +505,7 @@ const AuthDescription = styled.div`
     line-height: 1.4em;
     font-weight: 500;
   }
-  
+
   p {
     color: rgba(255, 255, 255, 0.7);
     margin-bottom: 50px;

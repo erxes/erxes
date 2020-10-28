@@ -32,11 +32,20 @@ const formMutations = {
   /**
    * Create a form submission data
    */
-  async formSubmissionsSave(_root, { formId, contentTypeId, contentType, formSubmissions }: IFormSubmission) {
-    const cleanedFormSubmissions = await Fields.cleanMulti(formSubmissions || {});
+  async formSubmissionsSave(
+    _root,
+    { formId, contentTypeId, contentType, formSubmissions }: IFormSubmission
+  ) {
+    const cleanedFormSubmissions = await Fields.cleanMulti(
+      formSubmissions || {}
+    );
 
     for (const formFieldId of Object.keys(cleanedFormSubmissions)) {
-      const formSubmission = await FormSubmissions.findOne({ contentTypeId, contentType, formFieldId });
+      const formSubmission = await FormSubmissions.findOne({
+        contentTypeId,
+        contentType,
+        formFieldId
+      });
 
       if (formSubmission) {
         formSubmission.value = cleanedFormSubmissions[formFieldId];
@@ -48,7 +57,7 @@ const formMutations = {
           contentType,
           formFieldId,
           formId,
-          value: formSubmissions[formFieldId],
+          value: formSubmissions[formFieldId]
         };
 
         FormSubmissions.createFormSubmission(doc);
@@ -56,7 +65,7 @@ const formMutations = {
     }
 
     return true;
-  },
+  }
 };
 
 moduleCheckPermission(formMutations, 'manageForms');

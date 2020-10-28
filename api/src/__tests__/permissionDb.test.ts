@@ -1,5 +1,9 @@
 import { registerModule } from '../data/permissions/utils';
-import { permissionFactory, userFactory, usersGroupFactory } from '../db/factories';
+import {
+  permissionFactory,
+  userFactory,
+  usersGroupFactory
+} from '../db/factories';
 import { Permissions, Users, UsersGroups } from '../db/models';
 
 import './setup.ts';
@@ -11,12 +15,12 @@ describe('Test permissions model', () => {
 
   const docGroup = {
     name: 'New Group',
-    description: 'User group',
+    description: 'User group'
   };
 
   const doc = {
     actions: ['up', ' test'],
-    module: 'module name',
+    module: 'module name'
   };
 
   registerModule({
@@ -27,9 +31,9 @@ describe('Test permissions model', () => {
         { name: 'action', description: 'd', use: [] },
         { name: 'action1', description: 'd', use: [] },
         { name: 'action2', description: 'd', use: [] },
-        { name: 'action3', description: 'd' },
-      ],
-    },
+        { name: 'action3', description: 'd' }
+      ]
+    }
   });
 
   beforeEach(async () => {
@@ -48,7 +52,11 @@ describe('Test permissions model', () => {
   test('Create permission (Error: Invalid data)', async () => {
     expect.assertions(1);
     try {
-      await Permissions.createPermission({ userIds: [_user._id], ...doc, allowed: true });
+      await Permissions.createPermission({
+        userIds: [_user._id],
+        ...doc,
+        allowed: true
+      });
     } catch (e) {
       expect(e.message).toEqual('Invalid data');
     }
@@ -58,7 +66,7 @@ describe('Test permissions model', () => {
     const permission = await Permissions.createPermission({
       ...doc,
       actions: ['action', 'action1', 'action2', 'action3'],
-      allowed: true,
+      allowed: true
     });
 
     expect(permission.length).toEqual(0);
@@ -70,11 +78,13 @@ describe('Test permissions model', () => {
       allowed: true,
       userIds: [_user._id],
       groupIds: [_group._id],
-      actions: ['action', 'action', 'action1', 'action2', 'action3'],
+      actions: ['action', 'action', 'action1', 'action2', 'action3']
     });
 
     expect(permission.length).toEqual(8);
-    const per = permission.find(p => p.groupId === _group._id && p.action === 'action');
+    const per = permission.find(
+      p => p.groupId === _group._id && p.action === 'action'
+    );
 
     if (per) {
       expect(per.module).toEqual(doc.module);
@@ -130,7 +140,10 @@ describe('Test permissions model', () => {
     const user1 = await userFactory({});
     const user2 = await userFactory({});
 
-    const groupObj = await UsersGroups.createGroup(docGroup, [user1._id, user2._id]);
+    const groupObj = await UsersGroups.createGroup(docGroup, [
+      user1._id,
+      user2._id
+    ]);
     const updatedUser1 = await Users.findOne({ _id: user1._id });
     const updatedUser2 = await Users.findOne({ _id: user2._id });
 
@@ -138,8 +151,12 @@ describe('Test permissions model', () => {
     expect(groupObj.name).toEqual(docGroup.name);
     expect(groupObj.description).toEqual(docGroup.description);
 
-    expect((updatedUser1 && updatedUser1.groupIds) || []).toContain(groupObj._id);
-    expect((updatedUser2 && updatedUser2.groupIds) || []).toContain(groupObj._id);
+    expect((updatedUser1 && updatedUser1.groupIds) || []).toContain(
+      groupObj._id
+    );
+    expect((updatedUser2 && updatedUser2.groupIds) || []).toContain(
+      groupObj._id
+    );
   });
 
   test('Update group', async () => {
@@ -152,7 +169,10 @@ describe('Test permissions model', () => {
     const user3 = await userFactory({ groupIds: [otherGroup._id] });
     const user4 = await userFactory({ groupIds: [otherGroup._id] });
 
-    const groupObj = await UsersGroups.updateGroup(_group._id, docGroup, [user3._id, user4._id]);
+    const groupObj = await UsersGroups.updateGroup(_group._id, docGroup, [
+      user3._id,
+      user4._id
+    ]);
 
     const updatedUser1 = await Users.findOne({ _id: user1._id });
     const updatedUser2 = await Users.findOne({ _id: user2._id });
@@ -164,10 +184,18 @@ describe('Test permissions model', () => {
     expect(groupObj.description).toEqual(docGroup.description);
 
     if (updatedUser1 && updatedUser2 && updatedUser3 && updatedUser4) {
-      expect(JSON.stringify(updatedUser1.groupIds)).toContain(JSON.stringify([otherGroup._id]));
-      expect(JSON.stringify(updatedUser2.groupIds)).toEqual(JSON.stringify([otherGroup._id]));
-      expect(JSON.stringify(updatedUser3.groupIds)).toEqual(JSON.stringify([otherGroup._id, _group._id]));
-      expect(JSON.stringify(updatedUser4.groupIds)).toEqual(JSON.stringify([otherGroup._id, _group._id]));
+      expect(JSON.stringify(updatedUser1.groupIds)).toContain(
+        JSON.stringify([otherGroup._id])
+      );
+      expect(JSON.stringify(updatedUser2.groupIds)).toEqual(
+        JSON.stringify([otherGroup._id])
+      );
+      expect(JSON.stringify(updatedUser3.groupIds)).toEqual(
+        JSON.stringify([otherGroup._id, _group._id])
+      );
+      expect(JSON.stringify(updatedUser4.groupIds)).toEqual(
+        JSON.stringify([otherGroup._id, _group._id])
+      );
     }
   });
 
@@ -190,17 +218,22 @@ describe('Test permissions model', () => {
     const group = await UsersGroups.createGroup(
       {
         name: 'groupName',
-        description: 'groupDescription',
+        description: 'groupDescription'
       },
-      [user1._id, user2._id],
+      [user1._id, user2._id]
     );
 
     await permissionFactory({ groupId: group._id });
     await permissionFactory({ groupId: group._id });
 
-    const clone = await UsersGroups.copyGroup(group._id, [user1._id, user2._id]);
+    const clone = await UsersGroups.copyGroup(group._id, [
+      user1._id,
+      user2._id
+    ]);
     const clonedPermissions = await Permissions.find({ groupId: clone._id });
-    const nameCount = await UsersGroups.countDocuments({ name: new RegExp(`${group.name}`, 'i') });
+    const nameCount = await UsersGroups.countDocuments({
+      name: new RegExp(`${group.name}`, 'i')
+    });
 
     expect(clone.name).toBe(`${group.name}-copied-${nameCount - 1}`);
     expect(clone.description).toBe(`${group.description}-copied`);

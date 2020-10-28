@@ -12,7 +12,9 @@ export const debugCallPro = debug('erxes-integrations:callpro');
 export const debugChatfuel = debug('erxes-integrations:chatfuel');
 export const debugNylas = debug('erxes-integrations:nylas');
 export const debugWhatsapp = debug('erxes-integrations:whatsapp');
-export const debugExternalRequests = debug('erxes-integrations:external-requests');
+export const debugExternalRequests = debug(
+  'erxes-integrations:external-requests'
+);
 export const debugDaily = debug('erxes-integrations:daily');
 export const debugSmooch = debug('erxes-integrations:smooch');
 export const debugProductBoard = debug('erxes-integrations:productBoard');
@@ -26,4 +28,6 @@ export const debugRequest = (debugInstance, req) =>
     `);
 
 export const debugResponse = (debugInstance, req, data = 'success') =>
-  debugInstance(`Responding ${req.path} request to ${req.headers.origin} with ${data}`);
+  debugInstance(
+    `Responding ${req.path} request to ${req.headers.origin} with ${data}`
+  );

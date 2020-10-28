@@ -8,5 +8,8 @@ import { Integrations } from '../db/models';
 module.exports.up = async () => {
   await connect();
 
-  return Integrations.updateMany({ kind: 'messenger' }, { $set: { 'messengerData.requireAuth': true } });
+  return Integrations.updateMany(
+    { kind: 'messenger' },
+    { $set: { 'messengerData.requireAuth': true } }
+  );
 };

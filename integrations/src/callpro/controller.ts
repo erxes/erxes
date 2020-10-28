@@ -11,10 +11,15 @@ const init = async app => {
     const { phoneNumber, recordUrl } = JSON.parse(data);
 
     // Check existing Integration
-    const integration = await Integrations.findOne({ kind: 'callpro', phoneNumber }).lean();
+    const integration = await Integrations.findOne({
+      kind: 'callpro',
+      phoneNumber
+    }).lean();
 
     if (integration) {
-      return next(`Integration already exists with this phone number: ${phoneNumber}`);
+      return next(
+        `Integration already exists with this phone number: ${phoneNumber}`
+      );
     }
 
     try {
@@ -22,7 +27,7 @@ const init = async app => {
         kind: 'callpro',
         erxesApiId: integrationId,
         phoneNumber,
-        recordUrl,
+        recordUrl
       });
     } catch (e) {
       debugCallPro(`Failed to create integration: ${e}`);
@@ -37,7 +42,9 @@ const init = async app => {
 
     const { erxesApiId, integrationId } = req.query;
 
-    const integration = await Integrations.findOne({ erxesApiId: integrationId });
+    const integration = await Integrations.findOne({
+      erxesApiId: integrationId
+    });
     const conversation = await Conversations.findOne({ erxesApiId });
 
     const { recordUrl } = integration;
@@ -56,7 +63,9 @@ const init = async app => {
     debugRequest(debugCallPro, req);
 
     const { numberTo, numberFrom, disp, callID, owner } = req.body;
-    const integration = await Integrations.findOne({ phoneNumber: numberTo }).lean();
+    const integration = await Integrations.findOne({
+      phoneNumber: numberTo
+    }).lean();
 
     if (!integration) {
       debugCallPro(`Integration not found with: ${numberTo}`);
@@ -68,9 +77,16 @@ const init = async app => {
 
     if (!customer) {
       try {
-        customer = await Customers.create({ phoneNumber: numberFrom, integrationId: integration._id });
+        customer = await Customers.create({
+          phoneNumber: numberFrom,
+          integrationId: integration._id
+        });
       } catch (e) {
-        throw new Error(e.message.includes('duplicate') ? 'Concurrent request: customer duplication' : e);
+        throw new Error(
+          e.message.includes('duplicate')
+            ? 'Concurrent request: customer duplication'
+            : e
+        );
       }
 
       // save on api
@@ -81,8 +97,8 @@ const init = async app => {
             integrationId: integration.erxesApiId,
             primaryPhone: numberFrom,
             isUser: true,
-            phones: [numberFrom],
-          }),
+            phones: [numberFrom]
+          })
         });
 
         customer.erxesApiId = apiCustomerResponse._id;
@@ -105,16 +121,23 @@ const init = async app => {
           callId: callID,
           senderPhoneNumber: numberTo,
           recipientPhoneNumber: numberFrom,
-          integrationId: integration._id,
+          integrationId: integration._id
         });
       } catch (e) {
-        throw new Error(e.message.includes('duplicate') ? 'Concurrent request: conversation duplication' : e);
+        throw new Error(
+          e.message.includes('duplicate')
+            ? 'Concurrent request: conversation duplication'
+            : e
+        );
       }
     }
 
     // Check state of call and update
     if (conversation.state !== disp) {
-      await Conversations.updateOne({ callId: callID }, { $set: { state: disp } });
+      await Conversations.updateOne(
+        { callId: callID },
+        { $set: { state: disp } }
+      );
 
       try {
         await sendRPCMessage({
@@ -122,8 +145,8 @@ const init = async app => {
           payload: JSON.stringify({
             content: disp,
             conversationId: conversation.erxesApiId,
-            owner,
-          }),
+            owner
+          })
         });
       } catch (e) {
         throw new Error(e.message);
@@ -140,8 +163,8 @@ const init = async app => {
           customerId: customer.erxesApiId,
           content: disp,
           integrationId: integration.erxesApiId,
-          owner,
-        }),
+          owner
+        })
       });
 
       conversation.erxesApiId = apiConversationResponse._id;

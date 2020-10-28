@@ -29,7 +29,10 @@ describe('responseTemplateQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, 'scripts', { page: 1, perPage: 2 });
+    const response = await graphqlRequest(qry, 'scripts', {
+      page: 1,
+      perPage: 2
+    });
 
     expect(response.length).toBe(2);
   });

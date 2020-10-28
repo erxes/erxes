@@ -1,9 +1,24 @@
 import * as sinon from 'sinon';
 import { accountFactory, integrationFactory } from '../factories';
 import * as api from '../gmail/api';
-import { createIntegration, getGmailAttachment, getMessage, handleMessage, sendEmail } from '../gmail/handleController';
-import { ConversationMessages, Conversations, Customers } from '../gmail/models';
-import { storeConversation, storeConversationMessage, storeCustomer, updateLastChangesHistoryId } from '../gmail/store';
+import {
+  createIntegration,
+  getGmailAttachment,
+  getMessage,
+  handleMessage,
+  sendEmail
+} from '../gmail/handleController';
+import {
+  ConversationMessages,
+  Conversations,
+  Customers
+} from '../gmail/models';
+import {
+  storeConversation,
+  storeConversationMessage,
+  storeCustomer,
+  updateLastChangesHistoryId
+} from '../gmail/store';
 import * as gmailUtils from '../gmail/utils';
 import * as broker from '../messageBroker';
 import { Accounts, Integrations } from '../models';
@@ -18,23 +33,25 @@ describe('Gmail controller test', () => {
   let googleConfigMock;
 
   beforeEach(async () => {
-    googleConfigMock = sinon.stub(gmailUtils, 'getGoogleConfigs').callsFake(() => {
-      return Promise.resolve({
-        GOOGLE_PROJECT_ID: 'GOOGLE_PROJECT_ID',
-        GOOGLE_GMAIL_TOPIC: 'GOOGLE_GMAIL_TOPIC',
+    googleConfigMock = sinon
+      .stub(gmailUtils, 'getGoogleConfigs')
+      .callsFake(() => {
+        return Promise.resolve({
+          GOOGLE_PROJECT_ID: 'GOOGLE_PROJECT_ID',
+          GOOGLE_GMAIL_TOPIC: 'GOOGLE_GMAIL_TOPIC'
+        });
       });
-    });
 
     const account = await accountFactory({
       email: 'john@gmail.com',
       uid: 'john@gmail.com',
-      token: 'token',
+      token: 'token'
     });
 
     const integration = await integrationFactory({
       kind: 'gmail',
       accountId: account._id,
-      email: account.email,
+      email: account.email
     });
 
     erxesApiId = integration.erxesApiId;
@@ -57,7 +74,7 @@ describe('Gmail controller test', () => {
     const sendRequestMock = sinon.stub(utils, 'sendRequest').callsFake(() => {
       return Promise.resolve({
         historyId: 'historyId',
-        expiration: 'expiration',
+        expiration: 'expiration'
       });
     });
 
@@ -72,15 +89,22 @@ describe('Gmail controller test', () => {
     try {
       await createIntegration(accountId, 'john@gmail.com', 'integrationId');
     } catch (e) {
-      expect(e.message).toBe('Integration already exist with this email: john@gmail.com');
+      expect(e.message).toBe(
+        'Integration already exist with this email: john@gmail.com'
+      );
     }
 
-    const account = await accountFactory({ email: 'test@gmail.com', token: 'token' });
+    const account = await accountFactory({
+      email: 'test@gmail.com',
+      token: 'token'
+    });
 
     // Successfully created integration
     await createIntegration(account._id, 'test@gmail.com', 'integrationId');
 
-    const integration = await Integrations.findOne({ accountId: account._id }).lean();
+    const integration = await Integrations.findOne({
+      accountId: account._id
+    }).lean();
 
     expect(integration.email).toBe('test@gmail.com');
     expect(integration.gmailHistoryId).toBe('historyId');
@@ -90,19 +114,24 @@ describe('Gmail controller test', () => {
     // Missing config
     googleConfigMock.callsFake(() => Promise.resolve({}));
 
-    const account2 = await accountFactory({ email: 'test2@gmail.com', token: 'token' });
+    const account2 = await accountFactory({
+      email: 'test2@gmail.com',
+      token: 'token'
+    });
 
     try {
       await createIntegration(account2._id, 'test@gmail.com', 'integrationId');
     } catch (e) {
-      expect(e.message).toBe(`Missing following config: GOOGLE_PROJECT_ID: undefined GOOGLE_GMAIL_TOPIC: undefined`);
+      expect(e.message).toBe(
+        `Missing following config: GOOGLE_PROJECT_ID: undefined GOOGLE_GMAIL_TOPIC: undefined`
+      );
     }
 
     // Failed to subscribe user
     googleConfigMock.callsFake(() => {
       return Promise.resolve({
         GOOGLE_PROJECT_ID: 'GOOGLE_PROJECT_ID',
-        GOOGLE_GMAIL_TOPIC: 'GOOGLE_GMAIL_TOPIC',
+        GOOGLE_GMAIL_TOPIC: 'GOOGLE_GMAIL_TOPIC'
       });
     });
 
@@ -129,12 +158,16 @@ describe('Gmail controller test', () => {
 
     const integration = await integrationFactory({
       erxesApiId: 'erxesApiId',
-      accountId: '123',
+      accountId: '123'
     });
 
     // Account not found
     try {
-      await sendEmail(integration.erxesApiId, { to: 'user@mail.com', subject: 'Hi', body: 'Body' });
+      await sendEmail(integration.erxesApiId, {
+        to: 'user@mail.com',
+        subject: 'Hi',
+        body: 'Body'
+      });
     } catch (e) {
       expect(e.message).toBe('Account not found');
     }
@@ -181,7 +214,7 @@ describe('Gmail controller test', () => {
     }
 
     await ConversationMessages.create({
-      erxesApiMessageId: 'erxesApiMessageId',
+      erxesApiMessageId: 'erxesApiMessageId'
     });
 
     // Successfully get message
@@ -200,11 +233,15 @@ describe('Gmail controller test', () => {
 
     // Account not found
     const integration = await integrationFactory({
-      erxesApiId: 'erxesApiId',
+      erxesApiId: 'erxesApiId'
     });
 
     try {
-      await getGmailAttachment('messageId', 'attachmentId', integration.erxesApiId);
+      await getGmailAttachment(
+        'messageId',
+        'attachmentId',
+        integration.erxesApiId
+      );
     } catch (e) {
       expect(e.message).toBe('Account not found!');
     }
@@ -214,7 +251,11 @@ describe('Gmail controller test', () => {
       return Promise.resolve({ filename: 'filename', data: 'data' });
     });
 
-    const attachment = await getGmailAttachment('messageId', 'attachmentId', erxesApiId);
+    const attachment = await getGmailAttachment(
+      'messageId',
+      'attachmentId',
+      erxesApiId
+    );
 
     expect(attachment.filename).toBe('filename');
     expect(attachment.data).toBe('data');
@@ -241,7 +282,7 @@ describe('Gmail controller test', () => {
 
     const undefinedMessage = await handleMessage({
       email: 'john@gmail.com',
-      historyId: 'historyId',
+      historyId: 'historyId'
     });
 
     expect(undefinedMessage).toBeUndefined();
@@ -249,7 +290,9 @@ describe('Gmail controller test', () => {
     // Failed handleMessage
     getHistoryChangesMock.onCall(1).returns('success');
     collectMessagesIdsMock.onCall(1).returns('success');
-    getMessageByIdMock.onCall(1).throws(new Error('Failed: handleMessage email john@gmail.com'));
+    getMessageByIdMock
+      .onCall(1)
+      .throws(new Error('Failed: handleMessage email john@gmail.com'));
 
     try {
       await handleMessage({ email: accountUid, historyId: 'historyId' });
@@ -264,7 +307,7 @@ describe('Gmail controller test', () => {
       to: 'toEmail@mail.com',
       subject: 'subject',
       from: 'fromEmail@mail.com',
-      messageId: 'messageId123',
+      messageId: 'messageId123'
     };
 
     const sendRPCMessageMock = sinon.stub(broker, 'sendRPCMessage');
@@ -272,22 +315,22 @@ describe('Gmail controller test', () => {
     // Customer
     sendRPCMessageMock.onCall(0).returns(
       Promise.resolve({
-        _id: 'customerId',
-      }),
+        _id: 'customerId'
+      })
     );
 
     // Conversation
     sendRPCMessageMock.onCall(1).returns(
       Promise.resolve({
-        _id: 'conversationId',
-      }),
+        _id: 'conversationId'
+      })
     );
 
     // Conversation Message
     sendRPCMessageMock.onCall(2).returns(
       Promise.resolve({
-        _id: 'conversationMessageId',
-      }),
+        _id: 'conversationMessageId'
+      })
     );
 
     getHistoryChangesMock.onCall(2).returns('success');
@@ -295,20 +338,28 @@ describe('Gmail controller test', () => {
     getMessageByIdMock.onCall(2).returns(
       Promise.resolve([
         { labelIds: ['SENT'], ...emailObj },
-        { labelIds: ['INBOX'], ...emailObj },
-      ]),
+        { labelIds: ['INBOX'], ...emailObj }
+      ])
     );
 
     await handleMessage({
       email: accountUid,
-      historyId: 'historyId123',
+      historyId: 'historyId123'
     });
 
-    const updatedIntegration = await Integrations.findOne({ email: accountUid }).lean();
+    const updatedIntegration = await Integrations.findOne({
+      email: accountUid
+    }).lean();
 
-    const createdCustomer = await Customers.findOne({ email: 'jacob@mail.com' });
-    const createdConversation = await Conversations.findOne({ erxesApiId: 'conversationId' });
-    const createdConversationMessage = await ConversationMessages.findOne({ messageId: 'messageId123' });
+    const createdCustomer = await Customers.findOne({
+      email: 'jacob@mail.com'
+    });
+    const createdConversation = await Conversations.findOne({
+      erxesApiId: 'conversationId'
+    });
+    const createdConversationMessage = await ConversationMessages.findOne({
+      messageId: 'messageId123'
+    });
 
     expect(createdConversationMessage.messageId).toBe('messageId123');
     expect(createdConversationMessage.subject).toBe('subject');
@@ -333,32 +384,37 @@ describe('Gmail controller test', () => {
   test('Customer already exists', async () => {
     const integrationIds = {
       id: 'id',
-      erxesApiId: 'erxesApiId',
+      erxesApiId: 'erxesApiId'
     };
 
     await Customers.create({
       email: 'john@mail.com',
-      erxesApiId: 'erxesApiId123',
+      erxesApiId: 'erxesApiId123'
     });
 
     const email = {
       fromEmail: 'john@mail.com',
-      sender: 'sender',
+      sender: 'sender'
     };
 
     const prevCustomer = await storeCustomer({
       email,
-      integrationIds,
+      integrationIds
     });
 
     expect(prevCustomer.customerErxesApiId).toBe('erxesApiId123');
     expect(prevCustomer.integrationIds).toEqual(integrationIds);
     expect(prevCustomer.email).toEqual(email);
 
-    const sendRPCMessageMock = sinon.stub(broker, 'sendRPCMessage').throws(new Error('Failed to create customer'));
+    const sendRPCMessageMock = sinon
+      .stub(broker, 'sendRPCMessage')
+      .throws(new Error('Failed to create customer'));
 
     try {
-      await storeCustomer({ email: { fromEmail: '', sender: '' }, integrationIds });
+      await storeCustomer({
+        email: { fromEmail: '', sender: '' },
+        integrationIds
+      });
     } catch (e) {
       expect(e.message).toBe('Failed to create customer');
     }
@@ -372,20 +428,23 @@ describe('Gmail controller test', () => {
         to: 'to',
         subject: 'subject',
         from: 'from',
-        sender: 'sender',
+        sender: 'sender'
       },
       customerErxesApiId: 'customerErxesApiId',
       integrationIds: {
         id: 'id',
-        erxesApiId: 'erxesApiId',
-      },
+        erxesApiId: 'erxesApiId'
+      }
     };
 
-    await Conversations.create({ _id: 'conversationId', erxesApiId: 'erxesApiId' });
+    await Conversations.create({
+      _id: 'conversationId',
+      erxesApiId: 'erxesApiId'
+    });
 
     await ConversationMessages.create({
       headerId: 'inReplyTo',
-      conversationId: 'conversationId',
+      conversationId: 'conversationId'
     });
 
     doc.email.inReplyTo = 'inReplyTo';
@@ -396,20 +455,22 @@ describe('Gmail controller test', () => {
     expect(conversation.customerErxesApiId).toEqual(doc.customerErxesApiId);
     expect(conversation.conversationIds).toEqual({
       id: 'conversationId',
-      erxesApiId: 'erxesApiId',
+      erxesApiId: 'erxesApiId'
     });
 
     const sendRPCMessageMock = sinon.stub(broker, 'sendRPCMessage');
 
     sendRPCMessageMock.onCall(0).returns(Promise.resolve({ _id: 'id123' }));
-    sendRPCMessageMock.onCall(1).throws(new Error('Failed to create conversation'));
+    sendRPCMessageMock
+      .onCall(1)
+      .throws(new Error('Failed to create conversation'));
 
     await ConversationMessages.create({
       messageId: 'qkwljelkq',
       erxesApiMessageId: 'laskdjaslkd',
       inReplyTo: 'akjdalksjdlkaj',
       headerId: '12312312312',
-      conversationId: 'askldjalksdj',
+      conversationId: 'askldjalksdj'
     });
 
     doc.email.inReplyTo = 'w123';
@@ -430,13 +491,13 @@ describe('Gmail controller test', () => {
   test('Conversation message already exists', async () => {
     const doc: any = {
       email: {
-        sender: 'sender',
+        sender: 'sender'
       },
       customerErxesApiId: 'customerErxesApiId',
       conversationIds: {
         id: 'id',
-        erxesApiId: 'erxesApiId',
-      },
+        erxesApiId: 'erxesApiId'
+      }
     };
 
     doc.email.messageId = 'asd';

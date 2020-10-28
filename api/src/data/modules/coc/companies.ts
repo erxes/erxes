@@ -1,5 +1,10 @@
 import * as _ from 'underscore';
-import { Companies, Conformities, Customers, Integrations } from '../../../db/models';
+import {
+  Companies,
+  Conformities,
+  Customers,
+  Integrations
+} from '../../../db/models';
 import { IConformityQueryParams } from '../../resolvers/queries/types';
 import { CommonBuilder } from './utils';
 
@@ -35,29 +40,35 @@ export class Builder extends CommonBuilder<IListArgs> {
 
   // filter by brand
   public async brandFilter(brandId: string): Promise<void> {
-    const integrations = await Integrations.findIntegrations({ brandId }, { _id: 1 });
+    const integrations = await Integrations.findIntegrations(
+      { brandId },
+      { _id: 1 }
+    );
     const integrationIds = integrations.map(i => i._id);
 
-    const customers = await Customers.find({ integrationId: { $in: integrationIds } }, { companyIds: 1 });
+    const customers = await Customers.find(
+      { integrationId: { $in: integrationIds } },
+      { companyIds: 1 }
+    );
 
     const customerIds = await customers.map(customer => customer._id);
     const companyIds = await Conformities.filterConformity({
       mainType: 'customer',
       mainTypeIds: customerIds,
-      relType: 'company',
+      relType: 'company'
     });
 
     this.positiveList.push({
       terms: {
-        _id: companyIds || [],
-      },
+        _id: companyIds || []
+      }
     });
   }
 
   public async findAllMongo(limit: number) {
     const selector = {
       ...this.context.commonQuerySelector,
-      status: { $ne: 'deleted' },
+      status: { $ne: 'deleted' }
     };
 
     const companies = await Companies.find(selector)
@@ -68,7 +79,7 @@ export class Builder extends CommonBuilder<IListArgs> {
 
     return {
       list: companies,
-      totalCount: count,
+      totalCount: count
     };
   }
 

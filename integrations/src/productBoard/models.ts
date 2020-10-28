@@ -13,7 +13,7 @@ export const conversationSchema = new Schema({
   _id: field({ pkey: true }),
   erxesApiId: String,
   timestamp: Date,
-  productBoardLink: String,
+  productBoardLink: String
 });
 
 // conversationSchema.index({ instanceId: 1, recipientId: 1 }, { unique: true });
@@ -43,5 +43,5 @@ export const loadConversationClass = () => {
 // tslint:disable-next-line:variable-name
 export const Conversations = model<IConversationDocument, IConversationModel>(
   'conversations_productboard',
-  conversationSchema,
+  conversationSchema
 );

@@ -1,6 +1,10 @@
 import { Integrations } from '../models';
 import { Posts } from './models';
-import { getOrCreateComment, getOrCreateCustomer, getOrCreatePost } from './store';
+import {
+  getOrCreateComment,
+  getOrCreateCustomer,
+  getOrCreatePost
+} from './store';
 import { ICommentParams } from './types';
 import { restorePost } from './utils';
 
@@ -11,7 +15,7 @@ const receiveComment = async (params: ICommentParams, pageId: string) => {
   const verb = params.verb;
 
   const integration = await Integrations.getIntegration({
-    $and: [{ facebookPageIds: { $in: pageId } }, { kind }],
+    $and: [{ facebookPageIds: { $in: pageId } }, { kind }]
   });
 
   await getOrCreateCustomer(pageId, userId, kind);
@@ -22,7 +26,11 @@ const receiveComment = async (params: ICommentParams, pageId: string) => {
     let postResponse;
 
     try {
-      postResponse = await restorePost(postId, pageId, integration.facebookPageTokensMap);
+      postResponse = await restorePost(
+        postId,
+        pageId,
+        integration.facebookPageTokensMap
+      );
     } catch (e) {
       throw new Error(e);
     }
@@ -44,7 +52,12 @@ const receiveComment = async (params: ICommentParams, pageId: string) => {
 
     const customer = await getOrCreateCustomer(pageId, restoredPostId, kind);
 
-    return await getOrCreatePost(postResponse, pageId, userId, customer.erxesApiId);
+    return await getOrCreatePost(
+      postResponse,
+      pageId,
+      userId,
+      customer.erxesApiId
+    );
   }
 
   return getOrCreateComment(params, pageId, userId, verb);

@@ -1,4 +1,11 @@
-import { Fields, FormSubmissions, PipelineLabels, Pipelines, Stages, Users } from '../../db/models';
+import {
+  Fields,
+  FormSubmissions,
+  PipelineLabels,
+  Pipelines,
+  Stages,
+  Users
+} from '../../db/models';
 import { IGrowthHackDocument } from '../../db/models/definitions/growthHacks';
 import { IUserDocument } from '../../db/models/definitions/users';
 import { boardId } from './boardUtils';
@@ -14,7 +21,7 @@ export default {
       const submissions = await FormSubmissions.find({
         contentTypeId: growthHack._id,
         contentType: 'growthHack',
-        formId: stage.formId,
+        formId: stage.formId
       });
 
       for (const submission of submissions) {
@@ -47,7 +54,11 @@ export default {
     return Users.find({ _id: { $in: growthHack.votedUserIds || [] } });
   },
 
-  isVoted(growthHack: IGrowthHackDocument, _args, { user }: { user: IUserDocument }) {
+  isVoted(
+    growthHack: IGrowthHackDocument,
+    _args,
+    { user }: { user: IUserDocument }
+  ) {
     return growthHack.votedUserIds && growthHack.votedUserIds.length > 0
       ? growthHack.votedUserIds.indexOf(user._id) !== -1
       : false;
@@ -80,7 +91,11 @@ export default {
     return Stages.getStage(growthHack.stageId);
   },
 
-  isWatched(growthHack: IGrowthHackDocument, _args, { user }: { user: IUserDocument }) {
+  isWatched(
+    growthHack: IGrowthHackDocument,
+    _args,
+    { user }: { user: IUserDocument }
+  ) {
     const watchedUserIds = growthHack.watchedUserIds || [];
 
     if (watchedUserIds.includes(user._id)) {
@@ -96,5 +111,5 @@ export default {
 
   createdUser(growthHack: IGrowthHackDocument) {
     return Users.findOne({ _id: growthHack.userId });
-  },
+  }
 };

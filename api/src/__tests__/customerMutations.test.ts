@@ -2,7 +2,11 @@ import * as faker from 'faker';
 import * as sinon from 'sinon';
 import * as utils from '../data/utils';
 import { graphqlRequest } from '../db/connection';
-import { customerFactory, integrationFactory, userFactory } from '../db/factories';
+import {
+  customerFactory,
+  integrationFactory,
+  userFactory
+} from '../db/factories';
 import { Brands, Customers, Integrations, Users } from '../db/models';
 import './setup.ts';
 
@@ -29,8 +33,8 @@ const args = {
     facebook: 'facebook',
     youtube: 'youtube',
     github: 'github',
-    website: 'website',
-  },
+    website: 'website'
+  }
 };
 
 const checkCustomer = src => {
@@ -136,7 +140,12 @@ describe('Customers mutations', () => {
       }
     `;
 
-    const customer = await graphqlRequest(mutation, 'customersAdd', args, context);
+    const customer = await graphqlRequest(
+      mutation,
+      'customersAdd',
+      args,
+      context
+    );
 
     checkCustomer(customer);
     expect(customer.emailValidationStatus).toBe(undefined);
@@ -174,7 +183,12 @@ describe('Customers mutations', () => {
       }
     `;
 
-    const customer = await graphqlRequest(mutation, 'customersEdit', { _id: _customer._id, ...args }, context);
+    const customer = await graphqlRequest(
+      mutation,
+      'customersEdit',
+      { _id: _customer._id, ...args },
+      context
+    );
 
     expect(customer._id).toBe(_customer._id);
     expect(customer.emailValidationStatus).toBe(undefined);
@@ -192,7 +206,12 @@ describe('Customers mutations', () => {
       }
     `;
 
-    await graphqlRequest(mutation, 'customersRemove', { customerIds: [_customer._id] }, context);
+    await graphqlRequest(
+      mutation,
+      'customersRemove',
+      { customerIds: [_customer._id] },
+      context
+    );
 
     expect(await Customers.find({ _id: { $in: [_customer._id] } })).toEqual([]);
   });
@@ -201,8 +220,8 @@ describe('Customers mutations', () => {
     const params = {
       customerIds: [_customer._id],
       customerFields: {
-        firstName: faker.name.firstName(),
-      },
+        firstName: faker.name.firstName()
+      }
     };
 
     const mutation = `
@@ -213,7 +232,12 @@ describe('Customers mutations', () => {
       }
     `;
 
-    const customer = await graphqlRequest(mutation, 'customersMerge', params, context);
+    const customer = await graphqlRequest(
+      mutation,
+      'customersMerge',
+      params,
+      context
+    );
 
     expect(customer.firstName).toBe(params.customerFields.firstName);
   });
@@ -228,7 +252,12 @@ describe('Customers mutations', () => {
       }
     `;
 
-    await graphqlRequest(mutation, 'customersChangeState', { _id: _customer._id, value: 'customer' }, context);
+    await graphqlRequest(
+      mutation,
+      'customersChangeState',
+      { _id: _customer._id, value: 'customer' },
+      context
+    );
 
     const updatedCustomer = await Customers.getCustomer(_customer._id);
 
@@ -246,7 +275,12 @@ describe('Customers mutations', () => {
       }
     `;
 
-    await graphqlRequest(mutation, 'customersVerify', { verificationType: 'email' }, context);
+    await graphqlRequest(
+      mutation,
+      'customersVerify',
+      { verificationType: 'email' },
+      context
+    );
 
     mock.restore();
   });
@@ -267,10 +301,12 @@ describe('Customers mutations', () => {
       mutation,
       'customersChangeVerificationStatus',
       { customerIds: [_customer._id], type: 'email', status: 'valid' },
-      context,
+      context
     );
 
-    const updatedCustomers = await Customers.find({ _id: { $in: [_customer._id] } });
+    const updatedCustomers = await Customers.find({
+      _id: { $in: [_customer._id] }
+    });
     updatedCustomers.forEach(c => {
       expect(c.emailValidationStatus).toBe('valid');
     });

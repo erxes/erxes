@@ -18,7 +18,10 @@ export interface ILeadCredentials {
   formCode: string;
 }
 
-export type IMessengerAppCrendentials = IGoogleCredentials | IKnowledgebaseCredentials | ILeadCredentials;
+export type IMessengerAppCrendentials =
+  | IGoogleCredentials
+  | IKnowledgebaseCredentials
+  | ILeadCredentials;
 
 export interface IMessengerApp {
   kind: 'googleMeet' | 'knowledgebase' | 'lead' | 'website';
@@ -39,12 +42,12 @@ export const messengerAppSchema = schemaWrapper(
 
     kind: field({
       type: String,
-      enum: ['googleMeet', 'knowledgebase', 'lead', 'website'],
+      enum: ['googleMeet', 'knowledgebase', 'lead', 'website']
     }),
 
     name: field({ type: String }),
     accountId: field({ type: String, optional: true }),
     showInInbox: field({ type: Boolean, default: false }),
-    credentials: field({ type: Object }),
-  }),
+    credentials: field({ type: Object })
+  })
 );

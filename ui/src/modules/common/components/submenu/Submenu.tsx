@@ -12,7 +12,13 @@ const Items = styled.ul`
   font-size: 14px;
 `;
 
-function Submenu({ items, additionalMenuItem }: { items?: ISubMenuItem[]; additionalMenuItem?: React.ReactNode }) {
+function Submenu({
+  items,
+  additionalMenuItem
+}: {
+  items?: ISubMenuItem[];
+  additionalMenuItem?: React.ReactNode;
+}) {
   if (items) {
     return (
       <Items>

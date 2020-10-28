@@ -1,11 +1,27 @@
 import { debugGmail } from '../debuggers';
 import { Accounts, Integrations } from '../models';
 import { compose } from '../utils';
-import { collectMessagesIds, getAttachment, getHistoryChanges, getMessageById, send, subscribeUser } from './api';
+import {
+  collectMessagesIds,
+  getAttachment,
+  getHistoryChanges,
+  getMessageById,
+  send,
+  subscribeUser
+} from './api';
 import { ConversationMessages } from './models';
-import { storeConversation, storeConversationMessage, storeCustomer, updateLastChangesHistoryId } from './store';
+import {
+  storeConversation,
+  storeConversationMessage,
+  storeCustomer,
+  updateLastChangesHistoryId
+} from './store';
 
-export const createIntegration = async (accountId: string, email: string, integrationId: string) => {
+export const createIntegration = async (
+  accountId: string,
+  email: string,
+  integrationId: string
+) => {
   const account = await Accounts.findOne({ _id: accountId });
 
   if (!account) {
@@ -30,7 +46,7 @@ export const createIntegration = async (accountId: string, email: string, integr
       accountId,
       gmailHistoryId: response.historyId,
       expiration: response.expiration,
-      erxesApiId: integrationId,
+      erxesApiId: integrationId
     });
   } catch (e) {
     debugGmail(`Error Google: Could not subscribe user ${email} to a topic`);
@@ -61,21 +77,28 @@ export const sendEmail = async (erxesApiId: string, mailParams: any) => {
   }
 };
 
-export const getMessage = async (erxesApiMessageId: string, integrationId: string) => {
+export const getMessage = async (
+  erxesApiMessageId: string,
+  integrationId: string
+) => {
   debugGmail(`Request to get gmailData with: ${erxesApiMessageId}`);
 
   if (!erxesApiMessageId) {
     throw new Error('Conversation message id not defined');
   }
 
-  const integration = await Integrations.findOne({ erxesApiId: integrationId }).lean();
+  const integration = await Integrations.findOne({
+    erxesApiId: integrationId
+  }).lean();
 
   if (!integration) {
     throw new Error('Integration not found');
   }
 
   const account = await Accounts.findOne({ _id: integration.accountId }).lean();
-  const conversationMessage = await ConversationMessages.findOne({ erxesApiMessageId }).lean();
+  const conversationMessage = await ConversationMessages.findOne({
+    erxesApiMessageId
+  }).lean();
 
   if (!conversationMessage) {
     throw new Error('Conversation message not found');
@@ -87,8 +110,14 @@ export const getMessage = async (erxesApiMessageId: string, integrationId: strin
   return conversationMessage;
 };
 
-export const getGmailAttachment = async (messageId: string, attachmentId: string, integrationId: string) => {
-  const integration = await Integrations.findOne({ erxesApiId: integrationId }).lean();
+export const getGmailAttachment = async (
+  messageId: string,
+  attachmentId: string,
+  integrationId: string
+) => {
+  const integration = await Integrations.findOne({
+    erxesApiId: integrationId
+  }).lean();
 
   if (!integration) {
     throw new Error('Integration not found!');
@@ -103,7 +132,13 @@ export const getGmailAttachment = async (messageId: string, attachmentId: string
   return getAttachment(account.email, messageId, attachmentId);
 };
 
-export const handleMessage = async ({ email, historyId }: { email: string; historyId: string }) => {
+export const handleMessage = async ({
+  email,
+  historyId
+}: {
+  email: string;
+  historyId: string;
+}) => {
   debugGmail(`Executing: handleMessage email: ${email}`);
 
   try {
@@ -116,7 +151,7 @@ export const handleMessage = async ({ email, historyId }: { email: string; histo
     const parsedEmails = await compose(
       getMessageById,
       collectMessagesIds,
-      getHistoryChanges,
+      getHistoryChanges
     )({ email, historyId: integration.gmailHistoryId });
 
     // No changes made with recent historyId nothing to sync
@@ -135,7 +170,7 @@ export const handleMessage = async ({ email, historyId }: { email: string; histo
       await compose(
         storeConversationMessage,
         storeConversation,
-        storeCustomer,
+        storeCustomer
       )({ email: emailObj, integrationIds: { id: _id, erxesApiId } });
     }
 

@@ -9,7 +9,7 @@ import {
   getMessage,
   nylasFileUpload,
   nylasGetAttachment,
-  nylasSendEmail,
+  nylasSendEmail
 } from './handleController';
 import loginMiddleware from './loginMiddleware';
 import { getNylasConfig, syncMessages } from './utils';
@@ -111,8 +111,14 @@ export const initNylas = async app => {
 
       const headerOptions = { 'Content-Type': contentType };
 
-      if (!['image/png', 'image/jpeg', 'image/jpg', 'application/pdf'].includes(contentType)) {
-        headerOptions['Content-Disposition'] = `attachment;filename=${filename}`;
+      if (
+        !['image/png', 'image/jpeg', 'image/jpg', 'application/pdf'].includes(
+          contentType
+        )
+      ) {
+        headerOptions[
+          'Content-Disposition'
+        ] = `attachment;filename=${filename}`;
       }
 
       res.writeHead(200, headerOptions);
@@ -178,6 +184,6 @@ export const setupNylas = async () => {
 
   Nylas.config({
     clientId: NYLAS_CLIENT_ID,
-    clientSecret: NYLAS_CLIENT_SECRET,
+    clientSecret: NYLAS_CLIENT_SECRET
   });
 };

@@ -7,19 +7,25 @@ import {
   connectExchangeToNylas,
   connectImapToNylas,
   connectProviderToNylas,
-  connectYahooAndOutlookToNylas,
+  connectYahooAndOutlookToNylas
 } from './auth';
 import { NYLAS_API_URL } from './constants';
 import { NYLAS_MODELS } from './store';
 import { INylasIntegrationData } from './types';
 import { buildEmailAddress } from './utils';
 
-export const createNylasIntegration = async (kind: string, integrationId: string, data: INylasIntegrationData) => {
+export const createNylasIntegration = async (
+  kind: string,
+  integrationId: string,
+  data: INylasIntegrationData
+) => {
   debugNylas(`Creating nylas integration kind: ${kind}`);
 
   try {
     if (data.email) {
-      const integration = await Integrations.findOne({ email: data.email }).lean();
+      const integration = await Integrations.findOne({
+        email: data.email
+      }).lean();
 
       if (integration) {
         throw new Error(`${data.email} already exists`);
@@ -47,8 +53,13 @@ export const createNylasIntegration = async (kind: string, integrationId: string
   }
 };
 
-export const getMessage = async (erxesApiMessageId: string, integrationId: string) => {
-  const integration = await Integrations.findOne({ erxesApiId: integrationId }).lean();
+export const getMessage = async (
+  erxesApiMessageId: string,
+  integrationId: string
+) => {
+  const integration = await Integrations.findOne({
+    erxesApiId: integrationId
+  }).lean();
 
   if (!integration) {
     throw new Error('Integration not found!');
@@ -58,7 +69,9 @@ export const getMessage = async (erxesApiMessageId: string, integrationId: strin
 
   const conversationMessages = NYLAS_MODELS[kind].conversationMessages;
 
-  const message = await conversationMessages.findOne({ erxesApiMessageId }).lean();
+  const message = await conversationMessages
+    .findOne({ erxesApiMessageId })
+    .lean();
 
   if (!message) {
     throw new Error('Conversation message not found');
@@ -86,14 +99,22 @@ export const nylasFileUpload = async (erxesApiId: string, response: any) => {
   }
 };
 
-export const nylasGetAttachment = async (attachmentId: string, integrationId: string) => {
-  const integration = await Integrations.findOne({ erxesApiId: integrationId }).lean();
+export const nylasGetAttachment = async (
+  attachmentId: string,
+  integrationId: string
+) => {
+  const integration = await Integrations.findOne({
+    erxesApiId: integrationId
+  }).lean();
 
   if (!integration) {
     throw new Error('Integration not found');
   }
 
-  const response: { body?: Buffer } = await getAttachment(attachmentId, integration.nylasToken);
+  const response: { body?: Buffer } = await getAttachment(
+    attachmentId,
+    integration.nylasToken
+  );
 
   if (!response) {
     throw new Error('Attachment not found');
@@ -110,17 +131,30 @@ export const nylasSendEmail = async (erxesApiId: string, params: any) => {
   }
 
   try {
-    const { shouldResolve, to, cc, bcc, body, threadId, subject, attachments, replyToMessageId } = params;
+    const {
+      shouldResolve,
+      to,
+      cc,
+      bcc,
+      body,
+      threadId,
+      subject,
+      attachments,
+      replyToMessageId
+    } = params;
 
     const doc = {
       to: buildEmailAddress(to),
       cc: buildEmailAddress(cc),
       bcc: buildEmailAddress(bcc),
-      subject: replyToMessageId && !subject.includes('Re:') ? `Re: ${subject}` : subject,
+      subject:
+        replyToMessageId && !subject.includes('Re:')
+          ? `Re: ${subject}`
+          : subject,
       body,
       threadId,
       files: attachments,
-      replyToMessageId,
+      replyToMessageId
     };
 
     const message = await sendMessage(integration.nylasToken, doc);
@@ -133,12 +167,17 @@ export const nylasSendEmail = async (erxesApiId: string, params: any) => {
         url: `${NYLAS_API_URL}/messages/${message.id}`,
         method: 'PUT',
         headerParams: {
-          Authorization: `Basic ${Buffer.from(`${integration.nylasToken}:`).toString('base64')}`,
+          Authorization: `Basic ${Buffer.from(
+            `${integration.nylasToken}:`
+          ).toString('base64')}`
         },
-        body: { unread: true },
+        body: { unread: true }
       });
 
-      await memoryStorage().removeFromArray('nylas_unread_messageId', message.id);
+      await memoryStorage().removeFromArray(
+        'nylas_unread_messageId',
+        message.id
+      );
     }
 
     debugNylas('Successfully sent message');

@@ -6,9 +6,12 @@ dotenv.config();
 const { MAIN_APP_DOMAIN } = process.env;
 
 // Google
-export const GOOGLE_OAUTH_TOKEN_VALIDATION_URL = 'https://www.googleapis.com/oauth2/v2/tokeninfo';
-export const GOOGLE_OAUTH_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth?';
-export const GOOGLE_OAUTH_ACCESS_TOKEN_URL = 'https://www.googleapis.com/oauth2/v4/token';
+export const GOOGLE_OAUTH_TOKEN_VALIDATION_URL =
+  'https://www.googleapis.com/oauth2/v2/tokeninfo';
+export const GOOGLE_OAUTH_AUTH_URL =
+  'https://accounts.google.com/o/oauth2/v2/auth?';
+export const GOOGLE_OAUTH_ACCESS_TOKEN_URL =
+  'https://www.googleapis.com/oauth2/v4/token';
 
 // Nylas
 export const NYLAS_API_URL = 'https://api.nylas.com';
@@ -34,7 +37,7 @@ export const MICROSOFT_SCOPES = [
   'offline_access', // for refresh token
   'openid',
   'email',
-  'profile',
+  'profile'
 ].join(' ');
 
 export const GOOGLE_SCOPES = [
@@ -43,5 +46,5 @@ export const GOOGLE_SCOPES = [
   'https://www.googleapis.com/auth/gmail.readonly',
   'https://www.googleapis.com/auth/gmail.modify',
   'https://www.googleapis.com/auth/userinfo.email',
-  'https://www.googleapis.com/auth/userinfo.profile',
+  'https://www.googleapis.com/auth/userinfo.profile'
 ].join(' ');

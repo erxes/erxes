@@ -1,14 +1,22 @@
 import { Model, model } from 'mongoose';
 import { ActivityLogs } from '.';
 import { fillSearchTextItem, watchItem } from './boardUtils';
-import { growthHackSchema, IGrowthHack, IGrowthHackDocument } from './definitions/growthHacks';
+import {
+  growthHackSchema,
+  IGrowthHack,
+  IGrowthHackDocument
+} from './definitions/growthHacks';
 
 export interface IGrowthHackModel extends Model<IGrowthHackDocument> {
   getGrowthHack(_id: string): Promise<IGrowthHackDocument>;
   createGrowthHack(doc: IGrowthHack): Promise<IGrowthHackDocument>;
   updateGrowthHack(_id: string, doc: IGrowthHack): Promise<IGrowthHackDocument>;
   watchGrowthHack(_id: string, isAdd: boolean, userId: string): void;
-  voteGrowthHack(_id: string, isVote: boolean, userId: string): Promise<IGrowthHackDocument>;
+  voteGrowthHack(
+    _id: string,
+    isVote: boolean,
+    userId: string
+  ): Promise<IGrowthHackDocument>;
 }
 
 export const loadGrowthHackClass = () => {
@@ -31,11 +39,14 @@ export const loadGrowthHackClass = () => {
         ...doc,
         createdAt: new Date(),
         modifiedAt: new Date(),
-        searchText: fillSearchTextItem(doc),
+        searchText: fillSearchTextItem(doc)
       });
 
       // create log
-      await ActivityLogs.createBoardItemLog({ item: growthHack, contentType: 'growtHack' });
+      await ActivityLogs.createBoardItemLog({
+        item: growthHack,
+        contentType: 'growtHack'
+      });
 
       return growthHack;
     }
@@ -44,7 +55,10 @@ export const loadGrowthHackClass = () => {
      * Update growth hack
      */
     public static async updateGrowthHack(_id: string, doc: IGrowthHack) {
-      const searchText = fillSearchTextItem(doc, await GrowthHacks.getGrowthHack(_id));
+      const searchText = fillSearchTextItem(
+        doc,
+        await GrowthHacks.getGrowthHack(_id)
+      );
 
       await GrowthHacks.updateOne({ _id }, { $set: doc, searchText });
 
@@ -61,7 +75,11 @@ export const loadGrowthHackClass = () => {
     /**
      * Vote growth hack
      */
-    public static async voteGrowthHack(_id: string, isVote: boolean, userId: string) {
+    public static async voteGrowthHack(
+      _id: string,
+      isVote: boolean,
+      userId: string
+    ) {
       const growthHack = await GrowthHack.getGrowthHack(_id);
 
       let votedUserIds = growthHack.votedUserIds || [];
@@ -93,6 +111,9 @@ export const loadGrowthHackClass = () => {
 loadGrowthHackClass();
 
 // tslint:disable-next-line
-const GrowthHacks = model<IGrowthHackDocument, IGrowthHackModel>('growth_hacks', growthHackSchema);
+const GrowthHacks = model<IGrowthHackDocument, IGrowthHackModel>(
+  'growth_hacks',
+  growthHackSchema
+);
 
 export default GrowthHacks;

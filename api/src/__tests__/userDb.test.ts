@@ -42,7 +42,7 @@ describe('User db utils', () => {
       details: { ..._user.details.toJSON() },
       links: { ..._user.links },
       password: strongPassword,
-      email: 'qwerty@qwerty.com',
+      email: 'qwerty@qwerty.com'
     });
 
     if (!userObj.details || !userObj.links) {
@@ -65,7 +65,7 @@ describe('User db utils', () => {
         ..._user._doc,
         details: { ..._user.details.toJSON() },
         password: '',
-        email: '123@qwerty.com',
+        email: '123@qwerty.com'
       });
     } catch (e) {
       expect(e.message).toBe('Password can not be empty');
@@ -81,7 +81,7 @@ describe('User db utils', () => {
       await Users.changePassword({
         _id: user._id,
         currentPassword: 'admin',
-        newPassword: '',
+        newPassword: ''
       });
     } catch (e) {
       expect(e.message).toBe('Password can not be empty');
@@ -99,7 +99,7 @@ describe('User db utils', () => {
         ..._user._doc,
         details: { ..._user.details.toJSON() },
         password: strongPassword,
-        email: user.email,
+        email: user.email
       });
     } catch (e) {
       expect(e.message).toBe('Duplicated email');
@@ -109,7 +109,7 @@ describe('User db utils', () => {
     try {
       await Users.updateUser(_user._id, {
         details: { ..._user.details.toJSON() },
-        email: user.email,
+        email: user.email
       });
     } catch (e) {
       expect(e.message).toBe('Duplicated email');
@@ -119,7 +119,7 @@ describe('User db utils', () => {
     try {
       await Users.editProfile(_user._id, {
         details: { ..._user.details.toJSON() },
-        email: user.email,
+        email: user.email
       });
     } catch (e) {
       expect(e.message).toBe('Duplicated email');
@@ -128,7 +128,11 @@ describe('User db utils', () => {
 
   test('createUserWithConfirmation', async () => {
     const group = await usersGroupFactory();
-    const token = await Users.invite({ email: '123@gmail.com', password: strongPassword, groupId: group._id });
+    const token = await Users.invite({
+      email: '123@gmail.com',
+      password: strongPassword,
+      groupId: group._id
+    });
 
     const userObj = await Users.findOne({ registrationToken: token }).lean();
 
@@ -146,7 +150,11 @@ describe('User db utils', () => {
   test('resendInvitation', async () => {
     const email = '123@gmail.com';
     const group = await usersGroupFactory();
-    const token = await Users.invite({ email, password: strongPassword, groupId: group._id });
+    const token = await Users.invite({
+      email,
+      password: strongPassword,
+      groupId: group._id
+    });
     const newToken = await Users.resendInvitation({ email });
 
     const user = await Users.findOne({ email }).lean();
@@ -162,7 +170,11 @@ describe('User db utils', () => {
 
   test('invite: invalid group', async () => {
     try {
-      await Users.invite({ email: 'email', password: strongPassword, groupId: 'fakeId' });
+      await Users.invite({
+        email: 'email',
+        password: strongPassword,
+        groupId: 'fakeId'
+      });
     } catch (e) {
       expect(e.message).toBe('Invalid group');
     }
@@ -193,7 +205,7 @@ describe('User db utils', () => {
       registrationToken: token,
       registrationTokenExpires: moment(Date.now())
         .add(7, 'days')
-        .toDate(),
+        .toDate()
     });
 
     if (!userObj) {
@@ -205,11 +217,11 @@ describe('User db utils', () => {
       password: strongPassword,
       passwordConfirmation: strongPassword,
       fullName: 'fullname',
-      username: 'username',
+      username: 'username'
     });
 
     const result = await Users.findOne({
-      _id: userObj._id,
+      _id: userObj._id
     });
 
     if (!result || !result.details) {
@@ -227,14 +239,14 @@ describe('User db utils', () => {
       registrationToken: token,
       registrationTokenExpires: moment(Date.now())
         .add(7, 'days')
-        .toDate(),
+        .toDate()
     });
 
     try {
       await Users.confirmInvitation({
         token: '123321312312',
         password: '',
-        passwordConfirmation: '',
+        passwordConfirmation: ''
       });
     } catch (e) {
       expect(e.message).toBe('Token is invalid or has expired');
@@ -244,7 +256,7 @@ describe('User db utils', () => {
       await Users.confirmInvitation({
         token,
         password: '',
-        passwordConfirmation: '',
+        passwordConfirmation: ''
       });
     } catch (e) {
       expect(e.message).toBe('Password can not be empty');
@@ -254,7 +266,7 @@ describe('User db utils', () => {
       await Users.confirmInvitation({
         token,
         password: '123',
-        passwordConfirmation: '1234',
+        passwordConfirmation: '1234'
       });
     } catch (e) {
       expect(e.message).toBe('Password does not match');
@@ -264,9 +276,9 @@ describe('User db utils', () => {
       { _id: userObj._id },
       {
         $set: {
-          registrationTokenExpires: moment(Date.now()).subtract(7, 'days'),
-        },
-      },
+          registrationTokenExpires: moment(Date.now()).subtract(7, 'days')
+        }
+      }
     );
 
     // Checking expired token
@@ -274,7 +286,7 @@ describe('User db utils', () => {
       await Users.confirmInvitation({
         token,
         password: '123',
-        passwordConfirmation: '123',
+        passwordConfirmation: '123'
       });
     } catch (e) {
       expect(e.message).toBe('Token is invalid or has expired');
@@ -290,7 +302,7 @@ describe('User db utils', () => {
       username: updateDoc.username,
       password: strongPassword,
       details: updateDoc.details,
-      links: updateDoc.links,
+      links: updateDoc.links
     });
 
     let userObj = await Users.findOne({ _id: _user._id });
@@ -313,7 +325,7 @@ describe('User db utils', () => {
     // try without password ============
     await Users.updateUser(_user._id, {
       username: 'qwe',
-      details: { ...updateDoc.details.toJSON() },
+      details: { ...updateDoc.details.toJSON() }
     });
 
     userObj = await Users.findOne({ _id: _user._id });
@@ -347,7 +359,10 @@ describe('User db utils', () => {
       expect(e.message).toBe('Can not deactivate owner');
     }
 
-    await Users.updateOne({ _id: _user._id }, { $unset: { registrationToken: 1, isOwner: false } });
+    await Users.updateOne(
+      { _id: _user._id },
+      { $unset: { registrationToken: 1, isOwner: false } }
+    );
 
     const deactivatedUser = await Users.setUserActiveOrInactive(_user._id);
 
@@ -358,7 +373,10 @@ describe('User db utils', () => {
   test('Set user to inactive', async () => {
     await Users.updateOne(
       { _id: _user._id },
-      { $unset: { registrationToken: 1 }, $set: { isActive: true, isOwner: false } },
+      {
+        $unset: { registrationToken: 1 },
+        $set: { isActive: true, isOwner: false }
+      }
     );
 
     const activatedUser = await Users.setUserActiveOrInactive(_user._id);
@@ -375,7 +393,7 @@ describe('User db utils', () => {
       email,
       username: updateDoc.username,
       details: updateDoc.details,
-      links: updateDoc.links,
+      links: updateDoc.links
     });
 
     const userObj = await Users.findOne({ _id: _user._id });
@@ -432,9 +450,9 @@ describe('User db utils', () => {
       {
         $set: {
           resetPasswordToken: 'token',
-          resetPasswordExpires: tomorrow,
-        },
-      },
+          resetPasswordExpires: tomorrow
+        }
+      }
     );
 
     try {
@@ -446,7 +464,7 @@ describe('User db utils', () => {
     // valid
     const user = await Users.resetPassword({
       token: 'token',
-      newPassword: strongPassword,
+      newPassword: strongPassword
     });
 
     expect(user.resetPasswordToken).toBe(null);
@@ -463,7 +481,7 @@ describe('User db utils', () => {
       await Users.changePassword({
         _id: user._id,
         currentPassword: 'admin',
-        newPassword: strongPassword,
+        newPassword: strongPassword
       });
     } catch (e) {
       expect(e.message).toBe('Incorrect current password');
@@ -476,14 +494,16 @@ describe('User db utils', () => {
     const updatedUser = await Users.changePassword({
       _id: user._id,
       currentPassword: 'pass',
-      newPassword: strongPassword,
+      newPassword: strongPassword
     });
 
     if (!updatedUser || !updatedUser.password) {
       throw new Error('Updated user not found');
     }
 
-    expect(await Users.comparePassword(strongPassword, updatedUser.password)).toBeTruthy();
+    expect(
+      await Users.comparePassword(strongPassword, updatedUser.password)
+    ).toBeTruthy();
   });
 
   test('Forgot password', async () => {
@@ -528,7 +548,7 @@ describe('User db utils', () => {
     // valid
     let response = await Users.login({
       email: _user.email.toUpperCase(),
-      password: 'pass',
+      password: 'pass'
     });
 
     expect(response.token).toBeDefined();
@@ -545,7 +565,7 @@ describe('User db utils', () => {
     response = await Users.login({
       email: (tokenUser.email || '').toUpperCase(),
       password: 'pass',
-      deviceToken: 'web',
+      deviceToken: 'web'
     });
 
     expect(response.token).toBeDefined();
@@ -555,7 +575,7 @@ describe('User db utils', () => {
     response = await Users.login({
       email: (tokenUser.email || '').toUpperCase(),
       password: 'pass',
-      deviceToken: 'web',
+      deviceToken: 'web'
     });
 
     expect(response.token).toBeDefined();
@@ -569,9 +589,13 @@ describe('User db utils', () => {
     expect(await Users.refreshTokens('invalid')).toEqual({});
 
     // valid ==============
-    const prevRefreshToken = await jwt.sign({ user: _user }, Users.getSecret(), {
-      expiresIn: '7d',
-    });
+    const prevRefreshToken = await jwt.sign(
+      { user: _user },
+      Users.getSecret(),
+      {
+        expiresIn: '7d'
+      }
+    );
 
     const { token, refreshToken } = await Users.refreshTokens(prevRefreshToken);
 
@@ -591,10 +615,12 @@ describe('User db utils', () => {
     // valid
     const updatedUser = await Users.resetMemberPassword({
       _id: _user._id,
-      newPassword: strongPassword,
+      newPassword: strongPassword
     });
 
-    expect(await Users.comparePassword(strongPassword, updatedUser.password)).toBeTruthy();
+    expect(
+      await Users.comparePassword(strongPassword, updatedUser.password)
+    ).toBeTruthy();
   });
 
   test('Check password', async () => {
@@ -605,7 +631,7 @@ describe('User db utils', () => {
       await Users.checkPassword(weakPassword);
     } catch (e) {
       expect(e.message).toBe(
-        'Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters',
+        'Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters'
       );
     }
   });

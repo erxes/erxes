@@ -1,6 +1,12 @@
 import { ICarouselButton, ICarouselItem } from 'modules/inbox/types';
 import * as React from 'react';
-import { CardAction, CardContent, CardItem, CardsWrapper, CardUrl } from './styles';
+import {
+  CardAction,
+  CardContent,
+  CardItem,
+  CardsWrapper,
+  CardUrl
+} from './styles';
 
 type Props = {
   items?: ICarouselItem[];
@@ -37,12 +43,12 @@ export default function Carousel({ items }: Props) {
         ))}
       </div>
     );
-  }
+  };
 
   const renderItem = (item: ICarouselItem, index: number) => {
     return (
-      <CardItem key={index} >
-        {item.picture && <img alt={item.title|| ''} src={item.picture} />}
+      <CardItem key={index}>
+        {item.picture && <img alt={item.title || ''} src={item.picture} />}
         <CardContent>
           {item.title && <h4>{item.title}</h4>}
           {item.subtitle && <p>{item.subtitle}</p>}
@@ -52,9 +58,5 @@ export default function Carousel({ items }: Props) {
     );
   };
 
-  return (
-    <CardsWrapper>
-      {items.map(renderItem)}
-    </CardsWrapper>
-  );
+  return <CardsWrapper>{items.map(renderItem)}</CardsWrapper>;
 }

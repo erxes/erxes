@@ -1,7 +1,14 @@
-import { permissionQueries, usersGroupQueries } from '../data/resolvers/queries/permissions';
+import {
+  permissionQueries,
+  usersGroupQueries
+} from '../data/resolvers/queries/permissions';
 
 import { graphqlRequest } from '../db/connection';
-import { permissionFactory, userFactory, usersGroupFactory } from '../db/factories';
+import {
+  permissionFactory,
+  userFactory,
+  usersGroupFactory
+} from '../db/factories';
 import { Permissions, Users, UsersGroups } from '../db/models';
 import './setup.ts';
 
@@ -56,7 +63,10 @@ describe('permissionQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, 'permissions', { page: 1, perPage: 2 });
+    const response = await graphqlRequest(qry, 'permissions', {
+      page: 1,
+      perPage: 2
+    });
 
     expect(response.length).toBe(2);
   });
@@ -74,7 +84,9 @@ describe('permissionQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, 'permissions', { module: 'brands' });
+    const response = await graphqlRequest(qry, 'permissions', {
+      module: 'brands'
+    });
 
     expect(response.length).toBe(2);
   });
@@ -92,7 +104,9 @@ describe('permissionQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, 'permissions', { action: 'brandsAll' });
+    const response = await graphqlRequest(qry, 'permissions', {
+      action: 'brandsAll'
+    });
 
     expect(response.length).toBe(2);
   });
@@ -114,7 +128,9 @@ describe('permissionQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, 'permissions', { userId: user._id });
+    const response = await graphqlRequest(qry, 'permissions', {
+      userId: user._id
+    });
 
     expect(response.length).toBe(3);
   });
@@ -134,7 +150,9 @@ describe('permissionQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, 'permissions', { groupId: 'groupId' });
+    const response = await graphqlRequest(qry, 'permissions', {
+      groupId: 'groupId'
+    });
 
     expect(response.length).toBe(2);
   });
@@ -225,7 +243,10 @@ describe('usersGroupQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, 'usersGroups', { page: 1, perPage: 2 });
+    const response = await graphqlRequest(qry, 'usersGroups', {
+      page: 1,
+      perPage: 2
+    });
 
     expect(response.length).toBe(2);
   });

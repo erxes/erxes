@@ -1,6 +1,10 @@
 import { Model, model } from 'mongoose';
 import { ActivityLogs } from '.';
-import { destroyBoardItemRelations, fillSearchTextItem, watchItem } from './boardUtils';
+import {
+  destroyBoardItemRelations,
+  fillSearchTextItem,
+  watchItem
+} from './boardUtils';
 import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
 import { ITicket, ITicketDocument, ticketSchema } from './definitions/tickets';
 
@@ -32,7 +36,9 @@ export const loadTicketClass = () => {
      */
     public static async createTicket(doc: ITicket) {
       if (doc.sourceConversationId) {
-        const convertedTicket = await Tickets.findOne({ sourceConversationId: doc.sourceConversationId });
+        const convertedTicket = await Tickets.findOne({
+          sourceConversationId: doc.sourceConversationId
+        });
 
         if (convertedTicket) {
           throw new Error('Already converted a ticket');
@@ -43,11 +49,14 @@ export const loadTicketClass = () => {
         ...doc,
         createdAt: new Date(),
         modifiedAt: new Date(),
-        searchText: fillSearchTextItem(doc),
+        searchText: fillSearchTextItem(doc)
       });
 
       // create log
-      await ActivityLogs.createBoardItemLog({ item: ticket, contentType: 'ticket' });
+      await ActivityLogs.createBoardItemLog({
+        item: ticket,
+        contentType: 'ticket'
+      });
 
       return ticket;
     }
@@ -66,7 +75,11 @@ export const loadTicketClass = () => {
     /**
      * Watch ticket
      */
-    public static async watchTicket(_id: string, isAdd: boolean, userId: string) {
+    public static async watchTicket(
+      _id: string,
+      isAdd: boolean,
+      userId: string
+    ) {
       return watchItem(Tickets, _id, isAdd, userId);
     }
 

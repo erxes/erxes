@@ -27,9 +27,15 @@ interface ICallbackParams {
 }
 
 // prepares sms object matching telnyx requirements
-const prepareMessage = async ({ content, integrationId, to }: IMessageParams): Promise<ITelnyxMessageParams> => {
+const prepareMessage = async ({
+  content,
+  integrationId,
+  to
+}: IMessageParams): Promise<ITelnyxMessageParams> => {
   const DOMAIN = getEnv({ name: 'DOMAIN' });
-  const integration = await Integrations.getIntegration({ erxesApiId: integrationId });
+  const integration = await Integrations.getIntegration({
+    erxesApiId: integrationId
+  });
   const { telnyxPhoneNumber, telnyxProfileId } = integration;
 
   const msg = {
@@ -38,7 +44,7 @@ const prepareMessage = async ({ content, integrationId, to }: IMessageParams): P
     text: content,
     messaging_profile_id: '',
     webhook_url: `${DOMAIN}/telnyx/webhook`,
-    webhook_failover_url: `${DOMAIN}/telnyx/webhook-failover`,
+    webhook_failover_url: `${DOMAIN}/telnyx/webhook-failover`
   };
 
   // telnyx sets from text properly when making international sms
@@ -49,7 +55,11 @@ const prepareMessage = async ({ content, integrationId, to }: IMessageParams): P
   return msg;
 };
 
-const handleMessageCallback = async (err: any, res: any, data: ICallbackParams) => {
+const handleMessageCallback = async (
+  err: any,
+  res: any,
+  data: ICallbackParams
+) => {
   const { conversationId, conversationMessageId, msg } = data;
 
   const request = await ConversationMessages.createRequest({
@@ -58,12 +68,12 @@ const handleMessageCallback = async (err: any, res: any, data: ICallbackParams) 
     to: msg.to,
     requestData: JSON.stringify(msg),
     direction: SMS_DIRECTIONS.OUTBOUND,
-    from: msg.from,
+    from: msg.from
   });
 
   if (err) {
     await ConversationMessages.updateRequest(request._id, {
-      errorMessages: [err.message],
+      errorMessages: [err.message]
     });
   }
 
@@ -73,7 +83,7 @@ const handleMessageCallback = async (err: any, res: any, data: ICallbackParams) 
     await ConversationMessages.updateRequest(request._id, {
       status: receiver && receiver.status,
       responseData: JSON.stringify(res.data),
-      telnyxId: res.data.id,
+      telnyxId: res.data.id
     });
   }
 };
@@ -90,21 +100,29 @@ export const createIntegration = async (req: any) => {
   const validNumber = await retrievePhoneNumber(telnyxPhoneNumber);
 
   if (!validNumber) {
-    throw new Error(`"${telnyxPhoneNumber}" is not a valid Telnyx phone number`);
+    throw new Error(
+      `"${telnyxPhoneNumber}" is not a valid Telnyx phone number`
+    );
   }
 
   // limit by one number per integration for now
-  const exists = await Integrations.findOne({ kind, erxesApiId: integrationId, telnyxPhoneNumber });
+  const exists = await Integrations.findOne({
+    kind,
+    erxesApiId: integrationId,
+    telnyxPhoneNumber
+  });
 
   if (exists) {
-    throw new Error(`Integration already exists with number "${telnyxPhoneNumber}"`);
+    throw new Error(
+      `Integration already exists with number "${telnyxPhoneNumber}"`
+    );
   }
 
   return Integrations.create({
     kind,
     erxesApiId: integrationId,
     telnyxProfileId,
-    telnyxPhoneNumber,
+    telnyxPhoneNumber
   });
 };
 
@@ -125,7 +143,9 @@ export const retrievePhoneNumber = async (phoneNumber: string) => {
   try {
     const telnyx = await getTelnyxInstance();
 
-    const { data = [] } = await telnyx.phoneNumbers.list({ filter: { phone_number: phoneNumber } });
+    const { data = [] } = await telnyx.phoneNumbers.list({
+      filter: { phone_number: phoneNumber }
+    });
 
     return data.find(item => item.phone_number === phoneNumber);
   } catch (e) {
@@ -151,7 +171,7 @@ export const updateMessageDelivery = async (data: any) => {
         return ConversationMessages.updateRequest(initialRequest._id, {
           status: receiver.status,
           responseData: JSON.stringify(data.payload),
-          statusUpdates: statuses,
+          statusUpdates: statuses
         });
       }
 
@@ -163,7 +183,13 @@ export const updateMessageDelivery = async (data: any) => {
 };
 
 export const sendSms = async (data: any) => {
-  const { content, conversationId, conversationMessageId, integrationId, toPhone } = JSON.parse(data || '{}');
+  const {
+    content,
+    conversationId,
+    conversationMessageId,
+    integrationId,
+    toPhone
+  } = JSON.parse(data || '{}');
 
   try {
     const telnyx = await getTelnyxInstance();
@@ -171,7 +197,12 @@ export const sendSms = async (data: any) => {
     const msg = await prepareMessage({ content, integrationId, to: toPhone });
 
     await telnyx.messages.create(msg, async (err: any, res: any) => {
-      await handleMessageCallback(err, res, { conversationId, conversationMessageId, integrationId, msg });
+      await handleMessageCallback(err, res, {
+        conversationId,
+        conversationMessageId,
+        integrationId,
+        msg
+      });
     });
   } catch (e) {
     throw new Error(e);

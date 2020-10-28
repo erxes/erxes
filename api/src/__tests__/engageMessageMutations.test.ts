@@ -12,7 +12,7 @@ import {
   integrationFactory,
   segmentFactory,
   tagsFactory,
-  userFactory,
+  userFactory
 } from '../db/factories';
 import {
   Brands,
@@ -24,7 +24,7 @@ import {
   Integrations,
   Segments,
   Tags,
-  Users,
+  Users
 } from '../db/models';
 import messageBroker from '../messageBroker';
 
@@ -147,7 +147,7 @@ describe('engage message mutation tests', () => {
       profileScore: 1,
       primaryEmail: faker.internet.email(),
       firstName: faker.random.word(),
-      lastName: faker.random.word(),
+      lastName: faker.random.word()
     });
 
     _message = await engageMessageFactory({
@@ -155,11 +155,11 @@ describe('engage message mutation tests', () => {
       userId: _user._id,
       messenger: {
         content: 'content',
-        brandId: _brand.id,
+        brandId: _brand.id
       },
       customerIds: [_customer._id],
       brandIds: [_brand._id],
-      tagIds: [_tag._id],
+      tagIds: [_tag._id]
     });
 
     _doc = {
@@ -175,12 +175,12 @@ describe('engage message mutation tests', () => {
       customerIds: [_customer._id],
       email: {
         subject: faker.random.word(),
-        content: faker.random.word(),
+        content: faker.random.word()
       },
       scheduleDate: {
         type: 'year',
         month: '2',
-        day: '14',
+        day: '14'
       },
       messenger: {
         brandId: _brand._id,
@@ -193,10 +193,10 @@ describe('engage message mutation tests', () => {
             kind: MESSAGE_KINDS.MANUAL,
             text: faker.random.word(),
             condition: faker.random.word(),
-            value: faker.random.word(),
-          },
-        ],
-      },
+            value: faker.random.word()
+          }
+        ]
+      }
     };
     spy = jest.spyOn(engageUtils, 'send');
   });
@@ -223,7 +223,10 @@ describe('engage message mutation tests', () => {
     const brand = await brandFactory({});
     await integrationFactory({ brandId: brand._id });
 
-    await engageUtils.generateCustomerSelector({ segmentIds: [segment._id], brandIds: [brand._id] });
+    await engageUtils.generateCustomerSelector({
+      segmentIds: [segment._id],
+      brandIds: [brand._id]
+    });
   });
 
   test('Engage utils send via messenger', async () => {
@@ -236,8 +239,8 @@ describe('engage message mutation tests', () => {
       isLive: true,
       messenger: {
         brandId: brand._id,
-        content: 'content',
-      },
+        content: 'content'
+      }
     });
 
     try {
@@ -254,8 +257,8 @@ describe('engage message mutation tests', () => {
       isLive: true,
       messenger: {
         brandId: brand._id,
-        content: 'content',
-      },
+        content: 'content'
+      }
     });
 
     try {
@@ -266,7 +269,7 @@ describe('engage message mutation tests', () => {
 
     const integration = await integrationFactory({
       brandId: brand._id,
-      kind: KIND_CHOICES.MESSENGER,
+      kind: KIND_CHOICES.MESSENGER
     });
 
     const emessageWithBrand = await engageMessageFactory({
@@ -277,14 +280,17 @@ describe('engage message mutation tests', () => {
       customerIds: [_customer._id],
       messenger: {
         brandId: brand._id,
-        content: 'content',
-      },
+        content: 'content'
+      }
     });
 
     await engageUtils.send(emessageWithBrand);
 
     // setCustomerIds
-    const setCustomer = await EngageMessages.findOne({ _id: _message._id, customerIds: _customer._id });
+    const setCustomer = await EngageMessages.findOne({
+      _id: _message._id,
+      customerIds: _customer._id
+    });
     expect(setCustomer).toBeDefined();
 
     // create conversation
@@ -292,7 +298,7 @@ describe('engage message mutation tests', () => {
       userId: _user._id,
       customerId: _customer._id,
       integrationId: integration._id,
-      content: 'content',
+      content: 'content'
     });
 
     if (!newConversation) {
@@ -306,7 +312,7 @@ describe('engage message mutation tests', () => {
       conversationId: newConversation._id,
       customerId: _customer._id,
       userId: _user._id,
-      content: 'content',
+      content: 'content'
     });
 
     if (!newMessage || !newMessage.engageData) {
@@ -321,7 +327,7 @@ describe('engage message mutation tests', () => {
     const emessageNoMessenger = await engageMessageFactory({
       isLive: true,
       userId: _user._id,
-      method: 'messenger',
+      method: 'messenger'
     });
 
     await engageUtils.send(emessageNoMessenger);
@@ -344,7 +350,7 @@ describe('engage message mutation tests', () => {
 
     await integrationFactory({
       brandId: brand._id,
-      kind: KIND_CHOICES.MESSENGER,
+      kind: KIND_CHOICES.MESSENGER
     });
 
     const emessage = await engageMessageFactory({
@@ -354,8 +360,8 @@ describe('engage message mutation tests', () => {
       isLive: true,
       messenger: {
         brandId: brand._id,
-        content: 'content',
-      },
+        content: 'content'
+      }
     });
 
     await engageUtils.send(emessage);
@@ -372,7 +378,8 @@ describe('engage message mutation tests', () => {
     process.env.AWS_ENDPOINT = '123';
     process.env.MAIL_PORT = '123';
     process.env.AWS_REGION = 'us-west-2';
-    process.env.ENGAGE_ADMINS = '[{"_id":"WkjhEfjJ4QW9EEW9F","name":"engageAdmin","email":"mrbatamar@gmail.com"}]';
+    process.env.ENGAGE_ADMINS =
+      '[{"_id":"WkjhEfjJ4QW9EEW9F","name":"engageAdmin","email":"mrbatamar@gmail.com"}]';
 
     const emessage = await engageMessageFactory({
       method: METHODS.EMAIL,
@@ -382,8 +389,8 @@ describe('engage message mutation tests', () => {
       email: {
         subject: 'subject',
         content: 'content',
-        attachments: [],
-      },
+        attachments: []
+      }
     });
 
     try {
@@ -401,8 +408,8 @@ describe('engage message mutation tests', () => {
       email: {
         subject: 'subject',
         content: 'content',
-        attachments: [],
-      },
+        attachments: []
+      }
     });
 
     await engageUtils.send(emessageWithUser);
@@ -421,15 +428,15 @@ describe('engage message mutation tests', () => {
       email: {
         subject: 'subject',
         content: 'content',
-        attachments: [],
-      },
+        attachments: []
+      }
     });
 
     await engageUtils.send(emessageNoInitial);
 
     const emessageNotLive = await engageMessageFactory({
       isLive: false,
-      userId: _user._id,
+      userId: _user._id
     });
 
     await engageUtils.send(emessageNotLive);
@@ -440,7 +447,7 @@ describe('engage message mutation tests', () => {
       title: 'Send via sms',
       userId: _user._id,
       customerIds: [_customer._id],
-      isLive: true,
+      isLive: true
     });
 
     await engageUtils.send(msg);
@@ -482,13 +489,17 @@ describe('engage message mutation tests', () => {
       await graphqlRequest(engageMessageAddMutation, 'engageMessageAdd', {
         ..._doc,
         kind: MESSAGE_KINDS.MANUAL,
-        brandIds: ['_id'],
+        brandIds: ['_id']
       });
     } catch (e) {
       expect(e[0].message).toBe('No customers found');
     }
 
-    const engageMessage = await graphqlRequest(engageMessageAddMutation, 'engageMessageAdd', _doc);
+    const engageMessage = await graphqlRequest(
+      engageMessageAddMutation,
+      'engageMessageAdd',
+      _doc
+    );
 
     const tags = engageMessage.getTags.map(tag => tag._id);
 
@@ -516,7 +527,11 @@ describe('engage message mutation tests', () => {
     const editedUser = await userFactory();
     const args = { ..._doc, _id: _message._id, fromUserId: editedUser._id };
 
-    const engageMessage = await graphqlRequest(mutation, 'engageMessageEdit', args);
+    const engageMessage = await graphqlRequest(
+      mutation,
+      'engageMessageEdit',
+      args
+    );
 
     const tags = engageMessage.getTags.map(tag => tag._id);
 
@@ -526,8 +541,12 @@ describe('engage message mutation tests', () => {
     expect(engageMessage.messenger.content).toBe(_doc.messenger.content);
     expect(engageMessage.messenger.rules.kind).toBe(_doc.messenger.rules.kind);
     expect(engageMessage.messenger.rules.text).toBe(_doc.messenger.rules.text);
-    expect(engageMessage.messenger.rules.condition).toBe(_doc.messenger.rules.condition);
-    expect(engageMessage.messenger.rules.value).toBe(_doc.messenger.rules.value);
+    expect(engageMessage.messenger.rules.condition).toBe(
+      _doc.messenger.rules.condition
+    );
+    expect(engageMessage.messenger.rules.value).toBe(
+      _doc.messenger.rules.value
+    );
     expect(engageMessage.messengerReceivedCustomerIds).toEqual([]);
     expect(tags).toEqual(_doc.tagIds);
 
@@ -545,7 +564,9 @@ describe('engage message mutation tests', () => {
 
     _message = await engageMessageFactory({ kind: MESSAGE_KINDS.AUTO });
 
-    await graphqlRequest(mutation, 'engageMessageRemove', { _id: _message._id });
+    await graphqlRequest(mutation, 'engageMessageRemove', {
+      _id: _message._id
+    });
 
     expect(await EngageMessages.findOne({ _id: _message._id })).toBe(null);
   });
@@ -559,17 +580,25 @@ describe('engage message mutation tests', () => {
       }
     `;
 
-    let response = await graphqlRequest(mutation, 'engageMessageSetLive', { _id: _message._id });
+    let response = await graphqlRequest(mutation, 'engageMessageSetLive', {
+      _id: _message._id
+    });
 
     expect(response.isLive).toBe(true);
 
-    const manualMessage = await engageMessageFactory({ kind: MESSAGE_KINDS.MANUAL });
+    const manualMessage = await engageMessageFactory({
+      kind: MESSAGE_KINDS.MANUAL
+    });
 
-    response = await graphqlRequest(mutation, 'engageMessageSetLive', { _id: manualMessage._id });
+    response = await graphqlRequest(mutation, 'engageMessageSetLive', {
+      _id: manualMessage._id
+    });
 
     expect(response.isLive).toBe(true);
 
-    await graphqlRequest(mutation, 'engageMessageSetLive', { _id: _message._id });
+    await graphqlRequest(mutation, 'engageMessageSetLive', {
+      _id: _message._id
+    });
   });
 
   test('Set pause engage message', async () => {
@@ -581,7 +610,11 @@ describe('engage message mutation tests', () => {
       }
     `;
 
-    const engageMessage = await graphqlRequest(mutation, 'engageMessageSetPause', { _id: _message._id });
+    const engageMessage = await graphqlRequest(
+      mutation,
+      'engageMessageSetPause',
+      { _id: _message._id }
+    );
 
     expect(engageMessage.isLive).toBe(false);
   });
@@ -591,7 +624,7 @@ describe('engage message mutation tests', () => {
       userId: _user._id,
       customerId: _customer._id,
       integrationId: _integration._id,
-      content: _message.messenger.content,
+      content: _message.messenger.content
     };
 
     const conversationMessageObj = {
@@ -600,16 +633,18 @@ describe('engage message mutation tests', () => {
         fromUserId: _user._id,
         brandId: 'brandId',
         rules: [],
-        content: _message.messenger.content,
+        content: _message.messenger.content
       },
       conversationId: 'convId',
       userId: _user._id,
       customerId: _customer._id,
-      content: _message.messenger.content,
+      content: _message.messenger.content
     };
 
     const conversation = await conversationFactory(conversationObj);
-    const conversationMessage = await conversationMessageFactory(conversationMessageObj);
+    const conversationMessage = await conversationMessageFactory(
+      conversationMessageObj
+    );
 
     _message.customerIds = [_customer._id];
     _message.messenger.brandId = _integration.brandId;
@@ -624,7 +659,11 @@ describe('engage message mutation tests', () => {
       }
     `;
 
-    const engageMessage = await graphqlRequest(mutation, 'engageMessageSetLiveManual', { _id: _message._id });
+    const engageMessage = await graphqlRequest(
+      mutation,
+      'engageMessageSetLiveManual',
+      { _id: _message._id }
+    );
 
     if (!conversationMessage.engageData) {
       throw new Error('Conversation engageData not found');
@@ -635,10 +674,16 @@ describe('engage message mutation tests', () => {
     expect(conversation.customerId).toBe(conversationObj.customerId);
     expect(conversation.integrationId).toBe(conversationObj.integrationId);
     expect(conversation.content).toBe(conversationObj.content);
-    expect(conversationMessage.engageData.toJSON()).toEqual(conversationMessageObj.engageData);
-    expect(conversationMessage.conversationId).toBe(conversationMessageObj.conversationId);
+    expect(conversationMessage.engageData.toJSON()).toEqual(
+      conversationMessageObj.engageData
+    );
+    expect(conversationMessage.conversationId).toBe(
+      conversationMessageObj.conversationId
+    );
     expect(conversationMessage.userId).toBe(conversationMessageObj.userId);
-    expect(conversationMessage.customerId).toBe(conversationMessageObj.customerId);
+    expect(conversationMessage.customerId).toBe(
+      conversationMessageObj.customerId
+    );
     expect(conversationMessage.content).toBe(conversationMessageObj.content);
   });
 
@@ -664,15 +709,17 @@ describe('engage message mutation tests', () => {
       }
     `;
 
-    const mock = sinon.stub(dataSources.EngagesAPI, 'engagesUpdateConfigs').callsFake(() => {
-      return Promise.resolve([]);
-    });
+    const mock = sinon
+      .stub(dataSources.EngagesAPI, 'engagesUpdateConfigs')
+      .callsFake(() => {
+        return Promise.resolve([]);
+      });
 
     await graphqlRequest(
       mutation,
       'engagesUpdateConfigs',
       { configsMap: { accessKeyId: 'accessKeyId' } },
-      { dataSources },
+      { dataSources }
     );
 
     mock.restore();
@@ -696,7 +743,7 @@ describe('engage message mutation tests', () => {
       }
     `,
       'engageMessageVerifyEmail',
-      { email: 'email@yahoo.com' },
+      { email: 'email@yahoo.com' }
     );
 
     mock = sinon.stub(api, 'engagesRemoveVerifiedEmail').callsFake(() => {
@@ -710,7 +757,7 @@ describe('engage message mutation tests', () => {
       }
     `,
       'engageMessageRemoveVerifiedEmail',
-      { email: 'email@yahoo.com' },
+      { email: 'email@yahoo.com' }
     );
 
     mock = sinon.stub(api, 'engagesSendTestEmail').callsFake(() => {
@@ -724,7 +771,7 @@ describe('engage message mutation tests', () => {
       }
     `,
       'engageMessageSendTestEmail',
-      { from: 'from@yahoo.com', to: 'to@yahoo.com', content: 'content' },
+      { from: 'from@yahoo.com', to: 'to@yahoo.com', content: 'content' }
     );
 
     mock.restore();
@@ -736,27 +783,33 @@ describe('engage message mutation tests', () => {
         ..._doc,
         kind: MESSAGE_KINDS.AUTO,
         method: METHODS.SMS,
-        brandIds: ['_id'],
+        brandIds: ['_id']
       });
     } catch (e) {
-      expect(e[0].message).toBe(`SMS engage message of kind ${MESSAGE_KINDS.AUTO} is not supported`);
+      expect(e[0].message).toBe(
+        `SMS engage message of kind ${MESSAGE_KINDS.AUTO} is not supported`
+      );
     }
   });
 
   test('Test sms engage message with integration chosen', async () => {
     const integration = await integrationFactory({ kind: 'telnyx' });
 
-    const response = await graphqlRequest(engageMessageAddMutation, 'engageMessageAdd', {
-      ..._doc,
-      fromUserId: '',
-      kind: MESSAGE_KINDS.MANUAL,
-      method: METHODS.SMS,
-      shortMessage: {
-        content: 'sms test',
-        fromIntegrationId: integration._id,
-      },
-      title: 'Message test',
-    });
+    const response = await graphqlRequest(
+      engageMessageAddMutation,
+      'engageMessageAdd',
+      {
+        ..._doc,
+        fromUserId: '',
+        kind: MESSAGE_KINDS.MANUAL,
+        method: METHODS.SMS,
+        shortMessage: {
+          content: 'sms test',
+          fromIntegrationId: integration._id
+        },
+        title: 'Message test'
+      }
+    );
 
     expect(response.fromIntegration._id).toBe(integration._id);
   });

@@ -1,17 +1,26 @@
 import { NodeVM } from 'vm2';
 
-import { ConversationMessages, Conversations, Customers, Integrations } from '../db/models';
+import {
+  ConversationMessages,
+  Conversations,
+  Customers,
+  Integrations
+} from '../db/models';
 import { graphqlPubsub } from '../pubsub';
 
 const findCustomer = async doc => {
   let customer;
 
   if (doc.customerPrimaryEmail) {
-    customer = await Customers.findOne({ primaryEmail: doc.customerPrimaryEmail });
+    customer = await Customers.findOne({
+      primaryEmail: doc.customerPrimaryEmail
+    });
   }
 
   if (!customer && doc.customerPrimaryPhone) {
-    customer = await Customers.findOne({ primaryPhone: doc.customerPrimaryPhone });
+    customer = await Customers.findOne({
+      primaryPhone: doc.customerPrimaryPhone
+    });
   }
 
   if (!customer && doc.customerPrimaryPhone) {
@@ -31,7 +40,10 @@ const webhookMiddleware = async (req, res, next) => {
 
     const webhookData = integration.webhookData;
 
-    if (!webhookData || !Object.values(req.headers).includes(webhookData.token)) {
+    if (
+      !webhookData ||
+      !Object.values(req.headers).includes(webhookData.token)
+    ) {
       return next(new Error('Invalid request'));
     }
 
@@ -39,7 +51,7 @@ const webhookMiddleware = async (req, res, next) => {
 
     if (webhookData.script) {
       const vm = new NodeVM({
-        sandbox: { params },
+        sandbox: { params }
       });
 
       vm.run(webhookData.script);
@@ -55,22 +67,28 @@ const webhookMiddleware = async (req, res, next) => {
         code: params.customerCode,
         firstName: params.customerFirstName,
         lastName: params.customerLastName,
-        avatar: params.customerAvatar,
+        avatar: params.customerAvatar
       });
     }
 
     // get or create conversation
-    let conversation = await Conversations.findOne({ customerId: customer._id, integrationId: integration._id });
+    let conversation = await Conversations.findOne({
+      customerId: customer._id,
+      integrationId: integration._id
+    });
 
     if (!conversation) {
       conversation = await Conversations.createConversation({
         customerId: customer._id,
         integrationId: integration._id,
-        content: params.content,
+        content: params.content
       });
     } else {
       if (conversation.status === 'closed') {
-        await Conversations.updateOne({ _id: conversation._id }, { status: 'open' });
+        await Conversations.updateOne(
+          { _id: conversation._id },
+          { status: 'open' }
+        );
       }
     }
 
@@ -79,15 +97,15 @@ const webhookMiddleware = async (req, res, next) => {
       conversationId: conversation._id,
       customerId: customer._id,
       content: params.content,
-      attachments: params.attachments,
+      attachments: params.attachments
     });
 
     graphqlPubsub.publish('conversationClientMessageInserted', {
-      conversationClientMessageInserted: message,
+      conversationClientMessageInserted: message
     });
 
     graphqlPubsub.publish('conversationMessageInserted', {
-      conversationMessageInserted: message,
+      conversationMessageInserted: message
     });
 
     return res.send('ok');

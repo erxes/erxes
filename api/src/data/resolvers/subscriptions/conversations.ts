@@ -12,8 +12,8 @@ export default {
       // filter by conversationId
       (payload, variables) => {
         return payload.conversationChanged.conversationId === variables._id;
-      },
-    ),
+      }
+    )
   },
 
   /*
@@ -24,9 +24,11 @@ export default {
       () => graphqlPubsub.asyncIterator('conversationMessageInserted'),
       // filter by conversationId
       (payload, variables) => {
-        return payload.conversationMessageInserted.conversationId === variables._id;
-      },
-    ),
+        return (
+          payload.conversationMessageInserted.conversationId === variables._id
+        );
+      }
+    )
   },
 
   /*
@@ -36,9 +38,11 @@ export default {
     subscribe: withFilter(
       () => graphqlPubsub.asyncIterator('conversationBotTypingStatus'),
       async (payload, variables) => {
-        return payload.conversationBotTypingStatus.conversationId === variables._id;
-      },
-    ),
+        return (
+          payload.conversationBotTypingStatus.conversationId === variables._id
+        );
+      }
+    )
   },
 
   /*
@@ -46,11 +50,15 @@ export default {
    */
   conversationClientTypingStatusChanged: {
     subscribe: withFilter(
-      () => graphqlPubsub.asyncIterator('conversationClientTypingStatusChanged'),
+      () =>
+        graphqlPubsub.asyncIterator('conversationClientTypingStatusChanged'),
       async (payload, variables) => {
-        return payload.conversationClientTypingStatusChanged.conversationId === variables._id;
-      },
-    ),
+        return (
+          payload.conversationClientTypingStatusChanged.conversationId ===
+          variables._id
+        );
+      }
+    )
   },
 
   /*
@@ -62,13 +70,19 @@ export default {
       async (payload, variables) => {
         const message = payload.conversationClientMessageInserted;
 
-        const conversation = await Conversations.findOne({ _id: message.conversationId }, { integrationId: 1 });
+        const conversation = await Conversations.findOne(
+          { _id: message.conversationId },
+          { integrationId: 1 }
+        );
 
         if (!conversation) {
           return false;
         }
 
-        const integration = await Integrations.findOne({ _id: conversation.integrationId }, { _id: 1 });
+        const integration = await Integrations.findOne(
+          { _id: conversation.integrationId },
+          { _id: 1 }
+        );
 
         if (!integration) {
           return false;
@@ -76,12 +90,12 @@ export default {
 
         const availableChannelsCount = await Channels.countDocuments({
           integrationIds: { $in: [integration._id] },
-          memberIds: { $in: [variables.userId] },
+          memberIds: { $in: [variables.userId] }
         });
 
         return availableChannelsCount > 0;
-      },
-    ),
+      }
+    )
   },
 
   /*
@@ -92,15 +106,21 @@ export default {
       () => graphqlPubsub.asyncIterator('conversationAdminMessageInserted'),
       // filter by conversationId
       (payload, variables) => {
-        return payload.conversationAdminMessageInserted.customerId === variables.customerId;
-      },
-    ),
+        return (
+          payload.conversationAdminMessageInserted.customerId ===
+          variables.customerId
+        );
+      }
+    )
   },
 
   /*
    * Integrations api is listener
    */
   conversationExternalIntegrationMessageInserted: {
-    subscribe: () => graphqlPubsub.asyncIterator('conversationExternalIntegrationMessageInserted'),
-  },
+    subscribe: () =>
+      graphqlPubsub.asyncIterator(
+        'conversationExternalIntegrationMessageInserted'
+      )
+  }
 };

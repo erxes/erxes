@@ -1,11 +1,14 @@
 import * as smoochApi from './smooch/api';
 import * as twitterApi from './twitter/api';
 
-import { Conversations as CallProConversations, Customers as CallProCustomers } from './callpro/models';
+import {
+  Conversations as CallProConversations,
+  Customers as CallProCustomers
+} from './callpro/models';
 import {
   ConversationMessages as ChatfuelConversationMessages,
   Conversations as ChatfuelConversations,
-  Customers as ChatfuelCustomers,
+  Customers as ChatfuelCustomers
 } from './chatfuel/models';
 import {
   debugCallPro,
@@ -15,20 +18,20 @@ import {
   debugSmooch,
   debugTelnyx,
   debugTwitter,
-  debugWhatsapp,
+  debugWhatsapp
 } from './debuggers';
 import {
   Comments as FacebookComments,
   ConversationMessages as FacebookConversationMessages,
   Conversations as FacebookConversations,
   Customers as FacebookCustomers,
-  Posts as FacebookPosts,
+  Posts as FacebookPosts
 } from './facebook/models';
 import { getPageAccessToken, unsubscribePage } from './facebook/utils';
 import {
   ConversationMessages as GmailConversationMessages,
   Conversations as GmailConversations,
-  Customers as GmailCustomers,
+  Customers as GmailCustomers
 } from './gmail/models';
 import { Accounts, Integrations } from './models';
 import { removeExistingNylasWebhook } from './nylas/auth';
@@ -50,7 +53,7 @@ import {
   NylasOutlookCustomers,
   NylasYahooConversationMessages,
   NylasYahooConversations,
-  NylasYahooCustomers,
+  NylasYahooCustomers
 } from './nylas/models';
 import {
   SmoochLineConversationMessages,
@@ -64,25 +67,25 @@ import {
   SmoochTwilioCustomers,
   SmoochViberConversationMessages,
   SmoochViberConversations,
-  SmoochViberCustomers,
+  SmoochViberCustomers
 } from './smooch/models';
 import {
   ConversationMessages as TelnyxConversationMessages,
   Conversations as TelnyxConversations,
-  Customers as TelnyxCustomers,
+  Customers as TelnyxCustomers
 } from './telnyx/models';
 import { getTwitterConfig, unsubscribe } from './twitter/api';
 import {
   ConversationMessages as TwitterConversationMessages,
   Conversations as TwitterConversations,
-  Customers as TwitterCustomers,
+  Customers as TwitterCustomers
 } from './twitter/models';
 import { getEnv, resetConfigsCache, sendRequest } from './utils';
 import { logout, setupChatApi as setupWhatsapp } from './whatsapp/api';
 import {
   ConversationMessages as WhatsappConversationMessages,
   Conversations as WhatsappConversations,
-  Customers as WhatsappCustomers,
+  Customers as WhatsappCustomers
 } from './whatsapp/models';
 
 import { revokeToken, unsubscribeUser } from './gmail/api';
@@ -91,8 +94,12 @@ import { enableOrDisableAccount } from './nylas/api';
 import { setupNylas } from './nylas/controller';
 import { createNylasWebhook } from './nylas/tracker';
 
-export const removeIntegration = async (integrationErxesApiId: string): Promise<string> => {
-  const integration = await Integrations.findOne({ erxesApiId: integrationErxesApiId });
+export const removeIntegration = async (
+  integrationErxesApiId: string
+): Promise<string> => {
+  const integration = await Integrations.findOne({
+    erxesApiId: integrationErxesApiId
+  });
 
   if (!integration) {
     throw new Error('Integration not found');
@@ -115,7 +122,9 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
       try {
         pageTokenResponse = await getPageAccessToken(pageId, account.token);
       } catch (e) {
-        debugFacebook(`Error ocurred while trying to get page access token with ${e.message}`);
+        debugFacebook(
+          `Error ocurred while trying to get page access token with ${e.message}`
+        );
         throw e;
       }
 
@@ -125,18 +134,26 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
       try {
         await unsubscribePage(pageId, pageTokenResponse);
       } catch (e) {
-        debugFacebook(`Error occured while trying to unsubscribe page pageId: ${pageId}`);
+        debugFacebook(
+          `Error occured while trying to unsubscribe page pageId: ${pageId}`
+        );
         throw e;
       }
     }
 
     integrationRemoveBy = { fbPageIds: integration.facebookPageIds };
 
-    const conversationIds = await FacebookConversations.find(selector).distinct('_id');
+    const conversationIds = await FacebookConversations.find(selector).distinct(
+      '_id'
+    );
 
-    await FacebookCustomers.deleteMany({ integrationId: integrationErxesApiId });
+    await FacebookCustomers.deleteMany({
+      integrationId: integrationErxesApiId
+    });
     await FacebookConversations.deleteMany(selector);
-    await FacebookConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+    await FacebookConversationMessages.deleteMany({
+      conversationId: { $in: conversationIds }
+    });
 
     await Integrations.deleteOne({ _id });
   }
@@ -144,13 +161,17 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
   if (kind === 'gmail' && !integration.nylasToken) {
     debugGmail('Removing gmail entries');
 
-    const conversationIds = await GmailConversations.find(selector).distinct('_id');
+    const conversationIds = await GmailConversations.find(selector).distinct(
+      '_id'
+    );
 
     integrationRemoveBy = { email: integration.email };
 
     await GmailCustomers.deleteMany(selector);
     await GmailConversations.deleteMany(selector);
-    await GmailConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+    await GmailConversationMessages.deleteMany({
+      conversationId: { $in: conversationIds }
+    });
 
     try {
       await unsubscribeUser(integration.email);
@@ -164,11 +185,15 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
   if (kind === 'gmail' && integration.nylasToken) {
     debugNylas('Removing nylas entries');
 
-    const conversationIds = await NylasGmailConversations.find(selector).distinct('_id');
+    const conversationIds = await NylasGmailConversations.find(
+      selector
+    ).distinct('_id');
 
     await NylasGmailCustomers.deleteMany(selector);
     await NylasGmailConversations.deleteMany(selector);
-    await NylasGmailConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+    await NylasGmailConversationMessages.deleteMany({
+      conversationId: { $in: conversationIds }
+    });
 
     try {
       // Cancel nylas subscription
@@ -193,7 +218,9 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
   if (kind === 'twitter-dm') {
     debugTwitter('Removing twitter entries');
 
-    const conversationIds = await TwitterConversations.find(selector).distinct('_id');
+    const conversationIds = await TwitterConversations.find(selector).distinct(
+      '_id'
+    );
 
     try {
       unsubscribe(account.uid);
@@ -203,7 +230,9 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
     }
 
     await TwitterConversationMessages.deleteMany(selector);
-    await TwitterConversations.deleteMany({ conversationId: { $in: conversationIds } });
+    await TwitterConversations.deleteMany({
+      conversationId: { $in: conversationIds }
+    });
     await TwitterCustomers.deleteMany(selector);
   }
 
@@ -217,9 +246,13 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
       throw e;
     }
 
-    const conversationIds = await WhatsappConversations.find(selector).distinct('_id');
+    const conversationIds = await WhatsappConversations.find(selector).distinct(
+      '_id'
+    );
 
-    await WhatsappConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+    await WhatsappConversationMessages.deleteMany({
+      conversationId: { $in: conversationIds }
+    });
     await WhatsappConversations.deleteMany(selector);
     await WhatsappCustomers.deleteMany(selector);
   }
@@ -236,8 +269,8 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
         method: 'POST',
         body: {
           domain: DOMAIN,
-          ...integrationRemoveBy,
-        },
+          ...integrationRemoveBy
+        }
       });
     } catch (e) {
       throw new Error(e.message);
@@ -247,11 +280,15 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
   if (kind === 'imap') {
     debugNylas('Removing nylas-imap entries');
 
-    const conversationIds = await NylasImapConversations.find(selector).distinct('_id');
+    const conversationIds = await NylasImapConversations.find(
+      selector
+    ).distinct('_id');
 
     await NylasImapCustomers.deleteMany(selector);
     await NylasImapConversations.deleteMany(selector);
-    await NylasImapConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+    await NylasImapConversationMessages.deleteMany({
+      conversationId: { $in: conversationIds }
+    });
 
     try {
       // Cancel nylas subscription
@@ -265,11 +302,15 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
   if (kind === 'office365') {
     debugNylas('Removing nylas-office365 entries');
 
-    const conversationIds = await NylasOffice365Conversations.find(selector).distinct('_id');
+    const conversationIds = await NylasOffice365Conversations.find(
+      selector
+    ).distinct('_id');
 
     await NylasOffice365Customers.deleteMany(selector);
     await NylasOffice365Conversations.deleteMany(selector);
-    await NylasOffice365ConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+    await NylasOffice365ConversationMessages.deleteMany({
+      conversationId: { $in: conversationIds }
+    });
 
     try {
       // Cancel nylas subscription
@@ -283,11 +324,15 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
   if (kind === 'outlook') {
     debugNylas('Removing nylas-outlook entries');
 
-    const conversationIds = await NylasOutlookConversations.find(selector).distinct('_id');
+    const conversationIds = await NylasOutlookConversations.find(
+      selector
+    ).distinct('_id');
 
     await NylasOutlookCustomers.deleteMany(selector);
     await NylasOutlookConversations.deleteMany(selector);
-    await NylasOutlookConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+    await NylasOutlookConversationMessages.deleteMany({
+      conversationId: { $in: conversationIds }
+    });
 
     try {
       // Cancel nylas subscription
@@ -301,11 +346,15 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
   if (kind === 'exchange') {
     debugNylas('Removing nylas-exchange entries');
 
-    const conversationIds = await NylasYahooConversations.find(selector).distinct('_id');
+    const conversationIds = await NylasYahooConversations.find(
+      selector
+    ).distinct('_id');
 
     await NylasExchangeCustomers.deleteMany(selector);
     await NylasExchangeConversations.deleteMany(selector);
-    await NylasExchangeConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+    await NylasExchangeConversationMessages.deleteMany({
+      conversationId: { $in: conversationIds }
+    });
 
     try {
       // Cancel nylas subscription
@@ -319,11 +368,15 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
   if (kind === 'yahoo') {
     debugNylas('Removing nylas-yahoo entries');
 
-    const conversationIds = await NylasYahooConversations.find(selector).distinct('_id');
+    const conversationIds = await NylasYahooConversations.find(
+      selector
+    ).distinct('_id');
 
     await NylasYahooCustomers.deleteMany(selector);
     await NylasYahooConversations.deleteMany(selector);
-    await NylasYahooConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+    await NylasYahooConversationMessages.deleteMany({
+      conversationId: { $in: conversationIds }
+    });
 
     try {
       // Cancel nylas subscription
@@ -337,16 +390,22 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
   if (kind === 'chatfuel') {
     debugCallPro('Removing chatfuel entries');
 
-    const conversationIds = await ChatfuelConversations.find(selector).distinct('_id');
+    const conversationIds = await ChatfuelConversations.find(selector).distinct(
+      '_id'
+    );
 
     await ChatfuelCustomers.deleteMany(selector);
     await ChatfuelConversations.deleteMany(selector);
-    await ChatfuelConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+    await ChatfuelConversationMessages.deleteMany({
+      conversationId: { $in: conversationIds }
+    });
   }
 
   if (kind === 'telegram') {
     debugSmooch('Removing Telegram entries');
-    const conversationIds = await SmoochTelegramConversations.find(selector).distinct('_id');
+    const conversationIds = await SmoochTelegramConversations.find(
+      selector
+    ).distinct('_id');
     try {
       await smoochApi.removeIntegration(integration.smoochIntegrationId);
     } catch (e) {
@@ -355,12 +414,16 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
 
     await SmoochTelegramCustomers.deleteMany(selector);
     await SmoochTelegramConversations.deleteMany(selector);
-    await SmoochTelegramConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+    await SmoochTelegramConversationMessages.deleteMany({
+      conversationId: { $in: conversationIds }
+    });
   }
 
   if (kind === 'viber') {
     debugSmooch('Removing Viber entries');
-    const conversationIds = await SmoochViberConversations.find(selector).distinct('_id');
+    const conversationIds = await SmoochViberConversations.find(
+      selector
+    ).distinct('_id');
 
     try {
       await smoochApi.removeIntegration(integration.smoochIntegrationId);
@@ -370,12 +433,16 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
 
     await SmoochViberCustomers.deleteMany(selector);
     await SmoochViberConversations.deleteMany(selector);
-    await SmoochViberConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+    await SmoochViberConversationMessages.deleteMany({
+      conversationId: { $in: conversationIds }
+    });
   }
 
   if (kind === 'line') {
     debugSmooch('Removing Line entries');
-    const conversationIds = await SmoochLineConversations.find(selector).distinct('_id');
+    const conversationIds = await SmoochLineConversations.find(
+      selector
+    ).distinct('_id');
 
     try {
       await smoochApi.removeIntegration(integration.smoochIntegrationId);
@@ -385,12 +452,16 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
 
     await SmoochLineCustomers.deleteMany(selector);
     await SmoochLineConversations.deleteMany(selector);
-    await SmoochLineConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+    await SmoochLineConversationMessages.deleteMany({
+      conversationId: { $in: conversationIds }
+    });
   }
 
   if (kind === 'twilio') {
     debugSmooch('Removing Twilio entries');
-    const conversationIds = await SmoochTwilioConversations.find(selector).distinct('_id');
+    const conversationIds = await SmoochTwilioConversations.find(
+      selector
+    ).distinct('_id');
 
     try {
       await smoochApi.removeIntegration(integration.smoochIntegrationId);
@@ -400,18 +471,24 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
 
     await SmoochTwilioCustomers.deleteMany(selector);
     await SmoochTwilioConversations.deleteMany(selector);
-    await SmoochTwilioConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+    await SmoochTwilioConversationMessages.deleteMany({
+      conversationId: { $in: conversationIds }
+    });
   }
 
   if (kind === 'telnyx') {
     debugTelnyx('Removing telnyx entries');
 
-    const conversationIds = await TelnyxConversations.find(selector).distinct('_id');
+    const conversationIds = await TelnyxConversations.find(selector).distinct(
+      '_id'
+    );
 
     try {
       await TelnyxCustomers.deleteMany(selector);
       await TelnyxConversations.deleteMany(selector);
-      await TelnyxConversationMessages.deleteMany({ conversationId: { $in: conversationIds } });
+      await TelnyxConversationMessages.deleteMany({
+        conversationId: { $in: conversationIds }
+      });
     } catch (e) {
       throw new Error(e.message);
     }
@@ -422,7 +499,9 @@ export const removeIntegration = async (integrationErxesApiId: string): Promise<
   return erxesApiId;
 };
 
-export const removeAccount = async (_id: string): Promise<{ erxesApiIds: string | string[] } | Error> => {
+export const removeAccount = async (
+  _id: string
+): Promise<{ erxesApiIds: string | string[] } | Error> => {
   const account = await Accounts.findOne({ _id });
 
   if (!account) {
@@ -486,11 +565,17 @@ export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
   const prevNylasWebhook = await getValueAsString('NYLAS_WEBHOOK_CALLBACK_URL');
 
   const prevSmoochAppKeyId = await getValueAsString('SMOOCH_APP_KEY_ID');
-  const prevSmoochAppKeySecret = await getValueAsString('SMOOCH_APP_KEY_SECRET');
+  const prevSmoochAppKeySecret = await getValueAsString(
+    'SMOOCH_APP_KEY_SECRET'
+  );
   const prevSmoochAppId = await getValueAsString('SMOOCH_APP_ID');
-  const prevSmoochWebhook = await getValueAsString('SMOOCH_WEBHOOK_CALLBACK_URL');
+  const prevSmoochWebhook = await getValueAsString(
+    'SMOOCH_WEBHOOK_CALLBACK_URL'
+  );
 
-  const prevChatApiWebhook = await getValueAsString('CHAT_API_WEBHOOK_CALLBACK_URL');
+  const prevChatApiWebhook = await getValueAsString(
+    'CHAT_API_WEBHOOK_CALLBACK_URL'
+  );
   const prevChatApiUID = await getValueAsString('CHAT_API_UID');
   const prevTwitterConfig = await getTwitterConfig();
 
@@ -501,18 +586,31 @@ export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
   const updatedTwitterConfig = await getTwitterConfig();
 
   const updatedNylasClientId = await getValueAsString('NYLAS_CLIENT_ID');
-  const updatedNylasClientSecret = await getValueAsString('NYLAS_CLIENT_SECRET');
-  const updatedNylasWebhook = await getValueAsString('NYLAS_WEBHOOK_CALLBACK_URL');
+  const updatedNylasClientSecret = await getValueAsString(
+    'NYLAS_CLIENT_SECRET'
+  );
+  const updatedNylasWebhook = await getValueAsString(
+    'NYLAS_WEBHOOK_CALLBACK_URL'
+  );
 
   const updatedSmoochAppKeyId = await getValueAsString('SMOOCH_APP_KEY_ID');
-  const updatedSmoochAppKeySecret = await getValueAsString('SMOOCH_APP_KEY_SECRET');
+  const updatedSmoochAppKeySecret = await getValueAsString(
+    'SMOOCH_APP_KEY_SECRET'
+  );
   const updatedSmoochAppId = await getValueAsString('SMOOCH_APP_ID');
-  const updatedSmoochWebhook = await getValueAsString('SMOOCH_WEBHOOK_CALLBACK_URL');
-  const updatedChatApiWebhook = await getValueAsString('CHAT_API_WEBHOOK_CALLBACK_URL');
+  const updatedSmoochWebhook = await getValueAsString(
+    'SMOOCH_WEBHOOK_CALLBACK_URL'
+  );
+  const updatedChatApiWebhook = await getValueAsString(
+    'CHAT_API_WEBHOOK_CALLBACK_URL'
+  );
   const updatedChatApiUID = await getValueAsString('CHAT_API_UID');
 
   try {
-    if (prevNylasClientId !== updatedNylasClientId || prevNylasClientSecret !== updatedNylasClientSecret) {
+    if (
+      prevNylasClientId !== updatedNylasClientId ||
+      prevNylasClientSecret !== updatedNylasClientSecret
+    ) {
       await setupNylas();
 
       await removeExistingNylasWebhook();
@@ -530,15 +628,19 @@ export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
 
   try {
     if (
-      prevTwitterConfig.oauth.consumer_key !== updatedTwitterConfig.oauth.consumer_key ||
-      prevTwitterConfig.oauth.consumer_secret !== updatedTwitterConfig.oauth.consumer_secret
+      prevTwitterConfig.oauth.consumer_key !==
+        updatedTwitterConfig.oauth.consumer_key ||
+      prevTwitterConfig.oauth.consumer_secret !==
+        updatedTwitterConfig.oauth.consumer_secret
     ) {
       await twitterApi.registerWebhook();
     }
     if (
       prevTwitterConfig.oauth.token !== updatedTwitterConfig.oauth.token ||
-      prevTwitterConfig.oauth.token_secret !== prevTwitterConfig.oauth.token_secret ||
-      prevTwitterConfig.twitterWebhookEnvironment !== updatedTwitterConfig.twitterWebhookEnvironment
+      prevTwitterConfig.oauth.token_secret !==
+        prevTwitterConfig.oauth.token_secret ||
+      prevTwitterConfig.twitterWebhookEnvironment !==
+        updatedTwitterConfig.twitterWebhookEnvironment
     ) {
       await twitterApi.registerWebhook();
     }
@@ -563,7 +665,10 @@ export const updateIntegrationConfigs = async (configsMap): Promise<void> => {
     debugSmooch(e);
   }
 
-  if (prevChatApiWebhook !== updatedChatApiWebhook || prevChatApiUID !== updatedChatApiUID) {
+  if (
+    prevChatApiWebhook !== updatedChatApiWebhook ||
+    prevChatApiUID !== updatedChatApiUID
+  ) {
     try {
       await setupWhatsapp();
     } catch (e) {

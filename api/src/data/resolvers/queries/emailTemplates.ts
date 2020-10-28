@@ -7,7 +7,11 @@ const emailTemplateQueries = {
   /**
    * Email templates list
    */
-  emailTemplates(_root, args: { page: number; perPage: number }, { commonQuerySelector }: IContext) {
+  emailTemplates(
+    _root,
+    args: { page: number; perPage: number },
+    { commonQuerySelector }: IContext
+  ) {
     return paginate(EmailTemplates.find(commonQuerySelector), args);
   },
 
@@ -16,10 +20,15 @@ const emailTemplateQueries = {
    */
   emailTemplatesTotalCount() {
     return EmailTemplates.find({}).countDocuments();
-  },
+  }
 };
 
 requireLogin(emailTemplateQueries, 'emailTemplatesTotalCount');
-checkPermission(emailTemplateQueries, 'emailTemplates', 'showEmailTemplates', []);
+checkPermission(
+  emailTemplateQueries,
+  'emailTemplates',
+  'showEmailTemplates',
+  []
+);
 
 export default emailTemplateQueries;

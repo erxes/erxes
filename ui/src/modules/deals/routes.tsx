@@ -13,7 +13,9 @@ const DealBoard = asyncComponent(() =>
 );
 
 const Conversation = asyncComponent(() =>
-  import(/* webpackChunkName: "Conversion" */ './components/conversion/Conversion')
+  import(
+    /* webpackChunkName: "Conversion" */ './components/conversion/Conversion'
+  )
 );
 
 const deals = () => {

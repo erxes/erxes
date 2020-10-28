@@ -28,9 +28,7 @@ class BoardItemCreate extends React.Component<Props> {
 
     const body = (
       <Link
-        to={`/${contentType}/board?_id=${activity._id}&itemId=${
-          contentTypeDetail._id
-        }`}
+        to={`/${contentType}/board?_id=${activity._id}&itemId=${contentTypeDetail._id}`}
         target="_blank"
       >
         {contentTypeDetail.name} <Icon icon="arrow-to-right" />

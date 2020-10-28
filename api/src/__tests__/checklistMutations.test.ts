@@ -5,7 +5,7 @@ import {
   dealFactory,
   pipelineFactory,
   stageFactory,
-  userFactory,
+  userFactory
 } from '../db/factories';
 import { ChecklistItems, Checklists, Users } from '../db/models';
 
@@ -21,7 +21,10 @@ describe('Checklists mutations', () => {
     // Creating test data
     _user = await userFactory({});
     _checklist = await checklistFactory({ createdUserId: _user._d });
-    _checklistItem = await checklistItemFactory({ checklistId: _checklist._id, order: 0 });
+    _checklistItem = await checklistItemFactory({
+      checklistId: _checklist._id,
+      order: 0
+    });
 
     await checklistItemFactory({ checklistId: _checklist._id, order: 1 });
 
@@ -39,7 +42,10 @@ describe('Checklists mutations', () => {
     const user = await userFactory({});
     const pipeline = await pipelineFactory({});
     const stage = await stageFactory({ pipelineId: pipeline._id });
-    const deal = await dealFactory({ stageId: stage._id, assignedUserIds: [user._id] });
+    const deal = await dealFactory({
+      stageId: stage._id,
+      assignedUserIds: [user._id]
+    });
 
     if (!user || !user.details) {
       throw new Error('User not found');
@@ -48,7 +54,7 @@ describe('Checklists mutations', () => {
     const args = {
       contentType: 'deal',
       contentTypeId: deal._id,
-      title: `Checklist title`,
+      title: `Checklist title`
     };
 
     const mutation = `
@@ -69,7 +75,12 @@ describe('Checklists mutations', () => {
       }
     `;
 
-    const checklist = await graphqlRequest(mutation, 'checklistsAdd', args, context);
+    const checklist = await graphqlRequest(
+      mutation,
+      'checklistsAdd',
+      args,
+      context
+    );
 
     expect(checklist.contentType).toBe(args.contentType);
     expect(checklist.contentTypeId).toBe(args.contentTypeId);
@@ -81,7 +92,10 @@ describe('Checklists mutations', () => {
     const pipeline = await pipelineFactory({});
     const stage = await stageFactory({ pipelineId: pipeline._id });
     const deal = await dealFactory({ stageId: stage._id });
-    const checklist = await checklistFactory({ contentType: 'deal', contentTypeId: deal._id });
+    const checklist = await checklistFactory({
+      contentType: 'deal',
+      contentTypeId: deal._id
+    });
 
     if (!user || !user.details) {
       throw new Error('User not found');
@@ -90,7 +104,7 @@ describe('Checklists mutations', () => {
     const args = {
       checklistId: checklist._id,
       isChecked: false,
-      content: `@${user.details.fullName}`,
+      content: `@${user.details.fullName}`
     };
 
     const mutation = `
@@ -111,7 +125,12 @@ describe('Checklists mutations', () => {
       }
     `;
 
-    const checklistItem = await graphqlRequest(mutation, 'checklistItemsAdd', args, context);
+    const checklistItem = await graphqlRequest(
+      mutation,
+      'checklistItemsAdd',
+      args,
+      context
+    );
 
     expect(checklistItem.content).toBe(args.content);
     expect(checklistItem.isChecked).toBe(args.isChecked);
@@ -136,7 +155,12 @@ describe('Checklists mutations', () => {
       }
     `;
 
-    const checklist = await graphqlRequest(mutation, 'checklistsEdit', args, context);
+    const checklist = await graphqlRequest(
+      mutation,
+      'checklistsEdit',
+      args,
+      context
+    );
 
     expect(checklist._id).toBe(args._id);
     expect(checklist.title).toBe(args.title);
@@ -164,7 +188,12 @@ describe('Checklists mutations', () => {
       }
     `;
 
-    const checklist = await graphqlRequest(mutation, 'checklistItemsEdit', args, context);
+    const checklist = await graphqlRequest(
+      mutation,
+      'checklistItemsEdit',
+      args,
+      context
+    );
 
     expect(checklist._id).toBe(args._id);
     expect(checklist.content).toBe(args.content);
@@ -185,14 +214,31 @@ describe('Checklists mutations', () => {
       }
     `;
 
-    await graphqlRequest(mutation, 'checklistsRemove', { _id: _checklist._id }, context);
-    await graphqlRequest(mutation, 'checklistsRemove', { _id: taskChecklist._id }, context);
-    await graphqlRequest(mutation, 'checklistsRemove', { _id: ticketChecklist._id }, context);
+    await graphqlRequest(
+      mutation,
+      'checklistsRemove',
+      { _id: _checklist._id },
+      context
+    );
+    await graphqlRequest(
+      mutation,
+      'checklistsRemove',
+      { _id: taskChecklist._id },
+      context
+    );
+    await graphqlRequest(
+      mutation,
+      'checklistsRemove',
+      { _id: ticketChecklist._id },
+      context
+    );
 
     expect(await Checklists.findOne({ _id: _checklist._id })).toBe(null);
     expect(await Checklists.findOne({ _id: taskChecklist._id })).toBe(null);
     expect(await Checklists.findOne({ _id: ticketChecklist._id })).toBe(null);
-    expect(await ChecklistItems.find({ checklistId: _checklist._id })).toEqual([]);
+    expect(await ChecklistItems.find({ checklistId: _checklist._id })).toEqual(
+      []
+    );
   });
 
   test('Remove checklist item', async () => {
@@ -204,9 +250,16 @@ describe('Checklists mutations', () => {
       }
     `;
 
-    await graphqlRequest(mutation, 'checklistItemsRemove', { _id: _checklistItem._id }, context);
+    await graphqlRequest(
+      mutation,
+      'checklistItemsRemove',
+      { _id: _checklistItem._id },
+      context
+    );
 
-    expect(await ChecklistItems.findOne({ _id: _checklistItem._id })).toBe(null);
+    expect(await ChecklistItems.findOne({ _id: _checklistItem._id })).toBe(
+      null
+    );
   });
 
   test('Order checklist items', async () => {
@@ -219,9 +272,16 @@ describe('Checklists mutations', () => {
       }
     `;
 
-    await graphqlRequest(mutation, 'checklistItemsOrder', { _id: _checklistItem._id, destinationIndex: 1 }, context);
+    await graphqlRequest(
+      mutation,
+      'checklistItemsOrder',
+      { _id: _checklistItem._id, destinationIndex: 1 },
+      context
+    );
 
-    const item = await ChecklistItems.findOne({ _id: _checklistItem._id }).lean();
+    const item = await ChecklistItems.findOne({
+      _id: _checklistItem._id
+    }).lean();
 
     expect(item.order).toBe(1);
   });

@@ -7,7 +7,7 @@ import {
   AUTHORIZED_REDIRECT_URL,
   GOOGLE_OAUTH_ACCESS_TOKEN_URL,
   GOOGLE_OAUTH_AUTH_URL,
-  GOOGLE_SCOPES,
+  GOOGLE_SCOPES
 } from '../nylas/constants';
 import getOAuthCredentials from '../nylas/loginMiddleware';
 import * as nylasUtils from '../nylas/utils';
@@ -30,7 +30,9 @@ interface IReqQuery {
 }
 
 describe('Login middleware test', () => {
-  const req: { body?: IReqBody; query: IReqQuery } = { query: { kind: 'nylas-gmail' } };
+  const req: { body?: IReqBody; query: IReqQuery } = {
+    query: { kind: 'nylas-gmail' }
+  };
   const res = { redirect: (value: string): string => value };
   const next = (value: Error): string | Error => value;
 
@@ -39,9 +41,14 @@ describe('Login middleware test', () => {
   let getClientConfigMock;
   let uidMock;
 
-  const setConfigAndCredentials = (isCredentialed: boolean, isClientConfigred: boolean): void => {
+  const setConfigAndCredentials = (
+    isCredentialed: boolean,
+    isClientConfigred: boolean
+  ): void => {
     checkCredentialsMock.callsFake(() => isCredentialed);
-    getClientConfigMock.callsFake(() => (isClientConfigred ? ['clientId', 'clientSecret'] : []));
+    getClientConfigMock.callsFake(() =>
+      isClientConfigred ? ['clientId', 'clientSecret'] : []
+    );
   };
 
   beforeEach(() => {
@@ -71,25 +78,25 @@ describe('Login middleware test', () => {
     const providerConfigs = {
       params: {
         access_type: 'offline',
-        scope: GOOGLE_SCOPES,
+        scope: GOOGLE_SCOPES
       },
       urls: {
         authUrl: GOOGLE_OAUTH_AUTH_URL,
-        tokenUrl: GOOGLE_OAUTH_ACCESS_TOKEN_URL,
-      },
+        tokenUrl: GOOGLE_OAUTH_ACCESS_TOKEN_URL
+      }
     };
 
     const doc = {
       client_id: 'clientId',
       response_type: 'code',
       redirect_uri: 'http://localhost:3400/nylas/oauth2/callback',
-      ...providerConfigs.params,
+      ...providerConfigs.params
     };
 
     setConfigAndCredentials(true, true);
 
     expect(await getOAuthCredentials(req, res, next)).toEqual(
-      providerConfigs.urls.authUrl + querystring.stringify(doc),
+      providerConfigs.urls.authUrl + querystring.stringify(doc)
     );
 
     // User global variable for redirect
@@ -139,15 +146,19 @@ describe('Login middleware test', () => {
     sendRequestMock.onCall(0).returns(
       Promise.resolve({
         access_token: 'access_token',
-        refresh_token: 'refresh_token',
-      }),
+        refresh_token: 'refresh_token'
+      })
     );
 
-    sendRequestMock.onCall(1).returns(Promise.resolve({ email: 'johndoe@gmail.com' }));
+    sendRequestMock
+      .onCall(1)
+      .returns(Promise.resolve({ email: 'johndoe@gmail.com' }));
 
     const response = await getOAuthCredentials(req, res, next);
 
-    expect(response).toBe(`${AUTHORIZED_REDIRECT_URL}?uid=123#showgmailModal=true`);
+    expect(response).toBe(
+      `${AUTHORIZED_REDIRECT_URL}?uid=123#showgmailModal=true`
+    );
 
     sendRequestMock.restore();
   });
@@ -163,15 +174,19 @@ describe('Login middleware test', () => {
     sendRequestMock.onCall(0).returns(
       Promise.resolve({
         access_token: 'access_token',
-        refresh_token: 'refresh_token',
-      }),
+        refresh_token: 'refresh_token'
+      })
     );
 
-    sendRequestMock.onCall(1).returns(Promise.resolve({ mail: 'johndoe@O365.com' }));
+    sendRequestMock
+      .onCall(1)
+      .returns(Promise.resolve({ mail: 'johndoe@O365.com' }));
 
     const response = await getOAuthCredentials(req, res, next);
 
-    expect(response).toEqual(`${AUTHORIZED_REDIRECT_URL}?uid=123#showoffice365Modal=true`);
+    expect(response).toEqual(
+      `${AUTHORIZED_REDIRECT_URL}?uid=123#showoffice365Modal=true`
+    );
 
     sendRequestMock.restore();
   });

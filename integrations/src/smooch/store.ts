@@ -10,7 +10,7 @@ import {
   SmoochTwilioCustomers,
   SmoochViberConversationMessages,
   SmoochViberConversations,
-  SmoochViberCustomers,
+  SmoochViberCustomers
 } from './models';
 import {
   IAPIConversation,
@@ -19,7 +19,7 @@ import {
   IGetOrCreateArguments,
   ISmoochConversationArguments,
   ISmoochConversationMessageArguments,
-  ISmoochCustomerArguments,
+  ISmoochCustomerArguments
 } from './types';
 
 import { debugSmooch } from '../debuggers';
@@ -30,23 +30,23 @@ const SMOOCH_MODELS = {
   telegram: {
     customers: SmoochTelegramCustomers,
     conversations: SmoochTelegramConversations,
-    conversationMessages: SmoochTelegramConversationMessages,
+    conversationMessages: SmoochTelegramConversationMessages
   },
   viber: {
     customers: SmoochViberCustomers,
     conversations: SmoochViberConversations,
-    conversationMessages: SmoochViberConversationMessages,
+    conversationMessages: SmoochViberConversationMessages
   },
   line: {
     customers: SmoochLineCustomers,
     conversations: SmoochLineConversations,
-    conversationMessages: SmoochLineConversationMessages,
+    conversationMessages: SmoochLineConversationMessages
   },
   twilio: {
     customers: SmoochTwilioCustomers,
     conversations: SmoochTwilioConversations,
-    conversationMessages: SmoochTwilioConversationMessages,
-  },
+    conversationMessages: SmoochTwilioConversationMessages
+  }
 };
 
 const createOrGetSmoochCustomer = async ({
@@ -57,7 +57,7 @@ const createOrGetSmoochCustomer = async ({
   smoochUserId,
   phone,
   email,
-  avatarUrl,
+  avatarUrl
 }: ISmoochCustomerArguments) => {
   debugSmooch('Create or get smooch customer function called...');
 
@@ -67,7 +67,7 @@ const createOrGetSmoochCustomer = async ({
   const doc = {
     integrationId: id,
     smoochUserId,
-    ...common,
+    ...common
   };
 
   // fields to save on api
@@ -80,7 +80,7 @@ const createOrGetSmoochCustomer = async ({
     emails: [email],
     primaryEmail: email,
     avatar: avatarUrl,
-    kind,
+    kind
   };
 
   let customer;
@@ -90,7 +90,7 @@ const createOrGetSmoochCustomer = async ({
       kind,
       collectionName: 'customers',
       selector: { smoochUserId },
-      fields: { doc, api },
+      fields: { doc, api }
     });
   } catch (e) {
     debugSmooch(`Failed to getOrCreate customer: ${e.message}`);
@@ -106,7 +106,7 @@ const createOrGetSmoochConversation = async ({
   customerId,
   integrationIds,
   content,
-  createdAt,
+  createdAt
 }: ISmoochConversationArguments) => {
   const { id, erxesApiId } = integrationIds;
 
@@ -118,7 +118,7 @@ const createOrGetSmoochConversation = async ({
     customerId,
     createdAt,
     integrationId: id,
-    kind,
+    kind
   };
 
   // fields to save on api
@@ -126,7 +126,7 @@ const createOrGetSmoochConversation = async ({
     customerId,
     content,
     integrationId: erxesApiId,
-    createdAt,
+    createdAt
   };
 
   let conversation;
@@ -136,7 +136,7 @@ const createOrGetSmoochConversation = async ({
       kind,
       collectionName: 'conversations',
       fields: { doc, api },
-      selector: { smoochConversationId },
+      selector: { smoochConversationId }
     });
   } catch (e) {
     debugSmooch(`Failed to getOrCreate conversation: ${e.message}`);
@@ -145,7 +145,7 @@ const createOrGetSmoochConversation = async ({
 
   return {
     id: conversation._id,
-    erxesApiId: conversation.erxesApiId,
+    erxesApiId: conversation.erxesApiId
   };
 };
 
@@ -155,7 +155,7 @@ const createOrGetSmoochConversationMessage = async ({
   messageId,
   content,
   customerId,
-  attachments,
+  attachments
 }: ISmoochConversationMessageArguments) => {
   const { id, erxesApiId } = conversationIds;
 
@@ -167,7 +167,7 @@ const createOrGetSmoochConversationMessage = async ({
     // message
     messageId,
     authorId: customerId,
-    content,
+    content
   };
 
   // fields to save on api
@@ -177,13 +177,13 @@ const createOrGetSmoochConversationMessage = async ({
       customerId,
       conversationId: erxesApiId,
       content,
-      attachments,
+      attachments
     };
   } else {
     api = {
       customerId,
       conversationId: erxesApiId,
-      content,
+      content
     };
   }
   let conversationMessage;
@@ -193,7 +193,7 @@ const createOrGetSmoochConversationMessage = async ({
       kind,
       collectionName: 'conversationMessages',
       selector: { messageId },
-      fields: { doc, api },
+      fields: { doc, api }
     });
   } catch (e) {
     debugSmooch(`Failed to getOrCreate conversationMessage: ${e.message}`);
@@ -203,20 +203,25 @@ const createOrGetSmoochConversationMessage = async ({
   return conversationMessage;
 };
 
-const getOrCreate = async ({ kind, collectionName, selector, fields }: IGetOrCreateArguments) => {
+const getOrCreate = async ({
+  kind,
+  collectionName,
+  selector,
+  fields
+}: IGetOrCreateArguments) => {
   const map = {
     customers: {
       action: 'get-create-update-customer',
-      apiField: 'erxesApiId',
+      apiField: 'erxesApiId'
     },
     conversations: {
       action: 'create-or-update-conversation',
-      apiField: 'erxesApiId',
+      apiField: 'erxesApiId'
     },
     conversationMessages: {
       action: 'create-conversation-message',
-      apiField: 'erxesApiMessageId',
-    },
+      apiField: 'erxesApiMessageId'
+    }
   };
 
   const model = SMOOCH_MODELS[kind][collectionName];
@@ -231,7 +236,10 @@ const getOrCreate = async ({ kind, collectionName, selector, fields }: IGetOrCre
     }
 
     try {
-      const response = await requestMainApi(map[collectionName].action, fields.api);
+      const response = await requestMainApi(
+        map[collectionName].action,
+        fields.api
+      );
 
       selectedObj[map[collectionName].apiField] = response._id;
 
@@ -245,11 +253,14 @@ const getOrCreate = async ({ kind, collectionName, selector, fields }: IGetOrCre
   return selectedObj;
 };
 
-const requestMainApi = (action: string, params: IAPICustomer | IAPIConversation | IAPIConversationMessage) => {
+const requestMainApi = (
+  action: string,
+  params: IAPICustomer | IAPIConversation | IAPIConversationMessage
+) => {
   return sendRPCMessage({
     action,
     metaInfo: action.includes('message') ? 'replaceContent' : null,
-    payload: JSON.stringify(params),
+    payload: JSON.stringify(params)
   });
 };
 
@@ -258,5 +269,5 @@ export {
   createOrGetSmoochConversation,
   createOrGetSmoochConversationMessage,
   SMOOCH_MODELS,
-  requestMainApi,
+  requestMainApi
 };

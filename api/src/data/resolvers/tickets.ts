@@ -6,7 +6,7 @@ import {
   PipelineLabels,
   Pipelines,
   Stages,
-  Users,
+  Users
 } from '../../db/models';
 import { ITicketDocument } from '../../db/models/definitions/tickets';
 import { IContext } from '../types';
@@ -17,7 +17,7 @@ export default {
     const companyIds = await Conformities.savedConformity({
       mainType: 'ticket',
       mainTypeId: ticket._id,
-      relTypes: ['company'],
+      relTypes: ['company']
     });
 
     return Companies.find({ _id: { $in: companyIds || [] } });
@@ -27,7 +27,7 @@ export default {
     const customerIds = await Conformities.savedConformity({
       mainType: 'ticket',
       mainTypeId: ticket._id,
-      relTypes: ['customer'],
+      relTypes: ['customer']
     });
 
     return Customers.find({ _id: { $in: customerIds || [] } });
@@ -71,5 +71,5 @@ export default {
 
   createdUser(ticket: ITicketDocument) {
     return Users.findOne({ _id: ticket.userId });
-  },
+  }
 };

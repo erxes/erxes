@@ -1,5 +1,9 @@
 import { graphqlRequest } from '../db/connection';
-import { productCategoryFactory, productFactory, tagsFactory } from '../db/factories';
+import {
+  productCategoryFactory,
+  productFactory,
+  tagsFactory
+} from '../db/factories';
 import { ProductCategories, Products } from '../db/models';
 import { PRODUCT_TYPES, TAG_TYPES } from '../db/models/definitions/constants';
 
@@ -16,8 +20,14 @@ describe('productQueries', () => {
     const category = await productCategoryFactory({ code: '1' });
     const tag = await tagsFactory({ type: TAG_TYPES.PRODUCT });
 
-    const product = await productFactory({ categoryId: category._id, type: PRODUCT_TYPES.PRODUCT });
-    await productFactory({ categoryId: category._id, type: PRODUCT_TYPES.SERVICE });
+    const product = await productFactory({
+      categoryId: category._id,
+      type: PRODUCT_TYPES.PRODUCT
+    });
+    await productFactory({
+      categoryId: category._id,
+      type: PRODUCT_TYPES.SERVICE
+    });
     await productFactory({ tagIds: [tag._id], type: PRODUCT_TYPES.SERVICE });
 
     const qry = `
@@ -33,15 +43,22 @@ describe('productQueries', () => {
       }
     `;
 
-    let response = await graphqlRequest(qry, 'products', { page: 1, perPage: 2 });
+    let response = await graphqlRequest(qry, 'products', {
+      page: 1,
+      perPage: 2
+    });
 
     expect(response.length).toBe(2);
 
-    response = await graphqlRequest(qry, 'products', { type: PRODUCT_TYPES.PRODUCT });
+    response = await graphqlRequest(qry, 'products', {
+      type: PRODUCT_TYPES.PRODUCT
+    });
 
     expect(response.length).toBe(1);
 
-    response = await graphqlRequest(qry, 'products', { categoryId: category._id });
+    response = await graphqlRequest(qry, 'products', {
+      categoryId: category._id
+    });
 
     expect(response.length).toBe(2);
 
@@ -53,7 +70,9 @@ describe('productQueries', () => {
 
     expect(response.length).toBe(1);
 
-    response = await graphqlRequest(qry, 'products', { searchValue: product.name });
+    response = await graphqlRequest(qry, 'products', {
+      searchValue: product.name
+    });
 
     expect(response[0].name).toBe(product.name);
   });
@@ -101,11 +120,15 @@ describe('productQueries', () => {
 
     expect(response.length).toBe(3);
 
-    response = await graphqlRequest(qry, 'productCategories', { parentId: parent._id });
+    response = await graphqlRequest(qry, 'productCategories', {
+      parentId: parent._id
+    });
 
     expect(response.length).toBe(2);
 
-    response = await graphqlRequest(qry, 'productCategories', { searchValue: parent.name });
+    response = await graphqlRequest(qry, 'productCategories', {
+      searchValue: parent.name
+    });
 
     expect(response[0].name).toBe(parent.name);
   });
@@ -140,7 +163,9 @@ describe('productQueries', () => {
 
     const product = await productFactory();
 
-    const response = await graphqlRequest(qry, 'productDetail', { _id: product._id });
+    const response = await graphqlRequest(qry, 'productDetail', {
+      _id: product._id
+    });
 
     expect(response._id).toBe(product._id);
   });
@@ -156,7 +181,9 @@ describe('productQueries', () => {
 
     const productCategory = await productCategoryFactory();
 
-    const response = await graphqlRequest(qry, 'productCategoryDetail', { _id: productCategory._id });
+    const response = await graphqlRequest(qry, 'productCategoryDetail', {
+      _id: productCategory._id
+    });
 
     expect(response._id).toBe(productCategory._id);
   });

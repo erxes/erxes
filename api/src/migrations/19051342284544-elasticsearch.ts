@@ -22,12 +22,15 @@ module.exports.up = async () => {
         type: 'property',
         propertyName: cond.field,
         propertyOperator: cond.operator,
-        propertyValue: cond.value,
+        propertyValue: cond.value
       });
     }
 
     try {
-      await Segments.updateOne({ _id: segment._id }, { $set: { conditions: newConditions } });
+      await Segments.updateOne(
+        { _id: segment._id },
+        { $set: { conditions: newConditions } }
+      );
     } catch (e) {
       console.log(e.message);
     }

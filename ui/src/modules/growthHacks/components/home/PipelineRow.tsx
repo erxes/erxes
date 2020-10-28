@@ -51,9 +51,7 @@ class PipelineRow extends React.Component<Props, {}> {
 
     return (
       <Link
-        to={`/growthHack/board?id=${pipeline.boardId}&pipelineId=${
-          pipeline._id
-        }`}
+        to={`/growthHack/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}`}
       >
         <ProjectItem key={pipeline._id}>
           <h5>{pipeline.name}</h5>

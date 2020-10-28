@@ -9,23 +9,31 @@ import { ActivityLogs, Conversations, Integrations } from '../db/models';
 
 const options = {
   useNewUrlParser: true,
-  useCreateIndex: true,
+  useCreateIndex: true
 };
 
 module.exports.up = async () => {
   await connect();
 
-  const mongoClient = await createConnection(process.env.MONGO_URL || '', options);
+  const mongoClient = await createConnection(
+    process.env.MONGO_URL || '',
+    options
+  );
 
   const internalNotes = mongoClient.db.collection('internal_notes');
   const engageMessages = mongoClient.db.collection('engage_messages');
 
   await internalNotes.updateMany({}, { $rename: { createdDate: 'createdAt' } });
-  await engageMessages.updateMany({}, { $rename: { createdDate: 'createdAt' } });
+  await engageMessages.updateMany(
+    {},
+    { $rename: { createdDate: 'createdAt' } }
+  );
 
   const activityLogs = mongoClient.db.collection('activity_logs');
 
-  const activities: any = await activityLogs.find({ 'activity.action': { $in: ['merge', 'create'] } }).toArray();
+  const activities: any = await activityLogs
+    .find({ 'activity.action': { $in: ['merge', 'create'] } })
+    .toArray();
 
   for (const activity of activities) {
     if (activity.activity) {
@@ -41,7 +49,7 @@ module.exports.up = async () => {
           content: content.split(','),
           action,
           createdBy: performedBy.id,
-          createdAt: activity.createdAt,
+          createdAt: activity.createdAt
         });
 
         await ActivityLogs.deleteOne({ _id: activity._id });
@@ -53,23 +61,28 @@ module.exports.up = async () => {
           contentType: contentType.type,
           content: {
             id,
-            content,
+            content
           },
           action: 'segment',
           createdBy: performedBy.id,
-          createdAt: activity.createdAt,
+          createdAt: activity.createdAt
         });
 
         await ActivityLogs.deleteOne({ _id: activity._id });
       }
 
-      if (action === 'create' && type !== 'segment' && type !== 'conversation' && type !== 'internal_note') {
+      if (
+        action === 'create' &&
+        type !== 'segment' &&
+        type !== 'conversation' &&
+        type !== 'internal_note'
+      ) {
         await ActivityLogs.create({
           contentId: id,
           contentType: type,
           action,
           createdBy: performedBy.id,
-          createdAt: activity.createdAt,
+          createdAt: activity.createdAt
         });
 
         await ActivityLogs.deleteOne({ _id: activity._id });

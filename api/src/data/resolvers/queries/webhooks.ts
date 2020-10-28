@@ -19,7 +19,7 @@ const webhookQueries = {
 
   async webhooksTotalCount(_root, { commonQuerySelector }: IContext) {
     return Webhooks.find({ ...commonQuerySelector }).countDocuments();
-  },
+  }
 };
 
 requireLogin(webhookQueries, 'webhookDetail');

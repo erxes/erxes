@@ -8,5 +8,5 @@ export default {
 
   getTags(product: IProductDocument) {
     return Tags.find({ _id: { $in: product.tagIds || [] } });
-  },
+  }
 };

@@ -46,7 +46,7 @@ describe('formQueries', () => {
   test('formDetail', async () => {
     const form = await formFactory({
       title: 'title',
-      code: 'code',
+      code: 'code'
     });
 
     const qry = `

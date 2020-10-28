@@ -18,7 +18,7 @@ const notificationMutations = {
   async notificationsMarkAsRead(
     _root,
     { _ids, contentTypeId }: { _ids: string[]; contentTypeId: string },
-    { user }: IContext,
+    { user }: IContext
   ) {
     // notify subscription
     graphqlPubsub.publish('notificationsChanged', '');
@@ -32,7 +32,7 @@ const notificationMutations = {
     }
 
     return Notifications.markAsRead(notificationIds, user._id);
-  },
+  }
 };
 
 moduleRequireLogin(notificationMutations);

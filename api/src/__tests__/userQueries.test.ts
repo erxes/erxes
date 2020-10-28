@@ -1,5 +1,10 @@
 import { graphqlRequest } from '../db/connection';
-import { brandFactory, conversationFactory, onboardHistoryFactory, userFactory } from '../db/factories';
+import {
+  brandFactory,
+  conversationFactory,
+  onboardHistoryFactory,
+  userFactory
+} from '../db/factories';
 import { Conversations, OnboardingHistories, Users } from '../db/models';
 
 import './setup.ts';
@@ -15,7 +20,10 @@ describe('userQueries', () => {
   test('Test users()', async () => {
     // Creating test data
     const brand = await brandFactory();
-    const user1 = await userFactory({ email: 'example@email.com', brandIds: [brand._id] });
+    const user1 = await userFactory({
+      email: 'example@email.com',
+      brandIds: [brand._id]
+    });
     const user2 = await userFactory();
     const user3 = await userFactory({ isActive: false });
     await userFactory({ registrationToken: 'token' });
@@ -55,7 +63,9 @@ describe('userQueries', () => {
     // 1 in graphRequest + above active 3
     expect(response.length).toBe(4);
 
-    response = await graphqlRequest(qry, 'users', { searchValue: 'example@email.com' });
+    response = await graphqlRequest(qry, 'users', {
+      searchValue: 'example@email.com'
+    });
 
     expect(response[0]._id).toBe(user1._id);
 
@@ -68,7 +78,9 @@ describe('userQueries', () => {
 
     expect(response[0]._id).toBe(user3._id);
 
-    response = await graphqlRequest(qry, 'users', { ids: [user1.id, user2._id] });
+    response = await graphqlRequest(qry, 'users', {
+      ids: [user1.id, user2._id]
+    });
 
     expect(response.length).toBe(2);
 
@@ -124,11 +136,19 @@ describe('userQueries', () => {
     `;
 
     // checking not verified
-    let user = await userFactory({ isOwner: true, registrationToken: 'registrationToken' });
+    let user = await userFactory({
+      isOwner: true,
+      registrationToken: 'registrationToken'
+    });
     // to improve test coverage
     await onboardHistoryFactory({ userId: user._id, isCompleted: false });
 
-    let response = await graphqlRequest(qry, 'userDetail', { _id: user._id }, { user });
+    let response = await graphqlRequest(
+      qry,
+      'userDetail',
+      { _id: user._id },
+      { user }
+    );
 
     expect(response._id).toBe(user._id);
     expect(response.status).toBe('Not verified');
@@ -136,7 +156,12 @@ describe('userQueries', () => {
     // checking brand ids
     const brand = await brandFactory();
     user = await userFactory({ isOwner: false, brandIds: [brand._id] });
-    response = await graphqlRequest(qry, 'userDetail', { _id: user._id }, { user });
+    response = await graphqlRequest(
+      qry,
+      'userDetail',
+      { _id: user._id },
+      { user }
+    );
 
     expect(response._id).toBe(user._id);
     expect(response.status).toBe('Verified');
@@ -182,7 +207,12 @@ describe('userQueries', () => {
 
     expect(response._id).toBe(user._id);
 
-    response = await graphqlRequest(qry, 'currentUser', {}, { user: { isActive: false } });
+    response = await graphqlRequest(
+      qry,
+      'currentUser',
+      {},
+      { user: { isActive: false } }
+    );
 
     expect(response).toBe(null);
   });
@@ -197,7 +227,7 @@ describe('userQueries', () => {
 
     const args = {
       _id: user._id,
-      perPage: 5,
+      perPage: 5
     };
 
     const qry = `

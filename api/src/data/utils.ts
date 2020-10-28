@@ -8,7 +8,14 @@ import * as path from 'path';
 import * as requestify from 'requestify';
 import * as strip from 'strip';
 import * as xlsxPopulate from 'xlsx-populate';
-import { Configs, Customers, EmailDeliveries, Notifications, Users, Webhooks } from '../db/models';
+import {
+  Configs,
+  Customers,
+  EmailDeliveries,
+  Notifications,
+  Users,
+  Webhooks
+} from '../db/models';
 import { IBrandDocument } from '../db/models/definitions/brands';
 import { WEBHOOK_STATUS } from '../db/models/definitions/constants';
 import { ICustomer } from '../db/models/definitions/customers';
@@ -33,7 +40,9 @@ export const initFirebase = (code: string): void => {
     const serviceAccount = JSON.parse(codeString);
 
     if (serviceAccount.private_key) {
-      admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount)
+      });
     }
   }
 };
@@ -59,9 +68,18 @@ export const checkFile = async (file, source?: string) => {
   // determine file type using magic numbers
   const ft = fileType(buffer);
 
-  const unsupportedMimeTypes = ['text/csv', 'image/svg+xml', 'text/plain', 'application/vnd.ms-excel'];
+  const unsupportedMimeTypes = [
+    'text/csv',
+    'image/svg+xml',
+    'text/plain',
+    'application/vnd.ms-excel'
+  ];
 
-  const oldMsOfficeDocs = ['application/msword', 'application/vnd.ms-excel', 'application/vnd.ms-powerpoint'];
+  const oldMsOfficeDocs = [
+    'application/msword',
+    'application/vnd.ms-excel',
+    'application/vnd.ms-powerpoint'
+  ];
 
   // allow csv, svg to be uploaded
   if (!ft && unsupportedMimeTypes.includes(file.type)) {
@@ -86,12 +104,19 @@ export const checkFile = async (file, source?: string) => {
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     'application/pdf',
-    'image/gif',
+    'image/gif'
   ];
 
-  const UPLOAD_FILE_TYPES = await getConfig(source === 'widgets' ? 'WIDGETS_UPLOAD_FILE_TYPES' : 'UPLOAD_FILE_TYPES');
+  const UPLOAD_FILE_TYPES = await getConfig(
+    source === 'widgets' ? 'WIDGETS_UPLOAD_FILE_TYPES' : 'UPLOAD_FILE_TYPES'
+  );
 
-  if (!((UPLOAD_FILE_TYPES && UPLOAD_FILE_TYPES.split(',')) || defaultMimeTypes).includes(mime)) {
+  if (
+    !(
+      (UPLOAD_FILE_TYPES && UPLOAD_FILE_TYPES.split(',')) ||
+      defaultMimeTypes
+    ).includes(mime)
+  ) {
     return 'Invalid configured file type';
   }
 
@@ -105,16 +130,23 @@ const createAWS = async () => {
   const AWS_ACCESS_KEY_ID = await getConfig('AWS_ACCESS_KEY_ID');
   const AWS_SECRET_ACCESS_KEY = await getConfig('AWS_SECRET_ACCESS_KEY');
   const AWS_BUCKET = await getConfig('AWS_BUCKET');
-  const AWS_COMPATIBLE_SERVICE_ENDPOINT = await getConfig('AWS_COMPATIBLE_SERVICE_ENDPOINT');
+  const AWS_COMPATIBLE_SERVICE_ENDPOINT = await getConfig(
+    'AWS_COMPATIBLE_SERVICE_ENDPOINT'
+  );
   const AWS_FORCE_PATH_STYLE = await getConfig('AWS_FORCE_PATH_STYLE');
 
   if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY || !AWS_BUCKET) {
     throw new Error('AWS credentials are not configured');
   }
 
-  const options: { accessKeyId: string; secretAccessKey: string; endpoint?: string; s3ForcePathStyle?: boolean } = {
+  const options: {
+    accessKeyId: string;
+    secretAccessKey: string;
+    endpoint?: string;
+    s3ForcePathStyle?: boolean;
+  } = {
     accessKeyId: AWS_ACCESS_KEY_ID,
-    secretAccessKey: AWS_SECRET_ACCESS_KEY,
+    secretAccessKey: AWS_SECRET_ACCESS_KEY
   };
 
   if (AWS_FORCE_PATH_STYLE === 'true') {
@@ -133,7 +165,9 @@ const createAWS = async () => {
  * Create Google Cloud Storage instance
  */
 const createGCS = async () => {
-  const GOOGLE_APPLICATION_CREDENTIALS = await getConfig('GOOGLE_APPLICATION_CREDENTIALS');
+  const GOOGLE_APPLICATION_CREDENTIALS = await getConfig(
+    'GOOGLE_APPLICATION_CREDENTIALS'
+  );
   const GOOGLE_PROJECT_ID = await getConfig('GOOGLE_PROJECT_ID');
   const BUCKET = await getConfig('GOOGLE_CLOUD_STORAGE_BUCKET');
 
@@ -146,7 +180,7 @@ const createGCS = async () => {
   // initializing Google Cloud Storage
   return new Storage({
     projectId: GOOGLE_PROJECT_ID,
-    keyFilename: GOOGLE_APPLICATION_CREDENTIALS,
+    keyFilename: GOOGLE_APPLICATION_CREDENTIALS
   });
 };
 
@@ -155,9 +189,11 @@ const createGCS = async () => {
  */
 export const uploadFileAWS = async (
   file: { name: string; path: string; type: string },
-  forcePrivate: boolean = false,
+  forcePrivate: boolean = false
 ): Promise<string> => {
-  const IS_PUBLIC = forcePrivate ? false : await getConfig('FILE_SYSTEM_PUBLIC', 'true');
+  const IS_PUBLIC = forcePrivate
+    ? false
+    : await getConfig('FILE_SYSTEM_PUBLIC', 'true');
   const AWS_PREFIX = await getConfig('AWS_PREFIX');
   const AWS_BUCKET = await getConfig('AWS_BUCKET');
 
@@ -165,7 +201,10 @@ export const uploadFileAWS = async (
   const s3 = await createAWS();
 
   // generate unique name
-  const fileName = `${AWS_PREFIX}${Math.random()}${file.name.replace(/ /g, '')}`;
+  const fileName = `${AWS_PREFIX}${Math.random()}${file.name.replace(
+    / /g,
+    ''
+  )}`;
 
   // read file
   const buffer = await fs.readFileSync(file.path);
@@ -178,7 +217,7 @@ export const uploadFileAWS = async (
         Bucket: AWS_BUCKET,
         Key: fileName,
         Body: buffer,
-        ACL: IS_PUBLIC === 'true' ? 'public-read' : undefined,
+        ACL: IS_PUBLIC === 'true' ? 'public-read' : undefined
       },
       (err, res) => {
         if (err) {
@@ -186,7 +225,7 @@ export const uploadFileAWS = async (
         }
 
         return resolve(res);
-      },
+      }
     );
   });
 
@@ -218,7 +257,11 @@ export const deleteFileAWS = async (fileName: string) => {
 /*
  * Save file to local disk
  */
-export const uploadFileLocal = async (file: { name: string; path: string; type: string }): Promise<string> => {
+export const uploadFileLocal = async (file: {
+  name: string;
+  path: string;
+  type: string;
+}): Promise<string> => {
   const oldPath = file.path;
 
   if (!fs.existsSync(uploadsFolderPath)) {
@@ -243,7 +286,11 @@ export const uploadFileLocal = async (file: { name: string; path: string; type: 
 /*
  * Save file to google cloud storage
  */
-export const uploadFileGCS = async (file: { name: string; path: string; type: string }): Promise<string> => {
+export const uploadFileGCS = async (file: {
+  name: string;
+  path: string;
+  type: string;
+}): Promise<string> => {
   const BUCKET = await getConfig('GOOGLE_CLOUD_STORAGE_BUCKET');
   const IS_PUBLIC = await getConfig('FILE_SYSTEM_PUBLIC');
 
@@ -263,7 +310,7 @@ export const uploadFileGCS = async (file: { name: string; path: string; type: st
       file.path,
       {
         metadata: { contentType: file.type },
-        public: IS_PUBLIC === 'true',
+        public: IS_PUBLIC === 'true'
       },
       (err, res) => {
         if (err) {
@@ -273,7 +320,7 @@ export const uploadFileGCS = async (file: { name: string; path: string; type: st
         if (res) {
           return resolve(res);
         }
-      },
+      }
     );
   });
 
@@ -345,7 +392,7 @@ export const readFileRequest = async (key: string): Promise<any> => {
       s3.getObject(
         {
           Bucket: AWS_BUCKET,
-          Key: key,
+          Key: key
         },
         (error, response) => {
           if (error) {
@@ -353,7 +400,7 @@ export const readFileRequest = async (key: string): Promise<any> => {
           }
 
           return resolve(response.Body);
-        },
+        }
       );
     });
   }
@@ -374,7 +421,11 @@ export const readFileRequest = async (key: string): Promise<any> => {
 /*
  * Save binary data to amazon s3
  */
-export const uploadFile = async (apiUrl: string, file, fromEditor = false): Promise<any> => {
+export const uploadFile = async (
+  apiUrl: string,
+  file,
+  fromEditor = false
+): Promise<any> => {
   const IS_PUBLIC = await getConfig('FILE_SYSTEM_PUBLIC');
   const UPLOAD_SERVICE_TYPE = await getConfig('UPLOAD_SERVICE_TYPE', 'AWS');
 
@@ -447,17 +498,19 @@ const applyTemplate = async (data: any, templateName: string) => {
 export const createTransporter = async ({ ses }) => {
   if (ses) {
     const AWS_SES_ACCESS_KEY_ID = await getConfig('AWS_SES_ACCESS_KEY_ID');
-    const AWS_SES_SECRET_ACCESS_KEY = await getConfig('AWS_SES_SECRET_ACCESS_KEY');
+    const AWS_SES_SECRET_ACCESS_KEY = await getConfig(
+      'AWS_SES_SECRET_ACCESS_KEY'
+    );
     const AWS_REGION = await getConfig('AWS_REGION');
 
     AWS.config.update({
       region: AWS_REGION,
       accessKeyId: AWS_SES_ACCESS_KEY_ID,
-      secretAccessKey: AWS_SES_SECRET_ACCESS_KEY,
+      secretAccessKey: AWS_SES_SECRET_ACCESS_KEY
     });
 
     return nodemailer.createTransport({
-      SES: new AWS.SES({ apiVersion: '2010-12-01' }),
+      SES: new AWS.SES({ apiVersion: '2010-12-01' })
     });
   }
 
@@ -472,7 +525,7 @@ export const createTransporter = async ({ ses }) => {
   if (MAIL_USER && MAIL_PASS) {
     auth = {
       user: MAIL_USER,
-      pass: MAIL_PASS,
+      pass: MAIL_PASS
     };
   }
 
@@ -480,7 +533,7 @@ export const createTransporter = async ({ ses }) => {
     service: MAIL_SERVICE,
     host: MAIL_HOST,
     port: MAIL_PORT,
-    auth,
+    auth
   });
 };
 
@@ -508,7 +561,11 @@ export const replaceEditorAttributes = async (args: {
   user?: IUser;
   customerFields?: string[];
   brand?: IBrandDocument;
-}): Promise<{ replacers: IReplacer[]; replacedContent?: string; customerFields?: string[] }> => {
+}): Promise<{
+  replacers: IReplacer[];
+  replacedContent?: string;
+  customerFields?: string[];
+}> => {
   const { content, customer, user, brand } = args;
 
   const replacers: IReplacer[] = [];
@@ -518,7 +575,7 @@ export const replaceEditorAttributes = async (args: {
 
   if (!customerFields || customerFields.length === 0) {
     const possibleCustomerFields = await fieldsCombinedByContentType({
-      contentType: 'customer',
+      contentType: 'customer'
     });
 
     customerFields = ['firstName', 'lastName'];
@@ -544,17 +601,19 @@ export const replaceEditorAttributes = async (args: {
   if (customer) {
     replacers.push({
       key: '{{ customer.name }}',
-      value: Customers.getCustomerName(customer),
+      value: Customers.getCustomerName(customer)
     });
 
     for (const field of customerFields) {
       if (field.includes('trackedData') || field.includes('customFieldsData')) {
-        const dbFieldName = field.includes('trackedData') ? 'trackedData' : 'customFieldsData';
+        const dbFieldName = field.includes('trackedData')
+          ? 'trackedData'
+          : 'customFieldsData';
 
         for (const subField of customer[dbFieldName] || []) {
           replacers.push({
             key: `{{ customer.${dbFieldName}.${subField.field} }}`,
-            value: subField.value || '',
+            value: subField.value || ''
           });
         }
 
@@ -563,7 +622,7 @@ export const replaceEditorAttributes = async (args: {
 
       replacers.push({
         key: `{{ customer.${field} }}`,
-        value: customer[field] || '',
+        value: customer[field] || ''
       });
     }
   }
@@ -573,8 +632,14 @@ export const replaceEditorAttributes = async (args: {
     replacers.push({ key: '{{ user.email }}', value: user.email || '' });
 
     if (user.details) {
-      replacers.push({ key: '{{ user.fullName }}', value: user.details.fullName || '' });
-      replacers.push({ key: '{{ user.position }}', value: user.details.position || '' });
+      replacers.push({
+        key: '{{ user.fullName }}',
+        value: user.details.fullName || ''
+      });
+      replacers.push({
+        key: '{{ user.position }}',
+        value: user.details.position || ''
+      });
     }
   }
 
@@ -596,14 +661,25 @@ export const replaceEditorAttributes = async (args: {
  * Send email
  */
 export const sendEmail = async (params: IEmailParams) => {
-  const { toEmails = [], fromEmail, title, customHtml, customHtmlData, template = {}, modifier } = params;
+  const {
+    toEmails = [],
+    fromEmail,
+    title,
+    customHtml,
+    customHtmlData,
+    template = {},
+    modifier
+  } = params;
 
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
   const DEFAULT_EMAIL_SERVICE = await getConfig('DEFAULT_EMAIL_SERVICE', 'SES');
   const COMPANY_EMAIL_FROM = await getConfig('COMPANY_EMAIL_FROM', '');
   const AWS_SES_CONFIG_SET = await getConfig('AWS_SES_CONFIG_SET', '');
   const AWS_ACCESS_KEY_ID = await getConfig('AWS_ACCESS_KEY_ID', '');
-  const AWS_SES_SECRET_ACCESS_KEY = await getConfig('AWS_SES_SECRET_ACCESS_KEY', '');
+  const AWS_SES_SECRET_ACCESS_KEY = await getConfig(
+    'AWS_SES_SECRET_ACCESS_KEY',
+    ''
+  );
   const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
 
   // do not send email it is running in test mode
@@ -615,7 +691,9 @@ export const sendEmail = async (params: IEmailParams) => {
   let transporter;
 
   try {
-    transporter = await createTransporter({ ses: DEFAULT_EMAIL_SERVICE === 'SES' });
+    transporter = await createTransporter({
+      ses: DEFAULT_EMAIL_SERVICE === 'SES'
+    });
   } catch (e) {
     return debugEmail(e.message);
   }
@@ -641,7 +719,7 @@ export const sendEmail = async (params: IEmailParams) => {
       from: fromEmail || COMPANY_EMAIL_FROM,
       to: toEmail,
       subject: title,
-      html,
+      html
     };
 
     let headers: { [key: string]: string } = {};
@@ -653,12 +731,12 @@ export const sendEmail = async (params: IEmailParams) => {
         from: fromEmail || COMPANY_EMAIL_FROM,
         subject: title,
         body: html,
-        status: EMAIL_DELIVERY_STATUS.PENDING,
+        status: EMAIL_DELIVERY_STATUS.PENDING
       });
 
       headers = {
         'X-SES-CONFIGURATION-SET': AWS_SES_CONFIG_SET || 'erxes',
-        EmailDeliveryId: emailDelivery._id,
+        EmailDeliveryId: emailDelivery._id
       };
     } else {
       headers['X-SES-CONFIGURATION-SET'] = 'erxes';
@@ -696,14 +774,27 @@ export interface ISendNotification {
  * Send a notification
  */
 export const sendNotification = async (doc: ISendNotification) => {
-  const { createdUser, receivers, title, content, notifType, action, contentType, contentTypeId } = doc;
+  const {
+    createdUser,
+    receivers,
+    title,
+    content,
+    notifType,
+    action,
+    contentType,
+    contentTypeId
+  } = doc;
   let link = doc.link;
 
   // remove duplicated ids
   const receiverIds = [...new Set(receivers)];
 
   // collecting emails
-  const recipients = await Users.find({ _id: { $in: receiverIds }, isActive: true, doNotDisturb: { $ne: 'Yes' } });
+  const recipients = await Users.find({
+    _id: { $in: receiverIds },
+    isActive: true,
+    doNotDisturb: { $ne: 'Yes' }
+  });
 
   // collect recipient emails
   const toEmails: string[] = [];
@@ -719,8 +810,17 @@ export const sendNotification = async (doc: ISendNotification) => {
     try {
       // send web and mobile notification
       const notification = await Notifications.createNotification(
-        { link, title, content, notifType, receiver: receiverId, action, contentType, contentTypeId },
-        createdUser._id,
+        {
+          link,
+          title,
+          content,
+          notifType,
+          receiver: receiverId,
+          action,
+          contentType,
+          contentTypeId
+        },
+        createdUser._id
       );
 
       graphqlPubsub.publish('notificationInserted', {
@@ -728,8 +828,8 @@ export const sendNotification = async (doc: ISendNotification) => {
           _id: notification._id,
           userId: receiverId,
           title: notification.title,
-          content: notification.content,
-        },
+          content: notification.content
+        }
       });
     } catch (e) {
       // Any other error is serious
@@ -760,10 +860,10 @@ export const sendNotification = async (doc: ISendNotification) => {
       data: {
         notification: { ...doc, link },
         action,
-        userName: getUserDetail(createdUser),
-      },
+        userName: getUserDetail(createdUser)
+      }
     },
-    modifier,
+    modifier
   });
 
   return true;
@@ -801,7 +901,7 @@ interface IRequestParams {
  */
 export const sendRequest = async (
   { url, method, headers, form, body, params }: IRequestParams,
-  errorMessage?: string,
+  errorMessage?: string
 ) => {
   debugExternalApi(`
     Sending request to
@@ -817,7 +917,7 @@ export const sendRequest = async (
       headers: { 'Content-Type': 'application/json', ...(headers || {}) },
       form,
       body,
-      params,
+      params
     });
 
     const responseBody = response.getBody();
@@ -838,12 +938,18 @@ export const sendRequest = async (
   }
 };
 
-export const registerOnboardHistory = ({ type, user }: { type: string; user: IUserDocument }) =>
+export const registerOnboardHistory = ({
+  type,
+  user
+}: {
+  type: string;
+  user: IUserDocument;
+}) =>
   OnboardingHistories.getOrCreate({ type, user })
     .then(({ status }) => {
       if (status === 'created') {
         graphqlPubsub.publish('onboardingChanged', {
-          onboardingChanged: { userId: user._id, type },
+          onboardingChanged: { userId: user._id, type }
         });
       }
     })
@@ -856,13 +962,19 @@ export const authCookieOptions = (secure: boolean) => {
     httpOnly: true,
     expires: new Date(Date.now() + oneDay),
     maxAge: oneDay,
-    secure,
+    secure
   };
 
   return cookieOptions;
 };
 
-export const getEnv = ({ name, defaultValue }: { name: string; defaultValue?: string }): string => {
+export const getEnv = ({
+  name,
+  defaultValue
+}: {
+  name: string;
+  defaultValue?: string;
+}): string => {
   const value = process.env[name];
 
   if (!value && typeof defaultValue !== 'undefined') {
@@ -884,7 +996,7 @@ export const sendMobileNotification = async ({
   title,
   body,
   customerId,
-  conversationId,
+  conversationId
 }: {
   receivers: string[];
   customerId?: string;
@@ -900,22 +1012,35 @@ export const sendMobileNotification = async ({
   const tokens: string[] = [];
 
   if (receivers) {
-    tokens.push(...(await Users.find({ _id: { $in: receivers } }).distinct('deviceTokens')));
+    tokens.push(
+      ...(await Users.find({ _id: { $in: receivers } }).distinct(
+        'deviceTokens'
+      ))
+    );
   }
 
   if (customerId) {
-    tokens.push(...(await Customers.findOne({ _id: customerId }).distinct('deviceTokens')));
+    tokens.push(
+      ...(await Customers.findOne({ _id: customerId }).distinct('deviceTokens'))
+    );
   }
 
   if (tokens.length > 0) {
     // send notification
     for (const token of tokens) {
-      await transporter.send({ token, notification: { title, body }, data: { conversationId } });
+      await transporter.send({
+        token,
+        notification: { title, body },
+        data: { conversationId }
+      });
     }
   }
 };
 
-export const paginate = (collection, params: { ids?: string[]; page?: number; perPage?: number }) => {
+export const paginate = (
+  collection,
+  params: { ids?: string[]; page?: number; perPage?: number }
+) => {
   const { page = 0, perPage = 0, ids } = params || { ids: null };
 
   const _page = Number(page || '1');
@@ -952,7 +1077,16 @@ export const getDate = (date: Date, day: number): Date => {
 };
 
 export const getToday = (date: Date): Date => {
-  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0));
+  return new Date(
+    Date.UTC(
+      date.getUTCFullYear(),
+      date.getUTCMonth(),
+      date.getUTCDate(),
+      0,
+      0,
+      0
+    )
+  );
 };
 
 export const getNextMonth = (date: Date): { start: number; end: number } => {
@@ -974,8 +1108,15 @@ export const getNextMonth = (date: Date): { start: number; end: number } => {
  * Send to webhook
  */
 
-export const sendToWebhook = async (action: string, type: string, params: any) => {
-  const webhooks = await Webhooks.find({ 'actions.action': action, 'actions.type': type });
+export const sendToWebhook = async (
+  action: string,
+  type: string,
+  params: any
+) => {
+  const webhooks = await Webhooks.find({
+    'actions.action': action,
+    'actions.type': type
+  });
 
   if (!webhooks) {
     return;
@@ -994,10 +1135,10 @@ export const sendToWebhook = async (action: string, type: string, params: any) =
     sendRequest({
       url: webhook.url,
       headers: {
-        'Erxes-token': webhook.token || '',
+        'Erxes-token': webhook.token || ''
       },
       method: 'post',
-      body: { data: JSON.stringify(data), action, type },
+      body: { data: JSON.stringify(data), action, type }
     })
       .then(async () => {
         await Webhooks.updateStatus(webhook._id, WEBHOOK_STATUS.AVAILABLE);
@@ -1014,10 +1155,11 @@ export default {
   sendMobileNotification,
   readFile,
   createTransporter,
-  sendToWebhook,
+  sendToWebhook
 };
 
-export const cleanHtml = (content?: string) => strip(content || '').substring(0, 100);
+export const cleanHtml = (content?: string) =>
+  strip(content || '').substring(0, 100);
 
 export const validSearchText = (values: string[]) => {
   const value = values.join(' ');
@@ -1032,12 +1174,17 @@ export const validSearchText = (values: string[]) => {
 const stringToRegex = (value: string) => {
   const specialChars = [...'{}[]\\^$.|?*+()'];
 
-  const result = [...value].map(char => (specialChars.includes(char) ? '.?\\' + char : '.?' + char));
+  const result = [...value].map(char =>
+    specialChars.includes(char) ? '.?\\' + char : '.?' + char
+  );
 
   return '.*' + result.join('').substring(2) + '.*';
 };
 
-export const regexSearchText = (searchValue: string, searchKey = 'searchText') => {
+export const regexSearchText = (
+  searchValue: string,
+  searchKey = 'searchText'
+) => {
   const result: any[] = [];
 
   searchValue = searchValue.replace(/\s\s+/g, ' ');
@@ -1054,7 +1201,10 @@ export const regexSearchText = (searchValue: string, searchKey = 'searchText') =
 /**
  * Check user ids whether its added or removed from array of ids
  */
-export const checkUserIds = (oldUserIds: string[] = [], newUserIds: string[] = []) => {
+export const checkUserIds = (
+  oldUserIds: string[] = [],
+  newUserIds: string[] = []
+) => {
   const removedUserIds = oldUserIds.filter(e => !newUserIds.includes(e));
 
   const addedUserIds = newUserIds.filter(e => !oldUserIds.includes(e));
@@ -1065,7 +1215,10 @@ export const checkUserIds = (oldUserIds: string[] = [], newUserIds: string[] = [
 /*
  * Handle engage unsubscribe request
  */
-export const handleUnsubscription = async (query: { cid: string; uid: string }) => {
+export const handleUnsubscription = async (query: {
+  cid: string;
+  uid: string;
+}) => {
   const { cid, uid } = query;
 
   if (cid) {
@@ -1110,7 +1263,15 @@ export const resetConfigsCache = () => {
   memoryStorage().set('configs_erxes_api', '');
 };
 
-export const frontendEnv = ({ name, req, requestInfo }: { name: string; req?: any; requestInfo?: any }): string => {
+export const frontendEnv = ({
+  name,
+  req,
+  requestInfo
+}: {
+  name: string;
+  req?: any;
+  requestInfo?: any;
+}): string => {
   const cookies = req ? req.cookies : requestInfo.cookies;
   const keys = Object.keys(cookies);
 
@@ -1132,7 +1293,7 @@ export const getSubServiceDomain = ({ name }: { name: string }): string => {
     INTEGRATIONS_API_DOMAIN: `${MAIN_APP_DOMAIN}/integrations`,
     LOGS_API_DOMAIN: `${MAIN_APP_DOMAIN}/logs`,
     ENGAGES_API_DOMAIN: `${MAIN_APP_DOMAIN}/engages`,
-    VERIFIER_API_DOMAIN: `${MAIN_APP_DOMAIN}/verifier`,
+    VERIFIER_API_DOMAIN: `${MAIN_APP_DOMAIN}/verifier`
   };
 
   const domain = getEnv({ name });
@@ -1163,12 +1324,17 @@ export const chunkArray = (myArray, chunkSize: number) => {
 /**
  * Create s3 stream for excel file
  */
-export const s3Stream = async (key: string, errorCallback: (error: any) => void): Promise<any> => {
+export const s3Stream = async (
+  key: string,
+  errorCallback: (error: any) => void
+): Promise<any> => {
   const AWS_BUCKET = await getConfig('AWS_BUCKET');
 
   const s3 = await createAWS();
 
-  const stream = s3.getObject({ Bucket: AWS_BUCKET, Key: key }).createReadStream();
+  const stream = s3
+    .getObject({ Bucket: AWS_BUCKET, Key: key })
+    .createReadStream();
 
   stream.on('error', errorCallback);
 

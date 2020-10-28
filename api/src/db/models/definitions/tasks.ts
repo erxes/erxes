@@ -9,6 +9,6 @@ export interface ITaskDocument extends IItemCommonFields, Document {
 // Mongoose schemas =======================
 export const taskSchema = schemaWrapper(
   new Schema({
-    ...commonItemFieldsSchema,
-  }),
+    ...commonItemFieldsSchema
+  })
 );

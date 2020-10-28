@@ -8,7 +8,9 @@ import { Deals } from '../db/models';
 module.exports.up = async () => {
   await connect();
 
-  console.log('start: migrate to productData.tickUsed = true on deal.productsData....');
+  console.log(
+    'start: migrate to productData.tickUsed = true on deal.productsData....'
+  );
   const deals = await Deals.find({ productsData: { $exists: true } });
 
   for (const deal of deals) {

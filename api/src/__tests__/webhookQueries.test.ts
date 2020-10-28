@@ -45,7 +45,9 @@ describe('webhookQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, 'webhookDetail', { _id: webhook._id });
+    const response = await graphqlRequest(qry, 'webhookDetail', {
+      _id: webhook._id
+    });
 
     expect(response._id).toBe(webhook._id);
   });

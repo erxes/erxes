@@ -17,19 +17,27 @@ test('DeliveryReports: updateOrCreateReport', async done => {
   const headers = {
     engageMessageId: '123',
     mailId: 'mailid123',
-    customerId: 'customer',
+    customerId: 'customer'
   };
 
-  const deliveryReport = await DeliveryReports.updateOrCreateReport(headers, 'open');
+  const deliveryReport = await DeliveryReports.updateOrCreateReport(
+    headers,
+    'open'
+  );
 
   expect(deliveryReport).toBeDefined();
   expect(deliveryReport).toBeTruthy();
 
-  const result = await DeliveryReports.updateOrCreateReport(headers, 'complaint');
+  const result = await DeliveryReports.updateOrCreateReport(
+    headers,
+    'complaint'
+  );
 
   expect(result).toBe('reject');
 
-  const deliveryReportObj = await DeliveryReports.findOne({ customerId: 'customer' });
+  const deliveryReportObj = await DeliveryReports.findOne({
+    customerId: 'customer'
+  });
 
   expect(deliveryReportObj.status).toBe('complaint');
 

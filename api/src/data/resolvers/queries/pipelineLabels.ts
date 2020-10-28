@@ -14,7 +14,7 @@ const pipelineLabelQueries = {
    */
   pipelineLabelDetail(_root, { _id }: { _id: string }) {
     return PipelineLabels.findOne({ _id });
-  },
+  }
 };
 
 moduleRequireLogin(pipelineLabelQueries);

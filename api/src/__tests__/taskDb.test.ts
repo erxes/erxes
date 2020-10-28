@@ -4,10 +4,14 @@ import {
   pipelineFactory,
   stageFactory,
   taskFactory,
-  userFactory,
+  userFactory
 } from '../db/factories';
 import { Boards, Pipelines, Stages, Tasks } from '../db/models';
-import { IBoardDocument, IPipelineDocument, IStageDocument } from '../db/models/definitions/boards';
+import {
+  IBoardDocument,
+  IPipelineDocument,
+  IStageDocument
+} from '../db/models/definitions/boards';
 import { ITaskDocument } from '../db/models/definitions/tasks';
 import { IUserDocument } from '../db/models/definitions/users';
 
@@ -53,7 +57,7 @@ describe('Test tasks model', () => {
   test('Create task', async () => {
     const createdTask = await Tasks.createTask({
       stageId: task.stageId,
-      userId: user._id,
+      userId: user._id
     });
 
     expect(createdTask).toBeDefined();
@@ -67,7 +71,7 @@ describe('Test tasks model', () => {
     const args = {
       stageId: task.stageId,
       userId: user._id,
-      sourceConversationId: conversation._id,
+      sourceConversationId: conversation._id
     };
 
     const createdTicket = await Tasks.createTask(args);
@@ -85,7 +89,7 @@ describe('Test tasks model', () => {
   test('Update task', async () => {
     const taskStageId = 'fakeId';
     const updatedTask = await Tasks.updateTask(task._id, {
-      stageId: taskStageId,
+      stageId: taskStageId
     });
 
     expect(updatedTask).toBeDefined();

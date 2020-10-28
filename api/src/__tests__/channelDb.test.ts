@@ -1,4 +1,8 @@
-import { channelFactory, integrationFactory, userFactory } from '../db/factories';
+import {
+  channelFactory,
+  integrationFactory,
+  userFactory
+} from '../db/factories';
 import { Channels, Integrations, Users } from '../db/models';
 
 import './setup.ts';
@@ -8,7 +12,7 @@ describe('test channel creation error', () => {
     try {
       Channels.createChannel({
         name: 'Channel test',
-        integrationIds: [],
+        integrationIds: []
       });
     } catch (e) {
       expect(e.message).toBe('userId must be supplied');
@@ -52,7 +56,7 @@ describe('channel creation', () => {
       name: 'Channel test',
       description: 'test channel descripion',
       memberIds: [_user2._id],
-      integrationIds: [_integration._id],
+      integrationIds: [_integration._id]
     };
 
     const channel = await Channels.createChannel(doc, user._id);
@@ -93,7 +97,7 @@ describe('channel update', () => {
       description: 'Channel test description',
       userId: _user._id,
       memberIds: [_user2._id],
-      integrationIds: [_integration._id],
+      integrationIds: [_integration._id]
     };
 
     _channel = await Channels.createChannel(_channelDoc, _user);
@@ -143,7 +147,7 @@ describe('channel update', () => {
     // testing whether the updated field is not overwriting whole document ========
     channel = await Channels.updateChannel(channel._id, {
       name: 'Channel test 2',
-      integrationIds: [],
+      integrationIds: []
     });
 
     expect(channel.description).toBe('Channel test description');
@@ -158,9 +162,9 @@ describe('channel remove', () => {
     _channel = await Channels.createChannel(
       {
         name: 'Channel test',
-        integrationIds: [],
+        integrationIds: []
       },
-      user._id,
+      user._id
     );
   });
 
@@ -198,7 +202,10 @@ describe('db utils', () => {
   });
 
   test('updateUserChannels', async () => {
-    const updatedChannels = await Channels.updateUserChannels([_channel._id], _user._id);
+    const updatedChannels = await Channels.updateUserChannels(
+      [_channel._id],
+      _user._id
+    );
 
     const updatedChannel = updatedChannels.pop();
 

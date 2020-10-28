@@ -12,7 +12,7 @@ import {
   IField,
   IFieldDocument,
   IFieldGroup,
-  IFieldGroupDocument,
+  IFieldGroupDocument
 } from './definitions/fields';
 
 export interface IOrderInput {
@@ -31,7 +31,9 @@ export interface ITypedListItem {
 export const isValidDate = value => {
   if (
     (value && validator.isISO8601(value.toString())) ||
-    /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/.test(value.toString()) ||
+    /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/.test(
+      value.toString()
+    ) ||
     value instanceof Date
   ) {
     return true;
@@ -50,8 +52,14 @@ export interface IFieldModel extends Model<IFieldDocument> {
   cleanMulti(data: { [key: string]: any }): any;
   generateTypedListFromMap(data: { [key: string]: any }): ITypedListItem[];
   generateTypedItem(field: string, value: string): ITypedListItem;
-  prepareCustomFieldsData(customFieldsData?: Array<{ field: string; value: any }>): Promise<ITypedListItem[]>;
-  updateFieldsVisible(_id: string, isVisible: boolean, lastUpdatedUserId: string): Promise<IFieldDocument>;
+  prepareCustomFieldsData(
+    customFieldsData?: Array<{ field: string; value: any }>
+  ): Promise<ITypedListItem[]>;
+  updateFieldsVisible(
+    _id: string,
+    isVisible: boolean,
+    lastUpdatedUserId: string
+  ): Promise<IFieldDocument>;
 }
 
 export const loadFieldClass = () => {
@@ -71,7 +79,12 @@ export const loadFieldClass = () => {
     /*
      * Create new field
      */
-    public static async createField({ contentType, contentTypeId, groupId, ...fields }: IField) {
+    public static async createField({
+      contentType,
+      contentTypeId,
+      groupId,
+      ...fields
+    }: IField) {
       const query: { [key: string]: any } = { contentType };
 
       if (groupId) {
@@ -111,7 +124,7 @@ export const loadFieldClass = () => {
         order,
         groupId,
         isDefinedByErxes: false,
-        ...fields,
+        ...fields
       });
     }
 
@@ -140,7 +153,10 @@ export const loadFieldClass = () => {
 
       // Removing field value from customer
       const index = `customFieldsData.${_id}`;
-      await Customers.updateMany({ [index]: { $exists: true } }, { $unset: { [index]: 1 } });
+      await Customers.updateMany(
+        { [index]: { $exists: true } },
+        { $unset: { [index]: 1 } }
+      );
 
       return fieldObj.remove();
     }
@@ -188,7 +204,10 @@ export const loadFieldClass = () => {
 
       if (value) {
         // email
-        if ((type === 'email' || validation === 'email') && !validator.isEmail(value)) {
+        if (
+          (type === 'email' || validation === 'email') &&
+          !validator.isEmail(value)
+        ) {
           throwError('Invalid email');
         }
 
@@ -225,7 +244,10 @@ export const loadFieldClass = () => {
       return fixedValues;
     }
 
-    public static generateTypedItem(field: string, value: string): ITypedListItem {
+    public static generateTypedItem(
+      field: string,
+      value: string
+    ): ITypedListItem {
       let stringValue;
       let numberValue;
       let dateValue;
@@ -248,20 +270,24 @@ export const loadFieldClass = () => {
       return { field, value, stringValue, numberValue, dateValue };
     }
 
-    public static generateTypedListFromMap(data: { [key: string]: any }): ITypedListItem[] {
+    public static generateTypedListFromMap(data: {
+      [key: string]: any;
+    }): ITypedListItem[] {
       const ids = Object.keys(data || {});
       return ids.map(_id => this.generateTypedItem(_id, data[_id]));
     }
 
     public static async prepareCustomFieldsData(
-      customFieldsData?: Array<{ field: string; value: any }>,
+      customFieldsData?: Array<{ field: string; value: any }>
     ): Promise<ITypedListItem[]> {
       const result: ITypedListItem[] = [];
 
       for (const customFieldData of customFieldsData || []) {
         await Fields.clean(customFieldData.field, customFieldData.value);
 
-        result.push(Fields.generateTypedItem(customFieldData.field, customFieldData.value));
+        result.push(
+          Fields.generateTypedItem(customFieldData.field, customFieldData.value)
+        );
       }
 
       return result;
@@ -270,11 +296,18 @@ export const loadFieldClass = () => {
     /**
      * Update single field's visible
      */
-    public static async updateFieldsVisible(_id: string, isVisible: boolean, lastUpdatedUserId: string) {
+    public static async updateFieldsVisible(
+      _id: string,
+      isVisible: boolean,
+      lastUpdatedUserId: string
+    ) {
       await this.checkIsDefinedByErxes(_id);
 
       // Updating visible
-      await Fields.updateOne({ _id }, { $set: { isVisible, lastUpdatedUserId } });
+      await Fields.updateOne(
+        { _id },
+        { $set: { isVisible, lastUpdatedUserId } }
+      );
 
       return Fields.findOne({ _id });
     }
@@ -291,7 +324,11 @@ export interface IFieldGroupModel extends Model<IFieldGroupDocument> {
   updateGroup(_id: string, doc: IFieldGroup): Promise<IFieldGroupDocument>;
   removeGroup(_id: string): Promise<string>;
 
-  updateGroupVisible(_id: string, isVisible: boolean, lastUpdatedUserId: string): Promise<IFieldGroupDocument>;
+  updateGroupVisible(
+    _id: string,
+    isVisible: boolean,
+    lastUpdatedUserId: string
+  ): Promise<IFieldGroupDocument>;
 }
 
 export const loadGroupClass = () => {
@@ -321,7 +358,7 @@ export const loadGroupClass = () => {
       let order = 0;
 
       const lastGroup = await FieldsGroups.findOne({ contentType }).sort({
-        order: -1,
+        order: -1
       });
 
       if (lastGroup) {
@@ -332,7 +369,7 @@ export const loadGroupClass = () => {
         ...doc,
         isVisible,
         order,
-        isDefinedByErxes: false,
+        isDefinedByErxes: false
       });
     }
 
@@ -376,12 +413,19 @@ export const loadGroupClass = () => {
     /**
      * Update field group's visible
      */
-    public static async updateGroupVisible(_id: string, isVisible: boolean, lastUpdatedUserId: string) {
+    public static async updateGroupVisible(
+      _id: string,
+      isVisible: boolean,
+      lastUpdatedUserId: string
+    ) {
       // Can not update group that is defined by erxes
       await this.checkIsDefinedByErxes(_id);
 
       // Updating visible
-      await FieldsGroups.updateOne({ _id }, { $set: { isVisible, lastUpdatedUserId } });
+      await FieldsGroups.updateOne(
+        { _id },
+        { $set: { isVisible, lastUpdatedUserId } }
+      );
 
       return FieldsGroups.findOne({ _id });
     }
@@ -396,7 +440,10 @@ loadFieldClass();
 loadGroupClass();
 
 // tslint:disable-next-line
-export const FieldsGroups = model<IFieldGroupDocument, IFieldGroupModel>('fields_groups', fieldGroupSchema);
+export const FieldsGroups = model<IFieldGroupDocument, IFieldGroupModel>(
+  'fields_groups',
+  fieldGroupSchema
+);
 
 // tslint:disable-next-line
 export const Fields = model<IFieldDocument, IFieldModel>('fields', fieldSchema);

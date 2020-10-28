@@ -143,9 +143,9 @@ export type SetLiveMutationResponse = {
 };
 
 export type SetLiveManualMutationResponse = {
-  setLiveManualMutation: (
-    params: { variables: MutationVariables }
-  ) => Promise<void>;
+  setLiveManualMutation: (params: {
+    variables: MutationVariables;
+  }) => Promise<void>;
 };
 
 export type WithFormMutationVariables = {
@@ -158,19 +158,15 @@ export type WithFormMutationVariables = {
 };
 
 export type WithFormAddMutationResponse = {
-  addMutation: (
-    params: {
-      variables: WithFormMutationVariables;
-    }
-  ) => Promise<any>;
+  addMutation: (params: {
+    variables: WithFormMutationVariables;
+  }) => Promise<any>;
 };
 
 export type WithFormEditMutationResponse = {
-  editMutation: (
-    params: {
-      variables: WithFormMutationVariables;
-    }
-  ) => Promise<any>;
+  editMutation: (params: {
+    variables: WithFormMutationVariables;
+  }) => Promise<any>;
 };
 
 // query types
@@ -218,14 +214,14 @@ export type CountQueryResponse = {
 };
 
 export type AddMutationResponse = {
-  messagesAddMutation: (
-    params: { variables: IEngageMessageDoc }
-  ) => Promise<any>;
+  messagesAddMutation: (params: {
+    variables: IEngageMessageDoc;
+  }) => Promise<any>;
 };
 
-export type TagAdd = (
-  params: { doc: { name: string; description: string } }
-) => void;
+export type TagAdd = (params: {
+  doc: { name: string; description: string };
+}) => void;
 export type SegmentAdd = (params: { doc: ISegmentDoc }) => void;
 
 export type TargetCount = {

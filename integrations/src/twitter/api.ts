@@ -25,9 +25,9 @@ export const getTwitterConfig = async (): Promise<ITwitterConfig> => {
       consumer_key: await getConfig('TWITTER_CONSUMER_KEY'),
       consumer_secret: await getConfig('TWITTER_CONSUMER_SECRET'),
       token: await getConfig('TWITTER_ACCESS_TOKEN'),
-      token_secret: await getConfig('TWITTER_ACCESS_TOKEN_SECRET'),
+      token_secret: await getConfig('TWITTER_ACCESS_TOKEN_SECRET')
     },
-    twitterWebhookEnvironment: await getConfig('TWITTER_WEBHOOK_ENV'),
+    twitterWebhookEnvironment: await getConfig('TWITTER_WEBHOOK_ENV')
   };
 };
 
@@ -43,8 +43,8 @@ export const getTwitterAuthUrl = async (): Promise<{
     oauth: {
       callback: `${getEnv({ name: 'DOMAIN' })}/twitter/callback/add`,
       consumer_key: twitterConfig.oauth.consumer_key,
-      consumer_secret: twitterConfig.oauth.consumer_secret,
-    },
+      consumer_secret: twitterConfig.oauth.consumer_secret
+    }
   };
 
   return new Promise((resolve, reject) => {
@@ -55,11 +55,12 @@ export const getTwitterAuthUrl = async (): Promise<{
         const responseParams = queryString.parse(response);
 
         const twitterAuthUrl =
-          'https://api.twitter.com/oauth/authenticate?force_login=true&oauth_token=' + responseParams.oauth_token;
+          'https://api.twitter.com/oauth/authenticate?force_login=true&oauth_token=' +
+          responseParams.oauth_token;
 
         resolve({
           responseParams,
-          twitterAuthUrl,
+          twitterAuthUrl
         });
       })
       .catch(error => {
@@ -84,11 +85,11 @@ export const getTwitterBearerToken = async () => {
     method: 'POST',
     auth: {
       user: twitterConfig.oauth.consumer_key,
-      pass: twitterConfig.oauth.consumer_secret,
+      pass: twitterConfig.oauth.consumer_secret
     },
     form: {
-      grant_type: 'client_credentials',
-    },
+      grant_type: 'client_credentials'
+    }
   };
 
   return new Promise((resolve, reject) => {
@@ -124,7 +125,9 @@ export const registerWebhook = async () => {
     });
     const DOMAIN = getEnv({ name: 'DOMAIN' });
 
-    const webhookObj = webhooks && webhooks.find(webhook => webhook.url === `${DOMAIN}/twitter/webhook`);
+    const webhookObj =
+      webhooks &&
+      webhooks.find(webhook => webhook.url === `${DOMAIN}/twitter/webhook`);
 
     if (webhookObj) {
       debugTwitter('Webhook already exists');
@@ -138,11 +141,11 @@ export const registerWebhook = async () => {
         '/webhooks.json',
       oauth: twitterConfig.oauth,
       headers: {
-        'Content-type': 'application/x-www-form-urlencoded',
+        'Content-type': 'application/x-www-form-urlencoded'
       },
       form: {
-        url: `${DOMAIN}/twitter/webhook`,
-      },
+        url: `${DOMAIN}/twitter/webhook`
+      }
     };
 
     for (const webhook of webhooks || []) {
@@ -183,7 +186,7 @@ export const retreiveWebhooks = async (): Promise<IWebhook[]> => {
         'https://api.twitter.com/1.1/account_activity/all/' +
         twitterConfig.twitterWebhookEnvironment +
         '/webhooks.json',
-      oauth: twitterConfig.oauth,
+      oauth: twitterConfig.oauth
     };
 
     request
@@ -216,7 +219,7 @@ export const deleteWebhook = async webhookId => {
         webhookId +
         '.json',
       oauth: twitterConfig.oauth,
-      resolveWithFullResponse: true,
+      resolveWithFullResponse: true
     };
 
     request
@@ -238,8 +241,8 @@ export const unsubscribe = async (userId: string) => {
     const requestOptions = {
       url: `https://api.twitter.com/1.1/account_activity/all/${twitterConfig.twitterWebhookEnvironment}/subscriptions/${userId}.json`,
       auth: {
-        bearer,
-      },
+        bearer
+      }
     };
 
     request
@@ -263,7 +266,7 @@ export const subscribeToWebhook = async (account: IAccount) => {
         twitterConfig.twitterWebhookEnvironment +
         '/subscriptions.json',
       oauth: twitterConfig.oauth,
-      resolveWithFullResponse: true,
+      resolveWithFullResponse: true
     };
 
     subRequestOptions.oauth.token = account.token;
@@ -289,7 +292,7 @@ export const removeFromWebhook = async (account: IAccount) => {
         'https://api.twitter.com/1.1/account_activity/all/' +
         twitterConfig.twitterWebhookEnvironment +
         '/subscriptions.json',
-      oauth: twitterConfig.oauth,
+      oauth: twitterConfig.oauth
     };
 
     requestOptions.oauth.token = account.token;
@@ -319,7 +322,12 @@ interface IMessage {
   };
 }
 
-export const reply = async (receiverId: string, content: string, attachment, account: IAccount): Promise<IMessage> => {
+export const reply = async (
+  receiverId: string,
+  content: string,
+  attachment,
+  account: IAccount
+): Promise<IMessage> => {
   const twitterConfig = await getTwitterConfig();
 
   return new Promise((resolve, reject) => {
@@ -331,16 +339,16 @@ export const reply = async (receiverId: string, content: string, attachment, acc
           type: 'message_create',
           message_create: {
             target: {
-              recipient_id: receiverId,
+              recipient_id: receiverId
             },
             message_data: {
               text: content,
-              attachment: attachment.media.id ? attachment : null,
-            },
-          },
-        },
+              attachment: attachment.media.id ? attachment : null
+            }
+          }
+        }
       },
-      json: true,
+      json: true
     };
 
     requestOptions.oauth.token = account.token;
@@ -365,8 +373,8 @@ export const upload = async base64 => {
       url: 'https://upload.twitter.com/1.1/media/upload.json',
       oauth: twitterConfig.oauth,
       form: {
-        media_data: base64,
-      },
+        media_data: base64
+      }
     };
 
     request
@@ -382,8 +390,13 @@ export const upload = async base64 => {
 
 export const veriyfyLoginToken = async (
   oauthToken,
-  oauthVerifier,
-): Promise<{ oauth_token: string; oauth_token_secret: string; user_id: string; screen_name: string }> => {
+  oauthVerifier
+): Promise<{
+  oauth_token: string;
+  oauth_token_secret: string;
+  user_id: string;
+  screen_name: string;
+}> => {
   const twitterConfig = await getTwitterConfig();
 
   return new Promise((resolve, reject) => {
@@ -391,11 +404,11 @@ export const veriyfyLoginToken = async (
       url: 'https://api.twitter.com/oauth/access_token',
       oauth: twitterConfig.oauth,
       headers: {
-        'Content-type': 'application/x-www-form-urlencoded',
+        'Content-type': 'application/x-www-form-urlencoded'
       },
       form: {
-        oauth_verifier: oauthVerifier,
-      },
+        oauth_verifier: oauthVerifier
+      }
     };
 
     requestOptions.oauth.token = oauthToken;
@@ -415,14 +428,20 @@ export const veriyfyLoginToken = async (
 
 export const verifyUser = async (
   token,
-  tokenSecret,
-): Promise<{ id: string; username: string; name: string; screen_name: string; id_str: string }> => {
+  tokenSecret
+): Promise<{
+  id: string;
+  username: string;
+  name: string;
+  screen_name: string;
+  id_str: string;
+}> => {
   const twitterConfig = await getTwitterConfig();
 
   return new Promise((resolve, reject) => {
     const requestOptions: any = {
       url: 'https://api.twitter.com/1.1/account/verify_credentials.json',
-      oauth: twitterConfig.oauth,
+      oauth: twitterConfig.oauth
     };
 
     requestOptions.oauth.token = token;

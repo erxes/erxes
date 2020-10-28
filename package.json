@@ -20,16 +20,20 @@
   },
   "lint-staged": {
     "linters": {
-      "@(api|integrations|ui|widgets)/src/**/*.{ts?(x),json,css}": [
+      "@(ui|widgets)/src/**/*.{ts,tsx,json,css}": [
+        "prettier --single-quote --write",
+        "git add"
+      ],
+      "@(api|integrations|email-verifier|engages-email-sender|logger)/src/**/*.ts": [
         "prettier --single-quote --write",
         "git add"
       ]
     }
   },
   "scripts": {
-    "format": "prettier --single-quote --write 'src/**/*.@(ts|tsx)'",
+    "format": "prettier --single-quote --write '@(api|integrations|email-verifier|engages-email-sender|logger)/src/**/*.ts' && prettier --single-quote --write '@(ui|widgets)/src/**/*.@(ts|tsx|json|css)'",
     "precommit": "lint-staged",
-    "lint": "tslint '@(api|integrations|ui|widgets)/src/**/*.ts?(x)'",
+    "lint": "tslint '@(api|integrations|email-verifier|engages-email-sender|logger|ui|widgets)/src/**/*.ts?(x)'",
     "postinstall": "opencollective postinstall",
     "generateVersion": "node commands/generateVersion.js",
     "release": "release-it"

@@ -6,7 +6,7 @@ import {
   PipelineLabels,
   Pipelines,
   Stages,
-  Users,
+  Users
 } from '../../db/models';
 import { ITaskDocument } from '../../db/models/definitions/tasks';
 import { IContext } from '../types';
@@ -17,7 +17,7 @@ export default {
     const companyIds = await Conformities.savedConformity({
       mainType: 'task',
       mainTypeId: task._id,
-      relTypes: ['company'],
+      relTypes: ['company']
     });
 
     return Companies.find({ _id: { $in: companyIds || [] } });
@@ -31,7 +31,7 @@ export default {
     const customerIds = await Conformities.savedConformity({
       mainType: 'task',
       mainTypeId: task._id,
-      relTypes: ['customer'],
+      relTypes: ['customer']
     });
 
     return Customers.find({ _id: { $in: customerIds || [] } });
@@ -71,5 +71,5 @@ export default {
 
   labels(task: ITaskDocument) {
     return PipelineLabels.find({ _id: { $in: task.labelIds || [] } });
-  },
+  }
 };

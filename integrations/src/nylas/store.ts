@@ -20,46 +20,46 @@ import {
   NylasOutlookCustomers,
   NylasYahooConversationMessages,
   NylasYahooConversations,
-  NylasYahooCustomers,
+  NylasYahooCustomers
 } from './models';
 import {
   IGetOrCreateArguments,
   INylasConversationArguments,
   INylasConversationMessageArguments,
-  INylasCustomerArguments,
+  INylasCustomerArguments
 } from './types';
 
 const NYLAS_MODELS = {
   gmail: {
     customers: NylasGmailCustomers,
     conversations: NylasGmailConversations,
-    conversationMessages: NylasGmailConversationMessages,
+    conversationMessages: NylasGmailConversationMessages
   },
   exchange: {
     customers: NylasExchangeCustomers,
     conversations: NylasExchangeConversations,
-    conversationMessages: NylasExchangeConversationMessages,
+    conversationMessages: NylasExchangeConversationMessages
   },
   imap: {
     customers: NylasImapCustomers,
     conversations: NylasImapConversations,
-    conversationMessages: NylasImapConversationMessages,
+    conversationMessages: NylasImapConversationMessages
   },
   outlook: {
     customers: NylasOutlookCustomers,
     conversations: NylasOutlookConversations,
-    conversationMessages: NylasOutlookConversationMessages,
+    conversationMessages: NylasOutlookConversationMessages
   },
   yahoo: {
     customers: NylasYahooCustomers,
     conversations: NylasYahooConversations,
-    conversationMessages: NylasYahooConversationMessages,
+    conversationMessages: NylasYahooConversationMessages
   },
   office365: {
     customers: NylasOffice365Customers,
     conversations: NylasOffice365Conversations,
-    conversationMessages: NylasOffice365ConversationMessages,
-  },
+    conversationMessages: NylasOffice365ConversationMessages
+  }
 };
 
 /**
@@ -71,7 +71,12 @@ const NYLAS_MODELS = {
  * @param {Object} message
  * @returns {Promise} customer object
  */
-const createOrGetNylasCustomer = async ({ kind, toEmail, integrationIds, message }: INylasCustomerArguments) => {
+const createOrGetNylasCustomer = async ({
+  kind,
+  toEmail,
+  integrationIds,
+  message
+}: INylasCustomerArguments) => {
   const { id, erxesApiId } = integrationIds;
   const [{ email, name }] = message.from;
 
@@ -82,7 +87,7 @@ const createOrGetNylasCustomer = async ({ kind, toEmail, integrationIds, message
   const doc = {
     email,
     integrationId: id,
-    ...common,
+    ...common
   };
 
   // fields to save on api
@@ -90,7 +95,7 @@ const createOrGetNylasCustomer = async ({ kind, toEmail, integrationIds, message
     emails: [email],
     primaryEmail: email,
     integrationId: erxesApiId,
-    ...common,
+    ...common
   };
 
   let customer;
@@ -100,7 +105,7 @@ const createOrGetNylasCustomer = async ({ kind, toEmail, integrationIds, message
       kind,
       collectionName: 'customers',
       selector: { email },
-      fields: { doc, api },
+      fields: { doc, api }
     });
   } catch (e) {
     debugNylas(`Failed to getOrCreate customer: ${e.message}`);
@@ -114,8 +119,8 @@ const createOrGetNylasCustomer = async ({ kind, toEmail, integrationIds, message
     customerId: customer.erxesApiId,
     emails: {
       fromEmail: email,
-      toEmail,
-    },
+      toEmail
+    }
   };
 };
 
@@ -134,7 +139,7 @@ const createOrGetNylasConversation = async ({
   customerId,
   integrationIds,
   emails,
-  message,
+  message
 }: INylasConversationArguments) => {
   const { toEmail, fromEmail } = emails;
   const { id, erxesApiId } = integrationIds;
@@ -149,7 +154,7 @@ const createOrGetNylasConversation = async ({
     integrationId: id,
     threadId: message.thread_id,
     unread: message.unread,
-    createdAt,
+    createdAt
   };
 
   // fields to save on api
@@ -158,7 +163,7 @@ const createOrGetNylasConversation = async ({
     content: message.subject,
     integrationId: erxesApiId,
     unread: message.unread,
-    createdAt,
+    createdAt
   };
 
   let conversation;
@@ -168,7 +173,7 @@ const createOrGetNylasConversation = async ({
       kind,
       collectionName: 'conversations',
       fields: { doc, api },
-      selector: { threadId: message.thread_id },
+      selector: { threadId: message.thread_id }
     });
   } catch (e) {
     debugNylas(`Failed to getOrCreate conversation: ${e.message}`);
@@ -181,8 +186,8 @@ const createOrGetNylasConversation = async ({
     customerId,
     conversationIds: {
       id: conversation._id,
-      erxesApiId: conversation.erxesApiId,
-    },
+      erxesApiId: conversation.erxesApiId
+    }
   };
 };
 
@@ -198,7 +203,7 @@ const createOrGetNylasConversationMessage = async ({
   kind,
   conversationIds,
   message,
-  customerId,
+  customerId
 }: INylasConversationMessageArguments) => {
   const { id, erxesApiId } = conversationIds;
 
@@ -226,10 +231,13 @@ const createOrGetNylasConversationMessage = async ({
     attachments: message.files,
     labels: message.labels,
     unread: message.unread,
-    createdAt,
+    createdAt
   };
 
-  const isUnreadMessage = await memoryStorage().inArray('nylas_unread_messageId', message.id);
+  const isUnreadMessage = await memoryStorage().inArray(
+    'nylas_unread_messageId',
+    message.id
+  );
 
   // fields to save on api
   const api = {
@@ -237,7 +245,7 @@ const createOrGetNylasConversationMessage = async ({
     conversationId: erxesApiId,
     content: cleanHtml(message.body),
     unread: isUnreadMessage ? true : message.unread,
-    createdAt,
+    createdAt
   };
 
   let conversationMessage;
@@ -247,7 +255,7 @@ const createOrGetNylasConversationMessage = async ({
       kind,
       collectionName: 'conversationMessages',
       selector: { messageId: message.id },
-      fields: { doc, api },
+      fields: { doc, api }
     });
   } catch (e) {
     debugNylas(`Failed to getOrCreate conversationMessage: ${e.message}`);
@@ -263,20 +271,25 @@ const createOrGetNylasConversationMessage = async ({
  * @param {Object} args - doc, selector, apiField, name
  * @param {Promise} selected model
  */
-export const getOrCreate = async ({ kind, collectionName, selector, fields }: IGetOrCreateArguments) => {
+export const getOrCreate = async ({
+  kind,
+  collectionName,
+  selector,
+  fields
+}: IGetOrCreateArguments) => {
   const map = {
     customers: {
       action: 'get-create-update-customer',
-      apiField: 'erxesApiId',
+      apiField: 'erxesApiId'
     },
     conversations: {
       action: 'create-or-update-conversation',
-      apiField: 'erxesApiId',
+      apiField: 'erxesApiId'
     },
     conversationMessages: {
       action: 'create-conversation-message',
-      apiField: 'erxesApiMessageId',
-    },
+      apiField: 'erxesApiMessageId'
+    }
   };
 
   const model = NYLAS_MODELS[kind][collectionName];
@@ -292,7 +305,7 @@ export const getOrCreate = async ({ kind, collectionName, selector, fields }: IG
       const response = await sendRPCMessage({
         action,
         metaInfo: action.includes('message') ? 'replaceContent' : null,
-        payload: JSON.stringify(fields.api),
+        payload: JSON.stringify(fields.api)
       });
 
       selectedObj[map[collectionName].apiField] = response._id;
@@ -307,4 +320,9 @@ export const getOrCreate = async ({ kind, collectionName, selector, fields }: IG
   return selectedObj;
 };
 
-export { createOrGetNylasCustomer, createOrGetNylasConversation, createOrGetNylasConversationMessage, NYLAS_MODELS };
+export {
+  createOrGetNylasCustomer,
+  createOrGetNylasConversation,
+  createOrGetNylasConversationMessage,
+  NYLAS_MODELS
+};

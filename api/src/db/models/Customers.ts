@@ -1,9 +1,20 @@
 import { Model, model } from 'mongoose';
 import { validSearchText } from '../../data/utils';
 import { validateSingle } from '../../data/verifierUtils';
-import { ActivityLogs, Conformities, Conversations, EngageMessages, Fields, InternalNotes } from './';
+import {
+  ActivityLogs,
+  Conformities,
+  Conversations,
+  EngageMessages,
+  Fields,
+  InternalNotes
+} from './';
 import { ICustomField } from './definitions/common';
-import { customerSchema, ICustomer, ICustomerDocument } from './definitions/customers';
+import {
+  customerSchema,
+  ICustomer,
+  ICustomerDocument
+} from './definitions/customers';
 import { IUserDocument } from './definitions/users';
 
 interface IGetCustomerParams {
@@ -70,28 +81,55 @@ interface IPSS {
 }
 
 export interface ICustomerModel extends Model<ICustomerDocument> {
-  checkDuplication(customerFields: ICustomerFieldsInput, idsToExclude?: string[] | string): never;
+  checkDuplication(
+    customerFields: ICustomerFieldsInput,
+    idsToExclude?: string[] | string
+  ): never;
   getCustomer(_id: string): Promise<ICustomerDocument>;
   getCustomerName(customer: ICustomer): string;
   createVisitor(): Promise<string>;
-  createCustomer(doc: ICustomer, user?: IUserDocument): Promise<ICustomerDocument>;
+  createCustomer(
+    doc: ICustomer,
+    user?: IUserDocument
+  ): Promise<ICustomerDocument>;
   updateCustomer(_id: string, doc: ICustomer): Promise<ICustomerDocument>;
   markCustomerAsActive(customerId: string): Promise<ICustomerDocument>;
   markCustomerAsNotActive(_id: string): Promise<ICustomerDocument>;
   removeCustomers(customerIds: string[]): Promise<{ n: number; ok: number }>;
   changeState(_id: string, value: string): Promise<ICustomerDocument>;
-  mergeCustomers(customerIds: string[], customerFields: ICustomer, user?: IUserDocument): Promise<ICustomerDocument>;
-  bulkInsert(fieldNames: string[], fieldValues: string[][], user: IUserDocument): Promise<string[]>;
+  mergeCustomers(
+    customerIds: string[],
+    customerFields: ICustomer,
+    user?: IUserDocument
+  ): Promise<ICustomerDocument>;
+  bulkInsert(
+    fieldNames: string[],
+    fieldValues: string[][],
+    user: IUserDocument
+  ): Promise<string[]>;
   calcPSS(doc: any): IPSS;
-  updateVerificationStatus(customerIds: string[], type: string, status: string): Promise<ICustomerDocument[]>;
+  updateVerificationStatus(
+    customerIds: string[],
+    type: string,
+    status: string
+  ): Promise<ICustomerDocument[]>;
 
   // widgets ===
   getWidgetCustomer(doc: IGetCustomerParams): Promise<ICustomerDocument | null>;
-  createMessengerCustomer(param: ICreateMessengerCustomerParams): Promise<ICustomerDocument>;
-  updateMessengerCustomer(param: IUpdateMessengerCustomerParams): Promise<ICustomerDocument>;
+  createMessengerCustomer(
+    param: ICreateMessengerCustomerParams
+  ): Promise<ICustomerDocument>;
+  updateMessengerCustomer(
+    param: IUpdateMessengerCustomerParams
+  ): Promise<ICustomerDocument>;
   updateSession(_id: string): Promise<ICustomerDocument>;
-  updateLocation(_id: string, browserInfo: IBrowserInfo): Promise<ICustomerDocument>;
-  saveVisitorContactInfo(doc: IVisitorContactInfoParams): Promise<ICustomerDocument>;
+  updateLocation(
+    _id: string,
+    browserInfo: IBrowserInfo
+  ): Promise<ICustomerDocument>;
+  saveVisitorContactInfo(
+    doc: IVisitorContactInfoParams
+  ): Promise<ICustomerDocument>;
 }
 
 export const loadClass = () => {
@@ -99,20 +137,28 @@ export const loadClass = () => {
     /**
      * Checking if customer has duplicated unique properties
      */
-    public static async checkDuplication(customerFields: ICustomerFieldsInput, idsToExclude?: string[] | string) {
-      const query: { status: {}; [key: string]: any } = { status: { $ne: 'deleted' } };
+    public static async checkDuplication(
+      customerFields: ICustomerFieldsInput,
+      idsToExclude?: string[] | string
+    ) {
+      const query: { status: {}; [key: string]: any } = {
+        status: { $ne: 'deleted' }
+      };
       let previousEntry;
 
       // Adding exclude operator to the query
       if (idsToExclude) {
-        query._id = idsToExclude instanceof Array ? { $nin: idsToExclude } : { $ne: idsToExclude };
+        query._id =
+          idsToExclude instanceof Array
+            ? { $nin: idsToExclude }
+            : { $ne: idsToExclude };
       }
 
       if (customerFields.primaryEmail) {
         // check duplication from primaryEmail
         previousEntry = await Customers.find({
           ...query,
-          primaryEmail: customerFields.primaryEmail,
+          primaryEmail: customerFields.primaryEmail
         });
 
         if (previousEntry.length > 0) {
@@ -122,7 +168,7 @@ export const loadClass = () => {
         // check duplication from emails
         previousEntry = await Customers.find({
           ...query,
-          emails: { $in: [customerFields.primaryEmail] },
+          emails: { $in: [customerFields.primaryEmail] }
         });
 
         if (previousEntry.length > 0) {
@@ -134,7 +180,7 @@ export const loadClass = () => {
         // check duplication from primaryPhone
         previousEntry = await Customers.find({
           ...query,
-          primaryPhone: customerFields.primaryPhone,
+          primaryPhone: customerFields.primaryPhone
         });
 
         if (previousEntry.length > 0) {
@@ -144,7 +190,7 @@ export const loadClass = () => {
         // Check duplication from phones
         previousEntry = await Customers.find({
           ...query,
-          phones: { $in: [customerFields.primaryPhone] },
+          phones: { $in: [customerFields.primaryPhone] }
         });
 
         if (previousEntry.length > 0) {
@@ -156,7 +202,7 @@ export const loadClass = () => {
         // check duplication from code
         previousEntry = await Customers.find({
           ...query,
-          code: customerFields.code,
+          code: customerFields.code
         });
 
         if (previousEntry.length > 0) {
@@ -203,10 +249,13 @@ export const loadClass = () => {
       const customer = await Customers.create({
         state: 'visitor',
         createdAt: new Date(),
-        modifiedAt: new Date(),
+        modifiedAt: new Date()
       });
 
-      await ActivityLogs.createCocLog({ coc: customer, contentType: 'customer' });
+      await ActivityLogs.createCocLog({
+        coc: customer,
+        contentType: 'customer'
+      });
 
       return customer._id;
     }
@@ -214,7 +263,10 @@ export const loadClass = () => {
     /**
      * Create a customer
      */
-    public static async createCustomer(doc: ICustomer, user?: IUserDocument): Promise<ICustomerDocument> {
+    public static async createCustomer(
+      doc: ICustomer,
+      user?: IUserDocument
+    ): Promise<ICustomerDocument> {
       // Checking duplicated fields of customer
       await Customers.checkDuplication(doc);
 
@@ -231,7 +283,9 @@ export const loadClass = () => {
       }
 
       // clean custom field values
-      doc.customFieldsData = await Fields.prepareCustomFieldsData(doc.customFieldsData);
+      doc.customFieldsData = await Fields.prepareCustomFieldsData(
+        doc.customFieldsData
+      );
 
       if (doc.integrationId) {
         doc.relatedIntegrationIds = [doc.integrationId];
@@ -243,7 +297,7 @@ export const loadClass = () => {
         createdAt: new Date(),
         modifiedAt: new Date(),
         ...doc,
-        ...pssDoc,
+        ...pssDoc
       });
 
       if (doc.primaryEmail && !doc.emailValidationStatus) {
@@ -254,7 +308,10 @@ export const loadClass = () => {
         validateSingle({ phone: doc.primaryPhone });
       }
 
-      await ActivityLogs.createCocLog({ coc: customer, contentType: 'customer' });
+      await ActivityLogs.createCocLog({
+        coc: customer,
+        contentType: 'customer'
+      });
 
       return Customers.getCustomer(customer._id);
     }
@@ -270,7 +327,9 @@ export const loadClass = () => {
 
       if (doc.customFieldsData) {
         // clean custom field values
-        doc.customFieldsData = await Fields.prepareCustomFieldsData(doc.customFieldsData);
+        doc.customFieldsData = await Fields.prepareCustomFieldsData(
+          doc.customFieldsData
+        );
       }
 
       if (doc.primaryEmail) {
@@ -289,9 +348,15 @@ export const loadClass = () => {
         }
       }
 
-      const pssDoc = await Customers.calcPSS({ ...oldCustomer.toObject(), ...doc });
+      const pssDoc = await Customers.calcPSS({
+        ...oldCustomer.toObject(),
+        ...doc
+      });
 
-      await Customers.updateOne({ _id }, { $set: { ...doc, ...pssDoc, modifiedAt: new Date() } });
+      await Customers.updateOne(
+        { _id },
+        { $set: { ...doc, ...pssDoc, modifiedAt: new Date() } }
+      );
 
       return Customers.findOne({ _id });
     }
@@ -300,7 +365,10 @@ export const loadClass = () => {
      * Mark customer as active
      */
     public static async markCustomerAsActive(customerId: string) {
-      await Customers.updateOne({ _id: customerId }, { $set: { isOnline: true } });
+      await Customers.updateOne(
+        { _id: customerId },
+        { $set: { isOnline: true } }
+      );
 
       return Customers.findOne({ _id: customerId });
     }
@@ -314,10 +382,10 @@ export const loadClass = () => {
         {
           $set: {
             isOnline: false,
-            lastSeenAt: new Date(),
-          },
+            lastSeenAt: new Date()
+          }
         },
-        { new: true },
+        { new: true }
       );
 
       return Customers.findOne({ _id });
@@ -331,7 +399,9 @@ export const loadClass = () => {
 
       let possibleLead = false;
       let score = 0;
-      let searchText = (customer.emails || []).join(' ').concat(' ', (customer.phones || []).join(' '));
+      let searchText = (customer.emails || [])
+        .join(' ')
+        .concat(' ', (customer.phones || []).join(' '));
 
       if (!nullValues.includes(customer.firstName || '')) {
         score += 10;
@@ -369,7 +439,7 @@ export const loadClass = () => {
           ' ',
           customer.visitorContactInfo.email || '',
           ' ',
-          customer.visitorContactInfo.phone || '',
+          customer.visitorContactInfo.phone || ''
         );
       }
 
@@ -393,7 +463,10 @@ export const loadClass = () => {
       await InternalNotes.removeCustomersInternalNotes(customerIds);
 
       for (const customerId of customerIds) {
-        await Conformities.removeConformity({ mainType: 'customer', mainTypeId: customerId });
+        await Conformities.removeConformity({
+          mainType: 'customer',
+          mainTypeId: customerId
+        });
       }
 
       return Customers.deleteMany({ _id: { $in: customerIds } });
@@ -402,7 +475,11 @@ export const loadClass = () => {
     /**
      * Merge customers
      */
-    public static async mergeCustomers(customerIds: string[], customerFields: ICustomer, user?: IUserDocument) {
+    public static async mergeCustomers(
+      customerIds: string[],
+      customerFields: ICustomer,
+      user?: IUserDocument
+    ) {
       // Checking duplicated fields of customer
       await Customers.checkDuplication(customerFields, customerIds);
 
@@ -430,10 +507,16 @@ export const loadClass = () => {
           customerFields.integrationId = customerObj.integrationId;
 
           // merge custom fields data
-          customFieldsData = [...customFieldsData, ...(customerObj.customFieldsData || [])];
+          customFieldsData = [
+            ...customFieldsData,
+            ...(customerObj.customFieldsData || [])
+          ];
 
           // Merging scopeBrandIds
-          scopeBrandIds = [...scopeBrandIds, ...(customerObj.scopeBrandIds || [])];
+          scopeBrandIds = [
+            ...scopeBrandIds,
+            ...(customerObj.scopeBrandIds || [])
+          ];
 
           const customerTags: string[] = customerObj.tagIds || [];
 
@@ -447,7 +530,9 @@ export const loadClass = () => {
           // Merging customer`s state for new customer
           state = customerObj.state;
 
-          await Customers.findByIdAndUpdate(customerId, { $set: { status: 'deleted' } });
+          await Customers.findByIdAndUpdate(customerId, {
+            $set: { status: 'deleted' }
+          });
         }
       }
 
@@ -469,13 +554,17 @@ export const loadClass = () => {
           mergedIds: customerIds,
           emails,
           phones,
-          state,
+          state
         },
-        user,
+        user
       );
 
       // Updating every modules associated with customers
-      await Conformities.changeConformity({ type: 'customer', newTypeId: customer._id, oldTypeIds: customerIds });
+      await Conformities.changeConformity({
+        type: 'customer',
+        newTypeId: customer._id,
+        oldTypeIds: customerIds
+      });
       await Conversations.changeCustomer(customer._id, customerIds);
       await EngageMessages.changeCustomer(customer._id, customerIds);
       await InternalNotes.changeCustomer(customer._id, customerIds);
@@ -486,18 +575,24 @@ export const loadClass = () => {
     /*
      * Get widget customer
      */
-    public static async getWidgetCustomer({ integrationId, email, phone, code, cachedCustomerId }: IGetCustomerParams) {
+    public static async getWidgetCustomer({
+      integrationId,
+      email,
+      phone,
+      code,
+      cachedCustomerId
+    }: IGetCustomerParams) {
       let customer: ICustomerDocument | null = null;
 
       if (email) {
         customer = await Customers.findOne({
-          $or: [{ emails: { $in: [email] } }, { primaryEmail: email }],
+          $or: [{ emails: { $in: [email] } }, { primaryEmail: email }]
         });
       }
 
       if (!customer && phone) {
         customer = await Customers.findOne({
-          $or: [{ phones: { $in: [phone] } }, { primaryPhone: phone }],
+          $or: [{ phones: { $in: [phone] } }, { primaryPhone: phone }]
         });
       }
 
@@ -514,7 +609,10 @@ export const loadClass = () => {
 
         if (integrationId && ids && !ids.includes(integrationId)) {
           ids.push(integrationId);
-          await Customers.updateOne({ _id: customer._id }, { $set: { relatedIntegrationIds: ids } });
+          await Customers.updateOne(
+            { _id: customer._id },
+            { $set: { relatedIntegrationIds: ids } }
+          );
           customer = await Customers.findOne({ _id: customer._id });
         }
       }
@@ -540,7 +638,11 @@ export const loadClass = () => {
       return names;
     }
 
-    public static fixListFields(doc: any, customData = {}, customer?: ICustomerDocument) {
+    public static fixListFields(
+      doc: any,
+      customData = {},
+      customer?: ICustomerDocument
+    ) {
       let emails: string[] = [];
       let phones: string[] = [];
       let deviceTokens: string[] = [];
@@ -598,7 +700,10 @@ export const loadClass = () => {
     /*
      * Create a new messenger customer
      */
-    public static async createMessengerCustomer({ doc, customData }: ICreateMessengerCustomerParams) {
+    public static async createMessengerCustomer({
+      doc,
+      customData
+    }: ICreateMessengerCustomerParams) {
       this.fixListFields(doc, customData);
 
       return this.createCustomer({
@@ -606,14 +711,18 @@ export const loadClass = () => {
         trackedData: Fields.generateTypedListFromMap(customData),
         lastSeenAt: new Date(),
         isOnline: true,
-        sessionCount: 1,
+        sessionCount: 1
       });
     }
 
     /*
      * Update messenger customer
      */
-    public static async updateMessengerCustomer({ _id, doc, customData }: IUpdateMessengerCustomerParams) {
+    public static async updateMessengerCustomer({
+      _id,
+      doc,
+      customData
+    }: IUpdateMessengerCustomerParams) {
       const customer = await Customers.getCustomer(_id);
 
       this.fixListFields(doc, customData, customer);
@@ -622,7 +731,7 @@ export const loadClass = () => {
         ...doc,
         trackedData: Fields.generateTypedListFromMap(customData),
         state: doc.isUser ? 'customer' : customer.state,
-        modifiedAt: new Date(),
+        modifiedAt: new Date()
       };
 
       await Customers.updateOne({ _id }, { $set: modifier });
@@ -646,14 +755,17 @@ export const loadClass = () => {
       const query: any = {
         $set: {
           lastSeenAt: now,
-          isOnline: true,
-        },
+          isOnline: true
+        }
       };
 
       // Preventing session count to increase on page every refresh
       // Close your web site tab and reopen it after 6 seconds then it will increase
       // session count by 1
-      if (customer.lastSeenAt && now.getTime() - customer.lastSeenAt.getTime() > 6 * 1000) {
+      if (
+        customer.lastSeenAt &&
+        now.getTime() - customer.lastSeenAt.getTime() > 6 * 1000
+      ) {
         // update session count
         query.$inc = { sessionCount: 1 };
       }
@@ -672,8 +784,8 @@ export const loadClass = () => {
       await Customers.findByIdAndUpdate(
         { _id },
         {
-          $set: { state: value },
-        },
+          $set: { state: value }
+        }
       );
 
       return Customers.findOne({ _id });
@@ -686,8 +798,8 @@ export const loadClass = () => {
       await Customers.findByIdAndUpdate(
         { _id },
         {
-          $set: { location: browserInfo },
-        },
+          $set: { location: browserInfo }
+        }
       );
 
       return Customers.findOne({ _id });
@@ -697,7 +809,9 @@ export const loadClass = () => {
      * If customer is a visitor then we will contact with this customer using
      * this information later
      */
-    public static async saveVisitorContactInfo(args: IVisitorContactInfoParams) {
+    public static async saveVisitorContactInfo(
+      args: IVisitorContactInfoParams
+    ) {
       const { customerId, type, value } = args;
 
       if (type === 'email') {
@@ -705,8 +819,8 @@ export const loadClass = () => {
           { _id: customerId },
           {
             $set: { 'visitorContactInfo.email': value },
-            $push: { emails: value },
-          },
+            $push: { emails: value }
+          }
         );
       }
 
@@ -715,8 +829,8 @@ export const loadClass = () => {
           { _id: customerId },
           {
             $set: { 'visitorContactInfo.phone': value },
-            $push: { phones: value },
-          },
+            $push: { phones: value }
+          }
         );
       }
 
@@ -729,8 +843,15 @@ export const loadClass = () => {
       return Customers.getCustomer(customerId);
     }
 
-    public static async updateVerificationStatus(customerIds: string, type: string, status: string) {
-      const set: any = type !== 'email' ? { phoneValidationStatus: status } : { emailValidationStatus: status };
+    public static async updateVerificationStatus(
+      customerIds: string,
+      type: string,
+      status: string
+    ) {
+      const set: any =
+        type !== 'email'
+          ? { phoneValidationStatus: status }
+          : { emailValidationStatus: status };
 
       await Customers.updateMany({ _id: { $in: customerIds } }, { $set: set });
 
@@ -746,6 +867,9 @@ export const loadClass = () => {
 loadClass();
 
 // tslint:disable-next-line
-const Customers = model<ICustomerDocument, ICustomerModel>('customers', customerSchema);
+const Customers = model<ICustomerDocument, ICustomerModel>(
+  'customers',
+  customerSchema
+);
 
 export default Customers;

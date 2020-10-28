@@ -9,7 +9,7 @@ import {
   getMessage,
   nylasFileUpload,
   nylasGetAttachment,
-  nylasSendEmail,
+  nylasSendEmail
 } from '../nylas/handleController';
 import { NylasGmailConversationMessages } from '../nylas/models';
 import * as nylasUtils from '../nylas/utils';
@@ -31,11 +31,13 @@ describe('Test nylas controller', () => {
       Promise.resolve({
         access_token: 'access_token',
         account_id: 'account_id',
-        billing_state: 'cancelled',
-      }),
+        billing_state: 'cancelled'
+      })
     );
 
-    nylasInstanceMock = sinon.stub(api, 'enableOrDisableAccount').resolves('success');
+    nylasInstanceMock = sinon
+      .stub(api, 'enableOrDisableAccount')
+      .resolves('success');
 
     await integrationFactory({ erxesApiId });
   });
@@ -56,19 +58,23 @@ describe('Test nylas controller', () => {
       host: 'host',
       billingState: 'cancelled',
       integrationId: erxesApiId,
-      kind: 'exchange',
+      kind: 'exchange'
     };
 
     await createNylasIntegration('exchange', erxesApiId, doc);
 
-    const updatedIntegration = await Integrations.findOne({ erxesApiId }).lean();
+    const updatedIntegration = await Integrations.findOne({
+      erxesApiId
+    }).lean();
 
     expect(updatedIntegration.nylasToken).toBe('access_token');
 
     await Integrations.create({ kind: 'exchange', email: 'john@mail.com' });
 
     try {
-      await createNylasIntegration('exchange', erxesApiId, { email: 'john@mail.com' });
+      await createNylasIntegration('exchange', erxesApiId, {
+        email: 'john@mail.com'
+      });
     } catch (e) {
       expect(e.message).toBe(`john@mail.com already exists`);
     }
@@ -83,12 +89,14 @@ describe('Test nylas controller', () => {
       smtpHost: 'smtpHost',
       imapPort: 1,
       smtpPort: 2,
-      billingState: 'cancelled',
+      billingState: 'cancelled'
     };
 
     await createNylasIntegration('imap', erxesApiId, doc);
 
-    const updatedIntegration = await Integrations.findOne({ erxesApiId }).lean();
+    const updatedIntegration = await Integrations.findOne({
+      erxesApiId
+    }).lean();
 
     expect(updatedIntegration.nylasToken).toBe('access_token');
   });
@@ -103,19 +111,24 @@ describe('Test nylas controller', () => {
       Promise.resolve({
         access_token: 'access_token',
         account_id: 'account_id',
-        billing_state: 'paid',
-      }),
+        billing_state: 'paid'
+      })
     );
 
     const doc = {
       username: 'username',
       password: 'password',
-      billingState: 'cancelled',
+      billingState: 'cancelled'
     };
 
-    await createNylasIntegration('outlook', erxesApiId, { ...doc, email: 'email@outlook.com' });
+    await createNylasIntegration('outlook', erxesApiId, {
+      ...doc,
+      email: 'email@outlook.com'
+    });
 
-    const updatedIntegration = await Integrations.findOne({ erxesApiId }).lean();
+    const updatedIntegration = await Integrations.findOne({
+      erxesApiId
+    }).lean();
 
     expect(updatedIntegration.nylasToken).toBe('access_token');
 
@@ -124,7 +137,10 @@ describe('Test nylas controller', () => {
       .throws(new Error('Failed to create outlook integration'));
 
     try {
-      await createNylasIntegration('outlook', erxesApiId, { ...doc, email: 'test@outlook.com' });
+      await createNylasIntegration('outlook', erxesApiId, {
+        ...doc,
+        email: 'test@outlook.com'
+      });
     } catch (e) {
       expect(e.message).toBe('Failed to create outlook integration');
     }
@@ -137,43 +153,53 @@ describe('Test nylas controller', () => {
     await createNylasIntegration('yahoo', erxesApiId, {
       username: 'username',
       password: 'password',
-      email: 'email',
+      email: 'email'
     });
 
-    const updatedIntegration = await Integrations.findOne({ erxesApiId }).lean();
+    const updatedIntegration = await Integrations.findOne({
+      erxesApiId
+    }).lean();
 
     expect(updatedIntegration.nylasToken).toBe('access_token');
     expect(updatedIntegration.nylasBillingState).toBe('paid');
   });
 
   test('Create Nylas gmail integration', async () => {
-    const providerMock = sinon.stub(nylasUtils, 'getProviderSettings').callsFake(() => {
-      return Promise.resolve({});
-    });
-
-    const configMock = sinon.stub(nylasUtils, 'getNylasConfig').callsFake(() => {
-      return Promise.resolve({
-        NYLAS_CLIENT_ID: 'NYLAS_CLIENT_ID',
-        NYLAS_CLIENT_SECRET: 'NYLAS_CLIENT_SECRET',
+    const providerMock = sinon
+      .stub(nylasUtils, 'getProviderSettings')
+      .callsFake(() => {
+        return Promise.resolve({});
       });
-    });
+
+    const configMock = sinon
+      .stub(nylasUtils, 'getNylasConfig')
+      .callsFake(() => {
+        return Promise.resolve({
+          NYLAS_CLIENT_ID: 'NYLAS_CLIENT_ID',
+          NYLAS_CLIENT_SECRET: 'NYLAS_CLIENT_SECRET'
+        });
+      });
 
     const redisMock = sinon.stub(memoryStorage(), 'get').callsFake(() => {
       return Promise.resolve('email321,refrshToken');
     });
 
-    const redisRemoveMock = sinon.stub(memoryStorage(), 'removeKey').callsFake(() => {
-      return Promise.resolve('success');
-    });
+    const redisRemoveMock = sinon
+      .stub(memoryStorage(), 'removeKey')
+      .callsFake(() => {
+        return Promise.resolve('success');
+      });
 
     await createNylasIntegration('gmail', erxesApiId, {
       username: 'username',
       password: 'password',
       email: 'emailtest@gmail.com',
-      billingState: 'cancelled',
+      billingState: 'cancelled'
     });
 
-    const updatedIntegration = await Integrations.findOne({ erxesApiId }).lean();
+    const updatedIntegration = await Integrations.findOne({
+      erxesApiId
+    }).lean();
 
     expect(updatedIntegration.nylasToken).toBe('access_token');
 
@@ -190,7 +216,10 @@ describe('Test nylas controller', () => {
       expect(e.message).toBe('Integration not found!');
     }
 
-    const message = await NylasGmailConversationMessages.create({ erxesApiMessageId: 'asjlkd', subject: 'aklsdj' });
+    const message = await NylasGmailConversationMessages.create({
+      erxesApiMessageId: 'asjlkd',
+      subject: 'aklsdj'
+    });
 
     await Integrations.create({ erxesApiId: '123', kind: 'gmail' });
 
@@ -262,13 +291,17 @@ describe('Test nylas controller', () => {
   test('Nylas send email', async () => {
     sendRequestMock.restore();
 
-    const redisAddtoArrayMock = sinon.stub(memoryStorage(), 'addToArray').callsFake(() => {
-      return Promise.resolve('success');
-    });
+    const redisAddtoArrayMock = sinon
+      .stub(memoryStorage(), 'addToArray')
+      .callsFake(() => {
+        return Promise.resolve('success');
+      });
 
-    const redisRemoveFromArrayMock = sinon.stub(memoryStorage(), 'removeFromArray').callsFake(() => {
-      return Promise.resolve('success');
-    });
+    const redisRemoveFromArrayMock = sinon
+      .stub(memoryStorage(), 'removeFromArray')
+      .callsFake(() => {
+        return Promise.resolve('success');
+      });
 
     try {
       await nylasSendEmail('alksjd', {});
@@ -286,7 +319,7 @@ describe('Test nylas controller', () => {
       threadId: 'threadId',
       subject: 'subject',
       attachments: [],
-      replyToMessageId: '123',
+      replyToMessageId: '123'
     } as any;
 
     const mock = sinon.stub(api, 'sendMessage');
@@ -301,7 +334,9 @@ describe('Test nylas controller', () => {
       expect(e.message).toBe('Failed to send email');
     }
 
-    const mockRequest = sinon.stub(utils, 'sendRequest').callsFake(() => Promise.resolve('success'));
+    const mockRequest = sinon
+      .stub(utils, 'sendRequest')
+      .callsFake(() => Promise.resolve('success'));
 
     params.shouldResolve = false;
 
@@ -320,28 +355,36 @@ describe('Test nylas controller', () => {
   });
 
   test('Create Nylas integration ', async () => {
-    const providerMock = sinon.stub(nylasUtils, 'getProviderSettings').callsFake(() => {
-      return Promise.resolve({});
-    });
-
-    const configMock = sinon.stub(nylasUtils, 'getNylasConfig').callsFake(() => {
-      return Promise.resolve({
-        NYLAS_CLIENT_ID: 'NYLAS_CLIENT_ID',
-        NYLAS_CLIENT_SECRET: 'NYLAS_CLIENT_SECRET',
+    const providerMock = sinon
+      .stub(nylasUtils, 'getProviderSettings')
+      .callsFake(() => {
+        return Promise.resolve({});
       });
-    });
+
+    const configMock = sinon
+      .stub(nylasUtils, 'getNylasConfig')
+      .callsFake(() => {
+        return Promise.resolve({
+          NYLAS_CLIENT_ID: 'NYLAS_CLIENT_ID',
+          NYLAS_CLIENT_SECRET: 'NYLAS_CLIENT_SECRET'
+        });
+      });
 
     const redisMock = sinon.stub(memoryStorage(), 'get').callsFake(() => {
       return Promise.resolve('email321@gmail.com,refrshToken');
     });
 
-    const redisRemoveMock = sinon.stub(memoryStorage(), 'removeKey').callsFake(() => {
-      return Promise.resolve('success');
-    });
+    const redisRemoveMock = sinon
+      .stub(memoryStorage(), 'removeKey')
+      .callsFake(() => {
+        return Promise.resolve('success');
+      });
 
     await createNylasIntegration('gmail', 'erxesApiId', {});
 
-    const updatedIntegration = await Integrations.findOne({ erxesApiId: 'erxesApiId' });
+    const updatedIntegration = await Integrations.findOne({
+      erxesApiId: 'erxesApiId'
+    });
 
     expect(updatedIntegration.email).toEqual('email321@gmail.com');
     expect(updatedIntegration.nylasToken).toEqual('access_token');

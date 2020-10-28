@@ -9,7 +9,7 @@ import {
   IForm,
   IFormDocument,
   IFormSubmission,
-  IFormSubmissionDocument,
+  IFormSubmissionDocument
 } from './definitions/forms';
 
 interface ISubmission {
@@ -30,7 +30,10 @@ export interface IFormModel extends Model<IFormDocument> {
   generateCode(): string;
   createForm(doc: IForm, createdUserId: string): Promise<IFormDocument>;
 
-  updateForm(_id, { title, description, buttonText }: IForm): Promise<IFormDocument>;
+  updateForm(
+    _id,
+    { title, description, buttonText }: IForm
+  ): Promise<IFormDocument>;
 
   removeForm(_id: string): void;
   duplicate(_id: string): Promise<IFormDocument>;
@@ -100,8 +103,12 @@ export const loadFormClass = () => {
 
       // duplicate form ===================
       const newForm = await this.createForm(
-        { title: `${form.title} duplicated`, description: form.description, type: form.type },
-        form.createdUserId,
+        {
+          title: `${form.title} duplicated`,
+          description: form.description,
+          type: form.type
+        },
+        form.createdUserId
       );
 
       // duplicate fields ===================
@@ -117,7 +124,7 @@ export const loadFormClass = () => {
           description: field.description,
           options: field.options,
           isRequired: field.isRequired,
-          order: field.order,
+          order: field.order
         });
       }
 
@@ -143,13 +150,24 @@ export const loadFormClass = () => {
 
         // required
         if (field.isRequired && !value) {
-          errors.push({ fieldId: field._id, code: 'required', text: 'Required' });
+          errors.push({
+            fieldId: field._id,
+            code: 'required',
+            text: 'Required'
+          });
         }
 
         if (value) {
           // email
-          if ((type === 'email' || validation === 'email') && !validator.isEmail(value)) {
-            errors.push({ fieldId: field._id, code: 'invalidEmail', text: 'Invalid email' });
+          if (
+            (type === 'email' || validation === 'email') &&
+            !validator.isEmail(value)
+          ) {
+            errors.push({
+              fieldId: field._id,
+              code: 'invalidEmail',
+              text: 'Invalid email'
+            });
           }
 
           // phone
@@ -157,17 +175,32 @@ export const loadFormClass = () => {
             (type === 'phone' || validation === 'phone') &&
             !/^\d{8,}$/.test(value.replace(/[\s()+\-\.]|ext/gi, ''))
           ) {
-            errors.push({ fieldId: field._id, code: 'invalidPhone', text: 'Invalid phone' });
+            errors.push({
+              fieldId: field._id,
+              code: 'invalidPhone',
+              text: 'Invalid phone'
+            });
           }
 
           // number
-          if (validation === 'number' && !validator.isNumeric(value.toString())) {
-            errors.push({ fieldId: field._id, code: 'invalidNumber', text: 'Invalid number' });
+          if (
+            validation === 'number' &&
+            !validator.isNumeric(value.toString())
+          ) {
+            errors.push({
+              fieldId: field._id,
+              code: 'invalidNumber',
+              text: 'Invalid number'
+            });
           }
 
           // date
           if (validation === 'date' && !validator.isISO8601(value)) {
-            errors.push({ fieldId: field._id, code: 'invalidDate', text: 'Invalid Date' });
+            errors.push({
+              fieldId: field._id,
+              code: 'invalidDate',
+              text: 'Invalid Date'
+            });
           }
         }
       }
@@ -207,6 +240,9 @@ loadFormSubmissionClass();
 const Forms = model<IFormDocument, IFormModel>('forms', formSchema);
 
 // tslint:disable-next-line
-const FormSubmissions = model<IFormSubmissionDocument, IFormSubmissionModel>('form_submissions', formSubmissionSchema);
+const FormSubmissions = model<IFormSubmissionDocument, IFormSubmissionModel>(
+  'form_submissions',
+  formSubmissionSchema
+);
 
 export { Forms, FormSubmissions };

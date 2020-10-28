@@ -1,6 +1,13 @@
 import { Model, model } from 'mongoose';
 import * as _ from 'underscore';
-import { Companies, Conversations, Customers, EngageMessages, Integrations, Products } from '.';
+import {
+  Companies,
+  Conversations,
+  Customers,
+  EngageMessages,
+  Integrations,
+  Products
+} from '.';
 import { ITag, ITagDocument, tagSchema } from './definitions/tags';
 
 interface ITagObjectParams {
@@ -17,7 +24,11 @@ export interface ITagModel extends Model<ITagDocument> {
   removeTag(ids: string[]): void;
   tagsTag(type: string, targetIds: string[], tagIds: string[]): void;
   tagObject(params: ITagObjectParams): void;
-  validateUniqueness(selector: any, name: string, type: string): Promise<boolean>;
+  validateUniqueness(
+    selector: any,
+    name: string,
+    type: string
+  ): Promise<boolean>;
 }
 
 export const loadClass = () => {
@@ -37,7 +48,11 @@ export const loadClass = () => {
     /*
      * Validates tag uniquness
      */
-    public static async validateUniqueness(selector: any, name: string, type: string): Promise<boolean> {
+    public static async validateUniqueness(
+      selector: any,
+      name: string,
+      type: string
+    ): Promise<boolean> {
       // required name and type
       if (!name || !type) {
         return true;
@@ -70,17 +85,25 @@ export const loadClass = () => {
     /*
      * Common helper for taggable objects like conversation, engage, customer etc ...
      */
-    public static async tagObject({ tagIds, objectIds, collection, tagType }: ITagObjectParams) {
+    public static async tagObject({
+      tagIds,
+      objectIds,
+      collection,
+      tagType
+    }: ITagObjectParams) {
       const prevTagsCount = await Tags.find({
         _id: { $in: tagIds },
-        type: tagType,
+        type: tagType
       }).countDocuments();
 
       if (prevTagsCount !== tagIds.length) {
         throw new Error('Tag not found.');
       }
 
-      const objects = await collection.find({ _id: { $in: objectIds } }, { tagIds: 1 });
+      const objects = await collection.find(
+        { _id: { $in: objectIds } },
+        { tagIds: 1 }
+      );
 
       let removeIds: string[] = [];
 
@@ -90,11 +113,23 @@ export const loadClass = () => {
 
       removeIds = _.uniq(_.flatten(removeIds));
 
-      await Tags.updateMany({ _id: { $in: removeIds } }, { $inc: { objectCount: -1 } }, { multi: true });
+      await Tags.updateMany(
+        { _id: { $in: removeIds } },
+        { $inc: { objectCount: -1 } },
+        { multi: true }
+      );
 
-      await collection.updateMany({ _id: { $in: objectIds } }, { $set: { tagIds } }, { multi: true });
+      await collection.updateMany(
+        { _id: { $in: objectIds } },
+        { $set: { tagIds } },
+        { multi: true }
+      );
 
-      await Tags.updateMany({ _id: { $in: tagIds } }, { $inc: { objectCount: 1 } }, { multi: true });
+      await Tags.updateMany(
+        { _id: { $in: tagIds } },
+        { $inc: { objectCount: 1 } },
+        { multi: true }
+      );
     }
 
     /**
@@ -109,7 +144,7 @@ export const loadClass = () => {
 
       return Tags.create({
         ...doc,
-        createdAt: new Date(),
+        createdAt: new Date()
       });
     }
 
@@ -117,7 +152,11 @@ export const loadClass = () => {
      * Update Tag
      */
     public static async updateTag(_id: string, doc: ITag) {
-      const isUnique = await Tags.validateUniqueness({ _id }, doc.name, doc.type);
+      const isUnique = await Tags.validateUniqueness(
+        { _id },
+        doc.name,
+        doc.type
+      );
 
       if (!isUnique) {
         throw new Error('Tag duplicated');
@@ -141,10 +180,16 @@ export const loadClass = () => {
       let count = 0;
 
       count += await Customers.find({ tagIds: { $in: ids } }).countDocuments();
-      count += await Conversations.find({ tagIds: { $in: ids } }).countDocuments();
-      count += await EngageMessages.find({ tagIds: { $in: ids } }).countDocuments();
+      count += await Conversations.find({
+        tagIds: { $in: ids }
+      }).countDocuments();
+      count += await EngageMessages.find({
+        tagIds: { $in: ids }
+      }).countDocuments();
       count += await Companies.find({ tagIds: { $in: ids } }).countDocuments();
-      count += await Integrations.findIntegrations({ tagIds: { $in: ids } }).countDocuments();
+      count += await Integrations.findIntegrations({
+        tagIds: { $in: ids }
+      }).countDocuments();
       count += await Products.find({ tagIds: { $in: ids } }).countDocuments();
 
       if (count > 0) {
@@ -157,7 +202,11 @@ export const loadClass = () => {
     /**
      * Attach a tag
      */
-    public static async tagsTag(type: string, targetIds: string[], tagIds: string[]) {
+    public static async tagsTag(
+      type: string,
+      targetIds: string[],
+      tagIds: string[]
+    ) {
       let collection: any = Conversations;
 
       switch (type) {
@@ -182,7 +231,7 @@ export const loadClass = () => {
         tagIds,
         objectIds: targetIds,
         collection,
-        tagType: type,
+        tagType: type
       });
     }
   }

@@ -1,4 +1,7 @@
-import { FIELD_CONTENT_TYPES, FIELDS_GROUPS_CONTENT_TYPES } from '../../../data/constants';
+import {
+  FIELD_CONTENT_TYPES,
+  FIELDS_GROUPS_CONTENT_TYPES
+} from '../../../data/constants';
 import { Fields, FieldsGroups } from '../../../db/models';
 import { fieldsCombinedByContentType } from '../../modules/fields/utils';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
@@ -17,7 +20,13 @@ const fieldQueries = {
   /**
    * Fields list
    */
-  fields(_root, { contentType, contentTypeId }: { contentType: string; contentTypeId: string }) {
+  fields(
+    _root,
+    {
+      contentType,
+      contentTypeId
+    }: { contentType: string; contentTypeId: string }
+  ) {
     const query: IFieldsQuery = { contentType };
 
     if (contentTypeId) {
@@ -37,7 +46,10 @@ const fieldQueries = {
   /**
    * Default list columns config
    */
-  fieldsDefaultColumnsConfig(_root, { contentType }: { contentType: string }): IFieldsDefaultColmns {
+  fieldsDefaultColumnsConfig(
+    _root,
+    { contentType }: { contentType: string }
+  ): IFieldsDefaultColmns {
     if (contentType === FIELD_CONTENT_TYPES.COMPANY) {
       return [
         { name: 'primaryName', label: 'Primary Name', order: 1 },
@@ -46,7 +58,7 @@ const fieldQueries = {
         { name: 'industry', label: 'Industry', order: 4 },
         { name: 'plan', label: 'Plan', order: 5 },
         { name: 'lastSeenAt', label: 'Last seen at', order: 6 },
-        { name: 'sessionCount', label: 'Session count', order: 7 },
+        { name: 'sessionCount', label: 'Session count', order: 7 }
       ];
     }
 
@@ -54,7 +66,7 @@ const fieldQueries = {
       return [
         { name: 'categoryCode', label: 'Category Code', order: 0 },
         { name: 'code', label: 'Code', order: 1 },
-        { name: 'name', label: 'Name', order: 1 },
+        { name: 'name', label: 'Name', order: 1 }
       ];
     }
 
@@ -65,9 +77,9 @@ const fieldQueries = {
       { name: 'primaryEmail', label: 'Primary email', order: 3 },
       { name: 'lastSeenAt', label: 'Last seen at', order: 4 },
       { name: 'sessionCount', label: 'Session count', order: 5 },
-      { name: 'profileScore', label: 'Profile score', order: 6 },
+      { name: 'profileScore', label: 'Profile score', order: 6 }
     ];
-  },
+  }
 };
 
 requireLogin(fieldQueries, 'fieldsCombinedByContentType');
@@ -79,14 +91,18 @@ const fieldsGroupQueries = {
   /**
    * Fields group list
    */
-  fieldsGroups(_root, { contentType }: { contentType: string }, { commonQuerySelector }: IContext) {
+  fieldsGroups(
+    _root,
+    { contentType }: { contentType: string },
+    { commonQuerySelector }: IContext
+  ) {
     const query: any = commonQuerySelector;
 
     // querying by content type
     query.contentType = contentType || FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER;
 
     return FieldsGroups.find(query).sort({ order: 1 });
-  },
+  }
 };
 
 checkPermission(fieldsGroupQueries, 'fieldsGroups', 'showForms', []);

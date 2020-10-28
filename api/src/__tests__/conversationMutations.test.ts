@@ -4,9 +4,25 @@ import * as faker from 'faker';
 import * as sinon from 'sinon';
 import messageBroker from '../messageBroker';
 
-import { channelFactory, conversationFactory, customerFactory, integrationFactory, userFactory } from '../db/factories';
-import { ConversationMessages, Conversations, Customers, Integrations, Users } from '../db/models';
-import { CONVERSATION_OPERATOR_STATUS, CONVERSATION_STATUSES, KIND_CHOICES } from '../db/models/definitions/constants';
+import {
+  channelFactory,
+  conversationFactory,
+  customerFactory,
+  integrationFactory,
+  userFactory
+} from '../db/factories';
+import {
+  ConversationMessages,
+  Conversations,
+  Customers,
+  Integrations,
+  Users
+} from '../db/models';
+import {
+  CONVERSATION_OPERATOR_STATUS,
+  CONVERSATION_STATUSES,
+  KIND_CHOICES
+} from '../db/models/definitions/constants';
 
 import { AUTO_BOT_MESSAGES } from '../data/constants';
 import { IntegrationsAPI } from '../data/dataSources';
@@ -80,12 +96,12 @@ describe('Conversation message mutations', () => {
     customer = await customerFactory({
       primaryEmail: faker.internet.email(),
       primaryPhone: faker.phone.phoneNumber(),
-      phoneValidationStatus: 'valid',
+      phoneValidationStatus: 'valid'
     });
 
     leadIntegration = await integrationFactory({
       kind: KIND_CHOICES.LEAD,
-      messengerData: { welcomeMessage: 'welcome', notifyCustomer: true },
+      messengerData: { welcomeMessage: 'welcome', notifyCustomer: true }
     });
 
     leadConversation = await conversationFactory({
@@ -93,46 +109,89 @@ describe('Conversation message mutations', () => {
       customerId: customer._id,
       assignedUserId: user._id,
       participatedUserIds: [user._id],
-      content: 'lead content',
+      content: 'lead content'
     });
 
-    const facebookIntegration = await integrationFactory({ kind: KIND_CHOICES.FACEBOOK_POST });
-    facebookConversation = await conversationFactory({ integrationId: facebookIntegration._id });
+    const facebookIntegration = await integrationFactory({
+      kind: KIND_CHOICES.FACEBOOK_POST
+    });
+    facebookConversation = await conversationFactory({
+      integrationId: facebookIntegration._id
+    });
 
-    const facebookMessengerIntegration = await integrationFactory({ kind: KIND_CHOICES.FACEBOOK_MESSENGER });
-    facebookMessengerConversation = await conversationFactory({ integrationId: facebookMessengerIntegration._id });
+    const facebookMessengerIntegration = await integrationFactory({
+      kind: KIND_CHOICES.FACEBOOK_MESSENGER
+    });
+    facebookMessengerConversation = await conversationFactory({
+      integrationId: facebookMessengerIntegration._id
+    });
 
-    const chatfuelIntegration = await integrationFactory({ kind: KIND_CHOICES.CHATFUEL });
-    chatfuelConversation = await conversationFactory({ integrationId: chatfuelIntegration._id });
+    const chatfuelIntegration = await integrationFactory({
+      kind: KIND_CHOICES.CHATFUEL
+    });
+    chatfuelConversation = await conversationFactory({
+      integrationId: chatfuelIntegration._id
+    });
 
-    const twitterIntegration = await integrationFactory({ kind: KIND_CHOICES.TWITTER_DM });
-    twitterConversation = await conversationFactory({ integrationId: twitterIntegration._id });
+    const twitterIntegration = await integrationFactory({
+      kind: KIND_CHOICES.TWITTER_DM
+    });
+    twitterConversation = await conversationFactory({
+      integrationId: twitterIntegration._id
+    });
 
-    const whatsAppIntegration = await integrationFactory({ kind: KIND_CHOICES.WHATSAPP });
-    whatsAppConversation = await conversationFactory({ integrationId: whatsAppIntegration._id });
+    const whatsAppIntegration = await integrationFactory({
+      kind: KIND_CHOICES.WHATSAPP
+    });
+    whatsAppConversation = await conversationFactory({
+      integrationId: whatsAppIntegration._id
+    });
 
-    const viberIntegration = await integrationFactory({ kind: KIND_CHOICES.SMOOCH_VIBER });
-    viberConversation = await conversationFactory({ integrationId: viberIntegration._id });
+    const viberIntegration = await integrationFactory({
+      kind: KIND_CHOICES.SMOOCH_VIBER
+    });
+    viberConversation = await conversationFactory({
+      integrationId: viberIntegration._id
+    });
 
-    const telegramIntegration = await integrationFactory({ kind: KIND_CHOICES.SMOOCH_TELEGRAM });
-    telegramConversation = await conversationFactory({ integrationId: telegramIntegration._id });
+    const telegramIntegration = await integrationFactory({
+      kind: KIND_CHOICES.SMOOCH_TELEGRAM
+    });
+    telegramConversation = await conversationFactory({
+      integrationId: telegramIntegration._id
+    });
 
-    const lineIntegration = await integrationFactory({ kind: KIND_CHOICES.SMOOCH_LINE });
-    lineConversation = await conversationFactory({ integrationId: lineIntegration._id });
+    const lineIntegration = await integrationFactory({
+      kind: KIND_CHOICES.SMOOCH_LINE
+    });
+    lineConversation = await conversationFactory({
+      integrationId: lineIntegration._id
+    });
 
-    const twilioIntegration = await integrationFactory({ kind: KIND_CHOICES.SMOOCH_TWILIO });
-    twilioConversation = await conversationFactory({ integrationId: twilioIntegration._id });
+    const twilioIntegration = await integrationFactory({
+      kind: KIND_CHOICES.SMOOCH_TWILIO
+    });
+    twilioConversation = await conversationFactory({
+      integrationId: twilioIntegration._id
+    });
 
-    const telnyxIntegration = await integrationFactory({ kind: KIND_CHOICES.TELNYX });
-    telnyxConversation = await conversationFactory({ integrationId: telnyxIntegration._id, customerId: customer._id });
+    const telnyxIntegration = await integrationFactory({
+      kind: KIND_CHOICES.TELNYX
+    });
+    telnyxConversation = await conversationFactory({
+      integrationId: telnyxIntegration._id,
+      customerId: customer._id
+    });
 
-    const messengerIntegration = await integrationFactory({ kind: 'messenger' });
+    const messengerIntegration = await integrationFactory({
+      kind: 'messenger'
+    });
     messengerConversation = await conversationFactory({
       customerId: customer._id,
       firstRespondedUserId: user._id,
       firstRespondedDate: new Date(),
       integrationId: messengerIntegration._id,
-      status: CONVERSATION_STATUSES.CLOSED,
+      status: CONVERSATION_STATUSES.CLOSED
     });
   });
 
@@ -150,10 +209,14 @@ describe('Conversation message mutations', () => {
     const args = {
       conversationId: messengerConversation._id,
       content: 'content',
-      internal: true,
+      internal: true
     };
 
-    const response = await graphqlRequest(addMutation, 'conversationMessageAdd', args);
+    const response = await graphqlRequest(
+      addMutation,
+      'conversationMessageAdd',
+      args
+    );
 
     expect(response.conversationId).toBe(args.conversationId);
     expect(response.content).toBe(args.content);
@@ -169,14 +232,25 @@ describe('Conversation message mutations', () => {
       content: 'content',
       mentionedUserIds: [user._id],
       internal: false,
-      attachments: [{ url: 'url', name: 'name', type: 'doc', size: 10 }],
+      attachments: [{ url: 'url', name: 'name', type: 'doc', size: 10 }]
     };
 
-    const response = await graphqlRequest(addMutation, 'conversationMessageAdd', args);
+    const response = await graphqlRequest(
+      addMutation,
+      'conversationMessageAdd',
+      args
+    );
 
     expect(response.content).toBe(args.content);
-    expect(response.attachments[0]).toEqual({ url: 'url', name: 'name', type: 'doc', size: 10 });
-    expect(toJSON(response.mentionedUserIds)).toEqual(toJSON(args.mentionedUserIds));
+    expect(response.attachments[0]).toEqual({
+      url: 'url',
+      name: 'name',
+      type: 'doc',
+      size: 10
+    });
+    expect(toJSON(response.mentionedUserIds)).toEqual(
+      toJSON(args.mentionedUserIds)
+    );
     expect(response.internal).toBe(args.internal);
   });
 
@@ -184,10 +258,14 @@ describe('Conversation message mutations', () => {
     const args = {
       conversationId: messengerConversation._id,
       content: 'content',
-      fromBot: true,
+      fromBot: true
     };
 
-    const response = await graphqlRequest(addMutation, 'conversationMessageAdd', args);
+    const response = await graphqlRequest(
+      addMutation,
+      'conversationMessageAdd',
+      args
+    );
 
     expect(response.conversationId).toBe(messengerConversation._id);
   });
@@ -197,14 +275,24 @@ describe('Conversation message mutations', () => {
       return Promise.resolve('success');
     });
 
-    const args = { conversationId: facebookConversation._id, content: 'content' };
+    const args = {
+      conversationId: facebookConversation._id,
+      content: 'content'
+    };
 
-    const response = await graphqlRequest(addMutation, 'conversationMessageAdd', args, { dataSources: {} });
+    const response = await graphqlRequest(
+      addMutation,
+      'conversationMessageAdd',
+      args,
+      { dataSources: {} }
+    );
 
     expect(response).toBeDefined();
 
     try {
-      await graphqlRequest(addMutation, 'conversationMessageAdd', args, { dataSources });
+      await graphqlRequest(addMutation, 'conversationMessageAdd', args, {
+        dataSources
+      });
     } catch (e) {
       expect(e).toBeDefined();
     }
@@ -213,7 +301,9 @@ describe('Conversation message mutations', () => {
     args.content = '<img src="img">';
 
     try {
-      await graphqlRequest(addMutation, 'conversationMessageAdd', args, { dataSources });
+      await graphqlRequest(addMutation, 'conversationMessageAdd', args, {
+        dataSources
+      });
     } catch (e) {
       expect(e).toBeDefined();
     }
@@ -221,7 +311,9 @@ describe('Conversation message mutations', () => {
     args.conversationId = chatfuelConversation._id;
 
     try {
-      await graphqlRequest(addMutation, 'conversationMessageAdd', args, { dataSources });
+      await graphqlRequest(addMutation, 'conversationMessageAdd', args, {
+        dataSources
+      });
     } catch (e) {
       expect(e).toBeDefined();
     }
@@ -229,7 +321,9 @@ describe('Conversation message mutations', () => {
     args.conversationId = twitterConversation._id;
 
     try {
-      await graphqlRequest(addMutation, 'conversationMessageAdd', args, { dataSources });
+      await graphqlRequest(addMutation, 'conversationMessageAdd', args, {
+        dataSources
+      });
     } catch (e) {
       expect(e).toBeDefined();
     }
@@ -237,7 +331,9 @@ describe('Conversation message mutations', () => {
     args.conversationId = whatsAppConversation._id;
 
     try {
-      await graphqlRequest(addMutation, 'conversationMessageAdd', args, { dataSources });
+      await graphqlRequest(addMutation, 'conversationMessageAdd', args, {
+        dataSources
+      });
     } catch (e) {
       expect(e).toBeDefined();
     }
@@ -245,7 +341,9 @@ describe('Conversation message mutations', () => {
     args.conversationId = viberConversation._id;
 
     try {
-      await graphqlRequest(addMutation, 'conversationMessageAdd', args, { dataSources });
+      await graphqlRequest(addMutation, 'conversationMessageAdd', args, {
+        dataSources
+      });
     } catch (e) {
       expect(e).toBeDefined();
     }
@@ -253,7 +351,9 @@ describe('Conversation message mutations', () => {
     args.conversationId = telegramConversation._id;
 
     try {
-      await graphqlRequest(addMutation, 'conversationMessageAdd', args, { dataSources });
+      await graphqlRequest(addMutation, 'conversationMessageAdd', args, {
+        dataSources
+      });
     } catch (e) {
       expect(e).toBeDefined();
     }
@@ -261,7 +361,9 @@ describe('Conversation message mutations', () => {
     args.conversationId = lineConversation._id;
 
     try {
-      await graphqlRequest(addMutation, 'conversationMessageAdd', args, { dataSources });
+      await graphqlRequest(addMutation, 'conversationMessageAdd', args, {
+        dataSources
+      });
     } catch (e) {
       expect(e).toBeDefined();
     }
@@ -269,7 +371,9 @@ describe('Conversation message mutations', () => {
     args.conversationId = twilioConversation._id;
 
     try {
-      await graphqlRequest(addMutation, 'conversationMessageAdd', args, { dataSources });
+      await graphqlRequest(addMutation, 'conversationMessageAdd', args, {
+        dataSources
+      });
     } catch (e) {
       expect(e).toBeDefined();
     }
@@ -278,7 +382,9 @@ describe('Conversation message mutations', () => {
     args.conversationId = telnyxConversation._id;
 
     try {
-      await graphqlRequest(addMutation, 'conversationMessageAdd', args, { dataSources });
+      await graphqlRequest(addMutation, 'conversationMessageAdd', args, {
+        dataSources
+      });
     } catch (e) {
       expect(e).toBeDefined();
     }
@@ -313,12 +419,17 @@ describe('Conversation message mutations', () => {
     const args = {
       conversationId: facebookConversation._id,
       content: 'content',
-      commentId: comment._id,
+      commentId: comment._id
     };
 
-    const response = await graphqlRequest(commentMutation, 'conversationsReplyFacebookComment', args, {
-      dataSources: {},
-    });
+    const response = await graphqlRequest(
+      commentMutation,
+      'conversationsReplyFacebookComment',
+      args,
+      {
+        dataSources: {}
+      }
+    );
 
     expect(response).toBeDefined();
 
@@ -329,9 +440,14 @@ describe('Conversation message mutations', () => {
     });
 
     try {
-      await graphqlRequest(commentMutation, 'conversationsReplyFacebookComment', args, {
-        dataSources: {},
-      });
+      await graphqlRequest(
+        commentMutation,
+        'conversationsReplyFacebookComment',
+        args,
+        {
+          dataSources: {}
+        }
+      );
     } catch (e) {
       expect(e).toBeDefined();
     }
@@ -359,12 +475,17 @@ describe('Conversation message mutations', () => {
     const comment = await integrationFactory({ kind: 'facebook-post' });
 
     const args = {
-      commentId: comment._id,
+      commentId: comment._id
     };
 
-    const response = await graphqlRequest(mutation, 'conversationsChangeStatusFacebookComment', args, {
-      dataSources: {},
-    });
+    const response = await graphqlRequest(
+      mutation,
+      'conversationsChangeStatusFacebookComment',
+      args,
+      {
+        dataSources: {}
+      }
+    );
 
     expect(response).toBeDefined();
 
@@ -375,9 +496,14 @@ describe('Conversation message mutations', () => {
     });
 
     try {
-      await graphqlRequest(mutation, 'conversationsChangeStatusFacebookComment', args, {
-        dataSources: {},
-      });
+      await graphqlRequest(
+        mutation,
+        'conversationsChangeStatusFacebookComment',
+        args,
+        {
+          dataSources: {}
+        }
+      );
     } catch (e) {
       expect(e).toBeDefined();
     }
@@ -389,7 +515,7 @@ describe('Conversation message mutations', () => {
 
     const args = {
       conversationIds: [leadConversation._id],
-      assignedUserId: user._id,
+      assignedUserId: user._id
     };
 
     const mutation = `
@@ -408,7 +534,11 @@ describe('Conversation message mutations', () => {
       }
     `;
 
-    const [conversation] = await graphqlRequest(mutation, 'conversationsAssign', args);
+    const [conversation] = await graphqlRequest(
+      mutation,
+      'conversationsAssign',
+      args
+    );
 
     expect(conversation.assignedUser._id).toEqual(args.assignedUserId);
   });
@@ -428,9 +558,9 @@ describe('Conversation message mutations', () => {
       mutation,
       'conversationsUnassign',
       {
-        _ids: [leadConversation._id],
+        _ids: [leadConversation._id]
       },
-      { user },
+      { user }
     );
 
     expect(conversation.assignedUser).toBe(null);
@@ -442,7 +572,7 @@ describe('Conversation message mutations', () => {
 
     const args = {
       _ids: [leadConversation._id, messengerConversation._id],
-      status: 'closed',
+      status: 'closed'
     };
 
     const mutation = `
@@ -453,14 +583,22 @@ describe('Conversation message mutations', () => {
       }
     `;
 
-    const [conversation] = await graphqlRequest(mutation, 'conversationsChangeStatus', args);
+    const [conversation] = await graphqlRequest(
+      mutation,
+      'conversationsChangeStatus',
+      args
+    );
 
     expect(conversation.status).toEqual(args.status);
 
     // if status is not closed
     args.status = CONVERSATION_STATUSES.OPEN;
 
-    const [openConversation] = await graphqlRequest(mutation, 'conversationsChangeStatus', args);
+    const [openConversation] = await graphqlRequest(
+      mutation,
+      'conversationsChangeStatus',
+      args
+    );
 
     expect(openConversation.status).toEqual(args.status);
   });
@@ -494,13 +632,16 @@ describe('Conversation message mutations', () => {
       }
     `;
 
-    await channelFactory({ integrationIds: [leadIntegration._id], userId: user._id });
+    await channelFactory({
+      integrationIds: [leadIntegration._id],
+      userId: user._id
+    });
 
     const updatedConversationCount = await graphqlRequest(
       mutation,
       'conversationResolveAll',
       { integrationType: leadIntegration.kind },
-      { user },
+      { user }
     );
 
     expect(updatedConversationCount).toEqual(1);
@@ -523,7 +664,7 @@ describe('Conversation message mutations', () => {
       mutation,
       'conversationMarkAsRead',
       { _id: leadConversation._id },
-      { user },
+      { user }
     );
 
     expect(conversation.readUserIds).toContain(user._id);
@@ -537,14 +678,21 @@ describe('Conversation message mutations', () => {
     `;
 
     try {
-      await graphqlRequest(mutation, 'conversationDeleteVideoChatRoom', { name: 'fakeId' }, { dataSources });
+      await graphqlRequest(
+        mutation,
+        'conversationDeleteVideoChatRoom',
+        { name: 'fakeId' },
+        { dataSources }
+      );
     } catch (e) {
       expect(e[0].message).toBe('Integrations api is not running');
     }
 
-    const mock = sinon.stub(dataSources.IntegrationsAPI, 'deleteDailyVideoChatRoom').callsFake(() => {
-      return Promise.resolve(true);
-    });
+    const mock = sinon
+      .stub(dataSources.IntegrationsAPI, 'deleteDailyVideoChatRoom')
+      .callsFake(() => {
+        return Promise.resolve(true);
+      });
 
     mock.restore();
   });
@@ -563,20 +711,27 @@ describe('Conversation message mutations', () => {
     const conversation = await conversationFactory();
 
     try {
-      await graphqlRequest(mutation, 'conversationCreateVideoChatRoom', { _id: conversation._id }, { dataSources });
+      await graphqlRequest(
+        mutation,
+        'conversationCreateVideoChatRoom',
+        { _id: conversation._id },
+        { dataSources }
+      );
     } catch (e) {
       expect(e[0].message).toBe('Integrations api is not running');
     }
 
-    const mock = sinon.stub(dataSources.IntegrationsAPI, 'createDailyVideoChatRoom').callsFake(() => {
-      return Promise.resolve({ status: 'ongoing' });
-    });
+    const mock = sinon
+      .stub(dataSources.IntegrationsAPI, 'createDailyVideoChatRoom')
+      .callsFake(() => {
+        return Promise.resolve({ status: 'ongoing' });
+      });
 
     const response = await graphqlRequest(
       mutation,
       'conversationCreateVideoChatRoom',
       { _id: conversation._id },
-      { dataSources },
+      { dataSources }
     );
 
     expect(response.status).toBe('ongoing');
@@ -594,20 +749,27 @@ describe('Conversation message mutations', () => {
     const conversation = await conversationFactory();
 
     try {
-      await graphqlRequest(mutation, 'conversationCreateProductBoardNote', { _id: conversation._id }, { dataSources });
+      await graphqlRequest(
+        mutation,
+        'conversationCreateProductBoardNote',
+        { _id: conversation._id },
+        { dataSources }
+      );
     } catch (e) {
       expect(e[0].message).toBe('Integrations api is not running');
     }
 
-    const mock = sinon.stub(dataSources.IntegrationsAPI, 'createProductBoardNote').callsFake(() => {
-      return Promise.resolve('productBoardLink');
-    });
+    const mock = sinon
+      .stub(dataSources.IntegrationsAPI, 'createProductBoardNote')
+      .callsFake(() => {
+        return Promise.resolve('productBoardLink');
+      });
 
     const response = await graphqlRequest(
       mutation,
       'conversationCreateProductBoardNote',
       { _id: conversation._id },
-      { dataSources },
+      { dataSources }
     );
 
     expect(response).toBe('productBoardLink');
@@ -616,7 +778,9 @@ describe('Conversation message mutations', () => {
   });
 
   test('Change conversation operator status', async () => {
-    const conversation = await conversationFactory({ operatorStatus: CONVERSATION_OPERATOR_STATUS.BOT });
+    const conversation = await conversationFactory({
+      operatorStatus: CONVERSATION_OPERATOR_STATUS.BOT
+    });
 
     const mutation = `
       mutation changeConversationOperator($_id: String!, $operatorStatus: String!) {
@@ -627,27 +791,36 @@ describe('Conversation message mutations', () => {
     await graphqlRequest(
       mutation,
       'changeConversationOperator',
-      { _id: conversation._id, operatorStatus: CONVERSATION_OPERATOR_STATUS.OPERATOR },
-      { dataSources },
+      {
+        _id: conversation._id,
+        operatorStatus: CONVERSATION_OPERATOR_STATUS.OPERATOR
+      },
+      { dataSources }
     );
 
-    const message = await ConversationMessages.findOne({ conversationId: conversation._id });
+    const message = await ConversationMessages.findOne({
+      conversationId: conversation._id
+    });
 
     if (message) {
       expect(message.botData).toEqual([
         {
           type: 'text',
-          text: AUTO_BOT_MESSAGES.CHANGE_OPERATOR,
-        },
+          text: AUTO_BOT_MESSAGES.CHANGE_OPERATOR
+        }
       ]);
     } else {
       fail('Auto message not found');
     }
 
-    const updatedConversation = await Conversations.findOne({ _id: conversation._id });
+    const updatedConversation = await Conversations.findOne({
+      _id: conversation._id
+    });
 
     if (updatedConversation) {
-      expect(updatedConversation.operatorStatus).toBe(CONVERSATION_OPERATOR_STATUS.OPERATOR);
+      expect(updatedConversation.operatorStatus).toBe(
+        CONVERSATION_OPERATOR_STATUS.OPERATOR
+      );
     } else {
       fail('Conversation not found to update operator status');
     }

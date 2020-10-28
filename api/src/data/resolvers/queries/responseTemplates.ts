@@ -20,7 +20,10 @@ const generateFilter = (commonSelector, args: IListParams) => {
   }
 
   if (searchValue) {
-    filter.$or = [{ name: new RegExp(`.*${searchValue}.*`, 'i') }, { content: new RegExp(`.*${searchValue}.*`, 'i') }];
+    filter.$or = [
+      { name: new RegExp(`.*${searchValue}.*`, 'i') },
+      { content: new RegExp(`.*${searchValue}.*`, 'i') }
+    ];
   }
 
   return filter;
@@ -30,7 +33,11 @@ const responseTemplateQueries = {
   /**
    * Response templates list
    */
-  responseTemplates(_root, args: IListParams, { commonQuerySelector }: IContext) {
+  responseTemplates(
+    _root,
+    args: IListParams,
+    { commonQuerySelector }: IContext
+  ) {
     const filter = generateFilter(commonQuerySelector, args);
 
     return paginate(ResponseTemplates.find(filter), args);
@@ -39,14 +46,23 @@ const responseTemplateQueries = {
   /**
    * Get all response templates count. We will use it in pager
    */
-  responseTemplatesTotalCount(_root, args: IListParams, { commonQuerySelector }: IContext) {
+  responseTemplatesTotalCount(
+    _root,
+    args: IListParams,
+    { commonQuerySelector }: IContext
+  ) {
     const filter = generateFilter(commonQuerySelector, args);
 
     return ResponseTemplates.find(filter).countDocuments();
-  },
+  }
 };
 
 requireLogin(responseTemplateQueries, 'responseTemplatesTotalCount');
-checkPermission(responseTemplateQueries, 'responseTemplates', 'showResponseTemplates', []);
+checkPermission(
+  responseTemplateQueries,
+  'responseTemplates',
+  'showResponseTemplates',
+  []
+);
 
 export default responseTemplateQueries;

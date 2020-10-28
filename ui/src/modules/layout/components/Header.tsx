@@ -38,7 +38,9 @@ class Header extends React.Component<Props> {
     return (
       <PageHeader>
         {breadcrumb && <BreadCrumb breadcrumbs={breadcrumb} />}
-        {submenu && <Submenu items={submenu} additionalMenuItem={additionalMenuItem}/>}
+        {submenu && (
+          <Submenu items={submenu} additionalMenuItem={additionalMenuItem} />
+        )}
         {queryParams && <Filter queryParams={queryParams} />}
       </PageHeader>
     );

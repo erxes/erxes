@@ -8,14 +8,19 @@ module.exports.up = async () => {
 
   const popupMessages = await ConversationMessages.find({
     customerId: { $exists: false },
-    formWidgetData: { $exists: true },
+    formWidgetData: { $exists: true }
   });
 
   for (const message of popupMessages) {
-    const conversation = await Conversations.findOne({ _id: message.conversationId });
+    const conversation = await Conversations.findOne({
+      _id: message.conversationId
+    });
 
     if (conversation && conversation.customerId) {
-      await ConversationMessages.updateOne({ _id: message._id }, { $set: { customerId: conversation.customerId } });
+      await ConversationMessages.updateOne(
+        { _id: message._id },
+        { $set: { customerId: conversation.customerId } }
+      );
     }
   }
 

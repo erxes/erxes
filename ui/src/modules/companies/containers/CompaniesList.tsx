@@ -59,7 +59,7 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
     this.timer = setTimeout(() => {
       this.props.companiesMainQuery.refetch();
     }, 5500);
-  }
+  };
 
   render() {
     const {
@@ -85,7 +85,10 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
       })
         .then(() => {
           emptyBulk();
-          Alert.success('You successfully deleted a company. The changes will take a few seconds', 4500);
+          Alert.success(
+            'You successfully deleted a company. The changes will take a few seconds',
+            4500
+          );
 
           this.refetchWithDelay();
         })
@@ -161,7 +164,12 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
       return <CompaniesList {...updatedProps} {...props} />;
     };
 
-    return <Bulk content={companiesList} refetch={this.props.companiesMainQuery.refetch} />;
+    return (
+      <Bulk
+        content={companiesList}
+        refetch={this.props.companiesMainQuery.refetch}
+      />
+    );
   }
 }
 
@@ -177,14 +185,14 @@ const generateParams = ({ queryParams }) => {
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)
       : undefined
-  }
+  };
 };
 
 const getRefetchQueries = (queryParams?: any) => {
   return [
     {
       query: gql(queries.companiesMain),
-      variables: { ...generateParams({ queryParams })}
+      variables: { ...generateParams({ queryParams }) }
     },
     {
       query: gql(queries.companyCounts),
@@ -208,13 +216,16 @@ export default withProps<Props>(
       {
         name: 'companiesMainQuery',
         options: ({ queryParams }) => ({
-          variables: generateParams({ queryParams }),
-        }),
+          variables: generateParams({ queryParams })
+        })
       }
     ),
-    graphql<Props, ListConfigQueryResponse, {}>(gql(queries.companiesListConfig), {
-      name: 'companiesListConfigQuery'
-    }),
+    graphql<Props, ListConfigQueryResponse, {}>(
+      gql(queries.companiesListConfig),
+      {
+        name: 'companiesListConfigQuery'
+      }
+    ),
     // mutations
     graphql<Props, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.companiesRemove),

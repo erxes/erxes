@@ -69,7 +69,7 @@ describe('Companies mutations', () => {
       size: faker.random.number(),
       industry: 'Airlines',
       tagIds: company.tagIds,
-      parentCompanyId: parent._id,
+      parentCompanyId: parent._id
     };
 
     const mutation = `
@@ -90,7 +90,12 @@ describe('Companies mutations', () => {
       }
     `;
 
-    const result = await graphqlRequest(mutation, 'companiesAdd', args, context);
+    const result = await graphqlRequest(
+      mutation,
+      'companiesAdd',
+      args,
+      context
+    );
 
     expect(result.primaryName).toBe(args.primaryName);
     expect(result.primaryPhone).toBe(args.primaryPhone);
@@ -113,7 +118,7 @@ describe('Companies mutations', () => {
     const merged = await companyFactory();
     const company = await companyFactory({
       tagIds: [tag1._id],
-      mergedIds: [merged._id],
+      mergedIds: [merged._id]
     });
 
     const args = {
@@ -128,7 +133,7 @@ describe('Companies mutations', () => {
       industry: faker.random.word(),
       ownerId: _user._id,
       parentCompanyId: parent._id,
-      tagIds: [tag2._id],
+      tagIds: [tag2._id]
     };
 
     const mutation = `
@@ -152,7 +157,12 @@ describe('Companies mutations', () => {
       }
     `;
 
-    const result = await graphqlRequest(mutation, 'companiesEdit', args, context);
+    const result = await graphqlRequest(
+      mutation,
+      'companiesEdit',
+      args,
+      context
+    );
 
     expect(result._id).toBe(args._id);
     expect(result.primaryName).toBe(args.primaryName);
@@ -182,10 +192,15 @@ describe('Companies mutations', () => {
     const company = await companyFactory({
       ownerId: _user._id,
       mergedIds: [_company._id],
-      tagIds: [tag._id],
+      tagIds: [tag._id]
     });
 
-    await graphqlRequest(mutation, 'companiesRemove', { companyIds: [company._id] }, context);
+    await graphqlRequest(
+      mutation,
+      'companiesRemove',
+      { companyIds: [company._id] },
+      context
+    );
 
     expect(await Companies.find({ companyIds: [company._id] })).toEqual([]);
   });
@@ -194,8 +209,8 @@ describe('Companies mutations', () => {
     const args = {
       companyIds: [_company._id],
       companyFields: {
-        primaryName: faker.company.companyName(),
-      },
+        primaryName: faker.company.companyName()
+      }
     };
 
     const mutation = `
@@ -208,7 +223,12 @@ describe('Companies mutations', () => {
       }
     `;
 
-    const company = await graphqlRequest(mutation, 'companiesMerge', args, context);
+    const company = await graphqlRequest(
+      mutation,
+      'companiesMerge',
+      args,
+      context
+    );
 
     expect(company.primaryName).toBe(args.companyFields.primaryName);
   });

@@ -29,7 +29,7 @@ export interface IEmailDeliveriesDocument extends IEmailDeliveries, Document {
 export const EMAIL_DELIVERY_STATUS = {
   PENDING: 'pending',
   RECEIVED: 'received',
-  ALL: ['pending', 'received'],
+  ALL: ['pending', 'received']
 };
 
 export const emailDeliverySchema = new Schema({
@@ -47,6 +47,6 @@ export const emailDeliverySchema = new Schema({
   createdAt: field({ type: Date, default: Date.now }),
   status: field({
     type: String,
-    enum: EMAIL_DELIVERY_STATUS.ALL,
-  }),
+    enum: EMAIL_DELIVERY_STATUS.ALL
+  })
 });

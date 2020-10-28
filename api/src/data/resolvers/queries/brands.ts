@@ -54,7 +54,7 @@ const brandQueries = {
 
   brandsGetDefaultEmailConfig() {
     return readFile('conversationCron');
-  },
+  }
 };
 
 requireLogin(brandQueries, 'brandsTotalCount');

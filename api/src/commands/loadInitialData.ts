@@ -16,9 +16,12 @@ const main = async () => {
 
   await connection.connection.dropDatabase();
 
-  const result = await shelljs.exec(`mongorestore --uri "${MONGO_URL}" --db ${dbName} ./src/initialData/common`, {
-    silent: true,
-  });
+  const result = await shelljs.exec(
+    `mongorestore --uri "${MONGO_URL}" --db ${dbName} ./src/initialData/common`,
+    {
+      silent: true
+    }
+  );
   const output = result.stderr + result.stdout;
 
   console.log(output);
@@ -30,14 +33,17 @@ const main = async () => {
     length: 10,
     numbers: true,
     lowercase: true,
-    uppercase: true,
+    uppercase: true
   });
 
   const pwdHash = await Users.generatePassword(newPwd);
 
-  await shelljs.exec(`mongo "${MONGO_URL}" --eval 'db.users.update({}, { $set: {password: "${pwdHash}" } })'`, {
-    silent: true,
-  });
+  await shelljs.exec(
+    `mongo "${MONGO_URL}" --eval 'db.users.update({}, { $set: {password: "${pwdHash}" } })'`,
+    {
+      silent: true
+    }
+  );
 
   console.log('\x1b[32m%s\x1b[0m', 'Your new password: ' + newPwd);
 

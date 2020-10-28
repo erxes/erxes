@@ -12,7 +12,7 @@ export const sendNotifications = async () => {
     deal: Deals,
     task: Tasks,
     ticket: Tickets,
-    all: ['deal', 'task', 'ticket'],
+    all: ['deal', 'task', 'ticket']
   };
 
   for (const type of collections.all) {
@@ -21,8 +21,8 @@ export const sendNotifications = async () => {
         $gte: now,
         $lte: moment()
           .add(2, 'days')
-          .toDate(),
-      },
+          .toDate()
+      }
     });
 
     for (const object of objects) {
@@ -35,12 +35,15 @@ export const sendNotifications = async () => {
         return;
       }
 
-      const diffMinute = Math.floor((object.closeDate.getTime() - now.getTime()) / 60000);
+      const diffMinute = Math.floor(
+        (object.closeDate.getTime() - now.getTime()) / 60000
+      );
 
       if (Math.abs(diffMinute - (object.reminderMinute || 0)) < 5) {
         const content = `${object.name} ${type} is due in upcoming`;
 
-        const url = type === 'ticket' ? `/inbox/${type}/board` : `${type}/board`;
+        const url =
+          type === 'ticket' ? `/inbox/${type}/board` : `${type}/board`;
 
         utils.sendNotification({
           notifType: `${type}DueDate`,
@@ -52,7 +55,7 @@ export const sendNotifications = async () => {
           // exclude current user
           contentType: type,
           contentTypeId: object._id,
-          receivers: object.assignedUserIds || [],
+          receivers: object.assignedUserIds || []
         });
       }
     }
@@ -60,7 +63,7 @@ export const sendNotifications = async () => {
 };
 
 export default {
-  sendNotifications,
+  sendNotifications
 };
 
 /**

@@ -29,7 +29,7 @@ describe('Test configs model', () => {
 
     const createdConfig = await Configs.createOrUpdateConfig({
       code,
-      value,
+      value
     });
 
     expect(createdConfig).toBeDefined();
@@ -39,7 +39,7 @@ describe('Test configs model', () => {
 
     const updateConfig = await Configs.createOrUpdateConfig({
       code,
-      value: ['update'],
+      value: ['update']
     });
 
     expect(updateConfig).toBeDefined();

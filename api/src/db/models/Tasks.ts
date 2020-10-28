@@ -1,6 +1,10 @@
 import { Model, model } from 'mongoose';
 import { ActivityLogs } from '.';
-import { destroyBoardItemRelations, fillSearchTextItem, watchItem } from './boardUtils';
+import {
+  destroyBoardItemRelations,
+  fillSearchTextItem,
+  watchItem
+} from './boardUtils';
 import { IItemCommonFields as ITask } from './definitions/boards';
 import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
 import { ITaskDocument, taskSchema } from './definitions/tasks';
@@ -11,7 +15,12 @@ export interface ITaskModel extends Model<ITaskDocument> {
   updateTask(_id: string, doc: ITask): Promise<ITaskDocument>;
   watchTask(_id: string, isAdd: boolean, userId: string): void;
   removeTasks(_ids: string[]): Promise<{ n: number; ok: number }>;
-  updateTimeTracking(_id: string, status: string, timeSpent: number, startDate: string): Promise<ITaskDocument>;
+  updateTimeTracking(
+    _id: string,
+    status: string,
+    timeSpent: number,
+    startDate: string
+  ): Promise<ITaskDocument>;
 }
 
 export const loadTaskClass = () => {
@@ -34,7 +43,9 @@ export const loadTaskClass = () => {
      */
     public static async createTask(doc: ITask) {
       if (doc.sourceConversationId) {
-        const convertedTask = await Tasks.findOne({ sourceConversationId: doc.sourceConversationId });
+        const convertedTask = await Tasks.findOne({
+          sourceConversationId: doc.sourceConversationId
+        });
 
         if (convertedTask) {
           throw new Error('Already converted a task');
@@ -45,11 +56,14 @@ export const loadTaskClass = () => {
         ...doc,
         createdAt: new Date(),
         modifiedAt: new Date(),
-        searchText: fillSearchTextItem(doc),
+        searchText: fillSearchTextItem(doc)
       });
 
       // create log
-      await ActivityLogs.createBoardItemLog({ item: task, contentType: 'task' });
+      await ActivityLogs.createBoardItemLog({
+        item: task,
+        contentType: 'task'
+      });
 
       return task;
     }
@@ -81,8 +95,16 @@ export const loadTaskClass = () => {
       return Tasks.deleteMany({ _id: { $in: _ids } });
     }
 
-    public static async updateTimeTracking(_id: string, status: string, timeSpent: number, startDate?: string) {
-      const doc: { status: string; timeSpent: number; startDate?: string } = { status, timeSpent };
+    public static async updateTimeTracking(
+      _id: string,
+      status: string,
+      timeSpent: number,
+      startDate?: string
+    ) {
+      const doc: { status: string; timeSpent: number; startDate?: string } = {
+        status,
+        timeSpent
+      };
 
       if (startDate) {
         doc.startDate = startDate;

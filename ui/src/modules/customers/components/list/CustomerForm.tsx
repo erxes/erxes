@@ -22,7 +22,10 @@ import {
 } from 'modules/common/types';
 import { Alert, getConstantFromStore } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
-import { EMAIL_VALIDATION_STATUSES, PHONE_VALIDATION_STATUSES } from 'modules/customers/constants';
+import {
+  EMAIL_VALIDATION_STATUSES,
+  PHONE_VALIDATION_STATUSES
+} from 'modules/customers/constants';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
 import validator from 'validator';
@@ -150,7 +153,6 @@ class CustomerForm extends React.Component<Props, State> {
     this.setState({ emails: options, primaryEmail: selectedOption });
   };
 
-
   onPhoneChange = ({ options, selectedOption }) => {
     this.setState({ phones: options, primaryPhone: selectedOption });
   };
@@ -176,7 +178,7 @@ class CustomerForm extends React.Component<Props, State> {
     }
   };
 
-  onEmailVerificationStatusChange = (e) => {
+  onEmailVerificationStatusChange = e => {
     const { changeVerificationStatus } = this.props;
 
     if (changeVerificationStatus) {
@@ -184,7 +186,7 @@ class CustomerForm extends React.Component<Props, State> {
     }
   };
 
-  onPhoneVerificationStatusChange = (e) => {
+  onPhoneVerificationStatusChange = e => {
     const { changeVerificationStatus } = this.props;
 
     if (changeVerificationStatus) {
@@ -282,8 +284,8 @@ class CustomerForm extends React.Component<Props, State> {
                   ...formProps,
                   name: 'emailValidationStatus',
                   componentClass: 'select',
-                  defaultValue: customer.emailValidationStatus || "unknown",
-                  options: EMAIL_VALIDATION_STATUSES,
+                  defaultValue: customer.emailValidationStatus || 'unknown',
+                  options: EMAIL_VALIDATION_STATUSES
                 })}
 
                 {this.renderFormGroup('Pronoun', {
@@ -336,8 +338,8 @@ class CustomerForm extends React.Component<Props, State> {
                   ...formProps,
                   name: 'phoneValidationStatus',
                   componentClass: 'select',
-                  defaultValue: customer.phoneValidationStatus || "unknown",
-                  options: PHONE_VALIDATION_STATUSES,
+                  defaultValue: customer.phoneValidationStatus || 'unknown',
+                  options: PHONE_VALIDATION_STATUSES
                 })}
 
                 <FormGroup>

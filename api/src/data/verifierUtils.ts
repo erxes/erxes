@@ -1,11 +1,17 @@
 import { Transform } from 'stream';
 import { Customers } from '../db/models';
-import { IValidationResponse, IVisitorContact } from '../db/models/definitions/customers';
+import {
+  IValidationResponse,
+  IVisitorContact
+} from '../db/models/definitions/customers';
 import { debugBase, debugExternalApi } from '../debuggers';
 import { getEnv, getSubServiceDomain, sendRequest } from './utils';
 
 export const validateSingle = async (contact: IVisitorContact) => {
-  const EMAIL_VERIFIER_ENDPOINT = getEnv({ name: 'EMAIL_VERIFIER_ENDPOINT', defaultValue: '' });
+  const EMAIL_VERIFIER_ENDPOINT = getEnv({
+    name: 'EMAIL_VERIFIER_ENDPOINT',
+    defaultValue: ''
+  });
 
   const { email, phone } = contact;
 
@@ -18,33 +24,46 @@ export const validateSingle = async (contact: IVisitorContact) => {
   const requestOptions = {
     url: `${EMAIL_VERIFIER_ENDPOINT}/verify-single`,
     method: 'POST',
-    body,
+    body
   };
 
   try {
     await sendRequest(requestOptions);
   } catch (e) {
-    debugExternalApi(`An error occurred while sending request to the email verifier. Error: ${e.message}`);
+    debugExternalApi(
+      `An error occurred while sending request to the email verifier. Error: ${e.message}`
+    );
     throw e;
   }
 };
 
-export const updateContactValidationStatus = async (data: IValidationResponse) => {
+export const updateContactValidationStatus = async (
+  data: IValidationResponse
+) => {
   const { email, phone, status } = data;
 
   if (email) {
-    await Customers.updateMany({ primaryEmail: email }, { $set: { emailValidationStatus: status } });
+    await Customers.updateMany(
+      { primaryEmail: email },
+      { $set: { emailValidationStatus: status } }
+    );
   }
 
   if (phone) {
-    await Customers.updateMany({ primaryPhone: phone }, { $set: { phoneValidationStatus: status } });
+    await Customers.updateMany(
+      { primaryPhone: phone },
+      { $set: { phoneValidationStatus: status } }
+    );
   }
 };
 
 export const validateBulk = async (verificationType: string) => {
   const hostname = getSubServiceDomain({ name: 'API_DOMAIN' });
 
-  const EMAIL_VERIFIER_ENDPOINT = getEnv({ name: 'EMAIL_VERIFIER_ENDPOINT', defaultValue: '' });
+  const EMAIL_VERIFIER_ENDPOINT = getEnv({
+    name: 'EMAIL_VERIFIER_ENDPOINT',
+    defaultValue: ''
+  });
 
   if (verificationType === 'email') {
     const emails: Array<{}> = [];
@@ -56,15 +75,18 @@ export const validateBulk = async (verificationType: string) => {
         emails.push(customer.primaryEmail);
 
         callback();
-      },
+      }
     });
 
     const customersEmailStream = (Customers.find(
       {
         primaryEmail: { $exists: true, $ne: null },
-        $or: [{ emailValidationStatus: 'unknown' }, { emailValidationStatus: { $exists: false } }],
+        $or: [
+          { emailValidationStatus: 'unknown' },
+          { emailValidationStatus: { $exists: false } }
+        ]
       },
-      { primaryEmail: 1, _id: 0 },
+      { primaryEmail: 1, _id: 0 }
     ).limit(1000) as any).stream();
 
     return new Promise((resolve, reject) => {
@@ -75,7 +97,7 @@ export const validateBulk = async (verificationType: string) => {
           const requestOptions = {
             url: `${EMAIL_VERIFIER_ENDPOINT}/verify-bulk`,
             method: 'POST',
-            body: { emails, hostname },
+            body: { emails, hostname }
           };
 
           sendRequest(requestOptions)
@@ -103,15 +125,18 @@ export const validateBulk = async (verificationType: string) => {
       phones.push(customer.primaryPhone);
 
       callback();
-    },
+    }
   });
 
   const customersStream = (Customers.find(
     {
       primaryPhone: { $exists: true, $ne: null },
-      $or: [{ phoneValidationStatus: 'unknown' }, { phoneValidationStatus: { $exists: false } }],
+      $or: [
+        { phoneValidationStatus: 'unknown' },
+        { phoneValidationStatus: { $exists: false } }
+      ]
     },
-    { primaryPhone: 1, _id: 0 },
+    { primaryPhone: 1, _id: 0 }
   ).limit(1000) as any).stream();
 
   return new Promise((resolve, reject) => {
@@ -122,7 +147,7 @@ export const validateBulk = async (verificationType: string) => {
         const requestOptions = {
           url: `${EMAIL_VERIFIER_ENDPOINT}/verify-bulk`,
           method: 'POST',
-          body: { phones, hostname },
+          body: { phones, hostname }
         };
 
         sendRequest(requestOptions)
@@ -141,7 +166,10 @@ export const validateBulk = async (verificationType: string) => {
   });
 };
 
-export const updateContactsValidationStatus = async (type: string, data: []) => {
+export const updateContactsValidationStatus = async (
+  type: string,
+  data: []
+) => {
   if (type === 'email') {
     const bulkOps: Array<{
       updateMany: {
@@ -154,8 +182,8 @@ export const updateContactsValidationStatus = async (type: string, data: []) => 
       bulkOps.push({
         updateMany: {
           filter: { primaryEmail: email },
-          update: { emailValidationStatus: status },
-        },
+          update: { emailValidationStatus: status }
+        }
       });
     }
     await Customers.bulkWrite(bulkOps);
@@ -172,8 +200,8 @@ export const updateContactsValidationStatus = async (type: string, data: []) => 
     phoneBulkOps.push({
       updateMany: {
         filter: { primaryPhone: phone },
-        update: { phoneValidationStatus: status },
-      },
+        update: { phoneValidationStatus: status }
+      }
     });
   }
   await Customers.bulkWrite(phoneBulkOps);

@@ -18,6 +18,6 @@ export const responseTemplateSchema = schemaWrapper(
     name: field({ type: String, label: 'Name' }),
     content: field({ type: String, label: 'Content' }),
     brandId: field({ type: String, label: 'Brand' }),
-    files: field({ type: Array, label: 'Files' }),
-  }),
+    files: field({ type: Array, label: 'Files' })
+  })
 );

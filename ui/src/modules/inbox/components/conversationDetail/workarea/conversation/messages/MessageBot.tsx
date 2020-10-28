@@ -46,9 +46,7 @@ export default class SimpleMessage extends React.Component<Props, {}> {
   };
 
   renderCarouselMessage = (elements: any, index: number) => {
-    return (
-      <Carousel key={index} items={elements} />
-    );
+    return <Carousel key={index} items={elements} />;
   };
 
   renderBotMessage() {
@@ -72,7 +70,9 @@ export default class SimpleMessage extends React.Component<Props, {}> {
   }
 
   render() {
-    const { message: { createdAt }} = this.props;
+    const {
+      message: { createdAt }
+    } = this.props;
 
     return (
       <MessageItem staff={false} isBot={true}>

@@ -1,5 +1,11 @@
 import { graphqlRequest } from '../db/connection';
-import { companyFactory, conformityFactory, customerFactory, dealFactory, taskFactory } from '../db/factories';
+import {
+  companyFactory,
+  conformityFactory,
+  customerFactory,
+  dealFactory,
+  taskFactory
+} from '../db/factories';
 import { Companies, Conformities, Customers, Deals } from '../db/models';
 
 import './setup.ts';
@@ -27,7 +33,7 @@ describe('mutations', () => {
       mainType: 'company',
       mainTypeId: _company._id,
       relType: 'customer',
-      relTypeId: _customer._id,
+      relTypeId: _customer._id
     });
 
     const company1 = await companyFactory({});
@@ -57,14 +63,14 @@ describe('mutations', () => {
       mainType: 'company',
       mainTypeId: _company._id,
       relType: 'customer',
-      relTypeIds: [customer3._id],
+      relTypeIds: [customer3._id]
     };
     await graphqlRequest(mutation, 'conformityEdit', args);
 
     let relTypeIds = await Conformities.savedConformity({
       mainType: 'company',
       mainTypeId: _company._id,
-      relTypes: ['customer'],
+      relTypes: ['customer']
     });
 
     let savedCustomer = await Customers.find({ _id: { $in: relTypeIds } });
@@ -74,14 +80,14 @@ describe('mutations', () => {
       mainType: 'company',
       mainTypeId: _company._id,
       relType: 'customer',
-      relTypeIds: [_customer._id, customer1._id, customer2._id],
+      relTypeIds: [_customer._id, customer1._id, customer2._id]
     };
     await graphqlRequest(mutation, 'conformityEdit', args);
 
     relTypeIds = await Conformities.savedConformity({
       mainType: 'company',
       mainTypeId: _company._id,
-      relTypes: ['customer'],
+      relTypes: ['customer']
     });
 
     savedCustomer = await Customers.find({ _id: { $in: relTypeIds } });
@@ -91,14 +97,14 @@ describe('mutations', () => {
       mainType: 'customer',
       mainTypeId: _customer._id,
       relType: 'company',
-      relTypeIds: [_company._id, company1._id],
+      relTypeIds: [_company._id, company1._id]
     };
     await graphqlRequest(mutation, 'conformityEdit', args);
 
     relTypeIds = await Conformities.savedConformity({
       mainType: 'company',
       mainTypeId: _company._id,
-      relTypes: ['customer'],
+      relTypes: ['customer']
     });
 
     savedCustomer = await Customers.find({ _id: { $in: relTypeIds } });
@@ -107,7 +113,7 @@ describe('mutations', () => {
     relTypeIds = await Conformities.savedConformity({
       mainType: 'company',
       mainTypeId: company1._id,
-      relTypes: ['customer'],
+      relTypes: ['customer']
     });
 
     savedCustomer = await Customers.find({ _id: { $in: relTypeIds } });
@@ -117,14 +123,14 @@ describe('mutations', () => {
       mainType: 'customer',
       mainTypeId: customer2._id,
       relType: 'company',
-      relTypeIds: [],
+      relTypeIds: []
     };
     await graphqlRequest(mutation, 'conformityEdit', args);
 
     relTypeIds = await Conformities.savedConformity({
       mainType: 'customer',
       mainTypeId: customer2._id,
-      relTypes: ['customer'],
+      relTypes: ['customer']
     });
 
     let relatedCompanies = await Companies.find({ _id: { $in: relTypeIds } });
@@ -135,14 +141,14 @@ describe('mutations', () => {
       mainType: 'customer',
       mainTypeId: _customer._id,
       relType: 'deal',
-      relTypeIds: [deal._id],
+      relTypeIds: [deal._id]
     };
     await graphqlRequest(mutation, 'conformityEdit', args);
 
     relTypeIds = await Conformities.relatedConformity({
       mainType: 'company',
       mainTypeId: _company._id,
-      relType: 'deal',
+      relType: 'deal'
     });
 
     const relatedDeals = await Deals.find({ _id: { $in: relTypeIds } });
@@ -151,7 +157,7 @@ describe('mutations', () => {
     relTypeIds = await Conformities.relatedConformity({
       mainType: 'deal',
       mainTypeId: deal._id,
-      relType: 'company',
+      relType: 'company'
     });
 
     relatedCompanies = await Companies.find({ _id: { $in: relTypeIds } });
@@ -163,14 +169,14 @@ describe('mutations', () => {
     relTypeIds = await Conformities.relatedConformity({
       mainType: 'company',
       mainTypeId: _company._id,
-      relType: 'task',
+      relType: 'task'
     });
     expect(relTypeIds.length).toEqual(0);
 
     relTypeIds = await Conformities.savedConformity({
       mainType: 'company',
       mainTypeId: _company._id,
-      relTypes: ['customer'],
+      relTypes: ['customer']
     });
 
     expect(relTypeIds.length).toEqual(2);
@@ -202,14 +208,14 @@ describe('mutations', () => {
       mainType: 'company',
       mainTypeId: company._id,
       relType: 'customer',
-      relTypeId: customer._id,
+      relTypeId: customer._id
     };
     await graphqlRequest(mutation, 'conformityAdd', args);
 
     const relTypeIds = await Conformities.savedConformity({
       mainType: 'company',
       mainTypeId: company._id,
-      relTypes: ['customer'],
+      relTypes: ['customer']
     });
     expect(relTypeIds.length).toEqual(1);
   });

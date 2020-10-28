@@ -12,7 +12,9 @@ describe('mutations', () => {
   });
 
   test('Save messenger app', async () => {
-    const integration = await integrationFactory({ kind: KIND_CHOICES.MESSENGER });
+    const integration = await integrationFactory({
+      kind: KIND_CHOICES.MESSENGER
+    });
 
     const mutation = `
       mutation messengerAppSave($integrationId: String!, $messengerApps: MessengerAppsInput) {
@@ -25,8 +27,8 @@ describe('mutations', () => {
       messengerApps: {
         websites: [{ description: 'description' }],
         knowledgebases: [{ topicId: 'topicId' }],
-        leads: [{ formCode: 'formCode' }],
-      },
+        leads: [{ formCode: 'formCode' }]
+      }
     };
 
     let response = await graphqlRequest(mutation, 'messengerAppSave', args);

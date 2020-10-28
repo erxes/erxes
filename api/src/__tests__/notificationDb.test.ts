@@ -1,4 +1,9 @@
-import { customerFactory, notificationConfigurationFactory, notificationFactory, userFactory } from '../db/factories';
+import {
+  customerFactory,
+  notificationConfigurationFactory,
+  notificationFactory,
+  userFactory
+} from '../db/factories';
 import { NotificationConfigurations, Notifications, Users } from '../db/models';
 
 import { NOTIFICATION_TYPES } from '../db/models/definitions/constants';
@@ -25,7 +30,7 @@ describe('Notification model tests', () => {
     await notificationConfigurationFactory({
       user: _user2._id,
       notifType: NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
-      isAllowed: false,
+      isAllowed: false
     });
 
     // Create notification
@@ -34,7 +39,7 @@ describe('Notification model tests', () => {
       title: 'new Notification title',
       content: 'new Notification content',
       link: 'new Notification link',
-      receiver: _user2._id,
+      receiver: _user2._id
     };
 
     try {
@@ -50,7 +55,7 @@ describe('Notification model tests', () => {
     await notificationConfigurationFactory({
       isAllowed: true,
       notifType: NOTIFICATION_TYPES.CHANNEL_MEMBERS_CHANGE,
-      user: _user2._id,
+      user: _user2._id
     });
 
     let doc = {
@@ -58,7 +63,7 @@ describe('Notification model tests', () => {
       title: 'new Notification title',
       content: 'new Notification content',
       link: 'new Notification link',
-      receiver: _user2._id,
+      receiver: _user2._id
     };
 
     let notification = await Notifications.createNotification(doc, _user._id);
@@ -78,10 +83,13 @@ describe('Notification model tests', () => {
       title: 'new Notification title 2',
       content: 'new Notification content 2',
       link: 'new Notification link 2',
-      receiver: user3,
+      receiver: user3
     };
 
-    notification = await Notifications.updateNotification(notification._id, doc);
+    notification = await Notifications.updateNotification(
+      notification._id,
+      doc
+    );
 
     expect(notification.notifType).toEqual(doc.notifType);
     expect(notification.title).toEqual(doc.title);
@@ -93,7 +101,7 @@ describe('Notification model tests', () => {
     await Notifications.markAsRead([], user3._id);
 
     let notificationObj = await Notifications.findOne({
-      _id: notification._id,
+      _id: notification._id
     });
 
     if (!notificationObj) {
@@ -106,7 +114,7 @@ describe('Notification model tests', () => {
     await Notifications.markAsRead([notification._id]);
 
     notificationObj = await Notifications.findOne({
-      _id: notification._id,
+      _id: notification._id
     });
 
     if (!notificationObj) {
@@ -128,7 +136,7 @@ describe('Notification model tests', () => {
     await notificationFactory({
       receiver,
       contentType: 'customer',
-      contentTypeId: customer._id,
+      contentTypeId: customer._id
     });
 
     let response = await Notifications.checkIfRead(receiver._id, customer._id);
@@ -148,10 +156,13 @@ describe('NotificationConfiguration model tests', () => {
 
     const doc = {
       notifType: NOTIFICATION_TYPES.CONVERSATION_ADD_MESSAGE,
-      isAllowed: true,
+      isAllowed: true
     };
 
-    let notificationConfigurations = await NotificationConfigurations.createOrUpdateConfiguration(doc, user);
+    let notificationConfigurations = await NotificationConfigurations.createOrUpdateConfiguration(
+      doc,
+      user
+    );
 
     expect(notificationConfigurations.notifType).toEqual(doc.notifType);
     expect(notificationConfigurations.isAllowed).toEqual(doc.isAllowed);
@@ -160,7 +171,10 @@ describe('NotificationConfiguration model tests', () => {
     // creating another notification configuration ============
     doc.notifType = NOTIFICATION_TYPES.CONVERSATION_ASSIGNEE_CHANGE;
 
-    notificationConfigurations = await NotificationConfigurations.createOrUpdateConfiguration(doc, user);
+    notificationConfigurations = await NotificationConfigurations.createOrUpdateConfiguration(
+      doc,
+      user
+    );
 
     expect(notificationConfigurations.notifType).toEqual(doc.notifType);
     expect(notificationConfigurations.user).toEqual(user._id);
@@ -168,7 +182,10 @@ describe('NotificationConfiguration model tests', () => {
     // Changing the last added notification =========================
     doc.isAllowed = false;
 
-    notificationConfigurations = await NotificationConfigurations.createOrUpdateConfiguration(doc, user);
+    notificationConfigurations = await NotificationConfigurations.createOrUpdateConfiguration(
+      doc,
+      user
+    );
 
     expect(notificationConfigurations.isAllowed).toEqual(doc.isAllowed);
   });

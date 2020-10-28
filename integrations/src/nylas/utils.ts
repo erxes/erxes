@@ -10,12 +10,12 @@ import {
   GOOGLE_SCOPES,
   MICROSOFT_OAUTH_ACCESS_TOKEN_URL,
   MICROSOFT_OAUTH_AUTH_URL,
-  MICROSOFT_SCOPES,
+  MICROSOFT_SCOPES
 } from './constants';
 import {
   createOrGetNylasConversation as storeConversation,
   createOrGetNylasConversationMessage as storeMessage,
-  createOrGetNylasCustomer as storeCustomer,
+  createOrGetNylasCustomer as storeCustomer
 } from './store';
 
 // load config
@@ -28,7 +28,9 @@ dotenv.config();
  * @retusn {Promise} nylas messages object
  */
 const syncMessages = async (accountId: string, messageId: string) => {
-  const integration = await Integrations.findOne({ nylasAccountId: accountId }).lean();
+  const integration = await Integrations.findOne({
+    nylasAccountId: accountId
+  }).lean();
 
   if (!integration) {
     throw new Error(`Integration not found with nylasAccountId: ${accountId}`);
@@ -59,8 +61,8 @@ const syncMessages = async (accountId: string, messageId: string) => {
     toEmail: email,
     integrationIds: {
       id: integration._id,
-      erxesApiId: integration.erxesApiId,
-    },
+      erxesApiId: integration.erxesApiId
+    }
   };
 
   // Store new received message
@@ -71,7 +73,7 @@ export const getNylasConfig = async () => {
   return {
     NYLAS_CLIENT_ID: await getConfig('NYLAS_CLIENT_ID'),
     NYLAS_CLIENT_SECRET: await getConfig('NYLAS_CLIENT_SECRET'),
-    NYLAS_WEBHOOK_CALLBACK_URL: await getConfig('NYLAS_WEBHOOK_CALLBACK_URL'),
+    NYLAS_WEBHOOK_CALLBACK_URL: await getConfig('NYLAS_WEBHOOK_CALLBACK_URL')
   };
 };
 
@@ -114,7 +116,10 @@ export const getClientConfig = async (kind: string): Promise<string[]> => {
   }
 };
 
-export const getProviderSettings = async (kind: string, refreshToken: string) => {
+export const getProviderSettings = async (
+  kind: string,
+  refreshToken: string
+) => {
   const DOMAIN = getEnv({ name: 'DOMAIN', defaultValue: '' });
 
   const [clientId, clientSecret] = await getClientConfig(kind);
@@ -124,14 +129,14 @@ export const getProviderSettings = async (kind: string, refreshToken: string) =>
       return {
         google_client_id: clientId,
         google_client_secret: clientSecret,
-        google_refresh_token: refreshToken,
+        google_refresh_token: refreshToken
       };
     case 'office365':
       return {
         microsoft_client_id: clientId,
         microsoft_client_secret: clientSecret,
         microsoft_refresh_token: refreshToken,
-        redirect_uri: `${DOMAIN}/nylas/oauth2/callback`,
+        redirect_uri: `${DOMAIN}/nylas/oauth2/callback`
       };
   }
 };
@@ -147,26 +152,26 @@ const getProviderConfigs = (kind: string) => {
       return {
         params: {
           access_type: 'offline',
-          scope: GOOGLE_SCOPES,
+          scope: GOOGLE_SCOPES
         },
         urls: {
           authUrl: GOOGLE_OAUTH_AUTH_URL,
-          tokenUrl: GOOGLE_OAUTH_ACCESS_TOKEN_URL,
-        },
+          tokenUrl: GOOGLE_OAUTH_ACCESS_TOKEN_URL
+        }
       };
     }
     case 'office365': {
       return {
         params: {
-          scope: MICROSOFT_SCOPES,
+          scope: MICROSOFT_SCOPES
         },
         urls: {
           authUrl: MICROSOFT_OAUTH_AUTH_URL,
-          tokenUrl: MICROSOFT_OAUTH_ACCESS_TOKEN_URL,
+          tokenUrl: MICROSOFT_OAUTH_ACCESS_TOKEN_URL
         },
         otherParams: {
-          headerType: 'application/x-www-form-urlencoded',
-        },
+          headerType: 'application/x-www-form-urlencoded'
+        }
       };
     }
   }

@@ -10,7 +10,7 @@ import {
   knowledgeBaseArticleFactory,
   knowledgeBaseCategoryFactory,
   knowledgeBaseTopicFactory,
-  userFactory,
+  userFactory
 } from '../db/factories';
 import { Conversations, Customers, Integrations } from '../db/models';
 import './setup.ts';
@@ -29,8 +29,14 @@ describe('widgetQueries', () => {
     const customer = await customerFactory({ integrationId: integration._id });
 
     await conversationFactory({ integrationId: integration._id });
-    await conversationFactory({ customerId: customer._id, integrationId: integration._id });
-    await conversationFactory({ customerId: customer._id, integrationId: integration._id });
+    await conversationFactory({
+      customerId: customer._id,
+      integrationId: integration._id
+    });
+    await conversationFactory({
+      customerId: customer._id,
+      integrationId: integration._id
+    });
 
     const qry = `
       query widgetsConversations($integrationId: String!, $customerId: String!) {
@@ -42,7 +48,7 @@ describe('widgetQueries', () => {
 
     const response = await graphqlRequest(qry, 'widgetsConversations', {
       integrationId: integration._id,
-      customerId: customer._id,
+      customerId: customer._id
     });
 
     expect(response.length).toBe(2);
@@ -54,10 +60,12 @@ describe('widgetQueries', () => {
 
     const integration = await integrationFactory({
       kind: 'messenger',
-      messengerData: { supporterIds: [user._id] },
+      messengerData: { supporterIds: [user._id] }
     });
 
-    const conversation = await conversationFactory({ integrationId: integration._id });
+    const conversation = await conversationFactory({
+      integrationId: integration._id
+    });
 
     const qry = `
       query widgetsConversationDetail($_id: String, $integrationId: String!) {
@@ -67,21 +75,27 @@ describe('widgetQueries', () => {
       }
     `;
 
-    let response = await graphqlRequest(qry, 'widgetsConversationDetail', { _id: '_id', integrationId: '_id ' });
+    let response = await graphqlRequest(qry, 'widgetsConversationDetail', {
+      _id: '_id',
+      integrationId: '_id '
+    });
     expect(response).toBe(null);
 
-    response = await graphqlRequest(qry, 'widgetsConversationDetail', { _id: conversation._id, integrationId: '_id ' });
+    response = await graphqlRequest(qry, 'widgetsConversationDetail', {
+      _id: conversation._id,
+      integrationId: '_id '
+    });
     expect(response).toBe(null);
 
     response = await graphqlRequest(qry, 'widgetsConversationDetail', {
       _id: '_id',
-      integrationId: conversation.integrationId,
+      integrationId: conversation.integrationId
     });
     expect(response).not.toBeNull();
 
     response = await graphqlRequest(qry, 'widgetsConversationDetail', {
       _id: conversation._id,
-      integrationId: conversation.integrationId,
+      integrationId: conversation.integrationId
     });
 
     expect(response._id).toBe(conversation._id);
@@ -90,7 +104,10 @@ describe('widgetQueries', () => {
   test('getMessengerIntegration', async () => {
     // Creating test data
     const brand = await brandFactory({});
-    const integration = await integrationFactory({ kind: 'messenger', brandId: brand._id });
+    const integration = await integrationFactory({
+      kind: 'messenger',
+      brandId: brand._id
+    });
 
     const qry = `
       query widgetsGetMessengerIntegration($brandCode: String!) {
@@ -100,9 +117,13 @@ describe('widgetQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, 'widgetsGetMessengerIntegration', {
-      brandCode: brand.code,
-    });
+    const response = await graphqlRequest(
+      qry,
+      'widgetsGetMessengerIntegration',
+      {
+        brandCode: brand.code
+      }
+    );
 
     expect(response._id).toBe(integration._id);
   });
@@ -113,7 +134,7 @@ describe('widgetQueries', () => {
 
     const integration = await integrationFactory({
       kind: 'messenger',
-      messengerData: { supporterIds: [user._id] },
+      messengerData: { supporterIds: [user._id] }
     });
 
     const qry = `
@@ -129,12 +150,16 @@ describe('widgetQueries', () => {
     `;
 
     try {
-      await graphqlRequest(qry, 'widgetsMessengerSupporters', { integrationId: '_id' });
+      await graphqlRequest(qry, 'widgetsMessengerSupporters', {
+        integrationId: '_id'
+      });
     } catch (e) {
       expect(e[0].message).toBe('Integration not found');
     }
 
-    const response = await graphqlRequest(qry, 'widgetsMessengerSupporters', { integrationId: integration._id });
+    const response = await graphqlRequest(qry, 'widgetsMessengerSupporters', {
+      integrationId: integration._id
+    });
 
     expect(response.supporters.length).toBe(1);
   });
@@ -145,20 +170,26 @@ describe('widgetQueries', () => {
     const integration = await integrationFactory({ kind: 'messenger' });
     const customer = await customerFactory({});
 
-    const conv1 = await conversationFactory({ integrationId: integration._id, customerId: customer._id });
+    const conv1 = await conversationFactory({
+      integrationId: integration._id,
+      customerId: customer._id
+    });
     await conversationMessageFactory({
       conversationId: conv1._id,
       userId: user._id,
       isCustomerRead: true,
-      internal: false,
+      internal: false
     });
 
-    const conv2 = await conversationFactory({ integrationId: integration._id, customerId: customer._id });
+    const conv2 = await conversationFactory({
+      integrationId: integration._id,
+      customerId: customer._id
+    });
     await conversationMessageFactory({
       conversationId: conv2._id,
       userId: user._id,
       isCustomerRead: false,
-      internal: false,
+      internal: false
     });
 
     const qry = `
@@ -169,7 +200,7 @@ describe('widgetQueries', () => {
 
     const response = await graphqlRequest(qry, 'widgetsTotalUnreadCount', {
       integrationId: integration._id,
-      customerId: customer._id,
+      customerId: customer._id
     });
 
     expect(response).toBe(1);
@@ -181,12 +212,15 @@ describe('widgetQueries', () => {
     const integration = await integrationFactory({ kind: 'messenger' });
     const customer = await customerFactory({});
 
-    const conv1 = await conversationFactory({ integrationId: integration._id, customerId: customer._id });
+    const conv1 = await conversationFactory({
+      integrationId: integration._id,
+      customerId: customer._id
+    });
     await conversationMessageFactory({
       conversationId: conv1._id,
       userId: user._id,
       isCustomerRead: false,
-      internal: false,
+      internal: false
     });
 
     const qry = `
@@ -195,7 +229,9 @@ describe('widgetQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, 'widgetsUnreadCount', { conversationId: conv1._id });
+    const response = await graphqlRequest(qry, 'widgetsUnreadCount', {
+      conversationId: conv1._id
+    });
 
     expect(response).toBe(1);
   });
@@ -203,7 +239,10 @@ describe('widgetQueries', () => {
   test('widgetsMessages', async () => {
     // Creating test data
     const conv = await conversationFactory({});
-    await conversationMessageFactory({ conversationId: conv._id, internal: false });
+    await conversationMessageFactory({
+      conversationId: conv._id,
+      internal: false
+    });
 
     const qry = `
       query widgetsMessages($conversationId: String!) {
@@ -213,7 +252,9 @@ describe('widgetQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, 'widgetsMessages', { conversationId: conv._id });
+    const response = await graphqlRequest(qry, 'widgetsMessages', {
+      conversationId: conv._id
+    });
 
     expect(response.length).toBe(1);
   });
@@ -230,7 +271,11 @@ describe('widgetQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, 'widgetsKnowledgeBaseTopicDetail', { _id: topic._id });
+    const response = await graphqlRequest(
+      qry,
+      'widgetsKnowledgeBaseTopicDetail',
+      { _id: topic._id }
+    );
 
     expect(response._id).toBe(topic._id);
   });
@@ -238,8 +283,13 @@ describe('widgetQueries', () => {
   test('widgetsKnowledgeBaseArticles', async () => {
     // Creating test data
     const topic = await knowledgeBaseTopicFactory({});
-    const category = await knowledgeBaseCategoryFactory({ topicIds: [topic._id] });
-    await knowledgeBaseArticleFactory({ categoryIds: [category._id], status: 'publish' });
+    const category = await knowledgeBaseCategoryFactory({
+      topicIds: [topic._id]
+    });
+    await knowledgeBaseArticleFactory({
+      categoryIds: [category._id],
+      status: 'publish'
+    });
 
     const qry = `
       query widgetsKnowledgeBaseArticles($topicId: String!, $searchString: String) {
@@ -249,10 +299,14 @@ describe('widgetQueries', () => {
       }
     `;
 
-    let response = await graphqlRequest(qry, 'widgetsKnowledgeBaseArticles', { topicId: '_id' });
+    let response = await graphqlRequest(qry, 'widgetsKnowledgeBaseArticles', {
+      topicId: '_id'
+    });
     expect(response.length).toBe(0);
 
-    response = await graphqlRequest(qry, 'widgetsKnowledgeBaseArticles', { topicId: topic._id });
+    response = await graphqlRequest(qry, 'widgetsKnowledgeBaseArticles', {
+      topicId: topic._id
+    });
     expect(response.length).toBe(1);
   });
 

@@ -8,9 +8,18 @@ import {
   integrationFactory,
   segmentFactory,
   tagsFactory,
-  userFactory,
+  userFactory
 } from '../db/factories';
-import { Brands, Conversations, Customers, EngageMessages, Integrations, Segments, Tags, Users } from '../db/models';
+import {
+  Brands,
+  Conversations,
+  Customers,
+  EngageMessages,
+  Integrations,
+  Segments,
+  Tags,
+  Users
+} from '../db/models';
 
 import Messages from '../db/models/ConversationMessages';
 import { IBrandDocument } from '../db/models/definitions/brands';
@@ -65,7 +74,7 @@ describe('engage messages model tests', () => {
       brandIds: [_brand._id],
       tagIds: [_tag._id],
       isLive: true,
-      isDraft: false,
+      isDraft: false
     };
 
     const message = await EngageMessages.createEngageMessage(doc);
@@ -85,7 +94,7 @@ describe('engage messages model tests', () => {
       fromUserId: _user._id,
       segmentIds: [_segment._id],
       brandIds: [_brand._id],
-      tagIds: [_tag._id],
+      tagIds: [_tag._id]
     });
 
     expect(message.title).toEqual('Message test updated');
@@ -99,12 +108,12 @@ describe('engage messages model tests', () => {
     expect.assertions(1);
 
     const manualMessage = await engageMessageFactory({
-      kind: 'manual',
+      kind: 'manual'
     });
 
     try {
       await EngageMessages.updateEngageMessage(manualMessage._id, {
-        title: 'Message test updated',
+        title: 'Message test updated'
       });
     } catch (e) {
       expect(e.message).toBe('Can not update manual message');
@@ -160,12 +169,18 @@ describe('engage messages model tests', () => {
     try {
       await EngageMessages.removeEngageMessage(_segment._id);
     } catch (e) {
-      expect(e.message).toEqual(`Engage message not found with id ${_segment._id}`);
+      expect(e.message).toEqual(
+        `Engage message not found with id ${_segment._id}`
+      );
     }
   });
 
   test('save matched customer ids', async () => {
-    const message = await EngageMessages.setCustomersCount(_message._id, 'totalCustomersCount', 2);
+    const message = await EngageMessages.setCustomersCount(
+      _message._id,
+      'totalCustomersCount',
+      2
+    );
 
     expect(message.totalCustomersCount).toBe(2);
   });
@@ -178,14 +193,14 @@ describe('engage messages model tests', () => {
 
     expect(
       await EngageMessages.find({
-        customerIds: { $in: [newCustomer._id] },
-      }),
+        customerIds: { $in: [newCustomer._id] }
+      })
     ).toHaveLength(0);
 
     expect(
       await EngageMessages.find({
-        messengerReceivedCustomerIds: { $in: [newCustomer._id] },
-      }),
+        messengerReceivedCustomerIds: { $in: [newCustomer._id] }
+      })
     ).toHaveLength(0);
   });
 
@@ -193,21 +208,21 @@ describe('engage messages model tests', () => {
     const customer = await customerFactory({});
 
     await engageMessageFactory({
-      customerIds: [customer._id],
+      customerIds: [customer._id]
     });
 
     await engageMessageFactory({
-      customerIds: [customer._id],
+      customerIds: [customer._id]
     });
 
     await EngageMessages.removeCustomersEngages([customer._id]);
 
     const engageMessages = await EngageMessages.find({
-      customerIds: { $in: [customer._id] },
+      customerIds: { $in: [customer._id] }
     });
 
     const messengerReceivedCustomerIds = await EngageMessages.find({
-      messengerReceivedCustomerIds: { $in: [customer._id] },
+      messengerReceivedCustomerIds: { $in: [customer._id] }
     });
 
     expect(engageMessages).toHaveLength(2);
@@ -245,19 +260,21 @@ describe('createConversation', () => {
       replacedContent,
       engageData: engageDataFactory({
         content: replacedContent,
-        messageId: '_id',
-      }),
+        messageId: '_id'
+      })
     };
 
     // create ==========================
-    const message = await EngageMessages.createOrUpdateConversationAndMessages(kwargs);
+    const message = await EngageMessages.createOrUpdateConversationAndMessages(
+      kwargs
+    );
 
     if (!message) {
       throw new Error('message is null');
     }
 
     const conversation = await Conversations.findOne({
-      _id: message.conversationId,
+      _id: message.conversationId
     });
 
     if (!conversation) {
@@ -270,7 +287,9 @@ describe('createConversation', () => {
     // check message fields
     expect(message._id).toBeDefined();
     expect(message.content).toBe(replacedContent);
-    expect(message.engageData && message.engageData.content).toBe(replacedContent);
+    expect(message.engageData && message.engageData.content).toBe(
+      replacedContent
+    );
     expect(message.userId).toBe(user._id);
     expect(message.customerId).toBe(_customer._id);
 
@@ -281,9 +300,14 @@ describe('createConversation', () => {
 
     // second time ==========================
     // must not create new conversation & messages update
-    await Messages.updateMany({ conversationId: conversation._id }, { $set: { isCustomerRead: true } });
+    await Messages.updateMany(
+      { conversationId: conversation._id },
+      { $set: { isCustomerRead: true } }
+    );
 
-    let response = await EngageMessages.createOrUpdateConversationAndMessages(kwargs);
+    let response = await EngageMessages.createOrUpdateConversationAndMessages(
+      kwargs
+    );
 
     expect(response).toBe(null);
 
@@ -291,7 +315,7 @@ describe('createConversation', () => {
     expect(await Messages.find().countDocuments()).toBe(1);
 
     const updatedMessage = await Messages.findOne({
-      conversationId: conversation._id,
+      conversationId: conversation._id
     });
 
     if (!updatedMessage) {
@@ -302,14 +326,19 @@ describe('createConversation', () => {
 
     // do not mark as unread for conversations that
     // have more than one messages =====================
-    await Messages.updateMany({ conversationId: conversation._id }, { $set: { isCustomerRead: true } });
+    await Messages.updateMany(
+      { conversationId: conversation._id },
+      { $set: { isCustomerRead: true } }
+    );
 
     await conversationMessageFactory({
       conversationId: conversation._id,
-      isCustomerRead: true,
+      isCustomerRead: true
     });
 
-    response = await EngageMessages.createOrUpdateConversationAndMessages(kwargs);
+    response = await EngageMessages.createOrUpdateConversationAndMessages(
+      kwargs
+    );
 
     expect(response).toBe(null);
 
@@ -317,7 +346,7 @@ describe('createConversation', () => {
     expect(await Messages.find().countDocuments()).toBe(2);
 
     const [message1, message2] = await Messages.find({
-      conversationId: conversation._id,
+      conversationId: conversation._id
     });
 
     expect(message1.isCustomerRead).toBe(true);
@@ -334,7 +363,10 @@ describe('createVisitorMessages', () => {
 
   beforeEach(async () => {
     // Creating test data
-    _customer = await customerFactory({ firstName: 'firstName', lastName: 'lastName' });
+    _customer = await customerFactory({
+      firstName: 'firstName',
+      lastName: 'lastName'
+    });
 
     mock = sinon.stub(events, 'getNumberOfVisits').callsFake(() => {
       return Promise.resolve(11);
@@ -356,16 +388,16 @@ describe('createVisitorMessages', () => {
           {
             kind: 'currentPageUrl',
             condition: 'is',
-            value: '/page',
+            value: '/page'
           },
           {
             kind: 'numberOfVisits',
             condition: 'greaterThan',
-            value: 10,
-          },
+            value: 10
+          }
         ],
-        content: 'hi,{{ customer.name }}',
-      },
+        content: 'hi,{{ customer.name }}'
+      }
     });
 
     // invalid from user id
@@ -375,8 +407,8 @@ describe('createVisitorMessages', () => {
       isLive: true,
       messenger: {
         brandId: _brand._id,
-        content: 'hi,{{ customer.firstName }} {{ customer.lastName }}',
-      },
+        content: 'hi,{{ customer.firstName }} {{ customer.lastName }}'
+      }
     });
 
     return message.save();
@@ -400,16 +432,16 @@ describe('createVisitorMessages', () => {
       customerId: _customer._id,
       isCustomerRead: false,
       engageData: engageDataFactory({
-        messageId: '_id2',
-      }),
+        messageId: '_id2'
+      })
     });
 
     await conversationMessageFactory({
       customerId: _customer._id,
       isCustomerRead: false,
       engageData: engageDataFactory({
-        messageId: '_id2',
-      }),
+        messageId: '_id2'
+      })
     });
 
     // main call
@@ -418,17 +450,20 @@ describe('createVisitorMessages', () => {
       customer: _customer,
       integration: _integration,
       browserInfo: {
-        url: '/page',
-      },
+        url: '/page'
+      }
     });
 
-    const conversation = await Conversations.findOne({ _id: { $in: msgs.map(m => m.conversationId) } });
+    const conversation = await Conversations.findOne({
+      _id: { $in: msgs.map(m => m.conversationId) }
+    });
 
     if (!conversation) {
       throw new Error('conversation not found');
     }
 
-    const content = `hi,${_customer.firstName || ''} ${_customer.lastName || ''}`;
+    const content = `hi,${_customer.firstName || ''} ${_customer.lastName ||
+      ''}`;
 
     expect(conversation._id).toBeDefined();
     expect(conversation.content).toBe(content);
@@ -436,7 +471,7 @@ describe('createVisitorMessages', () => {
     expect(conversation.integrationId).toBe(_integration._id);
 
     const message = await Messages.findOne({
-      conversationId: conversation._id,
+      conversationId: conversation._id
     });
 
     if (!message) {
@@ -450,7 +485,7 @@ describe('createVisitorMessages', () => {
     const convEngageMessages = await Messages.find({
       customerId: _customer._id,
       isCustomerRead: false,
-      engageData: { $exists: true },
+      engageData: { $exists: true }
     });
 
     expect(convEngageMessages.length).toBe(0);
@@ -459,14 +494,14 @@ describe('createVisitorMessages', () => {
   const browserLanguageRule = {
     kind: 'browserLanguage',
     condition: 'is',
-    value: 'en',
+    value: 'en'
   };
 
   describe('checkRules', () => {
     test('browserLanguage: not matched', async () => {
       const response = await EngageMessages.checkRules({
         rules: [browserLanguageRule],
-        browserInfo: { language: 'mn' },
+        browserInfo: { language: 'mn' }
       });
 
       expect(response).toBe(false);
@@ -479,11 +514,11 @@ describe('createVisitorMessages', () => {
           {
             kind: 'browserLanguage',
             condition: 'is',
-            value: 'mn',
-          },
+            value: 'mn'
+          }
         ],
 
-        browserInfo: { language: 'en' },
+        browserInfo: { language: 'en' }
       });
 
       expect(response).toBe(false);
@@ -492,7 +527,7 @@ describe('createVisitorMessages', () => {
     test('browserLanguage: all rules matched', async () => {
       const response = await EngageMessages.checkRules({
         rules: [browserLanguageRule, browserLanguageRule],
-        browserInfo: { language: 'en' },
+        browserInfo: { language: 'en' }
       });
 
       expect(response).toBe(true);
@@ -504,7 +539,7 @@ describe('createVisitorMessages', () => {
     test('is: not matching', () => {
       const response = EngageMessages.checkRule({
         rule: browserLanguageRule,
-        browserInfo: { language: 'mn' },
+        browserInfo: { language: 'mn' }
       });
 
       expect(response).toBe(false);
@@ -513,7 +548,7 @@ describe('createVisitorMessages', () => {
     test('is: matching', () => {
       const response = EngageMessages.checkRule({
         rule: browserLanguageRule,
-        browserInfo: { language: 'en' },
+        browserInfo: { language: 'en' }
       });
 
       expect(response).toBe(true);
@@ -523,13 +558,13 @@ describe('createVisitorMessages', () => {
     const isNotRule = {
       kind: 'currentPageUrl',
       condition: 'isNot',
-      value: '/page',
+      value: '/page'
     };
 
     test('isNot: not matching', () => {
       const response = EngageMessages.checkRule({
         rule: isNotRule,
-        browserInfo: { url: '/page' },
+        browserInfo: { url: '/page' }
       });
 
       expect(response).toBe(false);
@@ -538,7 +573,7 @@ describe('createVisitorMessages', () => {
     test('isNot: matching', () => {
       const response = EngageMessages.checkRule({
         rule: isNotRule,
-        browserInfo: { url: '/category' },
+        browserInfo: { url: '/category' }
       });
 
       expect(response).toBe(true);
@@ -547,13 +582,13 @@ describe('createVisitorMessages', () => {
     // isUnknown
     const isUnknownRule = {
       kind: 'city',
-      condition: 'isUnknown',
+      condition: 'isUnknown'
     };
 
     test('isUnknown: not matching', () => {
       const response = EngageMessages.checkRule({
         rule: isUnknownRule,
-        browserInfo: { city: 'Ulaanbaatar' },
+        browserInfo: { city: 'Ulaanbaatar' }
       });
 
       expect(response).toBe(false);
@@ -562,7 +597,7 @@ describe('createVisitorMessages', () => {
     test('isUnknown: matching', () => {
       const response = EngageMessages.checkRule({
         rule: isUnknownRule,
-        browserInfo: {},
+        browserInfo: {}
       });
 
       expect(response).toBe(true);
@@ -571,13 +606,13 @@ describe('createVisitorMessages', () => {
     // hasAnyValue
     const hasAnyValueRule = {
       kind: 'country',
-      condition: 'hasAnyValue',
+      condition: 'hasAnyValue'
     };
 
     test('hasAnyValue: not matching', () => {
       const response = EngageMessages.checkRule({
         rule: hasAnyValueRule,
-        browserInfo: {},
+        browserInfo: {}
       });
 
       expect(response).toBe(false);
@@ -586,7 +621,7 @@ describe('createVisitorMessages', () => {
     test('hasAnyValue: matching', () => {
       const response = EngageMessages.checkRule({
         rule: hasAnyValueRule,
-        browserInfo: { countryCode: 'MN' },
+        browserInfo: { countryCode: 'MN' }
       });
 
       expect(response).toBe(true);
@@ -596,13 +631,13 @@ describe('createVisitorMessages', () => {
     const startsWithRule = {
       kind: 'browserLanguage',
       condition: 'startsWith',
-      value: 'en',
+      value: 'en'
     };
 
     test('startsWith: not matching', () => {
       const response = EngageMessages.checkRule({
         rule: startsWithRule,
-        browserInfo: { language: 'mongolian' },
+        browserInfo: { language: 'mongolian' }
       });
 
       expect(response).toBe(false);
@@ -611,7 +646,7 @@ describe('createVisitorMessages', () => {
     test('startsWith: matching', () => {
       const response = EngageMessages.checkRule({
         rule: startsWithRule,
-        browserInfo: { language: 'english' },
+        browserInfo: { language: 'english' }
       });
 
       expect(response).toBe(true);
@@ -621,13 +656,13 @@ describe('createVisitorMessages', () => {
     const endsWithRule = {
       kind: 'browserLanguage',
       condition: 'endsWith',
-      value: 'ian',
+      value: 'ian'
     };
 
     test('endsWith: not matching', () => {
       const response = EngageMessages.checkRule({
         rule: endsWithRule,
-        browserInfo: { language: 'english' },
+        browserInfo: { language: 'english' }
       });
 
       expect(response).toBe(false);
@@ -636,7 +671,7 @@ describe('createVisitorMessages', () => {
     test('endsWith: matching', () => {
       const response = EngageMessages.checkRule({
         rule: endsWithRule,
-        browserInfo: { language: 'mongolian' },
+        browserInfo: { language: 'mongolian' }
       });
 
       expect(response).toBe(true);
@@ -646,14 +681,14 @@ describe('createVisitorMessages', () => {
     const greaterThanRule = {
       kind: 'numberOfVisits',
       condition: 'greaterThan',
-      value: '1',
+      value: '1'
     };
 
     test('greaterThan: not matching', () => {
       const response = EngageMessages.checkRule({
         rule: greaterThanRule,
         browserInfo: {},
-        numberOfVisits: 0,
+        numberOfVisits: 0
       });
 
       expect(response).toBe(false);
@@ -663,7 +698,7 @@ describe('createVisitorMessages', () => {
       const response = EngageMessages.checkRule({
         rule: greaterThanRule,
         browserInfo: {},
-        numberOfVisits: 2,
+        numberOfVisits: 2
       });
 
       expect(response).toBe(true);
@@ -673,14 +708,14 @@ describe('createVisitorMessages', () => {
     const lessThanRule = {
       kind: 'numberOfVisits',
       condition: 'lessThan',
-      value: '1',
+      value: '1'
     };
 
     test('lessThan: not matching', () => {
       const response = EngageMessages.checkRule({
         rule: lessThanRule,
         browserInfo: {},
-        numberOfVisits: 2,
+        numberOfVisits: 2
       });
 
       expect(response).toBe(false);
@@ -690,7 +725,7 @@ describe('createVisitorMessages', () => {
       const response = EngageMessages.checkRule({
         rule: lessThanRule,
         browserInfo: {},
-        numberOfVisits: 0,
+        numberOfVisits: 0
       });
 
       expect(response).toBe(true);
@@ -700,13 +735,13 @@ describe('createVisitorMessages', () => {
     const containsRule = {
       kind: 'currentPageUrl',
       condition: 'contains',
-      value: 'page',
+      value: 'page'
     };
 
     test('contains: not matching', () => {
       const response = EngageMessages.checkRule({
         rule: containsRule,
-        browserInfo: { url: '/test' },
+        browserInfo: { url: '/test' }
       });
 
       expect(response).toBe(false);
@@ -715,7 +750,7 @@ describe('createVisitorMessages', () => {
     test('contains: matching', () => {
       const response = EngageMessages.checkRule({
         rule: containsRule,
-        browserInfo: { url: '/page' },
+        browserInfo: { url: '/page' }
       });
 
       expect(response).toBe(true);
@@ -725,13 +760,13 @@ describe('createVisitorMessages', () => {
     const doesNotContainsRule = {
       kind: 'currentPageUrl',
       condition: 'doesNotContain',
-      value: 'page',
+      value: 'page'
     };
 
     test('does not contains: not matching', () => {
       const response = EngageMessages.checkRule({
         rule: doesNotContainsRule,
-        browserInfo: { url: '/page' },
+        browserInfo: { url: '/page' }
       });
 
       expect(response).toBe(false);
@@ -740,7 +775,7 @@ describe('createVisitorMessages', () => {
     test('does not contains: matching', () => {
       const response = EngageMessages.checkRule({
         rule: doesNotContainsRule,
-        browserInfo: { url: '/test' },
+        browserInfo: { url: '/test' }
       });
 
       expect(response).toBe(true);

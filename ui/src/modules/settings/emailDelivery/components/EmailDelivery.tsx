@@ -75,8 +75,14 @@ function EmailDelivery({
           <td>{item.cc || '-'}</td>
           <td>{item.bcc || '-'}</td>
           <td>{item.from || '-'}</td>
-          <td><Label lblStyle="primary">{(item.status || '-')}</Label></td>
-          <td><DateWrapper>{dayjs(item.createdAt).format('LLL') || '-'}</DateWrapper></td>
+          <td>
+            <Label lblStyle="primary">{item.status || '-'}</Label>
+          </td>
+          <td>
+            <DateWrapper>
+              {dayjs(item.createdAt).format('LLL') || '-'}
+            </DateWrapper>
+          </td>
         </tr>
       ));
     }
@@ -85,8 +91,14 @@ function EmailDelivery({
       <tr key={item._id}>
         <td>{item.customerId || '-'}</td>
         <td>{item.engage ? item.engage.title : '-'}</td>
-        <td><Label lblStyle="success">{item.status || '-'}</Label></td>
-        <td><DateWrapper>{item.createdAt ? dayjs(item.createdAt).format('LLL') : '-'}</DateWrapper></td>
+        <td>
+          <Label lblStyle="success">{item.status || '-'}</Label>
+        </td>
+        <td>
+          <DateWrapper>
+            {item.createdAt ? dayjs(item.createdAt).format('LLL') : '-'}
+          </DateWrapper>
+        </td>
       </tr>
     ));
   }
@@ -128,7 +140,12 @@ function EmailDelivery({
       </BarItems>
     );
 
-    return <Wrapper.ActionBar left={<Title>{__('Email Deliveries')}</Title>} right={content} />;
+    return (
+      <Wrapper.ActionBar
+        left={<Title>{__('Email Deliveries')}</Title>}
+        right={content}
+      />
+    );
   }
 
   return (

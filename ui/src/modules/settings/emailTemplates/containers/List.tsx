@@ -7,13 +7,16 @@ import { mutations, queries } from '../graphql';
 import { IEmailTemplate } from '../types';
 
 export type EmailTemplatesTotalCountQueryResponse = {
-  emailTemplatesTotalCount: number
+  emailTemplatesTotalCount: number;
 };
 
 export type EmailTemplatesQueryResponse = {
-  fetchMore: (params: { variables: { page: number }, updateQuery: (prev: any, fetchMoreResult: any ) => void }) => void;
+  fetchMore: (params: {
+    variables: { page: number };
+    updateQuery: (prev: any, fetchMoreResult: any) => void;
+  }) => void;
   emailTemplates: IEmailTemplate[];
-  variables: { [key: string]: string | number }
+  variables: { [key: string]: string | number };
   loading: boolean;
   refetch: () => void;
 };
