@@ -45,6 +45,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          yarn install
           cd logger
           yarn install --production
 

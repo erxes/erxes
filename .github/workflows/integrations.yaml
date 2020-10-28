@@ -53,6 +53,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          yarn install
           cd integrations
           yarn install
 

@@ -45,6 +45,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          yarn install
           cd email-verifier
           yarn install
 

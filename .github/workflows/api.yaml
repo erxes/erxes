@@ -59,6 +59,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          yarn install
           cd api
           yarn install
 
