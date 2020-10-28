@@ -1,100 +1,192 @@
 import { gql } from 'apollo-server-express';
 
-import { queries as ActivityLogQueries, types as ActivityLogTypes } from './activityLog';
-import { types as AutomationTypes } from './automation';
-import { mutations as BoardMutations, queries as BoardQueries, types as BoardTypes } from './board';
-import { mutations as BrandMutations, queries as BrandQueries, types as BrandTypes } from './brand';
 import {
-    mutations as ChannelMutations, queries as ChannelQueries, types as ChannelTypes
+  queries as ActivityLogQueries,
+  types as ActivityLogTypes
+} from './activityLog';
+import { types as AutomationTypes } from './automation';
+import {
+  mutations as BoardMutations,
+  queries as BoardQueries,
+  types as BoardTypes
+} from './board';
+import {
+  mutations as BrandMutations,
+  queries as BrandQueries,
+  types as BrandTypes
+} from './brand';
+import {
+  mutations as ChannelMutations,
+  queries as ChannelQueries,
+  types as ChannelTypes
 } from './channel';
 import {
-    mutations as ChecklistMutations, queries as ChecklistQueries, types as ChecklistTypes
+  mutations as ChecklistMutations,
+  queries as ChecklistQueries,
+  types as ChecklistTypes
 } from './checklist';
 import { types as CommonTypes } from './common';
 import {
-    mutations as CompanyMutations, queries as CompanyQueries, types as CompanyTypes
+  mutations as CompanyMutations,
+  queries as CompanyQueries,
+  types as CompanyTypes
 } from './company';
 import {
-    mutations as ConfigMutations, queries as ConfigQueries, types as ConfigTypes
+  mutations as ConfigMutations,
+  queries as ConfigQueries,
+  types as ConfigTypes
 } from './config';
-import { mutations as ConformityMutations, types as ConformityTypes } from './conformity';
 import {
-    mutations as ConversationMutations, queries as ConversationQueries, types as ConversationTypes
+  mutations as ConformityMutations,
+  types as ConformityTypes
+} from './conformity';
+import {
+  mutations as ConversationMutations,
+  queries as ConversationQueries,
+  types as ConversationTypes
 } from './conversation';
 import {
-    mutations as CustomerMutations, queries as CustomerQueries, types as CustomerTypes
+  mutations as CustomerMutations,
+  queries as CustomerQueries,
+  types as CustomerTypes
 } from './customer';
-import { mutations as DealMutations, queries as DealQueries, types as DealTypes } from './deal';
-import { queries as EmailDeliveryQueries, types as EmailDelivery } from './emailDelivery';
 import {
-    mutations as EmailTemplateMutations, queries as EmailTemplateQueries, types as EmailTemplate
+  mutations as DealMutations,
+  queries as DealQueries,
+  types as DealTypes
+} from './deal';
+import {
+  queries as EmailDeliveryQueries,
+  types as EmailDelivery
+} from './emailDelivery';
+import {
+  mutations as EmailTemplateMutations,
+  queries as EmailTemplateQueries,
+  types as EmailTemplate
 } from './emailTemplate';
 import {
-    mutations as EngageMutations, queries as EngageQueries, types as EngageTypes
+  mutations as EngageMutations,
+  queries as EngageQueries,
+  types as EngageTypes
 } from './engage';
 import {
-    fieldsGroupsMutations as FieldGroupMutations, fieldsGroupsQueries as FieldGroupQueries,
-    fieldsGroupsTypes as FieldGroupTypes, fieldsMutations as FieldMutations,
-    fieldsQueries as FieldQueries, fieldsTypes as FieldTypes
+  fieldsGroupsMutations as FieldGroupMutations,
+  fieldsGroupsQueries as FieldGroupQueries,
+  fieldsGroupsTypes as FieldGroupTypes,
+  fieldsMutations as FieldMutations,
+  fieldsQueries as FieldQueries,
+  fieldsTypes as FieldTypes
 } from './field';
-import { mutations as FormMutatons, queries as FormQueries, types as FormTypes } from './form';
 import {
-    mutations as GrowthHackMutations, queries as GrowthHackQueries, types as GrowthHackTypes
+  mutations as FormMutatons,
+  queries as FormQueries,
+  types as FormTypes
+} from './form';
+import {
+  mutations as GrowthHackMutations,
+  queries as GrowthHackQueries,
+  types as GrowthHackTypes
 } from './growthHack';
 import {
-    mutations as ImportHistoryMutations, queries as ImportHistoryQueries,
-    types as ImportHistoryTypes
+  mutations as ImportHistoryMutations,
+  queries as ImportHistoryQueries,
+  types as ImportHistoryTypes
 } from './importHistory';
 import { queries as InsightQueries, types as InsightTypes } from './insight';
 import {
-    mutations as IntegrationMutations, queries as IntegrationQueries, types as IntegrationTypes
+  mutations as IntegrationMutations,
+  queries as IntegrationQueries,
+  types as IntegrationTypes
 } from './integration';
 import {
-    mutations as InternalNoteMutations, queries as InternalNoteQueries, types as InternalNoteTypes
+  mutations as InternalNoteMutations,
+  queries as InternalNoteQueries,
+  types as InternalNoteTypes
 } from './internalNote';
 import {
-    mutations as KnowledgeBaseMutations, queries as KnowledgeBaseQueries,
-    types as KnowledgeBaseTypes
+  mutations as KnowledgeBaseMutations,
+  queries as KnowledgeBaseQueries,
+  types as KnowledgeBaseTypes
 } from './knowledgeBase';
 import { queries as LogQueries, types as LogTypes } from './log';
-import { mutations as MessengerAppMutations, types as MessengerAppTypes } from './messengerApp';
 import {
-    mutations as NotificationMutations, queries as NotificationQueries, types as NotificationTypes
+  mutations as MessengerAppMutations,
+  types as MessengerAppTypes
+} from './messengerApp';
+import {
+  mutations as NotificationMutations,
+  queries as NotificationQueries,
+  types as NotificationTypes
 } from './notification';
 import {
-    mutations as PermissionMutations, queries as PermissionQueries, types as PermissionTypes
+  mutations as PermissionMutations,
+  queries as PermissionQueries,
+  types as PermissionTypes
 } from './permission';
 import {
-    mutations as PipelineLabelMutations, queries as PipelineLabelQueries,
-    types as PipelineLabelTypes
+  mutations as PipelineLabelMutations,
+  queries as PipelineLabelQueries,
+  types as PipelineLabelTypes
 } from './pipelineLabel';
 import {
-    mutations as PipelineTemplateMutations, queries as PipelineTemplateQueries,
-    types as PipelineTemplateTypes
+  mutations as PipelineTemplateMutations,
+  queries as PipelineTemplateQueries,
+  types as PipelineTemplateTypes
 } from './pipelineTemplate';
 import {
-    mutations as ProductMutations, queries as ProductQueries, types as ProductTypes
+  mutations as ProductMutations,
+  queries as ProductQueries,
+  types as ProductTypes
 } from './product';
 import {
-    mutations as ResponseTemplateMutations, queries as ResponseTemplateQueries,
-    types as ResponseTemplate
+  mutations as ResponseTemplateMutations,
+  queries as ResponseTemplateQueries,
+  types as ResponseTemplate
 } from './responseTemplate';
-import { mutations as RobotMutations, queries as RobotQueries, types as RobotTypes } from './robot';
-import { mutations as ScriptMutations, queries as ScriptQueries, types as Script } from './script';
 import {
-    mutations as SegmentMutations, queries as SegmentQueries, types as SegmentTypes
+  mutations as RobotMutations,
+  queries as RobotQueries,
+  types as RobotTypes
+} from './robot';
+import {
+  mutations as ScriptMutations,
+  queries as ScriptQueries,
+  types as Script
+} from './script';
+import {
+  mutations as SegmentMutations,
+  queries as SegmentQueries,
+  types as SegmentTypes
 } from './segment';
-import { mutations as TagMutations, queries as TagQueries, types as TagTypes } from './tag';
-import { mutations as TaskMutations, queries as TaskQueries, types as TaskTypes } from './task';
 import {
-    mutations as TicketMutations, queries as TicketQueries, types as TicketTypes
+  mutations as TagMutations,
+  queries as TagQueries,
+  types as TagTypes
+} from './tag';
+import {
+  mutations as TaskMutations,
+  queries as TaskQueries,
+  types as TaskTypes
+} from './task';
+import {
+  mutations as TicketMutations,
+  queries as TicketQueries,
+  types as TicketTypes
 } from './ticket';
-import { mutations as UserMutations, queries as UserQueries, types as UserTypes } from './user';
 import {
-    mutations as WebhookMutations, queries as WebhookQueries, types as WebhookTypes
+  mutations as UserMutations,
+  queries as UserQueries,
+  types as UserTypes
+} from './user';
+import {
+  mutations as WebhookMutations,
+  queries as WebhookQueries,
+  types as WebhookTypes
 } from './webhook';
 import {
-    mutations as WidgetMutations, queries as WidgetQueries, types as WidgetTypes
+  mutations as WidgetMutations,
+  queries as WidgetQueries,
+  types as WidgetTypes
 } from './widget';
 
 export const types = `

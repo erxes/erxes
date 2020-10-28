@@ -45,8 +45,13 @@ jobs:
 
       - name: Install dependencies
         run: |
+          yarn install
           cd logger
           yarn install --production
+
+      - name: Lint
+        run: |
+          yarn lint logger
 
       - name: Build
         run: |

@@ -1,6 +1,5 @@
 {
   "name": "erxes-integrations",
-  "description": "erxes integrations",
   "keywords": [
     "node",
     "express",
@@ -13,9 +12,6 @@
     "dev": "DEBUG=erxes* node_modules/.bin/ts-node-dev --respawn --ignore-watch node_modules src",
     "test": "NODE_ENV=test node --expose-gc --max_old_space_size=4000 ./node_modules/.bin/jest --runInBand --forceExit --silent --logHeapUsage",
     "build": "tsc -p tsconfig.prod.json",
-    "lint": "tslint 'src/**/*.ts'",
-    "format": "prettier --write 'src/**/*.ts'",
-    "precommit": "lint-staged",
     "migrate": "NODE_ENV=command migrate --migrations-dir='./dist/migrations' --store='./db-migrate-store.js' up",
     "customCommand": "ts-node ./src/commands/customCommand.ts",
     "resetMigrations": "ts-node ./src/commands/resetMigrations.ts"
@@ -64,9 +60,6 @@
     "jest": "22.0.4",
     "ts-jest": "22.0.4",
     "ts-node-dev": "^1.0.0-pre.32",
-    "tslint": "^5.8.0",
-    "tslint-config-prettier": "^1.1.0",
-    "tslint-config-standard": "^7.0.0",
     "typescript": "^3.7.2"
   },
   "engines": {

@@ -5,7 +5,7 @@ import { CallRecords, ICallRecord } from './models';
 const VIDEO_CALL_STATUS = {
   ONGOING: 'ongoing',
   END: 'end',
-  ALL: ['ongoing', 'end'],
+  ALL: ['ongoing', 'end']
 };
 
 const getConfigs = async () => {
@@ -14,7 +14,7 @@ const getConfigs = async () => {
 
   return {
     DAILY_API_KEY,
-    DAILY_END_POINT,
+    DAILY_END_POINT
   };
 };
 
@@ -25,9 +25,9 @@ const sendDailyRequest = async (url: string, method: string, body = {}) => {
     url: `${DAILY_END_POINT}${url}`,
     method,
     headerParams: {
-      authorization: `Bearer ${DAILY_API_KEY}`,
+      authorization: `Bearer ${DAILY_API_KEY}`
     },
-    body,
+    body
   });
 };
 
@@ -55,7 +55,10 @@ const init = async app => {
       const rooms = response.data || [];
 
       for (const room of rooms) {
-        await CallRecords.updateOne({ roomName: room.name }, { $set: { status: VIDEO_CALL_STATUS.END } });
+        await CallRecords.updateOne(
+          { roomName: room.name },
+          { $set: { status: VIDEO_CALL_STATUS.END } }
+        );
 
         await sendDailyRequest(`/api/v1/rooms/${room.name}`, 'DELETE');
       }
@@ -70,12 +73,21 @@ const init = async app => {
     const { roomName } = req.params;
 
     try {
-      const callRecord = await CallRecords.findOne({ roomName, status: VIDEO_CALL_STATUS.ONGOING });
+      const callRecord = await CallRecords.findOne({
+        roomName,
+        status: VIDEO_CALL_STATUS.ONGOING
+      });
 
       if (callRecord) {
-        const response = await sendDailyRequest(`/api/v1/rooms/${callRecord.roomName}`, 'DELETE');
+        const response = await sendDailyRequest(
+          `/api/v1/rooms/${callRecord.roomName}`,
+          'DELETE'
+        );
 
-        await CallRecords.updateOne({ _id: callRecord._id }, { $set: { status: VIDEO_CALL_STATUS.END } });
+        await CallRecords.updateOne(
+          { _id: callRecord._id },
+          { $set: { status: VIDEO_CALL_STATUS.END } }
+        );
 
         return res.json(response.deleted);
       }
@@ -98,7 +110,7 @@ const init = async app => {
       if (callRecord) {
         const response = {
           url: `${DAILY_END_POINT}/${callRecord.roomName}?t=${callRecord.token}`,
-          status: callRecord.status,
+          status: callRecord.status
         };
 
         return res.json(response);
@@ -117,16 +129,23 @@ const init = async app => {
     const { DAILY_END_POINT } = await getConfigs();
 
     try {
-      const callRecord = await CallRecords.findOne({ erxesApiConversationId, status: VIDEO_CALL_STATUS.ONGOING });
+      const callRecord = await CallRecords.findOne({
+        erxesApiConversationId,
+        status: VIDEO_CALL_STATUS.ONGOING
+      });
 
       if (callRecord) {
-        const ownerTokenResponse = await sendDailyRequest(`/api/v1/meeting-tokens/`, 'POST', {
-          properties: { room_name: callRecord.roomName },
-        });
+        const ownerTokenResponse = await sendDailyRequest(
+          `/api/v1/meeting-tokens/`,
+          'POST',
+          {
+            properties: { room_name: callRecord.roomName }
+          }
+        );
 
         const response = {
           url: `${DAILY_END_POINT}/${callRecord.roomName}?t=${ownerTokenResponse.token}`,
-          name: callRecord.roomName,
+          name: callRecord.roomName
         };
 
         return res.json(response);
@@ -148,11 +167,17 @@ const init = async app => {
     try {
       const privacy = 'private';
 
-      const response = await sendDailyRequest(`/api/v1/rooms`, 'POST', { privacy });
-
-      const tokenResponse = await sendDailyRequest(`/api/v1/meeting-tokens/`, 'POST', {
-        properties: { room_name: response.name },
+      const response = await sendDailyRequest(`/api/v1/rooms`, 'POST', {
+        privacy
       });
+
+      const tokenResponse = await sendDailyRequest(
+        `/api/v1/meeting-tokens/`,
+        'POST',
+        {
+          properties: { room_name: response.name }
+        }
+      );
 
       const doc: ICallRecord = {
         erxesApiConversationId,
@@ -160,19 +185,23 @@ const init = async app => {
         roomName: response.name,
         kind: 'daily',
         privacy,
-        token: tokenResponse.token,
+        token: tokenResponse.token
       };
 
       const callRecord = await CallRecords.createCallRecord(doc);
 
-      const ownerTokenResponse = await sendDailyRequest(`/api/v1/meeting-tokens/`, 'POST', {
-        properties: { room_name: response.name, enable_recording: 'cloud' },
-      });
+      const ownerTokenResponse = await sendDailyRequest(
+        `/api/v1/meeting-tokens/`,
+        'POST',
+        {
+          properties: { room_name: response.name, enable_recording: 'cloud' }
+        }
+      );
 
       return res.json({
         url: `${DAILY_END_POINT}/${callRecord.roomName}?t=${ownerTokenResponse.token}`,
         name: callRecord.roomName,
-        status: VIDEO_CALL_STATUS.ONGOING,
+        status: VIDEO_CALL_STATUS.ONGOING
       });
     } catch (e) {
       return next(e);

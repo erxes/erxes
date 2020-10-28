@@ -25,7 +25,9 @@ const generateTypedItem = (field: string, value: string): ITypedListItem => {
   return { field, value, stringValue, numberValue, dateValue };
 };
 
-const generateTypedListFromMap = (data: { [key: string]: any }): ITypedListItem[] => {
+const generateTypedListFromMap = (data: {
+  [key: string]: any;
+}): ITypedListItem[] => {
   const ids = Object.keys(data || {});
   return ids.map(_id => generateTypedItem(_id, data[_id]));
 };
@@ -35,14 +37,14 @@ module.exports.up = async () => {
 
   const mongoClient = await mongoose.createConnection(MONGO_URL, {
     useNewUrlParser: true,
-    useCreateIndex: true,
+    useCreateIndex: true
   });
 
   const customersCollection = mongoClient.db.collection('customers');
 
   await customersCollection
     .find({
-      customFieldsData: { $exists: true },
+      customFieldsData: { $exists: true }
     })
     .forEach(async c => {
       if (c.leadStatus === 'connected') {
@@ -58,7 +60,7 @@ module.exports.up = async () => {
 
   await customersCollection
     .find({
-      trackedData: { $exists: true },
+      trackedData: { $exists: true }
     })
     .forEach(async c => {
       c.trackedDataBackup = c.trackedData;

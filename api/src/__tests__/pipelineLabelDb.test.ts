@@ -5,9 +5,16 @@ import {
   pipelineLabelFactory,
   taskFactory,
   ticketFactory,
-  userFactory,
+  userFactory
 } from '../db/factories';
-import { Deals, GrowthHacks, PipelineLabels, Pipelines, Tasks, Tickets } from '../db/models';
+import {
+  Deals,
+  GrowthHacks,
+  PipelineLabels,
+  Pipelines,
+  Tasks,
+  Tickets
+} from '../db/models';
 import { IPipelineLabelDocument } from '../db/models/definitions/pipelineLabels';
 
 import { IPipelineDocument } from '../db/models/definitions/boards';
@@ -28,7 +35,9 @@ describe('Test pipeline label model', () => {
     duplicatedPipeline = await pipelineFactory({ type: BOARD_TYPES.DEAL });
 
     pipelineLabel = await pipelineLabelFactory({ pipelineId: pipeline._id });
-    duplicatedPipelineLabel = await pipelineLabelFactory({ pipelineId: duplicatedPipeline._id });
+    duplicatedPipelineLabel = await pipelineLabelFactory({
+      pipelineId: duplicatedPipeline._id
+    });
 
     user = await userFactory();
   });
@@ -60,7 +69,7 @@ describe('Test pipeline label model', () => {
       name,
       colorCode,
       pipelineId: pipeline._id,
-      createdBy: user._id,
+      createdBy: user._id
     });
 
     expect(created).toBeDefined();
@@ -76,7 +85,7 @@ describe('Test pipeline label model', () => {
       await PipelineLabels.updatePipelineLabel(pipelineLabel._id, {
         name: duplicatedLabel.name,
         colorCode: duplicatedLabel.colorCode,
-        pipelineId: duplicatedLabel.pipelineId,
+        pipelineId: duplicatedLabel.pipelineId
       });
     } catch (e) {
       expect(e.message).toBe('Label duplicated');
@@ -88,11 +97,14 @@ describe('Test pipeline label model', () => {
     const colorCode = 'Updated colorCode';
     const pipelineId = 'Updated pipelineId';
 
-    const updated = await PipelineLabels.updatePipelineLabel(pipelineLabel._id, {
-      name,
-      colorCode,
-      pipelineId,
-    });
+    const updated = await PipelineLabels.updatePipelineLabel(
+      pipelineLabel._id,
+      {
+        name,
+        colorCode,
+        pipelineId
+      }
+    );
 
     expect(updated).toBeDefined();
     expect(updated.name).toEqual(name);
@@ -107,7 +119,7 @@ describe('Test pipeline label model', () => {
         name: duplicatedPipelineLabel.name,
         colorCode: duplicatedPipelineLabel.colorCode,
         pipelineId: duplicatedPipeline._id,
-        createdBy: user._id,
+        createdBy: user._id
       });
     } catch (e) {
       expect(e.message).toBe('Label duplicated');
@@ -120,10 +132,22 @@ describe('Test pipeline label model', () => {
     const ticketPipeline = await pipelineFactory({ type: 'ticket' });
     const growthHackPipeline = await pipelineFactory({ type: 'growthHack' });
 
-    const dealLabel = await pipelineLabelFactory({ type: 'deal', pipelineId: dealPipeline._id });
-    const taskLabel = await pipelineLabelFactory({ type: 'task', pipelineId: taskPipeline._id });
-    const ticketLabel = await pipelineLabelFactory({ type: 'ticket', pipelineId: ticketPipeline._id });
-    const growthHackLabel = await pipelineLabelFactory({ type: 'growthHack', pipelineId: growthHackPipeline._id });
+    const dealLabel = await pipelineLabelFactory({
+      type: 'deal',
+      pipelineId: dealPipeline._id
+    });
+    const taskLabel = await pipelineLabelFactory({
+      type: 'task',
+      pipelineId: taskPipeline._id
+    });
+    const ticketLabel = await pipelineLabelFactory({
+      type: 'ticket',
+      pipelineId: ticketPipeline._id
+    });
+    const growthHackLabel = await pipelineLabelFactory({
+      type: 'growthHack',
+      pipelineId: growthHackPipeline._id
+    });
 
     await dealFactory({ labelIds: [dealLabel._id] });
     await taskFactory({ labelIds: [taskLabel._id] });
@@ -132,19 +156,29 @@ describe('Test pipeline label model', () => {
 
     await PipelineLabels.removePipelineLabel(dealLabel._id);
 
-    expect(await Deals.find({ labelIds: [dealLabel._id] }).countDocuments()).toBe(0);
+    expect(
+      await Deals.find({ labelIds: [dealLabel._id] }).countDocuments()
+    ).toBe(0);
 
     await PipelineLabels.removePipelineLabel(taskLabel._id);
 
-    expect(await Tasks.find({ labelIds: [taskLabel._id] }).countDocuments()).toBe(0);
+    expect(
+      await Tasks.find({ labelIds: [taskLabel._id] }).countDocuments()
+    ).toBe(0);
 
     await PipelineLabels.removePipelineLabel(ticketLabel._id);
 
-    expect(await Tickets.find({ labelIds: [ticketLabel._id] }).countDocuments()).toBe(0);
+    expect(
+      await Tickets.find({ labelIds: [ticketLabel._id] }).countDocuments()
+    ).toBe(0);
 
     await PipelineLabels.removePipelineLabel(growthHackLabel._id);
 
-    expect(await GrowthHacks.find({ labelIds: [growthHackLabel._id] }).countDocuments()).toBe(0);
+    expect(
+      await GrowthHacks.find({
+        labelIds: [growthHackLabel._id]
+      }).countDocuments()
+    ).toBe(0);
   });
 
   test('Remove pipeline label not found', async () => {

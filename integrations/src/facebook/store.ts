@@ -3,9 +3,17 @@ import { ICommentParams, IPostParams } from './types';
 
 import { sendMessage, sendRPCMessage } from '../messageBroker';
 import { Accounts, Integrations } from '../models';
-import { getFacebookUser, getFacebookUserProfilePic, getPostLink } from './utils';
+import {
+  getFacebookUser,
+  getFacebookUserProfilePic,
+  getPostLink
+} from './utils';
 
-export const generatePostDoc = (postParams: IPostParams, pageId: string, userId: string) => {
+export const generatePostDoc = (
+  postParams: IPostParams,
+  pageId: string,
+  userId: string
+) => {
   const { post_id, id, link, photos, created_time, message } = postParams;
 
   const doc = {
@@ -15,7 +23,7 @@ export const generatePostDoc = (postParams: IPostParams, pageId: string, userId:
     senderId: userId,
     attachments: null,
     timestamp: null,
-    permalink_url: '',
+    permalink_url: ''
   };
 
   if (link) {
@@ -34,7 +42,11 @@ export const generatePostDoc = (postParams: IPostParams, pageId: string, userId:
   return doc;
 };
 
-export const generateCommentDoc = (commentParams: ICommentParams, pageId: string, userId: string) => {
+export const generateCommentDoc = (
+  commentParams: ICommentParams,
+  pageId: string,
+  userId: string
+) => {
   const {
     photo,
     video,
@@ -44,7 +56,7 @@ export const generateCommentDoc = (commentParams: ICommentParams, pageId: string
     created_time,
     message,
     restoredCommentCreatedAt,
-    post,
+    post
   } = commentParams;
 
   const doc = {
@@ -56,7 +68,7 @@ export const generateCommentDoc = (commentParams: ICommentParams, pageId: string
     parentId: null,
     attachments: null,
     timestamp: null,
-    permalink_url: '',
+    permalink_url: ''
   };
 
   if (post_id !== parent_id) {
@@ -90,12 +102,12 @@ export const getOrCreatePost = async (
   postParams: IPostParams,
   pageId: string,
   userId: string,
-  customerErxesApiId: string,
+  customerErxesApiId: string
 ) => {
   let post = await Posts.findOne({ postId: postParams.post_id });
 
   const integration = await Integrations.getIntegration({
-    $and: [{ facebookPageIds: { $in: pageId } }, { kind: 'facebook-post' }],
+    $and: [{ facebookPageIds: { $in: pageId } }, { kind: 'facebook-post' }]
   });
 
   const { facebookPageTokensMap } = integration;
@@ -104,7 +116,11 @@ export const getOrCreatePost = async (
     return post;
   }
 
-  const postUrl = await getPostLink(pageId, facebookPageTokensMap, postParams.post_id);
+  const postUrl = await getPostLink(
+    pageId,
+    facebookPageTokensMap,
+    postParams.post_id
+  );
 
   const doc = generatePostDoc(postParams, pageId, userId);
 
@@ -119,8 +135,8 @@ export const getOrCreatePost = async (
       payload: JSON.stringify({
         customerId: customerErxesApiId,
         integrationId: integration.erxesApiId,
-        content: post.content,
-      }),
+        content: post.content
+      })
     });
 
     post.erxesApiId = apiConversationResponse._id;
@@ -137,12 +153,14 @@ export const getOrCreateComment = async (
   commentParams: ICommentParams,
   pageId: string,
   userId: string,
-  verb: string,
+  verb: string
 ) => {
-  const comment = await Comments.findOne({ commentId: commentParams.comment_id });
+  const comment = await Comments.findOne({
+    commentId: commentParams.comment_id
+  });
 
   const integration = await Integrations.getIntegration({
-    $and: [{ facebookPageIds: { $in: pageId } }, { kind: 'facebook-post' }],
+    $and: [{ facebookPageIds: { $in: pageId } }, { kind: 'facebook-post' }]
   });
 
   Accounts.getAccount({ _id: integration.accountId });
@@ -150,7 +168,10 @@ export const getOrCreateComment = async (
   const doc = generateCommentDoc(commentParams, pageId, userId);
 
   if (verb && verb === 'edited') {
-    await Comments.updateOne({ commentId: doc.commentId }, { $set: { ...doc } });
+    await Comments.updateOne(
+      { commentId: doc.commentId },
+      { $set: { ...doc } }
+    );
 
     return sendMessage({ action: 'external-integration-entry-added' });
   }
@@ -164,9 +185,13 @@ export const getOrCreateComment = async (
   sendMessage({ action: 'external-integration-entry-added' });
 };
 
-export const getOrCreateCustomer = async (pageId: string, userId: string, kind: string) => {
+export const getOrCreateCustomer = async (
+  pageId: string,
+  userId: string,
+  kind: string
+) => {
   const integration = await Integrations.getIntegration({
-    $and: [{ facebookPageIds: { $in: pageId } }, { kind }],
+    $and: [{ facebookPageIds: { $in: pageId } }, { kind }]
   });
 
   const { facebookPageTokensMap } = integration;
@@ -177,9 +202,11 @@ export const getOrCreateCustomer = async (pageId: string, userId: string, kind: 
     return customer;
   }
   // create customer
-  const fbUser = (await getFacebookUser(pageId, facebookPageTokensMap, userId)) || {};
+  const fbUser =
+    (await getFacebookUser(pageId, facebookPageTokensMap, userId)) || {};
   const fbUserProfilePic =
-    fbUser.profile_pic || (await getFacebookUserProfilePic(pageId, facebookPageTokensMap, userId));
+    fbUser.profile_pic ||
+    (await getFacebookUserProfilePic(pageId, facebookPageTokensMap, userId));
 
   // save on integrations db
   try {
@@ -188,10 +215,14 @@ export const getOrCreateCustomer = async (pageId: string, userId: string, kind: 
       firstName: fbUser.first_name || fbUser.name,
       lastName: fbUser.last_name,
       integrationId: integration.erxesApiId,
-      profilePic: fbUserProfilePic,
+      profilePic: fbUserProfilePic
     });
   } catch (e) {
-    throw new Error(e.message.includes('duplicate') ? 'Concurrent request: customer duplication' : e);
+    throw new Error(
+      e.message.includes('duplicate')
+        ? 'Concurrent request: customer duplication'
+        : e
+    );
   }
 
   // save on api
@@ -203,8 +234,8 @@ export const getOrCreateCustomer = async (pageId: string, userId: string, kind: 
         firstName: fbUser.first_name || fbUser.name,
         lastName: fbUser.last_name,
         avatar: fbUserProfilePic,
-        isUser: true,
-      }),
+        isUser: true
+      })
     });
 
     customer.erxesApiId = apiCustomerResponse._id;

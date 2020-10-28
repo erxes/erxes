@@ -74,9 +74,9 @@ export type RemoveMutationVariables = {
 };
 
 export type RemoveMutationResponse = {
-  companiesRemove: (
-    params: { variables: RemoveMutationVariables }
-  ) => Promise<any>;
+  companiesRemove: (params: {
+    variables: RemoveMutationVariables;
+  }) => Promise<any>;
 };
 
 export type MergeMutationVariables = {
@@ -85,9 +85,9 @@ export type MergeMutationVariables = {
 };
 
 export type MergeMutationResponse = {
-  companiesMerge: (
-    params: { variables: MergeMutationVariables }
-  ) => Promise<any>;
+  companiesMerge: (params: {
+    variables: MergeMutationVariables;
+  }) => Promise<any>;
 };
 
 export type AddMutationResponse = {

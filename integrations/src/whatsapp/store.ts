@@ -13,9 +13,13 @@ export interface IUser {
   profile_image_url_https: string;
 }
 
-export const getOrCreateCustomer = async (phoneNumber: string, name: string, instanceId: string) => {
+export const getOrCreateCustomer = async (
+  phoneNumber: string,
+  name: string,
+  instanceId: string
+) => {
   const integration = await Integrations.getIntegration({
-    $and: [{ whatsappinstanceId: instanceId }, { kind: 'whatsapp' }],
+    $and: [{ whatsappinstanceId: instanceId }, { kind: 'whatsapp' }]
   });
 
   let customer = await Customers.findOne({ phoneNumber });
@@ -26,7 +30,7 @@ export const getOrCreateCustomer = async (phoneNumber: string, name: string, ins
   customer = await Customers.create({
     phoneNumber,
     name,
-    integrationId: integration.id,
+    integrationId: integration.id
   });
 
   // save on api
@@ -38,8 +42,8 @@ export const getOrCreateCustomer = async (phoneNumber: string, name: string, ins
         firstName: name,
         phones: [phoneNumber],
         primaryPhone: phoneNumber,
-        isUser: true,
-      }),
+        isUser: true
+      })
     });
 
     customer.erxesApiId = apiCustomerResponse._id;
@@ -53,14 +57,19 @@ export const getOrCreateCustomer = async (phoneNumber: string, name: string, ins
   return customer;
 };
 
-export const createOrUpdateConversation = async (message, instanceId: string, customerIds, integrationIds) => {
+export const createOrUpdateConversation = async (
+  message,
+  instanceId: string,
+  customerIds,
+  integrationIds
+) => {
   const { customerId, customerErxesApiID } = customerIds;
 
   const { integrationId, integrationErxesApiId } = integrationIds;
 
   let conversation = await Conversations.findOne({
     senderId: customerId,
-    instanceId,
+    instanceId
   });
 
   if (conversation) {
@@ -73,7 +82,7 @@ export const createOrUpdateConversation = async (message, instanceId: string, cu
     recipientId: message.chatId,
     content: message.body,
     integrationId,
-    instanceId,
+    instanceId
   });
 
   // save on api
@@ -83,8 +92,8 @@ export const createOrUpdateConversation = async (message, instanceId: string, cu
       payload: JSON.stringify({
         customerId: customerErxesApiID,
         integrationId: integrationErxesApiId,
-        content: message.body,
-      }),
+        content: message.body
+      })
     });
 
     conversation.erxesApiId = apiConversationResponse._id;
@@ -93,7 +102,9 @@ export const createOrUpdateConversation = async (message, instanceId: string, cu
   } catch (e) {
     await Conversations.deleteOne({ _id: conversation._id });
 
-    debugWhatsapp(`Error ocurred while trying to create or update conversation ${e.message}`);
+    debugWhatsapp(
+      `Error ocurred while trying to create or update conversation ${e.message}`
+    );
 
     throw e;
   }
@@ -102,10 +113,14 @@ export const createOrUpdateConversation = async (message, instanceId: string, cu
 };
 
 export const createMessage = async (message, conversationIds) => {
-  const { conversationId, conversationErxesApiId, customerErxesApiId } = conversationIds;
+  const {
+    conversationId,
+    conversationErxesApiId,
+    customerErxesApiId
+  } = conversationIds;
 
   const conversationMessage = await ConversationMessages.findOne({
-    mid: message.id,
+    mid: message.id
   });
 
   if (conversationMessage) {
@@ -116,7 +131,7 @@ export const createMessage = async (message, conversationIds) => {
     conversationId,
     mid: message.id,
     timestamp: new Date(),
-    content: message.body,
+    content: message.body
   });
 
   let attachments = [];
@@ -142,8 +157,8 @@ export const createMessage = async (message, conversationIds) => {
         content: message.body,
         attachments,
         conversationId: conversationErxesApiId,
-        customerId: customerErxesApiId,
-      }),
+        customerId: customerErxesApiId
+      })
     });
   } catch (e) {
     await ConversationMessages.deleteOne({ mid: message.id });

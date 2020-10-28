@@ -1,4 +1,8 @@
-import { customerFactory, importHistoryFactory, userFactory } from '../db/factories';
+import {
+  customerFactory,
+  importHistoryFactory,
+  userFactory
+} from '../db/factories';
 import { Customers, ImportHistory, Users } from '../db/models';
 
 import './setup.ts';
@@ -35,9 +39,9 @@ describe('Import history model test', () => {
         failed: 1,
         total: 4,
         ids: [customer._id],
-        contentType: 'customer',
+        contentType: 'customer'
       },
-      user,
+      user
     );
 
     if (!importHistory || !importHistory.ids) {
@@ -65,9 +69,9 @@ describe('Import history model test', () => {
         failed: 0,
         total: 3,
         ids: [customer._id, customer1._id, customer2._id],
-        contentType: 'customer',
+        contentType: 'customer'
       },
-      user,
+      user
     );
 
     await ImportHistory.removeHistory(importHistory._id);

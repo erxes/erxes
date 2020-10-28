@@ -25,15 +25,15 @@ if (NODE_ENV !== 'production') {
       'tracing.hideTracingResponse': true,
       'editor.fontSize': 14,
       'editor.fontFamily': `'Source Code Pro', 'Consolas', 'Inconsolata', 'Droid Sans Mono', 'Monaco', monospace`,
-      'request.credentials': 'include',
-    },
+      'request.credentials': 'include'
+    }
   };
 }
 
 const generateDataSources = () => {
   return {
     EngagesAPI: new EngagesAPI(),
-    IntegrationsAPI: new IntegrationsAPI(),
+    IntegrationsAPI: new IntegrationsAPI()
   };
 };
 
@@ -53,13 +53,13 @@ const apolloServer = new ApolloServer({
 
       return {
         dataSources: generateDataSources(),
-        user,
+        user
       };
     }
 
     const requestInfo = {
       secure: req.secure,
-      cookies: req.cookies,
+      cookies: req.cookies
     };
 
     if (USE_BRAND_RESTRICTIONS !== 'true') {
@@ -71,7 +71,7 @@ const apolloServer = new ApolloServer({
         commonQuerySelector: {},
         user,
         res,
-        requestInfo,
+        requestInfo
       };
     }
 
@@ -108,7 +108,7 @@ const apolloServer = new ApolloServer({
       userBrandIdsSelector,
       user,
       res,
-      requestInfo,
+      requestInfo
     };
   },
   subscriptions: {
@@ -125,8 +125,14 @@ const apolloServer = new ApolloServer({
           const customerId = webSocket.messengerData.customerId;
 
           // get status from inmemory storage
-          const inConnectedClients = await memoryStorage().inArray('connectedClients', customerId);
-          const inClients = await memoryStorage().inArray('clients', customerId);
+          const inConnectedClients = await memoryStorage().inArray(
+            'connectedClients',
+            customerId
+          );
+          const inClients = await memoryStorage().inArray(
+            'clients',
+            customerId
+          );
 
           if (!inConnectedClients) {
             await memoryStorage().addToArray('connectedClients', customerId);
@@ -145,8 +151,8 @@ const apolloServer = new ApolloServer({
             graphqlPubsub.publish('customerConnectionChanged', {
               customerConnectionChanged: {
                 _id: customerId,
-                status: 'connected',
-              },
+                status: 'connected'
+              }
             });
           }
         }
@@ -165,7 +171,7 @@ const apolloServer = new ApolloServer({
       }
 
       return {
-        user,
+        user
       };
     },
 
@@ -184,8 +190,13 @@ const apolloServer = new ApolloServer({
 
         setTimeout(async () => {
           // get status from inmemory storage
-          const inNewConnectedClients = await memoryStorage().inArray('connectedClients', customerId);
-          const customerLastStatus = await memoryStorage().get(`customer_last_status_${customerId}`);
+          const inNewConnectedClients = await memoryStorage().inArray(
+            'connectedClients',
+            customerId
+          );
+          const customerLastStatus = await memoryStorage().get(
+            `customer_last_status_${customerId}`
+          );
 
           if (inNewConnectedClients) {
             return;
@@ -200,18 +211,22 @@ const apolloServer = new ApolloServer({
             memoryStorage().set(`customer_last_status_${customerId}`, 'left');
 
             // customer has left + time
-            const conversationMessages = await Conversations.changeCustomerStatus('left', customerId, integrationId);
+            const conversationMessages = await Conversations.changeCustomerStatus(
+              'left',
+              customerId,
+              integrationId
+            );
 
             for (const message of conversationMessages) {
               graphqlPubsub.publish('conversationMessageInserted', {
-                conversationMessageInserted: message,
+                conversationMessageInserted: message
               });
 
               graphqlPubsub.publish('conversationClientTypingStatusChanged', {
                 conversationClientTypingStatusChanged: {
                   conversationId: message.conversationId,
-                  text: '',
-                },
+                  text: ''
+                }
               });
             }
           }
@@ -220,13 +235,13 @@ const apolloServer = new ApolloServer({
           graphqlPubsub.publish('customerConnectionChanged', {
             customerConnectionChanged: {
               _id: customerId,
-              status: 'disconnected',
-            },
+              status: 'disconnected'
+            }
           });
         }, 60000);
       }
-    },
-  },
+    }
+  }
 });
 
 export default apolloServer;

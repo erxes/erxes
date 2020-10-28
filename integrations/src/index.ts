@@ -4,7 +4,12 @@ import * as express from 'express';
 import initCallPro from './callpro/controller';
 import initChatfuel from './chatfuel/controller';
 import { connect, mongoStatus } from './connection';
-import { debugInit, debugIntegrations, debugRequest, debugResponse } from './debuggers';
+import {
+  debugInit,
+  debugIntegrations,
+  debugRequest,
+  debugResponse
+} from './debuggers';
 import initFacebook from './facebook/controller';
 import initGmail from './gmail/controller';
 import { removeIntegration, updateIntegrationConfigs } from './helpers';
@@ -34,7 +39,9 @@ const rawBodySaver = (req, _res, buf, encoding) => {
   }
 };
 
-app.use(bodyParser.urlencoded({ limit: '10mb', verify: rawBodySaver, extended: true }));
+app.use(
+  bodyParser.urlencoded({ limit: '10mb', verify: rawBodySaver, extended: true })
+);
 app.use(bodyParser.json({ limit: '10mb', verify: rawBodySaver }));
 
 app.use(userMiddleware);

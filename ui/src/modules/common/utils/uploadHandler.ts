@@ -103,9 +103,7 @@ const uploadHandler = (params: Params) => {
     // skip file that size is more than 15mb
     if (fileInfo.size > 20 * 1024 * 1024) {
       Alert.warning(
-        `Your file ${
-          fileInfo.name
-        } size is too large. Upload files less than 15MB of size.`
+        `Your file ${fileInfo.name} size is too large. Upload files less than 15MB of size.`
       );
 
       continue;

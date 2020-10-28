@@ -17,7 +17,7 @@ export interface IConfigDocument extends IConfig, Document {
 
 export const configsSchema = new Schema({
   code: { type: String, label: 'Code', unique: true },
-  value: { type: String, label: 'Value' },
+  value: { type: String, label: 'Value' }
 });
 
 export interface IConfigModel extends Model<IConfigDocument> {
@@ -45,7 +45,13 @@ export const loadClass = () => {
     /**
      * Create or update config
      */
-    public static async createOrUpdateConfig({ code, value }: { code: string; value: string[] }) {
+    public static async createOrUpdateConfig({
+      code,
+      value
+    }: {
+      code: string;
+      value: string[];
+    }) {
       const obj = await Configs.findOne({ code });
 
       if (obj) {
@@ -82,13 +88,15 @@ export const loadClass = () => {
       const accessKeyId = await getValueAsString('accessKeyId');
       const secretAccessKey = await getValueAsString('secretAccessKey');
       const region = await getValueAsString('region');
-      const unverifiedEmailsLimit = await getValueAsString('unverifiedEmailsLimit');
+      const unverifiedEmailsLimit = await getValueAsString(
+        'unverifiedEmailsLimit'
+      );
 
       return {
         accessKeyId,
         secretAccessKey,
         region,
-        unverifiedEmailsLimit,
+        unverifiedEmailsLimit
       };
     }
   }

@@ -1,5 +1,9 @@
 import { graphqlRequest } from '../db/connection';
-import { brandFactory, responseTemplateFactory, userFactory } from '../db/factories';
+import {
+  brandFactory,
+  responseTemplateFactory,
+  userFactory
+} from '../db/factories';
 import { ResponseTemplates, Users } from '../db/models';
 
 import './setup.ts';
@@ -42,7 +46,7 @@ describe('Response template mutations', () => {
       name: _responseTemplate.name,
       brandId: _responseTemplate.brandId,
       content: _responseTemplate.content,
-      files: _responseTemplate.files,
+      files: _responseTemplate.files
     };
 
     const mutation = `
@@ -56,7 +60,12 @@ describe('Response template mutations', () => {
       }
     `;
 
-    const responseTemplate = await graphqlRequest(mutation, 'responseTemplatesAdd', args, context);
+    const responseTemplate = await graphqlRequest(
+      mutation,
+      'responseTemplatesAdd',
+      args,
+      context
+    );
 
     expect(responseTemplate.name).toBe(args.name);
     expect(responseTemplate.brandId).toBe(args.brandId);
@@ -72,7 +81,7 @@ describe('Response template mutations', () => {
       brandId: brand._id,
       name: _responseTemplate.name,
       content: _responseTemplate.content,
-      files: _responseTemplate.files,
+      files: _responseTemplate.files
     };
 
     const mutation = `
@@ -87,7 +96,12 @@ describe('Response template mutations', () => {
       }
     `;
 
-    const responseTemplate = await graphqlRequest(mutation, 'responseTemplatesEdit', args, context);
+    const responseTemplate = await graphqlRequest(
+      mutation,
+      'responseTemplatesEdit',
+      args,
+      context
+    );
 
     expect(responseTemplate._id).toBe(args._id);
     expect(responseTemplate.name).toBe(args.name);
@@ -103,8 +117,15 @@ describe('Response template mutations', () => {
       }
     `;
 
-    await graphqlRequest(mutation, 'responseTemplatesRemove', { _id: _responseTemplate._id }, context);
+    await graphqlRequest(
+      mutation,
+      'responseTemplatesRemove',
+      { _id: _responseTemplate._id },
+      context
+    );
 
-    expect(await ResponseTemplates.findOne({ _id: _responseTemplate._id })).toBe(null);
+    expect(
+      await ResponseTemplates.findOne({ _id: _responseTemplate._id })
+    ).toBe(null);
   });
 });

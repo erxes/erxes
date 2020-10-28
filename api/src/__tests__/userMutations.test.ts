@@ -4,7 +4,12 @@ import * as moment from 'moment';
 import * as sinon from 'sinon';
 import utils, * as allUtils from '../data/utils';
 import { graphqlRequest } from '../db/connection';
-import { brandFactory, channelFactory, userFactory, usersGroupFactory } from '../db/factories';
+import {
+  brandFactory,
+  channelFactory,
+  userFactory,
+  usersGroupFactory
+} from '../db/factories';
 import { Brands, Channels, Users } from '../db/models';
 
 import './setup.ts';
@@ -20,7 +25,7 @@ const args = {
     fullName: faker.name.findName(),
     position: faker.name.jobTitle(),
     location: faker.address.streetName(),
-    description: faker.random.word(),
+    description: faker.random.word()
   },
   links: {
     linkedIn: faker.internet.userName(),
@@ -28,9 +33,9 @@ const args = {
     facebook: faker.internet.userName(),
     github: faker.internet.userName(),
     youtube: faker.internet.userName(),
-    website: faker.internet.url(),
+    website: faker.internet.url()
   },
-  password: 'pass',
+  password: 'pass'
 };
 
 const toJSON = value => {
@@ -96,9 +101,9 @@ describe('User mutations', () => {
           email: 'owner1@gmail.com',
           password: 'pass',
           firstName: 'Firstname',
-          subscribeEmail: false,
+          subscribeEmail: false
         },
-        { user: {} },
+        { user: {} }
       );
     } catch (e) {
       expect(e[0].message).toBe('Access denied');
@@ -117,9 +122,9 @@ describe('User mutations', () => {
         email: 'owner2@gmail.com',
         password: 'Pass@123',
         firstName: 'Firstname',
-        subscribeEmail: false,
+        subscribeEmail: false
       },
-      { user: {} },
+      { user: {} }
     );
 
     expect(response).toBe('success');
@@ -142,9 +147,9 @@ describe('User mutations', () => {
         email: 'owner3@gmail.com',
         password: 'Pass@123',
         firstName: 'Firstname',
-        subscribeEmail: true,
+        subscribeEmail: true
       },
-      { user: {} },
+      { user: {} }
     );
 
     mock.restore();
@@ -165,7 +170,7 @@ describe('User mutations', () => {
     const response = await graphqlRequest(mutation, 'login', {
       email: _user.email,
       password: 'pass',
-      deviceToken: '111',
+      deviceToken: '111'
     });
 
     const updatedUser = await Users.findOne({ email: _user.email });
@@ -210,9 +215,9 @@ describe('User mutations', () => {
       {
         $set: {
           resetPasswordToken: token,
-          resetPasswordExpires: Date.now() + 86400000,
-        },
-      },
+          resetPasswordExpires: Date.now() + 86400000
+        }
+      }
     );
 
     const mutation = `
@@ -223,7 +228,7 @@ describe('User mutations', () => {
 
     const params = {
       token,
-      newPassword: strongPassword,
+      newPassword: strongPassword
     };
 
     await graphqlRequest(mutation, 'resetPassword', params);
@@ -234,7 +239,9 @@ describe('User mutations', () => {
       throw new Error('User not found');
     }
 
-    expect(bcrypt.compare(params.newPassword, updatedUser.password)).toBeTruthy();
+    expect(
+      bcrypt.compare(params.newPassword, updatedUser.password)
+    ).toBeTruthy();
   });
 
   test('usersInvite', async () => {
@@ -252,7 +259,13 @@ describe('User mutations', () => {
     const group = await usersGroupFactory();
 
     const params = {
-      entries: [{ email: 'test@example.com', password: strongPassword, groupId: group._id }],
+      entries: [
+        {
+          email: 'test@example.com',
+          password: strongPassword,
+          groupId: group._id
+        }
+      ]
     };
 
     await graphqlRequest(mutation, 'usersInvite', params, { user: _admin });
@@ -276,9 +289,9 @@ describe('User mutations', () => {
         name: 'userInvitation',
         data: {
           content: invitationUrl,
-          domain: MAIN_APP_DOMAIN,
-        },
-      },
+          domain: MAIN_APP_DOMAIN
+        }
+      }
     });
 
     spyEmail.mockRestore();
@@ -297,7 +310,9 @@ describe('User mutations', () => {
     `;
 
     const user = await userFactory({ registrationToken: 'token' });
-    const token = await graphqlRequest(mutation, 'usersResendInvitation', { email: user.email });
+    const token = await graphqlRequest(mutation, 'usersResendInvitation', {
+      email: user.email
+    });
 
     const { MAIN_APP_DOMAIN } = process.env;
     const invitationUrl = `${MAIN_APP_DOMAIN}/confirmation?token=${token}`;
@@ -310,9 +325,9 @@ describe('User mutations', () => {
         name: 'userInvitation',
         data: {
           content: invitationUrl,
-          domain: MAIN_APP_DOMAIN,
-        },
-      },
+          domain: MAIN_APP_DOMAIN
+        }
+      }
     });
 
     spyEmail.mockRestore();
@@ -324,7 +339,7 @@ describe('User mutations', () => {
       registrationToken: '123',
       registrationTokenExpires: moment(Date.now())
         .add(7, 'days')
-        .toDate(),
+        .toDate()
     });
 
     const mutation = `
@@ -338,7 +353,7 @@ describe('User mutations', () => {
     const params = {
       token: '123',
       password: strongPassword,
-      passwordConfirmation: strongPassword,
+      passwordConfirmation: strongPassword
     };
 
     await graphqlRequest(mutation, 'usersConfirmInvitation', params);
@@ -353,7 +368,7 @@ describe('User mutations', () => {
     const doc = {
       ...args,
       passwordConfirmation: 'pass',
-      channelIds: [_channel._id],
+      channelIds: [_channel._id]
     };
 
     const mutation = `
@@ -374,7 +389,12 @@ describe('User mutations', () => {
       }
     `;
 
-    let user = await graphqlRequest(mutation, 'usersEdit', { _id: _user._id, ...doc }, { user: _admin });
+    let user = await graphqlRequest(
+      mutation,
+      'usersEdit',
+      { _id: _user._id, ...doc },
+      { user: _admin }
+    );
 
     let channel = await Channels.getChannel(_channel._id);
 
@@ -398,7 +418,7 @@ describe('User mutations', () => {
       mutation,
       'usersEdit',
       { _id: _user._id, ...doc, channelIds: undefined },
-      { user: _admin },
+      { user: _admin }
     );
     channel = await Channels.getChannel(_channel._id);
 
@@ -435,7 +455,12 @@ describe('User mutations', () => {
       }
     `;
 
-    const user = await graphqlRequest(mutation, 'usersEditProfile', args, context);
+    const user = await graphqlRequest(
+      mutation,
+      'usersEditProfile',
+      args,
+      context
+    );
 
     expect(user.username).toBe(args.username);
     expect(user.email.toLowerCase()).toBe(args.email.toLowerCase());
@@ -490,9 +515,9 @@ describe('User mutations', () => {
       'usersChangePassword',
       {
         currentPassword: 'pass',
-        newPassword: strongPassword,
+        newPassword: strongPassword
       },
-      context,
+      context
     );
 
     const user = await Users.getUser(_user._id);
@@ -510,15 +535,28 @@ describe('User mutations', () => {
       }
     `;
 
-    await Users.updateOne({ _id: _user._id }, { $unset: { registrationToken: 1, isOwner: false } });
+    await Users.updateOne(
+      { _id: _user._id },
+      { $unset: { registrationToken: 1, isOwner: false } }
+    );
 
-    const response = await graphqlRequest(mutation, 'usersSetActiveStatus', { _id: _user._id }, { user: _admin });
+    const response = await graphqlRequest(
+      mutation,
+      'usersSetActiveStatus',
+      { _id: _user._id },
+      { user: _admin }
+    );
 
     expect(response.isActive).toBe(false);
 
     // if deactivate yourself
     try {
-      await graphqlRequest(mutation, 'usersSetActiveStatus', { _id: _admin._id }, { user: _admin });
+      await graphqlRequest(
+        mutation,
+        'usersSetActiveStatus',
+        { _id: _admin._id },
+        { user: _admin }
+      );
     } catch (e) {
       expect(e[0].message).toBe('You can not delete yourself');
     }
@@ -528,8 +566,8 @@ describe('User mutations', () => {
     const signatures = [
       {
         signature: faker.random.word(),
-        brandId: _brand._id,
-      },
+        brandId: _brand._id
+      }
     ];
 
     const mutation = `
@@ -540,7 +578,12 @@ describe('User mutations', () => {
       }
     `;
 
-    const user = await graphqlRequest(mutation, 'usersConfigEmailSignatures', { signatures }, context);
+    const user = await graphqlRequest(
+      mutation,
+      'usersConfigEmailSignatures',
+      { signatures },
+      context
+    );
 
     expect(toJSON(user.emailSignatures)).toEqual(toJSON(signatures));
   });
@@ -554,7 +597,12 @@ describe('User mutations', () => {
       }
     `;
 
-    const user = await graphqlRequest(mutation, 'usersConfigGetNotificationByEmail', { isAllowed: true }, context);
+    const user = await graphqlRequest(
+      mutation,
+      'usersConfigGetNotificationByEmail',
+      { isAllowed: true },
+      context
+    );
 
     expect(user.getNotificationByEmail).toBeDefined();
   });
@@ -569,7 +617,7 @@ describe('User mutations', () => {
     const res = {
       clearCookie: () => {
         return 'clearCookie';
-      },
+      }
     };
 
     const response = await graphqlRequest(mutation, 'logout', {}, { res });
@@ -598,11 +646,16 @@ describe('User mutations', () => {
       mutation,
       'usersResetMemberPassword',
       { _id: _user.id, newPassword: strongPassword },
-      context,
+      context
     );
     // if not newPassword
     try {
-      await graphqlRequest(mutation, 'usersResetMemberPassword', { _id: _user.id, newPassword: '' }, context);
+      await graphqlRequest(
+        mutation,
+        'usersResetMemberPassword',
+        { _id: _user.id, newPassword: '' },
+        context
+      );
     } catch (e) {
       expect(e[0].message).toBe('Password is required.');
     }

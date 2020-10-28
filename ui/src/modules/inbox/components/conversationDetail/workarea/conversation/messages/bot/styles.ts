@@ -24,38 +24,39 @@ const ReplyButton = styled.div`
 const CardsWrapper = styled.div`
   display: flex;
   align-items: flex-start;
-  transition: transform .3s;
+  transition: transform 0.3s;
   flex-wrap: wrap;
 `;
 
 const CardItem = styled.div`
   flex-shrink: 0;
-	margin: 10px 15px 0 0;
-	width: 240px;
-	background: ${colors.colorWhite};
-	border-radius: 8px;
-	border: 1px solid rgb(219, 225, 232);
-	overflow: hidden;
-	transition: opacity .3s;
-	box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.1);
+  margin: 10px 15px 0 0;
+  width: 240px;
+  background: ${colors.colorWhite};
+  border-radius: 8px;
+  border: 1px solid rgb(219, 225, 232);
+  overflow: hidden;
+  transition: opacity 0.3s;
+  box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.1);
   user-select: none;
-  
+
   h4 {
     font-size: 15px;
   }
 
-	h4, p {
-		margin-top: 8px;
-		margin-bottom: 0;
+  h4,
+  p {
+    margin-top: 8px;
+    margin-bottom: 0;
   }
-  
+
   img {
     max-width: 100%;
   }
 `;
 
 const CardContent = styled.div`
-  padding: 8px 16px 16px 16px; 
+  padding: 8px 16px 16px 16px;
 
   p {
     color: $text-color;

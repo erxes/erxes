@@ -8,7 +8,7 @@ import {
   getGoogleConfigs,
   gmailRequest,
   parseEmailHeader,
-  parseMail,
+  parseMail
 } from '../gmail/utils';
 import { Accounts } from '../models';
 import * as utils from '../utils';
@@ -18,7 +18,10 @@ describe('Gmail utils', async () => {
   let accountEmail;
 
   beforeEach(async () => {
-    const account = await accountFactory({ email: 'john@mail.com', token: 'token' });
+    const account = await accountFactory({
+      email: 'john@mail.com',
+      token: 'token'
+    });
 
     accountEmail = account.email;
   });
@@ -47,9 +50,15 @@ describe('Gmail utils', async () => {
     const test1 = 'John <john@mail.com> Sarah <sarah@mail.com>';
     const test2 = 'john@mail.com sarah@mail.com';
 
-    expect(getEmailsAsObject(test1)).toEqual([{ email: 'john@mail.com' }, { email: 'sarah@mail.com' }]);
+    expect(getEmailsAsObject(test1)).toEqual([
+      { email: 'john@mail.com' },
+      { email: 'sarah@mail.com' }
+    ]);
 
-    expect(getEmailsAsObject(test2)).toEqual([{ email: 'john@mail.com' }, { email: 'sarah@mail.com' }]);
+    expect(getEmailsAsObject(test2)).toEqual([
+      { email: 'john@mail.com' },
+      { email: 'sarah@mail.com' }
+    ]);
 
     expect(getEmailsAsObject('')).toBeUndefined();
   });
@@ -59,7 +68,7 @@ describe('Gmail utils', async () => {
 
     expect(parseEmailHeader(test1)).toEqual({
       name: 'John',
-      email: 'john@mail.com',
+      email: 'john@mail.com'
     });
   });
 
@@ -71,19 +80,21 @@ describe('Gmail utils', async () => {
       'JDLKA',
       'SJDKL',
       'ASJDK',
-      'LASJD',
+      'LASJD'
     ]);
   });
 
   test('Get google configs', async () => {
-    const googleMock = sinon.stub(utils, 'getCommonGoogleConfigs').callsFake(() => {
-      return Promise.resolve({
-        GOOGLE_PROJECT_ID: 'GOOGLE_PROJECT_ID',
-        GOOGLE_CLIENT_ID: 'GOOGLE_CLIENT_ID',
-        GOOGLE_CLIENT_SECRET: 'GOOGLE_CLIENT_SECRET',
-        GOOGLE_GMAIL_TOPIC: 'GOOGLE_GMAIL_TOPIC',
+    const googleMock = sinon
+      .stub(utils, 'getCommonGoogleConfigs')
+      .callsFake(() => {
+        return Promise.resolve({
+          GOOGLE_PROJECT_ID: 'GOOGLE_PROJECT_ID',
+          GOOGLE_CLIENT_ID: 'GOOGLE_CLIENT_ID',
+          GOOGLE_CLIENT_SECRET: 'GOOGLE_CLIENT_SECRET',
+          GOOGLE_GMAIL_TOPIC: 'GOOGLE_GMAIL_TOPIC'
+        });
       });
-    });
 
     const getConfigMock = sinon.stub(utils, 'getConfig').callsFake(() => {
       return Promise.resolve('GOOGLE_GMAIL_TOPIC');
@@ -93,7 +104,7 @@ describe('Gmail utils', async () => {
       GOOGLE_PROJECT_ID: 'GOOGLE_PROJECT_ID',
       GOOGLE_CLIENT_ID: 'GOOGLE_CLIENT_ID',
       GOOGLE_CLIENT_SECRET: 'GOOGLE_CLIENT_SECRET',
-      GOOGLE_GMAIL_TOPIC: 'GOOGLE_GMAIL_TOPIC',
+      GOOGLE_GMAIL_TOPIC: 'GOOGLE_GMAIL_TOPIC'
     });
 
     googleMock.restore();
@@ -111,7 +122,7 @@ describe('Gmail utils', async () => {
       url: 'url',
       type: 'type',
       method: 'GET',
-      email: accountEmail,
+      email: accountEmail
     };
 
     try {
@@ -143,17 +154,18 @@ describe('Gmail utils', async () => {
             { name: 'Return-Path', value: '<mungehubolud@gmail.com>' },
             {
               name: 'From',
-              value: 'test <test@gmail.com>',
+              value: 'test <test@gmail.com>'
             },
             {
               name: 'Content-Type',
-              value: 'multipart/; boundary="Apple-Mail=_56A0F385-0DE5-4558-A392-AABFF75F807C"',
+              value:
+                'multipart/; boundary="Apple-Mail=_56A0F385-0DE5-4558-A392-AABFF75F807C"'
             },
             { name: 'Subject', value: 'Fwd: test' },
             { name: 'Date', value: 'Thu, 1 Nov 2018 10:20:40 +0800' },
             {
               name: 'References',
-              value: '<BF3F66AF-86DB-497B-B998-4690082E0620@gmail.com>',
+              value: '<BF3F66AF-86DB-497B-B998-4690082E0620@gmail.com>'
             },
             { name: 'To', value: 'Contacts <test@mail.co>' },
             { name: 'Cc', value: 'test1@gmail.com' },
@@ -162,46 +174,49 @@ describe('Gmail utils', async () => {
             { name: 'Reply-To', value: 'alksjd' },
             {
               name: 'Message-Id',
-              value: '<DFA8BC9E-8561-42A9-9313-AD0F5ED24186@gmail.com>',
-            },
+              value: '<DFA8BC9E-8561-42A9-9313-AD0F5ED24186@gmail.com>'
+            }
           ],
           parts: [
             {
-              body: { size: 29, data: 'PGRpdiBkaXI9Imx0ciI-cXdlcXdlPC9kaXY-DQo=' },
+              body: {
+                size: 29,
+                data: 'PGRpdiBkaXI9Imx0ciI-cXdlcXdlPC9kaXY-DQo='
+              },
               filename: '',
               headers: [
                 {
                   name: 'Content-Type',
-                  value: "text/html; charset='UTF-8'",
-                },
+                  value: "text/html; charset='UTF-8'"
+                }
               ],
               name: 'Content-Type',
               value: "text/html; charset='UTF-8'",
               mimeType: 'text/html',
-              partId: '0.1',
+              partId: '0.1'
             },
             {
               body: {
                 attachmentId: 'attachmentId',
-                size: 34324,
+                size: 34324
               },
               filename: 'avatar.png',
               headers: [
                 {
                   name: 'Content-Type',
-                  value: "image/jpeg; name='avatar.png'",
+                  value: "image/jpeg; name='avatar.png'"
                 },
                 {
                   name: 'Content-Disposition',
-                  value: "attachment; filename='avatar.png'",
-                },
+                  value: "attachment; filename='avatar.png'"
+                }
               ],
               mimeType: 'image/jpeg',
-              partId: '1',
-            },
-          ],
-        },
-      },
+              partId: '1'
+            }
+          ]
+        }
+      }
     ];
 
     const response = [
@@ -228,11 +243,11 @@ describe('Gmail utils', async () => {
             size: 34324,
             headers: {
               'content-disposition': "attachment; filename='avatar.png'",
-              'content-type': "image/jpeg; name='avatar.png'",
-            },
-          },
-        ],
-      },
+              'content-type': "image/jpeg; name='avatar.png'"
+            }
+          }
+        ]
+      }
     ];
 
     const parsedMessage = parseMail(doc);
@@ -249,7 +264,7 @@ describe('Gmail utils', async () => {
       conversationId: 'conversationId',
       erxesApiMessageId: 'erxesApiMessageId',
       messageId: 'messageId',
-      threadId: 'threadId',
+      threadId: 'threadId'
     };
 
     const doc: any = {
@@ -268,9 +283,9 @@ describe('Gmail utils', async () => {
           mimeType: 'mimeType',
           size: 0,
           filename: 'filename',
-          data: 'data',
-        },
-      ],
+          data: 'data'
+        }
+      ]
     };
 
     expect(createMimeMessage(doc).replace(/\s+/g, ` `)).toBe(
@@ -295,7 +310,7 @@ describe('Gmail utils', async () => {
       Content-Disposition: attachment; filename="filename"
       Content-Transfer-Encoding: base64
       data
-      --__erxes__--`.replace(/\s+/g, ` `),
+      --__erxes__--`.replace(/\s+/g, ` `)
     );
   });
 });

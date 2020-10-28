@@ -4,12 +4,12 @@ import { generateAttachmentMessages, sendReply } from './utils';
 
 const sendError = message => ({
   status: 'error',
-  errorMessage: message,
+  errorMessage: message
 });
 
 const sendSuccess = data => ({
   status: 'success',
-  data,
+  data
 });
 
 /*
@@ -26,7 +26,7 @@ export const handleFacebookMessage = async msg => {
 
     return Comments.updateOne(
       { commentId: conversationId },
-      { $set: { isResolved: comment.isResolved ? false : true } },
+      { $set: { isResolved: comment.isResolved ? false : true } }
     );
   }
 
@@ -36,25 +36,32 @@ export const handleFacebookMessage = async msg => {
     const comment = await Comments.findOne({ commentId: conversationId });
 
     const post = await Posts.findOne({
-      $or: [{ erxesApiId: conversationId }, { postId: comment ? comment.postId : '' }],
+      $or: [
+        { erxesApiId: conversationId },
+        { postId: comment ? comment.postId : '' }
+      ]
     });
 
     const { recipientId } = post;
 
-    let attachment: { url?: string; type?: string; payload?: { url: string } } = {};
+    let attachment: {
+      url?: string;
+      type?: string;
+      payload?: { url: string };
+    } = {};
 
     if (attachments && attachments.length > 0) {
       attachment = {
         type: 'file',
         payload: {
-          url: attachments[0].url,
-        },
+          url: attachments[0].url
+        }
       };
     }
 
     let data = {
       message: content,
-      attachment_url: attachment.url,
+      attachment_url: attachment.url
     };
 
     const id = comment ? comment.commentId : post.postId;
@@ -62,12 +69,17 @@ export const handleFacebookMessage = async msg => {
     if (comment && comment.commentId) {
       data = {
         message: ` @[${comment.senderId}] ${content}`,
-        attachment_url: attachment.url,
+        attachment_url: attachment.url
       };
     }
 
     try {
-      const response = await sendReply(`${id}/comments`, data, recipientId, integrationId);
+      const response = await sendReply(
+        `${id}/comments`,
+        data,
+        recipientId,
+        integrationId
+      );
       return sendSuccess({ response });
     } catch (e) {
       return sendError(e);
@@ -77,7 +89,9 @@ export const handleFacebookMessage = async msg => {
   if (action === 'reply-messenger') {
     const { integrationId, conversationId, content, attachments } = doc;
 
-    const conversation = await Conversations.getConversation({ erxesApiId: conversationId });
+    const conversation = await Conversations.getConversation({
+      erxesApiId: conversationId
+    });
 
     const { recipientId, senderId } = conversation;
 
@@ -87,13 +101,18 @@ export const handleFacebookMessage = async msg => {
           'me/messages',
           { recipient: { id: senderId }, message: { text: content } },
           recipientId,
-          integrationId,
+          integrationId
         );
       }
 
       for (const message of generateAttachmentMessages(attachments)) {
         try {
-          await sendReply('me/messages', { recipient: { id: senderId }, message }, recipientId, integrationId);
+          await sendReply(
+            'me/messages',
+            { recipient: { id: senderId }, message },
+            recipientId,
+            integrationId
+          );
         } catch (e) {
           debugFacebook(`Error while sending attachments: ${e.message}`);
         }

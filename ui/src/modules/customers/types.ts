@@ -88,11 +88,9 @@ export type RemoveMutationVariables = {
 };
 
 export type RemoveMutationResponse = {
-  customersRemove: (
-    doc: {
-      variables: RemoveMutationVariables;
-    }
-  ) => Promise<any>;
+  customersRemove: (doc: {
+    variables: RemoveMutationVariables;
+  }) => Promise<any>;
 };
 
 export type MergeMutationVariables = {
@@ -105,19 +103,13 @@ export type VerifyMutationVariables = {
 };
 
 export type VerifyMutationResponse = {
-  customersVerify: (
-    doc: {
-      variables: VerifyMutationVariables;
-    }
-  ) => Promise<any>;
+  customersVerify: (doc: {
+    variables: VerifyMutationVariables;
+  }) => Promise<any>;
 };
 
 export type MergeMutationResponse = {
-  customersMerge: (
-    doc: {
-      variables: MergeMutationVariables;
-    }
-  ) => Promise<any>;
+  customersMerge: (doc: { variables: MergeMutationVariables }) => Promise<any>;
 };
 
 export type ChangeStateMutationVariables = {
@@ -126,11 +118,9 @@ export type ChangeStateMutationVariables = {
 };
 
 export type ChangeStateMutationResponse = {
-  customersChangeState: (
-    doc: {
-      variables: ChangeStateMutationVariables;
-    }
-  ) => Promise<any>;
+  customersChangeState: (doc: {
+    variables: ChangeStateMutationVariables;
+  }) => Promise<any>;
 };
 
 export type ChangeStatusMutationVariables = {
@@ -140,11 +130,9 @@ export type ChangeStatusMutationVariables = {
 };
 
 export type ChangeStatusMutationResponse = {
-  customersChangeVerificationStatus: (
-    doc: {
-      variables: ChangeStatusMutationVariables;
-    }
-  ) => Promise<any>;
+  customersChangeVerificationStatus: (doc: {
+    variables: ChangeStatusMutationVariables;
+  }) => Promise<any>;
 };
 
 // query types

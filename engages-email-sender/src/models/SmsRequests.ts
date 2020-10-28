@@ -26,9 +26,9 @@ export interface ISmsRequestModel extends Model<ISmsRequestDocument> {
 const statusSchema = new Schema(
   {
     date: { type: Date, label: 'Status update date' },
-    status: { type: String, label: 'Sms delivery status' },
+    status: { type: String, label: 'Sms delivery status' }
   },
-  { _id: false },
+  { _id: false }
 );
 
 const schema = new Schema({
@@ -41,7 +41,7 @@ const schema = new Schema({
   responseData: { type: String, label: 'Stringified response JSON' },
   telnyxId: { type: String, label: 'Telnyx message record id' },
   statusUpdates: { type: [statusSchema], label: 'Sms status updates' },
-  errorMessages: { type: [String], label: 'Error messages' },
+  errorMessages: { type: [String], label: 'Error messages' }
 });
 
 export const loadLogClass = () => {
@@ -52,7 +52,9 @@ export const loadLogClass = () => {
       const exists = await SmsRequests.findOne({ engageMessageId, to });
 
       if (exists) {
-        throw new Error(`Sms request to "${to}" from engage id "${engageMessageId}" already exists.`);
+        throw new Error(
+          `Sms request to "${to}" from engage id "${engageMessageId}" already exists.`
+        );
       }
 
       return SmsRequests.create(doc);
@@ -73,6 +75,9 @@ export const loadLogClass = () => {
 loadLogClass();
 
 // tslint:disable-next-line
-const SmsRequests = model<ISmsRequestDocument, ISmsRequestModel>('engage_sms_requests', schema);
+const SmsRequests = model<ISmsRequestDocument, ISmsRequestModel>(
+  'engage_sms_requests',
+  schema
+);
 
 export default SmsRequests;

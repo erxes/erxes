@@ -1,9 +1,17 @@
 import { Model, model } from 'mongoose';
-import { IResponseTemplate, IResponseTemplateDocument, responseTemplateSchema } from './definitions/responseTemplates';
+import {
+  IResponseTemplate,
+  IResponseTemplateDocument,
+  responseTemplateSchema
+} from './definitions/responseTemplates';
 
-export interface IResponseTemplateModel extends Model<IResponseTemplateDocument> {
+export interface IResponseTemplateModel
+  extends Model<IResponseTemplateDocument> {
   getResponseTemplate(_id: string): Promise<IResponseTemplateDocument>;
-  updateResponseTemplate(_id: string, fields: IResponseTemplate): Promise<IResponseTemplateDocument>;
+  updateResponseTemplate(
+    _id: string,
+    fields: IResponseTemplate
+  ): Promise<IResponseTemplateDocument>;
   removeResponseTemplate(_id: string): void;
 }
 
@@ -24,7 +32,10 @@ export const loadClass = () => {
     /**
      * Update response template
      */
-    public static async updateResponseTemplate(_id: string, fields: IResponseTemplate) {
+    public static async updateResponseTemplate(
+      _id: string,
+      fields: IResponseTemplate
+    ) {
       await ResponseTemplates.updateOne({ _id }, { $set: { ...fields } });
 
       return ResponseTemplates.findOne({ _id });
@@ -52,9 +63,9 @@ export const loadClass = () => {
 loadClass();
 
 // tslint:disable-next-line
-const ResponseTemplates = model<IResponseTemplateDocument, IResponseTemplateModel>(
-  'response_templates',
-  responseTemplateSchema,
-);
+const ResponseTemplates = model<
+  IResponseTemplateDocument,
+  IResponseTemplateModel
+>('response_templates', responseTemplateSchema);
 
 export default ResponseTemplates;

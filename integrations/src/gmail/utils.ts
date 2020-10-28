@@ -24,7 +24,9 @@ export const extractEmailFromString = (str?: string): string => {
   return emails.join(' ');
 };
 
-export const getEmailsAsObject = (rawString: string): Array<{ email: string }> => {
+export const getEmailsAsObject = (
+  rawString: string
+): Array<{ email: string }> => {
   if (!rawString) {
     return;
   }
@@ -41,7 +43,9 @@ export const getEmailsAsObject = (rawString: string): Array<{ email: string }> =
     .filter(email => email !== undefined);
 };
 
-export const parseEmailHeader = (value: string): { name: string; email: string } => {
+export const parseEmailHeader = (
+  value: string
+): { name: string; email: string } => {
   const header = value.trim();
 
   const extract = { name: '', email: '' };
@@ -146,7 +150,18 @@ export const chunkSubstr = (str: string, size: number) => {
  * @see {https://tools.ietf.org/html/rfc2822}
  */
 export const createMimeMessage = (mailParams: IMailParams): string => {
-  const { bcc, cc, to, body, headerId, references, inReplyTo, from, subject, attachments } = mailParams;
+  const {
+    bcc,
+    cc,
+    to,
+    body,
+    headerId,
+    references,
+    inReplyTo,
+    from,
+    subject,
+    attachments
+  } = mailParams;
 
   const nl = '\n';
   const boundary = '__erxes__';
@@ -155,7 +170,7 @@ export const createMimeMessage = (mailParams: IMailParams): string => {
     'MIME-Version: 1.0',
     'To: ' + to, // "user1@email.com, user2@email.com"
     'From: <' + from + '>',
-    'Subject: ' + subject,
+    'Subject: ' + subject
   ];
 
   // Reply
@@ -168,7 +183,9 @@ export const createMimeMessage = (mailParams: IMailParams): string => {
   }
 
   if (headerId) {
-    mimeBase.push(['In-Reply-To: ' + headerId, 'Message-ID: ' + headerId].join(nl));
+    mimeBase.push(
+      ['In-Reply-To: ' + headerId, 'Message-ID: ' + headerId].join(nl)
+    );
   }
 
   if (cc && cc.length > 0) {
@@ -181,7 +198,12 @@ export const createMimeMessage = (mailParams: IMailParams): string => {
 
   mimeBase.push('Content-Type: multipart/mixed; boundary=' + boundary + nl);
   mimeBase.push(
-    ['--' + boundary, 'Content-Type: text/html; charset=UTF-8', 'Content-Transfer-Encoding: 8bit' + nl, body].join(nl),
+    [
+      '--' + boundary,
+      'Content-Type: text/html; charset=UTF-8',
+      'Content-Transfer-Encoding: 8bit' + nl,
+      body
+    ].join(nl)
   );
 
   if (attachments && attachments.length > 0) {
@@ -190,9 +212,11 @@ export const createMimeMessage = (mailParams: IMailParams): string => {
         '--' + boundary,
         'Content-Type: ' + attachment.mimeType,
         'Content-Length: ' + attachment.size,
-        'Content-Disposition: attachment; filename="' + attachment.filename + '"',
+        'Content-Disposition: attachment; filename="' +
+          attachment.filename +
+          '"',
         'Content-Transfer-Encoding: base64' + nl,
-        chunkSubstr(attachment.data, 76),
+        chunkSubstr(attachment.data, 76)
       ];
 
       mimeBase.push(mimeAttachment.join(nl));
@@ -209,18 +233,26 @@ export const getGoogleConfigs = async () => {
     GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET,
     GOOGLE_PROJECT_ID,
-    GOOGLE_GMAIL_TOPIC,
+    GOOGLE_GMAIL_TOPIC
   } = await getCommonGoogleConfigs();
 
   return {
     GOOGLE_PROJECT_ID,
     GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET,
-    GOOGLE_GMAIL_TOPIC,
+    GOOGLE_GMAIL_TOPIC
   };
 };
 
-export const gmailRequest = async ({ url, accessToken, email, type, method, params = {}, body }: IGmailRequest) => {
+export const gmailRequest = async ({
+  url,
+  accessToken,
+  email,
+  type,
+  method,
+  params = {},
+  body
+}: IGmailRequest) => {
   try {
     const account = await Accounts.findOne({ email }).lean();
 
@@ -229,12 +261,14 @@ export const gmailRequest = async ({ url, accessToken, email, type, method, para
       body,
       method,
       params,
-      headerParams: { Authorization: `Bearer ${accessToken || account.token}` },
+      headerParams: { Authorization: `Bearer ${accessToken || account.token}` }
     });
 
     return response;
   } catch (e) {
-    debugGmail(`Failed: gmailRequest email: ${email} type: ${type} ${e.message}`);
+    debugGmail(
+      `Failed: gmailRequest email: ${email} type: ${type} ${e.message}`
+    );
     throw e;
   }
 };

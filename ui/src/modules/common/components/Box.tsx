@@ -59,10 +59,9 @@ export default class Box extends React.Component<BoxProps, BoxState> {
 
     return (
       <>
-        {isOpen &&
-          (extraButtons && (
-            <QuickButtons isSidebarOpen={true}>{extraButtons}</QuickButtons>
-          ))}
+        {isOpen && extraButtons && (
+          <QuickButtons isSidebarOpen={true}>{extraButtons}</QuickButtons>
+        )}
         <SidebarCollapse onClick={this.toggle}>
           <Icon icon={icon} size={16} />
         </SidebarCollapse>

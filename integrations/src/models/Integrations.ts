@@ -40,23 +40,35 @@ export const integrationSchema = new Schema({
   kind: String,
   accountId: String,
   erxesApiId: String,
-  phoneNumber: field({ type: String, label: 'CallPro phone number', optional: true }),
-  recordUrl: field({ type: String, label: 'CallPro record url', optional: true }),
+  phoneNumber: field({
+    type: String,
+    label: 'CallPro phone number',
+    optional: true
+  }),
+  recordUrl: field({
+    type: String,
+    label: 'CallPro record url',
+    optional: true
+  }),
   emailScope: String,
   nylasToken: String,
   nylasAccountId: String,
   nylasBillingState: String,
-  facebookPageIds: field({ type: [String], label: 'Facebook page ids', optional: true }),
+  facebookPageIds: field({
+    type: [String],
+    label: 'Facebook page ids',
+    optional: true
+  }),
   email: String,
   expiration: String,
   gmailHistoryId: String,
   facebookPageTokensMap: field({
     type: Object,
-    default: {},
+    default: {}
   }),
   chatfuelConfigs: field({
     type: Object,
-    default: {},
+    default: {}
   }),
   telegramBotToken: String,
   viberBotToken: String,
@@ -70,7 +82,7 @@ export const integrationSchema = new Schema({
   whatsappinstanceId: String,
   whatsappToken: String,
   telnyxPhoneNumber: field({ type: String, label: 'Telnyx phone number' }),
-  telnyxProfileId: field({ type: String, label: 'Telnyx messaging profile id' }),
+  telnyxProfileId: field({ type: String, label: 'Telnyx messaging profile id' })
 });
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {
@@ -98,6 +110,9 @@ export const loadClass = () => {
 loadClass();
 
 // tslint:disable-next-line
-const Integrations = model<IIntegrationDocument, IIntegrationModel>('integrations', integrationSchema);
+const Integrations = model<IIntegrationDocument, IIntegrationModel>(
+  'integrations',
+  integrationSchema
+);
 
 export default Integrations;

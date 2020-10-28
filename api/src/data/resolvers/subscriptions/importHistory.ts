@@ -11,7 +11,7 @@ export default {
       // filter by importHistoryId
       (payload, variables) => {
         return payload.importHistoryChanged._id === variables._id;
-      },
-    ),
-  },
+      }
+    )
+  }
 };

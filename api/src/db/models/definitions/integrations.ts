@@ -1,6 +1,11 @@
 import { Document, Schema } from 'mongoose';
 import { IRule, ruleSchema } from './common';
-import { KIND_CHOICES, LEAD_LOAD_TYPES, LEAD_SUCCESS_ACTIONS, MESSENGER_DATA_AVAILABILITY } from './constants';
+import {
+  KIND_CHOICES,
+  LEAD_LOAD_TYPES,
+  LEAD_SUCCESS_ACTIONS,
+  MESSENGER_DATA_AVAILABILITY
+} from './constants';
 import { field } from './utils';
 
 export interface ISubmission extends Document {
@@ -20,7 +25,9 @@ export interface IMessengerOnlineHours {
   to?: string;
 }
 
-export interface IMessengerOnlineHoursDocument extends IMessengerOnlineHours, Document {}
+export interface IMessengerOnlineHoursDocument
+  extends IMessengerOnlineHours,
+    Document {}
 
 export interface IMessengerDataMessagesItem {
   greetings?: { title?: string; message?: string };
@@ -129,9 +136,9 @@ const messengerOnlineHoursSchema = new Schema(
   {
     day: field({ type: String }),
     from: field({ type: String }),
-    to: field({ type: String }),
+    to: field({ type: String })
   },
-  { _id: false },
+  { _id: false }
 );
 
 // subdocument schema for MessengerData
@@ -142,29 +149,29 @@ const messengerDataSchema = new Schema(
     notifyCustomer: field({ type: Boolean }),
     availabilityMethod: field({
       type: String,
-      enum: MESSENGER_DATA_AVAILABILITY.ALL,
+      enum: MESSENGER_DATA_AVAILABILITY.ALL
     }),
     isOnline: field({
-      type: Boolean,
+      type: Boolean
     }),
     onlineHours: field({ type: [messengerOnlineHoursSchema] }),
     timezone: field({
       type: String,
-      optional: true,
+      optional: true
     }),
     messages: field({ type: Object, optional: true }),
     links: {
       facebook: String,
       twitter: String,
-      youtube: String,
+      youtube: String
     },
     requireAuth: field({ type: Boolean, default: true }),
     showChat: field({ type: Boolean, default: true }),
     showLauncher: field({ type: Boolean, default: true }),
     forceLogoutWhenResolve: field({ type: Boolean, default: false }),
-    showVideoCallRequest: field({ type: Boolean, default: false }),
+    showVideoCallRequest: field({ type: Boolean, default: false })
   },
-  { _id: false },
+  { _id: false }
 );
 
 // schema for lead's callout component
@@ -173,10 +180,14 @@ export const calloutSchema = new Schema(
     title: field({ type: String, optional: true, label: 'Title' }),
     body: field({ type: String, optional: true, label: 'Body' }),
     buttonText: field({ type: String, optional: true, label: 'Button text' }),
-    featuredImage: field({ type: String, optional: true, label: 'Featured image' }),
-    skip: field({ type: Boolean, optional: true, label: 'Skip' }),
+    featuredImage: field({
+      type: String,
+      optional: true,
+      label: 'Featured image'
+    }),
+    skip: field({ type: Boolean, optional: true, label: 'Skip' })
   },
-  { _id: false },
+  { _id: false }
 );
 
 // TODO: remove
@@ -184,9 +195,9 @@ export const calloutSchema = new Schema(
 export const submissionSchema = new Schema(
   {
     customerId: field({ type: String }),
-    submittedAt: field({ type: Date }),
+    submittedAt: field({ type: Date })
   },
-  { _id: false },
+  { _id: false }
 );
 
 // subdocument schema for LeadData
@@ -195,86 +206,86 @@ export const leadDataSchema = new Schema(
     loadType: field({
       type: String,
       enum: LEAD_LOAD_TYPES.ALL,
-      label: 'Load type',
+      label: 'Load type'
     }),
     successAction: field({
       type: String,
       enum: LEAD_SUCCESS_ACTIONS.ALL,
       optional: true,
-      label: 'Success action',
+      label: 'Success action'
     }),
     fromEmail: field({
       type: String,
       optional: true,
-      label: 'From email',
+      label: 'From email'
     }),
     userEmailTitle: field({
       type: String,
       optional: true,
-      label: 'User email title',
+      label: 'User email title'
     }),
     userEmailContent: field({
       type: String,
       optional: true,
-      label: 'User email content',
+      label: 'User email content'
     }),
     adminEmails: field({
       type: [String],
       optional: true,
-      label: 'Admin emails',
+      label: 'Admin emails'
     }),
     adminEmailTitle: field({
       type: String,
       optional: true,
-      label: 'Admin email title',
+      label: 'Admin email title'
     }),
     adminEmailContent: field({
       type: String,
       optional: true,
-      label: 'Admin email content',
+      label: 'Admin email content'
     }),
     thankContent: field({
       type: String,
       optional: true,
-      label: 'Thank content',
+      label: 'Thank content'
     }),
     redirectUrl: field({
       type: String,
       optional: true,
-      label: 'Redirect URL',
+      label: 'Redirect URL'
     }),
     themeColor: field({
       type: String,
       optional: true,
-      label: 'Theme color code',
+      label: 'Theme color code'
     }),
     callout: field({
       type: calloutSchema,
       optional: true,
-      label: 'Callout',
+      label: 'Callout'
     }),
     viewCount: field({
       type: Number,
       optional: true,
-      label: 'View count',
+      label: 'View count'
     }),
     contactsGathered: field({
       type: Number,
       optional: true,
-      label: 'Contacts gathered',
+      label: 'Contacts gathered'
     }),
     rules: field({
       type: [ruleSchema],
       optional: true,
-      label: 'Rules',
+      label: 'Rules'
     }),
     isRequireOnce: field({
       type: Boolean,
       optional: true,
-      label: 'Do now show again if already filled out',
-    }),
+      label: 'Do now show again if already filled out'
+    })
   },
-  { _id: false },
+  { _id: false }
 );
 
 // subdocument schema for messenger UiOptions
@@ -283,17 +294,17 @@ const uiOptionsSchema = new Schema(
     color: field({ type: String }),
     textColor: field({ type: String }),
     wallpaper: field({ type: String }),
-    logo: field({ type: String }),
+    logo: field({ type: String })
   },
-  { _id: false },
+  { _id: false }
 );
 
 const webhookDataSchema = new Schema(
   {
     script: field({ type: String, optional: true }),
-    token: field({ type: String }),
+    token: field({ type: String })
   },
-  { _id: false },
+  { _id: false }
 );
 
 // schema for integration document
@@ -304,7 +315,7 @@ export const integrationSchema = new Schema({
   kind: field({
     type: String,
     enum: KIND_CHOICES.ALL,
-    label: 'Kind',
+    label: 'Kind'
   }),
 
   name: field({ type: String, label: 'Name' }),
@@ -313,15 +324,20 @@ export const integrationSchema = new Schema({
   languageCode: field({
     type: String,
     optional: true,
-    label: 'Language code',
+    label: 'Language code'
   }),
   tagIds: field({ type: [String], label: 'Tags' }),
   formId: field({ type: String, label: 'Form' }),
   leadData: field({ type: leadDataSchema, label: 'Lead data' }),
-  isActive: field({ type: Boolean, optional: true, default: true, label: 'Is active' }),
+  isActive: field({
+    type: Boolean,
+    optional: true,
+    default: true,
+    label: 'Is active'
+  }),
   webhookData: field({ type: webhookDataSchema }),
   // TODO: remove
   formData: field({ type: leadDataSchema }),
   messengerData: field({ type: messengerDataSchema }),
-  uiOptions: field({ type: uiOptionsSchema }),
+  uiOptions: field({ type: uiOptionsSchema })
 });

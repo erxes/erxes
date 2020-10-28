@@ -1,4 +1,9 @@
-import { getTelegramFile, saveConversation, saveCustomer, saveMessage } from './api';
+import {
+  getTelegramFile,
+  saveConversation,
+  saveCustomer,
+  saveMessage
+} from './api';
 import { IAttachment, ISmoochCustomerInput } from './types';
 
 import { Integrations } from '../models';
@@ -17,15 +22,20 @@ const receiveMessage = async requestBody => {
     smoochIntegrationId,
     surname: appUser.surname,
     givenName: appUser.givenName,
-    smoochUserId: appUser._id,
+    smoochUserId: appUser._id
   };
 
   if (client.platform === 'twilio') {
     customer.phone = client.displayName;
-  } else if (client.platform === 'telegram' && client.raw.profile_photos.total_count !== 0) {
+  } else if (
+    client.platform === 'telegram' &&
+    client.raw.profile_photos.total_count !== 0
+  ) {
     const { file_id } = client.raw.profile_photos.photos[0][0];
 
-    const { telegramBotToken } = await Integrations.findOne({ smoochIntegrationId });
+    const { telegramBotToken } = await Integrations.findOne({
+      smoochIntegrationId
+    });
 
     customer.avatarUrl = await getTelegramFile(telegramBotToken, file_id);
   } else if (client.platform === 'line' && client.raw.pictureUrl) {
@@ -45,7 +55,7 @@ const receiveMessage = async requestBody => {
       conversation._id,
       customerId,
       content,
-      received,
+      received
     );
 
     let attachment: IAttachment;
@@ -54,7 +64,14 @@ const receiveMessage = async requestBody => {
       attachment = { type: message.mediaType, url: message.mediaUrl };
     }
 
-    await saveMessage(smoochIntegrationId, customerId, conversationIds, content, message._id, attachment);
+    await saveMessage(
+      smoochIntegrationId,
+      customerId,
+      conversationIds,
+      content,
+      message._id,
+      attachment
+    );
   }
 };
 

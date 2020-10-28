@@ -1,7 +1,12 @@
 import * as Random from 'meteor-random';
 import { Model, model } from 'mongoose';
 import { Integrations } from './';
-import { brandSchema, IBrand, IBrandDocument, IBrandEmailConfig } from './definitions/brands';
+import {
+  brandSchema,
+  IBrand,
+  IBrandDocument,
+  IBrandEmailConfig
+} from './definitions/brands';
 import { IIntegrationDocument } from './definitions/integrations';
 
 export interface IBrandModel extends Model<IBrandDocument> {
@@ -11,9 +16,18 @@ export interface IBrandModel extends Model<IBrandDocument> {
   updateBrand(_id: string, fields: IBrand): IBrandDocument;
   removeBrand(_id: string): IBrandDocument;
 
-  updateEmailConfig(_id: string, emailConfig: IBrandEmailConfig): IBrandDocument;
+  updateEmailConfig(
+    _id: string,
+    emailConfig: IBrandEmailConfig
+  ): IBrandDocument;
 
-  manageIntegrations({ _id, integrationIds }: { _id: string; integrationIds: string[] }): IIntegrationDocument[];
+  manageIntegrations({
+    _id,
+    integrationIds
+  }: {
+    _id: string;
+    integrationIds: string[];
+  }): IIntegrationDocument[];
 }
 
 export const loadClass = () => {
@@ -53,7 +67,7 @@ export const loadClass = () => {
         ...doc,
         code: await this.generateCode(),
         createdAt: new Date(),
-        emailConfig: { type: 'simple' },
+        emailConfig: { type: 'simple' }
       });
     }
 
@@ -72,14 +86,27 @@ export const loadClass = () => {
       return brandObj.remove();
     }
 
-    public static async updateEmailConfig(_id: string, emailConfig: IBrandEmailConfig) {
+    public static async updateEmailConfig(
+      _id: string,
+      emailConfig: IBrandEmailConfig
+    ) {
       await Brands.updateOne({ _id }, { $set: { emailConfig } });
 
       return Brands.findOne({ _id });
     }
 
-    public static async manageIntegrations({ _id, integrationIds }: { _id: string; integrationIds: string[] }) {
-      await Integrations.updateMany({ _id: { $in: integrationIds } }, { $set: { brandId: _id } }, { multi: true });
+    public static async manageIntegrations({
+      _id,
+      integrationIds
+    }: {
+      _id: string;
+      integrationIds: string[];
+    }) {
+      await Integrations.updateMany(
+        { _id: { $in: integrationIds } },
+        { $set: { brandId: _id } },
+        { multi: true }
+      );
 
       return Integrations.findIntegrations({ _id: { $in: integrationIds } });
     }

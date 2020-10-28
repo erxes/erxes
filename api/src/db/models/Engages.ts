@@ -4,9 +4,16 @@ import { replaceEditorAttributes } from '../../data/utils';
 import { getNumberOfVisits } from '../../events';
 import { IBrowserInfo } from './Customers';
 import { IBrandDocument } from './definitions/brands';
-import { IEngageData, IMessageDocument } from './definitions/conversationMessages';
+import {
+  IEngageData,
+  IMessageDocument
+} from './definitions/conversationMessages';
 import { ICustomerDocument } from './definitions/customers';
-import { engageMessageSchema, IEngageMessage, IEngageMessageDocument } from './definitions/engages';
+import {
+  engageMessageSchema,
+  IEngageMessage,
+  IEngageMessageDocument
+} from './definitions/engages';
 import { IIntegrationDocument } from './definitions/integrations';
 import { IUserDocument } from './definitions/users';
 
@@ -35,14 +42,26 @@ export interface IEngageMessageModel extends Model<IEngageMessageDocument> {
   getEngageMessage(_id: string): IEngageMessageDocument;
   createEngageMessage(doc: IEngageMessage): Promise<IEngageMessageDocument>;
 
-  updateEngageMessage(_id: string, doc: IEngageMessage): Promise<IEngageMessageDocument>;
+  updateEngageMessage(
+    _id: string,
+    doc: IEngageMessage
+  ): Promise<IEngageMessageDocument>;
 
   engageMessageSetLive(_id: string): Promise<IEngageMessageDocument>;
   engageMessageSetPause(_id: string): Promise<IEngageMessageDocument>;
   removeEngageMessage(_id: string): void;
-  setCustomersCount(_id: string, type: string, count: number): Promise<IEngageMessageDocument>;
-  changeCustomer(newCustomerId: string, customerIds: string[]): Promise<IEngageMessageDocument>;
-  removeCustomersEngages(customerIds: string[]): Promise<{ n: number; ok: number }>;
+  setCustomersCount(
+    _id: string,
+    type: string,
+    count: number
+  ): Promise<IEngageMessageDocument>;
+  changeCustomer(
+    newCustomerId: string,
+    customerIds: string[]
+  ): Promise<IEngageMessageDocument>;
+  removeCustomersEngages(
+    customerIds: string[]
+  ): Promise<{ n: number; ok: number }>;
 
   checkRule(params: ICheckRuleParams): boolean;
   checkRules(params: ICheckRulesParams): Promise<boolean>;
@@ -81,7 +100,7 @@ export const loadClass = () => {
      */
     public static createEngageMessage(doc: IEngageMessage) {
       return EngageMessages.create({
-        ...doc,
+        ...doc
       });
     }
 
@@ -104,7 +123,10 @@ export const loadClass = () => {
      * Engage message set live
      */
     public static async engageMessageSetLive(_id: string) {
-      await EngageMessages.updateOne({ _id }, { $set: { isLive: true, isDraft: false } });
+      await EngageMessages.updateOne(
+        { _id },
+        { $set: { isLive: true, isDraft: false } }
+      );
 
       return EngageMessages.findOne({ _id });
     }
@@ -138,7 +160,11 @@ export const loadClass = () => {
     /**
      * Save matched customers count
      */
-    public static async setCustomersCount(_id: string, type: string, count: number) {
+    public static async setCustomersCount(
+      _id: string,
+      type: string,
+      count: number
+    ) {
       await EngageMessages.updateOne({ _id }, { $set: { [type]: count } });
 
       return EngageMessages.findOne({ _id });
@@ -147,25 +173,31 @@ export const loadClass = () => {
     /**
      * Transfers customers' engage messages to another customer
      */
-    public static async changeCustomer(newCustomerId: string, customerIds: string[]) {
+    public static async changeCustomer(
+      newCustomerId: string,
+      customerIds: string[]
+    ) {
       for (const customerId of customerIds) {
         // Updating every engage messages of customer
         await EngageMessages.updateMany(
           { customerIds: { $in: [customerId] } },
-          { $push: { customerIds: newCustomerId } },
+          { $push: { customerIds: newCustomerId } }
         );
 
-        await EngageMessages.updateMany({ customerIds: { $in: [customerId] } }, { $pull: { customerIds: customerId } });
+        await EngageMessages.updateMany(
+          { customerIds: { $in: [customerId] } },
+          { $pull: { customerIds: customerId } }
+        );
 
         // updating every engage messages of customer participated in
         await EngageMessages.updateMany(
           { messengerReceivedCustomerIds: { $in: [customerId] } },
-          { $push: { messengerReceivedCustomerIds: newCustomerId } },
+          { $push: { messengerReceivedCustomerIds: newCustomerId } }
         );
 
         await EngageMessages.updateMany(
           { messengerReceivedCustomerIds: { $in: [customerId] } },
-          { $pull: { messengerReceivedCustomerIds: customerId } },
+          { $pull: { messengerReceivedCustomerIds: customerId } }
         );
       }
 
@@ -179,10 +211,13 @@ export const loadClass = () => {
       // Removing customer from engage messages
       await EngageMessages.updateMany(
         { messengerReceivedCustomerIds: { $in: customerIds } },
-        { $pull: { messengerReceivedCustomerIds: { $in: customerIds } } },
+        { $pull: { messengerReceivedCustomerIds: { $in: customerIds } } }
       );
 
-      return EngageMessages.updateMany({ customerIds }, { $pull: { customerIds } });
+      return EngageMessages.updateMany(
+        { customerIds },
+        { $pull: { customerIds } }
+      );
     }
 
     /*
@@ -198,13 +233,15 @@ export const loadClass = () => {
       const { brand, integration, customer, browserInfo } = params;
 
       // force read previous unread engage messages ============
-      await ConversationMessages.forceReadCustomerPreviousEngageMessages(customer._id);
+      await ConversationMessages.forceReadCustomerPreviousEngageMessages(
+        customer._id
+      );
 
       const messages = await EngageMessages.find({
         'messenger.brandId': brand._id,
         kind: 'visitorAuto',
         method: 'messenger',
-        isLive: true,
+        isLive: true
       });
 
       const conversationMessages: IMessageDocument[] = [];
@@ -219,12 +256,15 @@ export const loadClass = () => {
         }
 
         // check for rules ===
-        const numberOfVisits = await getNumberOfVisits(customer._id, browserInfo.url);
+        const numberOfVisits = await getNumberOfVisits(
+          customer._id,
+          browserInfo.url
+        );
 
         const isPassedAllRules = await this.checkRules({
           rules: messenger.rules,
           browserInfo,
-          numberOfVisits,
+          numberOfVisits
         });
 
         // if given visitor is matched with given condition then create
@@ -234,29 +274,34 @@ export const loadClass = () => {
           const { replacedContent } = await replaceEditorAttributes({
             content: messenger.content,
             customer,
-            user,
+            user
           });
 
-          const conversationMessage = await this.createOrUpdateConversationAndMessages({
-            customer,
-            integration,
-            user,
-            replacedContent: replacedContent || '',
-            engageData: {
-              ...messenger,
-              content: replacedContent,
-              engageKind: 'visitorAuto',
-              messageId: message._id,
-              fromUserId: message.fromUserId,
-            },
-          });
+          const conversationMessage = await this.createOrUpdateConversationAndMessages(
+            {
+              customer,
+              integration,
+              user,
+              replacedContent: replacedContent || '',
+              engageData: {
+                ...messenger,
+                content: replacedContent,
+                engageKind: 'visitorAuto',
+                messageId: message._id,
+                fromUserId: message.fromUserId
+              }
+            }
+          );
 
           if (conversationMessage) {
             // collect created messages
             conversationMessages.push(conversationMessage);
 
             // add given customer to customerIds list
-            await EngageMessages.updateOne({ _id: message._id }, { $push: { customerIds: customer._id } });
+            await EngageMessages.updateOne(
+              { _id: message._id },
+              { $push: { customerIds: customer._id } }
+            );
           }
         }
       }
@@ -276,15 +321,17 @@ export const loadClass = () => {
     }) {
       const { customer, integration, user, engageData, replacedContent } = args;
 
-      const prevMessage: IMessageDocument | null = await ConversationMessages.findOne({
-        customerId: customer._id,
-        'engageData.messageId': engageData.messageId,
-      });
+      const prevMessage: IMessageDocument | null = await ConversationMessages.findOne(
+        {
+          customerId: customer._id,
+          'engageData.messageId': engageData.messageId
+        }
+      );
 
       // if previously created conversation for this customer
       if (prevMessage) {
         const messages = await ConversationMessages.find({
-          conversationId: prevMessage.conversationId,
+          conversationId: prevMessage.conversationId
         });
 
         // leave conversations with responses alone
@@ -293,7 +340,10 @@ export const loadClass = () => {
         }
 
         // mark as unread again && reset engageData
-        await ConversationMessages.updateOne({ _id: prevMessage._id }, { $set: { engageData, isCustomerRead: false } });
+        await ConversationMessages.updateOne(
+          { _id: prevMessage._id },
+          { $set: { engageData, isCustomerRead: false } }
+        );
 
         return null;
       }
@@ -303,7 +353,7 @@ export const loadClass = () => {
         userId: user._id,
         customerId: customer._id,
         integrationId: integration._id,
-        content: replacedContent,
+        content: replacedContent
       });
 
       // create message
@@ -312,7 +362,7 @@ export const loadClass = () => {
         conversationId: conversation._id,
         userId: user._id,
         customerId: customer._id,
-        content: replacedContent,
+        content: replacedContent
       });
     }
 
@@ -385,22 +435,37 @@ export const loadClass = () => {
       }
 
       // startsWith
-      if (condition === 'startsWith' && valueToTest && !valueToTest.startsWith(ruleValue)) {
+      if (
+        condition === 'startsWith' &&
+        valueToTest &&
+        !valueToTest.startsWith(ruleValue)
+      ) {
         return false;
       }
 
       // endsWith
-      if (condition === 'endsWith' && valueToTest && !valueToTest.endsWith(ruleValue)) {
+      if (
+        condition === 'endsWith' &&
+        valueToTest &&
+        !valueToTest.endsWith(ruleValue)
+      ) {
         return false;
       }
 
       // contains
-      if (condition === 'contains' && valueToTest && !valueToTest.includes(ruleValue)) {
+      if (
+        condition === 'contains' &&
+        valueToTest &&
+        !valueToTest.includes(ruleValue)
+      ) {
         return false;
       }
 
       // greaterThan
-      if (condition === 'greaterThan' && valueToTest < parseInt(ruleValue, 10)) {
+      if (
+        condition === 'greaterThan' &&
+        valueToTest < parseInt(ruleValue, 10)
+      ) {
         return false;
       }
 
@@ -424,6 +489,9 @@ export const loadClass = () => {
 loadClass();
 
 // tslint:disable-next-line
-const EngageMessages = model<IEngageMessageDocument, IEngageMessageModel>('engage_messages', engageMessageSchema);
+const EngageMessages = model<IEngageMessageDocument, IEngageMessageModel>(
+  'engage_messages',
+  engageMessageSchema
+);
 
 export default EngageMessages;

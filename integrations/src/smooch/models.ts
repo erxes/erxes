@@ -27,40 +27,40 @@ const customerCommonSchema = {
   smoochUserId: { type: String, unique: true },
   integrationId: String,
   erxesApiId: String,
-  kind: String,
+  kind: String
 };
 
 export const smoochTelegramCustomerSchema = new Schema(customerCommonSchema);
 
 // tslint:disable-next-line
-export const SmoochTelegramCustomers = model<ISmoochCustomerDocument, ISmoochCustomerModel>(
-  'customers_smooch_telegram',
-  smoochTelegramCustomerSchema,
-);
+export const SmoochTelegramCustomers = model<
+  ISmoochCustomerDocument,
+  ISmoochCustomerModel
+>('customers_smooch_telegram', smoochTelegramCustomerSchema);
 
 export const smoochViberCustomerSchema = new Schema(customerCommonSchema);
 
 // tslint:disable-next-line
-export const SmoochViberCustomers = model<ISmoochCustomerDocument, ISmoochCustomerModel>(
-  'customers_smooch_viber',
-  smoochViberCustomerSchema,
-);
+export const SmoochViberCustomers = model<
+  ISmoochCustomerDocument,
+  ISmoochCustomerModel
+>('customers_smooch_viber', smoochViberCustomerSchema);
 
 export const smoochLineCustomerSchema = new Schema(customerCommonSchema);
 
 // tslint:disable-next-line
-export const SmoochLineCustomers = model<ISmoochCustomerDocument, ISmoochCustomerModel>(
-  'customers_smooch_line',
-  smoochLineCustomerSchema,
-);
+export const SmoochLineCustomers = model<
+  ISmoochCustomerDocument,
+  ISmoochCustomerModel
+>('customers_smooch_line', smoochLineCustomerSchema);
 
 export const smoochTwilioCustomerSchema = new Schema(customerCommonSchema);
 
 // tslint:disable-next-line
-export const SmoochTwilioCustomers = model<ISmoochCustomerDocument, ISmoochCustomerModel>(
-  'customers_smooch_twilio_sms',
-  smoochTwilioCustomerSchema,
-);
+export const SmoochTwilioCustomers = model<
+  ISmoochCustomerDocument,
+  ISmoochCustomerModel
+>('customers_smooch_twilio_sms', smoochTwilioCustomerSchema);
 
 export interface ISmoochConversation {
   smoochConversationId: string;
@@ -72,7 +72,9 @@ export interface ISmoochConversation {
   kind: string;
 }
 
-export interface ISmoochConversationDocument extends ISmoochConversation, Document {}
+export interface ISmoochConversationDocument
+  extends ISmoochConversation,
+    Document {}
 
 // Conversation ==========
 const conversationCommonSchema = {
@@ -83,41 +85,50 @@ const conversationCommonSchema = {
   erxesApiId: String,
   integrationId: String,
   createdAt: field({ type: Date, index: true, default: new Date() }),
-  kind: String,
+  kind: String
 };
-export interface ISmoochConversatonModel extends Model<ISmoochConversationDocument> {}
+export interface ISmoochConversatonModel
+  extends Model<ISmoochConversationDocument> {}
 
-export const smoochTelegramConversationSchema = new Schema(conversationCommonSchema);
-
-// tslint:disable-next-line:variable-name
-export const SmoochTelegramConversations = model<ISmoochConversationDocument, ISmoochConversatonModel>(
-  'conversations_smooch_telegram',
-  smoochTelegramConversationSchema,
+export const smoochTelegramConversationSchema = new Schema(
+  conversationCommonSchema
 );
 
-export const smoochViberConversationSchema = new Schema(conversationCommonSchema);
-
 // tslint:disable-next-line:variable-name
-export const SmoochViberConversations = model<ISmoochConversationDocument, ISmoochConversatonModel>(
-  'conversations_smooch_viber',
-  smoochViberConversationSchema,
+export const SmoochTelegramConversations = model<
+  ISmoochConversationDocument,
+  ISmoochConversatonModel
+>('conversations_smooch_telegram', smoochTelegramConversationSchema);
+
+export const smoochViberConversationSchema = new Schema(
+  conversationCommonSchema
 );
 
-export const smoochLineConversationSchema = new Schema(conversationCommonSchema);
-
 // tslint:disable-next-line:variable-name
-export const SmoochLineConversations = model<ISmoochConversationDocument, ISmoochConversatonModel>(
-  'conversations_smooch_line',
-  smoochLineConversationSchema,
+export const SmoochViberConversations = model<
+  ISmoochConversationDocument,
+  ISmoochConversatonModel
+>('conversations_smooch_viber', smoochViberConversationSchema);
+
+export const smoochLineConversationSchema = new Schema(
+  conversationCommonSchema
 );
 
-export const smoochTwilioConversationSchema = new Schema(conversationCommonSchema);
+// tslint:disable-next-line:variable-name
+export const SmoochLineConversations = model<
+  ISmoochConversationDocument,
+  ISmoochConversatonModel
+>('conversations_smooch_line', smoochLineConversationSchema);
+
+export const smoochTwilioConversationSchema = new Schema(
+  conversationCommonSchema
+);
 
 // tslint:disable-next-line:variable-name
-export const SmoochTwilioConversations = model<ISmoochConversationDocument, ISmoochConversatonModel>(
-  'conversations_smooch_twilio_sms',
-  smoochTwilioConversationSchema,
-);
+export const SmoochTwilioConversations = model<
+  ISmoochConversationDocument,
+  ISmoochConversatonModel
+>('conversations_smooch_twilio_sms', smoochTwilioConversationSchema);
 
 // Conversation message ===========
 
@@ -128,27 +139,37 @@ export interface ISmoochConversationMessage {
   authorId: string;
 }
 
-export interface ISmoochConversationMessageDocument extends ISmoochConversationMessage, Document {}
+export interface ISmoochConversationMessageDocument
+  extends ISmoochConversationMessage,
+    Document {}
 
 const conversationMessageCommonSchema = {
   _id: field({ pkey: true }),
   messageId: String,
   conversationId: String,
   content: String,
-  authorId: String,
+  authorId: String
 };
 
-export interface ISmoochConversationMessageModel extends Model<ISmoochConversationMessageDocument> {}
+export interface ISmoochConversationMessageModel
+  extends Model<ISmoochConversationMessageDocument> {}
 
-export const smoochTelegramConversationMessageSchema = new Schema(conversationMessageCommonSchema);
+export const smoochTelegramConversationMessageSchema = new Schema(
+  conversationMessageCommonSchema
+);
 
 // tslint:disable-next-line
 export const SmoochTelegramConversationMessages = model<
   ISmoochConversationMessageDocument,
   ISmoochConversationMessageModel
->('conversation_messages_smooch_telegram', smoochTelegramConversationMessageSchema);
+>(
+  'conversation_messages_smooch_telegram',
+  smoochTelegramConversationMessageSchema
+);
 
-export const smoochViberConversationMessageSchema = new Schema(conversationMessageCommonSchema);
+export const smoochViberConversationMessageSchema = new Schema(
+  conversationMessageCommonSchema
+);
 
 // tslint:disable-next-line
 export const SmoochViberConversationMessages = model<
@@ -156,7 +177,9 @@ export const SmoochViberConversationMessages = model<
   ISmoochConversationMessageModel
 >('conversation_messages_smooch_viber', smoochViberConversationMessageSchema);
 
-export const smoochLineConversationMessageSchema = new Schema(conversationMessageCommonSchema);
+export const smoochLineConversationMessageSchema = new Schema(
+  conversationMessageCommonSchema
+);
 
 // tslint:disable-next-line
 export const SmoochLineConversationMessages = model<
@@ -164,10 +187,15 @@ export const SmoochLineConversationMessages = model<
   ISmoochConversationMessageModel
 >('conversation_messages_smooch_line', smoochLineConversationMessageSchema);
 
-export const smoochTwilioConversationMessageSchema = new Schema(conversationMessageCommonSchema);
+export const smoochTwilioConversationMessageSchema = new Schema(
+  conversationMessageCommonSchema
+);
 
 // tslint:disable-next-line
 export const SmoochTwilioConversationMessages = model<
   ISmoochConversationMessageDocument,
   ISmoochConversationMessageModel
->('conversation_messages_smooch_twilio_sms', smoochTwilioConversationMessageSchema);
+>(
+  'conversation_messages_smooch_twilio_sms',
+  smoochTwilioConversationMessageSchema
+);

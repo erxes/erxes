@@ -19,9 +19,9 @@ const checkOnboarding = async () => {
       data: {
         onboardingChanged: {
           userId: user._id,
-          type: status,
-        },
-      },
+          type: status
+        }
+      }
     });
   }
 };

@@ -6,21 +6,21 @@ export const moduleObjects = {
       {
         name: 'brandsAll',
         description: 'All',
-        use: ['showBrands', 'manageBrands'],
+        use: ['showBrands', 'manageBrands']
       },
       {
         name: 'manageBrands',
-        description: 'Manage brands',
+        description: 'Manage brands'
       },
       {
         name: 'showBrands',
-        description: 'Show brands',
+        description: 'Show brands'
       },
       {
         name: 'exportBrands',
-        description: 'Export brands',
-      },
-    ],
+        description: 'Export brands'
+      }
+    ]
   },
   channels: {
     name: 'channels',
@@ -29,21 +29,21 @@ export const moduleObjects = {
       {
         name: 'channelsAll',
         description: 'All',
-        use: ['showChannels', 'manageChannels'],
+        use: ['showChannels', 'manageChannels']
       },
       {
         name: 'manageChannels',
-        description: 'Manage channels',
+        description: 'Manage channels'
       },
       {
         name: 'showChannels',
-        description: 'Show channel',
+        description: 'Show channel'
       },
       {
         name: 'exportChannels',
-        description: 'Export channels',
-      },
-    ],
+        description: 'Export channels'
+      }
+    ]
   },
   companies: {
     name: 'companies',
@@ -59,38 +59,38 @@ export const moduleObjects = {
           'companiesMerge',
           'showCompanies',
           'showCompaniesMain',
-          'exportCompanies',
-        ],
+          'exportCompanies'
+        ]
       },
       {
         name: 'companiesAdd',
-        description: 'Add companies',
+        description: 'Add companies'
       },
       {
         name: 'companiesEdit',
-        description: 'Edit companies',
+        description: 'Edit companies'
       },
       {
         name: 'companiesRemove',
-        description: 'Remove companies',
+        description: 'Remove companies'
       },
       {
         name: 'companiesMerge',
-        description: 'Merge companies',
+        description: 'Merge companies'
       },
       {
         name: 'showCompanies',
-        description: 'Show companies',
+        description: 'Show companies'
       },
       {
         name: 'showCompaniesMain',
-        description: 'Show companies main',
+        description: 'Show companies main'
       },
       {
         name: 'exportCompanies',
-        description: 'Export companies to xls file',
-      },
-    ],
+        description: 'Export companies to xls file'
+      }
+    ]
   },
   customers: {
     name: 'customers',
@@ -106,38 +106,38 @@ export const moduleObjects = {
           'customersMerge',
           'customersRemove',
           'exportCustomers',
-          'customersChangeState',
-        ],
+          'customersChangeState'
+        ]
       },
       {
         name: 'exportCustomers',
-        description: 'Export customers',
+        description: 'Export customers'
       },
       {
         name: 'showCustomers',
-        description: 'Show customers',
+        description: 'Show customers'
       },
       {
         name: 'customersAdd',
-        description: 'Add customer',
+        description: 'Add customer'
       },
       {
         name: 'customersEdit',
-        description: 'Edit customer',
+        description: 'Edit customer'
       },
       {
         name: 'customersMerge',
-        description: 'Merge customers',
+        description: 'Merge customers'
       },
       {
         name: 'customersRemove',
-        description: 'Remove customers',
+        description: 'Remove customers'
       },
       {
         name: 'customersChangeState',
-        description: 'Change customer state',
-      },
-    ],
+        description: 'Change customer state'
+      }
+    ]
   },
   deals: {
     name: 'deals',
@@ -165,82 +165,82 @@ export const moduleObjects = {
           'dealsRemove',
           'dealsWatch',
           'dealsArchive',
-          'exportDeals',
-        ],
+          'exportDeals'
+        ]
       },
       {
         name: 'showDeals',
-        description: 'Show deals',
+        description: 'Show deals'
       },
       {
         name: 'dealBoardsAdd',
-        description: 'Add deal board',
+        description: 'Add deal board'
       },
       {
         name: 'dealBoardsRemove',
-        description: 'Remove deal board',
+        description: 'Remove deal board'
       },
       {
         name: 'dealPipelinesAdd',
-        description: 'Add deal pipeline',
+        description: 'Add deal pipeline'
       },
       {
         name: 'dealPipelinesEdit',
-        description: 'Edit deal pipeline',
+        description: 'Edit deal pipeline'
       },
       {
         name: 'dealPipelinesRemove',
-        description: 'Remove deal pipeline',
+        description: 'Remove deal pipeline'
       },
       {
         name: 'dealPipelinesUpdateOrder',
-        description: 'Update pipeline order',
+        description: 'Update pipeline order'
       },
       {
         name: 'dealPipelinesWatch',
-        description: 'Deal pipeline watch',
+        description: 'Deal pipeline watch'
       },
       {
         name: 'dealStagesAdd',
-        description: 'Add deal stage',
+        description: 'Add deal stage'
       },
       {
         name: 'dealStagesEdit',
-        description: 'Edit deal stage',
+        description: 'Edit deal stage'
       },
       {
         name: 'dealStagesUpdateOrder',
-        description: 'Update stage order',
+        description: 'Update stage order'
       },
       {
         name: 'dealStagesRemove',
-        description: 'Remove deal stage',
+        description: 'Remove deal stage'
       },
       {
         name: 'dealsAdd',
-        description: 'Add deal',
+        description: 'Add deal'
       },
       {
         name: 'dealsEdit',
-        description: 'Edit deal',
+        description: 'Edit deal'
       },
       {
         name: 'dealsRemove',
-        description: 'Remove deal',
+        description: 'Remove deal'
       },
       {
         name: 'dealsWatch',
-        description: 'Watch deal',
+        description: 'Watch deal'
       },
       {
         name: 'dealsArchive',
-        description: 'Archive all deals in a specific stage',
+        description: 'Archive all deals in a specific stage'
       },
       {
         name: 'exportDeals',
-        description: 'Export deals',
-      },
-    ],
+        description: 'Export deals'
+      }
+    ]
   },
   tickets: {
     name: 'tickets',
@@ -268,82 +268,82 @@ export const moduleObjects = {
           'ticketsRemove',
           'ticketsWatch',
           'ticketsArchive',
-          'exportTickets',
-        ],
+          'exportTickets'
+        ]
       },
       {
         name: 'showTickets',
-        description: 'Show tickets',
+        description: 'Show tickets'
       },
       {
         name: 'ticketBoardsAdd',
-        description: 'Add ticket board',
+        description: 'Add ticket board'
       },
       {
         name: 'ticketBoardsRemove',
-        description: 'Remove ticket board',
+        description: 'Remove ticket board'
       },
       {
         name: 'ticketPipelinesAdd',
-        description: 'Add ticket pipeline',
+        description: 'Add ticket pipeline'
       },
       {
         name: 'ticketPipelinesEdit',
-        description: 'Edit ticket pipeline',
+        description: 'Edit ticket pipeline'
       },
       {
         name: 'ticketPipelinesRemove',
-        description: 'Remove ticket pipeline',
+        description: 'Remove ticket pipeline'
       },
       {
         name: 'ticketPipelinesWatch',
-        description: 'Ticket pipeline watch',
+        description: 'Ticket pipeline watch'
       },
       {
         name: 'ticketPipelinesUpdateOrder',
-        description: 'Update pipeline order',
+        description: 'Update pipeline order'
       },
       {
         name: 'ticketStagesAdd',
-        description: 'Add ticket stage',
+        description: 'Add ticket stage'
       },
       {
         name: 'ticketStagesEdit',
-        description: 'Edit ticket stage',
+        description: 'Edit ticket stage'
       },
       {
         name: 'ticketStagesUpdateOrder',
-        description: 'Update stage order',
+        description: 'Update stage order'
       },
       {
         name: 'ticketStagesRemove',
-        description: 'Remove ticket stage',
+        description: 'Remove ticket stage'
       },
       {
         name: 'ticketsAdd',
-        description: 'Add ticket',
+        description: 'Add ticket'
       },
       {
         name: 'ticketsEdit',
-        description: 'Edit ticket',
+        description: 'Edit ticket'
       },
       {
         name: 'ticketsRemove',
-        description: 'Remove ticket',
+        description: 'Remove ticket'
       },
       {
         name: 'ticketsWatch',
-        description: 'Watch ticket',
+        description: 'Watch ticket'
       },
       {
         name: 'ticketsArchive',
-        description: 'Archive all tickets in a specific stage',
+        description: 'Archive all tickets in a specific stage'
       },
       {
         name: 'exportTickets',
-        description: 'Export tickets',
-      },
-    ],
+        description: 'Export tickets'
+      }
+    ]
   },
   growthHacks: {
     name: 'growthHacks',
@@ -375,98 +375,98 @@ export const moduleObjects = {
           'growthHackTemplatesEdit',
           'growthHackTemplatesRemove',
           'growthHackTemplatesDuplicate',
-          'showGrowthHackTemplates',
-        ],
+          'showGrowthHackTemplates'
+        ]
       },
       {
         name: 'showGrowthHacks',
-        description: 'Show growth hacks',
+        description: 'Show growth hacks'
       },
       {
         name: 'growthHackBoardsAdd',
-        description: 'Add growth hacking board',
+        description: 'Add growth hacking board'
       },
       {
         name: 'growthHackBoardsRemove',
-        description: 'Remove growth hacking board',
+        description: 'Remove growth hacking board'
       },
       {
         name: 'growthHackPipelinesAdd',
-        description: 'Add growth hacking pipeline',
+        description: 'Add growth hacking pipeline'
       },
       {
         name: 'growthHackPipelinesEdit',
-        description: 'Edit growth hacking pipeline',
+        description: 'Edit growth hacking pipeline'
       },
       {
         name: 'growthHackPipelinesRemove',
-        description: 'Remove growth hacking pipeline',
+        description: 'Remove growth hacking pipeline'
       },
       {
         name: 'growthHackPipelinesWatch',
-        description: 'Growth hacking pipeline watch',
+        description: 'Growth hacking pipeline watch'
       },
       {
         name: 'growthHackPipelinesUpdateOrder',
-        description: 'Update pipeline order',
+        description: 'Update pipeline order'
       },
       {
         name: 'growthHackStagesAdd',
-        description: 'Add growth hacking stage',
+        description: 'Add growth hacking stage'
       },
       {
         name: 'growthHackStagesEdit',
-        description: 'Edit growth hacking stage',
+        description: 'Edit growth hacking stage'
       },
       {
         name: 'growthHackStagesUpdateOrder',
-        description: 'Update stage order',
+        description: 'Update stage order'
       },
       {
         name: 'growthHackStagesRemove',
-        description: 'Remove growth hacking stage',
+        description: 'Remove growth hacking stage'
       },
       {
         name: 'growthHacksAdd',
-        description: 'Add growth hacking',
+        description: 'Add growth hacking'
       },
       {
         name: 'growthHacksEdit',
-        description: 'Edit growth hacking',
+        description: 'Edit growth hacking'
       },
       {
         name: 'growthHacksRemove',
-        description: 'Remove growth hacking',
+        description: 'Remove growth hacking'
       },
       {
         name: 'growthHacksWatch',
-        description: 'Watch growth hacking',
+        description: 'Watch growth hacking'
       },
       {
         name: 'growthHacksArchive',
-        description: 'Archive all growth hacks in a specific stage',
+        description: 'Archive all growth hacks in a specific stage'
       },
       {
         name: 'growthHackTemplatesAdd',
-        description: 'Add growth hacking template',
+        description: 'Add growth hacking template'
       },
       {
         name: 'growthHackTemplatesEdit',
-        description: 'Edit growth hacking template',
+        description: 'Edit growth hacking template'
       },
       {
         name: 'growthHackTemplatesRemove',
-        description: 'Remove growth hacking template',
+        description: 'Remove growth hacking template'
       },
       {
         name: 'growthHackTemplatesDuplicate',
-        description: 'Duplicate growth hacking template',
+        description: 'Duplicate growth hacking template'
       },
       {
         name: 'showGrowthHackTemplates',
-        description: 'Show growth hacking template',
-      },
-    ],
+        description: 'Show growth hacking template'
+      }
+    ]
   },
   tasks: {
     name: 'tasks',
@@ -495,86 +495,86 @@ export const moduleObjects = {
           'tasksWatch',
           'tasksArchive',
           'taskUpdateTimeTracking',
-          'exportTasks',
-        ],
+          'exportTasks'
+        ]
       },
       {
         name: 'showTasks',
-        description: 'Show tasks',
+        description: 'Show tasks'
       },
       {
         name: 'taskBoardsAdd',
-        description: 'Add task board',
+        description: 'Add task board'
       },
       {
         name: 'taskBoardsRemove',
-        description: 'Remove task board',
+        description: 'Remove task board'
       },
       {
         name: 'taskPipelinesAdd',
-        description: 'Add task pipeline',
+        description: 'Add task pipeline'
       },
       {
         name: 'taskPipelinesEdit',
-        description: 'Edit task pipeline',
+        description: 'Edit task pipeline'
       },
       {
         name: 'taskPipelinesRemove',
-        description: 'Remove task pipeline',
+        description: 'Remove task pipeline'
       },
       {
         name: 'taskPipelinesWatch',
-        description: 'Task pipeline watch',
+        description: 'Task pipeline watch'
       },
       {
         name: 'taskPipelinesUpdateOrder',
-        description: 'Update pipeline order',
+        description: 'Update pipeline order'
       },
       {
         name: 'taskStagesAdd',
-        description: 'Add task stage',
+        description: 'Add task stage'
       },
       {
         name: 'taskStagesEdit',
-        description: 'Edit task stage',
+        description: 'Edit task stage'
       },
       {
         name: 'taskStagesUpdateOrder',
-        description: 'Update stage order',
+        description: 'Update stage order'
       },
       {
         name: 'taskStagesRemove',
-        description: 'Remove task stage',
+        description: 'Remove task stage'
       },
       {
         name: 'tasksAdd',
-        description: 'Add task',
+        description: 'Add task'
       },
       {
         name: 'tasksEdit',
-        description: 'Edit task',
+        description: 'Edit task'
       },
       {
         name: 'tasksRemove',
-        description: 'Remove task',
+        description: 'Remove task'
       },
       {
         name: 'tasksWatch',
-        description: 'Watch task',
+        description: 'Watch task'
       },
       {
         name: 'tasksArchive',
-        description: 'Archive all tasks in a specific stage',
+        description: 'Archive all tasks in a specific stage'
       },
       {
         name: 'taskUpdateTimeTracking',
-        description: 'Update time tracking for a task',
+        description: 'Update time tracking for a task'
       },
       {
         name: 'exportTasks',
-        description: 'Export tasks',
-      },
-    ],
+        description: 'Export tasks'
+      }
+    ]
   },
   engages: {
     name: 'engages',
@@ -590,38 +590,38 @@ export const moduleObjects = {
           'showEngagesMessages',
           'engageMessageAdd',
           'engageMessageEdit',
-          'engageMessageRemove',
-        ],
+          'engageMessageRemove'
+        ]
       },
       {
         name: 'engageMessageSetLive',
-        description: 'Set live engage message',
+        description: 'Set live engage message'
       },
       {
         name: 'engageMessageSetPause',
-        description: 'Set pause engage message',
+        description: 'Set pause engage message'
       },
       {
         name: 'engageMessageSetLiveManual',
-        description: 'Set live engage message manual',
+        description: 'Set live engage message manual'
       },
       {
         name: 'engageMessageRemove',
-        description: 'Remove engage message',
+        description: 'Remove engage message'
       },
       {
         name: 'engageMessageEdit',
-        description: 'Edit engage message',
+        description: 'Edit engage message'
       },
       {
         name: 'engageMessageAdd',
-        description: 'Add engage message',
+        description: 'Add engage message'
       },
       {
         name: 'showEngagesMessages',
-        description: 'Show engages messages list',
-      },
-    ],
+        description: 'Show engages messages list'
+      }
+    ]
   },
   insights: {
     name: 'insights',
@@ -630,17 +630,17 @@ export const moduleObjects = {
       {
         name: 'insightsAll',
         description: 'All',
-        use: ['manageExportInsights', 'showInsights'],
+        use: ['manageExportInsights', 'showInsights']
       },
       {
         name: 'manageExportInsights',
-        description: 'Manage export insights',
+        description: 'Manage export insights'
       },
       {
         name: 'showInsights',
-        description: 'Show insights',
-      },
-    ],
+        description: 'Show insights'
+      }
+    ]
   },
   knowledgeBase: {
     name: 'knowledgeBase',
@@ -649,17 +649,17 @@ export const moduleObjects = {
       {
         name: 'knowledgeBaseAll',
         description: 'All',
-        use: ['showKnowledgeBase', 'manageKnowledgeBase'],
+        use: ['showKnowledgeBase', 'manageKnowledgeBase']
       },
       {
         name: 'manageKnowledgeBase',
-        description: 'Manage knowledge base',
+        description: 'Manage knowledge base'
       },
       {
         name: 'showKnowledgeBase',
-        description: 'Show knowledge base',
-      },
-    ],
+        description: 'Show knowledge base'
+      }
+    ]
   },
   permissions: {
     name: 'permissions',
@@ -673,30 +673,30 @@ export const moduleObjects = {
           'showPermissions',
           'showPermissionModules',
           'showPermissionActions',
-          'exportPermissions',
-        ],
+          'exportPermissions'
+        ]
       },
       {
         name: 'managePermissions',
-        description: 'Manage permissions',
+        description: 'Manage permissions'
       },
       {
         name: 'showPermissions',
-        description: 'Show permissions',
+        description: 'Show permissions'
       },
       {
         name: 'showPermissionsModules',
-        description: 'Show permissions modules',
+        description: 'Show permissions modules'
       },
       {
         name: 'showPermissionsActions',
-        description: 'Show permissions actions',
+        description: 'Show permissions actions'
       },
       {
         name: 'exportPermissions',
-        description: 'Export permissions',
-      },
-    ],
+        description: 'Export permissions'
+      }
+    ]
   },
   usersGroups: {
     name: 'usersGroups',
@@ -705,17 +705,17 @@ export const moduleObjects = {
       {
         name: 'usersGroupsAll',
         description: 'All',
-        use: ['showUsersGroups', 'manageUsersGroups'],
+        use: ['showUsersGroups', 'manageUsersGroups']
       },
       {
         name: 'manageUsersGroups',
-        description: 'Manage users groups',
+        description: 'Manage users groups'
       },
       {
         name: 'showUsersGroups',
-        description: 'Show users groups',
-      },
-    ],
+        description: 'Show users groups'
+      }
+    ]
   },
   scripts: {
     name: 'scripts',
@@ -724,17 +724,17 @@ export const moduleObjects = {
       {
         name: 'scriptsAll',
         description: 'All',
-        use: ['showScripts', 'manageScripts'],
+        use: ['showScripts', 'manageScripts']
       },
       {
         name: 'manageScripts',
-        description: 'Manage scripts',
+        description: 'Manage scripts'
       },
       {
         name: 'showScripts',
-        description: 'Show scripts',
-      },
-    ],
+        description: 'Show scripts'
+      }
+    ]
   },
   products: {
     name: 'products',
@@ -743,18 +743,18 @@ export const moduleObjects = {
       {
         name: 'productsAll',
         description: 'All',
-        use: ['showProducts', 'manageProducts'],
+        use: ['showProducts', 'manageProducts']
       },
       {
         name: 'manageProducts',
         description: 'Manage products',
-        use: ['showProducts'],
+        use: ['showProducts']
       },
       {
         name: 'showProducts',
-        description: 'Show products',
-      },
-    ],
+        description: 'Show products'
+      }
+    ]
   },
   users: {
     name: 'users',
@@ -763,29 +763,35 @@ export const moduleObjects = {
       {
         name: 'usersAll',
         description: 'All',
-        use: ['showUsers', 'usersEdit', 'usersInvite', 'usersSetActiveStatus', 'exportUsers'],
+        use: [
+          'showUsers',
+          'usersEdit',
+          'usersInvite',
+          'usersSetActiveStatus',
+          'exportUsers'
+        ]
       },
       {
         name: 'showUsers',
-        description: 'Show team members',
+        description: 'Show team members'
       },
       {
         name: 'usersSetActiveStatus',
-        description: 'Set active/deactive team member',
+        description: 'Set active/deactive team member'
       },
       {
         name: 'usersEdit',
-        description: 'Update team member',
+        description: 'Update team member'
       },
       {
         name: 'usersInvite',
-        description: 'Invite team member',
+        description: 'Invite team member'
       },
       {
         name: 'exportUsers',
-        description: 'Export team members',
-      },
-    ],
+        description: 'Export team members'
+      }
+    ]
   },
   emailTemplates: {
     name: 'emailTemplates',
@@ -794,17 +800,17 @@ export const moduleObjects = {
       {
         name: 'emailTemplateAll',
         description: 'All',
-        use: ['showEmailTemplates', 'manageEmailTemplate'],
+        use: ['showEmailTemplates', 'manageEmailTemplate']
       },
       {
         name: 'manageEmailTemplate',
-        description: 'Manage email template',
+        description: 'Manage email template'
       },
       {
         name: 'showEmailTemplates',
-        description: 'Show email templates',
-      },
-    ],
+        description: 'Show email templates'
+      }
+    ]
   },
   responseTemplates: {
     name: 'responseTemplates',
@@ -813,17 +819,17 @@ export const moduleObjects = {
       {
         name: 'responseTemplatesAll',
         description: 'All',
-        use: ['manageResponseTemplate', 'showResponseTemplates'],
+        use: ['manageResponseTemplate', 'showResponseTemplates']
       },
       {
         name: 'manageResponseTemplate',
-        description: 'Manage response template',
+        description: 'Manage response template'
       },
       {
         name: 'showResponseTemplates',
-        description: 'Show response templates',
-      },
-    ],
+        description: 'Show response templates'
+      }
+    ]
   },
   importHistories: {
     name: 'importHistories',
@@ -832,21 +838,21 @@ export const moduleObjects = {
       {
         name: 'importHistoriesAll',
         description: 'All',
-        use: ['importHistories', 'removeImportHistories', 'importXlsFile'],
+        use: ['importHistories', 'removeImportHistories', 'importXlsFile']
       },
       {
         name: 'importXlsFile',
-        description: 'Import xls files',
+        description: 'Import xls files'
       },
       {
         name: 'removeImportHistories',
-        description: 'Remove import histories',
+        description: 'Remove import histories'
       },
       {
         name: 'importHistories',
-        description: 'Show import histories',
-      },
-    ],
+        description: 'Show import histories'
+      }
+    ]
   },
   tags: {
     name: 'tags',
@@ -855,17 +861,17 @@ export const moduleObjects = {
       {
         name: 'tagsAll',
         description: 'All',
-        use: ['showTags', 'manageTags'],
+        use: ['showTags', 'manageTags']
       },
       {
         name: 'manageTags',
-        description: 'Manage tags',
+        description: 'Manage tags'
       },
       {
         name: 'showTags',
-        description: 'Show tags',
-      },
-    ],
+        description: 'Show tags'
+      }
+    ]
   },
   forms: {
     name: 'forms',
@@ -874,17 +880,17 @@ export const moduleObjects = {
       {
         name: 'formsAll',
         description: 'All',
-        use: ['showForms', 'manageForms'],
+        use: ['showForms', 'manageForms']
       },
       {
         name: 'manageForms',
-        description: 'Manage forms',
+        description: 'Manage forms'
       },
       {
         name: 'showForms',
-        description: 'Show forms',
-      },
-    ],
+        description: 'Show forms'
+      }
+    ]
   },
   segments: {
     name: 'segments',
@@ -893,17 +899,17 @@ export const moduleObjects = {
       {
         name: 'segmentsAll',
         description: 'All',
-        use: ['showSegments', 'manageSegments'],
+        use: ['showSegments', 'manageSegments']
       },
       {
         name: 'manageSegments',
-        description: 'Manage segments',
+        description: 'Manage segments'
       },
       {
         name: 'showSegments',
-        description: 'Show segments list',
-      },
-    ],
+        description: 'Show segments list'
+      }
+    ]
   },
   integrations: {
     name: 'integrations',
@@ -922,50 +928,50 @@ export const moduleObjects = {
           'integrationsEditLeadIntegration',
           'integrationsRemove',
           'integrationsArchive',
-          'integrationsEdit',
-        ],
+          'integrationsEdit'
+        ]
       },
       {
         name: 'showIntegrations',
-        description: 'Show integrations',
+        description: 'Show integrations'
       },
       {
         name: 'integrationsCreateMessengerIntegration',
-        description: 'Create messenger integration',
+        description: 'Create messenger integration'
       },
       {
         name: 'integrationsEditMessengerIntegration',
-        description: 'Edit messenger integration',
+        description: 'Edit messenger integration'
       },
       {
         name: 'integrationsSaveMessengerAppearanceData',
-        description: 'Save messenger appearance data',
+        description: 'Save messenger appearance data'
       },
       {
         name: 'integrationsSaveMessengerConfigs',
-        description: 'Save messenger config',
+        description: 'Save messenger config'
       },
       {
         name: 'integrationsCreateLeadIntegration',
-        description: 'Create lead integration',
+        description: 'Create lead integration'
       },
       {
         name: 'integrationsEditLeadIntegration',
-        description: 'Edit lead integration',
+        description: 'Edit lead integration'
       },
       {
         name: 'integrationsRemove',
-        description: 'Remove integration',
+        description: 'Remove integration'
       },
       {
         name: 'integrationsArchive',
-        description: 'Archive an integration',
+        description: 'Archive an integration'
       },
       {
         name: 'integrationsEdit',
-        description: 'Edit common integration fields',
-      },
-    ],
+        description: 'Edit common integration fields'
+      }
+    ]
   },
   inbox: {
     name: 'inbox',
@@ -974,29 +980,34 @@ export const moduleObjects = {
       {
         name: 'inboxAll',
         description: 'All',
-        use: ['showConversations', 'changeConversationStatus', 'assignConversation', 'conversationMessageAdd'],
+        use: [
+          'showConversations',
+          'changeConversationStatus',
+          'assignConversation',
+          'conversationMessageAdd'
+        ]
       },
       {
         name: 'showConversations',
-        description: 'Show conversations',
+        description: 'Show conversations'
       },
       {
         name: 'changeConversationStatus',
-        description: 'Change conversation status',
+        description: 'Change conversation status'
       },
       {
         name: 'assignConversation',
-        description: 'Assign conversation',
+        description: 'Assign conversation'
       },
       {
         name: 'conversationMessageAdd',
-        description: 'Add conversation message',
+        description: 'Add conversation message'
       },
       {
         name: 'conversationResolveAll',
-        description: 'Resolve all converstaion',
-      },
-    ],
+        description: 'Resolve all converstaion'
+      }
+    ]
   },
   generalSettings: {
     name: 'generalSettings',
@@ -1005,17 +1016,17 @@ export const moduleObjects = {
       {
         name: 'generalSettingsAll',
         description: 'All',
-        use: ['manageGeneralSettings', 'showGeneralSettings'],
+        use: ['manageGeneralSettings', 'showGeneralSettings']
       },
       {
         name: 'showGeneralSettings',
-        description: 'Show general settings',
+        description: 'Show general settings'
       },
       {
         name: 'manageGeneralSettings',
-        description: 'Manage general settings',
-      },
-    ],
+        description: 'Manage general settings'
+      }
+    ]
   },
   emailAppearance: {
     name: 'emailAppearance',
@@ -1024,17 +1035,17 @@ export const moduleObjects = {
       {
         name: 'emailAppearanceAll',
         description: 'All',
-        use: ['manageEmailAppearance', 'showEmailappearance'],
+        use: ['manageEmailAppearance', 'showEmailappearance']
       },
       {
         name: 'showEmailappearance',
-        description: 'Show email appearance',
+        description: 'Show email appearance'
       },
       {
         name: 'manageEmailAppearance',
-        description: 'Manage email appearance',
-      },
-    ],
+        description: 'Manage email appearance'
+      }
+    ]
   },
   logs: {
     name: 'logs',
@@ -1042,9 +1053,9 @@ export const moduleObjects = {
     actions: [
       {
         name: 'viewLogs',
-        description: 'View logs',
-      },
-    ],
+        description: 'View logs'
+      }
+    ]
   },
   webhooks: {
     name: 'webhooks',
@@ -1053,16 +1064,16 @@ export const moduleObjects = {
       {
         name: 'webhooksAll',
         description: 'All',
-        use: ['showWebhooks', 'manageWebhooks'],
+        use: ['showWebhooks', 'manageWebhooks']
       },
       {
         name: 'showWebhooks',
-        description: 'Show webhooks',
+        description: 'Show webhooks'
       },
       {
         name: 'manageWebhooks',
-        description: 'Manage webhooks',
-      },
-    ],
-  },
+        description: 'Manage webhooks'
+      }
+    ]
+  }
 };

@@ -1,4 +1,10 @@
-import { ConversationMessages, Customers, Integrations, Tags, Users } from '../../db/models';
+import {
+  ConversationMessages,
+  Customers,
+  Integrations,
+  Tags,
+  Users
+} from '../../db/models';
 import { MESSAGE_TYPES } from '../../db/models/definitions/constants';
 import { IConversationDocument } from '../../db/models/definitions/conversations';
 import { debugExternalApi } from '../../debuggers';
@@ -32,7 +38,7 @@ export default {
 
   participatedUsers(conv: IConversationDocument) {
     return Users.find({
-      _id: { $in: conv.participatedUserIds || [] },
+      _id: { $in: conv.participatedUserIds || [] }
     });
   },
 
@@ -42,22 +48,31 @@ export default {
 
   messages(conv: IConversationDocument) {
     return ConversationMessages.find({ conversationId: conv._id }).sort({
-      createdAt: 1,
+      createdAt: 1
     });
   },
 
-  async facebookPost(conv: IConversationDocument, _args, { dataSources }: IContext) {
-    const integration = await Integrations.findOne({ _id: conv.integrationId }).lean();
+  async facebookPost(
+    conv: IConversationDocument,
+    _args,
+    { dataSources }: IContext
+  ) {
+    const integration = await Integrations.findOne({
+      _id: conv.integrationId
+    }).lean();
 
     if (integration && integration.kind !== 'facebook-post') {
       return null;
     }
 
     try {
-      const response = await dataSources.IntegrationsAPI.fetchApi('/facebook/get-post', {
-        erxesApiId: conv._id,
-        integrationId: integration._id,
-      });
+      const response = await dataSources.IntegrationsAPI.fetchApi(
+        '/facebook/get-post',
+        {
+          erxesApiId: conv._id,
+          integrationId: integration._id
+        }
+      );
 
       return response;
     } catch (e) {
@@ -66,8 +81,14 @@ export default {
     }
   },
 
-  async callProAudio(conv: IConversationDocument, _args, { dataSources, user }: IContext) {
-    const integration = await Integrations.findOne({ _id: conv.integrationId }).lean();
+  async callProAudio(
+    conv: IConversationDocument,
+    _args,
+    { dataSources, user }: IContext
+  ) {
+    const integration = await Integrations.findOne({
+      _id: conv.integrationId
+    }).lean();
 
     if (integration && integration.kind !== 'callpro') {
       return null;
@@ -75,10 +96,13 @@ export default {
 
     if (user.isOwner || user._id === conv.assignedUserId) {
       try {
-        const response = await dataSources.IntegrationsAPI.fetchApi('/callpro/get-audio', {
-          erxesApiId: conv._id,
-          integrationId: integration._id,
-        });
+        const response = await dataSources.IntegrationsAPI.fetchApi(
+          '/callpro/get-audio',
+          {
+            erxesApiId: conv._id,
+            integrationId: integration._id
+          }
+        );
 
         return response ? response.audioSrc : '';
       } catch (e) {
@@ -94,10 +118,14 @@ export default {
     return Tags.find({ _id: { $in: conv.tagIds || [] } });
   },
 
-  async videoCallData(conversation: IConversationDocument, _args, { dataSources }: IContext) {
+  async videoCallData(
+    conversation: IConversationDocument,
+    _args,
+    { dataSources }: IContext
+  ) {
     const message = await ConversationMessages.findOne({
       conversationId: conversation._id,
-      contentType: MESSAGE_TYPES.VIDEO_CALL,
+      contentType: MESSAGE_TYPES.VIDEO_CALL
     });
 
     if (!message) {
@@ -105,9 +133,12 @@ export default {
     }
 
     try {
-      const response = await dataSources.IntegrationsAPI.fetchApi('/daily/get-active-room', {
-        erxesApiConversationId: conversation._id,
-      });
+      const response = await dataSources.IntegrationsAPI.fetchApi(
+        '/daily/get-active-room',
+        {
+          erxesApiConversationId: conversation._id
+        }
+      );
 
       return response;
     } catch (e) {
@@ -116,15 +147,22 @@ export default {
     }
   },
 
-  async productBoardLink(conversation: IConversationDocument, _args, { dataSources }: IContext) {
+  async productBoardLink(
+    conversation: IConversationDocument,
+    _args,
+    { dataSources }: IContext
+  ) {
     try {
-      const response = await dataSources.IntegrationsAPI.fetchApi('/productBoard/note', {
-        erxesApiId: conversation._id,
-      });
+      const response = await dataSources.IntegrationsAPI.fetchApi(
+        '/productBoard/note',
+        {
+          erxesApiId: conversation._id
+        }
+      );
       return response;
     } catch (e) {
       debugExternalApi(e);
       return null;
     }
-  },
+  }
 };

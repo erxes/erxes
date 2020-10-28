@@ -75,13 +75,15 @@ class AddOns extends React.Component<Props, State> {
       leadMessengerApps = [],
       knowledgeBaseMessengerApps = []
     } = props;
-  
+
     const initialWebsites = websiteMessengerApps.map(item => ({
       url: item.credentials.url,
       buttonText: item.credentials.buttonText,
       description: item.credentials.description
     }));
-    const initialLeads = leadMessengerApps.map(item => item.credentials.formCode);
+    const initialLeads = leadMessengerApps.map(
+      item => item.credentials.formCode
+    );
     const initialKb =
       knowledgeBaseMessengerApps.length > 0 &&
       knowledgeBaseMessengerApps[0].credentials.topicId;
@@ -89,7 +91,9 @@ class AddOns extends React.Component<Props, State> {
     this.state = {
       knowledgeBase: initialKb || '',
       popups: initialLeads || [],
-      websites: initialWebsites || [{ url: '', buttonText: '', description: '' }]
+      websites: initialWebsites || [
+        { url: '', buttonText: '', description: '' }
+      ]
     };
   }
 
@@ -120,18 +124,23 @@ class AddOns extends React.Component<Props, State> {
       value: object.form ? object.form.code : object._id,
       label: object.name || object.title,
       brand: object.brand,
-      disabled: (object.brand && this.props.selectedBrand)
-        ? this.props.selectedBrand !== object.brand._id
-        : false
+      disabled:
+        object.brand && this.props.selectedBrand
+          ? this.props.selectedBrand !== object.brand._id
+          : false
     }));
   };
 
   onChangeKb = obj => {
-    this.setState({ knowledgeBase: obj.value }, () => this.updateMessengerValues());
+    this.setState({ knowledgeBase: obj.value }, () =>
+      this.updateMessengerValues()
+    );
   };
 
   onChangePopups = objects => {
-    this.setState({ popups: objects.map(el => el.value)}, () => this.updateMessengerValues())
+    this.setState({ popups: objects.map(el => el.value) }, () =>
+      this.updateMessengerValues()
+    );
   };
 
   onChangeInput = (
@@ -145,11 +154,14 @@ class AddOns extends React.Component<Props, State> {
 
     entries[i] = { ...entries[i], [type]: value };
 
-    this.setState({ websites: entries}, () => this.updateMessengerValues());
+    this.setState({ websites: entries }, () => this.updateMessengerValues());
   };
 
   handleRemoveWebsite = (i: number) => {
-    this.setState({ websites: this.state.websites.filter((item, index) => index !== i)}, () => this.updateMessengerValues())
+    this.setState(
+      { websites: this.state.websites.filter((item, index) => index !== i) },
+      () => this.updateMessengerValues()
+    );
   };
 
   renderRemoveInput = (i: number) => {
@@ -167,10 +179,15 @@ class AddOns extends React.Component<Props, State> {
   };
 
   onAddMoreInput = () => {
-    this.setState({ websites: [...this.state.websites, { url: '', buttonText: '', description: '' }]})
+    this.setState({
+      websites: [
+        ...this.state.websites,
+        { url: '', buttonText: '', description: '' }
+      ]
+    });
   };
 
-  render () {
+  render() {
     const { knowledgeBase, popups, websites } = this.state;
     const { leads, topics } = this.props;
 
@@ -218,7 +235,11 @@ class AddOns extends React.Component<Props, State> {
                   <ControlLabel required={true}>Website Title</ControlLabel>
                   <FormControl
                     name="description"
-                    onChange={this.onChangeInput.bind(null, index, 'description')}
+                    onChange={this.onChangeInput.bind(
+                      null,
+                      index,
+                      'description'
+                    )}
                     required={true}
                     value={website.description}
                   />
@@ -235,7 +256,11 @@ class AddOns extends React.Component<Props, State> {
                 <FormGroup>
                   <ControlLabel required={true}>Button text</ControlLabel>
                   <FormControl
-                    onChange={this.onChangeInput.bind(null, index, 'buttonText')}
+                    onChange={this.onChangeInput.bind(
+                      null,
+                      index,
+                      'buttonText'
+                    )}
                     value={website.buttonText}
                     name="buttonText"
                     required={true}

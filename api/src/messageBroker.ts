@@ -1,11 +1,11 @@
 import * as dotenv from 'dotenv';
 import messageBroker from 'erxes-message-broker';
 
+import { receiveRpcMessage as automationsRecRpcMsg } from './data/modules/automations/receiveMessage';
 import {
-    receiveRpcMessage as automationsRecRpcMsg
-} from './data/modules/automations/receiveMessage';
-import {
-    receiveEngagesNotification, receiveIntegrationsNotification, receiveRpcMessage
+  receiveEngagesNotification,
+  receiveIntegrationsNotification,
+  receiveRpcMessage
 } from './data/modules/integrations/receiveMessage';
 import { graphqlPubsub } from './pubsub';
 
@@ -17,13 +17,15 @@ export const initBroker = async (server?) => {
   client = await messageBroker({
     name: 'api',
     server,
-    envs: process.env,
+    envs: process.env
   });
 
   const { consumeQueue, consumeRPCQueue } = client;
 
   // listen for rpc queue =========
-  consumeRPCQueue('rpc_queue:integrations_to_api', async data => receiveRpcMessage(data));
+  consumeRPCQueue('rpc_queue:integrations_to_api', async data =>
+    receiveRpcMessage(data)
+  );
 
   // graphql subscriptions call =========
   consumeQueue('callPublish', params => {
@@ -38,10 +40,11 @@ export const initBroker = async (server?) => {
     await receiveEngagesNotification(data);
   });
 
-  consumeRPCQueue('rpc_queue:erxes-automations', async data => automationsRecRpcMsg(data));
-
+  consumeRPCQueue('rpc_queue:erxes-automations', async data =>
+    automationsRecRpcMsg(data)
+  );
 };
 
-export default function () {
+export default function() {
   return client;
 }

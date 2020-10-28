@@ -12,7 +12,10 @@ import deals from './deals';
 import emailDeliveries from './emailDelivery';
 import emailTemplates from './emailTemplates';
 import engages from './engages';
-import { fieldQueries as fields, fieldsGroupQueries as fieldsgroups } from './fields';
+import {
+  fieldQueries as fields,
+  fieldsGroupQueries as fieldsgroups
+} from './fields';
 import forms from './forms';
 import growthHack from './growthHacks';
 import importHistory from './importHistory';
@@ -22,7 +25,10 @@ import internalNotes from './internalNotes';
 import knowledgeBase from './knowledgeBase';
 import logs from './logs';
 import notifications from './notifications';
-import { permissionQueries as permissions, usersGroupQueries as usersGroups } from './permissions';
+import {
+  permissionQueries as permissions,
+  usersGroupQueries as usersGroups
+} from './permissions';
 import pipelineLabels from './pipelineLabels';
 import pipelineTemplates from './pipelineTemplates';
 import products from './products';
@@ -77,5 +83,5 @@ export default {
   ...robot,
   ...pipelineLabels,
   ...widgets,
-  ...webhooks,
+  ...webhooks
 };

@@ -22,6 +22,6 @@ export const pipelineLabelSchema = new Schema({
   createdAt: field({
     type: Date,
     default: new Date(),
-    label: 'Created at',
-  }),
+    label: 'Created at'
+  })
 });

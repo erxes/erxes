@@ -45,8 +45,13 @@ jobs:
 
       - name: Install dependencies
         run: |
+          yarn install
           cd email-verifier
           yarn install
+
+      - name: Lint
+        run: |
+          yarn lint email-verifier
 
       - name: Build
         run: |

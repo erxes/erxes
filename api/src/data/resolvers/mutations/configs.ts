@@ -1,7 +1,11 @@
 import { Configs } from '../../../db/models';
 import { moduleCheckPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { initFirebase, registerOnboardHistory, resetConfigsCache } from '../../utils';
+import {
+  initFirebase,
+  registerOnboardHistory,
+  resetConfigsCache
+} from '../../utils';
 
 const configMutations = {
   /**
@@ -37,7 +41,7 @@ const configMutations = {
         registerOnboardHistory({ type: `configure.${code}`, user });
       }
     }
-  },
+  }
 };
 
 moduleCheckPermission(configMutations, 'manageGeneralSettings');

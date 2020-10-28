@@ -99,7 +99,13 @@ class Mail extends React.PureComponent<Props, State> {
       return null;
     }
 
-    const { conversationId, message, integrationId, customerId, brandId } = this.props;
+    const {
+      conversationId,
+      message,
+      integrationId,
+      customerId,
+      brandId
+    } = this.props;
 
     return (
       <BoxItem>

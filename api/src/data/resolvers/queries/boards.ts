@@ -1,4 +1,11 @@
-import { Boards, Deals, Pipelines, Stages, Tasks, Tickets } from '../../../db/models';
+import {
+  Boards,
+  Deals,
+  Pipelines,
+  Stages,
+  Tasks,
+  Tickets
+} from '../../../db/models';
 import { BOARD_STATUSES } from '../../../db/models/definitions/constants';
 import { moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
@@ -30,26 +37,37 @@ const boardQueries = {
    *  Boards list
    */
   boards(_root, { type }: { type: string }, { commonQuerySelector }: IContext) {
-    return Boards.find({ ...commonQuerySelector, type }).sort({ order: 1, createdAt: -1 });
+    return Boards.find({ ...commonQuerySelector, type }).sort({
+      order: 1,
+      createdAt: -1
+    });
   },
 
   /**
    *  Boards count
    */
-  async boardCounts(_root, { type }: { type: string }, { commonQuerySelector }: IContext) {
-    const boards = await Boards.find({ ...commonQuerySelector, type }).sort({ name: 1 });
+  async boardCounts(
+    _root,
+    { type }: { type: string },
+    { commonQuerySelector }: IContext
+  ) {
+    const boards = await Boards.find({ ...commonQuerySelector, type }).sort({
+      name: 1
+    });
 
     const counts: Array<{ _id: string; name: string; count: number }> = [];
 
     let allCount = 0;
 
     for (const board of boards) {
-      const count = await Pipelines.find({ boardId: board._id }).countDocuments();
+      const count = await Pipelines.find({
+        boardId: board._id
+      }).countDocuments();
 
       counts.push({
         _id: board._id,
         name: board.name || '',
-        count,
+        count
       });
 
       allCount += count;
@@ -63,15 +81,25 @@ const boardQueries = {
   /**
    *  Board detail
    */
-  boardDetail(_root, { _id }: { _id: string }, { commonQuerySelector }: IContext) {
+  boardDetail(
+    _root,
+    { _id }: { _id: string },
+    { commonQuerySelector }: IContext
+  ) {
     return Boards.findOne({ ...commonQuerySelector, _id });
   },
 
   /**
    * Get last board
    */
-  boardGetLast(_root, { type }: { type: string }, { commonQuerySelector }: IContext) {
-    return Boards.findOne({ ...commonQuerySelector, type }).sort({ createdAt: -1 });
+  boardGetLast(
+    _root,
+    { type }: { type: string },
+    { commonQuerySelector }: IContext
+  ) {
+    return Boards.findOne({ ...commonQuerySelector, type }).sort({
+      createdAt: -1
+    });
   },
 
   /**
@@ -79,7 +107,11 @@ const boardQueries = {
    */
   pipelines(
     _root,
-    { boardId, type, ...queryParams }: { boardId: string; type: string; page: number; perPage: number },
+    {
+      boardId,
+      type,
+      ...queryParams
+    }: { boardId: string; type: string; page: number; perPage: number }
   ) {
     const query: any = {};
     const { page, perPage } = queryParams;
@@ -93,13 +125,19 @@ const boardQueries = {
     }
 
     if (page && perPage) {
-      return paginate(Pipelines.find(query).sort({ createdAt: 1 }), queryParams);
+      return paginate(
+        Pipelines.find(query).sort({ createdAt: 1 }),
+        queryParams
+      );
     }
 
     return Pipelines.find(query).sort({ order: 1, createdAt: -1 });
   },
 
-  async pipelineStateCount(_root, { boardId, type }: { boardId: string; type: string }) {
+  async pipelineStateCount(
+    _root,
+    { boardId, type }: { boardId: string; type: string }
+  ) {
     const query: any = {};
 
     if (boardId) {
@@ -115,29 +153,35 @@ const boardQueries = {
 
     const notStartedQuery = {
       ...query,
-      startDate: { $gt: now },
+      startDate: { $gt: now }
     };
 
-    const notStartedCount = await Pipelines.find(notStartedQuery).countDocuments();
+    const notStartedCount = await Pipelines.find(
+      notStartedQuery
+    ).countDocuments();
 
     counts['Not started'] = notStartedCount;
 
     const inProgressQuery = {
       ...query,
       startDate: { $lt: now },
-      endDate: { $gt: now },
+      endDate: { $gt: now }
     };
 
-    const inProgressCount = await Pipelines.find(inProgressQuery).countDocuments();
+    const inProgressCount = await Pipelines.find(
+      inProgressQuery
+    ).countDocuments();
 
     counts['In progress'] = inProgressCount;
 
     const completedQuery = {
       ...query,
-      endDate: { $lt: now },
+      endDate: { $lt: now }
     };
 
-    const completedCounted = await Pipelines.find(completedQuery).countDocuments();
+    const completedCounted = await Pipelines.find(
+      completedQuery
+    ).countDocuments();
 
     counts.Completed = completedCounted;
 
@@ -156,7 +200,14 @@ const boardQueries = {
   /**
    *  Stages list
    */
-  stages(_root, { pipelineId, isNotLost, isAll }: { pipelineId: string; isNotLost: boolean; isAll: boolean }) {
+  stages(
+    _root,
+    {
+      pipelineId,
+      isNotLost,
+      isAll
+    }: { pipelineId: string; isNotLost: boolean; isAll: boolean }
+  ) {
     const filter: any = {};
 
     filter.pipelineId = pipelineId;
@@ -185,7 +236,11 @@ const boardQueries = {
 
   archivedStages(
     _root,
-    { pipelineId, search, ...listArgs }: { pipelineId: string; search?: string; page?: number; perPage?: number },
+    {
+      pipelineId,
+      search,
+      ...listArgs
+    }: { pipelineId: string; search?: string; page?: number; perPage?: number }
   ) {
     const filter: any = { pipelineId, status: BOARD_STATUSES.ARCHIVED };
 
@@ -196,7 +251,10 @@ const boardQueries = {
     return paginate(Stages.find(filter).sort({ createdAt: -1 }), listArgs);
   },
 
-  archivedStagesCount(_root, { pipelineId, search }: { pipelineId: string; search?: string }) {
+  archivedStagesCount(
+    _root,
+    { pipelineId, search }: { pipelineId: string; search?: string }
+  ) {
     const filter: any = { pipelineId, status: BOARD_STATUSES.ARCHIVED };
 
     if (search) {
@@ -248,9 +306,9 @@ const boardQueries = {
     return {
       dealUrl,
       ticketUrl,
-      taskUrl,
+      taskUrl
     };
-  },
+  }
 };
 
 moduleRequireLogin(boardQueries);

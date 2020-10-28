@@ -52,13 +52,13 @@ jobs:
 
     - name: Install dependencies
       run: |
+        yarn install
         cd ui
         yarn install
 
     - name: Lint
       run: |
-        cd ui
-        yarn lint
+        yarn lint ui
 
     - name: Tsc
       run: |

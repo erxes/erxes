@@ -14,14 +14,19 @@ export interface IAttachment {
   token: string;
 }
 
-export const reply = async (receiverId: string, content: string, instanceId: string, token: string) => {
+export const reply = async (
+  receiverId: string,
+  content: string,
+  instanceId: string,
+  token: string
+) => {
   const requestOptions = {
     url: `${CHAT_API_URL}/instance${instanceId}/sendMessage?token=${token}`,
     body: {
       chatId: receiverId,
-      body: content,
+      body: content
     },
-    json: true,
+    json: true
   };
 
   try {
@@ -41,9 +46,9 @@ export const sendFile = async (attachment: IAttachment) => {
       chatId: receiverId,
       body,
       filename,
-      caption,
+      caption
     },
-    json: true,
+    json: true
   };
 
   try {
@@ -57,11 +62,13 @@ export const saveInstance = async (integrationId, instanceId, token) => {
   // Check existing Integration
 
   let integration = await Integrations.findOne({
-    $and: [{ whatsappinstanceId: instanceId }, { kind: 'whatsapp' }],
+    $and: [{ whatsappinstanceId: instanceId }, { kind: 'whatsapp' }]
   });
 
   if (integration) {
-    throw new Error(`Integration already exists with this instance id: ${instanceId}`);
+    throw new Error(
+      `Integration already exists with this instance id: ${instanceId}`
+    );
   }
 
   const webhookUrl = await getConfig('CHAT_API_WEBHOOK_CALLBACK_URL');
@@ -74,7 +81,7 @@ export const saveInstance = async (integrationId, instanceId, token) => {
     kind: 'whatsapp',
     erxesApiId: integrationId,
     whatsappinstanceId: instanceId,
-    whatsappToken: token,
+    whatsappToken: token
   });
 
   const options = {
@@ -86,9 +93,9 @@ export const saveInstance = async (integrationId, instanceId, token) => {
       chatUpdateOn: true,
       videoUploadOn: true,
       statusNotificationsOn: true,
-      ignoreOldMessages: true,
+      ignoreOldMessages: true
     },
-    json: true,
+    json: true
   };
 
   try {
@@ -110,11 +117,13 @@ export const setupChatApi = async () => {
     const { result } = await request({
       uri: `${CHAT_API_INSTANCEAPI_URL}/listInstances?uid=${uid}`,
       method: 'GET',
-      json: true,
+      json: true
     });
 
     for (const instance of result) {
-      const integration = await Integrations.findOne({ whatsappinstanceId: instance.id });
+      const integration = await Integrations.findOne({
+        whatsappinstanceId: instance.id
+      });
 
       if (!integration) {
         continue;
@@ -131,7 +140,7 @@ export const logout = async (instanceId, token) => {
   const options = {
     method: 'POST',
     uri: `${CHAT_API_URL}/instance${instanceId}/logout?token=${token}`,
-    json: true,
+    json: true
   };
 
   try {
@@ -153,9 +162,9 @@ export const setWebhook = async (instanceId, token) => {
       chatUpdateOn: true,
       videoUploadOn: true,
       statusNotificationsOn: true,
-      ignoreOldMessages: true,
+      ignoreOldMessages: true
     },
-    json: true,
+    json: true
   };
 
   try {

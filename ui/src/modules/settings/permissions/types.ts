@@ -93,9 +93,9 @@ export type UsersGroupsAddMutation = {
 };
 
 export type UsersGroupsEditMutation = {
-  usersGroupsEdit: (
-    params: { variables: { _id: string } & IUserGroup }
-  ) => Promise<any>;
+  usersGroupsEdit: (params: {
+    variables: { _id: string } & IUserGroup;
+  }) => Promise<any>;
 };
 
 export type UsersGroupsRemoveMutation = {
@@ -103,7 +103,7 @@ export type UsersGroupsRemoveMutation = {
 };
 
 export type UsersGroupsCopyMutation = {
-  usersGroupsCopy: (
-    params: { variables: { _id: string; memberIds?: string[] } }
-  ) => Promise<IUserGroup>;
+  usersGroupsCopy: (params: {
+    variables: { _id: string; memberIds?: string[] };
+  }) => Promise<IUserGroup>;
 };

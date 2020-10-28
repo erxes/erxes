@@ -6,24 +6,36 @@ import { getUserAllowedActions, IModuleMap } from '../../permissions/utils';
 import { moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
-const features: { [key: string]: { settings: string[]; settingsPermissions: string[] } } = {
+const features: {
+  [key: string]: { settings: string[]; settingsPermissions: string[] };
+} = {
   growthHacks: {
     settings: [
       'growthHackBoardsCreate',
       'growthHackPipelinesCreate',
       'growthHackTemplatesDuplicate',
-      'growthHackCreate',
+      'growthHackCreate'
     ],
     settingsPermissions: [
       'growthHackBoardsAdd',
       'growthHackPipelinesAdd',
       'growthHackStagesAdd',
-      'growthHackTemplatesDuplicate',
-    ],
+      'growthHackTemplatesDuplicate'
+    ]
   },
   deals: {
-    settings: ['dealBoardsCreate', 'dealPipelinesCreate', 'productCreate', 'dealCreate'],
-    settingsPermissions: ['dealBoardsAdd', 'dealPipelinesAdd', 'dealStagesAdd', 'manageProducts'],
+    settings: [
+      'dealBoardsCreate',
+      'dealPipelinesCreate',
+      'productCreate',
+      'dealCreate'
+    ],
+    settingsPermissions: [
+      'dealBoardsAdd',
+      'dealPipelinesAdd',
+      'dealStagesAdd',
+      'manageProducts'
+    ]
   },
   inbox: {
     settings: [
@@ -31,35 +43,67 @@ const features: { [key: string]: { settings: string[]; settingsPermissions: stri
       'channelCreate',
       'messengerIntegrationCreate',
       'connectIntegrationsToChannel',
-      'responseTemplateCreate',
+      'responseTemplateCreate'
     ],
     settingsPermissions: [
       'manageBrands',
       'manageChannels',
       'integrationsCreateMessengerIntegration',
-      'manageResponseTemplate',
-    ],
+      'manageResponseTemplate'
+    ]
   },
   engages: {
-    settings: ['engageVerifyEmail', 'engageSendTestEmail', 'emailTemplateCreate', 'segmentCreate', 'engageCreate'],
-    settingsPermissions: ['manageEmailTemplate', 'manageSegments', 'engageMessageAdd', 'engageMessageRemove'],
+    settings: [
+      'engageVerifyEmail',
+      'engageSendTestEmail',
+      'emailTemplateCreate',
+      'segmentCreate',
+      'engageCreate'
+    ],
+    settingsPermissions: [
+      'manageEmailTemplate',
+      'manageSegments',
+      'engageMessageAdd',
+      'engageMessageRemove'
+    ]
   },
   contacts: {
-    settings: ['leadCreate', 'customerCreate', 'companyCreate', 'productCreate', 'fieldCreate', 'tagCreate'],
-    settingsPermissions: ['customersAdd', 'companiesAdd', 'manageProducts', 'manageTags', 'manageForms'],
+    settings: [
+      'leadCreate',
+      'customerCreate',
+      'companyCreate',
+      'productCreate',
+      'fieldCreate',
+      'tagCreate'
+    ],
+    settingsPermissions: [
+      'customersAdd',
+      'companiesAdd',
+      'manageProducts',
+      'manageTags',
+      'manageForms'
+    ]
   },
   integrations: {
     settings: [
       'brandCreate',
       'messengerIntegrationCreate',
       'connectIntegrationsToChannel',
-      'messengerIntegrationInstalled',
+      'messengerIntegrationInstalled'
     ],
-    settingsPermissions: ['integrationsCreateMessengerIntegration', 'manageChannels', 'manageBrands'],
+    settingsPermissions: [
+      'integrationsCreateMessengerIntegration',
+      'manageChannels',
+      'manageBrands'
+    ]
   },
   leads: {
-    settings: ['brandCreate', 'leadIntegrationCreate', 'leadIntegrationInstalled'],
-    settingsPermissions: ['integrationsCreateLeadIntegration', 'manageBrands'],
+    settings: [
+      'brandCreate',
+      'leadIntegrationCreate',
+      'leadIntegrationInstalled'
+    ],
+    settingsPermissions: ['integrationsCreateLeadIntegration', 'manageBrands']
   },
   knowledgeBase: {
     settings: [
@@ -67,25 +111,36 @@ const features: { [key: string]: { settings: string[]; settingsPermissions: stri
       'knowledgeBaseTopicCreate',
       'knowledgeBaseCategoryCreate',
       'knowledgeBaseArticleCreate',
-      'knowledgeBaseInstalled',
+      'knowledgeBaseInstalled'
     ],
-    settingsPermissions: ['manageKnowledgeBase', 'manageBrands'],
+    settingsPermissions: ['manageKnowledgeBase', 'manageBrands']
   },
   tasks: {
-    settings: ['taskBoardsCreate', 'taskPipelinesCreate', 'taskCreate', 'taskAssignUser'],
-    settingsPermissions: ['taskBoardsAdd', 'taskPipelinesAdd', 'taskStagesAdd', 'taskAdd', 'taskEdit'],
-  },
+    settings: [
+      'taskBoardsCreate',
+      'taskPipelinesCreate',
+      'taskCreate',
+      'taskAssignUser'
+    ],
+    settingsPermissions: [
+      'taskBoardsAdd',
+      'taskPipelinesAdd',
+      'taskStagesAdd',
+      'taskAdd',
+      'taskEdit'
+    ]
+  }
 };
 
 const checkShowModule = (
   user: IUserDocument,
   actionsMap,
-  moduleName: string,
+  moduleName: string
 ): { showModule: boolean; showSettings: boolean } => {
   if (user.isOwner) {
     return {
       showModule: true,
-      showSettings: true,
+      showSettings: true
     };
   }
 
@@ -128,12 +183,19 @@ const checkShowModule = (
 
   return {
     showModule,
-    showSettings,
+    showSettings
   };
 };
 
 const robotQueries = {
-  robotEntries(_root, { isNotified, action, parentId }: { isNotified: boolean; action: string; parentId: string }) {
+  robotEntries(
+    _root,
+    {
+      isNotified,
+      action,
+      parentId
+    }: { isNotified: boolean; action: string; parentId: string }
+  ) {
     const selector: any = { parentId, action };
 
     if (typeof isNotified !== 'undefined') {
@@ -143,17 +205,30 @@ const robotQueries = {
     return RobotEntries.find(selector);
   },
 
-  onboardingStepsCompleteness(_root, { steps }: { steps: string[] }, { user }: IContext) {
+  onboardingStepsCompleteness(
+    _root,
+    { steps }: { steps: string[] },
+    { user }: IContext
+  ) {
     return OnboardingHistories.stepsCompletness(steps, user);
   },
 
   async onboardingGetAvailableFeatures(_root, _args, { user }: IContext) {
-    const results: Array<{ name: string; isComplete: boolean; settings?: string[]; showSettings?: boolean }> = [];
+    const results: Array<{
+      name: string;
+      isComplete: boolean;
+      settings?: string[];
+      showSettings?: boolean;
+    }> = [];
     const actionsMap = await getUserAllowedActions(user);
 
     for (const feature of Object.keys(features)) {
       const { settings } = features[feature];
-      const { showModule, showSettings } = checkShowModule(user, actionsMap, feature);
+      const { showModule, showSettings } = checkShowModule(
+        user,
+        actionsMap,
+        feature
+      );
 
       if (showModule) {
         let steps: string[] = [];
@@ -168,13 +243,14 @@ const robotQueries = {
           name: feature,
           settings,
           showSettings,
-          isComplete: (await OnboardingHistories.find(selector).countDocuments()) > 0,
+          isComplete:
+            (await OnboardingHistories.find(selector).countDocuments()) > 0
         });
       }
     }
 
     return results;
-  },
+  }
 };
 
 moduleRequireLogin(robotQueries);

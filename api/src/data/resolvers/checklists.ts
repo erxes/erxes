@@ -3,7 +3,9 @@ import { IChecklistDocument } from '../../db/models/definitions/checklists';
 
 export default {
   items(checklist: IChecklistDocument) {
-    return ChecklistItems.find({ checklistId: checklist._id }).sort({ order: 1 });
+    return ChecklistItems.find({ checklistId: checklist._id }).sort({
+      order: 1
+    });
   },
 
   async percent(checklist: IChecklistDocument) {
@@ -18,5 +20,5 @@ export default {
     });
 
     return (checkedItems.length / items.length) * 100;
-  },
+  }
 };

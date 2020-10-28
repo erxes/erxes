@@ -29,9 +29,9 @@ const ruleSchema = new Schema(
     // is, isNot, startsWith
     condition: field({ type: String, label: 'Condition' }),
 
-    value: field({ type: String, label: 'Value' }),
+    value: field({ type: String, label: 'Value' })
   },
-  { _id: false },
+  { _id: false }
 );
 
 const customFieldSchema = new Schema(
@@ -40,9 +40,9 @@ const customFieldSchema = new Schema(
     value: field({ type: Schema.Types.Mixed }),
     stringValue: field({ type: String, optional: true }),
     numberValue: field({ type: Number, optional: true }),
-    dateValue: field({ type: Date, optional: true }),
+    dateValue: field({ type: Date, optional: true })
   },
-  { _id: false },
+  { _id: false }
 );
 
 export interface ICustomField {

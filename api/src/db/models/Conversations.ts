@@ -3,7 +3,11 @@ import { ConversationMessages, Users } from '.';
 import { cleanHtml, sendToWebhook } from '../../data/utils';
 import { CONVERSATION_STATUSES } from './definitions/constants';
 import { IMessageDocument } from './definitions/conversationMessages';
-import { conversationSchema, IConversation, IConversationDocument } from './definitions/conversations';
+import {
+  conversationSchema,
+  IConversation,
+  IConversationDocument
+} from './definitions/conversations';
 
 export interface IConversationModel extends Model<IConversationDocument> {
   getConversation(_id: string): IConversationDocument;
@@ -12,27 +16,57 @@ export interface IConversationModel extends Model<IConversationDocument> {
   checkExistanceConversations(ids: string[]): any;
   reopen(_id: string): Promise<IConversationDocument>;
 
-  assignUserConversation(conversationIds: string[], assignedUserId?: string): Promise<IConversationDocument[]>;
+  assignUserConversation(
+    conversationIds: string[],
+    assignedUserId?: string
+  ): Promise<IConversationDocument[]>;
 
-  unassignUserConversation(conversationIds: string[]): Promise<IConversationDocument[]>;
+  unassignUserConversation(
+    conversationIds: string[]
+  ): Promise<IConversationDocument[]>;
 
-  changeCustomerStatus(status: string, customerId: string, integrationId: string): Promise<IMessageDocument[]>;
+  changeCustomerStatus(
+    status: string,
+    customerId: string,
+    integrationId: string
+  ): Promise<IMessageDocument[]>;
 
-  changeStatusConversation(conversationIds: string[], status: string, userId?: string): Promise<IConversationDocument>;
+  changeStatusConversation(
+    conversationIds: string[],
+    status: string,
+    userId?: string
+  ): Promise<IConversationDocument>;
 
-  markAsReadConversation(_id: string, userId: string): Promise<IConversationDocument>;
+  markAsReadConversation(
+    _id: string,
+    userId: string
+  ): Promise<IConversationDocument>;
 
   newOrOpenConversation(): IConversationDocument[];
 
-  addParticipatedUsers(conversationId: string, userId: string): Promise<IConversationDocument>;
-  addManyParticipatedUsers(conversationId: string, userId: string[]): Promise<IConversationDocument>;
+  addParticipatedUsers(
+    conversationId: string,
+    userId: string
+  ): Promise<IConversationDocument>;
+  addManyParticipatedUsers(
+    conversationId: string,
+    userId: string[]
+  ): Promise<IConversationDocument>;
 
-  changeCustomer(newCustomerId: string, customerIds: string[]): Promise<IConversationDocument[]>;
+  changeCustomer(
+    newCustomerId: string,
+    customerIds: string[]
+  ): Promise<IConversationDocument[]>;
 
-  removeCustomersConversations(customerId: string[]): Promise<{ n: number; ok: number }>;
+  removeCustomersConversations(
+    customerId: string[]
+  ): Promise<{ n: number; ok: number }>;
   widgetsUnreadMessagesQuery(conversations: IConversationDocument[]): any;
 
-  resolveAllConversation(query: any, userId: string): Promise<{ n: number; nModified: number; ok: number }>;
+  resolveAllConversation(
+    query: any,
+    userId: string
+  ): Promise<{ n: number; nModified: number; ok: number }>;
 }
 
 export const loadClass = () => {
@@ -77,7 +111,7 @@ export const loadClass = () => {
         createdAt: doc.createdAt || now,
         updatedAt: doc.createdAt || now,
         number: (await Conversations.find().countDocuments()) + 1,
-        messageCount: 0,
+        messageCount: 0
       });
 
       await sendToWebhook('create', 'conversation', result);
@@ -108,7 +142,7 @@ export const loadClass = () => {
         status: CONVERSATION_STATUSES.OPEN,
 
         closedAt: null,
-        closedUserId: null,
+        closedUserId: null
       });
 
       return Conversations.findOne({ _id });
@@ -117,14 +151,21 @@ export const loadClass = () => {
     /**
      * Assign user to conversation
      */
-    public static async assignUserConversation(conversationIds: string[], assignedUserId?: string) {
+    public static async assignUserConversation(
+      conversationIds: string[],
+      assignedUserId?: string
+    ) {
       await this.checkExistanceConversations(conversationIds);
 
       if (!(await Users.findOne({ _id: assignedUserId }))) {
         throw new Error(`User not found with id ${assignedUserId}`);
       }
 
-      await Conversations.updateMany({ _id: { $in: conversationIds } }, { $set: { assignedUserId } }, { multi: true });
+      await Conversations.updateMany(
+        { _id: { $in: conversationIds } },
+        { $set: { assignedUserId } },
+        { multi: true }
+      );
 
       return Conversations.find({ _id: { $in: conversationIds } });
     }
@@ -138,7 +179,7 @@ export const loadClass = () => {
       await Conversations.updateMany(
         { _id: { $in: conversationIds } },
         { $unset: { assignedUserId: 1 } },
-        { multi: true },
+        { multi: true }
       );
 
       return Conversations.find({ _id: { $in: conversationIds } });
@@ -149,11 +190,15 @@ export const loadClass = () => {
      * @param customerId
      * @param integrationId
      */
-    public static async changeCustomerStatus(status: string, customerId: string, integrationId: string) {
+    public static async changeCustomerStatus(
+      status: string,
+      customerId: string,
+      integrationId: string
+    ) {
       const customerConversations = await Conversations.find({
         customerId,
         integrationId,
-        status: 'open',
+        status: 'open'
       });
 
       const promises: Array<Promise<IMessageDocument>> = [];
@@ -163,8 +208,8 @@ export const loadClass = () => {
           ConversationMessages.addMessage({
             conversationId: conversationObj._id,
             content: `Customer has ${status}`,
-            fromBot: true,
-          }),
+            fromBot: true
+          })
         );
       }
 
@@ -173,7 +218,11 @@ export const loadClass = () => {
     /**
      * Change conversation status
      */
-    public static changeStatusConversation(conversationIds: string[], status: string, userId: string) {
+    public static changeStatusConversation(
+      conversationIds: string[],
+      status: string,
+      userId: string
+    ) {
       let closedAt;
       let closedUserId;
 
@@ -185,7 +234,7 @@ export const loadClass = () => {
       return Conversations.updateMany(
         { _id: { $in: conversationIds } },
         { $set: { status, closedAt, closedUserId } },
-        { multi: true },
+        { multi: true }
       );
     }
 
@@ -221,20 +270,23 @@ export const loadClass = () => {
     public static async newOrOpenConversation() {
       return Conversations.find({
         status: {
-          $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN],
+          $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN]
         },
-        messageCount: { $gt: 1 },
+        messageCount: { $gt: 1 }
       });
     }
     /**
      * Add participated users
      */
-    public static addManyParticipatedUsers(conversationId: string, userIds: string[]) {
+    public static addManyParticipatedUsers(
+      conversationId: string,
+      userIds: string[]
+    ) {
       return Conversations.updateOne(
         { _id: conversationId },
         {
-          $addToSet: { participatedUserIds: { $each: userIds } },
-        },
+          $addToSet: { participatedUserIds: { $each: userIds } }
+        }
       );
     }
     /**
@@ -244,22 +296,28 @@ export const loadClass = () => {
       return Conversations.updateOne(
         { _id: conversationId },
         {
-          $addToSet: { participatedUserIds: userId },
-        },
+          $addToSet: { participatedUserIds: userId }
+        }
       );
     }
 
     /**
      * Transfers customers' conversations to another customer
      */
-    public static async changeCustomer(newCustomerId: string, customerIds: string) {
+    public static async changeCustomer(
+      newCustomerId: string,
+      customerIds: string
+    ) {
       // Updating every conversation and conversation messages of new customer
       await ConversationMessages.updateMany(
         { customerId: { $in: customerIds } },
-        { $set: { customerId: newCustomerId } },
+        { $set: { customerId: newCustomerId } }
       );
 
-      await Conversations.updateMany({ customerId: { $in: customerIds } }, { $set: { customerId: newCustomerId } });
+      await Conversations.updateMany(
+        { customerId: { $in: customerIds } },
+        { $set: { customerId: newCustomerId } }
+      );
 
       // Returning updated list of conversation of new customer
       return Conversations.find({ customerId: newCustomerId });
@@ -271,25 +329,34 @@ export const loadClass = () => {
     public static async removeCustomersConversations(customerIds: string[]) {
       // Finding every conversation of customer
       const conversations = await Conversations.find({
-        customerId: { $in: customerIds },
+        customerId: { $in: customerIds }
       });
 
       // Removing conversations and conversation messages
       const conversationIds = conversations.map(conv => conv._id);
 
       await ConversationMessages.deleteMany({
-        conversationId: { $in: conversationIds },
+        conversationId: { $in: conversationIds }
       });
 
       await Conversations.deleteMany({ _id: { $in: conversationIds } });
     }
 
-    public static widgetsUnreadMessagesQuery(conversations: IConversationDocument[]) {
-      const unreadMessagesSelector = { userId: { $exists: true }, internal: false, isCustomerRead: { $ne: true } };
+    public static widgetsUnreadMessagesQuery(
+      conversations: IConversationDocument[]
+    ) {
+      const unreadMessagesSelector = {
+        userId: { $exists: true },
+        internal: false,
+        isCustomerRead: { $ne: true }
+      };
 
       const conversationIds = conversations.map(c => c._id);
 
-      return { conversationId: { $in: conversationIds }, ...unreadMessagesSelector };
+      return {
+        conversationId: { $in: conversationIds },
+        ...unreadMessagesSelector
+      };
     }
 
     /**
@@ -300,7 +367,11 @@ export const loadClass = () => {
       const closedUserId = userId;
       const status = CONVERSATION_STATUSES.CLOSED;
 
-      return Conversations.updateMany(query, { $set: { status, closedAt, closedUserId } }, { multi: true });
+      return Conversations.updateMany(
+        query,
+        { $set: { status, closedAt, closedUserId } },
+        { multi: true }
+      );
     }
   }
 
@@ -312,6 +383,9 @@ export const loadClass = () => {
 loadClass();
 
 // tslint:disable-next-line
-const Conversations = model<IConversationDocument, IConversationModel>('conversations', conversationSchema);
+const Conversations = model<IConversationDocument, IConversationModel>(
+  'conversations',
+  conversationSchema
+);
 
 export default Conversations;

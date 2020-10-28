@@ -65,7 +65,7 @@ describe('channelQueries', () => {
     `;
 
     const responses = await graphqlRequest(qry, 'channelDetail', {
-      _id: channel._id,
+      _id: channel._id
     });
 
     expect(responses._id).toBe(channel._id);

@@ -8,10 +8,20 @@ import {
   fieldFactory,
   formFactory,
   integrationFactory,
-  userFactory,
+  userFactory
 } from '../db/factories';
-import { Brands, ConversationMessages, Forms, Integrations, Users } from '../db/models';
-import { KIND_CHOICES, LEAD_LOAD_TYPES, MESSENGER_DATA_AVAILABILITY } from '../db/models/definitions/constants';
+import {
+  Brands,
+  ConversationMessages,
+  Forms,
+  Integrations,
+  Users
+} from '../db/models';
+import {
+  KIND_CHOICES,
+  LEAD_LOAD_TYPES,
+  MESSENGER_DATA_AVAILABILITY
+} from '../db/models/definitions/constants';
 
 import { isTimeInBetween } from '../db/models/Integrations';
 import './setup.ts';
@@ -47,7 +57,9 @@ describe('messenger integration model add method', () => {
   test('Find integration', async () => {
     const integration = await integrationFactory({});
 
-    const response = await Integrations.findIntegrations({ _id: integration._id });
+    const response = await Integrations.findIntegrations({
+      _id: integration._id
+    });
 
     expect(response.length).toBe(1);
   });
@@ -57,7 +69,7 @@ describe('messenger integration model add method', () => {
 
     const doc = {
       name: 'updated',
-      brandId: 'brandId',
+      brandId: 'brandId'
     };
 
     const response = await Integrations.updateBasicInfo(integration._id, doc);
@@ -69,7 +81,7 @@ describe('messenger integration model add method', () => {
   test('update basic info (Error: Integration not found)', async () => {
     const doc = {
       name: 'updated',
-      brandId: 'brandId',
+      brandId: 'brandId'
     };
 
     try {
@@ -85,10 +97,13 @@ describe('messenger integration model add method', () => {
     const doc = {
       name: 'Integration test',
       brandId: _brand._id,
-      kind: KIND_CHOICES.MESSENGER,
+      kind: KIND_CHOICES.MESSENGER
     };
 
-    const integration = await Integrations.createMessengerIntegration(doc, _user._id);
+    const integration = await Integrations.createMessengerIntegration(
+      doc,
+      _user._id
+    );
 
     expect(integration.name).toBe(doc.name);
     expect(integration.brandId).toBe(doc.brandId);
@@ -112,7 +127,7 @@ describe('messenger integration model edit method', () => {
     _brand2 = await brandFactory({});
     _integration = await integrationFactory({
       kind: KIND_CHOICES.MESSENGER,
-      brandId: _brand._id,
+      brandId: _brand._id
     });
   });
 
@@ -125,10 +140,13 @@ describe('messenger integration model edit method', () => {
     const doc = {
       name: 'Integration test 2',
       brandId: _brand2._id,
-      kind: KIND_CHOICES.MESSENGER,
+      kind: KIND_CHOICES.MESSENGER
     };
 
-    const updatedIntegration = await Integrations.updateMessengerIntegration(_integration._id, doc);
+    const updatedIntegration = await Integrations.updateMessengerIntegration(
+      _integration._id,
+      doc
+    );
 
     expect(updatedIntegration.name).toBe(doc.name);
     expect(updatedIntegration.brandId).toBe(doc.brandId);
@@ -142,18 +160,18 @@ describe('messenger integration model edit with duplicated brand method', () => 
     const _brand2 = await brandFactory({});
     const _integration = await integrationFactory({
       kind: KIND_CHOICES.MESSENGER,
-      brandId: _brand._id,
+      brandId: _brand._id
     });
 
     await integrationFactory({
       kind: KIND_CHOICES.MESSENGER,
-      brandId: _brand2._id,
+      brandId: _brand2._id
     });
 
     const doc = {
       name: 'Integration test 2',
       brandId: _brand2._id,
-      kind: KIND_CHOICES.MESSENGER,
+      kind: KIND_CHOICES.MESSENGER
     };
 
     try {
@@ -192,7 +210,7 @@ describe('lead integration create model test without leadData', () => {
       name: 'lead integration test',
       brandId: _brand._id,
       formId: _form._id,
-      kind: KIND_CHOICES.LEAD,
+      kind: KIND_CHOICES.LEAD
     };
 
     try {
@@ -226,19 +244,19 @@ describe('create lead integration', () => {
       name: 'lead integration test',
       brandId: _brand._id,
       formId: _form._id,
-      kind: KIND_CHOICES.LEAD,
+      kind: KIND_CHOICES.LEAD
     };
 
     const leadData = {
-      loadType: LEAD_LOAD_TYPES.EMBEDDED,
+      loadType: LEAD_LOAD_TYPES.EMBEDDED
     };
 
     const integration = await Integrations.createLeadIntegration(
       {
         ...mainDoc,
-        leadData,
+        leadData
       },
-      _user._id,
+      _user._id
     );
 
     if (!integration || !integration.leadData) {
@@ -270,8 +288,8 @@ describe('edit lead integration', () => {
       formId: _form._id,
       kind: KIND_CHOICES.LEAD,
       leadData: {
-        loadType: LEAD_LOAD_TYPES.EMBEDDED,
-      },
+        loadType: LEAD_LOAD_TYPES.EMBEDDED
+      }
     });
   });
 
@@ -290,10 +308,13 @@ describe('edit lead integration', () => {
       name: 'external',
       kind: KIND_CHOICES.FACEBOOK_MESSENGER,
       brandId: brand._id,
-      accountId: 'accountId',
+      accountId: 'accountId'
     };
 
-    const integration = await Integrations.createExternalIntegration(doc, user._id);
+    const integration = await Integrations.createExternalIntegration(
+      doc,
+      user._id
+    );
 
     expect(integration.name).toBe(doc.name);
     expect(integration.kind).toBe(doc.kind);
@@ -305,17 +326,20 @@ describe('edit lead integration', () => {
       name: 'lead integration test 2',
       brandId: _brand2._id,
       formId: _form._id,
-      kind: KIND_CHOICES.LEAD,
+      kind: KIND_CHOICES.LEAD
     };
 
     const leadData = {
-      loadType: LEAD_LOAD_TYPES.SHOUTBOX,
+      loadType: LEAD_LOAD_TYPES.SHOUTBOX
     };
 
-    const integration = await Integrations.updateLeadIntegration(_leadIntegration._id, {
-      ...mainDoc,
-      leadData,
-    });
+    const integration = await Integrations.updateLeadIntegration(
+      _leadIntegration._id,
+      {
+        ...mainDoc,
+        leadData
+      }
+    );
 
     if (!integration || !integration.leadData) {
       throw new Error('Integration not found');
@@ -326,12 +350,20 @@ describe('edit lead integration', () => {
     expect(integration.brandId).toEqual(_brand2._id);
     expect(integration.leadData.loadType).toEqual(LEAD_LOAD_TYPES.SHOUTBOX);
 
-    const integrationNoLeadData = await Integrations.updateLeadIntegration(_leadIntegration._id, {
-      ...mainDoc,
-    });
+    const integrationNoLeadData = await Integrations.updateLeadIntegration(
+      _leadIntegration._id,
+      {
+        ...mainDoc
+      }
+    );
 
-    expect(integrationNoLeadData.leadData && integrationNoLeadData.leadData.adminEmails).toHaveLength(0);
-    expect(integrationNoLeadData.leadData && integrationNoLeadData.leadData.rules).toHaveLength(0);
+    expect(
+      integrationNoLeadData.leadData &&
+        integrationNoLeadData.leadData.adminEmails
+    ).toHaveLength(0);
+    expect(
+      integrationNoLeadData.leadData && integrationNoLeadData.leadData.rules
+    ).toHaveLength(0);
   });
 });
 
@@ -351,11 +383,11 @@ describe('remove integration model method test', () => {
       name: 'lead integration test',
       brandId: _brand._id,
       formId: _form._id,
-      kind: 'lead',
+      kind: 'lead'
     });
 
     _conversation = await conversationFactory({
-      integrationId: _integration._id,
+      integrationId: _integration._id
     });
 
     await conversationMessageFactory({ conversationId: _conversation._id });
@@ -402,7 +434,7 @@ describe('save integration messenger appearance test', () => {
     _integration = await integrationFactory({
       name: 'messenger integration test',
       brandId: _brand._id,
-      kind: 'messenger',
+      kind: 'messenger'
     });
   });
 
@@ -415,10 +447,13 @@ describe('save integration messenger appearance test', () => {
     const uiOptions = {
       color: faker.random.word(),
       wallpaper: faker.random.word(),
-      logo: faker.random.word(),
+      logo: faker.random.word()
     };
 
-    const integration = await Integrations.saveMessengerAppearanceData(_integration._id, uiOptions);
+    const integration = await Integrations.saveMessengerAppearanceData(
+      _integration._id,
+      uiOptions
+    );
 
     if (!integration || !integration.uiOptions) {
       throw new Error('Integration not found');
@@ -439,7 +474,7 @@ describe('save integration messenger configurations test', () => {
     _integration = await integrationFactory({
       name: 'messenger integration test',
       brandId: _brand._id,
-      kind: KIND_CHOICES.MESSENGER,
+      kind: KIND_CHOICES.MESSENGER
     });
   });
 
@@ -458,25 +493,28 @@ describe('save integration messenger configurations test', () => {
         {
           day: 'monday',
           from: '8:00 AM',
-          to: '12:00 PM',
+          to: '12:00 PM'
         },
         {
           day: 'monday',
           from: '2:00 PM',
-          to: '6:00 PM',
-        },
+          to: '6:00 PM'
+        }
       ],
       timezone: momentTz.tz.guess(true),
       messages: {
         en: {
           welcome: 'Welcome user',
           away: 'Bye bye',
-          thank: 'Thank you',
-        },
-      },
+          thank: 'Thank you'
+        }
+      }
     };
 
-    const integration = await Integrations.saveMessengerConfigs(_integration._id, messengerData);
+    const integration = await Integrations.saveMessengerConfigs(
+      _integration._id,
+      messengerData
+    );
 
     if (
       !integration ||
@@ -487,19 +525,41 @@ describe('save integration messenger configurations test', () => {
       throw new Error('Integration not found');
     }
 
-    expect(integration.messengerData.notifyCustomer).toEqual(messengerData.notifyCustomer);
-    expect(integration.messengerData.availabilityMethod).toEqual(messengerData.availabilityMethod);
+    expect(integration.messengerData.notifyCustomer).toEqual(
+      messengerData.notifyCustomer
+    );
+    expect(integration.messengerData.availabilityMethod).toEqual(
+      messengerData.availabilityMethod
+    );
     expect(integration.messengerData.isOnline).toEqual(messengerData.isOnline);
-    expect(integration.messengerData.onlineHours[0].day).toEqual(messengerData.onlineHours[0].day);
-    expect(integration.messengerData.onlineHours[0].from).toEqual(messengerData.onlineHours[0].from);
-    expect(integration.messengerData.onlineHours[0].to).toEqual(messengerData.onlineHours[0].to);
-    expect(integration.messengerData.onlineHours[1].day).toEqual(messengerData.onlineHours[1].day);
-    expect(integration.messengerData.onlineHours[1].from).toEqual(messengerData.onlineHours[1].from);
-    expect(integration.messengerData.onlineHours[1].to).toEqual(messengerData.onlineHours[1].to);
+    expect(integration.messengerData.onlineHours[0].day).toEqual(
+      messengerData.onlineHours[0].day
+    );
+    expect(integration.messengerData.onlineHours[0].from).toEqual(
+      messengerData.onlineHours[0].from
+    );
+    expect(integration.messengerData.onlineHours[0].to).toEqual(
+      messengerData.onlineHours[0].to
+    );
+    expect(integration.messengerData.onlineHours[1].day).toEqual(
+      messengerData.onlineHours[1].day
+    );
+    expect(integration.messengerData.onlineHours[1].from).toEqual(
+      messengerData.onlineHours[1].from
+    );
+    expect(integration.messengerData.onlineHours[1].to).toEqual(
+      messengerData.onlineHours[1].to
+    );
     expect(integration.messengerData.timezone).toEqual(messengerData.timezone);
-    expect(integration.messengerData.messages.en.welcome).toEqual(messengerData.messages.en.welcome);
-    expect(integration.messengerData.messages.en.away).toEqual(messengerData.messages.en.away);
-    expect(integration.messengerData.messages.en.thank).toEqual(messengerData.messages.en.thank);
+    expect(integration.messengerData.messages.en.welcome).toEqual(
+      messengerData.messages.en.welcome
+    );
+    expect(integration.messengerData.messages.en.away).toEqual(
+      messengerData.messages.en.away
+    );
+    expect(integration.messengerData.messages.en.thank).toEqual(
+      messengerData.messages.en.thank
+    );
 
     const newMessengerData = {
       notifyCustomer: false,
@@ -509,49 +569,85 @@ describe('save integration messenger configurations test', () => {
         {
           day: 'tuesday',
           from: '9:00 AM',
-          to: '1:00 PM',
+          to: '1:00 PM'
         },
         {
           day: 'tuesday',
           from: '3:00 PM',
-          to: '7:00 PM',
-        },
+          to: '7:00 PM'
+        }
       ],
       timezone: 'EET',
       messages: {
         en: {
           welcome: 'Welcome user',
           away: 'Bye bye',
-          thank: 'Thank you',
-        },
-      },
+          thank: 'Thank you'
+        }
+      }
     };
 
-    const updatedIntegration = await Integrations.saveMessengerConfigs(_integration._id, newMessengerData);
+    const updatedIntegration = await Integrations.saveMessengerConfigs(
+      _integration._id,
+      newMessengerData
+    );
 
-    if (!updatedIntegration || !updatedIntegration.messengerData || !updatedIntegration.messengerData.onlineHours) {
+    if (
+      !updatedIntegration ||
+      !updatedIntegration.messengerData ||
+      !updatedIntegration.messengerData.onlineHours
+    ) {
       throw new Error('Integration not found');
     }
 
-    expect(updatedIntegration.messengerData.notifyCustomer).toEqual(newMessengerData.notifyCustomer);
-    expect(updatedIntegration.messengerData.availabilityMethod).toEqual(newMessengerData.availabilityMethod);
-    expect(updatedIntegration.messengerData.isOnline).toEqual(newMessengerData.isOnline);
-    expect(updatedIntegration.messengerData.onlineHours[0].day).toEqual(newMessengerData.onlineHours[0].day);
-    expect(updatedIntegration.messengerData.onlineHours[0].from).toEqual(newMessengerData.onlineHours[0].from);
-    expect(updatedIntegration.messengerData.onlineHours[0].to).toEqual(newMessengerData.onlineHours[0].to);
-    expect(updatedIntegration.messengerData.onlineHours[1].day).toEqual(newMessengerData.onlineHours[1].day);
-    expect(updatedIntegration.messengerData.onlineHours[1].from).toEqual(newMessengerData.onlineHours[1].from);
-    expect(updatedIntegration.messengerData.onlineHours[1].to).toEqual(newMessengerData.onlineHours[1].to);
-    expect(updatedIntegration.messengerData.timezone).toEqual(newMessengerData.timezone);
-    expect(integration.messengerData.messages.en.welcome).toEqual(messengerData.messages.en.welcome);
-    expect(integration.messengerData.messages.en.away).toEqual(messengerData.messages.en.away);
-    expect(integration.messengerData.messages.en.thank).toEqual(messengerData.messages.en.thank);
+    expect(updatedIntegration.messengerData.notifyCustomer).toEqual(
+      newMessengerData.notifyCustomer
+    );
+    expect(updatedIntegration.messengerData.availabilityMethod).toEqual(
+      newMessengerData.availabilityMethod
+    );
+    expect(updatedIntegration.messengerData.isOnline).toEqual(
+      newMessengerData.isOnline
+    );
+    expect(updatedIntegration.messengerData.onlineHours[0].day).toEqual(
+      newMessengerData.onlineHours[0].day
+    );
+    expect(updatedIntegration.messengerData.onlineHours[0].from).toEqual(
+      newMessengerData.onlineHours[0].from
+    );
+    expect(updatedIntegration.messengerData.onlineHours[0].to).toEqual(
+      newMessengerData.onlineHours[0].to
+    );
+    expect(updatedIntegration.messengerData.onlineHours[1].day).toEqual(
+      newMessengerData.onlineHours[1].day
+    );
+    expect(updatedIntegration.messengerData.onlineHours[1].from).toEqual(
+      newMessengerData.onlineHours[1].from
+    );
+    expect(updatedIntegration.messengerData.onlineHours[1].to).toEqual(
+      newMessengerData.onlineHours[1].to
+    );
+    expect(updatedIntegration.messengerData.timezone).toEqual(
+      newMessengerData.timezone
+    );
+    expect(integration.messengerData.messages.en.welcome).toEqual(
+      messengerData.messages.en.welcome
+    );
+    expect(integration.messengerData.messages.en.away).toEqual(
+      messengerData.messages.en.away
+    );
+    expect(integration.messengerData.messages.en.thank).toEqual(
+      messengerData.messages.en.thank
+    );
   });
 
   test('Increase view count of lead', async () => {
     expect.assertions(2);
 
-    let updated = await Integrations.increaseViewCount(_integration.formId, true);
+    let updated = await Integrations.increaseViewCount(
+      _integration.formId,
+      true
+    );
 
     expect(updated.leadData && updated.leadData.viewCount).toBe(1);
 
@@ -562,11 +658,17 @@ describe('save integration messenger configurations test', () => {
   test('Increase contacts gathered', async () => {
     expect.assertions(2);
 
-    let updated = await Integrations.increaseContactsGathered(_integration.formId, true);
+    let updated = await Integrations.increaseContactsGathered(
+      _integration.formId,
+      true
+    );
 
     expect(updated.leadData && updated.leadData.contactsGathered).toBe(1);
 
-    updated = await Integrations.increaseContactsGathered(_integration.formId, true);
+    updated = await Integrations.increaseContactsGathered(
+      _integration.formId,
+      true
+    );
     expect(updated.leadData && updated.leadData.contactsGathered).toBe(2);
   });
 
@@ -579,8 +681,8 @@ describe('save integration messenger configurations test', () => {
     test('isOnline() must return status as it is', async () => {
       const integration = await integrationFactory({
         messengerData: {
-          availabilityMethod: 'manual',
-        },
+          availabilityMethod: 'manual'
+        }
       });
 
       if (!integration.messengerData) {
@@ -603,8 +705,12 @@ describe('save integration messenger configurations test', () => {
       const time2 = '6:00 PM';
       const timezone = momentTz.tz.guess(true);
 
-      expect(isTimeInBetween(timezone, new Date('2017/05/08 11:10 AM'), time1, time2)).toBeTruthy();
-      expect(isTimeInBetween(timezone, new Date('2017/05/08 7:00 PM'), time1, time2)).toBeFalsy();
+      expect(
+        isTimeInBetween(timezone, new Date('2017/05/08 11:10 AM'), time1, time2)
+      ).toBeTruthy();
+      expect(
+        isTimeInBetween(timezone, new Date('2017/05/08 7:00 PM'), time1, time2)
+      ).toBeFalsy();
     });
 
     test('isOnline() must return false if there is no config for current day', async () => {
@@ -615,14 +721,16 @@ describe('save integration messenger configurations test', () => {
             {
               day: 'tuesday',
               from: '9:00 AM',
-              to: '5:00 PM',
-            },
-          ],
-        },
+              to: '5:00 PM'
+            }
+          ]
+        }
       });
 
       // 2017-05-08, monday
-      expect(Integrations.isOnline(integration, new Date('2017/05/08 11:10 AM'))).toBeFalsy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/08 11:10 AM'))
+      ).toBeFalsy();
     });
 
     test('isOnline() for specific day', async () => {
@@ -633,15 +741,19 @@ describe('save integration messenger configurations test', () => {
             {
               day: 'tuesday',
               from: '9:00 AM',
-              to: '5:00 PM',
-            },
-          ],
-        },
+              to: '5:00 PM'
+            }
+          ]
+        }
       });
 
       // 2017-05-09, tuesday
-      expect(Integrations.isOnline(integration, new Date('2017/05/09 06:10 PM'))).toBeFalsy();
-      expect(Integrations.isOnline(integration, new Date('2017/05/09 09:01 AM'))).toBeTruthy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/09 06:10 PM'))
+      ).toBeFalsy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/09 09:01 AM'))
+      ).toBeTruthy();
     });
 
     test('isOnline() for everyday', async () => {
@@ -652,30 +764,58 @@ describe('save integration messenger configurations test', () => {
             {
               day: 'everyday',
               from: '9:00 AM',
-              to: '5:00 PM',
-            },
+              to: '5:00 PM'
+            }
           ],
-          timezone: momentTz.tz.guess(true),
-        },
+          timezone: momentTz.tz.guess(true)
+        }
       });
 
       // monday -> sunday
-      expect(Integrations.isOnline(integration, new Date('2017/05/08 10:00 AM'))).toBeTruthy();
-      expect(Integrations.isOnline(integration, new Date('2017/05/09 11:00 AM'))).toBeTruthy();
-      expect(Integrations.isOnline(integration, new Date('2017/05/10 12:00 PM'))).toBeTruthy();
-      expect(Integrations.isOnline(integration, new Date('2017/05/11 1:00 PM'))).toBeTruthy();
-      expect(Integrations.isOnline(integration, new Date('2017/05/12 2:00 PM'))).toBeTruthy();
-      expect(Integrations.isOnline(integration, new Date('2017/05/13 3:00 PM'))).toBeTruthy();
-      expect(Integrations.isOnline(integration, new Date('2017/05/14 3:30 PM'))).toBeTruthy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/08 10:00 AM'))
+      ).toBeTruthy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/09 11:00 AM'))
+      ).toBeTruthy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/10 12:00 PM'))
+      ).toBeTruthy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/11 1:00 PM'))
+      ).toBeTruthy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/12 2:00 PM'))
+      ).toBeTruthy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/13 3:00 PM'))
+      ).toBeTruthy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/14 3:30 PM'))
+      ).toBeTruthy();
 
       // monday -> sunday
-      expect(Integrations.isOnline(integration, new Date('2017/05/08 1:00 AM'))).toBeFalsy();
-      expect(Integrations.isOnline(integration, new Date('2017/05/09 4:00 AM'))).toBeFalsy();
-      expect(Integrations.isOnline(integration, new Date('2017/05/10 5:00 AM'))).toBeFalsy();
-      expect(Integrations.isOnline(integration, new Date('2017/05/11 6:00 AM'))).toBeFalsy();
-      expect(Integrations.isOnline(integration, new Date('2017/05/12 6:00 PM'))).toBeFalsy();
-      expect(Integrations.isOnline(integration, new Date('2017/05/13 7:00 PM'))).toBeFalsy();
-      expect(Integrations.isOnline(integration, new Date('2017/05/14 8:00 PM'))).toBeFalsy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/08 1:00 AM'))
+      ).toBeFalsy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/09 4:00 AM'))
+      ).toBeFalsy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/10 5:00 AM'))
+      ).toBeFalsy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/11 6:00 AM'))
+      ).toBeFalsy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/12 6:00 PM'))
+      ).toBeFalsy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/13 7:00 PM'))
+      ).toBeFalsy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/14 8:00 PM'))
+      ).toBeFalsy();
     });
 
     test('isOnline() for weekdays', async () => {
@@ -686,25 +826,43 @@ describe('save integration messenger configurations test', () => {
             {
               day: 'weekdays',
               from: '9:00 AM',
-              to: '5:00 PM',
-            },
+              to: '5:00 PM'
+            }
           ],
-          timezone: momentTz.tz.guess(true),
-        },
+          timezone: momentTz.tz.guess(true)
+        }
       });
 
       // weekdays
-      expect(Integrations.isOnline(integration, new Date('2017/05/08 10:00 AM'))).toBeTruthy();
-      expect(Integrations.isOnline(integration, new Date('2017/05/09 11:00 AM'))).toBeTruthy();
-      expect(Integrations.isOnline(integration, new Date('2017/05/10 12:00 PM'))).toBeTruthy();
-      expect(Integrations.isOnline(integration, new Date('2017/05/11 1:00 PM'))).toBeTruthy();
-      expect(Integrations.isOnline(integration, new Date('2017/05/12 2:00 PM'))).toBeTruthy();
-      expect(Integrations.isOnline(integration, new Date('2017/05/11 11:00 PM'))).toBeFalsy();
-      expect(Integrations.isOnline(integration, new Date('2017/05/12 8:00 AM'))).toBeFalsy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/08 10:00 AM'))
+      ).toBeTruthy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/09 11:00 AM'))
+      ).toBeTruthy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/10 12:00 PM'))
+      ).toBeTruthy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/11 1:00 PM'))
+      ).toBeTruthy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/12 2:00 PM'))
+      ).toBeTruthy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/11 11:00 PM'))
+      ).toBeFalsy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/12 8:00 AM'))
+      ).toBeFalsy();
 
       // weekend
-      expect(Integrations.isOnline(integration, new Date('2017/05/13 10:00 AM'))).toBeFalsy();
-      expect(Integrations.isOnline(integration, new Date('2017/05/14 11:00 AM'))).toBeFalsy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/13 10:00 AM'))
+      ).toBeFalsy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/14 11:00 AM'))
+      ).toBeFalsy();
     });
 
     test('isOnline() for weekend', async () => {
@@ -715,25 +873,43 @@ describe('save integration messenger configurations test', () => {
             {
               day: 'weekends',
               from: '9:00 AM',
-              to: '5:00 PM',
-            },
+              to: '5:00 PM'
+            }
           ],
-          timezone: momentTz.tz.guess(true),
-        },
+          timezone: momentTz.tz.guess(true)
+        }
       });
 
       // weekdays
-      expect(Integrations.isOnline(integration, new Date('2017/05/08 10:00 AM'))).toBeFalsy();
-      expect(Integrations.isOnline(integration, new Date('2017/05/09 11:00 AM'))).toBeFalsy();
-      expect(Integrations.isOnline(integration, new Date('2017/05/10 12:00 PM'))).toBeFalsy();
-      expect(Integrations.isOnline(integration, new Date('2017/05/11 1:00 PM'))).toBeFalsy();
-      expect(Integrations.isOnline(integration, new Date('2017/05/12 2:00 PM'))).toBeFalsy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/08 10:00 AM'))
+      ).toBeFalsy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/09 11:00 AM'))
+      ).toBeFalsy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/10 12:00 PM'))
+      ).toBeFalsy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/11 1:00 PM'))
+      ).toBeFalsy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/12 2:00 PM'))
+      ).toBeFalsy();
 
       // weekend
-      expect(Integrations.isOnline(integration, new Date('2017/05/13 10:00 AM'))).toBeTruthy();
-      expect(Integrations.isOnline(integration, new Date('2017/05/14 11:00 AM'))).toBeTruthy();
-      expect(Integrations.isOnline(integration, new Date('2017/05/13 07:00 AM'))).toBeFalsy();
-      expect(Integrations.isOnline(integration, new Date('2017/05/14 11:00 PM'))).toBeFalsy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/13 10:00 AM'))
+      ).toBeTruthy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/14 11:00 AM'))
+      ).toBeTruthy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/13 07:00 AM'))
+      ).toBeFalsy();
+      expect(
+        Integrations.isOnline(integration, new Date('2017/05/14 11:00 PM'))
+      ).toBeFalsy();
     });
   });
 
@@ -747,15 +923,25 @@ describe('save integration messenger configurations test', () => {
     }
 
     const brand = await brandFactory({});
-    const integration = await integrationFactory({ brandId: brand._id, kind: 'messenger' });
+    const integration = await integrationFactory({
+      brandId: brand._id,
+      kind: 'messenger'
+    });
 
     // brandObject false
-    let response = await Integrations.getWidgetIntegration(brand.code || '', 'messenger');
+    let response = await Integrations.getWidgetIntegration(
+      brand.code || '',
+      'messenger'
+    );
 
     expect(response._id).toBe(integration._id);
 
     // brandObject true
-    response = await Integrations.getWidgetIntegration(brand.code || '', 'messenger', true);
+    response = await Integrations.getWidgetIntegration(
+      brand.code || '',
+      'messenger',
+      true
+    );
 
     expect(response.integration._id).toBe(integration._id);
     expect(response.brand._id).toBe(brand._id);

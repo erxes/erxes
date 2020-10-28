@@ -33,7 +33,7 @@ const ENVS = [
   'GOOGLE_CLOUD_STORAGE_BUCKET',
 
   'UPLOAD_FILE_TYPES',
-  'WIDGETS_UPLOAD_FILE_TYPES',
+  'WIDGETS_UPLOAD_FILE_TYPES'
 ];
 
 module.exports.up = async () => {

@@ -27,11 +27,16 @@ export const loadClass = () => {
     }
 
     public static async calculateAutoFields(fields: IScript) {
-      const autoFields: { messengerBrandCode?: string; leadMaps?: LeadMaps } = {};
+      const autoFields: {
+        messengerBrandCode?: string;
+        leadMaps?: LeadMaps;
+      } = {};
 
       // generate brandCode
       if (fields.messengerId) {
-        const messengerIntegration = await Integrations.getIntegration(fields.messengerId);
+        const messengerIntegration = await Integrations.getIntegration(
+          fields.messengerId
+        );
 
         const brand = await Brands.getBrand(messengerIntegration.brandId || '');
 
@@ -40,7 +45,9 @@ export const loadClass = () => {
 
       // Generate leadCode, brandCode combinations
       if (fields.leadIds) {
-        const integrations = await Integrations.findIntegrations({ _id: { $in: fields.leadIds } });
+        const integrations = await Integrations.findIntegrations({
+          _id: { $in: fields.leadIds }
+        });
 
         const maps: LeadMaps = [];
 
@@ -50,7 +57,7 @@ export const loadClass = () => {
 
           maps.push({
             formCode: form.code,
-            brandCode: brand.code,
+            brandCode: brand.code
           });
         }
 
@@ -68,7 +75,7 @@ export const loadClass = () => {
 
       return Scripts.create({
         ...fields,
-        ...autoFields,
+        ...autoFields
       });
     }
 

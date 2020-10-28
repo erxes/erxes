@@ -12,16 +12,20 @@ const FullContent = styledTS<{ center: boolean; align?: boolean }>(styled.div)`
   align-items: ${props => (props.align ? 'flex-start' : 'center')};
 `;
 
-const MiddleContent = styledTS<{ transparent?: boolean; shrink?: boolean }>(styled.div)`
+const MiddleContent = styledTS<{ transparent?: boolean; shrink?: boolean }>(
+  styled.div
+)`
   width: 900px;
   
   background: ${props => !props.transparent && colors.colorWhite};
   margin: 10px 0;
 
-  ${props => !props.shrink && css`
-    height: 100%;
-    height: calc(100% - 20px);
-  `};
+  ${props =>
+    !props.shrink &&
+    css`
+      height: 100%;
+      height: calc(100% - 20px);
+    `};
 
   @media (max-width: 900px) {
     width: 100%;

@@ -7,7 +7,7 @@ import {
   fieldFactory,
   fieldGroupFactory,
   integrationFactory,
-  usersGroupFactory,
+  usersGroupFactory
 } from '../db/factories';
 import { Companies, Customers, Fields, FieldsGroups } from '../db/models';
 import * as elk from '../elasticsearch';
@@ -45,14 +45,14 @@ describe('fieldQueries', () => {
 
     // company ===================
     let responses = await graphqlRequest(qry, 'fields', {
-      contentType: 'company',
+      contentType: 'company'
     });
 
     expect(responses.length).toBe(2);
 
     // customer ==================
     responses = await graphqlRequest(qry, 'fields', {
-      contentType: 'customer',
+      contentType: 'customer'
     });
 
     expect(responses.length).toBe(2);
@@ -60,7 +60,7 @@ describe('fieldQueries', () => {
     // company with contentTypeId ===
     responses = await graphqlRequest(qry, 'fields', {
       contentType: 'company',
-      contentTypeId,
+      contentTypeId
     });
 
     expect(responses.length).toBe(1);
@@ -68,7 +68,7 @@ describe('fieldQueries', () => {
     // customer with contentTypeId ===
     responses = await graphqlRequest(qry, 'fields', {
       contentType: 'customer',
-      contentTypeId,
+      contentTypeId
     });
 
     expect(responses.length).toBe(1);
@@ -92,19 +92,19 @@ describe('fieldQueries', () => {
                             attributes: [
                               {
                                 field: 'url',
-                                value: '/test',
-                              },
-                            ],
-                          },
-                        },
-                      ],
-                    },
-                  },
-                },
-              ],
-            },
-          },
-        },
+                                value: '/test'
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
       });
     });
 
@@ -115,7 +115,10 @@ describe('fieldQueries', () => {
     await fieldFactory({ contentType: 'company' });
     await fieldFactory({ contentType: 'company' });
     await fieldFactory({ contentType: 'customer', groupId: visibleGroup._id });
-    await fieldFactory({ contentType: 'customer', groupId: invisibleGroup._id });
+    await fieldFactory({
+      contentType: 'customer',
+      groupId: invisibleGroup._id
+    });
 
     const qry = `
       query fieldsCombinedByContentType($contentType: String!, $usageType: String) {
@@ -125,7 +128,7 @@ describe('fieldQueries', () => {
 
     // compnay =======================
     let responses = await graphqlRequest(qry, 'fieldsCombinedByContentType', {
-      contentType: 'company',
+      contentType: 'company'
     });
 
     // getting fields of companies schema
@@ -140,28 +143,44 @@ describe('fieldQueries', () => {
 
     // customer =======================
     const brand = await brandFactory({});
-    const integration = await integrationFactory({ brandId: brand._id, kind: KIND_CHOICES.MESSENGER });
-    const integration1 = await integrationFactory({ brandId: brand._id, kind: KIND_CHOICES.MESSENGER });
-    const integration2 = await integrationFactory({ brandId: brand._id, kind: KIND_CHOICES.MESSENGER });
-    const integration3 = await integrationFactory({ brandId: brand._id, kind: KIND_CHOICES.MESSENGER });
+    const integration = await integrationFactory({
+      brandId: brand._id,
+      kind: KIND_CHOICES.MESSENGER
+    });
+    const integration1 = await integrationFactory({
+      brandId: brand._id,
+      kind: KIND_CHOICES.MESSENGER
+    });
+    const integration2 = await integrationFactory({
+      brandId: brand._id,
+      kind: KIND_CHOICES.MESSENGER
+    });
+    const integration3 = await integrationFactory({
+      brandId: brand._id,
+      kind: KIND_CHOICES.MESSENGER
+    });
 
     await customerFactory({ integrationId: integration._id });
     await customerFactory({ integrationId: integration1._id });
     await customerFactory({
-      integrationId: integration2._id,
+      integrationId: integration2._id
     });
     await customerFactory({
-      integrationId: integration3._id,
+      integrationId: integration3._id
     });
 
     responses = await graphqlRequest(qry, 'fieldsCombinedByContentType', {
       contentType: 'customer',
-      usageType: 'import',
+      usageType: 'import'
     });
 
-    responses = await graphqlRequest(qry, 'fieldsCombinedByContentType', { contentType: 'customer' });
+    responses = await graphqlRequest(qry, 'fieldsCombinedByContentType', {
+      contentType: 'customer'
+    });
 
-    await graphqlRequest(qry, 'fieldsCombinedByContentType', { contentType: 'product' });
+    await graphqlRequest(qry, 'fieldsCombinedByContentType', {
+      contentType: 'product'
+    });
 
     // getting fields of customers schema
     responseFields = responses.map(response => response.name);
@@ -188,7 +207,7 @@ describe('fieldQueries', () => {
 
     // get customer default config
     let responses = await graphqlRequest(qry, 'fieldsDefaultColumnsConfig', {
-      contentType: 'customer',
+      contentType: 'customer'
     });
 
     expect(responses.length).toBe(7);
@@ -199,7 +218,7 @@ describe('fieldQueries', () => {
 
     // get company default config
     responses = await graphqlRequest(qry, 'fieldsDefaultColumnsConfig', {
-      contentType: 'company',
+      contentType: 'company'
     });
 
     expect(responses.length).toBe(7);
@@ -212,7 +231,7 @@ describe('fieldQueries', () => {
 
     // get product default config
     responses = await graphqlRequest(qry, 'fieldsDefaultColumnsConfig', {
-      contentType: 'product',
+      contentType: 'product'
     });
 
     expect(responses[0].name).toBe('categoryCode');
@@ -246,7 +265,7 @@ describe('fieldQueries', () => {
 
     // company content type =============
     responses = await graphqlRequest(qry, 'fieldsGroups', {
-      contentType: 'company',
+      contentType: 'company'
     });
 
     expect(responses.length).toBe(1);

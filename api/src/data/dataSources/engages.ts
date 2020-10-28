@@ -6,7 +6,9 @@ export default class EngagesAPI extends RESTDataSource {
   constructor() {
     super();
 
-    const ENGAGES_API_DOMAIN = getSubServiceDomain({ name: 'ENGAGES_API_DOMAIN' });
+    const ENGAGES_API_DOMAIN = getSubServiceDomain({
+      name: 'ENGAGES_API_DOMAIN'
+    });
 
     this.baseURL = ENGAGES_API_DOMAIN;
     this.httpCache = new HTTPCache();
@@ -50,7 +52,9 @@ export default class EngagesAPI extends RESTDataSource {
 
   public async engagesStats(engageMessageId) {
     try {
-      const response = await this.get(`/deliveryReports/statsList/${engageMessageId}`);
+      const response = await this.get(
+        `/deliveryReports/statsList/${engageMessageId}`
+      );
       return response;
     } catch (e) {
       debugBase(e.message);
@@ -64,7 +68,9 @@ export default class EngagesAPI extends RESTDataSource {
 
   public async engagesLogs(engageMessageId) {
     try {
-      const response = await this.get(`/deliveryReports/logs/${engageMessageId}`);
+      const response = await this.get(
+        `/deliveryReports/logs/${engageMessageId}`
+      );
       return response;
     } catch (e) {
       debugBase(e.message);
@@ -74,7 +80,9 @@ export default class EngagesAPI extends RESTDataSource {
 
   public async engagesSmsStats(engageMessageId) {
     try {
-      const response = await this.get(`/deliveryReports/smsStats/${engageMessageId}`);
+      const response = await this.get(
+        `/deliveryReports/smsStats/${engageMessageId}`
+      );
 
       return response;
     } catch (e) {

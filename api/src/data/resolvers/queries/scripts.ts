@@ -7,7 +7,11 @@ const scriptQueries = {
   /**
    * Scripts list
    */
-  scripts(_root, args: { page: number; perPage: number }, { commonQuerySelector }: IContext) {
+  scripts(
+    _root,
+    args: { page: number; perPage: number },
+    { commonQuerySelector }: IContext
+  ) {
     return paginate(Scripts.find(commonQuerySelector), args);
   },
 
@@ -16,7 +20,7 @@ const scriptQueries = {
    */
   scriptsTotalCount(_root, _args, { commonQuerySelector }: IContext) {
     return Scripts.find(commonQuerySelector).countDocuments();
-  },
+  }
 };
 
 requireLogin(scriptQueries, 'scriptsTotalCount');

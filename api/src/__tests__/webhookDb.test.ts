@@ -40,9 +40,15 @@ describe('Test webhooks model', () => {
   test('Create webhook check valid url', async () => {
     expect.assertions(1);
     try {
-      await Webhooks.createWebhook({ token: _webhook.token, url: 'http://alskdjalksjd.com', actions: [] });
+      await Webhooks.createWebhook({
+        token: _webhook.token,
+        url: 'http://alskdjalksjd.com',
+        actions: []
+      });
     } catch (e) {
-      expect(e.message).toEqual('Url is not valid. Enter valid url with ssl cerfiticate');
+      expect(e.message).toEqual(
+        'Url is not valid. Enter valid url with ssl cerfiticate'
+      );
     }
   });
 
@@ -52,17 +58,19 @@ describe('Test webhooks model', () => {
       await Webhooks.updateWebhook(_webhook2._id, {
         url: 'http://alskdjalksjd.com',
         token: _webhook.token,
-        actions: _webhook.actions,
+        actions: _webhook.actions
       });
     } catch (e) {
-      expect(e.message).toEqual('Url is not valid. Enter valid url with ssl cerfiticate');
+      expect(e.message).toEqual(
+        'Url is not valid. Enter valid url with ssl cerfiticate'
+      );
     }
   });
 
   test('Create Webhook', async () => {
     const webhookObj = await Webhooks.createWebhook({
       url: 'https://test.com',
-      actions: _webhook.actions,
+      actions: _webhook.actions
     });
 
     expect(webhookObj.url).toEqual('https://test.com');
@@ -73,7 +81,7 @@ describe('Test webhooks model', () => {
   test('Update Webhook', async () => {
     const webhookObj = await Webhooks.updateWebhook(_webhook._id, {
       url: 'https://test.com',
-      actions: _webhook.actions,
+      actions: _webhook.actions
     });
 
     expect(webhookObj).toBeDefined();

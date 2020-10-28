@@ -1,7 +1,16 @@
 import { graphqlRequest } from '../db/connection';
-import { boardFactory, pipelineFactory, stageFactory, userFactory } from '../db/factories';
+import {
+  boardFactory,
+  pipelineFactory,
+  stageFactory,
+  userFactory
+} from '../db/factories';
 import { Boards, Deals, Pipelines, Stages, Users } from '../db/models';
-import { IBoardDocument, IPipelineDocument, IStageDocument } from '../db/models/definitions/boards';
+import {
+  IBoardDocument,
+  IPipelineDocument,
+  IStageDocument
+} from '../db/models/definitions/boards';
 
 import { BOARD_TYPES } from '../db/models/definitions/constants';
 import './setup.ts';
@@ -37,7 +46,10 @@ describe('Test boards mutations', () => {
   beforeEach(async () => {
     // Creating test data
     board = await boardFactory();
-    pipeline = await pipelineFactory({ boardId: board._id, watchedUserIds: [] });
+    pipeline = await pipelineFactory({
+      boardId: board._id,
+      watchedUserIds: []
+    });
     stage = await stageFactory({ pipelineId: pipeline._id });
     context = { user: await userFactory({}) };
   });
@@ -64,7 +76,12 @@ describe('Test boards mutations', () => {
       }
     `;
 
-    const createdBoard = await graphqlRequest(mutation, 'boardsAdd', args, context);
+    const createdBoard = await graphqlRequest(
+      mutation,
+      'boardsAdd',
+      args,
+      context
+    );
 
     expect(createdBoard.name).toEqual(args.name);
     expect(createdBoard.type).toEqual(args.type);
@@ -139,7 +156,7 @@ describe('Test boards mutations', () => {
       visibility: 'public',
       bgColor: 'aaa',
       excludeCheckUserIds: [user1._id],
-      memberIds: [user2._id],
+      memberIds: [user2._id]
     };
 
     const mutation = `
@@ -157,7 +174,12 @@ describe('Test boards mutations', () => {
       }
     `;
 
-    const createdPipeline = await graphqlRequest(mutation, 'pipelinesAdd', args, context);
+    const createdPipeline = await graphqlRequest(
+      mutation,
+      'pipelinesAdd',
+      args,
+      context
+    );
 
     // stage connected to pipeline
     const stageToPipeline = await Stages.findOne({ _id: stage._id });
@@ -184,7 +206,7 @@ describe('Test boards mutations', () => {
       boardId: board._id,
       stages: [stage.toJSON()],
       visibility: 'public',
-      bgColor: 'bbb',
+      bgColor: 'bbb'
     };
 
     const mutation = `
@@ -200,7 +222,12 @@ describe('Test boards mutations', () => {
       }
     `;
 
-    const updatedPipeline = await graphqlRequest(mutation, 'pipelinesEdit', args, context);
+    const updatedPipeline = await graphqlRequest(
+      mutation,
+      'pipelinesEdit',
+      args,
+      context
+    );
 
     // stage connected to pipeline
     const stageToPipeline = await Stages.findOne({ _id: stage._id });
@@ -223,8 +250,8 @@ describe('Test boards mutations', () => {
     const args = {
       orders: [
         { _id: pipeline._id, order: 9 },
-        { _id: pipelineToUpdate._id, order: 3 },
-      ],
+        { _id: pipelineToUpdate._id, order: 3 }
+      ]
     };
 
     const mutation = `
@@ -240,7 +267,7 @@ describe('Test boards mutations', () => {
       mutation,
       'pipelinesUpdateOrder',
       args,
-      context,
+      context
     );
 
     expect(updatedPipeline.order).toBe(3);
@@ -261,7 +288,7 @@ describe('Test boards mutations', () => {
       mutation,
       'pipelinesWatch',
       { _id: pipeline._id, isAdd: true, type: 'deal' },
-      context,
+      context
     );
 
     expect(watchAddPipeline.isWatched).toBe(true);
@@ -270,7 +297,7 @@ describe('Test boards mutations', () => {
       mutation,
       'pipelinesWatch',
       { _id: pipeline._id, isAdd: false, type: 'deal' },
-      context,
+      context
     );
 
     expect(watchRemovePipeline.isWatched).toBe(false);
@@ -289,7 +316,12 @@ describe('Test boards mutations', () => {
     const user = await userFactory();
     const pipe = await pipelineFactory({ watchedUserIds: [user._id] });
 
-    await graphqlRequest(mutation, 'pipelinesRemove', { _id: pipe._id }, context);
+    await graphqlRequest(
+      mutation,
+      'pipelinesRemove',
+      { _id: pipe._id },
+      context
+    );
 
     expect(await Pipelines.findOne({ _id: pipe._id })).toBe(null);
   });
@@ -300,8 +332,8 @@ describe('Test boards mutations', () => {
     const args = {
       orders: [
         { _id: stage._id, order: 9 },
-        { _id: stageToUpdate._id, order: 3 },
-      ],
+        { _id: stageToUpdate._id, order: 3 }
+      ]
     };
 
     const mutation = `
@@ -313,7 +345,12 @@ describe('Test boards mutations', () => {
       }
     `;
 
-    const [updatedStage, updatedStageToOrder] = await graphqlRequest(mutation, 'stagesUpdateOrder', args, context);
+    const [updatedStage, updatedStageToOrder] = await graphqlRequest(
+      mutation,
+      'stagesUpdateOrder',
+      args,
+      context
+    );
 
     expect(updatedStage.order).toBe(3);
     expect(updatedStageToOrder.order).toBe(9);
@@ -332,7 +369,7 @@ describe('Test boards mutations', () => {
     const updated = await graphqlRequest(mutation, 'stagesEdit', {
       _id: stage._id,
       type: BOARD_TYPES.DEAL,
-      name: 'updated',
+      name: 'updated'
     });
 
     expect(updated.name).toBe('updated');

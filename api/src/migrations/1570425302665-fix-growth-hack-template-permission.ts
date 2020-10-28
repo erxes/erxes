@@ -14,10 +14,10 @@ module.exports.up = async () => {
             'growthHackTemplatesEdit',
             'growthHackTemplatesRemove',
             'growthHackTemplatesDuplicate',
-            'showGrowthHackTemplates',
-          ],
-        },
-      },
-    },
+            'showGrowthHackTemplates'
+          ]
+        }
+      }
+    }
   );
 };

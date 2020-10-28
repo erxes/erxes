@@ -1,7 +1,9 @@
 import * as faker from 'faker';
 import * as Random from 'meteor-random';
 import * as sinon from 'sinon';
-import widgetMutations, { getMessengerData } from '../data/resolvers/mutations/widgets';
+import widgetMutations, {
+  getMessengerData
+} from '../data/resolvers/mutations/widgets';
 import * as utils from '../data/utils';
 import { graphqlRequest } from '../db/connection';
 import {
@@ -15,7 +17,7 @@ import {
   integrationFactory,
   knowledgeBaseArticleFactory,
   messengerAppFactory,
-  userFactory,
+  userFactory
 } from '../db/factories';
 import {
   Brands,
@@ -25,10 +27,14 @@ import {
   FormSubmissions,
   Integrations,
   KnowledgeBaseArticles,
-  MessengerApps,
+  MessengerApps
 } from '../db/models';
 import { IBrandDocument } from '../db/models/definitions/brands';
-import { CONVERSATION_OPERATOR_STATUS, CONVERSATION_STATUSES, MESSAGE_TYPES } from '../db/models/definitions/constants';
+import {
+  CONVERSATION_OPERATOR_STATUS,
+  CONVERSATION_STATUSES,
+  MESSAGE_TYPES
+} from '../db/models/definitions/constants';
 import { ICustomerDocument } from '../db/models/definitions/customers';
 import { IIntegrationDocument } from '../db/models/definitions/integrations';
 import './setup.ts';
@@ -43,14 +49,14 @@ describe('messenger connect', () => {
     _brand = await brandFactory();
     _integration = await integrationFactory({
       brandId: _brand._id,
-      kind: 'messenger',
+      kind: 'messenger'
     });
     _customer = await customerFactory({
       integrationId: _integration._id,
       primaryEmail: 'test@gmail.com',
       emails: ['test@gmail.com'],
       primaryPhone: '96221050',
-      deviceTokens: ['111'],
+      deviceTokens: ['111']
     });
   });
 
@@ -64,7 +70,10 @@ describe('messenger connect', () => {
 
   test('brand not found', async () => {
     try {
-      await widgetMutations.widgetsMessengerConnect({}, { brandCode: 'invalidCode' });
+      await widgetMutations.widgetsMessengerConnect(
+        {},
+        { brandCode: 'invalidCode' }
+      );
     } catch (e) {
       expect(e.message).toBe('Brand not found');
     }
@@ -74,7 +83,10 @@ describe('messenger connect', () => {
     const brand = await brandFactory({});
 
     try {
-      await widgetMutations.widgetsMessengerConnect({}, { brandCode: brand.code || '' });
+      await widgetMutations.widgetsMessengerConnect(
+        {},
+        { brandCode: brand.code || '' }
+      );
     } catch (e) {
       expect(e.message).toBe('Integration not found');
     }
@@ -90,8 +102,8 @@ describe('messenger connect', () => {
       name: 'kb',
       credentials: {
         integrationId: _integration._id,
-        topicId: 'topicId',
-      },
+        topicId: 'topicId'
+      }
     });
 
     await messengerAppFactory({
@@ -99,13 +111,17 @@ describe('messenger connect', () => {
       name: 'lead',
       credentials: {
         integrationId: _integration._id,
-        formCode: 'formCode',
-      },
+        formCode: 'formCode'
+      }
     });
 
-    const { integrationId, brand, messengerData } = await widgetMutations.widgetsMessengerConnect(
+    const {
+      integrationId,
+      brand,
+      messengerData
+    } = await widgetMutations.widgetsMessengerConnect(
       {},
-      { brandCode: _brand.code || '', email: faker.internet.email() },
+      { brandCode: _brand.code || '', email: faker.internet.email() }
     );
 
     expect(integrationId).toBe(_integration._id);
@@ -124,7 +140,12 @@ describe('messenger connect', () => {
 
     const { customerId } = await widgetMutations.widgetsMessengerConnect(
       {},
-      { brandCode: _brand.code || '', email, companyData: { name: 'company' }, deviceToken: '111' },
+      {
+        brandCode: _brand.code || '',
+        email,
+        companyData: { name: 'company' },
+        deviceToken: '111'
+      }
     );
 
     expect(customerId).toBeDefined();
@@ -159,8 +180,8 @@ describe('messenger connect', () => {
         brandCode: _brand.code || '',
         email: _customer.primaryEmail,
         isUser: true,
-        deviceToken: '222',
-      },
+        deviceToken: '222'
+      }
     );
 
     expect(customerId).toBeDefined();
@@ -192,14 +213,14 @@ describe('insertMessage()', () => {
     // Creating test data
     _integration = await integrationFactory({
       brandId: Random.id(),
-      kind: 'messenger',
+      kind: 'messenger'
     });
     _integrationBot = await integrationFactory({
       brandId: Random.id(),
       kind: 'messenger',
       messengerData: {
-        botEndpointUrl: 'botEndpointUrl',
-      },
+        botEndpointUrl: 'botEndpointUrl'
+      }
     });
     _customer = await customerFactory({ integrationId: _integration._id });
   });
@@ -219,8 +240,8 @@ describe('insertMessage()', () => {
         contentType: MESSAGE_TYPES.TEXT,
         integrationId: _integration._id,
         customerId: _customer._id,
-        message: faker.lorem.sentence(),
-      },
+        message: faker.lorem.sentence()
+      }
     );
 
     // check message ==========
@@ -257,24 +278,26 @@ describe('insertMessage()', () => {
         integrationId: _integration._id,
         customerId: _customer._id,
         message: 'withConversationId',
-        conversationId: conversation._id,
-      },
+        conversationId: conversation._id
+      }
     );
 
     expect(message.content).toBe('withConversationId');
   });
 
   test('Widget bot message with conversationId', async () => {
-    const conversation = await conversationFactory({ operatorStatus: CONVERSATION_OPERATOR_STATUS.BOT });
+    const conversation = await conversationFactory({
+      operatorStatus: CONVERSATION_OPERATOR_STATUS.BOT
+    });
 
     const sendRequestMock = sinon.stub(utils, 'sendRequest').callsFake(() => {
       return Promise.resolve({
         responses: [
           {
             type: 'text',
-            text: 'Bot message',
-          },
-        ],
+            text: 'Bot message'
+          }
+        ]
       });
     });
 
@@ -285,23 +308,23 @@ describe('insertMessage()', () => {
         integrationId: _integrationBot._id,
         message: 'User message',
         customerId: _customer._id,
-        conversationId: conversation._id,
-      },
+        conversationId: conversation._id
+      }
     );
 
     expect(message.content).toBe('User message');
 
     const botMessage = await ConversationMessages.findOne({
       conversationId: conversation._id,
-      botData: { $exists: true },
+      botData: { $exists: true }
     });
 
     if (botMessage) {
       expect(botMessage.botData).toEqual([
         {
           type: 'text',
-          text: 'Bot message',
-        },
+          text: 'Bot message'
+        }
       ]);
     } else {
       fail('Bot message not found');
@@ -316,9 +339,9 @@ describe('insertMessage()', () => {
         responses: [
           {
             type: 'text',
-            text: 'Bot message',
-          },
-        ],
+            text: 'Bot message'
+          }
+        ]
       });
     });
 
@@ -328,23 +351,23 @@ describe('insertMessage()', () => {
         contentType: MESSAGE_TYPES.TEXT,
         integrationId: _integrationBot._id,
         message: 'User message',
-        customerId: _customer._id,
-      },
+        customerId: _customer._id
+      }
     );
 
     expect(message.content).toBe('User message');
 
     const botMessage = await ConversationMessages.findOne({
       conversationId: message.conversationId,
-      botData: { $exists: true },
+      botData: { $exists: true }
     });
 
     if (botMessage) {
       expect(botMessage.botData).toEqual([
         {
           type: 'text',
-          text: 'Bot message',
-        },
+          text: 'Bot message'
+        }
       ]);
     } else {
       fail('Bot message not found');
@@ -354,17 +377,21 @@ describe('insertMessage()', () => {
   });
 
   test('Bot widget post request', async () => {
-    const conversation1 = await conversationFactory({ operatorStatus: CONVERSATION_OPERATOR_STATUS.BOT });
-    const conversation2 = await conversationFactory({ operatorStatus: CONVERSATION_OPERATOR_STATUS.BOT });
+    const conversation1 = await conversationFactory({
+      operatorStatus: CONVERSATION_OPERATOR_STATUS.BOT
+    });
+    const conversation2 = await conversationFactory({
+      operatorStatus: CONVERSATION_OPERATOR_STATUS.BOT
+    });
 
     const sendRequestMock = sinon.stub(utils, 'sendRequest').callsFake(() => {
       return Promise.resolve({
         responses: [
           {
             type: 'text',
-            text: 'Response of quick reply',
-          },
-        ],
+            text: 'Response of quick reply'
+          }
+        ]
       });
     });
 
@@ -376,13 +403,13 @@ describe('insertMessage()', () => {
         customerId: _customer._id,
         message: 'Reply message',
         payload: 'Response of reply',
-        type: 'postback',
-      },
+        type: 'postback'
+      }
     );
 
     const message1 = await ConversationMessages.findOne({
       conversationId: conversation1._id,
-      botData: { $exists: false },
+      botData: { $exists: false }
     });
 
     if (message1) {
@@ -394,8 +421,8 @@ describe('insertMessage()', () => {
     expect(botMessage1.botData).toEqual([
       {
         type: 'text',
-        text: 'Response of quick reply',
-      },
+        text: 'Response of quick reply'
+      }
     ]);
 
     const botMessage2 = await widgetMutations.widgetBotRequest(
@@ -406,13 +433,13 @@ describe('insertMessage()', () => {
         customerId: _customer._id,
         message: 'Reply message 2',
         payload: 'Response of reply',
-        type: 'say_something',
-      },
+        type: 'say_something'
+      }
     );
 
     const message2 = await ConversationMessages.findOne({
       conversationId: conversation2._id,
-      botData: { $exists: false },
+      botData: { $exists: false }
     });
 
     if (message2) {
@@ -424,8 +451,8 @@ describe('insertMessage()', () => {
     expect(botMessage2.botData).toEqual([
       {
         type: 'text',
-        text: 'Response of reply',
-      },
+        text: 'Response of reply'
+      }
     ]);
 
     sendRequestMock.restore();
@@ -453,8 +480,8 @@ describe('saveBrowserInfo()', () => {
         {},
         {
           customerId: customer._id,
-          browserInfo: {},
-        },
+          browserInfo: {}
+        }
       );
     } catch (e) {
       expect(e.message).toBe('Integration not found');
@@ -468,8 +495,8 @@ describe('saveBrowserInfo()', () => {
         {},
         {
           customerId: customer._id,
-          browserInfo: {},
-        },
+          browserInfo: {}
+        }
       );
     } catch (e) {
       expect(e.message).toBe('Brand not found');
@@ -493,21 +520,21 @@ describe('saveBrowserInfo()', () => {
             text: 'text',
             kind: 'currentPageUrl',
             condition: 'is',
-            value: '/page',
-          },
-        ],
+            value: '/page'
+          }
+        ]
       },
       kind: 'visitorAuto',
       method: 'messenger',
-      isLive: true,
+      isLive: true
     });
 
     const response = await widgetMutations.widgetsSaveBrowserInfo(
       {},
       {
         customerId: customer._id,
-        browserInfo: { url: '/page' },
-      },
+        browserInfo: { url: '/page' }
+      }
     );
 
     expect(response && response.content).toBe('engageMessage');
@@ -525,11 +552,13 @@ describe('rest', () => {
       {
         customerId: customer._id,
         type: 'email',
-        value: 'email',
-      },
+        value: 'email'
+      }
     );
 
-    expect(customer.visitorContactInfo && customer.visitorContactInfo.email).toBe('email');
+    expect(
+      customer.visitorContactInfo && customer.visitorContactInfo.email
+    ).toBe('email');
   });
 
   test('widgetsSendTypingInfo', async () => {
@@ -538,8 +567,8 @@ describe('rest', () => {
     const response = await widgetMutations.widgetsSendTypingInfo(
       {},
       {
-        conversationId: conversation._id,
-      },
+        conversationId: conversation._id
+      }
     );
 
     expect(response).toBe('ok');
@@ -552,7 +581,7 @@ describe('rest', () => {
     const message = await conversationMessageFactory({
       conversationId: conversation._id,
       userId: user._id,
-      isCustomerRead: false,
+      isCustomerRead: false
     });
 
     expect(message.isCustomerRead).toBe(false);
@@ -560,11 +589,13 @@ describe('rest', () => {
     await widgetMutations.widgetsReadConversationMessages(
       {},
       {
-        conversationId: conversation._id,
-      },
+        conversationId: conversation._id
+      }
     );
 
-    const updatedMessage = await ConversationMessages.findOne({ _id: message._id });
+    const updatedMessage = await ConversationMessages.findOne({
+      _id: message._id
+    });
 
     expect(updatedMessage && updatedMessage.isCustomerRead).toBe(true);
   });
@@ -575,10 +606,10 @@ describe('rest', () => {
       messengerData: {
         messages: {
           en: {
-            welcome: 'welcome',
-          },
-        },
-      },
+            welcome: 'welcome'
+          }
+        }
+      }
     });
 
     const response = await getMessengerData(integration);
@@ -590,20 +621,26 @@ describe('rest', () => {
 describe('knowledgebase', () => {
   test('widgetsKnowledgebaseIncReactionCount', async () => {
     const article = await knowledgeBaseArticleFactory({
-      reactionChoices: ['wow'],
+      reactionChoices: ['wow']
     });
 
     await widgetMutations.widgetsKnowledgebaseIncReactionCount(
       {},
       {
         articleId: article._id,
-        reactionChoice: 'wow',
-      },
+        reactionChoice: 'wow'
+      }
     );
 
-    const updatedArticle = await KnowledgeBaseArticles.findOne({ _id: article._id });
+    const updatedArticle = await KnowledgeBaseArticles.findOne({
+      _id: article._id
+    });
 
-    expect(updatedArticle && updatedArticle.reactionCounts && updatedArticle.reactionCounts.wow).toBe(1);
+    expect(
+      updatedArticle &&
+        updatedArticle.reactionCounts &&
+        updatedArticle.reactionCounts.wow
+    ).toBe(1);
   });
 });
 
@@ -624,13 +661,15 @@ describe('lead', () => {
     await widgetMutations.widgetsLeadIncreaseViewCount(
       {},
       {
-        formId: form._id,
-      },
+        formId: form._id
+      }
     );
 
     const updatedInteg = await Integrations.findOne({ _id: integration._id });
 
-    expect(updatedInteg && updatedInteg.leadData && updatedInteg.leadData.viewCount).toBe(1);
+    expect(
+      updatedInteg && updatedInteg.leadData && updatedInteg.leadData.viewCount
+    ).toBe(1);
   });
 
   test('leadConnect: not found', async () => {
@@ -640,8 +679,8 @@ describe('lead', () => {
         {},
         {
           brandCode: 'code',
-          formCode: 'code',
-        },
+          formCode: 'code'
+        }
       );
     } catch (e) {
       expect(e.message).toBe('Invalid configuration');
@@ -655,8 +694,8 @@ describe('lead', () => {
         {},
         {
           brandCode: brand.code || '',
-          formCode: form.code || '',
-        },
+          formCode: form.code || ''
+        }
       );
     } catch (e) {
       expect(e.message).toBe('Integration not found');
@@ -675,16 +714,16 @@ describe('lead', () => {
       brandId: brand._id,
       formId: form._id,
       leadData: {
-        loadType: 'embedded',
-      },
+        loadType: 'embedded'
+      }
     });
 
     const response = await widgetMutations.widgetsLeadConnect(
       {},
       {
         brandCode: brand.code || '',
-        formCode: form.code || '',
-      },
+        formCode: form.code || ''
+      }
     );
 
     expect(response && response.integration._id).toBe(integration._id);
@@ -706,19 +745,22 @@ describe('lead', () => {
       formId: form._id,
       leadData: {
         loadType: 'embedded',
-        isRequireOnce: true,
-      },
+        isRequireOnce: true
+      }
     });
 
-    const conversation = await conversationFactory({ customerId: '123123', integrationId: integration._id });
+    const conversation = await conversationFactory({
+      customerId: '123123',
+      integrationId: integration._id
+    });
 
     const response = await widgetMutations.widgetsLeadConnect(
       {},
       {
         brandCode: brand.code || '',
         formCode: form.code || '',
-        cachedCustomerId: '123123',
-      },
+        cachedCustomerId: '123123'
+      }
     );
     expect(conversation).toBeDefined();
     expect(response).toBeNull();
@@ -733,8 +775,8 @@ describe('lead', () => {
           integrationId: '_id',
           formId: '_id',
           submissions: [{ _id: 'id', value: null }],
-          browserInfo: {},
-        },
+          browserInfo: {}
+        }
       );
     } catch (e) {
       expect(e.message).toBe('Form not found');
@@ -746,7 +788,7 @@ describe('lead', () => {
 
     const requiredField = await fieldFactory({
       contentTypeId: form._id,
-      isRequired: true,
+      isRequired: true
     });
 
     const integration = await integrationFactory({ formId: form._id });
@@ -758,9 +800,9 @@ describe('lead', () => {
         formId: form._id,
         submissions: [{ _id: requiredField._id, value: null }],
         browserInfo: {
-          currentPageUrl: '/page',
-        },
-      },
+          currentPageUrl: '/page'
+        }
+      }
     );
 
     expect(response && response.status).toBe('error');
@@ -777,41 +819,41 @@ describe('lead', () => {
       type: 'email',
       contentTypeId: form._id,
       validation: 'text',
-      isRequired: true,
+      isRequired: true
     });
 
     const firstNameField = await fieldFactory({
       type: 'firstName',
       contentTypeId: form._id,
       validation: 'text',
-      isRequired: true,
+      isRequired: true
     });
 
     const lastNameField = await fieldFactory({
       type: 'lastName',
       contentTypeId: form._id,
       validation: 'text',
-      isRequired: true,
+      isRequired: true
     });
 
     const phoneField = await fieldFactory({
       type: 'phone',
       contentTypeId: form._id,
-      isRequired: true,
+      isRequired: true
     });
 
     const checkField = await fieldFactory({
       type: 'check',
       contentTypeId: form._id,
       validation: 'text',
-      options: ['check1', 'check2'],
+      options: ['check1', 'check2']
     });
 
     const radioField = await fieldFactory({
       type: 'radio',
       contentTypeId: form._id,
       validation: 'text',
-      options: ['radio1', 'radio2'],
+      options: ['radio1', 'radio2']
     });
 
     const integration = await integrationFactory({ formId: form._id });
@@ -827,12 +869,12 @@ describe('lead', () => {
           { _id: lastNameField._id, type: 'lastName', value: 'lastName' },
           { _id: phoneField._id, type: 'phone', value: '+88998833' },
           { _id: radioField._id, type: 'radio', value: 'radio2' },
-          { _id: checkField._id, type: 'check', value: 'check1, check2' },
+          { _id: checkField._id, type: 'check', value: 'check1, check2' }
         ],
         browserInfo: {
-          currentPageUrl: '/page',
-        },
-      },
+          currentPageUrl: '/page'
+        }
+      }
     );
 
     expect(response && response.status).toBe('ok');
@@ -863,7 +905,7 @@ describe('lead', () => {
       toEmails: ['test-mail@gmail.com'],
       fromEmail: 'admin@erxes.io',
       title: 'Thank you for submitting.',
-      content: 'We have received your request',
+      content: 'We have received your request'
     };
 
     const spyEmail = jest.spyOn(widgetMutations, 'widgetsSendEmail');
@@ -876,7 +918,11 @@ describe('lead', () => {
 
     spyEmail.mockImplementation(() => Promise.resolve());
 
-    const response = await graphqlRequest(mutation, 'widgetsSendEmail', emailParams);
+    const response = await graphqlRequest(
+      mutation,
+      'widgetsSendEmail',
+      emailParams
+    );
 
     expect(response).toBe(null);
 

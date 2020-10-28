@@ -8,7 +8,7 @@ const sendElkRequest = (data, index: string) => {
   switch (operationType) {
     case 'update': {
       const body = {
-        doc: data.updateDescription.updatedFields || {},
+        doc: data.updateDescription.updatedFields || {}
       };
 
       return fetchElk('update', index, body, documentKey._id);

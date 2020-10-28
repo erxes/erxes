@@ -1,5 +1,9 @@
 import { graphqlRequest } from '../db/connection';
-import { productCategoryFactory, productFactory, tagsFactory } from '../db/factories';
+import {
+  productCategoryFactory,
+  productFactory,
+  tagsFactory
+} from '../db/factories';
 import { ProductCategories, Products, Tags } from '../db/models';
 
 import './setup.ts';
@@ -44,11 +48,17 @@ describe('Test products mutations', () => {
   beforeEach(async () => {
     // Creating test data
     parentCategory = await productCategoryFactory();
-    productCategory = await productCategoryFactory({ parentId: parentCategory._id });
+    productCategory = await productCategoryFactory({
+      parentId: parentCategory._id
+    });
 
     const tag = await tagsFactory();
 
-    product = await productFactory({ type: 'product', categoryId: productCategory._id, tagIds: [tag._id] });
+    product = await productFactory({
+      type: 'product',
+      categoryId: productCategory._id,
+      tagIds: [tag._id]
+    });
   });
 
   afterEach(async () => {
@@ -65,7 +75,7 @@ describe('Test products mutations', () => {
       sku: product.sku,
       description: product.description,
       categoryId: productCategory._id,
-      code: '123',
+      code: '123'
     };
 
     const mutation = `
@@ -100,7 +110,7 @@ describe('Test products mutations', () => {
       sku: product.sku,
       description: product.description,
       code: product.code,
-      categoryId: category2._id,
+      categoryId: category2._id
     };
 
     const mutation = `
@@ -131,7 +141,9 @@ describe('Test products mutations', () => {
       }
     `;
 
-    await graphqlRequest(mutation, 'productsRemove', { productIds: [product._id] });
+    await graphqlRequest(mutation, 'productsRemove', {
+      productIds: [product._id]
+    });
 
     expect(await Products.findOne({ _id: product._id })).toBe(null);
   });
@@ -141,7 +153,7 @@ describe('Test products mutations', () => {
       name: productCategory.name,
       code: '123',
       description: productCategory.description,
-      parentId: productCategory._id,
+      parentId: productCategory._id
     };
 
     const mutation = `
@@ -156,7 +168,11 @@ describe('Test products mutations', () => {
       }
     `;
 
-    const createdProduct = await graphqlRequest(mutation, 'productCategoriesAdd', args);
+    const createdProduct = await graphqlRequest(
+      mutation,
+      'productCategoriesAdd',
+      args
+    );
 
     expect(createdProduct.name).toEqual(args.name);
     expect(createdProduct.code).toEqual(args.code);
@@ -171,7 +187,7 @@ describe('Test products mutations', () => {
       _id: productCategory._id,
       name: 'updated',
       code: 'updatedCode',
-      parentId: secondParent._id,
+      parentId: secondParent._id
     };
 
     const mutation = `
@@ -186,7 +202,11 @@ describe('Test products mutations', () => {
       }
     `;
 
-    const updatedProductCategory = await graphqlRequest(mutation, 'productCategoriesEdit', args);
+    const updatedProductCategory = await graphqlRequest(
+      mutation,
+      'productCategoriesEdit',
+      args
+    );
 
     expect(updatedProductCategory._id).toEqual(args._id);
     expect(updatedProductCategory.name).toEqual(args.name);
@@ -203,8 +223,12 @@ describe('Test products mutations', () => {
     // remove product before the category
     await Products.remove({ categoryId: productCategory._id });
 
-    await graphqlRequest(mutation, 'productCategoriesRemove', { _id: productCategory._id });
+    await graphqlRequest(mutation, 'productCategoriesRemove', {
+      _id: productCategory._id
+    });
 
-    expect(await ProductCategories.findOne({ _id: productCategory._id })).toBe(null);
+    expect(await ProductCategories.findOne({ _id: productCategory._id })).toBe(
+      null
+    );
   });
 });

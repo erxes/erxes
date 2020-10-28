@@ -2,7 +2,11 @@ import { Model, model } from 'mongoose';
 import * as strip from 'strip';
 import { Conversations } from '.';
 import { MESSAGE_TYPES } from './definitions/constants';
-import { IMessage, IMessageDocument, messageSchema } from './definitions/conversationMessages';
+import {
+  IMessage,
+  IMessageDocument,
+  messageSchema
+} from './definitions/conversationMessages';
 
 export interface IMessageModel extends Model<IMessageDocument> {
   getMessage(_id: string): Promise<IMessageDocument>;
@@ -12,7 +16,9 @@ export interface IMessageModel extends Model<IMessageDocument> {
   getAdminMessages(conversationId: string);
   widgetsGetUnreadMessagesCount(conversationId: string): Promise<number>;
   markSentAsReadMessages(conversationId: string): Promise<IMessageDocument>;
-  forceReadCustomerPreviousEngageMessages(customerId: string): Promise<IMessageDocument>;
+  forceReadCustomerPreviousEngageMessages(
+    customerId: string
+  ): Promise<IMessageDocument>;
 }
 
 export const loadClass = () => {
@@ -36,16 +42,20 @@ export const loadClass = () => {
       const message = await Messages.create({
         internal: false,
         ...doc,
-        createdAt: doc.createdAt || new Date(),
+        createdAt: doc.createdAt || new Date()
       });
 
       const messageCount = await Messages.find({
-        conversationId: message.conversationId,
+        conversationId: message.conversationId
       }).countDocuments();
 
       // update conversation ====
-      const convDocModifier: { messageCount?: number; updatedAt: Date; isCustomerRespondedLast?: boolean } = {
-        updatedAt: new Date(),
+      const convDocModifier: {
+        messageCount?: number;
+        updatedAt: Date;
+        isCustomerRespondedLast?: boolean;
+      } = {
+        updatedAt: new Date()
       };
 
       if (!doc.fromBot) {
@@ -53,15 +63,24 @@ export const loadClass = () => {
         convDocModifier.isCustomerRespondedLast = doc.customerId ? true : false;
       }
 
-      await Conversations.updateConversation(message.conversationId, convDocModifier);
+      await Conversations.updateConversation(
+        message.conversationId,
+        convDocModifier
+      );
 
       if (message.userId) {
         // add created user to participators
-        await Conversations.addParticipatedUsers(message.conversationId, message.userId);
+        await Conversations.addParticipatedUsers(
+          message.conversationId,
+          message.userId
+        );
       }
 
       // add mentioned users to participators
-      await Conversations.addManyParticipatedUsers(message.conversationId, message.mentionedUserIds || []);
+      await Conversations.addManyParticipatedUsers(
+        message.conversationId,
+        message.mentionedUserIds || []
+      );
 
       return message;
     }
@@ -71,7 +90,7 @@ export const loadClass = () => {
      */
     public static async addMessage(doc: IMessage, userId?: string) {
       const conversation = await Conversations.findOne({
-        _id: doc.conversationId,
+        _id: doc.conversationId
       });
 
       if (!conversation) {
@@ -86,10 +105,15 @@ export const loadClass = () => {
       doc.attachments = attachments;
 
       // <img> tags wrapped inside empty <p> tag should be allowed
-      const contentValid = content.indexOf('<img') !== -1 ? true : strip(content);
+      const contentValid =
+        content.indexOf('<img') !== -1 ? true : strip(content);
 
       // if there is no attachments and no content then throw content required error
-      if (doc.contentType !== MESSAGE_TYPES.VIDEO_CALL && attachments.length === 0 && !contentValid) {
+      if (
+        doc.contentType !== MESSAGE_TYPES.VIDEO_CALL &&
+        attachments.length === 0 &&
+        !contentValid
+      ) {
         throw new Error('Content is required');
       }
 
@@ -120,7 +144,7 @@ export const loadClass = () => {
     public static getNonAsnweredMessage(conversationId: string) {
       return Messages.findOne({
         conversationId,
-        customerId: { $exists: true },
+        customerId: { $exists: true }
       }).sort({ createdAt: -1 });
     }
 
@@ -134,7 +158,7 @@ export const loadClass = () => {
         isCustomerRead: { $ne: true },
 
         // exclude internal notes
-        internal: false,
+        internal: false
       }).sort({ createdAt: 1 });
     }
 
@@ -143,7 +167,7 @@ export const loadClass = () => {
         conversationId,
         userId: { $exists: true },
         internal: false,
-        isCustomerRead: { $ne: true },
+        isCustomerRead: { $ne: true }
       });
     }
 
@@ -155,10 +179,10 @@ export const loadClass = () => {
         {
           conversationId,
           userId: { $exists: true },
-          isCustomerRead: { $ne: true },
+          isCustomerRead: { $ne: true }
         },
         { $set: { isCustomerRead: true } },
-        { multi: true },
+        { multi: true }
       );
     }
 
@@ -171,10 +195,10 @@ export const loadClass = () => {
           customerId,
           engageData: { $exists: true },
           'engageData.engageKind': { $ne: 'auto' },
-          isCustomerRead: { $ne: true },
+          isCustomerRead: { $ne: true }
         },
         { $set: { isCustomerRead: true } },
-        { multi: true },
+        { multi: true }
       );
     }
   }
@@ -187,6 +211,9 @@ export const loadClass = () => {
 loadClass();
 
 // tslint:disable-next-line
-const Messages = model<IMessageDocument, IMessageModel>('conversation_messages', messageSchema);
+const Messages = model<IMessageDocument, IMessageModel>(
+  'conversation_messages',
+  messageSchema
+);
 
 export default Messages;

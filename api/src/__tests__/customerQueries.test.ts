@@ -8,7 +8,7 @@ import {
   formSubmissionFactory,
   integrationFactory,
   segmentFactory,
-  tagsFactory,
+  tagsFactory
 } from '../db/factories';
 import { Customers, FormSubmissions, Segments, Tags } from '../db/models';
 import * as elk from '../elasticsearch';
@@ -110,7 +110,10 @@ describe('customerQueries', () => {
     // Creating test data
     await segmentFactory({ contentType: 'customer' });
 
-    const args = { only: 'bySegment', ids: [customer1._id, customer2._id, customer3._id] };
+    const args = {
+      only: 'bySegment',
+      ids: [customer1._id, customer2._id, customer3._id]
+    };
 
     await graphqlRequest(qryCount, 'customerCounts', args);
   });
@@ -128,7 +131,7 @@ describe('customerQueries', () => {
     await brandFactory({});
 
     await graphqlRequest(qryCount, 'customerCounts', {
-      only: 'byBrand',
+      only: 'byBrand'
     });
   });
 
@@ -137,7 +140,7 @@ describe('customerQueries', () => {
     await tagsFactory({ type: 'customer' });
 
     await graphqlRequest(qryCount, 'customerCounts', {
-      only: 'byTag',
+      only: 'byTag'
     });
   });
 
@@ -145,13 +148,13 @@ describe('customerQueries', () => {
     await formFactory({});
 
     await graphqlRequest(qryCount, 'customerCounts', {
-      only: 'byForm',
+      only: 'byForm'
     });
   });
 
   test('Customer count by leadStatus', async () => {
     await graphqlRequest(qryCount, 'customerCounts', {
-      only: 'byLeadStatus',
+      only: 'byLeadStatus'
     });
   });
 
@@ -159,7 +162,7 @@ describe('customerQueries', () => {
     await integrationFactory({ kind: '' });
 
     await graphqlRequest(qryCount, 'customerCounts', {
-      only: 'byIntegrationType',
+      only: 'byIntegrationType'
     });
   });
 
@@ -169,11 +172,17 @@ describe('customerQueries', () => {
 
     const form = await formFactory({});
 
-    await formSubmissionFactory({ customerId: customer1._id, formId: form._id });
-    await formSubmissionFactory({ customerId: customer2._id, formId: form._id });
+    await formSubmissionFactory({
+      customerId: customer1._id,
+      formId: form._id
+    });
+    await formSubmissionFactory({
+      customerId: customer2._id,
+      formId: form._id
+    });
 
     await graphqlRequest(qryCustomersMain, 'customersMain', {
-      form: form._id,
+      form: form._id
     });
   });
 
@@ -191,13 +200,19 @@ describe('customerQueries', () => {
 
     // Creating 3 submissions for form
     await formSubmissionFactory({ customerId: customer._id, formId: form._id });
-    await formSubmissionFactory({ customerId: customer1._id, formId: form._id });
-    await formSubmissionFactory({ customerId: customer2._id, formId: form._id });
+    await formSubmissionFactory({
+      customerId: customer1._id,
+      formId: form._id
+    });
+    await formSubmissionFactory({
+      customerId: customer2._id,
+      formId: form._id
+    });
 
     const args = {
       startDate,
       endDate,
-      form: form._id,
+      form: form._id
     };
 
     await graphqlRequest(qryCustomersMain, 'customersMain', args);
@@ -214,7 +229,9 @@ describe('customerQueries', () => {
 
     const mock = sinon.stub(elk, 'fetchElk').callsFake(() => {
       return Promise.resolve({
-        hits: { hits: [{ _source: { count: 1, attributes: [{ url: '/test' }] } }] },
+        hits: {
+          hits: [{ _source: { count: 1, attributes: [{ url: '/test' }] } }]
+        }
       });
     });
 
@@ -257,7 +274,7 @@ describe('customerQueries', () => {
     `;
 
     const response = await graphqlRequest(qry, 'customerDetail', {
-      _id: customer._id,
+      _id: customer._id
     });
 
     mock.restore();

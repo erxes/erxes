@@ -50,25 +50,25 @@ export const fieldSchema = new Schema({
   validation: field({
     type: String,
     optional: true,
-    label: 'Validation',
+    label: 'Validation'
   }),
   text: field({ type: String, label: 'Text' }),
   description: field({
     type: String,
     optional: true,
-    label: 'Description',
+    label: 'Description'
   }),
   options: field({
     type: [String],
     optional: true,
-    label: 'Options',
+    label: 'Options'
   }),
   isRequired: field({ type: Boolean, label: 'Is required' }),
   isDefinedByErxes: field({ type: Boolean, label: 'Is defined by erxes' }),
   order: field({ type: Number, label: 'Order' }),
   groupId: field({ type: String, label: 'Field group' }),
   isVisible: field({ type: Boolean, default: true, label: 'Is visible' }),
-  lastUpdatedUserId: field({ type: String, label: 'Last updated by' }),
+  lastUpdatedUserId: field({ type: String, label: 'Last updated by' })
 });
 
 export const fieldGroupSchema = schemaWrapper(
@@ -76,12 +76,20 @@ export const fieldGroupSchema = schemaWrapper(
     _id: field({ pkey: true }),
     name: field({ type: String, label: 'Name' }),
     // customer, company
-    contentType: field({ type: String, enum: FIELDS_GROUPS_CONTENT_TYPES.ALL, label: 'Content type' }),
+    contentType: field({
+      type: String,
+      enum: FIELDS_GROUPS_CONTENT_TYPES.ALL,
+      label: 'Content type'
+    }),
     order: field({ type: Number, label: 'Order' }),
-    isDefinedByErxes: field({ type: Boolean, default: false, label: 'Is defined by erxes' }),
+    isDefinedByErxes: field({
+      type: Boolean,
+      default: false,
+      label: 'Is defined by erxes'
+    }),
     description: field({ type: String, label: 'Description' }),
     // Id of user who updated the group
     lastUpdatedUserId: field({ type: String, label: 'Last updated by' }),
-    isVisible: field({ type: Boolean, default: true, label: 'Is visible' }),
-  }),
+    isVisible: field({ type: Boolean, default: true, label: 'Is visible' })
+  })
 );

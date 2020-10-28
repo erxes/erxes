@@ -1,4 +1,9 @@
-import { brandFactory, formFactory, integrationFactory, scriptFactory } from '../db/factories';
+import {
+  brandFactory,
+  formFactory,
+  integrationFactory,
+  scriptFactory
+} from '../db/factories';
 import { Scripts } from '../db/models';
 import './setup.ts';
 
@@ -32,11 +37,14 @@ describe('Script model tests', () => {
 
   test('Create script (Messenger)', async () => {
     const brand = await brandFactory();
-    const messenger = await integrationFactory({ kind: 'messenger', brandId: brand._id });
+    const messenger = await integrationFactory({
+      kind: 'messenger',
+      brandId: brand._id
+    });
 
     const doc = {
       name: 'script',
-      messengerId: messenger._id,
+      messengerId: messenger._id
     };
 
     const response = await Scripts.createScript(doc);
@@ -50,7 +58,7 @@ describe('Script model tests', () => {
 
     const doc = {
       name: 'script',
-      messengerId: messenger._id,
+      messengerId: messenger._id
     };
 
     try {
@@ -64,11 +72,15 @@ describe('Script model tests', () => {
     const brand = await brandFactory();
     const form = await formFactory();
 
-    const lead = await integrationFactory({ kind: 'lead', formId: form._id, brandId: brand._id });
+    const lead = await integrationFactory({
+      kind: 'lead',
+      formId: form._id,
+      brandId: brand._id
+    });
 
     const doc = {
       name: 'script',
-      leadIds: [lead._id],
+      leadIds: [lead._id]
     };
 
     const response = await Scripts.createScript(doc);
@@ -84,7 +96,7 @@ describe('Script model tests', () => {
 
     const doc = {
       name: 'script',
-      leadIds: [lead._id],
+      leadIds: [lead._id]
     };
 
     try {
@@ -101,7 +113,7 @@ describe('Script model tests', () => {
 
     const doc = {
       name: 'script',
-      leadIds: [lead._id],
+      leadIds: [lead._id]
     };
 
     try {

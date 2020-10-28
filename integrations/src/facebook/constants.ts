@@ -1,1 +1,7 @@
-export const FACEBOOK_POST_TYPES = ['status', 'video', 'photo', 'post', 'share'];
+export const FACEBOOK_POST_TYPES = [
+  'status',
+  'video',
+  'photo',
+  'post',
+  'share'
+];

@@ -1,7 +1,16 @@
-import { dealFactory, fieldFactory, productCategoryFactory, productFactory } from '../db/factories';
+import {
+  dealFactory,
+  fieldFactory,
+  productCategoryFactory,
+  productFactory
+} from '../db/factories';
 import { Deals, ProductCategories, Products } from '../db/models';
 
-import { IDealDocument, IProductCategoryDocument, IProductDocument } from '../db/models/definitions/deals';
+import {
+  IDealDocument,
+  IProductCategoryDocument,
+  IProductDocument
+} from '../db/models/definitions/deals';
 import './setup.ts';
 
 describe('Test products model', () => {
@@ -44,7 +53,7 @@ describe('Test products model', () => {
       description: product.description,
       sku: product.sku,
       categoryId: productCategory._id,
-      code: '123',
+      code: '123'
     };
 
     let productObj = await Products.createProduct(args);
@@ -70,7 +79,7 @@ describe('Test products model', () => {
       description: `${product.description}-update`,
       sku: `${product.sku}-update`,
       categoryId: productCategory._id,
-      code: '321',
+      code: '321'
     };
 
     let productObj = await Products.updateProduct(product._id, args);
@@ -82,12 +91,19 @@ describe('Test products model', () => {
     expect(productObj.sku).toEqual(`${product.sku}-update`);
 
     // testing custom field data
-    const field1 = await fieldFactory({ contentType: 'product', contentTypeId: product._id });
-    const field2 = await fieldFactory({ contentType: 'product', contentTypeId: product._id, validation: 'date' });
+    const field1 = await fieldFactory({
+      contentType: 'product',
+      contentTypeId: product._id
+    });
+    const field2 = await fieldFactory({
+      contentType: 'product',
+      contentTypeId: product._id,
+      validation: 'date'
+    });
 
     args.customFieldsData = [
       { field: field1._id, value: 10 },
-      { field: field2._id, value: '2011-01-01' },
+      { field: field2._id, value: '2011-01-01' }
     ];
 
     productObj = await Products.updateProduct(product._id, args);
@@ -103,7 +119,9 @@ describe('Test products model', () => {
     try {
       await Products.removeProducts([product._id]);
     } catch (e) {
-      expect(e.message).toEqual(`Can not remove products. Following deals are used ${deal.name},${deal2.name}`);
+      expect(e.message).toEqual(
+        `Can not remove products. Following deals are used ${deal.name},${deal2.name}`
+      );
     }
   });
 
@@ -123,7 +141,9 @@ describe('Test products model', () => {
       expect(e.message).toBe('Product & service category not found');
     }
 
-    const response = await ProductCategories.getProductCatogery({ _id: productCategory._id });
+    const response = await ProductCategories.getProductCatogery({
+      _id: productCategory._id
+    });
 
     expect(response).toBeDefined();
   });
@@ -131,7 +151,7 @@ describe('Test products model', () => {
   test('Create product category', async () => {
     const doc: any = {
       name: 'Product name',
-      code: 'create1234',
+      code: 'create1234'
     };
 
     let response = await ProductCategories.createProductCategory(doc);
@@ -149,12 +169,14 @@ describe('Test products model', () => {
   });
 
   test('Update product category (Error: Cannot change category)', async () => {
-    const parentCategory = await productCategoryFactory({ parentId: productCategory._id });
+    const parentCategory = await productCategoryFactory({
+      parentId: productCategory._id
+    });
 
     const doc: any = {
       name: 'Updated product name',
       code: 'error1234',
-      parentId: parentCategory._id,
+      parentId: parentCategory._id
     };
 
     try {
@@ -167,10 +189,13 @@ describe('Test products model', () => {
   test('Update product category', async () => {
     const doc: any = {
       name: 'Updated product name',
-      code: 'update1234',
+      code: 'update1234'
     };
 
-    let response = await ProductCategories.updateProductCategory(productCategory._id, doc);
+    let response = await ProductCategories.updateProductCategory(
+      productCategory._id,
+      doc
+    );
 
     expect(response.name).toBe(doc.name);
     expect(response.code).toBe(doc.code);
@@ -180,12 +205,17 @@ describe('Test products model', () => {
       name: 'name',
       code: 'create123456',
       parentId: productCategory._id,
-      order: 'order',
+      order: 'order'
     });
 
-    response = await ProductCategories.updateProductCategory(productCategory._id, doc);
+    response = await ProductCategories.updateProductCategory(
+      productCategory._id,
+      doc
+    );
 
-    expect(childCategory.order).toBe(`${response.order}/${childCategory.name}${childCategory.code}`);
+    expect(childCategory.order).toBe(
+      `${response.order}/${childCategory.name}${childCategory.code}`
+    );
   });
 
   test('Remove product category', async () => {

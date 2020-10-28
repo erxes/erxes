@@ -59,13 +59,13 @@ jobs:
 
       - name: Install dependencies
         run: |
+          yarn install
           cd api
           yarn install
 
       - name: Lint
         run: |
-          cd api
-          yarn lint
+          yarn lint api
 
       - name: Tsc
         run: |

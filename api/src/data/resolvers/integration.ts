@@ -21,22 +21,31 @@ export default {
 
   websiteMessengerApps(integration: IIntegrationDocument) {
     if (integration.kind === KIND_CHOICES.MESSENGER) {
-      return MessengerApps.find({ kind: 'website', 'credentials.integrationId': integration._id });
+      return MessengerApps.find({
+        kind: 'website',
+        'credentials.integrationId': integration._id
+      });
     }
     return [];
   },
 
   knowledgeBaseMessengerApps(integration: IIntegrationDocument) {
     if (integration.kind === KIND_CHOICES.MESSENGER) {
-      return MessengerApps.find({ kind: 'knowledgebase', 'credentials.integrationId': integration._id });
+      return MessengerApps.find({
+        kind: 'knowledgebase',
+        'credentials.integrationId': integration._id
+      });
     }
     return [];
   },
 
   leadMessengerApps(integration: IIntegrationDocument) {
     if (integration.kind === KIND_CHOICES.MESSENGER) {
-      return MessengerApps.find({ kind: 'lead', 'credentials.integrationId': integration._id });
+      return MessengerApps.find({
+        kind: 'lead',
+        'credentials.integrationId': integration._id
+      });
     }
     return [];
-  },
+  }
 };

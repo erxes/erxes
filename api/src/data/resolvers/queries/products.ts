@@ -26,7 +26,7 @@ const productQueries = {
       page: number;
       perPage: number;
     },
-    { commonQuerySelector }: IContext,
+    { commonQuerySelector }: IContext
   ) {
     const filter: any = commonQuerySelector;
 
@@ -50,7 +50,7 @@ const productQueries = {
     if (searchValue) {
       const fields = [
         { name: { $in: [new RegExp(`.*${searchValue}.*`, 'i')] } },
-        { code: { $in: [new RegExp(`.*${searchValue}.*`, 'i')] } },
+        { code: { $in: [new RegExp(`.*${searchValue}.*`, 'i')] } }
       ];
 
       filter.$or = fields;
@@ -62,7 +62,11 @@ const productQueries = {
   /**
    * Get all products count. We will use it in pager
    */
-  productsTotalCount(_root, { type }: { type: string }, { commonQuerySelector }: IContext) {
+  productsTotalCount(
+    _root,
+    { type }: { type: string },
+    { commonQuerySelector }: IContext
+  ) {
     const filter: any = commonQuerySelector;
 
     if (type) {
@@ -75,7 +79,7 @@ const productQueries = {
   productCategories(
     _root,
     { parentId, searchValue }: { parentId: string; searchValue: string },
-    { commonQuerySelector }: IContext,
+    { commonQuerySelector }: IContext
   ) {
     const filter: any = commonQuerySelector;
 
@@ -109,11 +113,13 @@ const productQueries = {
     const tags = await Tags.find({ type: TAG_TYPES.PRODUCT });
 
     for (const tag of tags) {
-      counts[tag._id] = await Products.find({ tagIds: tag._id }).countDocuments();
+      counts[tag._id] = await Products.find({
+        tagIds: tag._id
+      }).countDocuments();
     }
 
     return counts;
-  },
+  }
 };
 
 requireLogin(productQueries, 'productsTotalCount');

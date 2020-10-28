@@ -1,5 +1,9 @@
 import * as sinon from 'sinon';
-import { ConversationMessages, Conversations, Customers } from '../facebook/models';
+import {
+  ConversationMessages,
+  Conversations,
+  Customers
+} from '../facebook/models';
 import {
   accountFactory,
   facebookConversationFactory,
@@ -8,12 +12,16 @@ import {
   integrationFactory,
   nylasGmailConversationFactory,
   nylasGmailConversationMessageFactory,
-  nylasGmailCustomerFactory,
+  nylasGmailCustomerFactory
 } from '../factories';
 import { removeAccount, removeIntegration } from '../helpers';
 import { Accounts, Integrations } from '../models';
 import * as nylasApi from '../nylas/api';
-import { NylasGmailConversationMessages, NylasGmailConversations, NylasGmailCustomers } from '../nylas/models';
+import {
+  NylasGmailConversationMessages,
+  NylasGmailConversations,
+  NylasGmailCustomers
+} from '../nylas/models';
 import './setup.ts';
 
 describe('Facebook remove integration test', async () => {
@@ -28,13 +36,13 @@ describe('Facebook remove integration test', async () => {
     const integration1 = await integrationFactory({
       kind: 'facebook',
       accountId: account._id,
-      erxesApiId: 'jaskjda',
+      erxesApiId: 'jaskjda'
     });
 
     const integration2 = await integrationFactory({
       kind: 'facebook',
       accountId: account._id,
-      erxesApiId: 'asljkdas',
+      erxesApiId: 'asljkdas'
     });
 
     accountId = account._id;
@@ -55,18 +63,25 @@ describe('Facebook remove integration test', async () => {
 
   const entryFactory = async userId => {
     const customer = await facebookCustomerFactory({ userId });
-    const conversation = await facebookConversationFactory({ senderId: '_id', recipientId: 'pageId' });
-    const message = await facebookConversationMessagFactory({ conversationId: conversation._id });
+    const conversation = await facebookConversationFactory({
+      senderId: '_id',
+      recipientId: 'pageId'
+    });
+    const message = await facebookConversationMessagFactory({
+      conversationId: conversation._id
+    });
 
     return {
       customerId: customer._id,
       conversationId: conversation._id,
-      messageId: message._id,
+      messageId: message._id
     };
   };
 
   test('Remove facebook by accountId', async () => {
-    const { customerId, conversationId, messageId } = await entryFactory('asdkalsjd');
+    const { customerId, conversationId, messageId } = await entryFactory(
+      'asdkalsjd'
+    );
 
     const erxesApiIds = await removeAccount(accountId);
 
@@ -77,15 +92,23 @@ describe('Facebook remove integration test', async () => {
 
     // Remove entries
     expect(await Conversations.findOne({ _id: customerId })).toBe(null);
-    expect(await ConversationMessages.findOne({ _id: conversationId })).toBe(null);
+    expect(await ConversationMessages.findOne({ _id: conversationId })).toBe(
+      null
+    );
     expect(await Customers.findOne({ _id: messageId })).toBe(null);
   });
 
   test('Remove facebook integartion by integartionId', async () => {
-    const { customerId, conversationId, messageId } = await entryFactory('wejlk123j');
+    const { customerId, conversationId, messageId } = await entryFactory(
+      'wejlk123j'
+    );
 
-    expect(await Conversations.findOne({ _id: conversationId }).count()).toEqual(1);
-    expect(await ConversationMessages.findOne({ _id: messageId }).count()).toEqual(1);
+    expect(
+      await Conversations.findOne({ _id: conversationId }).count()
+    ).toEqual(1);
+    expect(
+      await ConversationMessages.findOne({ _id: messageId }).count()
+    ).toEqual(1);
     expect(await Customers.findOne({ _id: customerId }).count()).toEqual(1);
 
     const erxesApiId = await removeIntegration(erxesApiId1);
@@ -96,7 +119,9 @@ describe('Facebook remove integration test', async () => {
 
     // Remove entries
     expect(await Conversations.findOne({ _id: customerId })).toBe(null);
-    expect(await ConversationMessages.findOne({ _id: conversationId })).toBe(null);
+    expect(await ConversationMessages.findOne({ _id: conversationId })).toBe(
+      null
+    );
     expect(await Customers.findOne({ _id: messageId })).toBe(null);
   });
 });
@@ -112,7 +137,7 @@ describe('Nylas remove integration test', () => {
       ...doc,
       nylasAccountId: 'nylasAccountId',
       nylasToken: 'nylasToken',
-      erxesApiId: 'alkjdlkj',
+      erxesApiId: 'alkjdlkj'
     });
 
     integrationId = integration._id;
@@ -131,28 +156,30 @@ describe('Nylas remove integration test', () => {
   const entryFactory = async email => {
     const customer = await nylasGmailCustomerFactory({
       email,
-      integrationId,
+      integrationId
     });
 
     const conversation = await nylasGmailConversationFactory({
       customerId: customer._id,
-      integrationId,
+      integrationId
     });
 
     const message = await nylasGmailConversationMessageFactory({
       conversationId: conversation._id,
-      messageId: '123',
+      messageId: '123'
     });
 
     return {
       customerId: customer._id,
       conversationId: conversation._id,
-      messageId: message._id,
+      messageId: message._id
     };
   };
 
   test('Remove nylas-gmail integration by [erxesApiId]', async () => {
-    const { customerId, conversationId, messageId } = await entryFactory('foo@mail.com');
+    const { customerId, conversationId, messageId } = await entryFactory(
+      'foo@mail.com'
+    );
 
     const mock = sinon.stub(nylasApi, 'enableOrDisableAccount').callsFake();
 
@@ -164,8 +191,12 @@ describe('Nylas remove integration test', () => {
 
     // Remove entries
     expect(await NylasGmailCustomers.findOne({ _id: customerId })).toBe(null);
-    expect(await NylasGmailConversations.findOne({ _id: conversationId })).toBe(null);
-    expect(await NylasGmailConversationMessages.findOne({ _id: messageId })).toBe(null);
+    expect(await NylasGmailConversations.findOne({ _id: conversationId })).toBe(
+      null
+    );
+    expect(
+      await NylasGmailConversationMessages.findOne({ _id: messageId })
+    ).toBe(null);
 
     mock.restore();
   });

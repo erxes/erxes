@@ -8,6 +8,9 @@ module.exports.up = async () => {
   const conversations = await Conversations.find({}, { _id: 1, content: 1 });
 
   for (const conversation of conversations) {
-    await Conversations.updateOne({ _id: conversation._id }, { $set: { content: cleanHtml(conversation.content) } });
+    await Conversations.updateOne(
+      { _id: conversation._id },
+      { $set: { content: cleanHtml(conversation.content) } }
+    );
   }
 };

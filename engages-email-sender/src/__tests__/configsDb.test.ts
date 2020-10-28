@@ -6,7 +6,7 @@ test('Test updateConfigs()', async done => {
   const doc = {
     accessKeyId: 'accessKeyId',
     secretAccessKey: 'secretAccessKey',
-    region: 'region',
+    region: 'region'
   };
 
   await Configs.updateConfigs(doc);
@@ -47,7 +47,10 @@ test('Test getConfigs()', async done => {
 test('Test createOrUpdateConfig()', async () => {
   const config = await configFactory({ code: 'code', value: 'value' });
 
-  const updated = await Configs.createOrUpdateConfig({ code: config.code, value: 'updatedValue' });
+  const updated = await Configs.createOrUpdateConfig({
+    code: config.code,
+    value: 'updatedValue'
+  });
 
   expect(updated.value).toBe('updatedValue');
 });

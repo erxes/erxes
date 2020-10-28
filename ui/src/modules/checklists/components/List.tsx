@@ -43,20 +43,14 @@ function List(props: Props) {
   const [title, setTitle] = useState(item.title);
   const [beforeTitle, setBeforeTitle] = useState(item.title);
 
-  useEffect(
-    () => {
-      setItems(item.items);
-    },
-    [item.items]
-  );
+  useEffect(() => {
+    setItems(item.items);
+  }, [item.items]);
 
-  useEffect(
-    () => {
-      setTitle(item.title);
-      setBeforeTitle(item.title);
-    },
-    [item.title]
-  );
+  useEffect(() => {
+    setTitle(item.title);
+    setBeforeTitle(item.title);
+  }, [item.title]);
 
   function onAddItemClick() {
     setIsAddingItem(true);

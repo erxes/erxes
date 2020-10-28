@@ -41,12 +41,8 @@ type Props = {
   totalCount: TotalCount;
 };
 
-function getCount(
-  kind: string,
-  totalCount: TotalCount
-) {
+function getCount(kind: string, totalCount: TotalCount) {
   const countByKind = totalCount[kind];
-
 
   if (typeof countByKind === 'undefined') {
     return null;

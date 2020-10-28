@@ -1,5 +1,9 @@
 import { Model, model } from 'mongoose';
-import { IMessengerApp, IMessengerAppDocument, messengerAppSchema } from './definitions/messengerApps';
+import {
+  IMessengerApp,
+  IMessengerAppDocument,
+  messengerAppSchema
+} from './definitions/messengerApps';
 
 export interface IMessengerAppModel extends Model<IMessengerAppDocument> {
   getApp(_id: string): Promise<IMessengerAppDocument>;
@@ -24,7 +28,11 @@ export const loadClass = () => {
     }
 
     public static async updateApp(_id: string, doc: IMessengerApp) {
-      await MessengerApps.updateOne({ _id }, { $set: doc }, { runValidators: true });
+      await MessengerApps.updateOne(
+        { _id },
+        { $set: doc },
+        { runValidators: true }
+      );
 
       return MessengerApps.findOne({ _id });
     }
@@ -38,6 +46,9 @@ export const loadClass = () => {
 loadClass();
 
 // tslint:disable-next-line
-const MessengerApps = model<IMessengerAppDocument, IMessengerAppModel>('messenger_apps', messengerAppSchema);
+const MessengerApps = model<IMessengerAppDocument, IMessengerAppModel>(
+  'messenger_apps',
+  messengerAppSchema
+);
 
 export default MessengerApps;

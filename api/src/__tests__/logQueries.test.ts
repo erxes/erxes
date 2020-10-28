@@ -53,7 +53,9 @@ describe('log queries', () => {
       }
     `;
 
-    const response = await graphqlRequest(query, 'getDbSchemaLabels', { type: MODULE_NAMES.BRAND });
+    const response = await graphqlRequest(query, 'getDbSchemaLabels', {
+      type: MODULE_NAMES.BRAND
+    });
 
     expect(response).toBeDefined();
   });

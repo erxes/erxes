@@ -1,4 +1,10 @@
-import { Companies, Conformities, Customers, Tags, Users } from '../../db/models';
+import {
+  Companies,
+  Conformities,
+  Customers,
+  Tags,
+  Users
+} from '../../db/models';
 import { ICompanyDocument } from '../../db/models/definitions/companies';
 
 export default {
@@ -6,7 +12,7 @@ export default {
     const customerIds = await Conformities.savedConformity({
       mainType: 'company',
       mainTypeId: company._id,
-      relTypes: ['customer'],
+      relTypes: ['customer']
     });
 
     return Customers.find({ _id: { $in: customerIds || [] } });
@@ -22,5 +28,5 @@ export default {
 
   parentCompany(company: ICompanyDocument) {
     return Companies.findOne({ _id: company.parentCompanyId });
-  },
+  }
 };

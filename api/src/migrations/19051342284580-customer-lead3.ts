@@ -6,11 +6,11 @@ module.exports.up = async () => {
 
   const response = await Customers.updateMany(
     {
-      $or: [{ state: { $exists: false } }, { state: '' }],
+      $or: [{ state: { $exists: false } }, { state: '' }]
     },
     {
-      $set: { state: 'visitor' },
-    },
+      $set: { state: 'visitor' }
+    }
   );
 
   console.log(response);

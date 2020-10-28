@@ -11,19 +11,37 @@ import {
   Integrations,
   KnowledgeBaseArticles,
   MessengerApps,
-  Users,
+  Users
 } from '../../../db/models';
 import Messages from '../../../db/models/ConversationMessages';
-import { IBrowserInfo, IVisitorContactInfoParams } from '../../../db/models/Customers';
-import { CONVERSATION_OPERATOR_STATUS, CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
-import { IIntegrationDocument, IMessengerDataMessagesItem } from '../../../db/models/definitions/integrations';
-import { IKnowledgebaseCredentials, ILeadCredentials } from '../../../db/models/definitions/messengerApps';
+import {
+  IBrowserInfo,
+  IVisitorContactInfoParams
+} from '../../../db/models/Customers';
+import {
+  CONVERSATION_OPERATOR_STATUS,
+  CONVERSATION_STATUSES
+} from '../../../db/models/definitions/constants';
+import {
+  IIntegrationDocument,
+  IMessengerDataMessagesItem
+} from '../../../db/models/definitions/integrations';
+import {
+  IKnowledgebaseCredentials,
+  ILeadCredentials
+} from '../../../db/models/definitions/messengerApps';
 import { debugBase } from '../../../debuggers';
 import { trackViewPageEvent } from '../../../events';
 import memoryStorage from '../../../inmemoryStorage';
 import { graphqlPubsub } from '../../../pubsub';
 import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
-import { registerOnboardHistory, sendEmail, sendMobileNotification, sendRequest, sendToWebhook } from '../../utils';
+import {
+  registerOnboardHistory,
+  sendEmail,
+  sendMobileNotification,
+  sendRequest,
+  sendToWebhook
+} from '../../utils';
 import { conversationNotifReceivers } from './conversations';
 
 interface ISubmission {
@@ -58,20 +76,29 @@ export const getMessengerData = async (integration: IIntegrationDocument) => {
   // knowledgebase app =======
   const kbApp = await MessengerApps.findOne({
     kind: 'knowledgebase',
-    'credentials.integrationId': integration._id,
+    'credentials.integrationId': integration._id
   });
 
-  const topicId = kbApp && kbApp.credentials ? (kbApp.credentials as IKnowledgebaseCredentials).topicId : null;
+  const topicId =
+    kbApp && kbApp.credentials
+      ? (kbApp.credentials as IKnowledgebaseCredentials).topicId
+      : null;
 
   // lead app ==========
-  const leadApp = await MessengerApps.findOne({ kind: 'lead', 'credentials.integrationId': integration._id });
+  const leadApp = await MessengerApps.findOne({
+    kind: 'lead',
+    'credentials.integrationId': integration._id
+  });
 
-  const formCode = leadApp && leadApp.credentials ? (leadApp.credentials as ILeadCredentials).formCode : null;
+  const formCode =
+    leadApp && leadApp.credentials
+      ? (leadApp.credentials as ILeadCredentials).formCode
+      : null;
 
   // website app ============
   const websiteApps = await MessengerApps.find({
     kind: 'website',
-    'credentials.integrationId': integration._id,
+    'credentials.integrationId': integration._id
   });
 
   return {
@@ -79,13 +106,16 @@ export const getMessengerData = async (integration: IIntegrationDocument) => {
     messages: messagesByLanguage,
     knowledgeBaseTopicId: topicId,
     websiteApps,
-    formCode,
+    formCode
   };
 };
 
 const widgetMutations = {
   // Find integrationId by brandCode
-  async widgetsLeadConnect(_root, args: { brandCode: string; formCode: string; cachedCustomerId?: string }) {
+  async widgetsLeadConnect(
+    _root,
+    args: { brandCode: string; formCode: string; cachedCustomerId?: string }
+  ) {
     const brand = await Brands.findOne({ code: args.brandCode });
     const form = await Forms.findOne({ code: args.formCode });
 
@@ -96,7 +126,7 @@ const widgetMutations = {
     // find integration by brandId & formId
     const integ = await Integrations.findOne({
       brandId: brand._id,
-      formId: form._id,
+      formId: form._id
     });
 
     if (!integ) {
@@ -114,7 +144,10 @@ const widgetMutations = {
     }
 
     if (integ.leadData?.isRequireOnce && args.cachedCustomerId) {
-      const conversation = await Conversations.findOne({ customerId: args.cachedCustomerId, integrationId: integ.id });
+      const conversation = await Conversations.findOne({
+        customerId: args.cachedCustomerId,
+        integrationId: integ.id
+      });
       if (conversation) {
         return null;
       }
@@ -123,7 +156,7 @@ const widgetMutations = {
     // return integration details
     return {
       integration: integ,
-      form,
+      form
     };
   },
 
@@ -136,9 +169,15 @@ const widgetMutations = {
       submissions: ISubmission[];
       browserInfo: any;
       cachedCustomerId?: string;
-    },
+    }
   ) {
-    const { integrationId, formId, submissions, browserInfo, cachedCustomerId } = args;
+    const {
+      integrationId,
+      formId,
+      submissions,
+      browserInfo,
+      cachedCustomerId
+    } = args;
 
     const form = await Forms.findOne({ _id: formId });
 
@@ -178,7 +217,12 @@ const widgetMutations = {
     });
 
     // get or create customer
-    let customer = await Customers.getWidgetCustomer({ integrationId, email, phone, cachedCustomerId });
+    let customer = await Customers.getWidgetCustomer({
+      integrationId,
+      email,
+      phone,
+      cachedCustomerId
+    });
 
     if (!customer) {
       customer = await Customers.createCustomer({
@@ -187,7 +231,7 @@ const widgetMutations = {
         emails: [email],
         firstName,
         lastName,
-        primaryPhone: phone,
+        primaryPhone: phone
       });
     }
 
@@ -199,14 +243,14 @@ const widgetMutations = {
         ? {}
         : {
             emails: [email],
-            primaryEmail: email,
+            primaryEmail: email
           }),
       ...(customer.primaryPhone
         ? {}
         : {
             phones: [phone],
-            primaryPhone: phone,
-          }),
+            primaryPhone: phone
+          })
     };
 
     // update location info and missing fields
@@ -216,7 +260,7 @@ const widgetMutations = {
     const doc = {
       formId,
       customerId: customer._id,
-      submittedAt: new Date(),
+      submittedAt: new Date()
     };
 
     await FormSubmissions.createFormSubmission(doc);
@@ -225,7 +269,7 @@ const widgetMutations = {
     const conversation = await Conversations.createConversation({
       integrationId,
       customerId: customer._id,
-      content,
+      content
     });
 
     // create message
@@ -233,25 +277,25 @@ const widgetMutations = {
       conversationId: conversation._id,
       customerId: customer._id,
       content,
-      formWidgetData: submissions,
+      formWidgetData: submissions
     });
 
     // increasing form submitted count
     await Integrations.increaseContactsGathered(formId);
 
     graphqlPubsub.publish('conversationClientMessageInserted', {
-      conversationClientMessageInserted: message,
+      conversationClientMessageInserted: message
     });
 
     graphqlPubsub.publish('conversationMessageInserted', {
-      conversationMessageInserted: message,
+      conversationMessageInserted: message
     });
 
     await sendToWebhook('create', 'popupSubmitted', {
       formId: args.formId,
       submissions: args.submissions,
       customer: customerDoc,
-      cachedCustomerId: args.cachedCustomerId,
+      cachedCustomerId: args.cachedCustomerId
     });
 
     return { status: 'ok', messageId: message._id };
@@ -263,7 +307,7 @@ const widgetMutations = {
 
   widgetsKnowledgebaseIncReactionCount(
     _root,
-    { articleId, reactionChoice }: { articleId: string; reactionChoice: string },
+    { articleId, reactionChoice }: { articleId: string; reactionChoice: string }
   ) {
     return KnowledgeBaseArticles.incReactionCount(articleId, reactionChoice);
   },
@@ -284,9 +328,19 @@ const widgetMutations = {
       data?: any;
       cachedCustomerId?: string;
       deviceToken?: string;
-    },
+    }
   ) {
-    const { brandCode, email, phone, code, isUser, companyData, data, cachedCustomerId, deviceToken } = args;
+    const {
+      brandCode,
+      email,
+      phone,
+      code,
+      isUser,
+      companyData,
+      data,
+      cachedCustomerId,
+      deviceToken
+    } = args;
 
     const customData = data;
 
@@ -298,7 +352,10 @@ const widgetMutations = {
     }
 
     // find integration
-    const integration = await Integrations.getWidgetIntegration(brandCode, 'messenger');
+    const integration = await Integrations.getWidgetIntegration(
+      brandCode,
+      'messenger'
+    );
 
     if (!integration) {
       throw new Error('Integration not found');
@@ -309,7 +366,7 @@ const widgetMutations = {
       cachedCustomerId,
       email,
       phone,
-      code,
+      code
     });
 
     const doc = {
@@ -318,24 +375,34 @@ const widgetMutations = {
       phone,
       code,
       isUser,
-      deviceToken,
+      deviceToken
     };
 
     customer = customer
-      ? await Customers.updateMessengerCustomer({ _id: customer._id, doc, customData })
+      ? await Customers.updateMessengerCustomer({
+          _id: customer._id,
+          doc,
+          customData
+        })
       : await Customers.createMessengerCustomer({ doc, customData });
 
     // get or create company
     if (companyData && companyData.name) {
       let company = await Companies.findOne({
-        $or: [{ names: { $in: [companyData.name] } }, { primaryName: companyData.name }],
+        $or: [
+          { names: { $in: [companyData.name] } },
+          { primaryName: companyData.name }
+        ]
       });
 
       if (!company) {
         companyData.primaryName = companyData.name;
         companyData.names = [companyData.name];
 
-        company = await Companies.createCompany({ ...companyData, scopeBrandIds: [brand._id] });
+        company = await Companies.createCompany({
+          ...companyData,
+          scopeBrandIds: [brand._id]
+        });
       }
 
       // add company to customer's companyIds list
@@ -343,7 +410,7 @@ const widgetMutations = {
         mainType: 'customer',
         mainTypeId: customer._id,
         relType: 'company',
-        relTypeId: company._id,
+        relTypeId: company._id
       });
     }
 
@@ -359,7 +426,7 @@ const widgetMutations = {
       languageCode: integration.languageCode,
       messengerData: await getMessengerData(integration),
       customerId: customer._id,
-      brand,
+      brand
     };
   },
 
@@ -375,9 +442,16 @@ const widgetMutations = {
       message: string;
       attachments?: any[];
       contentType: string;
-    },
+    }
   ) {
-    const { integrationId, customerId, conversationId, message, attachments, contentType } = args;
+    const {
+      integrationId,
+      customerId,
+      conversationId,
+      message,
+      attachments,
+      contentType
+    } = args;
 
     const conversationContent = strip(message || '').substring(0, 100);
 
@@ -385,7 +459,9 @@ const widgetMutations = {
     // to the closed conversation even if it's closed
     let conversation;
 
-    const integration = await Integrations.findOne({ _id: integrationId }).lean();
+    const integration = await Integrations.findOne({
+      _id: integrationId
+    }).lean();
 
     const messengerData = integration.messengerData || {};
 
@@ -404,7 +480,9 @@ const widgetMutations = {
     };
 
     if (conversationId) {
-      conversation = await Conversations.findOne({ _id: conversationId }).lean();
+      conversation = await Conversations.findOne({
+        _id: conversationId
+      }).lean();
 
       conversation = await Conversations.findByIdAndUpdate(
         conversationId,
@@ -413,18 +491,22 @@ const widgetMutations = {
           readUserIds: [],
 
           // reopen this conversation if it's closed
-          status: getConversationStatus(conversation.operatorStatus !== CONVERSATION_OPERATOR_STATUS.BOT),
+          status: getConversationStatus(
+            conversation.operatorStatus !== CONVERSATION_OPERATOR_STATUS.BOT
+          )
         },
-        { new: true },
+        { new: true }
       );
       // create conversation
     } else {
       conversation = await Conversations.createConversation({
         customerId,
         integrationId,
-        operatorStatus: HAS_BOTENDPOINT_URL ? CONVERSATION_OPERATOR_STATUS.BOT : CONVERSATION_OPERATOR_STATUS.OPERATOR,
+        operatorStatus: HAS_BOTENDPOINT_URL
+          ? CONVERSATION_OPERATOR_STATUS.BOT
+          : CONVERSATION_OPERATOR_STATUS.OPERATOR,
         status: getConversationStatus(),
-        content: conversationContent,
+        content: conversationContent
       });
     }
 
@@ -434,7 +516,7 @@ const widgetMutations = {
       customerId,
       attachments,
       contentType,
-      content: message,
+      content: message
     });
 
     await Conversations.updateOne(
@@ -448,21 +530,28 @@ const widgetMutations = {
           content: conversationContent,
 
           // Mark as unread
-          readUserIds: [],
-        },
-      },
+          readUserIds: []
+        }
+      }
     );
 
     // mark customer as active
     await Customers.markCustomerAsActive(conversation.customerId);
 
-    graphqlPubsub.publish('conversationClientMessageInserted', { conversationClientMessageInserted: msg });
-    graphqlPubsub.publish('conversationMessageInserted', { conversationMessageInserted: msg });
+    graphqlPubsub.publish('conversationClientMessageInserted', {
+      conversationClientMessageInserted: msg
+    });
+    graphqlPubsub.publish('conversationMessageInserted', {
+      conversationMessageInserted: msg
+    });
 
     // bot message ================
     if (HAS_BOTENDPOINT_URL) {
       graphqlPubsub.publish('conversationBotTypingStatus', {
-        conversationBotTypingStatus: { conversationId: msg.conversationId, typing: true },
+        conversationBotTypingStatus: {
+          conversationId: msg.conversationId,
+          typing: true
+        }
       });
 
       const botRequest = await sendRequest({
@@ -470,8 +559,8 @@ const widgetMutations = {
         url: botEndpointUrl,
         body: {
           type: 'text',
-          text: message,
-        },
+          text: message
+        }
       });
 
       const { responses } = botRequest;
@@ -482,26 +571,36 @@ const widgetMutations = {
           : [
               {
                 type: 'text',
-                text: AUTO_BOT_MESSAGES.NO_RESPONSE,
-              },
+                text: AUTO_BOT_MESSAGES.NO_RESPONSE
+              }
             ];
 
       const botMessage = await Messages.createMessage({
         conversationId: conversation._id,
         customerId,
         contentType,
-        botData,
+        botData
       });
 
       graphqlPubsub.publish('conversationBotTypingStatus', {
-        conversationBotTypingStatus: { conversationId: msg.conversationId, typing: false },
+        conversationBotTypingStatus: {
+          conversationId: msg.conversationId,
+          typing: false
+        }
       });
 
-      graphqlPubsub.publish('conversationClientMessageInserted', { conversationClientMessageInserted: botMessage });
-      graphqlPubsub.publish('conversationMessageInserted', { conversationMessageInserted: botMessage });
+      graphqlPubsub.publish('conversationClientMessageInserted', {
+        conversationClientMessageInserted: botMessage
+      });
+      graphqlPubsub.publish('conversationMessageInserted', {
+        conversationMessageInserted: botMessage
+      });
     }
 
-    const customerLastStatus = await memoryStorage().get(`customer_last_status_${customerId}`, 'left');
+    const customerLastStatus = await memoryStorage().get(
+      `customer_last_status_${customerId}`,
+      'left'
+    );
 
     if (customerLastStatus === 'left') {
       memoryStorage().set(`customer_last_status_${customerId}`, 'joined');
@@ -510,12 +609,12 @@ const widgetMutations = {
       const conversationMessages = await Conversations.changeCustomerStatus(
         'joined',
         customerId,
-        conversation.integrationId,
+        conversation.integrationId
       );
 
       for (const mg of conversationMessages) {
         graphqlPubsub.publish('conversationMessageInserted', {
-          conversationMessageInserted: mg,
+          conversationMessageInserted: mg
         });
       }
 
@@ -523,8 +622,8 @@ const widgetMutations = {
       graphqlPubsub.publish('customerConnectionChanged', {
         customerConnectionChanged: {
           _id: customerId,
-          status: 'connected',
-        },
+          status: 'connected'
+        }
       });
     }
 
@@ -534,7 +633,7 @@ const widgetMutations = {
         body: conversationContent,
         customerId,
         conversationId: conversation._id,
-        receivers: conversationNotifReceivers(conversation, customerId),
+        receivers: conversationNotifReceivers(conversation, customerId)
       });
     }
 
@@ -546,15 +645,18 @@ const widgetMutations = {
   /*
    * Mark given conversation's messages as read
    */
-  async widgetsReadConversationMessages(_root, args: { conversationId: string }) {
+  async widgetsReadConversationMessages(
+    _root,
+    args: { conversationId: string }
+  ) {
     await Messages.updateMany(
       {
         conversationId: args.conversationId,
         userId: { $exists: true },
-        isCustomerRead: { $ne: true },
+        isCustomerRead: { $ne: true }
       },
       { isCustomerRead: true },
-      { multi: true },
+      { multi: true }
     );
 
     return args.conversationId;
@@ -567,12 +669,21 @@ const widgetMutations = {
   /*
    * Update customer location field
    */
-  async widgetsSaveBrowserInfo(_root, { customerId, browserInfo }: { customerId: string; browserInfo: IBrowserInfo }) {
+  async widgetsSaveBrowserInfo(
+    _root,
+    {
+      customerId,
+      browserInfo
+    }: { customerId: string; browserInfo: IBrowserInfo }
+  ) {
     // update location
     await Customers.updateLocation(customerId, browserInfo);
 
     try {
-      await trackViewPageEvent({ customerId, attributes: { url: browserInfo.url } });
+      await trackViewPageEvent({
+        customerId,
+        attributes: { url: browserInfo.url }
+      });
     } catch (e) {
       /* istanbul ignore next */
       debugBase(`Error occurred during widgets save browser info ${e.message}`);
@@ -585,7 +696,7 @@ const widgetMutations = {
     // as last unread message
     const integration = await Integrations.findOne({
       _id: customer.integrationId,
-      kind: 'messenger',
+      kind: 'messenger'
     });
 
     if (!integration) {
@@ -604,22 +715,25 @@ const widgetMutations = {
         brand,
         integration,
         customer,
-        browserInfo,
+        browserInfo
       });
     }
 
     // find conversations
     const convs = await Conversations.find({
       integrationId: integration._id,
-      customerId: customer._id,
+      customerId: customer._id
     });
 
     return Messages.findOne(Conversations.widgetsUnreadMessagesQuery(convs));
   },
 
-  widgetsSendTypingInfo(_root, args: { conversationId: string; text?: string }) {
+  widgetsSendTypingInfo(
+    _root,
+    args: { conversationId: string; text?: string }
+  ) {
     graphqlPubsub.publish('conversationClientTypingStatusChanged', {
-      conversationClientTypingStatusChanged: args,
+      conversationClientTypingStatusChanged: args
     });
 
     return 'ok';
@@ -632,7 +746,7 @@ const widgetMutations = {
       toEmails,
       fromEmail,
       title,
-      template: { data: { content } },
+      template: { data: { content } }
     });
   },
 
@@ -644,7 +758,7 @@ const widgetMutations = {
       customerId,
       message,
       payload,
-      type,
+      type
     }: {
       conversationId: string;
       customerId: string;
@@ -652,9 +766,11 @@ const widgetMutations = {
       message: string;
       payload: string;
       type: string;
-    },
+    }
   ) {
-    const integration = await Integrations.findOne({ _id: integrationId }).lean();
+    const integration = await Integrations.findOne({
+      _id: integrationId
+    }).lean();
 
     const { botEndpointUrl } = integration.messengerData;
 
@@ -662,11 +778,15 @@ const widgetMutations = {
     const msg = await Messages.createMessage({
       conversationId,
       customerId,
-      content: message,
+      content: message
     });
 
-    graphqlPubsub.publish('conversationClientMessageInserted', { conversationClientMessageInserted: msg });
-    graphqlPubsub.publish('conversationMessageInserted', { conversationMessageInserted: msg });
+    graphqlPubsub.publish('conversationClientMessageInserted', {
+      conversationClientMessageInserted: msg
+    });
+    graphqlPubsub.publish('conversationMessageInserted', {
+      conversationMessageInserted: msg
+    });
 
     let botMessage;
     let botData;
@@ -677,8 +797,8 @@ const widgetMutations = {
         url: botEndpointUrl,
         body: {
           type: 'text',
-          text: payload,
-        },
+          text: payload
+        }
       });
 
       const { responses } = botRequest;
@@ -689,15 +809,15 @@ const widgetMutations = {
           : [
               {
                 type: 'text',
-                text: AUTO_BOT_MESSAGES.NO_RESPONSE,
-              },
+                text: AUTO_BOT_MESSAGES.NO_RESPONSE
+              }
             ];
     } else {
       botData = [
         {
           type: 'text',
-          text: payload,
-        },
+          text: payload
+        }
       ];
     }
 
@@ -705,14 +825,18 @@ const widgetMutations = {
     botMessage = await Messages.createMessage({
       conversationId,
       customerId,
-      botData,
+      botData
     });
 
-    graphqlPubsub.publish('conversationClientMessageInserted', { conversationClientMessageInserted: botMessage });
-    graphqlPubsub.publish('conversationMessageInserted', { conversationMessageInserted: botMessage });
+    graphqlPubsub.publish('conversationClientMessageInserted', {
+      conversationClientMessageInserted: botMessage
+    });
+    graphqlPubsub.publish('conversationMessageInserted', {
+      conversationMessageInserted: botMessage
+    });
 
     return botMessage;
-  },
+  }
 };
 
 export default widgetMutations;

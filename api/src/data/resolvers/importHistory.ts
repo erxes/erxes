@@ -4,5 +4,5 @@ import { IImportHistoryDocument } from '../../db/models/definitions/importHistor
 export default {
   user(history: IImportHistoryDocument) {
     return Users.findOne({ _id: history.userId });
-  },
+  }
 };

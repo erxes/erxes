@@ -51,12 +51,7 @@ function List({ tags, type, remove, loading, renderButton }: Props) {
       {type} {__('tags')}
     </Title>
   );
-  const actionBar = (
-    <Wrapper.ActionBar
-      left={title}
-      right={actionBarRight}
-    />
-  );
+  const actionBar = <Wrapper.ActionBar left={title} right={actionBarRight} />;
 
   const content = (
     <Table>

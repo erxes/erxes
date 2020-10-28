@@ -1,7 +1,11 @@
 import { Companies } from '../../../db/models';
 import { TAG_TYPES } from '../../../db/models/definitions/constants';
 import { Builder, IListArgs } from '../../modules/coc/companies';
-import { countByBrand, countBySegment, countByTag } from '../../modules/coc/utils';
+import {
+  countByBrand,
+  countBySegment,
+  countByTag
+} from '../../modules/coc/utils';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
@@ -13,8 +17,15 @@ const companyQueries = {
   /**
    * Companies list
    */
-  async companies(_root, params: IListArgs, { commonQuerySelector, commonQuerySelectorElk }: IContext) {
-    const qb = new Builder(params, { commonQuerySelector, commonQuerySelectorElk });
+  async companies(
+    _root,
+    params: IListArgs,
+    { commonQuerySelector, commonQuerySelectorElk }: IContext
+  ) {
+    const qb = new Builder(params, {
+      commonQuerySelector,
+      commonQuerySelectorElk
+    });
 
     await qb.buildAllQueries();
 
@@ -26,8 +37,15 @@ const companyQueries = {
   /**
    * Companies for only main list
    */
-  async companiesMain(_root, params: IListArgs, { commonQuerySelector, commonQuerySelectorElk }: IContext) {
-    const qb = new Builder(params, { commonQuerySelector, commonQuerySelectorElk });
+  async companiesMain(
+    _root,
+    params: IListArgs,
+    { commonQuerySelector, commonQuerySelectorElk }: IContext
+  ) {
+    const qb = new Builder(params, {
+      commonQuerySelector,
+      commonQuerySelectorElk
+    });
 
     await qb.buildAllQueries();
 
@@ -39,17 +57,24 @@ const companyQueries = {
   /**
    * Group company counts by segments
    */
-  async companyCounts(_root, args: ICountArgs, { commonQuerySelector, commonQuerySelectorElk }: IContext) {
+  async companyCounts(
+    _root,
+    args: ICountArgs,
+    { commonQuerySelector, commonQuerySelectorElk }: IContext
+  ) {
     const counts = {
       bySegment: {},
       byTag: {},
       byBrand: {},
-      byLeadStatus: {},
+      byLeadStatus: {}
     };
 
     const { only } = args;
 
-    const qb = new Builder(args, { commonQuerySelector, commonQuerySelectorElk });
+    const qb = new Builder(args, {
+      commonQuerySelector,
+      commonQuerySelectorElk
+    });
 
     switch (only) {
       case 'byTag':
@@ -72,7 +97,7 @@ const companyQueries = {
    */
   companyDetail(_root, { _id }: { _id: string }) {
     return Companies.findOne({ _id });
-  },
+  }
 };
 
 requireLogin(companyQueries, 'companiesMain');
@@ -80,6 +105,9 @@ requireLogin(companyQueries, 'companyCounts');
 requireLogin(companyQueries, 'companyDetail');
 
 checkPermission(companyQueries, 'companies', 'showCompanies', []);
-checkPermission(companyQueries, 'companiesMain', 'showCompanies', { list: [], totalCount: 0 });
+checkPermission(companyQueries, 'companiesMain', 'showCompanies', {
+  list: [],
+  totalCount: 0
+});
 
 export default companyQueries;

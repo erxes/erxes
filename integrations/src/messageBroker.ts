@@ -17,7 +17,7 @@ export const initBroker = async server => {
   client = await messageBroker({
     name: 'integrations',
     server,
-    envs: process.env,
+    envs: process.env
   });
 
   const { consumeQueue, consumeRPCQueue } = client;
@@ -41,8 +41,8 @@ export const initBroker = async server => {
         response = {
           data: {
             telnyxApiKey: await getConfig('TELNYX_API_KEY'),
-            integrations: await Integrations.find({ kind: 'telnyx' }),
-          },
+            integrations: await Integrations.find({ kind: 'telnyx' })
+          }
         };
       }
 
@@ -50,7 +50,7 @@ export const initBroker = async server => {
     } catch (e) {
       response = {
         status: 'error',
-        errorMessage: e.message,
+        errorMessage: e.message
       };
     }
 

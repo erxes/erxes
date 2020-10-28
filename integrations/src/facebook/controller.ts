@@ -1,5 +1,10 @@
 import { FacebookAdapter } from 'botbuilder-adapter-facebook-erxes';
-import { debugBase, debugFacebook, debugRequest, debugResponse } from '../debuggers';
+import {
+  debugBase,
+  debugFacebook,
+  debugRequest,
+  debugResponse
+} from '../debuggers';
 import Accounts from '../models/Accounts';
 import Integrations from '../models/Integrations';
 import { getConfig, getEnv, sendRequest } from '../utils';
@@ -10,7 +15,12 @@ import receiveMessage from './receiveMessage';
 import receivePost from './receivePost';
 
 import { FACEBOOK_POST_TYPES } from './constants';
-import { getPageAccessToken, getPageAccessTokenFromMap, getPageList, subscribePage } from './utils';
+import {
+  getPageAccessToken,
+  getPageAccessTokenFromMap,
+  getPageList,
+  subscribePage
+} from './utils';
 
 const init = async app => {
   app.get('/fblogin', loginMiddleware);
@@ -28,7 +38,7 @@ const init = async app => {
       kind,
       accountId,
       erxesApiId: integrationId,
-      facebookPageIds,
+      facebookPageIds
     });
 
     const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
@@ -45,8 +55,8 @@ const init = async app => {
           body: {
             domain: DOMAIN,
             facebookPageIds,
-            fbPageIds: facebookPageIds,
-          },
+            fbPageIds: facebookPageIds
+          }
         });
       } catch (e) {
         await Integrations.deleteOne({ _id: integration._id });
@@ -66,11 +76,16 @@ const init = async app => {
           await subscribePage(pageId, pageAccessToken);
           debugFacebook(`Successfully subscribed page ${pageId}`);
         } catch (e) {
-          debugFacebook(`Error ocurred while trying to subscribe page ${e.message || e}`);
+          debugFacebook(
+            `Error ocurred while trying to subscribe page ${e.message || e}`
+          );
           return next(e);
         }
       } catch (e) {
-        debugFacebook(`Error ocurred while trying to get page access token with ${e.message || e}`);
+        debugFacebook(
+          `Error ocurred while trying to get page access token with ${e.message ||
+            e}`
+        );
         return next(e);
       }
     }
@@ -106,39 +121,48 @@ const init = async app => {
   });
 
   app.get('/facebook/get-post', async (req, res) => {
-    debugFacebook(`Request to get post data with: ${JSON.stringify(req.query)}`);
+    debugFacebook(
+      `Request to get post data with: ${JSON.stringify(req.query)}`
+    );
 
     const { erxesApiId } = req.query;
 
     const post = await Posts.getPost({ erxesApiId }, true);
 
     return res.json({
-      ...post,
+      ...post
     });
   });
 
   app.get('/facebook/get-comments-count', async (req, res) => {
-    debugFacebook(`Request to get post data with: ${JSON.stringify(req.query)}`);
+    debugFacebook(
+      `Request to get post data with: ${JSON.stringify(req.query)}`
+    );
 
     const { postId, isResolved = false } = req.query;
 
     const post = await Posts.getPost({ erxesApiId: postId }, true);
 
-    const commentCount = await Comments.countDocuments({ postId: post.postId, isResolved });
+    const commentCount = await Comments.countDocuments({
+      postId: post.postId,
+      isResolved
+    });
     const commentCountWithoutReplies = await Comments.countDocuments({
       postId: post.postId,
       isResolved,
-      parentId: null,
+      parentId: null
     });
 
     return res.json({
       commentCount,
-      commentCountWithoutReplies,
+      commentCountWithoutReplies
     });
   });
 
   app.get('/facebook/get-customer-posts', async (req, res) => {
-    debugFacebook(`Request to get customer post data with: ${JSON.stringify(req.query)}`);
+    debugFacebook(
+      `Request to get customer post data with: ${JSON.stringify(req.query)}`
+    );
 
     const { customerId } = req.query;
 
@@ -150,21 +174,28 @@ const init = async app => {
 
     const result = await Comments.aggregate([
       { $match: { senderId: customer.userId } },
-      { $lookup: { from: 'posts_facebooks', localField: 'postId', foreignField: 'postId', as: 'post' } },
+      {
+        $lookup: {
+          from: 'posts_facebooks',
+          localField: 'postId',
+          foreignField: 'postId',
+          as: 'post'
+        }
+      },
       {
         $unwind: {
           path: '$post',
-          preserveNullAndEmptyArrays: true,
-        },
+          preserveNullAndEmptyArrays: true
+        }
       },
       {
         $addFields: {
-          conversationId: '$post.erxesApiId',
-        },
+          conversationId: '$post.erxesApiId'
+        }
       },
       {
-        $project: { _id: 0, conversationId: 1 },
-      },
+        $project: { _id: 0, conversationId: 1 }
+      }
     ]);
 
     const conversationIds = result.map(conv => conv.conversationId);
@@ -179,8 +210,13 @@ const init = async app => {
 
     const post = await Posts.getPost({ erxesApiId: postId });
 
-    const query: { postId: string; isResolved?: boolean; parentId?: string; senderId?: string } = {
-      postId: post.postId,
+    const query: {
+      postId: string;
+      isResolved?: boolean;
+      parentId?: string;
+      senderId?: string;
+    } = {
+      postId: post.postId
     };
 
     query.isResolved = isResolved === 'false' ? false : true;
@@ -202,55 +238,55 @@ const init = async app => {
 
     const result = await Comments.aggregate([
       {
-        $match: query,
+        $match: query
       },
       {
         $lookup: {
           from: 'customers_facebooks',
           localField: 'senderId',
           foreignField: 'userId',
-          as: 'customer',
-        },
+          as: 'customer'
+        }
       },
       {
         $unwind: {
           path: '$customer',
-          preserveNullAndEmptyArrays: true,
-        },
+          preserveNullAndEmptyArrays: true
+        }
       },
       {
         $lookup: {
           from: 'posts_facebooks',
           localField: 'postId',
           foreignField: 'postId',
-          as: 'post',
-        },
+          as: 'post'
+        }
       },
       {
         $unwind: {
           path: '$post',
-          preserveNullAndEmptyArrays: true,
-        },
+          preserveNullAndEmptyArrays: true
+        }
       },
       {
         $lookup: {
           from: 'comments_facebooks',
           localField: 'commentId',
           foreignField: 'parentId',
-          as: 'replies',
-        },
+          as: 'replies'
+        }
       },
       {
         $addFields: {
           commentCount: { $size: '$replies' },
           'customer.avatar': '$customer.profilePic',
           'customer._id': '$customer.erxesApiId',
-          conversationId: '$post.erxesApiId',
-        },
+          conversationId: '$post.erxesApiId'
+        }
       },
 
       { $sort: { timestamp: -1 } },
-      { $limit: limit },
+      { $limit: limit }
     ]);
 
     return res.json(result.reverse());
@@ -271,7 +307,7 @@ const init = async app => {
       app_secret: FACEBOOK_APP_SECRET,
       getAccessTokenForPage: async (pageId: string) => {
         return accessTokensByPageId[pageId];
-      },
+      }
     });
   };
 
@@ -315,7 +351,10 @@ const init = async app => {
             const pageId = activity.recipient.id;
 
             const integration = await Integrations.getIntegration({
-              $and: [{ facebookPageIds: { $in: pageId } }, { kind: 'facebook-messenger' }],
+              $and: [
+                { facebookPageIds: { $in: pageId } },
+                { kind: 'facebook-messenger' }
+              ]
             });
 
             await Accounts.getAccount({ _id: integration.accountId });
@@ -323,19 +362,28 @@ const init = async app => {
             const { facebookPageTokensMap } = integration;
 
             try {
-              accessTokensByPageId[pageId] = getPageAccessTokenFromMap(pageId, facebookPageTokensMap);
+              accessTokensByPageId[pageId] = getPageAccessTokenFromMap(
+                pageId,
+                facebookPageTokensMap
+              );
             } catch (e) {
-              debugFacebook(`Error occurred while getting page access token: ${e.message}`);
+              debugFacebook(
+                `Error occurred while getting page access token: ${e.message}`
+              );
               return next();
             }
 
             await receiveMessage(activity);
 
-            debugFacebook(`Successfully saved activity ${JSON.stringify(activity)}`);
+            debugFacebook(
+              `Successfully saved activity ${JSON.stringify(activity)}`
+            );
           })
 
           .catch(e => {
-            debugFacebook(`Error occurred while processing activity: ${e.message}`);
+            debugFacebook(
+              `Error occurred while processing activity: ${e.message}`
+            );
             res.end('success');
           });
       }
@@ -348,7 +396,9 @@ const init = async app => {
           if (event.value.item === 'comment') {
             try {
               await receiveComment(event.value, entry.id);
-              debugFacebook(`Successfully saved  ${JSON.stringify(event.value)}`);
+              debugFacebook(
+                `Successfully saved  ${JSON.stringify(event.value)}`
+              );
               res.end('success');
             } catch (e) {
               debugFacebook(`Error processing comment: ${e.message}`);
@@ -359,7 +409,9 @@ const init = async app => {
           if (FACEBOOK_POST_TYPES.includes(event.value.item)) {
             try {
               await receivePost(event.value, entry.id);
-              debugFacebook(`Successfully saved  ${JSON.stringify(event.value)}`);
+              debugFacebook(
+                `Successfully saved  ${JSON.stringify(event.value)}`
+              );
               res.end('success');
             } catch (e) {
               debugFacebook(`Error processing comment: ${e.message}`);

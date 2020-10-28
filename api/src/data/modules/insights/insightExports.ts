@@ -8,10 +8,14 @@ import {
   generateActivityReport,
   generateFirstResponseReport,
   generateTagReport,
-  generateVolumeReport,
+  generateVolumeReport
 } from './exportData';
 import { addCell, addHeader, dateToString, nextTime } from './exportUtils';
-import { IListArgs, IListArgsWithUserId, IResponseFirstResponseExport } from './types';
+import {
+  IListArgs,
+  IListArgsWithUserId,
+  IResponseFirstResponseExport
+} from './types';
 import { fixDates, timeIntervals } from './utils';
 
 const checkPermission = async (user: IUserDocument) => {
@@ -23,7 +27,10 @@ const checkPermission = async (user: IUserDocument) => {
 /*
  * Volume report export
  */
-export const insightVolumeReportExport = async (args: IListArgs, user: IUserDocument) => {
+export const insightVolumeReportExport = async (
+  args: IListArgs,
+  user: IUserDocument
+) => {
   await checkPermission(user);
 
   const { type } = args;
@@ -32,7 +39,9 @@ export const insightVolumeReportExport = async (args: IListArgs, user: IUserDocu
 
   // Reads default template
   const { workbook, sheet } = await createXlsFile();
-  const header = `Volume Report By ${type === 'volumeByTime' ? 'Time' : 'Date'}`;
+  const header = `Volume Report By ${
+    type === 'volumeByTime' ? 'Time' : 'Date'
+  }`;
 
   await addHeader(header, args, sheet);
 
@@ -49,7 +58,7 @@ export const insightVolumeReportExport = async (args: IListArgs, user: IUserDocu
         rowIndex,
         col: basicInfos[info],
         value: obj[info],
-        cols,
+        cols
       });
     }
   }
@@ -58,14 +67,17 @@ export const insightVolumeReportExport = async (args: IListArgs, user: IUserDocu
 
   return {
     name,
-    response: await generateXlsx(workbook),
+    response: await generateXlsx(workbook)
   };
 };
 
 /*
  * Operator Activity Report
  */
-export const insightActivityReportExport = async (args: IListArgs, user: IUserDocument) => {
+export const insightActivityReportExport = async (
+  args: IListArgs,
+  user: IUserDocument
+) => {
   await checkPermission(user);
 
   const { data, start, end } = await generateActivityReport(args, user);
@@ -102,13 +114,13 @@ export const insightActivityReportExport = async (args: IListArgs, user: IUserDo
       rowIndex,
       col: 'date',
       value: moment(begin).format('YYYY-MM-DD HH'),
-      cols,
+      cols
     });
 
     for (const userId of userIds) {
       if (!users[userId]) {
         const { details, email } = (await Users.findOne({
-          _id: userId,
+          _id: userId
         })) as IUserDocument;
 
         users[userId] = (details && details.fullName) || email;
@@ -124,7 +136,7 @@ export const insightActivityReportExport = async (args: IListArgs, user: IUserDo
         rowIndex,
         col: users[userId],
         value: count,
-        cols,
+        cols
       });
     }
 
@@ -145,7 +157,7 @@ export const insightActivityReportExport = async (args: IListArgs, user: IUserDo
     rowIndex,
     col: 'date',
     value: 'Total',
-    cols,
+    cols
   });
 
   for (const userId of userIds) {
@@ -154,23 +166,28 @@ export const insightActivityReportExport = async (args: IListArgs, user: IUserDo
       rowIndex,
       col: users[userId],
       value: userTotals[userId],
-      cols,
+      cols
     });
   }
 
   // Write to file.
-  const name = `Operator Activity report - ${dateToString(start)} - ${dateToString(end)}`;
+  const name = `Operator Activity report - ${dateToString(
+    start
+  )} - ${dateToString(end)}`;
 
   return {
     name,
-    response: await generateXlsx(workbook),
+    response: await generateXlsx(workbook)
   };
 };
 
 /*
  * First Response Report
  */
-export const insightFirstResponseReportExport = async (args: IListArgsWithUserId, user: IUserDocument) => {
+export const insightFirstResponseReportExport = async (
+  args: IListArgsWithUserId,
+  user: IUserDocument
+) => {
   await checkPermission(user);
 
   const { startDate, endDate, userId, type } = args;
@@ -190,7 +207,7 @@ export const insightFirstResponseReportExport = async (args: IListArgsWithUserId
       rowIndex,
       col: 'time',
       value: interval.name,
-      cols,
+      cols
     });
   }
 
@@ -198,14 +215,16 @@ export const insightFirstResponseReportExport = async (args: IListArgsWithUserId
 
   if (userId) {
     const { details, email } = (await Users.findOne({
-      _id: userId,
+      _id: userId
     })) as IUserDocument;
 
     fullName = `${(details && details.fullName) || email || ''} `;
   }
 
   const insertCell = async (params: { userId?: string; type?: string }) => {
-    const datas: IResponseFirstResponseExport[] = await generateFirstResponseReport({ args, ...params, user });
+    const datas: IResponseFirstResponseExport[] = await generateFirstResponseReport(
+      { args, ...params, user }
+    );
 
     for (const data of datas) {
       rowIndex = 3;
@@ -221,7 +240,7 @@ export const insightFirstResponseReportExport = async (args: IListArgsWithUserId
           rowIndex,
           col: data.title,
           value: userInterval ? userInterval.count : 0,
-          cols,
+          cols
         });
       }
     }
@@ -232,18 +251,23 @@ export const insightFirstResponseReportExport = async (args: IListArgsWithUserId
   await insertCell({ type, userId });
 
   // Write to file.
-  const name = `${fullName}First Response - ${dateToString(start)} - ${dateToString(end)}`;
+  const name = `${fullName}First Response - ${dateToString(
+    start
+  )} - ${dateToString(end)}`;
 
   return {
     name,
-    response: await generateXlsx(workbook),
+    response: await generateXlsx(workbook)
   };
 };
 
 /*
  * Tag Report
  */
-export const insightTagReportExport = async (args: IListArgs, user: IUserDocument) => {
+export const insightTagReportExport = async (
+  args: IListArgs,
+  user: IUserDocument
+) => {
   await checkPermission(user);
 
   const { data, start, end, tags } = await generateTagReport(args, user);
@@ -272,7 +296,7 @@ export const insightTagReportExport = async (args: IListArgs, user: IUserDocumen
       rowIndex,
       col: 'date',
       value: moment(begin).format('YYYY-MM-DD'),
-      cols,
+      cols
     });
 
     // count conversations by each tag
@@ -280,14 +304,15 @@ export const insightTagReportExport = async (args: IListArgs, user: IUserDocumen
       // find conversation counts of given tag
       const tagKey = `${tag._id}_${moment(begin).format('YYYY-MM-DD')}`;
       const count = tagDictionary[tagKey] ? tagDictionary[tagKey] : 0;
-      tagDictionary[`${tag._id}_total`] = (tagDictionary[`${tag._id}_total`] || 0) + count;
+      tagDictionary[`${tag._id}_total`] =
+        (tagDictionary[`${tag._id}_total`] || 0) + count;
 
       addCell({
         sheet,
         rowIndex,
         col: tag.name,
         value: count,
-        cols,
+        cols
       });
     }
 
@@ -307,7 +332,7 @@ export const insightTagReportExport = async (args: IListArgs, user: IUserDocumen
     rowIndex,
     col: 'date',
     value: 'Total',
-    cols,
+    cols
   });
 
   for (const tag of tags) {
@@ -316,7 +341,7 @@ export const insightTagReportExport = async (args: IListArgs, user: IUserDocumen
       rowIndex,
       col: tag.name,
       value: tagDictionary[`${tag.id}_total`],
-      cols,
+      cols
     });
   }
 
@@ -325,7 +350,7 @@ export const insightTagReportExport = async (args: IListArgs, user: IUserDocumen
 
   return {
     name,
-    response: await generateXlsx(workbook),
+    response: await generateXlsx(workbook)
   };
 };
 

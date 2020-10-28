@@ -18,11 +18,15 @@ import { UserHelper } from '../styles';
 import BrandChooser from './BrandChooser';
 
 const Signature = asyncComponent(() =>
-  import(/* webpackChunkName:"Signature" */ 'modules/settings/email/containers/Signature')
+  import(
+    /* webpackChunkName:"Signature" */ 'modules/settings/email/containers/Signature'
+  )
 );
 
 const ChangePassword = asyncComponent(() =>
-  import(/* webpackChunkName:"ChangePassword" */ 'modules/settings/profile/containers/ChangePassword')
+  import(
+    /* webpackChunkName:"ChangePassword" */ 'modules/settings/profile/containers/ChangePassword'
+  )
 );
 
 const UserInfo = styled.div`

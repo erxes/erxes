@@ -1,6 +1,16 @@
-import { boardFactory, growthHackFactory, pipelineFactory, stageFactory, userFactory } from '../db/factories';
+import {
+  boardFactory,
+  growthHackFactory,
+  pipelineFactory,
+  stageFactory,
+  userFactory
+} from '../db/factories';
 import { Boards, GrowthHacks, Pipelines, Stages } from '../db/models';
-import { IBoardDocument, IPipelineDocument, IStageDocument } from '../db/models/definitions/boards';
+import {
+  IBoardDocument,
+  IPipelineDocument,
+  IStageDocument
+} from '../db/models/definitions/boards';
 import { IGrowthHackDocument } from '../db/models/definitions/growthHacks';
 import { IUserDocument } from '../db/models/definitions/users';
 
@@ -47,7 +57,7 @@ describe('Test growthHacks model', () => {
   test('Create growthHack', async () => {
     const createdGrowthHack = await GrowthHacks.createGrowthHack({
       stageId: growthHack.stageId,
-      userId: user._id,
+      userId: user._id
     });
 
     expect(createdGrowthHack).toBeDefined();
@@ -57,9 +67,12 @@ describe('Test growthHacks model', () => {
 
   test('Update growthHack', async () => {
     const growthHackStageId = 'fakeId';
-    const updatedGrowthHack = await GrowthHacks.updateGrowthHack(growthHack._id, {
-      stageId: growthHackStageId,
-    });
+    const updatedGrowthHack = await GrowthHacks.updateGrowthHack(
+      growthHack._id,
+      {
+        stageId: growthHackStageId
+      }
+    );
 
     expect(updatedGrowthHack).toBeDefined();
     expect(updatedGrowthHack.stageId).toEqual(growthHackStageId);

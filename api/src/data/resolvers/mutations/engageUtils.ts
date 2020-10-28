@@ -7,9 +7,13 @@ import {
   EngageMessages,
   Integrations,
   Segments,
-  Users,
+  Users
 } from '../../../db/models';
-import { CONVERSATION_STATUSES, KIND_CHOICES, METHODS } from '../../../db/models/definitions/constants';
+import {
+  CONVERSATION_STATUSES,
+  KIND_CHOICES,
+  METHODS
+} from '../../../db/models/definitions/constants';
 import { ICustomerDocument } from '../../../db/models/definitions/customers';
 import { IEngageMessageDocument } from '../../../db/models/definitions/engages';
 import { IUserDocument } from '../../../db/models/definitions/users';
@@ -29,7 +33,7 @@ export const generateCustomerSelector = async ({
   customerIds,
   segmentIds = [],
   tagIds = [],
-  brandIds = [],
+  brandIds = []
 }: {
   customerIds?: string[];
   segmentIds?: string[];
@@ -73,7 +77,10 @@ export const generateCustomerSelector = async ({
     customerQuery = { _id: { $in: customerIdsBySegments } };
   }
 
-  return { $or: [{ doNotDisturb: 'No' }, { doNotDisturb: { $exists: false } }], ...customerQuery };
+  return {
+    $or: [{ doNotDisturb: 'No' }, { doNotDisturb: { $exists: false } }],
+    ...customerQuery
+  };
 };
 
 const sendQueueMessage = (args: any) => {
@@ -81,7 +88,13 @@ const sendQueueMessage = (args: any) => {
 };
 
 export const send = async (engageMessage: IEngageMessageDocument) => {
-  const { customerIds, segmentIds, tagIds, brandIds, fromUserId } = engageMessage;
+  const {
+    customerIds,
+    segmentIds,
+    tagIds,
+    brandIds,
+    fromUserId
+  } = engageMessage;
 
   const user = await Users.findOne({ _id: fromUserId });
 
@@ -93,25 +106,39 @@ export const send = async (engageMessage: IEngageMessageDocument) => {
     return;
   }
 
-  const customersSelector = await generateCustomerSelector({ customerIds, segmentIds, tagIds, brandIds });
+  const customersSelector = await generateCustomerSelector({
+    customerIds,
+    segmentIds,
+    tagIds,
+    brandIds
+  });
 
-  if (engageMessage.method === METHODS.MESSENGER && engageMessage.kind !== MESSAGE_KINDS.VISITOR_AUTO) {
+  if (
+    engageMessage.method === METHODS.MESSENGER &&
+    engageMessage.kind !== MESSAGE_KINDS.VISITOR_AUTO
+  ) {
     return sendViaMessenger({ engageMessage, customersSelector, user });
   }
 
   if (engageMessage.method === METHODS.EMAIL) {
-    return sendEmailOrSms({ engageMessage, customersSelector, user }, 'sendEngage');
+    return sendEmailOrSms(
+      { engageMessage, customersSelector, user },
+      'sendEngage'
+    );
   }
 
   if (engageMessage.method === METHODS.SMS) {
-    return sendEmailOrSms({ engageMessage, customersSelector, user }, 'sendEngageSms');
+    return sendEmailOrSms(
+      { engageMessage, customersSelector, user },
+      'sendEngageSms'
+    );
   }
 };
 
 // Prepares queue data to engages-email-sender
 const sendEmailOrSms = async (
   { engageMessage, customersSelector, user }: IEngageParams,
-  action: 'sendEngage' | 'sendEngageSms',
+  action: 'sendEngage' | 'sendEngageSms'
 ) => {
   const engageMessageId = engageMessage._id;
 
@@ -119,8 +146,8 @@ const sendEmailOrSms = async (
     action: 'writeLog',
     data: {
       engageMessageId,
-      msg: `Run at ${new Date()}`,
-    },
+      msg: `Run at ${new Date()}`
+    }
   });
 
   const customerInfos: Array<{
@@ -135,41 +162,52 @@ const sendEmailOrSms = async (
   const emailContent = emailConf.content || '';
 
   const { customerFields } = await replaceEditorAttributes({
-    content: emailContent,
+    content: emailContent
   });
 
   const onFinishPiping = async () => {
-    if (engageMessage.kind === MESSAGE_KINDS.MANUAL && customerInfos.length === 0) {
+    if (
+      engageMessage.kind === MESSAGE_KINDS.MANUAL &&
+      customerInfos.length === 0
+    ) {
       await EngageMessages.deleteOne({ _id: engageMessage._id });
       throw new Error('No customers found');
     }
 
     // save matched customers count
-    await EngageMessages.setCustomersCount(engageMessage._id, 'totalCustomersCount', customerInfos.length);
+    await EngageMessages.setCustomersCount(
+      engageMessage._id,
+      'totalCustomersCount',
+      customerInfos.length
+    );
 
     await sendQueueMessage({
       action: 'writeLog',
       data: {
         engageMessageId,
-        msg: `Matched ${customerInfos.length} customers`,
-      },
+        msg: `Matched ${customerInfos.length} customers`
+      }
     });
 
-    await EngageMessages.setCustomersCount(engageMessage._id, 'validCustomersCount', customerInfos.length);
+    await EngageMessages.setCustomersCount(
+      engageMessage._id,
+      'validCustomersCount',
+      customerInfos.length
+    );
 
     if (customerInfos.length > 0) {
       const data: any = {
         customers: [],
         fromEmail: user.email,
         engageMessageId,
-        shortMessage: engageMessage.shortMessage || {},
+        shortMessage: engageMessage.shortMessage || {}
       };
 
       if (engageMessage.method === METHODS.EMAIL && engageMessage.email) {
         const { replacedContent } = await replaceEditorAttributes({
           customerFields,
           content: emailContent,
-          user,
+          user
         });
 
         engageMessage.email.content = replacedContent;
@@ -194,7 +232,7 @@ const sendEmailOrSms = async (
       const { replacers } = await replaceEditorAttributes({
         content: emailContent,
         customer,
-        customerFields,
+        customerFields
       });
 
       customerInfos.push({
@@ -203,12 +241,12 @@ const sendEmailOrSms = async (
         emailValidationStatus: customer.emailValidationStatus,
         phoneValidationStatus: customer.phoneValidationStatus,
         primaryPhone: customer.primaryPhone,
-        replacers,
+        replacers
       });
 
       // signal upstream that we are ready to take more data
       callback();
-    },
+    }
   });
 
   // generate fields option =======
@@ -216,14 +254,17 @@ const sendEmailOrSms = async (
     primaryEmail: 1,
     emailValidationStatus: 1,
     phoneValidationStatus: 1,
-    primaryPhone: 1,
+    primaryPhone: 1
   };
 
   for (const field of customerFields || []) {
     fieldsOption[field] = 1;
   }
 
-  const customersStream = (Customers.find(customersSelector, fieldsOption) as any).stream();
+  const customersStream = (Customers.find(
+    customersSelector,
+    fieldsOption
+  ) as any).stream();
 
   return new Promise((resolve, reject) => {
     const pipe = customersStream.pipe(customerTransformerStream);
@@ -243,7 +284,11 @@ const sendEmailOrSms = async (
 /**
  * Send via messenger
  */
-const sendViaMessenger = async ({ engageMessage, customersSelector, user }: IEngageParams) => {
+const sendViaMessenger = async ({
+  engageMessage,
+  customersSelector,
+  user
+}: IEngageParams) => {
   const { fromUserId, messenger, _id } = engageMessage;
 
   if (!messenger) {
@@ -255,7 +300,7 @@ const sendViaMessenger = async ({ engageMessage, customersSelector, user }: IEng
   // find integration
   const integration = await Integrations.findOne({
     brandId,
-    kind: KIND_CHOICES.MESSENGER,
+    kind: KIND_CHOICES.MESSENGER
   });
 
   if (integration === null) {
@@ -269,7 +314,10 @@ const sendViaMessenger = async ({ engageMessage, customersSelector, user }: IEng
   let conversationMessagesBulk = ConversationMessages.collection.initializeOrderedBulkOp();
 
   const customerFields = { firstName: 1, lastName: 1, primaryEmail: 1 };
-  const customersStream = (Customers.find(customersSelector, customerFields) as any).stream();
+  const customersStream = (Customers.find(
+    customersSelector,
+    customerFields
+  ) as any).stream();
 
   const executeBulks = () => {
     return new Promise((resolve, reject) => {
@@ -302,7 +350,11 @@ const sendViaMessenger = async ({ engageMessage, customersSelector, user }: IEng
     iteratorCounter++;
 
     // replace keys in content
-    const { replacedContent } = await replaceEditorAttributes({ content, customer, user });
+    const { replacedContent } = await replaceEditorAttributes({
+      content,
+      customer,
+      user
+    });
 
     const now = new Date();
     const conversationId = Random.id();
@@ -317,7 +369,7 @@ const sendViaMessenger = async ({ engageMessage, customersSelector, user }: IEng
       customerId: customer._id,
       integrationId: integration._id,
       content: replacedContent,
-      messageCount: 1,
+      messageCount: 1
     });
 
     // create message
@@ -326,13 +378,13 @@ const sendViaMessenger = async ({ engageMessage, customersSelector, user }: IEng
         engageKind: 'auto',
         messageId: _id,
         fromUserId,
-        ...(messenger ? messenger.toJSON() : {}),
+        ...(messenger ? messenger.toJSON() : {})
       },
       internal: false,
       conversationId,
       userId: fromUserId,
       customerId: customer._id,
-      content: replacedContent,
+      content: replacedContent
     });
 
     /* istanbul ignore next */
@@ -352,7 +404,7 @@ const sendViaMessenger = async ({ engageMessage, customersSelector, user }: IEng
       await createConversations(data);
 
       callback();
-    },
+    }
   });
 
   return new Promise(resolve => {
@@ -360,7 +412,11 @@ const sendViaMessenger = async ({ engageMessage, customersSelector, user }: IEng
 
     pipe.on('finish', async () => {
       // save matched customers count
-      await EngageMessages.setCustomersCount(_id, 'totalCustomersCount', iteratorCounter);
+      await EngageMessages.setCustomersCount(
+        _id,
+        'totalCustomersCount',
+        iteratorCounter
+      );
 
       if (iteratorCounter % bulkSize !== 0) {
         await executeBulks();

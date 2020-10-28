@@ -7,7 +7,7 @@ describe('Email delivery queries', () => {
   test('Transaction email deliveries', async () => {
     await emailDeliveryFactory({
       subject: 'subject',
-      kind: 'transaction',
+      kind: 'transaction'
     });
 
     const query = `
@@ -20,7 +20,9 @@ describe('Email delivery queries', () => {
       }
     `;
 
-    const response = await graphqlRequest(query, 'transactionEmailDeliveries', { searchValue: 'subject' });
+    const response = await graphqlRequest(query, 'transactionEmailDeliveries', {
+      searchValue: 'subject'
+    });
 
     expect(response.list.length).toBe(1);
   });

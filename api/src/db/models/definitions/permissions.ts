@@ -28,8 +28,12 @@ export const permissionSchema = new Schema({
   action: field({ type: String, label: 'Action' }),
   userId: field({ type: String, label: 'User' }),
   groupId: field({ type: String, label: 'User group' }),
-  requiredActions: field({ type: [String], default: [], label: 'Required actions' }),
-  allowed: field({ type: Boolean, default: false, label: 'Allowed' }),
+  requiredActions: field({
+    type: [String],
+    default: [],
+    label: 'Required actions'
+  }),
+  allowed: field({ type: Boolean, default: false, label: 'Allowed' })
 });
 
 export interface IUserGroup {
@@ -44,5 +48,5 @@ export interface IUserGroupDocument extends IUserGroup, Document {
 export const userGroupSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, unique: true, label: 'Name' }),
-  description: field({ type: String, label: 'Description' }),
+  description: field({ type: String, label: 'Description' })
 });

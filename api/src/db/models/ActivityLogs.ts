@@ -1,5 +1,9 @@
 import { Model, model } from 'mongoose';
-import { activityLogSchema, IActivityLogDocument, IActivityLogInput } from './definitions/activityLogs';
+import {
+  activityLogSchema,
+  IActivityLogDocument,
+  IActivityLogInput
+} from './definitions/activityLogs';
 
 import { IItemCommonFieldsDocument } from './definitions/boards';
 import { ACTIVITY_ACTIONS } from './definitions/constants';
@@ -9,12 +13,23 @@ export interface IActivityLogModel extends Model<IActivityLogDocument> {
   addActivityLog(doc: IActivityLogInput): Promise<IActivityLogDocument>;
   removeActivityLog(contentId: string): void;
 
-  createSegmentLog(segment: ISegmentDocument, customer: string[], type: string, maxBulk?: number);
+  createSegmentLog(
+    segment: ISegmentDocument,
+    customer: string[],
+    type: string,
+    maxBulk?: number
+  );
   createLogFromWidget(type: string, payload): Promise<IActivityLogDocument>;
-  createCocLog({ coc, contentType }: { coc: any; contentType: string }): Promise<IActivityLogDocument>;
+  createCocLog({
+    coc,
+    contentType
+  }: {
+    coc: any;
+    contentType: string;
+  }): Promise<IActivityLogDocument>;
   createBoardItemLog({
     item,
-    contentType,
+    contentType
   }: {
     item: IItemCommonFieldsDocument;
     contentType: string;
@@ -23,13 +38,13 @@ export interface IActivityLogModel extends Model<IActivityLogDocument> {
     item: IItemCommonFieldsDocument,
     type: string,
     userId: string,
-    content: object,
+    content: object
   ): Promise<IActivityLogDocument>;
   createAssigneLog({
     contentId,
     userId,
     contentType,
-    content,
+    content
   }: {
     contentId: string;
     userId: string;
@@ -39,7 +54,7 @@ export interface IActivityLogModel extends Model<IActivityLogDocument> {
   createChecklistLog({
     item,
     contentType,
-    action,
+    action
   }: {
     item: any;
     contentType: string;
@@ -50,7 +65,7 @@ export interface IActivityLogModel extends Model<IActivityLogDocument> {
     item,
     contentType,
     action,
-    userId,
+    userId
   }: {
     item: any;
     contentType: string;
@@ -73,7 +88,7 @@ export const loadClass = () => {
       contentId,
       userId,
       contentType,
-      content,
+      content
     }: {
       contentId: string;
       userId: string;
@@ -85,11 +100,17 @@ export const loadClass = () => {
         contentId,
         action: 'assignee',
         content,
-        createdBy: userId || '',
+        createdBy: userId || ''
       });
     }
 
-    public static createBoardItemLog({ item, contentType }: { item: IItemCommonFieldsDocument; contentType: string }) {
+    public static createBoardItemLog({
+      item,
+      contentType
+    }: {
+      item: IItemCommonFieldsDocument;
+      contentType: string;
+    }) {
       let action = ACTIVITY_ACTIONS.CREATE;
       let content = '';
 
@@ -103,7 +124,7 @@ export const loadClass = () => {
         contentId: item._id,
         action,
         createdBy: item.userId || '',
-        content,
+        content
       });
     }
 
@@ -111,27 +132,39 @@ export const loadClass = () => {
       item: IItemCommonFieldsDocument,
       contentType: string,
       userId: string,
-      content: object,
+      content: object
     ) {
       return ActivityLogs.addActivityLog({
         contentType,
         contentId: item._id,
         action: ACTIVITY_ACTIONS.MOVED,
         createdBy: userId,
-        content,
+        content
       });
     }
 
     public static async createLogFromWidget(type: string, payload) {
       switch (type) {
         case 'create-customer':
-          return ActivityLogs.createCocLog({ coc: payload, contentType: 'customer' });
+          return ActivityLogs.createCocLog({
+            coc: payload,
+            contentType: 'customer'
+          });
         case 'create-company':
-          return ActivityLogs.createCocLog({ coc: payload, contentType: 'company' });
+          return ActivityLogs.createCocLog({
+            coc: payload,
+            contentType: 'company'
+          });
       }
     }
 
-    public static createCocLog({ coc, contentType }: { coc: any; contentType: string }) {
+    public static createCocLog({
+      coc,
+      contentType
+    }: {
+      coc: any;
+      contentType: string;
+    }) {
       let action = ACTIVITY_ACTIONS.CREATE;
       let content = '';
 
@@ -145,7 +178,7 @@ export const loadClass = () => {
         content,
         contentId: coc._id,
         action,
-        createdBy: coc.ownerId || coc.integrationId,
+        createdBy: coc.ownerId || coc.integrationId
       });
     }
 
@@ -156,21 +189,23 @@ export const loadClass = () => {
       segment: ISegmentDocument,
       contentIds: string[],
       type: string,
-      maxBulk: number = 10000,
+      maxBulk: number = 10000
     ) {
       const foundSegments = await ActivityLogs.find(
         {
           contentType: type,
           action: 'segment',
           contentId: { $in: contentIds },
-          'content.id': segment._id,
+          'content.id': segment._id
         },
-        { contentId: 1 },
+        { contentId: 1 }
       );
 
       const foundContentIds = foundSegments.map(s => s.contentId);
 
-      const diffContentIds = contentIds.filter(x => !foundContentIds.includes(x));
+      const diffContentIds = contentIds.filter(
+        x => !foundContentIds.includes(x)
+      );
 
       let bulkOpt: Array<{
         contentType: string;
@@ -190,8 +225,8 @@ export const loadClass = () => {
           action: 'segment',
           content: {
             id: segment._id,
-            content: segment.name,
-          },
+            content: segment.name
+          }
         });
 
         if (bulkCounter === maxBulk) {
@@ -212,7 +247,7 @@ export const loadClass = () => {
       item,
       contentType,
       action,
-      userId,
+      userId
     }: {
       item: any;
       contentType: string;
@@ -224,14 +259,14 @@ export const loadClass = () => {
         contentId: item._id,
         action: 'archive',
         content: action,
-        createdBy: userId,
+        createdBy: userId
       });
     }
 
     public static async createChecklistLog({
       item,
       contentType,
-      action,
+      action
     }: {
       item: any;
       contentType: string;
@@ -240,7 +275,7 @@ export const loadClass = () => {
       if (action === 'delete') {
         await ActivityLogs.updateMany(
           { 'content._id': item._id },
-          { $set: { 'content.name': item.title || item.content } },
+          { $set: { 'content.name': item.title || item.content } }
         );
       }
 
@@ -250,9 +285,9 @@ export const loadClass = () => {
         action,
         content: {
           _id: item._id,
-          name: item.title || item.content,
+          name: item.title || item.content
         },
-        createdBy: item.createdUserId || '',
+        createdBy: item.createdUserId || ''
       });
     }
   }
@@ -265,6 +300,9 @@ export const loadClass = () => {
 loadClass();
 
 // tslint:disable-next-line
-const ActivityLogs = model<IActivityLogDocument, IActivityLogModel>('activity_logs', activityLogSchema);
+const ActivityLogs = model<IActivityLogDocument, IActivityLogModel>(
+  'activity_logs',
+  activityLogSchema
+);
 
 export default ActivityLogs;

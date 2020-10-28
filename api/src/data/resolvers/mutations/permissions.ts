@@ -1,6 +1,10 @@
 import * as _ from 'underscore';
 import { Permissions, Users, UsersGroups } from '../../../db/models';
-import { IPermissionParams, IUserGroup, IUserGroupDocument } from '../../../db/models/definitions/permissions';
+import {
+  IPermissionParams,
+  IUserGroup,
+  IUserGroupDocument
+} from '../../../db/models/definitions/permissions';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
@@ -22,7 +26,9 @@ const writeUserLog = async (params: IParams) => {
     const exists = memberIds.find(id => id === oldUser._id);
 
     if (!exists) {
-      const groupIds = oldUser.groupIds ? oldUser.groupIds.filter(item => item !== group._id) : [];
+      const groupIds = oldUser.groupIds
+        ? oldUser.groupIds.filter(item => item !== group._id)
+        : [];
       // user has been removed from the group
       await putUpdateLog(
         {
@@ -30,9 +36,9 @@ const writeUserLog = async (params: IParams) => {
           object: { _id: oldUser._id, groupIds: oldUser.groupIds },
           newData: { groupIds },
           description: `User "${oldUser.email}" has been removed from group "${group.name}"`,
-          updatedDocument: { groupIds },
+          updatedDocument: { groupIds }
         },
-        currentUser,
+        currentUser
       );
     }
   } // end oldUser loop
@@ -47,7 +53,9 @@ const writeUserLog = async (params: IParams) => {
 
       if (addedUser) {
         // previous data was like this
-        const groupIds = (addedUser.groupIds || []).filter(groupId => groupId !== group._id);
+        const groupIds = (addedUser.groupIds || []).filter(
+          groupId => groupId !== group._id
+        );
 
         await putUpdateLog(
           {
@@ -55,9 +63,9 @@ const writeUserLog = async (params: IParams) => {
             object: { _id: memberId, groupIds },
             newData: { groupIds: addedUser.groupIds },
             description: `User "${addedUser.email}" has been added to group ${group.name}`,
-            updatedDocument: { groupIds: addedUser.groupIds },
+            updatedDocument: { groupIds: addedUser.groupIds }
           },
-          currentUser,
+          currentUser
         );
       }
     }
@@ -81,9 +89,9 @@ const permissionMutations = {
         {
           type: MODULE_NAMES.PERMISSION,
           object: perm,
-          newData: perm,
+          newData: perm
         },
-        user,
+        user
       );
     }
 
@@ -97,7 +105,11 @@ const permissionMutations = {
    * @param {[String]} ids
    * @return {Promise}
    */
-  async permissionsRemove(_root, { ids }: { ids: string[] }, { user }: IContext) {
+  async permissionsRemove(
+    _root,
+    { ids }: { ids: string[] },
+    { user }: IContext
+  ) {
     const permissions = await Permissions.find({ _id: { $in: ids } });
     const result = await Permissions.removePermission(ids);
 
@@ -108,7 +120,7 @@ const permissionMutations = {
     await resetPermissionsCache();
 
     return result;
-  },
+  }
 };
 
 const usersGroupMutations = {
@@ -118,7 +130,11 @@ const usersGroupMutations = {
    * @param {String} doc.description
    * @return {Promise} newly created group object
    */
-  async usersGroupsAdd(_root, { memberIds, ...doc }: IUserGroup & { memberIds?: string[] }, { user }: IContext) {
+  async usersGroupsAdd(
+    _root,
+    { memberIds, ...doc }: IUserGroup & { memberIds?: string[] },
+    { user }: IContext
+  ) {
     // users before updating
     const oldUsers = await Users.find({ _id: { $in: memberIds || [] } });
 
@@ -129,13 +145,15 @@ const usersGroupMutations = {
         type: MODULE_NAMES.USER_GROUP,
         object: group,
         newData: doc,
-        description: `"${group.name}" has been created`,
+        description: `"${group.name}" has been created`
       },
-      user,
+      user
     );
 
     for (const oldUser of oldUsers) {
-      const updatedDocument = { groupIds: [...(oldUser.groupIds || []), group._id] };
+      const updatedDocument = {
+        groupIds: [...(oldUser.groupIds || []), group._id]
+      };
 
       await putUpdateLog(
         {
@@ -143,9 +161,9 @@ const usersGroupMutations = {
           object: oldUser,
           newData: updatedDocument,
           description: `User "${oldUser.email}" has been added to group ${group.name}`,
-          updatedDocument,
+          updatedDocument
         },
-        user,
+        user
       );
     }
 
@@ -162,8 +180,12 @@ const usersGroupMutations = {
    */
   async usersGroupsEdit(
     _root,
-    { _id, memberIds, ...doc }: { _id: string; memberIds?: string[] } & IUserGroup,
-    { user }: IContext,
+    {
+      _id,
+      memberIds,
+      ...doc
+    }: { _id: string; memberIds?: string[] } & IUserGroup,
+    { user }: IContext
   ) {
     const group = await UsersGroups.getGroup(_id);
     const oldUsers = await Users.find({ groupIds: { $in: [_id] } });
@@ -176,9 +198,9 @@ const usersGroupMutations = {
           type: MODULE_NAMES.USER_GROUP,
           object: group,
           newData: doc,
-          description: `"${group.name}" has been edited`,
+          description: `"${group.name}" has been edited`
         },
-        user,
+        user
       );
     }
 
@@ -186,7 +208,7 @@ const usersGroupMutations = {
       currentUser: user,
       memberIds,
       oldUsers,
-      group,
+      group
     });
 
     await resetPermissionsCache();
@@ -208,13 +230,15 @@ const usersGroupMutations = {
       {
         type: MODULE_NAMES.USER_GROUP,
         object: group,
-        description: `"${group.name}" has been removed`,
+        description: `"${group.name}" has been removed`
       },
-      user,
+      user
     );
 
     for (const member of members) {
-      const groupIds = member.groupIds ? member.groupIds.filter(id => id !== group._id) : [];
+      const groupIds = member.groupIds
+        ? member.groupIds.filter(id => id !== group._id)
+        : [];
 
       await putUpdateLog(
         {
@@ -222,9 +246,9 @@ const usersGroupMutations = {
           object: { _id: member._id, groupIds: member.groupIds },
           newData: { groupIds },
           updatedDocument: { groupIds },
-          description: `User ${member.email} has been removed from group ${group.name}`,
+          description: `User ${member.email} has been removed from group ${group.name}`
         },
-        user,
+        user
       );
     }
 
@@ -233,7 +257,11 @@ const usersGroupMutations = {
     return result;
   },
 
-  async usersGroupsCopy(_root, { _id, memberIds }: { _id: string; memberIds: string[] }, { user }: IContext) {
+  async usersGroupsCopy(
+    _root,
+    { _id, memberIds }: { _id: string; memberIds: string[] },
+    { user }: IContext
+  ) {
     const group = await UsersGroups.getGroup(_id);
 
     const clone = await UsersGroups.copyGroup(group._id, memberIds);
@@ -243,13 +271,13 @@ const usersGroupMutations = {
         type: 'userGroup',
         object: clone,
         newData: { name: clone.name, description: clone.description },
-        description: `"${group.name}" has been copied`,
+        description: `"${group.name}" has been copied`
       },
-      user,
+      user
     );
 
     return clone;
-  },
+  }
 };
 
 moduleCheckPermission(permissionMutations, 'managePermissions');

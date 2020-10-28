@@ -16,7 +16,7 @@ describe('Test email delivery model', () => {
       kind: 'nylas-gmail',
       userId: 'WQ3tsgnDdDu3jhbQj',
       customerId: 'oqpF46JorrLRkmpKw',
-      __v: 0,
+      __v: 0
     };
 
     const emailDelivery = await EmailDeliveries.createEmailDelivery(doc);
@@ -27,12 +27,17 @@ describe('Test email delivery model', () => {
   test('Transaction email delivery update status', async () => {
     const emailDelivery = await emailDeliveryFactory({
       kind: 'transaction',
-      status: 'pending',
+      status: 'pending'
     });
 
-    await EmailDeliveries.updateEmailDeliveryStatus(emailDelivery._id, 'received');
+    await EmailDeliveries.updateEmailDeliveryStatus(
+      emailDelivery._id,
+      'received'
+    );
 
-    const newEmailDelivery = await EmailDeliveries.findOne({ _id: emailDelivery._id }).lean();
+    const newEmailDelivery = await EmailDeliveries.findOne({
+      _id: emailDelivery._id
+    }).lean();
 
     expect(newEmailDelivery.status).toBe('received');
   });

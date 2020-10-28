@@ -28,14 +28,14 @@ describe('segmentQueries', () => {
 
     // customer segment ==================
     let response = await graphqlRequest(qry, 'segments', {
-      contentTypes: ['customer'],
+      contentTypes: ['customer']
     });
 
     expect(response.length).toBe(1);
 
     // company segment ==================
     response = await graphqlRequest(qry, 'segments', {
-      contentTypes: ['company'],
+      contentTypes: ['company']
     });
 
     expect(response.length).toBe(1);
@@ -64,7 +64,7 @@ describe('segmentQueries', () => {
     `;
 
     const response = await graphqlRequest(qry, 'segmentDetail', {
-      _id: segment._id,
+      _id: segment._id
     });
 
     expect(response._id).toBe(segment._id);
@@ -108,18 +108,18 @@ describe('segmentQueries', () => {
                           attributes: [
                             {
                               field: 'url',
-                              value: '/test',
-                            },
-                          ],
-                        },
-                      },
-                    ],
-                  },
-                },
-              },
-            ],
-          },
-        },
+                              value: '/test'
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
       });
     });
 
@@ -129,7 +129,9 @@ describe('segmentQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, 'segmentsEvents', { contentType: 'customer' });
+    const response = await graphqlRequest(qry, 'segmentsEvents', {
+      contentType: 'customer'
+    });
 
     expect(response.length).toBe(1);
 
@@ -147,10 +149,16 @@ describe('segmentQueries', () => {
       return Promise.reject('error');
     });
 
-    await graphqlRequest(qry, 'segmentsPreviewCount', { contentType: 'customer', conditions: [] });
+    await graphqlRequest(qry, 'segmentsPreviewCount', {
+      contentType: 'customer',
+      conditions: []
+    });
 
     mock.restore();
 
-    await graphqlRequest(qry, 'segmentsPreviewCount', { contentType: 'customer', conditions: [] });
+    await graphqlRequest(qry, 'segmentsPreviewCount', {
+      contentType: 'customer',
+      conditions: []
+    });
   });
 });

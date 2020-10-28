@@ -317,12 +317,28 @@ export const WEBHOOK_ACTIONS = [
   { label: 'Company created', action: 'create', type: 'company' },
   { label: 'Company updated', action: 'update', type: 'company' },
   { label: 'Company deleted', action: 'delete', type: 'company' },
-  { label: 'Knowledge Base created', action: 'create', type: 'knowledgeBaseArticle' },
-  { label: 'Knowledge Base updated', action: 'update', type: 'knowledgeBaseArticle' },
-  { label: 'Knowledge Base deleted', action: 'delete', type: 'knowledgeBaseArticle' },
+  {
+    label: 'Knowledge Base created',
+    action: 'create',
+    type: 'knowledgeBaseArticle'
+  },
+  {
+    label: 'Knowledge Base updated',
+    action: 'update',
+    type: 'knowledgeBaseArticle'
+  },
+  {
+    label: 'Knowledge Base deleted',
+    action: 'delete',
+    type: 'knowledgeBaseArticle'
+  },
   { label: 'Admin messages', action: 'create', type: 'userMessages' },
-  { label: 'Customer create conversation', action: 'create', type: 'conversation' },
+  {
+    label: 'Customer create conversation',
+    action: 'create',
+    type: 'conversation'
+  },
   { label: 'Customer messages', action: 'create', type: 'customerMessages' },
   { label: 'Engage messages', action: 'create', type: 'engageMessages' },
-  { label: 'Popup submitted', action: 'create', type: 'popupSubmitted'}
+  { label: 'Popup submitted', action: 'create', type: 'popupSubmitted' }
 ];

@@ -26,9 +26,9 @@ export const stageSchema = new Schema(
     _id: field({ type: String }),
     name: field({ type: String, label: 'Stage name' }),
     formId: field({ type: String, optional: true, label: 'Form' }),
-    order: field({ type: Number, label: 'Order' }),
+    order: field({ type: Number, label: 'Order' })
   },
-  { _id: false },
+  { _id: false }
 );
 
 export const pipelineTemplateSchema = new Schema({
@@ -37,11 +37,15 @@ export const pipelineTemplateSchema = new Schema({
   type: field({ type: String, label: 'Type' }),
   description: field({ type: String, optional: true, label: 'Description' }),
   stages: field({ type: [stageSchema], default: [], label: 'Stages' }),
-  isDefinedByErxes: field({ type: Boolean, default: false, label: 'Is defined by erxes' }),
+  isDefinedByErxes: field({
+    type: Boolean,
+    default: false,
+    label: 'Is defined by erxes'
+  }),
   createdBy: field({ type: String, label: 'Created by' }),
   createdAt: field({
     type: Date,
     default: new Date(),
-    label: 'Created at',
-  }),
+    label: 'Created at'
+  })
 });

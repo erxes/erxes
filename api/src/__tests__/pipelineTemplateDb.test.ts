@@ -1,15 +1,26 @@
 import * as faker from 'faker';
 import { formFactory, pipelineTemplateFactory } from '../db/factories';
 import { PipelineTemplates } from '../db/models';
-import { IPipelineTemplateDocument, IPipelineTemplateStage } from '../db/models/definitions/pipelineTemplates';
+import {
+  IPipelineTemplateDocument,
+  IPipelineTemplateStage
+} from '../db/models/definitions/pipelineTemplates';
 
 import './setup.ts';
 
 describe('Test pipeline template model', () => {
   let pipelineTemplate: IPipelineTemplateDocument;
   const stages: IPipelineTemplateStage[] = [
-    { _id: Math.random().toString(), name: faker.random.word(), formId: faker.random.word() },
-    { _id: Math.random().toString(), name: faker.random.word(), formId: faker.random.word() },
+    {
+      _id: Math.random().toString(),
+      name: faker.random.word(),
+      formId: faker.random.word()
+    },
+    {
+      _id: Math.random().toString(),
+      name: faker.random.word(),
+      formId: faker.random.word()
+    }
   ];
 
   beforeEach(async () => {
@@ -29,7 +40,9 @@ describe('Test pipeline template model', () => {
       expect(e.message).toBe('Pipeline template not found');
     }
 
-    const response = await PipelineTemplates.getPipelineTemplate(pipelineTemplate._id);
+    const response = await PipelineTemplates.getPipelineTemplate(
+      pipelineTemplate._id
+    );
 
     expect(response).toBeDefined();
   });
@@ -40,9 +53,9 @@ describe('Test pipeline template model', () => {
       {
         name: pipelineTemplate.name,
         description: pipelineTemplate.description || '',
-        type: pipelineTemplate.type,
+        type: pipelineTemplate.type
       },
-      stages,
+      stages
     );
 
     expect(created).toBeDefined();
@@ -62,9 +75,9 @@ describe('Test pipeline template model', () => {
       {
         name,
         description,
-        type,
+        type
       },
-      stages,
+      stages
     );
 
     expect(updated).toBeDefined();
@@ -88,10 +101,15 @@ describe('Test pipeline template model', () => {
 
     // Creating test data
     const template = await pipelineTemplateFactory({
-      stages: [{ name: 'stage 1', formId: form1._id }, { name: 'stage 2', formId: form2._id }],
+      stages: [
+        { name: 'stage 1', formId: form1._id },
+        { name: 'stage 2', formId: form2._id }
+      ]
     });
 
-    const duplicated = await PipelineTemplates.duplicatePipelineTemplate(template._id);
+    const duplicated = await PipelineTemplates.duplicatePipelineTemplate(
+      template._id
+    );
 
     expect(duplicated).toBeDefined();
     expect(duplicated.description).toEqual(template.description);
@@ -101,7 +119,9 @@ describe('Test pipeline template model', () => {
   });
 
   test('Remove pipeline template', async () => {
-    const isDeleted = await PipelineTemplates.removePipelineTemplate(pipelineTemplate._id);
+    const isDeleted = await PipelineTemplates.removePipelineTemplate(
+      pipelineTemplate._id
+    );
 
     expect(isDeleted).toBeTruthy();
   });

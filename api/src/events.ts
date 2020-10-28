@@ -39,8 +39,8 @@ export const saveEvent = async (args: ISaveEventArgs) => {
 
   const searchQuery = {
     bool: {
-      must: [{ term: { name } }, { term: { customerId } }],
-    },
+      must: [{ term: { name } }, { term: { customerId } }]
+    }
   };
 
   if (additionalQuery) {
@@ -62,9 +62,9 @@ export const saveEvent = async (args: ISaveEventArgs) => {
           customerId,
           createdAt: new Date(),
           count: 1,
-          attributes: Fields.generateTypedListFromMap(attributes || {}),
-        },
-      },
+          attributes: Fields.generateTypedListFromMap(attributes || {})
+        }
+      }
     });
 
     debugBase(`Response ${JSON.stringify(response)}`);
@@ -81,14 +81,21 @@ export const saveEvent = async (args: ISaveEventArgs) => {
   return { customerId };
 };
 
-export const getNumberOfVisits = async (customerId: string, url: string): Promise<number> => {
+export const getNumberOfVisits = async (
+  customerId: string,
+  url: string
+): Promise<number> => {
   try {
     const response = await fetchElk('search', 'events', {
       query: {
         bool: {
-          must: [{ term: { name: 'viewPage' } }, { term: { customerId } }, { term: { 'attributes.url.keyword': url } }],
-        },
-      },
+          must: [
+            { term: { name: 'viewPage' } },
+            { term: { customerId } },
+            { term: { 'attributes.url.keyword': url } }
+          ]
+        }
+      }
     });
 
     const hits = response.hits.hits;
@@ -106,7 +113,10 @@ export const getNumberOfVisits = async (customerId: string, url: string): Promis
   }
 };
 
-export const trackViewPageEvent = (args: { customerId: string; attributes: any }) => {
+export const trackViewPageEvent = (args: {
+  customerId: string;
+  attributes: any;
+}) => {
   const { attributes, customerId } = args;
 
   return saveEvent({
@@ -119,26 +129,30 @@ export const trackViewPageEvent = (args: { customerId: string; attributes: any }
         must: [
           {
             term: {
-              'attributes.field': 'url',
-            },
+              'attributes.field': 'url'
+            }
           },
           {
             term: {
-              'attributes.value': attributes.url,
-            },
-          },
-        ],
-      },
-    },
+              'attributes.value': attributes.url
+            }
+          }
+        ]
+      }
+    }
   });
 };
 
-export const trackCustomEvent = (args: { name: string; customerId: string; attributes: any }) => {
+export const trackCustomEvent = (args: {
+  name: string;
+  customerId: string;
+  attributes: any;
+}) => {
   return saveEvent({
     type: 'custom',
     name: args.name,
     customerId: args.customerId,
-    attributes: args.attributes,
+    attributes: args.attributes
   });
 };
 
@@ -150,7 +164,7 @@ export const identifyCustomer = async (args: ICustomerIdentifyParams) => {
     customer = await Customers.createCustomer({
       primaryEmail: args.email,
       code: args.code,
-      primaryPhone: args.phone,
+      primaryPhone: args.phone
     });
   }
 
@@ -160,7 +174,7 @@ export const identifyCustomer = async (args: ICustomerIdentifyParams) => {
 export const updateCustomerProperty = async ({
   customerId,
   name,
-  value,
+  value
 }: {
   customerId: string;
   name: string;
@@ -172,7 +186,11 @@ export const updateCustomerProperty = async ({
 
   let modifier: any = { [name]: value };
 
-  if (!['firstName', 'lastName', 'primaryPhone', 'primaryEmail', 'code'].includes(name)) {
+  if (
+    !['firstName', 'lastName', 'primaryPhone', 'primaryEmail', 'code'].includes(
+      name
+    )
+  ) {
     const customer = await Customers.findOne({ _id: customerId });
 
     if (customer) {

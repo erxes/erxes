@@ -31,6 +31,6 @@ export const activityLogSchema = new Schema({
   createdAt: field({
     type: Date,
     required: true,
-    default: Date.now,
-  }),
+    default: Date.now
+  })
 });

@@ -34,7 +34,7 @@ describe('Brands mutations', () => {
   test('Create brand', async () => {
     const args = {
       name: _brand.name,
-      description: _brand.description,
+      description: _brand.description
     };
 
     const mutation = `
@@ -57,7 +57,7 @@ describe('Brands mutations', () => {
     const args = {
       _id: _brand._id,
       name: 'name',
-      description: 'Soem texte',
+      description: 'Soem texte'
     };
 
     const mutation = `
@@ -91,7 +91,7 @@ describe('Brands mutations', () => {
   test('Config email brand', async () => {
     const args = {
       _id: _brand._id,
-      emailConfig: _brand.emailConfig,
+      emailConfig: _brand.emailConfig
     };
 
     const mutation = `
@@ -112,7 +112,7 @@ describe('Brands mutations', () => {
   test('Manage brand integrations', async () => {
     const args = {
       _id: _brand._id,
-      integrationIds: [_integration._id],
+      integrationIds: [_integration._id]
     };
 
     const mutation = `
@@ -124,7 +124,11 @@ describe('Brands mutations', () => {
       }
     `;
 
-    const [integration] = await graphqlRequest(mutation, 'brandsManageIntegrations', args);
+    const [integration] = await graphqlRequest(
+      mutation,
+      'brandsManageIntegrations',
+      args
+    );
 
     expect(integration.brandId).toBe(args._id);
   });

@@ -31,7 +31,10 @@ interface IEmail {
   attachments?: IAttachmentParams;
 }
 
-export const updateLastChangesHistoryId = async (email: string, historyId: string) => {
+export const updateLastChangesHistoryId = async (
+  email: string,
+  historyId: string
+) => {
   debugGmail(`Executing: updateLastChangesHistoryId email: ${email}`);
 
   const integration = await Integrations.findOne({ email });
@@ -45,7 +48,13 @@ export const updateLastChangesHistoryId = async (email: string, historyId: strin
   return integration.save();
 };
 
-export const storeCustomer = async ({ email, integrationIds }: { email: IEmail; integrationIds: IIntegrationIds }) => {
+export const storeCustomer = async ({
+  email,
+  integrationIds
+}: {
+  email: IEmail;
+  integrationIds: IIntegrationIds;
+}) => {
   debugGmail('Creating customer');
 
   const { sender, fromEmail } = email;
@@ -56,7 +65,7 @@ export const storeCustomer = async ({ email, integrationIds }: { email: IEmail; 
     return {
       customerErxesApiId: prevCustomer.erxesApiId,
       integrationIds,
-      email,
+      email
     };
   }
 
@@ -68,8 +77,8 @@ export const storeCustomer = async ({ email, integrationIds }: { email: IEmail; 
         firstName: sender,
         lastName: '',
         primaryEmail: fromEmail,
-        integrationId: integrationIds.erxesApiId,
-      }),
+        integrationId: integrationIds.erxesApiId
+      })
     });
 
     const customer = await Customers.create({
@@ -77,13 +86,13 @@ export const storeCustomer = async ({ email, integrationIds }: { email: IEmail; 
       firstName: sender,
       lastName: '',
       integrationId: integrationIds.id,
-      erxesApiId: apiCustomerResponse._id,
+      erxesApiId: apiCustomerResponse._id
     });
 
     return {
       customerErxesApiId: customer.erxesApiId,
       integrationIds,
-      email,
+      email
     };
   } catch (e) {
     debugGmail('Failed to create customer');
@@ -107,10 +116,14 @@ export const storeConversation = async (args: {
   if (inReplyTo) {
     const headerIds = Array.isArray(inReplyTo) ? inReplyTo : [inReplyTo];
 
-    const message = await ConversationMessages.findOne({ headerId: { $in: headerIds } });
+    const message = await ConversationMessages.findOne({
+      headerId: { $in: headerIds }
+    });
 
     if (message) {
-      conversation = await Conversations.findOne({ _id: message.conversationId });
+      conversation = await Conversations.findOne({
+        _id: message.conversationId
+      });
     }
   }
 
@@ -120,8 +133,8 @@ export const storeConversation = async (args: {
       customerErxesApiId,
       conversationIds: {
         id: conversation._id,
-        erxesApiId: conversation.erxesApiId,
-      },
+        erxesApiId: conversation.erxesApiId
+      }
     };
   }
 
@@ -131,15 +144,15 @@ export const storeConversation = async (args: {
       payload: JSON.stringify({
         customerId: customerErxesApiId,
         integrationId: erxesApiId,
-        content: subject,
-      }),
+        content: subject
+      })
     });
 
     conversation = await Conversations.create({
       erxesApiId: apiConversationResponse._id,
       to,
       from,
-      integrationId: id,
+      integrationId: id
     });
 
     return {
@@ -147,8 +160,8 @@ export const storeConversation = async (args: {
       customerErxesApiId,
       conversationIds: {
         id: conversation._id,
-        erxesApiId: conversation.erxesApiId,
-      },
+        erxesApiId: conversation.erxesApiId
+      }
     };
   } catch (e) {
     debugGmail(`Failed to create conversation ${e.message}`);
@@ -170,7 +183,9 @@ export const storeConversationMessage = async (args: {
   const { messageId } = email;
   const { id, erxesApiId } = conversationIds;
 
-  const prevConversationMessage = await ConversationMessages.findOne({ messageId });
+  const prevConversationMessage = await ConversationMessages.findOne({
+    messageId
+  });
 
   if (prevConversationMessage) {
     return debugGmail(`Message with id: ${messageId} already exists`);
@@ -185,8 +200,8 @@ export const storeConversationMessage = async (args: {
       payload: JSON.stringify({
         conversationId: erxesApiId,
         customerId: customerErxesApiId,
-        content: cleanHtml(email.html),
-      }),
+        content: cleanHtml(email.html)
+      })
     });
 
     return ConversationMessages.create({
@@ -207,7 +222,7 @@ export const storeConversationMessage = async (args: {
       bcc: getEmailsAsObject(email.bcc),
       from: getEmailsAsObject(email.from),
       sender: email.sender,
-      attachments: email.attachments,
+      attachments: email.attachments
     });
   } catch (e) {
     await Conversations.deleteOne({ _id: conversationIds.id });

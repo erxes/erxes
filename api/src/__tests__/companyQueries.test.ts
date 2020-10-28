@@ -1,5 +1,11 @@
 import { graphqlRequest } from '../db/connection';
-import { brandFactory, companyFactory, integrationFactory, segmentFactory, tagsFactory } from '../db/factories';
+import {
+  brandFactory,
+  companyFactory,
+  integrationFactory,
+  segmentFactory,
+  tagsFactory
+} from '../db/factories';
 import { Companies, Segments, Tags } from '../db/models';
 
 import './setup.ts';
@@ -87,7 +93,7 @@ describe('companyQueries', () => {
     await segmentFactory({ contentType: 'company' });
 
     await graphqlRequest(qryCount, 'companyCounts', {
-      only: 'bySegment',
+      only: 'bySegment'
     });
   });
 
@@ -96,7 +102,7 @@ describe('companyQueries', () => {
     await tagsFactory({ type: 'customer' });
 
     await graphqlRequest(qryCount, 'companyCounts', {
-      only: 'byTag',
+      only: 'byTag'
     });
   });
 
@@ -105,7 +111,7 @@ describe('companyQueries', () => {
     await integrationFactory({ brandId: brand._id });
 
     await graphqlRequest(qryCount, 'companyCounts', {
-      only: 'byBrand',
+      only: 'byBrand'
     });
   });
 
@@ -149,7 +155,7 @@ describe('companyQueries', () => {
     `;
 
     const response = await graphqlRequest(qry, 'companyDetail', {
-      _id: company._id,
+      _id: company._id
     });
 
     expect(response._id).toBe(company._id);

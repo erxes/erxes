@@ -1,5 +1,10 @@
 import * as toBeType from 'jest-tobetype';
-import { customerFactory, fieldFactory, formFactory, userFactory } from '../db/factories';
+import {
+  customerFactory,
+  fieldFactory,
+  formFactory,
+  userFactory
+} from '../db/factories';
 import { Customers, Fields, Forms, FormSubmissions, Users } from '../db/models';
 
 import { FORM_TYPES } from '../db/models/definitions/constants';
@@ -24,9 +29,9 @@ describe('form creation', () => {
       {
         title: 'Test form',
         description: 'Test form description',
-        type: FORM_TYPES.GROWTH_HACK,
+        type: FORM_TYPES.GROWTH_HACK
       },
-      _user._id,
+      _user._id
     );
 
     expect(form.title).toBe('Test form');
@@ -68,7 +73,7 @@ describe('form update', () => {
     const doc = {
       title: 'Test form 2',
       description: 'Test form description 2',
-      type: FORM_TYPES.GROWTH_HACK,
+      type: FORM_TYPES.GROWTH_HACK
     };
 
     const formAfterUpdate = await Forms.updateForm(_form._id, doc);
@@ -100,7 +105,7 @@ describe('form remove', () => {
 
     await fieldFactory({
       contentType: 'customer',
-      contentTypeId: customer._id,
+      contentTypeId: customer._id
     });
     await fieldFactory({ contentType: 'form', contentTypeId: _form._id });
     await fieldFactory({ contentType: 'form', contentTypeId: _form._id });
@@ -150,7 +155,7 @@ describe('form duplication', () => {
 
     const duplicatedFieldsCount = await Fields.find({
       contentType: 'form',
-      contentTypeId: duplicatedForm._id,
+      contentTypeId: duplicatedForm._id
     }).countDocuments();
 
     expect(fieldsCount).toEqual(6);
@@ -162,10 +167,12 @@ describe('form duplication', () => {
 
     const formSubmission = await FormSubmissions.createFormSubmission({
       customerId: customer._id,
-      formId: _form._id,
+      formId: _form._id
     });
 
-    const formSubmissionObj = await FormSubmissions.findOne({ _id: formSubmission._id });
+    const formSubmissionObj = await FormSubmissions.findOne({
+      _id: formSubmission._id
+    });
 
     if (!formSubmissionObj) {
       throw new Error('Form submission not found');
@@ -181,47 +188,47 @@ describe('form duplication', () => {
   test('validate', async () => {
     // not submitted field
     await fieldFactory({
-      contentTypeId,
+      contentTypeId
     });
 
     const requiredField = await fieldFactory({
       contentTypeId,
-      isRequired: true,
+      isRequired: true
     });
 
     const emailField = await fieldFactory({
       contentTypeId,
-      validation: 'email',
+      validation: 'email'
     });
 
     const phoneField = await fieldFactory({
       contentTypeId,
-      validation: 'phone',
+      validation: 'phone'
     });
 
     const validPhoneField = await fieldFactory({
       contentTypeId,
-      validation: 'phone',
+      validation: 'phone'
     });
 
     const numberField = await fieldFactory({
       contentTypeId,
-      validation: 'number',
+      validation: 'number'
     });
 
     const validNumberField = await fieldFactory({
       contentTypeId,
-      validation: 'number',
+      validation: 'number'
     });
 
     const validDateField = await fieldFactory({
       contentTypeId,
-      validation: 'date',
+      validation: 'date'
     });
 
     const dateField = await fieldFactory({
       contentTypeId,
-      validation: 'date',
+      validation: 'date'
     });
 
     const submissions = [
@@ -232,7 +239,7 @@ describe('form duplication', () => {
       { _id: numberField._id, value: 'number', validation: 'number' },
       { _id: validNumberField._id, value: 10, validation: 'number' },
       { _id: dateField._id, value: 'date', validation: 'date' },
-      { _id: validDateField._id, value: '2012-09-01', validation: 'date' },
+      { _id: validDateField._id, value: '2012-09-01', validation: 'date' }
     ];
 
     // call function
@@ -241,7 +248,13 @@ describe('form duplication', () => {
     // must be 4 error
     expect(errors.length).toEqual(5);
 
-    const [requiredError, emailError, phoneError, numberError, dateError] = errors;
+    const [
+      requiredError,
+      emailError,
+      phoneError,
+      numberError,
+      dateError
+    ] = errors;
 
     // required
     expect(requiredError.fieldId).toEqual(requiredField._id);

@@ -33,12 +33,16 @@ const init = async app => {
   app.post('/whatsapp/reply', async (req, res, next) => {
     const { attachments, conversationId, content, integrationId } = req.body;
 
-    const conversation = await Conversations.getConversation({ erxesApiId: conversationId });
+    const conversation = await Conversations.getConversation({
+      erxesApiId: conversationId
+    });
 
     const recipientId = conversation.recipientId;
     const instanceId = conversation.instanceId;
 
-    const integration = await Integrations.findOne({ erxesApiId: integrationId });
+    const integration = await Integrations.findOne({
+      erxesApiId: integrationId
+    });
 
     const token = integration.whatsappToken;
 
@@ -50,7 +54,7 @@ const init = async app => {
           filename: attachment.name,
           caption: content,
           instanceId,
-          token,
+          token
         };
         try {
           await whatsappUtils.sendFile(file);
@@ -60,12 +64,17 @@ const init = async app => {
       }
     } else {
       try {
-        const message = await whatsappUtils.reply(recipientId, content, instanceId, token);
+        const message = await whatsappUtils.reply(
+          recipientId,
+          content,
+          instanceId,
+          token
+        );
 
         await ConversationMessages.create({
           conversationId: conversation._id,
           mid: message.id,
-          content,
+          content
         });
       } catch (e) {
         next(e.message);

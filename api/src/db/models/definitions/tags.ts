@@ -21,10 +21,10 @@ export const tagSchema = schemaWrapper(
     type: field({
       type: String,
       enum: TAG_TYPES.ALL,
-      label: 'Type',
+      label: 'Type'
     }),
     colorCode: field({ type: String, label: 'Color code' }),
     createdAt: field({ type: Date, label: 'Created at' }),
-    objectCount: field({ type: Number, label: 'Object count' }),
-  }),
+    objectCount: field({ type: Number, label: 'Object count' })
+  })
 );

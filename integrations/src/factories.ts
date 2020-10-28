@@ -1,5 +1,15 @@
-import { Comments, ConversationMessages, Conversations, Customers, Posts } from './facebook/models';
-import { NylasGmailConversationMessages, NylasGmailConversations, NylasGmailCustomers } from './nylas/models';
+import {
+  Comments,
+  ConversationMessages,
+  Conversations,
+  Customers,
+  Posts
+} from './facebook/models';
+import {
+  NylasGmailConversationMessages,
+  NylasGmailConversations,
+  NylasGmailCustomers
+} from './nylas/models';
 
 import { Accounts } from './models';
 import Configs from './models/Configs';
@@ -8,7 +18,7 @@ import Integrations from './models/Integrations';
 export const configFactory = (params: { code?: string; value?: string }) => {
   const config = new Configs({
     code: params.code || '',
-    value: params.value || '',
+    value: params.value || ''
   });
 
   return config.save();
@@ -48,7 +58,7 @@ export const accountFactory = (params: {
     smtpHost: params.smtpHost || '',
     imapPort: params.imapPort || 0,
     smtpPort: params.smtpPort || 0,
-    uid: params.uid || '',
+    uid: params.uid || ''
   });
 
   return account.save();
@@ -82,7 +92,7 @@ export const integrationFactory = (params: {
     smoochIntegrationId: params.smoochIntegrationId || 'aaksjfhakjsfhkalhf',
     whatsappinstanceId: params.whatsappinstanceId || '123456',
     whatsappToken: params.whatsappToken || 'asdag123',
-    telegramBotToken: params.telegramBotToken || 'asfasfk;alskf',
+    telegramBotToken: params.telegramBotToken || 'asfasfk;alskf'
   });
 
   return integration.save();
@@ -90,25 +100,34 @@ export const integrationFactory = (params: {
 
 export const facebookCustomerFactory = (params: { userId: string }) => {
   const customer = new Customers({
-    userId: params.userId,
+    userId: params.userId
   });
 
   return customer.save();
 };
 
-export const facebookConversationFactory = (params: { senderId: string; recipientId: string }) => {
+export const facebookConversationFactory = (params: {
+  senderId: string;
+  recipientId: string;
+}) => {
   const conversation = new Conversations({
     timestamp: new Date(),
     senderId: params.senderId,
     recipientId: params.recipientId,
-    content: 'content',
+    content: 'content'
   });
 
   return conversation.save();
 };
 
-export const facebookConversationMessagFactory = (params: { conversationId?: string; mid?: string }) => {
-  const message = new ConversationMessages({ conversationId: params.conversationId || '', mid: params.mid || '' });
+export const facebookConversationMessagFactory = (params: {
+  conversationId?: string;
+  mid?: string;
+}) => {
+  const message = new ConversationMessages({
+    conversationId: params.conversationId || '',
+    mid: params.mid || ''
+  });
 
   return message.save();
 };
@@ -126,21 +145,27 @@ export const facebookCommentFactory = (params: { postId?: string }) => {
 };
 
 // Nylas gmail customer ===================
-export const nylasGmailCustomerFactory = (params: { email?: string; integrationId?: string }) => {
+export const nylasGmailCustomerFactory = (params: {
+  email?: string;
+  integrationId?: string;
+}) => {
   const customer = new NylasGmailCustomers({
     email: params.email || '',
     kind: 'gmail',
     firstName: 'firstName',
     lastName: 'lastName',
     erxesApiId: 'jalksdjkal',
-    integrationId: params.integrationId || '',
+    integrationId: params.integrationId || ''
   });
 
   return customer.save();
 };
 
 // Nylas gmail conversation =============
-export const nylasGmailConversationFactory = (params: { customerId?: string; integrationId?: string }) => {
+export const nylasGmailConversationFactory = (params: {
+  customerId?: string;
+  integrationId?: string;
+}) => {
   const conversation = new NylasGmailConversations({
     to: 'to',
     from: 'from',
@@ -148,17 +173,20 @@ export const nylasGmailConversationFactory = (params: { customerId?: string; int
     content: 'content',
     erxesApiId: 'klajsdklasj',
     customerId: params.customerId || '',
-    integrationId: params.integrationId || '',
+    integrationId: params.integrationId || ''
   });
 
   return conversation.save();
 };
 
 // Nylaws gmail conversationMessage
-export const nylasGmailConversationMessageFactory = (params: { conversationId?: string; messageId?: string }) => {
+export const nylasGmailConversationMessageFactory = (params: {
+  conversationId?: string;
+  messageId?: string;
+}) => {
   const message = new NylasGmailConversationMessages({
     conversationId: params.conversationId || '',
-    messageId: params.messageId || '',
+    messageId: params.messageId || ''
   });
 
   return message.save();

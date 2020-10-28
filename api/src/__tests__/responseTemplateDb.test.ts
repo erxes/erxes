@@ -23,7 +23,9 @@ describe('Response template db', () => {
       expect(e.message).toBe('Response template not found');
     }
 
-    const response = await ResponseTemplates.getResponseTemplate(_responseTemplate._id);
+    const response = await ResponseTemplates.getResponseTemplate(
+      _responseTemplate._id
+    );
 
     expect(response).toBeDefined();
   });
@@ -33,7 +35,7 @@ describe('Response template db', () => {
       name: _responseTemplate.name,
       content: _responseTemplate.content,
       brandId: _responseTemplate.brandId,
-      files: _responseTemplate.files,
+      files: _responseTemplate.files
     });
 
     if (!responseTemplateObj || !responseTemplateObj.files) {
@@ -48,12 +50,15 @@ describe('Response template db', () => {
   });
 
   test('Update response template', async () => {
-    const responseTemplateObj = await ResponseTemplates.updateResponseTemplate(_responseTemplate.id, {
-      name: _responseTemplate.name,
-      content: _responseTemplate.content,
-      brandId: _responseTemplate.brandId,
-      files: _responseTemplate.files,
-    });
+    const responseTemplateObj = await ResponseTemplates.updateResponseTemplate(
+      _responseTemplate.id,
+      {
+        name: _responseTemplate.name,
+        content: _responseTemplate.content,
+        brandId: _responseTemplate.brandId,
+        files: _responseTemplate.files
+      }
+    );
 
     if (!responseTemplateObj || !responseTemplateObj.files) {
       throw new Error('Response template not found');
@@ -68,7 +73,11 @@ describe('Response template db', () => {
 
   test('Delete response template', async () => {
     await ResponseTemplates.removeResponseTemplate(_responseTemplate.id);
-    expect(await ResponseTemplates.findOne({ _id: _responseTemplate.id }).countDocuments()).toBe(0);
+    expect(
+      await ResponseTemplates.findOne({
+        _id: _responseTemplate.id
+      }).countDocuments()
+    ).toBe(0);
 
     try {
       await ResponseTemplates.removeResponseTemplate('test');

@@ -50,8 +50,8 @@ export class Builder extends CommonBuilder<IListArgs> {
     if (this.params.type) {
       this.positiveList.push({
         term: {
-          state: this.params.type,
-        },
+          state: this.params.type
+        }
       });
     }
   }
@@ -72,14 +72,16 @@ export class Builder extends CommonBuilder<IListArgs> {
 
     this.positiveList.push({
       terms: {
-        relatedIntegrationIds: integrations.map(i => i._id),
-      },
+        relatedIntegrationIds: integrations.map(i => i._id)
+      }
     });
   }
 
   // filter by integration
   public async integrationFilter(integration: string): Promise<void> {
-    const integrations = await Integrations.findIntegrations({ kind: integration });
+    const integrations = await Integrations.findIntegrations({
+      kind: integration
+    });
 
     /**
      * Since both of brand and integration filters use a same integrationId field
@@ -87,8 +89,8 @@ export class Builder extends CommonBuilder<IListArgs> {
      */
     this.positiveList.push({
       terms: {
-        relatedIntegrationIds: integrations.map(i => i._id),
-      },
+        relatedIntegrationIds: integrations.map(i => i._id)
+      }
     });
   }
 
@@ -98,13 +100,17 @@ export class Builder extends CommonBuilder<IListArgs> {
 
     this.positiveList.push({
       terms: {
-        relatedIntegrationIds: integrations.map(i => i._id),
-      },
+        relatedIntegrationIds: integrations.map(i => i._id)
+      }
     });
   }
 
   // filter by form
-  public async formFilter(formId: string, startDate?: string, endDate?: string): Promise<void> {
+  public async formFilter(
+    formId: string,
+    startDate?: string,
+    endDate?: string
+  ): Promise<void> {
     const submissions = await FormSubmissions.find({ formId });
     const ids: string[] = [];
 
@@ -127,13 +133,16 @@ export class Builder extends CommonBuilder<IListArgs> {
 
     this.positiveList.push({
       terms: {
-        _id: ids,
-      },
+        _id: ids
+      }
     });
   }
 
   public async findAllMongo(limit: number) {
-    const activeIntegrations = await Integrations.findIntegrations({}, { _id: 1 });
+    const activeIntegrations = await Integrations.findIntegrations(
+      {},
+      { _id: 1 }
+    );
 
     const selector = {
       ...this.context.commonQuerySelector,
@@ -141,10 +150,14 @@ export class Builder extends CommonBuilder<IListArgs> {
       state: this.params.type || 'customer',
       $or: [
         {
-          integrationId: { $in: [null, undefined, ''] },
+          integrationId: { $in: [null, undefined, ''] }
         },
-        { integrationId: { $in: activeIntegrations.map(integration => integration._id) } },
-      ],
+        {
+          integrationId: {
+            $in: activeIntegrations.map(integration => integration._id)
+          }
+        }
+      ]
     };
 
     const customers = await Customers.find(selector)
@@ -155,7 +168,7 @@ export class Builder extends CommonBuilder<IListArgs> {
 
     return {
       list: customers,
-      totalCount: count,
+      totalCount: count
     };
   }
 
@@ -183,7 +196,11 @@ export class Builder extends CommonBuilder<IListArgs> {
     // filter by form
     if (this.params.form) {
       if (this.params.startDate && this.params.endDate) {
-        await this.formFilter(this.params.form, this.params.startDate, this.params.endDate);
+        await this.formFilter(
+          this.params.form,
+          this.params.startDate,
+          this.params.endDate
+        );
       } else {
         await this.formFilter(this.params.form);
       }

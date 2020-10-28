@@ -56,21 +56,21 @@ export type ArticleVariables = {
 };
 
 export type AddArticlesMutationResponse = {
-  addArticlesMutation: (
-    params: { variables: ArticleVariables }
-  ) => Promise<any>;
+  addArticlesMutation: (params: {
+    variables: ArticleVariables;
+  }) => Promise<any>;
 };
 
 export type EditArticlesMutationResponse = {
-  editArticlesMutation: (
-    params: { variables: ArticleVariables }
-  ) => Promise<any>;
+  editArticlesMutation: (params: {
+    variables: ArticleVariables;
+  }) => Promise<any>;
 };
 
 export type RemoveArticlesMutationResponse = {
-  removeArticlesMutation: (
-    params: { variables: { _id: string } }
-  ) => Promise<any>;
+  removeArticlesMutation: (params: {
+    variables: { _id: string };
+  }) => Promise<any>;
 };
 
 export type CategoryVariables = {
@@ -81,15 +81,15 @@ export type CategoryVariables = {
 };
 
 export type AddCategoriesMutationResponse = {
-  addCategoriesMutation: (
-    params: { variables: CategoryVariables }
-  ) => Promise<any>;
+  addCategoriesMutation: (params: {
+    variables: CategoryVariables;
+  }) => Promise<any>;
 };
 
 export type EditCategoriesMutationResponse = {
-  editCategoriesMutation: (
-    params: { variables: CategoryVariables }
-  ) => Promise<any>;
+  editCategoriesMutation: (params: {
+    variables: CategoryVariables;
+  }) => Promise<any>;
 };
 
 export type RemoveCategoriesMutationResponse = {
@@ -113,9 +113,9 @@ export type EditTopicsMutationResponse = {
 };
 
 export type RemoveTopicsMutation = {
-  removeTopicsMutation: (
-    params: { variables: { _id: string } }
-  ) => Promise<any>;
+  removeTopicsMutation: (params: {
+    variables: { _id: string };
+  }) => Promise<any>;
 };
 
 // query types

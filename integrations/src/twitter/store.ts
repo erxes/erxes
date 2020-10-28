@@ -1,6 +1,11 @@
 import { sendRPCMessage } from '../messageBroker';
 import { IIntegrationDocument } from '../models/Integrations';
-import { ConversationMessages, Conversations, Customers, IConversationDocument } from './models';
+import {
+  ConversationMessages,
+  Conversations,
+  Customers,
+  IConversationDocument
+} from './models';
 
 export interface IUser {
   id: string;
@@ -16,7 +21,11 @@ export interface IUser {
   profile_image_url_https: string;
 }
 
-export const getOrCreateCustomer = async (integration: IIntegrationDocument, userId: string, receiver: IUser) => {
+export const getOrCreateCustomer = async (
+  integration: IIntegrationDocument,
+  userId: string,
+  receiver: IUser
+) => {
   let customer = await Customers.findOne({ userId });
 
   if (customer) {
@@ -31,10 +40,14 @@ export const getOrCreateCustomer = async (integration: IIntegrationDocument, use
       integrationId: integration._id,
       profilePic: receiver.profile_image_url_https,
       name: receiver.name,
-      screenName: receiver.screen_name,
+      screenName: receiver.screen_name
     });
   } catch (e) {
-    throw new Error(e.message.includes('duplicate') ? 'Concurrent request: customer duplication' : e);
+    throw new Error(
+      e.message.includes('duplicate')
+        ? 'Concurrent request: customer duplication'
+        : e
+    );
   }
 
   // save on api
@@ -46,8 +59,8 @@ export const getOrCreateCustomer = async (integration: IIntegrationDocument, use
         integrationId: integration.erxesApiId,
         firstName: receiver.screen_name,
         avatar: receiver.profile_image_url_https,
-        isUser: true,
-      }),
+        isUser: true
+      })
     });
 
     customer.erxesApiId = apiCustomerResponse._id;
@@ -66,11 +79,11 @@ export const getOrCreateConversation = async (
   integrationId: string,
   content: string,
   customerErxesApiId: string,
-  integrationErxesApiId: string,
+  integrationErxesApiId: string
 ) => {
   let conversation = await Conversations.findOne({
     senderId,
-    receiverId,
+    receiverId
   });
 
   if (conversation) {
@@ -85,10 +98,14 @@ export const getOrCreateConversation = async (
       senderId,
       receiverId,
       content,
-      integrationId,
+      integrationId
     });
   } catch (e) {
-    throw new Error(e.message.includes('duplicate') ? 'Concurrent request: conversation duplication' : e);
+    throw new Error(
+      e.message.includes('duplicate')
+        ? 'Concurrent request: conversation duplication'
+        : e
+    );
   }
 
   // save on api
@@ -98,8 +115,8 @@ export const getOrCreateConversation = async (
       payload: JSON.stringify({
         customerId: customerErxesApiId,
         integrationId: integrationErxesApiId,
-        content,
-      }),
+        content
+      })
     });
 
     conversation.erxesApiId = apiConversationResponse._id;
@@ -118,11 +135,11 @@ export const createConverstaionMessage = async (
   content: string,
   attachments: any[],
   customerErxesApiId: string,
-  conversation: IConversationDocument,
+  conversation: IConversationDocument
 ) => {
   const { id, created_timestamp } = event;
   const conversationMessage = await ConversationMessages.findOne({
-    messageId: id,
+    messageId: id
   });
 
   if (!conversationMessage) {
@@ -131,7 +148,7 @@ export const createConverstaionMessage = async (
       conversationId: conversation._id,
       messageId: id,
       timestamp: created_timestamp,
-      content,
+      content
     });
 
     // save message on api
@@ -143,8 +160,8 @@ export const createConverstaionMessage = async (
           content,
           conversationId: conversation.erxesApiId,
           customerId: customerErxesApiId,
-          attachments,
-        }),
+          attachments
+        })
       });
     } catch (e) {
       await ConversationMessages.deleteOne({ messageId: id });

@@ -32,7 +32,7 @@ describe('Test webhooks mutations', () => {
 
     doc = {
       url: `${_webhook.url}1`,
-      actions: WEBHOOK_ACTIONS,
+      actions: WEBHOOK_ACTIONS
     };
   });
 
@@ -116,7 +116,12 @@ describe('Test webhooks mutations', () => {
       }
     `;
 
-    const webhook = await graphqlRequest(mutation, 'webhooksEdit', { _id: _webhook._id, ...doc }, context);
+    const webhook = await graphqlRequest(
+      mutation,
+      'webhooksEdit',
+      { _id: _webhook._id, ...doc },
+      context
+    );
 
     expect(webhook._id).toBe(_webhook._id);
     expect(webhook.url).toBe(doc.url);
@@ -130,7 +135,12 @@ describe('Test webhooks mutations', () => {
       }
     `;
 
-    await graphqlRequest(mutation, 'webhooksRemove', { _id: _webhook._id }, context);
+    await graphqlRequest(
+      mutation,
+      'webhooksRemove',
+      { _id: _webhook._id },
+      context
+    );
 
     expect(await Webhooks.find({ _id: _webhook._id })).toEqual([]);
   });

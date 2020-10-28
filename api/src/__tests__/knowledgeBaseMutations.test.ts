@@ -1,6 +1,12 @@
 import * as faker from 'faker';
 import { graphqlRequest } from '../db/connection';
-import { Brands, KnowledgeBaseArticles, KnowledgeBaseCategories, KnowledgeBaseTopics, Users } from '../db/models';
+import {
+  Brands,
+  KnowledgeBaseArticles,
+  KnowledgeBaseCategories,
+  KnowledgeBaseTopics,
+  Users
+} from '../db/models';
 import { PUBLISH_STATUSES } from '../db/models/definitions/constants';
 
 import {
@@ -8,7 +14,7 @@ import {
   knowledgeBaseArticleFactory,
   knowledgeBaseCategoryFactory,
   knowledgeBaseTopicFactory,
-  userFactory,
+  userFactory
 } from '../db/factories';
 
 import './setup.ts';
@@ -20,20 +26,20 @@ const topicArgs = {
   title: faker.random.word(),
   description: faker.random.word(),
   color: faker.commerce.color(),
-  languageCode: 'en',
+  languageCode: 'en'
 };
 
 const categoryArgs = {
   title: faker.random.word(),
   description: faker.random.word(),
-  icon: faker.random.word(),
+  icon: faker.random.word()
 };
 
 const articleArgs = {
   title: faker.random.word(),
   summary: faker.random.word(),
   status: PUBLISH_STATUSES.DRAFT,
-  content: faker.random.word(),
+  content: faker.random.word()
 };
 
 describe('mutations', () => {
@@ -44,9 +50,15 @@ describe('mutations', () => {
 
   beforeEach(async () => {
     // Creating test data
-    _knowledgeBaseArticle = await knowledgeBaseArticleFactory({ status: PUBLISH_STATUSES.PUBLISH });
-    _knowledgeBaseCategory = await knowledgeBaseCategoryFactory({ articleIds: [_knowledgeBaseArticle._id] });
-    _knowledgeBaseTopic = await knowledgeBaseTopicFactory({ categoryIds: [_knowledgeBaseCategory._id] });
+    _knowledgeBaseArticle = await knowledgeBaseArticleFactory({
+      status: PUBLISH_STATUSES.PUBLISH
+    });
+    _knowledgeBaseCategory = await knowledgeBaseCategoryFactory({
+      articleIds: [_knowledgeBaseArticle._id]
+    });
+    _knowledgeBaseTopic = await knowledgeBaseTopicFactory({
+      categoryIds: [_knowledgeBaseCategory._id]
+    });
     _brand = await brandFactory({});
   });
 
@@ -63,7 +75,7 @@ describe('mutations', () => {
     const doc = {
       categoryIds: _knowledgeBaseCategory._id,
       brandId: _brand._id,
-      ...topicArgs,
+      ...topicArgs
     };
 
     const mutation = `
@@ -83,7 +95,11 @@ describe('mutations', () => {
       }
     `;
 
-    const knowledgeBaseTopic = await graphqlRequest(mutation, 'knowledgeBaseTopicsAdd', { doc });
+    const knowledgeBaseTopic = await graphqlRequest(
+      mutation,
+      'knowledgeBaseTopicsAdd',
+      { doc }
+    );
 
     expect(knowledgeBaseTopic.title).toBe(doc.title);
     expect(knowledgeBaseTopic.description).toBe(doc.description);
@@ -97,7 +113,7 @@ describe('mutations', () => {
     const doc = {
       categoryIds: _knowledgeBaseCategory._id,
       brandId: _brand._id,
-      ...topicArgs,
+      ...topicArgs
     };
 
     const mutation = `
@@ -118,10 +134,14 @@ describe('mutations', () => {
       }
     `;
 
-    const knowledgeBaseTopic = await graphqlRequest(mutation, 'knowledgeBaseTopicsEdit', {
-      _id: _knowledgeBaseTopic._id,
-      doc,
-    });
+    const knowledgeBaseTopic = await graphqlRequest(
+      mutation,
+      'knowledgeBaseTopicsEdit',
+      {
+        _id: _knowledgeBaseTopic._id,
+        doc
+      }
+    );
 
     expect(knowledgeBaseTopic._id).toBe(_knowledgeBaseTopic._id);
     expect(knowledgeBaseTopic.title).toBe(doc.title);
@@ -150,7 +170,7 @@ describe('mutations', () => {
     const doc = {
       articleIds: [_knowledgeBaseArticle._id],
       topicIds: _knowledgeBaseTopic._id,
-      ...categoryArgs,
+      ...categoryArgs
     };
 
     const mutation = `
@@ -169,7 +189,11 @@ describe('mutations', () => {
       }
     `;
 
-    const knowledgeBaseCategory = await graphqlRequest(mutation, 'knowledgeBaseCategoriesAdd', { doc });
+    const knowledgeBaseCategory = await graphqlRequest(
+      mutation,
+      'knowledgeBaseCategoriesAdd',
+      { doc }
+    );
 
     expect(knowledgeBaseCategory.title).toBe(doc.title);
     expect(knowledgeBaseCategory.description).toBe(doc.description);
@@ -185,7 +209,7 @@ describe('mutations', () => {
     const doc = {
       articleIds: [_knowledgeBaseArticle._id],
       topicIds: _knowledgeBaseTopic._id,
-      ...categoryArgs,
+      ...categoryArgs
     };
 
     const mutation = `
@@ -205,10 +229,14 @@ describe('mutations', () => {
       }
     `;
 
-    const knowledgeBaseCategory = await graphqlRequest(mutation, 'knowledgeBaseCategoriesEdit', {
-      _id: _knowledgeBaseCategory._id,
-      doc,
-    });
+    const knowledgeBaseCategory = await graphqlRequest(
+      mutation,
+      'knowledgeBaseCategoriesEdit',
+      {
+        _id: _knowledgeBaseCategory._id,
+        doc
+      }
+    );
 
     expect(knowledgeBaseCategory._id).toBe(_knowledgeBaseCategory._id);
     expect(knowledgeBaseCategory.title).toBe(doc.title);
@@ -238,7 +266,7 @@ describe('mutations', () => {
   test('Add knowledge base article', async () => {
     const doc = {
       categoryIds: [_knowledgeBaseCategory._id],
-      ...articleArgs,
+      ...articleArgs
     };
 
     const mutation = `
@@ -253,10 +281,12 @@ describe('mutations', () => {
       }
     `;
 
-    const article = await graphqlRequest(mutation, 'knowledgeBaseArticlesAdd', { doc });
+    const article = await graphqlRequest(mutation, 'knowledgeBaseArticlesAdd', {
+      doc
+    });
 
     const [category] = await KnowledgeBaseCategories.find({
-      _id: { $in: doc.categoryIds },
+      _id: { $in: doc.categoryIds }
     });
 
     expect(category.articleIds).toContain(article._id);
@@ -269,7 +299,7 @@ describe('mutations', () => {
   test('Edit knowledge base article', async () => {
     const doc = {
       categoryIds: [_knowledgeBaseCategory._id],
-      ...articleArgs,
+      ...articleArgs
     };
 
     const mutation = `
@@ -284,13 +314,17 @@ describe('mutations', () => {
       }
     `;
 
-    const article = await graphqlRequest(mutation, 'knowledgeBaseArticlesEdit', {
-      _id: _knowledgeBaseArticle._id,
-      doc,
-    });
+    const article = await graphqlRequest(
+      mutation,
+      'knowledgeBaseArticlesEdit',
+      {
+        _id: _knowledgeBaseArticle._id,
+        doc
+      }
+    );
 
     const [category] = await KnowledgeBaseCategories.find({
-      _id: { $in: doc.categoryIds },
+      _id: { $in: doc.categoryIds }
     });
 
     expect(category.articleIds).toContain(article._id);
@@ -311,8 +345,12 @@ describe('mutations', () => {
       }
     `;
 
-    await graphqlRequest(mutation, 'knowledgeBaseArticlesRemove', { _id: article._id });
+    await graphqlRequest(mutation, 'knowledgeBaseArticlesRemove', {
+      _id: article._id
+    });
 
-    expect(await KnowledgeBaseArticles.findOne({ _id: article._id })).toBe(null);
+    expect(await KnowledgeBaseArticles.findOne({ _id: article._id })).toBe(
+      null
+    );
   });
 });

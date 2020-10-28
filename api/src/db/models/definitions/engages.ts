@@ -1,6 +1,11 @@
 import { Document, Schema } from 'mongoose';
 import { IRule, ruleSchema } from './common';
-import { ENGAGE_KINDS, MESSENGER_KINDS, METHODS, SENT_AS_CHOICES } from './constants';
+import {
+  ENGAGE_KINDS,
+  MESSENGER_KINDS,
+  METHODS,
+  SENT_AS_CHOICES
+} from './constants';
 import { field, schemaWrapper } from './utils';
 
 export interface IScheduleDate {
@@ -75,9 +80,9 @@ export const scheduleDateSchema = new Schema(
   {
     type: field({ type: String, optional: true, label: 'Type' }),
     month: field({ type: String, optional: true, label: 'Month' }),
-    day: field({ type: String, optional: true, label: 'Day' }),
+    day: field({ type: String, optional: true, label: 'Day' })
   },
-  { _id: false },
+  { _id: false }
 );
 
 export const emailSchema = new Schema(
@@ -87,9 +92,9 @@ export const emailSchema = new Schema(
     sender: field({ type: String, optional: true, label: 'Sender' }),
     replyTo: field({ type: String, optional: true, label: 'Reply to' }),
     content: field({ type: String, label: 'Content' }),
-    templateId: field({ type: String, optional: true, label: 'Template' }),
+    templateId: field({ type: String, optional: true, label: 'Template' })
   },
-  { _id: false },
+  { _id: false }
 );
 
 export const messengerSchema = new Schema(
@@ -98,26 +103,26 @@ export const messengerSchema = new Schema(
     kind: field({
       type: String,
       enum: MESSENGER_KINDS.ALL,
-      label: 'Kind',
+      label: 'Kind'
     }),
     sentAs: field({
       type: String,
       enum: SENT_AS_CHOICES.ALL,
-      label: 'Sent as',
+      label: 'Sent as'
     }),
     content: field({ type: String, label: 'Content' }),
-    rules: field({ type: [ruleSchema], label: 'Rules' }),
+    rules: field({ type: [ruleSchema], label: 'Rules' })
   },
-  { _id: false },
+  { _id: false }
 );
 
 export const smsSchema = new Schema(
   {
     from: field({ type: String, label: 'From text', optional: true }),
     content: field({ type: String, label: 'SMS content' }),
-    fromIntegrationId: field({ type: String, label: 'Configured integration' }),
+    fromIntegrationId: field({ type: String, label: 'Configured integration' })
   },
-  { _id: false },
+  { _id: false }
 );
 
 export const engageMessageSchema = schemaWrapper(
@@ -128,12 +133,12 @@ export const engageMessageSchema = schemaWrapper(
     segmentIds: field({
       type: [String],
       optional: true,
-      label: 'Segments',
+      label: 'Segments'
     }),
     brandIds: field({
       type: [String],
       optional: true,
-      label: 'Brands',
+      label: 'Brands'
     }),
     customerIds: field({ type: [String], label: 'Customers' }),
     title: field({ type: String, label: 'Title' }),
@@ -141,14 +146,17 @@ export const engageMessageSchema = schemaWrapper(
     method: field({
       type: String,
       enum: METHODS.ALL,
-      label: 'Method',
+      label: 'Method'
     }),
     isDraft: field({ type: Boolean, label: 'Is draft' }),
     isLive: field({ type: Boolean, label: 'Is live' }),
     stopDate: field({ type: Date, label: 'Stop date' }),
     createdAt: field({ type: Date, default: Date.now, label: 'Created at' }),
     tagIds: field({ type: [String], optional: true, label: 'Tags' }),
-    messengerReceivedCustomerIds: field({ type: [String], label: 'Received customers' }),
+    messengerReceivedCustomerIds: field({
+      type: [String],
+      label: 'Received customers'
+    }),
 
     email: field({ type: emailSchema, label: 'Email' }),
     scheduleDate: field({ type: scheduleDateSchema, label: 'Schedule date' }),
@@ -158,6 +166,6 @@ export const engageMessageSchema = schemaWrapper(
     totalCustomersCount: field({ type: Number, optional: true }),
     validCustomersCount: field({ type: Number, optional: true }),
 
-    shortMessage: field({ type: smsSchema, label: 'Short message' }),
-  }),
+    shortMessage: field({ type: smsSchema, label: 'Short message' })
+  })
 );

@@ -4,7 +4,9 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 
 const List = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings - List EmailTemplate" */ './containers/List')
+  import(
+    /* webpackChunkName: "Settings - List EmailTemplate" */ './containers/List'
+  )
 );
 
 const emailTemplates = ({ location }) => {

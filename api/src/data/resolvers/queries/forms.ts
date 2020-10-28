@@ -15,7 +15,7 @@ const formQueries = {
    */
   formDetail(_root, { _id }: { _id: string }) {
     return Forms.findOne({ _id });
-  },
+  }
 };
 
 checkPermission(formQueries, 'forms', 'showForms', []);

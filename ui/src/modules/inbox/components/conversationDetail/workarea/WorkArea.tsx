@@ -37,7 +37,9 @@ const Participators = asyncComponent(
 
 const ConvertTo = asyncComponent(
   () =>
-    import(/* webpackChunkName:"Inbox-ConvertTo" */ '../../../containers/conversationDetail/workarea/ConvertTo'),
+    import(
+      /* webpackChunkName:"Inbox-ConvertTo" */ '../../../containers/conversationDetail/workarea/ConvertTo'
+    ),
   { height: '22px', width: '71px' }
 );
 
@@ -50,19 +52,17 @@ type Props = {
   loading: boolean;
   typingInfo?: string;
   loadMoreMessages: () => void;
-  addMessage: (
-    {
-      variables,
-      optimisticResponse,
-      callback,
-      kind
-    }: {
-      variables: AddMessageMutationVariables;
-      optimisticResponse: any;
-      callback?: (e?) => void;
-      kind: string;
-    }
-  ) => void;
+  addMessage: ({
+    variables,
+    optimisticResponse,
+    callback,
+    kind
+  }: {
+    variables: AddMessageMutationVariables;
+    optimisticResponse: any;
+    callback?: (e?) => void;
+    kind: string;
+  }) => void;
   refetchMessages: () => void;
   refetchDetail: () => void;
 };

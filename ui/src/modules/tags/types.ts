@@ -60,9 +60,5 @@ export type TagMutationVariables = {
 };
 
 export type TagMutationResponse = {
-  tagMutation: (
-    params: {
-      variables: TagMutationVariables;
-    }
-  ) => Promise<any>;
+  tagMutation: (params: { variables: TagMutationVariables }) => Promise<any>;
 };

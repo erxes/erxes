@@ -5,9 +5,15 @@ import {
   dealFactory,
   fieldFactory,
   internalNoteFactory,
-  userFactory,
+  userFactory
 } from '../db/factories';
-import { Companies, Conformities, Customers, Deals, InternalNotes } from '../db/models';
+import {
+  Companies,
+  Conformities,
+  Customers,
+  Deals,
+  InternalNotes
+} from '../db/models';
 import { ICompany, ICompanyDocument } from '../db/models/definitions/companies';
 import { ACTIVITY_CONTENT_TYPES } from '../db/models/definitions/constants';
 
@@ -38,7 +44,7 @@ const generateDoc = () => ({
   emails: ['email'],
   size: 1,
   industry: 'Airlines',
-  plan: 'pro',
+  plan: 'pro'
 });
 
 describe('Companies model tests', () => {
@@ -48,7 +54,7 @@ describe('Companies model tests', () => {
     _company = await companyFactory({
       primaryName: 'companyname',
       names: ['companyname', 'companyname1'],
-      code: 'code',
+      code: 'code'
     });
   });
 
@@ -116,7 +122,7 @@ describe('Companies model tests', () => {
     try {
       await Companies.createCompany({
         primaryName: 'name',
-        customFieldsData: [{ field: field._id, value: 'invalid number' }],
+        customFieldsData: [{ field: field._id, value: 'invalid number' }]
       });
     } catch (e) {
       expect(e.message).toBe(`${field.text}: Invalid number`);
@@ -157,7 +163,7 @@ describe('Companies model tests', () => {
     try {
       await Companies.updateCompany(_company._id, {
         primaryName: 'name',
-        customFieldsData: [{ field: field._id, value: 'invalid number' }],
+        customFieldsData: [{ field: field._id, value: 'invalid number' }]
       });
     } catch (e) {
       expect(e.message).toBe(`${field.text}: Invalid number`);
@@ -172,34 +178,34 @@ describe('Companies model tests', () => {
       mainType: 'company',
       mainTypeId: company._id,
       relType: 'customer',
-      relTypeId: customer._id,
+      relTypeId: customer._id
     });
 
     await internalNoteFactory({
       contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
-      contentTypeId: company._id,
+      contentTypeId: company._id
     });
 
     await internalNoteFactory({
       contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
-      contentTypeId: company._id,
+      contentTypeId: company._id
     });
 
     await Companies.removeCompanies([company._id]);
 
     const internalNotes = await InternalNotes.find({
       contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
-      contentTypeId: company._id,
+      contentTypeId: company._id
     });
 
     const customers = await Customers.find({
-      _id: { $in: [customer._id] },
+      _id: { $in: [customer._id] }
     });
 
     const conformities = await Conformities.savedConformity({
       mainType: 'company',
       mainTypeId: company._id,
-      relTypes: ['customer'],
+      relTypes: ['customer']
     });
 
     expect(customers).toHaveLength(1);
@@ -215,14 +221,14 @@ describe('Companies model tests', () => {
       names: ['company1'],
       phones: ['phone1'],
       emails: ['email1'],
-      scopeBrandIds: ['123'],
+      scopeBrandIds: ['123']
     });
 
     const company2 = await companyFactory({
       tagIds: ['1231', '123', 'asd12'],
       names: ['company2'],
       phones: ['phone2'],
-      emails: ['email2'],
+      emails: ['email2']
     });
 
     const company3 = await companyFactory();
@@ -232,7 +238,7 @@ describe('Companies model tests', () => {
       mainType: 'customer',
       mainTypeId: customer1._id,
       relType: 'company',
-      relTypeId: company1._id,
+      relTypeId: company1._id
     });
 
     const customer2 = await customerFactory({});
@@ -240,7 +246,7 @@ describe('Companies model tests', () => {
       mainType: 'customer',
       mainTypeId: customer2._id,
       relType: 'company',
-      relTypeId: company2._id,
+      relTypeId: company2._id
     });
 
     const companyIds = [company1._id, company2._id, company3._id];
@@ -249,7 +255,7 @@ describe('Companies model tests', () => {
     // test duplication =================
     try {
       await Companies.mergeCompanies(companyIds, {
-        primaryName: 'companyname',
+        primaryName: 'companyname'
       });
     } catch (e) {
       expect(e.message).toBe('Duplicated name');
@@ -258,7 +264,7 @@ describe('Companies model tests', () => {
     // Merge without any errors ===========
     await internalNoteFactory({
       contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
-      contentTypeId: companyIds[0],
+      contentTypeId: companyIds[0]
     });
 
     const deal1 = await dealFactory({});
@@ -267,7 +273,7 @@ describe('Companies model tests', () => {
         mainType: 'deal',
         mainTypeId: deal1._id,
         relType: 'company',
-        relTypeId: companyId,
+        relTypeId: companyId
       });
     });
 
@@ -277,7 +283,7 @@ describe('Companies model tests', () => {
       industry: 'Airlines',
       plan: 'Test plan',
       ownerId: '789',
-      parentCompanyId: '123',
+      parentCompanyId: '123'
     };
 
     const updatedCompany = await Companies.mergeCompanies(companyIds, doc);
@@ -286,21 +292,29 @@ describe('Companies model tests', () => {
     expect(updatedCompany.size).toBe(doc.size);
     expect(updatedCompany.industry).toBe(doc.industry);
     expect(updatedCompany.plan).toBe(doc.plan);
-    expect(updatedCompany.names).toEqual(expect.arrayContaining(['company1', 'company2']));
-    expect(updatedCompany.phones).toEqual(expect.arrayContaining(['phone1', 'phone2']));
-    expect(updatedCompany.emails).toEqual(expect.arrayContaining(['email1', 'email2']));
+    expect(updatedCompany.names).toEqual(
+      expect.arrayContaining(['company1', 'company2'])
+    );
+    expect(updatedCompany.phones).toEqual(
+      expect.arrayContaining(['phone1', 'phone2'])
+    );
+    expect(updatedCompany.emails).toEqual(
+      expect.arrayContaining(['email1', 'email2'])
+    );
     expect(updatedCompany.ownerId).toBe('789');
     expect(updatedCompany.parentCompanyId).toBe('123');
 
     // Checking old company datas deleted
-    const oldCompany = (await Companies.findOne({ _id: companyIds[0] })) || { status: '' };
+    const oldCompany = (await Companies.findOne({ _id: companyIds[0] })) || {
+      status: ''
+    };
 
     expect(oldCompany.status).toBe('deleted');
     expect(updatedCompany.tagIds).toEqual(expect.arrayContaining(mergedTagIds));
 
     let internalNote = await InternalNotes.find({
       contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
-      contentTypeId: companyIds[0],
+      contentTypeId: companyIds[0]
     });
 
     expect(internalNote).toHaveLength(0);
@@ -310,7 +324,7 @@ describe('Companies model tests', () => {
 
     internalNote = await InternalNotes.find({
       contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
-      contentTypeId: updatedCompany._id,
+      contentTypeId: updatedCompany._id
     });
 
     expect(internalNote).not.toHaveLength(0);
@@ -318,18 +332,18 @@ describe('Companies model tests', () => {
     const cusRelTypeIds = await Conformities.filterConformity({
       mainType: 'company',
       mainTypeIds: companyIds,
-      relType: 'customer',
+      relType: 'customer'
     });
     expect(cusRelTypeIds.length).toBe(0);
 
     const newCusRelTypeIds = await Conformities.savedConformity({
       mainType: 'company',
       mainTypeId: updatedCompany._id,
-      relTypes: ['customer'],
+      relTypes: ['customer']
     });
 
     const customers = await Customers.find({
-      _id: { $in: newCusRelTypeIds },
+      _id: { $in: newCusRelTypeIds }
     });
 
     expect(customers).toHaveLength(2);
@@ -337,18 +351,18 @@ describe('Companies model tests', () => {
     const relTypeIds = await Conformities.filterConformity({
       mainType: 'company',
       mainTypeIds: companyIds,
-      relType: 'deal',
+      relType: 'deal'
     });
     expect(relTypeIds.length).toBe(0);
 
     const newRelTypeIds = await Conformities.savedConformity({
       mainType: 'company',
       mainTypeId: updatedCompany._id,
-      relTypes: ['deal'],
+      relTypes: ['deal']
     });
 
     const deals = await Deals.find({
-      _id: { $in: newRelTypeIds },
+      _id: { $in: newRelTypeIds }
     });
 
     expect(deals).toHaveLength(1);

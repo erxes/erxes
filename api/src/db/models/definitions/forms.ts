@@ -1,7 +1,12 @@
 import { Document, Schema } from 'mongoose';
 import { IRule, ruleSchema } from './common';
 import { FORM_TYPES } from './constants';
-import { calloutSchema, ICallout, ISubmission, submissionSchema } from './integrations';
+import {
+  calloutSchema,
+  ICallout,
+  ISubmission,
+  submissionSchema
+} from './integrations';
 import { field, schemaWrapper } from './utils';
 
 export interface IForm {
@@ -38,47 +43,47 @@ export const formSchema = schemaWrapper(
     type: field({ type: String, enum: FORM_TYPES.ALL, required: true }),
     description: field({
       type: String,
-      optional: true,
+      optional: true
     }),
     buttonText: field({ type: String, optional: true }),
     code: field({ type: String }),
     createdUserId: field({ type: String }),
     createdDate: field({
       type: Date,
-      default: Date.now,
+      default: Date.now
     }),
 
     // TODO: remove
     themeColor: field({
       type: String,
-      optional: true,
+      optional: true
     }),
     // TODO: remove
     callout: field({
       type: calloutSchema,
-      optional: true,
+      optional: true
     }),
     // TODO: remove
     viewCount: field({
       type: Number,
-      optional: true,
+      optional: true
     }),
     // TODO: remove
     contactsGathered: field({
       type: Number,
-      optional: true,
+      optional: true
     }),
     // TODO: remove
     submissions: field({
       type: [submissionSchema],
-      optional: true,
+      optional: true
     }),
     // TODO: remove
     rules: field({
       type: [ruleSchema],
-      optional: true,
-    }),
-  }),
+      optional: true
+    })
+  })
 );
 
 export interface IFormSubmission {
@@ -105,6 +110,6 @@ export const formSubmissionSchema = schemaWrapper(
     value: field({ type: Object, optional: true }),
     submittedAt: field({ type: Date, default: Date.now }),
     formId: field({ type: String, optional: true }),
-    formFieldId: field({ type: String, optional: true }),
-  }),
+    formFieldId: field({ type: String, optional: true })
+  })
 );

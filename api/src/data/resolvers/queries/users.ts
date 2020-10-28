@@ -16,17 +16,24 @@ interface IListArgs {
 }
 
 const queryBuilder = async (params: IListArgs) => {
-  const { searchValue, isActive, requireUsername, ids, status, brandIds } = params;
+  const {
+    searchValue,
+    isActive,
+    requireUsername,
+    ids,
+    status,
+    brandIds
+  } = params;
 
   const selector: any = {
-    isActive,
+    isActive
   };
 
   if (searchValue) {
     const fields = [
       { email: new RegExp(`.*${params.searchValue}.*`, 'i') },
       { 'details.fullName': new RegExp(`.*${params.searchValue}.*`, 'i') },
-      { 'details.position': new RegExp(`.*${params.searchValue}.*`, 'i') },
+      { 'details.position': new RegExp(`.*${params.searchValue}.*`, 'i') }
     ];
 
     selector.$or = fields;
@@ -69,7 +76,11 @@ const userQueries = {
   /**
    * All users
    */
-  allUsers(_root, { isActive }: { isActive: boolean }, { userBrandIdsSelector }: IContext) {
+  allUsers(
+    _root,
+    { isActive }: { isActive: boolean },
+    { userBrandIdsSelector }: IContext
+  ) {
     const selector: { isActive?: boolean } = userBrandIdsSelector;
 
     if (isActive) {
@@ -89,7 +100,11 @@ const userQueries = {
   /**
    * Get all users count. We will use it in pager
    */
-  async usersTotalCount(_root, args: IListArgs, { userBrandIdsSelector }: IContext) {
+  async usersTotalCount(
+    _root,
+    args: IListArgs,
+    { userBrandIdsSelector }: IContext
+  ) {
     const selector = { ...userBrandIdsSelector, ...(await queryBuilder(args)) };
 
     return Users.find(selector).countDocuments();
@@ -99,7 +114,9 @@ const userQueries = {
    * Current user
    */
   currentUser(_root, _args, { user }: IContext) {
-    return user ? Users.findOne({ _id: user._id, isActive: { $ne: false } }) : null;
+    return user
+      ? Users.findOne({ _id: user._id, isActive: { $ne: false } })
+      : null;
   },
 
   /**
@@ -112,7 +129,7 @@ const userQueries = {
     const totalCount = Conversations.find(selector).countDocuments();
 
     return { list, totalCount };
-  },
+  }
 };
 
 requireLogin(userQueries, 'usersTotalCount');

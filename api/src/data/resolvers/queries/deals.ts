@@ -1,5 +1,8 @@
 import { Deals } from '../../../db/models';
-import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
+import {
+  checkPermission,
+  moduleRequireLogin
+} from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { IListParams } from './boards';
 import {
@@ -8,7 +11,7 @@ import {
   checkItemPermByUser,
   generateDealCommonFilters,
   generateSort,
-  IArchiveArgs,
+  IArchiveArgs
 } from './boardUtils';
 
 interface IDealListParams extends IListParams {
@@ -19,8 +22,15 @@ const dealQueries = {
   /**
    * Deals list
    */
-  async deals(_root, args: IDealListParams, { user, commonQuerySelector }: IContext) {
-    const filter = { ...commonQuerySelector, ...(await generateDealCommonFilters(user._id, args)) };
+  async deals(
+    _root,
+    args: IDealListParams,
+    { user, commonQuerySelector }: IContext
+  ) {
+    const filter = {
+      ...commonQuerySelector,
+      ...(await generateDealCommonFilters(user._id, args))
+    };
     const sort = generateSort(args);
 
     return Deals.find(filter)
@@ -49,7 +59,7 @@ const dealQueries = {
     const dealCount = await Deals.find(filter).countDocuments();
     const amountList = await Deals.aggregate([
       {
-        $match: filter,
+        $match: filter
       },
       {
         $lookup: {
@@ -59,66 +69,73 @@ const dealQueries = {
             {
               $match: {
                 $expr: {
-                  $eq: ['$_id', '$$letStageId'],
-                },
-              },
+                  $eq: ['$_id', '$$letStageId']
+                }
+              }
             },
             {
               $project: {
                 probability: {
                   $cond: {
                     if: {
-                      $or: [{ $eq: ['$probability', 'Won'] }, { $eq: ['$probability', 'Lost'] }],
+                      $or: [
+                        { $eq: ['$probability', 'Won'] },
+                        { $eq: ['$probability', 'Lost'] }
+                      ]
                     },
                     then: '$probability',
-                    else: 'In progress',
-                  },
-                },
-              },
-            },
+                    else: 'In progress'
+                  }
+                }
+              }
+            }
           ],
-          as: 'stageProbability',
-        },
+          as: 'stageProbability'
+        }
       },
       {
-        $unwind: '$productsData',
+        $unwind: '$productsData'
       },
       {
-        $unwind: '$stageProbability',
+        $unwind: '$stageProbability'
       },
       {
         $project: {
           amount: '$productsData.amount',
           currency: '$productsData.currency',
           type: '$stageProbability.probability',
-          tickUsed: '$productsData.tickUsed',
-        },
+          tickUsed: '$productsData.tickUsed'
+        }
       },
       {
-        $match: { tickUsed: true },
+        $match: { tickUsed: true }
       },
       {
         $group: {
           _id: { currency: '$currency', type: '$type' },
 
-          amount: { $sum: '$amount' },
-        },
+          amount: { $sum: '$amount' }
+        }
       },
       {
         $group: {
           _id: '$_id.type',
           currencies: {
-            $push: { amount: '$amount', name: '$_id.currency' },
-          },
-        },
+            $push: { amount: '$amount', name: '$_id.currency' }
+          }
+        }
       },
       {
-        $sort: { _id: -1 },
-      },
+        $sort: { _id: -1 }
+      }
     ]);
 
     const totalForType = amountList.map(type => {
-      return { _id: Math.random(), name: type._id, currencies: type.currencies };
+      return {
+        _id: Math.random(),
+        name: type._id,
+        currencies: type.currencies
+      };
     });
 
     return { _id: Math.random(), dealCount, totalForType };
@@ -131,7 +148,7 @@ const dealQueries = {
     const deal = await Deals.getDeal(_id);
 
     return checkItemPermByUser(user._id, deal);
-  },
+  }
 };
 
 moduleRequireLogin(dealQueries);

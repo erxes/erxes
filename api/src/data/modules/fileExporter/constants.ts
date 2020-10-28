@@ -14,7 +14,7 @@ export const BOARD_BASIC_INFOS = [
   'initialStageId',
   'modifiedAt',
   'modifiedBy',
-  'priority',
+  'priority'
 ];
 
 export const USER_BASIC_INFOS = [
@@ -25,10 +25,16 @@ export const USER_BASIC_INFOS = [
   'isActive',
   'brandIds',
   'groupIds',
-  'doNotDisturb',
+  'doNotDisturb'
 ];
 
-export const BRAND_BASIC_INFOS = ['code', 'name', 'description', 'userId', 'createdAt'];
+export const BRAND_BASIC_INFOS = [
+  'code',
+  'name',
+  'description',
+  'userId',
+  'createdAt'
+];
 
 export const CHANNEL_BASIC_INFOS = [
   'createdAt',
@@ -38,10 +44,17 @@ export const CHANNEL_BASIC_INFOS = [
   'openConversationCount',
   'userId',
   'integrationIds',
-  'memberIds',
+  'memberIds'
 ];
 
-export const PERMISSION_BASIC_INFOS = ['module', 'action', 'userId', 'groupId', 'requiredActions', 'allowed'];
+export const PERMISSION_BASIC_INFOS = [
+  'module',
+  'action',
+  'userId',
+  'groupId',
+  'requiredActions',
+  'allowed'
+];
 
 export const CUSTOMER_BASIC_INFOS = [
   'state',
@@ -61,7 +74,7 @@ export const CUSTOMER_BASIC_INFOS = [
   'doNotDisturb',
   'integrationId',
   'code',
-  'mergedIds',
+  'mergedIds'
 ];
 
 export const COMPANY_BASIC_INFOS = [
@@ -76,7 +89,15 @@ export const COMPANY_BASIC_INFOS = [
   'businessType',
   'description',
   'doNotDisturb',
-  'parentCompanyId',
+  'parentCompanyId'
 ];
 
-export const PRODUCT_BASIC_INFOS = ['name', 'categoryCode', 'type', 'description', 'sku', 'code', 'unitPrice'];
+export const PRODUCT_BASIC_INFOS = [
+  'name',
+  'categoryCode',
+  'type',
+  'description',
+  'sku',
+  'code',
+  'unitPrice'
+];

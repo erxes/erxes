@@ -3,7 +3,12 @@ import Left from 'modules/boards/components/editForm/Left';
 import Sidebar from 'modules/boards/components/editForm/Sidebar';
 import Top from 'modules/boards/components/editForm/Top';
 import { FlexContent } from 'modules/boards/styles/item';
-import { IEditFormContent, IItem, IItemParams, IOptions } from 'modules/boards/types';
+import {
+  IEditFormContent,
+  IItem,
+  IItemParams,
+  IOptions
+} from 'modules/boards/types';
 import TaskTimer, { STATUS_TYPES } from 'modules/common/components/Timer';
 import PortableDeals from 'modules/deals/components/PortableDeals';
 import PortableTickets from 'modules/tickets/components/PortableTickets';

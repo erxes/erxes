@@ -1,5 +1,10 @@
 import { graphqlRequest } from '../db/connection';
-import { conversationFactory, engageMessageFactory, tagsFactory, userFactory } from '../db/factories';
+import {
+  conversationFactory,
+  engageMessageFactory,
+  tagsFactory,
+  userFactory
+} from '../db/factories';
 import { Conversations, EngageMessages, Tags, Users } from '../db/models';
 
 import './setup.ts';
@@ -34,7 +39,7 @@ describe('Test tags mutations', () => {
     doc = {
       name: `${_tag.name}1`,
       type: _tag.type,
-      colorCode: _tag.colorCode,
+      colorCode: _tag.colorCode
     };
   });
 
@@ -75,7 +80,12 @@ describe('Test tags mutations', () => {
       }
     `;
 
-    const tag = await graphqlRequest(mutation, 'tagsEdit', { _id: _tag._id, ...doc }, context);
+    const tag = await graphqlRequest(
+      mutation,
+      'tagsEdit',
+      { _id: _tag._id, ...doc },
+      context
+    );
 
     expect(tag._id).toBe(_tag._id);
     expect(tag.name).toBe(doc.name);
@@ -99,7 +109,7 @@ describe('Test tags mutations', () => {
     let args = {
       type: 'engageMessage',
       targetIds: [_message._id],
-      tagIds: [_tag._id],
+      tagIds: [_tag._id]
     };
 
     const mutation = `
@@ -130,11 +140,13 @@ describe('Test tags mutations', () => {
     args = {
       type: 'conversation',
       targetIds: [conversation._id],
-      tagIds: [conversationTag._id],
+      tagIds: [conversationTag._id]
     };
 
     await graphqlRequest(mutation, 'tagsTag', args, context);
 
-    expect((await Conversations.getConversation(conversation._id)).tagIds).toContain(args.tagIds[0]);
+    expect(
+      (await Conversations.getConversation(conversation._id)).tagIds
+    ).toContain(args.tagIds[0]);
   });
 });

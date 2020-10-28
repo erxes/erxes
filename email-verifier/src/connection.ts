@@ -10,7 +10,7 @@ export const connectionOptions = {
   useNewUrlParser: true,
   useCreateIndex: true,
   autoReconnect: true,
-  useFindAndModify: false,
+  useFindAndModify: false
 };
 
 const { MONGO_URL } = process.env;
@@ -29,7 +29,7 @@ mongoose.connection
 export const connect = async (URL?: string, options?) => {
   return mongoose.connect(URL || MONGO_URL, {
     ...connectionOptions,
-    ...(options || { poolSize: 100 }),
+    ...(options || { poolSize: 100 })
   });
 };
 

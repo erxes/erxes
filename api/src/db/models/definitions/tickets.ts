@@ -15,6 +15,6 @@ export const ticketSchema = schemaWrapper(
   new Schema({
     ...commonItemFieldsSchema,
 
-    source: field({ type: String, label: 'Source' }),
-  }),
+    source: field({ type: String, label: 'Source' })
+  })
 );

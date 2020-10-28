@@ -79,19 +79,23 @@ export const productSchema = schemaWrapper(
       type: String,
       enum: PRODUCT_TYPES.ALL,
       default: PRODUCT_TYPES.PRODUCT,
-      label: 'Type',
+      label: 'Type'
     }),
     tagIds: field({ type: [String], optional: true, label: 'Tags' }),
     description: field({ type: String, optional: true, label: 'Description' }),
     sku: field({ type: String, optional: true, label: 'Stock keeping unit' }),
     unitPrice: field({ type: Number, optional: true, label: 'Unit price' }),
-    customFieldsData: field({ type: [customFieldSchema], optional: true, label: 'Custom fields data' }),
+    customFieldsData: field({
+      type: [customFieldSchema],
+      optional: true,
+      label: 'Custom fields data'
+    }),
     createdAt: field({
       type: Date,
       default: new Date(),
-      label: 'Created at',
-    }),
-  }),
+      label: 'Created at'
+    })
+  })
 );
 
 export const productCategorySchema = schemaWrapper(
@@ -105,9 +109,9 @@ export const productCategorySchema = schemaWrapper(
     createdAt: field({
       type: Date,
       default: new Date(),
-      label: 'Created at',
-    }),
-  }),
+      label: 'Created at'
+    })
+  })
 );
 
 export const productDataSchema = new Schema(
@@ -124,9 +128,9 @@ export const productDataSchema = new Schema(
     discount: field({ type: Number, label: 'Discount' }),
     amount: field({ type: Number, label: 'Amount' }),
     tickUsed: field({ type: Boolean, label: 'TickUsed' }),
-    assignUserId: field({ type: String, label: 'AssignUserId' }),
+    assignUserId: field({ type: String, label: 'AssignUserId' })
   },
-  { _id: false },
+  { _id: false }
 );
 
 export const dealSchema = schemaWrapper(
@@ -134,6 +138,6 @@ export const dealSchema = schemaWrapper(
     ...commonItemFieldsSchema,
 
     productsData: field({ type: [productDataSchema], label: 'Products' }),
-    paymentsData: field({ type: Object, optional: true, label: 'Payments' }),
-  }),
+    paymentsData: field({ type: Object, optional: true, label: 'Payments' })
+  })
 );

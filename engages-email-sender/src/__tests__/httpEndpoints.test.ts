@@ -1,7 +1,10 @@
 import * as request from 'supertest';
 
 import { app } from '../index';
-import { smsRequestFactory, telnyxWebhookDataFactory } from '../models/factories';
+import {
+  smsRequestFactory,
+  telnyxWebhookDataFactory
+} from '../models/factories';
 import './setup';
 
 describe('HTTP endpoint tests', () => {
@@ -10,7 +13,7 @@ describe('HTTP endpoint tests', () => {
     const webhookParams = {
       from: '+13322200406',
       to: '+97688276317',
-      telnyxId: smsRequest.telnyxId,
+      telnyxId: smsRequest.telnyxId
     };
     const webhookData = telnyxWebhookDataFactory(webhookParams);
 

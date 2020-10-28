@@ -1,6 +1,14 @@
 import * as moment from 'moment';
 import * as _ from 'underscore';
-import { ConversationMessages, Conversations, Deals, Integrations, Pipelines, Stages, Users } from '../../../db/models';
+import {
+  ConversationMessages,
+  Conversations,
+  Deals,
+  Integrations,
+  Pipelines,
+  Stages,
+  Users
+} from '../../../db/models';
 import { IStageDocument } from '../../../db/models/definitions/boards';
 import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
 import { IMessageDocument } from '../../../db/models/definitions/conversationMessages';
@@ -22,7 +30,7 @@ import {
   IListArgs,
   IMessageSelector,
   IResponseUserData,
-  IStageSelector,
+  IStageSelector
 } from './types';
 
 /**
@@ -51,14 +59,16 @@ export const getFilterSelector = (args: IListArgs): { [key: string]: any } => {
  * Return filterSelector
  * @param args
  */
-export const getDealSelector = async (args: IDealListArgs): Promise<IDealSelector> => {
+export const getDealSelector = async (
+  args: IDealListArgs
+): Promise<IDealSelector> => {
   const { startDate, endDate, boardId, pipelineIds, status } = args;
   const { start, end } = fixDates(startDate, endDate);
 
   const selector: IDealSelector = {};
   const date = {
     $gte: start,
-    $lte: end,
+    $lte: end
   };
 
   // If status is either won or lost, modified date is more important
@@ -105,11 +115,15 @@ export const getDealSelector = async (args: IDealListArgs): Promise<IDealSelecto
 export const getConversationSelector = async (
   filterSelector: any,
   conversationSelector: any = {},
-  fieldName: string = 'createdAt',
+  fieldName: string = 'createdAt'
 ): Promise<any> => {
   if (Object.keys(filterSelector.integration).length > 0) {
-    const integrationIds = await Integrations.findIntegrations(filterSelector.integration).select('_id');
-    conversationSelector.integrationId = { $in: integrationIds.map(row => row._id) };
+    const integrationIds = await Integrations.findIntegrations(
+      filterSelector.integration
+    ).select('_id');
+    conversationSelector.integrationId = {
+      $in: integrationIds.map(row => row._id)
+    };
   }
 
   if (!conversationSelector[fieldName]) {
@@ -129,7 +143,7 @@ export const getSummaryData = async ({
   end,
   selector,
   collection,
-  dateFieldName = 'createdAt',
+  dateFieldName = 'createdAt'
 }: {
   start: Date;
   end: Date;
@@ -146,29 +160,29 @@ export const getSummaryData = async ({
 
     facetMessageSelector[dateFieldName] = {
       $gte: interval.start.toDate(),
-      $lte: interval.end.toDate(),
+      $lte: interval.end.toDate()
     };
     const [intervalCount] = await collection.aggregate([
       {
-        $match: facetMessageSelector,
+        $match: facetMessageSelector
       },
       {
         $group: {
           _id: null,
-          count: { $sum: 1 },
-        },
+          count: { $sum: 1 }
+        }
       },
       {
         $project: {
           _id: 0,
-          count: 1,
-        },
-      },
+          count: 1
+        }
+      }
     ]);
 
     summaries.push({
       title: interval.title,
-      count: intervalCount ? intervalCount.count : 0,
+      count: intervalCount ? intervalCount.count : 0
     });
   }
 
@@ -178,10 +192,13 @@ export const getSummaryData = async ({
 /**
  * Builds messages find query selector.
  */
-export const getMessageSelector = async ({ args, createdAt }: IGenerateMessage): Promise<IMessageSelector> => {
+export const getMessageSelector = async ({
+  args,
+  createdAt
+}: IGenerateMessage): Promise<IMessageSelector> => {
   const messageSelector: any = {
     fromBot: { $exists: false },
-    userId: args.type === 'response' ? { $ne: null } : null,
+    userId: args.type === 'response' ? { $ne: null } : null
   };
 
   const filterSelector = getFilterSelector(args);
@@ -189,7 +206,9 @@ export const getMessageSelector = async ({ args, createdAt }: IGenerateMessage):
 
   // While searching by integration
   if (Object.keys(filterSelector.integration).length > 0) {
-    const selector = await getConversationSelector(filterSelector, { createdAt });
+    const selector = await getConversationSelector(filterSelector, {
+      createdAt
+    });
 
     const conversationIds = await Conversations.find(selector).select('_id');
 
@@ -207,7 +226,11 @@ export const getMessageSelector = async ({ args, createdAt }: IGenerateMessage):
  * @param endDate
  * @param data
  */
-export const fixChartData = async (data: any[], hintX: string, hintY: string): Promise<IGenerateChartData[]> => {
+export const fixChartData = async (
+  data: any[],
+  hintX: string,
+  hintY: string
+): Promise<IGenerateChartData[]> => {
   const results = {};
   data.map(row => {
     results[row[hintX]] = row[hintY];
@@ -227,7 +250,7 @@ export const fixChartData = async (data: any[], hintX: string, hintY: string): P
 export const generateChartDataBySelector = async ({
   selector,
   type = INSIGHT_TYPES.CONVERSATION,
-  dateFieldName = '$createdAt',
+  dateFieldName = '$createdAt'
 }: {
   selector: IMessageSelector;
   type?: string;
@@ -235,31 +258,31 @@ export const generateChartDataBySelector = async ({
 }): Promise<IGenerateChartData[]> => {
   const pipelineStages = [
     {
-      $match: selector,
+      $match: selector
     },
     {
       $project: {
-        date: getDateFieldAsStr({ fieldName: dateFieldName }),
-      },
+        date: getDateFieldAsStr({ fieldName: dateFieldName })
+      }
     },
     {
       $group: {
         _id: '$date',
-        y: { $sum: 1 },
-      },
+        y: { $sum: 1 }
+      }
     },
     {
       $project: {
         x: '$_id',
         y: 1,
-        _id: 0,
-      },
+        _id: 0
+      }
     },
     {
       $sort: {
-        x: 1,
-      },
-    },
+        x: 1
+      }
+    }
   ];
 
   if (type === INSIGHT_TYPES.DEAL) {
@@ -272,35 +295,35 @@ export const generateChartDataBySelector = async ({
 export const generatePunchData = async (
   collection: any,
   selector: object,
-  user: IUser,
+  user: IUser
 ): Promise<IGeneratePunchCard> => {
   const pipelineStages = [
     {
-      $match: selector,
+      $match: selector
     },
     {
       $project: {
         hour: { $hour: { date: '$createdAt', timezone: '+08' } },
-        date: await getDateFieldAsStr({ timeZone: getTimezone(user) }),
-      },
+        date: await getDateFieldAsStr({ timeZone: getTimezone(user) })
+      }
     },
     {
       $group: {
         _id: {
           hour: '$hour',
-          date: '$date',
+          date: '$date'
         },
-        count: { $sum: 1 },
-      },
+        count: { $sum: 1 }
+      }
     },
     {
       $project: {
         _id: 0,
         hour: '$_id.hour',
         date: '$_id.date',
-        count: 1,
-      },
-    },
+        count: 1
+      }
+    }
   ];
 
   return collection.aggregate(pipelineStages);
@@ -311,7 +334,9 @@ export const generatePunchData = async (
  * by given duration and loop count for chart data.
  */
 
-export const generateChartDataByCollection = async (collection: any): Promise<IGenerateChartData[]> => {
+export const generateChartDataByCollection = async (
+  collection: any
+): Promise<IGenerateChartData[]> => {
   const results = {};
 
   collection.map(obj => {
@@ -330,50 +355,53 @@ export const generateChartDataByCollection = async (collection: any): Promise<IG
 /**
  * Generates time intervals for main report
  */
-export const generateTimeIntervals = (start: Date, end: Date): IGenerateTimeIntervals[] => {
+export const generateTimeIntervals = (
+  start: Date,
+  end: Date
+): IGenerateTimeIntervals[] => {
   const month = moment(end).month();
 
   return [
     {
       title: 'In time range',
       start: moment(start),
-      end: moment(end),
+      end: moment(end)
     },
     {
       title: 'This month',
       start: moment(1, 'DD'),
-      end: moment(),
+      end: moment()
     },
     {
       title: 'This week',
       start: moment(end).weekday(0),
-      end: moment(end),
+      end: moment(end)
     },
     {
       title: 'Today',
       start: moment(end).add(-1, 'days'),
-      end: moment(end),
+      end: moment(end)
     },
     {
       title: 'Last 30 days',
       start: moment(end).add(-30, 'days'),
-      end: moment(end),
+      end: moment(end)
     },
     {
       title: 'Last month',
       start: moment(month + 1, 'MM').subtract(1, 'months'),
-      end: moment(month + 1, 'MM'),
+      end: moment(month + 1, 'MM')
     },
     {
       title: 'Last week',
       start: moment(end).weekday(-7),
-      end: moment(end).weekday(0),
+      end: moment(end).weekday(0)
     },
     {
       title: 'Yesterday',
       start: moment(end).add(-2, 'days'),
-      end: moment(end).add(-1, 'days'),
-    },
+      end: moment(end).add(-1, 'days')
+    }
   ];
 };
 
@@ -382,7 +410,7 @@ export const generateTimeIntervals = (start: Date, end: Date): IGenerateTimeInte
  */
 export const generateUserChartData = async ({
   userId,
-  userMessages,
+  userMessages
 }: {
   userId: string;
   userMessages: IMessageDocument[];
@@ -392,7 +420,7 @@ export const generateUserChartData = async ({
 
   if (!user) {
     return {
-      graph: userData,
+      graph: userData
     };
   }
 
@@ -401,18 +429,22 @@ export const generateUserChartData = async ({
   return {
     fullName: userDetail ? userDetail.fullName : '',
     avatar: userDetail ? userDetail.avatar : '',
-    graph: userData,
+    graph: userData
   };
 };
 
-export const fixDates = (startValue: string, endValue: string, count?: number): IFixDates => {
+export const fixDates = (
+  startValue: string,
+  endValue: string,
+  count?: number
+): IFixDates => {
   // convert given value or get today
   const endDate = fixDate(endValue);
 
   const startDateDefaultValue = new Date(
     moment(endDate)
       .add(count ? count * -1 : -7, 'days')
-      .toString(),
+      .toString()
   );
 
   // convert given value or generate from endDate
@@ -429,7 +461,7 @@ export const getSummaryDates = (endValue: string): any => {
   const startDate = new Date(
     moment(month + 1, 'MM')
       .subtract(1, 'months')
-      .toString(),
+      .toString()
   );
 
   return { $gte: startDate, $lte: endDate };
@@ -441,7 +473,7 @@ export const getSummaryDates = (endValue: string): any => {
 export const generateResponseData = async (
   responseData: IMessageDocument[],
   responseUserData: IResponseUserData,
-  allResponseTime: number,
+  allResponseTime: number
 ): Promise<IGenerateResponseData> => {
   // preparing trend chart data
   const trend = await generateChartDataByCollection(responseData);
@@ -463,10 +495,10 @@ export const generateResponseData = async (
     teamMembers.push({
       data: await generateUserChartData({
         userId: userId || '',
-        userMessages: responseData.filter(message => userId === message.userId),
+        userMessages: responseData.filter(message => userId === message.userId)
       }),
       time: avgResTime,
-      summaries,
+      summaries
     });
   }
 
@@ -486,14 +518,14 @@ export const noConversationSelector = {
         {
           closedAt: { $exists: true },
           closedUserId: { $exists: true },
-          status: CONVERSATION_STATUSES.CLOSED,
+          status: CONVERSATION_STATUSES.CLOSED
         },
         {
-          status: { $ne: CONVERSATION_STATUSES.CLOSED },
-        },
-      ],
-    },
-  ],
+          status: { $ne: CONVERSATION_STATUSES.CLOSED }
+        }
+      ]
+    }
+  ]
 };
 
 export const timeIntervals: any[] = [
@@ -513,7 +545,7 @@ export const timeIntervals: any[] = [
   { name: '2-3 min', count: 180 },
   { name: '3-4 min', count: 240 },
   { name: '4-5 min', count: 300 },
-  { name: '5+ min' },
+  { name: '5+ min' }
 ];
 
 export const timeIntervalBranches = () => {
@@ -522,7 +554,7 @@ export const timeIntervalBranches = () => {
 
   return copyTimeIntervals.map(t => ({
     case: { $lte: ['$firstRespondTime', t.count] },
-    then: t.name,
+    then: t.name
   }));
 };
 
@@ -535,7 +567,7 @@ export const timeIntervalBranches = () => {
 export const getConversationSelectorToMsg = async (
   integrationIds: string,
   brandIds: string,
-  conversationSelector: any = {},
+  conversationSelector: any = {}
 ): Promise<any> => {
   const filterSelector: IFilterSelector = { integration: {} };
   if (integrationIds) {
@@ -547,8 +579,12 @@ export const getConversationSelectorToMsg = async (
   }
 
   if (Object.keys(filterSelector.integration).length > 0) {
-    const integrationIdsList = await Integrations.findIntegrations(filterSelector.integration).select('_id');
-    conversationSelector.integrationId = { $in: integrationIdsList.map(row => row._id) };
+    const integrationIdsList = await Integrations.findIntegrations(
+      filterSelector.integration
+    ).select('_id');
+    conversationSelector.integrationId = {
+      $in: integrationIdsList.map(row => row._id)
+    };
   }
   return { ...conversationSelector };
 };
@@ -557,10 +593,16 @@ export const getConversationSelectorByMsg = async (
   integrationIds: string,
   brandIds: string,
   conversationSelector: any = {},
-  messageSelector: any = {},
+  messageSelector: any = {}
 ): Promise<any> => {
-  const conversationFinder = await getConversationSelectorToMsg(integrationIds, brandIds, conversationSelector);
-  const conversationIds = await Conversations.find(conversationFinder).select('_id');
+  const conversationFinder = await getConversationSelectorToMsg(
+    integrationIds,
+    brandIds,
+    conversationSelector
+  );
+  const conversationIds = await Conversations.find(conversationFinder).select(
+    '_id'
+  );
 
   const rawConversationIds = await conversationIds.map(obj => obj._id);
   messageSelector.conversationId = { $in: rawConversationIds };
@@ -578,9 +620,12 @@ export const getConversationReportLookup = async (): Promise<any> => {
           {
             $match: {
               $expr: {
-                $and: [{ $eq: ['$conversationId', '$$checkConversation'] }, { $lt: ['$createdAt', '$$checkAt'] }],
-              },
-            },
+                $and: [
+                  { $eq: ['$conversationId', '$$checkConversation'] },
+                  { $lt: ['$createdAt', '$$checkAt'] }
+                ]
+              }
+            }
           },
           {
             $project: {
@@ -589,22 +634,22 @@ export const getConversationReportLookup = async (): Promise<any> => {
               internal: 1,
               userId: 1,
               customerId: 1,
-              sizeMentionedIds: { $size: '$mentionedUserIds' },
-            },
-          },
+              sizeMentionedIds: { $size: '$mentionedUserIds' }
+            }
+          }
         ],
-        as: 'prevMsgs',
-      },
+        as: 'prevMsgs'
+      }
     },
     prevMsgSlice: {
-      $addFields: { prevMsg: { $slice: ['$prevMsgs', -1] } },
+      $addFields: { prevMsg: { $slice: ['$prevMsgs', -1] } }
     },
     diffSecondCalc: {
       $addFields: {
         diffSec: {
-          $divide: [{ $subtract: ['$createdAt', '$prevMsg.createdAt'] }, 1000],
-        },
-      },
+          $divide: [{ $subtract: ['$createdAt', '$prevMsg.createdAt'] }, 1000]
+        }
+      }
     },
     firstProject: {
       $project: {
@@ -613,8 +658,8 @@ export const getConversationReportLookup = async (): Promise<any> => {
         internal: 1,
         userId: 1,
         customerId: 1,
-        prevMsg: 1,
-      },
-    },
+        prevMsg: 1
+      }
+    }
   };
 };

@@ -6,10 +6,10 @@ export const GMAIL_API_URL = 'https://gmail.googleapis.com/gmail/v1/users';
 
 export const ERROR_CODES = {
   ACCESS_TOKEN_EXPIRED: '401',
-  REACHED_LIMIT: '403',
+  REACHED_LIMIT: '403'
 };
 
 // User mailbox change
 export const HISTORY_TYPES = {
-  MESSAGE_ADDED: 'messageAdded',
+  MESSAGE_ADDED: 'messageAdded'
 };

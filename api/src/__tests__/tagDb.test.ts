@@ -36,7 +36,11 @@ describe('Test tags model', () => {
   test('Validate unique tag', async () => {
     const empty = await Tags.validateUniqueness({}, '', '');
 
-    const selectTag = await Tags.validateUniqueness({ type: _tag2.type }, 'new tag', _tag2.type);
+    const selectTag = await Tags.validateUniqueness(
+      { type: _tag2.type },
+      'new tag',
+      _tag2.type
+    );
 
     const existing = await Tags.validateUniqueness({}, _tag.name, _tag.type);
 
@@ -52,7 +56,7 @@ describe('Test tags model', () => {
         tagIds: [_tag._id],
         objectIds: [],
         collection: EngageMessages,
-        tagType: 'customer',
+        tagType: 'customer'
       });
     } catch (e) {
       expect(e.message).toEqual('Tag not found.');
@@ -93,7 +97,7 @@ describe('Test tags model', () => {
     const tagObj = await Tags.createTag({
       name: `${_tag.name}1`,
       type: _tag.type,
-      colorCode: _tag.colorCode,
+      colorCode: _tag.colorCode
     });
 
     expect(tagObj).toBeDefined();
@@ -106,7 +110,7 @@ describe('Test tags model', () => {
     const tagObj = await Tags.updateTag(_tag._id, {
       name: _tag.name,
       type: _tag.type,
-      colorCode: _tag.colorCode,
+      colorCode: _tag.colorCode
     });
 
     expect(tagObj).toBeDefined();
@@ -158,7 +162,10 @@ describe('Test tags model', () => {
   test("Can't remove a tag", async () => {
     expect.assertions(1);
     try {
-      await EngageMessages.updateMany({ _id: _message._id }, { $set: { tagIds: [_tag._id] } });
+      await EngageMessages.updateMany(
+        { _id: _message._id },
+        { $set: { tagIds: [_tag._id] } }
+      );
       await Tags.removeTag([_tag._id]);
     } catch (e) {
       expect(e.message).toEqual("Can't remove a tag with tagged object(s)");

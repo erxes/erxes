@@ -14,10 +14,13 @@ export default {
         {
           $or: [
             { visibility: 'public' },
-            { visibility: 'private', $or: [{ memberIds: user._id }, { userId: user._id }] },
-          ],
-        },
-      ],
+            {
+              visibility: 'private',
+              $or: [{ memberIds: user._id }, { userId: user._id }]
+            }
+          ]
+        }
+      ]
     });
-  },
+  }
 };

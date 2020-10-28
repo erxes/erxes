@@ -29,17 +29,22 @@ export const telnyxWebhookDataFactory = (params: ITelnyxWebhookData) => ({
       record_type: faker.random.word(),
       sent_at: new Date().toISOString(),
       text: params.text || faker.random.word(),
-      to: [{ phone_number: params.to || faker.phone.phoneNumber(), status: faker.random.word() }],
+      to: [
+        {
+          phone_number: params.to || faker.phone.phoneNumber(),
+          status: faker.random.word()
+        }
+      ],
       type: faker.random.word(),
       valid_until: new Date().toISOString(),
       webhook_url: faker.internet.url(),
-      webhook_failover_url: faker.internet.url(),
-    },
+      webhook_failover_url: faker.internet.url()
+    }
   },
   meta: {
     attempt: faker.random.number(),
-    delivered_to: faker.internet.url(),
-  },
+    delivered_to: faker.internet.url()
+  }
 });
 
 export const smsRequestFactory = async (params: ISmsRequest) => {
@@ -47,7 +52,7 @@ export const smsRequestFactory = async (params: ISmsRequest) => {
     engageMessageId: params.engageMessageId || faker.random.uuid(),
     to: params.to || faker.phone.phoneNumber(),
     requestData: params.requestData || '{}',
-    telnyxId: params.telnyxId || faker.random.uuid(),
+    telnyxId: params.telnyxId || faker.random.uuid()
   });
 
   return smsRequest.save();

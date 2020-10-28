@@ -68,7 +68,7 @@ export const registerModule = (modules: any): void => {
 
         actionsMap[action.name] = {
           module: module.name,
-          description: action.description,
+          description: action.description
         };
 
         if (action.use) {
@@ -79,7 +79,10 @@ export const registerModule = (modules: any): void => {
   }
 };
 
-export const can = async (action: string, user: IUserDocument): Promise<boolean> => {
+export const can = async (
+  action: string,
+  user: IUserDocument
+): Promise<boolean> => {
   if (!user || !user._id) {
     return false;
   }
@@ -102,7 +105,9 @@ const getKey = (user: IUserDocument) => `user_permissions_${user._id}`;
 /*
  * Get given users permission map from inmemory storage or database
  */
-export const getUserActionsMap = async (user: IUserDocument): Promise<IActionMap> => {
+export const getUserActionsMap = async (
+  user: IUserDocument
+): Promise<IActionMap> => {
   const key = getKey(user);
   const permissionCache = await memoryStorage().get(key);
 
@@ -122,7 +127,9 @@ export const getUserActionsMap = async (user: IUserDocument): Promise<IActionMap
 /*
  * Get allowed actions
  */
-export const getUserAllowedActions = async (user: IUserDocument): Promise<string[]> => {
+export const getUserAllowedActions = async (
+  user: IUserDocument
+): Promise<string[]> => {
   const map = await getUserActionsMap(user);
 
   const allowedActions: string[] = [];
@@ -149,9 +156,13 @@ export const resetPermissionsCache = async () => {
   }
 };
 
-export const userActionsMap = async (user: IUserDocument): Promise<IActionMap> => {
+export const userActionsMap = async (
+  user: IUserDocument
+): Promise<IActionMap> => {
   const userPermissions = await Permissions.find({ userId: user._id });
-  const groupPermissions = await Permissions.find({ groupId: { $in: user.groupIds } });
+  const groupPermissions = await Permissions.find({
+    groupId: { $in: user.groupIds }
+  });
 
   const totalPermissions = [...userPermissions, ...groupPermissions];
   const allowedActions: IActionMap = {};

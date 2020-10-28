@@ -6,9 +6,9 @@ export type ChangePasswordMutationVariables = {
 };
 
 export type ChangePasswordMutationResponse = {
-  changePasswordMutation: (
-    params: { variables: ChangePasswordMutationVariables }
-  ) => Promise<any>;
+  changePasswordMutation: (params: {
+    variables: ChangePasswordMutationVariables;
+  }) => Promise<any>;
 };
 
 export type EditProfileMutationResponse = {

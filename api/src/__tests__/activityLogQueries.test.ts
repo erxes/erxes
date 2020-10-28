@@ -15,7 +15,7 @@ import {
   stageFactory,
   taskFactory,
   ticketFactory,
-  userFactory,
+  userFactory
 } from '../db/factories';
 import {
   ActivityLogs,
@@ -26,7 +26,7 @@ import {
   GrowthHacks,
   Tasks,
   Tickets,
-  Users,
+  Users
 } from '../db/models';
 
 import { IntegrationsAPI } from '../data/dataSources';
@@ -75,7 +75,7 @@ describe('activityLogQueries', () => {
   beforeEach(async () => {
     brand = await brandFactory();
     integration = await integrationFactory({
-      brandId: brand._id,
+      brandId: brand._id
     });
     deal = await dealFactory();
     ticket = await ticketFactory();
@@ -106,7 +106,11 @@ describe('activityLogQueries', () => {
 
     const args = { contentId, contentType };
 
-    const response = await graphqlRequest(qryActivityLogs, 'activityLogs', args);
+    const response = await graphqlRequest(
+      qryActivityLogs,
+      'activityLogs',
+      args
+    );
 
     expect(response.length).toBe(3);
   });
@@ -120,8 +124,16 @@ describe('activityLogQueries', () => {
     const args1 = { contentId, contentType: 'checklist' };
     const args2 = { contentId, contentType: 'checklistitem' };
 
-    const response1 = await graphqlRequest(qryActivityLogs, 'activityLogs', args1);
-    const response2 = await graphqlRequest(qryActivityLogs, 'activityLogs', args2);
+    const response1 = await graphqlRequest(
+      qryActivityLogs,
+      'activityLogs',
+      args1
+    );
+    const response2 = await graphqlRequest(
+      qryActivityLogs,
+      'activityLogs',
+      args2
+    );
 
     expect(response1.length).toBe(2);
     expect(response2.length).toBe(2);
@@ -133,12 +145,15 @@ describe('activityLogQueries', () => {
       mainType: 'customer',
       mainTypeId: customer._id,
       relType: 'task',
-      relTypeId: task._id,
+      relTypeId: task._id
     });
 
     await conversationFactory({ customerId: customer._id });
     await internalNoteFactory({ contentTypeId: customer._id });
-    await engageMessageFactory({ customerIds: [customer._id], method: 'email' });
+    await engageMessageFactory({
+      customerIds: [customer._id],
+      method: 'email'
+    });
 
     const dataSources = { IntegrationsAPI: new IntegrationsAPI() };
     const spy = jest.spyOn(dataSources.IntegrationsAPI, 'fetchApi');
@@ -149,12 +164,21 @@ describe('activityLogQueries', () => {
       { type: 'conversation', content: 'company' },
       { type: 'email', content: 'email' },
       { type: 'internal_note', content: 'internal_note' },
-      { type: 'task', content: 'task' },
+      { type: 'task', content: 'task' }
     ];
 
     for (const activityType of activityTypes) {
-      const args = { contentId: customer._id, contentType: 'customer', activityType: activityType.type };
-      const response = await graphqlRequest(qryActivityLogs, 'activityLogs', args, { dataSources });
+      const args = {
+        contentId: customer._id,
+        contentType: 'customer',
+        activityType: activityType.type
+      };
+      const response = await graphqlRequest(
+        qryActivityLogs,
+        'activityLogs',
+        args,
+        { dataSources }
+      );
       expect(response.length).toBe(1);
     }
   });
@@ -168,14 +192,18 @@ describe('activityLogQueries', () => {
     const doc = {
       contentId,
       contentType,
-      createdBy,
+      createdBy
     };
 
     await activityLogFactory(doc);
 
     const args = { contentId, contentType };
 
-    const response = await graphqlRequest(qryActivityLogs, 'activityLogs', args);
+    const response = await graphqlRequest(
+      qryActivityLogs,
+      'activityLogs',
+      args
+    );
 
     expect(response.length).toBe(1);
   });
@@ -188,14 +216,18 @@ describe('activityLogQueries', () => {
     const doc = {
       contentId,
       contentType,
-      createdBy,
+      createdBy
     };
 
     await activityLogFactory(doc);
 
     const args = { contentId, contentType };
 
-    const response = await graphqlRequest(qryActivityLogs, 'activityLogs', args);
+    const response = await graphqlRequest(
+      qryActivityLogs,
+      'activityLogs',
+      args
+    );
 
     expect(response.length).toBe(1);
   });
@@ -207,21 +239,25 @@ describe('activityLogQueries', () => {
       { type: 'deal', content: deal },
       { type: 'ticket', content: ticket },
       { type: 'task', content: task },
-      { type: 'growthHack', content: growtHack },
+      { type: 'growthHack', content: growtHack }
     ];
 
     for (const type of types) {
       const doc = {
         contentId: type.content._id,
         contentType: type.type,
-        createdBy,
+        createdBy
       };
 
       await activityLogFactory(doc);
 
       const args = { contentId: type.content._id, contentType: type.type };
 
-      const response = await graphqlRequest(qryActivityLogs, 'activityLogs', args);
+      const response = await graphqlRequest(
+        qryActivityLogs,
+        'activityLogs',
+        args
+      );
 
       expect(response.length).toBe(1);
     }
@@ -233,7 +269,7 @@ describe('activityLogQueries', () => {
 
     const types = [
       { type: 'company', content: company },
-      { type: 'customer', content: customer },
+      { type: 'customer', content: customer }
     ];
 
     for (const type of types) {
@@ -241,14 +277,18 @@ describe('activityLogQueries', () => {
         contentId: type.content._id,
         contentType: type.type,
         action: 'merge',
-        content: [],
+        content: []
       };
 
       await activityLogFactory(doc);
 
       const args = { contentId: type.content._id, contentType: type.type };
 
-      const response = await graphqlRequest(qryActivityLogs, 'activityLogs', args);
+      const response = await graphqlRequest(
+        qryActivityLogs,
+        'activityLogs',
+        args
+      );
 
       expect(response.length).toBe(1);
     }
@@ -262,7 +302,7 @@ describe('activityLogQueries', () => {
       { type: 'deal', content: deal },
       { type: 'ticket', content: ticket },
       { type: 'task', content: task },
-      { type: 'growthHack', content: growtHack },
+      { type: 'growthHack', content: growtHack }
     ];
 
     for (const type of types) {
@@ -272,8 +312,8 @@ describe('activityLogQueries', () => {
         action: 'moved',
         content: {
           oldStageId: stage1._id,
-          destinationStageId: stage2._id,
-        },
+          destinationStageId: stage2._id
+        }
       };
 
       const doc2 = {
@@ -282,8 +322,8 @@ describe('activityLogQueries', () => {
         action: 'moved',
         content: {
           oldStageId: '',
-          destinationStageId: '',
-        },
+          destinationStageId: ''
+        }
       };
 
       await activityLogFactory(doc1);
@@ -291,7 +331,11 @@ describe('activityLogQueries', () => {
 
       const args = { contentId: type.content._id, contentType: type.type };
 
-      const response = await graphqlRequest(qryActivityLogs, 'activityLogs', args);
+      const response = await graphqlRequest(
+        qryActivityLogs,
+        'activityLogs',
+        args
+      );
 
       expect(response.length).toBe(2);
     }
@@ -304,14 +348,18 @@ describe('activityLogQueries', () => {
       const doc = {
         contentId: type.content._id,
         contentType: type.type,
-        action: 'convert',
+        action: 'convert'
       };
 
       await activityLogFactory(doc);
 
       const args = { contentId: type.content._id, contentType: type.type };
 
-      const response = await graphqlRequest(qryActivityLogs, 'activityLogs', args);
+      const response = await graphqlRequest(
+        qryActivityLogs,
+        'activityLogs',
+        args
+      );
 
       expect(response.length).toBe(1);
     }
@@ -324,14 +372,18 @@ describe('activityLogQueries', () => {
       contentId: deal1._id,
       contentType: 'deal',
       action: 'assignee',
-      content: [],
+      content: []
     };
 
     await activityLogFactory(doc);
 
     const args = { contentId: deal1._id, contentType: 'deal' };
 
-    const response = await graphqlRequest(qryActivityLogs, 'activityLogs', args);
+    const response = await graphqlRequest(
+      qryActivityLogs,
+      'activityLogs',
+      args
+    );
 
     expect(response.length).toBe(1);
   });

@@ -18,7 +18,7 @@ const buildMessage = (child: string, ...args: string[]) => {
     parent: 'messages',
     child,
     accessToken,
-    filter,
+    filter
   });
 };
 
@@ -50,7 +50,7 @@ const sendMessage = (accessToken: string, args: IMessageDraft) => {
     name: 'drafts',
     method: 'build',
     options: args,
-    action: 'send',
+    action: 'send'
   });
 };
 
@@ -76,8 +76,8 @@ const uploadFile = async (file, accessToken: string) => {
     options: {
       data: buffer,
       filename: file.name,
-      contentType: file.type,
-    },
+      contentType: file.type
+    }
   });
 
   return nylasFileRequest(nylasFile, 'upload');
@@ -94,7 +94,7 @@ const getAttachment = async (fileId: string, accessToken: string) => {
     accessToken,
     name: 'files',
     method: 'build',
-    options: { id: fileId },
+    options: { id: fileId }
   });
 
   return nylasFileRequest(nylasFile, 'download');
@@ -144,7 +144,7 @@ export const nylasRequest = ({
   parent,
   child,
   accessToken,
-  filter,
+  filter
 }: {
   parent: string;
   child: string;
@@ -180,7 +180,12 @@ export const nylasFileRequest = (nylasFile: any, method: string) => {
 /**
  * Get Nylas SDK instrance
  */
-export const nylasInstance = (name: string, method: string, options?: any, action?: string) => {
+export const nylasInstance = (
+  name: string,
+  method: string,
+  options?: any,
+  action?: string
+) => {
   if (!action) {
     return Nylas[name][method](options);
   }
@@ -196,7 +201,7 @@ export const nylasInstanceWithToken = async ({
   name,
   method,
   options,
-  action,
+  action
 }: {
   accessToken: string;
   name: string;
@@ -224,7 +229,10 @@ export const nylasInstanceWithToken = async ({
  * @param {String} accountId
  * @param {Boolean} enable
  */
-export const enableOrDisableAccount = async (accountId: string, enable: boolean) => {
+export const enableOrDisableAccount = async (
+  accountId: string,
+  enable: boolean
+) => {
   debugNylas(`${enable} account with uid: ${accountId}`);
 
   await nylasInstance('accounts', 'find', accountId).then(account => {
@@ -236,7 +244,10 @@ export const enableOrDisableAccount = async (accountId: string, enable: boolean)
   });
 };
 
-export const checkEmailDuplication = async (email: string, kind: string): Promise<any> => {
+export const checkEmailDuplication = async (
+  email: string,
+  kind: string
+): Promise<any> => {
   debugNylas(`Checking email duplication: ${email}`);
 
   const integration = await Integrations.findOne({ email, kind }).lean();
@@ -248,4 +259,11 @@ export const checkEmailDuplication = async (email: string, kind: string): Promis
   return false;
 };
 
-export { uploadFile, sendMessage, getMessageById, getMessages, getAttachment, checkCredentials };
+export {
+  uploadFile,
+  sendMessage,
+  getMessageById,
+  getMessages,
+  getAttachment,
+  checkCredentials
+};

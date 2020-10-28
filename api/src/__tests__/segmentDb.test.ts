@@ -18,9 +18,9 @@ const generateData = (): ISegment => ({
       type: 'property',
       propertyName: 'messengerData.sessionCount',
       propertyOperator: 'e',
-      propertyValue: '10',
-    },
-  ],
+      propertyValue: '10'
+    }
+  ]
 });
 
 /*

@@ -13,7 +13,10 @@ const init = async app => {
     const { code, broadcastToken, botId, blockName } = JSON.parse(data);
 
     // Check existing Integration
-    const integration = await Integrations.findOne({ kind: 'chatfuel', 'chatfuelConfigs.code': code }).lean();
+    const integration = await Integrations.findOne({
+      kind: 'chatfuel',
+      'chatfuelConfigs.code': code
+    }).lean();
 
     if (integration) {
       return next(`Integration already exists with this code: ${code}`);
@@ -27,8 +30,8 @@ const init = async app => {
           code,
           broadcastToken,
           botId,
-          blockName,
-        },
+          blockName
+        }
       });
     } catch (e) {
       debugChatfuel(`Failed to create integration: ${e}`);
@@ -43,9 +46,10 @@ const init = async app => {
 
     const body = req.body;
 
-    const messages: Array<{ attachment?: { type: string; payload: { url: string } }; text?: string }> = [
-      { text: body.content },
-    ];
+    const messages: Array<{
+      attachment?: { type: string; payload: { url: string } };
+      text?: string;
+    }> = [{ text: body.content }];
 
     if (body.attachments) {
       const attachments = JSON.parse(body.attachments);
@@ -71,7 +75,9 @@ const init = async app => {
     }
 
     const code = req.query.code;
-    const integration = await Integrations.findOne({ 'chatfuelConfigs.code': code }).lean();
+    const integration = await Integrations.findOne({
+      'chatfuelConfigs.code': code
+    }).lean();
 
     if (!integration) {
       debugChatfuel(`Integrtion not found with: ${code}`);
@@ -89,9 +95,16 @@ const init = async app => {
 
     if (!customer) {
       try {
-        customer = await Customers.create({ chatfuelUserId, integrationId: integration._id });
+        customer = await Customers.create({
+          chatfuelUserId,
+          integrationId: integration._id
+        });
       } catch (e) {
-        throw new Error(e.message.includes('duplicate') ? 'Concurrent request: customer duplication' : e);
+        throw new Error(
+          e.message.includes('duplicate')
+            ? 'Concurrent request: customer duplication'
+            : e
+        );
       }
 
       // save on api
@@ -103,8 +116,8 @@ const init = async app => {
             firstName,
             lastName,
             avatar: profilePicUrl,
-            isUser: true,
-          }),
+            isUser: true
+          })
         });
         customer.erxesApiId = apiCustomerResponse._id;
         await customer.save();
@@ -124,10 +137,14 @@ const init = async app => {
         conversation = await Conversations.create({
           timestamp: new Date(),
           chatfuelUserId,
-          integrationId: integration._id,
+          integrationId: integration._id
         });
       } catch (e) {
-        throw new Error(e.message.includes('duplicate') ? 'Concurrent request: conversation duplication' : e);
+        throw new Error(
+          e.message.includes('duplicate')
+            ? 'Concurrent request: conversation duplication'
+            : e
+        );
       }
 
       // save on api
@@ -137,8 +154,8 @@ const init = async app => {
           payload: JSON.stringify({
             customerId: customer.erxesApiId,
             content: `Button name: ${lastClickedButtonName}, ${message}`,
-            integrationId: integration.erxesApiId,
-          }),
+            integrationId: integration.erxesApiId
+          })
         });
 
         conversation.erxesApiId = apiConversationResponse._id;
@@ -152,7 +169,7 @@ const init = async app => {
     // save on integrations db
     const conversationMessage = await ConversationMessages.create({
       content: message,
-      conversationId: conversation._id,
+      conversationId: conversation._id
     });
 
     // save message on api
@@ -162,8 +179,8 @@ const init = async app => {
         payload: JSON.stringify({
           content: message,
           conversationId: conversation.erxesApiId,
-          customerId: customer.erxesApiId,
-        }),
+          customerId: customer.erxesApiId
+        })
       });
     } catch (e) {
       await ConversationMessages.deleteOne({ _id: conversationMessage._id });
@@ -178,22 +195,30 @@ const init = async app => {
 
     const { content, attachments, conversationId } = req.body;
 
-    const conversation = await Conversations.findOne({ erxesApiId: conversationId });
+    const conversation = await Conversations.findOne({
+      erxesApiId: conversationId
+    });
 
     if (!conversation) {
-      return next(new Error(`Conversation not found with id ${conversationId}`));
+      return next(
+        new Error(`Conversation not found with id ${conversationId}`)
+      );
     }
 
-    const integration = await Integrations.getIntegration({ _id: conversation.integrationId });
+    const integration = await Integrations.getIntegration({
+      _id: conversation.integrationId
+    });
     const configs = integration.chatfuelConfigs || {};
 
     await sendRequest({
-      url: `https://api.chatfuel.com/bots/${configs.botId}/users/${conversation.chatfuelUserId}/send?chatfuel_token=${
+      url: `https://api.chatfuel.com/bots/${configs.botId}/users/${
+        conversation.chatfuelUserId
+      }/send?chatfuel_token=${
         configs.broadcastToken
       }&chatfuel_message_tag=NON_PROMOTIONAL_SUBSCRIPTION&chatfuel_block_name=${
         configs.blockName
       }&content=${content}&attachments=${JSON.stringify(attachments)}`,
-      method: 'POST',
+      method: 'POST'
     });
 
     res.send('success');

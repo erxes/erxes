@@ -2,9 +2,17 @@ import * as sinon from 'sinon';
 import { accountFactory, integrationFactory } from '../factories';
 import { initMemoryStorage } from '../inmemoryStorage';
 import * as message from '../messageBroker';
-import { ConversationMessages, Conversations, Customers } from '../twitter/models';
+import {
+  ConversationMessages,
+  Conversations,
+  Customers
+} from '../twitter/models';
 import receiveDms from '../twitter/receiveDms';
-import { createConverstaionMessage, getOrCreateConversation, getOrCreateCustomer } from '../twitter/store';
+import {
+  createConverstaionMessage,
+  getOrCreateConversation,
+  getOrCreateCustomer
+} from '../twitter/store';
 import './setup.ts';
 
 initMemoryStorage();
@@ -22,14 +30,14 @@ describe('Twitter test test', () => {
       friends_count: 1,
       statuses_count: 1,
       profile_image_url: 'profile_image_url',
-      profile_image_url_https: 'profile_image_url_https',
+      profile_image_url_https: 'profile_image_url_https'
     },
     senderId1: {
-      name: 'name1',
+      name: 'name1'
     },
     senderId2: {
-      name: 'name2',
-    },
+      name: 'name2'
+    }
   };
 
   const requestBody = {
@@ -40,23 +48,31 @@ describe('Twitter test test', () => {
         type: 'message_create',
         message_create: {
           message_data: {
-            attachment: { media: { type: 'animated_gif', video_info: { variants: [{ url: 'url' }] } } },
-            text: 'text',
+            attachment: {
+              media: {
+                type: 'animated_gif',
+                video_info: { variants: [{ url: 'url' }] }
+              }
+            },
+            text: 'text'
           },
           sender_id: 'senderId',
-          target: { recipient_id: 'recipent_id' },
-        },
+          target: { recipient_id: 'recipent_id' }
+        }
       },
       // type !== animated_gif
       {
         type: 'message_create',
         message_create: {
-          message_data: { attachment: { media: { type: 'type' } }, text: 'text' },
+          message_data: {
+            attachment: { media: { type: 'type' } },
+            text: 'text'
+          },
           sender_id: 'senderId1',
-          target: { recipient_id: 'recipent_id1' },
-        },
-      },
-    ],
+          target: { recipient_id: 'recipent_id1' }
+        }
+      }
+    ]
   };
 
   afterEach(async () => {
@@ -89,13 +105,13 @@ describe('Twitter test test', () => {
           type: '!message_create',
           message_create: {
             message_data: {
-              text: 'text',
+              text: 'text'
             },
             sender_id: 'senderId',
-            target: { recipient_id: 'recipent_id' },
-          },
-        },
-      ],
+            target: { recipient_id: 'recipent_id' }
+          }
+        }
+      ]
     });
 
     expect(response).toEqual(true);
@@ -142,7 +158,13 @@ describe('Twitter test test', () => {
     const converstaion = await Conversations.create({ _id: '123' });
 
     try {
-      await createConverstaionMessage(event, 'content', [], '123', converstaion);
+      await createConverstaionMessage(
+        event,
+        'content',
+        [],
+        '123',
+        converstaion
+      );
     } catch (e) {
       expect(await ConversationMessages.find({}).countDocuments()).toBe(0);
     }
@@ -156,10 +178,24 @@ describe('Twitter test test', () => {
     });
 
     await Conversations.create({ senderId: '123', receiverId: '123' });
-    await getOrCreateConversation('123', '123', 'integrationId', 'content', 'erxesApiId', 'integrationErxesApiId');
+    await getOrCreateConversation(
+      '123',
+      '123',
+      'integrationId',
+      'content',
+      'erxesApiId',
+      'integrationErxesApiId'
+    );
 
     try {
-      await getOrCreateConversation('456', '456', 'integrationId', 'content', 'erxesApiId', 'integrationErxesApiId');
+      await getOrCreateConversation(
+        '456',
+        '456',
+        'integrationId',
+        'content',
+        'erxesApiId',
+        'integrationErxesApiId'
+      );
     } catch (e) {
       expect(await Conversations.find({}).countDocuments()).toBe(1);
     }
@@ -180,7 +216,7 @@ describe('Twitter test test', () => {
           'integrationId',
           'content',
           'erxesApiId',
-          'integrationErxesApiId',
+          'integrationErxesApiId'
         ),
         getOrCreateConversation(
           'senderId',
@@ -188,7 +224,7 @@ describe('Twitter test test', () => {
           'integrationId',
           'content',
           'erxesApiId',
-          'integrationErxesApiId',
+          'integrationErxesApiId'
         ),
         getOrCreateConversation(
           'senderId',
@@ -196,8 +232,8 @@ describe('Twitter test test', () => {
           'integrationId',
           'content',
           'erxesApiId',
-          'integrationErxesApiId',
-        ),
+          'integrationErxesApiId'
+        )
       ]);
     } catch (e) {
       expect(await Conversations.find({}).countDocuments()).toBe(1);
@@ -237,7 +273,7 @@ describe('Twitter test test', () => {
       await Promise.all([
         getOrCreateCustomer(integration, '123', users.senderId),
         getOrCreateCustomer(integration, '123', users.senderId),
-        getOrCreateCustomer(integration, '123', users.senderId),
+        getOrCreateCustomer(integration, '123', users.senderId)
       ]);
     } catch (e) {
       expect(await Customers.find({}).countDocuments()).toBe(1);

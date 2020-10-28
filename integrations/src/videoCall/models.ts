@@ -26,10 +26,10 @@ const callRecordSchema = new Schema({
   token: String,
   status: {
     type: String,
-    default: 'ongoing',
+    default: 'ongoing'
   },
   recordId: String,
-  createdAt: Date,
+  createdAt: Date
 });
 
 interface ICallRecordModel extends Model<ICallRecordDocument> {
@@ -51,4 +51,7 @@ const loadCallRecordClass = () => {
 loadCallRecordClass();
 
 // tslint:disable-next-line
-export const CallRecords = model<ICallRecordDocument, ICallRecordModel>('call_records', callRecordSchema);
+export const CallRecords = model<ICallRecordDocument, ICallRecordModel>(
+  'call_records',
+  callRecordSchema
+);

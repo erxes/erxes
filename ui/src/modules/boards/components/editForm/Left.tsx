@@ -36,12 +36,9 @@ const Description = (props: DescProps) => {
   const [edit, setEdit] = useState(false);
   const [description, setDescription] = useState(item.description);
 
-  useEffect(
-    () => {
-      setDescription(item.description);
-    },
-    [item.description]
-  );
+  useEffect(() => {
+    setDescription(item.description);
+  }, [item.description]);
 
   const onSend = () => {
     saveItem({ description });

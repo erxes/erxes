@@ -14,14 +14,19 @@ import { debugImport, debugWorkers } from '../debuggers';
 
 const { MONGO_URL = '' } = process.env;
 
-export const connect = () => mongoose.connect(MONGO_URL, { useNewUrlParser: true, useCreateIndex: true });
+export const connect = () =>
+  mongoose.connect(MONGO_URL, { useNewUrlParser: true, useCreateIndex: true });
 
 dotenv.config();
 
 let workers: any[] = [];
 let intervals: any[] = [];
 
-export const createWorkers = (workerPath: string, workerData: any, results: string[]) => {
+export const createWorkers = (
+  workerPath: string,
+  workerData: any,
+  results: string[]
+) => {
   return new Promise((resolve, reject) => {
     // tslint:disable-next-line
     const Worker = require('worker_threads').Worker;
@@ -36,8 +41,8 @@ export const createWorkers = (workerPath: string, workerData: any, results: stri
           const worker = new Worker(workerPath, {
             workerData: {
               ...workerData,
-              result,
-            },
+              result
+            }
           });
 
           workers.push(worker);
@@ -122,8 +127,15 @@ export const clearEmptyValues = (obj: any) => {
   return obj;
 };
 
-export const updateDuplicatedValue = async (model: any, field: string, doc: any) => {
-  return model.updateOne({ [field]: doc[field] }, { $set: { ...doc, modifiedAt: new Date() } });
+export const updateDuplicatedValue = async (
+  model: any,
+  field: string,
+  doc: any
+) => {
+  return model.updateOne(
+    { [field]: doc[field] },
+    { $set: { ...doc, modifiedAt: new Date() } }
+  );
 };
 
 // xls file import, cancel, removal
@@ -154,7 +166,10 @@ export const receiveImportCancel = () => {
   return { status: 'ok' };
 };
 
-const readXlsFile = async (fileName: string, uploadType: string): Promise<{ fieldNames: string[]; datas: any[] }> => {
+const readXlsFile = async (
+  fileName: string,
+  uploadType: string
+): Promise<{ fieldNames: string[]; datas: any[] }> => {
   return new Promise(async (resolve, reject) => {
     let rowCount = 0;
 
@@ -181,7 +196,9 @@ const readXlsFile = async (fileName: string, uploadType: string): Promise<{ fiel
 
         workSheetReader.on('row', row => {
           if (rowCount > 100000) {
-            return reject(new Error('You can only import 100000 rows one at a time'));
+            return reject(
+              new Error('You can only import 100000 rows one at a time')
+            );
           }
 
           if (row.values.length > 0) {
@@ -221,7 +238,10 @@ const readXlsFile = async (fileName: string, uploadType: string): Promise<{ fiel
   });
 };
 
-const readCsvFile = async (fileName: string, uploadType: string): Promise<{ fieldNames: string[]; datas: any[] }> => {
+const readCsvFile = async (
+  fileName: string,
+  uploadType: string
+): Promise<{ fieldNames: string[]; datas: any[] }> => {
   return new Promise(async (resolve, reject) => {
     const errorCallback = error => {
       reject(new Error(error.code));
@@ -242,7 +262,9 @@ const readCsvFile = async (fileName: string, uploadType: string): Promise<{ fiel
       }
 
       if (results && results.length > 100000) {
-        return reject(new Error('You can only import 100000 rows one at a time'));
+        return reject(
+          new Error('You can only import 100000 rows one at a time')
+        );
       }
 
       const fieldNames: string[] = [];
@@ -291,7 +313,14 @@ const readCsvFile = async (fileName: string, uploadType: string): Promise<{ fiel
 
 export const receiveImportCreate = async (content: any) => {
   try {
-    const { fileName, type, scopeBrandIds, user, uploadType, fileType } = content;
+    const {
+      fileName,
+      type,
+      scopeBrandIds,
+      user,
+      uploadType,
+      fileType
+    } = content;
     let fieldNames: string[] = [];
     let datas: string[] = [];
     let result: any = {};
@@ -324,7 +353,7 @@ export const receiveImportCreate = async (content: any) => {
       contentType: type,
       total: datas.length,
       userId: user._id,
-      date: Date.now(),
+      date: Date.now()
     });
 
     const results: string[] = splitToCore(datas);
@@ -344,7 +373,7 @@ export const receiveImportCreate = async (content: any) => {
       contentType: type,
       properties,
       importHistoryId: importHistory._id,
-      percentagePerData,
+      percentagePerData
     };
 
     await createWorkers(workerPath, workerData, results);
@@ -367,7 +396,9 @@ export const generateUid = () => {
   );
 };
 export const generatePronoun = value => {
-  const pronoun = CUSTOMER_SELECT_OPTIONS.SEX.find(sex => sex.label.toUpperCase() === value.toUpperCase());
+  const pronoun = CUSTOMER_SELECT_OPTIONS.SEX.find(
+    sex => sex.label.toUpperCase() === value.toUpperCase()
+  );
 
   return pronoun ? pronoun.value : '';
 };

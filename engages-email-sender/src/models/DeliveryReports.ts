@@ -26,7 +26,7 @@ export const statsSchema = new Schema({
   reject: { type: Number, default: 0 },
   send: { type: Number, default: 0 },
   renderingfailure: { type: Number, default: 0 },
-  total: { type: Number, default: 0 },
+  total: { type: Number, default: 0 }
 });
 
 export interface IDeliveryReports {
@@ -43,7 +43,7 @@ export const deliveryReportsSchema = new Schema({
   mailId: { type: String, optional: true },
   status: { type: String, optional: true },
   engageMessageId: { type: String, optional: true },
-  createdAt: { type: Date },
+  createdAt: { type: Date }
 });
 
 export interface IStatsModel extends Model<IStatsDocument> {
@@ -82,15 +82,29 @@ export const loadDeliveryReportsClass = () => {
     public static async updateOrCreateReport(headers: any, status: string) {
       const { engageMessageId, mailId, customerId } = headers;
 
-      const deliveryReports = await DeliveryReports.findOne({ engageMessageId });
+      const deliveryReports = await DeliveryReports.findOne({
+        engageMessageId
+      });
 
       if (deliveryReports) {
-        await DeliveryReports.updateOne({ engageMessageId }, { $set: { mailId, status } });
+        await DeliveryReports.updateOne(
+          { engageMessageId },
+          { $set: { mailId, status } }
+        );
       } else {
-        await DeliveryReports.create({ customerId, mailId, engageMessageId, status });
+        await DeliveryReports.create({
+          customerId,
+          mailId,
+          engageMessageId,
+          status
+        });
       }
 
-      if (status === 'complaint' || status === 'bounce' || status === 'reject') {
+      if (
+        status === 'complaint' ||
+        status === 'bounce' ||
+        status === 'reject'
+      ) {
         return 'reject';
       }
 
@@ -108,7 +122,7 @@ loadDeliveryReportsClass();
 // tslint:disable-next-line
 const DeliveryReports = model<IDeliveryReportsDocument, IDeliveryReportModel>(
   'delivery_reports',
-  deliveryReportsSchema,
+  deliveryReportsSchema
 );
 
 export { Stats, DeliveryReports };

@@ -43,7 +43,12 @@ class ArticleList extends React.Component<Props> {
       <DataWithLoader
         loading={loading}
         count={articles.length}
-        emptyContent={<EmptyContent content={EMPTY_CONTENT_KNOWLEDGEBASE} maxItemWidth="420px" />}
+        emptyContent={
+          <EmptyContent
+            content={EMPTY_CONTENT_KNOWLEDGEBASE}
+            maxItemWidth="420px"
+          />
+        }
         data={this.renderArticles()}
       />
     );

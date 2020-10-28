@@ -33,14 +33,12 @@ type Props = {
   isActionLoading: boolean;
   isReadyToSaveForm: boolean;
   afterFormDbSave: (formId: string) => void;
-  save: (
-    params: {
-      name: string;
-      brandId: string;
-      languageCode?: string;
-      leadData: ILeadData;
-    }
-  ) => void;
+  save: (params: {
+    name: string;
+    brandId: string;
+    languageCode?: string;
+    leadData: ILeadData;
+  }) => void;
 };
 
 type State = {

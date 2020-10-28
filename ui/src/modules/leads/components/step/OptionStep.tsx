@@ -61,7 +61,14 @@ class OptionStep extends React.Component<Props, {}> {
   }
 
   render() {
-    const { language, brand, formData, color, theme, isRequireOnce } = this.props;
+    const {
+      language,
+      brand,
+      formData,
+      color,
+      theme,
+      isRequireOnce
+    } = this.props;
     const { fields, desc } = formData;
 
     const popoverTop = (
@@ -122,7 +129,10 @@ class OptionStep extends React.Component<Props, {}> {
 
           <FormGroup>
             <ControlLabel>Submit once</ControlLabel>
-            <Description>Turn on to receive a submission from the visitor only once. Once a submission is received, the popup will not show.</Description>
+            <Description>
+              Turn on to receive a submission from the visitor only once. Once a
+              submission is received, the popup will not show.
+            </Description>
             <div>
               <Toggle
                 checked={isRequireOnce || false}

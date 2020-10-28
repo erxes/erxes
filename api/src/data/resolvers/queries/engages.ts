@@ -42,7 +42,10 @@ const count = async (selector: {}): Promise<number> => {
 const tagQueryBuilder = (tagId: string) => ({ tagIds: tagId });
 
 // status query builder
-const statusQueryBuilder = (status: string, user?: IUserDocument): IStatusQueryBuilder | undefined => {
+const statusQueryBuilder = (
+  status: string,
+  user?: IUserDocument
+): IStatusQueryBuilder | undefined => {
   if (status === 'live') {
     return { isLive: true };
   }
@@ -64,13 +67,13 @@ const countsByKind = async commonSelector => ({
   all: await count(commonSelector),
   auto: await count({ ...commonSelector, kind: 'auto' }),
   visitorAuto: await count({ ...commonSelector, kind: 'visitorAuto' }),
-  manual: await count({ ...commonSelector, kind: 'manual' }),
+  manual: await count({ ...commonSelector, kind: 'manual' })
 });
 
 // count for each status type
 const countsByStatus = async (
   commonSelector,
-  { kind, user }: { kind: string; user: IUserDocument },
+  { kind, user }: { kind: string; user: IUserDocument }
 ): Promise<ICountsByStatus> => {
   const query: IQuery = commonSelector;
 
@@ -82,7 +85,7 @@ const countsByStatus = async (
     live: await count({ ...query, ...statusQueryBuilder('live') }),
     draft: await count({ ...query, ...statusQueryBuilder('draft') }),
     paused: await count({ ...query, ...statusQueryBuilder('paused') }),
-    yours: await count({ ...query, ...statusQueryBuilder('yours', user) }),
+    yours: await count({ ...query, ...statusQueryBuilder('yours', user) })
   };
 };
 
@@ -92,12 +95,12 @@ const countsByTag = async (
   {
     kind,
     status,
-    user,
+    user
   }: {
     kind: string;
     status: string;
     user: IUserDocument;
-  },
+  }
 ): Promise<ICountsByTag[]> => {
   let query: any = commonSelector;
 
@@ -127,18 +130,24 @@ const countsByTag = async (
 const listQuery = (
   commonSelector,
   { segmentIds, brandIds, tagIds, kind, status, tag, ids }: IListArgs,
-  user: IUserDocument,
+  user: IUserDocument
 ): any => {
   if (ids) {
     return EngageMessages.find({ ...commonSelector, _id: { $in: ids } });
   }
 
   if (segmentIds) {
-    return EngageMessages.find({ ...commonSelector, segmentIds: { $in: segmentIds } });
+    return EngageMessages.find({
+      ...commonSelector,
+      segmentIds: { $in: segmentIds }
+    });
   }
 
   if (brandIds) {
-    return EngageMessages.find({ ...commonSelector, brandIds: { $in: brandIds } });
+    return EngageMessages.find({
+      ...commonSelector,
+      brandIds: { $in: brandIds }
+    });
   }
 
   if (tagIds) {
@@ -172,7 +181,7 @@ const engageQueries = {
   engageMessageCounts(
     _root,
     { name, kind, status }: { name: string; kind: string; status: string },
-    { user, commonQuerySelector }: IContext,
+    { user, commonQuerySelector }: IContext
   ) {
     if (name === 'kind') {
       return countsByKind(commonQuerySelector);
@@ -188,8 +197,17 @@ const engageQueries = {
   /**
    * Engage messages list
    */
-  engageMessages(_root, args: IListArgs, { user, commonQuerySelector }: IContext) {
-    return paginate(EngageMessages.find(listQuery(commonQuerySelector, args, user)).sort({ createdAt: -1 }), args);
+  engageMessages(
+    _root,
+    args: IListArgs,
+    { user, commonQuerySelector }: IContext
+  ) {
+    return paginate(
+      EngageMessages.find(listQuery(commonQuerySelector, args, user)).sort({
+        createdAt: -1
+      }),
+      args
+    );
   },
 
   /**
@@ -213,8 +231,14 @@ const engageQueries = {
   /**
    * Get all messages count. We will use it in pager
    */
-  engageMessagesTotalCount(_root, args: IListArgs, { user, commonQuerySelector }: IContext) {
-    return EngageMessages.find(listQuery(commonQuerySelector, args, user)).countDocuments();
+  engageMessagesTotalCount(
+    _root,
+    args: IListArgs,
+    { user, commonQuerySelector }: IContext
+  ) {
+    return EngageMessages.find(
+      listQuery(commonQuerySelector, args, user)
+    ).countDocuments();
   },
 
   /**
@@ -222,7 +246,7 @@ const engageQueries = {
    */
   engageVerifiedEmails(_root, _args, { dataSources }: IContext) {
     return dataSources.EngagesAPI.engagesGetVerifiedEmails();
-  },
+  }
 };
 
 requireLogin(engageQueries, 'engageMessagesTotalCount');

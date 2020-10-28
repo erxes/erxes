@@ -1,7 +1,11 @@
 import { Model, model } from 'mongoose';
 import { getUniqueValue } from '../factories';
 import { WEBHOOK_STATUS } from './definitions/constants';
-import { IWebhook, IWebhookDocument, webhookSchema } from './definitions/webhook';
+import {
+  IWebhook,
+  IWebhookDocument,
+  webhookSchema
+} from './definitions/webhook';
 
 export interface IWebhookModel extends Model<IWebhookDocument> {
   getWebHook(_id: string): Promise<IWebhookDocument>;
@@ -36,7 +40,9 @@ export const loadClass = () => {
      */
     public static async createWebhook(doc: IWebhook) {
       if (!doc.url.includes('https')) {
-        throw new Error('Url is not valid. Enter valid url with ssl cerfiticate');
+        throw new Error(
+          'Url is not valid. Enter valid url with ssl cerfiticate'
+        );
       }
 
       const modifiedDoc: any = { ...doc };
@@ -48,7 +54,9 @@ export const loadClass = () => {
 
     public static async updateWebhook(_id: string, doc: IWebhook) {
       if (!doc.url.includes('https')) {
-        throw new Error('Url is not valid. Enter valid url with ssl cerfiticate');
+        throw new Error(
+          'Url is not valid. Enter valid url with ssl cerfiticate'
+        );
       }
 
       await Webhooks.updateOne({ _id }, { $set: doc }, { runValidators: true });
@@ -61,7 +69,11 @@ export const loadClass = () => {
     }
 
     public static async updateStatus(_id: string, status: string) {
-      await Webhooks.updateOne({ _id }, { $set: { status } }, { runValidators: true });
+      await Webhooks.updateOne(
+        { _id },
+        { $set: { status } },
+        { runValidators: true }
+      );
 
       return Webhooks.findOne({ _id });
     }
@@ -75,6 +87,9 @@ export const loadClass = () => {
 loadClass();
 
 // tslint:disable-next-line
-const Webhooks = model<IWebhookDocument, IWebhookModel>('webhooks', webhookSchema);
+const Webhooks = model<IWebhookDocument, IWebhookModel>(
+  'webhooks',
+  webhookSchema
+);
 
 export default Webhooks;

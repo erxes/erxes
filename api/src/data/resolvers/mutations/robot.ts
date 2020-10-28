@@ -14,8 +14,8 @@ const robotMutations = {
       graphqlPubsub.publish('onboardingChanged', {
         onboardingChanged: {
           userId: user._id,
-          type: status,
-        },
+          type: status
+        }
       });
     }
 
@@ -26,9 +26,13 @@ const robotMutations = {
     return OnboardingHistories.forceComplete(user._id);
   },
 
-  onboardingCompleteShowStep(_root, { step }: { step: string }, { user }: IContext) {
+  onboardingCompleteShowStep(
+    _root,
+    { step }: { step: string },
+    { user }: IContext
+  ) {
     return OnboardingHistories.completeShowStep(step, user._id);
-  },
+  }
 };
 
 export default robotMutations;

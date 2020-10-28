@@ -1,9 +1,16 @@
 import { Model, model } from 'mongoose';
-import { emailTemplateSchema, IEmailTemplate, IEmailTemplateDocument } from './definitions/emailTemplates';
+import {
+  emailTemplateSchema,
+  IEmailTemplate,
+  IEmailTemplateDocument
+} from './definitions/emailTemplates';
 
 export interface IEmailTemplateModel extends Model<IEmailTemplateDocument> {
   getEmailTemplate(_id: string): IEmailTemplateDocument;
-  updateEmailTemplate(_id: string, fields: IEmailTemplate): IEmailTemplateDocument;
+  updateEmailTemplate(
+    _id: string,
+    fields: IEmailTemplate
+  ): IEmailTemplateDocument;
   removeEmailTemplate(_id: string): void;
 }
 
@@ -25,7 +32,10 @@ export const loadClass = () => {
     /**
      * Updates an email template
      */
-    public static async updateEmailTemplate(_id: string, fields: IEmailTemplate) {
+    public static async updateEmailTemplate(
+      _id: string,
+      fields: IEmailTemplate
+    ) {
       await EmailTemplates.updateOne({ _id }, { $set: fields });
 
       return EmailTemplates.findOne({ _id });
@@ -53,6 +63,9 @@ export const loadClass = () => {
 loadClass();
 
 // tslint:disable-next-line
-const EmailTemplates = model<IEmailTemplateDocument, IEmailTemplateModel>('email_templates', emailTemplateSchema);
+const EmailTemplates = model<IEmailTemplateDocument, IEmailTemplateModel>(
+  'email_templates',
+  emailTemplateSchema
+);
 
 export default EmailTemplates;

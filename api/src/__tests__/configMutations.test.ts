@@ -13,7 +13,9 @@ describe('Test configs mutations', () => {
       }
     `;
 
-    await graphqlRequest(mutation, 'configsUpdate', { configsMap: { dealUOM: ['MNT'], '': '' } });
+    await graphqlRequest(mutation, 'configsUpdate', {
+      configsMap: { dealUOM: ['MNT'], '': '' }
+    });
 
     const uomConfig = await Configs.getConfig('dealUOM');
 
@@ -21,7 +23,9 @@ describe('Test configs mutations', () => {
     expect(uomConfig.value[0]).toEqual('MNT');
 
     // if code is not dealUOM and dealCurrency
-    await graphqlRequest(mutation, 'configsUpdate', { configsMap: { code: ['USD'] } });
+    await graphqlRequest(mutation, 'configsUpdate', {
+      configsMap: { code: ['USD'] }
+    });
 
     const codeConfig = await Configs.getConfig('code');
 
@@ -31,10 +35,12 @@ describe('Test configs mutations', () => {
     const firebaseMock = sinon.stub(utils, 'initFirebase').callsFake();
 
     await graphqlRequest(mutation, 'configsUpdate', {
-      configsMap: { GOOGLE_APPLICATION_CREDENTIALS_JSON: ['serviceAccount'] },
+      configsMap: { GOOGLE_APPLICATION_CREDENTIALS_JSON: ['serviceAccount'] }
     });
 
-    const googleConfig = await Configs.getConfig('GOOGLE_APPLICATION_CREDENTIALS_JSON');
+    const googleConfig = await Configs.getConfig(
+      'GOOGLE_APPLICATION_CREDENTIALS_JSON'
+    );
 
     expect(googleConfig.value.length).toEqual(1);
     expect(googleConfig.value[0]).toEqual('serviceAccount');

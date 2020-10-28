@@ -8,19 +8,19 @@ import * as smoochUtils from '../smooch/api';
 import {
   SmoochViberConversationMessages as ConversationMessages,
   SmoochViberConversations as Conversations,
-  SmoochViberCustomers as Customers,
+  SmoochViberCustomers as Customers
 } from '../smooch/models';
 import receiveMessage from '../smooch/receiveMessage';
 import {
   createOrGetSmoochConversation,
   createOrGetSmoochConversationMessage,
-  createOrGetSmoochCustomer,
+  createOrGetSmoochCustomer
 } from '../smooch/store';
 import {
   ISmoochConversationArguments,
   ISmoochConversationMessageArguments,
   ISmoochCustomerArguments,
-  ISmoochCustomerInput,
+  ISmoochCustomerInput
 } from '../smooch/types';
 import './setup.ts';
 
@@ -31,10 +31,10 @@ describe('Smooch test', () => {
     trigger: 'message:appUser',
     appUser: {
       _id: '124124125120591fasgf',
-      givenName: 'customer name',
+      givenName: 'customer name'
     },
     conversation: {
-      _id: '12345676788999',
+      _id: '12345676788999'
     },
     client: {
       integrationId: '123456778900',
@@ -42,9 +42,9 @@ describe('Smooch test', () => {
       raw: {
         avatar: 'http://placehold.it/120x120',
         name: 'customer name',
-        id: 'vHjxG4kiPkimi/clMz6cHQ==',
+        id: 'vHjxG4kiPkimi/clMz6cHQ=='
       },
-      platform: 'viber',
+      platform: 'viber'
     },
     messages: [
       {
@@ -52,26 +52,26 @@ describe('Smooch test', () => {
         text: 'Hello',
         received: 1586352836.136,
         name: 'customer name',
-        _id: 'asflkjsarlk1j4kj124',
+        _id: 'asflkjsarlk1j4kj124'
       },
       {
         mediaUrl: 'http://placehold.it/120x120',
         mediaType: 'image/jpeg',
         type: 'image',
         name: 'soyombo bat-erdene',
-        _id: '5e9310eef2d85d000dd84d9a',
-      },
-    ],
+        _id: '5e9310eef2d85d000dd84d9a'
+      }
+    ]
   };
 
   const requestBodyFake = {
     trigger: 'message:appUser',
     appUser: {
       _id: '124124125120591fasgf',
-      givenName: 'customer name',
+      givenName: 'customer name'
     },
     conversation: {
-      _id: '12345676788999',
+      _id: '12345676788999'
     },
     client: {
       integrationId: '123456778900',
@@ -79,9 +79,9 @@ describe('Smooch test', () => {
       raw: {
         avatar: 'http://placehold.it/120x120',
         name: 'customer name',
-        id: 'vHjxG4kiPkimi/clMz6cHQ==',
+        id: 'vHjxG4kiPkimi/clMz6cHQ=='
       },
-      platform: 'blabla',
+      platform: 'blabla'
     },
     messages: [
       {
@@ -89,16 +89,16 @@ describe('Smooch test', () => {
         text: 'Hello',
         received: 1586352836.136,
         name: 'customer name',
-        _id: 'asflkjsarlk1j4kj124',
+        _id: 'asflkjsarlk1j4kj124'
       },
       {
         mediaUrl: 'http://placehold.it/120x120',
         mediaType: 'image/jpeg',
         type: 'image',
         name: 'soyombo bat-erdene',
-        _id: '5e9310eef2d85d000dd84d9a',
-      },
-    ],
+        _id: '5e9310eef2d85d000dd84d9a'
+      }
+    ]
   };
 
   const requestBodyTelegram = {
@@ -107,10 +107,10 @@ describe('Smooch test', () => {
       _id: '8ad5916691f27f17058406eb',
       surname: 'surname',
       givenName: 'givenName',
-      signedUpAt: '2020-03-27T13:54:55.528Z',
+      signedUpAt: '2020-03-27T13:54:55.528Z'
     },
     conversation: {
-      _id: '67e3e71f12935268a252eac6',
+      _id: '67e3e71f12935268a252eac6'
     },
     client: {
       integrationId: '5e7e057be6740f000feb13f1',
@@ -130,14 +130,14 @@ describe('Smooch test', () => {
                 file_unique_id: 'AQAD7zIbMwAEX6oFAAE',
                 file_size: 9666,
                 width: 160,
-                height: 160,
-              },
-            ],
-          ],
-        },
+                height: 160
+              }
+            ]
+          ]
+        }
       },
       _id: '5e7e05af8ab787000c88e296',
-      platform: 'telegram',
+      platform: 'telegram'
     },
     messages: [
       {
@@ -147,24 +147,24 @@ describe('Smooch test', () => {
         received: 1587103010.738,
         name: 'name',
         authorId: '8ad5916691f27f17058406eb',
-        _id: '5e9945223386ad000c69ba9f',
-      },
-    ],
+        _id: '5e9945223386ad000c69ba9f'
+      }
+    ]
   };
 
   const requestBodyTwilio = {
     trigger: 'message:appUser',
     appUser: {
       _id: '124124125120591fasgf',
-      givenName: 'customer name',
+      givenName: 'customer name'
     },
     conversation: {
-      _id: '12345676788999',
+      _id: '12345676788999'
     },
     client: {
       integrationId: '123456778900',
       displayName: 'customer name',
-      platform: 'twilio',
+      platform: 'twilio'
     },
     messages: [
       {
@@ -174,28 +174,28 @@ describe('Smooch test', () => {
         received: 1586352836.136,
         name: 'customer name',
         authorId: 'apfsajkslj41l24j1k24l',
-        _id: 'asflkjsarlk1j4kj124',
-      },
-    ],
+        _id: 'asflkjsarlk1j4kj124'
+      }
+    ]
   };
 
   const requestBodyLine = {
     trigger: 'message:appUser',
     appUser: {
       _id: '124124125120591fasgf',
-      givenName: 'customer name',
+      givenName: 'customer name'
     },
     conversation: {
-      _id: '12345676788999',
+      _id: '12345676788999'
     },
     client: {
       integrationId: '123456778900',
       displayName: 'customer name',
       status: 'active',
       raw: {
-        pictureUrl: 'http://placehold.it/120x120',
+        pictureUrl: 'http://placehold.it/120x120'
       },
-      platform: 'line',
+      platform: 'line'
     },
     messages: [
       {
@@ -205,9 +205,9 @@ describe('Smooch test', () => {
         received: 1586352836.136,
         name: 'customer name',
         authorId: 'apfsajkslj41l24j1k24l',
-        _id: 'asflkjsarlk1j4kj124',
-      },
-    ],
+        _id: 'asflkjsarlk1j4kj124'
+      }
+    ]
   };
 
   afterEach(async () => {
@@ -223,7 +223,7 @@ describe('Smooch test', () => {
 
   test('Utils saveCustomer, saveConversation, saveMessage', async () => {
     const customerDoc = <ISmoochCustomerInput>{
-      smoochIntegrationId: '',
+      smoochIntegrationId: ''
     };
     try {
       smoochUtils.saveCustomer(customerDoc);
@@ -245,14 +245,16 @@ describe('Smooch test', () => {
   });
 
   test('utils remove integration', async () => {
-    const configMock = sinon.stub(smoochUtils, 'getSmoochConfig').callsFake(() => {
-      return Promise.resolve({
-        SMOOCH_APP_KEY_ID: 'key_id',
-        SMOOCH_SMOOCH_APP_KEY_SECRET: 'secret',
-        SMOOCH_WEBHOOK_CALLBACK_URL: 'https://fakewebhook.com',
-        SMOOCH_APP_ID: 'appId',
+    const configMock = sinon
+      .stub(smoochUtils, 'getSmoochConfig')
+      .callsFake(() => {
+        return Promise.resolve({
+          SMOOCH_APP_KEY_ID: 'key_id',
+          SMOOCH_SMOOCH_APP_KEY_SECRET: 'secret',
+          SMOOCH_WEBHOOK_CALLBACK_URL: 'https://fakewebhook.com',
+          SMOOCH_APP_ID: 'appId'
+        });
       });
-    });
 
     const mock = sinon.stub(smoochUtils, 'setupSmooch');
 
@@ -260,16 +262,16 @@ describe('Smooch test', () => {
       integrations: {
         delete: () => {
           return {};
-        },
-      },
+        }
+      }
     });
 
     mock.onCall(1).returns({
       integrations: {
         delete: () => {
           throw new Error('error');
-        },
-      },
+        }
+      }
     });
 
     try {
@@ -296,25 +298,31 @@ describe('Smooch test', () => {
   });
 
   test('utils set webhook', async () => {
-    const configMock = sinon.stub(smoochUtils, 'getSmoochConfig').callsFake(() => {
-      return Promise.resolve({
-        SMOOCH_APP_KEY_ID: 'key_id',
-        SMOOCH_SMOOCH_APP_KEY_SECRET: 'secret',
-        SMOOCH_WEBHOOK_CALLBACK_URL: 'https://fakewebhook.com',
-        SMOOCH_APP_ID: 'appId',
+    const configMock = sinon
+      .stub(smoochUtils, 'getSmoochConfig')
+      .callsFake(() => {
+        return Promise.resolve({
+          SMOOCH_APP_KEY_ID: 'key_id',
+          SMOOCH_SMOOCH_APP_KEY_SECRET: 'secret',
+          SMOOCH_WEBHOOK_CALLBACK_URL: 'https://fakewebhook.com',
+          SMOOCH_APP_ID: 'appId'
+        });
       });
-    });
 
     const mock = sinon.stub(smoochUtils, 'setupSmooch');
     mock.onCall(0).returns({
       webhooks: {
         list: () => {
-          return { webhooks: [{ _id: '123', target: 'http://example.com/callback' }] };
+          return {
+            webhooks: [{ _id: '123', target: 'http://example.com/callback' }]
+          };
         },
         update: () => {
-          return Promise.resolve({ webhook: { _id: '123', target: 'https://fakewebhook.com' } });
-        },
-      },
+          return Promise.resolve({
+            webhook: { _id: '123', target: 'https://fakewebhook.com' }
+          });
+        }
+      }
     });
 
     mock.onCall(1).returns({
@@ -323,28 +331,34 @@ describe('Smooch test', () => {
           return { webhooks: [] };
         },
         create: () => {
-          Promise.resolve({ webhook: { _id: '123', target: 'https://fakewebhook.com' } });
-        },
-      },
+          Promise.resolve({
+            webhook: { _id: '123', target: 'https://fakewebhook.com' }
+          });
+        }
+      }
     });
 
     mock.onCall(2).returns({
       webhooks: {
         list: () => {
-          return { webhooks: [{ _id: '123', target: 'https://fakewebhook.com' }] };
-        },
-      },
+          return {
+            webhooks: [{ _id: '123', target: 'https://fakewebhook.com' }]
+          };
+        }
+      }
     });
 
     mock.onCall(3).returns({
       webhooks: {
         list: () => {
-          return { webhooks: [{ _id: '123', target: 'http://example.com/callback' }] };
+          return {
+            webhooks: [{ _id: '123', target: 'http://example.com/callback' }]
+          };
         },
         update: () => {
           throw new Error('failed');
-        },
-      },
+        }
+      }
     });
 
     mock.onCall(4).returns({
@@ -354,8 +368,8 @@ describe('Smooch test', () => {
         },
         create: () => {
           throw new Error('failed');
-        },
-      },
+        }
+      }
     });
 
     await smoochUtils.setupSmoochWebhook();
@@ -411,7 +425,7 @@ describe('Smooch test', () => {
     await integrationFactory({
       kind: requestBody.client.platform,
       smoochIntegrationId: requestBody.client.integrationId,
-      erxesApiId: '123',
+      erxesApiId: '123'
     });
 
     await smoochUtils.getLineWebhookUrl('123');
@@ -428,14 +442,16 @@ describe('Smooch test', () => {
   });
 
   test('utils reply', async () => {
-    const configMock = sinon.stub(smoochUtils, 'getSmoochConfig').callsFake(() => {
-      return Promise.resolve({
-        SMOOCH_APP_KEY_ID: 'key_id',
-        SMOOCH_SMOOCH_APP_KEY_SECRET: 'secret',
-        SMOOCH_WEBHOOK_CALLBACK_URL: 'https://fakewebhook.com',
-        SMOOCH_APP_ID: 'appId',
+    const configMock = sinon
+      .stub(smoochUtils, 'getSmoochConfig')
+      .callsFake(() => {
+        return Promise.resolve({
+          SMOOCH_APP_KEY_ID: 'key_id',
+          SMOOCH_SMOOCH_APP_KEY_SECRET: 'secret',
+          SMOOCH_WEBHOOK_CALLBACK_URL: 'https://fakewebhook.com',
+          SMOOCH_APP_ID: 'appId'
+        });
       });
-    });
 
     const mock = sinon.stub(smoochUtils, 'setupSmooch');
 
@@ -451,11 +467,11 @@ describe('Smooch test', () => {
               name: 'Steve',
               text: 'Just put some vinegar on it',
               avatarUrl: 'https://www.gravatar.com/image.jpg',
-              received: 1439220041.586,
-            },
+              received: 1439220041.586
+            }
           };
-        },
-      },
+        }
+      }
     });
 
     mock.onCall(1).returns({
@@ -470,25 +486,25 @@ describe('Smooch test', () => {
               name: 'Steve',
               text: 'Just put some vinegar on it',
               avatarUrl: 'https://www.gravatar.com/image.jpg',
-              received: 1439220041.586,
-            },
+              received: 1439220041.586
+            }
           };
-        },
-      },
+        }
+      }
     });
 
     mock.onCall(2).returns({
       appUsers: {
         sendMessage: () => {
           throw new Error('failed');
-        },
-      },
+        }
+      }
     });
 
     await integrationFactory({
       kind: requestBody.client.platform,
       smoochIntegrationId: requestBody.client.integrationId,
-      erxesApiId: '456',
+      erxesApiId: '456'
     });
 
     await Conversations.create({ id: '1231245', erxesApiId: '123' });
@@ -497,20 +513,23 @@ describe('Smooch test', () => {
       attachments: [],
       conversationId: '123',
       content: 'content',
-      integrationId: '456',
+      integrationId: '456'
     };
 
     const req2 = {
-      attachments: [{ url: 'http://placehold.it/120x120' }, { url: 'http://placehold.it/120x120' }],
+      attachments: [
+        { url: 'http://placehold.it/120x120' },
+        { url: 'http://placehold.it/120x120' }
+      ],
       conversationId: '123',
       content: 'content',
-      integrationId: '456',
+      integrationId: '456'
     };
     const req3 = {
       attachments: [{ url: 'http://placehold.it/120x120' }],
       conversationId: '123',
       content: 'content',
-      integrationId: '456',
+      integrationId: '456'
     };
 
     await smoochUtils.reply(req1);
@@ -542,22 +561,24 @@ describe('Smooch test', () => {
     const reqViber = {
       kind: 'smooch-viber',
       integrationId: '123',
-      data: '{ "displayName": "viber", "token": "21243" }',
+      data: '{ "displayName": "viber", "token": "21243" }'
     };
     const reqTelegram = {
       kind: 'smooch-telegram',
       integrationId: '234',
-      data: '{ "displayName": "telegram", "token": "21243" }',
+      data: '{ "displayName": "telegram", "token": "21243" }'
     };
     const reqLine = {
       kind: 'smooch-line',
       integrationId: '345',
-      data: '{ "displayName": "line", "channelId": "21243", "channelSecret": "123123123" }',
+      data:
+        '{ "displayName": "line", "channelId": "21243", "channelSecret": "123123123" }'
     };
     const reqTwilio = {
       kind: 'smooch-twilio',
       integrationId: '456',
-      data: '{ "displayName": "twilio", "accountSid": "21243", "authToken": "123123", "phoneNumberSid": "123123" }',
+      data:
+        '{ "displayName": "twilio", "accountSid": "21243", "authToken": "123123", "phoneNumberSid": "123123" }'
     };
 
     const mock = sinon.stub(smoochUtils, 'setupSmooch');
@@ -567,11 +588,11 @@ describe('Smooch test', () => {
         create: () => {
           return {
             integration: {
-              _id: '1294',
-            },
+              _id: '1294'
+            }
           };
-        },
-      },
+        }
+      }
     });
 
     await smoochUtils.createIntegration(reqViber);
@@ -598,7 +619,7 @@ describe('Smooch test', () => {
       await smoochUtils.createIntegration({
         kind: 'viber',
         integrationId: '123',
-        data: '{ "displayName": "viber", "token": "21243" }',
+        data: '{ "displayName": "viber", "token": "21243" }'
       });
     } catch (e) {
       expect(e).toBeDefined();
@@ -622,7 +643,7 @@ describe('Smooch test', () => {
 
     await integrationFactory({
       kind: requestBody.client.platform,
-      smoochIntegrationId: requestBody.client.integrationId,
+      smoochIntegrationId: requestBody.client.integrationId
     });
 
     await receiveMessage(requestBody);
@@ -637,8 +658,8 @@ describe('Smooch test', () => {
           integrationId: '123456778900',
           displayName: 'customer name',
           status: 'active',
-          platform: 'viber',
-        },
+          platform: 'viber'
+        }
       });
     } catch (e) {
       expect(e).toBeDefined();
@@ -666,7 +687,7 @@ describe('Smooch test', () => {
     await integrationFactory({
       kind: requestBodyTelegram.client.platform,
       smoochIntegrationId: requestBodyTelegram.client.integrationId,
-      telegramBotToken: 'afasfsakfjaskjfasf',
+      telegramBotToken: 'afasfsakfjaskjfasf'
     });
 
     await receiveMessage(requestBodyTelegram);
@@ -682,7 +703,7 @@ describe('Smooch test', () => {
 
     await integrationFactory({
       kind: requestBodyLine.client.platform,
-      smoochIntegrationId: requestBody.client.integrationId,
+      smoochIntegrationId: requestBody.client.integrationId
     });
 
     await receiveMessage(requestBodyLine);
@@ -697,7 +718,7 @@ describe('Smooch test', () => {
 
     await integrationFactory({
       kind: requestBodyTwilio.client.platform,
-      smoochIntegrationId: requestBody.client.integrationId,
+      smoochIntegrationId: requestBody.client.integrationId
     });
     try {
       await receiveMessage(requestBodyTwilio);
@@ -745,7 +766,9 @@ describe('Smooch test', () => {
 
     await ConversationMessages.create({ _id: '123' });
 
-    const conversationMessage = await ConversationMessages.findOne({ _id: '123' });
+    const conversationMessage = await ConversationMessages.findOne({
+      _id: '123'
+    });
 
     expect(conversationMessage._id).toEqual('123');
   });
@@ -755,12 +778,15 @@ describe('Smooch test', () => {
       return Promise.resolve({ _id: '123456789' });
     });
 
-    const conversation = await Conversations.create({ _id: '123', erxesApiId: '1234' });
+    const conversation = await Conversations.create({
+      _id: '123',
+      erxesApiId: '1234'
+    });
     const customer = await Customers.create({ _id: '123', erxesApiId: '1234' });
 
     const conversationIds = {
       id: conversation.id,
-      erxesApiId: conversation.erxesApiId,
+      erxesApiId: conversation.erxesApiId
     };
 
     const messageId = requestBody.messages[0]._id;
@@ -770,7 +796,7 @@ describe('Smooch test', () => {
       customerId: customer._id,
       conversationIds,
       content: 'content',
-      messageId,
+      messageId
     };
 
     await createOrGetSmoochConversationMessage(doc);
@@ -786,12 +812,15 @@ describe('Smooch test', () => {
       throw new Error();
     });
 
-    const conversation = await Conversations.create({ _id: '123', erxesApiId: '1234' });
+    const conversation = await Conversations.create({
+      _id: '123',
+      erxesApiId: '1234'
+    });
     const customer = await Customers.create({ _id: '123', erxesApiId: '1234' });
 
     const conversationIds = {
       id: conversation.id,
-      erxesApiId: conversation.erxesApiId,
+      erxesApiId: conversation.erxesApiId
     };
 
     const messageId = requestBody.messages[0]._id;
@@ -801,7 +830,7 @@ describe('Smooch test', () => {
       customerId: customer._id,
       conversationIds,
       content: 'content',
-      messageId,
+      messageId
     };
 
     try {
@@ -828,9 +857,9 @@ describe('Smooch test', () => {
       content: 'content',
       integrationIds: {
         id: '123',
-        erxesApiId: '456',
+        erxesApiId: '456'
       },
-      createdAt,
+      createdAt
     };
 
     try {
@@ -851,9 +880,12 @@ describe('Smooch test', () => {
     const integration = await integrationFactory({
       kind: requestBody.client.platform,
       smoochIntegrationId: requestBody.client.integrationId,
-      erxesApiId: '123',
+      erxesApiId: '123'
     });
-    await Conversations.create({ senderId: '123', smoochConversationId: requestBody.conversation._id });
+    await Conversations.create({
+      senderId: '123',
+      smoochConversationId: requestBody.conversation._id
+    });
     await Customers.create({ _id: 123 });
 
     const createdAt = 1586352836 * 1000;
@@ -865,16 +897,16 @@ describe('Smooch test', () => {
       content: 'content',
       integrationIds: {
         id: integration._id,
-        erxesApiId: integration.erxesApiId,
+        erxesApiId: integration.erxesApiId
       },
-      createdAt,
+      createdAt
     };
 
     try {
       await Promise.all([
         createOrGetSmoochConversation(doc),
         createOrGetSmoochConversation(doc),
-        createOrGetSmoochConversation(doc),
+        createOrGetSmoochConversation(doc)
       ]);
     } catch (e) {
       expect(await Conversations.find({}).countDocuments()).toBe(1);
@@ -891,7 +923,7 @@ describe('Smooch test', () => {
     const integration = await integrationFactory({
       kind: requestBody.client.platform,
       smoochIntegrationId: requestBody.client.integrationId,
-      erxesApiId: '123',
+      erxesApiId: '123'
     });
 
     const doc = <ISmoochCustomerArguments>{
@@ -899,8 +931,8 @@ describe('Smooch test', () => {
       kind: 'viber',
       integrationIds: {
         id: integration._id,
-        erxesApiId: integration.erxesApiId,
-      },
+        erxesApiId: integration.erxesApiId
+      }
     };
 
     await createOrGetSmoochCustomer(doc);
@@ -919,7 +951,7 @@ describe('Smooch test', () => {
     const integration = await integrationFactory({
       kind: requestBody.client.platform,
       smoochIntegrationId: requestBody.client.integrationId,
-      erxesApiId: '123',
+      erxesApiId: '123'
     });
 
     const doc = <ISmoochCustomerArguments>{
@@ -927,8 +959,8 @@ describe('Smooch test', () => {
       kind: 'viber',
       integrationIds: {
         id: integration._id,
-        erxesApiId: integration.erxesApiId,
-      },
+        erxesApiId: integration.erxesApiId
+      }
     };
 
     const doc1 = <ISmoochCustomerArguments>{
@@ -936,8 +968,8 @@ describe('Smooch test', () => {
       kind: 'viber',
       integrationIds: {
         id: integration._id,
-        erxesApiId: integration.erxesApiId,
-      },
+        erxesApiId: integration.erxesApiId
+      }
     };
 
     await Customers.create({ smoochUserId: '123456' });
@@ -961,7 +993,7 @@ describe('Smooch test', () => {
     const integration = await integrationFactory({
       kind: requestBody.client.platform,
       smoochIntegrationId: requestBody.client.integrationId,
-      erxesApiId: '123',
+      erxesApiId: '123'
     });
 
     const doc = <ISmoochCustomerArguments>{
@@ -969,15 +1001,15 @@ describe('Smooch test', () => {
       kind: 'viber',
       integrationIds: {
         id: integration._id,
-        erxesApiId: integration.erxesApiId,
-      },
+        erxesApiId: integration.erxesApiId
+      }
     };
 
     try {
       await Promise.all([
         createOrGetSmoochCustomer(doc),
         createOrGetSmoochCustomer(doc),
-        createOrGetSmoochCustomer(doc),
+        createOrGetSmoochCustomer(doc)
       ]);
     } catch (e) {
       expect(await Customers.find({}).countDocuments()).toBe(1);

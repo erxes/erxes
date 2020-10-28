@@ -24,7 +24,10 @@ module.exports.up = async () => {
 
     switch (log.action) {
       case 'create':
-        await Logs.updateOne({ _id: log._id }, { $set: { addedData: log.newData } });
+        await Logs.updateOne(
+          { _id: log._id },
+          { $set: { addedData: log.newData } }
+        );
         break;
       case 'update':
         if (log.oldData && log.newData) {
@@ -38,9 +41,9 @@ module.exports.up = async () => {
                   addedData: JSON.stringify(comparison.added),
                   changedData: JSON.stringify(comparison.changed),
                   unchangedData: JSON.stringify(comparison.unchanged),
-                  removedData: JSON.stringify(comparison.removed),
-                },
-              },
+                  removedData: JSON.stringify(comparison.removed)
+                }
+              }
             );
           } catch (e) {
             console.log(e, 'object comparison error');
@@ -48,7 +51,10 @@ module.exports.up = async () => {
         }
         break;
       case 'delete':
-        await Logs.updateOne({ _id: log._id }, { $set: { removedData: log.oldData } });
+        await Logs.updateOne(
+          { _id: log._id },
+          { $set: { removedData: log.oldData } }
+        );
         break;
       default:
         break;

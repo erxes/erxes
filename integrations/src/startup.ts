@@ -1,6 +1,11 @@
 import * as twitterApi from './twitter/api';
 
-import { debugNylas, debugSmooch, debugTwitter, debugWhatsapp } from './debuggers';
+import {
+  debugNylas,
+  debugSmooch,
+  debugTwitter,
+  debugWhatsapp
+} from './debuggers';
 import { setupSmooch, setupSmoochWebhook } from './smooch/api';
 
 import { setupNylas } from './nylas/controller';

@@ -1,5 +1,8 @@
 import { Conformities } from '../../../db/models';
-import { IConformityAdd, IConformityEdit } from '../../../db/models/definitions/conformities';
+import {
+  IConformityAdd,
+  IConformityEdit
+} from '../../../db/models/definitions/conformities';
 
 const conformityMutations = {
   /**
@@ -14,7 +17,7 @@ const conformityMutations = {
    */
   async conformityEdit(_root, doc: IConformityEdit) {
     return Conformities.editConformity({ ...doc });
-  },
+  }
 };
 
 export default conformityMutations;

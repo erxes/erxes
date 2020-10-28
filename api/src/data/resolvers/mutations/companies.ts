@@ -20,9 +20,9 @@ const companyMutations = {
       {
         type: MODULE_NAMES.COMPANY,
         newData: doc,
-        object: company,
+        object: company
       },
-      user,
+      user
     );
 
     return company;
@@ -31,7 +31,11 @@ const companyMutations = {
   /**
    * Updates a company
    */
-  async companiesEdit(_root, { _id, ...doc }: ICompaniesEdit, { user }: IContext) {
+  async companiesEdit(
+    _root,
+    { _id, ...doc }: ICompaniesEdit,
+    { user }: IContext
+  ) {
     const company = await Companies.getCompany(_id);
     const updated = await Companies.updateCompany(_id, doc);
 
@@ -40,9 +44,9 @@ const companyMutations = {
         type: MODULE_NAMES.COMPANY,
         object: company,
         newData: doc,
-        updatedDocument: updated,
+        updatedDocument: updated
       },
-      user,
+      user
     );
 
     return updated;
@@ -51,7 +55,11 @@ const companyMutations = {
   /**
    * Removes companies
    */
-  async companiesRemove(_root, { companyIds }: { companyIds: string[] }, { user }: IContext) {
+  async companiesRemove(
+    _root,
+    { companyIds }: { companyIds: string[] },
+    { user }: IContext
+  ) {
     const companies = await Companies.find({ _id: { $in: companyIds } }).lean();
 
     await Companies.removeCompanies(companyIds);
@@ -66,9 +74,15 @@ const companyMutations = {
   /**
    * Merge companies
    */
-  async companiesMerge(_root, { companyIds, companyFields }: { companyIds: string[]; companyFields: ICompany }) {
+  async companiesMerge(
+    _root,
+    {
+      companyIds,
+      companyFields
+    }: { companyIds: string[]; companyFields: ICompany }
+  ) {
     return Companies.mergeCompanies(companyIds, companyFields);
-  },
+  }
 };
 
 checkPermission(companyMutations, 'companiesAdd', 'companiesAdd');

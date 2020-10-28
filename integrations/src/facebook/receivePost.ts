@@ -6,7 +6,7 @@ const receivePost = async (params: IPostParams, pageId: string) => {
   const kind = 'facebook-post';
 
   const integration = await Integrations.findOne({
-    $and: [{ facebookPageIds: { $in: pageId } }, { kind: 'facebook-post' }],
+    $and: [{ facebookPageIds: { $in: pageId } }, { kind: 'facebook-post' }]
   });
 
   if (!integration) {

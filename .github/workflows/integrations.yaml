@@ -53,13 +53,13 @@ jobs:
 
       - name: Install dependencies
         run: |
+          yarn install
           cd integrations
           yarn install
 
       - name: Lint
         run: |
-          cd integrations
-          yarn lint
+          yarn lint integrations
 
       - name: Test
         run: |

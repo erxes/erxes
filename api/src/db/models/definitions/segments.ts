@@ -7,7 +7,7 @@ export const CONTENT_TYPES = {
   VISITOR: 'visitor',
   COMPANY: 'company',
 
-  ALL: ['customer', 'lead', 'visitor', 'company'],
+  ALL: ['customer', 'lead', 'visitor', 'company']
 };
 
 export interface IAttributeFilter {
@@ -50,9 +50,9 @@ const eventAttributeSchema = new Schema(
   {
     name: field({ type: String }),
     operator: field({ type: String }),
-    value: field({ type: String }),
+    value: field({ type: String })
   },
-  { _id: false },
+  { _id: false }
 );
 
 export const conditionSchema = new Schema(
@@ -61,37 +61,37 @@ export const conditionSchema = new Schema(
 
     propertyName: field({
       type: String,
-      optional: true,
+      optional: true
     }),
 
     propertyOperator: field({
       type: String,
-      optional: true,
+      optional: true
     }),
 
     propertyValue: field({
       type: String,
-      optional: true,
+      optional: true
     }),
 
     eventName: field({
       type: String,
-      optional: true,
+      optional: true
     }),
 
     eventOccurence: field({
       type: String,
-      optional: true,
+      optional: true
     }),
 
     eventOccurenceValue: field({
       type: Number,
-      optional: true,
+      optional: true
     }),
 
-    eventAttributeFilters: field({ type: [eventAttributeSchema] }),
+    eventAttributeFilters: field({ type: [eventAttributeSchema] })
   },
-  { _id: false },
+  { _id: false }
 );
 
 export const segmentSchema = schemaWrapper(
@@ -100,12 +100,12 @@ export const segmentSchema = schemaWrapper(
     contentType: field({
       type: String,
       enum: CONTENT_TYPES.ALL,
-      label: 'Content type',
+      label: 'Content type'
     }),
     name: field({ type: String }),
     description: field({ type: String, optional: true }),
     subOf: field({ type: String, optional: true }),
     color: field({ type: String }),
-    conditions: field({ type: [conditionSchema] }),
-  }),
+    conditions: field({ type: [conditionSchema] })
+  })
 );

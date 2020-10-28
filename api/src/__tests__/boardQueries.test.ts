@@ -8,12 +8,17 @@ import {
   stageFactory,
   taskFactory,
   ticketFactory,
-  userFactory,
+  userFactory
 } from '../db/factories';
 import { Boards, Pipelines, Stages } from '../db/models';
 
 import moment = require('moment');
-import { BOARD_STATUSES, BOARD_TYPES, PIPELINE_VISIBLITIES, PROBABILITY } from '../db/models/definitions/constants';
+import {
+  BOARD_STATUSES,
+  BOARD_TYPES,
+  PIPELINE_VISIBLITIES,
+  PROBABILITY
+} from '../db/models/definitions/constants';
 import './setup.ts';
 
 describe('boardQueries', () => {
@@ -75,7 +80,7 @@ describe('boardQueries', () => {
     new Date(
       moment()
         .add(day, 'days')
-        .format('YYYY-MM-DD'),
+        .format('YYYY-MM-DD')
     );
 
   afterEach(async () => {
@@ -141,7 +146,9 @@ describe('boardQueries', () => {
   test('Board detail', async () => {
     const board = await boardFactory();
 
-    const response = await graphqlRequest(detailQuery, 'boardDetail', { _id: board._id });
+    const response = await graphqlRequest(detailQuery, 'boardDetail', {
+      _id: board._id
+    });
 
     expect(response._id).toBe(board._id);
     expect(response.name).toBe(board.name);
@@ -156,7 +163,12 @@ describe('boardQueries', () => {
     await pipelineFactory({ boardId: board._id, visibility: 'private' });
 
     const user = await userFactory({ isOwner: false });
-    const response = await graphqlRequest(detailQuery, 'boardDetail', { _id: board._id }, { user });
+    const response = await graphqlRequest(
+      detailQuery,
+      'boardDetail',
+      { _id: board._id },
+      { user }
+    );
 
     expect(response.pipelines.length).toBe(1);
   });
@@ -172,7 +184,9 @@ describe('boardQueries', () => {
       }
     `;
 
-    const response = await graphqlRequest(qry, 'boardGetLast', { type: BOARD_TYPES.DEAL });
+    const response = await graphqlRequest(qry, 'boardGetLast', {
+      type: BOARD_TYPES.DEAL
+    });
 
     expect(board._id).toBe(response._id);
   });
@@ -208,7 +222,11 @@ describe('boardQueries', () => {
     await pipelineFactory(args);
     await pipelineFactory(args);
 
-    const response = await graphqlRequest(pipelineQry, 'pipelines', { ...args, perPage: 2, page: 1 });
+    const response = await graphqlRequest(pipelineQry, 'pipelines', {
+      ...args,
+      perPage: 2,
+      page: 1
+    });
 
     expect(response.length).toBe(2);
   });
@@ -227,10 +245,15 @@ describe('boardQueries', () => {
       type: BOARD_TYPES.DEAL,
       visibility: PIPELINE_VISIBLITIES.PRIVATE,
       memberIds: [user._id],
-      watchedUserIds: [user._id],
+      watchedUserIds: [user._id]
     });
 
-    let response = await graphqlRequest(qry, 'pipelineDetail', { _id: dealPipeline._id }, { user });
+    let response = await graphqlRequest(
+      qry,
+      'pipelineDetail',
+      { _id: dealPipeline._id },
+      { user }
+    );
 
     expect(response._id).toBe(dealPipeline._id);
     expect(response.visibility).toBe(PIPELINE_VISIBLITIES.PRIVATE);
@@ -238,19 +261,27 @@ describe('boardQueries', () => {
     expect(response.isWatched).toBe(true);
 
     const ticketPipeline = await pipelineFactory({ type: BOARD_TYPES.TICKET });
-    response = await graphqlRequest(qry, 'pipelineDetail', { _id: ticketPipeline._id });
+    response = await graphqlRequest(qry, 'pipelineDetail', {
+      _id: ticketPipeline._id
+    });
 
     expect(response._id).toBe(ticketPipeline._id);
     expect(response.itemsTotalCount).toBe(0);
 
     const taskPipeline = await pipelineFactory({ type: BOARD_TYPES.TASK });
-    response = await graphqlRequest(qry, 'pipelineDetail', { _id: taskPipeline._id });
+    response = await graphqlRequest(qry, 'pipelineDetail', {
+      _id: taskPipeline._id
+    });
 
     expect(response._id).toBe(taskPipeline._id);
     expect(response.itemsTotalCount).toBe(0);
 
-    const growthHackPipeline = await pipelineFactory({ type: BOARD_TYPES.GROWTH_HACK });
-    response = await graphqlRequest(qry, 'pipelineDetail', { _id: growthHackPipeline._id });
+    const growthHackPipeline = await pipelineFactory({
+      type: BOARD_TYPES.GROWTH_HACK
+    });
+    response = await graphqlRequest(qry, 'pipelineDetail', {
+      _id: growthHackPipeline._id
+    });
 
     expect(response._id).toBe(growthHackPipeline._id);
     expect(response.itemsTotalCount).toBe(0);
@@ -269,17 +300,22 @@ describe('boardQueries', () => {
     let startDate = new Date(
       moment()
         .add(-2, 'days')
-        .format('YYYY-MM-DD'),
+        .format('YYYY-MM-DD')
     );
     let endDate = new Date(
       moment()
         .add(-1, 'days')
-        .format('YYYY-MM-DD'),
+        .format('YYYY-MM-DD')
     );
 
     const completedPipeline = await pipelineFactory({ startDate, endDate });
 
-    let response = await graphqlRequest(qry, 'pipelineDetail', { _id: completedPipeline._id }, { user });
+    let response = await graphqlRequest(
+      qry,
+      'pipelineDetail',
+      { _id: completedPipeline._id },
+      { user }
+    );
 
     expect(response._id).toBe(completedPipeline._id);
     expect(response.state).toBe('Completed');
@@ -287,17 +323,22 @@ describe('boardQueries', () => {
     startDate = new Date(
       moment()
         .add(-2, 'days')
-        .format('YYYY-MM-DD'),
+        .format('YYYY-MM-DD')
     );
     endDate = new Date(
       moment()
         .add(5, 'days')
-        .format('YYYY-MM-DD'),
+        .format('YYYY-MM-DD')
     );
 
     const inProgressPipeline = await pipelineFactory({ startDate, endDate });
 
-    response = await graphqlRequest(qry, 'pipelineDetail', { _id: inProgressPipeline._id }, { user });
+    response = await graphqlRequest(
+      qry,
+      'pipelineDetail',
+      { _id: inProgressPipeline._id },
+      { user }
+    );
 
     expect(response._id).toBe(inProgressPipeline._id);
     expect(response.state).toBe('In progress');
@@ -305,17 +346,22 @@ describe('boardQueries', () => {
     startDate = new Date(
       moment()
         .add(2, 'days')
-        .format('YYYY-MM-DD'),
+        .format('YYYY-MM-DD')
     );
     endDate = new Date(
       moment()
         .add(5, 'days')
-        .format('YYYY-MM-DD'),
+        .format('YYYY-MM-DD')
     );
 
     const notStartedPipeline = await pipelineFactory({ startDate, endDate });
 
-    response = await graphqlRequest(qry, 'pipelineDetail', { _id: notStartedPipeline._id }, { user });
+    response = await graphqlRequest(
+      qry,
+      'pipelineDetail',
+      { _id: notStartedPipeline._id },
+      { user }
+    );
 
     expect(response._id).toBe(notStartedPipeline._id);
     expect(response.state).toBe('Not started');
@@ -324,7 +370,11 @@ describe('boardQueries', () => {
   test('Stages', async () => {
     const pipeline = await pipelineFactory();
 
-    const args = { pipelineId: pipeline._id, probability: PROBABILITY.LOST, status: BOARD_STATUSES.ACTIVE };
+    const args = {
+      pipelineId: pipeline._id,
+      probability: PROBABILITY.LOST,
+      status: BOARD_STATUSES.ACTIVE
+    };
 
     await stageFactory(args);
     await stageFactory(args);
@@ -392,7 +442,9 @@ describe('boardQueries', () => {
     `;
 
     const dealStage = await stageFactory({ type: BOARD_TYPES.DEAL });
-    let response = await graphqlRequest(qry, 'stageDetail', { _id: dealStage._id });
+    let response = await graphqlRequest(qry, 'stageDetail', {
+      _id: dealStage._id
+    });
 
     expect(response._id).toBe(dealStage._id);
 
@@ -402,12 +454,18 @@ describe('boardQueries', () => {
     expect(response._id).toBe(taskStage._id);
 
     const ticketStage = await stageFactory({ type: BOARD_TYPES.TICKET });
-    response = await graphqlRequest(qry, 'stageDetail', { _id: ticketStage._id });
+    response = await graphqlRequest(qry, 'stageDetail', {
+      _id: ticketStage._id
+    });
 
     expect(response._id).toBe(ticketStage._id);
 
-    const growthHackStage = await stageFactory({ type: BOARD_TYPES.GROWTH_HACK });
-    response = await graphqlRequest(qry, 'stageDetail', { _id: growthHackStage._id });
+    const growthHackStage = await stageFactory({
+      type: BOARD_TYPES.GROWTH_HACK
+    });
+    response = await graphqlRequest(qry, 'stageDetail', {
+      _id: growthHackStage._id
+    });
 
     expect(response._id).toBe(growthHackStage._id);
   });
@@ -429,37 +487,56 @@ describe('boardQueries', () => {
         productId: product._id,
         currency: 'USD',
         amount: 200,
-        tickUsed: true,
+        tickUsed: true
       },
       {
         productId: product._id,
-        currency: 'USD',
+        currency: 'USD'
       },
       {
-        productId: product._id,
-      },
+        productId: product._id
+      }
     ];
 
     await dealFactory({ productsData, stageId: stage._id });
 
-    const response = await graphqlRequest(qry, 'stageDetail', { _id: stage._id });
+    const response = await graphqlRequest(qry, 'stageDetail', {
+      _id: stage._id
+    });
 
     expect(response._id).toBe(stage._id);
   });
 
   test('Pipeline state count', async () => {
     //  Not started pipelines
-    await pipelineFactory({ startDate: dateBuilder(1), endDate: dateBuilder(2) });
-    await pipelineFactory({ startDate: dateBuilder(2), endDate: dateBuilder(3) });
+    await pipelineFactory({
+      startDate: dateBuilder(1),
+      endDate: dateBuilder(2)
+    });
+    await pipelineFactory({
+      startDate: dateBuilder(2),
+      endDate: dateBuilder(3)
+    });
 
     //  In progress pipelines
-    await pipelineFactory({ startDate: dateBuilder(-1), endDate: dateBuilder(1) });
-    await pipelineFactory({ startDate: dateBuilder(-2), endDate: dateBuilder(2) });
+    await pipelineFactory({
+      startDate: dateBuilder(-1),
+      endDate: dateBuilder(1)
+    });
+    await pipelineFactory({
+      startDate: dateBuilder(-2),
+      endDate: dateBuilder(2)
+    });
 
     //  Not started pipelines
-    await pipelineFactory({ startDate: dateBuilder(-2), endDate: dateBuilder(-1) });
+    await pipelineFactory({
+      startDate: dateBuilder(-2),
+      endDate: dateBuilder(-1)
+    });
 
-    const response = await graphqlRequest(stateCountQry, 'pipelineStateCount', { type: BOARD_TYPES.DEAL });
+    const response = await graphqlRequest(stateCountQry, 'pipelineStateCount', {
+      type: BOARD_TYPES.DEAL
+    });
 
     expect(response.All).toBe(5);
     expect(response['Not started']).toBe(2);
@@ -471,16 +548,33 @@ describe('boardQueries', () => {
     const board = await pipelineFactory({});
 
     //  Not started pipelines
-    await pipelineFactory({ startDate: dateBuilder(3), endDate: dateBuilder(5), boardId: board._id });
+    await pipelineFactory({
+      startDate: dateBuilder(3),
+      endDate: dateBuilder(5),
+      boardId: board._id
+    });
 
     //  In progress pipelines
-    await pipelineFactory({ startDate: dateBuilder(-3), endDate: dateBuilder(3), boardId: board._id });
+    await pipelineFactory({
+      startDate: dateBuilder(-3),
+      endDate: dateBuilder(3),
+      boardId: board._id
+    });
 
     //  Not started pipelines
-    await pipelineFactory({ startDate: dateBuilder(-4), endDate: dateBuilder(-3), boardId: board._id });
-    await pipelineFactory({ startDate: dateBuilder(-5), endDate: dateBuilder(-2) });
+    await pipelineFactory({
+      startDate: dateBuilder(-4),
+      endDate: dateBuilder(-3),
+      boardId: board._id
+    });
+    await pipelineFactory({
+      startDate: dateBuilder(-5),
+      endDate: dateBuilder(-2)
+    });
 
-    const response = await graphqlRequest(stateCountQry, 'pipelineStateCount', { boardId: board._id });
+    const response = await graphqlRequest(stateCountQry, 'pipelineStateCount', {
+      boardId: board._id
+    });
 
     expect(response.All).toBe(3);
     expect(response['Not started']).toBe(1);
@@ -502,30 +596,65 @@ describe('boardQueries', () => {
     `;
 
     const dealBoard = await boardFactory({ type: BOARD_TYPES.DEAL });
-    const dealPipeline = await pipelineFactory({ type: BOARD_TYPES.DEAL, boardId: dealBoard._id });
-    const dealStage = await stageFactory({ type: BOARD_TYPES.DEAL, pipelineId: dealPipeline._id });
+    const dealPipeline = await pipelineFactory({
+      type: BOARD_TYPES.DEAL,
+      boardId: dealBoard._id
+    });
+    const dealStage = await stageFactory({
+      type: BOARD_TYPES.DEAL,
+      pipelineId: dealPipeline._id
+    });
 
-    const deal = await dealFactory({ sourceConversationId: conversation._id, stageId: dealStage._id });
+    const deal = await dealFactory({
+      sourceConversationId: conversation._id,
+      stageId: dealStage._id
+    });
 
     const taskBoard = await boardFactory({ type: BOARD_TYPES.TASK });
-    const taskPipeline = await pipelineFactory({ type: BOARD_TYPES.TASK, boardId: taskBoard._id });
-    const taskStage = await stageFactory({ type: BOARD_TYPES.TASK, pipelineId: taskPipeline._id });
-    const task = await taskFactory({ sourceConversationId: conversation._id, stageId: taskStage._id });
+    const taskPipeline = await pipelineFactory({
+      type: BOARD_TYPES.TASK,
+      boardId: taskBoard._id
+    });
+    const taskStage = await stageFactory({
+      type: BOARD_TYPES.TASK,
+      pipelineId: taskPipeline._id
+    });
+    const task = await taskFactory({
+      sourceConversationId: conversation._id,
+      stageId: taskStage._id
+    });
 
     const ticketBoard = await boardFactory({ type: BOARD_TYPES.DEAL });
-    const ticketPipeline = await pipelineFactory({ type: BOARD_TYPES.DEAL, boardId: ticketBoard._id });
-    const ticketStage = await stageFactory({ type: BOARD_TYPES.DEAL, pipelineId: ticketPipeline._id });
-    const ticket = await ticketFactory({ sourceConversationId: conversation._id, stageId: ticketStage._id });
+    const ticketPipeline = await pipelineFactory({
+      type: BOARD_TYPES.DEAL,
+      boardId: ticketBoard._id
+    });
+    const ticketStage = await stageFactory({
+      type: BOARD_TYPES.DEAL,
+      pipelineId: ticketPipeline._id
+    });
+    const ticket = await ticketFactory({
+      sourceConversationId: conversation._id,
+      stageId: ticketStage._id
+    });
 
-    let response = await graphqlRequest(qry, 'convertToInfo', { conversationId: conversation._id });
+    let response = await graphqlRequest(qry, 'convertToInfo', {
+      conversationId: conversation._id
+    });
 
-    expect(response.dealUrl).toBe(`/deal/board?_id=${dealBoard._id}&pipelineId=${dealPipeline._id}&itemId=${deal._id}`);
-    expect(response.taskUrl).toBe(`/task/board?_id=${taskBoard._id}&pipelineId=${taskPipeline._id}&itemId=${task._id}`);
+    expect(response.dealUrl).toBe(
+      `/deal/board?_id=${dealBoard._id}&pipelineId=${dealPipeline._id}&itemId=${deal._id}`
+    );
+    expect(response.taskUrl).toBe(
+      `/task/board?_id=${taskBoard._id}&pipelineId=${taskPipeline._id}&itemId=${task._id}`
+    );
     expect(response.ticketUrl).toBe(
-      `/inbox/ticket/board?_id=${ticketBoard._id}&pipelineId=${ticketPipeline._id}&itemId=${ticket._id}`,
+      `/inbox/ticket/board?_id=${ticketBoard._id}&pipelineId=${ticketPipeline._id}&itemId=${ticket._id}`
     );
 
-    response = await graphqlRequest(qry, 'convertToInfo', { conversationId: 'fakeId' });
+    response = await graphqlRequest(qry, 'convertToInfo', {
+      conversationId: 'fakeId'
+    });
 
     expect(response.dealUrl).toBe('');
     expect(response.ticketUrl).toBe('');
@@ -537,7 +666,7 @@ describe('boardQueries', () => {
 
     const params = {
       pipelineId: pipeline._id,
-      status: BOARD_STATUSES.ARCHIVED,
+      status: BOARD_STATUSES.ARCHIVED
     };
 
     const stage1 = await stageFactory(params);
@@ -552,11 +681,16 @@ describe('boardQueries', () => {
       }
     `;
 
-    let response = await graphqlRequest(qry, 'archivedStages', { pipelineId: pipeline._id });
+    let response = await graphqlRequest(qry, 'archivedStages', {
+      pipelineId: pipeline._id
+    });
 
     expect(response.length).toBe(3);
 
-    response = await graphqlRequest(qry, 'archivedStages', { pipelineId: pipeline._id, search: stage1.name });
+    response = await graphqlRequest(qry, 'archivedStages', {
+      pipelineId: pipeline._id,
+      search: stage1.name
+    });
 
     expect(response.length).toBe(1);
   });
@@ -566,7 +700,7 @@ describe('boardQueries', () => {
 
     const params = {
       pipelineId: pipeline._id,
-      status: BOARD_STATUSES.ARCHIVED,
+      status: BOARD_STATUSES.ARCHIVED
     };
 
     const stage1 = await stageFactory(params);
@@ -579,11 +713,16 @@ describe('boardQueries', () => {
       }
     `;
 
-    let response = await graphqlRequest(qry, 'archivedStagesCount', { pipelineId: pipeline._id });
+    let response = await graphqlRequest(qry, 'archivedStagesCount', {
+      pipelineId: pipeline._id
+    });
 
     expect(response).toBe(3);
 
-    response = await graphqlRequest(qry, 'archivedStagesCount', { pipelineId: pipeline._id, search: stage1.name });
+    response = await graphqlRequest(qry, 'archivedStagesCount', {
+      pipelineId: pipeline._id,
+      search: stage1.name
+    });
 
     expect(response).toBe(1);
   });

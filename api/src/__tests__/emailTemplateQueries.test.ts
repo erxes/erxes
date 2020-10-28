@@ -18,7 +18,7 @@ describe('emailTemplateQueries', () => {
 
     const args = {
       page: 1,
-      perPage: 2,
+      perPage: 2
     };
 
     const qry = `

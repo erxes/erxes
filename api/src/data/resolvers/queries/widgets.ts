@@ -7,7 +7,7 @@ import {
   KnowledgeBaseCategories as KnowledgeBaseCategoriesModel,
   KnowledgeBaseTopics,
   KnowledgeBaseTopics as KnowledgeBaseTopicsModel,
-  Users,
+  Users
 } from '../../../db/models';
 import Messages from '../../../db/models/ConversationMessages';
 import { IIntegrationDocument } from '../../../db/models/definitions/integrations';
@@ -18,7 +18,12 @@ export const isMessengerOnline = async (integration: IIntegrationDocument) => {
     return false;
   }
 
-  const { availabilityMethod, isOnline, onlineHours, timezone } = integration.messengerData;
+  const {
+    availabilityMethod,
+    isOnline,
+    onlineHours,
+    timezone
+  } = integration.messengerData;
 
   const modifiedIntegration = {
     ...integration.toJSON(),
@@ -26,8 +31,8 @@ export const isMessengerOnline = async (integration: IIntegrationDocument) => {
       availabilityMethod,
       isOnline,
       onlineHours,
-      timezone,
-    },
+      timezone
+    }
   };
 
   return Integrations.isOnline(modifiedIntegration);
@@ -43,9 +48,9 @@ const getWidgetMessages = (conversationId: string) => {
   return ConversationMessages.find({
     conversationId,
     internal: false,
-    fromBot: { $exists: false },
+    fromBot: { $exists: false }
   }).sort({
-    createdAt: 1,
+    createdAt: 1
   });
 };
 
@@ -55,7 +60,10 @@ export default {
    * in a topic found by topicId
    * @return {Promise} searched articles
    */
-  async widgetsKnowledgeBaseArticles(_root: any, args: { topicId: string; searchString: string }) {
+  async widgetsKnowledgeBaseArticles(
+    _root: any,
+    args: { topicId: string; searchString: string }
+  ) {
     const { topicId, searchString = '' } = args;
 
     let articleIds: string[] = [];
@@ -67,7 +75,7 @@ export default {
     }
 
     const categories = await KnowledgeBaseCategoriesModel.find({
-      _id: topic.categoryIds,
+      _id: topic.categoryIds
     });
 
     categories.forEach(category => {
@@ -77,7 +85,7 @@ export default {
     return KnowledgeBaseArticlesModel.find({
       _id: { $in: articleIds },
       content: { $regex: `.*${searchString.trim()}.*`, $options: 'i' },
-      status: 'publish',
+      status: 'publish'
     });
   },
 
@@ -85,16 +93,22 @@ export default {
     return Integrations.getWidgetIntegration(args.brandCode, 'messenger');
   },
 
-  widgetsConversations(_root, args: { integrationId: string; customerId: string }) {
+  widgetsConversations(
+    _root,
+    args: { integrationId: string; customerId: string }
+  ) {
     const { integrationId, customerId } = args;
 
     return Conversations.find({
       integrationId,
-      customerId,
+      customerId
     }).sort({ createdAt: -1 });
   },
 
-  async widgetsConversationDetail(_root, args: { _id: string; integrationId: string }) {
+  async widgetsConversationDetail(
+    _root,
+    args: { _id: string; integrationId: string }
+  ) {
     const { _id, integrationId } = args;
 
     const conversation = await Conversations.findOne({ _id, integrationId });
@@ -104,7 +118,7 @@ export default {
     if (!conversation && integration) {
       return {
         messages: [],
-        isOnline: await isMessengerOnline(integration),
+        isOnline: await isMessengerOnline(integration)
       };
     }
 
@@ -118,9 +132,9 @@ export default {
       isOnline: await isMessengerOnline(integration),
       operatorStatus: conversation.operatorStatus,
       participatedUsers: await Users.find({
-        _id: { $in: conversation.participatedUserIds },
+        _id: { $in: conversation.participatedUserIds }
       }),
-      supporters: await messengerSupporters(integration),
+      supporters: await messengerSupporters(integration)
     };
   },
 
@@ -136,17 +150,25 @@ export default {
     return Messages.widgetsGetUnreadMessagesCount(conversationId);
   },
 
-  async widgetsTotalUnreadCount(_root, args: { integrationId: string; customerId: string }) {
+  async widgetsTotalUnreadCount(
+    _root,
+    args: { integrationId: string; customerId: string }
+  ) {
     const { integrationId, customerId } = args;
 
     // find conversations
     const convs = await Conversations.find({ integrationId, customerId });
 
     // find read messages count
-    return Messages.countDocuments(Conversations.widgetsUnreadMessagesQuery(convs));
+    return Messages.countDocuments(
+      Conversations.widgetsUnreadMessagesQuery(convs)
+    );
   },
 
-  async widgetsMessengerSupporters(_root, { integrationId }: { integrationId: string }) {
+  async widgetsMessengerSupporters(
+    _root,
+    { integrationId }: { integrationId: string }
+  ) {
     const integration = await Integrations.findOne({ _id: integrationId });
     let timezone = '';
 
@@ -154,7 +176,7 @@ export default {
       return {
         supporters: [],
         isOnline: false,
-        serverTime: momentTz().tz(),
+        serverTime: momentTz().tz()
       };
     }
 
@@ -165,9 +187,11 @@ export default {
     }
 
     return {
-      supporters: await Users.find({ _id: { $in: messengerData.supporterIds || [] } }),
+      supporters: await Users.find({
+        _id: { $in: messengerData.supporterIds || [] }
+      }),
       isOnline: await isMessengerOnline(integration),
-      serverTime: momentTz().tz(timezone),
+      serverTime: momentTz().tz(timezone)
     };
   },
 
@@ -184,5 +208,5 @@ export default {
     }
 
     return topic;
-  },
+  }
 };

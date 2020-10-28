@@ -8,5 +8,5 @@ export default {
 
   group(entry: IPermissionDocument) {
     return UsersGroups.findOne({ _id: entry.groupId });
-  },
+  }
 };

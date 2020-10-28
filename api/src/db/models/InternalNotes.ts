@@ -1,25 +1,40 @@
 import { Model, model } from 'mongoose';
 import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
-import { IInternalNote, IInternalNoteDocument, internalNoteSchema } from './definitions/internalNotes';
+import {
+  IInternalNote,
+  IInternalNoteDocument,
+  internalNoteSchema
+} from './definitions/internalNotes';
 import { IUserDocument } from './definitions/users';
 
 export interface IInternalNoteModel extends Model<IInternalNoteDocument> {
   getInternalNote(_id: string): Promise<IInternalNoteDocument>;
   createInternalNote(
     { contentType, contentTypeId, ...fields }: IInternalNote,
-    user: IUserDocument,
+    user: IUserDocument
   ): Promise<IInternalNoteDocument>;
 
-  updateInternalNote(_id: string, doc: IInternalNote): Promise<IInternalNoteDocument>;
+  updateInternalNote(
+    _id: string,
+    doc: IInternalNote
+  ): Promise<IInternalNoteDocument>;
 
   removeInternalNote(_id: string): void;
 
-  changeCustomer(newCustomerId: string, customerIds: string[]): Promise<IInternalNoteDocument[]>;
+  changeCustomer(
+    newCustomerId: string,
+    customerIds: string[]
+  ): Promise<IInternalNoteDocument[]>;
 
-  removeCustomersInternalNotes(customerIds: string[]): Promise<{ n: number; ok: number }>;
+  removeCustomersInternalNotes(
+    customerIds: string[]
+  ): Promise<{ n: number; ok: number }>;
   removeCompaniesInternalNotes(companyIds: string[]): void;
 
-  changeCompany(newCompanyId: string, oldCompanyIds: string[]): Promise<IInternalNoteDocument[]>;
+  changeCompany(
+    newCompanyId: string,
+    oldCompanyIds: string[]
+  ): Promise<IInternalNoteDocument[]>;
 }
 
 export const loadClass = () => {
@@ -38,14 +53,14 @@ export const loadClass = () => {
      */
     public static async createInternalNote(
       { contentType, contentTypeId, ...fields }: IInternalNote,
-      user: IUserDocument,
+      user: IUserDocument
     ) {
       const internalNote = await InternalNotes.create({
         contentType,
         contentTypeId,
         createdUserId: user._id,
         createdAt: Date.now(),
-        ...fields,
+        ...fields
       });
 
       return internalNote;
@@ -76,20 +91,23 @@ export const loadClass = () => {
     /**
      * Transfers customers' internal notes to another customer
      */
-    public static async changeCustomer(newCustomerId: string, customerIds: string[]) {
+    public static async changeCustomer(
+      newCustomerId: string,
+      customerIds: string[]
+    ) {
       // Updating every internal notes of customer
       await InternalNotes.updateMany(
         {
           contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
-          contentTypeId: { $in: customerIds || [] },
+          contentTypeId: { $in: customerIds || [] }
         },
-        { contentTypeId: newCustomerId },
+        { contentTypeId: newCustomerId }
       );
 
       // Returning updated list of internal notes of new customer
       return InternalNotes.find({
         contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
-        contentTypeId: newCustomerId,
+        contentTypeId: newCustomerId
       });
     }
 
@@ -100,7 +118,7 @@ export const loadClass = () => {
       // Removing every internal notes of customer
       return InternalNotes.deleteMany({
         contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
-        contentTypeId: { $in: customerIds },
+        contentTypeId: { $in: customerIds }
       });
     }
 
@@ -111,27 +129,30 @@ export const loadClass = () => {
       // Removing every internal notes of company
       return InternalNotes.deleteMany({
         contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
-        contentTypeId: { $in: companyIds },
+        contentTypeId: { $in: companyIds }
       });
     }
 
     /**
      * Transfers companies' internal notes to another company
      */
-    public static async changeCompany(newCompanyId: string, oldCompanyIds: string[]) {
+    public static async changeCompany(
+      newCompanyId: string,
+      oldCompanyIds: string[]
+    ) {
       // Updating every internal notes of company
       await InternalNotes.updateMany(
         {
           contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
-          contentTypeId: { $in: oldCompanyIds || [] },
+          contentTypeId: { $in: oldCompanyIds || [] }
         },
-        { contentTypeId: newCompanyId },
+        { contentTypeId: newCompanyId }
       );
 
       // Returning updated list of internal notes of new company
       return InternalNotes.find({
         contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
-        contentTypeId: newCompanyId,
+        contentTypeId: newCompanyId
       });
     }
   }
@@ -144,6 +165,9 @@ export const loadClass = () => {
 loadClass();
 
 // tslint:disable-next-line
-const InternalNotes = model<IInternalNoteDocument, IInternalNoteModel>('internal_notes', internalNoteSchema);
+const InternalNotes = model<IInternalNoteDocument, IInternalNoteModel>(
+  'internal_notes',
+  internalNoteSchema
+);
 
 export default InternalNotes;

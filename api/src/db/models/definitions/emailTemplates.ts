@@ -14,6 +14,6 @@ export const emailTemplateSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
     name: field({ type: String, label: 'Name' }),
-    content: field({ type: String, optional: true, label: 'Content' }),
-  }),
+    content: field({ type: String, optional: true, label: 'Content' })
+  })
 );

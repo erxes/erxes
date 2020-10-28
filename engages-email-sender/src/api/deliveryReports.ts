@@ -51,14 +51,16 @@ router.get('/reportsList', async (req, res) => {
 
   return res.json({
     list: deliveryReports,
-    totalCount,
+    totalCount
   });
 });
 
 router.get(`/reportsList/:engageMessageId`, async (req, res) => {
   debugRequest(debugEngages, req);
 
-  const deliveryReports = await DeliveryReports.findOne({ engageMessageId: req.params.engageMessageId });
+  const deliveryReports = await DeliveryReports.findOne({
+    engageMessageId: req.params.engageMessageId
+  });
 
   if (!deliveryReports) {
     return res.json({});

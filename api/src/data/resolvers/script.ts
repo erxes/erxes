@@ -11,6 +11,8 @@ export default {
   },
 
   leads(script: IScriptDocument) {
-    return Integrations.findIntegrations({ _id: { $in: script.leadIds || [] } });
-  },
+    return Integrations.findIntegrations({
+      _id: { $in: script.leadIds || [] }
+    });
+  }
 };

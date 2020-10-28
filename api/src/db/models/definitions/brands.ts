@@ -27,9 +27,9 @@ export const brandEmailConfigSchema = new Schema({
   type: field({
     type: String,
     enum: ['simple', 'custom'],
-    label: 'Type',
+    label: 'Type'
   }),
-  template: field({ type: String, label: 'Template' }),
+  template: field({ type: String, label: 'Template' })
 });
 
 export const brandSchema = new Schema({
@@ -39,5 +39,5 @@ export const brandSchema = new Schema({
   description: field({ type: String, optional: true, label: 'Description' }),
   userId: field({ type: String, label: 'Created by' }),
   createdAt: field({ type: Date, label: 'Created at' }),
-  emailConfig: field({ type: brandEmailConfigSchema, label: 'Email config' }),
+  emailConfig: field({ type: brandEmailConfigSchema, label: 'Email config' })
 });
