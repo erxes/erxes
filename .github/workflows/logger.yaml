@@ -48,6 +48,10 @@ jobs:
           cd logger
           yarn install --production
 
+      - name: Lint
+        run: |
+          yarn lint logger
+
       - name: Build
         run: |
           cd logger

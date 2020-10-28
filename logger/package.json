@@ -1,12 +1,5 @@
 {
   "name": "erxes-logger",
-  "description": "Logger module for erxes",
-  "homepage": "https://erxes.io",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/erxes/erxes-api"
-  },
-  "bugs": "https://github.com/erxes/erxes-api/issues",
   "keywords": [
     "node",
     "express",

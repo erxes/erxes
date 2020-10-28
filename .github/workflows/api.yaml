@@ -64,8 +64,7 @@ jobs:
 
       - name: Lint
         run: |
-          cd api
-          yarn lint
+          yarn lint api
 
       - name: Tsc
         run: |

@@ -47,8 +47,7 @@ jobs:
 
     - name: Api - Lint
       run: |
-        cd api
-        yarn lint
+        yarn lint api
 
     - name: Api - Tsc
       run: |
@@ -147,8 +146,7 @@ jobs:
 
     - name: Integrations - Lint
       run: |
-        cd integrations
-        yarn lint
+        yarn lint integrations
 
     - name: Integrations - Test
       run: |
@@ -183,8 +181,7 @@ jobs:
 
     - name: UI - Lint
       run: |
-        cd ui
-        yarn lint
+        yarn lint ui
 
     - name: UI - Tsc
       run: |
@@ -214,8 +211,7 @@ jobs:
 
     - name: Widgets - Lint
       run: |
-        cd widgets
-        yarn lint
+        yarn lint widgets
 
     - name: Widgets - Build
       run: |

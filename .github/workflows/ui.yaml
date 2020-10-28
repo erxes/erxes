@@ -57,8 +57,7 @@ jobs:
 
     - name: Lint
       run: |
-        cd ui
-        yarn lint
+        yarn lint ui
 
     - name: Tsc
       run: |

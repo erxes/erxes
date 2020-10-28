@@ -48,8 +48,7 @@ jobs:
 
       - name: Lint
         run: |
-          cd widgets
-          yarn lint
+          yarn lint widgets
 
       - name: Build
         run: |

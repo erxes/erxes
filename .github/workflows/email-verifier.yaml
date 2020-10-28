@@ -48,6 +48,10 @@ jobs:
           cd email-verifier
           yarn install
 
+      - name: Lint
+        run: |
+          yarn lint email-verifier
+
       - name: Build
         run: |
           cd email-verifier

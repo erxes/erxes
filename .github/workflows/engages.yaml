@@ -46,6 +46,10 @@ jobs:
           cd engages-email-sender
           yarn install
 
+      - name: Lint
+        run: |
+          yarn lint engages-email-sender
+
       - name: Build
         run: |
           cd engages-email-sender

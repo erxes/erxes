@@ -72,15 +72,12 @@
     "xss": "^1.0.3"
   },
   "scripts": {
-    "format": "prettier --single-quote --write 'src/**/*.@(ts|tsx)'",
-    "precommit": "lint-staged",
     "start": "react-scripts start",
     "build": "yarn generateVersion && react-scripts build",
     "generateVersion": "node commands/generateVersion.js",
     "compress": "gzip -5 --keep -r build/static/js",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "lint": "tslint 'src/**/*.@(ts|tsx)'",
     "componentTest": "jest --runInBand --forceExit --detectOpenHandles --coverage",
     "open-cypress": "yarn run cypress open",
     "record-cypress": "cypress run --record --key fd048d49-6b4c-4e6b-885f-819a533c2fc4"
@@ -89,9 +86,6 @@
     "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",
     "ts-jest": "^23.0.1",
-    "tslint": "^5.18.0",
-    "tslint-config-prettier": "^1.18.0",
-    "tslint-react": "^4.0.0",
     "typescript": "^3.0.3",
     "cypress": "^4.9.0"
   },

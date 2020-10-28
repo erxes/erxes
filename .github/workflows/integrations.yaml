@@ -58,8 +58,7 @@ jobs:
 
       - name: Lint
         run: |
-          cd integrations
-          yarn lint
+          yarn lint integrations
 
       - name: Test
         run: |
