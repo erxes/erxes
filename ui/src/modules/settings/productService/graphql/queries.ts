@@ -17,6 +17,12 @@ const productFields = `
   category {
     name
   }
+  attachment {
+    name
+    url
+    type
+    size
+  }
 `;
 
 const products = `
@@ -48,7 +54,7 @@ const productCategories = `
       code
       parentId
       description
-      
+
       isRoot
       productCount
     }

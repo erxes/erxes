@@ -1,5 +1,9 @@
 import { Document, Schema } from 'mongoose';
-import { commonItemFieldsSchema, IItemCommonFields } from './boards';
+import {
+  attachmentSchema,
+  commonItemFieldsSchema,
+  IItemCommonFields
+} from './boards';
 import { customFieldSchema, ICustomField } from './common';
 import { PRODUCT_TYPES } from './constants';
 import { field, schemaWrapper } from './utils';
@@ -16,6 +20,7 @@ export interface IProduct {
   customFieldsData?: ICustomField[];
   productId?: string;
   tagIds?: string[];
+  attachment?: any;
 }
 
 export interface IProductDocument extends IProduct, Document {
@@ -94,7 +99,8 @@ export const productSchema = schemaWrapper(
       type: Date,
       default: new Date(),
       label: 'Created at'
-    })
+    }),
+    attachment: field({ type: attachmentSchema, label: 'Attachments' })
   })
 );
 

@@ -7,6 +7,7 @@ const productParamsDef = `
   $unitPrice: Float,
   $code: String
   $customFieldsData: JSON,
+  $attachment: AttachmentInput,
 `;
 
 const productCategoryParamsDef = `
@@ -21,10 +22,11 @@ const productParams = `
   type: $type,
   categoryId: $categoryId,
   description: $description,
-  sku: $sku
-  unitPrice: $unitPrice
-  code: $code
-  customFieldsData: $customFieldsData
+  sku: $sku,
+  unitPrice: $unitPrice,
+  code: $code,
+  customFieldsData: $customFieldsData,
+  attachment: $attachment
 `;
 
 const productCategoryParams = `
