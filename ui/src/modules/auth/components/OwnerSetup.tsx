@@ -23,8 +23,8 @@ export const OwnerDescription = () => {
         )}
       </p>
     </>
-  )
-}
+  );
+};
 
 const OwnerSetup = (props: Props) => {
   const { createOwner } = props;
@@ -99,7 +99,10 @@ const OwnerSetup = (props: Props) => {
   return (
     <AuthBox>
       <h2>{__('Initial Configuration Steps')}</h2>
-      <p>{__('Please fill out the following form to complete your installation')}.</p>
+      <p>
+        {__('Please fill out the following form to complete your installation')}
+        .
+      </p>
       <form onSubmit={handleSubmit}>
         <FormGroup>
           <FormControl
@@ -117,9 +120,12 @@ const OwnerSetup = (props: Props) => {
             onChange={handleLastName}
           />
         </FormGroup>
-        <br/>
+        <br />
         <p>
-          {__('Please input the best email address to use as your login and to receive emails from your installation such as notifications, alerts and other messages')}.
+          {__(
+            'Please input the best email address to use as your login and to receive emails from your installation such as notifications, alerts and other messages'
+          )}
+          .
         </p>
         <FormGroup>
           <FormControl
@@ -138,16 +144,19 @@ const OwnerSetup = (props: Props) => {
               onChange={handlePassword}
             />
 
-            <Icon 
-              onClick={toggleShowPassword} 
+            <Icon
+              onClick={toggleShowPassword}
               size={16}
               icon={showPassword ? 'eye-slash' : 'eye'}
             />
           </PasswordWithEye>
         </FormGroup>
-        <br/>
+        <br />
         <p>
-          {__('You must check below to receive information about upgrades and upgrading instructions, new tutorials, occasional requests for feedback and the monthly newsletter')}.
+          {__(
+            'You must check below to receive information about upgrades and upgrading instructions, new tutorials, occasional requests for feedback and the monthly newsletter'
+          )}
+          .
         </p>
 
         <FormGroup>

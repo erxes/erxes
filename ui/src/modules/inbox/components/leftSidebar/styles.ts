@@ -136,7 +136,7 @@ const RowItem = styledTS<{
     !props.isRead &&
     css`
       background: ${colors.bgUnread};
-      border-top: 1px solid rgba(0,0,0,0.05);
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
       border-left: 1px solid ${colors.colorSecondary};
       margin-top: -1px;
 
@@ -285,13 +285,14 @@ const GroupTitle = styledTS<{ isOpen?: boolean }>(styled.div)`
     transform: ${props => props.isOpen && 'rotate(180deg)'};
   }
 
-  &:hover {
+  > span:hover {
     cursor: pointer;
   }
 `;
 
 const ToggleButton = styled(SimpleButton)`
   margin-left: -5px;
+  margin-right: 10px;
 `;
 
 export {

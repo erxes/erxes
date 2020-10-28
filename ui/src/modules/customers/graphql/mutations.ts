@@ -18,6 +18,8 @@ const commonFields = `
   $links: JSON,
   $customFieldsData: JSON,
   $code: String
+  $emailValidationStatus: String
+  $phoneValidationStatus: String
 `;
 
 const commonVariables = `
@@ -39,7 +41,9 @@ const commonVariables = `
   doNotDisturb: $doNotDisturb,
   links: $links,
   customFieldsData: $customFieldsData,
-  code: $code
+  code: $code,
+  emailValidationStatus: $emailValidationStatus,
+  phoneValidationStatus: $phoneValidationStatus,
 `;
 
 const customersAdd = `
@@ -74,6 +78,8 @@ const customersEdit = `
       description
       doNotDisturb
       links
+      emailValidationStatus
+      phoneValidationStatus
     }
   }
 `;
@@ -106,11 +112,20 @@ const customersVerify = `
   }
 `;
 
+const customersChangeVerificationStatus = `
+mutation customersChangeVerificationStatus($customerIds: [String],$type: String!, $status: String!){
+  customersChangeVerificationStatus(customerIds:$customerIds,type:$type,status:$status){
+    _id
+  }
+}
+`;
+
 export default {
   customersAdd,
   customersEdit,
   customersRemove,
   customersChangeState,
   customersMerge,
-  customersVerify
+  customersVerify,
+  customersChangeVerificationStatus
 };

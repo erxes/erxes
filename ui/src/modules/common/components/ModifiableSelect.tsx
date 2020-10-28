@@ -67,6 +67,7 @@ class Option extends React.PureComponent<OptionProps> {
 }
 
 type Props = {
+  id?: string;
   options: any[];
   onChange: (params: { options: any[]; selectedOption: any }) => void;
   value?: string;
@@ -202,7 +203,7 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { name, type, required } = this.props;
+    const { id, name, type, required } = this.props;
 
     if (this.state.adding) {
       const onPress = e => {
@@ -213,7 +214,7 @@ class ModifiableSelect extends React.PureComponent<Props, State> {
       };
 
       return (
-        <Wrapper>
+        <Wrapper id={id}>
           <FillContent>
             <FormControl
               type={type}

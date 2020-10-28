@@ -39,6 +39,8 @@ type State = {
 };
 
 class CompanyListContainer extends React.Component<FinalProps, State> {
+  private timer?: NodeJS.Timer;
+
   constructor(props) {
     super(props);
 
@@ -46,6 +48,18 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
       loading: false
     };
   }
+
+  componentWillUnmount() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+  }
+
+  refetchWithDelay = () => {
+    this.timer = setTimeout(() => {
+      this.props.companiesMainQuery.refetch();
+    }, 5500);
+  };
 
   render() {
     const {
@@ -71,7 +85,12 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
       })
         .then(() => {
           emptyBulk();
-          Alert.success('You successfully deleted a company');
+          Alert.success(
+            'You successfully deleted a company. The changes will take a few seconds',
+            4500
+          );
+
+          this.refetchWithDelay();
         })
         .catch(e => {
           Alert.error(e.message);
@@ -137,23 +156,25 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
       loading: companiesMainQuery.loading || this.state.loading,
       exportCompanies,
       removeCompanies,
-      mergeCompanies
+      mergeCompanies,
+      refetch: this.refetchWithDelay
     };
 
     const companiesList = props => {
       return <CompaniesList {...updatedProps} {...props} />;
     };
 
-    const refetch = () => {
-      this.props.companiesMainQuery.refetch();
-    };
-
-    return <Bulk content={companiesList} refetch={refetch} />;
+    return (
+      <Bulk
+        content={companiesList}
+        refetch={this.props.companiesMainQuery.refetch}
+      />
+    );
   }
 }
 
-const generateParams = ({ queryParams }) => ({
-  variables: {
+const generateParams = ({ queryParams }) => {
+  return {
     ...generatePaginationParams(queryParams),
     segment: queryParams.segment,
     tag: queryParams.tag,
@@ -164,35 +185,64 @@ const generateParams = ({ queryParams }) => ({
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)
       : undefined
-  }
-});
+  };
+};
+
+const getRefetchQueries = (queryParams?: any) => {
+  return [
+    {
+      query: gql(queries.companiesMain),
+      variables: { ...generateParams({ queryParams }) }
+    },
+    {
+      query: gql(queries.companyCounts),
+      variables: { only: 'byTag' }
+    },
+    {
+      query: gql(queries.companyCounts),
+      variables: { only: 'bySegment' }
+    },
+    {
+      query: gql(queries.companyCounts),
+      variables: { only: 'byBrand' }
+    }
+  ];
+};
 
 export default withProps<Props>(
   compose(
-    graphql<{ queryParams: any }, MainQueryResponse, ListQueryVariables>(
+    graphql<Props, MainQueryResponse, ListQueryVariables>(
       gql(queries.companiesMain),
       {
         name: 'companiesMainQuery',
-        options: generateParams
+        options: ({ queryParams }) => ({
+          variables: generateParams({ queryParams })
+        })
       }
     ),
-    graphql<{}, ListConfigQueryResponse, {}>(gql(queries.companiesListConfig), {
-      name: 'companiesListConfigQuery'
-    }),
+    graphql<Props, ListConfigQueryResponse, {}>(
+      gql(queries.companiesListConfig),
+      {
+        name: 'companiesListConfigQuery'
+      }
+    ),
     // mutations
-    graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
+    graphql<Props, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.companiesRemove),
       {
-        name: 'companiesRemove'
+        name: 'companiesRemove',
+        options: ({ queryParams }) => ({
+          refetchQueries: getRefetchQueries(queryParams)
+        })
       }
     ),
-    graphql<{}, MergeMutationResponse, MergeMutationVariables>(
+    graphql<Props, MergeMutationResponse, MergeMutationVariables>(
       gql(mutations.companiesMerge),
       {
         name: 'companiesMerge',
-        options: {
-          refetchQueries: ['companiesMain', 'companyCounts']
-        }
+        options: ({ queryParams }) => ({
+          refetchQueries: getRefetchQueries(queryParams)
+        })
       }
     )
   )(withRouter<IRouterProps>(CompanyListContainer))

@@ -14,6 +14,7 @@ interface IProps extends IRouterProps {
 function IntegrationFilter({ history, counts }: IProps) {
   const onClick = kind => {
     router.setParams(history, { integrationType: kind });
+    router.removeParams(history, 'page');
   };
 
   const data = (

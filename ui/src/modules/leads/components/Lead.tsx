@@ -33,14 +33,12 @@ type Props = {
   isActionLoading: boolean;
   isReadyToSaveForm: boolean;
   afterFormDbSave: (formId: string) => void;
-  save: (
-    params: {
-      name: string;
-      brandId: string;
-      languageCode?: string;
-      leadData: ILeadData;
-    }
-  ) => void;
+  save: (params: {
+    name: string;
+    brandId: string;
+    languageCode?: string;
+    leadData: ILeadData;
+  }) => void;
 };
 
 type State = {
@@ -53,6 +51,7 @@ type State = {
   bodyValue?: string;
   calloutBtnText?: string;
   theme: string;
+  isRequireOnce?: boolean;
   logoPreviewUrl?: string;
   isSkip?: boolean;
   color: string;
@@ -117,6 +116,7 @@ class Lead extends React.Component<Props, State> {
         type: form.type || ''
       },
       theme: leadData.themeColor || '#6569DF',
+      isRequireOnce: leadData.isRequireOnce,
       logoPreviewUrl: callout.featuredImage,
       isSkip: callout.skip && true
     };
@@ -162,12 +162,11 @@ class Lead extends React.Component<Props, State> {
           featuredImage: this.state.logoPreviewUrl,
           skip: this.state.isSkip
         },
-        rules: (rules || []).filter(rule => (
-          rule.condition && rule.value
-        ))
+        rules: (rules || []).filter(rule => rule.condition && rule.value),
+        isRequireOnce: this.state.isRequireOnce
       }
     };
-    
+
     this.props.save(doc);
   };
 
@@ -232,7 +231,8 @@ class Lead extends React.Component<Props, State> {
       successAction,
       isSkip,
       rules,
-      formData
+      formData,
+      isRequireOnce
     } = this.state;
 
     const { integration } = this.props;
@@ -248,7 +248,7 @@ class Lead extends React.Component<Props, State> {
       <>
         <Wrapper.Header title={__('Leads')} breadcrumb={breadcrumb} />
         <StepWrapper>
-          <TitleContainer>
+          <TitleContainer id="CreatePopupsTitle">
             <div>{__('Title')}</div>
             <FormControl
               required={true}
@@ -305,6 +305,7 @@ class Lead extends React.Component<Props, State> {
                 color={color}
                 brand={brand}
                 theme={theme}
+                isRequireOnce={isRequireOnce}
                 language={language}
                 formData={formData}
               />
@@ -318,6 +319,7 @@ class Lead extends React.Component<Props, State> {
                 theme={theme}
                 successAction={successAction}
                 leadData={leadData}
+                formId={integration && integration.formId}
               />
             </Step>
             <Step

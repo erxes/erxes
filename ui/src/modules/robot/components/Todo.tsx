@@ -59,7 +59,7 @@ class Todo extends React.Component<Props, State> {
           </NavButton>
         )}
 
-        <NavButton onClick={onHide} right={true}>
+        <NavButton id="robot-feature-close" onClick={onHide} right={true}>
           <Icon icon="times" size={17} />
         </NavButton>
         {content}
@@ -150,7 +150,12 @@ class Todo extends React.Component<Props, State> {
 
   renderContent() {
     const { selectedFeature } = this.state;
-    const { availableFeatures, currentRoute, currentUser, restartOnboard } = this.props;
+    const {
+      availableFeatures,
+      currentRoute,
+      currentUser,
+      restartOnboard
+    } = this.props;
 
     if (currentRoute === 'todoDetail') {
       return this.withHeader(
@@ -188,8 +193,6 @@ class Todo extends React.Component<Props, State> {
           </RestartButton>
 
           {this.renderCompleted()}
-
-          
         </>
       );
     }

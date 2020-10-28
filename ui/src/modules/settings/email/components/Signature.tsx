@@ -101,6 +101,7 @@ class Signature extends React.Component<Props, State> {
           autoGrow={true}
           autoGrowMinHeight={160}
           onChange={this.onChangeContent}
+          name={`signature_${this.state.currentId}`}
         />
       </FormGroup>
     );

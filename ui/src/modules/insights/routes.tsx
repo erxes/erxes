@@ -5,23 +5,33 @@ import { Route } from 'react-router-dom';
 import { INSIGHT_TYPES } from './constants';
 
 const AsyncExportReport = asyncComponent(() =>
-  import(/* webpackChunkName: "AsyncExportReport" */ './containers/ExportReport')
+  import(
+    /* webpackChunkName: "AsyncExportReport" */ './containers/ExportReport'
+  )
 );
 
 const AsyncConversationReport = asyncComponent(() =>
-  import(/* webpackChunkName: "AsyncConversationReport" */ './containers/ConversationReport')
+  import(
+    /* webpackChunkName: "AsyncConversationReport" */ './containers/ConversationReport'
+  )
 );
 
 const AsyncSummaryReport = asyncComponent(() =>
-  import(/* webpackChunkName: "AsyncSummaryReport" */ './containers/SummaryReport')
+  import(
+    /* webpackChunkName: "AsyncSummaryReport" */ './containers/SummaryReport'
+  )
 );
 
 const AsyncVolumeAndResponseReport = asyncComponent(() =>
-  import(/* webpackChunkName: "VolumeAndResponseReport" */ './containers/VolumeAndResponseReport')
+  import(
+    /* webpackChunkName: "VolumeAndResponseReport" */ './containers/VolumeAndResponseReport'
+  )
 );
 
 const AsyncFirstAndCloseResponseReport = asyncComponent(() =>
-  import(/* webpackChunkName: "FirstAndCloseResponseReport" */ './containers/FirstAndCloseResponseReport')
+  import(
+    /* webpackChunkName: "FirstAndCloseResponseReport" */ './containers/FirstAndCloseResponseReport'
+  )
 );
 
 const AsyncReports = asyncComponent(() => import('./containers/Reports'));
@@ -31,7 +41,9 @@ const AsyncInsightPage = asyncComponent(() =>
 );
 
 const AsyncDealVolumeReport = asyncComponent(() =>
-  import(/* webpackChunkName: "DealVolumeReport" */ './containers/DealVolumeReport')
+  import(
+    /* webpackChunkName: "DealVolumeReport" */ './containers/DealVolumeReport'
+  )
 );
 
 const InboxInsightPage = () => {

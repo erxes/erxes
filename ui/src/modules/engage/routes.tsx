@@ -4,15 +4,21 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 
 const MessageForm = asyncComponent(() =>
-  import(/* webpackChunkName: "MessageForm - Engage" */ './containers/MessageForm')
+  import(
+    /* webpackChunkName: "MessageForm - Engage" */ './containers/MessageForm'
+  )
 );
 
 const MessageList = asyncComponent(() =>
-  import(/* webpackChunkName: "MessageList - Engage" */ './containers/MessageList')
+  import(
+    /* webpackChunkName: "MessageList - Engage" */ './containers/MessageList'
+  )
 );
 
 const EngageStats = asyncComponent(() =>
-  import(/* webpackChunkName: "EngageStats - Engage" */ './containers/EngageStats')
+  import(
+    /* webpackChunkName: "EngageStats - Engage" */ './containers/EngageStats'
+  )
 );
 
 const engageList = history => {

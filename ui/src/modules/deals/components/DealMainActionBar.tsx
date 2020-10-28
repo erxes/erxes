@@ -43,9 +43,7 @@ const DealMainActionBar = (props: Props) => {
       const { currentBoard, currentPipeline } = props;
 
       if (currentBoard && currentPipeline) {
-        return `/deal/${type}?id=${currentBoard._id}&pipelineId=${
-          currentPipeline._id
-        }`;
+        return `/deal/${type}?id=${currentBoard._id}&pipelineId=${currentPipeline._id}`;
       }
 
       return `/deal/${type}`;

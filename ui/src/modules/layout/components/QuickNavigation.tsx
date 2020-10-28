@@ -18,11 +18,15 @@ import { UserHelper } from '../styles';
 import BrandChooser from './BrandChooser';
 
 const Signature = asyncComponent(() =>
-  import(/* webpackChunkName:"Signature" */ 'modules/settings/email/containers/Signature')
+  import(
+    /* webpackChunkName:"Signature" */ 'modules/settings/email/containers/Signature'
+  )
 );
 
 const ChangePassword = asyncComponent(() =>
-  import(/* webpackChunkName:"ChangePassword" */ 'modules/settings/profile/containers/ChangePassword')
+  import(
+    /* webpackChunkName:"ChangePassword" */ 'modules/settings/profile/containers/ChangePassword'
+  )
 );
 
 const UserInfo = styled.div`
@@ -137,7 +141,7 @@ const QuickNavigation = ({
   }
 
   return (
-    <nav>
+    <nav id={'SettingsNav'}>
       {brandsCombo}
 
       <Tip text={__('Task')} placement="bottom">
@@ -157,7 +161,7 @@ const QuickNavigation = ({
         <Widget />
       </NavItem>
       <NavItem>
-        <Link to="/settings">
+        <Link id="Settings" to="/settings">
           <Icon icon="cog" size={20} />
         </Link>
       </NavItem>

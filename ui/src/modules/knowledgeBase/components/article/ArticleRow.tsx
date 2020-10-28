@@ -37,7 +37,7 @@ const ArticleRow = (props: Props) => {
 
   const renderReactions = () => {
     const reactions = Object.entries(props.article.reactionCounts || {});
-    
+
     return reactions.map(([key, value]) => (
       <ReactionCount key={key}>
         <img src={key} alt="reaction" /> {value}
@@ -98,9 +98,10 @@ const ArticleRow = (props: Props) => {
           />
           {__('Written By')}
           <AuthorName>
-            {user && ((user.details && user.details.fullName) ||
-              user.username ||
-              user.email)}
+            {user &&
+              ((user.details && user.details.fullName) ||
+                user.username ||
+                user.email)}
           </AuthorName>
           <Icon icon="clock-eight" /> {__('Created')}{' '}
           {dayjs(article.createdDate).format('ll')}

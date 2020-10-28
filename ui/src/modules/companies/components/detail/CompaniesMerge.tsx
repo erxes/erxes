@@ -18,13 +18,7 @@ import { ICompany, ICompanyLinks } from '../../types';
 
 type Props = {
   objects: ICompany[];
-  save: (
-    doc: {
-      ids: string[];
-      data: any;
-      callback: () => void;
-    }
-  ) => void;
+  save: (doc: { ids: string[]; data: any; callback: () => void }) => void;
   closeModal: () => void;
 };
 

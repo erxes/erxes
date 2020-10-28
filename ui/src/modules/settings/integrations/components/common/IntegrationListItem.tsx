@@ -1,3 +1,4 @@
+import { getEnv } from 'apolloClient';
 import ActionButtons from 'modules/common/components/ActionButtons';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
@@ -64,6 +65,49 @@ class IntegrationListItem extends React.Component<Props> {
     );
   }
 
+  renderGetAction() {
+    const { integration } = this.props;
+    const webhookData = integration.webhookData;
+
+    if (!webhookData) {
+      return;
+    }
+
+    const showTrigger = (
+      <Button btnStyle="link">
+        <Tip text="Show" placement="top">
+          <Icon icon="eye" />
+        </Tip>
+      </Button>
+    );
+
+    const content = () => {
+      const { REACT_APP_API_URL } = getEnv();
+
+      return (
+        <div>
+          <b>Name</b>: {integration.name} <br />
+          <div>
+            <b>URL</b>: {REACT_APP_API_URL}/webhooks/{integration._id} <br />
+            <b>Token</b>: {webhookData.token}
+          </div>
+        </div>
+      );
+    };
+
+    return (
+      <WithPermission action="showIntegrations">
+        <ActionButtons>
+          <ModalTrigger
+            title="Integration detail"
+            trigger={showTrigger}
+            content={content}
+          />
+        </ActionButtons>
+      </WithPermission>
+    );
+  }
+
   renderEditAction() {
     const { integration, editIntegration } = this.props;
 
@@ -88,6 +132,7 @@ class IntegrationListItem extends React.Component<Props> {
         channelIds={integration.channels.map(item => item._id) || []}
         integrationId={integration._id}
         integrationKind={integration.kind}
+        webhookData={integration.webhookData}
       />
     );
 
@@ -162,6 +207,43 @@ class IntegrationListItem extends React.Component<Props> {
     );
   }
 
+  renderExternalData(integration) {
+    const { externalData, kind } = integration;
+    let value = '';
+
+    if (!externalData) {
+      return <td />;
+    }
+
+    switch (kind) {
+      case INTEGRATION_KINDS.CALLPRO:
+        value = externalData.phoneNumber;
+        break;
+      case INTEGRATION_KINDS.CHATFUEL:
+        value = (externalData.chatfuelConfigs || {}).toString();
+        break;
+      case INTEGRATION_KINDS.WHATSAPP:
+        value = externalData.whatsappToken;
+        break;
+      case INTEGRATION_KINDS.SMOOCH_TELEGRAM:
+        value = externalData.telegramBotToken;
+        break;
+      case INTEGRATION_KINDS.SMOOCH_VIBER:
+        value = externalData.viberBotToken;
+        break;
+      case INTEGRATION_KINDS.SMOOCH_LINE:
+        value = externalData.lineChannelId;
+        break;
+      case INTEGRATION_KINDS.TELNYX:
+        value = externalData.telnyxPhoneNumber;
+        break;
+      default:
+        break;
+    }
+
+    return <td>{value}</td>;
+  }
+
   render() {
     const { integration } = this.props;
     const integrationKind = cleanIntegrationKind(integration.kind);
@@ -180,9 +262,11 @@ class IntegrationListItem extends React.Component<Props> {
         <td>
           <Label lblStyle={labelStyle}>{status}</Label>
         </td>
+        {this.renderExternalData(integration)}
         <td>
           <ActionButtons>
             {this.renderMessengerActions(integration)}
+            {this.renderGetAction()}
             {this.renderEditAction()}
             {this.renderArchiveAction()}
             {this.renderUnarchiveAction()}

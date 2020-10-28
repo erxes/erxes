@@ -6,11 +6,12 @@ import { DateTime } from './styles';
 type Props = {
   timestamp: Date;
   type: string;
+  permalink_url: string;
 };
 
 export default class DateComponent extends React.Component<Props, {}> {
   render() {
-    const { timestamp, type } = this.props;
+    const { timestamp, type, permalink_url } = this.props;
 
     if (!timestamp) {
       return null;
@@ -21,7 +22,9 @@ export default class DateComponent extends React.Component<Props, {}> {
 
     return (
       <Tip placement="bottom" text={dayjs(new Date(createdTime)).format('lll')}>
-        <DateTime>{dayjs(new Date(createdTime)).fromNow()}</DateTime>
+        <DateTime href={permalink_url}>
+          {dayjs(new Date(createdTime)).fromNow()}
+        </DateTime>
       </Tip>
     );
   }

@@ -13,7 +13,7 @@ set -Eeuo pipefail
 
 trap notify ERR
 
-NODE_VERSION=v12.16.3
+NODE_VERSION=v12.19.0
 
 ELASTICSEARCH_URL="http://localhost:9200"
 
@@ -128,13 +128,6 @@ curl -s -X POST https://telemetry.erxes.io/events/ \
 EOF
       )"
 
-
-# Dependencies
-
-echo "Installing Initial Dependencies"
-
-apt-get -qqy update
-
 #
 # Ask ES option
 #
@@ -153,6 +146,7 @@ then
   echo "ElasticSearch will be installed"
   # Java , elasticsearch dependency
   echo "Installing Java"
+  apt-get -qqy update
   apt-get -qqy install default-jre -y
   echo "Installed Java successfully"
 
@@ -170,6 +164,9 @@ else
   echo "Using elasticsearch.erxes.io"
 fi
 
+# Dependencies
+echo "Installing Initial Dependencies"
+apt-get -qqy update
 apt-get -qqy install -y wget gnupg apt-transport-https software-properties-common python3-pip ufw
 
 # MongoDB
@@ -234,33 +231,18 @@ erxes_integrations_dir=$erxes_root_dir/erxes-integrations
 
 # su $username -c "mkdir -p $erxes_ui_dir $erxes_widgets_dir $erxes_api_dir $erxes_engages_dir $erxes_logger_dir $erxes_syncer_dir $erxes_integrations_dir"
 
-ERXES_RELEASE_URL="https://releases.erxes.io/erxes/latest/download"
-ERXES_API_RELEASE_URL="https://releases.erxes.io/erxes-api/latest/download"
-ERXES_INTEGRATIONS_RELEASE_URL="https://releases.erxes.io/erxes-integrations/latest/download"
+ERXES_RELEASE_URL="https://github.com/erxes/erxes/releases/download/0.19.3/erxes-0.19.3.tar.gz"
+ERXES_API_RELEASE_URL="https://github.com/erxes/erxes-api/releases/download/0.19.3/erxes-api-0.19.3.tar.gz"
+ERXES_INTEGRATIONS_RELEASE_URL="https://github.com/erxes/erxes-integrations/releases/download/0.19.3/erxes-integrations-0.19.3.tar.gz"
 
-# TODO: update renaming folders, once CI updated/corrected!!!
 # download erxes
 su $username -c "curl -L $ERXES_RELEASE_URL | tar -xz"
-# rename ui/build to erxes
-su $username -c "mv $erxes_root_dir/ui/build/ $erxes_ui_dir && rmdir $erxes_root_dir/ui"
-# rename widgets to erxes-widgets
-su $username -c "mv $erxes_root_dir/widgets/ $erxes_widgets_dir"
 
 # download erxes-api
 su $username -c "curl -L $ERXES_API_RELEASE_URL | tar -xz"
-# rename api to erxes-api
-su $username -c "mv $erxes_root_dir/api/ $erxes_api_dir"
-# rename engages-email-sender to erxes-engages-email-sender
-su $username -c "mv $erxes_root_dir/engages-email-sender/ $erxes_engages_dir"
-# rename logger to erxes-logger
-su $username -c "mv $erxes_root_dir/logger/ $erxes_logger_dir"
-# rename elkSyncer to erxes-elkSyncer
-su $username -c "mv $erxes_root_dir/elkSyncer/ $erxes_syncer_dir"
 
 # download integrations
 su $username -c "curl -L $ERXES_INTEGRATIONS_RELEASE_URL | tar -xz"
-# rename integrations to erxes-integrations
-su $username -c "mv $erxes_root_dir/integrations/ $erxes_integrations_dir"
 
 JWT_TOKEN_SECRET=$(openssl rand -base64 24)
 MONGO_PASS=$(openssl rand -hex 16)

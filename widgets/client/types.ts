@@ -1,5 +1,5 @@
-import { ICallout } from "./form/types";
-import { IWebsiteApp } from "./messenger/types";
+import { ICallout } from './form/types';
+import { IWebsiteApp } from './messenger/types';
 
 export type ENV = {
   API_URL: string;
@@ -97,6 +97,7 @@ export interface IIntegrationMessengerDataMessagesItem {
 }
 
 export interface IIntegrationMessengerData {
+  botEndpointUrl?: string;
   supporterIds: string[];
   notifyCustomer: boolean;
   knowledgeBaseTopicId: string;
@@ -129,6 +130,7 @@ export interface IIntegrationLeadData {
   themeColor?: string;
   callout?: ICallout;
   rules?: IRule;
+  isRequireOnce?: boolean;
 }
 
 export interface IIntegrationUiOptions {

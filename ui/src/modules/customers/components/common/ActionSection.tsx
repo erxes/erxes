@@ -1,4 +1,3 @@
-import { ButtonGroup } from 'modules/boards/styles/header';
 import Button from 'modules/common/components/Button';
 import DropdownToggle from 'modules/common/components/DropdownToggle';
 import { ControlLabel } from 'modules/common/components/form';
@@ -39,13 +38,14 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
   }
 
   renderActions() {
-    const { coc, cocType, isSmall } = this.props;
+    const { coc, cocType } = this.props;
     const { primaryPhone, primaryEmail } = coc;
 
     const content = props => (
       <MailBox>
         <MailForm
           fromEmail={primaryEmail}
+          customerId={cocType === 'customer' ? coc._id : undefined}
           refetchQueries={
             cocType === 'customer'
               ? ['activityLogsCustomer']
@@ -67,7 +67,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
             <Button
               disabled={primaryEmail ? false : true}
               size="small"
-              btnStyle={isSmall ? 'link' : 'primary'}
+              btnStyle={primaryEmail ? 'primary' : 'simple'}
             >
               <Tip text="Send e-mail" placement="top-end">
                 <Icon icon="envelope" />
@@ -76,7 +76,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
           }
           size="lg"
           content={content}
-          paddingContent="no-padding"
+          paddingContent="less-padding"
           enforceFocus={false}
         />
         <ModalTrigger
@@ -86,7 +86,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
             <Button
               disabled={primaryPhone ? false : true}
               size="small"
-              btnStyle="primary"
+              btnStyle={primaryPhone ? 'primary' : 'simple'}
             >
               <Tip text="Send SMS" placement="top-end">
                 <Icon icon="message" />
@@ -98,7 +98,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
         <Button
           href={primaryPhone && `tel:${primaryPhone}`}
           size="small"
-          btnStyle={isSmall ? 'link' : 'primary'}
+          btnStyle={primaryPhone ? 'primary' : 'simple'}
           disabled={primaryPhone ? false : true}
         >
           <Tip text="Call" placement="top-end">
@@ -113,8 +113,14 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
     const { isSmall } = this.props;
 
     return (
-      <Button size="small" btnStyle={isSmall ? 'link' : 'primary'}>
-        {__('Action')} <Icon icon="angle-down" />
+      <Button size="small" btnStyle="default">
+        {isSmall ? (
+          <Icon icon="ellipsis-h" />
+        ) : (
+          <>
+            {__('Action')} <Icon icon="angle-down" />
+          </>
+        )}
       </Button>
     );
   }
@@ -156,6 +162,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
 
     return (
       <Box
+        id="customerChangeStateBox"
         key={index}
         selected={this.state.customerState === type}
         onClick={onClick}
@@ -265,24 +272,12 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
   }
 
   render() {
-    const { isSmall } = this.props;
-
-    const content = (
-      <>
+    return (
+      <Actions>
         {this.renderActions()}
         {this.renderDropdown()}
-      </>
+      </Actions>
     );
-
-    if (isSmall) {
-      return (
-        <Actions isSmall={true}>
-          <ButtonGroup>{content}</ButtonGroup>
-        </Actions>
-      );
-    }
-
-    return <Actions>{content}</Actions>;
   }
 }
 

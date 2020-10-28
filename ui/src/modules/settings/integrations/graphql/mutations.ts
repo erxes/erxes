@@ -14,10 +14,12 @@ const commonParams = `
 
 const mailParamsDef = `
   $erxesApiId: String!,
+  $replyTo: [String],
+  $inReplyTo: String,
   $headerId: String,
   $threadId: String,
   $messageId: String,
-  $references: String
+  $references: [String]
   $replyToMessageId: String,
   $subject: String!,
   $kind: String,
@@ -28,10 +30,13 @@ const mailParamsDef = `
   $from: String!,
   $shouldResolve: Boolean,
   $attachments: [JSON],
+  $customerId: String
 `;
 
 const mailParams = `
   erxesApiId: $erxesApiId,
+  replyTo: $replyTo,
+  inReplyTo: $inReplyTo,
   headerId: $headerId,
   threadId: $threadId,
   messageId: $messageId,
@@ -46,6 +51,7 @@ const mailParams = `
   from: $from,
   shouldResolve: $shouldResolve,
   attachments: $attachments,
+  customerId: $customerId
 `;
 
 const integrationSendMail = ` 
@@ -81,8 +87,8 @@ const integrationsCreateExternalIntegration = `
 `;
 
 const integrationsEditCommonFields = `
-  mutation integrationsEditCommonFields($_id: String!, $name: String!, $brandId: String!, $channelIds: [String]) {
-    integrationsEditCommonFields(_id: $_id, name: $name, brandId: $brandId, channelIds: $channelIds) {
+  mutation integrationsEditCommonFields($_id: String!, $name: String!, $brandId: String!, $channelIds: [String], $data: JSON) {
+    integrationsEditCommonFields(_id: $_id, name: $name, brandId: $brandId, channelIds: $channelIds, data: $data) {
       _id
     }
   }
@@ -121,61 +127,15 @@ const integrationsRemove = `
   }
 `;
 
-const messengerAppsAddLead = `
-  mutation messengerAppsAddLead(
-    $name: String!
+const messengerAppSave = `
+  mutation messengerAppSave(
     $integrationId: String!
-    $formId: String!
+    $messengerApps: MessengerAppsInput
   ) {
-    messengerAppsAddLead(
-      name: $name
+    messengerAppSave(
       integrationId: $integrationId
-      formId: $formId
-    ) {
-      _id
-    }
-  }
-`;
-
-const messengerAppsAddKnowledgebase = `
-  mutation messengerAppsAddKnowledgebase(
-    $name: String!
-    $integrationId: String!
-    $topicId: String!
-  ) {
-    messengerAppsAddKnowledgebase(
-      name: $name
-      integrationId: $integrationId
-      topicId: $topicId
-    ) {
-      _id
-    }
-  }
-`;
-
-const messengerAppsAddWebsite = `
-  mutation messengerAppsAddWebsite(
-    $name: String!
-    $integrationId: String!
-    $description: String!
-    $buttonText: String!
-    $url: String!
-  ) {
-    messengerAppsAddWebsite(
-      name: $name
-      integrationId: $integrationId
-      description: $description
-      buttonText: $buttonText
-      url: $url
-    ) {
-      _id
-    }
-  }
-`;
-
-const messengerAppsRemove = `
-  mutation messengerAppsRemove($_id: String!) {
-    messengerAppsRemove(_id: $_id)
+      messengerApps: $messengerApps
+    )
   }
 `;
 
@@ -215,11 +175,8 @@ export default {
   integrationsSaveMessengerConfigs,
   integrationsSaveMessengerAppearance,
   integrationsRemove,
-  messengerAppsAddLead,
-  messengerAppsAddKnowledgebase,
-  messengerAppsAddWebsite,
-  messengerAppsRemove,
   removeAccount,
   integrationSendMail,
-  integrationsSendSms
+  integrationsSendSms,
+  messengerAppSave
 };

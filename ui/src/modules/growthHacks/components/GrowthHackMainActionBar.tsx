@@ -82,9 +82,7 @@ const GrowthHackMainActionBar = (props: IProps) => {
       const { currentBoard, currentPipeline } = props;
 
       if (currentBoard && currentPipeline) {
-        return `/growthHack/${type}?id=${currentBoard._id}&pipelineId=${
-          currentPipeline._id
-        }`;
+        return `/growthHack/${type}?id=${currentBoard._id}&pipelineId=${currentPipeline._id}`;
       }
 
       return `/growthHack/${type}`;
@@ -145,7 +143,10 @@ const GrowthHackMainActionBar = (props: IProps) => {
   };
 
   const onChangeHackStage = (ops: IOption[]) => {
-    props.onSelect(ops.map(option => option.value), 'hackStage');
+    props.onSelect(
+      ops.map(option => option.value),
+      'hackStage'
+    );
   };
 
   const { hackScoringType } = props.currentPipeline || {

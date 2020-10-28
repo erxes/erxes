@@ -26,6 +26,7 @@ const messageFields = `
     messageId
     brandId
   }
+  botData
   messengerAppData
   attachments {
     url
@@ -52,6 +53,7 @@ const conversationDetailQuery = `
         ${messageFields}
       }
 
+      operatorStatus
       isOnline
       supporters {
         _id
@@ -80,6 +82,12 @@ const conversationMessageInserted = `
     conversationMessageInserted(_id: $_id) {
       ${messageFields}
     }
+  }
+`;
+
+const conversationBotTypingStatus = `
+  subscription conversationBotTypingStatus($_id: String!) {
+    conversationBotTypingStatus(_id: $_id)
   }
 `;
 
@@ -252,5 +260,6 @@ export default {
   getFaqCategoryQuery,
   getFaqTopicQuery,
   faqSearchArticlesQuery,
-  integrationsFetchApi
+  integrationsFetchApi,
+  conversationBotTypingStatus
 };

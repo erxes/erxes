@@ -17,13 +17,15 @@ type Props = {
   hasMore: boolean;
 
   scrollBottom: () => void;
-  fetchFacebook: (
-    {
-      commentId,
-      postId,
-      limit
-    }: { commentId?: string; postId?: string; limit?: number }
-  ) => void;
+  fetchFacebook: ({
+    commentId,
+    postId,
+    limit
+  }: {
+    commentId?: string;
+    postId?: string;
+    limit?: number;
+  }) => void;
   onToggleClick: () => void;
   isResolved: boolean;
 };

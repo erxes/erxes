@@ -205,7 +205,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
 
   render() {
     return (
-      <ContentBox>
+      <ContentBox id={'EngageSettingsMenu'}>
         <CollapseContent title="General settings">
           <Form renderContent={this.renderContent} />
         </CollapseContent>

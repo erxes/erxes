@@ -30,7 +30,10 @@ class PunchCard extends React.Component<Props> {
 
   renderCells(date: string) {
     const { data, width } = this.props;
-    const max = Math.max.apply(Math, data.map(o => o.count));
+    const max = Math.max.apply(
+      Math,
+      data.map(o => o.count)
+    );
 
     const cellHeight = Math.floor((width - paddinLeftSize) / 24);
     const row: any = [];

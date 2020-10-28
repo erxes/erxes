@@ -66,7 +66,8 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
       participating: '',
       status: '',
       unassigned: '',
-      starred: ''
+      starred: '',
+      awaitingResponse: ''
     });
   };
 
@@ -131,6 +132,13 @@ export default class StatusFilterPopover extends React.Component<Props, State> {
               'true',
               'Participating',
               counts.participating
+            )}
+
+            {this.renderSingleFilter(
+              'awaitingResponse',
+              'true',
+              'Awaiting Response',
+              counts.awaitingResponse
             )}
 
             {this.renderSingleFilter(

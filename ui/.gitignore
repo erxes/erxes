@@ -1,1 +1,3 @@
 public/version.json
+/cypress/videos
+/cypress/screenshots

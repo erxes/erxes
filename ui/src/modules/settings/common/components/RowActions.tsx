@@ -9,9 +9,11 @@ import React from 'react';
 type Props = {
   size?: 'sm' | 'lg' | 'xl';
   object: any;
-  renderForm: (
-    doc: { object: any; closeModal: () => void; save: () => void }
-  ) => void;
+  renderForm: (doc: {
+    object: any;
+    closeModal: () => void;
+    save: () => void;
+  }) => void;
   additionalActions?: (object: any) => void;
   remove?: (id: string) => void;
   save: () => void;

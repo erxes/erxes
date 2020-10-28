@@ -79,9 +79,11 @@ export interface IItemParams {
 }
 
 export type SaveItemMutation = ({ variables: IItemParams }) => Promise<any>;
-export type RemoveStageMutation = (
-  { variables }: { variables: { _id: string } }
-) => Promise<any>;
+export type RemoveStageMutation = ({
+  variables
+}: {
+  variables: { _id: string };
+}) => Promise<any>;
 
 export interface IPipeline {
   _id: string;
@@ -222,9 +224,13 @@ export type BoardCountsQueryResponse = {
 export type PipelinesQueryResponse = {
   pipelines: IPipeline[];
   loading: boolean;
-  refetch: (
-    { boardId, type }: { boardId?: string; type?: string }
-  ) => Promise<any>;
+  refetch: ({
+    boardId,
+    type
+  }: {
+    boardId?: string;
+    type?: string;
+  }) => Promise<any>;
 };
 
 export type StagesQueryResponse = {
@@ -278,9 +284,9 @@ export type UpdateTimeVariables = {
 
 export type RemoveMutation = ({ variables: RemoveVariables }) => Promise<any>;
 
-export type UpdateTimeTrackMutation = (
-  { variables: UpdateTimeVariables }
-) => Promise<any>;
+export type UpdateTimeTrackMutation = ({
+  variables: UpdateTimeVariables
+}) => Promise<any>;
 
 export type CopyVariables = {
   _id: string;
@@ -312,24 +318,22 @@ export type PipelineLabelDetailQueryResponse = {
 } & QueryResponse;
 
 // mutation response
-export type AddPipelineLabelMutationResponse = (
-  { variables: IPipelineLabelVariables }
-) => Promise<any>;
+export type AddPipelineLabelMutationResponse = ({
+  variables: IPipelineLabelVariables
+}) => Promise<any>;
 
-export type EditPipelineLabelMutationResponse = (
-  { variables: EditMutationVariables }
-) => Promise<any>;
+export type EditPipelineLabelMutationResponse = ({
+  variables: EditMutationVariables
+}) => Promise<any>;
 
 export type RemovePipelineLabelMutationVariables = {
   _id: string;
 };
 
 export type RemovePipelineLabelMutationResponse = {
-  removeMutation: (
-    params: {
-      variables: RemovePipelineLabelMutationVariables;
-    }
-  ) => Promise<void>;
+  removeMutation: (params: {
+    variables: RemovePipelineLabelMutationVariables;
+  }) => Promise<void>;
 };
 
 export type PipelineLabelMutationVariables = {
@@ -339,11 +343,9 @@ export type PipelineLabelMutationVariables = {
 };
 
 export type PipelineLabelMutationResponse = {
-  pipelineLabelMutation: (
-    params: {
-      variables: PipelineLabelMutationVariables;
-    }
-  ) => Promise<any>;
+  pipelineLabelMutation: (params: {
+    variables: PipelineLabelMutationVariables;
+  }) => Promise<any>;
 };
 
 export interface IFilterParams extends ISavedConformity {

@@ -5,6 +5,7 @@ export default `
   assignedUserId
   createdAt
   updatedAt
+  operatorStatus
   assignedUser {
     _id
     username
@@ -70,6 +71,7 @@ export default `
     erxesApiId
     attachments
     timestamp
+    permalink_url
   }
   productBoardLink
 `;

@@ -132,7 +132,10 @@ export default class RightMenu extends React.Component<Props, State> {
     const priorities = queryParams ? queryParams.priority : [];
 
     const onPrioritySelect = (ops: IOption[]) =>
-      onSelect(ops.map(option => option.value), 'priority');
+      onSelect(
+        ops.map(option => option.value),
+        'priority'
+      );
 
     return (
       <FilterBox>

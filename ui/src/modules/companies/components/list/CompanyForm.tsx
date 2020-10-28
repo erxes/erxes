@@ -1,3 +1,4 @@
+import AutoCompletionSelect from 'modules/common/components/AutoCompletionSelect';
 import AvatarUpload from 'modules/common/components/AvatarUpload';
 import Button from 'modules/common/components/Button';
 import CollapseContent from 'modules/common/components/CollapseContent';
@@ -5,7 +6,6 @@ import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
-import ModifiableSelect from 'modules/common/components/ModifiableSelect';
 import {
   FormColumn,
   FormWrapper,
@@ -29,6 +29,7 @@ import { ICompany, ICompanyDoc, ICompanyLinks } from '../../types';
 
 type Props = {
   currentUser: IUser;
+  autoCompletionQuery: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   company: ICompany;
   closeModal: () => void;
@@ -122,7 +123,7 @@ class CompanyForm extends React.Component<Props, State> {
 
   renderFormGroup = (label, props) => {
     return (
-      <FormGroup>
+      <FormGroup key={label}>
         <ControlLabel>{label}</ControlLabel>
         <FormControl {...props} />
       </FormGroup>
@@ -159,7 +160,7 @@ class CompanyForm extends React.Component<Props, State> {
 
   renderContent = (formProps: IFormProps) => {
     const company = this.props.company || ({} as ICompany);
-    const { closeModal, renderButton } = this.props;
+    const { closeModal, renderButton, autoCompletionQuery } = this.props;
     const { values, isSubmitted } = formProps;
 
     const {
@@ -221,11 +222,14 @@ class CompanyForm extends React.Component<Props, State> {
               <FormColumn>
                 <FormGroup>
                   <ControlLabel required={true}>Name</ControlLabel>
-                  <ModifiableSelect
-                    value={primaryName}
-                    options={names || []}
-                    name="Name"
+                  <AutoCompletionSelect
                     required={true}
+                    defaultValue={primaryName}
+                    defaultOptions={names || []}
+                    autoCompletionType="names"
+                    placeholder="Enter company name"
+                    queryName="companies"
+                    query={autoCompletionQuery}
                     onChange={this.onChange.bind(this, 'names', 'primaryName')}
                   />
                 </FormGroup>
@@ -244,10 +248,13 @@ class CompanyForm extends React.Component<Props, State> {
 
                 <FormGroup>
                   <ControlLabel>Email</ControlLabel>
-                  <ModifiableSelect
-                    value={primaryEmail}
-                    options={emails || []}
-                    name="Email"
+                  <AutoCompletionSelect
+                    defaultValue={primaryEmail}
+                    defaultOptions={emails || []}
+                    autoCompletionType="emails"
+                    placeholder="Enter company email"
+                    queryName="companies"
+                    query={autoCompletionQuery}
                     onChange={this.onChange.bind(
                       this,
                       'emails',
@@ -294,10 +301,13 @@ class CompanyForm extends React.Component<Props, State> {
 
                 <FormGroup>
                   <ControlLabel>Phone</ControlLabel>
-                  <ModifiableSelect
-                    value={primaryPhone}
-                    options={phones || []}
-                    name="Phone"
+                  <AutoCompletionSelect
+                    defaultValue={primaryPhone}
+                    defaultOptions={phones || []}
+                    autoCompletionType="phones"
+                    placeholder="Enter company phone"
+                    queryName="companies"
+                    query={autoCompletionQuery}
                     onChange={this.onChange.bind(
                       this,
                       'phones',

@@ -54,7 +54,7 @@ class SegmentsList extends React.Component<Props> {
             <th style={{ width: 80 }} />
           </tr>
         </thead>
-        <tbody>
+        <tbody id={'SegmentShowing'}>
           {segments.map(segment => (
             <tr key={segment._id}>
               <td>
@@ -94,7 +94,7 @@ class SegmentsList extends React.Component<Props> {
     );
 
     const actionBarRight = (
-      <Link to={`/segments/new/${contentType}`}>
+      <Link id={'NewSegmentButton'} to={`/segments/new/${contentType}`}>
         <Button btnStyle="primary" uppercase={false} icon="plus-circle">
           New segment
         </Button>
@@ -114,7 +114,12 @@ class SegmentsList extends React.Component<Props> {
             data={this.renderContent(parentSegments)}
             loading={loading}
             count={parentSegments.length}
-            emptyContent={<EmptyContent content={EMPTY_SEGMENT_CONTENT} maxItemWidth="330px" />}
+            emptyContent={
+              <EmptyContent
+                content={EMPTY_SEGMENT_CONTENT}
+                maxItemWidth="330px"
+              />
+            }
           />
         }
         leftSidebar={<Sidebar />}

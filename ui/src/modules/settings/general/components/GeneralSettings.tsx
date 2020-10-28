@@ -157,7 +157,7 @@ class GeneralSettings extends React.Component<Props, State> {
     );
 
     const content = (
-      <ContentBox>
+      <ContentBox id={'GeneralSettingsMenu'}>
         <CollapseContent title={__('General settings')}>
           <FormGroup>
             <ControlLabel>Language</ControlLabel>
@@ -328,10 +328,17 @@ class GeneralSettings extends React.Component<Props, State> {
             </a>
           </Info>
           {this.renderItem('GOOGLE_PROJECT_ID')}
-          {this.renderItem('GOOGLE_APPLICATION_CREDENTIALS')}
-          {this.renderItem('GOOGLE_APPLICATION_CREDENTIALS_JSON')}
           {this.renderItem('GOOGLE_CLIENT_ID')}
           {this.renderItem('GOOGLE_CLIENT_SECRET')}
+          {this.renderItem(
+            'GOOGLE_GMAIL_TOPIC',
+            'The topic value created in Gmail setup'
+          )}
+
+          {this.renderItem(
+            'GOOGLE_APPLICATION_CREDENTIALS_JSON',
+            'Firebase config for notifications'
+          )}
         </CollapseContent>
 
         <CollapseContent title={__('Common mail config')}>

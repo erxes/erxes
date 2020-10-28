@@ -143,6 +143,10 @@ const BarItems = styled.div`
     margin: 5px 0 5px ${dimensions.unitSpacing}px;
   }
 
+  .Select {
+    min-width: 200px;
+  }
+
   input[type='text'] {
     width: auto;
     display: inline-block;
@@ -501,7 +505,7 @@ const AuthDescription = styled.div`
     line-height: 1.4em;
     font-weight: 500;
   }
-  
+
   p {
     color: rgba(255, 255, 255, 0.7);
     margin-bottom: 50px;
@@ -527,43 +531,25 @@ const SectionContainer = styled.div`
   word-break: break-word;
 `;
 
-const SectionBody = styled.div`
-  i {
-    color: ${colors.colorCoreLightGray};
-
-    &:hover {
-      cursor: pointer;
-    }
-  }
-`;
-
 const SectionBodyItem = styled.div`
-  border-top: 1px solid ${colors.borderPrimary};
+  border-bottom: 1px solid ${colors.borderPrimary};
   word-break: break-word;
 
-  span {
+  > a {
     padding: 10px 20px;
-    display: inline-block;
+    display: flex;
     width: 100%;
-    padding-right: ${dimensions.coreSpacing}px;
-  }
+    color: ${colors.textSecondary};
 
-  a {
-    i {
-      padding: 10px 10px;
-      color: ${colors.colorCoreGray};
-      position: absolute;
-      font-size: 13px;
-      right: ${dimensions.coreSpacing}px;
-
-      &:hover {
-        cursor: pointer;
-      }
+    &:hover {
+      text-decoration: underline;
     }
   }
 
-  a {
-    font-size: 12px;
+  > span {
+    display: block;
+    padding: 0px 20px 10px 20px;
+    margin-top: -10px;
   }
 
   ul li {
@@ -652,7 +638,6 @@ export {
   AuthContent,
   AuthDescription,
   SectionContainer,
-  SectionBody,
   SectionBodyItem,
   MobileRecommend,
   FieldStyle,

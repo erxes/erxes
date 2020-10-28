@@ -66,6 +66,8 @@ class InternalNote extends React.Component<Props, { editing: boolean }> {
           isActionLoading={isLoading}
           content={content}
           callback={this.onEditing}
+          contentType="activityLog"
+          contentTypeId={internalNote._id}
         />
       );
     }

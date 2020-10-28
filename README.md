@@ -13,11 +13,11 @@
   <a href="https://codeclimate.com/github/erxes/erxes/maintainability">
       <img alt="Codeclimate Badge" src="https://api.codeclimate.com/v1/badges/693e2ffc40bc2601630d/maintainability">
   </a>
- 
+
    <a href="https://github.com/erxes/erxes/blob/master/LICENSE.md">
       <img alt="License Badge" src="https://img.shields.io/badge/license-GNU%20GPL%20v3.0-brightgreen">
   </a>
- 
+
   <a href="https://bettercodehub.com/results/erxes/erxes">
       <img alt="Bettercode" src="https://bettercodehub.com/edge/badge/erxes/erxes?branch=master">
   </a>
@@ -74,7 +74,7 @@ Follow these deployment instructions.
 
 Follow these deployment instructions.
 
-[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/docker-logo.png)](https://docs.erxes.io/installation/docker)
+[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/docker-logo.png)](https://www.erxes.org/installation/docker)
 
 ### Heroku
 
@@ -86,18 +86,16 @@ Host your own erxes server with One-Click Deploy.
 
 Launch an EC2 instance using erxes in the AWS Marketplace.
 
-[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/aws-logo.png)](https://aws.amazon.com/marketplace/pp/B086MZ9FVS/)
+[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/aws-logo.png)](https://www.erxes.org/installation/aws)
 
 ### DigitalOcean Droplet
 
 Deploy to a DigitalOcean droplet with our one-click install listing from the DigitalOcean Marketplace.
 
-[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/droplet.png)](https://marketplace.digitalocean.com/apps/erxes)
+[![debian](https://erxes-os.s3-us-west-2.amazonaws.com/github/droplet.png)](https://www.erxes.org/installation/digitalocean)
 
 ## Contributors
 
-This project exists thanks to all the people who contribute. [[Contribute]](CONTRIBUTING.md).
-<a href="graphs/contributors"><img src="https://opencollective.com/erxes/contributors.svg?width=890" /></a>
 
 ## Backers
 

@@ -41,7 +41,7 @@ const PostContainer = styled.div`
   }
 `;
 
-const DateTime = styled.span`
+const DateTime = styled.a`
   color: ${colors.colorCoreGray};
   font-size: ${typography.fontSizeHeading8}px;
   font-weight: normal;

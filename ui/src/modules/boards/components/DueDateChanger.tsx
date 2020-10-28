@@ -68,7 +68,7 @@ export const DateWrapper = styledTS<{ color: string; hasValue?: boolean }>(
 `;
 
 type IProps = {
-  onChange: ((value?: string | Date | null) => void);
+  onChange: (value?: string | Date | null) => void;
   value: Date;
   isWarned?: boolean;
 };

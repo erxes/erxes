@@ -13,64 +13,90 @@ import { ICustomer } from 'modules/customers/types';
 import { IConversation } from '../../../types';
 
 const ActionSection = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-Sidebar-ActionSection" */ 'modules/customers/containers/common/ActionSection')
+  import(
+    /* webpackChunkName:"Inbox-Sidebar-ActionSection" */ 'modules/customers/containers/common/ActionSection'
+  )
 );
 
 const CustomFieldsSection = asyncComponent(
   () =>
-    import(/* webpackChunkName:"Inbox-Sidebar-CustomFieldsSection" */ 'modules/customers/containers/common/CustomFieldsSection'),
+    import(
+      /* webpackChunkName:"Inbox-Sidebar-CustomFieldsSection" */ 'modules/customers/containers/common/CustomFieldsSection'
+    ),
   { height: '200px', width: '100%', color: '#fff' }
 );
 
 const PortableDeals = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-Sidebar-PortableDeals" */ 'modules/deals/components/PortableDeals')
+  import(
+    /* webpackChunkName:"Inbox-Sidebar-PortableDeals" */ 'modules/deals/components/PortableDeals'
+  )
 );
 
 const PortableTasks = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-Sidebar-PortableTasks" */ 'modules/tasks/components/PortableTasks')
+  import(
+    /* webpackChunkName:"Inbox-Sidebar-PortableTasks" */ 'modules/tasks/components/PortableTasks'
+  )
 );
 
 const PortableTickets = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-Sidebar-PortableTickets" */ 'modules/tickets/components/PortableTickets')
+  import(
+    /* webpackChunkName:"Inbox-Sidebar-PortableTickets" */ 'modules/tickets/components/PortableTickets'
+  )
 );
 
 const Contacts = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-Sidebar-Contacts" */ 'modules/companies/components/detail/Contacts')
+  import(
+    /* webpackChunkName:"Inbox-Sidebar-Contacts" */ 'modules/companies/components/detail/Contacts'
+  )
 );
 
 const DetailInfo = asyncComponent(
   () =>
-    import(/* webpackChunkName:"Inbox-Sidebar-InfoSection" */ 'modules/customers/components/common/DetailInfo'),
+    import(
+      /* webpackChunkName:"Inbox-Sidebar-InfoSection" */ 'modules/customers/components/common/DetailInfo'
+    ),
   { isBox: true }
 );
 
 const InfoSection = asyncComponent(
   () =>
-    import(/* webpackChunkName:"Inbox-Sidebar-InfoSection" */ 'modules/customers/components/common/InfoSection'),
+    import(
+      /* webpackChunkName:"Inbox-Sidebar-InfoSection" */ 'modules/customers/components/common/InfoSection'
+    ),
   { withImage: true }
 );
 
 const DevicePropertiesSection = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-Sidebar-DevicePropertiesSection" */ 'modules/customers/components/common/DevicePropertiesSection')
+  import(
+    /* webpackChunkName:"Inbox-Sidebar-DevicePropertiesSection" */ 'modules/customers/components/common/DevicePropertiesSection'
+  )
 );
 
 const TrackedDataSection = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-Sidebar-TrackedDataSection" */ 'modules/customers/components/common/TrackedDataSection')
+  import(
+    /* webpackChunkName:"Inbox-Sidebar-TrackedDataSection" */ 'modules/customers/components/common/TrackedDataSection'
+  )
 );
 
 const TaggerSection = asyncComponent(
   () =>
-    import(/* webpackChunkName:"Inbox-Sidebar-TaggerSection" */ 'modules/customers/components/common/TaggerSection'),
+    import(
+      /* webpackChunkName:"Inbox-Sidebar-TaggerSection" */ 'modules/customers/components/common/TaggerSection'
+    ),
   { height: '200px', width: '100%', color: '#fff' }
 );
 
 const SidebarActivity = asyncComponent(() =>
-  import(/* webpackChunkName:"Inbox-Sidebar-SidebarActivity" */ 'modules/inbox/containers/conversationDetail/SidebarActivity')
+  import(
+    /* webpackChunkName:"Inbox-Sidebar-SidebarActivity" */ 'modules/inbox/containers/conversationDetail/SidebarActivity'
+  )
 );
 
 const ConversationDetails = asyncComponent(
   () =>
-    import(/* webpackChunkName:"Inbox-Sidebar-ConversationDetails" */ './ConversationDetails'),
+    import(
+      /* webpackChunkName:"Inbox-Sidebar-ConversationDetails" */ './ConversationDetails'
+    ),
   { isBox: true }
 );
 

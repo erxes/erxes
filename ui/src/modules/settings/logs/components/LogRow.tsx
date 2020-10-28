@@ -9,7 +9,9 @@ import * as React from 'react';
 import { ILog } from '../types';
 
 const LogModalContainer = AsyncComponent(() =>
-  import(/* webpackChunkName: "LogModalContainer" */ '../containers/LogModalContainer')
+  import(
+    /* webpackChunkName: "LogModalContainer" */ '../containers/LogModalContainer'
+  )
 );
 
 type Props = {

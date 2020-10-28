@@ -85,7 +85,8 @@ const ManageColumnsContainer = (props: FinalProps) => {
             ? JSON.stringify(checkedConfigsForExport)
             : checkedConfigsForImport,
         type: contentType,
-        importType
+        importType,
+        fromHistory: true
       });
 
       window.open(`${REACT_APP_API_URL}${reqUrl}?${stringified}`, '_blank');
@@ -135,10 +136,11 @@ export default withProps<Props>(
       gql(queries.fieldsCombinedByContentType),
       {
         name: 'fieldsQuery',
-        options: ({ contentType }) => {
+        options: ({ contentType, type }) => {
           return {
             variables: {
               contentType: contentType === 'lead' ? 'customer' : contentType,
+              usageType: type,
               excludedNames: [
                 'state',
                 'avatar',

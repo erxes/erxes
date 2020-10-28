@@ -73,7 +73,7 @@ class Form extends React.Component<Props, State> {
   componentDidMount() {
     const { previewCount } = this.props;
     const { conditions, subOf } = this.state;
-    
+
     if (previewCount) {
       previewCount(conditions, subOf);
     }
@@ -225,9 +225,7 @@ class Form extends React.Component<Props, State> {
     const { conditions } = this.state;
 
     if (conditions.length === 0) {
-      return (
-        <EmptyContent content={EMPTY_NEW_SEGMENT_CONTENT} />
-      );
+      return <EmptyContent content={EMPTY_NEW_SEGMENT_CONTENT} />;
     }
 
     return (
@@ -346,7 +344,7 @@ class Form extends React.Component<Props, State> {
 
           <FormGroup>
             <ControlLabel>Color</ControlLabel>
-            <div>
+            <div id="segment-color">
               <OverlayTrigger
                 trigger="click"
                 rootClose={true}
@@ -363,7 +361,7 @@ class Form extends React.Component<Props, State> {
 
         {this.renderFilters()}
 
-        <ModalFooter>
+        <ModalFooter id="button-group">
           <Button.Group>
             {isForm && (
               <Link to={`/segments/${contentType}`}>
@@ -375,6 +373,7 @@ class Form extends React.Component<Props, State> {
 
             {previewCount && (
               <Button
+                id="segment-show-count"
                 uppercase={false}
                 icon="crosshairs"
                 onClick={onPreviewCount}
