@@ -39,6 +39,12 @@ describe('productQueries', () => {
           description
           sku
           createdAt
+          attachment {
+            name
+            url
+            type
+            size
+          }
         }
       }
     `;
