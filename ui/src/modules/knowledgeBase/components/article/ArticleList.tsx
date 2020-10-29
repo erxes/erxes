@@ -1,9 +1,11 @@
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import EmptyContent from 'modules/common/components/empty/EmptyContent';
+import Spinner from 'modules/common/components/Spinner';
 import { EMPTY_CONTENT_KNOWLEDGEBASE } from 'modules/settings/constants';
 import React from 'react';
 import { IArticle } from '../../types';
 import ArticleRow from './ArticleRow';
+import { RowArticle } from './styles';
 
 type Props = {
   articles: IArticle[];
@@ -15,6 +17,14 @@ type Props = {
 };
 
 class ArticleList extends React.Component<Props> {
+  renderLoading = () => {
+    return (
+      <RowArticle style={{ height: '115px'}}>
+        <Spinner />
+      </RowArticle>
+    )
+  }
+
   renderArticles() {
     const {
       articles,
@@ -49,6 +59,7 @@ class ArticleList extends React.Component<Props> {
             maxItemWidth="420px"
           />
         }
+        loadingContent={this.renderLoading()}
         data={this.renderArticles()}
       />
     );

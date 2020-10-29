@@ -12,6 +12,7 @@ type Props = {
   size?: string;
   objective?: boolean;
   emptyContent?: React.ReactNode;
+  loadingContent?: React.ReactNode;
 };
 
 class DataWithLoader extends React.Component<Props> {
@@ -33,10 +34,16 @@ class DataWithLoader extends React.Component<Props> {
       emptyText,
       size,
       objective,
-      emptyContent
+      emptyContent,
+      loadingContent
     } = this.props;
 
     if (loading) {
+
+      if (loadingContent) {
+        return loadingContent;
+      }
+
       return <Spinner objective={objective} />;
     }
 

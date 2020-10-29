@@ -441,6 +441,7 @@ class CustomersList extends React.Component<IProps, State> {
             <ModalTrigger
               title="Merge Customers"
               size="lg"
+              dialogClassName="modal-1000w"
               trigger={mergeButton}
               content={customersMerge}
             />

@@ -72,6 +72,7 @@ const SidebarContainer = (props: ChildProps<FinalProps>) => {
         refetchQueries={getRefetchQueries(queryParams, currentBrandId)}
         isSubmitted={isSubmitted}
         type="submit"
+        uppercase={false}
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
         } a ${name}`}
