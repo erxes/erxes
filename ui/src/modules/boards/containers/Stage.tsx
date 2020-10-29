@@ -2,7 +2,7 @@ import client from 'apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { queries } from 'modules/boards/graphql';
-import { Alert, confirm, withProps, __ } from 'modules/common/utils';
+import { __, Alert, confirm, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Stage from '../components/stage/Stage';
