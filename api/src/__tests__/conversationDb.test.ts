@@ -3,6 +3,7 @@ import {
   conversationMessageFactory,
   customerFactory,
   engageDataFactory,
+  engageMessageFactory,
   userFactory
 } from '../db/factories';
 import { ConversationMessages, Conversations, Users } from '../db/models';
@@ -534,5 +535,27 @@ describe('Conversation db', () => {
     const updated = await Conversations.findOne({ _id: conversation._id });
 
     expect(updated && updated.content).toBe('updated');
+  });
+
+  test('removeEngageConversations', async () => {
+    const engageMessage = await engageMessageFactory({});
+
+    const conversation = await conversationFactory({});
+
+    await conversationMessageFactory({
+      conversationId: conversation._id,
+      engageData: {
+        engageKind: engageMessage.kind,
+        messageId: engageMessage._id
+      }
+    });
+
+    await Conversations.removeEngageConversations(engageMessage._id);
+
+    const conversations = await Conversations.find();
+    const conversationMessages = await ConversationMessages.find();
+
+    expect(conversations.length).toBe(0);
+    expect(conversationMessages.length).toBe(0);
   });
 });

@@ -154,6 +154,8 @@ export const loadClass = () => {
         throw new Error('Can not remove manual message');
       }
 
+      Conversations.removeEngageConversations(_id);
+
       return message.remove();
     }
 

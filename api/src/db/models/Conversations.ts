@@ -1,5 +1,6 @@
 import { Model, model } from 'mongoose';
 import { ConversationMessages, Users } from '.';
+import { stream } from '../../data/bulkUtils';
 import { cleanHtml, sendToWebhook } from '../../data/utils';
 import { CONVERSATION_STATUSES } from './definitions/constants';
 import { IMessageDocument } from './definitions/conversationMessages';
@@ -62,6 +63,8 @@ export interface IConversationModel extends Model<IConversationDocument> {
     customerId: string[]
   ): Promise<{ n: number; ok: number }>;
   widgetsUnreadMessagesQuery(conversations: IConversationDocument[]): any;
+
+  removeEngageConversations(engageMessageId: string): any;
 
   resolveAllConversation(
     query: any,
@@ -340,6 +343,37 @@ export const loadClass = () => {
       });
 
       await Conversations.deleteMany({ _id: { $in: conversationIds } });
+    }
+
+    /**
+     * Remove engage conversations
+     */
+    public static async removeEngageConversations(engageMessageId: string) {
+      await stream(
+        async chunk => {
+          await ConversationMessages.deleteMany({
+            conversationId: { $in: chunk }
+          });
+          await Conversations.deleteMany({ _id: { $in: chunk } });
+        },
+        (variables, root) => {
+          const parentIds = variables.parentIds || [];
+
+          parentIds.push(root.conversationId);
+
+          variables.parentIds = parentIds;
+        },
+        () => {
+          return ConversationMessages.find(
+            {
+              engageData: { $exists: true, $ne: null },
+              'engageData.messageId': engageMessageId
+            },
+            { conversationId: 1, _id: 0 }
+          ) as any;
+        },
+        3000
+      );
     }
 
     public static widgetsUnreadMessagesQuery(
