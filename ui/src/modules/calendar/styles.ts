@@ -2,17 +2,6 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { colors } from '../common/styles';
 
-const CalendarContainer = styled.div`
-  background: ${colors.bgLight};
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  overflow-y: hidden;
-  outline: none;
-`;
-
 const CalendarWrapper = styled.div`
   z-index: auto;
   opacity: 1;
@@ -139,6 +128,13 @@ const Day = styledTS<{ isSelectedDate?: boolean }>(styled.h2)`
 
 const DayRow = styled.div`
   border-bottom: #dadce0 1px solid;
+  display: flex;
+
+  ${Header} {
+    flex: 1 1 0%;
+    height: 40px;
+    border-bottom: none;
+  }
 
   span {
     border-right: #dadce0 1px solid;
@@ -204,8 +200,21 @@ const EventContent = styled.div`
   }
 `;
 
+const HourRow = styled.div`
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  flex: 1 1 0%;
+`;
+
+const HourCol = styled.div`
+  border-right: #dadce0 1px solid;
+  -webkit-box-flex: 1 1 0%;
+  -webkit-flex: 1 1 0%;
+  flex: 1 1 0%;
+`;
+
 export {
-  CalendarContainer,
   CalendarWrapper,
   Grid,
   Header,
@@ -222,5 +231,7 @@ export {
   EventContainer,
   EventTitle,
   EventContent,
-  CalendarController
+  CalendarController,
+  HourCol,
+  HourRow
 };

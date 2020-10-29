@@ -3,6 +3,8 @@ import React from 'react';
 import Event from '../containers/Event';
 import LeftSidebar from '../containers/Sidebar';
 import { MainContainer } from '../styles';
+import { TYPES } from '../constants';
+import { generateFilters } from '../utils';
 
 type Props = {
   integrationId?: string;
@@ -21,7 +23,7 @@ class Calendar extends React.Component<Props, State> {
 
     this.state = {
       currentDate: new Date(),
-      type: 'month'
+      type: TYPES.MONTH
     };
   }
 
@@ -59,6 +61,7 @@ class Calendar extends React.Component<Props, State> {
           <>
             <MainContainer>
               <Event
+                {...generateFilters(currentDate, type)}
                 type={type}
                 currentDate={currentDate}
                 integrationId={integrationId}

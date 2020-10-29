@@ -15,6 +15,8 @@ type Props = {
   currentDate: Date;
   integrationId: string;
   queryParams: any;
+  startTime: Date;
+  endTime: Date;
 };
 
 type FinalProps = {
@@ -23,7 +25,13 @@ type FinalProps = {
 
 class EventContainer extends React.Component<FinalProps, {}> {
   render() {
-    const { fetchApiQuery } = this.props;
+    const {
+      fetchApiQuery,
+      queryParams,
+      integrationId,
+      startTime,
+      endTime
+    } = this.props;
 
     if (fetchApiQuery.loading) {
       return <Spinner objective={true} />;
@@ -34,6 +42,14 @@ class EventContainer extends React.Component<FinalProps, {}> {
         <span style={{ color: 'red' }}>Integrations api is not running</span>
       );
     }
+
+    const refetchQuery = {
+      query: gql(queries.fetchApi),
+      variables: {
+        path: '/nylas/get-events',
+        params: { ...queryParams, startTime, endTime }
+      }
+    };
 
     const renderButton = ({
       values,
@@ -48,7 +64,7 @@ class EventContainer extends React.Component<FinalProps, {}> {
 
       const variables = {
         ...values,
-        erxesApiId: 'Ktweaku7bddymm8wJ',
+        erxesApiId: integrationId,
         calendarId: 'qwtn6h7tl37ns3yoqquwld04'
       };
 
@@ -57,7 +73,7 @@ class EventContainer extends React.Component<FinalProps, {}> {
           mutation={mutations.createEvent}
           variables={variables}
           callback={callBackResponse}
-          refetchQueries={['fetchApiQuery']}
+          refetchQueries={[refetchQuery]}
           isSubmitted={isSubmitted}
           btnSize="small"
           type="submit"
@@ -80,23 +96,12 @@ export default withProps<Props>(
   compose(
     graphql<Props, any>(gql(queries.fetchApi), {
       name: 'fetchApiQuery',
-      options: ({ currentDate, type, queryParams }) => {
-        let startTime = new Date();
-        let endTime = new Date();
-
-        if (type === 'month') {
-          const year = currentDate.getFullYear();
-          const month = currentDate.getMonth();
-
-          startTime = new Date(year, month, 1);
-          endTime = new Date(year, month + 1, 0);
-        }
-
+      options: ({ startTime, endTime, queryParams }) => {
         return {
           variables: {
             path: '/nylas/get-events',
             params: {
-              calendarIds: queryParams.calendarIds,
+              ...queryParams,
               startTime,
               endTime
             }

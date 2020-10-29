@@ -9,8 +9,10 @@ import { router } from 'modules/common/utils';
 import Sidebar from 'modules/layout/components/Sidebar';
 import React from 'react';
 import Select from 'react-select-plus';
+import { TYPES } from '../constants';
 import { CalendarController, SidebarWrapper } from '../styles';
 import { ICalendar } from '../types';
+import { extractDate } from '../utils';
 
 type Props = {
   dateOnChange: (date: string | Date | undefined) => void;
@@ -54,15 +56,24 @@ class LeftSidebar extends React.Component<Props, State> {
 
   onChange = (increment: boolean) => {
     const { currentDate, type, dateOnChange } = this.props;
+    const { month, year, date } = extractDate(currentDate);
 
-    let date: any = currentDate;
+    let day: Date = currentDate;
+    const inc = increment ? 1 : -1;
 
-    if (type === 'month') {
-      const month = currentDate.getMonth();
-      date = dayjs(currentDate).set('month', increment ? month + 1 : month - 1);
+    if (type === TYPES.DAY) {
+      day = new Date(year, month, date + inc);
     }
 
-    dateOnChange(new Date(date));
+    if (type === TYPES.WEEK) {
+      day = new Date(year, month, date + inc * 7);
+    }
+
+    if (type === TYPES.MONTH) {
+      day = new Date(year, month + inc);
+    }
+
+    dateOnChange(day);
   };
 
   toggleCheckbox = (calendarId, e: React.FormEvent<HTMLElement>) => {
@@ -116,7 +127,7 @@ class LeftSidebar extends React.Component<Props, State> {
               isRequired={true}
               value={type}
               onChange={typeOnChange}
-              options={this.renderOptions(['day', 'week', 'month'])}
+              options={this.renderOptions(TYPES.all)}
               clearable={false}
             />
           </FormGroup>

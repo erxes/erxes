@@ -4,7 +4,6 @@ import ModalTrigger from 'modules/common/components/ModalTrigger';
 import { IButtonMutateProps } from 'modules/common/types';
 import React from 'react';
 import {
-  CalendarContainer,
   CalendarWrapper,
   Cell,
   ColumnHeader,
@@ -18,15 +17,20 @@ import {
   Header,
   Presentation,
   Row,
-  RowWrapper
+  RowWrapper,
+  HourCol,
+  HourRow
 } from '../styles';
 import { IEvent } from '../types';
+import { getDaysInMonth, milliseconds, extractDate } from '../utils';
 import AddForm from './AddForm';
+import { TYPES, WEEKS } from '../constants';
 
 type Props = {
   currentDate: Date;
   type: string;
   events: IEvent[];
+  startTime: Date;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
@@ -50,48 +54,21 @@ class Event extends React.Component<Props, State> {
     });
   };
 
-  getDaysInMonth = (month: number, year: number) => {
-    const date = new Date(year, month, 1);
-    const rows: Date[][] = [];
-    let days: Date[] = [];
-    const dayOfWeek = date.getDay();
-
-    if (dayOfWeek !== 0) {
-      for (let i = dayOfWeek - 1; i >= 0; i--) {
-        days.push(new Date(year, month, i * -1));
-      }
-    }
-
-    while (date.getMonth() === month) {
-      days.push(new Date(date));
-      date.setDate(date.getDate() + 1);
-
-      if (date.getDay() === 0) {
-        rows.push(days);
-        days = [];
-      }
-    }
-
-    if (days.length !== 0) {
-      for (let i = 1; days.length < 7; i++) {
-        days.push(new Date(year, month + 1, i));
-      }
-
-      rows.push(days);
-    }
-
-    return rows;
-  };
-
-  renderHeader = () => {
-    const weeks = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  renderHeader = (startTime?: Date) => {
+    const dt = startTime && extractDate(startTime);
 
     return (
       <Header>
-        {weeks.map(week => {
+        {WEEKS.map((week, index) => {
           return (
             <ColumnHeader key={week}>
-              <span>{week}</span>
+              {week}
+              {dt && (
+                <>
+                  <br />
+                  {new Date(dt.year, dt.month, dt.date + index).getDate()}
+                </>
+              )}
             </ColumnHeader>
           );
         })}
@@ -108,10 +85,6 @@ class Event extends React.Component<Props, State> {
         event.when.start_time > second &&
         event.when.end_time < second + oneDay
     );
-
-    const milliseconds = (sec: number) => {
-      return sec * 1000;
-    };
 
     const currentDate = this.props.currentDate;
     const isSelectedDate =
@@ -177,67 +150,89 @@ class Event extends React.Component<Props, State> {
     );
   };
 
-  render() {
-    const { currentDate, type, renderButton } = this.props;
-
-    const rows = this.getDaysInMonth(
-      currentDate.getMonth(),
-      currentDate.getFullYear()
-    );
-
+  generateDayData = () => {
     const data: any = [];
 
-    for (let i = 0; i < 24; i++) {
+    for (let h = 0; h < 24; h++) {
       data.push(
-        <DayRow key={i}>
-          <span>{i.toString().length === 1 ? `0${i}` : i}</span>
+        <DayRow key={h}>
+          <span>{h.toString().length === 1 ? `0${h}` : h}</span>
         </DayRow>
       );
     }
 
-    if (type === 'day') {
+    return data;
+  };
+
+  generateWeekData = () => {
+    const data: any = [];
+
+    for (let h = 0; h < 24; h++) {
+      data.push(
+        <DayRow key={h}>
+          <span>{h.toString().length === 1 ? `0${h}` : h}</span>
+          <HourRow>
+            {WEEKS.map((week, index) => {
+              return <HourCol key={`week_${index}_${h}`}>&nbsp;</HourCol>;
+            })}
+          </HourRow>
+        </DayRow>
+      );
+    }
+
+    return data;
+  };
+
+  render() {
+    const { startTime, currentDate, type, renderButton } = this.props;
+    const { month, year } = extractDate(currentDate);
+
+    const rows = getDaysInMonth(month, year);
+
+    if (type === TYPES.DAY) {
       return (
         <>
           <DayHeader>{dayjs(currentDate).format('MMM D')}</DayHeader>
-          {data}
+          {this.generateDayData()}
         </>
       );
     }
 
-    if (type === 'week') {
+    if (type === TYPES.WEEK) {
       return (
         <div>
-          {this.renderHeader()}
-          {data}
+          <DayRow>
+            <span>&nbsp;</span>
+            {this.renderHeader(startTime)}
+          </DayRow>
+          {this.generateWeekData()}
         </div>
       );
     }
 
     return (
-      <CalendarContainer>
-        <CalendarWrapper>
-          <Grid>
-            {this.renderHeader()}
-            <Presentation>
-              {rows.map((days, index) => (
-                <Row key={index}>
-                  <RowWrapper>
-                    {days.map((day, dayIndex) => (
-                      <Cell key={dayIndex}>{this.renderContent(day)}</Cell>
-                    ))}
-                  </RowWrapper>
-                </Row>
-              ))}
-            </Presentation>
-          </Grid>
-        </CalendarWrapper>
+      <CalendarWrapper>
+        <Grid>
+          {this.renderHeader()}
+          <Presentation>
+            {rows.map((days, index) => (
+              <Row key={index}>
+                <RowWrapper>
+                  {days.map((day, dayIndex) => (
+                    <Cell key={dayIndex}>{this.renderContent(day)}</Cell>
+                  ))}
+                </RowWrapper>
+              </Row>
+            ))}
+          </Presentation>
+        </Grid>
         <AddForm
           isPopupVisible={this.state.isPopupVisible}
           onHideModal={this.onHideModal}
           renderButton={renderButton}
           selectedDate={this.state.selectedDate}
         />
-      </CalendarContainer>
+      </CalendarWrapper>
     );
   }
 }
