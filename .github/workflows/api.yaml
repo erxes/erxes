@@ -6,11 +6,7 @@ on:
       - "**"
     paths:
       - "api/**"
-      - "!.github/**"
       - ".github/workflows/api.yaml"
-      - "!**.md"
-      - "!api/base.Dockerfile"
-      - "!api/base.Dockerfile.dockerignore"
   pull_request:
     branches:
       - master
@@ -19,11 +15,7 @@ on:
       - workers
     paths:
       - "api/**"
-      - "!.github/**"
       - ".github/workflows/api.yaml"
-      - "!api/**.md"
-      - "!api/base.Dockerfile"
-      - "!api/base.Dockerfile.dockerignore"
 
 jobs:
   api:
@@ -52,7 +44,7 @@ jobs:
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-api-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-yarn-api-${{ hashFiles('yarn.lock', 'api/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-api-
             ${{ runner.os }}-yarn-
