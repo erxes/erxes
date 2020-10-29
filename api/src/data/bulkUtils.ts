@@ -10,10 +10,14 @@ export const stream = (
   const variables: any = {};
 
   const onFinishPiping = async () => {
-    const chunks = chunkArray(variables.parentIds, chunkSize);
+    if (variables.parentIds) {
+      const chunks = chunkArray(variables.parentIds, chunkSize);
 
-    for (const chunk of chunks) {
-      executeChunk(chunk);
+      if (chunks.length) {
+        for (const chunk of chunks) {
+          executeChunk(chunk);
+        }
+      }
     }
   };
 
@@ -22,6 +26,7 @@ export const stream = (
 
     transform(root, _encoding, callback) {
       transformCallback(variables, root);
+
       callback();
     }
   });
