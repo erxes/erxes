@@ -18,10 +18,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Use Node.js 12.18.x
+    - name: Use Node.js 12.19.x
       uses: actions/setup-node@v1
       with:
-        node-version: 12.18.x
+        node-version: 12.19.x
 
     - name: Get release version
       id: get_release_version
