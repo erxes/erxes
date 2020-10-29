@@ -538,8 +538,7 @@ describe('Conversation db', () => {
   });
 
   test('removeEngageConversations', async () => {
-    const engageMessage = await engageMessageFactory({});
-
+    const engageMessage = await engageMessageFactory({ kind: 'visitorAuto' });
     const conversation = await conversationFactory({});
 
     await conversationMessageFactory({
@@ -552,10 +551,8 @@ describe('Conversation db', () => {
 
     await Conversations.removeEngageConversations(engageMessage._id);
 
-    const conversations = await Conversations.find();
-    const conversationMessages = await ConversationMessages.find();
-
-    expect(conversations.length).toBe(0);
-    expect(conversationMessages.length).toBe(0);
+    expect(
+      await ConversationMessages.find({ conversationId: conversation._id })
+    ).toHaveLength(0);
   });
 });
