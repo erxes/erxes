@@ -1,11 +1,22 @@
+import { IRouterProps } from 'modules/common/types';
+import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
-import Main from './components/Calendar';
+import Calendar from './containers/Calendar';
+
+const main = (props: IRouterProps) => {
+  return (
+    <Calendar
+      history={props.history}
+      queryParams={queryString.parse(props.location.search)}
+    />
+  );
+};
 
 const routes = () => {
   return (
     <React.Fragment>
-      <Route path="/calendar" exact={true} key="/calendar" component={Main} />
+      <Route path="/calendar" exact={true} key="/calendar" render={main} />
     </React.Fragment>
   );
 };

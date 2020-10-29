@@ -13,6 +13,8 @@ import { mutations } from '../graphql';
 type Props = {
   type: string;
   currentDate: Date;
+  integrationId: string;
+  queryParams: any;
 };
 
 type FinalProps = {
@@ -64,11 +66,9 @@ class EventContainer extends React.Component<FinalProps, {}> {
       );
     };
 
-    const monthEvents = fetchApiQuery.integrationsFetchApi || [];
-
     const updatedProps = {
       ...this.props,
-      events: monthEvents,
+      events: fetchApiQuery.integrationsFetchApi || [],
       renderButton
     };
 
@@ -80,7 +80,7 @@ export default withProps<Props>(
   compose(
     graphql<Props, any>(gql(queries.fetchApi), {
       name: 'fetchApiQuery',
-      options: ({ currentDate, type }) => {
+      options: ({ currentDate, type, queryParams }) => {
         let startTime = new Date();
         let endTime = new Date();
 
@@ -96,7 +96,7 @@ export default withProps<Props>(
           variables: {
             path: '/nylas/get-events',
             params: {
-              calendarId: 'qwtn6h7tl37ns3yoqquwld04',
+              calendarIds: queryParams.calendarIds,
               startTime,
               endTime
             }

@@ -20,12 +20,13 @@ import {
   Row,
   RowWrapper
 } from '../styles';
+import { IEvent } from '../types';
 import AddForm from './AddForm';
 
 type Props = {
   currentDate: Date;
   type: string;
-  events: any[];
+  events: IEvent[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
@@ -147,9 +148,11 @@ class Event extends React.Component<Props, State> {
                 {event.description && (
                   <>
                     <br /> <Icon icon="book" />
+                    <div
+                      dangerouslySetInnerHTML={{ __html: event.description }}
+                    />
                   </>
                 )}
-                <div dangerouslySetInnerHTML={{ __html: event.description }} />
               </EventContent>
             );
           };
@@ -157,7 +160,7 @@ class Event extends React.Component<Props, State> {
           return (
             <EventContainer key={index}>
               <ModalTrigger
-                title={event.title}
+                title={event.title || ''}
                 trigger={
                   <EventTitle>
                     <Icon icon="check-circle" />

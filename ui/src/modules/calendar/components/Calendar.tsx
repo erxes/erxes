@@ -1,15 +1,21 @@
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import Event from '../containers/Event';
+import LeftSidebar from '../containers/Sidebar';
 import { MainContainer } from '../styles';
-import LeftSidebar from './LeftSidebar';
+
+type Props = {
+  integrationId?: string;
+  history: any;
+  queryParams: any;
+};
 
 type State = {
   currentDate: Date;
   type: string;
 };
 
-class Calendar extends React.Component<{}, State> {
+class Calendar extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -29,6 +35,11 @@ class Calendar extends React.Component<{}, State> {
 
   render() {
     const { type, currentDate } = this.state;
+    const { integrationId, history, queryParams } = this.props;
+
+    if (!integrationId) {
+      return <div>Connect calendar</div>;
+    }
 
     return (
       <Wrapper
@@ -39,12 +50,20 @@ class Calendar extends React.Component<{}, State> {
             currentDate={currentDate}
             typeOnChange={this.typeOnChange}
             type={type}
+            integrationId={integrationId}
+            history={history}
+            queryParams={queryParams}
           />
         }
         content={
           <>
             <MainContainer>
-              <Event type={type} currentDate={currentDate} />
+              <Event
+                type={type}
+                currentDate={currentDate}
+                integrationId={integrationId}
+                queryParams={queryParams}
+              />
             </MainContainer>
           </>
         }

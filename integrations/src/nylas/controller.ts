@@ -183,9 +183,17 @@ export const initNylas = async app => {
   });
 
   app.get('/nylas/get-calendars', async (req, res, next) => {
-    const { accountUid } = req.query;
+    const { erxesApiId } = req.query;
 
     try {
+      const nylasIntegration = await Integrations.findOne({ erxesApiId });
+
+      if (!nylasIntegration) {
+        throw new Error('Integration not found');
+      }
+
+      const accountUid = nylasIntegration.nylasAccountId;
+
       debugNylas(`Get calendars with accountUid: $${accountUid}`);
 
       const calendars = await NylasCalendars.find({ accountUid });
@@ -201,17 +209,17 @@ export const initNylas = async app => {
   });
 
   app.get('/nylas/get-events', async (req, res, next) => {
-    const { calendarId, startTime, endTime } = req.query;
+    const { calendarIds, startTime, endTime } = req.query;
 
     const getTime = (date: string) => {
       return new Date(date).getTime() / 1000;
     };
 
     try {
-      debugNylas(`Get events with calendarId: ${calendarId}`);
+      debugNylas(`Get events with calendarIds: ${calendarIds}`);
 
       const events = await NylasEvent.find({
-        providerCalendarId: calendarId,
+        providerCalendarId: { $in: calendarIds && calendarIds.split(',') },
         $and: [{ 'when.start_time': { $gte: getTime(startTime) } }, { 'when.end_time': { $lte: getTime(endTime) } }],
       });
 
