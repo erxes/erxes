@@ -36,9 +36,9 @@ jobs:
       uses: actions/cache@v1
       with:
         path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-        key: ${{ runner.os }}-yarn-docs-${{ hashFiles('docs/**/yarn.lock') }}
+        key: ${{ runner.os }}-yarn-docs-${{ hashFiles('docs/yarn.lock') }}
         restore-keys: |
-          ${{ runner.os }}-yarn-docs-${{ hashFiles('docs/**/yarn.lock') }}
+          ${{ runner.os }}-yarn-docs-${{ hashFiles('docs/yarn.lock') }}
           ${{ runner.os }}-yarn-docs-
           ${{ runner.os }}-yarn-
 
@@ -71,9 +71,9 @@ jobs:
       uses: actions/cache@v1
       with:
         path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-        key: ${{ runner.os }}-yarn-docs-${{ hashFiles('docs/**/yarn.lock') }}
+        key: ${{ runner.os }}-yarn-docs-${{ hashFiles('docs/yarn.lock') }}
         restore-keys: |
-          ${{ runner.os }}-yarn-docs-${{ hashFiles('docs/**/yarn.lock') }}
+          ${{ runner.os }}-yarn-docs-${{ hashFiles('docs/yarn.lock') }}
           ${{ runner.os }}-yarn-docs-
           ${{ runner.os }}-yarn-
 
