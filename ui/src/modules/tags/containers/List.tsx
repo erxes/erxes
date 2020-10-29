@@ -22,7 +22,8 @@ const ListContainer = (props: FinalProps) => {
   const { tagsQuery, removeMutation, type } = props;
 
   const remove = tag => {
-    confirm().then(() => {
+    confirm()
+      .then(() => {
       removeMutation({ variables: { ids: [tag._id] } })
         .then(() => {
           Alert.success('You successfully deleted a tag');
@@ -31,6 +32,9 @@ const ListContainer = (props: FinalProps) => {
         .catch(e => {
           Alert.error(e.message);
         });
+    })
+    .catch(e => {
+      Alert.error(e.message);
     });
   };
 
