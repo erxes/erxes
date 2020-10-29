@@ -5,11 +5,15 @@ import {
   pipelineFactory,
   pipelineLabelFactory,
   stageFactory,
-  userFactory,
+  userFactory
 } from '../db/factories';
 import { Boards, Deals, Pipelines, Stages } from '../db/models';
 import { getItem } from '../db/models/boardUtils';
-import { IBoardDocument, IPipelineDocument, IStageDocument } from '../db/models/definitions/boards';
+import {
+  IBoardDocument,
+  IPipelineDocument,
+  IStageDocument
+} from '../db/models/definitions/boards';
 import { IDealDocument } from '../db/models/definitions/deals';
 import { IPipelineLabelDocument } from '../db/models/definitions/pipelineLabels';
 import { IUserDocument } from '../db/models/definitions/users';
@@ -40,7 +44,7 @@ describe('Test deals model', () => {
       modifiedBy: user._id,
       labelIds: [label._id],
       assignedUserIds: [user._id],
-      watchedUserIds: [secondUser._id],
+      watchedUserIds: [secondUser._id]
     });
   });
 
@@ -79,7 +83,7 @@ describe('Test deals model', () => {
   test('Create deal', async () => {
     const args = {
       stageId: deal.stageId,
-      userId: user._id,
+      userId: user._id
     };
 
     const createdDeal = await Deals.createDeal(args);
@@ -95,7 +99,7 @@ describe('Test deals model', () => {
     const args = {
       stageId: deal.stageId,
       userId: user._id,
-      sourceConversationId: conversation._id,
+      sourceConversationId: conversation._id
     };
 
     const createdDeal = await Deals.createDeal(args);
@@ -113,7 +117,7 @@ describe('Test deals model', () => {
   test('Update deal', async () => {
     const dealStageId = 'fakeId';
     const updatedDeal = await Deals.updateDeal(deal._id, {
-      stageId: dealStageId,
+      stageId: dealStageId
     });
 
     expect(updatedDeal).toBeDefined();

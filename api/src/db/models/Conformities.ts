@@ -8,29 +8,39 @@ import {
   IConformityFilter,
   IConformityRelated,
   IConformityRemove,
-  IConformitySaved,
+  IConformitySaved
 } from './definitions/conformities';
 
-const getSavedAnyConformityMatch = ({ mainType, mainTypeId }: { mainType: string; mainTypeId: string }) => {
+const getSavedAnyConformityMatch = ({
+  mainType,
+  mainTypeId
+}: {
+  mainType: string;
+  mainTypeId: string;
+}) => {
   return {
     $or: [
       {
-        $and: [{ mainType }, { mainTypeId }],
+        $and: [{ mainType }, { mainTypeId }]
       },
       {
-        $and: [{ relType: mainType }, { relTypeId: mainTypeId }],
-      },
-    ],
+        $and: [{ relType: mainType }, { relTypeId: mainTypeId }]
+      }
+    ]
   };
 };
 
-const getProjectCondition = (mainType: string, mainVar: string, relVar: string) => {
+const getProjectCondition = (
+  mainType: string,
+  mainVar: string,
+  relVar: string
+) => {
   return {
     $cond: {
       if: { $eq: ['$mainType', mainType] },
       then: '$'.concat(relVar),
-      else: '$'.concat(mainVar),
-    },
+      else: '$'.concat(mainVar)
+    }
   };
 };
 
@@ -58,18 +68,22 @@ export const loadConformityClass = () => {
       const oldRelTypeIds = await Conformity.savedConformity({
         mainType: doc.mainType,
         mainTypeId: doc.mainTypeId,
-        relTypes: [doc.relType],
+        relTypes: [doc.relType]
       });
 
-      const removedTypeIds = oldRelTypeIds.filter(e => !newRelTypeIds.includes(e));
-      const addedTypeIds = newRelTypeIds.filter(e => !oldRelTypeIds.includes(e));
+      const removedTypeIds = oldRelTypeIds.filter(
+        e => !newRelTypeIds.includes(e)
+      );
+      const addedTypeIds = newRelTypeIds.filter(
+        e => !oldRelTypeIds.includes(e)
+      );
 
       // insert on new relTypeIds
       const insertTypes = await addedTypeIds.map(relTypeId => ({
         mainType: doc.mainType,
         mainTypeId: doc.mainTypeId,
         relType: doc.relType,
-        relTypeId,
+        relTypeId
       }));
       await Conformities.insertMany(insertTypes);
 
@@ -81,18 +95,18 @@ export const loadConformityClass = () => {
               { mainType: doc.mainType },
               { mainTypeId: doc.mainTypeId },
               { relType: doc.relType },
-              { relTypeId: { $in: removedTypeIds } },
-            ],
+              { relTypeId: { $in: removedTypeIds } }
+            ]
           },
           {
             $and: [
               { mainType: doc.relType },
               { mainTypeId: { $in: removedTypeIds } },
               { relType: doc.mainType },
-              { relTypeId: doc.mainTypeId },
-            ],
-          },
-        ],
+              { relTypeId: doc.mainTypeId }
+            ]
+          }
+        ]
       });
 
       return;
@@ -106,19 +120,31 @@ export const loadConformityClass = () => {
           $match: {
             $or: [
               {
-                $and: [{ mainType: doc.mainType }, { mainTypeId: doc.mainTypeId }, { relType: { $in: relTypes } }],
+                $and: [
+                  { mainType: doc.mainType },
+                  { mainTypeId: doc.mainTypeId },
+                  { relType: { $in: relTypes } }
+                ]
               },
               {
-                $and: [{ mainType: { $in: relTypes } }, { relType: doc.mainType }, { relTypeId: doc.mainTypeId }],
-              },
-            ],
-          },
+                $and: [
+                  { mainType: { $in: relTypes } },
+                  { relType: doc.mainType },
+                  { relTypeId: doc.mainTypeId }
+                ]
+              }
+            ]
+          }
         },
         {
           $project: {
-            relTypeId: getProjectCondition(doc.mainType, 'mainTypeId', 'relTypeId'),
-          },
-        },
+            relTypeId: getProjectCondition(
+              doc.mainType,
+              'mainTypeId',
+              'relTypeId'
+            )
+          }
+        }
       ]);
 
       return relTypeIds.map(item => String(item.relTypeId));
@@ -126,13 +152,20 @@ export const loadConformityClass = () => {
 
     public static async changeConformity(doc: IConformityChange) {
       await Conformities.updateMany(
-        { $and: [{ mainType: doc.type }, { mainTypeId: { $in: doc.oldTypeIds } }] },
-        { $set: { mainTypeId: doc.newTypeId } },
+        {
+          $and: [
+            { mainType: doc.type },
+            { mainTypeId: { $in: doc.oldTypeIds } }
+          ]
+        },
+        { $set: { mainTypeId: doc.newTypeId } }
       );
 
       await Conformities.updateMany(
-        { $and: [{ relType: doc.type }, { relTypeId: { $in: doc.oldTypeIds } }] },
-        { $set: { relTypeId: doc.newTypeId } },
+        {
+          $and: [{ relType: doc.type }, { relTypeId: { $in: doc.oldTypeIds } }]
+        },
+        { $set: { relTypeId: doc.newTypeId } }
       );
     }
 
@@ -142,19 +175,31 @@ export const loadConformityClass = () => {
           $match: {
             $or: [
               {
-                $and: [{ mainType: doc.mainType }, { mainTypeId: { $in: doc.mainTypeIds } }, { relType: doc.relType }],
+                $and: [
+                  { mainType: doc.mainType },
+                  { mainTypeId: { $in: doc.mainTypeIds } },
+                  { relType: doc.relType }
+                ]
               },
               {
-                $and: [{ mainType: doc.relType }, { relType: doc.mainType }, { relTypeId: { $in: doc.mainTypeIds } }],
-              },
-            ],
-          },
+                $and: [
+                  { mainType: doc.relType },
+                  { relType: doc.mainType },
+                  { relTypeId: { $in: doc.mainTypeIds } }
+                ]
+              }
+            ]
+          }
         },
         {
           $project: {
-            relTypeId: getProjectCondition(doc.mainType, 'mainTypeId', 'relTypeId'),
-          },
-        },
+            relTypeId: getProjectCondition(
+              doc.mainType,
+              'mainTypeId',
+              'relTypeId'
+            )
+          }
+        }
       ]);
 
       return relTypeIds.map(item => String(item.relTypeId));
@@ -163,20 +208,30 @@ export const loadConformityClass = () => {
     public static async relatedConformity(doc: IConformityRelated) {
       const match = getSavedAnyConformityMatch({
         mainType: doc.mainType,
-        mainTypeId: doc.mainTypeId,
+        mainTypeId: doc.mainTypeId
       });
 
       const savedRelatedObjects = await Conformities.aggregate([
         { $match: match },
         {
           $project: {
-            savedRelType: getProjectCondition(doc.mainType, 'mainType', 'relType'),
-            savedRelTypeId: getProjectCondition(doc.mainType, 'mainTypeId', 'relTypeId'),
-          },
-        },
+            savedRelType: getProjectCondition(
+              doc.mainType,
+              'mainType',
+              'relType'
+            ),
+            savedRelTypeId: getProjectCondition(
+              doc.mainType,
+              'mainTypeId',
+              'relTypeId'
+            )
+          }
+        }
       ]);
 
-      const savedList = savedRelatedObjects.map(item => item.savedRelType + '-' + item.savedRelTypeId);
+      const savedList = savedRelatedObjects.map(
+        item => item.savedRelType + '-' + item.savedRelTypeId
+      );
 
       const relTypeIds = await Conformities.aggregate([
         {
@@ -186,26 +241,36 @@ export const loadConformityClass = () => {
             relType: 1,
             relTypeId: 1,
             mainStr: { $concat: ['$mainType', '-', '$mainTypeId'] },
-            relStr: { $concat: ['$relType', '-', '$relTypeId'] },
-          },
+            relStr: { $concat: ['$relType', '-', '$relTypeId'] }
+          }
         },
         {
           $match: {
             $or: [
               {
-                $and: [{ mainType: doc.relType }, { relStr: { $in: savedList } }],
+                $and: [
+                  { mainType: doc.relType },
+                  { relStr: { $in: savedList } }
+                ]
               },
               {
-                $and: [{ relType: doc.relType }, { mainStr: { $in: savedList } }],
-              },
-            ],
-          },
+                $and: [
+                  { relType: doc.relType },
+                  { mainStr: { $in: savedList } }
+                ]
+              }
+            ]
+          }
         },
         {
           $project: {
-            relTypeId: getProjectCondition(doc.relType || '', 'relTypeId', 'mainTypeId'),
-          },
-        },
+            relTypeId: getProjectCondition(
+              doc.relType || '',
+              'relTypeId',
+              'mainTypeId'
+            )
+          }
+        }
       ]);
 
       return relTypeIds.map(item => item.relTypeId);
@@ -217,7 +282,7 @@ export const loadConformityClass = () => {
     public static async removeConformity(doc: IConformityRemove) {
       const match = getSavedAnyConformityMatch({
         mainType: doc.mainType,
-        mainTypeId: doc.mainTypeId,
+        mainTypeId: doc.mainTypeId
       });
 
       await Conformities.deleteMany(match);
@@ -231,6 +296,9 @@ export const loadConformityClass = () => {
 loadConformityClass();
 
 // tslint:disable-next-line
-const Conformities = model<IConformityDocument, IConformityModel>('conformity', conformitySchema);
+const Conformities = model<IConformityDocument, IConformityModel>(
+  'conformity',
+  conformitySchema
+);
 
 export default Conformities;

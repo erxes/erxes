@@ -21,9 +21,9 @@ const segmentMutations = {
       {
         type: MODULE_NAMES.SEGMENT,
         newData: doc,
-        object: segment,
+        object: segment
       },
-      user,
+      user
     );
 
     return segment;
@@ -32,7 +32,11 @@ const segmentMutations = {
   /**
    * Update segment
    */
-  async segmentsEdit(_root, { _id, ...doc }: ISegmentsEdit, { user }: IContext) {
+  async segmentsEdit(
+    _root,
+    { _id, ...doc }: ISegmentsEdit,
+    { user }: IContext
+  ) {
     const segment = await Segments.getSegment(_id);
     const updated = await Segments.updateSegment(_id, doc);
 
@@ -41,9 +45,9 @@ const segmentMutations = {
         type: MODULE_NAMES.SEGMENT,
         object: segment,
         newData: doc,
-        updatedDocument: updated,
+        updatedDocument: updated
       },
-      user,
+      user
     );
 
     return updated;
@@ -59,7 +63,7 @@ const segmentMutations = {
     await putDeleteLog({ type: MODULE_NAMES.SEGMENT, object: segment }, user);
 
     return removed;
-  },
+  }
 };
 
 moduleCheckPermission(segmentMutations, 'manageSegments');

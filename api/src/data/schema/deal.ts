@@ -1,4 +1,10 @@
-import { commonDragParams, commonMutationParams, commonTypes, conformityQueryFields, copyParams } from './common';
+import {
+  commonDragParams,
+  commonMutationParams,
+  commonTypes,
+  conformityQueryFields,
+  copyParams
+} from './common';
 
 export const types = `
   type Deal {

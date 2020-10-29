@@ -4,7 +4,11 @@ import { debugNylas, debugRequest } from '../debuggers';
 import memoryStorage from '../inmemoryStorage';
 import { generateUid, sendRequest } from '../utils';
 import { checkCredentials } from './api';
-import { AUTHORIZED_REDIRECT_URL, GOOGLE_OAUTH_TOKEN_VALIDATION_URL, MICROSOFT_GRAPH_URL } from './constants';
+import {
+  AUTHORIZED_REDIRECT_URL,
+  GOOGLE_OAUTH_TOKEN_VALIDATION_URL,
+  MICROSOFT_GRAPH_URL
+} from './constants';
 import { getClientConfig, getProviderConfigs } from './utils';
 
 // loading config
@@ -51,7 +55,7 @@ const getOAuthCredential = async (req, res, next) => {
         client_id: clientId,
         response_type: 'code',
         redirect_uri: redirectUri,
-        ...params,
+        ...params
       };
 
       return res.redirect(urls.authUrl + querystring.stringify(commonParams));
@@ -67,7 +71,9 @@ const getOAuthCredential = async (req, res, next) => {
     client_id: clientId,
     state: '',
     client_secret: clientSecret,
-    ...(kind === 'office365' ? { scope: 'https://graph.microsoft.com/user.read' } : {}),
+    ...(kind === 'office365'
+      ? { scope: 'https://graph.microsoft.com/user.read' }
+      : {})
   };
 
   // Google | O365 tokens
@@ -75,7 +81,7 @@ const getOAuthCredential = async (req, res, next) => {
     url: urls.tokenUrl,
     method: 'post',
     body: data,
-    ...otherParams,
+    ...otherParams
   });
 
   let email;
@@ -84,13 +90,13 @@ const getOAuthCredential = async (req, res, next) => {
     case 'gmail':
       const gmailDoc = {
         access_token,
-        fields: ['email'],
+        fields: ['email']
       };
 
       const gmailResponse = await sendRequest({
         url: GOOGLE_OAUTH_TOKEN_VALIDATION_URL,
         method: 'post',
-        body: gmailDoc,
+        body: gmailDoc
       });
 
       email = gmailResponse.email;
@@ -99,7 +105,7 @@ const getOAuthCredential = async (req, res, next) => {
       const officeResponse = await sendRequest({
         url: `${MICROSOFT_GRAPH_URL}/me`,
         method: 'GET',
-        headerParams: { Authorization: `Bearer ${access_token}` },
+        headerParams: { Authorization: `Bearer ${access_token}` }
       });
 
       email = officeResponse.mail;
@@ -111,7 +117,9 @@ const getOAuthCredential = async (req, res, next) => {
   // when user create the Gmail or O365 integration
   await memoryStorage().set(`${uid}-credential`, `${email},${refresh_token}`);
 
-  return res.redirect(`${AUTHORIZED_REDIRECT_URL}?uid=${uid}#show${kind}Modal=true`);
+  return res.redirect(
+    `${AUTHORIZED_REDIRECT_URL}?uid=${uid}#show${kind}Modal=true`
+  );
 };
 
 export default getOAuthCredential;

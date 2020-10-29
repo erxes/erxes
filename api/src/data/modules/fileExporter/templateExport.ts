@@ -12,7 +12,7 @@ export const templateExport = async (args: any) => {
 
     return {
       name: `${type}-import-template`,
-      response: csv,
+      response: csv
     };
   }
 
@@ -31,6 +31,6 @@ export const templateExport = async (args: any) => {
 
   return {
     name: `${type}-import-template`,
-    response: await generateXlsx(workbook),
+    response: await generateXlsx(workbook)
   };
 };

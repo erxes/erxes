@@ -35,13 +35,24 @@ interface IRequestParams {
  * @returns throw Error
  */
 export const checkConcurrentError = (e: any, name: string) => {
-  throw new Error(e.message.includes('duplicate') ? `Concurrent request: nylas ${name} duplication` : e);
+  throw new Error(
+    e.message.includes('duplicate')
+      ? `Concurrent request: nylas ${name} duplication`
+      : e
+  );
 };
 
 /**
  * Send request
  */
-export const sendRequest = ({ url, headerType, headerParams, method, body, params }: IRequestParams): Promise<any> => {
+export const sendRequest = ({
+  url,
+  headerType,
+  headerParams,
+  method,
+  body,
+  params
+}: IRequestParams): Promise<any> => {
   return new Promise((resolve, reject) => {
     const DOMAIN = getEnv({ name: 'DOMAIN' });
 
@@ -62,11 +73,13 @@ export const sendRequest = ({ url, headerType, headerParams, method, body, param
       headers: {
         'Content-Type': headerType || 'application/json',
         ...headerParams,
-        origin: DOMAIN,
+        origin: DOMAIN
       },
-      ...(headerType && headerType.includes('form') ? { form: body } : { body }),
+      ...(headerType && headerType.includes('form')
+        ? { form: body }
+        : { body }),
       qs: params,
-      json: true,
+      json: true
     })
       .then(res => {
         debugExternalRequests(`
@@ -98,13 +111,19 @@ export const sendRequest = ({ url, headerType, headerParams, method, body, param
 export const cleanHtml = (body: string) => {
   const clean = sanitizeHtml(body || '', {
     allowedTags: [],
-    allowedAttributes: {},
+    allowedAttributes: {}
   }).trim();
 
   return clean.substring(0, 65);
 };
 
-export const getEnv = ({ name, defaultValue }: { name: string; defaultValue?: string }): string => {
+export const getEnv = ({
+  name,
+  defaultValue
+}: {
+  name: string;
+  defaultValue?: string;
+}): string => {
   const value = process.env[name];
 
   if (!value && typeof defaultValue !== 'undefined') {
@@ -123,7 +142,8 @@ export const getEnv = ({ name, defaultValue }: { name: string; defaultValue?: st
  * @param {Functions} fns
  * @returns {Promise} fns value
  */
-export const compose = (...fns) => arg => fns.reduceRight((p, f) => p.then(f), Promise.resolve(arg));
+export const compose = (...fns) => arg =>
+  fns.reduceRight((p, f) => p.then(f), Promise.resolve(arg));
 
 /*
  * Generate url depending on given file upload publicly or not
@@ -144,7 +164,7 @@ export const downloadAttachment = urlOrName => {
 
     const options = {
       url,
-      encoding: null,
+      encoding: null
     };
 
     try {
@@ -197,7 +217,7 @@ export const getCommonGoogleConfigs = async () => {
     GOOGLE_PROJECT_ID: configs.GOOGLE_PROJECT_ID,
     GOOGLE_CLIENT_ID: configs.GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET: configs.GOOGLE_CLIENT_SECRET,
-    GOOGLE_GMAIL_TOPIC: configs.GOOGLE_GMAIL_TOPIC,
+    GOOGLE_GMAIL_TOPIC: configs.GOOGLE_GMAIL_TOPIC
   };
 };
 
@@ -206,10 +226,5 @@ export const resetConfigsCache = () => {
 };
 
 export const generateUid = () => {
-  return (
-    '_' +
-    Math.random()
-      .toString(36)
-      .substr(2, 9)
-  );
+  return '_' + Math.random().toString(36).substr(2, 9);
 };

@@ -9,15 +9,21 @@ import {
   Permissions,
   Tasks,
   Tickets,
-  Users,
+  Users
 } from '../../../db/models';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { debugBase } from '../../../debuggers';
 import { MODULE_NAMES } from '../../constants';
 import { can } from '../../permissions/utils';
 import { createXlsFile, generateXlsx } from '../../utils';
-import { Builder as CompanyBuildQuery, IListArgs as ICompanyListArgs } from '../coc/companies';
-import { Builder as CustomerBuildQuery, IListArgs as ICustomerListArgs } from '../coc/customers';
+import {
+  Builder as CompanyBuildQuery,
+  IListArgs as ICompanyListArgs
+} from '../coc/companies';
+import {
+  Builder as CustomerBuildQuery,
+  IListArgs as ICustomerListArgs
+} from '../coc/customers';
 import { fillCellValue, fillHeaders, IColumnLabel } from './spreadsheet';
 
 // Prepares data depending on module type
@@ -64,7 +70,10 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
       if (customerParams.form && customerParams.popupData) {
         debugBase('Start an query for popups export');
 
-        const fields = await Fields.find({ contentType: 'form', contentTypeId: customerParams.form });
+        const fields = await Fields.find({
+          contentType: 'form',
+          contentTypeId: customerParams.form
+        });
 
         if (fields.length === 0) {
           return [];
@@ -72,13 +81,13 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
 
         const messageQuery: any = {
           'formWidgetData._id': { $in: fields.map(field => field._id) },
-          customerId: { $exists: true },
+          customerId: { $exists: true }
         };
 
         const messages = await ConversationMessages.find(messageQuery, {
           formWidgetData: 1,
           customerId: 1,
-          createdAt: 1,
+          createdAt: 1
         });
 
         const messagesMap: { [key: string]: any[] } = {};
@@ -97,17 +106,17 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
               type: 'input',
               validation: 'date',
               text: 'Created',
-              value: message.createdAt,
-            },
+              value: message.createdAt
+            }
           });
         }
 
         const uniqueCustomerIds = await FormSubmissions.find(
           { formId: customerParams.form },
-          { customerId: 1, submittedAt: 1 },
+          { customerId: 1, submittedAt: 1 }
         )
           .sort({
-            submittedAt: -1,
+            submittedAt: -1
           })
           .distinct('customerId');
 
@@ -201,7 +210,13 @@ const prepareData = async (query: any, user: IUserDocument): Promise<any[]> => {
   return data;
 };
 
-const addCell = (col: IColumnLabel, value: string, sheet: any, columnNames: string[], rowIndex: number): void => {
+const addCell = (
+  col: IColumnLabel,
+  value: string,
+  sheet: any,
+  columnNames: string[],
+  rowIndex: number
+): void => {
   // Checking if existing column
   if (columnNames.includes(col.name)) {
     // If column already exists adding cell
@@ -219,7 +234,10 @@ const addCell = (col: IColumnLabel, value: string, sheet: any, columnNames: stri
 const fillLeadHeaders = async (formId: string) => {
   const headers: IColumnLabel[] = [];
 
-  const fields = await Fields.find({ contentType: 'form', contentTypeId: formId }).sort({ order: 1 });
+  const fields = await Fields.find({
+    contentType: 'form',
+    contentTypeId: formId
+  }).sort({ order: 1 });
 
   for (const field of fields) {
     headers.push({ name: field._id, label: field.text });
@@ -230,7 +248,13 @@ const fillLeadHeaders = async (formId: string) => {
   return headers;
 };
 
-const buildLeadFile = async (datas: any, formId: string, sheet: any, columnNames: string[], rowIndex: number) => {
+const buildLeadFile = async (
+  datas: any,
+  formId: string,
+  sheet: any,
+  columnNames: string[],
+  rowIndex: number
+) => {
   debugBase(`Start building an excel file for popups export`);
 
   const headers: IColumnLabel[] = await fillLeadHeaders(formId);
@@ -251,7 +275,10 @@ const buildLeadFile = async (datas: any, formId: string, sheet: any, columnNames
     rowIndex++;
     // Iterating through basic info columns
     for (const column of headers) {
-      const item = await data.find(obj => obj._id === column.name || obj.text.trim() === column.label.trim());
+      const item = await data.find(
+        obj =>
+          obj._id === column.name || obj.text.trim() === column.label.trim()
+      );
 
       const cellValue = displayValue(item);
 
@@ -262,7 +289,10 @@ const buildLeadFile = async (datas: any, formId: string, sheet: any, columnNames
   debugBase('End building an excel file for popups export');
 };
 
-export const buildFile = async (query: any, user: IUserDocument): Promise<{ name: string; response: string }> => {
+export const buildFile = async (
+  query: any,
+  user: IUserDocument
+): Promise<{ name: string; response: string }> => {
   const { configs } = query;
   let type = query.type;
 
@@ -294,7 +324,7 @@ export const buildFile = async (query: any, user: IUserDocument): Promise<{ name
             for (const customFeild of item.customFieldsData) {
               const field = await Fields.findOne({
                 text: column.label.trim(),
-                contentType: type === 'lead' ? 'customer' : type,
+                contentType: type === 'lead' ? 'customer' : type
               });
 
               if (field && field.text) {
@@ -308,7 +338,13 @@ export const buildFile = async (query: any, user: IUserDocument): Promise<{ name
                   value = moment(value).format('YYYY-MM-DD HH:mm');
                 }
 
-                addCell({ name: field.text, label: field.text }, value, sheet, columnNames, rowIndex);
+                addCell(
+                  { name: field.text, label: field.text },
+                  value,
+                  sheet,
+                  columnNames,
+                  rowIndex
+                );
               }
             }
           }
@@ -325,6 +361,6 @@ export const buildFile = async (query: any, user: IUserDocument): Promise<{ name
 
   return {
     name: `${type} - ${moment().format('YYYY-MM-DD HH:mm')}`,
-    response: await generateXlsx(workbook),
+    response: await generateXlsx(workbook)
   };
 };

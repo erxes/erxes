@@ -17,7 +17,7 @@ class HistoryDetailContainer extends React.Component<
     super(props);
 
     this.state = {
-      percentage: 0,
+      percentage: 0
     };
   }
 
@@ -46,10 +46,10 @@ export default withProps<{ id: string }>(
         options: ({ id }) => ({
           fetchPolicy: 'network-only',
           variables: {
-            _id: id,
+            _id: id
           },
-          pollInterval: 3000,
-        }),
+          pollInterval: 3000
+        })
       }
     )
   )(HistoryDetailContainer)

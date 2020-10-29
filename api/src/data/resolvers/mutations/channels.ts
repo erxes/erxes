@@ -1,7 +1,13 @@
 import * as _ from 'underscore';
 import { Channels } from '../../../db/models';
-import { IChannel, IChannelDocument } from '../../../db/models/definitions/channels';
-import { NOTIFICATION_CONTENT_TYPES, NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
+import {
+  IChannel,
+  IChannelDocument
+} from '../../../db/models/definitions/channels';
+import {
+  NOTIFICATION_CONTENT_TYPES,
+  NOTIFICATION_TYPES
+} from '../../../db/models/definitions/constants';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
@@ -20,7 +26,7 @@ export const sendChannelNotifications = async (
   channel: IChannelDocument,
   type: 'invited' | 'removed',
   user: IUserDocument,
-  receivers?: string[],
+  receivers?: string[]
 ) => {
   let action = `invited you to the`;
 
@@ -39,7 +45,8 @@ export const sendChannelNotifications = async (
     link: `/inbox/index?channelId=${channel._id}`,
 
     // exclude current user
-    receivers: receivers || (channel.memberIds || []).filter(id => id !== channel.userId),
+    receivers:
+      receivers || (channel.memberIds || []).filter(id => id !== channel.userId)
   });
 };
 
@@ -56,9 +63,9 @@ const channelMutations = {
       {
         type: MODULE_NAMES.CHANNEL,
         newData: { ...doc, userId: user._id },
-        object: channel,
+        object: channel
       },
-      user,
+      user
     );
 
     return channel;
@@ -67,10 +74,17 @@ const channelMutations = {
   /**
    * Update channel data
    */
-  async channelsEdit(_root, { _id, ...doc }: IChannelsEdit, { user }: IContext) {
+  async channelsEdit(
+    _root,
+    { _id, ...doc }: IChannelsEdit,
+    { user }: IContext
+  ) {
     const channel = await Channels.getChannel(_id);
 
-    const { addedUserIds, removedUserIds } = checkUserIds(channel.memberIds || [], doc.memberIds || []);
+    const { addedUserIds, removedUserIds } = checkUserIds(
+      channel.memberIds || [],
+      doc.memberIds || []
+    );
 
     await sendChannelNotifications(channel, 'invited', user, addedUserIds);
     await sendChannelNotifications(channel, 'removed', user, removedUserIds);
@@ -82,12 +96,15 @@ const channelMutations = {
         type: MODULE_NAMES.CHANNEL,
         object: channel,
         newData: doc,
-        updatedDocument: updated,
+        updatedDocument: updated
       },
-      user,
+      user
     );
 
-    if ((channel.integrationIds || []).toString() !== (updated.integrationIds || []).toString()) {
+    if (
+      (channel.integrationIds || []).toString() !==
+      (updated.integrationIds || []).toString()
+    ) {
       registerOnboardHistory({ type: 'connectIntegrationsToChannel', user });
     }
 
@@ -107,7 +124,7 @@ const channelMutations = {
     await putDeleteLog({ type: MODULE_NAMES.CHANNEL, object: channel }, user);
 
     return true;
-  },
+  }
 };
 
 moduleCheckPermission(channelMutations, 'manageChannels');

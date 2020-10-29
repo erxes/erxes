@@ -8,7 +8,7 @@ const {
   REDIS_HOST = 'localhost',
   REDIS_PORT = 6379,
   REDIS_PASSWORD,
-  NODE_ENV,
+  NODE_ENV
 }: {
   REDIS_HOST?: string;
   REDIS_PORT?: number;
@@ -29,7 +29,7 @@ export const initRedis = (callback?: (client) => void) => {
     retry_strategy: options => {
       // reconnect after
       return Math.max(options.attempt * 100, 3000);
-    },
+    }
   });
 
   if (callback) {

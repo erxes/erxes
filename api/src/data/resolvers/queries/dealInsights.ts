@@ -9,7 +9,7 @@ import {
   generatePunchData,
   getDealSelector,
   getSummaryData,
-  getTimezone,
+  getTimezone
 } from '../../modules/insights/utils';
 import { moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
@@ -40,7 +40,7 @@ const dealInsightQueries = {
     insightData.trend = await generateChartDataBySelector({
       selector,
       type: INSIGHT_TYPES.DEAL,
-      dateFieldName: `$${dateFieldName}`,
+      dateFieldName: `$${dateFieldName}`
     });
 
     insightData.summary = await getSummaryData({
@@ -48,7 +48,7 @@ const dealInsightQueries = {
       end,
       collection: Deals,
       selector: { ...selector },
-      dateFieldName,
+      dateFieldName
     });
 
     return insightData;
@@ -57,46 +57,57 @@ const dealInsightQueries = {
   /**
    * Calculates won or lost deals for each team members.
    */
-  async dealInsightsByTeamMember(_root, args: IDealListArgs, { user }: IContext) {
+  async dealInsightsByTeamMember(
+    _root,
+    args: IDealListArgs,
+    { user }: IContext
+  ) {
     const dealMatch = await getDealSelector(args);
 
     const insightAggregateData = await Deals.aggregate([
       {
-        $match: dealMatch,
+        $match: dealMatch
       },
       {
         $project: {
-          date: await getDateFieldAsStr({ fieldName: '$modifiedAt', timeZone: getTimezone(user) }),
-          modifiedBy: 1,
-        },
+          date: await getDateFieldAsStr({
+            fieldName: '$modifiedAt',
+            timeZone: getTimezone(user)
+          }),
+          modifiedBy: 1
+        }
       },
       {
         $group: {
           _id: {
             modifiedBy: '$modifiedBy',
-            date: '$date',
+            date: '$date'
           },
-          count: { $sum: 1 },
-        },
+          count: { $sum: 1 }
+        }
       },
       {
         $project: {
           _id: 0,
           modifiedBy: '$_id.modifiedBy',
           date: '$_id.date',
-          count: 1,
-        },
+          count: 1
+        }
       },
       {
         $lookup: {
           from: 'users',
           localField: 'modifiedBy',
           foreignField: '_id',
-          as: 'userDoc',
-        },
+          as: 'userDoc'
+        }
       },
       {
-        $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ['$userDoc.details', 0] }, '$$ROOT'] } },
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [{ $arrayElemAt: ['$userDoc.details', 0] }, '$$ROOT']
+          }
+        }
       },
       {
         $group: {
@@ -107,11 +118,11 @@ const dealInsightQueries = {
           chartDatas: {
             $push: {
               date: '$date',
-              count: '$count',
-            },
-          },
-        },
-      },
+              count: '$count'
+            }
+          }
+        }
+      }
     ]);
 
     if (insightAggregateData.length < 1) {
@@ -129,11 +140,15 @@ const dealInsightQueries = {
       responseUserData[userData._id] = {
         count: userData.count,
         fullName: userData.fullName,
-        avatar: userData.avatar,
+        avatar: userData.avatar
       };
 
       // team members gather
-      const fixedChartData = await fixChartData(userData.chartDatas, 'date', 'count');
+      const fixedChartData = await fixChartData(
+        userData.chartDatas,
+        'date',
+        'count'
+      );
 
       userData.chartDatas.forEach(row => {
         if (row.date in aggregatedTrend) {
@@ -147,13 +162,13 @@ const dealInsightQueries = {
         data: {
           fullName: userData.fullName,
           avatar: userData.avatar,
-          graph: fixedChartData,
-        },
+          graph: fixedChartData
+        }
       });
     }
 
     return teamMembers;
-  },
+  }
 };
 
 moduleRequireLogin(dealInsightQueries);

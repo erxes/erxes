@@ -9,7 +9,10 @@ const emailDeliveryQueries = {
 
   async transactionEmailDeliveries(
     _root,
-    { searchValue, ...params }: { searchValue: string; page: number; perPage: number },
+    {
+      searchValue,
+      ...params
+    }: { searchValue: string; page: number; perPage: number }
   ) {
     const selector: any = { kind: 'transaction' };
 
@@ -17,17 +20,19 @@ const emailDeliveryQueries = {
       selector.$or = [
         { from: { $regex: new RegExp(searchValue) } },
         { subject: { $regex: new RegExp(searchValue) } },
-        { to: { $regex: new RegExp(searchValue) } },
+        { to: { $regex: new RegExp(searchValue) } }
       ];
     }
 
     const totalCount = await EmailDeliveries.countDocuments(selector);
 
     return {
-      list: paginate(EmailDeliveries.find(selector), params).sort({ createdAt: -1 }),
-      totalCount,
+      list: paginate(EmailDeliveries.find(selector), params).sort({
+        createdAt: -1
+      }),
+      totalCount
     };
-  },
+  }
 };
 
 requireLogin(emailDeliveryQueries, 'emailDeliveryDetail');

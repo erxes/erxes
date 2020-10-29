@@ -1,7 +1,11 @@
 import { Model, model } from 'mongoose';
 import { Pipelines } from '.';
 import { getCollection } from './boardUtils';
-import { IPipelineLabel, IPipelineLabelDocument, pipelineLabelSchema } from './definitions/pipelineLabels';
+import {
+  IPipelineLabel,
+  IPipelineLabelDocument,
+  pipelineLabelSchema
+} from './definitions/pipelineLabels';
 
 interface IFilter extends IPipelineLabel {
   _id?: any;
@@ -16,7 +20,10 @@ interface ILabelObjectParams {
 export interface IPipelineLabelModel extends Model<IPipelineLabelDocument> {
   getPipelineLabel(_id: string): Promise<IPipelineLabelDocument>;
   createPipelineLabel(doc: IPipelineLabel): Promise<IPipelineLabelDocument>;
-  updatePipelineLabel(_id: string, doc: IPipelineLabel): Promise<IPipelineLabelDocument>;
+  updatePipelineLabel(
+    _id: string,
+    doc: IPipelineLabel
+  ): Promise<IPipelineLabelDocument>;
   removePipelineLabel(_id: string): void;
   labelsLabel(pipelineId: string, targetId: string, labelIds: string[]): void;
   validateUniqueness(filter: IFilter, _id?: string): Promise<boolean>;
@@ -37,7 +44,10 @@ export const loadPipelineLabelClass = () => {
     /*
      * Validates label uniquness
      */
-    public static async validateUniqueness(filter: IFilter, _id?: string): Promise<boolean> {
+    public static async validateUniqueness(
+      filter: IFilter,
+      _id?: string
+    ): Promise<boolean> {
       if (_id) {
         filter._id = { $ne: _id };
       }
@@ -53,16 +63,24 @@ export const loadPipelineLabelClass = () => {
      * Common helper for objects like deal, task, ticket and growth hack etc ...
      */
 
-    public static async labelObject({ labelIds, targetId, collection }: ILabelObjectParams) {
+    public static async labelObject({
+      labelIds,
+      targetId,
+      collection
+    }: ILabelObjectParams) {
       const prevLabelsCount = await PipelineLabels.find({
-        _id: { $in: labelIds },
+        _id: { $in: labelIds }
       }).countDocuments();
 
       if (prevLabelsCount !== labelIds.length) {
         throw new Error('Label not found');
       }
 
-      await collection.updateMany({ _id: targetId }, { $set: { labelIds } }, { multi: true });
+      await collection.updateMany(
+        { _id: targetId },
+        { $set: { labelIds } },
+        { multi: true }
+      );
     }
 
     /**
@@ -72,7 +90,7 @@ export const loadPipelineLabelClass = () => {
       const filter: IFilter = {
         name: doc.name,
         pipelineId: doc.pipelineId,
-        colorCode: doc.colorCode,
+        colorCode: doc.colorCode
       };
 
       const isUnique = await PipelineLabels.validateUniqueness(filter);
@@ -116,7 +134,7 @@ export const loadPipelineLabelClass = () => {
       // delete labelId from collection that used labelId
       await collection.updateMany(
         { labelIds: { $in: [pipelineLabel._id] } },
-        { $pull: { labelIds: pipelineLabel._id } },
+        { $pull: { labelIds: pipelineLabel._id } }
       );
 
       return PipelineLabels.deleteOne({ _id });
@@ -125,7 +143,11 @@ export const loadPipelineLabelClass = () => {
     /**
      * Attach a label
      */
-    public static async labelsLabel(pipelineId: string, targetId: string, labelIds: string[]) {
+    public static async labelsLabel(
+      pipelineId: string,
+      targetId: string,
+      labelIds: string[]
+    ) {
       const pipeline = await Pipelines.getPipeline(pipelineId);
 
       const collection = getCollection(pipeline.type);
@@ -133,7 +155,7 @@ export const loadPipelineLabelClass = () => {
       await PipelineLabels.labelObject({
         labelIds,
         targetId,
-        collection,
+        collection
       });
     }
   }
@@ -146,6 +168,9 @@ export const loadPipelineLabelClass = () => {
 loadPipelineLabelClass();
 
 // tslint:disable-next-line
-const PipelineLabels = model<IPipelineLabelDocument, IPipelineLabelModel>('pipeline_labels', pipelineLabelSchema);
+const PipelineLabels = model<IPipelineLabelDocument, IPipelineLabelModel>(
+  'pipeline_labels',
+  pipelineLabelSchema
+);
 
 export default PipelineLabels;

@@ -57,7 +57,7 @@ export interface IMessage {
       {
         name: string;
         value: string;
-      },
+      }
     ];
     body: IGmailAttachment;
     parts: any;

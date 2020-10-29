@@ -17,17 +17,15 @@ type Props = {
   customersCount: (ids: string[]) => number;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   onChange: (name: string, value: string[]) => void;
-  renderContent: (
-    {
-      actionSelector,
-      selectedComponent,
-      customerCounts
-    }: {
-      actionSelector: React.ReactNode;
-      selectedComponent: React.ReactNode;
-      customerCounts: React.ReactNode;
-    }
-  ) => React.ReactNode;
+  renderContent: ({
+    actionSelector,
+    selectedComponent,
+    customerCounts
+  }: {
+    actionSelector: React.ReactNode;
+    selectedComponent: React.ReactNode;
+    customerCounts: React.ReactNode;
+  }) => React.ReactNode;
 };
 
 const SegmentStep = (props: Props) => {

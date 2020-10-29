@@ -11,7 +11,7 @@ export const randomElementOfArray = array => {
 export const configFactory = params => {
   const configObj = new Configs({
     code: params.code || faker.random.word(),
-    value: params.value || faker.random.word(),
+    value: params.value || faker.random.word()
   });
 
   return configObj.save();
@@ -28,7 +28,7 @@ export const statsFactory = params => {
     reject: params.reject || faker.random.number(),
     send: params.send || faker.random.number(),
     renderingfailure: params.renderingfailure || faker.random.number(),
-    total: params.total || faker.random.number(),
+    total: params.total || faker.random.number()
   });
 
   return statsObj.save();

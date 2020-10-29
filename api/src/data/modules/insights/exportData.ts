@@ -1,10 +1,19 @@
 import * as moment from 'moment';
-import { ConversationMessages, Conversations, Integrations, Tags } from '../../../db/models';
+import {
+  ConversationMessages,
+  Conversations,
+  Integrations,
+  Tags
+} from '../../../db/models';
 import { TAG_TYPES } from '../../../db/models/definitions/constants';
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { getDateFieldAsStr, getDurationField } from './aggregationUtils';
 import { convertTime, fixNumber, nextTime } from './exportUtils';
-import { IListArgs, IListArgsWithUserId, IVolumeReportExportArgs } from './types';
+import {
+  IListArgs,
+  IListArgsWithUserId,
+  IVolumeReportExportArgs
+} from './types';
 import {
   fixDates,
   getConversationSelector,
@@ -12,10 +21,13 @@ import {
   getMessageSelector,
   getTimezone,
   noConversationSelector,
-  timeIntervalBranches,
+  timeIntervalBranches
 } from './utils';
 
-export const generateVolumeReport = async (args: IListArgs, user: IUserDocument) => {
+export const generateVolumeReport = async (
+  args: IListArgs,
+  user: IUserDocument
+) => {
   const { startDate, endDate, type } = args;
 
   let diffCount = 7;
@@ -34,16 +46,25 @@ export const generateVolumeReport = async (args: IListArgs, user: IUserDocument)
 
   const aggregatedData = await Conversations.aggregate([
     {
-      $match: conversationSelector,
+      $match: conversationSelector
     },
     {
       $project: {
-        date: await getDateFieldAsStr({ timeFormat: aggregationTimeFormat, timeZone: getTimezone(user) }),
+        date: await getDateFieldAsStr({
+          timeFormat: aggregationTimeFormat,
+          timeZone: getTimezone(user)
+        }),
         customerId: 1,
         status: 1,
-        closeTime: getDurationField({ startField: '$closedAt', endField: '$createdAt' }),
-        firstRespondTime: getDurationField({ startField: '$firstRespondedDate', endField: '$createdAt' }),
-      },
+        closeTime: getDurationField({
+          startField: '$closedAt',
+          endField: '$createdAt'
+        }),
+        firstRespondTime: getDurationField({
+          startField: '$firstRespondedDate',
+          endField: '$createdAt'
+        })
+      }
     },
     {
       $group: {
@@ -51,8 +72,8 @@ export const generateVolumeReport = async (args: IListArgs, user: IUserDocument)
         uniqueCustomerIds: { $addToSet: '$customerId' },
         totalCount: { $sum: 1 },
         totalResponseTime: { $sum: '$firstRespondTime' },
-        totalCloseTime: { $sum: '$closeTime' },
-      },
+        totalCloseTime: { $sum: '$closeTime' }
+      }
     },
     {
       $project: {
@@ -63,36 +84,40 @@ export const generateVolumeReport = async (args: IListArgs, user: IUserDocument)
         percentage: {
           $multiply: [
             {
-              $divide: [{ $size: '$uniqueCustomerIds' }, '$totalCount'],
+              $divide: [{ $size: '$uniqueCustomerIds' }, '$totalCount']
             },
-            100,
-          ],
-        },
-      },
-    },
+            100
+          ]
+        }
+      }
+    }
   ]);
 
-  const resolvedSelector = await getConversationSelector(filterSelector, { status: 'closed' }, 'closedAt');
+  const resolvedSelector = await getConversationSelector(
+    filterSelector,
+    { status: 'closed' },
+    'closedAt'
+  );
 
   const resolvedAggregatedData = await Conversations.aggregate([
     {
-      $match: resolvedSelector,
+      $match: resolvedSelector
     },
     {
       $project: {
         date: await getDateFieldAsStr({
           fieldName: '$closedAt',
           timeFormat: aggregationTimeFormat,
-          timeZone: getTimezone(user),
-        }),
-      },
+          timeZone: getTimezone(user)
+        })
+      }
     },
     {
       $group: {
         _id: '$date',
-        resolvedCount: { $sum: 1 },
-      },
-    },
+        resolvedCount: { $sum: 1 }
+      }
+    }
   ]);
 
   let totalCustomerCount = 0;
@@ -111,23 +136,28 @@ export const generateVolumeReport = async (args: IListArgs, user: IUserDocument)
     volumeDictionary[row._id] = row;
   });
 
-  const messageSelector = await getMessageSelector({ args: { ...args, type: 'volume' } });
+  const messageSelector = await getMessageSelector({
+    args: { ...args, type: 'volume' }
+  });
 
   const messageAggregationData = await ConversationMessages.aggregate([
     {
-      $match: messageSelector,
+      $match: messageSelector
     },
     {
       $project: {
-        date: await getDateFieldAsStr({ timeFormat: aggregationTimeFormat, timeZone: getTimezone(user) }),
-      },
+        date: await getDateFieldAsStr({
+          timeFormat: aggregationTimeFormat,
+          timeZone: getTimezone(user)
+        })
+      }
     },
     {
       $group: {
         _id: '$date',
-        totalCount: { $sum: 1 },
-      },
-    },
+        totalCount: { $sum: 1 }
+      }
+    }
   ]);
 
   const conversationDictionary = {};
@@ -150,14 +180,18 @@ export const generateVolumeReport = async (args: IListArgs, user: IUserDocument)
   const generateData = async () => {
     const next = nextTime(begin, type);
     const dateKey = moment(begin).format(timeFormat);
-    const { totalCount, totalResponseTime, totalCloseTime, uniqueCustomerCount, percentage } = volumeDictionary[
-      dateKey
-    ] || {
+    const {
+      totalCount,
+      totalResponseTime,
+      totalCloseTime,
+      uniqueCustomerCount,
+      percentage
+    } = volumeDictionary[dateKey] || {
       totalCount: 0,
       totalResponseTime: 0,
       totalCloseTime: 0,
       uniqueCustomerCount: 0,
-      percentage: 0,
+      percentage: 0
     };
     const messageCount = conversationDictionary[dateKey] || 0;
     const resolvedCount = resolvedDictionary[dateKey] || 0;
@@ -180,7 +214,7 @@ export const generateVolumeReport = async (args: IListArgs, user: IUserDocument)
       messageCount,
       resolvedCount,
       averageResponseDuration: convertTime(averageResponseDuration),
-      firstResponseDuration: convertTime(firstResponseDuration),
+      firstResponseDuration: convertTime(firstResponseDuration)
     });
 
     if (next.getTime() < end.getTime()) {
@@ -196,62 +230,82 @@ export const generateVolumeReport = async (args: IListArgs, user: IUserDocument)
     date: 'Total',
     count: totalUniqueCount,
     customerCount: totalCustomerCount,
-    customerCountPercentage: `${((totalUniqueCount / totalCustomerCount) * 100).toFixed(0)}%`,
+    customerCountPercentage: `${(
+      (totalUniqueCount / totalCustomerCount) *
+      100
+    ).toFixed(0)}%`,
     messageCount: totalConversationMessages,
     resolvedCount: totalResolved,
-    averageResponseDuration: convertTime(fixNumber(totalClosedTime / totalCustomerCount)),
-    firstResponseDuration: convertTime(fixNumber(totalRespondTime / totalCustomerCount)),
+    averageResponseDuration: convertTime(
+      fixNumber(totalClosedTime / totalCustomerCount)
+    ),
+    firstResponseDuration: convertTime(
+      fixNumber(totalRespondTime / totalCustomerCount)
+    )
   });
 
   return { data, start, end };
 };
 
-export const generateActivityReport = async (args: IListArgs, user: IUserDocument) => {
+export const generateActivityReport = async (
+  args: IListArgs,
+  user: IUserDocument
+) => {
   const { startDate, endDate } = args;
   const { start, end } = fixDates(startDate, endDate, 1);
 
-  const messageSelector = await getMessageSelector({ args: { ...args, type: 'response' } });
+  const messageSelector = await getMessageSelector({
+    args: { ...args, type: 'response' }
+  });
 
   const data = await ConversationMessages.aggregate([
     {
-      $match: messageSelector,
+      $match: messageSelector
     },
     {
       $project: {
-        date: await getDateFieldAsStr({ timeFormat: '%Y-%m-%d %H', timeZone: getTimezone(user) }),
-        userId: 1,
-      },
+        date: await getDateFieldAsStr({
+          timeFormat: '%Y-%m-%d %H',
+          timeZone: getTimezone(user)
+        }),
+        userId: 1
+      }
     },
     {
       $group: {
         _id: {
           userId: '$userId',
-          date: '$date',
+          date: '$date'
         },
-        count: { $sum: 1 },
-      },
+        count: { $sum: 1 }
+      }
     },
     {
       $project: {
         _id: 0,
         userId: '$_id.userId',
         date: '$_id.date',
-        count: 1,
-      },
-    },
+        count: 1
+      }
+    }
   ]);
 
   return { data, start, end };
 };
 
-export const generateTagReport = async (args: IListArgs, user: IUserDocument) => {
+export const generateTagReport = async (
+  args: IListArgs,
+  user: IUserDocument
+) => {
   const { startDate, endDate } = args;
   const { start, end } = fixDates(startDate, endDate);
   const filterSelector = getFilterSelector(args);
 
   const tags = await Tags.find({ type: TAG_TYPES.CONVERSATION }).select('name');
 
-  const integrationIds = await Integrations.findIntegrations(filterSelector.integration).select('_id');
+  const integrationIds = await Integrations.findIntegrations(
+    filterSelector.integration
+  ).select('_id');
 
   const rawIntegrationIds = integrationIds.map(row => row._id);
 
@@ -262,41 +316,41 @@ export const generateTagReport = async (args: IListArgs, user: IUserDocument) =>
       $match: {
         ...noConversationSelector,
         integrationId: { $in: rawIntegrationIds },
-        createdAt: filterSelector.createdAt,
-      },
+        createdAt: filterSelector.createdAt
+      }
     },
     {
-      $unwind: '$tagIds',
+      $unwind: '$tagIds'
     },
     {
       $match: {
-        tagIds: { $in: tagIds },
-      },
+        tagIds: { $in: tagIds }
+      }
     },
     {
       $group: {
         _id: {
           tagId: '$tagIds',
-          date: getDateFieldAsStr({ timeZone: getTimezone(user) }),
+          date: getDateFieldAsStr({ timeZone: getTimezone(user) })
         },
-        count: { $sum: 1 },
-      },
+        count: { $sum: 1 }
+      }
     },
     {
       $project: {
         _id: 0,
         tagId: '$_id.tagId',
         date: '$_id.date',
-        count: 1,
-      },
-    },
+        count: 1
+      }
+    }
   ]);
 
   return {
     data,
     start,
     end,
-    tags,
+    tags
   };
 };
 
@@ -304,7 +358,7 @@ export const generateFirstResponseReport = async ({
   args,
   userId,
   user,
-  type,
+  type
 }: {
   args: IListArgsWithUserId;
   userId?: string;
@@ -323,22 +377,28 @@ export const generateFirstResponseReport = async ({
   const conversationMatch = {
     createdAt: { $gte: start, $lte: end },
     firstRespondedDate: { $exists: true },
-    firstRespondedUserId: userId || { $exists: true },
+    firstRespondedUserId: userId || { $exists: true }
   };
 
   const filterSelector = getFilterSelector(args);
-  const selectorMatch = await getConversationSelector(filterSelector, conversationMatch);
+  const selectorMatch = await getConversationSelector(
+    filterSelector,
+    conversationMatch
+  );
 
   if (type === 'firstResponseOperators') {
     return Conversations.aggregate([
       {
-        $match: selectorMatch,
+        $match: selectorMatch
       },
       {
         $project: {
           firstRespondedUserId: 1,
-          firstRespondTime: getDurationField({ startField: '$firstRespondedDate', endField: '$createdAt' }),
-        },
+          firstRespondTime: getDurationField({
+            startField: '$firstRespondedDate',
+            endField: '$createdAt'
+          })
+        }
       },
       {
         $project: {
@@ -346,37 +406,41 @@ export const generateFirstResponseReport = async ({
           interval: {
             $switch: {
               branches: timeIntervalBranches(),
-              default: '5+ min',
-            },
-          },
-        },
+              default: '5+ min'
+            }
+          }
+        }
       },
       {
         $group: {
           _id: {
             userId: '$firstRespondedUserId',
-            interval: '$interval',
+            interval: '$interval'
           },
-          count: { $sum: 1 },
-        },
+          count: { $sum: 1 }
+        }
       },
       {
         $project: {
           userId: '$_id.userId',
           interval: '$_id.interval',
-          count: 1,
-        },
+          count: 1
+        }
       },
       {
         $lookup: {
           from: 'users',
           localField: 'userId',
           foreignField: '_id',
-          as: 'userDoc',
-        },
+          as: 'userDoc'
+        }
       },
       {
-        $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ['$userDoc.details', 0] }, '$$ROOT'] } },
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [{ $arrayElemAt: ['$userDoc.details', 0] }, '$$ROOT']
+          }
+        }
       },
       {
         $group: {
@@ -385,23 +449,26 @@ export const generateFirstResponseReport = async ({
           intervals: {
             $push: {
               name: '$interval',
-              count: '$count',
-            },
-          },
-        },
-      },
+              count: '$count'
+            }
+          }
+        }
+      }
     ]);
   }
 
   return Conversations.aggregate([
     {
-      $match: selectorMatch,
+      $match: selectorMatch
     },
     {
       $project: {
         date: await getDateFieldAsStr({ timeZone: getTimezone(user) }),
-        firstRespondTime: getDurationField({ startField: '$firstRespondedDate', endField: '$createdAt' }),
-      },
+        firstRespondTime: getDurationField({
+          startField: '$firstRespondedDate',
+          endField: '$createdAt'
+        })
+      }
     },
     {
       $project: {
@@ -409,19 +476,19 @@ export const generateFirstResponseReport = async ({
         interval: {
           $switch: {
             branches: timeIntervalBranches(),
-            default: '5+ min',
-          },
-        },
-      },
+            default: '5+ min'
+          }
+        }
+      }
     },
     {
       $group: {
         _id: {
           date: '$date',
-          interval: '$interval',
+          interval: '$interval'
         },
-        count: { $sum: 1 },
-      },
+        count: { $sum: 1 }
+      }
     },
     {
       $group: {
@@ -430,15 +497,15 @@ export const generateFirstResponseReport = async ({
         intervals: {
           $push: {
             name: '$_id.interval',
-            count: '$count',
-          },
-        },
-      },
+            count: '$count'
+          }
+        }
+      }
     },
     {
       $sort: {
-        title: 1,
-      },
-    },
+        title: 1
+      }
+    }
   ]);
 };

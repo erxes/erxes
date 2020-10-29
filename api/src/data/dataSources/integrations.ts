@@ -5,7 +5,9 @@ export default class IntegrationsAPI extends RESTDataSource {
   constructor() {
     super();
 
-    const INTEGRATIONS_API_DOMAIN = getSubServiceDomain({ name: 'INTEGRATIONS_API_DOMAIN' });
+    const INTEGRATIONS_API_DOMAIN = getSubServiceDomain({
+      name: 'INTEGRATIONS_API_DOMAIN'
+    });
 
     this.baseURL = INTEGRATIONS_API_DOMAIN;
     this.httpCache = new HTTPCache();

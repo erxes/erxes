@@ -24,7 +24,7 @@ export const customerSchema = new Schema({
 
   name: String,
   screenName: String,
-  profilePic: String,
+  profilePic: String
 });
 
 export interface ICustomerModel extends Model<ICustomerDocument> {}
@@ -49,7 +49,7 @@ export const conversationSchema = new Schema({
   senderId: { type: String, index: true },
   receiverId: { type: String, index: true },
   integrationId: String,
-  content: String,
+  content: String
 });
 
 conversationSchema.index({ senderId: 1, receiverId: 1 }, { unique: true });
@@ -83,30 +83,36 @@ export interface IConversationMessage {
   content: string;
 }
 
-export interface IConversationMessageDocument extends IConversationMessage, Document {}
+export interface IConversationMessageDocument
+  extends IConversationMessage,
+    Document {}
 
 export const conversationMessageSchema = new Schema({
   _id: field({ pkey: true }),
   messageId: { type: String, unique: true },
   conversationId: String,
-  content: String,
+  content: String
 });
 
-export interface IConversationMessageModel extends Model<IConversationMessageDocument> {}
+export interface IConversationMessageModel
+  extends Model<IConversationMessageDocument> {}
 
 loadConversationClass();
 
 // tslint:disable-next-line
-export const Customers = model<ICustomerDocument, ICustomerModel>('customers_twitter', customerSchema);
+export const Customers = model<ICustomerDocument, ICustomerModel>(
+  'customers_twitter',
+  customerSchema
+);
 
 // tslint:disable-next-line
 export const Conversations = model<IConversationDocument, IConversationModel>(
   'conversations_twitter',
-  conversationSchema,
+  conversationSchema
 );
 
 // tslint:disable-next-line
-export const ConversationMessages = model<IConversationMessageDocument, IConversationMessageModel>(
-  'conversation_messages_twitters',
-  conversationMessageSchema,
-);
+export const ConversationMessages = model<
+  IConversationMessageDocument,
+  IConversationMessageModel
+>('conversation_messages_twitters', conversationMessageSchema);

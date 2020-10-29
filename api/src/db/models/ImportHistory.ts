@@ -1,10 +1,17 @@
 import { Model, model } from 'mongoose';
-import { IImportHistory, IImportHistoryDocument, importHistorySchema } from './definitions/importHistory';
+import {
+  IImportHistory,
+  IImportHistoryDocument,
+  importHistorySchema
+} from './definitions/importHistory';
 import { IUserDocument } from './definitions/users';
 
 export interface IImportHistoryModel extends Model<IImportHistoryDocument> {
   getImportHistory(_id: string): Promise<IImportHistoryDocument>;
-  createHistory(doc: IImportHistory, user: IUserDocument): Promise<IImportHistoryDocument>;
+  createHistory(
+    doc: IImportHistory,
+    user: IUserDocument
+  ): Promise<IImportHistoryDocument>;
   removeHistory(_id: string): Promise<string>;
 }
 
@@ -26,11 +33,14 @@ export const loadClass = () => {
     /*
      * Create new history
      */
-    public static async createHistory(doc: IImportHistory, user: IUserDocument) {
+    public static async createHistory(
+      doc: IImportHistory,
+      user: IUserDocument
+    ) {
       return ImportHistories.create({
         userId: user._id,
         date: new Date(),
-        ...doc,
+        ...doc
       });
     }
 
@@ -58,6 +68,9 @@ export const loadClass = () => {
 loadClass();
 
 // tslint:disable-next-line
-const ImportHistories = model<IImportHistoryDocument, IImportHistoryModel>('import_history', importHistorySchema);
+const ImportHistories = model<IImportHistoryDocument, IImportHistoryModel>(
+  'import_history',
+  importHistorySchema
+);
 
 export default ImportHistories;

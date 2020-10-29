@@ -23,7 +23,7 @@ export const channelSchema = new Schema({
   description: field({
     type: String,
     optional: true,
-    label: 'Description',
+    label: 'Description'
   }),
   integrationIds: field({ type: [String], label: 'Integrations' }),
   memberIds: field({ type: [String], label: 'Members' }),
@@ -31,11 +31,11 @@ export const channelSchema = new Schema({
   conversationCount: field({
     type: Number,
     default: 0,
-    label: 'Conversation count',
+    label: 'Conversation count'
   }),
   openConversationCount: field({
     type: Number,
     default: 0,
-    label: 'Open conversation count',
-  }),
+    label: 'Open conversation count'
+  })
 });

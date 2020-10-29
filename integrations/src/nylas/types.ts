@@ -1,4 +1,9 @@
-import { IAttachments, IEmail, ILabels, INylasConversationMessage } from './models';
+import {
+  IAttachments,
+  IEmail,
+  ILabels,
+  INylasConversationMessage
+} from './models';
 
 interface ICommonType {
   name?: string;
@@ -34,7 +39,16 @@ export interface IGetOrCreateArguments {
   collectionName: string;
   selector: { [key: string]: string };
   fields: {
-    doc: { [key: string]: string | string[] | boolean | number | IEmail[] | IAttachments[] | ILabels[] };
+    doc: {
+      [key: string]:
+        | string
+        | string[]
+        | boolean
+        | number
+        | IEmail[]
+        | IAttachments[]
+        | ILabels[];
+    };
     api: IAPIConversation | IAPIConversationMessage | IAPICustomer;
   };
 }

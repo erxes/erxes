@@ -61,10 +61,16 @@ export default class Builder {
   }
 
   public async defaultFilters(): Promise<any> {
-    const activeIntegrations = await Integrations.findIntegrations({}, { _id: 1 });
+    const activeIntegrations = await Integrations.findIntegrations(
+      {},
+      { _id: 1 }
+    );
     this.activeIntegrationIds = activeIntegrations.map(integ => integ._id);
 
-    let statusFilter = this.statusFilter([CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN]);
+    let statusFilter = this.statusFilter([
+      CONVERSATION_STATUSES.NEW,
+      CONVERSATION_STATUSES.OPEN
+    ]);
 
     if (this.params.status === 'closed') {
       statusFilter = this.statusFilter([CONVERSATION_STATUSES.CLOSED]);
@@ -76,18 +82,23 @@ export default class Builder {
       $or: [
         {
           userId: { $exists: true },
-          messageCount: { $gt: 1 },
+          messageCount: { $gt: 1 }
         },
         {
-          userId: { $exists: false },
-        },
-      ],
+          userId: { $exists: false }
+        }
+      ]
     };
   }
 
-  public async intersectIntegrationIds(...queries: any[]): Promise<{ integrationId: IIn }> {
+  public async intersectIntegrationIds(
+    ...queries: any[]
+  ): Promise<{ integrationId: IIn }> {
     // filter only queries with $in field
-    const withIn = queries.filter(q => q.integrationId && q.integrationId.$in && q.integrationId.$in.length > 0);
+    const withIn = queries.filter(
+      q =>
+        q.integrationId && q.integrationId.$in && q.integrationId.$in.length > 0
+    );
 
     // [{$in: ['id1', 'id2']}, {$in: ['id3', 'id1', 'id4']}]
     const $ins = _.pluck(withIn, 'integrationId');
@@ -99,7 +110,7 @@ export default class Builder {
     const integrationids: string[] = _.intersection(...nestedIntegrationIds);
 
     return {
-      integrationId: { $in: integrationids },
+      integrationId: { $in: integrationids }
     };
   }
 
@@ -115,12 +126,14 @@ export default class Builder {
     channels.forEach(channel => {
       availIntegrationIds = _.union(
         availIntegrationIds,
-        (channel.integrationIds || []).filter(id => this.activeIntegrationIds.includes(id)),
+        (channel.integrationIds || []).filter(id =>
+          this.activeIntegrationIds.includes(id)
+        )
       );
     });
 
     const nestedIntegrationIds: Array<{ integrationId: { $in: string[] } }> = [
-      { integrationId: { $in: availIntegrationIds } },
+      { integrationId: { $in: availIntegrationIds } }
     ];
 
     // filter by channel
@@ -139,11 +152,17 @@ export default class Builder {
   }
 
   // filter by channel
-  public async channelFilter(channelId: string): Promise<{ integrationId: IIn }> {
+  public async channelFilter(
+    channelId: string
+  ): Promise<{ integrationId: IIn }> {
     const channel = await Channels.getChannel(channelId);
 
     return {
-      integrationId: { $in: (channel.integrationIds || []).filter(id => this.activeIntegrationIds.includes(id)) },
+      integrationId: {
+        $in: (channel.integrationIds || []).filter(id =>
+          this.activeIntegrationIds.includes(id)
+        )
+      }
     };
   }
 
@@ -153,14 +172,14 @@ export default class Builder {
     const integrationIds = _.pluck(integrations, '_id');
 
     return {
-      integrationId: { $in: integrationIds },
+      integrationId: { $in: integrationIds }
     };
   }
 
   // filter all unassigned
   public unassignedFilter(): IUnassignedFilter {
     this.unassignedQuery = {
-      assignedUserId: { $exists: false },
+      assignedUserId: { $exists: false }
     };
 
     return this.unassignedQuery;
@@ -169,7 +188,10 @@ export default class Builder {
   // filter by participating
   public participatingFilter(): { $or: object[] } {
     return {
-      $or: [{ participatedUserIds: { $in: [this.user._id] } }, { assignedUserId: this.user._id }],
+      $or: [
+        { participatedUserIds: { $in: [this.user._id] } },
+        { assignedUserId: this.user._id }
+      ]
     };
   }
 
@@ -177,27 +199,31 @@ export default class Builder {
   public starredFilter(): { _id: IIn | { $in: string[] } } {
     return {
       _id: {
-        $in: this.user.starredConversationIds || [],
-      },
+        $in: this.user.starredConversationIds || []
+      }
     };
   }
 
   public statusFilter(statusChoices: string[]): { status: IIn } {
     return {
-      status: { $in: statusChoices },
+      status: { $in: statusChoices }
     };
   }
 
   // filter by awaiting Response
   public awaitingResponse(): { isCustomerRespondedLast: boolean } {
     return {
-      isCustomerRespondedLast: true,
+      isCustomerRespondedLast: true
     };
   }
 
   // filter by integration type
-  public async integrationTypeFilter(integrationType: string): Promise<{ $and: IIntersectIntegrationIds[] }> {
-    const integrations = await Integrations.findIntegrations({ kind: integrationType });
+  public async integrationTypeFilter(
+    integrationType: string
+  ): Promise<{ $and: IIntersectIntegrationIds[] }> {
+    const integrations = await Integrations.findIntegrations({
+      kind: integrationType
+    });
 
     return {
       $and: [
@@ -205,15 +231,15 @@ export default class Builder {
         this.queries.integrations,
 
         // filter by integration type
-        { integrationId: { $in: _.pluck(integrations, '_id') } },
-      ],
+        { integrationId: { $in: _.pluck(integrations, '_id') } }
+      ]
     };
   }
 
   // filter by tag
   public tagFilter(tagId: string): { tagIds: IIn } {
     return {
-      tagIds: { $in: [tagId] },
+      tagIds: { $in: [tagId] }
     };
   }
 
@@ -221,8 +247,8 @@ export default class Builder {
     return {
       createdAt: {
         $gte: fixDate(startDate),
-        $lte: fixDate(endDate),
-      },
+        $lte: fixDate(endDate)
+      }
     };
   }
 
@@ -243,7 +269,7 @@ export default class Builder {
       integrations: {},
 
       participating: {},
-      createdAt: {},
+      createdAt: {}
     };
 
     // filter by channel
@@ -286,11 +312,16 @@ export default class Builder {
 
     // filter by integration type
     if (this.params.integrationType) {
-      this.queries.integrationType = await this.integrationTypeFilter(this.params.integrationType);
+      this.queries.integrationType = await this.integrationTypeFilter(
+        this.params.integrationType
+      );
     }
 
     if (this.params.startDate && this.params.endDate) {
-      this.queries.createdAt = this.dateFilter(this.params.startDate, this.params.endDate);
+      this.queries.createdAt = this.dateFilter(
+        this.params.startDate,
+        this.params.endDate
+      );
     }
   }
 
@@ -305,7 +336,7 @@ export default class Builder {
       ...this.queries.starred,
       ...this.queries.tag,
       ...this.queries.createdAt,
-      ...this.queries.awaitingResponse,
+      ...this.queries.awaitingResponse
     };
   }
 }

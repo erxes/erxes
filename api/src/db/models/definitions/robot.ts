@@ -18,7 +18,7 @@ export const robotEntrySchema = new Schema({
   parentId: field({ type: String, optional: true }),
   isNotified: field({ type: Boolean, default: false }),
   action: field({ type: String }),
-  data: field({ type: Object }),
+  data: field({ type: Object })
 });
 
 // onboarding history ====================
@@ -29,7 +29,9 @@ export interface IOnboardingHistory {
   completedSteps: string[];
 }
 
-export interface IOnboardingHistoryDocument extends IOnboardingHistory, Document {
+export interface IOnboardingHistoryDocument
+  extends IOnboardingHistory,
+    Document {
   _id: string;
 }
 
@@ -38,5 +40,5 @@ export const onboardingHistorySchema = new Schema({
   userId: field({ type: String }),
   totalPoint: field({ type: Number }),
   isCompleted: field({ type: Boolean }),
-  completedSteps: field({ type: [String] }),
+  completedSteps: field({ type: [String] })
 });

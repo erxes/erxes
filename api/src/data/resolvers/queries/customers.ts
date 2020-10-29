@@ -1,8 +1,20 @@
 import { Customers, Forms } from '../../../db/models';
-import { KIND_CHOICES, TAG_TYPES } from '../../../db/models/definitions/constants';
+import {
+  KIND_CHOICES,
+  TAG_TYPES
+} from '../../../db/models/definitions/constants';
 import { Builder as BuildQuery, IListArgs } from '../../modules/coc/customers';
-import { countByBrand, countByLeadStatus, countBySegment, countByTag, ICountBy } from '../../modules/coc/utils';
-import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
+import {
+  countByBrand,
+  countByLeadStatus,
+  countBySegment,
+  countByTag,
+  ICountBy
+} from '../../modules/coc/utils';
+import {
+  checkPermission,
+  moduleRequireLogin
+} from '../../permissions/wrappers';
 import { IContext } from '../../types';
 
 interface ICountParams extends IListArgs {
@@ -42,8 +54,15 @@ const customerQueries = {
   /**
    * Customers list
    */
-  async customers(_root, params: IListArgs, { commonQuerySelector, commonQuerySelectorElk }: IContext) {
-    const qb = new BuildQuery(params, { commonQuerySelector, commonQuerySelectorElk });
+  async customers(
+    _root,
+    params: IListArgs,
+    { commonQuerySelector, commonQuerySelectorElk }: IContext
+  ) {
+    const qb = new BuildQuery(params, {
+      commonQuerySelector,
+      commonQuerySelectorElk
+    });
 
     await qb.buildAllQueries();
 
@@ -55,8 +74,15 @@ const customerQueries = {
   /**
    * Customers for only main list
    */
-  async customersMain(_root, params: IListArgs, { commonQuerySelector, commonQuerySelectorElk }: IContext) {
-    const qb = new BuildQuery(params, { commonQuerySelector, commonQuerySelectorElk });
+  async customersMain(
+    _root,
+    params: IListArgs,
+    { commonQuerySelector, commonQuerySelectorElk }: IContext
+  ) {
+    const qb = new BuildQuery(params, {
+      commonQuerySelector,
+      commonQuerySelectorElk
+    });
 
     await qb.buildAllQueries();
 
@@ -68,7 +94,11 @@ const customerQueries = {
   /**
    * Group customer counts by brands, segments, integrations, tags
    */
-  async customerCounts(_root, params: ICountParams, { commonQuerySelector, commonQuerySelectorElk }: IContext) {
+  async customerCounts(
+    _root,
+    params: ICountParams,
+    { commonQuerySelector, commonQuerySelectorElk }: IContext
+  ) {
     const { only, type } = params;
 
     const counts = {
@@ -77,10 +107,13 @@ const customerQueries = {
       byIntegrationType: {},
       byTag: {},
       byForm: {},
-      byLeadStatus: {},
+      byLeadStatus: {}
     };
 
-    const qb = new BuildQuery(params, { commonQuerySelector, commonQuerySelectorElk });
+    const qb = new BuildQuery(params, {
+      commonQuerySelector,
+      commonQuerySelectorElk
+    });
 
     switch (only) {
       case 'bySegment':
@@ -116,12 +149,15 @@ const customerQueries = {
    */
   customerDetail(_root, { _id }: { _id: string }) {
     return Customers.findOne({ _id });
-  },
+  }
 };
 
 moduleRequireLogin(customerQueries);
 
 checkPermission(customerQueries, 'customers', 'showCustomers', []);
-checkPermission(customerQueries, 'customersMain', 'showCustomers', { list: [], totalCount: 0 });
+checkPermission(customerQueries, 'customersMain', 'showCustomers', {
+  list: [],
+  totalCount: 0
+});
 
 export default customerQueries;

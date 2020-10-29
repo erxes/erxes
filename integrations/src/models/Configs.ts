@@ -15,7 +15,7 @@ export interface IConfigDocument extends IConfig, Document {
 export const configSchema = new Schema({
   _id: field({ pkey: true }),
   code: field({ type: String, unique: true }),
-  value: field({ type: Object }),
+  value: field({ type: Object })
 });
 
 export interface IConfigModel extends Model<IConfigDocument> {
@@ -42,7 +42,13 @@ export const loadClass = () => {
     /**
      * Create or update config
      */
-    public static async createOrUpdateConfig({ code, value }: { code: string; value: string[] }) {
+    public static async createOrUpdateConfig({
+      code,
+      value
+    }: {
+      code: string;
+      value: string[];
+    }) {
       const obj = await Configs.findOne({ code });
 
       if (obj) {

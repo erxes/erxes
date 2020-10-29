@@ -54,9 +54,9 @@ const attachmentSchema = new Schema(
     url: field({ type: String }),
     name: field({ type: String }),
     size: field({ type: Number }),
-    type: field({ type: String }),
+    type: field({ type: String })
   },
-  { _id: false },
+  { _id: false }
 );
 
 const engageDataRuleSchema = new Schema(
@@ -64,9 +64,9 @@ const engageDataRuleSchema = new Schema(
     kind: field({ type: String }),
     text: field({ type: String }),
     condition: field({ type: String }),
-    value: field({ type: String, optional: true }),
+    value: field({ type: String, optional: true })
   },
-  { _id: false },
+  { _id: false }
 );
 
 const engageDataSchema = new Schema(
@@ -78,9 +78,9 @@ const engageDataSchema = new Schema(
     fromUserId: field({ type: String }),
     kind: field({ type: String }),
     sentAs: field({ type: String }),
-    rules: field({ type: [engageDataRuleSchema], optional: true }),
+    rules: field({ type: [engageDataRuleSchema], optional: true })
   },
-  { _id: false },
+  { _id: false }
 );
 
 export const messageSchema = new Schema({
@@ -102,6 +102,6 @@ export const messageSchema = new Schema({
   contentType: field({
     type: String,
     enum: MESSAGE_TYPES.ALL,
-    default: MESSAGE_TYPES.TEXT,
-  }),
+    default: MESSAGE_TYPES.TEXT
+  })
 });

@@ -1,12 +1,5 @@
 {
   "name": "erxes-widgets",
-  "description": "Embedable widget scripts server for erxes",
-  "homepage": "https://erxes.io",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/erxes/erxes"
-  },
-  "bugs": "https://github.com/erxes/erxes/issues",
   "keywords": [
     "node",
     "express",
@@ -24,16 +17,7 @@
     "build": "yarn build-webpack && yarn build-server",
     "build-server": "tsc --project tsconfig.server.json && cp -r ./server/views/ ./dist/",
     "build-webpack": "webpack --mode production --config=webpack.prod.config.js",
-    "lint": "tslint 'client/**/*.@(ts|tsx)'",
-    "format": "prettier --write 'client/**/*.@(ts|tsx)'",
-    "precommit": "lint-staged",
     "start": "node dist"
-  },
-  "lint-staged": {
-    "*.@(ts|tsx)": [
-      "prettier --single-quote --write",
-      "git add"
-    ]
   },
   "dependencies": {
     "@nateradebaugh/react-datetime": "^4.0.0-rc.10",
@@ -91,15 +75,8 @@
   },
   "devDependencies": {
     "git-repo-info": "^2.1.0",
-    "husky": "^0.14.3",
-    "lint-staged": "^7.2.0",
     "nodemon": "^1.11.0",
-    "prettier": "^1.13.7",
     "ts-node": "^8.3.0",
-    "tslint": "^5.11.0",
-    "tslint-config-prettier": "^1.14.0",
-    "tslint-config-standard": "^7.1.0",
-    "tslint-react": "^3.6.0",
     "typescript": "^2.9.2"
   },
   "engines": {

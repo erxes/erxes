@@ -14,13 +14,17 @@ export default {
   },
 
   async mailData(message: IMessageDocument, _args, { dataSources }: IContext) {
-    const conversation = await Conversations.findOne({ _id: message.conversationId }).lean();
+    const conversation = await Conversations.findOne({
+      _id: message.conversationId
+    }).lean();
 
     if (!conversation || message.internal) {
       return null;
     }
 
-    const integration = await Integrations.findOne({ _id: conversation.integrationId }).lean();
+    const integration = await Integrations.findOne({
+      _id: conversation.integrationId
+    }).lean();
 
     if (!integration) {
       return null;
@@ -33,16 +37,24 @@ export default {
       return null;
     }
 
-    const path = kind.includes('nylas') ? `/nylas/get-message` : `/${kind}/get-message`;
+    const path = kind.includes('nylas')
+      ? `/nylas/get-message`
+      : `/${kind}/get-message`;
 
     return dataSources.IntegrationsAPI.fetchApi(path, {
       erxesApiMessageId: message._id,
-      integrationId: integration._id,
+      integrationId: integration._id
     });
   },
 
-  async videoCallData(message: IMessageDocument, _args, { dataSources }: IContext) {
-    const conversation = await Conversations.findOne({ _id: message.conversationId });
+  async videoCallData(
+    message: IMessageDocument,
+    _args,
+    { dataSources }: IContext
+  ) {
+    const conversation = await Conversations.findOne({
+      _id: message.conversationId
+    });
 
     if (!conversation || message.internal) {
       return null;
@@ -53,11 +65,14 @@ export default {
     }
 
     try {
-      const response = await dataSources.IntegrationsAPI.fetchApi('/daily/room', { erxesApiMessageId: message._id });
+      const response = await dataSources.IntegrationsAPI.fetchApi(
+        '/daily/room',
+        { erxesApiMessageId: message._id }
+      );
       return response;
     } catch (e) {
       debugExternalApi(e);
       return null;
     }
-  },
+  }
 };

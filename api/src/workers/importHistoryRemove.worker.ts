@@ -1,5 +1,13 @@
 import * as mongoose from 'mongoose';
-import { Companies, Customers, Deals, ImportHistory, Products, Tasks, Tickets } from '../db/models';
+import {
+  Companies,
+  Customers,
+  Deals,
+  ImportHistory,
+  Products,
+  Tasks,
+  Tickets
+} from '../db/models';
 import { connect } from './utils';
 
 // tslint:disable-next-line
@@ -35,7 +43,10 @@ connect()
         break;
     }
 
-    await ImportHistory.updateOne({ _id: importHistoryId }, { $pull: { ids: { $in: result } } });
+    await ImportHistory.updateOne(
+      { _id: importHistoryId },
+      { $pull: { ids: { $in: result } } }
+    );
 
     const historyObj = await ImportHistory.findOne({ _id: importHistoryId });
 

@@ -47,7 +47,9 @@ describe('pipelineLabelQueries', () => {
 
     const pipelineLabel = await pipelineLabelFactory();
 
-    const response = await graphqlRequest(qry, 'pipelineLabelDetail', { _id: pipelineLabel._id });
+    const response = await graphqlRequest(qry, 'pipelineLabelDetail', {
+      _id: pipelineLabel._id
+    });
 
     expect(response._id).toBe(pipelineLabel._id);
   });

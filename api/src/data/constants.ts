@@ -5,7 +5,7 @@ export const MESSAGE_KINDS = {
   AUTO: 'auto',
   VISITOR_AUTO: 'visitorAuto',
   MANUAL: 'manual',
-  ALL: ['auto', 'visitorAuto', 'manual'],
+  ALL: ['auto', 'visitorAuto', 'manual']
 };
 
 export const FORM_FIELDS = {
@@ -19,7 +19,17 @@ export const FORM_FIELDS = {
     EMAIL: 'email',
     FIRST_NAME: 'firstName',
     LAST_NAME: 'lastName',
-    ALL: ['input', 'textarea', 'radio', 'check', 'select', 'divider', 'email', 'firstName', 'lastName'],
+    ALL: [
+      'input',
+      'textarea',
+      'radio',
+      'check',
+      'select',
+      'divider',
+      'email',
+      'firstName',
+      'lastName'
+    ]
   },
   VALIDATION: {
     BLANK: '',
@@ -27,8 +37,8 @@ export const FORM_FIELDS = {
     DATE: 'date',
     DATETIME: 'datetime',
     EMAIL: 'email',
-    ALL: ['', 'number', 'date', 'datetime', 'email'],
-  },
+    ALL: ['', 'number', 'date', 'datetime', 'email']
+  }
 };
 
 export const FIELD_CONTENT_TYPES = {
@@ -36,16 +46,16 @@ export const FIELD_CONTENT_TYPES = {
   CUSTOMER: 'customer',
   COMPANY: 'company',
   PRODUCT: 'product',
-  ALL: ['form', 'customer', 'company', 'product'],
+  ALL: ['form', 'customer', 'company', 'product']
 };
 
 export const EXTEND_FIELDS = {
   CUSTOMER: [
     { name: 'tag', label: 'Tag' },
     { name: 'ownerEmail', label: 'Owner' },
-    { name: 'companiesPrimaryNames', label: 'Companies' },
+    { name: 'companiesPrimaryNames', label: 'Companies' }
   ],
-  PRODUCT: [{ name: 'categoryCode', label: 'Category Code' }],
+  PRODUCT: [{ name: 'categoryCode', label: 'Category Code' }]
 };
 
 export const COC_LEAD_STATUS_TYPES = [
@@ -57,7 +67,7 @@ export const COC_LEAD_STATUS_TYPES = [
   'unqualified',
   'attemptedToContact',
   'connected',
-  'badTiming',
+  'badTiming'
 ];
 
 export const COC_LIFECYCLE_STATE_TYPES = [
@@ -69,14 +79,14 @@ export const COC_LIFECYCLE_STATE_TYPES = [
   'opportunity',
   'customer',
   'evangelist',
-  'other',
+  'other'
 ];
 
 export const FIELDS_GROUPS_CONTENT_TYPES = {
   CUSTOMER: 'customer',
   COMPANY: 'company',
   PRODUCT: 'product',
-  ALL: ['customer', 'company', 'product'],
+  ALL: ['customer', 'company', 'product']
 };
 
 export const INSIGHT_BASIC_INFOS = {
@@ -95,14 +105,14 @@ export const INSIGHT_BASIC_INFOS = {
     'messageCount',
     'resolvedCount',
     'averageResponseDuration',
-    'firstResponseDuration',
-  ],
+    'firstResponseDuration'
+  ]
 };
 
 export const INSIGHT_TYPES = {
   DEAL: 'deal',
   CONVERSATION: 'conversation',
-  ALL: ['deal', 'conversation'],
+  ALL: ['deal', 'conversation']
 };
 
 export const NOTIFICATION_MODULES = [
@@ -112,17 +122,17 @@ export const NOTIFICATION_MODULES = [
     types: [
       {
         name: 'conversationStateChange',
-        text: 'State change',
+        text: 'State change'
       },
       {
         name: 'conversationAssigneeChange',
-        text: 'Assignee change',
+        text: 'Assignee change'
       },
       {
         name: 'conversationAddMessage',
-        text: 'Add message',
-      },
-    ],
+        text: 'Add message'
+      }
+    ]
   },
 
   {
@@ -131,9 +141,9 @@ export const NOTIFICATION_MODULES = [
     types: [
       {
         name: 'channelMembersChange',
-        text: 'Members change',
-      },
-    ],
+        text: 'Members change'
+      }
+    ]
   },
 
   {
@@ -142,29 +152,29 @@ export const NOTIFICATION_MODULES = [
     types: [
       {
         name: 'dealAdd',
-        text: 'Assigned a new deal  card',
+        text: 'Assigned a new deal  card'
       },
       {
         name: 'dealRemoveAssign',
-        text: 'Removed from the deal card',
+        text: 'Removed from the deal card'
       },
       {
         name: 'dealEdit',
-        text: 'Deal card edited',
+        text: 'Deal card edited'
       },
       {
         name: 'dealChange',
-        text: 'Moved between stages',
+        text: 'Moved between stages'
       },
       {
         name: 'dealDueDate',
-        text: 'Due date is near',
+        text: 'Due date is near'
       },
       {
         name: 'dealDelete',
-        text: 'Deal card deleted',
-      },
-    ],
+        text: 'Deal card deleted'
+      }
+    ]
   },
 
   {
@@ -173,29 +183,29 @@ export const NOTIFICATION_MODULES = [
     types: [
       {
         name: 'ticketAdd',
-        text: 'Assigned a new ticket  card',
+        text: 'Assigned a new ticket  card'
       },
       {
         name: 'ticketRemoveAssign',
-        text: 'Removed from the ticket card',
+        text: 'Removed from the ticket card'
       },
       {
         name: 'ticketEdit',
-        text: 'Ticket card edited',
+        text: 'Ticket card edited'
       },
       {
         name: 'ticketChange',
-        text: 'Moved between stages',
+        text: 'Moved between stages'
       },
       {
         name: 'ticketDueDate',
-        text: 'Due date is near',
+        text: 'Due date is near'
       },
       {
         name: 'ticketDelete',
-        text: 'Ticket card deleted',
-      },
-    ],
+        text: 'Ticket card deleted'
+      }
+    ]
   },
 
   {
@@ -204,29 +214,29 @@ export const NOTIFICATION_MODULES = [
     types: [
       {
         name: 'taskAdd',
-        text: 'Assigned a new task  card',
+        text: 'Assigned a new task  card'
       },
       {
         name: 'taskRemoveAssign',
-        text: 'Removed from the task card',
+        text: 'Removed from the task card'
       },
       {
         name: 'taskEdit',
-        text: 'Task card edited',
+        text: 'Task card edited'
       },
       {
         name: 'taskChange',
-        text: 'Moved between stages',
+        text: 'Moved between stages'
       },
       {
         name: 'taskDueDate',
-        text: 'Due date is near',
+        text: 'Due date is near'
       },
       {
         name: 'taskDelete',
-        text: 'Task card deleted',
-      },
-    ],
+        text: 'Task card deleted'
+      }
+    ]
   },
   {
     name: 'customers',
@@ -234,9 +244,9 @@ export const NOTIFICATION_MODULES = [
     types: [
       {
         name: 'customerMention',
-        text: 'Mention on customer note',
-      },
-    ],
+        text: 'Mention on customer note'
+      }
+    ]
   },
   {
     name: 'companies',
@@ -244,10 +254,10 @@ export const NOTIFICATION_MODULES = [
     types: [
       {
         name: 'companyMention',
-        text: 'Mention on company note',
-      },
-    ],
-  },
+        text: 'Mention on company note'
+      }
+    ]
+  }
 ];
 
 export const MODULE_NAMES = {
@@ -290,21 +300,21 @@ export const MODULE_NAMES = {
   ENGAGE: 'engage',
   SCRIPT: 'script',
   FIELD: 'field',
-  WEBHOOK: 'webhook',
+  WEBHOOK: 'webhook'
 };
 
 export const RABBITMQ_QUEUES = {
   PUT_LOG: 'putLog',
   RPC_API_TO_INTEGRATIONS: 'rpc_queue:api_to_integrations',
   RPC_API_TO_WORKERS: 'rpc_queue:api_to_workers',
-  WORKERS: 'workers',
+  WORKERS: 'workers'
 };
 
 export const AUTO_BOT_MESSAGES = {
   NO_RESPONSE: 'No reply',
-  CHANGE_OPERATOR: 'The team will reply in message',
+  CHANGE_OPERATOR: 'The team will reply in message'
 };
 
 export const BOT_MESSAGE_TYPES = {
-  SAY_SOMETHING: 'say_something',
+  SAY_SOMETHING: 'say_something'
 };

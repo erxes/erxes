@@ -8,7 +8,7 @@ import {
   GrowthHacks,
   InternalNotes,
   Tasks,
-  Tickets,
+  Tickets
 } from '.';
 import { validSearchText } from '../../data/utils';
 import { IItemCommonFields, IOrderInput } from './definitions/boards';
@@ -46,13 +46,21 @@ const orderHeler = (aboveOrder, belowOrder) => {
   return randomBetween(aboveOrder, belowOrder);
 };
 
-export const getNewOrder = async ({ collection, stageId, aboveItemId }: ISetOrderParam) => {
+export const getNewOrder = async ({
+  collection,
+  stageId,
+  aboveItemId
+}: ISetOrderParam) => {
   const aboveItem = await collection.findOne({ _id: aboveItemId });
 
   const aboveOrder = aboveItem?.order || 0;
 
   const belowItems = await collection
-    .find({ stageId, order: { $gt: aboveOrder }, status: { $ne: BOARD_STATUSES.ARCHIVED } })
+    .find({
+      stageId,
+      order: { $gt: aboveOrder },
+      status: { $ne: BOARD_STATUSES.ARCHIVED }
+    })
     .sort({ order: 1 })
     .limit(1);
 
@@ -75,9 +83,9 @@ export const getNewOrder = async ({ collection, stageId, aboveItemId }: ISetOrde
       .find(
         {
           stageId,
-          status: { $ne: BOARD_STATUSES.ARCHIVED },
+          status: { $ne: BOARD_STATUSES.ARCHIVED }
         },
-        { _id: 1, order: 1 },
+        { _id: 1, order: 1 }
       )
       .sort({ order: 1 });
 
@@ -85,8 +93,8 @@ export const getNewOrder = async ({ collection, stageId, aboveItemId }: ISetOrde
       bulkOps.push({
         updateOne: {
           filter: { _id: item._id },
-          update: { order: ord },
-        },
+          update: { order: ord }
+        }
       });
 
       ord = ord + 10;
@@ -120,8 +128,8 @@ export const updateOrder = async (collection: any, orders: IOrderInput[]) => {
     bulkOps.push({
       updateOne: {
         filter: { _id },
-        update: selector,
-      },
+        update: selector
+      }
     });
   }
 
@@ -130,7 +138,12 @@ export const updateOrder = async (collection: any, orders: IOrderInput[]) => {
   return collection.find({ _id: { $in: ids } }).sort({ order: 1 });
 };
 
-export const watchItem = async (collection: any, _id: string, isAdd: boolean, userId: string) => {
+export const watchItem = async (
+  collection: any,
+  _id: string,
+  isAdd: boolean,
+  userId: string
+) => {
   const item = await collection.findOne({ _id });
 
   const watchedUserIds = item.watchedUserIds || [];
@@ -148,7 +161,10 @@ export const watchItem = async (collection: any, _id: string, isAdd: boolean, us
   return collection.findOne({ _id });
 };
 
-export const fillSearchTextItem = (doc: IItemCommonFields, item?: IItemCommonFields) => {
+export const fillSearchTextItem = (
+  doc: IItemCommonFields,
+  item?: IItemCommonFields
+) => {
   const document = item || { name: '', description: '' };
   Object.assign(document, doc);
 
@@ -194,16 +210,30 @@ export const getItem = async (type: string, _id: string) => {
   return item;
 };
 
-export const getCompanies = async (mainType: string, mainTypeId: string): Promise<ICompanyDocument[]> => {
-  const conformities = await Conformities.find({ mainType, mainTypeId, relType: 'company' });
+export const getCompanies = async (
+  mainType: string,
+  mainTypeId: string
+): Promise<ICompanyDocument[]> => {
+  const conformities = await Conformities.find({
+    mainType,
+    mainTypeId,
+    relType: 'company'
+  });
 
   const companyIds = conformities.map(c => c.relTypeId);
 
   return Companies.find({ _id: { $in: companyIds } });
 };
 
-export const getCustomers = async (mainType: string, mainTypeId: string): Promise<ICustomerDocument[]> => {
-  const conformities = await Conformities.find({ mainType, mainTypeId, relType: 'customer' });
+export const getCustomers = async (
+  mainType: string,
+  mainTypeId: string
+): Promise<ICustomerDocument[]> => {
+  const conformities = await Conformities.find({
+    mainType,
+    mainTypeId,
+    relType: 'customer'
+  });
 
   const customerIds = conformities.map(c => c.relTypeId);
 
@@ -211,9 +241,15 @@ export const getCustomers = async (mainType: string, mainTypeId: string): Promis
 };
 
 // Removes all board item related things
-export const destroyBoardItemRelations = async (contentTypeId: string, contentType: string) => {
+export const destroyBoardItemRelations = async (
+  contentTypeId: string,
+  contentType: string
+) => {
   await ActivityLogs.removeActivityLog(contentTypeId);
   await Checklists.removeChecklists(contentType, contentTypeId);
-  await Conformities.removeConformity({ mainType: contentType, mainTypeId: contentTypeId });
+  await Conformities.removeConformity({
+    mainType: contentType,
+    mainTypeId: contentTypeId
+  });
   await InternalNotes.remove({ contentType, contentTypeId });
 };

@@ -13,16 +13,22 @@ const init = async app => {
   });
 
   app.get(`/twitter/callback/add`, async (req, res) => {
-    const response = await twitterUtils.veriyfyLoginToken(req.query.oauth_token, req.query.oauth_verifier);
+    const response = await twitterUtils.veriyfyLoginToken(
+      req.query.oauth_token,
+      req.query.oauth_verifier
+    );
 
-    const profile = await twitterUtils.verifyUser(response.oauth_token, response.oauth_token_secret);
+    const profile = await twitterUtils.verifyUser(
+      response.oauth_token,
+      response.oauth_token_secret
+    );
 
     await Accounts.create({
       token: response.oauth_token,
       tokenSecret: response.oauth_token_secret,
       name: profile.screen_name,
       kind: 'twitter',
-      uid: profile.id_str,
+      uid: profile.id_str
     });
 
     const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
@@ -42,7 +48,7 @@ const init = async app => {
 
       res.status(200);
       return res.json({
-        response_token: `sha256=${hash}`,
+        response_token: `sha256=${hash}`
       });
     } else {
       res.status(400);
@@ -64,7 +70,9 @@ const init = async app => {
     const account = await Accounts.findOne({ _id: req.query.accountId });
 
     if (!account) {
-      debugTwitter(`Error Twitter: Account not found with ${req.query.accountId}`);
+      debugTwitter(
+        `Error Twitter: Account not found with ${req.query.accountId}`
+      );
       return next(new Error('Account not found'));
     }
 
@@ -77,7 +85,7 @@ const init = async app => {
     const { accountId, integrationId, data, kind } = req.body;
 
     const prevEntry = await Integrations.findOne({
-      accountId,
+      accountId
     });
 
     if (prevEntry) {
@@ -90,7 +98,7 @@ const init = async app => {
       kind,
       accountId,
       erxesApiId: integrationId,
-      twitterAccountId: data.twitterAccountId,
+      twitterAccountId: data.twitterAccountId
     });
 
     try {
@@ -119,9 +127,9 @@ const init = async app => {
 
     const attachment = {
       media: {
-        id: null,
+        id: null
       },
-      type: 'media',
+      type: 'media'
     };
 
     for (const attach of attachments) {
@@ -132,15 +140,24 @@ const init = async app => {
       attachment.media.id = JSON.parse(response).media_id_string;
     }
 
-    const conversation = await Conversations.getConversation({ erxesApiId: conversationId });
+    const conversation = await Conversations.getConversation({
+      erxesApiId: conversationId
+    });
 
-    const integration = await Integrations.findOne({ erxesApiId: integrationId });
+    const integration = await Integrations.findOne({
+      erxesApiId: integrationId
+    });
 
     const account = await Accounts.findOne({ _id: integration.accountId });
 
     const recipientId = conversation.senderId;
 
-    const message = await twitterUtils.reply(recipientId, content, attachment, account);
+    const message = await twitterUtils.reply(
+      recipientId,
+      content,
+      attachment,
+      account
+    );
 
     const { event } = message;
     const { id, created_timestamp, message_create } = event;
@@ -151,7 +168,7 @@ const init = async app => {
       conversationId: conversation._id,
       messageId: id,
       timestamp: created_timestamp,
-      content: message_data.text,
+      content: message_data.text
     });
 
     debugResponse(debugTwitter, req);

@@ -4,10 +4,14 @@ import {
   pipelineFactory,
   stageFactory,
   ticketFactory,
-  userFactory,
+  userFactory
 } from '../db/factories';
 import { Boards, Pipelines, Stages, Tickets } from '../db/models';
-import { IBoardDocument, IPipelineDocument, IStageDocument } from '../db/models/definitions/boards';
+import {
+  IBoardDocument,
+  IPipelineDocument,
+  IStageDocument
+} from '../db/models/definitions/boards';
 import { ITicketDocument } from '../db/models/definitions/tickets';
 import { IUserDocument } from '../db/models/definitions/users';
 
@@ -52,7 +56,7 @@ describe('Test Tickets model', () => {
   test('Create ticket', async () => {
     const createdTicket = await Tickets.createTicket({
       stageId: ticket.stageId,
-      userId: user._id,
+      userId: user._id
     });
 
     expect(createdTicket).toBeDefined();
@@ -66,7 +70,7 @@ describe('Test Tickets model', () => {
     const args = {
       stageId: ticket.stageId,
       sourceConversationId: conversation._id,
-      userId: user._id,
+      userId: user._id
     };
 
     const createdTicket = await Tickets.createTicket(args);
@@ -84,7 +88,7 @@ describe('Test Tickets model', () => {
   test('Update ticket', async () => {
     const ticketStageId = 'fakeId';
     const updatedTicket = await Tickets.updateTicket(ticket._id, {
-      stageId: ticketStageId,
+      stageId: ticketStageId
     });
 
     expect(updatedTicket).toBeDefined();

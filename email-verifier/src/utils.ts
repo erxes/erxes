@@ -26,7 +26,7 @@ interface IRequestParams {
  */
 export const sendRequest = async (
   { url, method, headers, form, body, params }: IRequestParams,
-  errorMessage?: string,
+  errorMessage?: string
 ) => {
   debugBase(`
     Sending request to
@@ -44,7 +44,7 @@ export const sendRequest = async (
       headers: { 'Content-Type': 'application/json', ...(headers || {}) },
       form,
       body,
-      params,
+      params
     });
 
     const responseBody = response.getBody();
@@ -65,7 +65,13 @@ export const sendRequest = async (
   }
 };
 
-export const getEnv = ({ name, defaultValue }: { name: string; defaultValue?: string }): string => {
+export const getEnv = ({
+  name,
+  defaultValue
+}: {
+  name: string;
+  defaultValue?: string;
+}): string => {
   const value = process.env[name];
 
   if (!value && typeof defaultValue !== 'undefined') {

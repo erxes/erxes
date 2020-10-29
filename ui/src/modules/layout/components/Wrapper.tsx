@@ -30,7 +30,14 @@ class Wrapper extends React.Component<Props> {
   static ActionBar = ActionBar;
 
   renderContent() {
-    const { actionBar, content, footer, transparent, center, shrink } = this.props;
+    const {
+      actionBar,
+      content,
+      footer,
+      transparent,
+      center,
+      shrink
+    } = this.props;
 
     if (center) {
       return (

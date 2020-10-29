@@ -168,15 +168,18 @@ export const TUTORIALS = [
     image: '/images/actions/17.svg',
     color: colors.colorCoreRed,
     description: {
-      step: 'Please refer to the following playlist on the most up to date use case video guides',
+      step:
+        'Please refer to the following playlist on the most up to date use case video guides',
       duration: ' '
     },
     videos: [
       {
-        name: 'These videos will help you accomplish tasks by combining multiple erxes features',
+        name:
+          'These videos will help you accomplish tasks by combining multiple erxes features',
         key: 'tutorial',
-        url: 'https://www.youtube.com/embed/videoseries?list=PLwRYODuwm31um-syg-C2j6QhCDByopXNQ'
-      },
+        url:
+          'https://www.youtube.com/embed/videoseries?list=PLwRYODuwm31um-syg-C2j6QhCDByopXNQ'
+      }
     ]
   }
 ];

@@ -6,7 +6,7 @@
 export const getDateFieldAsStr = ({
   fieldName = '$createdAt',
   timeFormat = '%Y-%m-%d',
-  timeZone = '+08',
+  timeZone = '+08'
 }): {
   $dateToString: {
     format: string;
@@ -18,8 +18,8 @@ export const getDateFieldAsStr = ({
     $dateToString: {
       format: timeFormat,
       date: fieldName,
-      timezone: timeZone,
-    },
+      timezone: timeZone
+    }
   };
 };
 
@@ -28,16 +28,16 @@ export const getDateFieldAsStr = ({
  */
 export const getDurationField = ({
   startField = '$createdAt',
-  endField = '$closedAt',
+  endField = '$closedAt'
 }): {
   $divide: [{ $subtract: string[] }, number];
 } => {
   return {
     $divide: [
       {
-        $subtract: [startField, endField],
+        $subtract: [startField, endField]
       },
-      1000,
-    ],
+      1000
+    ]
   };
 };

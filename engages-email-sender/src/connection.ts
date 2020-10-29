@@ -13,7 +13,7 @@ export const connectionOptions = {
   useNewUrlParser: true,
   useCreateIndex: true,
   autoReconnect: true,
-  useFindAndModify: false,
+  useFindAndModify: false
 };
 
 mongoose.connection

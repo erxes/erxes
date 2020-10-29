@@ -45,13 +45,15 @@ type Props = {
     },
     callback: () => void
   ) => void;
-  fetchFacebook: (
-    {
-      commentId,
-      postId,
-      limit,
-    }: { commentId?: string; postId?: string; limit?: number }
-  ) => void;
+  fetchFacebook: ({
+    commentId,
+    postId,
+    limit
+  }: {
+    commentId?: string;
+    postId?: string;
+    limit?: number;
+  }) => void;
   refetch: () => void;
 };
 
@@ -71,11 +73,11 @@ export default class FacebookComment extends React.Component<
 
     this.state = {
       hasReplies,
-      isResolved: data.isResolved ? true : false,
+      isResolved: data.isResolved ? true : false
     };
   }
 
-  fetchReplies = (commentId) => {
+  fetchReplies = commentId => {
     const { fetchFacebook } = this.props;
 
     fetchFacebook({ commentId });
@@ -108,7 +110,7 @@ export default class FacebookComment extends React.Component<
           result.push({
             url: link,
             name: 'attachment',
-            type: 'image / jpeg,',
+            type: 'image / jpeg,'
           });
         }
       });
@@ -123,7 +125,7 @@ export default class FacebookComment extends React.Component<
       replyComment,
       isReply,
       convertToInfo,
-      refetch,
+      refetch
     } = this.props;
     const { isResolved } = this.state;
 
@@ -136,7 +138,7 @@ export default class FacebookComment extends React.Component<
     const size = comment && comment.parentId ? 20 : 32;
     const statusText = isResolved ? 'Open' : 'Resolve';
 
-    const content = (props) => (
+    const content = props => (
       <ReplyingMessage
         changeHasReply={this.changeHasReply}
         conversationId={comment.conversationId}
@@ -153,7 +155,7 @@ export default class FacebookComment extends React.Component<
       sourceConversationId: comment.commentId,
       refetch,
       description: comment.content,
-      attachments: this.collectAttachments(),
+      attachments: this.collectAttachments()
     };
 
     return (

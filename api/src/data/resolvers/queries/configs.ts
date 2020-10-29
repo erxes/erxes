@@ -18,10 +18,12 @@ const configQueries = {
     const status: any = {
       erxesApi: {},
       erxesIntegration: {},
-      erxes: {},
+      erxes: {}
     };
 
-    const { version, storageEngine } = await mongoose.connection.db.command({ serverStatus: 1 });
+    const { version, storageEngine } = await mongoose.connection.db.command({
+      serverStatus: 1
+    });
 
     status.erxesApi.os = {
       type: os.type(),
@@ -32,26 +34,32 @@ const configQueries = {
       loadavg: os.loadavg(),
       totalmem: os.totalmem(),
       freemem: os.freemem(),
-      cpuCount: os.cpus().length,
+      cpuCount: os.cpus().length
     };
 
     status.erxesApi.process = {
       nodeVersion: process.version,
       pid: process.pid,
-      uptime: process.uptime(),
+      uptime: process.uptime()
     };
 
     status.erxesApi.mongo = {
       version,
-      storageEngine: storageEngine.name,
+      storageEngine: storageEngine.name
     };
 
     const projectPath = process.cwd();
-    status.erxesApi.packageVersion = require(path.join(projectPath, 'package.json')).version;
+    status.erxesApi.packageVersion = require(path.join(
+      projectPath,
+      'package.json'
+    )).version;
 
     try {
       const erxesDomain = getEnv({ name: 'MAIN_APP_DOMAIN' });
-      const erxesVersion = await sendRequest({ url: `${erxesDomain}/version.json`, method: 'GET' });
+      const erxesVersion = await sendRequest({
+        url: `${erxesDomain}/version.json`,
+        method: 'GET'
+      });
 
       status.erxes.packageVersion = erxesVersion.packageVersion || '-';
     } catch (e) {
@@ -59,16 +67,18 @@ const configQueries = {
     }
 
     try {
-      const erxesIntegrationDomain = getSubServiceDomain({ name: 'INTEGRATIONS_API_DOMAIN' });
+      const erxesIntegrationDomain = getSubServiceDomain({
+        name: 'INTEGRATIONS_API_DOMAIN'
+      });
       const erxesIntegration = await sendRequest({
         url: `${erxesIntegrationDomain}/system-status`,
-        method: 'GET',
+        method: 'GET'
       });
 
       status.erxesIntegration = erxesIntegration || '-';
     } catch (e) {
       status.erxesIntegration = {
-        packageVersion: '-',
+        packageVersion: '-'
       };
     }
 
@@ -77,16 +87,16 @@ const configQueries = {
 
   configsGetEnv(_root) {
     return {
-      USE_BRAND_RESTRICTIONS: process.env.USE_BRAND_RESTRICTIONS,
+      USE_BRAND_RESTRICTIONS: process.env.USE_BRAND_RESTRICTIONS
     };
   },
 
   configsConstants(_root) {
     return {
       allValues: Configs.constants(),
-      defaultValues: DEFAULT_CONSTANT_VALUES,
+      defaultValues: DEFAULT_CONSTANT_VALUES
     };
-  },
+  }
 };
 
 moduleRequireLogin(configQueries);

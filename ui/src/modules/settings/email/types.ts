@@ -14,9 +14,7 @@ export type UsersConfigEmailSignaturesMutationVariables = {
 };
 
 export type UsersConfigEmailSignaturesMutationResponse = {
-  saveMutation: (
-    params: {
-      variables: UsersConfigEmailSignaturesMutationVariables;
-    }
-  ) => Promise<void>;
+  saveMutation: (params: {
+    variables: UsersConfigEmailSignaturesMutationVariables;
+  }) => Promise<void>;
 };

@@ -43,7 +43,7 @@ const channelQueries = {
    */
   channelsGetLast() {
     return Channels.findOne({}).sort({ createdAt: -1 });
-  },
+  }
 };
 
 requireLogin(channelQueries, 'channelsGetLast');

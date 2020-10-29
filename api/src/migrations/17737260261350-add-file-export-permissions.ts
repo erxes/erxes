@@ -1,7 +1,11 @@
 import { connect } from '../db/connection';
 import { Permissions } from '../db/models';
 
-const updatePermissions = async (action: string, moduleName: string, permName: string) => {
+const updatePermissions = async (
+  action: string,
+  moduleName: string,
+  permName: string
+) => {
   const permissions = await Permissions.find({ action, module: moduleName });
 
   for (const perm of permissions) {
@@ -9,7 +13,10 @@ const updatePermissions = async (action: string, moduleName: string, permName: s
 
     requiredActions.push(permName);
 
-    await Permissions.updateOne({ _id: perm._id }, { $set: { requiredActions } });
+    await Permissions.updateOne(
+      { _id: perm._id },
+      { $set: { requiredActions } }
+    );
   }
 };
 

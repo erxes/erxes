@@ -5,11 +5,15 @@ import {
   pipelineFactory,
   pipelineTemplateFactory,
   stageFactory,
-  userFactory,
+  userFactory
 } from '../db/factories';
 import { Boards, Deals, Forms, Pipelines, Stages } from '../db/models';
 import { getNewOrder } from '../db/models/boardUtils';
-import { IBoardDocument, IPipelineDocument, IStageDocument } from '../db/models/definitions/boards';
+import {
+  IBoardDocument,
+  IPipelineDocument,
+  IStageDocument
+} from '../db/models/definitions/boards';
 import { IUserDocument } from '../db/models/definitions/users';
 
 import './setup.ts';
@@ -54,7 +58,7 @@ describe('Test board model', () => {
     const createdBoard = await Boards.createBoard({
       name: board.name,
       userId: user._id,
-      type: 'deal',
+      type: 'deal'
     });
 
     expect(createdBoard).toBeDefined();
@@ -69,7 +73,7 @@ describe('Test board model', () => {
     const updatedBoard = await Boards.updateBoard(board._id, {
       name: boardName,
       userId: user._id,
-      type: 'deal',
+      type: 'deal'
     });
 
     expect(updatedBoard).toBeDefined();
@@ -108,9 +112,9 @@ describe('Test board model', () => {
         boardId: pipeline.boardId,
         userId: user._id,
         type: pipeline.type,
-        bgColor: pipeline.bgColor,
+        bgColor: pipeline.bgColor
       },
-      [stage.toJSON()],
+      [stage.toJSON()]
     );
 
     const stageToPipeline = await Stages.findOne({ _id: stage._id });
@@ -134,7 +138,7 @@ describe('Test board model', () => {
     const formStage = await stageFactory({ formId: form._id });
 
     const template = await pipelineTemplateFactory({
-      stages: [formStage],
+      stages: [formStage]
     });
 
     const createdPipeline = await Pipelines.createPipeline(
@@ -142,9 +146,9 @@ describe('Test board model', () => {
         boardId: board._id,
         name: pipeline.name,
         type: pipeline.type,
-        templateId: template._id,
+        templateId: template._id
       },
-      [],
+      []
     );
 
     expect(createdPipeline).toBeDefined();
@@ -157,7 +161,7 @@ describe('Test board model', () => {
     const createdPipeline = await Pipelines.createPipeline({
       boardId: board._id,
       name: pipeline.name,
-      type: pipeline.type,
+      type: pipeline.type
     });
 
     expect(createdPipeline).toBeDefined();
@@ -172,7 +176,7 @@ describe('Test board model', () => {
       boardId: board._id,
       stages: [stage.toJSON()],
       visibility: 'public',
-      bgColor: 'bbb',
+      bgColor: 'bbb'
     };
 
     const pipelineObj = await pipelineFactory({});
@@ -180,7 +184,11 @@ describe('Test board model', () => {
     const stageObj = await stageFactory({ pipelineId: pipelineObj._id });
     const testStage = await stageFactory({ pipelineId: pipelineObj._id });
 
-    const updatedPipeline = await Pipelines.updatePipeline(pipelineObj._id, args, [stageObj.toJSON()]);
+    const updatedPipeline = await Pipelines.updatePipeline(
+      pipelineObj._id,
+      args,
+      [stageObj.toJSON()]
+    );
 
     expect(updatedPipeline).toBeDefined();
     expect(updatedPipeline._id).toEqual(pipelineObj._id);
@@ -199,25 +207,35 @@ describe('Test board model', () => {
     const formStage = await stageFactory({ formId: form._id });
 
     const template = await pipelineTemplateFactory({
-      stages: [formStage],
+      stages: [formStage]
     });
 
     const args = {
       boardId: board._id,
       templateId: template._id,
-      type: 'deal',
+      type: 'deal'
     };
 
     const pipelineObj = await pipelineFactory({ templateId: 'fakeId' });
 
-    let updatedPipeline = await Pipelines.updatePipeline(pipelineObj._id, args, []);
+    let updatedPipeline = await Pipelines.updatePipeline(
+      pipelineObj._id,
+      args,
+      []
+    );
 
     expect(updatedPipeline).toBeDefined();
     expect(updatedPipeline.templateId).toBe(template._id);
 
-    const pipelineSameObj = await pipelineFactory({ templateId: args.templateId });
+    const pipelineSameObj = await pipelineFactory({
+      templateId: args.templateId
+    });
 
-    updatedPipeline = await Pipelines.updatePipeline(pipelineSameObj._id, args, []);
+    updatedPipeline = await Pipelines.updatePipeline(
+      pipelineSameObj._id,
+      args,
+      []
+    );
 
     expect(updatedPipeline).toBeDefined();
     expect(updatedPipeline.templateId).toBe(template._id);
@@ -227,7 +245,7 @@ describe('Test board model', () => {
     const args = {
       boardId: board._id,
       name: 'updated',
-      type: 'deal',
+      type: 'deal'
     };
 
     const updatedPipeline = await Pipelines.updatePipeline(pipeline._id, args);
@@ -240,9 +258,12 @@ describe('Test board model', () => {
   test('Update pipeline orders', async () => {
     const pipelineToOrder = await pipelineFactory({});
 
-    const [updatedPipeline, updatedPipelineToOrder] = await Pipelines.updateOrder([
+    const [
+      updatedPipeline,
+      updatedPipelineToOrder
+    ] = await Pipelines.updateOrder([
       { _id: pipeline._id, order: 5 },
-      { _id: pipelineToOrder._id, order: 4 },
+      { _id: pipelineToOrder._id, order: 4 }
     ]);
 
     expect(updatedPipeline.order).toBe(4);
@@ -313,7 +334,7 @@ describe('Test board model', () => {
       name: stage.name,
       pipelineId: stage.pipelineId,
       userId: user._id,
-      type: 'deal',
+      type: 'deal'
     });
 
     expect(createdStage).toBeDefined();
@@ -348,7 +369,7 @@ describe('Test board model', () => {
       name: stageName,
       userId: user._id,
       type: 'deal',
-      pipelineId: pipeline._id,
+      pipelineId: pipeline._id
     });
 
     expect(updatedStage).toBeDefined();
@@ -360,7 +381,7 @@ describe('Test board model', () => {
 
     const [updatedStage, updatedStageToOrder] = await Stages.updateOrder([
       { _id: stage._id, order: 9 },
-      { _id: stageToOrder._id, order: 5 },
+      { _id: stageToOrder._id, order: 5 }
     ]);
 
     expect(updatedStage.order).toBe(5);
@@ -376,21 +397,71 @@ describe('Test board model', () => {
   test('itemOrder test', async () => {
     let aboveItemId = '';
     const newStage = await stageFactory();
-    expect(await getNewOrder({ aboveItemId, stageId: newStage._id, collection: Deals })).toBe(100);
+    expect(
+      await getNewOrder({
+        aboveItemId,
+        stageId: newStage._id,
+        collection: Deals
+      })
+    ).toBe(100);
 
     const firstDeal = await dealFactory({ stageId: newStage._id, order: 100 });
-    expect(await getNewOrder({ aboveItemId, stageId: newStage._id, collection: Deals })).toBeGreaterThan(0);
-    expect(await getNewOrder({ aboveItemId, stageId: newStage._id, collection: Deals })).toBeLessThan(100);
+    expect(
+      await getNewOrder({
+        aboveItemId,
+        stageId: newStage._id,
+        collection: Deals
+      })
+    ).toBeGreaterThan(0);
+    expect(
+      await getNewOrder({
+        aboveItemId,
+        stageId: newStage._id,
+        collection: Deals
+      })
+    ).toBeLessThan(100);
 
     aboveItemId = (await dealFactory({ stageId: newStage._id, order: 99 }))._id;
-    expect(await getNewOrder({ aboveItemId, stageId: newStage._id, collection: Deals })).toBeGreaterThan(99);
-    expect(await getNewOrder({ aboveItemId, stageId: newStage._id, collection: Deals })).toBeLessThan(100);
+    expect(
+      await getNewOrder({
+        aboveItemId,
+        stageId: newStage._id,
+        collection: Deals
+      })
+    ).toBeGreaterThan(99);
+    expect(
+      await getNewOrder({
+        aboveItemId,
+        stageId: newStage._id,
+        collection: Deals
+      })
+    ).toBeLessThan(100);
 
-    expect(await getNewOrder({ aboveItemId: firstDeal._id, stageId: newStage._id, collection: Deals })).toBe(110);
+    expect(
+      await getNewOrder({
+        aboveItemId: firstDeal._id,
+        stageId: newStage._id,
+        collection: Deals
+      })
+    ).toBe(110);
 
     // duplicated then recall getNewOrder
-    aboveItemId = (await dealFactory({ stageId: newStage._id, order: 99.99999999999999 }))._id;
-    expect(await getNewOrder({ aboveItemId, stageId: newStage._id, collection: Deals })).toBeGreaterThan(110);
-    expect(await getNewOrder({ aboveItemId, stageId: newStage._id, collection: Deals })).toBeLessThan(120);
+    aboveItemId = (
+      await dealFactory({ stageId: newStage._id, order: 99.99999999999999 })
+    )._id;
+    expect(
+      await getNewOrder({
+        aboveItemId,
+        stageId: newStage._id,
+        collection: Deals
+      })
+    ).toBeGreaterThan(110);
+    expect(
+      await getNewOrder({
+        aboveItemId,
+        stageId: newStage._id,
+        collection: Deals
+      })
+    ).toBeLessThan(120);
   });
 });

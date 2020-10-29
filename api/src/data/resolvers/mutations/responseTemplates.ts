@@ -13,16 +13,20 @@ const responseTemplateMutations = {
   /**
    * Creates a new response template
    */
-  async responseTemplatesAdd(_root, doc: IResponseTemplate, { user, docModifier }: IContext) {
+  async responseTemplatesAdd(
+    _root,
+    doc: IResponseTemplate,
+    { user, docModifier }: IContext
+  ) {
     const template = await ResponseTemplates.create(docModifier(doc));
 
     await putCreateLog(
       {
         type: MODULE_NAMES.RESPONSE_TEMPLATE,
         newData: doc,
-        object: template,
+        object: template
       },
-      user,
+      user
     );
 
     return template;
@@ -31,7 +35,11 @@ const responseTemplateMutations = {
   /**
    * Updates a response template
    */
-  async responseTemplatesEdit(_root, { _id, ...fields }: IResponseTemplatesEdit, { user }: IContext) {
+  async responseTemplatesEdit(
+    _root,
+    { _id, ...fields }: IResponseTemplatesEdit,
+    { user }: IContext
+  ) {
     const template = await ResponseTemplates.getResponseTemplate(_id);
     const updated = await ResponseTemplates.updateResponseTemplate(_id, fields);
 
@@ -40,9 +48,9 @@ const responseTemplateMutations = {
         type: MODULE_NAMES.RESPONSE_TEMPLATE,
         object: template,
         newData: fields,
-        updatedDocument: updated,
+        updatedDocument: updated
       },
-      user,
+      user
     );
 
     return updated;
@@ -51,14 +59,21 @@ const responseTemplateMutations = {
   /**
    * Deletes a response template
    */
-  async responseTemplatesRemove(_root, { _id }: { _id: string }, { user }: IContext) {
+  async responseTemplatesRemove(
+    _root,
+    { _id }: { _id: string },
+    { user }: IContext
+  ) {
     const template = await ResponseTemplates.getResponseTemplate(_id);
     const removed = await ResponseTemplates.removeResponseTemplate(_id);
 
-    await putDeleteLog({ type: MODULE_NAMES.RESPONSE_TEMPLATE, object: template }, user);
+    await putDeleteLog(
+      { type: MODULE_NAMES.RESPONSE_TEMPLATE, object: template },
+      user
+    );
 
     return removed;
-  },
+  }
 };
 
 moduleCheckPermission(responseTemplateMutations, 'manageResponseTemplate');

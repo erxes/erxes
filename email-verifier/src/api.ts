@@ -1,5 +1,9 @@
 import * as EmailValidator from 'email-deep-validator';
-import { EMAIL_VALIDATION_SOURCES, EMAIL_VALIDATION_STATUSES, Emails } from './models';
+import {
+  EMAIL_VALIDATION_SOURCES,
+  EMAIL_VALIDATION_STATUSES,
+  Emails
+} from './models';
 import { getArray, setArray } from './redisClient';
 import { debugBase, sendRequest } from './utils';
 
@@ -11,7 +15,7 @@ const singleTrueMail = async (email: string) => {
 
     const response = await sendRequest({
       url,
-      method: 'GET',
+      method: 'GET'
     });
 
     if (typeof response === 'string') {
@@ -32,12 +36,12 @@ const bulkTrueMail = async (unverifiedEmails: string[], hostname: string) => {
     const result = await sendRequest({
       url,
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
       method: 'POST',
       body: {
-        file: unverifiedEmails.map(e => ({ email: e })),
-      },
+        file: unverifiedEmails.map(e => ({ email: e }))
+      }
     });
 
     let data;
@@ -77,8 +81,8 @@ export const single = async (email: string, hostname: string) => {
       method: 'POST',
       body: {
         email: { email, status: emailOnDb.status },
-        source: EMAIL_VALIDATION_SOURCES.ERXES,
-      },
+        source: EMAIL_VALIDATION_SOURCES.ERXES
+      }
     });
   }
 
@@ -91,8 +95,8 @@ export const single = async (email: string, hostname: string) => {
       method: 'POST',
       body: {
         email: { email, status: EMAIL_VALIDATION_STATUSES.VALID },
-        source: EMAIL_VALIDATION_SOURCES.ERXES,
-      },
+        source: EMAIL_VALIDATION_SOURCES.ERXES
+      }
     });
   }
 
@@ -100,7 +104,9 @@ export const single = async (email: string, hostname: string) => {
 
   if (EMAIL_VERIFICATION_TYPE === 'truemail') {
     try {
-      debugBase(`Email is not found on verifier DB. Sending request to truemail`);
+      debugBase(
+        `Email is not found on verifier DB. Sending request to truemail`
+      );
       response = await singleTrueMail(email);
 
       debugBase(`Received single email validation status`);
@@ -113,7 +119,10 @@ export const single = async (email: string, hostname: string) => {
   if (response.status === 'success') {
     const doc = { email, status: response.result };
 
-    if (doc.status === EMAIL_VALIDATION_STATUSES.VALID || doc.status === EMAIL_VALIDATION_STATUSES.INVALID) {
+    if (
+      doc.status === EMAIL_VALIDATION_STATUSES.VALID ||
+      doc.status === EMAIL_VALIDATION_STATUSES.INVALID
+    ) {
       await Emails.createEmail(doc);
     }
 
@@ -124,8 +133,8 @@ export const single = async (email: string, hostname: string) => {
       method: 'POST',
       body: {
         email: doc,
-        source: EMAIL_VALIDATION_SOURCES.TRUEMAIL,
-      },
+        source: EMAIL_VALIDATION_SOURCES.TRUEMAIL
+      }
     });
   }
 
@@ -135,22 +144,29 @@ export const single = async (email: string, hostname: string) => {
     method: 'POST',
     body: {
       email: { email, status: EMAIL_VALIDATION_STATUSES.UNKNOWN },
-      source: EMAIL_VALIDATION_SOURCES.TRUEMAIL,
-    },
+      source: EMAIL_VALIDATION_SOURCES.TRUEMAIL
+    }
   });
 };
 
 export const bulk = async (emails: string[], hostname: string) => {
   const emailsOnDb = await Emails.find({ email: { $in: emails } });
 
-  const emailsMap: Array<{ email: string; status: string }> = emailsOnDb.map(({ email, status }) => ({
-    email,
-    status,
+  const emailsMap: Array<{ email: string; status: string }> = emailsOnDb.map(
+    ({ email, status }) => ({
+      email,
+      status
+    })
+  );
+
+  const verifiedEmails = emailsMap.map(verified => ({
+    email: verified.email,
+    status: verified.status
   }));
 
-  const verifiedEmails = emailsMap.map(verified => ({ email: verified.email, status: verified.status }));
-
-  const unverifiedEmails = emails.filter(email => !verifiedEmails.some(e => e.email === email));
+  const unverifiedEmails = emails.filter(
+    email => !verifiedEmails.some(e => e.email === email)
+  );
 
   if (verifiedEmails.length > 0) {
     try {
@@ -161,8 +177,8 @@ export const bulk = async (emails: string[], hostname: string) => {
         method: 'POST',
         body: {
           emails: verifiedEmails,
-          source: EMAIL_VALIDATION_SOURCES.ERXES,
-        },
+          source: EMAIL_VALIDATION_SOURCES.ERXES
+        }
       });
     } catch (e) {
       // request may fail
@@ -182,7 +198,7 @@ export const checkTask = async (taskId: string) => {
 
   const response = await sendRequest({
     url,
-    method: 'GET',
+    method: 'GET'
   });
 
   return JSON.parse(response).data;
@@ -195,7 +211,7 @@ export const getTrueMailBulk = async (taskId: string, hostname: string) => {
 
   const response = await sendRequest({
     url,
-    method: 'GET',
+    method: 'GET'
   });
 
   const rows = response.split('\n');
@@ -210,17 +226,20 @@ export const getTrueMailBulk = async (taskId: string, hostname: string) => {
 
       emails.push({
         email,
-        status,
+        status
       });
 
-      if (status === EMAIL_VALIDATION_STATUSES.VALID || status === EMAIL_VALIDATION_STATUSES.INVALID) {
+      if (
+        status === EMAIL_VALIDATION_STATUSES.VALID ||
+        status === EMAIL_VALIDATION_STATUSES.INVALID
+      ) {
         const found = await Emails.findOne({ email });
 
         if (!found) {
           const doc = {
             email,
             status,
-            created: new Date(),
+            created: new Date()
           };
 
           await Emails.createEmail(doc);
@@ -236,7 +255,7 @@ export const getTrueMailBulk = async (taskId: string, hostname: string) => {
     method: 'POST',
     body: {
       emails,
-      source: EMAIL_VALIDATION_SOURCES.TRUEMAIL,
-    },
+      source: EMAIL_VALIDATION_SOURCES.TRUEMAIL
+    }
   });
 };

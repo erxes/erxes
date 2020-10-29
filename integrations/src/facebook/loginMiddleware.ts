@@ -9,7 +9,7 @@ const loginMiddleware = async (req, res) => {
   const FACEBOOK_APP_SECRET = await getConfig('FACEBOOK_APP_SECRET');
   const FACEBOOK_PERMISSIONS = await getConfig(
     'FACEBOOK_PERMISSIONS',
-    'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content',
+    'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content'
   );
 
   const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
@@ -19,7 +19,7 @@ const loginMiddleware = async (req, res) => {
     client_id: FACEBOOK_APP_ID,
     client_secret: FACEBOOK_APP_SECRET,
     scope: FACEBOOK_PERMISSIONS,
-    redirect_uri: `${DOMAIN}/fblogin`,
+    redirect_uri: `${DOMAIN}/fblogin`
   };
 
   debugRequest(debugFacebook, req);
@@ -30,7 +30,7 @@ const loginMiddleware = async (req, res) => {
     const authUrl = graph.getOauthUrl({
       client_id: conf.client_id,
       redirect_uri: conf.redirect_uri,
-      scope: conf.scope,
+      scope: conf.scope
     });
 
     // checks whether a user denied the app facebook login/permissions
@@ -47,7 +47,7 @@ const loginMiddleware = async (req, res) => {
     client_id: conf.client_id,
     redirect_uri: conf.redirect_uri,
     client_secret: conf.client_secret,
-    code: req.query.code,
+    code: req.query.code
   };
 
   debugResponse(debugFacebook, req, JSON.stringify(config));
@@ -59,9 +59,13 @@ const loginMiddleware = async (req, res) => {
   return graph.authorize(config, async (_err, facebookRes) => {
     const { access_token } = facebookRes;
 
-    const userAccount: { id: string; first_name: string; last_name: string } = await graphRequest.get(
+    const userAccount: {
+      id: string;
+      first_name: string;
+      last_name: string;
+    } = await graphRequest.get(
       'me?fields=id,first_name,last_name',
-      access_token,
+      access_token
     );
 
     const name = `${userAccount.first_name} ${userAccount.last_name}`;
@@ -69,13 +73,16 @@ const loginMiddleware = async (req, res) => {
     const account = await Accounts.findOne({ uid: userAccount.id });
 
     if (account) {
-      await Accounts.updateOne({ _id: account._id }, { $set: { token: access_token } });
+      await Accounts.updateOne(
+        { _id: account._id },
+        { $set: { token: access_token } }
+      );
     } else {
       await Accounts.create({
         token: access_token,
         name,
         kind: 'facebook',
-        uid: userAccount.id,
+        uid: userAccount.id
       });
     }
 

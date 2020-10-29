@@ -1,5 +1,8 @@
 import { Tickets } from '../../../db/models';
-import { checkPermission, moduleRequireLogin } from '../../permissions/wrappers';
+import {
+  checkPermission,
+  moduleRequireLogin
+} from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { IListParams } from './boards';
 import {
@@ -8,15 +11,22 @@ import {
   checkItemPermByUser,
   generateSort,
   generateTicketCommonFilters,
-  IArchiveArgs,
+  IArchiveArgs
 } from './boardUtils';
 
 const ticketQueries = {
   /**
    * Tickets list
    */
-  async tickets(_root, args: IListParams, { user, commonQuerySelector }: IContext) {
-    const filter = { ...commonQuerySelector, ...(await generateTicketCommonFilters(user._id, args)) };
+  async tickets(
+    _root,
+    args: IListParams,
+    { user, commonQuerySelector }: IContext
+  ) {
+    const filter = {
+      ...commonQuerySelector,
+      ...(await generateTicketCommonFilters(user._id, args))
+    };
     const sort = generateSort(args);
 
     return Tickets.find(filter)
@@ -43,7 +53,7 @@ const ticketQueries = {
     const ticket = await Tickets.getTicket(_id);
 
     return checkItemPermByUser(user._id, ticket);
-  },
+  }
 };
 
 moduleRequireLogin(ticketQueries);

@@ -22,9 +22,9 @@ const tagMutations = {
         type: MODULE_NAMES.TAG,
         newData: tag,
         object: tag,
-        description: `"${tag.name}" has been created`,
+        description: `"${tag.name}" has been created`
       },
-      user,
+      user
     );
 
     return tag;
@@ -42,9 +42,9 @@ const tagMutations = {
         type: MODULE_NAMES.TAG,
         object: tag,
         newData: doc,
-        description: `"${tag.name}" has been edited`,
+        description: `"${tag.name}" has been edited`
       },
-      user,
+      user
     );
 
     return updated;
@@ -62,9 +62,9 @@ const tagMutations = {
         {
           type: MODULE_NAMES.TAG,
           object: tag,
-          description: `"${tag.name}" has been removed`,
+          description: `"${tag.name}" has been removed`
         },
-        user,
+        user
       );
     }
 
@@ -74,13 +74,20 @@ const tagMutations = {
   /**
    * Attach a tag
    */
-  tagsTag(_root, { type, targetIds, tagIds }: { type: string; targetIds: string[]; tagIds: string[] }) {
+  tagsTag(
+    _root,
+    {
+      type,
+      targetIds,
+      tagIds
+    }: { type: string; targetIds: string[]; tagIds: string[] }
+  ) {
     if (type === 'conversation') {
       publishConversationsChanged(targetIds, MODULE_NAMES.TAG);
     }
 
     return Tags.tagsTag(type, targetIds, tagIds);
-  },
+  }
 };
 
 requireLogin(tagMutations, 'tagsTag');

@@ -12,7 +12,7 @@ import './setup.ts';
 const args = {
   title: faker.random.word(),
   description: faker.random.word(),
-  type: FORM_TYPES.GROWTH_HACK,
+  type: FORM_TYPES.GROWTH_HACK
 };
 
 describe('form and formField mutations', () => {
@@ -69,7 +69,10 @@ describe('form and formField mutations', () => {
       }
     `;
 
-    const form = await graphqlRequest(mutation, 'formsEdit', { _id: _form._id, ...args });
+    const form = await graphqlRequest(mutation, 'formsEdit', {
+      _id: _form._id,
+      ...args
+    });
 
     expect(form._id).toBe(_form._id);
     expect(form.title).toBe(args.title);
@@ -85,31 +88,47 @@ describe('form and formField mutations', () => {
 
     const growthHack = await growthHackFactory();
     const form = await formFactory();
-    const formField = await fieldFactory({ text: 'age', contentType: 'form', contentTypeId: form._id });
+    const formField = await fieldFactory({
+      text: 'age',
+      contentType: 'form',
+      contentTypeId: form._id
+    });
 
     const formSubmissionArgs: any = {
       formId: form._id,
       contentTypeId: growthHack._id,
       contentType: 'growthHack',
       formSubmissions: {
-        [formField._id]: 10,
-      },
+        [formField._id]: 10
+      }
     };
 
-    let response = await graphqlRequest(mutation, 'formSubmissionsSave', formSubmissionArgs);
+    let response = await graphqlRequest(
+      mutation,
+      'formSubmissionsSave',
+      formSubmissionArgs
+    );
 
     expect(response).toBe(true);
 
     formSubmissionArgs.formSubmissions = null;
-    response = await graphqlRequest(mutation, 'formSubmissionsSave', formSubmissionArgs);
+    response = await graphqlRequest(
+      mutation,
+      'formSubmissionsSave',
+      formSubmissionArgs
+    );
 
     expect(response).toBe(true);
 
     formSubmissionArgs.formSubmissions = {
-      [formField._id]: 20,
+      [formField._id]: 20
     };
 
-    response = await graphqlRequest(mutation, 'formSubmissionsSave', formSubmissionArgs);
+    response = await graphqlRequest(
+      mutation,
+      'formSubmissionsSave',
+      formSubmissionArgs
+    );
 
     expect(response).toBe(true);
   });

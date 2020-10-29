@@ -15,7 +15,7 @@ export const customerSchema = new Schema({
   phoneNumber: { type: String, unique: true },
   erxesApiId: String,
   name: String,
-  integrationId: String,
+  integrationId: String
 });
 
 export interface ICustomerModel extends Model<ICustomerDocument> {
@@ -25,7 +25,9 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
 export const loadCustomerClass = () => {
   class Customer {
     public static async getCustomer(selector: any, isLean: boolean) {
-      const customer = isLean ? await Customers.findOne(selector).lean() : await Customers.findOne(selector);
+      const customer = isLean
+        ? await Customers.findOne(selector).lean()
+        : await Customers.findOne(selector);
 
       if (!customer) {
         throw new Error('Customer not found');
@@ -63,7 +65,7 @@ export const conversationSchema = new Schema({
   instanceId: String,
   content: String,
   integrationId: String,
-  recipientId: String,
+  recipientId: String
 });
 
 // conversationSchema.index({ instanceId: 1, recipientId: 1 }, { unique: true });
@@ -98,33 +100,39 @@ export interface IConversationMessage {
   status: string;
 }
 
-export interface IConversationMessageDocument extends IConversationMessage, Document {}
+export interface IConversationMessageDocument
+  extends IConversationMessage,
+    Document {}
 
 export const conversationMessageSchema = new Schema({
   _id: field({ pkey: true }),
   mid: { type: String, unique: true },
   conversationId: String,
   content: String,
-  status: String,
+  status: String
 });
 
-export interface IConversationMessageModel extends Model<IConversationMessageDocument> {}
+export interface IConversationMessageModel
+  extends Model<IConversationMessageDocument> {}
 
 loadCustomerClass();
 
 loadConversationClass();
 
 // tslint:disable-next-line:variable-name
-export const Customers = model<ICustomerDocument, ICustomerModel>('customers_whatsapp', customerSchema);
+export const Customers = model<ICustomerDocument, ICustomerModel>(
+  'customers_whatsapp',
+  customerSchema
+);
 
 // tslint:disable-next-line:variable-name
 export const Conversations = model<IConversationDocument, IConversationModel>(
   'conversations_whatsapp',
-  conversationSchema,
+  conversationSchema
 );
 
 // tslint:disable-next-line:variable-name
-export const ConversationMessages = model<IConversationMessageDocument, IConversationMessageModel>(
-  'conversation_messages_whatsapp',
-  conversationMessageSchema,
-);
+export const ConversationMessages = model<
+  IConversationMessageDocument,
+  IConversationMessageModel
+>('conversation_messages_whatsapp', conversationMessageSchema);

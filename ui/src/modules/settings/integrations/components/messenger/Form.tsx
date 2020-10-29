@@ -34,17 +34,15 @@ type Props = {
   teamMembers: IUser[];
   integration?: IIntegration;
   brands: IBrand[];
-  save: (
-    params: {
-      name: string;
-      brandId: string;
-      languageCode: string;
-      channelIds?: string[];
-      messengerData: IMessengerData;
-      uiOptions: IUiOptions;
-      messengerApps: IMessengerApps;
-    }
-  ) => void;
+  save: (params: {
+    name: string;
+    brandId: string;
+    languageCode: string;
+    channelIds?: string[];
+    messengerData: IMessengerData;
+    uiOptions: IUiOptions;
+    messengerApps: IMessengerApps;
+  }) => void;
 };
 
 type State = {
@@ -160,8 +158,8 @@ class CreateMessenger extends React.Component<Props, State> {
   };
 
   handleMessengerApps = (messengerApps: IMessengerApps) => {
-    this.setState({messengerApps});
-  }
+    this.setState({ messengerApps });
+  };
 
   save = e => {
     e.preventDefault();
@@ -403,12 +401,18 @@ class CreateMessenger extends React.Component<Props, State> {
                 onClick={this.onStepClick.bind(null, 'addon')}
                 noButton={true}
               >
-                <AddOns 
-                  selectedBrand={brandId} 
-                  websiteMessengerApps={integration && integration.websiteMessengerApps}
-                  leadMessengerApps={integration && integration.leadMessengerApps}
-                  knowledgeBaseMessengerApps={integration && integration.knowledgeBaseMessengerApps}
-                  handleMessengerApps={this.handleMessengerApps} 
+                <AddOns
+                  selectedBrand={brandId}
+                  websiteMessengerApps={
+                    integration && integration.websiteMessengerApps
+                  }
+                  leadMessengerApps={
+                    integration && integration.leadMessengerApps
+                  }
+                  knowledgeBaseMessengerApps={
+                    integration && integration.knowledgeBaseMessengerApps
+                  }
+                  handleMessengerApps={this.handleMessengerApps}
                 />
               </Step>
             </Steps>

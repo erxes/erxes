@@ -10,7 +10,7 @@ export const initBroker = async server => {
   client = await messageBroker({
     name: 'logger',
     server,
-    envs: process.env,
+    envs: process.env
   });
 
   const { consumeQueue } = client;

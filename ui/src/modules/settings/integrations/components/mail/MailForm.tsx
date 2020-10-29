@@ -58,9 +58,13 @@ type Props = {
   emailSignatures: IEmailSignature[];
   fetchMoreEmailTemplates: () => void;
   createdAt?: Date;
-  sendMail: (
-    { variables, callback }: { variables: any; callback: () => void }
-  ) => void;
+  sendMail: ({
+    variables,
+    callback
+  }: {
+    variables: any;
+    callback: () => void;
+  }) => void;
 };
 
 type State = {
@@ -686,7 +690,12 @@ class MailForm extends React.Component<Props, State> {
 
   renderButtons() {
     const { kind } = this.state;
-    const { isReply, emailTemplates, toggleReply, fetchMoreEmailTemplates } = this.props;
+    const {
+      isReply,
+      emailTemplates,
+      toggleReply,
+      fetchMoreEmailTemplates
+    } = this.props;
 
     const inputProps = {
       type: 'file',

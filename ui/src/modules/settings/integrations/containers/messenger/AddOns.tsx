@@ -10,7 +10,13 @@ import React from 'react';
 import { graphql, withApollo } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import AddOns from '../../components/messenger/steps/AddOns';
-import { ILeadMessengerApp, IMessengerApps, IntegrationsQueryResponse, ITopicMessengerApp, IWebsiteMessengerApp } from '../../types';
+import {
+  ILeadMessengerApp,
+  IMessengerApps,
+  IntegrationsQueryResponse,
+  ITopicMessengerApp,
+  IWebsiteMessengerApp
+} from '../../types';
 
 type Props = {
   selectedBrand?: string;

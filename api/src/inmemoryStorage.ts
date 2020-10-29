@@ -12,7 +12,7 @@ export const initMemoryStorage = () => {
   client = memoryStorage({
     host: REDIS_HOST,
     port: REDIS_PORT,
-    password: REDIS_PASSWORD,
+    password: REDIS_PASSWORD
   });
 };
 

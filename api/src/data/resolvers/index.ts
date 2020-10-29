@@ -11,7 +11,10 @@ import Customer from './customer';
 import customScalars from './customScalars';
 import Deal from './deals';
 import EmailDelivery from './emailDeliveries';
-import { deliveryReport as DeliveryReport, message as EngageMessage } from './engage';
+import {
+  deliveryReport as DeliveryReport,
+  message as EngageMessage
+} from './engage';
 import { field, fieldsGroup } from './field';
 import Form from './forms';
 import GrowthHack from './growthHacks';
@@ -85,7 +88,7 @@ const resolvers: any = {
   Task,
   UsersGroup,
   Pipeline,
-  GrowthHack,
+  GrowthHack
 };
 
 export default resolvers;

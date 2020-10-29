@@ -14,17 +14,15 @@ type Props = {
   customersCount: (ids: string[]) => number;
   onChange: (name: string, value: string[]) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  renderContent: (
-    {
-      actionSelector,
-      selectedComponent,
-      customerCounts
-    }: {
-      actionSelector: React.ReactNode;
-      selectedComponent: React.ReactNode;
-      customerCounts: React.ReactNode;
-    }
-  ) => React.ReactNode;
+  renderContent: ({
+    actionSelector,
+    selectedComponent,
+    customerCounts
+  }: {
+    actionSelector: React.ReactNode;
+    selectedComponent: React.ReactNode;
+    customerCounts: React.ReactNode;
+  }) => React.ReactNode;
 };
 
 const BrandStep = (props: Props) => {

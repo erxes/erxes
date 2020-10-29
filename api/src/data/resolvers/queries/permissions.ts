@@ -1,6 +1,11 @@
 import * as _ from 'underscore';
 import { Permissions, Users, UsersGroups } from '../../../db/models';
-import { actionsMap, IActionsMap, IModuleMap, modulesMap } from '../../permissions/utils';
+import {
+  actionsMap,
+  IActionsMap,
+  IModuleMap,
+  modulesMap
+} from '../../permissions/utils';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { paginate } from '../../utils';
 
@@ -10,7 +15,13 @@ interface IListArgs {
   searchValue?: string;
 }
 
-const generateSelector = async ({ module, action, userId, groupId, allowed }) => {
+const generateSelector = async ({
+  module,
+  action,
+  userId,
+  groupId,
+  allowed
+}) => {
   const filter: any = {};
 
   if (module) {
@@ -29,9 +40,14 @@ const generateSelector = async ({ module, action, userId, groupId, allowed }) =>
     let permissionIds: string[] = [];
 
     if (user) {
-      const groups = await UsersGroups.find({ _id: { $in: user.groupIds } }, { _id: 1 });
+      const groups = await UsersGroups.find(
+        { _id: { $in: user.groupIds } },
+        { _id: 1 }
+      );
       const groupIds = groups.map(group => group._id);
-      const permissions = await Permissions.find({ groupId: { $in: groupIds } });
+      const permissions = await Permissions.find({
+        groupId: { $in: groupIds }
+      });
 
       permissionIds = permissions.map(permission => permission._id);
     }
@@ -57,8 +73,17 @@ const permissionQueries = {
    * @param {Int} args.perPage
    * @return {Promise} filtered permissions list by given parameter
    */
-  async permissions(_root, { module, action, userId, groupId, allowed, ...args }) {
-    const filter = await generateSelector({ module, action, userId, groupId, allowed });
+  async permissions(
+    _root,
+    { module, action, userId, groupId, allowed, ...args }
+  ) {
+    const filter = await generateSelector({
+      module,
+      action,
+      userId,
+      groupId,
+      allowed
+    });
 
     return paginate(Permissions.find(filter), args);
   },
@@ -80,7 +105,7 @@ const permissionQueries = {
       actions.push({
         name: a[0],
         description: a[1].description,
-        module: a[1].module,
+        module: a[1].module
       });
     }
 
@@ -97,7 +122,7 @@ const permissionQueries = {
   async permissionsTotalCount(_root, args) {
     const filter = await generateSelector(args);
     return Permissions.find(filter).countDocuments();
-  },
+  }
 };
 
 const usersGroupQueries = {
@@ -117,15 +142,25 @@ const usersGroupQueries = {
    */
   usersGroupsTotalCount() {
     return UsersGroups.find({}).countDocuments();
-  },
+  }
 };
 
 requireLogin(permissionQueries, 'permissionsTotalCount');
 requireLogin(usersGroupQueries, 'usersGroupsTotalCount');
 
 checkPermission(permissionQueries, 'permissions', 'showPermissions', []);
-checkPermission(permissionQueries, 'permissionModules', 'showPermissionModules', []);
-checkPermission(permissionQueries, 'permissionActions', 'showPermissionActions', []);
+checkPermission(
+  permissionQueries,
+  'permissionModules',
+  'showPermissionModules',
+  []
+);
+checkPermission(
+  permissionQueries,
+  'permissionActions',
+  'showPermissionActions',
+  []
+);
 
 checkPermission(usersGroupQueries, 'usersGroups', 'showUsersGroups', []);
 

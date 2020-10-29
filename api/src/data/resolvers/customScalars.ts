@@ -53,7 +53,7 @@ export default {
         return parseInt(ast.value, 10); // ast value is always in string format
       }
       return null;
-    },
+    }
   }),
 
   JSON: new GraphQLScalarType({
@@ -64,6 +64,6 @@ export default {
       'publications/files/ECMA-ST/ECMA-404.pdf).',
     serialize: jSONidentity,
     parseValue: jSONidentity,
-    parseLiteral: jSONparseLiteral,
-  }),
+    parseLiteral: jSONparseLiteral
+  })
 };

@@ -13,12 +13,12 @@ interface IMessageParams {
 const getOrCreateCustomer = async ({ from, to }: IMessageParams) => {
   const integration = await Integrations.getIntegration({
     telnyxPhoneNumber: to,
-    kind: 'telnyx',
+    kind: 'telnyx'
   });
 
   const args = {
     phoneNumber: from,
-    integrationId: integration._id,
+    integrationId: integration._id
   };
 
   let customer = await Customers.findOne(args);
@@ -35,8 +35,8 @@ const getOrCreateCustomer = async ({ from, to }: IMessageParams) => {
       payload: JSON.stringify({
         integrationId: integration.erxesApiId,
         primaryPhone: from,
-        phoneValidationStatus: 'valid',
-      }),
+        phoneValidationStatus: 'valid'
+      })
     });
 
     customer.erxesApiId = apiCustomerResponse._id;
@@ -50,10 +50,14 @@ const getOrCreateCustomer = async ({ from, to }: IMessageParams) => {
   return customer;
 };
 
-const getOrCreateConversation = async ({ content, to, from }: IMessageParams) => {
+const getOrCreateConversation = async ({
+  content,
+  to,
+  from
+}: IMessageParams) => {
   const integration = await Integrations.getIntegration({
     telnyxPhoneNumber: to,
-    kind: 'telnyx',
+    kind: 'telnyx'
   });
 
   const customer = await getOrCreateCustomer({ from, to, content });
@@ -62,7 +66,7 @@ const getOrCreateConversation = async ({ content, to, from }: IMessageParams) =>
     integrationId: integration._id,
     from,
     to,
-    customerId: customer._id,
+    customerId: customer._id
   };
 
   let conversation = await Conversations.findOne(args);
@@ -79,8 +83,8 @@ const getOrCreateConversation = async ({ content, to, from }: IMessageParams) =>
       payload: JSON.stringify({
         content,
         integrationId: integration.erxesApiId,
-        customerId: customer.erxesApiId,
-      }),
+        customerId: customer.erxesApiId
+      })
     });
 
     conversation.erxesApiId = response._id;
@@ -94,7 +98,12 @@ const getOrCreateConversation = async ({ content, to, from }: IMessageParams) =>
   return conversation;
 };
 
-const createConversationMessage = async ({ content, to, from, payload }: IMessageParams) => {
+const createConversationMessage = async ({
+  content,
+  to,
+  from,
+  payload
+}: IMessageParams) => {
   const conversation = await getOrCreateConversation({ content, to, from });
 
   const args = {
@@ -104,7 +113,7 @@ const createConversationMessage = async ({ content, to, from, payload }: IMessag
     conversationId: conversation._id,
     content,
     responseData: JSON.stringify(payload),
-    status: SMS_DELIVERY_STATUSES.WEBHOOK_DELIVERED,
+    status: SMS_DELIVERY_STATUSES.WEBHOOK_DELIVERED
   };
 
   const conversationMessage = await ConversationMessages.create(args);
@@ -114,8 +123,8 @@ const createConversationMessage = async ({ content, to, from, payload }: IMessag
       action: 'create-conversation-message',
       payload: JSON.stringify({
         conversationId: conversation.erxesApiId,
-        content,
-      }),
+        content
+      })
     });
 
     conversationMessage.erxesApiId = response._id;
@@ -144,7 +153,7 @@ export const relayIncomingMessage = async (data: any) => {
           from: from.phone_number,
           to: receiver.phone_number,
           content: text,
-          payload: data.payload,
+          payload: data.payload
         });
       }
     } // end direction checking

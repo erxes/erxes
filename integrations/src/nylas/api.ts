@@ -4,7 +4,12 @@ import { debugNylas } from '../debuggers';
 import { Integrations } from '../models';
 import { sendRequest } from '../utils';
 import { NYLAS_API_URL } from './constants';
-import { ICalendarAvailability, IEvent, IEventDoc, IMessageDraft } from './types';
+import {
+  ICalendarAvailability,
+  IEvent,
+  IEventDoc,
+  IMessageDraft
+} from './types';
 
 /**
  * Build message and send API request
@@ -20,7 +25,7 @@ const buildMessage = (child: string, ...args: string[]) => {
     parent: 'messages',
     child,
     accessToken,
-    filter,
+    filter
   });
 };
 
@@ -52,7 +57,7 @@ const sendMessage = (accessToken: string, args: IMessageDraft) => {
     name: 'drafts',
     method: 'build',
     options: args,
-    action: 'send',
+    action: 'send'
   });
 };
 
@@ -78,8 +83,8 @@ const uploadFile = async (file, accessToken: string) => {
     options: {
       data: buffer,
       filename: file.name,
-      contentType: file.type,
-    },
+      contentType: file.type
+    }
   });
 
   return nylasFileRequest(nylasFile, 'upload');
@@ -96,7 +101,7 @@ const getAttachment = async (fileId: string, accessToken: string) => {
     accessToken,
     name: 'files',
     method: 'build',
-    options: { id: fileId },
+    options: { id: fileId }
   });
 
   return nylasFileRequest(nylasFile, 'download');
@@ -146,7 +151,7 @@ export const nylasRequest = ({
   parent,
   child,
   accessToken,
-  filter,
+  filter
 }: {
   parent: string;
   child: string;
@@ -182,7 +187,12 @@ export const nylasFileRequest = (nylasFile: any, method: string) => {
 /**
  * Get Nylas SDK instrance
  */
-export const nylasInstance = (name: string, method: string, options?: any, action?: string) => {
+export const nylasInstance = (
+  name: string,
+  method: string,
+  options?: any,
+  action?: string
+) => {
   if (!action) {
     return Nylas[name][method](options);
   }
@@ -198,7 +208,7 @@ export const nylasInstanceWithToken = async ({
   name,
   method,
   options,
-  action,
+  action
 }: {
   accessToken: string;
   name: string;
@@ -226,7 +236,10 @@ export const nylasInstanceWithToken = async ({
  * @param {String} accountId
  * @param {Boolean} enable
  */
-export const enableOrDisableAccount = async (accountId: string, enable: boolean) => {
+export const enableOrDisableAccount = async (
+  accountId: string,
+  enable: boolean
+) => {
   debugNylas(`${enable} account with uid: ${accountId}`);
 
   await nylasInstance('accounts', 'find', accountId).then(account => {
@@ -238,7 +251,10 @@ export const enableOrDisableAccount = async (accountId: string, enable: boolean)
   });
 };
 
-export const checkEmailDuplication = async (email: string, kind: string): Promise<any> => {
+export const checkEmailDuplication = async (
+  email: string,
+  kind: string
+): Promise<any> => {
   debugNylas(`Checking email duplication: ${email}`);
 
   const integration = await Integrations.findOne({ email, kind }).lean();
@@ -250,13 +266,17 @@ export const checkEmailDuplication = async (email: string, kind: string): Promis
   return false;
 };
 
-const getCalendarOrEvent = async (id: string, type: 'calendars' | 'events', accessToken: string) => {
+const getCalendarOrEvent = async (
+  id: string,
+  type: 'calendars' | 'events',
+  accessToken: string
+) => {
   try {
     const response = await nylasInstanceWithToken({
       accessToken,
       name: type,
       method: 'find',
-      options: id,
+      options: id
     });
 
     if (!response) {
@@ -272,14 +292,20 @@ const getCalendarOrEvent = async (id: string, type: 'calendars' | 'events', acce
 const getCalenderOrEventList = async (
   type: 'calendars' | 'events',
   accessToken: string,
-  filter?: { show_cancelled?: boolean; event_id?: string; calendar_id?: string; description?: string; title?: string },
+  filter?: {
+    show_cancelled?: boolean;
+    event_id?: string;
+    calendar_id?: string;
+    description?: string;
+    title?: string;
+  }
 ) => {
   try {
     const responses = await nylasInstanceWithToken({
       accessToken,
       name: type,
       method: 'list',
-      options: filter,
+      options: filter
     });
 
     if (!responses) {
@@ -295,19 +321,21 @@ const getCalenderOrEventList = async (
 const checkCalendarAvailability = async (
   email: string,
   dates: { startTime: number; endTime: number },
-  accessToken: string,
+  accessToken: string
 ): Promise<ICalendarAvailability[]> => {
   try {
     const responses = await sendRequest({
       url: `${NYLAS_API_URL}/calendars/free-busy`,
       method: 'POST',
       headerParams: {
-        Authorization: `Basic ${Buffer.from(`${accessToken}:`).toString('base64')}`,
+        Authorization: `Basic ${Buffer.from(`${accessToken}:`).toString(
+          'base64'
+        )}`
       },
       body: {
         start_time: dates.startTime,
-        end_time: dates.endTime,
-      },
+        end_time: dates.endTime
+      }
     });
 
     if (!responses) {
@@ -326,11 +354,13 @@ const deleteCalendarEvent = async (eventId: string, accessToken: string) => {
       url: `${NYLAS_API_URL}/events/${eventId}`,
       method: 'DELETE',
       headerParams: {
-        Authorization: `Basic ${Buffer.from(`${accessToken}:`).toString('base64')}`,
+        Authorization: `Basic ${Buffer.from(`${accessToken}:`).toString(
+          'base64'
+        )}`
       },
       body: {
-        notify_participants: true,
-      },
+        notify_participants: true
+      }
     });
 
     debugNylas(`Successfully deleted the event`);
@@ -339,12 +369,15 @@ const deleteCalendarEvent = async (eventId: string, accessToken: string) => {
   }
 };
 
-const createEvent = async (doc: IEventDoc, accessToken: string): Promise<IEvent> => {
+const createEvent = async (
+  doc: IEventDoc,
+  accessToken: string
+): Promise<IEvent> => {
   try {
     const event = await nylasInstanceWithToken({
       accessToken,
       name: 'events',
-      method: 'build',
+      method: 'build'
     });
 
     const start = new Date(doc.start).getTime() / 1000;
@@ -368,16 +401,22 @@ const createEvent = async (doc: IEventDoc, accessToken: string): Promise<IEvent>
   }
 };
 
-const updateEvent = async (eventId: string, doc: IEventDoc, accessToken: string): Promise<IEvent> => {
+const updateEvent = async (
+  eventId: string,
+  doc: IEventDoc,
+  accessToken: string
+): Promise<IEvent> => {
   try {
     const response = await sendRequest({
       url: `${NYLAS_API_URL}/events/${eventId}`,
       method: 'PUT',
       headerParams: {
-        Authorization: `Basic ${Buffer.from(`${accessToken}:`).toString('base64')}`,
+        Authorization: `Basic ${Buffer.from(`${accessToken}:`).toString(
+          'base64'
+        )}`
       },
       params: {
-        notify_participants: doc.notifyParticipants,
+        notify_participants: doc.notifyParticipants
       },
       body: {
         title: doc.title,
@@ -388,8 +427,8 @@ const updateEvent = async (eventId: string, doc: IEventDoc, accessToken: string)
         read_only: doc.readonly,
         participants: doc.participants,
         description: doc.description,
-        when: doc.when,
-      },
+        when: doc.when
+      }
     });
 
     debugNylas(`Successfully updated the event with id: ${eventId}`);
@@ -404,14 +443,14 @@ const updateEvent = async (eventId: string, doc: IEventDoc, accessToken: string)
 const sendEventAttendance = async (
   eventId: string,
   args: { status: 'yes' | 'no' | 'maybe'; comment?: string },
-  accessToken: string,
+  accessToken: string
 ) => {
   try {
     const event = await nylasInstanceWithToken({
       accessToken,
       name: 'events',
       method: 'find',
-      options: eventId,
+      options: eventId
     });
 
     if (!event) {
@@ -439,5 +478,5 @@ export {
   deleteCalendarEvent,
   createEvent,
   updateEvent,
-  sendEventAttendance,
+  sendEventAttendance
 };

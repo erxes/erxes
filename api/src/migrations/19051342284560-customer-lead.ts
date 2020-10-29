@@ -10,12 +10,12 @@ module.exports.up = async () => {
       $or: [
         { visitorContactInfo: { $exists: true } },
         { primaryEmail: { $exists: true } },
-        { primaryPhone: { $exists: true } },
-      ],
+        { primaryPhone: { $exists: true } }
+      ]
     },
     {
-      $set: { state: 'lead' },
-    },
+      $set: { state: 'lead' }
+    }
   );
 
   console.log(response);

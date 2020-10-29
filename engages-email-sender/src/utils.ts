@@ -10,7 +10,7 @@ export const createTransporter = async () => {
   AWS.config.update(config);
 
   return nodemailer.createTransport({
-    SES: new AWS.SES({ apiVersion: '2010-12-01' }),
+    SES: new AWS.SES({ apiVersion: '2010-12-01' })
   });
 };
 
@@ -29,7 +29,13 @@ export interface IUser {
   email: string;
 }
 
-export const getEnv = ({ name, defaultValue }: { name: string; defaultValue?: string }): string => {
+export const getEnv = ({
+  name,
+  defaultValue
+}: {
+  name: string;
+  defaultValue?: string;
+}): string => {
   const value = process.env[name];
 
   if (!value && typeof defaultValue !== 'undefined') {
@@ -66,7 +72,7 @@ export const subscribeEngage = () => {
       .subscribe({
         TopicArn: topicArn.TopicArn,
         Protocol: 'https',
-        Endpoint: `${MAIN_API_DOMAIN}/service/engage/tracker`,
+        Endpoint: `${MAIN_API_DOMAIN}/service/engage/tracker`
       })
       .promise()
       .then(response => {
@@ -79,8 +85,8 @@ export const subscribeEngage = () => {
     await sesApi
       .createConfigurationSet({
         ConfigurationSet: {
-          Name: configSet,
-        },
+          Name: configSet
+        }
       })
       .promise()
       .catch(e => {
@@ -103,14 +109,14 @@ export const subscribeEngage = () => {
             'delivery',
             'open',
             'click',
-            'renderingFailure',
+            'renderingFailure'
           ],
           Name: configSet,
           Enabled: true,
           SNSDestination: {
-            TopicARN: topicArn.TopicArn,
-          },
-        },
+            TopicARN: topicArn.TopicArn
+          }
+        }
       })
       .promise()
       .catch(e => {

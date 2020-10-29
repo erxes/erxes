@@ -10,7 +10,7 @@ export default {
       () => graphqlPubsub.asyncIterator('notificationInserted'),
       (payload, variables) => {
         return payload.notificationInserted.userId === variables.userId;
-      },
-    ),
-  },
+      }
+    )
+  }
 };

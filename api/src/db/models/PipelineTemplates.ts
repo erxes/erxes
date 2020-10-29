@@ -3,7 +3,7 @@ import { Forms } from '.';
 import {
   IPipelineTemplateDocument,
   IPipelineTemplateStage,
-  pipelineTemplateSchema,
+  pipelineTemplateSchema
 } from './definitions/pipelineTemplates';
 
 interface IDoc {
@@ -15,7 +15,7 @@ interface IDoc {
 export const getDuplicatedStages = async ({
   templateId,
   pipelineId,
-  type,
+  type
 }: {
   templateId: string;
   pipelineId?: string;
@@ -33,17 +33,25 @@ export const getDuplicatedStages = async ({
       name: stage.name,
       pipelineId,
       type,
-      formId: duplicated._id,
+      formId: duplicated._id
     });
   }
 
   return stages;
 };
 
-export interface IPipelineTemplateModel extends Model<IPipelineTemplateDocument> {
+export interface IPipelineTemplateModel
+  extends Model<IPipelineTemplateDocument> {
   getPipelineTemplate(_id: string): Promise<IPipelineTemplateDocument>;
-  createPipelineTemplate(doc: IDoc, stages: IPipelineTemplateStage[]): Promise<IPipelineTemplateDocument>;
-  updatePipelineTemplate(_id: string, doc: IDoc, stages: IPipelineTemplateStage[]): Promise<IPipelineTemplateDocument>;
+  createPipelineTemplate(
+    doc: IDoc,
+    stages: IPipelineTemplateStage[]
+  ): Promise<IPipelineTemplateDocument>;
+  updatePipelineTemplate(
+    _id: string,
+    doc: IDoc,
+    stages: IPipelineTemplateStage[]
+  ): Promise<IPipelineTemplateDocument>;
   removePipelineTemplate(_id: string): void;
   duplicatePipelineTemplate(_id: string): Promise<IPipelineTemplateDocument>;
 }
@@ -66,7 +74,10 @@ export const loadPipelineTemplateClass = () => {
     /**
      * Create a pipeline template
      */
-    public static async createPipelineTemplate(doc: IDoc, stages: IPipelineTemplateStage[]) {
+    public static async createPipelineTemplate(
+      doc: IDoc,
+      stages: IPipelineTemplateStage[]
+    ) {
       const orderedStages = stages.map((stage, index) => ({ ...stage, index }));
 
       return PipelineTemplates.create({ ...doc, stages: orderedStages });
@@ -75,10 +86,17 @@ export const loadPipelineTemplateClass = () => {
     /**
      * Update pipeline template
      */
-    public static async updatePipelineTemplate(_id: string, doc: IDoc, stages: IPipelineTemplateStage[]) {
+    public static async updatePipelineTemplate(
+      _id: string,
+      doc: IDoc,
+      stages: IPipelineTemplateStage[]
+    ) {
       const orderedStages = stages.map((stage, index) => ({ ...stage, index }));
 
-      await PipelineTemplates.updateOne({ _id }, { $set: { ...doc, stages: orderedStages } });
+      await PipelineTemplates.updateOne(
+        { _id },
+        { $set: { ...doc, stages: orderedStages } }
+      );
 
       return PipelineTemplates.findOne({ _id });
     }
@@ -96,10 +114,12 @@ export const loadPipelineTemplateClass = () => {
       const duplicated: IDoc = {
         name: `${pipelineTemplate.name} duplicated`,
         description: pipelineTemplate.description || '',
-        type: pipelineTemplate.type,
+        type: pipelineTemplate.type
       };
 
-      const stages: any[] = await getDuplicatedStages({ templateId: pipelineTemplate._id });
+      const stages: any[] = await getDuplicatedStages({
+        templateId: pipelineTemplate._id
+      });
 
       return PipelineTemplates.createPipelineTemplate(duplicated, stages);
     }
@@ -130,9 +150,9 @@ export const loadPipelineTemplateClass = () => {
 loadPipelineTemplateClass();
 
 // tslint:disable-next-line
-const PipelineTemplates = model<IPipelineTemplateDocument, IPipelineTemplateModel>(
-  'pipeline_templates',
-  pipelineTemplateSchema,
-);
+const PipelineTemplates = model<
+  IPipelineTemplateDocument,
+  IPipelineTemplateModel
+>('pipeline_templates', pipelineTemplateSchema);
 
 export default PipelineTemplates;

@@ -22,7 +22,7 @@ const notificationQueries = {
       page: number;
       perPage: number;
     },
-    { user }: IContext,
+    { user }: IContext
   ) {
     const sort = { date: -1 };
     const selector: any = { receiver: user._id };
@@ -47,7 +47,11 @@ const notificationQueries = {
   /**
    * Notification counts
    */
-  notificationCounts(_root, { requireRead }: { requireRead: boolean }, { user }: IContext) {
+  notificationCounts(
+    _root,
+    { requireRead }: { requireRead: boolean },
+    { user }: IContext
+  ) {
     const selector: any = { receiver: user._id };
 
     if (requireRead) {
@@ -69,7 +73,7 @@ const notificationQueries = {
    */
   notificationsGetConfigurations(_root, _args, { user }: IContext) {
     return NotificationConfigurations.find({ user: user._id });
-  },
+  }
 };
 
 moduleRequireLogin(notificationQueries);

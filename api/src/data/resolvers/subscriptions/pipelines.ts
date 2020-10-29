@@ -11,7 +11,7 @@ export default {
       // filter by _id
       (payload, variables) => {
         return payload.pipelinesChanged._id === variables._id;
-      },
-    ),
-  },
+      }
+    )
+  }
 };

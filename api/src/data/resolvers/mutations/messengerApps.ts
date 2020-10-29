@@ -5,10 +5,15 @@ import { IContext } from '../../types';
 const messengerAppMutations = {
   async messengerAppSave(
     _root,
-    { integrationId, messengerApps }: { integrationId: string; messengerApps: any },
-    { docModifier }: IContext,
+    {
+      integrationId,
+      messengerApps
+    }: { integrationId: string; messengerApps: any },
+    { docModifier }: IContext
   ) {
-    await MessengerApps.deleteMany({ 'credentials.integrationId': integrationId });
+    await MessengerApps.deleteMany({
+      'credentials.integrationId': integrationId
+    });
 
     if (messengerApps.websites) {
       for (const website of messengerApps.websites) {
@@ -18,8 +23,8 @@ const messengerAppMutations = {
             integrationId,
             description: website.description,
             buttonText: website.buttonText,
-            url: website.url,
-          },
+            url: website.url
+          }
         };
 
         await MessengerApps.createApp(docModifier(doc));
@@ -32,8 +37,8 @@ const messengerAppMutations = {
           kind: 'knowledgebase',
           credentials: {
             integrationId,
-            topicId: knowledgebase.topicId,
-          },
+            topicId: knowledgebase.topicId
+          }
         };
 
         await MessengerApps.createApp(docModifier(doc));
@@ -46,8 +51,8 @@ const messengerAppMutations = {
           kind: 'lead',
           credentials: {
             integrationId,
-            formCode: lead.formCode,
-          },
+            formCode: lead.formCode
+          }
         };
 
         await MessengerApps.createApp(docModifier(doc));
@@ -55,7 +60,7 @@ const messengerAppMutations = {
     }
 
     return 'success';
-  },
+  }
 };
 
 requireLogin(messengerAppMutations, 'messengerAppSave');

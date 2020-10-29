@@ -33,12 +33,9 @@ export default function TicketEditForm(props: Props) {
 
   const [source, setSource] = useState(item.source);
 
-  useEffect(
-    () => {
-      setSource(item.source);
-    },
-    [item.source]
-  );
+  useEffect(() => {
+    setSource(item.source);
+  }, [item.source]);
 
   function renderSidebarFields(saveItem) {
     const sourceValues = INTEGRATION_KINDS.ALL.map(kind => ({

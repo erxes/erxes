@@ -12,9 +12,14 @@ import {
   Tags,
   Tasks,
   Tickets,
-  Users,
+  Users
 } from '../db/models';
-import { clearEmptyValues, connect, generatePronoun, updateDuplicatedValue } from './utils';
+import {
+  clearEmptyValues,
+  connect,
+  generatePronoun,
+  updateDuplicatedValue
+} from './utils';
 
 // tslint:disable-next-line
 const { parentPort, workerData } = require('worker_threads');
@@ -33,12 +38,23 @@ connect().then(async () => {
     return;
   }
 
-  const { user, scopeBrandIds, result, contentType, properties, importHistoryId, percentagePerData } = workerData;
+  const {
+    user,
+    scopeBrandIds,
+    result,
+    contentType,
+    properties,
+    importHistoryId,
+    percentagePerData
+  } = workerData;
 
   let create: any = null;
   let model: any = null;
 
-  const isBoardItem = (): boolean => contentType === 'deal' || contentType === 'task' || contentType === 'ticket';
+  const isBoardItem = (): boolean =>
+    contentType === 'deal' ||
+    contentType === 'task' ||
+    contentType === 'ticket';
 
   switch (contentType) {
     case 'company':
@@ -84,7 +100,7 @@ connect().then(async () => {
     const inc: { success: number; failed: number; percentage: number } = {
       success: 0,
       failed: 0,
-      percentage: percentagePerData,
+      percentage: percentagePerData
     };
 
     // Collecting errors
@@ -92,7 +108,7 @@ connect().then(async () => {
 
     const doc: any = {
       scopeBrandIds,
-      customFieldsData: [],
+      customFieldsData: []
     };
 
     let colIndex: number = 0;
@@ -116,7 +132,7 @@ connect().then(async () => {
           {
             doc.customFieldsData.push({
               field: property.id,
-              value: fieldValue[colIndex],
+              value: fieldValue[colIndex]
             });
           }
           break;
@@ -169,7 +185,9 @@ connect().then(async () => {
           {
             const tagName = value;
 
-            const tag = await Tags.findOne({ name: new RegExp(`.*${tagName}.*`, 'i') }).lean();
+            const tag = await Tags.findOne({
+              name: new RegExp(`.*${tagName}.*`, 'i')
+            }).lean();
 
             doc[property.name] = tag ? [tag._id] : [];
           }
@@ -213,11 +231,17 @@ connect().then(async () => {
       colIndex++;
     } // end properties for loop
 
-    if ((contentType === 'customer' || contentType === 'lead') && !doc.emailValidationStatus) {
+    if (
+      (contentType === 'customer' || contentType === 'lead') &&
+      !doc.emailValidationStatus
+    ) {
       doc.emailValidationStatus = 'unknown';
     }
 
-    if ((contentType === 'customer' || contentType === 'lead') && !doc.phoneValidationStatus) {
+    if (
+      (contentType === 'customer' || contentType === 'lead') &&
+      !doc.phoneValidationStatus
+    ) {
       doc.phoneValidationStatus = 'unknown';
     }
 
@@ -226,9 +250,18 @@ connect().then(async () => {
       doc.userId = user._id;
 
       if (boardName && pipelineName && stageName) {
-        const board = await Boards.findOne({ name: boardName, type: contentType });
-        const pipeline = await Pipelines.findOne({ boardId: board && board._id, name: pipelineName });
-        const stage = await Stages.findOne({ pipelineId: pipeline && pipeline._id, name: stageName });
+        const board = await Boards.findOne({
+          name: boardName,
+          type: contentType
+        });
+        const pipeline = await Pipelines.findOne({
+          boardId: board && board._id,
+          name: pipelineName
+        });
+        const stage = await Stages.findOne({
+          pipelineId: pipeline && pipeline._id,
+          name: stageName
+        });
 
         doc.stageId = stage && stage._id;
       }
@@ -236,7 +269,11 @@ connect().then(async () => {
 
     await create(doc, user)
       .then(async cocObj => {
-        if (doc.companiesPrimaryNames && doc.companiesPrimaryNames.length > 0 && contentType !== 'company') {
+        if (
+          doc.companiesPrimaryNames &&
+          doc.companiesPrimaryNames.length > 0 &&
+          contentType !== 'company'
+        ) {
           const companyIds: string[] = [];
 
           for (const primaryName of doc.companiesPrimaryNames) {
@@ -256,13 +293,20 @@ connect().then(async () => {
               mainType: contentType === 'lead' ? 'customer' : contentType,
               mainTypeId: cocObj._id,
               relType: 'company',
-              relTypeId: _id,
+              relTypeId: _id
             });
           }
         }
 
-        if (doc.customersPrimaryEmails && doc.customersPrimaryEmails.length > 0 && contentType !== 'customer') {
-          const customers = await Customers.find({ primaryEmail: { $in: doc.customersPrimaryEmails } }, { _id: 1 });
+        if (
+          doc.customersPrimaryEmails &&
+          doc.customersPrimaryEmails.length > 0 &&
+          contentType !== 'customer'
+        ) {
+          const customers = await Customers.find(
+            { primaryEmail: { $in: doc.customersPrimaryEmails } },
+            { _id: 1 }
+          );
           const customerIds = customers.map(customer => customer._id);
 
           for (const _id of customerIds) {
@@ -270,12 +314,15 @@ connect().then(async () => {
               mainType: contentType === 'lead' ? 'customer' : contentType,
               mainTypeId: cocObj._id,
               relType: 'customer',
-              relTypeId: _id,
+              relTypeId: _id
             });
           }
         }
 
-        await ImportHistory.updateOne({ _id: importHistoryId }, { $push: { ids: [cocObj._id] } });
+        await ImportHistory.updateOne(
+          { _id: importHistoryId },
+          { $push: { ids: [cocObj._id] } }
+        );
 
         // Increasing success count
         inc.success++;
@@ -305,7 +352,10 @@ connect().then(async () => {
         }
       });
 
-    await ImportHistory.updateOne({ _id: importHistoryId }, { $inc: inc, $push: { errorMsgs } });
+    await ImportHistory.updateOne(
+      { _id: importHistoryId },
+      { $inc: inc, $push: { errorMsgs } }
+    );
 
     let importHistory = await ImportHistory.findOne({ _id: importHistoryId });
 
@@ -314,7 +364,10 @@ connect().then(async () => {
     }
 
     if (importHistory.failed + importHistory.success === importHistory.total) {
-      await ImportHistory.updateOne({ _id: importHistoryId }, { $set: { status: 'Done', percentage: 100 } });
+      await ImportHistory.updateOne(
+        { _id: importHistoryId },
+        { $set: { status: 'Done', percentage: 100 } }
+      );
 
       importHistory = await ImportHistory.findOne({ _id: importHistoryId });
     }

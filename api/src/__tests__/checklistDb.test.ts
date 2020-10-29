@@ -1,5 +1,10 @@
 import * as faker from 'faker';
-import { checklistFactory, checklistItemFactory, dealFactory, userFactory } from '../db/factories';
+import {
+  checklistFactory,
+  checklistItemFactory,
+  dealFactory,
+  userFactory
+} from '../db/factories';
 import { ChecklistItems, Checklists, Users } from '../db/models';
 import { ACTIVITY_CONTENT_TYPES } from '../db/models/definitions/constants';
 
@@ -11,13 +16,13 @@ import './setup.ts';
 const generateData = () => ({
   contentType: 'deal',
   contentTypeId: 'DFDFAFSFSDDSF',
-  title: faker.random.word(),
+  title: faker.random.word()
 });
 
 const generateItemData = checklistId => ({
   checklistId,
   content: faker.random.word(),
-  isChecked: false,
+  isChecked: false
 });
 
 /*
@@ -38,7 +43,9 @@ describe('Checklists model test', () => {
     // Creating test data
     _user = await userFactory({});
     _checklist = await checklistFactory({});
-    _checklistItem = await checklistItemFactory({ checklistId: _checklist._id });
+    _checklistItem = await checklistItemFactory({
+      checklistId: _checklist._id
+    });
   });
 
   afterEach(async () => {
@@ -83,7 +90,10 @@ describe('Checklists model test', () => {
 
     const docItem = generateItemData(checklistObj._id);
 
-    const checklistItemObj = await ChecklistItems.createChecklistItem(docItem, _user);
+    const checklistItemObj = await ChecklistItems.createChecklistItem(
+      docItem,
+      _user
+    );
 
     checkValues(checklistItemObj, docItem);
     expect(checklistItemObj.createdUserId).toBe(_user._id);
@@ -95,7 +105,10 @@ describe('Checklists model test', () => {
     const checklistObj = await Checklists.updateChecklist(_checklist._id, doc);
 
     const docItem = generateItemData(checklistObj._id);
-    const checklistItemObj = await ChecklistItems.updateChecklistItem(_checklistItem._id, docItem);
+    const checklistItemObj = await ChecklistItems.updateChecklistItem(
+      _checklistItem._id,
+      docItem
+    );
 
     checkValues(checklistObj, doc);
     checkValues(checklistItemObj, docItem);
@@ -119,19 +132,25 @@ describe('Checklists model test', () => {
     await checklistItemFactory({ checklistId: _checklist._id });
     await checklistItemFactory({ checklistId: _checklist._id });
 
-    let itemCount = await ChecklistItems.find({ checklistId: _checklist._id }).countDocuments();
+    let itemCount = await ChecklistItems.find({
+      checklistId: _checklist._id
+    }).countDocuments();
     expect(count).toBe(1);
     expect(itemCount).toBe(3);
 
     await ChecklistItems.removeChecklistItem(_checklistItem._id);
 
-    itemCount = await ChecklistItems.find({ checklistId: _checklist._id }).countDocuments();
+    itemCount = await ChecklistItems.find({
+      checklistId: _checklist._id
+    }).countDocuments();
     expect(itemCount).toBe(2);
 
     await Checklists.removeChecklist(_checklist._id);
 
     count = await Checklists.find({ _id: _checklist._id }).countDocuments();
-    itemCount = await ChecklistItems.find({ checklistId: _checklist._id }).countDocuments();
+    itemCount = await ChecklistItems.find({
+      checklistId: _checklist._id
+    }).countDocuments();
     expect(count).toBe(0);
     expect(itemCount).toBe(0);
   });
@@ -141,7 +160,7 @@ describe('Checklists model test', () => {
 
     const checklist = await checklistFactory({
       contentType: ACTIVITY_CONTENT_TYPES.DEAL,
-      contentTypeId: deal._id,
+      contentTypeId: deal._id
     });
 
     await checklistItemFactory({ checklistId: checklist._id });
@@ -150,15 +169,20 @@ describe('Checklists model test', () => {
 
     const checklists = await Checklists.find({
       contentType: ACTIVITY_CONTENT_TYPES.DEAL,
-      contentTypeId: deal._id,
+      contentTypeId: deal._id
     });
 
-    const checklistItems = await ChecklistItems.find({ checklistId: checklist._id });
+    const checklistItems = await ChecklistItems.find({
+      checklistId: checklist._id
+    });
 
     expect(checklists).toHaveLength(0);
     expect(checklistItems).toHaveLength(0);
 
-    const response = await Checklists.removeChecklists(ACTIVITY_CONTENT_TYPES.COMPANY, deal._id);
+    const response = await Checklists.removeChecklists(
+      ACTIVITY_CONTENT_TYPES.COMPANY,
+      deal._id
+    );
 
     expect(response).toBeUndefined();
   });

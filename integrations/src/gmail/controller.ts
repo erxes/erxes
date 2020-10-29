@@ -1,6 +1,12 @@
 import { debugGmail, debugRequest } from '../debuggers';
 import { Accounts } from '../models';
-import { createIntegration, getGmailAttachment, getMessage, handleMessage, sendEmail } from './handleController';
+import {
+  createIntegration,
+  getGmailAttachment,
+  getMessage,
+  handleMessage,
+  sendEmail
+} from './handleController';
 import loginMiddleware from './loginMiddleware';
 
 const init = async app => {
@@ -10,7 +16,7 @@ const init = async app => {
     debugGmail('Webhook received a message');
 
     const {
-      message: { data },
+      message: { data }
     } = req.body;
 
     try {
@@ -74,7 +80,10 @@ const init = async app => {
     const { erxesApiMessageId, integrationId } = req.query;
 
     try {
-      const conversationMessage = await getMessage(erxesApiMessageId, integrationId);
+      const conversationMessage = await getMessage(
+        erxesApiMessageId,
+        integrationId
+      );
 
       return res.json(conversationMessage);
     } catch (e) {
@@ -86,11 +95,10 @@ const init = async app => {
     const { messageId, attachmentId, integrationId, filename } = req.query;
 
     try {
-      const attachment: { filename: string; data: string } = await getGmailAttachment(
-        messageId,
-        attachmentId,
-        integrationId,
-      );
+      const attachment: {
+        filename: string;
+        data: string;
+      } = await getGmailAttachment(messageId, attachmentId, integrationId);
 
       attachment.filename = filename;
 

@@ -14,10 +14,10 @@ export const FlexContent = styled.div`
 export const Content = styled.div`
   padding: 12px 22px;
   word-break: break-word;
-  background: rgba(10,30,65,.05);
+  background: rgba(10, 30, 65, 0.05);
   margin-top: 10px;
   transition: background 0.3s ease;
-  border-radius: 3px; 
+  border-radius: 3px;
   min-height: 50px;
 
   p {
@@ -26,7 +26,7 @@ export const Content = styled.div`
   }
 
   &:hover {
-    background: rgba(10,30,65,.09);
+    background: rgba(10, 30, 65, 0.09);
     cursor: pointer;
   }
 `;
@@ -112,7 +112,8 @@ export const TitleRow = styled.div`
 
 export const ContentWrapper = styledTS<{ isEditing: boolean }>(styled.div)`
 
-  ${props => props.isEditing &&
+  ${props =>
+    props.isEditing &&
     css`
       margin-bottom: ${dimensions.coreSpacing}px;
       background-color: ${colors.colorWhite};
@@ -123,7 +124,6 @@ export const ContentWrapper = styledTS<{ isEditing: boolean }>(styled.div)`
       }
     `};
 `;
-
 
 export const MetaInfo = styled.div`
   display: flex;

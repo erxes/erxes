@@ -9,7 +9,7 @@ connect()
       length: 10,
       numbers: true,
       lowercase: true,
-      uppercase: true,
+      uppercase: true
     });
 
     // create admin user
@@ -19,8 +19,8 @@ connect()
       email: 'admin@erxes.io',
       isOwner: true,
       details: {
-        fullName: 'Admin',
-      },
+        fullName: 'Admin'
+      }
     });
 
     console.log('\x1b[32m%s\x1b[0m', 'Your new password: ' + newPwd);

@@ -7,10 +7,13 @@ module.exports.up = async () => {
   const users = await Users.find({});
 
   for (const user of users) {
-    const entries = (await OnboardingHistories.find({ userId: user._id })) || [];
+    const entries =
+      (await OnboardingHistories.find({ userId: user._id })) || [];
     const userInfo = user.username || user.email || user._id;
 
-    console.log(`Found "${entries.length}" onboard history entries for user "${userInfo}"`);
+    console.log(
+      `Found "${entries.length}" onboard history entries for user "${userInfo}"`
+    );
 
     // if multiple entries are found leave only one
     if (entries.length > 1) {

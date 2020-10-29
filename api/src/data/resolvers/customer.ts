@@ -1,4 +1,11 @@
-import { Companies, Conformities, Conversations, Integrations, Tags, Users } from '../../db/models';
+import {
+  Companies,
+  Conformities,
+  Conversations,
+  Integrations,
+  Tags,
+  Users
+} from '../../db/models';
 import { ICustomerDocument } from '../../db/models/definitions/customers';
 import { fetchElk } from '../../elasticsearch';
 
@@ -21,17 +28,17 @@ export default {
           bool: {
             must: [
               {
-                term: { customerId: customer._id },
+                term: { customerId: customer._id }
               },
               {
-                term: { name: 'viewPage' },
-              },
-            ],
-          },
-        },
+                term: { name: 'viewPage' }
+              }
+            ]
+          }
+        }
       },
       '',
-      { hits: { hits: [] } },
+      { hits: { hits: [] } }
     );
 
     return response.hits.hits.map(hit => {
@@ -41,7 +48,7 @@ export default {
       return {
         createdAt: source.createdAt,
         count: source.count,
-        url: firstAttribute.value,
+        url: firstAttribute.value
       };
     });
   },
@@ -54,7 +61,7 @@ export default {
     const companyIds = await Conformities.savedConformity({
       mainType: 'customer',
       mainTypeId: customer._id,
-      relTypes: ['company'],
+      relTypes: ['company']
     });
 
     return Companies.find({ _id: { $in: companyIds || [] } }).limit(10);
@@ -62,5 +69,5 @@ export default {
 
   owner(customer: ICustomerDocument) {
     return Users.findOne({ _id: customer.ownerId });
-  },
+  }
 };

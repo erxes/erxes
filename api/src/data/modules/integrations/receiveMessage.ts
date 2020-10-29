@@ -4,7 +4,7 @@ import {
   Customers,
   EmailDeliveries,
   Integrations,
-  Users,
+  Users
 } from '../../../db/models';
 import { CONVERSATION_STATUSES } from '../../../db/models/definitions/constants';
 import { graphqlPubsub } from '../../../pubsub';
@@ -12,12 +12,12 @@ import { getConfigs } from '../../utils';
 
 const sendError = message => ({
   status: 'error',
-  errorMessage: message,
+  errorMessage: message
 });
 
 const sendSuccess = data => ({
   status: 'success',
-  data,
+  data
 });
 
 /*
@@ -58,7 +58,7 @@ export const receiveRpcMessage = async msg => {
     } else {
       customer = await Customers.createCustomer({
         ...doc,
-        scopeBrandIds: integration.brandId,
+        scopeBrandIds: integration.brandId
       });
     }
 
@@ -77,7 +77,10 @@ export const receiveRpcMessage = async msg => {
     const assignedUserId = user ? user._id : null;
 
     if (conversationId) {
-      await Conversations.updateConversation(conversationId, { content, assignedUserId });
+      await Conversations.updateConversation(conversationId, {
+        content,
+        assignedUserId
+      });
 
       return sendSuccess({ _id: conversationId });
     }
@@ -92,12 +95,20 @@ export const receiveRpcMessage = async msg => {
   if (action === 'create-conversation-message') {
     const message = await ConversationMessages.createMessage(doc);
 
-    const conversationDoc: { status: string; readUserIds: string[]; content?: string; updatedAt?: Date } = {
+    const conversationDoc: {
+      status: string;
+      readUserIds: string[];
+      content?: string;
+      updatedAt?: Date;
+    } = {
       // Reopen its conversation if it's closed
-      status: doc.unread || doc.unread === undefined ? CONVERSATION_STATUSES.OPEN : CONVERSATION_STATUSES.CLOSED,
+      status:
+        doc.unread || doc.unread === undefined
+          ? CONVERSATION_STATUSES.OPEN
+          : CONVERSATION_STATUSES.CLOSED,
 
       // Mark as unread
-      readUserIds: [],
+      readUserIds: []
     };
 
     if (message.content && metaInfo === 'replaceContent') {
@@ -108,14 +119,17 @@ export const receiveRpcMessage = async msg => {
       conversationDoc.updatedAt = doc.createdAt;
     }
 
-    await Conversations.updateConversation(message.conversationId, conversationDoc);
+    await Conversations.updateConversation(
+      message.conversationId,
+      conversationDoc
+    );
 
     graphqlPubsub.publish('conversationClientMessageInserted', {
-      conversationClientMessageInserted: message,
+      conversationClientMessageInserted: message
     });
 
     graphqlPubsub.publish('conversationMessageInserted', {
-      conversationMessageInserted: message,
+      conversationMessageInserted: message
     });
 
     return sendSuccess({ _id: message._id });
@@ -152,10 +166,16 @@ export const receiveEngagesNotification = async msg => {
   const { action, data } = msg;
 
   if (action === 'setDoNotDisturb') {
-    await Customers.updateOne({ _id: data.customerId }, { $set: { doNotDisturb: 'Yes' } });
+    await Customers.updateOne(
+      { _id: data.customerId },
+      { $set: { doNotDisturb: 'Yes' } }
+    );
   }
 
   if (action === 'transactionEmail') {
-    await EmailDeliveries.updateEmailDeliveryStatus(data.emailDeliveryId, data.status);
+    await EmailDeliveries.updateEmailDeliveryStatus(
+      data.emailDeliveryId,
+      data.status
+    );
   }
 };

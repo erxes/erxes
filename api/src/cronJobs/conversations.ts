@@ -2,7 +2,14 @@ import * as moment from 'moment';
 import * as schedule from 'node-schedule';
 import * as _ from 'underscore';
 import utils, { IEmailParams } from '../data/utils';
-import { Brands, ConversationMessages, Conversations, Customers, Integrations, Users } from '../db/models';
+import {
+  Brands,
+  ConversationMessages,
+  Conversations,
+  Customers,
+  Integrations,
+  Users
+} from '../db/models';
 import { IMessageDocument } from '../db/models/definitions/conversationMessages';
 import { debugCrons } from '../debuggers';
 
@@ -16,10 +23,12 @@ export const sendMessageEmail = async () => {
   debugCrons(`Found ${conversations.length} conversations`);
 
   for (const conversation of conversations) {
-    const customer = await Customers.findOne({ _id: conversation.customerId }).lean();
+    const customer = await Customers.findOne({
+      _id: conversation.customerId
+    }).lean();
 
     const integration = await Integrations.findOne({
-      _id: conversation.integrationId,
+      _id: conversation.integrationId
     });
 
     if (!integration) {
@@ -37,9 +46,13 @@ export const sendMessageEmail = async () => {
     }
 
     // user's last non answered question
-    const question: IMessageDocument = await ConversationMessages.getNonAsnweredMessage(conversation._id);
+    const question: IMessageDocument = await ConversationMessages.getNonAsnweredMessage(
+      conversation._id
+    );
 
-    const adminMessages = await ConversationMessages.getAdminMessages(conversation._id);
+    const adminMessages = await ConversationMessages.getAdminMessages(
+      conversation._id
+    );
 
     if (adminMessages.length < 1) {
       continue;
@@ -51,7 +64,9 @@ export const sendMessageEmail = async () => {
     for (const message of adminMessages) {
       const answer = {
         ...message.toJSON(),
-        createdAt: new Date(moment(message.createdAt).format('DD MMM YY, HH:mm')),
+        createdAt: new Date(
+          moment(message.createdAt).format('DD MMM YY, HH:mm')
+        )
       };
 
       const usr = await Users.findOne({ _id: message.userId }).lean();
@@ -64,7 +79,9 @@ export const sendMessageEmail = async () => {
 
       if (message.attachments.length !== 0) {
         for (const attachment of message.attachments) {
-          answer.content = answer.content.concat(`<p><img src="${attachment.url}" alt="${attachment.name}"></p>`);
+          answer.content = answer.content.concat(
+            `<p><img src="${attachment.url}" alt="${attachment.name}"></p>`
+          );
         }
       }
 
@@ -78,19 +95,21 @@ export const sendMessageEmail = async () => {
       customer,
       question: {},
       answers,
-      brand,
+      brand
     };
 
     if (question) {
       const questionData = {
         ...question.toJSON(),
-        createdAt: new Date(moment(question.createdAt).format('DD MMM YY, HH:mm')),
+        createdAt: new Date(
+          moment(question.createdAt).format('DD MMM YY, HH:mm')
+        )
       };
 
       if (question.attachments.length !== 0) {
         for (const attachment of question.attachments) {
           questionData.content = questionData.content.concat(
-            `<p><img src="${attachment.url}" alt="${attachment.name}"></p>`,
+            `<p><img src="${attachment.url}" alt="${attachment.name}"></p>`
           );
         }
       }
@@ -102,7 +121,7 @@ export const sendMessageEmail = async () => {
 
     const emailOptions: IEmailParams = {
       toEmails: [email],
-      title: `Reply from "${brand.name}"`,
+      title: `Reply from "${brand.name}"`
     };
 
     const emailConfig = brand.emailConfig;
@@ -113,7 +132,7 @@ export const sendMessageEmail = async () => {
     } else {
       emailOptions.template = {
         name: 'conversationCron',
-        data,
+        data
       };
     }
 
@@ -127,7 +146,7 @@ export const sendMessageEmail = async () => {
 };
 
 export default {
-  sendMessageEmail,
+  sendMessageEmail
 };
 
 /**

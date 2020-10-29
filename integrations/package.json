@@ -1,39 +1,20 @@
 {
   "name": "erxes-integrations",
-  "version": "0.15.2",
-  "description": "erxes integrations",
-  "homepage": "https://erxes.io",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/erxes/erxes-integrations"
-  },
-  "bugs": "https://github.com/erxes/erxes-integrations/issues",
   "keywords": [
     "node",
     "express",
     "graphql",
     "apollo"
   ],
-  "license": "GNU General Public License v3.0 with Commons Clause",
   "private": true,
   "scripts": {
     "start": "node dist",
     "dev": "DEBUG=erxes* node_modules/.bin/ts-node-dev --respawn --ignore-watch node_modules src",
     "test": "NODE_ENV=test node --expose-gc --max_old_space_size=4000 ./node_modules/.bin/jest --runInBand --forceExit --silent --logHeapUsage",
     "build": "tsc -p tsconfig.prod.json",
-    "lint": "tslint 'src/**/*.ts'",
-    "format": "prettier --write 'src/**/*.ts'",
-    "precommit": "lint-staged",
     "migrate": "NODE_ENV=command migrate --migrations-dir='./dist/migrations' --store='./db-migrate-store.js' up",
     "customCommand": "ts-node ./src/commands/customCommand.ts",
-    "resetMigrations": "ts-node ./src/commands/resetMigrations.ts",
-    "release": "release-it"
-  },
-  "lint-staged": {
-    "src/**/*.ts": [
-      "prettier --write",
-      "git add"
-    ]
+    "resetMigrations": "ts-node ./src/commands/resetMigrations.ts"
   },
   "dependencies": {
     "@google-cloud/pubsub": "^1.1.5",
@@ -76,17 +57,9 @@
     "kerberos": "^1.0.0"
   },
   "devDependencies": {
-    "@release-it/conventional-changelog": "^1.1.4",
-    "husky": "^0.13.4",
     "jest": "22.0.4",
-    "lint-staged": "^3.6.0",
-    "prettier": "^1.19.1",
-    "release-it": "^12.4.3",
     "ts-jest": "22.0.4",
     "ts-node-dev": "^1.0.0-pre.32",
-    "tslint": "^5.8.0",
-    "tslint-config-prettier": "^1.1.0",
-    "tslint-config-standard": "^7.0.0",
     "typescript": "^3.7.2"
   },
   "engines": {

@@ -1,48 +1,56 @@
 import { Deals, GrowthHacks, Stages, Tasks, Tickets } from '../../db/models';
 import { IStageDocument } from '../../db/models/definitions/boards';
-import { BOARD_STATUSES, BOARD_TYPES } from '../../db/models/definitions/constants';
+import {
+  BOARD_STATUSES,
+  BOARD_TYPES
+} from '../../db/models/definitions/constants';
 import { IContext } from '../types';
 import {
   generateDealCommonFilters,
   generateGrowthHackCommonFilters,
   generateTaskCommonFilters,
-  generateTicketCommonFilters,
+  generateTicketCommonFilters
 } from './queries/boardUtils';
 
 export default {
-  async amount(stage: IStageDocument, _args, { user }: IContext, { variableValues: args }) {
+  async amount(
+    stage: IStageDocument,
+    _args,
+    { user }: IContext,
+    { variableValues: args }
+  ) {
     const amountsMap = {};
 
     if (stage.type === BOARD_TYPES.DEAL) {
       const filter = await generateDealCommonFilters(
         user._id,
         { ...args, stageId: stage._id, pipelineId: stage.pipelineId },
-        args.extraParams,
+        args.extraParams
       );
 
       const amountList = await Deals.aggregate([
         {
-          $match: filter,
+          $match: filter
         },
         {
-          $unwind: '$productsData',
+          $unwind: '$productsData'
         },
         {
           $project: {
             amount: '$productsData.amount',
             currency: '$productsData.currency',
-            tickUsed: '$productsData.tickUsed',
-          },
+            tickUsed: '$productsData.tickUsed'
+          }
         },
         {
-          $match: { tickUsed: true },
+          $match: { tickUsed: true }
         },
         {
           $group: {
             _id: '$currency',
-            amount: { $sum: '$amount' },
-          },
-        },
+            amount: { $sum: '$amount' }
+          }
+        }
       ]);
 
       amountList.forEach(item => {
@@ -55,13 +63,18 @@ export default {
     return amountsMap;
   },
 
-  async itemsTotalCount(stage: IStageDocument, _args, { user }: IContext, { variableValues: args }) {
+  async itemsTotalCount(
+    stage: IStageDocument,
+    _args,
+    { user }: IContext,
+    { variableValues: args }
+  ) {
     switch (stage.type) {
       case BOARD_TYPES.DEAL: {
         const filter = await generateDealCommonFilters(
           user._id,
           { ...args, stageId: stage._id, pipelineId: stage.pipelineId },
-          args.extraParams,
+          args.extraParams
         );
 
         return Deals.find(filter).countDocuments();
@@ -70,7 +83,7 @@ export default {
         const filter = await generateTicketCommonFilters(
           user._id,
           { ...args, stageId: stage._id, pipelineId: stage.pipelineId },
-          args.extraParams,
+          args.extraParams
         );
 
         return Tickets.find(filter).countDocuments();
@@ -79,7 +92,7 @@ export default {
         const filter = await generateTaskCommonFilters(user._id, {
           ...args,
           stageId: stage._id,
-          pipelineId: stage.pipelineId,
+          pipelineId: stage.pipelineId
         });
 
         return Tasks.find(filter).countDocuments();
@@ -88,7 +101,7 @@ export default {
         const filter = await generateGrowthHackCommonFilters(
           user._id,
           { ...args, stageId: stage._id, pipelineId: stage.pipelineId },
-          args.extraParams,
+          args.extraParams
         );
 
         return GrowthHacks.find(filter).countDocuments();
@@ -99,8 +112,17 @@ export default {
   /*
    * Total count of deals that are created on this stage initially
    */
-  async initialDealsTotalCount(stage: IStageDocument, _args, { user }: IContext, { variableValues: args }) {
-    const filter = await generateDealCommonFilters(user._id, { ...args, initialStageId: stage._id }, args.extraParams);
+  async initialDealsTotalCount(
+    stage: IStageDocument,
+    _args,
+    { user }: IContext,
+    { variableValues: args }
+  ) {
+    const filter = await generateDealCommonFilters(
+      user._id,
+      { ...args, initialStageId: stage._id },
+      args.extraParams
+    );
 
     return Deals.find(filter).countDocuments();
   },
@@ -114,12 +136,12 @@ export default {
     const filter = {
       pipelineId: stage.pipelineId,
       probability: { $ne: 'Lost' },
-      id: { $ne: stage._id },
+      id: { $ne: stage._id }
     };
 
     const deals = await Stages.aggregate([
       {
-        $match: filter,
+        $match: filter
       },
       {
         $lookup: {
@@ -129,38 +151,51 @@ export default {
             {
               $match: {
                 $expr: {
-                  $and: [{ $eq: ['$stageId', '$$stageId'] }, { $ne: ['$status', BOARD_STATUSES.ARCHIVED] }],
-                },
-              },
-            },
+                  $and: [
+                    { $eq: ['$stageId', '$$stageId'] },
+                    { $ne: ['$status', BOARD_STATUSES.ARCHIVED] }
+                  ]
+                }
+              }
+            }
           ],
-          as: 'deals',
-        },
+          as: 'deals'
+        }
       },
       {
         $project: {
           name: 1,
-          deals: 1,
-        },
+          deals: 1
+        }
       },
       {
-        $unwind: '$deals',
+        $unwind: '$deals'
       },
       {
         $match: {
-          'deals.initialStageId': stage._id,
-        },
-      },
+          'deals.initialStageId': stage._id
+        }
+      }
     ]);
 
     return deals.length;
   },
 
-  async stayedDealsTotalCount(stage: IStageDocument, _args, { user }: IContext, { variableValues: args }) {
+  async stayedDealsTotalCount(
+    stage: IStageDocument,
+    _args,
+    { user }: IContext,
+    { variableValues: args }
+  ) {
     const filter = await generateDealCommonFilters(
       user._id,
-      { ...args, initialStageId: stage._id, stageId: stage._id, pipelineId: stage.pipelineId },
-      args.extraParams,
+      {
+        ...args,
+        initialStageId: stage._id,
+        stageId: stage._id,
+        pipelineId: stage.pipelineId
+      },
+      args.extraParams
     );
 
     return Deals.find(filter).countDocuments();
@@ -178,12 +213,12 @@ export default {
     const filter = {
       order: { $in: [order, order + 1] },
       probability: { $ne: 'Lost' },
-      pipelineId: stage.pipelineId,
+      pipelineId: stage.pipelineId
     };
 
     const stages = await Stages.aggregate([
       {
-        $match: filter,
+        $match: filter
       },
       {
         $lookup: {
@@ -193,13 +228,16 @@ export default {
             {
               $match: {
                 $expr: {
-                  $and: [{ $eq: ['$stageId', '$$stageId'] }, { $ne: ['$status', BOARD_STATUSES.ARCHIVED] }],
-                },
-              },
-            },
+                  $and: [
+                    { $eq: ['$stageId', '$$stageId'] },
+                    { $ne: ['$status', BOARD_STATUSES.ARCHIVED] }
+                  ]
+                }
+              }
+            }
           ],
-          as: 'currentDeals',
-        },
+          as: 'currentDeals'
+        }
       },
       {
         $lookup: {
@@ -209,22 +247,25 @@ export default {
             {
               $match: {
                 $expr: {
-                  $and: [{ $eq: ['$initialStageId', '$$stageId'] }, { $ne: ['$status', BOARD_STATUSES.ARCHIVED] }],
-                },
-              },
-            },
+                  $and: [
+                    { $eq: ['$initialStageId', '$$stageId'] },
+                    { $ne: ['$status', BOARD_STATUSES.ARCHIVED] }
+                  ]
+                }
+              }
+            }
           ],
-          as: 'initialDeals',
-        },
+          as: 'initialDeals'
+        }
       },
       {
         $project: {
           order: 1,
           currentDealCount: { $size: '$currentDeals' },
-          initialDealCount: { $size: '$initialDeals' },
-        },
+          initialDealCount: { $size: '$initialDeals' }
+        }
       },
-      { $sort: { order: 1 } },
+      { $sort: { order: 1 } }
     ]);
 
     if (stages.length === 2) {
@@ -234,5 +275,5 @@ export default {
     }
 
     return result;
-  },
+  }
 };

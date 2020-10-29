@@ -7,11 +7,14 @@ import {
   growthHackFactory,
   pipelineFactory,
   stageFactory,
-  userFactory,
+  userFactory
 } from '../db/factories';
 import { GrowthHacks } from '../db/models';
 
-import { BOARD_STATUSES, BOARD_TYPES } from '../db/models/definitions/constants';
+import {
+  BOARD_STATUSES,
+  BOARD_TYPES
+} from '../db/models/definitions/constants';
 import './setup.ts';
 
 describe('growthHackQueries', () => {
@@ -68,7 +71,9 @@ describe('growthHackQueries', () => {
 
     await growthHackFactory({ assignedUserIds: [_id] });
 
-    const response = await graphqlRequest(qryGrowthHackFilter, 'growthHacks', { assignedUserIds: [_id] });
+    const response = await graphqlRequest(qryGrowthHackFilter, 'growthHacks', {
+      assignedUserIds: [_id]
+    });
 
     expect(response.length).toBe(1);
   });
@@ -76,7 +81,9 @@ describe('growthHackQueries', () => {
   test('Filter by priority', async () => {
     await growthHackFactory({ priority: 'critical' });
 
-    const response = await graphqlRequest(qryGrowthHackFilter, 'growthHacks', { priority: ['critical'] });
+    const response = await graphqlRequest(qryGrowthHackFilter, 'growthHacks', {
+      priority: ['critical']
+    });
 
     expect(response.length).toBe(1);
   });
@@ -84,7 +91,9 @@ describe('growthHackQueries', () => {
   test('Filter by hack stage', async () => {
     await growthHackFactory({ hackStages: ['Awareness'] });
 
-    const response = await graphqlRequest(qryGrowthHackFilter, 'growthHacks', { hackStage: ['Awareness'] });
+    const response = await graphqlRequest(qryGrowthHackFilter, 'growthHacks', {
+      hackStage: ['Awareness']
+    });
 
     expect(response.length).toBe(1);
   });
@@ -106,12 +115,18 @@ describe('growthHackQueries', () => {
       }
     `;
 
-    let response = await graphqlRequest(qry, 'growthHacks', { stageId: stage._id });
+    let response = await graphqlRequest(qry, 'growthHacks', {
+      stageId: stage._id
+    });
 
     expect(response.length).toBe(3);
 
     // sort descending by impact
-    response = await graphqlRequest(qry, 'growthHacks', { stageId: stage._id, sortField: 'impact', sortDirection: -1 });
+    response = await graphqlRequest(qry, 'growthHacks', {
+      stageId: stage._id,
+      sortField: 'impact',
+      sortDirection: -1
+    });
 
     expect(response[0].impact).toBe(10);
   });
@@ -130,7 +145,11 @@ describe('growthHackQueries', () => {
 
     const filter = { hackStage: ['Awareness'] };
 
-    const totalCount = await graphqlRequest(qry, 'growthHacksTotalCount', filter);
+    const totalCount = await graphqlRequest(
+      qry,
+      'growthHacksTotalCount',
+      filter
+    );
 
     expect(totalCount).toBe(2);
   });
@@ -152,7 +171,11 @@ describe('growthHackQueries', () => {
       }
     `;
 
-    const priorityMatrix = await graphqlRequest(qry, 'growthHacksPriorityMatrix', { pipelineId: pipeline._id });
+    const priorityMatrix = await graphqlRequest(
+      qry,
+      'growthHacksPriorityMatrix',
+      { pipelineId: pipeline._id }
+    );
 
     expect(priorityMatrix.length).toBe(2);
   });
@@ -161,18 +184,23 @@ describe('growthHackQueries', () => {
     const form = await formFactory();
     const field = await fieldFactory({
       contentType: 'form',
-      contentTypeId: form._id,
+      contentTypeId: form._id
     });
 
     const boardWithForm = await boardFactory({ type: BOARD_TYPES.GROWTH_HACK });
-    const pipelineWithForm = await pipelineFactory({ boardId: boardWithForm._id });
-    const stageWithForm = await stageFactory({ pipelineId: pipelineWithForm._id, formId: form._id });
+    const pipelineWithForm = await pipelineFactory({
+      boardId: boardWithForm._id
+    });
+    const stageWithForm = await stageFactory({
+      pipelineId: pipelineWithForm._id,
+      formId: form._id
+    });
 
     const user = await userFactory();
     const growthHackWithForm = await growthHackFactory({
       stageId: stageWithForm._id,
       watchedUserIds: [user._id],
-      votedUserIds: [user._id],
+      votedUserIds: [user._id]
     });
 
     await formSubmissionFactory({
@@ -180,13 +208,13 @@ describe('growthHackQueries', () => {
       contentTypeId: growthHackWithForm._id,
       contentType: 'growthHack',
       formFieldId: field._id,
-      value: 'Hey',
+      value: 'Hey'
     });
 
     await formSubmissionFactory({
       formId: form._id,
       contentTypeId: growthHackWithForm._id,
-      contentType: 'growthHack',
+      contentType: 'growthHack'
     });
 
     const qry = `
@@ -197,7 +225,12 @@ describe('growthHackQueries', () => {
       }
     `;
 
-    let response = await graphqlRequest(qry, 'growthHackDetail', { _id: growthHackWithForm._id }, { user });
+    let response = await graphqlRequest(
+      qry,
+      'growthHackDetail',
+      { _id: growthHackWithForm._id },
+      { user }
+    );
 
     expect(response._id).toBe(growthHackWithForm._id);
     expect(response.isWatched).toBe(true);
@@ -205,7 +238,9 @@ describe('growthHackQueries', () => {
     expect(response.isVoted).toBe(true);
 
     const growthHack = await growthHackFactory();
-    response = await graphqlRequest(qry, 'growthHackDetail', { _id: growthHack._id });
+    response = await graphqlRequest(qry, 'growthHackDetail', {
+      _id: growthHack._id
+    });
 
     expect(response._id).toBe(growthHack._id);
     expect(response.isVoted).toBe(false);
@@ -216,7 +251,7 @@ describe('growthHackQueries', () => {
     const stage = await stageFactory({ pipelineId: pipeline._id });
     const args = {
       stageId: stage._id,
-      status: BOARD_STATUSES.ARCHIVED,
+      status: BOARD_STATUSES.ARCHIVED
     };
 
     await growthHackFactory({ ...args, name: 'james' });
@@ -242,20 +277,20 @@ describe('growthHackQueries', () => {
     `;
 
     let response = await graphqlRequest(qry, 'archivedGrowthHacks', {
-      pipelineId: pipeline._id,
+      pipelineId: pipeline._id
     });
 
     expect(response.length).toBe(3);
 
     response = await graphqlRequest(qry, 'archivedGrowthHacks', {
       pipelineId: pipeline._id,
-      search: 'james',
+      search: 'james'
     });
 
     expect(response.length).toBe(1);
 
     response = await graphqlRequest(qry, 'archivedGrowthHacks', {
-      pipelineId: 'fakeId',
+      pipelineId: 'fakeId'
     });
 
     expect(response.length).toBe(0);
@@ -266,7 +301,7 @@ describe('growthHackQueries', () => {
     const stage = await stageFactory({ pipelineId: pipeline._id });
     const args = {
       stageId: stage._id,
-      status: BOARD_STATUSES.ARCHIVED,
+      status: BOARD_STATUSES.ARCHIVED
     };
 
     await growthHackFactory({ ...args, name: 'james' });
@@ -286,20 +321,20 @@ describe('growthHackQueries', () => {
     `;
 
     let response = await graphqlRequest(qry, 'archivedGrowthHacksCount', {
-      pipelineId: pipeline._id,
+      pipelineId: pipeline._id
     });
 
     expect(response).toBe(3);
 
     response = await graphqlRequest(qry, 'archivedGrowthHacksCount', {
       pipelineId: pipeline._id,
-      search: 'james',
+      search: 'james'
     });
 
     expect(response).toBe(1);
 
     response = await graphqlRequest(qry, 'archivedGrowthHacksCount', {
-      pipelineId: 'fakeId',
+      pipelineId: 'fakeId'
     });
 
     expect(response).toBe(0);

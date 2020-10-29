@@ -8,9 +8,12 @@ type Props = {
   name: string;
   operator: string;
   value: string;
-  onChange: (
-    args: { key: string; name: string; operator: string; value: string }
-  ) => void;
+  onChange: (args: {
+    key: string;
+    name: string;
+    operator: string;
+    value: string;
+  }) => void;
   onRemove: (id: string) => void;
 };
 

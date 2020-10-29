@@ -46,7 +46,7 @@ export default {
 
       results.push({
         key,
-        values,
+        values
       });
     }
 
@@ -66,5 +66,5 @@ export default {
     }
 
     return entries[0];
-  },
+  }
 };

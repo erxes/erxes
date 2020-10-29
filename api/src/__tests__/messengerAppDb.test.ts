@@ -26,7 +26,7 @@ describe('Messenger apps', () => {
   test('Create messenger app', async () => {
     const app = await MessengerApps.createApp({
       kind: 'googleMeet',
-      name: 'name',
+      name: 'name'
     });
 
     expect(app._id).toBeDefined();
@@ -39,7 +39,7 @@ describe('Messenger apps', () => {
 
     const updatedApp = await MessengerApps.updateApp(messengerApp._id, {
       kind: 'googleMeet',
-      name: 'name',
+      name: 'name'
     });
 
     expect(updatedApp._id).toBeDefined();

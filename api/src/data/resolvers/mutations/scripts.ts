@@ -21,9 +21,9 @@ const scriptMutations = {
       {
         type: MODULE_NAMES.SCRIPT,
         newData: modifiedDoc,
-        object: script,
+        object: script
       },
-      user,
+      user
     );
 
     return script;
@@ -32,7 +32,11 @@ const scriptMutations = {
   /**
    * Updates a script
    */
-  async scriptsEdit(_root, { _id, ...fields }: IScriptsEdit, { user }: IContext) {
+  async scriptsEdit(
+    _root,
+    { _id, ...fields }: IScriptsEdit,
+    { user }: IContext
+  ) {
     const script = await Scripts.getScript(_id);
     const updated = await Scripts.updateScript(_id, fields);
 
@@ -41,9 +45,9 @@ const scriptMutations = {
         type: MODULE_NAMES.SCRIPT,
         object: script,
         newData: fields,
-        updatedDocument: updated,
+        updatedDocument: updated
       },
-      user,
+      user
     );
 
     return updated;
@@ -59,7 +63,7 @@ const scriptMutations = {
     await putDeleteLog({ type: MODULE_NAMES.SCRIPT, object: script }, user);
 
     return removed;
-  },
+  }
 };
 
 moduleCheckPermission(scriptMutations, 'manageScripts');

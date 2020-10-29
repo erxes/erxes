@@ -36,37 +36,44 @@ const handleMessage = async message => {
   const { eventType, mail } = parsedMessage;
   const { headers } = mail;
 
-  const engageMessageId = headers.find(header => header.name === 'Engagemessageid');
+  const engageMessageId = headers.find(
+    header => header.name === 'Engagemessageid'
+  );
 
   const mailId = headers.find(header => header.name === 'Mailmessageid');
 
   const customerId = headers.find(header => header.name === 'Customerid');
 
-  const emailDeliveryId = headers.find(header => header.name === 'Emaildeliveryid');
+  const emailDeliveryId = headers.find(
+    header => header.name === 'Emaildeliveryid'
+  );
 
   const type = eventType.toLowerCase();
 
   if (emailDeliveryId) {
     return messageBroker().sendMessage('engagesNotification', {
       action: 'transactionEmail',
-      data: { emailDeliveryId: emailDeliveryId.value, status: type },
+      data: { emailDeliveryId: emailDeliveryId.value, status: type }
     });
   }
 
   const mailHeaders = {
     engageMessageId: engageMessageId.value,
     mailId: mailId.value,
-    customerId: customerId.value,
+    customerId: customerId.value
   };
 
   await Stats.updateStats(mailHeaders.engageMessageId, type);
 
-  const rejected = await DeliveryReports.updateOrCreateReport(mailHeaders, type);
+  const rejected = await DeliveryReports.updateOrCreateReport(
+    mailHeaders,
+    type
+  );
 
   if (rejected === 'reject') {
     await messageBroker().sendMessage('engagesNotification', {
       action: 'setDoNotDisturb',
-      data: { customerId: mail.customerId },
+      data: { customerId: mail.customerId }
     });
   }
 
@@ -91,12 +98,17 @@ export const trackEngages = expressApp => {
       const { Type = '', Message = {}, Token = '', TopicArn = '' } = message;
 
       if (Type === 'SubscriptionConfirmation') {
-        await getApi('sns').then(api => api.confirmSubscription({ Token, TopicArn }).promise());
+        await getApi('sns').then(api =>
+          api.confirmSubscription({ Token, TopicArn }).promise()
+        );
 
         return res.end('success');
       }
 
-      if (Message === 'Successfully validated SNS topic for Amazon SES event publishing.') {
+      if (
+        Message ===
+        'Successfully validated SNS topic for Amazon SES event publishing.'
+      ) {
         res.end('success');
       }
 
@@ -148,5 +160,5 @@ export const awsRequests = {
         return resolve(data);
       });
     });
-  },
+  }
 };

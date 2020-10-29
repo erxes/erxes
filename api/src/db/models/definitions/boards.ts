@@ -5,7 +5,7 @@ import {
   HACK_SCORING_TYPES,
   PIPELINE_VISIBLITIES,
   PROBABILITY,
-  TIME_TRACK_TYPES,
+  TIME_TRACK_TYPES
 } from './constants';
 import { field, schemaWrapper } from './utils';
 
@@ -112,9 +112,9 @@ export const attachmentSchema = new Schema(
     name: field({ type: String, label: 'Name' }),
     url: field({ type: String, label: 'Url' }),
     type: field({ type: String, label: 'Type' }),
-    size: field({ type: Number, optional: true, label: 'Size' }),
+    size: field({ type: Number, optional: true, label: 'Size' })
   },
-  { _id: false },
+  { _id: false }
 );
 
 // Mongoose schemas =======================
@@ -123,15 +123,15 @@ const commonFieldsSchema = {
   createdAt: field({
     type: Date,
     default: new Date(),
-    label: 'Created at',
+    label: 'Created at'
   }),
   order: field({ type: Number, label: 'Order' }),
   type: field({
     type: String,
     enum: BOARD_TYPES.ALL,
     required: true,
-    label: 'Type',
-  }),
+    label: 'Type'
+  })
 };
 
 const timeTrackSchema = new Schema(
@@ -141,10 +141,10 @@ const timeTrackSchema = new Schema(
     status: field({
       type: String,
       enum: TIME_TRACK_TYPES.ALL,
-      default: TIME_TRACK_TYPES.STOPPED,
-    }),
+      default: TIME_TRACK_TYPES.STOPPED
+    })
   },
-  { _id: false },
+  { _id: false }
 );
 
 export const commonItemFieldsSchema = {
@@ -162,33 +162,37 @@ export const commonItemFieldsSchema = {
   labelIds: field({ type: [String], label: 'Labels' }),
   attachments: field({ type: [attachmentSchema], label: 'Attachments' }),
   stageId: field({ type: String, label: 'Stage', index: true }),
-  initialStageId: field({ type: String, optional: true, label: 'Initial stage' }),
+  initialStageId: field({
+    type: String,
+    optional: true,
+    label: 'Initial stage'
+  }),
   modifiedAt: field({
     type: Date,
     default: new Date(),
-    label: 'Modified at',
+    label: 'Modified at'
   }),
   modifiedBy: field({ type: String, label: 'Modified by' }),
   searchText: field({ type: String, optional: true, index: true }),
   priority: field({ type: String, optional: true, label: 'Priority' }),
   sourceConversationId: field({ type: String, optional: true }),
   timeTrack: field({
-    type: timeTrackSchema,
+    type: timeTrackSchema
   }),
   status: field({
     type: String,
     enum: BOARD_STATUSES.ALL,
     default: BOARD_STATUSES.ACTIVE,
-    index: true,
-  }),
+    index: true
+  })
 };
 
 export const boardSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
     name: field({ type: String, label: 'Name' }),
-    ...commonFieldsSchema,
-  }),
+    ...commonFieldsSchema
+  })
 );
 
 export const pipelineSchema = new Schema({
@@ -199,7 +203,7 @@ export const pipelineSchema = new Schema({
     type: String,
     enum: PIPELINE_VISIBLITIES.ALL,
     default: PIPELINE_VISIBLITIES.PUBLIC,
-    label: 'Visibility',
+    label: 'Visibility'
   }),
   watchedUserIds: field({ type: [String], label: 'Watched users' }),
   memberIds: field({ type: [String], label: 'Members' }),
@@ -211,12 +215,20 @@ export const pipelineSchema = new Schema({
   hackScoringType: field({
     type: String,
     enum: HACK_SCORING_TYPES.ALL,
-    label: 'Hacking scoring type',
+    label: 'Hacking scoring type'
   }),
   templateId: field({ type: String, optional: true, label: 'Template' }),
-  isCheckUser: field({ type: Boolean, optional: true, label: 'Show only the users created or assigned cards' }),
-  excludeCheckUserIds: field({ type: [String], optional: true, label: 'Users elligible to see all cards' }),
-  ...commonFieldsSchema,
+  isCheckUser: field({
+    type: Boolean,
+    optional: true,
+    label: 'Show only the users created or assigned cards'
+  }),
+  excludeCheckUserIds: field({
+    type: [String],
+    optional: true,
+    label: 'Users elligible to see all cards'
+  }),
+  ...commonFieldsSchema
 });
 
 export const stageSchema = new Schema({
@@ -225,14 +237,14 @@ export const stageSchema = new Schema({
   probability: field({
     type: String,
     enum: PROBABILITY.ALL,
-    label: 'Probability',
+    label: 'Probability'
   }), // Win probability
   pipelineId: field({ type: String, label: 'Pipeline' }),
   formId: field({ type: String, label: 'Form' }),
   status: field({
     type: String,
     enum: BOARD_STATUSES.ALL,
-    default: BOARD_STATUSES.ACTIVE,
+    default: BOARD_STATUSES.ACTIVE
   }),
-  ...commonFieldsSchema,
+  ...commonFieldsSchema
 });

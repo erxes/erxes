@@ -21,9 +21,9 @@ const webhookMutations = {
     sendRequest({
       url: webhook.url,
       headers: {
-        'Erxes-token': webhook.token || '',
+        'Erxes-token': webhook.token || ''
       },
-      method: 'post',
+      method: 'post'
     })
       .then(async () => {
         await Webhooks.updateStatus(webhook._id, WEBHOOK_STATUS.AVAILABLE);
@@ -37,9 +37,9 @@ const webhookMutations = {
         type: MODULE_NAMES.WEBHOOK,
         newData: webhook,
         object: webhook,
-        description: `${webhook.url} has been created`,
+        description: `${webhook.url} has been created`
       },
-      user,
+      user
     );
 
     return webhook;
@@ -57,9 +57,9 @@ const webhookMutations = {
         type: MODULE_NAMES.WEBHOOK,
         object: webhook,
         newData: doc,
-        description: `${webhook.url} has been edited`,
+        description: `${webhook.url} has been edited`
       },
-      user,
+      user
     );
 
     return updated;
@@ -76,13 +76,13 @@ const webhookMutations = {
       {
         type: MODULE_NAMES.WEBHOOK,
         object: webhook,
-        description: `${webhook.url} has been removed`,
+        description: `${webhook.url} has been removed`
       },
-      user,
+      user
     );
 
     return removed;
-  },
+  }
 };
 
 moduleCheckPermission(webhookMutations, 'manageWebhooks');

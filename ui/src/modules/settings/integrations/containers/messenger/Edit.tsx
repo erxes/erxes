@@ -106,10 +106,15 @@ const EditMessenger = (props: FinalProps) => {
         history.push('/settings/integrations?refetch=true');
       })
       .catch(error => {
-        if(error.message.includes('Duplicated messenger for single brand')) {
-          return Alert.warning(__("You've already created a messenger for the brand you've selected. Please choose a different brand or edit the previously created messenger"), 6000);
+        if (error.message.includes('Duplicated messenger for single brand')) {
+          return Alert.warning(
+            __(
+              "You've already created a messenger for the brand you've selected. Please choose a different brand or edit the previously created messenger"
+            ),
+            6000
+          );
         }
-        
+
         Alert.error(error.message);
       });
   };

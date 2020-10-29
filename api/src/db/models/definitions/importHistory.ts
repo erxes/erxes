@@ -29,5 +29,5 @@ export const importHistorySchema = new Schema({
   date: field({ type: Date, label: 'Date of import' }),
   errorMsgs: field({ type: [String], default: [], label: 'Error messages' }),
   status: field({ type: String, default: 'In Progress', label: 'Status' }),
-  percentage: field({ type: Number, default: 0, label: 'Percentage' }),
+  percentage: field({ type: Number, default: 0, label: 'Percentage' })
 });

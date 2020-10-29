@@ -8,7 +8,9 @@ const Histories = asyncComponent(() =>
 );
 
 const HistoryDetail = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings Histories" */ './containers/HistoryDetail')
+  import(
+    /* webpackChunkName: "Settings Histories" */ './containers/HistoryDetail'
+  )
 );
 
 const importHistories = ({ location }) => {

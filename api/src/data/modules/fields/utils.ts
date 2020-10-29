@@ -1,9 +1,19 @@
-import { Companies, Customers, Fields, FieldsGroups, Integrations, Products } from '../../../db/models';
+import {
+  Companies,
+  Customers,
+  Fields,
+  FieldsGroups,
+  Integrations,
+  Products
+} from '../../../db/models';
 import { fetchElk } from '../../../elasticsearch';
 import { EXTEND_FIELDS, FIELD_CONTENT_TYPES } from '../../constants';
 import { BOARD_BASIC_INFOS } from '../fileExporter/constants';
 
-const generateBasicInfosFromSchema = async (queSchema: any, namePrefix: string) => {
+const generateBasicInfosFromSchema = async (
+  queSchema: any,
+  namePrefix: string
+) => {
   const queFields: string[] = [];
 
   // field definations
@@ -55,14 +65,20 @@ export const checkFieldNames = async (type: string, fields: string[]) => {
   }
 
   if (schema) {
-    basicInfos = [...basicInfos, ...(await generateBasicInfosFromSchema(schema, ''))];
+    basicInfos = [
+      ...basicInfos,
+      ...(await generateBasicInfosFromSchema(schema, ''))
+    ];
 
     for (const name of Object.keys(schema.paths)) {
       const path = schema.paths[name];
 
       // extend fields list using sub schema fields
       if (path.schema) {
-        basicInfos = [...basicInfos, ...(await generateBasicInfosFromSchema(path.schema, `${name}.`))];
+        basicInfos = [
+          ...basicInfos,
+          ...(await generateBasicInfosFromSchema(path.schema, `${name}.`))
+        ];
       }
     }
   }
@@ -76,7 +92,10 @@ export const checkFieldNames = async (type: string, fields: string[]) => {
 
     const property: { [key: string]: any } = {};
 
-    const fieldObj = await Fields.findOne({ text: fieldName, contentType: type === 'lead' ? 'customer' : type });
+    const fieldObj = await Fields.findOne({
+      text: fieldName,
+      contentType: type === 'lead' ? 'customer' : type
+    });
 
     // Collecting basic fields
     if (basicInfos.includes(fieldName)) {
@@ -146,9 +165,9 @@ const getIntegrations = async () => {
       $project: {
         _id: 0,
         label: '$name',
-        value: '$_id',
-      },
-    },
+        value: '$_id'
+      }
+    }
   ]);
 };
 
@@ -168,7 +187,10 @@ const generateFieldsFromSchema = async (queSchema: any, namePrefix: string) => {
 
     const label = path.options.label;
     const type = path.instance;
-    const selectOptions = name === 'integrationId' ? integrations || [] : path.options.selectOptions;
+    const selectOptions =
+      name === 'integrationId'
+        ? integrations || []
+        : path.options.selectOptions;
 
     if (['String', 'Number', 'Date', 'Boolean'].includes(type) && label) {
       // add to fields list
@@ -177,7 +199,7 @@ const generateFieldsFromSchema = async (queSchema: any, namePrefix: string) => {
         name: `${namePrefix}${name}`,
         label,
         type: path.instance,
-        selectOptions,
+        selectOptions
       });
     }
   }
@@ -191,7 +213,7 @@ const generateFieldsFromSchema = async (queSchema: any, namePrefix: string) => {
 export const fieldsCombinedByContentType = async ({
   contentType,
   usageType,
-  excludedNames,
+  excludedNames
 }: {
   contentType: string;
   usageType?: string;
@@ -225,12 +247,15 @@ export const fieldsCombinedByContentType = async ({
 
     // extend fields list using sub schema fields
     if (path.schema) {
-      fields = [...fields, ...(await generateFieldsFromSchema(path.schema, `${name}.`))];
+      fields = [
+        ...fields,
+        ...(await generateFieldsFromSchema(path.schema, `${name}.`))
+      ];
     }
   }
 
   const customFields = await Fields.find({
-    contentType,
+    contentType
   });
 
   // extend fields list using custom fields data
@@ -241,7 +266,7 @@ export const fieldsCombinedByContentType = async ({
       fields.push({
         _id: Math.random(),
         name: `customFieldsData.${customField._id}`,
-        label: customField.text,
+        label: customField.text
       });
     }
   }
@@ -253,11 +278,14 @@ export const fieldsCombinedByContentType = async ({
   for (const extendFeild of extendFields) {
     fields.push({
       _id: Math.random(),
-      ...extendFeild,
+      ...extendFeild
     });
   }
 
-  if ((contentType === 'company' || contentType === 'customer') && (!usageType || usageType === 'export')) {
+  if (
+    (contentType === 'company' || contentType === 'customer') &&
+    (!usageType || usageType === 'export')
+  ) {
     const aggre = await fetchElk(
       'search',
       contentType === 'company' ? 'companies' : 'customers',
@@ -267,31 +295,32 @@ export const fieldsCombinedByContentType = async ({
         aggs: {
           trackedDataKeys: {
             nested: {
-              path: 'trackedData',
+              path: 'trackedData'
             },
             aggs: {
               fieldKeys: {
                 terms: {
                   field: 'trackedData.field',
-                  size: 10000,
-                },
-              },
-            },
-          },
-        },
+                  size: 10000
+                }
+              }
+            }
+          }
+        }
       },
       '',
-      { aggregations: { trackedDataKeys: {} } },
+      { aggregations: { trackedDataKeys: {} } }
     );
 
     const aggregations = aggre.aggregations || { trackedDataKeys: {} };
-    const buckets = (aggregations.trackedDataKeys.fieldKeys || { buckets: [] }).buckets;
+    const buckets = (aggregations.trackedDataKeys.fieldKeys || { buckets: [] })
+      .buckets;
 
     for (const bucket of buckets) {
       fields.push({
         _id: Math.random(),
         name: `trackedData.${bucket.key}`,
-        label: bucket.key,
+        label: bucket.key
       });
     }
   }

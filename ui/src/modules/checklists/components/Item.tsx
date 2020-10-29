@@ -34,14 +34,11 @@ function Item(props: Props) {
   const [isChecked, setIsChecked] = useState(item.isChecked || false);
   const [beforeContent, setBeforeContent] = useState(item.content);
 
-  useEffect(
-    () => {
-      setIsChecked(item.isChecked || false);
-      setBeforeContent(item.content);
-      setContent(item.content);
-    },
-    [item]
-  );
+  useEffect(() => {
+    setIsChecked(item.isChecked || false);
+    setBeforeContent(item.content);
+    setContent(item.content);
+  }, [item]);
 
   function onFocus(event) {
     event.target.select();

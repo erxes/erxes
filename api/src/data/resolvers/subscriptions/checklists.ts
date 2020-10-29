@@ -11,9 +11,12 @@ export default {
       (payload, variables) => {
         const { contentType, contentTypeId } = payload.checklistsChanged;
 
-        return contentType === variables.contentType && contentTypeId === variables.contentTypeId;
-      },
-    ),
+        return (
+          contentType === variables.contentType &&
+          contentTypeId === variables.contentTypeId
+        );
+      }
+    )
   },
 
   checklistDetailChanged: {
@@ -21,7 +24,7 @@ export default {
       () => graphqlPubsub.asyncIterator('checklistDetailChanged'),
       (payload, variables) => {
         return payload.checklistDetailChanged._id === variables._id;
-      },
-    ),
-  },
+      }
+    )
+  }
 };

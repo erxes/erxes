@@ -27,22 +27,19 @@ function LeadFilterContainer(props: Props) {
 
   const prevProp = useRef(integrationsQuery);
 
-  useEffect(
-    () => {
-      const prevIntegrationsQuery = prevProp.current;
+  useEffect(() => {
+    const prevIntegrationsQuery = prevProp.current;
 
-      if (
-        integrationsQuery &&
-        prevIntegrationsQuery &&
-        integrationsQuery.integrations !== prevIntegrationsQuery.integrations
-      ) {
-        setIntegrations([...integrations, ...integrationsQuery.integrations]);
-      }
+    if (
+      integrationsQuery &&
+      prevIntegrationsQuery &&
+      integrationsQuery.integrations !== prevIntegrationsQuery.integrations
+    ) {
+      setIntegrations([...integrations, ...integrationsQuery.integrations]);
+    }
 
-      prevProp.current = integrationsQuery;
-    },
-    [integrationsQuery, integrations]
-  );
+    prevProp.current = integrationsQuery;
+  }, [integrationsQuery, integrations]);
 
   const loadMore = () => {
     if (integrationsQuery) {

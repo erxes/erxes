@@ -41,11 +41,9 @@ export type ChannelMutationVariables = {
 };
 
 export type AddChannelMutationResponse = {
-  addMutation: (
-    params: {
-      variables: ChannelMutationVariables;
-    }
-  ) => Promise<void>;
+  addMutation: (params: {
+    variables: ChannelMutationVariables;
+  }) => Promise<void>;
 };
 
 export type EditChannelMutationVariables = {
@@ -57,11 +55,9 @@ export type EditChannelMutationVariables = {
 };
 
 export type EditChannelMutationResponse = {
-  editMutation: (
-    params: {
-      variables: EditChannelMutationVariables;
-    }
-  ) => Promise<void>;
+  editMutation: (params: {
+    variables: EditChannelMutationVariables;
+  }) => Promise<void>;
 };
 
 export type RemoveChannelMutationVariables = {
@@ -69,9 +65,7 @@ export type RemoveChannelMutationVariables = {
 };
 
 export type RemoveChannelMutationResponse = {
-  removeMutation: (
-    params: {
-      variables: RemoveChannelMutationVariables;
-    }
-  ) => Promise<void>;
+  removeMutation: (params: {
+    variables: RemoveChannelMutationVariables;
+  }) => Promise<void>;
 };

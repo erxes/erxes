@@ -10,9 +10,15 @@ import {
   formFactory,
   integrationFactory,
   tagsFactory,
-  userFactory,
+  userFactory
 } from '../db/factories';
-import { Brands, Customers, EmailDeliveries, Integrations, Users } from '../db/models';
+import {
+  Brands,
+  Customers,
+  EmailDeliveries,
+  Integrations,
+  Users
+} from '../db/models';
 
 import { IntegrationsAPI } from '../data/dataSources';
 import { graphqlRequest } from '../db/connection';
@@ -48,8 +54,8 @@ describe('mutations', () => {
     successAction: faker.random.word(),
     leadData: {
       thankContent: faker.random.word(),
-      adminEmails: [],
-    },
+      adminEmails: []
+    }
   };
 
   let dataSources;
@@ -61,7 +67,11 @@ describe('mutations', () => {
     _brand = await brandFactory({});
     tag = await tagsFactory();
     form = await formFactory();
-    _integration = await integrationFactory({ brandId: _brand._id, formId: form._id, tagIds: [tag._id] });
+    _integration = await integrationFactory({
+      brandId: _brand._id,
+      formId: form._id,
+      tagIds: [tag._id]
+    });
   });
 
   afterEach(async () => {
@@ -80,7 +90,7 @@ describe('mutations', () => {
       name: 'Integration Name',
       brandId: _brand._id,
       languageCode: 'en',
-      channelIds: ['randomId'],
+      channelIds: ['randomId']
     };
 
     const mutation = `
@@ -93,7 +103,11 @@ describe('mutations', () => {
       }
     `;
 
-    const integration = await graphqlRequest(mutation, 'integrationsCreateMessengerIntegration', args);
+    const integration = await graphqlRequest(
+      mutation,
+      'integrationsCreateMessengerIntegration',
+      args
+    );
 
     expect(integration.name).toBe(args.name);
     expect(integration.brandId).toBe(args.brandId);
@@ -108,7 +122,7 @@ describe('mutations', () => {
       name: _integration.name,
       brandId: secondBrand._id,
       languageCode: 'en',
-      channelIds: ['randomId'],
+      channelIds: ['randomId']
     };
 
     const mutation = `
@@ -130,7 +144,11 @@ describe('mutations', () => {
       }
     `;
 
-    const integration = await graphqlRequest(mutation, 'integrationsEditMessengerIntegration', args);
+    const integration = await graphqlRequest(
+      mutation,
+      'integrationsEditMessengerIntegration',
+      args
+    );
 
     expect(integration._id).toBe(args._id);
     expect(integration.name).toBe(args.name);
@@ -142,12 +160,12 @@ describe('mutations', () => {
     const uiOptions = {
       color: faker.random.word(),
       wallpaper: faker.random.word(),
-      logo: faker.random.image(),
+      logo: faker.random.image()
     };
 
     const args = {
       _id: _integration._id,
-      uiOptions,
+      uiOptions
     };
 
     const mutation = `
@@ -162,7 +180,11 @@ describe('mutations', () => {
       }
     `;
 
-    const messengerAppearanceData = await graphqlRequest(mutation, 'integrationsSaveMessengerAppearanceData', args);
+    const messengerAppearanceData = await graphqlRequest(
+      mutation,
+      'integrationsSaveMessengerAppearanceData',
+      args
+    );
 
     expect(messengerAppearanceData._id).toBe(args._id);
     expect(messengerAppearanceData.uiOptions.toJSON()).toEqual(args.uiOptions);
@@ -185,22 +207,22 @@ describe('mutations', () => {
         {
           day: faker.random.word(),
           from: faker.random.word(),
-          to: faker.random.word(),
-        },
+          to: faker.random.word()
+        }
       ],
       timezone: faker.random.word(),
       messages: {
         en: {
           welcome: faker.random.word(),
           away: faker.random.word(),
-          thank: faker.random.word(),
-        },
-      },
+          thank: faker.random.word()
+        }
+      }
     };
 
     const args = {
       _id: _integration._id,
-      messengerData,
+      messengerData
     };
 
     const mutation = `
@@ -218,20 +240,27 @@ describe('mutations', () => {
       }
     `;
 
-    const messengerConfig = await graphqlRequest(mutation, 'integrationsSaveMessengerConfigs', args);
+    const messengerConfig = await graphqlRequest(
+      mutation,
+      'integrationsSaveMessengerConfigs',
+      args
+    );
 
     expect(messengerConfig._id).toBe(args._id);
     expect(messengerConfig.messengerData.toJSON()).toEqual(args.messengerData);
   });
 
   test('Create lead integration', async () => {
-    const leadIntegration = await integrationFactory({ formId: 'formId', kind: 'lead' });
+    const leadIntegration = await integrationFactory({
+      formId: 'formId',
+      kind: 'lead'
+    });
 
     const args = {
       name: leadIntegration.name,
       brandId: _brand._id,
       formId: leadIntegration.formId,
-      ...commonLeadProperties,
+      ...commonLeadProperties
     };
 
     const mutation = `
@@ -254,7 +283,11 @@ describe('mutations', () => {
       }
     `;
 
-    const response = await graphqlRequest(mutation, 'integrationsCreateLeadIntegration', args);
+    const response = await graphqlRequest(
+      mutation,
+      'integrationsCreateLeadIntegration',
+      args
+    );
 
     expect(response.name).toBe(args.name);
     expect(response.brandId).toBe(args.brandId);
@@ -263,14 +296,17 @@ describe('mutations', () => {
   });
 
   test('Edit lead integration', async () => {
-    const leadIntegration = await integrationFactory({ formId: 'formId', kind: 'lead' });
+    const leadIntegration = await integrationFactory({
+      formId: 'formId',
+      kind: 'lead'
+    });
 
     const args = {
       _id: leadIntegration._id,
       name: leadIntegration.name,
       brandId: _brand._id,
       formId: leadIntegration.formId,
-      ...commonLeadProperties,
+      ...commonLeadProperties
     };
 
     const mutation = `
@@ -296,7 +332,11 @@ describe('mutations', () => {
       }
     `;
 
-    const response = await graphqlRequest(mutation, 'integrationsEditLeadIntegration', args);
+    const response = await graphqlRequest(
+      mutation,
+      'integrationsEditLeadIntegration',
+      args
+    );
 
     expect(response._id).toBe(args._id);
     expect(response.name).toBe(args.name);
@@ -337,44 +377,82 @@ describe('mutations', () => {
       kind: 'nylas-gmail',
       name: 'Nyals gmail integration',
       brandId: brand._id,
-      channelIds: ['randomId'],
+      channelIds: ['randomId']
     };
 
     try {
-      await graphqlRequest(mutation, 'integrationsCreateExternalIntegration', args, { dataSources });
+      await graphqlRequest(
+        mutation,
+        'integrationsCreateExternalIntegration',
+        args,
+        { dataSources }
+      );
     } catch (e) {
       expect(e[0].message).toBe('Error: Integrations api is not running');
     }
 
     args.kind = 'facebook-post';
 
-    const createIntegrationSpy = jest.spyOn(dataSources.IntegrationsAPI, 'createIntegration');
+    const createIntegrationSpy = jest.spyOn(
+      dataSources.IntegrationsAPI,
+      'createIntegration'
+    );
     createIntegrationSpy.mockImplementation(() => Promise.resolve());
 
-    await graphqlRequest(mutation, 'integrationsCreateExternalIntegration', args, { dataSources });
+    await graphqlRequest(
+      mutation,
+      'integrationsCreateExternalIntegration',
+      args,
+      { dataSources }
+    );
 
     args.kind = 'twitter-dm';
     args.data = { data: 'data' };
 
-    await graphqlRequest(mutation, 'integrationsCreateExternalIntegration', args, { dataSources });
+    await graphqlRequest(
+      mutation,
+      'integrationsCreateExternalIntegration',
+      args,
+      { dataSources }
+    );
 
     args.kind = 'smooch-viber';
     args.data = { data: 'data' };
 
-    await graphqlRequest(mutation, 'integrationsCreateExternalIntegration', args, { dataSources });
+    await graphqlRequest(
+      mutation,
+      'integrationsCreateExternalIntegration',
+      args,
+      { dataSources }
+    );
 
-    const response = await graphqlRequest(mutation, 'integrationsCreateExternalIntegration', args, { dataSources });
+    const response = await graphqlRequest(
+      mutation,
+      'integrationsCreateExternalIntegration',
+      args,
+      { dataSources }
+    );
 
     expect(response).toBeDefined();
 
     args.kind = 'webhook';
     args.data = { data: 'data' };
 
-    await graphqlRequest(mutation, 'integrationsCreateExternalIntegration', args, { dataSources });
+    await graphqlRequest(
+      mutation,
+      'integrationsCreateExternalIntegration',
+      args,
+      { dataSources }
+    );
 
-    const webhookResponse = await graphqlRequest(mutation, 'integrationsCreateExternalIntegration', args, {
-      dataSources,
-    });
+    const webhookResponse = await graphqlRequest(
+      mutation,
+      'integrationsCreateExternalIntegration',
+      args,
+      {
+        dataSources
+      }
+    );
 
     expect(webhookResponse).toBeDefined();
 
@@ -395,7 +473,7 @@ describe('mutations', () => {
       mutation,
       'integrationsUpdateConfigs',
       { configsMap: { FACEBOOK_TOKEN: 'token' } },
-      { dataSources },
+      { dataSources }
     );
 
     spy.mockRestore();
@@ -411,12 +489,20 @@ describe('mutations', () => {
     const integration1 = await integrationFactory();
 
     const spy = jest.spyOn(messageBroker(), 'sendRPCMessage');
-    spy.mockImplementation(() => Promise.resolve({ erxesApiIds: [integration1._id] }));
+    spy.mockImplementation(() =>
+      Promise.resolve({ erxesApiIds: [integration1._id] })
+    );
 
-    const response = await graphqlRequest(mutation, 'integrationsRemoveAccount', { _id: 'accountId' });
+    const response = await graphqlRequest(
+      mutation,
+      'integrationsRemoveAccount',
+      { _id: 'accountId' }
+    );
 
     try {
-      await graphqlRequest(mutation, 'integrationsRemoveAccount', { _id: 'accountId' });
+      await graphqlRequest(mutation, 'integrationsRemoveAccount', {
+        _id: 'accountId'
+      });
     } catch (e) {
       expect(e[0].message).toBeDefined();
     }
@@ -429,7 +515,11 @@ describe('mutations', () => {
 
     spy1.mockImplementation(() => Promise.resolve({ erxesApiIds: [] }));
 
-    const secondResponse = await graphqlRequest(mutation, 'integrationsRemoveAccount', { _id: 'accountId' });
+    const secondResponse = await graphqlRequest(
+      mutation,
+      'integrationsRemoveAccount',
+      { _id: 'accountId' }
+    );
 
     expect(secondResponse).toBe('success');
 
@@ -471,24 +561,31 @@ describe('mutations', () => {
       bcc: ['bcc'],
       from: 'from',
       kind: 'nylas-gmail',
-      body: 'body',
+      body: 'body'
     };
 
     const spy = jest.spyOn(dataSources.IntegrationsAPI, 'sendEmail');
-    const mockReplaceEditorAttribute = jest.spyOn(utils, 'replaceEditorAttributes');
+    const mockReplaceEditorAttribute = jest.spyOn(
+      utils,
+      'replaceEditorAttributes'
+    );
 
     mockReplaceEditorAttribute.mockImplementation(() =>
       Promise.resolve({
         replacedContent: 'replacedContent',
-        replacers: [{ key: 'key', value: 'value' }],
-      }),
+        replacers: [{ key: 'key', value: 'value' }]
+      })
     );
 
     spy.mockImplementation(() => Promise.resolve());
 
-    await graphqlRequest(mutation, 'integrationSendMail', args, { dataSources });
+    await graphqlRequest(mutation, 'integrationSendMail', args, {
+      dataSources
+    });
 
-    const emailDelivery = await EmailDeliveries.findOne({ customerId: customer._id });
+    const emailDelivery = await EmailDeliveries.findOne({
+      customerId: customer._id
+    });
 
     if (emailDelivery) {
       expect(JSON.stringify(emailDelivery.to)).toEqual(JSON.stringify(args.to));
@@ -498,7 +595,9 @@ describe('mutations', () => {
     spy.mockRestore();
 
     try {
-      await graphqlRequest(mutation, 'integrationSendMail', args, { dataSources });
+      await graphqlRequest(mutation, 'integrationSendMail', args, {
+        dataSources
+      });
     } catch (e) {
       expect(e[0].message).toBeDefined();
     }
@@ -513,28 +612,39 @@ describe('mutations', () => {
       }
     `;
 
-    const messengerIntegration = await integrationFactory({ kind: 'messenger', formId: form._id, tagIds: [tag._id] });
+    const messengerIntegration = await integrationFactory({
+      kind: 'messenger',
+      formId: form._id,
+      tagIds: [tag._id]
+    });
 
-    const removeSpy = jest.spyOn(dataSources.IntegrationsAPI, 'removeIntegration');
+    const removeSpy = jest.spyOn(
+      dataSources.IntegrationsAPI,
+      'removeIntegration'
+    );
     removeSpy.mockImplementation(() => Promise.resolve());
 
     await graphqlRequest(mutation, 'integrationsRemove', {
-      _id: messengerIntegration._id,
+      _id: messengerIntegration._id
     });
 
-    expect(await Integrations.findOne({ _id: messengerIntegration._id })).toBe(null);
+    expect(await Integrations.findOne({ _id: messengerIntegration._id })).toBe(
+      null
+    );
 
-    const facebookPostIntegration = await integrationFactory({ kind: 'facebook-post' });
+    const facebookPostIntegration = await integrationFactory({
+      kind: 'facebook-post'
+    });
 
     await graphqlRequest(
       mutation,
       'integrationsRemove',
       {
-        _id: facebookPostIntegration._id,
+        _id: facebookPostIntegration._id
       },
       {
-        dataSources,
-      },
+        dataSources
+      }
     );
 
     removeSpy.mockRestore();
@@ -547,10 +657,14 @@ describe('mutations', () => {
       }
     `;
 
-    const fbPostIntegration = await integrationFactory({ kind: 'facebook-post' });
+    const fbPostIntegration = await integrationFactory({
+      kind: 'facebook-post'
+    });
 
     try {
-      await graphqlRequest(mutation, 'integrationsRemove', { _id: fbPostIntegration._id });
+      await graphqlRequest(mutation, 'integrationsRemove', {
+        _id: fbPostIntegration._id
+      });
     } catch (e) {
       expect(e[0].message).toBeDefined();
     }
@@ -569,12 +683,15 @@ describe('mutations', () => {
     const integration = await integrationFactory();
     let response = await graphqlRequest(mutation, 'integrationsArchive', {
       _id: integration._id,
-      status: true,
+      status: true
     });
 
     expect(response.isActive).toBeFalsy();
 
-    response = await graphqlRequest(mutation, 'integrationsArchive', { _id: integration._id, status: false });
+    response = await graphqlRequest(mutation, 'integrationsArchive', {
+      _id: integration._id,
+      status: false
+    });
 
     expect(response.isActive).toBeTruthy();
   });
@@ -597,23 +714,33 @@ describe('mutations', () => {
       _id: integration._id,
       name: 'updated',
       brandId: 'brandId',
-      channelIds: ['randomId'],
+      channelIds: ['randomId']
     };
 
-    const response = await graphqlRequest(mutation, 'integrationsEditCommonFields', doc);
+    const response = await graphqlRequest(
+      mutation,
+      'integrationsEditCommonFields',
+      doc
+    );
 
     expect(response._id).toBe(doc._id);
     expect(response.name).toBe(doc.name);
     expect(response.brandId).toBe(doc.brandId);
 
-    const webhookIntegration = await integrationFactory({ kind: KIND_CHOICES.WEBHOOK });
+    const webhookIntegration = await integrationFactory({
+      kind: KIND_CHOICES.WEBHOOK
+    });
 
     doc._id = webhookIntegration._id;
     doc.data = {
-      script: 'script',
+      script: 'script'
     };
 
-    const webhookResponse = await graphqlRequest(mutation, 'integrationsEditCommonFields', doc);
+    const webhookResponse = await graphqlRequest(
+      mutation,
+      'integrationsEditCommonFields',
+      doc
+    );
 
     expect(webhookResponse).toBeDefined();
   });
@@ -636,14 +763,19 @@ describe('mutations', () => {
     const args = {
       integrationId: 'integrationId',
       content: 'Hello',
-      to: '+976123456789',
+      to: '+976123456789'
     };
 
     const spy = jest.spyOn(dataSources.IntegrationsAPI, 'sendSms');
 
     spy.mockImplementation(() => Promise.resolve({ status: 'ok' }));
 
-    const response = await graphqlRequest(mutation, 'integrationsSendSms', args, { dataSources });
+    const response = await graphqlRequest(
+      mutation,
+      'integrationsSendSms',
+      args,
+      { dataSources }
+    );
 
     expect(response.status).toBe('ok');
 

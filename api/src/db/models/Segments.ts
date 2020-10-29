@@ -1,5 +1,9 @@
 import { Model, model } from 'mongoose';
-import { ISegment, ISegmentDocument, segmentSchema } from './definitions/segments';
+import {
+  ISegment,
+  ISegmentDocument,
+  segmentSchema
+} from './definitions/segments';
 
 export interface ISegmentModel extends Model<ISegmentDocument> {
   getSegment(_id: string): Promise<ISegmentDocument>;
@@ -63,6 +67,9 @@ export const loadClass = () => {
 loadClass();
 
 // tslint:disable-next-line
-const Segments = model<ISegmentDocument, ISegmentModel>('segments', segmentSchema);
+const Segments = model<ISegmentDocument, ISegmentModel>(
+  'segments',
+  segmentSchema
+);
 
 export default Segments;

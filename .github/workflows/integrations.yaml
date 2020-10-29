@@ -25,17 +25,17 @@ jobs:
 
     services:
       mongodb:
-        image: mongo:3.6
+        image: mongo:4.0
         ports:
           - 27017:27017
 
     steps:
       - uses: actions/checkout@v2
 
-      - name: Use Node.js 12.18.x
+      - name: Use Node.js 12.19.x
         uses: actions/setup-node@v1
         with:
-          node-version: 12.18.x
+          node-version: 12.19.x
 
       # https://github.com/actions/cache/blob/master/examples.md#node---yarn
       - name: Get yarn cache directory path
@@ -46,20 +46,20 @@ jobs:
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-integrations-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-yarn-integrations-${{ hashFiles('yarn.lock', 'integrations/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-integrations-
             ${{ runner.os }}-yarn-
 
       - name: Install dependencies
         run: |
+          yarn install
           cd integrations
           yarn install
 
       - name: Lint
         run: |
-          cd integrations
-          yarn lint
+          yarn lint integrations
 
       - name: Test
         run: |

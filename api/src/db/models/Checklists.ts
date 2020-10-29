@@ -7,7 +7,7 @@ import {
   IChecklist,
   IChecklistDocument,
   IChecklistItem,
-  IChecklistItemDocument,
+  IChecklistItemDocument
 } from './definitions/checklists';
 import { IUserDocument } from './definitions/users';
 
@@ -16,7 +16,7 @@ export interface IChecklistModel extends Model<IChecklistDocument> {
   removeChecklists(contentType: string, contentTypeId: string): void;
   createChecklist(
     { contentType, contentTypeId, ...fields }: IChecklist,
-    user: IUserDocument,
+    user: IUserDocument
   ): Promise<IChecklistDocument>;
 
   updateChecklist(_id: string, doc: IChecklist): Promise<IChecklistDocument>;
@@ -26,11 +26,20 @@ export interface IChecklistModel extends Model<IChecklistDocument> {
 
 export interface IChecklistItemModel extends Model<IChecklistItemDocument> {
   getChecklistItem(_id: string): Promise<IChecklistItemDocument>;
-  createChecklistItem({ checklistId, ...fields }: IChecklistItem, user: IUserDocument): Promise<IChecklistItemDocument>;
+  createChecklistItem(
+    { checklistId, ...fields }: IChecklistItem,
+    user: IUserDocument
+  ): Promise<IChecklistItemDocument>;
 
-  updateChecklistItem(_id: string, doc: IChecklistItem): Promise<IChecklistItemDocument>;
+  updateChecklistItem(
+    _id: string,
+    doc: IChecklistItem
+  ): Promise<IChecklistItemDocument>;
   removeChecklistItem(_id: string): void;
-  updateItemOrder(_id: string, destinationOrder: number): Promise<IChecklistItemDocument>;
+  updateItemOrder(
+    _id: string,
+    destinationOrder: number
+  ): Promise<IChecklistItemDocument>;
 }
 
 export const loadClass = () => {
@@ -45,7 +54,10 @@ export const loadClass = () => {
       return checklist;
     }
 
-    public static async removeChecklists(contentType: string, contentTypeId: string) {
+    public static async removeChecklists(
+      contentType: string,
+      contentTypeId: string
+    ) {
       const checklists = await Checklists.find({ contentType, contentTypeId });
 
       if (checklists && checklists.length === 0) {
@@ -62,16 +74,23 @@ export const loadClass = () => {
     /*
      * Create new checklist
      */
-    public static async createChecklist({ contentType, contentTypeId, ...fields }: IChecklist, user: IUserDocument) {
+    public static async createChecklist(
+      { contentType, contentTypeId, ...fields }: IChecklist,
+      user: IUserDocument
+    ) {
       const checklist = await Checklists.create({
         contentType,
         contentTypeId,
         createdUserId: user._id,
         createdDate: new Date(),
-        ...fields,
+        ...fields
       });
 
-      ActivityLogs.createChecklistLog({ item: checklist, contentType: 'checklist', action: 'create' });
+      ActivityLogs.createChecklistLog({
+        item: checklist,
+        contentType: 'checklist',
+        action: 'create'
+      });
 
       return checklist;
     }
@@ -96,10 +115,14 @@ export const loadClass = () => {
       }
 
       await ChecklistItems.deleteMany({
-        checklistId: checklistObj._id,
+        checklistId: checklistObj._id
       });
 
-      ActivityLogs.createChecklistLog({ item: checklistObj, contentType: 'checklist', action: 'delete' });
+      ActivityLogs.createChecklistLog({
+        item: checklistObj,
+        contentType: 'checklist',
+        action: 'delete'
+      });
 
       return checklistObj.remove();
     }
@@ -125,7 +148,10 @@ export const loadItemClass = () => {
     /*
      * Create new checklistItem
      */
-    public static async createChecklistItem({ checklistId, ...fields }: IChecklistItem, user: IUserDocument) {
+    public static async createChecklistItem(
+      { checklistId, ...fields }: IChecklistItem,
+      user: IUserDocument
+    ) {
       const itemsCount = await ChecklistItems.count({ checklistId });
 
       const checklistItem = await ChecklistItems.create({
@@ -133,13 +159,13 @@ export const loadItemClass = () => {
         createdUserId: user._id,
         createdDate: new Date(),
         order: itemsCount + 1,
-        ...fields,
+        ...fields
       });
 
       await ActivityLogs.createChecklistLog({
         item: checklistItem,
         contentType: 'checklistItem',
-        action: 'create',
+        action: 'create'
       });
 
       return checklistItem;
@@ -157,7 +183,7 @@ export const loadItemClass = () => {
       await ActivityLogs.createChecklistLog({
         item: checklistItem,
         contentType: 'checklistItem',
-        action: activityAction,
+        action: activityAction
       });
 
       return checklistItem;
@@ -176,7 +202,7 @@ export const loadItemClass = () => {
       await ActivityLogs.createChecklistLog({
         item: checklistItem,
         contentType: 'checklistItem',
-        action: 'delete',
+        action: 'delete'
       });
 
       return checklistItem.remove();
@@ -187,10 +213,13 @@ export const loadItemClass = () => {
 
       await ChecklistItems.updateOne(
         { checklistId: currentItem.checklistId, order: destinationOrder },
-        { $set: { order: currentItem.order } },
+        { $set: { order: currentItem.order } }
       );
 
-      await ChecklistItems.updateOne({ _id }, { $set: { order: destinationOrder } });
+      await ChecklistItems.updateOne(
+        { _id },
+        { $set: { order: destinationOrder } }
+      );
 
       return ChecklistItems.findOne({ _id }).lean();
     }
@@ -205,9 +234,15 @@ loadClass();
 loadItemClass();
 
 // tslint:disable-next-line
-const Checklists = model<IChecklistDocument, IChecklistModel>('checklists', checklistSchema);
+const Checklists = model<IChecklistDocument, IChecklistModel>(
+  'checklists',
+  checklistSchema
+);
 
 // tslint:disable-next-line
-const ChecklistItems = model<IChecklistItemDocument, IChecklistItemModel>('checklist_items', checklistItemSchema);
+const ChecklistItems = model<IChecklistItemDocument, IChecklistItemModel>(
+  'checklist_items',
+  checklistItemSchema
+);
 
 export { Checklists, ChecklistItems };

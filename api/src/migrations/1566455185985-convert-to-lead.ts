@@ -26,7 +26,7 @@ module.exports.up = async () => {
         callout: form.callout,
         rules: form.rules,
         viewCount: form.viewCount,
-        contactsGathered: form.contactsGathered,
+        contactsGathered: form.contactsGathered
       };
 
       const submissions = form.submissions || [];
@@ -35,7 +35,7 @@ module.exports.up = async () => {
         await FormSubmissions.createFormSubmission({
           formId: form._id,
           customerId: submission.customerId,
-          submittedAt: submission.submittedAt,
+          submittedAt: submission.submittedAt
         });
       }
 
@@ -43,8 +43,8 @@ module.exports.up = async () => {
         { formId: form._id },
         {
           $set: { kind: 'lead', leadData },
-          $unset: { formData: 1 },
-        },
+          $unset: { formData: 1 }
+        }
       );
 
       await Forms.updateOne(
@@ -56,9 +56,9 @@ module.exports.up = async () => {
             rules: 1,
             viewCount: 1,
             contactsGathered: 1,
-            submissions: 1,
-          },
-        },
+            submissions: 1
+          }
+        }
       );
     }
   }

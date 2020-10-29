@@ -24,19 +24,14 @@ export default function CustomMessage({ botData }: Props) {
     item: { title: string; payload: string },
     index: number
   ) => {
-    return (
-      <ReplyButton key={index}>
-        {item.title}
-      </ReplyButton>
-    );
+    return <ReplyButton key={index}>{item.title}</ReplyButton>;
   };
 
   return (
     <>
-      {wrapped ? 
-      <MessageContent staff={true}>
-        {wrapped.text}
-      </MessageContent> : null}
+      {wrapped ? (
+        <MessageContent staff={true}>{wrapped.text}</MessageContent>
+      ) : null}
       <QuickReplies>
         {quick_replies ? quick_replies.map(renderButton) : null}
       </QuickReplies>

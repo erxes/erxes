@@ -15,7 +15,7 @@ const tagQueries = {
    */
   tagDetail(_root, { _id }: { _id: string }) {
     return Tags.findOne({ _id });
-  },
+  }
 };
 
 requireLogin(tagQueries, 'tagDetail');

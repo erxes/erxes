@@ -46,8 +46,8 @@ describe('PipelineTemplates mutations', () => {
       { _id: Math.random().toString(), name: 'Stage 1', formId: 'formId1' },
       { _id: Math.random().toString(), name: 'Stage 2', formId: 'formId2' },
       { _id: Math.random().toString(), name: 'Stage 3', formId: 'formId3' },
-      { _id: Math.random().toString(), name: 'Stage 4', formId: 'formId4' },
-    ],
+      { _id: Math.random().toString(), name: 'Stage 4', formId: 'formId4' }
+    ]
   };
 
   beforeEach(async () => {
@@ -70,7 +70,11 @@ describe('PipelineTemplates mutations', () => {
       }
     `;
 
-    const created = await graphqlRequest(mutation, 'pipelineTemplatesAdd', args);
+    const created = await graphqlRequest(
+      mutation,
+      'pipelineTemplatesAdd',
+      args
+    );
 
     expect(created.name).toBe(args.name);
     expect(created.description).toBe(args.description);
@@ -92,7 +96,10 @@ describe('PipelineTemplates mutations', () => {
       }
     `;
 
-    const edited = await graphqlRequest(mutation, 'pipelineTemplatesEdit', { _id: pipelineTemplate._id, ...args });
+    const edited = await graphqlRequest(mutation, 'pipelineTemplatesEdit', {
+      _id: pipelineTemplate._id,
+      ...args
+    });
 
     expect(edited._id).toBe(pipelineTemplate._id);
     expect(edited.name).toBe(args.name);
@@ -108,9 +115,13 @@ describe('PipelineTemplates mutations', () => {
       }
     `;
 
-    await graphqlRequest(mutation, 'pipelineTemplatesRemove', { _id: pipelineTemplate._id });
+    await graphqlRequest(mutation, 'pipelineTemplatesRemove', {
+      _id: pipelineTemplate._id
+    });
 
-    expect(await PipelineTemplates.find({ _id: { $in: [pipelineTemplate._id] } })).toEqual([]);
+    expect(
+      await PipelineTemplates.find({ _id: { $in: [pipelineTemplate._id] } })
+    ).toEqual([]);
   });
 
   test('Duplicate pipelineTemplate', async () => {
@@ -133,10 +144,17 @@ describe('PipelineTemplates mutations', () => {
 
     // Creating test data
     const template = await pipelineTemplateFactory({
-      stages: [{ name: 'stage 1', formId: form1._id }, { name: 'stage 2', formId: form2._id }],
+      stages: [
+        { name: 'stage 1', formId: form1._id },
+        { name: 'stage 2', formId: form2._id }
+      ]
     });
 
-    const duplicated = await graphqlRequest(mutation, 'pipelineTemplatesDuplicate', { _id: template._id });
+    const duplicated = await graphqlRequest(
+      mutation,
+      'pipelineTemplatesDuplicate',
+      { _id: template._id }
+    );
 
     expect(duplicated.description).toBe(template.description);
     expect(duplicated.stages[0].name).toBe('stage 1');

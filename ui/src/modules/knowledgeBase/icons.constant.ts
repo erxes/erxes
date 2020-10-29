@@ -28,22 +28,22 @@ export const icons = [
   { value: 'clipboard', label: 'clipboard' },
   { value: 'computer', label: 'computer' },
   { value: 'paste', label: 'paste' },
-  { value: 'folder-1', label: 'folder' },
+  { value: 'folder-1', label: 'folder' }
 ];
 
 export const articleReactions = [
   { value: 'https://erxes.s3.amazonaws.com/icons/sad.svg', label: 'Sad' },
   {
     value: 'https://erxes.s3.amazonaws.com/icons/neutral.svg',
-    label: 'Neutral',
+    label: 'Neutral'
   },
   {
     value: 'https://erxes.s3.amazonaws.com/icons/grinning.svg',
-    label: 'Happy',
+    label: 'Happy'
   },
   { value: 'https://erxes.s3.amazonaws.com/icons/like.svg', label: 'Like' },
   {
     value: 'https://erxes.s3.amazonaws.com/icons/dislike.svg',
-    label: 'Dislike',
-  },
+    label: 'Dislike'
+  }
 ];

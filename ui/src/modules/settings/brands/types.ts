@@ -49,11 +49,9 @@ export type BrandsManageIntegrationsMutationVariables = {
 };
 
 export type BrandsManageIntegrationsMutationResponse = {
-  saveMutation: (
-    params: {
-      variables: BrandsManageIntegrationsMutationVariables;
-    }
-  ) => Promise<void>;
+  saveMutation: (params: {
+    variables: BrandsManageIntegrationsMutationVariables;
+  }) => Promise<void>;
 };
 
 export type BrandRemoveMutationVariables = {
@@ -61,11 +59,9 @@ export type BrandRemoveMutationVariables = {
 };
 
 export type BrandRemoveMutationResponse = {
-  removeMutation: (
-    params: {
-      variables: BrandRemoveMutationVariables;
-    }
-  ) => Promise<void>;
+  removeMutation: (params: {
+    variables: BrandRemoveMutationVariables;
+  }) => Promise<void>;
 };
 
 export type EmailConfig = {
@@ -79,9 +75,7 @@ export type BrandsConfigEmailMutationVariables = {
 };
 
 export type BrandsConfigEmailMutationResponse = {
-  configEmailMutation: (
-    params: {
-      variables: BrandsConfigEmailMutationVariables;
-    }
-  ) => Promise<void>;
+  configEmailMutation: (params: {
+    variables: BrandsConfigEmailMutationVariables;
+  }) => Promise<void>;
 };

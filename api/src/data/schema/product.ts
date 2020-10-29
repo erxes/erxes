@@ -6,7 +6,7 @@ export const types = `
     parentId: String
     code: String!
     order: String!
-    
+
     isRoot: Boolean
     productCount: Int
   }
@@ -24,6 +24,7 @@ export const types = `
     createdAt: Date
     getTags: [Tag]
     tagIds: [String]
+    attachment: Attachment
 
     category: ProductCategory
   }
@@ -37,7 +38,8 @@ const productParams = `
   sku: String,
   unitPrice: Float,
   code: String,
-  customFieldsData: JSON
+  customFieldsData: JSON,
+  attachment: AttachmentInput
 `;
 
 const productCategoryParams = `

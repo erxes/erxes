@@ -7,11 +7,14 @@ import {
   pipelineFactory,
   stageFactory,
   ticketFactory,
-  userFactory,
+  userFactory
 } from '../db/factories';
 import { Tickets } from '../db/models';
 
-import { BOARD_STATUSES, BOARD_TYPES } from '../db/models/definitions/constants';
+import {
+  BOARD_STATUSES,
+  BOARD_TYPES
+} from '../db/models/definitions/constants';
 import './setup.ts';
 
 describe('ticketQueries', () => {
@@ -76,7 +79,9 @@ describe('ticketQueries', () => {
 
     await ticketFactory({ assignedUserIds: [_id] });
 
-    const response = await graphqlRequest(qryTicketFilter, 'tickets', { assignedUserIds: [_id] });
+    const response = await graphqlRequest(qryTicketFilter, 'tickets', {
+      assignedUserIds: [_id]
+    });
 
     expect(response.length).toBe(1);
   });
@@ -90,10 +95,12 @@ describe('ticketQueries', () => {
       mainType: 'ticket',
       mainTypeId: ticket._id,
       relType: 'customer',
-      relTypeId: _id,
+      relTypeId: _id
     });
 
-    const response = await graphqlRequest(qryTicketFilter, 'tickets', { customerIds: [_id] });
+    const response = await graphqlRequest(qryTicketFilter, 'tickets', {
+      customerIds: [_id]
+    });
 
     expect(response.length).toBe(1);
   });
@@ -107,10 +114,12 @@ describe('ticketQueries', () => {
       mainType: 'company',
       mainTypeId: _id,
       relType: 'ticket',
-      relTypeId: ticket._id,
+      relTypeId: ticket._id
     });
 
-    const response = await graphqlRequest(qryTicketFilter, 'tickets', { companyIds: [_id] });
+    const response = await graphqlRequest(qryTicketFilter, 'tickets', {
+      companyIds: [_id]
+    });
 
     expect(response.length).toBe(1);
   });
@@ -118,7 +127,9 @@ describe('ticketQueries', () => {
   test('Ticket filter by priority', async () => {
     await ticketFactory({ priority: 'critical' });
 
-    const response = await graphqlRequest(qryTicketFilter, 'tickets', { priority: ['critical'] });
+    const response = await graphqlRequest(qryTicketFilter, 'tickets', {
+      priority: ['critical']
+    });
 
     expect(response.length).toBe(1);
   });
@@ -126,15 +137,23 @@ describe('ticketQueries', () => {
   test('Ticket filter by source', async () => {
     await ticketFactory({ source: 'messenger' });
 
-    const response = await graphqlRequest(qryTicketFilter, 'tickets', { source: ['messenger'] });
+    const response = await graphqlRequest(qryTicketFilter, 'tickets', {
+      source: ['messenger']
+    });
 
     expect(response.length).toBe(1);
   });
 
   test('Tickets', async () => {
     const board = await boardFactory({ type: BOARD_TYPES.TICKET });
-    const pipeline = await pipelineFactory({ boardId: board._id, type: BOARD_TYPES.TICKET });
-    const stage = await stageFactory({ pipelineId: pipeline._id, type: BOARD_TYPES.TICKET });
+    const pipeline = await pipelineFactory({
+      boardId: board._id,
+      type: BOARD_TYPES.TICKET
+    });
+    const stage = await stageFactory({
+      pipelineId: pipeline._id,
+      type: BOARD_TYPES.TICKET
+    });
 
     const args = { stageId: stage._id };
 
@@ -173,9 +192,9 @@ describe('ticketQueries', () => {
       qryDetail,
       'ticketDetail',
       {
-        _id: watchedTask._id,
+        _id: watchedTask._id
       },
-      { user },
+      { user }
     );
 
     expect(response._id).toBe(watchedTask._id);
@@ -187,7 +206,7 @@ describe('ticketQueries', () => {
     const stage = await stageFactory({ pipelineId: pipeline._id });
     const args = {
       stageId: stage._id,
-      status: BOARD_STATUSES.ARCHIVED,
+      status: BOARD_STATUSES.ARCHIVED
     };
 
     await ticketFactory({ ...args, name: 'james' });
@@ -213,20 +232,20 @@ describe('ticketQueries', () => {
     `;
 
     let response = await graphqlRequest(qry, 'archivedTickets', {
-      pipelineId: pipeline._id,
+      pipelineId: pipeline._id
     });
 
     expect(response.length).toBe(3);
 
     response = await graphqlRequest(qry, 'archivedTickets', {
       pipelineId: pipeline._id,
-      search: 'james',
+      search: 'james'
     });
 
     expect(response.length).toBe(1);
 
     response = await graphqlRequest(qry, 'archivedTickets', {
-      pipelineId: 'fakeId',
+      pipelineId: 'fakeId'
     });
 
     expect(response.length).toBe(0);
@@ -237,7 +256,7 @@ describe('ticketQueries', () => {
     const stage = await stageFactory({ pipelineId: pipeline._id });
     const args = {
       stageId: stage._id,
-      status: BOARD_STATUSES.ARCHIVED,
+      status: BOARD_STATUSES.ARCHIVED
     };
 
     await ticketFactory({ ...args, name: 'james' });
@@ -257,20 +276,20 @@ describe('ticketQueries', () => {
     `;
 
     let response = await graphqlRequest(qry, 'archivedTicketsCount', {
-      pipelineId: pipeline._id,
+      pipelineId: pipeline._id
     });
 
     expect(response).toBe(3);
 
     response = await graphqlRequest(qry, 'archivedTicketsCount', {
       pipelineId: pipeline._id,
-      search: 'james',
+      search: 'james'
     });
 
     expect(response).toBe(1);
 
     response = await graphqlRequest(qry, 'archivedTicketsCount', {
-      pipelineId: 'fakeId',
+      pipelineId: 'fakeId'
     });
 
     expect(response).toBe(0);

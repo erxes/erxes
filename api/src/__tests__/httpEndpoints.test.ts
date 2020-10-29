@@ -1,7 +1,12 @@
 import * as faker from 'faker';
 import * as request from 'supertest';
 
-import { customerFactory, integrationFactory, scriptFactory, userFactory } from '../db/factories';
+import {
+  customerFactory,
+  integrationFactory,
+  scriptFactory,
+  userFactory
+} from '../db/factories';
 import { Customers, Integrations, Scripts, Users } from '../db/models';
 import { app } from '../index';
 import './setup.ts';
@@ -57,7 +62,7 @@ describe('HTTP endpoint tests', () => {
     const customer = await customerFactory({
       integrationId: integration._id,
       primaryEmail: faker.internet.email(),
-      primaryPhone: faker.phone.phoneNumber(),
+      primaryPhone: faker.phone.phoneNumber()
     });
 
     const response = await request(app)
@@ -66,8 +71,8 @@ describe('HTTP endpoint tests', () => {
         args: {
           email: customer.primaryEmail,
           phone: customer.primaryPhone,
-          code: customer.code,
-        },
+          code: customer.code
+        }
       });
 
     expect(response.body).toBeDefined();
@@ -78,7 +83,7 @@ describe('HTTP endpoint tests', () => {
     const webhookParams = {
       from: faker.phone.phoneNumber(),
       to: faker.phone.phoneNumber(),
-      telnyxId: faker.random.uuid(),
+      telnyxId: faker.random.uuid()
     };
 
     const webhookData = {
@@ -86,9 +91,14 @@ describe('HTTP endpoint tests', () => {
         payload: {
           from: webhookParams.from || faker.phone.phoneNumber(),
           id: webhookParams.telnyxId || faker.random.uuid(),
-          to: [{ phone_number: webhookParams.to || faker.phone.phoneNumber(), status: faker.random.word() }],
-        },
-      },
+          to: [
+            {
+              phone_number: webhookParams.to || faker.phone.phoneNumber(),
+              status: faker.random.word()
+            }
+          ]
+        }
+      }
     };
 
     const response = await request(app)

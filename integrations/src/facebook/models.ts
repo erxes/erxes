@@ -21,7 +21,7 @@ export const customerSchema = new Schema({
   firstName: String,
   lastName: String,
   profilePic: String,
-  integrationId: String,
+  integrationId: String
 });
 
 export interface ICustomerModel extends Model<ICustomerDocument> {
@@ -70,7 +70,7 @@ export const conversationSchema = new Schema({
   senderId: { type: String, index: true },
   recipientId: { type: String, index: true },
   integrationId: String,
-  content: String,
+  content: String
 });
 
 conversationSchema.index({ senderId: 1, recipientId: 1 }, { unique: true });
@@ -104,16 +104,19 @@ export interface IConversationMessage {
   content: string;
 }
 
-export interface IConversationMessageDocument extends IConversationMessage, Document {}
+export interface IConversationMessageDocument
+  extends IConversationMessage,
+    Document {}
 
 export const conversationMessageSchema = new Schema({
   _id: field({ pkey: true }),
   mid: { type: String, unique: true },
   conversationId: String,
-  content: String,
+  content: String
 });
 
-export interface IConversationMessageModel extends Model<IConversationMessageDocument> {}
+export interface IConversationMessageModel
+  extends Model<IConversationMessageDocument> {}
 
 export interface IPost {
   postId: string;
@@ -137,7 +140,7 @@ export const postSchema = new Schema({
   attachments: [String],
   erxesApiId: String,
   permalink_url: String,
-  timestamp: Date,
+  timestamp: Date
 });
 
 postSchema.index({ recipientId: 1, postId: 1 }, { unique: true });
@@ -196,7 +199,7 @@ export const commentSchema = new Schema({
   content: String,
   erxesApiId: String,
   timestamp: Date,
-  isResolved: { type: Boolean, default: false },
+  isResolved: { type: Boolean, default: false }
 });
 
 commentSchema.index({ postId: 1, commentId: 1 }, { unique: true });
@@ -231,22 +234,31 @@ loadConversationClass();
 
 loadPostClass();
 // tslint:disable-next-line
-export const Customers = model<ICustomerDocument, ICustomerModel>('customers_facebook', customerSchema);
+export const Customers = model<ICustomerDocument, ICustomerModel>(
+  'customers_facebook',
+  customerSchema
+);
 
 // tslint:disable-next-line
 export const Conversations = model<IConversationDocument, IConversationModel>(
   'conversations_facebook',
-  conversationSchema,
+  conversationSchema
 );
 
 // tslint:disable-next-line
-export const ConversationMessages = model<IConversationMessageDocument, IConversationMessageModel>(
-  'conversation_messages_facebook',
-  conversationMessageSchema,
+export const ConversationMessages = model<
+  IConversationMessageDocument,
+  IConversationMessageModel
+>('conversation_messages_facebook', conversationMessageSchema);
+
+// tslint:disable-next-line
+export const Posts = model<IPostDocument, IPostModel>(
+  'posts_facebook',
+  postSchema
 );
 
 // tslint:disable-next-line
-export const Posts = model<IPostDocument, IPostModel>('posts_facebook', postSchema);
-
-// tslint:disable-next-line
-export const Comments = model<ICommentDocument, ICommentModel>('comments_facebook', commentSchema);
+export const Comments = model<ICommentDocument, ICommentModel>(
+  'comments_facebook',
+  commentSchema
+);

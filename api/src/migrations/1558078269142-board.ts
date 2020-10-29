@@ -6,10 +6,13 @@ import { Boards, Pipelines, Stages } from '../db/models';
  *
  */
 module.exports.up = async () => {
-  const mongoClient = await mongoose.createConnection(process.env.MONGO_URL || '', {
-    useNewUrlParser: true,
-    useCreateIndex: true,
-  });
+  const mongoClient = await mongoose.createConnection(
+    process.env.MONGO_URL || '',
+    {
+      useNewUrlParser: true,
+      useCreateIndex: true
+    }
+  );
 
   try {
     await mongoClient.db.collection('deal_boards').rename('boards');

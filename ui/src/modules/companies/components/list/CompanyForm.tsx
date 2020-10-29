@@ -255,7 +255,11 @@ class CompanyForm extends React.Component<Props, State> {
                     placeholder="Enter company email"
                     queryName="companies"
                     query={autoCompletionQuery}
-                    onChange={this.onChange.bind(this, 'emails', 'primaryEmail')}
+                    onChange={this.onChange.bind(
+                      this,
+                      'emails',
+                      'primaryEmail'
+                    )}
                     checkFormat={validator.isEmail}
                   />
                 </FormGroup>
@@ -304,7 +308,11 @@ class CompanyForm extends React.Component<Props, State> {
                     placeholder="Enter company phone"
                     queryName="companies"
                     query={autoCompletionQuery}
-                    onChange={this.onChange.bind(this, 'phones', 'primaryPhone')}
+                    onChange={this.onChange.bind(
+                      this,
+                      'phones',
+                      'primaryPhone'
+                    )}
                     checkFormat={isValidPhone}
                   />
                 </FormGroup>

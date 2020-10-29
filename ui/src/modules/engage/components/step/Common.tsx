@@ -25,17 +25,15 @@ type Props<Target, OnSubmit> = {
   };
   customersCount: (ids: string[]) => number;
   onChange: (name: string, value: string[]) => void;
-  content: (
-    {
-      actionSelector,
-      selectedComponent,
-      customerCounts
-    }: {
-      actionSelector: React.ReactNode;
-      selectedComponent: React.ReactNode;
-      customerCounts: React.ReactNode;
-    }
-  ) => React.ReactNode;
+  content: ({
+    actionSelector,
+    selectedComponent,
+    customerCounts
+  }: {
+    actionSelector: React.ReactNode;
+    selectedComponent: React.ReactNode;
+    customerCounts: React.ReactNode;
+  }) => React.ReactNode;
   icons?: React.ReactNode[];
 };
 

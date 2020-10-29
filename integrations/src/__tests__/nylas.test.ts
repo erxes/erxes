@@ -5,7 +5,7 @@ import {
   integrationFactory,
   nylasGmailConversationFactory,
   nylasGmailConversationMessageFactory,
-  nylasGmailCustomerFactory,
+  nylasGmailCustomerFactory
 } from '../factories';
 import * as gmailUtils from '../gmail/utils';
 import { extractEmailFromString } from '../gmail/utils';
@@ -21,9 +21,13 @@ import {
   GOOGLE_SCOPES,
   MICROSOFT_OAUTH_ACCESS_TOKEN_URL,
   MICROSOFT_OAUTH_AUTH_URL,
-  MICROSOFT_SCOPES,
+  MICROSOFT_SCOPES
 } from '../nylas/constants';
-import { NylasGmailConversationMessages, NylasGmailConversations, NylasGmailCustomers } from '../nylas/models';
+import {
+  NylasGmailConversationMessages,
+  NylasGmailConversations,
+  NylasGmailCustomers
+} from '../nylas/models';
 import * as store from '../nylas/store';
 import * as tracker from '../nylas/tracker';
 import { buildEmailAddress } from '../nylas/utils';
@@ -43,20 +47,29 @@ describe('Nylas gmail test', () => {
     name: 'test',
     path: 'path',
     type: 'type',
-    accessToken: 'askldjk',
+    accessToken: 'askldjk'
   };
 
   beforeEach(async () => {
-    await configFactory({ code: 'GOOGLE_CLIENT_ID', value: 'GOOGLE_CLIENT_ID' });
-    await configFactory({ code: 'GOOGLE_CLIENT_SECRET', value: 'GOOGLE_CLIENT_SECRET' });
-    await configFactory({ code: 'ENCRYPTION_KEY', value: 'aksljdklwjdaklsjdkwljaslkdjwkljd' });
+    await configFactory({
+      code: 'GOOGLE_CLIENT_ID',
+      value: 'GOOGLE_CLIENT_ID'
+    });
+    await configFactory({
+      code: 'GOOGLE_CLIENT_SECRET',
+      value: 'GOOGLE_CLIENT_SECRET'
+    });
+    await configFactory({
+      code: 'ENCRYPTION_KEY',
+      value: 'aksljdklwjdaklsjdkwljaslkdjwkljd'
+    });
     await configFactory({ code: 'ALGORITHM', value: 'aes-256-cbc' });
 
     const doc = { kind: 'gmail', email: 'user@mail.com' };
 
     const integration = await integrationFactory({
       ...doc,
-      erxesApiId: 'alkjdlkj',
+      erxesApiId: 'alkjdlkj'
     });
 
     integrationId = integration._id;
@@ -74,28 +87,30 @@ describe('Nylas gmail test', () => {
 
   const entryFactory = async () => {
     const customer = await nylasGmailCustomerFactory({
-      integrationId,
+      integrationId
     });
 
     const conversation = await nylasGmailConversationFactory({
       customerId: customer._id,
-      integrationId,
+      integrationId
     });
 
     const message = await nylasGmailConversationMessageFactory({
       conversationId: conversation._id,
-      messageId: '123',
+      messageId: '123'
     });
 
     return {
       customerId: customer._id,
       conversationId: conversation._id,
-      messageId: message._id,
+      messageId: message._id
     };
   };
 
   test('Set nylas token', async () => {
-    const mock = sinon.stub(Nylas, 'clientCredentials').callsFake(() => Promise.resolve(true));
+    const mock = sinon
+      .stub(Nylas, 'clientCredentials')
+      .callsFake(() => Promise.resolve(true));
 
     const nylasInstance = await api.setNylasToken('alksjd');
 
@@ -107,17 +122,21 @@ describe('Nylas gmail test', () => {
   });
 
   test('Connect imap to nylas', async () => {
-    const nylasConfigMock = sinon.stub(nylasUtils, 'getNylasConfig').callsFake(() => {
-      return Promise.resolve({
-        NYLAS_CLIENT_ID: 'NYLAS_CLIENT_ID',
-        NYLAS_CLIENT_SECRET: 'NYLAS_CLIENT_SECRET',
+    const nylasConfigMock = sinon
+      .stub(nylasUtils, 'getNylasConfig')
+      .callsFake(() => {
+        return Promise.resolve({
+          NYLAS_CLIENT_ID: 'NYLAS_CLIENT_ID',
+          NYLAS_CLIENT_SECRET: 'NYLAS_CLIENT_SECRET'
+        });
       });
-    });
 
     const mock = sinon.stub(utils, 'sendRequest');
 
     mock.onCall(0).returns('code');
-    mock.onCall(1).returns({ access_token: 'access_token', account_id: 'account_id' });
+    mock
+      .onCall(1)
+      .returns({ access_token: 'access_token', account_id: 'account_id' });
 
     const doc = {
       imapHost: 'imaphost',
@@ -126,7 +145,7 @@ describe('Nylas gmail test', () => {
       smtpPort: 321,
       email: 'test@custommail.com',
       password: 'password',
-      status: 'paid',
+      status: 'paid'
     };
 
     await auth.connectImapToNylas(erxesApiId, doc);
@@ -159,26 +178,32 @@ describe('Nylas gmail test', () => {
   });
 
   test('Connect yahoo to nylas', async () => {
-    const nylasConfigMock = sinon.stub(nylasUtils, 'getNylasConfig').callsFake(() => {
-      return Promise.resolve({
-        NYLAS_CLIENT_ID: 'NYLAS_CLIENT_ID',
-        NYLAS_CLIENT_SECRET: 'NYLAS_CLIENT_SECRET',
+    const nylasConfigMock = sinon
+      .stub(nylasUtils, 'getNylasConfig')
+      .callsFake(() => {
+        return Promise.resolve({
+          NYLAS_CLIENT_ID: 'NYLAS_CLIENT_ID',
+          NYLAS_CLIENT_SECRET: 'NYLAS_CLIENT_SECRET'
+        });
       });
-    });
 
     const mock = sinon.stub(utils, 'sendRequest');
 
     mock.onCall(0).returns('code');
-    mock.onCall(1).returns({ access_token: 'access_token123', account_id: 'account_id' });
+    mock
+      .onCall(1)
+      .returns({ access_token: 'access_token123', account_id: 'account_id' });
 
     const doc = {
       email: 'email',
-      password: 'password',
+      password: 'password'
     };
 
     await auth.connectYahooAndOutlookToNylas('gmail', erxesApiId, doc);
 
-    const updatedIntegration = await Integrations.findOne({ erxesApiId }).lean();
+    const updatedIntegration = await Integrations.findOne({
+      erxesApiId
+    }).lean();
 
     expect(updatedIntegration.nylasToken).toEqual('access_token123');
     expect(updatedIntegration.nylasAccountId).toEqual('account_id');
@@ -200,23 +225,27 @@ describe('Nylas gmail test', () => {
   });
 
   test('Connect exchange to nylas', async () => {
-    const nylasConfigMock = sinon.stub(nylasUtils, 'getNylasConfig').callsFake(() => {
-      return Promise.resolve({
-        NYLAS_CLIENT_ID: 'NYLAS_CLIENT_ID',
-        NYLAS_CLIENT_SECRET: 'NYLAS_CLIENT_SECRET',
+    const nylasConfigMock = sinon
+      .stub(nylasUtils, 'getNylasConfig')
+      .callsFake(() => {
+        return Promise.resolve({
+          NYLAS_CLIENT_ID: 'NYLAS_CLIENT_ID',
+          NYLAS_CLIENT_SECRET: 'NYLAS_CLIENT_SECRET'
+        });
       });
-    });
 
     const mock = sinon.stub(utils, 'sendRequest');
 
     mock.onCall(0).returns('code');
-    mock.onCall(1).returns({ access_token: 'access_token123', account_id: 'account_id' });
+    mock
+      .onCall(1)
+      .returns({ access_token: 'access_token123', account_id: 'account_id' });
 
     const doc = {
       username: 'username',
       password: 'password',
       email: 'email',
-      host: 'host',
+      host: 'host'
     };
 
     await auth.connectExchangeToNylas(erxesApiId, doc);
@@ -250,15 +279,19 @@ describe('Nylas gmail test', () => {
 
   test('Integrate provider to nylas', async () => {
     const mock = sinon.stub(utils, 'sendRequest');
-    const configMock = sinon.stub(nylasUtils, 'getNylasConfig').callsFake(() => {
-      return Promise.resolve({
-        NYLAS_CLIENT_ID: 'NYLAS_CLIENT_ID',
-        NYLAS_CLIENT_SECRET: 'NYLAS_CLIENT_SECRET',
+    const configMock = sinon
+      .stub(nylasUtils, 'getNylasConfig')
+      .callsFake(() => {
+        return Promise.resolve({
+          NYLAS_CLIENT_ID: 'NYLAS_CLIENT_ID',
+          NYLAS_CLIENT_SECRET: 'NYLAS_CLIENT_SECRET'
+        });
       });
-    });
 
     mock.onCall(0).returns('code');
-    mock.onCall(1).returns({ access_token: 'ajdalsj', account_id: 'account_id' });
+    mock
+      .onCall(1)
+      .returns({ access_token: 'ajdalsj', account_id: 'account_id' });
 
     const doc = {
       email: 'test@mail.com',
@@ -267,11 +300,13 @@ describe('Nylas gmail test', () => {
       settings: {
         google_refresh_token: 'refresh_token',
         google_client_id: 'clientId',
-        google_client_secret: 'clientSecret',
-      },
+        google_client_secret: 'clientSecret'
+      }
     };
 
-    const { access_token, account_id } = await auth.integrateProviderToNylas(doc);
+    const { access_token, account_id } = await auth.integrateProviderToNylas(
+      doc
+    );
 
     expect(access_token).toEqual('ajdalsj');
     expect(account_id).toEqual('account_id');
@@ -280,12 +315,18 @@ describe('Nylas gmail test', () => {
 
     const codeErrorMock = sinon
       .stub(utils, 'sendRequest')
-      .throws(new Error('Error when connecting to the server. Please check your settings'));
+      .throws(
+        new Error(
+          'Error when connecting to the server. Please check your settings'
+        )
+      );
 
     try {
       await auth.integrateProviderToNylas(doc);
     } catch (e) {
-      expect(e.message).toBe('Error when connecting to the server. Please check your settings');
+      expect(e.message).toBe(
+        'Error when connecting to the server. Please check your settings'
+      );
     }
 
     codeErrorMock.restore();
@@ -295,12 +336,20 @@ describe('Nylas gmail test', () => {
     tokenErrorMock.onCall(0).returns('code');
     tokenErrorMock
       .onCall(1)
-      .returns(Promise.reject(new Error('Error when connecting to the server. Please check your settings')));
+      .returns(
+        Promise.reject(
+          new Error(
+            'Error when connecting to the server. Please check your settings'
+          )
+        )
+      );
 
     try {
       await auth.integrateProviderToNylas(doc);
     } catch (e) {
-      expect(e.message).toBe('Error when connecting to the server. Please check your settings');
+      expect(e.message).toBe(
+        'Error when connecting to the server. Please check your settings'
+      );
     }
 
     tokenErrorMock.restore();
@@ -315,7 +364,7 @@ describe('Nylas gmail test', () => {
     const {
       createOrGetNylasConversation: storeConversation,
       createOrGetNylasConversationMessage: storeMessage,
-      createOrGetNylasCustomer: storeCustomer,
+      createOrGetNylasCustomer: storeCustomer
     } = store;
 
     await entryFactory();
@@ -325,7 +374,7 @@ describe('Nylas gmail test', () => {
       toEmail: 'test@mail.com',
       integrationIds: {
         id: integrationId,
-        erxesApiId,
+        erxesApiId
       },
       message: {
         id: 'asjdlasjkkdl',
@@ -339,12 +388,12 @@ describe('Nylas gmail test', () => {
         from: [
           {
             name: 'from',
-            email: 'test@gmail.com',
-          },
+            email: 'test@gmail.com'
+          }
         ],
         thread_id: 'thread_id',
-        subject: 'subject',
-      },
+        subject: 'subject'
+      }
     };
 
     const sendRPCMessageMock = sinon
@@ -353,9 +402,15 @@ describe('Nylas gmail test', () => {
 
     await utils.compose(storeMessage, storeConversation, storeCustomer)(doc);
 
-    const updatedCustomer = await NylasGmailCustomers.findOne({ email: 'test@gmail.com' });
-    const conversation = await NylasGmailConversations.findOne({ threadId: 'thread_id' });
-    const message = await NylasGmailConversationMessages.findOne({ accountId: 'account_id' });
+    const updatedCustomer = await NylasGmailCustomers.findOne({
+      email: 'test@gmail.com'
+    });
+    const conversation = await NylasGmailConversations.findOne({
+      threadId: 'thread_id'
+    });
+    const message = await NylasGmailConversationMessages.findOne({
+      accountId: 'account_id'
+    });
 
     expect(updatedCustomer.erxesApiId).toEqual('erxesApiId123');
     expect(conversation.threadId).toEqual('thread_id');
@@ -365,7 +420,7 @@ describe('Nylas gmail test', () => {
       kind: 'gmail',
       collectionName: 'customers',
       selector: { erxesApiId: 'erxesApiId123' },
-      fields: { doc: { email: 'asd' }, api: {} as any },
+      fields: { doc: { email: 'asd' }, api: {} as any }
     });
 
     expect(customer.erxesApiId).toEqual('erxesApiId123');
@@ -375,14 +430,16 @@ describe('Nylas gmail test', () => {
   });
 
   test('getOrCreated should fail', async () => {
-    const sendRPCMessageMock = sinon.stub(messageBroker, 'sendRPCMessage').throws(new Error('getOrCreated failed'));
+    const sendRPCMessageMock = sinon
+      .stub(messageBroker, 'sendRPCMessage')
+      .throws(new Error('getOrCreated failed'));
 
     try {
       await store.getOrCreate({
         kind: 'gmail',
         collectionName: 'customers',
         selector: {},
-        fields: { doc: { email: 'asd' }, api: {} as any },
+        fields: { doc: { email: 'asd' }, api: {} as any }
       });
     } catch (e) {
       expect(e.message).toBe('getOrCreated failed');
@@ -397,16 +454,16 @@ describe('Nylas gmail test', () => {
       toEmail: 'user@mail.com',
       integrationIds: {
         id: 'id',
-        erxesApiId: 'erxesApiId',
+        erxesApiId: 'erxesApiId'
       },
       message: {
         from: [
           {
             email: 'email',
-            name: 'name',
-          },
-        ],
-      },
+            name: 'name'
+          }
+        ]
+      }
     };
 
     const getOrCreateMock = sinon
@@ -428,13 +485,13 @@ describe('Nylas gmail test', () => {
       customerId: 'customerId',
       emails: {
         toEmail: 'toEmail',
-        fromEmail: 'fromEmail',
+        fromEmail: 'fromEmail'
       },
       integrationIds: {
         id: 'id',
-        erxesApiId: 'erxesApiId',
+        erxesApiId: 'erxesApiId'
       },
-      message: {} as any,
+      message: {} as any
     };
 
     const getOrCreateMock1 = sinon
@@ -449,7 +506,9 @@ describe('Nylas gmail test', () => {
 
     await getOrCreateMock1.restore();
 
-    const getOrCreateMock2 = sinon.stub(store, 'getOrCreate').callsFake(() => Promise.resolve({ _id: '123' }));
+    const getOrCreateMock2 = sinon
+      .stub(store, 'getOrCreate')
+      .callsFake(() => Promise.resolve({ _id: '123' }));
 
     try {
       await store.createOrGetNylasConversation(doc);
@@ -466,14 +525,16 @@ describe('Nylas gmail test', () => {
       customerId: 'customerId',
       conversationIds: {
         id: 'id',
-        erxesApiId: 'erxesApiId',
+        erxesApiId: 'erxesApiId'
       },
-      message: {} as any,
+      message: {} as any
     };
 
     const getOrCreateMock = sinon
       .stub(store, 'getOrCreate')
-      .callsFake(() => Promise.reject('Conversation Message getOrCreate failed'));
+      .callsFake(() =>
+        Promise.reject('Conversation Message getOrCreate failed')
+      );
 
     try {
       await store.createOrGetNylasConversationMessage(doc);
@@ -483,7 +544,9 @@ describe('Nylas gmail test', () => {
 
     getOrCreateMock.restore();
 
-    const getOrCreateMock2 = sinon.stub(store, 'getOrCreate').callsFake(() => Promise.resolve({ _id: '123' }));
+    const getOrCreateMock2 = sinon
+      .stub(store, 'getOrCreate')
+      .callsFake(() => Promise.resolve({ _id: '123' }));
 
     try {
       await store.createOrGetNylasConversationMessage(doc);
@@ -502,7 +565,7 @@ describe('Nylas gmail test', () => {
       subject: 'subject',
       body: 'body',
       threadId: 'threadId',
-      files: [attachmentDoc],
+      files: [attachmentDoc]
     };
 
     const mock = sinon.stub(api, 'nylasInstanceWithToken').callsFake(() => {
@@ -515,12 +578,14 @@ describe('Nylas gmail test', () => {
   });
 
   test('File upload', async () => {
-    const mock = sinon.stub(api, 'uploadFile').callsFake(() => Promise.resolve({ id: '812739' }));
+    const mock = sinon
+      .stub(api, 'uploadFile')
+      .callsFake(() => Promise.resolve({ id: '812739' }));
 
     const file = {
       name: 'test',
       path: 'path',
-      type: 'type',
+      type: 'type'
     };
 
     const attachment = (await api.uploadFile(file, 'askldjk')) as any;
@@ -531,24 +596,30 @@ describe('Nylas gmail test', () => {
   });
 
   test('Connect provider to nylas', async () => {
-    const sendRPCMessageMock = sinon.stub(messageBroker, 'sendRPCMessage').callsFake(() => {
-      return Promise.resolve({ configs: {} });
-    });
-
-    const getGoogleConfigsMock = sinon.stub(nylasUtils, 'getProviderSettings').callsFake(() => {
-      return Promise.resolve({
-        google_client_id: 'clientId',
-        google_client_secret: 'clientSecret',
-        google_refresh_token: 'refreshToken',
+    const sendRPCMessageMock = sinon
+      .stub(messageBroker, 'sendRPCMessage')
+      .callsFake(() => {
+        return Promise.resolve({ configs: {} });
       });
-    });
 
-    const getNylasConfigMock = sinon.stub(nylasUtils, 'getNylasConfig').callsFake(() => {
-      return {
-        NYLAS_CLIENT_ID: 'NYLAS_CLIENT_ID',
-        NYLAS_CLIENT_SECRET: 'NYLAS_CLIENT_SECRET',
-      };
-    });
+    const getGoogleConfigsMock = sinon
+      .stub(nylasUtils, 'getProviderSettings')
+      .callsFake(() => {
+        return Promise.resolve({
+          google_client_id: 'clientId',
+          google_client_secret: 'clientSecret',
+          google_refresh_token: 'refreshToken'
+        });
+      });
+
+    const getNylasConfigMock = sinon
+      .stub(nylasUtils, 'getNylasConfig')
+      .callsFake(() => {
+        return {
+          NYLAS_CLIENT_ID: 'NYLAS_CLIENT_ID',
+          NYLAS_CLIENT_SECRET: 'NYLAS_CLIENT_SECRET'
+        };
+      });
 
     const mock = sinon.stub(utils, 'sendRequest');
 
@@ -556,15 +627,17 @@ describe('Nylas gmail test', () => {
       return Promise.resolve('email,refrshToken');
     });
 
-    const redisRemoveMock = sinon.stub(memoryStorage(), 'removeKey').callsFake(() => {
-      return Promise.resolve('success');
-    });
+    const redisRemoveMock = sinon
+      .stub(memoryStorage(), 'removeKey')
+      .callsFake(() => {
+        return Promise.resolve('success');
+      });
 
     mock.onCall(0).returns('code');
     mock.onCall(1).returns({
       access_token: 'access_token123',
       account_id: 'account_id',
-      billing_state: 'paid',
+      billing_state: 'paid'
     });
 
     await auth.connectProviderToNylas('gmail', erxesApiId, 'uid');
@@ -580,7 +653,7 @@ describe('Nylas gmail test', () => {
     await Integrations.create({
       email: 'john@mail.com',
       erxesApiId: 'erxesApiIdDuplicated',
-      kind: 'gmail',
+      kind: 'gmail'
     });
 
     const redisMockExists = sinon.stub(memoryStorage(), 'get').callsFake(() => {
@@ -591,7 +664,7 @@ describe('Nylas gmail test', () => {
     mock.onCall(3).returns({
       access_token: 'access_token123',
       account_id: 'account_id',
-      billing_state: 'paid',
+      billing_state: 'paid'
     });
 
     try {
@@ -602,9 +675,11 @@ describe('Nylas gmail test', () => {
 
     redisMockExists.restore();
 
-    const redisMockNotFound = sinon.stub(memoryStorage(), 'get').callsFake(() => {
-      return Promise.resolve(null);
-    });
+    const redisMockNotFound = sinon
+      .stub(memoryStorage(), 'get')
+      .callsFake(() => {
+        return Promise.resolve(null);
+      });
 
     try {
       await auth.connectProviderToNylas('gmail', erxesApiId, 'uid');
@@ -617,9 +692,11 @@ describe('Nylas gmail test', () => {
     mock.restore();
     sendRPCMessageMock.restore();
 
-    const redisMockExists2 = sinon.stub(memoryStorage(), 'get').callsFake(() => {
-      return Promise.resolve('user2@mail.com,refreshToken');
-    });
+    const redisMockExists2 = sinon
+      .stub(memoryStorage(), 'get')
+      .callsFake(() => {
+        return Promise.resolve('user2@mail.com,refreshToken');
+      });
 
     const integrateProviderToNylasMock = sinon
       .stub(auth, 'integrateProviderToNylas')
@@ -639,9 +716,15 @@ describe('Nylas gmail test', () => {
   });
 
   test('Get attachment', async () => {
-    const mock1 = sinon.stub(Nylas, 'clientCredentials').callsFake(() => Promise.resolve(true));
-    const mock2 = sinon.stub(api, 'nylasInstanceWithToken').callsFake(() => Promise.resolve({}));
-    const mock3 = sinon.stub(api, 'nylasFileRequest').callsFake(() => Promise.resolve('data'));
+    const mock1 = sinon
+      .stub(Nylas, 'clientCredentials')
+      .callsFake(() => Promise.resolve(true));
+    const mock2 = sinon
+      .stub(api, 'nylasInstanceWithToken')
+      .callsFake(() => Promise.resolve({}));
+    const mock3 = sinon
+      .stub(api, 'nylasFileRequest')
+      .callsFake(() => Promise.resolve('data'));
 
     expect(await api.getAttachment('fileId', 'aklsjd')).toEqual('data');
 
@@ -651,8 +734,12 @@ describe('Nylas gmail test', () => {
   });
 
   test('Create a webhook', async () => {
-    const checkCredentialsMock = sinon.stub(api, 'checkCredentials').callsFake(() => true);
-    const nylasInstanceMock = sinon.stub(api, 'nylasInstance').callsFake(() => Promise.resolve({ id: 'webhookid' }));
+    const checkCredentialsMock = sinon
+      .stub(api, 'checkCredentials')
+      .callsFake(() => true);
+    const nylasInstanceMock = sinon
+      .stub(api, 'nylasInstance')
+      .callsFake(() => Promise.resolve({ id: 'webhookid' }));
 
     const response = await tracker.createNylasWebhook();
 
@@ -660,7 +747,9 @@ describe('Nylas gmail test', () => {
 
     nylasInstanceMock.restore();
 
-    const mock3 = sinon.stub(api, 'nylasInstance').callsFake(() => Promise.reject({ message: 'error' }));
+    const mock3 = sinon
+      .stub(api, 'nylasInstance')
+      .callsFake(() => Promise.reject({ message: 'error' }));
 
     try {
       await tracker.createNylasWebhook();
@@ -705,7 +794,9 @@ describe('Nylas gmail test', () => {
     configMock.onCall(0).returns('NYLAS_CLIENT_ID');
     configMock.onCall(1).returns('NYLAS_CLIENT_SECRET');
 
-    failSendRequestMock.onCall(0).throws(new Error('Failed to remove existing webhook'));
+    failSendRequestMock
+      .onCall(0)
+      .throws(new Error('Failed to remove existing webhook'));
     failSendRequestMock.onCall(1).returns(Promise.resolve([]));
 
     try {
@@ -744,13 +835,13 @@ describe('Nylas gmail test', () => {
       JSON.stringify({
         params: {
           access_type: 'offline',
-          scope: GOOGLE_SCOPES,
+          scope: GOOGLE_SCOPES
         },
         urls: {
           authUrl: GOOGLE_OAUTH_AUTH_URL,
-          tokenUrl: GOOGLE_OAUTH_ACCESS_TOKEN_URL,
-        },
-      }),
+          tokenUrl: GOOGLE_OAUTH_ACCESS_TOKEN_URL
+        }
+      })
     );
 
     const configOffice365 = nylasUtils.getProviderConfigs('office365');
@@ -758,16 +849,16 @@ describe('Nylas gmail test', () => {
     expect(JSON.stringify(configOffice365)).toContain(
       JSON.stringify({
         params: {
-          scope: MICROSOFT_SCOPES,
+          scope: MICROSOFT_SCOPES
         },
         urls: {
           authUrl: MICROSOFT_OAUTH_AUTH_URL,
-          tokenUrl: MICROSOFT_OAUTH_ACCESS_TOKEN_URL,
+          tokenUrl: MICROSOFT_OAUTH_ACCESS_TOKEN_URL
         },
         otherParams: {
-          headerType: 'application/x-www-form-urlencoded',
-        },
-      }),
+          headerType: 'application/x-www-form-urlencoded'
+        }
+      })
     );
   });
 
@@ -776,7 +867,7 @@ describe('Nylas gmail test', () => {
 
     const googleArgs = {
       GOOGLE_CLIENT_ID: 'GOOGLE_CLIENT_ID',
-      GOOGLE_CLIENT_SECRET: 'GOOGLE_CLIENT_SECRET',
+      GOOGLE_CLIENT_SECRET: 'GOOGLE_CLIENT_SECRET'
     };
 
     getGoogleConfigmock.onCall(0).returns(Promise.resolve(googleArgs));
@@ -807,27 +898,41 @@ describe('Nylas gmail test', () => {
     const getGoogleConfigmock = sinon.stub(gmailUtils, 'getGoogleConfigs');
     const getO365ConfigMock = sinon.stub(utils, 'getConfig');
 
-    getGoogleConfigmock
-      .onCall(0)
-      .returns(Promise.resolve({ GOOGLE_CLIENT_ID: 'GOOGLE_CLIENT_ID', GOOGLE_CLIENT_SECRET: 'GOOGLE_CLIENT_SECRET' }));
-    getGoogleConfigmock
-      .onCall(1)
-      .returns(Promise.resolve({ GOOGLE_CLIENT_ID: 'GOOGLE_CLIENT_ID', GOOGLE_CLIENT_SECRET: 'GOOGLE_CLIENT_SECRET' }));
+    getGoogleConfigmock.onCall(0).returns(
+      Promise.resolve({
+        GOOGLE_CLIENT_ID: 'GOOGLE_CLIENT_ID',
+        GOOGLE_CLIENT_SECRET: 'GOOGLE_CLIENT_SECRET'
+      })
+    );
+    getGoogleConfigmock.onCall(1).returns(
+      Promise.resolve({
+        GOOGLE_CLIENT_ID: 'GOOGLE_CLIENT_ID',
+        GOOGLE_CLIENT_SECRET: 'GOOGLE_CLIENT_SECRET'
+      })
+    );
 
-    const settingsGoogle = await nylasUtils.getProviderSettings('gmail', 'refreshToken');
+    const settingsGoogle = await nylasUtils.getProviderSettings(
+      'gmail',
+      'refreshToken'
+    );
 
     expect(JSON.stringify(settingsGoogle)).toEqual(
       JSON.stringify({
         google_client_id: 'GOOGLE_CLIENT_ID',
         google_client_secret: 'GOOGLE_CLIENT_SECRET',
-        google_refresh_token: 'refreshToken',
-      }),
+        google_refresh_token: 'refreshToken'
+      })
     );
 
     getO365ConfigMock.onCall(2).returns(Promise.resolve('MICROSOFT_CLIENT_ID'));
-    getO365ConfigMock.onCall(3).returns(Promise.resolve('MICROSOFT_CLIENT_SECRET'));
+    getO365ConfigMock
+      .onCall(3)
+      .returns(Promise.resolve('MICROSOFT_CLIENT_SECRET'));
 
-    const settingsO365 = await nylasUtils.getProviderSettings('office365', 'refreshToken');
+    const settingsO365 = await nylasUtils.getProviderSettings(
+      'office365',
+      'refreshToken'
+    );
 
     delete settingsO365.redirect_uri;
 
@@ -835,8 +940,8 @@ describe('Nylas gmail test', () => {
       JSON.stringify({
         microsoft_client_id: 'MICROSOFT_CLIENT_ID',
         microsoft_client_secret: 'MICROSOFT_CLIENT_SECRET',
-        microsoft_refresh_token: 'refreshToken',
-      }),
+        microsoft_refresh_token: 'refreshToken'
+      })
     );
 
     getO365ConfigMock.restore();
@@ -845,7 +950,9 @@ describe('Nylas gmail test', () => {
 
   test('Get message by id', async () => {
     const mock = sinon.stub(api, 'nylasRequest').callsFake(() => {
-      return Promise.resolve({ from: [{ name: 'test', email: 'user@mail.com' }] });
+      return Promise.resolve({
+        from: [{ name: 'test', email: 'user@mail.com' }]
+      });
     });
 
     const message = await api.getMessages('accessToken', 'id');
@@ -858,7 +965,9 @@ describe('Nylas gmail test', () => {
 
   test('Get messages', async () => {
     const mock = sinon.stub(api, 'nylasRequest').callsFake(() => {
-      return Promise.resolve({ from: [{ name: 'test', email: 'user@mail.com' }] });
+      return Promise.resolve({
+        from: [{ name: 'test', email: 'user@mail.com' }]
+      });
     });
 
     const message = await api.getMessages('accessToken', '');
@@ -874,13 +983,15 @@ describe('Nylas gmail test', () => {
       nylasAccountId: 'uid',
       nylasToken: 'asd',
       email: 'email',
-      kind: 'gmail',
+      kind: 'gmail'
     });
 
     try {
       await nylasUtils.syncMessages('1231231231', '');
     } catch (e) {
-      expect(e.message).toBe(`Integration not found with nylasAccountId: 1231231231`);
+      expect(e.message).toBe(
+        `Integration not found with nylasAccountId: 1231231231`
+      );
     }
 
     const messageMock = sinon.stub(api, 'getMessageById');
@@ -889,10 +1000,10 @@ describe('Nylas gmail test', () => {
       return Promise.resolve({
         from: [
           {
-            email: 'email',
-          },
+            email: 'email'
+          }
         ],
-        subject: 'subject',
+        subject: 'subject'
       });
     });
 
@@ -909,7 +1020,7 @@ describe('Nylas gmail test', () => {
     messageMock.onCall(2).callsFake(() => {
       return Promise.resolve({
         from: [{ email: 'john@mail.com' }],
-        subject: 'Re: subject',
+        subject: 'Re: subject'
       });
     });
 
@@ -936,7 +1047,10 @@ describe('Utils test', () => {
     const emailObj = buildEmailAddress(stringArr);
 
     expect(isUndefined).toBe(undefined);
-    expect(emailObj).toEqual([{ email: 'user1@mail.com' }, { email: 'user2@mail.com' }]);
+    expect(emailObj).toEqual([
+      { email: 'user1@mail.com' },
+      { email: 'user2@mail.com' }
+    ]);
   });
 
   test('Extract and build email obj from string', () => {

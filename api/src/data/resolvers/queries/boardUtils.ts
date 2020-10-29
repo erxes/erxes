@@ -16,7 +16,10 @@ const contains = (values: string[]) => {
   return { $in: values };
 };
 
-export const generateCommonFilters = async (currentUserId: string, args: any) => {
+export const generateCommonFilters = async (
+  currentUserId: string,
+  args: any
+) => {
   const {
     pipelineId,
     stageId,
@@ -33,7 +36,7 @@ export const generateCommonFilters = async (currentUserId: string, args: any) =>
     type,
     labelIds,
     priority,
-    userIds,
+    userIds
   } = args;
 
   const isListEmpty = value => {
@@ -55,7 +58,7 @@ export const generateCommonFilters = async (currentUserId: string, args: any) =>
     const relIds = await Conformities.filterConformity({
       mainType: 'customer',
       mainTypeIds: customerIds,
-      relType: type,
+      relType: type
     });
 
     filterIds = relIds;
@@ -65,10 +68,12 @@ export const generateCommonFilters = async (currentUserId: string, args: any) =>
     const relIds = await Conformities.filterConformity({
       mainType: 'company',
       mainTypeIds: companyIds,
-      relType: type,
+      relType: type
     });
 
-    filterIds = filterIds.length ? filterIds.filter(id => relIds.includes(id)) : relIds;
+    filterIds = filterIds.length
+      ? filterIds.filter(id => relIds.includes(id))
+      : relIds;
   }
 
   if (customerIds || companyIds) {
@@ -80,7 +85,7 @@ export const generateCommonFilters = async (currentUserId: string, args: any) =>
       const relIds = await Conformities.savedConformity({
         mainType: conformityMainType,
         mainTypeId: conformityMainTypeId,
-        relTypes: [type],
+        relTypes: [type]
       });
 
       filter._id = contains(relIds || []);
@@ -90,7 +95,7 @@ export const generateCommonFilters = async (currentUserId: string, args: any) =>
       const relIds = await Conformities.relatedConformity({
         mainType: conformityMainType,
         mainTypeId: conformityMainTypeId,
-        relType: type,
+        relType: type
       });
 
       filter._id = contains(relIds);
@@ -107,7 +112,7 @@ export const generateCommonFilters = async (currentUserId: string, args: any) =>
 
       filter.closeDate = {
         $gte: new Date(tommorrow.startOf('day').toISOString()),
-        $lte: new Date(tommorrow.endOf('day').toISOString()),
+        $lte: new Date(tommorrow.endOf('day').toISOString())
       };
     }
 
@@ -121,7 +126,7 @@ export const generateCommonFilters = async (currentUserId: string, args: any) =>
 
       filter.closeDate = {
         $gte: new Date(monday),
-        $lte: new Date(nextSunday),
+        $lte: new Date(nextSunday)
       };
     }
 
@@ -131,7 +136,7 @@ export const generateCommonFilters = async (currentUserId: string, args: any) =>
 
       filter.closeDate = {
         $gte: new Date(start),
-        $lte: new Date(end),
+        $lte: new Date(end)
       };
     }
 
@@ -167,8 +172,16 @@ export const generateCommonFilters = async (currentUserId: string, args: any) =>
 
   if (pipelineId) {
     const pipeline = await Pipelines.getPipeline(pipelineId);
-    if (pipeline.isCheckUser && !(pipeline.excludeCheckUserIds || []).includes(currentUserId)) {
-      Object.assign(filter, { $or: [{ assignedUserIds: { $in: [currentUserId] } }, { userId: currentUserId }] });
+    if (
+      pipeline.isCheckUser &&
+      !(pipeline.excludeCheckUserIds || []).includes(currentUserId)
+    ) {
+      Object.assign(filter, {
+        $or: [
+          { assignedUserIds: { $in: [currentUserId] } },
+          { userId: currentUserId }
+        ]
+      });
     }
   }
 
@@ -181,7 +194,11 @@ export const generateCommonFilters = async (currentUserId: string, args: any) =>
   return filter;
 };
 
-export const generateDealCommonFilters = async (currentUserId: string, args: any, extraParams?: any) => {
+export const generateDealCommonFilters = async (
+  currentUserId: string,
+  args: any,
+  extraParams?: any
+) => {
   args.type = 'deal';
 
   const filter = await generateCommonFilters(currentUserId, args);
@@ -204,7 +221,11 @@ export const generateDealCommonFilters = async (currentUserId: string, args: any
   return filter;
 };
 
-export const generateTicketCommonFilters = async (currentUserId: string, args: any, extraParams?: any) => {
+export const generateTicketCommonFilters = async (
+  currentUserId: string,
+  args: any,
+  extraParams?: any
+) => {
   args.type = 'ticket';
 
   const filter = await generateCommonFilters(currentUserId, args);
@@ -217,7 +238,10 @@ export const generateTicketCommonFilters = async (currentUserId: string, args: a
   return filter;
 };
 
-export const generateTaskCommonFilters = async (currentUserId: string, args: any) => {
+export const generateTaskCommonFilters = async (
+  currentUserId: string,
+  args: any
+) => {
   args.type = 'task';
 
   return generateCommonFilters(currentUserId, args);
@@ -235,7 +259,11 @@ export const generateSort = (args: IListParams) => {
   return sort;
 };
 
-export const generateGrowthHackCommonFilters = async (currentUserId: string, args: any, extraParams?: any) => {
+export const generateGrowthHackCommonFilters = async (
+  currentUserId: string,
+  args: any,
+  extraParams?: any
+) => {
   args.type = 'growthHack';
 
   const { hackStage, pipelineId, stageId } = extraParams || args;
@@ -268,16 +296,22 @@ const dateSelector = (date: IDate) => {
 
   return {
     $gte: start,
-    $lte: end,
+    $lte: end
   };
 };
 
-export const checkItemPermByUser = async (currentUserId: string, item: IItemCommonFields) => {
+export const checkItemPermByUser = async (
+  currentUserId: string,
+  item: IItemCommonFields
+) => {
   const stage = await Stages.getStage(item.stageId);
 
   const pipeline = await Pipelines.getPipeline(stage.pipelineId);
 
-  if (pipeline.visibility === 'private' && !(pipeline.memberIds || []).includes(currentUserId)) {
+  if (
+    pipeline.visibility === 'private' &&
+    !(pipeline.memberIds || []).includes(currentUserId)
+  ) {
     throw new Error('You do not have permission to view.');
   }
 
@@ -287,7 +321,10 @@ export const checkItemPermByUser = async (currentUserId: string, item: IItemComm
   if (
     pipeline.isCheckUser &&
     !(pipeline.excludeCheckUserIds || []).includes(currentUserId) &&
-    !((item.assignedUserIds || []).includes(currentUserId) || item.userId === currentUserId)
+    !(
+      (item.assignedUserIds || []).includes(currentUserId) ||
+      item.userId === currentUserId
+    )
   ) {
     throw new Error('You do not have permission to view.');
   }
@@ -313,7 +350,7 @@ export const archivedItems = async (params: IArchiveArgs, collection: any) => {
     return collection
       .find(filter)
       .sort({
-        modifiedAt: -1,
+        modifiedAt: -1
       })
       .skip(page || 0)
       .limit(perPage || 20);
@@ -322,7 +359,10 @@ export const archivedItems = async (params: IArchiveArgs, collection: any) => {
   return [];
 };
 
-export const archivedItemsCount = async (params: IArchiveArgs, collection: any) => {
+export const archivedItemsCount = async (
+  params: IArchiveArgs,
+  collection: any
+) => {
   const { pipelineId, search } = params;
 
   const filter: any = { status: BOARD_STATUSES.ARCHIVED };

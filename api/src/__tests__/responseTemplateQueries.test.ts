@@ -12,7 +12,10 @@ describe('responseTemplateQueries', () => {
     // Clearing test data
     brand = await brandFactory();
 
-    firstResponseTemplate = await responseTemplateFactory({ brandId: brand._id, name: 'first' });
+    firstResponseTemplate = await responseTemplateFactory({
+      brandId: brand._id,
+      name: 'first'
+    });
     await responseTemplateFactory({ brandId: brand._id });
     await responseTemplateFactory();
   });
@@ -33,15 +36,22 @@ describe('responseTemplateQueries', () => {
       }
     `;
 
-    let response = await graphqlRequest(qry, 'responseTemplates', { page: 1, perPage: 2 });
+    let response = await graphqlRequest(qry, 'responseTemplates', {
+      page: 1,
+      perPage: 2
+    });
 
     expect(response.length).toBe(2);
 
-    response = await graphqlRequest(qry, 'responseTemplates', { brandId: brand._id });
+    response = await graphqlRequest(qry, 'responseTemplates', {
+      brandId: brand._id
+    });
 
     expect(response.length).toBe(2);
 
-    response = await graphqlRequest(qry, 'responseTemplates', { searchValue: 'first' });
+    response = await graphqlRequest(qry, 'responseTemplates', {
+      searchValue: 'first'
+    });
 
     expect(response[0]._id).toBe(firstResponseTemplate._id);
   });
@@ -57,11 +67,15 @@ describe('responseTemplateQueries', () => {
 
     expect(totalCount).toBe(3);
 
-    totalCount = await graphqlRequest(qry, 'responseTemplatesTotalCount', { brandId: brand._id });
+    totalCount = await graphqlRequest(qry, 'responseTemplatesTotalCount', {
+      brandId: brand._id
+    });
 
     expect(totalCount).toBe(2);
 
-    totalCount = await graphqlRequest(qry, 'responseTemplatesTotalCount', { searchValue: 'first' });
+    totalCount = await graphqlRequest(qry, 'responseTemplatesTotalCount', {
+      searchValue: 'first'
+    });
 
     expect(totalCount).toBe(1);
   });

@@ -14,9 +14,13 @@ import { List } from './styles';
 type Props = {
   user: IUser;
   channels: IChannel[];
-  renderEditForm: (
-    { closeModal, user }: { closeModal: () => void; user: IUser }
-  ) => React.ReactNode;
+  renderEditForm: ({
+    closeModal,
+    user
+  }: {
+    closeModal: () => void;
+    user: IUser;
+  }) => React.ReactNode;
 };
 
 class LeftSidebar extends React.Component<Props> {

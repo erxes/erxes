@@ -19,8 +19,8 @@ export const EMAIL_VALIDATION_STATUSES = {
     'catchall',
     'badsyntax',
     'unverifiable',
-    'Not checked',
-  ],
+    'Not checked'
+  ]
 };
 
 export const PHONE_VALIDATION_STATUSES = {
@@ -29,13 +29,13 @@ export const PHONE_VALIDATION_STATUSES = {
   UNKNOWN: 'unknown',
   RECEIVES_SMS: 'receives_sms',
   UNVERIFIABLE: 'unverifiable',
-  ALL: ['valid', 'invalid', 'unknown', 'receives_sms', 'unverifiable'],
+  ALL: ['valid', 'invalid', 'unknown', 'receives_sms', 'unverifiable']
 };
 
 export const EMAIL_VALIDATION_SOURCES = {
   ERXES: 'erxes',
   TRUEMAIL: 'truemail',
-  ALL: ['erxes', 'truemail'],
+  ALL: ['erxes', 'truemail']
 };
 
 interface IEmail {
@@ -50,7 +50,7 @@ interface IEmailDocument extends IEmail, Document {
 const emailSchema = new Schema({
   email: { type: String, unique: true },
   status: { type: String, enum: EMAIL_VALIDATION_STATUSES.ALL },
-  created: { type: Date, default: Date.now() },
+  created: { type: Date, default: Date.now() }
 });
 
 interface IEmailModel extends Model<IEmailDocument> {
@@ -77,7 +77,7 @@ const phoneSchema = new Schema({
   carrier: { type: String, optional: true },
   localFormat: { type: String, optional: true },
   internationalFormat: { type: String, optional: true },
-  created: { type: Date, default: Date.now() },
+  created: { type: Date, default: Date.now() }
 });
 
 interface IPhoneModel extends Model<IPhoneDocument> {

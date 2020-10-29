@@ -1,6 +1,10 @@
 import { permissionMutations } from '../data/resolvers/mutations/permissions';
 import { graphqlRequest } from '../db/connection';
-import { permissionFactory, userFactory, usersGroupFactory } from '../db/factories';
+import {
+  permissionFactory,
+  userFactory,
+  usersGroupFactory
+} from '../db/factories';
 import { Permissions, Users, UsersGroups } from '../db/models';
 
 import './setup.ts';
@@ -15,7 +19,7 @@ describe('Test permissions mutations', () => {
   const doc = {
     actions: ['up', ' test'],
     allowed: true,
-    module: 'module name',
+    module: 'module name'
   };
 
   const permissionFields = `
@@ -79,7 +83,9 @@ describe('Test permissions mutations', () => {
     await checkLogin(permissionMutations.permissionsAdd, doc);
 
     // remove permission
-    await checkLogin(permissionMutations.permissionsRemove, { ids: [userPermission._id] });
+    await checkLogin(permissionMutations.permissionsRemove, {
+      ids: [userPermission._id]
+    });
   });
 
   test('Create permission', async () => {
@@ -88,7 +94,7 @@ describe('Test permissions mutations', () => {
       actions: ['manageBrands'],
       userIds: [_user._id],
       groupIds: [_group._id],
-      allowed: true,
+      allowed: true
     };
 
     const mutation = `
@@ -111,7 +117,12 @@ describe('Test permissions mutations', () => {
       }
     `;
 
-    const [permission] = await graphqlRequest(mutation, 'permissionsAdd', args, context);
+    const [permission] = await graphqlRequest(
+      mutation,
+      'permissionsAdd',
+      args,
+      context
+    );
 
     expect(permission.module).toEqual('module name');
   });
@@ -138,7 +149,7 @@ describe('Test permissions mutations', () => {
     const args = {
       memberIds: [user1._id, user2._id],
       name: 'created name',
-      description: 'created description',
+      description: 'created description'
     };
 
     const mutation = `
@@ -152,7 +163,12 @@ describe('Test permissions mutations', () => {
       }
     `;
 
-    const createdGroup = await graphqlRequest(mutation, 'usersGroupsAdd', args, context);
+    const createdGroup = await graphqlRequest(
+      mutation,
+      'usersGroupsAdd',
+      args,
+      context
+    );
 
     expect(createdGroup.name).toEqual('created name');
     expect(createdGroup.description).toEqual('created description');
@@ -170,7 +186,7 @@ describe('Test permissions mutations', () => {
     const args = {
       name: 'updated name',
       memberIds: [user1._id, user2._id],
-      description: 'updated description',
+      description: 'updated description'
     };
 
     const mutation = `
@@ -188,7 +204,7 @@ describe('Test permissions mutations', () => {
       mutation,
       'usersGroupsEdit',
       { _id: _group._id, ...args },
-      { user: _user },
+      { user: _user }
     );
 
     expect(updatedGroup.name).toBe('updated name');
@@ -207,7 +223,12 @@ describe('Test permissions mutations', () => {
     await userFactory({ groupIds: [_group._id] });
     await userFactory({ groupIds: [_group._id] });
 
-    await graphqlRequest(mutation, 'usersGroupsRemove', { _id: _group._id }, context);
+    await graphqlRequest(
+      mutation,
+      'usersGroupsRemove',
+      { _id: _group._id },
+      context
+    );
 
     expect(await UsersGroups.findOne({ _id: _group._id })).toBe(null);
   });
@@ -221,7 +242,12 @@ describe('Test permissions mutations', () => {
       }
     `;
 
-    const clone = await graphqlRequest(mutation, 'usersGroupsCopy', { _id: _group._id }, context);
+    const clone = await graphqlRequest(
+      mutation,
+      'usersGroupsCopy',
+      { _id: _group._id },
+      context
+    );
 
     expect(clone._id).toBeDefined();
   });

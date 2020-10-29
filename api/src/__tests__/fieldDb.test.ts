@@ -1,4 +1,10 @@
-import { customerFactory, fieldFactory, fieldGroupFactory, formFactory, userFactory } from '../db/factories';
+import {
+  customerFactory,
+  fieldFactory,
+  fieldGroupFactory,
+  formFactory,
+  userFactory
+} from '../db/factories';
 import { Customers, Fields, FieldsGroups, Forms } from '../db/models';
 import { FIELDS_GROUPS_CONTENT_TYPES } from '../db/models/definitions/constants';
 
@@ -30,7 +36,10 @@ describe('Fields', () => {
     }
 
     // first attempt
-    let field = await Fields.createField({ contentType: 'customer', text: 'text' });
+    let field = await Fields.createField({
+      contentType: 'customer',
+      text: 'text'
+    });
     expect(field.order).toBe(0);
 
     // second attempt
@@ -44,7 +53,7 @@ describe('Fields', () => {
     field = await Fields.createField({
       contentType: 'customer',
       text: 'text',
-      groupId: group._id,
+      groupId: group._id
     });
     expect(field.order).toBe(0);
   });
@@ -58,16 +67,24 @@ describe('Fields', () => {
     let field = await Fields.createField({
       contentType,
       text: 'text',
-      contentTypeId: form1._id,
+      contentTypeId: form1._id
     });
     expect(field.order).toBe(0);
 
     // second attempt
-    field = await Fields.createField({ contentType, contentTypeId: form1._id, text: 'text' });
+    field = await Fields.createField({
+      contentType,
+      contentTypeId: form1._id,
+      text: 'text'
+    });
     expect(field.order).toBe(1);
 
     // must create new order
-    field = await Fields.createField({ contentType, contentTypeId: form2._id, text: 'text' });
+    field = await Fields.createField({
+      contentType,
+      contentTypeId: form2._id,
+      text: 'text'
+    });
     expect(field.order).toBe(0);
   });
 
@@ -88,7 +105,7 @@ describe('Fields', () => {
       await Fields.createField({
         contentType: 'form',
         contentTypeId: 'DFAFDFADS',
-        text: 'text',
+        text: 'text'
       });
     } catch (e) {
       expect(e.message).toEqual('Form not found with _id of DFAFDFADS');
@@ -105,7 +122,7 @@ describe('Fields', () => {
 
     const [updatedField1, updatedField2] = await Fields.updateOrder([
       { _id: field1._id, order: 10 },
-      { _id: field2._id, order: 11 },
+      { _id: field2._id, order: 11 }
     ]);
 
     expect(updatedField1.order).toBe(10);
@@ -121,7 +138,7 @@ describe('Fields', () => {
     }
 
     const fieldDoc = {
-      ...doc.toJSON(),
+      ...doc.toJSON()
     };
 
     delete fieldDoc._id;
@@ -173,7 +190,9 @@ describe('Fields', () => {
     const index = `customFieldsData.${_field._id}`;
 
     // Checking if field  value removed from customer
-    expect(await Customers.find({ [index]: { $exists: true } })).toHaveLength(0);
+    expect(await Customers.find({ [index]: { $exists: true } })).toHaveLength(
+      0
+    );
 
     const fieldObj = await Fields.findOne({ _id: _field.id });
     expect(fieldObj).toBeNull();
@@ -308,7 +327,11 @@ describe('Fields', () => {
       expect(e.message).toBe('Cant update this field');
     }
 
-    const fieldObj = await Fields.updateFieldsVisible(field._id, isVisible, user._id);
+    const fieldObj = await Fields.updateFieldsVisible(
+      field._id,
+      isVisible,
+      user._id
+    );
 
     expect(fieldObj.isVisible).toBe(isVisible);
   });
@@ -324,7 +347,7 @@ describe('Fields groups', () => {
     // creating field group
     _fieldGroup = await fieldGroupFactory({
       contentType: FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER,
-      isDefinedByErxes: true,
+      isDefinedByErxes: true
     });
   });
 
@@ -341,7 +364,7 @@ describe('Fields groups', () => {
       name: 'Name',
       description: 'Description',
       contentType: FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER,
-      lastUpdatedUserId: user._id,
+      lastUpdatedUserId: user._id
     };
 
     let groupObj = await FieldsGroups.createGroup(doc);
@@ -371,7 +394,7 @@ describe('Fields groups', () => {
     const doc = {
       name: 'test name',
       description: 'test description',
-      lastUpdatedUserId: user._id,
+      lastUpdatedUserId: user._id
     };
 
     try {
@@ -442,7 +465,11 @@ describe('Fields groups', () => {
     }
 
     const isVisible = false;
-    const groupObj = await FieldsGroups.updateGroupVisible(fieldGroup._id, isVisible, user._id);
+    const groupObj = await FieldsGroups.updateGroupVisible(
+      fieldGroup._id,
+      isVisible,
+      user._id
+    );
 
     expect(groupObj.isVisible).toBe(isVisible);
   });

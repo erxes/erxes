@@ -3,7 +3,12 @@ import './setup.ts';
 import * as faker from 'faker';
 import messageBroker from '../messageBroker';
 
-import { brandFactory, channelFactory, integrationFactory, tagsFactory } from '../db/factories';
+import {
+  brandFactory,
+  channelFactory,
+  integrationFactory,
+  tagsFactory
+} from '../db/factories';
 import { Brands, Channels, Integrations, Tags } from '../db/models';
 
 import { IntegrationsAPI } from '../data/dataSources';
@@ -66,7 +71,7 @@ describe('integrationQueries', () => {
 
     const responses = await graphqlRequest(qryIntegrations, 'integrations', {
       page: 1,
-      perPage: 3,
+      perPage: 3
     });
 
     expect(responses.length).toBe(3);
@@ -83,7 +88,7 @@ describe('integrationQueries', () => {
     const responses = await graphqlRequest(qryIntegrations, 'integrations', {
       page: 1,
       perPage: 20,
-      tag: tagObj._id,
+      tag: tagObj._id
     });
 
     expect(responses.length).toBe(1);
@@ -95,14 +100,14 @@ describe('integrationQueries', () => {
 
     // messenger ========================
     let responses = await graphqlRequest(qryIntegrations, 'integrations', {
-      kind: 'messenger',
+      kind: 'messenger'
     });
 
     expect(responses.length).toBe(1);
 
     // lead =========================
     responses = await graphqlRequest(qryIntegrations, 'integrations', {
-      kind: 'lead',
+      kind: 'lead'
     });
 
     expect(responses.length).toBe(1);
@@ -114,15 +119,19 @@ describe('integrationQueries', () => {
 
     // mail ========================
     const responses = await graphqlRequest(qryIntegrations, 'integrations', {
-      kind: 'mail',
+      kind: 'mail'
     });
 
     expect(responses.length).toBe(2);
   });
 
   test('Integrations filtered by channel', async () => {
-    const integration1 = await integrationFactory({ kind: 'facebook-messenger' });
-    const integration2 = await integrationFactory({ kind: 'facebook-messenger' });
+    const integration1 = await integrationFactory({
+      kind: 'facebook-messenger'
+    });
+    const integration2 = await integrationFactory({
+      kind: 'facebook-messenger'
+    });
 
     await integrationFactory({ kind: 'facebook-messenger' });
 
@@ -131,7 +140,7 @@ describe('integrationQueries', () => {
     const channel = await channelFactory({ integrationIds });
 
     const responses = await graphqlRequest(qryIntegrations, 'integrations', {
-      channelId: channel._id,
+      channelId: channel._id
     });
 
     expect(responses.length).toBe(2);
@@ -145,7 +154,7 @@ describe('integrationQueries', () => {
     await integrationFactory({ kind: 'lead', brandId: 'fakeId' });
 
     const responses = await graphqlRequest(qryIntegrations, 'integrations', {
-      brandId: brand._id,
+      brandId: brand._id
     });
 
     expect(responses.length).toBe(2);
@@ -157,7 +166,7 @@ describe('integrationQueries', () => {
     await integrationFactory({});
 
     const responses = await graphqlRequest(qryIntegrations, 'integrations', {
-      searchValue: name,
+      searchValue: name
     });
 
     expect(responses.length).toBe(1);
@@ -191,15 +200,18 @@ describe('integrationQueries', () => {
     `;
 
     const tag = await tagsFactory();
-    const messengerIntegration = await integrationFactory({ tagIds: [tag._id], brandId: 'fakeId' });
+    const messengerIntegration = await integrationFactory({
+      tagIds: [tag._id],
+      brandId: 'fakeId'
+    });
 
     let response = await graphqlRequest(
       qry,
       'integrationDetail',
       {
-        _id: messengerIntegration._id,
+        _id: messengerIntegration._id
       },
-      { dataSources },
+      { dataSources }
     );
 
     expect(response._id).toBe(messengerIntegration._id);
@@ -211,7 +223,7 @@ describe('integrationQueries', () => {
     const leadIntegration = await integrationFactory({ kind: 'lead' });
 
     response = await graphqlRequest(qry, 'integrationDetail', {
-      _id: leadIntegration._id,
+      _id: leadIntegration._id
     });
 
     expect(response._id).toBe(leadIntegration._id);
@@ -246,7 +258,11 @@ describe('integrationQueries', () => {
 
     const channel = await channelFactory({ integrationIds });
 
-    const response = await graphqlRequest(qryCount, 'integrationsTotalCount', {});
+    const response = await graphqlRequest(
+      qryCount,
+      'integrationsTotalCount',
+      {}
+    );
 
     expect(response.byChannel[channel._id]).toBe(2);
   });
@@ -258,7 +274,11 @@ describe('integrationQueries', () => {
     await integrationFactory({ kind: 'lead', brandId: brand._id });
     await integrationFactory({ kind: 'lead' });
 
-    const response = await graphqlRequest(qryCount, 'integrationsTotalCount', {});
+    const response = await graphqlRequest(
+      qryCount,
+      'integrationsTotalCount',
+      {}
+    );
 
     expect(response.byBrand[brand._id]).toBe(2);
   });
@@ -284,7 +304,12 @@ describe('integrationQueries', () => {
     `;
 
     try {
-      await graphqlRequest(qry, 'integrationsFetchApi', { path: '/', params: { type: 'facebook' } }, { dataSources });
+      await graphqlRequest(
+        qry,
+        'integrationsFetchApi',
+        { path: '/', params: { type: 'facebook' } },
+        { dataSources }
+      );
     } catch (e) {
       expect(e[0].message).toBe('Integrations api is not running');
     }
@@ -294,7 +319,7 @@ describe('integrationQueries', () => {
         qry,
         'integrationsFetchApi',
         { path: '/integrations', params: { type: 'facebook' } },
-        { dataSources },
+        { dataSources }
       );
     } catch (e) {
       expect(e[0].message).toBe('Integrations api is not running');
@@ -330,10 +355,16 @@ describe('integrationQueries', () => {
 
     spy.mockImplementation(() => Promise.resolve('https://webhookurl'));
 
-    const response = await graphqlRequest(query, 'integrationGetLineWebhookUrl', { _id: 'id' });
+    const response = await graphqlRequest(
+      query,
+      'integrationGetLineWebhookUrl',
+      { _id: 'id' }
+    );
 
     try {
-      await graphqlRequest(query, 'integrationGetLineWebhookUrl', { _id: 'id' });
+      await graphqlRequest(query, 'integrationGetLineWebhookUrl', {
+        _id: 'id'
+      });
     } catch (e) {
       expect(e[0].message).toBeDefined();
     }
@@ -346,7 +377,11 @@ describe('integrationQueries', () => {
 
     spy1.mockImplementation(() => Promise.resolve('https://webhookurl'));
 
-    const secondResponse = await graphqlRequest(query, 'integrationGetLineWebhookUrl', { _id: 'id' });
+    const secondResponse = await graphqlRequest(
+      query,
+      'integrationGetLineWebhookUrl',
+      { _id: 'id' }
+    );
 
     expect(secondResponse).toBe('https://webhookurl');
 

@@ -1,7 +1,13 @@
 import * as moment from 'moment';
 import dealInsightQueries from '../../data/resolvers/queries/dealInsights';
 import { graphqlRequest } from '../../db/connection';
-import { boardFactory, dealFactory, pipelineFactory, stageFactory, userFactory } from '../../db/factories';
+import {
+  boardFactory,
+  dealFactory,
+  pipelineFactory,
+  stageFactory,
+  userFactory
+} from '../../db/factories';
 import { Boards, Deals, Pipelines, Stages } from '../../db/models';
 
 import '../setup.ts';
@@ -48,7 +54,7 @@ describe('dealInsightQueries', () => {
       pipelineIds: pipeline._id,
       boardId: board._id,
       startDate,
-      endDate,
+      endDate
     };
   });
 
@@ -109,7 +115,7 @@ describe('dealInsightQueries', () => {
 
     await Deals.findByIdAndUpdate(deal._id, {
       modifiedAt: new Date(),
-      modifiedBy: user._id,
+      modifiedBy: user._id
     });
 
     const deal2 = await dealFactory({ stageId: stage._id });
@@ -117,7 +123,7 @@ describe('dealInsightQueries', () => {
 
     await Deals.findByIdAndUpdate(deal2._id, {
       modifiedAt: new Date(),
-      modifiedBy: user2._id,
+      modifiedBy: user2._id
     });
 
     const qry = `
@@ -131,7 +137,9 @@ describe('dealInsightQueries', () => {
 
     doc.boardId = 'fakeBoardId';
 
-    response = await graphqlRequest(qry, 'dealInsightsByTeamMember', { boardId: 'fakeBoardId' });
+    response = await graphqlRequest(qry, 'dealInsightsByTeamMember', {
+      boardId: 'fakeBoardId'
+    });
     expect(response.length).toBe(0);
   });
 });

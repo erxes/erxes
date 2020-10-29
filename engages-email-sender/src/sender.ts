@@ -47,11 +47,17 @@ const isNumberNorthAmerican = (phoneNumber: string) => {
 };
 
 // prepares sms object matching telnyx requirements
-const prepareMessage = async ({ shortMessage, to, integrations }: IMessageParams): Promise<ITelnyxMessageParams> => {
+const prepareMessage = async ({
+  shortMessage,
+  to,
+  integrations
+}: IMessageParams): Promise<ITelnyxMessageParams> => {
   const MAIN_API_DOMAIN = getEnv({ name: 'MAIN_API_DOMAIN' });
   const { content, from, fromIntegrationId } = shortMessage;
 
-  const integration = integrations.find(i => i.erxesApiId === fromIntegrationId);
+  const integration = integrations.find(
+    i => i.erxesApiId === fromIntegrationId
+  );
 
   if (!integration.telnyxPhoneNumber) {
     throw new Error('Telnyx phone is not configured');
@@ -63,7 +69,7 @@ const prepareMessage = async ({ shortMessage, to, integrations }: IMessageParams
     text: content,
     messaging_profile_id: integration.telnyxProfileId || '',
     webhook_url: `${MAIN_API_DOMAIN}/telnyx/webhook`,
-    webhook_failover_url: `${MAIN_API_DOMAIN}/telnyx/webhook-failover`,
+    webhook_failover_url: `${MAIN_API_DOMAIN}/telnyx/webhook-failover`
   };
 
   // to use alphanumeric sender id, messaging profile id must be set
@@ -78,22 +84,30 @@ const prepareMessage = async ({ shortMessage, to, integrations }: IMessageParams
   return msg;
 };
 
-const handleMessageCallback = async (err: any, res: any, data: ICallbackParams) => {
+const handleMessageCallback = async (
+  err: any,
+  res: any,
+  data: ICallbackParams
+) => {
   const { engageMessageId, msg } = data;
 
   const request = await SmsRequests.createRequest({
     engageMessageId,
     to: msg.to,
-    requestData: JSON.stringify(msg),
+    requestData: JSON.stringify(msg)
   });
 
   if (err) {
     if (engageMessageId) {
-      await Logs.createLog(engageMessageId, 'failure', `${err.message} "${msg.to}"`);
+      await Logs.createLog(
+        engageMessageId,
+        'failure',
+        `${err.message} "${msg.to}"`
+      );
     }
 
     await SmsRequests.updateRequest(request._id, {
-      errorMessages: [err.message],
+      errorMessages: [err.message]
     });
   }
 
@@ -101,13 +115,17 @@ const handleMessageCallback = async (err: any, res: any, data: ICallbackParams) 
     const receiver = res.data.to.find(item => item.phone_number === msg.to);
 
     if (engageMessageId) {
-      await Logs.createLog(engageMessageId, 'success', `Message successfully sent to "${msg.to}"`);
+      await Logs.createLog(
+        engageMessageId,
+        'success',
+        `Message successfully sent to "${msg.to}"`
+      );
     }
 
     await SmsRequests.updateRequest(request._id, {
       status: receiver && receiver.status,
       responseData: JSON.stringify(res.data),
-      telnyxId: res.data.id,
+      telnyxId: res.data.id
     });
   }
 };
@@ -121,7 +139,11 @@ export const start = async (data: {
   const { fromEmail, email, engageMessageId, customers } = data;
   const { content, subject, attachments, sender, replyTo } = email;
 
-  await Stats.findOneAndUpdate({ engageMessageId }, { engageMessageId }, { upsert: true });
+  await Stats.findOneAndUpdate(
+    { engageMessageId },
+    { engageMessageId },
+    { upsert: true }
+  );
 
   const transporter = await createTransporter();
 
@@ -134,7 +156,7 @@ export const start = async (data: {
       mailAttachment = attachments.map(file => {
         return {
           filename: file.name || '',
-          path: file.url || '',
+          path: file.url || ''
         };
       });
     }
@@ -167,8 +189,8 @@ export const start = async (data: {
           'X-SES-CONFIGURATION-SET': 'erxes',
           EngageMessageId: engageMessageId,
           CustomerId: customer._id,
-          MailMessageId: mailMessageId,
-        },
+          MailMessageId: mailMessageId
+        }
       });
       const msg = `Sent email to: ${customer.primaryEmail}`;
       debugEngages(msg);
@@ -178,7 +200,7 @@ export const start = async (data: {
       await Logs.createLog(
         engageMessageId,
         'failure',
-        `Error occurred while sending email to ${customer.primaryEmail}: ${e.message}`,
+        `Error occurred while sending email to ${customer.primaryEmail}: ${e.message}`
       );
     }
 
@@ -186,7 +208,10 @@ export const start = async (data: {
   };
 
   const configs = await getConfigs();
-  const unverifiedEmailsLimit = parseInt(configs.unverifiedEmailsLimit || '100', 10);
+  const unverifiedEmailsLimit = parseInt(
+    configs.unverifiedEmailsLimit || '100',
+    10
+  );
 
   let filteredCustomers = [];
   let emails = [];
@@ -195,7 +220,7 @@ export const start = async (data: {
     await Logs.createLog(
       engageMessageId,
       'regular',
-      `Unverified emails limit exceeced ${unverifiedEmailsLimit}. Customers who have unverified emails will be eliminated.`,
+      `Unverified emails limit exceeced ${unverifiedEmailsLimit}. Customers who have unverified emails will be eliminated.`
     );
 
     for (const customer of customers) {
@@ -211,7 +236,11 @@ export const start = async (data: {
   }
 
   if (emails.length > 0) {
-    await Logs.createLog(engageMessageId, 'regular', `Preparing to send emails to ${emails.length}: ${emails}`);
+    await Logs.createLog(
+      engageMessageId,
+      'regular',
+      `Preparing to send emails to ${emails.length}: ${emails}`
+    );
   }
 
   for (const customer of filteredCustomers) {
@@ -235,9 +264,15 @@ export const sendBulkSms = async (data: {
 
   const telnyxInfo = await getTelnyxInfo();
 
-  const filteredCustomers = customers.filter(c => c.primaryPhone && c.phoneValidationStatus === 'valid');
+  const filteredCustomers = customers.filter(
+    c => c.primaryPhone && c.phoneValidationStatus === 'valid'
+  );
 
-  await Logs.createLog(engageMessageId, 'regular', `Preparing to send SMS to "${filteredCustomers.length}" customers`);
+  await Logs.createLog(
+    engageMessageId,
+    'regular',
+    `Preparing to send SMS to "${filteredCustomers.length}" customers`
+  );
 
   for (const customer of filteredCustomers) {
     await new Promise(resolve => {
@@ -247,15 +282,22 @@ export const sendBulkSms = async (data: {
     const msg = await prepareMessage({
       shortMessage,
       to: customer.primaryPhone,
-      integrations: telnyxInfo.integrations,
+      integrations: telnyxInfo.integrations
     });
 
     try {
-      await telnyxInfo.instance.messages.create(msg, async (err: any, res: any) => {
-        await handleMessageCallback(err, res, { engageMessageId, msg });
-      }); // end sms creation
+      await telnyxInfo.instance.messages.create(
+        msg,
+        async (err: any, res: any) => {
+          await handleMessageCallback(err, res, { engageMessageId, msg });
+        }
+      ); // end sms creation
     } catch (e) {
-      await Logs.createLog(engageMessageId, 'failure', `${e.message} while sending to "${msg.to}"`);
+      await Logs.createLog(
+        engageMessageId,
+        'failure',
+        `${e.message} while sending to "${msg.to}"`
+      );
     }
   } // end customers loop
 }; // end sendBuklSms()

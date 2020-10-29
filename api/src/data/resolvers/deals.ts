@@ -8,7 +8,7 @@ import {
   Pipelines,
   Products,
   Stages,
-  Users,
+  Users
 } from '../../db/models';
 import { IDealDocument } from '../../db/models/definitions/deals';
 import { IContext } from '../types';
@@ -19,7 +19,7 @@ export default {
     const companyIds = await Conformities.savedConformity({
       mainType: 'deal',
       mainTypeId: deal._id,
-      relTypes: ['company'],
+      relTypes: ['company']
     });
 
     return Companies.find({ _id: { $in: companyIds } });
@@ -29,7 +29,7 @@ export default {
     const customerIds = await Conformities.savedConformity({
       mainType: 'deal',
       mainTypeId: deal._id,
-      relTypes: ['customer'],
+      relTypes: ['customer']
     });
 
     return Customers.find({ _id: { $in: customerIds } });
@@ -55,7 +55,7 @@ export default {
         if (field) {
           customFields[customFieldData.field] = {
             text: field.text,
-            data: customFieldData.value,
+            data: customFieldData.value
           };
         }
       }
@@ -64,7 +64,7 @@ export default {
 
       products.push({
         ...(typeof data.toJSON === 'function' ? data.toJSON() : data),
-        product,
+        product
       });
     }
 
@@ -133,5 +133,5 @@ export default {
 
   createdUser(deal: IDealDocument) {
     return Users.findOne({ _id: deal.userId });
-  },
+  }
 };

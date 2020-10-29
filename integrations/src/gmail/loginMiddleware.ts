@@ -15,7 +15,7 @@ export const getAuthCode = async (): Promise<string> => {
     client_id: GOOGLE_CLIENT_ID,
     response_type: 'code',
     access_type: 'offline',
-    scope: SCOPE,
+    scope: SCOPE
   })}`;
 };
 
@@ -48,7 +48,10 @@ const loginMiddleware = async (req, res) => {
   const { access_token } = credentials;
 
   if (account) {
-    await Accounts.updateOne({ _id: account._id }, { $set: { token: access_token } });
+    await Accounts.updateOne(
+      { _id: account._id },
+      { $set: { token: access_token } }
+    );
   } else {
     await Accounts.create({
       name: emailAddress,
@@ -58,7 +61,7 @@ const loginMiddleware = async (req, res) => {
       token: access_token,
       tokenSecret: credentials.refresh_token,
       expireDate: credentials.expiry_date,
-      scope: credentials.scope,
+      scope: credentials.scope
     });
   }
 

@@ -4,5 +4,5 @@ import { IResponseTemplateDocument } from '../../db/models/definitions/responseT
 export default {
   brand(responseTemplate: IResponseTemplateDocument) {
     return Brands.findOne({ _id: responseTemplate.brandId });
-  },
+  }
 };

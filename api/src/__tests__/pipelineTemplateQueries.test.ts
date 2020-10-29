@@ -13,7 +13,7 @@ describe('pipelineTemplateQueries', () => {
 
   test('Pipeline templates', async () => {
     const args = {
-      type: BOARD_TYPES.GROWTH_HACK,
+      type: BOARD_TYPES.GROWTH_HACK
     };
 
     await pipelineTemplateFactory();
@@ -46,7 +46,9 @@ describe('pipelineTemplateQueries', () => {
 
     const pipelineTemplate = await pipelineTemplateFactory();
 
-    const response = await graphqlRequest(qry, 'pipelineTemplateDetail', { _id: pipelineTemplate._id });
+    const response = await graphqlRequest(qry, 'pipelineTemplateDetail', {
+      _id: pipelineTemplate._id
+    });
 
     expect(response._id).toBe(pipelineTemplate._id);
   });

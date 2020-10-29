@@ -1,6 +1,10 @@
 import { Model, model } from 'mongoose';
 import { ActivityLogs } from '.';
-import { destroyBoardItemRelations, fillSearchTextItem, watchItem } from './boardUtils';
+import {
+  destroyBoardItemRelations,
+  fillSearchTextItem,
+  watchItem
+} from './boardUtils';
 import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
 import { dealSchema, IDeal, IDealDocument } from './definitions/deals';
 
@@ -29,7 +33,9 @@ export const loadDealClass = () => {
      */
     public static async createDeal(doc: IDeal) {
       if (doc.sourceConversationId) {
-        const convertedDeal = await Deals.findOne({ sourceConversationId: doc.sourceConversationId });
+        const convertedDeal = await Deals.findOne({
+          sourceConversationId: doc.sourceConversationId
+        });
 
         if (convertedDeal) {
           throw new Error('Already converted a deal');
@@ -40,11 +46,14 @@ export const loadDealClass = () => {
         ...doc,
         createdAt: new Date(),
         modifiedAt: new Date(),
-        searchText: fillSearchTextItem(doc),
+        searchText: fillSearchTextItem(doc)
       });
 
       // create log
-      await ActivityLogs.createBoardItemLog({ item: deal, contentType: 'deal' });
+      await ActivityLogs.createBoardItemLog({
+        item: deal,
+        contentType: 'deal'
+      });
 
       return deal;
     }

@@ -22,7 +22,7 @@ const createPubsubInstance = () => {
         }
       },
       publisher: new Redis(redisOptions),
-      subscriber: new Redis(redisOptions),
+      subscriber: new Redis(redisOptions)
     });
   }
 

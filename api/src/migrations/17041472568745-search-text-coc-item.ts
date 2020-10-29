@@ -1,6 +1,13 @@
 import { validSearchText } from '../data/utils';
 import { connect } from '../db/connection';
-import { Companies, Customers, Deals, GrowthHacks, Tasks, Tickets } from '../db/models';
+import {
+  Companies,
+  Customers,
+  Deals,
+  GrowthHacks,
+  Tasks,
+  Tickets
+} from '../db/models';
 import { fillSearchTextItem } from '../db/models/boardUtils';
 import { ICustomer } from '../db/models/definitions/customers';
 
@@ -24,8 +31,11 @@ module.exports.up = async () => {
       (doc.emails || []).join(' '),
       (doc.phones || []).join(' '),
       doc.visitorContactInfo
-        ? (doc.visitorContactInfo.email || '').concat(' ', doc.visitorContactInfo.phone || '')
-        : '',
+        ? (doc.visitorContactInfo.email || '').concat(
+            ' ',
+            doc.visitorContactInfo.phone || ''
+          )
+        : ''
     ]);
   };
 
@@ -39,7 +49,7 @@ module.exports.up = async () => {
     lastName: 1,
     emails: 1,
     phones: 1,
-    visitorContactInfo: 1,
+    visitorContactInfo: 1
   });
 
   await executer(Companies, Companies.fillSearchText, {
@@ -50,16 +60,32 @@ module.exports.up = async () => {
     website: 1,
     industry: 1,
     plan: 1,
-    description: 1,
+    description: 1
   });
 
-  await executer(Deals, itemsFillSearchText, { _id: 1, name: 1, description: 1 });
+  await executer(Deals, itemsFillSearchText, {
+    _id: 1,
+    name: 1,
+    description: 1
+  });
 
-  await executer(Tasks, itemsFillSearchText, { _id: 1, name: 1, description: 1 });
+  await executer(Tasks, itemsFillSearchText, {
+    _id: 1,
+    name: 1,
+    description: 1
+  });
 
-  await executer(Tickets, itemsFillSearchText, { _id: 1, name: 1, description: 1 });
+  await executer(Tickets, itemsFillSearchText, {
+    _id: 1,
+    name: 1,
+    description: 1
+  });
 
-  await executer(GrowthHacks, itemsFillSearchText, { _id: 1, name: 1, description: 1 });
+  await executer(GrowthHacks, itemsFillSearchText, {
+    _id: 1,
+    name: 1,
+    description: 1
+  });
 
   return Promise.resolve('ok');
 };

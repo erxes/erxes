@@ -31,7 +31,7 @@ describe('brandQueries', () => {
     await brandFactory({ name: 'search 2' });
 
     const args = {
-      searchValue: 'search',
+      searchValue: 'search'
     };
 
     response = await graphqlRequest(qry, 'brands', args);
@@ -53,7 +53,9 @@ describe('brandQueries', () => {
 
     const brand = await brandFactory({});
 
-    const response = await graphqlRequest(qry, 'brandDetail', { _id: brand._id });
+    const response = await graphqlRequest(qry, 'brandDetail', {
+      _id: brand._id
+    });
 
     expect(response._id).toBe(brand._id);
   });

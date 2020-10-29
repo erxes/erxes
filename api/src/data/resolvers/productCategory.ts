@@ -8,5 +8,5 @@ export default {
 
   async productCount(category: IProductCategoryDocument, {}) {
     return Products.countDocuments({ categoryId: category._id });
-  },
+  }
 };

@@ -136,7 +136,6 @@ class UserList extends React.Component<FinalProps, States> {
 
     return (
       <ModalTrigger
-        size="lg"
         title="Reset member password"
         trigger={editTrigger}
         content={content}

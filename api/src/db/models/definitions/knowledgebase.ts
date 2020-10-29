@@ -55,7 +55,7 @@ const commonFields = {
   createdDate: field({ type: Date, label: 'Created at' }),
   modifiedBy: field({ type: String, label: 'Modified by' }),
   modifiedDate: field({ type: Date, label: 'Modified at' }),
-  title: field({ type: String, label: 'Title' }),
+  title: field({ type: String, label: 'Title' })
 };
 
 export const articleSchema = new Schema({
@@ -66,11 +66,15 @@ export const articleSchema = new Schema({
     type: String,
     enum: PUBLISH_STATUSES.ALL,
     default: PUBLISH_STATUSES.DRAFT,
-    label: 'Status',
+    label: 'Status'
   }),
-  reactionChoices: field({ type: [String], default: [], label: 'Reaction choices' }),
+  reactionChoices: field({
+    type: [String],
+    default: [],
+    label: 'Reaction choices'
+  }),
   reactionCounts: field({ type: Object, label: 'Reaction counts' }),
-  ...commonFields,
+  ...commonFields
 });
 
 export const categorySchema = new Schema({
@@ -78,7 +82,7 @@ export const categorySchema = new Schema({
   description: field({ type: String, optional: true, label: 'Description' }),
   articleIds: field({ type: [String], label: 'Articles' }),
   icon: field({ type: String, optional: true, label: 'Icon' }),
-  ...commonFields,
+  ...commonFields
 });
 
 export const topicSchema = schemaWrapper(
@@ -90,18 +94,22 @@ export const topicSchema = schemaWrapper(
     categoryIds: field({
       type: [String],
       required: false,
-      label: 'Categories',
+      label: 'Categories'
     }),
 
     color: field({ type: String, optional: true, label: 'Color' }),
-    backgroundImage: field({ type: String, optional: true, label: 'Background image' }),
+    backgroundImage: field({
+      type: String,
+      optional: true,
+      label: 'Background image'
+    }),
 
     languageCode: field({
       type: String,
       optional: true,
-      label: 'Language codes',
+      label: 'Language codes'
     }),
 
-    ...commonFields,
-  }),
+    ...commonFields
+  })
 );

@@ -58,26 +58,26 @@ export const companySchema = schemaWrapper(
     primaryName: field({
       type: String,
       label: 'Name',
-      optional: true,
+      optional: true
     }),
 
     names: field({
       type: [String],
       optional: true,
-      label: 'Names',
+      label: 'Names'
     }),
 
     avatar: field({
       type: String,
       optional: true,
-      label: 'Avatar',
+      label: 'Avatar'
     }),
 
     size: field({
       type: Number,
       label: 'Size',
       optional: true,
-      esType: 'number',
+      esType: 'number'
     }),
 
     industry: field({
@@ -85,31 +85,40 @@ export const companySchema = schemaWrapper(
       enum: COMPANY_INDUSTRY_TYPES,
       label: 'Industry',
       optional: true,
-      esType: 'keyword',
+      esType: 'keyword'
     }),
 
     website: field({
       type: String,
       label: 'Website',
-      optional: true,
+      optional: true
     }),
 
     plan: field({
       type: String,
       label: 'Plan',
-      optional: true,
+      optional: true
     }),
 
     parentCompanyId: field({
       type: String,
       optional: true,
-      label: 'Parent Company',
+      label: 'Parent Company'
     }),
 
-    primaryEmail: field({ type: String, optional: true, label: 'Primary email', esType: 'email' }),
+    primaryEmail: field({
+      type: String,
+      optional: true,
+      label: 'Primary email',
+      esType: 'email'
+    }),
     emails: field({ type: [String], optional: true, label: 'Emails' }),
 
-    primaryPhone: field({ type: String, optional: true, label: 'Primary phone' }),
+    primaryPhone: field({
+      type: String,
+      optional: true,
+      label: 'Primary phone'
+    }),
     phones: field({ type: [String], optional: true, label: 'Phones' }),
 
     ownerId: field({ type: String, optional: true, label: 'Owner' }),
@@ -121,7 +130,7 @@ export const companySchema = schemaWrapper(
       optional: true,
       label: 'Status',
       esType: 'keyword',
-      selectOptions: COMPANY_SELECT_OPTIONS.STATUSES,
+      selectOptions: COMPANY_SELECT_OPTIONS.STATUSES
     }),
 
     businessType: field({
@@ -130,7 +139,7 @@ export const companySchema = schemaWrapper(
       optional: true,
       label: 'Business Type',
       esType: 'keyword',
-      selectOptions: COMPANY_SELECT_OPTIONS.BUSINESS_TYPES,
+      selectOptions: COMPANY_SELECT_OPTIONS.BUSINESS_TYPES
     }),
 
     description: field({ type: String, optional: true, label: 'Description' }),
@@ -141,21 +150,29 @@ export const companySchema = schemaWrapper(
       default: 'No',
       enum: getEnum('DO_NOT_DISTURB'),
       label: 'Do not disturb',
-      selectOptions: COMPANY_SELECT_OPTIONS.DO_NOT_DISTURB,
+      selectOptions: COMPANY_SELECT_OPTIONS.DO_NOT_DISTURB
     }),
     links: field({ type: Object, default: {}, label: 'Links' }),
 
     tagIds: field({
       type: [String],
       optional: true,
-      label: 'Tags',
+      label: 'Tags'
     }),
 
     // Merged company ids
-    mergedIds: field({ type: [String], optional: true, label: 'Merged companies' }),
+    mergedIds: field({
+      type: [String],
+      optional: true,
+      label: 'Merged companies'
+    }),
 
-    customFieldsData: field({ type: [customFieldSchema], optional: true, label: 'Custom fields data' }),
+    customFieldsData: field({
+      type: [customFieldSchema],
+      optional: true,
+      label: 'Custom fields data'
+    }),
     searchText: field({ type: String, optional: true, index: true }),
-    code: field({ type: String, label: 'Code', optional: true }),
-  }),
+    code: field({ type: String, label: 'Code', optional: true })
+  })
 );

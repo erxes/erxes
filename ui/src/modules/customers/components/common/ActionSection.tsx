@@ -67,7 +67,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
             <Button
               disabled={primaryEmail ? false : true}
               size="small"
-              btnStyle={primaryEmail ? "primary" : "simple"}
+              btnStyle={primaryEmail ? 'primary' : 'simple'}
             >
               <Tip text="Send e-mail" placement="top-end">
                 <Icon icon="envelope" />
@@ -86,7 +86,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
             <Button
               disabled={primaryPhone ? false : true}
               size="small"
-              btnStyle={primaryPhone ? "primary" : "simple"}
+              btnStyle={primaryPhone ? 'primary' : 'simple'}
             >
               <Tip text="Send SMS" placement="top-end">
                 <Icon icon="message" />
@@ -98,7 +98,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
         <Button
           href={primaryPhone && `tel:${primaryPhone}`}
           size="small"
-          btnStyle={primaryPhone ? "primary" : "simple"}
+          btnStyle={primaryPhone ? 'primary' : 'simple'}
           disabled={primaryPhone ? false : true}
         >
           <Tip text="Call" placement="top-end">
@@ -114,7 +114,13 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
 
     return (
       <Button size="small" btnStyle="default">
-        {isSmall ? <Icon icon="ellipsis-h"/> : <>{__('Action')} <Icon icon="angle-down" /></>}
+        {isSmall ? (
+          <Icon icon="ellipsis-h" />
+        ) : (
+          <>
+            {__('Action')} <Icon icon="angle-down" />
+          </>
+        )}
       </Button>
     );
   }
@@ -170,11 +176,11 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
   renderChangeStateForm() {
     const options = [
       {
-        value: __('lead'),
+        value: 'lead',
         desc: __('A person who preparing to buy some service or product')
       },
       {
-        value: __('customer'),
+        value: 'customer',
         desc: __('A person who already bought some service or product')
       }
     ];

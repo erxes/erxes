@@ -5,7 +5,7 @@ dotenv.config();
 
 const options = {
   useNewUrlParser: true,
-  useCreateIndex: true,
+  useCreateIndex: true
 };
 
 module.exports.up = async () => {
@@ -29,9 +29,9 @@ module.exports.up = async () => {
           kind: 1,
           erxesApiId: '$_id',
           facebookPageIds: '$facebookData.pageIds',
-          accountId: '$facebookData.accountId',
-        },
-      },
+          accountId: '$facebookData.accountId'
+        }
+      }
     ])
     .toArray();
 
@@ -40,11 +40,15 @@ module.exports.up = async () => {
 
   try {
     if (accounts && accounts.length > 0) {
-      await integrationMongoClient.db.collection('accounts').insertMany(accounts);
+      await integrationMongoClient.db
+        .collection('accounts')
+        .insertMany(accounts);
     }
 
     if (integrations && integrations.length > 0) {
-      await integrationMongoClient.db.collection('integrations').insertMany(integrations);
+      await integrationMongoClient.db
+        .collection('integrations')
+        .insertMany(integrations);
     }
   } catch (e) {
     console.log(e);

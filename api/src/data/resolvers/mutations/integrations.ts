@@ -1,10 +1,17 @@
 import * as telemetry from 'erxes-telemetry';
 
 import { getUniqueValue } from '../../../db/factories';
-import { Channels, Customers, EmailDeliveries, Integrations } from '../../../db/models';
+import {
+  Channels,
+  Customers,
+  EmailDeliveries,
+  Integrations
+} from '../../../db/models';
 import { KIND_CHOICES } from '../../../db/models/definitions/constants';
 import {
-    IIntegration, IMessengerData, IUiOptions
+  IIntegration,
+  IMessengerData,
+  IUiOptions
 } from '../../../db/models/definitions/integrations';
 import { IExternalIntegrationParams } from '../../../db/models/Integrations';
 import { debugExternalApi } from '../../../debuggers';
@@ -34,20 +41,30 @@ const integrationMutations = {
   /**
    * Creates a new messenger integration
    */
-  async integrationsCreateMessengerIntegration(_root, doc: IIntegration, { user }: IContext) {
-    const integration = await Integrations.createMessengerIntegration(doc, user._id);
+  async integrationsCreateMessengerIntegration(
+    _root,
+    doc: IIntegration,
+    { user }: IContext
+  ) {
+    const integration = await Integrations.createMessengerIntegration(
+      doc,
+      user._id
+    );
 
     if (doc.channelIds) {
-      await Channels.updateMany({ _id: { $in: doc.channelIds } }, { $push: { integrationIds: integration._id } });
+      await Channels.updateMany(
+        { _id: { $in: doc.channelIds } },
+        { $push: { integrationIds: integration._id } }
+      );
     }
 
     await putCreateLog(
       {
         type: MODULE_NAMES.INTEGRATION,
         newData: { ...doc, createdUserId: user._id, isActive: true },
-        object: integration,
+        object: integration
       },
-      user,
+      user
     );
 
     telemetry.trackCli('integration_created', { type: 'messenger' });
@@ -60,14 +77,24 @@ const integrationMutations = {
   /**
    * Updates a messenger integration
    */
-  async integrationsEditMessengerIntegration(_root, { _id, ...fields }: IEditIntegration, { user }: IContext) {
+  async integrationsEditMessengerIntegration(
+    _root,
+    { _id, ...fields }: IEditIntegration,
+    { user }: IContext
+  ) {
     const integration = await Integrations.getIntegration(_id);
     const updated = await Integrations.updateMessengerIntegration(_id, fields);
 
-    await Channels.updateMany({ integrationIds: integration._id }, { $pull: { integrationIds: integration._id } });
+    await Channels.updateMany(
+      { integrationIds: integration._id },
+      { $pull: { integrationIds: integration._id } }
+    );
 
     if (fields.channelIds) {
-      await Channels.updateMany({ _id: { $in: fields.channelIds } }, { $push: { integrationIds: integration._id } });
+      await Channels.updateMany(
+        { _id: { $in: fields.channelIds } },
+        { $push: { integrationIds: integration._id } }
+      );
     }
 
     await putUpdateLog(
@@ -75,9 +102,9 @@ const integrationMutations = {
         type: MODULE_NAMES.INTEGRATION,
         object: integration,
         newData: fields,
-        updatedDocument: updated,
+        updatedDocument: updated
       },
-      user,
+      user
     );
 
     return updated;
@@ -86,30 +113,40 @@ const integrationMutations = {
   /**
    * Update/save messenger appearance data
    */
-  integrationsSaveMessengerAppearanceData(_root, { _id, uiOptions }: { _id: string; uiOptions: IUiOptions }) {
+  integrationsSaveMessengerAppearanceData(
+    _root,
+    { _id, uiOptions }: { _id: string; uiOptions: IUiOptions }
+  ) {
     return Integrations.saveMessengerAppearanceData(_id, uiOptions);
   },
 
   /**
    * Update/save messenger data
    */
-  integrationsSaveMessengerConfigs(_root, { _id, messengerData }: { _id: string; messengerData: IMessengerData }) {
+  integrationsSaveMessengerConfigs(
+    _root,
+    { _id, messengerData }: { _id: string; messengerData: IMessengerData }
+  ) {
     return Integrations.saveMessengerConfigs(_id, messengerData);
   },
 
   /**
    * Create a new messenger integration
    */
-  async integrationsCreateLeadIntegration(_root, doc: IIntegration, { user }: IContext) {
+  async integrationsCreateLeadIntegration(
+    _root,
+    doc: IIntegration,
+    { user }: IContext
+  ) {
     const integration = await Integrations.createLeadIntegration(doc, user._id);
 
     await putCreateLog(
       {
         type: MODULE_NAMES.INTEGRATION,
         newData: { ...doc, createdUserId: user._id, isActive: true },
-        object: integration,
+        object: integration
       },
-      user,
+      user
     );
 
     telemetry.trackCli('integration_created', { type: 'lead' });
@@ -132,19 +169,28 @@ const integrationMutations = {
   async integrationsCreateExternalIntegration(
     _root,
     { data, ...doc }: IExternalIntegrationParams & { data: object },
-    { user, dataSources }: IContext,
+    { user, dataSources }: IContext
   ) {
     const modifiedDoc: any = { ...doc };
 
     if (modifiedDoc.kind === KIND_CHOICES.WEBHOOK) {
       modifiedDoc.webhookData = { ...data };
-      modifiedDoc.webhookData.token = await getUniqueValue(Integrations, 'token');
+      modifiedDoc.webhookData.token = await getUniqueValue(
+        Integrations,
+        'token'
+      );
     }
 
-    const integration = await Integrations.createExternalIntegration(modifiedDoc, user._id);
+    const integration = await Integrations.createExternalIntegration(
+      modifiedDoc,
+      user._id
+    );
 
     if (doc.channelIds) {
-      await Channels.updateMany({ _id: { $in: doc.channelIds } }, { $push: { integrationIds: integration._id } });
+      await Channels.updateMany(
+        { _id: { $in: doc.channelIds } },
+        { $push: { integrationIds: integration._id } }
+      );
     }
 
     let kind = doc.kind;
@@ -171,7 +217,7 @@ const integrationMutations = {
           accountId: doc.accountId,
           kind: doc.kind,
           integrationId: integration._id,
-          data: data ? JSON.stringify(data) : '',
+          data: data ? JSON.stringify(data) : ''
         });
       }
 
@@ -181,9 +227,9 @@ const integrationMutations = {
         {
           type: MODULE_NAMES.INTEGRATION,
           newData: { ...doc, createdUserId: user._id, isActive: true },
-          object: integration,
+          object: integration
         },
-        user,
+        user
       );
     } catch (e) {
       await Integrations.remove({ _id: integration._id });
@@ -193,7 +239,11 @@ const integrationMutations = {
     return integration;
   },
 
-  async integrationsEditCommonFields(_root, { _id, name, brandId, channelIds, data }, { user }) {
+  async integrationsEditCommonFields(
+    _root,
+    { _id, name, brandId, channelIds, data },
+    { user }
+  ) {
     const integration = await Integrations.getIntegration(_id);
 
     const doc: any = { name, brandId, data };
@@ -209,10 +259,16 @@ const integrationMutations = {
     await Integrations.update({ _id }, { $set: doc });
     const updated = await Integrations.getIntegration(_id);
 
-    await Channels.updateMany({ integrationIds: integration._id }, { $pull: { integrationIds: integration._id } });
+    await Channels.updateMany(
+      { integrationIds: integration._id },
+      { $pull: { integrationIds: integration._id } }
+    );
 
     if (channelIds) {
-      await Channels.updateMany({ _id: { $in: channelIds } }, { $push: { integrationIds: integration._id } });
+      await Channels.updateMany(
+        { _id: { $in: channelIds } },
+        { $push: { integrationIds: integration._id } }
+      );
     }
 
     await putUpdateLog(
@@ -220,9 +276,9 @@ const integrationMutations = {
         type: MODULE_NAMES.INTEGRATION,
         object: { name: integration.name, brandId: integration.brandId },
         newData: { name, brandId },
-        updatedDocument: updated,
+        updatedDocument: updated
       },
-      user,
+      user
     );
 
     return updated;
@@ -231,7 +287,11 @@ const integrationMutations = {
   /**
    * Deletes an integration
    */
-  async integrationsRemove(_root, { _id }: { _id: string }, { user, dataSources }: IContext) {
+  async integrationsRemove(
+    _root,
+    { _id }: { _id: string },
+    { user, dataSources }: IContext
+  ) {
     const integration = await Integrations.getIntegration(_id);
 
     try {
@@ -254,13 +314,18 @@ const integrationMutations = {
           'smooch-line',
           'smooch-twilio',
           'whatsapp',
-          'telnyx',
+          'telnyx'
         ].includes(integration.kind)
       ) {
-        await dataSources.IntegrationsAPI.removeIntegration({ integrationId: _id });
+        await dataSources.IntegrationsAPI.removeIntegration({
+          integrationId: _id
+        });
       }
 
-      await putDeleteLog({ type: MODULE_NAMES.INTEGRATION, object: integration }, user);
+      await putDeleteLog(
+        { type: MODULE_NAMES.INTEGRATION, object: integration },
+        user
+      );
 
       return Integrations.removeIntegration(_id);
     } catch (e) {
@@ -274,10 +339,13 @@ const integrationMutations = {
    */
   async integrationsRemoveAccount(_root, { _id }: { _id: string }) {
     try {
-      const { erxesApiIds } = await messageBroker().sendRPCMessage(RABBITMQ_QUEUES.RPC_API_TO_INTEGRATIONS, {
-        action: 'remove-account',
-        data: { _id },
-      });
+      const { erxesApiIds } = await messageBroker().sendRPCMessage(
+        RABBITMQ_QUEUES.RPC_API_TO_INTEGRATIONS,
+        {
+          action: 'remove-account',
+          data: { _id }
+        }
+      );
 
       for (const id of erxesApiIds) {
         await Integrations.removeIntegration(id);
@@ -302,22 +370,30 @@ const integrationMutations = {
       kind = 'nylas';
     }
 
-    const customer = customerId ? await Customers.findOne({ _id: customerId }) : undefined;
-    const { replacedContent } = await replaceEditorAttributes({ content: body, user, customer: customer || undefined });
+    const customer = customerId
+      ? await Customers.findOne({ _id: customerId })
+      : undefined;
+    const { replacedContent } = await replaceEditorAttributes({
+      content: body,
+      user,
+      customer: customer || undefined
+    });
 
     doc.body = replacedContent || '';
 
     try {
       await dataSources.IntegrationsAPI.sendEmail(kind, {
         erxesApiId,
-        data: JSON.stringify(doc),
+        data: JSON.stringify(doc)
       });
     } catch (e) {
       debugExternalApi(e);
       throw e;
     }
 
-    const customerIds = await Customers.find({ primaryEmail: { $in: doc.to } }).distinct('_id');
+    const customerIds = await Customers.find({
+      primaryEmail: { $in: doc.to }
+    }).distinct('_id');
 
     doc.userId = user._id;
 
@@ -328,50 +404,95 @@ const integrationMutations = {
     return;
   },
 
-  async integrationsArchive(_root, { _id, status }: IArchiveParams, { user }: IContext) {
+  async integrationsArchive(
+    _root,
+    { _id, status }: IArchiveParams,
+    { user }: IContext
+  ) {
     const integration = await Integrations.getIntegration(_id);
 
-    const updated = await Integrations.updateOne({ _id }, { $set: { isActive: !status } });
+    const updated = await Integrations.updateOne(
+      { _id },
+      { $set: { isActive: !status } }
+    );
 
     await putUpdateLog(
       {
         type: MODULE_NAMES.INTEGRATION,
         object: integration,
         newData: { isActive: !status },
-        description: `"${integration.name}" has been ${status === true ? 'archived' : 'unarchived'}.`,
-        updatedDocument: updated,
+        description: `"${integration.name}" has been ${
+          status === true ? 'archived' : 'unarchived'
+        }.`,
+        updatedDocument: updated
       },
-      user,
+      user
     );
 
     return Integrations.findOne({ _id });
   },
 
-  async integrationsUpdateConfigs(_root, { configsMap }, { dataSources }: IContext) {
+  async integrationsUpdateConfigs(
+    _root,
+    { configsMap },
+    { dataSources }: IContext
+  ) {
     return dataSources.IntegrationsAPI.updateConfigs(configsMap);
   },
 
-  async integrationsSendSms(_root, args: ISmsParams, { dataSources }: IContext) {
+  async integrationsSendSms(
+    _root,
+    args: ISmsParams,
+    { dataSources }: IContext
+  ) {
     return dataSources.IntegrationsAPI.sendSms(args);
-  },
+  }
 };
 
 checkPermission(
   integrationMutations,
   'integrationsCreateMessengerIntegration',
-  'integrationsCreateMessengerIntegration',
+  'integrationsCreateMessengerIntegration'
 );
 checkPermission(
   integrationMutations,
   'integrationsSaveMessengerAppearanceData',
-  'integrationsSaveMessengerAppearanceData',
+  'integrationsSaveMessengerAppearanceData'
 );
-checkPermission(integrationMutations, 'integrationsSaveMessengerConfigs', 'integrationsSaveMessengerConfigs');
-checkPermission(integrationMutations, 'integrationsCreateLeadIntegration', 'integrationsCreateLeadIntegration');
-checkPermission(integrationMutations, 'integrationsEditLeadIntegration', 'integrationsEditLeadIntegration');
-checkPermission(integrationMutations, 'integrationsRemove', 'integrationsRemove');
-checkPermission(integrationMutations, 'integrationsArchive', 'integrationsArchive');
-checkPermission(integrationMutations, 'integrationsEditCommonFields', 'integrationsEdit');
-checkPermission(integrationMutations, 'integrationsUpdateConfigs', 'integrationsEdit');
+checkPermission(
+  integrationMutations,
+  'integrationsSaveMessengerConfigs',
+  'integrationsSaveMessengerConfigs'
+);
+checkPermission(
+  integrationMutations,
+  'integrationsCreateLeadIntegration',
+  'integrationsCreateLeadIntegration'
+);
+checkPermission(
+  integrationMutations,
+  'integrationsEditLeadIntegration',
+  'integrationsEditLeadIntegration'
+);
+checkPermission(
+  integrationMutations,
+  'integrationsRemove',
+  'integrationsRemove'
+);
+checkPermission(
+  integrationMutations,
+  'integrationsArchive',
+  'integrationsArchive'
+);
+checkPermission(
+  integrationMutations,
+  'integrationsEditCommonFields',
+  'integrationsEdit'
+);
+checkPermission(
+  integrationMutations,
+  'integrationsUpdateConfigs',
+  'integrationsEdit'
+);
 
 export default integrationMutations;

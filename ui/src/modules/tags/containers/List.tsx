@@ -48,6 +48,7 @@ const ListContainer = (props: FinalProps) => {
         callback={callback}
         refetchQueries={getRefetchQueries(type)}
         isSubmitted={isSubmitted}
+        uppercase={false}
         type="submit"
         successMessage={`You successfully ${
           object ? 'updated' : 'added'

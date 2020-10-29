@@ -13,11 +13,16 @@ import {
   nylasFileUpload,
   nylasGetAttachment,
   nylasGetCalendarOrEvent,
-  nylasSendEmail,
+  nylasSendEmail
 } from './handleController';
 import loginMiddleware from './loginMiddleware';
 import { NylasCalendars, NylasEvent } from './models';
-import { getNylasConfig, syncCalendars, syncEvents, syncMessages } from './utils';
+import {
+  getNylasConfig,
+  syncCalendars,
+  syncEvents,
+  syncMessages
+} from './utils';
 
 // load config
 dotenv.config();
@@ -131,8 +136,14 @@ export const initNylas = async app => {
 
       const headerOptions = { 'Content-Type': contentType };
 
-      if (!['image/png', 'image/jpeg', 'image/jpg', 'application/pdf'].includes(contentType)) {
-        headerOptions['Content-Disposition'] = `attachment;filename=${filename}`;
+      if (
+        !['image/png', 'image/jpeg', 'image/jpg', 'application/pdf'].includes(
+          contentType
+        )
+      ) {
+        headerOptions[
+          'Content-Disposition'
+        ] = `attachment;filename=${filename}`;
       }
 
       res.writeHead(200, headerOptions);
@@ -175,7 +186,9 @@ export const initNylas = async app => {
 
       const uids = integrations.map(integration => integration.nylasAccountId);
 
-      const calendars = await NylasCalendars.find({ accountUid: { $in: uids } });
+      const calendars = await NylasCalendars.find({
+        accountUid: { $in: uids }
+      });
       console.log(calendars);
     } catch (e) {
       next(e);
@@ -220,7 +233,10 @@ export const initNylas = async app => {
 
       const events = await NylasEvent.find({
         providerCalendarId: { $in: calendarIds && calendarIds.split(',') },
-        $and: [{ 'when.start_time': { $gte: getTime(startTime) } }, { 'when.end_time': { $lte: getTime(endTime) } }],
+        $and: [
+          { 'when.start_time': { $gte: getTime(startTime) } },
+          { 'when.end_time': { $lte: getTime(endTime) } }
+        ]
       });
 
       if (!events) {
@@ -265,7 +281,18 @@ export const initNylas = async app => {
     try {
       const response = await nylasCreateCalenderEvent({ erxesApiId, doc });
 
-      const { title, location, description, busy, participants, when, id, object, owner, status } = response;
+      const {
+        title,
+        location,
+        description,
+        busy,
+        participants,
+        when,
+        id,
+        object,
+        owner,
+        status
+      } = response;
 
       await NylasEvent.create({
         title,
@@ -278,7 +305,7 @@ export const initNylas = async app => {
         object,
         owner,
         status,
-        providerCalendarId: doc.calendarId,
+        providerCalendarId: doc.calendarId
       });
 
       return res.json(response);
@@ -326,6 +353,6 @@ export const setupNylas = async () => {
 
   Nylas.config({
     clientId: NYLAS_CLIENT_ID,
-    clientSecret: NYLAS_CLIENT_SECRET,
+    clientSecret: NYLAS_CLIENT_SECRET
   });
 };

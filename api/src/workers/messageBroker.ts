@@ -1,7 +1,11 @@
 import * as dotenv from 'dotenv';
 import messageBroker from 'erxes-message-broker';
 import { RABBITMQ_QUEUES } from '../data/constants';
-import { receiveImportCancel, receiveImportCreate, receiveImportRemove } from './utils';
+import {
+  receiveImportCancel,
+  receiveImportCreate,
+  receiveImportRemove
+} from './utils';
 
 dotenv.config();
 
@@ -11,7 +15,7 @@ export const initBroker = async server => {
   client = await messageBroker({
     name: 'workers',
     server,
-    envs: process.env,
+    envs: process.env
   });
 
   const { consumeQueue, consumeRPCQueue } = client;
@@ -22,7 +26,9 @@ export const initBroker = async server => {
 
     try {
       response.data =
-        content.action === 'removeImport' ? await receiveImportRemove(content) : await receiveImportCreate(content);
+        content.action === 'removeImport'
+          ? await receiveImportRemove(content)
+          : await receiveImportCreate(content);
     } catch (e) {
       response.status = 'error';
       response.errorMessage = e.message;

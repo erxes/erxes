@@ -18,14 +18,12 @@ type Props = {
   conversation: IConversation;
   showInternal: boolean;
   setAttachmentPreview: (attachmentPreview: IAttachmentPreview) => void;
-  addMessage: (
-    doc: {
-      variables: AddMessageMutationVariables;
-      optimisticResponse: any;
-      kind: string;
-      callback: (error: Error) => void;
-    }
-  ) => void;
+  addMessage: (doc: {
+    variables: AddMessageMutationVariables;
+    optimisticResponse: any;
+    kind: string;
+    callback: (error: Error) => void;
+  }) => void;
   refetchMessages: () => void;
   refetchDetail: () => void;
 };

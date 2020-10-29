@@ -9,9 +9,13 @@ import {
   Stages,
   Tasks,
   Tickets,
-  Users,
+  Users
 } from '../../../db/models';
-import { BOARD_TYPES, NOTIFICATION_CONTENT_TYPES, NOTIFICATION_TYPES } from '../../../db/models/definitions/constants';
+import {
+  BOARD_TYPES,
+  NOTIFICATION_CONTENT_TYPES,
+  NOTIFICATION_TYPES
+} from '../../../db/models/definitions/constants';
 import { IDealDocument } from '../../../db/models/definitions/deals';
 import { IInternalNote } from '../../../db/models/definitions/internalNotes';
 import { ITaskDocument } from '../../../db/models/definitions/tasks';
@@ -32,7 +36,7 @@ const sendNotificationOfItems = async (
   item: IDealDocument | ITicketDocument | ITaskDocument,
   doc: ISendNotification,
   contentType: string,
-  excludeUserIds: string[],
+  excludeUserIds: string[]
 ) => {
   const notifDocItems = { ...doc };
   const relatedReceivers = await notifiedUserIds(item);
@@ -64,7 +68,7 @@ const internalNoteMutations = {
       link: '',
       notifType: '',
       contentType: '',
-      contentTypeId: '',
+      contentTypeId: ''
     };
 
     if (contentType === MODULE_NAMES.DEAL) {
@@ -78,7 +82,10 @@ const internalNoteMutations = {
       notifDoc.contentTypeId = deal._id;
       notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.DEAL;
 
-      await sendNotificationOfItems(deal, notifDoc, contentType, [...mentionedUserIds, user._id]);
+      await sendNotificationOfItems(deal, notifDoc, contentType, [
+        ...mentionedUserIds,
+        user._id
+      ]);
     }
 
     if (contentType === MODULE_NAMES.CUSTOMER) {
@@ -112,7 +119,10 @@ const internalNoteMutations = {
       notifDoc.contentTypeId = ticket._id;
       notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.TICKET;
 
-      await sendNotificationOfItems(ticket, notifDoc, contentType, [...mentionedUserIds, user._id]);
+      await sendNotificationOfItems(ticket, notifDoc, contentType, [
+        ...mentionedUserIds,
+        user._id
+      ]);
     }
 
     if (contentType === MODULE_NAMES.TASK) {
@@ -126,7 +136,10 @@ const internalNoteMutations = {
       notifDoc.contentTypeId = task._id;
       notifDoc.contentType = NOTIFICATION_CONTENT_TYPES.TASK;
 
-      await sendNotificationOfItems(task, notifDoc, contentType, [...mentionedUserIds, user._id]);
+      await sendNotificationOfItems(task, notifDoc, contentType, [
+        ...mentionedUserIds,
+        user._id
+      ]);
     }
 
     if (contentType === MODULE_NAMES.GROWTH_HACK) {
@@ -156,11 +169,15 @@ const internalNoteMutations = {
     await putCreateLog(
       {
         type: MODULE_NAMES.INTERNAL_NOTE,
-        newData: { ...args, createdUserId: user._id, createdAt: internalNote.createdAt },
+        newData: {
+          ...args,
+          createdUserId: user._id,
+          createdAt: internalNote.createdAt
+        },
         object: internalNote,
-        description: `A note for ${internalNote.contentType} "${notifDoc.content}" has been created`,
+        description: `A note for ${internalNote.contentType} "${notifDoc.content}" has been created`
       },
-      user,
+      user
     );
 
     return internalNote;
@@ -169,7 +186,11 @@ const internalNoteMutations = {
   /**
    * Updates internalNote object
    */
-  async internalNotesEdit(_root, { _id, ...doc }: IInternalNotesEdit, { user }: IContext) {
+  async internalNotesEdit(
+    _root,
+    { _id, ...doc }: IInternalNotesEdit,
+    { user }: IContext
+  ) {
     const internalNote = await InternalNotes.getInternalNote(_id);
     const updated = await InternalNotes.updateInternalNote(_id, doc);
 
@@ -177,9 +198,9 @@ const internalNoteMutations = {
       {
         type: MODULE_NAMES.INTERNAL_NOTE,
         object: internalNote,
-        newData: doc,
+        newData: doc
       },
-      user,
+      user
     );
 
     if (BOARD_TYPES.ALL.includes(updated.contentType)) {
@@ -192,18 +213,25 @@ const internalNoteMutations = {
   /**
    * Removes an internal note
    */
-  async internalNotesRemove(_root, { _id }: { _id: string }, { user }: IContext) {
+  async internalNotesRemove(
+    _root,
+    { _id }: { _id: string },
+    { user }: IContext
+  ) {
     const internalNote = await InternalNotes.getInternalNote(_id);
     const removed = await InternalNotes.removeInternalNote(_id);
 
-    await putDeleteLog({ type: MODULE_NAMES.INTERNAL_NOTE, object: internalNote }, user);
+    await putDeleteLog(
+      { type: MODULE_NAMES.INTERNAL_NOTE, object: internalNote },
+      user
+    );
 
     if (BOARD_TYPES.ALL.includes(internalNote.contentType)) {
       graphqlPubsub.publish('activityLogsChanged', {});
     }
 
     return removed;
-  },
+  }
 };
 
 moduleRequireLogin(internalNoteMutations);

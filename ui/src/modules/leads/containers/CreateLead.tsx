@@ -54,14 +54,20 @@ class CreateLeadContainer extends React.Component<Props, State> {
             languageCode
           }
         })
-          .then(({ data: { integrationsCreateLeadIntegration: { _id } } }) => {
-            Alert.success('You successfully added a lead');
+          .then(
+            ({
+              data: {
+                integrationsCreateLeadIntegration: { _id }
+              }
+            }) => {
+              Alert.success('You successfully added a lead');
 
-            history.push({
-              pathname: '/leads',
-              search: `?popUpRefetchList=true&showInstallCode=${_id}`
-            });
-          })
+              history.push({
+                pathname: '/leads',
+                search: `?popUpRefetchList=true&showInstallCode=${_id}`
+              });
+            }
+          )
 
           .catch(error => {
             Alert.error(error.message);

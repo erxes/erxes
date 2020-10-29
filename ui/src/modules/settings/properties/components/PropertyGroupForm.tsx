@@ -114,7 +114,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
         {this.renderFieldVisible()}
 
         <ModalFooter>
-          <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
+          <Button btnStyle="simple" onClick={closeModal} icon="times-circle" uppercase={false}>
             Close
           </Button>
 

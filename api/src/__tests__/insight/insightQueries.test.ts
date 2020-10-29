@@ -8,10 +8,20 @@ import {
   conversationMessageFactory,
   integrationFactory,
   tagsFactory,
-  userFactory,
+  userFactory
 } from '../../db/factories';
-import { Brands, ConversationMessages, Conversations, Integrations, Tags, Users } from '../../db/models';
-import { CONVERSATION_STATUSES, TAG_TYPES } from '../../db/models/definitions/constants';
+import {
+  Brands,
+  ConversationMessages,
+  Conversations,
+  Integrations,
+  Tags,
+  Users
+} from '../../db/models';
+import {
+  CONVERSATION_STATUSES,
+  TAG_TYPES
+} from '../../db/models/definitions/constants';
 
 import '../setup';
 
@@ -37,38 +47,60 @@ export const startDate = moment(endDate)
   .add(-7, 'days')
   .format('YYYY-MM-DD HH:mm');
 
-const generateNoConversation = async (integrationId: string, userId: string) => {
+const generateNoConversation = async (
+  integrationId: string,
+  userId: string
+) => {
   // conversation that is closed automatically (from facebook, twitter)
   await conversationFactory({
     status: CONVERSATION_STATUSES.CLOSED,
     integrationId,
     closedAt: undefined,
-    closedUserId: undefined,
+    closedUserId: undefined
   });
 
   // conversation that is a welcome message from engage (no conversation)
   await conversationFactory({ userId, messageCount: 1 });
 };
 
-const generateFormConversation = async (integrationId: string, userId: string) => {
+const generateFormConversation = async (
+  integrationId: string,
+  userId: string
+) => {
   const formConversation = await conversationFactory({ integrationId });
 
   // For request
-  await conversationMessageFactory({ conversationId: formConversation._id, userId: null });
+  await conversationMessageFactory({
+    conversationId: formConversation._id,
+    userId: null
+  });
 
   // For response
-  await conversationMessageFactory({ conversationId: formConversation._id, userId });
+  await conversationMessageFactory({
+    conversationId: formConversation._id,
+    userId
+  });
 
   const secondFormConversation = await conversationFactory({ integrationId });
 
   // For request
-  await conversationMessageFactory({ conversationId: secondFormConversation._id, userId: null });
+  await conversationMessageFactory({
+    conversationId: secondFormConversation._id,
+    userId: null
+  });
 
   // For response
-  await conversationMessageFactory({ conversationId: secondFormConversation._id, userId });
+  await conversationMessageFactory({
+    conversationId: secondFormConversation._id,
+    userId
+  });
 };
 
-const generateClosedConversation = async (integrationId: string, userId: string, tagId: string) => {
+const generateClosedConversation = async (
+  integrationId: string,
+  userId: string,
+  tagId: string
+) => {
   const closedConversations = await conversationFactory({
     integrationId,
     closedAt: moment()
@@ -77,14 +109,20 @@ const generateClosedConversation = async (integrationId: string, userId: string,
     closedUserId: userId,
     status: 'closed',
     messageCount: 2,
-    tagIds: [tagId],
+    tagIds: [tagId]
   });
 
   // For request
-  await conversationMessageFactory({ conversationId: closedConversations._id, userId: null });
+  await conversationMessageFactory({
+    conversationId: closedConversations._id,
+    userId: null
+  });
 
   // For response
-  await conversationMessageFactory({ conversationId: closedConversations._id, userId });
+  await conversationMessageFactory({
+    conversationId: closedConversations._id,
+    userId
+  });
 
   const secondClosedConversation = await conversationFactory({
     integrationId,
@@ -94,49 +132,71 @@ const generateClosedConversation = async (integrationId: string, userId: string,
     closedUserId: userId,
     status: 'closed',
     messageCount: 2,
-    tagIds: [tagId],
+    tagIds: [tagId]
   });
 
   // For request
-  await conversationMessageFactory({ conversationId: secondClosedConversation._id, userId: null });
+  await conversationMessageFactory({
+    conversationId: secondClosedConversation._id,
+    userId: null
+  });
 
   // For response
-  await conversationMessageFactory({ conversationId: secondClosedConversation._id, userId });
+  await conversationMessageFactory({
+    conversationId: secondClosedConversation._id,
+    userId
+  });
 };
 
-const generateFirstRespondedConversation = async (integrationId: string, userId: string, secondUserId: string) => {
+const generateFirstRespondedConversation = async (
+  integrationId: string,
+  userId: string,
+  secondUserId: string
+) => {
   const firstRespondedConversation = await conversationFactory({
     integrationId,
     firstRespondedUserId: userId,
     firstRespondedDate: moment()
       .add(1, 'days')
-      .toDate(),
+      .toDate()
   });
 
   // For request
-  await conversationMessageFactory({ conversationId: firstRespondedConversation._id, userId: null });
+  await conversationMessageFactory({
+    conversationId: firstRespondedConversation._id,
+    userId: null
+  });
 
   // For response
-  await conversationMessageFactory({ conversationId: firstRespondedConversation._id, userId });
+  await conversationMessageFactory({
+    conversationId: firstRespondedConversation._id,
+    userId
+  });
 
   const secondFirstRespondedConversation = await conversationFactory({
     integrationId,
     firstRespondedUserId: userId,
     firstRespondedDate: moment()
       .add(90, 'seconds')
-      .toDate(),
+      .toDate()
   });
 
   // For request
-  await conversationMessageFactory({ conversationId: secondFirstRespondedConversation._id, userId: null });
+  await conversationMessageFactory({
+    conversationId: secondFirstRespondedConversation._id,
+    userId: null
+  });
 
   // For response
-  await conversationMessageFactory({ conversationId: secondFirstRespondedConversation._id, userId });
+  await conversationMessageFactory({
+    conversationId: secondFirstRespondedConversation._id,
+    userId
+  });
 
   await conversationFactory({
     integrationId,
     firstRespondedUserId: secondUserId,
-    firstRespondedDate: new Date(),
+    firstRespondedDate: new Date()
   });
 
   await conversationFactory({
@@ -144,7 +204,7 @@ const generateFirstRespondedConversation = async (integrationId: string, userId:
     firstRespondedUserId: secondUserId,
     firstRespondedDate: moment()
       .add(58, 'seconds')
-      .toDate(),
+      .toDate()
   });
 };
 
@@ -155,12 +215,12 @@ export const beforeEachTest = async () => {
 
   const integration = await integrationFactory({
     brandId: brand._id,
-    kind: 'facebook-messenger',
+    kind: 'facebook-messenger'
   });
 
   const formIntegration = await integrationFactory({
     brandId: brand._id,
-    kind: 'facebook-messenger',
+    kind: 'facebook-messenger'
   });
 
   const user = await userFactory({});
@@ -170,7 +230,7 @@ export const beforeEachTest = async () => {
     integrationIds: 'facebook-messenger',
     brandIds: brand._id,
     startDate,
-    endDate,
+    endDate
   };
 
   // 2 conditions for no conversation
@@ -183,7 +243,11 @@ export const beforeEachTest = async () => {
   await generateClosedConversation(integration._id, user._id, tag._id);
 
   // 4 first responded facebook conversation and two request and two response message
-  await generateFirstRespondedConversation(integration._id, user._id, secondUser._id);
+  await generateFirstRespondedConversation(
+    integration._id,
+    user._id,
+    secondUser._id
+  );
 
   return { args, user, secondUser };
 };
@@ -250,11 +314,18 @@ describe('insightQueries', () => {
       }
     `;
 
-    const requestMessages = await graphqlRequest(qry, 'insightsPunchCard', args);
+    const requestMessages = await graphqlRequest(
+      qry,
+      'insightsPunchCard',
+      args
+    );
     expect(requestMessages.length).toBe(1);
     expect(requestMessages[0].count).toBe(6);
 
-    const responseMessages = await graphqlRequest(qry, 'insightsPunchCard', { ...args, type: 'response' });
+    const responseMessages = await graphqlRequest(qry, 'insightsPunchCard', {
+      ...args,
+      type: 'response'
+    });
     expect(responseMessages.length).toBe(1);
     expect(responseMessages[0].count).toBe(6);
   });

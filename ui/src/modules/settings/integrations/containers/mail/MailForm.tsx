@@ -7,7 +7,10 @@ import Spinner from 'modules/common/components/Spinner';
 import { Alert, withProps } from 'modules/common/utils';
 import { queries as messageQueries } from 'modules/inbox/graphql';
 import { IMail } from 'modules/inbox/types';
-import { EmailTemplatesQueryResponse, EmailTemplatesTotalCountQueryResponse } from 'modules/settings/emailTemplates/containers/List';
+import {
+  EmailTemplatesQueryResponse,
+  EmailTemplatesTotalCountQueryResponse
+} from 'modules/settings/emailTemplates/containers/List';
 import { queries as templatesQuery } from 'modules/settings/emailTemplates/graphql';
 import { mutations, queries } from 'modules/settings/integrations/graphql';
 import * as React from 'react';
@@ -43,7 +46,7 @@ type FinalProps = {
   currentUser: IUser;
   sendMailMutation: any;
   emailTemplatesQuery: EmailTemplatesQueryResponse;
-  emailTemplatesTotalCountQuery: EmailTemplatesTotalCountQueryResponse,
+  emailTemplatesTotalCountQuery: EmailTemplatesTotalCountQueryResponse;
   integrationsQuery: IntegrationsQueryResponse;
 } & Props;
 
@@ -82,10 +85,13 @@ const MailFormContainer = (props: FinalProps) => {
         }
 
         return Object.assign({}, prev, {
-          emailTemplates: [...prev.emailTemplates, ...fetchMoreResult.emailTemplates]
+          emailTemplates: [
+            ...prev.emailTemplates,
+            ...fetchMoreResult.emailTemplates
+          ]
         });
       }
-    })
+    });
   };
 
   const integrations = integrationsQuery.integrations || [];
@@ -101,7 +107,11 @@ const MailFormContainer = (props: FinalProps) => {
     callback?: () => void;
     update?: any;
   }) => {
-    return sendMailMutation({ variables: { ...variables, customerId } , optimisticResponse, update })
+    return sendMailMutation({
+      variables: { ...variables, customerId },
+      optimisticResponse,
+      update
+    })
       .then(() => {
         Alert.success('You have successfully sent a email');
 
@@ -234,12 +244,9 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<Props, any>(
-      gql(templatesQuery.totalCount),
-      {
-        name: 'emailTemplatesTotalCountQuery'
-      }
-    ),
+    graphql<Props, any>(gql(templatesQuery.totalCount), {
+      name: 'emailTemplatesTotalCountQuery'
+    }),
     graphql<Props>(gql(mutations.integrationSendMail), {
       name: 'sendMailMutation',
       options: () => ({

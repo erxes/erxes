@@ -89,8 +89,11 @@ const MessageBody = styledTS<{ staff?: boolean }>(styled.div)`
   }
 `;
 
-
-const MessageItem = styledTS<{ isSame?: boolean; staff?: boolean; isBot?: boolean }>(styled.div)`
+const MessageItem = styledTS<{
+  isSame?: boolean;
+  staff?: boolean;
+  isBot?: boolean;
+}>(styled.div)`
   margin-top: ${props => (props.isSame ? dimensions.unitSpacing - 5 : 20)}px;
   padding-right: 17%;
   display: flex;
@@ -168,7 +171,6 @@ const MessageItem = styledTS<{ isSame?: boolean; staff?: boolean; isBot?: boolea
     }
   }
 `;
-
 
 const FormTable = styled.div`
   border: 1px solid ${colors.borderPrimary};

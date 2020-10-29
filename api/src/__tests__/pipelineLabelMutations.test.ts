@@ -1,6 +1,11 @@
 import * as faker from 'faker';
 import { graphqlRequest } from '../db/connection';
-import { dealFactory, pipelineFactory, pipelineLabelFactory, userFactory } from '../db/factories';
+import {
+  dealFactory,
+  pipelineFactory,
+  pipelineLabelFactory,
+  userFactory
+} from '../db/factories';
 import { Deals, PipelineLabels, Pipelines, Users } from '../db/models';
 
 import './setup.ts';
@@ -35,13 +40,16 @@ describe('PipelineLabels mutations', () => {
   const args = {
     name: faker.name.findName(),
     pipelineId: faker.random.word(),
-    colorCode: faker.random.word(),
+    colorCode: faker.random.word()
   };
 
   beforeEach(async () => {
     user = await userFactory();
     pipeline = await pipelineFactory();
-    pipelineLabel = await pipelineLabelFactory({ pipelineId: pipeline._id, createdBy: user._id });
+    pipelineLabel = await pipelineLabelFactory({
+      pipelineId: pipeline._id,
+      createdBy: user._id
+    });
   });
 
   afterEach(async () => {
@@ -79,7 +87,10 @@ describe('PipelineLabels mutations', () => {
       }
     `;
 
-    const edited = await graphqlRequest(mutation, 'pipelineLabelsEdit', { _id: pipelineLabel._id, ...args });
+    const edited = await graphqlRequest(mutation, 'pipelineLabelsEdit', {
+      _id: pipelineLabel._id,
+      ...args
+    });
 
     expect(edited._id).toBe(pipelineLabel._id);
     expect(edited.name).toBe(args.name);
@@ -94,9 +105,13 @@ describe('PipelineLabels mutations', () => {
       }
     `;
 
-    await graphqlRequest(mutation, 'pipelineLabelsRemove', { _id: pipelineLabel._id });
+    await graphqlRequest(mutation, 'pipelineLabelsRemove', {
+      _id: pipelineLabel._id
+    });
 
-    expect(await PipelineLabels.find({ _id: { $in: [pipelineLabel._id] } })).toEqual([]);
+    expect(
+      await PipelineLabels.find({ _id: { $in: [pipelineLabel._id] } })
+    ).toEqual([]);
   });
 
   test('Pipeline labels label', async () => {
@@ -111,11 +126,17 @@ describe('PipelineLabels mutations', () => {
     const pipelineLabelsLabelArgs = {
       pipelineId: pipeline._id,
       targetId: deal._id,
-      labelIds: [pipelineLabel._id],
+      labelIds: [pipelineLabel._id]
     };
 
-    await graphqlRequest(mutation, 'pipelineLabelsLabel', pipelineLabelsLabelArgs);
+    await graphqlRequest(
+      mutation,
+      'pipelineLabelsLabel',
+      pipelineLabelsLabelArgs
+    );
 
-    expect((await Deals.getDeal(deal._id)).labelIds).toContain(pipelineLabel._id);
+    expect((await Deals.getDeal(deal._id)).labelIds).toContain(
+      pipelineLabel._id
+    );
   });
 });

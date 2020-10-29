@@ -1,4 +1,12 @@
-import { Boards, ChecklistItems, Checklists, Conformities, PipelineLabels, Pipelines, Stages } from '../../db/models';
+import {
+  Boards,
+  ChecklistItems,
+  Checklists,
+  Conformities,
+  PipelineLabels,
+  Pipelines,
+  Stages
+} from '../../db/models';
 import { getCollection, getNewOrder } from '../../db/models/boardUtils';
 import { NOTIFICATION_TYPES } from '../../db/models/definitions/constants';
 import { IDealDocument } from '../../db/models/definitions/deals';
@@ -46,7 +54,7 @@ export const sendNotifications = async ({
   content,
   contentType,
   invitedUsers,
-  removedUsers,
+  removedUsers
 }: IBoardNotificationParams) => {
   const stage = await Stages.getStage(item.stageId);
 
@@ -64,7 +72,11 @@ export const sendNotifications = async ({
     route = '/inbox';
   }
 
-  const usersToExclude = [...(removedUsers || []), ...(invitedUsers || []), user._id];
+  const usersToExclude = [
+    ...(removedUsers || []),
+    ...(invitedUsers || []),
+    user._id
+  ];
 
   const notificationDoc = {
     createdUser: user,
@@ -79,16 +91,17 @@ export const sendNotifications = async ({
     // exclude current user, invited user and removed users
     receivers: (await notifiedUserIds(item)).filter(id => {
       return usersToExclude.indexOf(id) < 0;
-    }),
+    })
   };
 
   if (removedUsers && removedUsers.length > 0) {
     await utils.sendNotification({
       ...notificationDoc,
-      notifType: NOTIFICATION_TYPES[`${contentType.toUpperCase()}_REMOVE_ASSIGN`],
+      notifType:
+        NOTIFICATION_TYPES[`${contentType.toUpperCase()}_REMOVE_ASSIGN`],
       action: `removed you from ${contentType}`,
       content: `'${item.name}'`,
-      receivers: removedUsers.filter(id => id !== user._id),
+      receivers: removedUsers.filter(id => id !== user._id)
     });
   }
 
@@ -98,12 +111,12 @@ export const sendNotifications = async ({
       notifType: NOTIFICATION_TYPES[`${contentType.toUpperCase()}_ADD`],
       action: `invited you to the ${contentType}: `,
       content: `'${item.name}'`,
-      receivers: invitedUsers.filter(id => id !== user._id),
+      receivers: invitedUsers.filter(id => id !== user._id)
     });
   }
 
   await utils.sendNotification({
-    ...notificationDoc,
+    ...notificationDoc
   });
 };
 
@@ -124,7 +137,7 @@ const PERMISSION_MAP = {
     pipelinesEdit: 'dealPipelinesEdit',
     pipelinesRemove: 'dealPipelinesRemove',
     pipelinesWatch: 'dealPipelinesWatch',
-    stagesEdit: 'dealStagesEdit',
+    stagesEdit: 'dealStagesEdit'
   },
   ticket: {
     boardsAdd: 'ticketBoardsAdd',
@@ -134,7 +147,7 @@ const PERMISSION_MAP = {
     pipelinesEdit: 'ticketPipelinesEdit',
     pipelinesRemove: 'ticketPipelinesRemove',
     pipelinesWatch: 'ticketPipelinesWatch',
-    stagesEdit: 'ticketStagesEdit',
+    stagesEdit: 'ticketStagesEdit'
   },
   task: {
     boardsAdd: 'taskBoardsAdd',
@@ -144,7 +157,7 @@ const PERMISSION_MAP = {
     pipelinesEdit: 'taskPipelinesEdit',
     pipelinesRemove: 'taskPipelinesRemove',
     pipelinesWatch: 'taskPipelinesWatch',
-    stagesEdit: 'taskStagesEdit',
+    stagesEdit: 'taskStagesEdit'
   },
   growthHack: {
     boardsAdd: 'growthHackBoardsAdd',
@@ -159,11 +172,15 @@ const PERMISSION_MAP = {
     templatesEdit: 'growthHackTemplatesEdit',
     templatesRemove: 'growthHackTemplatesRemove',
     templatesDuplicate: 'growthHackTemplatesDuplicate',
-    showTemplates: 'showGrowthHackTemplates',
-  },
+    showTemplates: 'showGrowthHackTemplates'
+  }
 };
 
-export const checkPermission = async (type: string, user: IUserDocument, mutationName: string) => {
+export const checkPermission = async (
+  type: string,
+  user: IUserDocument,
+  mutationName: string
+) => {
   checkLogin(user);
 
   const actionName = PERMISSION_MAP[type][mutationName];
@@ -185,7 +202,7 @@ export const createConformity = async ({
   companyIds,
   customerIds,
   mainType,
-  mainTypeId,
+  mainTypeId
 }: {
   companyIds?: string[];
   customerIds?: string[];
@@ -197,7 +214,7 @@ export const createConformity = async ({
       mainType,
       mainTypeId,
       relType: 'company',
-      relTypeId: companyId,
+      relTypeId: companyId
     });
   }
 
@@ -206,7 +223,7 @@ export const createConformity = async ({
       mainType,
       mainTypeId,
       relType: 'customer',
-      relTypeId: customerId,
+      relTypeId: customerId
     });
   }
 };
@@ -241,7 +258,7 @@ export const copyPipelineLabels = async (params: ILabelParams) => {
     const filter = {
       name: label.name,
       colorCode: label.colorCode,
-      pipelineId: newStage.pipelineId,
+      pipelineId: newStage.pipelineId
     };
 
     const exists = await PipelineLabels.findOne(filter);
@@ -250,7 +267,7 @@ export const copyPipelineLabels = async (params: ILabelParams) => {
       const newLabel = await PipelineLabels.createPipelineLabel({
         ...filter,
         createdAt: new Date(),
-        createdBy: user._id,
+        createdBy: user._id
       });
 
       updatedLabelIds.push(newLabel._id);
@@ -259,7 +276,11 @@ export const copyPipelineLabels = async (params: ILabelParams) => {
     }
   } // end label loop
 
-  await PipelineLabels.labelsLabel(newStage.pipelineId, item._id, updatedLabelIds);
+  await PipelineLabels.labelsLabel(
+    newStage.pipelineId,
+    item._id,
+    updatedLabelIds
+  );
 };
 
 interface IChecklistParams {
@@ -282,9 +303,9 @@ export const copyChecklists = async (params: IChecklistParams) => {
       {
         contentType,
         contentTypeId: targetContentId,
-        title: `${list.title}-copied`,
+        title: `${list.title}-copied`
       },
-      user,
+      user
     );
 
     const items = await ChecklistItems.find({ checklistId: list._id });
@@ -294,15 +315,19 @@ export const copyChecklists = async (params: IChecklistParams) => {
         {
           isChecked: false,
           checklistId: checklist._id,
-          content: item.content,
+          content: item.content
         },
-        user,
+        user
       );
     }
   } // end checklist loop
 };
 
-export const prepareBoardItemDoc = async (_id: string, type: string, userId: string) => {
+export const prepareBoardItemDoc = async (
+  _id: string,
+  type: string,
+  userId: string
+) => {
   const collection = await getCollection(type);
   const item = await collection.findOne({ _id });
 
@@ -318,14 +343,18 @@ export const prepareBoardItemDoc = async (_id: string, type: string, userId: str
     description: item.description,
     priority: item.priority,
     labelIds: item.labelIds,
-    order: await getNewOrder({ collection, stageId: item.stageId, aboveItemId: item._id }),
+    order: await getNewOrder({
+      collection,
+      stageId: item.stageId,
+      aboveItemId: item._id
+    }),
 
     attachments: (item.attachments || []).map(a => ({
       url: a.url,
       name: a.name,
       type: a.type,
-      size: a.size,
-    })),
+      size: a.size
+    }))
   };
 
   delete doc._id;

@@ -74,7 +74,7 @@ class Modal extends React.Component<Props, {}> {
         </FormGroup>
 
         <ModalFooter>
-          <Button onClick={this.onSave} btnStyle="success" icon="checked-1">
+          <Button onClick={this.onSave} btnStyle="success" icon="check-circle" uppercase={false}>
             Save
           </Button>
         </ModalFooter>

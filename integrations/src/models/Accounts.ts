@@ -27,62 +27,62 @@ export interface IAccountDocument extends IAccount, Document {}
 export const accountSchema = new Schema({
   _id: field({ pkey: true }),
   kind: {
-    type: String,
+    type: String
   },
   billingState: {
     type: String,
-    optional: true,
+    optional: true
   },
   email: {
-    type: String,
+    type: String
   },
   username: {
     type: String,
-    optional: true,
+    optional: true
   },
   host: {
-    type: String,
+    type: String
   },
   imapHost: {
-    type: String,
+    type: String
   },
   smtpHost: {
-    type: String,
+    type: String
   },
   imapPort: {
-    type: Number,
+    type: Number
   },
   smtpPort: {
-    type: Number,
+    type: Number
   },
   password: {
     type: String,
-    optional: true,
+    optional: true
   },
   nylasToken: {
-    type: String,
+    type: String
   },
   nylasTokenSecret: {
     type: String,
-    optional: true,
+    optional: true
   },
   token: {
-    type: String,
+    type: String
   },
   tokenSecret: {
     type: String,
-    optional: true,
+    optional: true
   },
   scope: {
     type: String,
-    optional: true,
+    optional: true
   },
   expireDate: {
     type: String,
-    optional: true,
+    optional: true
   },
   name: { type: String },
-  uid: { type: String },
+  uid: { type: String }
 });
 
 export interface IAccountModel extends Model<IAccountDocument> {
@@ -110,6 +110,9 @@ export const loadClass = () => {
 loadClass();
 
 // tslint:disable-next-line
-const Accounts = model<IAccountDocument, IAccountModel>('accounts', accountSchema);
+const Accounts = model<IAccountDocument, IAccountModel>(
+  'accounts',
+  accountSchema
+);
 
 export default Accounts;

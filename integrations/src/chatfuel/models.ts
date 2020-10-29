@@ -15,7 +15,7 @@ export const customerSchema = new Schema({
   _id: field({ pkey: true }),
   chatfuelUserId: { type: String, unique: true },
   integrationId: String,
-  erxesApiId: String,
+  erxesApiId: String
 });
 
 export interface ICustomerModel extends Model<ICustomerDocument> {}
@@ -36,7 +36,7 @@ export const conversationSchema = new Schema({
   erxesApiId: String,
   timestamp: Date,
   integrationId: String,
-  chatfuelUserId: { type: String, index: true },
+  chatfuelUserId: { type: String, index: true }
 });
 
 export interface IConversationModel extends Model<IConversationDocument> {}
@@ -47,27 +47,33 @@ export interface IConversationMessage {
   conversationId: string;
 }
 
-export interface IConversationMessageDocument extends IConversationMessage, Document {}
+export interface IConversationMessageDocument
+  extends IConversationMessage,
+    Document {}
 
 export const conversationMessageSchema = new Schema({
   _id: field({ pkey: true }),
   content: String,
-  conversationId: String,
+  conversationId: String
 });
 
-export interface IConversationMessageModel extends Model<IConversationMessageDocument> {}
+export interface IConversationMessageModel
+  extends Model<IConversationMessageDocument> {}
 
 // tslint:disable-next-line
-export const Customers = model<ICustomerDocument, ICustomerModel>('customers_chatfuel', customerSchema);
+export const Customers = model<ICustomerDocument, ICustomerModel>(
+  'customers_chatfuel',
+  customerSchema
+);
 
 // tslint:disable-next-line
 export const Conversations = model<IConversationDocument, IConversationModel>(
   'conversations_chatfuel',
-  conversationSchema,
+  conversationSchema
 );
 
 // tslint:disable-next-line
-export const ConversationMessages = model<IConversationMessageDocument, IConversationMessageModel>(
-  'conversation_messages_chatfuel',
-  conversationMessageSchema,
-);
+export const ConversationMessages = model<
+  IConversationMessageDocument,
+  IConversationMessageModel
+>('conversation_messages_chatfuel', conversationMessageSchema);

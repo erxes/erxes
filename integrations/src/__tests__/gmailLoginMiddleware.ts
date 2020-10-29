@@ -27,7 +27,7 @@ describe('Gmail login middleware', () => {
     client_id: '123',
     response_type: 'code',
     access_type: 'offline',
-    scope: 'https://mail.google.com',
+    scope: 'https://mail.google.com'
   };
 
   beforeEach(() => {
@@ -71,30 +71,35 @@ describe('Gmail login middleware', () => {
   test('LoginMiddleware get access token and create account', async () => {
     req.query.code = 'code';
 
-    const account = await accountFactory({ uid: 'test@mail.com', token: 'foo' });
-
-    const getAccessTokenMock = sinon.stub(api, 'getAccessToken').callsFake(() => {
-      return Promise.resolve({
-        access_token: '123',
-      });
+    const account = await accountFactory({
+      uid: 'test@mail.com',
+      token: 'foo'
     });
+
+    const getAccessTokenMock = sinon
+      .stub(api, 'getAccessToken')
+      .callsFake(() => {
+        return Promise.resolve({
+          access_token: '123'
+        });
+      });
 
     const getUserInfoMock = sinon.stub(api, 'getUserInfo');
 
     getUserInfoMock.onCall(0).returns(
       Promise.resolve({
-        emailAddress: 'test@mail.com',
-      }),
+        emailAddress: 'test@mail.com'
+      })
     );
 
     getUserInfoMock.onCall(1).returns(
       Promise.resolve({
-        emailAddress: 'test123123@mail.com',
-      }),
+        emailAddress: 'test123123@mail.com'
+      })
     );
 
     expect(await loginMiddleware(req, res)).toBe(
-      `${process.env.MAIN_APP_DOMAIN}/settings/authorization?gmailAuthorized=true`,
+      `${process.env.MAIN_APP_DOMAIN}/settings/authorization?gmailAuthorized=true`
     );
 
     const updatedAccount = await Accounts.findOne({ uid: account.uid }).lean();
@@ -103,7 +108,9 @@ describe('Gmail login middleware', () => {
 
     await loginMiddleware(req, res);
 
-    const createdAccount = await Accounts.findOne({ email: 'test123123@mail.com' });
+    const createdAccount = await Accounts.findOne({
+      email: 'test123123@mail.com'
+    });
 
     expect(createdAccount.name).toBe('test123123@mail.com');
     expect(createdAccount.email).toBe('test123123@mail.com');

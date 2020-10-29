@@ -1,5 +1,9 @@
 import { Model, model } from 'mongoose';
-import { channelSchema, IChannel, IChannelDocument } from './definitions/channels';
+import {
+  channelSchema,
+  IChannel,
+  IChannelDocument
+} from './definitions/channels';
 
 export interface IChannelModel extends Model<IChannelDocument> {
   getChannel(_id: string): Promise<IChannelDocument>;
@@ -32,7 +36,7 @@ export const loadClass = () => {
       return Channels.create({
         ...doc,
         createdAt: new Date(),
-        userId,
+        userId
       });
     }
 
@@ -42,12 +46,23 @@ export const loadClass = () => {
       return Channels.findOne({ _id });
     }
 
-    public static async updateUserChannels(channelIds: string[], userId: string) {
+    public static async updateUserChannels(
+      channelIds: string[],
+      userId: string
+    ) {
       // remove from previous channels
-      await Channels.updateMany({ memberIds: { $in: [userId] } }, { $pull: { memberIds: userId } }, { multi: true });
+      await Channels.updateMany(
+        { memberIds: { $in: [userId] } },
+        { $pull: { memberIds: userId } },
+        { multi: true }
+      );
 
       // add to given channels
-      await Channels.updateMany({ _id: { $in: channelIds } }, { $push: { memberIds: userId } }, { multi: true });
+      await Channels.updateMany(
+        { _id: { $in: channelIds } },
+        { $push: { memberIds: userId } },
+        { multi: true }
+      );
 
       return Channels.find({ _id: { $in: channelIds } });
     }
@@ -65,6 +80,9 @@ export const loadClass = () => {
 loadClass();
 
 // tslint:disable-next-line
-const Channels = model<IChannelDocument, IChannelModel>('channels', channelSchema);
+const Channels = model<IChannelDocument, IChannelModel>(
+  'channels',
+  channelSchema
+);
 
 export default Channels;

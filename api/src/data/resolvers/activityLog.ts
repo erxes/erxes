@@ -10,7 +10,7 @@ import {
   Stages,
   Tasks,
   Tickets,
-  Users,
+  Users
 } from '../../db/models';
 import { IActivityLog } from '../../db/models/definitions/activityLogs';
 import { ACTIVITY_ACTIONS } from '../../db/models/definitions/constants';
@@ -24,7 +24,9 @@ export default {
       return { type: 'user', content: user };
     }
 
-    const integration = await Integrations.findOne({ _id: activityLog.createdBy });
+    const integration = await Integrations.findOne({
+      _id: activityLog.createdBy
+    });
 
     if (integration) {
       const brand = await Brands.findOne({ _id: integration.brandId });
@@ -86,19 +88,21 @@ export default {
 
       const { oldStageId, destinationStageId } = content;
 
-      const destinationStage = await Stages.findOne({ _id: destinationStageId });
+      const destinationStage = await Stages.findOne({
+        _id: destinationStageId
+      });
       const oldStage = await Stages.findOne({ _id: oldStageId });
 
       if (destinationStage && oldStage) {
         return {
           destinationStage: destinationStage.name,
           oldStage: oldStage.name,
-          item,
+          item
         };
       }
 
       return {
-        text: content.text,
+        text: content.text
       };
     }
 
@@ -123,10 +127,12 @@ export default {
 
       if (content) {
         addedUsers = await Users.find({ _id: { $in: content.addedUserIds } });
-        removedUsers = await Users.find({ _id: { $in: content.removedUserIds } });
+        removedUsers = await Users.find({
+          _id: { $in: content.removedUserIds }
+        });
       }
 
       return { addedUsers, removedUsers };
     }
-  },
+  }
 };

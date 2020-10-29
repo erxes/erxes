@@ -1,5 +1,10 @@
 import { Accounts, Integrations } from '../models';
-import { createConverstaionMessage, getOrCreateConversation, getOrCreateCustomer, IUser } from './store';
+import {
+  createConverstaionMessage,
+  getOrCreateConversation,
+  getOrCreateCustomer,
+  IUser
+} from './store';
 
 export interface IUsers {
   [key: string]: IUser;
@@ -52,10 +57,14 @@ const receiveDms = async requestBody => {
       }
 
       const integration = await Integrations.getIntegration({
-        $and: [{ accountId: account._id }, { kind: 'twitter-dm' }],
+        $and: [{ accountId: account._id }, { kind: 'twitter-dm' }]
       });
 
-      const customer = await getOrCreateCustomer(integration, senderId, users[senderId]);
+      const customer = await getOrCreateCustomer(
+        integration,
+        senderId,
+        users[senderId]
+      );
 
       const content = message_data.text;
       const customerErxesApiId = customer.erxesApiId;
@@ -66,10 +75,16 @@ const receiveDms = async requestBody => {
         integration._id,
         content,
         customerErxesApiId,
-        integration.erxesApiId,
+        integration.erxesApiId
       );
 
-      await createConverstaionMessage(event, content, attachments, customerErxesApiId, conversation);
+      await createConverstaionMessage(
+        event,
+        content,
+        attachments,
+        customerErxesApiId,
+        conversation
+      );
     }
   }
 };
