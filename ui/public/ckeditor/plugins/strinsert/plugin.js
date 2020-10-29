@@ -3,16 +3,14 @@ CKEDITOR.plugins.add('strinsert',
 	requires : ['richcombo'],
 	init : function( editor )
 	{
-		var config = editor.config;
-
 		// init the default config
 		var defaultConfig = {
 			format: '{{ %string% }}',
 			items : []
 		};
 
-		// merge default config with the passed	
-		var config = CKEDITOR.tools.extend(defaultConfig, config.strinsert || {}, true);
+		// merge default config with the passed
+		var config = CKEDITOR.tools.extend(defaultConfig, editor.config.strinsert || {}, true);
 
 		// Gets the list of insertable strings from the settings.
 		var strings = config.items;
@@ -52,7 +50,7 @@ CKEDITOR.plugins.add('strinsert',
 							string.label = string.name;
 						}
 
-						var formattedValue = config.format.replace('%string%', string.value);	
+						var formattedValue = config.format.replace('%string%', string.value);
 						this.add(formattedValue, string.name, string.label);
 					}
 				}
