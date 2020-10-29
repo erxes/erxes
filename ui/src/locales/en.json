@@ -1545,5 +1545,7 @@
   "Social media": "Social media",
   "Surveys and Feedback": "Surveys and Feedback",
   "There aren’t any integrations at the moment": "There aren’t any integrations at the moment",
-  "Submit once": "Submit once"
+  "Submit once": "Submit once",
+  "Archive this list?": "This will remove list from the board. To view archived list and bring them back to the board, click 'Menu' > 'Archived Items'. Are you sure",
+  "Archive All Cards in This List?": "This will remove all card list from the board. To view archived list and bring them back to the board, click 'Menu' > 'Archived Items'. Are you sure?"
 }
