@@ -1,6 +1,8 @@
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { colors } from '../common/styles';
+import { colors, dimensions } from '../common/styles';
+
+const rowHeight = 40;
 
 const CalendarWrapper = styled.div`
   z-index: auto;
@@ -126,24 +128,75 @@ const Day = styledTS<{ isSelectedDate?: boolean }>(styled.h2)`
   }
 `;
 
+const AddEventBtn = styled.div`
+  background-color: ${colors.colorCoreGreen};
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: ${dimensions.coreSpacing}px;
+  height: ${dimensions.coreSpacing}px;
+  border-radius: 4px;
+  line-height: ${dimensions.coreSpacing}px;
+  color: ${colors.colorWhite};
+  text-align: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: all ease 0.4s;
+`;
+
 const DayRow = styled.div`
   border-bottom: #dadce0 1px solid;
   display: flex;
+  position: relative;
 
   ${Header} {
     flex: 1 1 0%;
-    height: 40px;
+    height: ${rowHeight}px;
     border-bottom: none;
+    cursor: none;
   }
 
   span {
     border-right: #dadce0 1px solid;
     display: inline-block;
-    min-height: 40px;
-    line-height: 40px;
+    min-height: ${rowHeight}px;
+    line-height: ${rowHeight}px;
     width: 60px;
     text-align: center;
   }
+
+  &:hover {
+    ${AddEventBtn} {
+      opacity: 0.8;
+    }
+  }
+`;
+
+const WeekContainer = styled.div`
+  display: flex;
+`;
+
+const WeekData = styled.div`
+  height: ${rowHeight}px;
+  line-height: ${rowHeight}px;
+  border-bottom: #dadce0 1px solid;
+  box-sizing: content-box;
+  overflow: hidden;
+  position: relative;
+
+  &:hover {
+    ${AddEventBtn} {
+      opacity: 0.8;
+    }
+  }
+`;
+
+const WeekHours = styled.div`
+  min-height: ${rowHeight}px;
+  line-height: ${rowHeight}px;
+  width: 60px;
+  text-align: center;
+  border-right: #dadce0 1px solid;
 `;
 
 const MainContainer = styled.div`
@@ -173,7 +226,7 @@ const CalendarController = styled.div`
   }
 `;
 
-const EventTitle = styled.div`
+const EventTitle = styledTS<{ start?: number; height?: number }>(styled.div)`
   padding: 4px 8px;
   border-radius: 4px;
   cursor: pointer;
@@ -186,9 +239,19 @@ const EventTitle = styled.div`
   &:hover {
     background-color: #eee;
   }
-`;
 
-const EventContainer = styled.div``;
+  ${props =>
+    props.start &&
+    props.height &&
+    `position: absolute;
+    top: ${rowHeight * props.start}px;
+    width: 100%;
+    background-color: ${colors.colorPrimary};
+    color: ${colors.colorWhite};
+    height: ${rowHeight * props.height}px;
+    min-height: ${rowHeight}px;
+  `}
+`;
 
 const EventContent = styled.div`
   i {
@@ -200,19 +263,22 @@ const EventContent = styled.div`
   }
 `;
 
-const HourRow = styled.div`
+const WeekWrapper = styled.div`
   display: -webkit-box;
   display: -webkit-flex;
   display: flex;
   flex: 1 1 0%;
 `;
 
-const HourCol = styled.div`
+const WeekCol = styled.div`
   border-right: #dadce0 1px solid;
   -webkit-box-flex: 1 1 0%;
   -webkit-flex: 1 1 0%;
   flex: 1 1 0%;
+  position: relative;
 `;
+
+const EventContainer = styled.div``;
 
 export {
   CalendarWrapper,
@@ -232,6 +298,10 @@ export {
   EventTitle,
   EventContent,
   CalendarController,
-  HourCol,
-  HourRow
+  WeekCol,
+  WeekWrapper,
+  WeekContainer,
+  WeekHours,
+  WeekData,
+  AddEventBtn
 };

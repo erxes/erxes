@@ -1,3 +1,4 @@
+import { IEvent } from './types';
 import { TYPES } from './constants';
 
 export const getDaysInMonth = (month: number, year: number) => {
@@ -66,4 +67,18 @@ export const generateFilters = (currentDate: Date, type: string) => {
   }
 
   return { startTime, endTime };
+};
+
+export const filterEvents = (events: IEvent[], day: Date) => {
+  const second = day.getTime() / 1000;
+
+  return events.filter(event => {
+    const { start_time, end_time } = event.when;
+    const startDate = new Date(milliseconds(start_time));
+
+    return (
+      startDate.toDateString() === day.toDateString() ||
+      (start_time < second && end_time > second)
+    );
+  });
 };

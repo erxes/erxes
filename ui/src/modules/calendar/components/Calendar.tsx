@@ -55,6 +55,7 @@ class Calendar extends React.Component<Props, State> {
             integrationId={integrationId}
             history={history}
             queryParams={queryParams}
+            {...generateFilters(currentDate, type)}
           />
         }
         content={

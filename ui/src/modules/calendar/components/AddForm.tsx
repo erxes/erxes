@@ -8,12 +8,14 @@ import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
+import { ICalendar } from '../types';
 
 type Props = {
   isPopupVisible: boolean;
   onHideModal: (date?: Date) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   selectedDate?: Date;
+  calendars: ICalendar[];
 };
 
 class EditForm extends React.Component<Props, {}> {
@@ -27,10 +29,23 @@ class EditForm extends React.Component<Props, {}> {
 
   renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
-    const { renderButton, onHideModal, selectedDate } = this.props;
+    const { renderButton, onHideModal, selectedDate, calendars } = this.props;
 
     return (
       <>
+        <FormGroup>
+          <ControlLabel required={true}>Calendar</ControlLabel>
+
+          <FormControl {...formProps} name="calendarId" componentClass="select">
+            <option>Select calendar</option>
+            {calendars.map(calendar => (
+              <option key={calendar._id} value={calendar.providerCalendarId}>
+                {calendar.name}
+              </option>
+            ))}
+          </FormControl>
+        </FormGroup>
+
         <FormGroup>
           <ControlLabel required={true}>Title</ControlLabel>
 

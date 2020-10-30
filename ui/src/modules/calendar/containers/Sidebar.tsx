@@ -15,6 +15,8 @@ type Props = {
   integrationId: string;
   history: any;
   queryParams: any;
+  startTime: Date;
+  endTime: Date;
 };
 
 type FinalProps = {

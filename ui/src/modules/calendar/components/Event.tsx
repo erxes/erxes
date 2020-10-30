@@ -1,7 +1,5 @@
 import dayjs from 'dayjs';
 import Icon from 'modules/common/components/Icon';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import { IButtonMutateProps } from 'modules/common/types';
 import React from 'react';
 import {
   CalendarWrapper,
@@ -10,31 +8,34 @@ import {
   Day,
   DayHeader,
   DayRow,
-  EventContainer,
-  EventContent,
-  EventTitle,
   Grid,
   Header,
   Presentation,
   Row,
   RowWrapper,
-  HourCol,
-  HourRow
+  WeekCol,
+  WeekWrapper,
+  WeekContainer,
+  WeekHours,
+  WeekData,
+  AddEventBtn
 } from '../styles';
 import { IEvent } from '../types';
-import { getDaysInMonth, milliseconds, extractDate } from '../utils';
-import AddForm from './AddForm';
+import { getDaysInMonth, extractDate, filterEvents } from '../utils';
+import AddEvent from '../containers/AddEvent';
 import { TYPES, WEEKS } from '../constants';
+import Detail from './Detail';
 
 type Props = {
   currentDate: Date;
   type: string;
   events: IEvent[];
   startTime: Date;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
+  endTime: Date;
+  integrationId: string;
+  queryParams: any;
 };
 
-const oneDay = 24 * 60 * 60;
 type State = { isPopupVisible: boolean; selectedDate?: Date };
 
 class Event extends React.Component<Props, State> {
@@ -76,15 +77,22 @@ class Event extends React.Component<Props, State> {
     );
   };
 
-  renderContent = (day: Date) => {
-    const second = day.getTime() / 1000;
+  renderEvents = (events: IEvent[], showHour: boolean) => {
+    return events.map(event => {
+      return <Detail key={event._id} event={event} showHour={showHour} />;
+    });
+  };
 
-    const events = this.props.events.filter(
-      event =>
-        event.when &&
-        event.when.start_time > second &&
-        event.when.end_time < second + oneDay
+  addEventBtn = (day: Date) => {
+    return (
+      <AddEventBtn onClick={this.onHideModal.bind(this, day)}>
+        <Icon icon="plus-circle" />
+      </AddEventBtn>
     );
+  };
+
+  renderContent = (day: Date) => {
+    const events = filterEvents(this.props.events, day);
 
     const currentDate = this.props.currentDate;
     const isSelectedDate =
@@ -100,100 +108,120 @@ class Event extends React.Component<Props, State> {
           {day.getDate()}
         </Day>
 
-        {events.map((event, index) => {
-          const startTime = milliseconds(event.when.start_time);
-          const endTime = milliseconds(event.when.end_time);
-
-          const content = () => {
-            return (
-              <EventContent>
-                <Icon icon="clock" />
-                <div>
-                  {dayjs(startTime).format('dddd, MMMM D  , HH:mm')}
-                  {dayjs(endTime).format(' - HH:mma')}
-                </div>
-                <br />
-                <Icon icon="calendar-alt" />
-                <div>{event.owner}</div>
-                <br />
-                <Icon icon="users" />
-                <div>{event.participants.length} guests</div>
-                {event.description && (
-                  <>
-                    <br /> <Icon icon="book" />
-                    <div
-                      dangerouslySetInnerHTML={{ __html: event.description }}
-                    />
-                  </>
-                )}
-              </EventContent>
-            );
-          };
-
-          return (
-            <EventContainer key={index}>
-              <ModalTrigger
-                title={event.title || ''}
-                trigger={
-                  <EventTitle>
-                    <Icon icon="check-circle" />
-                    {dayjs(startTime).format('ha')} &nbsp;
-                    <b>{event.title}</b>
-                  </EventTitle>
-                }
-                content={content}
-              />
-            </EventContainer>
-          );
-        })}
+        {this.renderEvents(events, false)}
       </>
     );
   };
 
   generateDayData = () => {
-    const data: any = [];
+    const { currentDate } = this.props;
+    const events = filterEvents(this.props.events, currentDate);
 
-    for (let h = 0; h < 24; h++) {
-      data.push(
-        <DayRow key={h}>
-          <span>{h.toString().length === 1 ? `0${h}` : h}</span>
-        </DayRow>
-      );
-    }
+    const renderRows = (isHour?: boolean) => {
+      const data: any = [];
 
-    return data;
+      for (let h = 0; h < 24; h++) {
+        const hour = h.toString().length === 1 ? `0${h}` : h;
+
+        data.push(
+          <WeekData key={isHour ? h : `data-${h}`}>
+            {isHour ? hour : this.addEventBtn(currentDate)}
+          </WeekData>
+        );
+      }
+
+      return data;
+    };
+
+    return (
+      <WeekContainer>
+        <WeekHours>{renderRows(true)}</WeekHours>
+        <WeekWrapper>
+          <WeekCol>
+            {renderRows()}
+            {this.renderEvents(events, true)}
+          </WeekCol>
+        </WeekWrapper>
+      </WeekContainer>
+    );
   };
 
   generateWeekData = () => {
-    const data: any = [];
+    const data = (day?: Date, week?: string) => {
+      const data: any = [];
 
-    for (let h = 0; h < 24; h++) {
-      data.push(
-        <DayRow key={h}>
-          <span>{h.toString().length === 1 ? `0${h}` : h}</span>
-          <HourRow>
-            {WEEKS.map((week, index) => {
-              return <HourCol key={`week_${index}_${h}`}>&nbsp;</HourCol>;
-            })}
-          </HourRow>
-        </DayRow>
-      );
-    }
+      if (day && week) {
+        for (let h = 0; h < 24; h++) {
+          data.push(
+            <WeekData key={`${week}-${day.toDateString()}-${h}`}>
+              {this.addEventBtn(day)}
+            </WeekData>
+          );
+        }
+      } else {
+        for (let h = 0; h < 24; h++) {
+          data.push(
+            <WeekData key={h}>
+              {h.toString().length === 1 ? `0${h}` : h}
+            </WeekData>
+          );
+        }
+      }
 
-    return data;
+      return data;
+    };
+
+    const { year, month, date } = extractDate(this.props.startTime);
+
+    return (
+      <WeekContainer>
+        <WeekHours>{data()}</WeekHours>
+
+        <WeekWrapper>
+          {WEEKS.map((week, index) => {
+            const day = new Date(year, month, date + index);
+            const events = filterEvents(this.props.events, day);
+
+            return (
+              <WeekCol key={`week_${index}`}>
+                {data(day, week)}
+                {this.renderEvents(events, true)}
+              </WeekCol>
+            );
+          })}
+        </WeekWrapper>
+      </WeekContainer>
+    );
   };
 
   render() {
-    const { startTime, currentDate, type, renderButton } = this.props;
-    const { month, year } = extractDate(currentDate);
+    const {
+      startTime,
+      endTime,
+      integrationId,
+      currentDate,
+      type,
+      queryParams
+    } = this.props;
 
-    const rows = getDaysInMonth(month, year);
+    const createForm = (
+      <AddEvent
+        startTime={startTime}
+        endTime={endTime}
+        queryParams={queryParams}
+        integrationId={integrationId}
+        isPopupVisible={this.state.isPopupVisible}
+        onHideModal={this.onHideModal}
+        selectedDate={this.state.selectedDate}
+      />
+    );
 
     if (type === TYPES.DAY) {
       return (
         <>
           <DayHeader>{dayjs(currentDate).format('MMM D')}</DayHeader>
           {this.generateDayData()}
+          {createForm}
         </>
       );
     }
@@ -206,9 +234,13 @@ class Event extends React.Component<Props, State> {
             {this.renderHeader(startTime)}
           </DayRow>
           {this.generateWeekData()}
+          {createForm}
         </div>
       );
     }
+
+    const { month, year } = extractDate(currentDate);
+    const rows = getDaysInMonth(month, year);
 
     return (
       <CalendarWrapper>
@@ -226,12 +258,7 @@ class Event extends React.Component<Props, State> {
             ))}
           </Presentation>
         </Grid>
-        <AddForm
-          isPopupVisible={this.state.isPopupVisible}
-          onHideModal={this.onHideModal}
-          renderButton={renderButton}
-          selectedDate={this.state.selectedDate}
-        />
+        {createForm}
       </CalendarWrapper>
     );
   }

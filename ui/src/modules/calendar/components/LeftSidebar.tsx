@@ -13,6 +13,8 @@ import { TYPES } from '../constants';
 import { CalendarController, SidebarWrapper } from '../styles';
 import { ICalendar } from '../types';
 import { extractDate } from '../utils';
+import Button from 'modules/common/components/Button';
+import AddEvent from '../containers/AddEvent';
 
 type Props = {
   dateOnChange: (date: string | Date | undefined) => void;
@@ -22,10 +24,14 @@ type Props = {
   calendars: ICalendar[];
   history: any;
   queryParams: any;
+  startTime: Date;
+  endTime: Date;
+  integrationId: string;
 };
 
 type State = {
   calendarIds: string[];
+  isPopupVisible: boolean;
 };
 
 class LeftSidebar extends React.Component<Props, State> {
@@ -33,9 +39,16 @@ class LeftSidebar extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      calendarIds: []
+      calendarIds: [],
+      isPopupVisible: false
     };
   }
+
+  onHideModal = () => {
+    this.setState({
+      isPopupVisible: !this.state.isPopupVisible
+    });
+  };
 
   componentDidMount() {
     const { queryParams, calendars, history } = this.props;
@@ -122,6 +135,7 @@ class LeftSidebar extends React.Component<Props, State> {
               </Label>
             </CalendarController>
           </FormGroup>
+
           <FormGroup>
             <Select
               isRequired={true}
@@ -171,6 +185,22 @@ class LeftSidebar extends React.Component<Props, State> {
                 </div>
               );
             })}
+          </FormGroup>
+
+          <FormGroup>
+            <Button
+              size="small"
+              uppercase={false}
+              btnStyle="success"
+              onClick={this.onHideModal.bind(this)}
+            >
+              Create Event
+            </Button>
+            <AddEvent
+              {...this.props}
+              isPopupVisible={this.state.isPopupVisible}
+              onHideModal={this.onHideModal}
+            />
           </FormGroup>
         </SidebarWrapper>
       </Sidebar>
