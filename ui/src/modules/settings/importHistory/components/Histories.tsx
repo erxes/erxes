@@ -273,10 +273,7 @@ class Histories extends React.Component<Props & IRouterProps> {
           />
         }
         leftSidebar={
-          <Sidebar
-            title={__('Import & export')}
-            currentType={__(currentType)}
-          />
+          <Sidebar title={__('Import & export')} currentType={currentType} />
         }
         footer={<Pagination count={totalCount} />}
         content={
