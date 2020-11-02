@@ -39,15 +39,15 @@
     "release": "release-it"
   },
   "devDependencies": {
-    "husky": "^0.13.4",
     "@release-it/conventional-changelog": "^1.1.0",
-    "opencollective": "^1.0.3",
+    "husky": "^0.13.4",
     "lint-staged": "^3.6.0",
+    "opencollective": "^1.0.3",
+    "prettier": "^1.19.1",
     "tslint": "^5.8.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-react": "^4.0.0",
-    "typescript": "^3.0.3",
-    "prettier": "^1.14.2"
+    "typescript": "^3.0.3"
   },
   "dependencies": {}
 }

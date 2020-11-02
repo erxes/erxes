@@ -15,6 +15,7 @@ import EmailTemplates from './EmailTemplates';
 import EngageMessages from './Engages';
 import { Fields, FieldsGroups } from './Fields';
 import { Forms, FormSubmissions } from './Forms';
+import { DashboardItems, Dashboards } from './Dashboard';
 import GrowthHacks from './GrowthHacks';
 import ImportHistory from './ImportHistory';
 import Integrations from './Integrations';
@@ -71,6 +72,8 @@ export {
   Pipelines,
   Stages,
   Deals,
+  Dashboards,
+  DashboardItems,
   Products,
   ProductCategories,
   Configs,
