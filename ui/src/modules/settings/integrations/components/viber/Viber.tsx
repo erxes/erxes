@@ -58,7 +58,7 @@ class Viber extends React.Component<Props> {
         </FormGroup>
 
         <a
-          href="https://docs.erxes.io/administrator/system-config#viber"
+          href="https://erxes.org/administrator/system-config#viber"
           target="_blank"
           rel="noopener noreferrer"
         >
