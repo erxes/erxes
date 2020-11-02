@@ -81,7 +81,7 @@ function Tutorial() {
           ! For further help, please consult the{' '}
           <a
             target="_blank"
-            href="https://docs.erxes.io/overview/getting-started"
+            href="https://erxes.org/overview/getting-started"
             rel="noopener noreferrer"
           >
             documentation
