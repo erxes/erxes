@@ -1,3 +1,4 @@
+import { PassThrough } from 'stream';
 import {
   conversationFactory,
   conversationMessageFactory,
@@ -8,7 +9,6 @@ import {
 } from '../db/factories';
 import { ConversationMessages, Conversations, Users } from '../db/models';
 import { CONVERSATION_STATUSES } from '../db/models/definitions/constants';
-
 import './setup.ts';
 
 describe('Conversation db', () => {
@@ -549,10 +549,16 @@ describe('Conversation db', () => {
       }
     });
 
+    const streamMock = new PassThrough();
+
     await Conversations.removeEngageConversations(engageMessage._id);
+
+    streamMock.end();
 
     expect(
       await ConversationMessages.find({ conversationId: conversation._id })
     ).toHaveLength(0);
+
+    streamMock.destroy();
   });
 });
