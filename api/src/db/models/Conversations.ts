@@ -372,7 +372,7 @@ export const loadClass = () => {
             { conversationId: 1, _id: 0 }
           ) as any;
         },
-        3000
+        1000
       );
     }
 
