@@ -378,7 +378,8 @@ const sendViaMessenger = async ({
         engageKind: 'auto',
         messageId: _id,
         fromUserId,
-        ...(messenger ? messenger.toJSON() : {})
+        ...(messenger ? messenger.toJSON() : {}),
+        content: replacedContent
       },
       internal: false,
       conversationId,
