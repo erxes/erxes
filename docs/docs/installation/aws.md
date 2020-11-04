@@ -3,8 +3,32 @@ id: aws
 title: AWS Marketplace
 ---
 
-Launch an EC2 instance using [erxes](https://aws.amazon.com/marketplace/pp/B086MZ9FVS/) in the AWS Marketplace.  
-Once you have created the EC2 instance using erxes AMI product in the AWS Marketplace, you will then have erxes up and running and it will be accessible by public hostname of the EC2 instance.
+## To launch an instance from the AWS Marketplace using the launch wizard
+
+1. Open the Amazon EC2 console at https://console.aws.amazon.com/ec2/.
+
+2. From the Amazon EC2 dashboard, choose Launch instance.
+
+3. On the Choose an Amazon Machine Image (AMI) page, choose the AWS Marketplace category on the left. Find a suitable AMI by browsing the categories, or using the search functionality. Choose Select to choose your product.
+
+4. A dialog displays an overview of the product you've selected. You can view the pricing information, as well as any other information that the vendor has provided. When you're ready, choose Continue.
+
+5. On the Choose an Instance Type page, select the hardware configuration and size of the instance to launch. When you're done, choose Next: Configure Instance Details.
+
+6. On the next pages of the wizard, you can configure your instance, add storage, and add tags. For more information about the different options you can configure, see Launching an instance using the Launch Instance Wizard. Choose Next until you reach the Configure Security Group page.
+
+The wizard creates a new security group according to the vendor's specifications for the product. The security group may include rules that allow all IPv4 addresses (0.0.0.0/0) access on SSH (port 22) on Linux or RDP (port 3389) on Windows. We recommend that you adjust these rules to allow only a specific address or range of addresses to access your instance over those ports.
+
+When you are ready, choose Review and Launch.
+
+7. On the Review Instance Launch page, check the details of the AMI from which you're about to launch the instance, as well as the other configuration details you set up in the wizard. When you're ready, choose Launch to select or create a key pair, and launch your instance.
+
+8. Depending on the product you've subscribed to, the instance may take a few minutes or more to launch. You are first subscribed to the product before your instance can launch. If there are any problems with your credit card details, you will be asked to update your account details. When the launch confirmation page displays, choose View Instances to go to the Instances page.
+
+9. When your instance is in the running state, you can connect to it. To do this, select your instance in the list and choose Connect. Follow the instructions in the dialog. For more information about connecting to your instance, see Connect to your Linux instance.
+
+10. If the instance fails to launch or the state immediately goes to terminated instead of running, see Troubleshooting instance launch issues.
+
 
 ## Create an admin user
 
