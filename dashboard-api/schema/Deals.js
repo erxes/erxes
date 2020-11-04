@@ -1,101 +1,126 @@
-// import { tableSchema } from '../tablePrefix';
+cube(`ErxesDeals`, {
+  sql: `SELECT * FROM erxes__deals`,
 
-// cube(`Deals`, {
-//   sql: `SELECT * FROM ${tableSchema()}.deals`,
+  joins: {},
 
-//   joins: {
-//     Stages: {
-//       sql: `${CUBE}.stageId = ${Stages}._id`,
-//       relationship: `belongsTo`,
-//     },
-//   },
+  measures: {
+    count: {
+      type: `count`,
+      drillMembers: [
+        assigneduserids,
+        companyids,
+        customerids,
+        initialstageid,
+        labelids,
+        name,
+        stageid,
+        userid,
+        watcheduserids,
+        createdat,
+        closedate
+      ]
+    }
+  },
 
-//   measures: {
-//     count: {
-//       type: `count`,
-//       drillMembers: [initialstageid, name, stageid, createdat, closedate],
-//     },
-//   },
+  dimensions: {
+    assigneduserids: {
+      sql: `${CUBE}."assignedUserIds"`,
+      type: `string`
+    },
 
-//   segments: {
-//     wonDeals: {
-//       sql: `${CUBE.stageProbability} = 'Won'`,
-//       title: `Won`,
-//     },
+    companyids: {
+      sql: `${CUBE}."companyIds"`,
+      type: `string`
+    },
 
-//     lostDeals: {
-//       sql: `${CUBE.stageProbability} = 'Lost'`,
-//       title: `Lost`,
-//     },
-//   },
+    customerids: {
+      sql: `${CUBE}."customerIds"`,
+      type: `string`
+    },
 
-//   dimensions: {
-//     _id: {
-//       sql: `${CUBE}.\`_id\``,
-//       type: `string`,
-//       primaryKey: true,
-//     },
+    description: {
+      sql: `description`,
+      type: `string`
+    },
 
-//     initialstageid: {
-//       sql: `${CUBE}.\`initialStageId\``,
-//       type: `string`,
-//       shown: false,
-//     },
+    initialstageid: {
+      sql: `${CUBE}."initialStageId"`,
+      type: `string`
+    },
 
-//     name: {
-//       sql: `name`,
-//       type: `string`,
-//     },
+    iscomplete: {
+      sql: `${CUBE}."isComplete"`,
+      type: `string`
+    },
 
-//     stageName: {
-//       sql: `${Stages}.name`,
-//       type: `string`,
-//       title: `Stage Name`,
-//     },
+    labelids: {
+      sql: `${CUBE}."labelIds"`,
+      type: `string`
+    },
 
-//     stageProbability: {
-//       type: `string`,
-//       case: {
-//         when: [{ sql: `${Stages}.probability != ''`, label: { sql: `${Stages}.probability` } }],
-//         else: {},
-//       },
-//       title: 'Stage Probability',
-//     },
+    modifiedby: {
+      sql: `${CUBE}."modifiedBy"`,
+      type: `string`
+    },
 
-//     pipelineName: {
-//       sql: `${Stages.pipelineName}`,
-//       type: `string`,
-//       title: `Pipeline Name`,
-//     },
+    name: {
+      sql: `name`,
+      type: `string`
+    },
 
-//     stageid: {
-//       sql: `${CUBE}.\`stageId\``,
-//       type: `string`,
-//       shown: false,
-//     },
+    order: {
+      sql: `order`,
+      type: `string`
+    },
 
-//     status: {
-//       sql: `status`,
-//       type: `string`,
-//     },
+    priority: {
+      sql: `priority`,
+      type: `string`
+    },
 
-//     createdat: {
-//       sql: `${CUBE}.\`createdAt\``,
-//       type: `time`,
-//       title: 'Created Date',
-//     },
+    reminderminute: {
+      sql: `${CUBE}."reminderMinute"`,
+      type: `string`
+    },
 
-//     closedate: {
-//       sql: `${CUBE}.\`closeDate\``,
-//       type: `time`,
-//       title: 'Closed Date',
-//     },
+    searchtext: {
+      sql: `${CUBE}."searchText"`,
+      type: `string`
+    },
 
-//     modifiedby: {
-//       sql: `${CUBE}.\`modifiedBy\``,
-//       type: `string`,
-//       shown: false,
-//       title: 'Modified By',
-//     },
-//   },
-// });
+    stageid: {
+      sql: `${CUBE}."stageId"`,
+      type: `string`
+    },
+
+    status: {
+      sql: `status`,
+      type: `string`
+    },
+
+    userid: {
+      sql: `${CUBE}."userId"`,
+      type: `string`
+    },
+
+    watcheduserids: {
+      sql: `${CUBE}."watchedUserIds"`,
+      type: `string`
+    },
+
+    createdat: {
+      sql: `${CUBE}."createdAt"`,
+      type: `time`
+    },
+
+    closedate: {
+      sql: `${CUBE}."closeDate"`,
+      type: `time`
+    },
+
+    modifiedat: {
+      sql: `${CUBE}."modifiedAt"`,
+      type: `time`
+    }
+  }
+});

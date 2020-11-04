@@ -12,10 +12,13 @@ import Routes from './routes';
 
 const target = document.getElementById('root');
 
-const { REACT_APP_DASHBOARD_API_TOKEN, REACT_APP_DASHBOARD_API_URL } = getEnv();
+const {
+  REACT_APP_DASHBOARD_CUBE_TOKEN,
+  REACT_APP_DASHBOARD_API_URL
+} = getEnv();
 
-const cubejsApi = cubejs(REACT_APP_DASHBOARD_API_TOKEN, {
-  apiUrl: `${REACT_APP_DASHBOARD_API_URL}/cubejs-api/v1`,
+const cubejsApi = cubejs(REACT_APP_DASHBOARD_CUBE_TOKEN, {
+  apiUrl: `${REACT_APP_DASHBOARD_API_URL}/cubejs-api/v1`
 });
 
 render(

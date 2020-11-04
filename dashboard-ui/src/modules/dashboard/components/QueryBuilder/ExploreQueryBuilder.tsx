@@ -180,6 +180,7 @@ class ExploreQueryBuilder extends React.Component<Props> {
                     <SelectChartType
                       chartType={chartType}
                       updateChartType={updateChartType}
+                      query={validatedQuery}
                     />
                   </SelectType>
                   <ChartCard>

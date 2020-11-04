@@ -17,20 +17,27 @@ type FinalProps = {} & Props & IRouterProps;
 
 const Home = (props: FinalProps) => {
   useEffect(() => {
-    if (localStorage.getItem('erxes_recent_dashboard')) {
+    if (
+      !props.loading &&
+      props.dashboards.length > 0 &&
+      localStorage.getItem('erxes_recent_dashboard')
+    ) {
+      console.log('sda');
       return props.history.replace(
         `/dashboard/${localStorage.getItem('erxes_recent_dashboard')}`
       );
     }
 
     if (!props.loading && props.dashboards.length > 0) {
-      props.history.replace(`/dashboard/${props.dashboards[0]._id}`);
+      console.log('klkasl;djkal');
+      return props.history.replace(`/dashboard/${props.dashboards[0]._id}`);
     }
   });
 
   if (props.loading) {
     return <Spinner />;
   }
+  console.log(props);
 
   if (props.dashboards.length === 0) {
     return (
@@ -44,6 +51,7 @@ const Home = (props: FinalProps) => {
       </>
     );
   }
+
   return (
     <Wrapper
       header={

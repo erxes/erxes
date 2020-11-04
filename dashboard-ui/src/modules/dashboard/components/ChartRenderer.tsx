@@ -1,5 +1,5 @@
-// import { useCubeQuery } from '@cubejs-client/react';
 import { Col, Row, Statistic, Table } from 'antd';
+import { getEnv } from 'apolloClient';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import Spinner from 'modules/common/components/Spinner';
@@ -24,6 +24,8 @@ import {
   YAxis
 } from 'recharts';
 import { chartColors, replaceTexts } from '../constants';
+
+const { REACT_APP_DASHBOARD_API_URL } = getEnv();
 
 const numberFormatter = item => numeral(item).format('0,0');
 
@@ -104,32 +106,36 @@ const CartesianChart = ({
 );
 
 const TypeToChartComponent = {
-  line: ({ resultSet, height, dateType }) => (
-    <CartesianChart
-      resultSet={resultSet}
-      height={height}
-      ChartComponent={LineChart}
-      dateType={dateType}
-    >
-      {resultSet.seriesNames.map((series, i) => (
-        <Line
-          key={series.key}
-          dataKey={series.key}
-          name={decamelize(series.title, ' ')}
-          stroke={chartColors[i]}
-        />
-      ))}
-    </CartesianChart>
-  ),
-  bar: ({ resultSet, height, dateType }) => {
+  line: ({ resultSet, height, dateType }) => {
+    const sda = { ...resultSet };
     return (
       <CartesianChart
-        resultSet={resultSet}
+        resultSet={sda}
+        height={height}
+        ChartComponent={LineChart}
+        dateType={dateType}
+      >
+        {sda.seriesNames.map((series, i) => (
+          <Line
+            key={series.key}
+            dataKey={series.key}
+            name={decamelize(series.title, ' ')}
+            stroke={chartColors[i]}
+          />
+        ))}
+      </CartesianChart>
+    );
+  },
+  bar: ({ resultSet, height, dateType }) => {
+    const sda = { ...resultSet };
+    return (
+      <CartesianChart
+        resultSet={sda}
         height={height}
         ChartComponent={BarChart}
         dateType={dateType}
       >
-        {resultSet.seriesNames.map((series, i) => (
+        {sda.seriesNames.map((series, i) => (
           <Bar
             key={series.key}
             stackId="a"
@@ -142,14 +148,15 @@ const TypeToChartComponent = {
     );
   },
   area: ({ resultSet, height, dateType }) => {
+    const sda = { ...resultSet };
     return (
       <CartesianChart
-        resultSet={resultSet}
+        resultSet={sda}
         height={height}
         dateType={dateType}
         ChartComponent={AreaChart}
       >
-        {resultSet.seriesNames.map((series, i) => (
+        {sda.seriesNames.map((series, i) => (
           <Area
             key={series.key}
             stackId="a"
@@ -281,6 +288,7 @@ export class ChartRenderer extends React.Component<Props, State> {
   }
 
   componentWillReceiveProps() {
+    this.setState({ result: {} });
     this.getUsers();
   }
 
@@ -288,7 +296,7 @@ export class ChartRenderer extends React.Component<Props, State> {
     const { query } = this.props;
 
     axios
-      .get('http://localhost:4600/get', {
+      .get(`${REACT_APP_DASHBOARD_API_URL}/get`, {
         params: query
       })
       .then(response => this.setState({ result: response.data }));

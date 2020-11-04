@@ -1,5 +1,51 @@
 export const schemaTypes = ['Customers', 'Deals', 'Conversations'];
 
+export const chartTypeWithoutDeminsions = [
+  {
+    name: 'line',
+    title: 'Line',
+    icon: 'chart-line'
+  },
+  {
+    name: 'area',
+    title: 'Area',
+    icon: 'arrow-growth'
+  },
+  {
+    name: 'bar',
+    title: 'Bar',
+    icon: 'chart-bar'
+  },
+  {
+    name: 'number',
+    title: 'Number',
+    icon: 'info-circle'
+  }
+];
+
+export const chartTypesWithDeminsions = [
+  {
+    name: 'bar',
+    title: 'Bar',
+    icon: 'chart-bar'
+  },
+  {
+    name: 'pie',
+    title: 'Pie',
+    icon: 'chart-pie'
+  },
+  {
+    name: 'table',
+    title: 'Table',
+    icon: 'table'
+  },
+  {
+    name: 'number',
+    title: 'Number',
+    icon: 'info-circle'
+  }
+];
+
 export const chartTypes = [
   {
     name: 'line',
@@ -25,6 +71,11 @@ export const chartTypes = [
     name: 'table',
     title: 'Table',
     icon: 'table'
+  },
+  {
+    name: 'number',
+    title: 'Number',
+    icon: 'info-circle'
   },
   {
     name: 'number',
