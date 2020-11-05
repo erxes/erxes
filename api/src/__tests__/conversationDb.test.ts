@@ -1,13 +1,14 @@
+import { PassThrough } from 'stream';
 import {
   conversationFactory,
   conversationMessageFactory,
   customerFactory,
   engageDataFactory,
+  engageMessageFactory,
   userFactory
 } from '../db/factories';
 import { ConversationMessages, Conversations, Users } from '../db/models';
 import { CONVERSATION_STATUSES } from '../db/models/definitions/constants';
-
 import './setup.ts';
 
 describe('Conversation db', () => {
@@ -534,5 +535,30 @@ describe('Conversation db', () => {
     const updated = await Conversations.findOne({ _id: conversation._id });
 
     expect(updated && updated.content).toBe('updated');
+  });
+
+  test('removeEngageConversations', async () => {
+    const engageMessage = await engageMessageFactory({ kind: 'visitorAuto' });
+    const conversation = await conversationFactory({});
+
+    await conversationMessageFactory({
+      conversationId: conversation._id,
+      engageData: {
+        engageKind: engageMessage.kind,
+        messageId: engageMessage._id
+      }
+    });
+
+    const streamMock = new PassThrough();
+
+    await Conversations.removeEngageConversations(engageMessage._id);
+
+    streamMock.end();
+
+    expect(
+      await ConversationMessages.find({ conversationId: conversation._id })
+    ).toHaveLength(0);
+
+    streamMock.destroy();
   });
 });
