@@ -1,13 +1,14 @@
+import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
+
+import ControlLabel from 'modules/common/components/form/Label';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import Toggle from 'modules/common/components/Toggle';
-import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
-import { __ } from 'modules/common/utils';
-import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
-import SelectChannels from 'modules/settings/integrations/containers/SelectChannels';
 import { IMessages } from 'modules/settings/integrations/types';
 import React from 'react';
+import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
+import SelectChannels from 'modules/settings/integrations/containers/SelectChannels';
+import Toggle from 'modules/common/components/Toggle';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   onChange: (name: any, value: any) => void;
@@ -87,7 +88,7 @@ class Connection extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Bot show initial message</ControlLabel>
             <p>{__('Please build initial message in BotPress builder')}</p>
-            
+
             <Toggle
               checked={this.props.botShowInitialMessage}
               onChange={this.handleToggle}
