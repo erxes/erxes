@@ -35,7 +35,6 @@ import { trackViewPageEvent } from '../../../events';
 import memoryStorage from '../../../inmemoryStorage';
 import { graphqlPubsub } from '../../../pubsub';
 import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
-import { IContext } from '../../types';
 import {
   registerOnboardHistory,
   sendEmail,
