@@ -4,18 +4,18 @@ import { Select, Input } from 'antd';
 const FilterInputs = {
   string: ({ values, onChange }) => (
     <Select
-      key='input'
+      key="input"
       style={{
         width: 300
       }}
-      mode='tags'
+      mode="tags"
       onChange={onChange}
       value={values}
     />
   ),
   number: ({ values, onChange }) => (
     <Input
-      key='input'
+      key="input"
       style={{
         width: 300
       }}
@@ -29,7 +29,7 @@ const FilterInput = ({ member, updateMethods }) => {
   const Filter = FilterInputs[member.dimension.type] || FilterInputs.string;
   return (
     <Filter
-      key='filter'
+      key="filter"
       values={member.values}
       onChange={values => updateMethods.update(member, { ...member, values })}
     />

@@ -18,23 +18,33 @@ const resolver = async (data, dimensions) => {
   if (resolver) {
     const foundedValue = [];
     for (const value of data) {
-      const xxa = foundedValue.find(
+      const prevValue = foundedValue.find(
         founded => founded.name === value[dimensions]
       );
 
-      if (xxa) {
-        value[dimensions] = xxa.value;
+      if (prevValue) {
+        value[dimensions] = prevValue.value;
       } else {
-        const response = await client.get({
-          index: resolver.indexname,
-          id: value[dimensions]
-        });
+        if (value[dimensions]) {
+          try {
+            const response = await client.get({
+              index: resolver.indexname,
+              id: value[dimensions]
+            });
 
-        foundedValue.push({
-          name: value[dimensions],
-          value: response._source[resolver.fieldname]
-        });
-        value[dimensions] = response._source[resolver.fieldname];
+            foundedValue.push({
+              name: value[dimensions],
+              value: response._source[resolver.fieldname] || 'unknown'
+            });
+
+            value[dimensions] =
+              response._source[resolver.fieldname] || 'unknown';
+          } catch (e) {
+            console.log(e);
+          }
+        } else {
+          value[dimensions] = 'unknown';
+        }
       }
     }
 

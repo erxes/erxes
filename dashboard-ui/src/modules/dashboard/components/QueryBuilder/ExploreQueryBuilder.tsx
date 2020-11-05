@@ -127,19 +127,6 @@ class ExploreQueryBuilder extends React.Component<Props> {
                           </FilterItem>
                           <StyledDivider type="vertical" />
                           <FilterItem>
-                            <Label>Segment</Label>
-                            <MemberGroup
-                              type={type}
-                              members={segments}
-                              memberGroupType="segments"
-                              availableMembers={availableSegments}
-                              addMemberName="Segment"
-                              updateMethods={updateSegments}
-                            />
-                          </FilterItem>
-
-                          <StyledDivider type="vertical" />
-                          <FilterItem>
                             <Label>Time</Label>
                             <TimeGroup
                               type={type}

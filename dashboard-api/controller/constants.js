@@ -5,13 +5,13 @@ export const resolvers = [
     fieldname: 'name'
   },
   {
-    name: 'Conversations.integrationkind',
+    name: 'Conversations.integrationKind',
     indexname: 'erxes__integrations',
     fieldname: 'kind'
   },
   {
     name: 'Conversations.firstRespondedUser',
     indexname: 'erxes__users',
-    fieldname: 'details.fullName'
+    fieldname: 'username'
   }
 ];
