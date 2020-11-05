@@ -5,7 +5,7 @@ import {
   IVisitorContact
 } from '../db/models/definitions/customers';
 import { debugBase, debugExternalApi } from '../debuggers';
-import { getEnv, getSubServiceDomain, sendRequest } from './utils';
+import { getEnv, sendRequest } from './utils';
 
 export const validateSingle = async (
   contact: IVisitorContact,
