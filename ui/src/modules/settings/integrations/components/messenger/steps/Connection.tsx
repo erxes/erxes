@@ -1,14 +1,13 @@
-import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
-
-import ControlLabel from 'modules/common/components/form/Label';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
-import { IMessages } from 'modules/settings/integrations/types';
-import React from 'react';
-import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
-import SelectChannels from 'modules/settings/integrations/containers/SelectChannels';
+import ControlLabel from 'modules/common/components/form/Label';
+import { FlexItem, LeftItem } from 'modules/common/components/step/styles';
 import Toggle from 'modules/common/components/Toggle';
 import { __ } from 'modules/common/utils';
+import SelectBrand from 'modules/settings/integrations/containers/SelectBrand';
+import SelectChannels from 'modules/settings/integrations/containers/SelectChannels';
+import { IMessages } from 'modules/settings/integrations/types';
+import React from 'react';
 
 type Props = {
   onChange: (name: any, value: any) => void;
