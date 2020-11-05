@@ -376,6 +376,35 @@ describe('insertMessage()', () => {
     sendRequestMock.restore();
   });
 
+  test('Bot show initial message', async () => {
+    const mock = sinon.stub(utils, 'sendRequest').returns(Promise.resolve({
+      responses: [
+        {
+          type: 'text',
+          text: 'Greeting bot message'
+        }
+      ]
+    }));
+
+    const conversationId = await widgetMutations.widgetGetBotInitialMessage(
+      {},
+      {
+        integrationId: _integrationBot._id,
+        customerId: _customer._id,
+      }
+    );
+
+    const message = await ConversationMessages.findOne({ conversationId });
+
+    if (message) {
+      expect(message.botData[0].text).toBe('Greeting bot message');
+    } else {
+      fail('Failed to create bot initial message');
+    }
+
+    mock.restore();
+  });
+
   test('Bot widget post request', async () => {
     const conversation1 = await conversationFactory({
       operatorStatus: CONVERSATION_OPERATOR_STATUS.BOT

@@ -42,6 +42,7 @@ export interface IMessageDataMessages {
 
 export interface IMessengerData {
   botEndpointUrl?: string;
+  botShowInitialMessage?: boolean;
   supporterIds?: string[];
   notifyCustomer?: boolean;
   availabilityMethod?: string;
@@ -145,6 +146,7 @@ const messengerOnlineHoursSchema = new Schema(
 const messengerDataSchema = new Schema(
   {
     botEndpointUrl: field({ type: String }),
+    botShowInitialMessage: field({ type: Boolean }),
     supporterIds: field({ type: [String] }),
     notifyCustomer: field({ type: Boolean }),
     availabilityMethod: field({
