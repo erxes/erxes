@@ -24,7 +24,7 @@ const sendSuccess = data => ({
  * Handle requests from integrations api
  */
 export const receiveRpcMessage = async msg => {
-  const { action, metaInfo, payload } = msg;
+  const { action, metaInfo, payload, hostname } = msg;
   const doc = JSON.parse(payload || '{}');
 
   if (action === 'get-create-update-customer') {
@@ -44,7 +44,7 @@ export const receiveRpcMessage = async msg => {
       customer = await getCustomer({ primaryPhone });
 
       if (customer) {
-        await Customers.updateCustomer(customer._id, doc);
+        await Customers.updateCustomer(customer._id, doc, hostname);
         return sendSuccess({ _id: customer._id });
       }
     }

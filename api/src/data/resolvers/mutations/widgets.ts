@@ -35,6 +35,7 @@ import { trackViewPageEvent } from '../../../events';
 import memoryStorage from '../../../inmemoryStorage';
 import { graphqlPubsub } from '../../../pubsub';
 import { AUTO_BOT_MESSAGES, BOT_MESSAGE_TYPES } from '../../constants';
+import { IContext } from '../../types';
 import {
   registerOnboardHistory,
   sendEmail,
@@ -328,7 +329,8 @@ const widgetMutations = {
       data?: any;
       cachedCustomerId?: string;
       deviceToken?: string;
-    }
+    },
+    { requestInfo }: IContext
   ) {
     const {
       brandCode,
@@ -384,7 +386,10 @@ const widgetMutations = {
           doc,
           customData
         })
-      : await Customers.createMessengerCustomer({ doc, customData });
+      : await Customers.createMessengerCustomer(
+          { doc, customData },
+          requestInfo.hostname
+        );
 
     // get or create company
     if (companyData && companyData.name) {

@@ -5,6 +5,7 @@ import * as jwt from 'jsonwebtoken';
 import { EngagesAPI, IntegrationsAPI } from './data/dataSources';
 import resolvers from './data/resolvers';
 import typeDefs from './data/schema';
+import { frontendEnv } from './data/utils';
 import { Conversations, Customers, Users } from './db/models';
 import memoryStorage from './inmemoryStorage';
 import { graphqlPubsub } from './pubsub';
@@ -59,7 +60,8 @@ const apolloServer = new ApolloServer({
 
     const requestInfo = {
       secure: req.secure,
-      cookies: req.cookies
+      cookies: req.cookies,
+      hostname: frontendEnv({ name: 'API_URL', req })
     };
 
     if (USE_BRAND_RESTRICTIONS !== 'true') {

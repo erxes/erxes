@@ -90,9 +90,14 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
   createVisitor(): Promise<string>;
   createCustomer(
     doc: ICustomer,
-    user?: IUserDocument
+    user?: IUserDocument,
+    hostname?: string
   ): Promise<ICustomerDocument>;
-  updateCustomer(_id: string, doc: ICustomer): Promise<ICustomerDocument>;
+  updateCustomer(
+    _id: string,
+    doc: ICustomer,
+    hostname?: string
+  ): Promise<ICustomerDocument>;
   markCustomerAsActive(customerId: string): Promise<ICustomerDocument>;
   markCustomerAsNotActive(_id: string): Promise<ICustomerDocument>;
   removeCustomers(customerIds: string[]): Promise<{ n: number; ok: number }>;
@@ -117,7 +122,8 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
   // widgets ===
   getWidgetCustomer(doc: IGetCustomerParams): Promise<ICustomerDocument | null>;
   createMessengerCustomer(
-    param: ICreateMessengerCustomerParams
+    param: ICreateMessengerCustomerParams,
+    hostname?: string
   ): Promise<ICustomerDocument>;
   updateMessengerCustomer(
     param: IUpdateMessengerCustomerParams
@@ -265,7 +271,8 @@ export const loadClass = () => {
      */
     public static async createCustomer(
       doc: ICustomer,
-      user?: IUserDocument
+      user?: IUserDocument,
+      hostname?: string
     ): Promise<ICustomerDocument> {
       // Checking duplicated fields of customer
       await Customers.checkDuplication(doc);
@@ -301,11 +308,11 @@ export const loadClass = () => {
       });
 
       if (doc.primaryEmail && !doc.emailValidationStatus) {
-        validateSingle({ email: doc.primaryEmail });
+        validateSingle({ email: doc.primaryEmail }, hostname);
       }
 
       if (doc.primaryPhone && !doc.phoneValidationStatus) {
-        validateSingle({ phone: doc.primaryPhone });
+        validateSingle({ phone: doc.primaryPhone }, hostname);
       }
 
       await ActivityLogs.createCocLog({
@@ -319,7 +326,11 @@ export const loadClass = () => {
     /*
      * Update customer
      */
-    public static async updateCustomer(_id: string, doc: ICustomer) {
+    public static async updateCustomer(
+      _id: string,
+      doc: ICustomer,
+      hostname: string
+    ) {
       // Checking duplicated fields of customer
       await Customers.checkDuplication(doc, _id);
 
@@ -336,7 +347,7 @@ export const loadClass = () => {
         if (doc.primaryEmail !== oldCustomer.primaryEmail) {
           doc.emailValidationStatus = 'unknown';
 
-          validateSingle({ email: doc.primaryEmail });
+          validateSingle({ email: doc.primaryEmail }, hostname);
         }
       }
 
@@ -344,7 +355,7 @@ export const loadClass = () => {
         if (doc.primaryPhone !== oldCustomer.primaryPhone) {
           doc.phoneValidationStatus = 'unknown';
 
-          validateSingle({ phone: doc.primaryPhone });
+          validateSingle({ phone: doc.primaryPhone }, hostname);
         }
       }
 
@@ -700,19 +711,23 @@ export const loadClass = () => {
     /*
      * Create a new messenger customer
      */
-    public static async createMessengerCustomer({
-      doc,
-      customData
-    }: ICreateMessengerCustomerParams) {
+    public static async createMessengerCustomer(
+      { doc, customData }: ICreateMessengerCustomerParams,
+      hostname?: string
+    ) {
       this.fixListFields(doc, customData);
 
-      return this.createCustomer({
-        ...doc,
-        trackedData: Fields.generateTypedListFromMap(customData),
-        lastSeenAt: new Date(),
-        isOnline: true,
-        sessionCount: 1
-      });
+      return this.createCustomer(
+        {
+          ...doc,
+          trackedData: Fields.generateTypedListFromMap(customData),
+          lastSeenAt: new Date(),
+          isOnline: true,
+          sessionCount: 1
+        },
+        undefined,
+        hostname
+      );
     }
 
     /*
