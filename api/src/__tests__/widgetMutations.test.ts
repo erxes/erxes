@@ -43,7 +43,6 @@ describe('messenger connect', () => {
   let _brand: IBrandDocument;
   let _integration: IIntegrationDocument;
   let _customer: ICustomerDocument;
-  let context;
 
   beforeEach(async () => {
     // Creating test data
@@ -59,7 +58,6 @@ describe('messenger connect', () => {
       primaryPhone: '96221050',
       deviceTokens: ['111']
     });
-    context = { hostname: 'host' };
   });
 
   afterEach(async () => {
@@ -74,22 +72,20 @@ describe('messenger connect', () => {
     try {
       await widgetMutations.widgetsMessengerConnect(
         {},
-        { brandCode: 'invalidCode' },
-        context
+        { brandCode: 'invalidCode' }
       );
     } catch (e) {
       expect(e.message).toBe('Brand not found');
     }
   });
 
-  test('Integration not found', async () => {
+  test('brand not found', async () => {
     const brand = await brandFactory({});
 
     try {
       await widgetMutations.widgetsMessengerConnect(
         {},
-        { brandCode: brand.code || '' },
-        context
+        { brandCode: brand.code || '' }
       );
     } catch (e) {
       expect(e.message).toBe('Integration not found');
@@ -125,8 +121,7 @@ describe('messenger connect', () => {
       messengerData
     } = await widgetMutations.widgetsMessengerConnect(
       {},
-      { brandCode: _brand.code || '', email: faker.internet.email() },
-      context
+      { brandCode: _brand.code || '', email: faker.internet.email() }
     );
 
     expect(integrationId).toBe(_integration._id);
@@ -150,8 +145,7 @@ describe('messenger connect', () => {
         email,
         companyData: { name: 'company' },
         deviceToken: '111'
-      },
-      context
+      }
     );
 
     expect(customerId).toBeDefined();
@@ -187,8 +181,7 @@ describe('messenger connect', () => {
         email: _customer.primaryEmail,
         isUser: true,
         deviceToken: '222'
-      },
-      context
+      }
     );
 
     expect(customerId).toBeDefined();
@@ -652,8 +645,6 @@ describe('knowledgebase', () => {
 });
 
 describe('lead', () => {
-  let context;
-
   afterEach(async () => {
     // Clearing test data
     await Integrations.deleteMany({});
@@ -777,7 +768,6 @@ describe('lead', () => {
   });
 
   test('saveLead: form not found', async () => {
-    context = { hostname: 'host' };
     try {
       await widgetMutations.widgetsSaveLead(
         {},
@@ -786,8 +776,7 @@ describe('lead', () => {
           formId: '_id',
           submissions: [{ _id: 'id', value: null }],
           browserInfo: {}
-        },
-        context
+        }
       );
     } catch (e) {
       expect(e.message).toBe('Form not found');
@@ -813,8 +802,7 @@ describe('lead', () => {
         browserInfo: {
           currentPageUrl: '/page'
         }
-      },
-      context
+      }
     );
 
     expect(response && response.status).toBe('error');
@@ -886,8 +874,7 @@ describe('lead', () => {
         browserInfo: {
           currentPageUrl: '/page'
         }
-      },
-      context
+      }
     );
 
     expect(response && response.status).toBe('ok');

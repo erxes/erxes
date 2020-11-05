@@ -329,7 +329,8 @@ const widgetMutations = {
       data?: any;
       cachedCustomerId?: string;
       deviceToken?: string;
-    }
+    },
+    { requestInfo }: IContext
   ) {
     const {
       brandCode,
@@ -385,7 +386,10 @@ const widgetMutations = {
           doc,
           customData
         })
-      : await Customers.createMessengerCustomer({ doc, customData });
+      : await Customers.createMessengerCustomer(
+          { doc, customData },
+          requestInfo.hostname
+        );
 
     // get or create company
     if (companyData && companyData.name) {
