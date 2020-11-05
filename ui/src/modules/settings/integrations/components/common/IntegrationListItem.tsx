@@ -1,4 +1,5 @@
-import { getEnv } from 'apolloClient';
+import client, { getEnv } from 'apolloClient';
+import gql from 'graphql-tag';
 import ActionButtons from 'modules/common/components/ActionButtons';
 import Button from 'modules/common/components/Button';
 import Icon from 'modules/common/components/Icon';
@@ -6,12 +7,14 @@ import Label from 'modules/common/components/Label';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
 import WithPermission from 'modules/common/components/WithPermission';
+import { Alert } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
 import InstallCode from 'modules/settings/integrations/components/InstallCode';
 import { INTEGRATION_KINDS } from 'modules/settings/integrations/constants';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { cleanIntegrationKind } from '../../containers/utils';
+import { queries } from '../../graphql/index';
 import { INTEGRATIONS_COLORS } from '../../integrationColors';
 import { IIntegration, IntegrationMutationVariables } from '../../types';
 import CommonFieldForm from './CommonFieldForm';
@@ -28,7 +31,19 @@ type Props = {
   ) => void;
 };
 
-class IntegrationListItem extends React.Component<Props> {
+type State = {
+  externalData: any;
+}
+
+class IntegrationListItem extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      externalData: null
+    };
+  }
+
   renderArchiveAction() {
     const { archive, integration, disableAction } = this.props;
 
@@ -208,7 +223,8 @@ class IntegrationListItem extends React.Component<Props> {
   }
 
   renderExternalData(integration) {
-    const { externalData, kind } = integration;
+    const { externalData } = this.state;
+    const { kind } = integration;
     let value = '';
 
     if (!externalData) {
@@ -244,6 +260,29 @@ class IntegrationListItem extends React.Component<Props> {
     return <td>{value}</td>;
   }
 
+  renderFetchAction(integration: IIntegration) {
+    if (integration.kind === INTEGRATION_KINDS.MESSENGER) {
+      return null;
+    }
+
+    const onClick = () => {
+      client.query({
+        query: gql(queries.fetchApi),
+        variables: { path: '/integrationDetail', params: { erxesApiId: integration._id } }
+      }).then(({ data }) => {
+        this.setState({ externalData: data.integrationsFetchApi });
+      }).catch(e => {
+        Alert.error(e.message);
+      });
+    };
+
+    return (
+      <Tip text={__('Fetch external data')} placement="top">
+        <Button btnStyle="link" icon="download-1" onClick={onClick} />
+      </Tip>
+    );
+  }
+
   render() {
     const { integration } = this.props;
     const integrationKind = cleanIntegrationKind(integration.kind);
@@ -265,6 +304,7 @@ class IntegrationListItem extends React.Component<Props> {
         {this.renderExternalData(integration)}
         <td>
           <ActionButtons>
+            {this.renderFetchAction(integration)}
             {this.renderMessengerActions(integration)}
             {this.renderGetAction()}
             {this.renderEditAction()}
