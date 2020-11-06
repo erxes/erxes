@@ -20,6 +20,7 @@ export default (props: Props) => {
         getUiOptions,
         getMessengerData,
         saveGetNotified,
+        getBotInitialMessage,
         getColor,
         isLoggedIn,
         sendMessage,
@@ -37,6 +38,7 @@ export default (props: Props) => {
             uiOptions={getUiOptions()}
             messengerData={getMessengerData()}
             saveGetNotified={saveGetNotified}
+            getBotInitialMessage={getBotInitialMessage}
             getColor={getColor()}
             isLoggedIn={isLoggedIn}
             sendTypingInfo={sendTypingInfo}
