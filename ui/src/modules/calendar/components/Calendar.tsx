@@ -5,17 +5,20 @@ import LeftSidebar from '../containers/Sidebar';
 import { MainContainer } from '../styles';
 import { TYPES } from '../constants';
 import { generateFilters } from '../utils';
-import { ICalendar } from 'modules/settings/calendars/types';
 import EmptyState from 'modules/common/components/EmptyState';
 import Button from 'modules/common/components/Button';
 import { BoardContainer, BoardContent } from 'modules/boards/styles/common';
 import Header from 'modules/layout/components/Header';
-import MainActionBar from '../containers/MainActionBar';
+import MainActionBar from './MainActionBar';
+import { IGroup, ICalendar } from 'modules/settings/calendars/types';
 
 type Props = {
   calendars: ICalendar[];
   history: any;
   queryParams: any;
+  currentGroup?: IGroup;
+  currentCalendar?: ICalendar;
+  groups: IGroup[];
 };
 
 type State = {
@@ -43,7 +46,14 @@ class Calendar extends React.Component<Props, State> {
 
   render() {
     const { type, currentDate } = this.state;
-    const { calendars, history, queryParams } = this.props;
+    const {
+      calendars,
+      history,
+      queryParams,
+      currentCalendar,
+      currentGroup,
+      groups
+    } = this.props;
 
     if (calendars.length === 0) {
       return (
@@ -79,7 +89,11 @@ class Calendar extends React.Component<Props, State> {
       <BoardContainer>
         <Header title="Calendar" />
         <BoardContent transparent={true}>
-          <MainActionBar />
+          <MainActionBar
+            currentCalendar={currentCalendar}
+            currentGroup={currentGroup}
+            groups={groups}
+          />
           <Wrapper
             leftSidebar={
               <LeftSidebar

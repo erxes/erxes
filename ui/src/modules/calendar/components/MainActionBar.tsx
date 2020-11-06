@@ -19,8 +19,6 @@ type Props = {
   currentGroup?: IGroup;
   currentCalendar?: ICalendar;
   groups: IGroup[];
-  history: any;
-  queryParams: any;
   groupText?: string;
   calendarText?: string;
 };

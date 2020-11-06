@@ -2,15 +2,10 @@ import { IRouterProps } from 'modules/common/types';
 import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
-import Calendar from './containers/Calendar';
+import Main from './containers/Main';
 
 const main = (props: IRouterProps) => {
-  return (
-    <Calendar
-      history={props.history}
-      queryParams={queryString.parse(props.location.search)}
-    />
-  );
+  return <Main queryParams={queryString.parse(props.location.search)} />;
 };
 
 const routes = () => {

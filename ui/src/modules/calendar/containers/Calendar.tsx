@@ -7,10 +7,14 @@ import { graphql } from 'react-apollo';
 import Calendar from '../components/Calendar';
 import { CalendarsQueryResponse } from 'modules/settings/calendars/types';
 import { queries as CalendarQueries } from 'modules/settings/calendars/graphql';
+import { IGroup, ICalendar } from 'modules/settings/calendars/types';
 
 type Props = {
   history: any;
   queryParams: any;
+  currentGroup?: IGroup;
+  currentCalendar?: ICalendar;
+  groups: IGroup[];
 };
 
 type FinalProps = {
@@ -42,9 +46,8 @@ export default withProps<Props>(
       gql(CalendarQueries.calendars),
       {
         name: 'calendarsQuery',
-        skip: props => !props.queryParams.id,
         options: ({ queryParams }) => ({
-          variables: { groupId: queryParams.id || 'CiDdKPLRd8q8awfwb' },
+          variables: { groupId: queryParams.id },
           fetchPolicy: 'network-only'
         })
       }
