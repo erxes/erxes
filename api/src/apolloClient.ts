@@ -60,8 +60,7 @@ const apolloServer = new ApolloServer({
 
     const requestInfo = {
       secure: req.secure,
-      cookies: req.cookies,
-      hostname: frontendEnv({ name: 'API_URL', req })
+      cookies: req.cookies
     };
 
     if (USE_BRAND_RESTRICTIONS !== 'true') {

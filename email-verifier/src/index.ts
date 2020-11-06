@@ -20,6 +20,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.post('/verify-single', async (req, res, next) => {
   debugRequest(debugBase, req);
 
+  console.log(req.headers);
+
   const { email, phone, hostname } = req.body;
 
   if (email) {

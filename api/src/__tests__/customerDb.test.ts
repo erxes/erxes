@@ -587,20 +587,17 @@ describe('Customers model tests', () => {
     const email = 'uniqueEmail@gmail.com';
     const phone = '+422999';
 
-    const customer = await Customers.createMessengerCustomer(
-      {
-        doc: {
-          integrationId: _customer.integrationId,
-          email,
-          phone,
-          isUser: _customer.isUser
-        },
-        customData: {
-          firstName: 'firstName'
-        }
+    const customer = await Customers.createMessengerCustomer({
+      doc: {
+        integrationId: _customer.integrationId,
+        email,
+        phone,
+        isUser: _customer.isUser
       },
-      'hostname'
-    );
+      customData: {
+        firstName: 'firstName'
+      }
+    });
 
     expect(customer).toBeDefined();
 

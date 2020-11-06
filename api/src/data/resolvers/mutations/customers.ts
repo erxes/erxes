@@ -16,18 +16,10 @@ const customerMutations = {
   /**
    * Create new customer also adds Customer registration log
    */
-  async customersAdd(
-    _root,
-    doc: ICustomer,
-    { user, docModifier, requestInfo }: IContext
-  ) {
+  async customersAdd(_root, doc: ICustomer, { user, docModifier }: IContext) {
     const modifiedDoc = docModifier(doc);
 
-    const customer = await Customers.createCustomer(
-      modifiedDoc,
-      user,
-      requestInfo.hostname
-    );
+    const customer = await Customers.createCustomer(modifiedDoc, user);
 
     await putCreateLog(
       {
@@ -49,14 +41,10 @@ const customerMutations = {
   async customersEdit(
     _root,
     { _id, ...doc }: ICustomersEdit,
-    { user, requestInfo }: IContext
+    { user }: IContext
   ) {
     const customer = await Customers.getCustomer(_id);
-    const updated = await Customers.updateCustomer(
-      _id,
-      doc,
-      requestInfo.hostname
-    );
+    const updated = await Customers.updateCustomer(_id, doc);
 
     await putUpdateLog(
       {
@@ -135,10 +123,9 @@ const customerMutations = {
 
   async customersVerify(
     _root,
-    { verificationType }: { verificationType: string },
-    { requestInfo }: IContext
+    { verificationType }: { verificationType: string }
   ) {
-    await validateBulk(verificationType, requestInfo.hostname);
+    await validateBulk(verificationType);
   },
 
   async customersChangeVerificationStatus(
