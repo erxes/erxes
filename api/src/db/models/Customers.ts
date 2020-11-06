@@ -300,8 +300,6 @@ export const loadClass = () => {
         ...pssDoc
       });
 
-      console.log('doc: ', doc);
-
       if (
         (doc.primaryEmail && !doc.emailValidationStatus) ||
         (doc.primaryEmail && doc.emailValidationStatus === 'unknown')
