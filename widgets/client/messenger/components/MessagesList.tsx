@@ -35,6 +35,7 @@ type Props = {
   sendTypingInfo: (conversationId: string, text: string) => void;
   conversationId: string | null;
   changeOperatorStatus: (_id: string, operatorStatus: string) => void;
+  getBotInitialMessage: () => void;
   operatorStatus?: string;
   sendMessage: (contentType: string, message: string) => void;
   showVideoCallRequest: boolean;
@@ -57,6 +58,16 @@ class MessagesList extends React.Component<Props, State> {
   }
 
   componentDidMount() {
+    const { messengerData, messages, getBotInitialMessage, conversationId } = this.props;
+
+    if (
+      messengerData.botShowInitialMessage &&
+      messages.length === 0 &&
+      !conversationId
+    ) {
+      getBotInitialMessage();
+    }
+
     if (this.node) {
       this.node.scrollTop = this.node.scrollHeight;
       makeClickableLink('#erxes-messages a');

@@ -836,6 +836,41 @@ const widgetMutations = {
     });
 
     return botMessage;
+  },
+
+  async widgetGetBotInitialMessage(_root, { integrationId, customerId }: { integrationId: string, customerId: string }) {
+    const conversation = await Conversations.createConversation({
+      customerId,
+      integrationId,
+      operatorStatus: CONVERSATION_OPERATOR_STATUS.BOT,
+      status: CONVERSATION_STATUSES.CLOSED
+    });
+
+    const integration = await Integrations.findOne({ _id: integrationId }).lean();
+
+    const { botEndpointUrl } = integration.messengerData;
+
+    const botRequest = await sendRequest({
+      method: 'POST',
+      url: botEndpointUrl,
+      body: {
+        type: 'text',
+        text: 'getStarted',
+      },
+    });
+
+    const { responses } = botRequest;
+
+    const botMessage = await Messages.createMessage({
+      conversationId: conversation._id, 
+      customerId,
+      botData: responses,
+    });
+
+    graphqlPubsub.publish('conversationClientMessageInserted', { conversationClientMessageInserted: botMessage });
+    graphqlPubsub.publish('conversationMessageInserted', { conversationMessageInserted: botMessage });
+
+    return conversation._id;
   }
 };
 
