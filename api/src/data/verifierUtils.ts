@@ -14,9 +14,8 @@ export const validateSingle = async (contact: IVisitorContact) => {
     defaultValue: ''
   });
 
-  const hostname = memoryStorage().get('hostname');
-
   const { email, phone } = contact;
+  const hostname = await memoryStorage().get('hostname');
 
   let body = {};
 
@@ -64,7 +63,7 @@ export const validateBulk = async (verificationType: string) => {
     defaultValue: ''
   });
 
-  const hostname = memoryStorage().get('hostname');
+  const hostname = await memoryStorage().get('hostname');
 
   if (verificationType === 'email') {
     const emails: Array<{}> = [];

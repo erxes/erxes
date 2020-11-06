@@ -32,7 +32,9 @@ const userMiddleware = async (req, _res, next) => {
         telemetry.trackCli('last_login', { updatedAt: currentDate });
       }
 
-      if (!memoryStorage().get('hostname')) {
+      const hostname = await memoryStorage().get('hostname');
+
+      if (!hostname || hostname === undefined) {
         memoryStorage().set('hostname', frontendEnv({ name: 'API_URL', req }));
       }
     } catch (e) {
