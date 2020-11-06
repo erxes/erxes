@@ -16,6 +16,7 @@ export const LANGUAGES = [
   { label: 'Republic of Serbia', value: 'en_RS' },
   { label: 'Dutch', value: 'nl' },
   { label: 'Turkish', value: 'tr_TR' }
+  { label: 'bengali', value: 'Bg' },
 ];
 
 export const SERVICE_TYPES = [
