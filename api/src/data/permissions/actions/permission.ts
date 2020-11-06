@@ -1075,5 +1075,42 @@ export const moduleObjects = {
         description: 'Manage webhooks'
       }
     ]
+  },
+  calendars: {
+    name: 'calendars',
+    description: 'Calendars',
+    actions: [
+      {
+        name: 'calendarsAll',
+        description: 'All',
+        use: [
+          'calendarsAdd',
+          'calendarsEdit',
+          'calendarsRemove',
+          'showCalendars',
+          'showCalendarsMain'
+        ]
+      },
+      {
+        name: 'calendarsAdd',
+        description: 'Add calendars'
+      },
+      {
+        name: 'calendarsEdit',
+        description: 'Edit calendars'
+      },
+      {
+        name: 'calendarsRemove',
+        description: 'Remove calendars'
+      },
+      {
+        name: 'showCalendars',
+        description: 'Show calendars'
+      },
+      {
+        name: 'showCalendarsMain',
+        description: 'Show calendars main'
+      }
+    ]
   }
 };

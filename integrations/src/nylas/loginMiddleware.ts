@@ -118,7 +118,9 @@ const getOAuthCredential = async (req, res, next) => {
   await memoryStorage().set(`${uid}-credential`, `${email},${refresh_token}`);
 
   return res.redirect(
-    `${AUTHORIZED_REDIRECT_URL}?uid=${uid}#show${kind}Modal=true`
+    kind === 'gmail'
+      ? `${process.env.MAIN_APP_DOMAIN}/settings/calendars?uid=${uid}#showCalendarModal=true`
+      : `${AUTHORIZED_REDIRECT_URL}?uid=${uid}#show${kind}Modal=true`
   );
 };
 

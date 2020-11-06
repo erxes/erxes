@@ -13,7 +13,9 @@ import {
   nylasFileUpload,
   nylasGetAttachment,
   nylasGetCalendarOrEvent,
-  nylasSendEmail
+  nylasSendEmail,
+  nylasGetCalendars,
+  nylasGetAllEvents
 } from './handleController';
 import loginMiddleware from './loginMiddleware';
 import { NylasCalendars, NylasEvent } from './models';
@@ -23,6 +25,7 @@ import {
   syncEvents,
   syncMessages
 } from './utils';
+import { connectProviderToNylas } from './auth';
 
 // load config
 dotenv.config();
@@ -154,6 +157,51 @@ export const initNylas = async app => {
     }
   });
 
+  app.post('/nylas/connect-calendars', async (req, res, next) => {
+    debugRequest(debugNylas, req);
+
+    const { erxesCalendarId, uid } = req.body;
+
+    try {
+      await connectProviderToNylas('gmail', erxesCalendarId, uid);
+
+      await nylasGetCalendars(erxesCalendarId);
+      await nylasGetAllEvents(erxesCalendarId);
+    } catch (e) {
+      return next(e);
+    }
+
+    debugNylas(`Successfully created the integration and connected to nylas`);
+
+    return res.json({ status: 'ok' });
+  });
+
+  app.post('/nylas/remove-calendars', async (req, res, next) => {
+    const { erxesCalendarId } = req.body;
+
+    try {
+      const { _id, nylasAccountId } = await Integrations.findOne({
+        erxesApiId: erxesCalendarId
+      });
+
+      const calendars = await NylasCalendars.find({
+        accountUid: nylasAccountId
+      }).select('providerCalendarId');
+
+      const calendarIds = calendars.map(c => {
+        return c.providerCalendarId;
+      });
+
+      await Integrations.remove({ _id });
+      await NylasCalendars.remove({ accountUid: nylasAccountId });
+      await NylasEvent.remove({ providerCalendarId: { $in: calendarIds } });
+    } catch (e) {
+      return next(e);
+    }
+
+    return res.json({ status: 'ok' });
+  });
+
   app.post('/nylas/send', async (req, res, next) => {
     debugRequest(debugNylas, req);
     debugNylas('Sending message...');
@@ -189,7 +237,6 @@ export const initNylas = async app => {
       const calendars = await NylasCalendars.find({
         accountUid: { $in: uids }
       });
-      console.log(calendars);
     } catch (e) {
       next(e);
     }

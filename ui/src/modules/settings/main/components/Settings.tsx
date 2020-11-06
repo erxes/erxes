@@ -101,6 +101,13 @@ const permissionActions = [
   'showPermissionActions',
   'exportPermissions'
 ];
+const calendarActions = [
+  'calendarsAdd',
+  'calendarsEdit',
+  'calendarsRemove',
+  'showCalendars',
+  'showCalendarsMain'
+];
 
 class Settings extends React.PureComponent {
   renderBox(
@@ -328,6 +335,19 @@ class Settings extends React.PureComponent {
               '/settings/boards/task',
               'tasksAll',
               taskPermissions
+            )}
+          </div>
+        </Row>
+        <Divider />
+        <Row>
+          <RowTitle>{__('Calendar Settings')}</RowTitle>
+          <div id={'SettingsCalendarSettings'}>
+            {this.renderBox(
+              'Groups & Calendars',
+              '/images/icons/erxes-21.svg',
+              '/settings/calendars',
+              'calendarsAll',
+              calendarActions
             )}
           </div>
         </Row>

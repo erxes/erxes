@@ -5,9 +5,12 @@ import LeftSidebar from '../containers/Sidebar';
 import { MainContainer } from '../styles';
 import { TYPES } from '../constants';
 import { generateFilters } from '../utils';
+import { ICalendar } from 'modules/settings/calendars/types';
+import EmptyState from 'modules/common/components/EmptyState';
+import Button from 'modules/common/components/Button';
 
 type Props = {
-  integrationId?: string;
+  calendars: ICalendar[];
   history: any;
   queryParams: any;
 };
@@ -37,11 +40,37 @@ class Calendar extends React.Component<Props, State> {
 
   render() {
     const { type, currentDate } = this.state;
-    const { integrationId, history, queryParams } = this.props;
+    const { calendars, history, queryParams } = this.props;
 
-    if (!integrationId) {
-      return <div>Connect calendar</div>;
+    if (calendars.length === 0) {
+      return (
+        <Wrapper
+          header={<Wrapper.Header title="Calendar" />}
+          content={
+            <>
+              <MainContainer>
+                <EmptyState
+                  icon="calendar-alt"
+                  text="No Calendar"
+                  extra={
+                    <Button
+                      btnStyle="success"
+                      size="small"
+                      href={'/settings/calendars'}
+                    >
+                      Add Calendar
+                    </Button>
+                  }
+                />
+              </MainContainer>
+            </>
+          }
+          transparent={true}
+        />
+      );
     }
+
+    const integrationId = calendars[0]._id;
 
     return (
       <Wrapper

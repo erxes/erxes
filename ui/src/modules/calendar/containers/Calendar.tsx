@@ -2,11 +2,11 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import Spinner from 'modules/common/components/Spinner';
 import { withProps } from 'modules/common/utils';
-import { queries } from 'modules/settings/integrations/graphql';
-import { IntegrationsQueryResponse } from 'modules/settings/integrations/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Calendar from '../components/Calendar';
+import { CalendarsQueryResponse } from 'modules/settings/calendars/types';
+import { queries as CalendarQueries } from 'modules/settings/calendars/graphql';
 
 type Props = {
   history: any;
@@ -14,22 +14,22 @@ type Props = {
 };
 
 type FinalProps = {
-  integrationsQuery: IntegrationsQueryResponse;
+  calendarsQuery: CalendarsQueryResponse;
 } & Props;
 
 class CalendarContainer extends React.Component<FinalProps> {
   render() {
-    const { integrationsQuery } = this.props;
+    const { calendarsQuery } = this.props;
 
-    if (integrationsQuery.loading) {
+    if (calendarsQuery.loading) {
       return <Spinner objective={true} />;
     }
 
-    const integrations = integrationsQuery.integrations || [];
+    const calendars = calendarsQuery.calendars || [];
 
     const updatedProps = {
       ...this.props,
-      integrationId: integrations[0]._id
+      calendars
     };
 
     return <Calendar {...updatedProps} />;
@@ -38,18 +38,15 @@ class CalendarContainer extends React.Component<FinalProps> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, IntegrationsQueryResponse>(gql(queries.integrations), {
-      name: 'integrationsQuery',
-      options: () => {
-        return {
-          notifyOnNetworkStatusChange: true,
-          variables: {
-            kind: 'nylas-gmail',
-            isAvialable: true
-          },
+    graphql<Props, CalendarsQueryResponse, { groupId: string }>(
+      gql(CalendarQueries.calendars),
+      {
+        name: 'calendarsQuery',
+        options: () => ({
+          variables: { groupId: 'CiDdKPLRd8q8awfwb' },
           fetchPolicy: 'network-only'
-        };
+        })
       }
-    })
+    )
   )(CalendarContainer)
 );

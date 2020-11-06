@@ -38,11 +38,13 @@ class EditForm extends React.Component<Props, {}> {
 
           <FormControl {...formProps} name="calendarId" componentClass="select">
             <option>Select calendar</option>
-            {calendars.map(calendar => (
-              <option key={calendar._id} value={calendar.providerCalendarId}>
-                {calendar.name}
-              </option>
-            ))}
+            {calendars
+              .filter(c => !c.readOnly)
+              .map(calendar => (
+                <option key={calendar._id} value={calendar.providerCalendarId}>
+                  {calendar.name}
+                </option>
+              ))}
           </FormControl>
         </FormGroup>
 

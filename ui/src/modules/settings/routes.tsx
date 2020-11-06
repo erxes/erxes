@@ -21,6 +21,7 @@ import ScriptsRoutes from './scripts/routes';
 import StatusRoutes from './status/routes';
 import TeamRoutes from './team/routes';
 import WebhookRoutes from './webhook/routes';
+import CalendarRoutes from './calendars/routes';
 
 const routes = () => (
   <React.Fragment>
@@ -45,6 +46,7 @@ const routes = () => (
     <EmailDeliveryRoutes key="EmailDeliveryRoutes" />
     <GrowthHackRoutes key="GrowthHackRoutes" />
     <WebhookRoutes key="WebhookRoutes" />
+    <CalendarRoutes key="CalendarRoutes" />
   </React.Fragment>
 );
 

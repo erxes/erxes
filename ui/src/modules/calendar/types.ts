@@ -4,7 +4,7 @@ export interface ICalendar {
   account_id: string;
   name?: string;
   description?: string;
-  read_only: boolean;
+  readOnly: boolean;
   providerCalendarId: string;
 }
 

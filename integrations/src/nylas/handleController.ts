@@ -12,7 +12,7 @@ import {
   sendEventAttendance,
   sendMessage,
   updateEvent,
-  uploadFile,
+  uploadFile
 } from './api';
 import {
   connectExchangeToNylas,
@@ -210,7 +210,10 @@ export const nylasGetCalendars = async (erxesApiId: string) => {
       throw new Error(`Integration erxesApiId: ${erxesApiId}`);
     }
 
-    const calendars: ICalendar[] = await getCalenderOrEventList('calendars', integration.nylasToken);
+    const calendars: ICalendar[] = await getCalenderOrEventList(
+      'calendars',
+      integration.nylasToken
+    );
 
     return storeCalendars(calendars);
   } catch (e) {
@@ -226,11 +229,15 @@ export const nylasGetAllEvents = async (erxesApiId: string) => {
       throw new Error(`Integration not found with id: ${erxesApiId}`);
     }
 
-    const calendars = await NylasCalendars.find({ accountUid: integration.nylasAccountId });
+    const calendars = await NylasCalendars.find({
+      accountUid: integration.nylasAccountId
+    });
 
     for (const calendar of calendars) {
       storeEvents(
-        await getCalenderOrEventList('events', integration.nylasToken, { calendar_id: calendar.providerCalendarId }),
+        await getCalenderOrEventList('events', integration.nylasToken, {
+          calendar_id: calendar.providerCalendarId
+        })
       );
     }
   } catch (e) {
@@ -238,7 +245,11 @@ export const nylasGetAllEvents = async (erxesApiId: string) => {
   }
 };
 
-export const nylasGetCalendarOrEvent = async (id: string, type: 'calendars' | 'events', erxesApiId: string) => {
+export const nylasGetCalendarOrEvent = async (
+  id: string,
+  type: 'calendars' | 'events',
+  erxesApiId: string
+) => {
   try {
     debugNylas(`Getting account ${type} erxesApiId: ${erxesApiId}`);
 
@@ -256,7 +267,7 @@ export const nylasGetCalendarOrEvent = async (id: string, type: 'calendars' | 'e
 
 export const nylasCheckCalendarAvailability = async (
   erxesApiId: string,
-  dates: { startTime: number; endTime: number },
+  dates: { startTime: number; endTime: number }
 ) => {
   try {
     const integration = await Integrations.findOne({ erxesApiId });
@@ -267,13 +278,23 @@ export const nylasCheckCalendarAvailability = async (
 
     debugNylas(`Check availability email: ${integration.email}`);
 
-    return checkCalendarAvailability(integration.email, dates, integration.nylasToken);
+    return checkCalendarAvailability(
+      integration.email,
+      dates,
+      integration.nylasToken
+    );
   } catch (e) {
     throw e;
   }
 };
 
-export const nylasDeleteCalendarEvent = async ({ eventId, erxesApiId }: { eventId: string; erxesApiId: string }) => {
+export const nylasDeleteCalendarEvent = async ({
+  eventId,
+  erxesApiId
+}: {
+  eventId: string;
+  erxesApiId: string;
+}) => {
   try {
     debugNylas(`Deleting calendar event id: ${eventId}`);
 
@@ -289,7 +310,13 @@ export const nylasDeleteCalendarEvent = async ({ eventId, erxesApiId }: { eventI
   }
 };
 
-export const nylasCreateCalenderEvent = async ({ erxesApiId, doc }: { erxesApiId: string; doc: IEventDoc }) => {
+export const nylasCreateCalenderEvent = async ({
+  erxesApiId,
+  doc
+}: {
+  erxesApiId: string;
+  doc: IEventDoc;
+}) => {
   try {
     debugNylas(`Creating event in calendar with erxesApiId: ${erxesApiId}`);
 
@@ -308,7 +335,7 @@ export const nylasCreateCalenderEvent = async ({ erxesApiId, doc }: { erxesApiId
 export const nylasUpdateEvent = async ({
   erxesApiId,
   eventId,
-  doc,
+  doc
 }: {
   erxesApiId: string;
   eventId: string;
@@ -332,7 +359,7 @@ export const nylasUpdateEvent = async ({
 export const nylasSendEventAttendance = async ({
   erxesApiId,
   eventId,
-  doc,
+  doc
 }: {
   erxesApiId: string;
   eventId: string;

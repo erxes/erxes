@@ -214,7 +214,12 @@ import {
   types as PipelineLabelTypes
 } from './pipelineLabel';
 
-import { mutations as CalendarMutations } from './calendar';
+import {
+  mutations as CalendarMutations,
+  queries as CalendarQueries,
+  types as CalendarTypes
+} from './calendars';
+
 import {
   mutations as WebhookMutations,
   queries as WebhookQueries,
@@ -270,6 +275,7 @@ export const types = `
   ${PipelineLabelTypes}
   ${WidgetTypes}
   ${WebhookTypes}
+  ${CalendarTypes}
 `;
 
 export const queries = `
@@ -312,6 +318,7 @@ export const queries = `
     ${PipelineLabelQueries}
     ${WidgetQueries}
     ${WebhookQueries}
+    ${CalendarQueries}
   }
 `;
 

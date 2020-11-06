@@ -39,6 +39,7 @@ import Tasks from './Tasks';
 import Tickets from './Tickets';
 import Users from './Users';
 import Webhooks from './Webhook';
+import { Calendars, CalendarGroups } from './Calendars';
 
 export {
   EmailDeliveries,
@@ -88,5 +89,7 @@ export {
   Checklists,
   ChecklistItems,
   OnboardingHistories,
-  Webhooks
+  Webhooks,
+  Calendars,
+  CalendarGroups
 };
