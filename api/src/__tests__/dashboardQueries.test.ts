@@ -4,6 +4,8 @@ import { DashboardItems, Dashboards } from '../db/models';
 
 import './setup.ts';
 
+import { HelpersApi } from '../data/dataSources';
+
 describe('dashboardQueries', () => {
   afterEach(async () => {
     // Clearing test data
@@ -114,5 +116,39 @@ describe('dashboardQueries', () => {
     );
 
     expect(dashboardItemDetail.name).toBe('dashboardItem name');
+  });
+
+  test('Get initial datas of dashboard', async () => {
+    const qry = `
+      query dashboardInitialDatas($type: String) {
+       dashboardInitialDatas(type: $type){
+          vizState
+          name
+          type
+        }
+      }
+    `;
+
+    const dataSources = { HelpersApi: new HelpersApi() };
+
+    const spy = jest.spyOn(dataSources.HelpersApi, 'fetchApi');
+    spy.mockImplementation(() =>
+      Promise.resolve([
+        { name: 'name', vizState: 'vizState', type: 'vizState' }
+      ])
+    );
+
+    const response = await graphqlRequest(
+      qry,
+      'dashboardInitialDatas',
+      {},
+      {
+        dataSources
+      }
+    );
+
+    expect(response).toBeDefined();
+
+    spy.mockRestore();
   });
 });

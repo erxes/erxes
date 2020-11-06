@@ -1,7 +1,7 @@
 import { HTTPCache, RESTDataSource } from 'apollo-datasource-rest';
 import { getSubServiceDomain } from '../utils';
 
-export default class IntegrationsAPI extends RESTDataSource {
+export default class HelpersApi extends RESTDataSource {
   constructor() {
     super();
 

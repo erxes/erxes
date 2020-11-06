@@ -1,3 +1,5 @@
+import * as sinon from 'sinon';
+import * as utils from '../data/utils';
 import { graphqlRequest } from '../db/connection';
 import { dashboardFactory, dashboardItemsFactory } from '../db/factories';
 import { DashboardItems, Dashboards } from '../db/models';
@@ -121,5 +123,37 @@ describe('Test dashboard mutations', () => {
     });
 
     expect(await DashboardItems.findOne({ _id: dashboard._id })).toBe(null);
+  });
+
+  test('Dashboard dashboard send email', async () => {
+    const mock = sinon.stub(utils, 'getDashboardFile').callsFake(() => {
+      return Promise.resolve('success');
+    });
+    // disconnect pipeline connected to board
+    const dashboard = await dashboardItemsFactory({});
+
+    const mutation = `
+      mutation dashboardSendEmail($dashboardId: String!, $toEmails: [String]!, $subject: String, $content: String, $sendUrl:Boolean){
+        dashboardSendEmail(dashboardId: $dashboardId, toEmails: $toEmails, subject: $subject, content: $content, sendUrl: $sendUrl)
+      }
+    `;
+
+    const response1 = await graphqlRequest(mutation, 'dashboardSendEmail', {
+      dashboardId: dashboard._id,
+      toEmails: ['test@gmail.com'],
+      content: 'test'
+    });
+
+    const response2 = await graphqlRequest(mutation, 'dashboardSendEmail', {
+      dashboardId: dashboard._id,
+      toEmails: ['test@gmail.com'],
+      content: 'test',
+      sendUrl: true
+    });
+
+    expect(response1).toBeDefined();
+    expect(response2).toBeDefined();
+
+    mock.restore();
   });
 });
