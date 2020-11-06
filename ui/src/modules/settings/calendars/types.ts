@@ -12,6 +12,7 @@ export interface IGroup {
   _id: string;
   name: string;
   isPrivate: boolean;
+  calendars: ICalendar[];
 }
 
 export type GroupGetLastQueryResponse = {

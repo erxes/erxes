@@ -40,6 +40,7 @@ import Task from './tasks';
 import Ticket from './tickets';
 import User from './user';
 import UsersGroup from './usersGroup';
+import CalendarGroup from './calendar';
 
 const resolvers: any = {
   ...customScalars,
@@ -88,7 +89,8 @@ const resolvers: any = {
   Task,
   UsersGroup,
   Pipeline,
-  GrowthHack
+  GrowthHack,
+  CalendarGroup
 };
 
 export default resolvers;

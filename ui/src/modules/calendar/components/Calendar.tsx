@@ -8,6 +8,9 @@ import { generateFilters } from '../utils';
 import { ICalendar } from 'modules/settings/calendars/types';
 import EmptyState from 'modules/common/components/EmptyState';
 import Button from 'modules/common/components/Button';
+import { BoardContainer, BoardContent } from 'modules/boards/styles/common';
+import Header from 'modules/layout/components/Header';
+import MainActionBar from '../containers/MainActionBar';
 
 type Props = {
   calendars: ICalendar[];
@@ -73,35 +76,40 @@ class Calendar extends React.Component<Props, State> {
     const integrationId = calendars[0]._id;
 
     return (
-      <Wrapper
-        header={<Wrapper.Header title="Calendar" />}
-        leftSidebar={
-          <LeftSidebar
-            dateOnChange={this.dateOnChange}
-            currentDate={currentDate}
-            typeOnChange={this.typeOnChange}
-            type={type}
-            integrationId={integrationId}
-            history={history}
-            queryParams={queryParams}
-            {...generateFilters(currentDate, type)}
-          />
-        }
-        content={
-          <>
-            <MainContainer>
-              <Event
-                {...generateFilters(currentDate, type)}
-                type={type}
+      <BoardContainer>
+        <Header title="Calendar" />
+        <BoardContent transparent={true}>
+          <MainActionBar />
+          <Wrapper
+            leftSidebar={
+              <LeftSidebar
+                dateOnChange={this.dateOnChange}
                 currentDate={currentDate}
+                typeOnChange={this.typeOnChange}
+                type={type}
                 integrationId={integrationId}
+                history={history}
                 queryParams={queryParams}
+                {...generateFilters(currentDate, type)}
               />
-            </MainContainer>
-          </>
-        }
-        transparent={true}
-      />
+            }
+            content={
+              <>
+                <MainContainer>
+                  <Event
+                    {...generateFilters(currentDate, type)}
+                    type={type}
+                    currentDate={currentDate}
+                    integrationId={integrationId}
+                    queryParams={queryParams}
+                  />
+                </MainContainer>
+              </>
+            }
+            transparent={true}
+          />
+        </BoardContent>
+      </BoardContainer>
     );
   }
 }

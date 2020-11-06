@@ -1,9 +1,18 @@
+const groupFields = `
+  _id
+  name
+  isPrivate
+  
+  calendars {
+    _id
+    name
+  }
+`;
+
 const groups = `
   query calendarGroups {
     calendarGroups {
-      _id
-      name
-      isPrivate
+      ${groupFields}
     }
   }
 `;
@@ -11,8 +20,7 @@ const groups = `
 const groupGetLast = `
   query calendarGroupGetLast {
     calendarGroupGetLast {
-      _id
-      name
+      ${groupFields}
     }
   }
 `;
@@ -20,8 +28,7 @@ const groupGetLast = `
 const groupDetail = `
   query calendarGroupDetail($_id: String!) {
     calendarGroupDetail(_id: $_id) {
-      _id
-      name
+      ${groupFields}
     }
   }
 `;

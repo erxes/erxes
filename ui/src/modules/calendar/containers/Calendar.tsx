@@ -42,8 +42,9 @@ export default withProps<Props>(
       gql(CalendarQueries.calendars),
       {
         name: 'calendarsQuery',
-        options: () => ({
-          variables: { groupId: 'CiDdKPLRd8q8awfwb' },
+        skip: props => !props.queryParams.id,
+        options: ({ queryParams }) => ({
+          variables: { groupId: queryParams.id || 'CiDdKPLRd8q8awfwb' },
           fetchPolicy: 'network-only'
         })
       }

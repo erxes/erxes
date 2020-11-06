@@ -10,6 +10,8 @@ export const types = `
     _id: String!
     name: String
     isPrivate: Boolean
+
+    calendars: [Calendar]
   }
 `;
 
