@@ -34,7 +34,7 @@ const userMiddleware = async (req, _res, next) => {
 
       const hostname = await memoryStorage().get('hostname');
 
-      if (!hostname || hostname === undefined) {
+      if (!hostname) {
         memoryStorage().set('hostname', frontendEnv({ name: 'API_URL', req }));
       }
     } catch (e) {
