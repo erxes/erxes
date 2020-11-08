@@ -1,4 +1,4 @@
 language: generic
 rvm:
- - 2.2
+ - 2.5.3
  - jruby
