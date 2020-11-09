@@ -29,6 +29,12 @@ const generateFilterQuery = async ({
     query.kind = kind;
   }
 
+  if (kind === 'calendar') {
+    query.kind = {
+      $in: ['nylas-gmail', 'nylas-office365']
+    };
+  }
+
   if (kind === 'mail') {
     query.kind = {
       $in: [

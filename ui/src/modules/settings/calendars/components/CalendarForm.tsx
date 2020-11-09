@@ -16,32 +16,33 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
 import Select from 'react-select-plus';
+import { IIntegration } from 'modules/settings/integrations/types';
 
 type Props = {
   show: boolean;
-  groupId?: string;
   calendar?: ICalendar;
   groups: IGroup[];
+  integrations: IIntegration[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
-  renderExtraFields?: (formProps: IFormProps) => JSX.Element;
-  extraFields?: any;
 };
 
 type State = {
   backgroundColor: string;
   groupId: string;
+  integrationId: string;
 };
 
 class CalendarForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { calendar } = this.props;
+    const calendar = this.props.calendar || ({} as ICalendar);
 
     this.state = {
-      backgroundColor: (calendar && calendar.color) || colors.colorPrimaryDark,
-      groupId: props.groupId || ''
+      backgroundColor: calendar.color || colors.colorPrimaryDark,
+      groupId: calendar.groupId || '',
+      integrationId: calendar.integrationId || ''
     };
   }
 
@@ -58,8 +59,8 @@ class CalendarForm extends React.Component<Props, State> {
     name: string;
     visibility: string;
   }) => {
-    const { calendar, extraFields } = this.props;
-    const { backgroundColor, groupId } = this.state;
+    const { calendar } = this.props;
+    const { backgroundColor, groupId, integrationId } = this.state;
     const finalValues = values;
 
     if (calendar) {
@@ -68,19 +69,40 @@ class CalendarForm extends React.Component<Props, State> {
 
     return {
       ...finalValues,
-      ...extraFields,
+      integrationId,
       groupId,
       color: backgroundColor
     };
   };
 
+  renderOptions = array => {
+    return array.map(obj => ({
+      value: obj._id,
+      label: obj.name
+    }));
+  };
+
+  renderIntegrations() {
+    const { integrations } = this.props;
+
+    const onChange = item => this.setState({ integrationId: item.value });
+
+    return (
+      <FormGroup>
+        <ControlLabel required={true}>Integration</ControlLabel>
+        <Select
+          placeholder={__('Choose a integration')}
+          value={this.state.integrationId}
+          options={this.renderOptions(integrations)}
+          onChange={onChange}
+          clearable={false}
+        />
+      </FormGroup>
+    );
+  }
+
   renderGroups() {
     const { groups } = this.props;
-
-    const groupOptions = groups.map(group => ({
-      value: group._id,
-      label: group.name
-    }));
 
     const onChange = item => this.setState({ groupId: item.value });
 
@@ -90,7 +112,7 @@ class CalendarForm extends React.Component<Props, State> {
         <Select
           placeholder={__('Choose a group')}
           value={this.state.groupId}
-          options={groupOptions}
+          options={this.renderOptions(groups)}
           onChange={onChange}
           clearable={false}
         />
@@ -99,12 +121,7 @@ class CalendarForm extends React.Component<Props, State> {
   }
 
   renderContent = (formProps: IFormProps) => {
-    const {
-      calendar,
-      renderButton,
-      closeModal,
-      renderExtraFields
-    } = this.props;
+    const { calendar, renderButton, closeModal } = this.props;
     const { values, isSubmitted } = formProps;
     const object = calendar || ({} as ICalendar);
     const calendarName = 'calendar';
@@ -141,8 +158,6 @@ class CalendarForm extends React.Component<Props, State> {
             />
           </FormGroup>
 
-          {renderExtraFields && renderExtraFields(formProps)}
-
           <FlexContent>
             <FormGroup>
               <ControlLabel>Background</ControlLabel>
@@ -164,6 +179,7 @@ class CalendarForm extends React.Component<Props, State> {
           </FlexContent>
 
           {this.renderGroups()}
+          {this.renderIntegrations()}
 
           <Modal.Footer>
             <Button

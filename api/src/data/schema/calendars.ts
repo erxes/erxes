@@ -4,6 +4,8 @@ export const types = `
     name: String
     color: String
     userId: String
+    groupId: String
+    integrationId: String
   }
 
   type CalendarGroup {
@@ -31,6 +33,7 @@ const commonParams = `
   groupId: String!,
   name: String!,
   color: String,
+  integrationId: String!
 `;
 
 const commonGroupParams = `
@@ -50,7 +53,7 @@ export const queries = `
 
 export const mutations = `
   createCalendarEvent(${commonMutationParams}${params}): JSON
-  calendarsAdd(${commonParams}, uid: String): Calendar
+  calendarsAdd(${commonParams}): Calendar
   calendarsEdit(_id: String!, ${commonParams}): Calendar
   calendarsDelete(_id: String!): JSON
   calendarGroupsAdd(${commonGroupParams}): CalendarGroup

@@ -19,7 +19,6 @@ type Props = {
   groupId?: string;
   refetch: ({ groupId }: { groupId?: string }) => Promise<any>;
   currentGroup?: IGroup;
-  customLink: () => void;
 } & IRouterProps;
 
 type State = {
@@ -123,7 +122,7 @@ class Calendars extends React.Component<Props, State> {
   }
 
   renderButton() {
-    const { groupId, customLink } = this.props;
+    const { groupId } = this.props;
 
     if (!groupId) {
       return null;
@@ -135,7 +134,7 @@ class Calendars extends React.Component<Props, State> {
           btnStyle="primary"
           uppercase={false}
           icon="plus-circle"
-          onClick={customLink}
+          onClick={this.addCalendar}
         >
           Add calendar
         </Button>

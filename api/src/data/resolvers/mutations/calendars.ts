@@ -31,25 +31,18 @@ const calendarMutations = {
   /**
    * Create a new calendar
    */
-  async calendarsAdd(
-    _root,
-    { uid, ...doc }: { uid: string } & ICalendar,
-    { user, dataSources }: IContext
-  ) {
+  async calendarsAdd(_root, doc: ICalendar, { user, dataSources }: IContext) {
     const calendar = await Calendars.createCalendar({
       ...doc,
       userId: user._id
     });
 
-    const erxesCalendarId = calendar._id;
-
     try {
       await dataSources.IntegrationsAPI.connectCalendars({
-        erxesCalendarId,
-        uid
+        integrationId: doc.integrationId
       });
     } catch (e) {
-      await Calendars.removeCalendar(erxesCalendarId);
+      await Calendars.removeCalendar(calendar._id);
       debugExternalApi(e.message);
 
       throw new Error(e.message);

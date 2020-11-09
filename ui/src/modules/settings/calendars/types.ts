@@ -6,6 +6,7 @@ export interface ICalendar {
   name: string;
   color: string;
   groupId: string;
+  integrationId: string;
 }
 
 export interface IGroup {

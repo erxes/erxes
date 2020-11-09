@@ -36,17 +36,19 @@ const commonParamsDef = `
   $name: String!,
   $groupId: String!,
   $color: String,
+  $integrationId: String!,
 `;
 
 const commonParams = `
   name: $name,
   color: $color,
-  groupId: $groupId
+  groupId: $groupId,
+  integrationId: $integrationId
 `;
 
 const calendarAdd = `
-  mutation calendarsAdd(${commonParamsDef}, $uid: String) {
-    calendarsAdd(${commonParams}, uid: $uid) {
+  mutation calendarsAdd(${commonParamsDef}) {
+    calendarsAdd(${commonParams}) {
       _id
     }
   }

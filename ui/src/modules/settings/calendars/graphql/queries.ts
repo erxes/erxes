@@ -1,11 +1,17 @@
+const fields = `
+  _id
+  name
+  integrationId
+  groupId
+`;
+
 const groupFields = `
   _id
   name
   isPrivate
   
   calendars {
-    _id
-    name
+    ${fields}
   }
 `;
 
@@ -36,8 +42,7 @@ const groupDetail = `
 const calendars = `
   query calendars($groupId: String!) {
     calendars(groupId: $groupId) {
-      _id
-      name
+      ${fields}
     }
   }
 `;
@@ -45,8 +50,7 @@ const calendars = `
 const calendarDetail = `
   query calendarDetail($_id: String!) {
     calendarDetail(_id: $_id) {
-      _id
-      name
+      ${fields}
     }
   }
 `;

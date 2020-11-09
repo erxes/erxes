@@ -25,7 +25,6 @@ import {
   syncEvents,
   syncMessages
 } from './utils';
-import { connectProviderToNylas } from './auth';
 
 // load config
 dotenv.config();
@@ -160,13 +159,11 @@ export const initNylas = async app => {
   app.post('/nylas/connect-calendars', async (req, res, next) => {
     debugRequest(debugNylas, req);
 
-    const { erxesCalendarId, uid } = req.body;
+    const { integrationId } = req.body;
 
     try {
-      await connectProviderToNylas('gmail', erxesCalendarId, uid);
-
-      await nylasGetCalendars(erxesCalendarId);
-      await nylasGetAllEvents(erxesCalendarId);
+      await nylasGetCalendars(integrationId);
+      await nylasGetAllEvents(integrationId);
     } catch (e) {
       return next(e);
     }
@@ -177,11 +174,11 @@ export const initNylas = async app => {
   });
 
   app.post('/nylas/remove-calendars', async (req, res, next) => {
-    const { erxesCalendarId } = req.body;
+    const { integrationId } = req.body;
 
     try {
-      const { _id, nylasAccountId } = await Integrations.findOne({
-        erxesApiId: erxesCalendarId
+      const { nylasAccountId } = await Integrations.findOne({
+        erxesApiId: integrationId
       });
 
       const calendars = await NylasCalendars.find({
@@ -192,7 +189,6 @@ export const initNylas = async app => {
         return c.providerCalendarId;
       });
 
-      await Integrations.remove({ _id });
       await NylasCalendars.remove({ accountUid: nylasAccountId });
       await NylasEvent.remove({ providerCalendarId: { $in: calendarIds } });
     } catch (e) {

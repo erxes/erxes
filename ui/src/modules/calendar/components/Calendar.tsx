@@ -17,7 +17,7 @@ type Props = {
   history: any;
   queryParams: any;
   currentGroup?: IGroup;
-  currentCalendar?: ICalendar;
+  currentCalendar: ICalendar;
   groups: IGroup[];
 };
 
@@ -83,7 +83,7 @@ class Calendar extends React.Component<Props, State> {
       );
     }
 
-    const integrationId = calendars[0]._id;
+    const integrationId = currentCalendar.integrationId;
 
     return (
       <BoardContainer>

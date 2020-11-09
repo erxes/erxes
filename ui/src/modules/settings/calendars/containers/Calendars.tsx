@@ -15,8 +15,6 @@ import {
   GroupDetailQueryResponse,
   CalendarsQueryResponse
 } from '../types';
-import { getEnv } from 'apolloClient';
-import { INTEGRATIONS } from '../../integrations/constants';
 
 type Props = {
   groupId: string;
@@ -42,20 +40,6 @@ class CalendarsContainer extends React.Component<FinalProps> {
     if (calendarsQuery.loading) {
       return <Spinner />;
     }
-
-    const calendars = calendarsQuery.calendars;
-
-    const customLink = () => {
-      const { REACT_APP_API_URL } = getEnv();
-      const kind = 'nylas-gmail';
-      const integration = INTEGRATIONS.find(i => i.kind === kind);
-
-      const url = `${REACT_APP_API_URL}/connect-integration?link=${
-        integration && integration.createUrl
-      }&kind=${kind}`;
-
-      window.location.replace(url);
-    };
 
     // remove action
     const remove = calendarId => {
@@ -115,6 +99,8 @@ class CalendarsContainer extends React.Component<FinalProps> {
       );
     };
 
+    const calendars = calendarsQuery.calendars;
+
     const extendedProps = {
       ...this.props,
       calendars,
@@ -124,8 +110,7 @@ class CalendarsContainer extends React.Component<FinalProps> {
       renderButton,
       currentGroup: groupDetailQuery
         ? groupDetailQuery.calendarGroupDetail
-        : undefined,
-      customLink
+        : undefined
     };
 
     return <Calendars {...extendedProps} />;
