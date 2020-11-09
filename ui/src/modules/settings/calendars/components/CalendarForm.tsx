@@ -1,6 +1,5 @@
 import { COLORS } from 'modules/boards/constants';
 import { FlexContent } from 'modules/boards/styles/item';
-import { IGroup, ICalendar } from '../types';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
@@ -9,6 +8,7 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { colors } from 'modules/common/styles';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import { IIntegration } from 'modules/settings/integrations/types';
 import { ColorPick, ColorPicker } from 'modules/settings/styles';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
@@ -16,7 +16,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
 import Select from 'react-select-plus';
-import { IIntegration } from 'modules/settings/integrations/types';
+import { ICalendar, IGroup } from '../types';
 
 type Props = {
   show: boolean;

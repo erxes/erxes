@@ -2,6 +2,7 @@ import * as permissionActions from '../permissions/actions';
 import ActivityLog from './activityLog';
 import Board from './boards';
 import Brand from './brand';
+import CalendarGroup from './calendar';
 import Channel from './channel';
 import Checklist from './checklists';
 import Company from './company';
@@ -40,7 +41,6 @@ import Task from './tasks';
 import Ticket from './tickets';
 import User from './user';
 import UsersGroup from './usersGroup';
-import CalendarGroup from './calendar';
 
 const resolvers: any = {
   ...customScalars,

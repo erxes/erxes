@@ -1,16 +1,16 @@
+import { BoardContainer, BoardContent } from 'modules/boards/styles/common';
+import Button from 'modules/common/components/Button';
+import EmptyState from 'modules/common/components/EmptyState';
+import Header from 'modules/layout/components/Header';
 import Wrapper from 'modules/layout/components/Wrapper';
+import { ICalendar, IGroup } from 'modules/settings/calendars/types';
 import React from 'react';
+import { TYPES } from '../constants';
 import Event from '../containers/Event';
 import LeftSidebar from '../containers/Sidebar';
 import { MainContainer } from '../styles';
-import { TYPES } from '../constants';
 import { generateFilters } from '../utils';
-import EmptyState from 'modules/common/components/EmptyState';
-import Button from 'modules/common/components/Button';
-import { BoardContainer, BoardContent } from 'modules/boards/styles/common';
-import Header from 'modules/layout/components/Header';
 import MainActionBar from './MainActionBar';
-import { IGroup, ICalendar } from 'modules/settings/calendars/types';
 
 type Props = {
   history: any;

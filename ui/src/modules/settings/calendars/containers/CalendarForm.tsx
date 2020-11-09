@@ -1,15 +1,15 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { ICalendar, GroupsQueryResponse } from '../types';
 import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import CalendarForm from '../components/CalendarForm';
-import { queries } from '../graphql';
 import { queries as integrationQuery } from '../../integrations/graphql';
 import { IntegrationsQueryResponse } from '../../integrations/types';
+import CalendarForm from '../components/CalendarForm';
+import { queries } from '../graphql';
+import { GroupsQueryResponse, ICalendar } from '../types';
 
 type Props = {
   calendar?: ICalendar;

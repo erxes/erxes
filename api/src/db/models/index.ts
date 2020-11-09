@@ -1,6 +1,7 @@
 import ActivityLogs from './ActivityLogs';
 import { Boards, Pipelines, Stages } from './Boards';
 import Brands from './Brands';
+import { CalendarGroups, Calendars } from './Calendars';
 import Channels from './Channels';
 import { ChecklistItems, Checklists } from './Checklists';
 import Companies from './Companies';
@@ -39,7 +40,6 @@ import Tasks from './Tasks';
 import Tickets from './Tickets';
 import Users from './Users';
 import Webhooks from './Webhook';
-import { Calendars, CalendarGroups } from './Calendars';
 
 export {
   EmailDeliveries,

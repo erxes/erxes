@@ -4,18 +4,18 @@ import { PageHeader } from 'modules/boards/styles/header';
 import Spinner from 'modules/common/components/Spinner';
 import { IRouterProps } from 'modules/common/types';
 import { router as routerUtils, withProps } from 'modules/common/utils';
-import queryString from 'query-string';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import { STORAGE_CALENDAR_GROUP_KEY, STORAGE_CALENDAR_KEY } from '../constants';
 import { queries } from 'modules/settings/calendars/graphql';
 import {
   GroupDetailQueryResponse,
   GroupGetLastQueryResponse,
   GroupsQueryResponse
 } from 'modules/settings/calendars/types';
+import queryString from 'query-string';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
 import Calendar from '../components/Calendar';
+import { STORAGE_CALENDAR_GROUP_KEY, STORAGE_CALENDAR_KEY } from '../constants';
 
 type Props = {
   history: any;
@@ -121,7 +121,7 @@ class Main extends React.Component<FinalProps> {
       queryParams,
       history,
       currentGroup,
-      currentCalendar: currentCalendar,
+      currentCalendar,
       groups: groupsQuery.calendarGroups || []
     };
 

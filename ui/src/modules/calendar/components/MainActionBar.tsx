@@ -1,19 +1,19 @@
-import DropdownToggle from 'modules/common/components/DropdownToggle';
-import EmptyState from 'modules/common/components/EmptyState';
-import Icon from 'modules/common/components/Icon';
-import Tip from 'modules/common/components/Tip';
-import { __ } from 'modules/common/utils';
-import { BarItems } from 'modules/layout/styles';
-import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import { Link } from 'react-router-dom';
 import {
   HeaderButton,
   HeaderLabel,
   HeaderLink,
   PageHeader
 } from 'modules/boards/styles/header';
-import { IGroup, ICalendar } from 'modules/settings/calendars/types';
+import DropdownToggle from 'modules/common/components/DropdownToggle';
+import EmptyState from 'modules/common/components/EmptyState';
+import Icon from 'modules/common/components/Icon';
+import Tip from 'modules/common/components/Tip';
+import { __ } from 'modules/common/utils';
+import { BarItems } from 'modules/layout/styles';
+import { ICalendar, IGroup } from 'modules/settings/calendars/types';
+import React from 'react';
+import Dropdown from 'react-bootstrap/Dropdown';
+import { Link } from 'react-router-dom';
 
 type Props = {
   currentGroup?: IGroup;

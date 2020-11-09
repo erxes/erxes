@@ -8,8 +8,8 @@ import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import CalendarForm from '../containers/CalendarForm';
-import CalendarRow from './CalendarRow';
 import { ICalendar, IGroup } from '../types';
+import CalendarRow from './CalendarRow';
 
 type Props = {
   calendars: ICalendar[];

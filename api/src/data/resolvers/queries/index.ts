@@ -1,6 +1,7 @@
 import activityLogs from './activityLogs';
 import boards from './boards';
 import brands from './brands';
+import calendars from './calendars';
 import channels from './channels';
 import checklists from './checklists';
 import companies from './companies';
@@ -42,7 +43,6 @@ import tickets from './tickets';
 import users from './users';
 import webhooks from './webhooks';
 import widgets from './widgets';
-import calendars from './calendars';
 
 export default {
   ...users,

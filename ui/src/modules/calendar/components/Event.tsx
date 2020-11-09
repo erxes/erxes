@@ -1,7 +1,10 @@
 import dayjs from 'dayjs';
 import Icon from 'modules/common/components/Icon';
 import React from 'react';
+import { TYPES, WEEKS } from '../constants';
+import AddEvent from '../containers/AddEvent';
 import {
+  AddEventBtn,
   CalendarWrapper,
   Cell,
   ColumnHeader,
@@ -14,16 +17,13 @@ import {
   Row,
   RowWrapper,
   WeekCol,
-  WeekWrapper,
   WeekContainer,
-  WeekHours,
   WeekData,
-  AddEventBtn
+  WeekHours,
+  WeekWrapper
 } from '../styles';
 import { IEvent } from '../types';
-import { getDaysInMonth, extractDate, filterEvents } from '../utils';
-import AddEvent from '../containers/AddEvent';
-import { TYPES, WEEKS } from '../constants';
+import { extractDate, filterEvents, getDaysInMonth } from '../utils';
 import Detail from './Detail';
 
 type Props = {
@@ -147,7 +147,7 @@ class Event extends React.Component<Props, State> {
   };
 
   generateWeekData = () => {
-    const data = (day?: Date, week?: string) => {
+    const renderData = (day?: Date, week?: string) => {
       const data: any = [];
 
       if (day && week) {
@@ -175,7 +175,7 @@ class Event extends React.Component<Props, State> {
 
     return (
       <WeekContainer>
-        <WeekHours>{data()}</WeekHours>
+        <WeekHours>{renderData()}</WeekHours>
 
         <WeekWrapper>
           {WEEKS.map((week, index) => {
@@ -184,7 +184,7 @@ class Event extends React.Component<Props, State> {
 
             return (
               <WeekCol key={`week_${index}`}>
-                {data(day, week)}
+                {renderData(day, week)}
                 {this.renderEvents(events, true)}
               </WeekCol>
             );

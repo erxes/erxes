@@ -36,15 +36,21 @@ const calendarMutations = {
       userId: user._id
     });
 
-    try {
-      await dataSources.IntegrationsAPI.connectCalendars({
-        integrationId: doc.integrationId
-      });
-    } catch (e) {
-      await Calendars.removeCalendar(calendar._id);
-      debugExternalApi(e.message);
+    const beforeConnected = await Calendars.findOne({
+      integrationId: doc.integrationId
+    });
 
-      throw new Error(e.message);
+    if (!beforeConnected) {
+      try {
+        await dataSources.IntegrationsAPI.connectCalendars({
+          integrationId: doc.integrationId
+        });
+      } catch (e) {
+        await Calendars.removeCalendar(calendar._id);
+        debugExternalApi(e.message);
+
+        throw new Error(e.message);
+      }
     }
 
     return calendar;

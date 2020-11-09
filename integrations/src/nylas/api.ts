@@ -285,6 +285,8 @@ const getCalendarOrEvent = async (
 
     return JSON.parse(response);
   } catch (e) {
+    debugNylas(`Failed to get events: ${e.message}`);
+
     throw e;
   }
 };
@@ -314,6 +316,8 @@ const getCalenderOrEventList = async (
 
     return responses.map(response => JSON.parse(response));
   } catch (e) {
+    debugNylas(`Failed to get list: ${e.message}`);
+
     throw e;
   }
 };
@@ -344,6 +348,8 @@ const checkCalendarAvailability = async (
 
     return responses.map(response => JSON.parse(response));
   } catch (e) {
+    debugNylas(`Failed to check availability: ${e.message}`);
+
     throw e;
   }
 };
@@ -365,6 +371,8 @@ const deleteCalendarEvent = async (eventId: string, accessToken: string) => {
 
     debugNylas(`Successfully deleted the event`);
   } catch (e) {
+    debugNylas(`Failed to delete event: ${e.message}`);
+
     throw e;
   }
 };
@@ -397,6 +405,8 @@ const createEvent = async (
 
     return event.save({ notify_participants: doc.notifyParticipants });
   } catch (e) {
+    debugNylas(`Failed to create event: ${e.message}`);
+
     throw e;
   }
 };
@@ -435,6 +445,8 @@ const updateEvent = async (
 
     return response;
   } catch (e) {
+    debugNylas(`Failed to update event: ${e.message}`);
+
     throw e;
   }
 };
@@ -461,6 +473,8 @@ const sendEventAttendance = async (
 
     debugNylas(`Successfully send attendance with event id: ${eventId}`);
   } catch (e) {
+    debugNylas(`Failed to send event attendance: ${e.message}`);
+
     throw e;
   }
 };

@@ -6,15 +6,15 @@ import { IButtonMutateProps } from 'modules/common/types';
 import { __, Alert, confirm, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import Calendars from '../components/Calendars';
 import { getWarningMessage } from '../../boards/constants';
+import Calendars from '../components/Calendars';
 import { mutations, queries } from '../graphql';
 import {
-  RemoveCalendarMutationResponse,
-  RemoveCalendarMutationVariables,
-  GroupDetailQueryResponse,
   CalendarsQueryResponse,
-  ICalendar
+  GroupDetailQueryResponse,
+  ICalendar,
+  RemoveCalendarMutationResponse,
+  RemoveCalendarMutationVariables
 } from '../types';
 
 type Props = {

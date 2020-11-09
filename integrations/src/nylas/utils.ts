@@ -71,6 +71,8 @@ export const syncEvents = async (
         break;
     }
   } catch (e) {
+    debugNylas(`Failed to sync events: ${e.message}`);
+
     throw e;
   }
 };
@@ -120,6 +122,8 @@ export const syncCalendars = async (
         break;
     }
   } catch (e) {
+    debugNylas(`Failed to sync calendars: ${e.message}`);
+
     throw e;
   }
 };

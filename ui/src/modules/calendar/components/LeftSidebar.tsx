@@ -1,5 +1,6 @@
 import Datetime from '@nateradebaugh/react-datetime';
 import dayjs from 'dayjs';
+import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import Label from 'modules/common/components/form/Label';
@@ -10,11 +11,10 @@ import Sidebar from 'modules/layout/components/Sidebar';
 import React from 'react';
 import Select from 'react-select-plus';
 import { TYPES } from '../constants';
+import AddEvent from '../containers/AddEvent';
 import { CalendarController, SidebarWrapper } from '../styles';
 import { ICalendar } from '../types';
 import { extractDate } from '../utils';
-import Button from 'modules/common/components/Button';
-import AddEvent from '../containers/AddEvent';
 
 type Props = {
   dateOnChange: (date: string | Date | undefined) => void;
