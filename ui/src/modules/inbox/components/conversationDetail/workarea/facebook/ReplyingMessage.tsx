@@ -87,7 +87,12 @@ class ReplyingMessage extends React.Component<Props, State> {
             Close
           </Button>
 
-          <Button btnStyle="success" type="submit" icon="check-circle" uppercase={false}>
+          <Button
+            btnStyle="success"
+            type="submit"
+            icon="check-circle"
+            uppercase={false}
+          >
             Post
           </Button>
         </Footer>

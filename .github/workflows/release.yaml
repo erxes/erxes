@@ -40,6 +40,10 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-yarn-
 
+    - name: Main - Install dependencies
+      run: |
+        yarn install
+
     - name: Api - Install dependencies
       run: |
         cd api
@@ -53,17 +57,6 @@ jobs:
       run: |
         cd api
         yarn tsc -p tsconfig.prod.json
-
-    - name: Api - Test
-      run: |
-        cd api
-        yarn test
-      env:
-        MONGO_URL: mongodb://localhost/erxes
-        TEST_MONGO_URL: mongodb://localhost/test
-        JWT_TOKEN_SECRET: token
-        MAIN_APP_DOMAIN: http://localhost:3000
-        RABBITMQ_HOST: amqp://localhost
 
     - name: Api - Build
       run: |
@@ -229,16 +222,29 @@ jobs:
 
     - name: Prepare release assets
       run: |
-        mkdir build/widgets
+        mkdir build
 
         mv ui/build build/ui
+
+        mkdir build/widgets
         mv widgets/dist widgets/node_modules widgets/locales widgets/static widgets/package.json build/widgets
+
+        mv api/dist build/api
         mv api/node_modules api/db-migrate-store.js api/package.json build/api
+
+        mv email-verifier/dist build/email-verifier
         mv email-verifier/node_modules email-verifier/package.json build/email-verifier
+
+        mv engages-email-sender/dist build/engages
         mv engages-email-sender/node_modules engages-email-sender/package.json build/engages
+
+        mv logger/dist build/logger
         mv logger/node_modules logger/package.json build/logger
-        mv elkSyncer build/elkSyncer
+
+        mv integrations/dist build/integrations
         mv integrations/node_modules integrations/package.json build/integrations
+
+        mv elkSyncer build/elkSyncer
 
         tar -zcf erxes-${GITHUB_REF#refs/tags/}.tar.gz build
 
