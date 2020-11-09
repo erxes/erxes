@@ -1,0 +1,33 @@
+{
+  "name": "erxes",
+  "version": "0.1.26",
+  "description": "Free and open fair-code licensed all-in-one growth marketing & management software",
+  "homepage": "https://erxes.io",
+  "repository": "https://github.com/erxes/erxes",
+  "bugs": "https://github.com/erxes/erxes/issues",
+  "license": "GNU General Public License v3.0 with Commons Clause",
+  "keywords": [
+    "node",
+    "graphql",
+    "apollo",
+    "react"
+  ],
+  "directories": {
+    "bin": "./bin"
+  },
+  "bin": {
+    "erxes": "./bin/erxes.js"
+  },
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "cli-progress": "^3.8.2",
+    "commander": "^6.2.0",
+    "execa": "^4.1.0",
+    "figlet": "^1.5.0",
+    "fs-extra": "^9.0.1",
+    "kill-port": "^1.6.1",
+    "lodash": "^4.17.20",
+    "request": "^2.88.2",
+    "shelljs": "^0.8.4"
+  }
+}
