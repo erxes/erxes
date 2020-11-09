@@ -1,132 +1,87 @@
-// import { tableSchema } from '../tablePrefix';
+cube(`Customers`, {
+  sql: `SELECT * FROM erxes__customers`,
 
-// cube(`Customers`, {
-//   sql: `SELECT * FROM ${tableSchema()}.customers`,
+  joins: {},
 
-//   joins: {
-//     Integrations: {
-//       sql: `${CUBE}.integrationId = ${Integrations}._id`,
-//       relationship: `belongsTo`,
-//     },
-//   },
+  measures: {
+    count: {
+      type: `count`
+    }
+  },
 
-//   measures: {
-//     count: {
-//       type: `count`,
-//     },
-//   },
+  dimensions: {
+    firstname: {
+      sql: `${CUBE}."firstName"`,
+      type: `string`
+    },
 
-//   segments: {
-//     onlyRegisteredByIntegrations: {
-//       sql: `${CUBE}.integrationId != '' or ${CUBE}.integrationId !=' '`,
-//     },
-//     haveLeadSatus: {
-//       sql: `${CUBE}.leadStatus != '' or !${CUBE}.leadStatus`,
-//     },
-//   },
+    hasauthority: {
+      sql: `${CUBE}."hasAuthority"`,
+      type: `string`
+    },
 
-//   dimensions: {
-//     _id: {
-//       sql: `${CUBE}.\`_id\``,
-//       type: `string`,
-//       primaryKey: true,
-//     },
+    isonline: {
+      sql: `${CUBE}."isOnline"`,
+      type: `string`
+    },
 
-//     integrationName: {
-//       title: 'Integration Name',
-//       type: `string`,
-//       case: {
-//         when: [{ sql: `${CUBE}.integrationId != ''`, label: { sql: `${Integrations}.name` } }],
-//         else: {},
-//       },
-//     },
+    lastname: {
+      sql: `${CUBE}."lastName"`,
+      type: `string`
+    },
 
-//     integrationKind: {
-//       title: 'Integration Kind',
-//       type: `string`,
-//       case: {
-//         when: [{ sql: `${CUBE}.integrationId != ''`, label: { sql: `${Integrations}.kind` } }],
-//         else: {},
-//       },
-//     },
+    phonevalidationstatus: {
+      sql: `${CUBE}."phoneValidationStatus"`,
+      type: `string`
+    },
 
-//     emailValidationStatus: {
-//       title: 'Email validation status',
-//       sql: `${CUBE}.\`emailValidationStatus\``,
-//       type: `string`,
-//     },
+    phones: {
+      sql: `phones`,
+      type: `string`
+    },
 
-//     phoneValidationStatus: {
-//       title: 'Phone Validation Status',
-//       sql: `${CUBE}.\`phoneValidationStatus\``,
-//       type: `string`,
-//     },
+    position: {
+      sql: `position`,
+      type: `string`
+    },
 
-//     leadStatus: {
-//       type: `string`,
-//       title: 'Lead Status',
-//       case: {
-//         when: [{ sql: `${CUBE}.leadStatus != ''`, label: { sql: `${CUBE}.leadStatus` } }],
-//         else: {},
-//       },
-//     },
+    primaryemail: {
+      sql: `${CUBE}."primaryEmail"`,
+      type: `string`
+    },
+    sex: {
+      sql: `sex`,
+      type: `string`
+    },
 
-//     lifecycleState: {
-//       type: `string`,
-//       title: 'Lifecycle State',
-//       case: {
-//         when: [{ sql: `${CUBE}.lifecycleState != ''`, label: { sql: `${CUBE}.lifecycleState` } }],
-//         else: {},
-//       },
-//     },
+    profilescore: {
+      sql: `${CUBE}."profileScore"`,
+      type: `string`
+    },
 
-//     locationCity: {
-//       sql: `${CUBE}.\`location.city\``,
-//       type: `string`,
-//       title: `Location.city`,
-//       shown: false,
-//     },
+    state: {
+      sql: `state`,
+      type: `string`
+    },
 
-//     locationCountry: {
-//       sql: `${CUBE}.\`location.country\``,
-//       type: `string`,
-//       title: `Location.country`,
-//       shown: false,
-//     },
+    status: {
+      sql: `status`,
+      type: `string`
+    },
 
-//     locationCountryCube: {
-//       type: `string`,
-//       title: `Location Country`,
-//       case: {
-//         when: [{ sql: `${locationCountry} != ''`, label: { sql: `${locationCountry}` } }],
-//         else: { label: 'not registered' },
-//       },
-//     },
+    createdat: {
+      sql: `${CUBE}."createdAt"`,
+      type: `time`
+    },
 
-//     locationCityCube: {
-//       type: `string`,
-//       title: `Location  City`,
-//       case: {
-//         when: [{ sql: `${locationCity} != ''`, label: { sql: `${locationCity}` } }],
-//         else: { label: 'not registered' },
-//       },
-//     },
+    birthdate: {
+      sql: `${CUBE}."birthDate"`,
+      type: `time`
+    },
 
-//     status: {
-//       sql: `status`,
-//       type: `string`,
-//     },
-
-//     createdat: {
-//       sql: `${CUBE}.\`createdAt\``,
-//       type: `time`,
-//       title: 'Created Date',
-//     },
-
-//     modifiedat: {
-//       sql: `${CUBE}.\`modifiedAt\``,
-//       type: `time`,
-//       title: 'Modified Date',
-//     },
-//   },
-// });
+    modifiedat: {
+      sql: `${CUBE}."modifiedAt"`,
+      type: `time`
+    }
+  }
+});

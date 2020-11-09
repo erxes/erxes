@@ -1,4 +1,4 @@
-export const resolvers = [
+const resolvers = [
   {
     name: 'Conversations.integrationName',
     indexname: 'erxes__integrations',
@@ -15,3 +15,5 @@ export const resolvers = [
     fieldname: 'username'
   }
 ];
+
+module.exports = resolvers;

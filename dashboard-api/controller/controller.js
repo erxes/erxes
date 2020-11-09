@@ -1,6 +1,6 @@
-import cubejs from '@cubejs-client/core';
-import elasticsearch from 'elasticsearch';
-import { resolvers } from './constants.js';
+const cubejs = require('@cubejs-client/core');
+const elasticsearch = require('elasticsearch');
+const resolvers = require('./constants.js');
 
 const { CUBEJS_TOKEN, CUBEJS_URL, ELASTICSEARCH_URL } = process.env;
 
@@ -54,7 +54,7 @@ const resolver = async (data, dimensions) => {
   return data;
 };
 
-export const generateReport = async (req, res) => {
+const generateReport = async (req, res) => {
   const { query } = req;
 
   if (query.timeDimensions[0]) {
@@ -81,3 +81,5 @@ export const generateReport = async (req, res) => {
 
   res.send(result);
 };
+
+module.exports = generateReport;

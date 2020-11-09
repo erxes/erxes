@@ -30,11 +30,6 @@ cube(`Conversations`, {
       type: `string`
     },
 
-    readuserids: {
-      sql: `${CUBE}."readUserIds"`,
-      type: `string`
-    },
-
     status: {
       sql: `status`,
       type: `string`

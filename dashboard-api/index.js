@@ -1,12 +1,18 @@
-import CubejsServer from '@cubejs-backend/server';
-import dotenv from 'dotenv';
-import { generateReport } from './controller/controller.js';
+const CubejsServer = require('@cubejs-backend/server');
+const dotenv = require('dotenv');
+const generateReport = require('./controller/controller.js');
+const ModifiedElasticSearchDriver = require('./driver.js');
 
 dotenv.config();
 
-const { API_PORT } = process.env;
-
-const server = new CubejsServer();
+const server = new CubejsServer({
+  driverFactory: ({ dataSource }) => {
+    return new ModifiedElasticSearchDriver({
+      xpack: true,
+      dataSource
+    });
+  }
+});
 
 server
   .listen()
