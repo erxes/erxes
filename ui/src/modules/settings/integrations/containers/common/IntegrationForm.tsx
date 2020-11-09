@@ -10,7 +10,6 @@ import TelnyxForm from '../../components/telnyx/TelnyxForm';
 import Viber from '../../components/viber/Viber';
 import WebHookForm from '../../components/webhook/Form';
 import Whatsapp from '../../components/whatsapp/Whatsapp';
-import { INTEGRATION_KINDS } from '../../constants';
 import { getRefetchQueries } from '../utils';
 
 type Props = {
@@ -23,6 +22,16 @@ type State = {
 };
 
 type FinalProps = {} & IRouterProps & Props;
+
+const INTEGRATION_FORM = {
+  callpro: CallPro,
+  chatfuel: Chatfuel,
+  'smooch-viber': Viber,
+  'smooch-telegram': Telegram,
+  whatsapp: Whatsapp,
+  telnyx: TelnyxForm,
+  webhook: WebHookForm
+};
 
 class IntegrationFormContainer extends React.Component<FinalProps, State> {
   constructor(props: FinalProps) {
@@ -61,8 +70,6 @@ class IntegrationFormContainer extends React.Component<FinalProps, State> {
     const { closeModal, type } = this.props;
     const { channelIds } = this.state;
 
-    let Component;
-
     const updatedProps = {
       callback: closeModal,
       renderButton: this.renderButton,
@@ -70,33 +77,7 @@ class IntegrationFormContainer extends React.Component<FinalProps, State> {
       onChannelChange: this.onChannelChange
     };
 
-    if (type === INTEGRATION_KINDS.CALLPRO) {
-      Component = CallPro;
-    }
-
-    if (type === INTEGRATION_KINDS.CHATFUEL) {
-      Component = Chatfuel;
-    }
-
-    if (type === INTEGRATION_KINDS.SMOOCH_VIBER) {
-      Component = Viber;
-    }
-
-    if (type === INTEGRATION_KINDS.SMOOCH_TELEGRAM) {
-      Component = Telegram;
-    }
-
-    if (type === INTEGRATION_KINDS.WHATSAPP) {
-      Component = Whatsapp;
-    }
-
-    if (type === INTEGRATION_KINDS.TELNYX) {
-      Component = TelnyxForm;
-    }
-
-    if (type === INTEGRATION_KINDS.WEBHOOK) {
-      Component = WebHookForm;
-    }
+    const Component = INTEGRATION_FORM[type];
 
     return <Component {...updatedProps} />;
   }

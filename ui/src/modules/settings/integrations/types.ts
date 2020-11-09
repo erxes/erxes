@@ -64,6 +64,7 @@ export interface IMessages {
 
 export interface IMessengerData {
   botEndpointUrl?: string;
+  botShowInitialMessage?: boolean;
   messages?: IMessages;
   notifyCustomer?: boolean;
   supporterIds?: string[];

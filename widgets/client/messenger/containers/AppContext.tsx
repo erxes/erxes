@@ -56,6 +56,7 @@ interface IStore extends IState {
   readConversation: (conversationId: string) => void;
   readMessages: (conversationId: string) => void;
   replyAutoAnswer: (message: string, payload: string, type: string) => void;
+  getBotInitialMessage: () => void;
   changeOperatorStatus: (
     _id: string,
     operatorStatus: string,
@@ -468,6 +469,31 @@ export class AppProvider extends React.Component<{}, IState> {
       });
   };
 
+  getBotInitialMessage = () => {
+    return client.mutate({
+      mutation: gql`
+        mutation widgetGetBotInitialMessage(
+          $customerId: String,
+          $integrationId: String
+        ) {
+            widgetGetBotInitialMessage(
+            customerId: $customerId
+            integrationId: $integrationId
+          )
+        }
+      `,
+      variables: {
+        integrationId: connection.data.integrationId,
+        customerId: connection.data.customerId,
+      }
+    })
+      .then(({ data }) => {
+        if (data.widgetGetBotInitialMessage) {
+          this.setState({ activeConversation: data.widgetGetBotInitialMessage })
+        }
+      })
+  };
+
   replyAutoAnswer = (message: string, payload: string, type: string) => {
     this.setState({ sendingMessage: true });
 
@@ -687,6 +713,7 @@ export class AppProvider extends React.Component<{}, IState> {
           readConversation: this.readConversation,
           readMessages: this.readMessages,
           replyAutoAnswer: this.replyAutoAnswer,
+          getBotInitialMessage: this.getBotInitialMessage,
           changeOperatorStatus: this.changeOperatorStatus,
           sendMessage: this.sendMessage,
           sendTypingInfo: this.sendTypingInfo,

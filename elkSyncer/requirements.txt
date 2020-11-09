@@ -3,3 +3,4 @@ elasticsearch==7.5.1
 elastic2-doc-manager==1.0.0
 python-dotenv==0.11.0
 certifi==0.0.8
+pymongo==3.11.0
