@@ -1,7 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "../build/email-verifier",
+    "outDir": "./dist",
     "sourceMap": false,
     "inlineSourceMap": false,
     "inlineSources": false

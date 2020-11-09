@@ -2,7 +2,6 @@
   "extends": "./tsconfig.json",
   "exclude": ["node_modules", "dist", "src/__tests__"],
   "compilerOptions": {
-    "outDir": "../build/logger",
     "sourceMap": false,
     "inlineSourceMap": false,
     "inlineSources": false

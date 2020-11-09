@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "../build/integrations",
+    "outDir": "./dist",
     "sourceMap": false,
     "inlineSourceMap": false,
     "inlineSources": false
