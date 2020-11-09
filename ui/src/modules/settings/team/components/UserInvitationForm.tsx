@@ -140,7 +140,12 @@ class UserInvitationForm extends React.Component<Props, State> {
           />
         </FormGroup>
         <ModalFooter>
-          <Button btnStyle="simple" onClick={onCancel} uppercase={false} icon="times-circle">
+          <Button
+            btnStyle="simple"
+            onClick={onCancel}
+            uppercase={false}
+            icon="times-circle"
+          >
             Cancel
           </Button>
 

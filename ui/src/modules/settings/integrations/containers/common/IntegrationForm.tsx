@@ -1,16 +1,16 @@
-import ButtonMutate from "modules/common/components/ButtonMutate";
-import { IButtonMutateProps, IRouterProps } from "modules/common/types";
-import CallPro from "modules/settings/integrations/components/callpro/Form";
-import { mutations } from "modules/settings/integrations/graphql";
-import React from "react";
-import { withRouter } from "react-router-dom";
-import Chatfuel from "../../components/chatfuel/Form";
-import Telegram from "../../components/telegram/Telegram";
-import TelnyxForm from "../../components/telnyx/TelnyxForm";
-import Viber from "../../components/viber/Viber";
-import WebHookForm from "../../components/webhook/Form";
-import Whatsapp from "../../components/whatsapp/Whatsapp";
-import { getRefetchQueries } from "../utils";
+import ButtonMutate from 'modules/common/components/ButtonMutate';
+import { IButtonMutateProps, IRouterProps } from 'modules/common/types';
+import CallPro from 'modules/settings/integrations/components/callpro/Form';
+import { mutations } from 'modules/settings/integrations/graphql';
+import React from 'react';
+import { withRouter } from 'react-router-dom';
+import Chatfuel from '../../components/chatfuel/Form';
+import Telegram from '../../components/telegram/Telegram';
+import TelnyxForm from '../../components/telnyx/TelnyxForm';
+import Viber from '../../components/viber/Viber';
+import WebHookForm from '../../components/webhook/Form';
+import Whatsapp from '../../components/whatsapp/Whatsapp';
+import { getRefetchQueries } from '../utils';
 
 type Props = {
   type: string;
@@ -24,13 +24,13 @@ type State = {
 type FinalProps = {} & IRouterProps & Props;
 
 const INTEGRATION_FORM = {
-  'callpro': CallPro,
-  'chatfuel': Chatfuel,
+  callpro: CallPro,
+  chatfuel: Chatfuel,
   'smooch-viber': Viber,
   'smooch-telegram': Telegram,
-  'whatsapp': Whatsapp,
-  'telnyx': TelnyxForm,
-  'webhook': WebHookForm,
+  whatsapp: Whatsapp,
+  telnyx: TelnyxForm,
+  webhook: WebHookForm
 };
 
 class IntegrationFormContainer extends React.Component<FinalProps, State> {
@@ -48,7 +48,7 @@ class IntegrationFormContainer extends React.Component<FinalProps, State> {
     name,
     values,
     isSubmitted,
-    callback,
+    callback
   }: IButtonMutateProps) => {
     const { type } = this.props;
 
@@ -74,7 +74,7 @@ class IntegrationFormContainer extends React.Component<FinalProps, State> {
       callback: closeModal,
       renderButton: this.renderButton,
       channelIds,
-      onChannelChange: this.onChannelChange,
+      onChannelChange: this.onChannelChange
     };
 
     const Component = INTEGRATION_FORM[type];

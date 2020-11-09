@@ -208,7 +208,12 @@ class CustomersMerge extends React.Component<Props, State> {
         </Columns>
 
         <ModalFooter>
-          <Button btnStyle="simple" onClick={closeModal} icon="times-circle" uppercase={false}>
+          <Button
+            btnStyle="simple"
+            onClick={closeModal}
+            icon="times-circle"
+            uppercase={false}
+          >
             Cancel
           </Button>
           <Button

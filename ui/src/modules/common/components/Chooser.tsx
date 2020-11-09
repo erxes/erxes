@@ -211,7 +211,12 @@ class CommonChooser extends React.Component<Props, State> {
               content={renderForm}
             />
             <div>
-              <Button btnStyle="simple" uppercase={false} onClick={closeModal} icon="times-circle">
+              <Button
+                btnStyle="simple"
+                uppercase={false}
+                onClick={closeModal}
+                icon="times-circle"
+              >
                 Cancel
               </Button>
               <Button

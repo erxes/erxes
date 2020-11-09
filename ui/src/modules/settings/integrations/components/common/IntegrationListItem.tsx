@@ -33,7 +33,7 @@ type Props = {
 
 type State = {
   externalData: any;
-}
+};
 
 class IntegrationListItem extends React.Component<Props, State> {
   constructor(props) {
@@ -266,14 +266,20 @@ class IntegrationListItem extends React.Component<Props, State> {
     }
 
     const onClick = () => {
-      client.query({
-        query: gql(queries.fetchApi),
-        variables: { path: '/integrationDetail', params: { erxesApiId: integration._id } }
-      }).then(({ data }) => {
-        this.setState({ externalData: data.integrationsFetchApi });
-      }).catch(e => {
-        Alert.error(e.message);
-      });
+      client
+        .query({
+          query: gql(queries.fetchApi),
+          variables: {
+            path: '/integrationDetail',
+            params: { erxesApiId: integration._id }
+          }
+        })
+        .then(({ data }) => {
+          this.setState({ externalData: data.integrationsFetchApi });
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
     };
 
     return (

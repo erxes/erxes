@@ -39,7 +39,6 @@ class DataWithLoader extends React.Component<Props> {
     } = this.props;
 
     if (loading) {
-
       if (loadingContent) {
         return loadingContent;
       }

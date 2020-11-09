@@ -29,7 +29,8 @@ class Connection extends React.Component<Props, State> {
 
   brandOnChange = e => this.onChangeFunction('brandId', e.target.value);
 
-  handleToggle = e => this.onChangeFunction('botShowInitialMessage', e.target.checked);
+  handleToggle = e =>
+    this.onChangeFunction('botShowInitialMessage', e.target.checked);
 
   channelOnChange = (values: string[]) =>
     this.onChangeFunction('channelIds', values);

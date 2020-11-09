@@ -93,7 +93,7 @@ class Line extends React.Component<Props, State> {
             )}
             .
             <a
-              href="https://docs.erxes.io/administrator/system-config#line"
+              href="https://erxes.org/administrator/system-config#line"
               target="_blank"
               rel="noopener noreferrer"
             >
