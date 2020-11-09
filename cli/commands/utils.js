@@ -264,7 +264,7 @@ module.exports.startServices = async (configs) => {
   }
 
   const uiConfigs = configs.UI || {};
-  const subscriptionsUrl = `${API_DOMAIN.includes('https') ? 'wss' : 'ws'}//${API_DOMAIN.replace('https', '').replace('http', '')}/subscriptions`;
+  const subscriptionsUrl = `${API_DOMAIN.replace('https', 'wss').replace('http', 'ws')}/subscriptions`;
 
   if (uiConfigs.disableServe) {
     log('Default serve is disabled. Please serve using services like nginx, aws s3 ...', 'yellow');
