@@ -19,11 +19,11 @@ type Props = {
 class ArticleList extends React.Component<Props> {
   renderLoading = () => {
     return (
-      <RowArticle style={{ height: '115px'}}>
+      <RowArticle style={{ height: '115px' }}>
         <Spinner />
       </RowArticle>
-    )
-  }
+    );
+  };
 
   renderArticles() {
     const {

@@ -91,11 +91,11 @@ module.exports.downloadLatesVersion = async () => {
   log('Downloading erxes ...');
 
   // download the latest build
-  await execCurl('https://api.github.com/repos/battulgadavaajamts/erxes/releases/latest', 'gitInfo.json')
+  await execCurl('https://api.github.com/repos/erxes/erxes/releases/latest', 'gitInfo.json')
 
   const gitInfo = await fse.readJSON(filePath('gitInfo.json'));
 
-  await downloadFile(`https://github.com/battulgadavaajamts/erxes/releases/download/${gitInfo.tag_name}/erxes-${gitInfo.tag_name}.tar.gz`, 'build.tar.gz')
+  await downloadFile(`https://github.com/erxes/erxes/releases/download/${gitInfo.tag_name}/erxes-${gitInfo.tag_name}.tar.gz`, 'build.tar.gz')
 
   process.chdir(filePath());
 

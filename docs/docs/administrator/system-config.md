@@ -625,15 +625,16 @@ SMTP PORT: 465
 - Enable Less secure app access in [Google settings](https://myaccount.google.com/lesssecureapps) because Google automatically blocks third party access.
 
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/gmail_imap_5.png)
+
 - If you're using GSuite account, please the admin should go to the [Google Admin console](https://admin.google.com/u/5/ac/security/lsa) and allow users to manage their access to less secure apps.
 
-- Allow access to your Google account 
+- Allow access to your Google account
 
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/nylas-imap.png)
 
 > Please make sure that you selected the correct account in the right sidebar of your browser.
-  if you have a multiple accounts https://accounts.google.com/b/0/DisplayUnlockCaptcha - in this URL **/0/** is your first account
-  **/1/** is second account and so on.
+> if you have a multiple accounts https://accounts.google.com/b/0/DisplayUnlockCaptcha - in this URL **/0/** is your first account
+> **/1/** is second account and so on.
 
 ### Yahoo
 
@@ -864,7 +865,7 @@ When you start erxes-integration repo webhook will automatically created accordi
 ### AWS SES
 
 Amazon SES service enables on Erxes Engage system. Another custom mail service is not allowed on Engage system.
-AWS SES configuration is similar with Integration AWS SES. [Go to settings here](https://docs.erxes.io/administrator/system-config#aws-ses)
+AWS SES configuration is similar with Integration AWS SES. [Go to settings here](https://erxes.org/administrator/system-config#aws-ses)
 
 ### Verify email
 

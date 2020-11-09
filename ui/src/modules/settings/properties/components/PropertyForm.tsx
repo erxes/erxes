@@ -222,7 +222,12 @@ class PropertyForm extends React.Component<Props, State> {
         </FormGroup>
 
         <ModalFooter>
-          <Button btnStyle="simple" onClick={closeModal} icon="times-circle" uppercase={false}>
+          <Button
+            btnStyle="simple"
+            onClick={closeModal}
+            icon="times-circle"
+            uppercase={false}
+          >
             Close
           </Button>
 

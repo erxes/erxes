@@ -86,7 +86,7 @@ class TwilioSms extends React.Component<Props, { loading: boolean }> {
         </FormGroup>
 
         <a
-          href="https://docs.erxes.io/administrator/system-config#twilio-sms"
+          href="https://erxes.org/administrator/system-config#twilio-sms"
           target="_blank"
           rel="noopener noreferrer"
         >

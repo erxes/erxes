@@ -377,20 +377,22 @@ describe('insertMessage()', () => {
   });
 
   test('Bot show initial message', async () => {
-    const mock = sinon.stub(utils, 'sendRequest').returns(Promise.resolve({
-      responses: [
-        {
-          type: 'text',
-          text: 'Greeting bot message'
-        }
-      ]
-    }));
+    const mock = sinon.stub(utils, 'sendRequest').returns(
+      Promise.resolve({
+        responses: [
+          {
+            type: 'text',
+            text: 'Greeting bot message'
+          }
+        ]
+      })
+    );
 
     const conversationId = await widgetMutations.widgetGetBotInitialMessage(
       {},
       {
         integrationId: _integrationBot._id,
-        customerId: _customer._id,
+        customerId: _customer._id
       }
     );
 

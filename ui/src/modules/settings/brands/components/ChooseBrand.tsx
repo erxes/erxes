@@ -83,7 +83,12 @@ class ChooseBrand extends React.Component<Props> {
           >
             Cancel
           </Button>
-          <Button btnStyle="success" type="submit" icon="check-circle" uppercase={false}>
+          <Button
+            btnStyle="success"
+            type="submit"
+            icon="check-circle"
+            uppercase={false}
+          >
             Save
           </Button>
         </ModalFooter>
