@@ -1,14 +1,14 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import ButtonMutate from 'modules/common/components/ButtonMutate';
+import Spinner from 'modules/common/components/Spinner';
 import { IButtonMutateProps } from 'modules/common/types';
+import { withProps } from 'modules/common/utils';
 import { queries } from 'modules/settings/integrations/graphql';
 import React from 'react';
+import { graphql } from 'react-apollo';
 import AddForm from '../components/AddForm';
 import { mutations } from '../graphql';
-import { graphql } from 'react-apollo';
-import { withProps } from 'modules/common/utils';
-import Spinner from 'modules/common/components/Spinner';
 
 type Props = {
   integrationId: string;

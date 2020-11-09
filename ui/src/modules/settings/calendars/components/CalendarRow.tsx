@@ -1,15 +1,15 @@
-import { ICalendar } from '../types';
 import ActionButtons from 'modules/common/components/ActionButtons';
 import Button from 'modules/common/components/Button';
 import Tip from 'modules/common/components/Tip';
 import { IButtonMutateProps } from 'modules/common/types';
 import React from 'react';
 import CalendarForm from '../containers/CalendarForm';
+import { ICalendar } from '../types';
 
 type Props = {
   calendar: ICalendar;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  remove: (calendarId: string) => void;
+  remove: (calendar: ICalendar) => void;
   onTogglePopup: () => void;
 };
 
@@ -29,7 +29,7 @@ class CalendarRow extends React.Component<Props, State> {
   renderExtraLinks() {
     const { remove, calendar } = this.props;
 
-    const onClick = () => remove(calendar._id);
+    const onClick = () => remove(calendar);
 
     const edit = () => {
       this.setState({ showModal: true });

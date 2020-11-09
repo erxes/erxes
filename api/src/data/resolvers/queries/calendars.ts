@@ -1,30 +1,42 @@
 import { CalendarGroups, Calendars } from '../../../db/models';
 import {
-  moduleRequireLogin,
-  checkPermission
+  checkPermission,
+  moduleRequireLogin
 } from '../../permissions/wrappers';
+import { IContext } from '../../types';
 import { paginate } from '../../utils';
+
+/**
+ * Common helper for groups
+ */
+const generateFilterQuery = (userId: string) => {
+  return { $or: [{ isPrivate: false }, { userId }] };
+};
 
 const calendarQueries = {
   /**
    *  CalendarGroups list
    */
-  calendarGroups(_root) {
-    return CalendarGroups.find({});
+  calendarGroups(_root, {}, { user }: IContext) {
+    return CalendarGroups.find(generateFilterQuery(user._id));
   },
 
   /**
    *  CalendarGroup detail
    */
-  calendarGroupDetail(_root, { _id }: { _id: string }) {
-    return CalendarGroups.findOne({ _id });
+  async calendarGroupDetail(
+    _root,
+    { _id }: { _id: string },
+    { user }: IContext
+  ) {
+    return CalendarGroups.findOne({ _id, ...generateFilterQuery(user._id) });
   },
 
   /**
    * Get last calendarGroups
    */
-  calendarGroupGetLast(_root) {
-    return CalendarGroups.findOne().sort({
+  async calendarGroupGetLast(_root, {}, { user }: IContext) {
+    return CalendarGroups.findOne(generateFilterQuery(user._id)).sort({
       createdAt: -1
     });
   },

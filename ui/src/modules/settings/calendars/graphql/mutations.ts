@@ -63,8 +63,8 @@ const calendarEdit = `
 `;
 
 const calendarRemove = `
-  mutation calendarsDelete($_id: String!) {
-    calendarsDelete(_id: $_id)
+  mutation calendarsDelete($_id: String!, $integrationId: String!) {
+    calendarsDelete(_id: $_id, integrationId: $integrationId)
   }
 `;
 

@@ -55,7 +55,7 @@ export const mutations = `
   createCalendarEvent(${commonMutationParams}${params}): JSON
   calendarsAdd(${commonParams}): Calendar
   calendarsEdit(_id: String!, ${commonParams}): Calendar
-  calendarsDelete(_id: String!): JSON
+  calendarsDelete(_id: String!, integrationId: String!): JSON
   calendarGroupsAdd(${commonGroupParams}): CalendarGroup
   calendarGroupsEdit(_id: String!, ${commonGroupParams}): CalendarGroup
   calendarGroupsDelete(_id: String!): JSON

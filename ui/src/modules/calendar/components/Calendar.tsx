@@ -13,11 +13,10 @@ import MainActionBar from './MainActionBar';
 import { IGroup, ICalendar } from 'modules/settings/calendars/types';
 
 type Props = {
-  calendars: ICalendar[];
   history: any;
   queryParams: any;
   currentGroup?: IGroup;
-  currentCalendar: ICalendar;
+  currentCalendar?: ICalendar;
   groups: IGroup[];
 };
 
@@ -47,43 +46,12 @@ class Calendar extends React.Component<Props, State> {
   render() {
     const { type, currentDate } = this.state;
     const {
-      calendars,
       history,
       queryParams,
       currentCalendar,
       currentGroup,
       groups
     } = this.props;
-
-    if (calendars.length === 0) {
-      return (
-        <Wrapper
-          header={<Wrapper.Header title="Calendar" />}
-          content={
-            <>
-              <MainContainer>
-                <EmptyState
-                  icon="calendar-alt"
-                  text="No Calendar"
-                  extra={
-                    <Button
-                      btnStyle="success"
-                      size="small"
-                      href={'/settings/calendars'}
-                    >
-                      Add Calendar
-                    </Button>
-                  }
-                />
-              </MainContainer>
-            </>
-          }
-          transparent={true}
-        />
-      );
-    }
-
-    const integrationId = currentCalendar.integrationId;
 
     return (
       <BoardContainer>
@@ -94,34 +62,50 @@ class Calendar extends React.Component<Props, State> {
             currentGroup={currentGroup}
             groups={groups}
           />
-          <Wrapper
-            leftSidebar={
-              <LeftSidebar
-                dateOnChange={this.dateOnChange}
-                currentDate={currentDate}
-                typeOnChange={this.typeOnChange}
-                type={type}
-                integrationId={integrationId}
-                history={history}
-                queryParams={queryParams}
-                {...generateFilters(currentDate, type)}
-              />
-            }
-            content={
-              <>
-                <MainContainer>
-                  <Event
-                    {...generateFilters(currentDate, type)}
-                    type={type}
-                    currentDate={currentDate}
-                    integrationId={integrationId}
-                    queryParams={queryParams}
-                  />
-                </MainContainer>
-              </>
-            }
-            transparent={true}
-          />
+          {currentCalendar ? (
+            <Wrapper
+              leftSidebar={
+                <LeftSidebar
+                  dateOnChange={this.dateOnChange}
+                  currentDate={currentDate}
+                  typeOnChange={this.typeOnChange}
+                  type={type}
+                  integrationId={currentCalendar.integrationId}
+                  history={history}
+                  queryParams={queryParams}
+                  {...generateFilters(currentDate, type)}
+                />
+              }
+              content={
+                <>
+                  <MainContainer>
+                    <Event
+                      {...generateFilters(currentDate, type)}
+                      type={type}
+                      currentDate={currentDate}
+                      integrationId={currentCalendar.integrationId}
+                      queryParams={queryParams}
+                    />
+                  </MainContainer>
+                </>
+              }
+              transparent={true}
+            />
+          ) : (
+            <EmptyState
+              icon="calendar-alt"
+              text="No Calendar"
+              extra={
+                <Button
+                  btnStyle="success"
+                  size="small"
+                  href={'/settings/calendars'}
+                >
+                  Add Calendar
+                </Button>
+              }
+            />
+          )}
         </BoardContent>
       </BoardContainer>
     );

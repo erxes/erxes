@@ -1,17 +1,16 @@
-import * as _ from 'underscore';
-import {
-  checkPermission,
-  moduleRequireLogin
-} from '../../permissions/wrappers';
-import { IContext } from '../../types';
-import { Calendars, CalendarGroups } from '../../../db/models';
-import { debugExternalApi } from '../../../debuggers';
+import { CalendarGroups, Calendars } from '../../../db/models';
 import {
   ICalendar,
   ICalendarDocument,
   ICalendarGroup,
   ICalendarGroupDocument
 } from '../../../db/models/definitions/calendars';
+import { debugExternalApi } from '../../../debuggers';
+import {
+  checkPermission,
+  moduleRequireLogin
+} from '../../permissions/wrappers';
+import { IContext } from '../../types';
 
 interface IEvent {
   title?: string;
@@ -61,18 +60,20 @@ const calendarMutations = {
   /**
    * Remove a calendar
    */
-  async calendarsDelete(_root, _id: string, { dataSources }: IContext) {
+  async calendarsDelete(
+    _root,
+    doc: { _id: string; integrationId: string },
+    { dataSources }: IContext
+  ) {
     try {
-      await dataSources.IntegrationsAPI.deleteCalendars({
-        erxesCalendarId: _id
-      });
+      await dataSources.IntegrationsAPI.deleteCalendars(doc);
     } catch (e) {
       debugExternalApi(e.message);
 
       throw new Error(e.message);
     }
 
-    return Calendars.removeCalendar(_id);
+    return Calendars.removeCalendar(doc._id);
   },
 
   /**

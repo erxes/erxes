@@ -7,10 +7,10 @@ import routerUtils from 'modules/common/utils/router';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import Groups from '../components/Groups';
 import { getWarningMessage } from '../../boards/constants';
+import Groups from '../components/Groups';
 import { mutations, queries } from '../graphql';
-import { RemoveGroupMutationResponse, GroupsQueryResponse } from '../types';
+import { GroupsQueryResponse, RemoveGroupMutationResponse } from '../types';
 
 type Props = {
   history?: any;

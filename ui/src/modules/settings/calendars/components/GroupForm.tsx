@@ -1,4 +1,3 @@
-import { IGroup } from '../types';
 import Button from 'modules/common/components/Button';
 import FormControl from 'modules/common/components/form/Control';
 import Form from 'modules/common/components/form/Form';
@@ -7,6 +6,7 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { ModalFooter } from 'modules/common/styles/main';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import React from 'react';
+import { IGroup } from '../types';
 
 type Props = {
   group?: IGroup;

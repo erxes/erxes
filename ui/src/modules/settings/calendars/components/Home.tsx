@@ -2,8 +2,8 @@ import HeaderDescription from 'modules/common/components/HeaderDescription';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
-import Groups from '../containers/Groups';
 import Calendars from '../containers/Calendars';
+import Groups from '../containers/Groups';
 
 type Props = {
   groupId: string;

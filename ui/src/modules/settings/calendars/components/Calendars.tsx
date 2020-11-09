@@ -15,7 +15,7 @@ type Props = {
   calendars: ICalendar[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   updateOrder?: any;
-  remove: (calendarId: string) => void;
+  remove: (calendar: ICalendar) => void;
   groupId?: string;
   refetch: ({ groupId }: { groupId?: string }) => Promise<any>;
   currentGroup?: IGroup;

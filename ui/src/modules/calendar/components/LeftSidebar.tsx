@@ -192,7 +192,7 @@ class LeftSidebar extends React.Component<Props, State> {
               size="small"
               uppercase={false}
               btnStyle="success"
-              onClick={this.onHideModal.bind(this)}
+              onClick={this.onHideModal}
             >
               Create Event
             </Button>

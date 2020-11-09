@@ -1,4 +1,7 @@
+import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import { TopHeader } from 'modules/common/styles/main';
 import { IButtonMutateProps } from 'modules/common/types';
 import Sidebar from 'modules/layout/components/Sidebar';
 import { SidebarList as List } from 'modules/layout/styles';
@@ -6,9 +9,6 @@ import React from 'react';
 import { IGroup } from '../types';
 import GroupForm from './GroupForm';
 import GroupRow from './GroupRow';
-import Button from 'modules/common/components/Button';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import { TopHeader } from 'modules/common/styles/main';
 
 type Props = {
   currentGroupId?: string;

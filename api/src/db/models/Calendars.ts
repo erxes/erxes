@@ -1,9 +1,9 @@
 import { Model, model } from 'mongoose';
 import {
+  calendarGroupSchema,
   calendarSchema,
   ICalendar,
   ICalendarDocument,
-  calendarGroupSchema,
   ICalendarGroup,
   ICalendarGroupDocument
 } from './definitions/calendars';

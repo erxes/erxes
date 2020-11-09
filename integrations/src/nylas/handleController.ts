@@ -217,6 +217,8 @@ export const nylasGetCalendars = async (erxesApiId: string) => {
 
     return storeCalendars(calendars);
   } catch (e) {
+    debugNylas(`Failed to get calendars: ${e.message}`);
+
     throw e;
   }
 };
@@ -241,6 +243,8 @@ export const nylasGetAllEvents = async (erxesApiId: string) => {
       );
     }
   } catch (e) {
+    debugNylas(`Failed to get events: ${e.message}`);
+
     throw e;
   }
 };
@@ -261,6 +265,8 @@ export const nylasGetCalendarOrEvent = async (
 
     return getCalendarOrEvent(id, type, integration.nylasToken);
   } catch (e) {
+    debugNylas(`Failed to get events: ${e.message}`);
+
     throw e;
   }
 };
@@ -284,6 +290,8 @@ export const nylasCheckCalendarAvailability = async (
       integration.nylasToken
     );
   } catch (e) {
+    debugNylas(`Failed to check Availability: ${e.message}`);
+
     throw e;
   }
 };
@@ -306,6 +314,8 @@ export const nylasDeleteCalendarEvent = async ({
 
     return deleteCalendarEvent(eventId, integration.nylasToken);
   } catch (e) {
+    debugNylas(`Failed to delete event: ${e.message}`);
+
     throw e;
   }
 };
@@ -328,6 +338,8 @@ export const nylasCreateCalenderEvent = async ({
 
     return createEvent(doc, integration.nylasToken);
   } catch (e) {
+    debugNylas(`Failed to create event: ${e.message}`);
+
     throw e;
   }
 };
@@ -352,6 +364,8 @@ export const nylasUpdateEvent = async ({
 
     return updateEvent(eventId, doc, integratoin.nylasToken);
   } catch (e) {
+    debugNylas(`Failed to update event: ${e.message}`);
+
     throw e;
   }
 };
@@ -376,6 +390,8 @@ export const nylasSendEventAttendance = async ({
 
     return sendEventAttendance(eventId, doc, integration.nylasToken);
   } catch (e) {
+    debugNylas(`Failed to send event attendance: ${e.message}`);
+
     throw e;
   }
 };

@@ -11,11 +11,11 @@ import {
   nylasCheckCalendarAvailability,
   nylasCreateCalenderEvent,
   nylasFileUpload,
+  nylasGetAllEvents,
   nylasGetAttachment,
   nylasGetCalendarOrEvent,
-  nylasSendEmail,
   nylasGetCalendars,
-  nylasGetAllEvents
+  nylasSendEmail
 } from './handleController';
 import loginMiddleware from './loginMiddleware';
 import { NylasCalendars, NylasEvent } from './models';
@@ -230,7 +230,7 @@ export const initNylas = async app => {
 
       const uids = integrations.map(integration => integration.nylasAccountId);
 
-      const calendars = await NylasCalendars.find({
+      await NylasCalendars.find({
         accountUid: { $in: uids }
       });
     } catch (e) {
@@ -284,6 +284,10 @@ export const initNylas = async app => {
 
       if (!events) {
         throw new Error('Events not found');
+      }
+
+      if (events.length === 0 && new Date() < new Date(endTime)) {
+        console.log(' ---- ', endTime);
       }
 
       return res.json(events);

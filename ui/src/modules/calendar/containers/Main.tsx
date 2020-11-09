@@ -15,7 +15,7 @@ import {
   GroupGetLastQueryResponse,
   GroupsQueryResponse
 } from 'modules/settings/calendars/types';
-import Calendar from './Calendar';
+import Calendar from '../components/Calendar';
 
 type Props = {
   history: any;
@@ -114,14 +114,14 @@ class Main extends React.Component<FinalProps> {
     const calendars = currentGroup ? currentGroup.calendars || [] : [];
 
     const currentCalendar = calendarId
-      ? calendars.find(calendar => calendar._id === calendarId)
+      ? calendars.find(calendar => calendar._id === calendarId) || calendars[0]
       : calendars[0];
 
     const props = {
       queryParams,
       history,
       currentGroup,
-      currentCalendar,
+      currentCalendar: currentCalendar,
       groups: groupsQuery.calendarGroups || []
     };
 

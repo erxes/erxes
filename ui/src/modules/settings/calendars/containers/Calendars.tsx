@@ -13,7 +13,8 @@ import {
   RemoveCalendarMutationResponse,
   RemoveCalendarMutationVariables,
   GroupDetailQueryResponse,
-  CalendarsQueryResponse
+  CalendarsQueryResponse,
+  ICalendar
 } from '../types';
 
 type Props = {
@@ -42,11 +43,14 @@ class CalendarsContainer extends React.Component<FinalProps> {
     }
 
     // remove action
-    const remove = calendarId => {
+    const remove = (calendar: ICalendar) => {
       confirm(getWarningMessage('Calendar'), { hasDeleteConfirm: true }).then(
         () => {
           removeCalendarMutation({
-            variables: { _id: calendarId },
+            variables: {
+              _id: calendar._id,
+              integrationId: calendar.integrationId
+            },
             refetchQueries: getRefetchQueries(groupId)
           })
             .then(() => {

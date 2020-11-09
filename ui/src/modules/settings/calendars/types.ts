@@ -71,6 +71,7 @@ export type RemoveGroupMutationResponse = {
 
 export type RemoveCalendarMutationVariables = {
   _id: string;
+  integrationId: string;
 };
 
 export type RemoveCalendarMutationResponse = {
