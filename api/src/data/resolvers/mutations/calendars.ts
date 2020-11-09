@@ -71,12 +71,20 @@ const calendarMutations = {
     doc: { _id: string; integrationId: string },
     { dataSources }: IContext
   ) {
-    try {
-      await dataSources.IntegrationsAPI.deleteCalendars(doc);
-    } catch (e) {
-      debugExternalApi(e.message);
+    const calendars = await Calendars.find({
+      integrationId: doc.integrationId
+    });
 
-      throw new Error(e.message);
+    if (calendars.length === 1) {
+      try {
+        await dataSources.IntegrationsAPI.deleteCalendars({
+          integrationId: doc.integrationId
+        });
+      } catch (e) {
+        debugExternalApi(e.message);
+
+        throw new Error(e.message);
+      }
     }
 
     return Calendars.removeCalendar(doc._id);

@@ -50,7 +50,7 @@ class LeftSidebar extends React.Component<Props, State> {
     });
   };
 
-  componentDidMount() {
+  setCalendarIds = () => {
     const { queryParams, calendars, history } = this.props;
 
     if (!queryParams.calendarIds) {
@@ -58,8 +58,22 @@ class LeftSidebar extends React.Component<Props, State> {
 
       this.setState({ calendarIds });
       router.setParams(history, { calendarIds: calendarIds.toString() }, true);
-    } else {
-      this.setState({ calendarIds: queryParams.calendarIds.split(',') });
+    }
+  };
+
+  componentDidUpdate() {
+    this.setCalendarIds();
+  }
+
+  componentDidMount() {
+    const queryParams = this.props.queryParams;
+
+    this.setCalendarIds();
+
+    if (queryParams.calendarIds) {
+      this.setState({
+        calendarIds: queryParams.calendarIds.split(',')
+      });
     }
   }
 

@@ -286,10 +286,6 @@ export const initNylas = async app => {
         throw new Error('Events not found');
       }
 
-      if (events.length === 0 && new Date() < new Date(endTime)) {
-        console.log(' ---- ', endTime);
-      }
-
       return res.json(events);
     } catch (e) {
       next(e);
