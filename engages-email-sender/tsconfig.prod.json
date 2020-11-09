@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "../build/engages",
+    "outDir": "./dist",
     "sourceMap": false,
     "inlineSourceMap": false,
     "inlineSources": false
