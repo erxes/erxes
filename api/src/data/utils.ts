@@ -1352,19 +1352,15 @@ export const getDashboardFile = async (dashboardId: string) => {
 
   const DASHBOARD_DOMAIN = getSubServiceDomain({ name: 'DASHBOARD_DOMAIN' });
 
-  try {
-    const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
-    const page = await browser.newPage();
+  const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
+  const page = await browser.newPage();
 
-    await page.goto(`${DASHBOARD_DOMAIN}/details/${dashboardId}?pdf=true`);
-    await timeout(5000);
+  await page.goto(`${DASHBOARD_DOMAIN}/details/${dashboardId}?pdf=true`);
+  await timeout(5000);
 
-    const pdf = await page.pdf({ format: 'A4' });
+  const pdf = await page.pdf({ format: 'A4' });
 
-    await browser.close();
+  await browser.close();
 
-    return pdf;
-  } catch (e) {
-    throw e;
-  }
+  return pdf;
 };

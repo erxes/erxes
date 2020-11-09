@@ -1,6 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import debounce from 'lodash/debounce';
+import Spinner from 'modules/common/components/Spinner';
 import { IRouterProps } from 'modules/common/types';
 import { Alert, confirm, withProps } from 'modules/common/utils';
 import React from 'react';
@@ -31,6 +32,10 @@ class DashboardListContainer extends React.Component<FinalProps> {
       history,
       currentDashboard
     } = this.props;
+
+    if (dashboardsQuery.loading) {
+      return <Spinner />;
+    }
 
     const dashboards = dashboardsQuery ? dashboardsQuery.dashboards || [] : [];
 

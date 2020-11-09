@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import Spinner from 'modules/common/components/Spinner';
 import { IRouterProps } from 'modules/common/types';
 import { withProps } from 'modules/common/utils';
 import React from 'react';
@@ -18,6 +19,10 @@ type FinalProps = {
 class HomeContainer extends React.Component<FinalProps> {
   render() {
     const { dashboardsQuery } = this.props;
+
+    if (dashboardsQuery.loading) {
+      return <Spinner />;
+    }
 
     const dashboards = dashboardsQuery ? dashboardsQuery.dashboards || [] : [];
 
