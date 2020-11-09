@@ -63,6 +63,7 @@ jobs:
         cd api
         yarn test
       env:
+        PORT: 3000
         MONGO_URL: mongodb://localhost/erxes
         TEST_MONGO_URL: mongodb://localhost/test
         JWT_TOKEN_SECRET: token
