@@ -52,13 +52,17 @@ class Participators extends React.Component<Props, { toggle: boolean }> {
 
     const Trigger = user => {
       const name = user.details.fullName || user.username || '';
-      
+
       return (
         <Tip key={user._id} placement="bottom" text={name}>
-          <ParticipatorImg title={`Participator: ${name}`} key={user._id} src={getUserAvatar(user)} />
+          <ParticipatorImg
+            title={`Participator: ${name}`}
+            key={user._id}
+            src={getUserAvatar(user)}
+          />
         </Tip>
       );
-    }
+    };
 
     const Tooltip = (
       <Tip placement="top" text={__('View more')}>

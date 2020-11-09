@@ -1,4 +1,5 @@
 import { IUser, IUserLinks } from 'modules/auth/types';
+import AutoCompletionSelect from 'modules/common/components/AutoCompletionSelect';
 import AvatarUpload from 'modules/common/components/AvatarUpload';
 import Button from 'modules/common/components/Button';
 import CollapseContent from 'modules/common/components/CollapseContent';
@@ -7,7 +8,6 @@ import DateControl from 'modules/common/components/form/DateControl';
 import Form from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
-import ModifiableSelect from 'modules/common/components/ModifiableSelect';
 import {
   DateContainer,
   FormColumn,
@@ -22,6 +22,10 @@ import {
 } from 'modules/common/types';
 import { Alert, getConstantFromStore } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
+import {
+  EMAIL_VALIDATION_STATUSES,
+  PHONE_VALIDATION_STATUSES
+} from 'modules/customers/constants';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
 import React from 'react';
 import validator from 'validator';
@@ -30,11 +34,13 @@ import { genderChoices, isValidPhone } from '../../utils';
 
 type Props = {
   currentUser: IUser;
+  autoCompletionQuery: string;
   customer?: ICustomer;
   closeModal: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   queryParams: IQueryParams;
   changeRedirectType?: (type: string) => void;
+  changeVerificationStatus?: (isEmail: boolean) => void;
 };
 
 type State = {
@@ -92,6 +98,8 @@ class CustomerForm extends React.Component<Props, State> {
       leadStatus: finalValues.leadStatus,
       description: finalValues.description,
       code: finalValues.code,
+      emailValidationStatus: finalValues.emailValidationStatus,
+      phoneValidationStatus: finalValues.phoneValidationStatus,
       links
     };
   };
@@ -170,6 +178,22 @@ class CustomerForm extends React.Component<Props, State> {
     }
   };
 
+  onEmailVerificationStatusChange = e => {
+    const { changeVerificationStatus } = this.props;
+
+    if (changeVerificationStatus) {
+      changeVerificationStatus(true);
+    }
+  };
+
+  onPhoneVerificationStatusChange = e => {
+    const { changeVerificationStatus } = this.props;
+
+    if (changeVerificationStatus) {
+      changeVerificationStatus(true);
+    }
+  };
+
   hasEmail = () => {
     const customer = this.props.customer || ({} as ICustomer);
 
@@ -191,7 +215,7 @@ class CustomerForm extends React.Component<Props, State> {
   }
 
   renderContent = (formProps: IFormProps) => {
-    const { closeModal, renderButton } = this.props;
+    const { closeModal, renderButton, autoCompletionQuery } = this.props;
     const { values, isSubmitted, resetSubmit } = formProps;
 
     const customer = this.props.customer || ({} as ICustomer);
@@ -243,18 +267,26 @@ class CustomerForm extends React.Component<Props, State> {
 
                 <FormGroup>
                   <ControlLabel required={true}>Email</ControlLabel>
-                  <ModifiableSelect
-                    id="customerPrimaryEmailSave"
-                    value={primaryEmail}
-                    type="email"
-                    options={this.getEmailsOptions(customer)}
-                    name="Email"
-                    onChange={this.onEmailChange}
+                  <AutoCompletionSelect
                     required={true}
+                    defaultValue={primaryEmail}
+                    defaultOptions={this.getEmailsOptions(customer)}
+                    autoCompletionType="emails"
+                    placeholder="Enter an email"
+                    queryName="customers"
+                    query={autoCompletionQuery}
                     checkFormat={validator.isEmail}
-                    adding={!this.hasEmail()}
+                    onChange={this.onEmailChange}
                   />
                 </FormGroup>
+
+                {this.renderFormGroup('Primary email verification status', {
+                  ...formProps,
+                  name: 'emailValidationStatus',
+                  componentClass: 'select',
+                  defaultValue: customer.emailValidationStatus || 'unknown',
+                  options: EMAIL_VALIDATION_STATUSES
+                })}
 
                 {this.renderFormGroup('Pronoun', {
                   ...formProps,
@@ -290,14 +322,25 @@ class CustomerForm extends React.Component<Props, State> {
 
                 <FormGroup>
                   <ControlLabel>Phone</ControlLabel>
-                  <ModifiableSelect
-                    value={primaryPhone}
-                    options={this.getPhonesOptions(customer)}
-                    name="Phone"
-                    onChange={this.onPhoneChange}
+                  <AutoCompletionSelect
+                    defaultValue={primaryPhone}
+                    defaultOptions={this.getPhonesOptions(customer)}
+                    autoCompletionType="phones"
+                    placeholder="Enter an phone"
+                    queryName="customers"
+                    query={autoCompletionQuery}
                     checkFormat={isValidPhone}
+                    onChange={this.onPhoneChange}
                   />
                 </FormGroup>
+
+                {this.renderFormGroup('Primary phone verification status', {
+                  ...formProps,
+                  name: 'phoneValidationStatus',
+                  componentClass: 'select',
+                  defaultValue: customer.phoneValidationStatus || 'unknown',
+                  options: PHONE_VALIDATION_STATUSES
+                })}
 
                 <FormGroup>
                   <ControlLabel required={false}>Birthday</ControlLabel>

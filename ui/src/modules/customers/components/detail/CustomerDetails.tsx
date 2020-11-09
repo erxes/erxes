@@ -52,7 +52,7 @@ class CustomerDetails extends React.Component<Props> {
         trigger={triggerEmail}
         size="lg"
         content={content}
-        paddingContent="no-padding"
+        paddingContent="less-padding"
         enforceFocus={false}
       />
     );

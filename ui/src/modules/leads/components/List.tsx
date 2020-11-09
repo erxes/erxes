@@ -39,7 +39,14 @@ class List extends React.Component<Props, {}> {
   };
 
   renderRow() {
-    const { integrations, remove, bulk, toggleBulk, archive, queryParams } = this.props;
+    const {
+      integrations,
+      remove,
+      bulk,
+      toggleBulk,
+      archive,
+      queryParams
+    } = this.props;
 
     return integrations.map(integration => (
       <Row
@@ -153,7 +160,12 @@ class List extends React.Component<Props, {}> {
             data={content}
             loading={loading}
             count={integrations.length}
-            emptyContent={<EmptyContent content={EMPTY_CONTENT_POPUPS} maxItemWidth="360px" />}
+            emptyContent={
+              <EmptyContent
+                content={EMPTY_CONTENT_POPUPS}
+                maxItemWidth="360px"
+              />
+            }
           />
         }
       />

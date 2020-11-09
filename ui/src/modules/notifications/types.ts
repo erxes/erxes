@@ -27,20 +27,18 @@ export type NotificationsQueryResponse = {
 };
 
 export type MarkAsReadMutationResponse = {
-  notificationsMarkAsReadMutation: (
-    params: { variables: { _ids?: string[] } }
-  ) => Promise<any>;
+  notificationsMarkAsReadMutation: (params: {
+    variables: { _ids?: string[] };
+  }) => Promise<any>;
 };
 
 export type NotificationsCountQueryResponse = {
   notificationCounts: number;
-  subscribeToMore: (
-    params: {
-      document: string;
-      updateQuery: () => void;
-      variables: { userId: string | null };
-    }
-  ) => void;
+  subscribeToMore: (params: {
+    document: string;
+    updateQuery: () => void;
+    variables: { userId: string | null };
+  }) => void;
 } & QueryResponse;
 
 export type NotificationModuleType = {
@@ -76,9 +74,9 @@ export type GetNotificationByEmailMutationVariables = {
 };
 
 export type GetNotificationByEmailMutationResponse = {
-  configGetNotificationByEmailMutation: (
-    { variables: GetNotificationByEmailMutationVariables }
-  ) => Promise<any>;
+  configGetNotificationByEmailMutation: ({
+    variables: GetNotificationByEmailMutationVariables
+  }) => Promise<any>;
 };
 
 export type SaveNotificationConfigMutationVariables = {
@@ -86,7 +84,7 @@ export type SaveNotificationConfigMutationVariables = {
 };
 
 export type SaveNotificationConfigMutationResponse = {
-  saveNotificationConfigurationsMutation: (
-    { variables: SaveNotificationConfigMutationVariables }
-  ) => Promise<any>;
+  saveNotificationConfigurationsMutation: ({
+    variables: SaveNotificationConfigMutationVariables
+  }) => Promise<any>;
 };

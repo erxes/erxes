@@ -41,7 +41,10 @@ const TicketMainActionBar = (props: Props) => {
 
   const sources = queryParams ? queryParams.source : [];
   const onSourceSelect = (ops: IOption[]) =>
-    onSelect(ops.map(option => option.value), 'source');
+    onSelect(
+      ops.map(option => option.value),
+      'source'
+    );
 
   const extraFilter = (
     <>

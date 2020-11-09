@@ -24,9 +24,10 @@ type Props = {
   removePropertyGroup: (data: { _id: string }) => any;
   removeProperty: (data: { _id: string }) => void;
   updatePropertyVisible: (data: { _id: string; isVisible: boolean }) => void;
-  updatePropertyGroupVisible: (
-    data: { _id: string; isVisible: boolean }
-  ) => void;
+  updatePropertyGroupVisible: (data: {
+    _id: string;
+    isVisible: boolean;
+  }) => void;
 };
 
 class Properties extends React.Component<Props> {

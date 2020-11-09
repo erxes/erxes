@@ -30,6 +30,7 @@ const mailParamsDef = `
   $from: String!,
   $shouldResolve: Boolean,
   $attachments: [JSON],
+  $customerId: String
 `;
 
 const mailParams = `
@@ -50,6 +51,7 @@ const mailParams = `
   from: $from,
   shouldResolve: $shouldResolve,
   attachments: $attachments,
+  customerId: $customerId
 `;
 
 const integrationSendMail = ` 
@@ -125,61 +127,15 @@ const integrationsRemove = `
   }
 `;
 
-const messengerAppsAddLead = `
-  mutation messengerAppsAddLead(
-    $name: String!
+const messengerAppSave = `
+  mutation messengerAppSave(
     $integrationId: String!
-    $formId: String!
+    $messengerApps: MessengerAppsInput
   ) {
-    messengerAppsAddLead(
-      name: $name
+    messengerAppSave(
       integrationId: $integrationId
-      formId: $formId
-    ) {
-      _id
-    }
-  }
-`;
-
-const messengerAppsAddKnowledgebase = `
-  mutation messengerAppsAddKnowledgebase(
-    $name: String!
-    $integrationId: String!
-    $topicId: String!
-  ) {
-    messengerAppsAddKnowledgebase(
-      name: $name
-      integrationId: $integrationId
-      topicId: $topicId
-    ) {
-      _id
-    }
-  }
-`;
-
-const messengerAppsAddWebsite = `
-  mutation messengerAppsAddWebsite(
-    $name: String!
-    $integrationId: String!
-    $description: String!
-    $buttonText: String!
-    $url: String!
-  ) {
-    messengerAppsAddWebsite(
-      name: $name
-      integrationId: $integrationId
-      description: $description
-      buttonText: $buttonText
-      url: $url
-    ) {
-      _id
-    }
-  }
-`;
-
-const messengerAppsRemove = `
-  mutation messengerAppsRemove($_id: String!) {
-    messengerAppsRemove(_id: $_id)
+      messengerApps: $messengerApps
+    )
   }
 `;
 
@@ -219,11 +175,8 @@ export default {
   integrationsSaveMessengerConfigs,
   integrationsSaveMessengerAppearance,
   integrationsRemove,
-  messengerAppsAddLead,
-  messengerAppsAddKnowledgebase,
-  messengerAppsAddWebsite,
-  messengerAppsRemove,
   removeAccount,
   integrationSendMail,
-  integrationsSendSms
+  integrationsSendSms,
+  messengerAppSave
 };

@@ -10,7 +10,7 @@ import { ICustomer } from 'modules/customers/types';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import CustomerForm from '../components/list/CustomerForm';
-import { mutations } from '../graphql';
+import { mutations, queries } from '../graphql';
 
 type Props = {
   type?: string;
@@ -56,9 +56,7 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
           return history.push(`/contacts/details/${data.customersAdd._id}`);
         }
 
-        const currentLocation = `${window.location.pathname}${
-          window.location.search
-          }`;
+        const currentLocation = `${window.location.pathname}${window.location.search}`;
 
         if (getAssociatedCustomer) {
           getAssociatedCustomer(data.customersAdd);
@@ -87,7 +85,7 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
           uppercase={false}
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
-            } a ${name}`}
+          } a ${name}`}
         />
       );
     };
@@ -104,6 +102,7 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
           <CustomerForm
             {...updatedProps}
             currentUser={currentUser || ({} as IUser)}
+            autoCompletionQuery={queries.customers}
           />
         )}
       </AppConsumer>

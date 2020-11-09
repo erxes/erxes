@@ -1,11 +1,18 @@
 import Button from 'modules/common/components/Button';
+import EditorCK from 'modules/common/components/EditorCK';
 import FormControl from 'modules/common/components/form/Control';
 import CommonForm from 'modules/common/components/form/Form';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
+import Uploader from 'modules/common/components/Uploader';
 import { ModalFooter } from 'modules/common/styles/main';
-import { IButtonMutateProps, IFormProps } from 'modules/common/types';
+import {
+  IAttachment,
+  IButtonMutateProps,
+  IFormProps
+} from 'modules/common/types';
+import { extractAttachment } from 'modules/common/utils';
 import { Row } from 'modules/settings/integrations/styles';
 import React from 'react';
 import { TYPES } from '../../constants';
@@ -40,6 +47,10 @@ class Form extends React.Component<Props> {
 
     if (product) {
       values._id = product._id;
+      values.attachment = product.attachment
+        ? { ...product.attachment, __typename: undefined }
+        : null;
+      values.description = product.description;
     }
 
     const trigger = (
@@ -47,6 +58,19 @@ class Form extends React.Component<Props> {
         Add category
       </Button>
     );
+
+    const onChangeAttachment = (files: IAttachment[]) => {
+      values.attachment = files.length ? files[0] : null;
+      object.attachment = values.attachment;
+    };
+
+    const onChangeDescription = e => {
+      values.description = e.editor.getData();
+      object.description = values.description;
+    };
+
+    const attachments =
+      (object.attachment && extractAttachment([object.attachment])) || [];
 
     return (
       <>
@@ -112,12 +136,27 @@ class Form extends React.Component<Props> {
 
         <FormGroup>
           <ControlLabel>Description</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="description"
-            componentClass="textarea"
-            rows={5}
-            defaultValue={object.description}
+          <EditorCK
+            content={product ? product.description : ''}
+            onChange={onChangeDescription}
+            height={150}
+            name={`product_description_${product ? product._id : ''}`}
+            toolbar={[
+              {
+                name: 'basicstyles',
+                items: [
+                  'Bold',
+                  'Italic',
+                  'NumberedList',
+                  'BulletedList',
+                  'Link',
+                  'Unlink',
+                  '-',
+                  'Image',
+                  'EmojiPanel'
+                ]
+              }
+            ]}
           />
         </FormGroup>
 
@@ -135,6 +174,16 @@ class Form extends React.Component<Props> {
         <FormGroup>
           <ControlLabel>SKU</ControlLabel>
           <FormControl {...formProps} name="sku" defaultValue={object.sku} />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Image</ControlLabel>
+          <Uploader
+            defaultFileList={attachments}
+            onChange={onChangeAttachment}
+            multiple={false}
+            single={true}
+          />
         </FormGroup>
 
         <ModalFooter>

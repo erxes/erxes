@@ -44,9 +44,13 @@ export const setConfig = (key, params) => {
 };
 
 export const isConversationMailKind = (conversation: IConversation) => {
-  const {
-    integration: { kind }
-  } = conversation;
+  // const integration = conversation.integration ? conversation.integration || {};
+  const integration = conversation.integration || {};
+  const { kind } = integration;
+
+  if (!kind) {
+    return false;
+  }
 
   return kind === 'gmail' || kind.includes('nylas');
 };

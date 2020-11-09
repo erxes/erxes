@@ -2,7 +2,7 @@ import client from 'apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { queries } from 'modules/boards/graphql';
-import { Alert, confirm, withProps } from 'modules/common/utils';
+import { __, Alert, confirm, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Stage from '../components/stage/Stage';
@@ -107,14 +107,9 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
   archiveItems = () => {
     const { options, stage, onLoad } = this.props;
 
-    const message = `
-    This will remove all card list from the board. To view archived list and bring them back to the board, click “Menu” > “Archived Items”.
-    Are you sure?
-    `;
-
     const stageId = stage._id;
 
-    confirm(message).then(() => {
+    confirm(__('Archive All Cards in This List?')).then(() => {
       const proccessId = Math.random().toString();
       localStorage.setItem('proccessId', proccessId);
 
@@ -143,12 +138,7 @@ class StageContainer extends React.PureComponent<FinalStageProps> {
   archiveList = () => {
     const { stage, refetchStages, options } = this.props;
 
-    const message = `
-    This will remove list from the board. To view archived list and bring them back to the board, click “Menu” > “Archived Items”.
-    Are you sure?
-    `;
-
-    confirm(message).then(() => {
+    confirm(__('Archive this list?')).then(() => {
       client
         .mutate({
           mutation: gql(mutations.stagesEdit),

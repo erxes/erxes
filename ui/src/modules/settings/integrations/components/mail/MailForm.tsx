@@ -7,7 +7,6 @@ import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 import EditorCK from 'modules/common/containers/EditorCK';
 import { __, Alert, uploadHandler } from 'modules/common/utils';
-import { EMAIL_CONTENT } from 'modules/engage/constants';
 import { Meta } from 'modules/inbox/components/conversationDetail/workarea/mail/style';
 import { FileName } from 'modules/inbox/styles';
 import { IMail } from 'modules/inbox/types';
@@ -49,6 +48,7 @@ type Props = {
   integrations: IIntegration[];
   fromEmail?: string;
   mailData?: IMail;
+  clearOnSubmit?: boolean;
   isReply?: boolean;
   isForward?: boolean;
   replyAll?: boolean;
@@ -56,10 +56,15 @@ type Props = {
   closeModal?: () => void;
   toggleReply?: () => void;
   emailSignatures: IEmailSignature[];
+  fetchMoreEmailTemplates: () => void;
   createdAt?: Date;
-  sendMail: (
-    { variables, callback }: { variables: any; callback: () => void }
-  ) => void;
+  sendMail: ({
+    variables,
+    callback
+  }: {
+    variables: any;
+    callback: () => void;
+  }) => void;
 };
 
 type State = {
@@ -165,6 +170,17 @@ class MailForm extends React.Component<Props, State> {
     });
   }
 
+  clearContent = () => {
+    this.setState({
+      to: '',
+      cc: '',
+      bcc: '',
+      subject: '',
+      content: '',
+      attachments: []
+    });
+  };
+
   onSubmit = (e, shouldResolve = false) => {
     const {
       isReply,
@@ -172,7 +188,8 @@ class MailForm extends React.Component<Props, State> {
       toggleReply,
       integrationId,
       sendMail,
-      isForward
+      isForward,
+      clearOnSubmit
     } = this.props;
 
     const mailData = this.props.mailData || ({} as IMail);
@@ -230,6 +247,10 @@ class MailForm extends React.Component<Props, State> {
       variables,
       callback: () => {
         this.setState({ isLoading: false });
+
+        if (clearOnSubmit) {
+          this.clearContent();
+        }
 
         if (isReply) {
           return toggleReply && toggleReply();
@@ -521,7 +542,7 @@ class MailForm extends React.Component<Props, State> {
         <label>To:</label>
         <FormControl
           autoFocus={this.props.isForward}
-          defaultValue={this.state.to}
+          value={this.state.to}
           onChange={this.onSelectChange.bind(this, 'to')}
           name="to"
           required={true}
@@ -545,7 +566,7 @@ class MailForm extends React.Component<Props, State> {
           componentClass="textarea"
           onChange={this.onSelectChange.bind(this, 'cc')}
           name="cc"
-          defaultValue={cc}
+          value={cc}
         />
       </FlexRow>
     );
@@ -566,7 +587,7 @@ class MailForm extends React.Component<Props, State> {
           onChange={this.onSelectChange.bind(this, 'bcc')}
           componentClass="textarea"
           name="bcc"
-          defaultValue={bcc}
+          value={bcc}
         />
       </FlexRow>
     );
@@ -587,7 +608,7 @@ class MailForm extends React.Component<Props, State> {
             name="subject"
             onChange={this.handleInputChange}
             required={true}
-            defaultValue={subject}
+            value={subject}
             disabled={this.props.isReply}
             autoFocus={true}
           />
@@ -669,7 +690,12 @@ class MailForm extends React.Component<Props, State> {
 
   renderButtons() {
     const { kind } = this.state;
-    const { isReply, emailTemplates, toggleReply } = this.props;
+    const {
+      isReply,
+      emailTemplates,
+      toggleReply,
+      fetchMoreEmailTemplates
+    } = this.props;
 
     const inputProps = {
       type: 'file',
@@ -698,6 +724,7 @@ class MailForm extends React.Component<Props, State> {
 
             <EmailTemplate
               onSelect={this.templateChange}
+              fetchMoreEmailTemplates={fetchMoreEmailTemplates}
               targets={generateEmailTemplateParams(emailTemplates || [])}
             />
           </ToolBar>
@@ -727,7 +754,6 @@ class MailForm extends React.Component<Props, State> {
     return (
       <MailEditorWrapper>
         <EditorCK
-          insertItems={EMAIL_CONTENT}
           toolbar={MAIL_TOOLBARS_CONFIG}
           removePlugins="elementspath"
           content={this.state.content}

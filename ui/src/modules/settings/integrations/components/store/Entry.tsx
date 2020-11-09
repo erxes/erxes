@@ -7,12 +7,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { INTEGRATION_KINDS } from '../../constants';
 import IntegrationForm from '../../containers/common/IntegrationForm';
-import KnowledgeBase from '../../containers/knowledgebase/Form';
-import Lead from '../../containers/lead/Form';
 import LineForm from '../../containers/line/Form';
 import TelnyxForm from '../../containers/telnyx/TelnyxForm';
 import Twitter from '../../containers/twitter/Twitter';
-import Website from '../../containers/website/Form';
 import { Box, IntegrationItem, Ribbon, Type } from './styles';
 
 type TotalCount = {
@@ -40,21 +37,12 @@ type Props = {
   getClassName: (selectedKind: string) => string;
   toggleBox: (kind: string) => void;
   customLink?: (kind: string, addLink: string) => void;
-  messengerAppsCount?: number;
   queryParams: any;
   totalCount: TotalCount;
 };
 
-function getCount(
-  kind: string,
-  totalCount: TotalCount,
-  messengerAppsCount?: number
-) {
+function getCount(kind: string, totalCount: TotalCount) {
   const countByKind = totalCount[kind];
-
-  if (typeof messengerAppsCount === 'number') {
-    return <span>({messengerAppsCount})</span>;
-  }
 
   if (typeof countByKind === 'undefined') {
     return null;
@@ -100,40 +88,6 @@ function renderCreate(createUrl, kind) {
 
   if (kind === INTEGRATION_KINDS.MESSENGER) {
     return <Link to={createUrl}>+ {__('Add')}</Link>;
-  }
-
-  if (kind === INTEGRATION_KINDS.LEAD) {
-    const content = props => <Lead {...props} />;
-
-    return (
-      <ModalTrigger
-        title="Add Pop Ups"
-        trigger={trigger}
-        content={content}
-        autoOpenKey="showPopupAddModal"
-      />
-    );
-  }
-
-  if (kind === 'knowledgeBase') {
-    const content = props => <KnowledgeBase {...props} />;
-
-    return (
-      <ModalTrigger
-        title="Add knowledge base"
-        trigger={trigger}
-        content={content}
-        autoOpenKey="showKBAddModal"
-      />
-    );
-  }
-
-  if (kind === 'website') {
-    const content = props => <Website {...props} />;
-
-    return (
-      <ModalTrigger title="Add website" trigger={trigger} content={content} />
-    );
   }
 
   if (
@@ -212,7 +166,6 @@ function Entry({
   integration,
   getClassName,
   toggleBox,
-  messengerAppsCount,
   totalCount,
   customLink
 }: Props) {
@@ -243,7 +196,7 @@ function Entry({
       <Box onClick={boxOnClick} isInMessenger={integration.inMessenger}>
         <img alt="logo" src={integration.logo} />
         <h5>
-          {integration.name} {getCount(kind, totalCount, messengerAppsCount)}
+          {integration.name} {getCount(kind, totalCount)}
         </h5>
         <p>
           {__(integration.description)}

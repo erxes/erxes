@@ -1,6 +1,7 @@
 {
   "name": "erxes",
   "private": true,
+  "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
     "@daily-co/daily-js": "^0.9.991",
     "@nateradebaugh/react-datetime": "^4.0.0-rc.10",
@@ -71,24 +72,13 @@
     "validator": "^12.1.0",
     "xss": "^1.0.3"
   },
-  "lint-staged": {
-    "linters": {
-      "src/**/*.{ts,tsx,json,css}": [
-        "prettier --single-quote --write",
-        "git add"
-      ]
-    }
-  },
   "scripts": {
-    "format": "prettier --single-quote --write 'src/**/*.@(ts|tsx)'",
-    "precommit": "lint-staged",
     "start": "react-scripts start",
-    "build": "yarn generateVersion && react-scripts build",
+    "build": "yarn generateVersion && GENERATE_SOURCEMAP=false react-scripts build",
     "generateVersion": "node commands/generateVersion.js",
     "compress": "gzip -5 --keep -r build/static/js",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "lint": "tslint 'src/**/*.@(ts|tsx)'",
     "componentTest": "jest --runInBand --forceExit --detectOpenHandles --coverage",
     "open-cypress": "yarn run cypress open",
     "record-cypress": "cypress run --record --key fd048d49-6b4c-4e6b-885f-819a533c2fc4"
@@ -96,12 +86,7 @@
   "devDependencies": {
     "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",
-    "lint-staged": "^5.0.0",
-    "prettier": "^1.8.2",
     "ts-jest": "^23.0.1",
-    "tslint": "^5.18.0",
-    "tslint-config-prettier": "^1.18.0",
-    "tslint-react": "^4.0.0",
     "typescript": "^3.0.3",
     "cypress": "^4.9.0"
   },

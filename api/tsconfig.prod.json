@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../build/api",
+    "sourceMap": false,
+    "inlineSourceMap": false,
+    "inlineSources": false
+  },
+  "include": ["./src/**/*.ts"],
+  "exclude": ["node_modules", "dist", "src/__tests__"]
+}

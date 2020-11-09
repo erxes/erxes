@@ -29,6 +29,7 @@ interface IState {
   isAttachingFile: boolean;
   isBrowserInfoSaved: boolean;
   headHeight: number;
+  botTyping: boolean;
 }
 
 interface IStore extends IState {
@@ -54,6 +55,13 @@ interface IStore extends IState {
   endConversation: () => void;
   readConversation: (conversationId: string) => void;
   readMessages: (conversationId: string) => void;
+  replyAutoAnswer: (message: string, payload: string, type: string) => void;
+  getBotInitialMessage: () => void;
+  changeOperatorStatus: (
+    _id: string,
+    operatorStatus: string,
+    callback: () => void
+  ) => void;
   sendMessage: (
     contentType: string,
     message: string,
@@ -64,6 +72,8 @@ interface IStore extends IState {
   setHeadHeight: (headHeight: number) => void;
   setUnreadCount: (count: number) => void;
   isLoggedIn: () => boolean;
+  setBotTyping: (typing: boolean) => void;
+  botTyping: boolean;
 }
 
 export const MESSAGE_TYPES = {
@@ -111,7 +121,8 @@ export class AppProvider extends React.Component<{}, IState> {
       activeFaqArticle: null,
       isAttachingFile: false,
       isBrowserInfoSaved: false,
-      headHeight: 200
+      headHeight: 200,
+      botTyping: false
     };
   }
 
@@ -241,8 +252,8 @@ export class AppProvider extends React.Component<{}, IState> {
     this.setState(options);
   };
 
-  goToWebsiteApp = (name: string) => {
-    this.setState({ currentWebsiteApp: name });
+  goToWebsiteApp = (id: string) => {
+    this.setState({ currentWebsiteApp: id });
 
     this.changeRoute('websiteApp');
   };
@@ -409,6 +420,10 @@ export class AppProvider extends React.Component<{}, IState> {
       });
   };
 
+  setBotTyping = (typing: boolean) => {
+    this.setState({ botTyping: typing });
+  };
+
   sendTypingInfo = (conversationId: string, text: string) => {
     const { lastSentTypingInfo } = this.state;
 
@@ -422,6 +437,102 @@ export class AppProvider extends React.Component<{}, IState> {
         variables: { conversationId, text }
       });
     });
+  };
+
+  changeOperatorStatus = (
+    _id: string,
+    operatorStatus: string,
+    callback: () => void
+  ) => {
+    return client
+      .mutate({
+        mutation: gql`
+          mutation changeConversationOperator(
+            $_id: String!
+            $operatorStatus: String!
+          ) {
+            changeConversationOperator(
+              _id: $_id
+              operatorStatus: $operatorStatus
+            )
+          }
+        `,
+        variables: {
+          _id,
+          operatorStatus
+        }
+      })
+      .then(() => {
+        if (callback) {
+          callback();
+        }
+      });
+  };
+
+  getBotInitialMessage = () => {
+    return client.mutate({
+      mutation: gql`
+        mutation widgetGetBotInitialMessage(
+          $customerId: String,
+          $integrationId: String
+        ) {
+            widgetGetBotInitialMessage(
+            customerId: $customerId
+            integrationId: $integrationId
+          )
+        }
+      `,
+      variables: {
+        integrationId: connection.data.integrationId,
+        customerId: connection.data.customerId,
+      }
+    })
+      .then(({ data }) => {
+        if (data.widgetGetBotInitialMessage) {
+          this.setState({ activeConversation: data.widgetGetBotInitialMessage })
+        }
+      })
+  };
+
+  replyAutoAnswer = (message: string, payload: string, type: string) => {
+    this.setState({ sendingMessage: true });
+
+    return client
+      .mutate({
+        mutation: gql`
+          mutation widgetBotRequest(
+            $message: String!
+            $payload: String!
+            $type: String!
+            $conversationId: String!
+            $customerId: String!
+            $integrationId: String!
+          ) {
+            widgetBotRequest(
+              message: $message
+              payload: $payload
+              type: $type
+              conversationId: $conversationId
+              customerId: $customerId
+              integrationId: $integrationId
+            )
+          }
+        `,
+        variables: {
+          conversationId: this.state.activeConversation,
+          integrationId: connection.data.integrationId,
+          customerId: connection.data.customerId,
+          message: newLineToBr(message),
+          type,
+          payload
+        }
+      })
+      .then(() => {
+        this.setState({ sendingMessage: false });
+      })
+      .catch(() => {
+        this.setState({ sendingMessage: false });
+      });
   };
 
   sendMessage = (
@@ -450,6 +561,7 @@ export class AppProvider extends React.Component<{}, IState> {
           createdAt: Number(new Date()),
           attachments: attachments || [],
           internal: false,
+          botData: null,
           fromBot: false,
           messengerAppData: null,
           videoCallData: null,
@@ -600,8 +712,12 @@ export class AppProvider extends React.Component<{}, IState> {
           endConversation: this.endConversation,
           readConversation: this.readConversation,
           readMessages: this.readMessages,
+          replyAutoAnswer: this.replyAutoAnswer,
+          getBotInitialMessage: this.getBotInitialMessage,
+          changeOperatorStatus: this.changeOperatorStatus,
           sendMessage: this.sendMessage,
           sendTypingInfo: this.sendTypingInfo,
+          setBotTyping: this.setBotTyping,
           sendFile: this.sendFile,
           setHeadHeight: this.setHeadHeight,
           setUnreadCount: this.setUnreadCount,

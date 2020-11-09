@@ -1,0 +1,19 @@
+{
+    "JWT_TOKEN_SECRET": "token",
+    "MONGO_URL": "mongodb://localhost",
+    "DOMAIN": "http://localhost:3000",
+    "API_DOMAIN": "http://localhost:3300",
+    "INTEGRATIONS_API_DOMAIN": "http://localhost:3300",
+    "WIDGETS_DOMAIN": "http://localhost:3400",
+    "UI": { "PORT": 3000 },
+    "API": {
+        "PORT": 3300,
+        "PORT_WORKERS": 3700,
+        "PORT_CRONS": 3600
+    },
+    "WIDGETS": { "PORT": 3200 },
+    "INTEGRATIONS": { "PORT": 3400 },
+    "LOGGER": { "PORT": 3800 },
+    "ENGAGES": { "PORT": 3900 },
+    "EMAIL_VERIFIER": { "PORT": 4100 }
+}

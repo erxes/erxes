@@ -22,16 +22,20 @@ const ListContainer = (props: FinalProps) => {
   const { tagsQuery, removeMutation, type } = props;
 
   const remove = tag => {
-    confirm().then(() => {
-      removeMutation({ variables: { ids: [tag._id] } })
-        .then(() => {
-          Alert.success('You successfully deleted a tag');
-          tagsQuery.refetch();
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    });
+    confirm()
+      .then(() => {
+        removeMutation({ variables: { ids: [tag._id] } })
+          .then(() => {
+            Alert.success('You successfully deleted a tag');
+            tagsQuery.refetch();
+          })
+          .catch(e => {
+            Alert.error(e.message);
+          });
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
   };
 
   const renderButton = ({
@@ -48,6 +52,7 @@ const ListContainer = (props: FinalProps) => {
         callback={callback}
         refetchQueries={getRefetchQueries(type)}
         isSubmitted={isSubmitted}
+        uppercase={false}
         type="submit"
         successMessage={`You successfully ${
           object ? 'updated' : 'added'

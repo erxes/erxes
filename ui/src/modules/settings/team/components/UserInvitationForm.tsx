@@ -140,14 +140,20 @@ class UserInvitationForm extends React.Component<Props, State> {
           />
         </FormGroup>
         <ModalFooter>
-          <Button btnStyle="simple" onClick={onCancel} icon="cancel-1">
+          <Button
+            btnStyle="simple"
+            onClick={onCancel}
+            uppercase={false}
+            icon="times-circle"
+          >
             Cancel
           </Button>
 
           <Button
             btnStyle="success"
-            icon="checked-1"
+            icon="check-circle"
             onClick={this.addInvitees}
+            uppercase={false}
           >
             Add Invites
           </Button>

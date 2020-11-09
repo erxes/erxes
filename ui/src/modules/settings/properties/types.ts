@@ -83,11 +83,9 @@ export type AddFieldsMutationVariables = {
 };
 
 export type AddFieldsMutationResponse = {
-  addFieldsMutation: (
-    params: {
-      variables: AddFieldsMutationVariables;
-    }
-  ) => void;
+  addFieldsMutation: (params: {
+    variables: AddFieldsMutationVariables;
+  }) => void;
 };
 
 // mutation types
@@ -115,37 +113,37 @@ export type FieldsRemoveMutationResponse = {
 };
 
 export type FieldsGroupsUpdateVisibleMutationResponse = {
-  fieldsGroupsUpdateVisible: (
-    params: { variables: { _id: string; isVisible: boolean } }
-  ) => Promise<any>;
+  fieldsGroupsUpdateVisible: (params: {
+    variables: { _id: string; isVisible: boolean };
+  }) => Promise<any>;
 };
 
 export type FieldsUpdateVisibleMutationResponse = {
-  fieldsUpdateVisible: (
-    params: { variables: { _id: string; isVisible: boolean } }
-  ) => Promise<any>;
+  fieldsUpdateVisible: (params: {
+    variables: { _id: string; isVisible: boolean };
+  }) => Promise<any>;
 };
 
 export type FieldsAddMutationResponse = {
-  fieldsAdd: (
-    fieldsAdd: { variables: FieldsMutationVariables }
-  ) => Promise<any>;
+  fieldsAdd: (fieldsAdd: {
+    variables: FieldsMutationVariables;
+  }) => Promise<any>;
 };
 
 export type FieldsEditMutationResponse = {
-  fieldsEdit: (
-    fieldsEdit: { variables: FieldsMutationVariables }
-  ) => Promise<any>;
+  fieldsEdit: (fieldsEdit: {
+    variables: FieldsMutationVariables;
+  }) => Promise<any>;
 };
 
 export type FieldsGroupsAddMutationResponse = {
-  fieldsGroupsAdd: (
-    fieldsAdd: { variables: FieldsGroupsMutationVariables }
-  ) => Promise<any>;
+  fieldsGroupsAdd: (fieldsAdd: {
+    variables: FieldsGroupsMutationVariables;
+  }) => Promise<any>;
 };
 
 export type FieldsGroupsEditMutationResponse = {
-  fieldsGroupsEdit: (
-    fieldsEdit: { variables: FieldsGroupsMutationVariables }
-  ) => Promise<any>;
+  fieldsGroupsEdit: (fieldsEdit: {
+    variables: FieldsGroupsMutationVariables;
+  }) => Promise<any>;
 };

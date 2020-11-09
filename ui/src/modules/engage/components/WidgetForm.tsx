@@ -1,14 +1,13 @@
 import { IUser } from 'modules/auth/types';
 import Button from 'modules/common/components/Button';
-import EditorCK from 'modules/common/components/EditorCK';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Uploader from 'modules/common/components/Uploader';
+import EditorCK from 'modules/common/containers/EditorCK';
 import { ModalFooter } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import { ICustomer } from 'modules/customers/types';
-import { EMAIL_CONTENT } from 'modules/engage/constants';
 import { METHODS } from 'modules/engage/constants';
 import { FlexContent, FlexItem } from 'modules/layout/styles';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
@@ -166,7 +165,6 @@ class WidgetForm extends React.Component<Props, State> {
         {...options}
         content={this.state.content}
         onChange={this.onEditorChange}
-        insertItems={EMAIL_CONTENT}
         toolbar={[
           { name: 'insert', items: ['strinsert'] },
           ...MAIL_TOOLBARS_CONFIG

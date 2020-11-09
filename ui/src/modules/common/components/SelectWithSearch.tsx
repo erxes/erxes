@@ -44,7 +44,11 @@ type Props = {
 
 const content = (option: IOption): React.ReactNode => (
   <>
-    <Avatar src={option.avatar ? readFile(option.avatar) : '/images/avatar-colored.svg'} />
+    <Avatar
+      src={
+        option.avatar ? readFile(option.avatar) : '/images/avatar-colored.svg'
+      }
+    />
     {option.label}
   </>
 );
@@ -132,7 +136,10 @@ class SelectWithSearch extends React.Component<
     const datas = customQuery[queryName] || [];
 
     const selectMultiple = (ops: IOption[]) => {
-      onSelect(ops.map(option => option.value), name);
+      onSelect(
+        ops.map(option => option.value),
+        name
+      );
 
       this.setState({ selectedOptions: [...ops] });
     };

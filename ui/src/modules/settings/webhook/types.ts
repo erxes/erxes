@@ -34,15 +34,15 @@ export type WebhookDetailQueryResponse = {
 } & QueryResponse;
 
 export type AddMutationResponse = {
-  webhooksAdd: (
-    params: { variables: { _id: string; doc: IWebhookDoc } }
-  ) => Promise<any>;
+  webhooksAdd: (params: {
+    variables: { _id: string; doc: IWebhookDoc };
+  }) => Promise<any>;
 };
 
 export type EditMutationResponse = {
-  webhooksEdit: (
-    params: { variables: { _id: string; doc: IWebhookDoc } }
-  ) => Promise<any>;
+  webhooksEdit: (params: {
+    variables: { _id: string; doc: IWebhookDoc };
+  }) => Promise<any>;
 };
 
 export type ActivityLogQueryResponse = {

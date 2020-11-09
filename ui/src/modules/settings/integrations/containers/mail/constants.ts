@@ -17,6 +17,7 @@ const defaultMessageFields = {
   mentionedUserIds: [],
   attachments: null,
   isCustomerRead: false,
+  botData: null,
   messengerAppData: null,
   formWidgetData: null,
   user: null

@@ -4,7 +4,9 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 
 const WebhookList = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings - WebhookList" */ './containers/WebhookList')
+  import(
+    /* webpackChunkName: "Settings - WebhookList" */ './containers/WebhookList'
+  )
 );
 
 const webhook = ({ history, location }) => {
@@ -13,11 +15,7 @@ const webhook = ({ history, location }) => {
 };
 
 const routes = () => (
-  <Route
-    exact={true}
-    path="/settings/webhooks/"
-    component={webhook}
-  />
+  <Route exact={true} path="/settings/webhooks/" component={webhook} />
 );
 
 export default routes;

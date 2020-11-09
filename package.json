@@ -12,23 +12,33 @@
     "react"
   ],
   "license": "GNU General Public License v3.0 with Commons Clause",
-  "private": true,
-  "collective": {
-    "type": "opencollective",
-    "url": "https://opencollective.com/erxes",
-    "logo": "https://opencollective.com/opencollective/logo.txt"
+  "lint-staged": {
+    "linters": {
+      "@(ui|widgets)/src/**/*.{ts,tsx,json,css}": [
+        "prettier --single-quote --write",
+        "git add"
+      ],
+      "@(api|integrations|email-verifier|engages-email-sender|logger)/src/**/*.ts": [
+        "prettier --single-quote --write",
+        "git add"
+      ]
+    }
   },
   "scripts": {
-    "format": "prettier --single-quote --write 'src/**/*.@(ts|tsx)'",
+    "format": "prettier --single-quote --write '@(api|integrations|email-verifier|engages-email-sender|logger)/src/**/*.ts' && prettier --single-quote --write '@(ui|widgets)/src/**/*.@(ts|tsx|json|css)'",
     "precommit": "lint-staged",
-    "lint": "tslint '@(ui|widgets)/**/*.@(ts|tsx)'",
-    "postinstall": "opencollective postinstall",
+    "lint": "func () { if [ -z \"$1\" ]; then tslint '@(api|integrations|email-verifier|engages-email-sender|logger|ui|widgets)/src/**/*.ts?(x)'; else echo \"${1}/src/**/*.ts?(x)\" && tslint ${1}'/src/**/*.ts?(x)'; fi ;}; func",
     "generateVersion": "node commands/generateVersion.js",
     "release": "release-it"
   },
   "devDependencies": {
     "@release-it/conventional-changelog": "^1.1.0",
-    "opencollective": "^1.0.3"
-  },
-  "dependencies": {}
+    "husky": "^0.13.4",
+    "lint-staged": "^3.6.0",
+    "prettier": "^1.14.2",
+    "tslint": "^5.8.0",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-react": "^4.0.0",
+    "typescript": "^3.0.3"
+  }
 }

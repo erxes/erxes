@@ -31,6 +31,7 @@ export interface IProduct {
   customFieldsData?: any;
   createdAt: Date;
 
+  attachment?: any;
   category: IProductCategory;
 }
 
@@ -84,15 +85,15 @@ export type EditMutationResponse = {
 };
 
 export type ProductRemoveMutationResponse = {
-  productsRemove: (
-    mutation: { variables: { productIds: string[] } }
-  ) => Promise<any>;
+  productsRemove: (mutation: {
+    variables: { productIds: string[] };
+  }) => Promise<any>;
 };
 
 export type ProductCategoryRemoveMutationResponse = {
-  productCategoryRemove: (
-    mutation: { variables: { _id: string } }
-  ) => Promise<any>;
+  productCategoryRemove: (mutation: {
+    variables: { _id: string };
+  }) => Promise<any>;
 };
 
 export type DetailQueryResponse = {

@@ -22,10 +22,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Use Node.js 12.18.x
+      - name: Use Node.js 12.19.x
         uses: actions/setup-node@v1
         with:
-          node-version: 12.18.x
+          node-version: 12.19.x
 
       # https://github.com/actions/cache/blob/master/examples.md#node---yarn
       - name: Get yarn cache directory path
@@ -36,20 +36,20 @@ jobs:
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-widgets-${{ hashFiles('widgets/**/yarn.lock') }}
+          key: ${{ runner.os }}-yarn-widgets-${{ hashFiles('yarn.lock', 'widgets/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-widgets-
             ${{ runner.os }}-yarn-
 
       - name: Install dependencies
         run: |
+          yarn install
           cd widgets
           yarn install
 
       - name: Lint
         run: |
-          cd widgets
-          yarn lint
+          yarn lint widgets
 
       - name: Build
         run: |

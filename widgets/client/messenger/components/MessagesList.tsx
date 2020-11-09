@@ -12,7 +12,10 @@ import { __, makeClickableLink, scrollTo } from '../../utils';
 import { MESSAGE_TYPES } from '../containers/AppContext';
 import { IMessage } from '../types';
 import { Message } from './';
+import { MessageBot } from './';
 import AccquireInformation from './AccquireInformation';
+import Bot from './bot/Bot';
+import { OPERATOR_STATUS } from './bot/constants';
 
 type Props = {
   messages: IMessage[];
@@ -28,8 +31,15 @@ type Props = {
   isLoggedIn: () => boolean;
   getColor?: string;
   toggleVideoCall: () => void;
+  replyAutoAnswer: (message: string, payload: string, type: string) => void;
+  sendTypingInfo: (conversationId: string, text: string) => void;
+  conversationId: string | null;
+  changeOperatorStatus: (_id: string, operatorStatus: string) => void;
+  getBotInitialMessage: () => void;
+  operatorStatus?: string;
   sendMessage: (contentType: string, message: string) => void;
   showVideoCallRequest: boolean;
+  botTyping?: boolean;
 };
 
 type State = {
@@ -48,6 +58,16 @@ class MessagesList extends React.Component<Props, State> {
   }
 
   componentDidMount() {
+    const { messengerData, messages, getBotInitialMessage, conversationId } = this.props;
+
+    if (
+      messengerData.botShowInitialMessage &&
+      messages.length === 0 &&
+      !conversationId
+    ) {
+      getBotInitialMessage();
+    }
+
     if (this.node) {
       this.node.scrollTop = this.node.scrollHeight;
       makeClickableLink('#erxes-messages a');
@@ -62,6 +82,12 @@ class MessagesList extends React.Component<Props, State> {
         node.scrollHeight - (node.scrollTop + node.offsetHeight) < 20;
     }
   }
+
+  scrollBottom = () => {
+    if (this.node) {
+      scrollTo(this.node, this.node.scrollHeight, 300);
+    }
+  };
 
   componentDidUpdate(prevProps: any) {
     if (prevProps.messages !== this.props.messages) {
@@ -177,11 +203,124 @@ class MessagesList extends React.Component<Props, State> {
     );
   }
 
+  renderSingleMessage = (message: any) => {
+    const {
+      replyAutoAnswer,
+      sendTypingInfo,
+      uiOptions,
+      messengerData
+    } = this.props;
+
+    const { color, textColor = '#fff' } = uiOptions;
+    const { botEndpointUrl } = messengerData;
+    const _id: any = message._id;
+
+    const messageProps = {
+      color,
+      textColor,
+      toggleVideo: this.props.toggleVideoCall,
+      sendTypingInfo,
+      replyAutoAnswer,
+      ...message
+    };
+
+    const showBotMessage = botEndpointUrl && message.botData !== null;
+
+    const content = showBotMessage ? (
+      <MessageBot
+        color={color}
+        key={message._id}
+        {...messageProps}
+        scrollBottom={this.scrollBottom}
+      />
+    ) : (
+      <Message key={message._id} {...messageProps} />
+    );
+
+    if (_id < 0) {
+      return (
+        <RTG.CSSTransition
+          key={message._id}
+          timeout={500}
+          classNames="slide-in"
+        >
+          {content}
+        </RTG.CSSTransition>
+      );
+    }
+
+    return content;
+  };
+
+  renderMessages() {
+    return (
+      <RTG.TransitionGroup component={null}>
+        {this.props.messages.map(this.renderSingleMessage)}
+      </RTG.TransitionGroup>
+    );
+  }
+
+  renderBotOperator() {
+    const { operatorStatus, conversationId, getColor } = this.props;
+
+    if (
+      !operatorStatus ||
+      !conversationId ||
+      operatorStatus === OPERATOR_STATUS.OPERATOR
+    ) {
+      return null;
+    }
+
+    return (
+      <div className="bot-message">
+        <div className="quick-replies">
+          <div
+            className="reply-button"
+            onClick={this.handleOperatorStatus}
+            style={{ borderColor: getColor }}
+          >
+            {__('Contact with Operator')}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  renderTyping() {
+    const { botTyping } = this.props;
+
+    if (!botTyping) {
+      return null;
+    }
+
+    return (
+      <li>
+        <Bot />
+        <div className="erxes-message top">
+          <div className="bot-indicator">
+            <span />
+            <span />
+            <span />
+          </div>
+        </div>
+      </li>
+    );
+  }
+
+  handleOperatorStatus = () => {
+    const { conversationId, changeOperatorStatus } = this.props;
+
+    if (!conversationId) {
+      return;
+    }
+
+    return changeOperatorStatus(conversationId, OPERATOR_STATUS.OPERATOR);
+  };
+
   render() {
-    const { uiOptions, messengerData, messages } = this.props;
-    const { color, wallpaper, textColor = '#fff' } = uiOptions;
+    const { uiOptions, messengerData } = this.props;
     const backgroundClass = classNames('erxes-messages-background', {
-      [`bg-${wallpaper}`]: wallpaper
+      [`bg-${uiOptions.wallpaper}`]: uiOptions.wallpaper
     });
 
     return (
@@ -189,40 +328,11 @@ class MessagesList extends React.Component<Props, State> {
         <ul id="erxes-messages" className="erxes-messages-list slide-in">
           {this.renderWelcomeMessage(messengerData)}
           {this.renderCallRequest()}
-          <RTG.TransitionGroup component={null}>
-            {messages.map(message => {
-              const _id: any = message._id;
-
-              if (_id < 0) {
-                return (
-                  <RTG.CSSTransition
-                    key={message._id}
-                    timeout={500}
-                    classNames="slide-in"
-                  >
-                    <Message
-                      toggleVideo={this.props.toggleVideoCall}
-                      color={color}
-                      textColor={textColor}
-                      {...message}
-                    />
-                  </RTG.CSSTransition>
-                );
-              } else {
-                return (
-                  <Message
-                    key={message._id}
-                    toggleVideo={this.props.toggleVideoCall}
-                    color={color}
-                    textColor={textColor}
-                    {...message}
-                  />
-                );
-              }
-            })}
-          </RTG.TransitionGroup>
+          {this.renderMessages()}
           {this.renderAwayMessage(messengerData)}
           {this.renderNotifyInput(messengerData)}
+          {this.renderBotOperator()}
+          {this.renderTyping()}
         </ul>
       </div>
     );

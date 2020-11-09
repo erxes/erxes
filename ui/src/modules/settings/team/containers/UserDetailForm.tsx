@@ -20,9 +20,13 @@ import UserForm from './UserForm';
 type Props = {
   _id: string;
   queryParams: any;
-  renderEditForm?: (
-    { closeModal, user }: { closeModal: () => void; user: IUser }
-  ) => React.ReactNode;
+  renderEditForm?: ({
+    closeModal,
+    user
+  }: {
+    closeModal: () => void;
+    user: IUser;
+  }) => React.ReactNode;
 };
 
 type FinalProps = {

@@ -106,10 +106,10 @@ class EditFormContainer extends React.Component<FinalProps> {
             }
 
             // collect fields to create
-            delete field._id;
+            const { _id, ...fieldToCreate } = field;
 
             createFieldsData.push({
-              ...field,
+              ...fieldToCreate,
               contentType: 'form',
               contentTypeId: formId
             });

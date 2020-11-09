@@ -5,6 +5,7 @@ export default `
   assignedUserId
   createdAt
   updatedAt
+  operatorStatus
   assignedUser {
     _id
     username

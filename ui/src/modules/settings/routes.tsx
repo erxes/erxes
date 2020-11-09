@@ -44,7 +44,7 @@ const routes = () => (
     <LogRoutes key="LogRoutes" />
     <EmailDeliveryRoutes key="EmailDeliveryRoutes" />
     <GrowthHackRoutes key="GrowthHackRoutes" />
-    <WebhookRoutes key="WebhookRoutes"/>
+    <WebhookRoutes key="WebhookRoutes" />
   </React.Fragment>
 );
 

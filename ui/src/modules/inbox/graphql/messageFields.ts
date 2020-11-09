@@ -22,6 +22,7 @@ export default `
   isCustomerRead
   formWidgetData
   messengerAppData
+  botData
   user {
     _id
     username
