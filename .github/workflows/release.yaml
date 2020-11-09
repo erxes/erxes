@@ -11,7 +11,7 @@ jobs:
 
     services:
       mongodb:
-        image: mongo:3.6
+        image: mongo:4.0
         ports:
           - 27017:27017
 
@@ -67,7 +67,7 @@ jobs:
 
     - name: Api - Build docker image
       env:
-        BASE_IMAGE: erxes/erxes:base-12.18.3-slim
+        BASE_IMAGE: erxes/erxes-api:base-12.19.0-slim
       run: |
         cd api
         echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
