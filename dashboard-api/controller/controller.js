@@ -17,7 +17,10 @@ const resolver = async (data, dimensions) => {
 
   if (resolver) {
     const foundedValue = [];
-    for (const value of data) {
+
+    for (let i = 0; i < data.length; i++) {
+      value = data[i];
+
       const prevValue = foundedValue.find(
         founded => founded.name === value[dimensions]
       );
@@ -40,10 +43,12 @@ const resolver = async (data, dimensions) => {
             value[dimensions] =
               response._source[resolver.fieldname] || 'unknown';
           } catch (e) {
-            console.log(e);
+            data.splice(i, 1);
+            i--;
           }
         } else {
-          value[dimensions] = 'unknown';
+          data.splice(i, 1);
+          i--;
         }
       }
     }

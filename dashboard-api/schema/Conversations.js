@@ -20,11 +20,6 @@ cube(`Conversations`, {
       type: `string`
     },
 
-    iscustomerrespondedlast: {
-      sql: `${CUBE}."isCustomerRespondedLast"`,
-      type: `string`
-    },
-
     messagecount: {
       sql: `${CUBE}."messageCount"`,
       type: `string`

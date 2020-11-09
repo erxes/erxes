@@ -1,60 +1,54 @@
-// import { tableSchema } from '../tablePrefix';
+cube(`Stages`, {
+  sql: `SELECT * FROM erxes__stages`,
 
-// cube(`Stages`, {
-//   sql: `SELECT * FROM ${tableSchema()}__stages`,
+  joins: {},
 
-//   joins: {
-//     Pipelines: {
-//       sql: `${CUBE}.pipelineId = ${Pipelines}.uid`,
-//       relationship: `belongsTo`,
-//     },
-//   },
+  measures: {
+    count: {
+      type: `count`,
+      drillMembers: [formid, name, pipelineid, createdat]
+    }
+  },
 
-//   measures: {
-//     count: {
-//       type: `count`,
-//       drillMembers: [name, pipelineid, createdat],
-//     },
-//   },
+  dimensions: {
+    formid: {
+      sql: `${CUBE}."formId"`,
+      type: `string`
+    },
 
-//   dimensions: {
-//     uid: {
-//       sql: `${CUBE}.\`uid\``,
-//       type: `string`,
-//       primaryKey: true,
-//     },
+    name: {
+      sql: `name`,
+      type: `string`
+    },
 
-//     name: {
-//       sql: `${CUBE}.\`name\``,
-//       type: `string`,
-//     },
+    order: {
+      sql: `order`,
+      type: `string`
+    },
 
-//     pipelineName: {
-//       sql: `${Pipelines}.\`name\``,
-//       type: `string`,
-//     },
+    pipelineid: {
+      sql: `${CUBE}."pipelineId"`,
+      type: `string`
+    },
 
-//     pipelineid: {
-//       sql: `${CUBE}.\`pipelineId\``,
-//       type: `string`,
-//       shown: false,
-//     },
+    probability: {
+      sql: `probability`,
+      type: `string`
+    },
 
-//     probability: {
-//       sql: `probability`,
-//       type: `string`,
-//       shown: false,
-//     },
+    status: {
+      sql: `status`,
+      type: `string`
+    },
 
-//     type: {
-//       sql: `type`,
-//       type: `string`,
-//       shown: false,
-//     },
+    type: {
+      sql: `type`,
+      type: `string`
+    },
 
-//     createdat: {
-//       sql: `${CUBE}.\`createdAt\``,
-//       type: `time`,
-//     },
-//   },
-// });
+    createdat: {
+      sql: `${CUBE}."createdAt"`,
+      type: `time`
+    }
+  }
+});

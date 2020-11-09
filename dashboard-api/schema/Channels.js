@@ -1,46 +1,54 @@
-// import { tableSchema } from '../tablePrefix';
+cube(`Channels`, {
+  sql: `SELECT * FROM erxes__channels`,
 
-// cube(`Channels`, {
-//   sql: `SELECT * FROM ${tableSchema()}__channels`,
+  joins: {},
 
-//   joins: {},
+  measures: {
+    count: {
+      type: `count`,
+      drillMembers: [integrationids, memberids, name, userid, createdat]
+    }
+  },
 
-//   measures: {
-//     count: {
-//       type: `count`,
-//       drillMembers: [name, userid, createdat],
-//     },
+  dimensions: {
+    conversationcount: {
+      sql: `${CUBE}."conversationCount"`,
+      type: `string`
+    },
 
-//     conversationcount: {
-//       sql: `${CUBE}.\`conversationCount\``,
-//       type: `sum`,
-//     },
+    description: {
+      sql: `description`,
+      type: `string`
+    },
 
-//     openconversationcount: {
-//       sql: `${CUBE}.\`openConversationCount\``,
-//       type: `sum`,
-//     },
-//   },
+    integrationids: {
+      sql: `${CUBE}."integrationIds"`,
+      type: `string`
+    },
 
-//   dimensions: {
-//     description: {
-//       sql: `description`,
-//       type: `string`,
-//     },
+    memberids: {
+      sql: `${CUBE}."memberIds"`,
+      type: `string`
+    },
 
-//     name: {
-//       sql: `name`,
-//       type: `string`,
-//     },
+    name: {
+      sql: `name`,
+      type: `string`
+    },
 
-//     userid: {
-//       sql: `${CUBE}.\`userId\``,
-//       type: `string`,
-//     },
+    openconversationcount: {
+      sql: `${CUBE}."openConversationCount"`,
+      type: `string`
+    },
 
-//     createdat: {
-//       sql: `${CUBE}.\`createdAt\``,
-//       type: `time`,
-//     },
-//   },
-// });
+    userid: {
+      sql: `${CUBE}."userId"`,
+      type: `string`
+    },
+
+    createdat: {
+      sql: `${CUBE}."createdAt"`,
+      type: `time`
+    }
+  }
+});

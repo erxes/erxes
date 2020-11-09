@@ -10,23 +10,8 @@ cube(`Customers`, {
   },
 
   dimensions: {
-    firstname: {
-      sql: `${CUBE}."firstName"`,
-      type: `string`
-    },
-
     hasauthority: {
       sql: `${CUBE}."hasAuthority"`,
-      type: `string`
-    },
-
-    isonline: {
-      sql: `${CUBE}."isOnline"`,
-      type: `string`
-    },
-
-    lastname: {
-      sql: `${CUBE}."lastName"`,
       type: `string`
     },
 
@@ -42,15 +27,6 @@ cube(`Customers`, {
 
     position: {
       sql: `position`,
-      type: `string`
-    },
-
-    primaryemail: {
-      sql: `${CUBE}."primaryEmail"`,
-      type: `string`
-    },
-    sex: {
-      sql: `sex`,
       type: `string`
     },
 

@@ -13,6 +13,16 @@ const resolvers = [
     name: 'Conversations.firstRespondedUser',
     indexname: 'erxes__users',
     fieldname: 'username'
+  },
+  {
+    name: 'Deals.stageName',
+    indexname: 'erxes__stages',
+    fieldname: 'name'
+  },
+  {
+    name: 'Deals.stageProbability',
+    indexname: 'erxes__stages',
+    fieldname: 'probability'
   }
 ];
 
