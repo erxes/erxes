@@ -30,7 +30,8 @@ class BrandForm extends React.Component<Props> {
         <Button
           btnStyle="simple"
           type="button"
-          icon="cancel-1"
+          icon="times-circle"
+          uppercase={false}
           onClick={closeModal}
         >
           Cancel

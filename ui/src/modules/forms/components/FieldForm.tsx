@@ -208,9 +208,9 @@ class FieldForm extends React.Component<Props, State> {
         <Modal.Footer>
           <Button
             btnStyle="simple"
-            size="small"
+            uppercase={false}
             type="button"
-            icon="cancel-1"
+            icon="times-circle"
             onClick={onCancel}
           >
             Cancel
@@ -219,10 +219,10 @@ class FieldForm extends React.Component<Props, State> {
           {this.renderExtraButton()}
 
           <Button
-            size="small"
+            uppercase={false}
             onClick={this.onSubmit}
             btnStyle="success"
-            icon={mode === 'update' ? 'checked-1' : 'add'}
+            icon={mode === 'update' ? 'check-circle' : 'plus-circle'}
           >
             {mode === 'update' ? 'Save' : 'Add'}
           </Button>

@@ -13,13 +13,10 @@ class Status extends React.PureComponent<{
   renderStatistic(type) {
     const statistic = this.props.statistics[type] || {};
 
-    const { os, process, mongo, packageVersion } = statistic;
+    const { os, process, mongo } = statistic;
 
     return (
       <>
-        <div>
-          <b>{__('Package version')}</b> - {packageVersion}
-        </div>
         <div>
           <b>{__('Uptime')}</b> - {formatDuration(process.uptime)}
         </div>

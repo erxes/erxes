@@ -1,4 +1,4 @@
-FROM node:12.18-slim
+FROM node:12.19-alpine
 WORKDIR /erxes-integrations
 RUN chown -R node:node /erxes-integrations
 COPY --chown=node:node . /erxes-integrations

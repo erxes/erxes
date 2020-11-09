@@ -170,9 +170,10 @@ const WithConsumer = (props: PropsWithConsumer) => {
         getColor,
         setBotTyping,
         getMessengerData,
+        getBotInitialMessage
       }) => {
         const key = activeConversation || "create";
-        const { isOnline, forceLogoutWhenResolve } = getMessengerData();
+        const { isOnline, forceLogoutWhenResolve, botShowInitialMessage } = getMessengerData();
 
         return (
           <WithQuery
@@ -182,6 +183,8 @@ const WithConsumer = (props: PropsWithConsumer) => {
             forceLogoutWhenResolve={forceLogoutWhenResolve}
             conversationId={activeConversation}
             goToConversationList={goToConversationList}
+            getBotInitialMessage={getBotInitialMessage}
+            botShowInitialMessage={botShowInitialMessage}
             setBotTyping={setBotTyping}
             endConversation={endConversation}
             color={getColor()}

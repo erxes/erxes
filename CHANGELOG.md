@@ -1,3 +1,65 @@
+## [0.20.1](https://github.com/erxes/erxes/compare/0.20.0...0.20.1) (2020-11-09)
+
+## [0.20.1](https://github.com/erxes/erxes/compare/0.20.0...0.20.1) (2020-11-09)
+
+
+
+## [0.20.1](https://github.com/erxes/erxes/compare/0.20.0...0.20.1) (2020-11-09)
+
+## [0.20.1](https://github.com/erxes/erxes/compare/0.20.0...0.20.1) (2020-11-09)
+
+## [0.20.3](https://github.com/erxes/erxes/compare/0.20.2...0.20.3) (2020-11-09)
+
+## [0.20.2](https://github.com/erxes/erxes/compare/0.20.1...0.20.2) (2020-11-09)
+
+## [0.20.1](https://github.com/erxes/erxes/compare/0.20.0...0.20.1) (2020-11-09)
+
+# [0.20.0](https://github.com/erxes/erxes/compare/0.19.3...0.20.0) (2020-11-09)
+
+
+### Bug Fixes
+
+* **board:** fix confirmation message when archive list. close [#2424](https://github.com/erxes/erxes/issues/2424) ([9deb3a5](https://github.com/erxes/erxes/commit/9deb3a5f160e9cda3ee6e7a8396f0acd8417775c))
+* **forms:** fixed edit form field bug ([379b14e](https://github.com/erxes/erxes/commit/379b14e902d0f168a570e22eb2d65dc3c606e180))
+* **messenger:** fix not updating website addon ([a3b04b9](https://github.com/erxes/erxes/commit/a3b04b9b049b86ac8ee67fd22096ed267b98ee0b))
+
+
+### Features
+
+* **botpress:** integrated botpress in messenger ([e1317da](https://github.com/erxes/erxes/commit/e1317dacd6d733807aa6f2fa1888e69ecf6ac1a2))
+* **cli:** added erxes cli ([199eea3](https://github.com/erxes/erxes/commit/199eea319c49224465ffcfa99c8e144e06fe7f2a))
+* **customer,company:** auto completion ([28f74cc](https://github.com/erxes/erxes/commit/28f74ccc3e20f976601a0fea07218539baaccced)), closes [#2413](https://github.com/erxes/erxes/issues/2413)
+* **customers:** added ability to change email, phone validation status ([3104b6e](https://github.com/erxes/erxes/commit/3104b6e843a9589633f17367b0c6e521cc200bdc))
+* **settings:** Add AddOn step when creating or editing Messenger. close [#2383](https://github.com/erxes/erxes/issues/2383) ([e05918d](https://github.com/erxes/erxes/commit/e05918d7396183a0f432440e1235fae99d3adf85))
+
+
+### Performance Improvements
+
+* **main:** merge all repos ([87775fb](https://github.com/erxes/erxes/commit/87775fb1a003b0b8e8992dea552a4c2474758e0e))
+
+# [0.20.0](https://github.com/erxes/erxes/compare/0.19.3...0.20.0) (2020-11-09)
+
+
+### Bug Fixes
+
+* **board:** fix confirmation message when archive list. close [#2424](https://github.com/erxes/erxes/issues/2424) ([9deb3a5](https://github.com/erxes/erxes/commit/9deb3a5f160e9cda3ee6e7a8396f0acd8417775c))
+* **forms:** fixed edit form field bug ([379b14e](https://github.com/erxes/erxes/commit/379b14e902d0f168a570e22eb2d65dc3c606e180))
+* **messenger:** fix not updating website addon ([a3b04b9](https://github.com/erxes/erxes/commit/a3b04b9b049b86ac8ee67fd22096ed267b98ee0b))
+
+
+### Features
+
+* **botpress:** integrated botpress in messenger ([e1317da](https://github.com/erxes/erxes/commit/e1317dacd6d733807aa6f2fa1888e69ecf6ac1a2))
+* **cli:** added erxes cli ([199eea3](https://github.com/erxes/erxes/commit/199eea319c49224465ffcfa99c8e144e06fe7f2a))
+* **customer,company:** auto completion ([28f74cc](https://github.com/erxes/erxes/commit/28f74ccc3e20f976601a0fea07218539baaccced)), closes [#2413](https://github.com/erxes/erxes/issues/2413)
+* **customers:** added ability to change email, phone validation status ([3104b6e](https://github.com/erxes/erxes/commit/3104b6e843a9589633f17367b0c6e521cc200bdc))
+* **settings:** Add AddOn step when creating or editing Messenger. close [#2383](https://github.com/erxes/erxes/issues/2383) ([e05918d](https://github.com/erxes/erxes/commit/e05918d7396183a0f432440e1235fae99d3adf85))
+
+
+### Performance Improvements
+
+* **main:** merge all repos ([87775fb](https://github.com/erxes/erxes/commit/87775fb1a003b0b8e8992dea552a4c2474758e0e))
+
 
 ## [0.19.3](https://github.com/erxes/erxes/compare/0.19.2...0.19.3) (2020-10-06)
 

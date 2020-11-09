@@ -216,6 +216,7 @@ class CompaniesList extends React.Component<IProps, State> {
             <ModalTrigger
               title="Merge Companies"
               size="lg"
+              dialogClassName="modal-1000w"
               trigger={mergeButton}
               content={companiesMerge}
             />

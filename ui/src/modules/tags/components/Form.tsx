@@ -117,7 +117,12 @@ class FormComponent extends React.Component<Props, State> {
         </FormGroup>
 
         <ModalFooter id={'AddTagButtons'}>
-          <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
+          <Button
+            btnStyle="simple"
+            onClick={closeModal}
+            icon="times-circle"
+            uppercase={false}
+          >
             Cancel
           </Button>
 

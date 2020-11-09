@@ -11,17 +11,17 @@ jobs:
 
     services:
       mongodb:
-        image: mongo:3.6
+        image: mongo:4.0
         ports:
           - 27017:27017
 
     steps:
     - uses: actions/checkout@v2
 
-    - name: Use Node.js 12.18.x
+    - name: Use Node.js 12.19.x
       uses: actions/setup-node@v1
       with:
-        node-version: 12.18.x
+        node-version: 12.19.x
 
     - name: Get release version
       id: get_release_version
@@ -40,6 +40,10 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-yarn-
 
+    - name: Main - Install dependencies
+      run: |
+        yarn install
+
     - name: Api - Install dependencies
       run: |
         cd api
@@ -54,17 +58,6 @@ jobs:
         cd api
         yarn tsc -p tsconfig.prod.json
 
-    - name: Api - Test
-      run: |
-        cd api
-        yarn test
-      env:
-        MONGO_URL: mongodb://localhost/erxes
-        TEST_MONGO_URL: mongodb://localhost/test
-        JWT_TOKEN_SECRET: token
-        MAIN_APP_DOMAIN: http://localhost:3000
-        RABBITMQ_HOST: amqp://localhost
-
     - name: Api - Build
       run: |
         cd api
@@ -74,7 +67,7 @@ jobs:
 
     - name: Api - Build docker image
       env:
-        BASE_IMAGE: erxes/erxes:base-12.18.3-slim
+        BASE_IMAGE: erxes/erxes-api:base-12.19.0-slim
       run: |
         cd api
         echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
@@ -229,23 +222,31 @@ jobs:
 
     - name: Prepare release assets
       run: |
-        mv ui/build erxes
-        mkdir -p erxes-widgets
-        mv widgets/dist widgets/node_modules widgets/locales widgets/static widgets/package.json erxes-widgets
-        tar -zcf erxes-${GITHUB_REF#refs/tags/}.tar.gz erxes erxes-widgets
-        mkdir -p erxes-api
-        mv dist node_modules db-migrate-store.js package.json erxes-api
-        mkdir -p erxes-email-verifier
-        mv email-verifier/dist email-verifier/node_modules email-verifier/package.json erxes-email-verifier
-        mkdir -p erxes-engages-email-sender
-        mv engages-email-sender/dist engages-email-sender/node_modules engages-email-sender/package.json erxes-engages-email-sender
-        mkdir -p erxes-logger
-        mv logger/dist logger/node_modules logger/package.json erxes-logger
-        mv elkSyncer erxes-elkSyncer
-        tar -zcf erxes-api-${GITHUB_REF#refs/tags/}.tar.gz erxes-api erxes-email-verifier erxes-engages-email-sender erxes-logger erxes-elkSyncer
-        mkdir -p erxes-integrations
-        mv dist node_modules package.json erxes-integrations
-        tar -zcf erxes-integrations-${GITHUB_REF#refs/tags/}.tar.gz erxes-integrations
+        mkdir build
+
+        mv ui/build build/ui
+
+        mkdir build/widgets
+        mv widgets/dist widgets/node_modules widgets/locales widgets/static widgets/package.json build/widgets
+
+        mv api/dist build/api
+        mv api/node_modules api/db-migrate-store.js api/package.json build/api
+
+        mv email-verifier/dist build/email-verifier
+        mv email-verifier/node_modules email-verifier/package.json build/email-verifier
+
+        mv engages-email-sender/dist build/engages
+        mv engages-email-sender/node_modules engages-email-sender/package.json build/engages
+
+        mv logger/dist build/logger
+        mv logger/node_modules logger/package.json build/logger
+
+        mv integrations/dist build/integrations
+        mv integrations/node_modules integrations/package.json build/integrations
+
+        mv elkSyncer build/elkSyncer
+
+        tar -zcf erxes-${GITHUB_REF#refs/tags/}.tar.gz build
 
     - name: Upload release assets
       uses: softprops/action-gh-release@v1

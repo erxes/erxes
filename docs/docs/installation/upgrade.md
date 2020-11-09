@@ -86,6 +86,46 @@ yarn migrate
 12. replace ```/home/erxes/erxes.io/erxes``` with ```/home/erxes/erxes.io/erxes/build```
 13. ```service nginx restart```
 
+## Upgrade erxes 0.19.2 to latest (0.20.x)
+
+1. Login as erxes user
+
+2. ```cd /home/erxes/erxes.io```
+
+3. Remove old folders
+```rm -rf erxes*```
+
+2. Create erxes project
+```yarn create erxes-app erxes```
+
+2.1 Enter your domain answer to the questions
+
+3. Switch to su and replace nginx config
+- ```exit```
+- ```cp erxes/nginx.conf /etc/nginx/sites-available/default```
+
+4. Run certbot again and restart nginx
+- ```sudo certbot --nginx```
+- ```service nginx restart```
+
+5. Switch to erxes and stop pm2 process
+- ```su erxes```
+- ```pm2 delete all```
+
+6. Update MONGO_URL config
+- vim (nano) ecosystem.config.js (open ecosystem.config.js file)
+- copy MONGO_URL config from line 14
+- vim (nano) ../erxes.io/erxes/configs.json (open config.json file in erxes folder)
+- replace MONGO_URL config in line 3 with the copied value
+
+7. Run start command
+- ```cd erxes```
+- ```yarn start```
+
+8. Done. Check your app in browser.
+
+
+
 ## Upgrading from v0.9+ to the latest release vx.x.x
 
 ### Breaking Changes

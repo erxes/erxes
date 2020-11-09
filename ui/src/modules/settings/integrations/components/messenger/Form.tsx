@@ -48,6 +48,7 @@ type Props = {
 type State = {
   title: string;
   botEndpointUrl?: string;
+  botShowInitialMessage?: boolean;
   brandId: string;
   channelIds: string[];
   languageCode: string;
@@ -89,7 +90,8 @@ class CreateMessenger extends React.Component<Props, State> {
       showLauncher: true,
       forceLogoutWhenResolve: false,
       showVideoCallRequest: false,
-      botEndpointUrl: ''
+      botEndpointUrl: '',
+      botShowInitialMessage: false
     };
     const links = configData.links || {};
     const messages = configData.messages || {};
@@ -100,6 +102,7 @@ class CreateMessenger extends React.Component<Props, State> {
     this.state = {
       title: integration.name,
       botEndpointUrl: configData.botEndpointUrl,
+      botShowInitialMessage: configData.botShowInitialMessage,
       brandId: integration.brandId || '',
       languageCode,
       channelIds: channels.map(item => item._id) || [],
@@ -167,6 +170,7 @@ class CreateMessenger extends React.Component<Props, State> {
     const {
       title,
       botEndpointUrl,
+      botShowInitialMessage,
       brandId,
       languageCode,
       channelIds,
@@ -203,6 +207,7 @@ class CreateMessenger extends React.Component<Props, State> {
       languageCode: this.state.languageCode,
       messengerData: {
         botEndpointUrl,
+        botShowInitialMessage,
         notifyCustomer: this.state.notifyCustomer,
         availabilityMethod: this.state.availabilityMethod,
         isOnline: this.state.isOnline,
@@ -267,6 +272,7 @@ class CreateMessenger extends React.Component<Props, State> {
     const {
       title,
       botEndpointUrl,
+      botShowInitialMessage,
       supporterIds,
       isOnline,
       availabilityMethod,
@@ -390,6 +396,7 @@ class CreateMessenger extends React.Component<Props, State> {
                 <Connection
                   title={title}
                   botEndpointUrl={botEndpointUrl}
+                  botShowInitialMessage={botShowInitialMessage}
                   channelIds={channelIds}
                   brandId={brandId}
                   onChange={this.onChange}

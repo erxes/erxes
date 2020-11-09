@@ -98,6 +98,7 @@ export interface IIntegrationMessengerDataMessagesItem {
 
 export interface IIntegrationMessengerData {
   botEndpointUrl?: string;
+  botShowInitialMessage?: boolean;
   supporterIds: string[];
   notifyCustomer: boolean;
   knowledgeBaseTopicId: string;

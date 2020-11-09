@@ -20,6 +20,7 @@ describe('Test products mutations', () => {
     $categoryId: String,
     $sku: String
     $code: String
+    $attachment: AttachmentInput
   `;
 
   const commonParams = `
@@ -29,6 +30,7 @@ describe('Test products mutations', () => {
     categoryId: $categoryId
     sku: $sku
     code: $code
+    attachment: $attachment
   `;
 
   const commonCategoryParamDefs = `
@@ -87,6 +89,12 @@ describe('Test products mutations', () => {
           description
           sku
           code
+          attachment {
+            url
+            name
+            type
+            size
+          }
         }
       }
     `;
@@ -122,6 +130,12 @@ describe('Test products mutations', () => {
           description
           sku
           code
+          attachment {
+            url
+            name
+            type
+            size
+          }
         }
       }
     `;

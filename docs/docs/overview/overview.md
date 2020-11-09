@@ -5,9 +5,9 @@ title: Overview
 
 Erxes helps you attract and engage more customers while giving you high lead conversion. With erxes, all your marketing, sales and customer service tools are merged into one platform for greater output.
 
-We offers an all-in-one messaging platform for teams and individuals to take care of their customers, from leads, to engagement, and support. And the best part is that erxes is an Open (Source) platform.
+Erxes offers an all-in-one messaging platform for teams and individuals to take care of their customers, from leads, to engagement, and support. And the best part is that erxes is an Open (Source) platform.
 
-Thousands of organizations use erxes around the world in 7 languages within its features.
+Thousands of organizations use erxes around the world in 7 languages.
 
 ---
 

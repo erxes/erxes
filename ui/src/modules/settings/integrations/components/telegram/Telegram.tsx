@@ -58,7 +58,7 @@ class Telegram extends React.Component<Props> {
         </FormGroup>
 
         <a
-          href="https://docs.erxes.io/administrator/system-config#telegram"
+          href="https://erxes.org/administrator/system-config#telegram"
           target="_blank"
           rel="noopener noreferrer"
         >

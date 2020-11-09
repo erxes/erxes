@@ -5,7 +5,8 @@ import {
   IVisitorContact
 } from '../db/models/definitions/customers';
 import { debugBase, debugExternalApi } from '../debuggers';
-import { getEnv, getSubServiceDomain, sendRequest } from './utils';
+import memoryStorage from '../inmemoryStorage';
+import { getEnv, sendRequest } from './utils';
 
 export const validateSingle = async (contact: IVisitorContact) => {
   const EMAIL_VERIFIER_ENDPOINT = getEnv({
@@ -14,10 +15,9 @@ export const validateSingle = async (contact: IVisitorContact) => {
   });
 
   const { email, phone } = contact;
+  const hostname = await memoryStorage().get('hostname');
 
   let body = {};
-
-  const hostname = getSubServiceDomain({ name: 'API_DOMAIN' });
 
   phone ? (body = { phone, hostname }) : (body = { email, hostname });
 
@@ -58,12 +58,12 @@ export const updateContactValidationStatus = async (
 };
 
 export const validateBulk = async (verificationType: string) => {
-  const hostname = getSubServiceDomain({ name: 'API_DOMAIN' });
-
   const EMAIL_VERIFIER_ENDPOINT = getEnv({
     name: 'EMAIL_VERIFIER_ENDPOINT',
     defaultValue: ''
   });
+
+  const hostname = await memoryStorage().get('hostname');
 
   if (verificationType === 'email') {
     const emails: Array<{}> = [];
